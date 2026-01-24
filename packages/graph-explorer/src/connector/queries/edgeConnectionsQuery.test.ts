@@ -18,7 +18,7 @@ describe("edgeConnectionsQuery", () => {
     state.applyTo(store);
 
     const fetchEdgeConnectionsSpy = vi.spyOn(explorer, "fetchEdgeConnections");
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(edgeConnectionsQuery([]));
 
@@ -41,7 +41,7 @@ describe("edgeConnectionsQuery", () => {
     const edge = createTestableEdge().withSource(source).withTarget(target);
     explorer.addTestableEdge(edge);
 
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(
       edgeConnectionsQuery([edge.type]),
@@ -66,7 +66,7 @@ describe("edgeConnectionsQuery", () => {
     const edge = createTestableEdge();
     explorer.addTestableEdge(edge);
 
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(
       edgeConnectionsQuery([createEdgeType("nonexistent")]),
@@ -85,7 +85,7 @@ describe("edgeConnectionsQuery", () => {
       new Error("Network error"),
     );
 
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
 
     await expect(
       queryClient.fetchQuery(edgeConnectionsQuery([createEdgeType("test")])),
@@ -117,7 +117,7 @@ describe("edgeConnectionsQuery", () => {
     explorer.addTestableEdge(edge1);
     explorer.addTestableEdge(edge2);
 
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(
       edgeConnectionsQuery([edge1.type, edge2.type]),
@@ -139,7 +139,7 @@ describe("edgeConnectionsQuery", () => {
     const edge = createTestableEdge().withSource(source).withTarget(target);
     explorer.addTestableEdge(edge);
 
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
 
     await queryClient.fetchQuery(edgeConnectionsQuery([edge.type]));
 
@@ -175,7 +175,7 @@ describe("edgeConnectionsQuery", () => {
       .withTarget(initialTarget);
     explorer.addTestableEdge(initialEdge);
 
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
 
     // First query to populate edge connections
     await queryClient.fetchQuery(edgeConnectionsQuery([initialEdge.type]));
@@ -230,7 +230,7 @@ describe("edgeConnectionsQuery", () => {
     const edge = createTestableEdge().withSource(source).withTarget(target);
     explorer.addTestableEdge(edge);
 
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
 
     // First query to populate edge connections
     await queryClient.fetchQuery(edgeConnectionsQuery([edge.type]));

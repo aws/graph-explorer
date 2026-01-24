@@ -1,6 +1,6 @@
 import { createRandomInteger } from "@shared/utils/testing";
 
-import { getAppStore, schemaAtom } from "@/core";
+import { explorerForTestingAtom, getAppStore, schemaAtom } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import { createRandomVertexType, DbState, FakeExplorer } from "@/utils/testing";
 
@@ -16,7 +16,8 @@ describe("nodeCountByNodeTypeQuery", () => {
       .spyOn(explorer, "fetchVertexCountsByType")
       .mockResolvedValue({ total: expectedTotal });
 
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(
       nodeCountByNodeTypeQuery(vertexType),
@@ -46,7 +47,7 @@ describe("nodeCountByNodeTypeQuery", () => {
     const store = getAppStore();
     state.applyTo(store);
 
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
 
     await queryClient.fetchQuery(nodeCountByNodeTypeQuery(vertexType));
 
@@ -64,7 +65,8 @@ describe("nodeCountByNodeTypeQuery", () => {
       .spyOn(explorer, "fetchVertexCountsByType")
       .mockResolvedValue({ total: 0 });
 
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     await queryClient.fetchQuery(nodeCountByNodeTypeQuery(vertexType));
 
@@ -96,7 +98,8 @@ describe("nodeCountByNodeTypeQuery", () => {
       total: expectedTotal,
     });
 
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(
       nodeCountByNodeTypeQuery(vertexType),

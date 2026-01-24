@@ -6,6 +6,7 @@ import {
   type AppStore,
   configurationAtom,
   createVertexType,
+  explorerForTestingAtom,
   getAppStore,
   schemaAtom,
 } from "@/core";
@@ -37,6 +38,7 @@ describe("schemaSyncQuery", () => {
     store.set(configurationAtom, new Map([[config.id, config]]));
     store.set(activeConfigurationAtom, config.id);
     store.set(schemaAtom, new Map());
+    store.set(explorerForTestingAtom, explorer);
   });
 
   it("should fetch schema and update the store", async () => {
@@ -45,7 +47,7 @@ describe("schemaSyncQuery", () => {
     });
     explorer.addTestableVertex(vertex);
 
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(schemaSyncQuery());
 
@@ -64,7 +66,7 @@ describe("schemaSyncQuery", () => {
     const fakeNow = new Date("2025-06-15T12:00:00Z");
     vi.setSystemTime(fakeNow);
 
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
 
     await queryClient.fetchQuery(schemaSyncQuery());
 
@@ -98,7 +100,7 @@ describe("schemaSyncQuery", () => {
       edges: [],
     });
 
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
 
     await queryClient.fetchQuery(schemaSyncQuery());
 
@@ -109,7 +111,7 @@ describe("schemaSyncQuery", () => {
   });
 
   it("should return empty schema when no data exists", async () => {
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(schemaSyncQuery());
 
@@ -121,7 +123,7 @@ describe("schemaSyncQuery", () => {
     const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
     fetchSchemaSpy.mockRejectedValue(new Error("Network error"));
 
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
     queryClient.setDefaultOptions({
       ...queryClient.getDefaultOptions(),
       queries: { ...queryClient.getDefaultOptions().queries, retry: false },
@@ -156,7 +158,7 @@ describe("schemaSyncQuery", () => {
     const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
     fetchSchemaSpy.mockRejectedValue(new Error("Network error"));
 
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
     queryClient.setDefaultOptions({
       ...queryClient.getDefaultOptions(),
       queries: { ...queryClient.getDefaultOptions().queries, retry: false },
@@ -187,7 +189,7 @@ describe("schemaSyncQuery", () => {
     };
     fetchSchemaSpy.mockResolvedValue(mockSchema);
 
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
 
     await queryClient.fetchQuery(schemaSyncQuery());
 
@@ -202,7 +204,7 @@ describe("schemaSyncQuery", () => {
   it("should pass signal to explorer fetchSchema", async () => {
     const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
 
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
 
     await queryClient.fetchQuery(schemaSyncQuery());
 
@@ -228,7 +230,7 @@ describe("schemaSyncQuery", () => {
       },
     );
 
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
     queryClient.setDefaultOptions({
       ...queryClient.getDefaultOptions(),
       queries: { ...queryClient.getDefaultOptions().queries, retry: false },
@@ -248,7 +250,7 @@ describe("schemaSyncQuery", () => {
     explorer.addTestableVertex(vertex1);
     explorer.addTestableVertex(vertex2);
 
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(schemaSyncQuery());
 
@@ -273,7 +275,7 @@ describe("schemaSyncQuery", () => {
     };
     fetchSchemaSpy.mockResolvedValue(mockSchema);
 
-    const queryClient = createQueryClient({ explorer, store });
+    const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(schemaSyncQuery());
 

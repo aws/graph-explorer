@@ -1,3 +1,4 @@
+import { explorerForTestingAtom, getAppStore } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import {
   createTestableEdge,
@@ -15,14 +16,16 @@ import { patchEntityDetails } from "./patchEntityDetails";
 describe("patchEntityDetails", () => {
   it("should return empty array", async () => {
     const explorer = new FakeExplorer();
-    const client = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const client = createQueryClient();
     const result = await patchEntityDetails(client, []);
     expect(result).toStrictEqual([]);
   });
 
   it("should return given vertex with updated details", async () => {
     const explorer = new FakeExplorer();
-    const client = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const client = createQueryClient();
 
     const vertex = createTestableVertex();
     explorer.addTestableVertex(vertex);
@@ -36,7 +39,8 @@ describe("patchEntityDetails", () => {
 
   it("should return given edge with updated details", async () => {
     const explorer = new FakeExplorer();
-    const client = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const client = createQueryClient();
 
     const edge = createTestableEdge();
     explorer.addTestableEdge(edge);
@@ -48,7 +52,8 @@ describe("patchEntityDetails", () => {
 
   it("should do nothing with scalars", async () => {
     const explorer = new FakeExplorer();
-    const client = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const client = createQueryClient();
 
     const scalar = createResultScalar({ name: "scalar", value: 42 });
 
@@ -59,7 +64,8 @@ describe("patchEntityDetails", () => {
 
   it("should return patched entities", async () => {
     const explorer = new FakeExplorer();
-    const client = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const client = createQueryClient();
     const vertex = createTestableVertex();
     const edge = createTestableEdge();
     const scalar = createResultScalar({ name: "scalar", value: 42 });
@@ -81,7 +87,8 @@ describe("patchEntityDetails", () => {
 
   it("should patch a simple bundle with scalars", async () => {
     const explorer = new FakeExplorer();
-    const client = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const client = createQueryClient();
 
     const scalar1 = createResultScalar({ name: "name", value: "John" });
     const scalar2 = createResultScalar({ name: "age", value: 25 });
@@ -102,7 +109,8 @@ describe("patchEntityDetails", () => {
 
   it("should patch a bundle with vertices and edges", async () => {
     const explorer = new FakeExplorer();
-    const client = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const client = createQueryClient();
 
     const vertex = createTestableVertex();
     const edge = createTestableEdge();
@@ -137,7 +145,8 @@ describe("patchEntityDetails", () => {
 
   it("should patch nested bundles", async () => {
     const explorer = new FakeExplorer();
-    const client = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const client = createQueryClient();
 
     const vertex = createTestableVertex();
     explorer.addTestableVertex(vertex);
@@ -181,7 +190,8 @@ describe("patchEntityDetails", () => {
 
   it("should patch empty bundle", async () => {
     const explorer = new FakeExplorer();
-    const client = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const client = createQueryClient();
 
     const bundle = createResultBundle({
       name: "EmptyBundle",
@@ -200,7 +210,8 @@ describe("patchEntityDetails", () => {
 
   it("should patch bundle without name", async () => {
     const explorer = new FakeExplorer();
-    const client = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const client = createQueryClient();
 
     const vertex = createTestableVertex();
     explorer.addTestableVertex(vertex);

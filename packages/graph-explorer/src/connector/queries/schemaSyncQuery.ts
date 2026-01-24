@@ -2,10 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { atom } from "jotai";
 
 import { activeConfigurationAtom, schemaAtom } from "@/core";
-import {
-  activeSchemaSelector,
-  updateSchemaPrefixes,
-} from "@/core/StateProvider/schema";
+import { updateSchemaPrefixes } from "@/core/StateProvider/schema";
 
 import type { SchemaResponse } from "../useGEFetchTypes";
 
