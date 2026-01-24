@@ -1,7 +1,7 @@
 import { useIsFetching, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { schemaSyncQuery } from "@/connector";
-import { useActiveSchema } from "@/core";
+import { useMaybeActiveSchema } from "@/core";
 import { logger } from "@/utils";
 
 export function useIsSyncing() {
@@ -17,18 +17,11 @@ export function useCancelSchemaSync() {
 }
 
 export function useSchemaSync() {
-  const schema = useActiveSchema();
-
-  // Check if the schema has ever been properly synced before providing initial data
-  const initialData =
-    schema && schema.lastUpdate && schema.triedToSync ? schema : undefined;
+  const schema = useMaybeActiveSchema();
 
   const query = useQuery({
     ...schemaSyncQuery(),
-    initialData: initialData,
-    enabled: !initialData || schema?.lastSyncFail === true,
+    initialData: schema,
   });
-  const { data, isFetching, error, refetch } = query;
-
-  return { refetch, data, error, isFetching };
+  return query;
 }
