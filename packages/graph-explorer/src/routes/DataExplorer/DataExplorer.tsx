@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 
 import {
@@ -92,7 +92,6 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
   const { pageIndex, pageSize, onPageIndexChange, onPageSizeChange } =
     usePagingOptions();
 
-  const tableRef = useRef<TabularInstance<DisplayVertex> | null>(null);
   const [tableInstance, setTableInstance] =
     useState<TabularInstance<DisplayVertex> | null>(null);
   const columns = useColumnDefinitions(vertexType);
@@ -157,7 +156,6 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
             </PanelHeader>
             <Tabular
               ref={instance => {
-                tableRef.current = instance;
                 setTableInstance(instance);
               }}
               defaultColumn={DEFAULT_COLUMN}
