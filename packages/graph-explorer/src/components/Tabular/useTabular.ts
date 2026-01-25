@@ -198,7 +198,7 @@ export interface TabularOptions<T extends object> {
   /**
    * Enables sorting detection functionality, but does not automatically perform row sorting.
    */
-  manualSort?: boolean;
+  manualSorting?: boolean;
 
   /**
    * Must be memoized. An array of filters.
@@ -320,7 +320,7 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
     initialColumnOrder,
     initialHiddenColumns,
     manualFilters,
-    manualSort,
+    manualSorting,
     ...restOptions
   } = options;
 
@@ -406,7 +406,7 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
       defaultColumn,
       disableSortBy: disableSorting,
       disableMultiSort: disableMultiSorting,
-      manualSortBy: manualSort,
+      manualSortBy: manualSorting,
       manualFilters,
       columns: useDeepMemo(
         () => columns.map(column => columnDefinitionToColumn(column)),
