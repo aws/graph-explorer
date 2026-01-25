@@ -196,6 +196,11 @@ export interface TabularOptions<T extends object> {
   disableSortRemove?: boolean;
 
   /**
+   * Enables sorting detection functionality, but does not automatically perform row sorting.
+   */
+  manualSort?: boolean;
+
+  /**
    * Must be memoized. An array of filters.
    */
   initialFilters?: Array<{ id: IdType<T>; value: unknown }>;
@@ -219,6 +224,11 @@ export interface TabularOptions<T extends object> {
    * The filters state will automatically reset if data is changed.
    */
   autoResetFilters?: boolean;
+
+  /**
+   * Enables filter detection functionality, but does not automatically perform row filtering.
+   */
+  manualFilters?: boolean;
 
   /**
    * Disables the pagination.
@@ -309,6 +319,8 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
     toggleAllRowsSelected,
     initialColumnOrder,
     initialHiddenColumns,
+    manualFilters,
+    manualSort,
     ...restOptions
   } = options;
 
@@ -394,6 +406,8 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
       defaultColumn,
       disableSortBy: disableSorting,
       disableMultiSort: disableMultiSorting,
+      manualSortBy: manualSort,
+      manualFilters,
       columns: useDeepMemo(
         () => columns.map(column => columnDefinitionToColumn(column)),
         [columns],
