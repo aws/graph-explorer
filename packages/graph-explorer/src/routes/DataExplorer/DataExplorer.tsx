@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 
 import {
@@ -52,6 +52,7 @@ import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import useUpdateVertexTypeCounts from "@/hooks/useUpdateVertexTypeCounts";
+import { logger } from "@/utils";
 import {
   LABELS,
   RESERVED_ID_PROPERTY,
@@ -91,7 +92,8 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
   const { pageIndex, pageSize, onPageIndexChange, onPageSizeChange } =
     usePagingOptions();
 
-  const tableRef = useRef<TabularInstance<DisplayVertex> | null>(null);
+  const [tableInstance, setTableInstance] =
+    useState<TabularInstance<DisplayVertex> | null>();
   const columns = useColumnDefinitions(vertexType);
 
   const query = useDataExplorerQuery(vertexType, pageSize, pageIndex);
@@ -113,6 +115,14 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
       replace: true,
     });
   };
+
+  useEffect(() => {
+    logger.log(tableInstance?.filters);
+  }, [tableInstance?.filters]);
+
+  useEffect(() => {
+    logger.log(tableInstance?.sorts);
+  }, [tableInstance?.sorts]);
 
   return (
     <Workspace>
@@ -144,7 +154,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
               <DisplayNameAndDescriptionOptions vertexType={vertexType} />
             </PanelHeader>
             <Tabular
-              ref={tableRef}
+              ref={instance => setTableInstance(instance)}
               defaultColumn={DEFAULT_COLUMN}
               data={displayVertices}
               columns={columns}
@@ -152,8 +162,8 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
               pageIndex={pageIndex}
               pageSize={pageSize}
               disablePagination={true}
-              disableFilters={true}
-              disableSorting={true}
+              manualFilters={true}
+              manualSorting={true}
             >
               <TabularEmptyBodyControls>
                 {query.isPending ? (
