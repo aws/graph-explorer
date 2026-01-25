@@ -163,19 +163,21 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
               />
               Keep filtering and sorting
             </Label>
-            <Label className="text-text-primary">
-              <Checkbox
-                aria-label="Only current page"
-                checked={options["only-page"]}
-                onCheckedChange={isSelected => {
-                  setOptions(prev => ({
-                    ...prev,
-                    "only-page": Boolean(isSelected),
-                  }));
-                }}
-              />
-              Only current page
-            </Label>
+            {forceOnlyPage ? null : (
+              <Label className="text-text-primary">
+                <Checkbox
+                  aria-label="Only current page"
+                  checked={options["only-page"]}
+                  onCheckedChange={isSelected => {
+                    setOptions(prev => ({
+                      ...prev,
+                      "only-page": Boolean(isSelected),
+                    }));
+                  }}
+                />
+                Only current page
+              </Label>
+            )}
           </div>
         </div>
       )}
