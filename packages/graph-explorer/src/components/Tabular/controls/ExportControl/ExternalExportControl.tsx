@@ -24,13 +24,13 @@ const EXCLUDED_COLUMN_IDS = ["__send_to_explorer"];
 
 type ExportControlProps<T extends Record<string, unknown>> = {
   instance: TabularInstance<T>;
-  hideIncludeFiltersCheckbox?: boolean;
+  hideOptions?: boolean;
   forceOnlyPage?: boolean;
 };
 
 export function ExternalExportControl<T extends Record<string, unknown>>({
   instance,
-  hideIncludeFiltersCheckbox,
+  hideOptions,
   forceOnlyPage,
 }: ExportControlProps<T>) {
   const [opened, setOpened] = useState(false);
@@ -49,7 +49,7 @@ export function ExternalExportControl<T extends Record<string, unknown>>({
           instance={instance}
           onClose={() => setOpened(false)}
           forceOnlyPage={forceOnlyPage}
-          hideIncludeFiltersCheckbox={hideIncludeFiltersCheckbox}
+          hideOptions={hideOptions}
         />
       </PopoverContent>
     </Popover>
@@ -60,10 +60,9 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
   instance,
   onClose,
   forceOnlyPage = false,
-  hideIncludeFiltersCheckbox = false,
+  hideOptions = false,
 }: ExportControlProps<T> & {
   onClose: () => void;
-  forceOnlyPage?: boolean;
 }) {
   const { rows, data, page, columns, columnOrder, visibleColumns } = instance;
   const [format, setFormat] = useState("csv");
@@ -84,9 +83,8 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
   );
 
   const onExport = () => {
-    // Filter down to only the columns that are selected, excluding special columns
+    // Filter down to only the columns that are selected
     const columnsToExport = Object.entries(selectedColumns)
-      .filter(([id]) => !EXCLUDED_COLUMN_IDS.includes(id))
       .filter(([, isSelected]) => isSelected)
       .map(([id]) => columns.find(c => c.instance.id === id))
       .filter(c => c != null);
@@ -148,10 +146,10 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
           )}
         </div>
       </div>
-      <div className="space-y-3">
-        <div className="text-base font-medium">Options</div>
-        <div className="flex flex-col gap-2">
-          {hideIncludeFiltersCheckbox ? null : (
+      {hideOptions ? null : (
+        <div className="space-y-3">
+          <div className="text-base font-medium">Options</div>
+          <div className="flex flex-col gap-2">
             <Label className="text-text-primary">
               <Checkbox
                 aria-label="Keep filtering and sorting"
@@ -165,22 +163,22 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
               />
               Keep filtering and sorting
             </Label>
-          )}
-          <Label className="text-text-primary">
-            <Checkbox
-              aria-label="Only current page"
-              checked={options["only-page"]}
-              onCheckedChange={isSelected => {
-                setOptions(prev => ({
-                  ...prev,
-                  "only-page": Boolean(isSelected),
-                }));
-              }}
-            />
-            Only current page
-          </Label>
+            <Label className="text-text-primary">
+              <Checkbox
+                aria-label="Only current page"
+                checked={options["only-page"]}
+                onCheckedChange={isSelected => {
+                  setOptions(prev => ({
+                    ...prev,
+                    "only-page": Boolean(isSelected),
+                  }));
+                }}
+              />
+              Only current page
+            </Label>
+          </div>
         </div>
-      </div>
+      )}
       <div className="space-y-1">
         <Label>Format</Label>
         <SelectField

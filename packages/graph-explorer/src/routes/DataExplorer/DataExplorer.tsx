@@ -149,7 +149,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
                 {tableInstance ? (
                   <ExternalExportControl
                     instance={tableInstance}
-                    hideIncludeFiltersCheckbox
+                    hideOptions
                     forceOnlyPage
                   />
                 ) : null}
