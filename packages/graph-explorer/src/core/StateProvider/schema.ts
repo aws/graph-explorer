@@ -81,9 +81,8 @@ export const maybeActiveSchemaAtom = atom(get => {
   if (!id) {
     return undefined;
   }
-  const allSchemas = get(schemaAtom);
-  const activeSchema = allSchemas.get(id);
-  return activeSchema;
+
+  return get(schemaAtom).get(id);
 });
 
 export const activeSchemaAtom = atom(get => {

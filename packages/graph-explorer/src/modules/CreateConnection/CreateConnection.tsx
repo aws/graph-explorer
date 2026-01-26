@@ -87,8 +87,8 @@ function mapToConnectionForm(
   }
 
   const result: ConnectionForm = {
-    ...(existingConfig.connection || {}),
-    name: existingConfig.displayLabel || existingConfig.id,
+    ...(existingConfig.connection ?? {}),
+    name: existingConfig.displayLabel ?? existingConfig.id,
     fetchTimeoutEnabled: Boolean(existingConfig.connection?.fetchTimeoutMs),
     nodeExpansionLimitEnabled: Boolean(
       existingConfig.connection?.nodeExpansionLimit,
