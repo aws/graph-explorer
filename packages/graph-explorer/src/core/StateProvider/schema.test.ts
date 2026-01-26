@@ -1,14 +1,18 @@
 import { createArray, createRandomName } from "@shared/utils/testing";
+import { useAtomValue } from "jotai";
 
+import { activeConfigurationAtom, configurationAtom, schemaAtom } from "@/core";
 import { LABELS } from "@/utils";
 import {
   createRandomEdge,
   createRandomEdgeConnection,
   createRandomEntities,
+  createRandomRawConfiguration,
   createRandomSchema,
   createRandomVertex,
   createRandomVertexType,
   DbState,
+  renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
 
@@ -28,11 +32,14 @@ import {
 import {
   mapEdgeToTypeConfig,
   mapVertexToTypeConfigs,
+  maybeActiveSchemaAtom,
   shouldUpdateSchemaFromEntities,
   updateSchemaFromEntities,
   updateSchemaPrefixes,
+  useActiveSchema,
   useGraphSchema,
   useHasActiveSchema,
+  useMaybeActiveSchema,
 } from "./schema";
 
 describe("schema", () => {
@@ -530,5 +537,132 @@ describe("useHasActiveSchema", () => {
     const { result } = renderHookWithState(() => useHasActiveSchema(), state);
 
     expect(result.current).toBe(true);
+  });
+});
+
+describe("maybeActiveSchemaAtom", () => {
+  it("returns undefined when no active configuration exists", () => {
+    const { result } = renderHookWithJotai(() =>
+      useAtomValue(maybeActiveSchemaAtom),
+    );
+
+    expect(result.current).toBeUndefined();
+  });
+
+  it("returns undefined when active config has no schema", () => {
+    const config = createRandomRawConfiguration();
+
+    const { result } = renderHookWithJotai(
+      () => useAtomValue(maybeActiveSchemaAtom),
+      store => {
+        store.set(configurationAtom, new Map([[config.id, config]]));
+        store.set(activeConfigurationAtom, config.id);
+        store.set(schemaAtom, new Map());
+      },
+    );
+
+    expect(result.current).toBeUndefined();
+  });
+
+  it("returns the schema when one exists", () => {
+    const config = createRandomRawConfiguration();
+    const schema = createRandomSchema();
+
+    const { result } = renderHookWithJotai(
+      () => useAtomValue(maybeActiveSchemaAtom),
+      store => {
+        store.set(configurationAtom, new Map([[config.id, config]]));
+        store.set(activeConfigurationAtom, config.id);
+        store.set(schemaAtom, new Map([[config.id, schema]]));
+      },
+    );
+
+    expect(result.current).toStrictEqual(schema);
+  });
+});
+
+describe("useMaybeActiveSchema", () => {
+  it("returns undefined when no active configuration exists", () => {
+    const { result } = renderHookWithJotai(() => useMaybeActiveSchema());
+
+    expect(result.current).toBeUndefined();
+  });
+
+  it("returns undefined when active config has no schema", () => {
+    const config = createRandomRawConfiguration();
+
+    const { result } = renderHookWithJotai(
+      () => useMaybeActiveSchema(),
+      store => {
+        store.set(configurationAtom, new Map([[config.id, config]]));
+        store.set(activeConfigurationAtom, config.id);
+        store.set(schemaAtom, new Map());
+      },
+    );
+
+    expect(result.current).toBeUndefined();
+  });
+
+  it("returns the schema when one exists", () => {
+    const config = createRandomRawConfiguration();
+    const schema = createRandomSchema();
+
+    const { result } = renderHookWithJotai(
+      () => useMaybeActiveSchema(),
+      store => {
+        store.set(configurationAtom, new Map([[config.id, config]]));
+        store.set(activeConfigurationAtom, config.id);
+        store.set(schemaAtom, new Map([[config.id, schema]]));
+      },
+    );
+
+    expect(result.current).toStrictEqual(schema);
+  });
+});
+
+describe("useActiveSchema", () => {
+  it("returns empty schema when no active configuration exists", () => {
+    const { result } = renderHookWithJotai(() => useActiveSchema());
+
+    expect(result.current).toStrictEqual({
+      vertices: [],
+      edges: [],
+      prefixes: [],
+    });
+  });
+
+  it("returns empty schema when active config has no schema", () => {
+    const config = createRandomRawConfiguration();
+
+    const { result } = renderHookWithJotai(
+      () => useActiveSchema(),
+      store => {
+        store.set(configurationAtom, new Map([[config.id, config]]));
+        store.set(activeConfigurationAtom, config.id);
+        store.set(schemaAtom, new Map());
+      },
+    );
+
+    expect(result.current).toStrictEqual({
+      vertices: [],
+      edges: [],
+      prefixes: [],
+    });
+  });
+
+  it("returns the schema when one exists", () => {
+    const config = createRandomRawConfiguration();
+    const schema = createRandomSchema();
+
+    const { result } = renderHookWithJotai(
+      () => useActiveSchema(),
+      store => {
+        store.set(configurationAtom, new Map([[config.id, config]]));
+        store.set(activeConfigurationAtom, config.id);
+        store.set(schemaAtom, new Map([[config.id, schema]]));
+      },
+    );
+
+    expect(result.current).toStrictEqual(schema);
   });
 });

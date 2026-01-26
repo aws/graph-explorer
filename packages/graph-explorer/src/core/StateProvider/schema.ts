@@ -57,7 +57,7 @@ export type SchemaStorageModel = {
   totalEdges?: number;
 };
 
-/** Grabs a specific schema out of the map. */
+/** Grabs a specific schema out of the map, or returns the empty schema */
 const schemaByIdAtom = atomFamily((id: ConfigurationId | null) => {
   if (!id) {
     return atom(emptySchema);
@@ -74,6 +74,16 @@ const emptySchema: SchemaStorageModel = {
   edges: [],
   prefixes: [],
 };
+
+/** Gets the active schema from storage, or undefined if one doesn't exist. */
+export const maybeActiveSchemaAtom = atom(get => {
+  const id = get(activeConfigurationAtom);
+  if (!id) {
+    return undefined;
+  }
+
+  return get(schemaAtom).get(id);
+});
 
 export const activeSchemaAtom = atom(get => {
   const id = get(activeConfigurationAtom);
@@ -94,6 +104,11 @@ export function useHasActiveSchema() {
 /** Gets the stored active schema or a default empty schema */
 export function useActiveSchema(): SchemaStorageModel {
   return useDeferredValue(useAtomValue(activeSchemaAtom));
+}
+
+/** Gets the stored active schema or a default empty schema */
+export function useMaybeActiveSchema(): SchemaStorageModel | undefined {
+  return useDeferredValue(useAtomValue(maybeActiveSchemaAtom));
 }
 
 /** Gets the stored prefixes from the active schema. */
