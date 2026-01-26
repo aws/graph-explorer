@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useRef } from "react";
+import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 
 import {
@@ -34,6 +34,7 @@ import {
   TabularFooterControls,
   type TabularInstance,
 } from "@/components/Tabular";
+import { ExternalExportControl } from "@/components/Tabular/controls/ExportControl/ExternalExportControl";
 import Tabular from "@/components/Tabular/Tabular";
 import {
   type KeywordSearchRequest,
@@ -94,7 +95,8 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
   const { pageIndex, pageSize, onPageIndexChange, onPageSizeChange } =
     usePagingOptions();
 
-  const tableRef = useRef<TabularInstance<DisplayVertex> | null>(null);
+  const [tableInstance, setTableInstance] =
+    useState<TabularInstance<DisplayVertex> | null>(null);
   const columns = useColumnDefinitions(vertexType);
 
   const query = useDataExplorerQuery(vertexType, pageSize, pageIndex);
@@ -144,10 +146,21 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
                 label={t("node-type")}
                 labelPlacement="inner"
               />
-              <DisplayNameAndDescriptionOptions vertexType={vertexType} />
+              <div className="flex items-center gap-2">
+                <DisplayNameAndDescriptionOptions vertexType={vertexType} />
+                {tableInstance ? (
+                  <ExternalExportControl
+                    instance={tableInstance}
+                    hideOptions
+                    forceOnlyPage
+                  />
+                ) : null}
+              </div>
             </PanelHeader>
             <Tabular
-              ref={tableRef}
+              ref={instance => {
+                setTableInstance(instance);
+              }}
               defaultColumn={DEFAULT_COLUMN}
               data={displayVertices}
               columns={columns}

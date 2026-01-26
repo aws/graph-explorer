@@ -20,12 +20,18 @@ import { toCsvFileData, toJsonFileData } from "@/utils/fileData";
 import { transformToCsv } from "./transformToCsv";
 import { transformToJson } from "./transformToJson";
 
+const EXCLUDED_COLUMN_IDS = ["__send_to_explorer"];
+
 type ExportControlProps<T extends Record<string, unknown>> = {
   instance: TabularInstance<T>;
+  hideOptions?: boolean;
+  forceOnlyPage?: boolean;
 };
 
 export function ExternalExportControl<T extends Record<string, unknown>>({
   instance,
+  hideOptions,
+  forceOnlyPage,
 }: ExportControlProps<T>) {
   const [opened, setOpened] = useState(false);
 
@@ -42,6 +48,8 @@ export function ExternalExportControl<T extends Record<string, unknown>>({
         <ExportOptionsModal
           instance={instance}
           onClose={() => setOpened(false)}
+          forceOnlyPage={forceOnlyPage}
+          hideOptions={hideOptions}
         />
       </PopoverContent>
     </Popover>
@@ -51,13 +59,24 @@ export function ExternalExportControl<T extends Record<string, unknown>>({
 function ExportOptionsModal<T extends Record<string, unknown>>({
   instance,
   onClose,
-}: ExportControlProps<T> & { onClose: () => void }) {
+  forceOnlyPage = false,
+  hideOptions = false,
+}: ExportControlProps<T> & {
+  onClose: () => void;
+}) {
   const { rows, data, page, columns, columnOrder, visibleColumns } = instance;
   const [format, setFormat] = useState("csv");
   const [name, setName] = useState<string>("");
-  const [options, setOptions] = useState<Record<string, boolean>>({});
+  const [options, setOptions] = useState<Record<string, boolean>>(
+    forceOnlyPage ? { "only-page": true } : {},
+  );
+
+  const exportableColumnOrder = columnOrder.filter(
+    col => !EXCLUDED_COLUMN_IDS.includes(col),
+  );
+
   const [selectedColumns, setSelectedColumns] = useState(
-    columnOrder.reduce<Record<string, boolean>>((init, col) => {
+    exportableColumnOrder.reduce<Record<string, boolean>>((init, col) => {
       init[col] = visibleColumns[col];
       return init;
     }, {}),
@@ -107,7 +126,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
       <div className="space-y-3">
         <div className="text-base font-medium">Export columns</div>
         <div className="flex flex-col gap-2">
-          {columnOrder.map(columnId =>
+          {exportableColumnOrder.map(columnId =>
             !visibleColumns[columnId] ? null : (
               <Label key={columnId} className="text-text-primary">
                 <Checkbox
@@ -127,37 +146,41 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
           )}
         </div>
       </div>
-      <div className="space-y-3">
-        <div className="text-base font-medium">Options</div>
-        <div className="flex flex-col gap-2">
-          <Label className="text-text-primary">
-            <Checkbox
-              aria-label="Keep filtering and sorting"
-              checked={options["include-filters"]}
-              onCheckedChange={isSelected => {
-                setOptions(prev => ({
-                  ...prev,
-                  "include-filters": Boolean(isSelected),
-                }));
-              }}
-            />
-            Keep filtering and sorting
-          </Label>
-          <Label className="text-text-primary">
-            <Checkbox
-              aria-label="Only current page"
-              checked={options["only-page"]}
-              onCheckedChange={isSelected => {
-                setOptions(prev => ({
-                  ...prev,
-                  "only-page": Boolean(isSelected),
-                }));
-              }}
-            />
-            Only current page
-          </Label>
+      {hideOptions ? null : (
+        <div className="space-y-3">
+          <div className="text-base font-medium">Options</div>
+          <div className="flex flex-col gap-2">
+            <Label className="text-text-primary">
+              <Checkbox
+                aria-label="Keep filtering and sorting"
+                checked={options["include-filters"]}
+                onCheckedChange={isSelected => {
+                  setOptions(prev => ({
+                    ...prev,
+                    "include-filters": Boolean(isSelected),
+                  }));
+                }}
+              />
+              Keep filtering and sorting
+            </Label>
+            {forceOnlyPage ? null : (
+              <Label className="text-text-primary">
+                <Checkbox
+                  aria-label="Only current page"
+                  checked={options["only-page"]}
+                  onCheckedChange={isSelected => {
+                    setOptions(prev => ({
+                      ...prev,
+                      "only-page": Boolean(isSelected),
+                    }));
+                  }}
+                />
+                Only current page
+              </Label>
+            )}
+          </div>
         </div>
-      </div>
+      )}
       <div className="space-y-1">
         <Label>Format</Label>
         <SelectField
