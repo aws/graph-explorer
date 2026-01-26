@@ -1,11 +1,8 @@
 import { useIsFetching, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
 
 import { schemaSyncQuery } from "@/connector";
-import { useResolvedConfig } from "@/core/ConfigurationProvider";
+import { useActiveSchema } from "@/core";
 import { logger } from "@/utils";
-
-import useUpdateSchema from "./useUpdateSchema";
 
 export function useIsSyncing() {
   return useIsFetching({ queryKey: ["schema"] }) > 0;
@@ -20,29 +17,18 @@ export function useCancelSchemaSync() {
 }
 
 export function useSchemaSync() {
-  const config = useResolvedConfig();
-
-  const { replaceSchema, setSyncFailure } = useUpdateSchema();
+  const schema = useActiveSchema();
 
   // Check if the schema has ever been properly synced before providing initial data
   const initialData =
-    config.schema && config.schema.lastUpdate && config.schema.triedToSync
-      ? config.schema
-      : undefined;
+    schema && schema.lastUpdate && schema.triedToSync ? schema : undefined;
 
   const query = useQuery({
-    ...schemaSyncQuery(replaceSchema),
+    ...schemaSyncQuery(),
     initialData: initialData,
-    enabled: !initialData || config.schema?.lastSyncFail === true,
+    enabled: !initialData || schema?.lastSyncFail === true,
   });
-  const { data, isFetching, status, error, refetch } = query;
-
-  // If the schema sync fails, set the schema to a failed state
-  useEffect(() => {
-    if (status === "error") {
-      setSyncFailure();
-    }
-  }, [setSyncFailure, status]);
+  const { data, isFetching, error, refetch } = query;
 
   return { refetch, data, error, isFetching };
 }

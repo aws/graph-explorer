@@ -1,10 +1,8 @@
 import { type DefaultOptions, useQueryClient } from "@tanstack/react-query";
-import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 
 import { logger } from "@/utils";
 
-import { explorerAtom } from "./connector";
 import { createDefaultOptions } from "./queryClient";
 import { getAppStore } from "./StateProvider/appStore";
 
@@ -15,14 +13,10 @@ import { getAppStore } from "./StateProvider/appStore";
  */
 export function ExplorerInjector() {
   const queryClient = useQueryClient();
-  const explorer = useAtomValue(explorerAtom);
   const store = getAppStore();
 
   // Only crate a new defaultOptions when explorer or store changes
-  const defaultOptions = useMemo(
-    () => createDefaultOptions(explorer, store),
-    [explorer, store],
-  );
+  const defaultOptions = useMemo(() => createDefaultOptions(store), [store]);
 
   // Start with null to ensure first render sets the default options properly
   const [prevDefaultOptions, setPrevDefaultOptions] =

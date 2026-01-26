@@ -3,7 +3,13 @@ import type { QueryClient } from "@tanstack/react-query";
 import { createRandomName, createRecord } from "@shared/utils/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { createVertexType, type EdgeId, type VertexId } from "@/core";
+import {
+  createVertexType,
+  type EdgeId,
+  explorerForTestingAtom,
+  getAppStore,
+  type VertexId,
+} from "@/core";
 import { createQueryClient, type GraphExplorerMeta } from "@/core/queryClient";
 import {
   createRandomEntityAttribute,
@@ -31,7 +37,8 @@ describe("helpers", () => {
   let queryClient: QueryClient;
 
   beforeEach(() => {
-    queryClient = createQueryClient({ explorer: new FakeExplorer() });
+    getAppStore().set(explorerForTestingAtom, new FakeExplorer());
+    queryClient = createQueryClient();
   });
 
   function getCachedVertex(vertexId: VertexId) {
@@ -363,42 +370,39 @@ describe("helpers", () => {
   });
 
   describe("getExplorer", () => {
-    it("should return explorer from meta when available", () => {
-      const mockExplorer = {
-        ...emptyExplorer,
-        connection: {
-          ...emptyExplorer.connection,
-          url: "test-url",
-        },
-      };
+    it("should return explorer from store via meta", () => {
+      const mockExplorer = new FakeExplorer();
+      const store = getAppStore();
+      store.set(explorerForTestingAtom, mockExplorer);
 
-      const meta: GraphExplorerMeta = {
-        explorer: mockExplorer,
-      };
+      const meta: GraphExplorerMeta = { store };
 
       const result = getExplorer(meta);
       expect(result).toBe(mockExplorer);
     });
 
-    it("should return emptyExplorer when meta is undefined", () => {
-      const result = getExplorer(undefined);
+    it("should return emptyExplorer when no explorer is set in store", () => {
+      const store = getAppStore();
+      store.set(explorerForTestingAtom, null);
+
+      const meta: GraphExplorerMeta = { store };
+
+      const result = getExplorer(meta);
       expect(result).toBe(emptyExplorer);
     });
 
-    it("should return emptyExplorer when meta has no explorer", () => {
+    it("should throw when meta is undefined", () => {
+      expect(() => getExplorer(undefined)).toThrow(
+        "No Jotai store found in the query client meta object",
+      );
+    });
+
+    it("should throw when meta has no store", () => {
       const meta: GraphExplorerMeta = {};
 
-      const result = getExplorer(meta);
-      expect(result).toBe(emptyExplorer);
-    });
-
-    it("should return emptyExplorer when explorer is null", () => {
-      const meta: GraphExplorerMeta = {
-        explorer: null as any,
-      };
-
-      const result = getExplorer(meta);
-      expect(result).toBe(emptyExplorer);
+      expect(() => getExplorer(meta)).toThrow(
+        "No Jotai store found in the query client meta object",
+      );
     });
   });
 });

@@ -437,6 +437,11 @@ styling, configuration, or type-only changes.
 
 ## Best Practices
 
+### Type Annotations
+
+- Use explicit type aliases instead of `ReturnType<typeof ...>` when available
+- Example: Use `AppStore` instead of `ReturnType<typeof getAppStore>`
+
 ### Data Isolation
 
 - Use random data for setup that doesn't affect test logic

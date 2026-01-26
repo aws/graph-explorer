@@ -1,32 +1,81 @@
 import { queryOptions } from "@tanstack/react-query";
+import { atom } from "jotai";
 
+import { activeConfigurationAtom, schemaAtom } from "@/core";
 import { updateSchemaPrefixes } from "@/core/StateProvider/schema";
+import { logger } from "@/utils";
 
 import type { SchemaResponse } from "../useGEFetchTypes";
 
-import { getExplorer } from "./helpers";
+import { getExplorer, getStore } from "./helpers";
 
 /**
  * Fetches the schema from the given explorer and updates the local cache with the new schema.
- * @param updateLocalCache The function to replace the schema in the cache.
- * @param explorer The explorer to use for fetching the schema.
  */
-export function schemaSyncQuery(
-  updateLocalCache: (schema: SchemaResponse) => void,
-) {
+export function schemaSyncQuery() {
   return queryOptions({
     queryKey: ["schema"],
     queryFn: async ({ signal, meta }) => {
       const explorer = getExplorer(meta);
-      let schema = await explorer.fetchSchema({ signal });
+      const store = getStore(meta);
 
-      // Update the prefixes for sparql connections
-      schema = updateSchemaPrefixes(schema);
+      try {
+        let schema = await explorer.fetchSchema({ signal });
 
-      // Update the schema in the cache
-      updateLocalCache(schema);
+        // Update the prefixes for sparql connections
+        schema = updateSchemaPrefixes(schema);
 
-      return schema;
+        // Update the schema in the cache
+        store.set(replaceSchemaAtom, schema);
+
+        return schema;
+      } catch (error: unknown) {
+        // If the schema sync fails, set the schema to a failed state
+        store.set(setSyncFailureAtom);
+        throw error;
+      }
     },
   });
 }
+
+/** Setter-only atom that replaces the stored schema with the given schema response. */
+const replaceSchemaAtom = atom(null, (get, set, schema: SchemaResponse) => {
+  const id = get(activeConfigurationAtom);
+  if (!id) {
+    logger.warn("Cannot update schema: no active configuration");
+    return;
+  }
+
+  set(schemaAtom, prev => {
+    const updated = new Map(prev);
+    updated.set(id, {
+      ...schema,
+      triedToSync: true,
+      lastUpdate: new Date(),
+      lastSyncFail: false,
+    });
+    return updated;
+  });
+});
+
+/** Setter-only atom that marks the schema sync as failed while preserving existing data. */
+const setSyncFailureAtom = atom(null, (get, set) => {
+  const id = get(activeConfigurationAtom);
+  if (!id) {
+    logger.warn("Cannot update schema: no active configuration");
+    return;
+  }
+
+  set(schemaAtom, prev => {
+    const updated = new Map(prev);
+    const existingSchema = updated.get(id);
+    updated.set(id, {
+      ...existingSchema,
+      vertices: existingSchema?.vertices ?? [],
+      edges: existingSchema?.edges ?? [],
+      triedToSync: true,
+      lastSyncFail: true,
+    });
+    return updated;
+  });
+});

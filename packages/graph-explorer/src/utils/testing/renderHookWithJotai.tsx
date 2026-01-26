@@ -33,7 +33,7 @@ export function renderHookWithState<TResult>(
   state.applyTo(store);
 
   // Create the query client using the mock explorer
-  const queryClient = createQueryClient({ explorer: state.explorer, store });
+  const queryClient = createQueryClient();
   const defaultOptions = queryClient.getDefaultOptions();
   queryClient.setDefaultOptions({
     ...defaultOptions,

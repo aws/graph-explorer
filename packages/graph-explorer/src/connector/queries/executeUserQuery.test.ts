@@ -1,4 +1,9 @@
-import { edgesAtom, getAppStore, nodesAtom } from "@/core";
+import {
+  edgesAtom,
+  explorerForTestingAtom,
+  getAppStore,
+  nodesAtom,
+} from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import {
   createTestableEdge,
@@ -12,7 +17,8 @@ import { executeUserQuery } from "./executeUserQuery";
 describe("executeUserQuery", () => {
   it("should execute a query with empty results", async () => {
     const explorer = new FakeExplorer();
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const rawQuerySpy = vi.spyOn(explorer, "rawQuery");
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
@@ -37,7 +43,8 @@ describe("executeUserQuery", () => {
 
   it("should execute a query with vertex results", async () => {
     const explorer = new FakeExplorer();
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const rawQuerySpy = vi.spyOn(explorer, "rawQuery");
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
@@ -67,7 +74,8 @@ describe("executeUserQuery", () => {
 
   it("should execute a query with vertex fragment results and fetch details", async () => {
     const explorer = new FakeExplorer();
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const rawQuerySpy = vi.spyOn(explorer, "rawQuery");
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
@@ -98,7 +106,8 @@ describe("executeUserQuery", () => {
 
   it("should execute a query with edge result and fetch vertex details", async () => {
     const explorer = new FakeExplorer();
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const rawQuerySpy = vi.spyOn(explorer, "rawQuery");
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
@@ -139,7 +148,8 @@ describe("executeUserQuery", () => {
 
   it("should execute a query with edge fragment result and fetch details", async () => {
     const explorer = new FakeExplorer();
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const rawQuerySpy = vi.spyOn(explorer, "rawQuery");
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
@@ -171,7 +181,8 @@ describe("executeUserQuery", () => {
 
   it("should throw error if details are not found", async () => {
     const explorer = new FakeExplorer();
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const rawQuerySpy = vi.spyOn(explorer, "rawQuery");
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
@@ -202,7 +213,8 @@ describe("executeUserQuery", () => {
 
   it("should execute a query and pass through scalars", async () => {
     const explorer = new FakeExplorer();
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const rawQuerySpy = vi.spyOn(explorer, "rawQuery");
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
@@ -254,7 +266,8 @@ describe("executeUserQuery", () => {
 
   it("should update nodesAtom when vertices are already in graph", async () => {
     const explorer = new FakeExplorer();
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const rawQuerySpy = vi.spyOn(explorer, "rawQuery");
 
@@ -288,7 +301,8 @@ describe("executeUserQuery", () => {
 
   it("should update edgesAtom when edges are already in graph", async () => {
     const explorer = new FakeExplorer();
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const rawQuerySpy = vi.spyOn(explorer, "rawQuery");
 
@@ -320,7 +334,8 @@ describe("executeUserQuery", () => {
 
   it("should not update canvas state when entities are not in graph", async () => {
     const explorer = new FakeExplorer();
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const rawQuerySpy = vi.spyOn(explorer, "rawQuery");
 

@@ -98,12 +98,3 @@ export function useEdgeTypeConfigs(edgeTypes?: EdgeType[]) {
 export default function useConfiguration() {
   return useAtomValue(assembledConfigSelector);
 }
-
-/** Gets the fully merged and augmented configuration & schema, and throws if no active configuration. */
-export function useResolvedConfig() {
-  const config = useConfiguration();
-  if (!config) {
-    throw new Error("Must have an active configuration");
-  }
-  return config;
-}

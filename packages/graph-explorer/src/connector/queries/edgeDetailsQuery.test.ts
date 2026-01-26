@@ -1,4 +1,4 @@
-import { edgesAtom, getAppStore } from "@/core";
+import { edgesAtom, explorerForTestingAtom, getAppStore } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import {
   createRandomEdge,
@@ -12,7 +12,8 @@ describe("edgeDetailsQuery", () => {
   it("should return null when edge is not found", async () => {
     const explorer = new FakeExplorer();
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(
       edgeDetailsQuery(createRandomEdgeId()),
@@ -25,7 +26,8 @@ describe("edgeDetailsQuery", () => {
   it("should fetch details for input", async () => {
     const explorer = new FakeExplorer();
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const edge = createRandomEdge();
     explorer.addEdge(edge);
@@ -38,7 +40,8 @@ describe("edgeDetailsQuery", () => {
 
   it("should update edgesAtom when edge is already in graph", async () => {
     const explorer = new FakeExplorer();
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const originalEdge = createRandomEdge();
     const updatedEdge = {
@@ -61,7 +64,8 @@ describe("edgeDetailsQuery", () => {
 
   it("should not update edgesAtom when edge is not in graph", async () => {
     const explorer = new FakeExplorer();
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const edge = createRandomEdge();
     explorer.addEdge(edge);
