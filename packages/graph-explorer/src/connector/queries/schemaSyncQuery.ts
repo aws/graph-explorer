@@ -3,6 +3,7 @@ import { atom } from "jotai";
 
 import { activeConfigurationAtom, schemaAtom } from "@/core";
 import { updateSchemaPrefixes } from "@/core/StateProvider/schema";
+import { logger } from "@/utils";
 
 import type { SchemaResponse } from "../useGEFetchTypes";
 
@@ -41,6 +42,7 @@ export function schemaSyncQuery() {
 const replaceSchemaAtom = atom(null, (get, set, schema: SchemaResponse) => {
   const id = get(activeConfigurationAtom);
   if (!id) {
+    logger.warn("Cannot update schema: no active configuration");
     return;
   }
 
@@ -60,6 +62,7 @@ const replaceSchemaAtom = atom(null, (get, set, schema: SchemaResponse) => {
 const setSyncFailureAtom = atom(null, (get, set) => {
   const id = get(activeConfigurationAtom);
   if (!id) {
+    logger.warn("Cannot update schema: no active configuration");
     return;
   }
 

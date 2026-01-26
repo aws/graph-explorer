@@ -107,4 +107,37 @@ describe("nodeCountByNodeTypeQuery", () => {
 
     expect(result.total).toBe(expectedTotal);
   });
+
+  it("should not throw when vertex type is not in schema", async () => {
+    const explorer = new FakeExplorer();
+    const vertexType = createRandomVertexType();
+    const differentVertexType = createRandomVertexType();
+    const expectedTotal = createRandomInteger();
+
+    vi.spyOn(explorer, "fetchVertexCountsByType").mockResolvedValue({
+      total: expectedTotal,
+    });
+
+    const state = new DbState(explorer);
+    state.activeSchema.vertices = [
+      { type: differentVertexType, attributes: [] },
+    ];
+    state.applyTo(getAppStore());
+
+    const queryClient = createQueryClient();
+
+    // Should complete without error even though vertexType isn't in schema
+    const result = await queryClient.fetchQuery(
+      nodeCountByNodeTypeQuery(vertexType),
+    );
+
+    expect(result).toStrictEqual({ total: expectedTotal });
+
+    // Verify the different vertex type was not modified
+    const schema = getAppStore().get(schemaAtom).get(state.activeConfig.id);
+    const vertexConfig = schema?.vertices.find(
+      v => v.type === differentVertexType,
+    );
+    expect(vertexConfig?.total).toBeUndefined();
+  });
 });
