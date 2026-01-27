@@ -51,6 +51,8 @@ export type SchemaStorageModel = {
   triedToSync?: boolean;
   /** Whether the last schema sync failed. */
   lastSyncFail?: boolean;
+  /** Whether the last edge connection discovery failed. */
+  edgeConnectionDiscoveryFailed?: boolean;
   /** Total vertex count from the database. */
   totalVertices?: number;
   /** Total edge count from the database. */
@@ -121,29 +123,6 @@ export const prefixesAtom = atom(get => {
   const schema = get(activeSchemaAtom);
   return schema.prefixes ?? [];
 });
-
-/** Setter-only atom to update edge connections in the active schema. */
-export const setEdgeConnectionsAtom = atom(
-  null,
-  (get, set, edgeConnections: EdgeConnection[]) => {
-    const activeConfigId = get(activeConfigurationAtom);
-    if (!activeConfigId) {
-      return;
-    }
-    set(schemaAtom, prev => {
-      const activeSchema = prev.get(activeConfigId);
-      if (!activeSchema) {
-        return prev;
-      }
-      const updated = new Map(prev);
-      updated.set(activeConfigId, {
-        ...activeSchema,
-        edgeConnections,
-      });
-      return updated;
-    });
-  },
-);
 
 function createVertexSchema(vtConfig: VertexTypeConfig) {
   return {

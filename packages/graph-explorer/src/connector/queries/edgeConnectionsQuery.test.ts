@@ -1,3 +1,5 @@
+import { describe, expect, it, vi } from "vitest";
+
 import { createEdgeType, createVertexType, schemaAtom } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import { getAppStore } from "@/core/StateProvider/appStore";
@@ -22,8 +24,9 @@ describe("edgeConnectionsQuery", () => {
 
     const result = await queryClient.fetchQuery(edgeConnectionsQuery([]));
 
-    expect(result.edgeConnections).toStrictEqual([]);
-    expect(fetchEdgeConnectionsSpy).toBeCalledTimes(1);
+    expect(result).toStrictEqual([]);
+    // Should not call explorer when no edge types provided
+    expect(fetchEdgeConnectionsSpy).not.toHaveBeenCalled();
   });
 
   it("should return edge connections for requested edge types", async () => {
@@ -47,7 +50,7 @@ describe("edgeConnectionsQuery", () => {
       edgeConnectionsQuery([edge.type]),
     );
 
-    expect(result.edgeConnections).toStrictEqual([
+    expect(result).toStrictEqual([
       {
         sourceVertexType: sourceType,
         edgeType: edge.type,
@@ -72,7 +75,7 @@ describe("edgeConnectionsQuery", () => {
       edgeConnectionsQuery([createEdgeType("nonexistent")]),
     );
 
-    expect(result.edgeConnections).toStrictEqual([]);
+    expect(result).toStrictEqual([]);
   });
 
   it("should propagate errors from explorer", async () => {
@@ -123,7 +126,7 @@ describe("edgeConnectionsQuery", () => {
       edgeConnectionsQuery([edge1.type, edge2.type]),
     );
 
-    expect(result.edgeConnections).toHaveLength(2);
+    expect(result).toHaveLength(2);
   });
 
   it("should update the active schema with edge connections", async () => {
@@ -216,7 +219,7 @@ describe("edgeConnectionsQuery", () => {
     ]);
   });
 
-  it("should clear existing edge connections when query returns empty results", async () => {
+  it("should not update store when query returns early with empty edge types", async () => {
     const explorer = new FakeExplorer();
     const state = new DbState(explorer);
     const store = getAppStore();
@@ -240,12 +243,15 @@ describe("edgeConnectionsQuery", () => {
     let activeSchema = schemaMap.get(state.activeConfig.id);
     expect(activeSchema?.edgeConnections).toHaveLength(1);
 
-    // Query with empty edge types should clear connections
-    await queryClient.fetchQuery(edgeConnectionsQuery([]));
+    // Query with empty edge types returns early without updating store
+    const result = await queryClient.fetchQuery(edgeConnectionsQuery([]));
 
-    // Verify edge connections were cleared
+    // Query returns empty array
+    expect(result).toStrictEqual([]);
+
+    // But store is not updated - existing edge connections remain
     schemaMap = store.get(schemaAtom);
     activeSchema = schemaMap.get(state.activeConfig.id);
-    expect(activeSchema?.edgeConnections).toStrictEqual([]);
+    expect(activeSchema?.edgeConnections).toHaveLength(1);
   });
 });
