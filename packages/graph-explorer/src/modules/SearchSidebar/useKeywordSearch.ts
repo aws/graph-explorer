@@ -5,11 +5,11 @@ import type { SelectOption } from "@/components";
 
 import { useDisplayVertexTypeConfigs, useSearchableAttributes } from "@/core";
 import { useQueryEngine } from "@/core/connector";
+import { useTranslations } from "@/hooks";
 import useDebounceValue from "@/hooks/useDebounceValue";
 import { SEARCH_TOKENS } from "@/utils";
 
 import { useKeywordSearchQuery } from "../SearchSidebar/useKeywordSearchQuery";
-import { useTranslations } from "@/hooks";
 
 export interface PromiseWithCancel<T> extends Promise<T> {
   cancel?: () => void;
