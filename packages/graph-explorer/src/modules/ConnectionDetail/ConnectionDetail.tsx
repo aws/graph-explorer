@@ -46,15 +46,13 @@ import {
 import {
   activeSchemaSelector,
   type ConfigurationContextProps,
+  type RawConfiguration,
   showDebugActionsAtom,
+  useMaybeActiveSchema,
 } from "@/core";
 import { useDeleteActiveConfiguration } from "@/hooks/useDeleteConfig";
 import useEntitiesCounts from "@/hooks/useEntitiesCounts";
-import {
-  useCancelSchemaSync,
-  useIsSyncing,
-  useSchemaSync,
-} from "@/hooks/useSchemaSync";
+import { useCancelSchemaSync, useSchemaSync } from "@/hooks/useSchemaSync";
 import useTranslations from "@/hooks/useTranslations";
 import CreateConnection from "@/modules/CreateConnection";
 import { formatDate, formatRelativeDate, LABELS, logger } from "@/utils";
@@ -79,7 +77,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
   const t = useTranslations();
   const [edit, setEdit] = useState(false);
 
-  const { isFetching: isSync } = useSchemaSync();
+  const { isFetching } = useSchemaSync();
 
   const onConfigExport = () => saveConfigurationToFile(config);
 
@@ -90,8 +88,6 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
       ? config.connection.graphDbUrl
       : config.connection.url
     : LABELS.MISSING_VALUE;
-
-  const isSyncing = useIsSyncing();
 
   const connectionName = config.displayLabel || config.id;
 
@@ -106,19 +102,19 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
           <PanelHeaderActionButton
             label="Export Connection"
             icon={<TrayArrowIcon />}
-            isDisabled={isSync}
+            isDisabled={isFetching}
             onActionClick={onConfigExport}
           />
           <PanelHeaderDivider />
           <PanelHeaderActionButton
             label="Edit connection"
             icon={<EditIcon />}
-            isDisabled={isSync}
+            isDisabled={isFetching}
             onActionClick={() => setEdit(true)}
           />
           <ConnectionDeleteButton
             connectionName={connectionName}
-            isSync={isSync}
+            isSync={isFetching}
             deleteActiveConfig={deleteActiveConfig}
             saveCopy={onConfigExport}
           />
@@ -151,20 +147,20 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
           <EdgeCounts />
           <InfoItem>
             <InfoItemIcon>
-              <Spinner loading={isSyncing}>
+              <Spinner loading={isFetching}>
                 <ClockIcon />
               </Spinner>
             </InfoItemIcon>
             <InfoItemContent>
               <InfoItemLabel>Last Synchronization</InfoItemLabel>
-              <LastSyncInfo config={config} />
+              <LastSyncInfo />
             </InfoItemContent>
           </InfoItem>
         </InfoBar>
         <NotInProduction featureFlag={showDebugActionsAtom}>
           <DebugActions />
         </NotInProduction>
-        <MainContentLayout />
+        <MainContentLayout config={config} />
         <Dialog open={edit} onOpenChange={setEdit}>
           <DialogContent>
             <DialogHeader>
@@ -186,12 +182,17 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
   );
 }
 
+/*
+ * DEV NOTE:
+ * Props required to prevent React Compiler memoization issues with query subscriptions.
+ */
+
 /** Shows the vertex list, loading, or error state. */
-function MainContentLayout() {
-  const schemaSyncQuery = useSchemaSync();
+function MainContentLayout(_props: { config: RawConfiguration }) {
+  const { isFetching, schemaDiscoveryQuery, refreshSchema } = useSchemaSync();
   const cancel = useCancelSchemaSync();
 
-  if (schemaSyncQuery.isFetching) {
+  if (isFetching) {
     return (
       <PanelEmptyState
         variant="info"
@@ -205,11 +206,12 @@ function MainContentLayout() {
     );
   }
 
-  if (schemaSyncQuery.error) {
+  // Only show error for main schema discovery here, edge connections are secondary
+  if (schemaDiscoveryQuery.error) {
     return (
       <PanelError
-        error={schemaSyncQuery.error}
-        onRetry={schemaSyncQuery.refetch}
+        error={schemaDiscoveryQuery.error}
+        onRetry={refreshSchema}
         className="p-6"
       />
     );
@@ -218,30 +220,41 @@ function MainContentLayout() {
   return <ConnectionData />;
 }
 
-function LastSyncInfo({ config }: { config: ConfigurationContextProps }) {
-  const isSyncing = useIsSyncing();
-  const { refetch: syncSchema } = useSchemaSync();
+function LastSyncInfo() {
+  const t = useTranslations();
+  const { refreshSchema, isFetching } = useSchemaSync();
+  const schema = useMaybeActiveSchema();
 
-  if (isSyncing) {
+  if (isFetching) {
     return <InfoItemValue>Synchronizing...</InfoItemValue>;
   }
 
-  const lastSyncFail = config.schema?.lastSyncFail === true;
+  const lastSyncFail = schema?.lastSyncFail === true;
   if (lastSyncFail) {
     return (
       <InfoItemValue className="inline">
         <span>Synchronization Failed </span>
-        <LinkButton onClick={() => syncSchema()}>Retry</LinkButton>
+        <LinkButton onClick={refreshSchema}>Retry</LinkButton>
       </InfoItemValue>
     );
   }
 
-  const lastSyncUpdate = config.schema?.lastUpdate;
+  const edgeDiscoveryFailed = schema?.edgeConnectionDiscoveryFailed === true;
+  if (edgeDiscoveryFailed) {
+    return (
+      <InfoItemValue className="inline">
+        <span>{t("edge-connection")} Discovery Failed </span>
+        <LinkButton onClick={refreshSchema}>Retry</LinkButton>
+      </InfoItemValue>
+    );
+  }
+
+  const lastSyncUpdate = schema?.lastUpdate;
   if (!lastSyncUpdate) {
     return (
       <InfoItemValue className="inline">
         <Chip variant="warning">Not Synchronized</Chip>{" "}
-        <LinkButton onClick={() => syncSchema()}>Synchronize</LinkButton>
+        <LinkButton onClick={refreshSchema}>Synchronize</LinkButton>
       </InfoItemValue>
     );
   }
@@ -251,7 +264,7 @@ function LastSyncInfo({ config }: { config: ConfigurationContextProps }) {
       <TooltipTrigger asChild>
         <InfoItemValue className="inline">
           <span>{formatRelativeDate(lastSyncUpdate)} </span>
-          <LinkButton onClick={() => syncSchema()}>Refresh</LinkButton>
+          <LinkButton onClick={refreshSchema}>Refresh</LinkButton>
         </InfoItemValue>
       </TooltipTrigger>
       <TooltipContent>{formatDate(lastSyncUpdate)}</TooltipContent>
@@ -306,7 +319,7 @@ function DebugActions() {
   const deleteSchema = () => {
     logger.log("Deleting schema");
     setActiveSchema(RESET);
-    queryClient.invalidateQueries({
+    void queryClient.removeQueries({
       queryKey: ["schema"],
     });
   };
@@ -331,6 +344,34 @@ function DebugActions() {
       return {
         ...prevSchema,
         lastSyncFail: true,
+      };
+    });
+  };
+  const resetEdgeConnections = () => {
+    logger.log("Resetting edge connections");
+    setActiveSchema(prev => {
+      if (!prev) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        edgeConnections: undefined,
+        edgeConnectionDiscoveryFailed: undefined,
+      };
+    });
+  };
+  const setEdgeConnectionFail = () => {
+    logger.log("Setting edge connections failure");
+    setActiveSchema(prev => {
+      if (!prev) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        edgeConnections: [],
+        edgeConnectionDiscoveryFailed: true,
       };
     });
   };
@@ -388,6 +429,12 @@ function DebugActions() {
             </Button>
             <Button onPress={() => setSchemaSyncFailed()}>
               Last Sync Failed
+            </Button>
+            <Button onPress={() => resetEdgeConnections()}>
+              Reset Edge Connections
+            </Button>
+            <Button onPress={() => setEdgeConnectionFail()}>
+              Edge Connections Failed
             </Button>
             <Button onPress={() => resetVertexTotals()}>
               Reset Vertex Totals

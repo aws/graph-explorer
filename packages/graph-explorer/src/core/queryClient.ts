@@ -34,7 +34,7 @@ declare module "@tanstack/react-query" {
  */
 export function createQueryClient() {
   const store = getAppStore();
-  logger.debug("Creating new query client with store:", store);
+  logger.debug("Creating new query client");
   return new QueryClient({
     defaultOptions: createDefaultOptions(store),
     queryCache: new QueryCache({

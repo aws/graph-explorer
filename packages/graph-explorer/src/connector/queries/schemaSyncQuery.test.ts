@@ -140,6 +140,25 @@ describe("schemaSyncQuery", () => {
     expect(storedSchema?.lastSyncFail).toBe(true);
   });
 
+  it("should set edgeConnectionDiscoveryFailed to true when fetch fails", async () => {
+    const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
+    fetchSchemaSpy.mockRejectedValue(new Error("Network error"));
+
+    const queryClient = createQueryClient();
+    queryClient.setDefaultOptions({
+      ...queryClient.getDefaultOptions(),
+      queries: { ...queryClient.getDefaultOptions().queries, retry: false },
+    });
+
+    await expect(queryClient.fetchQuery(schemaSyncQuery())).rejects.toThrow(
+      "Network error",
+    );
+
+    const activeConfigId = store.get(activeConfigurationAtom);
+    const storedSchema = store.get(schemaAtom).get(activeConfigId!);
+    expect(storedSchema?.edgeConnectionDiscoveryFailed).toBe(true);
+  });
+
   it("should preserve existing schema data on failure", async () => {
     // Set up initial schema
     const activeConfigId = store.get(activeConfigurationAtom)!;
@@ -256,11 +275,6 @@ describe("schemaSyncQuery", () => {
 
     expect(result.vertices.length).toBeGreaterThanOrEqual(2);
     expect(result.totalVertices).toBe(2);
-  });
-
-  it("should use correct query key", () => {
-    const options = schemaSyncQuery();
-    expect(options.queryKey).toStrictEqual(["schema"]);
   });
 
   it("should update schema with totals from response", async () => {

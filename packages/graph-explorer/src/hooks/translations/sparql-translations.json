@@ -15,8 +15,8 @@
   "target-type": "Target Class",
   "property": "Datatype Property",
   "properties": "Datatype Properties",
-  "edge-connection": "Relationship",
-  "edge-connections": "Relationships",
+  "edge-connection": "Object Property",
+  "edge-connections": "Object Properties",
   "query-language": "RDF-SPARQL",
 
   "nodes-styling": {

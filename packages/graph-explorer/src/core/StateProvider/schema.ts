@@ -108,7 +108,7 @@ export function useActiveSchema(): SchemaStorageModel {
   return useDeferredValue(useAtomValue(activeSchemaAtom));
 }
 
-/** Gets the stored active schema or a default empty schema */
+/** Gets the stored active schema if one exists for the active connection */
 export function useMaybeActiveSchema(): SchemaStorageModel | undefined {
   return useDeferredValue(useAtomValue(maybeActiveSchemaAtom));
 }

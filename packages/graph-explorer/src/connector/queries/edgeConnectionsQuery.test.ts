@@ -4,6 +4,7 @@ import { createEdgeType, createVertexType, schemaAtom } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import { getAppStore } from "@/core/StateProvider/appStore";
 import {
+  createRandomEdgeTypeConfig,
   createTestableEdge,
   createTestableVertex,
   DbState,
@@ -252,6 +253,63 @@ describe("edgeConnectionsQuery", () => {
     // But store is not updated - existing edge connections remain
     schemaMap = store.get(schemaAtom);
     activeSchema = schemaMap.get(state.activeConfig.id);
+    expect(activeSchema?.edgeConnections).toHaveLength(1);
+  });
+
+  it("should set edgeConnectionDiscoveryFailed flag when query fails", async () => {
+    const explorer = new FakeExplorer();
+    const state = new DbState(explorer);
+    const store = getAppStore();
+
+    const edge = createRandomEdgeTypeConfig();
+    state.activeSchema.edges = [edge];
+    state.applyTo(store);
+
+    vi.spyOn(explorer, "fetchEdgeConnections").mockRejectedValue(
+      new Error("Connection failed"),
+    );
+
+    const queryClient = createQueryClient();
+
+    await expect(
+      queryClient.fetchQuery(edgeConnectionsQuery([edge.type])),
+    ).rejects.toThrow();
+
+    const schemaMap = store.get(schemaAtom);
+    const activeSchema = schemaMap.get(state.activeConfig.id);
+    expect(activeSchema?.edgeConnectionDiscoveryFailed).toBe(true);
+  });
+
+  it("should clear edgeConnectionDiscoveryFailed flag on successful query", async () => {
+    const explorer = new FakeExplorer();
+    const state = new DbState(explorer);
+    const store = getAppStore();
+
+    // Set up schema with failure flag already set
+    state.activeSchema.edgeConnectionDiscoveryFailed = true;
+    state.applyTo(store);
+
+    // Verify failure flag is set
+    let schemaMap = store.get(schemaAtom);
+    let activeSchema = schemaMap.get(state.activeConfig.id);
+    expect(activeSchema?.edgeConnectionDiscoveryFailed).toBe(true);
+
+    // Set up edge data for successful query
+    const sourceType = createVertexType("Person");
+    const targetType = createVertexType("Company");
+    const source = createTestableVertex().with({ types: [sourceType] });
+    const target = createTestableVertex().with({ types: [targetType] });
+    const edge = createTestableEdge().withSource(source).withTarget(target);
+    explorer.addTestableEdge(edge);
+
+    const queryClient = createQueryClient();
+
+    // Successful query should clear the failure flag
+    await queryClient.fetchQuery(edgeConnectionsQuery([edge.type]));
+
+    schemaMap = store.get(schemaAtom);
+    activeSchema = schemaMap.get(state.activeConfig.id);
+    expect(activeSchema?.edgeConnectionDiscoveryFailed).toBe(false);
     expect(activeSchema?.edgeConnections).toHaveLength(1);
   });
 });

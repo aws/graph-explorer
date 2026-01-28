@@ -169,8 +169,9 @@ const CreateConnection = ({
             return updatedGraphs;
           });
 
-          // Clear the query cache and re-execute any subscribed queries
-          void queryClient.resetQueries();
+          // Reseting all query state. Using `removeQueries()` to ensure initial data is recalculated.
+          // This ensures dependent queries execute in the right order
+          void queryClient.removeQueries();
         }
       },
       [configId, initialData, queryClient],
