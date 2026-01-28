@@ -156,7 +156,6 @@ export function mapToDisplayVertexTypeConfig(
   preferences: VertexPreferences,
   textTransform: TextTransformer,
 ): DisplayVertexTypeConfig {
-  logger.debug("Creating display vertex type config", typeConfig.type);
   const displayLabel =
     preferences.displayLabel ||
     textTransform(typeConfig.type) ||

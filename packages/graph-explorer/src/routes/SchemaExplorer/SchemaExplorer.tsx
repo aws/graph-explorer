@@ -14,6 +14,7 @@ import {
 } from "@/components";
 import Redirect from "@/components/Redirect";
 import { useConfiguration, useHasActiveSchema } from "@/core";
+import { EdgeDiscoveryBoundary } from "@/modules/SchemaGraph";
 
 export default function SchemaExplorer() {
   const config = useConfiguration();
@@ -41,15 +42,17 @@ export default function SchemaExplorer() {
         </NavBarActions>
       </NavBar>
       <WorkspaceContent>
-        <PanelGroup>
-          <Panel className="flex-1">
-            <PanelContent className="flex items-center justify-center">
-              <p className="text-text-secondary text-lg">
-                Schema visualization coming soon...
-              </p>
-            </PanelContent>
-          </Panel>
-        </PanelGroup>
+        <EdgeDiscoveryBoundary>
+          <PanelGroup>
+            <Panel className="flex-1">
+              <PanelContent className="flex items-center justify-center">
+                <p className="text-text-secondary text-lg">
+                  Schema visualization coming soon...
+                </p>
+              </PanelContent>
+            </Panel>
+          </PanelGroup>
+        </EdgeDiscoveryBoundary>
       </WorkspaceContent>
     </Workspace>
   );

@@ -175,7 +175,6 @@ export function createVertexPreference(
   type: VertexType,
   stored?: VertexPreferencesStorageModel,
 ): VertexPreferences {
-  logger.debug("Creating VertexPreference", { type, stored });
   return {
     type,
     ...defaultVertexPreferences,

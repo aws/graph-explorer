@@ -2,7 +2,10 @@ import { queryOptions } from "@tanstack/react-query";
 import { atom } from "jotai";
 
 import { activeConfigurationAtom, schemaAtom } from "@/core";
-import { updateSchemaPrefixes } from "@/core/StateProvider/schema";
+import {
+  type SchemaStorageModel,
+  updateSchemaPrefixes,
+} from "@/core/StateProvider/schema";
 import { logger } from "@/utils";
 
 import type { SchemaResponse } from "../useGEFetchTypes";
@@ -14,7 +17,7 @@ import { getExplorer, getStore } from "./helpers";
  */
 export function schemaSyncQuery() {
   return queryOptions({
-    queryKey: ["schema"],
+    queryKey: ["schema", "discovery"],
     queryFn: async ({ signal, meta }) => {
       const explorer = getExplorer(meta);
       const store = getStore(meta);
@@ -69,13 +72,17 @@ const setSyncFailureAtom = atom(null, (get, set) => {
   set(schemaAtom, prev => {
     const updated = new Map(prev);
     const existingSchema = updated.get(id);
-    updated.set(id, {
+    const updatedSchema: SchemaStorageModel = {
       ...existingSchema,
       vertices: existingSchema?.vertices ?? [],
       edges: existingSchema?.edges ?? [],
+      edgeConnections: existingSchema?.edgeConnections ?? [],
       triedToSync: true,
       lastSyncFail: true,
-    });
+      edgeConnectionDiscoveryFailed: true,
+    };
+    logger.debug("Setting sync failure to the schema", updatedSchema);
+    updated.set(id, updatedSchema);
     return updated;
   });
 });

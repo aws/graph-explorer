@@ -6,9 +6,10 @@
 - Use TypeScript for type safety
 - Prefer descriptive variable and function names over code comments
 - Prefer simple to follow logic over clever concise code
-- Prefer named function syntax over anonymous arrow functions for top-level
+- Prefer named function syntax over anonymous arrow functions for module-level
   declarations (e.g., `function handleClick() {}` over
-  `const handleClick = () => {}`)
+  `const handleClick = () => {}`). Arrow functions within function scope are
+  fine.
 - Imports are sorted using ESLint, which can be invoked for a single file using
   `pnpm eslint --fix <path-to-file>`
 
