@@ -28,6 +28,7 @@ export const emptyExplorer: Explorer = {
   fetchNeighbors: async () => ({ vertices: [], edges: [] }),
   neighborCounts: async () => ({ counts: [] }),
   keywordSearch: async () => ({ vertices: [] }),
+  filterAndSortSearch: async () => ({ vertices: [] }),
   vertexDetails: async () => ({ vertices: [] }),
   edgeDetails: async () => ({ edges: [] }),
   rawQuery: async () => ({ results: [], rawResponse: null }),

@@ -38,6 +38,7 @@ export type DisplayConfigAttribute = {
   name: string;
   displayLabel: string;
   isSearchable: boolean;
+  dataType?: "String" | "Number" | "Date";
 };
 
 /** Gets the matching vertex type config or a generated default value. */
@@ -166,6 +167,7 @@ export function mapToDisplayVertexTypeConfig(
       name: attr.name,
       displayLabel: textTransform(attr.name),
       isSearchable: isAttributeSearchable(attr),
+      dataType: toDisplayDataType(attr.dataType),
     }))
     .toSorted(sortAttributeByName);
 
@@ -193,6 +195,7 @@ export function mapToDisplayEdgeTypeConfig(
       name: attr.name,
       displayLabel: textTransform(attr.name),
       isSearchable: isAttributeSearchable(attr),
+      dataType: toDisplayDataType(attr.dataType),
     }))
     .toSorted(sortAttributeByName);
 
@@ -206,4 +209,13 @@ export function mapToDisplayEdgeTypeConfig(
 
 function isAttributeSearchable(attribute: AttributeConfig) {
   return attribute.dataType === "String";
+}
+
+function toDisplayDataType(
+  dataType: string | undefined,
+): DisplayConfigAttribute["dataType"] {
+  if (dataType === "Number" || dataType === "Date" || dataType === "String") {
+    return dataType;
+  }
+  return undefined;
 }
