@@ -51,13 +51,15 @@ export type SchemaStorageModel = {
   triedToSync?: boolean;
   /** Whether the last schema sync failed. */
   lastSyncFail?: boolean;
+  /** Whether the last edge connection discovery failed. */
+  edgeConnectionDiscoveryFailed?: boolean;
   /** Total vertex count from the database. */
   totalVertices?: number;
   /** Total edge count from the database. */
   totalEdges?: number;
 };
 
-/** Grabs a specific schema out of the map. */
+/** Grabs a specific schema out of the map, or returns the empty schema */
 const schemaByIdAtom = atomFamily((id: ConfigurationId | null) => {
   if (!id) {
     return atom(emptySchema);
@@ -74,6 +76,16 @@ const emptySchema: SchemaStorageModel = {
   edges: [],
   prefixes: [],
 };
+
+/** Gets the active schema from storage, or undefined if one doesn't exist. */
+export const maybeActiveSchemaAtom = atom(get => {
+  const id = get(activeConfigurationAtom);
+  if (!id) {
+    return undefined;
+  }
+
+  return get(schemaAtom).get(id);
+});
 
 export const activeSchemaAtom = atom(get => {
   const id = get(activeConfigurationAtom);
@@ -96,6 +108,11 @@ export function useActiveSchema(): SchemaStorageModel {
   return useDeferredValue(useAtomValue(activeSchemaAtom));
 }
 
+/** Gets the stored active schema if one exists for the active connection */
+export function useMaybeActiveSchema(): SchemaStorageModel | undefined {
+  return useDeferredValue(useAtomValue(maybeActiveSchemaAtom));
+}
+
 /** Gets the stored prefixes from the active schema. */
 export function usePrefixes(): PrefixTypeConfig[] {
   const schema = useActiveSchema();
@@ -106,29 +123,6 @@ export const prefixesAtom = atom(get => {
   const schema = get(activeSchemaAtom);
   return schema.prefixes ?? [];
 });
-
-/** Setter-only atom to update edge connections in the active schema. */
-export const setEdgeConnectionsAtom = atom(
-  null,
-  (get, set, edgeConnections: EdgeConnection[]) => {
-    const activeConfigId = get(activeConfigurationAtom);
-    if (!activeConfigId) {
-      return;
-    }
-    set(schemaAtom, prev => {
-      const activeSchema = prev.get(activeConfigId);
-      if (!activeSchema) {
-        return prev;
-      }
-      const updated = new Map(prev);
-      updated.set(activeConfigId, {
-        ...activeSchema,
-        edgeConnections,
-      });
-      return updated;
-    });
-  },
-);
 
 function createVertexSchema(vtConfig: VertexTypeConfig) {
   return {

@@ -1,48 +1,78 @@
 import { useIsFetching, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useStore } from "jotai";
 
-import { schemaSyncQuery } from "@/connector";
-import { useResolvedConfig } from "@/core/ConfigurationProvider";
+import { edgeConnectionsQuery, schemaSyncQuery } from "@/connector";
+import { maybeActiveSchemaAtom } from "@/core";
 import { logger } from "@/utils";
 
-import useUpdateSchema from "./useUpdateSchema";
-
+/** Returns true if any schema sync query is running. Will not trigger the query to run. */
 export function useIsSyncing() {
   return useIsFetching({ queryKey: ["schema"] }) > 0;
 }
 
+/** Returns a function that cancels all in-flight schema sync queries. */
 export function useCancelSchemaSync() {
   const queryClient = useQueryClient();
   return () => {
-    logger.debug("Cancelling schema sync query...");
+    logger.log("Cancelling schema sync");
     return queryClient.cancelQueries({ queryKey: ["schema"] });
   };
 }
 
+/**
+ * Subscribes to the schema discovery and edge connection discovery queries.
+ *
+ * Provides a combined `isFetching` status and `refreshSchema` function to refetch both queries.
+ */
 export function useSchemaSync() {
-  const config = useResolvedConfig();
+  const store = useStore();
 
-  const { replaceSchema, setSyncFailure } = useUpdateSchema();
-
-  // Check if the schema has ever been properly synced before providing initial data
-  const initialData =
-    config.schema && config.schema.lastUpdate && config.schema.triedToSync
-      ? config.schema
-      : undefined;
-
-  const query = useQuery({
-    ...schemaSyncQuery(replaceSchema),
-    initialData: initialData,
-    enabled: !initialData || config.schema?.lastSyncFail === true,
+  const schemaDiscoveryQuery = useQuery({
+    ...schemaSyncQuery(),
+    // Use the store directly to ensure it gets the latest value
+    initialData: () => store.get(maybeActiveSchemaAtom),
+    // Don't automatically run if the last schema sync failed
+    enabled: () => {
+      const schema = store.get(maybeActiveSchemaAtom);
+      return !schema || !schema.lastSyncFail;
+    },
   });
-  const { data, isFetching, status, error, refetch } = query;
 
-  // If the schema sync fails, set the schema to a failed state
-  useEffect(() => {
-    if (status === "error") {
-      setSyncFailure();
-    }
-  }, [setSyncFailure, status]);
+  // Derive edge types from the schema sync result to ensure consistency
+  // This prevents the race condition where edge types are stale after schema deletion
+  const schemaData = schemaDiscoveryQuery.data;
+  const edges = schemaData?.edges.map(e => e.type) ?? [];
 
-  return { refetch, data, error, isFetching };
+  // Disable edge connection query while schema sync is fetching to prevent
+  // race conditions where edge types become stale after schema deletion
+  const edgeConnectionEnabled =
+    !schemaDiscoveryQuery.isFetching &&
+    schemaData != null &&
+    schemaData.edgeConnections == null;
+
+  const edgeDiscoveryQuery = useQuery({
+    ...edgeConnectionsQuery(edges),
+    initialData: schemaDiscoveryQuery.data?.edgeConnections,
+    enabled: edgeConnectionEnabled,
+  });
+
+  const isFetching =
+    schemaDiscoveryQuery.isFetching || edgeDiscoveryQuery.isFetching;
+
+  const refreshSchema = async () => {
+    logger.log("Refreshing schema");
+    await schemaDiscoveryQuery.refetch();
+    await edgeDiscoveryQuery.refetch();
+  };
+
+  return {
+    /** Query state for schema discovery */
+    schemaDiscoveryQuery,
+    /** Query state for edge connection discovery */
+    edgeDiscoveryQuery,
+    /** Refetches both schema and edge connections */
+    refreshSchema,
+    /** True if either query is fetching */
+    isFetching,
+  };
 }

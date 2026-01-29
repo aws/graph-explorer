@@ -34,8 +34,13 @@ import {
   TabularFooterControls,
   type TabularInstance,
 } from "@/components/Tabular";
+import { ExternalExportControl } from "@/components/Tabular/controls/ExportControl/ExternalExportControl";
 import Tabular from "@/components/Tabular/Tabular";
-import { type KeywordSearchRequest, searchQuery } from "@/connector";
+import {
+  type KeywordSearchRequest,
+  nodeCountByNodeTypeQuery,
+  searchQuery,
+} from "@/connector";
 import {
   createVertexType,
   type DisplayVertex,
@@ -51,7 +56,6 @@ import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfigurati
 import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
-import useUpdateVertexTypeCounts from "@/hooks/useUpdateVertexTypeCounts";
 import { logger } from "@/utils";
 import {
   LABELS,
@@ -85,7 +89,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
   const navigate = useNavigate();
 
   // Automatically updates counts if needed
-  useUpdateVertexTypeCounts(vertexType);
+  useQuery(nodeCountByNodeTypeQuery(vertexType));
 
   const vertexConfig = useVertexTypeConfig(vertexType);
   const displayTypeConfig = useDisplayVertexTypeConfig(vertexType);
@@ -93,7 +97,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
     usePagingOptions();
 
   const [tableInstance, setTableInstance] =
-    useState<TabularInstance<DisplayVertex> | null>();
+    useState<TabularInstance<DisplayVertex> | null>(null);
   const columns = useColumnDefinitions(vertexType);
 
   const query = useDataExplorerQuery(vertexType, pageSize, pageIndex);
@@ -151,10 +155,21 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
                 label={t("node-type")}
                 labelPlacement="inner"
               />
-              <DisplayNameAndDescriptionOptions vertexType={vertexType} />
+              <div className="flex items-center gap-2">
+                <DisplayNameAndDescriptionOptions vertexType={vertexType} />
+                {tableInstance ? (
+                  <ExternalExportControl
+                    instance={tableInstance}
+                    hideOptions
+                    forceOnlyPage
+                  />
+                ) : null}
+              </div>
             </PanelHeader>
             <Tabular
-              ref={instance => setTableInstance(instance)}
+              ref={instance => {
+                setTableInstance(instance);
+              }}
               defaultColumn={DEFAULT_COLUMN}
               data={displayVertices}
               columns={columns}

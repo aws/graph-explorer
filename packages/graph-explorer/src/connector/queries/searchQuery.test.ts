@@ -1,4 +1,4 @@
-import { getAppStore, nodesAtom } from "@/core";
+import { explorerForTestingAtom, getAppStore, nodesAtom } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import { createTestableVertex, FakeExplorer } from "@/utils/testing";
 
@@ -9,7 +9,8 @@ describe("searchQuery", () => {
   it("should return empty results when no matches found", async () => {
     const explorer = new FakeExplorer();
     const keywordSearchSpy = vi.spyOn(explorer, "keywordSearch");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     keywordSearchSpy.mockResolvedValue({ vertices: [], edges: [] });
     const mockUpdateSchema = vi.fn();
@@ -26,7 +27,8 @@ describe("searchQuery", () => {
   it("should return search results", async () => {
     const explorer = new FakeExplorer();
     const keywordSearchSpy = vi.spyOn(explorer, "keywordSearch");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const vertex1 = createTestableVertex();
     const vertex2 = createTestableVertex();
@@ -52,7 +54,8 @@ describe("searchQuery", () => {
   it("should cache vertex details", async () => {
     const explorer = new FakeExplorer();
     const keywordSearchSpy = vi.spyOn(explorer, "keywordSearch");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const vertex = createTestableVertex();
 
@@ -75,7 +78,8 @@ describe("searchQuery", () => {
   it("should update nodesAtom when vertices are already in graph", async () => {
     const explorer = new FakeExplorer();
     const keywordSearchSpy = vi.spyOn(explorer, "keywordSearch");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const originalVertex = createTestableVertex();
     const updatedVertex = originalVertex.with({
@@ -109,7 +113,8 @@ describe("searchQuery", () => {
   it("should not update nodesAtom when vertices are not in graph", async () => {
     const explorer = new FakeExplorer();
     const keywordSearchSpy = vi.spyOn(explorer, "keywordSearch");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const vertex1 = createTestableVertex();
     const vertex2 = createTestableVertex();

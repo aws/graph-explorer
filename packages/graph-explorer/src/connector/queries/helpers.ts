@@ -8,6 +8,7 @@ import {
   createVertex,
   type Edge,
   edgesAtom,
+  explorerAtom,
   nodesAtom,
   type Vertex,
 } from "@/core";
@@ -16,7 +17,6 @@ import { logger } from "@/utils";
 import type { ResultEntity } from "../entities";
 import type { NeighborCount } from "../useGEFetchTypes";
 
-import { emptyExplorer } from "../emptyExplorer";
 import { edgeDetailsQuery } from "./edgeDetailsQuery";
 import { neighborsCountQuery } from "./neighborsCountQuery";
 import { vertexDetailsQuery } from "./vertexDetailsQuery";
@@ -122,11 +122,8 @@ export function updateEdgeGraphCanvasState(store: AppStore, edges: Edge[]) {
 
 /** Extracts the explorer from the meta objects */
 export function getExplorer(meta: GraphExplorerMeta | undefined) {
-  if (!meta?.explorer) {
-    logger.warn("No explorer found in the query client meta object");
-    return emptyExplorer;
-  }
-  return meta.explorer;
+  const store = getStore(meta);
+  return store.get(explorerAtom);
 }
 
 /** Extracts the Jotai store from the meta objects */

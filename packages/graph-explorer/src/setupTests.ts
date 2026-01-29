@@ -2,17 +2,11 @@
  * Global test setup for all tests
  */
 
-import type { Store } from "jotai/vanilla/store";
-
 import * as matchers from "@testing-library/jest-dom/matchers";
 import { cleanup } from "@testing-library/react";
 import "core-js/full/iterator";
 import { createStore } from "jotai";
 import { afterEach, expect, vi } from "vitest";
-
-import type { Explorer } from "./connector";
-
-import { getAppStore } from "./core";
 
 expect.extend(matchers);
 
@@ -81,14 +75,8 @@ vi.mock(import("./core/queryClient"), async importOriginal => {
   const original = await importOriginal();
   return {
     ...original,
-    createQueryClient: ({
-      explorer,
-      store = getAppStore(),
-    }: {
-      explorer: Explorer;
-      store?: Store;
-    }) => {
-      const client = original.createQueryClient({ explorer, store });
+    createQueryClient: () => {
+      const client = original.createQueryClient();
       const defaultOptions = client.getDefaultOptions();
       client.setDefaultOptions({
         ...defaultOptions,

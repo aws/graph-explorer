@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { RESET, useAtomCallback } from "jotai/utils";
 import { useCallback } from "react";
 
@@ -9,6 +10,7 @@ import {
   selectedAttributeAtom,
   selectedVertexTypeAtom,
 } from "@/modules/SearchSidebar/useKeywordSearch";
+import { logger } from "@/utils";
 
 import {
   edgesAtom,
@@ -31,38 +33,48 @@ import {
 } from "./nodes";
 
 export default function useResetState() {
+  const queryClient = useQueryClient();
+
   return useAtomCallback(
-    useCallback((_get, set) => {
-      // Nodes
-      set(nodesAtom, RESET);
-      set(nodesSelectedIdsAtom, RESET);
-      set(nodesOutOfFocusIdsAtom, RESET);
-      set(nodesFilteredIdsAtom, RESET);
-      set(nodesTypesFilteredAtom, RESET);
-      set(nodesTableFiltersAtom, RESET);
-      set(nodesTableSortsAtom, RESET);
+    useCallback(
+      (_get, set) => {
+        logger.debug("Resetting all session state in Jotai");
 
-      // Edges
-      set(edgesAtom, RESET);
-      set(edgesSelectedIdsAtom, RESET);
-      set(edgesOutOfFocusIdsAtom, RESET);
-      set(edgesFilteredIdsAtom, RESET);
-      set(edgesTypesFilteredAtom, RESET);
-      set(edgesTableFiltersAtom, RESET);
-      set(edgesTableSortsAtom, RESET);
+        // Nodes
+        set(nodesAtom, RESET);
+        set(nodesSelectedIdsAtom, RESET);
+        set(nodesOutOfFocusIdsAtom, RESET);
+        set(nodesFilteredIdsAtom, RESET);
+        set(nodesTypesFilteredAtom, RESET);
+        set(nodesTableFiltersAtom, RESET);
+        set(nodesTableSortsAtom, RESET);
 
-      // Search related
-      set(searchTermAtom, RESET);
-      set(selectedVertexTypeAtom, RESET);
-      set(selectedAttributeAtom, RESET);
-      set(partialMatchAtom, RESET);
+        // Edges
+        set(edgesAtom, RESET);
+        set(edgesSelectedIdsAtom, RESET);
+        set(edgesOutOfFocusIdsAtom, RESET);
+        set(edgesFilteredIdsAtom, RESET);
+        set(edgesTypesFilteredAtom, RESET);
+        set(edgesTableFiltersAtom, RESET);
+        set(edgesTableSortsAtom, RESET);
 
-      // Query editor
-      set(selectedTabAtom, RESET);
-      set(queryTextAtom, RESET);
+        // Search related
+        set(searchTermAtom, RESET);
+        set(selectedVertexTypeAtom, RESET);
+        set(selectedAttributeAtom, RESET);
+        set(partialMatchAtom, RESET);
 
-      // Previous session
-      set(isRestorePreviousSessionAvailableAtom, RESET);
-    }, []),
+        // Query editor
+        set(selectedTabAtom, RESET);
+        set(queryTextAtom, RESET);
+
+        // Previous session
+        set(isRestorePreviousSessionAvailableAtom, RESET);
+
+        logger.debug("Clearing React Query cache");
+        queryClient.removeQueries();
+      },
+      [queryClient],
+    ),
   );
 }

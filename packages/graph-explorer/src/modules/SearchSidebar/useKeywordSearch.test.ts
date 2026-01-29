@@ -75,7 +75,7 @@ describe("useKeywordSearch", () => {
       );
 
       expect(result.current.attributesOptions).toStrictEqual([
-        { value: SEARCH_TOKENS.ALL_ATTRIBUTES, label: "All" },
+        { value: SEARCH_TOKENS.ALL_ATTRIBUTES, label: "All string properties" },
         { value: SEARCH_TOKENS.NODE_ID, label: "ID" },
       ]);
     });
@@ -118,7 +118,7 @@ describe("useKeywordSearch", () => {
       );
 
       expect(result.current.attributesOptions).toStrictEqual([
-        { value: SEARCH_TOKENS.ALL_ATTRIBUTES, label: "All" },
+        { value: SEARCH_TOKENS.ALL_ATTRIBUTES, label: "All string properties" },
         { value: SEARCH_TOKENS.NODE_ID, label: "ID" },
       ]);
     });
@@ -178,7 +178,10 @@ describe("useKeywordSearch", () => {
       );
 
       expect(result.current.attributesOptions).toStrictEqual([
-        { value: SEARCH_TOKENS.ALL_ATTRIBUTES, label: "All" },
+        {
+          value: SEARCH_TOKENS.ALL_ATTRIBUTES,
+          label: "All string datatype properties",
+        },
         { value: "rdfs:label", label: "rdfs:label" },
       ]);
     });
@@ -223,7 +226,10 @@ describe("useKeywordSearch", () => {
       );
 
       expect(result.current.attributesOptions).toStrictEqual([
-        { value: SEARCH_TOKENS.ALL_ATTRIBUTES, label: "All" },
+        {
+          value: SEARCH_TOKENS.ALL_ATTRIBUTES,
+          label: "All string datatype properties",
+        },
       ]);
     });
   });

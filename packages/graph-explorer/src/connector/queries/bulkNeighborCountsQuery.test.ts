@@ -1,6 +1,6 @@
 import { createArray } from "@shared/utils/testing";
 
-import { createVertexType } from "@/core";
+import { createVertexType, explorerForTestingAtom, getAppStore } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 import { createRandomVertex, FakeExplorer } from "@/utils/testing";
@@ -14,7 +14,8 @@ describe("bulkNeighborCountsQuery", () => {
   it("should return nothing when input is empty", async () => {
     const explorer = new FakeExplorer();
     const bulkNeighborCountsSpy = vi.spyOn(explorer, "neighborCounts");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(
       bulkNeighborCountsQuery([], queryClient),
@@ -27,7 +28,8 @@ describe("bulkNeighborCountsQuery", () => {
   it("should return cached when input is cached", async () => {
     const explorer = new FakeExplorer();
     const bulkNeighborCountsSpy = vi.spyOn(explorer, "neighborCounts");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const vertex = createRandomVertex();
 
@@ -61,7 +63,8 @@ describe("bulkNeighborCountsQuery", () => {
   it("should fetch counts for input", async () => {
     const explorer = new FakeExplorer();
     const bulkNeighborCountsSpy = vi.spyOn(explorer, "neighborCounts");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const vertex = createRandomVertex();
     const expected: NeighborCount = {
@@ -94,7 +97,8 @@ describe("bulkNeighborCountsQuery", () => {
   it("should combine cached and fetched", async () => {
     const explorer = new FakeExplorer();
     const bulkNeighborCountsSpy = vi.spyOn(explorer, "neighborCounts");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     // Add counts to cache
     const vertexCached = createRandomVertex();
@@ -144,7 +148,8 @@ describe("bulkNeighborCountsQuery", () => {
   it("should batch fetches for input", async () => {
     const explorer = new FakeExplorer();
     const bulkNeighborCountsSpy = vi.spyOn(explorer, "neighborCounts");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const vertices = createArray(
       // 3 full batches plus 1 additional, to make 4

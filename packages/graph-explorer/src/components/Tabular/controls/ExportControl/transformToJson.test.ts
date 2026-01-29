@@ -1,17 +1,15 @@
-import dedent from "dedent";
+import type { TabularColumnInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 
-import type { TabularColumnInstance } from "../../helpers/tableInstanceToTabularInstance";
+import { transformToJson } from "./transformToJson";
 
-import { transformToCsv } from "./transformToCsv";
-
-describe("transformToCsv", () => {
-  it("should transform empty data to empty csv", () => {
-    const result = transformToCsv([], []);
-    expect(result).toBe("");
+describe("transformToJson", () => {
+  it("should transform empty data to empty array", () => {
+    const result = transformToJson([], []);
+    expect(result).toEqual([]);
   });
 
-  it("should transform data to csv", () => {
-    const result = transformToCsv(
+  it("should transform data to json", () => {
+    const result = transformToJson(
       [
         {
           id: "1",
@@ -27,16 +25,18 @@ describe("transformToCsv", () => {
         createColumn("gender"),
       ],
     );
-    expect(csv(result)).toEqual(
-      csv(`
-        id,name,age,gender
-        1,test,10,male
-      `),
-    );
+    expect(result).toEqual([
+      {
+        id: "1",
+        name: "test",
+        age: 10,
+        gender: "male",
+      },
+    ]);
   });
 
   it("should handle data with commas", () => {
-    const result = transformToCsv(
+    const result = transformToJson(
       [
         {
           name: "LastName, FirstName",
@@ -45,16 +45,16 @@ describe("transformToCsv", () => {
       ],
       [createColumn("name"), createColumn("age")],
     );
-    expect(csv(result)).toEqual(
-      csv(`
-        name,age
-        "LastName, FirstName",10
-      `),
-    );
+    expect(result).toEqual([
+      {
+        name: "LastName, FirstName",
+        age: 10,
+      },
+    ]);
   });
 
-  it("should transform data to csv and only include provided columns", () => {
-    const result = transformToCsv(
+  it("should transform data to json and only include provided columns", () => {
+    const result = transformToJson(
       [
         {
           id: "1",
@@ -65,16 +65,16 @@ describe("transformToCsv", () => {
       ],
       [createColumn("name"), createColumn("age")],
     );
-    expect(csv(result)).toEqual(
-      csv(`
-        name,age
-        test,10
-      `),
-    );
+    expect(result).toEqual([
+      {
+        name: "test",
+        age: 10,
+      },
+    ]);
   });
 
   it("should ignore missing properties in data", () => {
-    const result = transformToCsv(
+    const result = transformToJson(
       [
         {
           id: "1",
@@ -95,17 +95,23 @@ describe("transformToCsv", () => {
         createColumn("gender"),
       ],
     );
-    expect(csv(result)).toEqual(
-      csv(`
-        id,name,age,gender
-        1,test,10,male
-        2,other test,,female
-      `),
-    );
+    expect(result).toEqual([
+      {
+        id: "1",
+        name: "test",
+        age: 10,
+        gender: "male",
+      },
+      {
+        id: "2",
+        name: "other test",
+        gender: "female",
+      },
+    ]);
   });
 
-  it("should transform data to csv with data that contains 'original' property", () => {
-    const result = transformToCsv(
+  it("should transform data to json with data that contains 'original' property", () => {
+    const result = transformToJson(
       [
         {
           id: "1",
@@ -127,16 +133,18 @@ describe("transformToCsv", () => {
         createColumn("gender"),
       ],
     );
-    expect(csv(result)).toEqual(
-      csv(`
-        id,name,age,gender
-        1,test,10,male
-      `),
-    );
+    expect(result).toEqual([
+      {
+        id: "1",
+        name: "test",
+        age: 10,
+        gender: "male",
+      },
+    ]);
   });
 
   it("should handle function accessors", () => {
-    const result = transformToCsv(
+    const result = transformToJson(
       [
         {
           id: "1",
@@ -150,16 +158,17 @@ describe("transformToCsv", () => {
         createColumn("age"),
       ],
     );
-    expect(csv(result)).toEqual(
-      csv(`
-        id,fullName,age
-        1,test (1),10
-      `),
-    );
+    expect(result).toEqual([
+      {
+        id: "1",
+        fullName: "test (1)",
+        age: 10,
+      },
+    ]);
   });
 
   it("should handle mixed string and function accessors", () => {
-    const result = transformToCsv(
+    const result = transformToJson(
       [
         {
           id: "1",
@@ -177,16 +186,18 @@ describe("transformToCsv", () => {
         createColumn("gender"),
       ],
     );
-    expect(csv(result)).toEqual(
-      csv(`
-        id,name,ageGroup,gender
-        1,test,minor,male
-      `),
-    );
+    expect(result).toEqual([
+      {
+        id: "1",
+        name: "test",
+        ageGroup: "minor",
+        gender: "male",
+      },
+    ]);
   });
 
   it("should handle function accessors that return null or undefined", () => {
-    const result = transformToCsv(
+    const result = transformToJson(
       [
         {
           id: "1",
@@ -202,16 +213,19 @@ describe("transformToCsv", () => {
         createColumn("age"),
       ],
     );
-    expect(csv(result)).toEqual(
-      csv(`
-        id,name,optional,optional2,age
-        1,test,,,10
-      `),
-    );
+    expect(result).toEqual([
+      {
+        id: "1",
+        name: "test",
+        optional: null,
+        optional2: undefined,
+        age: 10,
+      },
+    ]);
   });
 
   it("should handle columns with null accessor", () => {
-    const result = transformToCsv(
+    const result = transformToJson(
       [
         {
           id: "1",
@@ -224,12 +238,12 @@ describe("transformToCsv", () => {
         createColumn("name"),
       ],
     );
-    expect(csv(result)).toEqual(
-      csv(`
-        id,name,name
-        1,,test
-      `),
-    );
+    expect(result).toEqual([
+      {
+        id: "1",
+        name: "test",
+      },
+    ]);
   });
 });
 
@@ -272,11 +286,4 @@ function createColumnWithAccessor<T extends object>(
       accessor: accessor as any,
     },
   } as any;
-}
-
-/** Removes leading space evenly across all lines, removes empty lines, and normalizes line endings. */
-function csv(value: string) {
-  return dedent(value)
-    .replace(/^\s*\n/gm, "")
-    .replace(/\r\n|\r|\n/g, "\n");
 }

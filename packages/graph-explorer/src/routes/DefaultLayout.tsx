@@ -4,14 +4,13 @@ import { Outlet } from "react-router";
 
 import { TooltipProvider } from "@/components";
 import { Toaster } from "@/components/Toaster";
-import { emptyExplorer } from "@/connector/emptyExplorer";
 import AppErrorPage from "@/core/AppErrorPage";
 import AppStatusLoader from "@/core/AppStatusLoader";
 
 import { ExplorerInjector } from "../core/ExplorerInjector";
 import { createQueryClient } from "../core/queryClient";
 
-const queryClient = createQueryClient({ explorer: emptyExplorer });
+const queryClient = createQueryClient();
 
 /**
  * The default layout for the app, which sets up the query client, a global

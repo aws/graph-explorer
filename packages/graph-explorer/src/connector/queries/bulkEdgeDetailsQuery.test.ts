@@ -1,6 +1,6 @@
 import { createArray } from "@shared/utils/testing";
 
-import { edgesAtom, getAppStore } from "@/core";
+import { edgesAtom, explorerForTestingAtom, getAppStore } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 import { createRandomEdge, FakeExplorer } from "@/utils/testing";
@@ -12,7 +12,8 @@ describe("bulkEdgeDetailsQuery", () => {
   it("should return nothing when input is empty", async () => {
     const explorer = new FakeExplorer();
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(bulkEdgeDetailsQuery([]));
 
@@ -23,7 +24,8 @@ describe("bulkEdgeDetailsQuery", () => {
   it("should return cached when input is cached", async () => {
     const explorer = new FakeExplorer();
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const edge = createRandomEdge();
 
@@ -46,7 +48,8 @@ describe("bulkEdgeDetailsQuery", () => {
   it("should fetch details for input", async () => {
     const explorer = new FakeExplorer();
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const edge = createRandomEdge();
     explorer.addEdge(edge);
@@ -67,7 +70,8 @@ describe("bulkEdgeDetailsQuery", () => {
   it("should combine cached and fetched results", async () => {
     const explorer = new FakeExplorer();
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const edgeCached = createRandomEdge();
 
@@ -99,7 +103,8 @@ describe("bulkEdgeDetailsQuery", () => {
   it("should batch fetches for input", async () => {
     const explorer = new FakeExplorer();
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const edges = createArray(DEFAULT_BATCH_REQUEST_SIZE * 3, () =>
       createRandomEdge(),
@@ -123,7 +128,8 @@ describe("bulkEdgeDetailsQuery", () => {
 
   it("should update edgesAtom when edges are already in graph", async () => {
     const explorer = new FakeExplorer();
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const originalEdge1 = createRandomEdge();
     const originalEdge2 = createRandomEdge();
@@ -161,7 +167,8 @@ describe("bulkEdgeDetailsQuery", () => {
 
   it("should not update edgesAtom when edges are not in graph", async () => {
     const explorer = new FakeExplorer();
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const edge1 = createRandomEdge();
     const edge2 = createRandomEdge();
@@ -180,7 +187,8 @@ describe("bulkEdgeDetailsQuery", () => {
   it("should ignore cache when ignoreCache option is true", async () => {
     const explorer = new FakeExplorer();
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const cachedEdge = createRandomEdge();
     const updatedEdge = {
@@ -212,7 +220,8 @@ describe("bulkEdgeDetailsQuery", () => {
   it("should use cache when ignoreCache option is false", async () => {
     const explorer = new FakeExplorer();
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const cachedEdge = createRandomEdge();
 

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, render } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { Provider } from "jotai";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -40,9 +40,7 @@ describe("ExplorerInjector", () => {
     renderExplorerInjector(queryClient);
 
     const defaultOptions = queryClient.getDefaultOptions();
-    expect(defaultOptions.queries?.meta?.explorer).toBe(explorer);
     expect(defaultOptions.queries?.meta?.store).toBe(store);
-    expect(defaultOptions.mutations?.meta?.explorer).toBe(explorer);
     expect(defaultOptions.mutations?.meta?.store).toBe(store);
   });
 
@@ -54,7 +52,7 @@ describe("ExplorerInjector", () => {
     const clearSpy = vi.spyOn(queryClient, "clear");
     const setDefaultOptionsSpy = vi.spyOn(queryClient, "setDefaultOptions");
 
-    const { rerender } = render(
+    render(
       <QueryClientProvider client={queryClient}>
         <Provider store={store}>
           <ExplorerInjector />
@@ -64,26 +62,6 @@ describe("ExplorerInjector", () => {
 
     expect(clearSpy).toHaveBeenCalledTimes(1);
     expect(setDefaultOptionsSpy).toHaveBeenCalledTimes(1);
-
-    // Change the explorer
-    const explorer2 = createMockExplorer();
-    act(() => {
-      store.set(explorerForTestingAtom, explorer2);
-    });
-
-    rerender(
-      <QueryClientProvider client={queryClient}>
-        <Provider store={store}>
-          <ExplorerInjector />
-        </Provider>
-      </QueryClientProvider>,
-    );
-
-    expect(clearSpy).toHaveBeenCalledTimes(2);
-    expect(setDefaultOptionsSpy).toHaveBeenCalledTimes(2);
-
-    const defaultOptions = queryClient.getDefaultOptions();
-    expect(defaultOptions.queries?.meta?.explorer).toBe(explorer2);
   });
 
   test("should not clear cache when explorer remains the same", () => {

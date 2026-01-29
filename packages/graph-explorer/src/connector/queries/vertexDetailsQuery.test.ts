@@ -1,4 +1,4 @@
-import { getAppStore, nodesAtom } from "@/core";
+import { explorerForTestingAtom, getAppStore, nodesAtom } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import {
   createRandomVertex,
@@ -11,8 +11,9 @@ import { vertexDetailsQuery } from "./vertexDetailsQuery";
 describe("vertexDetailsQuery", () => {
   it("should return null when vertex is not found", async () => {
     const explorer = new FakeExplorer();
+    getAppStore().set(explorerForTestingAtom, explorer);
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
-    const queryClient = createQueryClient({ explorer });
+    const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(
       vertexDetailsQuery(createRandomVertexId()),
@@ -24,8 +25,9 @@ describe("vertexDetailsQuery", () => {
 
   it("should fetch details for input", async () => {
     const explorer = new FakeExplorer();
+    getAppStore().set(explorerForTestingAtom, explorer);
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
-    const queryClient = createQueryClient({ explorer });
+    const queryClient = createQueryClient();
 
     const vertex = createRandomVertex();
     explorer.addVertex(vertex);
@@ -38,7 +40,8 @@ describe("vertexDetailsQuery", () => {
 
   it("should update nodesAtom when vertex is already in graph", async () => {
     const explorer = new FakeExplorer();
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const originalVertex = createRandomVertex();
     const updatedVertex = {
@@ -64,7 +67,8 @@ describe("vertexDetailsQuery", () => {
 
   it("should not update nodesAtom when vertex is not in graph", async () => {
     const explorer = new FakeExplorer();
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const vertex = createRandomVertex();
     explorer.addVertex(vertex);

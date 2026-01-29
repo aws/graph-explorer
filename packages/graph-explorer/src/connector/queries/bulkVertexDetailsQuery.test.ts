@@ -1,6 +1,6 @@
 import { createArray } from "@shared/utils/testing";
 
-import { getAppStore, nodesAtom } from "@/core";
+import { explorerForTestingAtom, getAppStore, nodesAtom } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
 import { createRandomVertex, FakeExplorer } from "@/utils/testing";
@@ -12,7 +12,8 @@ describe("bulkVertexDetailsQuery", () => {
   it("should return nothing when input is empty", async () => {
     const explorer = new FakeExplorer();
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(bulkVertexDetailsQuery([]));
 
@@ -23,7 +24,8 @@ describe("bulkVertexDetailsQuery", () => {
   it("should return cached when input is cached", async () => {
     const explorer = new FakeExplorer();
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const vertex = createRandomVertex();
 
@@ -48,7 +50,8 @@ describe("bulkVertexDetailsQuery", () => {
   it("should fetch details for input", async () => {
     const explorer = new FakeExplorer();
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const vertex = createRandomVertex();
     explorer.addVertex(vertex);
@@ -69,7 +72,8 @@ describe("bulkVertexDetailsQuery", () => {
   it("should combine cached and fetched results", async () => {
     const explorer = new FakeExplorer();
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const vertexCached = createRandomVertex();
 
@@ -101,7 +105,8 @@ describe("bulkVertexDetailsQuery", () => {
   it("should batch fetches for input", async () => {
     const explorer = new FakeExplorer();
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const vertices = createArray(
       // 3 full batches plus 1 additional, to make 4
@@ -127,7 +132,8 @@ describe("bulkVertexDetailsQuery", () => {
 
   it("should update nodesAtom when vertices are already in graph", async () => {
     const explorer = new FakeExplorer();
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const originalVertex1 = createRandomVertex();
     const originalVertex2 = createRandomVertex();
@@ -165,7 +171,8 @@ describe("bulkVertexDetailsQuery", () => {
 
   it("should not update nodesAtom when vertices are not in graph", async () => {
     const explorer = new FakeExplorer();
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const vertex1 = createRandomVertex();
     const vertex2 = createRandomVertex();
@@ -186,7 +193,8 @@ describe("bulkVertexDetailsQuery", () => {
   it("should ignore cache when ignoreCache option is true", async () => {
     const explorer = new FakeExplorer();
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const cachedVertex = createRandomVertex();
     const updatedVertex = {
@@ -218,7 +226,8 @@ describe("bulkVertexDetailsQuery", () => {
   it("should use cache when ignoreCache option is false", async () => {
     const explorer = new FakeExplorer();
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
-    const queryClient = createQueryClient({ explorer });
+    getAppStore().set(explorerForTestingAtom, explorer);
+    const queryClient = createQueryClient();
 
     const cachedVertex = createRandomVertex();
 

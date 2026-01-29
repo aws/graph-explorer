@@ -6,8 +6,6 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 
-import type { Explorer } from "@/connector";
-
 import { logger, NetworkError } from "@/utils";
 
 import { getAppStore } from "./StateProvider/appStore";
@@ -20,7 +18,6 @@ const MAX_RETRIES = 3;
 const HTTP_STATUS_TO_NOT_RETRY = [400, 401, 403, 404, 429];
 
 export interface GraphExplorerMeta extends Record<string, unknown> {
-  explorer?: Explorer;
   store?: Store;
 }
 
@@ -32,20 +29,14 @@ declare module "@tanstack/react-query" {
 }
 
 /**
- * Creates a new query client with the given explorer.
- * @param explorer The explorer to use for the query client.
+ * Creates a new query client.
  * @returns A new query client.
  */
-export function createQueryClient({
-  explorer,
-  store = getAppStore(),
-}: {
-  explorer: Explorer;
-  store?: Store;
-}) {
-  logger.debug("Creating new query client with explorer:", explorer);
+export function createQueryClient() {
+  const store = getAppStore();
+  logger.debug("Creating new query client");
   return new QueryClient({
-    defaultOptions: createDefaultOptions(explorer, store),
+    defaultOptions: createDefaultOptions(store),
     queryCache: new QueryCache({
       onError(error, query) {
         logger.error("Query failed to execute:", query.queryKey, error);
@@ -55,16 +46,13 @@ export function createQueryClient({
 }
 
 /**
- * Creates the query client's default options with the explorer instance
+ * Creates the query client's default options with the Jotai store
  * injected in to the `meta` object.
- * @param explorer The explorer to use for the default options.
+ * @param store The Jotai store to use for the default options.
  * @returns The query client default options
  */
-export function createDefaultOptions(
-  explorer: Explorer,
-  store: Store,
-): DefaultOptions<Error> {
-  const meta: GraphExplorerMeta = { explorer, store };
+export function createDefaultOptions(store: Store): DefaultOptions<Error> {
+  const meta: GraphExplorerMeta = { store };
   return {
     queries: {
       meta,
