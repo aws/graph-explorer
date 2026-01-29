@@ -5,10 +5,15 @@ import { cva, type VariantProps } from "cva";
 import { cn } from "@/utils";
 
 const chip = cva({
-  base: "chip inline-flex h-[22px] items-center justify-center gap-1 overflow-hidden rounded-full px-2.5 text-sm font-medium text-ellipsis whitespace-nowrap text-white select-none [&>svg]:size-4",
+  base: "chip inline-flex h-[22px] items-center justify-center gap-1 overflow-hidden rounded-full px-2.5 text-sm leading-none font-medium text-ellipsis whitespace-nowrap text-white select-none [&>svg]:size-4",
   variants: {
     variant: {
+      neutral: "bg-neutral",
+      "neutral-subtle":
+        "bg-neutral-subtle text-neutral-foreground border-neutral-foreground/25 border",
       primary: "bg-primary-main",
+      "primary-subtle":
+        "bg-primary-subtle text-primary-foreground border-primary-foreground/25 border",
       success: "bg-success-main",
       error: "bg-error-main",
       warning: "bg-warning-main",
