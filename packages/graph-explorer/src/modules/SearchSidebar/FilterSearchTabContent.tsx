@@ -95,7 +95,7 @@ export function FilterSearchTabContent() {
         </div>
 
         <FormItem>
-          <Label htmlFor="searchTerm">Search term</Label>
+          <Label htmlFor="searchTerm">Search string term</Label>
           <Input
             name="searchTerm"
             value={searchTerm}

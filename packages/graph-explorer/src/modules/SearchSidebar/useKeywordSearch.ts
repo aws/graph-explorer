@@ -5,6 +5,7 @@ import type { SelectOption } from "@/components";
 
 import { useDisplayVertexTypeConfigs, useSearchableAttributes } from "@/core";
 import { useQueryEngine } from "@/core/connector";
+import { useTranslations } from "@/hooks";
 import useDebounceValue from "@/hooks/useDebounceValue";
 import { SEARCH_TOKENS } from "@/utils";
 
@@ -27,9 +28,13 @@ export const partialMatchAtom = atomWithReset(false);
 function useAttributeOptions(selectedVertexType: string) {
   const allSearchableAttributes = useSearchableAttributes(selectedVertexType);
   const queryEngine = useQueryEngine();
+  const t = useTranslations();
 
   const options: SelectOption[] = [
-    { label: "All", value: SEARCH_TOKENS.ALL_ATTRIBUTES },
+    {
+      label: `All string ${t("properties").toLocaleLowerCase()}`,
+      value: SEARCH_TOKENS.ALL_ATTRIBUTES,
+    },
   ];
 
   // SPARQL support for ID search is not yet implemented
