@@ -17,7 +17,7 @@ import {
   useEdgeTypeTotal,
 } from "@/core";
 import { useTranslations } from "@/hooks";
-import { cn, LABELS } from "@/utils";
+import { LABELS } from "@/utils";
 
 import {
   AttributeList,
@@ -35,7 +35,6 @@ export type EdgeConnectionDetailsProps = {
 export function EdgeConnectionDetails({
   edgeConnection,
   onClose,
-  className,
   ...props
 }: EdgeConnectionDetailsProps) {
   const t = useTranslations();
@@ -43,7 +42,7 @@ export function EdgeConnectionDetails({
   const total = useEdgeTypeTotal(edgeConnection.edgeType);
 
   return (
-    <Panel className={cn(className)} {...props}>
+    <Panel {...props}>
       <PanelHeader>
         <PanelTitle>{LABELS.SIDEBAR.SELECTION_DETAILS}</PanelTitle>
         <PanelHeaderActions>
