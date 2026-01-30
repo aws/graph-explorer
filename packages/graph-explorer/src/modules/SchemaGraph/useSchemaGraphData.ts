@@ -3,15 +3,17 @@ import type { GraphEdge, GraphNode } from "@/components/Graph";
 import {
   createEdgeConnectionId,
   type EdgeConnectionId,
+  type EdgeType,
   useActiveSchema,
   useDisplayEdgeTypeConfigs,
   useDisplayVertexTypeConfigs,
+  type VertexType,
 } from "@/core";
 
 type SchemaGraphNode = GraphNode & {
   data: {
-    id: string;
-    type: string;
+    id: VertexType;
+    type: VertexType;
     displayLabel: string;
   };
 };
@@ -19,9 +21,9 @@ type SchemaGraphNode = GraphNode & {
 type SchemaGraphEdge = GraphEdge & {
   data: {
     id: EdgeConnectionId;
-    source: string;
-    target: string;
-    type: string;
+    source: VertexType;
+    target: VertexType;
+    type: EdgeType;
     displayLabel: string;
   };
 };
@@ -59,7 +61,9 @@ function useSchemaGraphNodes(): SchemaGraphNode[] {
 }
 
 /** Transforms edge connections into schema graph edges, filtering out edges with missing nodes. */
-function useSchemaGraphEdges(existingNodeIds: Set<string>): SchemaGraphEdge[] {
+function useSchemaGraphEdges(
+  existingNodeIds: Set<VertexType>,
+): SchemaGraphEdge[] {
   const schema = useActiveSchema();
   const edgeConnections = schema.edgeConnections ?? [];
   const etConfigs = useDisplayEdgeTypeConfigs();
