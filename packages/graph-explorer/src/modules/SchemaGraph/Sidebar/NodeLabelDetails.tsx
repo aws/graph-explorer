@@ -94,7 +94,9 @@ export function NodeLabelDetails({
         <div className="space-y-4">
           <DetailsTitle className="flex justify-between gap-2">
             {t("properties")}
-            <Chip variant="primary-subtle">{config.attributes.length}</Chip>
+            <Chip variant="primary-subtle">
+              {toHumanString(config.attributes.length)}
+            </Chip>
           </DetailsTitle>
           <div>
             {config.attributes.length === 0 ? (
