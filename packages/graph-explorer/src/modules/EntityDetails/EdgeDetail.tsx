@@ -158,7 +158,10 @@ function styleForLineStyle(style: LineStyle): CSSProperties {
 }
 
 /** Renders the right SVG icon for the given arrow style. */
-function Arrow({ kind, ...props }: { kind: ArrowStyle } & IconBaseProps) {
+export function Arrow({
+  kind,
+  ...props
+}: { kind: ArrowStyle } & IconBaseProps) {
   return (
     <>
       {kind === "triangle" && <ArrowTriangle {...props} />}

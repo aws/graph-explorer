@@ -94,11 +94,13 @@ describe("mapToDisplayVertexTypeConfig", () => {
       {
         name: "age",
         displayLabel: "age",
+        dataType: "Number",
         isSearchable: false,
       },
       {
         name: "firstName",
         displayLabel: "firstName",
+        dataType: "String",
         isSearchable: true,
       },
     ]);
@@ -193,11 +195,13 @@ describe("mapToDisplayVertexTypeConfig", () => {
       {
         name: "email",
         displayLabel: "email",
+        dataType: "String",
         isSearchable: true,
       },
       {
         name: "name",
         displayLabel: "name",
+        dataType: "String",
         isSearchable: true,
       },
     ]);
@@ -257,11 +261,13 @@ describe("mapToDisplayVertexTypeConfig", () => {
       {
         name: "name",
         displayLabel: "name",
+        dataType: "String",
         isSearchable: true,
       },
       {
         name: "unknown",
         displayLabel: "unknown",
+        dataType: "«No Type»",
         isSearchable: false,
       },
     ]);
@@ -402,7 +408,12 @@ describe("useSearchableAttributes", () => {
     );
 
     expect(result.current).toStrictEqual([
-      { name: "name", displayLabel: "name", isSearchable: true },
+      {
+        name: "name",
+        displayLabel: "name",
+        dataType: "String",
+        isSearchable: true,
+      },
     ]);
   });
 
@@ -444,8 +455,18 @@ describe("useSearchableAttributes", () => {
     );
 
     expect(result.current).toStrictEqual([
-      { name: "firstName", displayLabel: "firstName", isSearchable: true },
-      { name: "lastName", displayLabel: "lastName", isSearchable: true },
+      {
+        name: "firstName",
+        displayLabel: "firstName",
+        dataType: "String",
+        isSearchable: true,
+      },
+      {
+        name: "lastName",
+        displayLabel: "lastName",
+        dataType: "String",
+        isSearchable: true,
+      },
     ]);
   });
 
@@ -473,9 +494,24 @@ describe("useSearchableAttributes", () => {
     );
 
     expect(result.current).toStrictEqual([
-      { name: "sharedAttr", displayLabel: "sharedAttr", isSearchable: true },
-      { name: "uniqueAttr1", displayLabel: "uniqueAttr1", isSearchable: true },
-      { name: "uniqueAttr2", displayLabel: "uniqueAttr2", isSearchable: true },
+      {
+        name: "sharedAttr",
+        displayLabel: "sharedAttr",
+        dataType: "String",
+        isSearchable: true,
+      },
+      {
+        name: "uniqueAttr1",
+        displayLabel: "uniqueAttr1",
+        dataType: "String",
+        isSearchable: true,
+      },
+      {
+        name: "uniqueAttr2",
+        displayLabel: "uniqueAttr2",
+        dataType: "String",
+        isSearchable: true,
+      },
     ]);
   });
 

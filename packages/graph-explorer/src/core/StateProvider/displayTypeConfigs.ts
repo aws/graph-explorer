@@ -37,6 +37,7 @@ export type DisplayEdgeTypeConfig = {
 export type DisplayConfigAttribute = {
   name: string;
   displayLabel: string;
+  dataType: string;
   isSearchable: boolean;
 };
 
@@ -165,6 +166,7 @@ export function mapToDisplayVertexTypeConfig(
     .map(attr => ({
       name: attr.name,
       displayLabel: textTransform(attr.name),
+      dataType: attr.dataType ?? LABELS.MISSING_TYPE,
       isSearchable: isAttributeSearchable(attr),
     }))
     .toSorted(sortAttributeByName);
@@ -192,6 +194,7 @@ export function mapToDisplayEdgeTypeConfig(
     .map(attr => ({
       name: attr.name,
       displayLabel: textTransform(attr.name),
+      dataType: attr.dataType ?? LABELS.MISSING_TYPE,
       isSearchable: isAttributeSearchable(attr),
     }))
     .toSorted(sortAttributeByName);

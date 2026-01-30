@@ -13,7 +13,6 @@ import { useHasActiveSchema } from "@/core";
 import { cn } from "@/utils";
 
 import { buttonStyles } from "./Button";
-import NotInProduction from "./NotInProduction";
 
 type RouteButtonProps = {
   variant?: VariantProps<typeof buttonStyles>["variant"];
@@ -68,15 +67,13 @@ export function DataExplorerRouteButton({ variant }: RouteButtonProps) {
 export function SchemaExplorerRouteButton({ variant }: RouteButtonProps) {
   const hasSchema = useHasActiveSchema();
   return (
-    <NotInProduction>
-      <Link
-        to={hasSchema ? "/schema-explorer" : "/connections"}
-        className={cn(buttonStyles({ variant }))}
-        aria-disabled={!hasSchema}
-      >
-        <NetworkIcon />
-        Schema Explorer
-      </Link>
-    </NotInProduction>
+    <Link
+      to={hasSchema ? "/schema-explorer" : "/connections"}
+      className={cn(buttonStyles({ variant }))}
+      aria-disabled={!hasSchema}
+    >
+      <NetworkIcon />
+      Schema Explorer
+    </Link>
   );
 }

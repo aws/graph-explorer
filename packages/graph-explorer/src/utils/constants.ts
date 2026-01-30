@@ -8,6 +8,8 @@ export const ASCII = {
   LAQUO: "\u00ab",
   /** Right double angle quotes */
   RAQUO: "\u00bb",
+  /** Right arrow character */
+  RARR: "\u2192",
 } as const;
 
 export const DEFAULT_SERVICE_TYPE = "neptune-db";
