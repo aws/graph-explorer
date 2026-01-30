@@ -81,6 +81,18 @@ export type Criterion = {
   dataType?: "String" | "Number" | "Date";
 };
 
+export type SortingCriterion = {
+  /**
+   * Attribute name.
+   */
+  name: string;
+  /**
+   * Sorting direction.
+   * By default, "asc".
+   */
+  direction: "asc" | "desc";
+};
+
 /**
  * A request for the neighbors and relationships for the given vertex, filtered
  * by the provided paramters.
@@ -171,7 +183,37 @@ export type KeywordSearchRequest = {
   exactMatch?: boolean;
 };
 
+export type FilterAndSortRequest = {
+  /**
+   * Filter by vertex types.
+   */
+  vertexTypes?: Array<string>;
+  /**
+   * Filter criteria to apply to the request.
+   */
+  filterCriteria?: Array<Criterion>;
+  /**
+   * Sorting criteria to apply to the request.
+   */
+  sortingCriteria?: Array<SortingCriterion>;
+  /**
+   * Limit the number of results.
+   * 0 = No limit.
+   */
+  limit?: number;
+  /**
+   * Skip the given number of results.
+   */
+  offset?: number;
+  /**
+   * Only return exact attribute value matches.
+   */
+  exactMatch?: boolean;
+};
+
 export type KeywordSearchResponse = { vertices: Vertex[] };
+
+export type FilterAndSortResponse = { vertices: Vertex[] };
 
 export type ErrorResponse = {
   code: string;
@@ -249,6 +291,10 @@ export type Explorer = {
     req: KeywordSearchRequest,
     options?: ExplorerRequestOptions,
   ) => Promise<KeywordSearchResponse>;
+  filterAndSortSearch: (
+    req: FilterAndSortRequest,
+    options?: ExplorerRequestOptions,
+  ) => Promise<FilterAndSortResponse>;
   vertexDetails: (
     req: VertexDetailsRequest,
     options?: ExplorerRequestOptions,

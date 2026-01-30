@@ -1,3 +1,4 @@
+export * from "./filterAndSortQuery";
 export * from "./schemaSyncQuery";
 export * from "./searchQuery";
 export * from "./bulkNeighborCountsQuery";

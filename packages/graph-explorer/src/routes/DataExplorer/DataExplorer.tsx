@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
+
+import type { DisplayConfigAttribute } from "@/core/StateProvider/displayTypeConfigs";
 
 import {
   Button,
@@ -37,9 +39,11 @@ import {
 import { ExternalExportControl } from "@/components/Tabular/controls/ExportControl/ExternalExportControl";
 import Tabular from "@/components/Tabular/Tabular";
 import {
-  type KeywordSearchRequest,
+  type Criterion,
+  filterAndSortQuery,
+  type FilterAndSortRequest,
   nodeCountByNodeTypeQuery,
-  searchQuery,
+  type SortingCriterion,
 } from "@/connector";
 import {
   createVertexType,
@@ -54,7 +58,11 @@ import {
 } from "@/core";
 import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import { useVertexStyling } from "@/core/StateProvider/userPreferences";
-import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
+import {
+  useAddVertexToGraph,
+  useDebounceValue,
+  useHasVertexBeenAddedToGraph,
+} from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import {
   LABELS,
@@ -70,6 +78,58 @@ export type ConnectionsProps = {
 const DEFAULT_COLUMN = {
   width: 150,
 };
+
+function tabularFiltersToCriteria(
+  filters: Array<{ id: string; value: unknown }>,
+  attributes: DisplayConfigAttribute[],
+): Criterion[] {
+  const attrByName = new Map(attributes.map(a => [a.name, a]));
+
+  return filters
+    .filter(
+      f =>
+        f.value != null &&
+        f.value !== "" &&
+        (typeof f.value !== "string" || f.value.trim() !== ""),
+    )
+    .map(f => {
+      const attr = attrByName.get(f.id);
+      const dataType = attr?.dataType;
+
+      if (dataType === "Number") {
+        const num = Number(f.value);
+        return {
+          name: f.id,
+          operator: "eq" as const,
+          value: Number.isFinite(num) ? num : f.value,
+          dataType: "Number" as const,
+        };
+      }
+      if (dataType === "Date") {
+        return {
+          name: f.id,
+          operator: "eq" as const,
+          value: f.value,
+          dataType: "Date" as const,
+        };
+      }
+      return {
+        name: f.id,
+        operator: "like" as const,
+        value: f.value,
+        dataType: "String" as const,
+      };
+    });
+}
+
+function tabularSortsToCriteria(
+  sorts: Array<{ id: string; desc?: boolean }>,
+): SortingCriterion[] {
+  return sorts.map(s => ({
+    name: s.id,
+    direction: s.desc ? ("desc" as const) : ("asc" as const),
+  }));
+}
 
 export default function DataExplorer() {
   const { vertexType } = useParams();
@@ -97,9 +157,51 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
 
   const [tableInstance, setTableInstance] =
     useState<TabularInstance<DisplayVertex> | null>(null);
+  const [filterInput, setFilterInput] = useState<Criterion[]>([]);
+  const filterCriteria = useDebounceValue(filterInput, 300);
+  const [sortingCriteria, setSortingCriteria] = useState<SortingCriterion[]>(
+    [],
+  );
+  const initialFilterSync = useRef(true);
+  const initialSortSync = useRef(true);
+
   const columns = useColumnDefinitions(vertexType);
 
-  const query = useDataExplorerQuery(vertexType, pageSize, pageIndex);
+  const onDataFilteredChange = (
+    _: unknown,
+    filters: Array<{ id: string; value: unknown }>,
+  ) => {
+    setFilterInput(
+      tabularFiltersToCriteria(filters, displayTypeConfig.attributes),
+    );
+  };
+
+  useEffect(() => {
+    if (initialFilterSync.current) {
+      initialFilterSync.current = false;
+    } else {
+      onPageIndexChange(0);
+    }
+  }, [filterCriteria, onPageIndexChange]);
+
+  const onColumnSortedChange = (
+    sorts: Array<{ id: string; desc?: boolean }>,
+  ) => {
+    setSortingCriteria(tabularSortsToCriteria(sorts));
+    if (initialSortSync.current) {
+      initialSortSync.current = false;
+    } else {
+      onPageIndexChange(0);
+    }
+  };
+
+  const query = useDataExplorerQuery(
+    vertexType,
+    pageSize,
+    pageIndex,
+    filterCriteria,
+    sortingCriteria,
+  );
   const displayVertices = useDisplayVerticesFromVertices(
     query.data?.vertices ?? [],
   )
@@ -168,8 +270,10 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
               pageIndex={pageIndex}
               pageSize={pageSize}
               disablePagination={true}
-              disableFilters={true}
-              disableSorting={true}
+              manualFilters={true}
+              manualSorting={true}
+              onDataFilteredChange={onDataFilteredChange}
+              onColumnSortedChange={onColumnSortedChange}
             >
               <TabularEmptyBodyControls>
                 {query.isPending ? (
@@ -362,14 +466,18 @@ function useDataExplorerQuery(
   vertexType: VertexType,
   pageSize: number,
   pageIndex: number,
+  filterCriteria?: Array<Criterion>,
+  sortingCriteria?: Array<SortingCriterion>,
 ) {
   const updateSchema = useUpdateSchemaFromEntities();
 
-  const searchRequest: KeywordSearchRequest = {
+  const searchRequest: FilterAndSortRequest = {
     vertexTypes: [vertexType],
     limit: pageSize,
     offset: pageIndex * pageSize,
+    filterCriteria,
+    sortingCriteria,
   };
 
-  return useQuery(searchQuery(searchRequest, updateSchema));
+  return useQuery(filterAndSortQuery(searchRequest, updateSchema));
 }

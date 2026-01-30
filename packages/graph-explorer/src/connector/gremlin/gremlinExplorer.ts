@@ -14,6 +14,7 @@ import fetchEdgeConnections from "./fetchEdgeConnections";
 import fetchNeighbors from "./fetchNeighbors";
 import fetchSchema from "./fetchSchema";
 import fetchVertexTypeCounts from "./fetchVertexTypeCounts";
+import filterAndSortSearch from "./filterAndSort";
 import keywordSearch from "./keywordSearch";
 import { neighborCounts } from "./neighborCounts";
 import { rawQuery } from "./rawQuery";
@@ -116,6 +117,16 @@ export function createGremlinExplorer(
 
       remoteLogger.info("[Gremlin Explorer] Fetching keyword search...");
       return keywordSearch(
+        _gremlinFetch(connection, featureFlags, options),
+        req,
+      );
+    },
+    async filterAndSortSearch(req, options) {
+      options ??= {};
+      options.queryId = v4();
+
+      remoteLogger.info("[Gremlin Explorer] Fetching filter and sort...");
+      return filterAndSortSearch(
         _gremlinFetch(connection, featureFlags, options),
         req,
       );
