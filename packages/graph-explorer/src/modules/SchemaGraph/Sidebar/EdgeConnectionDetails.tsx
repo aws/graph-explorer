@@ -6,8 +6,6 @@ import {
   Panel,
   PanelContent,
   PanelHeader,
-  PanelHeaderActions,
-  PanelHeaderCloseButton,
   PanelTitle,
   toHumanString,
 } from "@/components";
@@ -28,13 +26,11 @@ import {
 
 export type EdgeConnectionDetailsProps = {
   edgeConnection: EdgeConnection;
-  onClose: () => void;
 } & ComponentPropsWithRef<typeof Panel>;
 
 /** Displays detailed information about an edge connection including properties and total count */
 export function EdgeConnectionDetails({
   edgeConnection,
-  onClose,
   ...props
 }: EdgeConnectionDetailsProps) {
   const t = useTranslations();
@@ -45,9 +41,6 @@ export function EdgeConnectionDetails({
     <Panel {...props}>
       <PanelHeader>
         <PanelTitle>{LABELS.SIDEBAR.SELECTION_DETAILS}</PanelTitle>
-        <PanelHeaderActions>
-          <PanelHeaderCloseButton onClose={onClose} />
-        </PanelHeaderActions>
       </PanelHeader>
       <PanelContent className="space-y-6 p-3">
         <div className="flex flex-row items-center justify-between">

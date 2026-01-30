@@ -16,13 +16,11 @@ import {
 
 export type SchemaExplorerSidebarProps = {
   selection: SchemaGraphSelection;
-  onClearSelection: () => void;
 };
 
 /** Resizable sidebar for schema graph with details tab */
 export function SchemaExplorerSidebar({
   selection,
-  onClearSelection,
 }: SchemaExplorerSidebarProps) {
   return (
     <ResizableSidebarContainer>
@@ -40,10 +38,7 @@ export function SchemaExplorerSidebar({
           </SidebarTabsTrigger>
         </SidebarTabsList>
         <SidebarTabsContent value="details">
-          <SchemaDetailsContent
-            selection={selection}
-            onClearSelection={onClearSelection}
-          />
+          <SchemaDetailsContent selection={selection} />
         </SidebarTabsContent>
       </SidebarTabs>
     </ResizableSidebarContainer>

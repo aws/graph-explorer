@@ -17,14 +17,10 @@ import { NodeLabelDetails } from "./NodeLabelDetails";
 
 export type SchemaDetailsContentProps = {
   selection: SchemaGraphSelection;
-  onClearSelection: () => void;
 };
 
 /** Displays details for selected vertex type or edge connection in schema graph */
-export function SchemaDetailsContent({
-  selection,
-  onClearSelection,
-}: SchemaDetailsContentProps) {
+export function SchemaDetailsContent({ selection }: SchemaDetailsContentProps) {
   const t = useTranslations();
   const graphSchema = useGraphSchema();
   const hasSelection = Boolean(
@@ -59,7 +55,6 @@ export function SchemaDetailsContent({
     return (
       <NodeLabelDetails
         vertexType={selection.vertexType}
-        onClose={onClearSelection}
         className="size-full"
       />
     );
@@ -69,7 +64,6 @@ export function SchemaDetailsContent({
     return (
       <EdgeConnectionDetails
         edgeConnection={edgeConnection}
-        onClose={onClearSelection}
         className="size-full"
       />
     );

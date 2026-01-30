@@ -5,8 +5,6 @@ import {
   Panel,
   PanelContent,
   PanelHeader,
-  PanelHeaderActions,
-  PanelHeaderCloseButton,
   PanelTitle,
   toHumanString,
   VertexSymbolByType,
@@ -30,13 +28,11 @@ import {
 
 export type NodeLabelDetailsProps = {
   vertexType: VertexType;
-  onClose: () => void;
 } & ComponentPropsWithRef<typeof Panel>;
 
 /** Displays detailed information about a vertex type including properties and edge connections */
 export function NodeLabelDetails({
   vertexType,
-  onClose,
   ...props
 }: NodeLabelDetailsProps) {
   const t = useTranslations();
@@ -51,9 +47,6 @@ export function NodeLabelDetails({
     <Panel {...props}>
       <PanelHeader>
         <PanelTitle>{LABELS.SIDEBAR.SELECTION_DETAILS}</PanelTitle>
-        <PanelHeaderActions>
-          <PanelHeaderCloseButton onClose={onClose} />
-        </PanelHeaderActions>
       </PanelHeader>
       <PanelContent className="space-y-6 p-3">
         <div className="flex flex-row items-center justify-between gap-2">

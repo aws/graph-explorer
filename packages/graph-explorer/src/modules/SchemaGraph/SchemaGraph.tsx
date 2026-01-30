@@ -73,12 +73,6 @@ export default function SchemaGraph({
     onSelectionChange?.({ vertexType, edgeConnectionId });
   };
 
-  const handleClearSelection = () => {
-    setSelectedVertexType(null);
-    setSelectedEdgeConnectionId(null);
-    onSelectionChange?.({ vertexType: null, edgeConnectionId: null });
-  };
-
   const hasSchemaData = nodes.length > 0;
 
   return (
@@ -122,7 +116,6 @@ export default function SchemaGraph({
           vertexType: selectedVertexType,
           edgeConnectionId: selectedEdgeConnectionId,
         }}
-        onClearSelection={handleClearSelection}
       />
     </div>
   );
