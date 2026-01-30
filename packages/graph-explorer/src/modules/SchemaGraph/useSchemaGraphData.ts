@@ -1,15 +1,12 @@
 import type { GraphEdge, GraphNode } from "@/components/Graph";
 
 import {
+  createEdgeConnectionId,
+  type EdgeConnectionId,
   useActiveSchema,
   useDisplayEdgeTypeConfigs,
   useDisplayVertexTypeConfigs,
 } from "@/core";
-
-import {
-  createEdgeConnectionId,
-  type EdgeConnectionId,
-} from "./edgeConnectionId";
 
 type SchemaGraphNode = GraphNode & {
   data: {

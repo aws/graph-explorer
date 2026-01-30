@@ -12,6 +12,7 @@ import {
   VertexSymbolByType,
 } from "@/components";
 import {
+  createEdgeConnectionId,
   useDisplayVertexTypeConfig,
   useGraphSchema,
   useVertexTypeTotal,
@@ -20,7 +21,6 @@ import {
 import { useTranslations } from "@/hooks";
 import { cn } from "@/utils";
 
-import { createEdgeConnectionId } from "../edgeConnectionId";
 import { LABELS } from "./constants";
 import {
   AttributeList,

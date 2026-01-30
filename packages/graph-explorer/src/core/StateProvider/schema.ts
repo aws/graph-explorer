@@ -18,7 +18,9 @@ import type { SetStateActionWithReset } from "@/utils/jotai";
 import { createTypedValue, type ScalarValue } from "@/connector/entities";
 import {
   activeConfigurationAtom,
+  createEdgeConnectionId,
   type Edge,
+  type EdgeConnectionId,
   type EdgeType,
   type Entities,
   type EntityProperties,
@@ -153,10 +155,13 @@ export type EdgeSchema = Simplify<
 >;
 
 function createEdgeConnectionsSchema(edgeConnections: EdgeConnection[]) {
-  const all = edgeConnections;
-
   const byVertexType = new Map<VertexType, EdgeConnection[]>();
+  const byEdgeConnectionId = new Map<EdgeConnectionId, EdgeConnection>();
+
   for (const conn of edgeConnections) {
+    const id = createEdgeConnectionId(conn);
+    byEdgeConnectionId.set(id, conn);
+
     // Add to source vertex type
     const sourceConns = byVertexType.get(conn.sourceVertexType) ?? [];
     sourceConns.push(conn);
@@ -171,10 +176,10 @@ function createEdgeConnectionsSchema(edgeConnections: EdgeConnection[]) {
   }
 
   return {
-    /** All edge connections in the schema */
-    all,
     /** Edge connections grouped by vertex type (includes both source and target) */
     byVertexType,
+    /** Edge connections by their ID */
+    byEdgeConnectionId,
     /** Get all connections for a specific vertex type */
     forVertexType(type: VertexType): EdgeConnection[] {
       return byVertexType.get(type) ?? [];

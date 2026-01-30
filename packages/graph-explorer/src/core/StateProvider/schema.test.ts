@@ -1,7 +1,12 @@
 import { createArray, createRandomName } from "@shared/utils/testing";
 import { useAtomValue } from "jotai";
 
-import { activeConfigurationAtom, configurationAtom, schemaAtom } from "@/core";
+import {
+  activeConfigurationAtom,
+  configurationAtom,
+  createEdgeConnectionId,
+  schemaAtom,
+} from "@/core";
 import { LABELS } from "@/utils";
 import {
   createRandomEdge,
@@ -445,19 +450,8 @@ describe("useGraphSchema edgeConnections", () => {
 
     const { result } = renderHookWithState(() => useGraphSchema(), state);
 
-    expect(result.current.edgeConnections.all).toStrictEqual([]);
     expect(result.current.edgeConnections.byVertexType.size).toBe(0);
-  });
-
-  test("should return all edge connections", () => {
-    const conn1 = createRandomEdgeConnection();
-    const conn2 = createRandomEdgeConnection();
-    const state = new DbState();
-    state.activeSchema.edgeConnections = [conn1, conn2];
-
-    const { result } = renderHookWithState(() => useGraphSchema(), state);
-
-    expect(result.current.edgeConnections.all).toStrictEqual([conn1, conn2]);
+    expect(result.current.edgeConnections.byEdgeConnectionId.size).toBe(0);
   });
 
   test("should group connections by vertex type", () => {
@@ -517,6 +511,30 @@ describe("useGraphSchema edgeConnections", () => {
     expect(
       result.current.edgeConnections.forVertexType(vertexType),
     ).toStrictEqual([conn]);
+  });
+
+  test("byEdgeConnectionId should map connections by their ID", () => {
+    const conn1 = createRandomEdgeConnection();
+    const conn2 = createRandomEdgeConnection();
+    const state = new DbState();
+    state.activeSchema.edgeConnections = [conn1, conn2];
+
+    const { result } = renderHookWithState(() => useGraphSchema(), state);
+
+    expect(result.current.edgeConnections.byEdgeConnectionId.size).toBe(2);
+  });
+
+  test("byEdgeConnectionId should allow lookup by ID", () => {
+    const conn = createRandomEdgeConnection();
+    const id = createEdgeConnectionId(conn);
+    const state = new DbState();
+    state.activeSchema.edgeConnections = [conn];
+
+    const { result } = renderHookWithState(() => useGraphSchema(), state);
+
+    expect(
+      result.current.edgeConnections.byEdgeConnectionId.get(id),
+    ).toStrictEqual(conn);
   });
 });
 

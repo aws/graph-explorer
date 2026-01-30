@@ -4,6 +4,7 @@ export * from "./displayAttribute";
 export * from "./displayEdge";
 export * from "./displayTypeConfigs";
 export * from "./displayVertex";
+export * from "./edgeConnectionId";
 export * from "./edges";
 export * from "./featureFlags";
 export * from "./neighbors";

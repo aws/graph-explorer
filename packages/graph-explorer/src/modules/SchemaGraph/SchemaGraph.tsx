@@ -7,10 +7,12 @@ import {
   type LayoutName,
   type SelectedElements,
 } from "@/components/Graph";
-import { createVertexType, type VertexType } from "@/core";
+import {
+  createVertexType,
+  type EdgeConnectionId,
+  type VertexType,
+} from "@/core";
 import { cn, logger } from "@/utils";
-
-import type { EdgeConnectionId } from "./edgeConnectionId";
 
 import { SchemaGraphToolbar } from "./SchemaGraphToolbar";
 import { SchemaExplorerSidebar } from "./Sidebar/SchemaExplorerSidebar";

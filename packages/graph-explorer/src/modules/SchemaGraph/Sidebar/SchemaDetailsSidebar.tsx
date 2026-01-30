@@ -5,7 +5,6 @@ import { cn, isVisible } from "@/utils";
 
 import type { SchemaGraphSelection } from "../SchemaGraph";
 
-import { parseEdgeConnectionId } from "../edgeConnectionId";
 import { EdgeConnectionDetails } from "./EdgeConnectionDetails";
 import { NodeLabelDetails } from "./NodeLabelDetails";
 
@@ -24,18 +23,10 @@ export function SchemaDetailsSidebar({
     selection.vertexType || selection.edgeConnectionId,
   );
 
-  // Find the edge connection details if an edge is selected
-  const edgeDetails = selection.edgeConnectionId
-    ? parseEdgeConnectionId(selection.edgeConnectionId)
-    : null;
-
   // Verify the edge connection exists in the schema
-  const edgeConnection = edgeDetails
-    ? graphSchema.edgeConnections.all.find(
-        ec =>
-          ec.sourceVertexType === edgeDetails.sourceVertexType &&
-          ec.edgeType === edgeDetails.edgeType &&
-          ec.targetVertexType === edgeDetails.targetVertexType,
+  const edgeConnection = selection.edgeConnectionId
+    ? graphSchema.edgeConnections.byEdgeConnectionId.get(
+        selection.edgeConnectionId,
       )
     : null;
 
@@ -49,7 +40,7 @@ export function SchemaDetailsSidebar({
             className="max-w-sm min-w-72 rounded-xl shadow-lg"
           />
         )}
-        {edgeConnection && edgeDetails && (
+        {edgeConnection && (
           <EdgeConnectionDetails
             edgeConnection={edgeConnection}
             onClose={onClose}

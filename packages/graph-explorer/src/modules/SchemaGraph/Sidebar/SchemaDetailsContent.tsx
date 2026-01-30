@@ -11,7 +11,6 @@ import { useTranslations } from "@/hooks";
 
 import type { SchemaGraphSelection } from "../SchemaGraph";
 
-import { parseEdgeConnectionId } from "../edgeConnectionId";
 import { LABELS } from "./constants";
 import { EdgeConnectionDetails } from "./EdgeConnectionDetails";
 import { NodeLabelDetails } from "./NodeLabelDetails";
@@ -32,19 +31,11 @@ export function SchemaDetailsContent({
     selection.vertexType || selection.edgeConnectionId,
   );
 
-  // Parse and verify the edge connection exists in the schema
+  // Get the edge connection from the schema
   const edgeConnection = selection.edgeConnectionId
-    ? (() => {
-        const parsed = parseEdgeConnectionId(selection.edgeConnectionId);
-        return parsed
-          ? graphSchema.edgeConnections.all.find(
-              ec =>
-                ec.sourceVertexType === parsed.sourceVertexType &&
-                ec.edgeType === parsed.edgeType &&
-                ec.targetVertexType === parsed.targetVertexType,
-            )
-          : null;
-      })()
+    ? graphSchema.edgeConnections.byEdgeConnectionId.get(
+        selection.edgeConnectionId,
+      )
     : null;
 
   if (!hasSelection) {
