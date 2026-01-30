@@ -4,15 +4,15 @@ import { type PropsWithChildren, useState } from "react";
 
 import { DetailsIcon } from "@/components";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/Tooltip";
-import {
-  DEFAULT_SCHEMA_SIDEBAR_WIDTH,
-  useSchemaExplorerSidebarSize,
-} from "@/core";
 import { cn } from "@/utils";
 
 import type { SchemaGraphSelection } from "../SchemaGraph";
 
 import { SchemaDetailsContent } from "./SchemaDetailsContent";
+import {
+  DEFAULT_SCHEMA_SIDEBAR_WIDTH,
+  useSchemaExplorerSidebarSize,
+} from "./schemaExplorerLayout";
 
 export type SchemaExplorerSidebarProps = {
   selection: SchemaGraphSelection;

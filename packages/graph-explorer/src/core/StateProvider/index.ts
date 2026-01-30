@@ -12,7 +12,6 @@ export * from "./nodes";
 export * from "./renderedEntities";
 export * from "./userPreferences";
 export * from "./schema";
-export * from "./schemaExplorerLayout";
 export * from "./storageAtoms";
 export * from "./graphSession";
 export * from "./userLayout";
