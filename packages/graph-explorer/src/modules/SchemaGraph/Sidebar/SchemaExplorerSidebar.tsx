@@ -4,7 +4,7 @@ import { type PropsWithChildren, useState } from "react";
 
 import { DetailsIcon } from "@/components";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/Tooltip";
-import { cn } from "@/utils";
+import { cn, LABELS } from "@/utils";
 
 import type { SchemaGraphSelection } from "../SchemaGraph";
 
@@ -32,7 +32,10 @@ export function SchemaExplorerSidebar({
         className="bg-background-default shadow-primary-dark/25 grid min-h-0 flex-none shrink-0 shadow"
       >
         <SidebarTabsList>
-          <SidebarTabsTrigger value="details" title="Details">
+          <SidebarTabsTrigger
+            value="details"
+            title={LABELS.SIDEBAR.SELECTION_DETAILS}
+          >
             <DetailsIcon />
           </SidebarTabsTrigger>
         </SidebarTabsList>

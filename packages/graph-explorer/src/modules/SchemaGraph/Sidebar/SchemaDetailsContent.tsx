@@ -8,12 +8,12 @@ import {
 } from "@/components";
 import { useGraphSchema } from "@/core";
 import { useTranslations } from "@/hooks";
+import { LABELS } from "@/utils";
 
 import type { SchemaGraphSelection } from "../SchemaGraph";
 
 import { EdgeConnectionDetails } from "./EdgeConnectionDetails";
 import { NodeLabelDetails } from "./NodeLabelDetails";
-import { LABELS } from "@/utils";
 
 export type SchemaDetailsContentProps = {
   selection: SchemaGraphSelection;
@@ -48,7 +48,7 @@ export function SchemaDetailsContent({
           <PanelEmptyState
             icon={<GraphIcon />}
             title="Empty Selection"
-            subtitle={`Select a ${t("node-type").toLocaleLowerCase()} or ${t("edge-type").toLocaleLowerCase()} to see its details`}
+            subtitle={`Select a ${t("node-type").toLocaleLowerCase()} or ${t("edge-connection").toLocaleLowerCase()} to see its details`}
           />
         </PanelContent>
       </Panel>

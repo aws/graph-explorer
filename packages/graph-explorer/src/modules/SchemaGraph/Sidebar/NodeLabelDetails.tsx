@@ -19,7 +19,7 @@ import {
   type VertexType,
 } from "@/core";
 import { useTranslations } from "@/hooks";
-import { cn, LABELS } from "@/utils";
+import { LABELS } from "@/utils";
 
 import {
   AttributeList,
@@ -37,7 +37,6 @@ export type NodeLabelDetailsProps = {
 export function NodeLabelDetails({
   vertexType,
   onClose,
-  className,
   ...props
 }: NodeLabelDetailsProps) {
   const t = useTranslations();
@@ -49,7 +48,7 @@ export function NodeLabelDetails({
     graphSchema.edgeConnections.byVertexType.get(vertexType);
 
   return (
-    <Panel className={cn(className)} {...props}>
+    <Panel {...props}>
       <PanelHeader>
         <PanelTitle>{LABELS.SIDEBAR.SELECTION_DETAILS}</PanelTitle>
         <PanelHeaderActions>
@@ -93,14 +92,14 @@ export function NodeLabelDetails({
         </div>
 
         <div className="space-y-4">
-          <DetailsTitle className="flex justify-between">
-            {t("properties")}{" "}
+          <DetailsTitle className="flex justify-between gap-2">
+            {t("properties")}
             <Chip variant="primary-subtle">{config.attributes.length}</Chip>
           </DetailsTitle>
           <div>
             {config.attributes.length === 0 ? (
               <DetailsValue>
-                No {t("properties").toLocaleLowerCase()} discovered
+                No {t("properties").toLocaleLowerCase()}
               </DetailsValue>
             ) : (
               <AttributeList attributes={config.attributes} />

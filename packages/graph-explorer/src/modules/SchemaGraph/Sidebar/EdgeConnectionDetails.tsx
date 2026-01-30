@@ -73,14 +73,14 @@ export function EdgeConnectionDetails({
         </div>
 
         <div className="space-y-4">
-          <DetailsTitle className="flex justify-between">
-            {t("properties")}{" "}
+          <DetailsTitle className="flex justify-between gap-2">
+            {t("properties")}
             <Chip variant="primary-subtle">{config.attributes.length}</Chip>
           </DetailsTitle>
           <div>
             {config.attributes.length === 0 ? (
               <DetailsValue>
-                No {t("properties").toLocaleLowerCase()} discovered
+                No {t("properties").toLocaleLowerCase()}
               </DetailsValue>
             ) : (
               <AttributeList attributes={config.attributes} />
