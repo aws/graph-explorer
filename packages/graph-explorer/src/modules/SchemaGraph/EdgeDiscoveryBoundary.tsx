@@ -30,13 +30,12 @@ export function EdgeDiscoveryBoundary({
   children,
 }: ComponentPropsWithoutRef<"div">) {
   const t = useTranslations();
-  const { isFetching, schemaDiscoveryQuery, edgeDiscoveryQuery } =
-    useSchemaSync();
+  const { schemaDiscoveryQuery, edgeDiscoveryQuery } = useSchemaSync();
 
   const schema = useMaybeActiveSchema();
   const cancel = useCancelSchemaSync();
 
-  if (isFetching) {
+  if (schemaDiscoveryQuery.isLoading || edgeDiscoveryQuery.isLoading) {
     return (
       <PanelGroup>
         <Panel className="flex-1">

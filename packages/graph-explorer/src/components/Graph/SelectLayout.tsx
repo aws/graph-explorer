@@ -1,6 +1,6 @@
 import type { ComponentPropsWithRef } from "react";
 
-import { atom, useAtom } from "jotai";
+import { type PrimitiveAtom, useAtom } from "jotai";
 
 import type { LayoutName } from "@/components/Graph/helpers/layoutConfig";
 
@@ -14,25 +14,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components";
-import { cn } from "@/utils";
-
-export const graphLayoutSelectionAtom = atom<LayoutName>("F_COSE");
 
 export function SelectLayout({
-  className,
-  ...selectTriggerProps
-}: ComponentPropsWithRef<typeof SelectTrigger>) {
-  const [value, setValue] = useAtom(graphLayoutSelectionAtom);
+  layoutAtom,
+  ...props
+}: ComponentPropsWithRef<typeof SelectTrigger> & {
+  layoutAtom: PrimitiveAtom<LayoutName>;
+}) {
+  const [value, setValue] = useAtom(layoutAtom);
 
   return (
     <Select
       value={value}
       onValueChange={value => setValue(value as LayoutName)}
     >
-      <SelectTrigger
-        className={cn("h-11 py-1", className)}
-        {...selectTriggerProps}
-      >
+      <SelectTrigger {...props}>
         <div className="flex flex-col items-start justify-center gap-0">
           <div className="text-text-secondary text-xs leading-none">Layout</div>
           <SelectValue placeholder="Select a layout" />

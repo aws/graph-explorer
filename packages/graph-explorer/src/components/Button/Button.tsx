@@ -19,7 +19,7 @@ export const buttonStyles = cva({
       danger: "",
     },
     size: {
-      small: "h-8 rounded-sm px-2 text-base [&_svg]:size-5",
+      small: "h-8 rounded-md px-2 text-sm [&_svg]:size-4",
       base: "h-10 rounded-md px-4 text-base [&_svg]:size-5",
       large: "h-12 rounded-md px-5 text-lg [&_svg]:size-6",
     },

@@ -10,8 +10,10 @@
   declarations (e.g., `function handleClick() {}` over
   `const handleClick = () => {}`). Arrow functions within function scope are
   fine.
-- Imports are sorted using ESLint, which can be invoked for a single file using
-  `pnpm eslint --fix <path-to-file>`
+- Every commit should have no type errors, lint errors, or failing tests
+- When possible, create failing tests first then implement the logic to make the
+  tests pass
+- Add or update tests for the code you change, even if nobody asked
 
 ### React Rules
 
@@ -20,9 +22,16 @@
 - Avoid prop drilling - use context or state management
 - Follow principle of least privilege for component props
 
+### Tailwind Rules
+
+- Use Tailwind v4 CSS syntax
+- The `tailwind.config.ts` file remains for legacy reasons
+
 ## Project Commands
 
+- This project uses `pnpm` only, never use `npm`
 - All commands should be run from the root of the project repository
+- Assume dev server is always running
 
 ### Development
 
@@ -32,24 +41,20 @@
 
 ### Quality Checks
 
-- `pnpm lint` - Fix linting issues
-- `pnpm check:lint` - Check linting only
-- `pnpm format` - Format code
-- `pnpm check:format` - Check formatting only
-- `pnpm check:types` - Type checking
-- `pnpm checks` - Run all checks
+- `pnpm checks` - Run checks for linting, types, and formatting in parallel
+- `pnpm check:types` - Check for TypeScript type errors
+- `pnpm check:lint` - Check for lint errors
+- `pnpm check:format` - Check for formatting errors
+- `pnpm lint` - Fix any fixable linting errors
+- `pnpm lint <path-to-file>` - Fix any fixable linting errors for a specific
+  file
+- `pnpm format` - Format all files
 
 ### Testing
 
-- `pnpm test` - Run tests
-- `pnpm test:watch` - Watch mode
-- `pnpm coverage` - Test coverage
-- `pnpm vitest --run <path-to-file>` - Run tests for specific file
-
-### Maintenance
-
-- `pnpm clean` - Clean build artifacts
-- `pnpm clean:dep` - Remove node_modules
+- `pnpm test` - Run all tests
+- `pnpm test <path-to-file>` - Run tests for specific file
+- `pnpm coverage` - Check test coverage
 
 ### Git
 
@@ -57,7 +62,7 @@
 
 ### Dependency Management
 
-Add dependency to specific package
+Add dependency to specific workspace
 
 ```bash
 pnpm add <package> --filter <workspace-name>
@@ -118,15 +123,15 @@ src/
 ### Frontend (graph-explorer)
 
 - React 19 + TypeScript
+- React Compiler (no manual useMemo/useCallback needed)
 - Vite build tool
 - TailwindCSS + Radix UI components
 - React Router for routing
 - Cytoscape.js for graph visualization
-- React Query for data fetching
+- TanStack Query (formerly called React Query) for data fetching
 - Jotai for state management
-- React Hook Form + Zod validation
 - LocalForage for persistent app state
-- React Compiler (no manual useMemo/useCallback needed)
+- React Hook Form + Zod validation
 
 ### Backend (proxy-server)
 
@@ -155,39 +160,4 @@ src/
 
 ### Testing
 
-- From the package root you can just call `pnpm test`. The commit should pass
-  all tests before you merge.
-- To focus on one step, add the Vitest pattern:
-  `pnpm vitest run -t "<test name>"`.
-- Fix any test or type errors until the whole suite is green.
-- After moving files or changing imports, run
-  `pnpm lint --filter <project_name>` to be sure ESLint and TypeScript rules
-  still pass.
-- Add or update tests for the code you change, even if nobody asked.
-
 See `.kiro/steering/testing.md` for testing patterns and examples.
-
-### Branded Types
-
-The project uses branded types from `@/utils` for type safety. These prevent
-accidental mixing of similar types at compile time.
-
-| Type               | Creator Function             | Location                                |
-| ------------------ | ---------------------------- | --------------------------------------- |
-| `VertexId`         | `createVertexId()`           | `@/core/entities/vertex`                |
-| `VertexType`       | `createVertexType()`         | `@/core/entities/vertex`                |
-| `EdgeId`           | `createEdgeId()`             | `@/core/entities/edge`                  |
-| `EdgeType`         | `createEdgeType()`           | `@/core/entities/edge`                  |
-| `ConfigurationId`  | `createNewConfigurationId()` | `@/core/ConfigurationProvider/types`    |
-| `RenderedVertexId` | `toRenderedVertexId()`       | `@/core/StateProvider/renderedEntities` |
-| `RenderedEdgeId`   | `toRenderedEdgeId()`         | `@/core/StateProvider/renderedEntities` |
-
-Always use the appropriate branded type instead of `string` when working with
-these identifiers.
-
-### Database Queries
-
-- Use the `query` template tag from `@/utils` for all query strings (Gremlin,
-  openCypher, SPARQL) to ensure consistent formatting
-- For Gremlin queries, use `escapeString()` from `@/utils` to escape special
-  characters in string literals

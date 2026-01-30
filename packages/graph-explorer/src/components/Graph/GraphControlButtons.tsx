@@ -39,7 +39,7 @@ export function ZoomToFitButton() {
 }
 
 export function ZoomInButton() {
-  const { onZoomIn, isZoomInDisabled } = useGraphGlobalActions();
+  const { onZoomIn } = useGraphGlobalActions();
 
   return (
     <IconButton
@@ -47,13 +47,12 @@ export function ZoomInButton() {
       icon={<ZoomInIcon />}
       variant="text"
       onClick={onZoomIn}
-      disabled={isZoomInDisabled}
     />
   );
 }
 
 export function ZoomOutButton() {
-  const { onZoomOut, isZoomOutDisabled } = useGraphGlobalActions();
+  const { onZoomOut } = useGraphGlobalActions();
 
   return (
     <IconButton
@@ -61,7 +60,6 @@ export function ZoomOutButton() {
       icon={<ZoomOutIcon />}
       variant="text"
       onClick={onZoomOut}
-      disabled={isZoomOutDisabled}
     />
   );
 }

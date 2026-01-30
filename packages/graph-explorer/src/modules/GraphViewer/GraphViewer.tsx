@@ -1,4 +1,4 @@
-import { useAtomValue } from "jotai";
+import { atom, useAtomValue } from "jotai";
 import { BadgeInfoIcon } from "lucide-react";
 import {
   Activity,
@@ -7,7 +7,6 @@ import {
   useState,
 } from "react";
 
-import type { SelectedElements } from "@/components/Graph/Graph.model";
 import type { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
 
 import {
@@ -21,16 +20,19 @@ import {
   PanelTitle,
   VertexSymbolByType,
 } from "@/components";
-import { Graph } from "@/components/Graph";
 import {
   ClearCanvasButton,
   DownloadScreenshotButton,
+  Graph,
+  GraphProvider,
+  type LayoutName,
   RerunLayoutButton,
+  type SelectedElements,
+  SelectLayout,
   ZoomInButton,
   ZoomOutButton,
   ZoomToFitButton,
 } from "@/components/Graph";
-import { GraphProvider } from "@/components/Graph/GraphContext";
 import {
   createRenderedEdgeId,
   createRenderedVertexId,
@@ -53,11 +55,12 @@ import { ExportGraphButton } from "./ExportGraphButton";
 import { GraphViewerEmptyState } from "./GraphViewerEmptyState";
 import { ImportGraphButton } from "./ImportGraphButton";
 import ContextMenu from "./internalComponents/ContextMenu";
-import { graphLayoutSelectionAtom, SelectLayout } from "./SelectLayout";
 import useContextMenu from "./useContextMenu";
 import { useGraphSelection } from "./useGraphSelection";
 import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
+
+const graphLayoutSelectionAtom = atom<LayoutName>("F_COSE");
 
 // Prevent open context menu on Windows
 function onContextMenu(e: MouseEvent<HTMLDivElement>) {
@@ -156,7 +159,10 @@ function GraphViewerContent({
         <PanelHeader>
           <PanelTitle>Graph View</PanelTitle>
           <PanelHeaderActions>
-            <SelectLayout className="max-w-64 min-w-auto" />
+            <SelectLayout
+              className="max-w-64 min-w-auto"
+              layoutAtom={graphLayoutSelectionAtom}
+            />
             <RerunLayoutButton />
             <ZoomToFitButton />
             <div className="grow" />

@@ -13,8 +13,8 @@
   "scripts": {
     "prepare": "husky install",
     "precommit": "lint-staged && pnpm check:types",
-    "lint": "eslint . --fix --concurrency=auto",
-    "check:lint": "eslint . --concurrency=auto",
+    "lint": "eslint --fix --concurrency=auto",
+    "check:lint": "eslint --concurrency=auto",
     "format": "prettier --write .",
     "check:format": "prettier --check .",
     "test": "vitest run",

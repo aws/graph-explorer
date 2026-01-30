@@ -1,0 +1,73 @@
+import {
+  GraphIcon,
+  Panel,
+  PanelContent,
+  PanelEmptyState,
+  PanelHeader,
+  PanelTitle,
+} from "@/components";
+import { useGraphSchema } from "@/core";
+import { useTranslations } from "@/hooks";
+import { LABELS } from "@/utils";
+
+import type { SchemaGraphSelection } from "../SchemaGraph";
+
+import { EdgeConnectionDetails } from "./EdgeConnectionDetails";
+import { NodeLabelDetails } from "./NodeLabelDetails";
+
+export type SchemaDetailsContentProps = {
+  selection: SchemaGraphSelection;
+};
+
+/** Displays details for selected vertex type or edge connection in schema graph */
+export function SchemaDetailsContent({ selection }: SchemaDetailsContentProps) {
+  const t = useTranslations();
+  const graphSchema = useGraphSchema();
+  const hasSelection = Boolean(
+    selection.vertexType || selection.edgeConnectionId,
+  );
+
+  // Get the edge connection from the schema
+  const edgeConnection = selection.edgeConnectionId
+    ? graphSchema.edgeConnections.byEdgeConnectionId.get(
+        selection.edgeConnectionId,
+      )
+    : null;
+
+  if (!hasSelection) {
+    return (
+      <Panel className="size-full" variant="sidebar">
+        <PanelHeader>
+          <PanelTitle>{LABELS.SIDEBAR.SELECTION_DETAILS}</PanelTitle>
+        </PanelHeader>
+        <PanelContent className="p-6">
+          <PanelEmptyState
+            icon={<GraphIcon />}
+            title="Empty Selection"
+            subtitle={`Select a ${t("node-type").toLocaleLowerCase()} or ${t("edge-connection").toLocaleLowerCase()} to see its details`}
+          />
+        </PanelContent>
+      </Panel>
+    );
+  }
+
+  if (selection.vertexType) {
+    return (
+      <NodeLabelDetails
+        vertexType={selection.vertexType}
+        className="size-full"
+      />
+    );
+  }
+
+  if (edgeConnection) {
+    return (
+      <EdgeConnectionDetails
+        edgeConnection={edgeConnection}
+        className="size-full"
+      />
+    );
+  }
+
+  return null;
+}

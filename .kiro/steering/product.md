@@ -29,6 +29,7 @@ database types and query languages.
 - **Tabular View**: Show/hide nodes and edges, export to CSV/JSON
 - **Data Explorer**: List all nodes and properties for a specific node type and
   send to graph view
+- **Schema Explorer**: View node types and their relationships as a graph
 - **Authentication**: AWS IAM authentication via SigV4 signing protocol
 
 ## Architecture
