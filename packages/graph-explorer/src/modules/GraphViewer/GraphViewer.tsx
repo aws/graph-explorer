@@ -21,20 +21,18 @@ import {
   VertexSymbolByType,
 } from "@/components";
 import {
-  Graph,
-  type LayoutName,
-  type SelectedElements,
-} from "@/components/Graph";
-import {
   ClearCanvasButton,
   DownloadScreenshotButton,
+  Graph,
+  GraphProvider,
+  type LayoutName,
   RerunLayoutButton,
+  type SelectedElements,
+  SelectLayout,
   ZoomInButton,
   ZoomOutButton,
   ZoomToFitButton,
 } from "@/components/Graph";
-import { SelectLayout } from "@/components/Graph";
-import { GraphProvider } from "@/components/Graph/GraphContext";
 import {
   createRenderedEdgeId,
   createRenderedVertexId,

@@ -43,6 +43,12 @@ export const LABELS = {
   MISSING_VALUE: `${ASCII.LAQUO}No Value${ASCII.RAQUO}`,
   /** Shown when a value is empty (like empty string) */
   EMPTY_VALUE: `${ASCII.LAQUO}Empty Value${ASCII.RAQUO}`,
+
+  /** Labels related to the sidebar UI */
+  SIDEBAR: {
+    /** The title for the selection details panel */
+    SELECTION_DETAILS: "Selection Details",
+  },
 } as const;
 
 /** Searchable tokens */

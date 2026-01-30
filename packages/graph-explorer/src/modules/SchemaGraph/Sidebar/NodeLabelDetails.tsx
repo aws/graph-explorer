@@ -19,9 +19,8 @@ import {
   type VertexType,
 } from "@/core";
 import { useTranslations } from "@/hooks";
-import { cn } from "@/utils";
+import { cn, LABELS } from "@/utils";
 
-import { LABELS } from "./constants";
 import {
   AttributeList,
   DetailsTitle,
@@ -52,7 +51,7 @@ export function NodeLabelDetails({
   return (
     <Panel className={cn(className)} {...props}>
       <PanelHeader>
-        <PanelTitle>{LABELS.SIDEBAR_TITLE}</PanelTitle>
+        <PanelTitle>{LABELS.SIDEBAR.SELECTION_DETAILS}</PanelTitle>
         <PanelHeaderActions>
           <PanelHeaderCloseButton onClose={onClose} />
         </PanelHeaderActions>

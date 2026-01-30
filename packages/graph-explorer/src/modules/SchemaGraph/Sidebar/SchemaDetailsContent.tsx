@@ -11,9 +11,9 @@ import { useTranslations } from "@/hooks";
 
 import type { SchemaGraphSelection } from "../SchemaGraph";
 
-import { LABELS } from "./constants";
 import { EdgeConnectionDetails } from "./EdgeConnectionDetails";
 import { NodeLabelDetails } from "./NodeLabelDetails";
+import { LABELS } from "@/utils";
 
 export type SchemaDetailsContentProps = {
   selection: SchemaGraphSelection;
@@ -42,7 +42,7 @@ export function SchemaDetailsContent({
     return (
       <Panel className="size-full" variant="sidebar">
         <PanelHeader>
-          <PanelTitle>{LABELS.SIDEBAR_TITLE}</PanelTitle>
+          <PanelTitle>{LABELS.SIDEBAR.SELECTION_DETAILS}</PanelTitle>
         </PanelHeader>
         <PanelContent className="p-6">
           <PanelEmptyState
