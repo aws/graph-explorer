@@ -61,7 +61,7 @@ export function NodeLabelDetails({
             <DetailsTitle>{t("node-type")}</DetailsTitle>
             <DetailsValue>{vertexType}</DetailsValue>
           </div>
-          <VertexSymbolByType vertexType={vertexType} className="" />
+          <VertexSymbolByType vertexType={vertexType} />
         </div>
 
         {total != null && (
