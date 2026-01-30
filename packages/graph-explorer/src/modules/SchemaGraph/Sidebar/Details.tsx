@@ -52,7 +52,10 @@ export function AttributeList({
   return (
     <ul className="space-y-2">
       {attributes.map(attr => (
-        <li key={attr.name} className="grid grid-cols-2">
+        <li
+          key={attr.name}
+          className="flex flex-wrap items-center justify-between gap-2"
+        >
           <DetailsValue>{attr.displayLabel}</DetailsValue>
           <div className="text-muted-foreground bg-muted border-neutral-subtle-hover place-self-end rounded-md border px-2 py-1.5 text-right font-mono text-sm leading-none lowercase">
             {attr.dataType}
