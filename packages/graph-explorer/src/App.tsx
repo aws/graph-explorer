@@ -17,6 +17,7 @@ export default function App() {
     <Routes>
       <Route element={<DefaultLayout />}>
         <Route path="/connections" element={<Connections />} />
+        <Route path="/data-explorer" element={<DataExplorer />} />
         <Route path="/data-explorer/:vertexType" element={<DataExplorer />} />
         <Route path="/graph-explorer" element={<GraphExplorer />} />
         <Route path="/schema-explorer" element={<SchemaExplorer />} />
