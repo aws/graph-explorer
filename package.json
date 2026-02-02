@@ -29,23 +29,23 @@
     "dev": "pnpm --stream -r run dev"
   },
   "devDependencies": {
-    "@eslint/compat": "^2.0.0",
+    "@eslint/compat": "^2.0.2",
     "@eslint/js": "^9.39.2",
-    "@tanstack/eslint-plugin-query": "^5.91.2",
+    "@tanstack/eslint-plugin-query": "^5.91.4",
     "@vitest/coverage-v8": "4.0.10",
     "babel-plugin-react-compiler": "19.1.0-rc.3",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-perfectionist": "^5.3.1",
+    "eslint-plugin-perfectionist": "^5.4.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "7.0.1",
     "globals": "^16.5.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "prettier": "^3.7.4",
+    "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.52.0",
+    "typescript-eslint": "^8.54.0",
     "vitest": "4.0.10"
   },
   "lint-staged": {
@@ -71,7 +71,8 @@
       "@adobe/css-tools@<4.3.2": ">=4.3.2",
       "undici@<5.28.3": ">=5.28.3",
       "ws@<8.17.1": ">=8.17.1",
-      "@eslint/plugin-kit@<0.3.3": ">=0.3.3"
+      "@eslint/plugin-kit@<0.3.3": ">=0.3.3",
+      "fast-xml-parser@<5.3.4": ">=5.3.4"
     }
   }
 }

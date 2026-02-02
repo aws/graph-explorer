@@ -30,7 +30,7 @@ export default function PanelError({
   onRetry,
   className,
 }: {
-  error: Error;
+  error: unknown;
   onRetry?: () => void;
   className?: string | undefined;
 }) {
@@ -58,7 +58,11 @@ export default function PanelError({
   );
 }
 
-function ErrorDetailsButton({ error }: { error: Error }) {
+function ErrorDetailsButton({ error }: { error: unknown }) {
+  const errorName = Error.isError(error) ? error.name : "Unknown Error";
+  const errorMessage = Error.isError(error)
+    ? error.message
+    : JSON.stringify(error, null, 2);
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -75,13 +79,13 @@ function ErrorDetailsButton({ error }: { error: Error }) {
           <FormItem>
             <Label>Error name</Label>
             <div className="gx-wrap-break-word text-base leading-snug">
-              {error.name}
+              {errorName}
             </div>
           </FormItem>
           <FormItem>
             <Label>Error message</Label>
             <div className="gx-wrap-break-word text-base leading-snug">
-              {error.message}
+              {errorMessage}
             </div>
           </FormItem>
         </DialogBody>
