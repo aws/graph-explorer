@@ -7,14 +7,10 @@ import { createEdgeType, createVertexType, type EdgeConnection } from "@/core";
 import batchPromisesSerially from "@/utils/batchPromisesSerially";
 import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
 
-import type { GremlinFetch } from "../types";
+import type { GMapWithValue, GremlinFetch } from "../types";
 
+import { parseGMap } from "../mappers/parseGMap";
 import edgeConnectionsTemplate from "./edgeConnectionsTemplate";
-
-type GEdgeConnectionValue = {
-  "@type": "g:Map";
-  "@value": Array<string>;
-};
 
 type RawEdgeConnectionsResponse = {
   requestId: string;
@@ -25,7 +21,7 @@ type RawEdgeConnectionsResponse = {
   result: {
     data: {
       "@type": "g:List";
-      "@value": Array<GEdgeConnectionValue>;
+      "@value": Array<GMapWithValue<string, string>>;
     };
   };
 };
@@ -49,8 +45,14 @@ export default async function fetchEdgeConnections(
 
   for (const { edgeType, values } of results) {
     for (const item of values) {
-      // Map format: ['sourceType', value, 'targetType', value]
-      const [, sourceValue, , targetValue] = item["@value"];
+      const map = parseGMap(item);
+      const sourceValue = map.get("sourceType");
+      const targetValue = map.get("targetType");
+
+      if (!sourceValue || !targetValue) {
+        continue;
+      }
+
       // Neptune multi-label vertices use :: delimiter
       const sourceTypes = sourceValue.split("::").filter(Boolean);
       const targetTypes = targetValue.split("::").filter(Boolean);

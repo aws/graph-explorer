@@ -172,6 +172,82 @@ describe("Gremlin > fetchEdgeConnections", () => {
       ],
     });
   });
+
+  it("should handle reversed key order in GraphSON map", async () => {
+    const reversedKeyOrderResponse = {
+      requestId: "test-request-id",
+      status: { message: "", code: 200 },
+      result: {
+        data: {
+          "@type": "g:List",
+          "@value": [
+            {
+              "@type": "g:Map",
+              "@value": ["targetType", "airport", "sourceType", "country"],
+            },
+          ],
+        },
+      },
+    };
+    const gremlinFetch = vi
+      .fn()
+      .mockResolvedValueOnce(reversedKeyOrderResponse);
+
+    const result = await fetchEdgeConnections(gremlinFetch, {
+      edgeTypes: [createEdgeType("contains")],
+    });
+
+    expect(result).toStrictEqual({
+      edgeConnections: [
+        {
+          sourceVertexType: createVertexType("country"),
+          edgeType: createEdgeType("contains"),
+          targetVertexType: createVertexType("airport"),
+        },
+      ],
+    });
+  });
+
+  it("should skip entries with missing sourceType or targetType", async () => {
+    const missingKeysResponse = {
+      requestId: "test-request-id",
+      status: { message: "", code: 200 },
+      result: {
+        data: {
+          "@type": "g:List",
+          "@value": [
+            {
+              "@type": "g:Map",
+              "@value": ["sourceType", "airport"],
+            },
+            {
+              "@type": "g:Map",
+              "@value": ["targetType", "airport"],
+            },
+            {
+              "@type": "g:Map",
+              "@value": ["sourceType", "country", "targetType", "airport"],
+            },
+          ],
+        },
+      },
+    };
+    const gremlinFetch = vi.fn().mockResolvedValueOnce(missingKeysResponse);
+
+    const result = await fetchEdgeConnections(gremlinFetch, {
+      edgeTypes: [createEdgeType("contains")],
+    });
+
+    expect(result).toStrictEqual({
+      edgeConnections: [
+        {
+          sourceVertexType: createVertexType("country"),
+          edgeType: createEdgeType("contains"),
+          targetVertexType: createVertexType("airport"),
+        },
+      ],
+    });
+  });
 });
 
 const routeResponse = {
