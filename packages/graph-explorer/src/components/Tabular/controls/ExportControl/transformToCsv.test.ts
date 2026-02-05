@@ -4,6 +4,8 @@ import type { TabularColumnInstance } from "../../helpers/tableInstanceToTabular
 
 import { transformToCsv } from "./transformToCsv";
 
+import { LABELS } from "@/utils/constants";
+
 describe("transformToCsv", () => {
   it("should transform empty data to empty csv", () => {
     const result = transformToCsv([], []);
@@ -231,6 +233,24 @@ describe("transformToCsv", () => {
       `),
     );
   });
+
+  it("should export placeholder values as empty cells", () => {
+    const result = transformToCsv(
+      [
+        {
+          name: LABELS.MISSING_VALUE,
+        },
+      ],
+      [createColumn("name")],
+    );
+    expect(csv(result)).toEqual(
+      csv(`
+        name
+        
+      `),
+    );
+  });
+
 });
 
 function createColumn<T extends object>(

@@ -2,11 +2,7 @@ import { unparse } from "papaparse";
 
 import type { TabularColumnInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 
-const FAKE_MISSING_VALUES = new Set([
-  "«No Value»",
-  "«Empty Value»",
-  "«No Type»",
-]);
+import { LABELS } from "@/utils/constants";
 
 
 export function transformToCsv<T extends object>(
@@ -25,8 +21,12 @@ export function transformToCsv<T extends object>(
       if (typeof accessor === "string") {
         const value = (row as Record<string, unknown>)[accessor];
 
-        if (FAKE_MISSING_VALUES.has(value as string)) {
-          return null;
+            if (
+      value === LABELS.MISSING_TYPE ||
+      value === LABELS.MISSING_VALUE ||
+      value === LABELS.EMPTY_VALUE
+      ) {
+      return null;
         }
 
         return value;

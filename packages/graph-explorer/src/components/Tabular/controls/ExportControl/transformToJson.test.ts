@@ -2,6 +2,8 @@ import type { TabularColumnInstance } from "@/components/Tabular/helpers/tableIn
 
 import { transformToJson } from "./transformToJson";
 
+import { LABELS } from "@/utils/constants";
+
 describe("transformToJson", () => {
   it("should transform empty data to empty array", () => {
     const result = transformToJson([], []);
@@ -245,6 +247,24 @@ describe("transformToJson", () => {
       },
     ]);
   });
+
+  it("should export placeholder values as null", () => {
+    const result = transformToJson(
+      [
+        {
+          name: LABELS.MISSING_VALUE,
+        },
+      ],
+      [createColumn("name")],
+    );
+
+    expect(result).toEqual([
+      {
+        name: null,
+      },
+    ]);
+  });
+
 });
 
 function createColumn<T extends object>(
