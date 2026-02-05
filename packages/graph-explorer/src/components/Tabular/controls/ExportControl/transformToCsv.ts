@@ -2,6 +2,9 @@ import { unparse } from "papaparse";
 
 import type { TabularColumnInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 
+import { LABELS } from "@/utils/constants";
+
+
 export function transformToCsv<T extends object>(
   data: readonly T[],
   columns: TabularColumnInstance<T>[],
@@ -16,7 +19,18 @@ export function transformToCsv<T extends object>(
         return (accessor as (row: T) => unknown)(row);
       }
       if (typeof accessor === "string") {
-        return (row as Record<string, unknown>)[accessor];
+        const value = (row as Record<string, unknown>)[accessor];
+
+            if (
+      value === LABELS.MISSING_TYPE ||
+      value === LABELS.MISSING_VALUE ||
+      value === LABELS.EMPTY_VALUE
+      ) {
+      return null;
+        }
+
+        return value;
+
       }
       return null;
     }),
