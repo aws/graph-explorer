@@ -135,14 +135,20 @@ const GraphExplorer = () => {
           >
             <GraphViewer />
           </div>
-          <div className={cn("hidden flex-none", isTableVisible && "block")}>
+          <div
+            className={cn(
+              "hidden min-h-0",
+              isTableVisible && "block",
+              isGraphVisible ? "flex-none" : "flex-1",
+            )}
+          >
             <Resizable
-              enable={RESIZE_ENABLE_TOP}
+              enable={isGraphVisible ? RESIZE_ENABLE_TOP : false}
               size={{
                 width: "100%",
-                height: tableViewHeight,
+                height: isGraphVisible ? tableViewHeight : "100%",
               }}
-              minHeight={DEFAULT_TABLE_VIEW_HEIGHT}
+              minHeight={isGraphVisible ? DEFAULT_TABLE_VIEW_HEIGHT : undefined}
               onResizeStop={(_e, _dir, _ref, delta) =>
                 setTableViewHeight(delta.height)
               }
