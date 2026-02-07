@@ -42,7 +42,7 @@ const PanelEmptyState = ({
         {subtitle && <EmptyStateDescription>{subtitle}</EmptyStateDescription>}
         {onAction && actionLabel && (
           <EmptyStateActions>
-            <Button id={actionId} onPress={onAction} variant={actionVariant}>
+            <Button id={actionId} onClick={onAction} variant={actionVariant}>
               {actionLabel}
             </Button>
           </EmptyStateActions>

@@ -55,7 +55,7 @@ const AvailableConnections = ({
           >
             <PanelHeaderActionButton
               label="Import Connection"
-              isDisabled={isSync}
+              disabled={isSync}
               icon={<TrayArrowIcon style={{ transform: "rotate(180deg)" }} />}
             />
           </FileButton>

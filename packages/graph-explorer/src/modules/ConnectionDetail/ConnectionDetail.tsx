@@ -102,14 +102,14 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
           <PanelHeaderActionButton
             label="Export Connection"
             icon={<TrayArrowIcon />}
-            isDisabled={isFetching}
+            disabled={isFetching}
             onActionClick={onConfigExport}
           />
           <PanelHeaderDivider />
           <PanelHeaderActionButton
             label="Edit connection"
             icon={<EditIcon />}
-            isDisabled={isFetching}
+            disabled={isFetching}
             onActionClick={() => setEdit(true)}
           />
           <ConnectionDeleteButton
@@ -423,23 +423,23 @@ function DebugActions() {
         <InfoItemContent>
           <InfoItemLabel>Debug Actions</InfoItemLabel>
           <InfoItemValue className="flex flex-wrap gap-2">
-            <Button onPress={() => deleteSchema()}>Delete Schema</Button>
-            <Button onPress={() => resetSchemaLastUpdated()}>
+            <Button onClick={() => deleteSchema()}>Delete Schema</Button>
+            <Button onClick={() => resetSchemaLastUpdated()}>
               Reset Last Updated
             </Button>
-            <Button onPress={() => setSchemaSyncFailed()}>
+            <Button onClick={() => setSchemaSyncFailed()}>
               Last Sync Failed
             </Button>
-            <Button onPress={() => resetEdgeConnections()}>
+            <Button onClick={() => resetEdgeConnections()}>
               Reset Edge Connections
             </Button>
-            <Button onPress={() => setEdgeConnectionFail()}>
+            <Button onClick={() => setEdgeConnectionFail()}>
               Edge Connections Failed
             </Button>
-            <Button onPress={() => resetVertexTotals()}>
+            <Button onClick={() => resetVertexTotals()}>
               Reset Vertex Totals
             </Button>
-            <Button onPress={() => resetAllTotals()}>Reset All Totals</Button>
+            <Button onClick={() => resetAllTotals()}>Reset All Totals</Button>
           </InfoItemValue>
         </InfoItemContent>
       </InfoItem>

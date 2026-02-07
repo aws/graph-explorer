@@ -206,7 +206,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
         />
       </div>
       <div className="">
-        <Button variant="filled" onPress={onExport} className="w-full">
+        <Button variant="filled" onClick={onExport} className="w-full">
           Export
         </Button>
       </div>

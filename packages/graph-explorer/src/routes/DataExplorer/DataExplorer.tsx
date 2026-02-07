@@ -272,7 +272,7 @@ function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
 
   return (
     <Button
-      isDisabled={isInExplorer}
+      disabled={isInExplorer}
       variant="outline"
       size="small"
       onClick={addToGraph}

@@ -54,10 +54,10 @@ function RestorePreviousSessionEmptyState({
         <Button
           variant="filled"
           className="mt-4"
-          onPress={() => {
+          onClick={() => {
             restore.mutate(prevSession);
           }}
-          isDisabled={restore.isPending}
+          disabled={restore.isPending}
         >
           <RotateCwIcon />
           Restore Previous Session

@@ -114,7 +114,7 @@ function ExpandToggleButton({
   }
 
   return (
-    <Button variant="text" onPress={() => toggle()}>
+    <Button variant="text" onClick={() => toggle()}>
       {expanded
         ? `Hide ${extraCount} additional neighbor ${nodeTypeLabel}`
         : `Show ${extraCount} additional neighbor ${nodeTypeLabel}`}

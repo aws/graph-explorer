@@ -424,10 +424,10 @@ const CreateConnection = ({
         )}
       </div>
       <div className="flex justify-between border-t pt-4">
-        <Button variant="default" onPress={onClose}>
+        <Button variant="default" onClick={onClose}>
           Cancel
         </Button>
-        <Button variant="filled" onPress={onSubmit}>
+        <Button variant="filled" onClick={onSubmit}>
           {!configId ? "Add Connection" : "Update Connection"}
         </Button>
       </div>

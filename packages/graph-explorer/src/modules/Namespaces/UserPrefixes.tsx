@@ -85,7 +85,7 @@ function SearchablePrefixes({
       </div>
       <SearchResults filteredItems={filteredItems} className="grow" />
       <PanelFooter className="flex shrink-0 flex-row justify-end">
-        <Button icon={<AddIcon />} variant="filled" onPress={onOpen}>
+        <Button icon={<AddIcon />} variant="filled" onClick={onOpen}>
           Create
         </Button>
       </PanelFooter>
@@ -276,7 +276,7 @@ function EditPrefixModal({
           />
         </DialogBody>
         <DialogFooter>
-          <Button icon={<SaveIcon />} variant="filled" onPress={onSubmit}>
+          <Button icon={<SaveIcon />} variant="filled" onClick={onSubmit}>
             Save
           </Button>
         </DialogFooter>

@@ -109,7 +109,7 @@ export function PaginationControl({
                 variant={
                   pageIndex === parseInt(page) - 1 ? "filled" : "default"
                 }
-                onPress={() => onPageIndexChange(parseInt(page) - 1)}
+                onClick={() => onPageIndexChange(parseInt(page) - 1)}
               >
                 {page}
               </IconButton>

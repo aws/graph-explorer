@@ -132,14 +132,14 @@ function ConfirmationModal({
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button isDisabled={isPending} onPress={onCancel}>
+          <Button disabled={isPending} onClick={onCancel}>
             Cancel
           </Button>
           <Button
             variant="filled"
             color="danger"
-            onPress={onConfirm}
-            isDisabled={isPending}
+            onClick={onConfirm}
+            disabled={isPending}
             className="relative transition-opacity"
           >
             <Spinner loading={isPending}>
@@ -188,7 +188,7 @@ function ParseFailureModal({
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button onPress={onCancel}>Close</Button>
+          <Button onClick={onCancel}>Close</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

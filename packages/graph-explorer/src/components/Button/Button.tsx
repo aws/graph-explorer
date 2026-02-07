@@ -88,11 +88,6 @@ export interface ButtonProps
     Omit<React.ComponentPropsWithRef<"button">, "color"> {
   icon?: ReactNode;
   asChild?: boolean;
-
-  // TODO: Remove these non-standard props and use the `disabled` and `onClick` props instead.
-  // These are here to reduce the amount of changes to the rest of the codebase.
-  isDisabled?: boolean;
-  onPress?: () => void;
 }
 
 function Button({
@@ -103,16 +98,12 @@ function Button({
   color,
   children,
   asChild = false,
-  isDisabled,
-  onPress,
   ...props
 }: ButtonProps) {
   const Component = asChild ? (Slot.Root as any) : "button";
   return (
     <Component
       className={cn(buttonStyles({ size, variant, color }), className)}
-      disabled={isDisabled}
-      onClick={onPress}
       {...props}
     >
       {icon && icon}

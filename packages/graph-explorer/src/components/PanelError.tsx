@@ -47,7 +47,7 @@ export default function PanelError({
         <EmptyStateActions>
           <ErrorDetailsButton error={error} />
           {onRetry ? (
-            <Button onPress={onRetry}>
+            <Button onClick={onRetry}>
               <RotateCcwIcon />
               Retry
             </Button>
