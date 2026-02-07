@@ -102,7 +102,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
           <PanelHeaderActionButton
             label="Export Connection"
             disabled={isFetching}
-            onActionClick={onConfigExport}
+            onClick={onConfigExport}
           >
             <TrayArrowIcon />
           </PanelHeaderActionButton>
@@ -110,7 +110,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
           <PanelHeaderActionButton
             label="Edit connection"
             disabled={isFetching}
-            onActionClick={() => setEdit(true)}
+            onClick={() => setEdit(true)}
           >
             <EditIcon />
           </PanelHeaderActionButton>

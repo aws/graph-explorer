@@ -13,7 +13,7 @@ export function ExportGraphButton() {
   return (
     <PanelHeaderActionButton
       label="Save graph to file"
-      onActionClick={() => exportGraph()}
+      onClick={() => exportGraph()}
     >
       <SaveIcon />
     </PanelHeaderActionButton>

@@ -63,7 +63,7 @@ const AvailableConnections = ({
           <PanelHeaderDivider />
           <PanelHeaderActionButton
             label="Add New Connection"
-            onActionClick={() => onModalChange(true)}
+            onClick={() => onModalChange(true)}
           >
             <AddIcon />
           </PanelHeaderActionButton>

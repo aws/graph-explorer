@@ -63,7 +63,6 @@ export type Action = {
   active?: boolean;
   onlyPinnedVisible?: boolean;
   collapsedItems?: React.ReactElement<any>;
-  onActionClick?: () => void;
 };
 
 function PanelHeader({
@@ -155,14 +154,12 @@ PanelHeaderCloseButton.displayName = "PanelHeaderCloseButton";
 export function PanelHeaderActionButton({
   label,
   active,
-  onActionClick,
   ...props
 }: Action & IconButtonProps) {
   return (
     <IconButton
       tooltipText={label}
       variant={active ? "filled" : "text"}
-      {...(onActionClick && { onClick: onActionClick })}
       {...props}
     />
   );

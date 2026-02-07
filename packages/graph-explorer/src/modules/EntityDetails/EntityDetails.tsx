@@ -42,7 +42,7 @@ function EntityDetails() {
           <PanelHeaderActionButton
             label="Automatically open on selection"
             active={userLayout.detailsAutoOpenOnSelection}
-            onActionClick={() =>
+            onClick={() =>
               setUserLayout(prev => {
                 return {
                   ...prev,
