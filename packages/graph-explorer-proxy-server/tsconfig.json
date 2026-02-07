@@ -1,22 +1,24 @@
 {
-  "extends": ["../../tsconfig.base.json"],
+  "extends": "../../tsconfig.base.json",
+  "include": ["src"],
   "compilerOptions": {
-    /* Language and Environment */
-    "lib": ["ESNext"],
-    "types": ["node", "vitest/globals"],
-
     /* Modules */
-    "forceConsistentCasingInFileNames": true,
+    "lib": ["es2024", "ESNext.Array", "ESNext.Collection", "ESNext.Iterator"],
+    "module": "nodenext",
+    "target": "es2022",
+    "moduleResolution": "node16",
+    "esModuleInterop": true,
+
+    /* Type Resolution */
+    "types": ["node", "vitest/globals"],
+    "skipLibCheck": true,
 
     /* Paths */
-    "outDir": "./dist",
     "baseUrl": "./src",
     "rootDir": "./src",
     "paths": {
       "@/*": ["./*"],
       "@shared/*": ["../../shared/src/*"]
     }
-  },
-  "include": ["src"],
-  "references": [{ "path": "../shared" }, { "path": "./tsconfig.build.json" }]
+  }
 }

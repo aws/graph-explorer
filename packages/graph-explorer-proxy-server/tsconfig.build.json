@@ -1,5 +1,9 @@
 {
-  "extends": ["./tsconfig.json"],
-  "include": ["src/**/*.ts"],
-  "exclude": ["**/*.test.ts", "./src/test-setup.ts"]
+  "extends": "./tsconfig.json",
+  "exclude": ["**/*.test.ts", "./src/test-setup.ts"],
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "./dist",
+    "noEmit": false
+  }
 }

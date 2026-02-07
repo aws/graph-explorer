@@ -20,10 +20,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
-    "check:types": "tsc --build",
+    "check:types": "pnpm -r --include-workspace-root --parallel --stream run typecheck",
+    "typecheck": "tsc --noEmit",
     "checks": "pnpm run '/^check:.*/'",
     "start": "pnpm --filter \"graph-explorer-proxy-server\" run start",
-    "clean": "tsc --build --clean && pnpm --stream -r run clean",
+    "clean": "pnpm --stream -r run clean",
     "clean:dep": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
     "build": "pnpm --stream -r run build",
     "dev": "pnpm --stream -r run dev"
