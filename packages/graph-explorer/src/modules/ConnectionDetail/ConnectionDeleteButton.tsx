@@ -37,11 +37,12 @@ export default function ConnectionDeleteButton({
     <>
       <PanelHeaderActionButton
         label="Delete connection"
-        icon={<DeleteIcon />}
         color="danger"
         disabled={isSync}
         onActionClick={() => setIsOpen(true)}
-      />
+      >
+        <DeleteIcon />
+      </PanelHeaderActionButton>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent>
           <DialogHeader>

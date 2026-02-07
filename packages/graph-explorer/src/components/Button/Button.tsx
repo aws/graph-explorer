@@ -1,5 +1,3 @@
-import type { ReactNode } from "react";
-
 import { cva, type VariantProps } from "cva";
 import { Slot } from "radix-ui";
 
@@ -84,15 +82,12 @@ export const buttonStyles = cva({
 export interface ButtonProps
   extends
     VariantProps<typeof buttonStyles>,
-    VariantProps<typeof buttonStyles>,
     Omit<React.ComponentPropsWithRef<"button">, "color"> {
-  icon?: ReactNode;
   asChild?: boolean;
 }
 
 function Button({
   className,
-  icon,
   variant = "default",
   size,
   color,
@@ -106,7 +101,6 @@ function Button({
       className={cn(buttonStyles({ size, variant, color }), className)}
       {...props}
     >
-      {icon && icon}
       {children}
     </Component>
   );

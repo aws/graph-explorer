@@ -80,17 +80,19 @@ const GraphExplorer = () => {
                 isGraphVisible ? "Hide Graph View" : "Show Graph View"
               }
               variant={isGraphVisible ? "filled" : "text"}
-              icon={<GraphIcon />}
               onClick={toggleGraphVisibility}
-            />
+            >
+              <GraphIcon />
+            </IconButton>
             <IconButton
               tooltipText={
                 isTableVisible ? "Hide Table View" : "Show Table View"
               }
               variant={isTableVisible ? "filled" : "text"}
-              icon={<GridIcon />}
               onClick={toggleTableVisibility}
-            />
+            >
+              <GridIcon />
+            </IconButton>
           </div>
 
           <Divider axis="vertical" className="h-[50%]" />

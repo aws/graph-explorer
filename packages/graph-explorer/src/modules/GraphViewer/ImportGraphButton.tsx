@@ -29,10 +29,11 @@ export function ImportGraphButton() {
       asChild
     >
       <PanelHeaderActionButton
-        icon={importGraph.isPending ? <Spinner /> : <FolderOpenIcon />}
         label="Load graph from file"
         disabled={importGraph.isPending}
-      />
+      >
+        {importGraph.isPending ? <Spinner /> : <FolderOpenIcon />}
+      </PanelHeaderActionButton>
     </FileButton>
   );
 }

@@ -84,17 +84,19 @@ export function SearchResultsList({
             </p>
             <div className="flex">
               <IconButton
-                icon={<ChevronLeftIcon />}
                 className="rounded-r-none"
                 onClick={handlePrevious}
                 disabled={disablePrevButton}
-              />
+              >
+                <ChevronLeftIcon />
+              </IconButton>
               <IconButton
-                icon={<ChevronRightIcon />}
                 className="rounded-l-none"
                 onClick={handleNext}
                 disabled={disableNextButton}
-              />
+              >
+                <ChevronRightIcon />
+              </IconButton>
             </div>
           </div>
         </PanelFooter>

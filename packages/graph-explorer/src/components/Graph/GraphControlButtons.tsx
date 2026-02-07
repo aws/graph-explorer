@@ -18,10 +18,11 @@ export function RerunLayoutButton() {
   return (
     <IconButton
       tooltipText="Re-run Layout"
-      icon={<GitCompareArrowsIcon />}
       variant="text"
       onClick={onRunLayout}
-    />
+    >
+      <GitCompareArrowsIcon />
+    </IconButton>
   );
 }
 
@@ -31,10 +32,11 @@ export function ZoomToFitButton() {
   return (
     <IconButton
       tooltipText="Zoom to Fit"
-      icon={<FullscreenIcon />}
       variant="text"
       onClick={onFitAllToCanvas}
-    />
+    >
+      <FullscreenIcon />
+    </IconButton>
   );
 }
 
@@ -44,10 +46,11 @@ export function ZoomInButton() {
   return (
     <IconButton
       tooltipText="Zoom in"
-      icon={<ZoomInIcon />}
       variant="text"
       onClick={onZoomIn}
-    />
+    >
+      <ZoomInIcon />
+    </IconButton>
   );
 }
 
@@ -57,10 +60,11 @@ export function ZoomOutButton() {
   return (
     <IconButton
       tooltipText="Zoom out"
-      icon={<ZoomOutIcon />}
       variant="text"
       onClick={onZoomOut}
-    />
+    >
+      <ZoomOutIcon />
+    </IconButton>
   );
 }
 
@@ -70,10 +74,11 @@ export function DownloadScreenshotButton() {
   return (
     <IconButton
       tooltipText="Download Screenshot"
-      icon={<ImageDownIcon />}
       variant="text"
       onClick={onSaveScreenshot}
-    />
+    >
+      <ImageDownIcon />
+    </IconButton>
   );
 }
 
@@ -83,10 +88,11 @@ export function ClearCanvasButton() {
   return (
     <IconButton
       tooltipText="Clear canvas"
-      icon={<CircleSlash2 />}
       variant="text"
       color="danger"
       onClick={onClearGraph}
-    />
+    >
+      <CircleSlash2 />
+    </IconButton>
   );
 }

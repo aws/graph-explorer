@@ -108,10 +108,11 @@ function EntitiesTabular() {
                 !isEmpty(selectedTabularInstance.sorts)) && (
                 <IconButton
                   variant="text"
-                  icon={<ResetIcon />}
                   tooltipText="Reset sorting and filters"
                   onClick={resetSortingAndFilters}
-                />
+                >
+                  <ResetIcon />
+                </IconButton>
               )}
               <ExportControl />
               <PanelHeaderDivider />

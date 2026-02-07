@@ -49,10 +49,10 @@ export default function SingleEdgeStyling({
           onChange={setDisplayAs}
         />
         <Button
-          icon={<StylingIcon />}
           variant="text"
           onClick={() => openEdgeStyleDialog(edgeType)}
         >
+          <StylingIcon />
           Customize
         </Button>
       </div>

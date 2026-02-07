@@ -101,14 +101,15 @@ function AddOrRemoveButton({
   if (hasBeenAdded) {
     return (
       <IconButton
-        icon={<MinusCircleIcon />}
         variant="text"
         className="rounded-full"
         size="small"
         onClick={stopPropagation(removeFromGraph)}
         tooltipText="Remove edge from view"
         {...props}
-      />
+      >
+        <MinusCircleIcon />
+      </IconButton>
     );
   }
 

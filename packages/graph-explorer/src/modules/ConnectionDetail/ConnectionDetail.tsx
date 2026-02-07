@@ -101,17 +101,19 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
         <PanelHeaderActions>
           <PanelHeaderActionButton
             label="Export Connection"
-            icon={<TrayArrowIcon />}
             disabled={isFetching}
             onActionClick={onConfigExport}
-          />
+          >
+            <TrayArrowIcon />
+          </PanelHeaderActionButton>
           <PanelHeaderDivider />
           <PanelHeaderActionButton
             label="Edit connection"
-            icon={<EditIcon />}
             disabled={isFetching}
             onActionClick={() => setEdit(true)}
-          />
+          >
+            <EditIcon />
+          </PanelHeaderActionButton>
           <ConnectionDeleteButton
             connectionName={connectionName}
             isSync={isFetching}

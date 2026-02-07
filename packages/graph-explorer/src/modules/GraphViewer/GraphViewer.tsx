@@ -176,9 +176,10 @@ function GraphViewerContent({
             <ClearCanvasButton />
             <PanelHeaderActionButton
               label="Legend"
-              icon={<BadgeInfoIcon />}
               onClick={() => setLegendOpen(open => !open)}
-            />
+            >
+              <BadgeInfoIcon />
+            </PanelHeaderActionButton>
           </PanelHeaderActions>
         </PanelHeader>
         <PanelContent className="bg-background-secondary grid" ref={parentRef}>

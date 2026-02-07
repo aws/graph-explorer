@@ -56,15 +56,17 @@ const AvailableConnections = ({
             <PanelHeaderActionButton
               label="Import Connection"
               disabled={isSync}
-              icon={<TrayArrowIcon style={{ transform: "rotate(180deg)" }} />}
-            />
+            >
+              <TrayArrowIcon style={{ transform: "rotate(180deg)" }} />
+            </PanelHeaderActionButton>
           </FileButton>
           <PanelHeaderDivider />
           <PanelHeaderActionButton
             label="Add New Connection"
-            icon={<AddIcon />}
             onActionClick={() => onModalChange(true)}
-          />
+          >
+            <AddIcon />
+          </PanelHeaderActionButton>
         </PanelHeaderActions>
       </PanelHeader>
 

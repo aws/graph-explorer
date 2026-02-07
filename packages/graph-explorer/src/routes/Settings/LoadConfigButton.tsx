@@ -63,7 +63,8 @@ export default function LoadConfigButton() {
         disabled={load.isPending}
         asChild
       >
-        <Button icon={<FolderOpenIcon />} className="min-w-28">
+        <Button className="min-w-28">
+          <FolderOpenIcon />
           Load
         </Button>
       </FileButton>

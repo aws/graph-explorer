@@ -142,11 +142,12 @@ export function PanelHeaderCloseButton({
   return (
     <IconButton
       tooltipText="Close"
-      icon={<XIcon />}
       onClick={onClose}
       variant="text"
       size="small"
-    />
+    >
+      <XIcon />
+    </IconButton>
   );
 }
 PanelHeaderCloseButton.displayName = "PanelHeaderCloseButton";

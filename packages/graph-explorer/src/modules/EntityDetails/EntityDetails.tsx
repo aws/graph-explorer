@@ -41,7 +41,6 @@ function EntityDetails() {
           <EntitiesRefreshButton />
           <PanelHeaderActionButton
             label="Automatically open on selection"
-            icon={<AutoFitLeftIcon />}
             active={userLayout.detailsAutoOpenOnSelection}
             onActionClick={() =>
               setUserLayout(prev => {
@@ -51,7 +50,9 @@ function EntityDetails() {
                 };
               })
             }
-          />
+          >
+            <AutoFitLeftIcon />
+          </PanelHeaderActionButton>
           <PanelHeaderDivider />
           <SidebarCloseButton />
         </PanelHeaderActions>

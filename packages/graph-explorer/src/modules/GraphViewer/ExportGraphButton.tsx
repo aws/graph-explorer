@@ -12,10 +12,11 @@ export function ExportGraphButton() {
 
   return (
     <PanelHeaderActionButton
-      icon={<SaveIcon />}
       label="Save graph to file"
       onActionClick={() => exportGraph()}
-    />
+    >
+      <SaveIcon />
+    </PanelHeaderActionButton>
   );
 }
 
