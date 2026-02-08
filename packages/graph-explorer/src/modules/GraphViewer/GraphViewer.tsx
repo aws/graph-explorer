@@ -10,10 +10,10 @@ import {
 import type { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
 
 import {
+  IconButton,
   Panel,
   PanelContent,
   PanelHeader,
-  PanelHeaderActionButton,
   PanelHeaderActions,
   PanelHeaderCloseButton,
   PanelHeaderDivider,
@@ -174,12 +174,13 @@ function GraphViewerContent({
             <ZoomOutButton />
             <PanelHeaderDivider />
             <ClearCanvasButton />
-            <PanelHeaderActionButton
-              label="Legend"
+            <IconButton
+              tooltipText="Legend"
+              variant="text"
               onClick={() => setLegendOpen(open => !open)}
             >
               <BadgeInfoIcon />
-            </PanelHeaderActionButton>
+            </IconButton>
           </PanelHeaderActions>
         </PanelHeader>
         <PanelContent className="bg-background-secondary grid" ref={parentRef}>

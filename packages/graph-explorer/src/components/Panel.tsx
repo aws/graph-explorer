@@ -1,7 +1,7 @@
 import { XIcon } from "lucide-react";
 import React from "react";
 
-import { IconButton, type IconButtonProps } from "@/components/IconButton";
+import { IconButton } from "@/components/IconButton";
 import { cn } from "@/utils";
 
 interface PanelProps extends React.ComponentPropsWithRef<"div"> {
@@ -141,26 +141,6 @@ export function PanelHeaderCloseButton({
   );
 }
 PanelHeaderCloseButton.displayName = "PanelHeaderCloseButton";
-
-export interface PanelHeaderActionButtonProps extends IconButtonProps {
-  label: string;
-  active?: boolean;
-}
-
-export function PanelHeaderActionButton({
-  label,
-  active,
-  ...props
-}: PanelHeaderActionButtonProps) {
-  return (
-    <IconButton
-      tooltipText={label}
-      variant={active ? "filled" : "text"}
-      {...props}
-    />
-  );
-}
-PanelHeaderActionButton.displayName = "PanelHeaderActionButton";
 
 export type PanelHeaderActionsProps = React.PropsWithChildren<
   React.ComponentPropsWithoutRef<"div">
