@@ -7,6 +7,7 @@
   },
   "type": "module",
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "dev": "vite --force",
     "clean": "rimraf dist coverage",
     "vite-build": "NODE_OPTIONS=--max_old_space_size=6144 vite build",

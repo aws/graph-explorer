@@ -7,9 +7,9 @@
   "keywords": [],
   "private": true,
   "type": "module",
-  "main": "index.ts",
-  "scripts": {
-    "clean": "rimraf dist"
+  "exports": {
+    "./types": "./src/types/index.ts",
+    "./utils/testing": "./src/utils/testing/index.ts"
   },
   "dependencies": {
     "zod": "^3.25.76"
