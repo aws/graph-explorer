@@ -1,7 +1,7 @@
 import { useAtomValue } from "jotai";
 import { RefreshCwIcon } from "lucide-react";
 
-import { IconButton, Spinner } from "@/components";
+import { Button, Spinner } from "@/components";
 import { edgesSelectedIdsAtom, nodesSelectedIdsAtom } from "@/core";
 import { useRefreshEntities } from "@/hooks";
 
@@ -17,15 +17,16 @@ export function EntitiesRefreshButton() {
   }
 
   return (
-    <IconButton
+    <Button
       onClick={() => refresh({ vertexIds, edgeIds })}
-      tooltipText="Refresh"
+      title="Refresh"
       variant="text"
+      size="icon"
       disabled={isPending}
     >
       <Spinner loading={isPending}>
         <RefreshCwIcon />
       </Spinner>
-    </IconButton>
+    </Button>
   );
 }

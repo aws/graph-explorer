@@ -4,7 +4,6 @@ import { useState } from "react";
 import {
   Button,
   type ButtonProps,
-  IconButton,
   PanelEmptyState,
   PanelFooter,
   Spinner,
@@ -83,20 +82,22 @@ export function SearchResultsList({
               Page {currentPageNumber} of {countOfPages}
             </p>
             <div className="flex">
-              <IconButton
+              <Button
+                size="icon"
                 className="rounded-r-none"
                 onClick={handlePrevious}
                 disabled={disablePrevButton}
               >
                 <ChevronLeftIcon />
-              </IconButton>
-              <IconButton
+              </Button>
+              <Button
+                size="icon"
                 className="rounded-l-none"
                 onClick={handleNext}
                 disabled={disableNextButton}
               >
                 <ChevronRightIcon />
-              </IconButton>
+              </Button>
             </div>
           </div>
         </PanelFooter>

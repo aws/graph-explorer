@@ -6,7 +6,6 @@ import {
   AddIcon,
   Button,
   DeleteIcon,
-  IconButton,
   InputField,
   ListRow,
   ListRowContent,
@@ -123,14 +122,15 @@ function Row({ prefix }: { prefix: PrefixTypeConfig }) {
           <ListRowTitle>{prefix.prefix}</ListRowTitle>
           <ListRowSubtitle className="break-all">{prefix.uri}</ListRowSubtitle>
         </ListRowContent>
-        <IconButton
+        <Button
           variant="text"
+          size="icon"
           color="danger"
           title="Delete custom prefix"
           onClick={onDeletePrefix}
         >
           <DeleteIcon />
-        </IconButton>
+        </Button>
       </ListRow>
     </div>
   );

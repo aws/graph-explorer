@@ -9,7 +9,6 @@ import {
   Field,
   FieldGroup,
   FieldLabel,
-  IconButton,
   Input,
   Label,
   SearchResult,
@@ -153,16 +152,16 @@ const NodeExpandFilters = ({
                         />
                       </Field>
                     </FieldGroup>
-                    <IconButton
+                    <Button
                       variant="text"
                       color="danger"
-                      size="small"
+                      size="icon-small"
                       onClick={() => onFilterDelete(filter.id)}
                       className="col-start-1 row-start-1 m-1 justify-self-end"
-                      tooltipText="Remove Filter"
+                      title="Remove Filter"
                     >
                       <Trash2Icon />
-                    </IconButton>
+                    </Button>
                   </SearchResult>
                 </motion.div>
               ))}

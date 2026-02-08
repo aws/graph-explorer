@@ -11,7 +11,6 @@ import {
   DialogHeader,
   DialogTitle,
   ErrorIcon,
-  IconButton,
   Paragraph,
 } from "@/components";
 
@@ -35,15 +34,16 @@ export default function ConnectionDeleteButton({
 
   return (
     <>
-      <IconButton
-        tooltipText="Delete connection"
+      <Button
+        title="Delete connection"
         variant="text"
+        size="icon"
         color="danger"
         disabled={isSync}
         onClick={() => setIsOpen(true)}
       >
         <DeleteIcon />
-      </IconButton>
+      </Button>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent>
           <DialogHeader>

@@ -6,7 +6,6 @@ import type { TabularInstance } from "@/components/Tabular/helpers/tableInstance
 import {
   Button,
   Checkbox,
-  IconButton,
   InputField,
   Label,
   Popover,
@@ -38,12 +37,9 @@ export function ExternalExportControl<T extends Record<string, unknown>>({
   return (
     <Popover open={opened} onOpenChange={open => setOpened(open)}>
       <PopoverTrigger asChild>
-        <IconButton
-          variant="text"
-          tooltipText="Export table"
-        >
+        <Button variant="text" size="icon" title="Export table">
           <TrayArrowIcon />
-        </IconButton>
+        </Button>
       </PopoverTrigger>
       <PopoverContent side="right" className="w-72">
         <ExportOptionsModal

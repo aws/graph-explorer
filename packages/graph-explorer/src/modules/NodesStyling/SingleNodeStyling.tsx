@@ -50,10 +50,7 @@ export default function SingleNodeStyling({
           value={displayAs}
           onChange={setDisplayAs}
         />
-        <Button
-          variant="text"
-          onClick={() => openNodeStyleDialog(vertexType)}
-        >
+        <Button variant="text" onClick={() => openNodeStyleDialog(vertexType)}>
           <StylingIcon />
           Customize
         </Button>

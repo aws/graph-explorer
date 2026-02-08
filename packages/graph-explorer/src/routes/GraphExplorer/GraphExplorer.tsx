@@ -10,7 +10,6 @@ import {
   EmptyStateDescription,
   EmptyStateIcon,
   EmptyStateTitle,
-  IconButton,
   NavBar,
   NavBarActions,
   NavBarContent,
@@ -75,24 +74,22 @@ const GraphExplorer = () => {
           <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
 
           <div className="flex gap-1">
-            <IconButton
-              tooltipText={
-                isGraphVisible ? "Hide Graph View" : "Show Graph View"
-              }
+            <Button
+              title={isGraphVisible ? "Hide Graph View" : "Show Graph View"}
               variant={isGraphVisible ? "filled" : "text"}
+              size="icon"
               onClick={toggleGraphVisibility}
             >
               <GraphIcon />
-            </IconButton>
-            <IconButton
-              tooltipText={
-                isTableVisible ? "Hide Table View" : "Show Table View"
-              }
+            </Button>
+            <Button
+              title={isTableVisible ? "Hide Table View" : "Show Table View"}
               variant={isTableVisible ? "filled" : "text"}
+              size="icon"
               onClick={toggleTableVisibility}
             >
               <GridIcon />
-            </IconButton>
+            </Button>
           </div>
 
           <Divider axis="vertical" className="h-[50%]" />

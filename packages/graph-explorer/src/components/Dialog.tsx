@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { cn } from "@/utils";
 
-import { IconButton } from "./IconButton";
+import { Button } from "./Button/Button";
 
 const Dialog = DialogPrimitive.Root;
 
@@ -48,13 +48,9 @@ function DialogContent({
         >
           {children}
           <DialogPrimitive.Close asChild className="absolute top-5 right-5">
-            <IconButton
-              variant="text"
-              size="small"
-              title="Close"
-            >
+            <Button variant="text" size="icon" title="Close">
               <XIcon />
-            </IconButton>
+            </Button>
           </DialogPrimitive.Close>
         </DialogPrimitive.Content>
       </div>

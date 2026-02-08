@@ -2,7 +2,7 @@ import { useAtom } from "jotai";
 
 import {
   AutoFitLeftIcon,
-  IconButton,
+  Button,
   Panel,
   PanelContent,
   PanelHeader,
@@ -39,9 +39,10 @@ function EntityDetails() {
         <PanelTitle>Details View</PanelTitle>
         <PanelHeaderActions>
           <EntitiesRefreshButton />
-          <IconButton
-            tooltipText="Automatically open on selection"
+          <Button
+            title="Automatically open on selection"
             variant={userLayout.detailsAutoOpenOnSelection ? "filled" : "text"}
+            size="icon"
             onClick={() =>
               setUserLayout(prev => {
                 return {
@@ -52,7 +53,7 @@ function EntityDetails() {
             }
           >
             <AutoFitLeftIcon />
-          </IconButton>
+          </Button>
           <PanelHeaderDivider />
           <SidebarCloseButton />
         </PanelHeaderActions>

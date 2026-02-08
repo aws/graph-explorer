@@ -1,7 +1,7 @@
 import { XIcon } from "lucide-react";
 import React from "react";
 
-import { IconButton } from "@/components/IconButton";
+import { Button } from "@/components/Button";
 import { cn } from "@/utils";
 
 interface PanelProps extends React.ComponentPropsWithRef<"div"> {
@@ -130,9 +130,9 @@ export function PanelHeaderCloseButton({
   onClose,
 }: PanelHeaderCloseButtonProps) {
   return (
-    <IconButton tooltipText="Close" onClick={onClose} variant="text">
+    <Button title="Close" onClick={onClose} variant="text" size="icon">
       <XIcon />
-    </IconButton>
+    </Button>
   );
 }
 PanelHeaderCloseButton.displayName = "PanelHeaderCloseButton";

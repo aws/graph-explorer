@@ -34,8 +34,6 @@ export * from "./Form";
 
 export * from "./numberFormat";
 
-export * from "./IconButton";
-
 export * from "./icons";
 
 export * from "./Input";

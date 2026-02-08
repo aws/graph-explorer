@@ -1,7 +1,7 @@
 import { useAtomValue } from "jotai";
 import { SaveIcon } from "lucide-react";
 
-import { IconButton } from "@/components";
+import { Button } from "@/components";
 import { edgesAtom, nodesAtom, useConfiguration, useExplorer } from "@/core";
 import { saveFile, toJsonFileData } from "@/utils/fileData";
 
@@ -11,13 +11,14 @@ export function ExportGraphButton() {
   const exportGraph = useExportGraph();
 
   return (
-    <IconButton
-      tooltipText="Save graph to file"
+    <Button
+      title="Save graph to file"
       variant="text"
+      size="icon"
       onClick={() => exportGraph()}
     >
       <SaveIcon />
-    </IconButton>
+    </Button>
   );
 }
 

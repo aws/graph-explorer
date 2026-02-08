@@ -9,11 +9,11 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import {
+  Button,
   Form,
   FormControl,
   FormField,
   FormItem,
-  IconButton,
   KeyboardKey,
   PanelEmptyState,
   PanelError,
@@ -119,16 +119,14 @@ export function QuerySearchTabContent() {
   );
 }
 
-function QuerySubmitButton({
-  ...props
-}: ComponentPropsWithRef<typeof IconButton>) {
+function QuerySubmitButton({ ...props }: ComponentPropsWithRef<typeof Button>) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <IconButton variant="default" type="submit" {...props}>
+        <Button variant="default" size="icon" type="submit" {...props}>
           <span className="sr-only">Submit</span>
           <SendHorizontalIcon />
-        </IconButton>
+        </Button>
       </TooltipTrigger>
       <TooltipContent>
         Submit query (<KeyboardKey>Cmd</KeyboardKey> +{" "}

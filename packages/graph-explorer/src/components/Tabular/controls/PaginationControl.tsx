@@ -5,7 +5,7 @@ import {
   ChevronRightIcon,
 } from "lucide-react";
 
-import { IconButton, Label, SelectField, toHumanString } from "@/components";
+import { Button, Label, SelectField, toHumanString } from "@/components";
 import { cn } from "@/utils";
 
 export type PaginationControlProps = {
@@ -85,52 +85,52 @@ export function PaginationControl({
             value={pageSize.toString()}
             onValueChange={value => onPageSizeChange(parseInt(value))}
           />
-          <IconButton
+          <Button
             disabled={pageIndex - 1 < 0}
             variant="text"
-            size="small"
+            size="icon-small"
             onClick={() => onPageIndexChange(0)}
           >
             <ChevronFirstIcon />
-          </IconButton>
-          <IconButton
+          </Button>
+          <Button
             disabled={pageIndex - 1 < 0}
             variant="text"
-            size="small"
+            size="icon-small"
             onClick={() => onPageIndexChange(pageIndex - 1)}
           >
             <ChevronLeftIcon />
-          </IconButton>
+          </Button>
           {pagesToRender.map(page => {
             return (
-              <IconButton
+              <Button
                 key={page}
-                size="small"
+                size="icon-small"
                 variant={
                   pageIndex === parseInt(page) - 1 ? "filled" : "default"
                 }
                 onClick={() => onPageIndexChange(parseInt(page) - 1)}
               >
                 {page}
-              </IconButton>
+              </Button>
             );
           })}
-          <IconButton
+          <Button
             disabled={pageIndex + 1 >= pageCount}
             variant="text"
-            size="small"
+            size="icon-small"
             onClick={() => onPageIndexChange(pageIndex + 1)}
           >
             <ChevronRightIcon />
-          </IconButton>
-          <IconButton
+          </Button>
+          <Button
             disabled={pageIndex + 1 >= pageCount}
             variant="text"
-            size="small"
+            size="icon-small"
             onClick={() => onPageIndexChange(pageCount - 1)}
           >
             <ChevronLastIcon />
-          </IconButton>
+          </Button>
         </div>
       )}
     </div>

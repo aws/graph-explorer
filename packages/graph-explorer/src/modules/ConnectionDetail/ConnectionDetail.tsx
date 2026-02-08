@@ -16,7 +16,6 @@ import {
   EdgeIcon,
   EditIcon,
   GraphIcon,
-  IconButton,
   NotInProduction,
   Panel,
   PanelContent,
@@ -99,23 +98,25 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
           {connectionName}
         </PanelTitle>
         <PanelHeaderActions>
-          <IconButton
-            tooltipText="Export Connection"
+          <Button
+            title="Export Connection"
             variant="text"
+            size="icon"
             disabled={isFetching}
             onClick={onConfigExport}
           >
             <TrayArrowIcon />
-          </IconButton>
+          </Button>
           <PanelHeaderDivider />
-          <IconButton
-            tooltipText="Edit connection"
+          <Button
+            title="Edit connection"
             variant="text"
+            size="icon"
             disabled={isFetching}
             onClick={() => setEdit(true)}
           >
             <EditIcon />
-          </IconButton>
+          </Button>
           <ConnectionDeleteButton
             connectionName={connectionName}
             isSync={isFetching}

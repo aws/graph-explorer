@@ -3,9 +3,9 @@ import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
 import type { PatchedResultVertex } from "@/connector/entities";
 
 import {
+  Button,
   type ButtonProps,
   CollapsibleContent,
-  IconButton,
   SearchResultCollapsible,
   SearchResultCollapsibleTrigger,
   Spinner,
@@ -65,30 +65,30 @@ function AddOrRemoveButton({
 
   if (hasBeenAdded) {
     return (
-      <IconButton
+      <Button
         variant="text"
         className="rounded-full"
-        size="small"
+        size="icon-small"
         onClick={stopPropagation(removeFromGraph)}
-        tooltipText="Remove node from view"
+        title="Remove node from view"
         {...props}
       >
         <MinusCircleIcon />
-      </IconButton>
+      </Button>
     );
   }
 
   return (
-    <IconButton
+    <Button
       variant="text"
       className="rounded-full"
-      size="small"
+      size="icon-small"
       onClick={stopPropagation(addToGraph)}
       disabled={mutation.isPending}
-      tooltipText="Add node to view"
+      title="Add node to view"
       {...props}
     >
       {mutation.isPending ? <Spinner /> : <PlusCircleIcon />}
-    </IconButton>
+    </Button>
   );
 }

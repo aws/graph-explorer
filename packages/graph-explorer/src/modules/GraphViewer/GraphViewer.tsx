@@ -10,7 +10,7 @@ import {
 import type { ElementEventCallback } from "@/components/Graph/hooks/useAddClickEvents";
 
 import {
-  IconButton,
+  Button,
   Panel,
   PanelContent,
   PanelHeader,
@@ -174,13 +174,14 @@ function GraphViewerContent({
             <ZoomOutButton />
             <PanelHeaderDivider />
             <ClearCanvasButton />
-            <IconButton
-              tooltipText="Legend"
+            <Button
+              title="Legend"
               variant="text"
+              size="icon"
               onClick={() => setLegendOpen(open => !open)}
             >
               <BadgeInfoIcon />
-            </IconButton>
+            </Button>
           </PanelHeaderActions>
         </PanelHeader>
         <PanelContent className="bg-background-secondary grid" ref={parentRef}>
