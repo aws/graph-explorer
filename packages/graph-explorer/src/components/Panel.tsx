@@ -56,15 +56,6 @@ function PanelContent({
 }
 PanelContent.displayName = "PanelContent";
 
-export type Action = {
-  label: string;
-  keepOpenOnSelect?: boolean;
-  alwaysVisible?: boolean;
-  active?: boolean;
-  onlyPinnedVisible?: boolean;
-  collapsedItems?: React.ReactElement<any>;
-};
-
 function PanelHeader({
   className,
   children,
@@ -151,11 +142,16 @@ export function PanelHeaderCloseButton({
 }
 PanelHeaderCloseButton.displayName = "PanelHeaderCloseButton";
 
+export interface PanelHeaderActionButtonProps extends IconButtonProps {
+  label: string;
+  active?: boolean;
+}
+
 export function PanelHeaderActionButton({
   label,
   active,
   ...props
-}: Action & IconButtonProps) {
+}: PanelHeaderActionButtonProps) {
   return (
     <IconButton
       tooltipText={label}
