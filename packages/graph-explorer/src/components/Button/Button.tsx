@@ -70,11 +70,11 @@ function Button({
       data-slot="button"
       data-variant={variant}
       data-size={size}
+      aria-label={tooltip}
       className={cn(buttonStyles({ size, variant }), className)}
       {...props}
     >
       {children}
-      {tooltip && <span className="sr-only">{tooltip}</span>}
     </Component>
   );
 

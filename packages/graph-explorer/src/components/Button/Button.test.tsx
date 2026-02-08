@@ -30,15 +30,17 @@ describe("Button", () => {
     expect(await screen.findByRole("tooltip")).toHaveTextContent("Helpful tip");
   });
 
-  test("should render screen reader text when tooltip is provided", () => {
+  test("should set aria-label when tooltip is provided", () => {
     render(
       <Wrapper>
-        <Button tooltip="Screen reader text">Click me</Button>
+        <Button tooltip="Accessible label">Click me</Button>
       </Wrapper>,
     );
 
-    const srText = screen.getByText("Screen reader text");
-    expect(srText).toHaveClass("sr-only");
+    expect(screen.getByRole("button")).toHaveAttribute(
+      "aria-label",
+      "Accessible label",
+    );
   });
 
   test("should not render tooltip when tooltip is not provided", () => {
