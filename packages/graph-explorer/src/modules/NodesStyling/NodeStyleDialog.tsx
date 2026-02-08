@@ -297,11 +297,7 @@ function Content({ vertexType }: { vertexType: VertexType }) {
           </FieldSet>
         </DialogBody>
         <DialogFooter className="sm:justify-between">
-          <Button
-            type="button"
-            variant="default-danger"
-            onClick={resetVertexStyle}
-          >
+          <Button type="button" variant="danger" onClick={resetVertexStyle}>
             Reset to Default
           </Button>
           <DialogClose asChild>

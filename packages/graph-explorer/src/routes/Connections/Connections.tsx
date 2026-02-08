@@ -43,7 +43,7 @@ export default function Connections() {
           <div className="flex gap-2">
             <SettingsRouteButton />
             <SchemaExplorerRouteButton />
-            <GraphExplorerRouteButton variant="filled" />
+            <GraphExplorerRouteButton variant="primary" />
           </div>
         </NavBarActions>
       </NavBar>

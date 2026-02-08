@@ -176,7 +176,7 @@ function GraphViewerContent({
             <ClearCanvasButton />
             <Button
               title="Legend"
-              variant="text"
+              variant="ghost"
               size="icon"
               onClick={() => setLegendOpen(open => !open)}
             >

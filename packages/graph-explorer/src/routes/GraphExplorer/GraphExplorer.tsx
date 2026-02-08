@@ -76,7 +76,7 @@ const GraphExplorer = () => {
           <div className="flex gap-1">
             <Button
               title={isGraphVisible ? "Hide Graph View" : "Show Graph View"}
-              variant={isGraphVisible ? "filled" : "text"}
+              variant={isGraphVisible ? "primary" : "ghost"}
               size="icon"
               onClick={toggleGraphVisibility}
             >
@@ -84,7 +84,7 @@ const GraphExplorer = () => {
             </Button>
             <Button
               title={isTableVisible ? "Hide Table View" : "Show Table View"}
-              variant={isTableVisible ? "filled" : "text"}
+              variant={isTableVisible ? "primary" : "ghost"}
               size="icon"
               onClick={toggleTableVisibility}
             >
@@ -95,7 +95,7 @@ const GraphExplorer = () => {
           <Divider axis="vertical" className="h-[50%]" />
 
           <SchemaExplorerRouteButton />
-          <ConnectionsRouteButton variant="filled" />
+          <ConnectionsRouteButton variant="primary" />
         </NavBarActions>
       </NavBar>
 
@@ -117,11 +117,11 @@ const GraphExplorer = () => {
                   To view your graph data show the graph view or table view
                 </EmptyStateDescription>
                 <EmptyStateActions>
-                  <Button variant="filled" onClick={toggleGraphVisibility}>
+                  <Button variant="primary" onClick={toggleGraphVisibility}>
                     <GraphIcon />
                     Show Graph View
                   </Button>
-                  <Button variant="filled" onClick={toggleTableVisibility}>
+                  <Button variant="primary" onClick={toggleTableVisibility}>
                     <GridIcon />
                     Show Table View
                   </Button>

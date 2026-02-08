@@ -36,7 +36,7 @@ export default function ConnectionDeleteButton({
     <>
       <Button
         title="Delete connection"
-        variant="text-danger"
+        variant="danger-ghost"
         size="icon"
         disabled={isSync}
         onClick={() => setIsOpen(true)}

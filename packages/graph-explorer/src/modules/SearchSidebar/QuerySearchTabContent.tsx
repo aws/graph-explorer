@@ -123,7 +123,7 @@ function QuerySubmitButton({ ...props }: ComponentPropsWithRef<typeof Button>) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="default" size="icon" type="submit" {...props}>
+        <Button size="icon" type="submit" {...props}>
           <span className="sr-only">Submit</span>
           <SendHorizontalIcon />
         </Button>

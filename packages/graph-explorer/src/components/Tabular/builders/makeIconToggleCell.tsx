@@ -25,7 +25,7 @@ export default function makeIconActionCell<T extends object>({
         <TooltipTrigger asChild>
           <Button
             size="small"
-            variant="text"
+            variant="ghost"
             onClick={() => onPress?.(props)}
             className="active:bg-brand-100 text-brand-600 hover:text-brand-800 w-full cursor-pointer hover:bg-transparent"
           >

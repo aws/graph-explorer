@@ -66,7 +66,7 @@ function AddOrRemoveButton({
   if (hasBeenAdded) {
     return (
       <Button
-        variant="text"
+        variant="ghost"
         className="rounded-full"
         size="icon-small"
         onClick={stopPropagation(removeFromGraph)}
@@ -80,7 +80,7 @@ function AddOrRemoveButton({
 
   return (
     <Button
-      variant="text"
+      variant="ghost"
       className="rounded-full"
       size="icon-small"
       onClick={stopPropagation(addToGraph)}

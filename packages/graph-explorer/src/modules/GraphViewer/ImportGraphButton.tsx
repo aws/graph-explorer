@@ -30,7 +30,7 @@ export function ImportGraphButton() {
     >
       <Button
         title="Load graph from file"
-        variant="text"
+        variant="ghost"
         size="icon"
         disabled={importGraph.isPending}
       >

@@ -107,7 +107,7 @@ function EntitiesTabular() {
               {(!isEmpty(selectedTabularInstance.filters) ||
                 !isEmpty(selectedTabularInstance.sorts)) && (
                 <Button
-                  variant="text"
+                  variant="ghost"
                   size="icon"
                   title="Reset sorting and filters"
                   onClick={resetSortingAndFilters}

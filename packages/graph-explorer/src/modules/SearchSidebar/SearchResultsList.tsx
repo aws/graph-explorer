@@ -132,7 +132,7 @@ function AddAllToGraphButton({
 
   return (
     <Button
-      variant="filled"
+      variant="primary"
       onClick={addAllToGraph}
       disabled={mutation.isPending}
       className="stack shrink-0 items-center justify-center rounded-full"

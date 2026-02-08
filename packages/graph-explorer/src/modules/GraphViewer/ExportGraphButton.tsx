@@ -13,7 +13,7 @@ export function ExportGraphButton() {
   return (
     <Button
       title="Save graph to file"
-      variant="text"
+      variant="ghost"
       size="icon"
       onClick={() => exportGraph()}
     >

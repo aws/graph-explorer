@@ -41,7 +41,9 @@ function EntityDetails() {
           <EntitiesRefreshButton />
           <Button
             title="Automatically open on selection"
-            variant={userLayout.detailsAutoOpenOnSelection ? "filled" : "text"}
+            variant={
+              userLayout.detailsAutoOpenOnSelection ? "primary" : "ghost"
+            }
             size="icon"
             onClick={() =>
               setUserLayout(prev => {

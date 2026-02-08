@@ -84,7 +84,7 @@ function SearchablePrefixes({
       </div>
       <SearchResults filteredItems={filteredItems} className="grow" />
       <PanelFooter className="flex shrink-0 flex-row justify-end">
-        <Button variant="filled" onClick={onOpen}>
+        <Button variant="primary" onClick={onOpen}>
           <AddIcon />
           Create
         </Button>
@@ -123,7 +123,7 @@ function Row({ prefix }: { prefix: PrefixTypeConfig }) {
           <ListRowSubtitle className="break-all">{prefix.uri}</ListRowSubtitle>
         </ListRowContent>
         <Button
-          variant="text-danger"
+          variant="danger-ghost"
           size="icon"
           title="Delete custom prefix"
           onClick={onDeletePrefix}
@@ -277,7 +277,7 @@ function EditPrefixModal({
           />
         </DialogBody>
         <DialogFooter>
-          <Button variant="filled" onClick={onSubmit}>
+          <Button variant="primary" onClick={onSubmit}>
             <SaveIcon />
             Save
           </Button>

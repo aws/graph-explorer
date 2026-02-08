@@ -29,7 +29,7 @@ export default function SettingsRoot() {
 
         <NavBarActions>
           <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
-          <ConnectionsRouteButton variant="filled" />
+          <ConnectionsRouteButton variant="primary" />
         </NavBarActions>
       </NavBar>
       <WorkspaceContent>

@@ -217,7 +217,7 @@ function SuccessModal({ success }: { success: boolean }) {
         <DialogFooter>
           {/* Force a full reload of the app in the browser */}
           <a href={RELOAD_URL}>
-            <Button variant="filled">Reload {LABELS.APP_NAME}</Button>
+            <Button variant="primary">Reload {LABELS.APP_NAME}</Button>
           </a>
         </DialogFooter>
       </DialogContent>

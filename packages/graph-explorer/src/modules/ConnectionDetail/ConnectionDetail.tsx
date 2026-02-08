@@ -100,7 +100,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
         <PanelHeaderActions>
           <Button
             title="Export Connection"
-            variant="text"
+            variant="ghost"
             size="icon"
             disabled={isFetching}
             onClick={onConfigExport}
@@ -110,7 +110,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
           <PanelHeaderDivider />
           <Button
             title="Edit connection"
-            variant="text"
+            variant="ghost"
             size="icon"
             disabled={isFetching}
             onClick={() => setEdit(true)}

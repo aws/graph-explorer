@@ -25,7 +25,7 @@ export default function AppErrorPage(props: FallbackProps) {
 
         {/* Force a full reload of the app in the browser */}
         <a href={RELOAD_URL}>
-          <Button variant="filled" size="large">
+          <Button variant="primary" size="large">
             <ResetIcon />
             Reload {LABELS.APP_NAME}
           </Button>

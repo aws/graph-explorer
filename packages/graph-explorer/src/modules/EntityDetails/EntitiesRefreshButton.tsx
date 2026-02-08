@@ -20,7 +20,7 @@ export function EntitiesRefreshButton() {
     <Button
       onClick={() => refresh({ vertexIds, edgeIds })}
       title="Refresh"
-      variant="text"
+      variant="ghost"
       size="icon"
       disabled={isPending}
     >

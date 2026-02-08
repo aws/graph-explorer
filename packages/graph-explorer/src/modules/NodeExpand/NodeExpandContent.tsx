@@ -159,7 +159,7 @@ function ExpandButton({
 
   return (
     <Button
-      variant="filled"
+      variant="primary"
       disabled={isPending || isDisabled}
       onClick={() => expandNode({ vertexId, ...filters })}
     >

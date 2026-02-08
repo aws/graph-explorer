@@ -37,7 +37,7 @@ export function ExternalExportControl<T extends Record<string, unknown>>({
   return (
     <Popover open={opened} onOpenChange={open => setOpened(open)}>
       <PopoverTrigger asChild>
-        <Button variant="text" size="icon" title="Export table">
+        <Button variant="ghost" size="icon" title="Export table">
           <TrayArrowIcon />
         </Button>
       </PopoverTrigger>
@@ -203,7 +203,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
         />
       </div>
       <div className="">
-        <Button variant="filled" onClick={onExport} className="w-full">
+        <Button variant="primary" onClick={onExport} className="w-full">
           Export
         </Button>
       </div>

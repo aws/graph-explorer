@@ -91,7 +91,7 @@ function ErrorDetailsButton({ error }: { error: unknown }) {
         </DialogBody>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="filled">Close</Button>
+            <Button variant="primary">Close</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

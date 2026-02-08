@@ -87,7 +87,7 @@ export function PaginationControl({
           />
           <Button
             disabled={pageIndex - 1 < 0}
-            variant="text"
+            variant="ghost"
             size="icon-small"
             onClick={() => onPageIndexChange(0)}
           >
@@ -95,20 +95,19 @@ export function PaginationControl({
           </Button>
           <Button
             disabled={pageIndex - 1 < 0}
-            variant="text"
+            variant="ghost"
             size="icon-small"
             onClick={() => onPageIndexChange(pageIndex - 1)}
           >
             <ChevronLeftIcon />
           </Button>
           {pagesToRender.map(page => {
+            const isCurrentPage = pageIndex === parseInt(page) - 1;
             return (
               <Button
                 key={page}
                 size="icon-small"
-                variant={
-                  pageIndex === parseInt(page) - 1 ? "filled" : "default"
-                }
+                variant={isCurrentPage ? "primary" : undefined}
                 onClick={() => onPageIndexChange(parseInt(page) - 1)}
               >
                 {page}
@@ -117,7 +116,7 @@ export function PaginationControl({
           })}
           <Button
             disabled={pageIndex + 1 >= pageCount}
-            variant="text"
+            variant="ghost"
             size="icon-small"
             onClick={() => onPageIndexChange(pageIndex + 1)}
           >
@@ -125,7 +124,7 @@ export function PaginationControl({
           </Button>
           <Button
             disabled={pageIndex + 1 >= pageCount}
-            variant="text"
+            variant="ghost"
             size="icon-small"
             onClick={() => onPageIndexChange(pageCount - 1)}
           >

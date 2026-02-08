@@ -9,18 +9,17 @@ export const buttonStyles = cva({
   base: "inline-flex items-center justify-center gap-2 font-medium focus-visible:ring-1 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 disabled:saturate-0 aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-disabled:saturate-0 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   variants: {
     variant: {
-      filled:
+      primary:
         "bg-brand hover:bg-brand-hover data-open:bg-brand-hover text-white",
-      default:
+      secondary:
         "text-text-primary bg-gray-100 hover:bg-gray-200 data-open:bg-gray-200",
-      text: "text-primary-foreground hover:bg-primary-subtle data-open:bg-primary-subtle",
+      ghost:
+        "text-primary-foreground hover:bg-primary-subtle data-open:bg-primary-subtle",
       outline:
         "text-text-primary border-input hover:bg-muted data-open:border-primary-main border bg-transparent shadow-xs",
       danger:
-        "bg-danger hover:bg-danger-hover data-open:bg-danger-hover text-white",
-      "default-danger":
         "bg-danger-subtle text-danger hover:bg-danger-subtle-hover data-open:bg-danger-subtle-hover",
-      "text-danger":
+      "danger-ghost":
         "text-danger hover:bg-danger-subtle data-open:bg-danger-subtle",
     },
     size: {
@@ -34,7 +33,7 @@ export const buttonStyles = cva({
     },
   },
   defaultVariants: {
-    variant: "default",
+    variant: "secondary",
     size: "base",
   },
 });
@@ -48,7 +47,7 @@ export interface ButtonProps
 
 function Button({
   className,
-  variant = "default",
+  variant = "secondary",
   size,
   title,
   children,

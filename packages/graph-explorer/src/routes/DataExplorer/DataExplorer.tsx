@@ -131,7 +131,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
         <NavBarActions>
           <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
           <ConnectionsRouteButton />
-          <GraphExplorerRouteButton variant="filled" />
+          <GraphExplorerRouteButton variant="primary" />
         </NavBarActions>
       </NavBar>
       <WorkspaceContent>
