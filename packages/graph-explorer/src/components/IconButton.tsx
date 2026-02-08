@@ -1,53 +1,27 @@
-import { cva } from "cva";
-
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components";
-import { cn } from "@/utils";
-
 import { Button, type ButtonProps } from "./Button/Button";
 
-export const iconButtonStyles = cva({
-  base: "px-0",
-  variants: {
-    size: {
-      small: "h-8 min-w-8 rounded-sm text-base [&_svg]:size-5",
-      base: "h-10 min-w-10 rounded-md text-base [&_svg]:size-[1.325rem]",
-      large: "h-12 min-w-12 rounded-md text-lg [&_svg]:size-6",
-    },
-  },
-  defaultVariants: {
-    size: "base",
-  },
-});
 export interface IconButtonProps extends ButtonProps {
-  tooltipText?: React.ReactNode;
+  tooltipText?: string;
 }
 
 export function IconButton({
   tooltipText,
-  size,
-  className,
+  size = "icon",
   children,
   ...props
 }: IconButtonProps) {
-  const component = (
-    <Button
-      size={size}
-      className={cn(iconButtonStyles({ size }), className)}
-      {...props}
-    >
+  const iconSize: ButtonProps["size"] =
+    size === "base"
+      ? "icon"
+      : size === "small"
+        ? "icon-small"
+        : size === "large"
+          ? "icon-large"
+          : size;
+
+  return (
+    <Button title={tooltipText} size={iconSize} {...props}>
       {children}
-      <span className="sr-only">{tooltipText}</span>
     </Button>
   );
-
-  if (tooltipText) {
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>{component}</TooltipTrigger>
-        <TooltipContent>{tooltipText}</TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  return component;
 }

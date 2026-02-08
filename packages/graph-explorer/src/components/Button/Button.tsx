@@ -3,6 +3,8 @@ import { Slot } from "radix-ui";
 
 import { cn } from "@/utils";
 
+import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
+
 export const buttonStyles = cva({
   base: "inline-flex items-center justify-center gap-2 font-medium focus-visible:ring-1 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 disabled:saturate-0 aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-disabled:saturate-0 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   variants: {
@@ -20,6 +22,10 @@ export const buttonStyles = cva({
       small: "h-8 rounded-md px-2 text-sm [&_svg]:size-4",
       base: "h-10 rounded-md px-4 text-base [&_svg]:size-5",
       large: "h-12 rounded-md px-5 text-lg [&_svg]:size-6",
+
+      "icon-small": "h-8 min-w-8 rounded-md text-sm [&_svg]:size-4",
+      icon: "h-10 min-w-10 rounded-md text-base [&_svg]:size-[1.325rem]",
+      "icon-large": "h-12 min-w-12 rounded-md text-lg [&_svg]:size-6",
     },
   },
   compoundVariants: [
@@ -91,19 +97,35 @@ function Button({
   variant = "default",
   size,
   color,
+  title,
   children,
   asChild = false,
   ...props
 }: ButtonProps) {
   const Component = asChild ? (Slot.Root as any) : "button";
-  return (
+  const content = (
     <Component
+      data-slot="button"
+      data-variant={variant}
+      data-size={size}
       className={cn(buttonStyles({ size, variant, color }), className)}
       {...props}
     >
       {children}
+      {title && <span className="sr-only">{title}</span>}
     </Component>
   );
+
+  if (title) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{content}</TooltipTrigger>
+        <TooltipContent>{title}</TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return content;
 }
 Button.displayName = "Button";
 
