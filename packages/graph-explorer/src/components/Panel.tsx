@@ -130,12 +130,7 @@ export function PanelHeaderCloseButton({
   onClose,
 }: PanelHeaderCloseButtonProps) {
   return (
-    <IconButton
-      tooltipText="Close"
-      onClick={onClose}
-      variant="text"
-      size="small"
-    >
+    <IconButton tooltipText="Close" onClick={onClose} variant="text">
       <XIcon />
     </IconButton>
   );

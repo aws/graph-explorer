@@ -125,8 +125,8 @@ function Row({ prefix }: { prefix: PrefixTypeConfig }) {
         </ListRowContent>
         <IconButton
           variant="text"
-          size="small"
           color="danger"
+          title="Delete custom prefix"
           onClick={onDeletePrefix}
         >
           <DeleteIcon />
