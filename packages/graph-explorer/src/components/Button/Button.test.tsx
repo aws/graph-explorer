@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { TooltipProvider } from "../Tooltip";
-import { Button } from "./Button";
+import { Button, stopPropagation } from "./Button";
 
 function Wrapper({ children }: PropsWithChildren) {
   return <TooltipProvider>{children}</TooltipProvider>;
@@ -61,5 +61,31 @@ describe("Button", () => {
   test("should be disabled when disabled prop is true", () => {
     render(<Button disabled>Disabled</Button>);
     expect(screen.getByRole("button")).toBeDisabled();
+  });
+});
+
+describe("stopPropagation", () => {
+  test("should stop event propagation and call action", async () => {
+    const action = vi.fn();
+    const event = {
+      stopPropagation: vi.fn(),
+    } as unknown as React.MouseEvent<HTMLButtonElement>;
+
+    await stopPropagation(action)(event);
+
+    expect(event.stopPropagation).toHaveBeenCalled();
+    expect(action).toHaveBeenCalled();
+  });
+
+  test("should handle async actions", async () => {
+    const action = vi.fn().mockResolvedValue(undefined);
+    const event = {
+      stopPropagation: vi.fn(),
+    } as unknown as React.MouseEvent<HTMLButtonElement>;
+
+    await stopPropagation(action)(event);
+
+    expect(event.stopPropagation).toHaveBeenCalled();
+    expect(action).toHaveBeenCalled();
   });
 });

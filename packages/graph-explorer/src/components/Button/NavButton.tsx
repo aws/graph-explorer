@@ -17,8 +17,8 @@ export interface NavButtonProps extends Omit<
 
 /**
  * A button component that navigates to a route when clicked.
- * Unlike using Button with asChild and Link, this component properly
- * supports the disabled state by preventing navigation.
+ * Unlike using Button with asChild and Link, this component prevents
+ * navigation when disabled.
  */
 function NavButton({ to, navOptions, ...props }: NavButtonProps) {
   const navigate = useNavigate();
