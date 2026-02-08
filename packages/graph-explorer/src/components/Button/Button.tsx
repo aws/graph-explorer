@@ -5,11 +5,7 @@ import { cn } from "@/utils";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
-/**
- * Styles for the Button component, exported for use with non-button elements
- * that need button-like styling (e.g., anchor tags).
- */
-export const buttonStyles = cva({
+const buttonStyles = cva({
   base: "inline-flex items-center justify-center gap-2 font-medium focus-visible:ring-1 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 disabled:saturate-0 aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-disabled:saturate-0 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   variants: {
     variant: {
