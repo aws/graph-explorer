@@ -153,8 +153,7 @@ const NodeExpandFilters = ({
                       </Field>
                     </FieldGroup>
                     <Button
-                      variant="text"
-                      color="danger"
+                      variant="text-danger"
                       size="icon-small"
                       onClick={() => onFilterDelete(filter.id)}
                       className="col-start-1 row-start-1 m-1 justify-self-end"

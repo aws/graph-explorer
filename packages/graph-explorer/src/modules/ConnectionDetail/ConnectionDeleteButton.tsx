@@ -36,9 +36,8 @@ export default function ConnectionDeleteButton({
     <>
       <Button
         title="Delete connection"
-        variant="text"
+        variant="text-danger"
         size="icon"
-        color="danger"
         disabled={isSync}
         onClick={() => setIsOpen(true)}
       >
@@ -67,11 +66,7 @@ export default function ConnectionDeleteButton({
           <DialogFooter>
             <Button onClick={() => setIsOpen(false)}>Cancel</Button>
             <Button onClick={saveAndDelete}>Save a Copy & Delete</Button>
-            <Button
-              onClick={deleteActiveConfig}
-              color="danger"
-              variant="filled"
-            >
+            <Button onClick={deleteActiveConfig} variant="danger">
               Delete
             </Button>
           </DialogFooter>

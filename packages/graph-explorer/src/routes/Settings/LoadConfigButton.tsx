@@ -137,8 +137,7 @@ function ConfirmationModal({
             Cancel
           </Button>
           <Button
-            variant="filled"
-            color="danger"
+            variant="danger"
             onClick={onConfirm}
             disabled={isPending}
             className="relative transition-opacity"

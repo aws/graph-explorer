@@ -83,9 +83,8 @@ export function ClearCanvasButton() {
   return (
     <Button
       title="Clear canvas"
-      variant="text"
+      variant="text-danger"
       size="icon"
-      color="danger"
       onClick={onClearGraph}
     >
       <CircleSlash2 />

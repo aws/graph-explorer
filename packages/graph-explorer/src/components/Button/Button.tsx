@@ -9,14 +9,19 @@ export const buttonStyles = cva({
   base: "inline-flex items-center justify-center gap-2 font-medium focus-visible:ring-1 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 disabled:saturate-0 aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-disabled:saturate-0 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   variants: {
     variant: {
-      filled: "",
-      default: "",
-      text: "",
-      outline: "",
-    },
-    color: {
-      primary: "",
-      danger: "",
+      filled:
+        "bg-brand hover:bg-brand-hover data-open:bg-brand-hover text-white",
+      default:
+        "text-text-primary bg-gray-100 hover:bg-gray-200 data-open:bg-gray-200",
+      text: "text-primary-foreground hover:bg-primary-subtle data-open:bg-primary-subtle",
+      outline:
+        "text-text-primary border-input hover:bg-muted data-open:border-primary-main border bg-transparent shadow-xs",
+      danger:
+        "bg-danger hover:bg-danger-hover data-open:bg-danger-hover text-white",
+      "default-danger":
+        "bg-danger-subtle text-danger hover:bg-danger-subtle-hover data-open:bg-danger-subtle-hover",
+      "text-danger":
+        "text-danger hover:bg-danger-subtle data-open:bg-danger-subtle",
     },
     size: {
       small: "h-8 rounded-md px-2 text-sm [&_svg]:size-4",
@@ -28,59 +33,8 @@ export const buttonStyles = cva({
       "icon-large": "h-12 min-w-12 rounded-md text-lg [&_svg]:size-6",
     },
   },
-  compoundVariants: [
-    {
-      variant: "filled",
-      color: "primary",
-      className:
-        "bg-brand hover:bg-brand-hover data-open:bg-brand-hover text-white",
-    },
-    {
-      variant: "filled",
-      color: "danger",
-      className:
-        "bg-danger hover:bg-danger-hover data-open:bg-danger-hover text-white",
-    },
-    {
-      variant: "default",
-      color: "primary",
-      className:
-        "text-text-primary bg-gray-100 hover:bg-gray-200 data-open:bg-gray-200",
-    },
-    {
-      variant: "default",
-      color: "danger",
-      className:
-        "bg-danger-subtle text-danger hover:bg-danger-subtle-hover data-open:bg-danger-subtle-hover",
-    },
-    {
-      variant: "text",
-      color: "primary",
-      className:
-        "text-primary-foreground hover:bg-primary-subtle data-open:bg-primary-subtle",
-    },
-    {
-      variant: "text",
-      color: "danger",
-      className:
-        "text-danger hover:bg-danger-subtle data-open:bg-danger-subtle",
-    },
-    {
-      variant: "outline",
-      color: "primary",
-      className:
-        "text-text-primary border-input hover:bg-muted data-open:border-primary-main border bg-transparent shadow-xs",
-    },
-    {
-      variant: "outline",
-      color: "danger",
-      className:
-        "border-error-light text-danger hover:bg-danger-subtle data-open:border-error-main border shadow-xs",
-    },
-  ],
   defaultVariants: {
     variant: "default",
-    color: "primary",
     size: "base",
   },
 });
@@ -96,7 +50,6 @@ function Button({
   className,
   variant = "default",
   size,
-  color,
   title,
   children,
   asChild = false,
@@ -108,7 +61,7 @@ function Button({
       data-slot="button"
       data-variant={variant}
       data-size={size}
-      className={cn(buttonStyles({ size, variant, color }), className)}
+      className={cn(buttonStyles({ size, variant }), className)}
       {...props}
     >
       {children}

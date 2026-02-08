@@ -123,9 +123,8 @@ function Row({ prefix }: { prefix: PrefixTypeConfig }) {
           <ListRowSubtitle className="break-all">{prefix.uri}</ListRowSubtitle>
         </ListRowContent>
         <Button
-          variant="text"
+          variant="text-danger"
           size="icon"
-          color="danger"
           title="Delete custom prefix"
           onClick={onDeletePrefix}
         >

@@ -305,7 +305,11 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
           </FieldSet>
         </DialogBody>
         <DialogFooter className="sm:justify-between">
-          <Button type="button" color="danger" onClick={resetEdgeStyle}>
+          <Button
+            type="button"
+            variant="default-danger"
+            onClick={resetEdgeStyle}
+          >
             Reset to Default
           </Button>
           <DialogClose asChild>
