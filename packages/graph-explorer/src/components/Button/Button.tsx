@@ -24,7 +24,7 @@ export const buttonStyles = cva({
     },
     size: {
       small: "h-8 rounded-md px-2 text-sm [&_svg]:size-4",
-      base: "h-10 rounded-md px-4 text-base [&_svg]:size-5",
+      default: "h-10 rounded-md px-4 text-base [&_svg]:size-5",
       large: "h-12 rounded-md px-5 text-lg [&_svg]:size-6",
 
       "icon-small": "h-8 min-w-8 rounded-md text-sm [&_svg]:size-4",
@@ -34,7 +34,7 @@ export const buttonStyles = cva({
   },
   defaultVariants: {
     variant: "secondary",
-    size: "base",
+    size: "default",
   },
 });
 
