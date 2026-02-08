@@ -1,3 +1,5 @@
+import type { ComponentPropsWithRef } from "react";
+
 import {
   CompassIcon,
   DatabaseIcon,
@@ -5,79 +7,60 @@ import {
   SettingsIcon,
   TableIcon,
 } from "lucide-react";
-import { Link } from "react-router";
 
 import { useHasActiveSchema } from "@/core";
 
-import { Button, type ButtonProps } from "./Button";
+import { NavButton } from "./Button";
 
-type RouteButtonProps = {
-  variant?: ButtonProps["variant"];
-};
+type RouteButtonProps = Omit<
+  ComponentPropsWithRef<typeof NavButton>,
+  "to" | "navOptions"
+>;
 
-export function ConnectionsRouteButton({ variant }: RouteButtonProps) {
+export function ConnectionsRouteButton(props: RouteButtonProps) {
   return (
-    <Button variant={variant} asChild>
-      <Link to="/connections">
-        <DatabaseIcon />
-        Connections
-      </Link>
-    </Button>
+    <NavButton to="/connections" {...props}>
+      <DatabaseIcon />
+      Connections
+    </NavButton>
   );
 }
 
-export function SettingsRouteButton({ variant }: RouteButtonProps) {
+export function SettingsRouteButton(props: RouteButtonProps) {
   return (
-    <Button variant={variant} asChild>
-      <Link to="/settings/general">
-        <SettingsIcon />
-        Settings
-      </Link>
-    </Button>
+    <NavButton to="/settings/general" {...props}>
+      <SettingsIcon />
+      Settings
+    </NavButton>
   );
 }
 
-export function GraphExplorerRouteButton({ variant }: RouteButtonProps) {
+export function GraphExplorerRouteButton(props: RouteButtonProps) {
   const hasSchema = useHasActiveSchema();
   return (
-    <Button variant={variant} asChild>
-      <Link
-        to={hasSchema ? "/graph-explorer" : "/connections"}
-        aria-disabled={!hasSchema}
-      >
-        <CompassIcon />
-        Graph Explorer
-      </Link>
-    </Button>
+    <NavButton to="/graph-explorer" disabled={!hasSchema} {...props}>
+      <CompassIcon />
+      Graph Explorer
+    </NavButton>
   );
 }
 
-export function DataExplorerRouteButton({ variant }: RouteButtonProps) {
+export function DataExplorerRouteButton(props: RouteButtonProps) {
   const hasSchema = useHasActiveSchema();
   return (
-    <Button variant={variant} asChild>
-      <Link
-        to={hasSchema ? "/data-explorer" : "/connections"}
-        aria-disabled={!hasSchema}
-      >
-        <TableIcon />
-        Data Explorer
-      </Link>
-    </Button>
+    <NavButton to="/data-explorer" disabled={!hasSchema} {...props}>
+      <TableIcon />
+      Data Explorer
+    </NavButton>
   );
 }
 
-export function SchemaExplorerRouteButton({ variant }: RouteButtonProps) {
+export function SchemaExplorerRouteButton(props: RouteButtonProps) {
   const hasSchema = useHasActiveSchema();
   return (
-    <Button variant={variant} asChild>
-      <Link
-        to={hasSchema ? "/schema-explorer" : "/connections"}
-        aria-disabled={!hasSchema}
-      >
-        <NetworkIcon />
-        Schema Explorer
-      </Link>
-    </Button>
+    <NavButton to="/schema-explorer" disabled={!hasSchema} {...props}>
+      <NetworkIcon />
+      Schema Explorer
+    </NavButton>
   );
 }
