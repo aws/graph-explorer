@@ -16,12 +16,15 @@ export function transformToJson<T extends object>(
         let value: string | number | null;
 
         if (typeof accessor === "function") {
-          value = (accessor as (row: T) => unknown)(row) as string | number | null;
+          value = (accessor as (row: T) => unknown)(row) as
+            | string
+            | number
+            | null;
         } else {
           value = (row as Record<string, unknown>)[accessor as string] as
-          |string
-          |number
-          |null;
+            | string
+            | number
+            | null;
         }
 
         if (
@@ -29,7 +32,7 @@ export function transformToJson<T extends object>(
           value === LABELS.MISSING_VALUE ||
           value === LABELS.EMPTY_VALUE
         ) {
-          value = null;
+          return null;
         }
 
         const label = col.definition?.label || col.instance.id;
@@ -37,7 +40,7 @@ export function transformToJson<T extends object>(
       })
       .filter(
         (item): item is readonly [string, string | number | null] =>
-          item !== null
+          item !== null,
       )
       .reduce(
         (acc, [label, value]) => {

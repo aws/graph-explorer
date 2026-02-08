@@ -1,10 +1,10 @@
 import dedent from "dedent";
 
+import { LABELS } from "@/utils/constants";
+
 import type { TabularColumnInstance } from "../../helpers/tableInstanceToTabularInstance";
 
 import { transformToCsv } from "./transformToCsv";
-
-import { LABELS } from "@/utils/constants";
 
 describe("transformToCsv", () => {
   it("should transform empty data to empty csv", () => {
@@ -251,6 +251,187 @@ describe("transformToCsv", () => {
     );
   });
 
+  it("should export MISSING_TYPE as empty cell with string accessor", () => {
+    const result = transformToCsv(
+      [
+        {
+          type: LABELS.MISSING_TYPE,
+          name: "test",
+        },
+      ],
+      [createColumn("type"), createColumn("name")],
+    );
+    expect(csv(result)).toEqual(
+      csv(`
+        type,name
+        ,test
+      `),
+    );
+  });
+
+  it("should export EMPTY_VALUE as empty cell with string accessor", () => {
+    const result = transformToCsv(
+      [
+        {
+          description: LABELS.EMPTY_VALUE,
+          name: "test",
+        },
+      ],
+      [createColumn("description"), createColumn("name")],
+    );
+    expect(csv(result)).toEqual(
+      csv(`
+        description,name
+        ,test
+      `),
+    );
+  });
+
+  it("should export all placeholder constants as empty cells in same row", () => {
+    const result = transformToCsv(
+      [
+        {
+          type: LABELS.MISSING_TYPE,
+          value: LABELS.MISSING_VALUE,
+          description: LABELS.EMPTY_VALUE,
+          name: "test",
+        },
+      ],
+      [
+        createColumn("type"),
+        createColumn("value"),
+        createColumn("description"),
+        createColumn("name"),
+      ],
+    );
+    expect(csv(result)).toEqual(
+      csv(`
+        type,value,description,name
+        ,,,test
+      `),
+    );
+  });
+
+  it("should export MISSING_VALUE as empty cell when returned by function accessor", () => {
+    const result = transformToCsv(
+      [
+        {
+          id: "1",
+          name: "test",
+        },
+      ],
+      [
+        createColumn("id"),
+        createColumnWithFunction("computed", () => LABELS.MISSING_VALUE),
+        createColumn("name"),
+      ],
+    );
+    expect(csv(result)).toEqual(
+      csv(`
+        id,computed,name
+        1,,test
+      `),
+    );
+  });
+
+  it("should export MISSING_TYPE as empty cell when returned by function accessor", () => {
+    const result = transformToCsv(
+      [
+        {
+          id: "1",
+          name: "test",
+        },
+      ],
+      [
+        createColumn("id"),
+        createColumnWithFunction("computed", () => LABELS.MISSING_TYPE),
+        createColumn("name"),
+      ],
+    );
+    expect(csv(result)).toEqual(
+      csv(`
+        id,computed,name
+        1,,test
+      `),
+    );
+  });
+
+  it("should export EMPTY_VALUE as empty cell when returned by function accessor", () => {
+    const result = transformToCsv(
+      [
+        {
+          id: "1",
+          name: "test",
+        },
+      ],
+      [
+        createColumn("id"),
+        createColumnWithFunction("computed", () => LABELS.EMPTY_VALUE),
+        createColumn("name"),
+      ],
+    );
+    expect(csv(result)).toEqual(
+      csv(`
+        id,computed,name
+        1,,test
+      `),
+    );
+  });
+
+  it("should handle mixed placeholder values from string and function accessors", () => {
+    const result = transformToCsv(
+      [
+        {
+          id: "1",
+          type: LABELS.MISSING_TYPE,
+          name: "test",
+        },
+      ],
+      [
+        createColumn("id"),
+        createColumn("type"),
+        createColumnWithFunction("computed", () => LABELS.MISSING_VALUE),
+        createColumn("name"),
+      ],
+    );
+    expect(csv(result)).toEqual(
+      csv(`
+        id,type,computed,name
+        1,,,test
+      `),
+    );
+  });
+
+  it("should handle multiple rows with placeholder values", () => {
+    const result = transformToCsv(
+      [
+        {
+          id: "1",
+          type: LABELS.MISSING_TYPE,
+          name: "first",
+        },
+        {
+          id: "2",
+          type: "Person",
+          name: LABELS.MISSING_VALUE,
+        },
+        {
+          id: "3",
+          type: "Company",
+          name: LABELS.EMPTY_VALUE,
+        },
+      ],
+      [createColumn("id"), createColumn("type"), createColumn("name")],
+    );
+    expect(csv(result)).toEqual(
+      csv(`
+        id,type,name
+        1,,first
+        2,Person,
+        3,Company,
+      `),
+    );
+  });
 });
 
 function createColumn<T extends object>(

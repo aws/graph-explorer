@@ -1,8 +1,8 @@
 import type { TabularColumnInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 
-import { transformToJson } from "./transformToJson";
-
 import { LABELS } from "@/utils/constants";
+
+import { transformToJson } from "./transformToJson";
 
 describe("transformToJson", () => {
   it("should transform empty data to empty array", () => {
@@ -248,7 +248,7 @@ describe("transformToJson", () => {
     ]);
   });
 
-  it("should export placeholder values as null", () => {
+  it("should omit MISSING_VALUE property from output", () => {
     const result = transformToJson(
       [
         {
@@ -258,13 +258,193 @@ describe("transformToJson", () => {
       [createColumn("name")],
     );
 
-    expect(result).toEqual([
+    expect(result).toStrictEqual([{}]);
+  });
+
+  it("should omit MISSING_TYPE property with string accessor", () => {
+    const result = transformToJson(
+      [
+        {
+          type: LABELS.MISSING_TYPE,
+          name: "test",
+        },
+      ],
+      [createColumn("type"), createColumn("name")],
+    );
+    expect(result).toStrictEqual([
       {
-        name: null,
+        name: "test",
       },
     ]);
   });
 
+  it("should omit EMPTY_VALUE property with string accessor", () => {
+    const result = transformToJson(
+      [
+        {
+          description: LABELS.EMPTY_VALUE,
+          name: "test",
+        },
+      ],
+      [createColumn("description"), createColumn("name")],
+    );
+    expect(result).toStrictEqual([
+      {
+        name: "test",
+      },
+    ]);
+  });
+
+  it("should omit all placeholder constant properties in same row", () => {
+    const result = transformToJson(
+      [
+        {
+          type: LABELS.MISSING_TYPE,
+          value: LABELS.MISSING_VALUE,
+          description: LABELS.EMPTY_VALUE,
+          name: "test",
+        },
+      ],
+      [
+        createColumn("type"),
+        createColumn("value"),
+        createColumn("description"),
+        createColumn("name"),
+      ],
+    );
+    expect(result).toStrictEqual([
+      {
+        name: "test",
+      },
+    ]);
+  });
+
+  it("should omit MISSING_VALUE property when returned by function accessor", () => {
+    const result = transformToJson(
+      [
+        {
+          id: "1",
+          name: "test",
+        },
+      ],
+      [
+        createColumn("id"),
+        createColumnWithFunction("computed", () => LABELS.MISSING_VALUE),
+        createColumn("name"),
+      ],
+    );
+    expect(result).toStrictEqual([
+      {
+        id: "1",
+        name: "test",
+      },
+    ]);
+  });
+
+  it("should omit MISSING_TYPE property when returned by function accessor", () => {
+    const result = transformToJson(
+      [
+        {
+          id: "1",
+          name: "test",
+        },
+      ],
+      [
+        createColumn("id"),
+        createColumnWithFunction("computed", () => LABELS.MISSING_TYPE),
+        createColumn("name"),
+      ],
+    );
+    expect(result).toStrictEqual([
+      {
+        id: "1",
+        name: "test",
+      },
+    ]);
+  });
+
+  it("should omit EMPTY_VALUE property when returned by function accessor", () => {
+    const result = transformToJson(
+      [
+        {
+          id: "1",
+          name: "test",
+        },
+      ],
+      [
+        createColumn("id"),
+        createColumnWithFunction("computed", () => LABELS.EMPTY_VALUE),
+        createColumn("name"),
+      ],
+    );
+    expect(result).toStrictEqual([
+      {
+        id: "1",
+        name: "test",
+      },
+    ]);
+  });
+
+  it("should omit placeholder properties from string and function accessors", () => {
+    const result = transformToJson(
+      [
+        {
+          id: "1",
+          type: LABELS.MISSING_TYPE,
+          name: "test",
+        },
+      ],
+      [
+        createColumn("id"),
+        createColumn("type"),
+        createColumnWithFunction("computed", () => LABELS.MISSING_VALUE),
+        createColumn("name"),
+      ],
+    );
+    expect(result).toStrictEqual([
+      {
+        id: "1",
+        name: "test",
+      },
+    ]);
+  });
+
+  it("should omit placeholder properties across multiple rows", () => {
+    const result = transformToJson(
+      [
+        {
+          id: "1",
+          type: LABELS.MISSING_TYPE,
+          name: "first",
+        },
+        {
+          id: "2",
+          type: "Person",
+          name: LABELS.MISSING_VALUE,
+        },
+        {
+          id: "3",
+          type: "Company",
+          name: LABELS.EMPTY_VALUE,
+        },
+      ],
+      [createColumn("id"), createColumn("type"), createColumn("name")],
+    );
+    expect(result).toStrictEqual([
+      {
+        id: "1",
+        name: "first",
+      },
+      {
+        id: "2",
+        type: "Person",
+      },
+      {
+        id: "3",
+        type: "Company",
+      },
+    ]);
+  });
 });
 
 function createColumn<T extends object>(
