@@ -43,13 +43,15 @@ export interface ButtonProps
     VariantProps<typeof buttonStyles>,
     Omit<React.ComponentPropsWithRef<"button">, "color"> {
   asChild?: boolean;
+  /** When provided, displays a tooltip and adds screen reader text. */
+  tooltip?: string;
 }
 
 function Button({
   className,
   variant = "secondary",
   size,
-  title,
+  tooltip,
   children,
   asChild = false,
   ...props
@@ -64,15 +66,15 @@ function Button({
       {...props}
     >
       {children}
-      {title && <span className="sr-only">{title}</span>}
+      {tooltip && <span className="sr-only">{tooltip}</span>}
     </Component>
   );
 
-  if (title) {
+  if (tooltip) {
     return (
       <Tooltip>
         <TooltipTrigger asChild>{content}</TooltipTrigger>
-        <TooltipContent>{title}</TooltipContent>
+        <TooltipContent>{tooltip}</TooltipContent>
       </Tooltip>
     );
   }

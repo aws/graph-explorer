@@ -105,7 +105,7 @@ function AddOrRemoveButton({
         className="rounded-full"
         size="icon-small"
         onClick={stopPropagation(removeFromGraph)}
-        title="Remove edge from view"
+        tooltip="Remove edge from view"
         {...props}
       >
         <MinusCircleIcon />
@@ -120,7 +120,7 @@ function AddOrRemoveButton({
       size="icon-small"
       onClick={stopPropagation(addToGraph)}
       disabled={mutation.isPending}
-      title="Add edge to view"
+      tooltip="Add edge to view"
       {...props}
     >
       {mutation.isPending ? <Spinner /> : <PlusCircleIcon />}

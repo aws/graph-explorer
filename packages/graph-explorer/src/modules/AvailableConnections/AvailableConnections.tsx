@@ -54,7 +54,7 @@ const AvailableConnections = ({
             asChild
           >
             <Button
-              title="Import Connection"
+              tooltip="Import Connection"
               variant="ghost"
               size="icon"
               disabled={isSync}
@@ -64,7 +64,7 @@ const AvailableConnections = ({
           </FileButton>
           <PanelHeaderDivider />
           <Button
-            title="Add New Connection"
+            tooltip="Add New Connection"
             variant="ghost"
             size="icon"
             onClick={() => onModalChange(true)}

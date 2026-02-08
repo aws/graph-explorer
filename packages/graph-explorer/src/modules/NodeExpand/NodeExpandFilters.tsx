@@ -157,7 +157,7 @@ const NodeExpandFilters = ({
                       size="icon-small"
                       onClick={() => onFilterDelete(filter.id)}
                       className="col-start-1 row-start-1 m-1 justify-self-end"
-                      title="Remove Filter"
+                      tooltip="Remove Filter"
                     >
                       <Trash2Icon />
                     </Button>

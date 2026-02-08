@@ -29,7 +29,7 @@ export function ImportGraphButton() {
       asChild
     >
       <Button
-        title="Load graph from file"
+        tooltip="Load graph from file"
         variant="ghost"
         size="icon"
         disabled={importGraph.isPending}

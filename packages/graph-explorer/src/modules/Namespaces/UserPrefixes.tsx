@@ -125,7 +125,7 @@ function Row({ prefix }: { prefix: PrefixTypeConfig }) {
         <Button
           variant="danger-ghost"
           size="icon"
-          title="Delete custom prefix"
+          tooltip="Delete custom prefix"
           onClick={onDeletePrefix}
         >
           <DeleteIcon />

@@ -75,7 +75,7 @@ const GraphExplorer = () => {
 
           <div className="flex gap-1">
             <Button
-              title={isGraphVisible ? "Hide Graph View" : "Show Graph View"}
+              tooltip={isGraphVisible ? "Hide Graph View" : "Show Graph View"}
               variant={isGraphVisible ? "primary" : "ghost"}
               size="icon"
               onClick={toggleGraphVisibility}
@@ -83,7 +83,7 @@ const GraphExplorer = () => {
               <GraphIcon />
             </Button>
             <Button
-              title={isTableVisible ? "Hide Table View" : "Show Table View"}
+              tooltip={isTableVisible ? "Hide Table View" : "Show Table View"}
               variant={isTableVisible ? "primary" : "ghost"}
               size="icon"
               onClick={toggleTableVisibility}

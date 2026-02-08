@@ -70,7 +70,7 @@ function AddOrRemoveButton({
         className="rounded-full"
         size="icon-small"
         onClick={stopPropagation(removeFromGraph)}
-        title="Remove node from view"
+        tooltip="Remove node from view"
         {...props}
       >
         <MinusCircleIcon />
@@ -85,7 +85,7 @@ function AddOrRemoveButton({
       size="icon-small"
       onClick={stopPropagation(addToGraph)}
       disabled={mutation.isPending}
-      title="Add node to view"
+      tooltip="Add node to view"
       {...props}
     >
       {mutation.isPending ? <Spinner /> : <PlusCircleIcon />}

@@ -175,7 +175,7 @@ function GraphViewerContent({
             <PanelHeaderDivider />
             <ClearCanvasButton />
             <Button
-              title="Legend"
+              tooltip="Legend"
               variant="ghost"
               size="icon"
               onClick={() => setLegendOpen(open => !open)}

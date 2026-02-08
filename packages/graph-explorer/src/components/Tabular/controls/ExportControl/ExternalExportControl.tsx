@@ -37,7 +37,7 @@ export function ExternalExportControl<T extends Record<string, unknown>>({
   return (
     <Popover open={opened} onOpenChange={open => setOpened(open)}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" title="Export table">
+        <Button variant="ghost" size="icon" tooltip="Export table">
           <TrayArrowIcon />
         </Button>
       </PopoverTrigger>

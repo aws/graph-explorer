@@ -35,7 +35,7 @@ export default function ConnectionDeleteButton({
   return (
     <>
       <Button
-        title="Delete connection"
+        tooltip="Delete connection"
         variant="danger-ghost"
         size="icon"
         disabled={isSync}

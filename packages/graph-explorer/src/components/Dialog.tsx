@@ -48,7 +48,7 @@ function DialogContent({
         >
           {children}
           <DialogPrimitive.Close asChild className="absolute top-5 right-5">
-            <Button variant="ghost" size="icon" title="Close">
+            <Button variant="ghost" size="icon-small" tooltip="Close">
               <XIcon />
             </Button>
           </DialogPrimitive.Close>

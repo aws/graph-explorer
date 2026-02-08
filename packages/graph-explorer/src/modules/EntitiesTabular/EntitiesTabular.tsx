@@ -109,7 +109,7 @@ function EntitiesTabular() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  title="Reset sorting and filters"
+                  tooltip="Reset sorting and filters"
                   onClick={resetSortingAndFilters}
                 >
                   <ResetIcon />

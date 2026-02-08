@@ -17,7 +17,7 @@ export function RerunLayoutButton() {
 
   return (
     <Button
-      title="Re-run Layout"
+      tooltip="Re-run Layout"
       variant="ghost"
       size="icon"
       onClick={onRunLayout}
@@ -32,7 +32,7 @@ export function ZoomToFitButton() {
 
   return (
     <Button
-      title="Zoom to Fit"
+      tooltip="Zoom to Fit"
       variant="ghost"
       size="icon"
       onClick={onFitAllToCanvas}
@@ -46,7 +46,7 @@ export function ZoomInButton() {
   const { onZoomIn } = useGraphGlobalActions();
 
   return (
-    <Button title="Zoom in" variant="ghost" size="icon" onClick={onZoomIn}>
+    <Button tooltip="Zoom in" variant="ghost" size="icon" onClick={onZoomIn}>
       <ZoomInIcon />
     </Button>
   );
@@ -56,7 +56,7 @@ export function ZoomOutButton() {
   const { onZoomOut } = useGraphGlobalActions();
 
   return (
-    <Button title="Zoom out" variant="ghost" size="icon" onClick={onZoomOut}>
+    <Button tooltip="Zoom out" variant="ghost" size="icon" onClick={onZoomOut}>
       <ZoomOutIcon />
     </Button>
   );
@@ -67,7 +67,7 @@ export function DownloadScreenshotButton() {
 
   return (
     <Button
-      title="Download Screenshot"
+      tooltip="Download Screenshot"
       variant="ghost"
       size="icon"
       onClick={onSaveScreenshot}
@@ -82,7 +82,7 @@ export function ClearCanvasButton() {
 
   return (
     <Button
-      title="Clear canvas"
+      tooltip="Clear canvas"
       variant="danger-ghost"
       size="icon"
       onClick={onClearGraph}

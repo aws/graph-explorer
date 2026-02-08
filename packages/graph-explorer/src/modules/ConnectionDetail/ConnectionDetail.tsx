@@ -99,7 +99,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
         </PanelTitle>
         <PanelHeaderActions>
           <Button
-            title="Export Connection"
+            tooltip="Export Connection"
             variant="ghost"
             size="icon"
             disabled={isFetching}
@@ -109,7 +109,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
           </Button>
           <PanelHeaderDivider />
           <Button
-            title="Edit connection"
+            tooltip="Edit connection"
             variant="ghost"
             size="icon"
             disabled={isFetching}

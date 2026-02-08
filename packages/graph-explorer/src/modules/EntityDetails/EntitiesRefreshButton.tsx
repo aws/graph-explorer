@@ -19,7 +19,7 @@ export function EntitiesRefreshButton() {
   return (
     <Button
       onClick={() => refresh({ vertexIds, edgeIds })}
-      title="Refresh"
+      tooltip="Refresh"
       variant="ghost"
       size="icon"
       disabled={isPending}

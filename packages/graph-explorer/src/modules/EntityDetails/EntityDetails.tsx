@@ -40,7 +40,7 @@ function EntityDetails() {
         <PanelHeaderActions>
           <EntitiesRefreshButton />
           <Button
-            title="Automatically open on selection"
+            tooltip="Automatically open on selection"
             variant={
               userLayout.detailsAutoOpenOnSelection ? "primary" : "ghost"
             }
