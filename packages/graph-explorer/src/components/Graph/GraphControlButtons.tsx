@@ -7,7 +7,7 @@ import {
   ZoomOutIcon,
 } from "lucide-react";
 
-import { IconButton } from "@/components";
+import { Button } from "@/components";
 import { useClearGraph } from "@/hooks";
 
 import { useGraphGlobalActions } from "./useGraphGlobalActions";
@@ -16,12 +16,14 @@ export function RerunLayoutButton() {
   const { onRunLayout } = useGraphGlobalActions();
 
   return (
-    <IconButton
-      tooltipText="Re-run Layout"
-      icon={<GitCompareArrowsIcon />}
-      variant="text"
+    <Button
+      tooltip="Re-run Layout"
+      variant="ghost"
+      size="icon"
       onClick={onRunLayout}
-    />
+    >
+      <GitCompareArrowsIcon />
+    </Button>
   );
 }
 
@@ -29,12 +31,14 @@ export function ZoomToFitButton() {
   const { onFitAllToCanvas } = useGraphGlobalActions();
 
   return (
-    <IconButton
-      tooltipText="Zoom to Fit"
-      icon={<FullscreenIcon />}
-      variant="text"
+    <Button
+      tooltip="Zoom to Fit"
+      variant="ghost"
+      size="icon"
       onClick={onFitAllToCanvas}
-    />
+    >
+      <FullscreenIcon />
+    </Button>
   );
 }
 
@@ -42,12 +46,9 @@ export function ZoomInButton() {
   const { onZoomIn } = useGraphGlobalActions();
 
   return (
-    <IconButton
-      tooltipText="Zoom in"
-      icon={<ZoomInIcon />}
-      variant="text"
-      onClick={onZoomIn}
-    />
+    <Button tooltip="Zoom in" variant="ghost" size="icon" onClick={onZoomIn}>
+      <ZoomInIcon />
+    </Button>
   );
 }
 
@@ -55,12 +56,9 @@ export function ZoomOutButton() {
   const { onZoomOut } = useGraphGlobalActions();
 
   return (
-    <IconButton
-      tooltipText="Zoom out"
-      icon={<ZoomOutIcon />}
-      variant="text"
-      onClick={onZoomOut}
-    />
+    <Button tooltip="Zoom out" variant="ghost" size="icon" onClick={onZoomOut}>
+      <ZoomOutIcon />
+    </Button>
   );
 }
 
@@ -68,12 +66,14 @@ export function DownloadScreenshotButton() {
   const { onSaveScreenshot } = useGraphGlobalActions();
 
   return (
-    <IconButton
-      tooltipText="Download Screenshot"
-      icon={<ImageDownIcon />}
-      variant="text"
+    <Button
+      tooltip="Download Screenshot"
+      variant="ghost"
+      size="icon"
       onClick={onSaveScreenshot}
-    />
+    >
+      <ImageDownIcon />
+    </Button>
   );
 }
 
@@ -81,12 +81,13 @@ export function ClearCanvasButton() {
   const onClearGraph = useClearGraph();
 
   return (
-    <IconButton
-      tooltipText="Clear canvas"
-      icon={<CircleSlash2 />}
-      variant="text"
-      color="danger"
+    <Button
+      tooltip="Clear canvas"
+      variant="danger-ghost"
+      size="icon"
       onClick={onClearGraph}
-    />
+    >
+      <CircleSlash2 />
+    </Button>
   );
 }

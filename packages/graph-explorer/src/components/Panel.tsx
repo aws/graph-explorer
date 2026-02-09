@@ -1,7 +1,7 @@
 import { XIcon } from "lucide-react";
 import React from "react";
 
-import { IconButton, type IconButtonProps } from "@/components/IconButton";
+import { Button } from "@/components/Button";
 import { cn } from "@/utils";
 
 interface PanelProps extends React.ComponentPropsWithRef<"div"> {
@@ -55,16 +55,6 @@ function PanelContent({
   );
 }
 PanelContent.displayName = "PanelContent";
-
-export type Action = {
-  label: string;
-  keepOpenOnSelect?: boolean;
-  alwaysVisible?: boolean;
-  active?: boolean;
-  onlyPinnedVisible?: boolean;
-  collapsedItems?: React.ReactElement<any>;
-  onActionClick?: () => void;
-};
 
 function PanelHeader({
   className,
@@ -140,33 +130,12 @@ export function PanelHeaderCloseButton({
   onClose,
 }: PanelHeaderCloseButtonProps) {
   return (
-    <IconButton
-      tooltipText="Close"
-      icon={<XIcon />}
-      onClick={onClose}
-      variant="text"
-      size="small"
-    />
+    <Button tooltip="Close" onClick={onClose} variant="ghost" size="icon-small">
+      <XIcon />
+    </Button>
   );
 }
 PanelHeaderCloseButton.displayName = "PanelHeaderCloseButton";
-
-export function PanelHeaderActionButton({
-  label,
-  active,
-  onActionClick,
-  ...props
-}: Action & IconButtonProps) {
-  return (
-    <IconButton
-      tooltipText={label}
-      variant={active ? "filled" : "text"}
-      {...(onActionClick && { onClick: onActionClick })}
-      {...props}
-    />
-  );
-}
-PanelHeaderActionButton.displayName = "PanelHeaderActionButton";
 
 export type PanelHeaderActionsProps = React.PropsWithChildren<
   React.ComponentPropsWithoutRef<"div">

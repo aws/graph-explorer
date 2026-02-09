@@ -131,7 +131,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
         <NavBarActions>
           <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
           <ConnectionsRouteButton />
-          <GraphExplorerRouteButton variant="filled" />
+          <GraphExplorerRouteButton variant="primary" />
         </NavBarActions>
       </NavBar>
       <WorkspaceContent>
@@ -272,7 +272,7 @@ function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
 
   return (
     <Button
-      isDisabled={isInExplorer}
+      disabled={isInExplorer}
       variant="outline"
       size="small"
       onClick={addToGraph}

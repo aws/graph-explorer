@@ -10,7 +10,6 @@ import {
   EmptyStateDescription,
   EmptyStateIcon,
   EmptyStateTitle,
-  IconButton,
   NavBar,
   NavBarActions,
   NavBarContent,
@@ -75,28 +74,28 @@ const GraphExplorer = () => {
           <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
 
           <div className="flex gap-1">
-            <IconButton
-              tooltipText={
-                isGraphVisible ? "Hide Graph View" : "Show Graph View"
-              }
-              variant={isGraphVisible ? "filled" : "text"}
-              icon={<GraphIcon />}
+            <Button
+              tooltip={isGraphVisible ? "Hide Graph View" : "Show Graph View"}
+              variant={isGraphVisible ? "primary" : "ghost"}
+              size="icon"
               onClick={toggleGraphVisibility}
-            />
-            <IconButton
-              tooltipText={
-                isTableVisible ? "Hide Table View" : "Show Table View"
-              }
-              variant={isTableVisible ? "filled" : "text"}
-              icon={<GridIcon />}
+            >
+              <GraphIcon />
+            </Button>
+            <Button
+              tooltip={isTableVisible ? "Hide Table View" : "Show Table View"}
+              variant={isTableVisible ? "primary" : "ghost"}
+              size="icon"
               onClick={toggleTableVisibility}
-            />
+            >
+              <GridIcon />
+            </Button>
           </div>
 
           <Divider axis="vertical" className="h-[50%]" />
 
           <SchemaExplorerRouteButton />
-          <ConnectionsRouteButton variant="filled" />
+          <ConnectionsRouteButton variant="primary" />
         </NavBarActions>
       </NavBar>
 
@@ -118,11 +117,11 @@ const GraphExplorer = () => {
                   To view your graph data show the graph view or table view
                 </EmptyStateDescription>
                 <EmptyStateActions>
-                  <Button variant="filled" onClick={toggleGraphVisibility}>
+                  <Button variant="primary" onClick={toggleGraphVisibility}>
                     <GraphIcon />
                     Show Graph View
                   </Button>
-                  <Button variant="filled" onClick={toggleTableVisibility}>
+                  <Button variant="primary" onClick={toggleTableVisibility}>
                     <GridIcon />
                     Show Table View
                   </Button>

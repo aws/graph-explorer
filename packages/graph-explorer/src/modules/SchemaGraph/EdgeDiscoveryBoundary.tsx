@@ -104,7 +104,7 @@ export function EdgeDiscoveryBoundary({
                 </EmptyStateDescription>
 
                 <EmptyStateActions>
-                  <Button onPress={edgeDiscoveryQuery.refetch}>
+                  <Button onClick={() => edgeDiscoveryQuery.refetch()}>
                     <RotateCcwIcon />
                     Retry
                   </Button>

@@ -63,7 +63,8 @@ export default function LoadConfigButton() {
         disabled={load.isPending}
         asChild
       >
-        <Button icon={<FolderOpenIcon />} className="min-w-28">
+        <Button className="min-w-28">
+          <FolderOpenIcon />
           Load
         </Button>
       </FileButton>
@@ -132,14 +133,13 @@ function ConfirmationModal({
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button isDisabled={isPending} onPress={onCancel}>
+          <Button disabled={isPending} onClick={onCancel}>
             Cancel
           </Button>
           <Button
-            variant="filled"
-            color="danger"
-            onPress={onConfirm}
-            isDisabled={isPending}
+            variant="danger"
+            onClick={onConfirm}
+            disabled={isPending}
             className="relative transition-opacity"
           >
             <Spinner loading={isPending}>
@@ -188,7 +188,7 @@ function ParseFailureModal({
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button onPress={onCancel}>Close</Button>
+          <Button onClick={onCancel}>Close</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -217,7 +217,7 @@ function SuccessModal({ success }: { success: boolean }) {
         <DialogFooter>
           {/* Force a full reload of the app in the browser */}
           <a href={RELOAD_URL}>
-            <Button variant="filled">Reload {LABELS.APP_NAME}</Button>
+            <Button variant="primary">Reload {LABELS.APP_NAME}</Button>
           </a>
         </DialogFooter>
       </DialogContent>

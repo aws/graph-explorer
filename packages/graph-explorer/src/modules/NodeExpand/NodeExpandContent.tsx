@@ -159,9 +159,9 @@ function ExpandButton({
 
   return (
     <Button
-      variant="filled"
-      isDisabled={isPending || isDisabled}
-      onPress={() => expandNode({ vertexId, ...filters })}
+      variant="primary"
+      disabled={isPending || isDisabled}
+      onClick={() => expandNode({ vertexId, ...filters })}
     >
       <Spinner loading={isPending}>
         <ExpandGraphIcon />

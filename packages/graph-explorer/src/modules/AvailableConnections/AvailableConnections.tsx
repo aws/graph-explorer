@@ -3,11 +3,11 @@ import { Virtuoso } from "react-virtuoso";
 
 import {
   AddIcon,
+  Button,
   FileButton,
   Panel,
   PanelContent,
   PanelHeader,
-  PanelHeaderActionButton,
   PanelHeaderActions,
   PanelHeaderDivider,
   PanelTitle,
@@ -53,18 +53,24 @@ const AvailableConnections = ({
             accept="application/json"
             asChild
           >
-            <PanelHeaderActionButton
-              label="Import Connection"
-              isDisabled={isSync}
-              icon={<TrayArrowIcon style={{ transform: "rotate(180deg)" }} />}
-            />
+            <Button
+              tooltip="Import Connection"
+              variant="ghost"
+              size="icon"
+              disabled={isSync}
+            >
+              <TrayArrowIcon style={{ transform: "rotate(180deg)" }} />
+            </Button>
           </FileButton>
           <PanelHeaderDivider />
-          <PanelHeaderActionButton
-            label="Add New Connection"
-            icon={<AddIcon />}
-            onActionClick={() => onModalChange(true)}
-          />
+          <Button
+            tooltip="Add New Connection"
+            variant="ghost"
+            size="icon"
+            onClick={() => onModalChange(true)}
+          >
+            <AddIcon />
+          </Button>
         </PanelHeaderActions>
       </PanelHeader>
 

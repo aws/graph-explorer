@@ -22,7 +22,6 @@ import {
   PanelEmptyState,
   PanelError,
   PanelHeader,
-  PanelHeaderActionButton,
   PanelHeaderActions,
   PanelHeaderDivider,
   PanelTitle,
@@ -99,19 +98,25 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
           {connectionName}
         </PanelTitle>
         <PanelHeaderActions>
-          <PanelHeaderActionButton
-            label="Export Connection"
-            icon={<TrayArrowIcon />}
-            isDisabled={isFetching}
-            onActionClick={onConfigExport}
-          />
+          <Button
+            tooltip="Export Connection"
+            variant="ghost"
+            size="icon"
+            disabled={isFetching}
+            onClick={onConfigExport}
+          >
+            <TrayArrowIcon />
+          </Button>
           <PanelHeaderDivider />
-          <PanelHeaderActionButton
-            label="Edit connection"
-            icon={<EditIcon />}
-            isDisabled={isFetching}
-            onActionClick={() => setEdit(true)}
-          />
+          <Button
+            tooltip="Edit connection"
+            variant="ghost"
+            size="icon"
+            disabled={isFetching}
+            onClick={() => setEdit(true)}
+          >
+            <EditIcon />
+          </Button>
           <ConnectionDeleteButton
             connectionName={connectionName}
             isSync={isFetching}
@@ -423,23 +428,23 @@ function DebugActions() {
         <InfoItemContent>
           <InfoItemLabel>Debug Actions</InfoItemLabel>
           <InfoItemValue className="flex flex-wrap gap-2">
-            <Button onPress={() => deleteSchema()}>Delete Schema</Button>
-            <Button onPress={() => resetSchemaLastUpdated()}>
+            <Button onClick={() => deleteSchema()}>Delete Schema</Button>
+            <Button onClick={() => resetSchemaLastUpdated()}>
               Reset Last Updated
             </Button>
-            <Button onPress={() => setSchemaSyncFailed()}>
+            <Button onClick={() => setSchemaSyncFailed()}>
               Last Sync Failed
             </Button>
-            <Button onPress={() => resetEdgeConnections()}>
+            <Button onClick={() => resetEdgeConnections()}>
               Reset Edge Connections
             </Button>
-            <Button onPress={() => setEdgeConnectionFail()}>
+            <Button onClick={() => setEdgeConnectionFail()}>
               Edge Connections Failed
             </Button>
-            <Button onPress={() => resetVertexTotals()}>
+            <Button onClick={() => resetVertexTotals()}>
               Reset Vertex Totals
             </Button>
-            <Button onPress={() => resetAllTotals()}>Reset All Totals</Button>
+            <Button onClick={() => resetAllTotals()}>Reset All Totals</Button>
           </InfoItemValue>
         </InfoItemContent>
       </InfoItem>

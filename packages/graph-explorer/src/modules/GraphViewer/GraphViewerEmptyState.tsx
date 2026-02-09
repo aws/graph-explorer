@@ -52,12 +52,12 @@ function RestorePreviousSessionEmptyState({
         subtitle={`To get started, use the search sidebar panel to filter the graph data or restore your previous session (${entityCounts}).`}
       >
         <Button
-          variant="filled"
+          variant="primary"
           className="mt-4"
-          onPress={() => {
+          onClick={() => {
             restore.mutate(prevSession);
           }}
-          isDisabled={restore.isPending}
+          disabled={restore.isPending}
         >
           <RotateCwIcon />
           Restore Previous Session

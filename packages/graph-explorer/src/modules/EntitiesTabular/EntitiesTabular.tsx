@@ -4,8 +4,8 @@ import { useState } from "react";
 import type { TabularInstance } from "@/components/Tabular";
 
 import {
+  Button,
   GridIcon,
-  IconButton,
   Panel,
   PanelHeader,
   PanelHeaderActions,
@@ -106,12 +106,14 @@ function EntitiesTabular() {
               <div className="grow" />
               {(!isEmpty(selectedTabularInstance.filters) ||
                 !isEmpty(selectedTabularInstance.sorts)) && (
-                <IconButton
-                  variant="text"
-                  icon={<ResetIcon />}
-                  tooltipText="Reset sorting and filters"
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  tooltip="Reset sorting and filters"
                   onClick={resetSortingAndFilters}
-                />
+                >
+                  <ResetIcon />
+                </Button>
               )}
               <ExportControl />
               <PanelHeaderDivider />

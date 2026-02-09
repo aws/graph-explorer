@@ -47,7 +47,7 @@ export default function PanelError({
         <EmptyStateActions>
           <ErrorDetailsButton error={error} />
           {onRetry ? (
-            <Button onPress={onRetry}>
+            <Button onClick={onRetry}>
               <RotateCcwIcon />
               Retry
             </Button>
@@ -91,7 +91,7 @@ function ErrorDetailsButton({ error }: { error: unknown }) {
         </DialogBody>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="filled">Close</Button>
+            <Button variant="primary">Close</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

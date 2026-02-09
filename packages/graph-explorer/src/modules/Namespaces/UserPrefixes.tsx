@@ -6,7 +6,6 @@ import {
   AddIcon,
   Button,
   DeleteIcon,
-  IconButton,
   InputField,
   ListRow,
   ListRowContent,
@@ -85,7 +84,8 @@ function SearchablePrefixes({
       </div>
       <SearchResults filteredItems={filteredItems} className="grow" />
       <PanelFooter className="flex shrink-0 flex-row justify-end">
-        <Button icon={<AddIcon />} variant="filled" onPress={onOpen}>
+        <Button variant="primary" onClick={onOpen}>
+          <AddIcon />
           Create
         </Button>
       </PanelFooter>
@@ -122,13 +122,14 @@ function Row({ prefix }: { prefix: PrefixTypeConfig }) {
           <ListRowTitle>{prefix.prefix}</ListRowTitle>
           <ListRowSubtitle className="break-all">{prefix.uri}</ListRowSubtitle>
         </ListRowContent>
-        <IconButton
-          variant="text"
-          size="small"
-          color="danger"
-          icon={<DeleteIcon />}
+        <Button
+          variant="danger-ghost"
+          size="icon"
+          tooltip="Delete custom prefix"
           onClick={onDeletePrefix}
-        />
+        >
+          <DeleteIcon />
+        </Button>
       </ListRow>
     </div>
   );
@@ -276,7 +277,8 @@ function EditPrefixModal({
           />
         </DialogBody>
         <DialogFooter>
-          <Button icon={<SaveIcon />} variant="filled" onPress={onSubmit}>
+          <Button variant="primary" onClick={onSubmit}>
+            <SaveIcon />
             Save
           </Button>
         </DialogFooter>

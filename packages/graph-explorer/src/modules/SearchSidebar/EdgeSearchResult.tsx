@@ -3,10 +3,10 @@ import { MinusCircleIcon, PlusCircleIcon } from "lucide-react";
 import type { PatchedResultEdge } from "@/connector/entities";
 
 import {
+  Button,
   type ButtonProps,
   CollapsibleContent,
   EdgeRow,
-  IconButton,
   SearchResultCollapsible,
   SearchResultCollapsibleTrigger,
   Spinner,
@@ -100,29 +100,30 @@ function AddOrRemoveButton({
 
   if (hasBeenAdded) {
     return (
-      <IconButton
-        icon={<MinusCircleIcon />}
-        variant="text"
+      <Button
+        variant="ghost"
         className="rounded-full"
-        size="small"
+        size="icon-small"
         onClick={stopPropagation(removeFromGraph)}
-        tooltipText="Remove edge from view"
+        tooltip="Remove edge from view"
         {...props}
-      />
+      >
+        <MinusCircleIcon />
+      </Button>
     );
   }
 
   return (
-    <IconButton
-      variant="text"
+    <Button
+      variant="ghost"
       className="rounded-full"
-      size="small"
+      size="icon-small"
       onClick={stopPropagation(addToGraph)}
       disabled={mutation.isPending}
-      tooltipText="Add edge to view"
+      tooltip="Add edge to view"
       {...props}
     >
       {mutation.isPending ? <Spinner /> : <PlusCircleIcon />}
-    </IconButton>
+    </Button>
   );
 }

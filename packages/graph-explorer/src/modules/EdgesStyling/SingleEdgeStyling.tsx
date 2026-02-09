@@ -48,11 +48,8 @@ export default function SingleEdgeStyling({
           value={displayAs}
           onChange={setDisplayAs}
         />
-        <Button
-          icon={<StylingIcon />}
-          variant="text"
-          onClick={() => openEdgeStyleDialog(edgeType)}
-        >
+        <Button variant="ghost" onClick={() => openEdgeStyleDialog(edgeType)}>
+          <StylingIcon />
           Customize
         </Button>
       </div>

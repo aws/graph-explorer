@@ -4,7 +4,7 @@ import { FolderOpenIcon } from "lucide-react";
 import { toast } from "sonner";
 import { ZodError } from "zod";
 
-import { FileButton, PanelHeaderActionButton, Spinner } from "@/components";
+import { Button, FileButton, Spinner } from "@/components";
 import { fetchEntityDetails, notifyOnIncompleteRestoration } from "@/connector";
 import { configurationAtom, type ConnectionWithId, useExplorer } from "@/core";
 import { useAddToGraph } from "@/hooks";
@@ -28,11 +28,14 @@ export function ImportGraphButton() {
       accept="application/json"
       asChild
     >
-      <PanelHeaderActionButton
-        icon={importGraph.isPending ? <Spinner /> : <FolderOpenIcon />}
-        label="Load graph from file"
+      <Button
+        tooltip="Load graph from file"
+        variant="ghost"
+        size="icon"
         disabled={importGraph.isPending}
-      />
+      >
+        {importGraph.isPending ? <Spinner /> : <FolderOpenIcon />}
+      </Button>
     </FileButton>
   );
 }

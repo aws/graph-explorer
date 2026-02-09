@@ -4,6 +4,7 @@
 
 - Keep conversations concise. Sacrifice grammar for brevity.
 - Use TypeScript for type safety
+- Do not change the VS Code setting `typescript.autoClosingTags`
 - Prefer descriptive variable and function names over code comments
 - Prefer simple to follow logic over clever concise code
 - Prefer named function syntax over anonymous arrow functions for module-level

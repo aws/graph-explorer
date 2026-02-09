@@ -11,7 +11,6 @@ import {
   DialogHeader,
   DialogTitle,
   ErrorIcon,
-  PanelHeaderActionButton,
   Paragraph,
 } from "@/components";
 
@@ -35,13 +34,15 @@ export default function ConnectionDeleteButton({
 
   return (
     <>
-      <PanelHeaderActionButton
-        label="Delete connection"
-        icon={<DeleteIcon />}
-        color="danger"
-        isDisabled={isSync}
-        onActionClick={() => setIsOpen(true)}
-      />
+      <Button
+        tooltip="Delete connection"
+        variant="danger-ghost"
+        size="icon"
+        disabled={isSync}
+        onClick={() => setIsOpen(true)}
+      >
+        <DeleteIcon />
+      </Button>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent>
           <DialogHeader>
@@ -63,13 +64,9 @@ export default function ConnectionDeleteButton({
             </div>
           </DialogBody>
           <DialogFooter>
-            <Button onPress={() => setIsOpen(false)}>Cancel</Button>
-            <Button onPress={saveAndDelete}>Save a Copy & Delete</Button>
-            <Button
-              onPress={deleteActiveConfig}
-              color="danger"
-              variant="filled"
-            >
+            <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+            <Button onClick={saveAndDelete}>Save a Copy & Delete</Button>
+            <Button onClick={deleteActiveConfig} variant="danger">
               Delete
             </Button>
           </DialogFooter>

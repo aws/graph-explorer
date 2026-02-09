@@ -1,5 +1,5 @@
 import {
-  buttonStyles,
+  Button,
   LabelledSetting,
   PageHeading,
   SendIcon,
@@ -22,13 +22,12 @@ export default function SettingsAbout() {
           label="Provide Feedback"
           description={`If you have any ideas for future features for ${LABELS.APP_NAME}, or encounter an issue, please let us know.`}
         >
-          <a
-            href={env.GRAPH_EXP_FEEDBACK_URL}
-            className={buttonStyles({ variant: "default" })}
-          >
-            <SendIcon />
-            Send
-          </a>
+          <Button asChild>
+            <a href={env.GRAPH_EXP_FEEDBACK_URL}>
+              <SendIcon />
+              Send
+            </a>
+          </Button>
         </LabelledSetting>
       </SettingsSection>
     </SettingsSectionContainer>

@@ -86,10 +86,10 @@ export default function SettingsGeneral() {
           description="You can save your current configuration to a file, including all connections, styles, loaded schemas, etc."
         >
           <Button
-            icon={<SaveAllIcon />}
             className="min-w-28"
-            onPress={async () => await saveLocalForageToFile(localforage)}
+            onClick={async () => await saveLocalForageToFile(localforage)}
           >
+            <SaveAllIcon />
             Save
           </Button>
         </LabelledSetting>

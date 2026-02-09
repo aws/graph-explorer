@@ -4,7 +4,6 @@ import { useState } from "react";
 import {
   Button,
   type ButtonProps,
-  IconButton,
   PanelEmptyState,
   PanelFooter,
   Spinner,
@@ -83,18 +82,22 @@ export function SearchResultsList({
               Page {currentPageNumber} of {countOfPages}
             </p>
             <div className="flex">
-              <IconButton
-                icon={<ChevronLeftIcon />}
+              <Button
+                size="icon"
                 className="rounded-r-none"
                 onClick={handlePrevious}
                 disabled={disablePrevButton}
-              />
-              <IconButton
-                icon={<ChevronRightIcon />}
+              >
+                <ChevronLeftIcon />
+              </Button>
+              <Button
+                size="icon"
                 className="rounded-l-none"
                 onClick={handleNext}
                 disabled={disableNextButton}
-              />
+              >
+                <ChevronRightIcon />
+              </Button>
             </div>
           </div>
         </PanelFooter>
@@ -129,7 +132,7 @@ function AddAllToGraphButton({
 
   return (
     <Button
-      variant="filled"
+      variant="primary"
       onClick={addAllToGraph}
       disabled={mutation.isPending}
       className="stack shrink-0 items-center justify-center rounded-full"
