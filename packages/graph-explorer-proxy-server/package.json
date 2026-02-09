@@ -5,6 +5,7 @@
   "main": "dist/node-server.js",
   "type": "module",
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "clean": "rimraf dist coverage",
     "build": "tsc --build tsconfig.build.json",
     "dev": "tsx watch src/node-server.ts",
