@@ -27,6 +27,8 @@
 
 - Use Tailwind v4 CSS syntax
 - The `tailwind.config.ts` file remains for legacy reasons
+- Prefer Tailwind responsive directives and container queries over
+  `ResizeObserver` for responsive layout changes whenever possible
 
 ## Project Commands
 
