@@ -2,16 +2,14 @@ import { type PropsWithChildren, Suspense } from "react";
 import { NavLink, Outlet, type To } from "react-router";
 
 import {
-  ConnectionsRouteButton,
   ForwardIcon,
   NavBar,
-  NavBarActions,
   NavBarContent,
   NavBarTitle,
-  NavBarVersion,
   Panel,
   PanelContent,
   PanelGroup,
+  RouteButtonGroup,
   Workspace,
   WorkspaceContent,
 } from "@/components";
@@ -27,10 +25,7 @@ export default function SettingsRoot() {
           <NavBarTitle title={`${LABELS.APP_NAME} Settings`} />
         </NavBarContent>
 
-        <NavBarActions>
-          <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
-          <ConnectionsRouteButton variant="primary" />
-        </NavBarActions>
+        <RouteButtonGroup active="settings" />
       </NavBar>
       <WorkspaceContent>
         <PanelGroup>

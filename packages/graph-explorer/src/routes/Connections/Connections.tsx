@@ -2,18 +2,14 @@ import { useAtomValue } from "jotai";
 import { useState } from "react";
 
 import {
-  GraphExplorerRouteButton,
   NavBar,
-  NavBarActions,
   NavBarContent,
   NavBarTitle,
-  NavBarVersion,
   Panel,
   PanelContent,
   PanelEmptyState,
   PanelGroup,
-  SchemaExplorerRouteButton,
-  SettingsRouteButton,
+  RouteButtonGroup,
   Workspace,
   WorkspaceContent,
 } from "@/components";
@@ -38,14 +34,7 @@ export default function Connections() {
             subtitle={`Connection: ${config?.displayLabel || config?.id || "none"}`}
           />
         </NavBarContent>
-        <NavBarActions>
-          <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
-          <div className="flex gap-2">
-            <SettingsRouteButton />
-            <SchemaExplorerRouteButton />
-            <GraphExplorerRouteButton variant="primary" />
-          </div>
-        </NavBarActions>
+        <RouteButtonGroup active="connections" />
       </NavBar>
       <WorkspaceContent>
         <PanelGroup className="grid grid-cols-2 gap-2">

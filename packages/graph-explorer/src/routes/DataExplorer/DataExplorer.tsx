@@ -6,24 +6,21 @@ import { useNavigate, useParams, useSearchParams } from "react-router";
 import {
   Button,
   CheckIcon,
-  ConnectionsRouteButton,
   EmptyState,
   EmptyStateContent,
   EmptyStateDescription,
   EmptyStateIcon,
   EmptyStateTitle,
-  GraphExplorerRouteButton,
   NavBar,
-  NavBarActions,
   NavBarContent,
   NavBarTitle,
-  NavBarVersion,
   Panel,
   PanelContent,
   PanelEmptyState,
   PanelError,
   PanelGroup,
   PanelHeader,
+  RouteButtonGroup,
   SchemaDiscoveryBoundary,
   SelectField,
   SendIcon,
@@ -235,11 +232,7 @@ function Layout({ children }: { children: React.ReactNode }) {
             subtitle={`Connection: ${config?.displayLabel || config?.id}`}
           />
         </NavBarContent>
-        <NavBarActions>
-          <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
-          <ConnectionsRouteButton />
-          <GraphExplorerRouteButton variant="primary" />
-        </NavBarActions>
+        <RouteButtonGroup active="data-explorer" />
       </NavBar>
       <WorkspaceContent>
         <SchemaDiscoveryBoundary>{children}</SchemaDiscoveryBoundary>

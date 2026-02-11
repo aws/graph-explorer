@@ -2,7 +2,6 @@ import { Resizable } from "re-resizable";
 
 import {
   Button,
-  ConnectionsRouteButton,
   Divider,
   EmptyState,
   EmptyStateActions,
@@ -14,10 +13,9 @@ import {
   NavBarActions,
   NavBarContent,
   NavBarTitle,
-  NavBarVersion,
   PanelGroup,
+  RouteButtonGroup,
   SchemaDiscoveryBoundary,
-  SchemaExplorerRouteButton,
   Workspace,
   WorkspaceContent,
 } from "@/components";
@@ -73,11 +71,9 @@ const GraphExplorer = () => {
           />
         </NavBarContent>
 
-        <NavBarActions>
-          <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
-
-          {hasSchema && (
-            <>
+        {hasSchema && (
+          <>
+            <NavBarActions>
               <div className="flex gap-1">
                 <Button
                   tooltip={
@@ -100,14 +96,11 @@ const GraphExplorer = () => {
                   <GridIcon />
                 </Button>
               </div>
-
-              <Divider axis="vertical" className="h-[50%]" />
-            </>
-          )}
-
-          <SchemaExplorerRouteButton />
-          <ConnectionsRouteButton variant="primary" />
-        </NavBarActions>
+            </NavBarActions>
+            <Divider axis="vertical" className="h-[30%]" />
+          </>
+        )}
+        <RouteButtonGroup active="graph-explorer" />
       </NavBar>
 
       <WorkspaceContent className="flex min-h-0 flex-1 flex-row">
