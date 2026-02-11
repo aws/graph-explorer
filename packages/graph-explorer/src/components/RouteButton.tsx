@@ -8,8 +8,6 @@ import {
   TableIcon,
 } from "lucide-react";
 
-import { useHasActiveSchema } from "@/core";
-
 import { NavButton } from "./Button";
 
 type RouteButtonProps = Omit<
@@ -36,9 +34,8 @@ export function SettingsRouteButton(props: RouteButtonProps) {
 }
 
 export function GraphExplorerRouteButton(props: RouteButtonProps) {
-  const hasSchema = useHasActiveSchema();
   return (
-    <NavButton to="/graph-explorer" disabled={!hasSchema} {...props}>
+    <NavButton to="/graph-explorer" {...props}>
       <CompassIcon />
       Graph Explorer
     </NavButton>
@@ -46,9 +43,8 @@ export function GraphExplorerRouteButton(props: RouteButtonProps) {
 }
 
 export function DataExplorerRouteButton(props: RouteButtonProps) {
-  const hasSchema = useHasActiveSchema();
   return (
-    <NavButton to="/data-explorer" disabled={!hasSchema} {...props}>
+    <NavButton to="/data-explorer" {...props}>
       <TableIcon />
       Data Explorer
     </NavButton>
@@ -56,9 +52,8 @@ export function DataExplorerRouteButton(props: RouteButtonProps) {
 }
 
 export function SchemaExplorerRouteButton(props: RouteButtonProps) {
-  const hasSchema = useHasActiveSchema();
   return (
-    <NavButton to="/schema-explorer" disabled={!hasSchema} {...props}>
+    <NavButton to="/schema-explorer" {...props}>
       <NetworkIcon />
       Schema Explorer
     </NavButton>

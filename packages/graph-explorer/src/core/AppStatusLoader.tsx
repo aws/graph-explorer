@@ -1,23 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom } from "jotai";
 import {
   type PropsWithChildren,
   startTransition,
   Suspense,
   useEffect,
 } from "react";
-import { useLocation } from "react-router";
 
 import { PanelEmptyState, Spinner } from "@/components";
-import Redirect from "@/components/Redirect";
 import { logger } from "@/utils";
 
 import { fetchDefaultConnection } from "./defaultConnection";
-import {
-  activeConfigurationAtom,
-  configurationAtom,
-  schemaAtom,
-} from "./StateProvider";
+import { activeConfigurationAtom, configurationAtom } from "./StateProvider";
 
 function AppStatusLoader({ children }: PropsWithChildren) {
   return (
@@ -28,11 +22,8 @@ function AppStatusLoader({ children }: PropsWithChildren) {
 }
 
 function LoadDefaultConfig({ children }: PropsWithChildren) {
-  const location = useLocation();
-
   const [activeConfig, setActiveConfig] = useAtom(activeConfigurationAtom);
   const [configuration, setConfiguration] = useAtom(configurationAtom);
-  const schema = useAtomValue(schemaAtom);
 
   const defaultConfigQuery = useQuery({
     queryKey: ["default-connection"],
@@ -97,22 +88,6 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
         icon={<Spinner />}
       />
     );
-  }
-
-  // Force to be in Connections if no config is activated
-  // even by changing the URL
-  if (!activeConfig || !schema.get(activeConfig || "")?.lastUpdate) {
-    if (
-      !location.pathname.match(/\/connections/) &&
-      !location.pathname.match(/\/settings/)
-    ) {
-      logger.debug("Redirecting to connections because no config is active", {
-        activeConfig,
-        schema,
-      });
-
-      return <Redirect to="/connections" />;
-    }
   }
 
   return <>{children}</>;

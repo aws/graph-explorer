@@ -64,15 +64,15 @@ describe("DataExplorer", () => {
     });
   });
 
-  test("renders empty shell when no vertexType param and no vertex types", () => {
+  test("renders empty state when no vertexType param and no vertex types", () => {
     const state = new DbState().withNoActiveSchema();
 
     renderDataExplorer("/data-explorer", state);
 
     // Should not redirect — stays at /data-explorer
     expect(screen.getByTestId("location")).toHaveTextContent("/data-explorer");
-    // Should not show the empty state message
-    expect(screen.queryByText(/no .* available/i)).not.toBeInTheDocument();
+    // Should show the empty state message since there are no vertex types
+    expect(screen.getByText(/no .* available/i)).toBeInTheDocument();
   });
 
   test("shows empty state when vertexType param exists but no vertex types in schema", () => {

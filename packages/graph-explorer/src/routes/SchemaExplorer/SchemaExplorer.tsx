@@ -6,21 +6,16 @@ import {
   NavBarContent,
   NavBarTitle,
   NavBarVersion,
+  SchemaDiscoveryBoundary,
   Workspace,
   WorkspaceContent,
 } from "@/components";
 import { GraphProvider } from "@/components/Graph";
-import Redirect from "@/components/Redirect";
-import { useConfiguration, useHasActiveSchema } from "@/core";
+import { useConfiguration } from "@/core";
 import { EdgeDiscoveryBoundary, SchemaGraph } from "@/modules/SchemaGraph";
 
 export default function SchemaExplorer() {
   const config = useConfiguration();
-  const hasSchema = useHasActiveSchema();
-
-  if (!hasSchema) {
-    return <Redirect to="/connections" />;
-  }
 
   return (
     <Workspace>
@@ -40,11 +35,13 @@ export default function SchemaExplorer() {
         </NavBarActions>
       </NavBar>
       <WorkspaceContent>
-        <GraphProvider>
-          <EdgeDiscoveryBoundary>
-            <SchemaGraph />
-          </EdgeDiscoveryBoundary>
-        </GraphProvider>
+        <SchemaDiscoveryBoundary>
+          <GraphProvider>
+            <EdgeDiscoveryBoundary>
+              <SchemaGraph />
+            </EdgeDiscoveryBoundary>
+          </GraphProvider>
+        </SchemaDiscoveryBoundary>
       </WorkspaceContent>
     </Workspace>
   );

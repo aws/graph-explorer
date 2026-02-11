@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { TableIcon } from "lucide-react";
+import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 
 import {
@@ -23,6 +24,7 @@ import {
   PanelError,
   PanelGroup,
   PanelHeader,
+  SchemaDiscoveryBoundary,
   SelectField,
   SendIcon,
   Spinner,
@@ -64,7 +66,6 @@ import {
   RESERVED_TYPES_PROPERTY,
   SEARCH_TOKENS,
 } from "@/utils/constants";
-import { TableIcon } from "lucide-react";
 
 const DEFAULT_COLUMN = {
   width: 150,
@@ -240,7 +241,9 @@ function Layout({ children }: { children: React.ReactNode }) {
           <GraphExplorerRouteButton variant="primary" />
         </NavBarActions>
       </NavBar>
-      <WorkspaceContent>{children}</WorkspaceContent>
+      <WorkspaceContent>
+        <SchemaDiscoveryBoundary>{children}</SchemaDiscoveryBoundary>
+      </WorkspaceContent>
     </Workspace>
   );
 }

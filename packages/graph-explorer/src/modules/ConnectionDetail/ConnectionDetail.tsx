@@ -231,7 +231,7 @@ function MainContentLayout(_props: { config: RawConfiguration }) {
         icon={<SyncIcon />}
         title="No Schema Available"
         subtitle="Synchronize the connection to explore the data."
-        onAction={schemaDiscoveryQuery.refetch}
+        onAction={refreshSchema}
         actionLabel="Synchronize"
         className="p-6"
       />
