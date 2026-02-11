@@ -47,6 +47,7 @@ import {
   type ConfigurationContextProps,
   type RawConfiguration,
   showDebugActionsAtom,
+  useHasActiveSchema,
   useMaybeActiveSchema,
 } from "@/core";
 import { useDeleteActiveConfiguration } from "@/hooks/useDeleteConfig";
@@ -195,6 +196,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
 /** Shows the vertex list, loading, or error state. */
 function MainContentLayout(_props: { config: RawConfiguration }) {
   const { isFetching, schemaDiscoveryQuery, refreshSchema } = useSchemaSync();
+  const hasSchema = useHasActiveSchema();
   const cancel = useCancelSchemaSync();
 
   if (isFetching) {
@@ -217,6 +219,20 @@ function MainContentLayout(_props: { config: RawConfiguration }) {
       <PanelError
         error={schemaDiscoveryQuery.error}
         onRetry={refreshSchema}
+        className="p-6"
+      />
+    );
+  }
+
+  if (!hasSchema) {
+    return (
+      <PanelEmptyState
+        variant="info"
+        icon={<SyncIcon />}
+        title="No Schema Available"
+        subtitle="Synchronize the connection to explore the data."
+        onAction={schemaDiscoveryQuery.refetch}
+        actionLabel="Synchronize"
         className="p-6"
       />
     );
