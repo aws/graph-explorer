@@ -21,7 +21,7 @@ const allRoutes = {
   "data-explorer": { name: "Data Table", path: "/data-explorer" },
   "schema-explorer": { name: "Schema", path: "/schema-explorer" },
   connections: { name: "Connections", path: "/connections" },
-  settings: { name: "Settings", path: "/settings" },
+  settings: { name: "Settings", path: "/settings/general" },
 } as const;
 
 // Split out settings so it can be laid out differently
