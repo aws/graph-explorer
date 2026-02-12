@@ -33,7 +33,7 @@ export function RouteButtonGroup({ active }: { active: RouteKey }) {
   return (
     <>
       <NavBarActions className="hidden lg:flex">
-        <div className="flex gap-2">
+        <div className="flex h-full">
           {Object.entries(mainRoutes).map(([key, route]) => (
             <RouteButton key={key} to={route.path} active={active === key}>
               {route.name}
@@ -96,7 +96,7 @@ function RouteButton({
       size="default"
       data-active={active || undefined}
       className={cn(
-        "text-foreground hover:text-primary-foreground data-active:bg-primary hover:data-active:bg-primary-hover cursor-pointer rounded-full transition-all hover:bg-transparent data-active:text-white",
+        "hover:text-primary-foreground text-muted-foreground font-base data-active:border-b-primary-foreground data-active:text-primary-foreground h-full cursor-pointer rounded-none border-y-3 border-y-transparent px-5 hover:bg-transparent data-active:bg-transparent data-active:font-bold",
         className,
       )}
       {...props}
