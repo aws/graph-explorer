@@ -16,7 +16,7 @@ export function NavBar({
     <div
       data-slot="nav-bar"
       className={cn(
-        "bg-background-default text-text-primary flex min-h-14 flex-row items-center gap-3 border-b pr-3",
+        "bg-background-default text-text-primary flex min-h-16 flex-row items-center gap-3 border-b pr-3",
         !logoVisible && "pl-3",
         className,
       )}
@@ -74,16 +74,18 @@ function NavBarLogo({ className, ...rest }: ComponentPropsWithRef<"div">) {
 export function NavBarVersion({
   className,
   ...props
-}: ComponentPropsWithRef<"div">) {
+}: Omit<ComponentPropsWithRef<"div">, "children">) {
   return (
     <div
       data-slot="nav-bar-version"
       className={cn(
-        "text-text-secondary flex items-center justify-center text-xs font-light",
+        "text-muted-foreground/80 flex items-center justify-center text-sm",
         className,
       )}
       {...props}
-    />
+    >
+      v{__GRAPH_EXP_VERSION__}
+    </div>
   );
 }
 

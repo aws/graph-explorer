@@ -1,11 +1,8 @@
 import {
-  ConnectionsRouteButton,
-  GraphExplorerRouteButton,
   NavBar,
-  NavBarActions,
   NavBarContent,
   NavBarTitle,
-  NavBarVersion,
+  RouteButtonGroup,
   SchemaDiscoveryBoundary,
   Workspace,
   WorkspaceContent,
@@ -27,12 +24,7 @@ export default function SchemaExplorer() {
           />
         </NavBarContent>
 
-        <NavBarActions>
-          <NavBarVersion>{__GRAPH_EXP_VERSION__}</NavBarVersion>
-
-          <ConnectionsRouteButton />
-          <GraphExplorerRouteButton variant="primary" />
-        </NavBarActions>
+        <RouteButtonGroup active="schema-explorer" />
       </NavBar>
       <WorkspaceContent>
         <SchemaDiscoveryBoundary>

@@ -68,9 +68,9 @@
   --color-muted: var(--color-gray-100);
 
   /* Used for highlights and selections */
-  --color-accent-foreground: var(--color-brand-700);
-  --color-accent: var(--color-brand-100);
-  --color-accent-hover: var(--color-brand-200);
+  --color-accent-foreground: var(--color-primary-foreground);
+  --color-accent: var(--color-primary-subtle);
+  --color-accent-hover: var(--color-primary-subtle-hover);
 
   --color-neutral-foreground: var(--color-gray-900);
   --color-neutral: var(--color-gray-900);

@@ -1,61 +1,117 @@
 import type { ComponentPropsWithRef } from "react";
 
+import { MenuIcon, SettingsIcon } from "lucide-react";
+import { Link } from "react-router";
+
+import { cn } from "@/utils";
+
+import { Button, NavButton } from "./Button";
+import Divider from "./Divider";
 import {
-  CompassIcon,
-  DatabaseIcon,
-  NetworkIcon,
-  SettingsIcon,
-  TableIcon,
-} from "lucide-react";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./DropdownMenu";
+import { NavBarActions, NavBarVersion } from "./NavBar";
 
-import { NavButton } from "./Button";
+const allRoutes = {
+  "graph-explorer": { name: "Graph", path: "/graph-explorer" },
+  "data-explorer": { name: "Data Table", path: "/data-explorer" },
+  "schema-explorer": { name: "Schema", path: "/schema-explorer" },
+  connections: { name: "Connections", path: "/connections" },
+  settings: { name: "Settings", path: "/settings/general" },
+} as const;
 
-type RouteButtonProps = Omit<
-  ComponentPropsWithRef<typeof NavButton>,
-  "to" | "navOptions"
->;
+// Split out settings so it can be laid out differently
+const { settings: settingsRoute, ...mainRoutes } = allRoutes;
 
-export function ConnectionsRouteButton(props: RouteButtonProps) {
+type RouteKey = keyof typeof allRoutes;
+
+export function RouteButtonGroup({ active }: { active: RouteKey }) {
   return (
-    <NavButton to="/connections" {...props}>
-      <DatabaseIcon />
-      Connections
-    </NavButton>
+    <>
+      <NavBarActions className="hidden lg:flex">
+        <div className="flex h-full">
+          {Object.entries(mainRoutes).map(([key, route]) => (
+            <RouteButton key={key} to={route.path} active={active === key}>
+              {route.name}
+            </RouteButton>
+          ))}
+        </div>
+
+        <Divider axis="vertical" className="h-6" />
+
+        <div className="flex h-full items-center gap-2">
+          <RouteButton
+            tooltip={settingsRoute.name}
+            size="icon"
+            to={settingsRoute.path}
+            active={active === "settings"}
+          >
+            <SettingsIcon />
+            <span className="sr-only">{settingsRoute.name}</span>
+          </RouteButton>
+          <NavBarVersion />
+        </div>
+      </NavBarActions>
+      <NavBarActions className="lg:hidden">
+        <NavBarVersion />
+        <NavMenu />
+      </NavBarActions>
+    </>
   );
 }
 
-export function SettingsRouteButton(props: RouteButtonProps) {
+function NavMenu() {
   return (
-    <NavButton to="/settings/general" {...props}>
-      <SettingsIcon />
-      Settings
-    </NavButton>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" tooltip="Navigation">
+          <MenuIcon />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-40">
+        <DropdownMenuGroup>
+          {Object.entries(allRoutes).map(([key, route]) => (
+            <DropdownMenuItem key={key} asChild>
+              <Link to={route.path}>{route.name}</Link>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
-export function GraphExplorerRouteButton(props: RouteButtonProps) {
+function RouteButton({
+  active,
+  children,
+  className,
+  ...props
+}: ComponentPropsWithRef<typeof NavButton> & { active: boolean }) {
   return (
-    <NavButton to="/graph-explorer" {...props}>
-      <CompassIcon />
-      Graph Explorer
-    </NavButton>
-  );
-}
-
-export function DataExplorerRouteButton(props: RouteButtonProps) {
-  return (
-    <NavButton to="/data-explorer" {...props}>
-      <TableIcon />
-      Data Explorer
-    </NavButton>
-  );
-}
-
-export function SchemaExplorerRouteButton(props: RouteButtonProps) {
-  return (
-    <NavButton to="/schema-explorer" {...props}>
-      <NetworkIcon />
-      Schema Explorer
+    <NavButton
+      variant="ghost"
+      size="default"
+      data-active={active || undefined}
+      className={cn(
+        "hover:text-primary-foreground text-muted-foreground font-base data-active:border-b-primary-foreground data-active:text-primary-foreground h-full cursor-pointer rounded-none border-y-3 border-y-transparent px-5 hover:bg-transparent data-active:bg-transparent data-active:font-bold",
+        className,
+      )}
+      {...props}
+    >
+      {/* The spans are in place to fix the layout shift that occurs when switching the font weight */}
+      <span className="grid place-items-center">
+        <span className="col-start-1 row-start-1">{children}</span>
+        <span
+          className="invisible col-start-1 row-start-1 font-bold"
+          aria-hidden="true"
+        >
+          {children}
+        </span>
+      </span>
     </NavButton>
   );
 }
