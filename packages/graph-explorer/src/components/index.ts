@@ -50,6 +50,7 @@ export * from "./NavBar";
 export * from "./Toaster";
 
 export * from "./RouteButton";
+export * from "./SchemaDiscoveryBoundary";
 export * from "./Spinner";
 
 export * from "./Panel";

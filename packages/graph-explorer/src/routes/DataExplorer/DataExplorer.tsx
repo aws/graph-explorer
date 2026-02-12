@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { TableIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 
@@ -9,6 +10,7 @@ import {
   EmptyState,
   EmptyStateContent,
   EmptyStateDescription,
+  EmptyStateIcon,
   EmptyStateTitle,
   GraphExplorerRouteButton,
   NavBar,
@@ -17,10 +19,12 @@ import {
   NavBarTitle,
   NavBarVersion,
   Panel,
+  PanelContent,
   PanelEmptyState,
   PanelError,
   PanelGroup,
   PanelHeader,
+  SchemaDiscoveryBoundary,
   SelectField,
   SendIcon,
   Spinner,
@@ -63,28 +67,60 @@ import {
   SEARCH_TOKENS,
 } from "@/utils/constants";
 
-export type ConnectionsProps = {
-  vertexType: VertexType;
-};
-
 const DEFAULT_COLUMN = {
   width: 150,
 };
 
 export default function DataExplorer() {
+  const t = useTranslations();
   const { vertexType } = useParams();
+  const navigate = useNavigate();
+  const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
 
-  if (!vertexType) {
-    // React Router will redirect if vertexType is not defined before reaching here.
-    return <>No vertex type was defined</>;
+  if (!vertexType && vtConfigs.length > 0) {
+    navigate(`/data-explorer/${encodeURIComponent(vtConfigs[0].type)}`, {
+      replace: true,
+    });
   }
 
-  return <DataExplorerContent vertexType={createVertexType(vertexType)} />;
+  if (vtConfigs.length === 0 || !vertexType) {
+    return (
+      <Layout>
+        <PanelGroup className="grid">
+          <Panel>
+            <PanelContent>
+              <EmptyState>
+                <EmptyStateIcon>
+                  <TableIcon />
+                </EmptyStateIcon>
+                <EmptyStateContent>
+                  <EmptyStateTitle>
+                    No {t("node-types")} Available
+                  </EmptyStateTitle>
+                  <EmptyStateDescription>
+                    No {t("node-types").toLocaleLowerCase()} found in the
+                    connected database
+                  </EmptyStateDescription>
+                </EmptyStateContent>
+              </EmptyState>
+            </PanelContent>
+          </Panel>
+        </PanelGroup>
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
+      <PanelGroup className="grid">
+        <DataExplorerContent vertexType={createVertexType(vertexType)} />
+      </PanelGroup>
+    </Layout>
+  );
 }
 
-function DataExplorerContent({ vertexType }: ConnectionsProps) {
+function DataExplorerContent({ vertexType }: { vertexType: VertexType }) {
   const t = useTranslations();
-  const config = useConfiguration();
   const navigate = useNavigate();
 
   // Automatically updates counts if needed
@@ -120,6 +156,77 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
   };
 
   return (
+    <Panel>
+      <PanelHeader className="justify-between py-3">
+        <SelectField
+          className="w-64"
+          value={vertexType}
+          onValueChange={onVertexTypeChange}
+          options={vertexTypeOptions}
+          label={t("node-type")}
+          labelPlacement="inner"
+        />
+        <div className="flex items-center gap-2">
+          <DisplayNameAndDescriptionOptions vertexType={vertexType} />
+          {tableInstance ? (
+            <ExternalExportControl
+              instance={tableInstance}
+              hideOptions
+              forceOnlyPage
+            />
+          ) : null}
+        </div>
+      </PanelHeader>
+      <Tabular
+        ref={instance => {
+          setTableInstance(instance);
+        }}
+        defaultColumn={DEFAULT_COLUMN}
+        data={displayVertices}
+        columns={columns}
+        fullWidth={true}
+        pageIndex={pageIndex}
+        pageSize={pageSize}
+        disablePagination={true}
+        disableFilters={true}
+        disableSorting={true}
+      >
+        <TabularEmptyBodyControls>
+          {query.isPending ? (
+            <PanelEmptyState title="Loading data..." icon={<Spinner />} />
+          ) : null}
+          {query.isError ? (
+            <PanelError error={query.error} onRetry={query.refetch} />
+          ) : null}
+          {query.data?.vertices.length === 0 && (
+            <EmptyState>
+              <EmptyStateContent>
+                <EmptyStateTitle>No Results</EmptyStateTitle>
+                <EmptyStateDescription>
+                  {`No nodes found for "${displayTypeConfig.displayLabel}"`}
+                </EmptyStateDescription>
+              </EmptyStateContent>
+            </EmptyState>
+          )}
+        </TabularEmptyBodyControls>
+        <TabularFooterControls>
+          <PaginationControl
+            pageIndex={pageIndex}
+            onPageIndexChange={onPageIndexChange}
+            pageSize={pageSize}
+            onPageSizeChange={onPageSizeChange}
+            totalRows={vertexConfig?.total ?? pageSize * (pageIndex + 2)}
+          />
+        </TabularFooterControls>
+      </Tabular>
+    </Panel>
+  );
+}
+
+function Layout({ children }: { children: React.ReactNode }) {
+  const config = useConfiguration();
+
+  return (
     <Workspace>
       <NavBar logoVisible>
         <NavBarContent>
@@ -135,72 +242,7 @@ function DataExplorerContent({ vertexType }: ConnectionsProps) {
         </NavBarActions>
       </NavBar>
       <WorkspaceContent>
-        <PanelGroup className="grid">
-          <Panel>
-            <PanelHeader className="justify-between py-3">
-              <SelectField
-                className="w-64"
-                value={vertexType}
-                onValueChange={onVertexTypeChange}
-                options={vertexTypeOptions}
-                label={t("node-type")}
-                labelPlacement="inner"
-              />
-              <div className="flex items-center gap-2">
-                <DisplayNameAndDescriptionOptions vertexType={vertexType} />
-                {tableInstance ? (
-                  <ExternalExportControl
-                    instance={tableInstance}
-                    hideOptions
-                    forceOnlyPage
-                  />
-                ) : null}
-              </div>
-            </PanelHeader>
-            <Tabular
-              ref={instance => {
-                setTableInstance(instance);
-              }}
-              defaultColumn={DEFAULT_COLUMN}
-              data={displayVertices}
-              columns={columns}
-              fullWidth={true}
-              pageIndex={pageIndex}
-              pageSize={pageSize}
-              disablePagination={true}
-              disableFilters={true}
-              disableSorting={true}
-            >
-              <TabularEmptyBodyControls>
-                {query.isPending ? (
-                  <PanelEmptyState title="Loading data..." icon={<Spinner />} />
-                ) : null}
-                {query.isError ? (
-                  <PanelError error={query.error} onRetry={query.refetch} />
-                ) : null}
-                {query.data?.vertices.length === 0 && (
-                  <EmptyState>
-                    <EmptyStateContent>
-                      <EmptyStateTitle>No Results</EmptyStateTitle>
-                      <EmptyStateDescription>
-                        {`No nodes found for "${displayTypeConfig.displayLabel}"`}
-                      </EmptyStateDescription>
-                    </EmptyStateContent>
-                  </EmptyState>
-                )}
-              </TabularEmptyBodyControls>
-              <TabularFooterControls>
-                <PaginationControl
-                  pageIndex={pageIndex}
-                  onPageIndexChange={onPageIndexChange}
-                  pageSize={pageSize}
-                  onPageSizeChange={onPageSizeChange}
-                  totalRows={vertexConfig?.total ?? pageSize * (pageIndex + 2)}
-                />
-              </TabularFooterControls>
-            </Tabular>
-          </Panel>
-        </PanelGroup>
+        <SchemaDiscoveryBoundary>{children}</SchemaDiscoveryBoundary>
       </WorkspaceContent>
     </Workspace>
   );
