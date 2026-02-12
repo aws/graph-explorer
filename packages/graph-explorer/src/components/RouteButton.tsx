@@ -87,6 +87,7 @@ function NavMenu() {
 
 function RouteButton({
   active,
+  children,
   className,
   ...props
 }: ComponentPropsWithRef<typeof NavButton> & { active: boolean }) {
@@ -100,6 +101,17 @@ function RouteButton({
         className,
       )}
       {...props}
-    />
+    >
+      {/* The spans are in place to fix the layout shift that occurs when switching the font weight */}
+      <span className="grid place-items-center">
+        <span className="col-start-1 row-start-1">{children}</span>
+        <span
+          className="invisible col-start-1 row-start-1 font-bold"
+          aria-hidden="true"
+        >
+          {children}
+        </span>
+      </span>
+    </NavButton>
   );
 }
