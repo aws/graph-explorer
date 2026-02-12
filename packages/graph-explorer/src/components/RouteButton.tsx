@@ -1,82 +1,89 @@
 import type { ComponentPropsWithRef } from "react";
 
-import { cva } from "cva";
-import { SettingsIcon } from "lucide-react";
+import { MenuIcon, SettingsIcon } from "lucide-react";
+import { Link } from "react-router";
 
 import { cn } from "@/utils";
 
-import { NavButton } from "./Button";
+import { Button, NavButton } from "./Button";
 import Divider from "./Divider";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./DropdownMenu";
 import { NavBarActions, NavBarVersion } from "./NavBar";
 
-type GraphExplorerRoutes =
-  | "connections"
-  | "settings"
-  | "graph-explorer"
-  | "data-explorer"
-  | "schema-explorer";
+const allRoutes = {
+  "graph-explorer": { name: "Graph", path: "/graph-explorer" },
+  "data-explorer": { name: "Data Table", path: "/data-explorer" },
+  "schema-explorer": { name: "Schema", path: "/schema-explorer" },
+  connections: { name: "Connections", path: "/connections" },
+  settings: { name: "Settings", path: "/settings" },
+} as const;
 
-export function RouteButtonGroup({ active }: { active: GraphExplorerRoutes }) {
+// Split out settings so it can be laid out differently
+const { settings: settingsRoute, ...mainRoutes } = allRoutes;
+
+type RouteKey = keyof typeof allRoutes;
+
+export function RouteButtonGroup({ active }: { active: RouteKey }) {
   return (
-    <NavBarActions>
-      <div className="flex gap-6">
-        <RouteButton to="/graph-explorer" active={active === "graph-explorer"}>
-          Graph
-        </RouteButton>
-        <RouteButton to="/data-explorer" active={active === "data-explorer"}>
-          Data Table
-        </RouteButton>
-        <RouteButton
-          to="/schema-explorer"
-          active={active === "schema-explorer"}
-        >
-          Schema
-        </RouteButton>
-        <RouteButton to="/connections" active={active === "connections"}>
-          Connections
-        </RouteButton>
-      </div>
+    <>
+      <NavBarActions className="hidden lg:flex">
+        <div className="flex gap-6">
+          {Object.entries(mainRoutes).map(([key, route]) => (
+            <RouteButton key={key} to={route.path} active={active === key}>
+              {route.name}
+            </RouteButton>
+          ))}
+        </div>
 
-      <Divider axis="vertical" className="h-6" />
+        <Divider axis="vertical" className="h-6" />
 
-      <div className="flex h-full items-center gap-2">
-        <RouteButton
-          tooltip="Settings"
-          size="icon"
-          to="/settings/general"
-          active={active === "settings"}
-        >
-          <SettingsIcon />
-          <span className="sr-only">Settings</span>
-        </RouteButton>
+        <div className="flex h-full items-center gap-2">
+          <RouteButton
+            tooltip={settingsRoute.name}
+            size="icon"
+            to={settingsRoute.path}
+            active={active === "settings"}
+          >
+            <SettingsIcon />
+            <span className="sr-only">{settingsRoute.name}</span>
+          </RouteButton>
+          <NavBarVersion />
+        </div>
+      </NavBarActions>
+      <NavBarActions className="lg:hidden">
         <NavBarVersion />
-      </div>
-    </NavBarActions>
+        <NavMenu />
+      </NavBarActions>
+    </>
   );
 }
 
-/*
- * DEV NOTE:
- * Keeping these three styles in the code for now since we are still trying to decide which style to go with.
- *
- * Once a style decision is made we can remove these to focus on a single style for the route button.
- */
-const routeButtonStyles = cva({
-  base: "text-foreground hover:text-primary-foreground cursor-pointer transition-all hover:bg-transparent",
-  variants: {
-    variant: {
-      rounded:
-        "data-active:bg-primary-subtle data-active:text-primary-foreground data-active:ring-primary-foreground hover:data-active:bg-primary-subtle-hover rounded-full data-active:ring",
-      roundedFill:
-        "data-active:bg-primary hover:data-active:bg-primary-hover rounded-full data-active:text-white",
-      underlined:
-        "data-active:text-foreground hover:text-primary-foreground decoration-primary-foreground text-muted-foreground font-base decoration-3 underline-offset-6 data-active:bg-transparent data-active:font-bold data-active:underline",
-    },
-  },
-  defaultVariants: {
-    variant: "roundedFill",
-  },
-});
+function NavMenu() {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" tooltip="Navigation">
+          <MenuIcon />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-40">
+        <DropdownMenuGroup>
+          {Object.entries(allRoutes).map(([key, route]) => (
+            <DropdownMenuItem key={key} asChild>
+              <Link to={route.path}>{route.name}</Link>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 function RouteButton({
   active,
@@ -87,8 +94,11 @@ function RouteButton({
     <NavButton
       variant="ghost"
       size="default"
-      data-active={active ? true : undefined}
-      className={cn(routeButtonStyles(), className)}
+      data-active={active || undefined}
+      className={cn(
+        "text-foreground hover:text-primary-foreground data-active:bg-primary hover:data-active:bg-primary-hover cursor-pointer rounded-full transition-all hover:bg-transparent data-active:text-white",
+        className,
+      )}
       {...props}
     />
   );
