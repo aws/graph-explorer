@@ -16,6 +16,7 @@ export * from "./ColorPopover";
 export * from "./CommonAnimationProps";
 
 export * from "./DefaultQueryErrorBoundary";
+export * from "./DropdownMenu";
 
 export { PanelEmptyState } from "./PanelEmptyState";
 export * from "./PanelEmptyState";
