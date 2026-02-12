@@ -33,7 +33,7 @@ export function RouteButtonGroup({ active }: { active: RouteKey }) {
   return (
     <>
       <NavBarActions className="hidden lg:flex">
-        <div className="flex gap-6">
+        <div className="flex gap-2">
           {Object.entries(mainRoutes).map(([key, route]) => (
             <RouteButton key={key} to={route.path} active={active === key}>
               {route.name}
