@@ -1,4 +1,5 @@
 import type { PropsWithChildren } from "react";
+
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, useLocation } from "react-router";
@@ -17,7 +18,7 @@ function Wrapper({ children }: PropsWithChildren) {
 }
 
 describe("RouteButtonGroup", () => {
-  test("should render all route buttons on large screens", () => {
+  test("should render all route buttons", () => {
     render(
       <MemoryRouter initialEntries={["/graph-explorer"]}>
         <RouteButtonGroup active="graph-explorer" />
@@ -38,6 +39,59 @@ describe("RouteButtonGroup", () => {
     ).toBeInTheDocument();
   });
 
+  test("should set data-active on the active route button", () => {
+    render(
+      <MemoryRouter initialEntries={["/data-explorer"]}>
+        <RouteButtonGroup active="data-explorer" />
+      </MemoryRouter>,
+      { wrapper: Wrapper },
+    );
+
+    expect(screen.getByRole("button", { name: "Data Table" })).toHaveAttribute(
+      "data-active",
+    );
+    expect(screen.getByRole("button", { name: "Graph" })).not.toHaveAttribute(
+      "data-active",
+    );
+    expect(screen.getByRole("button", { name: "Schema" })).not.toHaveAttribute(
+      "data-active",
+    );
+    expect(
+      screen.getByRole("button", { name: "Connections" }),
+    ).not.toHaveAttribute("data-active");
+  });
+
+  test("should set data-active on settings when active", () => {
+    render(
+      <MemoryRouter initialEntries={["/settings/general"]}>
+        <RouteButtonGroup active="settings" />
+      </MemoryRouter>,
+      { wrapper: Wrapper },
+    );
+
+    expect(screen.getByRole("button", { name: "Settings" })).toHaveAttribute(
+      "data-active",
+    );
+  });
+
+  test("should navigate when clicking a route button", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter initialEntries={["/graph-explorer"]}>
+        <RouteButtonGroup active="graph-explorer" />
+        <LocationDisplay />
+      </MemoryRouter>,
+      { wrapper: Wrapper },
+    );
+
+    expect(screen.getByTestId("location")).toHaveTextContent("/graph-explorer");
+
+    await user.click(screen.getByRole("button", { name: "Connections" }));
+
+    expect(screen.getByTestId("location")).toHaveTextContent("/connections");
+  });
+
   test("should render nav menu trigger button", () => {
     render(
       <MemoryRouter initialEntries={["/graph-explorer"]}>
@@ -51,7 +105,7 @@ describe("RouteButtonGroup", () => {
     ).toBeInTheDocument();
   });
 
-  test("should open nav menu with radio items on click", async () => {
+  test("should open nav menu with all routes on click", async () => {
     const user = userEvent.setup();
 
     render(
@@ -65,41 +119,20 @@ describe("RouteButtonGroup", () => {
 
     const menu = screen.getByRole("menu");
     expect(
-      within(menu).getByRole("menuitemradio", { name: "Graph" }),
+      within(menu).getByRole("menuitem", { name: "Graph" }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole("menuitemradio", { name: "Data Table" }),
+      within(menu).getByRole("menuitem", { name: "Data Table" }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole("menuitemradio", { name: "Schema" }),
+      within(menu).getByRole("menuitem", { name: "Schema" }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole("menuitemradio", { name: "Connections" }),
+      within(menu).getByRole("menuitem", { name: "Connections" }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole("menuitemradio", { name: "Settings" }),
+      within(menu).getByRole("menuitem", { name: "Settings" }),
     ).toBeInTheDocument();
-  });
-
-  test("should mark the active route as checked in nav menu", async () => {
-    const user = userEvent.setup();
-
-    render(
-      <MemoryRouter initialEntries={["/data-explorer"]}>
-        <RouteButtonGroup active="data-explorer" />
-      </MemoryRouter>,
-      { wrapper: Wrapper },
-    );
-
-    await user.click(screen.getByRole("button", { name: "Navigation" }));
-
-    const menu = screen.getByRole("menu");
-    expect(
-      within(menu).getByRole("menuitemradio", { name: "Data Table" }),
-    ).toHaveAttribute("aria-checked", "true");
-    expect(
-      within(menu).getByRole("menuitemradio", { name: "Graph" }),
-    ).toHaveAttribute("aria-checked", "false");
   });
 
   test("should navigate when selecting a route from nav menu", async () => {
@@ -116,10 +149,19 @@ describe("RouteButtonGroup", () => {
     expect(screen.getByTestId("location")).toHaveTextContent("/graph-explorer");
 
     await user.click(screen.getByRole("button", { name: "Navigation" }));
-    await user.click(
-      screen.getByRole("menuitemradio", { name: "Connections" }),
-    );
+    await user.click(screen.getByRole("menuitem", { name: "Connections" }));
 
     expect(screen.getByTestId("location")).toHaveTextContent("/connections");
+  });
+
+  test("should render version number", () => {
+    render(
+      <MemoryRouter initialEntries={["/graph-explorer"]}>
+        <RouteButtonGroup active="graph-explorer" />
+      </MemoryRouter>,
+      { wrapper: Wrapper },
+    );
+
+    expect(screen.getAllByText(/^v/).length).toBeGreaterThanOrEqual(1);
   });
 });
