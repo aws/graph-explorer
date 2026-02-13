@@ -23,18 +23,8 @@ export type SchemaDetailsContentProps = {
 export function SchemaDetailsContent({ selection }: SchemaDetailsContentProps) {
   const t = useTranslations();
   const graphSchema = useGraphSchema();
-  const hasSelection = Boolean(
-    selection.vertexType || selection.edgeConnectionId,
-  );
 
-  // Get the edge connection from the schema
-  const edgeConnection = selection.edgeConnectionId
-    ? graphSchema.edgeConnections.byEdgeConnectionId.get(
-        selection.edgeConnectionId,
-      )
-    : null;
-
-  if (!hasSelection) {
+  if (!selection) {
     return (
       <Panel className="size-full" variant="sidebar">
         <PanelHeader>
@@ -51,14 +41,30 @@ export function SchemaDetailsContent({ selection }: SchemaDetailsContentProps) {
     );
   }
 
-  if (selection.vertexType) {
+  if (selection.type === "multiple") {
     return (
-      <NodeLabelDetails
-        vertexType={selection.vertexType}
-        className="size-full"
-      />
+      <Panel className="size-full" variant="sidebar">
+        <PanelHeader>
+          <PanelTitle>{LABELS.SIDEBAR.SELECTION_DETAILS}</PanelTitle>
+        </PanelHeader>
+        <PanelContent className="p-6">
+          <PanelEmptyState
+            icon={<GraphIcon />}
+            title="Multiple Selection"
+            subtitle="Select a single item to see its details"
+          />
+        </PanelContent>
+      </Panel>
     );
   }
+
+  if (selection.type === "vertex-type") {
+    return <NodeLabelDetails vertexType={selection.id} className="size-full" />;
+  }
+
+  const edgeConnection = graphSchema.edgeConnections.byEdgeConnectionId.get(
+    selection.id,
+  );
 
   if (edgeConnection) {
     return (

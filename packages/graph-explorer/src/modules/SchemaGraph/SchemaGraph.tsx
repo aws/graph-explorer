@@ -19,15 +19,21 @@ import { SchemaExplorerSidebar } from "./Sidebar/SchemaExplorerSidebar";
 import { useSchemaGraphData } from "./useSchemaGraphData";
 import { useSchemaGraphStyles } from "./useSchemaGraphStyles";
 
-/** Selection state for schema graph - either a vertex type or edge connection */
-export type SchemaGraphSelection = {
-  vertexType: VertexType | null;
-  edgeConnectionId: EdgeConnectionId | null;
-};
+/** A single selected item in the schema graph, either a vertex type or edge connection. */
+export type SchemaGraphSelectionItem =
+  | { type: "vertex-type"; id: VertexType }
+  | { type: "edge-connection"; id: EdgeConnectionId };
 
-export type SchemaGraphProps = {
-  onSelectionChange?: (selection: SchemaGraphSelection) => void;
-} & Omit<ComponentPropsWithRef<"div">, "children" | "onContextMenu">;
+/** The current selection state of the schema graph. Null when nothing is selected. */
+export type SchemaGraphSelection =
+  | SchemaGraphSelectionItem
+  | { type: "multiple"; items: SchemaGraphSelectionItem[] }
+  | null;
+
+export type SchemaGraphProps = Omit<
+  ComponentPropsWithRef<"div">,
+  "children" | "onContextMenu"
+>;
 
 /** Atom for storing the selected graph layout algorithm */
 export const schemaGraphLayoutAtom = atom<LayoutName>("F_COSE");
@@ -38,39 +44,30 @@ function preventContextMenu(e: MouseEvent<HTMLDivElement>) {
 }
 
 /** Main schema graph visualization component */
-export default function SchemaGraph({
-  className,
-  onSelectionChange,
-  ...props
-}: SchemaGraphProps) {
+export default function SchemaGraph({ className, ...props }: SchemaGraphProps) {
   const { nodes, edges } = useSchemaGraphData();
   const styles = useSchemaGraphStyles();
   const layout = useAtomValue(schemaGraphLayoutAtom);
 
-  const [selectedVertexType, setSelectedVertexType] =
-    useState<VertexType | null>(null);
-  const [selectedEdgeConnectionId, setSelectedEdgeConnectionId] =
-    useState<EdgeConnectionId | null>(null);
+  const [selection, setSelection] = useState<SchemaGraphSelection>(null);
+  const [graphSelection, setGraphSelection] = useState<SelectedElements | null>(
+    null,
+  );
 
-  const handleSelectionChange = ({ nodeIds, edgeIds }: SelectedElements) => {
-    const nodeId = nodeIds.values().next().value;
-    const edgeId = edgeIds.values().next().value;
+  const handleSelectionChange = (selected: SelectedElements) => {
+    setGraphSelection(selected);
 
-    const vertexType = nodeId ? createVertexType(nodeId) : null;
-    const edgeConnectionId = edgeId ? (edgeId as EdgeConnectionId) : null;
+    const newSelection = toSchemaGraphSelection(selected);
+    setSelection(newSelection);
 
-    if (vertexType) {
-      logger.log("Schema graph: vertex type selected", { vertexType });
-    } else if (edgeConnectionId) {
-      logger.log("Schema graph: edge connection selected", {
-        edgeConnectionId,
+    if (newSelection) {
+      const items =
+        newSelection.type === "multiple" ? newSelection.items : [newSelection];
+      logger.log("Schema graph: selection changed", {
+        count: items.length,
+        types: items.map(i => i.type),
       });
     }
-
-    setSelectedVertexType(vertexType);
-    setSelectedEdgeConnectionId(edgeConnectionId);
-
-    onSelectionChange?.({ vertexType, edgeConnectionId });
   };
 
   const hasSchemaData = nodes.length > 0;
@@ -94,12 +91,8 @@ export default function SchemaGraph({
               <Graph
                 nodes={nodes}
                 edges={edges}
-                selectedNodesIds={
-                  selectedVertexType ? [selectedVertexType] : []
-                }
-                selectedEdgesIds={
-                  selectedEdgeConnectionId ? [selectedEdgeConnectionId] : []
-                }
+                selectedNodesIds={graphSelection?.nodeIds}
+                selectedEdgesIds={graphSelection?.edgeIds}
                 onSelectedElementIdsChange={handleSelectionChange}
                 styles={styles}
                 layout={layout}
@@ -111,12 +104,32 @@ export default function SchemaGraph({
         </Panel>
       </PanelGroup>
 
-      <SchemaExplorerSidebar
-        selection={{
-          vertexType: selectedVertexType,
-          edgeConnectionId: selectedEdgeConnectionId,
-        }}
-      />
+      <SchemaExplorerSidebar selection={selection} />
     </div>
   );
+}
+
+/** Maps raw graph selection elements to a SchemaGraphSelection. */
+export function toSchemaGraphSelection(
+  selected: SelectedElements,
+): SchemaGraphSelection {
+  const items: SchemaGraphSelectionItem[] = [];
+
+  for (const nodeId of selected.nodeIds) {
+    items.push({ type: "vertex-type", id: createVertexType(nodeId) });
+  }
+  for (const edgeId of selected.edgeIds) {
+    items.push({
+      type: "edge-connection",
+      id: edgeId as EdgeConnectionId,
+    });
+  }
+
+  if (items.length === 0) {
+    return null;
+  }
+  if (items.length === 1) {
+    return items[0];
+  }
+  return { type: "multiple", items };
 }
