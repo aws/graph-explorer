@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef } from "react";
+import type { PropsWithChildren, ReactNode } from "react";
 
 import { RotateCcwIcon } from "lucide-react";
 
@@ -23,99 +23,101 @@ import { useTranslations } from "@/hooks";
 import { useCancelSchemaSync, useSchemaSync } from "@/hooks/useSchemaSync";
 
 /**
- * Renders loading, error, or failure states for edge connection discovery.
- * Renders children when discovery succeeds.
+ * Prevents access to the schema explorer until edge connections have been
+ * discovered at least once. Once edgeConnections is defined, children render
+ * regardless of subsequent query failures.
  */
-export function EdgeDiscoveryBoundary({
-  children,
-}: ComponentPropsWithoutRef<"div">) {
+export function EdgeDiscoveryBoundary({ children }: PropsWithChildren) {
   const t = useTranslations();
   const { schemaDiscoveryQuery, edgeDiscoveryQuery } = useSchemaSync();
 
   const schema = useMaybeActiveSchema();
   const cancel = useCancelSchemaSync();
 
+  if (!schema) {
+    return null;
+  }
+
+  // Once edge connections have been discovered, always render children
+  if (schema.edgeConnections != null) {
+    return children;
+  }
+
   if (schemaDiscoveryQuery.isLoading || edgeDiscoveryQuery.isLoading) {
     return (
-      <PanelGroup>
-        <Panel className="flex-1">
-          <PanelContent>
-            <PanelEmptyState
-              variant="info"
-              icon={<SyncIcon className="animate-spin" />}
-              title="Synchronizing..."
-              subtitle="The connection is being synchronized."
-              className="p-6"
-              onAction={cancel}
-              actionLabel="Cancel Sync"
-            />
-          </PanelContent>
-        </Panel>
-      </PanelGroup>
+      <Layout>
+        <PanelEmptyState
+          variant="info"
+          icon={<SyncIcon className="animate-spin" />}
+          title="Synchronizing..."
+          subtitle="The connection is being synchronized."
+          className="p-6"
+          onAction={cancel}
+          actionLabel="Cancel Sync"
+        />
+      </Layout>
     );
   }
 
   if (schemaDiscoveryQuery.error) {
     return (
-      <PanelGroup>
-        <Panel className="flex-1">
-          <PanelContent>
-            <PanelError
-              error={schemaDiscoveryQuery.error}
-              onRetry={schemaDiscoveryQuery.refetch}
-            />
-          </PanelContent>
-        </Panel>
-      </PanelGroup>
+      <Layout>
+        <PanelError
+          error={schemaDiscoveryQuery.error}
+          onRetry={schemaDiscoveryQuery.refetch}
+        />
+      </Layout>
     );
   }
 
   if (edgeDiscoveryQuery.error) {
     return (
-      <PanelGroup>
-        <Panel className="flex-1">
-          <PanelContent>
-            <PanelError
-              error={edgeDiscoveryQuery.error}
-              onRetry={edgeDiscoveryQuery.refetch}
-            />
-          </PanelContent>
-        </Panel>
-      </PanelGroup>
+      <Layout>
+        <PanelError
+          error={edgeDiscoveryQuery.error}
+          onRetry={edgeDiscoveryQuery.refetch}
+        />
+      </Layout>
     );
   }
 
-  if (schema?.edgeConnectionDiscoveryFailed) {
+  if (schema.edgeConnectionDiscoveryFailed) {
     return (
-      <PanelGroup>
-        <Panel className="flex-1">
-          <PanelContent>
-            <EmptyState>
-              <EmptyStateIcon variant="error">
-                <GraphIcon />
-              </EmptyStateIcon>
-              <EmptyStateContent>
-                <EmptyStateTitle>
-                  {t("edge-connection")} discovery failed
-                </EmptyStateTitle>
-                <EmptyStateDescription>
-                  The last attempt to discover{" "}
-                  {t("edge-connections").toLocaleLowerCase()} failed.
-                </EmptyStateDescription>
+      <Layout>
+        <EmptyState>
+          <EmptyStateIcon variant="error">
+            <GraphIcon />
+          </EmptyStateIcon>
+          <EmptyStateContent>
+            <EmptyStateTitle>
+              {t("edge-connection")} discovery failed
+            </EmptyStateTitle>
+            <EmptyStateDescription>
+              The last attempt to discover{" "}
+              {t("edge-connections").toLocaleLowerCase()} failed.
+            </EmptyStateDescription>
 
-                <EmptyStateActions>
-                  <Button onClick={() => edgeDiscoveryQuery.refetch()}>
-                    <RotateCcwIcon />
-                    Retry
-                  </Button>
-                </EmptyStateActions>
-              </EmptyStateContent>
-            </EmptyState>
-          </PanelContent>
-        </Panel>
-      </PanelGroup>
+            <EmptyStateActions>
+              <Button onClick={() => edgeDiscoveryQuery.refetch()}>
+                <RotateCcwIcon />
+                Retry
+              </Button>
+            </EmptyStateActions>
+          </EmptyStateContent>
+        </EmptyState>
+      </Layout>
     );
   }
 
   return children;
+}
+
+function Layout({ children }: { children: ReactNode }) {
+  return (
+    <PanelGroup>
+      <Panel className="flex-1">
+        <PanelContent>{children}</PanelContent>
+      </Panel>
+    </PanelGroup>
+  );
 }
