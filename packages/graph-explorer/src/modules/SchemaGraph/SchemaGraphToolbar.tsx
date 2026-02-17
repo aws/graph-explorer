@@ -2,6 +2,7 @@ import { RefreshCcwIcon } from "lucide-react";
 
 import {
   Button,
+  InfoTooltip,
   PanelHeader,
   PanelHeaderActions,
   PanelHeaderDivider,
@@ -25,7 +26,13 @@ import { schemaGraphLayoutAtom } from "./SchemaGraph";
 export function SchemaGraphToolbar() {
   return (
     <PanelHeader>
-      <PanelTitle>Schema Graph</PanelTitle>
+      <PanelTitle>
+        Schema Graph{" "}
+        <InfoTooltip>
+          This schema was implicitly discovered by sampling the structure of the
+          data and may not represent the complete schema.
+        </InfoTooltip>
+      </PanelTitle>
       <PanelHeaderActions className="gap-1.5">
         <SelectLayout
           className="max-w-64 min-w-auto"
