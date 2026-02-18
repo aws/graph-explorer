@@ -22,7 +22,7 @@
     "coverage": "vitest run --coverage",
     "check:types": "pnpm -r --include-workspace-root --parallel --stream run typecheck",
     "typecheck": "tsc --noEmit",
-    "checks": "pnpm run '/^check:.*/'",
+    "checks": "pnpm run check:lint && pnpm run check:format && pnpm run check:types",
     "start": "pnpm --filter \"graph-explorer-proxy-server\" run start",
     "clean": "pnpm --stream -r run clean",
     "clean:dep": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
