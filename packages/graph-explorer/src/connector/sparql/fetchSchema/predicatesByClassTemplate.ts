@@ -2,6 +2,8 @@ import type { VertexType } from "@/core";
 
 import { query } from "@/utils";
 
+import { idParam } from "../idParam";
+
 // Return all predicates which are connected from the given class
 export default function predicatesByClassTemplate(props: {
   class: VertexType;
@@ -13,7 +15,7 @@ export default function predicatesByClassTemplate(props: {
       {
         SELECT ?subject
         WHERE {
-          ?subject a <${props.class}>.
+          ?subject a ${idParam(props.class)}.
         }
         LIMIT 1
       }

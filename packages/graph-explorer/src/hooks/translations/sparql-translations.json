@@ -26,13 +26,13 @@
     "title": "Predicate Styling"
   },
   "keyword-search": {
-    "node-type-placeholder": "Select a resource class",
+    "node-type-placeholder": "Select a class",
     "node-attribute-placeholder": "Select a predicate"
   },
   "connection-detail": {
-    "search-placeholder": "Search for resource classes",
-    "no-search-title": "No Resource Classes",
-    "no-search-subtitle": "No resource classes found with searched criteria",
+    "search-placeholder": "Search for classes",
+    "no-search-title": "No Classes",
+    "no-search-subtitle": "No classes found with searched criteria",
     "no-elements-title": "No Resources",
     "no-elements-subtitle": "No resources found to be shown in this list"
   },
