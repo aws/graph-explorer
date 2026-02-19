@@ -164,3 +164,12 @@ src/
 ### Testing
 
 See `.kiro/steering/testing.md` for testing patterns and examples.
+
+### Project Management
+
+See `.kiro/steering/project-management.md` for project management guidelines.
+
+### Project Organization
+
+See `.kiro/steering/structure.md` for code organization patterns and
+conventions.
