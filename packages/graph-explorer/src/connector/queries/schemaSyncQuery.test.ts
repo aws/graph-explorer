@@ -12,6 +12,7 @@ import {
 } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import {
+  createRandomEdgeConnection,
   createRandomRawConfiguration,
   createTestableVertex,
   FakeExplorer,
@@ -57,8 +58,8 @@ describe("schemaSyncQuery", () => {
     // Verify schema was stored
     const activeConfigId = store.get(activeConfigurationAtom);
     const storedSchema = store.get(schemaAtom).get(activeConfigId!);
-    expect(storedSchema?.triedToSync).toBe(true);
     expect(storedSchema?.lastSyncFail).toBe(false);
+    expect(storedSchema?.vertices).toHaveLength(1);
   });
 
   it("should set lastUpdate to current time", async () => {
@@ -86,8 +87,6 @@ describe("schemaSyncQuery", () => {
       updated.set(activeConfigId, {
         vertices: [{ type: oldVertexType, attributes: [] }],
         edges: [],
-        triedToSync: true,
-        lastSyncFail: false,
       });
       return updated;
     });
@@ -119,7 +118,7 @@ describe("schemaSyncQuery", () => {
     expect(result.edges).toStrictEqual([]);
   });
 
-  it("should set lastSyncFail to true when fetch fails", async () => {
+  it("should set lastSyncFail when fetch fails", async () => {
     const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
     fetchSchemaSpy.mockRejectedValue(new Error("Network error"));
 
@@ -133,33 +132,54 @@ describe("schemaSyncQuery", () => {
       "Network error",
     );
 
-    // Verify failure state was stored
     const activeConfigId = store.get(activeConfigurationAtom);
     const storedSchema = store.get(schemaAtom).get(activeConfigId!);
-    expect(storedSchema?.triedToSync).toBe(true);
     expect(storedSchema?.lastSyncFail).toBe(true);
   });
 
-  it("should set edgeConnectionDiscoveryFailed to true when fetch fails", async () => {
-    const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
-    fetchSchemaSpy.mockRejectedValue(new Error("Network error"));
-
-    const queryClient = createQueryClient();
-    queryClient.setDefaultOptions({
-      ...queryClient.getDefaultOptions(),
-      queries: { ...queryClient.getDefaultOptions().queries, retry: false },
+  it("should preserve existing edgeConnections on success", async () => {
+    const activeConfigId = store.get(activeConfigurationAtom)!;
+    const existingEdgeConnections = [createRandomEdgeConnection()];
+    store.set(schemaAtom, prev => {
+      const updated = new Map(prev);
+      updated.set(activeConfigId, {
+        vertices: [],
+        edges: [],
+        edgeConnections: existingEdgeConnections,
+      });
+      return updated;
     });
 
-    await expect(queryClient.fetchQuery(schemaSyncQuery())).rejects.toThrow(
-      "Network error",
-    );
+    const queryClient = createQueryClient();
+    await queryClient.fetchQuery(schemaSyncQuery());
 
-    const activeConfigId = store.get(activeConfigurationAtom);
-    const storedSchema = store.get(schemaAtom).get(activeConfigId!);
-    expect(storedSchema?.edgeConnectionDiscoveryFailed).toBe(true);
+    const storedSchema = store.get(schemaAtom).get(activeConfigId);
+    expect(storedSchema?.edgeConnections).toStrictEqual(
+      existingEdgeConnections,
+    );
   });
 
-  it("should preserve existing schema data on failure", async () => {
+  it("should clear lastSyncFail on success", async () => {
+    // Set up a schema with lastSyncFail
+    const activeConfigId = store.get(activeConfigurationAtom)!;
+    store.set(schemaAtom, prev => {
+      const updated = new Map(prev);
+      updated.set(activeConfigId, {
+        vertices: [],
+        edges: [],
+        lastSyncFail: true,
+      });
+      return updated;
+    });
+
+    const queryClient = createQueryClient();
+    await queryClient.fetchQuery(schemaSyncQuery());
+
+    const storedSchema = store.get(schemaAtom).get(activeConfigId);
+    expect(storedSchema?.lastSyncFail).toBe(false);
+  });
+
+  it("should preserve existing schema in store on failure", async () => {
     // Set up initial schema
     const activeConfigId = store.get(activeConfigurationAtom)!;
     const initialVertexType = createVertexType(createRandomName("VertexType"));
@@ -168,8 +188,6 @@ describe("schemaSyncQuery", () => {
       updated.set(activeConfigId, {
         vertices: [{ type: initialVertexType, attributes: [] }],
         edges: [],
-        triedToSync: false,
-        lastSyncFail: false,
       });
       return updated;
     });
