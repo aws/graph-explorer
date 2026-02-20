@@ -58,6 +58,12 @@ Example:
 - Part of #456
 ```
 
+## Commit Messages & PR Titles
+
+- Describe the change conceptually (e.g., "Add vertex filtering to graph view")
+- Do not use conventional commit prefixes like `docs:`, `feature:`, `refactor:`,
+  `fix:`, etc.
+
 ## Pull Requests
 
 - Always publish pull requests as drafts
