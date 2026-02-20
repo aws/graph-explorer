@@ -132,6 +132,38 @@ accidental mixing of similar types at compile time.
 Always use the appropriate branded type instead of `string` when working with
 these identifiers.
 
+## Translations (Query-Language Labels)
+
+The translation system is not used for locale/language translations. Instead, it
+swaps UI labels based on the active connection's query language. Each query
+language (Gremlin, openCypher, SPARQL) has its own JSON file in
+`src/hooks/translations/` that maps keys to display strings (e.g., `"node-type"`
+→ `"Node Label"` in Gremlin vs `"Class"` in SPARQL).
+
+Key files:
+
+- `src/hooks/useTranslations.ts` — `useTranslations()` hook returns a `t`
+  function scoped to the current query engine
+- `src/hooks/translations/gremlin-translations.json`
+- `src/hooks/translations/openCypher-translations.json`
+- `src/hooks/translations/sparql-translations.json`
+
+Usage:
+
+```tsx
+const t = useTranslations();
+// t("node-type") → "Node Label" (Gremlin) or "Class" (SPARQL)
+```
+
+Key naming conventions:
+
+- Lower-case kebab-case (e.g., `node-type`, `edge-connections`)
+- Keys should read naturally as stand-ins for the word they represent
+- Keys typically match one of the query language terms or the codebase
+  vocabulary
+- Nested keys use dot notation when accessed (e.g.,
+  `node-expand.no-selection-title`)
+
 ## Database Queries
 
 - Use the `query` template tag from `@/utils` for all query strings (Gremlin,
