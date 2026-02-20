@@ -9,7 +9,7 @@ import {
 } from "@/components";
 import { GraphProvider } from "@/components/Graph";
 import { useConfiguration } from "@/core";
-import { EdgeDiscoveryBoundary, SchemaGraph } from "@/modules/SchemaGraph";
+import { SchemaGraph } from "@/modules/SchemaGraph";
 
 export default function SchemaExplorer() {
   const config = useConfiguration();
@@ -27,11 +27,9 @@ export default function SchemaExplorer() {
         <RouteButtonGroup active="schema-explorer" />
       </NavBar>
       <WorkspaceContent>
-        <SchemaDiscoveryBoundary>
+        <SchemaDiscoveryBoundary requireEdgeConnections>
           <GraphProvider>
-            <EdgeDiscoveryBoundary>
-              <SchemaGraph />
-            </EdgeDiscoveryBoundary>
+            <SchemaGraph />
           </GraphProvider>
         </SchemaDiscoveryBoundary>
       </WorkspaceContent>
