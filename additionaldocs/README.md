@@ -4,3 +4,4 @@
 - [Development](./development.md)
 - [SageMaker](./sagemaker)
 - [ECS](./ecs)
+- [Auth](./auth.md)
