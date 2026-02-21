@@ -460,6 +460,17 @@ styling, configuration, or type-only changes.
 - Use descriptive test names that explain the expected outcome
 - Focus on the user-facing behavior when possible
 
+### Do Not Test Styling or Layout
+
+- Do not write tests that assert on CSS classes, HTML element types, or layout
+  structure
+- These tests are fragile and break on routine visual changes that have no
+  functional impact
+- Instead, test the behavioral logic: conditional rendering, data
+  transformations, user interactions, and state changes
+- If a component is purely presentational with no branching logic, it does not
+  need a test
+
 ### Performance
 
 - Use `renderHookWithState()` for hook testing (includes query client setup)

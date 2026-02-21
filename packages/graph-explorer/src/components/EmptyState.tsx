@@ -66,9 +66,9 @@ EmptyStateContent.displayName = "EmptyStateContent";
 function EmptyStateTitle({
   className,
   ...props
-}: React.ComponentPropsWithRef<"h1">) {
+}: React.ComponentPropsWithRef<"h3">) {
   return (
-    <h1
+    <h3
       className={cn(
         "text-text-primary gx-wrap-break-word text-lg font-bold text-balance",
         className,

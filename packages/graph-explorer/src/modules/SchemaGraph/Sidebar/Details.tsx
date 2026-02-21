@@ -1,5 +1,15 @@
 import type { ComponentPropsWithRef } from "react";
 
+import { ListIcon } from "lucide-react";
+
+import {
+  Chip,
+  EmptyState,
+  EmptyStateContent,
+  EmptyStateDescription,
+  EmptyStateTitle,
+  toHumanString,
+} from "@/components";
 import {
   type DisplayConfigAttribute,
   type EdgeConnection,
@@ -9,19 +19,43 @@ import {
   useVertexPreferences,
   type VertexType,
 } from "@/core";
+import { useTranslations } from "@/hooks";
 import { ASCII, cn } from "@/utils";
+
+/** Container for a detail section with consistent vertical spacing. */
+export function Details({ className, ...props }: ComponentPropsWithRef<"div">) {
+  return <div className={cn("space-y-5", className)} {...props} />;
+}
+
+/** Groups a title and optional description or value with tight spacing. */
+export function DetailsHeader({
+  className,
+  ...props
+}: ComponentPropsWithRef<"div">) {
+  return <div className={cn("space-y-1", className)} {...props} />;
+}
 
 /** Title text for detail sections */
 export function DetailsTitle({
   className,
   ...props
-}: ComponentPropsWithRef<"div">) {
+}: ComponentPropsWithRef<"h2">) {
   return (
-    <div
-      className={cn(
-        "text-text-primary text-base leading-tight font-bold",
-        className,
-      )}
+    <h2
+      className={cn("text-text-primary text-base/7 font-bold", className)}
+      {...props}
+    />
+  );
+}
+
+/** Muted description text for a detail section. */
+export function DetailsDescription({
+  className,
+  ...props
+}: ComponentPropsWithRef<"p">) {
+  return (
+    <p
+      className={cn("text-muted-foreground text-sm/6 text-pretty", className)}
       {...props}
     />
   );
@@ -43,29 +77,66 @@ export function DetailsValue({
   );
 }
 
-/** List of attributes with name and data type */
-export function AttributeList({
+/**
+ * Displays a list of schema attributes with their inferred data types.
+ * Shows an empty state when no attributes exist.
+ */
+export function PropertiesDetails({
   attributes,
 }: {
   attributes: DisplayConfigAttribute[];
 }) {
+  const t = useTranslations();
+
   return (
-    <ul className="space-y-2">
-      {attributes.map(attr => (
-        <li
-          key={attr.name}
-          className="flex flex-wrap items-center justify-between gap-2"
-        >
-          <DetailsValue>{attr.displayLabel}</DetailsValue>
-          <div className="text-muted-foreground bg-muted border-neutral-subtle-hover place-self-end rounded-md border px-2 py-1.5 text-right font-mono text-sm leading-none lowercase">
-            {attr.dataType}
-          </div>
-        </li>
-      ))}
-    </ul>
+    <Details>
+      <DetailsHeader>
+        <DetailsTitle className="flex justify-between gap-2">
+          {t("properties")}
+          <Chip variant="neutral-subtle">
+            {toHumanString(attributes.length)}
+          </Chip>
+        </DetailsTitle>
+        <DetailsDescription>
+          {t("properties")} and their data types, which are inferred from query
+          responses.
+        </DetailsDescription>
+      </DetailsHeader>
+      <div>
+        {attributes.length === 0 ? (
+          <EmptyState className="pt-8">
+            <ListIcon className="text-muted-foreground mb-4 size-8 opacity-50" />
+            <EmptyStateContent>
+              <EmptyStateTitle>No {t("properties")}</EmptyStateTitle>
+              <EmptyStateDescription>
+                This item has no {t("properties").toLocaleLowerCase()}.
+              </EmptyStateDescription>
+            </EmptyStateContent>
+          </EmptyState>
+        ) : (
+          <ul className="space-y-2">
+            {attributes.map(attr => (
+              <li
+                key={attr.name}
+                className="flex flex-wrap items-center justify-between gap-2"
+              >
+                <DetailsValue>{attr.displayLabel}</DetailsValue>
+                <div className="text-muted-foreground bg-muted border-neutral-subtle-hover place-self-end rounded-md border px-2 py-1.5 text-right font-mono text-sm leading-none lowercase">
+                  {attr.dataType}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </Details>
   );
 }
 
+/**
+ * Renders an edge connection as "SourceType → EdgeType → TargetType" with the
+ * selected vertex type highlighted.
+ */
 export function EdgeConnectionRow({
   selectedVertexType,
   edgeConnection,
