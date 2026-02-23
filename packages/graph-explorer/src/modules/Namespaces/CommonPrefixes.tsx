@@ -10,7 +10,7 @@ import {
   SearchBar,
   useSearchItems,
 } from "@/components";
-import commonPrefixes from "@/utils/common-prefixes.json";
+import commonPrefixes from "@/utils/rdf/common-prefixes.json";
 
 const COMMON_PREFIXES_ITEMS = Object.entries(commonPrefixes)
   .map(([prefix, uri]) => {

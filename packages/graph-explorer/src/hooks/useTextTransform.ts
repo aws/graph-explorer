@@ -2,7 +2,7 @@ import { atom, useAtomValue } from "jotai";
 
 import { prefixesAtom, queryEngineSelector } from "@/core";
 import { logger } from "@/utils";
-import replacePrefixes from "@/utils/replacePrefixes";
+import { replacePrefixes } from "@/utils/rdf";
 
 export type TextTransformer = (text: string) => string;
 
