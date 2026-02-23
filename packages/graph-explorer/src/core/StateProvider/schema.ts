@@ -29,7 +29,7 @@ import {
   type VertexType,
 } from "@/core";
 import { logger } from "@/utils";
-import generatePrefixes from "@/utils/generatePrefixes";
+import { generatePrefixes } from "@/utils/rdf";
 
 /**
  * Persisted schema state for a database connection.
