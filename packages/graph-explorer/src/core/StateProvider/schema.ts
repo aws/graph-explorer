@@ -49,12 +49,10 @@ export type SchemaStorageModel = {
   edgeConnections?: Array<EdgeConnection>;
   /** When the schema was last updated. */
   lastUpdate?: Date;
-  /** Whether a schema sync has been attempted. */
-  triedToSync?: boolean;
-  /** Whether the last schema sync failed. */
+  /** Whether the last schema sync failed. Persisted so the failure survives browser refresh. */
   lastSyncFail?: boolean;
-  /** Whether the last edge connection discovery failed. */
-  edgeConnectionDiscoveryFailed?: boolean;
+  /** Whether the last edge connection sync failed. Persisted so the failure survives browser refresh. */
+  lastEdgeConnectionSyncFail?: boolean;
   /** Total vertex count from the database. */
   totalVertices?: number;
   /** Total edge count from the database. */

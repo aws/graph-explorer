@@ -256,13 +256,14 @@ describe("edgeConnectionsQuery", () => {
     expect(activeSchema?.edgeConnections).toHaveLength(1);
   });
 
-  it("should set edgeConnectionDiscoveryFailed flag when query fails", async () => {
+  it("should set lastEdgeConnectionSyncFail when query fails", async () => {
     const explorer = new FakeExplorer();
     const state = new DbState(explorer);
     const store = getAppStore();
 
     const edge = createRandomEdgeTypeConfig();
     state.activeSchema.edges = [edge];
+    state.activeSchema.edgeConnections = undefined;
     state.applyTo(store);
 
     vi.spyOn(explorer, "fetchEdgeConnections").mockRejectedValue(
@@ -277,24 +278,20 @@ describe("edgeConnectionsQuery", () => {
 
     const schemaMap = store.get(schemaAtom);
     const activeSchema = schemaMap.get(state.activeConfig.id);
-    expect(activeSchema?.edgeConnectionDiscoveryFailed).toBe(true);
+    expect(activeSchema?.lastEdgeConnectionSyncFail).toBe(true);
+    // Edge connections remain undefined since the query failed
+    expect(activeSchema?.edgeConnections).toBeUndefined();
   });
 
-  it("should clear edgeConnectionDiscoveryFailed flag on successful query", async () => {
+  it("should clear lastEdgeConnectionSyncFail on success", async () => {
     const explorer = new FakeExplorer();
     const state = new DbState(explorer);
     const store = getAppStore();
 
-    // Set up schema with failure flag already set
-    state.activeSchema.edgeConnectionDiscoveryFailed = true;
+    state.activeSchema.lastEdgeConnectionSyncFail = true;
+    state.activeSchema.edgeConnections = undefined;
     state.applyTo(store);
 
-    // Verify failure flag is set
-    let schemaMap = store.get(schemaAtom);
-    let activeSchema = schemaMap.get(state.activeConfig.id);
-    expect(activeSchema?.edgeConnectionDiscoveryFailed).toBe(true);
-
-    // Set up edge data for successful query
     const sourceType = createVertexType("Person");
     const targetType = createVertexType("Company");
     const source = createTestableVertex().with({ types: [sourceType] });
@@ -303,13 +300,11 @@ describe("edgeConnectionsQuery", () => {
     explorer.addTestableEdge(edge);
 
     const queryClient = createQueryClient();
-
-    // Successful query should clear the failure flag
     await queryClient.fetchQuery(edgeConnectionsQuery([edge.type]));
 
-    schemaMap = store.get(schemaAtom);
-    activeSchema = schemaMap.get(state.activeConfig.id);
-    expect(activeSchema?.edgeConnectionDiscoveryFailed).toBe(false);
+    const schemaMap = store.get(schemaAtom);
+    const activeSchema = schemaMap.get(state.activeConfig.id);
+    expect(activeSchema?.lastEdgeConnectionSyncFail).toBe(false);
     expect(activeSchema?.edgeConnections).toHaveLength(1);
   });
 });

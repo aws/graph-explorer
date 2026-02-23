@@ -22,38 +22,44 @@ export function useCancelSchemaSync() {
 /**
  * Subscribes to the schema discovery and edge connection discovery queries.
  *
- * Provides a combined `isFetching` status and `refreshSchema` function to refetch both queries.
+ * Both queries use `staleTime: Infinity` and `initialData` from the Jotai
+ * store. This means:
+ * - If cached data exists in localforage, it seeds the query cache and no
+ *   fetch occurs.
+ * - If no cached data exists, TanStack Query fetches automatically.
+ * - Manual refetch is available via `refreshSchema()`.
+ * - On refetch failure, TanStack Query preserves the previous successful data.
  */
 export function useSchemaSync() {
   const store = useStore();
 
   const schemaDiscoveryQuery = useQuery({
     ...schemaSyncQuery(),
-    // Use the store directly to ensure it gets the latest value
     initialData: () => store.get(maybeActiveSchemaAtom),
-    // Don't automatically run if the last schema sync failed
-    enabled: () => {
-      const schema = store.get(maybeActiveSchemaAtom);
-      return !schema || !schema.lastSyncFail;
-    },
+    // Don't automatically retry if the last sync failed (persisted across sessions)
+    enabled: () => !store.get(maybeActiveSchemaAtom)?.lastSyncFail,
   });
 
   // Derive edge types from the schema sync result to ensure consistency
-  // This prevents the race condition where edge types are stale after schema deletion
   const schemaData = schemaDiscoveryQuery.data;
   const edges = schemaData?.edges.map(e => e.type) ?? [];
 
-  // Disable edge connection query while schema sync is fetching to prevent
-  // race conditions where edge types become stale after schema deletion
-  const edgeConnectionEnabled =
-    !schemaDiscoveryQuery.isFetching &&
-    schemaData != null &&
-    schemaData.edgeConnections == null;
-
   const edgeDiscoveryQuery = useQuery({
     ...edgeConnectionsQuery(edges),
-    initialData: schemaDiscoveryQuery.data?.edgeConnections,
-    enabled: edgeConnectionEnabled,
+    // Wait for schema sync to finish before fetching edge connections.
+    // Don't automatically retry if the last edge connection sync failed.
+    enabled:
+      !schemaDiscoveryQuery.isFetching &&
+      schemaData != null &&
+      !store.get(maybeActiveSchemaAtom)?.lastEdgeConnectionSyncFail,
+    initialData: () => {
+      const edgeConnections = store.get(maybeActiveSchemaAtom)?.edgeConnections;
+      if (edgeConnections == null) {
+        return undefined;
+      }
+      const edgeTypeSet = new Set(edges);
+      return edgeConnections.filter(ec => edgeTypeSet.has(ec.edgeType));
+    },
   });
 
   const isFetching =

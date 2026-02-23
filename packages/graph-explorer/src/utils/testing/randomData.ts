@@ -213,7 +213,6 @@ export function createRandomSchema(): SchemaStorageModel {
       .reduce((prev, current) => current + prev, 0),
     lastSyncFail: false,
     lastUpdate: new Date(),
-    triedToSync: true,
   };
   return schema;
 }

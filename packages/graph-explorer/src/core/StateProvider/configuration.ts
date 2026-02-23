@@ -100,7 +100,6 @@ export function mergeConfiguration(
         currentConfig.connection?.queryEngine === "sparql"
           ? currentSchema?.prefixes
           : undefined,
-      triedToSync: currentSchema?.triedToSync,
       lastSyncFail: currentSchema?.lastSyncFail,
       totalVertices: currentSchema?.totalVertices ?? 0,
       totalEdges: currentSchema?.totalEdges ?? 0,

@@ -1,7 +1,7 @@
 import { act, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createEdgeType, createVertexType } from "@/core";
+import { createEdgeType, createVertexType, type EdgeConnection } from "@/core";
 import {
   createRandomEdgeTypeConfig,
   createRandomVertexTypeConfig,
@@ -112,6 +112,89 @@ describe("useSchemaSync", () => {
       expect(result.current.edgeDiscoveryQuery.fetchStatus).toBe("idle");
       expect(fetchEdgeConnectionsSpy).not.toHaveBeenCalled();
     });
+
+    it("should use existing edge connections as initialData", () => {
+      const edgeType = createEdgeType("knows");
+      const sourceType = createVertexType("Person");
+      const targetType = createVertexType("Company");
+
+      const existingConnections: EdgeConnection[] = [
+        {
+          edgeType,
+          sourceVertexType: sourceType,
+          targetVertexType: targetType,
+        },
+      ];
+
+      const state = new DbState(explorer);
+      state.activeSchema.edges = [{ type: edgeType, attributes: [] }];
+      state.activeSchema.edgeConnections = existingConnections;
+
+      const fetchEdgeConnectionsSpy = vi.spyOn(
+        explorer,
+        "fetchEdgeConnections",
+      );
+
+      const { result } = renderHookWithState(() => useSchemaSync(), state);
+
+      expect(result.current.edgeDiscoveryQuery.data).toStrictEqual(
+        existingConnections,
+      );
+      expect(fetchEdgeConnectionsSpy).not.toHaveBeenCalled();
+    });
+
+    it("should use empty edge connections array as initialData", () => {
+      const state = new DbState(explorer);
+      state.activeSchema.edges = [
+        { type: createEdgeType("knows"), attributes: [] },
+      ];
+      state.activeSchema.edgeConnections = [];
+
+      const fetchEdgeConnectionsSpy = vi.spyOn(
+        explorer,
+        "fetchEdgeConnections",
+      );
+
+      const { result } = renderHookWithState(() => useSchemaSync(), state);
+
+      expect(result.current.edgeDiscoveryQuery.data).toStrictEqual([]);
+      expect(fetchEdgeConnectionsSpy).not.toHaveBeenCalled();
+    });
+
+    it("should filter initialData to match requested edge types", () => {
+      const edgeType1 = createEdgeType("knows");
+      const edgeType2 = createEdgeType("worksAt");
+      const sourceType = createVertexType("Person");
+      const targetType = createVertexType("Company");
+
+      const existingConnections: EdgeConnection[] = [
+        {
+          edgeType: edgeType1,
+          sourceVertexType: sourceType,
+          targetVertexType: targetType,
+        },
+        {
+          edgeType: edgeType2,
+          sourceVertexType: sourceType,
+          targetVertexType: targetType,
+        },
+      ];
+
+      const state = new DbState(explorer);
+      // Only include edgeType1 in the schema edges
+      state.activeSchema.edges = [{ type: edgeType1, attributes: [] }];
+      state.activeSchema.edgeConnections = existingConnections;
+
+      const { result } = renderHookWithState(() => useSchemaSync(), state);
+
+      expect(result.current.edgeDiscoveryQuery.data).toStrictEqual([
+        {
+          edgeType: edgeType1,
+          sourceVertexType: sourceType,
+          targetVertexType: targetType,
+        },
+      ]);
+    });
   });
 
   describe("isFetching", () => {
@@ -194,10 +277,9 @@ describe("useSchemaSync", () => {
     });
   });
 
-  describe("enabled callback", () => {
-    it("should not fetch schema when lastSyncFail is true", () => {
+  describe("staleTime behavior", () => {
+    it("should not fetch schema when initialData exists", () => {
       const state = new DbState(explorer);
-      state.activeSchema.lastSyncFail = true;
 
       const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
 
@@ -208,7 +290,7 @@ describe("useSchemaSync", () => {
       expect(fetchSchemaSpy).not.toHaveBeenCalled();
     });
 
-    it("should fetch schema when lastSyncFail is false", () => {
+    it("should fetch schema when no active schema exists", () => {
       const state = new DbState(explorer).withNoActiveSchema();
 
       const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
@@ -218,7 +300,39 @@ describe("useSchemaSync", () => {
       expect(fetchSchemaSpy).toHaveBeenCalled();
     });
 
-    it("should allow manual refresh even when lastSyncFail is true", async () => {
+    it("should allow manual refresh when initialData exists", async () => {
+      const state = new DbState(explorer);
+      state.activeSchema.vertices = [createRandomVertexTypeConfig()];
+      state.activeSchema.edges = [createRandomEdgeTypeConfig()];
+
+      const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
+
+      const { result } = renderHookWithState(() => useSchemaSync(), state);
+
+      // Auto-fetch should not happen because initialData is fresh
+      expect(fetchSchemaSpy).not.toHaveBeenCalled();
+
+      // Manual refresh should still work
+      await act(async () => {
+        await result.current.refreshSchema();
+      });
+
+      expect(fetchSchemaSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("should not auto-fetch when lastSyncFail is true", () => {
+      const state = new DbState(explorer);
+      state.activeSchema.lastSyncFail = true;
+
+      const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
+
+      const { result } = renderHookWithState(() => useSchemaSync(), state);
+
+      expect(result.current.schemaDiscoveryQuery.data).toBeDefined();
+      expect(fetchSchemaSpy).not.toHaveBeenCalled();
+    });
+
+    it("should allow manual refresh when lastSyncFail is true", async () => {
       const state = new DbState(explorer);
       state.activeSchema.lastSyncFail = true;
       state.activeSchema.vertices = [createRandomVertexTypeConfig()];
@@ -228,10 +342,8 @@ describe("useSchemaSync", () => {
 
       const { result } = renderHookWithState(() => useSchemaSync(), state);
 
-      // Auto-fetch should be disabled
       expect(fetchSchemaSpy).not.toHaveBeenCalled();
 
-      // Manual refresh should still work
       await act(async () => {
         await result.current.refreshSchema();
       });

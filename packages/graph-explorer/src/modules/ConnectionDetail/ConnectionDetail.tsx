@@ -243,15 +243,19 @@ function MainContentLayout(_props: { config: RawConfiguration }) {
 
 function LastSyncInfo() {
   const t = useTranslations();
-  const { refreshSchema, isFetching } = useSchemaSync();
+  const {
+    schemaDiscoveryQuery,
+    edgeDiscoveryQuery,
+    refreshSchema,
+    isFetching,
+  } = useSchemaSync();
   const schema = useMaybeActiveSchema();
 
   if (isFetching) {
     return <InfoItemValue>Synchronizing...</InfoItemValue>;
   }
 
-  const lastSyncFail = schema?.lastSyncFail === true;
-  if (lastSyncFail) {
+  if (schemaDiscoveryQuery.error || schema?.lastSyncFail) {
     return (
       <InfoItemValue className="inline">
         <span>Synchronization Failed </span>
@@ -260,8 +264,7 @@ function LastSyncInfo() {
     );
   }
 
-  const edgeDiscoveryFailed = schema?.edgeConnectionDiscoveryFailed === true;
-  if (edgeDiscoveryFailed) {
+  if (edgeDiscoveryQuery.error || schema?.lastEdgeConnectionSyncFail) {
     return (
       <InfoItemValue className="inline">
         <span>{t("edge-connection")} Discovery Failed </span>
@@ -378,7 +381,6 @@ function DebugActions() {
       return {
         ...prev,
         edgeConnections: undefined,
-        edgeConnectionDiscoveryFailed: undefined,
       };
     });
   };
@@ -391,8 +393,7 @@ function DebugActions() {
 
       return {
         ...prev,
-        edgeConnections: [],
-        edgeConnectionDiscoveryFailed: true,
+        lastEdgeConnectionSyncFail: true,
       };
     });
   };
