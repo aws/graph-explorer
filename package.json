@@ -35,7 +35,7 @@
     "@tanstack/eslint-plugin-query": "^5.91.4",
     "@vitest/coverage-v8": "4.0.10",
     "babel-plugin-react-compiler": "19.1.0-rc.3",
-    "eslint": "^10.0.1",
+    "eslint": "^10.0.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-perfectionist": "^5.6.0",
     "eslint-plugin-react": "^7.37.5",
@@ -74,7 +74,8 @@
       "ws@<8.17.1": ">=8.17.1",
       "@eslint/plugin-kit@<0.3.3": ">=0.3.3",
       "fast-xml-parser@<5.3.4": ">=5.3.4",
-      "@isaacs/brace-expansion@<5.0.1": ">=5.0.1"
+      "@isaacs/brace-expansion@<5.0.1": ">=5.0.1",
+      "qs@>=6.7.0 <6.14.2": ">=6.14.2"
     }
   }
 }
