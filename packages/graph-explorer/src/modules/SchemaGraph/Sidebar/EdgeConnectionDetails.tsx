@@ -1,7 +1,6 @@
 import type { ComponentPropsWithRef } from "react";
 
 import {
-  Chip,
   EdgeIcon,
   Panel,
   PanelContent,
@@ -18,10 +17,13 @@ import { useTranslations } from "@/hooks";
 import { LABELS } from "@/utils";
 
 import {
-  AttributeList,
+  Details,
+  DetailsDescription,
+  DetailsHeader,
   DetailsTitle,
   DetailsValue,
   EdgeConnectionRow,
+  PropertiesDetails,
 } from "./Details";
 
 export type EdgeConnectionDetailsProps = {
@@ -42,46 +44,35 @@ export function EdgeConnectionDetails({
       <PanelHeader>
         <PanelTitle>{LABELS.SIDEBAR.SELECTION_DETAILS}</PanelTitle>
       </PanelHeader>
-      <PanelContent className="space-y-6 p-3">
+      <PanelContent className="space-y-8 p-3">
         <div className="flex flex-row items-center justify-between">
-          <div className="flex flex-col gap-1.5">
+          <DetailsHeader>
             <DetailsTitle>{t("edge-type")}</DetailsTitle>
             <DetailsValue>{edgeConnection.edgeType}</DetailsValue>
-          </div>
+          </DetailsHeader>
           <div className="bg-muted text-muted-foreground flex aspect-square h-10 items-center justify-center rounded-md border shadow-xs">
             <EdgeIcon className="size-6" />
           </div>
         </div>
 
         {total != null && (
-          <div>
+          <DetailsHeader>
             <DetailsTitle>Total Count</DetailsTitle>
             <DetailsValue>{toHumanString(total)}</DetailsValue>
-          </div>
+          </DetailsHeader>
         )}
 
-        <div className="space-y-4">
-          <DetailsTitle>{t("edge-connection")}</DetailsTitle>
+        <Details>
+          <DetailsHeader>
+            <DetailsTitle>{t("edge-connection")}</DetailsTitle>
+            <DetailsDescription>
+              The currently selected {t("edge-connection").toLowerCase()}.
+            </DetailsDescription>
+          </DetailsHeader>
           <EdgeConnectionRow edgeConnection={edgeConnection} />
-        </div>
+        </Details>
 
-        <div className="space-y-4">
-          <DetailsTitle className="flex justify-between gap-2">
-            {t("properties")}
-            <Chip variant="primary-subtle">
-              {toHumanString(config.attributes.length)}
-            </Chip>
-          </DetailsTitle>
-          <div>
-            {config.attributes.length === 0 ? (
-              <DetailsValue>
-                No {t("properties").toLocaleLowerCase()}
-              </DetailsValue>
-            ) : (
-              <AttributeList attributes={config.attributes} />
-            )}
-          </div>
-        </div>
+        <PropertiesDetails attributes={config.attributes} />
       </PanelContent>
     </Panel>
   );
