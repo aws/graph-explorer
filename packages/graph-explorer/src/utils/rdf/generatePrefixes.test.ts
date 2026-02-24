@@ -1,3 +1,6 @@
+import type { PrefixTypeConfig } from "@/core";
+import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
+
 import generatePrefixes, {
   generateHashPrefix,
   generatePrefix,
@@ -5,15 +8,15 @@ import generatePrefixes, {
 
 describe("generatePrefixes", () => {
   it("should return null when nothing is updated", () => {
-    const existing = [
+    const existing: PrefixTypeConfig[] = [
       {
-        prefix: "owl",
-        uri: "https://www.w3.org/2002/07/owl#",
+        prefix: "owl" as RdfPrefix,
+        uri: "https://www.w3.org/2002/07/owl#" as IriNamespace,
         __matches: new Set(["https://www.w3.org/2002/07/owl#ObjectProperty"]),
       },
       {
-        prefix: "rdf",
-        uri: "https://www.w3.org/2000/01/rdf-schema#",
+        prefix: "rdf" as RdfPrefix,
+        uri: "https://www.w3.org/2000/01/rdf-schema#" as IriNamespace,
         __matches: new Set([
           "https://www.w3.org/2000/01/rdf-schema#subClassOf",
         ]),
@@ -111,12 +114,18 @@ describe("generatePrefixes", () => {
         "http://www.example.com/location/resource#Manchester",
       ]),
       [
-        { prefix: "owl", uri: "https://www.w3.org/2002/07/owl#" },
-        { prefix: "dbr", uri: "https://dbpedia.org/resource/" },
+        {
+          prefix: "owl" as RdfPrefix,
+          uri: "https://www.w3.org/2002/07/owl#" as IriNamespace,
+        },
+        {
+          prefix: "dbr" as RdfPrefix,
+          uri: "https://dbpedia.org/resource/" as IriNamespace,
+        },
         {
           __inferred: true,
-          prefix: "loc-r",
-          uri: "http://www.example.com/location/resource#",
+          prefix: "loc-r" as RdfPrefix,
+          uri: "http://www.example.com/location/resource#" as IriNamespace,
           __matches: new Set([
             "http://www.example.com/location/resource#London",
             "http://www.example.com/location/resource#Manchester",
@@ -169,8 +178,8 @@ describe("generatePrefixes", () => {
       [
         {
           __inferred: true,
-          prefix: "ent",
-          uri: "http://secretspyorg/entity/",
+          prefix: "ent" as RdfPrefix,
+          uri: "http://secretspyorg/entity/" as IriNamespace,
           __matches: new Set(["http://SecretSpyOrg/entity/quantity"]),
         },
       ],

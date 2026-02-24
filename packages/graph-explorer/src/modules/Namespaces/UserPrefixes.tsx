@@ -2,6 +2,8 @@ import { useAtomCallback } from "jotai/utils";
 import { useCallback, useState } from "react";
 import { Virtuoso } from "react-virtuoso";
 
+import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
+
 import {
   AddIcon,
   Button,
@@ -228,7 +230,10 @@ function EditPrefixModal({
             ...(activeSchema || {}),
             vertices: activeSchema?.vertices || [],
             edges: activeSchema?.edges || [],
-            prefixes: [...(activeSchema?.prefixes || []), { prefix, uri }],
+            prefixes: [
+              ...(activeSchema?.prefixes || []),
+              { prefix: prefix as RdfPrefix, uri: uri as IriNamespace },
+            ],
           });
 
           return updatedSchemas;
