@@ -1,3 +1,5 @@
+import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
+
 import replacePrefixes from "./replacePrefixes";
 
 test("should do nothing when no URI is provided", () => {
@@ -12,7 +14,10 @@ test("should replace using common prefixes", () => {
 
 test("should replace using custom prefixes", () => {
   const result = replacePrefixes("http://example.com/foo/bar", [
-    { prefix: "foo", uri: "http://example.com/foo/" },
+    {
+      prefix: "foo" as RdfPrefix,
+      uri: "http://example.com/foo/" as IriNamespace,
+    },
   ]);
   expect(result).toBe("foo:bar");
 });
@@ -20,8 +25,8 @@ test("should replace using custom prefixes", () => {
 test("should use generated prefixes", () => {
   const result = replacePrefixes("http://foo.com/foo/bar", [
     {
-      prefix: "foo",
-      uri: "http://foo.com/foo/",
+      prefix: "foo" as RdfPrefix,
+      uri: "http://foo.com/foo/" as IriNamespace,
       __inferred: true,
       __matches: new Set(["http://foo.com/foo/bar"]),
     },
@@ -32,8 +37,8 @@ test("should use generated prefixes", () => {
 test("should prefer common prefixes over generated prefixes", () => {
   const result = replacePrefixes("http://example.com/foo/bar", [
     {
-      prefix: "foo",
-      uri: "http://example.com/foo/",
+      prefix: "foo" as RdfPrefix,
+      uri: "http://example.com/foo/" as IriNamespace,
       __inferred: true,
       __matches: new Set(["http://example.com/foo/bar"]),
     },

@@ -2,6 +2,8 @@ import type { QueryEngine } from "@shared/types";
 
 import { createRandomDate, createRandomName } from "@shared/utils/testing";
 
+import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
+
 import { getDisplayValueForScalar } from "@/connector/entities";
 import {
   activeConfigurationAtom,
@@ -160,8 +162,8 @@ describe("useDisplayEdgeFromEdge", () => {
     const schema = createRandomSchema();
     schema.prefixes = [
       {
-        prefix: "example-class",
-        uri: "http://www.example.com/class#",
+        prefix: "example-class" as RdfPrefix,
+        uri: "http://www.example.com/class#" as IriNamespace,
       },
     ];
 

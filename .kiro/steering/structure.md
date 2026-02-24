@@ -118,16 +118,20 @@ complete over time.
 The project uses branded types from `@/utils` for type safety. These prevent
 accidental mixing of similar types at compile time.
 
-| Type               | Creator Function             | Location                                |
-| ------------------ | ---------------------------- | --------------------------------------- |
-| `VertexId`         | `createVertexId()`           | `@/core/entities/vertex`                |
-| `VertexType`       | `createVertexType()`         | `@/core/entities/vertex`                |
-| `EdgeId`           | `createEdgeId()`             | `@/core/entities/edge`                  |
-| `EdgeType`         | `createEdgeType()`           | `@/core/entities/edge`                  |
-| `EdgeConnectionId` | `createEdgeConnectionId()`   | `@/core/StateProvider/edgeConnectionId` |
-| `ConfigurationId`  | `createNewConfigurationId()` | `@/core/ConfigurationProvider/types`    |
-| `RenderedVertexId` | `toRenderedVertexId()`       | `@/core/StateProvider/renderedEntities` |
-| `RenderedEdgeId`   | `toRenderedEdgeId()`         | `@/core/StateProvider/renderedEntities` |
+| Type                     | Creator Function             | Location                                |
+| ------------------------ | ---------------------------- | --------------------------------------- |
+| `VertexId`               | `createVertexId()`           | `@/core/entities/vertex`                |
+| `VertexType`             | `createVertexType()`         | `@/core/entities/vertex`                |
+| `EdgeId`                 | `createEdgeId()`             | `@/core/entities/edge`                  |
+| `EdgeType`               | `createEdgeType()`           | `@/core/entities/edge`                  |
+| `EdgeConnectionId`       | `createEdgeConnectionId()`   | `@/core/StateProvider/edgeConnectionId` |
+| `ConfigurationId`        | `createNewConfigurationId()` | `@/core/ConfigurationProvider/types`    |
+| `RenderedVertexId`       | `toRenderedVertexId()`       | `@/core/StateProvider/renderedEntities` |
+| `RenderedEdgeId`         | `toRenderedEdgeId()`         | `@/core/StateProvider/renderedEntities` |
+| `IriNamespace`           | `as IriNamespace`            | `@/utils/rdf`                           |
+| `IriLocalValue`          | `as IriLocalValue`           | `@/utils/rdf`                           |
+| `RdfPrefix`              | `as RdfPrefix`               | `@/utils/rdf`                           |
+| `NormalizedIriNamespace` | `as NormalizedIriNamespace`  | `@/utils/rdf`                           |
 
 Always use the appropriate branded type instead of `string` when working with
 these identifiers.

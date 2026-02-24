@@ -487,3 +487,86 @@ test("should handle errors gracefully", async () => {
   await expect(functionUnderTest(mockFetch)).rejects.toThrow("Test error");
 });
 ```
+
+## Persistent Storage Backward Compatibility
+
+Graph Explorer persists state to IndexedDB via localforage (managed through
+Jotai atoms). When a type used in persistent storage changes shape — for
+example, a property is added, removed, or renamed — previously stored data will
+still be loaded with the old shape. This can silently break logic that assumes
+the new shape.
+
+### Requirements
+
+Any type or object that is persisted through Jotai and localforage **must** have
+tests that exercise the old storage shape alongside the new one. These tests
+verify that:
+
+1. Data in the old shape is accepted without errors
+2. Logic that consumes the data produces correct results with both shapes
+3. Old and new shapes can coexist (e.g., a mix of old and new entries in an
+   array)
+
+### Test Structure
+
+Group backward-compatibility tests in a dedicated `describe` block with a clear
+comment block explaining:
+
+- What the old shape looked like
+- Why the tests exist
+- A warning not to delete or weaken them without confirming migration
+
+```typescript
+/**
+ * BACKWARD COMPATIBILITY — PERSISTED DATA
+ *
+ * <TypeName> is persisted to IndexedDB via localforage. Older versions stored
+ * <description of old shape>. That property/shape has been changed to
+ * <description of new shape>, but previously persisted data may still contain
+ * the old form. These tests verify that <module> continues to work correctly
+ * when given data in the old shape.
+ *
+ * DO NOT delete or weaken these tests without confirming that all persisted
+ * data has been migrated or that the old shape is no longer in the wild.
+ */
+describe("backward compatibility: <brief description>", () => {
+  it("should handle data in the old shape", () => {
+    // Use `as TypeName` to bypass compile-time checks and simulate
+    // the old shape that TypeScript no longer allows.
+    const legacyData = {
+      ...currentFields,
+      removedField: "old value",
+    } as TypeName;
+
+    const result = functionUnderTest(legacyData);
+    expect(result).toEqual(expectedOutput);
+  });
+
+  it("should handle a mix of old and new shapes", () => {
+    const legacy = { ...oldShape } as TypeName;
+    const current = { ...newShape };
+    const result = functionUnderTest([legacy, current]);
+    expect(result).toEqual(expectedOutput);
+  });
+});
+```
+
+### Key Persisted Types
+
+These types are stored in IndexedDB and require backward-compatibility tests
+when modified:
+
+- `SchemaStorageModel` — vertex/edge configs, prefixes, edge connections
+- `PrefixTypeConfig` — RDF namespace prefix definitions
+- `VertexTypeConfig` / `EdgeTypeConfig` — schema type configurations
+- `RawConfiguration` — connection and schema configuration
+- User preferences (`VertexPreferencesStorageModel`,
+  `EdgePreferencesStorageModel`)
+
+### When to Add These Tests
+
+- Removing a property from a persisted type
+- Renaming a property on a persisted type
+- Changing the type of a property (e.g., `string[]` → `Set<string>`)
+- Adding a required property (old data will not have it)
+- Changing the semantics of an existing property

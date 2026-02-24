@@ -7,6 +7,7 @@ import type {
   VertexPreferencesStorageModel,
 } from "@/core/StateProvider/userPreferences";
 import type { Branded } from "@/utils";
+import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import type { EdgeType, VertexType } from "../entities";
 import type { SchemaStorageModel } from "../StateProvider";
@@ -85,11 +86,11 @@ export type EdgeTypeConfig = {
 } & EdgePreferencesStorageModel;
 
 export type PrefixTypeConfig = {
-  prefix: string;
+  prefix: RdfPrefix;
   /**
    * Full URI for the prefix
    */
-  uri: string;
+  uri: IriNamespace;
   /**
    * Internal purpose only.
    * Mark as true after inferring from the schema.

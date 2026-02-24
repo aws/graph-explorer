@@ -1,13 +1,15 @@
 import type { PrefixTypeConfig } from "@/core";
 
+import type { IriNamespace, RdfPrefix } from "./types";
+
 import commonPrefixes from "./common-prefixes.json";
 
-const commonPrefixesConfig = Object.entries(commonPrefixes).map(
-  ([prefix, uri]) => ({
-    prefix,
-    uri,
-  }),
-);
+const commonPrefixesConfig: PrefixTypeConfig[] = Object.entries(
+  commonPrefixes,
+).map(([prefix, uri]) => ({
+  prefix: prefix as RdfPrefix,
+  uri: uri as IriNamespace,
+}));
 
 const replacePrefixes = (
   uri?: string,

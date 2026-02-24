@@ -1,6 +1,8 @@
 import { createArray, createRandomName } from "@shared/utils/testing";
 import { useAtomValue } from "jotai";
 
+import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
+
 import {
   activeConfigurationAtom,
   configurationAtom,
@@ -273,14 +275,14 @@ describe("schema", () => {
       expect(result.prefixes).toBeDefined();
       expect(result.prefixes).toEqual([
         {
-          prefix: "ver",
-          uri: "http://abcdefg.com/vertex#",
+          prefix: "ver" as RdfPrefix,
+          uri: "http://abcdefg.com/vertex#" as IriNamespace,
           __inferred: true,
           __matches: new Set(schema.vertices.map(v => v.type)),
         },
         {
-          prefix: "edg",
-          uri: "http://abcdefg.com/edge#",
+          prefix: "edg" as RdfPrefix,
+          uri: "http://abcdefg.com/edge#" as IriNamespace,
           __inferred: true,
           __matches: new Set(schema.edges.map(e => e.type)),
         },

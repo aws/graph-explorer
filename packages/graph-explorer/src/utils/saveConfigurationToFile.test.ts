@@ -2,6 +2,7 @@ import * as fileSaver from "file-saver";
 import { describe, expect, it, vi } from "vitest";
 
 import type { ConfigurationContextProps } from "@/core";
+import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { createEdgeType, createVertexType } from "@/core";
 
@@ -177,13 +178,13 @@ describe("saveConfigurationToFile", () => {
         edges: [],
         prefixes: [
           {
-            prefix: "rdf",
-            uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+            prefix: "rdf" as RdfPrefix,
+            uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#" as IriNamespace,
             __matches: new Set(["http://www.w3.org/1999/02/22-rdf-syntax-ns#"]),
           },
           {
-            prefix: "rdfs",
-            uri: "http://www.w3.org/2000/01/rdf-schema#",
+            prefix: "rdfs" as RdfPrefix,
+            uri: "http://www.w3.org/2000/01/rdf-schema#" as IriNamespace,
             __matches: new Set(["http://www.w3.org/2000/01/rdf-schema#"]),
           },
         ],

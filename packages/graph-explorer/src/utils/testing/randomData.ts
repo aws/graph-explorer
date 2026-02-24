@@ -172,10 +172,12 @@ export function createRandomVertexTypeConfigForRdf(): VertexTypeConfig {
   };
 }
 
+import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
+
 export function createRandomPrefixTypeConfig(): PrefixTypeConfig {
   return {
-    prefix: createRandomName("prefix"),
-    uri: createRandomUrlString(),
+    prefix: createRandomName("prefix") as RdfPrefix,
+    uri: createRandomUrlString() as IriNamespace,
   };
 }
 

@@ -1,10 +1,15 @@
 import type { PrefixTypeConfig } from "@/core";
 
+import type { IriNamespace, RdfPrefix } from "./types";
+
 import commonPrefixes from "./common-prefixes.json";
 
 // Create a map of the common prefixes
 const commonPrefixesMap = toPrefixTypeConfigMap(
-  Object.entries(commonPrefixes).map(([prefix, uri]) => ({ prefix, uri })),
+  Object.entries(commonPrefixes).map(([prefix, uri]) => ({
+    prefix: prefix as RdfPrefix,
+    uri: uri as IriNamespace,
+  })),
 );
 
 /** Helper function to create a map of prefix configs from an array of configs. */
@@ -79,8 +84,8 @@ export function generateHashPrefix(
 
   return {
     __inferred: true,
-    uri: url.href.replace(url.hash, "#"),
-    prefix,
+    uri: url.href.replace(url.hash, "#") as IriNamespace,
+    prefix: prefix as RdfPrefix,
   };
 }
 
@@ -95,8 +100,8 @@ export function generatePrefix(url: URL): Omit<PrefixTypeConfig, "__count"> {
     const prefix = prefixFromHost(url.host);
     return {
       __inferred: true,
-      uri: url.origin + "/",
-      prefix,
+      uri: (url.origin + "/") as IriNamespace,
+      prefix: prefix as RdfPrefix,
     };
   }
 
@@ -113,8 +118,8 @@ export function generatePrefix(url: URL): Omit<PrefixTypeConfig, "__count"> {
 
     return {
       __inferred: true,
-      uri: uriChunks.join("/") + "/",
-      prefix,
+      uri: (uriChunks.join("/") + "/") as IriNamespace,
+      prefix: prefix as RdfPrefix,
     };
   }
 
@@ -126,8 +131,8 @@ export function generatePrefix(url: URL): Omit<PrefixTypeConfig, "__count"> {
     const prefix = prefixFromHost(url.host);
     return {
       __inferred: true,
-      uri: url.origin + "/",
-      prefix,
+      uri: (url.origin + "/") as IriNamespace,
+      prefix: prefix as RdfPrefix,
     };
   }
 
@@ -135,8 +140,8 @@ export function generatePrefix(url: URL): Omit<PrefixTypeConfig, "__count"> {
   uriChunks.length = uriChunks.length - 1;
   return {
     __inferred: true,
-    uri: uriChunks.join("/") + "/",
-    prefix: filteredPaths[0].substring(0, 3),
+    uri: (uriChunks.join("/") + "/") as IriNamespace,
+    prefix: filteredPaths[0].substring(0, 3) as RdfPrefix,
   };
 }
 
