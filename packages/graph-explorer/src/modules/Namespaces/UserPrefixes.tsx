@@ -60,7 +60,7 @@ const UserPrefixes = () => {
 
 function useCustomPrefixes() {
   const prefixes = usePrefixes();
-  return prefixes.filter(prefixConfig => prefixConfig.__inferred !== true);
+  return prefixes.userPrefixes;
 }
 
 function SearchablePrefixes({

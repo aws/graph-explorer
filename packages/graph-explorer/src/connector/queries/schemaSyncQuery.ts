@@ -1,13 +1,19 @@
 import { queryOptions } from "@tanstack/react-query";
 import { atom } from "jotai";
 
-import { activeConfigurationAtom, schemaAtom } from "@/core";
+import {
+  activeConfigurationAtom,
+  type PrefixTypeConfig,
+  schemaAtom,
+} from "@/core";
 import {
   activeSchemaAtom,
+  generateSchemaPrefixes,
+  getSchemaUris,
   type SchemaStorageModel,
-  updateSchemaPrefixes,
 } from "@/core/StateProvider/schema";
 import { logger } from "@/utils";
+import { PrefixLookup } from "@/utils/rdf";
 
 import type { SchemaResponse } from "../useGEFetchTypes";
 
@@ -34,13 +40,18 @@ export function schemaSyncQuery(activeSchema: SchemaStorageModel | undefined) {
       const store = getStore(meta);
 
       try {
-        let schema = await explorer.fetchSchema({ signal });
+        const schema = await explorer.fetchSchema({ signal });
 
-        // Update the prefixes for sparql connections
-        schema = updateSchemaPrefixes(schema);
+        // Generate prefixes for sparql connections
+        const schemaUris = getSchemaUris(schema);
+        const existingPrefixes = PrefixLookup.fromArray([]);
+        const newPrefixes = generateSchemaPrefixes(
+          schemaUris,
+          existingPrefixes,
+        );
 
         // Persist the schema to the local cache
-        store.set(replaceSchemaAtom, schema);
+        store.set(replaceSchemaAtom, schema, newPrefixes);
         const newSchema = store.get(activeSchemaAtom);
         return newSchema;
       } catch (error) {
@@ -55,27 +66,33 @@ export function schemaSyncQuery(activeSchema: SchemaStorageModel | undefined) {
 }
 
 /** Setter-only atom that replaces the stored schema with the given schema response. */
-const replaceSchemaAtom = atom(null, (get, set, schema: SchemaResponse) => {
-  const id = get(activeConfigurationAtom);
-  if (!id) {
-    logger.warn("Cannot update schema: no active configuration");
-    return;
-  }
+const replaceSchemaAtom = atom(
+  null,
+  (get, set, schema: SchemaResponse, prefixes: PrefixTypeConfig[]) => {
+    const id = get(activeConfigurationAtom);
+    if (!id) {
+      logger.warn("Cannot update schema: no active configuration");
+      return;
+    }
 
-  set(schemaAtom, prev => {
-    const updated = new Map(prev);
-    updated.set(id, {
-      ...schema,
-      // Reset edge connection information during schema sync
-      edgeConnections: undefined,
-      lastEdgeConnectionSyncFail: false,
-      // Mark as completed successfully
-      lastUpdate: new Date(),
-      lastSyncFail: false,
+    set(schemaAtom, prev => {
+      const updated = new Map(prev);
+      updated.set(id, {
+        ...schema,
+        prefixes,
+
+        // Reset edge connection information during schema sync
+        edgeConnections: undefined,
+        lastEdgeConnectionSyncFail: false,
+
+        // Mark as completed successfully
+        lastUpdate: new Date(),
+        lastSyncFail: false,
+      });
+      return updated;
     });
-    return updated;
-  });
-});
+  },
+);
 
 /** Setter-only atom that marks the last schema sync as failed while preserving existing data. */
 const setSyncFailedAtom = atom(null, (get, set) => {

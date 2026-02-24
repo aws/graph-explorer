@@ -3,7 +3,7 @@ import type { Simplify } from "type-fest";
 import { atom, useAtomValue } from "jotai";
 import { atomFamily } from "jotai-family";
 import { RESET, useAtomCallback } from "jotai/utils";
-import { startTransition, useCallback, useDeferredValue } from "react";
+import { useCallback, useDeferredValue } from "react";
 
 import type {
   AttributeConfig,
@@ -29,7 +29,7 @@ import {
   type VertexType,
 } from "@/core";
 import { logger } from "@/utils";
-import { generatePrefixes } from "@/utils/rdf";
+import { generatePrefixes, PrefixLookup, splitIri } from "@/utils/rdf";
 
 /**
  * Persisted schema state for a database connection.
@@ -44,9 +44,9 @@ export type SchemaStorageModel = {
   /** Edge type configurations with their attributes. */
   edges: EdgeTypeConfig[];
   /** RDF namespace prefixes for SPARQL connections. */
-  prefixes?: Array<PrefixTypeConfig>;
+  prefixes?: PrefixTypeConfig[];
   /** Edge connections between node labels. */
-  edgeConnections?: Array<EdgeConnection>;
+  edgeConnections?: EdgeConnection[];
   /** When the schema was last updated. */
   lastUpdate?: Date;
   /** Whether the last schema sync failed. Persisted so the failure survives browser refresh. */
@@ -113,15 +113,15 @@ export function useMaybeActiveSchema(): SchemaStorageModel | undefined {
   return useDeferredValue(useAtomValue(maybeActiveSchemaAtom));
 }
 
-/** Gets the stored prefixes from the active schema. */
-export function usePrefixes(): PrefixTypeConfig[] {
-  const schema = useActiveSchema();
-  return schema.prefixes ?? [];
+/** Gets the stored prefixes from the active schema as a lookup object. */
+export function usePrefixes() {
+  return useAtomValue(prefixesAtom);
 }
 
 export const prefixesAtom = atom(get => {
   const schema = get(activeSchemaAtom);
-  return schema.prefixes ?? [];
+  const prefixes = schema.prefixes ?? [];
+  return PrefixLookup.fromArray(prefixes);
 });
 
 function createVertexSchema(vtConfig: VertexTypeConfig) {
@@ -292,19 +292,36 @@ export function updateSchemaFromEntities(
   const mergedVertices = merge(schema.vertices, newVertexConfigs);
   const mergedEdges = merge(schema.edges, newEdgeConfigs);
 
-  // Only create new schema if something changed
-  if (mergedVertices === schema.vertices && mergedEdges === schema.edges) {
+  // Generate new prefixes for the schema changes and resource IRIs
+  const existingPrefixes = schema.prefixes ?? [];
+  const prefixLookup = PrefixLookup.fromArray(existingPrefixes);
+  const entityUris = getEntityUris(entities);
+  const schemaUris = getSchemaUris({
+    vertices: mergedVertices,
+    edges: mergedEdges,
+  });
+  const newPrefixes = generateSchemaPrefixes(
+    entityUris.union(schemaUris),
+    prefixLookup,
+  );
+
+  if (
+    mergedVertices === schema.vertices &&
+    mergedEdges === schema.edges &&
+    newPrefixes.length === 0
+  ) {
     return schema;
   }
 
-  let newSchema = {
+  const newSchema = {
     ...schema,
     vertices: mergedVertices,
     edges: mergedEdges,
-  } satisfies SchemaStorageModel;
-
-  // Update the generated prefixes in the schema
-  newSchema = updateSchemaPrefixes(newSchema);
+    prefixes:
+      newPrefixes.length > 0
+        ? [...existingPrefixes, ...newPrefixes]
+        : schema.prefixes,
+  };
 
   logger.debug("Updated schema:", { newSchema, prevSchema: schema });
   return newSchema;
@@ -414,34 +431,35 @@ function detectDataType(value: ScalarValue) {
   }
 }
 
-/** Generate RDF prefixes for all the resource URIs in the schema. */
-export function updateSchemaPrefixes(
-  schema: SchemaStorageModel,
-): SchemaStorageModel {
-  const existingPrefixes = schema.prefixes ?? [];
-
-  // Get all the resource URIs from the vertex and edge type configs
-  const resourceUris = getResourceUris(schema);
-
-  if (resourceUris.size === 0) {
-    return schema;
+/**
+ * Generates new RDF prefixes for IRIs not yet covered by existing prefixes.
+ *
+ * Returns only the newly generated prefix configs. Returns an empty array when
+ * every IRI already has a matching prefix.
+ */
+export function generateSchemaPrefixes(
+  iris: Set<string>,
+  existingPrefixes: PrefixLookup,
+): PrefixTypeConfig[] {
+  if (iris.size === 0) {
+    return [];
   }
 
-  const genPrefixes = generatePrefixes(resourceUris, existingPrefixes);
-  if (!genPrefixes?.length) {
-    return schema;
+  const newPrefixes = generatePrefixes(iris, existingPrefixes);
+  if (newPrefixes.length === 0) {
+    return [];
   }
 
-  logger.debug("Updating schema with prefixes:", genPrefixes);
+  logger.debug("Generated new prefixes:", newPrefixes);
 
-  return {
-    ...schema,
-    prefixes: genPrefixes,
-  };
+  return newPrefixes;
 }
 
-/** A performant way to construct the set of resource URIs from the schema. */
-function getResourceUris(schema: SchemaStorageModel) {
+/** Collects resource URIs from schema vertex/edge type configs. */
+export function getSchemaUris(schema: {
+  vertices: VertexTypeConfig[];
+  edges: EdgeTypeConfig[];
+}) {
   const result = new Set<string>();
 
   schema.vertices.forEach(v => {
@@ -453,6 +471,20 @@ function getResourceUris(schema: SchemaStorageModel) {
   schema.edges.forEach(e => {
     result.add(e.type);
   });
+
+  return result;
+}
+
+/** Collects IDs from entities. */
+function getEntityUris(entities: Partial<Entities>) {
+  const result = new Set<string>();
+
+  for (const v of entities.vertices ?? []) {
+    result.add(String(v.id));
+  }
+  for (const e of entities.edges ?? []) {
+    result.add(String(e.id));
+  }
 
   return result;
 }
@@ -470,18 +502,19 @@ export function useUpdateSchemaFromEntities() {
       if (!activeSchema) {
         return;
       }
-      if (!shouldUpdateSchemaFromEntities(entities, activeSchema)) {
+      if (
+        !shouldUpdateSchemaFromEntities(entities, activeSchema) &&
+        !hasNewPrefixNamespaces(entities, get(prefixesAtom))
+      ) {
         logger.debug("Schema is already up to date with the given entities");
         return;
       }
-      startTransition(() => {
-        logger.debug("Updating schema from entities");
-        set(activeSchemaSelector, prev => {
-          if (!prev) {
-            return prev;
-          }
-          return updateSchemaFromEntities(entities, prev);
-        });
+      logger.debug("Updating schema from entities");
+      set(activeSchemaSelector, prev => {
+        if (!prev) {
+          return prev;
+        }
+        return updateSchemaFromEntities(entities, prev);
       });
     }, []),
   );
@@ -526,6 +559,26 @@ export function shouldUpdateSchemaFromEntities(
     }
   }
 
+  return false;
+}
+
+/** Checks if any entity IDs have namespaces not yet covered by existing prefixes. */
+function hasNewPrefixNamespaces(
+  entities: Partial<Entities>,
+  prefixes: PrefixLookup,
+) {
+  for (const v of entities.vertices ?? []) {
+    const parts = splitIri(String(v.id));
+    if (parts && !prefixes.findPrefix(parts.namespace)) {
+      return true;
+    }
+  }
+  for (const e of entities.edges ?? []) {
+    const parts = splitIri(String(e.id));
+    if (parts && !prefixes.findPrefix(parts.namespace)) {
+      return true;
+    }
+  }
   return false;
 }
 

@@ -33,10 +33,10 @@ accidental mixing of similar types at compile time.
 | `ConfigurationId`        | `createNewConfigurationId()` | `@/core/ConfigurationProvider/types`    |
 | `RenderedVertexId`       | `toRenderedVertexId()`       | `@/core/StateProvider/renderedEntities` |
 | `RenderedEdgeId`         | `toRenderedEdgeId()`         | `@/core/StateProvider/renderedEntities` |
-| `IriNamespace`           | `as IriNamespace`            | `@/utils/rdf`                           |
-| `IriLocalValue`          | `as IriLocalValue`           | `@/utils/rdf`                           |
-| `RdfPrefix`              | `as RdfPrefix`               | `@/utils/rdf`                           |
-| `NormalizedIriNamespace` | `as NormalizedIriNamespace`  | `@/utils/rdf`                           |
+| `IriNamespace`           | `splitIri()`                 | `@/utils/rdf`                           |
+| `IriLocalValue`          | `splitIri()`                 | `@/utils/rdf`                           |
+| `RdfPrefix`              | `generatePrefix()`           | `@/utils/rdf`                           |
+| `NormalizedIriNamespace` | `normalizeNamespace()`       | `@/utils/rdf`                           |
 
 Always use the appropriate branded type instead of `string` when working with
 these identifiers.

@@ -1,191 +1,79 @@
 import type { PrefixTypeConfig } from "@/core";
 
-import type { IriNamespace, RdfPrefix } from "./types";
+import type { PrefixLookup } from "./PrefixLookup";
+import type { RdfPrefix } from "./types";
+import type { NormalizedIriNamespace } from "./types";
 
-import commonPrefixes from "./common-prefixes.json";
+import { normalizeNamespace } from "./commonPrefixes";
+import { generatePrefix } from "./generatePrefix";
+import { splitIri } from "./splitIri";
 
-// Create a map of the common prefixes
-const commonPrefixesMap = toPrefixTypeConfigMap(
-  Object.entries(commonPrefixes).map(([prefix, uri]) => ({
-    prefix: prefix as RdfPrefix,
-    uri: uri as IriNamespace,
-  })),
-);
-
-/** Helper function to create a map of prefix configs from an array of configs. */
-function toPrefixTypeConfigMap(
-  configs: PrefixTypeConfig[],
-): Map<string, PrefixTypeConfig> {
-  return new Map(configs.map(config => [normalizeUri(config.uri), config]));
-}
-
-/** Converts URI to lowercase and trims leading and trailing whitespace. */
-function normalizeUri(uri: string) {
-  return uri.toLowerCase().trim();
-}
-
-/** Checks if the given string is a valid URL with a path. */
-function isUrl(str: string) {
-  try {
-    const url = new URL(str);
-
-    // Check for invalid origin (`urn:Person` has "null" origin)
-    if (url.origin.length === 0 || url.origin === "null") {
-      return false;
-    }
-
-    // Must contain a path or a hash
-    return url.pathname.length > 0 || url.hash.length > 0;
-  } catch {
-    return false;
-  }
-}
-
-/** Creates a prefix config from the given URI. */
-function createPrefixTypeConfig(uri: string): PrefixTypeConfig | null {
-  // Create a new prefix entry
-  try {
-    const url = new URL(uri);
-    let newPrefix: PrefixTypeConfig;
-    if (url.hash) {
-      newPrefix = generateHashPrefix(url);
-    } else {
-      newPrefix = generatePrefix(url);
-    }
-
-    return {
-      ...newPrefix,
-      __matches: new Set([uri]),
-    };
-  } catch {
-    return null;
-  }
-}
-
-export function generateHashPrefix(
-  url: URL,
-): Omit<PrefixTypeConfig, "__count"> {
-  const paths = url.pathname.replace(/^\//, "").split("/");
-  let prefix;
-
-  if (
-    paths.length >= 2 &&
-    (paths[paths.length - 1].toLowerCase() === "ontology" ||
-      paths[paths.length - 1].toLowerCase() === "resource" ||
-      paths[paths.length - 1].toLowerCase() === "class")
-  ) {
-    prefix =
-      paths[paths.length - 2].substring(0, 3) +
-      "-" +
-      paths[paths.length - 1].toLowerCase().substring(0, 1);
-  } else {
-    prefix = paths[paths.length - 1].substring(0, 3);
-  }
-
-  return {
-    __inferred: true,
-    uri: url.href.replace(url.hash, "#") as IriNamespace,
-    prefix: prefix as RdfPrefix,
-  };
-}
-
-function prefixFromHost(host: string) {
-  return host.replace(/^(www\.)*/, "").substring(0, 3);
-}
-
-export function generatePrefix(url: URL): Omit<PrefixTypeConfig, "__count"> {
-  const paths = url.pathname.replace(/^\//, "").split("/");
-
-  if (paths.length === 1) {
-    const prefix = prefixFromHost(url.host);
-    return {
-      __inferred: true,
-      uri: (url.origin + "/") as IriNamespace,
-      prefix: prefix as RdfPrefix,
-    };
-  }
-
-  if (
-    paths.length === 2 &&
-    (paths[0].toLowerCase() === "ontology" ||
-      paths[0].toLowerCase() === "resource" ||
-      paths[0].toLowerCase() === "class")
-  ) {
-    const prefix =
-      prefixFromHost(url.host) + "-" + paths[0].toLowerCase().substring(0, 1);
-    const uriChunks = url.href.split("/");
-    uriChunks.pop();
-
-    return {
-      __inferred: true,
-      uri: (uriChunks.join("/") + "/") as IriNamespace,
-      prefix: prefix as RdfPrefix,
-    };
-  }
-
-  const filteredPaths = paths.filter(
-    path => !["ontology", "resource", "class"].includes(path.toLowerCase()),
+/**
+ * Finds namespaces in the given IRIs that have no matching prefix in the
+ * lookup, generates a prefix for each, and returns the new prefix configs.
+ *
+ * Returns an empty array when every IRI already has a matching prefix.
+ */
+export default function generatePrefixes(
+  iris: Set<string>,
+  existingPrefixes: PrefixLookup,
+): PrefixTypeConfig[] {
+  const newPrefixes = new Map<NormalizedIriNamespace, PrefixTypeConfig>();
+  const usedNames = new Set<RdfPrefix>(
+    [
+      ...existingPrefixes.userPrefixes,
+      ...existingPrefixes.inferredPrefixes,
+    ].map(p => p.prefix),
   );
-  filteredPaths.pop();
-  if (filteredPaths.length === 0) {
-    const prefix = prefixFromHost(url.host);
-    return {
+
+  for (const iri of iris) {
+    const parts = splitIri(iri);
+    if (!parts) {
+      continue;
+    }
+
+    const normalizedNamespace = normalizeNamespace(parts.namespace);
+
+    // Already covered by an existing prefix
+    if (existingPrefixes.findPrefix(parts.namespace)) {
+      continue;
+    }
+
+    // Already generated in this batch
+    if (newPrefixes.has(normalizedNamespace)) {
+      continue;
+    }
+
+    const generated = generatePrefix(iri);
+    if (!generated) {
+      continue;
+    }
+
+    const uniqueName = makeUnique(generated.prefix, usedNames);
+    usedNames.add(uniqueName);
+
+    newPrefixes.set(normalizedNamespace, {
       __inferred: true,
-      uri: (url.origin + "/") as IriNamespace,
-      prefix: prefix as RdfPrefix,
-    };
-  }
-
-  const uriChunks = url.href.split("/");
-  uriChunks.length = uriChunks.length - 1;
-  return {
-    __inferred: true,
-    uri: (uriChunks.join("/") + "/") as IriNamespace,
-    prefix: filteredPaths[0].substring(0, 3) as RdfPrefix,
-  };
-}
-
-function generatePrefixes(
-  uris: Set<string>,
-  currentPrefixes: PrefixTypeConfig[],
-) {
-  const updatedPrefixes = toPrefixTypeConfigMap(currentPrefixes);
-  let hasBeenUpdated = false;
-  uris
-    .values()
-    // Filter out non-URLs
-    .filter(isUrl)
-    // Create prefix config
-    .map(uri => createPrefixTypeConfig(uri))
-    // Filter out prefix configs that failed to be created
-    .filter(newPrefix => newPrefix != null)
-    // Filter out common prefixes
-    .filter(prefix => !commonPrefixesMap.has(normalizeUri(prefix.uri)))
-    // Update the map of prefixes
-    .forEach(newPrefix => {
-      const existingPrefix = updatedPrefixes.get(newPrefix.uri);
-      const normalizedUri = normalizeUri(newPrefix.uri);
-
-      if (!existingPrefix) {
-        // Create a new prefix entry
-        updatedPrefixes.set(normalizedUri, newPrefix);
-        hasBeenUpdated = true;
-      } else {
-        const set = existingPrefix.__matches ?? new Set();
-        const matches = newPrefix.__matches ?? new Set();
-        if (set.isDisjointFrom(matches)) {
-          existingPrefix.__matches = set.union(matches);
-          hasBeenUpdated = true;
-        }
-      }
+      prefix: uniqueName,
+      uri: generated.namespace,
     });
-
-  // If nothing was updated, return null
-  if (!hasBeenUpdated) {
-    return null;
   }
 
-  return updatedPrefixes.values().toArray();
+  return newPrefixes.values().toArray();
 }
 
-export default generatePrefixes;
+/**
+ * Appends an incrementing numeral to ensure the prefix name is unique within
+ * the given set.
+ */
+function makeUnique(prefix: RdfPrefix, used: Set<RdfPrefix>): RdfPrefix {
+  if (!used.has(prefix)) {
+    return prefix;
+  }
+  // Start at 2 because the unsuffixed prefix is implicitly "1"
+  let i = 2;
+  while (used.has(`${prefix}${i}` as RdfPrefix)) {
+    i++;
+  }
+  return `${prefix}${i}` as RdfPrefix;
+}

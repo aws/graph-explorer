@@ -170,7 +170,7 @@ describe("saveConfigurationToFile", () => {
     expect(parsed.schema.lastUpdate).toBe("2024-01-01T12:30:00.000Z");
   });
 
-  it("should convert prefix __matches Set to Array", async () => {
+  it("should export prefixes without internal properties", async () => {
     const config: ConfigurationContextProps = {
       ...createRandomRawConfiguration(),
       schema: {
@@ -180,12 +180,10 @@ describe("saveConfigurationToFile", () => {
           {
             prefix: "rdf" as RdfPrefix,
             uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#" as IriNamespace,
-            __matches: new Set(["http://www.w3.org/1999/02/22-rdf-syntax-ns#"]),
           },
           {
             prefix: "rdfs" as RdfPrefix,
             uri: "http://www.w3.org/2000/01/rdf-schema#" as IriNamespace,
-            __matches: new Set(["http://www.w3.org/2000/01/rdf-schema#"]),
           },
         ],
         totalVertices: 0,
@@ -205,13 +203,16 @@ describe("saveConfigurationToFile", () => {
     const text = await (blob as Blob).text();
     const parsed = JSON.parse(text);
 
-    expect(Array.isArray(parsed.schema.prefixes[0].__matches)).toBe(true);
-    expect(parsed.schema.prefixes[0].__matches).toContain(
-      "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    );
-    expect(parsed.schema.prefixes[1].__matches).toContain(
-      "http://www.w3.org/2000/01/rdf-schema#",
-    );
+    expect(parsed.schema.prefixes).toStrictEqual([
+      {
+        prefix: "rdf",
+        uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+      },
+      {
+        prefix: "rdfs",
+        uri: "http://www.w3.org/2000/01/rdf-schema#",
+      },
+    ]);
   });
 
   it("should handle empty schema", async () => {

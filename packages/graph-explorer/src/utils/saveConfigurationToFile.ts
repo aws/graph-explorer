@@ -15,10 +15,7 @@ const saveConfigurationToFile = (config: ConfigurationContextProps) => {
     schema: {
       vertices: config.schema?.vertices || [],
       edges: config.schema?.edges || [],
-      prefixes: config?.schema?.prefixes?.map(prefix => ({
-        ...prefix,
-        __matches: Array.from(prefix.__matches || []),
-      })),
+      prefixes: config?.schema?.prefixes,
       lastUpdate: config.schema?.lastUpdate?.toISOString(),
       edgeConnections: config.schema?.edgeConnections,
     },
