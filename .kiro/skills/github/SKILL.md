@@ -1,8 +1,13 @@
 ---
-inclusion: always
+name: github
+description:
+  Handle management of any GitHub related tasks, including creating or modifying
+  issues, publishing a branch as a pull requests (or PRs), or creating or
+  modifying sub-issues or child issues.
+tools: ["git", "fs_read", "grep", "glob", "web_search"]
 ---
 
-# Project Management
+# GitHub Project Management
 
 ## General
 
@@ -54,21 +59,19 @@ Example:
 ```markdown
 ## Related Issues
 
-- Fixes #123
+- Resolves #123
 - Part of #456
 ```
-
-## Commit Messages & PR Titles
-
-- Describe the change conceptually (e.g., "Add vertex filtering to graph view")
-- Do not use conventional commit prefixes like `docs:`, `feature:`, `refactor:`,
-  `fix:`, etc.
 
 ## Pull Requests
 
 - Always publish pull requests as drafts
+- In the title, describe the changes conceptually (e.g., "Add vertex filtering
+  to graph view")
+- In the title, do not use conventional commit prefixes like `docs:`,
+  `feature:`, `refactor:`, `fix:`, etc
 - Follow the pull request template in `.github/pull_request_template.md`
 - Link to the corresponding issue when one exists (e.g., `Fixes #123`)
-- Keep descriptions concise
+- Keep descriptions concise and focused
 - Include a bulleted list of changes at the conceptual level with reasons for
   each change so reviewers can scan quickly
