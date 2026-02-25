@@ -2,30 +2,37 @@ import { Tabs as TabsPrimitive } from "radix-ui";
 import { Resizable } from "re-resizable";
 import { type PropsWithChildren, useState } from "react";
 
-import { DetailsIcon } from "@/components";
+import { DetailsIcon, EdgeIcon, GraphIcon } from "@/components";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/Tooltip";
+import { useTranslations } from "@/hooks";
 import { cn, LABELS } from "@/utils";
 
 import type { SchemaGraphSelection } from "../SchemaGraph";
 
 import { SchemaDetailsContent } from "./SchemaDetailsContent";
+import { SchemaEdgesStyling } from "./SchemaEdgesStyling";
 import {
   DEFAULT_SCHEMA_SIDEBAR_WIDTH,
   useSchemaExplorerSidebarSize,
 } from "./schemaExplorerLayout";
+import { SchemaNodesStyling } from "./SchemaNodesStyling";
 
 export type SchemaExplorerSidebarProps = {
   selection: SchemaGraphSelection;
 };
 
-/** Resizable sidebar for schema graph with details tab */
+/** Resizable sidebar for schema graph with details, node styling, and edge styling tabs */
 export function SchemaExplorerSidebar({
   selection,
 }: SchemaExplorerSidebarProps) {
+  const t = useTranslations();
+  const [activeTab, setActiveTab] = useState("details");
+
   return (
     <ResizableSidebarContainer>
       <SidebarTabs
-        value="details"
+        value={activeTab}
+        onValueChange={setActiveTab}
         orientation="vertical"
         className="bg-background-default shadow-primary-dark/25 grid min-h-0 flex-none shrink-0 shadow"
       >
@@ -36,9 +43,27 @@ export function SchemaExplorerSidebar({
           >
             <DetailsIcon />
           </SidebarTabsTrigger>
+          <SidebarTabsTrigger
+            value="nodes-styling"
+            title={t("nodes-styling.title")}
+          >
+            <GraphIcon />
+          </SidebarTabsTrigger>
+          <SidebarTabsTrigger
+            value="edges-styling"
+            title={t("edges-styling.title")}
+          >
+            <EdgeIcon />
+          </SidebarTabsTrigger>
         </SidebarTabsList>
         <SidebarTabsContent value="details">
           <SchemaDetailsContent selection={selection} />
+        </SidebarTabsContent>
+        <SidebarTabsContent value="nodes-styling">
+          <SchemaNodesStyling />
+        </SidebarTabsContent>
+        <SidebarTabsContent value="edges-styling">
+          <SchemaEdgesStyling />
         </SidebarTabsContent>
       </SidebarTabs>
     </ResizableSidebarContainer>

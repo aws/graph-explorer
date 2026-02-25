@@ -9,6 +9,8 @@ import {
 } from "@/components";
 import { GraphProvider } from "@/components/Graph";
 import { useConfiguration } from "@/core";
+import { EdgeStyleDialog } from "@/modules/EdgesStyling";
+import { NodeStyleDialog } from "@/modules/NodesStyling";
 import { SchemaGraph } from "@/modules/SchemaGraph";
 
 export default function SchemaExplorer() {
@@ -31,6 +33,8 @@ export default function SchemaExplorer() {
           <GraphProvider>
             <SchemaGraph />
           </GraphProvider>
+          <NodeStyleDialog />
+          <EdgeStyleDialog />
         </SchemaDiscoveryBoundary>
       </WorkspaceContent>
     </Workspace>
