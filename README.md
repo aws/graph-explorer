@@ -63,8 +63,9 @@ databases:
   - Show or hide individual nodes & edges
   - Filtered nodes and edges will fade in the graph view
   - Export table to CSV or JSON file
-- **Data Explorer** - Examine specific node types and send nodes to the graph
-  view
+- **Schema Explorer** - View node types and their relationships as a graph
+- **Data Explorer** - Examine specific node types, export data, and send nodes
+  to the graph view
 
 For complete documentation on all features and functionality, please see our
 [detailed features guide](./additionaldocs/features/README.md).

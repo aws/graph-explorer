@@ -1,7 +1,8 @@
 # Features
 
 If you are interested in where Graph Explorer is headed in the future then check
-out our [roadmap](../../ROADMAP.md) and participate in the discussions.
+out our [roadmap](../../ROADMAP.md) and
+[participate in the discussions](https://github.com/aws/graph-explorer/discussions).
 
 ## Settings UI
 
@@ -29,9 +30,9 @@ In the _About_ page you can see the version number and submit any feedback.
 ## Connections UI
 
 You can create and manage connections to graph databases using this feature.
-Connections is accessible as the first screen after deploying the application,
-when you click `Open Connections` on the top-right. Click `+` on the top-right
-to add a new connection. You can also edit and delete connections.
+Connections is accessible as the first screen after deploying the application or
+by clicking `Connections` in the navigation bar. Click `+` on the top-right to
+add a new connection. You can also edit and delete connections.
 
 - **Add a new connection:**
   - **Name:** Enter a name for your connection (e.g., `MyNeptuneCluster`).
@@ -60,33 +61,31 @@ to add a new connection. You can also edit and delete connections.
 - **Available Connections:** Once a connection is created, this section will
   appear as a left-hand pane. When you create more than one connection to a
   graph database, you can only connect to and visualize from one graph database
-  endpoint at a time. To select the active database, toggle the “Active” switch.
+  endpoint at a time. To select the active database, toggle the "Active" switch.
 
 - **Connection Details:** Once a connection is created, this section will appear
   as a right-hand information pane for a selected connection. It shows details
-  such as the connection name, graph data model type, endpoint and a summary of
-  the graph data, such as the count of nodes, edges, and a list of node types.
+  such as the connection name, query language, endpoint and a summary of the
+  graph data, such as the count of nodes, edges, and a list of node types.
 - **Last Synchronization:** When a connection is created, Graph Explorer will
   perform a scan of the graph to provide summary data. To re-synchronize after
   data has changed on your graph, select a connection, and then click the
-  “refresh” button next to “Last Synchronization” text.
-- **Data Explorer UI:** Under a listed node type, you can click on the ‘>’ arrow
-  to get to the “Data Explorer” view. This allows you to see a sample list of
-  nodes under this type and choose one or more nodes to “Send to Explorer” for
-  getting started quickly if you are new to the data.
+  "refresh" button next to "Last Synchronization" text.
+- **Data Table:** Under a listed node type, you can click on the ">" arrow to
+  get to the "Data Table" view. This allows you to see a sample list of nodes
+  under this type and choose one or more nodes to "Send to Explorer" for getting
+  started quickly if you are new to the data. You can also navigate directly to
+  the Data Table view using the "Data Table" link in the navigation bar.
 
-## Graph Explorer UI
+## Graph View
 
-You can search, browse, expand, customize views of your graph data using Graph
-Explorer, which is the main UI of this application. Once you create a
-connection, you can click “Open Graph Explorer” on the top-right to navigate
-here. There are several key features on this UI:
+You can search, browse, expand, customize views of your graph data using the
+Graph view, which is the main view of this application. Once you create a
+connection, you can click "Graph" in the navigation bar to navigate here. There
+are several key features on this UI:
 
-### Top Bar UI
-
-- **Toggles:** You can toggle to show/hide the Graph View and/or Table View for
-  screen real-estate management.
-- **Open Connections:** This takes the user back to Connections UI.
+- **Toggle view visibility** The graph and table views can be hidden to allow
+  the other to expand.
 
 ### Graph View UI
 
@@ -131,8 +130,8 @@ details about the open graph.
 
 #### Search Panel
 
-Graph Explorer Search UI provides two powerful ways to search and interact with
-your graph database:
+The Search UI provides two powerful ways to search and interact with your graph
+database:
 
 ##### Filter Search
 
@@ -240,12 +239,35 @@ in parentheses):
 - **Default columns** - You can set which columns you want to display
 - Paging of rows
 
-## Data Explorer UI
+## Data Table View
 
-You can use the Data Explorer UI to view the data for the selected node type.
-You can open the Data Explorer by clicking the node type row in the connection
-details pane.
+You can use the Data Table view to view the data for the selected node type. You
+can open the Data Table view by clicking "Data Table" in the navigation bar or
+by clicking the node type row in the connection details pane.
 
+- Select a node type from the dropdown to view its data
 - View tabular data for the selected node type
 - Set the node type display name and description attributes
+- Export the current table data to a CSV or JSON file
 - Send a specific node to the graph view
+
+## Schema View
+
+The Schema view visualizes the schema of your graph database as an interactive
+graph. Node types are displayed as nodes and their relationships (edge
+connections) are displayed as edges between them.
+
+You can open the Schema view by clicking "Schema" in the navigation bar.
+
+- View all node types and their relationships as a graph
+- Select a node type to view its properties and data types
+- Select an edge connection to view its source type, edge type, and target type
+- Choose from multiple graph layout algorithms
+- Take a screenshot of the schema graph
+
+> [!NOTE]
+>
+> The schema and data types shown in the Schema view are inferred from samples
+> of nodes and edges returned by queries. They may not be 100% accurate or
+> complete, especially for large or diverse datasets. As you explore more data,
+> the schema will grow more complete over time.
