@@ -4,7 +4,7 @@ description:
   Handle management of any GitHub related tasks, including creating or modifying
   issues, publishing a branch as a pull requests (or PRs), or creating or
   modifying sub-issues or child issues.
-tools: ["git", "fs_read", "grep", "glob", "web_search"]
+tools: ["git", "gh", "fs_read", "grep", "glob", "web_search", "web_fetch"]
 ---
 
 # GitHub Project Management
@@ -14,6 +14,7 @@ tools: ["git", "fs_read", "grep", "glob", "web_search"]
 - Use the `gh` CLI for all GitHub operations when possible
 - Never delete or change the status of issues or pull requests unless explicitly
   requested
+- Never mention CVEs or security issues/fixes unless explicitly asked
 
 ## Issues
 
@@ -66,6 +67,7 @@ Example:
 ## Pull Requests
 
 - Always publish pull requests as drafts
+- Always setup tracking when publishing a branch to a remote
 - In the title, describe the changes conceptually (e.g., "Add vertex filtering
   to graph view")
 - In the title, do not use conventional commit prefixes like `docs:`,
