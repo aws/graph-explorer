@@ -18,13 +18,13 @@ import { LABELS } from "@/utils";
 
 import {
   Details,
-  DetailsDescription,
   DetailsHeader,
   DetailsTitle,
   DetailsValue,
   EdgeConnectionRow,
   PropertiesDetails,
 } from "./Details";
+import { SchemaDiscoveryAlert } from "./SchemaDiscoveryAlert";
 
 export type EdgeConnectionDetailsProps = {
   edgeConnection: EdgeConnection;
@@ -65,14 +65,13 @@ export function EdgeConnectionDetails({
         <Details>
           <DetailsHeader>
             <DetailsTitle>{t("edge-connection")}</DetailsTitle>
-            <DetailsDescription>
-              The currently selected {t("edge-connection").toLowerCase()}.
-            </DetailsDescription>
           </DetailsHeader>
           <EdgeConnectionRow edgeConnection={edgeConnection} />
         </Details>
 
         <PropertiesDetails attributes={config.attributes} />
+
+        <SchemaDiscoveryAlert />
       </PanelContent>
     </Panel>
   );

@@ -7,6 +7,7 @@ import {
   EmptyState,
   EmptyStateContent,
   EmptyStateDescription,
+  EmptyStateIcon,
   EmptyStateTitle,
   toHumanString,
 } from "@/components";
@@ -24,7 +25,7 @@ import { ASCII, cn } from "@/utils";
 
 /** Container for a detail section with consistent vertical spacing. */
 export function Details({ className, ...props }: ComponentPropsWithRef<"div">) {
-  return <div className={cn("space-y-5", className)} {...props} />;
+  return <div className={cn("space-y-3", className)} {...props} />;
 }
 
 /** Groups a title and optional description or value with tight spacing. */
@@ -42,20 +43,7 @@ export function DetailsTitle({
 }: ComponentPropsWithRef<"h2">) {
   return (
     <h2
-      className={cn("text-text-primary text-base/7 font-bold", className)}
-      {...props}
-    />
-  );
-}
-
-/** Muted description text for a detail section. */
-export function DetailsDescription({
-  className,
-  ...props
-}: ComponentPropsWithRef<"p">) {
-  return (
-    <p
-      className={cn("text-muted-foreground text-sm/6 text-pretty", className)}
+      className={cn("text-foreground text-base/7 font-bold", className)}
       {...props}
     />
   );
@@ -91,21 +79,19 @@ export function PropertiesDetails({
   return (
     <Details>
       <DetailsHeader>
-        <DetailsTitle className="flex justify-between gap-2">
+        <DetailsTitle className="flex gap-2">
           {t("properties")}
-          <Chip variant="neutral-subtle">
+          <Chip variant="neutral-subtle" className="ml-auto">
             {toHumanString(attributes.length)}
           </Chip>
         </DetailsTitle>
-        <DetailsDescription>
-          {t("properties")} and their data types, which are inferred from query
-          responses.
-        </DetailsDescription>
       </DetailsHeader>
       <div>
         {attributes.length === 0 ? (
-          <EmptyState className="pt-8">
-            <ListIcon className="text-muted-foreground mb-4 size-8 opacity-50" />
+          <EmptyState className="pt-8" size="small">
+            <EmptyStateIcon variant="subtle">
+              <ListIcon />
+            </EmptyStateIcon>
             <EmptyStateContent>
               <EmptyStateTitle>No {t("properties")}</EmptyStateTitle>
               <EmptyStateDescription>

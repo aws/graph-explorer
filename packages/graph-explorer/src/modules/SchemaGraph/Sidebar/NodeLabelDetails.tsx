@@ -20,13 +20,13 @@ import { LABELS } from "@/utils";
 
 import {
   Details,
-  DetailsDescription,
   DetailsHeader,
   DetailsTitle,
   DetailsValue,
   EdgeConnectionRow,
   PropertiesDetails,
 } from "./Details";
+import { SchemaDiscoveryAlert } from "./SchemaDiscoveryAlert";
 
 export type NodeLabelDetailsProps = {
   vertexType: VertexType;
@@ -69,10 +69,6 @@ export function NodeLabelDetails({
         <Details>
           <DetailsHeader>
             <DetailsTitle>{t("edge-connections")}</DetailsTitle>
-            <DetailsDescription>
-              All discovered {t("edge-connections").toLowerCase()} related to
-              this {t("node-type").toLowerCase()}.
-            </DetailsDescription>
           </DetailsHeader>
           <ul className="space-y-3">
             {edgeConnections?.map(edgeConnection => (
@@ -93,6 +89,8 @@ export function NodeLabelDetails({
         </Details>
 
         <PropertiesDetails attributes={config.attributes} />
+
+        <SchemaDiscoveryAlert />
       </PanelContent>
     </Panel>
   );

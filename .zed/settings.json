@@ -1,0 +1,10 @@
+{
+  "lsp": {
+    "tailwindcss-language-server": {
+      "settings": {
+        "rootFontSize": 14,
+        "classFunctions": ["cva", "cn"]
+      }
+    }
+  }
+}
