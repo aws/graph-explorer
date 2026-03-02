@@ -34,6 +34,8 @@ export function edgeConnectionsQuery(edgeTypes: EdgeType[]) {
       const store = getStore(meta);
 
       if (sortedEdgeTypes.length === 0) {
+        // Still persist empty array to distinguish "no connections found" from "not yet discovered"
+        store.set(setEdgeConnectionsAtom, []);
         return [];
       }
 

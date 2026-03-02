@@ -221,40 +221,32 @@ describe("edgeConnectionsQuery", () => {
     ]);
   });
 
-  it("should not update store when query returns early with empty edge types", async () => {
+  it("should set empty array in store when query has no edge types", async () => {
     const explorer = new FakeExplorer();
     const state = new DbState(explorer);
     const store = getAppStore();
+
+    // Explicitly set edgeConnections to undefined to test the fix
+    state.activeSchema.edgeConnections = undefined;
     state.applyTo(store);
 
-    // Set up initial edge connection
-    const sourceType = createVertexType("Person");
-    const targetType = createVertexType("Company");
-    const source = createTestableVertex().with({ types: [sourceType] });
-    const target = createTestableVertex().with({ types: [targetType] });
-    const edge = createTestableEdge().withSource(source).withTarget(target);
-    explorer.addTestableEdge(edge);
+    // Verify initial state has undefined edge connections
+    let schemaMap = store.get(schemaAtom);
+    let activeSchema = schemaMap.get(state.activeConfig.id);
+    expect(activeSchema?.edgeConnections).toBeUndefined();
 
     const queryClient = createQueryClient();
 
-    // First query to populate edge connections
-    await queryClient.fetchQuery(edgeConnectionsQuery([edge.type]));
-
-    // Verify initial state has edge connections
-    let schemaMap = store.get(schemaAtom);
-    let activeSchema = schemaMap.get(state.activeConfig.id);
-    expect(activeSchema?.edgeConnections).toHaveLength(1);
-
-    // Query with empty edge types returns early without updating store
+    // Query with empty edge types should persist empty array
     const result = await queryClient.fetchQuery(edgeConnectionsQuery([]));
 
     // Query returns empty array
     expect(result).toStrictEqual([]);
 
-    // But store is not updated - existing edge connections remain
+    // Store is updated with empty array to indicate "discovered but no connections"
     schemaMap = store.get(schemaAtom);
     activeSchema = schemaMap.get(state.activeConfig.id);
-    expect(activeSchema?.edgeConnections).toHaveLength(1);
+    expect(activeSchema?.edgeConnections).toStrictEqual([]);
   });
 
   it("should set lastEdgeConnectionSyncFail when query fails", async () => {
@@ -307,6 +299,34 @@ describe("edgeConnectionsQuery", () => {
     const activeSchema = schemaMap.get(state.activeConfig.id);
     expect(activeSchema?.lastEdgeConnectionSyncFail).toBe(false);
     expect(activeSchema?.edgeConnections).toHaveLength(1);
+  });
+
+  it("should distinguish between undefined (not discovered) and empty array (no connections)", async () => {
+    const explorer = new FakeExplorer();
+    const state = new DbState(explorer);
+    const store = getAppStore();
+
+    // Start with undefined edgeConnections (not yet discovered)
+    state.activeSchema.edgeConnections = undefined;
+    state.applyTo(store);
+
+    let schemaMap = store.get(schemaAtom);
+    let activeSchema = schemaMap.get(state.activeConfig.id);
+
+    // undefined means edge connections have not been discovered yet
+    expect(activeSchema?.edgeConnections).toBeUndefined();
+
+    const queryClient = createQueryClient();
+
+    // Query with empty edge types (empty database scenario)
+    await queryClient.fetchQuery(edgeConnectionsQuery([]));
+
+    schemaMap = store.get(schemaAtom);
+    activeSchema = schemaMap.get(state.activeConfig.id);
+
+    // Empty array means discovery succeeded but found no connections
+    expect(activeSchema?.edgeConnections).toStrictEqual([]);
+    expect(activeSchema?.edgeConnections).not.toBeUndefined();
   });
 
   it("should preserve existing edgeConnections when query fails", async () => {
