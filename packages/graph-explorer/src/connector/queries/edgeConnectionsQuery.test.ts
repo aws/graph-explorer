@@ -4,6 +4,7 @@ import { createEdgeType, createVertexType, schemaAtom } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import { getAppStore } from "@/core/StateProvider/appStore";
 import {
+  createRandomEdgeConnection,
   createRandomEdgeTypeConfig,
   createTestableEdge,
   createTestableVertex,
@@ -306,5 +307,34 @@ describe("edgeConnectionsQuery", () => {
     const activeSchema = schemaMap.get(state.activeConfig.id);
     expect(activeSchema?.lastEdgeConnectionSyncFail).toBe(false);
     expect(activeSchema?.edgeConnections).toHaveLength(1);
+  });
+
+  it("should preserve existing edgeConnections when query fails", async () => {
+    const explorer = new FakeExplorer();
+    const state = new DbState(explorer);
+    const store = getAppStore();
+
+    const existingEdgeConnections = [createRandomEdgeConnection()];
+    const edge = createRandomEdgeTypeConfig();
+    state.activeSchema.edges = [edge];
+    state.activeSchema.edgeConnections = existingEdgeConnections;
+    state.applyTo(store);
+
+    vi.spyOn(explorer, "fetchEdgeConnections").mockRejectedValue(
+      new Error("Network error"),
+    );
+
+    const queryClient = createQueryClient();
+
+    await expect(
+      queryClient.fetchQuery(edgeConnectionsQuery([edge.type])),
+    ).rejects.toThrow();
+
+    const schemaMap = store.get(schemaAtom);
+    const activeSchema = schemaMap.get(state.activeConfig.id);
+    expect(activeSchema?.lastEdgeConnectionSyncFail).toBe(true);
+    expect(activeSchema?.edgeConnections).toStrictEqual(
+      existingEdgeConnections,
+    );
   });
 });

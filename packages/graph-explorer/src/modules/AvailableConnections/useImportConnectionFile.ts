@@ -42,6 +42,7 @@ export function useImportConnectionFile() {
           updatedSchema.set(newId, {
             vertices: fileContent.schema?.vertices || [],
             edges: fileContent.schema?.edges || [],
+            edgeConnections: fileContent.schema?.edgeConnections,
             prefixes: fileContent.schema?.prefixes?.map(prefix => ({
               ...prefix,
               __matches: new Set(prefix.__matches || []),
