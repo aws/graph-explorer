@@ -1,6 +1,10 @@
 ---
-inclusion: fileMatch
-fileMatchPattern: "**/{*.test.{ts,tsx},setupTests.ts}"
+name: testing
+description:
+  Testing standards, patterns, and utilities for Graph Explorer including
+  Vitest, DbState, renderHookWithState, test data factories, SPARQL test
+  helpers, and backward compatibility testing for persisted data.
+tools: ["fs_read", "code", "grep", "glob", "web_search", "web_fetch"]
 ---
 
 # Testing Standards & Best Practices
@@ -24,6 +28,11 @@ import { createRandomName, createRandomInteger } from "@shared/utils/testing";
 - Prefer `DbState` over manual state management
 - Prefer tests that limit mocks to external systems
 - Always check `setupTests.ts` for global setup to avoid duplication
+
+- Tests are co-located with source files (`*.test.ts` or `*.test.tsx`)
+- Test utilities are in `src/utils/testing/` or `src/connector/testUtils/`
+- Use Vitest for unit and integration tests
+- Mock external dependencies and focus on component behavior
 
 ## Test Data Creation
 
@@ -439,8 +448,7 @@ styling, configuration, or type-only changes.
 
 ### Type Annotations
 
-- Use explicit type aliases instead of `ReturnType<typeof ...>` when available
-- Example: Use `AppStore` instead of `ReturnType<typeof getAppStore>`
+- For type annotation conventions, refer to `.kiro/skills/typescript/SKILL.md`
 
 ### Data Isolation
 
