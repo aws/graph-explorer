@@ -346,4 +346,67 @@ describe("useImportConnectionFile", () => {
     expect(importedSchema?.edges[0].type).toBe("worksAt");
     expect(importedSchema?.edges[1].type).toBe("knows");
   });
+
+  test("should import edgeConnections from file", async () => {
+    const state = new DbState();
+    const { result } = renderHookWithState(
+      () => useImportConnectionFile(),
+      state,
+    );
+
+    const validConfig = {
+      id: createNewConfigurationId(),
+      displayLabel: createRandomName("Config"),
+      connection: {
+        url: createRandomUrlString(),
+        queryEngine: "gremlin" as const,
+      },
+      schema: {
+        totalVertices: 0,
+        vertices: [],
+        totalEdges: 0,
+        edges: [],
+        edgeConnections: [
+          {
+            edgeType: "knows",
+            sourceVertexType: "Person",
+            targetVertexType: "Person",
+          },
+          {
+            edgeType: "worksAt",
+            sourceVertexType: "Person",
+            targetVertexType: "Company",
+            count: 42,
+          },
+        ],
+      },
+    };
+
+    const file = new File([JSON.stringify(validConfig)], "connection.json", {
+      type: "application/json",
+    });
+
+    await act(async () => {
+      await result.current(file);
+    });
+
+    const schemas = getAppStore().get(schemaAtom);
+    const importedSchema = Array.from(schemas.values()).find(
+      (_, index) => index === 1,
+    );
+
+    expect(importedSchema?.edgeConnections).toStrictEqual([
+      {
+        edgeType: "knows",
+        sourceVertexType: "Person",
+        targetVertexType: "Person",
+      },
+      {
+        edgeType: "worksAt",
+        sourceVertexType: "Person",
+        targetVertexType: "Company",
+        count: 42,
+      },
+    ]);
+  });
 });

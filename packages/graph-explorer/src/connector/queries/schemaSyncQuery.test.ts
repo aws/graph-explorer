@@ -314,4 +314,37 @@ describe("schemaSyncQuery", () => {
     expect(result.totalVertices).toBe(100);
     expect(result.totalEdges).toBe(50);
   });
+
+  it("should preserve existing edgeConnections on failure", async () => {
+    const activeConfigId = store.get(activeConfigurationAtom)!;
+    const existingEdgeConnections = [createRandomEdgeConnection()];
+    store.set(schemaAtom, prev => {
+      const updated = new Map(prev);
+      updated.set(activeConfigId, {
+        vertices: [],
+        edges: [],
+        edgeConnections: existingEdgeConnections,
+      });
+      return updated;
+    });
+
+    const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
+    fetchSchemaSpy.mockRejectedValue(new Error("Network error"));
+
+    const queryClient = createQueryClient();
+    queryClient.setDefaultOptions({
+      ...queryClient.getDefaultOptions(),
+      queries: { ...queryClient.getDefaultOptions().queries, retry: false },
+    });
+
+    await expect(queryClient.fetchQuery(schemaSyncQuery())).rejects.toThrow(
+      "Network error",
+    );
+
+    const storedSchema = store.get(schemaAtom).get(activeConfigId);
+    expect(storedSchema?.lastSyncFail).toBe(true);
+    expect(storedSchema?.edgeConnections).toStrictEqual(
+      existingEdgeConnections,
+    );
+  });
 });
