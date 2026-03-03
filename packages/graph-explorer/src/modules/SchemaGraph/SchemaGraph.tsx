@@ -1,7 +1,12 @@
 import { atom, useAtomValue } from "jotai";
 import { type ComponentPropsWithRef, type MouseEvent, useState } from "react";
 
-import { Panel, PanelContent, PanelEmptyState, PanelGroup } from "@/components";
+import {
+  NoNodeTypesEmptyState,
+  Panel,
+  PanelContent,
+  PanelGroup,
+} from "@/components";
 import {
   Graph,
   type LayoutName,
@@ -82,11 +87,7 @@ export default function SchemaGraph({ className, ...props }: SchemaGraphProps) {
           <SchemaGraphToolbar />
           <PanelContent className="bg-background-secondary size-full min-h-0 min-w-0">
             {!hasSchemaData ? (
-              <PanelEmptyState
-                title="No Schema Data"
-                subtitle="Synchronize your connection to discover the schema."
-                className="p-6"
-              />
+              <NoNodeTypesEmptyState />
             ) : (
               <Graph
                 nodes={nodes}

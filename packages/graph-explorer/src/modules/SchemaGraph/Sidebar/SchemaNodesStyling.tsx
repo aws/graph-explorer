@@ -3,6 +3,7 @@ import { Fragment } from "react/jsx-runtime";
 
 import {
   Divider,
+  NoNodeTypesEmptyState,
   Panel,
   PanelContent,
   PanelHeader,
@@ -23,19 +24,23 @@ export function SchemaNodesStyling() {
         <PanelTitle>{t("nodes-styling.title")}</PanelTitle>
       </PanelHeader>
       <PanelContent className="gap-2">
-        <Virtuoso
-          className="h-full grow"
-          data={vtConfigs}
-          itemContent={(index, vtConfig) => (
-            <Fragment key={vtConfig.type}>
-              {index !== 0 ? <Divider /> : null}
-              <SingleNodeStyling
-                vertexType={vtConfig.type}
-                className="px-3 pt-2 pb-3"
-              />
-            </Fragment>
-          )}
-        />
+        {vtConfigs.length === 0 ? (
+          <NoNodeTypesEmptyState />
+        ) : (
+          <Virtuoso
+            className="h-full grow"
+            data={vtConfigs}
+            itemContent={(index, vtConfig) => (
+              <Fragment key={vtConfig.type}>
+                {index !== 0 ? <Divider /> : null}
+                <SingleNodeStyling
+                  vertexType={vtConfig.type}
+                  className="px-3 pt-2 pb-3"
+                />
+              </Fragment>
+            )}
+          />
+        )}
       </PanelContent>
     </Panel>
   );

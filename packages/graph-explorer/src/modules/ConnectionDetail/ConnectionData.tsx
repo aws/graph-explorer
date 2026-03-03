@@ -8,6 +8,7 @@ import {
   ListRowContent,
   ListRowSubtitle,
   ListRowTitle,
+  NoNodeTypesEmptyState,
   PanelEmptyState,
   SearchBar,
   useSearchItems,
@@ -34,10 +35,7 @@ export default function ConnectionData() {
   if (!vtConfigs.length) {
     return (
       <Layout>
-        <PanelEmptyState
-          title={t("connection-detail.no-elements-title")}
-          subtitle={t("connection-detail.no-elements-subtitle")}
-        />
+        <NoNodeTypesEmptyState />
       </Layout>
     );
   }
