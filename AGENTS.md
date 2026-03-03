@@ -21,6 +21,28 @@
 - For product overview and architecture, refer to
   `.kiro/skills/product/SKILL.md`
 
+## Monorepo Commands
+
+- **Always run commands from the project root** — never `cd` into a subfolder
+- Only use scripts defined in the root `package.json`
+- Use `pnpm` as the package manager
+
+### Examples
+
+```bash
+# All checks (lint, format, types)
+pnpm run checks
+
+# All tests
+pnpm test
+
+# Single test file
+pnpm test packages/graph-explorer/src/path/to/file.test.ts
+
+# Test name pattern match
+pnpm test -- -t "pattern"
+```
+
 # Project Organization
 
 ## Key Architectural Patterns
