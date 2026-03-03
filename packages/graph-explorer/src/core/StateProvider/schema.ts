@@ -99,8 +99,8 @@ export const activeSchemaAtom = atom(get => {
  * it has been populated from a database schema query at least once.
  */
 export function useHasActiveSchema() {
-  const activeSchema = useAtomValue(activeSchemaAtom);
-  return !!activeSchema.lastUpdate;
+  const activeSchema = useAtomValue(maybeActiveSchemaAtom);
+  return !!activeSchema?.lastUpdate;
 }
 
 /** Gets the stored active schema or a default empty schema */

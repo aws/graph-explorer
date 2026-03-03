@@ -1,7 +1,13 @@
 import { act, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createEdgeType, createVertexType, type EdgeConnection } from "@/core";
+import {
+  createEdgeType,
+  createVertexType,
+  type EdgeConnection,
+  schemaAtom,
+} from "@/core";
+import { getAppStore } from "@/core/StateProvider/appStore";
 import {
   createRandomEdgeTypeConfig,
   createRandomVertexTypeConfig,
@@ -85,7 +91,7 @@ describe("useSchemaSync", () => {
       );
     });
 
-    it("should not call explorer when schema has no edges", () => {
+    it("should not call explorer when schema has no edges", async () => {
       const state = createStateWithSchema([], []);
 
       const fetchEdgeConnectionsSpy = vi.spyOn(
@@ -95,7 +101,13 @@ describe("useSchemaSync", () => {
 
       renderHookWithState(() => useSchemaSync(), state);
 
-      // Query is enabled but returns early without calling explorer
+      const store = getAppStore();
+
+      await waitFor(() => {
+        const activeSchema = store.get(schemaAtom).get(state.activeConfig.id);
+        expect(activeSchema?.edgeConnections).toStrictEqual([]);
+      });
+
       expect(fetchEdgeConnectionsSpy).not.toHaveBeenCalled();
     });
 
@@ -161,7 +173,7 @@ describe("useSchemaSync", () => {
       expect(fetchEdgeConnectionsSpy).not.toHaveBeenCalled();
     });
 
-    it("should filter initialData to match requested edge types", () => {
+    it("should use all edge connections as initialData without filtering", () => {
       const edgeType1 = createEdgeType("knows");
       const edgeType2 = createEdgeType("worksAt");
       const sourceType = createVertexType("Person");
@@ -187,13 +199,9 @@ describe("useSchemaSync", () => {
 
       const { result } = renderHookWithState(() => useSchemaSync(), state);
 
-      expect(result.current.edgeDiscoveryQuery.data).toStrictEqual([
-        {
-          edgeType: edgeType1,
-          sourceVertexType: sourceType,
-          targetVertexType: targetType,
-        },
-      ]);
+      expect(result.current.edgeDiscoveryQuery.data).toStrictEqual(
+        existingConnections,
+      );
     });
   });
 

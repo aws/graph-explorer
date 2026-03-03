@@ -18,7 +18,7 @@ import {
   vertexTypeConfigSelector,
 } from "@/core";
 import { type TextTransformer, textTransformSelector } from "@/hooks";
-import { LABELS, logger, SEARCH_TOKENS } from "@/utils";
+import { LABELS, SEARCH_TOKENS } from "@/utils";
 
 import { sortAttributeByName } from "./sortAttributeByName";
 
@@ -184,7 +184,6 @@ export function mapToDisplayEdgeTypeConfig(
   preferences: EdgePreferences,
   textTransform: TextTransformer,
 ): DisplayEdgeTypeConfig {
-  logger.debug("Creating display edge type config", typeConfig.type);
   const displayLabel =
     preferences.displayLabel ||
     textTransform(typeConfig.type) ||

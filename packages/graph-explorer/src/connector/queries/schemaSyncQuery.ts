@@ -2,7 +2,11 @@ import { queryOptions } from "@tanstack/react-query";
 import { atom } from "jotai";
 
 import { activeConfigurationAtom, schemaAtom } from "@/core";
-import { updateSchemaPrefixes } from "@/core/StateProvider/schema";
+import {
+  activeSchemaAtom,
+  type SchemaStorageModel,
+  updateSchemaPrefixes,
+} from "@/core/StateProvider/schema";
 import { logger } from "@/utils";
 
 import type { SchemaResponse } from "../useGEFetchTypes";
@@ -18,10 +22,13 @@ import { getExplorer, getStore } from "./helpers";
  * On failure, persists `lastSyncFail` so the UI can show the failure after
  * a browser refresh and automatic retry is suppressed.
  */
-export function schemaSyncQuery() {
+export function schemaSyncQuery(activeSchema: SchemaStorageModel | undefined) {
   return queryOptions({
     queryKey: ["schema", "discovery"],
     staleTime: Infinity,
+    initialData: activeSchema,
+    // Don't automatically retry if the last sync failed (persisted across sessions)
+    enabled: !activeSchema?.lastSyncFail,
     queryFn: async ({ signal, meta }) => {
       const explorer = getExplorer(meta);
       const store = getStore(meta);
@@ -34,9 +41,12 @@ export function schemaSyncQuery() {
 
         // Persist the schema to the local cache
         store.set(replaceSchemaAtom, schema);
-
-        return schema;
+        const newSchema = store.get(activeSchemaAtom);
+        return newSchema;
       } catch (error) {
+        if (signal.aborted) {
+          throw error;
+        }
         store.set(setSyncFailedAtom);
         throw error;
       }
@@ -53,11 +63,13 @@ const replaceSchemaAtom = atom(null, (get, set, schema: SchemaResponse) => {
   }
 
   set(schemaAtom, prev => {
-    const existing = prev.get(id);
     const updated = new Map(prev);
     updated.set(id, {
       ...schema,
-      edgeConnections: existing?.edgeConnections,
+      // Reset edge connection information during schema sync
+      edgeConnections: undefined,
+      lastEdgeConnectionSyncFail: false,
+      // Mark as completed successfully
       lastUpdate: new Date(),
       lastSyncFail: false,
     });

@@ -39,16 +39,7 @@ export function SchemaDiscoveryBoundary({
   const cancel = useCancelSchemaSync();
   const t = useTranslations();
 
-  // 1. If data exists, render children
-  const hasRequiredData = requireEdgeConnections
-    ? hasSchema && schema?.edgeConnections != null
-    : hasSchema;
-
-  if (hasRequiredData) {
-    return children;
-  }
-
-  // 2. If loading/fetching, show loading state
+  // 1. If loading/fetching, show loading state
   if (isFetching) {
     return (
       <Layout>
@@ -63,6 +54,15 @@ export function SchemaDiscoveryBoundary({
         />
       </Layout>
     );
+  }
+
+  // 2. If data exists, render children
+  const hasRequiredData = requireEdgeConnections
+    ? hasSchema && schema?.edgeConnections != null
+    : hasSchema;
+
+  if (hasRequiredData) {
+    return children;
   }
 
   // 3. If error, show error state

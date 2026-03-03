@@ -99,7 +99,7 @@ describe("SchemaDiscoveryBoundary", () => {
       expect(screen.queryByText("Schema content")).not.toBeInTheDocument();
     });
 
-    test("renders children when isFetching with existing schema", () => {
+    test("renders loading state when isFetching with existing schema", () => {
       mockSchema({ hasSchema: true });
       mockedUseSchemaSync.mockReturnValue(
         createMockSchemaSync({ isFetching: true }),
@@ -111,8 +111,8 @@ describe("SchemaDiscoveryBoundary", () => {
         </SchemaDiscoveryBoundary>,
       );
 
-      expect(screen.getByText("Schema content")).toBeInTheDocument();
-      expect(screen.queryByText("Synchronizing...")).not.toBeInTheDocument();
+      expect(screen.getByText("Synchronizing...")).toBeInTheDocument();
+      expect(screen.queryByText("Schema content")).not.toBeInTheDocument();
     });
 
     test("renders error state when schema sync fails", () => {

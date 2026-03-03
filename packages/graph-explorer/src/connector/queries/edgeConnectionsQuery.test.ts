@@ -1,5 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
+import type {
+  EdgeConnectionsRequest,
+  ExplorerRequestOptions,
+} from "@/connector/useGEFetchTypes";
+import type { SchemaStorageModel } from "@/core/StateProvider/schema";
+
 import { createEdgeType, createVertexType, schemaAtom } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import { getAppStore } from "@/core/StateProvider/appStore";
@@ -14,21 +20,42 @@ import {
 
 import { edgeConnectionsQuery } from "./edgeConnectionsQuery";
 
+/** Creates a minimal SchemaStorageModel with the given edge types. */
+function createSchemaWithEdges(
+  ...edgeTypes: ReturnType<typeof createEdgeType>[]
+): SchemaStorageModel {
+  return {
+    vertices: [],
+    edges: edgeTypes.map(type => ({ type, attributes: [] })),
+  };
+}
+
 describe("edgeConnectionsQuery", () => {
-  it("should return empty array when no edge types provided", async () => {
+  it("should return empty array and persist to store when no edge types provided", async () => {
     const explorer = new FakeExplorer();
     const state = new DbState(explorer);
     const store = getAppStore();
+    state.activeSchema.edgeConnections = undefined;
     state.applyTo(store);
 
     const fetchEdgeConnectionsSpy = vi.spyOn(explorer, "fetchEdgeConnections");
     const queryClient = createQueryClient();
 
-    const result = await queryClient.fetchQuery(edgeConnectionsQuery([]));
+    const result = await queryClient.fetchQuery(
+      edgeConnectionsQuery(createSchemaWithEdges()),
+    );
 
     expect(result).toStrictEqual([]);
-    // Should not call explorer when no edge types provided
     expect(fetchEdgeConnectionsSpy).not.toHaveBeenCalled();
+
+    const schemaMap = store.get(schemaAtom);
+    const activeSchema = schemaMap.get(state.activeConfig.id);
+    expect(activeSchema?.edgeConnections).toStrictEqual([]);
+  });
+
+  it("should be disabled when activeSchema is undefined", () => {
+    const options = edgeConnectionsQuery(undefined);
+    expect(options.enabled).toBe(false);
   });
 
   it("should return edge connections for requested edge types", async () => {
@@ -49,7 +76,7 @@ describe("edgeConnectionsQuery", () => {
     const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(
-      edgeConnectionsQuery([edge.type]),
+      edgeConnectionsQuery(createSchemaWithEdges(edge.type)),
     );
 
     expect(result).toStrictEqual([
@@ -74,7 +101,9 @@ describe("edgeConnectionsQuery", () => {
     const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(
-      edgeConnectionsQuery([createEdgeType("nonexistent")]),
+      edgeConnectionsQuery(
+        createSchemaWithEdges(createEdgeType("nonexistent")),
+      ),
     );
 
     expect(result).toStrictEqual([]);
@@ -93,7 +122,9 @@ describe("edgeConnectionsQuery", () => {
     const queryClient = createQueryClient();
 
     await expect(
-      queryClient.fetchQuery(edgeConnectionsQuery([createEdgeType("test")])),
+      queryClient.fetchQuery(
+        edgeConnectionsQuery(createSchemaWithEdges(createEdgeType("test"))),
+      ),
     ).rejects.toThrow("Network error");
   });
 
@@ -125,7 +156,7 @@ describe("edgeConnectionsQuery", () => {
     const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(
-      edgeConnectionsQuery([edge1.type, edge2.type]),
+      edgeConnectionsQuery(createSchemaWithEdges(edge1.type, edge2.type)),
     );
 
     expect(result).toHaveLength(2);
@@ -146,7 +177,9 @@ describe("edgeConnectionsQuery", () => {
 
     const queryClient = createQueryClient();
 
-    await queryClient.fetchQuery(edgeConnectionsQuery([edge.type]));
+    await queryClient.fetchQuery(
+      edgeConnectionsQuery(createSchemaWithEdges(edge.type)),
+    );
 
     const schemaMap = store.get(schemaAtom);
     const activeSchema = schemaMap.get(state.activeConfig.id);
@@ -183,7 +216,9 @@ describe("edgeConnectionsQuery", () => {
     const queryClient = createQueryClient();
 
     // First query to populate edge connections
-    await queryClient.fetchQuery(edgeConnectionsQuery([initialEdge.type]));
+    await queryClient.fetchQuery(
+      edgeConnectionsQuery(createSchemaWithEdges(initialEdge.type)),
+    );
 
     // Verify initial state
     let schemaMap = store.get(schemaAtom);
@@ -207,7 +242,9 @@ describe("edgeConnectionsQuery", () => {
     explorer.addTestableEdge(newEdge);
 
     // Second query with different edge type should overwrite
-    await queryClient.fetchQuery(edgeConnectionsQuery([newEdge.type]));
+    await queryClient.fetchQuery(
+      edgeConnectionsQuery(createSchemaWithEdges(newEdge.type)),
+    );
 
     // Verify edge connections were overwritten, not merged
     schemaMap = store.get(schemaAtom);
@@ -221,7 +258,7 @@ describe("edgeConnectionsQuery", () => {
     ]);
   });
 
-  it("should not update store when query returns early with empty edge types", async () => {
+  it("should update store to empty array when query runs with empty edge types", async () => {
     const explorer = new FakeExplorer();
     const state = new DbState(explorer);
     const store = getAppStore();
@@ -238,23 +275,58 @@ describe("edgeConnectionsQuery", () => {
     const queryClient = createQueryClient();
 
     // First query to populate edge connections
-    await queryClient.fetchQuery(edgeConnectionsQuery([edge.type]));
+    await queryClient.fetchQuery(
+      edgeConnectionsQuery(createSchemaWithEdges(edge.type)),
+    );
 
     // Verify initial state has edge connections
     let schemaMap = store.get(schemaAtom);
     let activeSchema = schemaMap.get(state.activeConfig.id);
     expect(activeSchema?.edgeConnections).toHaveLength(1);
 
-    // Query with empty edge types returns early without updating store
-    const result = await queryClient.fetchQuery(edgeConnectionsQuery([]));
+    // Query with empty edge types persists [] to store
+    const result = await queryClient.fetchQuery(
+      edgeConnectionsQuery(createSchemaWithEdges()),
+    );
 
-    // Query returns empty array
     expect(result).toStrictEqual([]);
 
-    // But store is not updated - existing edge connections remain
     schemaMap = store.get(schemaAtom);
     activeSchema = schemaMap.get(state.activeConfig.id);
-    expect(activeSchema?.edgeConnections).toHaveLength(1);
+    expect(activeSchema?.edgeConnections).toStrictEqual([]);
+  });
+
+  it("should not set lastEdgeConnectionSyncFail when aborted", async () => {
+    const explorer = new FakeExplorer();
+    const state = new DbState(explorer);
+    const store = getAppStore();
+
+    const edge = createRandomEdgeTypeConfig();
+    state.activeSchema.edges = [edge];
+    state.applyTo(store);
+
+    vi.spyOn(explorer, "fetchEdgeConnections").mockImplementation(
+      (_req: EdgeConnectionsRequest, options?: ExplorerRequestOptions) => {
+        options?.signal?.throwIfAborted();
+        throw new Error("should not reach here");
+      },
+    );
+
+    const abortController = new AbortController();
+    abortController.abort();
+
+    const schema = createSchemaWithEdges(edge.type);
+    const options = edgeConnectionsQuery(schema);
+    await expect(
+      options.queryFn!({
+        signal: abortController.signal,
+        meta: { store, explorer },
+      } as any),
+    ).rejects.toThrow();
+
+    const schemaMap = store.get(schemaAtom);
+    const activeSchema = schemaMap.get(state.activeConfig.id);
+    expect(activeSchema?.lastEdgeConnectionSyncFail).not.toBe(true);
   });
 
   it("should set lastEdgeConnectionSyncFail when query fails", async () => {
@@ -274,7 +346,9 @@ describe("edgeConnectionsQuery", () => {
     const queryClient = createQueryClient();
 
     await expect(
-      queryClient.fetchQuery(edgeConnectionsQuery([edge.type])),
+      queryClient.fetchQuery(
+        edgeConnectionsQuery(createSchemaWithEdges(edge.type)),
+      ),
     ).rejects.toThrow();
 
     const schemaMap = store.get(schemaAtom);
@@ -301,7 +375,9 @@ describe("edgeConnectionsQuery", () => {
     explorer.addTestableEdge(edge);
 
     const queryClient = createQueryClient();
-    await queryClient.fetchQuery(edgeConnectionsQuery([edge.type]));
+    await queryClient.fetchQuery(
+      edgeConnectionsQuery(createSchemaWithEdges(edge.type)),
+    );
 
     const schemaMap = store.get(schemaAtom);
     const activeSchema = schemaMap.get(state.activeConfig.id);
@@ -327,7 +403,9 @@ describe("edgeConnectionsQuery", () => {
     const queryClient = createQueryClient();
 
     await expect(
-      queryClient.fetchQuery(edgeConnectionsQuery([edge.type])),
+      queryClient.fetchQuery(
+        edgeConnectionsQuery(createSchemaWithEdges(edge.type)),
+      ),
     ).rejects.toThrow();
 
     const schemaMap = store.get(schemaAtom);
