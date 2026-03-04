@@ -4,7 +4,7 @@ import { atom, useAtomValue, useSetAtom } from "jotai";
 import { atomFamily } from "jotai-family";
 import { useDeferredValue } from "react";
 
-import { logger, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
+import { RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
 import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 
 import type { EdgeType, VertexType } from "../entities";
@@ -187,7 +187,6 @@ export function createEdgePreference(
   type: EdgeType,
   stored?: EdgePreferencesStorageModel,
 ) {
-  logger.debug("Creating EdgePreference", { type, stored });
   return {
     type,
     ...defaultEdgePreferences,
