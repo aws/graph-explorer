@@ -270,7 +270,7 @@ the specified domain names.
 
 After few minutes, the Fargate service will be created and ready.
 
-<img width="1723" alt="image" src="./images/fargate-service.png">
+<img alt="image" src="./images/fargate-service.png">
 
 ### Create an Amazon Route53 Entry
 
