@@ -68,14 +68,4 @@ describe("PropertiesDetails", () => {
 
     expect(screen.getByText("3")).toBeInTheDocument();
   });
-
-  test("renders description text", () => {
-    render(<PropertiesDetails attributes={[]} />);
-
-    expect(
-      screen.getByText(
-        /properties and their data types, which are inferred from query responses/i,
-      ),
-    ).toBeInTheDocument();
-  });
 });

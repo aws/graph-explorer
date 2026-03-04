@@ -5,12 +5,15 @@ import { cn } from "@/utils";
 
 function EmptyState({
   className,
+  size = "default",
   ...props
-}: React.ComponentPropsWithRef<"div">) {
+}: React.ComponentPropsWithRef<"div"> & { size?: "default" | "small" }) {
   return (
     <div
+      data-slot="empty"
+      data-size={size}
       className={cn(
-        "flex h-full w-full flex-col items-center justify-center",
+        "group/empty flex h-full w-full flex-col items-center justify-center",
         className,
       )}
       {...props}
@@ -20,12 +23,13 @@ function EmptyState({
 EmptyState.displayName = "EmptyState";
 
 const emptyStateIconStyles = cva({
-  base: "mb-6 flex size-24 items-center justify-center rounded-full text-7xl text-white [&>svg]:size-1/2",
+  base: "mb-6 flex size-24 items-center justify-center rounded-full text-7xl text-white group-data-[size=small]/empty:mb-3 group-data-[size=small]/empty:size-10 [&>svg]:size-1/2",
   variants: {
     variant: {
-      info: "from-primary-main to-primary-light bg-gradient-to-b shadow-[0_0_20px_2px_hsl(205,95%,71%,70%)]",
+      info: "from-primary-main to-primary-light bg-linear-to-b shadow-[0_0_20px_2px_hsl(205,95%,71%,70%)]",
       error:
-        "from-error-main to-error-light bg-gradient-to-b shadow-[0_0_20px_2px_rgba(255,144,119,0.7)]",
+        "from-error-main to-error-light bg-linear-to-b shadow-[0_0_20px_2px_rgba(255,144,119,0.7)]",
+      subtle: "bg-muted text-muted-foreground rounded-lg",
     },
   },
   defaultVariants: {
@@ -70,7 +74,7 @@ function EmptyStateTitle({
   return (
     <h3
       className={cn(
-        "text-text-primary gx-wrap-break-word text-lg font-bold text-balance",
+        "text-text-primary gx-wrap-break-word text-lg font-bold text-balance group-data-[size=small]/empty:text-sm",
         className,
       )}
       {...props}
@@ -86,7 +90,7 @@ function EmptyStateDescription({
   return (
     <div
       className={cn(
-        "font-base text-text-primary/75 gx-wrap-break-word text-base",
+        "font-base text-text-primary/75 gx-wrap-break-word text-base group-data-[size=small]/empty:text-sm",
         className,
       )}
       {...props}
