@@ -10,11 +10,6 @@ function toLookup(prefixes: PrefixTypeConfig[]): PrefixLookup {
   return PrefixLookup.fromArray(prefixes);
 }
 
-test("should do nothing when no URI is provided", () => {
-  const result = replacePrefixes(undefined, emptyLookup);
-  expect(result).toBe("");
-});
-
 test("should return the URI when it is not a valid IRI", () => {
   expect(replacePrefixes("not-a-url", emptyLookup)).toBe("not-a-url");
   expect(replacePrefixes("just text", emptyLookup)).toBe("just text");

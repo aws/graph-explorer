@@ -7,13 +7,9 @@ import { splitIri } from "./splitIri";
  * in the given lookup. Returns the original string when no match exists.
  */
 export default function replacePrefixes(
-  uri: string | undefined,
+  uri: string,
   prefixes: PrefixLookup,
 ): string {
-  if (!uri) {
-    return "";
-  }
-
   const iriParts = splitIri(uri);
   if (!iriParts) {
     return uri;
