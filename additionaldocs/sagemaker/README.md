@@ -42,8 +42,7 @@ these minimum permissions.
 - Cancel query
 
 <!-- prettier-ignore -->
-> [!CAUTION
-] 
+> [!CAUTION]
 > 
 > If you are using the standard notebook setup, these policies will apply to both the Jupyter graph notebooks as well as Graph Explorer.
 
