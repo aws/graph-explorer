@@ -1,6 +1,8 @@
 import { createArray, createRandomName } from "@shared/utils/testing";
 import { useAtomValue } from "jotai";
 
+import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
+
 import {
   activeConfigurationAtom,
   configurationAtom,
@@ -8,7 +10,6 @@ import {
   schemaAtom,
 } from "@/core";
 import { LABELS } from "@/utils";
-import { type IriNamespace, PrefixLookup, type RdfPrefix } from "@/utils/rdf";
 import {
   createRandomEdge,
   createRandomEdgeConnection,
@@ -266,10 +267,7 @@ describe("schema", () => {
 
   describe("generateSchemaPrefixes", () => {
     it("should return empty when there are no URIs to process", () => {
-      const result = generateSchemaPrefixes(
-        new Set(),
-        PrefixLookup.fromArray([]),
-      );
+      const result = generateSchemaPrefixes(new Set(), []);
 
       expect(result).toStrictEqual([]);
     });
@@ -280,7 +278,7 @@ describe("schema", () => {
         "http://abcdefg.com/edge#knows",
       ]);
 
-      const result = generateSchemaPrefixes(iris, PrefixLookup.fromArray([]));
+      const result = generateSchemaPrefixes(iris, []);
 
       expect(result).toEqual([
         {
@@ -304,7 +302,7 @@ describe("schema", () => {
 
       const result = generateSchemaPrefixes(
         new Set(["http://custom.example.com/Thing"]),
-        PrefixLookup.fromArray([existingPrefix]),
+        [existingPrefix],
       );
 
       expect(result).toStrictEqual([]);
@@ -734,7 +732,7 @@ describe("backward compatibility: legacy __matches on prefixes", () => {
 
     const result = generateSchemaPrefixes(
       new Set(["http://newdomain.com/vertex#Person"]),
-      PrefixLookup.fromArray([legacyPrefix]),
+      [legacyPrefix],
     );
 
     // New prefix should be generated
@@ -759,7 +757,7 @@ describe("backward compatibility: legacy __matches on prefixes", () => {
 
     const result = generateSchemaPrefixes(
       new Set(["http://www.example.com/soccer/ontology/Player"]),
-      PrefixLookup.fromArray([legacyPrefix]),
+      [legacyPrefix],
     );
 
     // No change — the legacy prefix already covers this namespace

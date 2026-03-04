@@ -294,7 +294,6 @@ export function updateSchemaFromEntities(
 
   // Generate new prefixes for the schema changes and resource IRIs
   const existingPrefixes = schema.prefixes ?? [];
-  const prefixLookup = PrefixLookup.fromArray(existingPrefixes);
   const entityUris = getEntityUris(entities);
   const schemaUris = getSchemaUris({
     vertices: mergedVertices,
@@ -302,7 +301,7 @@ export function updateSchemaFromEntities(
   });
   const newPrefixes = generateSchemaPrefixes(
     entityUris.union(schemaUris),
-    prefixLookup,
+    existingPrefixes,
   );
 
   if (
@@ -439,13 +438,14 @@ function detectDataType(value: ScalarValue) {
  */
 export function generateSchemaPrefixes(
   iris: Set<string>,
-  existingPrefixes: PrefixLookup,
+  existingPrefixes: PrefixTypeConfig[],
 ): PrefixTypeConfig[] {
   if (iris.size === 0) {
     return [];
   }
 
-  const newPrefixes = generatePrefixes(iris, existingPrefixes);
+  const prefixLookup = PrefixLookup.fromArray(existingPrefixes);
+  const newPrefixes = generatePrefixes(iris, prefixLookup);
   if (newPrefixes.length === 0) {
     return [];
   }

@@ -13,7 +13,6 @@ import {
   type SchemaStorageModel,
 } from "@/core/StateProvider/schema";
 import { logger } from "@/utils";
-import { PrefixLookup } from "@/utils/rdf";
 
 import type { SchemaResponse } from "../useGEFetchTypes";
 
@@ -44,11 +43,7 @@ export function schemaSyncQuery(activeSchema: SchemaStorageModel | undefined) {
 
         // Generate prefixes for sparql connections
         const schemaUris = getSchemaUris(schema);
-        const existingPrefixes = PrefixLookup.fromArray([]);
-        const newPrefixes = generateSchemaPrefixes(
-          schemaUris,
-          existingPrefixes,
-        );
+        const newPrefixes = generateSchemaPrefixes(schemaUris, []);
 
         // Persist the schema to the local cache
         store.set(replaceSchemaAtom, schema, newPrefixes);
