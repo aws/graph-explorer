@@ -6,13 +6,25 @@
   "license": "Apache-2.0",
   "type": "module",
   "packageManager": "pnpm@10.28.1+sha512.7d7dbbca9e99447b7c3bf7a73286afaaf6be99251eb9498baefa7d406892f67b879adb3a1d7e687fc4ccc1a388c7175fbaae567a26ab44d1067b54fcb0d6a316",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=24.13.0",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": ">=10.28.1",
+      "onFail": "error"
+    }
+  },
   "engines": {
-    "node": ">=24.13.0"
+    "node": ">=24.13.0",
+    "pnpm": ">=10.28.1"
   },
   "private": true,
   "scripts": {
-    "prepare": "husky install",
-    "precommit": "lint-staged && pnpm check:types",
+    "prepare": "husky",
     "lint": "eslint --fix --concurrency=auto",
     "check:lint": "eslint --concurrency=auto",
     "format": "prettier --write .",
@@ -50,10 +62,11 @@
     "vitest": "4.0.10"
   },
   "lint-staged": {
-    "*.{js,ts,tsx}": [
-      "eslint --fix"
-    ],
-    "**/*": "prettier --write --ignore-unknown"
+    "!(**/*.{js,ts,tsx})": "prettier --ignore-unknown --write",
+    "**/*.{js,ts,tsx}": [
+      "eslint --fix",
+      "prettier --ignore-unknown --write"
+    ]
   },
   "pnpm": {
     "overrides": {
