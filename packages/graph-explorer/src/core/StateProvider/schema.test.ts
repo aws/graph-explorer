@@ -37,12 +37,13 @@ import {
   type EntityProperties,
 } from "../entities";
 import {
+  generateSchemaPrefixes,
   mapEdgeToTypeConfig,
   mapVertexToTypeConfigs,
   maybeActiveSchemaAtom,
+  type SchemaStorageModel,
   shouldUpdateSchemaFromEntities,
   updateSchemaFromEntities,
-  updateSchemaPrefixes,
   useActiveSchema,
   useGraphSchema,
   useHasActiveSchema,
@@ -244,49 +245,67 @@ describe("schema", () => {
         newNodes.flatMap(mapVertexToTypeConfigs).flatMap(n => n.attributes),
       );
     });
-  });
 
-  describe("updateSchemaPrefixes", () => {
-    it("should do nothing when there are no URIs to process", () => {
+    it("should generate prefixes from vertex IDs", () => {
       const schema = createRandomSchema();
-      delete schema.prefixes;
       schema.vertices = [];
       schema.edges = [];
+      schema.prefixes = [];
 
-      const result = updateSchemaPrefixes(schema);
+      const vertex = createVertex({
+        ...createRandomVertex(),
+        id: "http://data.nobelprize.org/resource/country/France",
+        types: ["http://data.nobelprize.org/class/Country"],
+      });
 
-      expect(result.prefixes).toBeUndefined();
+      const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+
+      const prefixes = result.prefixes?.map(p => p.prefix);
+      expect(prefixes).toContain("country");
+    });
+  });
+
+  describe("generateSchemaPrefixes", () => {
+    it("should return empty when there are no URIs to process", () => {
+      const result = generateSchemaPrefixes(new Set(), []);
+
+      expect(result).toStrictEqual([]);
     });
 
-    it("should generate prefixes for a single URI", () => {
-      const schema = createRandomSchema();
-      schema.vertices.forEach(v => {
-        v.type = createVertexType(
-          "http://abcdefg.com/vertex#" + encodeURIComponent(v.type),
-        );
-      });
-      schema.edges.forEach(e => {
-        e.type = createEdgeType(
-          "http://abcdefg.com/edge#" + encodeURIComponent(e.type),
-        );
-      });
-      const result = updateSchemaPrefixes(schema);
+    it("should generate prefixes for URIs", () => {
+      const iris = new Set([
+        "http://abcdefg.com/vertex#Person",
+        "http://abcdefg.com/edge#knows",
+      ]);
 
-      expect(result.prefixes).toBeDefined();
-      expect(result.prefixes).toEqual([
+      const result = generateSchemaPrefixes(iris, []);
+
+      expect(result).toEqual([
         {
-          prefix: "ver" as RdfPrefix,
+          prefix: "vertex" as RdfPrefix,
           uri: "http://abcdefg.com/vertex#" as IriNamespace,
           __inferred: true,
-          __matches: new Set(schema.vertices.map(v => v.type)),
         },
         {
-          prefix: "edg" as RdfPrefix,
+          prefix: "edge" as RdfPrefix,
           uri: "http://abcdefg.com/edge#" as IriNamespace,
           __inferred: true,
-          __matches: new Set(schema.edges.map(e => e.type)),
         },
       ] satisfies PrefixTypeConfig[]);
+    });
+
+    it("should not regenerate prefixes already covered by existing ones", () => {
+      const existingPrefix: PrefixTypeConfig = {
+        prefix: "custom" as RdfPrefix,
+        uri: "http://custom.example.com/" as IriNamespace,
+      };
+
+      const result = generateSchemaPrefixes(
+        new Set(["http://custom.example.com/Thing"]),
+        [existingPrefix],
+      );
+
+      expect(result).toStrictEqual([]);
     });
   });
 
@@ -684,5 +703,97 @@ describe("useActiveSchema", () => {
     );
 
     expect(result.current).toStrictEqual(schema);
+  });
+});
+
+/**
+ * BACKWARD COMPATIBILITY — PERSISTED DATA
+ *
+ * SchemaStorageModel (including its PrefixTypeConfig[] in `prefixes`) is
+ * persisted to IndexedDB via localforage. Older versions stored a `__matches`
+ * property (Set<string>) on inferred prefixes. That property has been removed
+ * from PrefixTypeConfig, but previously persisted data may still contain it.
+ * These tests verify that schema operations continue to work correctly when
+ * the schema contains prefixes in the old shape.
+ *
+ * DO NOT delete or weaken these tests without confirming that all persisted
+ * data has been migrated or that the old shape is no longer in the wild.
+ */
+describe("backward compatibility: legacy __matches on prefixes", () => {
+  it("generateSchemaPrefixes should preserve legacy prefixes and append new ones", () => {
+    // Simulates a schema loaded from IndexedDB that was persisted before
+    // __matches was removed from PrefixTypeConfig.
+    const legacyPrefix = {
+      prefix: "soccer" as RdfPrefix,
+      uri: "http://www.example.com/soccer/ontology/" as IriNamespace,
+      __inferred: true,
+      __matches: new Set(["http://www.example.com/soccer/ontology/League"]),
+    } as PrefixTypeConfig;
+
+    const result = generateSchemaPrefixes(
+      new Set(["http://newdomain.com/vertex#Person"]),
+      [legacyPrefix],
+    );
+
+    // New prefix should be generated
+    expect(result).toStrictEqual([
+      {
+        prefix: "vertex" as RdfPrefix,
+        uri: "http://newdomain.com/vertex#" as IriNamespace,
+        __inferred: true,
+      },
+    ]);
+  });
+
+  it("generateSchemaPrefixes should not regenerate prefixes already covered by legacy entries", () => {
+    // The legacy prefix covers the same namespace as the IRIs,
+    // so no new prefixes should be generated.
+    const legacyPrefix = {
+      prefix: "soccer" as RdfPrefix,
+      uri: "http://www.example.com/soccer/ontology/" as IriNamespace,
+      __inferred: true,
+      __matches: new Set(["http://www.example.com/soccer/ontology/League"]),
+    } as PrefixTypeConfig;
+
+    const result = generateSchemaPrefixes(
+      new Set(["http://www.example.com/soccer/ontology/Player"]),
+      [legacyPrefix],
+    );
+
+    // No change — the legacy prefix already covers this namespace
+    expect(result).toStrictEqual([]);
+  });
+
+  it("updateSchemaFromEntities should work with schema containing legacy prefixes", () => {
+    const legacyPrefix = {
+      prefix: "old" as RdfPrefix,
+      uri: "http://old.example.com/" as IriNamespace,
+      __inferred: true,
+      __matches: new Set(["http://old.example.com/Thing"]),
+    } as PrefixTypeConfig;
+
+    const schema: SchemaStorageModel = {
+      vertices: [],
+      edges: [],
+      prefixes: [legacyPrefix],
+    };
+
+    const vertex = createVertex({
+      id: "http://new.example.com/vertex#1",
+      types: ["http://new.example.com/vertex#Person"],
+      attributes: {},
+    });
+
+    const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+
+    // Legacy prefix should be preserved
+    expect(result.prefixes?.[0]).toBe(legacyPrefix);
+    // New prefix should be appended for the new namespace
+    expect(result.prefixes).toHaveLength(2);
+    expect(result.prefixes?.[1]).toStrictEqual({
+      prefix: "vertex" as RdfPrefix,
+      uri: "http://new.example.com/vertex#" as IriNamespace,
+      __inferred: true,
+    });
   });
 });

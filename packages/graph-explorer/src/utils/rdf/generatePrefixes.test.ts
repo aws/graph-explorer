@@ -1,245 +1,258 @@
 import type { PrefixTypeConfig } from "@/core";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
-import generatePrefixes, {
-  generateHashPrefix,
-  generatePrefix,
-} from "./generatePrefixes";
+import generatePrefixes from "./generatePrefixes";
+import { PrefixLookup } from "./PrefixLookup";
 
 describe("generatePrefixes", () => {
-  it("should return null when nothing is updated", () => {
-    const existing: PrefixTypeConfig[] = [
+  it("should return empty when all IRIs already have prefixes", () => {
+    const existing = PrefixLookup.fromArray([
       {
-        prefix: "owl" as RdfPrefix,
-        uri: "https://www.w3.org/2002/07/owl#" as IriNamespace,
-        __matches: new Set(["https://www.w3.org/2002/07/owl#ObjectProperty"]),
+        prefix: "soccer-o" as RdfPrefix,
+        uri: "http://www.example.com/soccer/ontology/" as IriNamespace,
+        __inferred: true,
       },
-      {
-        prefix: "rdf" as RdfPrefix,
-        uri: "https://www.w3.org/2000/01/rdf-schema#" as IriNamespace,
-        __matches: new Set([
-          "https://www.w3.org/2000/01/rdf-schema#subClassOf",
-        ]),
-      },
-    ];
-
-    const uris = new Set([
-      "https://www.w3.org/2002/07/owl#ObjectProperty",
-      "https://www.w3.org/2000/01/rdf-schema#subClassOf",
     ]);
 
-    const result = generatePrefixes(uris, existing);
+    const result = generatePrefixes(
+      new Set(["http://www.example.com/soccer/ontology/League"]),
+      existing,
+    );
 
-    expect(result).toBeNull();
+    expect(result).toStrictEqual([]);
   });
 
-  it("Should generate prefixes for URLs which contain a #", () => {
-    const urisWithConfig = {
-      "https://www.w3.org/2002/07/owl#ObjectProperty": {
-        prefix: "owl",
-        uri: "https://www.w3.org/2002/07/owl#",
-      },
-      "https://www.w3.org/2000/01/rdf-schema#subClassOf": {
-        prefix: "rdf",
-        uri: "https://www.w3.org/2000/01/rdf-schema#",
-      },
-      "https://www.w3.org/2007/05/powder-s#describedby": {
-        prefix: "pow",
-        uri: "https://www.w3.org/2007/05/powder-s#",
-      },
-      "http://www.example.com/location/resource#London": {
-        prefix: "loc-r",
-        uri: "http://www.example.com/location/resource#",
-      },
-      "http://www.example.com/soccer/resource#EPL": {
-        prefix: "soc-r",
-        uri: "http://www.example.com/soccer/resource#",
-      },
-      "https://www.w3.org/ns/prov#wasDerivedFrom": {
-        prefix: "pro",
-        uri: "https://www.w3.org/ns/prov#",
-      },
-    };
-
-    Object.entries(urisWithConfig).forEach(([uri, config]) => {
-      const result = generateHashPrefix(new URL(uri));
-      expect(result.prefix).toEqual(config.prefix);
-      expect(result.uri).toEqual(config.uri);
-    });
+  it("should return empty when all IRIs match common prefixes", () => {
+    const result = generatePrefixes(
+      new Set(["http://www.w3.org/2002/07/owl#ObjectProperty"]),
+      PrefixLookup.fromArray([]),
+    );
+    expect(result).toStrictEqual([]);
   });
 
-  it("Should generate prefixes for URLs which NOT contain a #", () => {
-    const urisWithConfig = {
-      "https://dbpedia.org/ontology/endowment": {
-        prefix: "dbp-o",
-        uri: "https://dbpedia.org/ontology/",
-      },
-      "https://open.vocab.org/terms/describes": {
-        prefix: "ter",
-        uri: "https://open.vocab.org/terms/",
-      },
-      "http://www.example.com/soccer/ontology/League": {
-        prefix: "soc",
-        uri: "http://www.example.com/soccer/ontology/",
-      },
-      "http://www.schema.org/City": {
-        prefix: "sch",
-        uri: "http://www.schema.org/",
-      },
-      "https://dbpedia.org/resource/Qualifying_Rounds": {
-        prefix: "dbp-r",
-        uri: "https://dbpedia.org/resource/",
-      },
-      "https://dbpedia.org/class/yago/Record106647206": {
-        prefix: "yag",
-        uri: "https://dbpedia.org/class/yago/",
-      },
-    };
-
-    Object.entries(urisWithConfig).forEach(([uri, config]) => {
-      const result = generatePrefix(new URL(uri));
-      expect(result.prefix).toEqual(config.prefix);
-      expect(result.uri).toEqual(config.uri);
-    });
-  });
-
-  it("Should generate only non-matching prefixes and update counts", () => {
-    const updatedPrefixes = generatePrefixes(
-      new Set([
-        "https://www.w3.org/2002/07/owl#ObjectProperty",
-        "https://dbpedia.org/resource/Qualifying_Rounds",
-        "http://www.example.com/soccer/ontology/League",
-        "http://www.example.com/soccer/resource#EPL",
-        "http://www.example.com/location/resource#London",
-        "http://www.example.com/location/resource#Manchester",
-      ]),
-      [
-        {
-          prefix: "owl" as RdfPrefix,
-          uri: "https://www.w3.org/2002/07/owl#" as IriNamespace,
-        },
+  it("should return empty when all IRIs match user prefixes", () => {
+    const result = generatePrefixes(
+      new Set(["https://dbpedia.org/resource/Qualifying_Rounds"]),
+      PrefixLookup.fromArray([
         {
           prefix: "dbr" as RdfPrefix,
           uri: "https://dbpedia.org/resource/" as IriNamespace,
         },
-        {
-          __inferred: true,
-          prefix: "loc-r" as RdfPrefix,
-          uri: "http://www.example.com/location/resource#" as IriNamespace,
-          __matches: new Set([
-            "http://www.example.com/location/resource#London",
-            "http://www.example.com/location/resource#Manchester",
-          ]),
-        },
-      ],
+      ]),
+    );
+    expect(result).toStrictEqual([]);
+  });
+
+  it("should generate prefixes for unmatched namespaces only", () => {
+    const result = generatePrefixes(
+      new Set([
+        "http://www.w3.org/2002/07/owl#ObjectProperty",
+        "http://www.example.com/soccer/ontology/League",
+        "http://www.example.com/soccer/resource#EPL",
+      ]),
+      PrefixLookup.fromArray([]),
     );
 
-    expect(updatedPrefixes).toHaveLength(5);
-    expect(updatedPrefixes?.[0]).toEqual({
-      prefix: "owl",
-      uri: "https://www.w3.org/2002/07/owl#",
-      __matches: new Set(["https://www.w3.org/2002/07/owl#ObjectProperty"]),
-    });
-    expect(updatedPrefixes?.[1]).toEqual({
-      prefix: "dbr",
-      uri: "https://dbpedia.org/resource/",
-      __matches: new Set(["https://dbpedia.org/resource/Qualifying_Rounds"]),
-    });
-    expect(updatedPrefixes?.[2]).toEqual({
-      __inferred: true,
-      uri: "http://www.example.com/location/resource#",
-      prefix: "loc-r",
-      __matches: new Set([
+    expect(result).toStrictEqual([
+      {
+        __inferred: true,
+        prefix: "soccer-o",
+        uri: "http://www.example.com/soccer/ontology/",
+      },
+      {
+        __inferred: true,
+        prefix: "soccer-r",
+        uri: "http://www.example.com/soccer/resource#",
+      },
+    ]);
+  });
+
+  it("should produce distinct prefixes for abbreviated segments without collisions", () => {
+    const result = generatePrefixes(
+      new Set([
+        "http://www.example.com/soccer/ontology/A",
+        "http://www.example.com/soccer/resource#B",
+        "http://www.example.com/soccer/class#C",
+      ]),
+      PrefixLookup.fromArray([]),
+    );
+
+    const prefixes = result.map(r => r.prefix);
+    expect(prefixes).toStrictEqual(["soccer-o", "soccer-r", "soccer-c"]);
+  });
+
+  it("should avoid collisions with existing prefixes", () => {
+    const result = generatePrefixes(
+      new Set(["http://example.com/sport/resource#EPL"]),
+      PrefixLookup.fromArray([
+        {
+          prefix: "sport-r" as RdfPrefix,
+          uri: "http://other.com/sport/resource/" as IriNamespace,
+          __inferred: true,
+        },
+      ]),
+    );
+
+    expect(result).toStrictEqual([
+      {
+        __inferred: true,
+        prefix: "sport-r2",
+        uri: "http://example.com/sport/resource#",
+      },
+    ]);
+  });
+
+  it("should deduplicate namespaces within the batch", () => {
+    const result = generatePrefixes(
+      new Set([
         "http://www.example.com/location/resource#London",
         "http://www.example.com/location/resource#Manchester",
       ]),
-    });
-    expect(updatedPrefixes?.[3]).toEqual({
-      __inferred: true,
-      uri: "http://www.example.com/soccer/ontology/",
-      prefix: "soc",
-      __matches: new Set(["http://www.example.com/soccer/ontology/League"]),
-    });
-    expect(updatedPrefixes?.[4]).toEqual({
-      __inferred: true,
-      uri: "http://www.example.com/soccer/resource#",
-      prefix: "soc-r",
-      __matches: new Set(["http://www.example.com/soccer/resource#EPL"]),
-    });
-  });
-
-  it("Should update existing prefixes when casing doesn't match", () => {
-    const updatedPrefixes = generatePrefixes(
-      new Set([
-        "http://SecretSpyOrg/entity/quantity",
-        "http://SecretSpyOrg/entity/other",
-        "http://SecretSpyOrg/data/hasText",
-      ]),
-      [
-        {
-          __inferred: true,
-          prefix: "ent" as RdfPrefix,
-          uri: "http://secretspyorg/entity/" as IriNamespace,
-          __matches: new Set(["http://SecretSpyOrg/entity/quantity"]),
-        },
-      ],
+      PrefixLookup.fromArray([]),
     );
 
-    expect(updatedPrefixes).toHaveLength(2);
-    expect(updatedPrefixes?.[0]).toEqual({
-      __inferred: true,
-      uri: "http://secretspyorg/entity/",
-      prefix: "ent",
-      __matches: new Set([
-        "http://SecretSpyOrg/entity/quantity",
-        "http://SecretSpyOrg/entity/other",
-      ]),
-    });
-    expect(updatedPrefixes?.[1]).toEqual({
-      __inferred: true,
-      uri: "http://secretspyorg/data/",
-      prefix: "dat",
-      __matches: new Set(["http://SecretSpyOrg/data/hasText"]),
-    });
+    expect(result).toStrictEqual([
+      {
+        __inferred: true,
+        prefix: "location-r",
+        uri: "http://www.example.com/location/resource#",
+      },
+    ]);
   });
 
-  it("should ignore file URIs since they don't have an origin", () => {
-    const updatedPrefixes = generatePrefixes(
+  it("should ignore file URIs", () => {
+    const result = generatePrefixes(
       new Set(["file://foo/bar.txt"]),
-      [],
+      PrefixLookup.fromArray([]),
     );
-
-    expect(updatedPrefixes).toBeNull();
+    expect(result).toStrictEqual([]);
   });
 
-  it("should ignore any non-path URIs", () => {
-    const updatedPrefixes = generatePrefixes(
+  it("should ignore non-path URIs", () => {
+    const result = generatePrefixes(
       new Set([
         "urn:Person",
-        "urn:knows",
-        "urn:name",
         "urn:isbn:1234567890",
         "mailto:example@abc.com",
         "custom-scheme:foo",
       ]),
-      [],
+      PrefixLookup.fromArray([]),
     );
-
-    expect(updatedPrefixes).toBeNull();
+    expect(result).toStrictEqual([]);
   });
 
-  it("should handle any pathed URI", () => {
-    const updatedPrefixes = generatePrefixes(
+  it("should handle any pathed URI scheme", () => {
+    const result = generatePrefixes(
       new Set(["ftp://foo/bar.txt"]),
-      [],
+      PrefixLookup.fromArray([]),
     );
-
-    expect(updatedPrefixes).toEqual([
+    expect(result).toStrictEqual([
       {
         __inferred: true,
-        uri: "ftp://foo/",
         prefix: "foo",
-        __matches: new Set(["ftp://foo/bar.txt"]),
+        uri: "ftp://foo/",
+      },
+    ]);
+  });
+
+  it("should match existing prefixes case-insensitively", () => {
+    const result = generatePrefixes(
+      new Set(["http://SecretSpyOrg/entity/quantity"]),
+      PrefixLookup.fromArray([
+        {
+          __inferred: true,
+          prefix: "ent" as RdfPrefix,
+          uri: "http://secretspyorg/entity/" as IriNamespace,
+        },
+      ]),
+    );
+
+    expect(result).toStrictEqual([]);
+  });
+
+  it("should produce distinct prefixes for hash vs slash namespaces", () => {
+    const result = generatePrefixes(
+      new Set([
+        "http://www.example.com/sport/ontology/League",
+        "http://www.example.com/sport/resource#EPL",
+        "http://www.example.com/sport/class#Team",
+      ]),
+      PrefixLookup.fromArray([]),
+    );
+
+    const prefixes = result.map(r => r.prefix);
+    expect(prefixes).toStrictEqual(["sport-o", "sport-r", "sport-c"]);
+  });
+
+  it("should allow unique suffix to exceed 8 character prefix length", () => {
+    const result = generatePrefixes(
+      new Set([
+        "http://www.example.com/abcdefgh/ontology/A",
+        "http://www.example.com/abcdefgh/resource#B",
+        "http://www.example.com/abcdefgh/class#C",
+      ]),
+      PrefixLookup.fromArray([]),
+    );
+
+    const prefixes = result.map(r => r.prefix);
+    expect(prefixes).toStrictEqual(["abcdefgh-o", "abcdefgh-r", "abcdefgh-c"]);
+  });
+});
+
+/**
+ * BACKWARD COMPATIBILITY — PERSISTED DATA
+ *
+ * PrefixTypeConfig is persisted to IndexedDB via localforage. Older versions
+ * stored a `__matches` property (Set<string>) on inferred prefixes. That
+ * property has been removed from the type, but previously persisted data may
+ * still contain it. These tests verify that generatePrefixes continues to work
+ * correctly when the PrefixLookup is built from data in the old shape.
+ *
+ * DO NOT delete or weaken these tests without confirming that all persisted
+ * data has been migrated or that the old shape is no longer in the wild.
+ */
+describe("backward compatibility: legacy __matches property", () => {
+  it("should recognize existing prefixes that have legacy __matches", () => {
+    const legacyPrefixes = PrefixLookup.fromArray([
+      {
+        prefix: "soccer-o" as RdfPrefix,
+        uri: "http://www.example.com/soccer/ontology/" as IriNamespace,
+        __inferred: true,
+        __matches: new Set(["http://www.example.com/soccer/ontology/League"]),
+      } as PrefixTypeConfig,
+    ]);
+
+    const result = generatePrefixes(
+      new Set(["http://www.example.com/soccer/ontology/Team"]),
+      legacyPrefixes,
+    );
+
+    expect(result).toStrictEqual([]);
+  });
+
+  it("should generate new prefixes alongside legacy ones", () => {
+    const legacyPrefixes = PrefixLookup.fromArray([
+      {
+        prefix: "soccer-o" as RdfPrefix,
+        uri: "http://www.example.com/soccer/ontology/" as IriNamespace,
+        __inferred: true,
+        __matches: new Set(["http://www.example.com/soccer/ontology/League"]),
+      } as PrefixTypeConfig,
+    ]);
+
+    const result = generatePrefixes(
+      new Set([
+        "http://www.example.com/soccer/ontology/Team",
+        "http://www.example.com/location/resource#London",
+      ]),
+      legacyPrefixes,
+    );
+
+    expect(result).toStrictEqual([
+      {
+        __inferred: true,
+        prefix: "location-r",
+        uri: "http://www.example.com/location/resource#",
       },
     ]);
   });

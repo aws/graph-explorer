@@ -167,7 +167,6 @@ describe("useImportConnectionFile", () => {
           {
             prefix: "rdf",
             uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-            __matches: ["http://example.com/1", "http://example.com/2"],
           },
         ],
       },
@@ -186,13 +185,12 @@ describe("useImportConnectionFile", () => {
       (_, index) => index === 1,
     );
 
-    expect(importedSchema?.prefixes).toHaveLength(1);
-    expect(importedSchema?.prefixes?.[0].prefix).toBe("rdf");
-    expect(importedSchema?.prefixes?.[0].uri).toBe(
-      "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    );
-    expect(importedSchema?.prefixes?.[0].__matches).toBeInstanceOf(Set);
-    expect(importedSchema?.prefixes?.[0].__matches?.size).toBe(2);
+    expect(importedSchema?.prefixes).toStrictEqual([
+      {
+        prefix: "rdf",
+        uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+      },
+    ]);
   });
 
   test("should handle schema with lastUpdate date", async () => {
@@ -408,5 +406,84 @@ describe("useImportConnectionFile", () => {
         count: 42,
       },
     ]);
+  });
+});
+
+/**
+ * BACKWARD COMPATIBILITY — PERSISTED DATA
+ *
+ * Exported configuration files from older versions may contain a `__matches`
+ * array on prefix entries. That property has been removed from PrefixTypeConfig,
+ * but previously exported files may still contain it. These tests verify that
+ * importing such files still works correctly — the extra property is harmlessly
+ * carried through without breaking the import flow.
+ *
+ * DO NOT delete or weaken these tests without confirming that all exported
+ * files in the wild have been re-exported or that the old shape is no longer
+ * a concern.
+ */
+describe("backward compatibility: legacy __matches in exported files", () => {
+  test("should import file with legacy __matches array on prefixes", async () => {
+    const state = new DbState();
+    const { result } = renderHookWithState(
+      () => useImportConnectionFile(),
+      state,
+    );
+
+    // This mirrors the shape of a file exported by an older version that
+    // serialized __matches as an array.
+    const legacyConfig = {
+      id: createNewConfigurationId(),
+      displayLabel: createRandomName("Config"),
+      connection: {
+        url: createRandomUrlString(),
+        queryEngine: "sparql" as const,
+      },
+      schema: {
+        totalVertices: 0,
+        vertices: [],
+        totalEdges: 0,
+        edges: [],
+        prefixes: [
+          {
+            prefix: "rdf",
+            uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+            __inferred: true,
+            __matches: [
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property",
+            ],
+          },
+          {
+            prefix: "custom",
+            uri: "http://custom.example.com/",
+          },
+        ],
+      },
+    };
+
+    const file = new File([JSON.stringify(legacyConfig)], "connection.json", {
+      type: "application/json",
+    });
+
+    await act(async () => {
+      await result.current(file);
+    });
+
+    const schemas = getAppStore().get(schemaAtom);
+    const importedSchema = Array.from(schemas.values()).find(
+      (_, index) => index === 1,
+    );
+
+    // Both prefixes should be imported successfully
+    expect(importedSchema?.prefixes).toHaveLength(2);
+    expect(importedSchema?.prefixes?.[0].prefix).toBe("rdf");
+    expect(importedSchema?.prefixes?.[0].uri).toBe(
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    );
+    expect(importedSchema?.prefixes?.[1].prefix).toBe("custom");
+    expect(importedSchema?.prefixes?.[1].uri).toBe(
+      "http://custom.example.com/",
+    );
   });
 });
