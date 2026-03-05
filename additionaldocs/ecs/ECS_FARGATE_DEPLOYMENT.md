@@ -24,7 +24,7 @@ Amazon ECS, and connect to a running Neptune database.
 9. Click **Create role** to finish, and keep the role name handy to use in the
    next steps.
 
-![image](https://github.com/StrongPa55w0rd/graph-explorer/assets/356327/16b6cbcf-6898-47c4-8de2-403b977ffe50)
+![image](./images/iam-role.png)
 
 ### Create an Amazon ECS Cluster
 
@@ -51,7 +51,7 @@ After the cluster has finished creation, you can create task definitions for
 your applications, which can then be run as standalone tasks, or as part of a
 service.
 
-![image](https://github.com/StrongPa55w0rd/graph-explorer/assets/356327/901e9e2a-fdda-4a02-9f73-32ee9e7e61ca)
+![image](./images/ecs-cluster.png)
 
 ### Request an ACM Public Certificate
 
@@ -257,7 +257,7 @@ the specified domain names.
      - **Health check path**: `/explorer/` with **Health check protocol** as
        `HTTPS`.
 
-      <img width="720" alt="image" src="https://github.com/StrongPa55w0rd/graph-explorer/assets/356327/c6961dff-c87c-403a-b3b0-52be42564a54">
+      <img width="720" alt="image" src="./images/target-group.png">
 
 10. (Optional) Under section **Service auto scaling**, specify the desired
     scaling configuration.
@@ -270,7 +270,7 @@ the specified domain names.
 
 After few minutes, the Fargate service will be created and ready.
 
-<img width="1723" alt="image" src="https://github.com/StrongPa55w0rd/graph-explorer/assets/356327/7746edbd-cf4d-4532-9a10-cde87e5a55a1">
+<img alt="image" src="./images/fargate-service.png">
 
 ### Create an Amazon Route53 Entry
 

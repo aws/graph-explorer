@@ -6,7 +6,7 @@ environment variables to switch to HTTP.
 
 ### Requirements
 
-- pnpm >=10.28.0
+- pnpm >=10.28.1
 - node >=24.13.0
 
 #### Node Version
@@ -75,16 +75,10 @@ code. You'll end up with two `dist` folders:
 {ROOT_PATH}/packages/graph-explorer-proxy-server/dist/
 ```
 
-The recommended way to server Graph Explorer is using the proxy server.
+The recommended way to serve Graph Explorer is using the proxy server.
 
 ```bash
 pnpm start
-```
-
-However, if you want to run Graph Explorer without the proxy server, you can:
-
-```bash
-pnpm start:client
 ```
 
 ### Managing dependencies
@@ -102,8 +96,8 @@ pnpm add -D vitest --filter graph-explorer-proxy-server
 
 #### Preparation of a release
 
-This repository is composed by 2 packages and a mono-repository structure
-itself. Then, you need to take into account 3 different `package.json` files:
+This repository is composed by 3 packages and a mono-repository structure
+itself. Then, you need to take into account 4 different `package.json` files:
 
 - `<root>/package.json` is intended to keep the dependencies for managing the
   repository. It has utilities like linter, code formatter, or git checks.
@@ -112,11 +106,13 @@ itself. Then, you need to take into account 3 different `package.json` files:
 - `<root>/packages/graph-explorer-proxy-server/package.json` is the package file
   for the node server which is in charge of authentication and redirection of
   requests.
+- `<root>/packages/shared/package.json` is the package file for shared code
+  between the client and server packages.
 
 Each of these `package.json` files has an independent `version` property.
 However, in this project we should keep them correlated. Therefore, when a new
 release version is being prepared, the version number should be increased in all
-3 files. Regarding the version number displayed in the user interface, it is
+4 files. Regarding the version number displayed in the user interface, it is
 specifically extracted from the `<root>/packages/graph-explorer/package.json`.
 file
 
@@ -132,23 +128,6 @@ Example: `/explorer`
 - Default: `/`
 - Type: `string`
 
-#### `GRAPH_EXP_CONNECTION_NAME`
-
-Default connection name.
-
-- Optional
-- Default is empty
-- Type: `string`
-
-#### `GRAPH_EXP_CONNECTION_ENGINE`
-
-The query engine to use for the default connection.
-
-- Optional
-- Default is `gremlin`
-- Valid values are `gremlin`, `openCypher`, or `sparql`
-- Type: `string`
-
 #### `HOST`
 
 The public hostname of the server. This is used to generate the SSL certificate
@@ -157,15 +136,16 @@ during the Docker build.
 Example: `localhost`
 
 - Required when using HTTPS connections
-- Default is empty
+- Default is `localhost`
 - Type: `string`
 
 #### `GRAPH_EXP_HTTPS_CONNECTION`
 
 Uses the self-signed certificate to serve Graph Explorer over https if true.
+Only used in Docker via the entrypoint script.
 
 - Optional
-- Default `true`
+- Default `true` in Docker, not set otherwise
 - Type: `boolean`
 
 #### `PROXY_SERVER_HTTPS_PORT`
@@ -189,7 +169,7 @@ The port to use for the HTTP server.
 Uses the self-signed certificate to serve the proxy-server over https if true.
 
 - Optional
-- Default `true`
+- Default `false` in code, `true` in Docker via the entrypoint script
 - Type: `boolean`
 
 ### Using self-signed certificates with Docker
@@ -198,7 +178,7 @@ Uses the self-signed certificate to serve the proxy-server over https if true.
   command, so unless you have specific requirements, there are no extra steps
   here besides providing the hostname.
 - If you would like to modify the certificate files, be aware that the
-  Dockerfile will make automatic modifications on run, in lines 8 and 9 of the
+  Dockerfile will make automatic modifications on run in the
   [entrypoint script](https://github.com/aws/graph-explorer/blob/main/docker-entrypoint.sh),
   so you will need to remove these lines.
 - If you only serve one of either the proxy server or Graph Explorer UI over an

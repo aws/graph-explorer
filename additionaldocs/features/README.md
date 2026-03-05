@@ -152,7 +152,6 @@ database:
 - Supports cancellation of long-running queries
 - Some limitations exist for SPARQL queries
   - No support for `INSERT` and `DELETE` queries
-  - No support for synthetically generated RDF from `CONSTRUCT` queries
   - No support for blank node results
   - `SELECT` queries only returns scalar values, even for resource URIs
 
