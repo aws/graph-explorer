@@ -3,8 +3,10 @@
 ## Release 3.0.0
 
 Graph Explorer 3.0 is here! This release brings one of the most requested
-features — the Schema Explorer — along with a fresh navigation experience and a
-handful of quality-of-life improvements.
+features — the ability to visualize your graph database schema — along with a
+fresh navigation experience and a handful of quality-of-life improvements. If
+you're upgrading from a previous version, all your existing connections,
+preferences, and configuration data will carry over unchanged.
 
 ### Schema Explorer
 
@@ -35,8 +37,8 @@ look.
 
 ### Data Explorer Improvements
 
-- Vertex type switcher for faster browsing across types
-- New export button to download data as CSV or JSON (thanks @dwrth!)
+The Data Explorer now includes a vertex type switcher for faster browsing across
+types and a new export button to download data as CSV or JSON (thanks @dwrth!).
 
 <div align="center">
   <img width="540" src="images/data-explorer.png" />
