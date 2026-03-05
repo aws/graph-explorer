@@ -8,17 +8,25 @@ handful of quality-of-life improvements.
 
 ### Schema Explorer
 
-Ever wanted to see the shape of your graph at a glance? Now you can. The new
-Schema Explorer renders your vertex types, edge types, and their connections as
-an interactive schema graph. Drill into any type from the sidebar to see
-property details and data types. Edge connection discovery maps out how your
-types relate, giving you a bird's-eye view of your entire graph structure.
+<div align="center">
+  <img width="540" src="images/schema-explorer.png" />
+</div>
+
+You can now see the shape of your graph at a glance. The new Schema Explorer
+renders your vertex types, edge types, and their connections as an interactive
+schema graph. Drill into any type from the sidebar to see property details and
+data types. Edge connection discovery maps out how your types relate, giving you
+a bird's-eye view of your entire graph structure.
 
 The schema is built by sampling your graph data, so it reflects what Graph
 Explorer has seen so far and may not capture every type or property in your
 database.
 
 ### Redesigned Navigation
+
+<div align="center">
+  <img width="540" src="images/graph-explorer.png" />
+</div>
 
 Getting around Graph Explorer just got easier. The navigation bar has been
 rebuilt as a clean, static top bar for moving between the Graph Explorer, Data
@@ -27,9 +35,12 @@ look.
 
 ### Data Explorer Improvements
 
+<div align="center">
+  <img width="540" src="images/data-explorer.png" />
+</div>
+
 - Vertex type switcher for faster browsing across types
 - New export button to download data as CSV or JSON (thanks @dwrth!)
-- Missing values are now exported as empty strings instead of placeholder text
 
 ### Other Improvements
 
