@@ -218,9 +218,11 @@ Welcome and thank you to our first-time contributors! 🎉
   https://github.com/aws/graph-explorer/pull/1556 (based on #1548 by @abhu85)
 - Rewrite prefix generation and replacement logic by @kmcginnes in
   https://github.com/aws/graph-explorer/pull/1539
+- Fix documentation inaccuracies across the repository by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1559
 
 **Full Changelog**:
-https://github.com/aws/graph-explorer/compare/v2.5.0...v3.0.0
+https://github.com/aws/graph-explorer/compare/v2.5.2...v3.0.0
 
 ## Release 2.5.2
 
