@@ -4,8 +4,9 @@
 
 Graph Explorer 3.0 is here! This release brings one of the most requested
 features — the ability to visualize your graph database schema — along with a
-fresh navigation experience and a handful of quality-of-life improvements. If
-you're upgrading from a previous version, all your existing connections,
+fresh navigation experience and a handful of quality-of-life improvements.
+
+If you're upgrading from a previous version, all your existing connections,
 preferences, and configuration data will carry over unchanged.
 
 ### Schema Explorer
