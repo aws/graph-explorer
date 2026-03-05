@@ -14,7 +14,9 @@ tools: ["git", "gh", "fs_read", "grep", "glob", "web_search", "web_fetch"]
 - Use the `gh` CLI for all GitHub operations when possible
 - Never delete or change the status of issues or pull requests unless explicitly
   requested
-- Never mention CVEs or security issues/fixes unless explicitly asked
+- Never mention CVEs, security vulnerabilities, or security advisories in issues
+  or PRs. Instead, describe the change as a dependency update (e.g., "Update
+  fast-xml-parser to latest version" rather than "Fix CVE-2026-25896")
 
 ## Issues
 

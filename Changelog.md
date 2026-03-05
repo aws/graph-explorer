@@ -1,5 +1,229 @@
 # Graph Explorer Change Log
 
+## Release 3.0.0
+
+Graph Explorer 3.0 is here! This release brings one of the most requested
+features — the ability to visualize your graph database schema — along with a
+fresh navigation experience and a handful of quality-of-life improvements.
+
+If you're upgrading from a previous version, all your existing connections,
+preferences, and configuration data will carry over unchanged.
+
+### Schema Explorer
+
+You can now see the shape of your graph at a glance. The new Schema Explorer
+renders your vertex types, edge types, and their connections as an interactive
+schema graph. Drill into any type from the sidebar to see property details and
+data types. Edge connection discovery maps out how your types relate, giving you
+a bird's-eye view of your entire graph structure.
+
+The schema is built by sampling your graph data, so it reflects what Graph
+Explorer has seen so far and may not capture every type or property in your
+database.
+
+<div align="center">
+  <img width="540" src="images/schema-explorer.png" />
+</div>
+
+### Redesigned Navigation
+
+Getting around Graph Explorer just got easier. The navigation bar has been
+rebuilt as a clean, static top bar for moving between the Graph Explorer, Data
+Explorer, and Schema Explorer. Sidebar tabs have been refreshed to match the new
+look.
+
+<div align="center">
+  <img width="540" src="images/graph-explorer.png" />
+</div>
+
+### Data Explorer Improvements
+
+The Data Explorer now includes a vertex type switcher for faster browsing across
+types and a new export button to download data as CSV or JSON (thanks @dwrth!).
+
+<div align="center">
+  <img width="540" src="images/data-explorer.png" />
+</div>
+
+### Other Improvements
+
+- Rewritten RDF prefix generation and replacement logic
+- Standardized terminology across Gremlin, openCypher, and SPARQL
+- Very large and very small numbers now display using scientific notation
+- Keyword search labels are clearer and more descriptive
+
+### New Contributors
+
+Welcome and thank you to our first-time contributors! 🎉
+
+- @Eepsita12 made their first contribution in
+  https://github.com/aws/graph-explorer/pull/1483
+- @abhu85 made their first contribution in
+  https://github.com/aws/graph-explorer/pull/1525
+
+### All Changes
+
+- Add & use Alert component for settings by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1394
+- Add vertex type switcher to Data Explorer by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1390
+- Remove less frequently used colors by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1397
+- Update roadmap by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1398
+- Update colors with semantic variables by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1400
+- Fix SPARQL query optimization issue (again) by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1402
+- Fix search result disclosure chevron state by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1414
+- Add patch release info to main by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1437
+- Bump version to 2.6.0 by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1438
+- Breakdown Workspace components in to more flexible pieces by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1399
+- Remove explicitly set type names in tests by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1440
+- Update steering to prefer function syntax by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1439
+- Update to use map for counts by type by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1442
+- Use strongly typed VertexType and EdgeType by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1441
+- Update all dependencies by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1444
+- Fix button within button error by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1447
+- Migrate to jotai-family as suggested by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1446
+- Remove redundant schema type by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1450
+- Add EdgeConnection type for Schema Explorer by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1449
+- Sort imports by @kmcginnes in https://github.com/aws/graph-explorer/pull/1452
+- Update number formatting to handle smaller numbers by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1460
+- Edge connection discovery queries by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1454
+- Fix Graph component styling by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1463
+- Add edgeConnectionsQuery React Query wrapper by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1464
+- Update Kiro steering instructions by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1465
+- Tweak navigation button UI & data explorer toolbar by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1459
+- Move graph toolbar buttons to shared components by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1466
+- Add basic schema explorer route by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1467
+- Cleanup Docker image and update dependencies by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1468
+- Add patch release to changelog by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1473
+- Consolidate duplicate labels by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1472
+- Standardize terminology across query languages by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1475
+- Refactor entity count formatting to support translations by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1477
+- Hide Display Name Property Selector for SPARQL Edge Styling by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1476
+- Update terminology: "Graph Type" → "Query Language" by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1474
+- Changed queries to get the explorer instance from Jotai by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1479
+- Add export button to Data Explorer by @dwrth in
+  https://github.com/aws/graph-explorer/pull/1462
+- Ensure schema sync occurs when changing connection by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1482
+- Add edge connection discovery on schema refresh by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1484
+- Fix lint errors on save by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1489
+- Update keyword search labels to be more clear by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1488
+- Add SchemaGraph module and UI improvements by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1492
+- Update dependencies and enforce fast-xml-parser minimum version by @kmcginnes
+  in https://github.com/aws/graph-explorer/pull/1497
+- Fix Gremlin edge connection parsing to use key lookup instead of positional
+  destructuring by @kmcginnes in https://github.com/aws/graph-explorer/pull/1498
+- Fix table view to expand when graph view is hidden by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1499
+- Ensure using latest @isaacs/brace-expansion by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1500
+- Simplify TypeScript configuration by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1501
+- Cleanup button props and consolidate IconButton into Button by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1502
+- Add SchemaDiscoveryBoundary for per-route schema sync states by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1509
+- Static nav bar with responsive dropdown menu by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1511
+- Export placeholder missing values as empty in CSV/JSON by @Eepsita12 in
+  https://github.com/aws/graph-explorer/pull/1483
+- Update sidebar tab style to better match nav by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1513
+- fix: EdgeDiscoveryBoundary preserves children after initial edge discovery by
+  @kmcginnes in https://github.com/aws/graph-explorer/pull/1517
+- Show message when multiple items selected in schema graph by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1516
+- Improve SPARQL schema graph and update RDF terminology by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1524
+- Update steering docs with schema storage, related issues, and project
+  references by @kmcginnes in https://github.com/aws/graph-explorer/pull/1527
+- fix(infra): use cross-platform compatible checks script by @abhu85 in
+  https://github.com/aws/graph-explorer/pull/1525
+- docs: add translations section to steering docs by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1529
+- Update some key packages by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1531
+- Add data type descriptions to schema sidebar details by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1533
+- Consolidate edge discovery into SchemaDiscoveryBoundary by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1530
+- Move prefix utilities to utils/rdf/ directory by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1535
+- Update minimatch to latest version by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1536
+- Update eslint, ajv, and qs by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1537
+- Add branded types for RDF namespace and prefix identifiers by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1538
+- Add node and edge styling sidebar panels to Schema Explorer by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1540
+- Move the project management steering to a skill by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1543
+- Update documentation for schema view and navigation changes by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1545
+- Update fast-xml-parser to 5.3.5+ by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1549 (based on #1534 by @abhu85)
+- Bump rollup to 4.59.0 by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1550
+- Migrate agent instructions from steering files to modular skills by @kmcginnes
+  in https://github.com/aws/graph-explorer/pull/1552
+- Bump version to 3.0.0 by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1546
+- Preserve edgeConnections on errors and fix import drop by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1551
+- Add explicit monorepo command instructions to AGENTS.md by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1555
+- Enforce pnpm and fix husky pre-commit hook by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1554
+- Move schema discovery message to sidebar alert by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1553
+- Fix edge connection reset on schema sync by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1556 (based on #1548 by @abhu85)
+- Rewrite prefix generation and replacement logic by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1539
+- Fix documentation inaccuracies across the repository by @kmcginnes in
+  https://github.com/aws/graph-explorer/pull/1559
+
+**Full Changelog**:
+https://github.com/aws/graph-explorer/compare/v2.5.2...v3.0.0
+
 ## Release 2.5.2
 
 This release bumps the Node & PNPM versions and cleans up the Docker image.
