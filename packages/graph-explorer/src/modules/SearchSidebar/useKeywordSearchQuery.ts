@@ -16,7 +16,7 @@ export function useKeywordSearchQuery({
   vertexTypes,
   searchByAttributes,
   exactMatch,
-  caseInsensitive
+  caseInsensitive,
 }: SearchQueryRequest) {
   const updateSchema = useUpdateSchemaFromEntities();
 
