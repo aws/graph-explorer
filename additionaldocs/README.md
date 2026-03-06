@@ -7,3 +7,4 @@
 - [Troubleshooting](./troubleshooting.md)
 - [SageMaker](./sagemaker)
 - [ECS](./ecs)
+- [Auth](./auth.md)
