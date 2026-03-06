@@ -8,6 +8,7 @@ export type SearchQueryRequest = {
   vertexTypes?: string[];
   searchByAttributes: string[];
   exactMatch: boolean;
+  caseInsensitive: boolean;
 };
 
 export function useKeywordSearchQuery({
@@ -15,6 +16,7 @@ export function useKeywordSearchQuery({
   vertexTypes,
   searchByAttributes,
   exactMatch,
+  caseInsensitive
 }: SearchQueryRequest) {
   const updateSchema = useUpdateSchemaFromEntities();
 
@@ -25,6 +27,7 @@ export function useKeywordSearchQuery({
     // Only set these when there is a search term to reduce queries
     searchByAttributes: debouncedSearchTerm ? searchByAttributes : undefined,
     exactMatch: debouncedSearchTerm ? exactMatch : undefined,
+    caseInsensitive: debouncedSearchTerm ? caseInsensitive : undefined,
   };
   const query = useQuery(searchQuery(request, updateSchema));
 
