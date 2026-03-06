@@ -163,4 +163,85 @@ describe("Gremlin > keywordSearchTemplate", () => {
       ),
     );
   });
+
+  it("Should return a case-insensitive template for partial match", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: "JFK",
+      searchByAttributes: ["city", "code"],
+      caseInsensitive: true,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(
+        'g.V().or(has("city",regex("(?i).*JFK.*")),has("code",regex("(?i).*JFK.*")))',
+      ),
+    );
+  });
+
+  it("Should return a case-insensitive template for exact match", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: "JFK",
+      searchByAttributes: ["city", "code"],
+      exactMatch: true,
+      caseInsensitive: true,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(
+        'g.V().or(has("city",regex("(?i)^JFK\\$")),has("code",regex("(?i)^JFK\\$")))',
+      ),
+    );
+  });
+
+  it("Should not apply case-insensitive to ID searches", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport"],
+      searchTerm: "JFK",
+      exactMatch: false,
+      caseInsensitive: true,
+      searchByAttributes: [SEARCH_TOKENS.NODE_ID],
+    });
+
+    expect(normalize(template)).toBe(
+      normalize('g.V().hasLabel("airport").or(has(id,containing("JFK")))'),
+    );
+  });
+
+  it("Should not apply regex when caseInsensitive is false", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: "JFK",
+      searchByAttributes: ["city"],
+      exactMatch: false,
+      caseInsensitive: false,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize('g.V().or(has("city",containing("JFK")))'),
+    );
+  });
+
+  it("Should escape regex metacharacters in case-insensitive partial match", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: "test.com",
+      searchByAttributes: ["url"],
+      caseInsensitive: true,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize('g.V().or(has("url",regex("(?i).*test\\\\.com.*")))'),
+    );
+  });
+
+  it("Should escape regex metacharacters in case-insensitive exact match", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: "test.com",
+      searchByAttributes: ["url"],
+      exactMatch: true,
+      caseInsensitive: true,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize('g.V().or(has("url",regex("(?i)^test\\\\.com\\$")))'),
+    );
+  });
 });
