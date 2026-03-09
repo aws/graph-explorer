@@ -2,24 +2,15 @@
 
 ## Release 3.0.0
 
-Graph Explorer 3.0 is here! This release brings one of the most requested
-features — the ability to visualize your graph database schema — along with a
-fresh navigation experience and a handful of quality-of-life improvements.
+Graph Explorer 3.0 is here! This release brings one of the most requested features — the ability to visualize your graph database schema — along with a fresh navigation experience and a handful of quality-of-life improvements.
 
-If you're upgrading from a previous version, all your existing connections,
-preferences, and configuration data will carry over unchanged.
+If you're upgrading from a previous version, all your existing connections, preferences, and configuration data will carry over unchanged.
 
 ### Schema Explorer
 
-You can now see the shape of your graph at a glance. The new Schema Explorer
-renders your vertex types, edge types, and their connections as an interactive
-schema graph. Drill into any type from the sidebar to see property details and
-data types. Edge connection discovery maps out how your types relate, giving you
-a bird's-eye view of your entire graph structure.
+You can now see the shape of your graph at a glance. The new Schema Explorer renders your vertex types, edge types, and their connections as an interactive schema graph. Drill into any type from the sidebar to see property details and data types. Edge connection discovery maps out how your types relate, giving you a bird's-eye view of your entire graph structure.
 
-The schema is built by sampling your graph data, so it reflects what Graph
-Explorer has seen so far and may not capture every type or property in your
-database.
+The schema is built by sampling your graph data, so it reflects what Graph Explorer has seen so far and may not capture every type or property in your database.
 
 <div align="center">
   <img width="540" src="images/schema-explorer.png" />
@@ -27,10 +18,7 @@ database.
 
 ### Redesigned Navigation
 
-Getting around Graph Explorer just got easier. The navigation bar has been
-rebuilt as a clean, static top bar for moving between the Graph Explorer, Data
-Explorer, and Schema Explorer. Sidebar tabs have been refreshed to match the new
-look.
+Getting around Graph Explorer just got easier. The navigation bar has been rebuilt as a clean, static top bar for moving between the Graph Explorer, Data Explorer, and Schema Explorer. Sidebar tabs have been refreshed to match the new look.
 
 <div align="center">
   <img width="540" src="images/graph-explorer.png" />
@@ -38,8 +26,7 @@ look.
 
 ### Data Explorer Improvements
 
-The Data Explorer now includes a vertex type switcher for faster browsing across
-types and a new export button to download data as CSV or JSON (thanks @dwrth!).
+The Data Explorer now includes a vertex type switcher for faster browsing across types and a new export button to download data as CSV or JSON (thanks @dwrth!).
 
 <div align="center">
   <img width="540" src="images/data-explorer.png" />
@@ -56,173 +43,92 @@ types and a new export button to download data as CSV or JSON (thanks @dwrth!).
 
 Welcome and thank you to our first-time contributors! 🎉
 
-- @Eepsita12 made their first contribution in
-  https://github.com/aws/graph-explorer/pull/1483
-- @abhu85 made their first contribution in
-  https://github.com/aws/graph-explorer/pull/1525
+- @Eepsita12 made their first contribution in https://github.com/aws/graph-explorer/pull/1483
+- @abhu85 made their first contribution in https://github.com/aws/graph-explorer/pull/1525
 
 ### All Changes
 
-- Add & use Alert component for settings by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1394
-- Add vertex type switcher to Data Explorer by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1390
-- Remove less frequently used colors by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1397
-- Update roadmap by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1398
-- Update colors with semantic variables by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1400
-- Fix SPARQL query optimization issue (again) by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1402
-- Fix search result disclosure chevron state by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1414
-- Add patch release info to main by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1437
-- Bump version to 2.6.0 by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1438
-- Breakdown Workspace components in to more flexible pieces by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1399
-- Remove explicitly set type names in tests by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1440
-- Update steering to prefer function syntax by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1439
-- Update to use map for counts by type by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1442
-- Use strongly typed VertexType and EdgeType by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1441
-- Update all dependencies by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1444
-- Fix button within button error by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1447
-- Migrate to jotai-family as suggested by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1446
-- Remove redundant schema type by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1450
-- Add EdgeConnection type for Schema Explorer by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1449
+- Add & use Alert component for settings by @kmcginnes in https://github.com/aws/graph-explorer/pull/1394
+- Add vertex type switcher to Data Explorer by @kmcginnes in https://github.com/aws/graph-explorer/pull/1390
+- Remove less frequently used colors by @kmcginnes in https://github.com/aws/graph-explorer/pull/1397
+- Update roadmap by @kmcginnes in https://github.com/aws/graph-explorer/pull/1398
+- Update colors with semantic variables by @kmcginnes in https://github.com/aws/graph-explorer/pull/1400
+- Fix SPARQL query optimization issue (again) by @kmcginnes in https://github.com/aws/graph-explorer/pull/1402
+- Fix search result disclosure chevron state by @kmcginnes in https://github.com/aws/graph-explorer/pull/1414
+- Add patch release info to main by @kmcginnes in https://github.com/aws/graph-explorer/pull/1437
+- Bump version to 2.6.0 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1438
+- Breakdown Workspace components in to more flexible pieces by @kmcginnes in https://github.com/aws/graph-explorer/pull/1399
+- Remove explicitly set type names in tests by @kmcginnes in https://github.com/aws/graph-explorer/pull/1440
+- Update steering to prefer function syntax by @kmcginnes in https://github.com/aws/graph-explorer/pull/1439
+- Update to use map for counts by type by @kmcginnes in https://github.com/aws/graph-explorer/pull/1442
+- Use strongly typed VertexType and EdgeType by @kmcginnes in https://github.com/aws/graph-explorer/pull/1441
+- Update all dependencies by @kmcginnes in https://github.com/aws/graph-explorer/pull/1444
+- Fix button within button error by @kmcginnes in https://github.com/aws/graph-explorer/pull/1447
+- Migrate to jotai-family as suggested by @kmcginnes in https://github.com/aws/graph-explorer/pull/1446
+- Remove redundant schema type by @kmcginnes in https://github.com/aws/graph-explorer/pull/1450
+- Add EdgeConnection type for Schema Explorer by @kmcginnes in https://github.com/aws/graph-explorer/pull/1449
 - Sort imports by @kmcginnes in https://github.com/aws/graph-explorer/pull/1452
-- Update number formatting to handle smaller numbers by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1460
-- Edge connection discovery queries by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1454
-- Fix Graph component styling by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1463
-- Add edgeConnectionsQuery React Query wrapper by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1464
-- Update Kiro steering instructions by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1465
-- Tweak navigation button UI & data explorer toolbar by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1459
-- Move graph toolbar buttons to shared components by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1466
-- Add basic schema explorer route by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1467
-- Cleanup Docker image and update dependencies by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1468
-- Add patch release to changelog by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1473
-- Consolidate duplicate labels by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1472
-- Standardize terminology across query languages by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1475
-- Refactor entity count formatting to support translations by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1477
-- Hide Display Name Property Selector for SPARQL Edge Styling by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1476
-- Update terminology: "Graph Type" → "Query Language" by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1474
-- Changed queries to get the explorer instance from Jotai by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1479
-- Add export button to Data Explorer by @dwrth in
-  https://github.com/aws/graph-explorer/pull/1462
-- Ensure schema sync occurs when changing connection by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1482
-- Add edge connection discovery on schema refresh by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1484
-- Fix lint errors on save by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1489
-- Update keyword search labels to be more clear by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1488
-- Add SchemaGraph module and UI improvements by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1492
-- Update dependencies and enforce fast-xml-parser minimum version by @kmcginnes
-  in https://github.com/aws/graph-explorer/pull/1497
-- Fix Gremlin edge connection parsing to use key lookup instead of positional
-  destructuring by @kmcginnes in https://github.com/aws/graph-explorer/pull/1498
-- Fix table view to expand when graph view is hidden by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1499
-- Ensure using latest @isaacs/brace-expansion by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1500
-- Simplify TypeScript configuration by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1501
-- Cleanup button props and consolidate IconButton into Button by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1502
-- Add SchemaDiscoveryBoundary for per-route schema sync states by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1509
-- Static nav bar with responsive dropdown menu by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1511
-- Export placeholder missing values as empty in CSV/JSON by @Eepsita12 in
-  https://github.com/aws/graph-explorer/pull/1483
-- Update sidebar tab style to better match nav by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1513
-- fix: EdgeDiscoveryBoundary preserves children after initial edge discovery by
-  @kmcginnes in https://github.com/aws/graph-explorer/pull/1517
-- Show message when multiple items selected in schema graph by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1516
-- Improve SPARQL schema graph and update RDF terminology by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1524
-- Update steering docs with schema storage, related issues, and project
-  references by @kmcginnes in https://github.com/aws/graph-explorer/pull/1527
-- fix(infra): use cross-platform compatible checks script by @abhu85 in
-  https://github.com/aws/graph-explorer/pull/1525
-- docs: add translations section to steering docs by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1529
-- Update some key packages by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1531
-- Add data type descriptions to schema sidebar details by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1533
-- Consolidate edge discovery into SchemaDiscoveryBoundary by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1530
-- Move prefix utilities to utils/rdf/ directory by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1535
-- Update minimatch to latest version by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1536
-- Update eslint, ajv, and qs by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1537
-- Add branded types for RDF namespace and prefix identifiers by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1538
-- Add node and edge styling sidebar panels to Schema Explorer by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1540
-- Move the project management steering to a skill by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1543
-- Update documentation for schema view and navigation changes by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1545
-- Update fast-xml-parser to 5.3.5+ by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1549 (based on #1534 by @abhu85)
-- Bump rollup to 4.59.0 by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1550
-- Migrate agent instructions from steering files to modular skills by @kmcginnes
-  in https://github.com/aws/graph-explorer/pull/1552
-- Bump version to 3.0.0 by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1546
-- Preserve edgeConnections on errors and fix import drop by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1551
-- Add explicit monorepo command instructions to AGENTS.md by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1555
-- Enforce pnpm and fix husky pre-commit hook by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1554
-- Move schema discovery message to sidebar alert by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1553
-- Fix edge connection reset on schema sync by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1556 (based on #1548 by @abhu85)
-- Rewrite prefix generation and replacement logic by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1539
-- Fix documentation inaccuracies across the repository by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1559
+- Update number formatting to handle smaller numbers by @kmcginnes in https://github.com/aws/graph-explorer/pull/1460
+- Edge connection discovery queries by @kmcginnes in https://github.com/aws/graph-explorer/pull/1454
+- Fix Graph component styling by @kmcginnes in https://github.com/aws/graph-explorer/pull/1463
+- Add edgeConnectionsQuery React Query wrapper by @kmcginnes in https://github.com/aws/graph-explorer/pull/1464
+- Update Kiro steering instructions by @kmcginnes in https://github.com/aws/graph-explorer/pull/1465
+- Tweak navigation button UI & data explorer toolbar by @kmcginnes in https://github.com/aws/graph-explorer/pull/1459
+- Move graph toolbar buttons to shared components by @kmcginnes in https://github.com/aws/graph-explorer/pull/1466
+- Add basic schema explorer route by @kmcginnes in https://github.com/aws/graph-explorer/pull/1467
+- Cleanup Docker image and update dependencies by @kmcginnes in https://github.com/aws/graph-explorer/pull/1468
+- Add patch release to changelog by @kmcginnes in https://github.com/aws/graph-explorer/pull/1473
+- Consolidate duplicate labels by @kmcginnes in https://github.com/aws/graph-explorer/pull/1472
+- Standardize terminology across query languages by @kmcginnes in https://github.com/aws/graph-explorer/pull/1475
+- Refactor entity count formatting to support translations by @kmcginnes in https://github.com/aws/graph-explorer/pull/1477
+- Hide Display Name Property Selector for SPARQL Edge Styling by @kmcginnes in https://github.com/aws/graph-explorer/pull/1476
+- Update terminology: "Graph Type" → "Query Language" by @kmcginnes in https://github.com/aws/graph-explorer/pull/1474
+- Changed queries to get the explorer instance from Jotai by @kmcginnes in https://github.com/aws/graph-explorer/pull/1479
+- Add export button to Data Explorer by @dwrth in https://github.com/aws/graph-explorer/pull/1462
+- Ensure schema sync occurs when changing connection by @kmcginnes in https://github.com/aws/graph-explorer/pull/1482
+- Add edge connection discovery on schema refresh by @kmcginnes in https://github.com/aws/graph-explorer/pull/1484
+- Fix lint errors on save by @kmcginnes in https://github.com/aws/graph-explorer/pull/1489
+- Update keyword search labels to be more clear by @kmcginnes in https://github.com/aws/graph-explorer/pull/1488
+- Add SchemaGraph module and UI improvements by @kmcginnes in https://github.com/aws/graph-explorer/pull/1492
+- Update dependencies and enforce fast-xml-parser minimum version by @kmcginnes in https://github.com/aws/graph-explorer/pull/1497
+- Fix Gremlin edge connection parsing to use key lookup instead of positional destructuring by @kmcginnes in https://github.com/aws/graph-explorer/pull/1498
+- Fix table view to expand when graph view is hidden by @kmcginnes in https://github.com/aws/graph-explorer/pull/1499
+- Ensure using latest @isaacs/brace-expansion by @kmcginnes in https://github.com/aws/graph-explorer/pull/1500
+- Simplify TypeScript configuration by @kmcginnes in https://github.com/aws/graph-explorer/pull/1501
+- Cleanup button props and consolidate IconButton into Button by @kmcginnes in https://github.com/aws/graph-explorer/pull/1502
+- Add SchemaDiscoveryBoundary for per-route schema sync states by @kmcginnes in https://github.com/aws/graph-explorer/pull/1509
+- Static nav bar with responsive dropdown menu by @kmcginnes in https://github.com/aws/graph-explorer/pull/1511
+- Export placeholder missing values as empty in CSV/JSON by @Eepsita12 in https://github.com/aws/graph-explorer/pull/1483
+- Update sidebar tab style to better match nav by @kmcginnes in https://github.com/aws/graph-explorer/pull/1513
+- fix: EdgeDiscoveryBoundary preserves children after initial edge discovery by @kmcginnes in https://github.com/aws/graph-explorer/pull/1517
+- Show message when multiple items selected in schema graph by @kmcginnes in https://github.com/aws/graph-explorer/pull/1516
+- Improve SPARQL schema graph and update RDF terminology by @kmcginnes in https://github.com/aws/graph-explorer/pull/1524
+- Update steering docs with schema storage, related issues, and project references by @kmcginnes in https://github.com/aws/graph-explorer/pull/1527
+- fix(infra): use cross-platform compatible checks script by @abhu85 in https://github.com/aws/graph-explorer/pull/1525
+- docs: add translations section to steering docs by @kmcginnes in https://github.com/aws/graph-explorer/pull/1529
+- Update some key packages by @kmcginnes in https://github.com/aws/graph-explorer/pull/1531
+- Add data type descriptions to schema sidebar details by @kmcginnes in https://github.com/aws/graph-explorer/pull/1533
+- Consolidate edge discovery into SchemaDiscoveryBoundary by @kmcginnes in https://github.com/aws/graph-explorer/pull/1530
+- Move prefix utilities to utils/rdf/ directory by @kmcginnes in https://github.com/aws/graph-explorer/pull/1535
+- Update minimatch to latest version by @kmcginnes in https://github.com/aws/graph-explorer/pull/1536
+- Update eslint, ajv, and qs by @kmcginnes in https://github.com/aws/graph-explorer/pull/1537
+- Add branded types for RDF namespace and prefix identifiers by @kmcginnes in https://github.com/aws/graph-explorer/pull/1538
+- Add node and edge styling sidebar panels to Schema Explorer by @kmcginnes in https://github.com/aws/graph-explorer/pull/1540
+- Move the project management steering to a skill by @kmcginnes in https://github.com/aws/graph-explorer/pull/1543
+- Update documentation for schema view and navigation changes by @kmcginnes in https://github.com/aws/graph-explorer/pull/1545
+- Update fast-xml-parser to 5.3.5+ by @kmcginnes in https://github.com/aws/graph-explorer/pull/1549 (based on #1534 by @abhu85)
+- Bump rollup to 4.59.0 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1550
+- Migrate agent instructions from steering files to modular skills by @kmcginnes in https://github.com/aws/graph-explorer/pull/1552
+- Bump version to 3.0.0 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1546
+- Preserve edgeConnections on errors and fix import drop by @kmcginnes in https://github.com/aws/graph-explorer/pull/1551
+- Add explicit monorepo command instructions to AGENTS.md by @kmcginnes in https://github.com/aws/graph-explorer/pull/1555
+- Enforce pnpm and fix husky pre-commit hook by @kmcginnes in https://github.com/aws/graph-explorer/pull/1554
+- Move schema discovery message to sidebar alert by @kmcginnes in https://github.com/aws/graph-explorer/pull/1553
+- Fix edge connection reset on schema sync by @kmcginnes in https://github.com/aws/graph-explorer/pull/1556 (based on #1548 by @abhu85)
+- Rewrite prefix generation and replacement logic by @kmcginnes in https://github.com/aws/graph-explorer/pull/1539
+- Fix documentation inaccuracies across the repository by @kmcginnes in https://github.com/aws/graph-explorer/pull/1559
 
-**Full Changelog**:
-https://github.com/aws/graph-explorer/compare/v2.5.2...v3.0.0
+**Full Changelog**: https://github.com/aws/graph-explorer/compare/v2.5.2...v3.0.0
 
 ## Release 2.5.2
 
@@ -230,107 +136,67 @@ This release bumps the Node & PNPM versions and cleans up the Docker image.
 
 ### All Changes
 
-- Cleanup Docker image and update dependencies by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1468
+- Cleanup Docker image and update dependencies by @kmcginnes in https://github.com/aws/graph-explorer/pull/1468
 
-**Full Changelog**:
-https://github.com/aws/graph-explorer/compare/v2.5.1...v2.5.2
+**Full Changelog**: https://github.com/aws/graph-explorer/compare/v2.5.1...v2.5.2
 
 ## Release 2.5.1
 
-This release includes a fix for a regression that caused neighbor expansion in
-SPARQL databases to perform poorly.
+This release includes a fix for a regression that caused neighbor expansion in SPARQL databases to perform poorly.
 
 ### All Changes
 
-- Fix SPARQL query optimization issue (again) by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1402
+- Fix SPARQL query optimization issue (again) by @kmcginnes in https://github.com/aws/graph-explorer/pull/1402
 
-**Full Changelog**:
-https://github.com/aws/graph-explorer/compare/v2.5.0...v2.5.1
+**Full Changelog**: https://github.com/aws/graph-explorer/compare/v2.5.0...v2.5.1
 
 ## Release 2.5.0
 
-This release focuses on improving the graph exploration experience with better
-debugging tools, enhanced node interactions, and performance optimizations.
+This release focuses on improving the graph exploration experience with better debugging tools, enhanced node interactions, and performance optimizations.
 
 ### New Features
 
-- **Raw JSON Response Viewer**: View query results as formatted JSON with syntax
-  highlighting and copy functionality for better debugging
-- **Enhanced Node Expansion**: Expand single or multiple selected nodes
-  simultaneously through an improved context menu
-- **Graph View Improvements**: Added toggle buttons to the empty state and
-  updated the re-layout button icon for clarity
+- **Raw JSON Response Viewer**: View query results as formatted JSON with syntax highlighting and copy functionality for better debugging
+- **Enhanced Node Expansion**: Expand single or multiple selected nodes simultaneously through an improved context menu
+- **Graph View Improvements**: Added toggle buttons to the empty state and updated the re-layout button icon for clarity
 
 ### Improvements
 
-- **Better Context Menu**: Reorganized options with new abilities to center/zoom
-  to selected items and remove all selected items
-- **Performance**: Faster app startup by lazy-loading Cytoscape and other heavy
-  dependencies (38% reduction in initial bundle size)
-- **UI Polish**: Updated table and notification styling, plus fixed node
-  stacking issues in graph rendering
-- **Stability**: Resolved race conditions that caused inconsistent behavior
-  during app initialization
+- **Better Context Menu**: Reorganized options with new abilities to center/zoom to selected items and remove all selected items
+- **Performance**: Faster app startup by lazy-loading Cytoscape and other heavy dependencies (38% reduction in initial bundle size)
+- **UI Polish**: Updated table and notification styling, plus fixed node stacking issues in graph rendering
+- **Stability**: Resolved race conditions that caused inconsistent behavior during app initialization
 
 ### All Changes
 
-- Change Prettier trailing comma option by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1340
-- Update dependencies to the latest versions by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1341
-- Update to Zod v4 by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1342
-- Add basic raw response dialog by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1345
-- Change re-layout button icon by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1350
-- Add GraphContext to contain the graphRef by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1351
-- Rework context menu to make more sense by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1352
-- Use Monaco editor for raw response syntax highlighting and folding by
-  @kmcginnes in https://github.com/aws/graph-explorer/pull/1349
-- Add expand option to single target by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1354
-- Remove offset and edgeTypes from neighbor request by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1355
-- Allow expanding multiple nodes at once by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1357
-- Bump body-parser from 2.2.0 to 2.2.1 by @dependabot[bot] in
-  https://github.com/aws/graph-explorer/pull/1353
-- Bump the version to 2.5.0 by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1359
-- Disable scroll pinning in raw response & fix property labels by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1361
-- Add toggle buttons to graph view empty state by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1366
-- Fix node stacking issue with graph canvas rendering by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1365
-- Migrate table components to Tailwind by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1368
-- Add search tokens constants by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1382
-- Move searchable attributes to a hook by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1383
-- Update prefixes to use specific hook by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1384
-- Switch notifications to use Sonner by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1385
-- Introduce code splitting by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1386
-- Move LocalForage preloading to before React is initialized by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1387
-- Fix explorer creation on app load by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1389
-- Fix HTML errors related to table by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1388
-- Update versions of GitHub actions by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1391
+- Change Prettier trailing comma option by @kmcginnes in https://github.com/aws/graph-explorer/pull/1340
+- Update dependencies to the latest versions by @kmcginnes in https://github.com/aws/graph-explorer/pull/1341
+- Update to Zod v4 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1342
+- Add basic raw response dialog by @kmcginnes in https://github.com/aws/graph-explorer/pull/1345
+- Change re-layout button icon by @kmcginnes in https://github.com/aws/graph-explorer/pull/1350
+- Add GraphContext to contain the graphRef by @kmcginnes in https://github.com/aws/graph-explorer/pull/1351
+- Rework context menu to make more sense by @kmcginnes in https://github.com/aws/graph-explorer/pull/1352
+- Use Monaco editor for raw response syntax highlighting and folding by @kmcginnes in https://github.com/aws/graph-explorer/pull/1349
+- Add expand option to single target by @kmcginnes in https://github.com/aws/graph-explorer/pull/1354
+- Remove offset and edgeTypes from neighbor request by @kmcginnes in https://github.com/aws/graph-explorer/pull/1355
+- Allow expanding multiple nodes at once by @kmcginnes in https://github.com/aws/graph-explorer/pull/1357
+- Bump body-parser from 2.2.0 to 2.2.1 by @dependabot[bot] in https://github.com/aws/graph-explorer/pull/1353
+- Bump the version to 2.5.0 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1359
+- Disable scroll pinning in raw response & fix property labels by @kmcginnes in https://github.com/aws/graph-explorer/pull/1361
+- Add toggle buttons to graph view empty state by @kmcginnes in https://github.com/aws/graph-explorer/pull/1366
+- Fix node stacking issue with graph canvas rendering by @kmcginnes in https://github.com/aws/graph-explorer/pull/1365
+- Migrate table components to Tailwind by @kmcginnes in https://github.com/aws/graph-explorer/pull/1368
+- Add search tokens constants by @kmcginnes in https://github.com/aws/graph-explorer/pull/1382
+- Move searchable attributes to a hook by @kmcginnes in https://github.com/aws/graph-explorer/pull/1383
+- Update prefixes to use specific hook by @kmcginnes in https://github.com/aws/graph-explorer/pull/1384
+- Switch notifications to use Sonner by @kmcginnes in https://github.com/aws/graph-explorer/pull/1385
+- Introduce code splitting by @kmcginnes in https://github.com/aws/graph-explorer/pull/1386
+- Move LocalForage preloading to before React is initialized by @kmcginnes in https://github.com/aws/graph-explorer/pull/1387
+- Fix explorer creation on app load by @kmcginnes in https://github.com/aws/graph-explorer/pull/1389
+- Fix HTML errors related to table by @kmcginnes in https://github.com/aws/graph-explorer/pull/1388
+- Update versions of GitHub actions by @kmcginnes in https://github.com/aws/graph-explorer/pull/1391
 
-**Full Changelog**:
-https://github.com/aws/graph-explorer/compare/v2.4.1...v2.5.0
+**Full Changelog**: https://github.com/aws/graph-explorer/compare/v2.4.1...v2.5.0
 
 ## Release v2.4.1
 
@@ -345,88 +211,50 @@ This release includes several important bug fixes and improvements, notably:
 
 ### All Changes
 
-- Update TypeScript configs for consistency by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1274
-- Use verbatimModuleSyntax and make imports consistent by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1278
-- Update dependencies post release by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1282
-- Use Activity for sidebar by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1290
-- Make style dialogs more global by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1291
-- Fix auto open details on selection issue in context menu actions by @kmcginnes
-  in https://github.com/aws/graph-explorer/pull/1292
-- Update Tailwind to v4 by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1293
-- Bump version to 2.4.1 by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1295
-- Remove forwardRef by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1296
-- Fix sidebar color issue by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1297
-- Fix layout issues by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1298
-- Fix container query issues by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1300
-- Cleanup from Tailwind upgrade by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1301
-- Fix handling of long labels across app UI by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1302
-- Update node & edge style dialogs by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1303
-- Add general steering rules for claude/q/kiro by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1305
-- Fix auto open details again by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1306
-- Fix null prefix by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1307
-- Remove `searchable` and `hidden` from `AttributeConfig` by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1311
-- Create schema entries for multi-label entities by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1312
-- Use default values for user preferences by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1313
-- Remove vertexTypes from expand neighbors request by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1314
-- Update canvas data to include label info by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1315
-- Add unit tests around connections by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1318
-- Use universal Jotai store by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1320
-- Update vertex and edge canvas state with query results by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1321
-- Update ESLint configuration by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1322
-- Fix re-renders in some core spots by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1324
-- Update atomWithLocalStorage to be cached and synchronous by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1323
-- Refactor schema, preferences, display types by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1316
-- Add refresh button for vertices and edges by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1325
-- Minor optimizations for refactored Jotai state by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1332
+- Update TypeScript configs for consistency by @kmcginnes in https://github.com/aws/graph-explorer/pull/1274
+- Use verbatimModuleSyntax and make imports consistent by @kmcginnes in https://github.com/aws/graph-explorer/pull/1278
+- Update dependencies post release by @kmcginnes in https://github.com/aws/graph-explorer/pull/1282
+- Use Activity for sidebar by @kmcginnes in https://github.com/aws/graph-explorer/pull/1290
+- Make style dialogs more global by @kmcginnes in https://github.com/aws/graph-explorer/pull/1291
+- Fix auto open details on selection issue in context menu actions by @kmcginnes in https://github.com/aws/graph-explorer/pull/1292
+- Update Tailwind to v4 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1293
+- Bump version to 2.4.1 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1295
+- Remove forwardRef by @kmcginnes in https://github.com/aws/graph-explorer/pull/1296
+- Fix sidebar color issue by @kmcginnes in https://github.com/aws/graph-explorer/pull/1297
+- Fix layout issues by @kmcginnes in https://github.com/aws/graph-explorer/pull/1298
+- Fix container query issues by @kmcginnes in https://github.com/aws/graph-explorer/pull/1300
+- Cleanup from Tailwind upgrade by @kmcginnes in https://github.com/aws/graph-explorer/pull/1301
+- Fix handling of long labels across app UI by @kmcginnes in https://github.com/aws/graph-explorer/pull/1302
+- Update node & edge style dialogs by @kmcginnes in https://github.com/aws/graph-explorer/pull/1303
+- Add general steering rules for claude/q/kiro by @kmcginnes in https://github.com/aws/graph-explorer/pull/1305
+- Fix auto open details again by @kmcginnes in https://github.com/aws/graph-explorer/pull/1306
+- Fix null prefix by @kmcginnes in https://github.com/aws/graph-explorer/pull/1307
+- Remove `searchable` and `hidden` from `AttributeConfig` by @kmcginnes in https://github.com/aws/graph-explorer/pull/1311
+- Create schema entries for multi-label entities by @kmcginnes in https://github.com/aws/graph-explorer/pull/1312
+- Use default values for user preferences by @kmcginnes in https://github.com/aws/graph-explorer/pull/1313
+- Remove vertexTypes from expand neighbors request by @kmcginnes in https://github.com/aws/graph-explorer/pull/1314
+- Update canvas data to include label info by @kmcginnes in https://github.com/aws/graph-explorer/pull/1315
+- Add unit tests around connections by @kmcginnes in https://github.com/aws/graph-explorer/pull/1318
+- Use universal Jotai store by @kmcginnes in https://github.com/aws/graph-explorer/pull/1320
+- Update vertex and edge canvas state with query results by @kmcginnes in https://github.com/aws/graph-explorer/pull/1321
+- Update ESLint configuration by @kmcginnes in https://github.com/aws/graph-explorer/pull/1322
+- Fix re-renders in some core spots by @kmcginnes in https://github.com/aws/graph-explorer/pull/1324
+- Update atomWithLocalStorage to be cached and synchronous by @kmcginnes in https://github.com/aws/graph-explorer/pull/1323
+- Refactor schema, preferences, display types by @kmcginnes in https://github.com/aws/graph-explorer/pull/1316
+- Add refresh button for vertices and edges by @kmcginnes in https://github.com/aws/graph-explorer/pull/1325
+- Minor optimizations for refactored Jotai state by @kmcginnes in https://github.com/aws/graph-explorer/pull/1332
 
-**Full Changelog**:
-https://github.com/aws/graph-explorer/compare/v2.4.0...v2.4.1
+**Full Changelog**: https://github.com/aws/graph-explorer/compare/v2.4.0...v2.4.1
 
 ## Release v2.4.0
 
-This release introduces support for SPARQL queries within the query editor. Now,
-all three query engines are supported: Gremlin, openCypher, and SPARQL. This
-does not mean we are done with the query editor. We have many exciting ideas
-being considered for future releases.
+This release introduces support for SPARQL queries within the query editor. Now, all three query engines are supported: Gremlin, openCypher, and SPARQL. This does not mean we are done with the query editor. We have many exciting ideas being considered for future releases.
 
 ### SPARQL Query Support
 
 - Support for `SELECT`, `ASK`, `DESCRIBE`, and `CONSTRUCT` queries
-- `DESCRIBE` and `CONSTRUCT` queries will result in fully materialized vertex
-  and edge results
-- `SELECT` and `ASK` queries will result in raw statements, but do not
-  materialize results as vertices or edges
+- `DESCRIBE` and `CONSTRUCT` queries will result in fully materialized vertex and edge results
+- `SELECT` and `ASK` queries will result in raw statements, but do not materialize results as vertices or edges
 - Support for RDF resources without a defined `rdf:type`
 - Updated display name defaults to use `rdfs:label` if it is available
 
@@ -435,145 +263,81 @@ being considered for future releases.
 - Added support for vertices that have no label in openCypher
 - Hide properties that don't have a value for the given vertex or edge
 - Added confirmation dialog when deleting a connection (thanks @dwrth)
-- Added ability to horizontally scroll toolbars if space is limited (thanks
-  @Ansh2004P)
+- Added ability to horizontally scroll toolbars if space is limited (thanks @Ansh2004P)
 - Added zoom to fit toolbar button (thanks @cnaples79)
-- Updated the strings used to represent no value, no type, and empty value to be
-  more clear
-- Updated handling of neighbor counts when neighbors have more than one type or
-  label
+- Updated the strings used to represent no value, no type, and empty value to be more clear
+- Updated handling of neighbor counts when neighbors have more than one type or label
 - Updated handling of date values, specifically in openCypher connections
 - Updated behavior of auto open details panel when a node is selected
 - Fixed many bugs
 
 ### All Changes
 
-- Adjust styles in DialogFooter by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1147
-- Bump version to 2.4.0 by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1132
-- Remove unused code by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1131
-- Use DialogFooter in LoadConfigButton dialog by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1148
-- Increase randomness in generated test strings by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1153
-- Add confirmation to deleting a connection by @dwrth in
-  https://github.com/aws/graph-explorer/pull/1136
-- Update dependencies by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1155
-- Fix node icon color change by @dwrth in
-  https://github.com/aws/graph-explorer/pull/1103
-- Add steering doc for documentation by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1164
-- Use consistent Spinner component across app by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1130
-- Update TypeScript config for Node 24 by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1156
-- Migrate EdgeStyleDialog to tailwind by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1151
-- Migrate CreateConnection to Tailwind by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1150
-- Use verbatimModuleSyntax in proxy server by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1157
-- Clear graph restore progress notification by @dwrth in
-  https://github.com/aws/graph-explorer/pull/1172
-- Fix input lag when changing node and edge colors by @dwrth in
-  https://github.com/aws/graph-explorer/pull/1173
-- Update minor versions by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1181
-- Add testing steering document by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1182
-- Simplify vertex detail query by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1186
-- Fix neighbor expansion when no attributes by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1185
-- Remove old async relics by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1180
-- Streamline useGraphStyles hook by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1183
-- Simplify queryClient test setup by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1179
-- Include headers in IAM request signing by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1198
-- Disable retries for user query by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1201
-- Fix neighbor expansion in SPARQL by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1195
-- Add SPARQL support to user queries by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1199
-- Fix Panel header overflow causing canvas to scroll off-screen by @Ansh2004P in
-  https://github.com/aws/graph-explorer/pull/1142
-- Update documentation for SPARQL query editor by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1211
-- Reduce risk of malicious packages by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1215
-- Disable spell check, auto capitalize/complete by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1225
-- Use store for Jotai state in tests by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1216
-- Add date as entity property value by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1220
-- feat: add Zoom to Fit button to graph canvas toolbar by @cnaples79 in
-  https://github.com/aws/graph-explorer/pull/1229
-- Fix multi label/class support in neighbor counts by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1194
-- Fix keyword search when resource has no attributes by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1230
-- Update rawQuery tests to use sparql helpers by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1236
-- Fix bug in testable edge with rdf values by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1238
-- Switch vertex details to map quads by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1239
-- Update raw query with mapping logic by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1241
-- Bump happy-dom from 18.0.1 to 20.0.0 by @dependabot[bot] in
-  https://github.com/aws/graph-explorer/pull/1244
-- Execute neighbor count queries in parallel by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1243
-- Update tests for DisplayVertexTypeConfig by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1246
-- Update fetch neighbors to use quad mapping by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1240
-- Consolidate blank node mapping logic by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1245
-- Move ASCII constants to module by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1251
-- Move labels in to module by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1252
-- Fix scrollbar placement in `Tabular` by @dwrth in
-  https://github.com/aws/graph-explorer/pull/1257
-- Minor tweaks for consolidated mapping logic by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1248
-- Ensure rdfs:label is first attribute by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1247
-- Update labels used when there is no value by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1253
-- Add check for empty string and use friendly string by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1254
-- Fix auto open details by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1262
-- Don’t add missing attributes to vertex or edge by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1255
-- Use shared filter helpers across queries by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1256
-- Support RDF resources that have no type or class defined by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1258
-- Bump happy-dom from 20.0.0 to 20.0.2 by @dependabot[bot] in
-  https://github.com/aws/graph-explorer/pull/1266
-- Save query state on every change by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1269
+- Adjust styles in DialogFooter by @kmcginnes in https://github.com/aws/graph-explorer/pull/1147
+- Bump version to 2.4.0 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1132
+- Remove unused code by @kmcginnes in https://github.com/aws/graph-explorer/pull/1131
+- Use DialogFooter in LoadConfigButton dialog by @kmcginnes in https://github.com/aws/graph-explorer/pull/1148
+- Increase randomness in generated test strings by @kmcginnes in https://github.com/aws/graph-explorer/pull/1153
+- Add confirmation to deleting a connection by @dwrth in https://github.com/aws/graph-explorer/pull/1136
+- Update dependencies by @kmcginnes in https://github.com/aws/graph-explorer/pull/1155
+- Fix node icon color change by @dwrth in https://github.com/aws/graph-explorer/pull/1103
+- Add steering doc for documentation by @kmcginnes in https://github.com/aws/graph-explorer/pull/1164
+- Use consistent Spinner component across app by @kmcginnes in https://github.com/aws/graph-explorer/pull/1130
+- Update TypeScript config for Node 24 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1156
+- Migrate EdgeStyleDialog to tailwind by @kmcginnes in https://github.com/aws/graph-explorer/pull/1151
+- Migrate CreateConnection to Tailwind by @kmcginnes in https://github.com/aws/graph-explorer/pull/1150
+- Use verbatimModuleSyntax in proxy server by @kmcginnes in https://github.com/aws/graph-explorer/pull/1157
+- Clear graph restore progress notification by @dwrth in https://github.com/aws/graph-explorer/pull/1172
+- Fix input lag when changing node and edge colors by @dwrth in https://github.com/aws/graph-explorer/pull/1173
+- Update minor versions by @kmcginnes in https://github.com/aws/graph-explorer/pull/1181
+- Add testing steering document by @kmcginnes in https://github.com/aws/graph-explorer/pull/1182
+- Simplify vertex detail query by @kmcginnes in https://github.com/aws/graph-explorer/pull/1186
+- Fix neighbor expansion when no attributes by @kmcginnes in https://github.com/aws/graph-explorer/pull/1185
+- Remove old async relics by @kmcginnes in https://github.com/aws/graph-explorer/pull/1180
+- Streamline useGraphStyles hook by @kmcginnes in https://github.com/aws/graph-explorer/pull/1183
+- Simplify queryClient test setup by @kmcginnes in https://github.com/aws/graph-explorer/pull/1179
+- Include headers in IAM request signing by @kmcginnes in https://github.com/aws/graph-explorer/pull/1198
+- Disable retries for user query by @kmcginnes in https://github.com/aws/graph-explorer/pull/1201
+- Fix neighbor expansion in SPARQL by @kmcginnes in https://github.com/aws/graph-explorer/pull/1195
+- Add SPARQL support to user queries by @kmcginnes in https://github.com/aws/graph-explorer/pull/1199
+- Fix Panel header overflow causing canvas to scroll off-screen by @Ansh2004P in https://github.com/aws/graph-explorer/pull/1142
+- Update documentation for SPARQL query editor by @kmcginnes in https://github.com/aws/graph-explorer/pull/1211
+- Reduce risk of malicious packages by @kmcginnes in https://github.com/aws/graph-explorer/pull/1215
+- Disable spell check, auto capitalize/complete by @kmcginnes in https://github.com/aws/graph-explorer/pull/1225
+- Use store for Jotai state in tests by @kmcginnes in https://github.com/aws/graph-explorer/pull/1216
+- Add date as entity property value by @kmcginnes in https://github.com/aws/graph-explorer/pull/1220
+- feat: add Zoom to Fit button to graph canvas toolbar by @cnaples79 in https://github.com/aws/graph-explorer/pull/1229
+- Fix multi label/class support in neighbor counts by @kmcginnes in https://github.com/aws/graph-explorer/pull/1194
+- Fix keyword search when resource has no attributes by @kmcginnes in https://github.com/aws/graph-explorer/pull/1230
+- Update rawQuery tests to use sparql helpers by @kmcginnes in https://github.com/aws/graph-explorer/pull/1236
+- Fix bug in testable edge with rdf values by @kmcginnes in https://github.com/aws/graph-explorer/pull/1238
+- Switch vertex details to map quads by @kmcginnes in https://github.com/aws/graph-explorer/pull/1239
+- Update raw query with mapping logic by @kmcginnes in https://github.com/aws/graph-explorer/pull/1241
+- Bump happy-dom from 18.0.1 to 20.0.0 by @dependabot[bot] in https://github.com/aws/graph-explorer/pull/1244
+- Execute neighbor count queries in parallel by @kmcginnes in https://github.com/aws/graph-explorer/pull/1243
+- Update tests for DisplayVertexTypeConfig by @kmcginnes in https://github.com/aws/graph-explorer/pull/1246
+- Update fetch neighbors to use quad mapping by @kmcginnes in https://github.com/aws/graph-explorer/pull/1240
+- Consolidate blank node mapping logic by @kmcginnes in https://github.com/aws/graph-explorer/pull/1245
+- Move ASCII constants to module by @kmcginnes in https://github.com/aws/graph-explorer/pull/1251
+- Move labels in to module by @kmcginnes in https://github.com/aws/graph-explorer/pull/1252
+- Fix scrollbar placement in `Tabular` by @dwrth in https://github.com/aws/graph-explorer/pull/1257
+- Minor tweaks for consolidated mapping logic by @kmcginnes in https://github.com/aws/graph-explorer/pull/1248
+- Ensure rdfs:label is first attribute by @kmcginnes in https://github.com/aws/graph-explorer/pull/1247
+- Update labels used when there is no value by @kmcginnes in https://github.com/aws/graph-explorer/pull/1253
+- Add check for empty string and use friendly string by @kmcginnes in https://github.com/aws/graph-explorer/pull/1254
+- Fix auto open details by @kmcginnes in https://github.com/aws/graph-explorer/pull/1262
+- Don’t add missing attributes to vertex or edge by @kmcginnes in https://github.com/aws/graph-explorer/pull/1255
+- Use shared filter helpers across queries by @kmcginnes in https://github.com/aws/graph-explorer/pull/1256
+- Support RDF resources that have no type or class defined by @kmcginnes in https://github.com/aws/graph-explorer/pull/1258
+- Bump happy-dom from 20.0.0 to 20.0.2 by @dependabot[bot] in https://github.com/aws/graph-explorer/pull/1266
+- Save query state on every change by @kmcginnes in https://github.com/aws/graph-explorer/pull/1269
 
 ### New Contributors
 
-- @Ansh2004P made their first contribution in
-  https://github.com/aws/graph-explorer/pull/1142
-- @cnaples79 made their first contribution in
-  https://github.com/aws/graph-explorer/pull/1229
+- @Ansh2004P made their first contribution in https://github.com/aws/graph-explorer/pull/1142
+- @cnaples79 made their first contribution in https://github.com/aws/graph-explorer/pull/1229
 
-**Full Changelog**:
-https://github.com/aws/graph-explorer/compare/v2.3.1...v2.4.0
+**Full Changelog**: https://github.com/aws/graph-explorer/compare/v2.3.1...v2.4.0
 
 ## Release v2.3.1
 
@@ -581,24 +345,16 @@ This release resolves a few important issues from the previous release.
 
 ### All changes
 
-- Remove past roadmap items by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1116
-- Add OpenSSL back to Docker by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1137
-- Bump version to 2.3.1 for patch by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1138
-- Fix expand neighbor query when edge ID is UUID by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1140
+- Remove past roadmap items by @kmcginnes in https://github.com/aws/graph-explorer/pull/1116
+- Add OpenSSL back to Docker by @kmcginnes in https://github.com/aws/graph-explorer/pull/1137
+- Bump version to 2.3.1 for patch by @kmcginnes in https://github.com/aws/graph-explorer/pull/1138
+- Fix expand neighbor query when edge ID is UUID by @kmcginnes in https://github.com/aws/graph-explorer/pull/1140
 
-**Full Changelog**:
-https://github.com/aws/graph-explorer/compare/v2.3.0...v2.3.1
+**Full Changelog**: https://github.com/aws/graph-explorer/compare/v2.3.0...v2.3.1
 
 ## Release v2.3
 
-This release improves the accuracy when rendering query results by preserving
-result names, properly rendering grouped data structures like maps, embedding
-source and target node information within edge results, and refining the overall
-results interface for better clarity.
+This release improves the accuracy when rendering query results by preserving result names, properly rendering grouped data structures like maps, embedding source and target node information within edge results, and refining the overall results interface for better clarity.
 
 ### Major changes
 
@@ -607,364 +363,177 @@ results interface for better clarity.
 - **Added** nested source & target vertex results inside of edge results
 - **Added** support for grouped data structures like maps and paths
 - **Updated** vertex and edge results to highlight when added to the graph
-- **Fixed** table view filter and sort reset when toggled off/on (thanks @dwrth
-  🎉)
+- **Fixed** table view filter and sort reset when toggled off/on (thanks @dwrth 🎉)
 - **Updated** Gremlin expand neighbors query performance by removing sorting
 
 ### All changes
 
-- Add context for Kiro by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1063
-- Remove unused dependencies by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1076
-- Refactor entity logic and add scalar as entity by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1075
-- Update Node and use official binaries by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1077
-- Remove unused code by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1079
-- Remove all usages of Mantine by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1080
-- Update search result UI by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1081
-- Split queries in to multiple files by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1084
-- Use more conventional approach to React Router by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1083
-- Migrate manual query from a mutation to a query by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1082
-- Fixes render issue for vertex & edge properties by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1089
-- Use arrays instead of Map inside Entities by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1090
-- Simplify Scalar type by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1092
-- Remove vertex info from Edge type by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1096
-- Produce more accurate query results by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1091
-- Bump version to 2.3.0 by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1106
-- Persistent table filtering and sorting by @dwrth in
-  https://github.com/aws/graph-explorer/pull/1100
-- Remove order by ID in fetch neighbors by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1112
-- Add highlight to nodes/edges added to the graph by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1111
-- Fix result count alignment when nothing to add to graph by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1107
-- Reorganize result types in to connector namespace by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1114
-- Add results title for query results by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1115
-- Show no attributes when none exist by @kmcginnes in
-  https://github.com/aws/graph-explorer/pull/1113
+- Add context for Kiro by @kmcginnes in https://github.com/aws/graph-explorer/pull/1063
+- Remove unused dependencies by @kmcginnes in https://github.com/aws/graph-explorer/pull/1076
+- Refactor entity logic and add scalar as entity by @kmcginnes in https://github.com/aws/graph-explorer/pull/1075
+- Update Node and use official binaries by @kmcginnes in https://github.com/aws/graph-explorer/pull/1077
+- Remove unused code by @kmcginnes in https://github.com/aws/graph-explorer/pull/1079
+- Remove all usages of Mantine by @kmcginnes in https://github.com/aws/graph-explorer/pull/1080
+- Update search result UI by @kmcginnes in https://github.com/aws/graph-explorer/pull/1081
+- Split queries in to multiple files by @kmcginnes in https://github.com/aws/graph-explorer/pull/1084
+- Use more conventional approach to React Router by @kmcginnes in https://github.com/aws/graph-explorer/pull/1083
+- Migrate manual query from a mutation to a query by @kmcginnes in https://github.com/aws/graph-explorer/pull/1082
+- Fixes render issue for vertex & edge properties by @kmcginnes in https://github.com/aws/graph-explorer/pull/1089
+- Use arrays instead of Map inside Entities by @kmcginnes in https://github.com/aws/graph-explorer/pull/1090
+- Simplify Scalar type by @kmcginnes in https://github.com/aws/graph-explorer/pull/1092
+- Remove vertex info from Edge type by @kmcginnes in https://github.com/aws/graph-explorer/pull/1096
+- Produce more accurate query results by @kmcginnes in https://github.com/aws/graph-explorer/pull/1091
+- Bump version to 2.3.0 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1106
+- Persistent table filtering and sorting by @dwrth in https://github.com/aws/graph-explorer/pull/1100
+- Remove order by ID in fetch neighbors by @kmcginnes in https://github.com/aws/graph-explorer/pull/1112
+- Add highlight to nodes/edges added to the graph by @kmcginnes in https://github.com/aws/graph-explorer/pull/1111
+- Fix result count alignment when nothing to add to graph by @kmcginnes in https://github.com/aws/graph-explorer/pull/1107
+- Reorganize result types in to connector namespace by @kmcginnes in https://github.com/aws/graph-explorer/pull/1114
+- Add results title for query results by @kmcginnes in https://github.com/aws/graph-explorer/pull/1115
+- Show no attributes when none exist by @kmcginnes in https://github.com/aws/graph-explorer/pull/1113
 
 ### New Contributors
 
-- @dwrth made their first contribution in
-  https://github.com/aws/graph-explorer/pull/1100
+- @dwrth made their first contribution in https://github.com/aws/graph-explorer/pull/1100
 
 ## Release v2.2
 
-This release brings significant performance improvements for the query editor,
-restoring graph session, and other operations that typically need to query for
-details about many nodes & edges all at once.
+This release brings significant performance improvements for the query editor, restoring graph session, and other operations that typically need to query for details about many nodes & edges all at once.
 
-In prior releases, this would manifest in multiple queries per node or edge,
-which could bog down the browser and overload the servers. With this release,
-similar types of requests are now batched together to reduce the number of
-requests down to around 3 requests in typical situations. This leads to better
-utilization of network bandwidth, reduces the load on both browser and server,
-and results in a more responsive UI.
+In prior releases, this would manifest in multiple queries per node or edge, which could bog down the browser and overload the servers. With this release, similar types of requests are now batched together to reduce the number of requests down to around 3 requests in typical situations. This leads to better utilization of network bandwidth, reduces the load on both browser and server, and results in a more responsive UI.
 
 ### Major changes
 
-- **Updated** query logic to prefer batching similar requests in groups of 100
-  instead of individual requests
-  ([#1044](https://github.com/aws/graph-explorer/pull/1044),
-  [#1048](https://github.com/aws/graph-explorer/pull/1048),
-  [#1065](https://github.com/aws/graph-explorer/pull/1065),
-  [#1068](https://github.com/aws/graph-explorer/pull/1068))
+- **Updated** query logic to prefer batching similar requests in groups of 100 instead of individual requests ([#1044](https://github.com/aws/graph-explorer/pull/1044), [#1048](https://github.com/aws/graph-explorer/pull/1048), [#1065](https://github.com/aws/graph-explorer/pull/1065), [#1068](https://github.com/aws/graph-explorer/pull/1068))
 
 ### Other changes
 
-- **Updated** roadmap to move SPARQL query editor up in priority
-  ([#1066](https://github.com/aws/graph-explorer/pull/1066))
-- **Updated** imperative query logic to check for a cache value first
-  ([#1047](https://github.com/aws/graph-explorer/pull/1047))
-- **Updated** Tanstack Query logic to simplify query construction
-  ([#1015](https://github.com/aws/graph-explorer/pull/1015),
-  [#1040](https://github.com/aws/graph-explorer/pull/1040),
-  [#1042](https://github.com/aws/graph-explorer/pull/1042))
-- **Fixed** rendering boolean values for Gremlin connections
-  ([#1034](https://github.com/aws/graph-explorer/pull/1034))
-- **Added** troubleshooting steps for mismatched proxy server to documentation
-  ([#1062](https://github.com/aws/graph-explorer/pull/1062))
-- **Fixed** brittleness of some tests
-  ([#1070](https://github.com/aws/graph-explorer/pull/1070))
+- **Updated** roadmap to move SPARQL query editor up in priority ([#1066](https://github.com/aws/graph-explorer/pull/1066))
+- **Updated** imperative query logic to check for a cache value first ([#1047](https://github.com/aws/graph-explorer/pull/1047))
+- **Updated** Tanstack Query logic to simplify query construction ([#1015](https://github.com/aws/graph-explorer/pull/1015), [#1040](https://github.com/aws/graph-explorer/pull/1040), [#1042](https://github.com/aws/graph-explorer/pull/1042))
+- **Fixed** rendering boolean values for Gremlin connections ([#1034](https://github.com/aws/graph-explorer/pull/1034))
+- **Added** troubleshooting steps for mismatched proxy server to documentation ([#1062](https://github.com/aws/graph-explorer/pull/1062))
+- **Fixed** brittleness of some tests ([#1070](https://github.com/aws/graph-explorer/pull/1070))
 
 ## Release v2.1
 
-This release continues the momentum of the last release, **introducing query
-editor support for openCypher connections**. This enables the use of the query
-editor with Neptune Analytics for the first time.
+This release continues the momentum of the last release, **introducing query editor support for openCypher connections**. This enables the use of the query editor with Neptune Analytics for the first time.
 
-As before, if you are a Neptune user concerned about data integrity, check out
-the
-[instructions on configuring IAM permissions to restrict mutations](./README.md#permissions),
-ensuring that users can enforce read-only operations.
+As before, if you are a Neptune user concerned about data integrity, check out the [instructions on configuring IAM permissions to restrict mutations](./README.md#permissions), ensuring that users can enforce read-only operations.
 
 ### New features & major changes
 
-- **Added** support for openCypher in the query editor
-  ([#1016](https://github.com/aws/graph-explorer/pull/1016),
-  [#1024](https://github.com/aws/graph-explorer/pull/1024),
-  [#1035](https://github.com/aws/graph-explorer/pull/1035))
+- **Added** support for openCypher in the query editor ([#1016](https://github.com/aws/graph-explorer/pull/1016), [#1024](https://github.com/aws/graph-explorer/pull/1024), [#1035](https://github.com/aws/graph-explorer/pull/1035))
 
 ### Other changes
 
-- **Added** close button to table view
-  ([#1026](https://github.com/aws/graph-explorer/pull/1026))
-- **Updated** label for properties count in connection detail
-  ([#1030](https://github.com/aws/graph-explorer/pull/1030))
-- **Updated** dependencies to latest versions and some minor refactorings
-  ([#1014](https://github.com/aws/graph-explorer/pull/1014),
-  [#1023](https://github.com/aws/graph-explorer/pull/1023),
-  [#1025](https://github.com/aws/graph-explorer/pull/1025),
-  [#1027](https://github.com/aws/graph-explorer/pull/1027))
+- **Added** close button to table view ([#1026](https://github.com/aws/graph-explorer/pull/1026))
+- **Updated** label for properties count in connection detail ([#1030](https://github.com/aws/graph-explorer/pull/1030))
+- **Updated** dependencies to latest versions and some minor refactorings ([#1014](https://github.com/aws/graph-explorer/pull/1014), [#1023](https://github.com/aws/graph-explorer/pull/1023), [#1025](https://github.com/aws/graph-explorer/pull/1025), [#1027](https://github.com/aws/graph-explorer/pull/1027))
 
 ## Release v2.0
 
-Graph Explorer v2.0 marks a significant milestone with the introduction of the
-new
-[query editor for Gremlin connections](./additionaldocs/features/README.md#query-search).
-This powerful feature allows users to enter any valid Gremlin query and
-visualize the returned nodes, edges, and scalar values directly from the
-database. You can review the results in the sidebar and choose to add all nodes
-& edges to the graph or add results individually.
+Graph Explorer v2.0 marks a significant milestone with the introduction of the new [query editor for Gremlin connections](./additionaldocs/features/README.md#query-search). This powerful feature allows users to enter any valid Gremlin query and visualize the returned nodes, edges, and scalar values directly from the database. You can review the results in the sidebar and choose to add all nodes & edges to the graph or add results individually.
 
-For Neptune users concerned about data integrity, [the README](./README.md) now
-includes
-[instructions on configuring IAM permissions to restrict mutations](./README.md#permissions),
-ensuring users can enforce read-only operations.
+For Neptune users concerned about data integrity, [the README](./README.md) now includes [instructions on configuring IAM permissions to restrict mutations](./README.md#permissions), ensuring users can enforce read-only operations.
 
-The release also changes the default strategy for representing node & edge
-labels in the UI. The app no longer performs any transformations on these names,
-providing a more intuitive and accurate representation of your data. For RDF
-datasets, namespace prefixes will continue to be substituted.
+The release also changes the default strategy for representing node & edge labels in the UI. The app no longer performs any transformations on these names, providing a more intuitive and accurate representation of your data. For RDF datasets, namespace prefixes will continue to be substituted.
 
-Additionally, graph layout options now have a more intuitive organization, and
-new directions have been added for hierarchical, subway, and klay layouts.
+Additionally, graph layout options now have a more intuitive organization, and new directions have been added for hierarchical, subway, and klay layouts.
 
 ### New features & major changes
 
-- **Added** query editor for Gremlin connections
-  ([#686](https://github.com/aws/graph-explorer/issues/686),
-  [#949](https://github.com/aws/graph-explorer/pull/949),
-  [#947](https://github.com/aws/graph-explorer/pull/947),
-  [#956](https://github.com/aws/graph-explorer/pull/956),
-  [#957](https://github.com/aws/graph-explorer/pull/957),
-  [#974](https://github.com/aws/graph-explorer/pull/974),
-  [#958](https://github.com/aws/graph-explorer/pull/958),
-  [#989](https://github.com/aws/graph-explorer/pull/989),
-  [#991](https://github.com/aws/graph-explorer/pull/991))
-- **Changed** node & edge label strategy to better represent true database names
-  ([#996](https://github.com/aws/graph-explorer/pull/996))
-- **Updated** graph layout options to include better descriptions and new
-  directions for hierarchical and subway
-  ([#973](https://github.com/aws/graph-explorer/pull/973))
+- **Added** query editor for Gremlin connections ([#686](https://github.com/aws/graph-explorer/issues/686), [#949](https://github.com/aws/graph-explorer/pull/949), [#947](https://github.com/aws/graph-explorer/pull/947), [#956](https://github.com/aws/graph-explorer/pull/956), [#957](https://github.com/aws/graph-explorer/pull/957), [#974](https://github.com/aws/graph-explorer/pull/974), [#958](https://github.com/aws/graph-explorer/pull/958), [#989](https://github.com/aws/graph-explorer/pull/989), [#991](https://github.com/aws/graph-explorer/pull/991))
+- **Changed** node & edge label strategy to better represent true database names ([#996](https://github.com/aws/graph-explorer/pull/996))
+- **Updated** graph layout options to include better descriptions and new directions for hierarchical and subway ([#973](https://github.com/aws/graph-explorer/pull/973))
 
 ### Other changes
 
-- **Updated** too many requests error message for accuracy
-  ([#990](https://github.com/aws/graph-explorer/pull/990))
-- **Fixed** multiple selection box behavior
-  ([#987](https://github.com/aws/graph-explorer/pull/987))
-- **Fixed** resizing columns in table view
-  ([#988](https://github.com/aws/graph-explorer/pull/988))
-- **Fixed** search result row separators to ensure they are always rendered
-  properly ([#997](https://github.com/aws/graph-explorer/pull/997))
+- **Updated** too many requests error message for accuracy ([#990](https://github.com/aws/graph-explorer/pull/990))
+- **Fixed** multiple selection box behavior ([#987](https://github.com/aws/graph-explorer/pull/987))
+- **Fixed** resizing columns in table view ([#988](https://github.com/aws/graph-explorer/pull/988))
+- **Fixed** search result row separators to ensure they are always rendered properly ([#997](https://github.com/aws/graph-explorer/pull/997))
 
 ## Release v1.16.0
 
-This release of Graph Explorer introduces significant usability improvements and
-performance enhancements. Users now have greater control over their exploration
-experience with the ability to customize default neighbor expansion limits and
-resize the sidebar. The connection interface has been refined with more
-intuitive placement of the sync button near the last sync timestamp.
+This release of Graph Explorer introduces significant usability improvements and performance enhancements. Users now have greater control over their exploration experience with the ability to customize default neighbor expansion limits and resize the sidebar. The connection interface has been refined with more intuitive placement of the sync button near the last sync timestamp.
 
-Performance has been enhanced across multiple areas, particularly for RDF
-datasets where neighbor expansion is now faster. The openCypher expand neighbor
-query has been optimized for scenarios without limits, and the neighbor count
-query now shows the full count of neighbors without restrictions. Under the
-hood, the application has undergone significant architectural improvements,
-transitioning from Recoil to Jotai for state management and implementing the
-React Compiler to boost overall rendering performance. These technical updates,
-along with numerous dependency updates and bug fixes, result in a more
-responsive and reliable experience.
+Performance has been enhanced across multiple areas, particularly for RDF datasets where neighbor expansion is now faster. The openCypher expand neighbor query has been optimized for scenarios without limits, and the neighbor count query now shows the full count of neighbors without restrictions. Under the hood, the application has undergone significant architectural improvements, transitioning from Recoil to Jotai for state management and implementing the React Compiler to boost overall rendering performance. These technical updates, along with numerous dependency updates and bug fixes, result in a more responsive and reliable experience.
 
 ### New Features
 
-- **Added** ability to customize default neighbor expansion limit
-  ([#925](https://github.com/aws/graph-explorer/pull/925))
-- **Added** ability to resize the sidebar
-  ([#938](https://github.com/aws/graph-explorer/pull/938))
+- **Added** ability to customize default neighbor expansion limit ([#925](https://github.com/aws/graph-explorer/pull/925))
+- **Added** ability to resize the sidebar ([#938](https://github.com/aws/graph-explorer/pull/938))
 
 ### Other changes
 
-- **Improved** Improved connection details by moving the sync button near the
-  last sync timestamp (thanks @enumura1,
-  [#901](https://github.com/aws/graph-explorer/pull/901),
-  [#908](https://github.com/aws/graph-explorer/pull/908))
-- **Improved** performance of neighbor expansion in RDF datasets
-  ([#942](https://github.com/aws/graph-explorer/pull/942))
-- **Improved** openCypher expand neighbor query to be faster when no limit is
-  provided ([#924](https://github.com/aws/graph-explorer/pull/924))
-- **Removed** limit on neighbor count query in order to always show the full
-  count of neighbors ([#924](https://github.com/aws/graph-explorer/pull/924))
-- **Fixed** issue where a schema sync would not automatically run when a
-  connection was changed
-  ([#919](https://github.com/aws/graph-explorer/pull/919))
-- **Updated** localForage Recoil integration to be async and use Suspense
-  ([#883](https://github.com/aws/graph-explorer/pull/883))
-- **Removed** Recoil state debugging tool that was never used
-  ([#909](https://github.com/aws/graph-explorer/pull/909))
-- **Updated** the state management layer to use Jotai instead of Recoil
-  ([#896](https://github.com/aws/graph-explorer/pull/896),
-  [#920](https://github.com/aws/graph-explorer/pull/920),
-  [#934](https://github.com/aws/graph-explorer/pull/934))
-- **Updated** to use the React Compiler to improve performance and simplify code
-  ([#916](https://github.com/aws/graph-explorer/pull/916))
-- **Updated** dependencies and minor refactoring of code
-  ([#922](https://github.com/aws/graph-explorer/pull/922),
-  [#926](https://github.com/aws/graph-explorer/pull/926),
-  [#930](https://github.com/aws/graph-explorer/pull/930),
-  [#931](https://github.com/aws/graph-explorer/pull/931),
-  [#932](https://github.com/aws/graph-explorer/pull/932),
-  [#933](https://github.com/aws/graph-explorer/pull/933))
+- **Improved** Improved connection details by moving the sync button near the last sync timestamp (thanks @enumura1, [#901](https://github.com/aws/graph-explorer/pull/901), [#908](https://github.com/aws/graph-explorer/pull/908))
+- **Improved** performance of neighbor expansion in RDF datasets ([#942](https://github.com/aws/graph-explorer/pull/942))
+- **Improved** openCypher expand neighbor query to be faster when no limit is provided ([#924](https://github.com/aws/graph-explorer/pull/924))
+- **Removed** limit on neighbor count query in order to always show the full count of neighbors ([#924](https://github.com/aws/graph-explorer/pull/924))
+- **Fixed** issue where a schema sync would not automatically run when a connection was changed ([#919](https://github.com/aws/graph-explorer/pull/919))
+- **Updated** localForage Recoil integration to be async and use Suspense ([#883](https://github.com/aws/graph-explorer/pull/883))
+- **Removed** Recoil state debugging tool that was never used ([#909](https://github.com/aws/graph-explorer/pull/909))
+- **Updated** the state management layer to use Jotai instead of Recoil ([#896](https://github.com/aws/graph-explorer/pull/896), [#920](https://github.com/aws/graph-explorer/pull/920), [#934](https://github.com/aws/graph-explorer/pull/934))
+- **Updated** to use the React Compiler to improve performance and simplify code ([#916](https://github.com/aws/graph-explorer/pull/916))
+- **Updated** dependencies and minor refactoring of code ([#922](https://github.com/aws/graph-explorer/pull/922), [#926](https://github.com/aws/graph-explorer/pull/926), [#930](https://github.com/aws/graph-explorer/pull/930), [#931](https://github.com/aws/graph-explorer/pull/931), [#932](https://github.com/aws/graph-explorer/pull/932), [#933](https://github.com/aws/graph-explorer/pull/933))
 
 ## Release v1.15.0
 
-Graph Explorer now offers session persistence, allowing you to seamlessly
-continue your work. With a single click, you can restore your previous graph
-visualization instead of starting from scratch. This feature retrieves the most
-current information for all nodes and edges from your last session, ensuring
-you're working with up-to-date data.
+Graph Explorer now offers session persistence, allowing you to seamlessly continue your work. With a single click, you can restore your previous graph visualization instead of starting from scratch. This feature retrieves the most current information for all nodes and edges from your last session, ensuring you're working with up-to-date data.
 
-This release also resolves a couple of long standing issues. The first is that
-double click expansion is now much more reliable and consistent across all three
-query languages. The second is that SPARQL neighbor counts and expansion is much
-more accurate and reliable.
+This release also resolves a couple of long standing issues. The first is that double click expansion is now much more reliable and consistent across all three query languages. The second is that SPARQL neighbor counts and expansion is much more accurate and reliable.
 
 And as always, there are many additional small fixes and improvements.
 
 ### New Features
 
-- **Added** ability to restore the graph from the previous session
-  ([#826](https://github.com/aws/graph-explorer/pull/826),
-  [#840](https://github.com/aws/graph-explorer/pull/840))
-- **Added** add /status endpoint to verify proxy health (thanks @ssheladiya,
-  [#833](https://github.com/aws/graph-explorer/pull/833))
-- **Added** ability to see full error details from errors in the UI
-  ([#858](https://github.com/aws/graph-explorer/pull/858))
-- **Added** ability to cancel a long running schema sync
-  ([#869](https://github.com/aws/graph-explorer/pull/869))
+- **Added** ability to restore the graph from the previous session ([#826](https://github.com/aws/graph-explorer/pull/826), [#840](https://github.com/aws/graph-explorer/pull/840))
+- **Added** add /status endpoint to verify proxy health (thanks @ssheladiya, [#833](https://github.com/aws/graph-explorer/pull/833))
+- **Added** ability to see full error details from errors in the UI ([#858](https://github.com/aws/graph-explorer/pull/858))
+- **Added** ability to cancel a long running schema sync ([#869](https://github.com/aws/graph-explorer/pull/869))
 
 ### Other changes
 
-- **Updated** graph manipulation logic to lay foundations for query editor
-  ([#864](https://github.com/aws/graph-explorer/pull/864),
-  [#848](https://github.com/aws/graph-explorer/pull/848),
-  [#853](https://github.com/aws/graph-explorer/pull/853),
-  [#850](https://github.com/aws/graph-explorer/pull/850),
-  [#843](https://github.com/aws/graph-explorer/pull/843),
-  [#842](https://github.com/aws/graph-explorer/pull/842),
-  [#839](https://github.com/aws/graph-explorer/pull/839),
-  [#837](https://github.com/aws/graph-explorer/pull/837),
-  [#838](https://github.com/aws/graph-explorer/pull/838))
-- **Updated** styling of the connections screen
-  ([#828](https://github.com/aws/graph-explorer/pull/828))
-- **Updated** namespaces sidebar to use tabs instead of dropdown
-  ([#830](https://github.com/aws/graph-explorer/pull/830))
-- **Fixed** rendering performance issues adding to the graph and showing the
-  entity filters or node & edge style sidebars
-  ([#892](https://github.com/aws/graph-explorer/pull/892))
-- **Fixed** issues with filtered neighbor expansion and neighbor counts in RDF
-  databases ([#870](https://github.com/aws/graph-explorer/pull/870))
-- **Fixed** issue representing metadata classes as valid instance types during
-  schema sync in RDF databases
-  ([#903](https://github.com/aws/graph-explorer/pull/903))
-- **Fixed** issue where double click expansion was inconsistent
-  ([#841](https://github.com/aws/graph-explorer/pull/841))
-- **Fixed** issue with table exports
-  ([#860](https://github.com/aws/graph-explorer/pull/860))
-- **Fixed** issue with long node titles or descriptions pushing the "add to
-  graph" button off the screen
-  ([#824](https://github.com/aws/graph-explorer/pull/824))
-- **Fixed** issue rendering search results with really long titles
-  ([#904](https://github.com/aws/graph-explorer/pull/904))
-- **Fixed** issue representing an edge connecting nodes with multiple labels
-  ([#839](https://github.com/aws/graph-explorer/pull/839))
-- **Fixed** proxy server error when a request is aborted mid-stream
-  ([#873](https://github.com/aws/graph-explorer/pull/873))
-- **Updated** icons in context menu to be more consistent
-  ([#906](https://github.com/aws/graph-explorer/pull/906))
-- **Updated** styling of buttons, input, textarea, and select fields
-  ([#847](https://github.com/aws/graph-explorer/pull/847),
-  [#832](https://github.com/aws/graph-explorer/pull/832),
-  [#834](https://github.com/aws/graph-explorer/pull/834))
-- **Updated** tests to be less fragile
-  ([865](https://github.com/aws/graph-explorer/pull/865))
-- **Updated** HMR behavior to ignore test files
-  ([#835](https://github.com/aws/graph-explorer/pull/835))
-- **Fixed** Docker build by not removing gzip
-  ([#868](https://github.com/aws/graph-explorer/pull/868))
-- **Updated** dependencies
-  ([#827](https://github.com/aws/graph-explorer/pull/827),
-  [#849](https://github.com/aws/graph-explorer/pull/849),
-  [#866](https://github.com/aws/graph-explorer/pull/866),
-  [#876](https://github.com/aws/graph-explorer/pull/876),
-  [#900](https://github.com/aws/graph-explorer/pull/900))
+- **Updated** graph manipulation logic to lay foundations for query editor ([#864](https://github.com/aws/graph-explorer/pull/864), [#848](https://github.com/aws/graph-explorer/pull/848), [#853](https://github.com/aws/graph-explorer/pull/853), [#850](https://github.com/aws/graph-explorer/pull/850), [#843](https://github.com/aws/graph-explorer/pull/843), [#842](https://github.com/aws/graph-explorer/pull/842), [#839](https://github.com/aws/graph-explorer/pull/839), [#837](https://github.com/aws/graph-explorer/pull/837), [#838](https://github.com/aws/graph-explorer/pull/838))
+- **Updated** styling of the connections screen ([#828](https://github.com/aws/graph-explorer/pull/828))
+- **Updated** namespaces sidebar to use tabs instead of dropdown ([#830](https://github.com/aws/graph-explorer/pull/830))
+- **Fixed** rendering performance issues adding to the graph and showing the entity filters or node & edge style sidebars ([#892](https://github.com/aws/graph-explorer/pull/892))
+- **Fixed** issues with filtered neighbor expansion and neighbor counts in RDF databases ([#870](https://github.com/aws/graph-explorer/pull/870))
+- **Fixed** issue representing metadata classes as valid instance types during schema sync in RDF databases ([#903](https://github.com/aws/graph-explorer/pull/903))
+- **Fixed** issue where double click expansion was inconsistent ([#841](https://github.com/aws/graph-explorer/pull/841))
+- **Fixed** issue with table exports ([#860](https://github.com/aws/graph-explorer/pull/860))
+- **Fixed** issue with long node titles or descriptions pushing the "add to graph" button off the screen ([#824](https://github.com/aws/graph-explorer/pull/824))
+- **Fixed** issue rendering search results with really long titles ([#904](https://github.com/aws/graph-explorer/pull/904))
+- **Fixed** issue representing an edge connecting nodes with multiple labels ([#839](https://github.com/aws/graph-explorer/pull/839))
+- **Fixed** proxy server error when a request is aborted mid-stream ([#873](https://github.com/aws/graph-explorer/pull/873))
+- **Updated** icons in context menu to be more consistent ([#906](https://github.com/aws/graph-explorer/pull/906))
+- **Updated** styling of buttons, input, textarea, and select fields ([#847](https://github.com/aws/graph-explorer/pull/847), [#832](https://github.com/aws/graph-explorer/pull/832), [#834](https://github.com/aws/graph-explorer/pull/834))
+- **Updated** tests to be less fragile ([865](https://github.com/aws/graph-explorer/pull/865))
+- **Updated** HMR behavior to ignore test files ([#835](https://github.com/aws/graph-explorer/pull/835))
+- **Fixed** Docker build by not removing gzip ([#868](https://github.com/aws/graph-explorer/pull/868))
+- **Updated** dependencies ([#827](https://github.com/aws/graph-explorer/pull/827), [#849](https://github.com/aws/graph-explorer/pull/849), [#866](https://github.com/aws/graph-explorer/pull/866), [#876](https://github.com/aws/graph-explorer/pull/876), [#900](https://github.com/aws/graph-explorer/pull/900))
 
 ## Release v1.14.1
 
-This release is a minor bug fix release, with a primary focus on surfacing
-schema sync errors to aid in diagnosing issues.
+This release is a minor bug fix release, with a primary focus on surfacing schema sync errors to aid in diagnosing issues.
 
-- **Improved** reliability of schema syncing, retrying on failure
-  ([#813](https://github.com/aws/graph-explorer/pull/813))
-- **Improved** handling of errors when fetching data from the database
-  ([#812](https://github.com/aws/graph-explorer/pull/812))
-- **Changed** to allow editing and deleting default connections
-  ([#801](https://github.com/aws/graph-explorer/pull/801),
-  [#821](https://github.com/aws/graph-explorer/pull/821))
-- **Changed** service type label to be "Neptune Analytics"
-  ([#811](https://github.com/aws/graph-explorer/pull/811))
-- **Fixed** issue where nodes and edges without any labels were causing the app
-  to crash ([#799](https://github.com/aws/graph-explorer/pull/799))
-- **Fixed** broken link in documentation (thanks @ssheladiya,
-  [#803](https://github.com/aws/graph-explorer/pull/803))
+- **Improved** reliability of schema syncing, retrying on failure ([#813](https://github.com/aws/graph-explorer/pull/813))
+- **Improved** handling of errors when fetching data from the database ([#812](https://github.com/aws/graph-explorer/pull/812))
+- **Changed** to allow editing and deleting default connections ([#801](https://github.com/aws/graph-explorer/pull/801), [#821](https://github.com/aws/graph-explorer/pull/821))
+- **Changed** service type label to be "Neptune Analytics" ([#811](https://github.com/aws/graph-explorer/pull/811))
+- **Fixed** issue where nodes and edges without any labels were causing the app to crash ([#799](https://github.com/aws/graph-explorer/pull/799))
+- **Fixed** broken link in documentation (thanks @ssheladiya, [#803](https://github.com/aws/graph-explorer/pull/803))
 
 ## Release v1.14.0
 
-This release includes a major new feature: the ability to load and save graphs.
-It required a massive effort to update the data management logic to allow this
-feature to exist. Some of these changes made the graph rendering logic slightly
-more efficient, so you may notice some small performance improvements.
+This release includes a major new feature: the ability to load and save graphs. It required a massive effort to update the data management logic to allow this feature to exist. Some of these changes made the graph rendering logic slightly more efficient, so you may notice some small performance improvements.
 
 ### Saving and Loading Graphs
 
-Graph Explorer now supports saving and loading graphs as files. To save the
-current graph, click the "Save graph to file" button in the graph toolbar. You
-can load a previously saved graph file by clicking the "Load graph from file"
-button in the graph toolbar and choosing the file to load.
+Graph Explorer now supports saving and loading graphs as files. To save the current graph, click the "Save graph to file" button in the graph toolbar. You can load a previously saved graph file by clicking the "Load graph from file" button in the graph toolbar and choosing the file to load.
 
-Graph Explorer will verify that you are currently connected to the right
-database and then read all the node & edge IDs in the file. It will then execute
-the required queries to get up to date information from the database and load
-the nodes & edges in to the graph. Any existing nodes & edges in your graph will
-be unchanged.
+Graph Explorer will verify that you are currently connected to the right database and then read all the node & edge IDs in the file. It will then execute the required queries to get up to date information from the database and load the nodes & edges in to the graph. Any existing nodes & edges in your graph will be unchanged.
 
 #### File Contents
 
@@ -976,372 +545,191 @@ The saved graph file contains the following information in plain JSON format:
 
 ### All Changes
 
-- **Added** ability to save the rendered graph to a file, allowing for reloading
-  the graph later or sharing the graph with other users who have the same
-  connection ([#756](https://github.com/aws/graph-explorer/pull/756),
-  [#758](https://github.com/aws/graph-explorer/pull/758),
-  [#761](https://github.com/aws/graph-explorer/pull/761),
-  [#762](https://github.com/aws/graph-explorer/pull/762),
-  [#767](https://github.com/aws/graph-explorer/pull/767),
-  [#768](https://github.com/aws/graph-explorer/pull/768),
-  [#769](https://github.com/aws/graph-explorer/pull/769),
-  [#770](https://github.com/aws/graph-explorer/pull/770),
-  [#775](https://github.com/aws/graph-explorer/pull/775),
-  [#781](https://github.com/aws/graph-explorer/pull/781),
-  [#786](https://github.com/aws/graph-explorer/pull/786),
-  [#793](https://github.com/aws/graph-explorer/pull/793))
-- **Updated** UI labels to refer to node & edge "labels" instead of "types"
-  ([#766](https://github.com/aws/graph-explorer/pull/766))
-- **Improved** neighbor count retrieval to be more efficient
-  ([#744](https://github.com/aws/graph-explorer/pull/744))
-- **Removed** unused `hidden` flag from schema types
-  ([#737](https://github.com/aws/graph-explorer/pull/737))
-- **Improved** entity filtering logic reducing re-renders
-  ([#739](https://github.com/aws/graph-explorer/pull/739),
-  [741](https://github.com/aws/graph-explorer/pull/741))
-- **Added** attribute count to node labels list in the connection screen
-  ([#743](https://github.com/aws/graph-explorer/pull/743))
-- **Improved** pagination controls by using a single shared component
-  ([#742](https://github.com/aws/graph-explorer/pull/742))
-- **Updated** styling across the app
-  ([#777](https://github.com/aws/graph-explorer/pull/777),
-  [#743](https://github.com/aws/graph-explorer/pull/743),
-  [#780](https://github.com/aws/graph-explorer/pull/780))
+- **Added** ability to save the rendered graph to a file, allowing for reloading the graph later or sharing the graph with other users who have the same connection ([#756](https://github.com/aws/graph-explorer/pull/756), [#758](https://github.com/aws/graph-explorer/pull/758), [#761](https://github.com/aws/graph-explorer/pull/761), [#762](https://github.com/aws/graph-explorer/pull/762), [#767](https://github.com/aws/graph-explorer/pull/767), [#768](https://github.com/aws/graph-explorer/pull/768), [#769](https://github.com/aws/graph-explorer/pull/769), [#770](https://github.com/aws/graph-explorer/pull/770), [#775](https://github.com/aws/graph-explorer/pull/775), [#781](https://github.com/aws/graph-explorer/pull/781), [#786](https://github.com/aws/graph-explorer/pull/786), [#793](https://github.com/aws/graph-explorer/pull/793))
+- **Updated** UI labels to refer to node & edge "labels" instead of "types" ([#766](https://github.com/aws/graph-explorer/pull/766))
+- **Improved** neighbor count retrieval to be more efficient ([#744](https://github.com/aws/graph-explorer/pull/744))
+- **Removed** unused `hidden` flag from schema types ([#737](https://github.com/aws/graph-explorer/pull/737))
+- **Improved** entity filtering logic reducing re-renders ([#739](https://github.com/aws/graph-explorer/pull/739), [741](https://github.com/aws/graph-explorer/pull/741))
+- **Added** attribute count to node labels list in the connection screen ([#743](https://github.com/aws/graph-explorer/pull/743))
+- **Improved** pagination controls by using a single shared component ([#742](https://github.com/aws/graph-explorer/pull/742))
+- **Updated** styling across the app ([#777](https://github.com/aws/graph-explorer/pull/777), [#743](https://github.com/aws/graph-explorer/pull/743), [#780](https://github.com/aws/graph-explorer/pull/780))
   - Rounded style for search inputs, panels, toast notifications, and more
   - Searchable list items style consistent with connection style
   - Softer grays
   - More consistent shadows
   - More consistent menus (context menus, select dropdowns, etc.)
   - Graph legend is now consistent with other panels
-- **Updated** dependencies and remove unused dependencies
-  ([#764](https://github.com/aws/graph-explorer/pull/764),
-  [#776](https://github.com/aws/graph-explorer/pull/776),
-  [#782](https://github.com/aws/graph-explorer/pull/782),
-  [#783](https://github.com/aws/graph-explorer/pull/783))
+- **Updated** dependencies and remove unused dependencies ([#764](https://github.com/aws/graph-explorer/pull/764), [#776](https://github.com/aws/graph-explorer/pull/776), [#782](https://github.com/aws/graph-explorer/pull/782), [#783](https://github.com/aws/graph-explorer/pull/783))
 
 ## Release 1.13.0
 
-This release is a maintenance release with improvements to app startup, default
-connection handling, and Neptune error handling.
+This release is a maintenance release with improvements to app startup, default connection handling, and Neptune error handling.
 
-- **Removed** URL parameter `configFile` support for the default connection
-  ([#724](https://github.com/aws/graph-explorer/pull/724))
-- **Improved** app startup UI to be more consistent
-  ([#723](https://github.com/aws/graph-explorer/pull/723))
-- **Improved** error logs in the browser console
-  ([#721](https://github.com/aws/graph-explorer/pull/721))
-- **Improved** default connection handling, including fallbacks for invalid data
-  ([#734](https://github.com/aws/graph-explorer/pull/734))
-- **Updated** dependencies
-  ([#718](https://github.com/aws/graph-explorer/pull/718),
-  [#720](https://github.com/aws/graph-explorer/pull/720))
+- **Removed** URL parameter `configFile` support for the default connection ([#724](https://github.com/aws/graph-explorer/pull/724))
+- **Improved** app startup UI to be more consistent ([#723](https://github.com/aws/graph-explorer/pull/723))
+- **Improved** error logs in the browser console ([#721](https://github.com/aws/graph-explorer/pull/721))
+- **Improved** default connection handling, including fallbacks for invalid data ([#734](https://github.com/aws/graph-explorer/pull/734))
+- **Updated** dependencies ([#718](https://github.com/aws/graph-explorer/pull/718), [#720](https://github.com/aws/graph-explorer/pull/720))
 
 ## Release 1.12.1
 
-- **Fixed** issue where the edge's display name value was not being displayed
-  properly ([#716](https://github.com/aws/graph-explorer/pull/716))
+- **Fixed** issue where the edge's display name value was not being displayed properly ([#716](https://github.com/aws/graph-explorer/pull/716))
 
 ## Release 1.12.0
 
-This release is mostly a maintenance release, with a few new features and bug
-fixes.
+This release is mostly a maintenance release, with a few new features and bug fixes.
 
 ### Consistent node and edge information
 
-The biggest noticeable change is the consistency of node and edge information
-across the app. Previously, the node and edge information was rendered
-differently in the search results, node details, edge details, and expand
-options. Now, they are all consistent, with the same information displayed.
+The biggest noticeable change is the consistency of node and edge information across the app. Previously, the node and edge information was rendered differently in the search results, node details, edge details, and expand options. Now, they are all consistent, with the same information displayed.
 
-These changes improve the support for multiple node labels and date values in
-Gremlin.
+These changes improve the support for multiple node labels and date values in Gremlin.
 
 ### All changes
 
-- **Improved** consistency of rendering node information across search results,
-  node details header, edge details header, and expand options header
-  ([#697](https://github.com/aws/graph-explorer/pull/697))
-- **Improved** edge properties in the details sidebar, which now includes the
-  source and target vertex IDs and types
-  ([#698](https://github.com/aws/graph-explorer/pull/698))
-- **Fixed** date rendering on Gremlin connections
-  ([#698](https://github.com/aws/graph-explorer/pull/698))
-- **Fixed** a bug where the automatic open details feature would not open the
-  details sidebar when selecting nodes
-  ([#679](https://github.com/aws/graph-explorer/pull/679))
-- **Improved** styling on checkboxes across the app, and specifically the export
-  options popover and entity filters sidebar
-  ([#676](https://github.com/aws/graph-explorer/pull/676))
-- **Improved** styling on icon buttons
-  ([#674](https://github.com/aws/graph-explorer/pull/674),
-  [#675](https://github.com/aws/graph-explorer/pull/675),
-  [#683](https://github.com/aws/graph-explorer/pull/683))
-- **Improved** styling & behavior on tooltips
-  ([#709](https://github.com/aws/graph-explorer/pull/709))
-- **Improved** styling & behavior color inputs
-  ([#707](https://github.com/aws/graph-explorer/pull/707))
-- **Updated** documentation to reorganize and extend the troubleshooting tips
-  ([#681](https://github.com/aws/graph-explorer/pull/681))
-- **Updated** documentation to add a roadmap outline
-  ([#696](https://github.com/aws/graph-explorer/pull/696))
-- **Consolidated** logic around the display of nodes and edges to a single
-  location for simplicity and consistency
-  ([#698](https://github.com/aws/graph-explorer/pull/698))
-- **Updated** dependencies, including Node v22
-  ([#680](https://github.com/aws/graph-explorer/pull/680))
+- **Improved** consistency of rendering node information across search results, node details header, edge details header, and expand options header ([#697](https://github.com/aws/graph-explorer/pull/697))
+- **Improved** edge properties in the details sidebar, which now includes the source and target vertex IDs and types ([#698](https://github.com/aws/graph-explorer/pull/698))
+- **Fixed** date rendering on Gremlin connections ([#698](https://github.com/aws/graph-explorer/pull/698))
+- **Fixed** a bug where the automatic open details feature would not open the details sidebar when selecting nodes ([#679](https://github.com/aws/graph-explorer/pull/679))
+- **Improved** styling on checkboxes across the app, and specifically the export options popover and entity filters sidebar ([#676](https://github.com/aws/graph-explorer/pull/676))
+- **Improved** styling on icon buttons ([#674](https://github.com/aws/graph-explorer/pull/674), [#675](https://github.com/aws/graph-explorer/pull/675), [#683](https://github.com/aws/graph-explorer/pull/683))
+- **Improved** styling & behavior on tooltips ([#709](https://github.com/aws/graph-explorer/pull/709))
+- **Improved** styling & behavior color inputs ([#707](https://github.com/aws/graph-explorer/pull/707))
+- **Updated** documentation to reorganize and extend the troubleshooting tips ([#681](https://github.com/aws/graph-explorer/pull/681))
+- **Updated** documentation to add a roadmap outline ([#696](https://github.com/aws/graph-explorer/pull/696))
+- **Consolidated** logic around the display of nodes and edges to a single location for simplicity and consistency ([#698](https://github.com/aws/graph-explorer/pull/698))
+- **Updated** dependencies, including Node v22 ([#680](https://github.com/aws/graph-explorer/pull/680))
 
 ## Release 1.11.0
 
-This release includes a big change to search, improvements to the Docker image
-size and security, and as always, there are many additional small fixes and
-improvements.
+This release includes a big change to search, improvements to the Docker image size and security, and as always, there are many additional small fixes and improvements.
 
 ### Search Sidebar
 
-With this release, we've moved search out of the top navigation bar and in to
-the sidebar. When new users open Graph Explorer for the first time, they will be
-greeted with a set of search results ready to be added to the graph and
-explored.
+With this release, we've moved search out of the top navigation bar and in to the sidebar. When new users open Graph Explorer for the first time, they will be greeted with a set of search results ready to be added to the graph and explored.
 
-For existing users, you'll benefit from a better experience with search. Your
-filters will remain active as you navigate around and it will do its best to
-keep your attribute selection when you change the node type. There's also a new
-"Add All" button, when you want to add all the search results to the graph with
-a single click.
+For existing users, you'll benefit from a better experience with search. Your filters will remain active as you navigate around and it will do its best to keep your attribute selection when you change the node type. There's also a new "Add All" button, when you want to add all the search results to the graph with a single click.
 
 ### All Changes
 
-- **Improved** search discoverability and ergonomics by moving the UI in to the
-  sidebar ([#665](https://github.com/aws/graph-explorer/pull/665),
-  [#669](https://github.com/aws/graph-explorer/pull/669),
-  [#670](https://github.com/aws/graph-explorer/pull/670))
-- **Improved** UI responsiveness by using map instead of array for large data
-  sets ([#658](https://github.com/aws/graph-explorer/pull/658))
-- **Improved** connection selection can now happen on any part of the connection
-  row ([#657](https://github.com/aws/graph-explorer/pull/657))
-- **Improved** style for the sidebar buttons
-  ([#651](https://github.com/aws/graph-explorer/pull/651))
-- **Improved** styles in the context menu to be easier to read
-  ([#670](https://github.com/aws/graph-explorer/pull/670))
-- **Improved** Docker image size, reducing it by 196 MB
-  ([#619](https://github.com/aws/graph-explorer/pull/619))
-- **Improved** query when searching across all node types
-  ([#607](https://github.com/aws/graph-explorer/pull/607))
-- **Improved** query generation by removing empty lines
-  ([#608](https://github.com/aws/graph-explorer/pull/608))
-- **Fixed** scrolling on search result details
-  [#657](https://github.com/aws/graph-explorer/pull/657)
-- **Fixed** Docker image containing more files than necessary.
-  ([#613](https://github.com/aws/graph-explorer/pull/613))
-- **Fixed** conflict when a node has a property named "id" that prevented
-  changing the display attribute.
-  ([#626](https://github.com/aws/graph-explorer/pull/626))
-- **Fixed** style issue where buttons have a halo around them after being
-  clicked ([#650](https://github.com/aws/graph-explorer/pull/650))
-- **Fixed** security vulnerabilities in the Docker image from dev dependencies
-  remaining in the image
-  ([#616](https://github.com/aws/graph-explorer/pull/616))
-- **Fixed** minor layout issue on connections screen
-  ([#648](https://github.com/aws/graph-explorer/pull/648),
-  [#670](https://github.com/aws/graph-explorer/pull/670))
-- **Updated** multiple dependencies
-  ([#611](https://github.com/aws/graph-explorer/pull/611),
-  [#614](https://github.com/aws/graph-explorer/pull/614),
-  [#616](https://github.com/aws/graph-explorer/pull/616),
-  [#624](https://github.com/aws/graph-explorer/pull/624))
+- **Improved** search discoverability and ergonomics by moving the UI in to the sidebar ([#665](https://github.com/aws/graph-explorer/pull/665), [#669](https://github.com/aws/graph-explorer/pull/669), [#670](https://github.com/aws/graph-explorer/pull/670))
+- **Improved** UI responsiveness by using map instead of array for large data sets ([#658](https://github.com/aws/graph-explorer/pull/658))
+- **Improved** connection selection can now happen on any part of the connection row ([#657](https://github.com/aws/graph-explorer/pull/657))
+- **Improved** style for the sidebar buttons ([#651](https://github.com/aws/graph-explorer/pull/651))
+- **Improved** styles in the context menu to be easier to read ([#670](https://github.com/aws/graph-explorer/pull/670))
+- **Improved** Docker image size, reducing it by 196 MB ([#619](https://github.com/aws/graph-explorer/pull/619))
+- **Improved** query when searching across all node types ([#607](https://github.com/aws/graph-explorer/pull/607))
+- **Improved** query generation by removing empty lines ([#608](https://github.com/aws/graph-explorer/pull/608))
+- **Fixed** scrolling on search result details [#657](https://github.com/aws/graph-explorer/pull/657)
+- **Fixed** Docker image containing more files than necessary. ([#613](https://github.com/aws/graph-explorer/pull/613))
+- **Fixed** conflict when a node has a property named "id" that prevented changing the display attribute. ([#626](https://github.com/aws/graph-explorer/pull/626))
+- **Fixed** style issue where buttons have a halo around them after being clicked ([#650](https://github.com/aws/graph-explorer/pull/650))
+- **Fixed** security vulnerabilities in the Docker image from dev dependencies remaining in the image ([#616](https://github.com/aws/graph-explorer/pull/616))
+- **Fixed** minor layout issue on connections screen ([#648](https://github.com/aws/graph-explorer/pull/648), [#670](https://github.com/aws/graph-explorer/pull/670))
+- **Updated** multiple dependencies ([#611](https://github.com/aws/graph-explorer/pull/611), [#614](https://github.com/aws/graph-explorer/pull/614), [#616](https://github.com/aws/graph-explorer/pull/616), [#624](https://github.com/aws/graph-explorer/pull/624))
 
 ## Release 1.10.1
 
-- **Improved** support for databases with thousands of node & edge types
-  ([#599](https://github.com/aws/graph-explorer/pull/599))
-- **Improved** logging on server and around schema sync
-  ([#604](https://github.com/aws/graph-explorer/pull/604))
-- **Fixed** context menu styles
-  ([#600](https://github.com/aws/graph-explorer/pull/600))
-- **Fixed** alignment of close button in search panel
-  ([#603](https://github.com/aws/graph-explorer/pull/603))
+- **Improved** support for databases with thousands of node & edge types ([#599](https://github.com/aws/graph-explorer/pull/599))
+- **Improved** logging on server and around schema sync ([#604](https://github.com/aws/graph-explorer/pull/604))
+- **Fixed** context menu styles ([#600](https://github.com/aws/graph-explorer/pull/600))
+- **Fixed** alignment of close button in search panel ([#603](https://github.com/aws/graph-explorer/pull/603))
 
 ## Release 1.10.0
 
-This release includes some new features to make managing and supporting Graph
-Explorer more friendly.
+This release includes some new features to make managing and supporting Graph Explorer more friendly.
 
 **Major Changes**
 
-- **Added** backup & restore options for Graph Explorer local data
-  ([#549](https://github.com/aws/graph-explorer/pull/549))
-- **Added** about screen that includes a link to submit feedback
-  ([#549](https://github.com/aws/graph-explorer/pull/549))
+- **Added** backup & restore options for Graph Explorer local data ([#549](https://github.com/aws/graph-explorer/pull/549))
+- **Added** about screen that includes a link to submit feedback ([#549](https://github.com/aws/graph-explorer/pull/549))
 - **Improved** logging & error handling to aid in support
-  - **Added** global error page if the React app crashes
-    ([#547](https://github.com/aws/graph-explorer/pull/547))
-  - **Added** optional server logging of database queries when using the proxy
-    server which can be enabled within settings
-    ([#574](https://github.com/aws/graph-explorer/pull/574),
-    [#575](https://github.com/aws/graph-explorer/pull/575))
-  - **Improved** handling of server errors with more consistent logging
-    ([#557](https://github.com/aws/graph-explorer/pull/557))
-  - **Improved** SageMaker Lifecycle script handling of CloudWatch log driver
-    failures ([#550](https://github.com/aws/graph-explorer/pull/550))
-  - **Improved** parsing of environment values in proxy server resulting in an
-    error when the values are invalid
-    ([#574](https://github.com/aws/graph-explorer/pull/574))
+  - **Added** global error page if the React app crashes ([#547](https://github.com/aws/graph-explorer/pull/547))
+  - **Added** optional server logging of database queries when using the proxy server which can be enabled within settings ([#574](https://github.com/aws/graph-explorer/pull/574), [#575](https://github.com/aws/graph-explorer/pull/575))
+  - **Improved** handling of server errors with more consistent logging ([#557](https://github.com/aws/graph-explorer/pull/557))
+  - **Improved** SageMaker Lifecycle script handling of CloudWatch log driver failures ([#550](https://github.com/aws/graph-explorer/pull/550))
+  - **Improved** parsing of environment values in proxy server resulting in an error when the values are invalid ([#574](https://github.com/aws/graph-explorer/pull/574))
 
 **Bug Fixes and Minor Changes**
 
-- **Fixed** performance issue in styling sidebar panels when many node & edge
-  types exist ([#542](https://github.com/aws/graph-explorer/pull/542))
-- **Fixed** issue with upper case characters in RDF URIs
-  ([#544](https://github.com/aws/graph-explorer/pull/544))
-- **Improved** app styles
-  ([#543](https://github.com/aws/graph-explorer/pull/543),
-  [#548](https://github.com/aws/graph-explorer/pull/548))
-- **Changed** Node to run in production mode
-  ([#558](https://github.com/aws/graph-explorer/pull/558))
-- **Removed** hosting production server using the client side Vite
-  configuration, requiring the use of the proxy server
-  ([#565](https://github.com/aws/graph-explorer/pull/565))
-- **Transition** to Tailwind instead of EmotionCSS for styles, which should make
-  updating the UI much simpler
-  ([#543](https://github.com/aws/graph-explorer/pull/543))
-- **Updated** multiple dependencies
-  ([#555](https://github.com/aws/graph-explorer/pull/555),
-  [#557](https://github.com/aws/graph-explorer/pull/557))
+- **Fixed** performance issue in styling sidebar panels when many node & edge types exist ([#542](https://github.com/aws/graph-explorer/pull/542))
+- **Fixed** issue with upper case characters in RDF URIs ([#544](https://github.com/aws/graph-explorer/pull/544))
+- **Improved** app styles ([#543](https://github.com/aws/graph-explorer/pull/543), [#548](https://github.com/aws/graph-explorer/pull/548))
+- **Changed** Node to run in production mode ([#558](https://github.com/aws/graph-explorer/pull/558))
+- **Removed** hosting production server using the client side Vite configuration, requiring the use of the proxy server ([#565](https://github.com/aws/graph-explorer/pull/565))
+- **Transition** to Tailwind instead of EmotionCSS for styles, which should make updating the UI much simpler ([#543](https://github.com/aws/graph-explorer/pull/543))
+- **Updated** multiple dependencies ([#555](https://github.com/aws/graph-explorer/pull/555), [#557](https://github.com/aws/graph-explorer/pull/557))
 
 ## Release 1.9.0
 
-This release includes many fixes and enhancements that make using Graph Explorer
-a more pleasant experience, especially for users with larger databases.
+This release includes many fixes and enhancements that make using Graph Explorer a more pleasant experience, especially for users with larger databases.
 
 **Major Changes**
 
-- **Improved** error experience in search and Data Explorer UI that includes a
-  retry button ([#477](https://github.com/aws/graph-explorer/pull/477))
-- **Improved** empty state experience in Data Explorer UI
-  ([#477](https://github.com/aws/graph-explorer/pull/477))
-- **Improved** search using openCypher which will now execute a single request
-  when searching across all labels
-  ([#493](https://github.com/aws/graph-explorer/pull/493),
-  [#532](https://github.com/aws/graph-explorer/pull/532))
-- **Improved** error messages for node expansion
-  ([#502](https://github.com/aws/graph-explorer/pull/502))
-- **Improved** Gremlin schema sync performance on larger databases, thanks to
-  @dsaban-lightricks for his great suggestion in issue #225
-  ([#498](https://github.com/aws/graph-explorer/pull/498))
-- **Reduced** chance of throttling issues when a large amount of requests are
-  executed in parallel by batching requests in groups of 10
-  ([#489](https://github.com/aws/graph-explorer/pull/489))
-- **Reduced** unnecessary search queries when no search term is provided by
-  ignoring attribute and exact match changes
-  ([#473](https://github.com/aws/graph-explorer/pull/473))
-- **Improved** diagnostic logging in Neptune Notebooks by adding CloudWatch logs
-  ([#517](https://github.com/aws/graph-explorer/pull/517))
-  - Check out the example
-    [lifecycle script](additionaldocs/sagemaker/install-graph-explorer-lc.sh)
-    and IAM policies for
-    [Neptune](additionaldocs/sagemaker/graph-explorer-neptune-db-policy.json)
-    and
-    [Neptune Analytics](additionaldocs/sagemaker/graph-explorer-neptune-analytics-policy.json)
+- **Improved** error experience in search and Data Explorer UI that includes a retry button ([#477](https://github.com/aws/graph-explorer/pull/477))
+- **Improved** empty state experience in Data Explorer UI ([#477](https://github.com/aws/graph-explorer/pull/477))
+- **Improved** search using openCypher which will now execute a single request when searching across all labels ([#493](https://github.com/aws/graph-explorer/pull/493), [#532](https://github.com/aws/graph-explorer/pull/532))
+- **Improved** error messages for node expansion ([#502](https://github.com/aws/graph-explorer/pull/502))
+- **Improved** Gremlin schema sync performance on larger databases, thanks to @dsaban-lightricks for his great suggestion in issue #225 ([#498](https://github.com/aws/graph-explorer/pull/498))
+- **Reduced** chance of throttling issues when a large amount of requests are executed in parallel by batching requests in groups of 10 ([#489](https://github.com/aws/graph-explorer/pull/489))
+- **Reduced** unnecessary search queries when no search term is provided by ignoring attribute and exact match changes ([#473](https://github.com/aws/graph-explorer/pull/473))
+- **Improved** diagnostic logging in Neptune Notebooks by adding CloudWatch logs ([#517](https://github.com/aws/graph-explorer/pull/517))
+  - Check out the example [lifecycle script](additionaldocs/sagemaker/install-graph-explorer-lc.sh) and IAM policies for [Neptune](additionaldocs/sagemaker/graph-explorer-neptune-db-policy.json) and [Neptune Analytics](additionaldocs/sagemaker/graph-explorer-neptune-analytics-policy.json)
 
 **Bug Fixes and Minor Changes**
 
-- **Fixed** issue with default connections when Neptune Notebook instance is
-  restarted ([#508](https://github.com/aws/graph-explorer/pull/508))
-- **Fixed** expanding a node on old versions of Gremlin
-  ([#503](https://github.com/aws/graph-explorer/pull/503))
-- **Fixed** default selection of expand type to be the first available type for
-  expansion ([#501](https://github.com/aws/graph-explorer/pull/501))
-- **Fixed** some SPARQL endpoints by using `application/sparql-results+json`
-  accept header for SPARQL requests
-  ([#499](https://github.com/aws/graph-explorer/pull/499))
-- **Fixed** CORS issue for some SPARQL and Gremlin endpoints due to `queryId` in
-  the request headers ([#529](https://github.com/aws/graph-explorer/pull/529))
-  ([#499](https://github.com/aws/graph-explorer/pull/499))
-- **Fixed** text wrapping for labels in edge styling sidebar
-  ([#499](https://github.com/aws/graph-explorer/pull/499))
-- **Fixed** potential error when the request body is very large by increasing
-  the body size limit for proxy server
-  ([#488](https://github.com/aws/graph-explorer/pull/488))
-- **Fixed** issue when selecting an item in search results that resulted in
-  errors in the browser console
-  ([#474](https://github.com/aws/graph-explorer/pull/474))
-- **Added** type checking and linting to server code
-  (<https://github.com/aws/graph-explorer/pull/522>)
-- **Added** environment values to override HTTP and HTTPS ports for proxy server
-  ([#500](https://github.com/aws/graph-explorer/pull/500))
+- **Fixed** issue with default connections when Neptune Notebook instance is restarted ([#508](https://github.com/aws/graph-explorer/pull/508))
+- **Fixed** expanding a node on old versions of Gremlin ([#503](https://github.com/aws/graph-explorer/pull/503))
+- **Fixed** default selection of expand type to be the first available type for expansion ([#501](https://github.com/aws/graph-explorer/pull/501))
+- **Fixed** some SPARQL endpoints by using `application/sparql-results+json` accept header for SPARQL requests ([#499](https://github.com/aws/graph-explorer/pull/499))
+- **Fixed** CORS issue for some SPARQL and Gremlin endpoints due to `queryId` in the request headers ([#529](https://github.com/aws/graph-explorer/pull/529)) ([#499](https://github.com/aws/graph-explorer/pull/499))
+- **Fixed** text wrapping for labels in edge styling sidebar ([#499](https://github.com/aws/graph-explorer/pull/499))
+- **Fixed** potential error when the request body is very large by increasing the body size limit for proxy server ([#488](https://github.com/aws/graph-explorer/pull/488))
+- **Fixed** issue when selecting an item in search results that resulted in errors in the browser console ([#474](https://github.com/aws/graph-explorer/pull/474))
+- **Added** type checking and linting to server code (<https://github.com/aws/graph-explorer/pull/522>)
+- **Added** environment values to override HTTP and HTTPS ports for proxy server ([#500](https://github.com/aws/graph-explorer/pull/500))
   - `PROXY_SERVER_HTTP_PORT` default is 80
   - `PROXY_SERVER_HTTPS_PORT` default is 443
-- **Updated** development scripts updated to be more consistent with the
-  industry ([#487](https://github.com/aws/graph-explorer/pull/487),
-  [#525](https://github.com/aws/graph-explorer/pull/525))
+- **Updated** development scripts updated to be more consistent with the industry ([#487](https://github.com/aws/graph-explorer/pull/487), [#525](https://github.com/aws/graph-explorer/pull/525))
   - Run the dev environment `pnpm dev`
   - Build & run the production environment `pnpm build && pnpm start`
   - Clean build artifacts with `pnpm clean`
-- **Fixed** running in production mode locally with Node
-  ([#500](https://github.com/aws/graph-explorer/pull/500))
-- **Updated** multiple dependencies
-  ([#475](https://github.com/aws/graph-explorer/pull/475),
-  [#486](https://github.com/aws/graph-explorer/pull/486),
-  [#490](https://github.com/aws/graph-explorer/pull/490),
-  [#492](https://github.com/aws/graph-explorer/pull/492),
-  [#491](https://github.com/aws/graph-explorer/pull/491),
-  [#522](https://github.com/aws/graph-explorer/pull/522),
-  [#523](https://github.com/aws/graph-explorer/pull/523))
+- **Fixed** running in production mode locally with Node ([#500](https://github.com/aws/graph-explorer/pull/500))
+- **Updated** multiple dependencies ([#475](https://github.com/aws/graph-explorer/pull/475), [#486](https://github.com/aws/graph-explorer/pull/486), [#490](https://github.com/aws/graph-explorer/pull/490), [#492](https://github.com/aws/graph-explorer/pull/492), [#491](https://github.com/aws/graph-explorer/pull/491), [#522](https://github.com/aws/graph-explorer/pull/522), [#523](https://github.com/aws/graph-explorer/pull/523))
 
 ## Release 1.8.0
 
 **Major Changes**
 
 - Better UX around neighbor expansion
-  - Expand up to 10 additional neighbors when double clicking a node
-    (<https://github.com/aws/graph-explorer/pull/455>,
-    <https://github.com/aws/graph-explorer/pull/465>)
-  - Improved reliability of node double click detection
-    (<https://github.com/aws/graph-explorer/pull/453>)
-  - Progress and errors are reported in notifications
-    (<https://github.com/aws/graph-explorer/pull/434>)
-  - Added ability to set a max limit for neighbor expansion per connection
-    (<https://github.com/aws/graph-explorer/pull/447>)
-  - Improved scrolling behavior in expand sidebar
-    (<https://github.com/aws/graph-explorer/pull/436>)
-  - Added caching and retries for failed requests
-    (<https://github.com/aws/graph-explorer/pull/434>)
+  - Expand up to 10 additional neighbors when double clicking a node (<https://github.com/aws/graph-explorer/pull/455>, <https://github.com/aws/graph-explorer/pull/465>)
+  - Improved reliability of node double click detection (<https://github.com/aws/graph-explorer/pull/453>)
+  - Progress and errors are reported in notifications (<https://github.com/aws/graph-explorer/pull/434>)
+  - Added ability to set a max limit for neighbor expansion per connection (<https://github.com/aws/graph-explorer/pull/447>)
+  - Improved scrolling behavior in expand sidebar (<https://github.com/aws/graph-explorer/pull/436>)
+  - Added caching and retries for failed requests (<https://github.com/aws/graph-explorer/pull/434>)
 
 - Better UX around node counts
-  - Progress and errors are reported in notifications when any are happening
-    (<https://github.com/aws/graph-explorer/pull/434>)
-  - Progress and errors are shown for selected node in the expand side bar
-    (<https://github.com/aws/graph-explorer/pull/463>)
-  - Added caching and retries for failed requests
-    (<https://github.com/aws/graph-explorer/pull/434>)
+  - Progress and errors are reported in notifications when any are happening (<https://github.com/aws/graph-explorer/pull/434>)
+  - Progress and errors are shown for selected node in the expand side bar (<https://github.com/aws/graph-explorer/pull/463>)
+  - Added caching and retries for failed requests (<https://github.com/aws/graph-explorer/pull/434>)
 
-- Added support for Gremlin Server 3.7
-  (<https://github.com/aws/graph-explorer/pull/411>)
+- Added support for Gremlin Server 3.7 (<https://github.com/aws/graph-explorer/pull/411>)
 
 **Bug Fixes and Minor Changes**
 
-- Fixed many bugs around neighbor expansion and counts for openCypher
-  (<https://github.com/aws/graph-explorer/pull/449>)
+- Fixed many bugs around neighbor expansion and counts for openCypher (<https://github.com/aws/graph-explorer/pull/449>)
   - Fixed expand limit to be type based when expanding from sidebar
-  - Fixed expand query to respect limit and offset properly so multiple
-    expansions return unique results
+  - Fixed expand query to respect limit and offset properly so multiple expansions return unique results
   - Fixed expand query so all edges are returned between source and target nodes
-- Improved performance and reliability of Gremlin neighbor expansion query
-  (<https://github.com/aws/graph-explorer/pull/454>)
-- Remove extraneous openCypher query when expanding nodes
-  (<https://github.com/aws/graph-explorer/pull/431>)
-- Fixed edge case where node badges are stale
-  (<https://github.com/aws/graph-explorer/pull/427>)
-- Fixed server starting log message
-  (<https://github.com/aws/graph-explorer/pull/416>)
-- Refactored several graph views for readability
-  (<https://github.com/aws/graph-explorer/pull/419>)
-- Improved testing coverage by having less mocked logic
-  (<https://github.com/aws/graph-explorer/pull/421>)
-- Fixed issue where the connection's fetch timeout input would disappear when
-  string is empty (<https://github.com/aws/graph-explorer/pull/445>)
-- Fixed issue where long connection URLs had no vertical padding
-  (<https://github.com/aws/graph-explorer/pull/445>)
+- Improved performance and reliability of Gremlin neighbor expansion query (<https://github.com/aws/graph-explorer/pull/454>)
+- Remove extraneous openCypher query when expanding nodes (<https://github.com/aws/graph-explorer/pull/431>)
+- Fixed edge case where node badges are stale (<https://github.com/aws/graph-explorer/pull/427>)
+- Fixed server starting log message (<https://github.com/aws/graph-explorer/pull/416>)
+- Refactored several graph views for readability (<https://github.com/aws/graph-explorer/pull/419>)
+- Improved testing coverage by having less mocked logic (<https://github.com/aws/graph-explorer/pull/421>)
+- Fixed issue where the connection's fetch timeout input would disappear when string is empty (<https://github.com/aws/graph-explorer/pull/445>)
+- Fixed issue where long connection URLs had no vertical padding (<https://github.com/aws/graph-explorer/pull/445>)
 - Updated to TypeScript 5.5 (<https://github.com/aws/graph-explorer/pull/451>)
 
 ## Release 1.7.0
@@ -1350,45 +738,23 @@ This release includes the following feature enhancements and bug fixes:
 
 **Major Changes**
 
-- Updated to Node v20 & React v18
-  (<https://github.com/aws/graph-explorer/pull/330>)
-  (<https://github.com/aws/graph-explorer/pull/345>)
-  (<https://github.com/aws/graph-explorer/pull/352>)
-- Added schema updating automatically when an unknown attribute is discovered
-  (<https://github.com/aws/graph-explorer/pull/356>)
-- Improved error handling on the client and server side
-  (<https://github.com/aws/graph-explorer/pull/283>)
-  (<https://github.com/aws/graph-explorer/pull/288>)
-- Removed fetch caching options
-  (<https://github.com/aws/graph-explorer/pull/280>)
+- Updated to Node v20 & React v18 (<https://github.com/aws/graph-explorer/pull/330>) (<https://github.com/aws/graph-explorer/pull/345>) (<https://github.com/aws/graph-explorer/pull/352>)
+- Added schema updating automatically when an unknown attribute is discovered (<https://github.com/aws/graph-explorer/pull/356>)
+- Improved error handling on the client and server side (<https://github.com/aws/graph-explorer/pull/283>) (<https://github.com/aws/graph-explorer/pull/288>)
+- Removed fetch caching options (<https://github.com/aws/graph-explorer/pull/280>)
 
 **Bug Fixes and Minor Changes**
 
-- Fixed node and edge filter behavior
-  (<https://github.com/aws/graph-explorer/pull/289>)
-- Fixed error on CSV export when "keep filtering and sorting"
-  (<https://github.com/aws/graph-explorer/pull/297>)
-- Fixed uploaded SVG rendering in graph
-  (<https://github.com/aws/graph-explorer/pull/296>)
-- Fixed search bar hover color
-  (<https://github.com/aws/graph-explorer/pull/293>)
-- Fixed Docker image tagging in GitHub workflows
-  (<https://github.com/aws/graph-explorer/pull/320>)
-- Fixed non-JSON response from SwissLipids
-  (<https://github.com/aws/graph-explorer/pull/395>)
-- Improved monorepo configuration
-  (<https://github.com/aws/graph-explorer/pull/305>)
-- Updated database query abstractions
-  (<https://github.com/aws/graph-explorer/pull/366>)
-  (<https://github.com/aws/graph-explorer/pull/367>)
-  (<https://github.com/aws/graph-explorer/pull/365>)
-- Improved the GitHub templates for issues and pull requests
-  (<https://github.com/aws/graph-explorer/pull/281>)
-  (<https://github.com/aws/graph-explorer/pull/332>)
-  (<https://github.com/aws/graph-explorer/pull/362>)
-- Various dependency upgrades (<https://github.com/aws/graph-explorer/pull/295>)
-  (<https://github.com/aws/graph-explorer/pull/306>)
-  (<https://github.com/aws/graph-explorer/pull/360>)
+- Fixed node and edge filter behavior (<https://github.com/aws/graph-explorer/pull/289>)
+- Fixed error on CSV export when "keep filtering and sorting" (<https://github.com/aws/graph-explorer/pull/297>)
+- Fixed uploaded SVG rendering in graph (<https://github.com/aws/graph-explorer/pull/296>)
+- Fixed search bar hover color (<https://github.com/aws/graph-explorer/pull/293>)
+- Fixed Docker image tagging in GitHub workflows (<https://github.com/aws/graph-explorer/pull/320>)
+- Fixed non-JSON response from SwissLipids (<https://github.com/aws/graph-explorer/pull/395>)
+- Improved monorepo configuration (<https://github.com/aws/graph-explorer/pull/305>)
+- Updated database query abstractions (<https://github.com/aws/graph-explorer/pull/366>) (<https://github.com/aws/graph-explorer/pull/367>) (<https://github.com/aws/graph-explorer/pull/365>)
+- Improved the GitHub templates for issues and pull requests (<https://github.com/aws/graph-explorer/pull/281>) (<https://github.com/aws/graph-explorer/pull/332>) (<https://github.com/aws/graph-explorer/pull/362>)
+- Various dependency upgrades (<https://github.com/aws/graph-explorer/pull/295>) (<https://github.com/aws/graph-explorer/pull/306>) (<https://github.com/aws/graph-explorer/pull/360>)
 
 ## Release 1.6.0
 
@@ -1396,48 +762,27 @@ This release includes the following feature enhancements and bug fixes:
 
 **Features**
 
-- Added support for Neptune Analytics
-  (<https://github.com/aws/graph-explorer/pull/241>)
-- Added auto-cancellation of previous queries on new SPARQL/Gremlin search
-  (<https://github.com/aws/graph-explorer/pull/259>)
-- Added search cancellation button
-  (<https://github.com/aws/graph-explorer/pull/265>)
-- Added additional PNPM checks to GitHub CI
-  (<https://github.com/aws/graph-explorer/pull/268>)
-- Improved keyword search performance
-  (<https://github.com/aws/graph-explorer/pull/243>)
-- Updated proxy URL generation in SageMaker Lifecycle
-  (<https://github.com/aws/graph-explorer/pull/279>)
-- Updated PropertyGraph Summary API routes in proxy server
-  (<https://github.com/aws/graph-explorer/pull/250>)
-- Updated SageMaker documentation for Neptune Analytics
-  (<https://github.com/aws/graph-explorer/pull/282>)
+- Added support for Neptune Analytics (<https://github.com/aws/graph-explorer/pull/241>)
+- Added auto-cancellation of previous queries on new SPARQL/Gremlin search (<https://github.com/aws/graph-explorer/pull/259>)
+- Added search cancellation button (<https://github.com/aws/graph-explorer/pull/265>)
+- Added additional PNPM checks to GitHub CI (<https://github.com/aws/graph-explorer/pull/268>)
+- Improved keyword search performance (<https://github.com/aws/graph-explorer/pull/243>)
+- Updated proxy URL generation in SageMaker Lifecycle (<https://github.com/aws/graph-explorer/pull/279>)
+- Updated PropertyGraph Summary API routes in proxy server (<https://github.com/aws/graph-explorer/pull/250>)
+- Updated SageMaker documentation for Neptune Analytics (<https://github.com/aws/graph-explorer/pull/282>)
 
 **Bug Fixes and Minor Changes**
 
-- Fixed escaping of quote characters in keyword search
-  (<https://github.com/aws/graph-explorer/pull/242>)
-- Fixed edge retrieval for legacy schema sync on openCypher
-  (<https://github.com/aws/graph-explorer/pull/245>)
-- Fixed default connections for Neptune Analytics
-  (<https://github.com/aws/graph-explorer/pull/254>)
-- Fixed formatting of search UI footer
-  (<https://github.com/aws/graph-explorer/pull/260>)
-- Fixed handling of query cancellation on unsupported databases
-  (<https://github.com/aws/graph-explorer/pull/276>)
-- Fixed rotation of sync progress indicator
-  (<https://github.com/aws/graph-explorer/pull/278>)
-- Additional config adjustments for ESLint and Prettier
-  (<https://github.com/aws/graph-explorer/pull/255>)
-- Removed `__all` predicate filter from SPARQL search queries
-  (<https://github.com/aws/graph-explorer/pull/270>)
-- Various formatting improvements
-  (<https://github.com/aws/graph-explorer/pull/251>)
-  (<https://github.com/aws/graph-explorer/pull/266>)
-  (<https://github.com/aws/graph-explorer/pull/267>)
-- Various dependency upgrades (<https://github.com/aws/graph-explorer/pull/248>)
-  (<https://github.com/aws/graph-explorer/pull/246>)
-  (<https://github.com/aws/graph-explorer/pull/286>)
+- Fixed escaping of quote characters in keyword search (<https://github.com/aws/graph-explorer/pull/242>)
+- Fixed edge retrieval for legacy schema sync on openCypher (<https://github.com/aws/graph-explorer/pull/245>)
+- Fixed default connections for Neptune Analytics (<https://github.com/aws/graph-explorer/pull/254>)
+- Fixed formatting of search UI footer (<https://github.com/aws/graph-explorer/pull/260>)
+- Fixed handling of query cancellation on unsupported databases (<https://github.com/aws/graph-explorer/pull/276>)
+- Fixed rotation of sync progress indicator (<https://github.com/aws/graph-explorer/pull/278>)
+- Additional config adjustments for ESLint and Prettier (<https://github.com/aws/graph-explorer/pull/255>)
+- Removed `__all` predicate filter from SPARQL search queries (<https://github.com/aws/graph-explorer/pull/270>)
+- Various formatting improvements (<https://github.com/aws/graph-explorer/pull/251>) (<https://github.com/aws/graph-explorer/pull/266>) (<https://github.com/aws/graph-explorer/pull/267>)
+- Various dependency upgrades (<https://github.com/aws/graph-explorer/pull/248>) (<https://github.com/aws/graph-explorer/pull/246>) (<https://github.com/aws/graph-explorer/pull/286>)
 
 ## Release 1.5.1
 
@@ -1445,10 +790,8 @@ This release includes the following feature enhancements and bug fixes:
 
 **Bug fixes**
 
-- Refactored API request options for non-IAM endpoints
-  (<https://github.com/aws/graph-explorer/pull/230>)
-- Enforced JSON response format for SPARQL queries
-  (<https://github.com/aws/graph-explorer/pull/230>)
+- Refactored API request options for non-IAM endpoints (<https://github.com/aws/graph-explorer/pull/230>)
+- Enforced JSON response format for SPARQL queries (<https://github.com/aws/graph-explorer/pull/230>)
 - Bumped `vite` to `4.5.2` (<https://github.com/aws/graph-explorer/pull/233>)
 
 ## Release 1.5.0
@@ -1457,21 +800,15 @@ This release includes the following feature enhancements and bug fixes:
 
 **Features**
 
-- Added new Fetch Timeout option to the Connections UI
-  (<https://github.com/aws/graph-explorer/pull/199>)
+- Added new Fetch Timeout option to the Connections UI (<https://github.com/aws/graph-explorer/pull/199>)
 
 **Bug fixes**
 
-- Fixed synchronization with high number of labels with long strings
-  (<https://github.com/aws/graph-explorer/pull/206>)
-- Fixed loading spinner rotation when synchronizing schema
-  (<https://github.com/aws/graph-explorer/pull/207>)
-- Fixed node and edge counts not updating on connection re-synchronization
-  (<https://github.com/aws/graph-explorer/pull/209>)
-- Fixed issue with Transition2 findDOMNode deprecation
-  (<https://github.com/aws/graph-explorer/pull/211>)
-- Fixed highlight not persisting on selected graph element
-  (<https://github.com/aws/graph-explorer/pull/187>)
+- Fixed synchronization with high number of labels with long strings (<https://github.com/aws/graph-explorer/pull/206>)
+- Fixed loading spinner rotation when synchronizing schema (<https://github.com/aws/graph-explorer/pull/207>)
+- Fixed node and edge counts not updating on connection re-synchronization (<https://github.com/aws/graph-explorer/pull/209>)
+- Fixed issue with Transition2 findDOMNode deprecation (<https://github.com/aws/graph-explorer/pull/211>)
+- Fixed highlight not persisting on selected graph element (<https://github.com/aws/graph-explorer/pull/187>)
 - Bumped `@types/semver` to `7.5.2`
 - Bumped `babel`, `postcss`, and `vite` to latest
 - Bumped `crypto-js` to `4.2.0`
@@ -1483,37 +820,22 @@ This release includes the following feature enhancements and bug fixes:
 
 **Features**
 
-- Added SageMaker Notebook support
-  (<https://github.com/aws/graph-explorer/pull/178>)
-- Added Default Connection support
-  (<https://github.com/aws/graph-explorer/pull/108>)
-- Added query language indicators to created connections
-  (<https://github.com/aws/graph-explorer/pull/164>)
-- Added match precision option to keyword search
-  (<https://github.com/aws/graph-explorer/pull/175>)
-- Added toggle for limit on retrieved vertex neighbors
-  (<https://github.com/aws/graph-explorer/pull/176>)
-- Added SageMaker Notebook hosting documentation
-  (<https://github.com/aws/graph-explorer/pull/183>)
-- Added ECS hosting documentation
-  (<https://github.com/aws/graph-explorer/pull/174>)
-- Updated Dockerfile base image to AL2022
-  (<https://github.com/aws/graph-explorer/pull/190>)
+- Added SageMaker Notebook support (<https://github.com/aws/graph-explorer/pull/178>)
+- Added Default Connection support (<https://github.com/aws/graph-explorer/pull/108>)
+- Added query language indicators to created connections (<https://github.com/aws/graph-explorer/pull/164>)
+- Added match precision option to keyword search (<https://github.com/aws/graph-explorer/pull/175>)
+- Added toggle for limit on retrieved vertex neighbors (<https://github.com/aws/graph-explorer/pull/176>)
+- Added SageMaker Notebook hosting documentation (<https://github.com/aws/graph-explorer/pull/183>)
+- Added ECS hosting documentation (<https://github.com/aws/graph-explorer/pull/174>)
+- Updated Dockerfile base image to AL2022 (<https://github.com/aws/graph-explorer/pull/190>)
 
 **Bug fixes**
 
-- Fixed search UI crashing on node select/preview
-  (<https://github.com/aws/graph-explorer/pull/177>)
-- Fixed Gremlin/openCypher matching ID property on all keyword searches
-  (<https://github.com/aws/graph-explorer/pull/169>)
-- Fixed default connections failing on SageMaker for certain instance names
-  (<https://github.com/aws/graph-explorer/pull/188>)
-- Resolved deprecation warnings in GitHub workflows
-  (<https://github.com/aws/graph-explorer/pull/181>)
-- Patched vulnerable dependencies
-  ([1](https://github.com/aws/graph-explorer/pull/182))
-  ([2](https://github.com/aws/graph-explorer/pull/189))
-  ([3](https://github.com/aws/graph-explorer/pull/191))
+- Fixed search UI crashing on node select/preview (<https://github.com/aws/graph-explorer/pull/177>)
+- Fixed Gremlin/openCypher matching ID property on all keyword searches (<https://github.com/aws/graph-explorer/pull/169>)
+- Fixed default connections failing on SageMaker for certain instance names (<https://github.com/aws/graph-explorer/pull/188>)
+- Resolved deprecation warnings in GitHub workflows (<https://github.com/aws/graph-explorer/pull/181>)
+- Patched vulnerable dependencies ([1](https://github.com/aws/graph-explorer/pull/182)) ([2](https://github.com/aws/graph-explorer/pull/189)) ([3](https://github.com/aws/graph-explorer/pull/191))
 
 ## Release 1.3.1
 
@@ -1521,8 +843,7 @@ This patch release includes bugfixes for Release 1.3.0.
 
 **Bug fixes**
 
-- Fix proxy issue with non-IAM Neptune requests
-  (<https://github.com/aws/graph-explorer/pull/166>)
+- Fix proxy issue with non-IAM Neptune requests (<https://github.com/aws/graph-explorer/pull/166>)
 
 ## Release 1.3.0
 
@@ -1530,28 +851,19 @@ This release includes the following feature enhancements and bug fixes:
 
 **Features**
 
-- Support openCypher-based graph databases
-  (<https://github.com/aws/graph-explorer/pull/129>)
-- Added ability to search by vertex ID for Gremlin
-  (<https://github.com/aws/graph-explorer/pull/113>)
-- Improved logging visibility and user control
-  (<https://github.com/aws/graph-explorer/pull/114>)
-- Upgraded various dependencies to resolve Docker build warnings
-  (<https://github.com/aws/graph-explorer/pull/118>)
-- Improved synchronization interface in Connections UI
-  (<https://github.com/aws/graph-explorer/pull/120>)
-- Added coverage tests for the UI client package
-  (<https://github.com/aws/graph-explorer/pull/130>)
+- Support openCypher-based graph databases (<https://github.com/aws/graph-explorer/pull/129>)
+- Added ability to search by vertex ID for Gremlin (<https://github.com/aws/graph-explorer/pull/113>)
+- Improved logging visibility and user control (<https://github.com/aws/graph-explorer/pull/114>)
+- Upgraded various dependencies to resolve Docker build warnings (<https://github.com/aws/graph-explorer/pull/118>)
+- Improved synchronization interface in Connections UI (<https://github.com/aws/graph-explorer/pull/120>)
+- Added coverage tests for the UI client package (<https://github.com/aws/graph-explorer/pull/130>)
 
 **Bug fixes**
 
 - Fix Expand Module scrollbar (<https://github.com/aws/graph-explorer/pull/131>)
-- Fixed header generation for IAM authenticated Neptune requests
-  (<https://github.com/aws/graph-explorer/pull/140>)
-- Fixed calculation of neighbors count in Expand View sidebar
-  (<https://github.com/aws/graph-explorer/pull/121>)
-- Fixed proxy server not respecting `GRAPH_EXP_ENV_ROOT_FOLDER` value in .env
-  (<https://github.com/aws/graph-explorer/pull/125>)
+- Fixed header generation for IAM authenticated Neptune requests (<https://github.com/aws/graph-explorer/pull/140>)
+- Fixed calculation of neighbors count in Expand View sidebar (<https://github.com/aws/graph-explorer/pull/121>)
+- Fixed proxy server not respecting `GRAPH_EXP_ENV_ROOT_FOLDER` value in .env (<https://github.com/aws/graph-explorer/pull/125>)
 
 ## Release 1.2.0
 
@@ -1559,23 +871,16 @@ This release includes the following feature enhancements and bug fixes:
 
 **Features**
 
-- Significantly reduced size of Docker image
-  (<https://github.com/aws/graph-explorer/pull/104>)
-- Improved schema synchronization performance via Summary API integration
-  (<https://github.com/aws/graph-explorer/pull/80>)
-- Improved error messaging when no/insufficient IAM role is found
-  (<https://github.com/aws/graph-explorer/pull/81>)
-- Updated Connections UI documentation for single server changes
-  (<https://github.com/aws/graph-explorer/pull/59>)
-- Added manual trigger for ECR updates
-  (<https://github.com/aws/graph-explorer/pull/68>)
+- Significantly reduced size of Docker image (<https://github.com/aws/graph-explorer/pull/104>)
+- Improved schema synchronization performance via Summary API integration (<https://github.com/aws/graph-explorer/pull/80>)
+- Improved error messaging when no/insufficient IAM role is found (<https://github.com/aws/graph-explorer/pull/81>)
+- Updated Connections UI documentation for single server changes (<https://github.com/aws/graph-explorer/pull/59>)
+- Added manual trigger for ECR updates (<https://github.com/aws/graph-explorer/pull/68>)
 
 **Bug fixes**
 
-- Fixed incorrect display of non-string IDs for Gremlin
-  (<https://github.com/aws/graph-explorer/pull/60>)
-- Fixed a database synchronization error caused by white spaces in labels for
-  Gremlin requests (<https://github.com/aws/graph-explorer/pull/84>)
+- Fixed incorrect display of non-string IDs for Gremlin (<https://github.com/aws/graph-explorer/pull/60>)
+- Fixed a database synchronization error caused by white spaces in labels for Gremlin requests (<https://github.com/aws/graph-explorer/pull/84>)
 
 ## Release 1.1.0
 
@@ -1583,39 +888,24 @@ This release includes the following feature enhancements and bug fixes:
 
 **Features**
 
-- Support for blank nodes when visualizing graphs using the RDF data model
-  (<https://github.com/aws/graph-explorer/pull/48>)
-- Enable Caching feature in the Connections UI which allows you to temporarily
-  store data in the browser between sessions
-  (<https://github.com/aws/graph-explorer/pull/48>)
-- Simplify the setup by consolidating the build and serving the graph-explorer
-  through port (<https://github.com/aws/graph-explorer/pull/52>)
-- Moved self-signed SSL certificate creation to Docker entrypoint script
-  (<https://github.com/aws/graph-explorer/pull/56>)
+- Support for blank nodes when visualizing graphs using the RDF data model (<https://github.com/aws/graph-explorer/pull/48>)
+- Enable Caching feature in the Connections UI which allows you to temporarily store data in the browser between sessions (<https://github.com/aws/graph-explorer/pull/48>)
+- Simplify the setup by consolidating the build and serving the graph-explorer through port (<https://github.com/aws/graph-explorer/pull/52>)
+- Moved self-signed SSL certificate creation to Docker entrypoint script (<https://github.com/aws/graph-explorer/pull/56>)
 
 **Bug fixes**
 
-- Fix an issue where the Graph Explorer is stuck in a loading state indefinitely
-  due to expired credentials by refreshing credentials and retrying requests
-  automatically (<https://github.com/aws/graph-explorer/pull/49>)
+- Fix an issue where the Graph Explorer is stuck in a loading state indefinitely due to expired credentials by refreshing credentials and retrying requests automatically (<https://github.com/aws/graph-explorer/pull/49>)
 
 ## Release 1.0.0
 
-The first release of Graph Explorer, an Apache 2.0 React-based web application
-that enables users to visualize both property graph and RDF data and explore
-connections between data without having to write graph queries. Major features
-include:
+The first release of Graph Explorer, an Apache 2.0 React-based web application that enables users to visualize both property graph and RDF data and explore connections between data without having to write graph queries. Major features include:
 
-- Ability to connect to graph databases like Amazon Neptune, or open-source
-  endpoints like Gremlin Server or Blazegraph
+- Ability to connect to graph databases like Amazon Neptune, or open-source endpoints like Gremlin Server or Blazegraph
 - Search and preview starting nodes once connected to a graph database
 - Visualize results in the Graph View & expand to view neighbors
-- Customize the Graph View with preferred layouts, colors, icons, labels, and
-  more
-- Use Expand filters to customize the result set by filter text or count of
-  results when expanding
-- Scroll through the Table View to view the data in the Graph View in tabular
-  format
+- Customize the Graph View with preferred layouts, colors, icons, labels, and more
+- Use Expand filters to customize the result set by filter text or count of results when expanding
+- Scroll through the Table View to view the data in the Graph View in tabular format
 - Use Table View filters when you need to highlight a subset of the data
-- Download a CSV or JSON of the nodes and edges in visualization, or download as
-  a PNG file
+- Download a CSV or JSON of the nodes and edges in visualization, or download as a PNG file

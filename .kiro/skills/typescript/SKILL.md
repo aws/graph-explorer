@@ -1,8 +1,6 @@
 ---
 name: typescript
-description:
-  TypeScript conventions and rules for Graph Explorer, including branded types,
-  function style preferences, and type safety patterns.
+description: TypeScript conventions and rules for Graph Explorer, including branded types, function style preferences, and type safety patterns.
 ---
 
 # TypeScript Conventions
@@ -10,18 +8,13 @@ description:
 ## General Rules
 
 - Do not change the VS Code setting `typescript.autoClosingTags`
-- Prefer named function syntax over anonymous arrow functions for module-level
-  declarations (e.g., `function handleClick() {}` over
-  `const handleClick = () => {}`). Arrow functions within function scope are
-  fine.
+- Prefer named function syntax over anonymous arrow functions for module-level declarations (e.g., `function handleClick() {}` over `const handleClick = () => {}`). Arrow functions within function scope are fine.
 - Every commit should have no type errors
-- Use explicit type aliases instead of `ReturnType<typeof ...>` when available
-  (e.g., use `AppStore` instead of `ReturnType<typeof getAppStore>`)
+- Use explicit type aliases instead of `ReturnType<typeof ...>` when available (e.g., use `AppStore` instead of `ReturnType<typeof getAppStore>`)
 
 ## Branded Types
 
-The project uses branded types from `@/utils` for type safety. These prevent
-accidental mixing of similar types at compile time.
+The project uses branded types from `@/utils` for type safety. These prevent accidental mixing of similar types at compile time.
 
 | Type                     | Creator Function             | Location                                |
 | ------------------------ | ---------------------------- | --------------------------------------- |
@@ -38,5 +31,4 @@ accidental mixing of similar types at compile time.
 | `RdfPrefix`              | `generatePrefix()`           | `@/utils/rdf`                           |
 | `NormalizedIriNamespace` | `normalizeNamespace()`       | `@/utils/rdf`                           |
 
-Always use the appropriate branded type instead of `string` when working with
-these identifiers.
+Always use the appropriate branded type instead of `string` when working with these identifiers.

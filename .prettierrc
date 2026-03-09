@@ -1,6 +1,6 @@
 {
   "arrowParens": "avoid",
-  "proseWrap": "always",
+  "proseWrap": "preserve",
   "plugins": ["prettier-plugin-tailwindcss"],
   "tailwindFunctions": ["cva", "cn"]
 }

@@ -5,8 +5,7 @@ fileMatchPattern: "{**/*.md,additionaldocs/**}"
 
 # Project Documentation Standards
 
-- Be professional & clear; use straightforward language accessible to both
-  technical and non-technical users
+- Be professional & clear; use straightforward language accessible to both technical and non-technical users
 - Be concise; get to the point quickly without unnecessary explanations
 - Clearly state what users need to know or have before starting
 - Write from the user's perspective, addressing their goals and pain points
