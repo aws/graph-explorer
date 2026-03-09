@@ -47,7 +47,7 @@ There are many ways to deploy and run Graph Explorer. If you are new to graph da
 - [Local Docker Setup](./docs/getting-started/README.md#local-docker-setup) - A quick start guide to deploying Graph Explorer locally using the official Docker image.
 - [Amazon EC2 Setup](./docs/getting-started/README.md#amazon-ec2-setup) - A quick start guide to setting up Graph Explorer on Amazon EC2 with Neptune.
 - [Local Development](./docs/getting-started/README.md#local-development-setup) - A quick start guide building the Docker image from source code.
-- [Troubleshooting](./docs/troubleshooting.md) - A collection of helpful tips if you run in to issues while setting up Graph Explorer.
+- [Troubleshooting](./docs/guides/troubleshooting.md) - A collection of helpful tips if you run in to issues while setting up Graph Explorer.
 - [Samples](./samples) - A collection of Docker Compose files that show various ways to configure and use Graph Explorer.
 
 ### Minimum Recommended Versions
