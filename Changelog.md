@@ -419,7 +419,7 @@ In prior releases, this would manifest in multiple queries per node or edge, whi
 
 This release continues the momentum of the last release, **introducing query editor support for openCypher connections**. This enables the use of the query editor with Neptune Analytics for the first time.
 
-As before, if you are a Neptune user concerned about data integrity, check out the [instructions on configuring IAM permissions to restrict mutations](./README.md#permissions), ensuring that users can enforce read-only operations.
+As before, if you are a Neptune user concerned about data integrity, check out the [instructions on configuring IAM permissions to restrict mutations](https://github.com/aws/graph-explorer/blob/v2.1.0/README.md#permissions), ensuring that users can enforce read-only operations.
 
 ### New features & major changes
 
@@ -433,9 +433,9 @@ As before, if you are a Neptune user concerned about data integrity, check out t
 
 ## Release v2.0
 
-Graph Explorer v2.0 marks a significant milestone with the introduction of the new [query editor for Gremlin connections](./additionaldocs/features/README.md#query-search). This powerful feature allows users to enter any valid Gremlin query and visualize the returned nodes, edges, and scalar values directly from the database. You can review the results in the sidebar and choose to add all nodes & edges to the graph or add results individually.
+Graph Explorer v2.0 marks a significant milestone with the introduction of the new [query editor for Gremlin connections](https://github.com/aws/graph-explorer/blob/v2.0.0/additionaldocs/features/README.md#query-search). This powerful feature allows users to enter any valid Gremlin query and visualize the returned nodes, edges, and scalar values directly from the database. You can review the results in the sidebar and choose to add all nodes & edges to the graph or add results individually.
 
-For Neptune users concerned about data integrity, [the README](./README.md) now includes [instructions on configuring IAM permissions to restrict mutations](./README.md#permissions), ensuring users can enforce read-only operations.
+For Neptune users concerned about data integrity, [the README](https://github.com/aws/graph-explorer/blob/v2.0.0/README.md) now includes [instructions on configuring IAM permissions to restrict mutations](https://github.com/aws/graph-explorer/blob/v2.0.0/README.md#permissions), ensuring users can enforce read-only operations.
 
 The release also changes the default strategy for representing node & edge labels in the UI. The app no longer performs any transformations on these names, providing a more intuitive and accurate representation of your data. For RDF datasets, namespace prefixes will continue to be substituted.
 
@@ -674,7 +674,7 @@ This release includes many fixes and enhancements that make using Graph Explorer
 - **Reduced** chance of throttling issues when a large amount of requests are executed in parallel by batching requests in groups of 10 ([#489](https://github.com/aws/graph-explorer/pull/489))
 - **Reduced** unnecessary search queries when no search term is provided by ignoring attribute and exact match changes ([#473](https://github.com/aws/graph-explorer/pull/473))
 - **Improved** diagnostic logging in Neptune Notebooks by adding CloudWatch logs ([#517](https://github.com/aws/graph-explorer/pull/517))
-  - Check out the example [lifecycle script](additionaldocs/sagemaker/install-graph-explorer-lc.sh) and IAM policies for [Neptune](additionaldocs/sagemaker/graph-explorer-neptune-db-policy.json) and [Neptune Analytics](additionaldocs/sagemaker/graph-explorer-neptune-analytics-policy.json)
+  - Check out the example [lifecycle script](https://github.com/aws/graph-explorer/blob/v1.9.0/additionaldocs/sagemaker/install-graph-explorer-lc.sh) and IAM policies for [Neptune](https://github.com/aws/graph-explorer/blob/v1.9.0/additionaldocs/sagemaker/graph-explorer-neptune-db-policy.json) and [Neptune Analytics](https://github.com/aws/graph-explorer/blob/v1.9.0/additionaldocs/sagemaker/graph-explorer-neptune-analytics-policy.json)
 
 **Bug Fixes and Minor Changes**
 
