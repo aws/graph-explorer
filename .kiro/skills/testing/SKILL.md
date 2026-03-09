@@ -1,9 +1,6 @@
 ---
 name: testing
-description:
-  Testing standards, patterns, and utilities for Graph Explorer including
-  Vitest, DbState, renderHookWithState, test data factories, SPARQL test
-  helpers, and backward compatibility testing for persisted data.
+description: Testing standards, patterns, and utilities for Graph Explorer including Vitest, DbState, renderHookWithState, test data factories, SPARQL test helpers, and backward compatibility testing for persisted data.
 tools: ["fs_read", "code", "grep", "glob", "web_search", "web_fetch"]
 ---
 
@@ -38,8 +35,7 @@ import { createRandomName, createRandomInteger } from "@shared/utils/testing";
 
 ### Random Data Factories
 
-Use the factory methods for random data generation to create test data that
-doesn't directly impact test results:
+Use the factory methods for random data generation to create test data that doesn't directly impact test results:
 
 - **Graph Explorer**: Use `@/utils/testing` for frontend-specific test data
 - **Shared**: Use `@shared/utils/testing` for common utilities
@@ -59,8 +55,7 @@ const randomColor = createRandomColor();
 
 ### Testable Entities
 
-Prefer `TestableVertex` and `TestableEdge` over raw vertex/edge types for more
-flexible test data:
+Prefer `TestableVertex` and `TestableEdge` over raw vertex/edge types for more flexible test data:
 
 ```typescript
 import { createTestableVertex, createTestableEdge } from "@/utils/testing";
@@ -85,8 +80,7 @@ const patchedVertex = vertex.asPatchedResult();
 
 ### Use renderHookWithState()
 
-For testing React hooks, always use `renderHookWithState()` instead of the
-standard `renderHook()`:
+For testing React hooks, always use `renderHookWithState()` instead of the standard `renderHook()`:
 
 ```typescript
 import { renderHookWithState, DbState } from "@/utils/testing";
@@ -136,16 +130,14 @@ test("should filter vertices by type", () => {
 
 ### Depend on setupTests.ts
 
-All tests automatically inherit the configuration from `setupTests.ts`, which
-provides:
+All tests automatically inherit the configuration from `setupTests.ts`, which provides:
 
 - **Consistent Environment**: UTC timezone, en-US locale
 - **Mocked Dependencies**: localforage, logger, query client with no retries
 - **Cleanup**: Automatic cleanup after each test
 - **Global Mocks**: Intl, environment variables
 
-Most tests require minimal additional setup beyond what's provided
-automatically.
+Most tests require minimal additional setup beyond what's provided automatically.
 
 ### Environment Variables
 
@@ -289,8 +281,7 @@ test("should render vertex correctly", () => {
 
 ### Use toStrictEqual() with Full Expected Arrays
 
-Instead of checking array length and individual indices, use `toStrictEqual()`
-with the complete expected array:
+Instead of checking array length and individual indices, use `toStrictEqual()` with the complete expected array:
 
 ```typescript
 // ❌ Avoid: Length check + individual index assertions
@@ -308,16 +299,14 @@ expect(result).toStrictEqual([
 **Benefits:**
 
 - **Cleaner**: Single assertion instead of multiple checks
-- **Stricter**: `toStrictEqual()` provides more thorough comparison than
-  `toEqual()`
+- **Stricter**: `toStrictEqual()` provides more thorough comparison than `toEqual()`
 - **Readable**: Expected results are clearly visible in the test
 - **Maintainable**: Changes only require updating one array
 - **Better Errors**: Failure messages show full expected vs actual arrays
 
 ### SPARQL Test Helpers
 
-For SPARQL-related tests, use the helper functions to create consistent test
-data:
+For SPARQL-related tests, use the helper functions to create consistent test data:
 
 ```typescript
 import {
@@ -397,8 +386,7 @@ test("should handle RDF construct query", async () => {
 
 ### Targeted Testing for Small Changes
 
-For small, isolated changes, run only the relevant tests instead of the full
-test suite:
+For small, isolated changes, run only the relevant tests instead of the full test suite:
 
 ```bash
 # Run tests for a specific file
@@ -417,21 +405,18 @@ Only run the full test suite (`pnpm test`) in these situations:
 
 - At the end of implementing a large feature or set of changes
 - Before creating a pull request
-- After making changes that could have wide-reaching effects (e.g., shared
-  utilities, core providers, type definitions)
+- After making changes that could have wide-reaching effects (e.g., shared utilities, core providers, type definitions)
 - When explicitly requested
 
 ### Quick Validation with pnpm checks
 
-For a quick validation of changes, run all static checks (type checking,
-linting, and formatting) in a single command:
+For a quick validation of changes, run all static checks (type checking, linting, and formatting) in a single command:
 
 ```bash
 pnpm checks
 ```
 
-This takes less than a minute and catches most issues without running the full
-test suite. Use this as your default validation for small changes.
+This takes less than a minute and catches most issues without running the full test suite. Use this as your default validation for small changes.
 
 ### Type Checking Only
 
@@ -441,8 +426,7 @@ For changes that don't have associated tests, verify type correctness:
 pnpm check:types
 ```
 
-This is faster than running the full test suite and catches most issues with
-styling, configuration, or type-only changes.
+This is faster than running the full test suite and catches most issues with styling, configuration, or type-only changes.
 
 ## Best Practices
 
@@ -470,14 +454,10 @@ styling, configuration, or type-only changes.
 
 ### Do Not Test Styling or Layout
 
-- Do not write tests that assert on CSS classes, HTML element types, or layout
-  structure
-- These tests are fragile and break on routine visual changes that have no
-  functional impact
-- Instead, test the behavioral logic: conditional rendering, data
-  transformations, user interactions, and state changes
-- If a component is purely presentational with no branching logic, it does not
-  need a test
+- Do not write tests that assert on CSS classes, HTML element types, or layout structure
+- These tests are fragile and break on routine visual changes that have no functional impact
+- Instead, test the behavioral logic: conditional rendering, data transformations, user interactions, and state changes
+- If a component is purely presentational with no branching logic, it does not need a test
 
 ### Performance
 
@@ -498,27 +478,19 @@ test("should handle errors gracefully", async () => {
 
 ## Persistent Storage Backward Compatibility
 
-Graph Explorer persists state to IndexedDB via localforage (managed through
-Jotai atoms). When a type used in persistent storage changes shape — for
-example, a property is added, removed, or renamed — previously stored data will
-still be loaded with the old shape. This can silently break logic that assumes
-the new shape.
+Graph Explorer persists state to IndexedDB via localforage (managed through Jotai atoms). When a type used in persistent storage changes shape — for example, a property is added, removed, or renamed — previously stored data will still be loaded with the old shape. This can silently break logic that assumes the new shape.
 
 ### Requirements
 
-Any type or object that is persisted through Jotai and localforage **must** have
-tests that exercise the old storage shape alongside the new one. These tests
-verify that:
+Any type or object that is persisted through Jotai and localforage **must** have tests that exercise the old storage shape alongside the new one. These tests verify that:
 
 1. Data in the old shape is accepted without errors
 2. Logic that consumes the data produces correct results with both shapes
-3. Old and new shapes can coexist (e.g., a mix of old and new entries in an
-   array)
+3. Old and new shapes can coexist (e.g., a mix of old and new entries in an array)
 
 ### Test Structure
 
-Group backward-compatibility tests in a dedicated `describe` block with a clear
-comment block explaining:
+Group backward-compatibility tests in a dedicated `describe` block with a clear comment block explaining:
 
 - What the old shape looked like
 - Why the tests exist
@@ -561,15 +533,13 @@ describe("backward compatibility: <brief description>", () => {
 
 ### Key Persisted Types
 
-These types are stored in IndexedDB and require backward-compatibility tests
-when modified:
+These types are stored in IndexedDB and require backward-compatibility tests when modified:
 
 - `SchemaStorageModel` — vertex/edge configs, prefixes, edge connections
 - `PrefixTypeConfig` — RDF namespace prefix definitions
 - `VertexTypeConfig` / `EdgeTypeConfig` — schema type configurations
 - `RawConfiguration` — connection and schema configuration
-- User preferences (`VertexPreferencesStorageModel`,
-  `EdgePreferencesStorageModel`)
+- User preferences (`VertexPreferencesStorageModel`, `EdgePreferencesStorageModel`)
 
 ### When to Add These Tests
 

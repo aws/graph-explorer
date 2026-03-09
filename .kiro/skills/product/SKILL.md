@@ -1,16 +1,12 @@
 ---
 name: product
-description:
-  Graph Explorer product overview including supported graph types, query
-  languages, databases, key features, and high-level architecture.
+description: Graph Explorer product overview including supported graph types, query languages, databases, key features, and high-level architecture.
 tools: ["fs_read", "grep", "glob", "web_search"]
 ---
 
 # Graph Explorer Product Overview
 
-Graph Explorer is a React-based web application that enables users to visualize
-and explore graph data without writing queries. It supports multiple graph
-database types and query languages.
+Graph Explorer is a React-based web application that enables users to visualize and explore graph data without writing queries. It supports multiple graph database types and query languages.
 
 ## Core Purpose
 
@@ -22,17 +18,14 @@ database types and query languages.
 
 - **Property Graphs**: Gremlin, openCypher
 - **RDF Graphs**: SPARQL 1.1 protocol
-- **Databases**: Amazon Neptune, Amazon Neptune Analytics, Apache TinkerPop
-  Gremlin Server REST endpoints, JanusGraph
+- **Databases**: Amazon Neptune, Amazon Neptune Analytics, Apache TinkerPop Gremlin Server REST endpoints, JanusGraph
 
 ## Key Features
 
 - **Connections Management**: Create and manage database connections
-- **Graph Visualization**: Interactive graph view with search, custom queries,
-  and styling
+- **Graph Visualization**: Interactive graph view with search, custom queries, and styling
 - **Tabular View**: Show/hide nodes and edges, export to CSV/JSON
-- **Data Explorer**: List all nodes and properties for a specific node type and
-  send to graph view
+- **Data Explorer**: List all nodes and properties for a specific node type and send to graph view
 - **Schema Explorer**: View node types and their relationships as a graph
 - **Authentication**: AWS IAM authentication via SigV4 signing protocol
 
@@ -40,5 +33,4 @@ database types and query languages.
 
 - **Frontend**: TypeScript React application served via Vite
 - **Backend**: Express.js proxy server for authentication and request routing
-- **Deployment**: Docker containers, supports local and cloud deployment (EC2,
-  ECS)
+- **Deployment**: Docker containers, supports local and cloud deployment (EC2, ECS)
