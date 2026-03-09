@@ -1,20 +1,64 @@
 # Graph Explorer
 
-Graph Explorer provides a React-based web application that enables users to
-visualize both property graph and RDF data and explore connections between data
-without having to write graph queries. You can connect to a graph database over
-HTTP that supports the
-[W3C RDF/SPARQL](https://www.w3.org/TR/sparql11-overview/) open standard, the
-[openCypher](https://opencypher.org) open source specification, or the open
-source [Apache TinkerPop Gremlin](https://tinkerpop.apache.org/).
+Graph Explorer is a React-based web application that makes it easy to visualize
+and explore graph data, no query language knowledge required. Search for nodes,
+expand connections, and discover relationships across your graph database
+through an intuitive visual interface.
 
-To get started, you can deploy Graph Explorer on a local machine using
-[Docker Desktop](https://www.docker.com/products/docker-desktop/), or in the
-cloud using [Amazon EC2](https://aws.amazon.com/ec2/) or a container service
-like [Amazon ECS](https://aws.amazon.com/ecs/).
+Connect to graph databases that support
+[Apache TinkerPop Gremlin](https://tinkerpop.apache.org/) or
+[W3C RDF/SPARQL](https://www.w3.org/TR/sparql11-overview/) over HTTP, or
+[openCypher](https://opencypher.org) via
+[Amazon Neptune](https://aws.amazon.com/neptune/).
 
-![A sample image of property graph created by Graph Explorer](./images/LPGIMDb.png)
-![A sample image of RDF graph created by Graph Explorer](./images/RDFEPL.png)
+## Explore Your Data
+
+Graph Explorer provides three integrated views for working with your graph
+database, all in one app.
+
+### Graph View
+
+Search, visualize, and explore connections between nodes with an interactive
+graph layout. Expand neighbors, filter by type, and run custom queries, all from
+a single view.
+
+![Graph Explorer showing an interactive visualization of airport routes with search, table view, and node details](./images/graph-explorer.png)
+
+### Data Explorer
+
+Browse all nodes for a given type in a paginated table. View every property at a
+glance and send nodes directly to the graph view for further exploration.
+
+![Data Explorer showing a tabular view of airport nodes with properties like city, code, and coordinates](./images/data-explorer.png)
+
+### Schema Explorer
+
+Understand your data model at a glance. See node types, their relationships, and
+property details rendered as an interactive schema graph.
+
+![Schema Explorer showing the relationships between airport, country, continent, and version node types](./images/schema-explorer.png)
+
+### Flexible Deployment
+
+Run Graph Explorer wherever it fits your workflow: as a Docker container, on an
+Amazon EC2 instance, through Amazon SageMaker, or locally from source during
+development. Configure multiple connections to different databases and switch
+between them seamlessly. See [Getting Started](#getting-started) for setup
+guides.
+
+## Learn More
+
+- [Getting Started](./additionaldocs/getting-started/README.md) - Set up Graph
+  Explorer with Docker, EC2, or from source
+- [Features Overview](./additionaldocs/features/README.md) - Detailed guide to
+  all features and functionality
+- [Roadmap](./ROADMAP.md) - See what's planned for future releases
+- [Discussions](https://github.com/aws/graph-explorer/discussions) - Ask
+  questions, share ideas, and connect with the community
+- [Submit an Issue](https://github.com/aws/graph-explorer/issues/new/choose) -
+  Report bugs or request new features
+- [Contributing](./CONTRIBUTING.md) - Learn how to contribute to Graph Explorer
+- [Changelog](./Changelog.md) - See what's changed in recent releases
 
 ## Getting Started
 
@@ -45,33 +89,6 @@ For Neptune databases, we recommend
 or above, which include the summary API and TinkerPop 3.6.2.
 
 For non-Neptune databases, we recommend at least TinkerPop 3.6.
-
-## Features Overview
-
-Graph Explorer offers a comprehensive set of tools for interacting with graph
-databases:
-
-- **Connections** - Create and manage connections to graph databases
-- **Graph View** - Visualize and interact with graph data through:
-  - Interactive graph visualization
-  - Powerful search capabilities
-  - Custom query execution and visualization
-  - Customizable styling options
-  - Detailed node/edge information
-- **Tabular View** - Interact with nodes & edges that have been added to the
-  graph view
-  - Show or hide individual nodes & edges
-  - Filtered nodes and edges will fade in the graph view
-  - Export table to CSV or JSON file
-- **Schema Explorer** - View node types and their relationships as a graph
-- **Data Explorer** - Examine specific node types, export data, and send nodes
-  to the graph view
-
-For complete documentation on all features and functionality, please see our
-[detailed features guide](./additionaldocs/features/README.md).
-
-If you're interested in our future development plans, check out our
-[roadmap](./ROADMAP.md) and participate in the discussions.
 
 ## Connections
 
