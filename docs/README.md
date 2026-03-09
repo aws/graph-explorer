@@ -6,4 +6,4 @@
 - [Development](./development.md)
 - [Troubleshooting](./troubleshooting.md)
 - [SageMaker](./sagemaker)
-- [ECS](./ecs)
+- [ECS Fargate Deployment](./guides/deploy-to-ecs-fargate.md)
