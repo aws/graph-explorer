@@ -166,7 +166,7 @@ If either Graph Explorer or the proxy-server are served over an HTTPS connection
 
 Graph Explorer does not provide any mechanisms for controlling user permissions. If you are using Graph Explorer with AWS, Neptune permissions can be controlled through IAM roles.
 
-For information about what permissions Graph Explorer requires check out the documentation on [SageMaker configuration](./docs/sagemaker/README.md#minimum-database-permissions).
+For information about what permissions Graph Explorer requires check out the documentation on [SageMaker configuration](./docs/guides/deploy-to-sagemaker.md#minimum-database-permissions).
 
 <!-- prettier-ignore -->
 > [!CAUTION] 

@@ -5,5 +5,5 @@
 - [Connections](./connections.md)
 - [Development](./development.md)
 - [Troubleshooting](./troubleshooting.md)
-- [SageMaker](./sagemaker)
+- [SageMaker Deployment](./guides/deploy-to-sagemaker.md)
 - [ECS Fargate Deployment](./guides/deploy-to-ecs-fargate.md)
