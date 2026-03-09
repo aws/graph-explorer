@@ -34,6 +34,7 @@ Run Graph Explorer wherever it fits your workflow: as a Docker container, on an 
 
 - [Getting Started](./docs/getting-started/README.md) - Set up Graph Explorer with Docker, EC2, or from source
 - [Features Overview](./docs/features/README.md) - Detailed guide to all features and functionality
+- [Guides](./docs/guides) - Database connections, deployment, and troubleshooting
 - [Roadmap](./ROADMAP.md) - See what's planned for future releases
 - [Discussions](https://github.com/aws/graph-explorer/discussions) - Ask questions, share ideas, and connect with the community
 - [Submit an Issue](https://github.com/aws/graph-explorer/issues/new/choose) - Report bugs or request new features
@@ -60,7 +61,7 @@ For non-Neptune databases, we recommend at least TinkerPop 3.6.
 
 ## Connections
 
-Graph Explorer supports visualizing both **property graphs** and **RDF graphs**. You can connect to Amazon Neptune or you can also connect to open graph databases that implement an Apache TinkerPop Gremlin endpoint or the SPARQL 1.1 protocol, such as Blazegraph. For additional details on connecting to different graph databases, see [Connections](./docs/connections.md).
+Graph Explorer supports visualizing both **property graphs** and **RDF graphs**. You can connect to Amazon Neptune or you can also connect to open graph databases that implement an Apache TinkerPop Gremlin endpoint or the SPARQL 1.1 protocol, such as Blazegraph. For additional details on connecting to different graph databases, see [Guides](./docs/guides).
 
 ### Providing a Default Connection
 

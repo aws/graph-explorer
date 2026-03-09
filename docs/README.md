@@ -2,8 +2,5 @@
 
 - [Getting Started](./getting-started)
 - [Features](./features)
-- [Connections](./connections.md)
+- [Guides](./guides)
 - [Development](./development.md)
-- [Troubleshooting](./guides/troubleshooting.md)
-- [SageMaker Deployment](./guides/deploy-to-sagemaker.md)
-- [ECS Fargate Deployment](./guides/deploy-to-ecs-fargate.md)
