@@ -32,7 +32,7 @@ Which will result in the following URLs:
 
 ### HTTP Only
 
-If you do not want to use SSL and HTTPS, you can disable it by setting the following [environment variables](/additionaldocs/development.md#environment-variables):
+If you do not want to use SSL and HTTPS, you can disable it by setting the following [environment variables](/docs/development.md#environment-variables):
 
 ```
 PROXY_SERVER_HTTPS_CONNECTION=false
@@ -65,7 +65,7 @@ The following instructions can be used as an example to bypass the warnings for 
 <!-- prettier-ignore -->
 > [!TIP]
 > To get rid of the “Not Secure” warning, see
-[Using self-signed certificates on Chrome](../development.md#using-self-signed-certificates-on-chrome).
+[Using self-signed certificates on Chrome](/docs/development.md#using-self-signed-certificates-on-chrome).
 
 ## Schema Sync Fails
 
@@ -165,5 +165,5 @@ New Neptune Notebooks automatically apply the correct IAM permissions to write t
 
 Below are examples of which IAM permissions you need for Graph Explorer.
 
-- [IAM permissions for Neptune DB](https://raw.githubusercontent.com/aws/graph-explorer/main/additionaldocs/sagemaker/graph-explorer-neptune-db-policy.json)
-- [IAM permissions for Neptune Analytics](https://raw.githubusercontent.com/aws/graph-explorer/main/additionaldocs/sagemaker/graph-explorer-neptune-analytics-policy.json)
+- [IAM permissions for Neptune DB](/docs/sagemaker/graph-explorer-neptune-db-policy.json)
+- [IAM permissions for Neptune Analytics](/docs/sagemaker/graph-explorer-neptune-analytics-policy.json)
