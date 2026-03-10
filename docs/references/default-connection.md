@@ -7,20 +7,20 @@ To provide a default connection such that initial loads of Graph Explorer always
 These are the valid environment variables used for the default connection, their defaults, and their descriptions.
 
 - Required:
-  - `PUBLIC_OR_PROXY_ENDPOINT` - `None` - See [Add a New Connection](#connections-ui)
+  - `PUBLIC_OR_PROXY_ENDPOINT` - `None`
 - Optional
-  - `GRAPH_TYPE` - `None` - If not specified, multiple connections will be created for every available query language. See [Add a New Connection](#connections-ui)
-  - `USING_PROXY_SERVER` - `False` - See [Add a New Connection](#connections-ui)
-  - `IAM` - `False` - See [Add a New Connection](#connections-ui)
+  - `GRAPH_TYPE` - `None` - If not specified, multiple connections will be created for every available query language.
+  - `USING_PROXY_SERVER` - `False`
+  - `IAM` - `False`
   - `GRAPH_EXP_HTTPS_CONNECTION` - `True` - Controls whether Graph Explorer uses SSL or not
   - `PROXY_SERVER_HTTPS_CONNECTION` - `True` - Controls whether the server uses SSL or not
   - `GRAPH_EXP_FETCH_REQUEST_TIMEOUT` - `240000` - Controls the timeout for the fetch request. Measured in milliseconds (i.e. 240000 is 240 seconds or 4 minutes).
   - `GRAPH_EXP_NODE_EXPANSION_LIMIT` - `None` - Controls the limit for node counts and expansion queries.
 - Conditionally Required:
   - Required if `USING_PROXY_SERVER=True`
-    - `GRAPH_CONNECTION_URL` - `None` - See [Add a New Connection](#connections-ui)
+    - `GRAPH_CONNECTION_URL` - `None`
   - Required if `USING_PROXY_SERVER=True` and `IAM=True`
-    - `AWS_REGION` - `None` - See [Add a New Connection](#connections-ui)
+    - `AWS_REGION` - `None`
     - `SERVICE_TYPE` - `neptune-db`, Set this as `neptune-db` for Neptune database or `neptune-graph` for Neptune Analytics.
 
 ## JSON Configuration Approach

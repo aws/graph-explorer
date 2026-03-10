@@ -157,7 +157,7 @@ After the request is processed, the console will return you to your certificate 
    ```
 5. In the JSON template, update the following fields:
    - `taskRoleArn` and `executionRoleArn`: The ARN of the IAM role created in step "Create a new IAM role and permission policies".
-   - `environment` variables section (see [Default Connections](https://github.com/aws/graph-explorer#providing-a-default-connection) for more details):
+   - `environment` variables section (see [Default Connection](../references/default-connection.md) for more details):
      - `AWS_REGION`: The AWS region in which your Neptune cluster is located.
      - `GRAPH_TYPE`: The query language for your initial connection.
      - `IAM`: Set this to `true` to use SigV4 signed requests, if your Neptune cluster has IAM db authentication enabled.
