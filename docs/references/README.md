@@ -6,3 +6,4 @@
 - [Logging](./logging.md) - Log levels, output, and proxy server logging modules
 - [Permissions](./permissions.md) - Database permissions and IAM roles
 - [Default Connection](./default-connection.md) - Configure a default connection via environment variables or JSON
+- [Security](./security.md) - HTTPS support and connection security
