@@ -1,6 +1,6 @@
 ---
 inclusion: fileMatch
-fileMatchPattern: "{**/*.md,additionaldocs/**}"
+fileMatchPattern: "{**/*.md,docs/**}"
 ---
 
 # Project Documentation Standards

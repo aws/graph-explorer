@@ -32,8 +32,8 @@ Run Graph Explorer wherever it fits your workflow: as a Docker container, on an 
 
 ## Learn More
 
-- [Getting Started](./additionaldocs/getting-started/README.md) - Set up Graph Explorer with Docker, EC2, or from source
-- [Features Overview](./additionaldocs/features/README.md) - Detailed guide to all features and functionality
+- [Getting Started](./docs/getting-started/README.md) - Set up Graph Explorer with Docker, EC2, or from source
+- [Features Overview](./docs/features/README.md) - Detailed guide to all features and functionality
 - [Roadmap](./ROADMAP.md) - See what's planned for future releases
 - [Discussions](https://github.com/aws/graph-explorer/discussions) - Ask questions, share ideas, and connect with the community
 - [Submit an Issue](https://github.com/aws/graph-explorer/issues/new/choose) - Report bugs or request new features
@@ -42,12 +42,12 @@ Run Graph Explorer wherever it fits your workflow: as a Docker container, on an 
 
 ## Getting Started
 
-There are many ways to deploy and run Graph Explorer. If you are new to graph databases and Graph Explorer, we recommend that you check out the [Getting Started](./additionaldocs/getting-started/README.md) guide.
+There are many ways to deploy and run Graph Explorer. If you are new to graph databases and Graph Explorer, we recommend that you check out the [Getting Started](./docs/getting-started/README.md) guide.
 
-- [Local Docker Setup](./additionaldocs/getting-started/README.md#local-docker-setup) - A quick start guide to deploying Graph Explorer locally using the official Docker image.
-- [Amazon EC2 Setup](./additionaldocs/getting-started/README.md#amazon-ec2-setup) - A quick start guide to setting up Graph Explorer on Amazon EC2 with Neptune.
-- [Local Development](./additionaldocs/getting-started/README.md#local-development-setup) - A quick start guide building the Docker image from source code.
-- [Troubleshooting](./additionaldocs/troubleshooting.md) - A collection of helpful tips if you run in to issues while setting up Graph Explorer.
+- [Local Docker Setup](./docs/getting-started/README.md#local-docker-setup) - A quick start guide to deploying Graph Explorer locally using the official Docker image.
+- [Amazon EC2 Setup](./docs/getting-started/README.md#amazon-ec2-setup) - A quick start guide to setting up Graph Explorer on Amazon EC2 with Neptune.
+- [Local Development](./docs/getting-started/README.md#local-development-setup) - A quick start guide building the Docker image from source code.
+- [Troubleshooting](./docs/troubleshooting.md) - A collection of helpful tips if you run in to issues while setting up Graph Explorer.
 - [Samples](./samples) - A collection of Docker Compose files that show various ways to configure and use Graph Explorer.
 
 ### Minimum Recommended Versions
@@ -60,7 +60,7 @@ For non-Neptune databases, we recommend at least TinkerPop 3.6.
 
 ## Connections
 
-Graph Explorer supports visualizing both **property graphs** and **RDF graphs**. You can connect to Amazon Neptune or you can also connect to open graph databases that implement an Apache TinkerPop Gremlin endpoint or the SPARQL 1.1 protocol, such as Blazegraph. For additional details on connecting to different graph databases, see [Connections](./additionaldocs/connections.md).
+Graph Explorer supports visualizing both **property graphs** and **RDF graphs**. You can connect to Amazon Neptune or you can also connect to open graph databases that implement an Apache TinkerPop Gremlin endpoint or the SPARQL 1.1 protocol, such as Blazegraph. For additional details on connecting to different graph databases, see [Connections](./docs/connections.md).
 
 ### Providing a Default Connection
 
@@ -140,13 +140,13 @@ docker run -p 80:80 -p 443:443 \
 
 ## Development
 
-For development guidance, see [Development](./additionaldocs/development.md).
+For development guidance, see [Development](./docs/development.md).
 
 ## Security
 
 You can use Graph Explorer to connect to a publicly accessible graph database endpoint, or connect to a proxy endpoint that redirects to a private graph database endpoint.
 
-Graph Explorer supports the HTTPS protocol by default and provides a self-signed certificate as part of the Docker image. You can choose to use HTTP instead by changing the [environment variable default settings](./additionaldocs/development.md#environment-variables).
+Graph Explorer supports the HTTPS protocol by default and provides a self-signed certificate as part of the Docker image. You can choose to use HTTP instead by changing the [environment variable default settings](./docs/development.md#environment-variables).
 
 ### HTTPS Connections
 
@@ -160,13 +160,13 @@ If either Graph Explorer or the proxy-server are served over an HTTPS connection
 <!-- prettier-ignore -->
 > [!TIP] 
 > 
-> To get rid of the “Not Secure” warning, see [Using self-signed certificates on Chrome](./additionaldocs/development.md#using-self-signed-certificates-on-chrome).
+> To get rid of the “Not Secure” warning, see [Using self-signed certificates on Chrome](./docs/development.md#using-self-signed-certificates-on-chrome).
 
 ## Permissions
 
 Graph Explorer does not provide any mechanisms for controlling user permissions. If you are using Graph Explorer with AWS, Neptune permissions can be controlled through IAM roles.
 
-For information about what permissions Graph Explorer requires check out the documentation on [SageMaker configuration](./additionaldocs/sagemaker/README.md#minimum-database-permissions).
+For information about what permissions Graph Explorer requires check out the documentation on [SageMaker configuration](./docs/sagemaker/README.md#minimum-database-permissions).
 
 <!-- prettier-ignore -->
 > [!CAUTION] 
