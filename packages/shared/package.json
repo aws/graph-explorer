@@ -11,12 +11,9 @@
     "./types": "./src/types/index.ts",
     "./utils/testing": "./src/utils/testing/index.ts"
   },
-  "dependencies": {
-    "zod": "^3.25.76"
-  },
   "devDependencies": {
-    "@vitest/coverage-v8": "4.0.10",
-    "rimraf": "^6.1.2",
-    "vitest": "4.0.10"
+    "@vitest/coverage-v8": "4.0.18",
+    "rimraf": "^6.1.3",
+    "vitest": "4.0.18"
   }
 }
