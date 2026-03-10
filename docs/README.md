@@ -1,3 +1,5 @@
+# Graph Explorer Documentation
+
 ## Table of Contents
 
 - [Getting Started](./getting-started)
