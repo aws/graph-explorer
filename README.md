@@ -141,17 +141,6 @@ You can use Graph Explorer to connect to a publicly accessible graph database en
 
 Graph Explorer supports the HTTPS protocol by default and provides a self-signed certificate as part of the Docker image. You can choose to use HTTP instead by changing the [environment variable default settings](./docs/development.md#environment-variables).
 
-## Permissions
-
-Graph Explorer does not provide any mechanisms for controlling user permissions. If you are using Graph Explorer with AWS, Neptune permissions can be controlled through IAM roles.
-
-For information about what permissions Graph Explorer requires check out the documentation on [SageMaker configuration](./docs/guides/deploy-to-sagemaker.md#minimum-database-permissions).
-
-<!-- prettier-ignore -->
-> [!CAUTION] 
-> 
-> By default, a Neptune Notebook will have full read & write access to Neptune data.
-
 ## Contributing Guidelines
 
 See [CONTRIBUTING](./CONTRIBUTING.md) for more information.
