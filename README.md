@@ -51,14 +51,6 @@ There are many ways to deploy and run Graph Explorer. If you are new to graph da
 - [Troubleshooting](./docs/guides/troubleshooting.md) - A collection of helpful tips if you run in to issues while setting up Graph Explorer.
 - [Samples](./samples) - A collection of Docker Compose files that show various ways to configure and use Graph Explorer.
 
-### Minimum Recommended Versions
-
-Graph Explorer does not block any particular versions of graph databases, but the queries used may or may not succeed based on the version of the query engine.
-
-For Neptune databases, we recommend [version 1.2.1.0](https://docs.aws.amazon.com/neptune/latest/userguide/engine-releases-1.2.1.0.html) or above, which include the summary API and TinkerPop 3.6.2.
-
-For non-Neptune databases, we recommend at least TinkerPop 3.6.
-
 ## Connections
 
 Graph Explorer supports visualizing both **property graphs** and **RDF graphs**. You can connect to Amazon Neptune or you can also connect to open graph databases that implement an Apache TinkerPop Gremlin endpoint or the SPARQL 1.1 protocol, such as Blazegraph. For additional details on connecting to different graph databases, see [Guides](./docs/guides).
