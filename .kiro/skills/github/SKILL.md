@@ -64,3 +64,4 @@ Example:
 - Link to the corresponding issue when one exists (e.g., `Fixes #123`)
 - Keep descriptions concise and focused
 - Include a bulleted list of changes at the conceptual level with reasons for each change so reviewers can scan quickly
+- When filling out the PR template checklist, only check an item if the action was actually performed during the current session. For example, only check `pnpm checks` or `pnpm test` if those commands were run and passed. Leave items unchecked when unsure.
