@@ -165,5 +165,5 @@ New Neptune Notebooks automatically apply the correct IAM permissions to write t
 
 Below are examples of which IAM permissions you need for Graph Explorer.
 
-- [IAM permissions for Neptune DB](/docs/sagemaker/graph-explorer-neptune-db-policy.json)
-- [IAM permissions for Neptune Analytics](/docs/sagemaker/graph-explorer-neptune-analytics-policy.json)
+- [IAM permissions for Neptune DB](/docs/guides/deploy-to-sagemaker/graph-explorer-neptune-db-policy.json)
+- [IAM permissions for Neptune Analytics](/docs/guides/deploy-to-sagemaker/graph-explorer-neptune-analytics-policy.json)

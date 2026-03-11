@@ -52,7 +52,7 @@ The quickest way to get started with Graph Explorer is to use the official Docke
    https://localhost/explorer
    ```
 
-5. You will receive a warning as the SSL certificate used is self-signed. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See the [HTTPS Connections](../troubleshooting.md#https-connections) section.
+5. You will receive a warning as the SSL certificate used is self-signed. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See the [HTTPS Connections](../guides/troubleshooting.md#https-connections) section.
 6. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See below description on Connections UI to configure your first connection to Amazon Neptune.
 
 #### Gremlin Server Database
@@ -128,7 +128,7 @@ These steps describe how to install Graph Explorer on your Amazon EC2 instance.
    ```
    https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com/explorer
    ```
-6. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See [HTTPS Connections](../troubleshooting.md#https-connections) section.
+6. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See [HTTPS Connections](../guides/troubleshooting.md#https-connections) section.
 7. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI.
 
 ## Local Development Setup
@@ -169,4 +169,4 @@ You can build the Docker image locally by following the steps below.
 
 ## Troubleshooting
 
-If the instructions above do not work for you, please see the [Troubleshooting](../troubleshooting.md) page for more information. It contains workarounds for common issues and information on how to diagnose other issues.
+If the instructions above do not work for you, please see the [Troubleshooting](../guides/troubleshooting.md) page for more information. It contains workarounds for common issues and information on how to diagnose other issues.

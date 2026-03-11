@@ -14,7 +14,7 @@ The following steps will allow you set up Graph Explorer on AWS Fargate in Amazo
 8. For **Add tags (optional)**, enter any custom tags to associate with the policy.
 9. Click **Create role** to finish, and keep the role name handy to use in the next steps.
 
-![image](./images/iam-role.png)
+![image](./deploy-to-ecs-fargate/iam-role.png)
 
 ### Create an Amazon ECS Cluster
 
@@ -34,7 +34,7 @@ The following steps will allow you set up Graph Explorer on AWS Fargate in Amazo
 
 After the cluster has finished creation, you can create task definitions for your applications, which can then be run as standalone tasks, or as part of a service.
 
-![image](./images/ecs-cluster.png)
+![image](./deploy-to-ecs-fargate/ecs-cluster.png)
 
 ### Request an ACM Public Certificate
 
@@ -199,7 +199,7 @@ After the request is processed, the console will return you to your certificate 
      - **Target group name**: `tg-graphexplorer-demo` with **Protocol** as `HTTPS`.
      - **Health check path**: `/explorer/` with **Health check protocol** as `HTTPS`.
 
-      <img width="720" alt="image" src="./images/target-group.png">
+      <img width="720" alt="image" src="./deploy-to-ecs-fargate/target-group.png">
 
 10. (Optional) Under section **Service auto scaling**, specify the desired scaling configuration.
 11. (Optional) To help identify your service and tasks, expand the **Tags** section, then configure your desired tags.
@@ -208,7 +208,7 @@ After the request is processed, the console will return you to your certificate 
 
 After few minutes, the Fargate service will be created and ready.
 
-<img alt="image" src="./images/fargate-service.png">
+<img alt="image" src="./deploy-to-ecs-fargate/fargate-service.png">
 
 ### Create an Amazon Route53 Entry
 

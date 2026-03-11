@@ -2,8 +2,5 @@
 
 - [Getting Started](./getting-started)
 - [Features](./features)
-- [Connections](./connections.md)
+- [Guides](./guides)
 - [Development](./development.md)
-- [Troubleshooting](./troubleshooting.md)
-- [SageMaker](./sagemaker)
-- [ECS](./ecs)

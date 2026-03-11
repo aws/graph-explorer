@@ -34,6 +34,7 @@ Run Graph Explorer wherever it fits your workflow: as a Docker container, on an 
 
 - [Getting Started](./docs/getting-started/README.md) - Set up Graph Explorer with Docker, EC2, or from source
 - [Features Overview](./docs/features/README.md) - Detailed guide to all features and functionality
+- [Guides](./docs/guides) - Database connections, deployment, and troubleshooting
 - [Roadmap](./ROADMAP.md) - See what's planned for future releases
 - [Discussions](https://github.com/aws/graph-explorer/discussions) - Ask questions, share ideas, and connect with the community
 - [Submit an Issue](https://github.com/aws/graph-explorer/issues/new/choose) - Report bugs or request new features
@@ -47,7 +48,7 @@ There are many ways to deploy and run Graph Explorer. If you are new to graph da
 - [Local Docker Setup](./docs/getting-started/README.md#local-docker-setup) - A quick start guide to deploying Graph Explorer locally using the official Docker image.
 - [Amazon EC2 Setup](./docs/getting-started/README.md#amazon-ec2-setup) - A quick start guide to setting up Graph Explorer on Amazon EC2 with Neptune.
 - [Local Development](./docs/getting-started/README.md#local-development-setup) - A quick start guide building the Docker image from source code.
-- [Troubleshooting](./docs/troubleshooting.md) - A collection of helpful tips if you run in to issues while setting up Graph Explorer.
+- [Troubleshooting](./docs/guides/troubleshooting.md) - A collection of helpful tips if you run in to issues while setting up Graph Explorer.
 - [Samples](./samples) - A collection of Docker Compose files that show various ways to configure and use Graph Explorer.
 
 ### Minimum Recommended Versions
@@ -60,7 +61,7 @@ For non-Neptune databases, we recommend at least TinkerPop 3.6.
 
 ## Connections
 
-Graph Explorer supports visualizing both **property graphs** and **RDF graphs**. You can connect to Amazon Neptune or you can also connect to open graph databases that implement an Apache TinkerPop Gremlin endpoint or the SPARQL 1.1 protocol, such as Blazegraph. For additional details on connecting to different graph databases, see [Connections](./docs/connections.md).
+Graph Explorer supports visualizing both **property graphs** and **RDF graphs**. You can connect to Amazon Neptune or you can also connect to open graph databases that implement an Apache TinkerPop Gremlin endpoint or the SPARQL 1.1 protocol, such as Blazegraph. For additional details on connecting to different graph databases, see [Guides](./docs/guides).
 
 ### Providing a Default Connection
 
@@ -166,22 +167,12 @@ If either Graph Explorer or the proxy-server are served over an HTTPS connection
 
 Graph Explorer does not provide any mechanisms for controlling user permissions. If you are using Graph Explorer with AWS, Neptune permissions can be controlled through IAM roles.
 
-For information about what permissions Graph Explorer requires check out the documentation on [SageMaker configuration](./docs/sagemaker/README.md#minimum-database-permissions).
+For information about what permissions Graph Explorer requires check out the documentation on [SageMaker configuration](./docs/guides/deploy-to-sagemaker.md#minimum-database-permissions).
 
 <!-- prettier-ignore -->
 > [!CAUTION] 
 > 
 > By default, a Neptune Notebook will have full read & write access to Neptune data.
-
-## Authentication
-
-Authentication for Amazon Neptune connections is enabled using the [SigV4 signing protocol](https://docs.aws.amazon.com/general/latest/gr/signature-version-4.html).
-
-To use AWS IAM authentication, you must run requests through a proxy endpoint, such as an EC2 instance, where credentials are resolved and where requests are signed.
-
-To set up a connection in Graph Explorer UI with AWS IAM auth enabled on Neptune, check Using Proxy-Server, then check AWS IAM Auth Enabled and type in the AWS Region where the Neptune cluster is hosted (e.g., us-east-1).
-
-For further information on how AWS credentials are resolved in Graph Explorer, refer to this [documentation](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CredentialProviderChain.html).
 
 ## Health Check Status
 
