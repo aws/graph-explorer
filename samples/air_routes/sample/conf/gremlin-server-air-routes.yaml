@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-host: localhost
+host: 0.0.0.0
 port: 8182
 evaluationTimeout: 30000
 # Graph Explorer only supports HTTP protocol, only HTTP channelizers will work here

@@ -14,5 +14,6 @@ services:
   database:
     image: tinkerpop/gremlin-server:latest
     volumes:
-      - ./sample:/opt/gremlin-server/sample
+      - ./sample:/opt/gremlin-server/sample:ro
+    entrypoint: /opt/gremlin-server/bin/gremlin-server.sh
     command: /opt/gremlin-server/sample/conf/gremlin-server-air-routes.yaml
