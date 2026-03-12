@@ -91,8 +91,10 @@ labels must exactly match the vertex/edge type names in your graph database.
 
 ### Icons
 
-There are two ways to specify vertex icons:
+There are three ways to set vertex icons:
 
+- **Icon Picker (UI)** — In the Node Style dialog, click **Browse** to search
+  and select from the full Lucide icon library (~1,900 icons).
 - **`icon`** — A [Lucide](https://lucide.dev/icons) icon name in kebab-case
   (e.g., `"user"`, `"log-in"`, `"landmark"`). Resolved to an SVG at runtime. No
   additional files needed.
