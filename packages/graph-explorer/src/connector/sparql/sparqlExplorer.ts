@@ -163,6 +163,7 @@ export function createSparqlExplorer(
         limit: req.limit,
         offset: req.offset,
         exactMatch: req.exactMatch,
+        caseInsensitive: req.caseInsensitive,
       };
 
       const response = await keywordSearch(
