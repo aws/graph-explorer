@@ -180,6 +180,14 @@ app.use(
     path.join(defaultConnectionFolderPath, "defaultConnection.json"),
   ),
 );
+app.use(
+  "/defaultStyling",
+  express.static(path.join(defaultConnectionFolderPath, "defaultStyling.json")),
+);
+app.use(
+  "/custom-icons",
+  express.static(path.join(defaultConnectionFolderPath, "custom-icons")),
+);
 
 // Host the Graph Explorer UI static files
 const staticFilesVirtualPath = "/explorer";

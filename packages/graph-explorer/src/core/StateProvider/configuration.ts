@@ -170,7 +170,7 @@ const mergeVertex = (
     ...(patchedSchema || {}),
     // File-based override
     ...(patchedConfig || {}),
-    // User preferences override
+    // User preferences override (includes defaults from defaultStyling.json)
     ...(preferences || {}),
     attributes,
   };
@@ -204,7 +204,7 @@ const mergeEdge = (
     ...(patchedSchema || {}),
     // File-based override
     ...(patchedConfig || {}),
-    // User preferences override
+    // User preferences override (includes defaults from defaultStyling.json)
     ...(preferences || {}),
     attributes,
   };

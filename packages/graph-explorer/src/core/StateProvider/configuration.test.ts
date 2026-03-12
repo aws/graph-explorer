@@ -257,6 +257,37 @@ describe("mergedConfiguration", () => {
     expect(actualEtConfig?.displayLabel).toEqual(customDisplayLabel);
   });
 
+  it("should apply styling from userStyling (which includes merged defaults)", () => {
+    const config = createRandomRawConfiguration();
+    const schema = createRandomSchema();
+    // In the new architecture, defaults from defaultStyling.json are
+    // merged into userStyling at load time
+    const styling: UserStyling = {
+      vertices: schema.vertices.map(v => ({
+        type: v.type,
+        color: "#FF0000",
+      })),
+      edges: schema.edges.map(e => ({
+        type: e.type,
+        lineColor: "#00FF00",
+      })),
+    };
+    const result = mergeConfiguration(schema, config, styling);
+
+    for (const v of result.schema?.vertices ?? []) {
+      const style = styling.vertices?.find(s => s.type === v.type);
+      if (style) {
+        expect(v.color).toBe("#FF0000");
+      }
+    }
+    for (const e of result.schema?.edges ?? []) {
+      const style = styling.edges?.find(s => s.type === e.type);
+      if (style) {
+        expect(e.lineColor).toBe("#00FF00");
+      }
+    }
+  });
+
   it("should patch displayNameAttribute to be 'types' when it was 'type'", () => {
     const etConfig = createRandomEdgeTypeConfig();
 

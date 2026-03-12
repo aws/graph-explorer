@@ -1,5 +1,10 @@
 # Graph Explorer Change Log
 
+## Unreleased
+
+- Add defaultStyling.json support for persistent per-type vertex and edge
+  styling (#1265, #112, #173, #573, #689)
+
 ## Release 3.0.0
 
 Graph Explorer 3.0 is here! This release brings one of the most requested features — the ability to visualize your graph database schema — along with a fresh navigation experience and a handful of quality-of-life improvements.
