@@ -1,8 +1,8 @@
 ---
-name: Feature request
-about: Suggest a new feature or improvement
+name: Epic
+about: A large feature broken into smaller tasks
 labels: enhancement, triage
-type: Feature
+type: Epic
 ---
 
 ## Description
@@ -12,9 +12,9 @@ type: Feature
   e.g. I'm frustrated when [...]
 -->
 
-## Preferred Solution
+## High-Level Plan
 
-<!-- A clear and concise description of what you want to happen. -->
+<!-- A clear and concise description of the approach and major steps. -->
 
 ## Related Issues
 

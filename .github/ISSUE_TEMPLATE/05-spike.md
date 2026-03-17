@@ -1,20 +1,16 @@
 ---
-name: Feature request
-about: Suggest a new feature or improvement
-labels: enhancement, triage
-type: Feature
+name: Spike
+about: Exploratory work to produce estimates or inform planning
+type: Spike
 ---
 
-## Description
+## Goal
 
-<!--
-  A clear and concise description of what the problem is.
-  e.g. I'm frustrated when [...]
--->
+<!-- What question or uncertainty does this spike aim to resolve? -->
 
-## Preferred Solution
+## Expected Outcome
 
-<!-- A clear and concise description of what you want to happen. -->
+<!-- What deliverables are expected? e.g. estimates, a tasked-out epic, a proof of concept, a recommendation -->
 
 ## Related Issues
 

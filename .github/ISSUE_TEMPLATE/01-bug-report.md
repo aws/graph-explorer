@@ -1,10 +1,8 @@
 ---
 name: Bug report
-about: Create a bug report to help us improve
-title: "[Bug] "
-labels: bug
-projects: "aws/112"
-assignees: ""
+about: Something isn't working as expected
+labels: bug, triage
+type: Bug
 ---
 
 ## Description
@@ -37,13 +35,8 @@ assignees: ""
 
 ---
 
-<!-- prettier-ignore -->
 > [!IMPORTANT]
-> If you are interested in working on this issue or have submitted
-> a pull request, please leave a comment.
+> If you are interested in working on this issue, please leave a comment.
 
-<!-- prettier-ignore -->
 > [!TIP]
-> Please use a 👍 reaction to provide a +1/vote.
->
-> This helps the community and maintainers prioritize this request.
+> Please use a 👍 reaction to provide a +1/vote. This helps the community and maintainers prioritize this request.
