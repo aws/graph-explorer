@@ -36,6 +36,7 @@ export * from "./Form";
 export * from "./numberFormat";
 
 export * from "./icons";
+export * from "./IconPicker";
 
 export * from "./Input";
 export { default as InputField } from "./InputField";
