@@ -14,10 +14,17 @@ tools: ["git", "gh", "fs_read", "grep", "glob", "web_search", "web_fetch"]
 
 ## Issues
 
-- Always assign an issue type when creating issues: `Task`, `Bug`, `Feature`, `Epic`, or `Spike`
+- Always assign an issue type when creating issues: `Bug`, `Feature`, `Epic`, `Task`, or `Spike`
+- Use the corresponding issue template for each type:
+  - `Bug` → `.github/ISSUE_TEMPLATE/01-bug-report.md`
+  - `Feature` → `.github/ISSUE_TEMPLATE/02-feature-request.md`
+  - `Epic` → `.github/ISSUE_TEMPLATE/03-epic.md`
+  - `Task` → `.github/ISSUE_TEMPLATE/04-task.md`
+  - `Spike` → `.github/ISSUE_TEMPLATE/05-spike.md`
 - Use context from the codebase or the web to fill in additional detail when creating issues
 - Only apply labels from the existing set; do not create new labels
 - Do not add or remove labels unless explicitly requested
+- For tasks and spikes, always assign a parent issue with the type bug, feature, or epic
 
 ## Sub-Issues
 
