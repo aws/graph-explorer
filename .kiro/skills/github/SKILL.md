@@ -15,6 +15,10 @@ tools: ["git", "gh", "fs_read", "grep", "glob", "web_search", "web_fetch"]
 ## Issues
 
 - Always assign an issue type when creating issues: `Bug`, `Feature`, `Epic`, `Task`, or `Spike`
+- Set the issue type via the REST API after creation:
+  ```bash
+  gh api -X PATCH repos/{owner}/{repo}/issues/{number} --field type={type_name}
+  ```
 - Use the corresponding issue template for each type:
   - `Bug` → `.github/ISSUE_TEMPLATE/01-bug-report.md`
   - `Feature` → `.github/ISSUE_TEMPLATE/02-feature-request.md`
