@@ -14,7 +14,7 @@
   "author": "amazon",
   "license": "Apache-2.0",
   "dependencies": {
-    "@aws-sdk/credential-providers": "^3.1005.0",
+    "@aws-sdk/credential-providers": "^3.1015.0",
     "@graph-explorer/shared": "workspace:*",
     "aws4": "^1.13.2",
     "body-parser": "^2.2.2",
