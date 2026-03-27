@@ -97,7 +97,20 @@ This repository is composed by 3 packages and a mono-repository structure itself
 
 Each of these `package.json` files has an independent `version` property. However, in this project we should keep them correlated. Therefore, when a new release version is being prepared, the version number should be increased in all 4 files. Regarding the version number displayed in the user interface, it is specifically extracted from the `<root>/packages/graph-explorer/package.json`. file
 
+### Local environment overrides
+
+Create a `.env.local` file in `packages/graph-explorer/` to override environment variables without modifying tracked files. This file is gitignored and will not be committed.
+
+Example `packages/graph-explorer/.env.local`:
+
+```
+GRAPH_EXP_DEV_PORT=5174
+PROXY_SERVER_HTTP_PORT=8082
+```
+
 ### Environment variables
+
+For development-only variables like `GRAPH_EXP_DEV_PORT`, see [Development-only environment variables](#development-only-environment-variables).
 
 #### `GRAPH_EXP_ENV_ROOT_FOLDER`
 
@@ -158,6 +171,20 @@ Override path for the folder containing `.env` and `defaultConnection.json`. Whe
 - Optional
 - Default: `<client root>` (`packages/graph-explorer`)
 - Type: `string`
+
+### Development-only environment variables
+
+These variables only affect the local development server (`pnpm dev`) and have no effect on production builds or Docker.
+
+#### `GRAPH_EXP_DEV_PORT`
+
+Sets a fixed port for the Vite development server. When set, `strictPort` is enabled — Vite will fail with an error if the port is already in use rather than silently selecting another port. This ensures the dev server runs on the exact port you intend.
+
+Example: `5174`
+
+- Optional
+- Default: Vite's default behavior (auto-selects an available port starting at 5173)
+- Type: `number`
 
 ### Using self-signed certificates with Docker
 
