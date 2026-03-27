@@ -1,7 +1,7 @@
 import { useIsFetching, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { edgeConnectionsQuery, schemaSyncQuery } from "@/connector";
-import { useMaybeActiveSchema } from "@/core";
+import { useConfiguration, useMaybeActiveSchema } from "@/core";
 import { logger } from "@/utils";
 
 /** Returns true if any schema sync query is running. Will not trigger the query to run. */
@@ -30,9 +30,12 @@ export function useCancelSchemaSync() {
  * - On refetch failure, TanStack Query preserves the previous successful data.
  */
 export function useSchemaSync() {
+  const config = useConfiguration();
   const activeSchema = useMaybeActiveSchema();
 
-  const schemaDiscoveryQuery = useQuery(schemaSyncQuery(activeSchema));
+  const schemaDiscoveryQuery = useQuery(
+    schemaSyncQuery({ activeSchema, hasConnection: config != null }),
+  );
   const edgeDiscoveryQuery = useQuery(
     edgeConnectionsQuery(schemaDiscoveryQuery.data),
   );

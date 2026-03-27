@@ -65,7 +65,10 @@ export function edgeConnectionsQuery(
 
         // Update the cached schema for the schema sync query
         const newSchema = store.get(activeSchemaAtom);
-        client.setQueryData(schemaSyncQuery(activeSchema).queryKey, newSchema);
+        client.setQueryData(
+          schemaSyncQuery({ activeSchema, hasConnection: true }).queryKey,
+          newSchema,
+        );
 
         return results.edgeConnections;
       } catch (error) {

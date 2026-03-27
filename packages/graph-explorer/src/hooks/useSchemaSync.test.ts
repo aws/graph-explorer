@@ -2,9 +2,12 @@ import { act, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  activeConfigurationAtom,
+  configurationAtom,
   createEdgeType,
   createVertexType,
   type EdgeConnection,
+  explorerForTestingAtom,
   schemaAtom,
 } from "@/core";
 import { getAppStore } from "@/core/StateProvider/appStore";
@@ -13,6 +16,7 @@ import {
   createRandomVertexTypeConfig,
   DbState,
   FakeExplorer,
+  renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
 
@@ -43,6 +47,47 @@ describe("useSchemaSync", () => {
     state.activeSchema.edgeConnections = undefined;
     return state;
   }
+
+  describe("no active connection", () => {
+    function renderWithNoConnection() {
+      return renderHookWithJotai(
+        () => useSchemaSync(),
+        store => {
+          store.set(activeConfigurationAtom, null);
+          store.set(configurationAtom, new Map());
+          store.set(schemaAtom, new Map());
+          store.set(explorerForTestingAtom, explorer);
+        },
+      );
+    }
+
+    it("should not fetch schema when no connection exists", () => {
+      const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
+
+      const { result } = renderWithNoConnection();
+
+      expect(fetchSchemaSpy).not.toHaveBeenCalled();
+      expect(result.current.schemaDiscoveryQuery.fetchStatus).toBe("idle");
+    });
+
+    it("should not fetch edge connections when no connection exists", () => {
+      const fetchEdgeConnectionsSpy = vi.spyOn(
+        explorer,
+        "fetchEdgeConnections",
+      );
+
+      const { result } = renderWithNoConnection();
+
+      expect(fetchEdgeConnectionsSpy).not.toHaveBeenCalled();
+      expect(result.current.edgeDiscoveryQuery.fetchStatus).toBe("idle");
+    });
+
+    it("should report isFetching as false when no connection exists", () => {
+      const { result } = renderWithNoConnection();
+
+      expect(result.current.isFetching).toBe(false);
+    });
+  });
 
   describe("schemaDiscoveryQuery", () => {
     it("should use initialData from active schema without fetching", () => {
