@@ -1,6 +1,15 @@
 import type { PropsWithChildren } from "react";
 
+import { ArrowRightIcon, DatabaseIcon } from "lucide-react";
+
 import {
+  EmptyState,
+  EmptyStateActions,
+  EmptyStateContent,
+  EmptyStateDescription,
+  EmptyStateIcon,
+  EmptyStateTitle,
+  NavButton,
   Panel,
   PanelContent,
   PanelEmptyState,
@@ -10,7 +19,11 @@ import {
   PanelTitle,
   SyncIcon,
 } from "@/components";
-import { useHasActiveSchema, useMaybeActiveSchema } from "@/core";
+import {
+  useConfiguration,
+  useHasActiveSchema,
+  useMaybeActiveSchema,
+} from "@/core";
 import { useTranslations } from "@/hooks";
 import { useCancelSchemaSync, useSchemaSync } from "@/hooks/useSchemaSync";
 
@@ -28,6 +41,7 @@ export function SchemaDiscoveryBoundary({
   children,
   requireEdgeConnections = false,
 }: SchemaDiscoveryBoundaryProps) {
+  const config = useConfiguration();
   const {
     schemaDiscoveryQuery,
     edgeDiscoveryQuery,
@@ -38,6 +52,30 @@ export function SchemaDiscoveryBoundary({
   const schema = useMaybeActiveSchema();
   const cancel = useCancelSchemaSync();
   const t = useTranslations();
+
+  // 0. If no connection is configured, show no-connection state
+  if (!config) {
+    return (
+      <Layout>
+        <EmptyState className="p-6">
+          <EmptyStateIcon>
+            <DatabaseIcon />
+          </EmptyStateIcon>
+          <EmptyStateContent>
+            <EmptyStateTitle>No Connection</EmptyStateTitle>
+            <EmptyStateDescription>
+              Add a connection to start exploring your graph data.
+            </EmptyStateDescription>
+            <EmptyStateActions>
+              <NavButton to="/connections" variant="primary">
+                Go to Connections <ArrowRightIcon />
+              </NavButton>
+            </EmptyStateActions>
+          </EmptyStateContent>
+        </EmptyState>
+      </Layout>
+    );
+  }
 
   // 1. If loading/fetching, show loading state
   if (isFetching) {
