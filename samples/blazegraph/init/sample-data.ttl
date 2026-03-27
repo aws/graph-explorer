@@ -1,0 +1,42 @@
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# People
+ex:alice a foaf:Person ;
+    foaf:name "Alice Johnson" ;
+    foaf:age 30 ;
+    foaf:knows ex:bob, ex:charlie ;
+    foaf:worksFor ex:techcorp .
+
+ex:bob a foaf:Person ;
+    foaf:name "Bob Smith" ;
+    foaf:age 25 ;
+    foaf:knows ex:alice, ex:diana ;
+    foaf:worksFor ex:startup .
+
+ex:charlie a foaf:Person ;
+    foaf:name "Charlie Brown" ;
+    foaf:age 35 ;
+    foaf:knows ex:alice, ex:diana ;
+    foaf:worksFor ex:techcorp .
+
+ex:diana a foaf:Person ;
+    foaf:name "Diana Prince" ;
+    foaf:age 28 ;
+    foaf:knows ex:bob, ex:charlie ;
+    foaf:worksFor ex:nonprofit .
+
+# Organizations
+ex:techcorp a foaf:Organization ;
+    foaf:name "TechCorp Inc." ;
+    rdfs:label "Technology Corporation" .
+
+ex:startup a foaf:Organization ;
+    foaf:name "Innovative Startup" ;
+    rdfs:label "Startup Company" .
+
+ex:nonprofit a foaf:Organization ;
+    foaf:name "Community Nonprofit" ;
+    rdfs:label "Non-profit Organization" .
