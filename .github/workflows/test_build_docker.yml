@@ -22,6 +22,13 @@ jobs:
           docker build -t test-image .
           docker build -t test-image-neptune --build-arg NEPTUNE_NOTEBOOK=true .
 
+      - name: Scan Docker image for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: test-image
+          severity: HIGH,CRITICAL
+          exit-code: 1
+
       - name: Ensure openSSL is installed
         run: |
           docker run --rm --entrypoint="" test-image openssl --version

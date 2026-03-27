@@ -54,6 +54,7 @@ RUN pnpm install && \
     corepack disable && \
     rm -rf /usr/local/bin/pnpm* /usr/local/bin/corepack && \
     rm -rf $HOME/.local && \
+    rm -rf $HOME/.cache && \
     chmod a+x ./process-environment.sh && \
     chmod a+x ./docker-entrypoint.sh
 
