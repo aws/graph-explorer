@@ -27,13 +27,18 @@ import { getExplorer, getStore } from "./helpers";
  * On failure, persists `lastSyncFail` so the UI can show the failure after
  * a browser refresh and automatic retry is suppressed.
  */
-export function schemaSyncQuery(activeSchema: SchemaStorageModel | undefined) {
+export function schemaSyncQuery({
+  activeSchema,
+  hasConnection,
+}: {
+  activeSchema: SchemaStorageModel | undefined;
+  hasConnection: boolean;
+}) {
   return queryOptions({
     queryKey: ["schema", "discovery"],
     staleTime: Infinity,
     initialData: activeSchema,
-    // Don't automatically retry if the last sync failed (persisted across sessions)
-    enabled: !activeSchema?.lastSyncFail,
+    enabled: hasConnection && !activeSchema?.lastSyncFail,
     queryFn: async ({ signal, meta }) => {
       const explorer = getExplorer(meta);
       const store = getStore(meta);
