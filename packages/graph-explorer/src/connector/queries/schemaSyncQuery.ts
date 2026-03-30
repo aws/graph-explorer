@@ -18,6 +18,8 @@ import type { SchemaResponse } from "../useGEFetchTypes";
 
 import { getExplorer, getStore } from "./helpers";
 
+export const schemaSyncQueryKey = ["schema", "discovery"] as const;
+
 /**
  * Fetches the schema from the given explorer and persists it to the local cache on success.
  *
@@ -35,7 +37,7 @@ export function schemaSyncQuery({
   hasConnection: boolean;
 }) {
   return queryOptions({
-    queryKey: ["schema", "discovery"],
+    queryKey: schemaSyncQueryKey,
     staleTime: Infinity,
     initialData: activeSchema,
     enabled: hasConnection && !activeSchema?.lastSyncFail,
