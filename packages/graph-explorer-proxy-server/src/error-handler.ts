@@ -1,13 +1,12 @@
 import type { NextFunction, Request, Response } from "express";
 
-import { getRequestLoggerPrefix, logger } from "./logging.js";
+import { type AppLogger, getRequestLoggerPrefix } from "./logging.js";
 
 /**
  * Global error handler
  * @param error The error to handle.
  */
-export function handleError(error: unknown) {
-  // Log the error itself
+export function handleError(error: unknown, logger: AppLogger) {
   logger.error(error);
 }
 
@@ -30,6 +29,7 @@ export function errorHandlingMiddleware() {
     response: Response,
     _next: NextFunction,
   ) => {
+    const logger = request.app.locals.logger;
     const errorInfo = extractErrorInfo(error);
 
     response.status(errorInfo.status);
@@ -49,7 +49,7 @@ export function errorHandlingMiddleware() {
         .join(""),
     );
 
-    handleError(error);
+    handleError(error, logger);
   };
 }
 

@@ -5,6 +5,7 @@ import aws4 from "aws4";
 import bodyParser from "body-parser";
 import compression from "compression";
 import cors from "cors";
+import dotenv from "dotenv";
 import express, { type NextFunction, type Response } from "express";
 import fs from "fs";
 import https from "https";
@@ -12,12 +13,34 @@ import fetch, { type RequestInit } from "node-fetch";
 import path from "path";
 import { pipeline } from "stream";
 
-import { BooleanStringSchema, env } from "./env.js";
+import { BooleanStringSchema, parseEnvironmentValues } from "./env.js";
 import { errorHandlingMiddleware, handleError } from "./error-handler.js";
-import { logger as proxyLogger, requestLoggingMiddleware } from "./logging.js";
-import { clientRoot, proxyServerRoot } from "./paths.js";
+import { createLogger, requestLoggingMiddleware } from "./logging.js";
+import { clientRoot, isDirectory, proxyServerRoot } from "./paths.js";
+
+// Load .env files into process.env before parsing
+const configPath = process.env.CONFIGURATION_FOLDER_PATH ?? clientRoot;
+if (!isDirectory(configPath)) {
+  const source = process.env.CONFIGURATION_FOLDER_PATH
+    ? `CONFIGURATION_FOLDER_PATH="${configPath}"`
+    : `default config path "${configPath}"`;
+  console.error(`Configuration folder does not exist: ${source}`);
+  process.exit(1);
+}
+dotenv.config({
+  path: [path.join(configPath, ".env.local"), path.join(configPath, ".env")],
+});
+
+const env = parseEnvironmentValues(process.env);
+
+const logger = createLogger(env);
+logger.info("Parsed environment values: %o", env);
 
 const app = express();
+
+// Store env and logger on app.locals for access in middleware and routes
+app.locals.env = env;
+app.locals.logger = logger;
 
 const DEFAULT_SERVICE_TYPE = "neptune-db";
 
@@ -103,7 +126,7 @@ const retryFetch = async (
     try {
       const res = await fetch(url.href, options);
       if (!res.ok) {
-        proxyLogger.error("!!Request failure!!");
+        logger.error("!!Request failure!!");
         return res;
       } else {
         return res;
@@ -113,10 +136,10 @@ const retryFetch = async (
         // Don't log about retries if retrying is not used
         throw err;
       } else if (i === refetchMaxRetries - 1) {
-        proxyLogger.error(err, "!!Proxy Retry Fetch Reached Maximum Tries!!");
+        logger.error(err, "!!Proxy Retry Fetch Reached Maximum Tries!!");
         throw err;
       } else {
-        proxyLogger.debug("Proxy Retry Fetch Count::: " + i);
+        logger.debug("Proxy Retry Fetch Count::: " + i);
         await new Promise(resolve => setTimeout(resolve, retryDelay));
       }
     }
@@ -155,7 +178,7 @@ async function fetchData(
       pipeline(response.body, res, err => {
         if (err) {
           // Log the error as a warning, but otherwise ignore it
-          proxyLogger.warn("Pipeline error %o", err);
+          logger.warn("Pipeline error %o", err);
         }
       });
     } else {
@@ -166,27 +189,21 @@ async function fetchData(
   }
 }
 
-const defaultConnectionFolderPath = env.CONFIGURATION_FOLDER_PATH
-  ? env.CONFIGURATION_FOLDER_PATH
-  : clientRoot;
-
 app.use(compression()); // Use compression middleware
 app.use(cors());
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 app.use(
   "/defaultConnection",
-  express.static(
-    path.join(defaultConnectionFolderPath, "defaultConnection.json"),
-  ),
+  express.static(path.join(configPath, "defaultConnection.json")),
 );
 
 // Host the Graph Explorer UI static files
 const staticFilesVirtualPath = "/explorer";
 const staticFilesPath = path.join(clientRoot, "dist");
 
-proxyLogger.info("Hosting client side static files from: %s", staticFilesPath);
-proxyLogger.info(
+logger.info("Hosting client side static files from: %s", staticFilesPath);
+logger.info(
   "Hosting client side static files at: %s",
   staticFilesVirtualPath ?? "/",
 );
@@ -216,7 +233,7 @@ app.post("/sparql", async (req, res, next) => {
     if (!queryId) {
       return;
     }
-    proxyLogger.debug(`Cancelling request ${queryId}...`);
+    logger.debug(`Cancelling request ${queryId}...`);
     try {
       await retryFetch(
         new URL(`${graphDbConnectionUrl}/sparql/status`),
@@ -234,7 +251,7 @@ app.post("/sparql", async (req, res, next) => {
       );
     } catch (err) {
       // Not really an error
-      proxyLogger.warn(err, "Failed to cancel the query");
+      logger.warn(err, "Failed to cancel the query");
     }
   }
 
@@ -261,7 +278,7 @@ app.post("/sparql", async (req, res, next) => {
   }
 
   if (shouldLogDbQuery) {
-    proxyLogger.debug("[SPARQL] Received database query:\n%s", queryString);
+    logger.debug("[SPARQL] Received database query:\n%s", queryString);
   }
 
   const rawUrl = `${graphDbConnectionUrl}/sparql`;
@@ -312,7 +329,7 @@ app.post("/gremlin", async (req, res, next) => {
   }
 
   if (shouldLogDbQuery) {
-    proxyLogger.debug("[Gremlin] Received database query:\n%s", queryString);
+    logger.debug("[Gremlin] Received database query:\n%s", queryString);
   }
 
   /// Function to cancel long running queries if the client disappears before completion
@@ -320,7 +337,7 @@ app.post("/gremlin", async (req, res, next) => {
     if (!queryId) {
       return;
     }
-    proxyLogger.debug(`Cancelling request ${queryId}...`);
+    logger.debug(`Cancelling request ${queryId}...`);
     try {
       await retryFetch(
         new URL(
@@ -333,7 +350,7 @@ app.post("/gremlin", async (req, res, next) => {
       );
     } catch (err) {
       // Not really an error
-      proxyLogger.warn(err, "Failed to cancel the query");
+      logger.warn(err, "Failed to cancel the query");
     }
   }
 
@@ -388,7 +405,7 @@ app.post("/openCypher", async (req, res, next) => {
   }
 
   if (shouldLogDbQuery) {
-    proxyLogger.debug("[openCypher] Received database query:\n%s", queryString);
+    logger.debug("[openCypher] Received database query:\n%s", queryString);
   }
 
   const rawUrl = `${headers["graph-db-connection-url"]}/openCypher`;
@@ -516,15 +533,15 @@ app.post("/logger", (req, res, next) => {
       message = JSON.parse(headers["message"]).replaceAll("\\", "");
     }
     if (level.toLowerCase() === "error") {
-      proxyLogger.error(message);
+      logger.error(message);
     } else if (level.toLowerCase() === "warn") {
-      proxyLogger.warn(message);
+      logger.warn(message);
     } else if (level.toLowerCase() === "info") {
-      proxyLogger.info(message);
+      logger.info(message);
     } else if (level.toLowerCase() === "debug") {
-      proxyLogger.debug(message);
+      logger.debug(message);
     } else if (level.toLowerCase() === "trace") {
-      proxyLogger.trace(message);
+      logger.trace(message);
     } else {
       throw new Error("Tried to log to an unknown level.");
     }
@@ -570,8 +587,8 @@ function logServerLocations() {
   }
 
   const baseUrl = `${scheme}://${host}${port}`;
-  proxyLogger.info(`Proxy server located at ${baseUrl}`);
-  proxyLogger.info(
+  logger.info(`Proxy server located at ${baseUrl}`);
+  logger.info(
     `Graph Explorer UI located at: ${baseUrl}${staticFilesVirtualPath ?? ""}`,
   );
 }
@@ -596,17 +613,19 @@ function startServer() {
 const server = startServer();
 
 process.on("uncaughtException", (error: Error) => {
-  handleError(error);
+  handleError(error, logger);
 });
 
 process.on("unhandledRejection", reason => {
-  handleError(reason);
+  handleError(reason, logger);
 });
 
-// Watch for shutdown event and close gracefully.
-process.on("SIGTERM", () => {
-  proxyLogger.info("SIGTERM signal received: closing HTTP server");
+// Watch for shutdown events and close gracefully.
+function gracefulShutdown(signal: string) {
+  logger.info(`${signal} signal received: closing HTTP server`);
   server.close(() => {
-    proxyLogger.info("HTTP server closed");
+    logger.info("HTTP server closed");
   });
-});
+}
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
