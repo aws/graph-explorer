@@ -40,6 +40,12 @@ export type ConnectionConfig = {
    */
   awsRegion?: string;
   /**
+   * Custom SPARQL endpoint path appended to the connection URL.
+   * By default, "/sparql". Some triple stores use different paths,
+   * e.g., Apache Jena Fuseki uses "/query".
+   */
+  sparqlEndpointPath?: string;
+  /**
    * Number of milliseconds before aborting a request.
    * By default, undefined.
    */

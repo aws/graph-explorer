@@ -69,6 +69,9 @@ function getAuthHeaders(
     headers["db-query-logging-enabled"] = String(
       featureFlags.allowLoggingDbQuery,
     );
+    if (connection.sparqlEndpointPath) {
+      headers["sparql-endpoint-path"] = connection.sparqlEndpointPath;
+    }
   }
   if (connection.awsAuthEnabled) {
     headers["aws-neptune-region"] = connection.awsRegion || "";

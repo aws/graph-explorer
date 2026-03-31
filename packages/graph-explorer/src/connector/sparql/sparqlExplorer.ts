@@ -54,7 +54,7 @@ function _sparqlFetch(
     return fetchDatabaseRequest(
       connection,
       featureFlags,
-      `${connection.url}/sparql`,
+      `${connection.url}${connection.sparqlEndpointPath ?? "/sparql"}`,
       {
         method: "POST",
         headers,

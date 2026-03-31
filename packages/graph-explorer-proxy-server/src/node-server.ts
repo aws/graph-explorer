@@ -27,6 +27,7 @@ interface DbQueryIncomingHttpHeaders extends IncomingHttpHeaders {
   "aws-neptune-region"?: string;
   "service-type"?: string;
   "db-query-logging-enabled"?: string;
+  "sparql-endpoint-path"?: string;
 }
 
 interface LoggerIncomingHttpHeaders extends IncomingHttpHeaders {
@@ -202,6 +203,7 @@ app.post("/sparql", async (req, res, next) => {
   const headers = req.headers as DbQueryIncomingHttpHeaders;
   const queryId = headers["queryid"];
   const graphDbConnectionUrl = headers["graph-db-connection-url"];
+  const sparqlEndpointPath = headers["sparql-endpoint-path"] || "/sparql";
   const shouldLogDbQuery = BooleanStringSchema.default(false).parse(
     headers["db-query-logging-enabled"],
   );
@@ -219,7 +221,7 @@ app.post("/sparql", async (req, res, next) => {
     proxyLogger.debug(`Cancelling request ${queryId}...`);
     try {
       await retryFetch(
-        new URL(`${graphDbConnectionUrl}/sparql/status`),
+        new URL(`${graphDbConnectionUrl}${sparqlEndpointPath}/status`),
         {
           method: "POST",
           headers: {
@@ -264,7 +266,7 @@ app.post("/sparql", async (req, res, next) => {
     proxyLogger.debug("[SPARQL] Received database query:\n%s", queryString);
   }
 
-  const rawUrl = `${graphDbConnectionUrl}/sparql`;
+  const rawUrl = `${graphDbConnectionUrl}${sparqlEndpointPath}`;
   let body = `query=${encodeURIComponent(queryString)}`;
   if (queryId) {
     body += `&queryId=${encodeURIComponent(queryId)}`;
