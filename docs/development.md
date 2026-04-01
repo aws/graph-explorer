@@ -151,6 +151,14 @@ Uses the self-signed certificate to serve the proxy-server over https if true.
 - Default `false` in code, `true` in Docker via the entrypoint script
 - Type: `boolean`
 
+#### `CONFIGURATION_FOLDER_PATH`
+
+Override path for the folder containing `.env` and `defaultConnection.json`. When set, replaces the default path entirely.
+
+- Optional
+- Default: `<client root>` (`packages/graph-explorer`)
+- Type: `string`
+
 ### Using self-signed certificates with Docker
 
 - Self-signed certificates will use the hostname provided in the `docker run` command, so unless you have specific requirements, there are no extra steps here besides providing the hostname.
