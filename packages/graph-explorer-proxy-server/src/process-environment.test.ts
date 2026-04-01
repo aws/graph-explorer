@@ -16,7 +16,7 @@ function runScript(workDir: string, env: Record<string, string> = {}) {
   const resolvedConfigFolder = path.resolve(workDir, configFolder);
   fs.mkdirSync(resolvedConfigFolder, { recursive: true });
 
-  execFileSync("bash", [scriptPath], {
+  execFileSync("sh", [scriptPath], {
     cwd: workDir,
     env: { ...env, PATH: process.env.PATH },
   });
