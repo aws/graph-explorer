@@ -39,7 +39,7 @@
     "jotai": "^2.18.1",
     "jotai-family": "^1.0.1",
     "localforage": "^1.10.0",
-    "lodash": "^4.17.23",
+    "lodash": "^4.18.1",
     "lucide-react": "^0.577.0",
     "monaco-editor": "^0.55.1",
     "motion": "^12.35.2",
