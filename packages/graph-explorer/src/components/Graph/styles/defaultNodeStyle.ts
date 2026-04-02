@@ -17,7 +17,7 @@ const defaultNodeStyle: NodeStyle = {
   shape: "ellipse",
   text: {
     fontSize: 7,
-    minZoomedFontSize: 6,
+    minZoomedFontSize: 0,
     rotation: "autorotate",
     vAlign: "bottom",
     vMargin: 0,

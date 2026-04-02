@@ -25,7 +25,7 @@ const defaultEdgeStyle: EdgeStyle = {
     fontSize: 7,
     hAlign: "center",
     maxWidth: 80,
-    minZoomedFontSize: 6,
+    minZoomedFontSize: 0,
     opacity: 0.7,
     padding: 2,
     rotation: "autorotate",
