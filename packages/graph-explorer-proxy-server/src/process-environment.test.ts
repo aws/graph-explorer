@@ -267,16 +267,23 @@ describe("process-environment.sh", () => {
     it("writes .env and defaultConnection.json to the custom path", () => {
       const customFolder = path.join(workDir, "custom-config");
 
-      const { envFile, defaultConnection } = runScript(workDir, {
+      runScript(workDir, {
         CONFIGURATION_FOLDER_PATH: customFolder,
         PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
       });
 
-      expect(envFile).toContain("PROXY_SERVER_HTTPS_CONNECTION=true");
-      expect(defaultConnection).toHaveProperty(
-        "GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT",
-        "https://endpoint:8182",
-      );
+      // Files exist at the custom path
+      expect(fs.existsSync(path.join(customFolder, ".env"))).toBe(true);
+      expect(
+        fs.existsSync(path.join(customFolder, "defaultConnection.json")),
+      ).toBe(true);
+
+      // Files do not exist at the default path
+      const defaultFolder = path.join(workDir, "packages", "graph-explorer");
+      expect(fs.existsSync(path.join(defaultFolder, ".env"))).toBe(false);
+      expect(
+        fs.existsSync(path.join(defaultFolder, "defaultConnection.json")),
+      ).toBe(false);
     });
   });
 
