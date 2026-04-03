@@ -1,12 +1,12 @@
 import dotenv from "dotenv";
-import fs from "fs";
 import path from "path";
 
 import { createApp } from "./app.js";
 import { parseEnvironmentValues } from "./env.js";
 import { handleError } from "./error-handler.js";
 import { createLogger } from "./logging.js";
-import { clientRoot, isDirectory, proxyServerRoot } from "./paths.js";
+import { clientRoot, isDirectory } from "./paths.js";
+import { resolveServerConfig } from "./server-config.js";
 import { createServer } from "./server.js";
 
 // Load .env files into process.env before parsing
@@ -27,8 +27,15 @@ const env = parseEnvironmentValues(process.env);
 const logger = createLogger(env);
 logger.info("Parsed environment values: %o", env);
 
-const staticFilesVirtualPath = "/explorer";
-const staticFilesPath = path.join(clientRoot, "dist");
+const {
+  port,
+  baseUrl,
+  certificateKeyFilePath,
+  certificateFilePath,
+  staticFilesVirtualPath,
+  staticFilesPath,
+  useHttps,
+} = resolveServerConfig(env);
 
 const app = createApp({ configPath, staticFilesVirtualPath, staticFilesPath });
 
@@ -39,52 +46,18 @@ app.locals.logger = logger;
 logger.info("Hosting client side static files from: %s", staticFilesPath);
 logger.info("Hosting client side static files at: %s", staticFilesVirtualPath);
 
-// Relative paths to certificate files
-const certificateKeyFilePath = path.join(
-  proxyServerRoot,
-  "cert-info/server.key",
-);
-const certificateFilePath = path.join(proxyServerRoot, "cert-info/server.crt");
-
-// Get the port numbers to listen on
-const host = env.HOST;
-const httpPort = env.PROXY_SERVER_HTTP_PORT;
-const httpsPort = env.PROXY_SERVER_HTTPS_PORT;
-const useHttps =
-  env.PROXY_SERVER_HTTPS_CONNECTION &&
-  fs.existsSync(certificateKeyFilePath) &&
-  fs.existsSync(certificateFilePath);
-
-const port = useHttps ? httpsPort : httpPort;
-
 const server = createServer(app, {
   useHttps,
   certKeyPath: certificateKeyFilePath,
   certPath: certificateFilePath,
 });
 
-// Log the server locations based on the configuration.
-function logServerLocations() {
-  const scheme = useHttps ? "https" : "http";
-  let portSuffix = "";
-
-  // Only show the port if it is not one of the defaults
-  if (useHttps && httpsPort !== 443) {
-    portSuffix = `:${httpsPort}`;
-  } else if (!useHttps && httpPort !== 80) {
-    portSuffix = `:${httpPort}`;
-  }
-
-  const baseUrl = `${scheme}://${host}${portSuffix}`;
+// Start the server
+server.listen(port, () => {
   logger.info(`Proxy server located at ${baseUrl}`);
   logger.info(
     `Graph Explorer UI located at: ${baseUrl}${staticFilesVirtualPath}`,
   );
-}
-
-// Start the server
-server.listen(port, () => {
-  logServerLocations();
 });
 
 process.on("uncaughtException", (error: Error) => {
