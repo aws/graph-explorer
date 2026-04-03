@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 import fs from "fs";
-import https from "https";
 import path from "path";
 
 import { createApp } from "./app.js";
@@ -8,6 +7,7 @@ import { parseEnvironmentValues } from "./env.js";
 import { handleError } from "./error-handler.js";
 import { createLogger } from "./logging.js";
 import { clientRoot, isDirectory, proxyServerRoot } from "./paths.js";
+import { createServer } from "./server.js";
 
 // Load .env files into process.env before parsing
 const configPath = process.env.CONFIGURATION_FOLDER_PATH ?? clientRoot;
@@ -55,43 +55,37 @@ const useHttps =
   fs.existsSync(certificateKeyFilePath) &&
   fs.existsSync(certificateFilePath);
 
+const port = useHttps ? httpsPort : httpPort;
+
+const server = createServer(app, {
+  useHttps,
+  certKeyPath: certificateKeyFilePath,
+  certPath: certificateFilePath,
+});
+
 // Log the server locations based on the configuration.
 function logServerLocations() {
   const scheme = useHttps ? "https" : "http";
-  let port = "";
+  let portSuffix = "";
 
   // Only show the port if it is not one of the defaults
   if (useHttps && httpsPort !== 443) {
-    port = `:${httpsPort}`;
+    portSuffix = `:${httpsPort}`;
   } else if (!useHttps && httpPort !== 80) {
-    port = `:${httpPort}`;
+    portSuffix = `:${httpPort}`;
   }
 
-  const baseUrl = `${scheme}://${host}${port}`;
+  const baseUrl = `${scheme}://${host}${portSuffix}`;
   logger.info(`Proxy server located at ${baseUrl}`);
   logger.info(
     `Graph Explorer UI located at: ${baseUrl}${staticFilesVirtualPath}`,
   );
 }
 
-// Start the server on port 80 or 443 (if HTTPS is enabled)
-function startServer() {
-  if (useHttps) {
-    const options = {
-      key: fs.readFileSync(certificateKeyFilePath),
-      cert: fs.readFileSync(certificateFilePath),
-    };
-    return https.createServer(options, app).listen(httpsPort, () => {
-      logServerLocations();
-    });
-  } else {
-    return app.listen(httpPort, () => {
-      logServerLocations();
-    });
-  }
-}
-
-const server = startServer();
+// Start the server
+server.listen(port, () => {
+  logServerLocations();
+});
 
 process.on("uncaughtException", (error: Error) => {
   handleError(error, logger);
