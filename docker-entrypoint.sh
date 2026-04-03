@@ -1,11 +1,12 @@
 #!/bin/sh
+set -e
 
 ./process-environment.sh
 
 CONFIGURATION_FOLDER_PATH=${CONFIGURATION_FOLDER_PATH:-"./packages/graph-explorer/"}
-PROXY_SERVER_HTTPS_CONNECTION_VALUE=$(grep -e 'PROXY_SERVER_HTTPS_CONNECTION' $CONFIGURATION_FOLDER_PATH/.env | cut -d "=" -f 2)
+PROXY_SERVER_HTTPS_CONNECTION_VALUE=$(grep -e '^PROXY_SERVER_HTTPS_CONNECTION=' "$CONFIGURATION_FOLDER_PATH/.env" | cut -d "=" -f 2 || true)
 
-if [ -n "$PROXY_SERVER_HTTPS_CONNECTION_VALUE" ] && [ "$PROXY_SERVER_HTTPS_CONNECTION_VALUE" == "true" ]; then
+if [ -n "$PROXY_SERVER_HTTPS_CONNECTION_VALUE" ] && [ "$PROXY_SERVER_HTTPS_CONNECTION_VALUE" = "true" ]; then
     CERT_DIR=/graph-explorer/packages/graph-explorer-proxy-server/cert-info \
         HOST="$HOST" \
         ./setup-ssl.sh

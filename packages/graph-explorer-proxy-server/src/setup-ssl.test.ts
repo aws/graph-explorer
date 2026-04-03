@@ -143,15 +143,13 @@ describe("setup-ssl.sh", () => {
     });
 
     it("fails when no cert files exist", () => {
-      const { exitCode, stdout } = runScript(certDir);
+      const { exitCode, stderr } = runScript(certDir);
 
       expect(exitCode).not.toBe(0);
-      expect(stdout).toContain("No existing self-signed SSL certificate found");
+      expect(stderr).toContain("Missing certificate files");
     });
 
-    // BUG: The existence check has rootCA.crt listed twice and server.key is
-    // never checked. This means a missing server.key is not detected.
-    it("does not detect a missing server.key file", () => {
+    it("fails when server.key is missing", () => {
       for (const f of [
         "rootCA.key",
         "rootCA.crt",
@@ -161,10 +159,24 @@ describe("setup-ssl.sh", () => {
         fs.writeFileSync(path.join(certDir, f), "placeholder");
       }
 
-      const { exitCode } = runScript(certDir);
+      const { exitCode, stderr } = runScript(certDir);
 
-      // Should fail but passes due to the duplicate rootCA.crt check
-      expect(exitCode).toBe(0);
+      expect(exitCode).not.toBe(0);
+      expect(stderr).toContain("server.key");
+    });
+
+    it("reports each missing file individually", () => {
+      // Only rootCA.key exists
+      fs.writeFileSync(path.join(certDir, "rootCA.key"), "placeholder");
+
+      const { exitCode, stderr } = runScript(certDir);
+
+      expect(exitCode).not.toBe(0);
+      expect(stderr).toContain("rootCA.crt");
+      expect(stderr).toContain("server.key");
+      expect(stderr).toContain("server.csr");
+      expect(stderr).toContain("server.crt");
+      expect(stderr).not.toContain("rootCA.key");
     });
   });
 });

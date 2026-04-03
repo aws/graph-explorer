@@ -76,34 +76,43 @@ describe("resolveServerConfig", () => {
     expect(config.useHttps).toBe(false);
   });
 
-  it("sets useHttps to false when HTTPS is enabled but cert files do not exist", () => {
+  it("throws when HTTPS is enabled but cert files do not exist", () => {
     vi.spyOn(fs, "existsSync").mockReturnValue(false);
 
-    const config = resolveServerConfig(
-      createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true }),
+    expect(() =>
+      resolveServerConfig(createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true })),
+    ).toThrow(
+      expect.objectContaining({
+        name: "ServerConfigError",
+        message: expect.stringContaining(expectedKeyPath),
+      }),
     );
-
-    expect(config.useHttps).toBe(false);
   });
 
-  it("sets useHttps to false when only the key file exists", () => {
+  it("throws when HTTPS is enabled but only the key file exists", () => {
     vi.spyOn(fs, "existsSync").mockImplementation(p => p === expectedKeyPath);
 
-    const config = resolveServerConfig(
-      createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true }),
+    expect(() =>
+      resolveServerConfig(createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true })),
+    ).toThrow(
+      expect.objectContaining({
+        name: "ServerConfigError",
+        message: expect.stringContaining(expectedCertPath),
+      }),
     );
-
-    expect(config.useHttps).toBe(false);
   });
 
-  it("sets useHttps to false when only the cert file exists", () => {
+  it("throws when HTTPS is enabled but only the cert file exists", () => {
     vi.spyOn(fs, "existsSync").mockImplementation(p => p === expectedCertPath);
 
-    const config = resolveServerConfig(
-      createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true }),
+    expect(() =>
+      resolveServerConfig(createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true })),
+    ).toThrow(
+      expect.objectContaining({
+        name: "ServerConfigError",
+        message: expect.stringContaining(expectedKeyPath),
+      }),
     );
-
-    expect(config.useHttps).toBe(false);
   });
 
   it("sets useHttps to true when HTTPS is enabled and both cert files exist", () => {
