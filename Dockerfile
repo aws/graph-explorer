@@ -56,6 +56,7 @@ RUN pnpm install && \
     rm -rf $HOME/.local && \
     rm -rf $HOME/.cache && \
     chmod a+x ./process-environment.sh && \
+    chmod a+x ./setup-ssl.sh && \
     chmod a+x ./docker-entrypoint.sh
 
 EXPOSE 443
