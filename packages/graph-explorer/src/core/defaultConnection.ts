@@ -21,6 +21,8 @@ export const DefaultConnectionDataSchema = z.object({
     .enum(neptuneServiceTypeOptions)
     .default(DEFAULT_SERVICE_TYPE)
     .catch(DEFAULT_SERVICE_TYPE),
+  // SPARQL options
+  GRAPH_EXP_SPARQL_ENDPOINT_PATH: z.string().optional(),
   // Connection options
   GRAPH_EXP_FETCH_REQUEST_TIMEOUT: z.number().default(240000),
   GRAPH_EXP_NODE_EXPANSION_LIMIT: z.number().optional(),
@@ -116,6 +118,7 @@ export function mapToConnection(data: DefaultConnectionData): RawConfiguration {
       awsAuthEnabled: data.GRAPH_EXP_IAM,
       awsRegion: data.GRAPH_EXP_AWS_REGION,
       serviceType: data.GRAPH_EXP_SERVICE_TYPE,
+      sparqlEndpointPath: data.GRAPH_EXP_SPARQL_ENDPOINT_PATH,
       fetchTimeoutMs: data.GRAPH_EXP_FETCH_REQUEST_TIMEOUT,
       nodeExpansionLimit: data.GRAPH_EXP_NODE_EXPANSION_LIMIT,
     },

@@ -43,6 +43,7 @@ type ConnectionForm = {
   awsAuthEnabled?: boolean;
   serviceType?: NeptuneServiceType;
   awsRegion?: string;
+  sparqlEndpointPath?: string;
   fetchTimeoutEnabled: boolean;
   fetchTimeoutMs?: number;
   nodeExpansionLimitEnabled: boolean;
@@ -72,6 +73,7 @@ function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
     awsAuthEnabled: data.awsAuthEnabled,
     serviceType: data.serviceType,
     awsRegion: data.awsRegion,
+    sparqlEndpointPath: data.sparqlEndpointPath || undefined,
     fetchTimeoutMs: data.fetchTimeoutEnabled ? data.fetchTimeoutMs : undefined,
     nodeExpansionLimit: data.nodeExpansionLimitEnabled
       ? data.nodeExpansionLimit
@@ -275,6 +277,25 @@ const CreateConnection = ({
             disabled={form.serviceType === "neptune-graph"}
           />
         </FormItem>
+        {form.queryEngine === "sparql" && (
+          <FormItem>
+            <Label>
+              SPARQL Endpoint Path
+              <InfoTooltip>
+                The path appended to the connection URL for SPARQL queries.
+                Defaults to &quot;/sparql&quot;. Some triple stores use
+                different paths, e.g., Apache Jena Fuseki uses
+                &quot;/query&quot;.
+              </InfoTooltip>
+            </Label>
+            <InputField
+              aria-label="SPARQL Endpoint Path"
+              value={form.sparqlEndpointPath ?? ""}
+              onChange={onFormChange("sparqlEndpointPath")}
+              placeholder="/sparql"
+            />
+          </FormItem>
+        )}
         <FormItem>
           <Label>
             Public or Proxy Endpoint
