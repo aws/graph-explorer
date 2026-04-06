@@ -183,6 +183,15 @@ describe("createApp", () => {
           .send({ query: "test query" });
         expect(response.status).toBe(400);
       });
+
+      it("returns 400 when graph-db-connection-url is not a valid HTTP URL", async () => {
+        const app = createTestApp();
+        const response = await request(app)
+          .post(`/${route}`)
+          .set({ "graph-db-connection-url": "ftp://not-http.example.com" })
+          .send({ query: "test query" });
+        expect(response.status).toBe(400);
+      });
     },
   );
 

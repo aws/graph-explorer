@@ -29,23 +29,31 @@ const DbQueryHeadersSchema = z.object({
   "db-query-logging-enabled": z.stringbool().optional().default(false),
 });
 
+/** Validates and extracts database query headers. Throws {@link RequestValidationError} on failure. */
 function parseDbQueryHeaders(headers: IncomingHttpHeaders) {
   const result = DbQueryHeadersSchema.safeParse(headers);
   if (!result.success) {
     throw new RequestValidationError(result.error);
   }
   const parsed = result.data;
-  const isIamEnabled = !!parsed["aws-neptune-region"];
+
+  const authOptions = parsed["aws-neptune-region"]
+    ? {
+        isIamEnabled: true,
+        region: parsed["aws-neptune-region"],
+        serviceType: parsed["service-type"],
+      }
+    : {
+        isIamEnabled: false,
+        region: "",
+        serviceType: "",
+      };
 
   return {
     queryId: parsed.queryid,
     graphDbConnectionUrl: parsed["graph-db-connection-url"],
-    isIamEnabled,
-    region: isIamEnabled ? parsed["aws-neptune-region"]! : "",
-    serviceType: isIamEnabled
-      ? (parsed["service-type"] ?? DEFAULT_SERVICE_TYPE)
-      : "",
     shouldLogDbQuery: parsed["db-query-logging-enabled"],
+    ...authOptions,
   };
 }
 
