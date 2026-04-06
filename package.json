@@ -44,7 +44,7 @@
   "devDependencies": {
     "@eslint/compat": "^2.0.3",
     "@eslint/js": "^10.0.1",
-    "@tanstack/eslint-plugin-query": "^5.95.2",
+    "@tanstack/eslint-plugin-query": "5.96.2",
     "@vitest/coverage-v8": "4.0.18",
     "babel-plugin-react-compiler": "19.1.0-rc.3",
     "eslint": "^10.0.3",
