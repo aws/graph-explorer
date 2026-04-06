@@ -16,6 +16,44 @@ import { type AppLogger, requestLoggingMiddleware } from "./logging.js";
 
 const DEFAULT_SERVICE_TYPE = "neptune-db";
 
+// Validate and normalize the graph database connection URL coming from request headers.
+// This helps prevent SSRF by restricting which hosts and protocols may be targeted.
+function validateGraphDbConnectionUrl(
+  rawUrl: string | string[] | undefined,
+): URL {
+  if (Array.isArray(rawUrl)) {
+    throw new Error("Invalid graph-db-connection-url header");
+  }
+  if (!rawUrl) {
+    throw new Error("Missing graph-db-connection-url header");
+  }
+
+  let url: URL;
+  try {
+    url = new URL(rawUrl);
+  } catch {
+    throw new Error("Invalid graph-db-connection-url value");
+  }
+
+  if (url.protocol !== "https:" && url.protocol !== "http:") {
+    throw new Error("Unsupported protocol for graph-db-connection-url");
+  }
+
+  // Optional hostname allow-list to mitigate SSRF further.
+  const allowedHostsEnv = process.env.GRAPH_DB_ALLOWED_HOSTS;
+  if (allowedHostsEnv) {
+    const allowedHosts = allowedHostsEnv
+      .split(",")
+      .map((h) => h.trim())
+      .filter((h) => h.length > 0);
+    if (allowedHosts.length > 0 && !allowedHosts.includes(url.hostname)) {
+      throw new Error("Host not allowed for graph-db-connection-url");
+    }
+  }
+
+  return url;
+}
+
 interface DbQueryIncomingHttpHeaders extends IncomingHttpHeaders {
   queryid?: string;
   "graph-db-connection-url"?: string;
@@ -197,7 +235,10 @@ export function createApp({
     // Gather info from the headers
     const headers = req.headers as DbQueryIncomingHttpHeaders;
     const queryId = headers["queryid"];
-    const graphDbConnectionUrl = headers["graph-db-connection-url"];
+    const graphDbConnectionUrlHeader = headers["graph-db-connection-url"];
+    const graphDbConnectionUrl = validateGraphDbConnectionUrl(
+      graphDbConnectionUrlHeader,
+    );
     const shouldLogDbQuery = BooleanStringSchema.default(false).parse(
       headers["db-query-logging-enabled"],
     );
@@ -214,8 +255,9 @@ export function createApp({
       }
       logger.debug(`Cancelling request ${queryId}...`);
       try {
+        const statusUrl = new URL("/sparql/status", graphDbConnectionUrl);
         await retryFetch(
-          new URL(`${graphDbConnectionUrl}/sparql/status`),
+          statusUrl,
           {
             method: "POST",
             headers: {
@@ -291,7 +333,10 @@ export function createApp({
     // Gather info from the headers
     const headers = req.headers as DbQueryIncomingHttpHeaders;
     const queryId = headers["queryid"];
-    const graphDbConnectionUrl = headers["graph-db-connection-url"];
+    const graphDbConnectionUrlHeader = headers["graph-db-connection-url"];
+    const graphDbConnectionUrl = validateGraphDbConnectionUrl(
+      graphDbConnectionUrlHeader,
+    );
     const shouldLogDbQuery = BooleanStringSchema.default(false).parse(
       headers["db-query-logging-enabled"],
     );
@@ -389,7 +434,10 @@ export function createApp({
       logger.debug("[openCypher] Received database query:\n%s", queryString);
     }
 
-    const rawUrl = `${headers["graph-db-connection-url"]}/openCypher`;
+    const baseOpenCypherUrl = validateGraphDbConnectionUrl(
+      headers["graph-db-connection-url"],
+    );
+    const openCypherUrl = new URL("/openCypher", baseOpenCypherUrl).href;
     const requestOptions = {
       method: "POST",
       headers: {
@@ -408,7 +456,7 @@ export function createApp({
     await fetchData(
       res,
       next,
-      rawUrl,
+      openCypherUrl,
       requestOptions,
       isIamEnabled,
       region,
@@ -423,7 +471,10 @@ export function createApp({
     const serviceType = isIamEnabled
       ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
       : "";
-    const rawUrl = `${headers["graph-db-connection-url"]}/summary?mode=detailed`;
+    const baseSummaryUrl = validateGraphDbConnectionUrl(
+      headers["graph-db-connection-url"],
+    );
+    const rawUrl = new URL("/summary?mode=detailed", baseSummaryUrl).href;
 
     const requestOptions = {
       method: "GET",
@@ -449,7 +500,13 @@ export function createApp({
     const serviceType = isIamEnabled
       ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
       : "";
-    const rawUrl = `${headers["graph-db-connection-url"]}/pg/statistics/summary?mode=detailed`;
+    const basePgSummaryUrl = validateGraphDbConnectionUrl(
+      headers["graph-db-connection-url"],
+    );
+    const rawUrl = new URL(
+      "/pg/statistics/summary?mode=detailed",
+      basePgSummaryUrl,
+    ).href;
 
     const requestOptions = {
       method: "GET",
@@ -475,7 +532,13 @@ export function createApp({
     const serviceType = isIamEnabled
       ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
       : "";
-    const rawUrl = `${headers["graph-db-connection-url"]}/rdf/statistics/summary?mode=detailed`;
+    const baseRdfSummaryUrl = validateGraphDbConnectionUrl(
+      headers["graph-db-connection-url"],
+    );
+    const rawUrl = new URL(
+      "/rdf/statistics/summary?mode=detailed",
+      baseRdfSummaryUrl,
+    ).href;
 
     const requestOptions = {
       method: "GET",
