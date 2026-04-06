@@ -104,6 +104,14 @@ export function createDisplayError(error: any): DisplayError {
   }
 
   if (error instanceof NetworkError) {
+    if (error.statusCode === 400) {
+      return {
+        title: "Bad Request",
+        message:
+          extractMessageFromData(error.data) ?? defaultDisplayError.message,
+      };
+    }
+
     if (error.statusCode === 429) {
       return {
         title: "Too Many Requests",

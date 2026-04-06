@@ -174,14 +174,14 @@ describe("createApp", () => {
         expect(response.status).toBe(400);
       });
 
-      it("returns 500 when query is present but db connection header is missing", async () => {
+      it("returns 400 when query is present but db connection header is missing", async () => {
         mockFetchOnce();
 
         const app = createTestApp();
         const response = await request(app)
           .post(`/${route}`)
           .send({ query: "test query" });
-        expect(response.status).toBe(500);
+        expect(response.status).toBe(400);
       });
     },
   );

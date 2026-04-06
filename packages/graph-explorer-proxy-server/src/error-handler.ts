@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 
+import { RequestValidationError } from "./errors.js";
 import { type AppLogger, getRequestLoggerPrefix } from "./logging.js";
 
 /**
@@ -54,22 +55,28 @@ export function errorHandlingMiddleware() {
 }
 
 function extractErrorInfo(error: unknown) {
-  const statusCode = getStatusFromError(error);
   const defaultErrorMessage = "Internal Server Error";
+
+  if (error instanceof RequestValidationError) {
+    return {
+      status: 400,
+      message: error.message,
+    };
+  }
 
   if (error instanceof Error) {
     return {
       ...error,
-      status: statusCode,
+      status: getStatusFromError(error),
       message: error.message || defaultErrorMessage,
     };
-  } else {
-    return {
-      status: statusCode,
-      message: defaultErrorMessage,
-      name: "Error",
-    };
   }
+
+  return {
+    status: 500,
+    message: defaultErrorMessage,
+    name: "Error",
+  };
 }
 
 function getStatusFromError(error: unknown) {
