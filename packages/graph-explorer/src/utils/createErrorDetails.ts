@@ -16,7 +16,9 @@ export function createErrorDetails(error: unknown): ErrorDetails {
       : `${error.statusCode}`;
     const data =
       error.data != null ? JSON.stringify(error.data, null, 2) : undefined;
-    return { name, message: error.message, ...(data && { data }) };
+    return data
+      ? { name, message: error.message, data }
+      : { name, message: error.message };
   }
   if (error instanceof ZodError) {
     return {
@@ -29,7 +31,9 @@ export function createErrorDetails(error: unknown): ErrorDetails {
     const data = error.cause
       ? JSON.stringify(serializeCause(error.cause), null, 2)
       : undefined;
-    return { name: error.name, message: error.message, ...(data && { data }) };
+    return data
+      ? { name: error.name, message: error.message, data }
+      : { name: error.name, message: error.message };
   }
   return { name: "Unknown Error", message: JSON.stringify(error, null, 2) };
 }
