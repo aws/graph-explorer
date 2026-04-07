@@ -22,21 +22,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version-file: "package.json"
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Run pnpm audit
-        run: pnpm audit --prod
-        continue-on-error: true
-
       - name: Run Trivy filesystem scan
         uses: aquasecurity/trivy-action@v0.35.0
         with:
