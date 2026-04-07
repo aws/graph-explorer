@@ -5,6 +5,10 @@ describe("extractErrorMessage", () => {
     expect(extractErrorMessage("something broke")).toBe("something broke");
   });
 
+  it("returns an empty string as-is", () => {
+    expect(extractErrorMessage("")).toBe("");
+  });
+
   it("extracts detailedMessage first", () => {
     expect(
       extractErrorMessage({
@@ -30,31 +34,41 @@ describe("extractErrorMessage", () => {
     expect(extractErrorMessage({ error: "bad request" })).toBe("bad request");
   });
 
-  it("skips empty strings", () => {
-    expect(extractErrorMessage({ message: "", description: "fallback" })).toBe(
-      "fallback",
-    );
+  it.each([
+    { message: "", description: "fallback" },
+    { message: null, description: "fallback" },
+    { message: 42, description: "fallback" },
+    { message: { text: "nested" }, description: "fallback" },
+    { message: ["a", "b"], error: "fallback" },
+  ])("skips non-string message and falls back: %o", input => {
+    expect(extractErrorMessage(input)).toBe("fallback");
   });
 
-  it("skips non-string values", () => {
+  it("skips all empty string fields and returns undefined", () => {
     expect(
-      extractErrorMessage({ message: 42, description: "actual message" }),
-    ).toBe("actual message");
+      extractErrorMessage({
+        detailedMessage: "",
+        message: "",
+        description: "",
+        error: "",
+      }),
+    ).toBeUndefined();
   });
 
-  it("returns undefined for null", () => {
-    expect(extractErrorMessage(null)).toBeUndefined();
-  });
-
-  it("returns undefined for undefined", () => {
-    expect(extractErrorMessage(undefined)).toBeUndefined();
-  });
-
-  it("returns undefined for an object with no recognized keys", () => {
-    expect(extractErrorMessage({ code: "ERR_SOMETHING" })).toBeUndefined();
-  });
-
-  it("returns undefined for a number", () => {
-    expect(extractErrorMessage(42)).toBeUndefined();
+  it.each([
+    null,
+    undefined,
+    42,
+    0,
+    -1,
+    true,
+    false,
+    {},
+    [],
+    { code: "ERR_SOMETHING" },
+    { detail: "ignored" },
+    { inner: { message: "nested" } },
+  ])("returns undefined for: %p", input => {
+    expect(extractErrorMessage(input)).toBeUndefined();
   });
 });
