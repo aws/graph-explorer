@@ -1,21 +1,10 @@
-import { z } from "zod";
-
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
 import { logger, NetworkError } from "@/utils";
 import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 
+import { extractErrorMessage } from "./extractErrorMessage";
 import { anySignal } from "./utils/anySignal";
-
-const NeptuneErrorSchema = z.object({
-  code: z.string(),
-  errno: z.string().optional(),
-  requestId: z.string().optional(),
-  detailedMessage: z.string().optional(),
-  message: z.string().optional(),
-  status: z.number().optional(),
-  type: z.string().optional(),
-});
 
 /**
  * Attempts to decode the error response into a JSON object.
@@ -113,18 +102,9 @@ export async function fetchDatabaseRequest(
     // Log the error to the console always
     logger.error(`Response status ${response.status} received:`, error);
 
-    // Parse out neptune specific error messages
-    const parseNeptuneError = NeptuneErrorSchema.safeParse(error);
-    if (parseNeptuneError.success) {
-      const message =
-        parseNeptuneError.data.detailedMessage ??
-        parseNeptuneError.data.message ??
-        defaultMessage;
-
-      throw new NetworkError(message, response.status, parseNeptuneError.data);
-    }
-    // Or just throw a generic error
-    throw new NetworkError(defaultMessage, response.status, error);
+    // Extract a message from the error body
+    const message = extractErrorMessage(error) ?? defaultMessage;
+    throw new NetworkError(message, response.status, error);
   }
 
   // A successful response is assumed to be JSON
