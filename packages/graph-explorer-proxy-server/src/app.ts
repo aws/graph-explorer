@@ -9,19 +9,52 @@ import express, { type NextFunction, type Response } from "express";
 import fetch, { type RequestInit } from "node-fetch";
 import path from "path";
 import { pipeline } from "stream";
+import { z } from "zod";
 
-import { BooleanStringSchema } from "./env.js";
 import { errorHandlingMiddleware } from "./error-handler.js";
+import { RequestValidationError } from "./errors.js";
 import { type AppLogger, requestLoggingMiddleware } from "./logging.js";
 
 const DEFAULT_SERVICE_TYPE = "neptune-db";
 
-interface DbQueryIncomingHttpHeaders extends IncomingHttpHeaders {
-  queryid?: string;
-  "graph-db-connection-url"?: string;
-  "aws-neptune-region"?: string;
-  "service-type"?: string;
-  "db-query-logging-enabled"?: string;
+/** Zod schema for the custom headers expected on database query requests. */
+const DbQueryHeadersSchema = z.object({
+  queryid: z.string().optional(),
+  "graph-db-connection-url": z.url({ protocol: /^https?$/ }),
+  "aws-neptune-region": z.string().optional(),
+  "service-type": z
+    .enum(["neptune-db", "neptune-graph"])
+    .optional()
+    .default(DEFAULT_SERVICE_TYPE),
+  "db-query-logging-enabled": z.stringbool().optional().default(false),
+});
+
+/** Validates and extracts database query headers. Throws {@link RequestValidationError} on failure. */
+function parseDbQueryHeaders(headers: IncomingHttpHeaders) {
+  const result = DbQueryHeadersSchema.safeParse(headers);
+  if (!result.success) {
+    throw new RequestValidationError(result.error);
+  }
+  const parsed = result.data;
+
+  const authOptions = parsed["aws-neptune-region"]
+    ? {
+        isIamEnabled: true,
+        region: parsed["aws-neptune-region"],
+        serviceType: parsed["service-type"],
+      }
+    : {
+        isIamEnabled: false,
+        region: "",
+        serviceType: "",
+      };
+
+  return {
+    queryId: parsed.queryid,
+    graphDbConnectionUrl: parsed["graph-db-connection-url"],
+    shouldLogDbQuery: parsed["db-query-logging-enabled"],
+    ...authOptions,
+  };
 }
 
 interface LoggerIncomingHttpHeaders extends IncomingHttpHeaders {
@@ -194,18 +227,14 @@ export function createApp({
   // POST endpoint for SPARQL queries.
   app.post("/sparql", async (req, res, next) => {
     const logger = getLogger();
-    // Gather info from the headers
-    const headers = req.headers as DbQueryIncomingHttpHeaders;
-    const queryId = headers["queryid"];
-    const graphDbConnectionUrl = headers["graph-db-connection-url"];
-    const shouldLogDbQuery = BooleanStringSchema.default(false).parse(
-      headers["db-query-logging-enabled"],
-    );
-    const isIamEnabled = !!headers["aws-neptune-region"];
-    const region = isIamEnabled ? headers["aws-neptune-region"] : "";
-    const serviceType = isIamEnabled
-      ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
-      : "";
+    const {
+      queryId,
+      graphDbConnectionUrl,
+      shouldLogDbQuery,
+      isIamEnabled,
+      region,
+      serviceType,
+    } = parseDbQueryHeaders(req.headers);
 
     /// Function to cancel long running queries if the client disappears before completion
     async function cancelQuery() {
@@ -214,8 +243,9 @@ export function createApp({
       }
       logger.debug(`Cancelling request ${queryId}...`);
       try {
+        const statusUrl = new URL("/sparql/status", graphDbConnectionUrl);
         await retryFetch(
-          new URL(`${graphDbConnectionUrl}/sparql/status`),
+          statusUrl,
           {
             method: "POST",
             headers: {
@@ -260,7 +290,7 @@ export function createApp({
       logger.debug("[SPARQL] Received database query:\n%s", queryString);
     }
 
-    const rawUrl = `${graphDbConnectionUrl}/sparql`;
+    const rawUrl = new URL("/sparql", graphDbConnectionUrl).href;
     let body = `query=${encodeURIComponent(queryString)}`;
     if (queryId) {
       body += `&queryId=${encodeURIComponent(queryId)}`;
@@ -288,18 +318,14 @@ export function createApp({
   // POST endpoint for Gremlin queries.
   app.post("/gremlin", async (req, res, next) => {
     const logger = getLogger();
-    // Gather info from the headers
-    const headers = req.headers as DbQueryIncomingHttpHeaders;
-    const queryId = headers["queryid"];
-    const graphDbConnectionUrl = headers["graph-db-connection-url"];
-    const shouldLogDbQuery = BooleanStringSchema.default(false).parse(
-      headers["db-query-logging-enabled"],
-    );
-    const isIamEnabled = !!headers["aws-neptune-region"];
-    const region = isIamEnabled ? headers["aws-neptune-region"] : "";
-    const serviceType = isIamEnabled
-      ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
-      : "";
+    const {
+      queryId,
+      graphDbConnectionUrl,
+      shouldLogDbQuery,
+      isIamEnabled,
+      region,
+      serviceType,
+    } = parseDbQueryHeaders(req.headers);
 
     // Validate the input before making any external calls.
     const queryString = req.body.query;
@@ -319,10 +345,11 @@ export function createApp({
       }
       logger.debug(`Cancelling request ${queryId}...`);
       try {
+        const cancelUrl = new URL("/gremlin/status", graphDbConnectionUrl);
+        cancelUrl.searchParams.set("cancelQuery", "");
+        cancelUrl.searchParams.set("queryId", queryId);
         await retryFetch(
-          new URL(
-            `${graphDbConnectionUrl}/gremlin/status?cancelQuery&queryId=${encodeURIComponent(queryId)}`,
-          ),
+          cancelUrl,
           { method: "GET" },
           isIamEnabled,
           region,
@@ -349,7 +376,7 @@ export function createApp({
     });
 
     const body = { gremlin: queryString, queryId };
-    const rawUrl = `${graphDbConnectionUrl}/gremlin`;
+    const rawUrl = new URL("/gremlin", graphDbConnectionUrl).href;
     const requestOptions = {
       method: "POST",
       headers: {
@@ -373,10 +400,13 @@ export function createApp({
   // POST endpoint for openCypher queries.
   app.post("/openCypher", async (req, res, next) => {
     const logger = getLogger();
-    const headers = req.headers as DbQueryIncomingHttpHeaders;
-    const shouldLogDbQuery = BooleanStringSchema.default(false).parse(
-      headers["db-query-logging-enabled"],
-    );
+    const {
+      graphDbConnectionUrl,
+      shouldLogDbQuery,
+      isIamEnabled,
+      region,
+      serviceType,
+    } = parseDbQueryHeaders(req.headers);
 
     const queryString = req.body.query;
     // Validate the input before making any external calls.
@@ -389,7 +419,7 @@ export function createApp({
       logger.debug("[openCypher] Received database query:\n%s", queryString);
     }
 
-    const rawUrl = `${headers["graph-db-connection-url"]}/openCypher`;
+    const openCypherUrl = new URL("/openCypher", graphDbConnectionUrl).href;
     const requestOptions = {
       method: "POST",
       headers: {
@@ -399,16 +429,10 @@ export function createApp({
       body: `query=${encodeURIComponent(queryString)}`,
     };
 
-    const isIamEnabled = !!headers["aws-neptune-region"];
-    const region = isIamEnabled ? headers["aws-neptune-region"] : "";
-    const serviceType = isIamEnabled
-      ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
-      : "";
-
     await fetchData(
       res,
       next,
-      rawUrl,
+      openCypherUrl,
       requestOptions,
       isIamEnabled,
       region,
@@ -418,24 +442,15 @@ export function createApp({
 
   // GET endpoint to retrieve PropertyGraph statistics summary for Neptune Analytics.
   app.get("/summary", async (req, res, next) => {
-    const headers = req.headers as DbQueryIncomingHttpHeaders;
-    const isIamEnabled = !!headers["aws-neptune-region"];
-    const serviceType = isIamEnabled
-      ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
-      : "";
-    const rawUrl = `${headers["graph-db-connection-url"]}/summary?mode=detailed`;
-
-    const requestOptions = {
-      method: "GET",
-    };
-
-    const region = isIamEnabled ? headers["aws-neptune-region"] : "";
+    const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
+      parseDbQueryHeaders(req.headers);
+    const rawUrl = new URL("/summary?mode=detailed", graphDbConnectionUrl).href;
 
     await fetchData(
       res,
       next,
       rawUrl,
-      requestOptions,
+      { method: "GET" },
       isIamEnabled,
       region,
       serviceType,
@@ -444,24 +459,18 @@ export function createApp({
 
   // GET endpoint to retrieve PropertyGraph statistics summary for Neptune DB.
   app.get("/pg/statistics/summary", async (req, res, next) => {
-    const headers = req.headers as DbQueryIncomingHttpHeaders;
-    const isIamEnabled = !!headers["aws-neptune-region"];
-    const serviceType = isIamEnabled
-      ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
-      : "";
-    const rawUrl = `${headers["graph-db-connection-url"]}/pg/statistics/summary?mode=detailed`;
-
-    const requestOptions = {
-      method: "GET",
-    };
-
-    const region = isIamEnabled ? headers["aws-neptune-region"] : "";
+    const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
+      parseDbQueryHeaders(req.headers);
+    const rawUrl = new URL(
+      "/pg/statistics/summary?mode=detailed",
+      graphDbConnectionUrl,
+    ).href;
 
     await fetchData(
       res,
       next,
       rawUrl,
-      requestOptions,
+      { method: "GET" },
       isIamEnabled,
       region,
       serviceType,
@@ -470,24 +479,18 @@ export function createApp({
 
   // GET endpoint to retrieve RDF statistics summary.
   app.get("/rdf/statistics/summary", async (req, res, next) => {
-    const headers = req.headers as DbQueryIncomingHttpHeaders;
-    const isIamEnabled = !!headers["aws-neptune-region"];
-    const serviceType = isIamEnabled
-      ? (headers["service-type"] ?? DEFAULT_SERVICE_TYPE)
-      : "";
-    const rawUrl = `${headers["graph-db-connection-url"]}/rdf/statistics/summary?mode=detailed`;
-
-    const requestOptions = {
-      method: "GET",
-    };
-
-    const region = isIamEnabled ? headers["aws-neptune-region"] : "";
+    const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
+      parseDbQueryHeaders(req.headers);
+    const rawUrl = new URL(
+      "/rdf/statistics/summary?mode=detailed",
+      graphDbConnectionUrl,
+    ).href;
 
     await fetchData(
       res,
       next,
       rawUrl,
-      requestOptions,
+      { method: "GET" },
       isIamEnabled,
       region,
       serviceType,
