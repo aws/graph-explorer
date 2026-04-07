@@ -1,8 +1,10 @@
 import { InfoIcon, RotateCcwIcon } from "lucide-react";
 
 import { createDisplayError } from "@/utils/createDisplayError";
+import { createErrorDetails } from "@/utils/createErrorDetails";
 
 import { Button } from "./Button";
+import { CodeEditor } from "./CodeEditor";
 import {
   Dialog,
   DialogBody,
@@ -59,10 +61,11 @@ export default function PanelError({
 }
 
 function ErrorDetailsButton({ error }: { error: unknown }) {
-  const errorName = Error.isError(error) ? error.name : "Unknown Error";
-  const errorMessage = Error.isError(error)
-    ? error.message
-    : JSON.stringify(error, null, 2);
+  const {
+    name: errorName,
+    message: errorMessage,
+    data: errorData,
+  } = createErrorDetails(error);
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -88,6 +91,24 @@ function ErrorDetailsButton({ error }: { error: unknown }) {
               {errorMessage}
             </div>
           </FormItem>
+          {errorData ? (
+            <FormItem>
+              <Label>Error data</Label>
+              <div className="grid min-h-64 overflow-auto rounded-lg border bg-gray-50 shadow-xs">
+                <CodeEditor
+                  defaultLanguage="json"
+                  value={errorData}
+                  options={{
+                    readOnly: true,
+                    ariaLabel: "Raw error details",
+                    // Matches current tailwind padding of 2 or 0.5rem
+                    padding: { top: 7, bottom: 7 },
+                  }}
+                  wrapperProps={{ className: "pl-2" }}
+                />
+              </div>
+            </FormItem>
+          ) : null}
         </DialogBody>
         <DialogFooter>
           <DialogClose asChild>
