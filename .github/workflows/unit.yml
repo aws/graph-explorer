@@ -13,6 +13,16 @@ permissions:
   contents: read
 
 jobs:
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Review dependencies for vulnerabilities
+        uses: actions/dependency-review-action@v4
+
   install-and-test:
     runs-on: ubuntu-latest
     steps:
