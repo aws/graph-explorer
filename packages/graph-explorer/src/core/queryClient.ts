@@ -51,7 +51,7 @@ export function createQueryClient() {
  * @param store The Jotai store to use for the default options.
  * @returns The query client default options
  */
-export function createDefaultOptions(store: Store): DefaultOptions<Error> {
+function createDefaultOptions(store: Store): DefaultOptions<Error> {
   const meta: GraphExplorerMeta = { store };
   return {
     queries: {
