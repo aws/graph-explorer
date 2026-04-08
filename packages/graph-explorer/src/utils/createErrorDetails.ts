@@ -1,6 +1,7 @@
 import { ZodError } from "zod";
 
 import { NetworkError } from "./NetworkError";
+import { ServerConnectionError } from "./ServerConnectionError";
 
 export type ErrorDetails = {
   name: string;
@@ -11,6 +12,17 @@ export type ErrorDetails = {
 
 /** Extracts a name and message from an unknown error for display in error detail dialogs. */
 export function createErrorDetails(error: unknown): ErrorDetails {
+  if (error instanceof ServerConnectionError) {
+    const data: Record<string, unknown> = { url: error.url };
+    if (error.cause) {
+      data.cause = serializeCause(error.cause);
+    }
+    return {
+      name: error.name,
+      message: error.message,
+      data: JSON.stringify(data, null, 2),
+    };
+  }
   if (error instanceof NetworkError) {
     const name = error.statusText
       ? `${error.statusCode} ${error.statusText}`

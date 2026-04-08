@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { createDisplayError } from "./createDisplayError";
 import { NetworkError } from "./NetworkError";
+import { ServerConnectionError } from "./ServerConnectionError";
 import { createCancelledError } from "./testing";
 
 const defaultResult = {
@@ -118,13 +119,45 @@ describe("createDisplayError", () => {
     });
   });
 
-  it("Should handle failed to fetch error", () => {
+  it("Should handle server connection error", () => {
     const result = createDisplayError(
-      new FakeError("TypeError", "Failed to fetch"),
+      new ServerConnectionError(
+        "http://localhost:8182/query",
+        new TypeError("Failed to fetch"),
+      ),
     );
     expect(result).toStrictEqual({
       title: "Connection Error",
-      message: "Please check your connection and try again.",
+      message:
+        "Unable to reach the proxy server. This is typically caused by the proxy server not running, an incorrect connection URL, or a CORS configuration issue.",
+    });
+  });
+
+  it("Should handle server connection error with origin mismatch", () => {
+    const result = createDisplayError(
+      new ServerConnectionError(
+        "https://other-host:8182/query",
+        new TypeError("Failed to fetch"),
+      ),
+    );
+    expect(result).toStrictEqual({
+      title: "Cross-Origin Request Blocked",
+      message:
+        "The proxy server URL does not match the browser's origin, which can cause CORS errors. Update the connection URL to match the browser's origin.",
+    });
+  });
+
+  it("Should not report origin mismatch for localhost with different ports", () => {
+    const result = createDisplayError(
+      new ServerConnectionError(
+        "http://localhost:9999/query",
+        new TypeError("Failed to fetch"),
+      ),
+    );
+    expect(result).toStrictEqual({
+      title: "Connection Error",
+      message:
+        "Unable to reach the proxy server. This is typically caused by the proxy server not running, an incorrect connection URL, or a CORS configuration issue.",
     });
   });
 

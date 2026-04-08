@@ -1,6 +1,6 @@
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
-import { logger, NetworkError } from "@/utils";
+import { logger, NetworkError, ServerConnectionError } from "@/utils";
 
 import { fetchDatabaseRequest } from "./fetchDatabaseRequest";
 
@@ -434,14 +434,19 @@ describe("fetchDatabaseRequest", () => {
   });
 
   describe("fetch failures", () => {
-    it("propagates network errors from fetch", async () => {
+    it("wraps failed to fetch in ServerConnectionError with the URL", async () => {
       mockFetch.mockRejectedValue(new TypeError("Failed to fetch"));
 
-      await expect(
-        fetchDatabaseRequest(connection, featureFlags, "/query", {
-          method: "POST",
-        }),
-      ).rejects.toThrow(TypeError);
+      const error = await fetchDatabaseRequest(
+        connection,
+        featureFlags,
+        "http://localhost:8182/query",
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(error).toBeInstanceOf(ServerConnectionError);
+      expect(error.url).toBe("http://localhost:8182/query");
+      expect(error.cause).toBeInstanceOf(TypeError);
     });
 
     it("propagates abort errors", async () => {
@@ -456,6 +461,21 @@ describe("fetchDatabaseRequest", () => {
           signal: controller.signal,
         }),
       ).rejects.toThrow();
+    });
+
+    it("wraps other TypeErrors as ServerConnectionError", async () => {
+      const error = new TypeError("Cannot read properties of null");
+      mockFetch.mockRejectedValue(error);
+
+      const caught = await fetchDatabaseRequest(
+        connection,
+        featureFlags,
+        "http://localhost:8182/query",
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(caught).toBeInstanceOf(ServerConnectionError);
+      expect(caught.cause).toBe(error);
     });
   });
 });
