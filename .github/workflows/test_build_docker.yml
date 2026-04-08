@@ -23,7 +23,7 @@ jobs:
           docker build -t test-image-neptune --build-arg NEPTUNE_NOTEBOOK=true .
 
       - name: Scan Docker image for vulnerabilities
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: test-image
           severity: HIGH,CRITICAL
