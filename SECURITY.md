@@ -4,8 +4,6 @@
 
 If you discover a security vulnerability in Graph Explorer, please report it through [GitHub's Private Vulnerability Reporting][pvr]. This ensures the issue stays private while we work on a fix.
 
-Please **do not** open a public GitHub issue for security vulnerabilities.
-
 ### What to Include
 
 - A description of the vulnerability
@@ -15,8 +13,8 @@ Please **do not** open a public GitHub issue for security vulnerabilities.
 
 ## Response Process
 
-- We will acknowledge your report within **5 business days**.
-- We will provide an initial assessment within **10 business days**.
+- We will acknowledge your report.
+- We will provide an initial assessment.
 - We will work with you on coordinated disclosure once a fix is available.
 
 ## Supported Versions
