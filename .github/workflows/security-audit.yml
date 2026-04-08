@@ -1,0 +1,62 @@
+name: Security Audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  schedule:
+    # Every day at 9:00 UTC
+    - cron: "0 9 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-fs-results.sarif
+
+      - name: Upload Trivy filesystem results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-fs-results.sarif
+          category: dependency-scan
+
+  docker-image-audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pull latest image from ECR Public
+        run: docker pull public.ecr.aws/neptune/graph-explorer:latest-SNAPSHOT
+
+      - name: Scan Docker image for vulnerabilities
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          image-ref: public.ecr.aws/neptune/graph-explorer:latest-SNAPSHOT
+          format: sarif
+          output: trivy-image-results.sarif
+
+      - name: Upload Trivy image results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-image-results.sarif
+          category: docker-image-scan
