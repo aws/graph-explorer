@@ -4,7 +4,8 @@ import { NetworkError } from "./NetworkError";
 
 export type ErrorDetails = {
   name: string;
-  message: string;
+  /** Undefined when the error has no meaningful message to display. */
+  message: string | undefined;
   data?: string;
 };
 
@@ -42,6 +43,7 @@ const EXCLUDED_ERROR_PROPERTIES = new Set(["stack", "cause"]);
 
 function serializeCause(cause: unknown): unknown {
   if (Error.isError(cause)) {
+    // `name` is on the prototype, not an own property, so we include it explicitly
     const result: Record<string, unknown> = { name: cause.name };
     for (const key of Object.getOwnPropertyNames(cause)) {
       if (!EXCLUDED_ERROR_PROPERTIES.has(key)) {

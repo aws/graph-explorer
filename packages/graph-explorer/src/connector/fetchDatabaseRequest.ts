@@ -43,7 +43,7 @@ async function decodeErrorSafely(response: Response): Promise<any> {
     }
   }
 
-  return { message: rawText };
+  return rawText;
 }
 
 // Construct the request headers based on the connection settings

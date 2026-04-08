@@ -128,6 +128,20 @@ describe("createDisplayError", () => {
     });
   });
 
+  it("Should not report origin mismatch for 127.0.0.1 with different ports", () => {
+    const result = createDisplayError(
+      new ServerConnectionError(
+        "http://127.0.0.1:9999/query",
+        new TypeError("Failed to fetch"),
+      ),
+    );
+    expect(result).toStrictEqual({
+      title: "Connection Error",
+      message:
+        "Unable to reach the proxy server. This is typically caused by the proxy server not running, an incorrect connection URL, or a CORS configuration issue.",
+    });
+  });
+
   it("Should handle too many requests error", () => {
     const result = createDisplayError(
       new NetworkError("Network error", 429, null),

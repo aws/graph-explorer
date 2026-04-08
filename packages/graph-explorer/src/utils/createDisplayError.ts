@@ -1,5 +1,7 @@
 import { ZodError } from "zod";
 
+import { extractErrorMessage } from "@/connector/extractErrorMessage";
+
 import { isCancellationError } from "./isCancellationError";
 import { NetworkError } from "./NetworkError";
 
@@ -107,8 +109,7 @@ export function createDisplayError(error: any): DisplayError {
     if (error.statusCode === 400) {
       return {
         title: "Bad Request",
-        message:
-          extractMessageFromData(error.data) ?? defaultDisplayError.message,
+        message: extractErrorMessage(error.data) ?? defaultDisplayError.message,
       };
     }
 
@@ -122,8 +123,7 @@ export function createDisplayError(error: any): DisplayError {
 
     return {
       title: `Network Response ${error.statusCode}`,
-      message:
-        extractMessageFromData(error.data) ?? defaultDisplayError.message,
+      message: extractErrorMessage(error.data) ?? defaultDisplayError.message,
     };
   }
 
@@ -135,16 +135,4 @@ export function createDisplayError(error: any): DisplayError {
   }
 
   return defaultDisplayError;
-}
-
-function extractMessageFromData(data: any): string | null {
-  if (Boolean(data) === false) {
-    return null;
-  }
-  if (typeof data === "string") {
-    return data;
-  } else if (typeof data === "object") {
-    return data.message ?? data.error ?? null;
-  }
-  return null;
 }
