@@ -6,13 +6,14 @@
 #   CERT_DIR  – directory for certificate files (required)
 #   HOST      – hostname for SAN entries; when unset, expects existing certs
 #
+set -e
 
 if [ -z "$CERT_DIR" ]; then
     echo "CERT_DIR is required" >&2
     exit 1
 fi
 
-if [ $HOST ]; then
+if [ -n "$HOST" ]; then
     echo "Generating new self-signed SSL cert using $HOST..."
     sed -i'' -e "s/^DNS\.1 = .*/DNS.1 = $HOST:*/" "$CERT_DIR/csr.conf"
     sed -i'' -e "s/^DNS\.1 = .*/DNS.1 = $HOST:*/" "$CERT_DIR/cert.conf"
@@ -22,10 +23,16 @@ if [ $HOST ]; then
     openssl x509 -req -in "$CERT_DIR/server.csr" -CA "$CERT_DIR/rootCA.crt" -CAkey "$CERT_DIR/rootCA.key" -CAcreateserial -out "$CERT_DIR/server.crt" -days 365 -sha256 -extfile "$CERT_DIR/cert.conf"
 else
     echo "No HOST environment variable specified."
-    if [ -f "$CERT_DIR/rootCA.key" ] && [ -f "$CERT_DIR/rootCA.crt" ] && [ -f "$CERT_DIR/rootCA.crt" ] && [ -f "$CERT_DIR/server.csr" ] && [ -f "$CERT_DIR/server.crt" ]; then
-        echo "Found existing self-signed SSL certificate. Re-using existing cert."
-    else
-        echo "No existing self-signed SSL certificate found. Please specify --env HOST=<hostname> during docker run command to create SSL cert."
+    MISSING=""
+    for f in rootCA.key rootCA.crt server.key server.csr server.crt; do
+        if [ ! -f "$CERT_DIR/$f" ]; then
+            MISSING="$MISSING $f"
+        fi
+    done
+    if [ -n "$MISSING" ]; then
+        echo "Missing certificate files in $CERT_DIR:$MISSING" >&2
+        echo "Please specify --env HOST=<hostname> during docker run command to create SSL cert." >&2
         exit 1
     fi
+    echo "Found existing self-signed SSL certificate. Re-using existing cert."
 fi

@@ -384,4 +384,26 @@ describe("process-environment.sh", () => {
       ]);
     });
   });
+
+  describe("grep-safe .env output", () => {
+    it("PROXY_SERVER_HTTPS_CONNECTION is on its own line", () => {
+      const { envFile } = runScript(workDir);
+      expect(envFile).toMatch(/^PROXY_SERVER_HTTPS_CONNECTION=true$/m);
+    });
+
+    it("does not produce commented-out PROXY_SERVER_HTTPS_CONNECTION", () => {
+      const { envFile } = runScript(workDir);
+      expect(envFile).not.toContain("# PROXY_SERVER_HTTPS_CONNECTION");
+    });
+
+    it("value has no trailing whitespace", () => {
+      const { envFile } = runScript(workDir, {
+        PROXY_SERVER_HTTPS_CONNECTION: "false",
+      });
+      const line = envFile
+        .split("\n")
+        .find(l => l.startsWith("PROXY_SERVER_HTTPS_CONNECTION"));
+      expect(line).toBe("PROXY_SERVER_HTTPS_CONNECTION=false");
+    });
+  });
 });

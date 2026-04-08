@@ -6,7 +6,7 @@ import { parseEnvironmentValues } from "./env.js";
 import { handleError } from "./error-handler.js";
 import { createLogger } from "./logging.js";
 import { clientRoot, isDirectory } from "./paths.js";
-import { resolveServerConfig } from "./server-config.js";
+import { resolveServerConfig, ServerConfigError } from "./server-config.js";
 import { createServer } from "./server.js";
 
 // Load .env files into process.env before parsing
@@ -27,6 +27,17 @@ const env = parseEnvironmentValues(process.env);
 const logger = createLogger(env);
 logger.info("Parsed environment values: %o", env);
 
+let serverConfig;
+try {
+  serverConfig = resolveServerConfig(env);
+} catch (error) {
+  if (error instanceof ServerConfigError) {
+    logger.fatal(error.message);
+    process.exit(1);
+  }
+  throw error;
+}
+
 const {
   port,
   baseUrl,
@@ -35,7 +46,7 @@ const {
   staticFilesVirtualPath,
   staticFilesPath,
   useHttps,
-} = resolveServerConfig(env);
+} = serverConfig;
 
 const app = createApp({ configPath, staticFilesVirtualPath, staticFilesPath });
 
