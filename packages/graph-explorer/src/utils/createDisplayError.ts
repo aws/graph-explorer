@@ -144,10 +144,7 @@ export function createDisplayError(error: any): DisplayError {
   return defaultDisplayError;
 }
 
-function hasOriginMismatch(url: string | undefined): boolean {
-  if (!url) {
-    return false;
-  }
+function hasOriginMismatch(url: string): boolean {
   try {
     const parsed = new URL(url);
 

@@ -477,5 +477,19 @@ describe("fetchDatabaseRequest", () => {
       expect(caught).toBeInstanceOf(ServerConnectionError);
       expect(caught.cause).toBe(error);
     });
+
+    it("extracts URL from a URL object", async () => {
+      mockFetch.mockRejectedValue(new TypeError("Failed to fetch"));
+
+      const caught = await fetchDatabaseRequest(
+        connection,
+        featureFlags,
+        new URL("http://localhost:8182/sparql"),
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(caught).toBeInstanceOf(ServerConnectionError);
+      expect(caught.url).toBe("http://localhost:8182/sparql");
+    });
   });
 });
