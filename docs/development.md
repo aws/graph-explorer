@@ -97,6 +97,17 @@ This repository is composed by 3 packages and a mono-repository structure itself
 
 Each of these `package.json` files has an independent `version` property. However, in this project we should keep them correlated. Therefore, when a new release version is being prepared, the version number should be increased in all 4 files. Regarding the version number displayed in the user interface, it is specifically extracted from the `<root>/packages/graph-explorer/package.json`. file
 
+### Supply chain security
+
+The `pnpm-workspace.yaml` file includes several settings that harden the project against supply chain attacks. These may cause `pnpm install` to fail when adding new dependencies, which is intentional.
+
+- **`minimumReleaseAge`** — Newly published package versions are blocked for 24 hours, giving the community time to discover and report compromised releases.
+- **`strictDepBuilds`** — Any dependency that tries to run a build script (e.g. `postinstall`) will cause installation to fail unless it is explicitly listed in `onlyBuiltDependencies` or `ignoredBuiltDependencies`.
+- **`blockExoticSubdeps`** — Transitive dependencies cannot resolve to git repositories or raw tarball URLs. Only direct dependencies in `package.json` may use exotic sources.
+- **`trustPolicy`** — Refuses to install a package version whose publish-time trust evidence (provenance, signatures) is weaker than a previously published version of that package.
+
+If `pnpm install` fails due to one of these checks, evaluate whether the dependency is safe and update `pnpm-workspace.yaml` accordingly.
+
 ### Local environment overrides
 
 Create a `.env.local` file in `packages/graph-explorer/` to override environment variables without modifying tracked files. This file is gitignored and will not be committed.
