@@ -9,6 +9,10 @@ minimumReleaseAge: 1440
 ignoredBuiltDependencies:
   - core-js
 
+# Explicitly allow these packages to run build scripts
+onlyBuiltDependencies:
+  - esbuild
+
 # Fail if any dependency tries to run a build script that has not been allowed
 strictDepBuilds: true
 
