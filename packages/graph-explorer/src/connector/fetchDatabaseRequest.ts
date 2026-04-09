@@ -1,9 +1,9 @@
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
-import { logger, NetworkError } from "@/utils";
+import { logger, NetworkError, ServerConnectionError } from "@/utils";
 import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
+import { extractErrorMessage } from "@/utils/extractErrorMessage";
 
-import { extractErrorMessage } from "./extractErrorMessage";
 import { anySignal } from "./utils/anySignal";
 
 /**
@@ -43,7 +43,7 @@ async function decodeErrorSafely(response: Response): Promise<any> {
     }
   }
 
-  return { message: rawText };
+  return rawText;
 }
 
 // Construct the request headers based on the connection settings
@@ -93,7 +93,17 @@ export async function fetchDatabaseRequest(
     signal: anySignal(getFetchTimeoutSignal(connection), options.signal),
   };
 
-  const response = await fetch(uri, fetchOptions);
+  let response: Response;
+  try {
+    response = await fetch(uri, fetchOptions);
+  } catch (error) {
+    if (error instanceof TypeError) {
+      const url =
+        typeof uri === "string" ? uri : uri instanceof URL ? uri.href : uri.url;
+      throw new ServerConnectionError(url, error);
+    }
+    throw error;
+  }
 
   if (!response.ok) {
     const defaultMessage = "Network response was not OK";

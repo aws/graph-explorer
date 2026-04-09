@@ -85,12 +85,14 @@ function ErrorDetailsButton({ error }: { error: unknown }) {
               {errorName}
             </div>
           </FormItem>
-          <FormItem>
-            <Label>Error message</Label>
-            <div className="gx-wrap-break-word text-base leading-snug">
-              {errorMessage}
-            </div>
-          </FormItem>
+          {errorMessage ? (
+            <FormItem>
+              <Label>Error message</Label>
+              <div className="gx-wrap-break-word text-base leading-snug">
+                {errorMessage}
+              </div>
+            </FormItem>
+          ) : null}
           {errorData ? (
             <FormItem>
               <Label>Error data</Label>

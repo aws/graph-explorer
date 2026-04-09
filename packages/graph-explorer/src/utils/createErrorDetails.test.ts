@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { createErrorDetails } from "./createErrorDetails";
 import { NetworkError } from "./NetworkError";
+import { ServerConnectionError } from "./ServerConnectionError";
 
 describe("createErrorDetails", () => {
   describe("Error instances", () => {
@@ -109,6 +110,28 @@ describe("createErrorDetails", () => {
           2,
         ),
       );
+    });
+  });
+
+  describe("ServerConnectionError", () => {
+    it("includes the URL and cause in the data", () => {
+      const cause = new TypeError("Failed to fetch");
+      const error = new ServerConnectionError(
+        "http://localhost:8182/query",
+        cause,
+      );
+      expect(createErrorDetails(error)).toStrictEqual({
+        name: "ServerConnectionError",
+        message: "Unable to reach the server",
+        data: JSON.stringify(
+          {
+            url: "http://localhost:8182/query",
+            cause: { name: "TypeError", message: "Failed to fetch" },
+          },
+          null,
+          2,
+        ),
+      });
     });
   });
 

@@ -1,15 +1,28 @@
 import { ZodError } from "zod";
 
 import { NetworkError } from "./NetworkError";
+import { ServerConnectionError } from "./ServerConnectionError";
 
 export type ErrorDetails = {
   name: string;
-  message: string;
+  /** Undefined when the error has no meaningful message to display. */
+  message: string | undefined;
   data?: string;
 };
 
 /** Extracts a name and message from an unknown error for display in error detail dialogs. */
 export function createErrorDetails(error: unknown): ErrorDetails {
+  if (error instanceof ServerConnectionError) {
+    const data: Record<string, unknown> = { url: error.url };
+    if (error.cause) {
+      data.cause = serializeCause(error.cause);
+    }
+    return {
+      name: error.name,
+      message: error.message,
+      data: JSON.stringify(data, null, 2),
+    };
+  }
   if (error instanceof NetworkError) {
     const name = error.statusText
       ? `${error.statusCode} ${error.statusText}`
@@ -42,6 +55,7 @@ const EXCLUDED_ERROR_PROPERTIES = new Set(["stack", "cause"]);
 
 function serializeCause(cause: unknown): unknown {
   if (Error.isError(cause)) {
+    // `name` is on the prototype, not an own property, so we include it explicitly
     const result: Record<string, unknown> = { name: cause.name };
     for (const key of Object.getOwnPropertyNames(cause)) {
       if (!EXCLUDED_ERROR_PROPERTIES.has(key)) {
