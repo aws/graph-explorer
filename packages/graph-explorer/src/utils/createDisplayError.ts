@@ -160,5 +160,10 @@ function hasOriginMismatch(url: string): boolean {
 }
 
 function isLoopback(hostname: string): boolean {
-  return hostname === "localhost" || hostname === "127.0.0.1";
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "[::1]" ||
+    hostname === "0.0.0.0"
+  );
 }
