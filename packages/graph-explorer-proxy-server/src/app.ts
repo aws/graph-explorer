@@ -77,7 +77,13 @@ export function createApp({
 
   app.use(requestLoggingMiddleware());
   app.use(compression());
-  app.use(cors());
+  app.use(
+    cors({
+      origin: true,
+      methods: ["GET", "POST"],
+      maxAge: 86400,
+    }),
+  );
   app.use(bodyParser.json({ limit: "50mb" }));
   app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
   app.use(

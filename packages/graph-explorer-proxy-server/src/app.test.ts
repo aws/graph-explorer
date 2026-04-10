@@ -66,6 +66,44 @@ describe("createApp", () => {
   // ── CORS ────────────────────────────────────────────────────────────
 
   describe("CORS", () => {
+    it("reflects the request origin by default", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .get("/status")
+        .set("Origin", "http://example.com");
+
+      expect(response.headers["access-control-allow-origin"]).toBe(
+        "http://example.com",
+      );
+    });
+
+    it("does not set origin header when request has no Origin", async () => {
+      const app = createTestApp();
+      const response = await request(app).get("/status");
+
+      expect(response.headers["access-control-allow-origin"]).toBeUndefined();
+    });
+
+    it("only allows GET and POST methods", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .options("/status")
+        .set("Origin", "http://example.com")
+        .set("Access-Control-Request-Method", "DELETE");
+
+      expect(response.headers["access-control-allow-methods"]).toBe("GET,POST");
+    });
+
+    it("sets preflight max-age cache header", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .options("/status")
+        .set("Origin", "http://example.com")
+        .set("Access-Control-Request-Method", "POST");
+
+      expect(response.headers["access-control-max-age"]).toBe("86400");
+    });
+
     it("does not forward upstream Access-Control headers", async () => {
       mockFetchOnce(JSON.stringify({ results: [] }), 200, {
         "content-type": "application/json",
