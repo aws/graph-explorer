@@ -13,12 +13,13 @@ const mockFetch = vi.mocked(fetch);
 
 const testVersion = "1.2.3";
 
-function createTestApp(configPath = ".") {
+function createTestApp(configPath = ".", corsOrigin?: string[]) {
   const app = createApp({
     configPath,
     staticFilesVirtualPath: "/explorer",
     staticFilesPath: ".",
     version: testVersion,
+    corsOrigin,
   });
   app.locals.logger = createLogger({
     HOST: "localhost",
@@ -83,6 +84,69 @@ describe("createApp", () => {
     it("does not set origin header when request has no Origin", async () => {
       const app = createTestApp();
       const response = await request(app).get("/status");
+
+      expect(response.headers["access-control-allow-origin"]).toBeUndefined();
+    });
+
+    it("sets the configured corsOrigin when provided", async () => {
+      const app = createTestApp(".", ["https://my-app.example.com"]);
+      const response = await request(app)
+        .get("/status")
+        .set("Origin", "https://my-app.example.com");
+
+      expect(response.headers["access-control-allow-origin"]).toBe(
+        "https://my-app.example.com",
+      );
+    });
+
+    it("returns the configured origin regardless of the requesting origin", async () => {
+      const app = createTestApp(".", ["https://my-app.example.com"]);
+      const response = await request(app)
+        .get("/status")
+        .set("Origin", "https://evil.example.com");
+
+      // The cors library sets a fixed Access-Control-Allow-Origin header
+      // when origin is a string. The browser enforces the mismatch by
+      // blocking the response when the header doesn't match the page origin.
+      expect(response.headers["access-control-allow-origin"]).toBe(
+        "https://my-app.example.com",
+      );
+    });
+
+    it("returns the configured origin on preflight regardless of the requesting origin", async () => {
+      const app = createTestApp(".", ["https://my-app.example.com"]);
+      const response = await request(app)
+        .options("/status")
+        .set("Origin", "https://evil.example.com")
+        .set("Access-Control-Request-Method", "POST");
+
+      expect(response.headers["access-control-allow-origin"]).toBe(
+        "https://my-app.example.com",
+      );
+    });
+
+    it("reflects the matching origin when multiple origins are configured", async () => {
+      const app = createTestApp(".", [
+        "https://app-a.example.com",
+        "https://app-b.example.com",
+      ]);
+      const response = await request(app)
+        .get("/status")
+        .set("Origin", "https://app-b.example.com");
+
+      expect(response.headers["access-control-allow-origin"]).toBe(
+        "https://app-b.example.com",
+      );
+    });
+
+    it("does not reflect a non-matching origin when multiple origins are configured", async () => {
+      const app = createTestApp(".", [
+        "https://app-a.example.com",
+        "https://app-b.example.com",
+      ]);
+      const response = await request(app)
+        .get("/status")
+        .set("Origin", "https://evil.example.com");
 
       expect(response.headers["access-control-allow-origin"]).toBeUndefined();
     });

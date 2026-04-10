@@ -61,6 +61,26 @@ When using the default self-signed certificate, your browser will show a securit
 > 
 > To get rid of the "Not Secure" warning, see [Using self-signed certificates on Chrome](../development.md#using-self-signed-certificates-on-chrome).
 
+## CORS
+
+To restrict cross-origin requests, set the `PROXY_SERVER_CORS_ORIGIN` environment variable to the origin you want to allow. The default option allows cross-origin requests from all origins.
+
+```bash
+PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com
+```
+
+To allow multiple origins, separate them with commas:
+
+```bash
+PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com,https://other-app.example.com
+```
+
+When set, browsers will block cross-origin requests from any other origin. This prevents malicious pages from making requests to the proxy server using a visitor's browser session.
+
+> [!NOTE]
+>
+> CORS headers only affect browser-initiated requests — direct API calls from scripts or other servers are not restricted by CORS. CORS is a defense-in-depth layer, not a substitute for authentication or network-level access controls. Ensure the proxy server is not exposed to untrusted networks.
+
 ## Permissions
 
 Graph Explorer does not provide any mechanisms for controlling user permissions. If you are using Graph Explorer with AWS, Neptune permissions can be controlled through IAM roles.

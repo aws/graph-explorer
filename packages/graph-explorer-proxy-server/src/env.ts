@@ -16,6 +16,23 @@ export const EnvironmentValuesSchema = z.object({
     .enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
     .default("debug"),
   LOG_STYLE: z.enum(["cloudwatch", "default"]).default("default"),
+  PROXY_SERVER_CORS_ORIGIN: z
+    .string()
+    .optional()
+    .transform(value => value || undefined)
+    .transform(value => value?.split(",").map(v => v.trim()))
+    .pipe(
+      z
+        .array(
+          z
+            .httpUrl({
+              message:
+                "Must be an HTTP or HTTPS URL (e.g. https://example.com)",
+            })
+            .transform(value => new URL(value).origin),
+        )
+        .optional(),
+    ),
 });
 
 export type EnvironmentValues = z.infer<typeof EnvironmentValuesSchema>;

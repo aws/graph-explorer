@@ -67,6 +67,7 @@ interface CreateAppOptions {
   staticFilesVirtualPath: string;
   staticFilesPath: string;
   version?: string;
+  corsOrigin?: string[];
 }
 
 export function createApp({
@@ -74,6 +75,7 @@ export function createApp({
   staticFilesVirtualPath,
   staticFilesPath,
   version,
+  corsOrigin,
 }: CreateAppOptions): express.Express {
   const app = express();
 
@@ -81,7 +83,11 @@ export function createApp({
   app.use(compression());
   app.use(
     cors({
-      origin: true,
+      origin: corsOrigin
+        ? corsOrigin.length === 1
+          ? corsOrigin[0]
+          : corsOrigin
+        : true,
       methods: ["GET", "POST"],
       maxAge: 86400,
     }),
