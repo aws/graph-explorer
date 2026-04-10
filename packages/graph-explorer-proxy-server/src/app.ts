@@ -202,10 +202,13 @@ export function createApp({
         serviceType,
       );
 
-      // Set the headers from the fetch response to the client response
+      // Set the headers from the fetch response to the client response,
+      // skipping Access-Control headers to avoid clobbering the proxy's CORS config
       res.status(response.status);
       for (const [key, value] of response.headers.entries()) {
-        res.setHeader(key, value);
+        if (!key.toLowerCase().startsWith("access-control-")) {
+          res.setHeader(key, value);
+        }
       }
 
       // Pipe the raw fetch response body directly to the client response

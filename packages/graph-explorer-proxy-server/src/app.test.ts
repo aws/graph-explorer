@@ -63,6 +63,30 @@ describe("createApp", () => {
     mockFetch.mockReset();
   });
 
+  // ── CORS ────────────────────────────────────────────────────────────
+
+  describe("CORS", () => {
+    it("does not forward upstream Access-Control headers", async () => {
+      mockFetchOnce(JSON.stringify({ results: [] }), 200, {
+        "content-type": "application/json",
+        "access-control-allow-origin": "https://upstream.example.com",
+        "access-control-allow-methods": "PUT,DELETE",
+      });
+
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/sparql")
+        .set("Origin", "http://example.com")
+        .set(dbHeaders())
+        .send({ query: "SELECT 1" });
+
+      // The proxy's own CORS headers should be used, not the upstream ones
+      expect(response.headers["access-control-allow-origin"]).toBe(
+        "http://example.com",
+      );
+    });
+  });
+
   // ── Static routes ──────────────────────────────────────────────────
 
   it("GET /status returns 200 OK", async () => {
