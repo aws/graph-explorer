@@ -4,36 +4,17 @@ import os from "os";
 import path from "path";
 
 const scriptPath = path.resolve(import.meta.dirname, "../../../setup-ssl.sh");
+const certInfoDir = path.resolve(import.meta.dirname, "../cert-info");
 
-const CERT_CONF_CONTENT = `authorityKeyIdentifier=keyid,issuer
-basicConstraints=CA:FALSE
-keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
-subjectAltName = @alt_names
-
-[alt_names]
-# Filled in by Dockerfile
-DNS.1 = `;
-
-const CSR_CONF_CONTENT = `[ req ]
-default_bits = 2048
-prompt = no
-default_md = sha256
-req_extensions = req_ext
-distinguished_name = dn
-
-[ dn ]
-C = US
-ST = Washington
-L = Seattle
-O = Graph Explorer
-CN = Graph Explorer
-
-[ req_ext ]
-subjectAltName = @alt_names
-
-[ alt_names ]
-# Filled in by Dockerfile
-DNS.1 = `;
+/** Read the real config files so tests break if they change. */
+const CERT_CONF_CONTENT = fs.readFileSync(
+  path.join(certInfoDir, "cert.conf"),
+  "utf-8",
+);
+const CSR_CONF_CONTENT = fs.readFileSync(
+  path.join(certInfoDir, "csr.conf"),
+  "utf-8",
+);
 
 function runScript(
   certDir: string,
@@ -130,6 +111,16 @@ describe("setup-ssl.sh", () => {
       const csrConf = fs.readFileSync(path.join(certDir, "csr.conf"), "utf-8");
       expect(csrConf).toContain("my-host.example.com");
     });
+
+    it("exits immediately when openssl fails due to invalid config", () => {
+      fs.writeFileSync(path.join(certDir, "cert.conf"), "INVALID");
+      fs.writeFileSync(path.join(certDir, "csr.conf"), "INVALID");
+
+      const { exitCode } = runScript(certDir, { HOST: "localhost" });
+
+      expect(exitCode).not.toBe(0);
+      expect(fs.existsSync(path.join(certDir, "server.crt"))).toBe(false);
+    });
   });
 
   describe("without HOST (check existing certs)", () => {
@@ -143,15 +134,13 @@ describe("setup-ssl.sh", () => {
     });
 
     it("fails when no cert files exist", () => {
-      const { exitCode, stdout } = runScript(certDir);
+      const { exitCode, stderr } = runScript(certDir);
 
       expect(exitCode).not.toBe(0);
-      expect(stdout).toContain("No existing self-signed SSL certificate found");
+      expect(stderr).toContain("Missing certificate files");
     });
 
-    // BUG: The existence check has rootCA.crt listed twice and server.key is
-    // never checked. This means a missing server.key is not detected.
-    it("does not detect a missing server.key file", () => {
+    it("fails when server.key is missing", () => {
       for (const f of [
         "rootCA.key",
         "rootCA.crt",
@@ -161,10 +150,24 @@ describe("setup-ssl.sh", () => {
         fs.writeFileSync(path.join(certDir, f), "placeholder");
       }
 
-      const { exitCode } = runScript(certDir);
+      const { exitCode, stderr } = runScript(certDir);
 
-      // Should fail but passes due to the duplicate rootCA.crt check
-      expect(exitCode).toBe(0);
+      expect(exitCode).not.toBe(0);
+      expect(stderr).toContain("server.key");
+    });
+
+    it("reports each missing file individually", () => {
+      // Only rootCA.key exists
+      fs.writeFileSync(path.join(certDir, "rootCA.key"), "placeholder");
+
+      const { exitCode, stderr } = runScript(certDir);
+
+      expect(exitCode).not.toBe(0);
+      expect(stderr).toContain("rootCA.crt");
+      expect(stderr).toContain("server.key");
+      expect(stderr).toContain("server.csr");
+      expect(stderr).toContain("server.crt");
+      expect(stderr).not.toContain("rootCA.key");
     });
   });
 });

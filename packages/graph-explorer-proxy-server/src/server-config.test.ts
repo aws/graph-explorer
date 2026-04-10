@@ -76,34 +76,43 @@ describe("resolveServerConfig", () => {
     expect(config.useHttps).toBe(false);
   });
 
-  it("sets useHttps to false when HTTPS is enabled but cert files do not exist", () => {
+  it("throws when HTTPS is enabled but cert files do not exist", () => {
     vi.spyOn(fs, "existsSync").mockReturnValue(false);
 
-    const config = resolveServerConfig(
-      createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true }),
+    expect(() =>
+      resolveServerConfig(createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true })),
+    ).toThrow(
+      expect.objectContaining({
+        name: "ServerConfigError",
+        message: expect.stringContaining(expectedKeyPath),
+      }),
     );
-
-    expect(config.useHttps).toBe(false);
   });
 
-  it("sets useHttps to false when only the key file exists", () => {
+  it("throws when HTTPS is enabled but only the key file exists", () => {
     vi.spyOn(fs, "existsSync").mockImplementation(p => p === expectedKeyPath);
 
-    const config = resolveServerConfig(
-      createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true }),
+    expect(() =>
+      resolveServerConfig(createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true })),
+    ).toThrow(
+      expect.objectContaining({
+        name: "ServerConfigError",
+        message: expect.stringContaining(expectedCertPath),
+      }),
     );
-
-    expect(config.useHttps).toBe(false);
   });
 
-  it("sets useHttps to false when only the cert file exists", () => {
+  it("throws when HTTPS is enabled but only the cert file exists", () => {
     vi.spyOn(fs, "existsSync").mockImplementation(p => p === expectedCertPath);
 
-    const config = resolveServerConfig(
-      createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true }),
+    expect(() =>
+      resolveServerConfig(createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true })),
+    ).toThrow(
+      expect.objectContaining({
+        name: "ServerConfigError",
+        message: expect.stringContaining(expectedKeyPath),
+      }),
     );
-
-    expect(config.useHttps).toBe(false);
   });
 
   it("sets useHttps to true when HTTPS is enabled and both cert files exist", () => {
@@ -114,6 +123,64 @@ describe("resolveServerConfig", () => {
     );
 
     expect(config.useHttps).toBe(true);
+  });
+
+  describe("ServerConfigError message content", () => {
+    it("both files missing: message contains both paths", () => {
+      vi.spyOn(fs, "existsSync").mockReturnValue(false);
+
+      let message = "";
+      try {
+        resolveServerConfig(createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true }));
+      } catch (e) {
+        message = (e as Error).message;
+      }
+
+      expect(message).toContain("server.key");
+      expect(message).toContain("server.crt");
+    });
+
+    it("only key missing: message contains key path but not cert path", () => {
+      vi.spyOn(fs, "existsSync").mockImplementation(
+        p => p === expectedCertPath,
+      );
+
+      let message = "";
+      try {
+        resolveServerConfig(createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true }));
+      } catch (e) {
+        message = (e as Error).message;
+      }
+
+      expect(message).toContain("server.key");
+      expect(message).not.toContain("server.crt");
+    });
+
+    it("only cert missing: message contains cert path but not key path", () => {
+      vi.spyOn(fs, "existsSync").mockImplementation(p => p === expectedKeyPath);
+
+      let message = "";
+      try {
+        resolveServerConfig(createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true }));
+      } catch (e) {
+        message = (e as Error).message;
+      }
+
+      expect(message).toContain("server.crt");
+      expect(message).not.toContain("server.key");
+    });
+
+    it("message includes the env var name", () => {
+      vi.spyOn(fs, "existsSync").mockReturnValue(false);
+
+      expect(() =>
+        resolveServerConfig(createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true })),
+      ).toThrow(
+        expect.objectContaining({
+          message: expect.stringContaining("PROXY_SERVER_HTTPS_CONNECTION"),
+        }),
+      );
+    });
   });
 });
 

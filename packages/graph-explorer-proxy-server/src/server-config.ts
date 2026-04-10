@@ -5,6 +5,13 @@ import type { EnvironmentValues } from "./env.js";
 
 import { clientRoot, proxyServerRoot } from "./paths.js";
 
+export class ServerConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ServerConfigError";
+  }
+}
+
 export function resolveServerConfig(env: EnvironmentValues) {
   const certificateKeyFilePath = path.join(
     proxyServerRoot,
@@ -15,10 +22,18 @@ export function resolveServerConfig(env: EnvironmentValues) {
     "cert-info/server.crt",
   );
 
-  const useHttps =
-    env.PROXY_SERVER_HTTPS_CONNECTION &&
-    fs.existsSync(certificateKeyFilePath) &&
-    fs.existsSync(certificateFilePath);
+  const useHttps = env.PROXY_SERVER_HTTPS_CONNECTION;
+
+  if (useHttps) {
+    const missingFiles = [certificateKeyFilePath, certificateFilePath].filter(
+      f => !fs.existsSync(f),
+    );
+    if (missingFiles.length > 0) {
+      throw new ServerConfigError(
+        `PROXY_SERVER_HTTPS_CONNECTION is true but certificate files are missing: ${missingFiles.join(", ")}`,
+      );
+    }
+  }
 
   const port = useHttps
     ? env.PROXY_SERVER_HTTPS_PORT

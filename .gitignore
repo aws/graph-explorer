@@ -8,3 +8,6 @@
 
 # TypeScript build cache manifests
 *.tsbuildinfo
+
+# Local planning docs
+plans/
