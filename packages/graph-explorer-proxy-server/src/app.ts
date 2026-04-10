@@ -208,12 +208,14 @@ export function createApp({
         serviceType,
       );
 
-      // Set the headers from the fetch response to the client response,
-      // skipping Access-Control headers to avoid clobbering the proxy's CORS config
+      // Only forward content headers from the upstream response.
+      // All other headers (CORS, hop-by-hop, server info) are dropped
+      // to avoid conflicts with the proxy's own response handling.
       res.status(response.status);
-      for (const [key, value] of response.headers.entries()) {
-        if (!key.toLowerCase().startsWith("access-control-")) {
-          res.setHeader(key, value);
+      for (const header of ["content-type", "content-encoding"]) {
+        const value = response.headers.get(header);
+        if (value) {
+          res.setHeader(header, value);
         }
       }
 
