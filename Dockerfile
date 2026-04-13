@@ -46,10 +46,10 @@ WORKDIR /
 COPY . /graph-explorer/
 WORKDIR /graph-explorer
 
-RUN pnpm install && \
+RUN pnpm install --frozen-lockfile && \
     pnpm build && \
     pnpm clean:dep && \
-    pnpm install --prod --ignore-scripts && \
+    pnpm install --prod --frozen-lockfile --ignore-scripts && \
     npm uninstall -g npm && \
     corepack disable && \
     rm -rf /usr/local/bin/pnpm* /usr/local/bin/corepack && \

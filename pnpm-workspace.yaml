@@ -4,3 +4,21 @@ packages:
 # This prevents malicious packages from being installed by waiting 24 hours
 # after a package is published. See https://pnpm.io/settings#minimumreleaseage
 minimumReleaseAge: 1440
+
+# Silently block packages with unwanted build scripts
+ignoredBuiltDependencies:
+  - core-js
+
+# Explicitly allow these packages to run build scripts
+onlyBuiltDependencies:
+  - esbuild
+
+# Fail if any dependency tries to run a build script that has not been allowed
+strictDepBuilds: true
+
+# Prevent transitive dependencies from using git or tarball URLs
+blockExoticSubdeps: true
+
+# Refuse to install a package version whose trust evidence is weaker than a
+# previously published version of that package
+trustPolicy: no-downgrade
