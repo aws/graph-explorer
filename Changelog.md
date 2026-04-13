@@ -1,5 +1,65 @@
 # Graph Explorer Change Log
 
+## Release 3.0.1
+
+This patch release improves error handling, refactors the proxy server for testability, and hardens the application protection mechanisms. Error messages surface richer diagnostics — status codes, response bodies, and cause chains — so troubleshooting is more useful. We also upgraded to Vite 8, cutting build time by 60% and bundle size by 5%.
+
+- **Bug fixes** — new empty state when no connections are configured instead of misleading "No Schema Available", Docker entrypoint now respects custom config directories (thanks @theneelshah!), Podman container permissions fix
+- **Error handling** — the error details dialog now surfaces status codes, response bodies, and cause chains so you can diagnose issues without digging through logs. Invalid proxy requests return proper 400 errors instead of cryptic 500s. Connection failures and CORS mismatches get targeted error messages.
+- **Tooling & docs** — Vite 8 upgrade cuts build time by 60% and bundle size by 5%, reorganized docs into guides and references, updated README
+- **Application hardening** — tighter CORS defaults, supply chain hardening, automated vulnerability scanning, least-privilege CI permissions, and a new security policy for reporting vulnerabilities
+- **Proxy server** — previously untestable parts of the proxy server now have 170+ tests (up from 56), making future changes safer and more reliable
+
+### HTTPS Configuration
+
+Previous versions had a bug where the Docker entrypoint ignored custom config directory paths, which could cause your HTTPS settings to be silently skipped. While fixing this, we also discovered that when HTTPS was enabled but certificate generation or discovery failed, the server would silently fall back to HTTP instead of reporting the problem. The server now exits with a clear error in this scenario. If you were unknowingly relying on this fallback behavior, ensure your certificates are in place before upgrading or explicitly disable HTTPS. See the [HTTPS Connections](https://github.com/aws/graph-explorer/blob/v3.0.1/docs/references/security.md#https-connections) documentation for details.
+
+### New Contributors
+
+Welcome and thank you to our first-time contributor!
+
+- @theneelshah made their first contribution in https://github.com/aws/graph-explorer/pull/1598
+
+### All Changes
+
+- Update readme intro by @kmcginnes in https://github.com/aws/graph-explorer/pull/1567
+- Switch to proseWrap preserve by @kmcginnes in https://github.com/aws/graph-explorer/pull/1568
+- Use permalinks in the changelog by @kmcginnes in https://github.com/aws/graph-explorer/pull/1569
+- Rename additionaldocs directory to docs by @kmcginnes in https://github.com/aws/graph-explorer/pull/1570
+- Reorganize documentation into guides structure by @kmcginnes in https://github.com/aws/graph-explorer/pull/1571
+- Move reference documentation to docs/references/ by @kmcginnes in https://github.com/aws/graph-explorer/pull/1572
+- Set explicit minimum permissions on GitHub Actions workflows by @kmcginnes in https://github.com/aws/graph-explorer/pull/1573
+- Update dependencies and remove stale overrides by @kmcginnes in https://github.com/aws/graph-explorer/pull/1574
+- Bump version to 3.1.0 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1587
+- Fix air routes sample permission error on Podman by @kmcginnes in https://github.com/aws/graph-explorer/pull/1588
+- Rename issue templates for consistent ordering by @kmcginnes in https://github.com/aws/graph-explorer/pull/1591
+- Update GitHub issue and PR templates by @kmcginnes in https://github.com/aws/graph-explorer/pull/1592
+- Add issue type REST API instructions to GitHub skill by @kmcginnes in https://github.com/aws/graph-explorer/pull/1597
+- Fix: use CONFIGURATION_FOLDER_PATH in docker-entrypoint.sh for custom config directory by @theneelshah in https://github.com/aws/graph-explorer/pull/1598
+- Update dependencies and remove stale fast-xml-parser override by @kmcginnes in https://github.com/aws/graph-explorer/pull/1603
+- Add git conventions skill by @kmcginnes in https://github.com/aws/graph-explorer/pull/1606
+- Change version to 3.0.1 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1607
+- Clean up Docker image and add Trivy scan to CI by @kmcginnes in https://github.com/aws/graph-explorer/pull/1609
+- Show empty connection state instead of misleading 'No Schema Available' by @kmcginnes in https://github.com/aws/graph-explorer/pull/1611
+- Disable schema sync queries when no connection exists by @kmcginnes in https://github.com/aws/graph-explorer/pull/1612
+- Add GRAPH_EXP_DEV_PORT and .env.local documentation by @kmcginnes in https://github.com/aws/graph-explorer/pull/1613
+- Update dependencies to latest compatible versions by @kmcginnes in https://github.com/aws/graph-explorer/pull/1615
+- Decouple proxy server startup from module-level side effects by @kmcginnes in https://github.com/aws/graph-explorer/pull/1628
+- Add tests for process-environment.sh and fix POSIX compliance by @kmcginnes in https://github.com/aws/graph-explorer/pull/1629
+- Update lodash to latest version by @kmcginnes in https://github.com/aws/graph-explorer/pull/1631
+- Extract proxy server into testable modules by @kmcginnes in https://github.com/aws/graph-explorer/pull/1632
+- Extract SSL cert logic into testable setup-ssl.sh script by @kmcginnes in https://github.com/aws/graph-explorer/pull/1637
+- Validate graph database connection URL with Zod schema by @kmcginnes in https://github.com/aws/graph-explorer/pull/1639
+- Fail fast when HTTPS is requested but certificates are missing by @kmcginnes in https://github.com/aws/graph-explorer/pull/1640
+- Pin @tanstack/eslint-plugin-query to 5.96.2 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1641
+- Improve error details with richer diagnostic information by @kmcginnes in https://github.com/aws/graph-explorer/pull/1644
+- Add security policy and security audit workflow by @kmcginnes in https://github.com/aws/graph-explorer/pull/1648
+- Remove ExplorerInjector component by @kmcginnes in https://github.com/aws/graph-explorer/pull/1649
+- Improve error details and handle proxy connection errors by @kmcginnes in https://github.com/aws/graph-explorer/pull/1650
+- Update Vite to version 8 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1651
+- Harden supply chain security settings by @kmcginnes in https://github.com/aws/graph-explorer/pull/1652
+- Improve CORS defaults and upstream header forwarding by @kmcginnes in https://github.com/aws/graph-explorer/pull/1653
+
 ## Release 3.0.0
 
 Graph Explorer 3.0 is here! This release brings one of the most requested features — the ability to visualize your graph database schema — along with a fresh navigation experience and a handful of quality-of-life improvements.
