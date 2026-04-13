@@ -11,11 +11,14 @@ import { createLogger } from "./logging.js";
 const { default: fetch } = await import("node-fetch");
 const mockFetch = vi.mocked(fetch);
 
+const testVersion = "1.2.3";
+
 function createTestApp(configPath = ".") {
   const app = createApp({
     configPath,
     staticFilesVirtualPath: "/explorer",
     staticFilesPath: ".",
+    version: testVersion,
   });
   app.locals.logger = createLogger({
     HOST: "localhost",
@@ -650,6 +653,71 @@ describe("createApp", () => {
 
       const fetchOptions = mockFetch.mock.calls[0][1] as any;
       expect(fetchOptions.service).toBe("neptune-graph");
+    });
+  });
+
+  // ── User-Agent header ───────────────────────────────────────────
+
+  describe("User-Agent header", () => {
+    it("sets User-Agent on outbound requests", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app)
+        .post("/sparql")
+        .set(dbHeaders())
+        .send({ query: "SELECT 1" });
+
+      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      expect(fetchOptions.headers["User-Agent"]).toBe(
+        `graph-explorer/${testVersion}`,
+      );
+    });
+
+    it("falls back to 'graph-explorer' when version is not provided", async () => {
+      mockFetchOnce();
+
+      const app = createApp({
+        configPath: ".",
+        staticFilesVirtualPath: "/explorer",
+        staticFilesPath: ".",
+      });
+      app.locals.logger = createLogger({
+        HOST: "localhost",
+        PROXY_SERVER_HTTPS_CONNECTION: false,
+        PROXY_SERVER_HTTPS_PORT: 443,
+        PROXY_SERVER_HTTP_PORT: 80,
+        LOG_LEVEL: "silent",
+        LOG_STYLE: "default",
+      });
+
+      await request(app)
+        .post("/sparql")
+        .set(dbHeaders())
+        .send({ query: "SELECT 1" });
+
+      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      expect(fetchOptions.headers["User-Agent"]).toBe("graph-explorer");
+    });
+
+    it("preserves User-Agent after IAM signing", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app)
+        .post("/sparql")
+        .set(
+          dbHeaders({
+            "aws-neptune-region": "us-east-1",
+            "service-type": "neptune-db",
+          }),
+        )
+        .send({ query: "SELECT 1" });
+
+      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      expect(fetchOptions.headers["User-Agent"]).toBe(
+        `graph-explorer/${testVersion}`,
+      );
     });
   });
 

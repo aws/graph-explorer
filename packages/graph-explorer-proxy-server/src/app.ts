@@ -66,12 +66,14 @@ interface CreateAppOptions {
   configPath: string;
   staticFilesVirtualPath: string;
   staticFilesPath: string;
+  version?: string;
 }
 
 export function createApp({
   configPath,
   staticFilesVirtualPath,
   staticFilesPath,
+  version,
 }: CreateAppOptions): express.Express {
   const app = express();
 
@@ -116,6 +118,8 @@ export function createApp({
 
     return headers;
   }
+
+  const userAgent = version ? `graph-explorer/${version}` : "graph-explorer";
 
   // Function to retry fetch requests with exponential backoff.
   const retryFetch = async (
@@ -202,7 +206,10 @@ export function createApp({
     try {
       const response = await retryFetch(
         new URL(url),
-        options,
+        {
+          ...options,
+          headers: { "User-Agent": userAgent, ...options.headers },
+        },
         isIamEnabled,
         region,
         serviceType,
