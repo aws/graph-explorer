@@ -77,7 +77,13 @@ export function createApp({
 
   app.use(requestLoggingMiddleware());
   app.use(compression());
-  app.use(cors());
+  app.use(
+    cors({
+      origin: true,
+      methods: ["GET", "POST"],
+      maxAge: 86400,
+    }),
+  );
   app.use(bodyParser.json({ limit: "50mb" }));
   app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
   app.use(
@@ -202,10 +208,15 @@ export function createApp({
         serviceType,
       );
 
-      // Set the headers from the fetch response to the client response
+      // Only forward content headers from the upstream response.
+      // All other headers (CORS, hop-by-hop, server info) are dropped
+      // to avoid conflicts with the proxy's own response handling.
       res.status(response.status);
-      for (const [key, value] of response.headers.entries()) {
-        res.setHeader(key, value);
+      for (const header of ["content-type", "content-encoding"]) {
+        const value = response.headers.get(header);
+        if (value) {
+          res.setHeader(header, value);
+        }
       }
 
       // Pipe the raw fetch response body directly to the client response

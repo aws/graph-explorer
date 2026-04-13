@@ -63,6 +63,69 @@ describe("createApp", () => {
     mockFetch.mockReset();
   });
 
+  // ── CORS ────────────────────────────────────────────────────────────
+
+  describe("CORS", () => {
+    it("reflects the request origin by default", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .get("/status")
+        .set("Origin", "http://example.com");
+
+      expect(response.headers["access-control-allow-origin"]).toBe(
+        "http://example.com",
+      );
+    });
+
+    it("does not set origin header when request has no Origin", async () => {
+      const app = createTestApp();
+      const response = await request(app).get("/status");
+
+      expect(response.headers["access-control-allow-origin"]).toBeUndefined();
+    });
+
+    it("only allows GET and POST methods", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .options("/status")
+        .set("Origin", "http://example.com")
+        .set("Access-Control-Request-Method", "DELETE");
+
+      expect(response.headers["access-control-allow-methods"]).toBe("GET,POST");
+    });
+
+    it("sets preflight max-age cache header", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .options("/status")
+        .set("Origin", "http://example.com")
+        .set("Access-Control-Request-Method", "POST");
+
+      expect(response.headers["access-control-max-age"]).toBe("86400");
+    });
+
+    it("only forwards content-type from upstream responses", async () => {
+      mockFetchOnce(JSON.stringify({ results: [] }), 200, {
+        "content-type": "application/json",
+        "access-control-allow-origin": "https://upstream.example.com",
+        "transfer-encoding": "chunked",
+        server: "Neptune/1.0",
+        "x-request-id": "abc-123",
+      });
+
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/sparql")
+        .set(dbHeaders())
+        .send({ query: "SELECT 1" });
+
+      expect(response.headers["content-type"]).toContain("application/json");
+      expect(response.headers["access-control-allow-origin"]).toBeUndefined();
+      expect(response.headers["server"]).toBeUndefined();
+      expect(response.headers["x-request-id"]).toBeUndefined();
+    });
+  });
+
   // ── Static routes ──────────────────────────────────────────────────
 
   it("GET /status returns 200 OK", async () => {
