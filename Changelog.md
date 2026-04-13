@@ -2,12 +2,12 @@
 
 ## Release 3.0.1
 
-This patch release hardens security, improves error handling, and refactors the proxy server for testability. Error messages surface richer diagnostics — status codes, response bodies, and cause chains — so troubleshooting is more useful. We also upgraded to Vite 8, cutting build time by 60% and bundle size by 5%.
+This patch release improves error handling, refactors the proxy server for testability, and hardens the application protection mechanisms. Error messages surface richer diagnostics — status codes, response bodies, and cause chains — so troubleshooting is more useful. We also upgraded to Vite 8, cutting build time by 60% and bundle size by 5%.
 
 - **Bug fixes** — new empty state when no connections are configured instead of misleading "No Schema Available", Docker entrypoint now respects custom config directories (thanks @theneelshah!), Podman container permissions fix
 - **Error handling** — the error details dialog now surfaces status codes, response bodies, and cause chains so you can diagnose issues without digging through logs. Invalid proxy requests return proper 400 errors instead of cryptic 500s. Connection failures and CORS mismatches get targeted error messages.
 - **Tooling & docs** — Vite 8 upgrade cuts build time by 60% and bundle size by 5%, reorganized docs into guides and references, updated README
-- **Security** — tighter CORS defaults, supply chain hardening, automated vulnerability scanning, least-privilege CI permissions, and a new security policy for reporting vulnerabilities
+- **Application hardening** — tighter CORS defaults, supply chain hardening, automated vulnerability scanning, least-privilege CI permissions, and a new security policy for reporting vulnerabilities
 - **Proxy server** — previously untestable parts of the proxy server now have 170+ tests (up from 56), making future changes safer and more reliable
 
 ### HTTPS Configuration
