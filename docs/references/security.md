@@ -6,7 +6,50 @@ Graph Explorer supports the HTTPS protocol by default and provides a self-signed
 
 ## HTTPS Connections
 
-If either Graph Explorer or the proxy-server are served over an HTTPS connection (which it is by default), you will have to bypass the warning message from the browser due to the included certificate being a self-signed certificate. You can bypass by manually ignoring them from the browser or downloading the correct certificate and configuring them to be trusted. Alternatively, you can provide your own certificate. The following instructions can be used as an example to bypass the warnings for Chrome, but note that different browsers and operating systems will have slightly different steps.
+Graph Explorer serves over HTTPS by default using a self-signed certificate. The `HOST` environment variable controls the hostname used in the certificate's Subject Alternative Name (SAN). When `HOST` is set, the entrypoint script generates a fresh self-signed certificate on container startup. When `HOST` is not set, the server expects to find existing certificate files.
+
+### Certificate files
+
+The proxy server reads certificates from the following location inside the container:
+
+```
+/graph-explorer/packages/graph-explorer-proxy-server/cert-info/
+├── rootCA.key    # Root CA private key
+├── rootCA.crt    # Root CA certificate
+├── server.key    # Server private key
+├── server.csr    # Server certificate signing request
+├── server.crt    # Server certificate
+├── csr.conf      # CSR configuration template
+└── cert.conf     # Certificate extensions configuration
+```
+
+If HTTPS is enabled and any of these files are missing, the server will exit with an error listing the missing files.
+
+### Using your own certificates
+
+To use your own certificates instead of the self-signed ones, mount your certificate files into the `cert-info` directory. All five certificate files must be present (`rootCA.key`, `rootCA.crt`, `server.key`, `server.csr`, `server.crt`).
+
+> [!IMPORTANT]
+>
+> Do not set the `HOST` environment variable, otherwise the entrypoint will overwrite your files with a new self-signed certificate.
+
+```bash
+docker run -p 443:443 \
+  -v /path/to/your/server.key:/graph-explorer/packages/graph-explorer-proxy-server/cert-info/server.key \
+  -v /path/to/your/server.crt:/graph-explorer/packages/graph-explorer-proxy-server/cert-info/server.crt \
+  -v /path/to/your/rootCA.crt:/graph-explorer/packages/graph-explorer-proxy-server/cert-info/rootCA.crt \
+  -v /path/to/your/rootCA.key:/graph-explorer/packages/graph-explorer-proxy-server/cert-info/rootCA.key \
+  -v /path/to/your/server.csr:/graph-explorer/packages/graph-explorer-proxy-server/cert-info/server.csr \
+  public.ecr.aws/neptune/graph-explorer
+```
+
+### Disabling HTTPS
+
+To serve over HTTP instead, set `PROXY_SERVER_HTTPS_CONNECTION=false` in your environment or `.env` file.
+
+### Trusting the self-signed certificate
+
+When using the default self-signed certificate, your browser will show a security warning. You can bypass this by trusting the certificate:
 
 1. Download the certificate directly from the browser. For example, if using Google Chrome, click the "Not Secure" section on the left of the URL bar and select "Certificate is not valid" to show the certificate. Then click Details tab and click Export at the bottom.
 2. Once you have the certificate, you will need to trust it on your machine. For MacOS, you can open the Keychain Access app. Select System under System Keychains. Then go to File > Import Items... and import the certificate you downloaded in the previous step.
