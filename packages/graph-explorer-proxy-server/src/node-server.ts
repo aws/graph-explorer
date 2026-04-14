@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import path from "path";
 
+import packageJson from "../package.json" with { type: "json" };
 import { createApp } from "./app.js";
 import { parseEnvironmentValues } from "./env.js";
 import { handleError } from "./error-handler.js";
@@ -48,7 +49,12 @@ const {
   useHttps,
 } = serverConfig;
 
-const app = createApp({ configPath, staticFilesVirtualPath, staticFilesPath });
+const app = createApp({
+  configPath,
+  staticFilesVirtualPath,
+  staticFilesPath,
+  version: packageJson.version,
+});
 
 // Store logger on app.locals for access in middleware and routes
 app.locals.logger = logger;
