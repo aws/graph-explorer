@@ -85,6 +85,28 @@ describe("parseEnvironmentValues", () => {
       expect(process.exit).toHaveBeenCalledWith(1);
     });
 
+    it("exits process when PROXY_SERVER_CORS_ORIGIN is missing the scheme", () => {
+      parseEnvironmentValues({
+        PROXY_SERVER_CORS_ORIGIN: "my-app.example.com",
+      });
+      expect(process.exit).toHaveBeenCalledWith(1);
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining("Must be an HTTP or HTTPS URL"),
+      );
+    });
+
+    it("exits process when PROXY_SERVER_CORS_ORIGIN is a wildcard", () => {
+      parseEnvironmentValues({ PROXY_SERVER_CORS_ORIGIN: "*" });
+      expect(process.exit).toHaveBeenCalledWith(1);
+    });
+
+    it("exits process when PROXY_SERVER_CORS_ORIGIN has a trailing comma", () => {
+      parseEnvironmentValues({
+        PROXY_SERVER_CORS_ORIGIN: "https://example.com,",
+      });
+      expect(process.exit).toHaveBeenCalledWith(1);
+    });
+
     it("logs error details on validation failure", () => {
       parseEnvironmentValues({ LOG_LEVEL: "verbose" });
       expect(console.error).toHaveBeenCalledWith(
@@ -101,5 +123,71 @@ describe("parseEnvironmentValues", () => {
 
     expect(result.HOST).toBe("my-server");
     expect(result).not.toHaveProperty("SOME_OTHER_VAR");
+  });
+
+  it("parses PROXY_SERVER_CORS_ORIGIN when provided", () => {
+    const result = parseEnvironmentValues({
+      PROXY_SERVER_CORS_ORIGIN: "https://my-app.example.com",
+    });
+
+    expect(result.PROXY_SERVER_CORS_ORIGIN).toStrictEqual([
+      "https://my-app.example.com",
+    ]);
+  });
+
+  it("parses comma-separated PROXY_SERVER_CORS_ORIGIN values", () => {
+    const result = parseEnvironmentValues({
+      PROXY_SERVER_CORS_ORIGIN:
+        "https://app-a.example.com,https://app-b.example.com",
+    });
+
+    expect(result.PROXY_SERVER_CORS_ORIGIN).toStrictEqual([
+      "https://app-a.example.com",
+      "https://app-b.example.com",
+    ]);
+  });
+
+  it("trims whitespace around comma-separated PROXY_SERVER_CORS_ORIGIN values", () => {
+    const result = parseEnvironmentValues({
+      PROXY_SERVER_CORS_ORIGIN:
+        "https://app-a.example.com , https://app-b.example.com",
+    });
+
+    expect(result.PROXY_SERVER_CORS_ORIGIN).toStrictEqual([
+      "https://app-a.example.com",
+      "https://app-b.example.com",
+    ]);
+  });
+
+  it("defaults PROXY_SERVER_CORS_ORIGIN to undefined when not provided", () => {
+    const result = parseEnvironmentValues({});
+
+    expect(result.PROXY_SERVER_CORS_ORIGIN).toBeUndefined();
+  });
+
+  it("treats empty PROXY_SERVER_CORS_ORIGIN as unset", () => {
+    const result = parseEnvironmentValues({ PROXY_SERVER_CORS_ORIGIN: "" });
+
+    expect(result.PROXY_SERVER_CORS_ORIGIN).toBeUndefined();
+  });
+
+  it("strips trailing slash from PROXY_SERVER_CORS_ORIGIN", () => {
+    const result = parseEnvironmentValues({
+      PROXY_SERVER_CORS_ORIGIN: "https://my-app.example.com/",
+    });
+
+    expect(result.PROXY_SERVER_CORS_ORIGIN).toStrictEqual([
+      "https://my-app.example.com",
+    ]);
+  });
+
+  it("strips path from PROXY_SERVER_CORS_ORIGIN", () => {
+    const result = parseEnvironmentValues({
+      PROXY_SERVER_CORS_ORIGIN: "https://my-app.example.com/app",
+    });
+
+    expect(result.PROXY_SERVER_CORS_ORIGIN).toStrictEqual([
+      "https://my-app.example.com",
+    ]);
   });
 });
