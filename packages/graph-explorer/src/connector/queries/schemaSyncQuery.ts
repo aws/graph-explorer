@@ -3,6 +3,7 @@ import { atom } from "jotai";
 
 import {
   activeConfigurationAtom,
+  type ConfigurationId,
   type PrefixTypeConfig,
   schemaAtom,
 } from "@/core";
@@ -18,7 +19,10 @@ import type { SchemaResponse } from "../useGEFetchTypes";
 
 import { getExplorer, getStore } from "./helpers";
 
-export const schemaSyncQueryKey = ["schema", "discovery"] as const;
+/** Returns the query key for the schema sync query for the given connection. */
+export function schemaSyncQueryKey(connectionId: ConfigurationId | null) {
+  return ["schema", "discovery", connectionId] as const;
+}
 
 /**
  * Fetches the schema from the given explorer and persists it to the local cache on success.
@@ -30,15 +34,18 @@ export const schemaSyncQueryKey = ["schema", "discovery"] as const;
  * a browser refresh and automatic retry is suppressed.
  */
 export function schemaSyncQuery({
+  connectionId,
   activeSchema,
   hasConnection,
 }: {
+  connectionId: ConfigurationId | null;
   activeSchema: SchemaStorageModel | undefined;
   hasConnection: boolean;
 }) {
   return queryOptions({
-    queryKey: schemaSyncQueryKey,
+    queryKey: schemaSyncQueryKey(connectionId),
     staleTime: Infinity,
+    retryOnMount: false,
     initialData: activeSchema,
     enabled: hasConnection && !activeSchema?.lastSyncFail,
     queryFn: async ({ signal, meta }) => {

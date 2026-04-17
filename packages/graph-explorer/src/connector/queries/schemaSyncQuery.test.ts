@@ -51,7 +51,11 @@ describe("schemaSyncQuery", () => {
     const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(
-      schemaSyncQuery({ activeSchema: undefined, hasConnection: true }),
+      schemaSyncQuery({
+        connectionId: store.get(activeConfigurationAtom),
+        activeSchema: undefined,
+        hasConnection: true,
+      }),
     );
 
     expect(result.vertices).toHaveLength(1);
@@ -72,7 +76,11 @@ describe("schemaSyncQuery", () => {
     const queryClient = createQueryClient();
 
     await queryClient.fetchQuery(
-      schemaSyncQuery({ activeSchema: undefined, hasConnection: true }),
+      schemaSyncQuery({
+        connectionId: store.get(activeConfigurationAtom),
+        activeSchema: undefined,
+        hasConnection: true,
+      }),
     );
 
     const activeConfigId = store.get(activeConfigurationAtom);
@@ -106,7 +114,11 @@ describe("schemaSyncQuery", () => {
     const queryClient = createQueryClient();
 
     await queryClient.fetchQuery(
-      schemaSyncQuery({ activeSchema: undefined, hasConnection: true }),
+      schemaSyncQuery({
+        connectionId: store.get(activeConfigurationAtom),
+        activeSchema: undefined,
+        hasConnection: true,
+      }),
     );
 
     // Verify old schema was replaced
@@ -119,11 +131,35 @@ describe("schemaSyncQuery", () => {
     const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(
-      schemaSyncQuery({ activeSchema: undefined, hasConnection: true }),
+      schemaSyncQuery({
+        connectionId: store.get(activeConfigurationAtom),
+        activeSchema: undefined,
+        hasConnection: true,
+      }),
     );
 
     expect(result.vertices).toStrictEqual([]);
     expect(result.edges).toStrictEqual([]);
+  });
+
+  it("should be disabled when hasConnection is false", () => {
+    const options = schemaSyncQuery({
+      connectionId: store.get(activeConfigurationAtom),
+      activeSchema: undefined,
+      hasConnection: false,
+    });
+
+    expect(options.enabled).toBe(false);
+  });
+
+  it("should be disabled when lastSyncFail is true", () => {
+    const options = schemaSyncQuery({
+      connectionId: store.get(activeConfigurationAtom),
+      activeSchema: { vertices: [], edges: [], lastSyncFail: true },
+      hasConnection: true,
+    });
+
+    expect(options.enabled).toBe(false);
   });
 
   it("should set lastSyncFail when fetch fails", async () => {
@@ -138,7 +174,11 @@ describe("schemaSyncQuery", () => {
 
     await expect(
       queryClient.fetchQuery(
-        schemaSyncQuery({ activeSchema: undefined, hasConnection: true }),
+        schemaSyncQuery({
+          connectionId: store.get(activeConfigurationAtom),
+          activeSchema: undefined,
+          hasConnection: true,
+        }),
       ),
     ).rejects.toThrow("Network error");
 
@@ -162,7 +202,11 @@ describe("schemaSyncQuery", () => {
 
     const queryClient = createQueryClient();
     await queryClient.fetchQuery(
-      schemaSyncQuery({ activeSchema: undefined, hasConnection: true }),
+      schemaSyncQuery({
+        connectionId: store.get(activeConfigurationAtom),
+        activeSchema: undefined,
+        hasConnection: true,
+      }),
     );
 
     const storedSchema = store.get(schemaAtom).get(activeConfigId);
@@ -184,7 +228,11 @@ describe("schemaSyncQuery", () => {
 
     const queryClient = createQueryClient();
     await queryClient.fetchQuery(
-      schemaSyncQuery({ activeSchema: undefined, hasConnection: true }),
+      schemaSyncQuery({
+        connectionId: store.get(activeConfigurationAtom),
+        activeSchema: undefined,
+        hasConnection: true,
+      }),
     );
 
     const storedSchema = store.get(schemaAtom).get(activeConfigId);
@@ -215,7 +263,11 @@ describe("schemaSyncQuery", () => {
 
     await expect(
       queryClient.fetchQuery(
-        schemaSyncQuery({ activeSchema: undefined, hasConnection: true }),
+        schemaSyncQuery({
+          connectionId: store.get(activeConfigurationAtom),
+          activeSchema: undefined,
+          hasConnection: true,
+        }),
       ),
     ).rejects.toThrow("Network error");
 
@@ -243,7 +295,11 @@ describe("schemaSyncQuery", () => {
     const queryClient = createQueryClient();
 
     await queryClient.fetchQuery(
-      schemaSyncQuery({ activeSchema: undefined, hasConnection: true }),
+      schemaSyncQuery({
+        connectionId: store.get(activeConfigurationAtom),
+        activeSchema: undefined,
+        hasConnection: true,
+      }),
     );
 
     const activeConfigId = store.get(activeConfigurationAtom);
@@ -260,7 +316,11 @@ describe("schemaSyncQuery", () => {
     const queryClient = createQueryClient();
 
     await queryClient.fetchQuery(
-      schemaSyncQuery({ activeSchema: undefined, hasConnection: true }),
+      schemaSyncQuery({
+        connectionId: store.get(activeConfigurationAtom),
+        activeSchema: undefined,
+        hasConnection: true,
+      }),
     );
 
     expect(fetchSchemaSpy).toHaveBeenCalledWith(
@@ -292,7 +352,11 @@ describe("schemaSyncQuery", () => {
     });
 
     const queryPromise = queryClient.fetchQuery(
-      schemaSyncQuery({ activeSchema: undefined, hasConnection: true }),
+      schemaSyncQuery({
+        connectionId: store.get(activeConfigurationAtom),
+        activeSchema: undefined,
+        hasConnection: true,
+      }),
     );
 
     // Cancel the query
@@ -310,7 +374,11 @@ describe("schemaSyncQuery", () => {
     const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(
-      schemaSyncQuery({ activeSchema: undefined, hasConnection: true }),
+      schemaSyncQuery({
+        connectionId: store.get(activeConfigurationAtom),
+        activeSchema: undefined,
+        hasConnection: true,
+      }),
     );
 
     expect(result.vertices.length).toBeGreaterThanOrEqual(2);
@@ -332,7 +400,11 @@ describe("schemaSyncQuery", () => {
     const queryClient = createQueryClient();
 
     const result = await queryClient.fetchQuery(
-      schemaSyncQuery({ activeSchema: undefined, hasConnection: true }),
+      schemaSyncQuery({
+        connectionId: store.get(activeConfigurationAtom),
+        activeSchema: undefined,
+        hasConnection: true,
+      }),
     );
 
     expect(result.totalVertices).toBe(100);
@@ -363,7 +435,11 @@ describe("schemaSyncQuery", () => {
 
     await expect(
       queryClient.fetchQuery(
-        schemaSyncQuery({ activeSchema: undefined, hasConnection: true }),
+        schemaSyncQuery({
+          connectionId: store.get(activeConfigurationAtom),
+          activeSchema: undefined,
+          hasConnection: true,
+        }),
       ),
     ).rejects.toThrow("Network error");
 
