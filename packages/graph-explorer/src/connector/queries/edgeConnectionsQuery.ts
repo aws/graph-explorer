@@ -35,6 +35,7 @@ export function edgeConnectionsQuery(
   return queryOptions({
     queryKey: ["schema", "edgeConnections", sortedEdgeTypes],
     staleTime: Infinity,
+    retryOnMount: false,
     enabled: activeSchema != null && !activeSchema.lastEdgeConnectionSyncFail,
     initialData: activeSchema?.edgeConnections,
     queryFn: async ({ signal, meta, client }) => {
@@ -65,7 +66,8 @@ export function edgeConnectionsQuery(
 
         // Update the cached schema for the schema sync query
         const newSchema = store.get(activeSchemaAtom);
-        client.setQueryData(schemaSyncQueryKey, newSchema);
+        const connectionId = store.get(activeConfigurationAtom);
+        client.setQueryData(schemaSyncQueryKey(connectionId), newSchema);
 
         return results.edgeConnections;
       } catch (error) {

@@ -1,7 +1,12 @@
 import { useIsFetching, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAtomValue } from "jotai";
 
 import { edgeConnectionsQuery, schemaSyncQuery } from "@/connector";
-import { useConfiguration, useMaybeActiveSchema } from "@/core";
+import {
+  activeConfigurationAtom,
+  maybeActiveSchemaAtom,
+  useConfiguration,
+} from "@/core";
 import { logger } from "@/utils";
 
 /** Returns true if any schema sync query is running. Will not trigger the query to run. */
@@ -31,10 +36,19 @@ export function useCancelSchemaSync() {
  */
 export function useSchemaSync() {
   const config = useConfiguration();
-  const activeSchema = useMaybeActiveSchema();
+  // Read the atom directly instead of useMaybeActiveSchema() because that hook
+  // wraps the value in useDeferredValue, which delays the update by one render.
+  // The schema and connectionId must update in the same render so the query
+  // options stay consistent when switching connections.
+  const activeSchema = useAtomValue(maybeActiveSchemaAtom);
+  const connectionId = useAtomValue(activeConfigurationAtom);
 
   const schemaDiscoveryQuery = useQuery(
-    schemaSyncQuery({ activeSchema, hasConnection: config != null }),
+    schemaSyncQuery({
+      connectionId,
+      activeSchema,
+      hasConnection: config != null,
+    }),
   );
   const edgeDiscoveryQuery = useQuery(
     edgeConnectionsQuery(schemaDiscoveryQuery.data),
