@@ -4,6 +4,7 @@
 
 - Add defaultStyling.json support for persistent per-type vertex and edge
   styling (#1265, #112, #173, #573, #689)
+- Add Lucide icon picker to node styling dialog
 
 ## Release 3.0.1
 
