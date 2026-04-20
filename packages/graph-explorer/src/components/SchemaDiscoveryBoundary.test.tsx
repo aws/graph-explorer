@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router";
 import { describe, expect, test, vi } from "vitest";
 
 import { SchemaDiscoveryBoundary } from "./SchemaDiscoveryBoundary";
@@ -9,6 +10,7 @@ vi.mock("@/core", async () => {
     ...actual,
     useHasActiveSchema: vi.fn(),
     useMaybeActiveSchema: vi.fn(),
+    useConfiguration: vi.fn(),
   };
 });
 
@@ -25,10 +27,15 @@ vi.mock("@/hooks", async () => {
   };
 });
 
-import { useHasActiveSchema, useMaybeActiveSchema } from "@/core";
+import {
+  useConfiguration,
+  useHasActiveSchema,
+  useMaybeActiveSchema,
+} from "@/core";
 import { useSchemaSync } from "@/hooks/useSchemaSync";
 import { createRandomEdgeConnection } from "@/utils/testing/randomData";
 
+const mockedUseConfiguration = vi.mocked(useConfiguration);
 const mockedUseHasActiveSchema = vi.mocked(useHasActiveSchema);
 const mockedUseMaybeActiveSchema = vi.mocked(useMaybeActiveSchema);
 const mockedUseSchemaSync = vi.mocked(useSchemaSync);
@@ -57,11 +64,16 @@ function createMockSchemaSync(
 
 function mockSchema({
   hasSchema = false,
+  hasConnection = true,
   edgeConnections,
 }: {
   hasSchema?: boolean;
+  hasConnection?: boolean;
   edgeConnections?: ReturnType<typeof createRandomEdgeConnection>[];
 } = {}) {
+  mockedUseConfiguration.mockReturnValue(
+    hasConnection ? ({} as ReturnType<typeof useConfiguration>) : undefined,
+  );
   mockedUseHasActiveSchema.mockReturnValue(hasSchema);
   mockedUseMaybeActiveSchema.mockReturnValue(
     hasSchema ? { vertices: [], edges: [], edgeConnections } : undefined,
@@ -69,18 +81,47 @@ function mockSchema({
 }
 
 describe("SchemaDiscoveryBoundary", () => {
+  function renderBoundary(props: { requireEdgeConnections?: boolean } = {}) {
+    return render(
+      <MemoryRouter>
+        <SchemaDiscoveryBoundary {...props}>
+          <div>Children</div>
+        </SchemaDiscoveryBoundary>
+      </MemoryRouter>,
+    );
+  }
+
+  describe("no active connection", () => {
+    test("renders no-connection state when no connection is configured", () => {
+      mockSchema({ hasConnection: false });
+      mockedUseSchemaSync.mockReturnValue(createMockSchemaSync());
+
+      renderBoundary();
+
+      expect(screen.getByText("No Connection")).toBeInTheDocument();
+      expect(screen.queryByText("No Schema Available")).not.toBeInTheDocument();
+      expect(screen.queryByText("Children")).not.toBeInTheDocument();
+    });
+
+    test("renders no-connection state even with requireEdgeConnections", () => {
+      mockSchema({ hasConnection: false });
+      mockedUseSchemaSync.mockReturnValue(createMockSchemaSync());
+
+      renderBoundary({ requireEdgeConnections: true });
+
+      expect(screen.getByText("No Connection")).toBeInTheDocument();
+      expect(screen.queryByText("Children")).not.toBeInTheDocument();
+    });
+  });
+
   describe("schema only (default)", () => {
     test("renders children when schema is available", () => {
       mockSchema({ hasSchema: true });
       mockedUseSchemaSync.mockReturnValue(createMockSchemaSync());
 
-      render(
-        <SchemaDiscoveryBoundary>
-          <div>Schema content</div>
-        </SchemaDiscoveryBoundary>,
-      );
+      renderBoundary();
 
-      expect(screen.getByText("Schema content")).toBeInTheDocument();
+      expect(screen.getByText("Children")).toBeInTheDocument();
     });
 
     test("renders loading state when schema is syncing", () => {
@@ -89,14 +130,10 @@ describe("SchemaDiscoveryBoundary", () => {
         createMockSchemaSync({ isFetching: true }),
       );
 
-      render(
-        <SchemaDiscoveryBoundary>
-          <div>Schema content</div>
-        </SchemaDiscoveryBoundary>,
-      );
+      renderBoundary();
 
       expect(screen.getByText("Synchronizing...")).toBeInTheDocument();
-      expect(screen.queryByText("Schema content")).not.toBeInTheDocument();
+      expect(screen.queryByText("Children")).not.toBeInTheDocument();
     });
 
     test("renders loading state when isFetching with existing schema", () => {
@@ -105,14 +142,10 @@ describe("SchemaDiscoveryBoundary", () => {
         createMockSchemaSync({ isFetching: true }),
       );
 
-      render(
-        <SchemaDiscoveryBoundary>
-          <div>Schema content</div>
-        </SchemaDiscoveryBoundary>,
-      );
+      renderBoundary();
 
       expect(screen.getByText("Synchronizing...")).toBeInTheDocument();
-      expect(screen.queryByText("Schema content")).not.toBeInTheDocument();
+      expect(screen.queryByText("Children")).not.toBeInTheDocument();
     });
 
     test("renders error state when schema sync fails", () => {
@@ -129,27 +162,19 @@ describe("SchemaDiscoveryBoundary", () => {
         }),
       );
 
-      render(
-        <SchemaDiscoveryBoundary>
-          <div>Schema content</div>
-        </SchemaDiscoveryBoundary>,
-      );
+      renderBoundary();
 
-      expect(screen.queryByText("Schema content")).not.toBeInTheDocument();
+      expect(screen.queryByText("Children")).not.toBeInTheDocument();
     });
 
     test("renders no-schema state when no schema exists", () => {
       mockSchema();
       mockedUseSchemaSync.mockReturnValue(createMockSchemaSync());
 
-      render(
-        <SchemaDiscoveryBoundary>
-          <div>Schema content</div>
-        </SchemaDiscoveryBoundary>,
-      );
+      renderBoundary();
 
       expect(screen.getByText("No Schema Available")).toBeInTheDocument();
-      expect(screen.queryByText("Schema content")).not.toBeInTheDocument();
+      expect(screen.queryByText("Children")).not.toBeInTheDocument();
     });
   });
 
@@ -161,11 +186,7 @@ describe("SchemaDiscoveryBoundary", () => {
       });
       mockedUseSchemaSync.mockReturnValue(createMockSchemaSync());
 
-      render(
-        <SchemaDiscoveryBoundary requireEdgeConnections>
-          <div>Children</div>
-        </SchemaDiscoveryBoundary>,
-      );
+      renderBoundary({ requireEdgeConnections: true });
 
       expect(screen.getByText("Children")).toBeInTheDocument();
     });
@@ -187,11 +208,7 @@ describe("SchemaDiscoveryBoundary", () => {
         }),
       );
 
-      render(
-        <SchemaDiscoveryBoundary requireEdgeConnections>
-          <div>Children</div>
-        </SchemaDiscoveryBoundary>,
-      );
+      renderBoundary({ requireEdgeConnections: true });
 
       expect(screen.getByText("Children")).toBeInTheDocument();
     });
@@ -202,11 +219,7 @@ describe("SchemaDiscoveryBoundary", () => {
         createMockSchemaSync({ isFetching: true }),
       );
 
-      render(
-        <SchemaDiscoveryBoundary requireEdgeConnections>
-          <div>Children</div>
-        </SchemaDiscoveryBoundary>,
-      );
+      renderBoundary({ requireEdgeConnections: true });
 
       expect(screen.getByText("Synchronizing...")).toBeInTheDocument();
       expect(screen.queryByText("Children")).not.toBeInTheDocument();
@@ -226,11 +239,7 @@ describe("SchemaDiscoveryBoundary", () => {
         }),
       );
 
-      render(
-        <SchemaDiscoveryBoundary requireEdgeConnections>
-          <div>Children</div>
-        </SchemaDiscoveryBoundary>,
-      );
+      renderBoundary({ requireEdgeConnections: true });
 
       expect(screen.queryByText("Children")).not.toBeInTheDocument();
       expect(
@@ -252,11 +261,7 @@ describe("SchemaDiscoveryBoundary", () => {
         }),
       );
 
-      render(
-        <SchemaDiscoveryBoundary requireEdgeConnections>
-          <div>Children</div>
-        </SchemaDiscoveryBoundary>,
-      );
+      renderBoundary({ requireEdgeConnections: true });
 
       expect(screen.queryByText("Children")).not.toBeInTheDocument();
       expect(
@@ -268,11 +273,7 @@ describe("SchemaDiscoveryBoundary", () => {
       mockSchema({ hasSchema: true, edgeConnections: undefined });
       mockedUseSchemaSync.mockReturnValue(createMockSchemaSync());
 
-      render(
-        <SchemaDiscoveryBoundary requireEdgeConnections>
-          <div>Children</div>
-        </SchemaDiscoveryBoundary>,
-      );
+      renderBoundary({ requireEdgeConnections: true });
 
       expect(
         screen.getByText("No edge-connections Available"),
@@ -284,11 +285,7 @@ describe("SchemaDiscoveryBoundary", () => {
       mockSchema();
       mockedUseSchemaSync.mockReturnValue(createMockSchemaSync());
 
-      render(
-        <SchemaDiscoveryBoundary requireEdgeConnections>
-          <div>Children</div>
-        </SchemaDiscoveryBoundary>,
-      );
+      renderBoundary({ requireEdgeConnections: true });
 
       expect(screen.getByText("No Schema Available")).toBeInTheDocument();
       expect(screen.queryByText("Children")).not.toBeInTheDocument();

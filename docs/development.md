@@ -97,7 +97,31 @@ This repository is composed by 3 packages and a mono-repository structure itself
 
 Each of these `package.json` files has an independent `version` property. However, in this project we should keep them correlated. Therefore, when a new release version is being prepared, the version number should be increased in all 4 files. Regarding the version number displayed in the user interface, it is specifically extracted from the `<root>/packages/graph-explorer/package.json`. file
 
+### Supply chain security
+
+The `pnpm-workspace.yaml` file includes several settings that harden the project against supply chain attacks. These may cause `pnpm install` to fail when adding new dependencies, which is intentional.
+
+- **`minimumReleaseAge`** — Newly published package versions are blocked for 24 hours, giving the community time to discover and report compromised releases.
+- **`strictDepBuilds`** — Any dependency that tries to run a build script (e.g. `postinstall`) will cause installation to fail unless it is explicitly listed in `onlyBuiltDependencies` or `ignoredBuiltDependencies`.
+- **`blockExoticSubdeps`** — Transitive dependencies cannot resolve to git repositories or raw tarball URLs. Only direct dependencies in `package.json` may use exotic sources.
+- **`trustPolicy`** — Refuses to install a package version whose publish-time trust evidence (provenance, signatures) is weaker than a previously published version of that package.
+
+If `pnpm install` fails due to one of these checks, evaluate whether the dependency is safe and update `pnpm-workspace.yaml` accordingly.
+
+### Local environment overrides
+
+Create a `.env.local` file in `packages/graph-explorer/` to override environment variables without modifying tracked files. This file is gitignored and will not be committed.
+
+Example `packages/graph-explorer/.env.local`:
+
+```
+GRAPH_EXP_DEV_PORT=5174
+PROXY_SERVER_HTTP_PORT=8082
+```
+
 ### Environment variables
+
+For development-only variables like `GRAPH_EXP_DEV_PORT`, see [Development-only environment variables](#development-only-environment-variables).
 
 #### `GRAPH_EXP_ENV_ROOT_FOLDER`
 
@@ -150,6 +174,38 @@ Uses the self-signed certificate to serve the proxy-server over https if true.
 - Optional
 - Default `false` in code, `true` in Docker via the entrypoint script
 - Type: `boolean`
+
+#### `PROXY_SERVER_CORS_ORIGIN`
+
+Restricts which origins are allowed to make cross-origin requests to the proxy server. When set, only requests from these exact origins will receive CORS headers. When not set, all origins are allowed. Each origin must include the scheme and must not have a trailing slash or path.
+
+Example: `https://my-app.example.com` or `https://app-a.example.com,https://app-b.example.com`
+
+- Optional
+- Default: all origins allowed
+- Type: `string` (comma-separated for multiple origins)
+
+#### `CONFIGURATION_FOLDER_PATH`
+
+Override path for the folder containing `.env` and `defaultConnection.json`. When set, replaces the default path entirely.
+
+- Optional
+- Default: `<client root>` (`packages/graph-explorer`)
+- Type: `string`
+
+### Development-only environment variables
+
+These variables only affect the local development server (`pnpm dev`) and have no effect on production builds or Docker.
+
+#### `GRAPH_EXP_DEV_PORT`
+
+Sets a fixed port for the Vite development server. When set, `strictPort` is enabled — Vite will fail with an error if the port is already in use rather than silently selecting another port. This ensures the dev server runs on the exact port you intend.
+
+Example: `5174`
+
+- Optional
+- Default: Vite's default behavior (auto-selects an available port starting at 5173)
+- Type: `number`
 
 ### Using self-signed certificates with Docker
 

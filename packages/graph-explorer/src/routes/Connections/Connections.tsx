@@ -1,6 +1,3 @@
-import { useAtomValue } from "jotai";
-import { useState } from "react";
-
 import {
   NavBar,
   NavBarContent,
@@ -14,15 +11,13 @@ import {
   WorkspaceContent,
 } from "@/components";
 import GraphExplorerIcon from "@/components/icons/GraphExplorerIcon";
-import { configurationAtom, useConfiguration } from "@/core";
+import { useConfiguration } from "@/core";
 import { useIsSyncing } from "@/hooks/useSchemaSync";
 import AvailableConnections from "@/modules/AvailableConnections";
 import ConnectionDetail from "@/modules/ConnectionDetail";
 
 export default function Connections() {
   const config = useConfiguration();
-  const configuration = useAtomValue(configurationAtom);
-  const [isModalOpen, setModal] = useState(configuration.size === 0);
   const isSyncing = useIsSyncing();
 
   return (
@@ -39,11 +34,7 @@ export default function Connections() {
       <WorkspaceContent>
         <PanelGroup className="grid grid-cols-2 gap-2">
           <div className="h-full grow">
-            <AvailableConnections
-              isSync={isSyncing}
-              isModalOpen={isModalOpen}
-              onModalChange={setModal}
-            />
+            <AvailableConnections isSync={isSyncing} />
           </div>
           {config ? (
             <div className="h-full grow">

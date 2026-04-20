@@ -13,6 +13,7 @@ export * from "./cn";
 export * from "./env";
 export * from "./constants";
 export * from "./NetworkError";
+export * from "./ServerConnectionError";
 export * from "./formatEntityCounts";
 export * from "./formatRelativeDate";
 export * from "./numbers";

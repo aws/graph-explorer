@@ -11,7 +11,7 @@ import {
 import { logger } from "@/utils";
 
 import { getExplorer, getStore } from "./helpers";
-import { schemaSyncQuery } from "./schemaSyncQuery";
+import { schemaSyncQueryKey } from "./schemaSyncQuery";
 
 /**
  * Fetches edge connections for the edge types in the active schema and persists
@@ -35,6 +35,7 @@ export function edgeConnectionsQuery(
   return queryOptions({
     queryKey: ["schema", "edgeConnections", sortedEdgeTypes],
     staleTime: Infinity,
+    retryOnMount: false,
     enabled: activeSchema != null && !activeSchema.lastEdgeConnectionSyncFail,
     initialData: activeSchema?.edgeConnections,
     queryFn: async ({ signal, meta, client }) => {
@@ -65,7 +66,8 @@ export function edgeConnectionsQuery(
 
         // Update the cached schema for the schema sync query
         const newSchema = store.get(activeSchemaAtom);
-        client.setQueryData(schemaSyncQuery(activeSchema).queryKey, newSchema);
+        const connectionId = store.get(activeConfigurationAtom);
+        client.setQueryData(schemaSyncQueryKey(connectionId), newSchema);
 
         return results.edgeConnections;
       } catch (error) {

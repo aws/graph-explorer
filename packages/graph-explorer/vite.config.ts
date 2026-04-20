@@ -1,6 +1,5 @@
-/// <reference types="vitest" />
-import react from "@vitejs/plugin-react";
-import tsconfigPaths from "vite-tsconfig-paths";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import { loadEnv, type PluginOption } from "vite";
 import { coverageConfigDefaults, defineConfig } from "vitest/config";
@@ -33,6 +32,8 @@ export default defineConfig(({ mode }) => {
   return {
     server: {
       host: true,
+      port: Number(env.GRAPH_EXP_DEV_PORT) || undefined,
+      strictPort: !!env.GRAPH_EXP_DEV_PORT,
       watch: {
         ignored: ["**/*.test.ts", "**/*.test.tsx"],
       },
@@ -54,22 +55,16 @@ export default defineConfig(({ mode }) => {
       __GRAPH_EXP_VERSION__: JSON.stringify(process.env.npm_package_version),
     },
     plugins: [
-      tsconfigPaths(),
       htmlPlugin(),
       tailwindcss(),
-      react({
-        babel: {
-          plugins: [
-            [
-              "babel-plugin-react-compiler",
-              {
-                target: "19", // '17' | '18' | '19'
-              },
-            ],
-          ],
-        },
+      react(),
+      babel({
+        presets: [reactCompilerPreset()],
       }),
     ],
+    resolve: {
+      tsconfigPaths: true,
+    },
     test: {
       environment: "happy-dom",
       globals: true,

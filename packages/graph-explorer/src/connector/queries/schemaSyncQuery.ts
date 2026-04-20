@@ -3,6 +3,7 @@ import { atom } from "jotai";
 
 import {
   activeConfigurationAtom,
+  type ConfigurationId,
   type PrefixTypeConfig,
   schemaAtom,
 } from "@/core";
@@ -18,6 +19,11 @@ import type { SchemaResponse } from "../useGEFetchTypes";
 
 import { getExplorer, getStore } from "./helpers";
 
+/** Returns the query key for the schema sync query for the given connection. */
+export function schemaSyncQueryKey(connectionId: ConfigurationId | null) {
+  return ["schema", "discovery", connectionId] as const;
+}
+
 /**
  * Fetches the schema from the given explorer and persists it to the local cache on success.
  *
@@ -27,13 +33,21 @@ import { getExplorer, getStore } from "./helpers";
  * On failure, persists `lastSyncFail` so the UI can show the failure after
  * a browser refresh and automatic retry is suppressed.
  */
-export function schemaSyncQuery(activeSchema: SchemaStorageModel | undefined) {
+export function schemaSyncQuery({
+  connectionId,
+  activeSchema,
+  hasConnection,
+}: {
+  connectionId: ConfigurationId | null;
+  activeSchema: SchemaStorageModel | undefined;
+  hasConnection: boolean;
+}) {
   return queryOptions({
-    queryKey: ["schema", "discovery"],
+    queryKey: schemaSyncQueryKey(connectionId),
     staleTime: Infinity,
+    retryOnMount: false,
     initialData: activeSchema,
-    // Don't automatically retry if the last sync failed (persisted across sessions)
-    enabled: !activeSchema?.lastSyncFail,
+    enabled: hasConnection && !activeSchema?.lastSyncFail,
     queryFn: async ({ signal, meta }) => {
       const explorer = getExplorer(meta);
       const store = getStore(meta);
