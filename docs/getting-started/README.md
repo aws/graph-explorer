@@ -1,27 +1,45 @@
 # Getting Started
 
-This project contains the code needed to create a Docker image of the Graph Explorer. The image will create the Graph Explorer application and proxy server that will be served over the standard HTTP or HTTPS ports (HTTPS by default).
+Graph Explorer is distributed as a Docker image. The image includes the Graph Explorer web application and a proxy server that handles connections to your graph database.
 
-The proxy server will be created automatically, but will only be necessary if you are connecting to Neptune. Gremlin-Server and BlazeGraph can be connected to directly. Additionally, the image will create a self-signed certificate that can be optionally used.
+## Try It Out
 
-## Examples
+The fastest way to try Graph Explorer is with the [Air Routes sample](../../samples/air_routes/readme.md). It launches Graph Explorer and a Gremlin Server pre-loaded with sample data using Docker Compose — no database setup or AWS account required.
 
-### Local Docker Setup
+### Prerequisites
 
-The quickest way to get started with Graph Explorer is to use the official Docker image. You can find the latest version of the image on  
-[Amazon's ECR Public Registry](https://gallery.ecr.aws/neptune/graph-explorer).
+- [Docker](https://docs.docker.com/get-docker/) installed on your machine
+
+### Steps
+
+1. Clone the repository
+   ```
+   git clone https://github.com/aws/graph-explorer.git
+   ```
+2. Navigate to the sample directory and start the containers
+   ```
+   cd graph-explorer/samples/air_routes
+   docker compose up
+   ```
+3. Open the browser and navigate to: [http://localhost:8080/explorer](http://localhost:8080/explorer)
+
+See the [samples directory](../../samples) for more examples.
+
+## Local Docker Setup
+
+Use the official Docker image to run Graph Explorer on your machine. You can find the latest version of the image on [Amazon's ECR Public Registry](https://gallery.ecr.aws/neptune/graph-explorer).
 
 <!-- prettier-ignore -->
 > [!NOTE]
-> 
+>
 > Make sure to use the version of the image that does not include `sagemaker` in the tag.
 
-#### Prerequisites
+### Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) installed on your machine
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) installed on your machine
 
-#### Steps
+### Steps
 
 1. Authenticate with the Amazon ECR Public Registry. [More information](https://docs.aws.amazon.com/AmazonECR/latest/public/public-registries.html#public-registry-auth)
 
@@ -55,7 +73,7 @@ The quickest way to get started with Graph Explorer is to use the official Docke
 5. You will receive a warning as the SSL certificate used is self-signed. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See the [HTTPS Connections](../guides/troubleshooting.md#https-connections) section.
 6. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See below description on Connections UI to configure your first connection to Amazon Neptune.
 
-#### Gremlin Server Database
+### Connecting to Gremlin Server
 
 Gremlin Server is an easy way to get started with graph databases. This example will configure a simple Gremlin Server instance to be used with Graph Explorer. It comes with a very small graph dataset.
 
@@ -79,11 +97,11 @@ Gremlin Server is an easy way to get started with graph databases. This example 
 
 ## Amazon EC2 Setup
 
-The following instructions detail how to deploy graph-explorer onto an Amazon EC2 instance and use it as a proxy server with SSH tunneling to connect to Amazon Neptune.
+Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server with SSH tunneling to connect to Amazon Neptune.
 
 <!-- prettier-ignore -->
 > [!NOTE]
-> 
+>
 > This documentation is not an official recommendation on
 network setups as there are many ways to connect to Amazon Neptune from outside
 of the VPC, such as setting up a load balancer or VPC peering.
@@ -94,8 +112,6 @@ of the VPC, such as setting up a load balancer or VPC peering.
 - Ensure the Amazon EC2 instance can send and receive on ports `22` (SSH), `8182` (Neptune), and `443` or `80` depending on protocol used (graph-explorer).
 
 ### Steps
-
-These steps describe how to install Graph Explorer on your Amazon EC2 instance.
 
 1. Open an SSH client and connect to the EC2 instance.
 2. Download and install the necessary command line tools such as [Git](https://git-scm.com/downloads) and [Docker](https://docs.docker.com/get-docker/).
@@ -118,22 +134,22 @@ These steps describe how to install Graph Explorer on your Amazon EC2 instance.
 > If you receive an error relating to the docker service not running, run
 > `service docker start`.
 
-4. Run the container substituting the `{hostname-or-ip-address}` with the hostname or IP address of the EC2 instance.
+6. Run the container substituting the `{hostname-or-ip-address}` with the hostname or IP address of the EC2 instance.
    ```
    docker run -p 80:80 -p 443:443 \
     --env HOST={hostname-or-ip-address} \
     graph-explorer
    ```
-5. Navigate to the public URL of your EC2 instance accessing the `/explorer` endpoint. You will receive a warning as the SSL certificate used is self-signed. The URL will look like this:
+7. Navigate to the public URL of your EC2 instance accessing the `/explorer` endpoint. You will receive a warning as the SSL certificate used is self-signed. The URL will look like this:
    ```
    https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com/explorer
    ```
-6. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See [HTTPS Connections](../guides/troubleshooting.md#https-connections) section.
-7. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI.
+8. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See [HTTPS Connections](../guides/troubleshooting.md#https-connections) section.
+9. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI.
 
 ## Local Development Setup
 
-You can build the Docker image locally by following the steps below.
+Build the Docker image locally from source code.
 
 ### Prerequisites
 
