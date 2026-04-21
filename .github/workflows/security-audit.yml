@@ -27,6 +27,7 @@ jobs:
         with:
           scan-type: fs
           scan-ref: .
+          vuln-type: library
           format: sarif
           output: trivy-fs-results.sarif
 
@@ -49,6 +50,7 @@ jobs:
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # v0.35.0
         with:
           image-ref: public.ecr.aws/neptune/graph-explorer:latest-SNAPSHOT
+          vuln-type: os
           format: sarif
           output: trivy-image-results.sarif
 
