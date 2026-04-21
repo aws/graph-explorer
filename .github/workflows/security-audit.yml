@@ -31,7 +31,7 @@ jobs:
           output: trivy-fs-results.sarif
 
       - name: Upload Trivy filesystem results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-fs-results.sarif
           category: dependency-scan
@@ -56,7 +56,7 @@ jobs:
           output: trivy-image-results.sarif
 
       - name: Upload Trivy image results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-image-results.sarif
           category: docker-image-scan
