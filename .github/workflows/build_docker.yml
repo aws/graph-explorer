@@ -18,6 +18,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
@@ -32,13 +36,12 @@ jobs:
 
       - name: Get image tag
         id: get-image-tag
+        env:
+          IS_RELEASE: ${{ github.event_name == 'workflow_dispatch' && inputs.image_tag == 'release' }}
+          VERSION: ${{ steps.package-version.outputs.version }}
         run: |
-          if ${{ github.event_name == 'workflow_dispatch' }} ; then
-            if ${{ inputs.image_tag == 'release'}}; then
-              echo "image_tag=${{ steps.package-version.outputs.version }}" >> $GITHUB_OUTPUT
-            else
-              echo "image_tag=latest-SNAPSHOT" >> $GITHUB_OUTPUT
-            fi
+          if [ "$IS_RELEASE" = "true" ]; then
+            echo "image_tag=$VERSION" >> $GITHUB_OUTPUT
           else
             echo "image_tag=latest-SNAPSHOT" >> $GITHUB_OUTPUT
           fi
