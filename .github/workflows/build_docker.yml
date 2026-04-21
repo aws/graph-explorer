@@ -47,7 +47,7 @@ jobs:
           fi
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4
+        uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ECR }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ECR }}
@@ -58,7 +58,7 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr-public
-        uses: aws-actions/amazon-ecr-login@376925c9d111252e87ae59691e5a442dd100ef6a # v2
+        uses: aws-actions/amazon-ecr-login@376925c9d111252e87ae59691e5a442dd100ef6a # v2.1.3
         with:
           registry-type: public
 
