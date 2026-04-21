@@ -45,9 +45,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Pull latest image from ECR Public
-        run: docker pull public.ecr.aws/neptune/graph-explorer:latest-SNAPSHOT
-
       - name: Scan Docker image for vulnerabilities
         uses: aquasecurity/trivy-action@v0.35.0
         with:
