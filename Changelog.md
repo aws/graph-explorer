@@ -2,9 +2,9 @@
 
 ## Release 3.0.2
 
-This patch release fixes a bug where switching between connections could show stale schema information and adds a new configuration option for controlling allowed origins.
+This patch release fixes a bug where schema sync did not automatically trigger when switching connections and adds a new configuration option for controlling allowed origins.
 
-- **Bug fix** — switching between database connections now correctly refreshes the schema instead of showing outdated information from the previous connection
+- **Bug fix** — schema sync now automatically triggers when switching to a connection that has no cached schema
 - **Configuration** — new `PROXY_SERVER_CORS_ORIGIN` environment variable lets you explicitly control which origins are allowed to connect to the proxy server. See the [Security documentation](https://github.com/aws/graph-explorer/blob/v3.0.2/docs/references/security.md#cors) for details.
 
 ### All Changes
