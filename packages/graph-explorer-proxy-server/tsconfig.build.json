@@ -4,6 +4,7 @@
   "compilerOptions": {
     "types": ["node"],
     "outDir": "./dist",
-    "noEmit": false
+    "noEmit": false,
+    "sourceMap": true
   }
 }
