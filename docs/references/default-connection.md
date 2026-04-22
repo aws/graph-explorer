@@ -30,7 +30,7 @@ First, create a `config.json` file containing values for the connection attribut
 ```js
 {
   "PUBLIC_OR_PROXY_ENDPOINT": "https://public-endpoint",
-  "GRAPH_CONNECTION_URL": "https://cluster-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182",
+  "GRAPH_CONNECTION_URL": "https://{your-cluster-id}.us-west-2.neptune.amazonaws.com:8182",
   "USING_PROXY_SERVER": true,
   "IAM": true,
   "SERVICE_TYPE": "neptune-db",
@@ -65,7 +65,7 @@ docker run -p 80:80 -p 443:443 \
  --env GRAPH_TYPE=gremlin \
  --env USING_PROXY_SERVER=true \
  --env IAM=false \
- --env GRAPH_CONNECTION_URL=https://cluster-cqmizgqgrsbf.us-west-2.neptune.amazonaws.com:8182 \
+ --env GRAPH_CONNECTION_URL=https://{your-cluster-id}.us-west-2.neptune.amazonaws.com:8182 \
  --env AWS_REGION=us-west-2 \
  --env SERVICE_TYPE=neptune-db \
  --env PROXY_SERVER_HTTPS_CONNECTION=true \
