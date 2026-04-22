@@ -1,3 +1,5 @@
+[← Guides](./)
+
 # Connecting to BlazeGraph
 
 - Build and run the Docker container as normal and connect Graph Explorer to BlazeGraph through the proxy server.
