@@ -59,13 +59,14 @@ describe("useFiltersConfig", () => {
     ];
     const { result } = renderFilterConfigHook();
 
-    expect(result.current.vertexTypes.map(vt => vt.text as string)).toEqual([
+    expect(result.current.vertexTypes.map(vt => vt.text)).toEqual([
       "Movie",
       "Person",
     ]);
-    expect(result.current.connectionTypes.map(vt => vt.text as string)).toEqual(
-      ["ACTED_IN", "DIRECTED"],
-    );
+    expect(result.current.connectionTypes.map(vt => vt.text)).toEqual([
+      "ACTED_IN",
+      "DIRECTED",
+    ]);
   });
 
   it("should have all edges in checkboxes", () => {

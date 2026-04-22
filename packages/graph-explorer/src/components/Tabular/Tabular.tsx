@@ -148,7 +148,6 @@ const TabularContent = <T extends object>({
 
   useEffect(() => {
     if (!headerControlsRef.current || headerControlsPosition !== "sticky") {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStickyHeaderTop(0);
       return;
     }

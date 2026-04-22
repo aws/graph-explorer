@@ -338,7 +338,7 @@ export function createTestableVertex() {
           return createInternal(testable);
         }
         return createInternal({
-          id: createRandomUrlString() as VertexId,
+          id: createRandomUrlString(),
           types: createArray(3, createRandomUrlString),
           attributes: createRecord(3, createRandomEntityAttributeForRdf),
           isBlankNode: options?.isBlankNode ?? false,
