@@ -1,3 +1,5 @@
+[← Guides](./)
+
 # Connecting to Neptune
 
 - Ensure that Graph Explorer has access to the Neptune instance by being in the same VPC or VPC peering.
