@@ -6,4 +6,4 @@ These samples show possible configurations of Graph Explorer using open source d
 
 This sample uses Gremlin Server as the database pre-loaded with the air routes sample data and shows how to configure Graph Explorer to connect to it automatically with a default connection.
 
-[Air Routes](./air_routes/readme.md)
+[Air Routes](./air_routes/README.md)
