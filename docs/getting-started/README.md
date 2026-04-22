@@ -1,8 +1,29 @@
 # Getting Started
 
-This project contains the code needed to create a Docker image of the Graph Explorer. The image will create the Graph Explorer application and proxy server that will be served over the standard HTTP or HTTPS ports (HTTPS by default).
+Graph Explorer is distributed as a Docker image. The image includes the Graph Explorer web application and a proxy server that handles connections to your graph database.
 
-The proxy server will be created automatically, but will only be necessary if you are connecting to Neptune. Gremlin-Server and BlazeGraph can be connected to directly. Additionally, the image will create a self-signed certificate that can be optionally used.
+## Try It Out
+
+The fastest way to try Graph Explorer is with the [Air Routes sample](../../samples/air_routes/readme.md). It launches Graph Explorer and a Gremlin Server pre-loaded with sample data using Docker Compose — no database setup or AWS account required.
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) installed on your machine
+
+### Steps
+
+1. Clone the repository
+   ```
+   git clone https://github.com/aws/graph-explorer.git
+   ```
+2. Navigate to the sample directory and start the containers
+   ```
+   cd graph-explorer/samples/air_routes
+   docker compose up
+   ```
+3. Open the browser and navigate to: [http://localhost:8080/explorer](http://localhost:8080/explorer)
+
+See the [samples directory](../../samples) for more examples.
 
 ## Examples
 
