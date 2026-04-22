@@ -32,6 +32,7 @@ Run Graph Explorer wherever it fits your workflow: as a Docker container, on an 
 
 ## Learn More
 
+- [Documentation](./docs) - Full documentation index
 - [Getting Started](./docs/getting-started/README.md) - Set up Graph Explorer with Docker, EC2, or from source
 - [Features Overview](./docs/features/README.md) - Detailed guide to all features and functionality
 - [Guides](./docs/guides) - Database connections, deployment, and troubleshooting
