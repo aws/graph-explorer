@@ -74,6 +74,26 @@ The recommended way to serve Graph Explorer is using the proxy server.
 pnpm start
 ```
 
+### Build and run with Docker
+
+You can also build and run Graph Explorer as a Docker image from source.
+
+```bash
+docker build -t graph-explorer .
+```
+
+Run the container with HTTPS disabled for local use:
+
+```bash
+docker run -p 80:80 \
+  --name graph-explorer \
+  --env PROXY_SERVER_HTTPS_CONNECTION=false \
+  --env GRAPH_EXP_HTTPS_CONNECTION=false \
+  graph-explorer
+```
+
+Then open [http://localhost/explorer](http://localhost/explorer) in your browser.
+
 ### Managing dependencies
 
 If you need to add, remove, or update a dependency you can easily do so from the root folder in the CLI:
