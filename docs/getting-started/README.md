@@ -4,7 +4,7 @@ Graph Explorer is distributed as a Docker image. The image includes the Graph Ex
 
 ## Try It Out
 
-The fastest way to try Graph Explorer is with the [Air Routes sample](../../samples/air_routes/readme.md). It launches Graph Explorer and a Gremlin Server pre-loaded with sample data using Docker Compose — no database setup or AWS account required.
+The fastest way to try Graph Explorer is with the [Air Routes sample](../../samples/air_routes/README.md). It launches Graph Explorer and a Gremlin Server pre-loaded with sample data using Docker Compose — no database setup or AWS account required.
 
 ### Prerequisites
 

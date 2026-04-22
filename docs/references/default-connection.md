@@ -27,7 +27,7 @@ These are the valid environment variables used for the default connection, their
 
 First, create a `config.json` file containing values for the connection attributes:
 
-```js
+```json
 {
   "PUBLIC_OR_PROXY_ENDPOINT": "https://public-endpoint",
   "GRAPH_CONNECTION_URL": "https://{your-cluster-id}.us-west-2.neptune.amazonaws.com:8182",
@@ -35,15 +35,15 @@ First, create a `config.json` file containing values for the connection attribut
   "IAM": true,
   "SERVICE_TYPE": "neptune-db",
   "AWS_REGION": "us-west-2",
-  // Possible Values are "gremlin", "sparql", "openCypher"
   "GRAPH_TYPE": "gremlin",
   "GRAPH_EXP_HTTPS_CONNECTION": true,
   "PROXY_SERVER_HTTPS_CONNECTION": true,
-  // Measured in milliseconds (i.e. 240000 is 240 seconds or 4 minutes)
   "GRAPH_EXP_FETCH_REQUEST_TIMEOUT": 240000,
-  "GRAPH_EXP_NODE_EXPANSION_LIMIT": 500,
+  "GRAPH_EXP_NODE_EXPANSION_LIMIT": 500
 }
 ```
+
+`GRAPH_TYPE` accepts `"gremlin"`, `"sparql"`, or `"openCypher"`. `GRAPH_EXP_FETCH_REQUEST_TIMEOUT` is measured in milliseconds (e.g., 240000 is 4 minutes).
 
 Pass the `config.json` file path to the `docker run` command.
 
