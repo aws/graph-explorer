@@ -1,6 +1,6 @@
 import { atom, useAtomValue, useSetAtom } from "jotai";
 
-import { type CheckboxListItemProps, VertexIconByType } from "@/components";
+import { VertexIconByType } from "@/components";
 import { EdgeIcon } from "@/components/icons";
 import {
   edgesTypesFilteredAtom,
@@ -93,7 +93,7 @@ const useFiltersConfig = () => {
         id: vertexConfig.type,
         text: vertexConfig.displayLabel,
         endAdornment: <VertexIconByType vertexType={vertexConfig.type} />,
-      } as CheckboxListItemProps;
+      };
     })
     .toArray();
 
@@ -104,7 +104,7 @@ const useFiltersConfig = () => {
         id: edgeConfig.type,
         text: edgeConfig.displayLabel,
         endAdornment: <EdgeIcon />,
-      } as CheckboxListItemProps;
+      };
     })
     .toArray();
 

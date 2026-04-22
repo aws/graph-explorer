@@ -26,7 +26,7 @@ export default function useNeighborsOptions(
     .map(([type, neighbors]) => {
       const vtConfig = getVtConfig(type);
 
-      return <NeighborOption>{
+      return {
         label: vtConfig.displayLabel,
         value: vtConfig.type,
         isDisabled: neighbors.unfetched === 0,
