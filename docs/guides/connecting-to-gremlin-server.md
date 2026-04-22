@@ -9,6 +9,14 @@ docker run -p 8182:8182 \
     conf/gremlin-server-rest-modern.yaml
 ```
 
+Then open Graph Explorer and add a new connection with the following settings:
+
+- Name: `Gremlin Server`
+- Query Language: `Gremlin`
+- Public or Proxy Endpoint: `https://localhost`
+- Using Proxy Server: `true`
+- Graph Connection URL: `http://localhost:8182`
+
 ## Enable REST
 
 Graph Explorer only supports HTTP(S) connections. When connecting to Gremlin-Server, ensure it is configured with a channelizer that supports HTTP(S) (i.e. [Channelizer Documentation](https://tinkerpop.apache.org/javadocs/current/full/org/apache/tinkerpop/gremlin/server/Channelizer.html)).

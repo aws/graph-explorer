@@ -76,28 +76,6 @@ The quickest way to get started with Graph Explorer is to use the official Docke
 5. You will receive a warning as the SSL certificate used is self-signed. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See the [HTTPS Connections](../guides/troubleshooting.md#https-connections) section.
 6. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See below description on Connections UI to configure your first connection to Amazon Neptune.
 
-#### Gremlin Server Database
-
-Gremlin Server is an easy way to get started with graph databases. This example will configure a simple Gremlin Server instance to be used with Graph Explorer. It comes with a very small graph dataset.
-
-1. Pull the latest Gremlin Server image from Docker Hub.
-   ```
-   docker pull tinkerpop/gremlin-server:latest
-   ```
-2. Create and run the Gremlin Server container using the HTTP REST modern configuration.
-   ```
-   docker run -p 8182:8182 \
-     --name gremlin-server \
-     tinkerpop/gremlin-server:latest \
-     conf/gremlin-server-rest-modern.yaml
-   ```
-3. Open Graph Explorer and add a new connection
-   - Name: `Gremlin Server`
-   - Query Language: `Gremlin`
-   - Public or Proxy Endpoint: `https://localhost`
-   - Using Proxy Server: `true`
-   - Graph Connection URL: `http://localhost:8182`
-
 ## Next Steps
 
 - [Connecting to databases](../guides#connecting-to-databases) — Neptune, Gremlin Server, BlazeGraph
