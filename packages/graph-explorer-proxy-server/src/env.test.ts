@@ -1,4 +1,4 @@
-import { parseEnvironmentValues } from "./env.js";
+import { parseEnvironmentValues } from "./env.ts";
 
 describe("parseEnvironmentValues", () => {
   it("returns defaults when env is empty", () => {

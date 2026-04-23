@@ -5,7 +5,7 @@ import https from "https";
 import os from "os";
 import path from "path";
 
-import { createServer } from "./server.js";
+import { createServer } from "./server.ts";
 
 function createTestExpressApp() {
   const app = express();

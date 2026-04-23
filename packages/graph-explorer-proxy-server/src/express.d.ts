@@ -1,5 +1,5 @@
-import type { EnvironmentValues } from "./env.js";
-import type { AppLogger } from "./logging.js";
+import type { EnvironmentValues } from "./env.ts";
+import type { AppLogger } from "./logging.ts";
 
 declare module "express-serve-static-core" {
   interface Application {

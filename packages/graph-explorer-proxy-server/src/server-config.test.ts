@@ -1,10 +1,10 @@
 import fs from "fs";
 import path from "path";
 
-import type { EnvironmentValues } from "./env.js";
+import type { EnvironmentValues } from "./env.ts";
 
-import { clientRoot, proxyServerRoot } from "./paths.js";
-import { buildBaseUrl, resolveServerConfig } from "./server-config.js";
+import { clientRoot, proxyServerRoot } from "./paths.ts";
+import { buildBaseUrl, resolveServerConfig } from "./server-config.ts";
 
 const expectedKeyPath = path.join(proxyServerRoot, "cert-info/server.key");
 const expectedCertPath = path.join(proxyServerRoot, "cert-info/server.crt");

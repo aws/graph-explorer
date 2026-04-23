@@ -10,6 +10,9 @@
     "noEmit": true,
     "skipLibCheck": true,
 
+    /* Type Stripping */
+    "rewriteRelativeImportExtensions": true,
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

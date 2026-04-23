@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { vi } from "vitest";
 
-import { clientRoot, isDirectory, proxyServerRoot } from "./paths.js";
+import { clientRoot, isDirectory, proxyServerRoot } from "./paths.ts";
 
 test("clientRoot is points to graph-explorer", () => {
   expect(clientRoot).toMatch("/packages/graph-explorer");
