@@ -145,12 +145,12 @@ export default function useManageElementsSelection(
   }, [selectedNodesIds, selectedEdgesIds, selectedGroupsIds]);
 
   // Init cytoscape Select and unselect event handlers
-  const handlers = useRef<Handlers>(<Handlers>{
+  const handlers = useRef<Handlers>({
     onSelectedElementIdsChange,
     onSelectedEdgesIdsChange,
     onSelectedGroupsIdsChange,
     onSelectedNodesIdsChange,
-  });
+  } as Handlers);
 
   useEffect(() => {
     if (!cy) {
