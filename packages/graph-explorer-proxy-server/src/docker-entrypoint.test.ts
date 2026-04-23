@@ -16,7 +16,7 @@ function setupWorkDir() {
   // Create modified entrypoint with stubbed last line
   const script = fs.readFileSync(originalScriptPath, "utf-8");
   const serverStartLine =
-    "cd /graph-explorer/packages/graph-explorer-proxy-server && NODE_ENV=production node dist/node-server.js";
+    "cd /graph-explorer/packages/graph-explorer-proxy-server && NODE_ENV=production node src/node-server.ts";
   if (!script.includes(serverStartLine)) {
     throw new Error(
       "docker-entrypoint.sh no longer contains the expected server start line. Update the test stub.",

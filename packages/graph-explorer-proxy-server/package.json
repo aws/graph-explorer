@@ -2,14 +2,12 @@
   "name": "graph-explorer-proxy-server",
   "version": "3.0.2",
   "description": "Server to facilitate communication between the browser and the supported graph database.",
-  "main": "dist/node-server.js",
+  "main": "src/node-server.ts",
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "clean": "rimraf dist coverage",
-    "build": "tsc --build tsconfig.build.json",
-    "dev": "tsx watch src/node-server.ts",
-    "start": "NODE_ENV=production node dist/node-server.js"
+    "dev": "node --watch src/node-server.ts",
+    "start": "NODE_ENV=production node src/node-server.ts"
   },
   "author": "amazon",
   "license": "Apache-2.0",
@@ -39,9 +37,7 @@
     "@types/node": "^24.12.2",
     "@types/supertest": "^7.2.0",
     "@vitest/coverage-v8": "4.1.5",
-    "rimraf": "^6.1.3",
     "supertest": "^7.2.2",
-    "tsx": "^4.21.0",
     "vitest": "4.1.5"
   }
 }
