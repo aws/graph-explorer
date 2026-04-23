@@ -25,6 +25,8 @@ Otherwise, use whatever method you use to install [Node v24.13.0](https://nodejs
 corepack enable
 ```
 
+If `corepack` is not found, install it first with `npm install -g corepack@latest`.
+
 ### Supported Graph Data Models and Query Languages
 
 - Labelled Property Graph (PG) using Gremlin or openCypher
@@ -155,7 +157,7 @@ Example: `/explorer`
 
 #### `HOST`
 
-The public hostname of the server. This is used to generate the SSL certificate during the Docker build.
+The public hostname of the server. This is used to generate the self-signed SSL certificate at container startup.
 
 Example: `localhost`
 
@@ -204,6 +206,16 @@ Example: `https://my-app.example.com` or `https://app-a.example.com,https://app-
 - Optional
 - Default: all origins allowed
 - Type: `string` (comma-separated for multiple origins)
+
+#### `LOG_STYLE`
+
+Controls the log output format.
+
+- Optional
+- Default: `default`
+- Type: `"cloudwatch" | "default"`
+- `cloudwatch` omits timestamps and hostname/pid (these are provided by CloudWatch)
+- `default` uses the standard log format
 
 #### `CONFIGURATION_FOLDER_PATH`
 

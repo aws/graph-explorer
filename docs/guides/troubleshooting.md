@@ -6,7 +6,7 @@ This page contains workarounds for common issues and information on how to diagn
 
 - [Docker Container Issues](#docker-container-issues)
 - [Schema Sync Fails](#schema-sync-fails)
-- [Backup Graph Explorer Data](#backup-graph-explorer-data)
+- [Save & Load Configuration](#save--load-configuration)
 - [Gathering SageMaker Logs](#gathering-sagemaker-logs)
 
 ## Docker Container Issues
@@ -116,20 +116,20 @@ This can manifest as different types of errors depending on the root cause. You 
 > [!IMPORTANT]  
 > The paths listed here could always change in the future. If they do change, we will note that in the release notes.
 
-## Backup Graph Explorer Data
+## Save & Load Configuration
 
-Inside of Graph Explorer there is an option to export all the configuration data that Graph Explorer uses. This data is local to the user's browser and does not exist on the server.
+Inside of Graph Explorer there is an option to save all the configuration data that Graph Explorer uses. This data is local to the user's browser and does not exist on the server.
 
-To gather the config data:
+To save the configuration data:
 
 1. Launch Graph Explorer
 2. Navigate to the connections screen
 3. Press the "Settings" button in the navigation bar
 4. Select the "General" page within settings
 5. Press the "Save Configuration" button
-6. Choose where to save the exported file
+6. Choose where to save the configuration file
 
-This backup can be restored using the "Load Configuration" button in the same settings page.
+This configuration can be restored using the "Load Configuration" button in the same settings page.
 
 ## Gathering SageMaker Logs
 

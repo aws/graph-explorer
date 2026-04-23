@@ -40,11 +40,11 @@ The quickest way to get started with Graph Explorer is to use the official Docke
 #### Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) installed on your machine
-- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) installed on your machine
+- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) installed on your machine
 
 #### Steps
 
-1. Authenticate with the Amazon ECR Public Registry. [More information](https://docs.aws.amazon.com/AmazonECR/latest/public/public-registries.html#public-registry-auth)
+1. Authenticate with the [Amazon ECR Public Registry](https://docs.aws.amazon.com/AmazonECR/latest/public/public-registries.html#public-registry-auth)
 
    ```
    aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
