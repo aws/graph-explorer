@@ -68,12 +68,18 @@ export default defineConfig(({ mode }) => {
     test: {
       globals: true,
       pool: "threads",
+
+      // Setup
       globalSetup: ["src/globalSetup.ts"],
+      setupFiles: ["src/setupTests.ts"],
+
+      // Reset state between tests
       clearMocks: true,
+      resetMocks: true,
       restoreMocks: true,
       unstubEnvs: true,
       unstubGlobals: true,
-      setupFiles: ["src/setupTests.ts"],
+
       coverage: {
         exclude: [
           "src/components/icons",
