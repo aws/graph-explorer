@@ -60,6 +60,7 @@ The quickest way to get started with Graph Explorer is to use the official Docke
 
    ```
    docker run -p 80:80 -p 443:443 \
+    --restart unless-stopped \
     --env HOST=localhost \
     --name graph-explorer \
     public.ecr.aws/neptune/graph-explorer
