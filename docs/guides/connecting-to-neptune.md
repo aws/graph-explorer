@@ -2,15 +2,38 @@
 
 # Connecting to Neptune
 
-- Ensure that Graph Explorer has access to the Neptune instance by being in the same VPC or VPC peering.
-- If authentication is enabled, read query privileges are needed (See [ReadDataViaQuery managed policy](https://docs.aws.amazon.com/neptune/latest/userguide/iam-data-access-examples.html#iam-auth-data-policy-example-read-query)).
+Graph Explorer connects to Amazon Neptune through its proxy server, which forwards requests to the database and handles SigV4 signing when IAM authentication is enabled.
 
-## Authentication
+## Connection Settings
 
-Authentication for Amazon Neptune connections is enabled using the [SigV4 signing protocol](https://docs.aws.amazon.com/general/latest/gr/signature-version-4.html).
+- Name: `My Neptune Cluster`
+- Query Language: Choose the query language for your graph
+- Public or Proxy Endpoint: `https://localhost` (or wherever Graph Explorer is hosted)
+- Using Proxy Server: `true`
+- Graph Connection URL: `https://{your-cluster-endpoint}:8182`
+- AWS IAM Auth Enabled: `true` if IAM authentication is enabled on your cluster
+- Service Type: `neptune-db` (or `neptune-graph` for Neptune Analytics)
+- AWS Region: your cluster's region (e.g., `us-east-1`)
 
-To use AWS IAM authentication, you must run requests through a proxy endpoint, such as an EC2 instance, where credentials are resolved and where requests are signed.
+When IAM authentication is enabled, AWS credentials must be available where Graph Explorer's proxy server runs (environment variables, credential file, or IAM role). Read query privileges are needed (see [ReadDataViaQuery managed policy](https://docs.aws.amazon.com/neptune/latest/userguide/iam-data-access-examples.html#iam-auth-data-policy-example-read-query)).
 
-To set up a connection in Graph Explorer UI with AWS IAM auth enabled on Neptune, check Using Proxy-Server, then check AWS IAM Auth Enabled and type in the AWS Region where the Neptune cluster is hosted (e.g., us-east-1).
+For details on how credentials are resolved, see the [AWS credential provider chain documentation](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-aws-sdk-credential-providers/).
 
-For further information on how AWS credentials are resolved in Graph Explorer, refer to this [documentation](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CredentialProviderChain.html).
+## Network Access
+
+### Public Endpoints
+
+Neptune [public endpoints](https://docs.aws.amazon.com/neptune/latest/userguide/neptune-public-endpoints.html) allow Graph Explorer to connect from outside the VPC — including from your local machine. This requires:
+
+- Neptune engine version 1.4.6.x or later
+- Public accessibility enabled on the Neptune instance
+- IAM database authentication enabled on the cluster (required for public endpoints)
+- Security group allowing inbound traffic on port 8182 from Graph Explorer's IP
+
+### VPC Access
+
+For Neptune instances without public endpoints, Graph Explorer must be deployed within the same VPC or connected via VPC peering. See the deployment guides:
+
+- [Deploy to Amazon EC2](./deploy-to-ec2.md)
+- [Deploy to ECS Fargate](./deploy-to-ecs-fargate.md)
+- [Deploy to SageMaker](./deploy-to-sagemaker.md)
