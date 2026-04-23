@@ -28,8 +28,8 @@
 # All checks (lint, format, types)
 pnpm run checks
 
-# All tests
-pnpm test
+# All tests with coverage threshold enforcement
+pnpm coverage
 
 # Single test file
 pnpm test packages/graph-explorer/src/path/to/file.test.ts
