@@ -21,6 +21,7 @@ import {
   allowLoggingDbQueryAtom,
   defaultNeighborExpansionLimitAtom,
   defaultNeighborExpansionLimitEnabledAtom,
+  diagnosticLoggingAtom,
   showDebugActionsAtom,
 } from "@/core";
 import { saveLocalForageToFile } from "@/core/StateProvider/localDb";
@@ -33,6 +34,10 @@ export default function SettingsGeneral() {
 
   const [allowLoggingDbQuery, setAllowLoggingDbQuery] = useAtom(
     allowLoggingDbQueryAtom,
+  );
+
+  const [diagnosticLogging, setDiagnosticLogging] = useAtom(
+    diagnosticLoggingAtom,
   );
 
   const [defaultNeighborExpansionLimit, setDefaultNeighborExpansionLimit] =
@@ -105,6 +110,17 @@ export default function SettingsGeneral() {
             with the data within the configuration file.
           </p>
         </ImportantBlock>
+
+        <ToggleSetting
+          id="isDiagnosticLoggingEnabled"
+          value="isDiagnosticLoggingEnabled"
+          checked={diagnosticLogging}
+          onCheckedChange={isSelected => {
+            setDiagnosticLogging(Boolean(isSelected));
+          }}
+          label="Diagnostic logging"
+          description="Enables verbose logging to the browser console for troubleshooting."
+        />
 
         <ToggleSetting
           id="isLoggingDbQueryEnabled"

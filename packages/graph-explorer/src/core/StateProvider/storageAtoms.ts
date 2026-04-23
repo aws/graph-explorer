@@ -58,6 +58,7 @@ const [
   allowLoggingDbQueryAtom,
   defaultNeighborExpansionLimitEnabledAtom,
   defaultNeighborExpansionLimitAtom,
+  diagnosticLoggingAtom,
 ] = await Promise.all([
   atomWithLocalForage<ConfigurationId | null>("active-configuration", null),
   atomWithLocalForage<Map<ConfigurationId, RawConfiguration>>(
@@ -78,12 +79,14 @@ const [
    */
   /** Shows debug actions in various places around the app. */
   atomWithLocalForage<boolean>("showDebugActions", false),
-  /** Shows debug actions in various places around the app. */
+  /** Enables logging of generated database queries on the proxy server. */
   atomWithLocalForage<boolean>("allowLoggingDbQuery", false),
   /** Setting that enables/disables the default limit for neighbor expansion. */
   atomWithLocalForage<boolean>("defaultNeighborExpansionLimitEnabled", true),
   /** Setting that defines the default limit for neighbor expansion. */
   atomWithLocalForage<number>("defaultNeighborExpansionLimit", 10),
+  /** Enables verbose diagnostic logging to the browser console. */
+  atomWithLocalForage<boolean>("diagnosticLogging", false),
 ]);
 
 export {
@@ -97,4 +100,5 @@ export {
   allowLoggingDbQueryAtom,
   defaultNeighborExpansionLimitEnabledAtom,
   defaultNeighborExpansionLimitAtom,
+  diagnosticLoggingAtom,
 };

@@ -103,6 +103,7 @@ vi.mock("@/utils/logger", () => ({
     info: vi.fn(),
     warn: vi.fn(),
   },
+  setDiagnosticLogging: vi.fn(),
 }));
 
 // Mock Monaco editor to prevent script injection errors in tests
