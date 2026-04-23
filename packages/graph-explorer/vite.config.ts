@@ -70,9 +70,6 @@ export default defineConfig(({ mode }) => {
       globals: true,
       setupFiles: ["src/setupTests.ts"],
       coverage: {
-        reportsDirectory: "coverage",
-        provider: "v8",
-        reporter: ["lcov", "text", "json", "clover"],
         exclude: [
           "src/components/icons",
           "src/@types",

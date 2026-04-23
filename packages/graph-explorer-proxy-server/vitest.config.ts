@@ -8,10 +8,5 @@ export default defineConfig({
     unstubEnvs: true,
     unstubGlobals: true,
     setupFiles: ["src/test-setup.ts"],
-    coverage: {
-      reportsDirectory: "coverage",
-      provider: "v8",
-      reporter: ["lcov", "text", "json", "clover"],
-    },
   },
 });
