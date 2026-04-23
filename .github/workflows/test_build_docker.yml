@@ -38,15 +38,21 @@ jobs:
           docker run --rm --entrypoint="" test-image openssl --version
           docker run --rm --entrypoint="" test-image-neptune openssl --version
 
-      - name: Verify package managers are removed
+      - name: Verify unnecessary packages are removed
         run: |
           docker run --rm --entrypoint="" test-image sh -c '
             (command -v npm && echo "FAIL: npm found" && exit 1) || echo "✓ npm removed"
             (command -v pnpm && echo "FAIL: pnpm found" && exit 1) || echo "✓ pnpm removed"
             (command -v corepack && echo "FAIL: corepack found" && exit 1) || echo "✓ corepack removed"
+            (command -v python3 && echo "FAIL: python3 found" && exit 1) || echo "✓ python3 removed"
+            (command -v yum && echo "FAIL: yum found" && exit 1) || echo "✓ yum removed"
+            (command -v dnf && echo "FAIL: dnf found" && exit 1) || echo "✓ dnf removed"
           '
           docker run --rm --entrypoint="" test-image-neptune sh -c '
             (command -v npm && echo "FAIL: npm found" && exit 1) || echo "✓ npm removed"
             (command -v pnpm && echo "FAIL: pnpm found" && exit 1) || echo "✓ pnpm removed"
             (command -v corepack && echo "FAIL: corepack found" && exit 1) || echo "✓ corepack removed"
+            (command -v python3 && echo "FAIL: python3 found" && exit 1) || echo "✓ python3 removed"
+            (command -v yum && echo "FAIL: yum found" && exit 1) || echo "✓ yum removed"
+            (command -v dnf && echo "FAIL: dnf found" && exit 1) || echo "✓ dnf removed"
           '
