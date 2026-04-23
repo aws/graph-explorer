@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { createRandomName } from "@shared/utils/testing";
 
 import type { TextTransformer } from "@/hooks";

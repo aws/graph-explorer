@@ -66,9 +66,13 @@ export default defineConfig(({ mode }) => {
       tsconfigPaths: true,
     },
     test: {
-      environment: "happy-dom",
       globals: true,
       pool: "threads",
+      globalSetup: ["src/globalSetup.ts"],
+      clearMocks: true,
+      restoreMocks: true,
+      unstubEnvs: true,
+      unstubGlobals: true,
       setupFiles: ["src/setupTests.ts"],
       coverage: {
         exclude: [

@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { sample } from "lodash";
 import { act } from "react";
 import { vi } from "vitest";

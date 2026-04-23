@@ -9,9 +9,8 @@ import { afterEach, expect, vi } from "vitest";
 
 expect.extend(matchers);
 
-// Set the test environment timezone & locale so it is consistent across machines
+// Set the test environment locale so it is consistent across machines
 const defaultLocale = "en-US";
-process.env.TZ = "UTC";
 process.env.LC_ALL = `${defaultLocale}.UTF-8`;
 process.env.LANG = `${defaultLocale}.UTF-8`;
 process.env.LANGUAGE = defaultLocale;
@@ -29,8 +28,6 @@ vi.mock(import("@/core/StateProvider/appStore"), () => {
 
 afterEach(() => {
   cleanup();
-  vi.unstubAllEnvs();
-  vi.unstubAllGlobals();
 });
 
 beforeEach(() => {
@@ -46,7 +43,6 @@ beforeEach(() => {
       return new originalIntl.DateTimeFormat(locale, options);
     } as typeof originalIntl.DateTimeFormat,
   });
-  vi.clearAllMocks();
 });
 
 // Mock sonner toast notifications

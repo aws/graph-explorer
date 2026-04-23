@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { createArray } from "@shared/utils/testing";
 import { waitFor } from "@testing-library/react";
 import { useAtomValue } from "jotai";

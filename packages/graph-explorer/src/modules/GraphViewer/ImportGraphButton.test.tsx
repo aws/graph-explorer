@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { createArray } from "@shared/utils/testing";
 import { ZodError } from "zod";
 
