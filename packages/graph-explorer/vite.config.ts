@@ -68,6 +68,7 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: "happy-dom",
       globals: true,
+      pool: "threads",
       setupFiles: ["src/setupTests.ts"],
       coverage: {
         exclude: [

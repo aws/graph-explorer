@@ -20,16 +20,6 @@ process.env.LANGUAGE = defaultLocale;
 // Also mock Intl to ensure consistency
 const originalIntl = global.Intl;
 
-vi.stubGlobal("Intl", {
-  ...originalIntl,
-  NumberFormat: function (locale = defaultLocale, options) {
-    return new originalIntl.NumberFormat(locale, options);
-  } as typeof originalIntl.NumberFormat,
-  DateTimeFormat: function (locale = defaultLocale, options) {
-    return new originalIntl.DateTimeFormat(locale, options);
-  } as typeof originalIntl.DateTimeFormat,
-});
-
 // Mock getAppStore to return a specific test store
 let store = createStore();
 vi.mock(import("@/core/StateProvider/appStore"), () => {
@@ -48,10 +38,16 @@ beforeEach(() => {
   store = createStore();
   vi.stubEnv("DEV", true);
   vi.stubEnv("PROD", false);
+  vi.stubGlobal("Intl", {
+    ...originalIntl,
+    NumberFormat: function (locale = defaultLocale, options) {
+      return new originalIntl.NumberFormat(locale, options);
+    } as typeof originalIntl.NumberFormat,
+    DateTimeFormat: function (locale = defaultLocale, options) {
+      return new originalIntl.DateTimeFormat(locale, options);
+    } as typeof originalIntl.DateTimeFormat,
+  });
   vi.clearAllMocks();
-  vi.resetModules();
-  vi.resetAllMocks();
-  vi.restoreAllMocks();
 });
 
 // Mock sonner toast notifications
