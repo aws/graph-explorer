@@ -50,3 +50,28 @@ jobs:
             (command -v pnpm && echo "FAIL: pnpm found" && exit 1) || echo "✓ pnpm removed"
             (command -v corepack && echo "FAIL: corepack found" && exit 1) || echo "✓ corepack removed"
           '
+
+      - name: Verify server starts and responds
+        run: |
+          docker run -d --name test-server \
+            -p 8080:80 \
+            -e PROXY_SERVER_HTTPS_CONNECTION=false \
+            test-image
+
+          # Wait for the server to be ready
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/status; then
+              echo ""
+              echo "✓ Server responded on /status"
+              break
+            fi
+            if [ "$i" -eq 30 ]; then
+              echo "FAIL: Server did not respond within 30 seconds"
+              docker logs test-server
+              exit 1
+            fi
+            sleep 1
+          done
+
+          docker stop test-server
+          docker rm test-server
