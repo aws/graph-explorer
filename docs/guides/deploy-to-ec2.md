@@ -39,12 +39,23 @@ of the VPC, such as setting up a load balancer or VPC peering.
 4. Run the container substituting the `{hostname-or-ip-address}` with the hostname or IP address of the EC2 instance
    ```
    docker run -p 80:80 -p 443:443 \
+    --restart unless-stopped \
     --env HOST={hostname-or-ip-address} \
     public.ecr.aws/neptune/graph-explorer
    ```
+
+<!-- prettier-ignore -->
+> [!TIP]
+>
+> The `--restart unless-stopped` flag ensures the container automatically
+restarts after a host reboot or if the container crashes. See Docker's
+[restart policy documentation](https://docs.docker.com/engine/containers/start-containers-automatically/)
+for other options.
 5. Navigate to the public URL of your EC2 instance accessing the `/explorer` endpoint. You will receive a warning as the SSL certificate used is self-signed. The URL will look like this:
-   ```
-   https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com/explorer
-   ```
+
+```
+https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com/explorer
+```
+
 6. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See [HTTPS Connections](./troubleshooting.md#https-connections) section.
 7. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI.
