@@ -4,7 +4,6 @@
 
 import * as matchers from "@testing-library/jest-dom/matchers";
 import { cleanup } from "@testing-library/react";
-import "core-js/full/iterator";
 import { createStore } from "jotai";
 import { afterEach, expect, vi } from "vitest";
 
