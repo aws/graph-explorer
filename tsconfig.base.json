@@ -12,7 +12,6 @@
 
     /* Type Stripping */
     "erasableSyntaxOnly": true,
-    "allowImportingTsExtensions": true,
 
     /* Linting */
     "strict": true,

@@ -2,7 +2,6 @@
   "name": "graph-explorer-proxy-server",
   "version": "3.0.2",
   "description": "Server to facilitate communication between the browser and the supported graph database.",
-  "main": "src/node-server.ts",
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
