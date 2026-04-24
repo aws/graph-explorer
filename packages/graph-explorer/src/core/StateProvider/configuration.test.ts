@@ -1,5 +1,6 @@
 import { createRandomName } from "@shared/utils/testing";
 
+import { createEdgeType, createVertexType } from "@/core/entities";
 import { RESERVED_TYPES_PROPERTY } from "@/utils";
 import {
   createRandomEdgePreferencesStorageModel,
@@ -20,7 +21,10 @@ import type { UserStyling } from "./userPreferences";
 import {
   defaultEdgeTypeConfig,
   defaultVertexTypeConfig,
+  getDefaultEdgeTypeConfig,
+  getDefaultVertexTypeConfig,
   mergeConfiguration,
+  normalizeConnection,
   type NormalizedConnection,
   patchToRemoveDisplayLabel,
 } from "./configuration";
@@ -302,5 +306,55 @@ describe("patchToRemoveDisplayLabel", () => {
     for (const attr of result.attributes) {
       expect(attr).not.toHaveProperty("displayLabel");
     }
+  });
+});
+
+describe("normalizeConnection", () => {
+  test("should remove trailing slash from url", () => {
+    const result = normalizeConnection({ url: "https://example.com/" });
+    expect(result.url).toBe("https://example.com");
+  });
+
+  test("should default queryEngine to gremlin", () => {
+    const result = normalizeConnection({ url: "https://example.com" });
+    expect(result.queryEngine).toBe("gremlin");
+  });
+
+  test("should default proxyConnection to true when graphDbUrl is present", () => {
+    const result = normalizeConnection({
+      url: "https://proxy.com",
+      graphDbUrl: "https://db.com",
+    });
+    expect(result.proxyConnection).toBe(true);
+  });
+
+  test("should default proxyConnection to false when graphDbUrl is absent", () => {
+    const result = normalizeConnection({ url: "https://example.com" });
+    expect(result.proxyConnection).toBe(false);
+  });
+
+  test("should default awsAuthEnabled to false", () => {
+    const result = normalizeConnection({ url: "https://example.com" });
+    expect(result.awsAuthEnabled).toBe(false);
+  });
+});
+
+describe("getDefaultVertexTypeConfig", () => {
+  test("should return default config with given type", () => {
+    const result = getDefaultVertexTypeConfig(createVertexType("Person"));
+    expect(result).toStrictEqual({
+      ...defaultVertexTypeConfig,
+      type: createVertexType("Person"),
+    });
+  });
+});
+
+describe("getDefaultEdgeTypeConfig", () => {
+  test("should return default config with given type", () => {
+    const result = getDefaultEdgeTypeConfig(createEdgeType("knows"));
+    expect(result).toStrictEqual({
+      ...defaultEdgeTypeConfig,
+      type: createEdgeType("knows"),
+    });
   });
 });
