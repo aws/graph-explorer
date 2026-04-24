@@ -12,7 +12,7 @@ This page contains workarounds for common issues and information on how to diagn
 ## Docker Container Issues
 
 1. If the container does not start, or immediately stops, use `docker logs graph-explorer` to check the container console logs for any related error messages that might provide guidance on why graph-explorer did not start.
-2. If you are having issues connecting graph-explorer to your graph database, use your browser's Developer Tools feature to monitor both the browser console and network calls to determine if here are any errors related to connectivity.
+2. If you are having issues connecting graph-explorer to your graph database, use your browser's Developer Tools feature to monitor both the browser console and network calls to determine if there are any errors related to connectivity.
 
 ### Ports in Use
 

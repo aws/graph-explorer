@@ -2,9 +2,9 @@
 
 # Running Graph Explorer on AWS Fargate + Amazon ECS
 
-The following steps will allow you set up Graph Explorer on AWS Fargate in Amazon ECS, and connect to a running Neptune database.
+The following steps will allow you to set up Graph Explorer on AWS Fargate in Amazon ECS, and connect to a running Neptune database.
 
-### Create a new IAM role and permission policies
+## Create a new IAM role and permission policies
 
 1. Open the IAM console at https://console.aws.amazon.com/iam/.
 2. In the navigation pane, click **Roles**, and then click **Create role**.
@@ -18,7 +18,7 @@ The following steps will allow you set up Graph Explorer on AWS Fargate in Amazo
 
 ![image](./deploy-to-ecs-fargate/iam-role.png)
 
-### Create an Amazon ECS Cluster
+## Create an Amazon ECS Cluster
 
 1. Open the ECS console at https://console.aws.amazon.com/ecs/v2.
 2. In the left hand navigation pane, click **Clusters**.
@@ -29,7 +29,7 @@ The following steps will allow you set up Graph Explorer on AWS Fargate in Amazo
 5. Under **Infrastructure**, select only **AWS Fargate**.
 6. (Optional) To turn on Container Insights, expand **Monitoring**, and then turn on **Use Container Insights**.
 7. (Optional) To help identify your cluster, expand **Tags**, and then configure your tags.
-   - [Add a tag] Choose **Add tag and** do the following:
+   - [Add a tag] Choose **Add tag** and do the following:
      - For **Key**, enter the key name.
      - For **Value**, enter the key value.
 8. Click **Create**.
@@ -38,7 +38,7 @@ After the cluster has finished creation, you can create task definitions for you
 
 ![image](./deploy-to-ecs-fargate/ecs-cluster.png)
 
-### Request an ACM Public Certificate
+## Request an ACM Public Certificate
 
 1. Open the ACM console at https://console.aws.amazon.com/acm/home.
 2. In the left hand navigation pane, click **Request certificate**.
@@ -59,7 +59,7 @@ After the cluster has finished creation, you can create task definitions for you
 
 After the request is processed, the console will return you to your certificate list, where information about the certificate will be displayed. The newly requested certificate will initially display the status `Pending validation`. Once the verification is successful, ACM will issue the SSL/TLS certificate for the specified domain names.
 
-### Creating an ECS Task Definition
+## Creating an ECS Task Definition
 
 1. Open the ECS console at https://console.aws.amazon.com/ecs/v2.
 2. In the left hand navigation pane, choose **Task definitions**.
@@ -168,7 +168,7 @@ After the request is processed, the console will return you to your certificate 
      - `SERVICE_TYPE`: Set this as `neptune-db` for Neptune database or `neptune-graph` for Neptune Analytics.
 6. Click **Create**.
 
-### Create a Fargate Service
+## Create a Fargate Service
 
 1. Open the ECS console at https://console.aws.amazon.com/ecs/v2.
 2. In the left hand navigation pane, choose **Clusters**.
@@ -212,7 +212,7 @@ After few minutes, the Fargate service will be created and ready.
 
 <img alt="image" src="./deploy-to-ecs-fargate/fargate-service.png">
 
-### Create an Amazon Route53 Entry
+## Create an Amazon Route53 Entry
 
 1. Open the Route 53 console at https://console.aws.amazon.com/route53/.
 2. In the left hand navigation pane, click **Hosted zones**.
@@ -229,6 +229,6 @@ After few minutes, the Fargate service will be created and ready.
 
 Changes generally propagate to all Route 53 servers within 60 seconds. When propagation is done, you'll be able to route traffic to your load balancer by using the name of the alias record that you created in the above step.
 
-### Accessing Graph Explorer
+## Accessing Graph Explorer
 
 Enter the URL you created in the Route53 section into a browser to access the endpoint for Graph Explorer (ex.`https://graphexplorer.example.com/explorer`). You should now be connected.
