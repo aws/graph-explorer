@@ -1,9 +1,9 @@
 import fs from "fs";
 import path from "path";
 
-import type { EnvironmentValues } from "./env.js";
+import type { EnvironmentValues } from "./env.ts";
 
-import { clientRoot, proxyServerRoot } from "./paths.js";
+import { clientRoot, proxyServerRoot } from "./paths.ts";
 
 export class ServerConfigError extends Error {
   constructor(message: string) {

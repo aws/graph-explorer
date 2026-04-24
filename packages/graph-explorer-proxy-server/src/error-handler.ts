@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 
-import { RequestValidationError } from "./errors.js";
-import { type AppLogger, getRequestLoggerPrefix } from "./logging.js";
+import { RequestValidationError } from "./errors.ts";
+import { type AppLogger, getRequestLoggerPrefix } from "./logging.ts";
 
 /**
  * Global error handler

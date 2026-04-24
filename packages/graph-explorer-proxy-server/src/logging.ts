@@ -3,7 +3,7 @@ import type { PrettyOptions } from "pino-pretty";
 
 import { type LevelWithSilent, pino } from "pino";
 
-import type { EnvironmentValues } from "./env.js";
+import type { EnvironmentValues } from "./env.ts";
 
 export type LogLevel = LevelWithSilent;
 
