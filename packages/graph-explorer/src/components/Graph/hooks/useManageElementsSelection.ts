@@ -150,7 +150,7 @@ export default function useManageElementsSelection(
     onSelectedEdgesIdsChange,
     onSelectedGroupsIdsChange,
     onSelectedNodesIdsChange,
-  } as Handlers);
+  });
 
   useEffect(() => {
     if (!cy) {
