@@ -12,7 +12,7 @@
 
     /* Type Stripping */
     "erasableSyntaxOnly": true,
-    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
 
     /* Linting */
     "strict": true,
