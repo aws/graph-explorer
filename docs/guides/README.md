@@ -10,6 +10,7 @@ Guides for connecting to graph databases, deploying Graph Explorer, and troubles
 
 ## Deployment
 
+- [Deploy with Docker](./deploy-with-docker.md)
 - [Deploy to Amazon EC2](./deploy-to-ec2.md)
 - [Deploy to ECS Fargate](./deploy-to-ecs-fargate.md)
 - [Deploy to SageMaker](./deploy-to-sagemaker.md)
