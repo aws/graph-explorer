@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { createResultScalar } from "@/connector/entities";
 import {
   createVertexId,

@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { createRandomName, createRandomUrlString } from "@shared/utils/testing";
 import { act } from "@testing-library/react";
 import { toast } from "sonner";

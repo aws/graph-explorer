@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { createArray, createRandomName } from "@shared/utils/testing";
 import { useAtomValue } from "jotai";
 

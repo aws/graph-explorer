@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import type { ExtractAtomValue } from "jotai";
 
 import { act } from "react";

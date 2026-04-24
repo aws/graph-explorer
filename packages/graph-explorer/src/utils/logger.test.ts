@@ -6,6 +6,7 @@ vi.unmock("@/utils/logger");
 
 describe("logger", () => {
   beforeEach(() => {
+    vi.resetModules();
     vi.spyOn(console, "debug").mockImplementation(() => {});
     vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "warn").mockImplementation(() => {});

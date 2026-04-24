@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import type { QueryEngine } from "@shared/types";
 
 import { vi } from "vitest";

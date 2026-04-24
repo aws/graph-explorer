@@ -4,31 +4,10 @@
 
 import * as matchers from "@testing-library/jest-dom/matchers";
 import { cleanup } from "@testing-library/react";
-import "core-js/full/iterator";
 import { createStore } from "jotai";
 import { afterEach, expect, vi } from "vitest";
 
 expect.extend(matchers);
-
-// Set the test environment timezone & locale so it is consistent across machines
-const defaultLocale = "en-US";
-process.env.TZ = "UTC";
-process.env.LC_ALL = `${defaultLocale}.UTF-8`;
-process.env.LANG = `${defaultLocale}.UTF-8`;
-process.env.LANGUAGE = defaultLocale;
-
-// Also mock Intl to ensure consistency
-const originalIntl = global.Intl;
-
-vi.stubGlobal("Intl", {
-  ...originalIntl,
-  NumberFormat: function (locale = defaultLocale, options) {
-    return new originalIntl.NumberFormat(locale, options);
-  } as typeof originalIntl.NumberFormat,
-  DateTimeFormat: function (locale = defaultLocale, options) {
-    return new originalIntl.DateTimeFormat(locale, options);
-  } as typeof originalIntl.DateTimeFormat,
-});
 
 // Mock getAppStore to return a specific test store
 let store = createStore();
@@ -40,21 +19,15 @@ vi.mock(import("@/core/StateProvider/appStore"), () => {
 
 afterEach(() => {
   cleanup();
-  vi.unstubAllEnvs();
-  vi.unstubAllGlobals();
 });
 
 beforeEach(() => {
   store = createStore();
   vi.stubEnv("DEV", true);
   vi.stubEnv("PROD", false);
-  vi.clearAllMocks();
-  vi.resetModules();
-  vi.resetAllMocks();
-  vi.restoreAllMocks();
 });
 
-// Mock sonner toast notifications
+// Mock sonner toast notifications to prevent requestAnimationFrame errors
 vi.mock("sonner", () => ({
   toast: {
     success: vi.fn(),

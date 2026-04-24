@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { act } from "react";
 
 import { type ToggleableView, userLayoutAtom, useSidebar } from "@/core";

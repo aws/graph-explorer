@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import * as fileSaver from "file-saver";
 import { describe, expect, it, vi } from "vitest";
 

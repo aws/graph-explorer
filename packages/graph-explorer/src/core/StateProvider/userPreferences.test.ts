@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { act } from "react";
 
 import { createEdgeType, createVertexType } from "@/core";
