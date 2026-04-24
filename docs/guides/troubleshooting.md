@@ -34,7 +34,7 @@ Which will result in the following URLs:
 
 ### HTTP Only
 
-If you do not want to use SSL and HTTPS, you can disable it by setting the following [environment variables](../development.md#environment-variables):
+If you do not want to use SSL and HTTPS, you can disable it by setting the following [environment variables](../references/configuration.md#application-configuration):
 
 ```
 PROXY_SERVER_HTTPS_CONNECTION=false
