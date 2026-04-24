@@ -1,10 +1,98 @@
 [← References](./)
 
-# Providing a Default Connection
+# Configuration
+
+All environment variables for configuring Graph Explorer, organized by concern.
+
+## Application Configuration
+
+These variables control server behavior, networking, and security.
+
+### `GRAPH_EXP_ENV_ROOT_FOLDER`
+
+Base path used to serve the `graph-explorer` front end application.
+
+Example: `/explorer`
+
+- Optional
+- Default: `/`
+- Type: `string`
+
+### `HOST`
+
+The public hostname of the server. This is used to generate the self-signed SSL certificate at container startup.
+
+Example: `localhost`
+
+- Required when using HTTPS connections
+- Default is `localhost`
+- Type: `string`
+
+### `GRAPH_EXP_HTTPS_CONNECTION`
+
+Uses the self-signed certificate to serve Graph Explorer over https if true. Only used in Docker via the entrypoint script.
+
+- Optional
+- Default `true` in Docker, not set otherwise
+- Type: `boolean`
+
+### `PROXY_SERVER_HTTPS_PORT`
+
+The port to use for the HTTPS server.
+
+- Optional
+- Default `443`
+- Type: `number`
+
+### `PROXY_SERVER_HTTP_PORT`
+
+The port to use for the HTTP server.
+
+- Optional
+- Default `80`
+- Type: `number`
+
+### `PROXY_SERVER_HTTPS_CONNECTION`
+
+Uses the self-signed certificate to serve the proxy-server over https if true.
+
+- Optional
+- Default `false` in code, `true` in Docker via the entrypoint script
+- Type: `boolean`
+
+### `PROXY_SERVER_CORS_ORIGIN`
+
+Restricts which origins are allowed to make cross-origin requests to the proxy server. When set, only requests from these exact origins will receive CORS headers. When not set, all origins are allowed. Each origin must include the scheme and must not have a trailing slash or path.
+
+Example: `https://my-app.example.com` or `https://app-a.example.com,https://app-b.example.com`
+
+- Optional
+- Default: all origins allowed
+- Type: `string` (comma-separated for multiple origins)
+
+### `LOG_STYLE`
+
+Controls the log output format.
+
+- Optional
+- Default: `default`
+- Type: `"cloudwatch" | "default"`
+- `cloudwatch` omits timestamps and hostname/pid (these are provided by CloudWatch)
+- `default` uses the standard log format
+
+### `CONFIGURATION_FOLDER_PATH`
+
+Override path for the folder containing `.env` and `defaultConnection.json`. When set, replaces the default path entirely.
+
+- Optional
+- Default: `<client root>` (`packages/graph-explorer`)
+- Type: `string`
+
+## Default Connection
 
 To provide a default connection such that initial loads of Graph Explorer always result with the same starting connection, modify the `docker run ...` command to either take in a JSON configuration or runtime environment variables. If you provide both a JSON configuration and environmental variables, the JSON will be prioritized.
 
-## Environment Variables
+### Environment Variables
 
 These are the valid environment variables used for the default connection, their defaults, and their descriptions.
 
@@ -25,7 +113,7 @@ These are the valid environment variables used for the default connection, their
     - `AWS_REGION` - `None`
     - `SERVICE_TYPE` - `neptune-db`, Set this as `neptune-db` for Neptune database or `neptune-graph` for Neptune Analytics.
 
-## JSON Configuration Approach
+### JSON Configuration Approach
 
 First, create a `config.json` file containing values for the connection attributes:
 
@@ -56,7 +144,7 @@ docker run -p 80:80 -p 443:443 \
  public.ecr.aws/neptune/graph-explorer
 ```
 
-## Environment Variable Approach
+### Environment Variable Approach
 
 Provide the desired connection variables directly to the `docker run` command, as follows:
 
