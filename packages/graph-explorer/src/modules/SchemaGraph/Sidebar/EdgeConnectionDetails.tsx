@@ -16,6 +16,8 @@ import {
 import { useTranslations } from "@/hooks";
 import { LABELS } from "@/utils";
 
+import type { SchemaGraphSelectionItem } from "../SchemaGraph";
+
 import {
   Details,
   DetailsHeader,
@@ -28,11 +30,13 @@ import { SchemaDiscoveryAlert } from "./SchemaDiscoveryAlert";
 
 export type EdgeConnectionDetailsProps = {
   edgeConnection: EdgeConnection;
+  onSelectionChange?: (item: SchemaGraphSelectionItem) => void;
 } & ComponentPropsWithRef<typeof Panel>;
 
 /** Displays detailed information about an edge connection including properties and total count */
 export function EdgeConnectionDetails({
   edgeConnection,
+  onSelectionChange,
   ...props
 }: EdgeConnectionDetailsProps) {
   const t = useTranslations();
@@ -66,7 +70,10 @@ export function EdgeConnectionDetails({
           <DetailsHeader>
             <DetailsTitle>{t("edge-connection")}</DetailsTitle>
           </DetailsHeader>
-          <EdgeConnectionRow edgeConnection={edgeConnection} />
+          <EdgeConnectionRow
+            edgeConnection={edgeConnection}
+            onSelectionChange={onSelectionChange}
+          />
         </Details>
 
         <PropertiesDetails attributes={config.attributes} />

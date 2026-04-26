@@ -75,6 +75,23 @@ export default function SchemaGraph({ className, ...props }: SchemaGraphProps) {
     }
   };
 
+  const handleSidebarSelectionChange = (item: SchemaGraphSelectionItem) => {
+    setSelection(item);
+    setGraphSelection(
+      item.type === "vertex-type"
+        ? {
+            nodeIds: new Set([item.id]),
+            edgeIds: new Set(),
+            groupIds: new Set(),
+          }
+        : {
+            nodeIds: new Set(),
+            edgeIds: new Set([item.id]),
+            groupIds: new Set(),
+          },
+    );
+  };
+
   const hasSchemaData = nodes.length > 0;
 
   return (
@@ -105,7 +122,10 @@ export default function SchemaGraph({ className, ...props }: SchemaGraphProps) {
         </Panel>
       </PanelGroup>
 
-      <SchemaExplorerSidebar selection={selection} />
+      <SchemaExplorerSidebar
+        selection={selection}
+        onSelectionChange={handleSidebarSelectionChange}
+      />
     </div>
   );
 }

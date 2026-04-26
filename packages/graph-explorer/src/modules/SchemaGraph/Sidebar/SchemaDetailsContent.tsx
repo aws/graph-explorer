@@ -10,17 +10,24 @@ import { useGraphSchema } from "@/core";
 import { useTranslations } from "@/hooks";
 import { LABELS } from "@/utils";
 
-import type { SchemaGraphSelection } from "../SchemaGraph";
+import type {
+  SchemaGraphSelection,
+  SchemaGraphSelectionItem,
+} from "../SchemaGraph";
 
 import { EdgeConnectionDetails } from "./EdgeConnectionDetails";
 import { NodeLabelDetails } from "./NodeLabelDetails";
 
 export type SchemaDetailsContentProps = {
   selection: SchemaGraphSelection;
+  onSelectionChange?: (item: SchemaGraphSelectionItem) => void;
 };
 
 /** Displays details for selected vertex type or edge connection in schema graph */
-export function SchemaDetailsContent({ selection }: SchemaDetailsContentProps) {
+export function SchemaDetailsContent({
+  selection,
+  onSelectionChange,
+}: SchemaDetailsContentProps) {
   const t = useTranslations();
   const graphSchema = useGraphSchema();
 
@@ -59,7 +66,13 @@ export function SchemaDetailsContent({ selection }: SchemaDetailsContentProps) {
   }
 
   if (selection.type === "vertex-type") {
-    return <NodeLabelDetails vertexType={selection.id} className="size-full" />;
+    return (
+      <NodeLabelDetails
+        vertexType={selection.id}
+        onSelectionChange={onSelectionChange}
+        className="size-full"
+      />
+    );
   }
 
   const edgeConnection = graphSchema.edgeConnections.byEdgeConnectionId.get(
@@ -70,6 +83,7 @@ export function SchemaDetailsContent({ selection }: SchemaDetailsContentProps) {
     return (
       <EdgeConnectionDetails
         edgeConnection={edgeConnection}
+        onSelectionChange={onSelectionChange}
         className="size-full"
       />
     );

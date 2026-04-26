@@ -18,6 +18,8 @@ import {
 import { useTranslations } from "@/hooks";
 import { LABELS } from "@/utils";
 
+import type { SchemaGraphSelectionItem } from "../SchemaGraph";
+
 import {
   Details,
   DetailsHeader,
@@ -30,11 +32,13 @@ import { SchemaDiscoveryAlert } from "./SchemaDiscoveryAlert";
 
 export type NodeLabelDetailsProps = {
   vertexType: VertexType;
+  onSelectionChange?: (item: SchemaGraphSelectionItem) => void;
 } & ComponentPropsWithRef<typeof Panel>;
 
 /** Displays detailed information about a vertex type including properties and edge connections */
 export function NodeLabelDetails({
   vertexType,
+  onSelectionChange,
   ...props
 }: NodeLabelDetailsProps) {
   const t = useTranslations();
@@ -76,6 +80,7 @@ export function NodeLabelDetails({
                 <EdgeConnectionRow
                   edgeConnection={edgeConnection}
                   selectedVertexType={vertexType}
+                  onSelectionChange={onSelectionChange}
                 />
               </li>
             )) ?? (

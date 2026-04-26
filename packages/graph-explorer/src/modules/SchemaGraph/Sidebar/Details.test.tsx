@@ -1,16 +1,40 @@
 // @vitest-environment happy-dom
 import { render, screen } from "@testing-library/react";
-import { describe, expect, test } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, test, vi } from "vitest";
 
-import type { DisplayConfigAttribute } from "@/core";
+import type * as Core from "@/core";
 
-import { PropertiesDetails } from "./Details";
+import {
+  createEdgeType,
+  createVertexType,
+  type DisplayConfigAttribute,
+  type EdgeConnection,
+} from "@/core";
+
+import { EdgeConnectionRow, PropertiesDetails } from "./Details";
 
 vi.mock("@/hooks", async () => {
   const actual = await vi.importActual("@/hooks");
   return {
     ...actual,
     useTranslations: () => (key: string) => key,
+  };
+});
+
+vi.mock("@/core", async () => {
+  const actual = await vi.importActual<typeof Core>("@/core");
+  return {
+    ...actual,
+    useDisplayEdgeTypeConfig: (edgeType: string) => ({
+      displayLabel: edgeType,
+      attributes: [],
+    }),
+    useDisplayVertexTypeConfig: (vertexType: string) => ({
+      displayLabel: vertexType,
+      attributes: [],
+    }),
+    useVertexPreferences: () => ({ color: "#000000" }),
   };
 });
 
@@ -68,5 +92,86 @@ describe("PropertiesDetails", () => {
     render(<PropertiesDetails attributes={attributes} />);
 
     expect(screen.getByText("3")).toBeInTheDocument();
+  });
+});
+
+describe("EdgeConnectionRow", () => {
+  function createEdgeConnection(): EdgeConnection {
+    return {
+      sourceVertexType: createVertexType("Person"),
+      edgeType: createEdgeType("knows"),
+      targetVertexType: createVertexType("Company"),
+    };
+  }
+
+  test("renders text without buttons when onSelectionChange is not provided", () => {
+    render(<EdgeConnectionRow edgeConnection={createEdgeConnection()} />);
+
+    expect(screen.queryAllByRole("button")).toHaveLength(0);
+  });
+
+  test("renders three buttons (source, edge, target) when onSelectionChange is provided", () => {
+    render(
+      <EdgeConnectionRow
+        edgeConnection={createEdgeConnection()}
+        onSelectionChange={() => {}}
+      />,
+    );
+
+    expect(screen.getAllByRole("button")).toHaveLength(3);
+  });
+
+  test("calls onSelectionChange with the source vertex when source button is clicked", async () => {
+    const user = userEvent.setup();
+    const onSelectionChange = vi.fn();
+    render(
+      <EdgeConnectionRow
+        edgeConnection={createEdgeConnection()}
+        onSelectionChange={onSelectionChange}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Person" }));
+
+    expect(onSelectionChange).toHaveBeenCalledWith({
+      type: "vertex-type",
+      id: "Person",
+    });
+  });
+
+  test("calls onSelectionChange with the target vertex when target button is clicked", async () => {
+    const user = userEvent.setup();
+    const onSelectionChange = vi.fn();
+    render(
+      <EdgeConnectionRow
+        edgeConnection={createEdgeConnection()}
+        onSelectionChange={onSelectionChange}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Company" }));
+
+    expect(onSelectionChange).toHaveBeenCalledWith({
+      type: "vertex-type",
+      id: "Company",
+    });
+  });
+
+  test("calls onSelectionChange with the edge connection id when edge button is clicked", async () => {
+    const user = userEvent.setup();
+    const onSelectionChange = vi.fn();
+    render(
+      <EdgeConnectionRow
+        edgeConnection={createEdgeConnection()}
+        onSelectionChange={onSelectionChange}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: /knows/ }));
+
+    expect(onSelectionChange).toHaveBeenCalledWith({
+      type: "edge-connection",
+      id: "Person-[knows]->Company",
+    });
   });
 });
