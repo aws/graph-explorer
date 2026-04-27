@@ -33,7 +33,7 @@ Run Graph Explorer wherever it fits your workflow: as a Docker container, on an 
 ## Learn More
 
 - [Documentation](./docs) - Full documentation index
-- [Getting Started](./docs/getting-started/README.md) - Set up Graph Explorer with Docker, EC2, or from source
+- [Getting Started](./docs/getting-started/README.md) - A hands-on tutorial using the air routes sample dataset
 - [Features Overview](./docs/features/README.md) - Detailed guide to all features and functionality
 - [Guides](./docs/guides) - Database connections, deployment, and troubleshooting
 - [Roadmap](./ROADMAP.md) - See what's planned for future releases

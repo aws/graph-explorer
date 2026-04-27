@@ -21,7 +21,7 @@ The fastest way to try Graph Explorer is with the [Air Routes sample](../../samp
    ```
 3. Open your browser and navigate to [http://localhost:8080/explorer](http://localhost:8080/explorer)
 
-Graph Explorer opens to the **Connections** page. You should see a "Default Connection" already configured and connected to the Gremlin Server with the air routes data.
+Graph Explorer opens to the **Graph** page with a default connection already configured and connected to the Gremlin Server with the air routes data. The canvas is empty because no nodes have been added yet.
 
 ## Tour the UI
 
@@ -32,9 +32,9 @@ Graph Explorer has four main pages, accessible from the navigation bar at the to
 - **Schema** — A visual overview of the schema showing how node types and edge types relate to each other.
 - **Connections** — Where you manage database connections. This is where you landed after launching.
 
-Click **Graph** in the navigation bar to switch to the graph view. The canvas is empty because no nodes have been added yet.
+Click **Connections** in the navigation bar to verify the "Default Connection" is active, then click **Graph** to return to the graph view.
 
-On the right side of the graph view, you will see a vertical strip of sidebar icons. These open panels for **Search**, **Expand**, **Details**, **Entities Filter**, and **Node Label Styling**. You will use each of these as you work through the tutorial.
+On the right side of the graph view, you will see a vertical strip of sidebar icons. These open panels for **Search**, **Details**, **Expand**, **Filters**, and **Node Label Styling**. You will use each of these as you work through the tutorial.
 
 ## Search for a Node
 
