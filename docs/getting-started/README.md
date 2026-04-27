@@ -87,10 +87,12 @@ You can customize how each node type looks on the canvas.
 1. Click the **Node Label Styling** icon in the right sidebar.
 2. Find the **airport** type in the list.
 3. Click **Customize** to open the style dialog.
-4. Change the **Node Color** to a color of your choice using the color picker.
-5. Click **Done** to apply.
+4. Change the **Display Name Property** to **code** so each airport shows its IATA code.
+5. Change the **Display Description Property** to **city** to see the city name underneath.
+6. Change the **Node Color** to a color of your choice using the color picker.
+7. Click **Done** to apply.
 
-All airport nodes on the canvas update to the new color. You can also change the shape, border, icon, and which property is displayed as the node label using the **Display Name Property** dropdown.
+All airport nodes on the canvas update with the new labels and color. You can also change the shape, border, and icon.
 
 ## Switch to the Data Table
 
