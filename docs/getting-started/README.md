@@ -71,6 +71,16 @@ As you expand nodes, the graph can get crowded. The Entities Filter lets you foc
 
 This does not remove nodes from the graph — it only controls visibility. You can use this to temporarily focus on a subset of the data.
 
+## Table View
+
+You can view the nodes and edges currently on the canvas in a table format without leaving the Graph page.
+
+1. Click the grid icon in the graph toolbar to toggle the Table View open.
+2. Use the dropdown to switch between **All Nodes** and **All Edges**.
+3. You can sort, filter, and export the table data to CSV or JSON.
+
+This table only shows what is on the canvas — it is a different view of the same data you have been exploring.
+
 ## Style Nodes
 
 You can customize how each node type looks on the canvas.
@@ -91,8 +101,6 @@ The Data Table page lets you browse all nodes in the database without adding the
 2. Use the **Node Label** dropdown at the top left to select **airport**.
 3. Browse the paginated table of all airports in the dataset.
 4. To send a specific airport to the graph view, click the **Send to Explorer** button on its row.
-
-You can also toggle a table view directly within the Graph page by clicking the grid icon in the graph toolbar. This shows a table of only the nodes currently on the canvas.
 
 ## Next Steps
 
