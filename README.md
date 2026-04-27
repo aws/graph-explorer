@@ -46,7 +46,7 @@ Run Graph Explorer wherever it fits your workflow: as a Docker container, on an 
 
 There are many ways to deploy and run Graph Explorer. If you are new to graph databases and Graph Explorer, we recommend that you check out the [Getting Started](./docs/getting-started/README.md) guide.
 
-- [Try It Out](./docs/getting-started/README.md#try-it-out) - Launch Graph Explorer with sample data using Docker Compose.
+- [Try It Out](./docs/getting-started/README.md#launch-graph-explorer) - Launch Graph Explorer with sample data using Docker Compose.
 - [Local Docker Setup](./docs/guides/deploy-with-docker.md) - A quick start guide to deploying Graph Explorer locally using the official Docker image.
 - [Amazon EC2 Setup](./docs/guides/deploy-to-ec2.md) - A quick start guide to setting up Graph Explorer on Amazon EC2 with Neptune.
 - [Local Development](./docs/development.md) - Build from source for local development.
