@@ -30,7 +30,7 @@ Graph Explorer has four main pages, accessible from the navigation bar at the to
 - **Graph** — The main visualization canvas where you explore nodes and edges interactively.
 - **Data Table** — A paginated table view of all nodes in the database, organized by type.
 - **Schema** — A visual overview of the schema showing how node types and edge types relate to each other.
-- **Connections** — Where you manage database connections. This is where you landed after launching.
+- **Connections** — Where you manage database connections.
 
 Click **Connections** in the navigation bar to verify the "Default Connection" is active, then click **Graph** to return to the graph view.
 
