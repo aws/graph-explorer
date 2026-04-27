@@ -52,7 +52,7 @@ With the Austin airport node on the canvas, let's discover what it connects to.
 
 1. **Double-click** the AUS node on the canvas.
 
-Graph Explorer fetches the neighbors and adds them to the graph. You should see a cluster of connected airport nodes appear around AUS, representing direct flight routes.
+Graph Explorer fetches up to 10 neighbors and adds them to the graph. The number on top of a node shows how many unexpanded neighbors remain. Double-click again to fetch the next batch.
 
 <!-- prettier-ignore -->
 > [!TIP]
