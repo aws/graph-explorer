@@ -62,7 +62,7 @@ Graph Explorer fetches up to 10 neighbors and adds them to the graph. The number
 
 ## Filter the Graph
 
-As you expand nodes, the graph can get crowded. The Entities Filter lets you focus on specific types.
+As you expand nodes, the graph can get crowded. The Filters panel lets you focus on specific types.
 
 1. Click the **Filters** icon in the right sidebar to open the Entities Filter panel.
 2. You will see two tabs: **Node Labels** and **Edge Labels**. Each tab lists the types currently in the graph with checkboxes.
