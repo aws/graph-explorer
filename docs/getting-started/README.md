@@ -105,6 +105,7 @@ The Data Table page lets you browse all nodes in the database without adding the
 
 Now that you have explored the basics, here are some directions to go next:
 
+- [Features](../features) — Explore all capabilities in depth
 - [Connecting to databases](../guides#connecting-to-databases) — Connect to Neptune, Gremlin Server, or BlazeGraph
 - [Deployment guides](../guides#deployment) — Deploy with Docker, EC2, ECS Fargate, or SageMaker
 - [Configuration](../references/configuration.md) — Environment variables for application settings and default connections
