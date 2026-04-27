@@ -4,8 +4,8 @@ import path from "path";
 import { Readable } from "stream";
 import request from "supertest";
 
-import { createApp } from "./app.js";
-import { createLogger } from "./logging.js";
+import { createApp } from "./app.ts";
+import { createLogger } from "./logging.ts";
 
 // node-fetch is globally mocked in test-setup.ts
 const { default: fetch } = await import("node-fetch");

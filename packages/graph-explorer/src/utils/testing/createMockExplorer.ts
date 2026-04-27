@@ -3,7 +3,7 @@ import type { Explorer } from "@/connector";
 import { createRandomRawConfiguration } from "./randomData";
 
 export function createMockExplorer(): Explorer {
-  return <Explorer>{
+  return {
     neighborCounts: vi.fn(),
     keywordSearch: vi.fn(),
     fetchNeighbors: vi.fn(),
@@ -14,5 +14,5 @@ export function createMockExplorer(): Explorer {
     vertexDetails: vi.fn(),
     rawQuery: vi.fn(),
     fetchEdgeConnections: vi.fn(),
-  };
+  } as Explorer;
 }

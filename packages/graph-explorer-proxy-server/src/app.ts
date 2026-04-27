@@ -11,9 +11,9 @@ import path from "path";
 import { pipeline } from "stream";
 import { z } from "zod";
 
-import { errorHandlingMiddleware } from "./error-handler.js";
-import { RequestValidationError } from "./errors.js";
-import { type AppLogger, requestLoggingMiddleware } from "./logging.js";
+import { errorHandlingMiddleware } from "./error-handler.ts";
+import { RequestValidationError } from "./errors.ts";
+import { type AppLogger, requestLoggingMiddleware } from "./logging.ts";
 
 const DEFAULT_SERVICE_TYPE = "neptune-db";
 

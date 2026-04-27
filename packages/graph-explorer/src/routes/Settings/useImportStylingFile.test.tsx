@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { act } from "@testing-library/react";
 import { toast } from "sonner";
 

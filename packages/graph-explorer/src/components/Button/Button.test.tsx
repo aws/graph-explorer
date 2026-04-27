@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import type { PropsWithChildren } from "react";
 
 import { render, screen } from "@testing-library/react";

@@ -51,14 +51,14 @@ export async function fetchDefaultConnection() {
 
     // No query engine was specified, so return all the possible ones
     const configs = queryEngineOptions.map(queryEngine => {
-      return <RawConfiguration>{
+      return {
         ...config,
         id: `${config.id}-${queryEngine}` as ConfigurationId,
         connection: {
           ...config.connection,
           queryEngine: queryEngine,
         },
-      };
+      } as RawConfiguration;
     });
 
     return configs;

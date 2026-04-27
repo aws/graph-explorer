@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 

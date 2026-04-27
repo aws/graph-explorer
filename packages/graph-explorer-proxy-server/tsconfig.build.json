@@ -1,9 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "exclude": ["**/*.test.ts", "./src/test-setup.ts"],
-  "compilerOptions": {
-    "types": ["node"],
-    "outDir": "./dist",
-    "noEmit": false
-  }
-}

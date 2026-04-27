@@ -1,13 +1,13 @@
 import type { Request, Response } from "express";
 
-import type { EnvironmentValues } from "./env.js";
+import type { EnvironmentValues } from "./env.ts";
 
 import {
   createLogger,
   getRequestLoggerPrefix,
   logRequestAndResponse,
   requestLoggingMiddleware,
-} from "./logging.js";
+} from "./logging.ts";
 
 function createMockEnv(
   overrides: Partial<EnvironmentValues> = {},

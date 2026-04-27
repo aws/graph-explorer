@@ -6,6 +6,20 @@
   styling (#1265, #112, #173, #573, #689)
 - Add Lucide icon picker to node styling dialog
 
+## Release 3.0.2
+
+This patch release fixes a bug where schema sync did not automatically trigger when switching connections and adds a new configuration option for controlling allowed origins.
+
+- **Bug fix** — schema sync now automatically triggers when switching to a connection that has no cached schema
+- **Configuration** — new `PROXY_SERVER_CORS_ORIGIN` environment variable lets you explicitly control which origins are allowed to connect to the proxy server. See the [Security documentation](https://github.com/aws/graph-explorer/blob/v3.0.2/docs/references/security.md#cors) for details.
+
+### All Changes
+
+- Set User-Agent header on all outbound proxy requests by @kmcginnes in https://github.com/aws/graph-explorer/pull/1656
+- Add PROXY_SERVER_CORS_ORIGIN env var to configure allowed CORS origin by @kmcginnes in https://github.com/aws/graph-explorer/pull/1669
+- Update dompurify to latest version by @kmcginnes in https://github.com/aws/graph-explorer/pull/1676
+- Include connection ID in schema sync query key by @kmcginnes in https://github.com/aws/graph-explorer/pull/1682
+
 ## Release 3.0.1
 
 This patch release improves error handling, refactors the proxy server for testability, and hardens the application protection mechanisms. Error messages surface richer diagnostics — status codes, response bodies, and cause chains — so troubleshooting is more useful. We also upgraded to Vite 8, cutting build time by 60% and bundle size by 5%.

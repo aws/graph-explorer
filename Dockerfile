@@ -2,7 +2,9 @@
 FROM amazonlinux:2023 AS base
 ENV NODE_VERSION=24.13.0
 
-RUN yum update -y && \
+# Install Node.js and openssl, then remove everything not needed at runtime
+# (package managers, python3, build tools) to minimize potential issues.
+RUN yum update -y --releasever 2023.11.20260413 && \
     yum install -y tar xz openssl && \
     ARCH=$(uname -m) && \
     if [ "$ARCH" = "x86_64" ]; then NODE_ARCH="x64"; \
@@ -13,7 +15,9 @@ RUN yum update -y && \
     corepack enable && \
     yum remove -y tar xz && \
     yum clean all && \
-    rm -rf /var/cache/yum
+    rpm -qa 'python3*' | while read pkg; do rpm -e --nodeps "$pkg"; done && \
+    rpm -qa 'dnf*' 'yum*' 'libdnf*' | while read pkg; do rpm -e --nodeps "$pkg"; done && \
+    rm -rf /var/cache/yum /var/cache/dnf
 
 FROM base
 ARG NEPTUNE_NOTEBOOK

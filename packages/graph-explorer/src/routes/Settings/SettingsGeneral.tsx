@@ -30,6 +30,7 @@ import {
   defaultNeighborExpansionLimitAtom,
   defaultNeighborExpansionLimitEnabledAtom,
   defaultStylingAtom,
+  diagnosticLoggingAtom,
   showDebugActionsAtom,
   userStylingAtom,
 } from "@/core";
@@ -45,6 +46,10 @@ export default function SettingsGeneral() {
 
   const [allowLoggingDbQuery, setAllowLoggingDbQuery] = useAtom(
     allowLoggingDbQueryAtom,
+  );
+
+  const [diagnosticLogging, setDiagnosticLogging] = useAtom(
+    diagnosticLoggingAtom,
   );
 
   const [defaultNeighborExpansionLimit, setDefaultNeighborExpansionLimit] =
@@ -179,6 +184,17 @@ export default function SettingsGeneral() {
             Resetting will revert all types to their default appearance.
           </p>
         </ImportantBlock>
+
+        <ToggleSetting
+          id="isDiagnosticLoggingEnabled"
+          value="isDiagnosticLoggingEnabled"
+          checked={diagnosticLogging}
+          onCheckedChange={isSelected => {
+            setDiagnosticLogging(Boolean(isSelected));
+          }}
+          label="Diagnostic logging"
+          description="Enables verbose logging to the browser console for troubleshooting."
+        />
 
         <ToggleSetting
           id="isLoggingDbQueryEnabled"

@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { z } from "zod";
 
 import { createDisplayError } from "./createDisplayError";

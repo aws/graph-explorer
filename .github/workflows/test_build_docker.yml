@@ -9,13 +9,17 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test-build-docker-image:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
 
       - name: Build Docker image
         run: |
@@ -23,7 +27,7 @@ jobs:
           docker build -t test-image-neptune --build-arg NEPTUNE_NOTEBOOK=true .
 
       - name: Scan Docker image for vulnerabilities
-        uses: aquasecurity/trivy-action@v0.35.0
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # v0.35.0
         with:
           image-ref: test-image
           severity: HIGH,CRITICAL
@@ -34,15 +38,44 @@ jobs:
           docker run --rm --entrypoint="" test-image openssl --version
           docker run --rm --entrypoint="" test-image-neptune openssl --version
 
-      - name: Verify package managers are removed
+      - name: Verify unnecessary packages are removed
         run: |
           docker run --rm --entrypoint="" test-image sh -c '
             (command -v npm && echo "FAIL: npm found" && exit 1) || echo "✓ npm removed"
             (command -v pnpm && echo "FAIL: pnpm found" && exit 1) || echo "✓ pnpm removed"
             (command -v corepack && echo "FAIL: corepack found" && exit 1) || echo "✓ corepack removed"
+            (command -v python3 && echo "FAIL: python3 found" && exit 1) || echo "✓ python3 removed"
+            (command -v yum && echo "FAIL: yum found" && exit 1) || echo "✓ yum removed"
+            (command -v dnf && echo "FAIL: dnf found" && exit 1) || echo "✓ dnf removed"
           '
           docker run --rm --entrypoint="" test-image-neptune sh -c '
             (command -v npm && echo "FAIL: npm found" && exit 1) || echo "✓ npm removed"
             (command -v pnpm && echo "FAIL: pnpm found" && exit 1) || echo "✓ pnpm removed"
             (command -v corepack && echo "FAIL: corepack found" && exit 1) || echo "✓ corepack removed"
+            (command -v python3 && echo "FAIL: python3 found" && exit 1) || echo "✓ python3 removed"
+            (command -v yum && echo "FAIL: yum found" && exit 1) || echo "✓ yum removed"
+            (command -v dnf && echo "FAIL: dnf found" && exit 1) || echo "✓ dnf removed"
           '
+
+      - name: Verify server starts and responds
+        run: |
+          docker run -d --name test-server \
+            -p 8080:80 \
+            -e PROXY_SERVER_HTTPS_CONNECTION=false \
+            test-image
+          trap 'docker rm -f test-server 2>/dev/null' EXIT
+
+          # Wait for the server to be ready
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/status; then
+              echo ""
+              echo "✓ Server responded on /status"
+              break
+            fi
+            if [ "$i" -eq 30 ]; then
+              echo "FAIL: Server did not respond within 30 seconds"
+              docker logs test-server
+              exit 1
+            fi
+            sleep 1
+          done

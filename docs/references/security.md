@@ -1,8 +1,10 @@
+[← References](./)
+
 # Security
 
 You can use Graph Explorer to connect to a publicly accessible graph database endpoint, or connect to a proxy endpoint that redirects to a private graph database endpoint.
 
-Graph Explorer supports the HTTPS protocol by default and provides a self-signed certificate as part of the Docker image. You can choose to use HTTP instead by changing the [environment variable default settings](../development.md#environment-variables).
+Graph Explorer supports the HTTPS protocol by default and provides a self-signed certificate as part of the Docker image. You can choose to use HTTP instead by changing the [environment variable default settings](./configuration.md#application-configuration).
 
 ## HTTPS Connections
 
@@ -56,10 +58,18 @@ When using the default self-signed certificate, your browser will show a securit
 3. Once imported, select the certificate and right-click to select "Get Info". Expand the Trust section, and change the value of "When using this certificate" to "Always Trust".
 4. You should now refresh the browser and see that you can proceed to open the application. For Chrome, the application will remain "Not Secure" due to the fact that this is a self-signed certificate. If you have trouble accessing Graph Explorer after completing the previous step and reloading the browser, consider running a docker restart command and refreshing the browser again.
 
-<!-- prettier-ignore -->
-> [!TIP] 
-> 
-> To get rid of the "Not Secure" warning, see [Using self-signed certificates on Chrome](../development.md#using-self-signed-certificates-on-chrome).
+### Removing the "Not Secure" warning on Chrome
+
+For browsers like Safari and Firefox, trusting the certificate from the browser (steps above) is enough to bypass the "Not Secure" warning. However, Chrome treats self-signed certificates differently. To remove the warning on Chrome, you need to trust the **root CA certificate** rather than the server certificate. See the [Chrome Root Store FAQ](https://chromium.googlesource.com/chromium/src/+/main/net/data/ssl/chrome_root_store/faq.md#how-does-the-chrome-certificate-verifier-integrate-with-platform-trust-stores-for-local-trust-decisions) for details on how Chrome integrates with platform trust stores.
+
+1. Copy the root certificate from the running container to your local machine:
+   ```
+   docker cp graph-explorer:/graph-explorer/packages/graph-explorer-proxy-server/cert-info/rootCA.crt ./rootCA.crt
+   ```
+   If Graph Explorer is running on a remote host (e.g., EC2), copy the file to the remote host first, then use `scp` to transfer it to your local machine.
+2. Trust the root certificate on your machine. For macOS, open the Keychain Access app, select System under System Keychains, then go to File > Import Items... and import `rootCA.crt`.
+3. Once imported, select the certificate and right-click to select "Get Info". Expand the Trust section, and change the value of "When using this certificate" to "Always Trust".
+4. Refresh the browser. The "Not Secure" warning should be gone.
 
 ## CORS
 

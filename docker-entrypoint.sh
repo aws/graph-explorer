@@ -22,4 +22,4 @@ fi
 
 echo "Starting graph explorer..."
 # Stubbed in tests — update docker-entrypoint.test.ts if changing
-cd /graph-explorer/packages/graph-explorer-proxy-server && NODE_ENV=production node dist/node-server.js
+cd /graph-explorer/packages/graph-explorer-proxy-server && NODE_ENV=production node src/node-server.ts

@@ -137,7 +137,27 @@ All tests automatically inherit the configuration from `setupTests.ts`, which pr
 - **Cleanup**: Automatic cleanup after each test
 - **Global Mocks**: Intl, environment variables
 
+The vitest config handles mock cleanup automatically between tests via `clearMocks`, `resetMocks`, `restoreMocks`, `unstubEnvs`, and `unstubGlobals`. You do not need to call these manually.
+
 Most tests require minimal additional setup beyond what's provided automatically.
+
+### Using `vi.doMock` with Dynamic Imports
+
+If a test needs `vi.doMock()` with dynamic `import()` to swap module implementations between tests, it must call `vi.resetModules()` in its own `beforeEach`. This is not done globally because it invalidates the module cache and is expensive.
+
+```typescript
+describe("my module", () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  test("with mock A", async () => {
+    vi.doMock("./dep", () => ({ value: "A" }));
+    const mod = await import("./myModule");
+    expect(mod.result).toBe("A");
+  });
+});
+```
 
 ### Environment Variables
 

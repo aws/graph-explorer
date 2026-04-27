@@ -2,13 +2,13 @@ import dotenv from "dotenv";
 import path from "path";
 
 import packageJson from "../package.json" with { type: "json" };
-import { createApp } from "./app.js";
-import { parseEnvironmentValues } from "./env.js";
-import { handleError } from "./error-handler.js";
-import { createLogger } from "./logging.js";
-import { clientRoot, isDirectory } from "./paths.js";
-import { resolveServerConfig, ServerConfigError } from "./server-config.js";
-import { createServer } from "./server.js";
+import { createApp } from "./app.ts";
+import { parseEnvironmentValues } from "./env.ts";
+import { handleError } from "./error-handler.ts";
+import { createLogger } from "./logging.ts";
+import { clientRoot, isDirectory } from "./paths.ts";
+import { resolveServerConfig, ServerConfigError } from "./server-config.ts";
+import { createServer } from "./server.ts";
 
 // Load .env files into process.env before parsing
 const configPath = process.env.CONFIGURATION_FOLDER_PATH ?? clientRoot;

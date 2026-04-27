@@ -4,9 +4,9 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 
-import { parseEnvironmentValues } from "./env.js";
-import { proxyServerRoot } from "./paths.js";
-import { resolveServerConfig, ServerConfigError } from "./server-config.js";
+import { parseEnvironmentValues } from "./env.ts";
+import { proxyServerRoot } from "./paths.ts";
+import { resolveServerConfig, ServerConfigError } from "./server-config.ts";
 
 const expectedKeyPath = path.join(proxyServerRoot, "cert-info/server.key");
 const expectedCertPath = path.join(proxyServerRoot, "cert-info/server.crt");

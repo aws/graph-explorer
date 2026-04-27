@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { createRandomInteger } from "@shared/utils/testing";
 import { vi } from "vitest";
 

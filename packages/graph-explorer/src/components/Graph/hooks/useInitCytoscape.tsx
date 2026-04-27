@@ -94,7 +94,7 @@ const useInitCytoscape = ({
       }, 100);
       cy.on("pan", debouncedPan);
 
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: tracking external Cytoscape instance
       setCy(cy);
 
       return () => {
@@ -102,6 +102,7 @@ const useInitCytoscape = ({
         (cy as any).removeAllListeners();
         cy.destroy();
         cy.unmount();
+
         setCy(undefined);
       };
     }

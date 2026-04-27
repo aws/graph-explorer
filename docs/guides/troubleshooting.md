@@ -1,16 +1,18 @@
+[← Guides](./)
+
 # Troubleshooting
 
 This page contains workarounds for common issues and information on how to diagnose other issues.
 
 - [Docker Container Issues](#docker-container-issues)
 - [Schema Sync Fails](#schema-sync-fails)
-- [Backup Graph Explorer Data](#backup-graph-explorer-data)
+- [Save & Load Configuration](#save--load-configuration)
 - [Gathering SageMaker Logs](#gathering-sagemaker-logs)
 
 ## Docker Container Issues
 
 1. If the container does not start, or immediately stops, use `docker logs graph-explorer` to check the container console logs for any related error messages that might provide guidance on why graph-explorer did not start.
-2. If you are having issues connecting graph-explorer to your graph database, use your browser's Developer Tools feature to monitor both the browser console and network calls to determine if here are any errors related to connectivity.
+2. If you are having issues connecting graph-explorer to your graph database, use your browser's Developer Tools feature to monitor both the browser console and network calls to determine if there are any errors related to connectivity.
 
 ### Ports in Use
 
@@ -32,7 +34,7 @@ Which will result in the following URLs:
 
 ### HTTP Only
 
-If you do not want to use SSL and HTTPS, you can disable it by setting the following [environment variables](/docs/development.md#environment-variables):
+If you do not want to use SSL and HTTPS, you can disable it by setting the following [environment variables](../references/configuration.md#application-configuration):
 
 ```
 PROXY_SERVER_HTTPS_CONNECTION=false
@@ -51,21 +53,9 @@ docker run -p 80:80 \
 
 ### HTTPS Connections
 
-If either of the Graph Explorer or the proxy-server are served over an HTTPS connection (which it is by default), you will have to bypass the warning message from the browser due to the included certificate being a self-signed certificate.
+If either Graph Explorer or the proxy server are served over an HTTPS connection (which is the default), your browser will show a security warning due to the self-signed certificate.
 
-You can bypass by manually ignoring them from the browser or downloading the correct certificate and configuring them to be trusted. Alternatively, you can provide your own certificate.
-
-The following instructions can be used as an example to bypass the warnings for Chrome, but note that different browsers and operating systems will have slightly different steps.
-
-1. Download the certificate directly from the browser. For example, if using Google Chrome, click the “Not Secure” section on the left of the URL bar and select “Certificate is not valid” to show the certificate. Then click Details tab and click Export at the bottom.
-2. Once you have the certificate, you will need to trust it on your machine. For MacOS, you can open the Keychain Access app. Select System under System Keychains. Then go to File > Import Items... and import the certificate you downloaded in the previous step.
-3. Once imported, select the certificate and right-click to select "Get Info". Expand the Trust section, and change the value of "When using this certificate" to "Always Trust".
-4. You should now refresh the browser and see that you can proceed to open the application. For Chrome, the application will remain “Not Secure” due to the fact that this is a self-signed certificate. If you have trouble accessing Graph Explorer after completing the previous step and reloading the browser, consider running a docker restart command and refreshing the browser again.
-
-<!-- prettier-ignore -->
-> [!TIP]
-> To get rid of the “Not Secure” warning, see
-[Using self-signed certificates on Chrome](/docs/development.md#using-self-signed-certificates-on-chrome).
+See [Trusting the self-signed certificate](../references/security.md#trusting-the-self-signed-certificate) for step-by-step instructions, or [Removing the "Not Secure" warning on Chrome](../references/security.md#removing-the-not-secure-warning-on-chrome) for Chrome-specific instructions.
 
 ## Schema Sync Fails
 
@@ -126,20 +116,20 @@ This can manifest as different types of errors depending on the root cause. You 
 > [!IMPORTANT]  
 > The paths listed here could always change in the future. If they do change, we will note that in the release notes.
 
-## Backup Graph Explorer Data
+## Save & Load Configuration
 
-Inside of Graph Explorer there is an option to export all the configuration data that Graph Explorer uses. This data is local to the user’s browser and does not exist on the server.
+Inside of Graph Explorer there is an option to save all the configuration data that Graph Explorer uses. This data is local to the user's browser and does not exist on the server.
 
-To gather the config data:
+To save the configuration data:
 
 1. Launch Graph Explorer
 2. Navigate to the connections screen
-3. Press the “Settings” button in the navigation bar
-4. Select the “General” page within settings
-5. Press the “Save Configuration” button
-6. Choose where to save the exported file
+3. Press the "Settings" button in the navigation bar
+4. Select the "General" page within settings
+5. Press the "Save Configuration" button
+6. Choose where to save the configuration file
 
-This backup can be restored using the “Load Configuration” button in the same settings page.
+This configuration can be restored using the "Load Configuration" button in the same settings page.
 
 ## Gathering SageMaker Logs
 
@@ -149,21 +139,21 @@ To gather these logs:
 
 1. Open the AWS Console
 2. Navigate to the Neptune page
-3. Select “Notebook” from the sidebar
+3. Select "Notebook" from the sidebar
 4. Find the Notebook hosting Graph Explorer
 5. Open the details screen for that Notebook
-6. In the “Actions” menu, choose “View Details in SageMaker”
-7. Press the “View Logs” link in the SageMaker details screen under the field titled “Lifecycle configuration”
-8. Scroll down to the “Log Streams” panel in the CloudWatch details where you should find multiple log streams
+6. In the "Actions" menu, choose "View Details in SageMaker"
+7. Press the "View Logs" link in the SageMaker details screen under the field titled "Lifecycle configuration"
+8. Scroll down to the "Log Streams" panel in the CloudWatch details where you should find multiple log streams
 9. For each log stream related to Graph Explorer (LifecycleConfigOnStart.log, graph-explorer.log)
    1. Open the log stream
-   2. In the “Actions” menu, choose “Download search results (CSV)”
+   2. In the "Actions" menu, choose "Download search results (CSV)"
 
 ### Graph Explorer Log Stream Does Not Exist
 
-New Neptune Notebooks automatically apply the correct IAM permissions to write to CloudWatch. If your Notebook does not automatically create a graph-explorer.log in the CloudWatch Log Streams, then it is possible that the Neptune Notebook was created before those IAM permissions were added. You’ll need to add those permissions manually.
+New Neptune Notebooks automatically apply the correct IAM permissions to write to CloudWatch. If your Notebook does not automatically create a graph-explorer.log in the CloudWatch Log Streams, then it is possible that the Neptune Notebook was created before those IAM permissions were added. You'll need to add those permissions manually.
 
 Below are examples of which IAM permissions you need for Graph Explorer.
 
-- [IAM permissions for Neptune DB](/docs/guides/deploy-to-sagemaker/graph-explorer-neptune-db-policy.json)
-- [IAM permissions for Neptune Analytics](/docs/guides/deploy-to-sagemaker/graph-explorer-neptune-analytics-policy.json)
+- [IAM permissions for Neptune DB](./deploy-to-sagemaker/graph-explorer-neptune-db-policy.json)
+- [IAM permissions for Neptune Analytics](./deploy-to-sagemaker/graph-explorer-neptune-analytics-policy.json)
