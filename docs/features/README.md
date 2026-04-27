@@ -14,7 +14,7 @@ All user data — connections, preferences, layout settings, and query history �
 
 ### Interactive Graph Exploration
 
-Double-click any node to expand its first-order neighbors directly on the canvas. Use the Expand sidebar panel for more control: filter by neighbor type, narrow by attribute value, or limit the number of results returned.
+Double-click any node to expand its first-order neighbors directly on the canvas. Use the Expand sidebar panel for more control: filter by neighbor type, narrow by attribute value, or limit the number of results returned. As the graph grows, use the Entities Filter to show or hide specific node and edge types without removing them from the graph.
 
 ### Query Editor
 
@@ -22,15 +22,11 @@ Execute raw Gremlin, openCypher, or SPARQL queries directly from the Search pane
 
 ### Customizable Styles
 
-Personalize how each node and edge type appears on the canvas. Change colors, shapes, borders, icons, and which property is displayed as the label. Styling is saved per connection and persists across sessions.
+Personalize how each node and edge type appears on the canvas. Change colors, shapes, borders, icons, and which property is displayed as the label. You can also rename how type names are displayed throughout the application — for example, show the `airport` label as "Airport" or a `route` edge as "Flies To" — without modifying the underlying data. Styling is saved per connection and persists across sessions.
 
-### Rename Labels
+### Save & Load Graph
 
-Override how node and edge type names are displayed throughout the application. For example, rename the `airport` label to "Airport" or a `route` edge to "Flies To" without modifying the underlying data.
-
-### Entities Filter
-
-Control which node and edge types are visible on the canvas. Unchecking a type hides those entities from view without removing them from the graph, letting you focus on the subset of data that matters.
+Export the current graph as a JSON file to save your work, share it with a colleague, or reload it later. Anyone with the same database connection can import the file and pick up exactly where you left off.
 
 ## Feature Details
 
