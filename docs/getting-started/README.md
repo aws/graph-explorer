@@ -44,7 +44,7 @@ On the right side of the graph view, you will see a vertical strip of sidebar ic
 4. In the search text field, type `AUS`.
 5. Click the result for Austin to expand it, then click the **⊕** button to add it to the graph canvas.
 
-The node appears on the canvas. You can click and drag it to reposition it.
+The node appears on the canvas. Click it to select it, then open the **Details** panel in the right sidebar to see its properties like city, country, and coordinates. You can zoom with the scroll wheel and pan by clicking and dragging the background.
 
 ## Expand Neighbors
 
