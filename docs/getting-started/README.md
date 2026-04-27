@@ -54,7 +54,6 @@ With the Austin airport node on the canvas, let's discover what it connects to.
 
 Graph Explorer fetches up to 10 neighbors and adds them to the graph. The number on top of a node shows how many unexpanded neighbors remain. Double-click again to fetch the next batch.
 
-<!-- prettier-ignore -->
 > [!TIP]
 >
 > You can also right-click a node and select **Expand node** from the context
@@ -75,7 +74,7 @@ This does not remove nodes from the graph — it only controls visibility. You c
 
 You can view the nodes and edges currently on the canvas in a table format without leaving the Graph page.
 
-1. Click the grid icon in the graph toolbar to toggle the Table View open.
+1. Click the grid icon in the navigation bar to toggle the Table View open.
 2. Use the dropdown to switch between **All Nodes** and **All Edges**.
 3. You can sort, filter, and export the table data to CSV or JSON.
 
@@ -98,7 +97,7 @@ All airport nodes on the canvas update to the new color. You can also change the
 The Data Table page lets you browse all nodes in the database without adding them to the graph first.
 
 1. Click **Data Table** in the navigation bar.
-2. Use the **Node Label** dropdown at the top left to select **airport**.
+2. The **Node Label** dropdown at the top left is pre-selected to **airport**. Use it to switch to other types like **country** or **continent**.
 3. Browse the paginated table of all airports in the dataset.
 4. To send a specific airport to the graph view, click the **Send to Explorer** button on its row.
 
