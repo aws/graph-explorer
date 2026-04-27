@@ -10,7 +10,7 @@ Graph Explorer supports property graphs via [Gremlin](https://tinkerpop.apache.o
 
 ### No Centralized Database
 
-All user data — connections, preferences, layout settings, and query history — is stored client-side in the browser using IndexedDB. The proxy server handles authentication and request routing but does not store any user data. There is no external database to set up or manage.
+All user data — connections, preferences, layout settings, and query history — is stored client-side in the browser using IndexedDB. The proxy server handles SigV4 request signing and request routing but does not store any user data. There is no external database to set up or manage.
 
 ### Interactive Graph Exploration
 
