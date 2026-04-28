@@ -98,6 +98,19 @@ export type PrefixTypeConfig = {
   __inferred?: boolean;
 };
 
+/** Creates a PrefixTypeConfig from plain strings. */
+export function createPrefixTypeConfig(options: {
+  prefix: string;
+  uri: string;
+  inferred?: boolean;
+}): PrefixTypeConfig {
+  return {
+    prefix: options.prefix as RdfPrefix,
+    uri: options.uri as IriNamespace,
+    __inferred: options.inferred,
+  };
+}
+
 /**
  * Represents a connection between node labels via an edge type.
  * Used by Schema Explorer to visualize relationships between node types.
