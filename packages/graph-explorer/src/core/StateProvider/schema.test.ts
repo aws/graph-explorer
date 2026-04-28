@@ -699,6 +699,36 @@ describe("useUpdateSchemaFromEntities", () => {
 
     expect(result.current.schemaMap).toBe(schemaMapBefore);
   });
+
+  it("should not churn schemaAtom when entities already match schema", () => {
+    const state = new DbState();
+    const existingVertex = createRandomVertex();
+    existingVertex.type = state.activeSchema.vertices[0].type;
+    existingVertex.types = [state.activeSchema.vertices[0].type];
+    existingVertex.attributes =
+      state.activeSchema.vertices[0].attributes.reduce((acc, attr) => {
+        acc[attr.name] = createRandomName("value");
+        return acc;
+      }, {} as EntityProperties);
+
+    const { result } = renderHookWithState(
+      () => ({
+        updateSchema: useUpdateSchemaFromEntities(),
+        schemaMap: useAtomValue(schemaAtom),
+      }),
+      state,
+    );
+
+    const schemaMapBefore = result.current.schemaMap;
+
+    act(() => {
+      result.current.updateSchema({
+        vertices: [existingVertex],
+      });
+    });
+
+    expect(result.current.schemaMap).toBe(schemaMapBefore);
+  });
 });
 
 describe("useHasActiveSchema", () => {

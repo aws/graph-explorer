@@ -345,16 +345,14 @@ function mergeVertices(
   let hasChanges = false;
 
   for (const vertex of vertices) {
+    const attrs = attributesFromProperties(vertex.attributes);
     for (const type of vertex.types) {
       const existingConfig = byType.get(type);
       if (!existingConfig) {
         logger.debug("Discovered new vertex type:", type);
-        byType.set(type, {
-          type,
-          attributes: attributesFromProperties(vertex.attributes),
-        });
+        byType.set(type, { type, attributes: attrs });
         newIris.add(type);
-        for (const attr of attributesFromProperties(vertex.attributes)) {
+        for (const attr of attrs) {
           newIris.add(attr.name);
         }
         hasChanges = true;
@@ -366,8 +364,13 @@ function mergeVertices(
         if (mergedAttrs !== existingConfig.attributes) {
           logger.debug("Discovered new attributes for vertex type:", type);
           byType.set(type, { ...existingConfig, attributes: mergedAttrs });
-          for (const attr of mergedAttrs) {
-            newIris.add(attr.name);
+          // Only the newly added attributes need IRI scanning
+          for (
+            let i = existingConfig.attributes.length;
+            i < mergedAttrs.length;
+            i++
+          ) {
+            newIris.add(mergedAttrs[i].name);
           }
           hasChanges = true;
         }
@@ -462,7 +465,7 @@ function mergeAttributesFromProperties(
   const existingNames = new Set(existing.map(a => a.name));
   const newAttrs: AttributeConfig[] = [];
 
-  for (const name in properties) {
+  for (const name of Object.keys(properties)) {
     if (!existingNames.has(name)) {
       newAttrs.push({ name, dataType: detectDataType(properties[name]) });
     }
