@@ -81,17 +81,15 @@ export function createApp({
 
   app.use(requestLoggingMiddleware());
   app.use(compression());
-  app.use(
-    cors({
-      origin: corsOrigin
-        ? corsOrigin.length === 1
-          ? corsOrigin[0]
-          : corsOrigin
-        : true,
-      methods: ["GET", "POST"],
-      maxAge: 86400,
-    }),
-  );
+  if (corsOrigin) {
+    app.use(
+      cors({
+        origin: corsOrigin.length === 1 ? corsOrigin[0] : corsOrigin,
+        methods: ["GET", "POST"],
+        maxAge: 86400,
+      }),
+    );
+  }
   app.use(bodyParser.json({ limit: "50mb" }));
   app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
   app.use(
