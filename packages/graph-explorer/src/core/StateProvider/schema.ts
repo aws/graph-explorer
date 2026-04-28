@@ -288,17 +288,21 @@ export function updateSchemaFromEntities(
     return schema;
   }
 
-  const mergedVertices = mergeVertices(schema.vertices, vertices);
-  const mergedEdges = mergeEdges(schema.edges, edges);
+  const { configs: mergedVertices, newIris: vertexIris } = mergeVertices(
+    schema.vertices,
+    vertices,
+  );
+  const { configs: mergedEdges, newIris: edgeIris } = mergeEdges(
+    schema.edges,
+    edges,
+  );
 
   const existingPrefixes = schema.prefixes ?? [];
   const mergedPrefixes = mergePrefixes(
     existingPrefixes,
     entities,
-    mergedVertices,
-    mergedEdges,
-    schema.vertices,
-    schema.edges,
+    vertexIris,
+    edgeIris,
   );
 
   if (
@@ -322,16 +326,22 @@ export function updateSchemaFromEntities(
   return result;
 }
 
+type MergeResult<T> = {
+  configs: T[];
+  newIris: Set<string>;
+};
+
 /** Merges new vertex entities into existing vertex type configs. */
 function mergeVertices(
   existing: VertexTypeConfig[],
   vertices: Vertex[],
-): VertexTypeConfig[] {
+): MergeResult<VertexTypeConfig> {
   if (!vertices.length) {
-    return existing;
+    return { configs: existing, newIris: new Set() };
   }
 
   const byType = new Map(existing.map(v => [v.type, v]));
+  const newIris = new Set<string>();
   let hasChanges = false;
 
   for (const vertex of vertices) {
@@ -343,6 +353,10 @@ function mergeVertices(
           type,
           attributes: attributesFromProperties(vertex.attributes),
         });
+        newIris.add(type);
+        for (const attr of attributesFromProperties(vertex.attributes)) {
+          newIris.add(attr.name);
+        }
         hasChanges = true;
       } else {
         const mergedAttrs = mergeAttributesFromProperties(
@@ -352,25 +366,32 @@ function mergeVertices(
         if (mergedAttrs !== existingConfig.attributes) {
           logger.debug("Discovered new attributes for vertex type:", type);
           byType.set(type, { ...existingConfig, attributes: mergedAttrs });
+          for (const attr of mergedAttrs) {
+            newIris.add(attr.name);
+          }
           hasChanges = true;
         }
       }
     }
   }
 
-  return hasChanges ? Array.from(byType.values()) : existing;
+  return {
+    configs: hasChanges ? Array.from(byType.values()) : existing,
+    newIris,
+  };
 }
 
 /** Merges new edge entities into existing edge type configs. */
 function mergeEdges(
   existing: EdgeTypeConfig[],
   edges: Edge[],
-): EdgeTypeConfig[] {
+): MergeResult<EdgeTypeConfig> {
   if (!edges.length) {
-    return existing;
+    return { configs: existing, newIris: new Set() };
   }
 
   const byType = new Map(existing.map(e => [e.type, e]));
+  const newIris = new Set<string>();
   let hasChanges = false;
 
   for (const edge of edges) {
@@ -381,6 +402,7 @@ function mergeEdges(
         type: edge.type,
         attributes: attributesFromProperties(edge.attributes),
       });
+      newIris.add(edge.type);
       hasChanges = true;
     } else {
       const mergedAttrs = mergeAttributesFromProperties(
@@ -395,48 +417,29 @@ function mergeEdges(
     }
   }
 
-  return hasChanges ? Array.from(byType.values()) : existing;
+  return {
+    configs: hasChanges ? Array.from(byType.values()) : existing,
+    newIris,
+  };
 }
 
-/** Generates and merges new RDF prefixes from entity IRIs and newly-added schema types/attributes. */
+/** Generates and merges new RDF prefixes from entity IRIs and newly-discovered schema IRIs. */
 function mergePrefixes(
   existing: PrefixTypeConfig[],
   entities: Partial<Entities>,
-  mergedVertices: VertexTypeConfig[],
-  mergedEdges: EdgeTypeConfig[],
-  previousVertices: VertexTypeConfig[],
-  previousEdges: EdgeTypeConfig[],
+  vertexIris: Set<string>,
+  edgeIris: Set<string>,
 ): PrefixTypeConfig[] {
-  const iris = new Set<string>();
+  const iris = new Set<string>(vertexIris);
 
+  for (const iri of edgeIris) {
+    iris.add(iri);
+  }
   for (const v of entities.vertices ?? []) {
     iris.add(String(v.id));
   }
   for (const e of entities.edges ?? []) {
     iris.add(String(e.id));
-  }
-
-  // Only scan types/attributes that were actually added or changed
-  const previousVertexByType = new Map(previousVertices.map(v => [v.type, v]));
-  for (const v of mergedVertices) {
-    const prev = previousVertexByType.get(v.type);
-    if (!prev) {
-      iris.add(v.type);
-      for (const attr of v.attributes) {
-        iris.add(attr.name);
-      }
-    } else if (v.attributes !== prev.attributes) {
-      for (const attr of v.attributes) {
-        iris.add(attr.name);
-      }
-    }
-  }
-  const previousEdgeByType = new Map(previousEdges.map(e => [e.type, e]));
-  for (const e of mergedEdges) {
-    const prev = previousEdgeByType.get(e.type);
-    if (!prev) {
-      iris.add(e.type);
-    }
   }
 
   const newPrefixes = generateSchemaPrefixes(iris, existing);
