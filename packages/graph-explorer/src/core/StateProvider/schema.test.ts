@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { createArray, createRandomName } from "@shared/utils/testing";
+import { act } from "@testing-library/react";
 import { useAtomValue } from "jotai";
 
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
@@ -14,7 +15,6 @@ import { LABELS } from "@/utils";
 import {
   createRandomEdge,
   createRandomEdgeConnection,
-  createRandomEntities,
   createRandomRawConfiguration,
   createRandomSchema,
   createRandomVertex,
@@ -24,12 +24,12 @@ import {
   renderHookWithState,
 } from "@/utils/testing";
 
-import type {
-  EdgeTypeConfig,
-  PrefixTypeConfig,
-  VertexTypeConfig,
+import {
+  createPrefixTypeConfig,
+  type EdgeTypeConfig,
+  type PrefixTypeConfig,
+  type VertexTypeConfig,
 } from "../ConfigurationProvider";
-
 import {
   createEdge,
   createEdgeType,
@@ -43,12 +43,12 @@ import {
   mapVertexToTypeConfigs,
   maybeActiveSchemaAtom,
   type SchemaStorageModel,
-  shouldUpdateSchemaFromEntities,
   updateSchemaFromEntities,
   useActiveSchema,
   useGraphSchema,
   useHasActiveSchema,
   useMaybeActiveSchema,
+  useUpdateSchemaFromEntities,
 } from "./schema";
 
 describe("schema", () => {
@@ -264,6 +264,136 @@ describe("schema", () => {
       const prefixes = result.prefixes?.map(p => p.prefix);
       expect(prefixes).toContain("country");
     });
+
+    it("should add all types from a multi-label vertex", () => {
+      const schema: SchemaStorageModel = {
+        vertices: [],
+        edges: [],
+      };
+
+      const vertex = createVertex({
+        id: "1",
+        types: ["Person", "Employee"],
+        attributes: { name: "Alice" },
+      });
+
+      const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+
+      expect(result.vertices).toHaveLength(2);
+      expect(result.vertices.map(v => v.type)).toStrictEqual([
+        createVertexType("Person"),
+        createVertexType("Employee"),
+      ]);
+      expect(result.vertices[0].attributes).toStrictEqual([
+        { name: "name", dataType: "String" },
+      ]);
+      expect(result.vertices[1].attributes).toStrictEqual([
+        { name: "name", dataType: "String" },
+      ]);
+    });
+
+    it("should not regenerate prefixes for existing schema types", () => {
+      const schema: SchemaStorageModel = {
+        vertices: [
+          {
+            type: createVertexType("http://example.com/ontology#Person"),
+            attributes: [
+              { name: "http://example.com/ontology#name", dataType: "String" },
+            ],
+          },
+        ],
+        edges: [],
+        prefixes: [
+          createPrefixTypeConfig({
+            prefix: "ontology",
+            uri: "http://example.com/ontology#",
+            inferred: true,
+          }),
+        ],
+      };
+
+      const vertex = createVertex({
+        id: "1",
+        types: ["http://example.com/ontology#Person"],
+        attributes: {
+          "http://example.com/ontology#name": "Alice",
+        },
+      });
+
+      const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+
+      expect(result.prefixes).toBe(schema.prefixes);
+    });
+
+    it("should generate prefixes for new attribute namespaces on existing types", () => {
+      const schema: SchemaStorageModel = {
+        vertices: [
+          {
+            type: createVertexType("http://example.com/ontology#Person"),
+            attributes: [
+              { name: "http://example.com/ontology#name", dataType: "String" },
+            ],
+          },
+        ],
+        edges: [],
+        prefixes: [
+          createPrefixTypeConfig({
+            prefix: "ontology",
+            uri: "http://example.com/ontology#",
+            inferred: true,
+          }),
+        ],
+      };
+
+      const vertex = createVertex({
+        id: "1",
+        types: ["http://example.com/ontology#Person"],
+        attributes: {
+          "http://new.example.com/props#age": 30,
+        },
+      });
+
+      const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+
+      const newPrefixes = result.prefixes!.filter(
+        p => !schema.prefixes!.includes(p),
+      );
+      expect(newPrefixes).toHaveLength(1);
+      expect(newPrefixes[0].prefix).toBe("props");
+    });
+
+    it("should generate prefixes for new types but not existing ones", () => {
+      const schema: SchemaStorageModel = {
+        vertices: [
+          {
+            type: createVertexType("http://example.com/ontology#Person"),
+            attributes: [],
+          },
+        ],
+        edges: [],
+        prefixes: [
+          createPrefixTypeConfig({
+            prefix: "ontology",
+            uri: "http://example.com/ontology#",
+            inferred: true,
+          }),
+        ],
+      };
+
+      const vertex = createVertex({
+        id: "http://example.com/resource/1",
+        types: ["http://example.com/classes#Employee"],
+        attributes: {},
+      });
+
+      const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+
+      const newPrefixes = result.prefixes!.filter(
+        p => !schema.prefixes!.includes(p),
+      );
+      expect(newPrefixes.length).toBeGreaterThan(0);
+      expect(newPrefixes.every(p => p.__inferred)).toBe(true);
+    });
   });
 
   describe("generateSchemaPrefixes", () => {
@@ -282,24 +412,24 @@ describe("schema", () => {
       const result = generateSchemaPrefixes(iris, []);
 
       expect(result).toEqual([
-        {
-          prefix: "vertex" as RdfPrefix,
-          uri: "http://abcdefg.com/vertex#" as IriNamespace,
-          __inferred: true,
-        },
-        {
-          prefix: "edge" as RdfPrefix,
-          uri: "http://abcdefg.com/edge#" as IriNamespace,
-          __inferred: true,
-        },
+        createPrefixTypeConfig({
+          prefix: "vertex",
+          uri: "http://abcdefg.com/vertex#",
+          inferred: true,
+        }),
+        createPrefixTypeConfig({
+          prefix: "edge",
+          uri: "http://abcdefg.com/edge#",
+          inferred: true,
+        }),
       ] satisfies PrefixTypeConfig[]);
     });
 
     it("should not regenerate prefixes already covered by existing ones", () => {
-      const existingPrefix: PrefixTypeConfig = {
-        prefix: "custom" as RdfPrefix,
-        uri: "http://custom.example.com/" as IriNamespace,
-      };
+      const existingPrefix = createPrefixTypeConfig({
+        prefix: "custom",
+        uri: "http://custom.example.com/",
+      });
 
       const result = generateSchemaPrefixes(
         new Set(["http://custom.example.com/Thing"]),
@@ -308,73 +438,33 @@ describe("schema", () => {
 
       expect(result).toStrictEqual([]);
     });
-  });
 
-  describe("shouldUpdateSchemaFromEntities", () => {
-    it("should return false when no entities are provided", () => {
-      const result = shouldUpdateSchemaFromEntities(
-        { vertices: [], edges: [] },
-        createRandomSchema(),
+    it("should append next numeral when prefix name collides with existing deduplicated prefixes", () => {
+      const existingPrefixes = [
+        createPrefixTypeConfig({
+          prefix: "country",
+          uri: "http://data.example.org/country/",
+          inferred: true,
+        }),
+        createPrefixTypeConfig({
+          prefix: "country2",
+          uri: "http://stats.example.org/country/",
+          inferred: true,
+        }),
+      ];
+
+      const result = generateSchemaPrefixes(
+        new Set(["http://geo.example.org/country/France"]),
+        existingPrefixes,
       );
-      expect(result).toBeFalsy();
-    });
 
-    it("should return true when entities are provided", () => {
-      const entities = createRandomEntities();
-      const result = shouldUpdateSchemaFromEntities(
-        entities,
-        createRandomSchema(),
-      );
-      expect(result).toBeTruthy();
-    });
-
-    it("should return false when the vertex has an existing type", () => {
-      const schema = createRandomSchema();
-      const vertex = createRandomVertex();
-      vertex.type = schema.vertices[0].type;
-      vertex.attributes = schema.vertices[0].attributes.reduce((acc, attr) => {
-        acc[attr.name] = createRandomName("value");
-        return acc;
-      }, {} as EntityProperties);
-      const result = shouldUpdateSchemaFromEntities(
-        {
-          vertices: [vertex],
-          edges: [],
-        },
-        schema,
-      );
-      expect(result).toBeFalsy();
-    });
-
-    it("should return false when the edge is an existing type", () => {
-      const schema = createRandomSchema();
-      const source = createRandomVertex();
-      const target = createRandomVertex();
-      source.type = schema.vertices[0].type;
-      source.attributes = schema.vertices[0].attributes.reduce((acc, attr) => {
-        acc[attr.name] = createRandomName("value");
-        return acc;
-      }, {} as EntityProperties);
-      target.type = schema.vertices[1].type;
-      target.attributes = schema.vertices[1].attributes.reduce((acc, attr) => {
-        acc[attr.name] = createRandomName("value");
-        return acc;
-      }, {} as EntityProperties);
-      const edge = createRandomEdge(source, target);
-      edge.type = schema.edges[0].type;
-      edge.attributes = schema.edges[0].attributes.reduce((acc, attr) => {
-        acc[attr.name] = createRandomName("value");
-        return acc;
-      }, {} as EntityProperties);
-
-      const result = shouldUpdateSchemaFromEntities(
-        {
-          vertices: [source, target],
-          edges: [edge],
-        },
-        schema,
-      );
-      expect(result).toBeFalsy();
+      expect(result).toStrictEqual([
+        createPrefixTypeConfig({
+          prefix: "country3",
+          uri: "http://geo.example.org/country/",
+          inferred: true,
+        }),
+      ]);
     });
   });
 });
@@ -462,6 +552,33 @@ describe("referential integrity", () => {
 
     expect(result.edges[0]).not.toBe(schema.edges[0]);
     expect(result.edges[0].attributes).not.toBe(schema.edges[0].attributes);
+  });
+
+  it("should preserve vertices array reference when only edges change", () => {
+    const schema = createRandomSchema();
+    const edge = createRandomEdge();
+
+    const result = updateSchemaFromEntities({ edges: [edge] }, schema);
+
+    expect(result.vertices).toBe(schema.vertices);
+  });
+
+  it("should preserve edges array reference when only vertices change", () => {
+    const schema = createRandomSchema();
+    const vertex = createRandomVertex();
+
+    const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+
+    expect(result.edges).toBe(schema.edges);
+  });
+
+  it("should preserve prefixes reference when no new prefixes needed", () => {
+    const schema = createRandomSchema();
+    const vertex = createRandomVertex();
+
+    const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+
+    expect(result.prefixes).toBe(schema.prefixes);
   });
 });
 
@@ -557,6 +674,60 @@ describe("useGraphSchema edgeConnections", () => {
     expect(
       result.current.edgeConnections.byEdgeConnectionId.get(id),
     ).toStrictEqual(conn);
+  });
+});
+
+describe("useUpdateSchemaFromEntities", () => {
+  it("should not churn schemaAtom when active config has no schema entry", () => {
+    const state = new DbState().withNoActiveSchema();
+
+    const { result } = renderHookWithState(
+      () => ({
+        updateSchema: useUpdateSchemaFromEntities(),
+        schemaMap: useAtomValue(schemaAtom),
+      }),
+      state,
+    );
+
+    const schemaMapBefore = result.current.schemaMap;
+
+    act(() => {
+      result.current.updateSchema({
+        vertices: [createRandomVertex()],
+      });
+    });
+
+    expect(result.current.schemaMap).toBe(schemaMapBefore);
+  });
+
+  it("should not churn schemaAtom when entities already match schema", () => {
+    const state = new DbState();
+    const existingVertex = createRandomVertex();
+    existingVertex.type = state.activeSchema.vertices[0].type;
+    existingVertex.types = [state.activeSchema.vertices[0].type];
+    existingVertex.attributes =
+      state.activeSchema.vertices[0].attributes.reduce((acc, attr) => {
+        acc[attr.name] = createRandomName("value");
+        return acc;
+      }, {} as EntityProperties);
+
+    const { result } = renderHookWithState(
+      () => ({
+        updateSchema: useUpdateSchemaFromEntities(),
+        schemaMap: useAtomValue(schemaAtom),
+      }),
+      state,
+    );
+
+    const schemaMapBefore = result.current.schemaMap;
+
+    act(() => {
+      result.current.updateSchema({
+        vertices: [existingVertex],
+      });
+    });
+
+    expect(result.current.schemaMap).toBe(schemaMapBefore);
   });
 });
 
@@ -738,11 +909,11 @@ describe("backward compatibility: legacy __matches on prefixes", () => {
 
     // New prefix should be generated
     expect(result).toStrictEqual([
-      {
-        prefix: "vertex" as RdfPrefix,
-        uri: "http://newdomain.com/vertex#" as IriNamespace,
-        __inferred: true,
-      },
+      createPrefixTypeConfig({
+        prefix: "vertex",
+        uri: "http://newdomain.com/vertex#",
+        inferred: true,
+      }),
     ]);
   });
 
@@ -791,10 +962,12 @@ describe("backward compatibility: legacy __matches on prefixes", () => {
     expect(result.prefixes?.[0]).toBe(legacyPrefix);
     // New prefix should be appended for the new namespace
     expect(result.prefixes).toHaveLength(2);
-    expect(result.prefixes?.[1]).toStrictEqual({
-      prefix: "vertex" as RdfPrefix,
-      uri: "http://new.example.com/vertex#" as IriNamespace,
-      __inferred: true,
-    });
+    expect(result.prefixes?.[1]).toStrictEqual(
+      createPrefixTypeConfig({
+        prefix: "vertex",
+        uri: "http://new.example.com/vertex#",
+        inferred: true,
+      }),
+    );
   });
 });

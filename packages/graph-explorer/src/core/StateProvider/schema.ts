@@ -29,7 +29,7 @@ import {
   type VertexType,
 } from "@/core";
 import { logger } from "@/utils";
-import { generatePrefixes, PrefixLookup, splitIri } from "@/utils/rdf";
+import { generatePrefixes, PrefixLookup } from "@/utils/rdf";
 
 /**
  * Persisted schema state for a database connection.
@@ -252,21 +252,23 @@ export const activeSchemaSelector = atom(
       return;
     }
     set(schemaAtom, prevSchemaMap => {
-      const updatedSchemaMap = new Map(prevSchemaMap);
-      const prev = updatedSchemaMap.get(schemaId);
+      const prev = prevSchemaMap.get(schemaId);
       const newValue = typeof update === "function" ? update(prev) : update;
-
-      // Handle reset value or undefined
-      if (newValue === RESET || !newValue) {
-        updatedSchemaMap.delete(schemaId);
-        return updatedSchemaMap;
-      }
 
       if (newValue === prev) {
         return prevSchemaMap;
       }
 
-      // Update the map
+      const updatedSchemaMap = new Map(prevSchemaMap);
+
+      if (newValue === RESET || !newValue) {
+        if (!prev) {
+          return prevSchemaMap;
+        }
+        updatedSchemaMap.delete(schemaId);
+        return updatedSchemaMap;
+      }
+
       updatedSchemaMap.set(schemaId, newValue);
 
       return updatedSchemaMap;
@@ -274,7 +276,7 @@ export const activeSchemaSelector = atom(
   },
 );
 
-/** Updates the schema based on the given nodes and edges. */
+/** Updates the schema based on the given nodes and edges. Preserves referential equality at every level when nothing changes. */
 export function updateSchemaFromEntities(
   entities: Partial<Entities>,
   schema: SchemaStorageModel,
@@ -286,131 +288,217 @@ export function updateSchemaFromEntities(
     return schema;
   }
 
-  const newVertexConfigs = vertices.flatMap(mapVertexToTypeConfigs);
-  const newEdgeConfigs = edges.map(mapEdgeToTypeConfig);
+  const { configs: mergedVertices, newIris: vertexIris } = mergeVertices(
+    schema.vertices,
+    vertices,
+  );
+  const { configs: mergedEdges, newIris: edgeIris } = mergeEdges(
+    schema.edges,
+    edges,
+  );
 
-  const mergedVertices = merge(schema.vertices, newVertexConfigs);
-  const mergedEdges = merge(schema.edges, newEdgeConfigs);
-
-  // Generate new prefixes for the schema changes and resource IRIs
   const existingPrefixes = schema.prefixes ?? [];
-  const entityUris = getEntityUris(entities);
-  const schemaUris = getSchemaUris({
-    vertices: mergedVertices,
-    edges: mergedEdges,
-  });
-  const newPrefixes = generateSchemaPrefixes(
-    entityUris.union(schemaUris),
+  const mergedPrefixes = mergePrefixes(
     existingPrefixes,
+    entities,
+    vertexIris,
+    edgeIris,
   );
 
   if (
     mergedVertices === schema.vertices &&
     mergedEdges === schema.edges &&
-    newPrefixes.length === 0
+    mergedPrefixes === existingPrefixes
   ) {
+    logger.debug("Schema already up to date with given entities");
     return schema;
   }
 
-  const newSchema = {
+  const result = {
     ...schema,
     vertices: mergedVertices,
     edges: mergedEdges,
     prefixes:
-      newPrefixes.length > 0
-        ? [...existingPrefixes, ...newPrefixes]
-        : schema.prefixes,
+      mergedPrefixes !== existingPrefixes ? mergedPrefixes : schema.prefixes,
   };
 
-  logger.debug("Updated schema:", { newSchema, prevSchema: schema });
-  return newSchema;
+  logger.debug("Updated schema from entities", result);
+  return result;
 }
 
-/** Merges new node or edge configs in to a set of existing node or edge configs. */
-function merge<T extends VertexTypeConfig | EdgeTypeConfig>(
-  existing: T[],
-  newConfigs: T[],
-): T[] {
-  const configMap = new Map(existing.map(vt => [vt.type, vt]));
+type MergeResult<T> = {
+  configs: T[];
+  newIris: Set<string>;
+};
+
+/** Merges new vertex entities into existing vertex type configs. */
+function mergeVertices(
+  existing: VertexTypeConfig[],
+  vertices: Vertex[],
+): MergeResult<VertexTypeConfig> {
+  if (!vertices.length) {
+    return { configs: existing, newIris: new Set() };
+  }
+
+  const byType = new Map(existing.map(v => [v.type, v]));
+  const newIris = new Set<string>();
   let hasChanges = false;
 
-  for (const newConfig of newConfigs) {
-    const existingConfig = configMap.get(newConfig.type);
+  for (const vertex of vertices) {
+    const attrs = attributesFromProperties(vertex.attributes);
+    for (const type of vertex.types) {
+      const existingConfig = byType.get(type);
+      if (!existingConfig) {
+        logger.debug("Discovered new vertex type:", type);
+        byType.set(type, { type, attributes: attrs });
+        newIris.add(type);
+        for (const attr of attrs) {
+          newIris.add(attr.name);
+        }
+        hasChanges = true;
+      } else {
+        const mergedAttrs = mergeAttributesFromProperties(
+          existingConfig.attributes,
+          vertex.attributes,
+        );
+        if (mergedAttrs !== existingConfig.attributes) {
+          logger.debug("Discovered new attributes for vertex type:", type);
+          byType.set(type, { ...existingConfig, attributes: mergedAttrs });
+          // Only the newly added attributes need IRI scanning
+          for (
+            let i = existingConfig.attributes.length;
+            i < mergedAttrs.length;
+            i++
+          ) {
+            newIris.add(mergedAttrs[i].name);
+          }
+          hasChanges = true;
+        }
+      }
+    }
+  }
+
+  return {
+    configs: hasChanges ? Array.from(byType.values()) : existing,
+    newIris,
+  };
+}
+
+/** Merges new edge entities into existing edge type configs. */
+function mergeEdges(
+  existing: EdgeTypeConfig[],
+  edges: Edge[],
+): MergeResult<EdgeTypeConfig> {
+  if (!edges.length) {
+    return { configs: existing, newIris: new Set() };
+  }
+
+  const byType = new Map(existing.map(e => [e.type, e]));
+  const newIris = new Set<string>();
+  let hasChanges = false;
+
+  for (const edge of edges) {
+    const existingConfig = byType.get(edge.type);
     if (!existingConfig) {
-      configMap.set(newConfig.type, newConfig);
+      logger.debug("Discovered new edge type:", edge.type);
+      byType.set(edge.type, {
+        type: edge.type,
+        attributes: attributesFromProperties(edge.attributes),
+      });
+      newIris.add(edge.type);
       hasChanges = true;
     } else {
-      const mergedAttributes = mergeAttributes(
+      const mergedAttrs = mergeAttributesFromProperties(
         existingConfig.attributes,
-        newConfig.attributes,
+        edge.attributes,
       );
-      if (mergedAttributes === existingConfig.attributes) {
-        continue;
+      if (mergedAttrs !== existingConfig.attributes) {
+        logger.debug("Discovered new attributes for edge type:", edge.type);
+        byType.set(edge.type, { ...existingConfig, attributes: mergedAttrs });
+        hasChanges = true;
       }
-      configMap.set(newConfig.type, {
-        ...existingConfig,
-        attributes: mergedAttributes,
-      });
-      hasChanges = true;
     }
   }
 
-  // Return original array if nothing changed
-  return hasChanges ? Array.from(configMap.values()) : existing;
+  return {
+    configs: hasChanges ? Array.from(byType.values()) : existing,
+    newIris,
+  };
 }
 
-export function mergeAttributes(
-  existing: AttributeConfig[],
-  newAttributes: AttributeConfig[],
-): AttributeConfig[] {
-  const attrMap = new Map(existing.map(attr => [attr.name, attr]));
-  let hasChanges = false;
+/** Generates and merges new RDF prefixes from entity IRIs and newly-discovered schema IRIs. */
+function mergePrefixes(
+  existing: PrefixTypeConfig[],
+  entities: Partial<Entities>,
+  vertexIris: Set<string>,
+  edgeIris: Set<string>,
+): PrefixTypeConfig[] {
+  const iris = new Set<string>(vertexIris);
 
-  for (const newAttr of newAttributes) {
-    const existingAttr = attrMap.get(newAttr.name);
-    if (!existingAttr) {
-      attrMap.set(newAttr.name, newAttr);
-      hasChanges = true;
-    } else if (
-      existingAttr.name === newAttr.name &&
-      existingAttr.dataType !== newAttr.dataType
-    ) {
-      continue;
-    } else {
-      // Check if merge would actually change anything
-      const merged = { ...existingAttr, ...newAttr };
-      if (
-        merged.name === existingAttr.name &&
-        merged.dataType === existingAttr.dataType
-      ) {
-        continue;
-      }
-      attrMap.set(newAttr.name, merged);
-      hasChanges = true;
+  for (const iri of edgeIris) {
+    iris.add(iri);
+  }
+  for (const v of entities.vertices ?? []) {
+    iris.add(String(v.id));
+  }
+  for (const e of entities.edges ?? []) {
+    iris.add(String(e.id));
+  }
+
+  const newPrefixes = generateSchemaPrefixes(iris, existing);
+  if (newPrefixes.length === 0) {
+    return existing;
+  }
+
+  logger.debug(
+    "Discovered new prefixes:",
+    newPrefixes.map(p => p.prefix),
+  );
+  return [...existing, ...newPrefixes];
+}
+
+/** Merges entity properties into an existing attribute list. Preserves existing dataType on conflicts. */
+function mergeAttributesFromProperties(
+  existing: AttributeConfig[],
+  properties: EntityProperties,
+): AttributeConfig[] {
+  const existingNames = new Set(existing.map(a => a.name));
+  const newAttrs: AttributeConfig[] = [];
+
+  for (const name of Object.keys(properties)) {
+    if (!existingNames.has(name)) {
+      newAttrs.push({ name, dataType: detectDataType(properties[name]) });
     }
   }
 
-  // Return original array if nothing changed
-  return hasChanges ? Array.from(attrMap.values()) : existing;
+  if (newAttrs.length === 0) {
+    return existing;
+  }
+
+  return [...existing, ...newAttrs];
+}
+
+/** Converts entity properties to an attribute config array. */
+function attributesFromProperties(
+  properties: EntityProperties,
+): AttributeConfig[] {
+  return Object.entries(properties).map(([name, value]) => ({
+    name,
+    dataType: detectDataType(value),
+  }));
 }
 
 export function mapVertexToTypeConfigs(vertex: Vertex): VertexTypeConfig[] {
   return vertex.types.map(type => ({
     type,
-    attributes: Object.entries(vertex.attributes).map(([name, value]) => ({
-      name,
-      dataType: detectDataType(value),
-    })),
+    attributes: attributesFromProperties(vertex.attributes),
   }));
 }
 
 export function mapEdgeToTypeConfig(edge: Edge): EdgeTypeConfig {
   return {
     type: edge.type,
-    attributes: Object.entries(edge.attributes).map(([name, value]) => ({
-      name,
-      dataType: detectDataType(value),
-    })),
+    attributes: attributesFromProperties(edge.attributes),
   };
 }
 
@@ -450,8 +538,6 @@ export function generateSchemaPrefixes(
     return [];
   }
 
-  logger.debug("Generated new prefixes:", newPrefixes);
-
   return newPrefixes;
 }
 
@@ -462,28 +548,14 @@ export function getSchemaUris(schema: {
 }) {
   const result = new Set<string>();
 
-  schema.vertices.forEach(v => {
+  for (const v of schema.vertices) {
     result.add(v.type);
-    v.attributes.forEach(attr => {
+    for (const attr of v.attributes) {
       result.add(attr.name);
-    });
-  });
-  schema.edges.forEach(e => {
-    result.add(e.type);
-  });
-
-  return result;
-}
-
-/** Collects IDs from entities. */
-function getEntityUris(entities: Partial<Entities>) {
-  const result = new Set<string>();
-
-  for (const v of entities.vertices ?? []) {
-    result.add(String(v.id));
+    }
   }
-  for (const e of entities.edges ?? []) {
-    result.add(String(e.id));
+  for (const e of schema.edges) {
+    result.add(e.type);
   }
 
   return result;
@@ -492,24 +564,13 @@ function getEntityUris(entities: Partial<Entities>) {
 /** Updates the schema with any new vertex or edge types, any new attributes, and updates the generated prefixes for sparql connections. */
 export function useUpdateSchemaFromEntities() {
   return useAtomCallback(
-    useCallback((get, set, entities: Partial<Entities>) => {
+    useCallback((_get, set, entities: Partial<Entities>) => {
       const vertices = entities.vertices ?? [];
       const edges = entities.edges ?? [];
-      const activeSchema = get(activeSchemaSelector);
       if (vertices.length === 0 && edges.length === 0) {
         return;
       }
-      if (!activeSchema) {
-        return;
-      }
-      if (
-        !shouldUpdateSchemaFromEntities(entities, activeSchema) &&
-        !hasNewPrefixNamespaces(entities, get(prefixesAtom))
-      ) {
-        logger.debug("Schema is already up to date with the given entities");
-        return;
-      }
-      logger.debug("Updating schema from entities");
+
       set(activeSchemaSelector, prev => {
         if (!prev) {
           return prev;
@@ -523,85 +584,3 @@ export function useUpdateSchemaFromEntities() {
 export type UpdateSchemaHandler = ReturnType<
   typeof useUpdateSchemaFromEntities
 >;
-
-/** Attempts to efficiently detect if the schema should be updated. */
-export function shouldUpdateSchemaFromEntities(
-  entities: Partial<Entities>,
-  schema: SchemaStorageModel,
-) {
-  const vertices = entities.vertices ?? [];
-  const edges = entities.edges ?? [];
-  if (vertices.length > 0) {
-    // Check if the vertex types and attributes are the same
-    const fromEntities = getUniqueTypesAndAttributes(vertices);
-    const fromSchema = getUniqueTypesAndAttributes(schema.vertices);
-
-    if (!fromSchema.isSupersetOf(fromEntities)) {
-      logger.debug(
-        "Found new vertex types or attributes:",
-        fromEntities.difference(fromSchema),
-      );
-      return true;
-    }
-  }
-
-  if (edges.length > 0) {
-    // Check if the edge types and attributes are the same
-    const fromEntities = getUniqueTypesAndAttributes(edges);
-    const fromSchema = getUniqueTypesAndAttributes(schema.edges);
-
-    if (!fromSchema.isSupersetOf(fromEntities)) {
-      logger.debug(
-        "Found new edge types or attributes:",
-        fromEntities.difference(fromSchema),
-      );
-      return true;
-    }
-  }
-
-  return false;
-}
-
-/** Checks if any entity IDs have namespaces not yet covered by existing prefixes. */
-function hasNewPrefixNamespaces(
-  entities: Partial<Entities>,
-  prefixes: PrefixLookup,
-) {
-  for (const v of entities.vertices ?? []) {
-    const parts = splitIri(String(v.id));
-    if (parts && !prefixes.findPrefix(parts.namespace)) {
-      return true;
-    }
-  }
-  for (const e of entities.edges ?? []) {
-    const parts = splitIri(String(e.id));
-    if (parts && !prefixes.findPrefix(parts.namespace)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-/**
- * Creates a set of unique types and attribute names as a set of strings in order to be used for comparisons.
- *
- * The entries in the set will be in the format of `vertexType.attributeName` or `edgeType.attributeName`.
- */
-function getUniqueTypesAndAttributes(
-  entities: (Vertex | Edge | VertexTypeConfig | EdgeTypeConfig)[],
-) {
-  return new Set(
-    entities.flatMap(e => {
-      return [
-        e.type,
-        ...getAttributeNames(e.attributes).map(a => `${e.type}.${a}`),
-      ];
-    }),
-  );
-}
-
-function getAttributeNames(attributes: EntityProperties | AttributeConfig[]) {
-  return Array.isArray(attributes)
-    ? attributes.map(a => a.name)
-    : Object.keys(attributes);
-}
