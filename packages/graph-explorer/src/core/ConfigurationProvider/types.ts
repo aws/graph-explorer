@@ -9,8 +9,14 @@ import type {
 import type { Branded } from "@/utils";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
-import type { EdgeType, VertexType } from "../entities";
 import type { SchemaStorageModel } from "../StateProvider";
+
+import {
+  createEdgeType,
+  createVertexType,
+  type EdgeType,
+  type VertexType,
+} from "../entities";
 
 export type ConfigurationId = Branded<string, "ConfigurationId">;
 
@@ -133,6 +139,21 @@ export type EdgeConnection = {
    */
   count?: number;
 };
+
+/** Creates an EdgeConnection with branded types from plain strings. */
+export function createEdgeConnection(options: {
+  source: string;
+  edge: string;
+  target: string;
+  count?: number;
+}): EdgeConnection {
+  return {
+    sourceVertexType: createVertexType(options.source),
+    edgeType: createEdgeType(options.edge),
+    targetVertexType: createVertexType(options.target),
+    ...(options.count != null && { count: options.count }),
+  };
+}
 
 export type RawConfiguration = {
   /**
