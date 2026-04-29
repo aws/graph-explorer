@@ -2,14 +2,12 @@ import type {
   ConfigurationId,
   RawConfiguration,
 } from "../ConfigurationProvider";
+import type { GraphSessionStorageModel } from "./graphSession/storage";
+import type { SchemaStorageModel } from "./schema";
+import type { UserStyling } from "./userPreferences";
 
 import { atomWithLocalForage } from "./atomWithLocalForage";
-import {
-  defaultUserLayout,
-  type GraphSessionStorageModel,
-  type SchemaStorageModel,
-  type UserStyling,
-} from "./index";
+import { defaultUserLayout } from "./userLayoutDefaults";
 
 /**
  DEV NOTE
