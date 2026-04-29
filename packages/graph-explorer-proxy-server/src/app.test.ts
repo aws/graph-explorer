@@ -70,15 +70,23 @@ describe("createApp", () => {
   // ── CORS ────────────────────────────────────────────────────────────
 
   describe("CORS", () => {
-    it("reflects the request origin by default", async () => {
+    it("does not allow cross-origin requests by default", async () => {
       const app = createTestApp();
       const response = await request(app)
         .get("/status")
         .set("Origin", "http://example.com");
 
-      expect(response.headers["access-control-allow-origin"]).toBe(
-        "http://example.com",
-      );
+      expect(response.headers["access-control-allow-origin"]).toBeUndefined();
+    });
+
+    it("does not set CORS headers on preflight by default", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .options("/status")
+        .set("Origin", "http://example.com")
+        .set("Access-Control-Request-Method", "POST");
+
+      expect(response.headers["access-control-allow-origin"]).toBeUndefined();
     });
 
     it("does not set origin header when request has no Origin", async () => {
@@ -99,7 +107,7 @@ describe("createApp", () => {
       );
     });
 
-    it("returns the configured origin regardless of the requesting origin", async () => {
+    it("sets the configured origin as a fixed header for single-origin config", async () => {
       const app = createTestApp(".", ["https://my-app.example.com"]);
       const response = await request(app)
         .get("/status")
@@ -151,8 +159,8 @@ describe("createApp", () => {
       expect(response.headers["access-control-allow-origin"]).toBeUndefined();
     });
 
-    it("only allows GET and POST methods", async () => {
-      const app = createTestApp();
+    it("only allows GET and POST methods when corsOrigin is configured", async () => {
+      const app = createTestApp(".", ["http://example.com"]);
       const response = await request(app)
         .options("/status")
         .set("Origin", "http://example.com")
@@ -161,8 +169,8 @@ describe("createApp", () => {
       expect(response.headers["access-control-allow-methods"]).toBe("GET,POST");
     });
 
-    it("sets preflight max-age cache header", async () => {
-      const app = createTestApp();
+    it("sets preflight max-age cache header when corsOrigin is configured", async () => {
+      const app = createTestApp(".", ["http://example.com"]);
       const response = await request(app)
         .options("/status")
         .set("Origin", "http://example.com")

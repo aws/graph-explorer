@@ -38,15 +38,13 @@ export default defineConfig(({ mode }) => {
         ignored: ["**/*.test.ts", "**/*.test.tsx"],
       },
       proxy: {
-        // Forward these requests to the express server when in dev mode
-        "/defaultConnection": {
-          target: expressServerUrl,
-          changeOrigin: true,
-        },
-        "/status": {
-          target: expressServerUrl,
-          changeOrigin: true,
-        },
+        // Forward API requests to the Express proxy server in dev mode so
+        // the browser stays on the same origin and CORS is not needed.
+        "^/(defaultConnection|gremlin|logger|openCypher|pg|rdf|sparql|status|summary)(/|$)":
+          {
+            target: expressServerUrl,
+            changeOrigin: true,
+          },
       },
     },
     base: env.GRAPH_EXP_ENV_ROOT_FOLDER,
