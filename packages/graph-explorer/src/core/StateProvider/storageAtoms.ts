@@ -7,7 +7,7 @@ import type { SchemaStorageModel } from "./schema";
 import type { UserStyling } from "./userPreferences";
 
 import { atomWithLocalForage } from "./atomWithLocalForage";
-import { defaultUserLayout } from "./userLayout";
+import { defaultUserLayout } from "./userLayoutDefaults";
 
 /**
  DEV NOTE
