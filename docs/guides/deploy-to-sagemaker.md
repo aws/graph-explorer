@@ -24,9 +24,8 @@ To restrict Graph Explorer access for its most basic functionality you can use t
 - Get the graph summary information (used for schema sync)
 - Cancel query
 
-<!-- prettier-ignore -->
 > [!CAUTION]
-> 
+>
 > If you are using the standard notebook setup, these policies will apply to both the Jupyter graph notebooks as well as Graph Explorer.
 
 If a user attempts to execute a mutation query inside of Graph Explorer, they will be presented with an error that informs them they are not authorized for that request.

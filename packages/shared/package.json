@@ -1,11 +1,11 @@
 {
   "name": "@graph-explorer/shared",
   "version": "3.0.3",
-  "description": "Shared types and functions across client and server.",
-  "author": "amazon",
-  "license": "Apache-2.0",
-  "keywords": [],
   "private": true,
+  "description": "Shared types and functions across client and server.",
+  "keywords": [],
+  "license": "Apache-2.0",
+  "author": "amazon",
   "type": "module",
   "exports": {
     "./types": "./src/types/index.ts",

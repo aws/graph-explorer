@@ -7,7 +7,6 @@ Deploy Graph Explorer locally using the official Docker image from Amazon's ECR 
 You can find the latest version of the image on
 [Amazon's ECR Public Registry](https://gallery.ecr.aws/neptune/graph-explorer).
 
-<!-- prettier-ignore -->
 > [!NOTE]
 >
 > Make sure to use the version of the image that does not include `sagemaker` in the tag.

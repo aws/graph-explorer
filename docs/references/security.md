@@ -99,7 +99,6 @@ Graph Explorer does not provide any mechanisms for controlling user permissions.
 
 For information about what permissions Graph Explorer requires check out the documentation on [SageMaker configuration](../guides/deploy-to-sagemaker.md#minimum-database-permissions).
 
-<!-- prettier-ignore -->
-> [!CAUTION] 
-> 
+> [!CAUTION]
+>
 > By default, a Neptune Notebook will have full read & write access to Neptune data.

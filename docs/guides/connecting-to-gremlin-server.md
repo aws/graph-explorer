@@ -23,8 +23,7 @@ Then open Graph Explorer and add a new connection with the following settings:
 
 Graph Explorer only supports HTTP(S) connections. When connecting to Gremlin-Server, ensure it is configured with a channelizer that supports HTTP(S) (i.e. [Channelizer Documentation](https://tinkerpop.apache.org/javadocs/current/full/org/apache/tinkerpop/gremlin/server/Channelizer.html)).
 
-<!-- prettier-ignore -->
-> [!TIP] 
+> [!TIP]
 > The Gremlin Server configuration can be usually found at:
 >
 > ```

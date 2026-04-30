@@ -2,9 +2,8 @@
   "name": "graph-explorer",
   "version": "3.0.3",
   "description": "Graph Explorer",
-  "engines": {
-    "node": ">=24.13.0"
-  },
+  "license": "Apache-2.0",
+  "author": "amazon",
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -13,8 +12,6 @@
     "vite-build": "NODE_OPTIONS=--max_old_space_size=6144 vite build",
     "build": "pnpm vite-build -- --mode production"
   },
-  "author": "amazon",
-  "license": "Apache-2.0",
   "dependencies": {
     "@graph-explorer/shared": "workspace:*",
     "@hookform/resolvers": "^5.2.2",
@@ -111,8 +108,11 @@
   "lint-staged": {
     "*.{ts,tsx}": [
       "eslint --fix",
-      "prettier --write"
+      "oxfmt"
     ]
+  },
+  "engines": {
+    "node": ">=24.13.0"
   },
   "msw": {
     "workerDirectory": "public"

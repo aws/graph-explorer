@@ -4,12 +4,9 @@
 
 Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server with SSH tunneling to connect to Amazon Neptune.
 
-<!-- prettier-ignore -->
 > [!NOTE]
 >
-> This documentation is not an official recommendation on
-network setups as there are many ways to connect to Amazon Neptune from outside
-of the VPC, such as setting up a load balancer or VPC peering.
+> This documentation is not an official recommendation on network setups as there are many ways to connect to Amazon Neptune from outside of the VPC, such as setting up a load balancer or VPC peering.
 
 ## Prerequisites
 
@@ -30,7 +27,6 @@ of the VPC, such as setting up a load balancer or VPC peering.
    docker pull public.ecr.aws/neptune/graph-explorer
    ```
 
-<!-- prettier-ignore -->
 > [!TIP]
 >
 > If you receive an error relating to the docker service not running, run
@@ -44,13 +40,10 @@ of the VPC, such as setting up a load balancer or VPC peering.
     public.ecr.aws/neptune/graph-explorer
    ```
 
-<!-- prettier-ignore -->
 > [!TIP]
 >
-> The `--restart unless-stopped` flag ensures the container automatically
-restarts after a host reboot or if the container crashes. See Docker's
-[restart policy documentation](https://docs.docker.com/engine/containers/start-containers-automatically/)
-for other options.
+> The `--restart unless-stopped` flag ensures the container automatically restarts after a host reboot or if the container crashes. See Docker's [restart policy documentation](https://docs.docker.com/engine/containers/start-containers-automatically/) for other options.
+
 5. Navigate to the public URL of your EC2 instance accessing the `/explorer` endpoint. You will receive a warning as the SSL certificate used is self-signed. The URL will look like this:
 
 ```
