@@ -158,17 +158,35 @@ export type UserStyling = {
   edges?: Array<EdgePreferencesStorageModel>;
 };
 
-/** Get the stored user preferences for vertices and edges in a fast lookup Map. */
-function useStoredGraphPreferences() {
-  const graphPreferences = useAtomValue(userStylingAtom);
-  const vertices = new Map(
-    graphPreferences.vertices?.map(v => [v.type, v]) ?? [],
+/** Vertex preferences indexed by type for O(1) lookup with default fallback. */
+export const vertexPreferencesAtom = atom(get => {
+  const userStyling = get(userStylingAtom);
+  const lookup = new Map(
+    userStyling.vertices?.map(v => [
+      v.type,
+      createVertexPreference(v.type, v),
+    ]) ?? [],
   );
-  const edges = new Map(graphPreferences.edges?.map(e => [e.type, e]) ?? []);
-  const result = { vertices, edges };
-  const deferredResult = useDeferredValue(result);
-  return deferredResult;
-}
+  return {
+    get(type: VertexType) {
+      return lookup.get(type) ?? createVertexPreference(type);
+    },
+  };
+});
+
+/** Edge preferences indexed by type for O(1) lookup with default fallback. */
+export const edgePreferencesAtom = atom(get => {
+  const userStyling = get(userStylingAtom);
+  const lookup = new Map(
+    userStyling.edges?.map(e => [e.type, createEdgePreference(e.type, e)]) ??
+      [],
+  );
+  return {
+    get(type: EdgeType) {
+      return lookup.get(type) ?? createEdgePreference(type);
+    },
+  };
+});
 
 /** Combines the stored user preferences with the defined default values. */
 export function createVertexPreference(
@@ -196,22 +214,16 @@ export function createEdgePreference(
 
 /** Returns an array of vertex preferences based on the known vertex types in the schema. */
 export function useAllVertexPreferences(): VertexPreferences[] {
-  const { vertices: allPreferences } = useStoredGraphPreferences();
+  const prefs = useAtomValue(vertexPreferencesAtom);
   const { vertices: allSchemas } = useActiveSchema();
-
-  return allSchemas.map(({ type }) =>
-    createVertexPreference(type, allPreferences.get(type)),
-  );
+  return allSchemas.map(({ type }) => prefs.get(type));
 }
 
 /** Returns an array of edge preferences based on the known edge types in the schema. */
 export function useAllEdgePreferences(): EdgePreferences[] {
-  const { edges: allPreferences } = useStoredGraphPreferences();
+  const prefs = useAtomValue(edgePreferencesAtom);
   const { edges: allSchemas } = useActiveSchema();
-
-  return allSchemas.map(({ type }) =>
-    createEdgePreference(type, allPreferences.get(type)),
-  );
+  return allSchemas.map(({ type }) => prefs.get(type));
 }
 
 /** Returns the user preferences for the specified vertex type. */
@@ -228,22 +240,14 @@ export function useEdgePreferences(type: EdgeType): EdgePreferences {
  * Returns the user preferences for the specified vertex type.
  */
 export const vertexPreferenceByTypeAtom = atomFamily((type: VertexType) =>
-  atom(get => {
-    const userStyling = get(userStylingAtom);
-    const stored = userStyling.vertices?.find(v => v.type === type);
-    return createVertexPreference(type, stored);
-  }),
+  atom(get => get(vertexPreferencesAtom).get(type)),
 );
 
 /**
  * Returns the user preferences for the specified edge type.
  */
 export const edgePreferenceByTypeAtom = atomFamily((type: EdgeType) =>
-  atom(get => {
-    const userStyling = get(userStylingAtom);
-    const stored = userStyling.edges?.find(e => e.type === type);
-    return createEdgePreference(type, stored);
-  }),
+  atom(get => get(edgePreferencesAtom).get(type)),
 );
 
 type UpdatedVertexStyle = Partial<Omit<VertexPreferences, "type">>;
