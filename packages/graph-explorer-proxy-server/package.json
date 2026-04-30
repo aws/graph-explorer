@@ -1,6 +1,6 @@
 {
   "name": "graph-explorer-proxy-server",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Server to facilitate communication between the browser and the supported graph database.",
   "type": "module",
   "scripts": {
