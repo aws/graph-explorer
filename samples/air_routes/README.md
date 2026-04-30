@@ -4,13 +4,13 @@
 | ---------------- | -------------- | ------------ |
 | [Gremlin Server] | [Gremlin]      | [Air Routes] |
 
-[Air Routes]: https://github.com/krlawrence/graph/blob/main/sample-data/air-routes-latest.graphml
+[Air Routes]: https://tinkerpop.apache.org/docs/3.8.1/upgrade/#air-routes-dataset
 [Gremlin]: https://tinkerpop.apache.org/gremlin.html
 [Gremlin Server]: https://tinkerpop.apache.org/docs/current/reference/#gremlin-server
 
-This sample uses Gremlin Server as the database pre-loaded with the air routes sample data and shows how to configure Graph Explorer to connect to it automatically with a default connection.
+This sample uses Gremlin Server 3.8.1 as the database pre-loaded with the [air routes dataset](https://tinkerpop.apache.org/docs/3.8.1/upgrade/#air-routes-dataset) (3,619 airports, 50,148 routes) and shows how to configure Graph Explorer to connect to it automatically with a default connection.
 
-> [!NOTE]  
+> [!NOTE]
 > The data is not persisted between restarts of the Docker container.
 
 ## Prerequisites
