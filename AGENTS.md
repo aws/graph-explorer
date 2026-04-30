@@ -36,6 +36,21 @@ pnpm test packages/graph-explorer/src/path/to/file.test.ts
 
 # Test name pattern match
 pnpm test -- -t "pattern"
+
+# Format all files
+pnpm format
+
+# Format specific files or globs (pass paths after --)
+pnpm format -- src/foo.ts 'packages/graph-explorer/src/**/*.tsx'
+
+# Check formatting on specific files
+pnpm check:format -- src/foo.ts
+
+# Lint and auto-fix all files
+pnpm lint
+
+# Lint specific files or globs
+pnpm lint -- 'packages/graph-explorer/src/**/*.ts'
 ```
 
 # Project Organization

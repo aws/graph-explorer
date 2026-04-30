@@ -1,5 +1,15 @@
 {
+  "format_on_save": "on",
+  "prettier": { "allowed": false },
+  "formatter": [{ "language_server": { "name": "oxfmt" } }],
   "lsp": {
+    "oxfmt": {
+      "initialization_options": {
+        "settings": {
+          "fmt.configPath": null
+        }
+      }
+    },
     "tailwindcss-language-server": {
       "settings": {
         "rootFontSize": 14,
