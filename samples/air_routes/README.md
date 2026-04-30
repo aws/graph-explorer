@@ -8,7 +8,7 @@
 [Gremlin]: https://tinkerpop.apache.org/gremlin.html
 [Gremlin Server]: https://tinkerpop.apache.org/docs/current/reference/#gremlin-server
 
-This sample uses Gremlin Server 3.8.1 as the database pre-loaded with the [air routes dataset](https://tinkerpop.apache.org/docs/3.8.1/upgrade/#air-routes-dataset) and shows how to configure Graph Explorer to connect to it automatically with a default connection.
+This sample uses Gremlin Server 3.8 as the database pre-loaded with the [air routes dataset](https://tinkerpop.apache.org/docs/3.8.1/upgrade/#air-routes-dataset) and shows how to configure Graph Explorer to connect to it automatically with a default connection.
 
 > [!NOTE]
 > The data is not persisted between restarts of the Docker container.
