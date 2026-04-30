@@ -2,7 +2,7 @@ import type { ConnectionConfig } from "@shared/types";
 
 import { atom } from "jotai";
 import { selectAtom } from "jotai/utils";
-import { cloneDeep, isEqual, uniq } from "lodash";
+import { isEqual } from "lodash";
 
 import {
   activeConfigurationAtom,
@@ -63,30 +63,37 @@ export function mergeConfiguration(
   currentConfig: RawConfiguration,
   userStyling: UserStyling,
 ): RawConfiguration {
-  const configVLabels = currentConfig.schema?.vertices.map(v => v.type) || [];
-  const schemaVLabels = currentSchema?.vertices?.map(v => v.type) || [];
-  const allVertexLabels = uniq([...configVLabels, ...schemaVLabels]);
-  const mergedVertices = allVertexLabels
-    .map(vLabel => {
-      const configVertex = currentConfig.schema?.vertices.find(
-        v => v.type === vLabel,
-      );
-      const schemaVertex = currentSchema?.vertices.find(v => v.type === vLabel);
-      const prefsVertex = userStyling.vertices?.find(v => v.type === vLabel);
+  const configVertexMap = toMapByType(currentConfig.schema?.vertices);
+  const schemaVertexMap = toMapByType(currentSchema?.vertices);
+  const prefsVertexMap = toMapByType(userStyling.vertices);
 
-      return mergeVertex(configVertex, schemaVertex, prefsVertex);
-    })
+  const allVertexLabels = [
+    ...new Set([...configVertexMap.keys(), ...schemaVertexMap.keys()]),
+  ];
+  const mergedVertices = allVertexLabels
+    .map(vLabel =>
+      mergeVertex(
+        configVertexMap.get(vLabel),
+        schemaVertexMap.get(vLabel),
+        prefsVertexMap.get(vLabel),
+      ),
+    )
     .toSorted((a, b) => a.type.localeCompare(b.type));
 
-  const configELabels = currentConfig.schema?.edges.map(v => v.type) || [];
-  const schemaELabels = currentSchema?.edges?.map(v => v.type) || [];
-  const allEdgeLabels = uniq([...configELabels, ...schemaELabels]);
-  const mergedEdges = allEdgeLabels.map(vLabel => {
-    const configEdge = currentConfig.schema?.edges.find(v => v.type === vLabel);
-    const schemaEdge = currentSchema?.edges.find(v => v.type === vLabel);
-    const prefsEdge = userStyling.edges?.find(v => v.type === vLabel);
-    return mergeEdge(configEdge, schemaEdge, prefsEdge);
-  });
+  const configEdgeMap = toMapByType(currentConfig.schema?.edges);
+  const schemaEdgeMap = toMapByType(currentSchema?.edges);
+  const prefsEdgeMap = toMapByType(userStyling.edges);
+
+  const allEdgeLabels = [
+    ...new Set([...configEdgeMap.keys(), ...schemaEdgeMap.keys()]),
+  ];
+  const mergedEdges = allEdgeLabels.map(eLabel =>
+    mergeEdge(
+      configEdgeMap.get(eLabel),
+      schemaEdgeMap.get(eLabel),
+      prefsEdgeMap.get(eLabel),
+    ),
+  );
 
   return {
     id: currentConfig.id,
@@ -126,20 +133,21 @@ const mergeAttributes = (
   config: VertexTypeConfig | EdgeTypeConfig | null,
   schema: VertexTypeConfig | EdgeTypeConfig | null,
 ): AttributeConfig[] => {
-  const configAttrLabels = config?.attributes.map(attr => attr.name) || [];
-  const schemaAttrLabels = schema?.attributes.map(attr => attr.name) || [];
-  const allAttrLabels = uniq([...configAttrLabels, ...schemaAttrLabels]);
+  const configAttrMap = new Map(
+    config?.attributes.map(attr => [attr.name, attr]),
+  );
+  const schemaAttrMap = new Map(
+    schema?.attributes.map(attr => [attr.name, attr]),
+  );
+  const allAttrNames = [
+    ...new Set([...configAttrMap.keys(), ...schemaAttrMap.keys()]),
+  ];
 
-  return allAttrLabels.map(attrName => {
-    const configAttr = config?.attributes.find(attr => attr.name === attrName);
-    const schemaAttr = schema?.attributes.find(attr => attr.name === attrName);
-
-    return {
-      name: attrName,
-      ...(schemaAttr || {}),
-      ...(configAttr || {}),
-    };
-  });
+  return allAttrNames.map(attrName => ({
+    name: attrName,
+    ...(schemaAttrMap.get(attrName) || {}),
+    ...(configAttrMap.get(attrName) || {}),
+  }));
 };
 
 const mergeVertex = (
@@ -276,15 +284,22 @@ export function getDefaultEdgeTypeConfig(edgeType: EdgeType): EdgeTypeConfig {
 export function patchToRemoveDisplayLabel<
   TypeConfig extends VertexTypeConfig | EdgeTypeConfig,
 >(config: TypeConfig): TypeConfig {
-  const cloned = cloneDeep(config);
+  const { displayLabel: _, ...rest } = config;
 
-  delete cloned.displayLabel;
+  return {
+    ...rest,
+    // Remove any displayLabel values that were cached in old versions of Graph Explorer
+    attributes: config.attributes.map(attr => {
+      const { displayLabel: _, ...attrRest } = attr as AttributeConfig & {
+        displayLabel?: string;
+      };
+      return attrRest;
+    }),
+  } as TypeConfig;
+}
 
-  // Remove any displayLabel values that were cached in old versions of Graph Explorer
-  for (const attr of cloned.attributes) {
-    // Cast to `any` since the type no longer has `displayLabel` defined
-    delete (attr as any).displayLabel;
-  }
-
-  return cloned;
+function toMapByType<T extends { type: string }>(
+  items: T[] | undefined | null,
+): Map<string, T> {
+  return new Map(items?.map(item => [item.type, item]));
 }

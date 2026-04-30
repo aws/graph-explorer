@@ -1,4 +1,5 @@
 // @vitest-environment happy-dom
+import { useAtomValue } from "jotai";
 import { act } from "react";
 
 import { createEdgeType, createVertexType } from "@/core";
@@ -7,9 +8,11 @@ import { DbState, renderHookWithState } from "@/utils/testing";
 import {
   defaultEdgePreferences,
   defaultVertexPreferences,
+  edgePreferencesAtom,
   type EdgePreferencesStorageModel,
   useEdgeStyling,
   useVertexStyling,
+  vertexPreferencesAtom,
   type VertexPreferencesStorageModel,
 } from "./userPreferences";
 
@@ -392,6 +395,68 @@ describe("useDeferredAtom integration", () => {
         color: "red",
         borderColor: "blue",
       }),
+    );
+  });
+});
+
+describe("vertexPreferencesAtom", () => {
+  it("should return stored preferences for a known type", () => {
+    const dbState = new DbState();
+    const vertexType = createVertexType("Person");
+    dbState.addVertexStyle(vertexType, { color: "#ff0000" });
+
+    const { result } = renderHookWithState(
+      () => useAtomValue(vertexPreferencesAtom),
+      dbState,
+    );
+
+    expect(result.current.get(vertexType)).toStrictEqual(
+      createExpectedVertex({ type: vertexType, color: "#ff0000" }),
+    );
+  });
+
+  it("should return defaults for an unknown type", () => {
+    const dbState = new DbState();
+    const vertexType = createVertexType("Unknown");
+
+    const { result } = renderHookWithState(
+      () => useAtomValue(vertexPreferencesAtom),
+      dbState,
+    );
+
+    expect(result.current.get(vertexType)).toStrictEqual(
+      createExpectedVertex({ type: vertexType }),
+    );
+  });
+});
+
+describe("edgePreferencesAtom", () => {
+  it("should return stored preferences for a known type", () => {
+    const dbState = new DbState();
+    const edgeType = createEdgeType("KNOWS");
+    dbState.addEdgeStyle(edgeType, { lineColor: "#00ff00" });
+
+    const { result } = renderHookWithState(
+      () => useAtomValue(edgePreferencesAtom),
+      dbState,
+    );
+
+    expect(result.current.get(edgeType)).toStrictEqual(
+      createExpectedEdge({ type: edgeType, lineColor: "#00ff00" }),
+    );
+  });
+
+  it("should return defaults for an unknown type", () => {
+    const dbState = new DbState();
+    const edgeType = createEdgeType("Unknown");
+
+    const { result } = renderHookWithState(
+      () => useAtomValue(edgePreferencesAtom),
+      dbState,
+    );
+
+    expect(result.current.get(edgeType)).toStrictEqual(
+      createExpectedEdge({ type: edgeType }),
     );
   });
 });

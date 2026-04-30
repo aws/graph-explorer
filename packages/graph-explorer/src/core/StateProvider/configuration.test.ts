@@ -307,6 +307,25 @@ describe("patchToRemoveDisplayLabel", () => {
       expect(attr).not.toHaveProperty("displayLabel");
     }
   });
+
+  it("should not mutate the original config", () => {
+    const config = createRandomVertexTypeConfig();
+    config.displayLabel = createRandomName("displayLabel");
+    config.attributes.forEach(
+      a => ((a as any).displayLabel = createRandomName("displayLabel")),
+    );
+    const originalDisplayLabel = config.displayLabel;
+    const originalAttrDisplayLabels = config.attributes.map(
+      a => (a as any).displayLabel,
+    );
+
+    patchToRemoveDisplayLabel(config);
+
+    expect(config.displayLabel).toBe(originalDisplayLabel);
+    config.attributes.forEach((a, i) => {
+      expect((a as any).displayLabel).toBe(originalAttrDisplayLabels[i]);
+    });
+  });
 });
 
 describe("normalizeConnection", () => {
