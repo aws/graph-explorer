@@ -1,6 +1,6 @@
-import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { loadEnv, type PluginOption } from "vite";
 import { coverageConfigDefaults, defineConfig } from "vitest/config";
 

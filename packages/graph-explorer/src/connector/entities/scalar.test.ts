@@ -191,27 +191,27 @@ describe("scalar", () => {
       expect(getDisplayValueForScalar(1234567.0123456789)).toBe(
         "1,234,567.0123",
       );
-      // eslint-disable-next-line no-loss-of-precision
+      // oxlint-disable-next-line no-loss-of-precision
       expect(getDisplayValueForScalar(12345678.00123456789)).toBe(
         "12,345,678.0012",
       );
-      // eslint-disable-next-line no-loss-of-precision
+      // oxlint-disable-next-line no-loss-of-precision
       expect(getDisplayValueForScalar(123456789.000123456789)).toBe(
         "123,456,789.0001",
       );
-      // eslint-disable-next-line no-loss-of-precision
+      // oxlint-disable-next-line no-loss-of-precision
       expect(getDisplayValueForScalar(1234567890.0000123456789)).toBe(
         "1.235E9",
       );
-      // eslint-disable-next-line no-loss-of-precision
+      // oxlint-disable-next-line no-loss-of-precision
       expect(getDisplayValueForScalar(12345678901.00000123456789)).toBe(
         "1.235E10",
       );
-      // eslint-disable-next-line no-loss-of-precision
+      // oxlint-disable-next-line no-loss-of-precision
       expect(getDisplayValueForScalar(123456789012.000000123456789)).toBe(
         "1.235E11",
       );
-      // eslint-disable-next-line no-loss-of-precision
+      // oxlint-disable-next-line no-loss-of-precision
       expect(getDisplayValueForScalar(1234567890123.0000000123456789)).toBe(
         "1.235E12",
       );

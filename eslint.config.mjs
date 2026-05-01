@@ -1,126 +1,36 @@
-import { defineConfig } from "eslint/config";
-import globals from "globals";
-import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
-import reactLint from "eslint-plugin-react";
+import oxlint from "eslint-plugin-oxlint";
 import reactHooks from "eslint-plugin-react-hooks";
-import tanstackQueryLint from "@tanstack/eslint-plugin-query";
-import perfectionist from "eslint-plugin-perfectionist";
-import eslintConfigPrettier from "eslint-config-prettier";
-import { includeIgnoreFile } from "@eslint/compat";
-import { fileURLToPath } from "node:url";
+import tseslint from "typescript-eslint";
 
-const gitignorePath = fileURLToPath(new URL(".gitignore", import.meta.url));
-
-export default defineConfig(
-  // Ignored files
-  includeIgnoreFile(gitignorePath, "Imported .gitignore patterns"),
+export default [
+  // Ignore everything except graph-explorer frontend
   {
-    ignores: ["**/*.config.{js,ts,mjs}", "**/vitest.workspace.ts"],
+    ignores: [
+      "**/*.config.{js,ts,mjs}",
+      "**/vitest.workspace.ts",
+      "**/dist/",
+      "packages/graph-explorer-proxy-server/**",
+      "packages/shared/**",
+    ],
   },
 
-  // JavaScript files
-  pluginJs.configs.recommended,
-  tseslint.configs.recommendedTypeChecked,
+  // TypeScript parser for all files
+  tseslint.configs.base,
 
-  // TypeScript files - all packages
-  {
-    languageOptions: {
-      parserOptions: {
-        projectService: true,
-      },
-    },
-    rules: {
-      // Disallow use of console.log
-      "no-console": ["error", { allow: ["warn", "error"] }],
-
-      // Force all switches to be exhaustive
-      "@typescript-eslint/switch-exhaustiveness-check": "error",
-
-      // Ensure imports are marked with type when appropriate
-      "@typescript-eslint/consistent-type-imports": [
-        "error",
-        { fixStyle: "inline-type-imports" },
-      ],
-
-      // Allow unused vars with modifier
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        {
-          argsIgnorePattern: "^_",
-          varsIgnorePattern: "^_",
-          caughtErrorsIgnorePattern: "^_",
-        },
-      ],
-
-      // Ensure no type imports contain side effects
-      "@typescript-eslint/no-import-type-side-effects": "error",
-
-      // Disable overly strict rules (we should eliminate these over time)
-      "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-unsafe-member-access": "off",
-      "@typescript-eslint/no-unsafe-assignment": "off",
-      "@typescript-eslint/no-unsafe-call": "off",
-      "@typescript-eslint/no-unsafe-return": "off",
-      "@typescript-eslint/no-unsafe-argument": "off",
-      "@typescript-eslint/no-unused-expressions": "off",
-      "@typescript-eslint/unbound-method": "off",
-      "@typescript-eslint/no-floating-promises": "off",
-      "@typescript-eslint/no-misused-promises": "off",
-    },
-  },
-
-  // React files - frontend only
+  // React Compiler rules (for graph-explorer only)
   {
     files: ["packages/graph-explorer/**/*.{ts,tsx}"],
     plugins: {
-      react: reactLint,
       "react-hooks": reactHooks,
-      "@tanstack/query": tanstackQueryLint,
-    },
-    languageOptions: {
-      globals: globals.browser,
-      parserOptions: { ecmaFeatures: { jsx: true } },
-    },
-    settings: {
-      react: { version: "19" },
     },
     rules: {
-      ...reactLint.configs.flat.recommended.rules,
       ...reactHooks.configs.flat.recommended.rules,
-      ...tanstackQueryLint.configs.recommended.rules,
-
-      // React optimizations
-      "react/react-in-jsx-scope": "off",
-      "react/prop-types": "off",
-      "react/display-name": "off",
-      "react/jsx-curly-brace-presence": "error",
-
-      // TanStack Query
-      "@tanstack/query/exhaustive-deps": "error",
-      "@tanstack/query/no-rest-destructuring": "warn",
-      "@tanstack/query/stable-query-client": "error",
+      // Disable rules that oxlint handles natively
+      "react-hooks/rules-of-hooks": "off",
+      "react-hooks/exhaustive-deps": "off",
     },
   },
 
-  // Node.js backend files
-  {
-    files: ["packages/graph-explorer-proxy-server/**/*.{ts,js}"],
-    languageOptions: {
-      globals: globals.node,
-    },
-  },
-
-  {
-    plugins: {
-      perfectionist,
-    },
-    rules: {
-      "perfectionist/sort-imports": ["error", { type: "natural" }],
-      "perfectionist/sort-named-imports": ["error", { type: "natural" }],
-    },
-  },
-
-  // Prettier must be last
-  eslintConfigPrettier,
-);
+  // Disable all ESLint rules that oxlint already covers
+  ...oxlint.buildFromOxlintConfigFile("./.oxlintrc.json"),
+];
