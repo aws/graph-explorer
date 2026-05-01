@@ -16,7 +16,7 @@ export function executeUserQuery(
   query: string,
   updateSchema: UpdateSchemaHandler,
 ) {
-  // eslint-disable-next-line @tanstack/query/exhaustive-deps -- intentionally static key so repeated fetchQuery calls replace the same cache entry
+  // oxlint-disable-next-line @tanstack/query/exhaustive-deps -- intentionally static key so repeated fetchQuery calls replace the same cache entry
   return queryOptions({
     queryKey: ["execute-user-query"],
     enabled: false,

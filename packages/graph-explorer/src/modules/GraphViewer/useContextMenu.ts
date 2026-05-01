@@ -66,7 +66,7 @@ function useContextMenu() {
       top: 0,
       left: 0,
     };
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // oxlint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     handleMouseEvent({
       ...event.originalEvent,
@@ -85,7 +85,7 @@ function useContextMenu() {
       top: 0,
       left: 0,
     };
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // oxlint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     handleMouseEvent({
       ...event.originalEvent,
@@ -105,7 +105,7 @@ function useContextMenu() {
     event.stopPropagation();
 
     clearAllLayers();
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // oxlint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     handleMouseEvent({
       ...event.originalEvent,

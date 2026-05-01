@@ -383,7 +383,7 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
             ),
       }),
       // selectedRowIds is necessary in deps to listen external updates
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      // oxlint-disable-next-line react/exhaustive-deps
       [tableState, selectedRowIds],
     );
   };

@@ -74,7 +74,7 @@ const useRenderBadges = ({
   useEffect(() => {
     if (cy && cy.cyCanvas) {
       try {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // oxlint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore - zIndex is allowed
         layerRef.current = cy.cyCanvas({ zIndex: 20 });
         canvasRef.current = layerRef.current.getCanvas() ?? null;

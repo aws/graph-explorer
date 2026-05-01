@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+/* oxlint-disable no-console */
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 // Unmock logger so we test the real implementation

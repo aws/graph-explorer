@@ -25,7 +25,7 @@ export const runLayout = (
     ...additionalLayoutsConfig[layoutName],
   };
   if (_layout) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // oxlint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: Animate is not a cytoscape.LayoutOption. Need to check
     _layout.animate = useAnimation;
     if (layoutName === "F_COSE") {
