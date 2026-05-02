@@ -101,7 +101,6 @@ describe("neighborCounts", () => {
 
   it("should return blank node neighbor counts", async () => {
     const vertex = createRandomVertexForRdf();
-    vertex.isBlankNode;
     const blankNodes: BlankNodesMap = new Map();
     const expected: NeighborCount = {
       vertexId: vertex.id,

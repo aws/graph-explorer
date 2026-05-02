@@ -52,7 +52,7 @@ function getAuthHeaders(
   featureFlags: FeatureFlags,
   typeHeaders: HeadersInit | undefined,
 ) {
-  const headers: HeadersInit = {};
+  const headers: Record<string, string> = {};
   if (connection.proxyConnection) {
     headers["graph-db-connection-url"] = connection.graphDbUrl || "";
     headers["db-query-logging-enabled"] = String(
@@ -64,7 +64,11 @@ function getAuthHeaders(
     headers["service-type"] = connection.serviceType || DEFAULT_SERVICE_TYPE;
   }
 
-  return { ...headers, ...typeHeaders };
+  if (typeHeaders) {
+    Object.assign(headers, Object.fromEntries(new Headers(typeHeaders)));
+  }
+
+  return headers;
 }
 
 // Construct an AbortSignal for the fetch timeout if configured

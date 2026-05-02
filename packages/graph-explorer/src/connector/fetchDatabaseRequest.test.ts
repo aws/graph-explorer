@@ -185,7 +185,7 @@ describe("fetchDatabaseRequest", () => {
       });
 
       const headers = mockFetch.mock.calls[0][1].headers;
-      expect(headers["Content-Type"]).toBe("application/x-www-form-urlencoded");
+      expect(headers["content-type"]).toBe("application/x-www-form-urlencoded");
       expect(headers["graph-db-connection-url"]).toBeDefined();
     });
   });

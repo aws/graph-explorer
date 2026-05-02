@@ -14,15 +14,19 @@ import { SearchResultSymbol } from "./SearchResult";
 interface Props {
   vertexStyle: VertexPreferences;
   className?: string;
+  alt?: string;
 }
 
-function VertexIcon({ vertexStyle, className }: Props) {
+function VertexIcon({ vertexStyle, className, alt }: Props) {
+  const altText = alt ?? `${vertexStyle.displayLabel ?? vertexStyle.type} icon`;
+
   if (vertexStyle.iconImageType === "image/svg+xml") {
     return (
       <SVG
         src={vertexStyle.iconUrl}
         className={cn("size-6 shrink-0", className)}
         style={{ color: vertexStyle.color }}
+        title={altText}
       />
     );
   }
@@ -30,6 +34,7 @@ function VertexIcon({ vertexStyle, className }: Props) {
   return (
     <img
       src={vertexStyle.iconUrl}
+      alt={altText}
       className={cn("size-6 shrink-0", className)}
       style={{ color: vertexStyle.color }}
     />

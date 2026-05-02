@@ -145,8 +145,8 @@ const mergeAttributes = (
 
   return allAttrNames.map(attrName => ({
     name: attrName,
-    ...(schemaAttrMap.get(attrName) || {}),
-    ...(configAttrMap.get(attrName) || {}),
+    ...schemaAttrMap.get(attrName),
+    ...configAttrMap.get(attrName),
   }));
 };
 
@@ -175,11 +175,11 @@ const mergeVertex = (
     // Defaults
     ...getDefaultVertexTypeConfig(vt),
     // Automatic schema override
-    ...(patchedSchema || {}),
+    ...patchedSchema,
     // File-based override
-    ...(patchedConfig || {}),
+    ...patchedConfig,
     // User preferences override
-    ...(preferences || {}),
+    ...preferences,
     attributes,
   };
 };
@@ -209,11 +209,11 @@ const mergeEdge = (
     // Defaults
     ...getDefaultEdgeTypeConfig(et),
     // Automatic schema override
-    ...(patchedSchema || {}),
+    ...patchedSchema,
     // File-based override
-    ...(patchedConfig || {}),
+    ...patchedConfig,
     // User preferences override
-    ...(preferences || {}),
+    ...preferences,
     attributes,
   };
 

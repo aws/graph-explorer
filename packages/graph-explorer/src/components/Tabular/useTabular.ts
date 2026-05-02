@@ -326,7 +326,7 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
   // Avoid table to delete filter on re-render
   useEffect(() => {
     skipPageResetRef.current = true;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- react-table v7 pattern to prevent auto-reset on data changes
+    // oxlint-disable-next-line react-compiler/set-state-in-effect -- react-table v7 pattern to prevent auto-reset on data changes
     setUpdatedData(data);
   }, [data]);
 
@@ -424,7 +424,7 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
       },
       stateReducer,
       useControlledState,
-      /* eslint-disable react-hooks/refs -- react-table v7 requires reading refs during render to control auto-reset */
+      /* oxlint-disable react-compiler/refs -- react-table v7 requires reading refs during render to control auto-reset */
       autoResetPage: !skipPageResetRef.current,
       autoResetExpanded: !skipPageResetRef.current,
       autoResetGroupBy: !skipPageResetRef.current,

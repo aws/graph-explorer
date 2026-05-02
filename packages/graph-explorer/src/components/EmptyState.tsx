@@ -69,6 +69,7 @@ EmptyStateContent.displayName = "EmptyStateContent";
 
 function EmptyStateTitle({
   className,
+  children,
   ...props
 }: React.ComponentPropsWithRef<"h3">) {
   return (
@@ -78,7 +79,9 @@ function EmptyStateTitle({
         className,
       )}
       {...props}
-    />
+    >
+      {children}
+    </h3>
   );
 }
 EmptyStateTitle.displayName = "EmptyStateTitle";

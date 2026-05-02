@@ -212,7 +212,10 @@ export function createApp({
         new URL(url),
         {
           ...options,
-          headers: { "User-Agent": userAgent, ...options.headers },
+          headers: {
+            "User-Agent": userAgent,
+            ...Object.fromEntries(new Headers(options.headers as HeadersInit)),
+          },
         },
         isIamEnabled,
         region,
