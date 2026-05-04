@@ -25,6 +25,7 @@ import {
 } from "@/utils/testing";
 
 import {
+  createEdgeConnection,
   createPrefixTypeConfig,
   type EdgeTypeConfig,
   type PrefixTypeConfig,
@@ -34,10 +35,13 @@ import {
   createEdge,
   createEdgeType,
   createVertex,
+  createVertexId,
   createVertexType,
   type EntityProperties,
 } from "../entities";
 import {
+  activeSchemaSelector,
+  createVertexTypeLookup,
   generateSchemaPrefixes,
   mapEdgeToTypeConfig,
   mapVertexToTypeConfigs,
@@ -50,6 +54,8 @@ import {
   useMaybeActiveSchema,
   useUpdateSchemaFromEntities,
 } from "./schema";
+
+const EMPTY_VERTEX_TYPE_LOOKUP = createVertexTypeLookup();
 
 describe("schema", () => {
   describe("mapVertexToTypeConfigs", () => {
@@ -120,12 +126,403 @@ describe("schema", () => {
     });
   });
 
+  describe("createVertexTypeLookup", () => {
+    it("should resolve vertex types by ID", () => {
+      const v1 = createVertex({ id: "v1", types: ["Person"], attributes: {} });
+      const v2 = createVertex({
+        id: "v2",
+        types: ["Dog", "Pet"],
+        attributes: {},
+      });
+      const map = new Map([
+        [v1.id, v1],
+        [v2.id, v2],
+      ]);
+
+      const lookup = createVertexTypeLookup(map);
+
+      expect(lookup.get(v1.id)).toStrictEqual(v1.types);
+      expect(lookup.get(v2.id)).toStrictEqual(v2.types);
+    });
+
+    it("should chain multiple maps", () => {
+      const v1 = createVertex({ id: "v1", types: ["Person"], attributes: {} });
+      const v2 = createVertex({ id: "v2", types: ["Dog"], attributes: {} });
+
+      const lookup = createVertexTypeLookup(
+        new Map([[v1.id, v1]]),
+        new Map([[v2.id, v2]]),
+      );
+
+      expect(lookup.get(v1.id)).toStrictEqual(v1.types);
+      expect(lookup.get(v2.id)).toStrictEqual(v2.types);
+    });
+
+    it("should return types from the first map that contains the vertex", () => {
+      const v1 = createVertex({ id: "v1", types: ["Person"], attributes: {} });
+      const v1Duplicate = createVertex({
+        id: "v1",
+        types: ["Employee"],
+        attributes: {},
+      });
+
+      const lookup = createVertexTypeLookup(
+        new Map([[v1.id, v1]]),
+        new Map([[v1Duplicate.id, v1Duplicate]]),
+      );
+
+      expect(lookup.get(v1.id)).toStrictEqual(v1.types);
+    });
+
+    it("should return undefined for unknown vertex IDs", () => {
+      const v1 = createVertex({ id: "v1", types: ["Person"], attributes: {} });
+      const lookup = createVertexTypeLookup(new Map([[v1.id, v1]]));
+
+      expect(lookup.get(createVertexId("v99"))).toBeUndefined();
+    });
+
+    it("should report isEmpty when all maps are empty", () => {
+      const lookup = createVertexTypeLookup(new Map(), new Map());
+
+      expect(lookup.isEmpty()).toBe(true);
+    });
+
+    it("should report not empty when any map has entries", () => {
+      const v1 = createVertex({ id: "v1", types: ["Person"], attributes: {} });
+      const lookup = createVertexTypeLookup(new Map(), new Map([[v1.id, v1]]));
+
+      expect(lookup.isEmpty()).toBe(false);
+    });
+  });
+
+  describe("updateSchemaFromEntities edge connections", () => {
+    it("should not change edgeConnections when vertex lookup is empty", () => {
+      const schema = createRandomSchema();
+      const edge = createRandomEdge();
+
+      const result = updateSchemaFromEntities(
+        { edges: [edge] },
+        schema,
+        EMPTY_VERTEX_TYPE_LOOKUP,
+      );
+
+      expect(result.edgeConnections).toBe(schema.edgeConnections);
+    });
+
+    it("should infer connections when schema has no prior edgeConnections", () => {
+      const source = createVertex({
+        id: "v1",
+        types: ["Person"],
+        attributes: {},
+      });
+      const target = createVertex({ id: "v2", types: ["Dog"], attributes: {} });
+      const edge = createEdge({
+        id: "e1",
+        type: "owner",
+        sourceId: "v1",
+        targetId: "v2",
+        attributes: {},
+      });
+
+      const schema: SchemaStorageModel = { vertices: [], edges: [] };
+      expect(schema.edgeConnections).toBeUndefined();
+
+      const vertexLookup = createVertexTypeLookup(
+        new Map([
+          [source.id, source],
+          [target.id, target],
+        ]),
+      );
+
+      const result = updateSchemaFromEntities(
+        { edges: [edge], vertices: [source, target] },
+        schema,
+        vertexLookup,
+      );
+
+      expect(result.edgeConnections).toStrictEqual([
+        createEdgeConnection({
+          source: "Person",
+          edge: "owner",
+          target: "Dog",
+        }),
+      ]);
+    });
+
+    it("should not change edgeConnections when entities have no edges", () => {
+      const schema = createRandomSchema();
+      const vertex = createRandomVertex();
+
+      const vertexLookup = createVertexTypeLookup(
+        new Map([[vertex.id, vertex]]),
+      );
+
+      const result = updateSchemaFromEntities(
+        { vertices: [vertex] },
+        schema,
+        vertexLookup,
+      );
+
+      expect(result.edgeConnections).toBe(schema.edgeConnections);
+    });
+
+    it("should infer edge connections from edges and vertex lookup", () => {
+      const source = createVertex({
+        id: "v1",
+        types: ["Person"],
+        attributes: {},
+      });
+      const target = createVertex({ id: "v2", types: ["Dog"], attributes: {} });
+      const edge = createEdge({
+        id: "e1",
+        type: "owner",
+        sourceId: "v1",
+        targetId: "v2",
+        attributes: {},
+      });
+
+      const schema: SchemaStorageModel = { vertices: [], edges: [] };
+      const vertexLookup = createVertexTypeLookup(
+        new Map([
+          [source.id, source],
+          [target.id, target],
+        ]),
+      );
+
+      const result = updateSchemaFromEntities(
+        { edges: [edge], vertices: [source, target] },
+        schema,
+        vertexLookup,
+      );
+
+      expect(result.edgeConnections).toStrictEqual([
+        createEdgeConnection({
+          source: "Person",
+          edge: "owner",
+          target: "Dog",
+        }),
+      ]);
+    });
+
+    it("should create connections for all type combinations of multi-label vertices", () => {
+      const source = createVertex({
+        id: "v1",
+        types: ["Person", "Employee"],
+        attributes: {},
+      });
+      const target = createVertex({
+        id: "v2",
+        types: ["Company"],
+        attributes: {},
+      });
+      const edge = createEdge({
+        id: "e1",
+        type: "worksAt",
+        sourceId: "v1",
+        targetId: "v2",
+        attributes: {},
+      });
+
+      const schema: SchemaStorageModel = { vertices: [], edges: [] };
+      const vertexLookup = createVertexTypeLookup(
+        new Map([
+          [source.id, source],
+          [target.id, target],
+        ]),
+      );
+
+      const result = updateSchemaFromEntities(
+        { edges: [edge], vertices: [source, target] },
+        schema,
+        vertexLookup,
+      );
+
+      expect(result.edgeConnections).toStrictEqual([
+        createEdgeConnection({
+          source: "Person",
+          edge: "worksAt",
+          target: "Company",
+        }),
+        createEdgeConnection({
+          source: "Employee",
+          edge: "worksAt",
+          target: "Company",
+        }),
+      ]);
+    });
+
+    it("should skip edges where source or target vertex type cannot be resolved", () => {
+      const source = createVertex({
+        id: "v1",
+        types: ["Person"],
+        attributes: {},
+      });
+      const edge = createEdge({
+        id: "e1",
+        type: "knows",
+        sourceId: "v1",
+        targetId: "v2",
+        attributes: {},
+      });
+
+      const schema: SchemaStorageModel = {
+        vertices: [],
+        edges: [],
+        edgeConnections: [],
+      };
+      const vertexLookup = createVertexTypeLookup(
+        new Map([[source.id, source]]),
+      );
+
+      const result = updateSchemaFromEntities(
+        { edges: [edge], vertices: [source] },
+        schema,
+        vertexLookup,
+      );
+
+      expect(result.edgeConnections).toBe(schema.edgeConnections);
+    });
+
+    it("should preserve existing edge connections including count", () => {
+      const existingConnection = createEdgeConnection({
+        source: "Cat",
+        edge: "chases",
+        target: "Mouse",
+        count: 7,
+      });
+      const source = createVertex({
+        id: "v1",
+        types: ["Person"],
+        attributes: {},
+      });
+      const target = createVertex({ id: "v2", types: ["Dog"], attributes: {} });
+      const edge = createEdge({
+        id: "e1",
+        type: "owner",
+        sourceId: "v1",
+        targetId: "v2",
+        attributes: {},
+      });
+
+      const schema: SchemaStorageModel = {
+        vertices: [],
+        edges: [],
+        edgeConnections: [existingConnection],
+      };
+      const vertexLookup = createVertexTypeLookup(
+        new Map([
+          [source.id, source],
+          [target.id, target],
+        ]),
+      );
+
+      const result = updateSchemaFromEntities(
+        { edges: [edge], vertices: [source, target] },
+        schema,
+        vertexLookup,
+      );
+
+      expect(result.edgeConnections).toStrictEqual([
+        existingConnection,
+        createEdgeConnection({
+          source: "Person",
+          edge: "owner",
+          target: "Dog",
+        }),
+      ]);
+    });
+
+    it("should not add duplicate edge connections", () => {
+      const source = createVertex({
+        id: "v1",
+        types: ["Person"],
+        attributes: {},
+      });
+      const target = createVertex({ id: "v2", types: ["Dog"], attributes: {} });
+      const existingConnection = createEdgeConnection({
+        source: "Person",
+        edge: "owner",
+        target: "Dog",
+        count: 42,
+      });
+      const edge = createEdge({
+        id: "e1",
+        type: "owner",
+        sourceId: "v1",
+        targetId: "v2",
+        attributes: {},
+      });
+
+      const schema: SchemaStorageModel = {
+        vertices: [],
+        edges: [],
+        edgeConnections: [existingConnection],
+      };
+      const vertexLookup = createVertexTypeLookup(
+        new Map([
+          [source.id, source],
+          [target.id, target],
+        ]),
+      );
+
+      const result = updateSchemaFromEntities(
+        { edges: [edge], vertices: [source, target] },
+        schema,
+        vertexLookup,
+      );
+
+      expect(result.edgeConnections).toBe(schema.edgeConnections);
+    });
+
+    it("should preserve edgeConnections reference when no new connections are discovered", () => {
+      const source = createVertex({
+        id: "v1",
+        types: ["Person"],
+        attributes: {},
+      });
+      const target = createVertex({ id: "v2", types: ["Dog"], attributes: {} });
+      const existingConnection = createEdgeConnection({
+        source: "Person",
+        edge: "owner",
+        target: "Dog",
+      });
+      const edge = createEdge({
+        id: "e1",
+        type: "owner",
+        sourceId: "v1",
+        targetId: "v2",
+        attributes: {},
+      });
+
+      const schema: SchemaStorageModel = {
+        vertices: [],
+        edges: [],
+        edgeConnections: [existingConnection],
+      };
+      const vertexLookup = createVertexTypeLookup(
+        new Map([
+          [source.id, source],
+          [target.id, target],
+        ]),
+      );
+
+      const result = updateSchemaFromEntities(
+        { edges: [edge], vertices: [source, target] },
+        schema,
+        vertexLookup,
+      );
+
+      expect(result.edgeConnections).toBe(schema.edgeConnections);
+    });
+  });
+
   describe("updateSchemaFromEntities", () => {
     it("should do nothing when no entities", () => {
       const originalSchema = createRandomSchema();
       const result = updateSchemaFromEntities(
         { vertices: [], edges: [] },
         originalSchema,
+        EMPTY_VERTEX_TYPE_LOOKUP,
       );
 
       expect(result).toEqual(originalSchema);
@@ -138,6 +535,7 @@ describe("schema", () => {
       const result = updateSchemaFromEntities(
         { vertices: newNodes, edges: newEdges },
         originalSchema,
+        EMPTY_VERTEX_TYPE_LOOKUP,
       );
 
       expect(result).toEqual({
@@ -165,6 +563,7 @@ describe("schema", () => {
       const result = updateSchemaFromEntities(
         { vertices: [newNode1, newNode2], edges: [newEdge1, newEdge2] },
         originalSchema,
+        EMPTY_VERTEX_TYPE_LOOKUP,
       );
 
       const node1Configs = mapVertexToTypeConfigs(newNode1);
@@ -207,6 +606,7 @@ describe("schema", () => {
       const result = updateSchemaFromEntities(
         { vertices: [newNode], edges: [newEdge] },
         originalSchema,
+        EMPTY_VERTEX_TYPE_LOOKUP,
       );
 
       expect(result.vertices.flatMap(v => v.attributes)).toEqual(
@@ -236,6 +636,7 @@ describe("schema", () => {
       const result = updateSchemaFromEntities(
         { vertices: newNodes, edges: [] },
         originalSchema,
+        EMPTY_VERTEX_TYPE_LOOKUP,
       );
 
       const emptyTypeVtConfigs = result.vertices.filter(
@@ -259,7 +660,11 @@ describe("schema", () => {
         types: ["http://data.nobelprize.org/class/Country"],
       });
 
-      const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+      const result = updateSchemaFromEntities(
+        { vertices: [vertex] },
+        schema,
+        EMPTY_VERTEX_TYPE_LOOKUP,
+      );
 
       const prefixes = result.prefixes?.map(p => p.prefix);
       expect(prefixes).toContain("country");
@@ -277,7 +682,11 @@ describe("schema", () => {
         attributes: { name: "Alice" },
       });
 
-      const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+      const result = updateSchemaFromEntities(
+        { vertices: [vertex] },
+        schema,
+        EMPTY_VERTEX_TYPE_LOOKUP,
+      );
 
       expect(result.vertices).toHaveLength(2);
       expect(result.vertices.map(v => v.type)).toStrictEqual([
@@ -320,7 +729,11 @@ describe("schema", () => {
         },
       });
 
-      const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+      const result = updateSchemaFromEntities(
+        { vertices: [vertex] },
+        schema,
+        EMPTY_VERTEX_TYPE_LOOKUP,
+      );
 
       expect(result.prefixes).toBe(schema.prefixes);
     });
@@ -353,7 +766,11 @@ describe("schema", () => {
         },
       });
 
-      const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+      const result = updateSchemaFromEntities(
+        { vertices: [vertex] },
+        schema,
+        EMPTY_VERTEX_TYPE_LOOKUP,
+      );
 
       const newPrefixes = result.prefixes!.filter(
         p => !schema.prefixes!.includes(p),
@@ -386,7 +803,11 @@ describe("schema", () => {
         attributes: {},
       });
 
-      const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+      const result = updateSchemaFromEntities(
+        { vertices: [vertex] },
+        schema,
+        EMPTY_VERTEX_TYPE_LOOKUP,
+      );
 
       const newPrefixes = result.prefixes!.filter(
         p => !schema.prefixes!.includes(p),
@@ -480,7 +901,11 @@ describe("referential integrity", () => {
       return acc;
     }, {} as EntityProperties);
 
-    const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+    const result = updateSchemaFromEntities(
+      { vertices: [vertex] },
+      schema,
+      EMPTY_VERTEX_TYPE_LOOKUP,
+    );
 
     expect(result).toBe(schema);
   });
@@ -495,7 +920,11 @@ describe("referential integrity", () => {
       return acc;
     }, {} as EntityProperties);
 
-    const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+    const result = updateSchemaFromEntities(
+      { vertices: [vertex] },
+      schema,
+      EMPTY_VERTEX_TYPE_LOOKUP,
+    );
 
     expect(result.vertices[0]).toBe(schema.vertices[0]);
   });
@@ -509,7 +938,11 @@ describe("referential integrity", () => {
       return acc;
     }, {} as EntityProperties);
 
-    const result = updateSchemaFromEntities({ edges: [edge] }, schema);
+    const result = updateSchemaFromEntities(
+      { edges: [edge] },
+      schema,
+      EMPTY_VERTEX_TYPE_LOOKUP,
+    );
 
     expect(result.edges[0]).toBe(schema.edges[0]);
   });
@@ -524,7 +957,11 @@ describe("referential integrity", () => {
       return acc;
     }, {} as EntityProperties);
 
-    const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+    const result = updateSchemaFromEntities(
+      { vertices: [vertex] },
+      schema,
+      EMPTY_VERTEX_TYPE_LOOKUP,
+    );
 
     expect(result.vertices[0].attributes).toBe(schema.vertices[0].attributes);
   });
@@ -535,7 +972,11 @@ describe("referential integrity", () => {
     vertex.type = schema.vertices[0].type;
     vertex.types = [schema.vertices[0].type];
 
-    const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+    const result = updateSchemaFromEntities(
+      { vertices: [vertex] },
+      schema,
+      EMPTY_VERTEX_TYPE_LOOKUP,
+    );
 
     expect(result.vertices[0]).not.toBe(schema.vertices[0]);
     expect(result.vertices[0].attributes).not.toBe(
@@ -548,7 +989,11 @@ describe("referential integrity", () => {
     const edge = createRandomEdge();
     edge.type = schema.edges[0].type;
 
-    const result = updateSchemaFromEntities({ edges: [edge] }, schema);
+    const result = updateSchemaFromEntities(
+      { edges: [edge] },
+      schema,
+      EMPTY_VERTEX_TYPE_LOOKUP,
+    );
 
     expect(result.edges[0]).not.toBe(schema.edges[0]);
     expect(result.edges[0].attributes).not.toBe(schema.edges[0].attributes);
@@ -558,7 +1003,11 @@ describe("referential integrity", () => {
     const schema = createRandomSchema();
     const edge = createRandomEdge();
 
-    const result = updateSchemaFromEntities({ edges: [edge] }, schema);
+    const result = updateSchemaFromEntities(
+      { edges: [edge] },
+      schema,
+      EMPTY_VERTEX_TYPE_LOOKUP,
+    );
 
     expect(result.vertices).toBe(schema.vertices);
   });
@@ -567,7 +1016,11 @@ describe("referential integrity", () => {
     const schema = createRandomSchema();
     const vertex = createRandomVertex();
 
-    const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+    const result = updateSchemaFromEntities(
+      { vertices: [vertex] },
+      schema,
+      EMPTY_VERTEX_TYPE_LOOKUP,
+    );
 
     expect(result.edges).toBe(schema.edges);
   });
@@ -576,7 +1029,11 @@ describe("referential integrity", () => {
     const schema = createRandomSchema();
     const vertex = createRandomVertex();
 
-    const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+    const result = updateSchemaFromEntities(
+      { vertices: [vertex] },
+      schema,
+      EMPTY_VERTEX_TYPE_LOOKUP,
+    );
 
     expect(result.prefixes).toBe(schema.prefixes);
   });
@@ -728,6 +1185,103 @@ describe("useUpdateSchemaFromEntities", () => {
     });
 
     expect(result.current.schemaMap).toBe(schemaMapBefore);
+  });
+
+  it("should infer edge connections from entities and canvas vertices", () => {
+    const state = new DbState();
+    state.activeSchema.edgeConnections = [];
+
+    // Source vertex is on the canvas
+    const source = createVertex({
+      id: "v1",
+      types: ["Person"],
+      attributes: {},
+    });
+    state.addVertexToGraph(source);
+
+    // Target vertex and edge arrive via entities
+    const target = createVertex({
+      id: "v2",
+      types: ["Dog"],
+      attributes: {},
+    });
+    const edge = createEdge({
+      id: "e1",
+      type: "owner",
+      sourceId: "v1",
+      targetId: "v2",
+      attributes: {},
+    });
+
+    const { result } = renderHookWithState(
+      () => ({
+        updateSchema: useUpdateSchemaFromEntities(),
+        schema: useAtomValue(activeSchemaSelector),
+      }),
+      state,
+    );
+
+    act(() => {
+      result.current.updateSchema({
+        vertices: [target],
+        edges: [edge],
+      });
+    });
+
+    expect(result.current.schema?.edgeConnections).toStrictEqual([
+      createEdgeConnection({ source: "Person", edge: "owner", target: "Dog" }),
+    ]);
+  });
+
+  it("should prefer entity vertices over canvas vertices for edge connections", () => {
+    const state = new DbState();
+    state.activeSchema.edgeConnections = [];
+
+    // Canvas has v1 as "Employee"
+    const canvasSource = createVertex({
+      id: "v1",
+      types: ["Employee"],
+      attributes: {},
+    });
+    state.addVertexToGraph(canvasSource);
+
+    // Entities provide v1 as "Person" (should take priority)
+    const entitySource = createVertex({
+      id: "v1",
+      types: ["Person"],
+      attributes: {},
+    });
+    const target = createVertex({
+      id: "v2",
+      types: ["Dog"],
+      attributes: {},
+    });
+    const edge = createEdge({
+      id: "e1",
+      type: "owner",
+      sourceId: "v1",
+      targetId: "v2",
+      attributes: {},
+    });
+
+    const { result } = renderHookWithState(
+      () => ({
+        updateSchema: useUpdateSchemaFromEntities(),
+        schema: useAtomValue(activeSchemaSelector),
+      }),
+      state,
+    );
+
+    act(() => {
+      result.current.updateSchema({
+        vertices: [entitySource, target],
+        edges: [edge],
+      });
+    });
+
+    expect(result.current.schema?.edgeConnections).toStrictEqual([
+      createEdgeConnection({ source: "Person", edge: "owner", target: "Dog" }),
+    ]);
   });
 });
 
@@ -956,7 +1510,11 @@ describe("backward compatibility: legacy __matches on prefixes", () => {
       attributes: {},
     });
 
-    const result = updateSchemaFromEntities({ vertices: [vertex] }, schema);
+    const result = updateSchemaFromEntities(
+      { vertices: [vertex] },
+      schema,
+      EMPTY_VERTEX_TYPE_LOOKUP,
+    );
 
     // Legacy prefix should be preserved
     expect(result.prefixes?.[0]).toBe(legacyPrefix);

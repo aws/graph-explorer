@@ -15,6 +15,7 @@ import type {
 } from "@/connector";
 
 import {
+  createVertexTypeLookup,
   type Edge,
   type EdgeConnection,
   type Entities,
@@ -81,9 +82,11 @@ export class FakeExplorer implements Explorer {
       totalVertices: this.vertices.length,
       totalEdges: this.edges.length,
     };
+    const vertexLookup = createVertexTypeLookup(this.vertexMap);
     const schema = updateSchemaFromEntities(
       { vertices: this.vertices, edges: this.edges },
       initialSchema,
+      vertexLookup,
     );
 
     return schema;
@@ -192,7 +195,7 @@ export class FakeExplorer implements Explorer {
 
   async rawQuery(): Promise<RawQueryResponse> {
     throw new Error(
-      "rawQuery can never have a fake implmentation. Use mocking instead.",
+      "rawQuery can never have a fake implementation. Use mocking instead.",
     );
   }
 

@@ -1,9 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { useSetAtom } from "jotai";
+import { useAtomCallback } from "jotai/utils";
+import { useCallback } from "react";
 import { toast } from "sonner";
 
 import {
   activeSchemaSelector,
+  createVertexTypeLookup,
   type Edge,
   edgesAtom,
   type Entities,
@@ -24,6 +27,11 @@ export function useAddToGraph() {
   const setActiveSchema = useSetAtom(activeSchemaSelector);
   const updateGraphStorage = useUpdateGraphSession();
 
+  const getCanvasVertices = useAtomCallback(
+    useCallback(get => get(nodesAtom), []),
+  );
+
+  // async is required because useMutation expects a Promise return type
   // oxlint-disable-next-line @typescript-eslint/require-await
   return async (entities: Partial<Entities>) => {
     const newVerticesMap = toNodeMap(entities.vertices ?? []);
@@ -33,6 +41,13 @@ export function useAddToGraph() {
     if (newVerticesMap.size === 0 && newEdgesMap.size === 0) {
       return;
     }
+
+    // Build vertex lookup from batch + canvas before modifying state
+    // Batch vertices take priority over canvas vertices
+    const vertexLookup = createVertexTypeLookup(
+      newVerticesMap,
+      getCanvasVertices(),
+    );
 
     // Add new vertices to the graph
     if (newVerticesMap.size > 0) {
@@ -57,6 +72,7 @@ export function useAddToGraph() {
           edges: newEdgesMap.values().toArray(),
         },
         prev,
+        vertexLookup,
       );
     });
 
@@ -64,13 +80,13 @@ export function useAddToGraph() {
   };
 }
 
-/** Returns a callback the given vertex to the graph. */
+/** Returns a callback that adds the given vertex to the graph. */
 export function useAddVertexToGraph(vertex: Vertex) {
   const callback = useAddToGraph();
   return () => callback({ vertices: [vertex] });
 }
 
-/** Returns a callback the given edge to the graph. */
+/** Returns a callback that adds the given edge to the graph. */
 export function useAddEdgeToGraph(edge: Edge) {
   const callback = useAddToGraph();
   return () => callback({ edges: [edge] });

@@ -26,10 +26,13 @@ import {
   type EntityProperties,
   schemaAtom,
   type Vertex,
+  type VertexId,
   type VertexType,
 } from "@/core";
 import { logger } from "@/utils";
 import { generatePrefixes, PrefixLookup } from "@/utils/rdf";
+
+import { nodesAtom, toNodeMap } from "./nodes";
 
 /**
  * Persisted schema state for a database connection.
@@ -280,6 +283,7 @@ export const activeSchemaSelector = atom(
 export function updateSchemaFromEntities(
   entities: Partial<Entities>,
   schema: SchemaStorageModel,
+  vertexLookup: VertexTypeLookup,
 ) {
   const vertices = entities.vertices ?? [];
   const edges = entities.edges ?? [];
@@ -305,10 +309,18 @@ export function updateSchemaFromEntities(
     edgeIris,
   );
 
+  const existingConnections = schema.edgeConnections ?? [];
+  const mergedConnections = mergeEdgeConnections(
+    existingConnections,
+    edges,
+    vertexLookup,
+  );
+
   if (
     mergedVertices === schema.vertices &&
     mergedEdges === schema.edges &&
-    mergedPrefixes === existingPrefixes
+    mergedPrefixes === existingPrefixes &&
+    mergedConnections === existingConnections
   ) {
     logger.debug("Schema already up to date with given entities");
     return schema;
@@ -320,10 +332,84 @@ export function updateSchemaFromEntities(
     edges: mergedEdges,
     prefixes:
       mergedPrefixes !== existingPrefixes ? mergedPrefixes : schema.prefixes,
+    edgeConnections:
+      mergedConnections !== existingConnections
+        ? mergedConnections
+        : schema.edgeConnections,
   };
 
   logger.debug("Updated schema from entities", result);
   return result;
+}
+
+/** Resolves a vertex ID to its type labels without copying vertex data. */
+export type VertexTypeLookup = {
+  get(id: VertexId): VertexType[] | undefined;
+  isEmpty(): boolean;
+};
+
+/** Creates a lookup that chains multiple vertex maps, checking each in order. Earlier maps take priority. */
+export function createVertexTypeLookup(
+  ...sources: ReadonlyMap<VertexId, { types: VertexType[] }>[]
+): VertexTypeLookup {
+  return {
+    get(id) {
+      for (const source of sources) {
+        const vertex = source.get(id);
+        if (vertex) {
+          return vertex.types;
+        }
+      }
+      return undefined;
+    },
+    isEmpty() {
+      return sources.every(s => s.size === 0);
+    },
+  };
+}
+
+/** Infers and merges new edge connections from edges and a vertex type lookup. Preserves existing entries including their count. */
+function mergeEdgeConnections(
+  existing: EdgeConnection[],
+  edges: Edge[],
+  vertexLookup: VertexTypeLookup,
+): EdgeConnection[] {
+  // Fast-path: skip work when there are no edges or no vertices to resolve against
+  if (edges.length === 0 || vertexLookup.isEmpty()) {
+    return existing;
+  }
+
+  const existingIds = new Set(existing.map(createEdgeConnectionId));
+  const newConnections: EdgeConnection[] = [];
+
+  for (const edge of edges) {
+    const sourceTypes = vertexLookup.get(edge.sourceId);
+    const targetTypes = vertexLookup.get(edge.targetId);
+    if (!sourceTypes || !targetTypes) {
+      continue;
+    }
+
+    for (const sourceVertexType of sourceTypes) {
+      for (const targetVertexType of targetTypes) {
+        const connection: EdgeConnection = {
+          sourceVertexType,
+          edgeType: edge.type,
+          targetVertexType,
+        };
+        const id = createEdgeConnectionId(connection);
+        if (!existingIds.has(id)) {
+          existingIds.add(id);
+          newConnections.push(connection);
+        }
+      }
+    }
+  }
+
+  if (newConnections.length === 0) {
+    return existing;
+  }
+
+  return [...existing, ...newConnections];
 }
 
 type MergeResult<T> = {
@@ -564,18 +650,24 @@ export function getSchemaUris(schema: {
 /** Updates the schema with any new vertex or edge types, any new attributes, and updates the generated prefixes for sparql connections. */
 export function useUpdateSchemaFromEntities() {
   return useAtomCallback(
-    useCallback((_get, set, entities: Partial<Entities>) => {
+    useCallback((get, set, entities: Partial<Entities>) => {
       const vertices = entities.vertices ?? [];
       const edges = entities.edges ?? [];
       if (vertices.length === 0 && edges.length === 0) {
         return;
       }
 
+      // Incoming entities take priority over canvas vertices
+      const vertexLookup = createVertexTypeLookup(
+        toNodeMap(vertices),
+        get(nodesAtom),
+      );
+
       set(activeSchemaSelector, prev => {
         if (!prev) {
           return prev;
         }
-        return updateSchemaFromEntities(entities, prev);
+        return updateSchemaFromEntities(entities, prev, vertexLookup);
       });
     }, []),
   );
