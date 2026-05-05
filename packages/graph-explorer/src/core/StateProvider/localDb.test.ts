@@ -235,7 +235,7 @@ test("Remove prefix from restored entries", async () => {
 });
 
 /** Fake database using a map as the data source. */
-export function createFakeLocalDb(
+function createFakeLocalDb(
   initialState?: Iterable<readonly [string, any]> | null,
 ): LocalDb {
   const map = new Map<string, any>(initialState);

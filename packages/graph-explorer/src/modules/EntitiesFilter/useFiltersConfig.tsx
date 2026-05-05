@@ -68,7 +68,11 @@ const useFiltersConfig = () => {
   };
 
   const onChangeVertexTypes = (vertexId: string, isSelected: boolean): void => {
-    isSelected ? deleteVertex(vertexId) : addVertex(vertexId);
+    if (isSelected) {
+      deleteVertex(vertexId);
+    } else {
+      addVertex(vertexId);
+    }
   };
 
   const onChangeAllVertexTypes = (isSelected: boolean): void => {
@@ -79,7 +83,11 @@ const useFiltersConfig = () => {
     connectionId: string,
     isSelected: boolean,
   ): void => {
-    isSelected ? deleteConnection(connectionId) : addConnection(connectionId);
+    if (isSelected) {
+      deleteConnection(connectionId);
+    } else {
+      addConnection(connectionId);
+    }
   };
 
   const onChangeAllConnectionTypes = (isSelected: boolean): void => {

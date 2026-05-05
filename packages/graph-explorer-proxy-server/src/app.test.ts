@@ -362,7 +362,7 @@ describe("createApp", () => {
       await request(app).post("/sparql").set(dbHeaders()).send({ query });
 
       const fetchOptions = mockFetch.mock.calls[0][1] as any;
-      expect(fetchOptions.headers["Content-Type"]).toBe(
+      expect(fetchOptions.headers["content-type"]).toBe(
         "application/x-www-form-urlencoded",
       );
       expect(fetchOptions.body).toContain(`query=${encodeURIComponent(query)}`);
@@ -503,7 +503,7 @@ describe("createApp", () => {
       await request(app).post("/openCypher").set(dbHeaders()).send({ query });
 
       const fetchOptions = mockFetch.mock.calls[0][1] as any;
-      expect(fetchOptions.headers["Content-Type"]).toBe(
+      expect(fetchOptions.headers["content-type"]).toBe(
         "application/x-www-form-urlencoded",
       );
       expect(fetchOptions.body).toBe(`query=${encodeURIComponent(query)}`);

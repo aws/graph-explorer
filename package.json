@@ -8,8 +8,8 @@
   "type": "module",
   "scripts": {
     "prepare": "husky",
-    "lint": "oxlint --fix && eslint --fix",
-    "check:lint": "oxlint && eslint",
+    "lint": "oxlint --fix",
+    "check:lint": "oxlint",
     "format": "oxfmt",
     "check:format": "oxfmt --check",
     "test": "vitest run",
@@ -29,8 +29,6 @@
     "@types/node": "^24.10.9",
     "@vitest/coverage-v8": "4.1.5",
     "babel-plugin-react-compiler": "^1.0.0",
-    "eslint": "^10.2.1",
-    "eslint-plugin-oxlint": "1.62.0",
     "eslint-plugin-react-hooks": "7.1.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
@@ -38,14 +36,12 @@
     "oxlint": "1.62.0",
     "oxlint-tsgolint": "0.22.1",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.1",
     "vitest": "4.1.5"
   },
   "lint-staged": {
     "!(**/*.{js,ts,tsx})": "oxfmt --no-error-on-unmatched-pattern",
     "**/*.{js,ts,tsx}": [
       "oxlint --fix",
-      "eslint --fix",
       "oxfmt"
     ]
   },

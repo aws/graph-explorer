@@ -69,6 +69,7 @@ function useContextMenu() {
     // oxlint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     handleMouseEvent({
+      // oxlint-disable-next-line typescript/no-misused-spread -- Intentionally extracting MouseEvent properties for synthetic event
       ...event.originalEvent,
       // Override the event position to node bounds and parent offsets
       clientY: parentBounds.top + bounds.top + bounds.height / 2,
@@ -88,6 +89,7 @@ function useContextMenu() {
     // oxlint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     handleMouseEvent({
+      // oxlint-disable-next-line typescript/no-misused-spread -- Intentionally extracting MouseEvent properties for synthetic event
       ...event.originalEvent,
       // Override the event position to event position and parent offsets
       clientY: event.renderedPosition.y + parentBounds.top,
@@ -108,6 +110,7 @@ function useContextMenu() {
     // oxlint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     handleMouseEvent({
+      // oxlint-disable-next-line typescript/no-misused-spread -- Intentionally extracting MouseEvent properties for synthetic event
       ...event.originalEvent,
       clientY: position.top,
       clientX: position.left,

@@ -87,7 +87,7 @@ function mapToConnectionForm(
   }
 
   const result: ConnectionForm = {
-    ...(existingConfig.connection ?? {}),
+    ...existingConfig.connection,
     name: existingConfig.displayLabel ?? existingConfig.id,
     fetchTimeoutEnabled: Boolean(existingConfig.connection?.fetchTimeoutMs),
     nodeExpansionLimitEnabled: Boolean(
@@ -130,7 +130,7 @@ const CreateConnection = ({
           const updated = new Map(prev);
           const currentConfig = updated.get(configId);
           const updatedConfig: RawConfiguration = {
-            ...(currentConfig || {}),
+            ...currentConfig,
             id: configId,
             displayLabel: data.name,
             connection: mapToConnection(data),
@@ -171,7 +171,7 @@ const CreateConnection = ({
 
           // Reseting all query state. Using `removeQueries()` to ensure initial data is recalculated.
           // This ensures dependent queries execute in the right order
-          void queryClient.removeQueries();
+          queryClient.removeQueries();
         }
       },
       [configId, initialData, queryClient],

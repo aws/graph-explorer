@@ -31,7 +31,7 @@ export default function SingleNodeStyling({
     if (prevDisplayAs === null || prevDisplayAs === debouncedDisplayAs) {
       return;
     }
-    void setVertexStyle({ displayLabel: debouncedDisplayAs });
+    setVertexStyle({ displayLabel: debouncedDisplayAs });
   }, [debouncedDisplayAs, prevDisplayAs, setVertexStyle]);
 
   return (

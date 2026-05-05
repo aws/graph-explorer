@@ -1,69 +1,30 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["typescript", "unicorn"],
+  "plugins": [
+    "eslint",
+    "oxc",
+    "typescript",
+    "unicorn",
+    "import",
+    "vitest",
+    "promise"
+  ],
   "options": {
     "typeAware": true
   },
   "categories": {
-    // Disabled so rules are enabled explicitly below for full control.
-    // New oxlint correctness rules won't auto-enable on upgrades.
-    "correctness": "off"
+    "correctness": "error"
   },
   "env": {
     "builtin": true
   },
   "ignorePatterns": ["**/*.config.{js,ts,mjs}", "**/vitest.workspace.ts"],
   "rules": {
-    "constructor-super": "error",
-    "for-direction": "error",
-    "getter-return": "error",
-    "no-async-promise-executor": "error",
-    "no-case-declarations": "error",
-    "no-class-assign": "error",
-    "no-compare-neg-zero": "error",
-    "no-cond-assign": "error",
-    "no-const-assign": "error",
-    "no-constant-binary-expression": "error",
-    "no-constant-condition": "error",
-    "no-control-regex": "error",
-    "no-debugger": "error",
-    "no-delete-var": "error",
-    "no-dupe-class-members": "error",
-    "no-dupe-else-if": "error",
-    "no-dupe-keys": "error",
-    "no-duplicate-case": "error",
-    "no-empty": "error",
-    "no-empty-character-class": "error",
-    "no-empty-pattern": "error",
-    "no-empty-static-block": "error",
-    "no-ex-assign": "error",
-    "no-extra-boolean-cast": "error",
-    "no-fallthrough": "error",
-    "no-func-assign": "error",
-    "no-global-assign": "error",
-    "no-import-assign": "error",
-    "no-invalid-regexp": "error",
-    "no-irregular-whitespace": "error",
-    "no-loss-of-precision": "error",
-    "no-misleading-character-class": "error",
-    "no-new-native-nonconstructor": "error",
-    "no-nonoctal-decimal-escape": "error",
-    "no-obj-calls": "error",
-    "no-prototype-builtins": "error",
-    "no-redeclare": "error",
-    "no-regex-spaces": "error",
-    "no-self-assign": "error",
-    "no-setter-return": "error",
-    "no-shadow-restricted-names": "error",
-    "no-sparse-arrays": "error",
-    "no-this-before-super": "error",
-    "no-unassigned-vars": "error",
-    "no-unsafe-finally": "error",
-    "no-unsafe-negation": "error",
-    "no-unsafe-optional-chaining": "error",
-    "no-unreachable": "error",
-    "no-unused-labels": "error",
-    "no-unused-private-class-members": "error",
+    "vitest/require-mock-type-parameters": "off",
+    "jest/require-to-throw-message": "off",
+    "jest/valid-expect": "off",
+    "typescript/unbound-method": "off",
+    "typescript/no-floating-promises": "off",
     "no-unused-vars": [
       "error",
       {
@@ -72,106 +33,33 @@
         "caughtErrorsIgnorePattern": "^_"
       }
     ],
-    "no-useless-backreference": "error",
-    "no-useless-catch": "error",
-    "no-useless-escape": "error",
-    "no-with": "error",
-    "preserve-caught-error": "error",
-    "require-yield": "error",
-    "use-isnan": "error",
-    "valid-typeof": "error",
-    "no-array-constructor": "error",
-    "no-console": [
-      "error",
-      {
-        "allow": ["warn", "error"]
-      }
-    ],
-    "no-caller": "error",
-    "no-eval": "error",
-    "no-iterator": "error",
-    "no-useless-rename": "error",
-
-    // oxc rules
-    "bad-array-method-on-arguments": "error",
-    "bad-char-at-comparison": "error",
-    "bad-comparison-sequence": "error",
-    "bad-min-max-func": "error",
-    "bad-object-literal-comparison": "error",
-    "bad-replace-all-arg": "error",
-    "const-comparisons": "error",
-    "double-comparisons": "error",
-    "erasing-op": "error",
-    "missing-throw": "error",
-    "number-arg-out-of-range": "error",
-    "only-used-in-recursion": "error",
-    "uninvoked-array-callback": "error",
-
-    // unicorn rules
-    "unicorn/no-await-in-promise-methods": "error",
-    "unicorn/no-empty-file": "error",
-    "unicorn/no-invalid-fetch-options": "error",
-    "unicorn/no-invalid-remove-event-listener": "error",
-    "unicorn/no-new-array": "error",
-    "unicorn/no-single-promise-in-promise-methods": "error",
-    "unicorn/no-thenable": "error",
-    "unicorn/no-unnecessary-await": "error",
-    "unicorn/no-useless-spread": "error",
-    "unicorn/prefer-set-size": "error",
-    "typescript/ban-ts-comment": "error",
-    "typescript/no-duplicate-enum-values": "error",
-    "typescript/no-empty-object-type": "error",
-    "typescript/no-extra-non-null-assertion": "error",
-    "typescript/no-misused-new": "error",
-    "typescript/no-namespace": "error",
-    "typescript/no-non-null-asserted-optional-chain": "error",
-    "typescript/no-require-imports": "error",
-    "typescript/no-this-alias": "error",
-    "typescript/no-unnecessary-type-constraint": "error",
-    "typescript/no-unsafe-declaration-merging": "error",
-    "typescript/no-unsafe-function-type": "error",
-    "typescript/no-wrapper-object-types": "error",
-    "typescript/prefer-as-const": "error",
-    "typescript/prefer-namespace-keyword": "error",
-    "typescript/triple-slash-reference": "error",
+    "no-console": ["error", { "allow": ["warn", "error"] }],
     "typescript/consistent-type-imports": [
       "error",
-      {
-        "fixStyle": "inline-type-imports"
-      }
+      { "fixStyle": "inline-type-imports" }
     ],
     "typescript/no-import-type-side-effects": "error",
-    "typescript/no-unnecessary-parameter-property-assignment": "error",
-    "typescript/no-useless-empty-export": "error",
-
-    // Type-aware rules (from typescript-eslint recommendedTypeChecked)
-    "typescript/await-thenable": "error",
-    "typescript/no-array-delete": "error",
-    "typescript/no-base-to-string": "error",
-    "typescript/no-duplicate-type-constituents": "error",
-    "typescript/no-for-in-array": "error",
-    "typescript/no-implied-eval": "error",
-    "typescript/no-redundant-type-constituents": "error",
+    "typescript/switch-exhaustiveness-check": "error",
+    "no-case-declarations": "error",
+    "no-empty": "error",
+    "no-fallthrough": "error",
+    "no-prototype-builtins": "error",
+    "no-redeclare": "error",
+    "no-regex-spaces": "error",
+    "preserve-caught-error": "error",
+    "no-array-constructor": "error",
+    "typescript/ban-ts-comment": "error",
+    "typescript/no-empty-object-type": "error",
+    "typescript/no-namespace": "error",
+    "typescript/no-require-imports": "error",
+    "typescript/no-unnecessary-type-constraint": "error",
+    "typescript/no-unsafe-function-type": "error",
     "typescript/no-unnecessary-type-assertion": "error",
     "typescript/no-unsafe-enum-comparison": "error",
-    "typescript/no-unsafe-unary-minus": "error",
     "typescript/only-throw-error": "error",
     "typescript/prefer-promise-reject-errors": "error",
     "typescript/require-await": "error",
-    "typescript/restrict-plus-operands": "error",
-    "typescript/restrict-template-expressions": "error",
-    "typescript/switch-exhaustiveness-check": "error",
-    "typescript/require-array-sort-compare": "error",
-
-    // Type-aware rules explicitly disabled
-    "typescript/no-unsafe-argument": "off",
-    "typescript/no-unsafe-assignment": "off",
-    "typescript/no-unsafe-call": "off",
-    "typescript/no-unsafe-member-access": "off",
-    "typescript/no-unsafe-return": "off",
-    "typescript/unbound-method": "off",
-    "typescript/no-floating-promises": "off",
-    "typescript/no-misused-promises": "off"
+    "typescript/restrict-plus-operands": "error"
   },
   "overrides": [
     {
@@ -199,12 +87,38 @@
     },
     {
       "files": ["packages/graph-explorer/**/*.{ts,tsx}"],
+      "plugins": ["react", "react-perf", "jsx-a11y"],
+      "jsPlugins": [
+        "@tanstack/eslint-plugin-query",
+        { "name": "react-compiler", "specifier": "eslint-plugin-react-hooks" }
+      ],
+      "env": { "browser": true },
       "rules": {
         "react/display-name": "off",
+        "react/no-unsafe": "error",
+        "react/react-in-jsx-scope": "off",
+        "jsx-a11y/no-autofocus": "off",
+        "jsx-a11y/click-events-have-key-events": "off",
+        "jsx-a11y/no-static-element-interactions": "off",
+        "jsx-a11y/mouse-events-have-key-events": "off",
+        "react-compiler/rules-of-hooks": "off",
+        "react-compiler/exhaustive-deps": "off",
+        "react-compiler/config": "error",
+        "react-compiler/error-boundaries": "error",
+        "react-compiler/gating": "error",
+        "react-compiler/globals": "error",
+        "react-compiler/immutability": "error",
+        "react-compiler/incompatible-library": "warn",
+        "react-compiler/preserve-manual-memoization": "error",
+        "react-compiler/purity": "error",
+        "react-compiler/refs": "error",
+        "react-compiler/set-state-in-effect": "error",
+        "react-compiler/set-state-in-render": "error",
+        "react-compiler/static-components": "error",
+        "react-compiler/unsupported-syntax": "warn",
+        "react-compiler/use-memo": "error",
         "react/jsx-key": "error",
-        "react/jsx-no-comment-textnodes": "error",
         "react/jsx-no-duplicate-props": "error",
-        "react/jsx-no-target-blank": "error",
         "react/jsx-no-undef": "error",
         "react/no-children-prop": "error",
         "react/no-danger-with-children": "error",
@@ -213,32 +127,26 @@
         "react/no-is-mounted": "error",
         "react/no-render-return-value": "error",
         "react/no-string-refs": "error",
+        "react/jsx-no-comment-textnodes": "error",
+        "react/jsx-no-target-blank": "error",
         "react/no-unescaped-entities": "error",
         "react/no-unknown-property": "error",
-        "react/no-unsafe": "off",
-        "react/react-in-jsx-scope": "off",
+        "react/jsx-curly-brace-presence": "error",
+        "react/rules-of-hooks": "error",
+        "react/exhaustive-deps": "warn",
         "@tanstack/query/exhaustive-deps": "error",
         "@tanstack/query/no-rest-destructuring": "warn",
         "@tanstack/query/stable-query-client": "error",
         "@tanstack/query/no-unstable-deps": "error",
         "@tanstack/query/infinite-query-property-order": "error",
         "@tanstack/query/no-void-query-fn": "error",
-        "@tanstack/query/mutation-property-order": "error",
-        "react/jsx-curly-brace-presence": "error",
-        "react/rules-of-hooks": "error",
-        "react/exhaustive-deps": "warn"
-      },
-      "jsPlugins": ["@tanstack/eslint-plugin-query"],
-      "plugins": ["react"],
-      "env": {
-        "browser": true
+        "@tanstack/query/mutation-property-order": "error"
       }
     },
     {
       "files": ["packages/graph-explorer-proxy-server/**/*.{ts,js}"],
-      "env": {
-        "node": true
-      }
+      "plugins": ["node"],
+      "env": { "node": true }
     }
   ]
 }

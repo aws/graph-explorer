@@ -30,6 +30,7 @@ export function SettingsSectionHeader({
 
 export function SettingsSectionTitle({
   className,
+  children,
   ...props
 }: ComponentProps<"h2">) {
   return (
@@ -39,7 +40,9 @@ export function SettingsSectionTitle({
         className,
       )}
       {...props}
-    />
+    >
+      {children}
+    </h2>
   );
 }
 

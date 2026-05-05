@@ -51,7 +51,9 @@ export const FileButton = ({
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
   const handleClick = () => {
-    !disabled && inputRef.current?.click();
+    if (!disabled) {
+      inputRef.current?.click();
+    }
   };
 
   // Calls onChange with the selected file or files
