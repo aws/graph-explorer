@@ -295,6 +295,28 @@ describe("process-environment.sh", () => {
       expect(defaultConnection).toHaveProperty("GRAPH_EXP_CONNECTION_URL", "");
     });
 
+    it("preserves path in GRAPH_CONNECTION_URL", () => {
+      const { defaultConnection } = runScript(workDir, {
+        PUBLIC_OR_PROXY_ENDPOINT: "http://localhost:8080",
+        GRAPH_CONNECTION_URL: "http://blazegraph:9999/blazegraph/namespace/kb",
+      });
+      expect(defaultConnection).toHaveProperty(
+        "GRAPH_EXP_CONNECTION_URL",
+        "http://blazegraph:9999/blazegraph/namespace/kb",
+      );
+    });
+
+    it("preserves trailing slash in GRAPH_CONNECTION_URL", () => {
+      const { defaultConnection } = runScript(workDir, {
+        PUBLIC_OR_PROXY_ENDPOINT: "http://localhost:8080",
+        GRAPH_CONNECTION_URL: "http://blazegraph:9999/blazegraph/namespace/kb/",
+      });
+      expect(defaultConnection).toHaveProperty(
+        "GRAPH_EXP_CONNECTION_URL",
+        "http://blazegraph:9999/blazegraph/namespace/kb/",
+      );
+    });
+
     it("defaults AWS_REGION to empty string", () => {
       const { defaultConnection } = runScript(workDir, {
         PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",

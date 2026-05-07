@@ -356,6 +356,40 @@ describe("normalizeConnection", () => {
     const result = normalizeConnection({ url: "https://example.com" });
     expect(result.awsAuthEnabled).toBe(false);
   });
+
+  test("should preserve path in url", () => {
+    const result = normalizeConnection({
+      url: "http://localhost:9999/blazegraph/namespace/kb",
+    });
+    expect(result.url).toBe("http://localhost:9999/blazegraph/namespace/kb");
+  });
+
+  test("should remove only trailing slash from url with path", () => {
+    const result = normalizeConnection({
+      url: "http://localhost:9999/blazegraph/namespace/kb/",
+    });
+    expect(result.url).toBe("http://localhost:9999/blazegraph/namespace/kb");
+  });
+
+  test("should preserve path in graphDbUrl", () => {
+    const result = normalizeConnection({
+      url: "http://proxy:8080",
+      graphDbUrl: "http://blazegraph:9999/blazegraph/namespace/kb",
+    });
+    expect(result.graphDbUrl).toBe(
+      "http://blazegraph:9999/blazegraph/namespace/kb",
+    );
+  });
+
+  test("should remove only trailing slash from graphDbUrl with path", () => {
+    const result = normalizeConnection({
+      url: "http://proxy:8080",
+      graphDbUrl: "http://blazegraph:9999/blazegraph/namespace/kb/",
+    });
+    expect(result.graphDbUrl).toBe(
+      "http://blazegraph:9999/blazegraph/namespace/kb",
+    );
+  });
 });
 
 describe("getDefaultVertexTypeConfig", () => {

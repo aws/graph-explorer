@@ -791,6 +791,126 @@ describe("createApp", () => {
         `graph-explorer/${testVersion}`,
       );
     });
+
+    it("preserves request-specific headers after IAM signing", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app)
+        .post("/sparql")
+        .set(
+          dbHeaders({
+            "aws-neptune-region": "us-east-1",
+            "service-type": "neptune-db",
+          }),
+        )
+        .send({ query: "SELECT 1" });
+
+      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      expect(fetchOptions.headers["content-type"]).toBe(
+        "application/x-www-form-urlencoded",
+      );
+      expect(fetchOptions.headers["accept"]).toBe(
+        "application/sparql-results+json",
+      );
+      expect(fetchOptions.headers["Authorization"]).toBeDefined();
+    });
+  });
+
+  // ── URL path preservation ────────────────────────────────────────
+
+  describe("preserves base URL path for non-root endpoints", () => {
+    const blazegraphUrl = "http://blazegraph:9999/blazegraph/namespace/kb";
+
+    function blazegraphHeaders(overrides: Record<string, string> = {}) {
+      return {
+        "graph-db-connection-url": blazegraphUrl,
+        ...overrides,
+      };
+    }
+
+    it("POST /sparql appends to the base URL path", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app)
+        .post("/sparql")
+        .set(blazegraphHeaders())
+        .send({ query: "SELECT 1" });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${blazegraphUrl}/sparql`,
+        expect.anything(),
+      );
+    });
+
+    it("POST /gremlin appends to the base URL path", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app)
+        .post("/gremlin")
+        .set(blazegraphHeaders())
+        .send({ query: "g.V()" });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${blazegraphUrl}/gremlin`,
+        expect.anything(),
+      );
+    });
+
+    it("POST /openCypher appends to the base URL path", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app)
+        .post("/openCypher")
+        .set(blazegraphHeaders())
+        .send({ query: "MATCH (n) RETURN n" });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${blazegraphUrl}/openCypher`,
+        expect.anything(),
+      );
+    });
+
+    it("GET /summary appends to the base URL path", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app).get("/summary").set(blazegraphHeaders());
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${blazegraphUrl}/summary?mode=detailed`,
+        expect.anything(),
+      );
+    });
+
+    it("GET /pg/statistics/summary appends to the base URL path", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app).get("/pg/statistics/summary").set(blazegraphHeaders());
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${blazegraphUrl}/pg/statistics/summary?mode=detailed`,
+        expect.anything(),
+      );
+    });
+
+    it("GET /rdf/statistics/summary appends to the base URL path", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app)
+        .get("/rdf/statistics/summary")
+        .set(blazegraphHeaders());
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${blazegraphUrl}/rdf/statistics/summary?mode=detailed`,
+        expect.anything(),
+      );
+    });
   });
 
   // ── Fetch error handling ──────────────────────────────────────────
