@@ -28,13 +28,13 @@ Understand your data model at a glance. See node types, their relationships, and
 
 ## Get Started
 
-- [Hands-on tutorial](./docs/getting-started/README.md) — Try Graph Explorer with sample data using Docker Compose
-- [Deployment & connection guides](./docs/guides) — Run with Docker, EC2, ECS Fargate, or SageMaker and connect to your database
-- [Development](./docs/development.md) — Build from source for local development
+- [Hands-on tutorial](https://aws.github.io/graph-explorer/getting-started/) — Try Graph Explorer with sample data using Docker Compose
+- [Deployment & connection guides](https://aws.github.io/graph-explorer/guides/) — Run with Docker, EC2, ECS Fargate, or SageMaker and connect to your database
+- [Development](https://aws.github.io/graph-explorer/references/development/) — Build from source for local development
 
 ## Documentation
 
-See the [full documentation](./docs) for features, guides, references, and more.
+See the [full documentation](https://aws.github.io/graph-explorer/) for features, guides, references, and more.
 
 ## Community
 
