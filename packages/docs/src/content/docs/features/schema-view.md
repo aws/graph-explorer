@@ -2,9 +2,7 @@
 title: "Schema View"
 ---
 
-[← Features](./)
 
-# Schema View
 
 The Schema view visualizes the schema of your graph database as an interactive graph. Node types are displayed as nodes and their relationships (edge connections) are displayed as edges between them.
 

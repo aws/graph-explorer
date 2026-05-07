@@ -2,9 +2,7 @@
 title: "Troubleshooting"
 ---
 
-[← Guides](./)
 
-# Troubleshooting
 
 This page contains workarounds for common issues and information on how to diagnose other issues.
 

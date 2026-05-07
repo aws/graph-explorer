@@ -2,9 +2,7 @@
 title: "Running Graph Explorer on AWS Fargate + Amazon ECS"
 ---
 
-[← Guides](./)
 
-# Running Graph Explorer on AWS Fargate + Amazon ECS
 
 The following steps will allow you to set up Graph Explorer on AWS Fargate in Amazon ECS, and connect to a running Neptune database.
 
@@ -205,7 +203,7 @@ After the request is processed, the console will return you to your certificate 
      - **Target group name**: `tg-graphexplorer-demo` with **Protocol** as `HTTPS`.
      - **Health check path**: `/explorer/` with **Health check protocol** as `HTTPS`.
 
-      <img width="720" alt="image" src="../../../assets/guides/deploy-to-ecs-fargate/target-group.png">
+      <img width="720" alt="image" src="/graph-explorer/assets/guides/deploy-to-ecs-fargate/target-group.png">
 
 10. (Optional) Under section **Service auto scaling**, specify the desired scaling configuration.
 11. (Optional) To help identify your service and tasks, expand the **Tags** section, then configure your desired tags.
@@ -214,7 +212,7 @@ After the request is processed, the console will return you to your certificate 
 
 After few minutes, the Fargate service will be created and ready.
 
-<img alt="image" src="../../../assets/guides/deploy-to-ecs-fargate/fargate-service.png">
+<img alt="image" src="/graph-explorer/assets/guides/deploy-to-ecs-fargate/fargate-service.png">
 
 ## Create an Amazon Route53 Entry
 

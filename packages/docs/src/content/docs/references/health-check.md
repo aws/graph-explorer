@@ -2,9 +2,7 @@
 title: "Health Check Status"
 ---
 
-[← References](./)
 
-# Health Check Status
 
 The `graph-explorer-proxy-server` provides a `/status` endpoint for monitoring its health and readiness. This endpoint is crucial for ensuring reliable service operation and can be utilized in various deployment scenarios.
 

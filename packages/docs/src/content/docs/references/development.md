@@ -133,7 +133,7 @@ PROXY_SERVER_HTTP_PORT=8082
 
 ## Environment variables
 
-See the [Configuration Reference](./references/configuration.md) for all available environment variables including application settings and default connection options.
+See the [Configuration Reference](./configuration/) for all available environment variables including application settings and default connection options.
 
 ## Development-only environment variables
 
@@ -158,7 +158,7 @@ Example: `5174`
 
 ## Using self-signed certificates on Chrome
 
-See [Removing the "Not Secure" warning on Chrome](./references/security.md#removing-the-not-secure-warning-on-chrome) in the security reference.
+See [Removing the "Not Secure" warning on Chrome](./security/#removing-the-not-secure-warning-on-chrome) in the security reference.
 
 ## Troubleshooting
 

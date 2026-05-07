@@ -10,7 +10,7 @@ A hands-on tutorial that walks you through Graph Explorer using the air routes s
 
 ## Launch Graph Explorer
 
-The fastest way to try Graph Explorer is with the [Air Routes sample](../../samples/air_routes/README.md). It launches Graph Explorer and a Gremlin Server pre-loaded with sample data using Docker Compose — no database setup or AWS account required.
+The fastest way to try Graph Explorer is with the [Air Routes sample](https://github.com/aws/graph-explorer/tree/main/samples/air_routes). It launches Graph Explorer and a Gremlin Server pre-loaded with sample data using Docker Compose — no database setup or AWS account required.
 
 1. Clone the repository
    ```
@@ -113,6 +113,6 @@ Now that you have explored the basics, here are some directions to go next:
 - [Connecting to databases](../guides#connecting-to-databases) — Connect to Neptune, Gremlin Server, or BlazeGraph
 - [Deployment guides](../guides#deployment) — Deploy with Docker, EC2, ECS Fargate, or SageMaker
 - [Configuration](../references/configuration.md) — Environment variables for application settings and default connections
-- [Development](../development.md) — Build from source for local development
+- [Development](../references/development/) — Build from source for local development
 - [Troubleshooting](../guides/troubleshooting.md) — Common issues and workarounds
-- [Samples](../../samples) — More Docker Compose examples for different configurations
+- [Samples](https://github.com/aws/graph-explorer/tree/main/samples) — More Docker Compose examples for different configurations

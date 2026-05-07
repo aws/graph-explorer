@@ -2,9 +2,7 @@
 title: "Settings"
 ---
 
-[← Features](./)
 
-# Settings
 
 ## General Settings
 

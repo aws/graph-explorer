@@ -2,9 +2,7 @@
 title: "Deploy with Docker"
 ---
 
-[← Guides](./)
 
-# Deploy with Docker
 
 Deploy Graph Explorer locally using the official Docker image from Amazon's ECR Public Registry.
 

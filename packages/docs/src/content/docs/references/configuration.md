@@ -2,9 +2,7 @@
 title: "Configuration"
 ---
 
-[← References](./)
 
-# Configuration
 
 All environment variables for configuring Graph Explorer, organized by concern.
 

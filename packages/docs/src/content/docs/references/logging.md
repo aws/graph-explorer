@@ -2,9 +2,7 @@
 title: "Logging"
 ---
 
-[← References](./)
 
-# Logging
 
 Logs are, by default, sent to the console and will be visible as output to the docker logs. If you want to access the full set of logs, you can run `docker logs {container name or id}`.
 

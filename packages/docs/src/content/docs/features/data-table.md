@@ -2,9 +2,7 @@
 title: "Data Table"
 ---
 
-[← Features](./)
 
-# Data Table
 
 You can use the Data Table view to view the data for the selected node type. You can open the Data Table view by clicking "Data Table" in the navigation bar or by clicking the node type row in the [connection details](./connections.md#connection-details) pane.
 
