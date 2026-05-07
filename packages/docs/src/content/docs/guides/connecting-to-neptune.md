@@ -2,8 +2,6 @@
 title: "Connecting to Neptune"
 ---
 
-
-
 Graph Explorer connects to Amazon Neptune through its proxy server, which forwards requests to the database and handles SigV4 signing when IAM authentication is enabled.
 
 ## Connection Settings

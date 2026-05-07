@@ -2,8 +2,6 @@
 title: "Graph View"
 ---
 
-
-
 You can search, browse, expand, customize views of your graph data using the Graph view, which is the main view of this application. Once you create a connection, you can click "Graph" in the navigation bar to navigate here.
 
 - **Toggle view visibility** The graph and table views can be hidden to allow the other to expand.

@@ -2,8 +2,6 @@
 title: "Connecting to Gremlin-Server"
 ---
 
-
-
 If you are using the default Gremlin Server docker image, you can get the server running with the following commands:
 
 ```
@@ -31,6 +29,7 @@ The Gremlin Server configuration can be usually found at:
 ```
 /conf/gremlin-server.yaml
 ```
+
 :::
 
 ## Versions Prior to 3.7

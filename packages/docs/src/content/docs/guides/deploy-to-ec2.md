@@ -2,8 +2,6 @@
 title: "Deploy to Amazon EC2"
 ---
 
-
-
 Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server with SSH tunneling to connect to Amazon Neptune.
 
 :::note

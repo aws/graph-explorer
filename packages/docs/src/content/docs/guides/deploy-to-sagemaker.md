@@ -2,8 +2,6 @@
 title: "Launching Graph Explorer using Amazon SageMaker"
 ---
 
-
-
 Graph Explorer can be hosted and launched on Amazon SageMaker Notebooks via a lifecycle configuration script. To learn more about lifecycle configurations and how to create one, see the [documentation](https://docs.aws.amazon.com/sagemaker/latest/dg/notebook-lifecycle-config.html).
 
 You can use the provided sample lifecycle configuration, [`install-graph-explorer-lc.sh`](/graph-explorer/guides/deploy-to-sagemaker/install-graph-explorer-lc.sh), or create your own shell script. If using the sample lifecycle, you should also create an IAM role with a policy containing the permissions described in either [`graph-explorer-neptune-db-policy.json`](/graph-explorer/guides/deploy-to-sagemaker/graph-explorer-neptune-db-policy.json) or [`graph-explorer-neptune-analytics-policy.json`](/graph-explorer/guides/deploy-to-sagemaker/graph-explorer-neptune-analytics-policy.json), depending on the service used.

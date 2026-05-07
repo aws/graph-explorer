@@ -1,5 +1,5 @@
-import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
+import { defineConfig } from "astro/config";
 
 export default defineConfig({
   site: "https://aws.github.io",
@@ -15,7 +15,10 @@ export default defineConfig({
         },
       ],
       sidebar: [
-        { label: "Getting Started", autogenerate: { directory: "getting-started" } },
+        {
+          label: "Getting Started",
+          autogenerate: { directory: "getting-started" },
+        },
         { label: "Features", autogenerate: { directory: "features" } },
         { label: "Guides", autogenerate: { directory: "guides" } },
         { label: "References", autogenerate: { directory: "references" } },

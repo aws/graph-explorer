@@ -2,8 +2,6 @@
 title: "Troubleshooting"
 ---
 
-
-
 This page contains workarounds for common issues and information on how to diagnose other issues.
 
 - [Docker Container Issues](#docker-container-issues)

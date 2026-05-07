@@ -2,8 +2,6 @@
 title: "Connections"
 ---
 
-
-
 You can create and manage connections to graph databases using this feature. Connections is accessible as the first screen after deploying the application or by clicking `Connections` in the navigation bar. Click `+` on the top-right to add a new connection. You can also edit and delete connections.
 
 For guides on connecting to specific databases, see [Connecting to databases](../guides#connecting-to-databases).

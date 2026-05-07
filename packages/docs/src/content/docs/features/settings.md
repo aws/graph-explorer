@@ -2,8 +2,6 @@
 title: "Settings"
 ---
 
-
-
 ## General Settings
 
 - **Default Neighbor Expansion Limit:** This setting will allow you to enable or disable the default limit applied during neighbor expansion. This applies to both double click expansion and the expand sidebar. This setting can be overridden by a similar setting on the connection itself.

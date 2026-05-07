@@ -2,8 +2,6 @@
 title: "Running Graph Explorer on AWS Fargate + Amazon ECS"
 ---
 
-
-
 The following steps will allow you to set up Graph Explorer on AWS Fargate in Amazon ECS, and connect to a running Neptune database.
 
 ## Create a new IAM role and permission policies
