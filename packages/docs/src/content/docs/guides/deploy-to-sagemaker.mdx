@@ -3,9 +3,14 @@ title: "Launching Graph Explorer using Amazon SageMaker"
 description: Deploy Graph Explorer on an Amazon SageMaker notebook instance.
 ---
 
+import { Code } from '@astrojs/starlight/components';
+import installScript from './_assets/install-graph-explorer-lc.sh?raw';
+import neptuneDbPolicy from './_assets/graph-explorer-neptune-db-policy.json?raw';
+import neptuneAnalyticsPolicy from './_assets/graph-explorer-neptune-analytics-policy.json?raw';
+
 Graph Explorer can be hosted and launched on Amazon SageMaker Notebooks via a lifecycle configuration script. To learn more about lifecycle configurations and how to create one, see the [documentation](https://docs.aws.amazon.com/sagemaker/latest/dg/notebook-lifecycle-config.html).
 
-You can use the provided sample lifecycle configuration, [`install-graph-explorer-lc.sh`](./_assets/install-graph-explorer-lc.sh), or create your own shell script. If using the sample lifecycle, you should also create an IAM role with a policy containing the permissions described in either [`graph-explorer-neptune-db-policy.json`](./_assets/graph-explorer-neptune-db-policy.json) or [`graph-explorer-neptune-analytics-policy.json`](./_assets/graph-explorer-neptune-analytics-policy.json), depending on the service used.
+You can use the provided sample lifecycle configuration below, or create your own shell script. If using the sample lifecycle, you should also create an IAM role with a policy containing the permissions described in either the Neptune DB or Neptune Analytics policy below, depending on the service used.
 
 After you have created the lifecycle configuration and IAM role, you can attach them to a new or existing SageMaker notebook instance, under `Notebook instance settings` -> `Additional configuration` -> `Lifecycle configuration` and `Permission and encryption` -> `IAM role`, respectively.
 
@@ -14,6 +19,16 @@ When the notebook has been started and is in "Ready" state, you can access Graph
 ```
 https://graph-explorer-notebook-name.notebook.us-west-2.sagemaker.aws/proxy/9250/explorer/
 ```
+
+## Lifecycle Configuration Script
+
+<Code code={installScript} lang="bash" title="install-graph-explorer-lc.sh" />
+
+## IAM Policies
+
+<Code code={neptuneDbPolicy} lang="json" title="graph-explorer-neptune-db-policy.json" />
+
+<Code code={neptuneAnalyticsPolicy} lang="json" title="graph-explorer-neptune-analytics-policy.json" />
 
 ## Minimum Database Permissions
 
@@ -44,7 +59,7 @@ If a user attempts to execute a mutation query inside of Graph Explorer, they wi
     "Resource": [
         "arn:[AWS_PARTITION]:neptune-db:[AWS_REGION]:[AWS_ACCOUNT_ID]:[NEPTUNE_CLUSTER_RESOURCE_ID]/*"
     ]
-},
+}
 ```
 
 **Neptune Analytics**
