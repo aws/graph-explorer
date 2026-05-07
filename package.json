@@ -21,8 +21,10 @@
     "start": "pnpm --filter \"graph-explorer-proxy-server\" run start",
     "clean": "pnpm --stream -r run clean",
     "clean:dep": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
-    "build": "pnpm --stream -r run build",
-    "dev": "pnpm --stream -r run dev"
+    "build": "pnpm --stream -r --filter \"!graph-explorer-docs\" run build",
+    "dev": "pnpm --stream -r --filter \"!graph-explorer-docs\" run dev",
+    "docs:dev": "pnpm --filter graph-explorer-docs run dev",
+    "docs:build": "pnpm --filter graph-explorer-docs run build"
   },
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "5.100.6",

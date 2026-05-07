@@ -12,6 +12,7 @@ ignoredBuiltDependencies:
 # Explicitly allow these packages to run build scripts
 onlyBuiltDependencies:
   - esbuild
+  - sharp
 
 # Fail if any dependency tries to run a build script that has not been allowed
 strictDepBuilds: true
