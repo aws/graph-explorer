@@ -1,5 +1,6 @@
 ---
 title: "Launching Graph Explorer using Amazon SageMaker"
+description: Deploy Graph Explorer on an Amazon SageMaker notebook instance.
 ---
 
 Graph Explorer can be hosted and launched on Amazon SageMaker Notebooks via a lifecycle configuration script. To learn more about lifecycle configurations and how to create one, see the [documentation](https://docs.aws.amazon.com/sagemaker/latest/dg/notebook-lifecycle-config.html).

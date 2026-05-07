@@ -1,5 +1,6 @@
 ---
 title: "Deploy to Amazon EC2"
+description: Deploy Graph Explorer on an Amazon EC2 instance.
 ---
 
 Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server with SSH tunneling to connect to Amazon Neptune.
@@ -50,5 +51,5 @@ The `--restart unless-stopped` flag ensures the container automatically restarts
 https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com/explorer
 ```
 
-6. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See [HTTPS Connections](./troubleshooting.md#https-connections) section.
+6. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See [HTTPS Connections](./troubleshooting/#https-connections) section.
 7. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI.

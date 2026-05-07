@@ -1,5 +1,6 @@
 ---
 title: "Running Graph Explorer on AWS Fargate + Amazon ECS"
+description: Deploy Graph Explorer on Amazon ECS with AWS Fargate.
 ---
 
 The following steps will allow you to set up Graph Explorer on AWS Fargate in Amazon ECS, and connect to a running Neptune database.
@@ -159,7 +160,7 @@ After the request is processed, the console will return you to your certificate 
    ```
 5. In the JSON template, update the following fields:
    - `taskRoleArn` and `executionRoleArn`: The ARN of the IAM role created in step "Create a new IAM role and permission policies".
-   - `environment` variables section (see [Configuration](../references/configuration.md#default-connection) for more details):
+   - `environment` variables section (see [Configuration](../references/configuration/#default-connection) for more details):
      - `AWS_REGION`: The AWS region in which your Neptune cluster is located.
      - `GRAPH_TYPE`: The query language for your initial connection.
      - `IAM`: Set this to `true` to use SigV4 signed requests, if your Neptune cluster has IAM db authentication enabled.

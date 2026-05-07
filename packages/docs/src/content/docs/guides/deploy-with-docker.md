@@ -1,5 +1,6 @@
 ---
 title: "Deploy with Docker"
+description: Deploy Graph Explorer locally using the official Docker image.
 ---
 
 Deploy Graph Explorer locally using the official Docker image from Amazon's ECR Public Registry.
@@ -48,5 +49,5 @@ Make sure to use the version of the image that does not include `sagemaker` in t
    https://localhost/explorer
    ```
 
-5. You will receive a warning as the SSL certificate used is self-signed. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See the [HTTPS Connections](./troubleshooting.md#https-connections) section.
-6. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See [Connections](../features/connections.md) for details on configuring your first connection.
+5. You will receive a warning as the SSL certificate used is self-signed. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See the [HTTPS Connections](./troubleshooting/#https-connections) section.
+6. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See [Connections](../features/connections/) for details on configuring your first connection.

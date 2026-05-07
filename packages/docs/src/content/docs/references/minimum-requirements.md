@@ -1,5 +1,6 @@
 ---
 title: "Minimum Requirements"
+description: Hardware and software requirements for running Graph Explorer.
 ---
 
 Graph Explorer does not block any particular versions of graph databases, but the queries used may or may not succeed based on the version of the query engine.

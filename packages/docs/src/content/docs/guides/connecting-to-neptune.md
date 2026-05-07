@@ -1,5 +1,6 @@
 ---
 title: "Connecting to Neptune"
+description: Configure Graph Explorer to connect to Amazon Neptune.
 ---
 
 Graph Explorer connects to Amazon Neptune through its proxy server, which forwards requests to the database and handles SigV4 signing when IAM authentication is enabled.
@@ -34,6 +35,6 @@ Neptune [public endpoints](https://docs.aws.amazon.com/neptune/latest/userguide/
 
 For Neptune instances without public endpoints, Graph Explorer must be deployed within the same VPC or connected via VPC peering. See the deployment guides:
 
-- [Deploy to Amazon EC2](./deploy-to-ec2.md)
-- [Deploy to ECS Fargate](./deploy-to-ecs-fargate.md)
-- [Deploy to SageMaker](./deploy-to-sagemaker.md)
+- [Deploy to Amazon EC2](./deploy-to-ec2/)
+- [Deploy to ECS Fargate](./deploy-to-ecs-fargate/)
+- [Deploy to SageMaker](./deploy-to-sagemaker/)

@@ -1,5 +1,6 @@
 ---
 title: "Troubleshooting"
+description: Common issues and workarounds for Graph Explorer.
 ---
 
 This page contains workarounds for common issues and information on how to diagnose other issues.
@@ -34,7 +35,7 @@ Which will result in the following URLs:
 
 ### HTTP Only
 
-If you do not want to use SSL and HTTPS, you can disable it by setting the following [environment variables](../references/configuration.md#application-configuration):
+If you do not want to use SSL and HTTPS, you can disable it by setting the following [environment variables](../references/configuration/#application-configuration):
 
 ```
 PROXY_SERVER_HTTPS_CONNECTION=false
@@ -55,7 +56,7 @@ docker run -p 80:80 \
 
 If either Graph Explorer or the proxy server are served over an HTTPS connection (which is the default), your browser will show a security warning due to the self-signed certificate.
 
-See [Trusting the self-signed certificate](../references/security.md#trusting-the-self-signed-certificate) for step-by-step instructions, or [Removing the "Not Secure" warning on Chrome](../references/security.md#removing-the-not-secure-warning-on-chrome) for Chrome-specific instructions.
+See [Trusting the self-signed certificate](../references/security/#trusting-the-self-signed-certificate) for step-by-step instructions, or [Removing the "Not Secure" warning on Chrome](../references/security/#removing-the-not-secure-warning-on-chrome) for Chrome-specific instructions.
 
 ## Schema Sync Fails
 
@@ -156,5 +157,5 @@ New Neptune Notebooks automatically apply the correct IAM permissions to write t
 
 Below are examples of which IAM permissions you need for Graph Explorer.
 
-- [IAM permissions for Neptune DB](./deploy-to-sagemaker/graph-explorer-neptune-db-policy.json)
-- [IAM permissions for Neptune Analytics](./deploy-to-sagemaker/graph-explorer-neptune-analytics-policy.json)
+- [IAM permissions for Neptune DB](/graph-explorer/guides/deploy-to-sagemaker/graph-explorer-neptune-db-policy.json)
+- [IAM permissions for Neptune Analytics](/graph-explorer/guides/deploy-to-sagemaker/graph-explorer-neptune-analytics-policy.json)

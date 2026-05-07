@@ -1,5 +1,6 @@
 ---
 title: "Getting Started"
+description: A hands-on tutorial using the air routes sample dataset.
 ---
 
 A hands-on tutorial that walks you through Graph Explorer using the air routes sample dataset. By the end, you will have searched for airports, explored connections between them, filtered the graph, styled nodes, and viewed data in a table.
@@ -112,7 +113,7 @@ Now that you have explored the basics, here are some directions to go next:
 - [Features](../features) — Explore all capabilities in depth
 - [Connecting to databases](../guides#connecting-to-databases) — Connect to Neptune, Gremlin Server, or BlazeGraph
 - [Deployment guides](../guides#deployment) — Deploy with Docker, EC2, ECS Fargate, or SageMaker
-- [Configuration](../references/configuration.md) — Environment variables for application settings and default connections
+- [Configuration](../references/configuration/) — Environment variables for application settings and default connections
 - [Development](../references/development/) — Build from source for local development
-- [Troubleshooting](../guides/troubleshooting.md) — Common issues and workarounds
+- [Troubleshooting](../guides/troubleshooting/) — Common issues and workarounds
 - [Samples](https://github.com/aws/graph-explorer/tree/main/samples) — More Docker Compose examples for different configurations

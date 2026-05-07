@@ -1,22 +1,23 @@
 ---
 title: "Guides"
+description: Connect to databases, deploy to AWS, and troubleshoot common issues.
 ---
 
 Guides for connecting to graph databases, deploying Graph Explorer, and troubleshooting common issues.
 
 ## Connecting to Databases
 
-- [Connecting to Neptune](./connecting-to-neptune.md)
-- [Connecting to Gremlin-Server](./connecting-to-gremlin-server.md)
-- [Connecting to BlazeGraph](./connecting-to-blazegraph.md)
+- [Connecting to Neptune](./connecting-to-neptune/)
+- [Connecting to Gremlin-Server](./connecting-to-gremlin-server/)
+- [Connecting to BlazeGraph](./connecting-to-blazegraph/)
 
 ## Deployment
 
-- [Deploy with Docker](./deploy-with-docker.md)
-- [Deploy to Amazon EC2](./deploy-to-ec2.md)
-- [Deploy to ECS Fargate](./deploy-to-ecs-fargate.md)
-- [Deploy to SageMaker](./deploy-to-sagemaker.md)
+- [Deploy with Docker](./deploy-with-docker/)
+- [Deploy to Amazon EC2](./deploy-to-ec2/)
+- [Deploy to ECS Fargate](./deploy-to-ecs-fargate/)
+- [Deploy to SageMaker](./deploy-to-sagemaker/)
 
 ## Troubleshooting
 
-- [Troubleshooting](./troubleshooting.md)
+- [Troubleshooting](./troubleshooting/)

@@ -1,5 +1,6 @@
 ---
 title: "Schema View"
+description: View the schema showing how node types and edge types relate.
 ---
 
 The Schema view visualizes the schema of your graph database as an interactive graph. Node types are displayed as nodes and their relationships (edge connections) are displayed as edges between them.

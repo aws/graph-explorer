@@ -1,5 +1,6 @@
 ---
 title: "Features"
+description: Key capabilities and detailed guides for each part of Graph Explorer.
 ---
 
 Graph Explorer provides a visual interface for exploring and analyzing graph data without writing queries.
@@ -34,10 +35,10 @@ Export the current graph as a JSON file to save your work, share it with a colle
 
 For detailed documentation on each part of the application:
 
-- [Connections](./connections.md) — Create and manage connections to graph databases.
-- [Graph View](./graph-view.md) — Search, browse, expand, and customize views of your graph data.
-- [Data Table](./data-table.md) — View tabular data for specific node types.
-- [Schema View](./schema-view.md) — Visualize the schema of your graph database.
-- [Settings](./settings.md) — Configure application-wide preferences.
+- [Connections](./connections/) — Create and manage connections to graph databases.
+- [Graph View](./graph-view/) — Search, browse, expand, and customize views of your graph data.
+- [Data Table](./data-table/) — View tabular data for specific node types.
+- [Schema View](./schema-view/) — Visualize the schema of your graph database.
+- [Settings](./settings/) — Configure application-wide preferences.
 
-If you are interested in where Graph Explorer is headed in the future, check out our [roadmap](../../ROADMAP.md) and [participate in the discussions](https://github.com/aws/graph-explorer/discussions).
+If you are interested in where Graph Explorer is headed in the future, check out our [roadmap](https://github.com/aws/graph-explorer/blob/main/ROADMAP.md) and [participate in the discussions](https://github.com/aws/graph-explorer/discussions).

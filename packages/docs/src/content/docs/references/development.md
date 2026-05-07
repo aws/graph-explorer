@@ -1,8 +1,9 @@
 ---
 title: "Development"
+description: Build from source and contribute to Graph Explorer.
 ---
 
-Build instructions and development setup for contributing to Graph Explorer. For system design and key libraries, see [Architecture](./architecture.md).
+Build instructions and development setup for contributing to Graph Explorer. For system design and key libraries, see [Architecture](./architecture/).
 
 ## Requirements
 

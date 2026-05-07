@@ -1,5 +1,6 @@
 ---
 title: "Configuration"
+description: Environment variables for application settings and default connections.
 ---
 
 All environment variables for configuring Graph Explorer, organized by concern.

@@ -1,5 +1,6 @@
 ---
 title: "Connections"
+description: Manage database connections and configure connection settings.
 ---
 
 You can create and manage connections to graph databases using this feature. Connections is accessible as the first screen after deploying the application or by clicking `Connections` in the navigation bar. Click `+` on the top-right to add a new connection. You can also edit and delete connections.
@@ -34,4 +35,4 @@ When a connection is created, Graph Explorer will perform a scan of the graph to
 
 ### Data Table
 
-Under a listed node type, you can click on the ">" arrow to get to the [Data Table](./data-table.md) view. This allows you to see a sample list of nodes under this type and choose one or more nodes to "Send to Explorer" for getting started quickly if you are new to the data. You can also navigate directly to the Data Table view using the "Data Table" link in the navigation bar.
+Under a listed node type, you can click on the ">" arrow to get to the [Data Table](./data-table/) view. This allows you to see a sample list of nodes under this type and choose one or more nodes to "Send to Explorer" for getting started quickly if you are new to the data. You can also navigate directly to the Data Table view using the "Data Table" link in the navigation bar.

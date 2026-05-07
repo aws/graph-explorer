@@ -1,5 +1,6 @@
 ---
 title: "Settings"
+description: Configure application preferences and display options.
 ---
 
 ## General Settings

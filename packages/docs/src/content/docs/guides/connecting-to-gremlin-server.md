@@ -1,5 +1,6 @@
 ---
 title: "Connecting to Gremlin-Server"
+description: Configure Graph Explorer to connect to Apache TinkerPop Gremlin Server.
 ---
 
 If you are using the default Gremlin Server docker image, you can get the server running with the following commands:

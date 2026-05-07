@@ -1,5 +1,6 @@
 ---
 title: "Connecting to BlazeGraph"
+description: Configure Graph Explorer to connect to a BlazeGraph database.
 ---
 
 - Build and run the Docker container as normal and connect Graph Explorer to BlazeGraph through the proxy server.
