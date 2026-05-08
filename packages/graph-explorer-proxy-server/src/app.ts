@@ -17,6 +17,18 @@ import { type AppLogger, requestLoggingMiddleware } from "./logging.ts";
 
 const DEFAULT_SERVICE_TYPE = "neptune-db";
 
+/**
+ * Resolves a relative endpoint path against a base URL, preserving the base
+ * path. Forces a trailing slash on the base so that `new URL` appends rather
+ * than replaces the path.
+ */
+function resolveEndpointUrl<T extends string>(
+  base: string,
+  endpoint: T extends `/${string}` ? never : T,
+): URL {
+  return new URL(endpoint, base.replace(/\/?$/, "/"));
+}
+
 /** Zod schema for the custom headers expected on database query requests. */
 const DbQueryHeadersSchema = z.object({
   queryid: z.string().optional(),
@@ -268,7 +280,10 @@ export function createApp({
       }
       logger.debug(`Cancelling request ${queryId}...`);
       try {
-        const statusUrl = new URL("/sparql/status", graphDbConnectionUrl);
+        const statusUrl = resolveEndpointUrl(
+          graphDbConnectionUrl,
+          "sparql/status",
+        );
         await retryFetch(
           statusUrl,
           {
@@ -315,7 +330,7 @@ export function createApp({
       logger.debug("[SPARQL] Received database query:\n%s", queryString);
     }
 
-    const rawUrl = new URL("/sparql", graphDbConnectionUrl).href;
+    const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, "sparql").href;
     let body = `query=${encodeURIComponent(queryString)}`;
     if (queryId) {
       body += `&queryId=${encodeURIComponent(queryId)}`;
@@ -370,7 +385,10 @@ export function createApp({
       }
       logger.debug(`Cancelling request ${queryId}...`);
       try {
-        const cancelUrl = new URL("/gremlin/status", graphDbConnectionUrl);
+        const cancelUrl = resolveEndpointUrl(
+          graphDbConnectionUrl,
+          "gremlin/status",
+        );
         cancelUrl.searchParams.set("cancelQuery", "");
         cancelUrl.searchParams.set("queryId", queryId);
         await retryFetch(
@@ -401,7 +419,7 @@ export function createApp({
     });
 
     const body = { gremlin: queryString, queryId };
-    const rawUrl = new URL("/gremlin", graphDbConnectionUrl).href;
+    const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, "gremlin").href;
     const requestOptions = {
       method: "POST",
       headers: {
@@ -444,7 +462,10 @@ export function createApp({
       logger.debug("[openCypher] Received database query:\n%s", queryString);
     }
 
-    const openCypherUrl = new URL("/openCypher", graphDbConnectionUrl).href;
+    const openCypherUrl = resolveEndpointUrl(
+      graphDbConnectionUrl,
+      "openCypher",
+    ).href;
     const requestOptions = {
       method: "POST",
       headers: {
@@ -469,7 +490,10 @@ export function createApp({
   app.get("/summary", async (req, res, next) => {
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
       parseDbQueryHeaders(req.headers);
-    const rawUrl = new URL("/summary?mode=detailed", graphDbConnectionUrl).href;
+    const rawUrl = resolveEndpointUrl(
+      graphDbConnectionUrl,
+      "summary?mode=detailed",
+    ).href;
 
     await fetchData(
       res,
@@ -486,9 +510,9 @@ export function createApp({
   app.get("/pg/statistics/summary", async (req, res, next) => {
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
       parseDbQueryHeaders(req.headers);
-    const rawUrl = new URL(
-      "/pg/statistics/summary?mode=detailed",
+    const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
+      "pg/statistics/summary?mode=detailed",
     ).href;
 
     await fetchData(
@@ -506,9 +530,9 @@ export function createApp({
   app.get("/rdf/statistics/summary", async (req, res, next) => {
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
       parseDbQueryHeaders(req.headers);
-    const rawUrl = new URL(
-      "/rdf/statistics/summary?mode=detailed",
+    const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
+      "rdf/statistics/summary?mode=detailed",
     ).href;
 
     await fetchData(
