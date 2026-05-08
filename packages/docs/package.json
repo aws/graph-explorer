@@ -1,5 +1,5 @@
 {
-  "name": "graph-explorer-docs",
+  "name": "@graph-explorer/docs",
   "version": "3.0.3",
   "private": true,
   "type": "module",
