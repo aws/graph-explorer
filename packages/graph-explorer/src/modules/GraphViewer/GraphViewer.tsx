@@ -4,6 +4,7 @@ import {
   Activity,
   type ComponentPropsWithRef,
   type MouseEvent,
+  useMemo,
   useState,
 } from "react";
 
@@ -38,9 +39,12 @@ import {
   createRenderedVertexId,
   getEdgeIdFromRenderedEdgeId,
   getVertexIdFromRenderedVertexId,
+  type DisplayVertex,
+  type DisplayVertexTypeConfig,
   type RenderedEdgeId,
   type RenderedVertex,
   type RenderedVertexId,
+  useDisplayVerticesInCanvas,
   useDisplayVertexTypeConfigs,
   useRenderedEdges,
   useRenderedVertices,
@@ -52,6 +56,7 @@ import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
 import { cn, isVisible } from "@/utils";
 
 import { ExportGraphButton } from "./ExportGraphButton";
+import { filterVertexTypeConfigsForCanvasVertices } from "./filterLegendVertexTypeConfigs";
 import { GraphViewerEmptyState } from "./GraphViewerEmptyState";
 import { ImportGraphButton } from "./ImportGraphButton";
 import ContextMenu from "./internalComponents/ContextMenu";
@@ -150,6 +155,22 @@ function GraphViewerContent({
 
   const nodes = useRenderedVertices();
   const edges = useRenderedEdges();
+  const allVertexTypeConfigs = useDisplayVertexTypeConfigs().values().toArray();
+  const displayVerticesInCanvas = useDisplayVerticesInCanvas();
+
+  const legendVertexTypeConfigs = useMemo(() => {
+    const visibleVertices: DisplayVertex[] = [];
+    for (const node of nodes) {
+      const vertex = displayVerticesInCanvas.get(node.data.vertexId);
+      if (vertex != null) {
+        visibleVertices.push(vertex);
+      }
+    }
+    return filterVertexTypeConfigsForCanvasVertices(
+      allVertexTypeConfigs,
+      visibleVertices,
+    );
+  }, [allVertexTypeConfigs, displayVerticesInCanvas, nodes]);
 
   const isEmpty = !nodes.length && !edges.length;
 
@@ -224,7 +245,10 @@ function GraphViewerContent({
           </Activity>
           <Activity mode={isVisible(legendOpen)}>
             <div className="z-20 col-start-1 row-start-1 grid min-h-0 justify-self-end p-3">
-              <Legend onClose={() => setLegendOpen(false)} />
+              <Legend
+                vertexTypeConfigs={legendVertexTypeConfigs}
+                onClose={() => setLegendOpen(false)}
+              />
             </div>
           </Activity>
         </PanelContent>
@@ -235,11 +259,13 @@ function GraphViewerContent({
 
 function Legend({
   onClose,
+  vertexTypeConfigs,
   className,
   ...props
-}: { onClose: () => void } & ComponentPropsWithRef<typeof Panel>) {
-  const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
-
+}: {
+  onClose: () => void;
+  vertexTypeConfigs: DisplayVertexTypeConfig[];
+} & ComponentPropsWithRef<typeof Panel>) {
   return (
     <Panel className={cn("max-w-md shadow-md", className)} {...props}>
       <PanelHeader>
@@ -250,7 +276,7 @@ function Legend({
       </PanelHeader>
       <PanelContent className="p-3">
         <ul className="space-y-3">
-          {vtConfigs.map(vtConfig => (
+          {vertexTypeConfigs.map(vtConfig => (
             <li
               key={vtConfig.type}
               className="gx-wrap-break-word flex items-center gap-3 text-base font-medium"
