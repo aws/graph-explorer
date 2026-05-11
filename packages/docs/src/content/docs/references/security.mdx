@@ -1,0 +1,105 @@
+---
+title: "Security"
+description: HTTPS, CORS, authentication, and security best practices.
+---
+
+You can use Graph Explorer to connect to a publicly accessible graph database endpoint, or connect to a proxy endpoint that redirects to a private graph database endpoint.
+
+Graph Explorer supports the HTTPS protocol by default and provides a self-signed certificate as part of the Docker image. You can choose to use HTTP instead by changing the [environment variable default settings](./configuration/#application-configuration).
+
+## HTTPS Connections
+
+Graph Explorer serves over HTTPS by default using a self-signed certificate. The `HOST` environment variable controls the hostname used in the certificate's Subject Alternative Name (SAN). When `HOST` is set, the entrypoint script generates a fresh self-signed certificate on container startup. When `HOST` is not set, the server expects to find existing certificate files.
+
+### Certificate files
+
+The proxy server reads certificates from the following location inside the container:
+
+```
+/graph-explorer/packages/graph-explorer-proxy-server/cert-info/
+├── rootCA.key    # Root CA private key
+├── rootCA.crt    # Root CA certificate
+├── server.key    # Server private key
+├── server.csr    # Server certificate signing request
+├── server.crt    # Server certificate
+├── csr.conf      # CSR configuration template
+└── cert.conf     # Certificate extensions configuration
+```
+
+If HTTPS is enabled and any of these files are missing, the server will exit with an error listing the missing files.
+
+### Using your own certificates
+
+To use your own certificates instead of the self-signed ones, mount your certificate files into the `cert-info` directory. All five certificate files must be present (`rootCA.key`, `rootCA.crt`, `server.key`, `server.csr`, `server.crt`).
+
+:::note
+Do not set the `HOST` environment variable, otherwise the entrypoint will overwrite your files with a new self-signed certificate.
+:::
+
+```bash
+docker run -p 443:443 \
+  -v /path/to/your/server.key:/graph-explorer/packages/graph-explorer-proxy-server/cert-info/server.key \
+  -v /path/to/your/server.crt:/graph-explorer/packages/graph-explorer-proxy-server/cert-info/server.crt \
+  -v /path/to/your/rootCA.crt:/graph-explorer/packages/graph-explorer-proxy-server/cert-info/rootCA.crt \
+  -v /path/to/your/rootCA.key:/graph-explorer/packages/graph-explorer-proxy-server/cert-info/rootCA.key \
+  -v /path/to/your/server.csr:/graph-explorer/packages/graph-explorer-proxy-server/cert-info/server.csr \
+  public.ecr.aws/neptune/graph-explorer
+```
+
+### Disabling HTTPS
+
+To serve over HTTP instead, set `PROXY_SERVER_HTTPS_CONNECTION=false` in your environment or `.env` file.
+
+### Trusting the self-signed certificate
+
+When using the default self-signed certificate, your browser will show a security warning. You can bypass this by trusting the certificate:
+
+1. Download the certificate directly from the browser. For example, if using Google Chrome, click the "Not Secure" section on the left of the URL bar and select "Certificate is not valid" to show the certificate. Then click Details tab and click Export at the bottom.
+2. Once you have the certificate, you will need to trust it on your machine. For MacOS, you can open the Keychain Access app. Select System under System Keychains. Then go to File > Import Items... and import the certificate you downloaded in the previous step.
+3. Once imported, select the certificate and right-click to select "Get Info". Expand the Trust section, and change the value of "When using this certificate" to "Always Trust".
+4. You should now refresh the browser and see that you can proceed to open the application. For Chrome, the application will remain "Not Secure" due to the fact that this is a self-signed certificate. If you have trouble accessing Graph Explorer after completing the previous step and reloading the browser, consider running a docker restart command and refreshing the browser again.
+
+### Removing the "Not Secure" warning on Chrome
+
+For browsers like Safari and Firefox, trusting the certificate from the browser (steps above) is enough to bypass the "Not Secure" warning. However, Chrome treats self-signed certificates differently. To remove the warning on Chrome, you need to trust the **root CA certificate** rather than the server certificate. See the [Chrome Root Store FAQ](https://chromium.googlesource.com/chromium/src/+/main/net/data/ssl/chrome_root_store/faq/#how-does-the-chrome-certificate-verifier-integrate-with-platform-trust-stores-for-local-trust-decisions) for details on how Chrome integrates with platform trust stores.
+
+1. Copy the root certificate from the running container to your local machine:
+   ```
+   docker cp graph-explorer:/graph-explorer/packages/graph-explorer-proxy-server/cert-info/rootCA.crt ./rootCA.crt
+   ```
+   If Graph Explorer is running on a remote host (e.g., EC2), copy the file to the remote host first, then use `scp` to transfer it to your local machine.
+2. Trust the root certificate on your machine. For macOS, open the Keychain Access app, select System under System Keychains, then go to File > Import Items... and import `rootCA.crt`.
+3. Once imported, select the certificate and right-click to select "Get Info". Expand the Trust section, and change the value of "When using this certificate" to "Always Trust".
+4. Refresh the browser. The "Not Secure" warning should be gone.
+
+## CORS
+
+By default, the proxy server does not allow cross-origin requests. Since the proxy server serves both the API and the UI from the same origin, CORS is not needed in standard deployments. In development mode, the Vite dev server proxies API requests to the Express server to maintain same-origin behavior.
+
+If you serve the UI from a different origin than the proxy server, set the `PROXY_SERVER_CORS_ORIGIN` environment variable to the origin you want to allow.
+
+```bash
+PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com
+```
+
+To allow multiple origins, separate them with commas:
+
+```bash
+PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com,https://other-app.example.com
+```
+
+When set, browsers will block cross-origin requests from any other origin. This prevents malicious pages from making requests to the proxy server using a visitor's browser session.
+
+:::note
+CORS headers only affect browser-initiated requests — direct API calls from scripts or other servers are not restricted by CORS. CORS is a defense-in-depth layer, not a substitute for authentication or network-level access controls. Ensure the proxy server is not exposed to untrusted networks.
+:::
+
+## Permissions
+
+Graph Explorer does not provide any mechanisms for controlling user permissions. If you are using Graph Explorer with AWS, Neptune permissions can be controlled through IAM roles.
+
+For information about what permissions Graph Explorer requires check out the documentation on [SageMaker configuration](../guides/deploy-to-sagemaker/#minimum-database-permissions).
+
+:::caution
+By default, a Neptune Notebook will have full read & write access to Neptune data.
+:::
