@@ -4,6 +4,8 @@ description: Explore and visualize graph databases with Graph Explorer.
 template: splash
 hero:
   tagline: A React-based web application for visualizing graph databases powered by Amazon Neptune, openCypher, Gremlin, and SPARQL.
+  image:
+    html: <img src="/graph-explorer/graph-explorer-hero.png" alt="Graph Explorer showing airport nodes connected by route edges" style="width:100%;height:auto;object-fit:contain;border-radius:0.375rem;box-shadow:0 0 0 1px oklch(0.4 0.12 250 / 0.3),0 4px 16px oklch(0.3 0.15 250 / 0.3),0 12px 40px oklch(0.3 0.15 250 / 0.2);" />
   actions:
     - text: Get Started
       link: ./getting-started/
@@ -14,3 +16,31 @@ hero:
       icon: external
       variant: minimal
 ---
+
+import { Card, CardGrid, LinkButton } from "@astrojs/starlight/components";
+
+## Features
+
+<CardGrid>
+  <Card title="Interactive Graph Exploration" icon="magnifier">
+    Double-click nodes to expand neighbors, filter by type, and build up a
+    visual understanding of your data. [Learn more →](./features/graph-view/)
+  </Card>
+  <Card title="Query Editor" icon="pencil">
+    Execute raw Gremlin, openCypher, or SPARQL queries and add results directly
+    to the graph canvas. [Learn more →](./features/graph-view/#search-panel)
+  </Card>
+  <Card title="Schema Explorer" icon="list-format">
+    Visualize your graph's schema as an interactive diagram showing node types,
+    edge types, and their relationships. [Learn more →](./features/schema-view/)
+  </Card>
+  <Card title="Customizable Styles" icon="setting">
+    Change colors, shapes, icons, and labels for each node and edge type to make
+    the graph meaningful at a glance. [Learn more
+    →](./features/graph-view/#node-styling-panel)
+  </Card>
+</CardGrid>
+
+<LinkButton href="./features/" variant="secondary" icon="right-arrow">
+  Explore all features
+</LinkButton>
