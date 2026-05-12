@@ -3,40 +3,52 @@ title: "Guides"
 description: Connect to databases, deploy to AWS, and troubleshoot common issues.
 ---
 
-import { LinkCard, CardGrid } from "@astrojs/starlight/components";
+import { LinkCard } from "@astrojs/starlight/components";
 
 Guides for connecting to graph databases, deploying Graph Explorer, and troubleshooting common issues.
 
 ## Connecting to Databases
 
-<CardGrid>
-  <LinkCard
-    title="Connecting to Amazon Neptune"
-    href="./connecting-to-neptune/"
-  />
-  <LinkCard
-    title="Connecting to Gremlin-Server"
-    href="./connecting-to-gremlin-server/"
-  />
-  <LinkCard
-    title="Connecting to BlazeGraph"
-    href="./connecting-to-blazegraph/"
-  />
-</CardGrid>
+<LinkCard
+  title="Connecting to Amazon Neptune"
+  href="./connecting-to-neptune/"
+  description="Configure proxy server, IAM auth, and network access for Neptune clusters."
+/>
+<LinkCard
+  title="Connecting to Gremlin-Server"
+  href="./connecting-to-gremlin-server/"
+  description="Set up a local Gremlin Server with REST enabled and connect via the proxy."
+/>
+<LinkCard
+  title="Connecting to BlazeGraph"
+  href="./connecting-to-blazegraph/"
+  description="Connect to a BlazeGraph SPARQL endpoint using Docker networking."
+/>
 
 ## Deployment
 
-<CardGrid>
-  <LinkCard title="Deploy with Docker" href="./deploy-with-docker/" />
-  <LinkCard title="Deploy on Amazon EC2" href="./deploy-to-ec2/" />
-  <LinkCard
-    title="Deploy on Amazon ECS with Fargate"
-    href="./deploy-to-ecs-fargate/"
-  />
-  <LinkCard title="Deploy on Amazon SageMaker" href="./deploy-to-sagemaker/" />
-</CardGrid>
+<LinkCard
+  title="Deploy with Docker"
+  href="./deploy-with-docker/"
+  description="Run the official Docker image locally with HTTPS and self-signed certificates."
+/>
+<LinkCard
+  title="Deploy on Amazon EC2"
+  href="./deploy-to-ec2/"
+  description="Host Graph Explorer on EC2 as a proxy server with SSH tunneling to Neptune."
+/>
+<LinkCard
+  title="Deploy on Amazon ECS with Fargate"
+  href="./deploy-to-ecs-fargate/"
+  description="Set up a Fargate service with ALB, ACM certificates, and Route 53."
+/>
+<LinkCard
+  title="Deploy on Amazon SageMaker"
+  href="./deploy-to-sagemaker/"
+  description="Launch via lifecycle configuration on a SageMaker notebook instance."
+/>
 
-## Troubleshooting
+## Miscellaneous
 
 <LinkCard
   title="Troubleshooting"
