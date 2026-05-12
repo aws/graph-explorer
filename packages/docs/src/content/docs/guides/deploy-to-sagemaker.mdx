@@ -3,7 +3,7 @@ title: "Deploy on Amazon SageMaker"
 description: Deploy Graph Explorer on an Amazon SageMaker notebook instance.
 ---
 
-import { Code } from "@astrojs/starlight/components";
+import { Code, Tabs, TabItem } from "@astrojs/starlight/components";
 import installScript from "./_assets/install-graph-explorer-lc.sh?raw";
 import neptuneDbPolicy from "./_assets/graph-explorer-neptune-db-policy.json?raw";
 import neptuneAnalyticsPolicy from "./_assets/graph-explorer-neptune-analytics-policy.json?raw";
@@ -26,17 +26,22 @@ https://graph-explorer-notebook-name.notebook.us-west-2.sagemaker.aws/proxy/9250
 
 ## IAM Policies
 
-<Code
-  code={neptuneDbPolicy}
-  lang="json"
-  title="graph-explorer-neptune-db-policy.json"
-/>
-
-<Code
-  code={neptuneAnalyticsPolicy}
-  lang="json"
-  title="graph-explorer-neptune-analytics-policy.json"
-/>
+<Tabs>
+  <TabItem label="Neptune DB">
+    <Code
+      code={neptuneDbPolicy}
+      lang="json"
+      title="graph-explorer-neptune-db-policy.json"
+    />
+  </TabItem>
+  <TabItem label="Neptune Analytics">
+    <Code
+      code={neptuneAnalyticsPolicy}
+      lang="json"
+      title="graph-explorer-neptune-analytics-policy.json"
+    />
+  </TabItem>
+</Tabs>
 
 ## Minimum Database Permissions
 
@@ -54,34 +59,35 @@ If you are using the standard notebook setup, these policies will apply to both 
 
 If a user attempts to execute a mutation query inside of Graph Explorer, they will be presented with an error that informs them they are not authorized for that request.
 
-**Neptune DB**
-
-```json
-{
-  "Effect": "Allow",
-  "Action": [
-    "neptune-db:CancelQuery",
-    "neptune-db:ReadDataViaQuery",
-    "neptune-db:GetGraphSummary"
-  ],
-  "Resource": [
-    "arn:[AWS_PARTITION]:neptune-db:[AWS_REGION]:[AWS_ACCOUNT_ID]:[NEPTUNE_CLUSTER_RESOURCE_ID]/*"
-  ]
-}
-```
-
-**Neptune Analytics**
-
-```json
-{
-  "Effect": "Allow",
-  "Action": [
-    "neptune-graph:CancelQuery",
-    "neptune-graph:GetGraphSummary",
-    "neptune-graph:ReadDataViaQuery"
-  ],
-  "Resource": [
-    "arn:[AWS_PARTITION]:neptune-graph:[AWS_REGION]:[AWS_ACCOUNT_ID]:graph/[NEPTUNE_GRAPH_RESOURCE_ID]"
-  ]
-}
-```
+<Tabs>
+  <TabItem label="Neptune DB">
+    ```json
+    {
+      "Effect": "Allow",
+      "Action": [
+        "neptune-db:CancelQuery",
+        "neptune-db:ReadDataViaQuery",
+        "neptune-db:GetGraphSummary"
+      ],
+      "Resource": [
+        "arn:[AWS_PARTITION]:neptune-db:[AWS_REGION]:[AWS_ACCOUNT_ID]:[NEPTUNE_CLUSTER_RESOURCE_ID]/*"
+      ]
+    }
+    ```
+  </TabItem>
+  <TabItem label="Neptune Analytics">
+    ```json
+    {
+      "Effect": "Allow",
+      "Action": [
+        "neptune-graph:CancelQuery",
+        "neptune-graph:GetGraphSummary",
+        "neptune-graph:ReadDataViaQuery"
+      ],
+      "Resource": [
+        "arn:[AWS_PARTITION]:neptune-graph:[AWS_REGION]:[AWS_ACCOUNT_ID]:graph/[NEPTUNE_GRAPH_RESOURCE_ID]"
+      ]
+    }
+    ```
+  </TabItem>
+</Tabs>

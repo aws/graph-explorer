@@ -3,21 +3,43 @@ title: "Guides"
 description: Connect to databases, deploy to AWS, and troubleshoot common issues.
 ---
 
+import { LinkCard, CardGrid } from "@astrojs/starlight/components";
+
 Guides for connecting to graph databases, deploying Graph Explorer, and troubleshooting common issues.
 
 ## Connecting to Databases
 
-- [Connecting to Amazon Neptune](./connecting-to-neptune/)
-- [Connecting to Gremlin-Server](./connecting-to-gremlin-server/)
-- [Connecting to BlazeGraph](./connecting-to-blazegraph/)
+<CardGrid>
+  <LinkCard
+    title="Connecting to Amazon Neptune"
+    href="./connecting-to-neptune/"
+  />
+  <LinkCard
+    title="Connecting to Gremlin-Server"
+    href="./connecting-to-gremlin-server/"
+  />
+  <LinkCard
+    title="Connecting to BlazeGraph"
+    href="./connecting-to-blazegraph/"
+  />
+</CardGrid>
 
 ## Deployment
 
-- [Deploy with Docker](./deploy-with-docker/)
-- [Deploy on Amazon EC2](./deploy-to-ec2/)
-- [Deploy on Amazon ECS with Fargate](./deploy-to-ecs-fargate/)
-- [Deploy on Amazon SageMaker](./deploy-to-sagemaker/)
+<CardGrid>
+  <LinkCard title="Deploy with Docker" href="./deploy-with-docker/" />
+  <LinkCard title="Deploy on Amazon EC2" href="./deploy-to-ec2/" />
+  <LinkCard
+    title="Deploy on Amazon ECS with Fargate"
+    href="./deploy-to-ecs-fargate/"
+  />
+  <LinkCard title="Deploy on Amazon SageMaker" href="./deploy-to-sagemaker/" />
+</CardGrid>
 
 ## Troubleshooting
 
-- [Troubleshooting](./troubleshooting/)
+<LinkCard
+  title="Troubleshooting"
+  href="./troubleshooting/"
+  description="Common issues and workarounds for Graph Explorer."
+/>

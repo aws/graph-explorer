@@ -3,10 +3,44 @@ title: "References"
 description: Security, logging, health checks, and configuration details.
 ---
 
+import { LinkCard, CardGrid } from "@astrojs/starlight/components";
+
 Technical reference documentation for Graph Explorer covering configuration, security, and operational details.
 
-- [Configuration](./configuration/) - Environment variables for application settings and default connections
-- [Minimum Requirements](./minimum-requirements/) - Recommended database and query language versions
-- [Security](./security/) - HTTPS connections, certificates, and permissions
-- [Health Check](./health-check/) - Proxy server health and readiness endpoint
-- [Logging](./logging/) - Log levels, output, and proxy server logging modules
+<CardGrid>
+  <LinkCard
+    title="Configuration"
+    href="./configuration/"
+    description="Environment variables for application settings and default connections."
+  />
+  <LinkCard
+    title="Minimum Requirements"
+    href="./minimum-requirements/"
+    description="Recommended database and query language versions."
+  />
+  <LinkCard
+    title="Security"
+    href="./security/"
+    description="HTTPS connections, certificates, and permissions."
+  />
+  <LinkCard
+    title="Health Check"
+    href="./health-check/"
+    description="Proxy server health and readiness endpoint."
+  />
+  <LinkCard
+    title="Logging"
+    href="./logging/"
+    description="Log levels, output, and proxy server logging modules."
+  />
+  <LinkCard
+    title="Architecture"
+    href="./architecture/"
+    description="System design, key libraries, and the connector pattern."
+  />
+  <LinkCard
+    title="Development"
+    href="./development/"
+    description="Build from source and contribute to Graph Explorer."
+  />
+</CardGrid>
