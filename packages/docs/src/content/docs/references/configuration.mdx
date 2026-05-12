@@ -3,7 +3,7 @@ title: "Configuration"
 description: Environment variables for application settings and default connections.
 ---
 
-import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Badge, Tabs, TabItem } from "@astrojs/starlight/components";
 
 All environment variables for configuring Graph Explorer, organized by concern.
 
@@ -13,72 +13,61 @@ These variables control server behavior, networking, and security. None of these
 
 #### `GRAPH_EXP_ENV_ROOT_FOLDER`
 
-Base path used to serve the `graph-explorer` front end application.
+<Badge text="string" /> <Badge text="default: /" variant="note" />
 
-Example: `/explorer`
-
-- Default: `/`
-- Type: `string`
+Base path used to serve the `graph-explorer` front end application. Example: `/explorer`
 
 #### `HOST`
 
+<Badge text="string" /> <Badge text="default: localhost" variant="note" />
+
 The public hostname of the server. Used to generate the self-signed SSL certificate at container startup. Required when using [HTTPS connections](./security/#https-connections) without providing your own certificate files.
-
-Example: `localhost`
-
-- Default: `localhost`
-- Type: `string`
 
 #### `GRAPH_EXP_HTTPS_CONNECTION`
 
-Uses the self-signed certificate to serve Graph Explorer over HTTPS if true. Only used in Docker via the entrypoint script.
+<Badge text="boolean" /> <Badge text="default: true (Docker)" variant="note" />
 
-- Default: `true` in Docker, not set otherwise
-- Type: `boolean`
+Uses the self-signed certificate to serve Graph Explorer over HTTPS if true. Only used in Docker via the entrypoint script.
 
 #### `PROXY_SERVER_HTTPS_PORT`
 
-The port to use for the HTTPS server.
+<Badge text="number" /> <Badge text="default: 443" variant="note" />
 
-- Default: `443`
-- Type: `number`
+The port to use for the HTTPS server.
 
 #### `PROXY_SERVER_HTTP_PORT`
 
-The port to use for the HTTP server.
+<Badge text="number" /> <Badge text="default: 80" variant="note" />
 
-- Default: `80`
-- Type: `number`
+The port to use for the HTTP server.
 
 #### `PROXY_SERVER_HTTPS_CONNECTION`
 
-Uses the self-signed certificate to serve the proxy-server over HTTPS if true.
+<Badge text="boolean" /> <Badge text="default: true (Docker)" variant="note" />
 
-- Default: `false` in code, `true` in Docker via the entrypoint script
-- Type: `boolean`
+Uses the self-signed certificate to serve the proxy-server over HTTPS if true. Defaults to `false` in code, `true` in Docker via the entrypoint script.
 
 #### `PROXY_SERVER_CORS_ORIGIN`
+
+<Badge text="string" /> <Badge text="default: blocked" variant="note" />
 
 Restricts which origins are allowed to make cross-origin requests to the proxy server. When set, only requests from these exact origins will receive CORS headers. When not set, cross-origin requests are blocked. Each origin must include the scheme and must not have a trailing slash or path.
 
 Example: `https://my-app.example.com` or `https://app-a.example.com,https://app-b.example.com`
 
-- Default: cross-origin requests blocked
-- Type: `string` (comma-separated for multiple origins)
-
 #### `LOG_STYLE`
+
+<Badge text='"cloudwatch" | "default"' />
+<Badge text="default: default" variant="note" />
 
 Controls the log output format. `cloudwatch` omits timestamps and hostname/pid (provided by CloudWatch). `default` uses the standard log format.
 
-- Default: `default`
-- Type: `"cloudwatch" | "default"`
-
 #### `CONFIGURATION_FOLDER_PATH`
 
-Override path for the folder containing `.env` and `defaultConnection.json`. When set, replaces the default path entirely.
+<Badge text="string" />
+<Badge text="default: packages/graph-explorer" variant="note" />
 
-- Default: `<client root>` (`packages/graph-explorer`)
-- Type: `string`
+Override path for the folder containing `.env` and `defaultConnection.json`. When set, replaces the default path entirely.
 
 ## Default Connection
 

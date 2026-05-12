@@ -8,6 +8,12 @@ export default defineConfig({
     starlight({
       title: "Graph Explorer",
       customCss: ["./src/styles/custom.css"],
+      expressiveCode: {
+        frames: false,
+      },
+      components: {
+        Head: "./src/components/starlight/Head.astro",
+      },
       social: [
         {
           icon: "github",

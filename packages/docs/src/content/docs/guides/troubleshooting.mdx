@@ -20,7 +20,7 @@ If the default ports of 80 and 443 are already in use, you can use the `-p` flag
 
 For example, if you want to use port 8080 and 4431, you can use the following command:
 
-```
+```bash
 docker run -p 8080:80 -p 4431:443 \
  --name graph-explorer \
  --env HOST=localhost \
@@ -36,14 +36,14 @@ Which will result in the following URLs:
 
 If you do not want to use SSL and HTTPS, you can disable it by setting the following [environment variables](../references/configuration/#application-configuration):
 
-```
+```text
 PROXY_SERVER_HTTPS_CONNECTION=false
 GRAPH_EXP_HTTPS_CONNECTION=false
 ```
 
 These can be passed when creating the Docker container like so:
 
-```
+```bash
 docker run -p 80:80 \
   --name graph-explorer \
   --env PROXY_SERVER_HTTPS_CONNECTION=false \
@@ -79,7 +79,7 @@ To resolve this issue:
 
 For example:
 
-```
+```text
 # if the current browser page URL is
 https://graph-explorer.mydomain.com/explorer/#/connections
 
