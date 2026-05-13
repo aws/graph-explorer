@@ -21,8 +21,10 @@
     "start": "pnpm --filter \"graph-explorer-proxy-server\" run start",
     "clean": "pnpm --stream -r run clean",
     "clean:dep": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
-    "build": "pnpm --stream -r run build",
-    "dev": "pnpm --stream -r run dev"
+    "build": "pnpm --filter \"!graph-explorer-docs\" --stream -r run build",
+    "dev": "pnpm --filter \"!graph-explorer-docs\" --stream -r run dev",
+    "docs:dev": "pnpm --filter graph-explorer-docs dev",
+    "docs:build": "pnpm --filter graph-explorer-docs build"
   },
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "5.100.6",
@@ -75,6 +77,9 @@
       "picomatch@>=4.0.0 <4.0.4": ">=4.0.4",
       "yaml@>=1.0.0 <1.10.3": ">=1.10.3",
       "yaml@>=2.0.0 <2.8.3": ">=2.8.3"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "sharp"
+    ]
   }
 }
