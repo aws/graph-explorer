@@ -1,0 +1,73 @@
+---
+import { LinkButton } from '@astrojs/starlight/components';
+
+const { data } = Astro.locals.starlightRoute.entry;
+const { title = data.title, tagline, actions = [] } = data.hero || {};
+---
+
+<div class="hero">
+	<div class="stack">
+		<div class="copy">
+			<h1 id="_top" data-page-title set:html={title} />
+			{tagline && <div class="tagline" set:html={tagline} />}
+		</div>
+		{
+			actions.length > 0 && (
+				<div class="actions">
+					{actions.map(({ icon, link: href, text, variant }) => (
+						<LinkButton href={href} variant={variant} icon={icon?.name}>
+							{text}
+						</LinkButton>
+					))}
+				</div>
+			)
+		}
+	</div>
+</div>
+
+<style>
+	.hero {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding-block: clamp(3rem, calc(1rem + 10vmin), 10rem);
+	}
+
+	.stack {
+		display: flex;
+		flex-direction: column;
+		gap: clamp(1.5rem, calc(1.5rem + 1vw), 2rem);
+		text-align: center;
+		align-items: center;
+	}
+
+	.copy {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		align-items: center;
+	}
+
+	.copy > * {
+		max-width: 50ch;
+	}
+
+	h1 {
+		font-size: clamp(var(--sl-text-3xl), calc(0.25rem + 5vw), var(--sl-text-6xl));
+		line-height: var(--sl-line-height-headings);
+		font-weight: 600;
+		color: var(--sl-color-white);
+	}
+
+	.tagline {
+		font-size: clamp(var(--sl-text-base), calc(0.0625rem + 2vw), var(--sl-text-xl));
+		color: var(--sl-color-gray-2);
+	}
+
+	.actions {
+		display: flex;
+		gap: 1rem 2rem;
+		flex-wrap: wrap;
+		justify-content: center;
+	}
+</style>

@@ -1,20 +1,22 @@
 /* Dark mode colors — zinc grays, indigo accent */
 :root {
-  --sl-color-accent-low: oklch(28.3% 0.141 291.089);
-  --sl-color-accent: oklch(60.6% 0.25 292.717);
-  --sl-color-accent-high: oklch(70.2% 0.183 293.541);
-  --sl-color-accent-hover: oklch(70.2% 0.183 293.541);
-  --sl-color-white: oklch(98.5% 0 0);
-  --sl-color-gray-1: oklch(96.7% 0.001 286.375);
-  --sl-color-gray-2: oklch(87.1% 0.006 286.286);
-  --sl-color-gray-3: oklch(70.5% 0.015 286.067);
-  --sl-color-gray-4: oklch(55.2% 0.016 285.938);
-  --sl-color-gray-5: oklch(37% 0.013 285.805);
-  --sl-color-gray-6: oklch(27.4% 0.006 286.033);
-  --sl-color-gray-7: oklch(21% 0.006 285.885);
-  --sl-color-black: oklch(14.1% 0.005 285.823);
+  --sl-font: "Inter", sans-serif;
+  --sl-color-accent-low: oklch(27.9% 0.077 45.635);
+  --sl-color-accent: oklch(76.9% 0.188 70.08);
+  --sl-color-accent-high: oklch(82.8% 0.189 84.429);
+  --sl-color-accent-hover: oklch(82.8% 0.189 84.429);
+  --sl-color-white: oklch(98.5% 0.001 106.423);
+  --sl-color-gray-1: oklch(97% 0.001 106.424);
+  --sl-color-gray-2: oklch(86.9% 0.005 56.366);
+  --sl-color-gray-3: oklch(70.9% 0.01 56.259);
+  --sl-color-gray-4: oklch(55.3% 0.013 58.071);
+  --sl-color-gray-5: oklch(37.4% 0.01 67.558);
+  --sl-color-gray-6: oklch(26.8% 0.007 34.298);
+  --sl-color-gray-7: oklch(21.6% 0.006 56.043);
+  --sl-color-black: oklch(14.7% 0.004 49.25);
   --sl-color-bg-nav: var(--sl-color-bg);
   --sl-color-bg-sidebar: var(--sl-color-bg);
+  --sl-line-height: 1.6;
 
   --sl-color-orange-high: oklch(47% 0.157 37.304);
   --sl-color-orange: oklch(70.5% 0.213 47.604);
@@ -34,19 +36,19 @@
 }
 /* Light mode colors — zinc grays, indigo accent */
 :root[data-theme="light"] {
-  --sl-color-accent-low: oklch(89.4% 0.057 293.283);
-  --sl-color-accent: oklch(60.6% 0.25 292.717);
-  --sl-color-accent-high: oklch(38% 0.189 293.745);
-  --sl-color-accent-hover: oklch(70.2% 0.183 293.541);
-  --sl-color-white: oklch(14.1% 0.005 285.823);
-  --sl-color-gray-1: oklch(21% 0.006 285.885);
-  --sl-color-gray-2: oklch(27.4% 0.006 286.033);
-  --sl-color-gray-3: oklch(44.2% 0.017 285.786);
-  --sl-color-gray-4: oklch(55.2% 0.016 285.938);
-  --sl-color-gray-5: oklch(87.1% 0.006 286.286);
-  --sl-color-gray-6: oklch(96.7% 0.001 286.375);
-  --sl-color-gray-7: oklch(98.5% 0 0);
-  --sl-color-black: oklch(98.5% 0 0);
+  --sl-color-accent-low: oklch(96.2% 0.059 95.617);
+  --sl-color-accent: oklch(76.9% 0.188 70.08);
+  --sl-color-accent-high: oklch(41.4% 0.112 45.904);
+  --sl-color-accent-hover: oklch(82.8% 0.189 84.429);
+  --sl-color-white: oklch(14.7% 0.004 49.25);
+  --sl-color-gray-1: oklch(21.6% 0.006 56.043);
+  --sl-color-gray-2: oklch(26.8% 0.007 34.298);
+  --sl-color-gray-3: oklch(44.4% 0.011 73.639);
+  --sl-color-gray-4: oklch(55.3% 0.013 58.071);
+  --sl-color-gray-5: oklch(86.9% 0.005 56.366);
+  --sl-color-gray-6: oklch(97% 0.001 106.424);
+  --sl-color-gray-7: oklch(98.5% 0.001 106.423);
+  --sl-color-black: oklch(98.5% 0.001 106.423);
   --sl-color-bg: var(--sl-color-gray-6);
   --sl-color-bg-nav: var(--sl-color-bg);
   --sl-color-bg-sidebar: var(--sl-color-bg);
@@ -72,23 +74,6 @@
   animation-duration: 50ms;
 }
 
-.hero .hero-html {
-  position: relative;
-}
-
-.hero .hero-html::before {
-  content: "";
-  position: absolute;
-  inset: -40%;
-  border-radius: 50%;
-  background: radial-gradient(
-    ellipse at center,
-    oklch(0.57 0.144 247.21 / 0.5) 0%,
-    transparent 70%
-  );
-  z-index: -1;
-}
-
 h1,
 h2,
 h3,
@@ -96,6 +81,10 @@ h4,
 h5,
 h6 {
   text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
 }
 
 /* Obsidian-style cards */
@@ -110,7 +99,7 @@ h6 {
 }
 
 .card {
-  border: 1px solid oklch(1 0 0 / 0.05);
+  border: 1px solid oklch(from var(--sl-color-gray-1) l c h / 0.05);
   background-color: var(--sl-color-gray-7);
   border-radius: 0.75rem;
   padding: 1.5rem;
@@ -134,24 +123,36 @@ h6 {
 
 .card .body {
   color: var(--sl-color-gray-2);
-  line-height: 1.5;
 }
 
 .site-title {
   font-weight: 800;
+  color: var(--sl-color-white);
+}
+
+.site-title:hover {
+  color: var(--sl-color-accent);
+}
+
+header .social-icons a {
+  color: var(--sl-color-gray-2);
+}
+
+header .social-icons a:hover {
+  color: var(--sl-color-accent);
 }
 
 /* Primary button */
 .sl-link-button.primary {
   background: var(--sl-color-accent);
   border-color: var(--sl-color-accent);
-  color: #fff;
+  color: oklch(14.1% 0.005 285.823);
   font-weight: 500;
 }
 .sl-link-button.primary:hover {
   background: var(--sl-color-accent-hover);
   border-color: var(--sl-color-accent-hover);
-  color: #fff;
+  color: oklch(14.1% 0.005 285.823);
 }
 
 /* Subtle asides — dark mode: gray bg, light text */
