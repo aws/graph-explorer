@@ -1,55 +1,67 @@
-/* Dark mode colors — zinc grays, indigo accent */
+/* Dark mode — slate grays, violet accent */
 :root {
   --sl-font: "Inter", sans-serif;
-  --sl-color-accent-low: oklch(27.9% 0.077 45.635);
-  --sl-color-accent: oklch(76.9% 0.188 70.08);
-  --sl-color-accent-high: oklch(82.8% 0.189 84.429);
-  --sl-color-accent-hover: oklch(82.8% 0.189 84.429);
-  --sl-color-white: oklch(98.5% 0.001 106.423);
-  --sl-color-gray-1: oklch(97% 0.001 106.424);
-  --sl-color-gray-2: oklch(86.9% 0.005 56.366);
-  --sl-color-gray-3: oklch(70.9% 0.01 56.259);
-  --sl-color-gray-4: oklch(55.3% 0.013 58.071);
-  --sl-color-gray-5: oklch(37.4% 0.01 67.558);
-  --sl-color-gray-6: oklch(26.8% 0.007 34.298);
-  --sl-color-gray-7: oklch(21.6% 0.006 56.043);
-  --sl-color-black: oklch(14.7% 0.004 49.25);
+  --sl-color-accent-low: oklch(28.3% 0.141 291.089);
+  --sl-color-accent: oklch(70.2% 0.183 293.541);
+  --sl-color-accent-high: oklch(81.1% 0.111 293.571);
+  --sl-color-accent-hover: oklch(81.1% 0.111 293.571);
+  --sl-color-white: oklch(98.4% 0.003 247.858);
+  --sl-color-gray-1: oklch(96.8% 0.007 247.896);
+  --sl-color-gray-2: oklch(86.9% 0.022 252.894);
+  --sl-color-gray-3: oklch(70.4% 0.04 256.788);
+  --sl-color-gray-4: oklch(55.4% 0.046 257.417);
+  --sl-color-gray-5: oklch(37.2% 0.044 257.287);
+  --sl-color-gray-6: oklch(27.9% 0.041 260.031);
+  --sl-color-gray-7: oklch(20.8% 0.042 265.755);
+  --sl-color-black: oklch(12.9% 0.042 264.695);
   --sl-color-bg-nav: var(--sl-color-bg);
   --sl-color-bg-sidebar: var(--sl-color-bg);
   --sl-line-height: 1.6;
 
   --sl-color-orange-high: oklch(47% 0.157 37.304);
-  --sl-color-orange: oklch(70.5% 0.213 47.604);
+  --sl-color-orange: oklch(75% 0.183 55.934);
   --sl-color-orange-low: oklch(95.4% 0.038 75.164);
   --sl-color-green-high: oklch(44.8% 0.119 151.328);
   --sl-color-green: oklch(72.3% 0.219 149.579);
   --sl-color-green-low: oklch(96.2% 0.044 156.743);
   --sl-color-blue-high: oklch(42.4% 0.199 265.638);
-  --sl-color-blue: oklch(62.3% 0.214 259.815);
+  --sl-color-blue: oklch(70.7% 0.165 254.624);
   --sl-color-blue-low: oklch(93.2% 0.032 255.585);
   --sl-color-purple-high: oklch(43.8% 0.218 303.724);
-  --sl-color-purple: oklch(62.7% 0.265 303.9);
+  --sl-color-purple: oklch(71.4% 0.203 305.504);
   --sl-color-purple-low: oklch(94.6% 0.033 307.174);
-  --sl-color-red-high: oklch(44.4% 0.177 26.899);
-  --sl-color-red: oklch(63.7% 0.237 25.331);
-  --sl-color-red-low: oklch(93.6% 0.032 17.717);
+  --sl-color-red-high: oklch(45.5% 0.188 13.697);
+  --sl-color-red: oklch(64.5% 0.246 16.439);
+  --sl-color-red-low: oklch(94.1% 0.03 12.58);
+
+  --ge-gradient: linear-gradient(
+    135deg,
+    oklch(58.5% 0.233 277.117),
+    oklch(60.6% 0.25 292.717)
+  );
+  --ge-gradient-text: linear-gradient(
+    135deg,
+    oklch(78.5% 0.115 274.713),
+    oklch(81.1% 0.111 293.571)
+  );
 }
-/* Light mode colors — zinc grays, indigo accent */
+
+/* Light mode — slate grays, violet accent */
 :root[data-theme="light"] {
-  --sl-color-accent-low: oklch(96.2% 0.059 95.617);
-  --sl-color-accent: oklch(66.6% 0.179 58.318);
-  --sl-color-accent-high: oklch(41.4% 0.112 45.904);
-  --sl-color-accent-hover: oklch(82.8% 0.189 84.429);
-  --sl-color-white: oklch(14.7% 0.004 49.25);
-  --sl-color-gray-1: oklch(21.6% 0.006 56.043);
-  --sl-color-gray-2: oklch(26.8% 0.007 34.298);
-  --sl-color-gray-3: oklch(44.4% 0.011 73.639);
-  --sl-color-gray-4: oklch(55.3% 0.013 58.071);
-  --sl-color-gray-5: oklch(86.9% 0.005 56.366);
-  --sl-color-gray-6: oklch(97% 0.001 106.424);
-  --sl-color-gray-7: oklch(98.5% 0.001 106.423);
-  --sl-color-black: oklch(98.5% 0.001 106.423);
-  --sl-color-bg: var(--sl-color-gray-6);
+  --sl-color-accent-low: oklch(94.3% 0.029 294.588);
+  --sl-color-accent: oklch(54.1% 0.281 293.009);
+  --sl-color-accent-high: oklch(43.2% 0.232 292.759);
+  --sl-color-accent-hover: oklch(60.6% 0.25 292.717);
+  --sl-color-white: oklch(12.9% 0.042 264.695);
+  --sl-color-gray-1: oklch(20.8% 0.042 265.755);
+  --sl-color-gray-2: oklch(27.9% 0.041 260.031);
+  --sl-color-gray-3: oklch(44.6% 0.043 257.281);
+  --sl-color-gray-4: oklch(55.4% 0.046 257.417);
+  --sl-color-gray-5: oklch(86.9% 0.022 252.894);
+  --sl-color-gray-6: oklch(96.8% 0.007 247.896);
+  --sl-color-gray-7: oklch(98.4% 0.003 247.858);
+  --sl-color-black: oklch(98.4% 0.003 247.858);
+  --sl-color-bg: oklch(96.8% 0.007 247.896);
   --sl-color-bg-nav: var(--sl-color-bg);
   --sl-color-bg-sidebar: var(--sl-color-bg);
 
@@ -65,9 +77,20 @@
   --sl-color-purple-high: oklch(94.6% 0.033 307.174);
   --sl-color-purple: oklch(55.8% 0.288 302.321);
   --sl-color-purple-low: oklch(43.8% 0.218 303.724);
-  --sl-color-red-high: oklch(93.6% 0.032 17.717);
-  --sl-color-red: oklch(57.7% 0.245 27.325);
-  --sl-color-red-low: oklch(44.4% 0.177 26.899);
+  --sl-color-red-high: oklch(94.1% 0.03 12.58);
+  --sl-color-red: oklch(58.6% 0.253 17.585);
+  --sl-color-red-low: oklch(45.5% 0.188 13.697);
+
+  --ge-gradient: linear-gradient(
+    135deg,
+    oklch(51.1% 0.262 276.966),
+    oklch(54.1% 0.281 293.009)
+  );
+  --ge-gradient-text: linear-gradient(
+    135deg,
+    oklch(45.7% 0.24 277.023),
+    oklch(49.1% 0.27 292.581)
+  );
 }
 
 ::view-transition-group(*) {
@@ -87,7 +110,14 @@ p {
   text-wrap: pretty;
 }
 
-/* Obsidian-style cards */
+/* Dark mode background noise texture */
+:root:not([data-theme="light"]) body {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.015'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px;
+}
+
+/* Cards with gradient hover border */
 .card-grid {
   gap: 1rem;
 }
@@ -105,7 +135,21 @@ p {
   padding: 1.5rem;
   position: relative;
   overflow: hidden;
-  transition: border-color 0.2s ease;
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  transition:
+    outline-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.card:hover {
+  outline-color: oklch(60.6% 0.25 292.717 / 0.4);
+  box-shadow: 0 0 20px oklch(60.6% 0.25 292.717 / 0.08);
+}
+
+:root[data-theme="light"] .card:hover {
+  outline-color: oklch(54.1% 0.281 293.009 / 0.3);
+  box-shadow: 0 4px 20px oklch(54.1% 0.281 293.009 / 0.08);
 }
 
 .card .icon {
@@ -125,9 +169,24 @@ p {
   color: var(--sl-color-gray-2);
 }
 
+/* Nav bar */
+header.header {
+  background: oklch(12.9% 0.042 264.695 / 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid oklch(27.9% 0.041 260.031 / 0.5);
+}
+
+:root[data-theme="light"] header.header {
+  background: oklch(96.8% 0.007 247.896 / 0.8);
+  border-bottom: 1px solid oklch(86.9% 0.022 252.894 / 0.5);
+}
+
+/* Site title with gradient on hover */
 .site-title {
   font-weight: 800;
   color: var(--sl-color-white);
+  transition: color 0.2s ease;
 }
 
 .site-title:hover {
@@ -142,6 +201,47 @@ header .social-icons a:hover {
   color: var(--sl-color-accent);
 }
 
+/* Pagination prev/next links */
+.pagination-links a {
+  --sl-shadow-md: var(--sl-shadow-sm);
+  border: 1px solid var(--sl-color-gray-5);
+  background: var(--sl-color-gray-7);
+  border-radius: 0.75rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.pagination-links a:hover {
+  border-color: var(--sl-color-accent);
+  box-shadow: 0 0 12px oklch(60.6% 0.25 292.717 / 0.06);
+}
+
+:root[data-theme="light"] .pagination-links a:hover {
+  border-color: var(--sl-color-accent);
+  box-shadow: 0 2px 12px oklch(54.1% 0.281 293.009 / 0.06);
+}
+
+/* Link cards */
+.sl-link-card {
+  border: 1px solid var(--sl-color-gray-5);
+  background: var(--sl-color-gray-7);
+  border-radius: 0.75rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.sl-link-card:hover {
+  border-color: var(--sl-color-accent);
+  box-shadow: 0 0 12px oklch(60.6% 0.25 292.717 / 0.06);
+}
+
+:root[data-theme="light"] .sl-link-card:hover {
+  border-color: var(--sl-color-accent);
+  box-shadow: 0 2px 12px oklch(54.1% 0.281 293.009 / 0.06);
+}
+
 /* Subtle sidebar active item */
 .sidebar-content a[aria-current="page"],
 .sidebar-content a[aria-current="page"]:hover,
@@ -151,20 +251,53 @@ header .social-icons a:hover {
   font-weight: 600;
 }
 
-/* Primary button */
+/* Primary button with gradient */
 .sl-link-button.primary {
-  background: var(--sl-color-accent);
-  border-color: var(--sl-color-accent);
-  color: oklch(14.1% 0.005 285.823);
+  background: var(--ge-gradient);
+  border-color: transparent;
+  color: oklch(98.4% 0.003 247.858);
   font-weight: 500;
-}
-.sl-link-button.primary:hover {
-  background: var(--sl-color-accent-hover);
-  border-color: var(--sl-color-accent-hover);
-  color: oklch(14.1% 0.005 285.823);
+  transition: box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px oklch(58.5% 0.233 277.117 / 0.15);
 }
 
-/* Subtle asides — dark mode: gray bg, light text */
+.sl-link-button.primary:hover {
+  box-shadow: 0 2px 12px oklch(58.5% 0.233 277.117 / 0.25);
+  background: var(--ge-gradient);
+  border-color: transparent;
+  color: oklch(98.4% 0.003 247.858);
+}
+
+/* Secondary button */
+.sl-link-button.secondary {
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.sl-link-button.secondary:hover {
+  border-color: var(--sl-color-accent);
+  color: var(--sl-color-accent);
+}
+
+/* Gradient divider for sections on splash page */
+[data-page-type="splash"] h2 {
+  position: relative;
+  padding-bottom: 0.75rem;
+}
+
+[data-page-type="splash"] h2::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 3rem;
+  height: 2px;
+  background: var(--ge-gradient);
+  border-radius: 1px;
+}
+
+/* Subtle asides — dark mode */
 .starlight-aside--note {
   background-color: var(--sl-color-gray-6);
   --sl-color-asides-text-accent: var(--sl-color-blue-low);
@@ -182,7 +315,7 @@ header .social-icons a:hover {
   --sl-color-asides-text-accent: var(--sl-color-red-low);
 }
 
-/* Subtle asides — light mode: 15% transparent bg, dark text */
+/* Subtle asides — light mode */
 :root[data-theme="light"] .starlight-aside--note {
   background-color: oklch(from var(--sl-color-blue-low) l c h / 15%);
   --sl-color-asides-text-accent: var(--sl-color-blue-low);

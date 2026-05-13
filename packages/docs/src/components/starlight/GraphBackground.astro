@@ -1,0 +1,232 @@
+---
+---
+
+<div class="graph-bg" aria-hidden="true">
+  <svg class="graph-svg" xmlns="http://www.w3.org/2000/svg">
+    <!-- Edges -->
+    <line class="edge" data-from="0" data-to="1" x1="5%" y1="15%" x2="22%" y2="35%" />
+    <line class="edge" data-from="1" data-to="2" x1="22%" y1="35%" x2="40%" y2="20%" />
+    <line class="edge" data-from="2" data-to="3" x1="40%" y1="20%" x2="60%" y2="35%" />
+    <line class="edge" data-from="3" data-to="4" x1="60%" y1="35%" x2="80%" y2="22%" />
+    <line class="edge" data-from="4" data-to="5" x1="80%" y1="22%" x2="95%" y2="40%" />
+    <line class="edge" data-from="5" data-to="6" x1="95%" y1="40%" x2="85%" y2="60%" />
+    <line class="edge" data-from="6" data-to="7" x1="85%" y1="60%" x2="70%" y2="72%" />
+    <line class="edge" data-from="7" data-to="8" x1="70%" y1="72%" x2="50%" y2="50%" />
+    <line class="edge" data-from="8" data-to="9" x1="50%" y1="50%" x2="35%" y2="65%" />
+    <line class="edge" data-from="9" data-to="10" x1="35%" y1="65%" x2="18%" y2="68%" />
+    <line class="edge" data-from="10" data-to="1" x1="18%" y1="68%" x2="22%" y2="35%" />
+    <line class="edge" data-from="11" data-to="0" x1="12%" y1="5%" x2="5%" y2="15%" />
+    <line class="edge" data-from="11" data-to="2" x1="12%" y1="5%" x2="40%" y2="20%" />
+    <line class="edge" data-from="12" data-to="2" x1="52%" y1="8%" x2="40%" y2="20%" />
+    <line class="edge" data-from="12" data-to="4" x1="52%" y1="8%" x2="80%" y2="22%" />
+    <line class="edge" data-from="13" data-to="4" x1="92%" y1="10%" x2="80%" y2="22%" />
+    <line class="edge" data-from="13" data-to="5" x1="92%" y1="10%" x2="95%" y2="40%" />
+    <line class="edge" data-from="14" data-to="9" x1="22%" y1="90%" x2="35%" y2="65%" />
+    <line class="edge" data-from="14" data-to="10" x1="22%" y1="90%" x2="18%" y2="68%" />
+    <line class="edge" data-from="15" data-to="7" x1="58%" y1="88%" x2="70%" y2="72%" />
+    <line class="edge" data-from="15" data-to="8" x1="58%" y1="88%" x2="50%" y2="50%" />
+    <line class="edge" data-from="0" data-to="2" x1="5%" y1="15%" x2="40%" y2="20%" />
+    <line class="edge" data-from="1" data-to="3" x1="22%" y1="35%" x2="60%" y2="35%" />
+    <line class="edge" data-from="3" data-to="5" x1="60%" y1="35%" x2="95%" y2="40%" />
+    <line class="edge" data-from="6" data-to="8" x1="85%" y1="60%" x2="50%" y2="50%" />
+    <line class="edge" data-from="8" data-to="10" x1="50%" y1="50%" x2="18%" y2="68%" />
+    <line class="edge" data-from="10" data-to="0" x1="18%" y1="68%" x2="5%" y2="15%" />
+    <line class="edge" data-from="3" data-to="8" x1="60%" y1="35%" x2="50%" y2="50%" />
+    <line class="edge" data-from="1" data-to="8" x1="22%" y1="35%" x2="50%" y2="50%" />
+    <line class="edge" data-from="5" data-to="7" x1="95%" y1="40%" x2="70%" y2="72%" />
+    <line class="edge" data-from="8" data-to="3" x1="50%" y1="50%" x2="60%" y2="35%" />
+    <line class="edge" data-from="8" data-to="6" x1="50%" y1="50%" x2="85%" y2="60%" />
+    <line class="edge" data-from="8" data-to="1" x1="50%" y1="50%" x2="22%" y2="35%" />
+    <line class="edge" data-from="12" data-to="8" x1="52%" y1="8%" x2="50%" y2="50%" />
+
+    <!-- Nodes — larger, clustered toward center -->
+    <circle class="node n1" cx="5%" cy="15%" r="32" />
+    <circle class="node n2" cx="22%" cy="35%" r="44" />
+    <circle class="node n3" cx="40%" cy="20%" r="40" />
+    <circle class="node n4" cx="60%" cy="35%" r="48" />
+    <circle class="node n5" cx="80%" cy="22%" r="36" />
+    <circle class="node n6" cx="95%" cy="40%" r="34" />
+    <circle class="node n7" cx="85%" cy="60%" r="38" />
+    <circle class="node n8" cx="70%" cy="72%" r="42" />
+    <circle class="node n9" cx="50%" cy="50%" r="52" />
+    <circle class="node n10" cx="35%" cy="65%" r="40" />
+    <circle class="node n11" cx="18%" cy="68%" r="34" />
+    <circle class="node n12" cx="12%" cy="5%" r="28" />
+    <circle class="node n13" cx="52%" cy="8%" r="32" />
+    <circle class="node n14" cx="92%" cy="10%" r="26" />
+    <circle class="node n15" cx="22%" cy="90%" r="30" />
+    <circle class="node n16" cx="58%" cy="88%" r="32" />
+  </svg>
+</div>
+
+<script is:inline>
+  (function() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const hero = document.querySelector('[data-graph-hero]');
+    if (!hero) return;
+
+    const graphBg = hero.querySelector('.graph-bg');
+    if (!graphBg) return;
+
+    const nodes = graphBg.querySelectorAll('.node');
+    const edges = graphBg.querySelectorAll('.edge');
+    const strength = 38;
+    const driftStrength = 6;
+
+    const nodeData = [];
+    for (var i = 0; i < nodes.length; i++) {
+      var cxAttr = nodes[i].getAttribute('cx');
+      var cyAttr = nodes[i].getAttribute('cy');
+      nodeData.push({
+        cxPct: parseFloat(cxAttr),
+        cyPct: parseFloat(cyAttr),
+        // Each node gets unique phase offsets for organic drift
+        phaseX: Math.random() * Math.PI * 2,
+        phaseY: Math.random() * Math.PI * 2,
+        speedX: 0.3 + Math.random() * 0.4,
+        speedY: 0.3 + Math.random() * 0.4,
+      });
+    }
+
+    var mouseX = 0.5;
+    var mouseY = 0.5;
+    var mouseActive = false;
+    var offsets = [];
+    for (var j = 0; j < nodes.length; j++) {
+      offsets.push({ x: 0, y: 0 });
+    }
+    var startTime = performance.now();
+
+    hero.addEventListener('mousemove', function(e) {
+      var rect = hero.getBoundingClientRect();
+      mouseX = (e.clientX - rect.left) / rect.width;
+      mouseY = (e.clientY - rect.top) / rect.height;
+      mouseActive = true;
+    });
+
+    hero.addEventListener('mouseleave', function() {
+      mouseActive = false;
+    });
+
+    function update() {
+      var t = (performance.now() - startTime) / 1000;
+
+      for (var i = 0; i < nodes.length; i++) {
+        var nd = nodeData[i];
+        var nodeFracX = nd.cxPct / 100;
+        var nodeFracY = nd.cyPct / 100;
+
+        // Ambient drift using sine waves
+        var driftX = Math.sin(t * nd.speedX + nd.phaseX) * driftStrength;
+        var driftY = Math.cos(t * nd.speedY + nd.phaseY) * driftStrength;
+
+        // Mouse repulsion
+        var mouseTargetX = 0;
+        var mouseTargetY = 0;
+        if (mouseActive) {
+          var dx = nodeFracX - mouseX;
+          var dy = nodeFracY - mouseY;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          var factor = Math.max(0, 1 - dist / 0.5);
+          mouseTargetX = (dx / (dist || 1)) * strength * factor;
+          mouseTargetY = (dy / (dist || 1)) * strength * factor;
+        }
+
+        var targetX = driftX + mouseTargetX;
+        var targetY = driftY + mouseTargetY;
+
+        offsets[i].x += (targetX - offsets[i].x) * 0.04;
+        offsets[i].y += (targetY - offsets[i].y) * 0.04;
+
+        nodes[i].style.translate = offsets[i].x + 'px ' + offsets[i].y + 'px';
+      }
+
+      for (var j = 0; j < edges.length; j++) {
+        var fromIdx = parseInt(edges[j].getAttribute('data-from'));
+        var toIdx = parseInt(edges[j].getAttribute('data-to'));
+        var ex = (offsets[fromIdx].x + offsets[toIdx].x) * 0.5;
+        var ey = (offsets[fromIdx].y + offsets[toIdx].y) * 0.5;
+        edges[j].style.translate = ex + 'px ' + ey + 'px';
+      }
+
+      requestAnimationFrame(update);
+    }
+
+    requestAnimationFrame(update);
+  })();
+</script>
+
+<style>
+  .graph-bg {
+    position: absolute;
+    inset: -30% -20%;
+    overflow: visible;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(15px);
+    opacity: 0.45;
+    mask-image: linear-gradient(to bottom, black 60%, transparent 95%);
+    -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 95%);
+  }
+
+  .graph-svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .edge {
+    stroke: oklch(35% 0.02 260);
+    stroke-width: 12;
+    opacity: 1;
+  }
+
+  .node { opacity: 1; }
+  .n1 { fill: oklch(58.5% 0.233 277.117); }
+  .n2 { fill: oklch(66.7% 0.295 322.15); }
+  .n3 { fill: oklch(78.9% 0.154 211.53); }
+  .n4 { fill: oklch(64.5% 0.246 16.439); }
+  .n5 { fill: oklch(60.6% 0.25 292.717); }
+  .n6 { fill: oklch(76.5% 0.177 163.223); }
+  .n7 { fill: oklch(74.6% 0.16 232.661); }
+  .n8 { fill: oklch(70.5% 0.213 47.604); }
+  .n9 { fill: oklch(62.3% 0.214 259.815); }
+  .n10 { fill: oklch(65.6% 0.241 354.308); }
+  .n11 { fill: oklch(69.6% 0.17 162.48); }
+  .n12 { fill: oklch(74% 0.238 322.16); }
+  .n13 { fill: oklch(68.5% 0.169 237.323); }
+  .n14 { fill: oklch(71.4% 0.203 305.504); }
+  .n15 { fill: oklch(70.4% 0.14 182.503); }
+  .n16 { fill: oklch(70.7% 0.165 254.624); }
+
+  :root[data-theme="light"] .graph-bg {
+    opacity: 0.3;
+  }
+
+  :root[data-theme="light"] .edge {
+    stroke: oklch(75% 0.01 260);
+  }
+
+  :root[data-theme="light"] .n1 { fill: oklch(51.1% 0.262 276.966); }
+  :root[data-theme="light"] .n2 { fill: oklch(59.1% 0.293 322.896); }
+  :root[data-theme="light"] .n3 { fill: oklch(71.5% 0.143 215.221); }
+  :root[data-theme="light"] .n4 { fill: oklch(58.6% 0.253 17.585); }
+  :root[data-theme="light"] .n5 { fill: oklch(54.1% 0.281 293.009); }
+  :root[data-theme="light"] .n6 { fill: oklch(69.6% 0.17 162.48); }
+  :root[data-theme="light"] .n7 { fill: oklch(68.5% 0.169 237.323); }
+  :root[data-theme="light"] .n8 { fill: oklch(64.6% 0.222 41.116); }
+  :root[data-theme="light"] .n9 { fill: oklch(54.6% 0.245 262.881); }
+  :root[data-theme="light"] .n10 { fill: oklch(59.2% 0.249 0.584); }
+  :root[data-theme="light"] .n11 { fill: oklch(59.6% 0.145 163.225); }
+  :root[data-theme="light"] .n12 { fill: oklch(66.7% 0.295 322.15); }
+  :root[data-theme="light"] .n13 { fill: oklch(60.9% 0.126 221.723); }
+  :root[data-theme="light"] .n14 { fill: oklch(49.6% 0.265 301.924); }
+  :root[data-theme="light"] .n15 { fill: oklch(60% 0.118 184.704); }
+  :root[data-theme="light"] .n16 { fill: oklch(54.6% 0.245 262.881); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .graph-bg {
+      opacity: 0.3;
+    }
+  }
+</style>

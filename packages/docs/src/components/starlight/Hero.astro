@@ -1,11 +1,14 @@
 ---
 import { LinkButton } from '@astrojs/starlight/components';
+import GraphBackground from './GraphBackground.astro';
 
 const { data } = Astro.locals.starlightRoute.entry;
 const { title = data.title, tagline, actions = [] } = data.hero || {};
 ---
 
-<div class="hero">
+<div class="hero" data-graph-hero>
+	<GraphBackground />
+	<div class="hero-glow" aria-hidden="true"></div>
 	<div class="stack">
 		<div class="copy">
 			<h1 id="_top" data-page-title set:html={title} />
@@ -27,13 +30,45 @@ const { title = data.title, tagline, actions = [] } = data.hero || {};
 
 <style>
 	.hero {
+		position: relative;
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		padding-block: clamp(3rem, calc(1rem + 10vmin), 10rem);
+		padding-block: clamp(4rem, calc(2rem + 12vmin), 12rem);
+		overflow: visible;
+	}
+
+	.hero-glow {
+		position: absolute;
+		top: 30%;
+		left: 50%;
+		translate: -50% -50%;
+		width: 60%;
+		height: 60%;
+		background: radial-gradient(
+			ellipse at center,
+			oklch(45.7% 0.24 277.023 / 0.2) 0%,
+			oklch(38% 0.189 293.745 / 0.1) 40%,
+			transparent 70%
+		);
+		border-radius: 50%;
+		filter: blur(60px);
+		pointer-events: none;
+		z-index: 0;
+	}
+
+	:root[data-theme="light"] .hero-glow {
+		background: radial-gradient(
+			ellipse at center,
+			oklch(70.2% 0.183 293.541 / 0.12) 0%,
+			oklch(78.5% 0.115 274.713 / 0.06) 40%,
+			transparent 70%
+		);
 	}
 
 	.stack {
+		position: relative;
+		z-index: 1;
 		display: flex;
 		flex-direction: column;
 		gap: clamp(1.5rem, calc(1.5rem + 1vw), 2rem);
@@ -55,7 +90,7 @@ const { title = data.title, tagline, actions = [] } = data.hero || {};
 	h1 {
 		font-size: clamp(var(--sl-text-3xl), calc(0.25rem + 5vw), var(--sl-text-6xl));
 		line-height: var(--sl-line-height-headings);
-		font-weight: 600;
+		font-weight: 800;
 		color: var(--sl-color-white);
 	}
 
