@@ -37,7 +37,7 @@
 /* Light mode colors — zinc grays, indigo accent */
 :root[data-theme="light"] {
   --sl-color-accent-low: oklch(96.2% 0.059 95.617);
-  --sl-color-accent: oklch(76.9% 0.188 70.08);
+  --sl-color-accent: oklch(66.6% 0.179 58.318);
   --sl-color-accent-high: oklch(41.4% 0.112 45.904);
   --sl-color-accent-hover: oklch(82.8% 0.189 84.429);
   --sl-color-white: oklch(14.7% 0.004 49.25);
@@ -140,6 +140,15 @@ header .social-icons a {
 
 header .social-icons a:hover {
   color: var(--sl-color-accent);
+}
+
+/* Subtle sidebar active item */
+.sidebar-content a[aria-current="page"],
+.sidebar-content a[aria-current="page"]:hover,
+.sidebar-content a[aria-current="page"]:focus {
+  background-color: transparent;
+  color: var(--sl-color-accent);
+  font-weight: 600;
 }
 
 /* Primary button */
