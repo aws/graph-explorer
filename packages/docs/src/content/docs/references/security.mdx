@@ -7,7 +7,7 @@ import { FileTree, Steps } from "@astrojs/starlight/components";
 
 You can use Graph Explorer to connect to a publicly accessible graph database endpoint, or connect to a proxy endpoint that redirects to a private graph database endpoint.
 
-Graph Explorer supports the HTTPS protocol by default and provides a self-signed certificate as part of the Docker image. You can choose to use HTTP instead by changing the [environment variable default settings](./configuration/#application-configuration).
+Graph Explorer supports the HTTPS protocol by default and provides a self-signed certificate as part of the Docker image. You can choose to use HTTP instead by changing the [environment variable default settings](../configuration/#application-configuration).
 
 ## HTTPS Connections
 
@@ -110,7 +110,7 @@ CORS headers only affect browser-initiated requests — direct API calls from sc
 
 Graph Explorer does not provide any mechanisms for controlling user permissions. If you are using Graph Explorer with AWS, Neptune permissions can be controlled through IAM roles.
 
-For information about what permissions Graph Explorer requires check out the documentation on [SageMaker configuration](../guides/deploy-to-sagemaker/#minimum-database-permissions).
+For information about what permissions Graph Explorer requires check out the documentation on [SageMaker configuration](../../guides/deploy-to-sagemaker/#minimum-database-permissions).
 
 :::caution
 By default, a Neptune Notebook will have full read & write access to Neptune data.

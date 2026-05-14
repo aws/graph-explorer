@@ -81,7 +81,6 @@
       nodeData.push({
         cxPct: parseFloat(cxAttr),
         cyPct: parseFloat(cyAttr),
-        // Each node gets unique phase offsets for organic drift
         phaseX: Math.random() * Math.PI * 2,
         phaseY: Math.random() * Math.PI * 2,
         speedX: 0.3 + Math.random() * 0.4,
@@ -97,6 +96,7 @@
       offsets.push({ x: 0, y: 0 });
     }
     var startTime = performance.now();
+    var frameId = null;
 
     hero.addEventListener('mousemove', function(e) {
       var rect = hero.getBoundingClientRect();
@@ -110,6 +110,8 @@
     });
 
     function update() {
+      if (!hero.isConnected) return;
+
       var t = (performance.now() - startTime) / 1000;
 
       for (var i = 0; i < nodes.length; i++) {
@@ -117,11 +119,9 @@
         var nodeFracX = nd.cxPct / 100;
         var nodeFracY = nd.cyPct / 100;
 
-        // Ambient drift using sine waves
         var driftX = Math.sin(t * nd.speedX + nd.phaseX) * driftStrength;
         var driftY = Math.cos(t * nd.speedY + nd.phaseY) * driftStrength;
 
-        // Mouse repulsion
         var mouseTargetX = 0;
         var mouseTargetY = 0;
         if (mouseActive) {
@@ -150,10 +150,14 @@
         edges[j].style.translate = ex + 'px ' + ey + 'px';
       }
 
-      requestAnimationFrame(update);
+      frameId = requestAnimationFrame(update);
     }
 
-    requestAnimationFrame(update);
+    frameId = requestAnimationFrame(update);
+
+    document.addEventListener('astro:before-swap', function() {
+      if (frameId) cancelAnimationFrame(frameId);
+    }, { once: true });
   })();
 </script>
 
