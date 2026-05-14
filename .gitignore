@@ -11,3 +11,6 @@
 
 # Local planning docs
 plans/
+
+# Claude Code local files
+.claude/
