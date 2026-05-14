@@ -241,12 +241,15 @@ header .social-icons a:hover {
   border-color: transparent;
   color: oklch(98.4% 0.003 247.858);
   font-weight: 500;
-  transition: box-shadow 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
   box-shadow: 0 2px 8px oklch(58.5% 0.233 277.117 / 0.15);
 }
 
 .sl-link-button.primary:hover {
   box-shadow: 0 2px 12px oklch(58.5% 0.233 277.117 / 0.25);
+  filter: brightness(1.15);
   background: var(--ge-gradient);
   border-color: transparent;
   color: oklch(98.4% 0.003 247.858);
@@ -261,6 +264,15 @@ header .social-icons a:hover {
 
 .sl-link-button.secondary:hover {
   border-color: var(--sl-color-accent);
+  color: var(--sl-color-accent);
+}
+
+/* Minimal button (e.g. "View on GitHub") */
+.sl-link-button.minimal {
+  transition: color 0.2s ease;
+}
+
+.sl-link-button.minimal:hover {
   color: var(--sl-color-accent);
 }
 
