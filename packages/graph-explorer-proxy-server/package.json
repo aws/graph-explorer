@@ -11,7 +11,7 @@
     "start": "NODE_ENV=production node src/node-server.ts"
   },
   "dependencies": {
-    "@aws-sdk/credential-providers": "^3.1034.0",
+    "@aws-sdk/credential-providers": "^3.1045.0",
     "@graph-explorer/shared": "workspace:*",
     "aws4": "^1.13.2",
     "body-parser": "^2.2.2",
