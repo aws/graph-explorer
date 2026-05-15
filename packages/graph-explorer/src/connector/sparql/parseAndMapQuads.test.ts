@@ -159,14 +159,14 @@ describe("parseAndMapQuads", () => {
     it("should parse shorthand variables (?s ?p ?o) correctly", () => {
       const vertex = createTestableVertex().withRdfValues();
       const bindings = createQuadBindingsForEntities([vertex], []);
-      
+
       // Convert standard bindings to shorthand variables
       const shorthandBindings = bindings.map(b => ({
         s: b.subject,
         p: b.predicate,
         o: b.object,
       }));
-      
+
       const data = {
         head: { vars: ["s", "p", "o"] },
         results: { bindings: shorthandBindings },

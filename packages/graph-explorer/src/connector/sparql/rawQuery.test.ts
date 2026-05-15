@@ -224,14 +224,14 @@ describe("rawQuery", () => {
     it("should treat SELECT queries with exactly s/p/o variables as CONSTRUCT", async () => {
       const vertex1 = createTestableVertex().withRdfValues();
       const vertex2 = createTestableVertex().withRdfValues();
-      
+
       const bindings = createQuadBindingsForEntities([vertex1, vertex2], []);
       const shorthandBindings = bindings.map(b => ({
         s: b.subject,
         p: b.predicate,
         o: b.object,
       }));
-      
+
       const mockResponse = {
         head: { vars: ["s", "p", "o"] },
         results: { bindings: shorthandBindings },
@@ -307,8 +307,7 @@ describe("rawQuery", () => {
 
       const mockFetch = vi.fn().mockResolvedValue(mockResponse);
       const result = await rawQuery(mockFetch, {
-        query:
-          "SELECT ?s ?predicate ?object WHERE { ?s ?predicate ?object }",
+        query: "SELECT ?s ?predicate ?object WHERE { ?s ?predicate ?object }",
       });
 
       // Should be treated as SELECT query (bundle with 3 scalars), not CONSTRUCT
