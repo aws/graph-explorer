@@ -206,7 +206,7 @@ export const sparqlAskResponseSchema = z.object({
   boolean: z.boolean(),
 });
 
-export const sparqlQuadBindingSchema = z
+const sparqlQuadBindingLongSchema = z
   .object({
     subject: sparqlResourceValueSchema,
     predicate: sparqlUriValueSchema,
@@ -214,4 +214,25 @@ export const sparqlQuadBindingSchema = z
     graph: sparqlValueSchema.optional(),
   })
   .strict();
+
+const sparqlQuadBindingShortSchema = z
+  .object({
+    s: sparqlResourceValueSchema,
+    p: sparqlUriValueSchema,
+    o: sparqlValueSchema,
+    g: sparqlValueSchema.optional(),
+    c: sparqlValueSchema.optional(),
+  })
+  .strict()
+  .transform(val => ({
+    subject: val.s,
+    predicate: val.p,
+    object: val.o,
+    graph: val.g ?? val.c,
+  }));
+
+export const sparqlQuadBindingSchema = z.union([
+  sparqlQuadBindingLongSchema,
+  sparqlQuadBindingShortSchema,
+]);
 export type SparqlQuadBinding = z.infer<typeof sparqlQuadBindingSchema>;
