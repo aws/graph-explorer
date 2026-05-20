@@ -66,6 +66,7 @@ function extractErrorInfo(error: unknown) {
 
   if (error instanceof Error) {
     return {
+      // oxlint-disable-next-line typescript/no-misused-spread -- Intentionally extracting Error properties for serialization
       ...error,
       status: getStatusFromError(error),
       message: error.message || defaultErrorMessage,

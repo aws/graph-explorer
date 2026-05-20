@@ -45,7 +45,7 @@ const useUpdateGraphElements = ({
       wereElementsAddedOrRemoved(cy.edges(), edges);
 
     if (structureChanged) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+      // oxlint-disable-next-line react-compiler/set-state-in-effect
       setGraphStructureVersion(v => v + 1);
     }
 

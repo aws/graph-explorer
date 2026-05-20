@@ -217,7 +217,9 @@ function Content({ vertexType }: { vertexType: VertexType }) {
                     <FileButton
                       accept="image/*"
                       onChange={file => {
-                        file && convertImageToBase64AndSetNewIcon(file);
+                        if (file) {
+                          convertImageToBase64AndSetNewIcon(file);
+                        }
                       }}
                       variant="outline"
                       className="rounded-full"

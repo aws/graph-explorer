@@ -39,13 +39,16 @@ export function DetailsHeader({
 /** Title text for detail sections */
 export function DetailsTitle({
   className,
+  children,
   ...props
 }: ComponentPropsWithRef<"h2">) {
   return (
     <h2
       className={cn("text-foreground text-base/7 font-bold", className)}
       {...props}
-    />
+    >
+      {children}
+    </h2>
   );
 }
 

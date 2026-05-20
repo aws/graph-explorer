@@ -62,12 +62,12 @@ Uses the self-signed certificate to serve the proxy-server over https if true.
 
 ### `PROXY_SERVER_CORS_ORIGIN`
 
-Restricts which origins are allowed to make cross-origin requests to the proxy server. When set, only requests from these exact origins will receive CORS headers. When not set, all origins are allowed. Each origin must include the scheme and must not have a trailing slash or path.
+Restricts which origins are allowed to make cross-origin requests to the proxy server. When set, only requests from these exact origins will receive CORS headers. When not set, cross-origin requests are blocked. Each origin must include the scheme and must not have a trailing slash or path.
 
 Example: `https://my-app.example.com` or `https://app-a.example.com,https://app-b.example.com`
 
 - Optional
-- Default: all origins allowed
+- Default: cross-origin requests blocked
 - Type: `string` (comma-separated for multiple origins)
 
 ### `LOG_STYLE`

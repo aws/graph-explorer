@@ -133,7 +133,7 @@ declare module "react-table" {
 
   export interface Cell<
     D extends Record<string, unknown> = Record<string, unknown>,
-    // eslint-disable-next-line  @typescript-eslint/no-unused-vars
+    // oxlint-disable-next-line  @typescript-eslint/no-unused-vars
     V = any,
   >
     extends UseGroupByCellProps<D>, UseRowStateCellProps<D> {}

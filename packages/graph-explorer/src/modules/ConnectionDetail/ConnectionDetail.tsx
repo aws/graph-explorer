@@ -343,7 +343,7 @@ function DebugActions() {
   const deleteSchema = () => {
     logger.log("Deleting schema");
     setActiveSchema(RESET);
-    void queryClient.removeQueries({
+    queryClient.removeQueries({
       queryKey: ["schema"],
     });
   };

@@ -25,7 +25,7 @@ const TabularRow = <T extends object>({
   const [selectable, setSelectable] = useState(true);
   useEffect(() => {
     if (tableInstance.state.columnResizing.isResizingColumn) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+      // oxlint-disable-next-line react-compiler/set-state-in-effect
       setSelectable(false);
       return;
     }
@@ -35,7 +35,9 @@ const TabularRow = <T extends object>({
     }, 100);
 
     return () => {
-      timeout && clearTimeout(timeout);
+      if (timeout) {
+        clearTimeout(timeout);
+      }
     };
   }, [tableInstance.state.columnResizing.isResizingColumn]);
 

@@ -36,6 +36,21 @@ pnpm test packages/graph-explorer/src/path/to/file.test.ts
 
 # Test name pattern match
 pnpm test -- -t "pattern"
+
+# Format all files
+pnpm format
+
+# Format specific files or globs (pass paths after --)
+pnpm format -- src/foo.ts 'packages/graph-explorer/src/**/*.tsx'
+
+# Check formatting on specific files
+pnpm check:format -- src/foo.ts
+
+# Lint and auto-fix all files
+pnpm lint
+
+# Lint specific files or globs
+pnpm lint -- 'packages/graph-explorer/src/**/*.ts'
 ```
 
 # Project Organization
@@ -62,3 +77,17 @@ pnpm test -- -t "pattern"
   - Visualization settings
   - Layout preferences
 - **External Data**: Graph data is queried directly from the connected graph databases and is not owned or persisted by Graph Explorer
+
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked in GitHub Issues on aws/graph-explorer. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default label vocabulary (needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context layout — one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.

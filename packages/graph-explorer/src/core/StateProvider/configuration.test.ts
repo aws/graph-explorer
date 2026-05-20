@@ -280,15 +280,13 @@ describe("mergedConfiguration", () => {
 
     for (const v of result.schema?.vertices ?? []) {
       const style = styling.vertices?.find(s => s.type === v.type);
-      if (style) {
-        expect(v.color).toBe("#FF0000");
-      }
+      assert(style);
+      expect(v.color).toBe("#FF0000");
     }
     for (const e of result.schema?.edges ?? []) {
       const style = styling.edges?.find(s => s.type === e.type);
-      if (style) {
-        expect(e.lineColor).toBe("#00FF00");
-      }
+      assert(style);
+      expect(e.lineColor).toBe("#00FF00");
     }
   });
 
@@ -338,6 +336,25 @@ describe("patchToRemoveDisplayLabel", () => {
       expect(attr).not.toHaveProperty("displayLabel");
     }
   });
+
+  it("should not mutate the original config", () => {
+    const config = createRandomVertexTypeConfig();
+    config.displayLabel = createRandomName("displayLabel");
+    config.attributes.forEach(
+      a => ((a as any).displayLabel = createRandomName("displayLabel")),
+    );
+    const originalDisplayLabel = config.displayLabel;
+    const originalAttrDisplayLabels = config.attributes.map(
+      a => (a as any).displayLabel,
+    );
+
+    patchToRemoveDisplayLabel(config);
+
+    expect(config.displayLabel).toBe(originalDisplayLabel);
+    config.attributes.forEach((a, i) => {
+      expect((a as any).displayLabel).toBe(originalAttrDisplayLabels[i]);
+    });
+  });
 });
 
 describe("normalizeConnection", () => {
@@ -367,6 +384,40 @@ describe("normalizeConnection", () => {
   test("should default awsAuthEnabled to false", () => {
     const result = normalizeConnection({ url: "https://example.com" });
     expect(result.awsAuthEnabled).toBe(false);
+  });
+
+  test("should preserve path in url", () => {
+    const result = normalizeConnection({
+      url: "http://localhost:9999/blazegraph/namespace/kb",
+    });
+    expect(result.url).toBe("http://localhost:9999/blazegraph/namespace/kb");
+  });
+
+  test("should remove only trailing slash from url with path", () => {
+    const result = normalizeConnection({
+      url: "http://localhost:9999/blazegraph/namespace/kb/",
+    });
+    expect(result.url).toBe("http://localhost:9999/blazegraph/namespace/kb");
+  });
+
+  test("should preserve path in graphDbUrl", () => {
+    const result = normalizeConnection({
+      url: "http://proxy:8080",
+      graphDbUrl: "http://blazegraph:9999/blazegraph/namespace/kb",
+    });
+    expect(result.graphDbUrl).toBe(
+      "http://blazegraph:9999/blazegraph/namespace/kb",
+    );
+  });
+
+  test("should remove only trailing slash from graphDbUrl with path", () => {
+    const result = normalizeConnection({
+      url: "http://proxy:8080",
+      graphDbUrl: "http://blazegraph:9999/blazegraph/namespace/kb/",
+    });
+    expect(result.graphDbUrl).toBe(
+      "http://blazegraph:9999/blazegraph/namespace/kb",
+    );
   });
 });
 

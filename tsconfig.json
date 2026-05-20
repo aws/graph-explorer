@@ -3,5 +3,5 @@
   "compilerOptions": {
     "allowJs": true
   },
-  "files": ["vitest.config.ts", "eslint.config.mjs"]
+  "files": ["vitest.config.ts"]
 }

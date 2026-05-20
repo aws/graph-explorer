@@ -70,15 +70,23 @@ describe("createApp", () => {
   // ── CORS ────────────────────────────────────────────────────────────
 
   describe("CORS", () => {
-    it("reflects the request origin by default", async () => {
+    it("does not allow cross-origin requests by default", async () => {
       const app = createTestApp();
       const response = await request(app)
         .get("/status")
         .set("Origin", "http://example.com");
 
-      expect(response.headers["access-control-allow-origin"]).toBe(
-        "http://example.com",
-      );
+      expect(response.headers["access-control-allow-origin"]).toBeUndefined();
+    });
+
+    it("does not set CORS headers on preflight by default", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .options("/status")
+        .set("Origin", "http://example.com")
+        .set("Access-Control-Request-Method", "POST");
+
+      expect(response.headers["access-control-allow-origin"]).toBeUndefined();
     });
 
     it("does not set origin header when request has no Origin", async () => {
@@ -99,7 +107,7 @@ describe("createApp", () => {
       );
     });
 
-    it("returns the configured origin regardless of the requesting origin", async () => {
+    it("sets the configured origin as a fixed header for single-origin config", async () => {
       const app = createTestApp(".", ["https://my-app.example.com"]);
       const response = await request(app)
         .get("/status")
@@ -151,8 +159,8 @@ describe("createApp", () => {
       expect(response.headers["access-control-allow-origin"]).toBeUndefined();
     });
 
-    it("only allows GET and POST methods", async () => {
-      const app = createTestApp();
+    it("only allows GET and POST methods when corsOrigin is configured", async () => {
+      const app = createTestApp(".", ["http://example.com"]);
       const response = await request(app)
         .options("/status")
         .set("Origin", "http://example.com")
@@ -161,8 +169,8 @@ describe("createApp", () => {
       expect(response.headers["access-control-allow-methods"]).toBe("GET,POST");
     });
 
-    it("sets preflight max-age cache header", async () => {
-      const app = createTestApp();
+    it("sets preflight max-age cache header when corsOrigin is configured", async () => {
+      const app = createTestApp(".", ["http://example.com"]);
       const response = await request(app)
         .options("/status")
         .set("Origin", "http://example.com")
@@ -354,7 +362,7 @@ describe("createApp", () => {
       await request(app).post("/sparql").set(dbHeaders()).send({ query });
 
       const fetchOptions = mockFetch.mock.calls[0][1] as any;
-      expect(fetchOptions.headers["Content-Type"]).toBe(
+      expect(fetchOptions.headers["content-type"]).toBe(
         "application/x-www-form-urlencoded",
       );
       expect(fetchOptions.body).toContain(`query=${encodeURIComponent(query)}`);
@@ -495,7 +503,7 @@ describe("createApp", () => {
       await request(app).post("/openCypher").set(dbHeaders()).send({ query });
 
       const fetchOptions = mockFetch.mock.calls[0][1] as any;
-      expect(fetchOptions.headers["Content-Type"]).toBe(
+      expect(fetchOptions.headers["content-type"]).toBe(
         "application/x-www-form-urlencoded",
       );
       expect(fetchOptions.body).toBe(`query=${encodeURIComponent(query)}`);
@@ -781,6 +789,126 @@ describe("createApp", () => {
       const fetchOptions = mockFetch.mock.calls[0][1] as any;
       expect(fetchOptions.headers["User-Agent"]).toBe(
         `graph-explorer/${testVersion}`,
+      );
+    });
+
+    it("preserves request-specific headers after IAM signing", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app)
+        .post("/sparql")
+        .set(
+          dbHeaders({
+            "aws-neptune-region": "us-east-1",
+            "service-type": "neptune-db",
+          }),
+        )
+        .send({ query: "SELECT 1" });
+
+      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      expect(fetchOptions.headers["content-type"]).toBe(
+        "application/x-www-form-urlencoded",
+      );
+      expect(fetchOptions.headers["accept"]).toBe(
+        "application/sparql-results+json",
+      );
+      expect(fetchOptions.headers["Authorization"]).toBeDefined();
+    });
+  });
+
+  // ── URL path preservation ────────────────────────────────────────
+
+  describe("preserves base URL path for non-root endpoints", () => {
+    const blazegraphUrl = "http://blazegraph:9999/blazegraph/namespace/kb";
+
+    function blazegraphHeaders(overrides: Record<string, string> = {}) {
+      return {
+        "graph-db-connection-url": blazegraphUrl,
+        ...overrides,
+      };
+    }
+
+    it("POST /sparql appends to the base URL path", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app)
+        .post("/sparql")
+        .set(blazegraphHeaders())
+        .send({ query: "SELECT 1" });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${blazegraphUrl}/sparql`,
+        expect.anything(),
+      );
+    });
+
+    it("POST /gremlin appends to the base URL path", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app)
+        .post("/gremlin")
+        .set(blazegraphHeaders())
+        .send({ query: "g.V()" });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${blazegraphUrl}/gremlin`,
+        expect.anything(),
+      );
+    });
+
+    it("POST /openCypher appends to the base URL path", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app)
+        .post("/openCypher")
+        .set(blazegraphHeaders())
+        .send({ query: "MATCH (n) RETURN n" });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${blazegraphUrl}/openCypher`,
+        expect.anything(),
+      );
+    });
+
+    it("GET /summary appends to the base URL path", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app).get("/summary").set(blazegraphHeaders());
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${blazegraphUrl}/summary?mode=detailed`,
+        expect.anything(),
+      );
+    });
+
+    it("GET /pg/statistics/summary appends to the base URL path", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app).get("/pg/statistics/summary").set(blazegraphHeaders());
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${blazegraphUrl}/pg/statistics/summary?mode=detailed`,
+        expect.anything(),
+      );
+    });
+
+    it("GET /rdf/statistics/summary appends to the base URL path", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app)
+        .get("/rdf/statistics/summary")
+        .set(blazegraphHeaders());
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${blazegraphUrl}/rdf/statistics/summary?mode=detailed`,
+        expect.anything(),
       );
     });
   });

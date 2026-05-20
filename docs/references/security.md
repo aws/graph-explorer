@@ -73,7 +73,9 @@ For browsers like Safari and Firefox, trusting the certificate from the browser 
 
 ## CORS
 
-To restrict cross-origin requests, set the `PROXY_SERVER_CORS_ORIGIN` environment variable to the origin you want to allow. The default option allows cross-origin requests from all origins.
+By default, the proxy server does not allow cross-origin requests. Since the proxy server serves both the API and the UI from the same origin, CORS is not needed in standard deployments. In development mode, the Vite dev server proxies API requests to the Express server to maintain same-origin behavior.
+
+If you serve the UI from a different origin than the proxy server, set the `PROXY_SERVER_CORS_ORIGIN` environment variable to the origin you want to allow.
 
 ```bash
 PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com
@@ -97,7 +99,6 @@ Graph Explorer does not provide any mechanisms for controlling user permissions.
 
 For information about what permissions Graph Explorer requires check out the documentation on [SageMaker configuration](../guides/deploy-to-sagemaker.md#minimum-database-permissions).
 
-<!-- prettier-ignore -->
-> [!CAUTION] 
-> 
+> [!CAUTION]
+>
 > By default, a Neptune Notebook will have full read & write access to Neptune data.

@@ -109,6 +109,24 @@ describe("parseAndMapQuads", () => {
       expect(() => parseAndMapQuads(invalidData)).toThrow();
       expect(logger.error).toHaveBeenCalled();
     });
+
+    it("should throw validation error for partial shorthand matches (e.g., s, predicate, object)", () => {
+      const invalidData = {
+        head: { vars: ["s", "predicate", "object"] },
+        results: {
+          bindings: [
+            {
+              s: { type: "uri", value: "http://example.com/resource" },
+              predicate: { type: "uri", value: "http://example.com/predicate" },
+              object: { type: "literal", value: "test value" },
+            },
+          ],
+        },
+      };
+
+      expect(() => parseAndMapQuads(invalidData)).toThrow();
+      expect(logger.error).toHaveBeenCalled();
+    });
   });
 
   describe("successful parsing", () => {
@@ -128,6 +146,31 @@ describe("parseAndMapQuads", () => {
       const vertex = createTestableVertex().withRdfValues();
       const bindings = createQuadBindingsForEntities([vertex], []);
       const data = createQuadSparqlResponse(bindings);
+
+      const result = parseAndMapQuads(data);
+
+      expect(result).toEqual({
+        vertices: [vertex.asResult()],
+        edges: [],
+      });
+      expect(logger.error).not.toHaveBeenCalled();
+    });
+
+    it("should parse shorthand variables (?s ?p ?o) correctly", () => {
+      const vertex = createTestableVertex().withRdfValues();
+      const bindings = createQuadBindingsForEntities([vertex], []);
+
+      // Convert standard bindings to shorthand variables
+      const shorthandBindings = bindings.map(b => ({
+        s: b.subject,
+        p: b.predicate,
+        o: b.object,
+      }));
+
+      const data = {
+        head: { vars: ["s", "p", "o"] },
+        results: { bindings: shorthandBindings },
+      };
 
       const result = parseAndMapQuads(data);
 

@@ -6,6 +6,64 @@
   styling (#1265, #112, #173, #573, #689)
 - Add Lucide icon picker to node styling dialog
 
+## Release 3.0.3
+
+This patch release blocks cross-origin requests by default, improves performance for larger schemas, adds inferred edge connections in search and expansion, and adds a diagnostic logging setting.
+
+- **Schema Explorer** — edge connections are now inferred from graph exploration, so the Schema Explorer shows relationships discovered through search and neighbor expansion without waiting for the database summary API
+- **Performance** — schema operations are significantly faster for graphs with many vertex or edge types, reducing unnecessary re-renders when the schema is already up to date
+- **New feature** — a diagnostic logging toggle in settings enables verbose console logging at runtime, even in production builds, for easier troubleshooting
+- **Documentation** — getting started restructured as a hands-on tutorial, new configuration reference, new Neptune public endpoints guide, new architecture documentation
+- **Infrastructure** — hardened Docker image and CI workflows, migrated to oxfmt and oxlint for faster formatting and linting, TypeScript upgraded to 6.0, proxy server runs natively without a build step
+
+### Cross-Origin Request Blocking
+
+The proxy server now blocks cross-origin requests by default instead of allowing all origins. Since the proxy server serves both the API and the UI from the same origin in all standard deployments (Docker, SageMaker, ECS Fargate), CORS is not needed.
+
+If you serve the UI from a different origin than the proxy server, set the `PROXY_SERVER_CORS_ORIGIN` environment variable to the UI origin. See the [Security documentation](https://github.com/aws/graph-explorer/blob/v3.0.3/docs/references/security.md#cors) for details.
+
+### All Changes
+
+- Fix bug description in v3.0.2 changelog by @kmcginnes in https://github.com/aws/graph-explorer/pull/1685
+- Harden CI workflows with SHA pinning and version bumps by @kmcginnes in https://github.com/aws/graph-explorer/pull/1686
+- Scope Trivy scans to prevent duplicate security findings by @kmcginnes in https://github.com/aws/graph-explorer/pull/1687
+- Move EC2 setup to deployment guides by @kmcginnes in https://github.com/aws/graph-explorer/pull/1689
+- Move Gremlin Server connection details to guides by @kmcginnes in https://github.com/aws/graph-explorer/pull/1690
+- Move local dev setup to development docs by @kmcginnes in https://github.com/aws/graph-explorer/pull/1691
+- Add Try It Out section and update intro for new users by @kmcginnes in https://github.com/aws/graph-explorer/pull/1692
+- Fix smart quotes and placeholder URLs in docs by @kmcginnes in https://github.com/aws/graph-explorer/pull/1693
+- Clean up tsconfig structure across monorepo by @kmcginnes in https://github.com/aws/graph-explorer/pull/1694
+- Fix broken links, invalid JSON, and unclear terminology in docs by @kmcginnes in https://github.com/aws/graph-explorer/pull/1697
+- Consolidate certificate trust instructions into security reference by @kmcginnes in https://github.com/aws/graph-explorer/pull/1698
+- Split features into separate pages and improve docs index by @kmcginnes in https://github.com/aws/graph-explorer/pull/1700
+- Add navigation back-links to all documentation leaf pages by @kmcginnes in https://github.com/aws/graph-explorer/pull/1701
+- Update TypeScript to 6.0 and eslint plugins by @kmcginnes in https://github.com/aws/graph-explorer/pull/1703
+- Fix outdated instructions and align terminology with UI by @kmcginnes in https://github.com/aws/graph-explorer/pull/1706
+- Update all dependencies to latest versions by @kmcginnes in https://github.com/aws/graph-explorer/pull/1707
+- Replace Codecov with Vitest built-in coverage thresholds by @kmcginnes in https://github.com/aws/graph-explorer/pull/1708
+- Add diagnostic logging user setting by @kmcginnes in https://github.com/aws/graph-explorer/pull/1709
+- Add Neptune public endpoints connection guide by @kmcginnes in https://github.com/aws/graph-explorer/pull/1710
+- Add Docker restart policy to deployment guides by @kmcginnes in https://github.com/aws/graph-explorer/pull/1711
+- Harden Docker image by @kmcginnes in https://github.com/aws/graph-explorer/pull/1712
+- Speed up test suite (~97s to ~55s) by @kmcginnes in https://github.com/aws/graph-explorer/pull/1717
+- Migrate proxy server to Node native TypeScript type stripping by @kmcginnes in https://github.com/aws/graph-explorer/pull/1721
+- Move Local Docker Setup to a deployment guide by @kmcginnes in https://github.com/aws/graph-explorer/pull/1723
+- Create consolidated configuration reference by @kmcginnes in https://github.com/aws/graph-explorer/pull/1724
+- Restructure getting-started page into a hands-on tutorial by @kmcginnes in https://github.com/aws/graph-explorer/pull/1732
+- Add feature highlights to the features page by @kmcginnes in https://github.com/aws/graph-explorer/pull/1733
+- Rewrite schema merge for efficiency and referential equality by @kmcginnes in https://github.com/aws/graph-explorer/pull/1735
+- Add architecture documentation and fix inaccuracies by @kmcginnes in https://github.com/aws/graph-explorer/pull/1737
+- Block cross-origin requests by default by @kmcginnes in https://github.com/aws/graph-explorer/pull/1738
+- Break circular dependency in storageAtoms by @kmcginnes in https://github.com/aws/graph-explorer/pull/1739
+- Restructure root README with clear user paths by @kmcginnes in https://github.com/aws/graph-explorer/pull/1740
+- Bump version to 3.0.3 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1741
+- Update air routes sample to TinkerPop 3.8.1 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1743
+- Replace O(n^2) lookups with Map-based atoms in schema state layer by @kmcginnes in https://github.com/aws/graph-explorer/pull/1744
+- Replace Prettier with oxfmt by @kmcginnes in https://github.com/aws/graph-explorer/pull/1745
+- Migrate from ESLint to oxlint by @kmcginnes in https://github.com/aws/graph-explorer/pull/1746
+- Infer edge connections from graph exploration by @kmcginnes in https://github.com/aws/graph-explorer/pull/1742
+- Bump AL2023 releasever to pick up latest glibc by @kmcginnes in https://github.com/aws/graph-explorer/pull/1749
+
 ## Release 3.0.2
 
 This patch release fixes a bug where schema sync did not automatically trigger when switching connections and adds a new configuration option for controlling allowed origins.

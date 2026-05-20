@@ -30,7 +30,7 @@ export default function SingleEdgeStyling({
     if (prevDisplayAs === null || prevDisplayAs === debouncedDisplayAs) {
       return;
     }
-    void setEdgeStyle({ displayLabel: debouncedDisplayAs });
+    setEdgeStyle({ displayLabel: debouncedDisplayAs });
   }, [debouncedDisplayAs, prevDisplayAs, setEdgeStyle]);
 
   return (

@@ -1,0 +1,156 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "eslint",
+    "oxc",
+    "typescript",
+    "unicorn",
+    "import",
+    "vitest",
+    "promise"
+  ],
+  "options": {
+    "typeAware": true
+  },
+  "categories": {
+    "correctness": "error"
+  },
+  "env": {
+    "builtin": true
+  },
+  "ignorePatterns": [
+    "**/*.config.{js,ts,mjs}",
+    "**/vitest.workspace.ts",
+    ".claude/"
+  ],
+  "rules": {
+    "vitest/require-mock-type-parameters": "off",
+    "jest/require-to-throw-message": "off",
+    "jest/valid-expect": "off",
+    "typescript/unbound-method": "off",
+    "typescript/no-floating-promises": "off",
+    "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ],
+    "no-console": ["error", { "allow": ["warn", "error"] }],
+    "typescript/consistent-type-imports": [
+      "error",
+      { "fixStyle": "inline-type-imports" }
+    ],
+    "typescript/no-import-type-side-effects": "error",
+    "typescript/switch-exhaustiveness-check": "error",
+    "no-case-declarations": "error",
+    "no-empty": "error",
+    "no-fallthrough": "error",
+    "no-prototype-builtins": "error",
+    "no-redeclare": "error",
+    "no-regex-spaces": "error",
+    "preserve-caught-error": "error",
+    "no-array-constructor": "error",
+    "typescript/ban-ts-comment": "error",
+    "typescript/no-empty-object-type": "error",
+    "typescript/no-namespace": "error",
+    "typescript/no-require-imports": "error",
+    "typescript/no-unnecessary-type-constraint": "error",
+    "typescript/no-unsafe-function-type": "error",
+    "typescript/no-unnecessary-type-assertion": "error",
+    "typescript/no-unsafe-enum-comparison": "error",
+    "typescript/only-throw-error": "error",
+    "typescript/prefer-promise-reject-errors": "error",
+    "typescript/require-await": "error",
+    "typescript/restrict-plus-operands": "error"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
+      "rules": {
+        "constructor-super": "off",
+        "no-class-assign": "off",
+        "no-const-assign": "off",
+        "no-dupe-class-members": "off",
+        "no-dupe-keys": "off",
+        "no-func-assign": "off",
+        "no-import-assign": "off",
+        "no-new-native-nonconstructor": "off",
+        "no-obj-calls": "off",
+        "no-redeclare": "off",
+        "no-setter-return": "off",
+        "no-this-before-super": "off",
+        "no-unsafe-negation": "off",
+        "no-var": "error",
+        "no-with": "off",
+        "prefer-const": "error",
+        "prefer-rest-params": "error",
+        "prefer-spread": "error"
+      }
+    },
+    {
+      "files": ["packages/graph-explorer/**/*.{ts,tsx}"],
+      "plugins": ["react", "react-perf", "jsx-a11y"],
+      "jsPlugins": [
+        "@tanstack/eslint-plugin-query",
+        { "name": "react-compiler", "specifier": "eslint-plugin-react-hooks" }
+      ],
+      "env": { "browser": true },
+      "rules": {
+        "react/display-name": "off",
+        "react/no-unsafe": "error",
+        "react/react-in-jsx-scope": "off",
+        "jsx-a11y/no-autofocus": "off",
+        "jsx-a11y/click-events-have-key-events": "off",
+        "jsx-a11y/no-static-element-interactions": "off",
+        "jsx-a11y/mouse-events-have-key-events": "off",
+        "react-compiler/rules-of-hooks": "off",
+        "react-compiler/exhaustive-deps": "off",
+        "react-compiler/config": "error",
+        "react-compiler/error-boundaries": "error",
+        "react-compiler/gating": "error",
+        "react-compiler/globals": "error",
+        "react-compiler/immutability": "error",
+        "react-compiler/incompatible-library": "warn",
+        "react-compiler/preserve-manual-memoization": "error",
+        "react-compiler/purity": "error",
+        "react-compiler/refs": "error",
+        "react-compiler/set-state-in-effect": "error",
+        "react-compiler/set-state-in-render": "error",
+        "react-compiler/static-components": "error",
+        "react-compiler/unsupported-syntax": "warn",
+        "react-compiler/use-memo": "error",
+        "react/jsx-key": "error",
+        "react/jsx-no-duplicate-props": "error",
+        "react/jsx-no-undef": "error",
+        "react/no-children-prop": "error",
+        "react/no-danger-with-children": "error",
+        "react/no-direct-mutation-state": "error",
+        "react/no-find-dom-node": "error",
+        "react/no-is-mounted": "error",
+        "react/no-render-return-value": "error",
+        "react/no-string-refs": "error",
+        "react/jsx-no-comment-textnodes": "error",
+        "react/jsx-no-target-blank": "error",
+        "react/no-unescaped-entities": "error",
+        "react/no-unknown-property": "error",
+        "react/jsx-curly-brace-presence": "error",
+        "react/rules-of-hooks": "error",
+        "react/exhaustive-deps": "warn",
+        "@tanstack/query/exhaustive-deps": "error",
+        "@tanstack/query/no-rest-destructuring": "warn",
+        "@tanstack/query/stable-query-client": "error",
+        "@tanstack/query/no-unstable-deps": "error",
+        "@tanstack/query/infinite-query-property-order": "error",
+        "@tanstack/query/no-void-query-fn": "error",
+        "@tanstack/query/mutation-property-order": "error"
+      }
+    },
+    {
+      "files": ["packages/graph-explorer-proxy-server/**/*.{ts,js}"],
+      "plugins": ["node"],
+      "env": { "node": true }
+    }
+  ]
+}

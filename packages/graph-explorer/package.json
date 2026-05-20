@@ -1,10 +1,9 @@
 {
   "name": "graph-explorer",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Graph Explorer",
-  "engines": {
-    "node": ">=24.13.0"
-  },
+  "license": "Apache-2.0",
+  "author": "amazon",
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -13,8 +12,6 @@
     "vite-build": "NODE_OPTIONS=--max_old_space_size=6144 vite build",
     "build": "pnpm vite-build -- --mode production"
   },
-  "author": "amazon",
-  "license": "Apache-2.0",
   "dependencies": {
     "@graph-explorer/shared": "workspace:*",
     "@hookform/resolvers": "^5.2.2",
@@ -66,7 +63,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
-    "@babel/preset-env": "^7.29.2",
+    "@babel/preset-env": "^7.29.5",
     "@babel/preset-react": "^7.28.5",
     "@babel/preset-typescript": "^7.28.5",
     "@react-stately/radio": "^3.12.0",
@@ -108,11 +105,8 @@
     "vite": "^8.0.9",
     "vitest": "4.1.5"
   },
-  "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
+  "engines": {
+    "node": ">=24.13.0"
   },
   "msw": {
     "workerDirectory": "public"

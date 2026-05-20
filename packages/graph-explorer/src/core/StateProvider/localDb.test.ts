@@ -235,30 +235,30 @@ test("Remove prefix from restored entries", async () => {
 });
 
 /** Fake database using a map as the data source. */
-export function createFakeLocalDb(
+function createFakeLocalDb(
   initialState?: Iterable<readonly [string, any]> | null,
 ): LocalDb {
   const map = new Map<string, any>(initialState);
 
   return {
-    // eslint-disable-next-line @typescript-eslint/require-await
+    // oxlint-disable-next-line @typescript-eslint/require-await
     async getItem<T>(key: string) {
       return map.get(key) as T;
     },
-    // eslint-disable-next-line @typescript-eslint/require-await
+    // oxlint-disable-next-line @typescript-eslint/require-await
     async setItem<T>(key: string, value: T) {
       map.set(key, value);
       return value;
     },
-    // eslint-disable-next-line @typescript-eslint/require-await
+    // oxlint-disable-next-line @typescript-eslint/require-await
     async removeItem(key) {
       map.delete(key);
     },
-    // eslint-disable-next-line @typescript-eslint/require-await
+    // oxlint-disable-next-line @typescript-eslint/require-await
     async clear() {
       map.clear();
     },
-    // eslint-disable-next-line @typescript-eslint/require-await
+    // oxlint-disable-next-line @typescript-eslint/require-await
     async keys() {
       return [...map.keys()];
     },

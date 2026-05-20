@@ -1,6 +1,4 @@
 // @vitest-environment happy-dom
-import type { ExtractAtomValue } from "jotai";
-
 import { act } from "react";
 
 import {
@@ -9,17 +7,22 @@ import {
   renderHookWithState,
 } from "@/utils/testing";
 
-import { userLayoutAtom } from "./storageAtoms";
-import { useSidebar, useViewToggles } from "./userLayout";
+import type { UserLayout } from "./userLayoutDefaults";
 
-type UserLayout = ExtractAtomValue<typeof userLayoutAtom>;
+import { userLayoutAtom } from "./storageAtoms";
+import {
+  useSidebar,
+  useSidebarSize,
+  useTableViewSize,
+  useViewToggles,
+} from "./userLayout";
 
 describe("useViewToggles", () => {
   it("should default to both views open", () => {
     const { result } = renderHookWithState(() => useViewToggles());
 
-    expect(result.current.isGraphVisible).toBeTruthy();
-    expect(result.current.isTableVisible).toBeTruthy();
+    expect(result.current.isGraphVisible).toBe(true);
+    expect(result.current.isTableVisible).toBe(true);
   });
 
   it("should toggle graph view", () => {
@@ -27,13 +30,13 @@ describe("useViewToggles", () => {
 
     act(() => result.current.toggleGraphVisibility());
 
-    expect(result.current.isGraphVisible).toBeFalsy();
-    expect(result.current.isTableVisible).toBeTruthy();
+    expect(result.current.isGraphVisible).toBe(false);
+    expect(result.current.isTableVisible).toBe(true);
 
     act(() => result.current.toggleGraphVisibility());
 
-    expect(result.current.isGraphVisible).toBeTruthy();
-    expect(result.current.isTableVisible).toBeTruthy();
+    expect(result.current.isGraphVisible).toBe(true);
+    expect(result.current.isTableVisible).toBe(true);
   });
 
   it("should toggle table view", () => {
@@ -41,13 +44,13 @@ describe("useViewToggles", () => {
 
     act(() => result.current.toggleTableVisibility());
 
-    expect(result.current.isGraphVisible).toBeTruthy();
-    expect(result.current.isTableVisible).toBeFalsy();
+    expect(result.current.isGraphVisible).toBe(true);
+    expect(result.current.isTableVisible).toBe(false);
 
     act(() => result.current.toggleTableVisibility());
 
-    expect(result.current.isGraphVisible).toBeTruthy();
-    expect(result.current.isTableVisible).toBeTruthy();
+    expect(result.current.isGraphVisible).toBe(true);
+    expect(result.current.isTableVisible).toBe(true);
   });
 });
 
@@ -58,7 +61,7 @@ describe("useSidebar", () => {
     expect(result.current.isSidebarOpen).toBe(true);
   });
 
-  it("should change to the give sidebar item", () => {
+  it("should change to the given sidebar item", () => {
     const { result } = renderHookWithJotai(() => useSidebar());
 
     act(() => result.current.toggleSidebar("details"));
@@ -132,5 +135,56 @@ describe("useSidebar", () => {
     expect(result.current.isSidebarOpen).toBe(false);
     expect(result.current.activeSidebarItem).toBeNull();
     expect(result.current.shouldShowNamespaces).toBe(false);
+  });
+});
+
+describe("useTableViewSize", () => {
+  it("should default to DEFAULT_TABLE_VIEW_HEIGHT", () => {
+    const { result } = renderHookWithState(() => useTableViewSize());
+
+    expect(result.current[0]).toBe(300);
+  });
+
+  it("should return 100% when graph viewer is hidden", () => {
+    const { result } = renderHookWithState(() => ({
+      tableView: useTableViewSize(),
+      toggles: useViewToggles(),
+    }));
+
+    act(() => result.current.toggles.toggleGraphVisibility());
+
+    expect(result.current.tableView[0]).toBe("100%");
+  });
+
+  it("should adjust height by delta", () => {
+    const { result } = renderHookWithState(() => useTableViewSize());
+
+    act(() => result.current[1](50));
+
+    expect(result.current[0]).toBe(350);
+
+    act(() => result.current[1](-100));
+
+    expect(result.current[0]).toBe(250);
+  });
+});
+
+describe("useSidebarSize", () => {
+  it("should default to 400", () => {
+    const { result } = renderHookWithState(() => useSidebarSize());
+
+    expect(result.current[0]).toBe(400);
+  });
+
+  it("should adjust width by delta", () => {
+    const { result } = renderHookWithState(() => useSidebarSize());
+
+    act(() => result.current[1](100));
+
+    expect(result.current[0]).toBe(500);
+
+    act(() => result.current[1](-200));
+
+    expect(result.current[0]).toBe(300);
   });
 });

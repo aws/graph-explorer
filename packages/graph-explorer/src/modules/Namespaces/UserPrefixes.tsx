@@ -176,7 +176,7 @@ function useDeletePrefixCallback(prefix: string) {
           const activeSchema = updatedSchemas.get(activeConfigId);
 
           updatedSchemas.set(activeConfigId, {
-            ...(activeSchema || {}),
+            ...activeSchema,
             vertices: activeSchema?.vertices || [],
             edges: activeSchema?.edges || [],
             prefixes: (activeSchema?.prefixes || []).filter(
@@ -227,7 +227,7 @@ function EditPrefixModal({
           const activeSchema = updatedSchemas.get(configId);
 
           updatedSchemas.set(configId, {
-            ...(activeSchema || {}),
+            ...activeSchema,
             vertices: activeSchema?.vertices || [],
             edges: activeSchema?.edges || [],
             prefixes: [

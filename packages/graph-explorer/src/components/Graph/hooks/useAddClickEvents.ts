@@ -117,7 +117,9 @@ const useAddClickEvents = ({
 
     return () => {
       // Clear the timeout if it exists
-      tappedTimeout && clearTimeout(tappedTimeout);
+      if (tappedTimeout) {
+        clearTimeout(tappedTimeout);
+      }
       cy.off("tap", handleDoubleTap);
     };
   }, [cy]);
@@ -245,9 +247,12 @@ const useAddClickEvents = ({
     cy.on("mouseout", "edge", handleOnEdgeMouseOut);
 
     // Group events
-    onGroupClick && cy.on("tap", "node[?__isGroupNode]", handleOnGroupClick);
-    onGroupDoubleClick &&
+    if (onGroupClick) {
+      cy.on("tap", "node[?__isGroupNode]", handleOnGroupClick);
+    }
+    if (onGroupDoubleClick) {
       cy.on("doubleTap", "node[?__isGroupNode]", handleOnGroupDoubleClick);
+    }
     return () => {
       // Graph events
       cy.off("tap", handleOnGraphClick);
@@ -269,9 +274,12 @@ const useAddClickEvents = ({
       cy.off("mouseout", "edge", handleOnGroupClick);
 
       // Group events
-      onGroupClick && cy.off("tap", "node[?__isGroupNode]", handleOnGroupClick);
-      onGroupDoubleClick &&
+      if (onGroupClick) {
+        cy.off("tap", "node[?__isGroupNode]", handleOnGroupClick);
+      }
+      if (onGroupDoubleClick) {
         cy.off("doubleTap", "node[?__isGroupNode]", handleOnGroupDoubleClick);
+      }
     };
   }, [
     cy,

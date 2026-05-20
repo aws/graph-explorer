@@ -37,7 +37,7 @@ export type SelectFieldProps = {
   ComponentPropsWithRef<typeof SelectTrigger>;
 
 function SelectField({
-  options = [],
+  options,
   value,
   onValueChange,
   label,

@@ -28,9 +28,11 @@ export function TextFilter<T extends object>({
           onChange={e => {
             // do not use value || undefined because
             // if the user types zero, it clears the filter too
-            e.target.value !== "" && e.target.value !== undefined
-              ? column.setFilter(e.target.value)
-              : column.setFilter(undefined);
+            if (e.target.value !== "" && e.target.value !== undefined) {
+              column.setFilter(e.target.value);
+            } else {
+              column.setFilter(undefined);
+            }
           }}
         />
         <div className="absolute inset-y-0 left-0 flex w-6 items-center pl-2">

@@ -69,11 +69,9 @@ describe("DefaultStylingSchema", () => {
       },
     };
     const result = DefaultStylingSchema.safeParse(data);
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.vertices?.User.backgroundOpacity).toBe(0);
-      expect(result.data.vertices?.User.borderWidth).toBe(0);
-    }
+    assert(result.success);
+    expect(result.data.vertices?.User.backgroundOpacity).toBe(0);
+    expect(result.data.vertices?.User.borderWidth).toBe(0);
   });
 
   it("should reject unknown top-level properties", () => {

@@ -1,6 +1,6 @@
 # Development
 
-This developer README details instructions for building on top of the graph-explorer application, or for configuring advanced settings, like using environment variables to switch to HTTP.
+Build instructions and development setup for contributing to Graph Explorer. For system design and key libraries, see [Architecture](./architecture.md).
 
 ## Requirements
 
@@ -27,11 +27,6 @@ corepack enable
 
 If `corepack` is not found, install it first with `npm install -g corepack@latest`.
 
-## Supported Graph Data Models and Query Languages
-
-- Labelled Property Graph (PG) using Gremlin or openCypher
-- Resource Description Framework (RDF) using SPARQL
-
 ## Run in development mode
 
 Install any missing or updated dependencies.
@@ -56,21 +51,14 @@ At this point, Graph Explorer should be successfully running and it is asking yo
 
 ## Build for production
 
-Building Graph Explorer is simple.
-
 ```bash
 pnpm install
 pnpm build
 ```
 
-This will run the build across the both the client code and the proxy server code. You'll end up with two `dist` folders:
+This builds the React client into static assets at `packages/graph-explorer/dist/`. The proxy server has no build step — Node runs its TypeScript source directly using [native type stripping](https://nodejs.org/en/learn/typescript/run-natively#native-type-stripping).
 
-```
-{ROOT_PATH}/packages/graph-explorer/dist/
-{ROOT_PATH}/packages/graph-explorer-proxy-server/dist/
-```
-
-The recommended way to serve Graph Explorer is using the proxy server.
+Start the proxy server, which also serves the built client assets:
 
 ```bash
 pnpm start

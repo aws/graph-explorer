@@ -7,7 +7,6 @@ Deploy Graph Explorer locally using the official Docker image from Amazon's ECR 
 You can find the latest version of the image on
 [Amazon's ECR Public Registry](https://gallery.ecr.aws/neptune/graph-explorer).
 
-<!-- prettier-ignore -->
 > [!NOTE]
 >
 > Make sure to use the version of the image that does not include `sagemaker` in the tag.
@@ -50,4 +49,4 @@ You can find the latest version of the image on
    ```
 
 5. You will receive a warning as the SSL certificate used is self-signed. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See the [HTTPS Connections](./troubleshooting.md#https-connections) section.
-6. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See below description on Connections UI to configure your first connection to Amazon Neptune.
+6. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See [Connections](../features/connections.md) for details on configuring your first connection.

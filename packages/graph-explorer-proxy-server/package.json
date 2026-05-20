@@ -1,17 +1,17 @@
 {
   "name": "graph-explorer-proxy-server",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Server to facilitate communication between the browser and the supported graph database.",
+  "license": "Apache-2.0",
+  "author": "amazon",
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
     "dev": "node --watch src/node-server.ts",
     "start": "NODE_ENV=production node src/node-server.ts"
   },
-  "author": "amazon",
-  "license": "Apache-2.0",
   "dependencies": {
-    "@aws-sdk/credential-providers": "^3.1034.0",
+    "@aws-sdk/credential-providers": "^3.1045.0",
     "@graph-explorer/shared": "workspace:*",
     "aws4": "^1.13.2",
     "body-parser": "^2.2.2",
