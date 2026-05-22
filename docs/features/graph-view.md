@@ -80,7 +80,7 @@ Each node type can be customized in a variety of ways.
 - **Display label** allows you to change how the node label (or rdf:type) is represented
 - **Display name attribute** allows you to choose the attribute on the node that is used to uniquely label the node in the graph visualization and search
 - **Display description attribute** allows you to choose the attribute on the node that is used to describe the node in search
-- **Custom symbol** can be uploaded in the form of an SVG icon
+- **Icon** can be picked from the built-in Lucide library via the **Browse** button, or uploaded as a custom SVG/raster image. Picked Lucide icons are stored as `lucide:<name>` references and resolved at render time, so the picker highlights the currently selected icon when you reopen the dialog.
 - **Colors and borders** can be customized to visually distinguish from other node types
 
 ### Edge Styling Panel

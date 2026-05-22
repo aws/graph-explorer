@@ -40,7 +40,8 @@
   },
   "lint-staged": {
     "!(**/*.{js,ts,tsx})": "oxfmt --no-error-on-unmatched-pattern",
-    "**/*.{js,ts,tsx}": [
+    "**/*.config.{js,ts,mjs}": "oxfmt",
+    "packages/**/*.{js,ts,tsx}": [
       "oxlint --fix",
       "oxfmt"
     ]

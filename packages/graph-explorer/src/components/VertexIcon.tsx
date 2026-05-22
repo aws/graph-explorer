@@ -8,6 +8,7 @@ import {
   type VertexType,
 } from "@/core";
 import { cn } from "@/utils";
+import { useResolvedIconUrl } from "@/utils/useResolvedIconUrl";
 
 import { SearchResultSymbol } from "./SearchResult";
 
@@ -19,11 +20,12 @@ interface Props {
 
 function VertexIcon({ vertexStyle, className, alt }: Props) {
   const altText = alt ?? `${vertexStyle.displayLabel ?? vertexStyle.type} icon`;
+  const resolvedSrc = useResolvedIconUrl(vertexStyle.iconUrl);
 
   if (vertexStyle.iconImageType === "image/svg+xml") {
     return (
       <SVG
-        src={vertexStyle.iconUrl}
+        src={resolvedSrc}
         className={cn("size-6 shrink-0", className)}
         style={{ color: vertexStyle.color }}
         title={altText}
@@ -33,7 +35,7 @@ function VertexIcon({ vertexStyle, className, alt }: Props) {
 
   return (
     <img
-      src={vertexStyle.iconUrl}
+      src={resolvedSrc}
       alt={altText}
       className={cn("size-6 shrink-0", className)}
       style={{ color: vertexStyle.color }}

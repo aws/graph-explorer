@@ -166,6 +166,39 @@ describe("renderNode", () => {
       ),
     );
   });
+
+  it("should resolve lucide:<name> iconUrl from the icon library without fetching", async () => {
+    const node: VertexIconConfig = {
+      type: createRandomVertexType(),
+      color: createRandomColor(),
+      iconUrl: "lucide:user",
+      iconImageType: "image/svg+xml",
+    };
+
+    const result = await renderNode(client, node);
+
+    expect(fetchMock).not.toBeCalled();
+    expect(result).toBeDefined();
+    expect(result?.slice(0, 24)).toEqual("data:image/svg+xml;utf8,");
+    const decodedSvg = decodeSvg(result);
+    expect(decodedSvg).toContain("<svg");
+    expect(decodedSvg).toContain(node.color);
+  });
+
+  it("should return null and log when lucide icon name is unknown", async () => {
+    const node: VertexIconConfig = {
+      type: createRandomVertexType(),
+      color: createRandomColor(),
+      iconUrl: "lucide:not-a-real-icon-name-xyz",
+      iconImageType: "image/svg+xml",
+    };
+
+    const result = await renderNode(client, node);
+
+    expect(fetchMock).not.toBeCalled();
+    expect(result).toBeNull();
+    expect(vi.mocked(logger.error)).toHaveBeenCalledOnce();
+  });
 });
 
 /** Wraps SVG string in another SVG element matching what is expected.  */

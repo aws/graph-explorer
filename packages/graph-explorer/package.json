@@ -107,7 +107,6 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "eslint --fix",
       "oxfmt"
     ]
   },
