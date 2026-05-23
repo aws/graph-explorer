@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 import type { GraphProps } from "@/components/Graph";
 
 import { createEdgeType, createVertexType } from "@/core";
+import { LABELS } from "@/utils";
 import {
   createRandomEdgeTypeConfig,
   createRandomVertexTypeConfig,
@@ -64,6 +65,24 @@ describe("useGraphStyles", () => {
         "border-color": "#000000",
         "border-width": 2,
         "border-style": "solid",
+        shape: "ellipse",
+        width: 24,
+        height: 24,
+      });
+    });
+  });
+
+  it("should generate a default style for vertices without a schema type", async () => {
+    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+
+    await waitFor(() => {
+      const vertexStyle = getStyles(result)[
+        `node[type="${LABELS.MISSING_TYPE}"]`
+      ] as any;
+      expect(vertexStyle).toMatchObject({
+        "background-image": "data:image/svg+xml;utf8,<svg></svg>",
+        "background-color": "#128EE5",
+        "background-opacity": 0.4,
         shape: "ellipse",
         width: 24,
         height: 24,

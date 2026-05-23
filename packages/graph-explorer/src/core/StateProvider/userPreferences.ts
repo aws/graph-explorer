@@ -4,11 +4,10 @@ import { atom, useAtomValue, useSetAtom } from "jotai";
 import { atomFamily } from "jotai-family";
 import { useDeferredValue } from "react";
 
-import { RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
+import { LABELS, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
 import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 
-import type { EdgeType, VertexType } from "../entities";
-
+import { createVertexType, type EdgeType, type VertexType } from "../entities";
 import { useActiveSchema } from "./schema";
 import { userStylingAtom } from "./storageAtoms";
 
@@ -216,7 +215,14 @@ export function createEdgePreference(
 export function useAllVertexPreferences(): VertexPreferences[] {
   const prefs = useAtomValue(vertexPreferencesAtom);
   const { vertices: allSchemas } = useActiveSchema();
-  return allSchemas.map(({ type }) => prefs.get(type));
+  const vertexTypes = allSchemas.map(({ type }) => type);
+  const missingType = createVertexType(LABELS.MISSING_TYPE);
+
+  if (!vertexTypes.includes(missingType)) {
+    vertexTypes.push(missingType);
+  }
+
+  return vertexTypes.map(type => prefs.get(type));
 }
 
 /** Returns an array of edge preferences based on the known edge types in the schema. */
