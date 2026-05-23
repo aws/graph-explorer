@@ -46,6 +46,9 @@ import { cn } from "@/utils";
 
 import { useGraphSelection } from "../useGraphSelection";
 
+import { useRenderedVertices, useRenderedEdges } from "@/core";
+import { getVertexIdFromRenderedVertexId, getEdgeIdFromRenderedEdgeId } from "@/core";
+
 type ContextMenuProps = {
   affectedNodesIds: VertexId[];
   affectedEdgesIds: EdgeId[];
@@ -290,6 +293,9 @@ function MultipleEntitiesMenu({
 }
 
 function NoTargetMenu() {
+  const vertices = useRenderedVertices();
+  const edges = useRenderedEdges();
+
   const {
     onFitAllToCanvas,
     onCenterGraph,
@@ -297,7 +303,41 @@ function NoTargetMenu() {
     onZoomIn,
     onZoomOut,
   } = useGraphGlobalActions();
+
   const clearGraph = useClearGraph();
+  const { replaceGraphSelection } = useGraphSelection();
+
+  // 🔹 Select all nodes
+  const handleSelectAllNodes = () => {
+    replaceGraphSelection({
+      vertices: vertices.map(v =>
+        getVertexIdFromRenderedVertexId(v.data.id),
+      ),
+      edges: [],
+    });
+  };
+
+  // 🔹 Select all edges
+  const handleSelectAllEdges = () => {
+    replaceGraphSelection({
+      vertices: [],
+      edges: edges.map(e =>
+        getEdgeIdFromRenderedEdgeId(e.data.id),
+      ),
+    });
+  };
+
+  // 🔹 Select all nodes + edges
+  const handleSelectAll = () => {
+    replaceGraphSelection({
+      vertices: vertices.map(v =>
+        getVertexIdFromRenderedVertexId(v.data.id),
+      ),
+      edges: edges.map(e =>
+        getEdgeIdFromRenderedEdgeId(e.data.id),
+      ),
+    });
+  };
 
   return (
     <ContextMenuContent>
@@ -305,24 +345,48 @@ function NoTargetMenu() {
         <FullscreenIcon />
         Fit to frame
       </ContextMenuItem>
+
       <ContextMenuItem onClick={onCenterGraph}>
         <CenterGraphIcon />
         Center
       </ContextMenuItem>
+
       <ContextMenuItem onClick={onSaveScreenshot}>
         <ImageDownIcon />
         Download screenshot
       </ContextMenuItem>
+
       <Divider />
+
       <ContextMenuItem onClick={onZoomIn}>
         <ZoomInIcon />
         Zoom in
       </ContextMenuItem>
+
       <ContextMenuItem onClick={onZoomOut}>
         <ZoomOutIcon />
         Zoom out
       </ContextMenuItem>
+
       <Divider />
+
+      <ContextMenuItem onClick={handleSelectAllNodes}>
+        <GraphIcon />
+        Select all nodes
+      </ContextMenuItem>
+
+      <ContextMenuItem onClick={handleSelectAllEdges}>
+        <EdgeIcon />
+        Select all edges
+      </ContextMenuItem>
+
+      <ContextMenuItem onClick={handleSelectAll}>
+        <GraphIcon />
+        Select all
+      </ContextMenuItem>
+
+      <Divider />
+
       <ContextMenuItem onClick={clearGraph}>
         <CircleSlash2 color="red" />
         Clear canvas
