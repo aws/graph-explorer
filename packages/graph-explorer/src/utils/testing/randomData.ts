@@ -172,10 +172,12 @@ export function createRandomVertexTypeConfigForRdf(): VertexTypeConfig {
   };
 }
 
+import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
+
 export function createRandomPrefixTypeConfig(): PrefixTypeConfig {
   return {
-    prefix: createRandomName("prefix"),
-    uri: createRandomUrlString(),
+    prefix: createRandomName("prefix") as RdfPrefix,
+    uri: createRandomUrlString() as IriNamespace,
   };
 }
 
@@ -213,7 +215,6 @@ export function createRandomSchema(): SchemaStorageModel {
       .reduce((prev, current) => current + prev, 0),
     lastSyncFail: false,
     lastUpdate: new Date(),
-    triedToSync: true,
   };
   return schema;
 }
@@ -337,7 +338,7 @@ export function createTestableVertex() {
           return createInternal(testable);
         }
         return createInternal({
-          id: createRandomUrlString() as VertexId,
+          id: createRandomUrlString(),
           types: createArray(3, createRandomUrlString),
           attributes: createRecord(3, createRandomEntityAttributeForRdf),
           isBlankNode: options?.isBlankNode ?? false,

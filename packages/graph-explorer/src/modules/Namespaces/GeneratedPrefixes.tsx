@@ -57,13 +57,7 @@ function Layout(props: ComponentPropsWithoutRef<"div">) {
 function useGeneratedPrefixes() {
   const prefixes = usePrefixes();
 
-  return prefixes
-    .filter(
-      prefixConfig =>
-        prefixConfig.__inferred === true &&
-        prefixConfig.__matches &&
-        prefixConfig.__matches.size > 0,
-    )
+  return prefixes.inferredPrefixes
     .map(mapToPrefixData)
     .toSorted((a, b) => a.title.localeCompare(b.title));
 }

@@ -1,4 +1,7 @@
+// @vitest-environment happy-dom
 import { vi } from "vitest";
+
+import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import {
   activeConfigurationAtom,
@@ -21,8 +24,8 @@ function initializeConfigWithPrefix(store: AppStore) {
   config.connection!.queryEngine = "sparql";
   schema.prefixes = [
     {
-      prefix: "rdf",
-      uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+      prefix: "rdf" as RdfPrefix,
+      uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#" as IriNamespace,
     },
   ];
   store.set(configurationAtom, new Map([[config.id, config]]));

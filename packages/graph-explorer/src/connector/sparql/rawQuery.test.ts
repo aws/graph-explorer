@@ -221,6 +221,35 @@ describe("rawQuery", () => {
       expect(result.rawResponse).toEqual(mockResponse);
     });
 
+    it("should treat SELECT queries with exactly s/p/o variables as CONSTRUCT", async () => {
+      const vertex1 = createTestableVertex().withRdfValues();
+      const vertex2 = createTestableVertex().withRdfValues();
+
+      const bindings = createQuadBindingsForEntities([vertex1, vertex2], []);
+      const shorthandBindings = bindings.map(b => ({
+        s: b.subject,
+        p: b.predicate,
+        o: b.object,
+      }));
+
+      const mockResponse = {
+        head: { vars: ["s", "p", "o"] },
+        results: { bindings: shorthandBindings },
+      };
+
+      const mockFetch = vi.fn().mockResolvedValue(mockResponse);
+      const result = await rawQuery(mockFetch, {
+        query: "SELECT ?s ?p ?o WHERE { ?s ?p ?o }",
+      });
+
+      // It should map them to fragments as if it was a CONSTRUCT response
+      expect(result.results).toStrictEqual([
+        vertex1.asFragmentResult(),
+        vertex2.asFragmentResult(),
+      ]);
+      expect(result.rawResponse).toEqual(mockResponse);
+    });
+
     it("should not treat SELECT queries with subject/predicate/object variables as CONSTRUCT", async () => {
       const mockResponse = {
         head: { vars: ["subject", "predicate", "object", "extra"] },
@@ -256,6 +285,44 @@ describe("rawQuery", () => {
             }),
             createResultScalar({ name: "?object", value: "John Doe" }),
             createResultScalar({ name: "?extra", value: "additional data" }),
+          ],
+        }),
+      ]);
+      expect(result.rawResponse).toEqual(mockResponse);
+    });
+
+    it("should not treat SELECT queries with partial shorthand variables (e.g., s/predicate/object) as CONSTRUCT", async () => {
+      const mockResponse = {
+        head: { vars: ["s", "predicate", "object"] },
+        results: {
+          bindings: [
+            {
+              s: createUriValue("http://example.org/person1"),
+              predicate: createUriValue("http://example.org/name"),
+              object: createLiteralValue("John Doe"),
+            },
+          ],
+        },
+      };
+
+      const mockFetch = vi.fn().mockResolvedValue(mockResponse);
+      const result = await rawQuery(mockFetch, {
+        query: "SELECT ?s ?predicate ?object WHERE { ?s ?predicate ?object }",
+      });
+
+      // Should be treated as SELECT query (bundle with 3 scalars), not CONSTRUCT
+      expect(result.results).toStrictEqual([
+        createResultBundle({
+          values: [
+            createResultScalar({
+              name: "?s",
+              value: "http://example.org/person1",
+            }),
+            createResultScalar({
+              name: "?predicate",
+              value: "http://example.org/name",
+            }),
+            createResultScalar({ name: "?object", value: "John Doe" }),
           ],
         }),
       ]);

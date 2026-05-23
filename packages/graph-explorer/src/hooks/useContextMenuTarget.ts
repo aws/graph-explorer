@@ -79,10 +79,8 @@ export function useContextMenuTarget({
 
   // Check if affected is within selection (short-circuits on first match)
   const hasAffectedInSelection =
-    (affectedVertexIds.length > 0 &&
-      affectedVertexIds.some(id => graphSelection.isVertexSelected(id))) ||
-    (affectedEdgeIds.length > 0 &&
-      affectedEdgeIds.some(id => graphSelection.isEdgeSelected(id)));
+    affectedVertexIds.some(id => graphSelection.isVertexSelected(id)) ||
+    affectedEdgeIds.some(id => graphSelection.isEdgeSelected(id));
 
   // Use selection when affected is within it
   if (hasAffectedInSelection) {

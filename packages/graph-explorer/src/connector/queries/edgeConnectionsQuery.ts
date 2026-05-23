@@ -3,35 +3,50 @@ import { atom } from "jotai";
 
 import {
   activeConfigurationAtom,
+  activeSchemaAtom,
   type EdgeConnection,
-  type EdgeType,
-  maybeActiveSchemaAtom,
   schemaAtom,
+  type SchemaStorageModel,
 } from "@/core";
 import { logger } from "@/utils";
 
 import { getExplorer, getStore } from "./helpers";
-import { schemaSyncQuery } from "./schemaSyncQuery";
+import { schemaSyncQueryKey } from "./schemaSyncQuery";
 
 /**
- * Creates query options for fetching edge connections from the database.
+ * Fetches edge connections for the edge types in the active schema and persists
+ * them to the local cache on success.
  *
- * Updates the schema store with discovered edge connections on success,
- * or marks the schema as failed on error.
+ * Uses `staleTime: Infinity` so the query only runs when no cached data exists
+ * for the given set of edge types, or when manually triggered via `refetch()`.
  *
- * @param edgeTypes - Edge types to discover connections for. Empty array returns early without querying.
+ * On failure, persists `lastEdgeConnectionSyncFail` so the UI can show the
+ * failure after a browser refresh and automatic retry is suppressed.
+ *
+ * @param activeSchema - The active schema to derive edge types from. `undefined`
+ *   disables the query.
  */
-export function edgeConnectionsQuery(edgeTypes: EdgeType[]) {
+export function edgeConnectionsQuery(
+  activeSchema: SchemaStorageModel | undefined,
+) {
   // Sort edge types to keep the order consistent over time to increase the chance of hitting cache
-  const sortedEdgeTypes = edgeTypes.toSorted();
+  const sortedEdgeTypes = activeSchema?.edges.map(e => e.type).toSorted() ?? [];
 
   return queryOptions({
     queryKey: ["schema", "edgeConnections", sortedEdgeTypes],
-    queryFn: async ({ signal, client, meta }) => {
+    staleTime: Infinity,
+    retryOnMount: false,
+    enabled: activeSchema != null && !activeSchema.lastEdgeConnectionSyncFail,
+    initialData: activeSchema?.edgeConnections,
+    queryFn: async ({ signal, meta, client }) => {
       const explorer = getExplorer(meta);
       const store = getStore(meta);
 
       if (sortedEdgeTypes.length === 0) {
+        logger.log(
+          "Edge type list is empty, so writing empty edge connections list",
+        );
+        store.set(setEdgeConnectionsAtom, []);
         return [];
       }
 
@@ -49,27 +64,19 @@ export function edgeConnectionsQuery(edgeTypes: EdgeType[]) {
         );
         store.set(setEdgeConnectionsAtom, results.edgeConnections);
 
-        const updatedSchema = store.get(maybeActiveSchemaAtom);
-        logger.debug(
-          "Updating schema in query after edge connection discovery success",
-          updatedSchema,
-        );
-        client.setQueryData(schemaSyncQuery().queryKey, updatedSchema);
+        // Update the cached schema for the schema sync query
+        const newSchema = store.get(activeSchemaAtom);
+        const connectionId = store.get(activeConfigurationAtom);
+        client.setQueryData(schemaSyncQueryKey(connectionId), newSchema);
 
         return results.edgeConnections;
-      } catch (err: unknown) {
-        logger.warn(
-          "Failed to discover edge connections. Storing failure in schema cache.",
-          err,
-        );
-        store.set(setEdgeDiscoveryFailureAtom);
-        const updatedSchema = store.get(maybeActiveSchemaAtom);
-        logger.debug(
-          "Updating schema in query after edge connection discovery failure",
-          updatedSchema,
-        );
-        client.setQueryData(schemaSyncQuery().queryKey, updatedSchema);
-        throw err;
+      } catch (error) {
+        if (signal.aborted) {
+          throw error;
+        }
+        logger.warn("Failed to discover edge connections", error);
+        store.set(setEdgeConnectionSyncFailedAtom);
+        throw error;
       }
     },
   });
@@ -92,19 +99,15 @@ const setEdgeConnectionsAtom = atom(
       updated.set(activeConfigId, {
         ...activeSchema,
         edgeConnections,
-        // Clear any previous failures
-        edgeConnectionDiscoveryFailed: false,
+        lastEdgeConnectionSyncFail: false,
       });
       return updated;
     });
   },
 );
 
-/**
- * Setter-only atom that marks edge connection discovery as failed.
- * Preserves existing schema data while setting the failure flag.
- */
-const setEdgeDiscoveryFailureAtom = atom(null, (get, set) => {
+/** Setter-only atom that marks edge connection sync as failed while preserving existing data. */
+const setEdgeConnectionSyncFailedAtom = atom(null, (get, set) => {
   const id = get(activeConfigurationAtom);
   if (!id) {
     logger.warn("Cannot update schema: no active configuration");
@@ -112,17 +115,14 @@ const setEdgeDiscoveryFailureAtom = atom(null, (get, set) => {
   }
 
   set(schemaAtom, prev => {
+    const existing = prev.get(id);
     const updated = new Map(prev);
-    const existingSchema = updated.get(id);
-    const updatedSchema = {
-      ...existingSchema,
-      vertices: existingSchema?.vertices ?? [],
-      edges: existingSchema?.edges ?? [],
-      edgeConnections: existingSchema?.edgeConnections ?? [],
-      edgeConnectionDiscoveryFailed: true,
-    };
-    logger.debug("Setting edge discovery failure to the schema", updatedSchema);
-    updated.set(id, updatedSchema);
+    updated.set(id, {
+      ...existing,
+      vertices: existing?.vertices ?? [],
+      edges: existing?.edges ?? [],
+      lastEdgeConnectionSyncFail: true,
+    });
     return updated;
   });
 });

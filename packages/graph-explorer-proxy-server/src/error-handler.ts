@@ -1,13 +1,13 @@
 import type { NextFunction, Request, Response } from "express";
 
-import { getRequestLoggerPrefix, logger } from "./logging.js";
+import { RequestValidationError } from "./errors.ts";
+import { type AppLogger, getRequestLoggerPrefix } from "./logging.ts";
 
 /**
  * Global error handler
  * @param error The error to handle.
  */
-export function handleError(error: unknown) {
-  // Log the error itself
+export function handleError(error: unknown, logger: AppLogger) {
   logger.error(error);
 }
 
@@ -30,6 +30,7 @@ export function errorHandlingMiddleware() {
     response: Response,
     _next: NextFunction,
   ) => {
+    const logger = request.app.locals.logger;
     const errorInfo = extractErrorInfo(error);
 
     response.status(errorInfo.status);
@@ -49,27 +50,34 @@ export function errorHandlingMiddleware() {
         .join(""),
     );
 
-    handleError(error);
+    handleError(error, logger);
   };
 }
 
 function extractErrorInfo(error: unknown) {
-  const statusCode = getStatusFromError(error);
   const defaultErrorMessage = "Internal Server Error";
+
+  if (error instanceof RequestValidationError) {
+    return {
+      status: 400,
+      message: error.message,
+    };
+  }
 
   if (error instanceof Error) {
     return {
+      // oxlint-disable-next-line typescript/no-misused-spread -- Intentionally extracting Error properties for serialization
       ...error,
-      status: statusCode,
+      status: getStatusFromError(error),
       message: error.message || defaultErrorMessage,
     };
-  } else {
-    return {
-      status: statusCode,
-      message: defaultErrorMessage,
-      name: "Error",
-    };
   }
+
+  return {
+    status: 500,
+    message: defaultErrorMessage,
+    name: "Error",
+  };
 }
 
 function getStatusFromError(error: unknown) {

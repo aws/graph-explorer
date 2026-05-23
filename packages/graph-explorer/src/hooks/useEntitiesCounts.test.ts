@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { createRandomInteger } from "@shared/utils/testing";
 import { vi } from "vitest";
 
@@ -36,7 +37,6 @@ describe("useEntitiesCounts", () => {
 
   it("should return null when schema has not been synced", () => {
     schema.lastUpdate = undefined;
-    schema.triedToSync = false;
     schema.lastSyncFail = false;
 
     const { result } = renderUseEntitiesHook(config, schema);
@@ -47,7 +47,6 @@ describe("useEntitiesCounts", () => {
 
   it("should return null when schema has tried to sync", () => {
     schema.lastUpdate = undefined;
-    schema.triedToSync = true;
     schema.lastSyncFail = true;
 
     const { result } = renderUseEntitiesHook(config, schema);

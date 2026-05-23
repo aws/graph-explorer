@@ -3,6 +3,7 @@ import { Fragment } from "react/jsx-runtime";
 
 import {
   Divider,
+  NoEdgeTypesEmptyState,
   Panel,
   PanelContent,
   PanelHeader,
@@ -29,20 +30,24 @@ function EdgesStyling() {
         </PanelHeaderActions>
       </PanelHeader>
       <PanelContent className="flex flex-col gap-2">
-        <Virtuoso
-          className="h-full grow"
-          data={etConfigs}
-          itemContent={(index, etConfig) => (
-            <Fragment key={etConfig.type}>
-              {index !== 0 ? <Divider /> : null}
+        {etConfigs.length === 0 ? (
+          <NoEdgeTypesEmptyState />
+        ) : (
+          <Virtuoso
+            className="h-full grow"
+            data={etConfigs}
+            itemContent={(index, etConfig) => (
+              <Fragment key={etConfig.type}>
+                {index !== 0 ? <Divider /> : null}
 
-              <SingleEdgeStyling
-                edgeType={etConfig.type}
-                className="px-3 pt-2 pb-3"
-              />
-            </Fragment>
-          )}
-        />
+                <SingleEdgeStyling
+                  edgeType={etConfig.type}
+                  className="px-3 pt-2 pb-3"
+                />
+              </Fragment>
+            )}
+          />
+        )}
       </PanelContent>
     </Panel>
   );

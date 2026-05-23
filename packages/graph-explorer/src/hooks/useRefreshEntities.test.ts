@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { useQueryClient } from "@tanstack/react-query";
 import { act, waitFor } from "@testing-library/react";
 

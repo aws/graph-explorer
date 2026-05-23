@@ -1,7 +1,9 @@
+// @vitest-environment happy-dom
 import * as fileSaver from "file-saver";
 import { describe, expect, it, vi } from "vitest";
 
 import type { ConfigurationContextProps } from "@/core";
+import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { createEdgeType, createVertexType } from "@/core";
 
@@ -122,7 +124,6 @@ describe("saveConfigurationToFile", () => {
         totalEdges: 50,
         lastUpdate: new Date("2024-01-01T00:00:00Z"),
         lastSyncFail: false,
-        triedToSync: true,
       },
       totalVertices: 100,
       vertexTypes: [createVertexType("Person"), createVertexType("Company")],
@@ -154,7 +155,6 @@ describe("saveConfigurationToFile", () => {
         totalEdges: 0,
         lastUpdate,
         lastSyncFail: false,
-        triedToSync: true,
       },
       totalVertices: 0,
       vertexTypes: [],
@@ -171,7 +171,7 @@ describe("saveConfigurationToFile", () => {
     expect(parsed.schema.lastUpdate).toBe("2024-01-01T12:30:00.000Z");
   });
 
-  it("should convert prefix __matches Set to Array", async () => {
+  it("should export prefixes without internal properties", async () => {
     const config: ConfigurationContextProps = {
       ...createRandomRawConfiguration(),
       schema: {
@@ -179,21 +179,18 @@ describe("saveConfigurationToFile", () => {
         edges: [],
         prefixes: [
           {
-            prefix: "rdf",
-            uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-            __matches: new Set(["http://www.w3.org/1999/02/22-rdf-syntax-ns#"]),
+            prefix: "rdf" as RdfPrefix,
+            uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#" as IriNamespace,
           },
           {
-            prefix: "rdfs",
-            uri: "http://www.w3.org/2000/01/rdf-schema#",
-            __matches: new Set(["http://www.w3.org/2000/01/rdf-schema#"]),
+            prefix: "rdfs" as RdfPrefix,
+            uri: "http://www.w3.org/2000/01/rdf-schema#" as IriNamespace,
           },
         ],
         totalVertices: 0,
         totalEdges: 0,
         lastUpdate: new Date(),
         lastSyncFail: false,
-        triedToSync: true,
       },
       totalVertices: 0,
       vertexTypes: [],
@@ -207,13 +204,16 @@ describe("saveConfigurationToFile", () => {
     const text = await (blob as Blob).text();
     const parsed = JSON.parse(text);
 
-    expect(Array.isArray(parsed.schema.prefixes[0].__matches)).toBe(true);
-    expect(parsed.schema.prefixes[0].__matches).toContain(
-      "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    );
-    expect(parsed.schema.prefixes[1].__matches).toContain(
-      "http://www.w3.org/2000/01/rdf-schema#",
-    );
+    expect(parsed.schema.prefixes).toStrictEqual([
+      {
+        prefix: "rdf",
+        uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+      },
+      {
+        prefix: "rdfs",
+        uri: "http://www.w3.org/2000/01/rdf-schema#",
+      },
+    ]);
   });
 
   it("should handle empty schema", async () => {
@@ -296,7 +296,6 @@ describe("saveConfigurationToFile", () => {
         totalEdges: 0,
         lastUpdate: new Date(),
         lastSyncFail: false,
-        triedToSync: true,
         edgeConnections: [
           {
             edgeType: createEdgeType("knows"),
@@ -349,7 +348,6 @@ describe("saveConfigurationToFile", () => {
         totalEdges: 0,
         lastUpdate: new Date(),
         lastSyncFail: false,
-        triedToSync: true,
         edgeConnections: undefined,
       },
       totalVertices: 0,

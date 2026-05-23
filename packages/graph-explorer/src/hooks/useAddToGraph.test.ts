@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { waitFor } from "@testing-library/react";
 import { useAtomValue } from "jotai";
 import { act } from "react";
@@ -5,6 +6,7 @@ import { act } from "react";
 import {
   activeGraphSessionAtom,
   activeSchemaSelector,
+  createEdgeConnection,
   createVertexType,
   edgesAtom,
   type EdgeTypeConfig,
@@ -19,6 +21,8 @@ import {
   createRandomEntities,
   createRandomVertex,
   createRandomVertexForRdf,
+  createTestableEdge,
+  createTestableVertex,
   DbState,
   renderHookWithState,
 } from "@/utils/testing";
@@ -316,6 +320,102 @@ test("should update graph storage when adding an edge", async () => {
   };
 
   expect(result.current.graph).toStrictEqual(expectedGraph);
+});
+
+test("should infer edge connections when adding edges with vertices", async () => {
+  const dbState = new DbState();
+  dbState.activeSchema.edgeConnections = [];
+
+  const source = createTestableVertex().with({ types: ["Person"] });
+  const target = createTestableVertex().with({ types: ["Dog"] });
+  const edge = createTestableEdge()
+    .with({ type: "owner" })
+    .withSource(source)
+    .withTarget(target);
+
+  const { result } = renderHookWithState(() => {
+    const callback = useAddToGraph();
+    const schema = useAtomValue(activeSchemaSelector);
+    return { callback, schema };
+  }, dbState);
+
+  await act(() =>
+    result.current.callback({
+      vertices: [source.asVertex(), target.asVertex()],
+      edges: [edge.asEdge()],
+    }),
+  );
+
+  expect(result.current.schema?.edgeConnections).toStrictEqual([
+    createEdgeConnection({ source: "Person", edge: "owner", target: "Dog" }),
+  ]);
+});
+
+test("should use batch vertex types over canvas vertex types for edge connections", async () => {
+  const dbState = new DbState();
+  dbState.activeSchema.edgeConnections = [];
+
+  // Canvas has the source as "Employee"
+  const canvasSource = createTestableVertex().with({ types: ["Employee"] });
+  dbState.addVertexToGraph(canvasSource.asVertex());
+
+  // Batch provides the same vertex as "Person" (should take priority)
+  const batchSource = canvasSource.with({ types: ["Person"] });
+  const target = createTestableVertex().with({ types: ["Dog"] });
+  const edge = createTestableEdge()
+    .with({ type: "owner" })
+    .withSource(batchSource)
+    .withTarget(target);
+
+  const { result } = renderHookWithState(() => {
+    const callback = useAddToGraph();
+    const schema = useAtomValue(activeSchemaSelector);
+    return { callback, schema };
+  }, dbState);
+
+  await act(() =>
+    result.current.callback({
+      vertices: [batchSource.asVertex(), target.asVertex()],
+      edges: [edge.asEdge()],
+    }),
+  );
+
+  expect(result.current.schema?.edgeConnections).toStrictEqual([
+    createEdgeConnection({ source: "Person", edge: "owner", target: "Dog" }),
+  ]);
+});
+
+test("should resolve edge endpoints from canvas when not in batch", async () => {
+  const dbState = new DbState();
+  dbState.activeSchema.edgeConnections = [];
+
+  // Source is already on the canvas
+  const source = createTestableVertex().with({ types: ["Person"] });
+  dbState.addVertexToGraph(source.asVertex());
+
+  // Batch only has the target and the edge
+  const target = createTestableVertex().with({ types: ["Dog"] });
+  const edge = createTestableEdge()
+    .with({ type: "owner" })
+    .withSource(source)
+    .withTarget(target);
+
+  const { result } = renderHookWithState(() => {
+    const callback = useAddToGraph();
+    const schema = useAtomValue(activeSchemaSelector);
+    return { callback, schema };
+  }, dbState);
+
+  await act(() =>
+    result.current.callback({
+      vertices: [target.asVertex()],
+      edges: [edge.asEdge()],
+    }),
+  );
+
+  expect(result.current.schema?.edgeConnections).toStrictEqual([
+    createEdgeConnection({ source: "Person", edge: "owner", target: "Dog" }),
+  ]);
 });
 
 test("should ignore blank nodes when updating graph storage", async () => {

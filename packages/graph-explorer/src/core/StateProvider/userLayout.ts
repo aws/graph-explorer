@@ -2,41 +2,12 @@ import { useAtom } from "jotai";
 
 import { useQueryEngine } from "../connector";
 import { userLayoutAtom } from "./storageAtoms";
-
-export type ToggleableView = "graph-viewer" | "table-view";
-
-type UserLayout = {
-  activeToggles: Set<ToggleableView>;
-  activeSidebarItem:
-    | "search"
-    | "details"
-    | "filters"
-    | "expand"
-    | "nodes-styling"
-    | "edges-styling"
-    | "namespaces"
-    | null;
-  tableView?: {
-    height: number;
-  };
-  sidebar?: {
-    width: number;
-  };
-  detailsAutoOpenOnSelection?: boolean;
-};
-
-export type SidebarItems = UserLayout["activeSidebarItem"];
-
-export const DEFAULT_TABLE_VIEW_HEIGHT = 300;
-
-export const defaultUserLayout: UserLayout = {
-  activeToggles: new Set(["graph-viewer", "table-view"]),
-  activeSidebarItem: "search",
-  detailsAutoOpenOnSelection: true,
-  tableView: {
-    height: DEFAULT_TABLE_VIEW_HEIGHT,
-  },
-};
+import {
+  DEFAULT_SIDEBAR_WIDTH,
+  DEFAULT_TABLE_VIEW_HEIGHT,
+  type SidebarItems,
+  type ToggleableView,
+} from "./userLayoutDefaults";
 
 export function useViewToggles() {
   const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
@@ -75,7 +46,7 @@ export function useTableViewSize() {
 
   const tableViewHeight = !userLayout.activeToggles.has("graph-viewer")
     ? "100%"
-    : userLayout.tableView?.height || DEFAULT_TABLE_VIEW_HEIGHT;
+    : (userLayout.tableView?.height ?? DEFAULT_TABLE_VIEW_HEIGHT);
 
   /** Sets the table view height to the current height + the given delta */
   const setTableViewHeight = (deltaHeight: number) =>
@@ -84,7 +55,7 @@ export function useTableViewSize() {
       return {
         ...prev,
         tableView: {
-          ...(prev.tableView || {}),
+          ...prev.tableView,
           height: prevHeight + deltaHeight,
         },
       };
@@ -138,15 +109,12 @@ export function useSidebar() {
   };
 }
 
-export const DEFAULT_SIDEBAR_WIDTH = 400;
-export const CLOSED_SIDEBAR_WIDTH = 50;
-
 export function useSidebarSize() {
   const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
 
   const sidebarWidth = userLayout.sidebar?.width ?? DEFAULT_SIDEBAR_WIDTH;
 
-  /** Sets the sidebar width to the current with + the given delta */
+  /** Sets the sidebar width to the current width + the given delta */
   const setSidebarWidth = (deltaWidth: number) => {
     setUserLayout(prev => {
       const prevWidth = prev.sidebar?.width ?? DEFAULT_SIDEBAR_WIDTH;

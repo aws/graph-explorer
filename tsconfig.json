@@ -1,8 +1,7 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "allowJs": true,
-    "checkJs": false
+    "allowJs": true
   },
-  "files": ["vitest.config.ts", "eslint.config.mjs"]
+  "files": ["vitest.config.ts"]
 }

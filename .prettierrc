@@ -1,6 +1,0 @@
-{
-  "arrowParens": "avoid",
-  "proseWrap": "always",
-  "plugins": ["prettier-plugin-tailwindcss"],
-  "tailwindFunctions": ["cva", "cn"]
-}

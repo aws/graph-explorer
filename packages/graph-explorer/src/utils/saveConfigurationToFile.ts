@@ -9,16 +9,13 @@ const saveConfigurationToFile = (config: ConfigurationContextProps) => {
     id: config.id,
     displayLabel: config.displayLabel || config.id,
     connection: {
-      ...(config.connection || {}),
+      ...config.connection,
       queryEngine: config.connection?.queryEngine || "gremlin",
     },
     schema: {
       vertices: config.schema?.vertices || [],
       edges: config.schema?.edges || [],
-      prefixes: config?.schema?.prefixes?.map(prefix => ({
-        ...prefix,
-        __matches: Array.from(prefix.__matches || []),
-      })),
+      prefixes: config?.schema?.prefixes,
       lastUpdate: config.schema?.lastUpdate?.toISOString(),
       edgeConnections: config.schema?.edgeConnections,
     },

@@ -4,10 +4,10 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    coverage: {
-      reportsDirectory: "coverage",
-      provider: "v8",
-      reporter: ["lcov", "text", "json", "clover"],
-    },
+    pool: "threads",
+    restoreMocks: true,
+    unstubEnvs: true,
+    unstubGlobals: true,
+    setupFiles: ["src/test-setup.ts"],
   },
 });

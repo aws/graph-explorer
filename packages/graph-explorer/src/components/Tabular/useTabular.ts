@@ -326,6 +326,7 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
   // Avoid table to delete filter on re-render
   useEffect(() => {
     skipPageResetRef.current = true;
+    // oxlint-disable-next-line react-compiler/set-state-in-effect -- react-table v7 pattern to prevent auto-reset on data changes
     setUpdatedData(data);
   }, [data]);
 
@@ -373,16 +374,16 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
                 // this reducer fixes getToggleAllRowsSelectedProps bad behaviour.
                 // When the object contains { [rowId]: false } it marks the Checkbox as indeterminate
                 if (selectedRowIds?.[rowId]) {
-                  ids[rowId as IdType<T>] = true;
+                  ids[rowId] = true;
                 }
 
                 return ids;
               },
-              {} as UseRowSelectState<T>["selectedRowIds"],
+              {} as Record<string, boolean>,
             ),
       }),
       // selectedRowIds is necessary in deps to listen external updates
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      // oxlint-disable-next-line react/exhaustive-deps
       [tableState, selectedRowIds],
     );
   };
@@ -423,6 +424,7 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
       },
       stateReducer,
       useControlledState,
+      /* oxlint-disable react-compiler/refs -- react-table v7 requires reading refs during render to control auto-reset */
       autoResetPage: !skipPageResetRef.current,
       autoResetExpanded: !skipPageResetRef.current,
       autoResetGroupBy: !skipPageResetRef.current,
@@ -430,6 +432,7 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
       autoResetSortBy: !skipPageResetRef.current,
       autoResetFilters: !skipPageResetRef.current,
       autoResetRowState: !skipPageResetRef.current,
+      /* eslint-enable react-hooks/refs */
     },
     useColumnOrder,
     useResizeColumns,

@@ -64,7 +64,11 @@ export const useManageConfigChanges = (config: Config, cy?: CytoscapeType) => {
   useEffect(() => {
     if (cy) {
       //lock nodes instead of using cy.autolock(autolock) to allow layout to run on newly added nodes before locking
-      autolock ? cy.nodes().lock() : cy.nodes().unlock();
+      if (autolock) {
+        cy.nodes().lock();
+      } else {
+        cy.nodes().unlock();
+      }
     }
   }, [autolock, cy]);
 

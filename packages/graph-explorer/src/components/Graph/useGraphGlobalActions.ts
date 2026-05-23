@@ -39,7 +39,8 @@ export function useGraphGlobalActions() {
       };
     }
     // graphRef is a reference that doesn't change but cytoscape can
-    //eslint-disable-next-line
+    // oxlint-disable-next-line react/exhaustive-deps
+    // oxlint-disable-next-line react-compiler/refs
   }, [graphRef?.current?.cytoscape]);
 
   const onFitSelectionToCanvas = () => {

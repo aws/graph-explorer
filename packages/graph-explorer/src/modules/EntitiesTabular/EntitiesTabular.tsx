@@ -26,10 +26,11 @@ import useTranslations from "@/hooks/useTranslations";
 
 import { EdgesTabular, NodesTabular } from "./components";
 
-enum TableId {
-  edges = "edges",
-  nodes = "nodes",
-}
+const TableId = {
+  edges: "edges",
+  nodes: "nodes",
+} as const;
+type TableId = (typeof TableId)[keyof typeof TableId];
 
 function EntitiesTabular() {
   const t = useTranslations();

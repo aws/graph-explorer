@@ -1,7 +1,9 @@
 import { ZodError } from "zod";
 
+import { extractErrorMessage } from "./extractErrorMessage";
 import { isCancellationError } from "./isCancellationError";
 import { NetworkError } from "./NetworkError";
+import { ServerConnectionError } from "./ServerConnectionError";
 
 export type DisplayError = {
   title: string;
@@ -85,6 +87,21 @@ export function createDisplayError(error: any): DisplayError {
     };
   }
 
+  if (error instanceof ServerConnectionError) {
+    if (hasOriginMismatch(error.url)) {
+      return {
+        title: "Cross-Origin Request Blocked",
+        message:
+          "The proxy server URL does not match the browser's origin, which can cause CORS errors. Update the connection URL to match the browser's origin.",
+      };
+    }
+    return {
+      title: "Connection Error",
+      message:
+        "Unable to reach the proxy server. This is typically caused by the proxy server not running, an incorrect connection URL, or a CORS configuration issue.",
+    };
+  }
+
   if (error instanceof Error) {
     // Fetch timeout
     if (error.name === "TimeoutError") {
@@ -93,17 +110,16 @@ export function createDisplayError(error: any): DisplayError {
         message: "The request exceeded the configured fetch timeout.",
       };
     }
-
-    // Internet issues
-    if (error.name === "TypeError" && error.message === "Failed to fetch") {
-      return {
-        title: "Connection Error",
-        message: "Please check your connection and try again.",
-      };
-    }
   }
 
   if (error instanceof NetworkError) {
+    if (error.statusCode === 400) {
+      return {
+        title: "Bad Request",
+        message: extractErrorMessage(error.data) ?? defaultDisplayError.message,
+      };
+    }
+
     if (error.statusCode === 429) {
       return {
         title: "Too Many Requests",
@@ -114,8 +130,7 @@ export function createDisplayError(error: any): DisplayError {
 
     return {
       title: `Network Response ${error.statusCode}`,
-      message:
-        extractMessageFromData(error.data) ?? defaultDisplayError.message,
+      message: extractErrorMessage(error.data) ?? defaultDisplayError.message,
     };
   }
 
@@ -129,14 +144,26 @@ export function createDisplayError(error: any): DisplayError {
   return defaultDisplayError;
 }
 
-function extractMessageFromData(data: any): string | null {
-  if (Boolean(data) === false) {
-    return null;
+function hasOriginMismatch(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+
+    // Browsers don't enforce CORS between localhost ports
+    if (isLoopback(parsed.hostname) && isLoopback(window.location.hostname)) {
+      return false;
+    }
+
+    return parsed.origin !== window.location.origin;
+  } catch {
+    return false;
   }
-  if (typeof data === "string") {
-    return data;
-  } else if (typeof data === "object") {
-    return data.message ?? data.error ?? null;
-  }
-  return null;
+}
+
+function isLoopback(hostname: string): boolean {
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "[::1]" ||
+    hostname === "0.0.0.0"
+  );
 }

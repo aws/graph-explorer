@@ -6,7 +6,11 @@ import { cn } from "@/utils";
 
 import { Alert, AlertDescription, AlertTitle } from "./Alert";
 
-export function PageHeading({ className, ...props }: ComponentProps<"h1">) {
+export function PageHeading({
+  className,
+  children,
+  ...props
+}: ComponentProps<"h1">) {
   return (
     <h1
       className={cn(
@@ -14,7 +18,9 @@ export function PageHeading({ className, ...props }: ComponentProps<"h1">) {
         className,
       )}
       {...props}
-    />
+    >
+      {children}
+    </h1>
   );
 }
 

@@ -2,6 +2,8 @@ import { useAtomCallback } from "jotai/utils";
 import { useCallback, useState } from "react";
 import { Virtuoso } from "react-virtuoso";
 
+import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
+
 import {
   AddIcon,
   Button,
@@ -58,7 +60,7 @@ const UserPrefixes = () => {
 
 function useCustomPrefixes() {
   const prefixes = usePrefixes();
-  return prefixes.filter(prefixConfig => prefixConfig.__inferred !== true);
+  return prefixes.userPrefixes;
 }
 
 function SearchablePrefixes({
@@ -174,7 +176,7 @@ function useDeletePrefixCallback(prefix: string) {
           const activeSchema = updatedSchemas.get(activeConfigId);
 
           updatedSchemas.set(activeConfigId, {
-            ...(activeSchema || {}),
+            ...activeSchema,
             vertices: activeSchema?.vertices || [],
             edges: activeSchema?.edges || [],
             prefixes: (activeSchema?.prefixes || []).filter(
@@ -225,10 +227,13 @@ function EditPrefixModal({
           const activeSchema = updatedSchemas.get(configId);
 
           updatedSchemas.set(configId, {
-            ...(activeSchema || {}),
+            ...activeSchema,
             vertices: activeSchema?.vertices || [],
             edges: activeSchema?.edges || [],
-            prefixes: [...(activeSchema?.prefixes || []), { prefix, uri }],
+            prefixes: [
+              ...(activeSchema?.prefixes || []),
+              { prefix: prefix as RdfPrefix, uri: uri as IriNamespace },
+            ],
           });
 
           return updatedSchemas;

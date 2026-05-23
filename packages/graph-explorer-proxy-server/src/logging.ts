@@ -3,14 +3,12 @@ import type { PrettyOptions } from "pino-pretty";
 
 import { type LevelWithSilent, pino } from "pino";
 
-import { env } from "./env.js";
+import type { EnvironmentValues } from "./env.ts";
 
 export type LogLevel = LevelWithSilent;
 
-export const logger = createLogger();
-
 /** Create a logger instance with pino. */
-function createLogger() {
+export function createLogger(env: EnvironmentValues) {
   // Check whether we are configured with CloudWatch style
   const loggingInCloudWatch = env.LOG_STYLE === "cloudwatch";
   const options: PrettyOptions = loggingInCloudWatch
@@ -24,16 +22,17 @@ function createLogger() {
         colorize: true,
         translateTime: true,
       };
-  const level = env.LOG_LEVEL;
 
   return pino({
-    level,
+    level: env.LOG_LEVEL,
     transport: {
       target: "pino-pretty",
       options,
     },
   });
 }
+
+export type AppLogger = ReturnType<typeof createLogger>;
 
 /** Chooses an log level appropriate for the given status code. */
 function logLevelFromStatusCode(statusCode: number) {
@@ -53,6 +52,7 @@ export function getRequestLoggerPrefix(req: Request) {
 
 /** Logs the request path and response status using the given logger. */
 export function logRequestAndResponse(req: Request, res: Response) {
+  const logger = req.app.locals.logger;
   const logLevel = logLevelFromStatusCode(res.statusCode);
 
   const requestMessage = `[${getRequestLoggerPrefix(req)}] Response ${res.statusCode} ${res.statusMessage}`;
@@ -73,6 +73,8 @@ export function logRequestAndResponse(req: Request, res: Response) {
 /** Creates the pino-http middleware with the given logger and appropriate options. */
 export function requestLoggingMiddleware() {
   return (req: Request, res: Response, next: NextFunction) => {
+    const logger = req.app.locals.logger;
+
     // Ignore requests to logger endpoint
     if (req.path.includes("/logger")) {
       next();

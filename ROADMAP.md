@@ -2,10 +2,8 @@
 
 This document describes the future roadmap for Graph Explorer.
 
-We encourage you to participate in the discussion within the individual roadmap
-issues linked below.
+We encourage you to participate in the discussion within the individual roadmap issues linked below.
 
-<!-- prettier-ignore -->
 > [!IMPORTANT]
 > These items are subject to change.
 

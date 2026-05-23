@@ -1,6 +1,9 @@
+// @vitest-environment happy-dom
 import type { QueryEngine } from "@shared/types";
 
 import { createRandomDate, createRandomName } from "@shared/utils/testing";
+
+import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { getDisplayValueForScalar } from "@/connector/entities";
 import {
@@ -112,8 +115,8 @@ describe("useDisplayVertexFromVertex", () => {
     const schema = createRandomSchema();
     schema.prefixes = [
       {
-        prefix: "example-class",
-        uri: "http://www.example.com/class#",
+        prefix: "example-class" as RdfPrefix,
+        uri: "http://www.example.com/class#" as IriNamespace,
       },
     ];
 
@@ -186,12 +189,12 @@ describe("useDisplayVertexFromVertex", () => {
     const schema = createRandomSchema();
     schema.prefixes = [
       {
-        prefix: "example",
-        uri: "http://www.example.com/resources#",
+        prefix: "example" as RdfPrefix,
+        uri: "http://www.example.com/resources#" as IriNamespace,
       },
       {
-        prefix: "example-class",
-        uri: "http://www.example.com/class#",
+        prefix: "example-class" as RdfPrefix,
+        uri: "http://www.example.com/class#" as IriNamespace,
       },
     ];
 

@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { TableIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 
@@ -9,11 +8,11 @@ import {
   EmptyState,
   EmptyStateContent,
   EmptyStateDescription,
-  EmptyStateIcon,
   EmptyStateTitle,
   NavBar,
   NavBarContent,
   NavBarTitle,
+  NoNodeTypesEmptyState,
   Panel,
   PanelContent,
   PanelEmptyState,
@@ -69,7 +68,6 @@ const DEFAULT_COLUMN = {
 };
 
 export default function DataExplorer() {
-  const t = useTranslations();
   const { vertexType } = useParams();
   const navigate = useNavigate();
   const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
@@ -86,20 +84,7 @@ export default function DataExplorer() {
         <PanelGroup className="grid">
           <Panel>
             <PanelContent>
-              <EmptyState>
-                <EmptyStateIcon>
-                  <TableIcon />
-                </EmptyStateIcon>
-                <EmptyStateContent>
-                  <EmptyStateTitle>
-                    No {t("node-types")} Available
-                  </EmptyStateTitle>
-                  <EmptyStateDescription>
-                    No {t("node-types").toLocaleLowerCase()} found in the
-                    connected database
-                  </EmptyStateDescription>
-                </EmptyStateContent>
-              </EmptyState>
+              <NoNodeTypesEmptyState />
             </PanelContent>
           </Panel>
         </PanelGroup>

@@ -82,6 +82,30 @@ describe("DefaultConnectionDataSchema", () => {
       GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT: "",
     });
   });
+
+  test("should preserve path in GRAPH_EXP_CONNECTION_URL", () => {
+    const data = {
+      ...createRandomDefaultConnectionData(),
+      GRAPH_EXP_CONNECTION_URL:
+        "http://blazegraph:9999/blazegraph/namespace/kb",
+    };
+    const actual = DefaultConnectionDataSchema.parse(data);
+    expect(actual.GRAPH_EXP_CONNECTION_URL).toBe(
+      "http://blazegraph:9999/blazegraph/namespace/kb",
+    );
+  });
+
+  test("should preserve path in GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT", () => {
+    const data = {
+      ...createRandomDefaultConnectionData(),
+      GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT:
+        "http://localhost:8080/proxy/explorer",
+    };
+    const actual = DefaultConnectionDataSchema.parse(data);
+    expect(actual.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT).toBe(
+      "http://localhost:8080/proxy/explorer",
+    );
+  });
 });
 
 function createRandomDefaultConnectionData() {

@@ -1,15 +1,11 @@
 {
   "name": "graph-explorer",
-  "version": "2.6.0",
-  "description": "Graph Explorer",
-  "author": "amazon",
-  "license": "Apache-2.0",
-  "type": "module",
-  "packageManager": "pnpm@10.28.1+sha512.7d7dbbca9e99447b7c3bf7a73286afaaf6be99251eb9498baefa7d406892f67b879adb3a1d7e687fc4ccc1a388c7175fbaae567a26ab44d1067b54fcb0d6a316",
-  "engines": {
-    "node": ">=24.13.0"
-  },
+  "version": "3.0.3",
   "private": true,
+  "description": "Graph Explorer",
+  "license": "Apache-2.0",
+  "author": "amazon",
+  "type": "module",
   "scripts": {
     "prepare": "husky install",
     "precommit": "lint-staged && pnpm check:types",
@@ -17,11 +13,12 @@
     "check:lint": "eslint --concurrency=auto",
     "format": "prettier --write .",
     "check:format": "prettier --check .",
-    "test": "vitest run",    "test:watch": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "check:types": "pnpm -r --include-workspace-root --parallel --stream run typecheck",
     "typecheck": "tsc --noEmit",
-    "checks": "pnpm run '/^check:.*/'",
+    "checks": "pnpm run check:lint && pnpm run check:format && pnpm run check:types",
     "start": "pnpm --filter \"graph-explorer-proxy-server\" run start",
     "clean": "pnpm --stream -r run clean",
     "clean:dep": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
@@ -29,51 +26,56 @@
     "dev": "pnpm --stream -r run dev"
   },
   "devDependencies": {
-    "@eslint/compat": "^2.0.2",
-    "@eslint/js": "^9.39.2",
-    "@tanstack/eslint-plugin-query": "^5.91.4",
-    "@vitest/coverage-v8": "4.0.10",
-    "babel-plugin-react-compiler": "19.1.0-rc.3",
-    "eslint": "^9.39.2",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-perfectionist": "^5.4.0",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "7.0.1",
-    "globals": "^16.5.0",
+    "@tanstack/eslint-plugin-query": "5.100.6",
+    "@types/node": "^24.10.9",
+    "@vitest/coverage-v8": "4.1.5",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "eslint-plugin-react-hooks": "7.1.1",
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.7",
-    "prettier": "^3.8.1",
-    "prettier-plugin-tailwindcss": "^0.7.2",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.54.0",
-    "vitest": "4.0.10"
+    "lint-staged": "^16.4.0",
+    "oxfmt": "^0.47.0",
+    "oxlint": "1.62.0",
+    "oxlint-tsgolint": "0.22.1",
+    "typescript": "^6.0.3",
+    "vitest": "4.1.5"
   },
   "lint-staged": {
-    "*.{js,ts,tsx}": [
-      "eslint --fix"
-    ],
-    "**/*": "prettier --write --ignore-unknown"
+    "!(**/*.{js,ts,tsx})": "oxfmt --no-error-on-unmatched-pattern",
+    "**/*.{js,ts,tsx}": [
+      "oxlint --fix",
+      "oxfmt"
+    ]
   },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": ">=10.28.1",
+      "onFail": "error"
+    },
+    "runtime": {
+      "name": "node",
+      "version": ">=24.13.0",
+      "onFail": "error"
+    }
+  },
+  "engines": {
+    "node": ">=24.13.0",
+    "pnpm": ">=10.28.1"
+  },
+  "packageManager": "pnpm@10.28.1+sha512.7d7dbbca9e99447b7c3bf7a73286afaaf6be99251eb9498baefa7d406892f67b879adb3a1d7e687fc4ccc1a388c7175fbaae567a26ab44d1067b54fcb0d6a316",
   "pnpm": {
     "overrides": {
-      "json5@>=2.0.0 <2.2.2": ">=2.2.2",
-      "minimatch@<3.0.5": ">=3.0.5",
-      "loader-utils@>=2.0.0 <2.0.4": ">=2.0.4",
-      "webpack@>=5.0.0 <5.76.0": ">=5.76.0",
-      "decode-uri-component@<0.2.1": ">=0.2.1",
-      "yaml@>=2.0.0-5 <2.2.2": ">=2.2.2",
-      "vite@>=4.5.0 <4.5.3": ">=4.5.3",
-      "xml2js@<0.5.0": ">=0.5.0",
-      "semver@<7.5.2": ">=7.5.2",
-      "postcss@<8.4.31": ">=8.4.31",
-      "@babel/traverse@<7.23.2": ">=7.23.2",
-      "crypto-js@<4.2.0": ">=4.2.0",
-      "@adobe/css-tools@<4.3.2": ">=4.3.2",
-      "undici@<5.28.3": ">=5.28.3",
-      "ws@<8.17.1": ">=8.17.1",
-      "@eslint/plugin-kit@<0.3.3": ">=0.3.3",
-      "fast-xml-parser@<5.3.4": ">=5.3.4",
-      "@isaacs/brace-expansion@<5.0.1": ">=5.0.1"
+      "semver@<7.0.0": ">=7.7.3",
+      "brace-expansion@>=5.0.0 <5.0.5": ">=5.0.5",
+      "dompurify@<=3.3.3": ">=3.4.0",
+      "fast-xml-parser@<5.7.0": ">=5.7.0",
+      "flatted@<3.4.2": ">=3.4.2",
+      "minimatch@<10.2.3": ">=10.2.3",
+      "path-to-regexp@>=8.0.0 <8.4.0": ">=8.4.0",
+      "picomatch@<2.3.2": ">=2.3.2",
+      "picomatch@>=4.0.0 <4.0.4": ">=4.0.4",
+      "yaml@>=1.0.0 <1.10.3": ">=1.10.3",
+      "yaml@>=2.0.0 <2.8.3": ">=2.8.3"
     }
   }
 }

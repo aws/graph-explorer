@@ -22,6 +22,7 @@ export function searchQuery(
   request: KeywordSearchRequest,
   updateSchema: UpdateSchemaHandler,
 ) {
+  // oxlint-disable-next-line @tanstack/query/exhaustive-deps -- updateSchema is a callback, not query data
   return queryOptions({
     queryKey: ["keyword-search", request],
     queryFn: async ({ signal, meta, client }) => {

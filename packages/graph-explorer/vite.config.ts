@@ -1,7 +1,6 @@
-/// <reference types="vitest" />
-import react from "@vitejs/plugin-react";
-import tsconfigPaths from "vite-tsconfig-paths";
+import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { loadEnv, type PluginOption } from "vite";
 import { coverageConfigDefaults, defineConfig } from "vitest/config";
 
@@ -33,19 +32,19 @@ export default defineConfig(({ mode }) => {
   return {
     server: {
       host: true,
+      port: Number(env.GRAPH_EXP_DEV_PORT) || undefined,
+      strictPort: !!env.GRAPH_EXP_DEV_PORT,
       watch: {
         ignored: ["**/*.test.ts", "**/*.test.tsx"],
       },
       proxy: {
-        // Forward these requests to the express server when in dev mode
-        "/defaultConnection": {
-          target: expressServerUrl,
-          changeOrigin: true,
-        },
-        "/status": {
-          target: expressServerUrl,
-          changeOrigin: true,
-        },
+        // Forward API requests to the Express proxy server in dev mode so
+        // the browser stays on the same origin and CORS is not needed.
+        "^/(defaultConnection|gremlin|logger|openCypher|pg|rdf|sparql|status|summary)(/|$)":
+          {
+            target: expressServerUrl,
+            changeOrigin: true,
+          },
       },
     },
     base: env.GRAPH_EXP_ENV_ROOT_FOLDER,
@@ -54,30 +53,32 @@ export default defineConfig(({ mode }) => {
       __GRAPH_EXP_VERSION__: JSON.stringify(process.env.npm_package_version),
     },
     plugins: [
-      tsconfigPaths(),
       htmlPlugin(),
       tailwindcss(),
-      react({
-        babel: {
-          plugins: [
-            [
-              "babel-plugin-react-compiler",
-              {
-                target: "19", // '17' | '18' | '19'
-              },
-            ],
-          ],
-        },
+      react(),
+      babel({
+        presets: [reactCompilerPreset()],
       }),
     ],
+    resolve: {
+      tsconfigPaths: true,
+    },
     test: {
-      environment: "happy-dom",
       globals: true,
+      pool: "threads",
+
+      // Setup
+      globalSetup: ["src/globalSetup.ts"],
       setupFiles: ["src/setupTests.ts"],
+
+      // Reset state between tests
+      clearMocks: true,
+      resetMocks: true,
+      restoreMocks: true,
+      unstubEnvs: true,
+      unstubGlobals: true,
+
       coverage: {
-        reportsDirectory: "coverage",
-        provider: "v8",
-        reporter: ["lcov", "text", "json", "clover"],
         exclude: [
           "src/components/icons",
           "src/@types",

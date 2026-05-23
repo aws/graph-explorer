@@ -42,10 +42,8 @@ export function useImportConnectionFile() {
           updatedSchema.set(newId, {
             vertices: fileContent.schema?.vertices || [],
             edges: fileContent.schema?.edges || [],
-            prefixes: fileContent.schema?.prefixes?.map(prefix => ({
-              ...prefix,
-              __matches: new Set(prefix.__matches || []),
-            })),
+            edgeConnections: fileContent.schema?.edgeConnections,
+            prefixes: fileContent.schema?.prefixes,
             lastUpdate: fileContent.schema?.lastUpdate
               ? new Date(fileContent.schema?.lastUpdate)
               : undefined,

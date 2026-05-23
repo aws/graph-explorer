@@ -49,7 +49,7 @@ export default function SettingsRoot() {
 
 function SideBar() {
   return (
-    <nav role="navigation">
+    <nav>
       <ul className="flex w-full flex-col gap-1">
         <li>
           <SideBarItem to="general">General</SideBarItem>

@@ -1,5 +1,7 @@
 import {
   CheckboxList,
+  NoEdgeTypesEmptyState,
+  NoNodeTypesEmptyState,
   Panel,
   PanelContent,
   PanelHeader,
@@ -56,6 +58,10 @@ function EdgeFiltersTabContent() {
     onChangeAllConnectionTypes,
   } = useFiltersConfig();
 
+  if (connectionTypes.length === 0) {
+    return <NoEdgeTypesEmptyState />;
+  }
+
   return (
     <CheckboxList
       selectedIds={selectedConnectionTypes}
@@ -73,6 +79,10 @@ function VertexFiltersTabContent() {
     onChangeVertexTypes,
     onChangeAllVertexTypes,
   } = useFiltersConfig();
+
+  if (vertexTypes.length === 0) {
+    return <NoNodeTypesEmptyState />;
+  }
 
   return (
     <CheckboxList
