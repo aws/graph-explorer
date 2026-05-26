@@ -1,15 +1,15 @@
 {
   "format_on_save": "on",
   "prettier": { "allowed": false },
-  "formatter": [{ "language_server": { "name": "oxfmt" } }],
-  "lsp": {
-    "oxfmt": {
-      "initialization_options": {
-        "settings": {
-          "fmt.configPath": null
-        }
+  "formatter": [
+    {
+      "external": {
+        "command": "pnpm",
+        "arguments": ["exec", "oxfmt", "--stdin-filepath", "{buffer_path}"]
       }
-    },
+    }
+  ],
+  "lsp": {
     "tailwindcss-language-server": {
       "settings": {
         "rootFontSize": 14,
