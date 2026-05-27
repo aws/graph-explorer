@@ -82,6 +82,7 @@ Each node type can be customized in a variety of ways.
 - **Display description attribute** allows you to choose the attribute on the node that is used to describe the node in search
 - **Icon** can be picked from the built-in Lucide library via the **Browse** button, or uploaded as a custom SVG/raster image. Picked Lucide icons are stored as `lucide:<name>` references and resolved at render time, so the picker highlights the currently selected icon when you reopen the dialog.
 - **Colors and borders** can be customized to visually distinguish from other node types
+- **Reset to Default** restores this node type's styling. If a styling file has been imported via Settings, the imported values for this type are restored; otherwise the application's hardcoded defaults are used.
 
 ### Edge Styling Panel
 

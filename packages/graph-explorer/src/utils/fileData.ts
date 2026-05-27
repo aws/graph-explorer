@@ -1,7 +1,7 @@
 import { saveAs } from "file-saver";
 
-export function toJsonFileData(input: object) {
-  return new Blob([JSON.stringify(input)], {
+export function toJsonFileData(input: object, indent?: number) {
+  return new Blob([JSON.stringify(input, null, indent)], {
     type: "application/json",
   });
 }
