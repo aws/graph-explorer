@@ -19,15 +19,23 @@ import { type AppLogger, requestLoggingMiddleware } from "./logging.ts";
 const DEFAULT_SERVICE_TYPE = "neptune-db";
 
 /**
- * Resolves a relative endpoint path against a base URL, preserving the base
- * path. Forces a trailing slash on the base so that `new URL` appends rather
- * than replaces the path.
+ * Resolves an endpoint path against a base URL, preserving the base path.
+ * Strips any leading slash from the endpoint and forces a trailing slash on
+ * the base so that `new URL` appends rather than replaces the path.
+ *
+ * Throws if the resolved URL escapes the base origin (prevents SSRF via
+ * crafted endpoint strings).
  */
-function resolveEndpointUrl<T extends string>(
-  base: string,
-  endpoint: T extends `/${string}` ? never : T,
-): URL {
-  return new URL(endpoint, base.replace(/\/?$/, "/"));
+export function resolveEndpointUrl(base: string, endpoint: string): URL {
+  const relative = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
+  const baseUrl = new URL(base.replace(/\/?$/, "/"));
+  const resolved = new URL(relative, baseUrl);
+  if (resolved.origin !== baseUrl.origin) {
+    throw new Error(
+      `Resolved URL origin "${resolved.origin}" does not match base "${baseUrl.origin}"`,
+    );
+  }
+  return resolved;
 }
 
 /** Zod schema for the custom headers expected on database query requests. */
@@ -188,7 +196,7 @@ export function createApp({
       };
 
       try {
-        const res = await fetch(url.href, options);
+        const res = await fetch(url.href, options); // lgtm[js/request-forgery]
         if (!res.ok) {
           logger.error("!!Request failure!!");
           return res;
@@ -498,10 +506,7 @@ export function createApp({
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
       parseDbQueryHeaders(req.headers);
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
-    const rawUrl = resolveEndpointUrl(
-      graphDbConnectionUrl,
-      "summary?mode=detailed",
-    ).href;
+    const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, req.url).href;
 
     await fetchData(
       res,
@@ -519,10 +524,7 @@ export function createApp({
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
       parseDbQueryHeaders(req.headers);
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
-    const rawUrl = resolveEndpointUrl(
-      graphDbConnectionUrl,
-      "pg/statistics/summary?mode=detailed",
-    ).href;
+    const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, req.url).href;
 
     await fetchData(
       res,
@@ -540,10 +542,7 @@ export function createApp({
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
       parseDbQueryHeaders(req.headers);
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
-    const rawUrl = resolveEndpointUrl(
-      graphDbConnectionUrl,
-      "rdf/statistics/summary?mode=detailed",
-    ).href;
+    const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, req.url).href;
 
     await fetchData(
       res,
