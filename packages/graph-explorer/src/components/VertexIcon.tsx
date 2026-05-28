@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 
+import { DynamicIcon } from "lucide-react/dynamic";
 import SVG from "react-inlinesvg";
 
 import {
@@ -8,7 +9,7 @@ import {
   type VertexType,
 } from "@/core";
 import { cn } from "@/utils";
-import { useResolvedIconUrl } from "@/utils/useResolvedIconUrl";
+import { getLucideName, isValidLucideIconName } from "@/utils/lucideIconUrl";
 
 import { SearchResultSymbol } from "./SearchResult";
 
@@ -20,12 +21,27 @@ interface Props {
 
 function VertexIcon({ vertexStyle, className, alt }: Props) {
   const altText = alt ?? `${vertexStyle.displayLabel ?? vertexStyle.type} icon`;
-  const resolvedSrc = useResolvedIconUrl(vertexStyle.iconUrl);
+
+  const lucideIconName = getLucideName(vertexStyle.iconUrl);
+
+  if (lucideIconName) {
+    if (isValidLucideIconName(lucideIconName)) {
+      return (
+        <DynamicIcon
+          name={lucideIconName}
+          className={cn("size-6 shrink-0", className)}
+          style={{ color: vertexStyle.color }}
+        />
+      );
+    } else {
+      return null;
+    }
+  }
 
   if (vertexStyle.iconImageType === "image/svg+xml") {
     return (
       <SVG
-        src={resolvedSrc}
+        src={vertexStyle.iconUrl}
         className={cn("size-6 shrink-0", className)}
         style={{ color: vertexStyle.color }}
         title={altText}
@@ -35,7 +51,7 @@ function VertexIcon({ vertexStyle, className, alt }: Props) {
 
   return (
     <img
-      src={resolvedSrc}
+      src={vertexStyle.iconUrl}
       alt={altText}
       className={cn("size-6 shrink-0", className)}
       style={{ color: vertexStyle.color }}

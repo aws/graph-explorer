@@ -1,19 +1,26 @@
 import { SearchIcon } from "lucide-react";
+import { DynamicIcon } from "lucide-react/dynamic";
 import dynamicIconImports from "lucide-react/dynamicIconImports";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
-import { cn } from "@/utils";
+import { getLucideName, toLucideIconRef } from "@/utils/lucideIconUrl";
+
 import {
-  getLucideName,
-  lucideIconToDataUri,
-  toLucideIconRef,
-} from "@/utils/lucideIconUrl";
+  Button,
+  EmptyState,
+  EmptyStateContent,
+  EmptyStateDescription,
+  EmptyStateTitle,
+  Input,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from ".";
 
-import { Button, Input, Popover, PopoverContent, PopoverTrigger } from ".";
+type IconName = keyof typeof dynamicIconImports;
+const allIconNames = (Object.keys(dynamicIconImports) as IconName[]).toSorted();
 
-const allIconNames = Object.keys(dynamicIconImports).sort();
-
-const MAX_VISIBLE = 50;
+const MAX_VISIBLE = 64;
 
 export function IconPicker({
   currentIconUrl,
@@ -33,23 +40,15 @@ export function IconPicker({
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const selectedName = getLucideName(currentIconUrl);
   const filtered = filterIcons(search);
 
-  function handleSelect(iconName: string) {
+  function handleSelect(iconName: IconName) {
     onSelect(toLucideIconRef(iconName), "image/svg+xml");
     setOpen(false);
     setSearch("");
   }
-
-  useEffect(() => {
-    if (open) {
-      const timer = setTimeout(() => inputRef.current?.focus(), 100);
-      return () => clearTimeout(timer);
-    }
-  }, [open]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -62,16 +61,14 @@ export function IconPicker({
       <PopoverContent
         side="bottom"
         align="start"
-        className="flex w-80 flex-col gap-2 p-3"
+        className="flex flex-col gap-4"
       >
         <Input
-          ref={inputRef}
           placeholder="Search icons..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="h-8 text-sm"
         />
-        <div className="grid max-h-60 grid-cols-8 gap-1 overflow-y-auto">
+        <div className="grid size-80 grid-cols-8 grid-rows-8 gap-0.5">
           {filtered.map(name => (
             <IconButton
               key={name}
@@ -81,9 +78,14 @@ export function IconPicker({
             />
           ))}
           {filtered.length === 0 && (
-            <p className="text-text-secondary col-span-8 py-4 text-center text-sm">
-              No icons found
-            </p>
+            <EmptyState className="col-span-8 row-span-8" size="small">
+              <EmptyStateContent>
+                <EmptyStateTitle>No icons found</EmptyStateTitle>
+                <EmptyStateDescription className="text-balance">
+                  No matching icons found. Try a broader search.
+                </EmptyStateDescription>
+              </EmptyStateContent>
+            </EmptyState>
           )}
         </div>
         {!search && (
@@ -102,51 +104,28 @@ function IconButton({
   selected,
   onSelect,
 }: {
-  name: string;
+  name: IconName;
   selected: boolean;
-  onSelect: (name: string) => void;
+  onSelect: (name: IconName) => void;
 }) {
-  const [src, setSrc] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    lucideIconToDataUri(name).then(
-      uri => {
-        if (!cancelled && uri) setSrc(uri);
-      },
-      () => {
-        // Icon failed to load, leave as placeholder
-      },
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, [name]);
-
   return (
-    <button
-      type="button"
+    <Button
       title={name}
       aria-pressed={selected}
-      className={cn(
-        "hover:bg-background-contrast-secondary flex size-8 items-center justify-center rounded",
-        selected && "bg-primary-main/20 ring-primary-main ring-2",
-      )}
+      size="icon"
+      variant={selected ? "primary" : "ghost"}
       onClick={() => onSelect(name)}
+      className="size-full min-w-0"
     >
-      {src ? (
-        <img src={src} alt={name} className="size-5" />
-      ) : (
-        <div className="bg-background-contrast-secondary size-5 animate-pulse rounded" />
-      )}
-    </button>
+      <DynamicIcon name={name} />
+    </Button>
   );
 }
 
-function filterIcons(search: string): string[] {
+function filterIcons(search: string) {
   if (!search) return allIconNames.slice(0, MAX_VISIBLE);
   const lower = search.toLowerCase();
-  const results: string[] = [];
+  const results: IconName[] = [];
   for (const name of allIconNames) {
     if (name.includes(lower)) {
       results.push(name);

@@ -23,25 +23,25 @@ describe("useResolvedIconUrl", () => {
       useResolvedIconUrl("lucide:user"),
     );
 
-    expect(result.current).toBe("");
+    expect(result.current).toBeUndefined();
 
     await waitFor(() => {
       expect(result.current).toMatch(/^data:image\/svg\+xml;base64,/);
     });
   });
 
-  it("returns empty string for unknown lucide name", async () => {
+  it("returns undefined for unknown lucide name", async () => {
     const { result } = renderHookWithState(() =>
       useResolvedIconUrl("lucide:not-a-real-icon-name-xyz"),
     );
 
     await waitFor(() => {
-      expect(result.current).toBe("");
+      expect(result.current).toBeUndefined();
     });
   });
 
-  it("returns empty string for an empty iconUrl", () => {
+  it("returns undefined for an empty iconUrl", () => {
     const { result } = renderHookWithState(() => useResolvedIconUrl(""));
-    expect(result.current).toBe("");
+    expect(result.current).toBeUndefined();
   });
 });

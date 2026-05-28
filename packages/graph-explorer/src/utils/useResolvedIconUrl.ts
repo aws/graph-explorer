@@ -9,14 +9,14 @@ import { isLucideIconRef, resolveIconUrl } from "./lucideIconUrl";
  *   and cached per session via React Query (`staleTime: Infinity`).
  * - `data:` URIs and plain URLs pass through synchronously via `initialData`,
  *   so consumers can render them immediately on the first paint.
- * - Returns the empty string while a lucide ref is loading on cold-cache.
+ * - Returns `undefined` while a lucide ref is loading on cold-cache.
  */
-export function useResolvedIconUrl(iconUrl: string): string {
+export function useResolvedIconUrl(iconUrl: string): string | undefined {
   const { data } = useQuery({
     queryKey: ["resolved-icon", iconUrl],
     queryFn: () => resolveIconUrl(iconUrl),
     staleTime: Infinity,
-    initialData: isLucideIconRef(iconUrl) ? undefined : iconUrl,
+    initialData: iconUrl && !isLucideIconRef(iconUrl) ? iconUrl : undefined,
   });
-  return data ?? "";
+  return data ?? undefined;
 }
