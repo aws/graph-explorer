@@ -11,6 +11,7 @@ import path from "path";
 import { pipeline } from "stream";
 import { z } from "zod";
 
+import { assertAllowedDbOrigin } from "./allowed-db-origins.ts";
 import { errorHandlingMiddleware } from "./error-handler.ts";
 import { RequestValidationError } from "./errors.ts";
 import { type AppLogger, requestLoggingMiddleware } from "./logging.ts";
@@ -80,6 +81,7 @@ interface CreateAppOptions {
   staticFilesPath: string;
   version?: string;
   corsOrigin?: string[];
+  allowedDbOrigins?: Set<string>;
 }
 
 export function createApp({
@@ -88,6 +90,7 @@ export function createApp({
   staticFilesPath,
   version,
   corsOrigin,
+  allowedDbOrigins,
 }: CreateAppOptions): express.Express {
   const app = express();
 
@@ -180,7 +183,8 @@ export function createApp({
         method: options.method,
         body: options.body ?? undefined,
         headers: options.headers,
-        compress: false, // prevent automatic decompression
+        compress: false,
+        redirect: "error",
       };
 
       try {
@@ -272,6 +276,7 @@ export function createApp({
       region,
       serviceType,
     } = parseDbQueryHeaders(req.headers);
+    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
 
     /// Function to cancel long running queries if the client disappears before completion
     async function cancelQuery() {
@@ -366,6 +371,7 @@ export function createApp({
       region,
       serviceType,
     } = parseDbQueryHeaders(req.headers);
+    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
 
     // Validate the input before making any external calls.
     const queryString = req.body.query;
@@ -450,6 +456,7 @@ export function createApp({
       region,
       serviceType,
     } = parseDbQueryHeaders(req.headers);
+    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
 
     const queryString = req.body.query;
     // Validate the input before making any external calls.
@@ -490,6 +497,7 @@ export function createApp({
   app.get("/summary", async (req, res, next) => {
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
       parseDbQueryHeaders(req.headers);
+    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
       "summary?mode=detailed",
@@ -510,6 +518,7 @@ export function createApp({
   app.get("/pg/statistics/summary", async (req, res, next) => {
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
       parseDbQueryHeaders(req.headers);
+    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
       "pg/statistics/summary?mode=detailed",
@@ -530,6 +539,7 @@ export function createApp({
   app.get("/rdf/statistics/summary", async (req, res, next) => {
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
       parseDbQueryHeaders(req.headers);
+    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
       "rdf/statistics/summary?mode=detailed",
