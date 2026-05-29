@@ -70,6 +70,26 @@ Example: `https://my-app.example.com` or `https://app-a.example.com,https://app-
 - Default: cross-origin requests blocked
 - Type: `string` (comma-separated for multiple origins)
 
+### `PROXY_SERVER_ALLOWED_DB_ORIGINS`
+
+Restricts which database origins the proxy server will forward requests to. When set, requests targeting an origin not in the list receive a 403 response. When not set, the proxy forwards to any database URL specified by the client (current default behavior).
+
+Each entry must be an origin only (scheme + host + port) — paths are not supported and will cause a startup error. The proxy also disables HTTP redirects on outbound requests, preventing an allowed origin from redirecting to an unrelated internal service.
+
+Examples:
+
+```bash
+# Single origin
+PROXY_SERVER_ALLOWED_DB_ORIGINS=https://my-neptune-cluster:8182
+
+# Multiple origins
+PROXY_SERVER_ALLOWED_DB_ORIGINS=https://cluster-a:8182,https://cluster-b:8182
+```
+
+- Optional
+- Default: all origins allowed
+- Type: `string` (comma-separated for multiple origins)
+
 ### `LOG_STYLE`
 
 Controls the log output format.
