@@ -14,6 +14,7 @@
 - For React related patterns and conventions, refer to `.kiro/skills/react/SKILL.md`
 - For schema storage and discovery, refer to `.kiro/skills/schema/SKILL.md`
 - For GitHub issue and PR management, refer to `.kiro/skills/github/SKILL.md`
+- For git workflow conventions, refer to `.kiro/skills/git/SKILL.md`
 - For product overview and architecture, refer to `.kiro/skills/product/SKILL.md`
 
 ## Monorepo Commands
