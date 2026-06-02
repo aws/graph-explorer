@@ -101,6 +101,10 @@ By default, the proxy server forwards requests to any database URL specified by 
 >
 > This check only applies to requests routed through the proxy server. Connections configured to contact the database directly (bypassing the proxy) are not subject to the allowlist.
 
+## HTTP Redirects
+
+The proxy server does not follow HTTP redirects from the database. If the database responds with a redirect (3xx status), the proxy returns an error to the client instead of following it. This prevents a compromised or misconfigured database endpoint from redirecting the proxy to an unrelated internal service.
+
 ## Permissions
 
 Graph Explorer does not provide any mechanisms for controlling user permissions. If you are using Graph Explorer with AWS, Neptune permissions can be controlled through IAM roles.

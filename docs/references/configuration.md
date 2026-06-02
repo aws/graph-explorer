@@ -74,7 +74,7 @@ Example: `https://my-app.example.com` or `https://app-a.example.com,https://app-
 
 Restricts which database origins the proxy server will forward requests to. When set, requests targeting an origin not in the list receive a 403 response. When not set, the proxy forwards to any database URL specified by the client (current default behavior).
 
-Each entry must be an origin only (scheme + host + port) — paths are not supported and will cause a startup error. The proxy also disables HTTP redirects on outbound requests, preventing an allowed origin from redirecting to an unrelated internal service.
+Values must be origins (scheme + host + optional port). Including a path will cause a startup error.
 
 Examples:
 
@@ -84,6 +84,9 @@ PROXY_SERVER_ALLOWED_DB_ORIGINS=https://my-neptune-cluster:8182
 
 # Multiple origins
 PROXY_SERVER_ALLOWED_DB_ORIGINS=https://cluster-a:8182,https://cluster-b:8182
+
+# INVALID — paths are not allowed
+PROXY_SERVER_ALLOWED_DB_ORIGINS=https://my-neptune-cluster:8182/sparql
 ```
 
 - Optional
