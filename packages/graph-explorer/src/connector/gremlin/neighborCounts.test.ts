@@ -106,7 +106,7 @@ describe("neighborCounts", () => {
        .group()
        .by(id)
        .by(
-         both().dedup().group().by(label).by(count())
+         both().dedup().label().groupCount()
        )
     `);
   });
@@ -123,7 +123,7 @@ describe("neighborCounts", () => {
        .group()
        .by(id)
        .by(
-         both().dedup().group().by(label).by(count())
+         both().dedup().label().groupCount()
        )
     `);
   });
