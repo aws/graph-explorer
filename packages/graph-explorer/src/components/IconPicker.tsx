@@ -1,9 +1,13 @@
 import { SearchIcon } from "lucide-react";
 import { DynamicIcon } from "lucide-react/dynamic";
-import dynamicIconImports from "lucide-react/dynamicIconImports";
 import { useState } from "react";
 
-import { getLucideName, toLucideIconRef } from "@/utils/lucideIconUrl";
+import {
+  allIconNamesSorted,
+  getLucideName,
+  type IconName,
+  toLucideIconRef,
+} from "@/utils/lucideIcons";
 
 import {
   Button,
@@ -16,9 +20,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from ".";
-
-type IconName = keyof typeof dynamicIconImports;
-const allIconNames = (Object.keys(dynamicIconImports) as IconName[]).toSorted();
 
 const MAX_VISIBLE = 64;
 
@@ -88,9 +89,9 @@ export function IconPicker({
             </EmptyState>
           )}
         </div>
-        {!search && (
+        {filtered.length >= MAX_VISIBLE && (
           <p className="text-text-secondary text-xs">
-            Showing {MAX_VISIBLE} of {allIconNames.length} icons. Type to
+            Showing {MAX_VISIBLE} of {allIconNamesSorted.length} icons. Type to
             search.
           </p>
         )}
@@ -123,10 +124,10 @@ function IconButton({
 }
 
 function filterIcons(search: string) {
-  if (!search) return allIconNames.slice(0, MAX_VISIBLE);
+  if (!search) return allIconNamesSorted.slice(0, MAX_VISIBLE);
   const lower = search.toLowerCase();
   const results: IconName[] = [];
-  for (const name of allIconNames) {
+  for (const name of allIconNamesSorted) {
     if (name.includes(lower)) {
       results.push(name);
       if (results.length >= MAX_VISIBLE) break;

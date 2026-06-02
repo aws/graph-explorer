@@ -7,7 +7,11 @@ import {
 import type { VertexTypeConfig } from "@/core";
 
 import { logger } from "@/utils";
-import { getLucideName, getLucideSvgString } from "@/utils/lucideIconUrl";
+import {
+  getLucideName,
+  getLucideSvgString,
+  isLucideIconRef,
+} from "@/utils/lucideIcons";
 
 export type VertexIconConfig = Pick<
   VertexTypeConfig,
@@ -60,7 +64,10 @@ export async function renderNode(
     return null;
   }
 
-  if (vtConfig.iconImageType !== "image/svg+xml") {
+  if (
+    !isLucideIconRef(vtConfig.iconUrl) &&
+    vtConfig.iconImageType !== "image/svg+xml"
+  ) {
     return vtConfig.iconUrl;
   }
 

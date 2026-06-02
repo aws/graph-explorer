@@ -51,6 +51,27 @@ describe("IconPicker", () => {
     });
   });
 
+  it("should show truncation hint when results are capped", async () => {
+    const user = userEvent.setup();
+    render(<IconPicker onSelect={vi.fn()} />);
+
+    await user.click(screen.getByRole("button", { name: /browse/i }));
+
+    expect(screen.getByText(/Showing 64 of/)).toBeInTheDocument();
+  });
+
+  it("should hide truncation hint when fewer results than cap", async () => {
+    const user = userEvent.setup();
+    render(<IconPicker onSelect={vi.fn()} />);
+
+    await user.click(screen.getByRole("button", { name: /browse/i }));
+    const searchInput = screen.getByPlaceholderText("Search icons...");
+
+    await user.type(searchInput, "airplay");
+
+    expect(screen.queryByText(/Showing 64 of/)).not.toBeInTheDocument();
+  });
+
   it("should show no results message for invalid search", async () => {
     const user = userEvent.setup();
     render(<IconPicker onSelect={vi.fn()} />);

@@ -2,8 +2,15 @@ import dynamicIconImports from "lucide-react/dynamicIconImports";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
-type IconName = keyof typeof dynamicIconImports;
-const allIconNames = new Set(Object.keys(dynamicIconImports));
+/** A valid Lucide icon name (kebab-case, e.g. "user", "log-in"). */
+export type IconName = keyof typeof dynamicIconImports;
+
+/** All available Lucide icon names, sorted alphabetically. */
+export const allIconNamesSorted = (
+  Object.keys(dynamicIconImports) as IconName[]
+).toSorted();
+
+const allIconNamesSet = new Set(allIconNamesSorted);
 
 /**
  * Storage prefix for Lucide icon references in `iconUrl` fields.
@@ -14,39 +21,26 @@ const allIconNames = new Set(Object.keys(dynamicIconImports));
 export const LUCIDE_PREFIX = "lucide:";
 
 /** True if `iconUrl` is a stored Lucide reference. */
-export function isLucideIconRef(iconUrl: string | undefined): boolean {
+export function isLucideIconRef(
+  iconUrl: string | undefined,
+): iconUrl is `lucide:${string}` {
   return !!iconUrl && iconUrl.startsWith(LUCIDE_PREFIX);
 }
 
+/** True if `name` matches a known Lucide icon. */
 export function isValidLucideIconName(name: string): name is IconName {
-  return !!name && allIconNames.has(name);
+  return !!name && allIconNamesSet.has(name);
 }
 
 /** Extract the icon name from a `lucide:<name>` reference, or null. */
 export function getLucideName(iconUrl: string | undefined): string | null {
   if (!isLucideIconRef(iconUrl)) return null;
-  return iconUrl!.slice(LUCIDE_PREFIX.length);
+  return iconUrl.slice(LUCIDE_PREFIX.length);
 }
 
 /** Build a `lucide:<name>` reference for storage. */
 export function toLucideIconRef(iconName: string): string {
   return `${LUCIDE_PREFIX}${iconName}`;
-}
-
-/**
- * Resolves a stored `iconUrl` to a value suitable for `<img>` / `<SVG>` src.
- * - `lucide:<name>` → base64 SVG data URI (resolved + cached)
- * - `data:...` → passthrough
- * - any other string → passthrough (treated as URL)
- * - `undefined` / `null` → null
- */
-export async function resolveIconUrl(
-  iconUrl: string | undefined,
-): Promise<string | null> {
-  if (!iconUrl) return null;
-  const name = getLucideName(iconUrl);
-  if (name) return await lucideIconToDataUri(name);
-  return iconUrl;
 }
 
 /**
@@ -66,21 +60,4 @@ export async function getLucideSvgString(
   } catch {
     return null;
   }
-}
-
-/**
- * Converts a Lucide icon name to a base64-encoded SVG data URI.
- *
- * Icon names use kebab-case (e.g., "user", "log-in", "landmark").
- * See https://lucide.dev/icons for available icon names.
- *
- * @param iconName The kebab-case icon name from lucide.
- * @returns A data URI string for the SVG icon, or null if the icon name is not found.
- */
-export async function lucideIconToDataUri(
-  iconName: string,
-): Promise<string | null> {
-  const svgString = await getLucideSvgString(iconName);
-  if (!svgString) return null;
-  return `data:image/svg+xml;base64,${btoa(svgString)}`;
 }
