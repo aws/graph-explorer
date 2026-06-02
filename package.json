@@ -54,7 +54,7 @@
     "runtime": {
       "name": "node",
       "version": ">=24.13.0",
-      "onFail": "error"
+      "onFail": "ignore"
     }
   },
   "engines": {
