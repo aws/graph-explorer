@@ -52,7 +52,7 @@ export async function neighborCounts(
      .group()
      .by(id)
      .by(
-       both().dedup().label().groupCount()
+       both().dedup().groupCount().by(label)
      )
   `;
 
