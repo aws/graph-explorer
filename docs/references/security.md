@@ -97,6 +97,10 @@ When set, browsers will block cross-origin requests from any other origin. This 
 
 By default, the proxy server forwards requests to any database URL specified by the client. You can restrict which database origins the proxy will contact by setting [`PROXY_SERVER_ALLOWED_DB_ORIGINS`](./configuration.md#proxy_server_allowed_db_origins). Requests targeting an unlisted origin receive a 403 response.
 
+> [!NOTE]
+>
+> This check only applies to requests routed through the proxy server. Connections configured to contact the database directly (bypassing the proxy) are not subject to the allowlist.
+
 ## Permissions
 
 Graph Explorer does not provide any mechanisms for controlling user permissions. If you are using Graph Explorer with AWS, Neptune permissions can be controlled through IAM roles.

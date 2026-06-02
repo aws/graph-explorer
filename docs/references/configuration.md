@@ -90,6 +90,10 @@ PROXY_SERVER_ALLOWED_DB_ORIGINS=https://cluster-a:8182,https://cluster-b:8182
 - Default: all origins allowed
 - Type: `string` (comma-separated for multiple origins)
 
+> [!NOTE]
+>
+> This check only applies to requests routed through the proxy server. Connections configured to contact the database directly (bypassing the proxy) are not subject to the allowlist.
+
 ### `LOG_STYLE`
 
 Controls the log output format.
