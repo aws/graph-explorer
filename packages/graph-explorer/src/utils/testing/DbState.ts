@@ -5,6 +5,7 @@ import {
   allGraphSessionsAtom,
   type AppStore,
   configurationAtom,
+  defaultStylingAtom,
   type Edge,
   type EdgeId,
   type EdgePreferencesStorageModel,
@@ -15,6 +16,7 @@ import {
   explorerForTestingAtom,
   mapEdgeToTypeConfig,
   mapVertexToTypeConfigs,
+  mergeDefaultsIntoUserStyling,
   nodesAtom,
   nodesFilteredIdsAtom,
   nodesTypesFilteredAtom,
@@ -49,6 +51,7 @@ export class DbState {
   private _activeSchema: SchemaStorageModel | null;
   activeConfig: RawConfiguration;
   activeStyling: UserStyling;
+  activeDefaultStyling: UserStyling | null = null;
 
   explorer: Explorer;
 
@@ -169,6 +172,15 @@ export class DbState {
   }
 
   /**
+   * Sets the default styling (simulates a loaded defaultStyling.json).
+   * @param styling The default styling to use.
+   */
+  setDefaultStyling(styling: UserStyling) {
+    this.activeDefaultStyling = styling;
+    return this;
+  }
+
+  /**
    * Adds a style configuration for the edge type to the user styling.
    * @param edgeType The type of the edge to add the style to.
    * @param style The style configuration to add.
@@ -202,8 +214,16 @@ export class DbState {
     }
     store.set(activeConfigurationAtom, this.activeConfig.id);
 
-    // Styling
-    store.set(userStylingAtom, this.activeStyling);
+    // Styling — merge default styling into user styling (mirrors
+    // AppStatusLoader production behavior).
+    const mergedStyling = this.activeDefaultStyling
+      ? mergeDefaultsIntoUserStyling(
+          this.activeStyling,
+          this.activeDefaultStyling,
+        )
+      : this.activeStyling;
+    store.set(userStylingAtom, mergedStyling);
+    store.set(defaultStylingAtom, this.activeDefaultStyling);
 
     // Vertices
     store.set(nodesAtom, toNodeMap(this.vertices));

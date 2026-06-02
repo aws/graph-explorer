@@ -1,0 +1,86 @@
+{
+  "vertices": {
+    "User": {
+      "color": "#1565C0",
+      "icon": "user",
+      "shape": "ellipse"
+    },
+    "Account": {
+      "color": "#2E7D32",
+      "icon": "landmark",
+      "shape": "ellipse"
+    },
+    "Login": {
+      "color": "#EF6C00",
+      "icon": "log-in",
+      "shape": "ellipse"
+    },
+    "EmailAddress": {
+      "color": "#C62828",
+      "icon": "mail",
+      "shape": "ellipse"
+    },
+    "PhoneNumber": {
+      "color": "#6A1B9A",
+      "icon": "phone",
+      "shape": "ellipse"
+    },
+    "Device": {
+      "color": "#00838F",
+      "icon": "monitor",
+      "shape": "rectangle"
+    },
+    "IPAddress": {
+      "color": "#4E342E",
+      "icon": "globe",
+      "shape": "diamond"
+    },
+    "Transaction": {
+      "color": "#1B5E20",
+      "icon": "arrow-left-right",
+      "shape": "ellipse"
+    },
+    "Location": {
+      "color": "#E65100",
+      "icon": "map-pin",
+      "shape": "ellipse"
+    },
+    "Organization": {
+      "color": "#283593",
+      "icon": "building",
+      "shape": "rectangle"
+    }
+  },
+  "edges": {
+    "OWNS": {
+      "lineColor": "#2E7D32",
+      "lineThickness": 2,
+      "lineStyle": "solid"
+    },
+    "TRANSFERRED_TO": {
+      "lineColor": "#1B5E20",
+      "lineThickness": 3,
+      "lineStyle": "solid"
+    },
+    "HAS_EMAIL": {
+      "lineColor": "#9E9E9E",
+      "lineThickness": 1,
+      "lineStyle": "dashed"
+    },
+    "HAS_PHONE": {
+      "lineColor": "#9E9E9E",
+      "lineThickness": 1,
+      "lineStyle": "dashed"
+    },
+    "LOGGED_IN_FROM": {
+      "lineColor": "#EF6C00",
+      "lineThickness": 2,
+      "lineStyle": "solid"
+    },
+    "LOCATED_AT": {
+      "lineColor": "#E65100",
+      "lineThickness": 1,
+      "lineStyle": "dotted"
+    }
+  }
+}

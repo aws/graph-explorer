@@ -40,7 +40,7 @@ export default defineConfig(({ mode }) => {
       proxy: {
         // Forward API requests to the Express proxy server in dev mode so
         // the browser stays on the same origin and CORS is not needed.
-        "^/(defaultConnection|gremlin|logger|openCypher|pg|rdf|sparql|status|summary)(/|$)":
+        "^/(custom-icons|defaultConnection|defaultStyling|gremlin|logger|openCypher|pg|rdf|sparql|status|summary)(/|$)":
           {
             target: expressServerUrl,
             changeOrigin: true,

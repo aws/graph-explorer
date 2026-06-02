@@ -148,11 +148,13 @@ const TabularContent = <T extends object>({
 
   useEffect(() => {
     if (!headerControlsRef.current || headerControlsPosition !== "sticky") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: DOM measurement requires setState in effect
       setStickyHeaderTop(0);
       return;
     }
 
     const { height } = headerControlsRef.current.getBoundingClientRect();
+
     setStickyHeaderTop(height);
     // headerControlsChildren can affect to the container's height
   }, [headerControlsRef, headerControlsPosition]);

@@ -108,6 +108,14 @@ export function createApp({
     "/defaultConnection",
     express.static(path.join(configPath, "defaultConnection.json")),
   );
+  app.use(
+    "/defaultStyling",
+    express.static(path.join(configPath, "defaultStyling.json")),
+  );
+  app.use(
+    "/custom-icons",
+    express.static(path.join(configPath, "custom-icons")),
+  );
 
   // Host the Graph Explorer UI static files
   app.use(staticFilesVirtualPath, express.static(staticFilesPath));

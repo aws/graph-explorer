@@ -1,5 +1,11 @@
 # Graph Explorer Change Log
 
+## Unreleased
+
+- Add defaultStyling.json support for persistent per-type vertex and edge
+  styling (#1265, #112, #173, #573, #689)
+- Add Lucide icon picker to node styling dialog
+
 ## Release 3.0.3
 
 This patch release blocks cross-origin requests by default, improves performance for larger schemas, adds inferred edge connections in search and expansion, and adds a diagnostic logging setting.
