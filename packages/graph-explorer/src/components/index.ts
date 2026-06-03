@@ -33,6 +33,8 @@ export * from "./Field";
 export * from "./FileButton";
 export * from "./Form";
 
+export * from "./IconPicker";
+
 export * from "./numberFormat";
 
 export * from "./icons";

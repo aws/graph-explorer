@@ -7,6 +7,11 @@ import {
 import type { VertexTypeConfig } from "@/core";
 
 import { logger } from "@/utils";
+import {
+  getLucideName,
+  getLucideSvgString,
+  isLucideIconRef,
+} from "@/utils/lucideIcons";
 
 export type VertexIconConfig = Pick<
   VertexTypeConfig,
@@ -17,6 +22,15 @@ const iconQueryOptions = (url: string) =>
   queryOptions({
     queryKey: ["icon", url],
     queryFn: async () => {
+      const lucideName = getLucideName(url);
+      if (lucideName) {
+        logger.debug("Resolving lucide icon", lucideName);
+        const svg = await getLucideSvgString(lucideName);
+        if (svg === null) {
+          throw new Error(`Unknown Lucide icon: ${lucideName}`);
+        }
+        return svg;
+      }
       logger.debug("Fetching icon", url);
       const response = await fetch(url);
       return await response.text();
@@ -50,7 +64,10 @@ export async function renderNode(
     return null;
   }
 
-  if (vtConfig.iconImageType !== "image/svg+xml") {
+  if (
+    !isLucideIconRef(vtConfig.iconUrl) &&
+    vtConfig.iconImageType !== "image/svg+xml"
+  ) {
     return vtConfig.iconUrl;
   }
 

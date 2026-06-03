@@ -6,6 +6,9 @@
 **/dist/
 **/.env.local
 
+# IntelliJ IDEA module files
+*.iml
+
 # TypeScript build cache manifests
 *.tsbuildinfo
 
