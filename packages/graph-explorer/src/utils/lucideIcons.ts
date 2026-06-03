@@ -10,7 +10,7 @@ export const allIconNamesSorted = (
   Object.keys(dynamicIconImports) as IconName[]
 ).toSorted();
 
-const allIconNamesSet = new Set(allIconNamesSorted);
+const allIconNamesSet = new Set<string>(allIconNamesSorted);
 
 /**
  * Storage prefix for Lucide icon references in `iconUrl` fields.

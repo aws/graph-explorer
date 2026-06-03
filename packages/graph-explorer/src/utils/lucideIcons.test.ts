@@ -40,12 +40,9 @@ describe("isLucideIconRef", () => {
     expect(isLucideIconRef("https://example.com/icon.svg")).toBe(false);
   });
 
-  it("narrows the type", () => {
+  it("narrows the type to a template literal", () => {
     const url: string | undefined = "lucide:plane";
-    if (isLucideIconRef(url)) {
-      const _narrowed: `lucide:${string}` = url;
-      expect(_narrowed).toBe("lucide:plane");
-    }
+    expect(isLucideIconRef(url)).toBe(true);
   });
 });
 
