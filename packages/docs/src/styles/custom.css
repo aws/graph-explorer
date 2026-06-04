@@ -150,7 +150,8 @@ p {
 }
 
 .card .body {
-  color: var(--sl-color-gray-2);
+  color: var(--sl-color-gray-3);
+  line-height: 1.5;
 }
 
 /* Nav bar */

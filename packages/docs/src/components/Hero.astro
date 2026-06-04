@@ -4,6 +4,7 @@ import GraphBackground from './GraphBackground.astro';
 
 const { data } = Astro.locals.starlightRoute.entry;
 const { title = data.title, tagline, actions = [] } = data.hero || {};
+
 ---
 
 <div class="hero" data-graph-hero>
@@ -92,6 +93,7 @@ const { title = data.title, tagline, actions = [] } = data.hero || {};
 		line-height: var(--sl-line-height-headings);
 		font-weight: 800;
 		color: var(--sl-color-white);
+		letter-spacing: -0.03em;
 	}
 
 	.tagline {
@@ -99,7 +101,7 @@ const { title = data.title, tagline, actions = [] } = data.hero || {};
 		color: var(--sl-color-gray-2);
 	}
 
-	.actions {
+.actions {
 		display: flex;
 		gap: 1rem 2rem;
 		flex-wrap: wrap;

@@ -18,9 +18,9 @@ export default defineConfig({
         frames: false,
       },
       components: {
-        Head: "./src/components/starlight/Head.astro",
-        Header: "./src/components/starlight/Header.astro",
-        Hero: "./src/components/starlight/Hero.astro",
+        Head: "./src/components/Head.astro",
+        Header: "./src/components/Header.astro",
+        Hero: "./src/components/Hero.astro",
       },
       social: [
         {
