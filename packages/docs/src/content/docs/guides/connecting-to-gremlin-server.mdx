@@ -5,7 +5,7 @@ description: Configure Graph Explorer to connect to Apache TinkerPop Gremlin Ser
 
 If you are using the default Gremlin Server docker image, you can get the server running with the following commands:
 
-```
+```bash
 docker pull tinkerpop/gremlin-server:latest
 docker run -p 8182:8182 \
     tinkerpop/gremlin-server:latest \
@@ -27,7 +27,7 @@ Graph Explorer only supports HTTP(S) connections. When connecting to Gremlin-Ser
 :::tip
 The Gremlin Server configuration can be usually found at:
 
-```
+```text
 /conf/gremlin-server.yaml
 ```
 

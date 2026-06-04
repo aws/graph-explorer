@@ -7,6 +7,21 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "Graph Explorer",
+      customCss: [
+        "@fontsource/inter/400.css",
+        "@fontsource/inter/500.css",
+        "@fontsource/inter/600.css",
+        "@fontsource/inter/800.css",
+        "./src/styles/custom.css",
+      ],
+      expressiveCode: {
+        frames: false,
+      },
+      components: {
+        Head: "./src/components/starlight/Head.astro",
+        Header: "./src/components/starlight/Header.astro",
+        Hero: "./src/components/starlight/Hero.astro",
+      },
       social: [
         {
           icon: "github",

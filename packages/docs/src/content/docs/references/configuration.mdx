@@ -3,99 +3,79 @@ title: "Configuration"
 description: Environment variables for application settings and default connections.
 ---
 
+import { Badge, Tabs, TabItem } from "@astrojs/starlight/components";
+
 All environment variables for configuring Graph Explorer, organized by concern.
 
 ## Application Configuration
 
-These variables control server behavior, networking, and security.
+These variables control server behavior, networking, and security. None of these variables are required. Defaults are listed below.
 
-### `GRAPH_EXP_ENV_ROOT_FOLDER`
+#### `GRAPH_EXP_ENV_ROOT_FOLDER`
 
-Base path used to serve the `graph-explorer` front end application.
+<Badge text="string" /> <Badge text="default: /" variant="note" />
 
-Example: `/explorer`
+Base path used to serve the `graph-explorer` front end application. Example: `/explorer`
 
-- Optional
-- Default: `/`
-- Type: `string`
+#### `HOST`
 
-### `HOST`
+<Badge text="string" /> <Badge text="default: localhost" variant="note" />
 
-The public hostname of the server. This is used to generate the self-signed SSL certificate at container startup.
+The public hostname of the server. Used to generate the self-signed SSL certificate at container startup. Required when using [HTTPS connections](../security/#https-connections) without providing your own certificate files.
 
-Example: `localhost`
+#### `GRAPH_EXP_HTTPS_CONNECTION`
 
-- Required when using HTTPS connections
-- Default is `localhost`
-- Type: `string`
+<Badge text="boolean" /> <Badge text="default: true (Docker)" variant="note" />
 
-### `GRAPH_EXP_HTTPS_CONNECTION`
+Uses the self-signed certificate to serve Graph Explorer over HTTPS if true. Only used in Docker via the entrypoint script.
 
-Uses the self-signed certificate to serve Graph Explorer over https if true. Only used in Docker via the entrypoint script.
+#### `PROXY_SERVER_HTTPS_PORT`
 
-- Optional
-- Default `true` in Docker, not set otherwise
-- Type: `boolean`
-
-### `PROXY_SERVER_HTTPS_PORT`
+<Badge text="number" /> <Badge text="default: 443" variant="note" />
 
 The port to use for the HTTPS server.
 
-- Optional
-- Default `443`
-- Type: `number`
+#### `PROXY_SERVER_HTTP_PORT`
 
-### `PROXY_SERVER_HTTP_PORT`
+<Badge text="number" /> <Badge text="default: 80" variant="note" />
 
 The port to use for the HTTP server.
 
-- Optional
-- Default `80`
-- Type: `number`
+#### `PROXY_SERVER_HTTPS_CONNECTION`
 
-### `PROXY_SERVER_HTTPS_CONNECTION`
+<Badge text="boolean" /> <Badge text="default: true (Docker)" variant="note" />
 
-Uses the self-signed certificate to serve the proxy-server over https if true.
+Uses the self-signed certificate to serve the proxy-server over HTTPS if true. Defaults to `false` in code, `true` in Docker via the entrypoint script.
 
-- Optional
-- Default `false` in code, `true` in Docker via the entrypoint script
-- Type: `boolean`
+#### `PROXY_SERVER_CORS_ORIGIN`
 
-### `PROXY_SERVER_CORS_ORIGIN`
+<Badge text="string" /> <Badge text="default: blocked" variant="note" />
 
 Restricts which origins are allowed to make cross-origin requests to the proxy server. When set, only requests from these exact origins will receive CORS headers. When not set, cross-origin requests are blocked. Each origin must include the scheme and must not have a trailing slash or path.
 
 Example: `https://my-app.example.com` or `https://app-a.example.com,https://app-b.example.com`
 
-- Optional
-- Default: cross-origin requests blocked
-- Type: `string` (comma-separated for multiple origins)
+#### `LOG_STYLE`
 
-### `LOG_STYLE`
+<Badge text='"cloudwatch" | "default"' />
+<Badge text="default: default" variant="note" />
 
-Controls the log output format.
+Controls the log output format. `cloudwatch` omits timestamps and hostname/pid (provided by CloudWatch). `default` uses the standard log format.
 
-- Optional
-- Default: `default`
-- Type: `"cloudwatch" | "default"`
-- `cloudwatch` omits timestamps and hostname/pid (these are provided by CloudWatch)
-- `default` uses the standard log format
+#### `CONFIGURATION_FOLDER_PATH`
 
-### `CONFIGURATION_FOLDER_PATH`
+<Badge text="string" />
+<Badge text="default: packages/graph-explorer" variant="note" />
 
 Override path for the folder containing `.env` and `defaultConnection.json`. When set, replaces the default path entirely.
-
-- Optional
-- Default: `<client root>` (`packages/graph-explorer`)
-- Type: `string`
 
 ## Default Connection
 
 To provide a default connection such that initial loads of Graph Explorer always result with the same starting connection, modify the `docker run ...` command to either take in a JSON configuration or runtime environment variables. If you provide both a JSON configuration and environmental variables, the JSON will be prioritized.
 
-### Environment Variables
+### Connection Variables
 
-These are the valid environment variables used for the default connection, their defaults, and their descriptions.
+These are the valid variables used for the default connection:
 
 - Required:
   - `PUBLIC_OR_PROXY_ENDPOINT` - `None`
@@ -114,53 +94,58 @@ These are the valid environment variables used for the default connection, their
     - `AWS_REGION` - `None`
     - `SERVICE_TYPE` - `neptune-db`, Set this as `neptune-db` for Neptune database or `neptune-graph` for Neptune Analytics.
 
-### JSON Configuration Approach
+### Configuration Approaches
 
-First, create a `config.json` file containing values for the connection attributes:
+<Tabs>
+  <TabItem label="JSON File">
+    Create a `config.json` file containing values for the connection attributes:
 
-```json
-{
-  "PUBLIC_OR_PROXY_ENDPOINT": "https://public-endpoint",
-  "GRAPH_CONNECTION_URL": "https://{your-cluster-id}.us-west-2.neptune.amazonaws.com:8182",
-  "USING_PROXY_SERVER": true,
-  "IAM": true,
-  "SERVICE_TYPE": "neptune-db",
-  "AWS_REGION": "us-west-2",
-  "GRAPH_TYPE": "gremlin",
-  "GRAPH_EXP_HTTPS_CONNECTION": true,
-  "PROXY_SERVER_HTTPS_CONNECTION": true,
-  "GRAPH_EXP_FETCH_REQUEST_TIMEOUT": 240000,
-  "GRAPH_EXP_NODE_EXPANSION_LIMIT": 500
-}
-```
+    ```json
+    {
+      "PUBLIC_OR_PROXY_ENDPOINT": "https://public-endpoint",
+      "GRAPH_CONNECTION_URL": "https://{your-cluster-id}.us-west-2.neptune.amazonaws.com:8182",
+      "USING_PROXY_SERVER": true,
+      "IAM": true,
+      "SERVICE_TYPE": "neptune-db",
+      "AWS_REGION": "us-west-2",
+      "GRAPH_TYPE": "gremlin",
+      "GRAPH_EXP_HTTPS_CONNECTION": true,
+      "PROXY_SERVER_HTTPS_CONNECTION": true,
+      "GRAPH_EXP_FETCH_REQUEST_TIMEOUT": 240000,
+      "GRAPH_EXP_NODE_EXPANSION_LIMIT": 500
+    }
+    ```
 
-`GRAPH_TYPE` accepts `"gremlin"`, `"sparql"`, or `"openCypher"`. `GRAPH_EXP_FETCH_REQUEST_TIMEOUT` is measured in milliseconds (e.g., 240000 is 4 minutes).
+    `GRAPH_TYPE` accepts `"gremlin"`, `"sparql"`, or `"openCypher"`. `GRAPH_EXP_FETCH_REQUEST_TIMEOUT` is measured in milliseconds (e.g., 240000 is 4 minutes).
 
-Pass the `config.json` file path to the `docker run` command.
+    Pass the `config.json` file path to the `docker run` command.
 
-```bash
-docker run -p 80:80 -p 443:443 \
- --env HOST={hostname-or-ip-address} \
- -v /path/to/config.json:/graph-explorer/config.json \
- public.ecr.aws/neptune/graph-explorer
-```
+    ```bash
+    docker run -p 80:80 -p 443:443 \
+     --env HOST={hostname-or-ip-address} \
+     -v /path/to/config.json:/graph-explorer/config.json \
+     public.ecr.aws/neptune/graph-explorer
+    ```
 
-### Environment Variable Approach
+  </TabItem>
+  <TabItem label="Environment Variables">
+    Provide the desired connection variables directly to the `docker run` command:
 
-Provide the desired connection variables directly to the `docker run` command, as follows:
+    ```bash
+    docker run -p 80:80 -p 443:443 \
+     --env HOST={hostname-or-ip-address} \
+     --env PUBLIC_OR_PROXY_ENDPOINT=https://public-endpoint \
+     --env GRAPH_TYPE=gremlin \
+     --env USING_PROXY_SERVER=true \
+     --env IAM=false \
+     --env GRAPH_CONNECTION_URL=https://{your-cluster-id}.us-west-2.neptune.amazonaws.com:8182 \
+     --env AWS_REGION=us-west-2 \
+     --env SERVICE_TYPE=neptune-db \
+     --env PROXY_SERVER_HTTPS_CONNECTION=true \
+     --env GRAPH_EXP_FETCH_REQUEST_TIMEOUT=240000 \
+     --env GRAPH_EXP_NODE_EXPANSION_LIMIT=500 \
+     public.ecr.aws/neptune/graph-explorer
+    ```
 
-```bash
-docker run -p 80:80 -p 443:443 \
- --env HOST={hostname-or-ip-address} \
- --env PUBLIC_OR_PROXY_ENDPOINT=https://public-endpoint \
- --env GRAPH_TYPE=gremlin \
- --env USING_PROXY_SERVER=true \
- --env IAM=false \
- --env GRAPH_CONNECTION_URL=https://{your-cluster-id}.us-west-2.neptune.amazonaws.com:8182 \
- --env AWS_REGION=us-west-2 \
- --env SERVICE_TYPE=neptune-db \
- --env PROXY_SERVER_HTTPS_CONNECTION=true \
- --env GRAPH_EXP_FETCH_REQUEST_TIMEOUT=240000 \
- --env GRAPH_EXP_NODE_EXPANSION_LIMIT=500 \
- public.ecr.aws/neptune/graph-explorer
-```
+  </TabItem>
+</Tabs>

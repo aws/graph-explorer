@@ -3,9 +3,11 @@ title: "Security"
 description: HTTPS, CORS, authentication, and security best practices.
 ---
 
+import { FileTree, Steps } from "@astrojs/starlight/components";
+
 You can use Graph Explorer to connect to a publicly accessible graph database endpoint, or connect to a proxy endpoint that redirects to a private graph database endpoint.
 
-Graph Explorer supports the HTTPS protocol by default and provides a self-signed certificate as part of the Docker image. You can choose to use HTTP instead by changing the [environment variable default settings](./configuration/#application-configuration).
+Graph Explorer supports the HTTPS protocol by default and provides a self-signed certificate as part of the Docker image. You can choose to use HTTP instead by changing the [environment variable default settings](../configuration/#application-configuration).
 
 ## HTTPS Connections
 
@@ -15,16 +17,18 @@ Graph Explorer serves over HTTPS by default using a self-signed certificate. The
 
 The proxy server reads certificates from the following location inside the container:
 
-```
-/graph-explorer/packages/graph-explorer-proxy-server/cert-info/
-├── rootCA.key    # Root CA private key
-├── rootCA.crt    # Root CA certificate
-├── server.key    # Server private key
-├── server.csr    # Server certificate signing request
-├── server.crt    # Server certificate
-├── csr.conf      # CSR configuration template
-└── cert.conf     # Certificate extensions configuration
-```
+<FileTree>
+
+- graph-explorer/packages/graph-explorer-proxy-server/cert-info/
+  - rootCA.key Root CA private key
+  - rootCA.crt Root CA certificate
+  - server.key Server private key
+  - server.csr Server certificate signing request
+  - server.crt Server certificate
+  - csr.conf CSR configuration template
+  - cert.conf Certificate extensions configuration
+
+</FileTree>
 
 If HTTPS is enabled and any of these files are missing, the server will exit with an error listing the missing files.
 
@@ -54,14 +58,20 @@ To serve over HTTP instead, set `PROXY_SERVER_HTTPS_CONNECTION=false` in your en
 
 When using the default self-signed certificate, your browser will show a security warning. You can bypass this by trusting the certificate:
 
+<Steps>
+
 1. Download the certificate directly from the browser. For example, if using Google Chrome, click the "Not Secure" section on the left of the URL bar and select "Certificate is not valid" to show the certificate. Then click Details tab and click Export at the bottom.
 2. Once you have the certificate, you will need to trust it on your machine. For MacOS, you can open the Keychain Access app. Select System under System Keychains. Then go to File > Import Items... and import the certificate you downloaded in the previous step.
 3. Once imported, select the certificate and right-click to select "Get Info". Expand the Trust section, and change the value of "When using this certificate" to "Always Trust".
 4. You should now refresh the browser and see that you can proceed to open the application. For Chrome, the application will remain "Not Secure" due to the fact that this is a self-signed certificate. If you have trouble accessing Graph Explorer after completing the previous step and reloading the browser, consider running a docker restart command and refreshing the browser again.
 
+</Steps>
+
 ### Removing the "Not Secure" warning on Chrome
 
 For browsers like Safari and Firefox, trusting the certificate from the browser (steps above) is enough to bypass the "Not Secure" warning. However, Chrome treats self-signed certificates differently. To remove the warning on Chrome, you need to trust the **root CA certificate** rather than the server certificate. See the [Chrome Root Store FAQ](https://chromium.googlesource.com/chromium/src/+/main/net/data/ssl/chrome_root_store/faq/#how-does-the-chrome-certificate-verifier-integrate-with-platform-trust-stores-for-local-trust-decisions) for details on how Chrome integrates with platform trust stores.
+
+<Steps>
 
 1. Copy the root certificate from the running container to your local machine:
    ```
@@ -71,6 +81,8 @@ For browsers like Safari and Firefox, trusting the certificate from the browser 
 2. Trust the root certificate on your machine. For macOS, open the Keychain Access app, select System under System Keychains, then go to File > Import Items... and import `rootCA.crt`.
 3. Once imported, select the certificate and right-click to select "Get Info". Expand the Trust section, and change the value of "When using this certificate" to "Always Trust".
 4. Refresh the browser. The "Not Secure" warning should be gone.
+
+</Steps>
 
 ## CORS
 
@@ -98,7 +110,7 @@ CORS headers only affect browser-initiated requests — direct API calls from sc
 
 Graph Explorer does not provide any mechanisms for controlling user permissions. If you are using Graph Explorer with AWS, Neptune permissions can be controlled through IAM roles.
 
-For information about what permissions Graph Explorer requires check out the documentation on [SageMaker configuration](../guides/deploy-to-sagemaker/#minimum-database-permissions).
+For information about what permissions Graph Explorer requires check out the documentation on [SageMaker configuration](../../guides/deploy-to-sagemaker/#minimum-database-permissions).
 
 :::caution
 By default, a Neptune Notebook will have full read & write access to Neptune data.

@@ -3,6 +3,8 @@ title: "Connecting to Amazon Neptune"
 description: Configure Graph Explorer to connect to Amazon Neptune.
 ---
 
+import { LinkCard, CardGrid } from "@astrojs/starlight/components";
+
 Graph Explorer connects to Amazon Neptune through its proxy server, which forwards requests to the database and handles SigV4 signing when IAM authentication is enabled.
 
 ## Connection Settings
@@ -35,6 +37,8 @@ Neptune [public endpoints](https://docs.aws.amazon.com/neptune/latest/userguide/
 
 For Neptune instances without public endpoints, Graph Explorer must be deployed within the same VPC or connected via VPC peering. See the deployment guides:
 
-- [Deploy to Amazon EC2](./deploy-to-ec2/)
-- [Deploy to ECS Fargate](./deploy-to-ecs-fargate/)
-- [Deploy to SageMaker](./deploy-to-sagemaker/)
+<CardGrid>
+  <LinkCard title="Deploy to Amazon EC2" href="../deploy-to-ec2/" />
+  <LinkCard title="Deploy to ECS Fargate" href="../deploy-to-ecs-fargate/" />
+  <LinkCard title="Deploy to SageMaker" href="../deploy-to-sagemaker/" />
+</CardGrid>

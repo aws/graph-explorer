@@ -3,6 +3,8 @@ title: "Getting Started"
 description: A hands-on tutorial using the air routes sample dataset.
 ---
 
+import { Steps, LinkCard, CardGrid } from "@astrojs/starlight/components";
+
 A hands-on tutorial that walks you through Graph Explorer using the air routes sample dataset. By the end, you will have searched for airports, explored connections between them, filtered the graph, styled nodes, and viewed data in a table.
 
 ## Prerequisites
@@ -12,6 +14,8 @@ A hands-on tutorial that walks you through Graph Explorer using the air routes s
 ## Launch Graph Explorer
 
 The fastest way to try Graph Explorer is with the [Air Routes sample](https://github.com/aws/graph-explorer/tree/main/samples/air_routes). It launches Graph Explorer and a Gremlin Server pre-loaded with sample data using Docker Compose — no database setup or AWS account required.
+
+<Steps>
 
 1. Clone the repository
    ```
@@ -23,6 +27,8 @@ The fastest way to try Graph Explorer is with the [Air Routes sample](https://gi
    docker compose up
    ```
 3. Open your browser and navigate to [http://localhost:8080/explorer](http://localhost:8080/explorer)
+
+</Steps>
 
 Graph Explorer opens to the **Graph** page with a default connection already configured and connected to the Gremlin Server with the air routes data. The canvas is empty because no nodes have been added yet.
 
@@ -41,11 +47,15 @@ On the right side of the graph view, you will see a vertical strip of sidebar ic
 
 ## Search for a Node
 
+<Steps>
+
 1. Click the **Search** icon (magnifying glass) in the right sidebar to open the Search panel.
 2. In the **Node Label** dropdown, select **airport**.
 3. In the **Property** dropdown, select **code**.
 4. In the search text field, type `AUS`.
 5. Click the result for Austin to expand it, then click the **⊕** button to add it to the graph canvas.
+
+</Steps>
 
 The node appears on the canvas. Click it to select it — the **Details** panel opens automatically in the right sidebar, showing its properties like city, country, and coordinates. You can zoom with the scroll wheel and pan by clicking and dragging the background.
 
@@ -53,7 +63,7 @@ The node appears on the canvas. Click it to select it — the **Details** panel 
 
 With the Austin airport node on the canvas, let's discover what it connects to.
 
-1. **Double-click** the AUS node on the canvas.
+**Double-click** the AUS node on the canvas.
 
 Graph Explorer fetches up to 10 neighbors and adds them to the graph. The number on top of a node shows how many unexpanded neighbors remain. Double-click again to fetch the next batch.
 
@@ -67,9 +77,13 @@ types to fetch.
 
 As you expand nodes, the graph can get crowded. The Filters panel lets you focus on specific types.
 
+<Steps>
+
 1. Click the **Filters** icon in the right sidebar to open the Entities Filter panel.
 2. You will see two tabs: **Node Labels** and **Edge Labels**. Each tab lists the types currently in the graph with checkboxes.
 3. Try unchecking a node label to hide those nodes from the canvas. Check it again to bring them back.
+
+</Steps>
 
 This does not remove nodes from the graph — it only controls visibility. You can use this to temporarily focus on a subset of the data.
 
@@ -77,15 +91,21 @@ This does not remove nodes from the graph — it only controls visibility. You c
 
 You can view the nodes and edges currently on the canvas in a table format without leaving the Graph page.
 
+<Steps>
+
 1. Click the grid icon in the navigation bar to toggle the Table View open.
 2. Use the dropdown to switch between **All Nodes** and **All Edges**.
 3. You can sort, filter, and export the table data to CSV or JSON.
+
+</Steps>
 
 This table only shows what is on the canvas — it is a different view of the same data you have been exploring.
 
 ## Style Nodes
 
 You can customize how each node type looks on the canvas.
+
+<Steps>
 
 1. Click the **Node Label Styling** icon in the right sidebar.
 2. Find the **airport** type in the list.
@@ -95,25 +115,54 @@ You can customize how each node type looks on the canvas.
 6. Change the **Node Color** to a color of your choice using the color picker.
 7. Click **Done** to apply.
 
+</Steps>
+
 All airport nodes on the canvas update with the new labels and color. You can also change the shape, border, and icon.
 
 ## Switch to the Data Table
 
 The Data Table page lets you browse all nodes in the database without adding them to the graph first.
 
+<Steps>
+
 1. Click **Data Table** in the navigation bar.
 2. The **Node Label** dropdown at the top left is pre-selected to **airport**. Use it to switch to other types like **country** or **continent**.
 3. Browse the paginated table of all airports in the dataset.
 4. To send a specific airport to the graph view, click the **Send to Explorer** button on its row.
 
+</Steps>
+
 ## Next Steps
 
-Now that you have explored the basics, here are some directions to go next:
-
-- [Features](../features) — Explore all capabilities in depth
-- [Connecting to databases](../guides#connecting-to-databases) — Connect to Neptune, Gremlin Server, or BlazeGraph
-- [Deployment guides](../guides#deployment) — Deploy with Docker, EC2, ECS Fargate, or SageMaker
-- [Configuration](../references/configuration/) — Environment variables for application settings and default connections
-- [Development](../references/development/) — Build from source for local development
-- [Troubleshooting](../guides/troubleshooting/) — Common issues and workarounds
-- [Samples](https://github.com/aws/graph-explorer/tree/main/samples) — More Docker Compose examples for different configurations
+<CardGrid>
+  <LinkCard
+    title="Features"
+    href="../features/"
+    description="Explore all capabilities in depth."
+  />
+  <LinkCard
+    title="Connecting to Databases"
+    href="../guides/connecting-to-neptune/"
+    description="Connect to Neptune, Gremlin Server, or BlazeGraph."
+  />
+  <LinkCard
+    title="Deployment Guides"
+    href="../guides/deploy-with-docker/"
+    description="Deploy with Docker, EC2, ECS Fargate, or SageMaker."
+  />
+  <LinkCard
+    title="Configuration"
+    href="../references/configuration/"
+    description="Environment variables for application settings and default connections."
+  />
+  <LinkCard
+    title="Development"
+    href="../references/development/"
+    description="Build from source for local development."
+  />
+  <LinkCard
+    title="Troubleshooting"
+    href="../guides/troubleshooting/"
+    description="Common issues and workarounds."
+  />
+</CardGrid>

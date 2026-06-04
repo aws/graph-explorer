@@ -3,21 +3,55 @@ title: "Guides"
 description: Connect to databases, deploy to AWS, and troubleshoot common issues.
 ---
 
+import { LinkCard } from "@astrojs/starlight/components";
+
 Guides for connecting to graph databases, deploying Graph Explorer, and troubleshooting common issues.
 
 ## Connecting to Databases
 
-- [Connecting to Amazon Neptune](./connecting-to-neptune/)
-- [Connecting to Gremlin-Server](./connecting-to-gremlin-server/)
-- [Connecting to BlazeGraph](./connecting-to-blazegraph/)
+<LinkCard
+  title="Connecting to Amazon Neptune"
+  href="./connecting-to-neptune/"
+  description="Configure proxy server, IAM auth, and network access for Neptune clusters."
+/>
+<LinkCard
+  title="Connecting to Gremlin-Server"
+  href="./connecting-to-gremlin-server/"
+  description="Set up a local Gremlin Server with REST enabled and connect via the proxy."
+/>
+<LinkCard
+  title="Connecting to BlazeGraph"
+  href="./connecting-to-blazegraph/"
+  description="Connect to a BlazeGraph SPARQL endpoint using Docker networking."
+/>
 
 ## Deployment
 
-- [Deploy with Docker](./deploy-with-docker/)
-- [Deploy on Amazon EC2](./deploy-to-ec2/)
-- [Deploy on Amazon ECS with Fargate](./deploy-to-ecs-fargate/)
-- [Deploy on Amazon SageMaker](./deploy-to-sagemaker/)
+<LinkCard
+  title="Deploy with Docker"
+  href="./deploy-with-docker/"
+  description="Run the official Docker image locally with HTTPS and self-signed certificates."
+/>
+<LinkCard
+  title="Deploy on Amazon EC2"
+  href="./deploy-to-ec2/"
+  description="Host Graph Explorer on EC2 as a proxy server with SSH tunneling to Neptune."
+/>
+<LinkCard
+  title="Deploy on Amazon ECS with Fargate"
+  href="./deploy-to-ecs-fargate/"
+  description="Set up a Fargate service with ALB, ACM certificates, and Route 53."
+/>
+<LinkCard
+  title="Deploy on Amazon SageMaker"
+  href="./deploy-to-sagemaker/"
+  description="Launch via lifecycle configuration on a SageMaker notebook instance."
+/>
 
-## Troubleshooting
+## Miscellaneous
 
-- [Troubleshooting](./troubleshooting/)
+<LinkCard
+  title="Troubleshooting"
+  href="./troubleshooting/"
+  description="Common issues and workarounds for Graph Explorer."
+/>
