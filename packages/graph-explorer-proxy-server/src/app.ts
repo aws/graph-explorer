@@ -38,6 +38,25 @@ export function resolveEndpointUrl(base: string, endpoint: string): URL {
   return resolved;
 }
 
+/**
+ * Builds an endpoint string from a known path and parsed query parameters.
+ * Uses URLSearchParams to safely serialize query values without passing raw
+ * user input through URL construction.
+ */
+function buildEndpointWithQuery(
+  path: string,
+  query: Record<string, unknown>,
+): string {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (typeof value === "string") {
+      params.append(key, value);
+    }
+  }
+  const search = params.toString();
+  return search ? `${path}?${search}` : path;
+}
+
 /** Zod schema for the custom headers expected on database query requests. */
 const DbQueryHeadersSchema = z.object({
   queryid: z.string().optional(),
@@ -506,7 +525,8 @@ export function createApp({
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
       parseDbQueryHeaders(req.headers);
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
-    const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, req.url).href;
+    const endpoint = buildEndpointWithQuery("summary", req.query);
+    const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, endpoint).href;
 
     await fetchData(
       res,
@@ -524,7 +544,8 @@ export function createApp({
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
       parseDbQueryHeaders(req.headers);
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
-    const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, req.url).href;
+    const endpoint = buildEndpointWithQuery("pg/statistics/summary", req.query);
+    const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, endpoint).href;
 
     await fetchData(
       res,
@@ -542,7 +563,11 @@ export function createApp({
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
       parseDbQueryHeaders(req.headers);
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
-    const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, req.url).href;
+    const endpoint = buildEndpointWithQuery(
+      "rdf/statistics/summary",
+      req.query,
+    );
+    const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, endpoint).href;
 
     await fetchData(
       res,
