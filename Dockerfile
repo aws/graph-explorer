@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM amazonlinux:2023 AS base
-ENV NODE_VERSION=24.13.0
+ENV NODE_VERSION=24.16.0
 
 # Install Node.js and openssl, then remove everything not needed at runtime
 # (package managers, python3, build tools) to minimize potential issues.

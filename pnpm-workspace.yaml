@@ -1,20 +1,27 @@
 packages:
   - packages/*
 
+overrides:
+  semver@<7.0.0: ">=7.7.3"
+  brace-expansion@>=5.0.0 <5.0.6: ">=5.0.6"
+  dompurify@<=3.3.3: ">=3.4.0"
+  fast-xml-parser@<5.7.0: ">=5.7.0"
+  flatted@<3.4.2: ">=3.4.2"
+  minimatch@<10.2.3: ">=10.2.3"
+  path-to-regexp@>=8.0.0 <8.4.0: ">=8.4.0"
+  picomatch@<2.3.2: ">=2.3.2"
+  picomatch@>=4.0.0 <4.0.4: ">=4.0.4"
+  yaml@>=1.0.0 <1.10.3: ">=1.10.3"
+  yaml@>=2.0.0 <2.8.3: ">=2.8.3"
+
 # This prevents malicious packages from being installed by waiting 24 hours
 # after a package is published. See https://pnpm.io/settings#minimumreleaseage
 minimumReleaseAge: 1440
 
-# Silently block packages with unwanted build scripts
-ignoredBuiltDependencies:
-  - core-js
-
-# Explicitly allow these packages to run build scripts
-onlyBuiltDependencies:
-  - esbuild
-
-# Fail if any dependency tries to run a build script that has not been allowed
-strictDepBuilds: true
+# Explicitly allow or deny packages running build scripts
+allowBuilds:
+  esbuild: true
+  core-js: false
 
 # Prevent transitive dependencies from using git or tarball URLs
 blockExoticSubdeps: true
