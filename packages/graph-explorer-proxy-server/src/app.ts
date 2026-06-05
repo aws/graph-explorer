@@ -19,42 +19,25 @@ import { type AppLogger, requestLoggingMiddleware } from "./logging.ts";
 const DEFAULT_SERVICE_TYPE = "neptune-db";
 
 /**
- * Resolves an endpoint path against a base URL, preserving the base path.
- * Strips any leading slash from the endpoint and forces a trailing slash on
- * the base so that `new URL` appends rather than replaces the path.
+ * Resolves a relative endpoint path against a base URL, preserving the base
+ * path. Forces a trailing slash on the base so that `new URL` appends rather
+ * than replaces the path.
  *
  * Throws if the resolved URL escapes the base origin (prevents SSRF via
  * crafted endpoint strings).
  */
-export function resolveEndpointUrl(base: string, endpoint: string): URL {
-  const relative = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
+export function resolveEndpointUrl<T extends string>(
+  base: string,
+  endpoint: T extends `/${string}` ? never : T,
+): URL {
   const baseUrl = new URL(base.replace(/\/?$/, "/"));
-  const resolved = new URL(relative, baseUrl);
+  const resolved = new URL(endpoint, baseUrl);
   if (resolved.origin !== baseUrl.origin) {
     throw new Error(
       `Resolved URL origin "${resolved.origin}" does not match base "${baseUrl.origin}"`,
     );
   }
   return resolved;
-}
-
-/**
- * Builds an endpoint string from a known path and parsed query parameters.
- * Uses URLSearchParams to safely serialize query values without passing raw
- * user input through URL construction.
- */
-function buildEndpointWithQuery(
-  path: string,
-  query: Record<string, unknown>,
-): string {
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(query)) {
-    if (typeof value === "string") {
-      params.append(key, value);
-    }
-  }
-  const search = params.toString();
-  return search ? `${path}?${search}` : path;
 }
 
 /** Zod schema for the custom headers expected on database query requests. */
@@ -525,8 +508,10 @@ export function createApp({
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
       parseDbQueryHeaders(req.headers);
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
-    const endpoint = buildEndpointWithQuery("summary", req.query);
-    const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, endpoint).href;
+    const rawUrl = resolveEndpointUrl(
+      graphDbConnectionUrl,
+      "summary?mode=basic",
+    ).href;
 
     await fetchData(
       res,
@@ -544,8 +529,10 @@ export function createApp({
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
       parseDbQueryHeaders(req.headers);
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
-    const endpoint = buildEndpointWithQuery("pg/statistics/summary", req.query);
-    const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, endpoint).href;
+    const rawUrl = resolveEndpointUrl(
+      graphDbConnectionUrl,
+      "pg/statistics/summary?mode=basic",
+    ).href;
 
     await fetchData(
       res,
@@ -563,11 +550,10 @@ export function createApp({
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
       parseDbQueryHeaders(req.headers);
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
-    const endpoint = buildEndpointWithQuery(
-      "rdf/statistics/summary",
-      req.query,
-    );
-    const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, endpoint).href;
+    const rawUrl = resolveEndpointUrl(
+      graphDbConnectionUrl,
+      "rdf/statistics/summary?mode=basic",
+    ).href;
 
     await fetchData(
       res,

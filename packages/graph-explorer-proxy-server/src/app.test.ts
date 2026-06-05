@@ -530,7 +530,7 @@ describe("createApp", () => {
   // ── Summary routes ────────────────────────────────────────────────
 
   describe("GET /summary", () => {
-    it("proxies to the graph database summary endpoint without injecting query params", async () => {
+    it("proxies to the graph database summary endpoint with mode=basic", async () => {
       mockFetchOnce(JSON.stringify({ graphSummary: {} }), 200, {
         "content-type": "application/json",
       });
@@ -540,42 +540,14 @@ describe("createApp", () => {
 
       expect(response.status).toBe(200);
       expect(mockFetch).toHaveBeenCalledWith(
-        `${graphDbUrl}/summary`,
-        expect.objectContaining({ method: "GET" }),
-      );
-    });
-
-    it("forwards query params to the graph database", async () => {
-      mockFetchOnce(JSON.stringify({ graphSummary: {} }), 200, {
-        "content-type": "application/json",
-      });
-
-      const app = createTestApp();
-      await request(app).get("/summary?mode=basic").set(dbHeaders());
-
-      expect(mockFetch).toHaveBeenCalledWith(
         `${graphDbUrl}/summary?mode=basic`,
-        expect.objectContaining({ method: "GET" }),
-      );
-    });
-
-    it("forwards multiple query params to the graph database", async () => {
-      mockFetchOnce(JSON.stringify({ graphSummary: {} }), 200, {
-        "content-type": "application/json",
-      });
-
-      const app = createTestApp();
-      await request(app).get("/summary?mode=basic&foo=bar").set(dbHeaders());
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        `${graphDbUrl}/summary?mode=basic&foo=bar`,
         expect.objectContaining({ method: "GET" }),
       );
     });
   });
 
   describe("GET /pg/statistics/summary", () => {
-    it("proxies to the PG statistics summary endpoint without injecting query params", async () => {
+    it("proxies to the PG statistics summary endpoint with mode=basic", async () => {
       mockFetchOnce(JSON.stringify({ stats: {} }), 200, {
         "content-type": "application/json",
       });
@@ -587,22 +559,6 @@ describe("createApp", () => {
 
       expect(response.status).toBe(200);
       expect(mockFetch).toHaveBeenCalledWith(
-        `${graphDbUrl}/pg/statistics/summary`,
-        expect.objectContaining({ method: "GET" }),
-      );
-    });
-
-    it("forwards query params to the graph database", async () => {
-      mockFetchOnce(JSON.stringify({ stats: {} }), 200, {
-        "content-type": "application/json",
-      });
-
-      const app = createTestApp();
-      await request(app)
-        .get("/pg/statistics/summary?mode=basic")
-        .set(dbHeaders());
-
-      expect(mockFetch).toHaveBeenCalledWith(
         `${graphDbUrl}/pg/statistics/summary?mode=basic`,
         expect.objectContaining({ method: "GET" }),
       );
@@ -610,7 +566,7 @@ describe("createApp", () => {
   });
 
   describe("GET /rdf/statistics/summary", () => {
-    it("proxies to the RDF statistics summary endpoint without injecting query params", async () => {
+    it("proxies to the RDF statistics summary endpoint with mode=basic", async () => {
       mockFetchOnce(JSON.stringify({ stats: {} }), 200, {
         "content-type": "application/json",
       });
@@ -621,22 +577,6 @@ describe("createApp", () => {
         .set(dbHeaders());
 
       expect(response.status).toBe(200);
-      expect(mockFetch).toHaveBeenCalledWith(
-        `${graphDbUrl}/rdf/statistics/summary`,
-        expect.objectContaining({ method: "GET" }),
-      );
-    });
-
-    it("forwards query params to the graph database", async () => {
-      mockFetchOnce(JSON.stringify({ stats: {} }), 200, {
-        "content-type": "application/json",
-      });
-
-      const app = createTestApp();
-      await request(app)
-        .get("/rdf/statistics/summary?mode=basic")
-        .set(dbHeaders());
-
       expect(mockFetch).toHaveBeenCalledWith(
         `${graphDbUrl}/rdf/statistics/summary?mode=basic`,
         expect.objectContaining({ method: "GET" }),
@@ -946,7 +886,7 @@ describe("createApp", () => {
       await request(app).get("/summary").set(blazegraphHeaders());
 
       expect(mockFetch).toHaveBeenCalledWith(
-        `${blazegraphUrl}/summary`,
+        `${blazegraphUrl}/summary?mode=basic`,
         expect.anything(),
       );
     });
@@ -958,7 +898,7 @@ describe("createApp", () => {
       await request(app).get("/pg/statistics/summary").set(blazegraphHeaders());
 
       expect(mockFetch).toHaveBeenCalledWith(
-        `${blazegraphUrl}/pg/statistics/summary`,
+        `${blazegraphUrl}/pg/statistics/summary?mode=basic`,
         expect.anything(),
       );
     });
@@ -972,7 +912,7 @@ describe("createApp", () => {
         .set(blazegraphHeaders());
 
       expect(mockFetch).toHaveBeenCalledWith(
-        `${blazegraphUrl}/rdf/statistics/summary`,
+        `${blazegraphUrl}/rdf/statistics/summary?mode=basic`,
         expect.anything(),
       );
     });
@@ -1078,14 +1018,6 @@ describe("resolveEndpointUrl", () => {
     expect(url.href).toBe("https://neptune:8182/blazegraph/sparql");
   });
 
-  it("strips a leading slash from the endpoint", () => {
-    const url = resolveEndpointUrl(
-      "https://neptune:8182",
-      "/summary?mode=basic",
-    );
-    expect(url.href).toBe("https://neptune:8182/summary?mode=basic");
-  });
-
   it("preserves query params from the endpoint", () => {
     const url = resolveEndpointUrl(
       "https://neptune:8182",
@@ -1103,10 +1035,9 @@ describe("resolveEndpointUrl", () => {
   });
 
   it("does not allow protocol-relative URLs to escape the origin", () => {
-    const url = resolveEndpointUrl(
-      "https://neptune:8182",
-      "//other-host.com/data",
-    );
-    expect(url.origin).toBe("https://neptune:8182");
+    expect(() =>
+      // @ts-expect-error Testing runtime SSRF guard with input rejected by type
+      resolveEndpointUrl("https://neptune:8182", "//other-host.com/data"),
+    ).toThrow(/does not match base/);
   });
 });
