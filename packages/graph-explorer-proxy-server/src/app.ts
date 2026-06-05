@@ -22,12 +22,22 @@ const DEFAULT_SERVICE_TYPE = "neptune-db";
  * Resolves a relative endpoint path against a base URL, preserving the base
  * path. Forces a trailing slash on the base so that `new URL` appends rather
  * than replaces the path.
+ *
+ * Throws if the resolved URL escapes the base origin (prevents SSRF via
+ * crafted endpoint strings).
  */
-function resolveEndpointUrl<T extends string>(
+export function resolveEndpointUrl<T extends string>(
   base: string,
   endpoint: T extends `/${string}` ? never : T,
 ): URL {
-  return new URL(endpoint, base.replace(/\/?$/, "/"));
+  const baseUrl = new URL(base.replace(/\/?$/, "/"));
+  const resolved = new URL(endpoint, baseUrl);
+  if (resolved.origin !== baseUrl.origin) {
+    throw new Error(
+      `Resolved URL origin "${resolved.origin}" does not match base "${baseUrl.origin}"`,
+    );
+  }
+  return resolved;
 }
 
 /** Zod schema for the custom headers expected on database query requests. */
@@ -500,7 +510,7 @@ export function createApp({
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
-      "summary?mode=detailed",
+      "summary?mode=basic",
     ).href;
 
     await fetchData(
@@ -521,7 +531,7 @@ export function createApp({
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
-      "pg/statistics/summary?mode=detailed",
+      "pg/statistics/summary?mode=basic",
     ).href;
 
     await fetchData(
@@ -542,7 +552,7 @@ export function createApp({
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
-      "rdf/statistics/summary?mode=detailed",
+      "rdf/statistics/summary?mode=basic",
     ).href;
 
     await fetchData(

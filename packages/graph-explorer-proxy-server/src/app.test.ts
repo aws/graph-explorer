@@ -4,7 +4,7 @@ import path from "path";
 import { Readable } from "stream";
 import request from "supertest";
 
-import { createApp } from "./app.ts";
+import { createApp, resolveEndpointUrl } from "./app.ts";
 import { createLogger } from "./logging.ts";
 
 // node-fetch is globally mocked in test-setup.ts
@@ -530,7 +530,7 @@ describe("createApp", () => {
   // ── Summary routes ────────────────────────────────────────────────
 
   describe("GET /summary", () => {
-    it("proxies to the graph database summary endpoint", async () => {
+    it("proxies to the graph database summary endpoint with mode=basic", async () => {
       mockFetchOnce(JSON.stringify({ graphSummary: {} }), 200, {
         "content-type": "application/json",
       });
@@ -540,14 +540,14 @@ describe("createApp", () => {
 
       expect(response.status).toBe(200);
       expect(mockFetch).toHaveBeenCalledWith(
-        `${graphDbUrl}/summary?mode=detailed`,
+        `${graphDbUrl}/summary?mode=basic`,
         expect.objectContaining({ method: "GET" }),
       );
     });
   });
 
   describe("GET /pg/statistics/summary", () => {
-    it("proxies to the PG statistics summary endpoint", async () => {
+    it("proxies to the PG statistics summary endpoint with mode=basic", async () => {
       mockFetchOnce(JSON.stringify({ stats: {} }), 200, {
         "content-type": "application/json",
       });
@@ -559,14 +559,14 @@ describe("createApp", () => {
 
       expect(response.status).toBe(200);
       expect(mockFetch).toHaveBeenCalledWith(
-        `${graphDbUrl}/pg/statistics/summary?mode=detailed`,
+        `${graphDbUrl}/pg/statistics/summary?mode=basic`,
         expect.objectContaining({ method: "GET" }),
       );
     });
   });
 
   describe("GET /rdf/statistics/summary", () => {
-    it("proxies to the RDF statistics summary endpoint", async () => {
+    it("proxies to the RDF statistics summary endpoint with mode=basic", async () => {
       mockFetchOnce(JSON.stringify({ stats: {} }), 200, {
         "content-type": "application/json",
       });
@@ -578,7 +578,7 @@ describe("createApp", () => {
 
       expect(response.status).toBe(200);
       expect(mockFetch).toHaveBeenCalledWith(
-        `${graphDbUrl}/rdf/statistics/summary?mode=detailed`,
+        `${graphDbUrl}/rdf/statistics/summary?mode=basic`,
         expect.objectContaining({ method: "GET" }),
       );
     });
@@ -886,7 +886,7 @@ describe("createApp", () => {
       await request(app).get("/summary").set(blazegraphHeaders());
 
       expect(mockFetch).toHaveBeenCalledWith(
-        `${blazegraphUrl}/summary?mode=detailed`,
+        `${blazegraphUrl}/summary?mode=basic`,
         expect.anything(),
       );
     });
@@ -898,7 +898,7 @@ describe("createApp", () => {
       await request(app).get("/pg/statistics/summary").set(blazegraphHeaders());
 
       expect(mockFetch).toHaveBeenCalledWith(
-        `${blazegraphUrl}/pg/statistics/summary?mode=detailed`,
+        `${blazegraphUrl}/pg/statistics/summary?mode=basic`,
         expect.anything(),
       );
     });
@@ -912,7 +912,7 @@ describe("createApp", () => {
         .set(blazegraphHeaders());
 
       expect(mockFetch).toHaveBeenCalledWith(
-        `${blazegraphUrl}/rdf/statistics/summary?mode=detailed`,
+        `${blazegraphUrl}/rdf/statistics/summary?mode=basic`,
         expect.anything(),
       );
     });
@@ -1001,5 +1001,43 @@ describe("createApp", () => {
         expect(mockFetch).not.toHaveBeenCalled();
       },
     );
+  });
+});
+
+describe("resolveEndpointUrl", () => {
+  it("appends a relative endpoint to the base path", () => {
+    const url = resolveEndpointUrl(
+      "https://neptune:8182",
+      "pg/statistics/summary",
+    );
+    expect(url.href).toBe("https://neptune:8182/pg/statistics/summary");
+  });
+
+  it("preserves the base path when appending", () => {
+    const url = resolveEndpointUrl("https://neptune:8182/blazegraph", "sparql");
+    expect(url.href).toBe("https://neptune:8182/blazegraph/sparql");
+  });
+
+  it("preserves query params from the endpoint", () => {
+    const url = resolveEndpointUrl(
+      "https://neptune:8182",
+      "pg/statistics/summary?mode=basic&foo=bar",
+    );
+    expect(url.href).toBe(
+      "https://neptune:8182/pg/statistics/summary?mode=basic&foo=bar",
+    );
+  });
+
+  it("throws if the resolved URL escapes the base origin", () => {
+    expect(() =>
+      resolveEndpointUrl("https://neptune:8182", "https://other-host.com/data"),
+    ).toThrow(/does not match base/);
+  });
+
+  it("does not allow protocol-relative URLs to escape the origin", () => {
+    expect(() =>
+      // @ts-expect-error Testing runtime SSRF guard with input rejected by type
+      resolveEndpointUrl("https://neptune:8182", "//other-host.com/data"),
+    ).toThrow(/does not match base/);
   });
 });

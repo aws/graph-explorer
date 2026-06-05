@@ -74,7 +74,7 @@ async function fetchSummary(
     const response = await fetchDatabaseRequest(
       connection,
       featureFlags,
-      `${connection.url}/rdf/statistics/summary?mode=detailed`,
+      `${connection.url}/rdf/statistics/summary?mode=basic`,
       {
         method: "GET",
         ...options,
