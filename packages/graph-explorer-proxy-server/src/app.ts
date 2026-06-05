@@ -196,7 +196,7 @@ export function createApp({
       };
 
       try {
-        const res = await fetch(url.href, options); // lgtm[js/request-forgery]
+        const res = await fetch(url.href, options);
         if (!res.ok) {
           logger.error("!!Request failure!!");
           return res;
