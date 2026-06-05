@@ -13,13 +13,18 @@ const mockFetch = vi.mocked(fetch);
 
 const testVersion = "1.2.3";
 
-function createTestApp(configPath = ".", corsOrigin?: string[]) {
+function createTestApp(
+  configPath = ".",
+  corsOrigin?: string[],
+  allowedDbOrigins?: Set<string>,
+) {
   const app = createApp({
     configPath,
     staticFilesVirtualPath: "/explorer",
     staticFilesPath: ".",
     version: testVersion,
     corsOrigin,
+    allowedDbOrigins,
   });
   app.locals.logger = createLogger({
     HOST: "localhost",
@@ -927,5 +932,74 @@ describe("createApp", () => {
 
       expect(response.status).toBe(500);
     });
+
+    it("disables HTTP redirects on outbound requests", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app)
+        .post("/sparql")
+        .set(dbHeaders())
+        .send({ query: "SELECT 1" });
+
+      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      expect(fetchOptions.redirect).toBe("error");
+    });
+  });
+
+  // ── Allowed DB origins ─────────────────────────────────────────────
+
+  describe("PROXY_SERVER_ALLOWED_DB_ORIGINS", () => {
+    const allowedOrigins = new Set(["https://my-graph-db.example.com:8182"]);
+
+    it("allows requests when the origin is in the allowlist", async () => {
+      mockFetchOnce(JSON.stringify({ results: [] }), 200, {
+        "content-type": "application/json",
+      });
+
+      const app = createTestApp(".", undefined, allowedOrigins);
+      const response = await request(app)
+        .post("/sparql")
+        .set(dbHeaders())
+        .send({ query: "SELECT 1" });
+
+      expect(response.status).toBe(200);
+    });
+
+    it("allows all requests when allowlist is not configured", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/sparql")
+        .set(dbHeaders())
+        .send({ query: "SELECT 1" });
+
+      expect(response.status).toBe(200);
+    });
+
+    it.each([
+      { method: "post", route: "/sparql", body: { query: "test" } },
+      { method: "post", route: "/gremlin", body: { query: "test" } },
+      { method: "post", route: "/openCypher", body: { query: "test" } },
+      { method: "get", route: "/summary", body: undefined },
+      { method: "get", route: "/pg/statistics/summary", body: undefined },
+      { method: "get", route: "/rdf/statistics/summary", body: undefined },
+    ] as const)(
+      "$method $route returns 403 for disallowed origin without calling fetch",
+      async ({ method, route, body }) => {
+        const app = createTestApp(".", undefined, allowedOrigins);
+        const req = request(app)
+          [method](route)
+          .set(
+            dbHeaders({ "graph-db-connection-url": "https://blocked:8182" }),
+          );
+        const response = body ? await req.send(body) : await req;
+
+        expect(response.status).toBe(403);
+        expect(response.body.error.message).toContain("allowed origins list");
+        expect(mockFetch).not.toHaveBeenCalled();
+      },
+    );
   });
 });

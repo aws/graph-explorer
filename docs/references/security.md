@@ -93,6 +93,18 @@ When set, browsers will block cross-origin requests from any other origin. This 
 >
 > CORS headers only affect browser-initiated requests — direct API calls from scripts or other servers are not restricted by CORS. CORS is a defense-in-depth layer, not a substitute for authentication or network-level access controls. Ensure the proxy server is not exposed to untrusted networks.
 
+## Database Origin Allowlist
+
+By default, the proxy server forwards requests to any database URL specified by the client. You can restrict which database origins the proxy will contact by setting [`PROXY_SERVER_ALLOWED_DB_ORIGINS`](./configuration.md#proxy_server_allowed_db_origins). Requests targeting an unlisted origin receive a 403 response.
+
+> [!NOTE]
+>
+> This check only applies to requests routed through the proxy server. Connections configured to contact the database directly (bypassing the proxy) are not subject to the allowlist.
+
+## HTTP Redirects
+
+The proxy server does not follow HTTP redirects from the database. If the database responds with a redirect (3xx status), the proxy returns an error to the client instead of following it. This prevents a compromised or misconfigured database endpoint from redirecting the proxy to an unrelated internal service.
+
 ## Permissions
 
 Graph Explorer does not provide any mechanisms for controlling user permissions. If you are using Graph Explorer with AWS, Neptune permissions can be controlled through IAM roles.

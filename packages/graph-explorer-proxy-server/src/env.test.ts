@@ -190,4 +190,107 @@ describe("parseEnvironmentValues", () => {
       "https://my-app.example.com",
     ]);
   });
+
+  describe("PROXY_SERVER_ALLOWED_DB_ORIGINS", () => {
+    it("defaults to undefined when not provided", () => {
+      const result = parseEnvironmentValues({});
+      expect(result.PROXY_SERVER_ALLOWED_DB_ORIGINS).toBeUndefined();
+    });
+
+    it("treats empty string as unset", () => {
+      const result = parseEnvironmentValues({
+        PROXY_SERVER_ALLOWED_DB_ORIGINS: "",
+      });
+      expect(result.PROXY_SERVER_ALLOWED_DB_ORIGINS).toBeUndefined();
+    });
+
+    it("parses a single origin into a Set", () => {
+      const result = parseEnvironmentValues({
+        PROXY_SERVER_ALLOWED_DB_ORIGINS: "https://neptune:8182",
+      });
+      expect(result.PROXY_SERVER_ALLOWED_DB_ORIGINS).toEqual(
+        new Set(["https://neptune:8182"]),
+      );
+    });
+
+    it("parses comma-separated origins into a Set", () => {
+      const result = parseEnvironmentValues({
+        PROXY_SERVER_ALLOWED_DB_ORIGINS:
+          "https://neptune:8182,https://other-db:8182",
+      });
+      expect(result.PROXY_SERVER_ALLOWED_DB_ORIGINS).toEqual(
+        new Set(["https://neptune:8182", "https://other-db:8182"]),
+      );
+    });
+
+    it("trims whitespace around values", () => {
+      const result = parseEnvironmentValues({
+        PROXY_SERVER_ALLOWED_DB_ORIGINS:
+          " https://neptune:8182 , https://other:8182 ",
+      });
+      expect(result.PROXY_SERVER_ALLOWED_DB_ORIGINS).toEqual(
+        new Set(["https://neptune:8182", "https://other:8182"]),
+      );
+    });
+
+    it("accepts a trailing slash (treated as no path)", () => {
+      const result = parseEnvironmentValues({
+        PROXY_SERVER_ALLOWED_DB_ORIGINS: "https://neptune:8182/",
+      });
+      expect(result.PROXY_SERVER_ALLOWED_DB_ORIGINS).toEqual(
+        new Set(["https://neptune:8182"]),
+      );
+    });
+
+    it("normalizes case to lowercase", () => {
+      const result = parseEnvironmentValues({
+        PROXY_SERVER_ALLOWED_DB_ORIGINS: "HTTPS://Neptune:8182",
+      });
+      expect(result.PROXY_SERVER_ALLOWED_DB_ORIGINS).toEqual(
+        new Set(["https://neptune:8182"]),
+      );
+    });
+
+    it("deduplicates entries", () => {
+      const result = parseEnvironmentValues({
+        PROXY_SERVER_ALLOWED_DB_ORIGINS:
+          "https://neptune:8182,https://neptune:8182",
+      });
+      expect(result.PROXY_SERVER_ALLOWED_DB_ORIGINS).toEqual(
+        new Set(["https://neptune:8182"]),
+      );
+      expect(result.PROXY_SERVER_ALLOWED_DB_ORIGINS!.size).toBe(1);
+    });
+  });
+
+  describe("PROXY_SERVER_ALLOWED_DB_ORIGINS validation failures", () => {
+    beforeEach(() => {
+      vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+      vi.spyOn(console, "error").mockImplementation(() => undefined);
+    });
+
+    it("exits process when value is not a valid URL", () => {
+      parseEnvironmentValues({
+        PROXY_SERVER_ALLOWED_DB_ORIGINS: "not-a-url",
+      });
+      expect(process.exit).toHaveBeenCalledWith(1);
+    });
+
+    it("exits process when value has a trailing comma", () => {
+      parseEnvironmentValues({
+        PROXY_SERVER_ALLOWED_DB_ORIGINS: "https://neptune:8182,",
+      });
+      expect(process.exit).toHaveBeenCalledWith(1);
+    });
+
+    it("exits process when value contains a path", () => {
+      parseEnvironmentValues({
+        PROXY_SERVER_ALLOWED_DB_ORIGINS: "https://neptune:8182/some/path",
+      });
+      expect(process.exit).toHaveBeenCalledWith(1);
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining("origin only"),
+      );
+    });
+  });
 });

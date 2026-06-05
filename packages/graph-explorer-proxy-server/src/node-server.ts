@@ -55,6 +55,7 @@ const app = createApp({
   staticFilesPath,
   version: packageJson.version,
   corsOrigin: env.PROXY_SERVER_CORS_ORIGIN,
+  allowedDbOrigins: env.PROXY_SERVER_ALLOWED_DB_ORIGINS,
 });
 
 // Store logger on app.locals for access in middleware and routes
