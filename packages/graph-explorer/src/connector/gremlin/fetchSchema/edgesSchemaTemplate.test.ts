@@ -8,11 +8,31 @@ describe("Gremlin > edgesSchemaTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        g.E()
-          .project("route", "contain")
+        g.V().limit(1)
+          .project(
+            "route",
+            "contain"
+          )
           .by(V().bothE("route").limit(1))
           .by(V().bothE("contain").limit(1))
-          .limit(1)
+      `),
+    );
+  });
+
+  it("Should deduplicate labels from multi-label types", () => {
+    const template = edgesSchemaTemplate({ types: ["a::b", "b::c"] });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V().limit(1)
+          .project(
+            "a",
+            "b",
+            "c"
+          )
+          .by(V().bothE("a").limit(1))
+          .by(V().bothE("b").limit(1))
+          .by(V().bothE("c").limit(1))
       `),
     );
   });
