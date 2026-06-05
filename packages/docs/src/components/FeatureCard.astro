@@ -7,13 +7,13 @@ const { title } = Astro.props;
 ---
 
 <article class="card sl-flex not-content">
-  <p class="title sl-flex">
-    <span class="icon-wrapper">
-      <slot name="icon" />
-    </span>
-    <span set:html={title} />
-  </p>
-  <div class="body"><slot /></div>
+  <span class="icon-wrapper">
+    <slot name="icon" />
+  </span>
+  <div class="content-wrapper">
+    <p class="title" set:html={title} />
+    <div class="body"><slot /></div>
+  </div>
 </article>
 
 <style>
@@ -28,23 +28,30 @@ const { title } = Astro.props;
       gap: clamp(0.5rem, calc(0.125rem + 1vw), 1rem);
     }
     .title {
-      font-weight: 600;
-      font-size: var(--sl-text-h4);
+      font-weight: 700;
+      font-size: var(--sl-text-h5);
       color: var(--sl-color-white);
       line-height: var(--sl-line-height-headings);
       gap: 1rem;
       align-items: center;
     }
     .icon-wrapper {
+      font-size: var(--sl-text-h4);
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
+      align-self: flex-start;
       color: var(--sl-card-border);
     }
     .icon-wrapper :global(svg) {
       width: 1.333em;
       height: 1.333em;
+    }
+    .card .content-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
     .card .body {
       margin: 0;
