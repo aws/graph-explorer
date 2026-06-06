@@ -36,7 +36,8 @@ const { title = data.title, tagline, actions = [] } = data.hero || {};
 		justify-content: center;
 		align-items: center;
 		padding-block: clamp(4rem, calc(2rem + 12vmin), 12rem);
-		overflow: visible;
+		overflow-x: clip;
+		overflow-y: visible;
 	}
 
 	.hero-glow {
