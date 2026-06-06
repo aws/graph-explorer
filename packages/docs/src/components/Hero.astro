@@ -18,8 +18,8 @@ const { title = data.title, tagline, actions = [] } = data.hero || {};
 		{
 			actions.length > 0 && (
 				<div class="actions">
-					{actions.map(({ icon, link: href, text, variant }) => (
-						<LinkButton href={href} variant={variant} icon={icon?.name}>
+					{actions.map(({ icon, link: href, text, variant, attrs }) => (
+						<LinkButton href={href} variant={variant} icon={icon?.name} iconPlacement={attrs?.iconPlacement || 'end'}>
 							{text}
 						</LinkButton>
 					))}
