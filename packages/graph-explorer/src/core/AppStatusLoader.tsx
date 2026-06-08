@@ -1,5 +1,3 @@
-import type { QueryEngine, NeptuneServiceType } from "@shared/types";
-
 import { useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import {
@@ -7,18 +5,31 @@ import {
   startTransition,
   Suspense,
   useEffect,
+  useState,
 } from "react";
 
 import { PanelEmptyState, Spinner } from "@/components";
+import { Button } from "@/components/Button/Button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogFooter,
+} from "@/components/Dialog";
 import { logger } from "@/utils";
-
-import type {
-  ConfigurationId,
-  RawConfiguration,
-} from "./ConfigurationProvider";
 
 import { fetchDefaultConnection } from "./defaultConnection";
 import { activeConfigurationAtom, configurationAtom } from "./StateProvider";
+import {
+  parseUrlConnectionParams,
+  findMatchingConnection,
+  buildConnectionFromParams,
+} from "./urlConnectionParams";
+
+// Read URL params once at module level (before any render)
+const initialUrlParams = parseUrlConnectionParams(window.location.search);
 
 function AppStatusLoader({ children }: PropsWithChildren) {
   return (
@@ -31,12 +42,12 @@ function AppStatusLoader({ children }: PropsWithChildren) {
 function LoadDefaultConfig({ children }: PropsWithChildren) {
   const [activeConfig, setActiveConfig] = useAtom(activeConfigurationAtom);
   const [configuration, setConfiguration] = useAtom(configurationAtom);
+  const [urlHandled, setUrlHandled] = useState(false);
 
   const defaultConfigQuery = useQuery({
     queryKey: ["default-connection"],
     queryFn: fetchDefaultConnection,
     staleTime: Infinity,
-    // Run the query only if the store is loaded and there are no configs
     enabled: configuration.size === 0,
   });
 
@@ -44,7 +55,6 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
 
   useEffect(() => {
     if (!defaultConnectionConfigs) {
-      // Query hasn't run yet
       return;
     }
 
@@ -72,68 +82,36 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
     defaultConnectionConfigs,
   ]);
 
-  // Process URL connection parameters
+  // Handle existing match activation via effect
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const graphDbUrl = params.get("graphDbUrl");
-    if (!graphDbUrl) return;
+    if (urlHandled || !initialUrlParams) return;
 
-    const queryEngine = params.get("queryEngine") ?? "gremlin";
-    const awsRegion = params.get("awsRegion") ?? "";
-    const serviceType = params.get("serviceType") ?? "";
-    const name = params.get("name") ?? graphDbUrl;
-
-    // Check for existing connection with same graphDbUrl + queryEngine
-    const existingMatch = Array.from(configuration.values()).find(
-      c =>
-        c.connection?.graphDbUrl?.toLowerCase() === graphDbUrl.toLowerCase() &&
-        c.connection?.queryEngine === queryEngine,
+    const existingMatch = findMatchingConnection(
+      configuration,
+      initialUrlParams,
     );
+    if (!existingMatch) return;
 
-    if (existingMatch) {
-      logger.debug(
-        "Found matching connection from URL params",
-        existingMatch.id,
-      );
-      startTransition(() => {
-        setActiveConfig(existingMatch.id);
-      });
-    } else {
-      const id = `url-${graphDbUrl}-${queryEngine}` as ConfigurationId;
-      const newConnection: RawConfiguration = {
-        id,
-        displayLabel: name,
-        connection: {
-          url: window.location.origin,
-          queryEngine: queryEngine as QueryEngine,
-          proxyConnection: true,
-          graphDbUrl,
-          awsAuthEnabled: !!(awsRegion && serviceType),
-          awsRegion,
-          serviceType: (serviceType || undefined) as
-            | NeptuneServiceType
-            | undefined,
-        },
-      };
-
-      startTransition(() => {
-        logger.debug("Adding connection from URL params", newConnection);
-        setConfiguration(prev => {
-          const updated = new Map(prev);
-          updated.set(id, newConnection);
-          return updated;
-        });
-        setActiveConfig(id);
-      });
-    }
-
-    // Strip URL params
+    logger.debug("Found matching connection from URL params", existingMatch.id);
+    startTransition(() => {
+      setUrlHandled(true);
+      setActiveConfig(existingMatch.id);
+    });
     window.history.replaceState(
       {},
       "",
       window.location.pathname + window.location.hash,
     );
-  }, [configuration, setConfiguration, setActiveConfig]);
+  }, [urlHandled, configuration, setActiveConfig]);
+
+  // Determine if we need to show the dialog
+  const existingMatch = initialUrlParams
+    ? findMatchingConnection(configuration, initialUrlParams)
+    : null;
+  const pendingConnection =
+    initialUrlParams && !existingMatch && !urlHandled
+      ? buildConnectionFromParams(initialUrlParams, window.location.origin)
+      : null;
 
   if (configuration.size === 0 && defaultConfigQuery.isLoading) {
     return (
@@ -145,7 +123,6 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
     );
   }
 
-  // Loading from config file if exists
   if (
     configuration.size === 0 &&
     defaultConnectionConfigs &&
@@ -160,7 +137,95 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <Dialog
+        open={!!pendingConnection}
+        onOpenChange={open => {
+          if (!open) {
+            setUrlHandled(true);
+            window.history.replaceState(
+              {},
+              "",
+              window.location.pathname + window.location.hash,
+            );
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Connection</DialogTitle>
+          </DialogHeader>
+          <DialogBody>
+            {pendingConnection && (
+              <div className="space-y-2 text-sm">
+                <p>
+                  <span className="font-medium">Name:</span>{" "}
+                  {pendingConnection.displayLabel}
+                </p>
+                <p>
+                  <span className="font-medium">Endpoint:</span>{" "}
+                  {pendingConnection.connection?.graphDbUrl}
+                </p>
+                <p>
+                  <span className="font-medium">Query Engine:</span>{" "}
+                  {pendingConnection.connection?.queryEngine}
+                </p>
+                {pendingConnection.connection?.awsRegion && (
+                  <p>
+                    <span className="font-medium">Region:</span>{" "}
+                    {pendingConnection.connection.awsRegion}
+                  </p>
+                )}
+              </div>
+            )}
+          </DialogBody>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setUrlHandled(true);
+                window.history.replaceState(
+                  {},
+                  "",
+                  window.location.pathname + window.location.hash,
+                );
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                if (!pendingConnection) return;
+                setUrlHandled(true);
+                startTransition(() => {
+                  logger.debug(
+                    "Adding connection from URL params",
+                    pendingConnection,
+                  );
+                  setConfiguration(prev => {
+                    const updated = new Map(prev);
+                    updated.set(pendingConnection.id, pendingConnection);
+                    return updated;
+                  });
+                  setActiveConfig(pendingConnection.id);
+                });
+                window.history.replaceState(
+                  {},
+                  "",
+                  window.location.pathname + window.location.hash,
+                );
+              }}
+            >
+              Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }
 
 function PreparingEnvironment() {
