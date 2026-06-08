@@ -1,92 +1,24 @@
-/* Dark mode — slate grays, violet accent */
-:root {
-  --sl-font: "Inter", sans-serif;
-  --sl-color-accent-low: oklch(28.3% 0.141 291.089);
-  --sl-color-accent: oklch(70.2% 0.183 293.541);
-  --sl-color-accent-high: oklch(81.1% 0.111 293.571);
-  --sl-color-accent-hover: oklch(81.1% 0.111 293.571);
-  --sl-color-white: oklch(98.4% 0.003 247.858);
-  --sl-color-gray-1: oklch(96.8% 0.007 247.896);
-  --sl-color-gray-2: oklch(86.9% 0.022 252.894);
-  --sl-color-gray-3: oklch(70.4% 0.04 256.788);
-  --sl-color-gray-4: oklch(55.4% 0.046 257.417);
-  --sl-color-gray-5: oklch(37.2% 0.044 257.287);
-  --sl-color-gray-6: oklch(27.9% 0.041 260.031);
-  --sl-color-gray-7: oklch(20.8% 0.042 265.755);
-  --sl-color-black: oklch(12.9% 0.042 264.695);
-  --sl-color-bg-nav: var(--sl-color-bg);
-  --sl-color-bg-sidebar: var(--sl-color-bg);
-  --sl-line-height: 1.6;
-
-  --sl-color-orange-high: oklch(47% 0.157 37.304);
-  --sl-color-orange: oklch(75% 0.183 55.934);
-  --sl-color-orange-low: oklch(95.4% 0.038 75.164);
-  --sl-color-green-high: oklch(44.8% 0.119 151.328);
-  --sl-color-green: oklch(72.3% 0.219 149.579);
-  --sl-color-green-low: oklch(96.2% 0.044 156.743);
-  --sl-color-blue-high: oklch(42.4% 0.199 265.638);
-  --sl-color-blue: oklch(70.7% 0.165 254.624);
-  --sl-color-blue-low: oklch(93.2% 0.032 255.585);
-  --sl-color-purple-high: oklch(43.8% 0.218 303.724);
-  --sl-color-purple: oklch(71.4% 0.203 305.504);
-  --sl-color-purple-low: oklch(94.6% 0.033 307.174);
-  --sl-color-red-high: oklch(45.5% 0.188 13.697);
-  --sl-color-red: oklch(64.5% 0.246 16.439);
-  --sl-color-red-low: oklch(94.1% 0.03 12.58);
-
-  --ge-gradient: linear-gradient(
-    135deg,
-    oklch(58.5% 0.233 277.117),
-    oklch(60.6% 0.25 292.717)
-  );
-}
-
-/* Light mode — slate grays, violet accent */
-:root[data-theme="light"] {
-  --sl-color-accent-low: oklch(94.3% 0.029 294.588);
-  --sl-color-accent: oklch(54.1% 0.281 293.009);
-  --sl-color-accent-high: oklch(43.2% 0.232 292.759);
-  --sl-color-accent-hover: oklch(60.6% 0.25 292.717);
-  --sl-color-white: oklch(12.9% 0.042 264.695);
-  --sl-color-gray-1: oklch(20.8% 0.042 265.755);
-  --sl-color-gray-2: oklch(27.9% 0.041 260.031);
-  --sl-color-gray-3: oklch(44.6% 0.043 257.281);
-  --sl-color-gray-4: oklch(55.4% 0.046 257.417);
-  --sl-color-gray-5: oklch(86.9% 0.022 252.894);
-  --sl-color-gray-6: oklch(96.8% 0.007 247.896);
-  --sl-color-gray-7: oklch(98.4% 0.003 247.858);
-  --sl-color-black: oklch(98.4% 0.003 247.858);
-  --sl-color-bg: oklch(96.8% 0.007 247.896);
-  --sl-color-bg-nav: var(--sl-color-bg);
-  --sl-color-bg-sidebar: var(--sl-color-bg);
-
-  --sl-color-orange-high: oklch(95.4% 0.038 75.164);
-  --sl-color-orange: oklch(64.6% 0.222 41.116);
-  --sl-color-orange-low: oklch(47% 0.157 37.304);
-  --sl-color-green-high: oklch(96.2% 0.044 156.743);
-  --sl-color-green: oklch(62.7% 0.194 149.214);
-  --sl-color-green-low: oklch(44.8% 0.119 151.328);
-  --sl-color-blue-high: oklch(93.2% 0.032 255.585);
-  --sl-color-blue: oklch(54.6% 0.245 262.881);
-  --sl-color-blue-low: oklch(42.4% 0.199 265.638);
-  --sl-color-purple-high: oklch(94.6% 0.033 307.174);
-  --sl-color-purple: oklch(55.8% 0.288 302.321);
-  --sl-color-purple-low: oklch(43.8% 0.218 303.724);
-  --sl-color-red-high: oklch(94.1% 0.03 12.58);
-  --sl-color-red: oklch(58.6% 0.253 17.585);
-  --sl-color-red-low: oklch(45.5% 0.188 13.697);
-
-  --ge-gradient: linear-gradient(
-    135deg,
-    oklch(51.1% 0.262 276.966),
-    oklch(54.1% 0.281 293.009)
-  );
-}
+/* ==========================================================================
+   View Transitions
+   ========================================================================== */
 
 ::view-transition-group(*) {
   animation-duration: 50ms;
 }
 
+/* ==========================================================================
+   Global Typography
+   ========================================================================== */
+
+html {
+  -webkit-font-smoothing: antialiased;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* Heading base */
 h1,
 h2,
 h3,
@@ -94,20 +26,98 @@ h4,
 h5,
 h6 {
   text-wrap: balance;
+  font-weight: 700;
+  line-height: var(--sl-line-height-headings);
+  letter-spacing: -0.02em;
+  margin-block: 1.5rem 0.5rem;
 }
 
-p {
-  text-wrap: pretty;
+/* Tiered heading weights */
+h1,
+h2,
+h3 {
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
-/* Dark mode background noise texture */
+h4,
+h5,
+h6 {
+  letter-spacing: -0.015em;
+}
+
+/* h6 as label style */
+h6 {
+  text-transform: uppercase;
+  letter-spacing: 0.035em;
+}
+
+/* ==========================================================================
+   Content Links
+   ========================================================================== */
+
+.sl-markdown-content a {
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--sl-color-accent);
+}
+
+.sl-markdown-content a:hover,
+.sl-markdown-content a:focus {
+  text-decoration: underline;
+  color: var(--sl-color-accent);
+}
+
+/* ==========================================================================
+   Pagination
+   ========================================================================== */
+
+.pagination-links {
+  font-size: var(--sl-text-sm);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.pagination-links .link-title {
+  font-size: var(--sl-text-lg);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.pagination-links a {
+  --sl-shadow-md: var(--sl-shadow-sm);
+  border: 1px solid var(--sl-color-gray-5);
+  background: var(--sl-color-gray-7);
+  border-radius: 0.75rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.pagination-links a:hover {
+  border-color: var(--sl-color-accent);
+  box-shadow: 0 0 12px oklch(60.6% 0.25 292.717 / 0.06);
+}
+
+:root[data-theme="light"] .pagination-links a:hover {
+  border-color: var(--sl-color-accent);
+  box-shadow: 0 2px 12px oklch(54.1% 0.281 293.009 / 0.06);
+}
+
+/* ==========================================================================
+   Background Texture
+   ========================================================================== */
+
 :root:not([data-theme="light"]) body {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.015'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 256px;
 }
 
-/* Cards with gradient hover border */
+/* ==========================================================================
+   Cards
+   ========================================================================== */
+
 .card-grid {
   gap: 1rem;
 }
@@ -144,69 +154,19 @@ p {
 }
 
 .card .title {
-  font-weight: 600;
   flex-direction: column;
   align-items: flex-start;
 }
 
 .card .body {
-  color: var(--sl-color-gray-2);
+  line-height: 1.5;
+  color: var(--sl-color-gray-3);
 }
 
-/* Nav bar */
-header.header {
-  background: oklch(12.9% 0.042 264.695 / 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid oklch(27.9% 0.041 260.031 / 0.5);
-}
+/* ==========================================================================
+   Link Cards
+   ========================================================================== */
 
-:root[data-theme="light"] header.header {
-  background: oklch(96.8% 0.007 247.896 / 0.8);
-  border-bottom: 1px solid oklch(86.9% 0.022 252.894 / 0.5);
-}
-
-/* Site title with gradient on hover */
-.site-title {
-  font-weight: 800;
-  color: var(--sl-color-white);
-  transition: color 0.2s ease;
-}
-
-.site-title:hover {
-  color: var(--sl-color-accent);
-}
-
-header .social-icons a {
-  color: var(--sl-color-gray-2);
-}
-
-header .social-icons a:hover {
-  color: var(--sl-color-accent);
-}
-
-/* Pagination prev/next links */
-.pagination-links a {
-  --sl-shadow-md: var(--sl-shadow-sm);
-  border: 1px solid var(--sl-color-gray-5);
-  background: var(--sl-color-gray-7);
-  border-radius: 0.75rem;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.pagination-links a:hover {
-  border-color: var(--sl-color-accent);
-  box-shadow: 0 0 12px oklch(60.6% 0.25 292.717 / 0.06);
-}
-
-:root[data-theme="light"] .pagination-links a:hover {
-  border-color: var(--sl-color-accent);
-  box-shadow: 0 2px 12px oklch(54.1% 0.281 293.009 / 0.06);
-}
-
-/* Link cards */
 .sl-link-card {
   border: 1px solid var(--sl-color-gray-5);
   background: var(--sl-color-gray-7);
@@ -226,16 +186,119 @@ header .social-icons a:hover {
   box-shadow: 0 2px 12px oklch(54.1% 0.281 293.009 / 0.06);
 }
 
-/* Subtle sidebar active item */
+.sl-link-card .title {
+  font-size: var(--sl-text-h5);
+}
+
+.sl-link-card .description {
+  font-size: var(--sl-text-sm);
+}
+
+.sl-link-card a:hover,
+.sl-link-card a:focus {
+  text-decoration: none;
+}
+
+/* ==========================================================================
+   Nav Bar
+   ========================================================================== */
+
+header.header {
+  background: oklch(12.9% 0.042 264.695 / 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid oklch(27.9% 0.041 260.031 / 0.5);
+}
+
+:root[data-theme="light"] header.header {
+  background: oklch(96.8% 0.007 247.896 / 0.8);
+  border-bottom: 1px solid oklch(86.9% 0.022 252.894 / 0.5);
+}
+
+/* Site title */
+.site-title {
+  font-weight: 800;
+  color: var(--sl-color-white);
+  transition: color 0.2s ease;
+}
+
+.site-title:hover {
+  color: var(--sl-color-accent);
+}
+
+/* Social icons */
+header .social-icons a {
+  color: var(--sl-color-gray-2);
+}
+
+header .social-icons a:hover {
+  color: var(--sl-color-accent);
+}
+
+/* ==========================================================================
+   Sidebar
+   ========================================================================== */
+
+.sidebar-content summary {
+  padding: 0;
+}
+
+/* Group labels */
+.sidebar-content .group-label {
+  font-size: var(--sl-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-block-start: 1.5rem;
+  margin-block-end: 0.5rem;
+  padding: 0 0.75rem;
+}
+
+.sidebar-content .group-label .large {
+  font-size: var(--sl-text-xs);
+}
+
+/* Sidebar links */
+.sidebar-content a {
+  color: var(--sl-color-gray-3);
+  font-weight: 400;
+  border-radius: 0.375rem;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
+  padding: 0.35rem 0.75rem;
+}
+
+.sidebar-content a:hover {
+  color: var(--sl-color-white);
+  text-decoration: none;
+}
+
+/* Active sidebar link */
 .sidebar-content a[aria-current="page"],
 .sidebar-content a[aria-current="page"]:hover,
 .sidebar-content a[aria-current="page"]:focus {
-  background-color: transparent;
+  background-color: oklch(from var(--sl-color-accent) l c h / 0.1);
   color: var(--sl-color-accent);
-  font-weight: 600;
+  font-weight: 400;
 }
 
-/* Primary button with gradient */
+/* Remove nested indentation */
+.sidebar-content ul ul li {
+  margin-inline-start: 0;
+  border-inline-start: none;
+  padding-inline-start: 0;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.sl-link-button {
+  padding: 0.85rem 1.3rem;
+  border-radius: 0.5rem;
+}
+
+/* Primary — gradient with glow */
 .sl-link-button.primary {
   background: var(--ge-gradient);
   border-color: transparent;
@@ -244,19 +307,23 @@ header .social-icons a:hover {
   transition:
     box-shadow 0.2s ease,
     filter 0.2s ease;
-  box-shadow: 0 2px 8px oklch(58.5% 0.233 277.117 / 0.15);
+  box-shadow: 0 2px 12px oklch(58.5% 0.233 277.117 / 0.2);
 }
 
 .sl-link-button.primary:hover {
-  box-shadow: 0 2px 12px oklch(58.5% 0.233 277.117 / 0.25);
-  filter: brightness(1.15);
+  box-shadow: 0 4px 20px oklch(58.5% 0.233 277.117 / 0.3);
+  filter: brightness(1.1);
   background: var(--ge-gradient);
   border-color: transparent;
   color: oklch(98.4% 0.003 247.858);
 }
 
-/* Secondary button */
+/* Secondary — outline */
 .sl-link-button.secondary {
+  border-width: 1px;
+  font-weight: 500;
+  border-color: var(--sl-color-gray-3);
+  color: var(--sl-color-gray-3);
   transition:
     border-color 0.2s ease,
     color 0.2s ease;
@@ -265,9 +332,10 @@ header .social-icons a:hover {
 .sl-link-button.secondary:hover {
   border-color: var(--sl-color-accent);
   color: var(--sl-color-accent);
+  text-decoration: none;
 }
 
-/* Minimal button (e.g. "View on GitHub") */
+/* Minimal — text only */
 .sl-link-button.minimal {
   transition: color 0.2s ease;
 }
@@ -276,82 +344,68 @@ header .social-icons a:hover {
   color: var(--sl-color-accent);
 }
 
-/* Gradient divider for sections on splash page */
-[data-page-type="splash"] h2 {
-  position: relative;
-  padding-bottom: 0.75rem;
-}
+/* ==========================================================================
+   Asides
+   ========================================================================== */
 
-[data-page-type="splash"] h2::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 3rem;
-  height: 2px;
-  background: var(--ge-gradient);
-  border-radius: 1px;
-}
-
-/* Subtle asides — dark mode */
+/* Dark mode */
 .starlight-aside--note {
   background-color: var(--sl-color-gray-6);
   --sl-color-asides-text-accent: var(--sl-color-blue-low);
 }
+
 .starlight-aside--tip {
   background-color: var(--sl-color-gray-6);
   --sl-color-asides-text-accent: var(--sl-color-purple-low);
 }
+
 .starlight-aside--caution {
   background-color: var(--sl-color-gray-6);
   --sl-color-asides-text-accent: var(--sl-color-orange-low);
 }
+
 .starlight-aside--danger {
   background-color: var(--sl-color-gray-6);
   --sl-color-asides-text-accent: var(--sl-color-red-low);
 }
 
-/* Subtle asides — light mode */
+/* Light mode */
 :root[data-theme="light"] .starlight-aside--note {
   background-color: oklch(from var(--sl-color-blue-low) l c h / 15%);
   --sl-color-asides-text-accent: var(--sl-color-blue-low);
 }
+
 :root[data-theme="light"] .starlight-aside--tip {
   background-color: oklch(from var(--sl-color-purple-low) l c h / 15%);
   --sl-color-asides-text-accent: var(--sl-color-purple-low);
 }
+
 :root[data-theme="light"] .starlight-aside--caution {
   background-color: oklch(from var(--sl-color-orange-low) l c h / 15%);
   --sl-color-asides-text-accent: var(--sl-color-orange-low);
 }
+
 :root[data-theme="light"] .starlight-aside--danger {
   background-color: oklch(from var(--sl-color-red-low) l c h / 15%);
   --sl-color-asides-text-accent: var(--sl-color-red-low);
 }
 
-/* Subtle badges */
-:root {
-  --sl-badge-default-bg: oklch(from var(--sl-color-accent-high) l c h / 15%);
-  --sl-badge-default-border: var(--sl-color-accent-high);
-  --sl-badge-default-text: var(--sl-color-accent-high);
+/* ==========================================================================
+   Tabs
+   ========================================================================== */
 
-  --sl-badge-note-bg: oklch(from var(--sl-color-blue-low) l c h / 15%);
-  --sl-badge-note-border: var(--sl-color-blue-low);
-  --sl-badge-note-text: var(--sl-color-blue-low);
+.tab a[role="tab"] {
+  color: var(--sl-color-gray-3);
+  text-decoration: none;
+  padding: 0.625rem 1.25rem;
+  font-weight: 500;
+}
 
-  --sl-badge-danger-bg: oklch(from var(--sl-color-red-low) l c h / 15%);
-  --sl-badge-danger-border: var(--sl-color-red-low);
-  --sl-badge-danger-text: var(--sl-color-red-low);
+.tab a[role="tab"]:hover {
+  color: var(--sl-color-white);
+  text-decoration: none;
+}
 
-  --sl-badge-success-bg: oklch(from var(--sl-color-green-low) l c h / 15%);
-  --sl-badge-success-border: var(--sl-color-green-low);
-  --sl-badge-success-text: var(--sl-color-green-low);
-
-  --sl-badge-caution-bg: oklch(from var(--sl-color-orange-low) l c h / 15%);
-  --sl-badge-caution-border: var(--sl-color-orange-low);
-  --sl-badge-caution-text: var(--sl-color-orange-low);
-
-  --sl-badge-tip-bg: oklch(from var(--sl-color-purple-low) l c h / 15%);
-  --sl-badge-tip-border: var(--sl-color-purple-low);
-  --sl-badge-tip-text: var(--sl-color-purple-low);
+.tab a[role="tab"][aria-selected="true"] {
+  color: var(--sl-color-accent);
 }

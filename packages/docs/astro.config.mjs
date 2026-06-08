@@ -11,16 +11,18 @@ export default defineConfig({
         "@fontsource/inter/400.css",
         "@fontsource/inter/500.css",
         "@fontsource/inter/600.css",
+        "@fontsource/inter/700.css",
         "@fontsource/inter/800.css",
+        "./src/styles/tokens.css",
         "./src/styles/custom.css",
       ],
       expressiveCode: {
         frames: false,
       },
       components: {
-        Head: "./src/components/starlight/Head.astro",
-        Header: "./src/components/starlight/Header.astro",
-        Hero: "./src/components/starlight/Hero.astro",
+        Head: "./src/components/Head.astro",
+        Header: "./src/components/Header.astro",
+        Hero: "./src/components/Hero.astro",
       },
       social: [
         {

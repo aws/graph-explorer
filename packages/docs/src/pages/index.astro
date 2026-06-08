@@ -1,0 +1,87 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { CardGrid, LinkButton } from "@astrojs/starlight/components";
+import FeatureCard from "../components/FeatureCard.astro";
+import ScreenshotCarousel from "../components/ScreenshotCarousel.astro";
+import { Search, ChevronsLeftRight, NotebookTabs, SwatchBook } from "@lucide/astro";
+---
+
+<StarlightPage
+  frontmatter={{
+    title: "Docs",
+    description: "Graph Explorer makes your graph database visual and interactive.",
+    template: "splash",
+    hero: {
+      title: "Every Connection Tells a Story",
+      tagline: "Graph Explorer makes your graph database visual and interactive. Search, expand, filter, and style — all from your browser.",
+      actions: [
+        { text: "Get Started", link: "./getting-started/", icon: "right-arrow", variant: "primary" },
+        { text: "View on GitHub", link: "https://github.com/aws/graph-explorer", icon: "github", variant: "secondary", attrs: { iconPlacement: "start" } },
+      ],
+    },
+  }}
+>
+  <ScreenshotCarousel
+    slides={[
+      {
+        src: "/graph-explorer/images/graph-explorer.png",
+        alt: "Graph Explorer — interactive graph visualization",
+        title: "Graph Explorer",
+        description: "Visualize and traverse your graph interactively — expand neighbors, filter by type, and discover connections across your data.",
+      },
+      {
+        src: "/graph-explorer/images/schema-explorer.png",
+        alt: "Schema Explorer — graph schema diagram",
+        title: "Schema Explorer",
+        description: "See the full shape of your graph at a glance — node types, edge types, and their relationships rendered as an interactive diagram.",
+      },
+      {
+        src: "/graph-explorer/images/data-explorer.png",
+        alt: "Data Explorer — tabular data view",
+        title: "Data Explorer",
+        description: "Browse nodes and edges in a structured table view with filtering, sorting, and direct navigation for quick data inspection.",
+      },
+    ]}
+  />
+
+  <section class="features-section">
+    <h2>Features</h2>
+
+    <CardGrid>
+      <FeatureCard title="Interactive Graph Exploration">
+        <Search slot="icon" />
+        Double-click nodes to expand neighbors, filter by type, and build up a
+        visual understanding of your data. <a href="./features/graph-view/">Learn&nbsp;more&nbsp;→</a>
+      </FeatureCard>
+      <FeatureCard title="Query Editor">
+        <ChevronsLeftRight slot="icon" />
+        Execute raw Gremlin, openCypher, or SPARQL queries and add results directly
+        to the graph canvas. <a href="./features/graph-view/#search-panel">Learn&nbsp;more&nbsp;→</a>
+      </FeatureCard>
+      <FeatureCard title="Schema Explorer">
+        <NotebookTabs slot="icon" />
+        Visualize your graph's schema as an interactive diagram showing node types,
+        edge types, and their relationships. <a href="./features/schema-view/">Learn&nbsp;more&nbsp;→</a>
+      </FeatureCard>
+      <FeatureCard title="Customizable Styles">
+        <SwatchBook slot="icon" />
+        Change colors, shapes, icons, and labels for each node and edge type to make
+        the graph meaningful at a glance. <a href="./features/graph-view/#node-styling-panel">Learn&nbsp;more&nbsp;→</a>
+      </FeatureCard>
+    </CardGrid>
+
+    <LinkButton href="./features/" variant="secondary" icon="right-arrow">
+      Explore all features
+    </LinkButton>
+  </section>
+</StarlightPage>
+
+<style>
+  .features-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2rem;
+    margin-top: 1rem;
+  }
+</style>

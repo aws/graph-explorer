@@ -1,0 +1,188 @@
+---
+interface Props {
+  slides: { src: string; alt: string; title: string; description: string }[];
+}
+
+const { slides } = Astro.props;
+---
+
+<div class="screenshot-carousel not-content" data-carousel>
+  <div class="carousel-viewport">
+    <div class="carousel-track" data-carousel-track>
+      {slides.map((slide) => (
+        <div class="carousel-slide" data-title={slide.title} data-description={slide.description}>
+          <img src={slide.src} alt={slide.alt} loading="lazy" />
+        </div>
+      ))}
+    </div>
+  </div>
+  <div class="carousel-controls">
+    <div class="carousel-nav">
+      <button class="carousel-btn" data-carousel-prev aria-label="Previous screenshot">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="carousel-dots" data-carousel-dots>
+        {slides.map((slide, i) => (
+          <button
+            class:list={['carousel-dot', { active: i === 0 }]}
+            data-index={i}
+            aria-label={slide.title}
+          />
+        ))}
+      </div>
+      <button class="carousel-btn" data-carousel-next aria-label="Next screenshot">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <div class="carousel-caption" data-carousel-caption>
+      <span class="carousel-title" data-carousel-title>{slides[0]?.title}</span>
+      <span class="carousel-description" data-carousel-description>{slides[0]?.description}</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .screenshot-carousel {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+  }
+
+  .carousel-viewport {
+    overflow: hidden;
+    border-radius: 0.75rem;
+    border: 1px solid oklch(from var(--sl-color-gray-5) l c h / 0.3);
+    background: var(--sl-color-gray-7);
+    box-shadow: 0 8px 40px oklch(0% 0 0 / 0.25);
+  }
+
+  :root[data-theme="light"] .carousel-viewport {
+    box-shadow: 0 8px 40px oklch(0% 0 0 / 0.08);
+  }
+
+  .carousel-track {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .carousel-slide {
+    min-width: 100%;
+  }
+
+  .carousel-slide img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .carousel-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+  }
+
+  .carousel-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .carousel-dots {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    height: 1.75rem;
+  }
+
+  .carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    border: none;
+    background: var(--sl-color-gray-4);
+    cursor: pointer;
+    padding: 0;
+    transition: width 0.2s ease, background 0.2s ease;
+  }
+
+  .carousel-dot.active {
+    background: var(--sl-color-accent);
+    width: 24px;
+  }
+
+  .carousel-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    border: 1px solid oklch(from var(--sl-color-gray-4) l c h / 0.4);
+    background: oklch(from var(--sl-color-gray-6) l c h / 0.6);
+    backdrop-filter: blur(8px);
+    color: var(--sl-color-gray-2);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .carousel-btn:hover {
+    border-color: var(--sl-color-accent);
+    color: var(--sl-color-accent);
+  }
+
+  .carousel-caption {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    text-align: center;
+    max-width: 80ch;
+    text-wrap: balance;
+  }
+
+  .carousel-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--sl-color-white);
+  }
+
+  .carousel-description {
+    font-size: 0.9rem;
+    color: var(--sl-color-gray-3);
+    line-height: 1.5;
+  }
+</style>
+
+<script>
+  (function() {
+    const carousel = document.querySelector('[data-carousel]');
+    if (!carousel) return;
+    const track = carousel.querySelector('[data-carousel-track]') as HTMLElement;
+    const dots = carousel.querySelectorAll('.carousel-dot');
+    const titleEl = carousel.querySelector('[data-carousel-title]') as HTMLElement;
+    const descEl = carousel.querySelector('[data-carousel-description]') as HTMLElement;
+    const slides = carousel.querySelectorAll('.carousel-slide');
+    const prevBtn = carousel.querySelector('[data-carousel-prev]');
+    const nextBtn = carousel.querySelector('[data-carousel-next]');
+    let current = 0;
+    const total = slides.length;
+
+    function goTo(index: number) {
+      current = ((index % total) + total) % total;
+      track.style.transform = `translateX(${-current * 100}%)`;
+      dots.forEach((d, i) => d.classList.toggle('active', i === current));
+      titleEl.textContent = slides[current].getAttribute('data-title') || '';
+      descEl.textContent = slides[current].getAttribute('data-description') || '';
+    }
+
+    prevBtn?.addEventListener('click', () => goTo(current - 1));
+    nextBtn?.addEventListener('click', () => goTo(current + 1));
+    dots.forEach(d => d.addEventListener('click', () => goTo(parseInt(d.getAttribute('data-index') || '0'))));
+
+    let autoplay = setInterval(() => goTo(current + 1), 6000);
+    carousel.addEventListener('mouseenter', () => clearInterval(autoplay));
+    carousel.addEventListener('mouseleave', () => { autoplay = setInterval(() => goTo(current + 1), 6000); });
+  })();
+</script>

@@ -4,6 +4,7 @@ import GraphBackground from './GraphBackground.astro';
 
 const { data } = Astro.locals.starlightRoute.entry;
 const { title = data.title, tagline, actions = [] } = data.hero || {};
+
 ---
 
 <div class="hero" data-graph-hero>
@@ -17,8 +18,8 @@ const { title = data.title, tagline, actions = [] } = data.hero || {};
 		{
 			actions.length > 0 && (
 				<div class="actions">
-					{actions.map(({ icon, link: href, text, variant }) => (
-						<LinkButton href={href} variant={variant} icon={icon?.name}>
+					{actions.map(({ icon, link: href, text, variant, attrs }) => (
+						<LinkButton href={href} variant={variant} icon={icon?.name} iconPlacement={attrs?.iconPlacement || 'end'}>
 							{text}
 						</LinkButton>
 					))}
@@ -35,7 +36,8 @@ const { title = data.title, tagline, actions = [] } = data.hero || {};
 		justify-content: center;
 		align-items: center;
 		padding-block: clamp(4rem, calc(2rem + 12vmin), 12rem);
-		overflow: visible;
+		overflow-x: clip;
+		overflow-y: visible;
 	}
 
 	.hero-glow {
@@ -92,6 +94,7 @@ const { title = data.title, tagline, actions = [] } = data.hero || {};
 		line-height: var(--sl-line-height-headings);
 		font-weight: 800;
 		color: var(--sl-color-white);
+		letter-spacing: -0.03em;
 	}
 
 	.tagline {
@@ -99,7 +102,7 @@ const { title = data.title, tagline, actions = [] } = data.hero || {};
 		color: var(--sl-color-gray-2);
 	}
 
-	.actions {
+.actions {
 		display: flex;
 		gap: 1rem 2rem;
 		flex-wrap: wrap;
