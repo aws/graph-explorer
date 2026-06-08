@@ -40,6 +40,7 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
     queryKey: ["default-connection"],
     queryFn: fetchDefaultConnection,
     staleTime: Infinity,
+    // Run the query only if the store is loaded and there are no configs
     enabled: configuration.size === 0,
   });
 
@@ -47,6 +48,7 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
 
   useEffect(() => {
     if (!defaultConnectionConfigs) {
+      // Query hasn't run yet
       return;
     }
 
