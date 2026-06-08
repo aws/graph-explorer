@@ -83,32 +83,49 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
     const serviceType = params.get("serviceType") ?? "";
     const name = params.get("name") ?? graphDbUrl;
 
-    const id = `url-${graphDbUrl}-${queryEngine}` as ConfigurationId;
-    const newConnection: RawConfiguration = {
-      id,
-      displayLabel: name,
-      connection: {
-        url: window.location.origin,
-        queryEngine: queryEngine as QueryEngine,
-        proxyConnection: true,
-        graphDbUrl,
-        awsAuthEnabled: !!(awsRegion && serviceType),
-        awsRegion,
-        serviceType: (serviceType || undefined) as
-          | NeptuneServiceType
-          | undefined,
-      },
-    };
+    // Check for existing connection with same graphDbUrl + queryEngine
+    const existingMatch = Array.from(configuration.values()).find(
+      c =>
+        c.connection?.graphDbUrl?.toLowerCase() === graphDbUrl.toLowerCase() &&
+        c.connection?.queryEngine === queryEngine,
+    );
 
-    startTransition(() => {
-      logger.debug("Adding connection from URL params", newConnection);
-      setConfiguration(prev => {
-        const updated = new Map(prev);
-        updated.set(id, newConnection);
-        return updated;
+    if (existingMatch) {
+      logger.debug(
+        "Found matching connection from URL params",
+        existingMatch.id,
+      );
+      startTransition(() => {
+        setActiveConfig(existingMatch.id);
       });
-      setActiveConfig(id);
-    });
+    } else {
+      const id = `url-${graphDbUrl}-${queryEngine}` as ConfigurationId;
+      const newConnection: RawConfiguration = {
+        id,
+        displayLabel: name,
+        connection: {
+          url: window.location.origin,
+          queryEngine: queryEngine as QueryEngine,
+          proxyConnection: true,
+          graphDbUrl,
+          awsAuthEnabled: !!(awsRegion && serviceType),
+          awsRegion,
+          serviceType: (serviceType || undefined) as
+            | NeptuneServiceType
+            | undefined,
+        },
+      };
+
+      startTransition(() => {
+        logger.debug("Adding connection from URL params", newConnection);
+        setConfiguration(prev => {
+          const updated = new Map(prev);
+          updated.set(id, newConnection);
+          return updated;
+        });
+        setActiveConfig(id);
+      });
+    }
 
     // Strip URL params
     window.history.replaceState(
@@ -116,7 +133,7 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
       "",
       window.location.pathname + window.location.hash,
     );
-  }, [setConfiguration, setActiveConfig]);
+  }, [configuration, setConfiguration, setActiveConfig]);
 
   if (configuration.size === 0 && defaultConfigQuery.isLoading) {
     return (
