@@ -91,7 +91,6 @@ h6 {
 }
 
 .pagination-links a {
-  --sl-shadow-md: var(--sl-shadow-sm);
   border: 1px solid var(--sl-color-gray-5);
   background: var(--sl-color-gray-7);
   border-radius: 0.75rem;
@@ -129,7 +128,7 @@ h6 {
 }
 
 .card {
-  border: 1px solid oklch(from var(--sl-color-gray-1) l c h / 0.05);
+  border: 1px solid oklch(from var(--sl-color-gray-1) l c h / 0.075);
   background-color: var(--sl-color-gray-7);
   border-radius: 0.75rem;
   padding: 1.5rem;
@@ -137,19 +136,10 @@ h6 {
   overflow: hidden;
   outline: 2px solid transparent;
   outline-offset: -2px;
+  box-shadow: var(--sl-shadow-sm);
   transition:
     outline-color var(--sl-transition-speed),
     box-shadow var(--sl-transition-speed);
-}
-
-.card:hover {
-  outline-color: oklch(60.6% 0.25 292.717 / 0.4);
-  box-shadow: 0 0 20px oklch(60.6% 0.25 292.717 / 0.08);
-}
-
-:root[data-theme="light"] .card:hover {
-  outline-color: oklch(54.1% 0.281 293.009 / 0.3);
-  box-shadow: 0 4px 20px oklch(54.1% 0.281 293.009 / 0.08);
 }
 
 .card .icon {

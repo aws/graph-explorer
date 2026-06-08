@@ -125,4 +125,17 @@
     oklch(51.1% 0.262 276.966),
     oklch(54.1% 0.281 293.009)
   );
+
+  /* Shadows */
+  --shadow-color: 210deg 12% 77%;
+  --sl-shadow-sm:
+    0.3px 0.5px 0.8px hsl(var(--shadow-color) / 0.07),
+    0.4px 0.8px 1.2px -0.5px hsl(var(--shadow-color) / 0.13),
+    0.8px 1.5px 2.3px -1px hsl(var(--shadow-color) / 0.2);
+  --sl-shadow-md:
+    0.3px 0.5px 0.8px hsl(var(--shadow-color) / 0.06),
+    0.7px 1.4px 2.1px -0.2px hsl(var(--shadow-color) / 0.09),
+    1.2px 2.4px 3.6px -0.5px hsl(var(--shadow-color) / 0.12),
+    2.1px 4.2px 6.3px -0.7px hsl(var(--shadow-color) / 0.16),
+    3.8px 7.5px 11.4px -1px hsl(var(--shadow-color) / 0.19);
 }
