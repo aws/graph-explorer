@@ -1,3 +1,5 @@
+import type { QueryEngine, NeptuneServiceType } from "@shared/types";
+
 import { useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import {
@@ -9,6 +11,11 @@ import {
 
 import { PanelEmptyState, Spinner } from "@/components";
 import { logger } from "@/utils";
+
+import type {
+  ConfigurationId,
+  RawConfiguration,
+} from "./ConfigurationProvider";
 
 import { fetchDefaultConnection } from "./defaultConnection";
 import { activeConfigurationAtom, configurationAtom } from "./StateProvider";
@@ -64,6 +71,52 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
     setConfiguration,
     defaultConnectionConfigs,
   ]);
+
+  // Process URL connection parameters
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const graphDbUrl = params.get("graphDbUrl");
+    if (!graphDbUrl) return;
+
+    const queryEngine = params.get("queryEngine") ?? "gremlin";
+    const awsRegion = params.get("awsRegion") ?? "";
+    const serviceType = params.get("serviceType") ?? "";
+    const name = params.get("name") ?? graphDbUrl;
+
+    const id = `url-${graphDbUrl}-${queryEngine}` as ConfigurationId;
+    const newConnection: RawConfiguration = {
+      id,
+      displayLabel: name,
+      connection: {
+        url: window.location.origin,
+        queryEngine: queryEngine as QueryEngine,
+        proxyConnection: true,
+        graphDbUrl,
+        awsAuthEnabled: !!(awsRegion && serviceType),
+        awsRegion,
+        serviceType: (serviceType || undefined) as
+          | NeptuneServiceType
+          | undefined,
+      },
+    };
+
+    startTransition(() => {
+      logger.debug("Adding connection from URL params", newConnection);
+      setConfiguration(prev => {
+        const updated = new Map(prev);
+        updated.set(id, newConnection);
+        return updated;
+      });
+      setActiveConfig(id);
+    });
+
+    // Strip URL params
+    window.history.replaceState(
+      {},
+      "",
+      window.location.pathname + window.location.hash,
+    );
+  }, [setConfiguration, setActiveConfig]);
 
   if (configuration.size === 0 && defaultConfigQuery.isLoading) {
     return (
