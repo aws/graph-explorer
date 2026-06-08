@@ -4,31 +4,23 @@ import {
   type PropsWithChildren,
   startTransition,
   Suspense,
-  useEffect,
   useState,
+  useEffect,
 } from "react";
 
 import { PanelEmptyState, Spinner } from "@/components";
-import { Button } from "@/components/Button/Button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogBody,
-  DialogFooter,
-} from "@/components/Dialog";
 import { logger } from "@/utils";
 
 import { fetchDefaultConnection } from "./defaultConnection";
 import { activeConfigurationAtom, configurationAtom } from "./StateProvider";
+import { UrlConnectionDialog } from "./UrlConnectionDialog";
 import {
   parseUrlConnectionParams,
   findMatchingConnection,
   buildConnectionFromParams,
 } from "./urlConnectionParams";
 
-// Read URL params once at module level (before any render)
+// Read URL params once at module level
 const initialUrlParams = parseUrlConnectionParams(window.location.search);
 
 function AppStatusLoader({ children }: PropsWithChildren) {
@@ -42,7 +34,7 @@ function AppStatusLoader({ children }: PropsWithChildren) {
 function LoadDefaultConfig({ children }: PropsWithChildren) {
   const [activeConfig, setActiveConfig] = useAtom(activeConfigurationAtom);
   const [configuration, setConfiguration] = useAtom(configurationAtom);
-  const [urlHandled, setUrlHandled] = useState(false);
+  const [urlHandled, setUrlHandled] = useState(!initialUrlParams);
 
   const defaultConfigQuery = useQuery({
     queryKey: ["default-connection"],
@@ -82,36 +74,52 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
     defaultConnectionConfigs,
   ]);
 
-  // Handle existing match activation via effect
-  useEffect(() => {
-    if (urlHandled || !initialUrlParams) return;
+  // Compute dialog state during render
+  const existingMatch =
+    !urlHandled && initialUrlParams
+      ? findMatchingConnection(configuration, initialUrlParams)
+      : null;
+  const pendingConnection =
+    !urlHandled && initialUrlParams && !existingMatch
+      ? buildConnectionFromParams(initialUrlParams, window.location.origin)
+      : null;
 
-    const existingMatch = findMatchingConnection(
-      configuration,
-      initialUrlParams,
-    );
-    if (!existingMatch) return;
-
-    logger.debug("Found matching connection from URL params", existingMatch.id);
-    startTransition(() => {
-      setUrlHandled(true);
-      setActiveConfig(existingMatch.id);
-    });
+  function handleConfirm() {
+    if (existingMatch) {
+      logger.debug(
+        "Activating matching connection from URL params",
+        existingMatch.id,
+      );
+      startTransition(() => {
+        setActiveConfig(existingMatch.id);
+      });
+    } else if (pendingConnection) {
+      logger.debug("Adding connection from URL params", pendingConnection);
+      startTransition(() => {
+        setConfiguration(prev => {
+          const updated = new Map(prev);
+          updated.set(pendingConnection.id, pendingConnection);
+          return updated;
+        });
+        setActiveConfig(pendingConnection.id);
+      });
+    }
+    setUrlHandled(true);
     window.history.replaceState(
       {},
       "",
       window.location.pathname + window.location.hash,
     );
-  }, [urlHandled, configuration, setActiveConfig]);
+  }
 
-  // Determine if we need to show the dialog
-  const existingMatch = initialUrlParams
-    ? findMatchingConnection(configuration, initialUrlParams)
-    : null;
-  const pendingConnection =
-    initialUrlParams && !existingMatch && !urlHandled
-      ? buildConnectionFromParams(initialUrlParams, window.location.origin)
-      : null;
+  function handleCancel() {
+    setUrlHandled(true);
+    window.history.replaceState(
+      {},
+      "",
+      window.location.pathname + window.location.hash,
+    );
+  }
 
   if (configuration.size === 0 && defaultConfigQuery.isLoading) {
     return (
@@ -140,90 +148,13 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
   return (
     <>
       {children}
-      <Dialog
-        open={!!pendingConnection}
-        onOpenChange={open => {
-          if (!open) {
-            setUrlHandled(true);
-            window.history.replaceState(
-              {},
-              "",
-              window.location.pathname + window.location.hash,
-            );
-          }
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create Connection</DialogTitle>
-          </DialogHeader>
-          <DialogBody>
-            {pendingConnection && (
-              <div className="space-y-2 text-sm">
-                <p>
-                  <span className="font-medium">Name:</span>{" "}
-                  {pendingConnection.displayLabel}
-                </p>
-                <p>
-                  <span className="font-medium">Endpoint:</span>{" "}
-                  {pendingConnection.connection?.graphDbUrl}
-                </p>
-                <p>
-                  <span className="font-medium">Query Engine:</span>{" "}
-                  {pendingConnection.connection?.queryEngine}
-                </p>
-                {pendingConnection.connection?.awsRegion && (
-                  <p>
-                    <span className="font-medium">Region:</span>{" "}
-                    {pendingConnection.connection.awsRegion}
-                  </p>
-                )}
-              </div>
-            )}
-          </DialogBody>
-          <DialogFooter>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setUrlHandled(true);
-                window.history.replaceState(
-                  {},
-                  "",
-                  window.location.pathname + window.location.hash,
-                );
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              onClick={() => {
-                if (!pendingConnection) return;
-                setUrlHandled(true);
-                startTransition(() => {
-                  logger.debug(
-                    "Adding connection from URL params",
-                    pendingConnection,
-                  );
-                  setConfiguration(prev => {
-                    const updated = new Map(prev);
-                    updated.set(pendingConnection.id, pendingConnection);
-                    return updated;
-                  });
-                  setActiveConfig(pendingConnection.id);
-                });
-                window.history.replaceState(
-                  {},
-                  "",
-                  window.location.pathname + window.location.hash,
-                );
-              }}
-            >
-              Create
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <UrlConnectionDialog
+        open={!urlHandled && !!initialUrlParams}
+        connection={existingMatch ?? pendingConnection}
+        isExisting={!!existingMatch}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </>
   );
 }
