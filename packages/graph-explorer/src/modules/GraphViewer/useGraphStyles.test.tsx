@@ -140,6 +140,7 @@ describe("useGraphStyles", () => {
     const { result } = renderHookWithState(() => useGraphStyles(), dbState);
 
     const vertexStyle = getStyles(result)[`node[type="Person"]`] as any;
+    expect(vertexStyle["border-width"]).toBe(0);
     expect(vertexStyle["border-opacity"]).toBe(0);
   });
 
