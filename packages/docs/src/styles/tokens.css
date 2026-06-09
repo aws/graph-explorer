@@ -46,8 +46,12 @@
   --sl-text-h5: calc(var(--sl-text-sm) * pow(1.2, 6 - 5));
   --sl-text-h6: calc(var(--sl-text-sm) * pow(1.2, 6 - 6));
 
+  /* Shadows */
+  --sl-shadow-sm: none;
+  --sl-shadow-md: none;
+
   /* Transitions */
-  --sl-transition-speed: 0.2s ease-in-out;
+  --sl-transition: 0.2s ease-in-out;
 
   /* Brand gradient */
   --ge-gradient: linear-gradient(
