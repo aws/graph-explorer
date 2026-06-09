@@ -63,6 +63,7 @@ describe("useGraphStyles", () => {
         "background-opacity": 0.8,
         "border-color": "#000000",
         "border-width": 2,
+        "border-opacity": 1,
         "border-style": "solid",
         shape: "ellipse",
         width: 24,
@@ -112,7 +113,22 @@ describe("useGraphStyles", () => {
     });
   });
 
-  it("should handle vertex config without border width", () => {
+  it("should set border-opacity to 1 when border width is non-zero", () => {
+    const vertexConfig = {
+      ...createRandomVertexTypeConfig(),
+      type: createVertexType("Person"),
+      borderWidth: 3,
+    };
+    dbState.activeSchema.vertices = [vertexConfig];
+    dbState.addVertexStyle(vertexConfig.type, vertexConfig);
+
+    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+
+    const vertexStyle = getStyles(result)[`node[type="Person"]`] as any;
+    expect(vertexStyle["border-opacity"]).toBe(1);
+  });
+
+  it("should set border-opacity to 0 when border width is zero", () => {
     const vertexConfig = {
       ...createRandomVertexTypeConfig(),
       type: createVertexType("Person"),
@@ -125,6 +141,7 @@ describe("useGraphStyles", () => {
 
     const vertexStyle = getStyles(result)[`node[type="Person"]`] as any;
     expect(vertexStyle["border-width"]).toBe(0);
+    expect(vertexStyle["border-opacity"]).toBe(0);
   });
 
   it("should handle edge config with dotted line style", () => {
