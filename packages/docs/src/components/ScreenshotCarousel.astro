@@ -104,7 +104,7 @@ const { slides } = Astro.props;
     background: var(--sl-color-gray-4);
     cursor: pointer;
     padding: 0;
-    transition: width 0.2s ease, background 0.2s ease;
+    transition: width var(--sl-transition), background var(--sl-transition);
   }
 
   .carousel-dot.active {
@@ -124,7 +124,7 @@ const { slides } = Astro.props;
     backdrop-filter: blur(8px);
     color: var(--sl-color-gray-2);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--sl-transition);
   }
 
   .carousel-btn:hover {
