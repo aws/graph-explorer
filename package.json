@@ -25,18 +25,18 @@
     "dev": "pnpm --stream -r run dev"
   },
   "devDependencies": {
-    "@tanstack/eslint-plugin-query": "5.100.14",
-    "@types/node": "^24.10.9",
-    "@vitest/coverage-v8": "4.1.5",
+    "@tanstack/eslint-plugin-query": "5.101.0",
+    "@types/node": "^24.13.1",
+    "@vitest/coverage-v8": "4.1.8",
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint-plugin-react-hooks": "7.1.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
-    "oxfmt": "^0.47.0",
+    "oxfmt": "^0.54.0",
     "oxlint": "1.62.0",
     "oxlint-tsgolint": "0.22.1",
     "typescript": "^6.0.3",
-    "vitest": "4.1.5"
+    "vitest": "4.1.8"
   },
   "lint-staged": {
     "!(**/*.{js,ts,tsx})": "oxfmt --no-error-on-unmatched-pattern",
