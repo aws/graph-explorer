@@ -11,7 +11,7 @@
     "start": "NODE_ENV=production node src/node-server.ts"
   },
   "dependencies": {
-    "@aws-sdk/credential-providers": "^3.1045.0",
+    "@aws-sdk/credential-providers": "^3.1065.0",
     "@graph-explorer/shared": "workspace:*",
     "aws4": "^1.13.2",
     "body-parser": "^2.2.2",
@@ -33,10 +33,10 @@
     "@types/compression": "^1.8.1",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
-    "@types/node": "^24.12.2",
+    "@types/node": "^24.13.1",
     "@types/supertest": "^7.2.0",
-    "@vitest/coverage-v8": "4.1.5",
+    "@vitest/coverage-v8": "4.1.8",
     "supertest": "^7.2.2",
-    "vitest": "4.1.5"
+    "vitest": "4.1.8"
   }
 }
