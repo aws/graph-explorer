@@ -166,7 +166,7 @@ function IconButton({
 }) {
   return (
     <Button
-      title={name}
+      tooltip={name}
       aria-pressed={selected}
       size="icon"
       variant={selected ? "primary" : "ghost"}
