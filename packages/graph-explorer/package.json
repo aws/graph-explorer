@@ -26,7 +26,7 @@
     "cytoscape": "3.34.0",
     "cytoscape-canvas": "^3.0.1",
     "cytoscape-d3-force": "^1.1.4",
-    "cytoscape-dagre": "^2.5.0",
+    "cytoscape-dagre": "^4.0.0",
     "cytoscape-fcose": "^2.2.0",
     "cytoscape-klay": "^3.1.4",
     "date-fns": "^4.4.0",
