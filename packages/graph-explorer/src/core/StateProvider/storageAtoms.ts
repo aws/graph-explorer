@@ -6,6 +6,7 @@ import type { GraphSessionStorageModel } from "./graphSession/storage";
 import type { SchemaStorageModel } from "./schema";
 import type { UserStyling } from "./userPreferences";
 
+import { createActiveConfigurationAtom } from "./activeConnectionStorage";
 import { atomWithLocalForage } from "./atomWithLocalForage";
 import { defaultUserLayout } from "./userLayoutDefaults";
 
@@ -58,7 +59,7 @@ const [
   defaultNeighborExpansionLimitAtom,
   diagnosticLoggingAtom,
 ] = await Promise.all([
-  atomWithLocalForage<ConfigurationId | null>("active-configuration", null),
+  createActiveConfigurationAtom(),
   atomWithLocalForage<Map<ConfigurationId, RawConfiguration>>(
     "configuration",
     new Map(),

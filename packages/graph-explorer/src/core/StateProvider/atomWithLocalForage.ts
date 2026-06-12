@@ -1,5 +1,6 @@
-import { atom } from "jotai";
 import localForage from "localforage";
+
+import { createWriteThroughAtom } from "./writeThroughAtom";
 
 localForage.config({
   name: "ge",
@@ -23,8 +24,6 @@ function createLocalForageStorage<T>(key: string, initialValue: T) {
   };
 }
 
-type SetStateAction<Value> = Value | ((prev: Value) => Value);
-
 /**
  * Creates an atom that persists its value in localForage.
  *
@@ -40,36 +39,12 @@ type SetStateAction<Value> = Value | ((prev: Value) => Value);
  * @returns An atom that persists to localForage
  */
 export async function atomWithLocalForage<T>(key: string, initialValue: T) {
-  // Interactions with local forage
   const storage = createLocalForageStorage<T>(key, initialValue);
   const preloadValue = await storage.getItem();
 
-  // Cached value
-  const baseAtom = atom<T>(preloadValue);
-
-  // Persist data to local forage on change. The in-memory value updates
-  // synchronously; the write returns the background persistence promise so
-  // callers can await the value landing in storage when they need to (the app
-  // does not, but tests do). It is never awaited in production.
-  const derivedAtom = atom(
-    get => get(baseAtom),
-    (get, set, update: SetStateAction<T>): Promise<void> => {
-      const prevValue = get(baseAtom);
-      const nextValue =
-        typeof update === "function"
-          ? (update as (prev: T) => T)(prevValue)
-          : update;
-
-      if (prevValue === nextValue) {
-        return Promise.resolve();
-      }
-
-      set(baseAtom, nextValue);
-      return storage.setItem(nextValue);
-    },
+  return createWriteThroughAtom<T>(
+    preloadValue,
+    nextValue => storage.setItem(nextValue),
+    `atomWithLocalForage(${key})`,
   );
-
-  derivedAtom.debugLabel = `atomWithLocalForage(${key})`;
-
-  return derivedAtom;
 }
