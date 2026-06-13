@@ -359,6 +359,52 @@ describe("isValidConfigurationFile", () => {
     expect(isValidConfigurationFile(config)).toBe(false);
   });
 
+  test("should return false when schema.edges is missing", () => {
+    const config = {
+      id: createNewConfigurationId(),
+      connection: {
+        url: createRandomUrlString(),
+        queryEngine: "gremlin" as const,
+      },
+      schema: {
+        vertices: [],
+      },
+    };
+
+    expect(isValidConfigurationFile(config)).toBe(false);
+  });
+
+  test("should return false when schema.vertices is missing", () => {
+    const config = {
+      id: createNewConfigurationId(),
+      connection: {
+        url: createRandomUrlString(),
+        queryEngine: "gremlin" as const,
+      },
+      schema: {
+        edges: [],
+      },
+    };
+
+    expect(isValidConfigurationFile(config)).toBe(false);
+  });
+
+  test("should return false when a vertex is missing its attributes", () => {
+    const config = {
+      id: createNewConfigurationId(),
+      connection: {
+        url: createRandomUrlString(),
+        queryEngine: "gremlin" as const,
+      },
+      schema: {
+        vertices: [{ type: "Person" }],
+        edges: [],
+      },
+    };
+
+    expect(isValidConfigurationFile(config)).toBe(false);
+  });
+
   test("should return true with complex valid configuration", () => {
     const config = {
       id: createNewConfigurationId(),

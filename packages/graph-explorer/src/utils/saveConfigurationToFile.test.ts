@@ -7,6 +7,7 @@ import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { createEdgeType, createVertexType } from "@/core";
 
+import isValidConfigurationFile from "./isValidConfigurationFile";
 import saveConfigurationToFile from "./saveConfigurationToFile";
 import { createRandomRawConfiguration } from "./testing";
 
@@ -255,6 +256,15 @@ describe("saveConfigurationToFile", () => {
     const parsed = JSON.parse(text);
 
     expect(parsed.connection.queryEngine).toBe("gremlin");
+
+    // A connection-less config is not a real, reachable state — every config
+    // the app produces has a connection. The strict ExportedConnectionFile type
+    // forces `url` to be a string, so the writer emits `url: ""` rather than
+    // omitting it, and the validator then rejects the file. This pins that
+    // accepted asymmetry; it should disappear in a later slice that makes a
+    // connection non-optional on the config rather than defaulting here.
+    expect(parsed.connection.url).toBe("");
+    expect(isValidConfigurationFile(parsed)).toBe(false);
   });
 
   it("should only export necessary fields", async () => {
@@ -283,6 +293,49 @@ describe("saveConfigurationToFile", () => {
     expect(parsed.displayLabel).toBeDefined();
     expect(parsed.connection).toBeDefined();
     expect(parsed.schema).toBeDefined();
+  });
+
+  it("should produce a file that passes import validation", async () => {
+    const config: ConfigurationContextProps = {
+      ...createRandomRawConfiguration(),
+      connection: {
+        url: "https://neptune.example.com:8182",
+        queryEngine: "gremlin",
+      },
+      schema: {
+        vertices: [
+          {
+            type: createVertexType("Person"),
+            displayLabel: "Person",
+            attributes: [{ name: "name", dataType: "string" }],
+          },
+        ],
+        edges: [
+          {
+            type: createEdgeType("knows"),
+            displayLabel: "Knows",
+            attributes: [],
+          },
+        ],
+        prefixes: [],
+        totalVertices: 1,
+        totalEdges: 1,
+        lastUpdate: new Date("2024-01-01T00:00:00Z"),
+        lastSyncFail: false,
+      },
+      totalVertices: 1,
+      vertexTypes: [createVertexType("Person")],
+      totalEdges: 1,
+      edgeTypes: [createEdgeType("knows")],
+    };
+
+    saveConfigurationToFile(config);
+
+    const [blob] = saveAsMock.mock.calls[0];
+    const text = await (blob as Blob).text();
+    const parsed = JSON.parse(text);
+
+    expect(isValidConfigurationFile(parsed)).toBe(true);
   });
 
   it("should export edgeConnections when present", async () => {

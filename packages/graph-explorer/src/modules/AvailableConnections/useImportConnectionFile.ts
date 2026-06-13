@@ -40,12 +40,12 @@ export function useImportConnectionFile() {
         set(schemaAtom, prevSchema => {
           const updatedSchema = new Map(prevSchema);
           updatedSchema.set(newId, {
-            vertices: fileContent.schema?.vertices || [],
-            edges: fileContent.schema?.edges || [],
-            edgeConnections: fileContent.schema?.edgeConnections,
-            prefixes: fileContent.schema?.prefixes,
-            lastUpdate: fileContent.schema?.lastUpdate
-              ? new Date(fileContent.schema?.lastUpdate)
+            vertices: fileContent.schema.vertices,
+            edges: fileContent.schema.edges,
+            edgeConnections: fileContent.schema.edgeConnections,
+            prefixes: fileContent.schema.prefixes,
+            lastUpdate: fileContent.schema.lastUpdate
+              ? new Date(fileContent.schema.lastUpdate)
               : undefined,
           });
           return updatedSchema;

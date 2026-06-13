@@ -66,6 +66,10 @@ _Avoid_: Fetch, load
 The discovered structure of a connected graph database — vertex types, edge types, their attributes, and how they connect. Populated by Schema Sync when a Connection is first used; not user-defined.
 _Avoid_: Model, structure
 
+**Exported Connection File**:
+The on-disk JSON format a user gets when they export a Connection (`saveConfigurationToFile`), and which import consumes. It bundles the connection config with a snapshot of the Schema (with `lastUpdate` as an ISO string rather than a `Date`). Its type (`ExportedConnectionFile`) is intentionally separate from the in-memory configuration and from the IndexedDB storage shape, so the wire format can evolve independently. On import it is split — the connection lands in `configurationAtom`, the schema in `schemaAtom`.
+_Avoid_: Configuration file (the wire format is not the in-memory or persisted shape)
+
 ## Relationships
 
 - A **Connection** has exactly one **Query Language**
@@ -93,5 +97,6 @@ _Avoid_: Model, structure
 ## Flagged ambiguities
 
 - "Configuration" was used to mean both **Connection** and the bundled object (connection + schema + user preferences) — resolved: **Connection** is canonical, "Configuration" is legacy.
+- A Connection's data now has three distinct shapes that look similar but must not be conflated: the **Exported Connection File** (on-disk wire format), the in-memory configuration, and the IndexedDB storage shape. They are being separated into explicit types so each can evolve independently.
 - "Node" means **Vertex** in code but is the preferred UI term for property graphs — resolved: use **Vertex** in code, "node" in UI copy.
 - "Attribute" vs "Property" — resolved: **Property** is canonical, "attribute" is legacy code term being phased out.
