@@ -174,6 +174,74 @@ describe("exportFromLocalForage", () => {
   });
 });
 
+/**
+ * BACKWARD COMPATIBILITY — PERSISTED DATA
+ *
+ * The full backup/restore flow snapshots every localforage key verbatim and
+ * restores it without merging or reshaping. A backup taken from an older
+ * install may contain a `configuration` entry whose `RawConfiguration` carries
+ * a stray `schema` field (the legacy in-memory schema leg that no released
+ * writer populates but that may exist in stale IndexedDB blobs).
+ *
+ * This pins that such a backup round-trips losslessly: the extra field is
+ * carried through untouched and restore succeeds. It guards against a refactor
+ * that drops `RawConfiguration.schema` introducing strict parsing that would
+ * reject or mangle a legacy backup.
+ *
+ * DO NOT delete or weaken this test without confirming that legacy backups are
+ * no longer a concern.
+ */
+describe("backward compatibility: legacy schema field on stored configuration", () => {
+  let appVersion: string;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(createRandomDate());
+    appVersion = `${createRandomInteger()}.${createRandomInteger()}.${createRandomInteger()}`;
+    vi.stubGlobal("__GRAPH_EXP_VERSION__", appVersion);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("round-trips a configuration entry carrying a legacy embedded schema", async () => {
+    const localDb = createFakeLocalDb();
+
+    // A stored config in the legacy shape: the schema is duplicated onto the
+    // RawConfiguration itself, which TypeScript still allows but no current
+    // writer produces.
+    const config = createRandomRawConfiguration();
+    const schema = createRandomSchema();
+    const legacyConfig = { ...config, schema } as typeof config;
+
+    const configMap = new Map([[config.id, legacyConfig]]);
+    const schemaMap = new Map([[config.id, schema]]);
+
+    localDb.setItem("schema", schemaMap);
+    localDb.setItem("configuration", configMap);
+    localDb.setItem("active-configuration", config.id);
+
+    // Backup -> serialize -> file -> parse -> restore
+    const backupBefore = await createBackupData(localDb);
+    const blob = toJsonFileData(serializeData(backupBefore));
+    const backupData = await readBackupDataFromFile(blob);
+    await restoreBackup(backupData, localDb);
+
+    // The restored configuration must still carry the stray schema field,
+    // untouched, alongside an intact connection.
+    const restoredConfigMap =
+      await localDb.getItem<typeof configMap>("configuration");
+    const restoredConfig = restoredConfigMap?.get(config.id);
+    expect(restoredConfig?.schema).toEqual(schema);
+    expect(restoredConfig?.connection).toEqual(config.connection);
+
+    // And the whole snapshot round-trips with no loss.
+    const backupAfter = await createBackupData(localDb);
+    expect(backupBefore).toEqual(backupAfter);
+  });
+});
+
 test("Rename key", async () => {
   const localDb = createFakeLocalDb();
   const oldKey = createRandomName("OldKey");
