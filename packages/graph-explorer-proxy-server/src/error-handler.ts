@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 
-import { RequestValidationError } from "./errors.ts";
+import { HttpError } from "./errors.ts";
 import { type AppLogger, getRequestLoggerPrefix } from "./logging.ts";
 
 /**
@@ -57,18 +57,17 @@ export function errorHandlingMiddleware() {
 function extractErrorInfo(error: unknown) {
   const defaultErrorMessage = "Internal Server Error";
 
-  if (error instanceof RequestValidationError) {
+  if (error instanceof HttpError) {
     return {
-      status: 400,
+      ...error.details,
+      status: error.status,
       message: error.message,
     };
   }
 
   if (error instanceof Error) {
     return {
-      // oxlint-disable-next-line typescript/no-misused-spread -- Intentionally extracting Error properties for serialization
-      ...error,
-      status: getStatusFromError(error),
+      status: 500,
       message: error.message || defaultErrorMessage,
     };
   }
@@ -78,15 +77,4 @@ function extractErrorInfo(error: unknown) {
     message: defaultErrorMessage,
     name: "Error",
   };
-}
-
-function getStatusFromError(error: unknown) {
-  if (
-    error instanceof Error &&
-    "status" in error &&
-    typeof error.status === "number"
-  ) {
-    return error.status;
-  }
-  return 500;
 }

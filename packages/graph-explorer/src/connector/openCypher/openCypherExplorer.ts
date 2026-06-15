@@ -130,8 +130,8 @@ async function fetchSummary(
   try {
     const endpoint =
       serviceType === DEFAULT_SERVICE_TYPE
-        ? `${connection.url}/pg/statistics/summary?mode=detailed`
-        : `${connection.url}/summary?mode=detailed`;
+        ? `${connection.url}/pg/statistics/summary?mode=basic`
+        : `${connection.url}/summary?mode=basic`;
     const response = await fetchDatabaseRequest(
       connection,
       featureFlags,

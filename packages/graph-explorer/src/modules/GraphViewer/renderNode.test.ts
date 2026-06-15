@@ -199,6 +199,24 @@ describe("renderNode", () => {
     expect(result).toBeNull();
     expect(vi.mocked(logger.error)).toHaveBeenCalledOnce();
   });
+
+  it("should resolve lucide:<name> even when iconImageType is not SVG", async () => {
+    const node: VertexIconConfig = {
+      type: createRandomVertexType(),
+      color: createRandomColor(),
+      iconUrl: "lucide:user",
+      iconImageType: "image/png",
+    };
+
+    const result = await renderNode(client, node);
+
+    expect(fetchMock).not.toBeCalled();
+    expect(result).toBeDefined();
+    expect(result?.slice(0, 24)).toEqual("data:image/svg+xml;utf8,");
+    const decodedSvg = decodeSvg(result);
+    expect(decodedSvg).toContain("<svg");
+    expect(decodedSvg).toContain(node.color);
+  });
 });
 
 /** Wraps SVG string in another SVG element matching what is expected.  */

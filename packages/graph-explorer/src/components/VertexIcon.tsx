@@ -9,7 +9,7 @@ import {
   type VertexType,
 } from "@/core";
 import { cn } from "@/utils";
-import { getLucideName, isValidLucideIconName } from "@/utils/lucideIconUrl";
+import { getLucideName, isValidLucideIconName } from "@/utils/lucideIcons";
 
 import { SearchResultSymbol } from "./SearchResult";
 
@@ -34,6 +34,7 @@ function VertexIcon({ vertexStyle, className, alt }: Props) {
         />
       );
     } else {
+      // Unknown lucide ref — don't fall through to img/SVG paths
       return null;
     }
   }

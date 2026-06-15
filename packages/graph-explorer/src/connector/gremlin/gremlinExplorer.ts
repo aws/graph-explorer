@@ -58,7 +58,7 @@ async function fetchSummary(
     const response = await fetchDatabaseRequest(
       connection,
       featureFlags,
-      `${connection.url}/pg/statistics/summary?mode=detailed`,
+      `${connection.url}/pg/statistics/summary?mode=basic`,
       {
         method: "GET",
         ...options,

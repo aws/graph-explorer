@@ -11,6 +11,7 @@ import path from "path";
 import { pipeline } from "stream";
 import { z } from "zod";
 
+import { assertAllowedDbOrigin } from "./allowed-db-origins.ts";
 import { errorHandlingMiddleware } from "./error-handler.ts";
 import { RequestValidationError } from "./errors.ts";
 import { type AppLogger, requestLoggingMiddleware } from "./logging.ts";
@@ -21,12 +22,22 @@ const DEFAULT_SERVICE_TYPE = "neptune-db";
  * Resolves a relative endpoint path against a base URL, preserving the base
  * path. Forces a trailing slash on the base so that `new URL` appends rather
  * than replaces the path.
+ *
+ * Throws if the resolved URL escapes the base origin (prevents SSRF via
+ * crafted endpoint strings).
  */
-function resolveEndpointUrl<T extends string>(
+export function resolveEndpointUrl<T extends string>(
   base: string,
   endpoint: T extends `/${string}` ? never : T,
 ): URL {
-  return new URL(endpoint, base.replace(/\/?$/, "/"));
+  const baseUrl = new URL(base.replace(/\/?$/, "/"));
+  const resolved = new URL(endpoint, baseUrl);
+  if (resolved.origin !== baseUrl.origin) {
+    throw new Error(
+      `Resolved URL origin "${resolved.origin}" does not match base "${baseUrl.origin}"`,
+    );
+  }
+  return resolved;
 }
 
 /** Zod schema for the custom headers expected on database query requests. */
@@ -80,6 +91,7 @@ interface CreateAppOptions {
   staticFilesPath: string;
   version?: string;
   corsOrigin?: string[];
+  allowedDbOrigins?: Set<string>;
 }
 
 export function createApp({
@@ -88,6 +100,7 @@ export function createApp({
   staticFilesPath,
   version,
   corsOrigin,
+  allowedDbOrigins,
 }: CreateAppOptions): express.Express {
   const app = express();
 
@@ -180,7 +193,8 @@ export function createApp({
         method: options.method,
         body: options.body ?? undefined,
         headers: options.headers,
-        compress: false, // prevent automatic decompression
+        compress: false,
+        redirect: "error",
       };
 
       try {
@@ -272,6 +286,7 @@ export function createApp({
       region,
       serviceType,
     } = parseDbQueryHeaders(req.headers);
+    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
 
     /// Function to cancel long running queries if the client disappears before completion
     async function cancelQuery() {
@@ -366,6 +381,7 @@ export function createApp({
       region,
       serviceType,
     } = parseDbQueryHeaders(req.headers);
+    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
 
     // Validate the input before making any external calls.
     const queryString = req.body.query;
@@ -450,6 +466,7 @@ export function createApp({
       region,
       serviceType,
     } = parseDbQueryHeaders(req.headers);
+    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
 
     const queryString = req.body.query;
     // Validate the input before making any external calls.
@@ -490,9 +507,10 @@ export function createApp({
   app.get("/summary", async (req, res, next) => {
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
       parseDbQueryHeaders(req.headers);
+    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
-      "summary?mode=detailed",
+      "summary?mode=basic",
     ).href;
 
     await fetchData(
@@ -510,9 +528,10 @@ export function createApp({
   app.get("/pg/statistics/summary", async (req, res, next) => {
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
       parseDbQueryHeaders(req.headers);
+    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
-      "pg/statistics/summary?mode=detailed",
+      "pg/statistics/summary?mode=basic",
     ).href;
 
     await fetchData(
@@ -530,9 +549,10 @@ export function createApp({
   app.get("/rdf/statistics/summary", async (req, res, next) => {
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
       parseDbQueryHeaders(req.headers);
+    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
-      "rdf/statistics/summary?mode=detailed",
+      "rdf/statistics/summary?mode=basic",
     ).href;
 
     await fetchData(

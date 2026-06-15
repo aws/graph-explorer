@@ -16,4 +16,5 @@
 plans/
 
 # Claude Code local files
-.claude/
+.claude
+.claire

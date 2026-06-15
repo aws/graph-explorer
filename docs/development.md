@@ -4,8 +4,8 @@ Build instructions and development setup for contributing to Graph Explorer. For
 
 ## Requirements
 
-- pnpm >=10.28.1
-- node >=24.13.0
+- pnpm >=11.5.2
+- node >=24.16.0
 
 ### Node Version
 
@@ -15,7 +15,7 @@ Ensure you are running the correct Node version. If you are using [NVM](https://
 nvm use
 ```
 
-Otherwise, use whatever method you use to install [Node v24.13.0](https://nodejs.org/en/download).
+Otherwise, use whatever method you use to install [Node v24.16.0](https://nodejs.org/en/download).
 
 ### Node Corepack
 

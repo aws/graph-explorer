@@ -33,6 +33,39 @@ export const EnvironmentValuesSchema = z.object({
         )
         .optional(),
     ),
+  PROXY_SERVER_ALLOWED_DB_ORIGINS: z
+    .string()
+    .optional()
+    .transform(value => value || undefined)
+    .transform(value => value?.split(",").map(v => v.trim()))
+    .pipe(
+      z
+        .array(
+          z
+            .url({
+              protocol: /^https?$/,
+              message:
+                "Must be an HTTP or HTTPS URL (e.g. https://neptune:8182)",
+            })
+            .refine(
+              value => {
+                try {
+                  const pathname = new URL(value).pathname;
+                  return pathname === "/" || pathname === "";
+                } catch {
+                  return true;
+                }
+              },
+              {
+                message:
+                  "Must be an origin only (scheme://host:port), paths are not supported",
+              },
+            )
+            .transform(value => new URL(value).origin),
+        )
+        .transform(origins => new Set(origins))
+        .optional(),
+    ),
 });
 
 export type EnvironmentValues = z.infer<typeof EnvironmentValuesSchema>;

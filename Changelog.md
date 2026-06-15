@@ -1,5 +1,56 @@
 # Graph Explorer Change Log
 
+## Release 3.1.0
+
+This release adds a built-in icon library, faster schema sync on large graphs, a new proxy security option, and several compatibility fixes.
+
+### Built-in Icon Library
+
+Node styling now includes a searchable picker with thousands of Lucide icons (thanks @jkemmererupgrade!). Select an icon from the grid and it's stored as a symbolic reference (like `lucide:plane`) rather than a base64-encoded data URI. Custom uploaded icons continue to work as before.
+
+### Faster Schema Sync
+
+Two changes combine to speed up schema sync on large Gremlin graphs. First, the schema queries now use traversal patterns that run natively on Neptune's DFE engine across all tested versions (1.2.1.0 through 1.4.7.0). Second, the summary API now requests only the fields Graph Explorer actually uses, skipping unused structural metadata.
+
+### Bug Fixes
+
+- Neighbor counts no longer fail on Neptune 1.3.x. The query now uses `groupCount().by(label)` which works consistently across all tested engines.
+- Databases with non-root URL paths (like BlazeGraph's `/blazegraph/namespace/kb/sparql`) now work correctly. The proxy previously replaced the entire base URL path when constructing endpoint URLs.
+- Node borders now render as expected. Per-type styles were missing a border opacity override, making borders invisible regardless of user settings.
+- SPARQL query results now recognize `?s ?p ?o` variable names as shorthand for `?subject ?predicate ?object` (thanks @vishwakt!).
+
+### Other
+
+- New `PROXY_SERVER_ALLOWED_DB_ORIGINS` environment variable restricts which database origins the proxy will forward to, mitigating SSRF risk. **This only applies to proxy-routed requests. Direct browser connections bypass this check entirely.**
+
+### New Contributors
+
+Welcome and thank you to our first-time contributors!
+
+- @vishwakt made their first contribution in https://github.com/aws/graph-explorer/pull/1769
+- @jkemmererupgrade made their first contribution in https://github.com/aws/graph-explorer/pull/1777
+
+### All Changes
+
+- Enable default oxlint correctness rules by @kmcginnes in https://github.com/aws/graph-explorer/pull/1748
+- Preserve URL path when proxy constructs database endpoint URLs by @kmcginnes in https://github.com/aws/graph-explorer/pull/1761
+- Support ?s ?p ?o shorthand in SPARQL query results by @vishwakt in https://github.com/aws/graph-explorer/pull/1769
+- Update @aws-sdk/credential-providers and @babel/preset-env by @kmcginnes in https://github.com/aws/graph-explorer/pull/1770
+- Add built-in Lucide icon library for node styling by @jkemmererupgrade in https://github.com/aws/graph-explorer/pull/1777
+- Remove broken lint-staged config from graph-explorer sub-package by @kmcginnes in https://github.com/aws/graph-explorer/pull/1790
+- Switch schema sync summary API from detailed to basic mode by @kmcginnes in https://github.com/aws/graph-explorer/pull/1791
+- Update transitive dependencies (brace-expansion, ws, qs) by @kmcginnes in https://github.com/aws/graph-explorer/pull/1792
+- Add PROXY_SERVER_ALLOWED_DB_ORIGINS to restrict proxy forwarding targets by @kmcginnes in https://github.com/aws/graph-explorer/pull/1794
+- Use label().groupCount() for neighbor counts on Neptune 1.3.x by @vishwakt in https://github.com/aws/graph-explorer/pull/1800
+- Update react-router to ^7.16.0 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1804
+- Optimize Gremlin schema sync queries for large graphs by @kmcginnes in https://github.com/aws/graph-explorer/pull/1805
+- Update pnpm to 11.5.2 and Node.js to 24.16.0 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1806
+- Bump version to 3.1.0 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1809
+- Set border-opacity on per-type node styles to fix invisible borders by @kmcginnes in https://github.com/aws/graph-explorer/pull/1813
+- Update AL2023 releasever to latest by @kmcginnes in https://github.com/aws/graph-explorer/pull/1815
+
+**Full Changelog**: https://github.com/aws/graph-explorer/compare/v3.0.3...v3.1.0
+
 ## Release 3.0.3
 
 This patch release blocks cross-origin requests by default, improves performance for larger schemas, adds inferred edge connections in search and expansion, and adds a diagnostic logging setting.

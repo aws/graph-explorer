@@ -1,9 +1,13 @@
-import { SearchIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, SearchIcon } from "lucide-react";
 import { DynamicIcon } from "lucide-react/dynamic";
-import dynamicIconImports from "lucide-react/dynamicIconImports";
 import { useState } from "react";
 
-import { getLucideName, toLucideIconRef } from "@/utils/lucideIconUrl";
+import {
+  allIconNamesSorted,
+  getLucideName,
+  type IconName,
+  toLucideIconRef,
+} from "@/utils/lucideIcons";
 
 import {
   Button,
@@ -17,10 +21,7 @@ import {
   PopoverTrigger,
 } from ".";
 
-type IconName = keyof typeof dynamicIconImports;
-const allIconNames = (Object.keys(dynamicIconImports) as IconName[]).toSorted();
-
-const MAX_VISIBLE = 64;
+const PAGE_SIZE = 64;
 
 export function IconPicker({
   currentIconUrl,
@@ -40,9 +41,25 @@ export function IconPicker({
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(0);
 
   const selectedName = getLucideName(currentIconUrl);
   const filtered = filterIcons(search);
+  const pageCount = Math.ceil(filtered.length / PAGE_SIZE);
+  const pageStart = page * PAGE_SIZE;
+  const pageRows = filtered.slice(pageStart, pageStart + PAGE_SIZE);
+
+  function handleOpenChange(isOpen: boolean) {
+    setOpen(isOpen);
+    if (!isOpen) {
+      setSearch("");
+    }
+  }
+
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    setPage(0);
+  }
 
   function handleSelect(iconName: IconName) {
     onSelect(toLucideIconRef(iconName), "image/svg+xml");
@@ -51,7 +68,7 @@ export function IconPicker({
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button variant="outline" className="rounded-full">
           <SearchIcon className="size-4" />
@@ -66,10 +83,10 @@ export function IconPicker({
         <Input
           placeholder="Search icons..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={e => handleSearchChange(e.target.value)}
         />
         <div className="grid size-80 grid-cols-8 grid-rows-8 gap-0.5">
-          {filtered.map(name => (
+          {pageRows.map(name => (
             <IconButton
               key={name}
               name={name}
@@ -77,7 +94,7 @@ export function IconPicker({
               onSelect={handleSelect}
             />
           ))}
-          {filtered.length === 0 && (
+          {pageRows.length === 0 && (
             <EmptyState className="col-span-8 row-span-8" size="small">
               <EmptyStateContent>
                 <EmptyStateTitle>No icons found</EmptyStateTitle>
@@ -88,14 +105,53 @@ export function IconPicker({
             </EmptyState>
           )}
         </div>
-        {!search && (
-          <p className="text-text-secondary text-xs">
-            Showing {MAX_VISIBLE} of {allIconNames.length} icons. Type to
-            search.
-          </p>
+        {pageCount > 1 && (
+          <PagerFooter
+            page={page}
+            pageCount={pageCount}
+            onPageChange={setPage}
+          />
         )}
       </PopoverContent>
     </Popover>
+  );
+}
+
+function PagerFooter({
+  page,
+  pageCount,
+  onPageChange,
+}: {
+  page: number;
+  pageCount: number;
+  onPageChange: (page: number) => void;
+}) {
+  return (
+    <div className="flex flex-row items-center justify-end gap-2">
+      <p className="text-text-secondary text-sm">
+        Page {page + 1} of {pageCount}
+      </p>
+      <div className="flex">
+        <Button
+          size="icon-small"
+          aria-label="Previous page"
+          className="rounded-r-none"
+          onClick={() => onPageChange(page - 1)}
+          disabled={page === 0}
+        >
+          <ChevronLeftIcon />
+        </Button>
+        <Button
+          size="icon-small"
+          aria-label="Next page"
+          className="rounded-l-none"
+          onClick={() => onPageChange(page + 1)}
+          disabled={page + 1 >= pageCount}
+        >
+          <ChevronRightIcon />
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -110,7 +166,7 @@ function IconButton({
 }) {
   return (
     <Button
-      title={name}
+      tooltip={name}
       aria-pressed={selected}
       size="icon"
       variant={selected ? "primary" : "ghost"}
@@ -123,14 +179,7 @@ function IconButton({
 }
 
 function filterIcons(search: string) {
-  if (!search) return allIconNames.slice(0, MAX_VISIBLE);
+  if (!search) return allIconNamesSorted;
   const lower = search.toLowerCase();
-  const results: IconName[] = [];
-  for (const name of allIconNames) {
-    if (name.includes(lower)) {
-      results.push(name);
-      if (results.length >= MAX_VISIBLE) break;
-    }
-  }
-  return results;
+  return allIconNamesSorted.filter(name => name.includes(lower));
 }
