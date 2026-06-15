@@ -7,7 +7,7 @@ import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { createEdgeType, createVertexType } from "@/core";
 
-import isValidConfigurationFile from "./isValidConfigurationFile";
+import { parseConnectionFile } from "./parseConnectionFile";
 import saveConfigurationToFile from "./saveConfigurationToFile";
 import { createRandomRawConfiguration } from "./testing";
 
@@ -258,13 +258,13 @@ describe("saveConfigurationToFile", () => {
     expect(parsed.connection.queryEngine).toBe("gremlin");
 
     // A connection-less config is not a real, reachable state — every config
-    // the app produces has a connection. The strict ExportedConnectionFile type
+    // the app produces has a connection. The ExportedConnectionFileInput type
     // forces `url` to be a string, so the writer emits `url: ""` rather than
-    // omitting it, and the validator then rejects the file. This pins that
+    // omitting it, and the parser then rejects the file. This pins that
     // accepted asymmetry; it should disappear in a later slice that makes a
     // connection non-optional on the config rather than defaulting here.
     expect(parsed.connection.url).toBe("");
-    expect(isValidConfigurationFile(parsed)).toBe(false);
+    expect(parseConnectionFile(parsed)).toBeNull();
   });
 
   it("should only export necessary fields", async () => {
@@ -335,7 +335,7 @@ describe("saveConfigurationToFile", () => {
     const text = await (blob as Blob).text();
     const parsed = JSON.parse(text);
 
-    expect(isValidConfigurationFile(parsed)).toBe(true);
+    expect(parseConnectionFile(parsed)).not.toBeNull();
   });
 
   it("should export edgeConnections when present", async () => {

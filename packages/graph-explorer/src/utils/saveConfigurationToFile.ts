@@ -2,12 +2,12 @@ import { saveAs } from "file-saver";
 
 import type { ConfigurationContextProps } from "@/core";
 
-import type { ExportedConnectionFile } from "./isValidConfigurationFile";
+import type { ExportedConnectionFileInput } from "./parseConnectionFile";
 
 import { toJsonFileData } from "./fileData";
 
 const saveConfigurationToFile = (config: ConfigurationContextProps) => {
-  const exportableConfig: ExportedConnectionFile = {
+  const exportableConfig: ExportedConnectionFileInput = {
     id: config.id,
     displayLabel: config.displayLabel || config.id,
     connection: {
