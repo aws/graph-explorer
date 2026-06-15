@@ -34,6 +34,11 @@ function isValidHttpUrl(value: string) {
  * It is intentionally decoupled from the in-memory configuration types and the
  * IndexedDB storage shape so the on-disk format can evolve independently.
  */
+const attributesSchema = z
+  .array(z.looseObject({ name: z.string().min(1) }))
+  .optional()
+  .default([]);
+
 const exportedConnectionFileSchema = z.looseObject({
   id: z.string().min(1).transform(toConfigurationId),
   displayLabel: z.string().optional(),
@@ -45,16 +50,13 @@ const exportedConnectionFileSchema = z.looseObject({
     vertices: z.array(
       z.looseObject({
         type: z.string().min(1).transform(createVertexType),
-        attributes: z.array(z.looseObject({ name: z.string().min(1) })),
+        attributes: attributesSchema,
       }),
     ),
     edges: z.array(
       z.looseObject({
         type: z.string().min(1).transform(createEdgeType),
-        attributes: z
-          .array(z.looseObject({ name: z.string().min(1) }))
-          .optional()
-          .default([]),
+        attributes: attributesSchema,
       }),
     ),
     prefixes: z

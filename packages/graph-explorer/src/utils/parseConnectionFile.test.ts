@@ -201,7 +201,7 @@ describe("parseConnectionFile", () => {
     expect(parseConnectionFile(config)).toBeNull();
   });
 
-  test("returns null when a vertex is missing its attributes", () => {
+  test("defaults attributes to an empty array when a vertex omits them", () => {
     const config = {
       id: createNewConfigurationId(),
       connection: {
@@ -214,7 +214,27 @@ describe("parseConnectionFile", () => {
       },
     };
 
-    expect(parseConnectionFile(config)).toBeNull();
+    const result = parseConnectionFile(config);
+
+    expect(result?.schema.vertices[0].attributes).toStrictEqual([]);
+  });
+
+  test("defaults attributes to an empty array when an edge omits them", () => {
+    const config = {
+      id: createNewConfigurationId(),
+      connection: {
+        url: createRandomUrlString(),
+        queryEngine: "gremlin" as const,
+      },
+      schema: {
+        vertices: [],
+        edges: [{ type: "knows" }],
+      },
+    };
+
+    const result = parseConnectionFile(config);
+
+    expect(result?.schema.edges[0].attributes).toStrictEqual([]);
   });
 
   test("accepts a valid edge config", () => {
