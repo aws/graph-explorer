@@ -335,7 +335,20 @@ describe("saveConfigurationToFile", () => {
     const text = await (blob as Blob).text();
     const parsed = JSON.parse(text);
 
-    expect(parseConnectionFile(parsed)).not.toBeNull();
+    // The round trip must preserve values, not merely produce a parseable file.
+    const result = parseConnectionFile(parsed);
+    expect(result?.id).toBe(config.id);
+    expect(result?.displayLabel).toBe(config.displayLabel);
+    expect(result?.connection.url).toBe("https://neptune.example.com:8182");
+    expect(result?.connection.queryEngine).toBe("gremlin");
+    expect(result?.schema.vertices.map(vertex => vertex.type)).toStrictEqual([
+      "Person",
+    ]);
+    expect(result?.schema.edges.map(edge => edge.type)).toStrictEqual([
+      "knows",
+    ]);
+    // The ISO string round trips back into the original Date.
+    expect(result?.schema.lastUpdate).toEqual(new Date("2024-01-01T00:00:00Z"));
   });
 
   it("should export edgeConnections when present", async () => {
