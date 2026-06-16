@@ -8,6 +8,7 @@ import {
   createNewConfigurationId,
   schemaAtom,
 } from "@/core";
+import { migrateLegacyConnection } from "@/core/StateProvider/configuration";
 import useResetState from "@/core/StateProvider/useResetState";
 import { fromFileToJson } from "@/utils/fileData";
 import { parseConnectionFile } from "@/utils/parseConnectionFile";
@@ -27,6 +28,10 @@ export function useImportConnectionFile() {
           return;
         }
 
+        // Fold any legacy `url`/`proxyConnection` from files exported before the
+        // unified-proxy model into the canonical `graphDbUrl` shape.
+        const connection = migrateLegacyConnection(parsedFile.connection);
+
         // Create new id to avoid collisions
         const newId = createNewConfigurationId();
         set(configurationAtom, prevConfig => {
@@ -34,7 +39,7 @@ export function useImportConnectionFile() {
           updatedConfig.set(newId, {
             id: newId,
             displayLabel: parsedFile.displayLabel,
-            connection: parsedFile.connection,
+            connection,
           });
           return updatedConfig;
         });

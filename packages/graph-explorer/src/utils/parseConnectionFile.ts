@@ -34,13 +34,28 @@ const exportedConnectionFileSchema = z.looseObject({
     .min(1)
     .transform(value => value as ConfigurationId),
   displayLabel: z.string().optional(),
-  connection: z.looseObject({
-    url: z.url({ protocol: /^https?$/ }),
-    queryEngine: z.enum(queryEngineOptions),
-    // `graphDbUrl` is forwarded verbatim as the proxy's request target, so an
-    // imported file must not be able to point it at a non-http(s) scheme.
-    graphDbUrl: z.url({ protocol: /^https?$/ }).optional(),
-  }),
+  connection: z
+    .looseObject({
+      queryEngine: z.enum(queryEngineOptions),
+      // `graphDbUrl` is the canonical database endpoint. It is forwarded
+      // verbatim as the proxy's request target, so an imported file must not be
+      // able to point it at a non-http(s) scheme.
+      graphDbUrl: z.url({ protocol: /^https?$/ }).optional(),
+      // Legacy fields from files exported before the unified-proxy model.
+      // Direct connections stored the endpoint in `url`; `migrateLegacyConnection`
+      // folds these into `graphDbUrl` on import. Validated to the same scheme so
+      // a legacy file cannot smuggle in a non-http(s) target either.
+      url: z.url({ protocol: /^https?$/ }).optional(),
+      proxyConnection: z.boolean().optional(),
+    })
+    // The file must carry a usable endpoint in either the canonical or the
+    // legacy field, otherwise migration would yield an empty `graphDbUrl`.
+    .refine(
+      connection => connection.graphDbUrl != null || connection.url != null,
+      {
+        error: "connection must have a graphDbUrl or url",
+      },
+    ),
   schema: z.looseObject({
     vertices: z.array(
       z.looseObject({

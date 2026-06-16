@@ -8,6 +8,7 @@ import type { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
 import type { GraphSummary } from "./types";
 
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
+import { apiUrl } from "../utils/apiUrl";
 import { edgeDetails } from "./edgeDetails";
 import fetchEdgeConnections from "./fetchEdgeConnections";
 import fetchNeighbors from "./fetchNeighbors";
@@ -28,7 +29,7 @@ function _openCypherFetch(
     return fetchDatabaseRequest(
       connection,
       featureFlags,
-      `${connection.url}/openCypher`,
+      apiUrl("openCypher"),
       {
         method: "POST",
         headers: {
@@ -130,8 +131,8 @@ async function fetchSummary(
   try {
     const endpoint =
       serviceType === DEFAULT_SERVICE_TYPE
-        ? `${connection.url}/pg/statistics/summary?mode=basic`
-        : `${connection.url}/summary?mode=basic`;
+        ? apiUrl("pg/statistics/summary?mode=basic")
+        : apiUrl("summary?mode=basic");
     const response = await fetchDatabaseRequest(
       connection,
       featureFlags,

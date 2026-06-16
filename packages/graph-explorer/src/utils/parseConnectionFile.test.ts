@@ -64,7 +64,7 @@ describe("parseConnectionFile", () => {
     expect(parseConnectionFile(config)).toBeNull();
   });
 
-  test("returns null when connection.url is missing", () => {
+  test("returns null when neither graphDbUrl nor url is present", () => {
     const config = {
       id: createNewConfigurationId(),
       connection: { queryEngine: "gremlin" as const },
@@ -72,6 +72,22 @@ describe("parseConnectionFile", () => {
     };
 
     expect(parseConnectionFile(config)).toBeNull();
+  });
+
+  test("accepts a connection with only graphDbUrl and no legacy url", () => {
+    const graphDbUrl = "https://neptune.example.com:8182";
+    const config = {
+      id: createNewConfigurationId(),
+      connection: {
+        graphDbUrl,
+        queryEngine: "gremlin" as const,
+      },
+      schema: { vertices: [], edges: [] },
+    };
+
+    const result = parseConnectionFile(config);
+
+    expect(result?.connection.graphDbUrl).toBe(graphDbUrl);
   });
 
   test("returns null when connection.queryEngine is missing", () => {

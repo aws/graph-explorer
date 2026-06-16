@@ -26,16 +26,13 @@ function renderCreateConnection() {
 }
 
 describe("CreateConnection", () => {
-  test("removes newlines and surrounding whitespace from URL fields", async () => {
+  test("removes newlines and surrounding whitespace from the graph connection URL", async () => {
     const user = userEvent.setup();
     const store = renderCreateConnection();
 
     await user.type(
-      screen.getByRole("textbox", { name: "Public or Proxy Endpoint" }),
-      "  https://proxy.example.com/{Enter}path  ",
-    );
-    await user.click(
-      screen.getByRole("checkbox", { name: "Using Proxy-Server" }),
+      screen.getByRole("textbox", { name: "Name" }),
+      "My Connection",
     );
     await user.type(
       screen.getByRole("textbox", { name: "Graph Connection URL" }),
@@ -50,7 +47,6 @@ describe("CreateConnection", () => {
     const [savedConnection] = store.get(configurationAtom).values();
     expect(savedConnection).toMatchObject({
       connection: {
-        url: "https://proxy.example.com/path",
         graphDbUrl: "https://database.example.com/graph",
       },
     });
@@ -61,7 +57,11 @@ describe("CreateConnection", () => {
     const store = renderCreateConnection();
 
     await user.type(
-      screen.getByRole("textbox", { name: "Public or Proxy Endpoint" }),
+      screen.getByRole("textbox", { name: "Name" }),
+      "My Connection",
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: "Graph Connection URL" }),
       "  {Enter}  ",
     );
     await user.click(screen.getByRole("button", { name: "Add Connection" }));

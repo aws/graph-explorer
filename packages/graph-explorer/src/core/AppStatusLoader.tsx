@@ -32,7 +32,7 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
 
   const defaultConfigQuery = useQuery({
     queryKey: ["default-connection"],
-    queryFn: fetchDefaultConnection,
+    queryFn: () => fetchDefaultConnection(),
     staleTime: Infinity,
     enabled: storeIsEmpty,
   });

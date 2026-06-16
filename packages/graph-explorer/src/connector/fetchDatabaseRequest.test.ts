@@ -8,10 +8,8 @@ function createConnection(
   overrides?: Partial<NormalizedConnection>,
 ): NormalizedConnection {
   return {
-    url: "http://localhost:8182",
     queryEngine: "gremlin",
     graphDbUrl: "",
-    proxyConnection: false,
     awsAuthEnabled: false,
     ...overrides,
   };
@@ -104,10 +102,9 @@ describe("fetchDatabaseRequest", () => {
   });
 
   describe("header construction", () => {
-    it("sets proxy headers when proxyConnection is true", async () => {
+    it("sets graph-db-connection-url header", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
       const conn = createConnection({
-        proxyConnection: true,
         graphDbUrl: "https://my-neptune:8182",
       });
 
@@ -124,7 +121,7 @@ describe("fetchDatabaseRequest", () => {
 
     it("sets db-query-logging-enabled based on allowLoggingDbQuery", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
-      const conn = createConnection({ proxyConnection: true });
+      const conn = createConnection({ graphDbUrl: "https://db:8182" });
       const flags = createFeatureFlags({ allowLoggingDbQuery: true });
 
       await fetchDatabaseRequest(conn, flags, "/query", { method: "POST" });
@@ -162,7 +159,22 @@ describe("fetchDatabaseRequest", () => {
       expect(headers["service-type"]).toBe("neptune-db");
     });
 
-    it("does not set proxy or AWS headers when both are disabled", async () => {
+    it("always sends graph-db-connection-url header", async () => {
+      mockFetch.mockResolvedValue(jsonResponse({}));
+      const conn = createConnection({
+        graphDbUrl: "https://my-db:8182",
+      });
+
+      await fetchDatabaseRequest(conn, featureFlags, "/query", {
+        method: "POST",
+      });
+
+      const headers = mockFetch.mock.calls[0][1].headers;
+      expect(headers["graph-db-connection-url"]).toBe("https://my-db:8182");
+      expect(headers["db-query-logging-enabled"]).toBe("false");
+    });
+
+    it("does not set AWS headers when awsAuthEnabled is disabled", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
 
       await fetchDatabaseRequest(connection, featureFlags, "/query", {
@@ -170,14 +182,13 @@ describe("fetchDatabaseRequest", () => {
       });
 
       const headers = mockFetch.mock.calls[0][1].headers;
-      expect(headers).not.toHaveProperty("graph-db-connection-url");
       expect(headers).not.toHaveProperty("aws-neptune-region");
       expect(headers).not.toHaveProperty("service-type");
     });
 
     it("merges caller-provided headers with auth headers", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
-      const conn = createConnection({ proxyConnection: true });
+      const conn = createConnection({ graphDbUrl: "https://db:8182" });
 
       await fetchDatabaseRequest(conn, featureFlags, "/query", {
         method: "POST",
