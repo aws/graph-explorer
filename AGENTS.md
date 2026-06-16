@@ -4,7 +4,8 @@
 
 - Prefer descriptive variable and function names over code comments
 - Prefer simple to follow logic over clever concise code
-- Every commit should have no type errors, lint errors, or failing tests
+- Every commit should have no type errors, lint errors, formatting issues, or failing tests
+- Don't hard-wrap Markdown prose to a fixed column width, let it soft-wrap
 - When possible, create failing tests first then implement the logic to make the tests pass
 - Add or update tests for the code you change, even if nobody asked
 - For TypeScript conventions and rules, refer to `.kiro/skills/typescript/SKILL.md`
