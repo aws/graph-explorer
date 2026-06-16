@@ -75,7 +75,6 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
     );
   }
 
-  // Loading from config file if exists
   if (
     configuration.size === 0 &&
     defaultConnectionConfigs &&
