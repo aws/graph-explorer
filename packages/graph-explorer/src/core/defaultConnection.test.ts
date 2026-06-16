@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import {
   createRandomBoolean,
   createRandomInteger,
@@ -13,8 +14,80 @@ import {
 
 import {
   DefaultConnectionDataSchema,
+  fetchDefaultConnection,
   mapToConnection,
 } from "./defaultConnection";
+
+describe("fetchDefaultConnection", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+    document.head.innerHTML = '<base href="http://localhost/explorer/" />';
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test("should fetch from a single relative URL", async () => {
+    mockFetch.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          GRAPH_EXP_CONNECTION_URL: "https://db.example.com:8182",
+          GRAPH_EXP_GRAPH_TYPE: "gremlin",
+          GRAPH_EXP_IAM: true,
+          GRAPH_EXP_AWS_REGION: "us-east-1",
+        }),
+        { status: 200 },
+      ),
+    );
+
+    const result = await fetchDefaultConnection();
+
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        href: "http://localhost/defaultConnection",
+      }),
+    );
+    expect(result).toHaveLength(1);
+    expect(result[0].connection?.graphDbUrl).toBe(
+      "https://db.example.com:8182",
+    );
+  });
+
+  test("should not fall back to sagemaker path", async () => {
+    mockFetch.mockResolvedValue(new Response("", { status: 404 }));
+
+    const result = await fetchDefaultConnection();
+
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(result).toHaveLength(0);
+  });
+
+  test("should return all query engines when none specified", async () => {
+    mockFetch.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          GRAPH_EXP_CONNECTION_URL: "https://db.example.com:8182",
+          GRAPH_EXP_IAM: false,
+        }),
+        { status: 200 },
+      ),
+    );
+
+    const result = await fetchDefaultConnection();
+
+    expect(result).toHaveLength(3);
+    expect(result.map(c => c.connection?.queryEngine)).toEqual([
+      "gremlin",
+      "openCypher",
+      "sparql",
+    ]);
+  });
+});
 
 describe("mapToConnection", () => {
   test("should map default connection data to connection config", () => {
@@ -25,8 +98,6 @@ describe("mapToConnection", () => {
       displayLabel: "Default Connection",
       connection: {
         graphDbUrl: defaultConnectionData.GRAPH_EXP_CONNECTION_URL,
-        url: defaultConnectionData.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT,
-        proxyConnection: defaultConnectionData.GRAPH_EXP_USING_PROXY_SERVER,
         queryEngine: defaultConnectionData.GRAPH_EXP_GRAPH_TYPE,
         awsAuthEnabled: defaultConnectionData.GRAPH_EXP_IAM,
         awsRegion: defaultConnectionData.GRAPH_EXP_AWS_REGION,
@@ -50,9 +121,7 @@ describe("DefaultConnectionDataSchema", () => {
     const data = {};
     const actual = DefaultConnectionDataSchema.parse(data);
     expect(actual).toEqual({
-      GRAPH_EXP_USING_PROXY_SERVER: false,
       GRAPH_EXP_CONNECTION_URL: "",
-      GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT: "",
       GRAPH_EXP_IAM: false,
       GRAPH_EXP_AWS_REGION: "",
       GRAPH_EXP_SERVICE_TYPE: "neptune-db",
@@ -63,7 +132,6 @@ describe("DefaultConnectionDataSchema", () => {
   test("should handle invalid service type", () => {
     const data: any = createRandomDefaultConnectionData();
     data.GRAPH_EXP_SERVICE_TYPE = createRandomName("serviceType");
-    // Make the enum less strict
     const actual = DefaultConnectionDataSchema.parse(data);
     expect(actual).toEqual({ ...data, GRAPH_EXP_SERVICE_TYPE: "neptune-db" });
   });
@@ -71,15 +139,10 @@ describe("DefaultConnectionDataSchema", () => {
   test("should handle invalid URLs", () => {
     const data: any = createRandomDefaultConnectionData();
     data.GRAPH_EXP_CONNECTION_URL = createRandomName("connectionURL");
-    data.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT = createRandomName(
-      "publicOrProxyEndpoint",
-    );
-    // Make the enum less strict
     const actual = DefaultConnectionDataSchema.parse(data);
     expect(actual).toEqual({
       ...data,
       GRAPH_EXP_CONNECTION_URL: "",
-      GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT: "",
     });
   });
 
@@ -94,25 +157,11 @@ describe("DefaultConnectionDataSchema", () => {
       "http://blazegraph:9999/blazegraph/namespace/kb",
     );
   });
-
-  test("should preserve path in GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT", () => {
-    const data = {
-      ...createRandomDefaultConnectionData(),
-      GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT:
-        "http://localhost:8080/proxy/explorer",
-    };
-    const actual = DefaultConnectionDataSchema.parse(data);
-    expect(actual.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT).toBe(
-      "http://localhost:8080/proxy/explorer",
-    );
-  });
 });
 
 function createRandomDefaultConnectionData() {
   return {
-    GRAPH_EXP_USING_PROXY_SERVER: createRandomBoolean(),
     GRAPH_EXP_CONNECTION_URL: createRandomUrlString(),
-    GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT: createRandomUrlString(),
     GRAPH_EXP_GRAPH_TYPE: createRandomQueryEngine(),
     GRAPH_EXP_IAM: createRandomBoolean(),
     GRAPH_EXP_AWS_REGION: createRandomAwsRegion(),

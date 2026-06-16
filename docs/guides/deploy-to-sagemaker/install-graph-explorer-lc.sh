@@ -130,17 +130,14 @@ LATEST_ECR_RELEASE=$(curl -k -H "Authorization: Bearer $ECR_TOKEN" https://publi
 
 echo "Pulling and starting graph-explorer..."
 if [[ ${EXPLORER_VERSION} == "" ]]; then
-  EXPLORER_ECR_TAG=sagemaker-${LATEST_ECR_RELEASE}
+  EXPLORER_ECR_TAG=${LATEST_ECR_RELEASE}
 else
-  if [[ ${EXPLORER_VERSION//./} -ge 140 ]]; then
-    EXPLORER_ECR_TAG=sagemaker-${EXPLORER_VERSION}
-  elif [[ ${EXPLORER_VERSION} == *latest* ]]; then
-    EXPLORER_ECR_TAG=sagemaker-latest-SNAPSHOT
+  if [[ ${EXPLORER_VERSION} == *latest* ]]; then
+    EXPLORER_ECR_TAG=latest-SNAPSHOT
   elif [[ ${EXPLORER_VERSION} == *dev* ]]; then
-    EXPLORER_ECR_TAG=sagemaker-dev
+    EXPLORER_ECR_TAG=dev
   else
-    echo "Specified Graph Explorer version does not support use on SageMaker. Defaulting to latest release."
-    EXPLORER_ECR_TAG=sagemaker-${LATEST_ECR_RELEASE}
+    EXPLORER_ECR_TAG=${EXPLORER_VERSION}
   fi
 fi
 echo "Using explorer image tag: ${EXPLORER_ECR_TAG}"
@@ -155,13 +152,10 @@ start_graph_explorer_with_cw_logs() {
       --log-opt awslogs-multiline-pattern='^(INFO|DEBUG|ERROR|WARN|TRACE|FATAL)' \
       --env LOG_LEVEL=debug \
       --env HOST=127.0.0.1 \
-      --env PUBLIC_OR_PROXY_ENDPOINT=${EXPLORER_URI} \
       --env GRAPH_CONNECTION_URL=${NEPTUNE_URI} \
-      --env USING_PROXY_SERVER=true \
       --env IAM=${IAM} \
       --env AWS_REGION=${AWS_REGION} \
       --env SERVICE_TYPE=${SERVICE} \
-      --env PROXY_SERVER_HTTPS_CONNECTION=false \
       --env NEPTUNE_NOTEBOOK=true public.ecr.aws/neptune/graph-explorer:${EXPLORER_ECR_TAG}
 }
 
@@ -170,13 +164,10 @@ start_graph_explorer_with_default_logs() {
       --restart always \
       --env LOG_LEVEL=debug \
       --env HOST=127.0.0.1 \
-      --env PUBLIC_OR_PROXY_ENDPOINT=${EXPLORER_URI} \
       --env GRAPH_CONNECTION_URL=${NEPTUNE_URI} \
-      --env USING_PROXY_SERVER=true \
       --env IAM=${IAM} \
       --env AWS_REGION=${AWS_REGION} \
       --env SERVICE_TYPE=${SERVICE} \
-      --env PROXY_SERVER_HTTPS_CONNECTION=false \
       --env NEPTUNE_NOTEBOOK=true public.ecr.aws/neptune/graph-explorer:${EXPLORER_ECR_TAG}
 }
 

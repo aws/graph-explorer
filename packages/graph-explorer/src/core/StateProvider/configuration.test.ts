@@ -36,6 +36,7 @@ import {
   getDefaultEdgeTypeConfig,
   getDefaultVertexTypeConfig,
   mergeConfiguration,
+  migrateLegacyConnection,
   normalizeConnection,
   type NormalizedConnection,
   patchToRemoveDisplayLabel,
@@ -55,10 +56,8 @@ function toEdgeStyles(
 
 /** The default empty connection values when no value is provided. */
 const defaultEmptyConnection: NormalizedConnection = {
-  url: "",
   graphDbUrl: "",
   queryEngine: "gremlin",
-  proxyConnection: false,
   awsAuthEnabled: false,
 };
 
@@ -131,7 +130,6 @@ describe("mergedConfiguration", () => {
       connection: {
         ...defaultEmptyConnection,
         ...config.connection,
-        url: config.connection?.url ?? "",
         graphDbUrl: config.connection?.graphDbUrl ?? "",
       },
       schema: expectedSchema,
@@ -190,7 +188,6 @@ describe("mergedConfiguration", () => {
       connection: {
         ...defaultEmptyConnection,
         ...config.connection,
-        url: config.connection?.url ?? "",
         graphDbUrl: config.connection?.graphDbUrl ?? "",
       },
       schema: expectedSchema,
@@ -378,51 +375,23 @@ describe("patchToRemoveDisplayLabel", () => {
 });
 
 describe("normalizeConnection", () => {
-  test("should remove trailing slash from url", () => {
-    const result = normalizeConnection({ url: "https://example.com/" });
-    expect(result.url).toBe("https://example.com");
+  test("should remove trailing slash from graphDbUrl", () => {
+    const result = normalizeConnection({ graphDbUrl: "https://example.com/" });
+    expect(result.graphDbUrl).toBe("https://example.com");
   });
 
   test("should default queryEngine to gremlin", () => {
-    const result = normalizeConnection({ url: "https://example.com" });
+    const result = normalizeConnection({ graphDbUrl: "https://example.com" });
     expect(result.queryEngine).toBe("gremlin");
   });
 
-  test("should default proxyConnection to true when graphDbUrl is present", () => {
-    const result = normalizeConnection({
-      url: "https://proxy.com",
-      graphDbUrl: "https://db.com",
-    });
-    expect(result.proxyConnection).toBe(true);
-  });
-
-  test("should default proxyConnection to false when graphDbUrl is absent", () => {
-    const result = normalizeConnection({ url: "https://example.com" });
-    expect(result.proxyConnection).toBe(false);
-  });
-
   test("should default awsAuthEnabled to false", () => {
-    const result = normalizeConnection({ url: "https://example.com" });
+    const result = normalizeConnection({ graphDbUrl: "https://example.com" });
     expect(result.awsAuthEnabled).toBe(false);
-  });
-
-  test("should preserve path in url", () => {
-    const result = normalizeConnection({
-      url: "http://localhost:9999/blazegraph/namespace/kb",
-    });
-    expect(result.url).toBe("http://localhost:9999/blazegraph/namespace/kb");
-  });
-
-  test("should remove only trailing slash from url with path", () => {
-    const result = normalizeConnection({
-      url: "http://localhost:9999/blazegraph/namespace/kb/",
-    });
-    expect(result.url).toBe("http://localhost:9999/blazegraph/namespace/kb");
   });
 
   test("should preserve path in graphDbUrl", () => {
     const result = normalizeConnection({
-      url: "http://proxy:8080",
       graphDbUrl: "http://blazegraph:9999/blazegraph/namespace/kb",
     });
     expect(result.graphDbUrl).toBe(
@@ -432,12 +401,108 @@ describe("normalizeConnection", () => {
 
   test("should remove only trailing slash from graphDbUrl with path", () => {
     const result = normalizeConnection({
-      url: "http://proxy:8080",
       graphDbUrl: "http://blazegraph:9999/blazegraph/namespace/kb/",
     });
     expect(result.graphDbUrl).toBe(
       "http://blazegraph:9999/blazegraph/namespace/kb",
     );
+  });
+
+  test("should migrate legacy connection with url and proxyConnection=true", () => {
+    const result = normalizeConnection({
+      url: "https://proxy.com",
+      proxyConnection: true,
+      graphDbUrl: "https://db.com",
+    } as any);
+    expect(result.graphDbUrl).toBe("https://db.com");
+  });
+
+  test("should migrate legacy connection with url and proxyConnection=false", () => {
+    const result = normalizeConnection({
+      url: "https://my-neptune:8182",
+      proxyConnection: false,
+    } as any);
+    expect(result.graphDbUrl).toBe("https://my-neptune:8182");
+  });
+});
+
+describe("migrateLegacyConnection", () => {
+  test("should use graphDbUrl directly when proxyConnection is true", () => {
+    const result = migrateLegacyConnection({
+      url: "https://proxy.example.com",
+      proxyConnection: true,
+      graphDbUrl: "https://my-neptune:8182",
+    });
+    expect(result.graphDbUrl).toBe("https://my-neptune:8182");
+  });
+
+  test("should use url as graphDbUrl when proxyConnection is false", () => {
+    const result = migrateLegacyConnection({
+      url: "https://my-neptune:8182",
+      proxyConnection: false,
+    });
+    expect(result.graphDbUrl).toBe("https://my-neptune:8182");
+  });
+
+  test("should use url as graphDbUrl when proxyConnection is absent and no graphDbUrl", () => {
+    const result = migrateLegacyConnection({
+      url: "https://my-neptune:8182",
+    });
+    expect(result.graphDbUrl).toBe("https://my-neptune:8182");
+  });
+
+  test("should not include proxyConnection in result", () => {
+    const result = migrateLegacyConnection({
+      url: "https://proxy.com",
+      proxyConnection: true,
+      graphDbUrl: "https://db.com",
+    });
+    expect(result).not.toHaveProperty("proxyConnection");
+  });
+
+  test("should not include url in result", () => {
+    const result = migrateLegacyConnection({
+      url: "https://proxy.com",
+      proxyConnection: true,
+      graphDbUrl: "https://db.com",
+    });
+    expect(result).not.toHaveProperty("url");
+  });
+
+  test("should preserve other connection properties", () => {
+    const result = migrateLegacyConnection({
+      url: "https://proxy.com",
+      proxyConnection: true,
+      graphDbUrl: "https://db.com",
+      queryEngine: "sparql",
+      awsAuthEnabled: true,
+      awsRegion: "us-east-1",
+      serviceType: "neptune-graph",
+      fetchTimeoutMs: 30000,
+      nodeExpansionLimit: 100,
+    });
+    expect(result.queryEngine).toBe("sparql");
+    expect(result.awsAuthEnabled).toBe(true);
+    expect(result.awsRegion).toBe("us-east-1");
+    expect(result.serviceType).toBe("neptune-graph");
+    expect(result.fetchTimeoutMs).toBe(30000);
+    expect(result.nodeExpansionLimit).toBe(100);
+  });
+
+  test("should pass through a connection that already has graphDbUrl and no url", () => {
+    const result = migrateLegacyConnection({
+      graphDbUrl: "https://db.com",
+      queryEngine: "gremlin",
+    });
+    expect(result.graphDbUrl).toBe("https://db.com");
+  });
+
+  test("should fall back to empty string when no url is present", () => {
+    const result = migrateLegacyConnection({
+      proxyConnection: false,
+      queryEngine: "gremlin",
+    });
+    expect(result.graphDbUrl).toBe("");
   });
 });
 

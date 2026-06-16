@@ -594,7 +594,6 @@ export function createRandomFile(): File {
 }
 
 export function createRandomConnectionWithId(): ConnectionWithId {
-  const isProxyConnection = createRandomBoolean();
   const isIamEnabled = createRandomBoolean();
   const fetchTimeoutMs = randomlyUndefined(createRandomInteger());
   const nodeExpansionLimit = randomlyUndefined(createRandomInteger());
@@ -604,10 +603,8 @@ export function createRandomConnectionWithId(): ConnectionWithId {
   return {
     id: createNewConfigurationId(),
     displayLabel: createRandomName("displayLabel"),
-    url: createRandomUrlString(),
-    ...(isProxyConnection && { graphDbUrl: createRandomUrlString() }),
+    graphDbUrl: createRandomUrlString(),
     queryEngine,
-    proxyConnection: isProxyConnection,
     ...(isIamEnabled && { awsAuthEnabled: createRandomBoolean() }),
     ...(isIamEnabled && {
       awsRegion: createRandomAwsRegion(),

@@ -6,10 +6,8 @@ import type { Explorer } from "./useGEFetchTypes";
  */
 export const emptyExplorer: Explorer = {
   connection: {
-    url: "",
     graphDbUrl: "",
     queryEngine: "gremlin",
-    proxyConnection: false,
     awsAuthEnabled: false,
   },
   fetchSchema: async () => {

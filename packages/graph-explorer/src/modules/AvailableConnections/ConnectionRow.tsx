@@ -24,11 +24,7 @@ function ConnectionRow({
   const t = useTranslations();
   const setActiveConfig = useSetActiveConfigCallback(connection.id);
 
-  const dbUrl = connection.connection
-    ? connection.connection.proxyConnection
-      ? connection.connection.graphDbUrl
-      : connection.connection.url
-    : null;
+  const dbUrl = connection.connection?.graphDbUrl || null;
 
   const graphType = t(
     "query-language",

@@ -62,9 +62,7 @@ export function createExportedGraph(
 export function createExportedConnection(
   connection: ConnectionConfig,
 ): ExportedGraphConnection {
-  const dbUrl = (
-    (connection.proxyConnection ? connection.graphDbUrl : connection.url) ?? ""
-  ).toLowerCase();
+  const dbUrl = (connection.graphDbUrl ?? "").toLowerCase();
   const queryEngine = connection.queryEngine ?? "gremlin";
 
   return {
