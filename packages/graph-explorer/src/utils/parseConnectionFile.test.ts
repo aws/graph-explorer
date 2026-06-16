@@ -104,6 +104,37 @@ describe("parseConnectionFile", () => {
     expect(parseConnectionFile(config)).toBeNull();
   });
 
+  test("returns null for a non-http(s) graphDbUrl", () => {
+    const config = {
+      id: createNewConfigurationId(),
+      connection: {
+        url: createRandomUrlString(),
+        queryEngine: "gremlin" as const,
+        graphDbUrl: "ftp://example.com",
+      },
+      schema: { vertices: [], edges: [] },
+    };
+
+    expect(parseConnectionFile(config)).toBeNull();
+  });
+
+  test("accepts an http(s) graphDbUrl", () => {
+    const graphDbUrl = "https://neptune.example.com:8182";
+    const config = {
+      id: createNewConfigurationId(),
+      connection: {
+        url: createRandomUrlString(),
+        queryEngine: "gremlin" as const,
+        graphDbUrl,
+      },
+      schema: { vertices: [], edges: [] },
+    };
+
+    const result = parseConnectionFile(config);
+
+    expect(result?.connection.graphDbUrl).toBe(graphDbUrl);
+  });
+
   test("accepts an http URL", () => {
     const config = {
       id: createNewConfigurationId(),

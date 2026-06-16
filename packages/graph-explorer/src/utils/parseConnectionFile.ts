@@ -16,6 +16,11 @@ function isValidHttpUrl(value: string) {
   return url.protocol === "http:" || url.protocol === "https:";
 }
 
+const attributesSchema = z
+  .array(z.looseObject({ name: z.string().min(1) }))
+  .optional()
+  .default([]);
+
 /**
  * The wire format of an exported connection file, as produced by
  * `saveConfigurationToFile` and consumed on import.
@@ -34,17 +39,18 @@ function isValidHttpUrl(value: string) {
  * It is intentionally decoupled from the in-memory configuration types and the
  * IndexedDB storage shape so the on-disk format can evolve independently.
  */
-const attributesSchema = z
-  .array(z.looseObject({ name: z.string().min(1) }))
-  .optional()
-  .default([]);
-
 const exportedConnectionFileSchema = z.looseObject({
-  id: z.string().min(1).transform(toConfigurationId),
+  id: z
+    .string()
+    .min(1)
+    .transform(value => value as ConfigurationId),
   displayLabel: z.string().optional(),
   connection: z.looseObject({
     url: z.string().refine(isValidHttpUrl),
     queryEngine: z.enum(queryEngineOptions),
+    // `graphDbUrl` is forwarded verbatim as the proxy's request target, so an
+    // imported file must not be able to point it at a non-http(s) scheme.
+    graphDbUrl: z.string().refine(isValidHttpUrl).optional(),
   }),
   schema: z.looseObject({
     vertices: z.array(
@@ -62,8 +68,14 @@ const exportedConnectionFileSchema = z.looseObject({
     prefixes: z
       .array(
         z.looseObject({
-          prefix: z.string().min(1).transform(toRdfPrefix),
-          uri: z.string().min(1).transform(toIriNamespace),
+          prefix: z
+            .string()
+            .min(1)
+            .transform(value => value as RdfPrefix),
+          uri: z
+            .string()
+            .min(1)
+            .transform(value => value as IriNamespace),
         }),
       )
       .optional(),
@@ -108,16 +120,4 @@ export function parseConnectionFile(
 ): ExportedConnectionFile | null {
   const result = exportedConnectionFileSchema.safeParse(data);
   return result.success ? result.data : null;
-}
-
-function toConfigurationId(value: string) {
-  return value as ConfigurationId;
-}
-
-function toRdfPrefix(value: string) {
-  return value as RdfPrefix;
-}
-
-function toIriNamespace(value: string) {
-  return value as IriNamespace;
 }
