@@ -13,15 +13,16 @@ Graph Explorer is a client-heavy web application with a thin backend proxy. The 
 graph LR
     Browser["Browser\n(React)"] -- HTTP --> Proxy["Proxy Server\n(Express)"]
     Proxy -- HTTP --> DB["Graph Database\n(Neptune, etc.)"]
-    Browser -. direct .-> DB
     Browser -- persistence --> IDB["IndexedDB\n(localforage)"]
 ```
 
-The React client constructs queries and sends them through the proxy server, which forwards requests to the graph database. When connecting to Amazon Neptune, the proxy signs requests with AWS SigV4 credentials. For non-Neptune databases, the proxy is optional — the client can connect directly to a publicly accessible endpoint (shown as the dotted line above).
+The React client constructs queries and sends them through the proxy server using relative URLs, which forwards requests to the graph database. When connecting to Amazon Neptune, the proxy signs requests with AWS SigV4 credentials.
 
 The proxy does not store any user data — all preferences, connections, and query history live in the browser's IndexedDB.
 
-This split exists because browsers cannot perform SigV4 signing directly (it requires AWS credentials that should not be exposed to the client), and because the proxy can run inside a VPC alongside the database while the browser runs outside it.
+This architecture allows the app to work behind any reverse proxy (SageMaker, custom paths) without build-time configuration, since the client resolves API endpoints relative to its own location. The proxy can run inside a VPC alongside the database while the browser runs outside it.
+
+Because all requests flow through the proxy, the server must have network access to the target database. If the server is in a restricted network (e.g., a private subnet with no NAT gateway), it will not be able to reach databases outside that network even if the user's browser could reach them directly.
 
 ## Monorepo Structure
 

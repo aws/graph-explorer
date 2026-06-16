@@ -13,8 +13,8 @@ A directed relationship between two vertices (source → target), with a type an
 _Avoid_: Relationship, link
 
 **Connection**:
-A saved database profile — the URL, query engine, authentication settings, and proxy routing needed to reach a graph database. Users create and manage these in the UI.
-_Avoid_: Configuration (legacy term being phased out — previously bundled connection + schema + Styles into one object)
+A saved database profile — the graph database endpoint URL (`graphDbUrl`), query language, and optional IAM authentication settings. The client always reaches the database through the same-origin **Proxy Server**, so no proxy endpoint is configured. Users create and manage these in the UI.
+_Avoid_: Configuration (legacy term being phased out — previously bundled connection + schema + Styles into one object); proxy endpoint / `proxyConnection` (removed — see ADR `unify-docker-image-remove-sagemaker-variant`)
 
 **Active Connection**:
 The one Connection a single browser tab is currently exploring — what the entire app reads to decide which Schema, Session, and queries are in play. Held per-tab (sessionStorage): it survives that tab's reload but dies with the tab, and one tab activating a Connection never changes another tab's Active Connection.
@@ -86,6 +86,10 @@ _Avoid_: Save state (ambiguous with Session)
 The UI element in the nav bar (after the page title) that renders Persistence Status. It surfaces only on `failed` — a standing danger "Changes not saved" button — and stays absent at `idle` and `saving`. Clicking it opens a dialog showing the raw failure records (key, reason, attempt count, last attempt, and the underlying error's name/message/cause) in a read-only JSON editor. The dialog offers to save the configuration to a file via `saveLocalForageToFile` (`core/StateProvider/localDb.ts`) when storage is full (quota) — IndexedDB is still readable then — but not when storage is inaccessible (private mode, blocked), since the database never opened and there is nothing to read. Recovery scope is retry (transient failures) plus that backup (terminal-quota failures) — it does not guarantee the write eventually lands.
 _Avoid_: Save-status indicator
 
+**Proxy Server**:
+The Node.js server that serves the frontend (mounted at `/explorer`) and proxies all database requests (mounted at `/`). The client resolves API endpoints relative to its own origin via `apiUrl()` — `../endpoint` from the static mount — so the frontend and proxy are always same-origin. This means every database request routes through the Proxy Server, which has network access to the database and handles SigV4 signing. See ADR `unify-docker-image-remove-sagemaker-variant`.
+_Avoid_: proxy endpoint URL (no longer user-configured)
+
 ## Relationships
 
 - Each browser tab has at most one **Active Connection**; different tabs may have different ones
@@ -120,3 +124,4 @@ _Avoid_: Save-status indicator
 - "Node" means **Vertex** in code but is the preferred UI term for property graphs — resolved: use **Vertex** in code, "node" in UI copy.
 - "Attribute" vs "Property" — resolved: **Property** is canonical, "attribute" is legacy code term being phased out.
 - "Active connection" meant a single shared per-origin value, but the app consumed it as if it were per-tab — resolved: **Active Connection** is per-tab (sessionStorage), **Last Active Connection** is the shared persisted breadcrumb. The legacy `activeConfigurationAtom` / `active-configuration` key is reused as the breadcrumb.
+- Connection URL field — `url` and `proxyConnection` are legacy fields that survive only in `LegacyConnectionConfig` and are migrated at read time to the canonical `graphDbUrl` (see `migrateLegacyConnection`, ADR `unify-docker-image-remove-sagemaker-variant`). Use `graphDbUrl` in code.
