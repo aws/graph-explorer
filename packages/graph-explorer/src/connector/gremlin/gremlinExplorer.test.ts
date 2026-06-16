@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
 import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
@@ -9,10 +10,8 @@ function createConnection(
   overrides?: Partial<NormalizedConnection>,
 ): NormalizedConnection {
   return {
-    url: "http://localhost:8182",
     queryEngine: "gremlin",
-    graphDbUrl: "",
-    proxyConnection: false,
+    graphDbUrl: "https://my-neptune:8182",
     awsAuthEnabled: false,
     ...overrides,
   };
@@ -44,6 +43,7 @@ describe("createGremlinExplorer", () => {
   beforeEach(() => {
     mockFetch = vi.fn();
     vi.stubGlobal("fetch", mockFetch);
+    document.head.innerHTML = '<base href="http://localhost/explorer/" />';
   });
 
   afterEach(() => {
@@ -75,7 +75,7 @@ describe("createGremlinExplorer", () => {
       await explorer.fetchSchema();
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "http://localhost:8182/pg/statistics/summary?mode=basic",
+        new URL("http://localhost/pg/statistics/summary?mode=basic"),
         expect.objectContaining({ method: "GET" }),
       );
     });

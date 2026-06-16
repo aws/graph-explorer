@@ -61,7 +61,7 @@ describe("saveConfigurationToFile", () => {
   it("should include connection with default queryEngine if not provided", async () => {
     const config = makeConfig({
       connection: {
-        url: "https://example.com",
+        graphDbUrl: "https://example.com",
       },
     });
 
@@ -72,13 +72,13 @@ describe("saveConfigurationToFile", () => {
     const parsed = JSON.parse(text);
 
     expect(parsed.connection.queryEngine).toBe("gremlin");
-    expect(parsed.connection.url).toBe("https://example.com");
+    expect(parsed.connection.graphDbUrl).toBe("https://example.com");
   });
 
   it("should preserve existing queryEngine", async () => {
     const config = makeConfig({
       connection: {
-        url: "https://example.com",
+        graphDbUrl: "https://example.com",
         queryEngine: "sparql",
       },
     });
@@ -231,64 +231,20 @@ describe("saveConfigurationToFile", () => {
     expect(parsed.connection.queryEngine).toBe("gremlin");
 
     // A connection-less config is not a real, reachable state — every config
-    // the app produces has a connection. The `?? ""` fallback in the writer
-    // emits `url: ""` rather than omitting it, and the parser then rejects
-    // the file (empty string is not a valid URL). This pins that accepted
-    // asymmetry; it should disappear in a later slice that makes a connection
-    // non-optional on the config rather than defaulting here.
-    expect(parsed.connection.url).toBe("");
+    // the app produces has a connection. With no URL to emit, the writer omits
+    // graphDbUrl entirely, and the parser then rejects the file (a connection
+    // must have a URL). This pins that accepted asymmetry; it should disappear
+    // in a later slice that makes a connection non-optional on the config
+    // rather than defaulting here.
+    expect(parsed.connection.graphDbUrl).toBeUndefined();
     expect(parseConnectionFile(parsed)).toBeNull();
   });
 
-  it("should strip whitespace and newlines from the exported url", async () => {
+  it("should strip whitespace and newlines from the exported graphDbUrl", async () => {
     const config = makeConfig({
       connection: {
-        url: "  https://neptune.example.com:8182/\r\n  ",
-        queryEngine: "gremlin",
-      },
-    });
-
-    saveConfigurationToFile(config);
-
-    const [blob] = saveAsMock.mock.calls[0];
-    const parsed = JSON.parse(await (blob as Blob).text());
-
-    expect(parsed.connection.url).toBe("https://neptune.example.com:8182");
-    // The cleaned file must survive its own import validation.
-    expect(parseConnectionFile(parsed)?.connection.url).toBe(
-      "https://neptune.example.com:8182",
-    );
-  });
-
-  it("should not add a graphDbUrl to a non-proxy exported connection", async () => {
-    // Production configs reach the writer already normalized, where a non-proxy
-    // connection carries graphDbUrl: "" (never undefined). The writer must not
-    // re-emit that empty string.
-    const config = makeConfig({
-      connection: {
-        url: "https://example.com",
-        queryEngine: "gremlin",
-        graphDbUrl: "",
-      },
-    });
-
-    saveConfigurationToFile(config);
-
-    const [blob] = saveAsMock.mock.calls[0];
-    const parsed = JSON.parse(await (blob as Blob).text());
-
-    // An empty-string graphDbUrl would fail import validation (z.url), so a
-    // connection without one must omit the key rather than emit "".
-    expect(parsed.connection.graphDbUrl).toBeUndefined();
-    expect(parseConnectionFile(parsed)).not.toBeNull();
-  });
-
-  it("should keep and clean a proxy graphDbUrl", async () => {
-    const config = makeConfig({
-      connection: {
-        url: "https://proxy.example.com",
-        queryEngine: "gremlin",
         graphDbUrl: "  https://neptune.example.com:8182/\r\n  ",
+        queryEngine: "gremlin",
       },
     });
 
@@ -300,6 +256,7 @@ describe("saveConfigurationToFile", () => {
     expect(parsed.connection.graphDbUrl).toBe(
       "https://neptune.example.com:8182",
     );
+    // The cleaned file must survive its own import validation.
     expect(parseConnectionFile(parsed)?.connection.graphDbUrl).toBe(
       "https://neptune.example.com:8182",
     );
@@ -335,7 +292,7 @@ describe("saveConfigurationToFile", () => {
   it("should produce a file that passes import validation", async () => {
     const config = makeConfig({
       connection: {
-        url: "https://neptune.example.com:8182",
+        graphDbUrl: "https://neptune.example.com:8182",
         queryEngine: "gremlin",
       },
       schema: {
@@ -375,7 +332,9 @@ describe("saveConfigurationToFile", () => {
     const result = parseConnectionFile(parsed);
     expect(result?.id).toBe(config.id);
     expect(result?.displayLabel).toBe(config.displayLabel);
-    expect(result?.connection.url).toBe("https://neptune.example.com:8182");
+    expect(result?.connection.graphDbUrl).toBe(
+      "https://neptune.example.com:8182",
+    );
     expect(result?.connection.queryEngine).toBe("gremlin");
     expect(result?.schema.vertices.map(vertex => vertex.type)).toStrictEqual([
       "Person",

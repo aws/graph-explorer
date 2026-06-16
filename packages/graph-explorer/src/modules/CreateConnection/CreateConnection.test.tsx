@@ -27,18 +27,15 @@ function renderCreateConnection(ui: React.ReactElement) {
 }
 
 describe("CreateConnection", () => {
-  test("removes newlines and surrounding whitespace from URL fields", async () => {
+  test("removes newlines and surrounding whitespace from the graph connection URL", async () => {
     const user = userEvent.setup();
     const store = renderCreateConnection(
       <CreateConnection onClose={vi.fn()} />,
     );
 
     await user.type(
-      screen.getByRole("textbox", { name: "Public or Proxy Endpoint" }),
-      "  https://proxy.example.com/{Enter}path  ",
-    );
-    await user.click(
-      screen.getByRole("checkbox", { name: "Using Proxy-Server" }),
+      screen.getByRole("textbox", { name: "Name" }),
+      "My Connection",
     );
     await user.type(
       screen.getByRole("textbox", { name: "Graph Connection URL" }),
@@ -53,7 +50,6 @@ describe("CreateConnection", () => {
     const [savedConnection] = store.get(configurationAtom).values();
     expect(savedConnection).toMatchObject({
       connection: {
-        url: "https://proxy.example.com/path",
         graphDbUrl: "https://database.example.com/graph",
       },
     });
@@ -81,7 +77,11 @@ describe("CreateConnection", () => {
     );
 
     await user.type(
-      screen.getByRole("textbox", { name: "Public or Proxy Endpoint" }),
+      screen.getByRole("textbox", { name: "Name" }),
+      "My Connection",
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: "Graph Connection URL" }),
       "  {Enter}  ",
     );
     await user.click(screen.getByRole("button", { name: "Add Connection" }));
@@ -95,7 +95,6 @@ describe("CreateConnection", () => {
       <CreateConnection
         initialValues={{
           name: "Seeded Graph",
-          proxyConnection: true,
           graphDbUrl: "https://seed.neptune.amazonaws.com",
         }}
         onClose={() => {}}
@@ -140,9 +139,7 @@ describe("CreateConnection", () => {
 describe("mapToConnectionForm", () => {
   test("maps a connection's IAM auth into form values", () => {
     const form = mapToConnectionForm("My Graph", {
-      url: "https://localhost",
       queryEngine: "openCypher",
-      proxyConnection: true,
       graphDbUrl: "https://g.example.com",
       awsAuthEnabled: true,
       awsRegion: "us-west-2",
@@ -152,7 +149,6 @@ describe("mapToConnectionForm", () => {
     expect(form).toMatchObject({
       name: "My Graph",
       queryEngine: "openCypher",
-      proxyConnection: true,
       graphDbUrl: "https://g.example.com",
       awsAuthEnabled: true,
       awsRegion: "us-west-2",

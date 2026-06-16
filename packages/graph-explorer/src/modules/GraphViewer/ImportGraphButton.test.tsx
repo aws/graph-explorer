@@ -80,30 +80,12 @@ describe("createErrorNotification", () => {
     );
   });
 
-  it("should show the connection name when a connection using the proxy server is a match", () => {
+  it("should show the connection name when a connection is a match", () => {
     const connection = createRandomExportedGraphConnection();
     const error = new InvalidConnectionError("test", connection);
     const file = createRandomFile();
     const allConnections = createRandomAllConnections();
     allConnections[0].graphDbUrl = connection.dbUrl;
-    allConnections[0].proxyConnection = true;
-    allConnections[0].queryEngine = connection.queryEngine;
-    const matchingConnectionName = allConnections[0].displayLabel;
-
-    const notification = createErrorNotification(error, file, allConnections);
-
-    expect(notification).toBe(
-      `The graph file requires switching to connection ${matchingConnectionName}.`,
-    );
-  });
-
-  it("should show the connection name when a connection not using the proxy server is a match", () => {
-    const connection = createRandomExportedGraphConnection();
-    const error = new InvalidConnectionError("test", connection);
-    const file = createRandomFile();
-    const allConnections = createRandomAllConnections();
-    allConnections[0].url = connection.dbUrl;
-    allConnections[0].proxyConnection = false;
     allConnections[0].queryEngine = connection.queryEngine;
     const matchingConnectionName = allConnections[0].displayLabel;
 
