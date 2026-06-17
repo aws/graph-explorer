@@ -1,0 +1,179 @@
+name: Docker
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "ECR image tag type"
+        required: false
+        type: choice
+        options:
+          - "latest"
+          - "release"
+        default: "latest"
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+
+      - name: Build Docker image
+        run: |
+          docker build -t graph-explorer .
+          docker build -t graph-explorer-sagemaker --build-arg NEPTUNE_NOTEBOOK=true .
+
+      - name: Scan Docker image for vulnerabilities
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # v0.35.0
+        with:
+          image-ref: graph-explorer
+          severity: HIGH,CRITICAL
+          exit-code: 1
+
+      - name: Ensure openSSL is installed
+        run: |
+          docker run --rm --entrypoint="" graph-explorer openssl version
+          docker run --rm --entrypoint="" graph-explorer-sagemaker openssl version
+
+      - name: Verify unnecessary packages are removed
+        run: |
+          docker run --rm --entrypoint="" graph-explorer sh -c '
+            (command -v npm && echo "FAIL: npm found" && exit 1) || echo "npm removed"
+            (command -v pnpm && echo "FAIL: pnpm found" && exit 1) || echo "pnpm removed"
+            (command -v corepack && echo "FAIL: corepack found" && exit 1) || echo "corepack removed"
+            (command -v python3 && echo "FAIL: python3 found" && exit 1) || echo "python3 removed"
+            (command -v yum && echo "FAIL: yum found" && exit 1) || echo "yum removed"
+            (command -v dnf && echo "FAIL: dnf found" && exit 1) || echo "dnf removed"
+          '
+          docker run --rm --entrypoint="" graph-explorer-sagemaker sh -c '
+            (command -v npm && echo "FAIL: npm found" && exit 1) || echo "npm removed"
+            (command -v pnpm && echo "FAIL: pnpm found" && exit 1) || echo "pnpm removed"
+            (command -v corepack && echo "FAIL: corepack found" && exit 1) || echo "corepack removed"
+            (command -v python3 && echo "FAIL: python3 found" && exit 1) || echo "python3 removed"
+            (command -v yum && echo "FAIL: yum found" && exit 1) || echo "yum removed"
+            (command -v dnf && echo "FAIL: dnf found" && exit 1) || echo "dnf removed"
+          '
+
+      - name: Verify standard server starts and responds
+        run: |
+          docker run -d --name test-server \
+            -p 8080:80 \
+            -e PROXY_SERVER_HTTPS_CONNECTION=false \
+            graph-explorer
+          trap 'docker rm -f test-server 2>/dev/null' EXIT
+
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/status; then
+              echo ""
+              echo "Server responded on /status"
+              break
+            fi
+            if [ "$i" -eq 30 ]; then
+              echo "FAIL: Server did not respond within 30 seconds"
+              docker logs test-server
+              exit 1
+            fi
+            sleep 1
+          done
+
+      - name: Verify sagemaker server starts and responds
+        run: |
+          docker run -d --name test-server-sagemaker \
+            -p 9250:9250 \
+            graph-explorer-sagemaker
+          trap 'docker rm -f test-server-sagemaker 2>/dev/null' EXIT
+
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:9250/status; then
+              echo ""
+              echo "Sagemaker server responded on /status"
+              break
+            fi
+            if [ "$i" -eq 30 ]; then
+              echo "FAIL: Sagemaker server did not respond within 30 seconds"
+              docker logs test-server-sagemaker
+              exit 1
+            fi
+            sleep 1
+          done
+
+  push-to-ecr:
+    if: github.ref == 'refs/heads/main'
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+
+      - name: Get package version
+        id: package-version
+        run: echo "version=$(node -p 'require("./package.json").version')" >> $GITHUB_OUTPUT
+
+      - name: Get image tag
+        id: get-image-tag
+        env:
+          IS_RELEASE: ${{ github.event_name == 'workflow_dispatch' && inputs.image_tag == 'release' }}
+          VERSION: ${{ steps.package-version.outputs.version }}
+        run: |
+          if [ "$IS_RELEASE" = "true" ]; then
+            echo "image_tag=$VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "image_tag=latest-SNAPSHOT" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ECR }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ECR }}
+          aws-region: us-east-1
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_ECR }}
+          role-duration-seconds: 3600
+          role-session-name: ExplorerImageUpdate
+
+      - name: Login to Amazon ECR
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@376925c9d111252e87ae59691e5a442dd100ef6a # v2.1.3
+        with:
+          registry-type: public
+
+      - name: Build, tag, and push Docker image
+        env:
+          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+          REGISTRY_ALIAS: neptune
+          REPOSITORY: graph-explorer
+          IMAGE_TAG: ${{ steps.get-image-tag.outputs.image_tag }}
+        run: |
+          docker build -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG .
+          docker build --build-arg NEPTUNE_NOTEBOOK=true -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-$IMAGE_TAG .
+          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
+          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-$IMAGE_TAG
+
+      - name: Update latest tag for release
+        if: github.event_name == 'workflow_dispatch' && inputs.image_tag == 'release'
+        env:
+          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+          REGISTRY_ALIAS: neptune
+          REPOSITORY: graph-explorer
+          IMAGE_TAG: ${{ steps.get-image-tag.outputs.image_tag }}
+        run: |
+          docker tag $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest
+          docker tag $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-$IMAGE_TAG $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-latest
+          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest
+          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-latest
