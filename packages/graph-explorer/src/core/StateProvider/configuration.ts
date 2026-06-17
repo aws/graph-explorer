@@ -8,8 +8,6 @@ import {
   activeConfigurationAtom,
   type AttributeConfig,
   configurationAtom,
-  createEdgeType,
-  createVertexType,
   type EdgeType,
   type EdgeTypeConfig,
   type RawConfiguration,
@@ -29,7 +27,7 @@ import {
 } from "./userPreferences";
 
 /** Gets the currently active config. */
-export const activeConfigSelector = atom(get => {
+const activeConfigSelector = atom(get => {
   const configMap = get(configurationAtom);
   const id = get(activeConfigurationAtom);
   const activeConfig = id ? configMap.get(id) : null;
@@ -63,36 +61,16 @@ export function mergeConfiguration(
   currentConfig: RawConfiguration,
   userStyling: UserStyling,
 ): RawConfiguration {
-  const configVertexMap = toMapByType(currentConfig.schema?.vertices);
-  const schemaVertexMap = toMapByType(currentSchema?.vertices);
   const prefsVertexMap = toMapByType(userStyling.vertices);
-
-  const allVertexLabels = [
-    ...new Set([...configVertexMap.keys(), ...schemaVertexMap.keys()]),
-  ];
-  const mergedVertices = allVertexLabels
-    .map(vLabel =>
-      mergeVertex(
-        configVertexMap.get(vLabel),
-        schemaVertexMap.get(vLabel),
-        prefsVertexMap.get(vLabel),
-      ),
+  const mergedVertices = (currentSchema?.vertices ?? [])
+    .map(schemaVertex =>
+      mergeVertex(schemaVertex, prefsVertexMap.get(schemaVertex.type)),
     )
     .toSorted((a, b) => a.type.localeCompare(b.type));
 
-  const configEdgeMap = toMapByType(currentConfig.schema?.edges);
-  const schemaEdgeMap = toMapByType(currentSchema?.edges);
   const prefsEdgeMap = toMapByType(userStyling.edges);
-
-  const allEdgeLabels = [
-    ...new Set([...configEdgeMap.keys(), ...schemaEdgeMap.keys()]),
-  ];
-  const mergedEdges = allEdgeLabels.map(eLabel =>
-    mergeEdge(
-      configEdgeMap.get(eLabel),
-      schemaEdgeMap.get(eLabel),
-      prefsEdgeMap.get(eLabel),
-    ),
+  const mergedEdges = (currentSchema?.edges ?? []).map(schemaEdge =>
+    mergeEdge(schemaEdge, prefsEdgeMap.get(schemaEdge.type)),
   );
 
   return {
@@ -129,92 +107,37 @@ export function normalizeConnection(connection: ConnectionConfig) {
 }
 export type NormalizedConnection = ReturnType<typeof normalizeConnection>;
 
-const mergeAttributes = (
-  config: VertexTypeConfig | EdgeTypeConfig | null,
-  schema: VertexTypeConfig | EdgeTypeConfig | null,
-): AttributeConfig[] => {
-  const configAttrMap = new Map(
-    config?.attributes.map(attr => [attr.name, attr]),
-  );
-  const schemaAttrMap = new Map(
-    schema?.attributes.map(attr => [attr.name, attr]),
-  );
-  const allAttrNames = [
-    ...new Set([...configAttrMap.keys(), ...schemaAttrMap.keys()]),
-  ];
-
-  return allAttrNames.map(attrName => ({
-    name: attrName,
-    ...schemaAttrMap.get(attrName),
-    ...configAttrMap.get(attrName),
-  }));
-};
-
 const mergeVertex = (
-  configVertex?: VertexTypeConfig,
-  schemaVertex?: VertexTypeConfig,
+  schemaVertex: VertexTypeConfig,
   preferences?: VertexPreferencesStorageModel,
 ): VertexTypeConfig => {
-  // Ignore the displayLabel from schema & config
-  const patchedSchema = schemaVertex
-    ? patchToRemoveDisplayLabel(schemaVertex)
-    : null;
-  const patchedConfig = configVertex
-    ? patchToRemoveDisplayLabel(configVertex)
-    : null;
-
-  const attributes = mergeAttributes(patchedConfig, patchedSchema);
-
-  const vt =
-    preferences?.type ||
-    configVertex?.type ||
-    schemaVertex?.type ||
-    createVertexType("unknown");
+  // Ignore the displayLabel from the schema
+  const patchedSchema = patchToRemoveDisplayLabel(schemaVertex);
 
   return {
     // Defaults
-    ...getDefaultVertexTypeConfig(vt),
+    ...getDefaultVertexTypeConfig(schemaVertex.type),
     // Automatic schema override
     ...patchedSchema,
-    // File-based override
-    ...patchedConfig,
     // User preferences override
     ...preferences,
-    attributes,
   };
 };
 
 const mergeEdge = (
-  configEdge?: EdgeTypeConfig,
-  schemaEdge?: EdgeTypeConfig,
+  schemaEdge: EdgeTypeConfig,
   preferences?: EdgePreferencesStorageModel,
 ): EdgeTypeConfig => {
-  // Ignore the displayLabel from schema & config
-  const patchedSchema = schemaEdge
-    ? patchToRemoveDisplayLabel(schemaEdge)
-    : null;
-  const patchedConfig = configEdge
-    ? patchToRemoveDisplayLabel(configEdge)
-    : null;
-
-  const attributes = mergeAttributes(patchedConfig, patchedSchema);
-
-  const et =
-    preferences?.type ||
-    configEdge?.type ||
-    schemaEdge?.type ||
-    createEdgeType("unknown");
+  // Ignore the displayLabel from the schema
+  const patchedSchema = patchToRemoveDisplayLabel(schemaEdge);
 
   const config: EdgeTypeConfig = {
     // Defaults
-    ...getDefaultEdgeTypeConfig(et),
+    ...getDefaultEdgeTypeConfig(schemaEdge.type),
     // Automatic schema override
     ...patchedSchema,
-    // File-based override
-    ...patchedConfig,
     // User preferences override
     ...preferences,
-    attributes,
   };
 
   if (config.displayNameAttribute === "type") {

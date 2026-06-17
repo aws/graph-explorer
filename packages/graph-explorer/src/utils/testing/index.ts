@@ -2,6 +2,7 @@ export * from "./createMockExplorer";
 export * from "./DbState";
 export * from "./FakeExplorer";
 export * from "./graphsonHelpers";
+export * from "./legacyExportedConnectionFile";
 export * from "./normalize";
 export * from "./ocHelpers";
 export * from "./randomData";

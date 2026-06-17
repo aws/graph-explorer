@@ -11,7 +11,11 @@ import {
   getAppStore,
   schemaAtom,
 } from "@/core";
-import { DbState, renderHookWithState } from "@/utils/testing";
+import {
+  DbState,
+  legacyExportedConnectionFile,
+  renderHookWithState,
+} from "@/utils/testing";
 
 import { useImportConnectionFile } from "./useImportConnectionFile";
 
@@ -19,6 +23,22 @@ const mockResetState = vi.fn();
 vi.mock("@/core/StateProvider/useResetState", () => ({
   default: () => mockResetState,
 }));
+
+/**
+ * Reads the connection that import just activated. Import assigns a fresh id,
+ * makes it active, and keys both the config and schema maps by that id, so the
+ * active id is the single handle for everything that was imported.
+ */
+function getImportedConnection() {
+  const store = getAppStore();
+  const importedId = store.get(activeConfigurationAtom);
+  expect.assert(importedId);
+  const config = store.get(configurationAtom).get(importedId);
+  const schema = store.get(schemaAtom).get(importedId);
+  expect.assert(config);
+  expect.assert(schema);
+  return { importedId, config, schema };
+}
 
 describe("useImportConnectionFile", () => {
   test("should import valid configuration file", async () => {
@@ -53,29 +73,20 @@ describe("useImportConnectionFile", () => {
       await result.current(file);
     });
 
-    const configs = getAppStore().get(configurationAtom);
-    expect(configs.size).toBe(2);
+    expect(getAppStore().get(configurationAtom).size).toBe(2);
+    expect(getAppStore().get(schemaAtom).size).toBe(2);
 
-    const schemas = getAppStore().get(schemaAtom);
-    expect(schemas.size).toBe(2);
+    const { importedId, config, schema } = getImportedConnection();
+    expect(importedId).not.toBe(state.activeConfig.id);
 
-    const activeConfigId = getAppStore().get(activeConfigurationAtom);
-    expect(activeConfigId).not.toBe(state.activeConfig.id);
+    expect(config.displayLabel).toBe(displayLabel);
+    expect(config.connection?.url).toBe(url);
+    expect(config.connection?.queryEngine).toBe("gremlin");
 
-    const importedConfig = Array.from(configs.values()).find(
-      c => c.id !== state.activeConfig.id,
-    );
-    expect(importedConfig?.displayLabel).toBe(displayLabel);
-    expect(importedConfig?.connection?.url).toBe(url);
-    expect(importedConfig?.connection?.queryEngine).toBe("gremlin");
-
-    const importedSchema = Array.from(schemas.values()).find(
-      (_, index) => index === 1,
-    );
-    expect(importedSchema?.vertices).toHaveLength(1);
-    expect(importedSchema?.vertices[0].type).toBe("Person");
-    expect(importedSchema?.edges).toHaveLength(1);
-    expect(importedSchema?.edges[0].type).toBe("knows");
+    expect(schema.vertices).toHaveLength(1);
+    expect(schema.vertices[0].type).toBe("Person");
+    expect(schema.edges).toHaveLength(1);
+    expect(schema.edges[0].type).toBe("knows");
 
     expect(mockResetState).toHaveBeenCalledOnce();
   });
@@ -138,11 +149,10 @@ describe("useImportConnectionFile", () => {
       await result.current(file);
     });
 
-    const configs = getAppStore().get(configurationAtom);
-    expect(configs.size).toBe(2);
+    expect(getAppStore().get(configurationAtom).size).toBe(2);
 
-    const activeConfigId = getAppStore().get(activeConfigurationAtom);
-    expect(activeConfigId).not.toBe(state.activeConfig.id);
+    const { importedId } = getImportedConnection();
+    expect(importedId).not.toBe(state.activeConfig.id);
   });
 
   test("should handle schema with prefixes", async () => {
@@ -181,12 +191,9 @@ describe("useImportConnectionFile", () => {
       await result.current(file);
     });
 
-    const schemas = getAppStore().get(schemaAtom);
-    const importedSchema = Array.from(schemas.values()).find(
-      (_, index) => index === 1,
-    );
+    const { schema } = getImportedConnection();
 
-    expect(importedSchema?.prefixes).toStrictEqual([
+    expect(schema.prefixes).toStrictEqual([
       {
         prefix: "rdf",
         uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -226,15 +233,10 @@ describe("useImportConnectionFile", () => {
       await result.current(file);
     });
 
-    const schemas = getAppStore().get(schemaAtom);
-    const importedSchema = Array.from(schemas.values()).find(
-      (_, index) => index === 1,
-    );
+    const { schema } = getImportedConnection();
 
-    expect(importedSchema?.lastUpdate).toBeInstanceOf(Date);
-    expect(importedSchema?.lastUpdate?.toISOString()).toBe(
-      lastUpdate.toISOString(),
-    );
+    expect(schema.lastUpdate).toBeInstanceOf(Date);
+    expect(schema.lastUpdate?.toISOString()).toBe(lastUpdate.toISOString());
   });
 
   test("should handle empty schema arrays", async () => {
@@ -267,13 +269,10 @@ describe("useImportConnectionFile", () => {
       await result.current(file);
     });
 
-    const schemas = getAppStore().get(schemaAtom);
-    const importedSchema = Array.from(schemas.values()).find(
-      (_, index) => index === 1,
-    );
+    const { schema } = getImportedConnection();
 
-    expect(importedSchema?.vertices).toStrictEqual([]);
-    expect(importedSchema?.edges).toStrictEqual([]);
+    expect(schema.vertices).toStrictEqual([]);
+    expect(schema.edges).toStrictEqual([]);
   });
 
   test("should handle file with complex schema", async () => {
@@ -331,19 +330,16 @@ describe("useImportConnectionFile", () => {
       await result.current(file);
     });
 
-    const schemas = getAppStore().get(schemaAtom);
-    const importedSchema = Array.from(schemas.values()).find(
-      (_, index) => index === 1,
-    );
+    const { schema } = getImportedConnection();
 
-    expect(importedSchema?.vertices).toHaveLength(2);
-    expect(importedSchema?.vertices[0].type).toBe("Person");
-    expect(importedSchema?.vertices[0].attributes).toHaveLength(2);
-    expect(importedSchema?.vertices[1].type).toBe("Company");
+    expect(schema.vertices).toHaveLength(2);
+    expect(schema.vertices[0].type).toBe("Person");
+    expect(schema.vertices[0].attributes).toHaveLength(2);
+    expect(schema.vertices[1].type).toBe("Company");
 
-    expect(importedSchema?.edges).toHaveLength(2);
-    expect(importedSchema?.edges[0].type).toBe("worksAt");
-    expect(importedSchema?.edges[1].type).toBe("knows");
+    expect(schema.edges).toHaveLength(2);
+    expect(schema.edges[0].type).toBe("worksAt");
+    expect(schema.edges[1].type).toBe("knows");
   });
 
   test("should import edgeConnections from file", async () => {
@@ -389,12 +385,9 @@ describe("useImportConnectionFile", () => {
       await result.current(file);
     });
 
-    const schemas = getAppStore().get(schemaAtom);
-    const importedSchema = Array.from(schemas.values()).find(
-      (_, index) => index === 1,
-    );
+    const { schema } = getImportedConnection();
 
-    expect(importedSchema?.edgeConnections).toStrictEqual([
+    expect(schema.edgeConnections).toStrictEqual([
       {
         edgeType: "knows",
         sourceVertexType: "Person",
@@ -471,20 +464,111 @@ describe("backward compatibility: legacy __matches in exported files", () => {
       await result.current(file);
     });
 
-    const schemas = getAppStore().get(schemaAtom);
-    const importedSchema = Array.from(schemas.values()).find(
-      (_, index) => index === 1,
-    );
+    const { schema } = getImportedConnection();
 
     // Both prefixes should be imported successfully
-    expect(importedSchema?.prefixes).toHaveLength(2);
-    expect(importedSchema?.prefixes?.[0].prefix).toBe("rdf");
-    expect(importedSchema?.prefixes?.[0].uri).toBe(
-      "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    expect(schema.prefixes).toStrictEqual([
+      {
+        prefix: "rdf",
+        uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        __inferred: true,
+        __matches: [
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property",
+        ],
+      },
+      {
+        prefix: "custom",
+        uri: "http://custom.example.com/",
+      },
+    ]);
+  });
+});
+
+/**
+ * BACKWARD COMPATIBILITY — PERSISTED DATA
+ *
+ * Exported connection files have, across every released version, bundled the
+ * full schema inside the top-level envelope: `{ id, displayLabel, connection,
+ * schema }`. Import must split this envelope — routing `connection` into
+ * `configurationAtom` and `schema` into `schemaAtom` — and must never write the
+ * schema into the config entry (`RawConfiguration.schema`).
+ *
+ * This pins that split for a faithful, real-world-shaped export (styled vertex
+ * and edge type configs, both `lucide:` and base64 data-URI icons, an ISO
+ * `lastUpdate`, and `edgeConnections`). It guards against a refactor that
+ * decouples the file envelope type from `RawConfiguration` accidentally
+ * dropping schema data or leaking it back into the config entry.
+ *
+ * DO NOT delete or weaken this test without confirming that exported files in
+ * the wild are no longer a concern.
+ */
+describe("backward compatibility: legacy exported connection file with embedded schema", () => {
+  test("splits the bundled schema into schemaAtom and keeps it out of the config entry", async () => {
+    const state = new DbState();
+    const { result } = renderHookWithState(
+      () => useImportConnectionFile(),
+      state,
     );
-    expect(importedSchema?.prefixes?.[1].prefix).toBe("custom");
-    expect(importedSchema?.prefixes?.[1].uri).toBe(
-      "http://custom.example.com/",
+
+    const file = new File(
+      [JSON.stringify(legacyExportedConnectionFile)],
+      "connection.json",
+      { type: "application/json" },
     );
+
+    await act(async () => {
+      await result.current(file);
+    });
+
+    const { config: importedConfig, schema: importedSchema } =
+      getImportedConnection();
+
+    // The connection lands in the config entry, fully preserved.
+    expect(importedConfig.displayLabel).toBe(
+      legacyExportedConnectionFile.displayLabel,
+    );
+    expect(importedConfig.connection).toMatchObject(
+      legacyExportedConnectionFile.connection,
+    );
+
+    // The schema must NOT be stored on the config entry — it belongs in
+    // schemaAtom. This is the invariant the dead `RawConfiguration.schema`
+    // merge leg relies on staying true.
+    expect(importedConfig.schema).toBeUndefined();
+
+    // The full schema is split out into schemaAtom, styling and all.
+    expect(importedSchema.vertices.map(v => v.type)).toStrictEqual([
+      "movie",
+      "person",
+    ]);
+    expect(importedSchema.edges.map(e => e.type)).toStrictEqual([
+      "actedIn",
+      "directed",
+    ]);
+
+    // Styling and icon data (including the base64 data-URI icon) survive intact.
+    const movie = importedSchema.vertices.find(v => v.type === "movie");
+    expect.assert(movie);
+    expect(movie.iconUrl).toBe("lucide:clapperboard");
+    expect(movie.color).toBe("#5947e6");
+    const person = importedSchema.vertices.find(v => v.type === "person");
+    expect.assert(person);
+    expect(person.iconUrl).toBe(
+      legacyExportedConnectionFile.schema.vertices[1].iconUrl,
+    );
+
+    // The ISO date string is revived into a real Date.
+    expect(importedSchema.lastUpdate).toBeInstanceOf(Date);
+    expect(importedSchema.lastUpdate?.toISOString()).toBe(
+      legacyExportedConnectionFile.schema.lastUpdate,
+    );
+
+    // Edge connections come across with their optional count preserved.
+    expect(importedSchema.edgeConnections).toStrictEqual(
+      legacyExportedConnectionFile.schema.edgeConnections,
+    );
+
+    expect(mockResetState).toHaveBeenCalledOnce();
   });
 });
