@@ -261,11 +261,11 @@ describe("saveConfigurationToFile", () => {
     expect(parsed.connection.queryEngine).toBe("gremlin");
 
     // A connection-less config is not a real, reachable state — every config
-    // the app produces has a connection. The ExportedConnectionFileInput type
-    // forces `url` to be a string, so the writer emits `url: ""` rather than
-    // omitting it, and the parser then rejects the file. This pins that
-    // accepted asymmetry; it should disappear in a later slice that makes a
-    // connection non-optional on the config rather than defaulting here.
+    // the app produces has a connection. The `?? ""` fallback in the writer
+    // emits `url: ""` rather than omitting it, and the parser then rejects
+    // the file (empty string is not a valid URL). This pins that accepted
+    // asymmetry; it should disappear in a later slice that makes a connection
+    // non-optional on the config rather than defaulting here.
     expect(parsed.connection.url).toBe("");
     expect(parseConnectionFile(parsed)).toBeNull();
   });

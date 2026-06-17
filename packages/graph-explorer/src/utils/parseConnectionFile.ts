@@ -11,10 +11,10 @@ const attributesSchema = z
   .default([]);
 
 /**
- * The wire format of an exported connection file, as produced by
+ * Schema for the exported connection file format, as produced by
  * `saveConfigurationToFile` and consumed on import.
  *
- * This Zod schema is the single source of truth for the format: the
+ * This Zod schema is the single source of truth: the
  * {@link ExportedConnectionFile} type is inferred from it, so the runtime check
  * and the static type can never drift apart.
  *
