@@ -91,15 +91,6 @@ export type ExportedConnectionFile = z.infer<
 >;
 
 /**
- * The on-disk shape of an exported connection file, before parsing. This is the
- * type the writer (`saveConfigurationToFile`) targets: ids are plain strings
- * and `lastUpdate` is the ISO string that lands in JSON.
- */
-export type ExportedConnectionFileInput = z.input<
-  typeof exportedConnectionFileSchema
->;
-
-/**
  * Parses an unknown value (a JSON-decoded file) into an
  * {@link ExportedConnectionFile}, or returns `null` if it does not match the
  * wire format. Unknown and legacy keys are preserved on the returned object.

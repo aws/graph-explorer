@@ -144,7 +144,10 @@ describe("saveConfigurationToFile", () => {
     expect(parsed.schema.edges[0].type).toBe("worksAt");
   });
 
-  it("should convert lastUpdate date to ISO string", async () => {
+  it("should write lastUpdate as an ISO string on disk", async () => {
+    // Pins the serialized on-disk value regardless of how the writer produces
+    // it (an explicit toISOString or a Date flushed by JSON.stringify), so the
+    // writer's lastUpdate type can change without altering the file.
     const lastUpdate = new Date("2024-01-01T12:30:00Z");
     const config: ConfigurationContextProps = {
       ...createRandomRawConfiguration(),

@@ -2,12 +2,12 @@ import { saveAs } from "file-saver";
 
 import type { ConfigurationContextProps } from "@/core";
 
-import type { ExportedConnectionFileInput } from "./parseConnectionFile";
+import type { ExportedConnectionFile } from "./parseConnectionFile";
 
 import { toJsonFileData } from "./fileData";
 
 const saveConfigurationToFile = (config: ConfigurationContextProps) => {
-  const exportableConfig: ExportedConnectionFileInput = {
+  const exportableConfig: ExportedConnectionFile = {
     id: config.id,
     displayLabel: config.displayLabel || config.id,
     connection: {
@@ -19,7 +19,7 @@ const saveConfigurationToFile = (config: ConfigurationContextProps) => {
       vertices: config.schema?.vertices || [],
       edges: config.schema?.edges || [],
       prefixes: config.schema?.prefixes,
-      lastUpdate: config.schema?.lastUpdate?.toISOString(),
+      lastUpdate: config.schema?.lastUpdate,
       edgeConnections: config.schema?.edgeConnections,
     },
   };
