@@ -148,6 +148,21 @@ describe("parseConnectionFile", () => {
     expect(parseConnectionFile(config)).not.toBeNull();
   });
 
+  test("trims surrounding whitespace from the connection URL", () => {
+    const config = {
+      id: createNewConfigurationId(),
+      connection: {
+        url: "  https://example.com  ",
+        queryEngine: "gremlin" as const,
+      },
+      schema: { vertices: [], edges: [] },
+    };
+
+    const result = parseConnectionFile(config);
+
+    expect(result?.connection.url).toBe("https://example.com");
+  });
+
   test("accepts an https URL", () => {
     const config = {
       id: createNewConfigurationId(),

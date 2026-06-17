@@ -5,16 +5,7 @@ import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { type ConfigurationId, createEdgeType, createVertexType } from "@/core";
 
-function isValidHttpUrl(value: string) {
-  let url;
-  try {
-    url = new URL(value);
-  } catch {
-    return false;
-  }
-
-  return url.protocol === "http:" || url.protocol === "https:";
-}
+const httpUrl = z.url({ protocol: /^https?$/ });
 
 const attributesSchema = z
   .array(z.looseObject({ name: z.string().min(1) }))
@@ -46,11 +37,11 @@ const exportedConnectionFileSchema = z.looseObject({
     .transform(value => value as ConfigurationId),
   displayLabel: z.string().optional(),
   connection: z.looseObject({
-    url: z.string().refine(isValidHttpUrl),
+    url: httpUrl,
     queryEngine: z.enum(queryEngineOptions),
     // `graphDbUrl` is forwarded verbatim as the proxy's request target, so an
     // imported file must not be able to point it at a non-http(s) scheme.
-    graphDbUrl: z.string().refine(isValidHttpUrl).optional(),
+    graphDbUrl: httpUrl.optional(),
   }),
   schema: z.looseObject({
     vertices: z.array(
