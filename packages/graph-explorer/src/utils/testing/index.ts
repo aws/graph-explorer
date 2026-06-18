@@ -5,6 +5,7 @@ export * from "./graphsonHelpers";
 export * from "./legacyExportedConnectionFile";
 export * from "./normalize";
 export * from "./ocHelpers";
+export * from "./persistence";
 export * from "./randomData";
 export * from "./randomSchemaResponse";
 export * from "./renderHookWithJotai";

@@ -47,10 +47,13 @@ export async function atomWithLocalForage<T>(key: string, initialValue: T) {
   // Cached value
   const baseAtom = atom<T>(preloadValue);
 
-  // Persist data to local forage on change
+  // Persist data to local forage on change. The in-memory value updates
+  // synchronously; the write returns the background persistence promise so
+  // callers can await the value landing in storage when they need to (the app
+  // does not, but tests do). It is never awaited in production.
   const derivedAtom = atom(
     get => get(baseAtom),
-    (get, set, update: SetStateAction<T>) => {
+    (get, set, update: SetStateAction<T>): Promise<void> => {
       const prevValue = get(baseAtom);
       const nextValue =
         typeof update === "function"
@@ -58,11 +61,11 @@ export async function atomWithLocalForage<T>(key: string, initialValue: T) {
           : update;
 
       if (prevValue === nextValue) {
-        return;
+        return Promise.resolve();
       }
 
       set(baseAtom, nextValue);
-      storage.setItem(nextValue);
+      return storage.setItem(nextValue);
     },
   );
 
