@@ -154,83 +154,100 @@ function GraphViewerContent({
   const isEmpty = !nodes.length && !edges.length;
 
   return (
-    <div className={cn("size-full min-h-0 grow", className)} {...props}>
-      <Panel>
-        <PanelHeader>
-          <PanelTitle>Graph View</PanelTitle>
-          <PanelHeaderActions>
-            <SelectLayout
-              className="max-w-64 min-w-auto"
-              layoutAtom={graphLayoutSelectionAtom}
-            />
-            <RerunLayoutButton />
-            <ZoomToFitButton />
-            <div className="grow" />
-            <DownloadScreenshotButton />
-            <ExportGraphButton />
-            <ImportGraphButton />
-            <PanelHeaderDivider />
-            <ZoomInButton />
-            <ZoomOutButton />
-            <PanelHeaderDivider />
-            <ClearCanvasButton />
-            <Button
-              tooltip="Legend"
-              variant="ghost"
-              size="icon"
-              onClick={() => setLegendOpen(open => !open)}
-            >
-              <BadgeInfoIcon />
-            </Button>
-          </PanelHeaderActions>
-        </PanelHeader>
-        <PanelContent className="bg-background-secondary grid" ref={parentRef}>
-          <Graph
-            nodes={nodes}
-            edges={edges}
-            badgesEnabled={false}
-            getNodeBadges={getNodeBadges(nodesOutRenderedIds)}
-            selectedNodesIds={selectedVertices}
-            selectedEdgesIds={selectedEdges}
-            outOfFocusNodesIds={nodesOutRenderedIds}
-            outOfFocusEdgesIds={edgesOutRenderedIds}
-            onSelectedElementIdsChange={onSelectedElementIdsChange}
-            onNodeDoubleClick={onNodeDoubleClick}
-            onNodeRightClick={onNodeRightClick}
-            onEdgeRightClick={onEdgeRightClick}
-            onGraphRightClick={onGraphRightClick}
-            styles={styles}
-            layout={layout}
-            className="col-start-1 row-start-1 min-h-0 min-w-0"
-            onContextMenu={onContextMenu}
-          />
-          {isContextOpen &&
-            renderContextLayer(
-              <div
-                {...contextLayerProps}
-                style={contextLayerProps.style}
-                className="z-menu"
-              >
-                <ContextMenu
-                  onClose={clearAllLayers}
-                  affectedNodesIds={contextNodeId ? [contextNodeId] : []}
-                  affectedEdgesIds={contextEdgeId ? [contextEdgeId] : []}
-                />
-              </div>,
-            )}
+  <div style={{ padding: 40 }}>
+    <ContextMenu
+      onClose={() => {}}
+      affectedNodesIds={[]}
+      affectedEdgesIds={[]}
+    />
+  </div>
+);
 
-          <Activity mode={isVisible(isEmpty)}>
-            <GraphViewerEmptyState className="col-start-1 row-start-1" />
-          </Activity>
-          <Activity mode={isVisible(legendOpen)}>
-            <div className="z-20 col-start-1 row-start-1 grid min-h-0 justify-self-end p-3">
-              <Legend onClose={() => setLegendOpen(false)} />
-            </div>
-          </Activity>
-        </PanelContent>
-      </Panel>
-    </div>
-  );
+
+  // return (
+  //   <div className={cn("size-full min-h-0 grow", className)} {...props}>
+  //     <Panel>
+  //       <PanelHeader>
+  //         <PanelTitle>Graph View</PanelTitle>
+  //         <PanelHeaderActions>
+  //           <SelectLayout
+  //             className="max-w-64 min-w-auto"
+  //             layoutAtom={graphLayoutSelectionAtom}
+  //           />
+  //           <RerunLayoutButton />
+  //           <ZoomToFitButton />
+  //           <div className="grow" />
+  //           <DownloadScreenshotButton />
+  //           <ExportGraphButton />
+  //           <ImportGraphButton />
+  //           <PanelHeaderDivider />
+  //           <ZoomInButton />
+  //           <ZoomOutButton />
+  //           <PanelHeaderDivider />
+  //           <ClearCanvasButton />
+  //           <Button
+  //             tooltip="Legend"
+  //             variant="ghost"
+  //             size="icon"
+  //             onClick={() => setLegendOpen(open => !open)}
+  //           >
+  //             <BadgeInfoIcon />
+  //           </Button>
+  //         </PanelHeaderActions>
+  //       </PanelHeader>
+  //       <PanelContent className="bg-background-secondary grid" ref={parentRef}>
+  //         <Graph
+  //           nodes={nodes}
+  //           edges={edges}
+  //           badgesEnabled={false}
+  //           getNodeBadges={getNodeBadges(nodesOutRenderedIds)}
+  //           selectedNodesIds={selectedVertices}
+  //           selectedEdgesIds={selectedEdges}
+  //           outOfFocusNodesIds={nodesOutRenderedIds}
+  //           outOfFocusEdgesIds={edgesOutRenderedIds}
+  //           onSelectedElementIdsChange={onSelectedElementIdsChange}
+  //           onNodeDoubleClick={onNodeDoubleClick}
+  //           onNodeRightClick={onNodeRightClick}
+  //           onEdgeRightClick={onEdgeRightClick}
+  //           onGraphRightClick={onGraphRightClick}
+  //           styles={styles}
+  //           layout={layout}
+  //           className="col-start-1 row-start-1 min-h-0 min-w-0"
+  //           onContextMenu={onContextMenu}
+  //         />
+  //         {/* {isContextOpen &&
+  //           renderContextLayer(
+  //             <div
+  //               {...contextLayerProps}
+  //               style={contextLayerProps.style}
+  //               className="z-menu"
+  //             >
+  //               <ContextMenu
+  //                 onClose={clearAllLayers}
+  //                 affectedNodesIds={contextNodeId ? [contextNodeId] : []}
+  //                 affectedEdgesIds={contextEdgeId ? [contextEdgeId] : []}
+  //               />
+  //             </div>,
+  //           )} */}
+  //           <ContextMenu
+  //           onClose={() => {}}
+  //           affectedNodesIds={[]}
+  //           affectedEdgesIds={[]}
+  //         />
+
+
+  //         <Activity mode={isVisible(isEmpty)}>
+  //           <GraphViewerEmptyState className="col-start-1 row-start-1" />
+  //         </Activity>
+  //         <Activity mode={isVisible(legendOpen)}>
+  //           <div className="z-20 col-start-1 row-start-1 grid min-h-0 justify-self-end p-3">
+  //             <Legend onClose={() => setLegendOpen(false)} />
+  //           </div>
+  //         </Activity>
+  //       </PanelContent>
+  //     </Panel>
+  //   </div>
+  // );
 }
 
 function Legend({
