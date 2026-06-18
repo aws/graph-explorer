@@ -10,7 +10,7 @@ import {
 } from "@/core";
 import useResetState from "@/core/StateProvider/useResetState";
 import { fromFileToJson } from "@/utils/fileData";
-import isValidConfigurationFile from "@/utils/isValidConfigurationFile";
+import { parseConnectionFile } from "@/utils/parseConnectionFile";
 
 export function useImportConnectionFile() {
   const resetState = useResetState();
@@ -18,8 +18,9 @@ export function useImportConnectionFile() {
     useCallback(
       async (_get, set, file: File) => {
         const fileContent = await fromFileToJson(file);
+        const parsedFile = parseConnectionFile(fileContent);
 
-        if (!isValidConfigurationFile(fileContent)) {
+        if (!parsedFile) {
           toast.error("Invalid File", {
             description: "The connection file is not valid",
           });
@@ -32,22 +33,14 @@ export function useImportConnectionFile() {
           const updatedConfig = new Map(prevConfig);
           updatedConfig.set(newId, {
             id: newId,
-            displayLabel: fileContent.displayLabel,
-            connection: fileContent.connection,
+            displayLabel: parsedFile.displayLabel,
+            connection: parsedFile.connection,
           });
           return updatedConfig;
         });
         set(schemaAtom, prevSchema => {
           const updatedSchema = new Map(prevSchema);
-          updatedSchema.set(newId, {
-            vertices: fileContent.schema?.vertices || [],
-            edges: fileContent.schema?.edges || [],
-            edgeConnections: fileContent.schema?.edgeConnections,
-            prefixes: fileContent.schema?.prefixes,
-            lastUpdate: fileContent.schema?.lastUpdate
-              ? new Date(fileContent.schema?.lastUpdate)
-              : undefined,
-          });
+          updatedSchema.set(newId, parsedFile.schema);
           return updatedSchema;
         });
         set(activeConfigurationAtom, newId);
