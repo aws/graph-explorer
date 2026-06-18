@@ -133,7 +133,8 @@ test("should filter vertices by type", () => {
 All tests automatically inherit the configuration from `setupTests.ts`, which provides:
 
 - **Consistent Environment**: UTC timezone, en-US locale
-- **Mocked Dependencies**: localforage, logger, query client with no retries
+- **Mocked Dependencies**: logger, query client with no retries
+- **Real persistence backend**: localForage runs unmocked against `fake-indexeddb`, so tests exercise the real serialization and IndexedDB read/write paths. A fresh `IDBFactory` is provisioned per test (in an async `beforeEach`) so persisted state never bleeds between tests.
 - **Cleanup**: Automatic cleanup after each test
 - **Global Mocks**: Intl, environment variables
 
@@ -493,6 +494,33 @@ test("should handle errors gracefully", async () => {
 
   // Test error handling behavior
   await expect(functionUnderTest(mockFetch)).rejects.toThrow("Test error");
+});
+```
+
+## Persistence Testing
+
+Because localForage runs against a real (fake-indexeddb) backend, tests can exercise the actual persistence path. `@/utils/testing` provides helpers for this, especially for cross-tab scenarios (two same-origin tabs share one IndexedDB but each holds its own in-memory cache — see the per-key diff-merge reconciliation ADR):
+
+- `openPersistenceTab(key, initialValue)` — simulates one browser tab: its own Jotai store and its own `atomWithLocalForage` instance, sharing the per-test IndexedDB. Open two tabs on the same key to express "Tab A persisted X; Tab B holds stale memory" situations.
+- `tab.read()` — the tab's in-memory value.
+- `tab.write(value)` — writes through the tab; returns a promise that resolves once the value has landed in storage (`atomWithLocalForage`'s write returns its background persistence promise, which is what makes this awaitable).
+- `tab.flush()` — awaits the tab's most recent background write, so assertions don't need arbitrary timeouts.
+- `readPersistedValue(key)` — reads what actually landed in storage, bypassing any tab's in-memory cache. Use this to assert against durable state.
+
+```typescript
+import { openPersistenceTab, readPersistedValue } from "@/utils/testing";
+
+test("a later tab preloads what an earlier tab persisted", async () => {
+  const tabA = await openPersistenceTab("user-styling", {});
+  await tabA.write({ vertices: [{ type: "Person", color: "#ff0000" }] });
+
+  const tabB = await openPersistenceTab("user-styling", {});
+  expect(tabB.read()).toEqual({
+    vertices: [{ type: "Person", color: "#ff0000" }],
+  });
+  expect(await readPersistedValue("user-styling")).toEqual({
+    vertices: [{ type: "Person", color: "#ff0000" }],
+  });
 });
 ```
 

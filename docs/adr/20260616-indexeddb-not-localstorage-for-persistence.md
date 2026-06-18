@@ -31,7 +31,7 @@ Rationale, recorded so it is not re-litigated:
 
 - The persistence layer is inherently **asynchronous**. `atomWithLocalForage` preloads each value before returning the atom so reads are synchronous thereafter, but writes flush to IndexedDB in the background. The cross-tab fix in ADR `per-key-diff-merge-cross-tab-reconciliation` has to live inside that async write path.
 - IndexedDB is **shared across all same-origin tabs** but has **no built-in cross-tab synchronization**. That sharing is precisely what makes the concurrent-write clobber in #1820 possible, and what ADR `per-key-diff-merge-cross-tab-reconciliation` reconciles.
-- Tests mock localForage globally (see `setupTests.ts`), so this constraint does not impose IndexedDB on the test environment.
+- Tests run localForage unmocked against `fake-indexeddb` (a fresh `IDBFactory` per test, see `setupTests.ts`), so the persistence layer is exercised against real IndexedDB semantics rather than a stub. This is what lets the #1820 cross-tab clobber be reproduced in a test.
 
 ## Out of scope
 

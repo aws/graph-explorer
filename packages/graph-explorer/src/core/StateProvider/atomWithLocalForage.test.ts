@@ -32,6 +32,30 @@ describe("atomWithLocalForage", () => {
     expect(stored).toBe("new-value");
   });
 
+  test("should return the persistence promise from a write", async () => {
+    const key = "test-awaitable-write";
+    const atom = await atomWithLocalForage(key, "initial");
+
+    // The in-memory value updates synchronously; the write returns the
+    // background persistence promise so callers can wait for the value to land
+    // in storage without relying on arbitrary timeouts.
+    const persisted = store.set(atom, "new-value");
+    expect(persisted).toBeInstanceOf(Promise);
+    await persisted;
+
+    const stored = await localforage.getItem(key);
+    expect(stored).toBe("new-value");
+  });
+
+  test("should return a resolved promise when a write is a no-op", async () => {
+    const atom = await atomWithLocalForage("test-no-op", "initial");
+
+    // Writing the same value short-circuits, but callers can still await the
+    // result uniformly.
+    const persisted = store.set(atom, "initial");
+    await expect(persisted).resolves.toBeUndefined();
+  });
+
   test("should handle function updates", async () => {
     const atom = await atomWithLocalForage("test-fn", 10);
 
