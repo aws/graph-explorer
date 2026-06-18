@@ -59,9 +59,9 @@ describe("useSchemaSync", () => {
       return renderHookWithJotai(
         () => useSchemaSync(),
         store => {
-          store.set(activeConfigurationAtom, null);
-          store.set(configurationAtom, new Map());
-          store.set(schemaAtom, new Map());
+          void store.set(activeConfigurationAtom, null);
+          void store.set(configurationAtom, new Map());
+          void store.set(schemaAtom, new Map());
           store.set(explorerForTestingAtom, explorer);
         },
       );
@@ -456,12 +456,12 @@ describe("useSchemaSync", () => {
       // Switch to a new connection with no schema
       const store = getAppStore();
       const newConfig = createRandomRawConfiguration();
-      store.set(configurationAtom, prev => {
+      void store.set(configurationAtom, prev => {
         const updated = new Map(prev);
         updated.set(newConfig.id, newConfig);
         return updated;
       });
-      store.set(activeConfigurationAtom, newConfig.id);
+      void store.set(activeConfigurationAtom, newConfig.id);
 
       rerender();
 

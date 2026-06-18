@@ -4,6 +4,7 @@ import { Button, FormItem, InputField, Label, StylingIcon } from "@/components";
 import { useDisplayVertexTypeConfig, type VertexType } from "@/core";
 import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useDebounceValue, usePrevious } from "@/hooks";
+import { fireAndForget } from "@/utils";
 import { LABELS } from "@/utils/constants";
 
 import { useOpenNodeStyleDialog } from "./NodeStyleDialog";
@@ -31,7 +32,7 @@ export default function SingleNodeStyling({
     if (prevDisplayAs === null || prevDisplayAs === debouncedDisplayAs) {
       return;
     }
-    setVertexStyle({ displayLabel: debouncedDisplayAs });
+    fireAndForget(setVertexStyle({ displayLabel: debouncedDisplayAs }));
   }, [debouncedDisplayAs, prevDisplayAs, setVertexStyle]);
 
   return (

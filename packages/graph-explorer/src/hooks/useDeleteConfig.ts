@@ -9,36 +9,44 @@ import {
   type ConfigurationId,
   schemaAtom,
 } from "@/core";
-import { logger } from "@/utils";
+import { fireAndForget, logger } from "@/utils";
 
 export function useDeleteConfig() {
   return useAtomCallback(
     useCallback((_get, set, id: ConfigurationId) => {
       logger.log("Deleting connection:", id);
-      set(activeConfigurationAtom, prev => {
-        if (prev === id) {
-          return null;
-        }
-        return prev;
-      });
+      fireAndForget(
+        set(activeConfigurationAtom, prev => {
+          if (prev === id) {
+            return null;
+          }
+          return prev;
+        }),
+      );
 
-      set(configurationAtom, prevConfigs => {
-        const updatedConfigs = new Map(prevConfigs);
-        updatedConfigs.delete(id);
-        return updatedConfigs;
-      });
+      fireAndForget(
+        set(configurationAtom, prevConfigs => {
+          const updatedConfigs = new Map(prevConfigs);
+          updatedConfigs.delete(id);
+          return updatedConfigs;
+        }),
+      );
 
-      set(schemaAtom, prevSchemas => {
-        const updatedSchemas = new Map(prevSchemas);
-        updatedSchemas.delete(id);
-        return updatedSchemas;
-      });
+      fireAndForget(
+        set(schemaAtom, prevSchemas => {
+          const updatedSchemas = new Map(prevSchemas);
+          updatedSchemas.delete(id);
+          return updatedSchemas;
+        }),
+      );
 
-      set(allGraphSessionsAtom, prev => {
-        const updatedGraphs = new Map(prev);
-        updatedGraphs.delete(id);
-        return updatedGraphs;
-      });
+      fireAndForget(
+        set(allGraphSessionsAtom, prev => {
+          const updatedGraphs = new Map(prev);
+          updatedGraphs.delete(id);
+          return updatedGraphs;
+        }),
+      );
     }, []),
   );
 }

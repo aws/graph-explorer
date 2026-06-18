@@ -28,11 +28,11 @@ function initializeConfigWithPrefix(store: AppStore) {
       uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#" as IriNamespace,
     },
   ];
-  store.set(configurationAtom, new Map([[config.id, config]]));
-  store.set(schemaAtom, new Map([[config.id, schema]]));
+  void store.set(configurationAtom, new Map([[config.id, config]]));
+  void store.set(schemaAtom, new Map([[config.id, schema]]));
 
   // Make config active
-  store.set(activeConfigurationAtom, config.id);
+  void store.set(activeConfigurationAtom, config.id);
 }
 
 describe("useTextTransform", () => {

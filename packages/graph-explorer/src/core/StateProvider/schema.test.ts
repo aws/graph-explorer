@@ -1320,9 +1320,9 @@ describe("maybeActiveSchemaAtom", () => {
     const { result } = renderHookWithJotai(
       () => useAtomValue(maybeActiveSchemaAtom),
       store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
-        store.set(schemaAtom, new Map());
+        void store.set(configurationAtom, new Map([[config.id, config]]));
+        void store.set(activeConfigurationAtom, config.id);
+        void store.set(schemaAtom, new Map());
       },
     );
 
@@ -1336,9 +1336,9 @@ describe("maybeActiveSchemaAtom", () => {
     const { result } = renderHookWithJotai(
       () => useAtomValue(maybeActiveSchemaAtom),
       store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
-        store.set(schemaAtom, new Map([[config.id, schema]]));
+        void store.set(configurationAtom, new Map([[config.id, config]]));
+        void store.set(activeConfigurationAtom, config.id);
+        void store.set(schemaAtom, new Map([[config.id, schema]]));
       },
     );
 
@@ -1359,9 +1359,9 @@ describe("useMaybeActiveSchema", () => {
     const { result } = renderHookWithJotai(
       () => useMaybeActiveSchema(),
       store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
-        store.set(schemaAtom, new Map());
+        void store.set(configurationAtom, new Map([[config.id, config]]));
+        void store.set(activeConfigurationAtom, config.id);
+        void store.set(schemaAtom, new Map());
       },
     );
 
@@ -1375,9 +1375,9 @@ describe("useMaybeActiveSchema", () => {
     const { result } = renderHookWithJotai(
       () => useMaybeActiveSchema(),
       store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
-        store.set(schemaAtom, new Map([[config.id, schema]]));
+        void store.set(configurationAtom, new Map([[config.id, config]]));
+        void store.set(activeConfigurationAtom, config.id);
+        void store.set(schemaAtom, new Map([[config.id, schema]]));
       },
     );
 
@@ -1402,9 +1402,9 @@ describe("useActiveSchema", () => {
     const { result } = renderHookWithJotai(
       () => useActiveSchema(),
       store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
-        store.set(schemaAtom, new Map());
+        void store.set(configurationAtom, new Map([[config.id, config]]));
+        void store.set(activeConfigurationAtom, config.id);
+        void store.set(schemaAtom, new Map());
       },
     );
 
@@ -1422,9 +1422,9 @@ describe("useActiveSchema", () => {
     const { result } = renderHookWithJotai(
       () => useActiveSchema(),
       store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
-        store.set(schemaAtom, new Map([[config.id, schema]]));
+        void store.set(configurationAtom, new Map([[config.id, config]]));
+        void store.set(activeConfigurationAtom, config.id);
+        void store.set(schemaAtom, new Map([[config.id, schema]]));
       },
     );
 

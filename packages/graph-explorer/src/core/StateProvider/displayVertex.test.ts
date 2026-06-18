@@ -219,9 +219,9 @@ describe("useDisplayVertexFromVertex", () => {
   function withSchema(schema: SchemaStorageModel) {
     const config = createRandomRawConfiguration();
     return (store: AppStore) => {
-      store.set(configurationAtom, new Map([[config.id, config]]));
-      store.set(schemaAtom, new Map([[config.id, schema]]));
-      store.set(activeConfigurationAtom, config.id);
+      void store.set(configurationAtom, new Map([[config.id, config]]));
+      void store.set(schemaAtom, new Map([[config.id, schema]]));
+      void store.set(activeConfigurationAtom, config.id);
     };
   }
 
@@ -232,9 +232,9 @@ describe("useDisplayVertexFromVertex", () => {
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
     return (store: AppStore) => {
-      store.set(configurationAtom, new Map([[config.id, config]]));
-      store.set(schemaAtom, new Map([[config.id, schema]]));
-      store.set(activeConfigurationAtom, config.id);
+      void store.set(configurationAtom, new Map([[config.id, config]]));
+      void store.set(schemaAtom, new Map([[config.id, schema]]));
+      void store.set(activeConfigurationAtom, config.id);
     };
   }
 });

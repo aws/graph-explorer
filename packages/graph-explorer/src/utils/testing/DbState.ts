@@ -185,25 +185,31 @@ export class DbState {
     return composedStyle;
   }
 
-  /** Applies the state to the given Jotai store. */
+  /**
+   * Applies the state to the given Jotai store.
+   *
+   * The localForage-backed atom writes return background persistence promises
+   * that are intentionally ignored here — seeding test state does not care
+   * whether the value lands in durable storage.
+   */
   applyTo(store: AppStore) {
     // Config
-    store.set(
+    void store.set(
       configurationAtom,
       new Map([[this.activeConfig.id, this.activeConfig]]),
     );
     if (this._activeSchema) {
-      store.set(
+      void store.set(
         schemaAtom,
         new Map([[this.activeConfig.id, this._activeSchema]]),
       );
     } else {
-      store.set(schemaAtom, new Map());
+      void store.set(schemaAtom, new Map());
     }
-    store.set(activeConfigurationAtom, this.activeConfig.id);
+    void store.set(activeConfigurationAtom, this.activeConfig.id);
 
     // Styling
-    store.set(userStylingAtom, this.activeStyling);
+    void store.set(userStylingAtom, this.activeStyling);
 
     // Vertices
     store.set(nodesAtom, toNodeMap(this.vertices));
@@ -216,7 +222,7 @@ export class DbState {
     store.set(edgesTypesFilteredAtom, this.filteredEdgeTypes);
 
     // Graph Storage
-    store.set(
+    void store.set(
       allGraphSessionsAtom,
       new Map([
         [

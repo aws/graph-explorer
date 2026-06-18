@@ -29,8 +29,8 @@ describe("useDefaultNeighborExpansionLimit", () => {
       () => useDefaultNeighborExpansionLimit(),
       store => {
         dbState.applyTo(store);
-        store.set(defaultNeighborExpansionLimitAtom, 10);
-        store.set(defaultNeighborExpansionLimitEnabledAtom, true);
+        void store.set(defaultNeighborExpansionLimitAtom, 10);
+        void store.set(defaultNeighborExpansionLimitEnabledAtom, true);
       },
     );
 
@@ -61,8 +61,8 @@ describe("useDefaultNeighborExpansionLimit", () => {
       () => useDefaultNeighborExpansionLimit(),
       store => {
         dbState.applyTo(store);
-        store.set(defaultNeighborExpansionLimitEnabledAtom, true);
-        store.set(defaultNeighborExpansionLimitAtom, 10);
+        void store.set(defaultNeighborExpansionLimitEnabledAtom, true);
+        void store.set(defaultNeighborExpansionLimitAtom, 10);
       },
     );
 
@@ -78,7 +78,7 @@ describe("useDefaultNeighborExpansionLimit", () => {
       () => useDefaultNeighborExpansionLimit(),
       store => {
         dbState.applyTo(store);
-        store.set(defaultNeighborExpansionLimitEnabledAtom, false);
+        void store.set(defaultNeighborExpansionLimitEnabledAtom, false);
       },
     );
 

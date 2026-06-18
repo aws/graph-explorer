@@ -23,7 +23,7 @@ describe("persistence test helpers", () => {
     const key = createRandomName("key");
     const tab = await openPersistenceTab(key, "initial");
 
-    tab.write("updated");
+    void tab.write("updated");
     await tab.flush();
 
     expect(await readPersistedValue(key)).toBe("updated");
@@ -36,9 +36,9 @@ describe("persistence test helpers", () => {
     // Fire several writes without awaiting each, then flush once. flush() must
     // wait for all of them; tracking only the latest would let earlier writes
     // be unobserved.
-    tab.write("first");
-    tab.write("second");
-    tab.write("third");
+    void tab.write("first");
+    void tab.write("second");
+    void tab.write("third");
     await tab.flush();
 
     expect(await readPersistedValue(key)).toBe("third");

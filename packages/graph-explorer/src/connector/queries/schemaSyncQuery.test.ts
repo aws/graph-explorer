@@ -36,9 +36,9 @@ describe("schemaSyncQuery", () => {
 
     // Set up a configuration so the schema can be stored
     const config = createRandomRawConfiguration();
-    store.set(configurationAtom, new Map([[config.id, config]]));
-    store.set(activeConfigurationAtom, config.id);
-    store.set(schemaAtom, new Map());
+    void store.set(configurationAtom, new Map([[config.id, config]]));
+    void store.set(activeConfigurationAtom, config.id);
+    void store.set(schemaAtom, new Map());
     store.set(explorerForTestingAtom, explorer);
   });
 
@@ -93,7 +93,7 @@ describe("schemaSyncQuery", () => {
     // Set up initial schema with different data
     const activeConfigId = store.get(activeConfigurationAtom)!;
     const oldVertexType = createVertexType("OldType");
-    store.set(schemaAtom, prev => {
+    void store.set(schemaAtom, prev => {
       const updated = new Map(prev);
       updated.set(activeConfigId, {
         vertices: [{ type: oldVertexType, attributes: [] }],
@@ -162,7 +162,7 @@ describe("schemaSyncQuery", () => {
   it("should clear edgeConnections on success", async () => {
     const activeConfigId = store.get(activeConfigurationAtom)!;
     const existingEdgeConnections = [createRandomEdgeConnection()];
-    store.set(schemaAtom, prev => {
+    void store.set(schemaAtom, prev => {
       const updated = new Map(prev);
       updated.set(activeConfigId, {
         vertices: [],
@@ -182,7 +182,7 @@ describe("schemaSyncQuery", () => {
   it("should clear lastSyncFail on success", async () => {
     // Set up a schema with lastSyncFail
     const activeConfigId = store.get(activeConfigurationAtom)!;
-    store.set(schemaAtom, prev => {
+    void store.set(schemaAtom, prev => {
       const updated = new Map(prev);
       updated.set(activeConfigId, {
         vertices: [],
@@ -203,7 +203,7 @@ describe("schemaSyncQuery", () => {
     // Set up initial schema
     const activeConfigId = store.get(activeConfigurationAtom)!;
     const initialVertexType = createVertexType(createRandomName("VertexType"));
-    store.set(schemaAtom, prev => {
+    void store.set(schemaAtom, prev => {
       const updated = new Map(prev);
       updated.set(activeConfigId, {
         vertices: [{ type: initialVertexType, attributes: [] }],
@@ -331,7 +331,7 @@ describe("schemaSyncQuery", () => {
   it("should preserve existing edgeConnections on failure", async () => {
     const activeConfigId = store.get(activeConfigurationAtom)!;
     const existingEdgeConnections = [createRandomEdgeConnection()];
-    store.set(schemaAtom, prev => {
+    void store.set(schemaAtom, prev => {
       const updated = new Map(prev);
       updated.set(activeConfigId, {
         vertices: [],

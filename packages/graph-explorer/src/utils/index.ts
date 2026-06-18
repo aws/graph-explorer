@@ -6,6 +6,7 @@ export { default as useClickOutside } from "./useClickOutside";
 export { DEFAULT_SERVICE_TYPE } from "./constants";
 export { default as escapeString } from "./escapeString";
 export { default as batchPromisesSerially } from "./batchPromisesSerially";
+export { fireAndForget } from "./fireAndForget";
 export { default as logger } from "./logger";
 export * from "./branded";
 export * from "./sanitizeQuery";

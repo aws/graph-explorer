@@ -28,7 +28,7 @@ import {
   schemaAtom,
 } from "@/core";
 import useResetState from "@/core/StateProvider/useResetState";
-import { formatDate, logger } from "@/utils";
+import { fireAndForget, formatDate, logger } from "@/utils";
 import {
   DEFAULT_FETCH_TIMEOUT,
   DEFAULT_NODE_EXPAND_LIMIT,
@@ -117,32 +117,36 @@ const CreateConnection = ({
             connection: mapToConnection(data),
           };
           logger.log("Saving new connection", { newConfigId, newConfig });
-          set(configurationAtom, prevConfigMap => {
-            const updatedConfig = new Map(prevConfigMap);
-            updatedConfig.set(newConfigId, newConfig);
-            return updatedConfig;
-          });
-          set(activeConfigurationAtom, newConfigId);
+          fireAndForget(
+            set(configurationAtom, prevConfigMap => {
+              const updatedConfig = new Map(prevConfigMap);
+              updatedConfig.set(newConfigId, newConfig);
+              return updatedConfig;
+            }),
+          );
+          fireAndForget(set(activeConfigurationAtom, newConfigId));
           return;
         }
 
-        set(configurationAtom, prev => {
-          const updated = new Map(prev);
-          const currentConfig = updated.get(configId);
-          const updatedConfig: RawConfiguration = {
-            ...currentConfig,
-            id: configId,
-            displayLabel: data.name,
-            connection: mapToConnection(data),
-          };
-          logger.log("Updating existing connection", {
-            configId,
-            currentConfig,
-            updatedConfig,
-          });
-          updated.set(configId, updatedConfig);
-          return updated;
-        });
+        fireAndForget(
+          set(configurationAtom, prev => {
+            const updated = new Map(prev);
+            const currentConfig = updated.get(configId);
+            const updatedConfig: RawConfiguration = {
+              ...currentConfig,
+              id: configId,
+              displayLabel: data.name,
+              connection: mapToConnection(data),
+            };
+            logger.log("Updating existing connection", {
+              configId,
+              currentConfig,
+              updatedConfig,
+            });
+            updated.set(configId, updatedConfig);
+            return updated;
+          }),
+        );
 
         const urlChange = initialData?.url !== data.url;
         const dbUrlChange = initialData?.graphDbUrl !== data.graphDbUrl;
@@ -155,19 +159,23 @@ const CreateConnection = ({
           );
 
           // Force a sync of the schema by deleting the existing schema cache, which is now invalid
-          set(schemaAtom, prevSchemaMap => {
-            const updatedSchema = new Map(prevSchemaMap);
-            updatedSchema.delete(configId);
-            return updatedSchema;
-          });
+          fireAndForget(
+            set(schemaAtom, prevSchemaMap => {
+              const updatedSchema = new Map(prevSchemaMap);
+              updatedSchema.delete(configId);
+              return updatedSchema;
+            }),
+          );
 
           // Delete previous session data
-          set(allGraphSessionsAtom, prev => {
-            const updatedGraphs = new Map(prev);
-            logger.log("Deleting previous graph session");
-            updatedGraphs.delete(configId);
-            return updatedGraphs;
-          });
+          fireAndForget(
+            set(allGraphSessionsAtom, prev => {
+              const updatedGraphs = new Map(prev);
+              logger.log("Deleting previous graph session");
+              updatedGraphs.delete(configId);
+              return updatedGraphs;
+            }),
+          );
 
           // Reseting all query state. Using `removeQueries()` to ensure initial data is recalculated.
           // This ensures dependent queries execute in the right order

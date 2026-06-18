@@ -10,7 +10,7 @@ import {
 } from "@/core";
 import useResetState from "@/core/StateProvider/useResetState";
 import { useTranslations } from "@/hooks";
-import { logger } from "@/utils";
+import { fireAndForget, logger } from "@/utils";
 
 function ConnectionRow({
   connection,
@@ -67,7 +67,7 @@ function useSetActiveConfigCallback(configId: ConfigurationId) {
     useCallback(
       (_get, set) => {
         logger.debug("Setting active connection to", configId);
-        set(activeConfigurationAtom, configId);
+        fireAndForget(set(activeConfigurationAtom, configId));
         resetState();
       },
       [configId, resetState],

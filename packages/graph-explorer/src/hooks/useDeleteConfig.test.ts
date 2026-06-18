@@ -31,8 +31,8 @@ test("should delete the active configuration", async () => {
       return { callback, allConfigs, activeConfig };
     },
     store => {
-      store.set(activeConfigurationAtom, config1.id);
-      store.set(configurationAtom, new Map([[config1.id, config1]]));
+      void store.set(activeConfigurationAtom, config1.id);
+      void store.set(configurationAtom, new Map([[config1.id, config1]]));
     },
   );
 
@@ -56,9 +56,9 @@ test("should delete the active schema", async () => {
       return { callback, allSchemas };
     },
     store => {
-      store.set(activeConfigurationAtom, config1.id);
-      store.set(configurationAtom, new Map([[config1.id, config1]]));
-      store.set(schemaAtom, new Map([[config1.id, schema1]]));
+      void store.set(activeConfigurationAtom, config1.id);
+      void store.set(configurationAtom, new Map([[config1.id, config1]]));
+      void store.set(schemaAtom, new Map([[config1.id, schema1]]));
     },
   );
 

@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-06-16
-- **Related:** ADR `per-key-diff-merge-cross-tab-reconciliation` builds the cross-tab fix on top of this constraint. Issue #1820.
+- **Related:** ADR `per-key-diff-merge-cross-tab-reconciliation` builds the cross-tab fix on top of this constraint. ADR `explicit-floating-promise-convention` makes this write path's fire-and-forget setters explicit. Issue #1820.
 
 ## Context
 

@@ -8,7 +8,7 @@ import {
   schemaAtom,
   type SchemaStorageModel,
 } from "@/core";
-import { logger } from "@/utils";
+import { fireAndForget, logger } from "@/utils";
 
 import { getExplorer, getStore } from "./helpers";
 import { schemaSyncQueryKey } from "./schemaSyncQuery";
@@ -90,19 +90,21 @@ const setEdgeConnectionsAtom = atom(
     if (!activeConfigId) {
       return;
     }
-    set(schemaAtom, prev => {
-      const activeSchema = prev.get(activeConfigId);
-      if (!activeSchema) {
-        return prev;
-      }
-      const updated = new Map(prev);
-      updated.set(activeConfigId, {
-        ...activeSchema,
-        edgeConnections,
-        lastEdgeConnectionSyncFail: false,
-      });
-      return updated;
-    });
+    fireAndForget(
+      set(schemaAtom, prev => {
+        const activeSchema = prev.get(activeConfigId);
+        if (!activeSchema) {
+          return prev;
+        }
+        const updated = new Map(prev);
+        updated.set(activeConfigId, {
+          ...activeSchema,
+          edgeConnections,
+          lastEdgeConnectionSyncFail: false,
+        });
+        return updated;
+      }),
+    );
   },
 );
 
@@ -114,15 +116,17 @@ const setEdgeConnectionSyncFailedAtom = atom(null, (get, set) => {
     return;
   }
 
-  set(schemaAtom, prev => {
-    const existing = prev.get(id);
-    const updated = new Map(prev);
-    updated.set(id, {
-      ...existing,
-      vertices: existing?.vertices ?? [],
-      edges: existing?.edges ?? [],
-      lastEdgeConnectionSyncFail: true,
-    });
-    return updated;
-  });
+  fireAndForget(
+    set(schemaAtom, prev => {
+      const existing = prev.get(id);
+      const updated = new Map(prev);
+      updated.set(id, {
+        ...existing,
+        vertices: existing?.vertices ?? [],
+        edges: existing?.edges ?? [],
+        lastEdgeConnectionSyncFail: true,
+      });
+      return updated;
+    }),
+  );
 });

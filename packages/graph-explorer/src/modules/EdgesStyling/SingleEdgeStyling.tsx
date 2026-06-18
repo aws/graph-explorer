@@ -4,7 +4,7 @@ import { Button, FormItem, InputField, Label, StylingIcon } from "@/components";
 import { type EdgeType, useDisplayEdgeTypeConfig } from "@/core";
 import { useEdgeStyling } from "@/core/StateProvider/userPreferences";
 import { useDebounceValue, usePrevious } from "@/hooks";
-import { LABELS } from "@/utils";
+import { fireAndForget, LABELS } from "@/utils";
 
 import { useOpenEdgeStyleDialog } from "./EdgeStyleDialog";
 
@@ -30,7 +30,7 @@ export default function SingleEdgeStyling({
     if (prevDisplayAs === null || prevDisplayAs === debouncedDisplayAs) {
       return;
     }
-    setEdgeStyle({ displayLabel: debouncedDisplayAs });
+    fireAndForget(setEdgeStyle({ displayLabel: debouncedDisplayAs }));
   }, [debouncedDisplayAs, prevDisplayAs, setEdgeStyle]);
 
   return (

@@ -42,7 +42,7 @@ import {
 import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
 import { useOpenEdgeStyleDialog } from "@/modules/EdgesStyling";
 import { useOpenNodeStyleDialog } from "@/modules/NodesStyling";
-import { cn } from "@/utils";
+import { cn, fireAndForget } from "@/utils";
 
 import { useGraphSelection } from "../useGraphSelection";
 
@@ -111,7 +111,9 @@ function SingleVertexMenu({ vertexId }: { vertexId: VertexId }) {
     });
 
   const openSidebarPanel = (panelName: SidebarItems) => () => {
-    setUserLayout(prev => ({ ...prev, activeSidebarItem: panelName }));
+    fireAndForget(
+      setUserLayout(prev => ({ ...prev, activeSidebarItem: panelName })),
+    );
     replaceGraphSelection({ vertices: [vertexId], disableSideEffects: true });
   };
 
@@ -183,7 +185,9 @@ function SingleEdgeMenu({ edgeId }: { edgeId: EdgeId }) {
   const handleFit = () => onFitEdgeToCanvas(edgeId);
 
   const openSidebarPanel = (panelName: SidebarItems) => () => {
-    setUserLayout(prev => ({ ...prev, activeSidebarItem: panelName }));
+    fireAndForget(
+      setUserLayout(prev => ({ ...prev, activeSidebarItem: panelName })),
+    );
     replaceGraphSelection({ edges: [edgeId], disableSideEffects: true });
   };
 

@@ -55,10 +55,10 @@ describe("storageAtoms", () => {
   it("should persist a written value on subsequent reads", () => {
     const store = createStore();
 
-    store.set(showDebugActionsAtom, true);
+    void store.set(showDebugActionsAtom, true);
     expect(store.get(showDebugActionsAtom)).toBe(true);
 
-    store.set(showDebugActionsAtom, false);
+    void store.set(showDebugActionsAtom, false);
     expect(store.get(showDebugActionsAtom)).toBe(false);
   });
 });

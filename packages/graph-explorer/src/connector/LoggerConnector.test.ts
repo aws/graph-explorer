@@ -21,31 +21,31 @@ describe("ServerLoggerConnector", () => {
 
     const connector = new ServerLoggerConnector("https://example.com/");
 
-    connector.error("error msg");
+    void connector.error("error msg");
     expect(mockFetch).toHaveBeenCalledWith("https://example.com/logger", {
       method: "POST",
       headers: { level: "error", message: JSON.stringify("error msg") },
     });
 
-    connector.warn("warn msg");
+    void connector.warn("warn msg");
     expect(mockFetch).toHaveBeenCalledWith("https://example.com/logger", {
       method: "POST",
       headers: { level: "warn", message: JSON.stringify("warn msg") },
     });
 
-    connector.info("info msg");
+    void connector.info("info msg");
     expect(mockFetch).toHaveBeenCalledWith("https://example.com/logger", {
       method: "POST",
       headers: { level: "info", message: JSON.stringify("info msg") },
     });
 
-    connector.debug("debug msg");
+    void connector.debug("debug msg");
     expect(mockFetch).toHaveBeenCalledWith("https://example.com/logger", {
       method: "POST",
       headers: { level: "debug", message: JSON.stringify("debug msg") },
     });
 
-    connector.trace("trace msg");
+    void connector.trace("trace msg");
     expect(mockFetch).toHaveBeenCalledWith("https://example.com/logger", {
       method: "POST",
       headers: { level: "trace", message: JSON.stringify("trace msg") },
@@ -57,7 +57,7 @@ describe("ServerLoggerConnector", () => {
     vi.stubGlobal("fetch", mockFetch);
 
     const connector = new ServerLoggerConnector("https://example.com/");
-    connector.info("test");
+    void connector.info("test");
 
     expect(mockFetch).toHaveBeenCalledWith(
       "https://example.com/logger",

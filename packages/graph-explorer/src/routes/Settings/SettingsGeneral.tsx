@@ -25,6 +25,7 @@ import {
   showDebugActionsAtom,
 } from "@/core";
 import { saveLocalForageToFile } from "@/core/StateProvider/localDb";
+import { fireAndForget } from "@/utils";
 
 import LoadConfigButton from "./LoadConfigButton";
 
@@ -59,7 +60,9 @@ export default function SettingsGeneral() {
           value="defaultNeighborExpansionLimitEnabled"
           checked={defaultNeighborExpansionLimitEnabled}
           onCheckedChange={isSelected => {
-            setDefaultNeighborExpansionLimitEnabled(Boolean(isSelected));
+            fireAndForget(
+              setDefaultNeighborExpansionLimitEnabled(Boolean(isSelected)),
+            );
           }}
         />
         <AnimatePresence initial={false}>
@@ -116,7 +119,7 @@ export default function SettingsGeneral() {
           value="isDiagnosticLoggingEnabled"
           checked={diagnosticLogging}
           onCheckedChange={isSelected => {
-            setDiagnosticLogging(Boolean(isSelected));
+            fireAndForget(setDiagnosticLogging(Boolean(isSelected)));
           }}
           label="Diagnostic logging"
           description="Enables verbose logging to the browser console for troubleshooting."
@@ -127,7 +130,7 @@ export default function SettingsGeneral() {
           value="isLoggingDbQueryEnabled"
           checked={allowLoggingDbQuery}
           onCheckedChange={isSelected => {
-            setAllowLoggingDbQuery(Boolean(isSelected));
+            fireAndForget(setAllowLoggingDbQuery(Boolean(isSelected)));
           }}
           label="Enable database query logging on proxy server"
           description="Logs the generated database queries to the servers logger. If you have encountered an issue this might be helpful with diagnosing the root cause."
@@ -145,7 +148,7 @@ export default function SettingsGeneral() {
             value="isDebugOptionsEnabled"
             checked={isDebugOptionsEnabled}
             onCheckedChange={isSelected => {
-              setIsDebugOptionsEnabled(Boolean(isSelected));
+              fireAndForget(setIsDebugOptionsEnabled(Boolean(isSelected)));
             }}
             label="Show debug actions"
             description="Shows debug actions in various places around the app such as buttons to delete the schema or reset the last sync time."

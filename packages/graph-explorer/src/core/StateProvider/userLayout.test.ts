@@ -61,19 +61,19 @@ describe("useSidebar", () => {
     expect(result.current.isSidebarOpen).toBe(true);
   });
 
-  it("should change to the given sidebar item", async () => {
+  it("should change to the given sidebar item", () => {
     const { result } = renderHookWithJotai(() => useSidebar());
 
-    await act(async () => result.current.toggleSidebar("details"));
+    act(() => result.current.toggleSidebar("details"));
     expect(result.current.isSidebarOpen).toBe(true);
     expect(result.current.activeSidebarItem).toBe("details");
 
-    await act(async () => result.current.toggleSidebar("search"));
+    act(() => result.current.toggleSidebar("search"));
     expect(result.current.isSidebarOpen).toBe(true);
     expect(result.current.activeSidebarItem).toBe("search");
   });
 
-  it("should close the sidebar if toggling to the same item", async () => {
+  it("should close the sidebar if toggling to the same item", () => {
     const { result } = renderHookWithJotai(
       () => useSidebar(),
       store =>
@@ -83,7 +83,7 @@ describe("useSidebar", () => {
         } satisfies UserLayout),
     );
 
-    await act(async () => result.current.toggleSidebar("details"));
+    act(() => result.current.toggleSidebar("details"));
 
     expect(result.current.isSidebarOpen).toBe(false);
     expect(result.current.activeSidebarItem).toBeNull();
@@ -105,7 +105,7 @@ describe("useSidebar", () => {
       () => useSidebar(),
       store => {
         dbState.applyTo(store);
-        store.set(userLayoutAtom, {
+        void store.set(userLayoutAtom, {
           activeSidebarItem: "namespaces",
           activeToggles: new Set(),
         } satisfies UserLayout);
@@ -125,7 +125,7 @@ describe("useSidebar", () => {
       () => useSidebar(),
       store => {
         dbState.applyTo(store);
-        store.set(userLayoutAtom, {
+        void store.set(userLayoutAtom, {
           activeSidebarItem: "namespaces",
           activeToggles: new Set(),
         } satisfies UserLayout);

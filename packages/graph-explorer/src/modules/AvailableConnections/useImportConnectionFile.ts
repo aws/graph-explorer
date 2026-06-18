@@ -9,6 +9,7 @@ import {
   schemaAtom,
 } from "@/core";
 import useResetState from "@/core/StateProvider/useResetState";
+import { fireAndForget } from "@/utils";
 import { fromFileToJson } from "@/utils/fileData";
 import { parseConnectionFile } from "@/utils/parseConnectionFile";
 
@@ -29,21 +30,25 @@ export function useImportConnectionFile() {
 
         // Create new id to avoid collisions
         const newId = createNewConfigurationId();
-        set(configurationAtom, prevConfig => {
-          const updatedConfig = new Map(prevConfig);
-          updatedConfig.set(newId, {
-            id: newId,
-            displayLabel: parsedFile.displayLabel,
-            connection: parsedFile.connection,
-          });
-          return updatedConfig;
-        });
-        set(schemaAtom, prevSchema => {
-          const updatedSchema = new Map(prevSchema);
-          updatedSchema.set(newId, parsedFile.schema);
-          return updatedSchema;
-        });
-        set(activeConfigurationAtom, newId);
+        fireAndForget(
+          set(configurationAtom, prevConfig => {
+            const updatedConfig = new Map(prevConfig);
+            updatedConfig.set(newId, {
+              id: newId,
+              displayLabel: parsedFile.displayLabel,
+              connection: parsedFile.connection,
+            });
+            return updatedConfig;
+          }),
+        );
+        fireAndForget(
+          set(schemaAtom, prevSchema => {
+            const updatedSchema = new Map(prevSchema);
+            updatedSchema.set(newId, parsedFile.schema);
+            return updatedSchema;
+          }),
+        );
+        fireAndForget(set(activeConfigurationAtom, newId));
 
         resetState();
       },

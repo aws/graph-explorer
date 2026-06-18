@@ -56,6 +56,7 @@ import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfigurati
 import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
+import { fireAndForget } from "@/utils";
 import {
   LABELS,
   RESERVED_ID_PROPERTY,
@@ -73,7 +74,7 @@ export default function DataExplorer() {
   const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
 
   if (!vertexType && vtConfigs.length > 0) {
-    navigate(`/data-explorer/${encodeURIComponent(vtConfigs[0].type)}`, {
+    void navigate(`/data-explorer/${encodeURIComponent(vtConfigs[0].type)}`, {
       replace: true,
     });
   }
@@ -132,7 +133,7 @@ function DataExplorerContent({ vertexType }: { vertexType: VertexType }) {
 
   const onVertexTypeChange = (value: string | string[]) => {
     const newType = Array.isArray(value) ? value[0] : value;
-    navigate(`/data-explorer/${encodeURIComponent(newType)}`, {
+    void navigate(`/data-explorer/${encodeURIComponent(newType)}`, {
       replace: true,
     });
   };
@@ -256,11 +257,15 @@ function DisplayNameAndDescriptionOptions({
   const onDisplayNameChange =
     (field: "name" | "longName") => (value: string | string[]) => {
       if (field === "name") {
-        setPreferences({ displayNameAttribute: value as string });
+        fireAndForget(
+          setPreferences({ displayNameAttribute: value as string }),
+        );
       }
 
       if (field === "longName") {
-        setPreferences({ longDisplayNameAttribute: value as string });
+        fireAndForget(
+          setPreferences({ longDisplayNameAttribute: value as string }),
+        );
       }
     };
 

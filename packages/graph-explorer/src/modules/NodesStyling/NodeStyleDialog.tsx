@@ -36,7 +36,7 @@ import {
   useVertexStyling,
 } from "@/core/StateProvider/userPreferences";
 import useTranslations from "@/hooks/useTranslations";
-import { parseNumberSafely } from "@/utils";
+import { fireAndForget, parseNumberSafely } from "@/utils";
 import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
@@ -119,7 +119,9 @@ function Content({ vertexType }: { vertexType: VertexType }) {
     }
     try {
       const result = await file2Base64(file);
-      setVertexStyle({ iconUrl: result, iconImageType: file.type });
+      fireAndForget(
+        setVertexStyle({ iconUrl: result, iconImageType: file.type }),
+      );
     } catch (error) {
       console.error("Unable to convert uploaded image to base64: ", error);
       toast.error("Invalid file", {
@@ -219,7 +221,7 @@ function Content({ vertexType }: { vertexType: VertexType }) {
                       accept="image/*"
                       onChange={file => {
                         if (file) {
-                          convertImageToBase64AndSetNewIcon(file);
+                          void convertImageToBase64AndSetNewIcon(file);
                         }
                       }}
                       variant="outline"

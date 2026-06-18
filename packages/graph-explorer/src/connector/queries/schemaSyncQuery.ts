@@ -13,7 +13,7 @@ import {
   getSchemaUris,
   type SchemaStorageModel,
 } from "@/core/StateProvider/schema";
-import { logger } from "@/utils";
+import { fireAndForget, logger } from "@/utils";
 
 import type { SchemaResponse } from "../useGEFetchTypes";
 
@@ -84,22 +84,24 @@ const replaceSchemaAtom = atom(
       return;
     }
 
-    set(schemaAtom, prev => {
-      const updated = new Map(prev);
-      updated.set(id, {
-        ...schema,
-        prefixes,
+    fireAndForget(
+      set(schemaAtom, prev => {
+        const updated = new Map(prev);
+        updated.set(id, {
+          ...schema,
+          prefixes,
 
-        // Reset edge connection information during schema sync
-        edgeConnections: undefined,
-        lastEdgeConnectionSyncFail: false,
+          // Reset edge connection information during schema sync
+          edgeConnections: undefined,
+          lastEdgeConnectionSyncFail: false,
 
-        // Mark as completed successfully
-        lastUpdate: new Date(),
-        lastSyncFail: false,
-      });
-      return updated;
-    });
+          // Mark as completed successfully
+          lastUpdate: new Date(),
+          lastSyncFail: false,
+        });
+        return updated;
+      }),
+    );
   },
 );
 
@@ -111,15 +113,17 @@ const setSyncFailedAtom = atom(null, (get, set) => {
     return;
   }
 
-  set(schemaAtom, prev => {
-    const existing = prev.get(id);
-    const updated = new Map(prev);
-    updated.set(id, {
-      ...existing,
-      vertices: existing?.vertices ?? [],
-      edges: existing?.edges ?? [],
-      lastSyncFail: true,
-    });
-    return updated;
-  });
+  fireAndForget(
+    set(schemaAtom, prev => {
+      const existing = prev.get(id);
+      const updated = new Map(prev);
+      updated.set(id, {
+        ...existing,
+        vertices: existing?.vertices ?? [],
+        edges: existing?.edges ?? [],
+        lastSyncFail: true,
+      });
+      return updated;
+    }),
+  );
 });

@@ -31,10 +31,10 @@ function initializeConfigWithQueryEngine(queryEngine: QueryEngine) {
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
 
-    store.set(configurationAtom, new Map([[config.id, config]]));
+    void store.set(configurationAtom, new Map([[config.id, config]]));
 
     // Make config active
-    store.set(activeConfigurationAtom, config.id);
+    void store.set(activeConfigurationAtom, config.id);
   };
 }
 
@@ -136,11 +136,11 @@ describe("useKeywordSearch", () => {
         dataType: "String",
       });
 
-      store.set(configurationAtom, new Map([[config.id, config]]));
-      store.set(schemaAtom, new Map([[config.id, schema]]));
+      void store.set(configurationAtom, new Map([[config.id, config]]));
+      void store.set(schemaAtom, new Map([[config.id, schema]]));
 
       // Make config active
-      store.set(activeConfigurationAtom, config.id);
+      void store.set(activeConfigurationAtom, config.id);
     }
 
     it("Should default to precision match exact", () => {
