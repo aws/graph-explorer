@@ -27,16 +27,16 @@
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "5.101.0",
     "@types/node": "^24.13.1",
-    "@vitest/coverage-v8": "4.1.8",
+    "@vitest/coverage-v8": "4.1.9",
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint-plugin-react-hooks": "7.1.1",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.7",
-    "oxfmt": "^0.54.0",
+    "oxfmt": "^0.55.0",
     "oxlint": "1.62.0",
-    "oxlint-tsgolint": "0.22.1",
+    "oxlint-tsgolint": "0.23.0",
     "typescript": "^6.0.3",
-    "vitest": "4.1.8"
+    "vitest": "4.1.9"
   },
   "lint-staged": {
     "!(**/*.{js,ts,tsx})": "oxfmt --no-error-on-unmatched-pattern",
