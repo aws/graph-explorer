@@ -14,7 +14,7 @@ describe("persistence test helpers", () => {
     const key = createRandomName("key");
     const tab = await openPersistenceTab(key, "initial");
 
-    await tab.write("updated");
+    tab.write("updated");
 
     expect(tab.read()).toBe("updated");
   });
@@ -29,13 +29,12 @@ describe("persistence test helpers", () => {
     expect(await readPersistedValue(key)).toBe("updated");
   });
 
-  test("flush waits for every write, not just the most recent", async () => {
+  test("flush waits for rapid successive writes to settle", async () => {
     const key = createRandomName("key");
     const tab = await openPersistenceTab(key, "initial");
 
-    // Fire several writes without awaiting each, then flush once. flush() must
-    // wait for all of them; tracking only the latest would let earlier writes
-    // be unobserved.
+    // Fire several writes without awaiting each, then flush once. The queue
+    // coalesces them, so only the latest value lands.
     tab.write("first");
     tab.write("second");
     tab.write("third");
@@ -47,7 +46,8 @@ describe("persistence test helpers", () => {
   test("a tab opened later preloads what an earlier tab persisted", async () => {
     const key = createRandomName("key");
     const firstTab = await openPersistenceTab(key, "initial");
-    await firstTab.write("from-first-tab");
+    firstTab.write("from-first-tab");
+    await firstTab.flush();
 
     const secondTab = await openPersistenceTab(key, "initial");
 
@@ -59,7 +59,8 @@ describe("persistence test helpers", () => {
     const tabA = await openPersistenceTab(key, "initial");
     const tabB = await openPersistenceTab(key, "initial");
 
-    await tabA.write("written-by-a");
+    tabA.write("written-by-a");
+    await tabA.flush();
 
     // Tab B holds its own stale in-memory copy until it reloads, but the shared
     // storage already reflects Tab A's write.
@@ -86,7 +87,8 @@ describe("per-test storage isolation", () => {
 
   test("first test persists a value under the shared key", async () => {
     const tab = await openPersistenceTab(sharedKey, "initial");
-    await tab.write("written-by-first-test");
+    tab.write("written-by-first-test");
+    await tab.flush();
 
     expect(await readPersistedValue(sharedKey)).toBe("written-by-first-test");
   });
@@ -145,13 +147,15 @@ describe("cross-tab user styling reconciliation", () => {
     const tabB = await openPersistenceTab<UserStyling>(key, {});
 
     // Tab A styles type X and persists.
-    await tabA.write({ vertices: [styleForType(typeX)] });
+    tabA.write({ vertices: [styleForType(typeX)] });
+    await tabA.flush();
 
     // Tab B, still holding its stale empty copy, styles type Y and persists.
-    await tabB.write(prev => ({
+    tabB.write(prev => ({
       vertices: [...(prev.vertices ?? []), styleForType(typeY)],
     }));
 
+    await tabB.flush();
     const persisted = await readPersistedValue<UserStyling>(key);
     persistedTypes = new Set(persisted?.vertices?.map(vertex => vertex.type));
   });

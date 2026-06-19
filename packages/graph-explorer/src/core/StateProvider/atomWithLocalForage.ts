@@ -1,5 +1,6 @@
 import localForage from "localforage";
 
+import { persistThroughQueue } from "./persistence";
 import { createWriteThroughAtom } from "./writeThroughAtom";
 
 localForage.config({
@@ -44,7 +45,7 @@ export async function atomWithLocalForage<T>(key: string, initialValue: T) {
 
   return createWriteThroughAtom<T>(
     preloadValue,
-    nextValue => storage.setItem(nextValue),
+    nextValue => persistThroughQueue(key, () => storage.setItem(nextValue)),
     `atomWithLocalForage(${key})`,
   );
 }
