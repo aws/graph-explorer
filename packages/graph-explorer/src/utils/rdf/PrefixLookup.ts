@@ -16,8 +16,8 @@ import {
  * in the input array wins.
  */
 export class PrefixLookup {
-  private readonly userMap: Map<NormalizedIriNamespace, PrefixTypeConfig>;
-  private readonly inferredMap: Map<NormalizedIriNamespace, PrefixTypeConfig>;
+  #userMap: Map<NormalizedIriNamespace, PrefixTypeConfig>;
+  #inferredMap: Map<NormalizedIriNamespace, PrefixTypeConfig>;
 
   /** User-created prefixes (not inferred). */
   readonly userPrefixes: PrefixTypeConfig[];
@@ -25,20 +25,20 @@ export class PrefixLookup {
   readonly inferredPrefixes: PrefixTypeConfig[];
 
   private constructor(prefixes: PrefixTypeConfig[]) {
-    this.userMap = new Map();
-    this.inferredMap = new Map();
+    this.#userMap = new Map();
+    this.#inferredMap = new Map();
 
     for (const p of prefixes) {
       const key = normalizeNamespace(p.uri);
       if (p.__inferred) {
-        this.inferredMap.set(key, p);
+        this.#inferredMap.set(key, p);
       } else {
-        this.userMap.set(key, p);
+        this.#userMap.set(key, p);
       }
     }
 
-    this.userPrefixes = [...this.userMap.values()];
-    this.inferredPrefixes = [...this.inferredMap.values()];
+    this.userPrefixes = [...this.#userMap.values()];
+    this.inferredPrefixes = [...this.#inferredMap.values()];
   }
 
   static fromArray(prefixes: PrefixTypeConfig[]): PrefixLookup {
@@ -58,9 +58,9 @@ export class PrefixLookup {
     // 2. common prefixes
     // 3. automatically generated (inferred)
     return (
-      this.userMap.get(normalizedNamespace)?.prefix ??
+      this.#userMap.get(normalizedNamespace)?.prefix ??
       commonPrefixesByNamespace.get(normalizedNamespace) ??
-      this.inferredMap.get(normalizedNamespace)?.prefix
+      this.#inferredMap.get(normalizedNamespace)?.prefix
     );
   }
 }
