@@ -3,17 +3,20 @@ import logger from "./logger";
 
 vi.mock("./logger", () => ({
   default: {
-    error: vi.fn(),
+    warn: vi.fn(),
   },
 }));
 
 describe("fireAndForget", () => {
-  it("logs the error when the promise rejects", async () => {
+  it("warns with the error when the promise rejects", async () => {
     const error = new Error("persist failed");
 
     fireAndForget(Promise.reject(error));
     await vi.waitFor(() => {
-      expect(logger.error).toHaveBeenCalledWith(error);
+      expect(logger.warn).toHaveBeenCalledWith(
+        "Ignored promise rejection:",
+        error,
+      );
     });
   });
 
@@ -21,6 +24,6 @@ describe("fireAndForget", () => {
     fireAndForget(Promise.resolve());
     await Promise.resolve();
 
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(logger.warn).not.toHaveBeenCalled();
   });
 });

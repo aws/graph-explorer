@@ -12,6 +12,6 @@ import logger from "./logger";
  */
 export function fireAndForget(promise: Promise<unknown>) {
   promise.catch(error => {
-    logger.error(error);
+    logger.warn("Ignored promise rejection:", error);
   });
 }

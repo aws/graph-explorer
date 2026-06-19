@@ -14,7 +14,7 @@ Until now `typescript/no-floating-promises` was off, so these reads as ordinary 
 
 Turn on `typescript/no-floating-promises` (`error`) so every unhandled promise must be **explicitly** marked. Use one of two idioms by meaning:
 
-1. **`fireAndForget(promise)`** (`@/utils`) — attaches `.catch(logger.error)`. Use when a rejection is **meaningful and should be observed** even though the caller does not await it. This is the idiom for **persisted-atom setters**: a failed durable write gets logged rather than silently dropped, and the call sites stay greppable for follow-up auditing.
+1. **`fireAndForget(promise)`** (`@/utils`) — attaches a `.catch` that logs the rejection via `logger.warn` (warn, not error: an explicitly-ignored rejection is non-blocking by construction — the in-memory state already updated and nothing downstream awaits it). Use when a rejection is **meaningful and should be observed** even though the caller does not await it. This is the idiom for **persisted-atom setters**: a failed durable write gets logged rather than silently dropped, and the call sites stay greppable for follow-up auditing.
 
 2. **bare `void expr;`** — use when a rejection is **genuinely inert** or already handled elsewhere: aborted `navigate()`, a refetch whose errors surface through query state, a self-catching async helper, and **test-state seeding** (a test seeding store state does not care whether the value lands in durable storage).
 
