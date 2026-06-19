@@ -15,49 +15,49 @@ describe("ClientLoggerConnector", () => {
 });
 
 describe("ServerLoggerConnector", () => {
-  test("should send logs to the server", () => {
+  test("should send logs to the server", async () => {
     const mockFetch = vi.fn().mockResolvedValue({});
     vi.stubGlobal("fetch", mockFetch);
 
     const connector = new ServerLoggerConnector("https://example.com/");
 
-    void connector.error("error msg");
+    await connector.error("error msg");
     expect(mockFetch).toHaveBeenCalledWith("https://example.com/logger", {
       method: "POST",
       headers: { level: "error", message: JSON.stringify("error msg") },
     });
 
-    void connector.warn("warn msg");
+    await connector.warn("warn msg");
     expect(mockFetch).toHaveBeenCalledWith("https://example.com/logger", {
       method: "POST",
       headers: { level: "warn", message: JSON.stringify("warn msg") },
     });
 
-    void connector.info("info msg");
+    await connector.info("info msg");
     expect(mockFetch).toHaveBeenCalledWith("https://example.com/logger", {
       method: "POST",
       headers: { level: "info", message: JSON.stringify("info msg") },
     });
 
-    void connector.debug("debug msg");
+    await connector.debug("debug msg");
     expect(mockFetch).toHaveBeenCalledWith("https://example.com/logger", {
       method: "POST",
       headers: { level: "debug", message: JSON.stringify("debug msg") },
     });
 
-    void connector.trace("trace msg");
+    await connector.trace("trace msg");
     expect(mockFetch).toHaveBeenCalledWith("https://example.com/logger", {
       method: "POST",
       headers: { level: "trace", message: JSON.stringify("trace msg") },
     });
   });
 
-  test("should strip trailing slash from connection URL", () => {
+  test("should strip trailing slash from connection URL", async () => {
     const mockFetch = vi.fn().mockResolvedValue({});
     vi.stubGlobal("fetch", mockFetch);
 
     const connector = new ServerLoggerConnector("https://example.com/");
-    void connector.info("test");
+    await connector.info("test");
 
     expect(mockFetch).toHaveBeenCalledWith(
       "https://example.com/logger",

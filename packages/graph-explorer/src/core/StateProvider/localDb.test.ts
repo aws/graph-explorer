@@ -69,9 +69,9 @@ describe("exportFromLocalForage", () => {
     const schemaMap = new Map([[config.id, schema]]);
 
     // add to storage
-    void localDb.setItem("schema", schemaMap);
-    void localDb.setItem("configuration", configMap);
-    void localDb.setItem("active-configuration", config.id);
+    await localDb.setItem("schema", schemaMap);
+    await localDb.setItem("configuration", configMap);
+    await localDb.setItem("active-configuration", config.id);
 
     // perform backup
     const result = await createBackupData(localDb);
@@ -99,9 +99,9 @@ describe("exportFromLocalForage", () => {
     const schemaMap = new Map([[config.id, schema]]);
 
     // add to storage
-    void localDb.setItem("schema", schemaMap);
-    void localDb.setItem("configuration", configMap);
-    void localDb.setItem("active-configuration", config.id);
+    await localDb.setItem("schema", schemaMap);
+    await localDb.setItem("configuration", configMap);
+    await localDb.setItem("active-configuration", config.id);
 
     // perform backup
     const backupBefore = await createBackupData(localDb);
@@ -127,12 +127,12 @@ describe("exportFromLocalForage", () => {
     const schemaMap = new Map([[config.id, schema]]);
 
     // add to storage
-    void localDb.setItem("schema", schemaMap);
-    void localDb.setItem("configuration", configMap);
-    void localDb.setItem("active-configuration", config.id);
-    void localDb.setItem(addRestoredPrefix("schema"), schemaMap);
-    void localDb.setItem(addRestoredPrefix("configuration"), configMap);
-    void localDb.setItem(addRestoredPrefix("active-configuration"), config.id);
+    await localDb.setItem("schema", schemaMap);
+    await localDb.setItem("configuration", configMap);
+    await localDb.setItem("active-configuration", config.id);
+    await localDb.setItem(addRestoredPrefix("schema"), schemaMap);
+    await localDb.setItem(addRestoredPrefix("configuration"), configMap);
+    await localDb.setItem(addRestoredPrefix("active-configuration"), config.id);
 
     // perform backup
     const originalBackupData = await createBackupData(localDb);
@@ -218,9 +218,9 @@ describe("backward compatibility: legacy schema field on stored configuration", 
     const configMap = new Map([[config.id, legacyConfig]]);
     const schemaMap = new Map([[config.id, schema]]);
 
-    void localDb.setItem("schema", schemaMap);
-    void localDb.setItem("configuration", configMap);
-    void localDb.setItem("active-configuration", config.id);
+    await localDb.setItem("schema", schemaMap);
+    await localDb.setItem("configuration", configMap);
+    await localDb.setItem("active-configuration", config.id);
 
     // Backup -> serialize -> file -> parse -> restore
     const backupBefore = await createBackupData(localDb);
