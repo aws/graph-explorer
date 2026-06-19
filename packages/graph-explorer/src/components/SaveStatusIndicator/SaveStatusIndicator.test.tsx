@@ -21,15 +21,15 @@ describe("SaveStatusIndicator", () => {
   test("shows nothing while idle", () => {
     render(<SaveStatusIndicator />);
 
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
-  test("shows a saving message while a write is in flight", () => {
+  test("shows nothing while a write is merely in flight", () => {
     render(<SaveStatusIndicator />);
 
     act(() => persistenceStatusStore.markSaving("configuration"));
 
-    expect(screen.getByRole("status")).toHaveTextContent(/saving/i);
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   test("shows a failure message when a write fails terminally", () => {
@@ -39,7 +39,7 @@ describe("SaveStatusIndicator", () => {
       persistenceStatusStore.markFailed("configuration", "terminal-access"),
     );
 
-    expect(screen.getByRole("status")).toHaveTextContent(/couldn.t save/i);
+    expect(screen.getByRole("alert")).toHaveTextContent(/couldn.t save/i);
   });
 
   test("prompts a backup when a write fails for lack of storage", () => {

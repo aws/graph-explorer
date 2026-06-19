@@ -1,15 +1,15 @@
 import localforage from "localforage";
-import { CloudAlertIcon, Loader2Icon } from "lucide-react";
+import { CircleAlertIcon } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
+import { Alert, AlertTitle } from "@/components/Alert";
 import { saveLocalForageToFile } from "@/core/StateProvider/localDb";
 import { usePersistenceStatus } from "@/core/StateProvider/persistence/usePersistenceStatus";
 
 /**
- * A persistent, Google-Docs-style indicator of whether the app's data is safely
- * written to IndexedDB. Quiet while idle; shows progress while saving; raises a
- * standing warning when a write has failed.
+ * A standing warning that the app failed to write data to IndexedDB. Renders
+ * nothing while idle or saving — only a terminal failure surfaces.
  *
  * Toasts are reserved for the one terminal failure a user can act on: running
  * out of storage, where the recovery is to back up their data to a file.
@@ -35,26 +35,14 @@ export function SaveStatusIndicator() {
     });
   }, [isOutOfStorage]);
 
-  if (status === "idle") {
+  if (status !== "failed") {
     return null;
   }
 
-  if (status === "saving") {
-    return (
-      <div
-        role="status"
-        className="text-text-secondary flex items-center gap-2"
-      >
-        <Loader2Icon className="size-4 animate-spin" />
-        Saving…
-      </div>
-    );
-  }
-
   return (
-    <div role="status" className="text-error-main flex items-center gap-2">
-      <CloudAlertIcon className="size-4" />
-      Couldn&apos;t save your changes
-    </div>
+    <Alert variant="danger" className="w-auto">
+      <CircleAlertIcon />
+      <AlertTitle>Couldn&apos;t save your changes</AlertTitle>
+    </Alert>
   );
 }
