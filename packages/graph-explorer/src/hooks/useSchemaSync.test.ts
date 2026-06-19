@@ -456,12 +456,12 @@ describe("useSchemaSync", () => {
       // Switch to a new connection with no schema
       const store = getAppStore();
       const newConfig = createRandomRawConfiguration();
-      void store.set(configurationAtom, prev => {
+      await store.set(configurationAtom, prev => {
         const updated = new Map(prev);
         updated.set(newConfig.id, newConfig);
         return updated;
       });
-      void store.set(activeConfigurationAtom, newConfig.id);
+      await store.set(activeConfigurationAtom, newConfig.id);
 
       rerender();
 

@@ -23,7 +23,7 @@ describe("atomWithLocalForage", () => {
     const key = "test-write";
     const atom = await atomWithLocalForage(key, "initial");
 
-    void store.set(atom, "new-value");
+    await store.set(atom, "new-value");
 
     // Wait a bit for async persistence
     await new Promise(resolve => setTimeout(resolve, 10));
@@ -59,7 +59,7 @@ describe("atomWithLocalForage", () => {
   test("should handle function updates", async () => {
     const atom = await atomWithLocalForage("test-fn", 10);
 
-    void store.set(atom, prev => prev + 5);
+    await store.set(atom, prev => prev + 5);
 
     expect(store.get(atom)).toBe(15);
   });
@@ -107,7 +107,7 @@ describe("atomWithLocalForage", () => {
 
     const atom = await atomWithLocalForage(key, {});
 
-    void store.set(atom, complexObject);
+    await store.set(atom, complexObject);
 
     expect(store.get(atom)).toBe(complexObject);
 
@@ -139,9 +139,9 @@ describe("atomWithLocalForage", () => {
     const atom = await atomWithLocalForage(key, 0);
 
     // Rapid writes
-    void store.set(atom, 1);
-    void store.set(atom, 2);
-    void store.set(atom, 3);
+    await store.set(atom, 1);
+    await store.set(atom, 2);
+    await store.set(atom, 3);
 
     expect(store.get(atom)).toBe(3);
 
@@ -155,22 +155,22 @@ describe("atomWithLocalForage", () => {
   test("should work with different data types", async () => {
     // String
     const stringAtom = await atomWithLocalForage("test-string", "hello");
-    void store.set(stringAtom, "world");
+    await store.set(stringAtom, "world");
     expect(store.get(stringAtom)).toBe("world");
 
     // Number
     const numberAtom = await atomWithLocalForage("test-number", 42);
-    void store.set(numberAtom, 100);
+    await store.set(numberAtom, 100);
     expect(store.get(numberAtom)).toBe(100);
 
     // Boolean
     const boolAtom = await atomWithLocalForage("test-bool", false);
-    void store.set(boolAtom, true);
+    await store.set(boolAtom, true);
     expect(store.get(boolAtom)).toBe(true);
 
     // Array
     const arrayAtom = await atomWithLocalForage("test-array", [1, 2]);
-    void store.set(arrayAtom, [3, 4, 5]);
+    await store.set(arrayAtom, [3, 4, 5]);
     expect(store.get(arrayAtom)).toEqual([3, 4, 5]);
 
     // Object
@@ -180,7 +180,7 @@ describe("atomWithLocalForage", () => {
         a: 1,
       },
     );
-    void store.set(objAtom, { b: 2 });
+    await store.set(objAtom, { b: 2 });
     expect(store.get(objAtom)).toEqual({ b: 2 });
   });
 });
