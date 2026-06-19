@@ -56,7 +56,7 @@ import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfigurati
 import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
-import { fireAndForget } from "@/utils";
+import { logAndIgnore } from "@/utils";
 import {
   LABELS,
   RESERVED_ID_PROPERTY,
@@ -257,14 +257,14 @@ function DisplayNameAndDescriptionOptions({
   const onDisplayNameChange =
     (field: "name" | "longName") => (value: string | string[]) => {
       if (field === "name") {
-        fireAndForget(
-          setPreferences({ displayNameAttribute: value as string }),
+        setPreferences({ displayNameAttribute: value as string }).catch(
+          logAndIgnore,
         );
       }
 
       if (field === "longName") {
-        fireAndForget(
-          setPreferences({ longDisplayNameAttribute: value as string }),
+        setPreferences({ longDisplayNameAttribute: value as string }).catch(
+          logAndIgnore,
         );
       }
     };

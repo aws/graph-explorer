@@ -8,7 +8,7 @@ import {
 } from "react";
 
 import { PanelEmptyState, Spinner } from "@/components";
-import { fireAndForget, logger } from "@/utils";
+import { logAndIgnore, logger } from "@/utils";
 
 import { fetchDefaultConnection } from "./defaultConnection";
 import { activeConfigurationAtom, configurationAtom } from "./StateProvider";
@@ -48,16 +48,14 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
 
     startTransition(() => {
       logger.debug("Adding default connections", defaultConnectionConfigs);
-      fireAndForget(
-        setConfiguration(prev => {
-          const updatedConfig = new Map(prev);
-          defaultConnectionConfigs.forEach(config => {
-            updatedConfig.set(config.id, config);
-          });
-          return updatedConfig;
-        }),
-      );
-      fireAndForget(setActiveConfig(defaultConnectionConfigs[0].id));
+      setConfiguration(prev => {
+        const updatedConfig = new Map(prev);
+        defaultConnectionConfigs.forEach(config => {
+          updatedConfig.set(config.id, config);
+        });
+        return updatedConfig;
+      }).catch(logAndIgnore);
+      setActiveConfig(defaultConnectionConfigs[0].id).catch(logAndIgnore);
     });
   }, [
     activeConfig,

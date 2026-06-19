@@ -29,7 +29,7 @@ import {
   type VertexId,
   type VertexType,
 } from "@/core";
-import { fireAndForget, logger } from "@/utils";
+import { logAndIgnore, logger } from "@/utils";
 import { generatePrefixes, PrefixLookup } from "@/utils/rdf";
 
 import { nodesAtom, toNodeMap } from "./nodes";
@@ -254,30 +254,28 @@ export const activeSchemaSelector = atom(
     if (!schemaId) {
       return;
     }
-    fireAndForget(
-      set(schemaAtom, prevSchemaMap => {
-        const prev = prevSchemaMap.get(schemaId);
-        const newValue = typeof update === "function" ? update(prev) : update;
+    set(schemaAtom, prevSchemaMap => {
+      const prev = prevSchemaMap.get(schemaId);
+      const newValue = typeof update === "function" ? update(prev) : update;
 
-        if (newValue === prev) {
+      if (newValue === prev) {
+        return prevSchemaMap;
+      }
+
+      const updatedSchemaMap = new Map(prevSchemaMap);
+
+      if (newValue === RESET || !newValue) {
+        if (!prev) {
           return prevSchemaMap;
         }
-
-        const updatedSchemaMap = new Map(prevSchemaMap);
-
-        if (newValue === RESET || !newValue) {
-          if (!prev) {
-            return prevSchemaMap;
-          }
-          updatedSchemaMap.delete(schemaId);
-          return updatedSchemaMap;
-        }
-
-        updatedSchemaMap.set(schemaId, newValue);
-
+        updatedSchemaMap.delete(schemaId);
         return updatedSchemaMap;
-      }),
-    );
+      }
+
+      updatedSchemaMap.set(schemaId, newValue);
+
+      return updatedSchemaMap;
+    }).catch(logAndIgnore);
   },
 );
 

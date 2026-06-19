@@ -36,7 +36,7 @@ import {
   useConfiguration,
 } from "@/core";
 import { usePrefixes } from "@/core/StateProvider/schema";
-import { fireAndForget } from "@/utils";
+import { logAndIgnore } from "@/utils";
 
 type PrefixForm = {
   prefix: string;
@@ -172,23 +172,21 @@ function useDeletePrefixCallback(prefix: string) {
           return;
         }
 
-        fireAndForget(
-          set(schemaAtom, prevSchemas => {
-            const updatedSchemas = new Map(prevSchemas);
-            const activeSchema = updatedSchemas.get(activeConfigId);
+        set(schemaAtom, prevSchemas => {
+          const updatedSchemas = new Map(prevSchemas);
+          const activeSchema = updatedSchemas.get(activeConfigId);
 
-            updatedSchemas.set(activeConfigId, {
-              ...activeSchema,
-              vertices: activeSchema?.vertices || [],
-              edges: activeSchema?.edges || [],
-              prefixes: (activeSchema?.prefixes || []).filter(
-                prefixConfig => prefixConfig.prefix !== prefix,
-              ),
-            });
+          updatedSchemas.set(activeConfigId, {
+            ...activeSchema,
+            vertices: activeSchema?.vertices || [],
+            edges: activeSchema?.edges || [],
+            prefixes: (activeSchema?.prefixes || []).filter(
+              prefixConfig => prefixConfig.prefix !== prefix,
+            ),
+          });
 
-            return updatedSchemas;
-          }),
-        );
+          return updatedSchemas;
+        }).catch(logAndIgnore);
       },
       [prefix],
     ),
@@ -225,24 +223,22 @@ function EditPrefixModal({
           return;
         }
 
-        fireAndForget(
-          set(schemaAtom, prevSchemas => {
-            const updatedSchemas = new Map(prevSchemas);
-            const activeSchema = updatedSchemas.get(configId);
+        set(schemaAtom, prevSchemas => {
+          const updatedSchemas = new Map(prevSchemas);
+          const activeSchema = updatedSchemas.get(configId);
 
-            updatedSchemas.set(configId, {
-              ...activeSchema,
-              vertices: activeSchema?.vertices || [],
-              edges: activeSchema?.edges || [],
-              prefixes: [
-                ...(activeSchema?.prefixes || []),
-                { prefix: prefix as RdfPrefix, uri: uri as IriNamespace },
-              ],
-            });
+          updatedSchemas.set(configId, {
+            ...activeSchema,
+            vertices: activeSchema?.vertices || [],
+            edges: activeSchema?.edges || [],
+            prefixes: [
+              ...(activeSchema?.prefixes || []),
+              { prefix: prefix as RdfPrefix, uri: uri as IriNamespace },
+            ],
+          });
 
-            return updatedSchemas;
-          }),
-        );
+          return updatedSchemas;
+        }).catch(logAndIgnore);
       },
       [configId],
     ),

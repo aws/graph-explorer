@@ -1,4 +1,4 @@
-import { fireAndForget } from "./fireAndForget";
+import { logAndIgnore } from "./logAndIgnore";
 import logger from "./logger";
 
 vi.mock("./logger", () => ({
@@ -7,11 +7,11 @@ vi.mock("./logger", () => ({
   },
 }));
 
-describe("fireAndForget", () => {
-  it("warns with the error when the promise rejects", async () => {
+describe("logAndIgnore", () => {
+  it("warns with the error when used as a catch handler for a rejection", async () => {
     const error = new Error("persist failed");
 
-    fireAndForget(Promise.reject(error));
+    Promise.reject(error).catch(logAndIgnore);
     await vi.waitFor(() => {
       expect(logger.warn).toHaveBeenCalledWith(
         "Ignored promise rejection:",
@@ -21,8 +21,7 @@ describe("fireAndForget", () => {
   });
 
   it("does not log anything when the promise resolves", async () => {
-    fireAndForget(Promise.resolve());
-    await Promise.resolve();
+    await Promise.resolve().catch(logAndIgnore);
 
     expect(logger.warn).not.toHaveBeenCalled();
   });

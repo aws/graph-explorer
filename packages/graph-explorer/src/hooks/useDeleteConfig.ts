@@ -9,44 +9,36 @@ import {
   type ConfigurationId,
   schemaAtom,
 } from "@/core";
-import { fireAndForget, logger } from "@/utils";
+import { logAndIgnore, logger } from "@/utils";
 
 export function useDeleteConfig() {
   return useAtomCallback(
     useCallback((_get, set, id: ConfigurationId) => {
       logger.log("Deleting connection:", id);
-      fireAndForget(
-        set(activeConfigurationAtom, prev => {
-          if (prev === id) {
-            return null;
-          }
-          return prev;
-        }),
-      );
+      set(activeConfigurationAtom, prev => {
+        if (prev === id) {
+          return null;
+        }
+        return prev;
+      }).catch(logAndIgnore);
 
-      fireAndForget(
-        set(configurationAtom, prevConfigs => {
-          const updatedConfigs = new Map(prevConfigs);
-          updatedConfigs.delete(id);
-          return updatedConfigs;
-        }),
-      );
+      set(configurationAtom, prevConfigs => {
+        const updatedConfigs = new Map(prevConfigs);
+        updatedConfigs.delete(id);
+        return updatedConfigs;
+      }).catch(logAndIgnore);
 
-      fireAndForget(
-        set(schemaAtom, prevSchemas => {
-          const updatedSchemas = new Map(prevSchemas);
-          updatedSchemas.delete(id);
-          return updatedSchemas;
-        }),
-      );
+      set(schemaAtom, prevSchemas => {
+        const updatedSchemas = new Map(prevSchemas);
+        updatedSchemas.delete(id);
+        return updatedSchemas;
+      }).catch(logAndIgnore);
 
-      fireAndForget(
-        set(allGraphSessionsAtom, prev => {
-          const updatedGraphs = new Map(prev);
-          updatedGraphs.delete(id);
-          return updatedGraphs;
-        }),
-      );
+      set(allGraphSessionsAtom, prev => {
+        const updatedGraphs = new Map(prev);
+        updatedGraphs.delete(id);
+        return updatedGraphs;
+      }).catch(logAndIgnore);
     }, []),
   );
 }

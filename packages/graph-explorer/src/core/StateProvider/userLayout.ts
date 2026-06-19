@@ -1,6 +1,6 @@
 import { useAtom } from "jotai";
 
-import { fireAndForget } from "@/utils";
+import { logAndIgnore } from "@/utils";
 
 import { useQueryEngine } from "../connector";
 import { userLayoutAtom } from "./storageAtoms";
@@ -94,15 +94,14 @@ export function useSidebar() {
    * Sets the active sidebar item to the given item, or closes the sidebar if the
    * item is the same as the current active item.
    */
-  const toggleSidebar = (item: SidebarItems) =>
-    fireAndForget(
-      setUserLayout(prev => {
-        return {
-          ...prev,
-          activeSidebarItem: prev.activeSidebarItem === item ? null : item,
-        };
-      }),
-    );
+  const toggleSidebar = (item: SidebarItems) => {
+    setUserLayout(prev => {
+      return {
+        ...prev,
+        activeSidebarItem: prev.activeSidebarItem === item ? null : item,
+      };
+    }).catch(logAndIgnore);
+  };
 
   return {
     activeSidebarItem,
@@ -120,18 +119,16 @@ export function useSidebarSize() {
 
   /** Sets the sidebar width to the current width + the given delta */
   const setSidebarWidth = (deltaWidth: number) => {
-    fireAndForget(
-      setUserLayout(prev => {
-        const prevWidth = prev.sidebar?.width ?? DEFAULT_SIDEBAR_WIDTH;
-        return {
-          ...prev,
-          sidebar: {
-            ...prev.sidebar,
-            width: prevWidth + deltaWidth,
-          },
-        };
-      }),
-    );
+    setUserLayout(prev => {
+      const prevWidth = prev.sidebar?.width ?? DEFAULT_SIDEBAR_WIDTH;
+      return {
+        ...prev,
+        sidebar: {
+          ...prev.sidebar,
+          width: prevWidth + deltaWidth,
+        },
+      };
+    }).catch(logAndIgnore);
   };
 
   return [sidebarWidth, setSidebarWidth] as const;

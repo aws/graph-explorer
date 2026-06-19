@@ -1,4 +1,4 @@
-import { env, fireAndForget } from "@/utils";
+import { env, logAndIgnore } from "@/utils";
 
 import type { BoundingBox } from "./types";
 
@@ -104,8 +104,8 @@ const drawImage = (
 
   if (src.match(/\.svg$/i)) {
     IMAGES_PENDING.add(`${src}::${color || "default"}`);
-    fireAndForget(
-      fetchIcon(src).then(icon => {
+    fetchIcon(src)
+      .then(icon => {
         IMAGES_PENDING.delete(`${src}::${color || "default"}`);
 
         let iconSrc = icon;
@@ -119,8 +119,8 @@ const drawImage = (
 
         createImage(iconSrc);
         context.restore();
-      }),
-    );
+      })
+      .catch(logAndIgnore);
 
     return;
   }

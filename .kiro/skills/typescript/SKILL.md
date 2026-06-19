@@ -16,7 +16,7 @@ description: TypeScript conventions and rules for Graph Explorer, including bran
 
 `typescript/no-floating-promises` is enabled as an error, so every unhandled promise must be marked explicitly. Pick the idiom by meaning:
 
-- **`fireAndForget(promise)`** (from `@/utils`) — when a rejection is meaningful and should be observed even though you don't await it. It logs the rejection via `logger.warn` (warn, not error, since an ignored rejection is non-blocking). This is the idiom for persisted-atom setters (`atomWithLocalForage`-backed writes), where a failed durable write should be logged rather than silently dropped.
+- **`.catch(logAndIgnore)`** (`logAndIgnore` from `@/utils`) — when a rejection is meaningful and should be observed even though you don't await it. It logs the rejection via `logger.warn` (warn, not error, since an ignored rejection is non-blocking). This is the idiom for persisted-atom setters (`atomWithLocalForage`-backed writes), where a failed durable write should be logged rather than silently dropped.
 - **bare `void expr;`** — when the rejection is genuinely inert or already handled elsewhere: aborted `navigate()`, a refetch whose errors surface through query state, a self-catching async helper, and test-state seeding.
 
 See ADR `docs/adr/20260618-explicit-floating-promise-convention.md` for the full rationale.

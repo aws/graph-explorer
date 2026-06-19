@@ -36,7 +36,7 @@ import {
   useVertexStyling,
 } from "@/core/StateProvider/userPreferences";
 import useTranslations from "@/hooks/useTranslations";
-import { fireAndForget, parseNumberSafely } from "@/utils";
+import { logAndIgnore, parseNumberSafely } from "@/utils";
 import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
@@ -119,8 +119,8 @@ function Content({ vertexType }: { vertexType: VertexType }) {
     }
     try {
       const result = await file2Base64(file);
-      fireAndForget(
-        setVertexStyle({ iconUrl: result, iconImageType: file.type }),
+      setVertexStyle({ iconUrl: result, iconImageType: file.type }).catch(
+        logAndIgnore,
       );
     } catch (error) {
       console.error("Unable to convert uploaded image to base64: ", error);

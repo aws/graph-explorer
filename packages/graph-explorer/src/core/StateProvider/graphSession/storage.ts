@@ -2,7 +2,7 @@ import { atom } from "jotai";
 import { atomWithReset, RESET } from "jotai/utils";
 
 import { activeConfigurationAtom, allGraphSessionsAtom } from "@/core";
-import { fireAndForget } from "@/utils";
+import { logAndIgnore } from "@/utils";
 
 import type { EdgeId, VertexId } from "../../entities";
 
@@ -40,11 +40,11 @@ export const activeGraphSessionAtom = atom(
     // Delete the active graph if we receive a default value
     if (newValue === RESET || !newValue) {
       newGraphs.delete(connectionId);
-      fireAndForget(set(allGraphSessionsAtom, newGraphs));
+      set(allGraphSessionsAtom, newGraphs).catch(logAndIgnore);
       return;
     }
 
     newGraphs.set(connectionId, newValue);
-    fireAndForget(set(allGraphSessionsAtom, newGraphs));
+    set(allGraphSessionsAtom, newGraphs).catch(logAndIgnore);
   },
 );
