@@ -42,7 +42,7 @@ describe("useRefreshEntities", () => {
     explorer.addVertex(updatedVertex);
     explorer.addEdge(updatedEdge);
 
-    const { result } = renderHookWithState(() => {
+    const { result } = await renderHookWithState(() => {
       const queryClient = useQueryClient();
       const refreshHook = useRefreshEntities();
 
@@ -95,7 +95,10 @@ describe("useRefreshEntities", () => {
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
 
-    const { result } = renderHookWithState(() => useRefreshEntities(), state);
+    const { result } = await renderHookWithState(
+      () => useRefreshEntities(),
+      state,
+    );
 
     act(() => {
       result.current.refresh({
@@ -124,7 +127,10 @@ describe("useRefreshEntities", () => {
     const vertexDetailsSpy = vi.spyOn(explorer, "vertexDetails");
     const edgeDetailsSpy = vi.spyOn(explorer, "edgeDetails");
 
-    const { result } = renderHookWithState(() => useRefreshEntities(), state);
+    const { result } = await renderHookWithState(
+      () => useRefreshEntities(),
+      state,
+    );
 
     act(() => {
       result.current.refresh({

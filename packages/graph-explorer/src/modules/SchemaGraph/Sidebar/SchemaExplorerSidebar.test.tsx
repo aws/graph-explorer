@@ -25,9 +25,9 @@ vi.mock("react-virtuoso", () => ({
   }) => data?.map((item, index) => itemContent(index, item)),
 }));
 
-function renderSidebar(state: DbState) {
+async function renderSidebar(state: DbState) {
   const store = getAppStore();
-  state.applyTo(store);
+  await state.applyTo(store);
 
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -45,16 +45,16 @@ function renderSidebar(state: DbState) {
 }
 
 describe("SchemaExplorerSidebar", () => {
-  test("renders details tab by default with empty selection message", () => {
+  test("renders details tab by default with empty selection message", async () => {
     const state = new DbState();
-    renderSidebar(state);
+    await renderSidebar(state);
 
     expect(screen.getByText("Empty Selection")).toBeInTheDocument();
   });
 
-  test("shows three sidebar tabs", () => {
+  test("shows three sidebar tabs", async () => {
     const state = new DbState();
-    renderSidebar(state);
+    await renderSidebar(state);
 
     const tabs = screen.getAllByRole("tab");
     expect(tabs).toHaveLength(3);
@@ -66,7 +66,7 @@ describe("SchemaExplorerSidebar", () => {
     const vertex = createTestableVertex().with({ types: ["Airport"] });
     state.addTestableVertexToGraph(vertex);
 
-    renderSidebar(state);
+    await renderSidebar(state);
 
     const tabs = screen.getAllByRole("tab");
     await user.click(tabs[1]);
@@ -85,7 +85,7 @@ describe("SchemaExplorerSidebar", () => {
       .withTarget(target);
     state.addTestableEdgeToGraph(edge);
 
-    renderSidebar(state);
+    await renderSidebar(state);
 
     const tabs = screen.getAllByRole("tab");
     await user.click(tabs[2]);

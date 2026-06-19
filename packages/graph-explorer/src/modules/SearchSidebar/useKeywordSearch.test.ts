@@ -26,22 +26,22 @@ vi.mock("./useKeywordSearchQuery", () => ({
 }));
 
 function initializeConfigWithQueryEngine(queryEngine: QueryEngine) {
-  return (store: AppStore) => {
+  return async (store: AppStore) => {
     // Create config and setup schema
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
 
-    void store.set(configurationAtom, new Map([[config.id, config]]));
+    await store.set(configurationAtom, new Map([[config.id, config]]));
 
     // Make config active
-    void store.set(activeConfigurationAtom, config.id);
+    await store.set(activeConfigurationAtom, config.id);
   };
 }
 
 describe("useKeywordSearch", () => {
   describe("Gremlin", () => {
-    it("Should default to precision match exact", () => {
-      const { result } = renderHookWithJotai(
+    it("Should default to precision match exact", async () => {
+      const { result } = await renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("gremlin"),
       );
@@ -49,8 +49,8 @@ describe("useKeywordSearch", () => {
       expect(result.current.partialMatch).toBe(false);
     });
 
-    it("Should default to attribute ID", () => {
-      const { result } = renderHookWithJotai(
+    it("Should default to attribute ID", async () => {
+      const { result } = await renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("gremlin"),
       );
@@ -58,8 +58,8 @@ describe("useKeywordSearch", () => {
       expect(result.current.selectedAttribute).toBe(SEARCH_TOKENS.NODE_ID);
     });
 
-    it("Should default to node type All", () => {
-      const { result } = renderHookWithJotai(
+    it("Should default to node type All", async () => {
+      const { result } = await renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("gremlin"),
       );
@@ -69,8 +69,8 @@ describe("useKeywordSearch", () => {
       );
     });
 
-    it("Should have all searchable attributes", () => {
-      const { result } = renderHookWithJotai(
+    it("Should have all searchable attributes", async () => {
+      const { result } = await renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("gremlin"),
       );
@@ -83,8 +83,8 @@ describe("useKeywordSearch", () => {
   });
 
   describe("OpenCypher", () => {
-    it("Should default to precision match exact", () => {
-      const { result } = renderHookWithJotai(
+    it("Should default to precision match exact", async () => {
+      const { result } = await renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("openCypher"),
       );
@@ -92,8 +92,8 @@ describe("useKeywordSearch", () => {
       expect(result.current.partialMatch).toBe(false);
     });
 
-    it("Should default to attribute ID", () => {
-      const { result } = renderHookWithJotai(
+    it("Should default to attribute ID", async () => {
+      const { result } = await renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("openCypher"),
       );
@@ -101,8 +101,8 @@ describe("useKeywordSearch", () => {
       expect(result.current.selectedAttribute).toBe(SEARCH_TOKENS.NODE_ID);
     });
 
-    it("Should default to node type All", () => {
-      const { result } = renderHookWithJotai(
+    it("Should default to node type All", async () => {
+      const { result } = await renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("openCypher"),
       );
@@ -112,8 +112,8 @@ describe("useKeywordSearch", () => {
       );
     });
 
-    it("Should have all searchable attributes", () => {
-      const { result } = renderHookWithJotai(
+    it("Should have all searchable attributes", async () => {
+      const { result } = await renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("openCypher"),
       );
@@ -126,7 +126,7 @@ describe("useKeywordSearch", () => {
   });
 
   describe("SPARQL", () => {
-    function initializeConfigWithRdfLabel(store: AppStore) {
+    async function initializeConfigWithRdfLabel(store: AppStore) {
       // Create config and setup schema
       const config = createRandomRawConfiguration();
       const schema = createRandomSchema();
@@ -136,15 +136,15 @@ describe("useKeywordSearch", () => {
         dataType: "String",
       });
 
-      void store.set(configurationAtom, new Map([[config.id, config]]));
-      void store.set(schemaAtom, new Map([[config.id, schema]]));
+      await store.set(configurationAtom, new Map([[config.id, config]]));
+      await store.set(schemaAtom, new Map([[config.id, schema]]));
 
       // Make config active
-      void store.set(activeConfigurationAtom, config.id);
+      await store.set(activeConfigurationAtom, config.id);
     }
 
-    it("Should default to precision match exact", () => {
-      const { result } = renderHookWithJotai(
+    it("Should default to precision match exact", async () => {
+      const { result } = await renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithRdfLabel,
       );
@@ -152,8 +152,8 @@ describe("useKeywordSearch", () => {
       expect(result.current.partialMatch).toBe(false);
     });
 
-    it("Should default to attribute rdfs:label", () => {
-      const { result } = renderHookWithJotai(
+    it("Should default to attribute rdfs:label", async () => {
+      const { result } = await renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithRdfLabel,
       );
@@ -161,8 +161,8 @@ describe("useKeywordSearch", () => {
       expect(result.current.selectedAttribute).toBe("rdfs:label");
     });
 
-    it("Should default to node type All", () => {
-      const { result } = renderHookWithJotai(
+    it("Should default to node type All", async () => {
+      const { result } = await renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithRdfLabel,
       );
@@ -172,8 +172,8 @@ describe("useKeywordSearch", () => {
       );
     });
 
-    it("Should have all searchable attributes", () => {
-      const { result } = renderHookWithJotai(
+    it("Should have all searchable attributes", async () => {
+      const { result } = await renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithRdfLabel,
       );
@@ -189,8 +189,8 @@ describe("useKeywordSearch", () => {
   });
 
   describe("SPARQL without rdfs:label", () => {
-    it("Should default to precision match exact", () => {
-      const { result } = renderHookWithJotai(
+    it("Should default to precision match exact", async () => {
+      const { result } = await renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("sparql"),
       );
@@ -198,8 +198,8 @@ describe("useKeywordSearch", () => {
       expect(result.current.partialMatch).toBe(false);
     });
 
-    it("Should default to attribute All", () => {
-      const { result } = renderHookWithJotai(
+    it("Should default to attribute All", async () => {
+      const { result } = await renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("sparql"),
       );
@@ -209,8 +209,8 @@ describe("useKeywordSearch", () => {
       );
     });
 
-    it("Should default to node type All", () => {
-      const { result } = renderHookWithJotai(
+    it("Should default to node type All", async () => {
+      const { result } = await renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("sparql"),
       );
@@ -220,8 +220,8 @@ describe("useKeywordSearch", () => {
       );
     });
 
-    it("Should have all searchable attributes", () => {
-      const { result } = renderHookWithJotai(
+    it("Should have all searchable attributes", async () => {
+      const { result } = await renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("sparql"),
       );

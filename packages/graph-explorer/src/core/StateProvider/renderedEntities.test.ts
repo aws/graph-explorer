@@ -103,7 +103,7 @@ describe("useRenderedVertices", () => {
       createRenderedVertexId(dbState.vertices[2].id),
     ];
 
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useRenderedEntities(),
       store => dbState.applyTo(store),
     );
@@ -127,7 +127,7 @@ describe("useRenderedVertices", () => {
 
     dbState.filterVertexType(createVertexType(vertex1.types[0]));
 
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useRenderedEntities(),
       store => dbState.applyTo(store),
     );
@@ -168,7 +168,7 @@ describe("useRenderedEdges", () => {
       createRenderedEdgeId(dbState.edges[3].id),
     ];
 
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useRenderedEntities(),
       store => dbState.applyTo(store),
     );
@@ -208,7 +208,7 @@ describe("useRenderedEdges", () => {
       createRenderedEdgeId(dbState.edges[3].id),
     ];
 
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useRenderedEntities(),
       store => dbState.applyTo(store),
     );
@@ -246,7 +246,7 @@ describe("useRenderedEdges", () => {
       createRenderedEdgeId(dbState.edges[3].id),
     ];
 
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useRenderedEntities(),
       store => dbState.applyTo(store),
     );
@@ -282,7 +282,7 @@ describe("useRenderedEdges", () => {
       createRenderedEdgeId(dbState.edges[1].id),
     ];
 
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useRenderedEntities(),
       store => dbState.applyTo(store),
     );

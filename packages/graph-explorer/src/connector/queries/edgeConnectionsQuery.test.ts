@@ -36,7 +36,7 @@ describe("edgeConnectionsQuery", () => {
     const state = new DbState(explorer);
     const store = getAppStore();
     state.activeSchema.edgeConnections = undefined;
-    state.applyTo(store);
+    await state.applyTo(store);
 
     const fetchEdgeConnectionsSpy = vi.spyOn(explorer, "fetchEdgeConnections");
     const queryClient = createQueryClient();
@@ -62,7 +62,7 @@ describe("edgeConnectionsQuery", () => {
     const explorer = new FakeExplorer();
     const state = new DbState(explorer);
     const store = getAppStore();
-    state.applyTo(store);
+    await state.applyTo(store);
 
     const fetchEdgeConnectionsSpy = vi.spyOn(explorer, "fetchEdgeConnections");
 
@@ -93,7 +93,7 @@ describe("edgeConnectionsQuery", () => {
     const explorer = new FakeExplorer();
     const dbState = new DbState(explorer);
     const store = getAppStore();
-    dbState.applyTo(store);
+    await dbState.applyTo(store);
 
     const edge = createTestableEdge();
     explorer.addTestableEdge(edge);
@@ -113,7 +113,7 @@ describe("edgeConnectionsQuery", () => {
     const explorer = new FakeExplorer();
     const dbState = new DbState(explorer);
     const store = getAppStore();
-    dbState.applyTo(store);
+    await dbState.applyTo(store);
 
     vi.spyOn(explorer, "fetchEdgeConnections").mockRejectedValue(
       new Error("Network error"),
@@ -132,7 +132,7 @@ describe("edgeConnectionsQuery", () => {
     const explorer = new FakeExplorer();
     const state = new DbState(explorer);
     const store = getAppStore();
-    state.applyTo(store);
+    await state.applyTo(store);
 
     const source1 = createTestableVertex().with({
       types: [createVertexType("Person")],
@@ -166,7 +166,7 @@ describe("edgeConnectionsQuery", () => {
     const explorer = new FakeExplorer();
     const state = new DbState(explorer);
     const store = getAppStore();
-    state.applyTo(store);
+    await state.applyTo(store);
 
     const sourceType = createVertexType("Person");
     const targetType = createVertexType("Company");
@@ -197,7 +197,7 @@ describe("edgeConnectionsQuery", () => {
     const explorer = new FakeExplorer();
     const state = new DbState(explorer);
     const store = getAppStore();
-    state.applyTo(store);
+    await state.applyTo(store);
 
     // Set up initial edge connection
     const initialSourceType = createVertexType("Airport");
@@ -262,7 +262,7 @@ describe("edgeConnectionsQuery", () => {
     const explorer = new FakeExplorer();
     const state = new DbState(explorer);
     const store = getAppStore();
-    state.applyTo(store);
+    await state.applyTo(store);
 
     // Set up initial edge connection
     const sourceType = createVertexType("Person");
@@ -303,7 +303,7 @@ describe("edgeConnectionsQuery", () => {
 
     const edge = createRandomEdgeTypeConfig();
     state.activeSchema.edges = [edge];
-    state.applyTo(store);
+    await state.applyTo(store);
 
     vi.spyOn(explorer, "fetchEdgeConnections").mockImplementation(
       (_req: EdgeConnectionsRequest, options?: ExplorerRequestOptions) => {
@@ -337,7 +337,7 @@ describe("edgeConnectionsQuery", () => {
     const edge = createRandomEdgeTypeConfig();
     state.activeSchema.edges = [edge];
     state.activeSchema.edgeConnections = undefined;
-    state.applyTo(store);
+    await state.applyTo(store);
 
     vi.spyOn(explorer, "fetchEdgeConnections").mockRejectedValue(
       new Error("Connection failed"),
@@ -365,7 +365,7 @@ describe("edgeConnectionsQuery", () => {
 
     state.activeSchema.lastEdgeConnectionSyncFail = true;
     state.activeSchema.edgeConnections = undefined;
-    state.applyTo(store);
+    await state.applyTo(store);
 
     const sourceType = createVertexType("Person");
     const targetType = createVertexType("Company");
@@ -394,7 +394,7 @@ describe("edgeConnectionsQuery", () => {
     const edge = createRandomEdgeTypeConfig();
     state.activeSchema.edges = [edge];
     state.activeSchema.edgeConnections = existingEdgeConnections;
-    state.applyTo(store);
+    await state.applyTo(store);
 
     vi.spyOn(explorer, "fetchEdgeConnections").mockRejectedValue(
       new Error("Network error"),

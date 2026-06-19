@@ -34,7 +34,7 @@ test("should add one node", async () => {
 
   const vertex = createRandomVertex();
 
-  const { result } = renderHookWithState(() => {
+  const { result } = await renderHookWithState(() => {
     const callback = useAddToGraph();
     const vertices = useAtomValue(nodesAtom);
     const edges = useAtomValue(edgesAtom);
@@ -61,7 +61,7 @@ test("should add one edge", async () => {
   dbState.addVertexToGraph(node1);
   dbState.addVertexToGraph(node2);
 
-  const { result } = renderHookWithState(() => {
+  const { result } = await renderHookWithState(() => {
     const callback = useAddToGraph();
     const vertices = useAtomValue(nodesAtom);
     const edges = useAtomValue(edgesAtom);
@@ -82,7 +82,7 @@ test("should add multiple nodes and edges", async () => {
 
   const randomEntities = createRandomEntities();
 
-  const { result } = renderHookWithState(() => {
+  const { result } = await renderHookWithState(() => {
     const callback = useAddToGraph();
     const vertices = useAtomValue(nodesAtom);
     const edges = useAtomValue(edgesAtom);
@@ -106,7 +106,7 @@ test("should add multiple nodes and edges ignoring duplicates", async () => {
 
   const randomEntities = createRandomEntities();
 
-  const { result } = renderHookWithState(() => {
+  const { result } = await renderHookWithState(() => {
     const callback = useAddToGraph();
     const vertices = useAtomValue(nodesAtom);
     const edges = useAtomValue(edgesAtom);
@@ -136,7 +136,7 @@ test("should update schema when adding a node", async () => {
   const vertex = createRandomVertex();
   const expectedVertexTypes = mapVertexToTypeConfigs(vertex);
 
-  const { result } = renderHookWithState(() => {
+  const { result } = await renderHookWithState(() => {
     const callback = useAddToGraph();
     const vertices = useAtomValue(nodesAtom);
     const edges = useAtomValue(edgesAtom);
@@ -163,7 +163,7 @@ test("should update schema when adding a node with no label", async () => {
   vertex.types = [];
   const expectedVertexTypes = mapVertexToTypeConfigs(vertex);
 
-  const { result } = renderHookWithState(() => {
+  const { result } = await renderHookWithState(() => {
     const callback = useAddToGraph();
     const vertices = useAtomValue(nodesAtom);
     const edges = useAtomValue(edgesAtom);
@@ -193,7 +193,7 @@ test("should update schema when adding an edge", async () => {
   dbState.addVertexToGraph(node1);
   dbState.addVertexToGraph(node2);
 
-  const { result } = renderHookWithState(() => {
+  const { result } = await renderHookWithState(() => {
     const callback = useAddToGraph();
     const vertices = useAtomValue(nodesAtom);
     const edges = useAtomValue(edgesAtom);
@@ -223,7 +223,7 @@ test("should add missing attributes to the schema when adding a node", async () 
     dbState.activeSchema.vertices.push(initialVtConfig);
   }
 
-  const { result } = renderHookWithState(() => {
+  const { result } = await renderHookWithState(() => {
     const callback = useAddToGraph();
     const vertices = useAtomValue(nodesAtom);
     const edges = useAtomValue(edgesAtom);
@@ -260,7 +260,7 @@ test("should add missing attributes to the schema when adding an edge", async ()
   };
   dbState.activeSchema.edges.push(initialEtConfig);
 
-  const { result } = renderHookWithState(() => {
+  const { result } = await renderHookWithState(() => {
     const callback = useAddToGraph();
     const vertices = useAtomValue(nodesAtom);
     const edges = useAtomValue(edgesAtom);
@@ -280,7 +280,7 @@ test("should update graph storage when adding a node", async () => {
 
   const vertex = createRandomVertex();
 
-  const { result } = renderHookWithState(() => {
+  const { result } = await renderHookWithState(() => {
     const callback = useAddToGraph();
     const graph = useAtomValue(activeGraphSessionAtom);
     return { callback, graph };
@@ -306,7 +306,7 @@ test("should update graph storage when adding an edge", async () => {
   dbState.addVertexToGraph(node1);
   dbState.addVertexToGraph(node2);
 
-  const { result } = renderHookWithState(() => {
+  const { result } = await renderHookWithState(() => {
     const callback = useAddToGraph();
     const graph = useAtomValue(activeGraphSessionAtom);
     return { callback, graph };
@@ -333,7 +333,7 @@ test("should infer edge connections when adding edges with vertices", async () =
     .withSource(source)
     .withTarget(target);
 
-  const { result } = renderHookWithState(() => {
+  const { result } = await renderHookWithState(() => {
     const callback = useAddToGraph();
     const schema = useAtomValue(activeSchemaSelector);
     return { callback, schema };
@@ -367,7 +367,7 @@ test("should use batch vertex types over canvas vertex types for edge connection
     .withSource(batchSource)
     .withTarget(target);
 
-  const { result } = renderHookWithState(() => {
+  const { result } = await renderHookWithState(() => {
     const callback = useAddToGraph();
     const schema = useAtomValue(activeSchemaSelector);
     return { callback, schema };
@@ -400,7 +400,7 @@ test("should resolve edge endpoints from canvas when not in batch", async () => 
     .withSource(source)
     .withTarget(target);
 
-  const { result } = renderHookWithState(() => {
+  const { result } = await renderHookWithState(() => {
     const callback = useAddToGraph();
     const schema = useAtomValue(activeSchemaSelector);
     return { callback, schema };
@@ -426,7 +426,7 @@ test("should ignore blank nodes when updating graph storage", async () => {
   blankNode.isBlankNode = true;
   const edge = createRandomEdge(vertex, blankNode);
 
-  const { result } = renderHookWithState(() => {
+  const { result } = await renderHookWithState(() => {
     const callback = useAddToGraph();
     const graph = useAtomValue(activeGraphSessionAtom);
     return { callback, graph };

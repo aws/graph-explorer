@@ -55,8 +55,8 @@ describe("useVertexAttributesAsScalars", () => {
         createRandomQueryEngine("pg");
     });
 
-    it("should return ID, Label, and attributes for vertex", () => {
-      const { result } = renderHookWithState(
+    it("should return ID, Label, and attributes for vertex", async () => {
+      const { result } = await renderHookWithState(
         () => useVertexAttributesAsScalars(vertex),
         dbState,
       );
@@ -99,8 +99,8 @@ describe("useVertexAttributesAsScalars", () => {
       dbState.activeConfig.connection!.queryEngine = "sparql";
     });
 
-    it("should return URI, Class, and attributes for vertex", () => {
-      const { result } = renderHookWithState(
+    it("should return URI, Class, and attributes for vertex", async () => {
+      const { result } = await renderHookWithState(
         () => useVertexAttributesAsScalars(vertex),
         dbState,
       );
@@ -123,7 +123,7 @@ describe("useVertexAttributesAsScalars", () => {
       );
     });
 
-    it("should use 'Blank node ID' for blank nodes", () => {
+    it("should use 'Blank node ID' for blank nodes", async () => {
       const blankNodeVertex = {
         ...vertex,
         isBlankNode: true,
@@ -132,7 +132,7 @@ describe("useVertexAttributesAsScalars", () => {
         } as any,
       };
 
-      const { result } = renderHookWithState(
+      const { result } = await renderHookWithState(
         () => useVertexAttributesAsScalars(blankNodeVertex),
         dbState,
       );
@@ -147,7 +147,7 @@ describe("useVertexAttributesAsScalars", () => {
     });
   });
 
-  it("should handle vertex with no attributes", () => {
+  it("should handle vertex with no attributes", async () => {
     const vertexWithNoAttributes = {
       ...vertex,
       attributes: [],
@@ -156,7 +156,7 @@ describe("useVertexAttributesAsScalars", () => {
       } as any,
     };
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useVertexAttributesAsScalars(vertexWithNoAttributes),
       dbState,
     );
@@ -165,7 +165,7 @@ describe("useVertexAttributesAsScalars", () => {
     expect(scalars).toHaveLength(2); // Only ID and Label
   });
 
-  it("should handle empty displayTypes", () => {
+  it("should handle empty displayTypes", async () => {
     dbState.activeConfig.connection!.queryEngine = "openCypher";
 
     const vertexWithEmptyTypes: DisplayVertex = {
@@ -182,7 +182,7 @@ describe("useVertexAttributesAsScalars", () => {
       original: { types: [] } as any,
     };
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useVertexAttributesAsScalars(vertexWithEmptyTypes),
       dbState,
     );

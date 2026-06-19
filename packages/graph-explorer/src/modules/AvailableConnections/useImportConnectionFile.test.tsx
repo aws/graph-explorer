@@ -43,7 +43,7 @@ function getImportedConnection() {
 describe("useImportConnectionFile", () => {
   test("should import valid configuration file", async () => {
     const state = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useImportConnectionFile(),
       state,
     );
@@ -93,7 +93,7 @@ describe("useImportConnectionFile", () => {
 
   test("should reject invalid configuration file", async () => {
     const state = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useImportConnectionFile(),
       state,
     );
@@ -121,7 +121,7 @@ describe("useImportConnectionFile", () => {
 
   test("should create new ID to avoid collisions", async () => {
     const state = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useImportConnectionFile(),
       state,
     );
@@ -157,7 +157,7 @@ describe("useImportConnectionFile", () => {
 
   test("should handle schema with prefixes", async () => {
     const state = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useImportConnectionFile(),
       state,
     );
@@ -203,7 +203,7 @@ describe("useImportConnectionFile", () => {
 
   test("should handle schema with lastUpdate date", async () => {
     const state = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useImportConnectionFile(),
       state,
     );
@@ -241,7 +241,7 @@ describe("useImportConnectionFile", () => {
 
   test("should handle empty schema arrays", async () => {
     const state = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useImportConnectionFile(),
       state,
     );
@@ -277,7 +277,7 @@ describe("useImportConnectionFile", () => {
 
   test("should handle file with complex schema", async () => {
     const state = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useImportConnectionFile(),
       state,
     );
@@ -344,7 +344,7 @@ describe("useImportConnectionFile", () => {
 
   test("should import edgeConnections from file", async () => {
     const state = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useImportConnectionFile(),
       state,
     );
@@ -419,7 +419,7 @@ describe("useImportConnectionFile", () => {
 describe("backward compatibility: legacy __matches in exported files", () => {
   test("should import file with legacy __matches array on prefixes", async () => {
     const state = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useImportConnectionFile(),
       state,
     );
@@ -506,7 +506,7 @@ describe("backward compatibility: legacy __matches in exported files", () => {
 describe("backward compatibility: legacy exported connection file with embedded schema", () => {
   test("splits the bundled schema into schemaAtom and keeps it out of the config entry", async () => {
     const state = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useImportConnectionFile(),
       state,
     );

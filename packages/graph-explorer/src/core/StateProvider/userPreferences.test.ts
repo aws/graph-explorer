@@ -31,9 +31,9 @@ function createExpectedEdge(existing: EdgePreferencesStorageModel) {
 }
 
 describe("useVertexStyling", () => {
-  it("should return defaults when the style does not exist", () => {
+  it("should return defaults when the style does not exist", async () => {
     const dbState = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useVertexStyling(createVertexType("test")),
       dbState,
     );
@@ -42,14 +42,14 @@ describe("useVertexStyling", () => {
     expect(result.current.vertexStyle).toStrictEqual(expected);
   });
 
-  it("should return the vertex style when it exists", () => {
+  it("should return the vertex style when it exists", async () => {
     const dbState = new DbState();
     const style = dbState.addVertexStyle(createVertexType("test"), {
       color: "red",
     });
     const expected = createExpectedVertex(style);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useVertexStyling(createVertexType("test")),
       dbState,
     );
@@ -59,7 +59,7 @@ describe("useVertexStyling", () => {
 
   it("should insert the vertex style when none exist", async () => {
     const dbState = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useVertexStyling(createVertexType("test")),
       dbState,
     );
@@ -73,7 +73,7 @@ describe("useVertexStyling", () => {
 
   it("should update the existing style, merging new styles", async () => {
     const dbState = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useVertexStyling(createVertexType("test")),
       dbState,
     );
@@ -98,7 +98,7 @@ describe("useVertexStyling", () => {
     const dbState = new DbState();
     dbState.addVertexStyle(createVertexType("test"), { borderColor: "blue" });
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useVertexStyling(createVertexType("test")),
       dbState,
     );
@@ -115,7 +115,7 @@ describe("useVertexStyling", () => {
     dbState.addVertexStyle(createVertexType("type1"), { color: "red" });
     dbState.addVertexStyle(createVertexType("type2"), { color: "blue" });
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useVertexStyling(createVertexType("type1")),
       dbState,
     );
@@ -134,7 +134,7 @@ describe("useVertexStyling", () => {
     );
 
     // Check that type2 was not affected by getting its hook
-    const { result: result2 } = renderHookWithState(
+    const { result: result2 } = await renderHookWithState(
       () => useVertexStyling(createVertexType("type2")),
       dbState,
     );
@@ -151,7 +151,7 @@ describe("useVertexStyling", () => {
     dbState.addVertexStyle(createVertexType("type1"), { color: "red" });
     dbState.addVertexStyle(createVertexType("type2"), { color: "blue" });
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useVertexStyling(createVertexType("type1")),
       dbState,
     );
@@ -163,7 +163,7 @@ describe("useVertexStyling", () => {
     );
 
     // Check that type2 still exists
-    const { result: result2 } = renderHookWithState(
+    const { result: result2 } = await renderHookWithState(
       () => useVertexStyling(createVertexType("type2")),
       dbState,
     );
@@ -177,7 +177,7 @@ describe("useVertexStyling", () => {
 
   it("should handle empty style updates", async () => {
     const dbState = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useVertexStyling(createVertexType("test")),
       dbState,
     );
@@ -191,9 +191,9 @@ describe("useVertexStyling", () => {
 });
 
 describe("useEdgeStyling", () => {
-  it("should return defaults when the style does not exist", () => {
+  it("should return defaults when the style does not exist", async () => {
     const dbState = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useEdgeStyling(createEdgeType("test")),
       dbState,
     );
@@ -203,12 +203,12 @@ describe("useEdgeStyling", () => {
     );
   });
 
-  it("should return the edge style when it exists", () => {
+  it("should return the edge style when it exists", async () => {
     const dbState = new DbState();
     const style = dbState.addEdgeStyle(createEdgeType("test"), {
       lineColor: "red",
     });
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useEdgeStyling(createEdgeType("test")),
       dbState,
     );
@@ -218,7 +218,7 @@ describe("useEdgeStyling", () => {
 
   it("should insert the edge style when none exist", async () => {
     const dbState = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useEdgeStyling(createEdgeType("test")),
       dbState,
     );
@@ -235,7 +235,7 @@ describe("useEdgeStyling", () => {
 
   it("should update the existing style, merging new styles", async () => {
     const dbState = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useEdgeStyling(createEdgeType("test")),
       dbState,
     );
@@ -256,7 +256,7 @@ describe("useEdgeStyling", () => {
 
   it("should reset the edge style", async () => {
     const dbState = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useEdgeStyling(createEdgeType("test")),
       dbState,
     );
@@ -274,7 +274,7 @@ describe("useEdgeStyling", () => {
     dbState.addEdgeStyle(createEdgeType("type1"), { lineColor: "red" });
     dbState.addEdgeStyle(createEdgeType("type2"), { lineColor: "blue" });
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useEdgeStyling(createEdgeType("type1")),
       dbState,
     );
@@ -291,7 +291,7 @@ describe("useEdgeStyling", () => {
     );
 
     // Check that type2 was not affected
-    const { result: result2 } = renderHookWithState(
+    const { result: result2 } = await renderHookWithState(
       () => useEdgeStyling(createEdgeType("type2")),
       dbState,
     );
@@ -308,7 +308,7 @@ describe("useEdgeStyling", () => {
     dbState.addEdgeStyle(createEdgeType("type1"), { lineColor: "red" });
     dbState.addEdgeStyle(createEdgeType("type2"), { lineColor: "blue" });
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useEdgeStyling(createEdgeType("type1")),
       dbState,
     );
@@ -320,7 +320,7 @@ describe("useEdgeStyling", () => {
     );
 
     // Check that type2 still exists
-    const { result: result2 } = renderHookWithState(
+    const { result: result2 } = await renderHookWithState(
       () => useEdgeStyling(createEdgeType("type2")),
       dbState,
     );
@@ -334,7 +334,7 @@ describe("useEdgeStyling", () => {
 
   it("should handle empty style updates", async () => {
     const dbState = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useEdgeStyling(createEdgeType("test")),
       dbState,
     );
@@ -350,7 +350,7 @@ describe("useEdgeStyling", () => {
 describe("useDeferredAtom integration", () => {
   it("should handle multiple rapid updates correctly", async () => {
     const dbState = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useVertexStyling(createVertexType("test")),
       dbState,
     );
@@ -374,7 +374,7 @@ describe("useDeferredAtom integration", () => {
 
   it("should handle deferred atom updates correctly", async () => {
     const dbState = new DbState();
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useVertexStyling(createVertexType("test")),
       dbState,
     );
@@ -406,12 +406,12 @@ describe("useDeferredAtom integration", () => {
 });
 
 describe("vertexPreferencesAtom", () => {
-  it("should return stored preferences for a known type", () => {
+  it("should return stored preferences for a known type", async () => {
     const dbState = new DbState();
     const vertexType = createVertexType("Person");
     dbState.addVertexStyle(vertexType, { color: "#ff0000" });
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useAtomValue(vertexPreferencesAtom),
       dbState,
     );
@@ -421,11 +421,11 @@ describe("vertexPreferencesAtom", () => {
     );
   });
 
-  it("should return defaults for an unknown type", () => {
+  it("should return defaults for an unknown type", async () => {
     const dbState = new DbState();
     const vertexType = createVertexType("Unknown");
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useAtomValue(vertexPreferencesAtom),
       dbState,
     );
@@ -437,12 +437,12 @@ describe("vertexPreferencesAtom", () => {
 });
 
 describe("edgePreferencesAtom", () => {
-  it("should return stored preferences for a known type", () => {
+  it("should return stored preferences for a known type", async () => {
     const dbState = new DbState();
     const edgeType = createEdgeType("KNOWS");
     dbState.addEdgeStyle(edgeType, { lineColor: "#00ff00" });
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useAtomValue(edgePreferencesAtom),
       dbState,
     );
@@ -452,11 +452,11 @@ describe("edgePreferencesAtom", () => {
     );
   });
 
-  it("should return defaults for an unknown type", () => {
+  it("should return defaults for an unknown type", async () => {
     const dbState = new DbState();
     const edgeType = createEdgeType("Unknown");
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useAtomValue(edgePreferencesAtom),
       dbState,
     );

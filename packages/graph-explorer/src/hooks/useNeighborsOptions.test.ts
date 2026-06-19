@@ -18,11 +18,11 @@ describe("useNeighborsOptions", () => {
     vi.clearAllMocks();
   });
 
-  it("should return an empty list when no response", () => {
+  it("should return an empty list when no response", async () => {
     const dbState = new DbState();
     const vertex = createRandomVertex();
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useNeighborsOptions(vertex.id),
       dbState,
     );
@@ -30,7 +30,7 @@ describe("useNeighborsOptions", () => {
     expect(result.current).toHaveLength(0);
   });
 
-  it("should return an empty list when response is empty", () => {
+  it("should return an empty list when response is empty", async () => {
     const dbState = new DbState();
     const vertex = createRandomVertex();
 
@@ -43,7 +43,7 @@ describe("useNeighborsOptions", () => {
       counts: [response],
     });
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useNeighborsOptions(vertex.id),
       dbState,
     );
@@ -68,7 +68,7 @@ describe("useNeighborsOptions", () => {
       counts: [response],
     });
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useNeighborsOptions(vertex.id),
       dbState,
     );
@@ -113,7 +113,7 @@ describe("useNeighborsOptions", () => {
       counts: [response],
     });
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useNeighborsOptions(vertex.id),
       dbState,
     );

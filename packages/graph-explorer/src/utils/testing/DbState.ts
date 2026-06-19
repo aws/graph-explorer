@@ -188,28 +188,28 @@ export class DbState {
   /**
    * Applies the state to the given Jotai store.
    *
-   * The localForage-backed atom writes return background persistence promises
-   * that are intentionally ignored here — seeding test state does not care
-   * whether the value lands in durable storage.
+   * Awaits the localForage-backed atom writes so the seeded state is fully
+   * persisted before the test proceeds, and so a seeding failure surfaces as a
+   * test failure rather than an unhandled rejection at teardown.
    */
-  applyTo(store: AppStore) {
+  async applyTo(store: AppStore) {
     // Config
-    void store.set(
+    await store.set(
       configurationAtom,
       new Map([[this.activeConfig.id, this.activeConfig]]),
     );
     if (this._activeSchema) {
-      void store.set(
+      await store.set(
         schemaAtom,
         new Map([[this.activeConfig.id, this._activeSchema]]),
       );
     } else {
-      void store.set(schemaAtom, new Map());
+      await store.set(schemaAtom, new Map());
     }
-    void store.set(activeConfigurationAtom, this.activeConfig.id);
+    await store.set(activeConfigurationAtom, this.activeConfig.id);
 
     // Styling
-    void store.set(userStylingAtom, this.activeStyling);
+    await store.set(userStylingAtom, this.activeStyling);
 
     // Vertices
     store.set(nodesAtom, toNodeMap(this.vertices));
@@ -222,7 +222,7 @@ export class DbState {
     store.set(edgesTypesFilteredAtom, this.filteredEdgeTypes);
 
     // Graph Storage
-    void store.set(
+    await store.set(
       allGraphSessionsAtom,
       new Map([
         [

@@ -39,38 +39,41 @@ describe("useDisplayEdgeFromEdge", () => {
     dbState = new DbState();
   });
 
-  function renderHookDisplayEdgeFromEdge(edge: Edge) {
-    return renderHookWithState(() => useDisplayEdgeFromEdge(edge), dbState);
+  async function renderHookDisplayEdgeFromEdge(edge: Edge) {
+    return await renderHookWithState(
+      () => useDisplayEdgeFromEdge(edge),
+      dbState,
+    );
   }
 
-  it("should keep the same ID", () => {
+  it("should keep the same ID", async () => {
     const edge = createRandomEdge();
-    expect(act(edge).id).toStrictEqual(edge.id);
+    expect((await act(edge)).id).toStrictEqual(edge.id);
   });
 
-  it("should be an edge", () => {
+  it("should be an edge", async () => {
     const edge = createRandomEdge();
-    expect(act(edge).entityType).toStrictEqual("edge");
+    expect((await act(edge)).entityType).toStrictEqual("edge");
   });
 
-  it("should have a display ID equal to the edge ID", () => {
+  it("should have a display ID equal to the edge ID", async () => {
     const edge = createRandomEdge();
-    expect(act(edge).displayId).toStrictEqual(getRawId(edge.id));
+    expect((await act(edge)).displayId).toStrictEqual(getRawId(edge.id));
   });
 
-  it("should have the display name be the types", () => {
+  it("should have the display name be the types", async () => {
     const edge = createRandomEdge();
-    expect(act(edge).displayName).toStrictEqual(edge.type);
+    expect((await act(edge)).displayName).toStrictEqual(edge.type);
   });
 
-  it("should contain the ID of the source and target vertices", () => {
+  it("should contain the ID of the source and target vertices", async () => {
     const edge = createRandomEdge();
 
-    expect(act(edge).sourceId).toStrictEqual(String(edge.sourceId));
-    expect(act(edge).targetId).toStrictEqual(String(edge.targetId));
+    expect((await act(edge)).sourceId).toStrictEqual(String(edge.sourceId));
+    expect((await act(edge)).targetId).toStrictEqual(String(edge.targetId));
   });
 
-  it("should have display name that matches the attribute value", () => {
+  it("should have display name that matches the attribute value", async () => {
     const edge = createRandomEdge();
     // Get the first attribute
     const attribute = Object.entries(edge.attributes).map(([name, value]) => ({
@@ -82,14 +85,14 @@ describe("useDisplayEdgeFromEdge", () => {
       displayNameAttribute: attribute.name,
     });
 
-    const { result } = renderHookDisplayEdgeFromEdge(edge);
+    const { result } = await renderHookDisplayEdgeFromEdge(edge);
 
     expect(result.current.displayName).toStrictEqual(
       getDisplayValueForScalar(attribute.value),
     );
   });
 
-  it("should have display name that matches the types when displayNameAttribute is 'type'", () => {
+  it("should have display name that matches the types when displayNameAttribute is 'type'", async () => {
     const edge = createRandomEdge();
     const schema = createRandomSchema();
 
@@ -99,11 +102,11 @@ describe("useDisplayEdgeFromEdge", () => {
     schema.edges.push(etConfig);
 
     expect(
-      act(edge, withSchemaAndConnection(schema, "gremlin")).displayName,
+      (await act(edge, withSchemaAndConnection(schema, "gremlin"))).displayName,
     ).toStrictEqual(edge.type);
   });
 
-  it("should ignore display label from schema", () => {
+  it("should ignore display label from schema", async () => {
     const dbState = new DbState();
     const edge = createRandomEdge();
 
@@ -112,7 +115,7 @@ describe("useDisplayEdgeFromEdge", () => {
     etConfig.displayLabel = createRandomName("schema");
     dbState.activeSchema.edges.push(etConfig);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useDisplayEdgeFromEdge(edge),
       dbState,
     );
@@ -120,7 +123,7 @@ describe("useDisplayEdgeFromEdge", () => {
     expect(result.current.displayTypes).toStrictEqual(edge.type);
   });
 
-  it("should use display label from user preferences", () => {
+  it("should use display label from user preferences", async () => {
     const dbState = new DbState();
     const edge = createRandomEdge();
 
@@ -134,7 +137,7 @@ describe("useDisplayEdgeFromEdge", () => {
     edgePrefs.displayLabel = createRandomName("prefs");
     dbState.activeStyling.edges?.push(edgePrefs);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useDisplayEdgeFromEdge(edge),
       dbState,
     );
@@ -142,7 +145,7 @@ describe("useDisplayEdgeFromEdge", () => {
     expect(result.current.displayTypes).toStrictEqual(edgePrefs.displayLabel);
   });
 
-  it("should have display types that list all types in gremlin", () => {
+  it("should have display types that list all types in gremlin", async () => {
     const edge = createRandomEdge();
     const schema = createRandomSchema();
 
@@ -153,11 +156,12 @@ describe("useDisplayEdgeFromEdge", () => {
     edge.type = etConfig.type;
 
     expect(
-      act(edge, withSchemaAndConnection(schema, "gremlin")).displayTypes,
+      (await act(edge, withSchemaAndConnection(schema, "gremlin")))
+        .displayTypes,
     ).toStrictEqual(etConfig.type);
   });
 
-  it("should have display types that list all types in sparql", () => {
+  it("should have display types that list all types in sparql", async () => {
     const edge = createRandomEdge();
     edge.type = createEdgeType("http://www.example.com/class#bar");
     const schema = createRandomSchema();
@@ -175,11 +179,11 @@ describe("useDisplayEdgeFromEdge", () => {
     edge.type = etConfig.type;
 
     expect(
-      act(edge, withSchemaAndConnection(schema, "sparql")).displayTypes,
+      (await act(edge, withSchemaAndConnection(schema, "sparql"))).displayTypes,
     ).toStrictEqual(`example-class:bar`);
   });
 
-  it("should have sorted attributes", () => {
+  it("should have sorted attributes", async () => {
     const edge = createRandomEdge();
     const attributes: DisplayAttribute[] = Object.entries(edge.attributes)
       .map(([key, value]) => ({
@@ -189,10 +193,10 @@ describe("useDisplayEdgeFromEdge", () => {
       }))
       .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel));
 
-    expect(act(edge).attributes).toStrictEqual(attributes);
+    expect((await act(edge)).attributes).toStrictEqual(attributes);
   });
 
-  it("should format date values in attribute", () => {
+  it("should format date values in attribute", async () => {
     const edge = createRandomEdge();
     const schema = createRandomSchema();
 
@@ -201,15 +205,15 @@ describe("useDisplayEdgeFromEdge", () => {
       created: createRandomDate(),
     };
 
-    const actualAttribute = act(edge, withSchema(schema)).attributes.find(
-      attr => attr.name === "created",
-    );
+    const actualAttribute = (
+      await act(edge, withSchema(schema))
+    ).attributes.find(attr => attr.name === "created");
     expect(actualAttribute?.displayValue).toStrictEqual(
       formatDate(new Date(edge.attributes.created as any)),
     );
   });
 
-  it("should format date values in attribute", () => {
+  it("should format date values in attribute", async () => {
     const edge = createRandomEdge();
     const schema = createRandomSchema();
 
@@ -218,9 +222,9 @@ describe("useDisplayEdgeFromEdge", () => {
       created: createRandomDate(),
     };
 
-    const actualAttribute = act(edge, withSchema(schema)).attributes.find(
-      attr => attr.name === "created",
-    );
+    const actualAttribute = (
+      await act(edge, withSchema(schema))
+    ).attributes.find(attr => attr.name === "created");
     expect(actualAttribute?.displayValue).toStrictEqual(
       formatDate(new Date(edge.attributes.created as any)),
     );
@@ -228,8 +232,11 @@ describe("useDisplayEdgeFromEdge", () => {
 
   // Helpers
 
-  function act(edge: Edge, initializeState?: (store: AppStore) => void) {
-    const { result } = renderHookWithJotai(
+  async function act(
+    edge: Edge,
+    initializeState?: (store: AppStore) => void | Promise<void>,
+  ) {
+    const { result } = await renderHookWithJotai(
       () => useDisplayEdgeFromEdge(edge),
       initializeState,
     );
@@ -238,10 +245,10 @@ describe("useDisplayEdgeFromEdge", () => {
 
   function withSchema(schema: SchemaStorageModel) {
     const config = createRandomRawConfiguration();
-    return (store: AppStore) => {
-      void store.set(configurationAtom, new Map([[config.id, config]]));
-      void store.set(schemaAtom, new Map([[config.id, schema]]));
-      void store.set(activeConfigurationAtom, config.id);
+    return async (store: AppStore) => {
+      await store.set(configurationAtom, new Map([[config.id, config]]));
+      await store.set(schemaAtom, new Map([[config.id, schema]]));
+      await store.set(activeConfigurationAtom, config.id);
     };
   }
 
@@ -251,10 +258,10 @@ describe("useDisplayEdgeFromEdge", () => {
   ) {
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
-    return (store: AppStore) => {
-      void store.set(configurationAtom, new Map([[config.id, config]]));
-      void store.set(schemaAtom, new Map([[config.id, schema]]));
-      void store.set(activeConfigurationAtom, config.id);
+    return async (store: AppStore) => {
+      await store.set(configurationAtom, new Map([[config.id, config]]));
+      await store.set(schemaAtom, new Map([[config.id, schema]]));
+      await store.set(activeConfigurationAtom, config.id);
     };
   }
 });

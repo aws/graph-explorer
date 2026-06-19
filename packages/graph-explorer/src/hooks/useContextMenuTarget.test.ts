@@ -20,7 +20,7 @@ describe("useContextMenuTarget", () => {
     state = new DbState();
   });
 
-  function renderHookContextMenuTarget(params: {
+  async function renderHookContextMenuTarget(params: {
     affectedVertexIds: VertexId[];
     affectedEdgeIds: EdgeId[];
     selectedVertexIds: VertexId[];
@@ -30,7 +30,7 @@ describe("useContextMenuTarget", () => {
       new Set(params.selectedVertexIds),
       new Set(params.selectedEdgeIds),
     );
-    return renderHookWithState(
+    return await renderHookWithState(
       () =>
         useContextMenuTarget({
           affectedVertexIds: params.affectedVertexIds,
@@ -41,11 +41,11 @@ describe("useContextMenuTarget", () => {
     );
   }
 
-  it("should return single-vertex when one vertex is affected and not in selection", () => {
+  it("should return single-vertex when one vertex is affected and not in selection", async () => {
     const vertex = createTestableVertex();
     state.addTestableVertexToGraph(vertex);
 
-    const { result } = renderHookContextMenuTarget({
+    const { result } = await renderHookContextMenuTarget({
       affectedVertexIds: [vertex.id],
       affectedEdgeIds: [],
       selectedVertexIds: [],
@@ -58,11 +58,11 @@ describe("useContextMenuTarget", () => {
     });
   });
 
-  it("should return single-vertex when one vertex is affected and selection contains only that vertex", () => {
+  it("should return single-vertex when one vertex is affected and selection contains only that vertex", async () => {
     const vertex = createTestableVertex();
     state.addTestableVertexToGraph(vertex);
 
-    const { result } = renderHookContextMenuTarget({
+    const { result } = await renderHookContextMenuTarget({
       affectedVertexIds: [vertex.id],
       affectedEdgeIds: [],
       selectedVertexIds: [vertex.id],
@@ -75,11 +75,11 @@ describe("useContextMenuTarget", () => {
     });
   });
 
-  it("should return single-edge when one edge is affected and not in selection", () => {
+  it("should return single-edge when one edge is affected and not in selection", async () => {
     const edge = createTestableEdge();
     state.addTestableEdgeToGraph(edge);
 
-    const { result } = renderHookContextMenuTarget({
+    const { result } = await renderHookContextMenuTarget({
       affectedVertexIds: [],
       affectedEdgeIds: [edge.id],
       selectedVertexIds: [],
@@ -92,11 +92,11 @@ describe("useContextMenuTarget", () => {
     });
   });
 
-  it("should return single-edge when one edge is affected and selection contains only that edge", () => {
+  it("should return single-edge when one edge is affected and selection contains only that edge", async () => {
     const edge = createTestableEdge();
     state.addTestableEdgeToGraph(edge);
 
-    const { result } = renderHookContextMenuTarget({
+    const { result } = await renderHookContextMenuTarget({
       affectedVertexIds: [],
       affectedEdgeIds: [edge.id],
       selectedVertexIds: [],
@@ -109,13 +109,13 @@ describe("useContextMenuTarget", () => {
     });
   });
 
-  it("should return multiple-vertices when multiple vertices selected and affected vertex within selection", () => {
+  it("should return multiple-vertices when multiple vertices selected and affected vertex within selection", async () => {
     const vertex1 = createTestableVertex();
     const vertex2 = createTestableVertex();
     state.addTestableVertexToGraph(vertex1);
     state.addTestableVertexToGraph(vertex2);
 
-    const { result } = renderHookContextMenuTarget({
+    const { result } = await renderHookContextMenuTarget({
       affectedVertexIds: [vertex1.id],
       affectedEdgeIds: [],
       selectedVertexIds: [vertex1.id, vertex2.id],
@@ -128,13 +128,13 @@ describe("useContextMenuTarget", () => {
     });
   });
 
-  it("should return multiple-edges when multiple edges selected and affected edge within selection", () => {
+  it("should return multiple-edges when multiple edges selected and affected edge within selection", async () => {
     const edge1 = createTestableEdge();
     const edge2 = createTestableEdge();
     state.addTestableEdgeToGraph(edge1);
     state.addTestableEdgeToGraph(edge2);
 
-    const { result } = renderHookContextMenuTarget({
+    const { result } = await renderHookContextMenuTarget({
       affectedVertexIds: [],
       affectedEdgeIds: [edge1.id],
       selectedVertexIds: [],
@@ -147,13 +147,13 @@ describe("useContextMenuTarget", () => {
     });
   });
 
-  it("should return multiple-vertices-and-edges when both selected and affected vertex within selection", () => {
+  it("should return multiple-vertices-and-edges when both selected and affected vertex within selection", async () => {
     const vertex = createTestableVertex();
     const edge = createTestableEdge();
     state.addTestableVertexToGraph(vertex);
     state.addTestableEdgeToGraph(edge);
 
-    const { result } = renderHookContextMenuTarget({
+    const { result } = await renderHookContextMenuTarget({
       affectedVertexIds: [vertex.id],
       affectedEdgeIds: [],
       selectedVertexIds: [vertex.id],
@@ -167,13 +167,13 @@ describe("useContextMenuTarget", () => {
     });
   });
 
-  it("should return multiple-vertices-and-edges when both selected and affected edge within selection", () => {
+  it("should return multiple-vertices-and-edges when both selected and affected edge within selection", async () => {
     const vertex = createTestableVertex();
     const edge = createTestableEdge();
     state.addTestableVertexToGraph(vertex);
     state.addTestableEdgeToGraph(edge);
 
-    const { result } = renderHookContextMenuTarget({
+    const { result } = await renderHookContextMenuTarget({
       affectedVertexIds: [],
       affectedEdgeIds: [edge.id],
       selectedVertexIds: [vertex.id],
@@ -187,7 +187,7 @@ describe("useContextMenuTarget", () => {
     });
   });
 
-  it("should return none when no selection and no affected", () => {
+  it("should return none when no selection and no affected", async () => {
     const vertex1 = createTestableVertex();
     const vertex2 = createTestableVertex();
     const edge = createTestableEdge();
@@ -195,7 +195,7 @@ describe("useContextMenuTarget", () => {
     state.addTestableVertexToGraph(vertex2);
     state.addTestableEdgeToGraph(edge);
 
-    const { result } = renderHookContextMenuTarget({
+    const { result } = await renderHookContextMenuTarget({
       affectedVertexIds: [],
       affectedEdgeIds: [],
       selectedVertexIds: [],
@@ -205,13 +205,13 @@ describe("useContextMenuTarget", () => {
     expect(result.current).toStrictEqual({ type: "none" });
   });
 
-  it("should return single-vertex when single affected vertex not in selection", () => {
+  it("should return single-vertex when single affected vertex not in selection", async () => {
     const vertex1 = createTestableVertex();
     const vertex2 = createTestableVertex();
     state.addTestableVertexToGraph(vertex1);
     state.addTestableVertexToGraph(vertex2);
 
-    const { result } = renderHookContextMenuTarget({
+    const { result } = await renderHookContextMenuTarget({
       affectedVertexIds: [vertex1.id],
       affectedEdgeIds: [],
       selectedVertexIds: [vertex2.id],
@@ -224,7 +224,7 @@ describe("useContextMenuTarget", () => {
     });
   });
 
-  it("should return multiple-vertices when multiple affected vertices not in selection", () => {
+  it("should return multiple-vertices when multiple affected vertices not in selection", async () => {
     const vertex1 = createTestableVertex();
     const vertex2 = createTestableVertex();
     const vertex3 = createTestableVertex();
@@ -232,7 +232,7 @@ describe("useContextMenuTarget", () => {
     state.addTestableVertexToGraph(vertex2);
     state.addTestableVertexToGraph(vertex3);
 
-    const { result } = renderHookContextMenuTarget({
+    const { result } = await renderHookContextMenuTarget({
       affectedVertexIds: [vertex1.id, vertex2.id],
       affectedEdgeIds: [],
       selectedVertexIds: [vertex3.id],
@@ -245,13 +245,13 @@ describe("useContextMenuTarget", () => {
     });
   });
 
-  it("should return single-edge when single affected edge not in selection", () => {
+  it("should return single-edge when single affected edge not in selection", async () => {
     const edge1 = createTestableEdge();
     const edge2 = createTestableEdge();
     state.addTestableEdgeToGraph(edge1);
     state.addTestableEdgeToGraph(edge2);
 
-    const { result } = renderHookContextMenuTarget({
+    const { result } = await renderHookContextMenuTarget({
       affectedVertexIds: [],
       affectedEdgeIds: [edge1.id],
       selectedVertexIds: [],
@@ -264,7 +264,7 @@ describe("useContextMenuTarget", () => {
     });
   });
 
-  it("should return multiple-edges when multiple affected edges not in selection", () => {
+  it("should return multiple-edges when multiple affected edges not in selection", async () => {
     const edge1 = createTestableEdge();
     const edge2 = createTestableEdge();
     const edge3 = createTestableEdge();
@@ -272,7 +272,7 @@ describe("useContextMenuTarget", () => {
     state.addTestableEdgeToGraph(edge2);
     state.addTestableEdgeToGraph(edge3);
 
-    const { result } = renderHookContextMenuTarget({
+    const { result } = await renderHookContextMenuTarget({
       affectedVertexIds: [],
       affectedEdgeIds: [edge1.id, edge2.id],
       selectedVertexIds: [],

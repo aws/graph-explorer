@@ -36,7 +36,7 @@ test("should remove one node", async () => {
   const vertex = createRandomVertex();
   const noise = createArray(10, createRandomVertex);
   const idsOfNoise = noise.map(n => n.id);
-  const { result } = renderHookWithJotai(
+  const { result } = await renderHookWithJotai(
     () => {
       const callback = useRemoveNodeFromGraph(vertex.id);
       const nodes = useAtomValue(nodesAtom);
@@ -75,7 +75,7 @@ test("should remove one edge", async () => {
   const edge1 = createRandomEdge(node1, node2);
   const edge2 = createRandomEdge(node2, node1);
 
-  const { result } = renderHookWithJotai(
+  const { result } = await renderHookWithJotai(
     () => {
       const callback = useRemoveEdgeFromGraph(edge1.id);
       const edges = useAtomValue(edgesAtom);
@@ -117,7 +117,7 @@ test("should remove associated edges when a node is removed", async () => {
   const edge1 = createRandomEdge(node1, node2);
   const edge2 = createRandomEdge(node2, node1);
 
-  const { result } = renderHookWithJotai(
+  const { result } = await renderHookWithJotai(
     () => {
       const callback = useRemoveNodeFromGraph(node2.id);
 
@@ -162,7 +162,7 @@ test("should remove all nodes and edges", async () => {
   dbState.createEdgeInGraph(dbState.vertices[0], dbState.vertices[1]);
   dbState.createEdgeInGraph(dbState.vertices[1], dbState.vertices[0]);
 
-  const { result } = renderHookWithJotai(
+  const { result } = await renderHookWithJotai(
     () => {
       const callback = useClearGraph();
 
@@ -193,8 +193,8 @@ test("should remove all nodes and edges", async () => {
         graph,
       };
     },
-    store => {
-      dbState.applyTo(store);
+    async store => {
+      await dbState.applyTo(store);
     },
   );
 
@@ -228,7 +228,7 @@ test("should update graph session", async () => {
   dbState.addEdgeToGraph(edge1);
   dbState.addEdgeToGraph(edge2);
 
-  const { result } = renderHookWithJotai(
+  const { result } = await renderHookWithJotai(
     () => {
       const callback = useRemoveFromGraph();
       const graph = useAtomValue(activeGraphSessionAtom);
@@ -238,8 +238,8 @@ test("should update graph session", async () => {
         graph,
       };
     },
-    store => {
-      dbState.applyTo(store);
+    async store => {
+      await dbState.applyTo(store);
     },
   );
 
