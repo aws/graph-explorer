@@ -533,9 +533,9 @@ describe("backward compatibility: legacy exported connection file with embedded 
     );
 
     // The schema must NOT be stored on the config entry — it belongs in
-    // schemaAtom. This is the invariant the dead `RawConfiguration.schema`
-    // merge leg relies on staying true.
-    expect(importedConfig.schema).toBeUndefined();
+    // schemaAtom. `RawConfiguration` no longer declares a `schema` field, so we
+    // probe for a stray one to prove import never writes it back.
+    expect((importedConfig as { schema?: unknown }).schema).toBeUndefined();
 
     // The full schema is split out into schemaAtom, styling and all.
     expect(importedSchema.vertices.map(v => v.type)).toStrictEqual([

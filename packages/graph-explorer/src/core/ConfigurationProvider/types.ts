@@ -155,6 +155,11 @@ export function createEdgeConnection(options: {
   };
 }
 
+/**
+ * The persisted shape of a connection configuration, as stored in
+ * `configurationAtom` and IndexedDB. The schema is kept separately in
+ * `schemaAtom`, never embedded here.
+ */
 export type RawConfiguration = {
   /**
    * Unique identifier for this config
@@ -165,13 +170,25 @@ export type RawConfiguration = {
    * Connection configuration
    */
   connection?: ConnectionConfig;
-  /**
-   * Database schema: types, names, labels, icons, ...
-   */
-  schema?: SchemaStorageModel;
 };
 
-export type ConfigurationContextProps = RawConfiguration & {
+/**
+ * A configuration assembled in memory by merging the stored
+ * {@link RawConfiguration} with its active schema and user styling. Unlike the
+ * persisted {@link RawConfiguration}, this carries the schema inline for the UI
+ * to consume.
+ */
+export type MergedConfiguration = RawConfiguration & {
+  /**
+   * Database schema: types, names, labels, icons, ...
+   *
+   * Always present — `mergeConfiguration` builds it from the active schema and
+   * user styling, defaulting to empty type lists when there is no schema yet.
+   */
+  schema: SchemaStorageModel;
+};
+
+export type ConfigurationContextProps = MergedConfiguration & {
   totalVertices: number;
   vertexTypes: Array<VertexType>;
   totalEdges: number;

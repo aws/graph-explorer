@@ -60,15 +60,33 @@ describe("RawConfiguration", () => {
 
     expect(deserialized).toStrictEqual(configs);
   });
+});
 
-  test("serialization round-trip preserves configuration with schema", () => {
-    const config = createRandomRawConfiguration();
-    config.schema = createRandomSchema();
+/**
+ * BACKWARD COMPATIBILITY — PERSISTED DATA
+ *
+ * `RawConfiguration` is persisted to IndexedDB via localforage. Older versions
+ * embedded the schema directly on the stored config (`RawConfiguration.schema`).
+ * That field has been removed — the schema now lives only in `schemaAtom` — but
+ * previously persisted configs may still carry it. This verifies that
+ * serialization round-trips such a legacy config losslessly, including reviving
+ * the embedded schema's `lastUpdate` back into a `Date`.
+ *
+ * DO NOT delete or weaken this test without confirming that legacy persisted
+ * configs carrying an embedded schema are no longer a concern.
+ */
+describe("backward compatibility: legacy embedded schema on stored configuration", () => {
+  test("serialization round-trip preserves a configuration carrying a legacy schema", () => {
+    // Use `as` to simulate the legacy shape that TypeScript no longer allows.
+    const legacyConfig = {
+      ...createRandomRawConfiguration(),
+      schema: createRandomSchema(),
+    } as RawConfiguration & { schema: SchemaStorageModel };
 
-    const serialized = serializeData(config);
-    const deserialized = deserializeData(serialized) as RawConfiguration;
+    const serialized = serializeData(legacyConfig);
+    const deserialized = deserializeData(serialized) as typeof legacyConfig;
 
-    expect(deserialized).toStrictEqual(config);
-    expect(deserialized.schema?.lastUpdate).toBeInstanceOf(Date);
+    expect(deserialized).toStrictEqual(legacyConfig);
+    expect(deserialized.schema.lastUpdate).toBeInstanceOf(Date);
   });
 });

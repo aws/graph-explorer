@@ -14,6 +14,7 @@ import {
 } from "@/utils/testing";
 
 import type {
+  MergedConfiguration,
   RawConfiguration,
   VertexTypeConfig,
 } from "../ConfigurationProvider";
@@ -73,7 +74,7 @@ describe("mergedConfiguration", () => {
         totalEdges: 0,
         totalVertices: 0,
       },
-    } satisfies RawConfiguration);
+    } satisfies MergedConfiguration);
   });
 
   it("should use schema when provided", () => {
@@ -114,7 +115,7 @@ describe("mergedConfiguration", () => {
         graphDbUrl: config.connection?.graphDbUrl ?? "",
       },
       schema: expectedSchema,
-    } satisfies RawConfiguration);
+    } satisfies MergedConfiguration);
   });
 
   it("should use styling when provided", () => {
@@ -288,6 +289,32 @@ describe("mergedConfiguration", () => {
     expect(actualEtConfig?.displayNameAttribute).toEqual(
       RESERVED_TYPES_PROPERTY,
     );
+  });
+
+  it("should ignore a schema embedded on the stored config and use the active schema", () => {
+    // A legacy stored config may carry an embedded schema (the field that was
+    // removed from RawConfiguration). The merge must source its schema solely
+    // from the active schema argument, never from the stored config.
+    const staleVertex = createRandomVertexTypeConfig();
+    staleVertex.type = createVertexType("StaleType");
+    const staleSchema = createRandomSchema();
+    staleSchema.vertices = [staleVertex];
+
+    const config = {
+      ...createRandomRawConfiguration(),
+      schema: staleSchema,
+    } as RawConfiguration & { schema: SchemaStorageModel };
+
+    const activeVertex = createRandomVertexTypeConfig();
+    activeVertex.type = createVertexType("ActiveType");
+    const activeSchema = createRandomSchema();
+    activeSchema.vertices = [activeVertex];
+
+    const result = mergeConfiguration(activeSchema, config, {});
+
+    expect(result.schema.vertices.map(v => v.type)).toEqual([
+      createVertexType("ActiveType"),
+    ]);
   });
 });
 

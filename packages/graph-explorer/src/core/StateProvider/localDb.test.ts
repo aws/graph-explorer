@@ -5,11 +5,15 @@ import {
   createRandomName,
 } from "@shared/utils/testing";
 
+import type { RawConfiguration } from "@/core";
+
 import { toJsonFileData } from "@/utils/fileData";
 import {
   createRandomRawConfiguration,
   createRandomSchema,
 } from "@/utils/testing";
+
+import type { SchemaStorageModel } from "./schema";
 
 import {
   addRestoredPrefix,
@@ -209,11 +213,14 @@ describe("backward compatibility: legacy schema field on stored configuration", 
     const localDb = createFakeLocalDb();
 
     // A stored config in the legacy shape: the schema is duplicated onto the
-    // RawConfiguration itself, which TypeScript still allows but no current
-    // writer produces.
+    // RawConfiguration itself. The current type no longer declares `schema`, so
+    // we cast to attach it — simulating a stale IndexedDB blob written by an
+    // older version.
     const config = createRandomRawConfiguration();
     const schema = createRandomSchema();
-    const legacyConfig = { ...config, schema } as typeof config;
+    const legacyConfig = { ...config, schema } as RawConfiguration & {
+      schema: SchemaStorageModel;
+    };
 
     const configMap = new Map([[config.id, legacyConfig]]);
     const schemaMap = new Map([[config.id, schema]]);

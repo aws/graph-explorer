@@ -63,9 +63,7 @@ export class DbState {
   constructor(explorer: Explorer = createMockExplorer()) {
     this.#activeSchema = createRandomSchema();
 
-    const config = createRandomRawConfiguration();
-    config.schema = this.#activeSchema;
-    this.activeConfig = config;
+    this.activeConfig = createRandomRawConfiguration();
 
     this.activeStyling = createRandomUserStyling();
 

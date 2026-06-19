@@ -19,16 +19,16 @@ const assembledConfigSelector = atom(get => {
   }
 
   const vertexTypesMap = new Set(
-    configuration.schema?.vertices.map(v => v.type),
+    configuration.schema.vertices.map(v => v.type),
   );
 
-  const edgeTypesMap = new Set(configuration.schema?.edges.map(e => e.type));
+  const edgeTypesMap = new Set(configuration.schema.edges.map(e => e.type));
 
   const result: ConfigurationContextProps = {
     ...configuration,
-    totalVertices: configuration.schema?.totalVertices ?? 0,
+    totalVertices: configuration.schema.totalVertices ?? 0,
     vertexTypes: vertexTypesMap.keys().toArray(),
-    totalEdges: configuration.schema?.totalEdges ?? 0,
+    totalEdges: configuration.schema.totalEdges ?? 0,
     edgeTypes: edgeTypesMap.keys().toArray(),
   };
   return result;

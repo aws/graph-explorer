@@ -16,11 +16,11 @@ const saveConfigurationToFile = (config: ConfigurationContextProps) => {
       queryEngine: config.connection?.queryEngine || "gremlin",
     },
     schema: {
-      vertices: config.schema?.vertices || [],
-      edges: config.schema?.edges || [],
-      prefixes: config.schema?.prefixes,
-      lastUpdate: config.schema?.lastUpdate,
-      edgeConnections: config.schema?.edgeConnections,
+      vertices: config.schema.vertices,
+      edges: config.schema.edges,
+      prefixes: config.schema.prefixes,
+      lastUpdate: config.schema.lastUpdate,
+      edgeConnections: config.schema.edgeConnections,
     },
   };
 

@@ -17,15 +17,27 @@ vi.mock("file-saver", () => ({
 
 const saveAsMock = vi.mocked(fileSaver.saveAs);
 
+/**
+ * Builds a merged configuration for export tests. Defaults to an empty schema
+ * and zeroed runtime counts; pass overrides to exercise specific cases.
+ */
+function makeConfig(
+  overrides: Partial<ConfigurationContextProps> = {},
+): ConfigurationContextProps {
+  return {
+    ...createRandomRawConfiguration(),
+    schema: { vertices: [], edges: [] },
+    totalVertices: 0,
+    vertexTypes: [],
+    totalEdges: 0,
+    edgeTypes: [],
+    ...overrides,
+  };
+}
+
 describe("saveConfigurationToFile", () => {
   it("should save a minimal configuration to file", () => {
-    const config: ConfigurationContextProps = {
-      ...createRandomRawConfiguration(),
-      totalVertices: 0,
-      vertexTypes: [],
-      totalEdges: 0,
-      edgeTypes: [],
-    };
+    const config = makeConfig();
 
     saveConfigurationToFile(config);
 
@@ -38,14 +50,7 @@ describe("saveConfigurationToFile", () => {
   });
 
   it("should use id as displayLabel if displayLabel is not provided", () => {
-    const config: ConfigurationContextProps = {
-      ...createRandomRawConfiguration(),
-      displayLabel: undefined,
-      totalVertices: 0,
-      vertexTypes: [],
-      totalEdges: 0,
-      edgeTypes: [],
-    };
+    const config = makeConfig({ displayLabel: undefined });
 
     saveConfigurationToFile(config);
 
@@ -54,16 +59,11 @@ describe("saveConfigurationToFile", () => {
   });
 
   it("should include connection with default queryEngine if not provided", async () => {
-    const config: ConfigurationContextProps = {
-      ...createRandomRawConfiguration(),
+    const config = makeConfig({
       connection: {
         url: "https://example.com",
       },
-      totalVertices: 0,
-      vertexTypes: [],
-      totalEdges: 0,
-      edgeTypes: [],
-    };
+    });
 
     saveConfigurationToFile(config);
 
@@ -76,17 +76,12 @@ describe("saveConfigurationToFile", () => {
   });
 
   it("should preserve existing queryEngine", async () => {
-    const config: ConfigurationContextProps = {
-      ...createRandomRawConfiguration(),
+    const config = makeConfig({
       connection: {
         url: "https://example.com",
         queryEngine: "sparql",
       },
-      totalVertices: 0,
-      vertexTypes: [],
-      totalEdges: 0,
-      edgeTypes: [],
-    };
+    });
 
     saveConfigurationToFile(config);
 
@@ -98,8 +93,7 @@ describe("saveConfigurationToFile", () => {
   });
 
   it("should export schema with vertices and edges", async () => {
-    const config: ConfigurationContextProps = {
-      ...createRandomRawConfiguration(),
+    const config = makeConfig({
       schema: {
         vertices: [
           {
@@ -130,7 +124,7 @@ describe("saveConfigurationToFile", () => {
       vertexTypes: [createVertexType("Person"), createVertexType("Company")],
       totalEdges: 50,
       edgeTypes: [createEdgeType("worksAt")],
-    };
+    });
 
     saveConfigurationToFile(config);
 
@@ -149,8 +143,7 @@ describe("saveConfigurationToFile", () => {
     // it (an explicit toISOString or a Date flushed by JSON.stringify), so the
     // writer's lastUpdate type can change without altering the file.
     const lastUpdate = new Date("2024-01-01T12:30:00Z");
-    const config: ConfigurationContextProps = {
-      ...createRandomRawConfiguration(),
+    const config = makeConfig({
       schema: {
         vertices: [],
         edges: [],
@@ -160,11 +153,7 @@ describe("saveConfigurationToFile", () => {
         lastUpdate,
         lastSyncFail: false,
       },
-      totalVertices: 0,
-      vertexTypes: [],
-      totalEdges: 0,
-      edgeTypes: [],
-    };
+    });
 
     saveConfigurationToFile(config);
 
@@ -176,8 +165,7 @@ describe("saveConfigurationToFile", () => {
   });
 
   it("should export prefixes without internal properties", async () => {
-    const config: ConfigurationContextProps = {
-      ...createRandomRawConfiguration(),
+    const config = makeConfig({
       schema: {
         vertices: [],
         edges: [],
@@ -196,11 +184,7 @@ describe("saveConfigurationToFile", () => {
         lastUpdate: new Date(),
         lastSyncFail: false,
       },
-      totalVertices: 0,
-      vertexTypes: [],
-      totalEdges: 0,
-      edgeTypes: [],
-    };
+    });
 
     saveConfigurationToFile(config);
 
@@ -221,14 +205,7 @@ describe("saveConfigurationToFile", () => {
   });
 
   it("should handle empty schema", async () => {
-    const config: ConfigurationContextProps = {
-      ...createRandomRawConfiguration(),
-      schema: undefined,
-      totalVertices: 0,
-      vertexTypes: [],
-      totalEdges: 0,
-      edgeTypes: [],
-    };
+    const config = makeConfig();
 
     saveConfigurationToFile(config);
 
@@ -243,14 +220,7 @@ describe("saveConfigurationToFile", () => {
   });
 
   it("should handle missing connection", async () => {
-    const config: ConfigurationContextProps = {
-      ...createRandomRawConfiguration(),
-      connection: undefined,
-      totalVertices: 0,
-      vertexTypes: [],
-      totalEdges: 0,
-      edgeTypes: [],
-    };
+    const config = makeConfig({ connection: undefined });
 
     saveConfigurationToFile(config);
 
@@ -271,13 +241,12 @@ describe("saveConfigurationToFile", () => {
   });
 
   it("should only export necessary fields", async () => {
-    const config: ConfigurationContextProps = {
-      ...createRandomRawConfiguration(),
+    const config = makeConfig({
       totalVertices: 100,
       vertexTypes: [createVertexType("Person")],
       totalEdges: 50,
       edgeTypes: [createEdgeType("knows")],
-    };
+    });
 
     saveConfigurationToFile(config);
 
@@ -299,8 +268,7 @@ describe("saveConfigurationToFile", () => {
   });
 
   it("should produce a file that passes import validation", async () => {
-    const config: ConfigurationContextProps = {
-      ...createRandomRawConfiguration(),
+    const config = makeConfig({
       connection: {
         url: "https://neptune.example.com:8182",
         queryEngine: "gremlin",
@@ -330,7 +298,7 @@ describe("saveConfigurationToFile", () => {
       vertexTypes: [createVertexType("Person")],
       totalEdges: 1,
       edgeTypes: [createEdgeType("knows")],
-    };
+    });
 
     saveConfigurationToFile(config);
 
@@ -355,8 +323,7 @@ describe("saveConfigurationToFile", () => {
   });
 
   it("should export edgeConnections when present", async () => {
-    const config: ConfigurationContextProps = {
-      ...createRandomRawConfiguration(),
+    const config = makeConfig({
       schema: {
         vertices: [],
         edges: [],
@@ -379,11 +346,7 @@ describe("saveConfigurationToFile", () => {
           },
         ],
       },
-      totalVertices: 0,
-      vertexTypes: [],
-      totalEdges: 0,
-      edgeTypes: [],
-    };
+    });
 
     saveConfigurationToFile(config);
 
@@ -407,8 +370,7 @@ describe("saveConfigurationToFile", () => {
   });
 
   it("should handle undefined edgeConnections", async () => {
-    const config: ConfigurationContextProps = {
-      ...createRandomRawConfiguration(),
+    const config = makeConfig({
       schema: {
         vertices: [],
         edges: [],
@@ -419,11 +381,7 @@ describe("saveConfigurationToFile", () => {
         lastSyncFail: false,
         edgeConnections: undefined,
       },
-      totalVertices: 0,
-      vertexTypes: [],
-      totalEdges: 0,
-      edgeTypes: [],
-    };
+    });
 
     saveConfigurationToFile(config);
 
