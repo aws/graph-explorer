@@ -57,33 +57,31 @@ describe("useVertexStyling", () => {
     expect(result.current.vertexStyle).toStrictEqual(expected);
   });
 
-  it("should insert the vertex style when none exist", async () => {
+  it("should insert the vertex style when none exist", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useVertexStyling(createVertexType("test")),
       dbState,
     );
 
-    await act(async () => result.current.setVertexStyle({ color: "red" }));
+    act(() => result.current.setVertexStyle({ color: "red" }));
 
     expect(result.current.vertexStyle).toStrictEqual(
       createExpectedVertex({ type: createVertexType("test"), color: "red" }),
     );
   });
 
-  it("should update the existing style, merging new styles", async () => {
+  it("should update the existing style, merging new styles", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useVertexStyling(createVertexType("test")),
       dbState,
     );
 
-    await act(async () =>
+    act(() =>
       result.current.setVertexStyle({ color: "red", borderColor: "green" }),
     );
-    await act(async () =>
-      result.current.setVertexStyle({ borderColor: "blue" }),
-    );
+    act(() => result.current.setVertexStyle({ borderColor: "blue" }));
 
     expect(result.current.vertexStyle).toStrictEqual(
       createExpectedVertex({
@@ -94,7 +92,7 @@ describe("useVertexStyling", () => {
     );
   });
 
-  it("should reset the vertex style", async () => {
+  it("should reset the vertex style", () => {
     const dbState = new DbState();
     dbState.addVertexStyle(createVertexType("test"), { borderColor: "blue" });
 
@@ -103,14 +101,14 @@ describe("useVertexStyling", () => {
       dbState,
     );
 
-    await act(async () => result.current.resetVertexStyle());
+    act(() => result.current.resetVertexStyle());
 
     expect(result.current.vertexStyle).toStrictEqual(
       createExpectedVertex({ type: createVertexType("test") }),
     );
   });
 
-  it("should not affect other vertex styles when updating", async () => {
+  it("should not affect other vertex styles when updating", () => {
     const dbState = new DbState();
     dbState.addVertexStyle(createVertexType("type1"), { color: "red" });
     dbState.addVertexStyle(createVertexType("type2"), { color: "blue" });
@@ -120,9 +118,7 @@ describe("useVertexStyling", () => {
       dbState,
     );
 
-    await act(async () =>
-      result.current.setVertexStyle({ borderColor: "green" }),
-    );
+    act(() => result.current.setVertexStyle({ borderColor: "green" }));
 
     // Check that type1 was updated
     expect(result.current.vertexStyle).toStrictEqual(
@@ -146,7 +142,7 @@ describe("useVertexStyling", () => {
     );
   });
 
-  it("should not affect other vertex styles when resetting", async () => {
+  it("should not affect other vertex styles when resetting", () => {
     const dbState = new DbState();
     dbState.addVertexStyle(createVertexType("type1"), { color: "red" });
     dbState.addVertexStyle(createVertexType("type2"), { color: "blue" });
@@ -156,7 +152,7 @@ describe("useVertexStyling", () => {
       dbState,
     );
 
-    await act(async () => result.current.resetVertexStyle());
+    act(() => result.current.resetVertexStyle());
 
     expect(result.current.vertexStyle).toStrictEqual(
       createExpectedVertex({ type: createVertexType("type1") }),
@@ -175,14 +171,14 @@ describe("useVertexStyling", () => {
     );
   });
 
-  it("should handle empty style updates", async () => {
+  it("should handle empty style updates", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useVertexStyling(createVertexType("test")),
       dbState,
     );
 
-    await act(async () => result.current.setVertexStyle({}));
+    act(() => result.current.setVertexStyle({}));
 
     expect(result.current.vertexStyle).toStrictEqual(
       createExpectedVertex({ type: createVertexType("test") }),
@@ -216,14 +212,14 @@ describe("useEdgeStyling", () => {
     expect(result.current.edgeStyle).toStrictEqual(createExpectedEdge(style));
   });
 
-  it("should insert the edge style when none exist", async () => {
+  it("should insert the edge style when none exist", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useEdgeStyling(createEdgeType("test")),
       dbState,
     );
 
-    await act(async () => result.current.setEdgeStyle({ lineColor: "red" }));
+    act(() => result.current.setEdgeStyle({ lineColor: "red" }));
 
     expect(result.current.edgeStyle).toStrictEqual(
       createExpectedEdge({
@@ -233,17 +229,17 @@ describe("useEdgeStyling", () => {
     );
   });
 
-  it("should update the existing style, merging new styles", async () => {
+  it("should update the existing style, merging new styles", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useEdgeStyling(createEdgeType("test")),
       dbState,
     );
 
-    await act(async () =>
+    act(() =>
       result.current.setEdgeStyle({ lineColor: "red", labelColor: "green" }),
     );
-    await act(async () => result.current.setEdgeStyle({ labelColor: "blue" }));
+    act(() => result.current.setEdgeStyle({ labelColor: "blue" }));
 
     expect(result.current.edgeStyle).toStrictEqual(
       createExpectedEdge({
@@ -254,22 +250,22 @@ describe("useEdgeStyling", () => {
     );
   });
 
-  it("should reset the edge style", async () => {
+  it("should reset the edge style", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useEdgeStyling(createEdgeType("test")),
       dbState,
     );
 
-    await act(async () => result.current.setEdgeStyle({ labelColor: "blue" }));
-    await act(async () => result.current.resetEdgeStyle());
+    act(() => result.current.setEdgeStyle({ labelColor: "blue" }));
+    act(() => result.current.resetEdgeStyle());
 
     expect(result.current.edgeStyle).toStrictEqual(
       createExpectedEdge({ type: createEdgeType("test") }),
     );
   });
 
-  it("should not affect other edge styles when updating", async () => {
+  it("should not affect other edge styles when updating", () => {
     const dbState = new DbState();
     dbState.addEdgeStyle(createEdgeType("type1"), { lineColor: "red" });
     dbState.addEdgeStyle(createEdgeType("type2"), { lineColor: "blue" });
@@ -279,7 +275,7 @@ describe("useEdgeStyling", () => {
       dbState,
     );
 
-    await act(async () => result.current.setEdgeStyle({ labelColor: "green" }));
+    act(() => result.current.setEdgeStyle({ labelColor: "green" }));
 
     // Check that type1 was updated
     expect(result.current.edgeStyle).toStrictEqual(
@@ -303,7 +299,7 @@ describe("useEdgeStyling", () => {
     );
   });
 
-  it("should not affect other edge styles when resetting", async () => {
+  it("should not affect other edge styles when resetting", () => {
     const dbState = new DbState();
     dbState.addEdgeStyle(createEdgeType("type1"), { lineColor: "red" });
     dbState.addEdgeStyle(createEdgeType("type2"), { lineColor: "blue" });
@@ -313,7 +309,7 @@ describe("useEdgeStyling", () => {
       dbState,
     );
 
-    await act(async () => result.current.resetEdgeStyle());
+    act(() => result.current.resetEdgeStyle());
 
     expect(result.current.edgeStyle).toStrictEqual(
       createExpectedEdge({ type: createEdgeType("type1") }),
@@ -332,14 +328,14 @@ describe("useEdgeStyling", () => {
     );
   });
 
-  it("should handle empty style updates", async () => {
+  it("should handle empty style updates", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useEdgeStyling(createEdgeType("test")),
       dbState,
     );
 
-    await act(async () => result.current.setEdgeStyle({}));
+    act(() => result.current.setEdgeStyle({}));
 
     expect(result.current.edgeStyle).toStrictEqual(
       createExpectedEdge({ type: createEdgeType("test") }),
@@ -348,7 +344,7 @@ describe("useEdgeStyling", () => {
 });
 
 describe("useDeferredAtom integration", () => {
-  it("should handle multiple rapid updates correctly", async () => {
+  it("should handle multiple rapid updates correctly", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useVertexStyling(createVertexType("test")),
@@ -356,10 +352,10 @@ describe("useDeferredAtom integration", () => {
     );
 
     // Simulate rapid updates that might happen in real usage
-    await act(async () => {
-      await result.current.setVertexStyle({ color: "red" });
-      await result.current.setVertexStyle({ borderColor: "blue" });
-      await result.current.setVertexStyle({ shape: "ellipse" });
+    act(() => {
+      result.current.setVertexStyle({ color: "red" });
+      result.current.setVertexStyle({ borderColor: "blue" });
+      result.current.setVertexStyle({ shape: "ellipse" });
     });
 
     expect(result.current.vertexStyle).toStrictEqual(
@@ -372,7 +368,7 @@ describe("useDeferredAtom integration", () => {
     );
   });
 
-  it("should handle deferred atom updates correctly", async () => {
+  it("should handle deferred atom updates correctly", () => {
     const dbState = new DbState();
     const { result } = renderHookWithState(
       () => useVertexStyling(createVertexType("test")),
@@ -380,7 +376,7 @@ describe("useDeferredAtom integration", () => {
     );
 
     // Test that the deferred atom pattern works with the hook
-    await act(async () => result.current.setVertexStyle({ color: "red" }));
+    act(() => result.current.setVertexStyle({ color: "red" }));
 
     // The hook should immediately reflect the change in its local state
     expect(result.current.vertexStyle).toStrictEqual(
@@ -391,9 +387,7 @@ describe("useDeferredAtom integration", () => {
     );
 
     // Test that subsequent updates work correctly
-    await act(async () =>
-      result.current.setVertexStyle({ borderColor: "blue" }),
-    );
+    act(() => result.current.setVertexStyle({ borderColor: "blue" }));
 
     expect(result.current.vertexStyle).toStrictEqual(
       createExpectedVertex({

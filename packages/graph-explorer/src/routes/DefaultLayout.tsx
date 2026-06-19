@@ -5,6 +5,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Outlet } from "react-router";
 
 import { TooltipProvider } from "@/components";
+import { SaveStatusIndicator } from "@/components/SaveStatusIndicator/SaveStatusIndicator";
 import { Toaster } from "@/components/Toaster";
 import { diagnosticLoggingAtom } from "@/core";
 import AppErrorPage from "@/core/AppErrorPage";
@@ -37,6 +38,9 @@ export default function DefaultLayout() {
         <TooltipProvider delayDuration={200}>
           <AppStatusLoader>
             <Outlet />
+            <div className="pointer-events-none fixed right-4 bottom-4 z-50">
+              <SaveStatusIndicator />
+            </div>
             <Toaster />
           </AppStatusLoader>
         </TooltipProvider>
