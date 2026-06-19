@@ -12,42 +12,42 @@ export interface LoggerConnector {
 
 /** Sends log messages to the server in the connection configuration. */
 export class ServerLoggerConnector implements LoggerConnector {
-  private readonly _baseUrl: string;
-  private readonly _clientLogger: ClientLoggerConnector;
+  #baseUrl: string;
+  #clientLogger: ClientLoggerConnector;
 
   constructor(connectionUrl: string) {
     const url = connectionUrl.replace(/\/$/, "");
-    this._baseUrl = `${url}/logger`;
-    this._clientLogger = new ClientLoggerConnector();
+    this.#baseUrl = `${url}/logger`;
+    this.#clientLogger = new ClientLoggerConnector();
   }
 
   public error(message: unknown) {
-    this._clientLogger.error(message);
-    return this._sendLog("error", message);
+    this.#clientLogger.error(message);
+    return this.#sendLog("error", message);
   }
 
   public warn(message: unknown) {
-    this._clientLogger.warn(message);
-    return this._sendLog("warn", message);
+    this.#clientLogger.warn(message);
+    return this.#sendLog("warn", message);
   }
 
   public info(message: unknown) {
-    this._clientLogger.info(message);
-    return this._sendLog("info", message);
+    this.#clientLogger.info(message);
+    return this.#sendLog("info", message);
   }
 
   public debug(message: unknown) {
-    this._clientLogger.info(message);
-    return this._sendLog("debug", message);
+    this.#clientLogger.info(message);
+    return this.#sendLog("debug", message);
   }
 
   public trace(message: unknown) {
-    this._clientLogger.trace(message);
-    return this._sendLog("trace", message);
+    this.#clientLogger.trace(message);
+    return this.#sendLog("trace", message);
   }
 
-  private _sendLog(level: LogLevel, message: unknown) {
-    return fetch(this._baseUrl, {
+  #sendLog(level: LogLevel, message: unknown) {
+    return fetch(this.#baseUrl, {
       method: "POST",
       headers: {
         level,

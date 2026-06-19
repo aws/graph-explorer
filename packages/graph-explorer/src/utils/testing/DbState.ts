@@ -46,7 +46,7 @@ import {
  * Helps build up the state of the Jotai database with common data.
  */
 export class DbState {
-  private _activeSchema: SchemaStorageModel | null;
+  #activeSchema: SchemaStorageModel | null;
   activeConfig: RawConfiguration;
   activeStyling: UserStyling;
 
@@ -61,10 +61,10 @@ export class DbState {
   filteredEdgeTypes: Set<string> = new Set();
 
   constructor(explorer: Explorer = createMockExplorer()) {
-    this._activeSchema = createRandomSchema();
+    this.#activeSchema = createRandomSchema();
 
     const config = createRandomRawConfiguration();
-    config.schema = this._activeSchema;
+    config.schema = this.#activeSchema;
     this.activeConfig = config;
 
     this.activeStyling = createRandomUserStyling();
@@ -77,31 +77,31 @@ export class DbState {
    * Use this for tests that expect a schema to be present.
    */
   get activeSchema(): SchemaStorageModel {
-    if (!this._activeSchema) {
+    if (!this.#activeSchema) {
       throw new Error(
         "activeSchema is null. Use withNoActiveSchema() only when testing the no-schema case.",
       );
     }
-    return this._activeSchema;
+    return this.#activeSchema;
   }
 
   /**
    * Sets the active schema.
    */
   set activeSchema(schema: SchemaStorageModel) {
-    this._activeSchema = schema;
+    this.#activeSchema = schema;
   }
 
   /** Removes the active schema from the state. */
   withNoActiveSchema() {
-    this._activeSchema = null;
+    this.#activeSchema = null;
     return this;
   }
 
   /** Adds the vertex to the graph and updates the schema to include the type config. */
   addVertexToGraph(vertex: Vertex) {
     this.vertices.push(vertex);
-    this._activeSchema?.vertices.push(...mapVertexToTypeConfigs(vertex));
+    this.#activeSchema?.vertices.push(...mapVertexToTypeConfigs(vertex));
   }
 
   /** Creates a new randome vertex and adds it to the graph. */
@@ -119,19 +119,19 @@ export class DbState {
 
   addEdgeToGraph(edge: Edge) {
     this.edges.push(edge);
-    this._activeSchema?.edges.push(mapEdgeToTypeConfig(edge));
+    this.#activeSchema?.edges.push(mapEdgeToTypeConfig(edge));
   }
 
   addTestableVertexToGraph(vertex: TestableVertex) {
     this.vertices.push(vertex.asVertex());
-    this._activeSchema?.vertices.push(
+    this.#activeSchema?.vertices.push(
       ...mapVertexToTypeConfigs(vertex.asVertex()),
     );
   }
 
   addTestableEdgeToGraph(edge: TestableEdge) {
     this.edges.push(edge.asEdge());
-    this._activeSchema?.edges.push(mapEdgeToTypeConfig(edge.asEdge()));
+    this.#activeSchema?.edges.push(mapEdgeToTypeConfig(edge.asEdge()));
     this.addTestableVertexToGraph(edge.source);
     this.addTestableVertexToGraph(edge.target);
   }
@@ -192,10 +192,10 @@ export class DbState {
       configurationAtom,
       new Map([[this.activeConfig.id, this.activeConfig]]),
     );
-    if (this._activeSchema) {
+    if (this.#activeSchema) {
       store.set(
         schemaAtom,
-        new Map([[this.activeConfig.id, this._activeSchema]]),
+        new Map([[this.activeConfig.id, this.#activeSchema]]),
       );
     } else {
       store.set(schemaAtom, new Map());
