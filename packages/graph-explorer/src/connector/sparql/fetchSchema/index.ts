@@ -91,7 +91,7 @@ const fetchPredicatesByClass = async (
       const classPredicatesTemplate = predicatesByClassTemplate({
         class: resourceClass,
       });
-      remoteLogger.info(
+      void remoteLogger.info(
         `[SPARQL Explorer] Fetching predicates by class ${resourceClass}...`,
       );
       const predicatesResponse =
@@ -142,7 +142,7 @@ const fetchClassesSchema = async (
   remoteLogger: LoggerConnector,
 ) => {
   const classesTemplate = classesWithCountsTemplates();
-  remoteLogger.info("[SPARQL Explorer] Fetching classes schema...");
+  void remoteLogger.info("[SPARQL Explorer] Fetching classes schema...");
   const classesCounts =
     await sparqlFetch<RawClassesWCountsResponse>(classesTemplate);
 
@@ -172,7 +172,9 @@ const fetchPredicatesWithCounts = async (
   remoteLogger: LoggerConnector,
 ): Promise<Record<string, number>> => {
   const template = predicatesWithCountsTemplate();
-  remoteLogger.info("[SPARQL Explorer] Fetching predicates with counts...");
+  void remoteLogger.info(
+    "[SPARQL Explorer] Fetching predicates with counts...",
+  );
   const data = await sparqlFetch<RawPredicatesWCountsResponse>(template);
 
   const values = data.results.bindings;
@@ -225,7 +227,7 @@ const fetchSchema = async (
       return total + (edge.total ?? 0);
     }, 0);
 
-    remoteLogger.info(
+    void remoteLogger.info(
       `[SPARQL Explorer] Schema sync successful (${totalVertices} vertices; ${totalEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types)`,
     );
 
@@ -258,7 +260,7 @@ const fetchSchema = async (
     });
   });
 
-  remoteLogger.info(
+  void remoteLogger.info(
     `[SPARQL Explorer] Schema sync successful (${summary.numDistinctSubjects} vertices; ${summary.numQuads} edges; ${vertices.length} vertex types; ${edges.length} edge types)`,
   );
 

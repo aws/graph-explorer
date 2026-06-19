@@ -1,3 +1,7 @@
+import { toast } from "sonner";
+
+import { logger } from "@/utils";
+
 import {
   ClientLoggerConnector,
   ServerLoggerConnector,
@@ -62,6 +66,23 @@ describe("ServerLoggerConnector", () => {
     expect(mockFetch).toHaveBeenCalledWith(
       "https://example.com/logger",
       expect.any(Object),
+    );
+  });
+
+  test("should warn the user and console when sending a log to the server fails", async () => {
+    const failure = new Error("network down");
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(failure));
+
+    const connector = new ServerLoggerConnector("https://example.com/");
+
+    await expect(connector.error("error msg")).resolves.toBeUndefined();
+
+    expect(vi.mocked(logger.warn)).toHaveBeenCalledWith(
+      "Failed to send log to server",
+      failure,
+    );
+    expect(vi.mocked(toast.warning)).toHaveBeenCalledWith(
+      "Failed to send log to the server.",
     );
   });
 });

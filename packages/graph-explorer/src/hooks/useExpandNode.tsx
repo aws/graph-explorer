@@ -82,7 +82,7 @@ export default function useExpandNode() {
       toast.promise(expandPromise, {
         loading: "Expanding neighbors",
         error: err => {
-          remoteLogger.error(
+          void remoteLogger.error(
             `Failed to expand node: ${(err as Error)?.message ?? "Unknown error"}`,
           );
           const displayError = createDisplayError(err);
@@ -155,7 +155,7 @@ export default function useExpandNode() {
       toast.promise(expandPromise, {
         loading: `Expanding neighbors`,
         error: err => {
-          remoteLogger.error(
+          void remoteLogger.error(
             `Failed to expand nodes: ${(err as Error)?.message ?? "Unknown error"}`,
           );
           const displayError = createDisplayError(err);
