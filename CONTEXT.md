@@ -78,6 +78,14 @@ _Avoid_: Model, structure
 The on-disk JSON format a user gets when they export a Connection (`saveConfigurationToFile`), and which import consumes. It bundles the connection config with a snapshot of the Schema (`lastUpdate` is an ISO string on disk). A single Zod schema in `parseConnectionFile.ts` is the source of truth: both the writer and the importer target the same inferred type (`ExportedConnectionFile`). The writer assigns a `Date` for `lastUpdate` and `JSON.stringify` serializes it to the ISO string; the parser coerces it back via `z.coerce.date()`. The schema is lenient (every level is a `looseObject`), so unknown and legacy fields — styling, `__inferred`/`__matches` on prefixes, attribute `dataType` — pass through untouched. It is intentionally decoupled from the in-memory configuration and from the IndexedDB storage shape, so the wire format can evolve independently. On import it is split — the connection lands in `configurationAtom`, the schema in `schemaAtom`.
 _Avoid_: Configuration file (the wire format is not the in-memory or persisted shape)
 
+**Persistence Status**:
+The single, global state of whether the app's client-side data is safely written to IndexedDB — `idle | saving | failed`. One source of truth that the save-status indicator subscribes to. `idle` = nothing queued and everything durable (no separate "saved" state — visually identical to a fresh session). `saving` = at least one write queued or in flight, including retryable retries. `failed` = at least one terminal failure outstanding, carrying failure records for a drill-in detail view. Aggregated across all per-key write queues by precedence: any terminal → `failed`; else any in-flight → `saving`; else `idle`. A `failed` key clears on its next successful write; status returns to `idle` when no failure records remain. Deliberately **not** per-key: a failed write flips the whole status rather than naming which collection failed, because the user cannot act on an individual key (the storage layer retries on their behalf). Lives in a plain external store outside React/Jotai; the React edge bridges it via `useSyncExternalStore`.
+_Avoid_: Save state (ambiguous with Session)
+
+**Save-Status Indicator**:
+The persistent, Google-Docs-style UI element (corner of the app) that renders Persistence Status — quiet/absent at `idle`, "Saving…" at `saving`, an attention treatment at `failed`. Replaces scattered per-write toasts. Toasts are reserved for terminal, actionable failures only — notably out-of-storage (quota), which prompts a full client-side backup via `saveLocalForageToFile` (`core/StateProvider/localDb.ts`). Recovery scope is retry (transient failures) plus the backup prompt (terminal failures) — it does not guarantee the write eventually lands.
+_Avoid_: Save toast, save banner
+
 ## Relationships
 
 - Each browser tab has at most one **Active Connection**; different tabs may have different ones
