@@ -10,7 +10,7 @@ import {
 } from "@/core";
 import useResetState from "@/core/StateProvider/useResetState";
 import { useTranslations } from "@/hooks";
-import { logger } from "@/utils";
+import { logAndNotify, logger } from "@/utils";
 
 function ConnectionRow({
   connection,
@@ -67,7 +67,9 @@ function useSetActiveConfigCallback(configId: ConfigurationId) {
     useCallback(
       (_get, set) => {
         logger.debug("Setting active connection to", configId);
-        set(activeConfigurationAtom, configId);
+        set(activeConfigurationAtom, configId).catch(
+          logAndNotify("Failed to switch the active connection."),
+        );
         resetState();
       },
       [configId, resetState],

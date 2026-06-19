@@ -21,7 +21,7 @@ export function TestProvider({
   );
 }
 
-export function renderHookWithState<TResult>(
+export async function renderHookWithState<TResult>(
   callback: () => TResult,
   state?: DbState,
 ) {
@@ -30,7 +30,7 @@ export function renderHookWithState<TResult>(
 
   // Set values on the Jotai store
   const store = getAppStore();
-  state.applyTo(store);
+  await state.applyTo(store);
 
   // Create the query client using the mock explorer
   const queryClient = createQueryClient();
@@ -48,14 +48,14 @@ export function renderHookWithState<TResult>(
   });
 }
 
-export function renderHookWithJotai<TResult>(
+export async function renderHookWithJotai<TResult>(
   callback: () => TResult,
-  initializeState?: (store: AppStore) => void,
+  initializeState?: (store: AppStore) => void | Promise<void>,
 ) {
   // Provide a way to set atom initial values
   const store = getAppStore();
   if (initializeState) {
-    initializeState(store);
+    await initializeState(store);
   }
 
   // Call the standard testing hook with TanStack Query and Jotai setup

@@ -15,14 +15,14 @@ import {
 
 import useEntitiesCounts from "./useEntitiesCounts";
 
-function renderUseEntitiesHook(
+async function renderUseEntitiesHook(
   config: RawConfiguration,
   schema: SchemaStorageModel,
 ) {
   const dbState = new DbState();
   dbState.activeSchema = schema;
   dbState.activeConfig = config;
-  return renderHookWithState(() => useEntitiesCounts(), dbState);
+  return await renderHookWithState(() => useEntitiesCounts(), dbState);
 }
 
 describe("useEntitiesCounts", () => {
@@ -35,50 +35,50 @@ describe("useEntitiesCounts", () => {
     vi.resetAllMocks();
   });
 
-  it("should return null when schema has not been synced", () => {
+  it("should return null when schema has not been synced", async () => {
     schema.lastUpdate = undefined;
     schema.lastSyncFail = false;
 
-    const { result } = renderUseEntitiesHook(config, schema);
+    const { result } = await renderUseEntitiesHook(config, schema);
 
     expect(result.current.totalNodes).toBeNull();
     expect(result.current.totalEdges).toBeNull();
   });
 
-  it("should return null when schema has tried to sync", () => {
+  it("should return null when schema has tried to sync", async () => {
     schema.lastUpdate = undefined;
     schema.lastSyncFail = true;
 
-    const { result } = renderUseEntitiesHook(config, schema);
+    const { result } = await renderUseEntitiesHook(config, schema);
 
     expect(result.current.totalNodes).toBeNull();
     expect(result.current.totalEdges).toBeNull();
   });
 
-  it("should return total vertices when totalVertices is defined", () => {
+  it("should return total vertices when totalVertices is defined", async () => {
     const preCalculatedTotal = createRandomInteger();
     schema.totalVertices = preCalculatedTotal;
     schema.totalEdges = preCalculatedTotal;
 
-    const { result } = renderUseEntitiesHook(config, schema);
+    const { result } = await renderUseEntitiesHook(config, schema);
 
     expect(result.current.totalNodes).toEqual(preCalculatedTotal);
     expect(result.current.totalEdges).toEqual(preCalculatedTotal);
   });
 
-  it("should return 0 when schema has no entity type configs", () => {
+  it("should return 0 when schema has no entity type configs", async () => {
     schema.totalVertices = 0;
     schema.vertices = [];
     schema.totalEdges = 0;
     schema.edges = [];
 
-    const { result } = renderUseEntitiesHook(config, schema);
+    const { result } = await renderUseEntitiesHook(config, schema);
 
     expect(result.current.totalNodes).toBe(0);
     expect(result.current.totalEdges).toBe(0);
   });
 
-  it("should calculate total when all entity type configs have a total", () => {
+  it("should calculate total when all entity type configs have a total", async () => {
     schema.totalVertices = 0;
     schema.vertices = [
       createRandomVertexTypeConfig(),
@@ -90,13 +90,13 @@ describe("useEntitiesCounts", () => {
       createRandomEdgeTypeConfig(),
     ].map(etConfig => ({ ...etConfig, total: 5 }));
 
-    const { result } = renderUseEntitiesHook(config, schema);
+    const { result } = await renderUseEntitiesHook(config, schema);
 
     expect(result.current.totalNodes).toEqual(10);
     expect(result.current.totalEdges).toEqual(10);
   });
 
-  it("should return null when some entity type configs are missing a total", () => {
+  it("should return null when some entity type configs are missing a total", async () => {
     schema.totalVertices = 0;
     schema.vertices = [
       createRandomVertexTypeConfig(),
@@ -111,7 +111,7 @@ describe("useEntitiesCounts", () => {
     ].map(etConfig => ({ ...etConfig, total: undefined }));
     schema.edges[0].total = 10;
 
-    const { result } = renderUseEntitiesHook(config, schema);
+    const { result } = await renderUseEntitiesHook(config, schema);
 
     expect(result.current.totalNodes).toBeNull();
     expect(result.current.totalEdges).toBeNull();

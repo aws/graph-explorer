@@ -41,14 +41,14 @@ import {
 import useResetState from "./useResetState";
 
 describe("useResetState", () => {
-  test("should reset all node atoms", () => {
+  test("should reset all node atoms", async () => {
     const state = new DbState();
     const vertex = createTestableVertex();
     state.addTestableVertexToGraph(vertex);
     state.filterVertex(vertex.asVertex().id);
     state.filterVertexType(vertex.asVertex().types[0]);
 
-    const { result } = renderHookWithState(() => useResetState(), state);
+    const { result } = await renderHookWithState(() => useResetState(), state);
     const store = getAppStore();
 
     expect(store.get(nodesAtom).size).toBeGreaterThan(0);
@@ -64,14 +64,14 @@ describe("useResetState", () => {
     expect(store.get(nodesTableSortsAtom)).toStrictEqual([]);
   });
 
-  test("should reset all edge atoms", () => {
+  test("should reset all edge atoms", async () => {
     const state = new DbState();
     const edge = createTestableEdge();
     state.addTestableEdgeToGraph(edge);
     state.filterEdge(edge.asEdge().id);
     state.filterEdgeType(edge.asEdge().type);
 
-    const { result } = renderHookWithState(() => useResetState(), state);
+    const { result } = await renderHookWithState(() => useResetState(), state);
     const store = getAppStore();
 
     expect(store.get(edgesAtom).size).toBeGreaterThan(0);
@@ -87,8 +87,8 @@ describe("useResetState", () => {
     expect(store.get(edgesTableSortsAtom)).toStrictEqual([]);
   });
 
-  test("should reset search and query editor atoms", () => {
-    const { result } = renderHookWithState(() => useResetState());
+  test("should reset search and query editor atoms", async () => {
+    const { result } = await renderHookWithState(() => useResetState());
     const store = getAppStore();
 
     store.set(searchTermAtom, "test search");
@@ -108,8 +108,8 @@ describe("useResetState", () => {
     expect(store.get(queryTextAtom)).toBe("");
   });
 
-  test("should reset previous session availability", () => {
-    const { result } = renderHookWithState(() => useResetState());
+  test("should reset previous session availability", async () => {
+    const { result } = await renderHookWithState(() => useResetState());
     const store = getAppStore();
 
     store.set(isRestorePreviousSessionAvailableAtom, false);
@@ -119,8 +119,8 @@ describe("useResetState", () => {
     expect(store.get(isRestorePreviousSessionAvailableAtom)).toBe(true);
   });
 
-  test("should remove all queries from the query client", () => {
-    const { result } = renderHookWithState(() => {
+  test("should remove all queries from the query client", async () => {
+    const { result } = await renderHookWithState(() => {
       const queryClient = useQueryClient();
       const resetState = useResetState();
       return { queryClient, resetState };

@@ -34,40 +34,40 @@ import {
 } from "@/utils/testing";
 
 describe("useDisplayVertexFromVertex", () => {
-  it("should keep the same ID", () => {
+  it("should keep the same ID", async () => {
     const vertex = createRandomVertex();
-    expect(act(vertex).id).toStrictEqual(vertex.id);
+    expect((await act(vertex)).id).toStrictEqual(vertex.id);
   });
 
-  it("should be a vertex", () => {
+  it("should be a vertex", async () => {
     const vertex = createRandomVertex();
-    expect(act(vertex).entityType).toStrictEqual("vertex");
+    expect((await act(vertex)).entityType).toStrictEqual("vertex");
   });
 
-  it("should have a display ID equal to the vertex ID", () => {
+  it("should have a display ID equal to the vertex ID", async () => {
     const vertex = createRandomVertex();
-    expect(act(vertex).displayId).toStrictEqual(getRawId(vertex.id));
+    expect((await act(vertex)).displayId).toStrictEqual(getRawId(vertex.id));
   });
 
-  it("should have the display name be the sanitized vertex ID", () => {
+  it("should have the display name be the sanitized vertex ID", async () => {
     const vertex = createRandomVertex();
-    expect(act(vertex).displayName).toStrictEqual(getRawId(vertex.id));
+    expect((await act(vertex)).displayName).toStrictEqual(getRawId(vertex.id));
   });
 
-  it("should have the display description be the vertex type", () => {
+  it("should have the display description be the vertex type", async () => {
     const vertex = createRandomVertex();
-    expect(act(vertex).displayDescription).toStrictEqual(vertex.type);
+    expect((await act(vertex)).displayDescription).toStrictEqual(vertex.type);
   });
 
-  it("should have the display types be missing type label when no types", () => {
+  it("should have the display types be missing type label when no types", async () => {
     const vertex = createVertex({
       id: createRandomVertexId(),
       types: [],
     });
-    expect(act(vertex).displayTypes).toStrictEqual(LABELS.MISSING_TYPE);
+    expect((await act(vertex)).displayTypes).toStrictEqual(LABELS.MISSING_TYPE);
   });
 
-  it("should use the display label from user preferences", () => {
+  it("should use the display label from user preferences", async () => {
     const dbState = new DbState();
     const vertex = createRandomVertex();
 
@@ -83,7 +83,7 @@ describe("useDisplayVertexFromVertex", () => {
     userPrefs.displayLabel = createRandomName("userPrefs");
     dbState.activeStyling.vertices?.push(userPrefs);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useDisplayVertexFromVertex(vertex),
       dbState,
     );
@@ -91,7 +91,7 @@ describe("useDisplayVertexFromVertex", () => {
     expect(result.current.displayTypes).toStrictEqual(userPrefs.displayLabel);
   });
 
-  it("should have display types that list all types in gremlin", () => {
+  it("should have display types that list all types in gremlin", async () => {
     const vertex = createRandomVertex();
     const schema = createRandomSchema();
 
@@ -105,11 +105,12 @@ describe("useDisplayVertexFromVertex", () => {
     vertex.types = [vtConfig1.type, vtConfig2.type];
 
     expect(
-      act(vertex, withSchemaAndConnection(schema, "gremlin")).displayTypes,
+      (await act(vertex, withSchemaAndConnection(schema, "gremlin")))
+        .displayTypes,
     ).toStrictEqual(`${vtConfig1.type}, ${vtConfig2.type}`);
   });
 
-  it("should have display types that list all types in sparql", () => {
+  it("should have display types that list all types in sparql", async () => {
     const vertex = createRandomVertex();
     vertex.type = createVertexType("http://www.example.com/class#bar");
     const schema = createRandomSchema();
@@ -133,11 +134,12 @@ describe("useDisplayVertexFromVertex", () => {
     vertex.types = [vtConfig1.type, vtConfig2.type];
 
     expect(
-      act(vertex, withSchemaAndConnection(schema, "sparql")).displayTypes,
+      (await act(vertex, withSchemaAndConnection(schema, "sparql")))
+        .displayTypes,
     ).toStrictEqual(`example-class:bar, example-class:baz`);
   });
 
-  it("should have sorted attributes", () => {
+  it("should have sorted attributes", async () => {
     const vertex = createRandomVertex();
     const attributes: DisplayAttribute[] = Object.entries(vertex.attributes)
       .map(([key, value]) => ({
@@ -147,10 +149,10 @@ describe("useDisplayVertexFromVertex", () => {
       }))
       .toSorted((a, b) => a.displayLabel.localeCompare(b.displayLabel));
 
-    expect(act(vertex).attributes).toStrictEqual(attributes);
+    expect((await act(vertex)).attributes).toStrictEqual(attributes);
   });
 
-  it("should format date values in attribute", () => {
+  it("should format date values in attribute", async () => {
     const vertex = createRandomVertex();
     const schema = createRandomSchema();
 
@@ -159,29 +161,29 @@ describe("useDisplayVertexFromVertex", () => {
       created: createRandomDate(),
     };
 
-    const actualAttribute = act(vertex, withSchema(schema)).attributes.find(
-      attr => attr.name === "created",
-    );
+    const actualAttribute = (
+      await act(vertex, withSchema(schema))
+    ).attributes.find(attr => attr.name === "created");
     expect(actualAttribute?.displayValue).toStrictEqual(
       formatDate(new Date(vertex.attributes.created as any)),
     );
   });
 
-  it("should not add missing attributes from schema config", () => {
+  it("should not add missing attributes from schema config", async () => {
     const vertex = createRandomVertex();
     const schema = createRandomSchema();
     const vtConfig = createRandomVertexTypeConfig();
     vtConfig.type = vertex.type;
     schema.vertices.push(vtConfig);
 
-    const result = act(vertex, withSchema(schema));
+    const result = await act(vertex, withSchema(schema));
 
     expect(Object.keys(result.attributes)).not.toBe(
       expect.arrayContaining(vtConfig.attributes.map(a => a.name)),
     );
   });
 
-  it("should replace uri with prefixes when available", () => {
+  it("should replace uri with prefixes when available", async () => {
     const vertex = createRandomVertex();
     vertex.id = createVertexId("http://www.example.com/resources#foo");
     vertex.type = createVertexType("http://www.example.com/class#bar");
@@ -198,7 +200,7 @@ describe("useDisplayVertexFromVertex", () => {
       },
     ];
 
-    const displayVertex = act(
+    const displayVertex = await act(
       vertex,
       withSchemaAndConnection(schema, "sparql"),
     );
@@ -208,8 +210,11 @@ describe("useDisplayVertexFromVertex", () => {
 
   // Helpers
 
-  function act(vertex: Vertex, initializeState?: (store: AppStore) => void) {
-    const { result } = renderHookWithJotai(
+  async function act(
+    vertex: Vertex,
+    initializeState?: (store: AppStore) => void | Promise<void>,
+  ) {
+    const { result } = await renderHookWithJotai(
       () => useDisplayVertexFromVertex(vertex),
       initializeState,
     );
@@ -218,10 +223,10 @@ describe("useDisplayVertexFromVertex", () => {
 
   function withSchema(schema: SchemaStorageModel) {
     const config = createRandomRawConfiguration();
-    return (store: AppStore) => {
-      store.set(configurationAtom, new Map([[config.id, config]]));
-      store.set(schemaAtom, new Map([[config.id, schema]]));
-      store.set(activeConfigurationAtom, config.id);
+    return async (store: AppStore) => {
+      await store.set(configurationAtom, new Map([[config.id, config]]));
+      await store.set(schemaAtom, new Map([[config.id, schema]]));
+      await store.set(activeConfigurationAtom, config.id);
     };
   }
 
@@ -231,10 +236,10 @@ describe("useDisplayVertexFromVertex", () => {
   ) {
     const config = createRandomRawConfiguration();
     config.connection!.queryEngine = queryEngine;
-    return (store: AppStore) => {
-      store.set(configurationAtom, new Map([[config.id, config]]));
-      store.set(schemaAtom, new Map([[config.id, schema]]));
-      store.set(activeConfigurationAtom, config.id);
+    return async (store: AppStore) => {
+      await store.set(configurationAtom, new Map([[config.id, config]]));
+      await store.set(schemaAtom, new Map([[config.id, schema]]));
+      await store.set(activeConfigurationAtom, config.id);
     };
   }
 });

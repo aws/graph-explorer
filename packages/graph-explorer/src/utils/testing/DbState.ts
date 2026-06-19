@@ -185,25 +185,31 @@ export class DbState {
     return composedStyle;
   }
 
-  /** Applies the state to the given Jotai store. */
-  applyTo(store: AppStore) {
+  /**
+   * Applies the state to the given Jotai store.
+   *
+   * Awaits the localForage-backed atom writes so the seeded state is fully
+   * persisted before the test proceeds, and so a seeding failure surfaces as a
+   * test failure rather than an unhandled rejection at teardown.
+   */
+  async applyTo(store: AppStore) {
     // Config
-    store.set(
+    await store.set(
       configurationAtom,
       new Map([[this.activeConfig.id, this.activeConfig]]),
     );
     if (this._activeSchema) {
-      store.set(
+      await store.set(
         schemaAtom,
         new Map([[this.activeConfig.id, this._activeSchema]]),
       );
     } else {
-      store.set(schemaAtom, new Map());
+      await store.set(schemaAtom, new Map());
     }
-    store.set(activeConfigurationAtom, this.activeConfig.id);
+    await store.set(activeConfigurationAtom, this.activeConfig.id);
 
     // Styling
-    store.set(userStylingAtom, this.activeStyling);
+    await store.set(userStylingAtom, this.activeStyling);
 
     // Vertices
     store.set(nodesAtom, toNodeMap(this.vertices));
@@ -216,7 +222,7 @@ export class DbState {
     store.set(edgesTypesFilteredAtom, this.filteredEdgeTypes);
 
     // Graph Storage
-    store.set(
+    await store.set(
       allGraphSessionsAtom,
       new Map([
         [

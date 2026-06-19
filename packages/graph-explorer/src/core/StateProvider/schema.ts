@@ -29,7 +29,7 @@ import {
   type VertexId,
   type VertexType,
 } from "@/core";
-import { logger } from "@/utils";
+import { logAndNotify, logger } from "@/utils";
 import { generatePrefixes, PrefixLookup } from "@/utils/rdf";
 
 import { nodesAtom, toNodeMap } from "./nodes";
@@ -275,7 +275,7 @@ export const activeSchemaSelector = atom(
       updatedSchemaMap.set(schemaId, newValue);
 
       return updatedSchemaMap;
-    });
+    }).catch(logAndNotify("Failed to save the schema to the local cache."));
   },
 );
 

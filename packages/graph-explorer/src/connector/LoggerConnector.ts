@@ -1,13 +1,15 @@
+import { toast } from "sonner";
+
 import { logger } from "@/utils";
 
 export type LogLevel = "error" | "warn" | "info" | "debug" | "trace";
 
 export interface LoggerConnector {
-  error(message: unknown): void;
-  warn(message: unknown): void;
-  info(message: unknown): void;
-  debug(message: unknown): void;
-  trace(message: unknown): void;
+  error(message: unknown): Promise<void>;
+  warn(message: unknown): Promise<void>;
+  info(message: unknown): Promise<void>;
+  debug(message: unknown): Promise<void>;
+  trace(message: unknown): Promise<void>;
 }
 
 /** Sends log messages to the server in the connection configuration. */
@@ -22,56 +24,66 @@ export class ServerLoggerConnector implements LoggerConnector {
   }
 
   public error(message: unknown) {
-    this._clientLogger.error(message);
+    void this._clientLogger.error(message);
     return this._sendLog("error", message);
   }
 
   public warn(message: unknown) {
-    this._clientLogger.warn(message);
+    void this._clientLogger.warn(message);
     return this._sendLog("warn", message);
   }
 
   public info(message: unknown) {
-    this._clientLogger.info(message);
+    void this._clientLogger.info(message);
     return this._sendLog("info", message);
   }
 
   public debug(message: unknown) {
-    this._clientLogger.info(message);
+    void this._clientLogger.info(message);
     return this._sendLog("debug", message);
   }
 
   public trace(message: unknown) {
-    this._clientLogger.trace(message);
+    void this._clientLogger.trace(message);
     return this._sendLog("trace", message);
   }
 
-  private _sendLog(level: LogLevel, message: unknown) {
-    return fetch(this._baseUrl, {
-      method: "POST",
-      headers: {
-        level,
-        message: JSON.stringify(message),
-      },
-    }).catch(err => logger.error("Failed to send log to server", err));
+  private async _sendLog(level: LogLevel, message: unknown) {
+    try {
+      await fetch(this._baseUrl, {
+        method: "POST",
+        headers: {
+          level,
+          message: JSON.stringify(message),
+        },
+      });
+    } catch (error) {
+      logger.warn("Failed to send log to server", error);
+      toast.warning("Failed to send log to the server.");
+    }
   }
 }
 
 /** Sends logs to the browser's console. */
 export class ClientLoggerConnector implements LoggerConnector {
-  error(message: unknown): void {
+  error(message: unknown): Promise<void> {
     logger.error(message);
+    return Promise.resolve();
   }
-  warn(message: unknown): void {
+  warn(message: unknown): Promise<void> {
     logger.warn(message);
+    return Promise.resolve();
   }
-  info(message: unknown): void {
+  info(message: unknown): Promise<void> {
     logger.log(message);
+    return Promise.resolve();
   }
-  debug(message: unknown): void {
+  debug(message: unknown): Promise<void> {
     logger.debug(message);
+    return Promise.resolve();
   }
-  trace(message: unknown): void {
+  trace(message: unknown): Promise<void> {
     logger.log(message);
+    return Promise.resolve();
   }
 }

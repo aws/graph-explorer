@@ -20,65 +20,65 @@ import useExpandNode, {
 } from "./useExpandNode";
 
 describe("useDefaultNeighborExpansionLimit", () => {
-  it("should return the app limit when defined", () => {
+  it("should return the app limit when defined", async () => {
     const dbState = new DbState();
     if (dbState.activeConfig.connection) {
       delete dbState.activeConfig.connection.nodeExpansionLimit;
     }
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useDefaultNeighborExpansionLimit(),
-      store => {
-        dbState.applyTo(store);
-        store.set(defaultNeighborExpansionLimitAtom, 10);
-        store.set(defaultNeighborExpansionLimitEnabledAtom, true);
+      async store => {
+        await dbState.applyTo(store);
+        await store.set(defaultNeighborExpansionLimitAtom, 10);
+        await store.set(defaultNeighborExpansionLimitEnabledAtom, true);
       },
     );
 
     expect(result.current).toBe(10);
   });
 
-  it("should return the connection limit when defined", () => {
+  it("should return the connection limit when defined", async () => {
     const dbState = new DbState();
     if (dbState.activeConfig.connection) {
       dbState.activeConfig.connection.nodeExpansionLimit = 20;
     }
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useDefaultNeighborExpansionLimit(),
-      store => {
-        dbState.applyTo(store);
+      async store => {
+        await dbState.applyTo(store);
       },
     );
 
     expect(result.current).toBe(20);
   });
 
-  it("should return the connection limit when both app and connection limits are defined", () => {
+  it("should return the connection limit when both app and connection limits are defined", async () => {
     const dbState = new DbState();
     if (dbState.activeConfig.connection) {
       dbState.activeConfig.connection.nodeExpansionLimit = 20;
     }
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useDefaultNeighborExpansionLimit(),
-      store => {
-        dbState.applyTo(store);
-        store.set(defaultNeighborExpansionLimitEnabledAtom, true);
-        store.set(defaultNeighborExpansionLimitAtom, 10);
+      async store => {
+        await dbState.applyTo(store);
+        await store.set(defaultNeighborExpansionLimitEnabledAtom, true);
+        await store.set(defaultNeighborExpansionLimitAtom, 10);
       },
     );
 
     expect(result.current).toBe(20);
   });
 
-  it("should return null when neither app nor connection limits are defined", () => {
+  it("should return null when neither app nor connection limits are defined", async () => {
     const dbState = new DbState();
     if (dbState.activeConfig.connection) {
       delete dbState.activeConfig.connection.nodeExpansionLimit;
     }
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useDefaultNeighborExpansionLimit(),
-      store => {
-        dbState.applyTo(store);
-        store.set(defaultNeighborExpansionLimitEnabledAtom, false);
+      async store => {
+        await dbState.applyTo(store);
+        await store.set(defaultNeighborExpansionLimitEnabledAtom, false);
       },
     );
 
@@ -95,17 +95,17 @@ describe("useExpandNode", () => {
     dbState = new DbState(explorer);
   });
 
-  function renderHookExpandNode() {
-    return renderHookWithState(() => useExpandNode(), dbState);
+  async function renderHookExpandNode() {
+    return await renderHookWithState(() => useExpandNode(), dbState);
   }
 
-  it("should return isPending as false initially", () => {
-    const { result } = renderHookExpandNode();
+  it("should return isPending as false initially", async () => {
+    const { result } = await renderHookExpandNode();
 
     expect(result.current.isPending).toBe(false);
   });
 
-  it("should not expand when vertex has no unfetched neighbors", () => {
+  it("should not expand when vertex has no unfetched neighbors", async () => {
     const vertex = createTestableVertex();
     const neighbor = createTestableVertex();
     const edge = createTestableEdge().withSource(vertex).withTarget(neighbor);
@@ -114,7 +114,7 @@ describe("useExpandNode", () => {
     dbState.addTestableEdgeToGraph(edge);
     explorer.addTestableEdge(edge);
 
-    const { result } = renderHookExpandNode();
+    const { result } = await renderHookExpandNode();
 
     act(() => {
       result.current.expandNode({ vertexId: vertex.id });
@@ -137,7 +137,7 @@ describe("useExpandNode", () => {
 
     vi.spyOn(explorer, "fetchNeighbors");
 
-    const { result } = renderHookExpandNode();
+    const { result } = await renderHookExpandNode();
 
     act(() => {
       result.current.expandNode({ vertexId: vertex.id });
@@ -175,7 +175,7 @@ describe("useExpandNode", () => {
 
     vi.spyOn(explorer, "fetchNeighbors");
 
-    const { result } = renderHookExpandNode();
+    const { result } = await renderHookExpandNode();
 
     act(() => {
       result.current.expandNode({ vertexId: vertex.id });
@@ -217,7 +217,7 @@ describe("useExpandNode", () => {
 
       vi.spyOn(explorer, "fetchNeighbors");
 
-      const { result } = renderHookExpandNode();
+      const { result } = await renderHookExpandNode();
 
       act(() => {
         result.current.expandNodes({ vertexIds: [vertex1.id, vertex2.id] });
@@ -252,7 +252,7 @@ describe("useExpandNode", () => {
 
       vi.spyOn(explorer, "fetchNeighbors");
 
-      const { result } = renderHookExpandNode();
+      const { result } = await renderHookExpandNode();
 
       act(() => {
         result.current.expandNodes({ vertexIds: [vertex1.id, vertex2.id] });
@@ -287,7 +287,7 @@ describe("useExpandNode", () => {
 
       vi.spyOn(explorer, "fetchNeighbors");
 
-      const { result } = renderHookExpandNode();
+      const { result } = await renderHookExpandNode();
 
       const request: ExpandNodesRequest = {
         vertexIds: [vertex1.id, vertex2.id],

@@ -98,7 +98,7 @@ export function createSparqlExplorer(
   return {
     connection: connection,
     async fetchSchema(options) {
-      remoteLogger.info("[SPARQL Explorer] Fetching schema...");
+      void remoteLogger.info("[SPARQL Explorer] Fetching schema...");
       const summary = await fetchSummary(connection, featureFlags, options);
       return fetchSchema(
         _sparqlFetch(connection, featureFlags, options),
@@ -107,14 +107,16 @@ export function createSparqlExplorer(
       );
     },
     async fetchVertexCountsByType(req, options) {
-      remoteLogger.info("[SPARQL Explorer] Fetching vertex counts by type...");
+      void remoteLogger.info(
+        "[SPARQL Explorer] Fetching vertex counts by type...",
+      );
       return fetchClassCounts(
         _sparqlFetch(connection, featureFlags, options),
         req,
       );
     },
     async fetchNeighbors(req, options) {
-      remoteLogger.info("[SPARQL Explorer] Fetching neighbors...");
+      void remoteLogger.info("[SPARQL Explorer] Fetching neighbors...");
       const request: SPARQLNeighborsRequest = {
         resourceURI: req.vertexId,
         subjectClasses: req.filterByVertexTypes,
@@ -143,7 +145,7 @@ export function createSparqlExplorer(
       return { vertices, edges: response.edges };
     },
     async neighborCounts(req, options) {
-      remoteLogger.info("[SPARQL Explorer] Fetching neighbor counts...");
+      void remoteLogger.info("[SPARQL Explorer] Fetching neighbor counts...");
       return neighborCounts(
         _sparqlFetch(connection, featureFlags, options),
         req,
@@ -154,7 +156,7 @@ export function createSparqlExplorer(
       options ??= {};
       options.queryId = v4();
 
-      remoteLogger.info("[SPARQL Explorer] Fetching keyword search...");
+      void remoteLogger.info("[SPARQL Explorer] Fetching keyword search...");
 
       const reqParams: SPARQLKeywordSearchRequest = {
         searchTerm: req.searchTerm,
@@ -178,7 +180,7 @@ export function createSparqlExplorer(
       return { vertices };
     },
     async vertexDetails(req, options) {
-      remoteLogger.info("[SPARQL Explorer] Fetching vertex details...");
+      void remoteLogger.info("[SPARQL Explorer] Fetching vertex details...");
       return await vertexDetails(
         _sparqlFetch(connection, featureFlags, options),
         req,
@@ -188,14 +190,14 @@ export function createSparqlExplorer(
       return Promise.resolve(edgeDetails(req));
     },
     async rawQuery(req, options) {
-      remoteLogger.info("[SPARQL Explorer] Fetching raw query...");
+      void remoteLogger.info("[SPARQL Explorer] Fetching raw query...");
       return await rawQuery(
         _sparqlFetch(connection, featureFlags, options),
         req,
       );
     },
     async fetchEdgeConnections(req, options) {
-      remoteLogger.info("[SPARQL Explorer] Fetching edge connections...");
+      void remoteLogger.info("[SPARQL Explorer] Fetching edge connections...");
       return fetchEdgeConnections(
         _sparqlFetch(connection, featureFlags, options),
         req,

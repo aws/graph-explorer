@@ -1,4 +1,4 @@
-import { env } from "@/utils";
+import { env, logAndIgnore } from "@/utils";
 
 import type { BoundingBox } from "./types";
 
@@ -104,21 +104,23 @@ const drawImage = (
 
   if (src.match(/\.svg$/i)) {
     IMAGES_PENDING.add(`${src}::${color || "default"}`);
-    fetchIcon(src).then(icon => {
-      IMAGES_PENDING.delete(`${src}::${color || "default"}`);
+    fetchIcon(src)
+      .then(icon => {
+        IMAGES_PENDING.delete(`${src}::${color || "default"}`);
 
-      let iconSrc = icon;
-      if (icon && color) {
-        iconSrc = colorizeSvg(icon, color);
-      }
+        let iconSrc = icon;
+        if (icon && color) {
+          iconSrc = colorizeSvg(icon, color);
+        }
 
-      if (!iconSrc) {
-        return;
-      }
+        if (!iconSrc) {
+          return;
+        }
 
-      createImage(iconSrc);
-      context.restore();
-    });
+        createImage(iconSrc);
+        context.restore();
+      })
+      .catch(logAndIgnore);
 
     return;
   }

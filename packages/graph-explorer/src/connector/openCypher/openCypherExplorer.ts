@@ -50,7 +50,7 @@ export function createOpenCypherExplorer(
   return {
     connection,
     async fetchSchema(options) {
-      remoteLogger.info("[openCypher Explorer] Fetching schema...");
+      void remoteLogger.info("[openCypher Explorer] Fetching schema...");
       const summary = await fetchSummary(
         serviceType,
         connection,
@@ -64,7 +64,7 @@ export function createOpenCypherExplorer(
       );
     },
     async fetchVertexCountsByType(req, options) {
-      remoteLogger.info(
+      void remoteLogger.info(
         "[openCypher Explorer] Fetching vertex counts by type...",
       );
       return fetchVertexTypeCounts(
@@ -73,46 +73,54 @@ export function createOpenCypherExplorer(
       );
     },
     async fetchNeighbors(req, options) {
-      remoteLogger.info("[openCypher Explorer] Fetching neighbors...");
+      void remoteLogger.info("[openCypher Explorer] Fetching neighbors...");
       return fetchNeighbors(
         _openCypherFetch(connection, featureFlags, options),
         req,
       );
     },
     async neighborCounts(req, options) {
-      remoteLogger.info("[openCypher Explorer] Fetching neighbors count...");
+      void remoteLogger.info(
+        "[openCypher Explorer] Fetching neighbors count...",
+      );
       return neighborCounts(
         _openCypherFetch(connection, featureFlags, options),
         req,
       );
     },
     async keywordSearch(req, options) {
-      remoteLogger.info("[openCypher Explorer] Fetching keyword search...");
+      void remoteLogger.info(
+        "[openCypher Explorer] Fetching keyword search...",
+      );
       return keywordSearch(
         _openCypherFetch(connection, featureFlags, options),
         req,
       );
     },
     async vertexDetails(req, options) {
-      remoteLogger.info("[openCypher Explorer] Fetching vertex details...");
+      void remoteLogger.info(
+        "[openCypher Explorer] Fetching vertex details...",
+      );
       return vertexDetails(
         _openCypherFetch(connection, featureFlags, options),
         req,
       );
     },
     async edgeDetails(req, options) {
-      remoteLogger.info("[openCypher Explorer] Fetching edge details...");
+      void remoteLogger.info("[openCypher Explorer] Fetching edge details...");
       return edgeDetails(
         _openCypherFetch(connection, featureFlags, options),
         req,
       );
     },
     async rawQuery(req, options) {
-      remoteLogger.info("[openCypher Explorer] Fetching raw query...");
+      void remoteLogger.info("[openCypher Explorer] Fetching raw query...");
       return rawQuery(_openCypherFetch(connection, featureFlags, options), req);
     },
     async fetchEdgeConnections(req, options) {
-      remoteLogger.info("[openCypher Explorer] Fetching edge connections...");
+      void remoteLogger.info(
+        "[openCypher Explorer] Fetching edge connections...",
+      );
       return fetchEdgeConnections(
         _openCypherFetch(connection, featureFlags, options),
         req,

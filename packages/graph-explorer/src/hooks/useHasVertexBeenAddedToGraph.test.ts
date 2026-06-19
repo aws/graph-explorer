@@ -9,18 +9,18 @@ import { createRandomVertex, renderHookWithJotai } from "@/utils/testing";
 
 import { useHasVertexBeenAddedToGraph } from "./useHasVertexBeenAddedToGraph";
 
-test("returns false if vertex has not been added to graph", () => {
+test("returns false if vertex has not been added to graph", async () => {
   const vertex = createRandomVertex();
-  const { result } = renderHookWithJotai(() =>
+  const { result } = await renderHookWithJotai(() =>
     useHasVertexBeenAddedToGraph(vertex.id),
   );
 
   expect(result.current).toBe(false);
 });
 
-test("returns true if vertex has been added to graph", () => {
+test("returns true if vertex has been added to graph", async () => {
   const vertex = createRandomVertex();
-  const { result } = renderHookWithJotai(
+  const { result } = await renderHookWithJotai(
     () => useHasVertexBeenAddedToGraph(vertex.id),
     store => {
       store.set(nodesAtom, toNodeMap([vertex]));
@@ -30,9 +30,9 @@ test("returns true if vertex has been added to graph", () => {
   expect(result.current).toBe(true);
 });
 
-test("returns true if vertex has been added to graph and is filtered out by id", () => {
+test("returns true if vertex has been added to graph and is filtered out by id", async () => {
   const vertex = createRandomVertex();
-  const { result } = renderHookWithJotai(
+  const { result } = await renderHookWithJotai(
     () => useHasVertexBeenAddedToGraph(vertex.id),
     store => {
       store.set(nodesAtom, toNodeMap([vertex]));
@@ -43,9 +43,9 @@ test("returns true if vertex has been added to graph and is filtered out by id",
   expect(result.current).toBe(true);
 });
 
-test("returns true if vertex has been added to graph and is filtered out by type", () => {
+test("returns true if vertex has been added to graph and is filtered out by type", async () => {
   const vertex = createRandomVertex();
-  const { result } = renderHookWithJotai(
+  const { result } = await renderHookWithJotai(
     () => useHasVertexBeenAddedToGraph(vertex.id),
     store => {
       store.set(nodesAtom, toNodeMap([vertex]));

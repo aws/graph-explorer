@@ -1040,17 +1040,17 @@ describe("referential integrity", () => {
 });
 
 describe("useGraphSchema edgeConnections", () => {
-  test("should return empty edgeConnections when schema has none", () => {
+  test("should return empty edgeConnections when schema has none", async () => {
     const state = new DbState();
     state.activeSchema.edgeConnections = undefined;
 
-    const { result } = renderHookWithState(() => useGraphSchema(), state);
+    const { result } = await renderHookWithState(() => useGraphSchema(), state);
 
     expect(result.current.edgeConnections.byVertexType.size).toBe(0);
     expect(result.current.edgeConnections.byEdgeConnectionId.size).toBe(0);
   });
 
-  test("should group connections by vertex type", () => {
+  test("should group connections by vertex type", async () => {
     const sharedVertexType = createRandomVertexType();
     const conn1 = createRandomEdgeConnection();
     const conn2 = createRandomEdgeConnection();
@@ -1060,14 +1060,14 @@ describe("useGraphSchema edgeConnections", () => {
     const state = new DbState();
     state.activeSchema.edgeConnections = [conn1, conn2];
 
-    const { result } = renderHookWithState(() => useGraphSchema(), state);
+    const { result } = await renderHookWithState(() => useGraphSchema(), state);
 
     const connectionsForShared =
       result.current.edgeConnections.byVertexType.get(sharedVertexType);
     expect(connectionsForShared).toStrictEqual([conn1, conn2]);
   });
 
-  test("forVertexType should return connections for a vertex type", () => {
+  test("forVertexType should return connections for a vertex type", async () => {
     const vertexType = createRandomVertexType();
     const conn = createRandomEdgeConnection();
     conn.sourceVertexType = vertexType;
@@ -1075,25 +1075,25 @@ describe("useGraphSchema edgeConnections", () => {
     const state = new DbState();
     state.activeSchema.edgeConnections = [conn];
 
-    const { result } = renderHookWithState(() => useGraphSchema(), state);
+    const { result } = await renderHookWithState(() => useGraphSchema(), state);
 
     expect(
       result.current.edgeConnections.forVertexType(vertexType),
     ).toStrictEqual([conn]);
   });
 
-  test("forVertexType should return empty array for unknown vertex type", () => {
+  test("forVertexType should return empty array for unknown vertex type", async () => {
     const state = new DbState();
     state.activeSchema.edgeConnections = [createRandomEdgeConnection()];
 
-    const { result } = renderHookWithState(() => useGraphSchema(), state);
+    const { result } = await renderHookWithState(() => useGraphSchema(), state);
 
     expect(
       result.current.edgeConnections.forVertexType(createRandomVertexType()),
     ).toStrictEqual([]);
   });
 
-  test("should not duplicate connection when source equals target", () => {
+  test("should not duplicate connection when source equals target", async () => {
     const vertexType = createRandomVertexType();
     const conn = createRandomEdgeConnection();
     conn.sourceVertexType = vertexType;
@@ -1102,31 +1102,31 @@ describe("useGraphSchema edgeConnections", () => {
     const state = new DbState();
     state.activeSchema.edgeConnections = [conn];
 
-    const { result } = renderHookWithState(() => useGraphSchema(), state);
+    const { result } = await renderHookWithState(() => useGraphSchema(), state);
 
     expect(
       result.current.edgeConnections.forVertexType(vertexType),
     ).toStrictEqual([conn]);
   });
 
-  test("byEdgeConnectionId should map connections by their ID", () => {
+  test("byEdgeConnectionId should map connections by their ID", async () => {
     const conn1 = createRandomEdgeConnection();
     const conn2 = createRandomEdgeConnection();
     const state = new DbState();
     state.activeSchema.edgeConnections = [conn1, conn2];
 
-    const { result } = renderHookWithState(() => useGraphSchema(), state);
+    const { result } = await renderHookWithState(() => useGraphSchema(), state);
 
     expect(result.current.edgeConnections.byEdgeConnectionId.size).toBe(2);
   });
 
-  test("byEdgeConnectionId should allow lookup by ID", () => {
+  test("byEdgeConnectionId should allow lookup by ID", async () => {
     const conn = createRandomEdgeConnection();
     const id = createEdgeConnectionId(conn);
     const state = new DbState();
     state.activeSchema.edgeConnections = [conn];
 
-    const { result } = renderHookWithState(() => useGraphSchema(), state);
+    const { result } = await renderHookWithState(() => useGraphSchema(), state);
 
     expect(
       result.current.edgeConnections.byEdgeConnectionId.get(id),
@@ -1135,10 +1135,10 @@ describe("useGraphSchema edgeConnections", () => {
 });
 
 describe("useUpdateSchemaFromEntities", () => {
-  it("should not churn schemaAtom when active config has no schema entry", () => {
+  it("should not churn schemaAtom when active config has no schema entry", async () => {
     const state = new DbState().withNoActiveSchema();
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => ({
         updateSchema: useUpdateSchemaFromEntities(),
         schemaMap: useAtomValue(schemaAtom),
@@ -1157,7 +1157,7 @@ describe("useUpdateSchemaFromEntities", () => {
     expect(result.current.schemaMap).toBe(schemaMapBefore);
   });
 
-  it("should not churn schemaAtom when entities already match schema", () => {
+  it("should not churn schemaAtom when entities already match schema", async () => {
     const state = new DbState();
     const existingVertex = createRandomVertex();
     existingVertex.type = state.activeSchema.vertices[0].type;
@@ -1168,7 +1168,7 @@ describe("useUpdateSchemaFromEntities", () => {
         return acc;
       }, {} as EntityProperties);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => ({
         updateSchema: useUpdateSchemaFromEntities(),
         schemaMap: useAtomValue(schemaAtom),
@@ -1187,7 +1187,7 @@ describe("useUpdateSchemaFromEntities", () => {
     expect(result.current.schemaMap).toBe(schemaMapBefore);
   });
 
-  it("should infer edge connections from entities and canvas vertices", () => {
+  it("should infer edge connections from entities and canvas vertices", async () => {
     const state = new DbState();
     state.activeSchema.edgeConnections = [];
 
@@ -1213,7 +1213,7 @@ describe("useUpdateSchemaFromEntities", () => {
       attributes: {},
     });
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => ({
         updateSchema: useUpdateSchemaFromEntities(),
         schema: useAtomValue(activeSchemaSelector),
@@ -1233,7 +1233,7 @@ describe("useUpdateSchemaFromEntities", () => {
     ]);
   });
 
-  it("should prefer entity vertices over canvas vertices for edge connections", () => {
+  it("should prefer entity vertices over canvas vertices for edge connections", async () => {
     const state = new DbState();
     state.activeSchema.edgeConnections = [];
 
@@ -1264,7 +1264,7 @@ describe("useUpdateSchemaFromEntities", () => {
       attributes: {},
     });
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => ({
         updateSchema: useUpdateSchemaFromEntities(),
         schema: useAtomValue(activeSchemaSelector),
@@ -1286,59 +1286,65 @@ describe("useUpdateSchemaFromEntities", () => {
 });
 
 describe("useHasActiveSchema", () => {
-  test("should return false when schema has no lastUpdate", () => {
+  test("should return false when schema has no lastUpdate", async () => {
     const state = new DbState();
     state.activeSchema.lastUpdate = undefined;
 
-    const { result } = renderHookWithState(() => useHasActiveSchema(), state);
+    const { result } = await renderHookWithState(
+      () => useHasActiveSchema(),
+      state,
+    );
 
     expect(result.current).toBe(false);
   });
 
-  test("should return true when schema has lastUpdate", () => {
+  test("should return true when schema has lastUpdate", async () => {
     const state = new DbState();
     state.activeSchema.lastUpdate = new Date();
 
-    const { result } = renderHookWithState(() => useHasActiveSchema(), state);
+    const { result } = await renderHookWithState(
+      () => useHasActiveSchema(),
+      state,
+    );
 
     expect(result.current).toBe(true);
   });
 });
 
 describe("maybeActiveSchemaAtom", () => {
-  it("returns undefined when no active configuration exists", () => {
-    const { result } = renderHookWithJotai(() =>
+  it("returns undefined when no active configuration exists", async () => {
+    const { result } = await renderHookWithJotai(() =>
       useAtomValue(maybeActiveSchemaAtom),
     );
 
     expect(result.current).toBeUndefined();
   });
 
-  it("returns undefined when active config has no schema", () => {
+  it("returns undefined when active config has no schema", async () => {
     const config = createRandomRawConfiguration();
 
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useAtomValue(maybeActiveSchemaAtom),
-      store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
-        store.set(schemaAtom, new Map());
+      async store => {
+        await store.set(configurationAtom, new Map([[config.id, config]]));
+        await store.set(activeConfigurationAtom, config.id);
+        await store.set(schemaAtom, new Map());
       },
     );
 
     expect(result.current).toBeUndefined();
   });
 
-  it("returns the schema when one exists", () => {
+  it("returns the schema when one exists", async () => {
     const config = createRandomRawConfiguration();
     const schema = createRandomSchema();
 
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useAtomValue(maybeActiveSchemaAtom),
-      store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
-        store.set(schemaAtom, new Map([[config.id, schema]]));
+      async store => {
+        await store.set(configurationAtom, new Map([[config.id, config]]));
+        await store.set(activeConfigurationAtom, config.id);
+        await store.set(schemaAtom, new Map([[config.id, schema]]));
       },
     );
 
@@ -1347,37 +1353,37 @@ describe("maybeActiveSchemaAtom", () => {
 });
 
 describe("useMaybeActiveSchema", () => {
-  it("returns undefined when no active configuration exists", () => {
-    const { result } = renderHookWithJotai(() => useMaybeActiveSchema());
+  it("returns undefined when no active configuration exists", async () => {
+    const { result } = await renderHookWithJotai(() => useMaybeActiveSchema());
 
     expect(result.current).toBeUndefined();
   });
 
-  it("returns undefined when active config has no schema", () => {
+  it("returns undefined when active config has no schema", async () => {
     const config = createRandomRawConfiguration();
 
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useMaybeActiveSchema(),
-      store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
-        store.set(schemaAtom, new Map());
+      async store => {
+        await store.set(configurationAtom, new Map([[config.id, config]]));
+        await store.set(activeConfigurationAtom, config.id);
+        await store.set(schemaAtom, new Map());
       },
     );
 
     expect(result.current).toBeUndefined();
   });
 
-  it("returns the schema when one exists", () => {
+  it("returns the schema when one exists", async () => {
     const config = createRandomRawConfiguration();
     const schema = createRandomSchema();
 
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useMaybeActiveSchema(),
-      store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
-        store.set(schemaAtom, new Map([[config.id, schema]]));
+      async store => {
+        await store.set(configurationAtom, new Map([[config.id, config]]));
+        await store.set(activeConfigurationAtom, config.id);
+        await store.set(schemaAtom, new Map([[config.id, schema]]));
       },
     );
 
@@ -1386,8 +1392,8 @@ describe("useMaybeActiveSchema", () => {
 });
 
 describe("useActiveSchema", () => {
-  it("returns empty schema when no active configuration exists", () => {
-    const { result } = renderHookWithJotai(() => useActiveSchema());
+  it("returns empty schema when no active configuration exists", async () => {
+    const { result } = await renderHookWithJotai(() => useActiveSchema());
 
     expect(result.current).toStrictEqual({
       vertices: [],
@@ -1396,15 +1402,15 @@ describe("useActiveSchema", () => {
     });
   });
 
-  it("returns empty schema when active config has no schema", () => {
+  it("returns empty schema when active config has no schema", async () => {
     const config = createRandomRawConfiguration();
 
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useActiveSchema(),
-      store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
-        store.set(schemaAtom, new Map());
+      async store => {
+        await store.set(configurationAtom, new Map([[config.id, config]]));
+        await store.set(activeConfigurationAtom, config.id);
+        await store.set(schemaAtom, new Map());
       },
     );
 
@@ -1415,16 +1421,16 @@ describe("useActiveSchema", () => {
     });
   });
 
-  it("returns the schema when one exists", () => {
+  it("returns the schema when one exists", async () => {
     const config = createRandomRawConfiguration();
     const schema = createRandomSchema();
 
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useActiveSchema(),
-      store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
-        store.set(schemaAtom, new Map([[config.id, schema]]));
+      async store => {
+        await store.set(configurationAtom, new Map([[config.id, config]]));
+        await store.set(activeConfigurationAtom, config.id);
+        await store.set(schemaAtom, new Map([[config.id, schema]]));
       },
     );
 

@@ -28,7 +28,7 @@ import {
   schemaAtom,
 } from "@/core";
 import useResetState from "@/core/StateProvider/useResetState";
-import { formatDate, logger } from "@/utils";
+import { formatDate, logAndNotify, logger } from "@/utils";
 import {
   DEFAULT_FETCH_TIMEOUT,
   DEFAULT_NODE_EXPAND_LIMIT,
@@ -121,8 +121,16 @@ const CreateConnection = ({
             const updatedConfig = new Map(prevConfigMap);
             updatedConfig.set(newConfigId, newConfig);
             return updatedConfig;
-          });
-          set(activeConfigurationAtom, newConfigId);
+          }).catch(
+            logAndNotify("Failed to save the connection.", {
+              description: "Your changes may be lost when you reload.",
+            }),
+          );
+          set(activeConfigurationAtom, newConfigId).catch(
+            logAndNotify("Failed to save the connection.", {
+              description: "Your changes may be lost when you reload.",
+            }),
+          );
           return;
         }
 
@@ -142,7 +150,11 @@ const CreateConnection = ({
           });
           updated.set(configId, updatedConfig);
           return updated;
-        });
+        }).catch(
+          logAndNotify("Failed to save the connection.", {
+            description: "Your changes may be lost when you reload.",
+          }),
+        );
 
         const urlChange = initialData?.url !== data.url;
         const dbUrlChange = initialData?.graphDbUrl !== data.graphDbUrl;
@@ -159,7 +171,7 @@ const CreateConnection = ({
             const updatedSchema = new Map(prevSchemaMap);
             updatedSchema.delete(configId);
             return updatedSchema;
-          });
+          }).catch(logAndNotify("Failed to clear the cached schema."));
 
           // Delete previous session data
           set(allGraphSessionsAtom, prev => {
@@ -167,7 +179,7 @@ const CreateConnection = ({
             logger.log("Deleting previous graph session");
             updatedGraphs.delete(configId);
             return updatedGraphs;
-          });
+          }).catch(logAndNotify("Failed to clear the previous graph session."));
 
           // Reseting all query state. Using `removeQueries()` to ensure initial data is recalculated.
           // This ensures dependent queries execute in the right order

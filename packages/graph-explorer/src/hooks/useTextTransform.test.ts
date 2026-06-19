@@ -17,7 +17,7 @@ import {
 
 import useTextTransform from "./useTextTransform";
 
-function initializeConfigWithPrefix(store: AppStore) {
+async function initializeConfigWithPrefix(store: AppStore) {
   // Create config and setup schema
   const config = createRandomRawConfiguration();
   const schema = createRandomSchema();
@@ -28,65 +28,65 @@ function initializeConfigWithPrefix(store: AppStore) {
       uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#" as IriNamespace,
     },
   ];
-  store.set(configurationAtom, new Map([[config.id, config]]));
-  store.set(schemaAtom, new Map([[config.id, schema]]));
+  await store.set(configurationAtom, new Map([[config.id, config]]));
+  await store.set(schemaAtom, new Map([[config.id, schema]]));
 
   // Make config active
-  store.set(activeConfigurationAtom, config.id);
+  await store.set(activeConfigurationAtom, config.id);
 }
 
 describe("useTextTransform", () => {
   beforeEach(() => {
     vi.resetAllMocks();
   });
-  it("should replace prefixes in URIs", () => {
+  it("should replace prefixes in URIs", async () => {
     const text = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
     const expected = "rdf:type";
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useTextTransform(),
       initializeConfigWithPrefix,
     );
     expect(result.current(text)).toEqual(expected);
   });
 
-  it("should not modify text", () => {
+  it("should not modify text", async () => {
     const text = "this is a test";
-    const { result } = renderHookWithJotai(() => useTextTransform());
+    const { result } = await renderHookWithJotai(() => useTextTransform());
     expect(result.current(text)).toBe(text);
   });
 
-  it("should return the original text if no transformation is needed", () => {
+  it("should return the original text if no transformation is needed", async () => {
     const text = "This Is A Test";
-    const { result } = renderHookWithJotai(() => useTextTransform());
+    const { result } = await renderHookWithJotai(() => useTextTransform());
     expect(result.current(text)).toBe(text);
   });
 
-  it("should handle empty string", () => {
+  it("should handle empty string", async () => {
     const input = "";
-    const { result } = renderHookWithJotai(() => useTextTransform());
+    const { result } = await renderHookWithJotai(() => useTextTransform());
     expect(result.current(input)).toBe(input);
   });
 
-  it("should handle strings with invalid characters", () => {
+  it("should handle strings with invalid characters", async () => {
     const input = "str\u{1F600}";
-    const { result } = renderHookWithJotai(() => useTextTransform());
+    const { result } = await renderHookWithJotai(() => useTextTransform());
     expect(result.current(input)).toBe(input);
   });
 
   // Boundary cases
-  it("should return original input if it's a URI not in schema.prefixes", () => {
+  it("should return original input if it's a URI not in schema.prefixes", async () => {
     const input = "http://www.some-uri.com/";
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useTextTransform(),
       initializeConfigWithPrefix,
     );
     expect(result.current(input)).toBe(input);
   });
 
-  it("should return original input if the connection.queryEngine is 'sparql' and input doesn't contain a URI", () => {
+  it("should return original input if the connection.queryEngine is 'sparql' and input doesn't contain a URI", async () => {
     const input = "Some Text Without URI";
 
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useTextTransform(),
       initializeConfigWithPrefix,
     );
@@ -95,9 +95,9 @@ describe("useTextTransform", () => {
   });
 
   // Random data
-  it("should handle random data", () => {
+  it("should handle random data", async () => {
     const input = "str\u{1F600}abcdef";
-    const { result } = renderHookWithJotai(() => useTextTransform());
+    const { result } = await renderHookWithJotai(() => useTextTransform());
     expect(result.current(input)).toBe(input);
   });
 });

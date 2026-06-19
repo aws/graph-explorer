@@ -9,6 +9,7 @@ import {
   schemaAtom,
 } from "@/core";
 import useResetState from "@/core/StateProvider/useResetState";
+import { logAndNotify } from "@/utils";
 import { fromFileToJson } from "@/utils/fileData";
 import { parseConnectionFile } from "@/utils/parseConnectionFile";
 
@@ -37,13 +38,15 @@ export function useImportConnectionFile() {
             connection: parsedFile.connection,
           });
           return updatedConfig;
-        });
+        }).catch(logAndNotify("Failed to import the connection."));
         set(schemaAtom, prevSchema => {
           const updatedSchema = new Map(prevSchema);
           updatedSchema.set(newId, parsedFile.schema);
           return updatedSchema;
-        });
-        set(activeConfigurationAtom, newId);
+        }).catch(logAndNotify("Failed to import the connection."));
+        set(activeConfigurationAtom, newId).catch(
+          logAndNotify("Failed to import the connection."),
+        );
 
         resetState();
       },

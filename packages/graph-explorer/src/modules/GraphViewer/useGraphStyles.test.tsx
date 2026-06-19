@@ -53,7 +53,10 @@ describe("useGraphStyles", () => {
     dbState.activeSchema.vertices = [vertexConfig];
     dbState.addVertexStyle(vertexConfig.type, vertexConfig);
 
-    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+    const { result } = await renderHookWithState(
+      () => useGraphStyles(),
+      dbState,
+    );
 
     await waitFor(() => {
       const vertexStyle = getStyles(result)[`node[type="Person"]`] as any;
@@ -72,7 +75,7 @@ describe("useGraphStyles", () => {
     });
   });
 
-  it("should generate edge styles correctly", () => {
+  it("should generate edge styles correctly", async () => {
     const edgeConfig = {
       ...createRandomEdgeTypeConfig(),
       type: createEdgeType("KNOWS"),
@@ -90,7 +93,10 @@ describe("useGraphStyles", () => {
     dbState.activeSchema.edges = [edgeConfig];
     dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
 
-    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+    const { result } = await renderHookWithState(
+      () => useGraphStyles(),
+      dbState,
+    );
 
     const edgeStyle = getStyles(result)[`edge[type="KNOWS"]`] as any;
     expect(edgeStyle).toMatchObject({
@@ -113,7 +119,7 @@ describe("useGraphStyles", () => {
     });
   });
 
-  it("should set border-opacity to 1 when border width is non-zero", () => {
+  it("should set border-opacity to 1 when border width is non-zero", async () => {
     const vertexConfig = {
       ...createRandomVertexTypeConfig(),
       type: createVertexType("Person"),
@@ -122,13 +128,16 @@ describe("useGraphStyles", () => {
     dbState.activeSchema.vertices = [vertexConfig];
     dbState.addVertexStyle(vertexConfig.type, vertexConfig);
 
-    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+    const { result } = await renderHookWithState(
+      () => useGraphStyles(),
+      dbState,
+    );
 
     const vertexStyle = getStyles(result)[`node[type="Person"]`] as any;
     expect(vertexStyle["border-opacity"]).toBe(1);
   });
 
-  it("should set border-opacity to 0 when border width is zero", () => {
+  it("should set border-opacity to 0 when border width is zero", async () => {
     const vertexConfig = {
       ...createRandomVertexTypeConfig(),
       type: createVertexType("Person"),
@@ -137,14 +146,17 @@ describe("useGraphStyles", () => {
     dbState.activeSchema.vertices = [vertexConfig];
     dbState.addVertexStyle(vertexConfig.type, vertexConfig);
 
-    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+    const { result } = await renderHookWithState(
+      () => useGraphStyles(),
+      dbState,
+    );
 
     const vertexStyle = getStyles(result)[`node[type="Person"]`] as any;
     expect(vertexStyle["border-width"]).toBe(0);
     expect(vertexStyle["border-opacity"]).toBe(0);
   });
 
-  it("should handle edge config with dotted line style", () => {
+  it("should handle edge config with dotted line style", async () => {
     const edgeConfig = {
       ...createRandomEdgeTypeConfig(),
       type: createEdgeType("KNOWS"),
@@ -153,14 +165,17 @@ describe("useGraphStyles", () => {
     dbState.activeSchema.edges = [edgeConfig];
     dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
 
-    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+    const { result } = await renderHookWithState(
+      () => useGraphStyles(),
+      dbState,
+    );
 
     const edgeStyle = getStyles(result)[`edge[type="KNOWS"]`] as any;
     expect(edgeStyle["line-style"]).toBe("dashed");
     expect(edgeStyle["line-dash-pattern"]).toEqual([1, 2]);
   });
 
-  it("should handle edge config with dashed line style", () => {
+  it("should handle edge config with dashed line style", async () => {
     const edgeConfig = {
       ...createRandomEdgeTypeConfig(),
       type: createEdgeType("KNOWS"),
@@ -169,14 +184,17 @@ describe("useGraphStyles", () => {
     dbState.activeSchema.edges = [edgeConfig];
     dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
 
-    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+    const { result } = await renderHookWithState(
+      () => useGraphStyles(),
+      dbState,
+    );
 
     const edgeStyle = getStyles(result)[`edge[type="KNOWS"]`] as any;
     expect(edgeStyle["line-style"]).toBe("dashed");
     expect(edgeStyle["line-dash-pattern"]).toEqual([5, 6]);
   });
 
-  it("should use light text color for light label background", () => {
+  it("should use light text color for light label background", async () => {
     const edgeConfig = {
       ...createRandomEdgeTypeConfig(),
       type: createEdgeType("KNOWS"),
@@ -185,25 +203,31 @@ describe("useGraphStyles", () => {
     dbState.activeSchema.edges = [edgeConfig];
     dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
 
-    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+    const { result } = await renderHookWithState(
+      () => useGraphStyles(),
+      dbState,
+    );
 
     const edgeStyle = getStyles(result)[`edge[type="KNOWS"]`] as any;
     expect(edgeStyle.color).toBe("#000000"); // Black text for light background
   });
 
-  it("should handle text transformation for edge labels", () => {
+  it("should handle text transformation for edge labels", async () => {
     const edgeConfig = createRandomEdgeTypeConfig();
     dbState.activeSchema.edges = [edgeConfig];
     dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
 
-    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+    const { result } = await renderHookWithState(
+      () => useGraphStyles(),
+      dbState,
+    );
 
     // The hook should work with the text transform functionality
     // This test verifies the integration works properly
     expect(getStyles(result)[`edge[type="${edgeConfig.type}"]`]).toBeDefined();
   });
 
-  it("should truncate long edge labels", () => {
+  it("should truncate long edge labels", async () => {
     const longEdgeType = createEdgeType(
       "VERY_LONG_EDGE_TYPE_NAME_THAT_EXCEEDS_LIMIT",
     );
@@ -214,7 +238,10 @@ describe("useGraphStyles", () => {
     dbState.activeSchema.edges = [edgeConfig];
     dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
 
-    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+    const { result } = await renderHookWithState(
+      () => useGraphStyles(),
+      dbState,
+    );
 
     // The label function should be defined, but we can't easily test the truncation
     // without mocking the text transform function more specifically
@@ -222,7 +249,7 @@ describe("useGraphStyles", () => {
     expect(edgeStyle.label).toBeDefined();
   });
 
-  it("should have label use the display name in the data", () => {
+  it("should have label use the display name in the data", async () => {
     const edgeConfig = {
       ...createRandomEdgeTypeConfig(),
       type: createEdgeType("KNOWS"),
@@ -230,13 +257,16 @@ describe("useGraphStyles", () => {
     dbState.activeSchema.edges = [edgeConfig];
     dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
 
-    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+    const { result } = await renderHookWithState(
+      () => useGraphStyles(),
+      dbState,
+    );
 
     const edgeStyle = getStyles(result)[`edge[type="KNOWS"]`] as any;
     expect(edgeStyle.label).toEqual("data(displayName)");
   });
 
-  it("should handle renderNode failure gracefully", () => {
+  it("should handle renderNode failure gracefully", async () => {
     const vertexConfig = {
       ...createRandomVertexTypeConfig(),
       type: createVertexType("Person"),
@@ -246,13 +276,16 @@ describe("useGraphStyles", () => {
 
     mockRenderNode.mockResolvedValue(undefined);
 
-    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+    const { result } = await renderHookWithState(
+      () => useGraphStyles(),
+      dbState,
+    );
 
     const vertexStyle = getStyles(result)[`node[type="Person"]`] as any;
     expect(vertexStyle["background-image"]).toBeUndefined();
   });
 
-  it("should handle multiple vertex and edge types", () => {
+  it("should handle multiple vertex and edge types", async () => {
     const personConfig = {
       ...createRandomVertexTypeConfig(),
       type: createVertexType("Person"),
@@ -277,7 +310,10 @@ describe("useGraphStyles", () => {
     dbState.addEdgeStyle(knowsConfig.type, knowsConfig);
     dbState.addEdgeStyle(worksAtConfig.type, worksAtConfig);
 
-    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+    const { result } = await renderHookWithState(
+      () => useGraphStyles(),
+      dbState,
+    );
 
     expect(
       (getStyles(result)[`node[type="Company"]`] as any)["background-color"],
@@ -287,7 +323,7 @@ describe("useGraphStyles", () => {
     ).toBe("#00ff00");
   });
 
-  it("should update styles when configs change", () => {
+  it("should update styles when configs change", async () => {
     const vertexConfig = {
       ...createRandomVertexTypeConfig(),
       type: createVertexType("Person"),
@@ -301,7 +337,7 @@ describe("useGraphStyles", () => {
     updatedDbState.addVertexStyle(vertexConfig.type, vertexConfig);
     dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useGraphStyles(),
       updatedDbState,
     );
@@ -311,7 +347,7 @@ describe("useGraphStyles", () => {
     ).toBe("#ff0000");
   });
 
-  it("should handle edge config with undefined optional properties", () => {
+  it("should handle edge config with undefined optional properties", async () => {
     const minimalEdgeConfig = {
       ...createRandomEdgeTypeConfig(),
       type: createEdgeType("MINIMAL"),
@@ -324,7 +360,10 @@ describe("useGraphStyles", () => {
     dbState.activeSchema.edges = [minimalEdgeConfig];
     dbState.addEdgeStyle(minimalEdgeConfig.type, minimalEdgeConfig);
 
-    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+    const { result } = await renderHookWithState(
+      () => useGraphStyles(),
+      dbState,
+    );
 
     const edgeStyle = getStyles(result)[`edge[type="MINIMAL"]`] as any;
     expect(edgeStyle["text-background-opacity"]).toBeUndefined();
@@ -332,7 +371,7 @@ describe("useGraphStyles", () => {
     expect(edgeStyle["text-border-width"]).toBeUndefined();
   });
 
-  it("should use deferred values for performance", () => {
+  it("should use deferred values for performance", async () => {
     const vertexConfig = createRandomVertexTypeConfig();
     const edgeConfig = createRandomEdgeTypeConfig();
 
@@ -344,7 +383,10 @@ describe("useGraphStyles", () => {
     // This test ensures that the hook uses useDeferredValue for configs
     // The actual deferring behavior is handled by React, so we just verify
     // that the hook works with the provided configs
-    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+    const { result } = await renderHookWithState(
+      () => useGraphStyles(),
+      dbState,
+    );
 
     // Verify that the hook successfully processes the configurations
     expect(

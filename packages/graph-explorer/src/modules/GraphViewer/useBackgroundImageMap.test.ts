@@ -25,8 +25,8 @@ describe("useBackgroundImageMap", () => {
     mockRenderNode.mockResolvedValue("data:image/svg+xml;utf8,<svg></svg>");
   });
 
-  it("should return empty map when no vertex configs provided", () => {
-    const { result } = renderHookWithState(
+  it("should return empty map when no vertex configs provided", async () => {
+    const { result } = await renderHookWithState(
       () => useBackgroundImageMap([]),
       dbState,
     );
@@ -39,7 +39,7 @@ describe("useBackgroundImageMap", () => {
     const expectedImage = "data:image/svg+xml;utf8,<svg>person</svg>";
     mockRenderNode.mockResolvedValue(expectedImage);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useBackgroundImageMap([vertexConfig]),
       dbState,
     );
@@ -63,7 +63,7 @@ describe("useBackgroundImageMap", () => {
 
     mockRenderNode.mockResolvedValueOnce(image1).mockResolvedValueOnce(image2);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useBackgroundImageMap([config1, config2]),
       dbState,
     );
@@ -88,7 +88,7 @@ describe("useBackgroundImageMap", () => {
       .mockResolvedValueOnce(successImage)
       .mockResolvedValueOnce(null); // Failed render
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useBackgroundImageMap([config1, config2]),
       dbState,
     );
@@ -104,7 +104,7 @@ describe("useBackgroundImageMap", () => {
     const vertexConfig = createRandomVertexPreferences();
     mockRenderNode.mockResolvedValue(undefined);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useBackgroundImageMap([vertexConfig]),
       dbState,
     );
@@ -119,7 +119,7 @@ describe("useBackgroundImageMap", () => {
     const vertexConfig = createRandomVertexPreferences();
     mockRenderNode.mockRejectedValue(new Error("Render failed"));
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useBackgroundImageMap([vertexConfig]),
       dbState,
     );
@@ -140,7 +140,7 @@ describe("useBackgroundImageMap", () => {
     // Test initial render
     mockRenderNode.mockResolvedValueOnce(initialImage);
 
-    const { result: initialResult } = renderHookWithState(
+    const { result: initialResult } = await renderHookWithState(
       () => useBackgroundImageMap([initialConfig]),
       dbState,
     );
@@ -152,7 +152,7 @@ describe("useBackgroundImageMap", () => {
     // Test updated render with different config
     mockRenderNode.mockResolvedValueOnce(updatedImage);
 
-    const { result: updatedResult } = renderHookWithState(
+    const { result: updatedResult } = await renderHookWithState(
       () => useBackgroundImageMap([updatedConfig]),
       dbState,
     );
@@ -178,7 +178,7 @@ describe("useBackgroundImageMap", () => {
       .mockResolvedValueOnce(null) // Second fails
       .mockResolvedValueOnce(image3);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useBackgroundImageMap(configs),
       dbState,
     );
@@ -195,7 +195,10 @@ describe("useBackgroundImageMap", () => {
     const vertexConfig = createRandomVertexPreferences();
     mockRenderNode.mockResolvedValue("data:image/svg+xml;utf8,<svg></svg>");
 
-    renderHookWithState(() => useBackgroundImageMap([vertexConfig]), dbState);
+    await renderHookWithState(
+      () => useBackgroundImageMap([vertexConfig]),
+      dbState,
+    );
 
     await waitFor(() => {
       expect(mockRenderNode).toHaveBeenCalledWith(
@@ -220,7 +223,7 @@ describe("useBackgroundImageMap", () => {
       .mockResolvedValueOnce(svgImage)
       .mockResolvedValueOnce(pngImage);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useBackgroundImageMap([svgConfig, pngConfig]),
       dbState,
     );
@@ -244,7 +247,7 @@ describe("useBackgroundImageMap", () => {
       .mockResolvedValueOnce(successImage)
       .mockResolvedValueOnce(null); // No icon URL returns null
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useBackgroundImageMap([configWithIcon, configWithoutIcon]),
       dbState,
     );

@@ -13,15 +13,15 @@ vi.mock("./useAutoOpenDetailsSidebar", () => ({
 }));
 
 describe("useGraphSelection", () => {
-  test("should return empty selection initially", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("should return empty selection initially", async () => {
+    const { result } = await renderHookWithState(() => useGraphSelection());
 
     expect(result.current.graphSelection.vertices).toStrictEqual([]);
     expect(result.current.graphSelection.edges).toStrictEqual([]);
   });
 
-  test("should update vertex selection", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("should update vertex selection", async () => {
+    const { result } = await renderHookWithState(() => useGraphSelection());
 
     const vertexId1 = createRandomVertexId();
     const vertexId2 = createRandomVertexId();
@@ -40,8 +40,8 @@ describe("useGraphSelection", () => {
     expect(result.current.graphSelection.edges).toStrictEqual([]);
   });
 
-  test("should update edge selection", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("should update edge selection", async () => {
+    const { result } = await renderHookWithState(() => useGraphSelection());
 
     const edgeId1 = createRandomEdgeId();
     const edgeId2 = createRandomEdgeId();
@@ -60,8 +60,8 @@ describe("useGraphSelection", () => {
     ]);
   });
 
-  test("should update both vertices and edges selection", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("should update both vertices and edges selection", async () => {
+    const { result } = await renderHookWithState(() => useGraphSelection());
 
     const vertexId = createRandomVertexId();
     const edgeId = createRandomEdgeId();
@@ -78,8 +78,8 @@ describe("useGraphSelection", () => {
     expect(result.current.graphSelection.edges).toStrictEqual([edgeId]);
   });
 
-  test("should replace previous selection when updating", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("should replace previous selection when updating", async () => {
+    const { result } = await renderHookWithState(() => useGraphSelection());
 
     const vertexId1 = createRandomVertexId();
     const vertexId2 = createRandomVertexId();
@@ -101,8 +101,8 @@ describe("useGraphSelection", () => {
     expect(result.current.graphSelection.vertices).toStrictEqual([vertexId2]);
   });
 
-  test("should clear selection when called with empty arrays", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("should clear selection when called with empty arrays", async () => {
+    const { result } = await renderHookWithState(() => useGraphSelection());
 
     const vertexId = createRandomVertexId();
     const edgeId = createRandomEdgeId();
@@ -127,8 +127,8 @@ describe("useGraphSelection", () => {
     expect(result.current.graphSelection.edges).toStrictEqual([]);
   });
 
-  test("should handle Set as input for vertices", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("should handle Set as input for vertices", async () => {
+    const { result } = await renderHookWithState(() => useGraphSelection());
 
     const vertexId1 = createRandomVertexId();
     const vertexId2 = createRandomVertexId();
@@ -147,8 +147,8 @@ describe("useGraphSelection", () => {
     ]);
   });
 
-  test("should handle Set as input for edges", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("should handle Set as input for edges", async () => {
+    const { result } = await renderHookWithState(() => useGraphSelection());
 
     const edgeId1 = createRandomEdgeId();
     const edgeId2 = createRandomEdgeId();
@@ -167,8 +167,8 @@ describe("useGraphSelection", () => {
     ]);
   });
 
-  test("should call autoOpenDetails when selecting single vertex", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("should call autoOpenDetails when selecting single vertex", async () => {
+    const { result } = await renderHookWithState(() => useGraphSelection());
 
     const vertexId = createRandomVertexId();
 
@@ -181,8 +181,8 @@ describe("useGraphSelection", () => {
     expect(mockAutoOpenDetails).toHaveBeenCalledTimes(1);
   });
 
-  test("should call autoOpenDetails when selecting single edge", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("should call autoOpenDetails when selecting single edge", async () => {
+    const { result } = await renderHookWithState(() => useGraphSelection());
 
     const edgeId = createRandomEdgeId();
 
@@ -195,8 +195,8 @@ describe("useGraphSelection", () => {
     expect(mockAutoOpenDetails).toHaveBeenCalledTimes(1);
   });
 
-  test("should not call autoOpenDetails when selecting multiple entities", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("should not call autoOpenDetails when selecting multiple entities", async () => {
+    const { result } = await renderHookWithState(() => useGraphSelection());
 
     const vertexId1 = createRandomVertexId();
     const vertexId2 = createRandomVertexId();
@@ -210,8 +210,8 @@ describe("useGraphSelection", () => {
     expect(mockAutoOpenDetails).not.toHaveBeenCalled();
   });
 
-  test("should not call autoOpenDetails when disableSideEffects is true", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("should not call autoOpenDetails when disableSideEffects is true", async () => {
+    const { result } = await renderHookWithState(() => useGraphSelection());
 
     const vertexId = createRandomVertexId();
 
@@ -225,8 +225,8 @@ describe("useGraphSelection", () => {
     expect(mockAutoOpenDetails).not.toHaveBeenCalled();
   });
 
-  test("should not call autoOpenDetails when clearing selection", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("should not call autoOpenDetails when clearing selection", async () => {
+    const { result } = await renderHookWithState(() => useGraphSelection());
 
     act(() =>
       result.current.replaceGraphSelection({
@@ -238,8 +238,8 @@ describe("useGraphSelection", () => {
     expect(mockAutoOpenDetails).not.toHaveBeenCalled();
   });
 
-  test("isVertexSelected should return true for selected vertex", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("isVertexSelected should return true for selected vertex", async () => {
+    const { result } = await renderHookWithState(() => useGraphSelection());
 
     const vertexId = createRandomVertexId();
 
@@ -253,8 +253,8 @@ describe("useGraphSelection", () => {
     expect(result.current.graphSelection.isVertexSelected(vertexId)).toBe(true);
   });
 
-  test("isVertexSelected should return false for unselected vertex", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("isVertexSelected should return false for unselected vertex", async () => {
+    const { result } = await renderHookWithState(() => useGraphSelection());
 
     const selectedVertexId = createRandomVertexId();
     const unselectedVertexId = createRandomVertexId();
@@ -271,8 +271,8 @@ describe("useGraphSelection", () => {
     ).toBe(false);
   });
 
-  test("isEdgeSelected should return true for selected edge", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("isEdgeSelected should return true for selected edge", async () => {
+    const { result } = await renderHookWithState(() => useGraphSelection());
 
     const edgeId = createRandomEdgeId();
 
@@ -286,8 +286,8 @@ describe("useGraphSelection", () => {
     expect(result.current.graphSelection.isEdgeSelected(edgeId)).toBe(true);
   });
 
-  test("isEdgeSelected should return false for unselected edge", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("isEdgeSelected should return false for unselected edge", async () => {
+    const { result } = await renderHookWithState(() => useGraphSelection());
 
     const selectedEdgeId = createRandomEdgeId();
     const unselectedEdgeId = createRandomEdgeId();

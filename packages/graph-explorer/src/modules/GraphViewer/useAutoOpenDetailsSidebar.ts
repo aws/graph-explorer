@@ -1,6 +1,7 @@
 import { useSetAtom } from "jotai";
 
 import { userLayoutAtom } from "@/core";
+import { logAndNotify } from "@/utils";
 
 export function useAutoOpenDetailsSidebar() {
   const setUserLayout = useSetAtom(userLayoutAtom);
@@ -14,6 +15,6 @@ export function useAutoOpenDetailsSidebar() {
         ...prev,
         activeSidebarItem: "details",
       };
-    });
+    }).catch(logAndNotify("Failed to save your layout preferences."));
   };
 }

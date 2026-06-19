@@ -17,11 +17,11 @@ describe("useFiltersConfig", () => {
   });
 
   /** Creates a config with the schema and makes it active, then renders the `useFiltersConfig` hook. */
-  function renderFilterConfigHook() {
-    return renderHookWithState(() => useFiltersConfig(), dbState);
+  async function renderFilterConfigHook() {
+    return await renderHookWithState(() => useFiltersConfig(), dbState);
   }
 
-  it("should have all entities selected", () => {
+  it("should have all entities selected", async () => {
     dbState.activeSchema.vertices = [
       { type: createVertexType("Person"), attributes: [] },
       { type: createVertexType("Movie"), attributes: [] },
@@ -29,7 +29,7 @@ describe("useFiltersConfig", () => {
     dbState.activeSchema.edges = [
       { type: createEdgeType("ACTED_IN"), attributes: [] },
     ];
-    const { result } = renderFilterConfigHook();
+    const { result } = await renderFilterConfigHook();
 
     expect(result.current.selectedVertexTypes).toEqual(
       new Set([createVertexType("Person"), createVertexType("Movie")]),
@@ -39,17 +39,17 @@ describe("useFiltersConfig", () => {
     );
   });
 
-  it("should have all vertices in checkboxes", () => {
+  it("should have all vertices in checkboxes", async () => {
     const expectedCheckboxIds = dbState.activeSchema.vertices.map(v => v.type);
 
-    const { result } = renderFilterConfigHook();
+    const { result } = await renderFilterConfigHook();
 
     expect(result.current.vertexTypes.map(vt => vt.id)).toEqual(
       expect.arrayContaining(expectedCheckboxIds),
     );
   });
 
-  it("should sort checkboxes alphabetically", () => {
+  it("should sort checkboxes alphabetically", async () => {
     dbState.activeSchema.vertices = [
       { type: createVertexType("Person"), attributes: [] },
       { type: createVertexType("Movie"), attributes: [] },
@@ -58,7 +58,7 @@ describe("useFiltersConfig", () => {
       { type: createEdgeType("DIRECTED"), attributes: [] },
       { type: createEdgeType("ACTED_IN"), attributes: [] },
     ];
-    const { result } = renderFilterConfigHook();
+    const { result } = await renderFilterConfigHook();
 
     expect(result.current.vertexTypes.map(vt => vt.text)).toEqual([
       "Movie",
@@ -70,20 +70,20 @@ describe("useFiltersConfig", () => {
     ]);
   });
 
-  it("should have all edges in checkboxes", () => {
+  it("should have all edges in checkboxes", async () => {
     const expectedCheckboxIds = dbState.activeSchema.edges.map(v => v.type);
 
-    const { result } = renderFilterConfigHook();
+    const { result } = await renderFilterConfigHook();
 
     expect(result.current.connectionTypes.map(vt => vt.id)).toEqual(
       expect.arrayContaining(expectedCheckboxIds),
     );
   });
 
-  it("should unselect vertex when toggled", () => {
+  it("should unselect vertex when toggled", async () => {
     const changingVertex = sample(dbState.activeSchema.vertices)!;
 
-    const { result } = renderFilterConfigHook();
+    const { result } = await renderFilterConfigHook();
 
     // Ensure vertex is selected initially
     expect(result.current.selectedVertexTypes.has(changingVertex.type)).toEqual(
@@ -99,10 +99,10 @@ describe("useFiltersConfig", () => {
     );
   });
 
-  it("should unselect edge when toggled", () => {
+  it("should unselect edge when toggled", async () => {
     const changingEdge = sample(dbState.activeSchema.edges)!;
 
-    const { result } = renderFilterConfigHook();
+    const { result } = await renderFilterConfigHook();
 
     // Ensure edge is selected initially
     expect(

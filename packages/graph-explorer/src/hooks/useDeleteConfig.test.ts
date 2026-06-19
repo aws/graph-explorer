@@ -22,7 +22,7 @@ import { useDeleteActiveConfiguration } from "./useDeleteConfig";
 test("should delete the active configuration", async () => {
   const config1 = createRandomRawConfiguration();
 
-  const { result } = renderHookWithJotai(
+  const { result } = await renderHookWithJotai(
     () => {
       const callback = useDeleteActiveConfiguration();
       const allConfigs = useAtomValue(configurationAtom);
@@ -30,9 +30,9 @@ test("should delete the active configuration", async () => {
 
       return { callback, allConfigs, activeConfig };
     },
-    store => {
-      store.set(activeConfigurationAtom, config1.id);
-      store.set(configurationAtom, new Map([[config1.id, config1]]));
+    async store => {
+      await store.set(activeConfigurationAtom, config1.id);
+      await store.set(configurationAtom, new Map([[config1.id, config1]]));
     },
   );
 
@@ -48,17 +48,17 @@ test("should delete the active schema", async () => {
   const config1 = createRandomRawConfiguration();
   const schema1 = createRandomSchema();
 
-  const { result } = renderHookWithJotai(
+  const { result } = await renderHookWithJotai(
     () => {
       const callback = useDeleteActiveConfiguration();
       const allSchemas = useAtomValue(schemaAtom);
 
       return { callback, allSchemas };
     },
-    store => {
-      store.set(activeConfigurationAtom, config1.id);
-      store.set(configurationAtom, new Map([[config1.id, config1]]));
-      store.set(schemaAtom, new Map([[config1.id, schema1]]));
+    async store => {
+      await store.set(activeConfigurationAtom, config1.id);
+      await store.set(configurationAtom, new Map([[config1.id, config1]]));
+      await store.set(schemaAtom, new Map([[config1.id, schema1]]));
     },
   );
 
@@ -73,15 +73,15 @@ test("should delete the graph session for the active connection", async () => {
   const dbState = new DbState();
   dbState.addVertexToGraph(createRandomVertex());
 
-  const { result } = renderHookWithJotai(
+  const { result } = await renderHookWithJotai(
     () => {
       const callback = useDeleteActiveConfiguration();
       const allGraphs = useAtomValue(allGraphSessionsAtom);
 
       return { callback, allGraphs };
     },
-    store => {
-      dbState.applyTo(store);
+    async store => {
+      await dbState.applyTo(store);
     },
   );
 

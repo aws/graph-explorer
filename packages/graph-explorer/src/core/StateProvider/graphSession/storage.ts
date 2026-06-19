@@ -2,6 +2,7 @@ import { atom } from "jotai";
 import { atomWithReset, RESET } from "jotai/utils";
 
 import { activeConfigurationAtom, allGraphSessionsAtom } from "@/core";
+import { logAndNotify } from "@/utils";
 
 import type { EdgeId, VertexId } from "../../entities";
 
@@ -39,11 +40,15 @@ export const activeGraphSessionAtom = atom(
     // Delete the active graph if we receive a default value
     if (newValue === RESET || !newValue) {
       newGraphs.delete(connectionId);
-      set(allGraphSessionsAtom, newGraphs);
+      set(allGraphSessionsAtom, newGraphs).catch(
+        logAndNotify("Failed to save the current graph session."),
+      );
       return;
     }
 
     newGraphs.set(connectionId, newValue);
-    set(allGraphSessionsAtom, newGraphs);
+    set(allGraphSessionsAtom, newGraphs).catch(
+      logAndNotify("Failed to save the current graph session."),
+    );
   },
 );

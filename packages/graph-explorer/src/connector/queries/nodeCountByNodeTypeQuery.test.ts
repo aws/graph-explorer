@@ -45,7 +45,7 @@ describe("nodeCountByNodeTypeQuery", () => {
     state.activeSchema.vertices = [{ type: vertexType, attributes: [] }];
 
     const store = getAppStore();
-    state.applyTo(store);
+    await state.applyTo(store);
 
     const queryClient = createQueryClient();
 
@@ -122,7 +122,7 @@ describe("nodeCountByNodeTypeQuery", () => {
     state.activeSchema.vertices = [
       { type: differentVertexType, attributes: [] },
     ];
-    state.applyTo(getAppStore());
+    await state.applyTo(getAppStore());
 
     const queryClient = createQueryClient();
 

@@ -22,9 +22,9 @@ function LocationDisplay() {
   return <div data-testid="location">{location.pathname}</div>;
 }
 
-function renderDataExplorer(initialPath: string, state: DbState) {
+async function renderDataExplorer(initialPath: string, state: DbState) {
   const store = getAppStore();
-  state.applyTo(store);
+  await state.applyTo(store);
 
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -56,7 +56,7 @@ describe("DataExplorer", () => {
     const vertex = createTestableVertex().with({ types: ["Person"] });
     state.addTestableVertexToGraph(vertex);
 
-    renderDataExplorer("/data-explorer", state);
+    await renderDataExplorer("/data-explorer", state);
 
     await waitFor(() => {
       expect(screen.getByTestId("location")).toHaveTextContent(
@@ -65,10 +65,10 @@ describe("DataExplorer", () => {
     });
   });
 
-  test("renders empty state when no vertexType param and no vertex types", () => {
+  test("renders empty state when no vertexType param and no vertex types", async () => {
     const state = new DbState().withNoActiveSchema();
 
-    renderDataExplorer("/data-explorer", state);
+    await renderDataExplorer("/data-explorer", state);
 
     // Should not redirect — stays at /data-explorer
     expect(screen.getByTestId("location")).toHaveTextContent("/data-explorer");
@@ -76,20 +76,20 @@ describe("DataExplorer", () => {
     expect(screen.getByText(/no .* available/i)).toBeInTheDocument();
   });
 
-  test("shows empty state when vertexType param exists but no vertex types in schema", () => {
+  test("shows empty state when vertexType param exists but no vertex types in schema", async () => {
     const state = new DbState().withNoActiveSchema();
 
-    renderDataExplorer("/data-explorer/Person", state);
+    await renderDataExplorer("/data-explorer/Person", state);
 
     expect(screen.getByText(/no .* available/i)).toBeInTheDocument();
   });
 
-  test("renders content when vertexType param and vertex types exist", () => {
+  test("renders content when vertexType param and vertex types exist", async () => {
     const state = new DbState();
     const vertex = createTestableVertex().with({ types: ["Airport"] });
     state.addTestableVertexToGraph(vertex);
 
-    renderDataExplorer("/data-explorer/Airport", state);
+    await renderDataExplorer("/data-explorer/Airport", state);
 
     // Should stay on the same route
     expect(screen.getByTestId("location")).toHaveTextContent(
@@ -106,7 +106,7 @@ describe("DataExplorer", () => {
     });
     state.addTestableVertexToGraph(vertex);
 
-    renderDataExplorer("/data-explorer", state);
+    await renderDataExplorer("/data-explorer", state);
 
     await waitFor(() => {
       expect(screen.getByTestId("location")).toHaveTextContent(

@@ -50,8 +50,8 @@ describe("useEdgeAttributesAsScalars", () => {
       dbState.activeConfig.connection!.queryEngine = "gremlin";
     });
 
-    it("should return ID, Edge Label, and attributes for edge with unique ID", () => {
-      const { result } = renderHookWithState(
+    it("should return ID, Edge Label, and attributes for edge with unique ID", async () => {
+      const { result } = await renderHookWithState(
         () => useEdgeAttributesAsScalars(edge),
         dbState,
       );
@@ -88,13 +88,13 @@ describe("useEdgeAttributesAsScalars", () => {
       );
     });
 
-    it("should not include ID for edge without unique ID", () => {
+    it("should not include ID for edge without unique ID", async () => {
       const edgeWithoutId = {
         ...edge,
         hasUniqueId: false,
       };
 
-      const { result } = renderHookWithState(
+      const { result } = await renderHookWithState(
         () => useEdgeAttributesAsScalars(edgeWithoutId),
         dbState,
       );
@@ -116,8 +116,8 @@ describe("useEdgeAttributesAsScalars", () => {
       dbState.activeConfig.connection!.queryEngine = "openCypher";
     });
 
-    it("should return ID, Relationship Type, and attributes for edge with unique ID", () => {
-      const { result } = renderHookWithState(
+    it("should return ID, Relationship Type, and attributes for edge with unique ID", async () => {
+      const { result } = await renderHookWithState(
         () => useEdgeAttributesAsScalars(edge),
         dbState,
       );
@@ -154,13 +154,13 @@ describe("useEdgeAttributesAsScalars", () => {
       );
     });
 
-    it("should not include ID for edge without unique ID", () => {
+    it("should not include ID for edge without unique ID", async () => {
       const edgeWithoutId = {
         ...edge,
         hasUniqueId: false,
       };
 
-      const { result } = renderHookWithState(
+      const { result } = await renderHookWithState(
         () => useEdgeAttributesAsScalars(edgeWithoutId),
         dbState,
       );
@@ -181,8 +181,8 @@ describe("useEdgeAttributesAsScalars", () => {
     beforeEach(() => {
       dbState.activeConfig.connection!.queryEngine = "sparql";
     });
-    it("should return ID, Predicate and attributes for edge with unique ID", () => {
-      const { result } = renderHookWithState(
+    it("should return ID, Predicate and attributes for edge with unique ID", async () => {
+      const { result } = await renderHookWithState(
         () => useEdgeAttributesAsScalars(edge),
         dbState,
       );
@@ -219,13 +219,13 @@ describe("useEdgeAttributesAsScalars", () => {
       );
     });
 
-    it("should not include ID when hasUniqueId is false", () => {
+    it("should not include ID when hasUniqueId is false", async () => {
       const edgeWithoutId = {
         ...edge,
         hasUniqueId: false,
       };
 
-      const { result } = renderHookWithState(
+      const { result } = await renderHookWithState(
         () => useEdgeAttributesAsScalars(edgeWithoutId),
         dbState,
       );
@@ -236,13 +236,13 @@ describe("useEdgeAttributesAsScalars", () => {
     });
   });
 
-  it("should handle edge with no attributes", () => {
+  it("should handle edge with no attributes", async () => {
     const edgeWithNoAttributes = {
       ...edge,
       attributes: [],
     };
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useEdgeAttributesAsScalars(edgeWithNoAttributes),
       dbState,
     );

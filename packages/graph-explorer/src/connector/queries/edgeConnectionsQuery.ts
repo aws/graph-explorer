@@ -8,7 +8,7 @@ import {
   schemaAtom,
   type SchemaStorageModel,
 } from "@/core";
-import { logger } from "@/utils";
+import { logAndNotify, logger } from "@/utils";
 
 import { getExplorer, getStore } from "./helpers";
 import { schemaSyncQueryKey } from "./schemaSyncQuery";
@@ -102,7 +102,7 @@ const setEdgeConnectionsAtom = atom(
         lastEdgeConnectionSyncFail: false,
       });
       return updated;
-    });
+    }).catch(logAndNotify("Failed to save the schema to the local cache."));
   },
 );
 
@@ -124,5 +124,5 @@ const setEdgeConnectionSyncFailedAtom = atom(null, (get, set) => {
       lastEdgeConnectionSyncFail: true,
     });
     return updated;
-  });
+  }).catch(logAndNotify("Failed to save the schema to the local cache."));
 });

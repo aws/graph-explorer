@@ -81,7 +81,7 @@ export function QuerySearchTabContent() {
     if (form.formState.isSubmitting) {
       return;
     }
-    form.handleSubmit(onSubmit)();
+    void form.handleSubmit(onSubmit)();
   };
 
   return (

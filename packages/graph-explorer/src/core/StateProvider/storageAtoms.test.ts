@@ -52,13 +52,13 @@ describe("storageAtoms", () => {
     expect(store.get(diagnosticLoggingAtom)).toBe(false);
   });
 
-  it("should persist a written value on subsequent reads", () => {
+  it("should persist a written value on subsequent reads", async () => {
     const store = createStore();
 
-    store.set(showDebugActionsAtom, true);
+    await store.set(showDebugActionsAtom, true);
     expect(store.get(showDebugActionsAtom)).toBe(true);
 
-    store.set(showDebugActionsAtom, false);
+    await store.set(showDebugActionsAtom, false);
     expect(store.get(showDebugActionsAtom)).toBe(false);
   });
 });

@@ -289,11 +289,11 @@ describe("calculateNeighbors", () => {
 });
 
 describe("useNeighbors", () => {
-  it("should return default neighbors if no neighbors are found", () => {
+  it("should return default neighbors if no neighbors are found", async () => {
     const dbState = new DbState();
     const vertex = createRandomVertex();
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useNeighbors(vertex.id),
       dbState,
     );
@@ -319,7 +319,7 @@ describe("useNeighbors", () => {
     explorer.addTestableEdge(edge1);
     explorer.addTestableEdge(edge2);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useNeighbors(vertex.id),
       dbState,
     );
@@ -351,7 +351,7 @@ describe("useNeighbors", () => {
     explorer.addTestableEdge(edge1);
     explorer.addTestableEdge(edge2);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useNeighbors(vertex1.id),
       dbState,
     );
@@ -384,7 +384,7 @@ describe("useNeighbors", () => {
       counts: [response],
     });
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useNeighbors(vertex.id),
       dbState,
     );
@@ -404,12 +404,12 @@ describe("useNeighbors", () => {
 });
 
 describe("useFetchedNeighborsCallback", () => {
-  it("should return empty set when no edges exist", () => {
+  it("should return empty set when no edges exist", async () => {
     const dbState = new DbState();
     const vertex = createTestableVertex();
     dbState.addTestableVertexToGraph(vertex);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useFetchedNeighborsCallback(),
       dbState,
     );
@@ -418,7 +418,7 @@ describe("useFetchedNeighborsCallback", () => {
     expect(neighbors).toEqual(new Set());
   });
 
-  it("should return neighbor IDs for outgoing edges", () => {
+  it("should return neighbor IDs for outgoing edges", async () => {
     const dbState = new DbState();
     const source = createTestableVertex();
     const target = createTestableVertex();
@@ -426,7 +426,7 @@ describe("useFetchedNeighborsCallback", () => {
 
     dbState.addTestableEdgeToGraph(edge);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useFetchedNeighborsCallback(),
       dbState,
     );
@@ -435,7 +435,7 @@ describe("useFetchedNeighborsCallback", () => {
     expect(neighbors).toEqual(new Set([target.id]));
   });
 
-  it("should return neighbor IDs for incoming edges", () => {
+  it("should return neighbor IDs for incoming edges", async () => {
     const dbState = new DbState();
     const source = createTestableVertex();
     const target = createTestableVertex();
@@ -443,7 +443,7 @@ describe("useFetchedNeighborsCallback", () => {
 
     dbState.addTestableEdgeToGraph(edge);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useFetchedNeighborsCallback(),
       dbState,
     );
@@ -452,7 +452,7 @@ describe("useFetchedNeighborsCallback", () => {
     expect(neighbors).toEqual(new Set([source.id]));
   });
 
-  it("should return unique neighbor IDs when multiple edges connect same vertices", () => {
+  it("should return unique neighbor IDs when multiple edges connect same vertices", async () => {
     const dbState = new DbState();
     const vertex1 = createTestableVertex();
     const vertex2 = createTestableVertex();
@@ -462,7 +462,7 @@ describe("useFetchedNeighborsCallback", () => {
     dbState.addTestableEdgeToGraph(edge1);
     dbState.addTestableEdgeToGraph(edge2);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useFetchedNeighborsCallback(),
       dbState,
     );
@@ -471,7 +471,7 @@ describe("useFetchedNeighborsCallback", () => {
     expect(neighbors).toEqual(new Set([vertex2.id]));
   });
 
-  it("should return multiple neighbor IDs", () => {
+  it("should return multiple neighbor IDs", async () => {
     const dbState = new DbState();
     const center = createTestableVertex();
     const neighbor1 = createTestableVertex();
@@ -486,7 +486,7 @@ describe("useFetchedNeighborsCallback", () => {
     dbState.addTestableEdgeToGraph(edge2);
     dbState.addTestableEdgeToGraph(edge3);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useFetchedNeighborsCallback(),
       dbState,
     );
@@ -497,7 +497,7 @@ describe("useFetchedNeighborsCallback", () => {
     );
   });
 
-  it("should exclude edges where neighbor vertex is not in the graph", () => {
+  it("should exclude edges where neighbor vertex is not in the graph", async () => {
     const dbState = new DbState();
     const source = createTestableVertex();
     const target = createTestableVertex();
@@ -507,7 +507,7 @@ describe("useFetchedNeighborsCallback", () => {
     dbState.addTestableVertexToGraph(source);
     dbState.addEdgeToGraph(edge.asEdge());
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useFetchedNeighborsCallback(),
       dbState,
     );
@@ -516,7 +516,7 @@ describe("useFetchedNeighborsCallback", () => {
     expect(neighbors).toEqual(new Set());
   });
 
-  it("should exclude edges where source vertex is not in the graph", () => {
+  it("should exclude edges where source vertex is not in the graph", async () => {
     const dbState = new DbState();
     const source = createTestableVertex();
     const target = createTestableVertex();
@@ -526,7 +526,7 @@ describe("useFetchedNeighborsCallback", () => {
     dbState.addTestableVertexToGraph(target);
     dbState.addEdgeToGraph(edge.asEdge());
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useFetchedNeighborsCallback(),
       dbState,
     );
@@ -535,7 +535,7 @@ describe("useFetchedNeighborsCallback", () => {
     expect(neighbors).toEqual(new Set());
   });
 
-  it("should return empty set for vertex not in graph", () => {
+  it("should return empty set for vertex not in graph", async () => {
     const dbState = new DbState();
     const vertex1 = createTestableVertex();
     const vertex2 = createTestableVertex();
@@ -544,7 +544,7 @@ describe("useFetchedNeighborsCallback", () => {
 
     dbState.addTestableEdgeToGraph(edge);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useFetchedNeighborsCallback(),
       dbState,
     );

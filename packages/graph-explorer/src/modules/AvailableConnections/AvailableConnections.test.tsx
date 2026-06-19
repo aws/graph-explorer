@@ -16,7 +16,7 @@ vi.mock("@/modules/CreateConnection", () => ({
 describe("AvailableConnections", () => {
   test("renders empty state when there are no connections", () => {
     const store = getAppStore();
-    store.set(configurationAtom, new Map());
+    void store.set(configurationAtom, new Map());
     const queryClient = createQueryClient();
 
     render(

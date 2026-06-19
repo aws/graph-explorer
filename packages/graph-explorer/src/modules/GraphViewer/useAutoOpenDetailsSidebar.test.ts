@@ -7,8 +7,8 @@ import { renderHookWithJotai } from "@/utils/testing";
 import { useAutoOpenDetailsSidebar } from "./useAutoOpenDetailsSidebar";
 
 describe("useAutoOpenDetailsSidebar", () => {
-  it("should auto-open details when detailsAutoOpenOnSelection is true", () => {
-    const { result } = renderHookWithJotai(
+  it("should auto-open details when detailsAutoOpenOnSelection is true", async () => {
+    const { result } = await renderHookWithJotai(
       () => {
         const autoOpen = useAutoOpenDetailsSidebar();
         const sidebar = useSidebar();
@@ -27,8 +27,8 @@ describe("useAutoOpenDetailsSidebar", () => {
     expect(result.current.sidebar.activeSidebarItem).toBe("details");
   });
 
-  it("should do nothing when detailsAutoOpenOnSelection is true and sidebar is already details", () => {
-    const { result } = renderHookWithJotai(
+  it("should do nothing when detailsAutoOpenOnSelection is true and sidebar is already details", async () => {
+    const { result } = await renderHookWithJotai(
       () => {
         const autoOpen = useAutoOpenDetailsSidebar();
         const sidebar = useSidebar();
@@ -48,8 +48,8 @@ describe("useAutoOpenDetailsSidebar", () => {
     expect(result.current.sidebar.isSidebarOpen).toBe(true);
   });
 
-  it("should not auto-open details when detailsAutoOpenOnSelection is false", () => {
-    const { result } = renderHookWithJotai(
+  it("should not auto-open details when detailsAutoOpenOnSelection is false", async () => {
+    const { result } = await renderHookWithJotai(
       () => {
         const autoOpen = useAutoOpenDetailsSidebar();
         const sidebar = useSidebar();

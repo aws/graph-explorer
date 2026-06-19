@@ -4,7 +4,8 @@ import { Button, FormItem, InputField, Label, StylingIcon } from "@/components";
 import { type EdgeType, useDisplayEdgeTypeConfig } from "@/core";
 import { useEdgeStyling } from "@/core/StateProvider/userPreferences";
 import { useDebounceValue, usePrevious } from "@/hooks";
-import { LABELS } from "@/utils";
+import useTranslations from "@/hooks/useTranslations";
+import { LABELS, logAndNotify } from "@/utils";
 
 import { useOpenEdgeStyleDialog } from "./EdgeStyleDialog";
 
@@ -16,6 +17,7 @@ export default function SingleEdgeStyling({
   edgeType,
   ...rest
 }: SingleEdgeStylingProps) {
+  const t = useTranslations();
   const { setEdgeStyle } = useEdgeStyling(edgeType);
   const openEdgeStyleDialog = useOpenEdgeStyleDialog();
   const displayConfig = useDisplayEdgeTypeConfig(edgeType);
@@ -30,8 +32,12 @@ export default function SingleEdgeStyling({
     if (prevDisplayAs === null || prevDisplayAs === debouncedDisplayAs) {
       return;
     }
-    setEdgeStyle({ displayLabel: debouncedDisplayAs });
-  }, [debouncedDisplayAs, prevDisplayAs, setEdgeStyle]);
+    setEdgeStyle({ displayLabel: debouncedDisplayAs }).catch(
+      logAndNotify(`Failed to save the ${t("edge").toLowerCase()} style.`, {
+        description: "Your style change may be lost when you reload.",
+      }),
+    );
+  }, [debouncedDisplayAs, prevDisplayAs, setEdgeStyle, t]);
 
   return (
     <FormItem {...rest}>

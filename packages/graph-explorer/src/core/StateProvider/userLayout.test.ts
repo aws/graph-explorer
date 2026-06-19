@@ -18,15 +18,15 @@ import {
 } from "./userLayout";
 
 describe("useViewToggles", () => {
-  it("should default to both views open", () => {
-    const { result } = renderHookWithState(() => useViewToggles());
+  it("should default to both views open", async () => {
+    const { result } = await renderHookWithState(() => useViewToggles());
 
     expect(result.current.isGraphVisible).toBe(true);
     expect(result.current.isTableVisible).toBe(true);
   });
 
   it("should toggle graph view", async () => {
-    const { result } = renderHookWithState(() => useViewToggles());
+    const { result } = await renderHookWithState(() => useViewToggles());
 
     await act(async () => result.current.toggleGraphVisibility());
 
@@ -40,7 +40,7 @@ describe("useViewToggles", () => {
   });
 
   it("should toggle table view", async () => {
-    const { result } = renderHookWithState(() => useViewToggles());
+    const { result } = await renderHookWithState(() => useViewToggles());
 
     await act(async () => result.current.toggleTableVisibility());
 
@@ -55,26 +55,26 @@ describe("useViewToggles", () => {
 });
 
 describe("useSidebar", () => {
-  it("should default to sidebar open", () => {
-    const { result } = renderHookWithJotai(() => useSidebar());
+  it("should default to sidebar open", async () => {
+    const { result } = await renderHookWithJotai(() => useSidebar());
 
     expect(result.current.isSidebarOpen).toBe(true);
   });
 
   it("should change to the given sidebar item", async () => {
-    const { result } = renderHookWithJotai(() => useSidebar());
+    const { result } = await renderHookWithJotai(() => useSidebar());
 
-    await act(async () => result.current.toggleSidebar("details"));
+    act(() => result.current.toggleSidebar("details"));
     expect(result.current.isSidebarOpen).toBe(true);
     expect(result.current.activeSidebarItem).toBe("details");
 
-    await act(async () => result.current.toggleSidebar("search"));
+    act(() => result.current.toggleSidebar("search"));
     expect(result.current.isSidebarOpen).toBe(true);
     expect(result.current.activeSidebarItem).toBe("search");
   });
 
   it("should close the sidebar if toggling to the same item", async () => {
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useSidebar(),
       store =>
         store.set(userLayoutAtom, {
@@ -83,29 +83,29 @@ describe("useSidebar", () => {
         } satisfies UserLayout),
     );
 
-    await act(async () => result.current.toggleSidebar("details"));
+    act(() => result.current.toggleSidebar("details"));
 
     expect(result.current.isSidebarOpen).toBe(false);
     expect(result.current.activeSidebarItem).toBeNull();
   });
 
   it("should close the sidebar", async () => {
-    const { result } = renderHookWithJotai(() => useSidebar());
+    const { result } = await renderHookWithJotai(() => useSidebar());
 
     await act(async () => result.current.closeSidebar());
 
     expect(result.current.isSidebarOpen).toBe(false);
   });
 
-  it("should show namespaces when the connection is a SPARQL connection", () => {
+  it("should show namespaces when the connection is a SPARQL connection", async () => {
     const dbState = new DbState();
     dbState.activeConfig.connection!.queryEngine = "sparql";
 
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useSidebar(),
-      store => {
-        dbState.applyTo(store);
-        store.set(userLayoutAtom, {
+      async store => {
+        await dbState.applyTo(store);
+        await store.set(userLayoutAtom, {
           activeSidebarItem: "namespaces",
           activeToggles: new Set(),
         } satisfies UserLayout);
@@ -117,15 +117,15 @@ describe("useSidebar", () => {
     expect(result.current.shouldShowNamespaces).toBe(true);
   });
 
-  it("should be closed when active item is namespaces but connection is not RDF", () => {
+  it("should be closed when active item is namespaces but connection is not RDF", async () => {
     const dbState = new DbState();
     dbState.activeConfig.connection!.queryEngine = "gremlin";
 
-    const { result } = renderHookWithJotai(
+    const { result } = await renderHookWithJotai(
       () => useSidebar(),
-      store => {
-        dbState.applyTo(store);
-        store.set(userLayoutAtom, {
+      async store => {
+        await dbState.applyTo(store);
+        await store.set(userLayoutAtom, {
           activeSidebarItem: "namespaces",
           activeToggles: new Set(),
         } satisfies UserLayout);
@@ -139,14 +139,14 @@ describe("useSidebar", () => {
 });
 
 describe("useTableViewSize", () => {
-  it("should default to DEFAULT_TABLE_VIEW_HEIGHT", () => {
-    const { result } = renderHookWithState(() => useTableViewSize());
+  it("should default to DEFAULT_TABLE_VIEW_HEIGHT", async () => {
+    const { result } = await renderHookWithState(() => useTableViewSize());
 
     expect(result.current[0]).toBe(300);
   });
 
   it("should return 100% when graph viewer is hidden", async () => {
-    const { result } = renderHookWithState(() => ({
+    const { result } = await renderHookWithState(() => ({
       tableView: useTableViewSize(),
       toggles: useViewToggles(),
     }));
@@ -157,7 +157,7 @@ describe("useTableViewSize", () => {
   });
 
   it("should adjust height by delta", async () => {
-    const { result } = renderHookWithState(() => useTableViewSize());
+    const { result } = await renderHookWithState(() => useTableViewSize());
 
     await act(async () => result.current[1](50));
 
@@ -170,14 +170,14 @@ describe("useTableViewSize", () => {
 });
 
 describe("useSidebarSize", () => {
-  it("should default to 400", () => {
-    const { result } = renderHookWithState(() => useSidebarSize());
+  it("should default to 400", async () => {
+    const { result } = await renderHookWithState(() => useSidebarSize());
 
     expect(result.current[0]).toBe(400);
   });
 
-  it("should adjust width by delta", () => {
-    const { result } = renderHookWithState(() => useSidebarSize());
+  it("should adjust width by delta", async () => {
+    const { result } = await renderHookWithState(() => useSidebarSize());
 
     act(() => result.current[1](100));
 

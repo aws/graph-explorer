@@ -27,10 +27,10 @@ import { RDFS_LABEL_URI } from "./sortAttributeByName";
 const identityTextTransform: TextTransformer = (text: string) => text;
 
 describe("useDisplayVertexTypeConfig", () => {
-  it("should use default values when the vertex type is not in the schema", () => {
+  it("should use default values when the vertex type is not in the schema", async () => {
     const vtConfig = createRandomVertexTypeConfig();
 
-    const { result } = renderHookWithState(() =>
+    const { result } = await renderHookWithState(() =>
       useDisplayVertexTypeConfig(vtConfig.type),
     );
 
@@ -38,21 +38,21 @@ describe("useDisplayVertexTypeConfig", () => {
     expect(result.current.displayLabel).toBe(vtConfig.type);
   });
 
-  it("should use missing value string when type is empty", () => {
-    const { result } = renderHookWithState(() =>
+  it("should use missing value string when type is empty", async () => {
+    const { result } = await renderHookWithState(() =>
       useDisplayVertexTypeConfig(createVertexType("")),
     );
 
     expect(result.current.displayLabel).toBe(LABELS.MISSING_TYPE);
   });
 
-  it("should ignore display label from schema", () => {
+  it("should ignore display label from schema", async () => {
     const dbState = new DbState();
     const vtConfig = createRandomVertexTypeConfig();
     vtConfig.displayLabel = createRandomName("displayLabel");
     dbState.activeSchema.vertices.push(vtConfig);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useDisplayVertexTypeConfig(vtConfig.type),
       dbState,
     );
@@ -60,14 +60,14 @@ describe("useDisplayVertexTypeConfig", () => {
     expect(result.current.displayLabel).toBe(vtConfig.type);
   });
 
-  it("should use display label from user preferences", () => {
+  it("should use display label from user preferences", async () => {
     const dbState = new DbState();
     const vtConfig = createRandomVertexTypeConfig();
     vtConfig.displayLabel = createRandomName("displayLabel");
     dbState.activeSchema.vertices.push(vtConfig);
     dbState.activeStyling.vertices?.push(vtConfig);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useDisplayVertexTypeConfig(vtConfig.type),
       dbState,
     );
@@ -340,21 +340,21 @@ describe("mapToDisplayEdgeTypeConfig", () => {
 });
 
 describe("useDisplayEdgeTypeConfig", () => {
-  it("should use empty label constant when the type is empty", () => {
-    const { result } = renderHookWithState(() =>
+  it("should use empty label constant when the type is empty", async () => {
+    const { result } = await renderHookWithState(() =>
       useDisplayEdgeTypeConfig(createEdgeType("")),
     );
 
     expect(result.current.displayLabel).toBe(LABELS.MISSING_TYPE);
   });
 
-  it("should ignore display label from the config", () => {
+  it("should ignore display label from the config", async () => {
     const dbState = new DbState();
     const etConfig = createRandomEdgeTypeConfig();
     etConfig.displayLabel = createRandomName("displayLabel");
     dbState.activeSchema.edges.push(etConfig);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useDisplayEdgeTypeConfig(etConfig.type),
       dbState,
     );
@@ -362,14 +362,14 @@ describe("useDisplayEdgeTypeConfig", () => {
     expect(result.current.displayLabel).toBe(etConfig.type);
   });
 
-  it("should use display label from the user preferences", () => {
+  it("should use display label from the user preferences", async () => {
     const dbState = new DbState();
     const etConfig = createRandomEdgeTypeConfig();
     etConfig.displayLabel = createRandomName("displayLabel");
     dbState.activeSchema.edges.push(etConfig);
     dbState.activeStyling.edges?.push(etConfig);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useDisplayEdgeTypeConfig(etConfig.type),
       dbState,
     );
@@ -379,11 +379,11 @@ describe("useDisplayEdgeTypeConfig", () => {
 });
 
 describe("useSearchableAttributes", () => {
-  it("should return empty array when no vertex types exist", () => {
+  it("should return empty array when no vertex types exist", async () => {
     const dbState = new DbState();
     dbState.activeSchema.vertices = [];
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useSearchableAttributes(SEARCH_TOKENS.ALL_VERTEX_TYPES),
       dbState,
     );
@@ -391,7 +391,7 @@ describe("useSearchableAttributes", () => {
     expect(result.current).toStrictEqual([]);
   });
 
-  it("should return only searchable attributes for a specific vertex type", () => {
+  it("should return only searchable attributes for a specific vertex type", async () => {
     const dbState = new DbState();
     dbState.activeSchema.vertices = [];
     const vtConfig = createRandomVertexTypeConfig();
@@ -403,7 +403,7 @@ describe("useSearchableAttributes", () => {
     ];
     dbState.activeSchema.vertices.push(vtConfig);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useSearchableAttributes(vtConfig.type),
       dbState,
     );
@@ -418,13 +418,13 @@ describe("useSearchableAttributes", () => {
     ]);
   });
 
-  it("should return empty array when type does not exist", () => {
+  it("should return empty array when type does not exist", async () => {
     const dbState = new DbState();
     dbState.activeSchema.vertices = [];
     const vtConfig = createRandomVertexTypeConfig();
     dbState.activeSchema.vertices.push(vtConfig);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useSearchableAttributes("nonexistent-type"),
       dbState,
     );
@@ -432,7 +432,7 @@ describe("useSearchableAttributes", () => {
     expect(result.current).toStrictEqual([]);
   });
 
-  it("should return searchable attributes from all vertex types when using ALL_VERTEX_TYPES", () => {
+  it("should return searchable attributes from all vertex types when using ALL_VERTEX_TYPES", async () => {
     const dbState = new DbState();
     dbState.activeSchema.vertices = [];
 
@@ -450,7 +450,7 @@ describe("useSearchableAttributes", () => {
     ];
     dbState.activeSchema.vertices.push(vtConfig2);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useSearchableAttributes(SEARCH_TOKENS.ALL_VERTEX_TYPES),
       dbState,
     );
@@ -471,7 +471,7 @@ describe("useSearchableAttributes", () => {
     ]);
   });
 
-  it("should deduplicate searchable attributes with the same name across vertex types", () => {
+  it("should deduplicate searchable attributes with the same name across vertex types", async () => {
     const dbState = new DbState();
     dbState.activeSchema.vertices = [];
 
@@ -489,7 +489,7 @@ describe("useSearchableAttributes", () => {
     ];
     dbState.activeSchema.vertices.push(vtConfig2);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useSearchableAttributes(SEARCH_TOKENS.ALL_VERTEX_TYPES),
       dbState,
     );
@@ -516,7 +516,7 @@ describe("useSearchableAttributes", () => {
     ]);
   });
 
-  it("should sort attributes by display label", () => {
+  it("should sort attributes by display label", async () => {
     const dbState = new DbState();
     dbState.activeSchema.vertices = [];
     const vtConfig = createRandomVertexTypeConfig();
@@ -527,7 +527,7 @@ describe("useSearchableAttributes", () => {
     ];
     dbState.activeSchema.vertices.push(vtConfig);
 
-    const { result } = renderHookWithState(
+    const { result } = await renderHookWithState(
       () => useSearchableAttributes(vtConfig.type),
       dbState,
     );

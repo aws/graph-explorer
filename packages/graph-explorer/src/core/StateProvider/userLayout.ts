@@ -1,5 +1,7 @@
 import { useAtom } from "jotai";
 
+import { logAndNotify } from "@/utils";
+
 import { useQueryEngine } from "../connector";
 import { userLayoutAtom } from "./storageAtoms";
 import {
@@ -92,13 +94,14 @@ export function useSidebar() {
    * Sets the active sidebar item to the given item, or closes the sidebar if the
    * item is the same as the current active item.
    */
-  const toggleSidebar = (item: SidebarItems) =>
+  const toggleSidebar = (item: SidebarItems) => {
     setUserLayout(prev => {
       return {
         ...prev,
         activeSidebarItem: prev.activeSidebarItem === item ? null : item,
       };
-    });
+    }).catch(logAndNotify("Failed to save your layout preferences."));
+  };
 
   return {
     activeSidebarItem,
@@ -125,7 +128,7 @@ export function useSidebarSize() {
           width: prevWidth + deltaWidth,
         },
       };
-    });
+    }).catch(logAndNotify("Failed to save your layout preferences."));
   };
 
   return [sidebarWidth, setSidebarWidth] as const;

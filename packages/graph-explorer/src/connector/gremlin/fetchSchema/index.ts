@@ -102,7 +102,9 @@ const fetchVertexLabels = async (
   remoteLogger: LoggerConnector,
 ): Promise<Record<string, number>> => {
   const labelsTemplate = vertexLabelsTemplate();
-  remoteLogger.info("[Gremlin Explorer] Fetching vertex labels with counts...");
+  void remoteLogger.info(
+    "[Gremlin Explorer] Fetching vertex labels with counts...",
+  );
   const data = await gremlinFetch<RawVertexLabelsResponse>(labelsTemplate);
 
   const values = data.result.data["@value"][0]["@value"];
@@ -111,7 +113,7 @@ const fetchVertexLabels = async (
     labelsWithCounts[values[i] as string] = (values[i + 1] as GInt64)["@value"];
   }
 
-  remoteLogger.info(
+  void remoteLogger.info(
     `[Gremlin Explorer] Found ${Object.keys(labelsWithCounts).length} vertex labels.`,
   );
 
@@ -133,7 +135,7 @@ const fetchVerticesAttributes = async (
   // Batch in to sets of 100
   const batches = chunk(labels, DEFAULT_BATCH_REQUEST_SIZE);
 
-  remoteLogger.info("[Gremlin Explorer] Fetching vertices attributes...");
+  void remoteLogger.info("[Gremlin Explorer] Fetching vertices attributes...");
   for (const batch of batches) {
     const verticesTemplate = verticesSchemaTemplate({
       types: batch,
@@ -155,7 +157,7 @@ const fetchVerticesAttributes = async (
     }
   }
 
-  remoteLogger.info(
+  void remoteLogger.info(
     `[Gremlin Explorer] Found ${vertices.flatMap(v => v.attributes).length} vertex attributes across ${vertices.length} vertex types.`,
   );
 
@@ -182,7 +184,9 @@ const fetchEdgeLabels = async (
   remoteLogger: LoggerConnector,
 ): Promise<Record<string, number>> => {
   const labelsTemplate = edgeLabelsTemplate();
-  remoteLogger.info("[Gremlin Explorer] Fetching edge labels with counts...");
+  void remoteLogger.info(
+    "[Gremlin Explorer] Fetching edge labels with counts...",
+  );
   const data = await gremlinFetch<RawEdgeLabelsResponse>(labelsTemplate);
 
   const values = data.result.data["@value"][0]["@value"];
@@ -191,7 +195,7 @@ const fetchEdgeLabels = async (
     labelsWithCounts[values[i] as string] = (values[i + 1] as GInt64)["@value"];
   }
 
-  remoteLogger.info(
+  void remoteLogger.info(
     `[Gremlin Explorer] Found ${Object.keys(labelsWithCounts).length} edge labels.`,
   );
 
@@ -212,7 +216,7 @@ const fetchEdgesAttributes = async (
   // Batch in to sets of 100
   const batches = chunk(labels, DEFAULT_BATCH_REQUEST_SIZE);
 
-  remoteLogger.info("[Gremlin Explorer] Fetching edges attributes...");
+  void remoteLogger.info("[Gremlin Explorer] Fetching edges attributes...");
   for (const batch of batches) {
     const edgesTemplate = edgesSchemaTemplate({
       types: batch,
@@ -231,7 +235,7 @@ const fetchEdgesAttributes = async (
     }
   }
 
-  remoteLogger.info(
+  void remoteLogger.info(
     `[Gremlin Explorer] Found ${edges.flatMap(e => e.attributes).length} edge attributes across ${edges.length} edge types.`,
   );
 
@@ -270,7 +274,7 @@ const fetchSchema = async (
   summary?: GraphSummary,
 ): Promise<SchemaResponse> => {
   if (!summary) {
-    remoteLogger.info("[Gremlin Explorer] No summary statistics");
+    void remoteLogger.info("[Gremlin Explorer] No summary statistics");
 
     const vertices = await fetchVerticesSchema(gremlinFetch, remoteLogger);
     const totalVertices = vertices.reduce((total, vertex) => {
@@ -282,7 +286,7 @@ const fetchSchema = async (
       return total + (edge.total ?? 0);
     }, 0);
 
-    remoteLogger.info(
+    void remoteLogger.info(
       `[Gremlin Explorer] Schema sync successful (${totalVertices} vertices; ${totalEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types)`,
     );
 
@@ -294,7 +298,7 @@ const fetchSchema = async (
     };
   }
 
-  remoteLogger.info("[Gremlin Explorer] Using summary statistics");
+  void remoteLogger.info("[Gremlin Explorer] Using summary statistics");
 
   const vertices = await fetchVerticesAttributes(
     gremlinFetch,
@@ -309,7 +313,7 @@ const fetchSchema = async (
     {},
   );
 
-  remoteLogger.info(
+  void remoteLogger.info(
     `[Gremlin Explorer] Schema sync successful (${summary.numNodes} vertices; ${summary.numEdges} edges; ${vertices.length} vertex types; ${edges.length} edge types)`,
   );
 
