@@ -9,7 +9,7 @@ import {
   type ConfigurationId,
   schemaAtom,
 } from "@/core";
-import { logAndIgnore, logger } from "@/utils";
+import { logAndNotify, logger } from "@/utils";
 
 export function useDeleteConfig() {
   return useAtomCallback(
@@ -20,25 +20,25 @@ export function useDeleteConfig() {
           return null;
         }
         return prev;
-      }).catch(logAndIgnore);
+      }).catch(logAndNotify("Failed to finish deleting the connection."));
 
       set(configurationAtom, prevConfigs => {
         const updatedConfigs = new Map(prevConfigs);
         updatedConfigs.delete(id);
         return updatedConfigs;
-      }).catch(logAndIgnore);
+      }).catch(logAndNotify("Failed to finish deleting the connection."));
 
       set(schemaAtom, prevSchemas => {
         const updatedSchemas = new Map(prevSchemas);
         updatedSchemas.delete(id);
         return updatedSchemas;
-      }).catch(logAndIgnore);
+      }).catch(logAndNotify("Failed to finish deleting the connection."));
 
       set(allGraphSessionsAtom, prev => {
         const updatedGraphs = new Map(prev);
         updatedGraphs.delete(id);
         return updatedGraphs;
-      }).catch(logAndIgnore);
+      }).catch(logAndNotify("Failed to finish deleting the connection."));
     }, []),
   );
 }

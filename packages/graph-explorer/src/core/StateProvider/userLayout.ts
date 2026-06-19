@@ -1,6 +1,6 @@
 import { useAtom } from "jotai";
 
-import { logAndIgnore } from "@/utils";
+import { logAndNotify } from "@/utils";
 
 import { useQueryEngine } from "../connector";
 import { userLayoutAtom } from "./storageAtoms";
@@ -100,7 +100,7 @@ export function useSidebar() {
         ...prev,
         activeSidebarItem: prev.activeSidebarItem === item ? null : item,
       };
-    }).catch(logAndIgnore);
+    }).catch(logAndNotify("Failed to save your layout preferences."));
   };
 
   return {
@@ -128,7 +128,7 @@ export function useSidebarSize() {
           width: prevWidth + deltaWidth,
         },
       };
-    }).catch(logAndIgnore);
+    }).catch(logAndNotify("Failed to save your layout preferences."));
   };
 
   return [sidebarWidth, setSidebarWidth] as const;

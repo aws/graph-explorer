@@ -36,7 +36,7 @@ import {
   useConfiguration,
 } from "@/core";
 import { usePrefixes } from "@/core/StateProvider/schema";
-import { logAndIgnore } from "@/utils";
+import { logAndNotify } from "@/utils";
 
 type PrefixForm = {
   prefix: string;
@@ -186,7 +186,7 @@ function useDeletePrefixCallback(prefix: string) {
           });
 
           return updatedSchemas;
-        }).catch(logAndIgnore);
+        }).catch(logAndNotify("Failed to delete the namespace prefix."));
       },
       [prefix],
     ),
@@ -238,7 +238,7 @@ function EditPrefixModal({
           });
 
           return updatedSchemas;
-        }).catch(logAndIgnore);
+        }).catch(logAndNotify("Failed to save the namespace prefix."));
       },
       [configId],
     ),

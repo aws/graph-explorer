@@ -13,7 +13,7 @@ import {
   getSchemaUris,
   type SchemaStorageModel,
 } from "@/core/StateProvider/schema";
-import { logAndIgnore, logger } from "@/utils";
+import { logAndNotify, logger } from "@/utils";
 
 import type { SchemaResponse } from "../useGEFetchTypes";
 
@@ -99,7 +99,7 @@ const replaceSchemaAtom = atom(
         lastSyncFail: false,
       });
       return updated;
-    }).catch(logAndIgnore);
+    }).catch(logAndNotify("Failed to save the schema to the local cache."));
   },
 );
 
@@ -121,5 +121,5 @@ const setSyncFailedAtom = atom(null, (get, set) => {
       lastSyncFail: true,
     });
     return updated;
-  }).catch(logAndIgnore);
+  }).catch(logAndNotify("Failed to save the schema to the local cache."));
 });

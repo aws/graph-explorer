@@ -12,13 +12,15 @@ Until now `typescript/no-floating-promises` was off, so these reads as ordinary 
 
 ## Decision
 
-Turn on `typescript/no-floating-promises` (`error`) so every unhandled promise must be **explicitly** marked. Use one of two idioms by meaning:
+Turn on `typescript/no-floating-promises` (`error`) so every unhandled promise must be **explicitly** marked. Use one of three idioms by meaning:
 
-1. **`.catch(logAndIgnore)`** (`logAndIgnore` from `@/utils`) — a `.catch` handler that logs the rejection via `logger.warn` (warn, not error: an explicitly-ignored rejection is non-blocking by construction — the in-memory state already updated and nothing downstream awaits it). Use when a rejection is **meaningful and should be observed** even though the caller does not await it. This is the idiom for **persisted-atom setters**: a failed durable write gets logged rather than silently dropped, and the call sites stay greppable for follow-up auditing.
+1. **`.catch(logAndNotify(message, options?))`** (`logAndNotify` from `@/utils`) — builds a `.catch` handler that logs the rejection via `logger.warn` **and** shows the user a warning toast. Use when an unawaited failure is something the **user should know about** — most persisted-atom writes from a user action (saving a connection, editing a style, toggling a setting). Each site passes its own message; query-language vocabulary (node/edge) is resolved with `useTranslations` at the call site so the toast reads correctly per engine (e.g. "resource" for SPARQL). `options` forwards sonner options such as `description`.
 
-2. **bare `void expr;`** — use when a rejection is **genuinely inert** or already handled elsewhere: aborted `navigate()`, a refetch whose errors surface through query state, a self-catching async helper, and **test-state seeding** (a test seeding store state does not care whether the value lands in durable storage).
+2. **`.catch(logAndIgnore)`** (`logAndIgnore` from `@/utils`) — a `.catch` handler that only logs the rejection via `logger.warn`, no toast. Use when a rejection is **meaningful enough to log but not worth interrupting the user** — e.g. a background canvas icon fetch. (Warn, not error: an explicitly-ignored rejection is non-blocking by construction.)
 
-The reconciliation contract for user-facing persistence errors (reject + surface a toast) is a **separate, in-flight effort** on the persistence branch. This ADR deliberately does **not** change the runtime behavior of persisted setters — it only makes the existing fire-and-forget explicit. When the toast contract lands, the `logAndIgnore`-handled userStyling call sites are the ones to revisit toward a handled-reject form.
+3. **bare `void expr;`** — use when a rejection is **genuinely inert** or already handled elsewhere: aborted `navigate()`, a refetch whose errors surface through query state, a self-catching async helper, and **test-state seeding** (a test seeding store state does not care whether the value lands in durable storage).
+
+Both `logAndNotify` and `logAndIgnore` log at `warn`; they differ only in whether the user is notified. The broader reconciliation contract for persistence errors (reject + per-key merge, per `per-key-diff-merge-cross-tab-reconciliation`) is still a separate effort; `logAndNotify` surfaces the failure but does not yet reconcile or retry the write.
 
 ### Alternatives considered
 
@@ -26,6 +28,6 @@ The reconciliation contract for user-facing persistence errors (reject + surface
 
 ## Consequences
 
-- A swallowed persistence error is now either logged (`.catch(logAndIgnore)`) or a deliberate, reviewed `void` — no longer invisible.
-- Reviewers have a clear rule: meaningful-but-unawaited → `.catch(logAndIgnore)`; inert → `void`.
+- A swallowed persistence error is now either surfaced to the user (`.catch(logAndNotify(...))`), logged (`.catch(logAndIgnore)`), or a deliberate, reviewed `void` — no longer invisible.
+- Reviewers have a clear rule: user should know → `logAndNotify`; log-only → `logAndIgnore`; inert → `void`.
 - The lint rule prevents silent fire-and-forget from being reintroduced anywhere in the codebase.

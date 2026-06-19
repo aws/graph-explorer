@@ -36,7 +36,7 @@ import {
   useVertexStyling,
 } from "@/core/StateProvider/userPreferences";
 import useTranslations from "@/hooks/useTranslations";
-import { logAndIgnore, parseNumberSafely } from "@/utils";
+import { logAndNotify, parseNumberSafely } from "@/utils";
 import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
@@ -120,7 +120,9 @@ function Content({ vertexType }: { vertexType: VertexType }) {
     try {
       const result = await file2Base64(file);
       setVertexStyle({ iconUrl: result, iconImageType: file.type }).catch(
-        logAndIgnore,
+        logAndNotify(`Failed to save the ${t("node").toLowerCase()} style.`, {
+          description: "Your style change may be lost when you reload.",
+        }),
       );
     } catch (error) {
       console.error("Unable to convert uploaded image to base64: ", error);

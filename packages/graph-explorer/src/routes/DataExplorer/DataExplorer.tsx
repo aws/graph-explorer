@@ -56,7 +56,7 @@ import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfigurati
 import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
-import { logAndIgnore } from "@/utils";
+import { logAndNotify } from "@/utils";
 import {
   LABELS,
   RESERVED_ID_PROPERTY,
@@ -258,13 +258,17 @@ function DisplayNameAndDescriptionOptions({
     (field: "name" | "longName") => (value: string | string[]) => {
       if (field === "name") {
         setPreferences({ displayNameAttribute: value as string }).catch(
-          logAndIgnore,
+          logAndNotify(
+            `Failed to save the ${t("node").toLowerCase()} display settings.`,
+          ),
         );
       }
 
       if (field === "longName") {
         setPreferences({ longDisplayNameAttribute: value as string }).catch(
-          logAndIgnore,
+          logAndNotify(
+            `Failed to save the ${t("node").toLowerCase()} display settings.`,
+          ),
         );
       }
     };

@@ -4,7 +4,8 @@ import { Button, FormItem, InputField, Label, StylingIcon } from "@/components";
 import { useDisplayVertexTypeConfig, type VertexType } from "@/core";
 import { useVertexStyling } from "@/core/StateProvider/userPreferences";
 import { useDebounceValue, usePrevious } from "@/hooks";
-import { logAndIgnore } from "@/utils";
+import useTranslations from "@/hooks/useTranslations";
+import { logAndNotify } from "@/utils";
 import { LABELS } from "@/utils/constants";
 
 import { useOpenNodeStyleDialog } from "./NodeStyleDialog";
@@ -17,6 +18,7 @@ export default function SingleNodeStyling({
   vertexType,
   ...rest
 }: SingleNodeStylingProps) {
+  const t = useTranslations();
   const { setVertexStyle } = useVertexStyling(vertexType);
   const displayConfig = useDisplayVertexTypeConfig(vertexType);
 
@@ -32,8 +34,12 @@ export default function SingleNodeStyling({
     if (prevDisplayAs === null || prevDisplayAs === debouncedDisplayAs) {
       return;
     }
-    setVertexStyle({ displayLabel: debouncedDisplayAs }).catch(logAndIgnore);
-  }, [debouncedDisplayAs, prevDisplayAs, setVertexStyle]);
+    setVertexStyle({ displayLabel: debouncedDisplayAs }).catch(
+      logAndNotify(`Failed to save the ${t("node").toLowerCase()} style.`, {
+        description: "Your style change may be lost when you reload.",
+      }),
+    );
+  }, [debouncedDisplayAs, prevDisplayAs, setVertexStyle, t]);
 
   return (
     <FormItem {...rest}>
