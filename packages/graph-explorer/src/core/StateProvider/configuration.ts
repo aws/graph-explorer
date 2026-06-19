@@ -27,11 +27,12 @@ import {
 } from "./userPreferences";
 
 /** Gets the currently active config. */
-const activeConfigSelector = atom(get => {
+export const activeConfigSelector = atom(get => {
   const configMap = get(configurationAtom);
   const id = get(activeConfigurationAtom);
-  const activeConfig = id ? configMap.get(id) : null;
-  return activeConfig;
+  // The id may point at a connection deleted in another tab, so a map miss
+  // resolves to null (no active connection) rather than a dangling pointer.
+  return (id && configMap.get(id)) ?? null;
 });
 
 export const activeConnectionAtom = atom(get => {

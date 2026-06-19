@@ -1,5 +1,7 @@
 import { createRandomName } from "@shared/utils/testing";
+import { createStore } from "jotai";
 
+import { activeConfigurationAtom, configurationAtom } from "@/core";
 import { createEdgeType, createVertexType } from "@/core/entities";
 import { RESERVED_TYPES_PROPERTY } from "@/utils";
 import {
@@ -19,6 +21,7 @@ import type { SchemaStorageModel } from "./schema";
 import type { UserStyling } from "./userPreferences";
 
 import {
+  activeConfigSelector,
   defaultEdgeTypeConfig,
   defaultVertexTypeConfig,
   getDefaultEdgeTypeConfig,
@@ -409,5 +412,30 @@ describe("getDefaultEdgeTypeConfig", () => {
       ...defaultEdgeTypeConfig,
       type: createEdgeType("knows"),
     });
+  });
+});
+
+describe("activeConfigSelector", () => {
+  test("resolves the active connection's config", () => {
+    const config = createRandomRawConfiguration();
+    const store = createStore();
+    store.set(configurationAtom, new Map([[config.id, config]]));
+    store.set(activeConfigurationAtom, config.id);
+
+    expect(store.get(activeConfigSelector)).toBe(config);
+  });
+
+  // A tab's active connection lives in per-tab sessionStorage, but the
+  // connections map is shared and only refreshed on reload. A connection
+  // deleted in another tab leaves this tab pointing at a missing id. The
+  // selector must degrade to null (the connection screen) rather than expose a
+  // dangling pointer.
+  test("resolves to null when the active connection was deleted in another tab", () => {
+    const deletedConfig = createRandomRawConfiguration();
+    const store = createStore();
+    store.set(configurationAtom, new Map());
+    store.set(activeConfigurationAtom, deletedConfig.id);
+
+    expect(store.get(activeConfigSelector)).toBeNull();
   });
 });

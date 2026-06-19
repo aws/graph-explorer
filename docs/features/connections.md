@@ -24,6 +24,8 @@ For guides on connecting to specific databases, see [Connecting to databases](..
 
 Once a connection is created, this section will appear as a left-hand pane. When you create more than one connection to a graph database, you can only connect to and visualize from one graph database endpoint at a time. To select the active database, toggle the "Active" switch.
 
+The active connection is per browser tab: switching connections in one tab does not change what another open tab is viewing, so you can explore different connections side by side. When you reopen Graph Explorer after closing all tabs, it resumes the connection you most recently used.
+
 ## Connection Details
 
 Once a connection is created, this section will appear as a right-hand information pane for a selected connection. It shows details such as the connection name, query language, endpoint and a summary of the graph data, such as the count of nodes, edges, and a list of node types.

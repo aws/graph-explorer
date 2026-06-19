@@ -16,6 +16,14 @@ _Avoid_: Relationship, link
 A saved database profile — the URL, query engine, authentication settings, and proxy routing needed to reach a graph database. Users create and manage these in the UI.
 _Avoid_: Configuration (legacy term being phased out — previously bundled connection + schema + user preferences into one object)
 
+**Active Connection**:
+The one Connection a single browser tab is currently exploring — what the entire app reads to decide which Schema, Session, and queries are in play. Held per-tab (sessionStorage): it survives that tab's reload but dies with the tab, and one tab activating a Connection never changes another tab's Active Connection.
+_Avoid_: Active configuration (legacy code term `activeConfigurationAtom`)
+
+**Last Active Connection**:
+A persisted, shared breadcrumb recording the most recently activated Connection across all tabs. Last-writer-wins; used only as the cold-start seed for a fresh tab's Active Connection, never read live by the app.
+_Avoid_: Default connection (that is a separate new-user/notebook injection path)
+
 **Query Language**:
 The graph query protocol a Connection uses — one of Gremlin, openCypher, or SPARQL. Determines which Explorer is instantiated and implies the graph type (Gremlin/openCypher → property graph, SPARQL → RDF).
 _Avoid_: Query engine (internal code name `queryEngine`, but UI says "Query Language")
@@ -72,6 +80,8 @@ _Avoid_: Configuration file (the wire format is not the in-memory or persisted s
 
 ## Relationships
 
+- Each browser tab has at most one **Active Connection**; different tabs may have different ones
+- The **Last Active Connection** seeds a fresh tab's **Active Connection** on cold start only
 - A **Connection** has exactly one **Query Language**
 - A **Connection** has one **Schema**, populated by **Schema Sync**
 - A **Schema** contains **Vertex Types**, **Edge Types**, and **Edge Connections**
@@ -100,3 +110,4 @@ _Avoid_: Configuration file (the wire format is not the in-memory or persisted s
 - A Connection's data now has three distinct shapes that look similar but must not be conflated: the **Exported Connection File** (on-disk wire format), the in-memory configuration, and the IndexedDB storage shape. They are being separated into explicit types so each can evolve independently.
 - "Node" means **Vertex** in code but is the preferred UI term for property graphs — resolved: use **Vertex** in code, "node" in UI copy.
 - "Attribute" vs "Property" — resolved: **Property** is canonical, "attribute" is legacy code term being phased out.
+- "Active connection" meant a single shared per-origin value, but the app consumed it as if it were per-tab — resolved: **Active Connection** is per-tab (sessionStorage), **Last Active Connection** is the shared persisted breadcrumb. The legacy `activeConfigurationAtom` / `active-configuration` key is reused as the breadcrumb.
