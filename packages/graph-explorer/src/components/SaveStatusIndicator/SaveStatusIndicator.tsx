@@ -28,6 +28,9 @@ export function SaveStatusIndicator() {
     toast.error("Out of storage", {
       description:
         "Some changes couldn't be saved. Back up your data to a file so you don't lose it.",
+      // Data loss is at stake, so this stays until the user acts on or dismisses
+      // it rather than disappearing on the Toaster's default timeout.
+      duration: Infinity,
       action: {
         label: "Back up",
         onClick: () => void saveLocalForageToFile(localforage),
