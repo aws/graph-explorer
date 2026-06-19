@@ -1,3 +1,5 @@
+import { logger } from "@/utils";
+
 import type { StorageErrorClassification } from "./classifyStorageError";
 
 /**
@@ -68,6 +70,10 @@ export function createPersistenceStatusStore(): PersistenceStatusStore {
       reason,
     }));
 
+    if (status !== snapshot.status) {
+      logger.debug(`[persistence] status ${snapshot.status} → ${status}`);
+    }
+
     snapshot = { status, failures };
     listeners.forEach(listener => listener());
   }
@@ -78,15 +84,18 @@ export function createPersistenceStatusStore(): PersistenceStatusStore {
       return snapshot;
     },
     markSaving(key) {
+      logger.debug(`[persistence] saving "${key}"`);
       inFlightKeys.add(key);
       recompute();
     },
     markSaved(key) {
+      logger.debug(`[persistence] saved "${key}"`);
       inFlightKeys.delete(key);
       failuresByKey.delete(key);
       recompute();
     },
     markFailed(key, reason) {
+      logger.debug(`[persistence] failed "${key}" (${reason})`);
       inFlightKeys.delete(key);
       failuresByKey.set(key, reason);
       recompute();
