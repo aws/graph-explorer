@@ -25,14 +25,14 @@ export function SaveStatusIndicator() {
     if (!isOutOfStorage) {
       return;
     }
-    toast.error("Out of storage", {
+    toast.error("Browser storage is full", {
       description:
-        "Some changes couldn't be saved. Back up your data to a file so you don't lose it.",
+        "Graph Explorer has run out of space to save changes in this browser. Download a backup so you don't lose your work.",
       // Data loss is at stake, so this stays until the user acts on or dismisses
       // it rather than disappearing on the Toaster's default timeout.
       duration: Infinity,
       action: {
-        label: "Back up",
+        label: "Download backup",
         onClick: () => void saveLocalForageToFile(localforage),
       },
     });

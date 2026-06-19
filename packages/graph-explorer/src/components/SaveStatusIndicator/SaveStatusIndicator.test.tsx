@@ -50,9 +50,9 @@ describe("SaveStatusIndicator", () => {
     );
 
     expect(toast.error).toHaveBeenCalledWith(
-      "Out of storage",
+      "Browser storage is full",
       expect.objectContaining({
-        action: expect.objectContaining({ label: "Back up" }),
+        action: expect.objectContaining({ label: "Download backup" }),
       }),
     );
   });
