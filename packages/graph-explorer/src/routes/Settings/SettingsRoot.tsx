@@ -10,6 +10,7 @@ import {
   PanelContent,
   PanelGroup,
   RouteButtonGroup,
+  SaveStatusIndicator,
   Workspace,
   WorkspaceContent,
 } from "@/components";
@@ -23,6 +24,7 @@ export default function SettingsRoot() {
       <NavBar logoVisible>
         <NavBarContent>
           <NavBarTitle title={`${LABELS.APP_NAME} Settings`} />
+          <SaveStatusIndicator />
         </NavBarContent>
 
         <RouteButtonGroup active="settings" />

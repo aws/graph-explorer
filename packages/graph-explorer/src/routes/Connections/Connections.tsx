@@ -7,6 +7,7 @@ import {
   PanelEmptyState,
   PanelGroup,
   RouteButtonGroup,
+  SaveStatusIndicator,
   Workspace,
   WorkspaceContent,
 } from "@/components";
@@ -28,6 +29,7 @@ export default function Connections() {
             title="Connections Details"
             subtitle={`Connection: ${config?.displayLabel || config?.id || "none"}`}
           />
+          <SaveStatusIndicator />
         </NavBarContent>
         <RouteButtonGroup active="connections" />
       </NavBar>
