@@ -2,21 +2,23 @@
 
 ## Core Rules
 
+- Follow YAGNI principles
+- Prefer deep modules
 - Prefer descriptive variable and function names over code comments
 - Prefer simple to follow logic over clever concise code
 - Every commit should have no type errors, lint errors, formatting issues, or failing tests
 - Don't hard-wrap Markdown prose to a fixed column width, let it soft-wrap
 - When possible, create failing tests first then implement the logic to make the tests pass
 - Add or update tests for the code you change, even if nobody asked
-- For TypeScript conventions and rules, refer to `.kiro/skills/typescript/SKILL.md`
-- For Tailwind style guidelines, refer to `.kiro/skills/tailwind/SKILL.md`
-- For testing patterns and examples, refer to `.kiro/skills/testing/SKILL.md`
-- For code organization patterns and conventions, refer to `.kiro/skills/connectors/SKILL.md`
-- For React related patterns and conventions, refer to `.kiro/skills/react/SKILL.md`
-- For schema storage and discovery, refer to `.kiro/skills/schema/SKILL.md`
-- For GitHub issue and PR management, refer to `.kiro/skills/github/SKILL.md`
-- For git workflow conventions, refer to `.kiro/skills/git/SKILL.md`
-- For product overview and architecture, refer to `.kiro/skills/product/SKILL.md`
+- For TypeScript conventions and rules, refer to `docs/agents/typescript.md`
+- For Tailwind style guidelines, refer to `docs/agents/tailwind.md`
+- For testing patterns and examples, refer to `docs/agents/testing.md`
+- For code organization patterns and conventions, refer to `docs/agents/connectors.md`
+- For React related patterns and conventions, refer to `docs/agents/react.md`
+- For schema storage and discovery, refer to `docs/agents/schema.md`
+- For GitHub issue and PR management, refer to `docs/agents/github.md`
+- For git workflow conventions, refer to `docs/agents/git.md`
+- For product overview and architecture, refer to `docs/agents/product.md`
 
 ## Monorepo Commands
 

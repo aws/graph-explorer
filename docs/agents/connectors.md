@@ -1,9 +1,3 @@
----
-name: connectors
-description: Database connector and explorer patterns for Gremlin, openCypher, and SPARQL, including the query template tag and escapeString usage.
-tools: ["fs_read", "code", "grep", "glob", "web_search", "web_fetch"]
----
-
 # Connector & Explorer Patterns
 
 ## Connector Pattern
@@ -22,7 +16,7 @@ tools: ["fs_read", "code", "grep", "glob", "web_search", "web_fetch"]
 
 ## Branded Types
 
-For branded type conventions and the full type reference table, refer to `.kiro/skills/typescript/SKILL.md`.
+For branded type conventions and the full type reference table, refer to `docs/agents/typescript.md`.
 
 ## Database Queries
 

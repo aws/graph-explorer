@@ -1,8 +1,3 @@
----
-name: typescript
-description: TypeScript conventions and rules for Graph Explorer, including branded types, function style preferences, and type safety patterns.
----
-
 # TypeScript Conventions
 
 ## General Rules

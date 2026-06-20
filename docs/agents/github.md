@@ -1,9 +1,3 @@
----
-name: github
-description: Handle management of any GitHub related tasks, including creating or modifying issues, publishing a branch as a pull requests (or PRs), or creating or modifying sub-issues or child issues.
-tools: ["git", "gh", "fs_read", "grep", "glob", "web_search", "web_fetch"]
----
-
 # GitHub Project Management
 
 ## General

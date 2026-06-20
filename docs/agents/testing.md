@@ -1,9 +1,3 @@
----
-name: testing
-description: Testing standards, patterns, and utilities for Graph Explorer including Vitest, DbState, renderHookWithState, test data factories, SPARQL test helpers, and backward compatibility testing for persisted data.
-tools: ["fs_read", "code", "grep", "glob", "web_search", "web_fetch"]
----
-
 # Testing Standards & Best Practices
 
 ## Quick Reference
@@ -453,7 +447,7 @@ This is faster than running the full test suite and catches most issues with sty
 
 ### Type Annotations
 
-- For type annotation conventions, refer to `.kiro/skills/typescript/SKILL.md`
+- For type annotation conventions, refer to `docs/agents/typescript.md`
 
 ### Data Isolation
 

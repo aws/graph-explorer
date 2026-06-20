@@ -1,9 +1,3 @@
----
-name: product
-description: Graph Explorer product overview including supported graph types, query languages, databases, key features, and high-level architecture.
-tools: ["fs_read", "grep", "glob", "web_search"]
----
-
 # Graph Explorer Product Overview
 
 Graph Explorer is a React-based web application that enables users to visualize and explore graph data without writing queries. It supports multiple graph database types and query languages.
