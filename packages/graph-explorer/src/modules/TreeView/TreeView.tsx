@@ -1,6 +1,7 @@
 import { useAtomValue } from "jotai";
 import { ChevronDownIcon, ChevronRightIcon, ListTreeIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import {
   Panel,
@@ -10,6 +11,7 @@ import {
   VertexIconByType,
 } from "@/components";
 import {
+  activeConnectionAtom,
   type DisplayVertex,
   edgesAtom,
   type NeighborCounts,
@@ -18,16 +20,32 @@ import {
   useDisplayVerticesInCanvas,
   type VertexId,
 } from "@/core";
-import { useExpandNode } from "@/hooks";
+import { useExpandNode, useMoveIntoGroup } from "@/hooks";
 import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
 import { useGraphSelection } from "@/modules/GraphViewer/useGraphSelection";
 import { cn, LABELS } from "@/utils";
 
 import {
   buildNotionTree,
+  CONTAINS_EDGE_TYPE,
   isNotionGroup,
   type NotionTreeNode,
 } from "./buildNotionTree";
+
+/** Drag-and-drop callbacks and state shared by every tree row. */
+type TreeDragAndDrop = {
+  /** Only enabled on Gremlin connections, where the move can be persisted. */
+  enabled: boolean;
+  /** The group row currently hovered as a valid drop target, for highlighting. */
+  dropTargetGroupId: VertexId | null;
+  setDropTargetGroupId: (id: VertexId | null) => void;
+  /** Whether dropping the dragged vertex onto the given group is allowed. */
+  canDropOnGroup: (toGroupId: VertexId) => boolean;
+  onVertexDragStart: (vertexId: VertexId) => void;
+  onVertexDragEnd: () => void;
+  /** Persists the dragged vertex's move into the given group. */
+  onVertexDropOnGroup: (toGroupId: VertexId) => void;
+};
 
 export default function TreeView() {
   const nodes = useAtomValue(nodesAtom);
@@ -55,6 +73,80 @@ export default function TreeView() {
       return next;
     });
 
+  // Dragging a notion or group onto another group persists the move via Gremlin.
+  const activeConnection = useAtomValue(activeConnectionAtom);
+  const { moveIntoGroup } = useMoveIntoGroup();
+  const draggedVertexIdRef = useRef<VertexId | null>(null);
+  const [dropTargetGroupId, setDropTargetGroupId] = useState<VertexId | null>(
+    null,
+  );
+
+  // The group each vertex currently belongs to, via its incoming `contains`
+  // edge. Used to ignore no-op drops and to detect cycles.
+  const parentGroupByVertexId = useMemo(() => {
+    const map = new Map<VertexId, VertexId>();
+    for (const edge of edges.values()) {
+      if (edge.type === CONTAINS_EDGE_TYPE) {
+        map.set(edge.targetId, edge.sourceId);
+      }
+    }
+    return map;
+  }, [edges]);
+
+  // A drop would create a cycle when the target group is the dragged vertex
+  // itself or sits within the dragged vertex's own subtree.
+  const wouldCreateCycle = (draggedId: VertexId, toGroupId: VertexId) => {
+    let current: VertexId | undefined = toGroupId;
+    while (current != null) {
+      if (current === draggedId) {
+        return true;
+      }
+      current = parentGroupByVertexId.get(current);
+    }
+    return false;
+  };
+
+  const canDropOnGroup = (draggedId: VertexId | null, toGroupId: VertexId) => {
+    if (draggedId == null) {
+      return false;
+    }
+    // Already in this group, or the move would create a containment cycle.
+    if (parentGroupByVertexId.get(draggedId) === toGroupId) {
+      return false;
+    }
+    return !wouldCreateCycle(draggedId, toGroupId);
+  };
+
+  const dnd: TreeDragAndDrop = {
+    enabled: activeConnection?.queryEngine === "gremlin",
+    dropTargetGroupId,
+    setDropTargetGroupId,
+    canDropOnGroup: toGroupId =>
+      canDropOnGroup(draggedVertexIdRef.current, toGroupId),
+    onVertexDragStart: vertexId => {
+      draggedVertexIdRef.current = vertexId;
+    },
+    onVertexDragEnd: () => {
+      draggedVertexIdRef.current = null;
+    },
+    onVertexDropOnGroup: toGroupId => {
+      const draggedId = draggedVertexIdRef.current;
+      draggedVertexIdRef.current = null;
+      setDropTargetGroupId(null);
+      if (
+        draggedId == null ||
+        parentGroupByVertexId.get(draggedId) === toGroupId
+      ) {
+        return;
+      }
+      if (wouldCreateCycle(draggedId, toGroupId)) {
+        toast.error("Cannot move a group into itself or one of its subgroups");
+        return;
+      }
+      moveIntoGroup({ vertexId: draggedId, toGroupId });
+    },
+  };
+
   return (
     <Panel variant="sidebar">
       <PanelHeader>
@@ -81,6 +173,7 @@ export default function TreeView() {
                 displayVertices={displayVertices}
                 neighborCounts={neighborCounts}
                 onExpandNeighbors={expandNeighbors}
+                dnd={dnd}
               />
             ))}
           </ul>
@@ -98,6 +191,7 @@ type TreeRowProps = {
   displayVertices: Map<VertexId, DisplayVertex>;
   neighborCounts: Map<VertexId, NeighborCounts>;
   onExpandNeighbors: (id: VertexId) => void;
+  dnd: TreeDragAndDrop;
 };
 
 function TreeRow({
@@ -108,6 +202,7 @@ function TreeRow({
   displayVertices,
   neighborCounts,
   onExpandNeighbors,
+  dnd,
 }: TreeRowProps) {
   const { graphSelection, replaceGraphSelection } = useGraphSelection();
 
@@ -115,6 +210,12 @@ function TreeRow({
   const hasChildren = node.children.length > 0;
   const isExpanded = expandedIds.has(vertexId);
   const isSelected = graphSelection.isVertexSelected(vertexId);
+
+  // Every tree vertex (notion or group) can be dragged; only groups accept
+  // drops.
+  const isDraggable = dnd.enabled;
+  const isDropTarget = dnd.enabled && isNotionGroup(node.vertex);
+  const isActiveDropTarget = isDropTarget && dnd.dropTargetGroupId === vertexId;
 
   // For notion groups, the number of `contains` neighbors not yet loaded into
   // the graph. Double clicking the row runs the graph Expand action to load
@@ -135,8 +236,52 @@ function TreeRow({
         className={cn(
           "hover:bg-primary-subtle-hover flex items-start gap-1 rounded text-sm",
           isSelected && "bg-brand-100 dark:bg-brand-900",
+          isDraggable && "cursor-grab",
+          isActiveDropTarget && "ring-brand-500 ring-2 ring-inset",
         )}
         style={{ paddingLeft: `${depth * 16 + 4}px` }}
+        draggable={isDraggable}
+        onDragStart={
+          isDraggable
+            ? event => {
+                dnd.onVertexDragStart(vertexId);
+                event.dataTransfer.effectAllowed = "move";
+                event.dataTransfer.setData("text/plain", label);
+              }
+            : undefined
+        }
+        onDragEnd={isDraggable ? () => dnd.onVertexDragEnd() : undefined}
+        onDragOver={
+          isDropTarget
+            ? event => {
+                if (!dnd.canDropOnGroup(vertexId)) {
+                  return;
+                }
+                event.preventDefault();
+                event.dataTransfer.dropEffect = "move";
+                if (dnd.dropTargetGroupId !== vertexId) {
+                  dnd.setDropTargetGroupId(vertexId);
+                }
+              }
+            : undefined
+        }
+        onDragLeave={
+          isDropTarget
+            ? () => {
+                if (dnd.dropTargetGroupId === vertexId) {
+                  dnd.setDropTargetGroupId(null);
+                }
+              }
+            : undefined
+        }
+        onDrop={
+          isDropTarget
+            ? event => {
+                event.preventDefault();
+                dnd.onVertexDropOnGroup(vertexId);
+              }
+            : undefined
+        }
       >
         {hasChildren ? (
           <button
@@ -162,7 +307,7 @@ function TreeRow({
           type="button"
           onClick={() => replaceGraphSelection({ vertices: [vertexId] })}
           onDoubleClick={() => onExpandNeighbors(vertexId)}
-          className="min-w-0 grow break-words py-1 text-left"
+          className="min-w-0 grow py-1 text-left break-words"
         >
           {label}
         </button>
@@ -188,6 +333,7 @@ function TreeRow({
               displayVertices={displayVertices}
               neighborCounts={neighborCounts}
               onExpandNeighbors={onExpandNeighbors}
+              dnd={dnd}
             />
           ))}
         </ul>

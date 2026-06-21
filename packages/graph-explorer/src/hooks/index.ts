@@ -5,6 +5,7 @@ export * from "./useAddToGraph";
 export * from "./useHasEdgeBeenAddedToGraph";
 export * from "./useHasVertexBeenAddedToGraph";
 export * from "./useRemoveFromGraph";
+export * from "./useMoveIntoGroup";
 export { default as useTextTransform } from "./useTextTransform";
 export * from "./useTextTransform";
 export { default as usePrevious } from "./usePrevious";
