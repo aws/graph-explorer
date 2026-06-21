@@ -2,7 +2,13 @@ import { useAtomValue } from "jotai";
 import { ChevronDownIcon, ChevronRightIcon, ListTreeIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { Panel, PanelContent, PanelHeader, PanelTitle } from "@/components";
+import {
+  Panel,
+  PanelContent,
+  PanelHeader,
+  PanelTitle,
+  VertexIconByType,
+} from "@/components";
 import {
   type DisplayVertex,
   edgesAtom,
@@ -127,7 +133,7 @@ function TreeRow({
     <li role="treeitem" aria-expanded={hasChildren ? isExpanded : undefined}>
       <div
         className={cn(
-          "hover:bg-primary-subtle-hover flex items-center gap-1 rounded text-sm",
+          "hover:bg-primary-subtle-hover flex items-start gap-1 rounded text-sm",
           isSelected && "bg-brand-100 dark:bg-brand-900",
         )}
         style={{ paddingLeft: `${depth * 16 + 4}px` }}
@@ -137,7 +143,7 @@ function TreeRow({
             type="button"
             aria-label={isExpanded ? "Collapse" : "Expand"}
             onClick={() => onToggleExpanded(vertexId)}
-            className="text-text-secondary hover:text-text-primary flex size-5 shrink-0 items-center justify-center"
+            className="text-text-secondary hover:text-text-primary mt-1 flex size-5 shrink-0 items-center justify-center"
           >
             {isExpanded ? (
               <ChevronDownIcon className="size-4" />
@@ -148,11 +154,15 @@ function TreeRow({
         ) : (
           <span className="size-5 shrink-0" />
         )}
+        <VertexIconByType
+          vertexType={node.vertex.type}
+          className="mt-1.5 size-4 shrink-0"
+        />
         <button
           type="button"
           onClick={() => replaceGraphSelection({ vertices: [vertexId] })}
           onDoubleClick={() => onExpandNeighbors(vertexId)}
-          className="min-w-0 grow truncate py-1 text-left"
+          className="min-w-0 grow break-words py-1 text-left"
         >
           {label}
         </button>
@@ -160,7 +170,7 @@ function TreeRow({
           <span
             title={`${unexpandedCount} relationships not yet expanded — double click to expand`}
             aria-label={`${unexpandedCount} relationships not yet expanded`}
-            className="bg-primary-subtle text-text-secondary mr-1 shrink-0 rounded-full px-1.5 text-xs leading-5 tabular-nums"
+            className="bg-primary-subtle text-text-secondary mt-1 mr-1 shrink-0 rounded-full px-1.5 text-xs leading-5 tabular-nums"
           >
             {unexpandedCount}
           </span>
