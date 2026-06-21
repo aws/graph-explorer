@@ -6,19 +6,33 @@ import { Panel, PanelContent, PanelHeader, PanelTitle } from "@/components";
 import {
   type DisplayVertex,
   edgesAtom,
+  type NeighborCounts,
   nodesAtom,
+  useAllNeighbors,
   useDisplayVerticesInCanvas,
   type VertexId,
 } from "@/core";
+import { useExpandNode } from "@/hooks";
+import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
 import { useGraphSelection } from "@/modules/GraphViewer/useGraphSelection";
 import { cn, LABELS } from "@/utils";
 
-import { buildNotionTree, type NotionTreeNode } from "./buildNotionTree";
+import {
+  buildNotionTree,
+  isNotionGroup,
+  type NotionTreeNode,
+} from "./buildNotionTree";
 
 export default function TreeView() {
   const nodes = useAtomValue(nodesAtom);
   const edges = useAtomValue(edgesAtom);
   const displayVertices = useDisplayVerticesInCanvas();
+  const neighborCounts = useAllNeighbors();
+
+  const { expandNode } = useExpandNode();
+  const expansionLimit = useDefaultNeighborExpansionLimit();
+  const expandNeighbors = (vertexId: VertexId) =>
+    expandNode({ vertexId, limit: expansionLimit ?? undefined });
 
   const tree = useMemo(() => buildNotionTree(nodes, edges), [nodes, edges]);
 
@@ -59,6 +73,8 @@ export default function TreeView() {
                 expandedIds={expandedIds}
                 onToggleExpanded={toggleExpanded}
                 displayVertices={displayVertices}
+                neighborCounts={neighborCounts}
+                onExpandNeighbors={expandNeighbors}
               />
             ))}
           </ul>
@@ -74,6 +90,8 @@ type TreeRowProps = {
   expandedIds: Set<VertexId>;
   onToggleExpanded: (id: VertexId) => void;
   displayVertices: Map<VertexId, DisplayVertex>;
+  neighborCounts: Map<VertexId, NeighborCounts>;
+  onExpandNeighbors: (id: VertexId) => void;
 };
 
 function TreeRow({
@@ -82,6 +100,8 @@ function TreeRow({
   expandedIds,
   onToggleExpanded,
   displayVertices,
+  neighborCounts,
+  onExpandNeighbors,
 }: TreeRowProps) {
   const { graphSelection, replaceGraphSelection } = useGraphSelection();
 
@@ -89,6 +109,13 @@ function TreeRow({
   const hasChildren = node.children.length > 0;
   const isExpanded = expandedIds.has(vertexId);
   const isSelected = graphSelection.isVertexSelected(vertexId);
+
+  // For notion groups, the number of `contains` neighbors not yet loaded into
+  // the graph. Double clicking the row runs the graph Expand action to load
+  // them, just like the Graph View.
+  const unexpandedCount = isNotionGroup(node.vertex)
+    ? (neighborCounts.get(vertexId)?.unfetched ?? 0)
+    : 0;
 
   const display = displayVertices.get(vertexId);
   const label =
@@ -124,10 +151,20 @@ function TreeRow({
         <button
           type="button"
           onClick={() => replaceGraphSelection({ vertices: [vertexId] })}
+          onDoubleClick={() => onExpandNeighbors(vertexId)}
           className="min-w-0 grow truncate py-1 text-left"
         >
           {label}
         </button>
+        {unexpandedCount > 0 && (
+          <span
+            title={`${unexpandedCount} relationships not yet expanded — double click to expand`}
+            aria-label={`${unexpandedCount} relationships not yet expanded`}
+            className="bg-primary-subtle text-text-secondary mr-1 shrink-0 rounded-full px-1.5 text-xs leading-5 tabular-nums"
+          >
+            {unexpandedCount}
+          </span>
+        )}
       </div>
       {hasChildren && isExpanded && (
         <ul role="group" className="flex flex-col">
@@ -139,6 +176,8 @@ function TreeRow({
               expandedIds={expandedIds}
               onToggleExpanded={onToggleExpanded}
               displayVertices={displayVertices}
+              neighborCounts={neighborCounts}
+              onExpandNeighbors={onExpandNeighbors}
             />
           ))}
         </ul>
