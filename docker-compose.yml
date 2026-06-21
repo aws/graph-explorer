@@ -1,0 +1,15 @@
+services:
+  graph-explorer:
+    build: .
+    container_name: graph-explorer
+    ports:
+      - "8080:80"
+    environment:
+      PROXY_SERVER_HTTPS_CONNECTION: "false"
+      GRAPH_EXP_HTTPS_CONNECTION: "false"
+      PUBLIC_OR_PROXY_ENDPOINT: "http://localhost:8080"
+      GRAPH_TYPE: "gremlin"
+      USING_PROXY_SERVER: "true"
+      GRAPH_CONNECTION_URL: "http://host.docker.internal:8182"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

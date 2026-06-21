@@ -513,8 +513,13 @@ export function createApp({
 
   // GET endpoint to retrieve PropertyGraph statistics summary for Neptune Analytics.
   app.get("/summary", async (req, res, next) => {
-    const { graphDbConnectionUrl, isIamEnabled, region, serviceType, authorization } =
-      parseDbQueryHeaders(req.headers);
+    const {
+      graphDbConnectionUrl,
+      isIamEnabled,
+      region,
+      serviceType,
+      authorization,
+    } = parseDbQueryHeaders(req.headers);
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
@@ -525,7 +530,10 @@ export function createApp({
       res,
       next,
       rawUrl,
-      { method: "GET", headers: { ...(authorization && { Authorization: authorization }) } },
+      {
+        method: "GET",
+        headers: { ...(authorization && { Authorization: authorization }) },
+      },
       isIamEnabled,
       region,
       serviceType,
@@ -534,8 +542,13 @@ export function createApp({
 
   // GET endpoint to retrieve PropertyGraph statistics summary for Neptune DB.
   app.get("/pg/statistics/summary", async (req, res, next) => {
-    const { graphDbConnectionUrl, isIamEnabled, region, serviceType, authorization } =
-      parseDbQueryHeaders(req.headers);
+    const {
+      graphDbConnectionUrl,
+      isIamEnabled,
+      region,
+      serviceType,
+      authorization,
+    } = parseDbQueryHeaders(req.headers);
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
@@ -546,7 +559,10 @@ export function createApp({
       res,
       next,
       rawUrl,
-      { method: "GET", headers: { ...(authorization && { Authorization: authorization }) } },
+      {
+        method: "GET",
+        headers: { ...(authorization && { Authorization: authorization }) },
+      },
       isIamEnabled,
       region,
       serviceType,
@@ -555,8 +571,13 @@ export function createApp({
 
   // GET endpoint to retrieve RDF statistics summary.
   app.get("/rdf/statistics/summary", async (req, res, next) => {
-    const { graphDbConnectionUrl, isIamEnabled, region, serviceType, authorization } =
-      parseDbQueryHeaders(req.headers);
+    const {
+      graphDbConnectionUrl,
+      isIamEnabled,
+      region,
+      serviceType,
+      authorization,
+    } = parseDbQueryHeaders(req.headers);
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
@@ -567,7 +588,10 @@ export function createApp({
       res,
       next,
       rawUrl,
-      { method: "GET", headers: { ...(authorization && { Authorization: authorization }) } },
+      {
+        method: "GET",
+        headers: { ...(authorization && { Authorization: authorization }) },
+      },
       isIamEnabled,
       region,
       serviceType,

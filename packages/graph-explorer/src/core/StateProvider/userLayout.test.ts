@@ -14,15 +14,17 @@ import {
   useSidebar,
   useSidebarSize,
   useTableViewSize,
+  useTreeViewSize,
   useViewToggles,
 } from "./userLayout";
 
 describe("useViewToggles", () => {
-  it("should default to both views open", () => {
+  it("should default to all views open", () => {
     const { result } = renderHookWithState(() => useViewToggles());
 
     expect(result.current.isGraphVisible).toBe(true);
     expect(result.current.isTableVisible).toBe(true);
+    expect(result.current.isTreeVisible).toBe(true);
   });
 
   it("should toggle graph view", () => {
@@ -51,6 +53,20 @@ describe("useViewToggles", () => {
 
     expect(result.current.isGraphVisible).toBe(true);
     expect(result.current.isTableVisible).toBe(true);
+  });
+
+  it("should toggle tree view", () => {
+    const { result } = renderHookWithState(() => useViewToggles());
+
+    act(() => result.current.toggleTreeVisibility());
+
+    expect(result.current.isTreeVisible).toBe(false);
+    expect(result.current.isGraphVisible).toBe(true);
+    expect(result.current.isTableVisible).toBe(true);
+
+    act(() => result.current.toggleTreeVisibility());
+
+    expect(result.current.isTreeVisible).toBe(true);
   });
 });
 
@@ -166,6 +182,26 @@ describe("useTableViewSize", () => {
     act(() => result.current[1](-100));
 
     expect(result.current[0]).toBe(250);
+  });
+});
+
+describe("useTreeViewSize", () => {
+  it("should default to DEFAULT_TREE_VIEW_WIDTH", () => {
+    const { result } = renderHookWithState(() => useTreeViewSize());
+
+    expect(result.current[0]).toBe(320);
+  });
+
+  it("should adjust width by delta", () => {
+    const { result } = renderHookWithState(() => useTreeViewSize());
+
+    act(() => result.current[1](100));
+
+    expect(result.current[0]).toBe(420);
+
+    act(() => result.current[1](-200));
+
+    expect(result.current[0]).toBe(220);
   });
 });
 

@@ -17,3 +17,7 @@ plans/
 
 # Claude Code local files
 .claude
+
+# PNPM
+
+.pnpm-store

@@ -1,0 +1,48 @@
+# Runs the test suite (and checks) in a clean Linux container matching the
+# repo's pinned Node + pnpm, with openssl available for the SSL tests.
+#
+# Usage (from the repo root):
+#   docker compose -f docker-compose.test.yml run --rm test
+#       -> installs deps (first run only) and runs the full suite (pnpm test)
+#
+#   docker compose -f docker-compose.test.yml run --rm test pnpm run checks
+#       -> lint + format + types
+#
+#   docker compose -f docker-compose.test.yml run --rm test pnpm coverage
+#   docker compose -f docker-compose.test.yml run --rm test pnpm test packages/graph-explorer/src/modules/TreeView/
+#
+# The working tree is bind-mounted, so code changes are picked up without a
+# rebuild. node_modules and the pnpm store live in named volumes, which keeps
+# the Linux install off the (CRLF / OneDrive-synced) host checkout and makes
+# repeat runs fast.
+
+services:
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    working_dir: /app
+    # The proxy-server SSL tests execute shell scripts; they require LF line
+    # endings (enforced by .gitattributes) and openssl (in Dockerfile.test).
+    volumes:
+      - .:/app
+      - root-node-modules:/app/node_modules
+      - graph-explorer-node-modules:/app/packages/graph-explorer/node_modules
+      - proxy-server-node-modules:/app/packages/graph-explorer-proxy-server/node_modules
+      - shared-node-modules:/app/packages/shared/node_modules
+      - pnpm-store:/root/.local/share/pnpm
+    # Ensure deps are present (fast no-op once installed), then run the command
+    # (defaults to `pnpm test`, or whatever args are passed to `run`).
+    entrypoint:
+      - /bin/bash
+      - -lc
+      - pnpm install --frozen-lockfile && exec "$@"
+      - --
+    command: ["pnpm", "test"]
+
+volumes:
+  root-node-modules:
+  graph-explorer-node-modules:
+  proxy-server-node-modules:
+  shared-node-modules:
+  pnpm-store:

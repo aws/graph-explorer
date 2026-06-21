@@ -5,6 +5,7 @@ import { userLayoutAtom } from "./storageAtoms";
 import {
   DEFAULT_SIDEBAR_WIDTH,
   DEFAULT_TABLE_VIEW_HEIGHT,
+  DEFAULT_TREE_VIEW_WIDTH,
   type SidebarItems,
   type ToggleableView,
 } from "./userLayoutDefaults";
@@ -14,6 +15,7 @@ export function useViewToggles() {
 
   const isGraphVisible = userLayout.activeToggles.has("graph-viewer");
   const isTableVisible = userLayout.activeToggles.has("table-view");
+  const isTreeVisible = userLayout.activeToggles.has("tree-view");
 
   const toggleView = (item: ToggleableView) =>
     setUserLayout(prev => {
@@ -32,12 +34,15 @@ export function useViewToggles() {
 
   const toggleGraphVisibility = () => toggleView("graph-viewer");
   const toggleTableVisibility = () => toggleView("table-view");
+  const toggleTreeVisibility = () => toggleView("tree-view");
 
   return {
     isGraphVisible,
     isTableVisible,
+    isTreeVisible,
     toggleGraphVisibility,
     toggleTableVisibility,
+    toggleTreeVisibility,
   };
 }
 
@@ -62,6 +67,27 @@ export function useTableViewSize() {
     });
 
   return [tableViewHeight, setTableViewHeight] as const;
+}
+
+export function useTreeViewSize() {
+  const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
+
+  const treeViewWidth = userLayout.treeView?.width ?? DEFAULT_TREE_VIEW_WIDTH;
+
+  /** Sets the tree view width to the current width + the given delta */
+  const setTreeViewWidth = (deltaWidth: number) =>
+    setUserLayout(prev => {
+      const prevWidth = prev.treeView?.width ?? DEFAULT_TREE_VIEW_WIDTH;
+      return {
+        ...prev,
+        treeView: {
+          ...prev.treeView,
+          width: prevWidth + deltaWidth,
+        },
+      };
+    });
+
+  return [treeViewWidth, setTreeViewWidth] as const;
 }
 
 export function useSidebar() {

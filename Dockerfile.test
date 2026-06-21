@@ -1,0 +1,31 @@
+# syntax=docker/dockerfile:1
+#
+# Reusable image for running the test suite / checks in a clean Linux
+# environment that matches the repo's pinned toolchain. Use it via
+# docker-compose.test.yml (see that file for usage), which bind-mounts the
+# working tree and keeps node_modules in named volumes.
+#
+# Why a dedicated image instead of the production Dockerfile:
+#   - Pins Node 24.16.0 (the repo's devEngines requirement) so a mismatched
+#     host Node version can't block corepack/pnpm.
+#   - Installs openssl, which the proxy-server SSL tests shell out to
+#     (setup-ssl.sh and server.test.ts generate certs at runtime).
+#   - Does NOT copy source or install deps here; that happens against the
+#     bind-mounted tree so the image stays small and rebuilds are rare.
+
+FROM node:24.16.0-bookworm-slim
+
+# openssl: required by the proxy-server SSL tests.
+# git + ca-certificates: handy for tooling and registry TLS.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends openssl git ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Match the package manager pinned in package.json ("packageManager").
+RUN corepack enable && corepack prepare pnpm@11.5.2 --activate
+
+WORKDIR /app
+
+# Default to the full test suite; override by passing a command, e.g.
+#   docker compose -f docker-compose.test.yml run --rm test pnpm run checks
+CMD ["pnpm", "test"]

@@ -1,2 +1,7 @@
 # Set the default behavior, in case people don't have core.autocrlf set.
-* text=auto
+# Normalize all text files to LF in the repo and check them out as LF on every
+# platform (including Windows), so tooling and shell scripts behave consistently.
+* text=auto eol=lf
+
+# Shell scripts must always be LF or they fail to execute on Linux/in Docker.
+*.sh text eol=lf

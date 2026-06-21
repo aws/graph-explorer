@@ -1,3 +1,4 @@
+import { ListTreeIcon } from "lucide-react";
 import { Resizable } from "re-resizable";
 
 import {
@@ -26,12 +27,14 @@ import {
   useConfiguration,
   useHasActiveSchema,
   useTableViewSize,
+  useTreeViewSize,
   useViewToggles,
 } from "@/core";
 import { EdgeStyleDialog } from "@/modules/EdgesStyling";
 import EntitiesTabular from "@/modules/EntitiesTabular/EntitiesTabular";
 import GraphViewer from "@/modules/GraphViewer";
 import { NodeStyleDialog } from "@/modules/NodesStyling";
+import TreeView from "@/modules/TreeView";
 import { cn } from "@/utils";
 import { LABELS } from "@/utils/constants";
 
@@ -48,18 +51,34 @@ const RESIZE_ENABLE_TOP = {
   topLeft: false,
 };
 
+const RESIZE_ENABLE_RIGHT = {
+  top: false,
+  right: true,
+  bottom: false,
+  left: false,
+  topRight: false,
+  bottomRight: false,
+  bottomLeft: false,
+  topLeft: false,
+};
+
+const MIN_TREE_VIEW_WIDTH = 200;
+
 const GraphExplorer = () => {
   const config = useConfiguration();
 
   const {
     isGraphVisible,
     isTableVisible,
+    isTreeVisible,
     toggleGraphVisibility,
     toggleTableVisibility,
+    toggleTreeVisibility,
   } = useViewToggles();
 
   const hasSchema = useHasActiveSchema();
   const [tableViewHeight, setTableViewHeight] = useTableViewSize();
+  const [treeViewWidth, setTreeViewWidth] = useTreeViewSize();
 
   return (
     <Workspace>
@@ -75,6 +94,14 @@ const GraphExplorer = () => {
           <>
             <NavBarActions>
               <div className="flex gap-1">
+                <Button
+                  tooltip={isTreeVisible ? "Hide Tree View" : "Show Tree View"}
+                  variant={isTreeVisible ? "primary" : "ghost"}
+                  size="icon"
+                  onClick={toggleTreeVisibility}
+                >
+                  <ListTreeIcon />
+                </Button>
                 <Button
                   tooltip={
                     isGraphVisible ? "Hide Graph View" : "Show Graph View"
@@ -105,6 +132,20 @@ const GraphExplorer = () => {
 
       <WorkspaceContent className="flex min-h-0 flex-1 flex-row">
         <SchemaDiscoveryBoundary>
+          {isTreeVisible && (
+            <Resizable
+              enable={RESIZE_ENABLE_RIGHT}
+              size={{ width: treeViewWidth, height: "100%" }}
+              minWidth={MIN_TREE_VIEW_WIDTH}
+              onResizeStop={(_e, _dir, _ref, delta) =>
+                setTreeViewWidth(delta.width)
+              }
+              className="min-h-0 shrink-0"
+            >
+              <TreeView />
+            </Resizable>
+          )}
+
           <PanelGroup className="flex min-h-0 flex-col overflow-auto">
             <div
               className={cn(

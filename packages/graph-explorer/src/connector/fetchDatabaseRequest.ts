@@ -64,7 +64,8 @@ function getAuthHeaders(
     headers["service-type"] = connection.serviceType || DEFAULT_SERVICE_TYPE;
   }
   if (connection.username && connection.password) {
-    headers["Authorization"] = `Basic ${btoa(`${connection.username}:${connection.password}`)}`;
+    headers["Authorization"] =
+      `Basic ${btoa(`${connection.username}:${connection.password}`)}`;
   }
 
   if (typeHeaders) {
