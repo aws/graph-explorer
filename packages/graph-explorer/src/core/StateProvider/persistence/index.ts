@@ -24,13 +24,3 @@ const writeQueue = createWriteQueue({ store: persistenceStatusStore });
 export function persistThroughQueue(key: string, flush: Flush): void {
   writeQueue.enqueue(key, flush);
 }
-
-// DEV-only: expose the status store on window so the Persistence Status
-// Indicator can be driven from the browser console, e.g.
-//   __persistence.markFailed("configuration", "terminal-access")
-//   __persistence.markFailed("graph-sessions", "terminal-quota")
-//   __persistence.markSaving("schema"); __persistence.markSaved("schema")
-if (import.meta.env.DEV) {
-  (window as unknown as Record<string, unknown>).__persistence =
-    persistenceStatusStore;
-}

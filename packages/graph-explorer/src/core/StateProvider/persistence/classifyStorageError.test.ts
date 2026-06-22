@@ -13,19 +13,20 @@ describe("classifyStorageError", () => {
     );
   });
 
-  test.each(["SecurityError", "InvalidStateError"])(
-    "classifies %s as terminal-access",
-    name => {
-      expect(classifyStorageError(domException(name))).toBe("terminal-access");
-    },
-  );
+  test("classifies SecurityError as terminal-access", () => {
+    expect(classifyStorageError(domException("SecurityError"))).toBe(
+      "terminal-access",
+    );
+  });
 
-  test.each(["AbortError", "UnknownError", "TimeoutError"])(
-    "classifies the transient error %s as retryable",
-    name => {
-      expect(classifyStorageError(domException(name))).toBe("retryable");
-    },
-  );
+  test.each([
+    "AbortError",
+    "UnknownError",
+    "TimeoutError",
+    "InvalidStateError",
+  ])("classifies the transient error %s as retryable", name => {
+    expect(classifyStorageError(domException(name))).toBe("retryable");
+  });
 
   test("defaults an unrecognized error to retryable", () => {
     expect(classifyStorageError(new Error("something odd"))).toBe("retryable");

@@ -32,9 +32,14 @@ export function classifyStorageError(
     case "QuotaExceededError":
       return "terminal-quota";
     case "SecurityError":
-    case "InvalidStateError":
       return "terminal-access";
     default:
+      // Everything else — including InvalidStateError, which IndexedDB also
+      // raises for transient transaction/cursor states, not only a database
+      // that never opened — is retryable. Retryable-by-default is the safer
+      // error: a transient failure wrongly called terminal loses recoverable
+      // data, while a terminal one wrongly retried just burns a few capped
+      // backoff cycles.
       return "retryable";
   }
 }

@@ -32,6 +32,9 @@ export function PersistenceStatusIndicator() {
       return;
     }
     toast.error("Browser storage is full", {
+      // Stable id so a recurring failure replaces the existing toast rather than
+      // stacking a duplicate (the indicator remounts on every route change).
+      id: "persistence-quota",
       description:
         "Graph Explorer has run out of space to save changes in this browser. Download a backup so you don't lose your work.",
       // Data loss is at stake, so this stays until the user acts on or dismisses
@@ -49,6 +52,9 @@ export function PersistenceStatusIndicator() {
       return;
     }
     toast.error("Can't save to browser storage", {
+      // Stable id so a recurring failure replaces the existing toast rather than
+      // stacking a duplicate (the indicator remounts on every route change).
+      id: "persistence-access",
       description:
         "Graph Explorer can't access browser storage, so your changes won't be saved this session. This often happens in private browsing or when storage is blocked.",
       duration: Infinity,

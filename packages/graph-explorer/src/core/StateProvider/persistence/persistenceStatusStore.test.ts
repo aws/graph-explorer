@@ -103,4 +103,25 @@ describe("persistenceStatusStore", () => {
 
     await expect(idle).resolves.toBeUndefined();
   });
+
+  test("waitForIdle does not resolve while another key is still in flight after a failure", async () => {
+    const store = createPersistenceStatusStore();
+    store.markSaving("configuration");
+    store.markSaving("schema");
+
+    let resolved = false;
+    const idle = store.waitForIdle().then(() => {
+      resolved = true;
+    });
+
+    // One key fails terminally, but the other is still draining. Status flips to
+    // "failed", yet a write is genuinely still in flight, so idle must wait.
+    store.markFailed("configuration", "terminal-quota");
+    await Promise.resolve();
+    expect(resolved).toBe(false);
+
+    store.markSaved("schema");
+    await idle;
+    expect(resolved).toBe(true);
+  });
 });

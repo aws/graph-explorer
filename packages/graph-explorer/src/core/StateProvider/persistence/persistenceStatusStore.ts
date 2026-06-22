@@ -51,12 +51,38 @@ export function createPersistenceStatusStore(): PersistenceStatusStore {
   const inFlightKeys = new Set<string>();
   const failuresByKey = new Map<string, StorageErrorClassification>();
   const listeners = new Set<() => void>();
+  // Resolvers waiting for all in-flight writes to drain. Tracked separately
+  // from `listeners` because idleness keys off the in-flight count, not the
+  // snapshot — a snapshot-unchanged transition (e.g. the last in-flight key
+  // settling while a failure remains) must still wake these.
+  let idleWaiters: Array<() => void> = [];
 
   let snapshot: PersistenceStatusSnapshot = { status: "idle", failures: [] };
 
   function subscribe(listener: () => void) {
     listeners.add(listener);
     return () => listeners.delete(listener);
+  }
+
+  function flushIdleWaitersIfDrained() {
+    if (inFlightKeys.size > 0 || idleWaiters.length === 0) {
+      return;
+    }
+    const waiters = idleWaiters;
+    idleWaiters = [];
+    waiters.forEach(resolve => resolve());
+  }
+
+  function failuresEqual(next: PersistenceFailure[]) {
+    const current = snapshot.failures;
+    return (
+      next.length === current.length &&
+      next.every(
+        (failure, index) =>
+          failure.key === current[index].key &&
+          failure.reason === current[index].reason,
+      )
+    );
   }
 
   function recompute() {
@@ -69,6 +95,10 @@ export function createPersistenceStatusStore(): PersistenceStatusStore {
       key,
       reason,
     }));
+
+    if (status === snapshot.status && failuresEqual(failures)) {
+      return;
+    }
 
     if (status !== snapshot.status) {
       logger.debug(`[persistence] status ${snapshot.status} → ${status}`);
@@ -93,24 +123,25 @@ export function createPersistenceStatusStore(): PersistenceStatusStore {
       inFlightKeys.delete(key);
       failuresByKey.delete(key);
       recompute();
+      flushIdleWaitersIfDrained();
     },
     markFailed(key, reason) {
       logger.debug(`[persistence] failed "${key}" (${reason})`);
       inFlightKeys.delete(key);
       failuresByKey.set(key, reason);
       recompute();
+      flushIdleWaitersIfDrained();
     },
     waitForIdle() {
-      if (snapshot.status !== "saving") {
+      // Resolve when no write is in flight, regardless of whether failures
+      // remain. Keying off the in-flight count (not status) means a terminal
+      // failure on one key does not prematurely signal "settled" while another
+      // key is still draining.
+      if (inFlightKeys.size === 0) {
         return Promise.resolve();
       }
       return new Promise<void>(resolve => {
-        const unsubscribe = subscribe(() => {
-          if (snapshot.status !== "saving") {
-            unsubscribe();
-            resolve();
-          }
-        });
+        idleWaiters.push(resolve);
       });
     },
   };
