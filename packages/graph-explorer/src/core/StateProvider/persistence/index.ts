@@ -29,15 +29,20 @@ export function persistThroughQueue(key: string, flush: Flush): void {
  * Forces a terminal write failure through the real queue, for exercising the
  * Persistence Status Indicator from the debug actions. Drives the genuine path
  * (classify → markFailed → status), so the indicator and its detail dialog
- * behave exactly as they would for a real failure.
+ * behave exactly as they would for a real failure. Clear it with
+ * {@link debugResetPersistenceStatus}.
  *
  * @param kind `"quota"` raises a `QuotaExceededError` (offers a backup);
  * `"access"` raises a `SecurityError` (no backup).
  */
 export function debugForcePersistenceFailure(kind: "quota" | "access"): void {
-  const key = kind === "quota" ? "graph-sessions" : "configuration";
   const errorName = kind === "quota" ? "QuotaExceededError" : "SecurityError";
-  persistThroughQueue(key, () =>
+  persistThroughQueue(`debug-forced-${kind}`, () =>
     Promise.reject(new DOMException("Forced debug failure", errorName)),
   );
+}
+
+/** Clears any forced (or real) persistence failure, returning status to idle. */
+export function debugResetPersistenceStatus(): void {
+  persistenceStatusStore.reset();
 }

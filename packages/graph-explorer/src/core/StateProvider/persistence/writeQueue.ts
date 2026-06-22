@@ -49,8 +49,8 @@ export function createWriteQueue({
   delay = exponentialBackoff,
   maxAttempts = DEFAULT_MAX_ATTEMPTS,
 }: WriteQueueConfig): WriteQueue {
-  // The write currently running for a key, plus the next flush waiting to run.
-  const running = new Map<string, Promise<void>>();
+  // Keys with a drain currently running, plus the next flush waiting to run.
+  const running = new Set<string>();
   const pending = new Map<string, Flush>();
 
   /** A terminal failure plus how many attempts were made before giving up. */
@@ -101,7 +101,8 @@ export function createWriteQueue({
       // Replace any not-yet-started write so only the latest value lands.
       pending.set(key, flush);
       if (!running.has(key)) {
-        running.set(key, drain(key));
+        running.add(key);
+        void drain(key);
       }
     },
   };

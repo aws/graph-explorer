@@ -6,7 +6,11 @@ describe("persistenceStatusStore", () => {
   test("starts idle with no failures", () => {
     const store = createPersistenceStatusStore();
 
-    expect(store.getSnapshot()).toStrictEqual({ status: "idle", failures: [] });
+    expect(store.getSnapshot()).toStrictEqual({
+      status: "idle",
+      failures: [],
+      isSettling: false,
+    });
   });
 
   test("reports saving while a key is in flight", () => {
@@ -54,6 +58,7 @@ describe("persistenceStatusStore", () => {
     expect(store.getSnapshot()).toStrictEqual({
       status: "idle",
       failures: [],
+      isSettling: false,
     });
   });
 
@@ -69,6 +74,20 @@ describe("persistenceStatusStore", () => {
     expect(snapshot.failures).toMatchObject([
       { key: "user-styling", reason: "terminal-quota", attemptCount: 2 },
     ]);
+  });
+
+  test("reset clears all in-flight and failed state", () => {
+    const store = createPersistenceStatusStore();
+    store.markSaving("schema");
+    store.markFailed("configuration", "terminal-quota", 1);
+
+    store.reset();
+
+    expect(store.getSnapshot()).toStrictEqual({
+      status: "idle",
+      failures: [],
+      isSettling: false,
+    });
   });
 
   test("notifies subscribers on change and stops after unsubscribe", () => {

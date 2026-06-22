@@ -12,14 +12,9 @@ function renderIndicator() {
   return render(<PersistenceStatusIndicator />, { wrapper: TooltipProvider });
 }
 
-// The indicator reads the app-wide singleton store. Return it to idle between
-// tests by marking every key this suite touches as saved, which clears both
-// in-flight and failed state for that key.
-const KEYS_UNDER_TEST = ["configuration", "schema", "graph-sessions"];
+// The indicator reads the app-wide singleton store, so reset it between tests.
 afterEach(() => {
-  act(() => {
-    KEYS_UNDER_TEST.forEach(key => persistenceStatusStore.markSaved(key));
-  });
+  act(() => persistenceStatusStore.reset());
 });
 
 function fail(key: string, reason: "terminal-quota" | "terminal-access") {
@@ -69,31 +64,22 @@ describe("PersistenceStatusIndicator", () => {
     expect(screen.getByRole("dialog")).toHaveTextContent(/couldn.t save/i);
   });
 
-  test("offers a backup in the dialog when storage is full", async () => {
+  test("offers to save the configuration to a file regardless of failure reason", async () => {
     const user = userEvent.setup();
-    renderIndicator();
 
-    fail("graph-sessions", "terminal-quota");
-    await user.click(
-      screen.getByRole("button", { name: /changes not saved/i }),
-    );
+    for (const reason of ["terminal-quota", "terminal-access"] as const) {
+      fail("configuration", reason);
+      const { unmount } = renderIndicator();
+      await user.click(
+        screen.getByRole("button", { name: /changes not saved/i }),
+      );
 
-    expect(
-      screen.getByRole("button", { name: /download backup/i }),
-    ).toBeInTheDocument();
-  });
+      expect(
+        screen.getByRole("button", { name: /save configuration/i }),
+      ).toBeInTheDocument();
 
-  test("offers no backup when storage is merely inaccessible", async () => {
-    const user = userEvent.setup();
-    renderIndicator();
-
-    fail("configuration", "terminal-access");
-    await user.click(
-      screen.getByRole("button", { name: /changes not saved/i }),
-    );
-
-    expect(
-      screen.queryByRole("button", { name: /download backup/i }),
-    ).not.toBeInTheDocument();
+      unmount();
+      act(() => persistenceStatusStore.reset());
+    }
   });
 });

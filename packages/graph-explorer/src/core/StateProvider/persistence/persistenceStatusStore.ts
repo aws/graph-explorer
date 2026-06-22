@@ -26,6 +26,12 @@ export interface PersistenceFailure {
 export interface PersistenceStatusSnapshot {
   status: PersistenceStatus;
   failures: PersistenceFailure[];
+  /**
+   * Whether any write is currently in flight. Distinct from `status === "saving"`
+   * because a terminal failure on one key makes `status` `failed` while another
+   * key may still be draining. Drives `waitForIdle`.
+   */
+  isSettling: boolean;
 }
 
 export interface PersistenceStatusStore {
@@ -42,10 +48,13 @@ export interface PersistenceStatusStore {
     attemptCount: number,
   ): void;
   /**
-   * Resolves once no write is in flight — i.e. status has settled to `idle` or
-   * `failed`. The test seam that replaces awaiting a per-write promise.
+   * Resolves once no write is in flight. The test seam that replaces awaiting a
+   * per-write promise. Resolves immediately when nothing is in flight, so a
+   * write enqueued *after* this call is not awaited — issue all writes first.
    */
   waitForIdle(): Promise<void>;
+  /** Clears all in-flight and failed state. Returns the store to `idle`. */
+  reset(): void;
 }
 
 interface PersistenceStatusStoreConfig {
@@ -66,33 +75,26 @@ export function createPersistenceStatusStore({
   const inFlightKeys = new Set<string>();
   const failuresByKey = new Map<string, PersistenceFailure>();
   const listeners = new Set<() => void>();
-  // Resolvers waiting for all in-flight writes to drain. Tracked separately
-  // from `listeners` because idleness keys off the in-flight count, not the
-  // snapshot — a snapshot-unchanged transition (e.g. the last in-flight key
-  // settling while a failure remains) must still wake these.
-  let idleWaiters: Array<() => void> = [];
 
-  let snapshot: PersistenceStatusSnapshot = { status: "idle", failures: [] };
+  let snapshot: PersistenceStatusSnapshot = {
+    status: "idle",
+    failures: [],
+    isSettling: false,
+  };
 
   function subscribe(listener: () => void) {
     listeners.add(listener);
     return () => listeners.delete(listener);
   }
 
-  function flushIdleWaitersIfDrained() {
-    if (inFlightKeys.size > 0 || idleWaiters.length === 0) {
-      return;
-    }
-    const waiters = idleWaiters;
-    idleWaiters = [];
-    waiters.forEach(resolve => resolve());
-  }
-
-  function failuresEqual(next: PersistenceFailure[]) {
-    const current = snapshot.failures;
+  function snapshotsEqual(next: PersistenceStatusSnapshot) {
     return (
-      next.length === current.length &&
-      next.every((failure, index) => failure === current[index])
+      next.status === snapshot.status &&
+      next.isSettling === snapshot.isSettling &&
+      next.failures.length === snapshot.failures.length &&
+      next.failures.every(
+        (failure, index) => failure === snapshot.failures[index],
+      )
     );
   }
 
@@ -102,9 +104,13 @@ export function createPersistenceStatusStore({
       : inFlightKeys.size
         ? "saving"
         : "idle";
-    const failures = [...failuresByKey.values()];
+    const next: PersistenceStatusSnapshot = {
+      status,
+      failures: [...failuresByKey.values()],
+      isSettling: inFlightKeys.size > 0,
+    };
 
-    if (status === snapshot.status && failuresEqual(failures)) {
+    if (snapshotsEqual(next)) {
       return;
     }
 
@@ -112,7 +118,7 @@ export function createPersistenceStatusStore({
       logger.debug(`[persistence] status ${snapshot.status} → ${status}`);
     }
 
-    snapshot = { status, failures };
+    snapshot = next;
     listeners.forEach(listener => listener());
   }
 
@@ -131,7 +137,6 @@ export function createPersistenceStatusStore({
       inFlightKeys.delete(key);
       failuresByKey.delete(key);
       recompute();
-      flushIdleWaitersIfDrained();
     },
     markFailed(key, reason, attemptCount) {
       logger.debug(
@@ -145,19 +150,24 @@ export function createPersistenceStatusStore({
         lastAttemptAt: now(),
       });
       recompute();
-      flushIdleWaitersIfDrained();
     },
     waitForIdle() {
-      // Resolve when no write is in flight, regardless of whether failures
-      // remain. Keying off the in-flight count (not status) means a terminal
-      // failure on one key does not prematurely signal "settled" while another
-      // key is still draining.
-      if (inFlightKeys.size === 0) {
+      if (!snapshot.isSettling) {
         return Promise.resolve();
       }
       return new Promise<void>(resolve => {
-        idleWaiters.push(resolve);
+        const unsubscribe = subscribe(() => {
+          if (!snapshot.isSettling) {
+            unsubscribe();
+            resolve();
+          }
+        });
       });
+    },
+    reset() {
+      inFlightKeys.clear();
+      failuresByKey.clear();
+      recompute();
     },
   };
 }

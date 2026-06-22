@@ -50,7 +50,10 @@ import {
   useHasActiveSchema,
   useMaybeActiveSchema,
 } from "@/core";
-import { debugForcePersistenceFailure } from "@/core/StateProvider/persistence";
+import {
+  debugForcePersistenceFailure,
+  debugResetPersistenceStatus,
+} from "@/core/StateProvider/persistence";
 import { useDeleteActiveConfiguration } from "@/hooks/useDeleteConfig";
 import useEntitiesCounts from "@/hooks/useEntitiesCounts";
 import { useCancelSchemaSync, useSchemaSync } from "@/hooks/useSchemaSync";
@@ -468,6 +471,9 @@ function DebugActions() {
             </Button>
             <Button onClick={() => debugForcePersistenceFailure("access")}>
               Force Save Failure (Storage Blocked)
+            </Button>
+            <Button onClick={() => debugResetPersistenceStatus()}>
+              Reset Save Status
             </Button>
           </InfoItemValue>
         </InfoItemContent>

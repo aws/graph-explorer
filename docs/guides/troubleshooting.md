@@ -134,11 +134,11 @@ This configuration can be restored using the "Load Configuration" button in the 
 
 ## Graph Explorer Can't Save Your Changes
 
-Graph Explorer stores all of your data — connections, schema, styling, and exploration sessions — in your browser, not on the server. When it can't write that data to browser storage, a "Couldn't save your changes" indicator appears in the navigation bar. Click it to see which data failed to save and why.
+Graph Explorer stores all of your data — connections, schema, styling, and exploration sessions — in your browser, not on the server. When it can't write that data to browser storage, a "Changes not saved" indicator appears in the navigation bar. Click it to see which data failed to save and why, and to save a backup. The dialog always offers a "Save Configuration" button — use it to export your data to a file (the same format as [Save & Load Configuration](#save--load-configuration)) so you don't lose your work, then reload the page. You can restore the file afterward with "Load Configuration".
 
 There are two common causes:
 
-- **Browser storage is full.** Graph Explorer has run out of space to save changes. The detail dialog offers a "Download backup" button — use it to export your data to a file (the same format as [Save & Load Configuration](#save--load-configuration)), then free up browser storage and reload the page. You can restore the file afterward with "Load Configuration". Exploration sessions are the largest data and the most likely cause; clearing old sessions or other sites' storage frees space.
+- **Browser storage is full.** Graph Explorer has run out of space to save changes. Free up browser storage and reload the page. Exploration sessions are the largest data and the most likely cause; clearing old sessions or other sites' storage frees space.
 - **Storage is blocked or inaccessible.** Graph Explorer can't access browser storage at all, so changes won't be saved for the session. This commonly happens in private/incognito windows or when browser settings or policy block storage for the site. Open Graph Explorer in a normal window, or allow storage for the site, to persist your work.
 
 Transient storage hiccups are retried automatically, so the indicator only appears for failures that could not be recovered.
