@@ -12,6 +12,7 @@ import {
   toHumanString,
 } from "@/components";
 import {
+  createEdgeConnectionId,
   type DisplayConfigAttribute,
   type EdgeConnection,
   type EdgeType,
@@ -22,6 +23,8 @@ import {
 } from "@/core";
 import { useTranslations } from "@/hooks";
 import { ASCII, cn } from "@/utils";
+
+import type { SchemaGraphSelectionItem } from "../SchemaGraph";
 
 /** Container for a detail section with consistent vertical spacing. */
 export function Details({ className, ...props }: ComponentPropsWithRef<"div">) {
@@ -125,16 +128,46 @@ export function PropertiesDetails({
 /**
  * Renders an edge connection as "SourceType → EdgeType → TargetType" with the
  * selected vertex type highlighted.
+ *
+ * When `onSelectionChange` is provided, each vertex type and edge type becomes a
+ * clickable button that invokes `onSelectionChange` with the corresponding selection
+ * item, allowing the parent to update the schema graph selection.
  */
 export function EdgeConnectionRow({
   selectedVertexType,
   edgeConnection,
+  onSelectionChange,
   className,
   ...props
 }: ComponentPropsWithRef<"div"> & {
   selectedVertexType?: VertexType;
   edgeConnection: EdgeConnection;
+  onSelectionChange?: (item: SchemaGraphSelectionItem) => void;
 }) {
+  const handleSourceClick = onSelectionChange
+    ? () =>
+        onSelectionChange({
+          type: "vertex-type",
+          id: edgeConnection.sourceVertexType,
+        })
+    : undefined;
+
+  const handleTargetClick = onSelectionChange
+    ? () =>
+        onSelectionChange({
+          type: "vertex-type",
+          id: edgeConnection.targetVertexType,
+        })
+    : undefined;
+
+  const handleEdgeClick = onSelectionChange
+    ? () =>
+        onSelectionChange({
+          type: "edge-connection",
+          id: createEdgeConnectionId(edgeConnection),
+        })
+    : undefined;
+
   return (
     <p
       className={cn("text-muted-foreground text-base/7", className)}
@@ -143,33 +176,56 @@ export function EdgeConnectionRow({
       <VertexTypeText
         vertexType={edgeConnection.sourceVertexType}
         selected={selectedVertexType === edgeConnection.sourceVertexType}
+        onClick={handleSourceClick}
       />
       <EdgeTypeText
         edgeType={edgeConnection.edgeType}
         selected={selectedVertexType == null}
+        onClick={handleEdgeClick}
       />
       <VertexTypeText
         vertexType={edgeConnection.targetVertexType}
         selected={selectedVertexType === edgeConnection.targetVertexType}
+        onClick={handleTargetClick}
       />
     </p>
   );
 }
 
+const interactiveTextStyles =
+  "cursor-pointer bg-transparent p-0 font-[inherit] hover:text-text-primary focus-visible:ring-ring focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none";
+
 function EdgeTypeText({
   selected,
   edgeType,
+  onClick,
 }: {
   edgeType: EdgeType;
   selected: boolean;
+  onClick?: () => void;
 }) {
   const { displayLabel } = useDisplayEdgeTypeConfig(edgeType);
+  const labelText = `${ASCII.NBSP}${ASCII.RARR} ${displayLabel}${ASCII.NBSP}${ASCII.RARR} `;
+  const baseClass =
+    "data-selected:text-text-primary italic data-selected:font-bold";
+  const dataSelected = selected ? true : undefined;
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        className={cn(baseClass, interactiveTextStyles)}
+        data-selected={dataSelected}
+        onClick={onClick}
+      >
+        {labelText}
+      </button>
+    );
+  }
+
   return (
-    <span
-      className="data-selected:text-text-primary italic data-selected:font-bold"
-      data-selected={selected ? true : undefined}
-    >
-      {`${ASCII.NBSP}${ASCII.RARR} ${displayLabel}${ASCII.NBSP}${ASCII.RARR} `}
+    <span className={baseClass} data-selected={dataSelected}>
+      {labelText}
     </span>
   );
 }
@@ -177,18 +233,38 @@ function EdgeTypeText({
 function VertexTypeText({
   selected,
   vertexType,
+  onClick,
 }: {
   vertexType: VertexType;
   selected: boolean;
+  onClick?: () => void;
 }) {
   const style = useVertexPreferences(vertexType);
   const { displayLabel } = useDisplayVertexTypeConfig(vertexType);
+  const baseClass =
+    "data-selected:text-text-primary underline decoration-2 underline-offset-4 data-selected:font-bold";
+  const dataSelected = selected ? true : undefined;
+  const inlineStyle = { textDecorationColor: style.color };
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        className={cn(baseClass, interactiveTextStyles)}
+        data-selected={dataSelected}
+        style={inlineStyle}
+        onClick={onClick}
+      >
+        {displayLabel}
+      </button>
+    );
+  }
 
   return (
     <span
-      className="data-selected:text-text-primary underline decoration-2 underline-offset-4 data-selected:font-bold"
-      data-selected={selected ? true : undefined}
-      style={{ textDecorationColor: style.color }}
+      className={baseClass}
+      data-selected={dataSelected}
+      style={inlineStyle}
     >
       {displayLabel}
     </span>

@@ -7,7 +7,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/Tooltip";
 import { useTranslations } from "@/hooks";
 import { cn, LABELS } from "@/utils";
 
-import type { SchemaGraphSelection } from "../SchemaGraph";
+import type {
+  SchemaGraphSelection,
+  SchemaGraphSelectionItem,
+} from "../SchemaGraph";
 
 import { SchemaDetailsContent } from "./SchemaDetailsContent";
 import { SchemaEdgesStyling } from "./SchemaEdgesStyling";
@@ -19,11 +22,13 @@ import { SchemaNodesStyling } from "./SchemaNodesStyling";
 
 export type SchemaExplorerSidebarProps = {
   selection: SchemaGraphSelection;
+  onSelectionChange?: (item: SchemaGraphSelectionItem) => void;
 };
 
 /** Resizable sidebar for schema graph with details, node styling, and edge styling tabs */
 export function SchemaExplorerSidebar({
   selection,
+  onSelectionChange,
 }: SchemaExplorerSidebarProps) {
   const t = useTranslations();
   const [activeTab, setActiveTab] = useState("details");
@@ -57,7 +62,10 @@ export function SchemaExplorerSidebar({
           </SidebarTabsTrigger>
         </SidebarTabsList>
         <SidebarTabsContent value="details">
-          <SchemaDetailsContent selection={selection} />
+          <SchemaDetailsContent
+            selection={selection}
+            onSelectionChange={onSelectionChange}
+          />
         </SidebarTabsContent>
         <SidebarTabsContent value="nodes-styling">
           <SchemaNodesStyling />
