@@ -30,7 +30,9 @@ describe("PersistenceStatusIndicator", () => {
   test("shows nothing while idle", () => {
     renderIndicator();
 
-    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /changes not saved/i }),
+    ).not.toBeInTheDocument();
   });
 
   test("shows nothing while a write is merely in flight", () => {
@@ -38,25 +40,31 @@ describe("PersistenceStatusIndicator", () => {
 
     act(() => persistenceStatusStore.markSaving("configuration"));
 
-    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /changes not saved/i }),
+    ).not.toBeInTheDocument();
   });
 
-  test("shows a standing alert when a write fails terminally", () => {
+  test("shows a standing indicator when a write fails terminally", () => {
     renderIndicator();
 
     fail("configuration", "terminal-access");
 
-    expect(screen.getByRole("alert")).toHaveTextContent(/couldn.t save/i);
+    expect(
+      screen.getByRole("button", { name: /changes not saved/i }),
+    ).toBeInTheDocument();
   });
 
-  test("opens a detail dialog from the Details button", async () => {
+  test("opens a detail dialog from the indicator", async () => {
     const user = userEvent.setup();
     renderIndicator();
 
     fail("configuration", "terminal-access");
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /details/i }));
+    await user.click(
+      screen.getByRole("button", { name: /changes not saved/i }),
+    );
 
     expect(screen.getByRole("dialog")).toHaveTextContent(/couldn.t save/i);
   });
@@ -66,7 +74,9 @@ describe("PersistenceStatusIndicator", () => {
     renderIndicator();
 
     fail("graph-sessions", "terminal-quota");
-    await user.click(screen.getByRole("button", { name: /details/i }));
+    await user.click(
+      screen.getByRole("button", { name: /changes not saved/i }),
+    );
 
     expect(
       screen.getByRole("button", { name: /download backup/i }),
@@ -78,7 +88,9 @@ describe("PersistenceStatusIndicator", () => {
     renderIndicator();
 
     fail("configuration", "terminal-access");
-    await user.click(screen.getByRole("button", { name: /details/i }));
+    await user.click(
+      screen.getByRole("button", { name: /changes not saved/i }),
+    );
 
     expect(
       screen.queryByRole("button", { name: /download backup/i }),
