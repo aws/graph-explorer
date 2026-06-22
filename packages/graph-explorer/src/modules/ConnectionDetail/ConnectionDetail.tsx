@@ -50,6 +50,7 @@ import {
   useHasActiveSchema,
   useMaybeActiveSchema,
 } from "@/core";
+import { debugForcePersistenceFailure } from "@/core/StateProvider/persistence";
 import { useDeleteActiveConfiguration } from "@/hooks/useDeleteConfig";
 import useEntitiesCounts from "@/hooks/useEntitiesCounts";
 import { useCancelSchemaSync, useSchemaSync } from "@/hooks/useSchemaSync";
@@ -462,6 +463,12 @@ function DebugActions() {
               Reset Vertex Totals
             </Button>
             <Button onClick={() => resetAllTotals()}>Reset All Totals</Button>
+            <Button onClick={() => debugForcePersistenceFailure("quota")}>
+              Force Save Failure (Out of Storage)
+            </Button>
+            <Button onClick={() => debugForcePersistenceFailure("access")}>
+              Force Save Failure (Storage Blocked)
+            </Button>
           </InfoItemValue>
         </InfoItemContent>
       </InfoItem>
