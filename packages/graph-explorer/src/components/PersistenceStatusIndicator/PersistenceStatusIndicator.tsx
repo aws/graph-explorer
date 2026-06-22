@@ -4,7 +4,7 @@ import { CircleAlertIcon, InfoIcon } from "lucide-react";
 import { saveLocalForageToFile } from "@/core/StateProvider/localDb";
 import { usePersistenceStatus } from "@/core/StateProvider/persistence/usePersistenceStatus";
 
-import { Alert, AlertTitle } from "../Alert";
+import { Alert, AlertAction, AlertTitle } from "../Alert";
 import { Button } from "../Button";
 import { CodeEditor } from "../CodeEditor";
 import {
@@ -47,12 +47,14 @@ export function PersistenceStatusIndicator() {
       <CircleAlertIcon />
       <AlertTitle>Couldn&apos;t save your changes</AlertTitle>
       <Dialog>
-        <DialogTrigger asChild>
-          <Button variant="danger-ghost" size="small">
-            <InfoIcon />
-            Details
-          </Button>
-        </DialogTrigger>
+        <AlertAction>
+          <DialogTrigger asChild>
+            <Button variant="danger-ghost" size="small">
+              <InfoIcon />
+              Details
+            </Button>
+          </DialogTrigger>
+        </AlertAction>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Couldn&apos;t save your changes</DialogTitle>
