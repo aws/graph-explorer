@@ -77,19 +77,7 @@ export default function SchemaGraph({ className, ...props }: SchemaGraphProps) {
 
   const handleSidebarSelectionChange = (item: SchemaGraphSelectionItem) => {
     setSelection(item);
-    setGraphSelection(
-      item.type === "vertex-type"
-        ? {
-            nodeIds: new Set([item.id]),
-            edgeIds: new Set(),
-            groupIds: new Set(),
-          }
-        : {
-            nodeIds: new Set(),
-            edgeIds: new Set([item.id]),
-            groupIds: new Set(),
-          },
-    );
+    setGraphSelection(toSelectedElements(item));
   };
 
   const hasSchemaData = nodes.length > 0;
@@ -128,6 +116,17 @@ export default function SchemaGraph({ className, ...props }: SchemaGraphProps) {
       />
     </div>
   );
+}
+
+/** Maps a single schema graph selection item to the graph view's selected elements. */
+export function toSelectedElements(
+  item: SchemaGraphSelectionItem,
+): SelectedElements {
+  return {
+    nodeIds: new Set(item.type === "vertex-type" ? [item.id] : []),
+    edgeIds: new Set(item.type === "edge-connection" ? [item.id] : []),
+    groupIds: new Set(),
+  };
 }
 
 /** Maps raw graph selection elements to a SchemaGraphSelection. */

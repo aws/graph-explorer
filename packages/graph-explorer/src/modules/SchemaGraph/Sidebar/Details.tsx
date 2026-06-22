@@ -1,4 +1,4 @@
-import type { ComponentPropsWithRef } from "react";
+import type { ComponentPropsWithRef, CSSProperties, ReactNode } from "react";
 
 import { ListIcon } from "lucide-react";
 
@@ -10,6 +10,9 @@ import {
   EmptyStateIcon,
   EmptyStateTitle,
   toHumanString,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from "@/components";
 import {
   createEdgeConnectionId,
@@ -126,6 +129,14 @@ export function PropertiesDetails({
 }
 
 /**
+ * Decorative arrow between the parts of an edge connection. Hidden from assistive
+ * technology so the type buttons keep clean accessible names.
+ */
+function EdgeConnectionSeparator() {
+  return <span aria-hidden>{`${ASCII.NBSP}${ASCII.RARR} `}</span>;
+}
+
+/**
  * Renders an edge connection as "SourceType → EdgeType → TargetType" with the
  * selected vertex type highlighted.
  *
@@ -144,29 +155,9 @@ export function EdgeConnectionRow({
   edgeConnection: EdgeConnection;
   onSelectionChange?: (item: SchemaGraphSelectionItem) => void;
 }) {
-  const handleSourceClick = onSelectionChange
-    ? () =>
-        onSelectionChange({
-          type: "vertex-type",
-          id: edgeConnection.sourceVertexType,
-        })
-    : undefined;
-
-  const handleTargetClick = onSelectionChange
-    ? () =>
-        onSelectionChange({
-          type: "vertex-type",
-          id: edgeConnection.targetVertexType,
-        })
-    : undefined;
-
-  const handleEdgeClick = onSelectionChange
-    ? () =>
-        onSelectionChange({
-          type: "edge-connection",
-          id: createEdgeConnectionId(edgeConnection),
-        })
-    : undefined;
+  function selectionHandlerFor(item: SchemaGraphSelectionItem) {
+    return onSelectionChange ? () => onSelectionChange(item) : undefined;
+  }
 
   return (
     <p
@@ -176,24 +167,88 @@ export function EdgeConnectionRow({
       <VertexTypeText
         vertexType={edgeConnection.sourceVertexType}
         selected={selectedVertexType === edgeConnection.sourceVertexType}
-        onClick={handleSourceClick}
+        onClick={selectionHandlerFor({
+          type: "vertex-type",
+          id: edgeConnection.sourceVertexType,
+        })}
       />
+      <EdgeConnectionSeparator />
       <EdgeTypeText
         edgeType={edgeConnection.edgeType}
         selected={selectedVertexType == null}
-        onClick={handleEdgeClick}
+        onClick={selectionHandlerFor({
+          type: "edge-connection",
+          id: createEdgeConnectionId(edgeConnection),
+        })}
       />
+      <EdgeConnectionSeparator />
       <VertexTypeText
         vertexType={edgeConnection.targetVertexType}
         selected={selectedVertexType === edgeConnection.targetVertexType}
-        onClick={handleTargetClick}
+        onClick={selectionHandlerFor({
+          type: "vertex-type",
+          id: edgeConnection.targetVertexType,
+        })}
       />
     </p>
   );
 }
 
-const interactiveTextStyles =
-  "cursor-pointer bg-transparent p-0 font-[inherit] hover:text-text-primary focus-visible:ring-ring focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none";
+/**
+ * Renders a type label. It becomes a tooltip-wrapped button when an `onClick` is
+ * provided and the type is not already selected; the currently selected type is
+ * never clickable and renders as a plain span. Decorative separators are rendered
+ * by the parent as `aria-hidden` siblings, so the button text is the accessible name.
+ *
+ * The `data-selected` styling lives only on the span branch: a button is rendered
+ * only when the type is not selected, so it never needs the selected variants.
+ */
+function ClickableTypeText({
+  label,
+  selected,
+  onClick,
+  className,
+  style,
+  children,
+}: {
+  label: string;
+  selected: boolean;
+  onClick?: () => void;
+  className?: string;
+  style?: CSSProperties;
+  children: ReactNode;
+}) {
+  if (selected || !onClick) {
+    return (
+      <span
+        className={className}
+        data-selected={selected ? true : undefined}
+        style={style}
+      >
+        {children}
+      </span>
+    );
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "hover:text-text-primary hover:bg-brand-300/25 focus-visible:ring-ring-3 cursor-pointer bg-transparent p-0 font-[inherit] focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
+            className,
+          )}
+          style={style}
+          onClick={onClick}
+        >
+          {children}
+        </button>
+      </TooltipTrigger>
+      <TooltipContent>Change selection to {label}</TooltipContent>
+    </Tooltip>
+  );
+}
 
 function EdgeTypeText({
   selected,
@@ -205,28 +260,16 @@ function EdgeTypeText({
   onClick?: () => void;
 }) {
   const { displayLabel } = useDisplayEdgeTypeConfig(edgeType);
-  const labelText = `${ASCII.NBSP}${ASCII.RARR} ${displayLabel}${ASCII.NBSP}${ASCII.RARR} `;
-  const baseClass =
-    "data-selected:text-text-primary italic data-selected:font-bold";
-  const dataSelected = selected ? true : undefined;
-
-  if (onClick) {
-    return (
-      <button
-        type="button"
-        className={cn(baseClass, interactiveTextStyles)}
-        data-selected={dataSelected}
-        onClick={onClick}
-      >
-        {labelText}
-      </button>
-    );
-  }
 
   return (
-    <span className={baseClass} data-selected={dataSelected}>
-      {labelText}
-    </span>
+    <ClickableTypeText
+      label={displayLabel}
+      selected={selected}
+      onClick={onClick}
+      className="data-selected:text-text-primary italic data-selected:font-bold"
+    >
+      {displayLabel}
+    </ClickableTypeText>
   );
 }
 
@@ -241,32 +284,16 @@ function VertexTypeText({
 }) {
   const style = useVertexPreferences(vertexType);
   const { displayLabel } = useDisplayVertexTypeConfig(vertexType);
-  const baseClass =
-    "data-selected:text-text-primary underline decoration-2 underline-offset-4 data-selected:font-bold";
-  const dataSelected = selected ? true : undefined;
-  const inlineStyle = { textDecorationColor: style.color };
-
-  if (onClick) {
-    return (
-      <button
-        type="button"
-        className={cn(baseClass, interactiveTextStyles)}
-        data-selected={dataSelected}
-        style={inlineStyle}
-        onClick={onClick}
-      >
-        {displayLabel}
-      </button>
-    );
-  }
 
   return (
-    <span
-      className={baseClass}
-      data-selected={dataSelected}
-      style={inlineStyle}
+    <ClickableTypeText
+      label={displayLabel}
+      selected={selected}
+      onClick={onClick}
+      className="data-selected:text-text-primary underline decoration-2 underline-offset-4 data-selected:font-bold"
+      style={{ textDecorationColor: style.color }}
     >
       {displayLabel}
-    </span>
+    </ClickableTypeText>
   );
 }

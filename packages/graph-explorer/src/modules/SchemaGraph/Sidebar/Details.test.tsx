@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 // @vitest-environment happy-dom
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -5,6 +7,7 @@ import { describe, expect, test, vi } from "vitest";
 
 import type * as Core from "@/core";
 
+import { TooltipProvider } from "@/components";
 import {
   createEdgeType,
   createVertexType,
@@ -13,6 +16,10 @@ import {
 } from "@/core";
 
 import { EdgeConnectionRow, PropertiesDetails } from "./Details";
+
+function renderWithTooltips(ui: ReactNode) {
+  return render(<TooltipProvider>{ui}</TooltipProvider>);
+}
 
 vi.mock("@/hooks", async () => {
   const actual = await vi.importActual("@/hooks");
@@ -110,21 +117,38 @@ describe("EdgeConnectionRow", () => {
     expect(screen.queryAllByRole("button")).toHaveLength(0);
   });
 
-  test("renders three buttons (source, edge, target) when onSelectionChange is provided", () => {
-    render(
+  test("renders the unselected vertex types as buttons", () => {
+    renderWithTooltips(
       <EdgeConnectionRow
         edgeConnection={createEdgeConnection()}
         onSelectionChange={() => {}}
       />,
     );
 
-    expect(screen.getAllByRole("button")).toHaveLength(3);
+    expect(screen.getByRole("button", { name: "Person" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Company" })).toBeInTheDocument();
+    expect(screen.getAllByRole("button")).toHaveLength(2);
+  });
+
+  test("does not make the selected vertex type clickable", () => {
+    renderWithTooltips(
+      <EdgeConnectionRow
+        edgeConnection={createEdgeConnection()}
+        selectedVertexType={createVertexType("Person")}
+        onSelectionChange={() => {}}
+      />,
+    );
+
+    expect(
+      screen.queryByRole("button", { name: "Person" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Company" })).toBeInTheDocument();
   });
 
   test("calls onSelectionChange with the source vertex when source button is clicked", async () => {
     const user = userEvent.setup();
     const onSelectionChange = vi.fn();
-    render(
+    renderWithTooltips(
       <EdgeConnectionRow
         edgeConnection={createEdgeConnection()}
         onSelectionChange={onSelectionChange}
@@ -142,7 +166,7 @@ describe("EdgeConnectionRow", () => {
   test("calls onSelectionChange with the target vertex when target button is clicked", async () => {
     const user = userEvent.setup();
     const onSelectionChange = vi.fn();
-    render(
+    renderWithTooltips(
       <EdgeConnectionRow
         edgeConnection={createEdgeConnection()}
         onSelectionChange={onSelectionChange}
@@ -160,18 +184,48 @@ describe("EdgeConnectionRow", () => {
   test("calls onSelectionChange with the edge connection id when edge button is clicked", async () => {
     const user = userEvent.setup();
     const onSelectionChange = vi.fn();
-    render(
+    renderWithTooltips(
       <EdgeConnectionRow
         edgeConnection={createEdgeConnection()}
+        selectedVertexType={createVertexType("Person")}
         onSelectionChange={onSelectionChange}
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: /knows/ }));
+    await user.click(screen.getByRole("button", { name: "knows" }));
 
     expect(onSelectionChange).toHaveBeenCalledWith({
       type: "edge-connection",
       id: "Person-[knows]->Company",
     });
+  });
+
+  test("names the edge button by its label without the decorative arrows", () => {
+    renderWithTooltips(
+      <EdgeConnectionRow
+        edgeConnection={createEdgeConnection()}
+        selectedVertexType={createVertexType("Person")}
+        onSelectionChange={() => {}}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "knows" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /→/ })).not.toBeInTheDocument();
+  });
+
+  test("explains via tooltip that activating a type changes the selection", async () => {
+    const user = userEvent.setup();
+    renderWithTooltips(
+      <EdgeConnectionRow
+        edgeConnection={createEdgeConnection()}
+        onSelectionChange={() => {}}
+      />,
+    );
+
+    await user.tab();
+
+    expect(
+      await screen.findAllByText("Change selection to Person"),
+    ).not.toHaveLength(0);
   });
 });

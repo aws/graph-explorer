@@ -1,7 +1,7 @@
 import { createEdgeType, createVertexType } from "@/core";
 import { createEdgeConnectionId } from "@/core/StateProvider/edgeConnectionId";
 
-import { toSchemaGraphSelection } from "./SchemaGraph";
+import { toSchemaGraphSelection, toSelectedElements } from "./SchemaGraph";
 
 function createSelectedElements(
   nodeIds: string[] = [],
@@ -72,5 +72,28 @@ describe("toSchemaGraphSelection", () => {
         { type: "edge-connection", id: edgeId },
       ],
     });
+  });
+});
+
+describe("toSelectedElements", () => {
+  test("maps a vertex-type item to a single selected node", () => {
+    const result = toSelectedElements({
+      type: "vertex-type",
+      id: createVertexType("Person"),
+    });
+
+    expect(result).toStrictEqual(createSelectedElements(["Person"]));
+  });
+
+  test("maps an edge-connection item to a single selected edge", () => {
+    const edgeId = createEdgeConnectionId({
+      sourceVertexType: createVertexType("Person"),
+      edgeType: createEdgeType("knows"),
+      targetVertexType: createVertexType("Company"),
+    });
+
+    const result = toSelectedElements({ type: "edge-connection", id: edgeId });
+
+    expect(result).toStrictEqual(createSelectedElements([], [edgeId]));
   });
 });
