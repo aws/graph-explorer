@@ -61,7 +61,7 @@ describe("PersistenceStatusIndicator", () => {
       screen.getByRole("button", { name: /changes not saved/i }),
     );
 
-    expect(screen.getByRole("dialog")).toHaveTextContent(/couldn.t save/i);
+    expect(screen.getByRole("dialog")).toHaveTextContent(/failed writes/i);
   });
 
   test("offers to save the configuration when storage is full", async () => {

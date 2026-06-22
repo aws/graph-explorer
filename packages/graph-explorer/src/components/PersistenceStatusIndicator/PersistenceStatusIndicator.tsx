@@ -1,5 +1,5 @@
 import localforage from "localforage";
-import { InfoIcon, SaveAllIcon } from "lucide-react";
+import { InfoIcon } from "lucide-react";
 
 import { saveLocalForageToFile } from "@/core/StateProvider/localDb";
 import { usePersistenceStatus } from "@/core/StateProvider/persistence/usePersistenceStatus";
@@ -51,14 +51,17 @@ export function PersistenceStatusIndicator() {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Couldn&apos;t save your changes</DialogTitle>
+          <DialogTitle>Changes not saved</DialogTitle>
         </DialogHeader>
         <DialogBody>
-          <p className="text-text-secondary text-sm leading-snug">
-            {canBackUp
-              ? "Your browser is out of storage. Save your configuration to a file so you don't lose your work, then free up space and reload."
-              : "Graph Explorer can't access browser storage, so these changes won't be saved this session. This often happens in private browsing or when storage is blocked."}
-          </p>
+          <FormItem>
+            <Label>Details</Label>
+            <p className="text-base leading-snug">
+              {canBackUp
+                ? "Your browser is out of storage. Save your configuration to a file so you don't lose your work, then free up space and reload."
+                : "Graph Explorer can't access browser storage, so these changes won't be saved this session. This often happens in private browsing or when storage is blocked."}
+            </p>
+          </FormItem>
           <FormItem>
             <Label>Failed writes</Label>
             <div className="grid min-h-64 overflow-auto rounded-lg border bg-gray-50 shadow-xs">
@@ -82,7 +85,6 @@ export function PersistenceStatusIndicator() {
               variant="primary"
               onClick={() => void saveLocalForageToFile(localforage)}
             >
-              <SaveAllIcon />
               Save Configuration
             </Button>
           ) : null}
