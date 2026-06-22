@@ -64,22 +64,31 @@ describe("PersistenceStatusIndicator", () => {
     expect(screen.getByRole("dialog")).toHaveTextContent(/couldn.t save/i);
   });
 
-  test("offers to save the configuration to a file regardless of failure reason", async () => {
+  test("offers to save the configuration when storage is full", async () => {
     const user = userEvent.setup();
+    renderIndicator();
 
-    for (const reason of ["terminal-quota", "terminal-access"] as const) {
-      fail("configuration", reason);
-      const { unmount } = renderIndicator();
-      await user.click(
-        screen.getByRole("button", { name: /changes not saved/i }),
-      );
+    fail("graph-sessions", "terminal-quota");
+    await user.click(
+      screen.getByRole("button", { name: /changes not saved/i }),
+    );
 
-      expect(
-        screen.getByRole("button", { name: /save configuration/i }),
-      ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /save configuration/i }),
+    ).toBeInTheDocument();
+  });
 
-      unmount();
-      act(() => persistenceStatusStore.reset());
-    }
+  test("offers no backup when storage is inaccessible", async () => {
+    const user = userEvent.setup();
+    renderIndicator();
+
+    fail("configuration", "terminal-access");
+    await user.click(
+      screen.getByRole("button", { name: /changes not saved/i }),
+    );
+
+    expect(
+      screen.queryByRole("button", { name: /save configuration/i }),
+    ).not.toBeInTheDocument();
   });
 });
