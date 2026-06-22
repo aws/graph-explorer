@@ -11,14 +11,20 @@ import { usePersistenceStatus } from "@/core/StateProvider/persistence/usePersis
  * A standing warning that the app failed to write data to IndexedDB. Renders
  * nothing while idle or saving — only a terminal failure surfaces.
  *
- * Toasts are reserved for the one terminal failure a user can act on: running
- * out of storage, where the recovery is to back up their data to a file.
+ * Toasts are reserved for terminal failures and their wording depends on the
+ * reason. When storage is full a backup is offered, because IndexedDB can still
+ * be read to capture everything that did persist. When storage is inaccessible
+ * (private mode, blocked by policy) no backup is offered: the database never
+ * opened, so there is nothing to read.
  */
 export function SaveStatusIndicator() {
   const { status, failures } = usePersistenceStatus();
 
   const isOutOfStorage = failures.some(
     failure => failure.reason === "terminal-quota",
+  );
+  const isStorageInaccessible = failures.some(
+    failure => failure.reason === "terminal-access",
   );
 
   useEffect(() => {
@@ -37,6 +43,17 @@ export function SaveStatusIndicator() {
       },
     });
   }, [isOutOfStorage]);
+
+  useEffect(() => {
+    if (!isStorageInaccessible) {
+      return;
+    }
+    toast.error("Can't save to browser storage", {
+      description:
+        "Graph Explorer can't access browser storage, so your changes won't be saved this session. This often happens in private browsing or when storage is blocked.",
+      duration: Infinity,
+    });
+  }, [isStorageInaccessible]);
 
   if (status !== "failed") {
     return null;

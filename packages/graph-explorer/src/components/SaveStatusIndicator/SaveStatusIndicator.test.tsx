@@ -57,13 +57,18 @@ describe("SaveStatusIndicator", () => {
     );
   });
 
-  test("does not prompt a backup for a non-quota failure", () => {
+  test("warns without a backup when storage is inaccessible", () => {
     render(<SaveStatusIndicator />);
 
     act(() =>
       persistenceStatusStore.markFailed("configuration", "terminal-access"),
     );
 
-    expect(toast.error).not.toHaveBeenCalled();
+    // A backup is useless here — IndexedDB never opened, so there is nothing to
+    // read. The toast warns but offers no action.
+    expect(toast.error).toHaveBeenCalledWith(
+      "Can't save to browser storage",
+      expect.not.objectContaining({ action: expect.anything() }),
+    );
   });
 });
