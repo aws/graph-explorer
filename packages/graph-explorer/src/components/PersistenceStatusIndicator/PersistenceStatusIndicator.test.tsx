@@ -49,17 +49,16 @@ describe("PersistenceStatusIndicator", () => {
     expect(screen.getByRole("alert")).toHaveTextContent(/couldn.t save/i);
   });
 
-  test("opens a detail dialog listing the failed data and reason", async () => {
+  test("opens a detail dialog from the Details button", async () => {
     const user = userEvent.setup();
     renderIndicator();
 
     fail("configuration", "terminal-access");
-    await user.click(screen.getByRole("alert"));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 
-    const dialog = screen.getByRole("dialog");
-    // The storage key is humanized to a friendly label.
-    expect(dialog).toHaveTextContent(/connections/i);
-    expect(dialog).toHaveTextContent(/can.t access browser storage/i);
+    await user.click(screen.getByRole("button", { name: /details/i }));
+
+    expect(screen.getByRole("dialog")).toHaveTextContent(/couldn.t save/i);
   });
 
   test("offers a backup in the dialog when storage is full", async () => {
@@ -67,7 +66,7 @@ describe("PersistenceStatusIndicator", () => {
     renderIndicator();
 
     fail("graph-sessions", "terminal-quota");
-    await user.click(screen.getByRole("alert"));
+    await user.click(screen.getByRole("button", { name: /details/i }));
 
     expect(
       screen.getByRole("button", { name: /download backup/i }),
@@ -79,7 +78,7 @@ describe("PersistenceStatusIndicator", () => {
     renderIndicator();
 
     fail("configuration", "terminal-access");
-    await user.click(screen.getByRole("alert"));
+    await user.click(screen.getByRole("button", { name: /details/i }));
 
     expect(
       screen.queryByRole("button", { name: /download backup/i }),

@@ -83,7 +83,7 @@ The single, global state of whether the app's client-side data is safely written
 _Avoid_: Save state (ambiguous with Session)
 
 **Persistence Status Indicator**:
-The UI element in the nav bar (after the page title) that renders Persistence Status. It surfaces only on `failed` — a standing danger Alert — and stays absent at `idle` and `saving`. Replaces scattered per-write toasts. Clicking the Alert opens a detail dialog listing each failed collection (humanized from its storage key) and why it failed. The dialog offers a full client-side backup via `saveLocalForageToFile` (`core/StateProvider/localDb.ts`) when storage is full (quota), but not when storage is inaccessible (private mode, blocked) since the database never opened and there is nothing to read. Recovery scope is retry (transient failures) plus the backup (terminal-quota failures) — it does not guarantee the write eventually lands.
+The UI element in the nav bar (after the page title) that renders Persistence Status. It surfaces only on `failed` — a standing danger Alert with a "Details" button — and stays absent at `idle` and `saving`. Replaces scattered per-write toasts. The Details button opens a dialog showing the raw failure records (key, reason, attempt count, last attempt) in a read-only JSON editor. The dialog offers a full client-side backup via `saveLocalForageToFile` (`core/StateProvider/localDb.ts`) when storage is full (quota), but not when storage is inaccessible (private mode, blocked) since the database never opened and there is nothing to read. Recovery scope is retry (transient failures) plus the backup (terminal-quota failures) — it does not guarantee the write eventually lands.
 _Avoid_: Save-status indicator, save toast, save banner
 
 ## Relationships
