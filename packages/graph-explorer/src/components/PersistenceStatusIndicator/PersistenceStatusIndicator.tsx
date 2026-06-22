@@ -43,7 +43,7 @@ export function PersistenceStatusIndicator() {
   );
 
   return (
-    <Alert variant="danger" className="w-auto">
+    <Alert variant="danger" className="w-auto pr-28">
       <CircleAlertIcon />
       <AlertTitle>Couldn&apos;t save your changes</AlertTitle>
       <Dialog>
