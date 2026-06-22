@@ -5,7 +5,7 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { persistenceStatusStore } from "@/core/StateProvider/persistence";
 
-import { SaveStatusIndicator } from "./SaveStatusIndicator";
+import { PersistenceStatusIndicator } from "./PersistenceStatusIndicator";
 
 // The indicator reads the app-wide singleton store. Return it to idle between
 // tests by marking every key this suite touches as saved, which clears both
@@ -17,15 +17,15 @@ afterEach(() => {
   });
 });
 
-describe("SaveStatusIndicator", () => {
+describe("PersistenceStatusIndicator", () => {
   test("shows nothing while idle", () => {
-    render(<SaveStatusIndicator />);
+    render(<PersistenceStatusIndicator />);
 
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   test("shows nothing while a write is merely in flight", () => {
-    render(<SaveStatusIndicator />);
+    render(<PersistenceStatusIndicator />);
 
     act(() => persistenceStatusStore.markSaving("configuration"));
 
@@ -33,7 +33,7 @@ describe("SaveStatusIndicator", () => {
   });
 
   test("shows a failure message when a write fails terminally", () => {
-    render(<SaveStatusIndicator />);
+    render(<PersistenceStatusIndicator />);
 
     act(() =>
       persistenceStatusStore.markFailed("configuration", "terminal-access"),
@@ -43,7 +43,7 @@ describe("SaveStatusIndicator", () => {
   });
 
   test("prompts a backup when a write fails for lack of storage", () => {
-    render(<SaveStatusIndicator />);
+    render(<PersistenceStatusIndicator />);
 
     act(() =>
       persistenceStatusStore.markFailed("graph-sessions", "terminal-quota"),
@@ -58,7 +58,7 @@ describe("SaveStatusIndicator", () => {
   });
 
   test("warns without a backup when storage is inaccessible", () => {
-    render(<SaveStatusIndicator />);
+    render(<PersistenceStatusIndicator />);
 
     act(() =>
       persistenceStatusStore.markFailed("configuration", "terminal-access"),

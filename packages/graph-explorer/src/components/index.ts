@@ -52,7 +52,7 @@ export * from "./NavBar";
 export * from "./NoEdgeTypesEmptyState";
 export * from "./NoNodeTypesEmptyState";
 
-export * from "./SaveStatusIndicator/SaveStatusIndicator";
+export * from "./PersistenceStatusIndicator/PersistenceStatusIndicator";
 
 export * from "./Toaster";
 

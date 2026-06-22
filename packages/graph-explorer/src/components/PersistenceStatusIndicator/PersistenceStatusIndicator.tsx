@@ -17,7 +17,7 @@ import { usePersistenceStatus } from "@/core/StateProvider/persistence/usePersis
  * (private mode, blocked by policy) no backup is offered: the database never
  * opened, so there is nothing to read.
  */
-export function SaveStatusIndicator() {
+export function PersistenceStatusIndicator() {
   const { status, failures } = usePersistenceStatus();
 
   const isOutOfStorage = failures.some(

@@ -9,8 +9,8 @@ export type {
 
 /**
  * The app-wide persistence-status store. A single global instance because the
- * Save-Status Indicator shows one aggregated status for the whole app. Tests
- * construct isolated stores via `createPersistenceStatusStore` instead.
+ * Persistence Status Indicator shows one aggregated status for the whole app.
+ * Tests construct isolated stores via `createPersistenceStatusStore` instead.
  */
 export const persistenceStatusStore = createPersistenceStatusStore();
 
@@ -25,8 +25,8 @@ export function persistThroughQueue(key: string, flush: Flush): void {
   writeQueue.enqueue(key, flush);
 }
 
-// DEV-only: expose the status store on window so the save-status indicator can
-// be driven from the browser console, e.g.
+// DEV-only: expose the status store on window so the Persistence Status
+// Indicator can be driven from the browser console, e.g.
 //   __persistence.markFailed("configuration", "terminal-access")
 //   __persistence.markFailed("graph-sessions", "terminal-quota")
 //   __persistence.markSaving("schema"); __persistence.markSaved("schema")

@@ -15,7 +15,7 @@ import {
   NavBarTitle,
   PanelGroup,
   RouteButtonGroup,
-  SaveStatusIndicator,
+  PersistenceStatusIndicator,
   SchemaDiscoveryBoundary,
   Workspace,
   WorkspaceContent,
@@ -70,7 +70,7 @@ const GraphExplorer = () => {
             title={LABELS.APP_NAME}
             subtitle={`Connection: ${config?.displayLabel || config?.id}`}
           />
-          <SaveStatusIndicator />
+          <PersistenceStatusIndicator />
         </NavBarContent>
 
         {hasSchema && (

@@ -20,7 +20,7 @@ import {
   PanelGroup,
   PanelHeader,
   RouteButtonGroup,
-  SaveStatusIndicator,
+  PersistenceStatusIndicator,
   SchemaDiscoveryBoundary,
   SelectField,
   SendIcon,
@@ -217,7 +217,7 @@ function Layout({ children }: { children: React.ReactNode }) {
             title="Data Explorer"
             subtitle={`Connection: ${config?.displayLabel || config?.id}`}
           />
-          <SaveStatusIndicator />
+          <PersistenceStatusIndicator />
         </NavBarContent>
         <RouteButtonGroup active="data-explorer" />
       </NavBar>
