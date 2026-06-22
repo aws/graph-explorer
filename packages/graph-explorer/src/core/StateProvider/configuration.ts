@@ -10,6 +10,7 @@ import {
   configurationAtom,
   type EdgeType,
   type EdgeTypeConfig,
+  type MergedConfiguration,
   type RawConfiguration,
   userStylingAtom,
   type VertexType,
@@ -61,7 +62,7 @@ export function mergeConfiguration(
   currentSchema: SchemaStorageModel | null | undefined,
   currentConfig: RawConfiguration,
   userStyling: UserStyling,
-): RawConfiguration {
+): MergedConfiguration {
   const prefsVertexMap = toMapByType(userStyling.vertices);
   const mergedVertices = (currentSchema?.vertices ?? [])
     .map(schemaVertex =>
@@ -153,22 +154,22 @@ const mergeEdge = (
 
 export const allVertexTypeConfigsSelector = atom(get => {
   const configuration = get(mergedConfigurationSelector);
-  return new Map(configuration?.schema?.vertices.map(vt => [vt.type, vt]));
+  return new Map(configuration?.schema.vertices.map(vt => [vt.type, vt]));
 });
 
 export const allEdgeTypeConfigsSelector = atom(get => {
   const configuration = get(mergedConfigurationSelector);
-  return new Map(configuration?.schema?.edges.map(et => [et.type, et]));
+  return new Map(configuration?.schema.edges.map(et => [et.type, et]));
 });
 
 export const vertexTypesSelector = atom(get => {
   const configuration = get(mergedConfigurationSelector);
-  return configuration?.schema?.vertices?.map(vt => vt.type) || [];
+  return configuration?.schema.vertices.map(vt => vt.type) || [];
 });
 
 export const edgeTypesSelector = atom(get => {
   const configuration = get(mergedConfigurationSelector);
-  return configuration?.schema?.edges?.map(vt => vt.type) || [];
+  return configuration?.schema.edges.map(vt => vt.type) || [];
 });
 
 export const defaultVertexTypeConfig = {
