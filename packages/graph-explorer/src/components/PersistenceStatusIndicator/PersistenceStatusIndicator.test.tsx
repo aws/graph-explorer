@@ -1,11 +1,16 @@
 // @vitest-environment happy-dom
 import { act, render, screen } from "@testing-library/react";
-import { toast } from "sonner";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test } from "vitest";
 
+import { TooltipProvider } from "@/components";
 import { persistenceStatusStore } from "@/core/StateProvider/persistence";
 
 import { PersistenceStatusIndicator } from "./PersistenceStatusIndicator";
+
+function renderIndicator() {
+  return render(<PersistenceStatusIndicator />, { wrapper: TooltipProvider });
+}
 
 // The indicator reads the app-wide singleton store. Return it to idle between
 // tests by marking every key this suite touches as saved, which clears both
@@ -17,58 +22,67 @@ afterEach(() => {
   });
 });
 
+function fail(key: string, reason: "terminal-quota" | "terminal-access") {
+  act(() => persistenceStatusStore.markFailed(key, reason, 1));
+}
+
 describe("PersistenceStatusIndicator", () => {
   test("shows nothing while idle", () => {
-    render(<PersistenceStatusIndicator />);
+    renderIndicator();
 
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   test("shows nothing while a write is merely in flight", () => {
-    render(<PersistenceStatusIndicator />);
+    renderIndicator();
 
     act(() => persistenceStatusStore.markSaving("configuration"));
 
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
-  test("shows a failure message when a write fails terminally", () => {
-    render(<PersistenceStatusIndicator />);
+  test("shows a standing alert when a write fails terminally", () => {
+    renderIndicator();
 
-    act(() =>
-      persistenceStatusStore.markFailed("configuration", "terminal-access"),
-    );
+    fail("configuration", "terminal-access");
 
     expect(screen.getByRole("alert")).toHaveTextContent(/couldn.t save/i);
   });
 
-  test("prompts a backup when a write fails for lack of storage", () => {
-    render(<PersistenceStatusIndicator />);
+  test("opens a detail dialog listing the failed data and reason", async () => {
+    const user = userEvent.setup();
+    renderIndicator();
 
-    act(() =>
-      persistenceStatusStore.markFailed("graph-sessions", "terminal-quota"),
-    );
+    fail("configuration", "terminal-access");
+    await user.click(screen.getByRole("alert"));
 
-    expect(toast.error).toHaveBeenCalledWith(
-      "Browser storage is full",
-      expect.objectContaining({
-        action: expect.objectContaining({ label: "Download backup" }),
-      }),
-    );
+    const dialog = screen.getByRole("dialog");
+    // The storage key is humanized to a friendly label.
+    expect(dialog).toHaveTextContent(/connections/i);
+    expect(dialog).toHaveTextContent(/can.t access browser storage/i);
   });
 
-  test("warns without a backup when storage is inaccessible", () => {
-    render(<PersistenceStatusIndicator />);
+  test("offers a backup in the dialog when storage is full", async () => {
+    const user = userEvent.setup();
+    renderIndicator();
 
-    act(() =>
-      persistenceStatusStore.markFailed("configuration", "terminal-access"),
-    );
+    fail("graph-sessions", "terminal-quota");
+    await user.click(screen.getByRole("alert"));
 
-    // A backup is useless here — IndexedDB never opened, so there is nothing to
-    // read. The toast warns but offers no action.
-    expect(toast.error).toHaveBeenCalledWith(
-      "Can't save to browser storage",
-      expect.not.objectContaining({ action: expect.anything() }),
-    );
+    expect(
+      screen.getByRole("button", { name: /download backup/i }),
+    ).toBeInTheDocument();
+  });
+
+  test("offers no backup when storage is merely inaccessible", async () => {
+    const user = userEvent.setup();
+    renderIndicator();
+
+    fail("configuration", "terminal-access");
+    await user.click(screen.getByRole("alert"));
+
+    expect(
+      screen.queryByRole("button", { name: /download backup/i }),
+    ).not.toBeInTheDocument();
   });
 });

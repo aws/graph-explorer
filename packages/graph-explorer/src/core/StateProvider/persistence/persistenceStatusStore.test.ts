@@ -27,22 +27,28 @@ describe("persistenceStatusStore", () => {
   });
 
   test("a terminal failure takes precedence over other in-flight writes", () => {
-    const store = createPersistenceStatusStore();
+    const failedAt = new Date("2026-06-22T00:00:00Z");
+    const store = createPersistenceStatusStore({ now: () => failedAt });
 
     store.markSaving("schema");
-    store.markFailed("configuration", "terminal-quota");
+    store.markFailed("configuration", "terminal-quota", 3);
 
     const snapshot = store.getSnapshot();
     expect(snapshot.status).toBe("failed");
     expect(snapshot.failures).toStrictEqual([
-      { key: "configuration", reason: "terminal-quota" },
+      {
+        key: "configuration",
+        reason: "terminal-quota",
+        attemptCount: 3,
+        lastAttemptAt: failedAt,
+      },
     ]);
   });
 
   test("a failed key clears on its next successful write", () => {
     const store = createPersistenceStatusStore();
 
-    store.markFailed("user-styling", "terminal-quota");
+    store.markFailed("user-styling", "terminal-quota", 1);
     store.markSaved("user-styling");
 
     expect(store.getSnapshot()).toStrictEqual({
@@ -54,14 +60,14 @@ describe("persistenceStatusStore", () => {
   test("stays failed while another key still has an outstanding failure", () => {
     const store = createPersistenceStatusStore();
 
-    store.markFailed("schema", "terminal-access");
-    store.markFailed("user-styling", "terminal-quota");
+    store.markFailed("schema", "terminal-access", 1);
+    store.markFailed("user-styling", "terminal-quota", 2);
     store.markSaved("schema");
 
     const snapshot = store.getSnapshot();
     expect(snapshot.status).toBe("failed");
-    expect(snapshot.failures).toStrictEqual([
-      { key: "user-styling", reason: "terminal-quota" },
+    expect(snapshot.failures).toMatchObject([
+      { key: "user-styling", reason: "terminal-quota", attemptCount: 2 },
     ]);
   });
 
@@ -99,7 +105,7 @@ describe("persistenceStatusStore", () => {
     store.markSaving("schema");
 
     const idle = store.waitForIdle();
-    store.markFailed("schema", "terminal-quota");
+    store.markFailed("schema", "terminal-quota", 1);
 
     await expect(idle).resolves.toBeUndefined();
   });
@@ -116,7 +122,7 @@ describe("persistenceStatusStore", () => {
 
     // One key fails terminally, but the other is still draining. Status flips to
     // "failed", yet a write is genuinely still in flight, so idle must wait.
-    store.markFailed("configuration", "terminal-quota");
+    store.markFailed("configuration", "terminal-quota", 1);
     await Promise.resolve();
     expect(resolved).toBe(false);
 

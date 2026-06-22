@@ -53,10 +53,14 @@ export function createWriteQueue({
   const running = new Map<string, Promise<void>>();
   const pending = new Map<string, Flush>();
 
+  /** A terminal failure plus how many attempts were made before giving up. */
+  interface TerminalFailure {
+    reason: StorageErrorClassification;
+    attemptCount: number;
+  }
+
   /** Runs one flush with retry, returning the terminal failure if it gives up. */
-  async function runWithRetry(
-    flush: Flush,
-  ): Promise<StorageErrorClassification | null> {
+  async function runWithRetry(flush: Flush): Promise<TerminalFailure | null> {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       try {
         await flush();
@@ -65,7 +69,7 @@ export function createWriteQueue({
         const classification = classifyStorageError(error);
         const isLastAttempt = attempt === maxAttempts - 1;
         if (classification !== "retryable" || isLastAttempt) {
-          return classification;
+          return { reason: classification, attemptCount: attempt + 1 };
         }
         await delay(attempt);
       }
@@ -75,7 +79,7 @@ export function createWriteQueue({
 
   async function drain(key: string) {
     store.markSaving(key);
-    let failure: StorageErrorClassification | null = null;
+    let failure: TerminalFailure | null = null;
 
     let next = pending.get(key);
     while (next) {
@@ -86,7 +90,7 @@ export function createWriteQueue({
 
     running.delete(key);
     if (failure) {
-      store.markFailed(key, failure);
+      store.markFailed(key, failure.reason, failure.attemptCount);
     } else {
       store.markSaved(key);
     }

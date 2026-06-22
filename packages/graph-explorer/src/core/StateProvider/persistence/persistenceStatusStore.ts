@@ -17,6 +17,10 @@ export type PersistenceStatus = "idle" | "saving" | "failed";
 export interface PersistenceFailure {
   key: string;
   reason: StorageErrorClassification;
+  /** How many attempts were made before giving up (including the first try). */
+  attemptCount: number;
+  /** When the final, failed attempt occurred. */
+  lastAttemptAt: Date;
 }
 
 export interface PersistenceStatusSnapshot {
@@ -32,12 +36,21 @@ export interface PersistenceStatusStore {
   /** A write for `key` landed durably; clears any prior failure for that key. */
   markSaved(key: string): void;
   /** A write for `key` failed terminally and will not be retried. */
-  markFailed(key: string, reason: StorageErrorClassification): void;
+  markFailed(
+    key: string,
+    reason: StorageErrorClassification,
+    attemptCount: number,
+  ): void;
   /**
    * Resolves once no write is in flight — i.e. status has settled to `idle` or
    * `failed`. The test seam that replaces awaiting a per-write promise.
    */
   waitForIdle(): Promise<void>;
+}
+
+interface PersistenceStatusStoreConfig {
+  /** Supplies the timestamp stamped on a failure. Injectable for tests. */
+  now?: () => Date;
 }
 
 /**
@@ -47,9 +60,11 @@ export interface PersistenceStatusStore {
  * Aggregation precedence: any terminal failure → `failed`; else any in-flight
  * key → `saving`; else `idle`.
  */
-export function createPersistenceStatusStore(): PersistenceStatusStore {
+export function createPersistenceStatusStore({
+  now = () => new Date(),
+}: PersistenceStatusStoreConfig = {}): PersistenceStatusStore {
   const inFlightKeys = new Set<string>();
-  const failuresByKey = new Map<string, StorageErrorClassification>();
+  const failuresByKey = new Map<string, PersistenceFailure>();
   const listeners = new Set<() => void>();
   // Resolvers waiting for all in-flight writes to drain. Tracked separately
   // from `listeners` because idleness keys off the in-flight count, not the
@@ -77,11 +92,7 @@ export function createPersistenceStatusStore(): PersistenceStatusStore {
     const current = snapshot.failures;
     return (
       next.length === current.length &&
-      next.every(
-        (failure, index) =>
-          failure.key === current[index].key &&
-          failure.reason === current[index].reason,
-      )
+      next.every((failure, index) => failure === current[index])
     );
   }
 
@@ -91,10 +102,7 @@ export function createPersistenceStatusStore(): PersistenceStatusStore {
       : inFlightKeys.size
         ? "saving"
         : "idle";
-    const failures = [...failuresByKey].map(([key, reason]) => ({
-      key,
-      reason,
-    }));
+    const failures = [...failuresByKey.values()];
 
     if (status === snapshot.status && failuresEqual(failures)) {
       return;
@@ -125,10 +133,17 @@ export function createPersistenceStatusStore(): PersistenceStatusStore {
       recompute();
       flushIdleWaitersIfDrained();
     },
-    markFailed(key, reason) {
-      logger.debug(`[persistence] failed "${key}" (${reason})`);
+    markFailed(key, reason, attemptCount) {
+      logger.debug(
+        `[persistence] failed "${key}" (${reason}, ${attemptCount} attempts)`,
+      );
       inFlightKeys.delete(key);
-      failuresByKey.set(key, reason);
+      failuresByKey.set(key, {
+        key,
+        reason,
+        attemptCount,
+        lastAttemptAt: now(),
+      });
       recompute();
       flushIdleWaitersIfDrained();
     },

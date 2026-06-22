@@ -75,10 +75,10 @@ describe("createWriteQueue", () => {
 
     expect(flush).toHaveBeenCalledTimes(1);
     expect(delay).not.toHaveBeenCalled();
-    expect(store.getSnapshot()).toStrictEqual({
-      status: "failed",
-      failures: [{ key: "graph-sessions", reason: "terminal-quota" }],
-    });
+    expect(store.getSnapshot().status).toBe("failed");
+    expect(store.getSnapshot().failures).toMatchObject([
+      { key: "graph-sessions", reason: "terminal-quota", attemptCount: 1 },
+    ]);
   });
 
   test("escalates a persistently transient failure to terminal after the cap", async () => {
@@ -92,10 +92,10 @@ describe("createWriteQueue", () => {
     await store.waitForIdle();
 
     expect(flush).toHaveBeenCalledTimes(3);
-    expect(store.getSnapshot()).toStrictEqual({
-      status: "failed",
-      failures: [{ key: "configuration", reason: "retryable" }],
-    });
+    expect(store.getSnapshot().status).toBe("failed");
+    expect(store.getSnapshot().failures).toMatchObject([
+      { key: "configuration", reason: "retryable", attemptCount: 3 },
+    ]);
   });
 
   test("runs writes for different keys independently", async () => {
@@ -109,7 +109,7 @@ describe("createWriteQueue", () => {
     await store.waitForIdle();
 
     expect(configFlush).toHaveBeenCalledTimes(1);
-    expect(store.getSnapshot().failures).toStrictEqual([
+    expect(store.getSnapshot().failures).toMatchObject([
       { key: "schema", reason: "terminal-quota" },
     ]);
   });
