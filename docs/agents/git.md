@@ -1,4 +1,0 @@
-- Single trunk branch `main`, always releasable
-- No branch or commit message prefixes (no `chore:`, `fix:`, `feature/`, etc.)
-- Each commit is self-contained and cohesive — one logical change per commit
-- Keep commit messages brief and descriptive

@@ -28,3 +28,20 @@ Graph Explorer is a React-based web application that enables users to visualize 
 - **Frontend**: TypeScript React application served via Vite
 - **Backend**: Express.js proxy server for authentication and request routing
 - **Deployment**: Docker containers, supports local and cloud deployment (EC2, ECS)
+
+## Key Architectural Patterns
+
+- State management: Jotai atoms for global state
+- Data fetching: TanStack Query for remote data
+- Graph rendering: Cytoscape.js with custom layout plugins
+- Query abstraction: Explorers provide unified interfaces for different query languages
+- Configuration: environment variables and configuration providers
+- Error handling: error boundaries and consistent error display components
+- State persistence: localforage for client-side persistence using IndexedDB
+
+## Data Storage & Persistence
+
+- Client-side only — all user data and preferences are stored client-side; the backend proxy server stores nothing
+- IndexedDB via localforage is the primary storage mechanism
+- Persisted: user preferences and settings, connection configurations, query history, visualization settings, layout preferences
+- Graph data is queried directly from the connected databases and is not owned or persisted by Graph Explorer

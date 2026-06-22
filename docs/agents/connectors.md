@@ -14,10 +14,6 @@
 - Explorers handle query construction, execution, and result transformation
 - They shield the application from query language specifics while providing consistent data structures
 
-## Branded Types
-
-For branded type conventions and the full type reference table, refer to `docs/agents/typescript.md`.
-
 ## Database Queries
 
 - Use the `query` template tag from `@/utils` for all query strings (Gremlin, openCypher, SPARQL) to ensure consistent formatting

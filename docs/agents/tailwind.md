@@ -1,5 +1,5 @@
 - Use Tailwind v4 CSS syntax
 - The `tailwind.config.ts` file remains for legacy reasons
 - Prefer Tailwind responsive directives and container queries over `ResizeObserver` for responsive layout changes whenever possible
-- Prefer using data attributes to deal within conditionally applied styles using Tailwind
+- Prefer using data attributes to deal with conditionally applied styles using Tailwind
 - Lookup the latest Tailwind documentation from `https://tailwindcss.com/docs`
