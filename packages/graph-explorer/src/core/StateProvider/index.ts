@@ -13,7 +13,6 @@ export * from "./renderedEntities";
 export * from "./userPreferences";
 export * from "./schema";
 export * from "./storageAtoms";
-export * from "./useReportUserStylingMigrationFailure";
 export * from "./graphSession";
 export * from "./userLayout";
 export * from "./userLayoutDefaults";

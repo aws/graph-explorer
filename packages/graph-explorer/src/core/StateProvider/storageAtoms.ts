@@ -1,3 +1,5 @@
+import { createErrorDetails } from "@/utils/createErrorDetails";
+
 import type {
   ConfigurationId,
   RawConfiguration,
@@ -13,22 +15,29 @@ import type {
 import { createActiveConfigurationAtom } from "./activeConnectionStorage";
 import { atomWithLocalForage } from "./atomWithLocalForage";
 import { migrateUserStylingIfNeeded } from "./migrateUserStyling";
+import { persistenceStatusStore } from "./persistence";
+import { classifyStorageError } from "./persistence/classifyStorageError";
 import { defaultUserLayout } from "./userLayoutDefaults";
-import { markUserStylingMigrationFailed } from "./userStylingMigrationStatus";
 
 // Convert any legacy single-key user styling into the type-keyed map atoms
 // below before they preload. Must run before the `Promise.all`. Errors are
 // caught so a migration failure does not crash the module and leave all atoms
 // undefined. The legacy `"user-styling"` key is never deleted, so the data is
-// preserved on disk; we record the failure here and surface it to the user
-// once React mounts (see `useReportUserStylingMigrationFailure`).
+// preserved on disk and the migration retries on the next reload. A migration
+// failure is a storage failure, so we report it through the same
+// persistence-status store as every other write failure: the "Changes not
+// saved" indicator lights up and its dialog shows this error alongside the
+// rest. The synthetic key never receives a successful write, so the failure
+// stays outstanding until the next reload clears it (or the migration
+// succeeds), which matches reality.
 try {
   await migrateUserStylingIfNeeded();
 } catch (err) {
-  markUserStylingMigrationFailed();
-  console.error(
-    "[graph-explorer] User styling migration failed; previous styling is preserved and will be retried on next reload.",
-    err,
+  persistenceStatusStore.markFailed(
+    "user-styling-migration",
+    classifyStorageError(err),
+    1,
+    createErrorDetails(err),
   );
 }
 

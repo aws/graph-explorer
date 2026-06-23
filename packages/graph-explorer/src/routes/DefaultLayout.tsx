@@ -6,10 +6,7 @@ import { Outlet } from "react-router";
 
 import { TooltipProvider } from "@/components";
 import { Toaster } from "@/components/Toaster";
-import {
-  diagnosticLoggingAtom,
-  useReportUserStylingMigrationFailure,
-} from "@/core";
+import { diagnosticLoggingAtom } from "@/core";
 import AppErrorPage from "@/core/AppErrorPage";
 import AppStatusLoader from "@/core/AppStatusLoader";
 import { setDiagnosticLogging } from "@/utils/logger";
@@ -33,7 +30,6 @@ function useSyncDiagnosticLogging() {
  */
 export default function DefaultLayout() {
   useSyncDiagnosticLogging();
-  useReportUserStylingMigrationFailure();
 
   return (
     <ErrorBoundary FallbackComponent={AppErrorPage}>
