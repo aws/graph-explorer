@@ -51,14 +51,9 @@ export async function atomWithLocalForage<T>(key: string, initialValue: T) {
 }
 
 /**
- * Merges this tab's change onto the value currently in storage before writing,
- * so a tab with a stale in-memory copy cannot clobber entries another tab
- * persisted concurrently (issue #1820).
- *
- * The merge diffs resulting values — `next` is this tab's value after its
- * change, `previous` is the value this tab last persisted (the diff baseline) —
- * never by replaying the updater, so it stays safe for non-idempotent updaters.
- * See the per-key diff-merge reconciliation ADR.
+ * Merges this tab's change (`next`, against its last-persisted `previous`
+ * baseline) onto the freshly-read stored value (`persisted`). See
+ * {@link atomWithReconciledLocalForage} for how and why this is applied.
  */
 export type ReconcileWrite<T> = (args: {
   persisted: T;

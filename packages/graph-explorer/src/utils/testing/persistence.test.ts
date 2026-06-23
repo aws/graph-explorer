@@ -154,4 +154,53 @@ describe("cross-tab user styling reconciliation", () => {
 
     expect(persistedTypes).toEqual(new Set([typeX, typeY]));
   });
+
+  test("coalesces rapid writes while still merging onto a concurrent sibling", async () => {
+    const key = createRandomName("user-styling");
+    const siblingType = createRandomVertexType();
+    const typeX = createRandomVertexType();
+    const typeY = createRandomVertexType();
+    const typeZ = createRandomVertexType();
+
+    const styleForType = (type: VertexType): VertexPreferencesStorageModel => ({
+      type,
+      color: "#ff0000",
+    });
+
+    // A sibling tab persists its type first, so it is already in storage when
+    // this tab — which opened stale against empty styling — writes.
+    const siblingTab = await openPersistenceTab<UserStyling>(
+      key,
+      {},
+      reconcileUserStyling,
+    );
+    const editingTab = await openPersistenceTab<UserStyling>(
+      key,
+      {},
+      reconcileUserStyling,
+    );
+
+    siblingTab.write({ vertices: [styleForType(siblingType)] });
+    await siblingTab.flush();
+
+    // Three rapid writes without awaiting between them. The write queue
+    // coalesces the pending flushes to the latest, dropping the intermediate
+    // one, so the diff baseline must still advance only on a landed write for
+    // the net per-type result to be correct.
+    editingTab.write({ vertices: [styleForType(typeX)] });
+    editingTab.write(prev => ({
+      vertices: [...(prev.vertices ?? []), styleForType(typeY)],
+    }));
+    editingTab.write(prev => ({
+      vertices: [...(prev.vertices ?? []), styleForType(typeZ)],
+    }));
+    await editingTab.flush();
+
+    const persisted = await readPersistedValue<UserStyling>(key);
+    const persistedTypes = new Set(
+      persisted?.vertices?.map(vertex => vertex.type),
+    );
+
+    expect(persistedTypes).toEqual(new Set([siblingType, typeX, typeY, typeZ]));
+  });
 });
