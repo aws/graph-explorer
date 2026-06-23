@@ -1,10 +1,17 @@
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import localforage from "localforage";
-import { SaveAllIcon } from "lucide-react";
+import {
+  DownloadIcon,
+  RotateCcwIcon,
+  SaveAllIcon,
+  UploadIcon,
+} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { toast } from "sonner";
 
 import {
   Button,
+  FileButton,
   FormItem,
   ImportantBlock,
   Input,
@@ -21,12 +28,16 @@ import {
   allowLoggingDbQueryAtom,
   defaultNeighborExpansionLimitAtom,
   defaultNeighborExpansionLimitEnabledAtom,
+  defaultStylingAtom,
   diagnosticLoggingAtom,
   showDebugActionsAtom,
+  userStylingAtom,
 } from "@/core";
 import { saveLocalForageToFile } from "@/core/StateProvider/localDb";
 
 import LoadConfigButton from "./LoadConfigButton";
+import { useExportStylingFile } from "./useExportStylingFile";
+import { useImportStylingFile } from "./useImportStylingFile";
 
 export default function SettingsGeneral() {
   const [isDebugOptionsEnabled, setIsDebugOptionsEnabled] =
@@ -47,6 +58,22 @@ export default function SettingsGeneral() {
     defaultNeighborExpansionLimitEnabled,
     setDefaultNeighborExpansionLimitEnabled,
   ] = useAtom(defaultNeighborExpansionLimitEnabledAtom);
+
+  const exportStyling = useExportStylingFile();
+  const importStyling = useImportStylingFile();
+  const defaultStyling = useAtomValue(defaultStylingAtom);
+  const setUserStyling = useSetAtom(userStylingAtom);
+
+  function resetAllStyling() {
+    if (defaultStyling) {
+      setUserStyling(defaultStyling);
+    } else {
+      setUserStyling({});
+    }
+    toast.success("Styling Reset", {
+      description: "All styling has been reset to defaults",
+    });
+  }
 
   return (
     <SettingsSectionContainer>
@@ -108,6 +135,52 @@ export default function SettingsGeneral() {
           <p>
             Loading configuration data will overwrite all of your current data
             with the data within the configuration file.
+          </p>
+        </ImportantBlock>
+
+        <LabelledSetting
+          label="Export styling"
+          description="Export your current node and edge styling as a JSON file. Share it with teammates or keep it as a backup."
+        >
+          <Button className="min-w-28" onClick={exportStyling}>
+            <DownloadIcon />
+            Export
+          </Button>
+        </LabelledSetting>
+        <LabelledSetting
+          label="Import styling"
+          description="Import a styling JSON file to apply a shared baseline. Imported values become the new defaults for per-type Reset."
+        >
+          <FileButton
+            className="min-w-28"
+            accept=".json"
+            onChange={file => {
+              if (file) {
+                void importStyling(file);
+              }
+            }}
+          >
+            <UploadIcon />
+            Import
+          </FileButton>
+        </LabelledSetting>
+        <LabelledSetting
+          label="Reset all styling"
+          description="Reset every node and edge back to defaults. If a styling file has been imported this session, those values are restored; otherwise styling reverts to the application defaults."
+        >
+          <Button
+            className="min-w-28"
+            variant="danger"
+            onClick={resetAllStyling}
+          >
+            <RotateCcwIcon />
+            Reset
+          </Button>
+        </LabelledSetting>
+        <ImportantBlock>
+          <p>
+            Importing styling will replace your current node and edge styling.
+            Resetting will revert all types to their default appearance.
           </p>
         </ImportantBlock>
 
