@@ -6,6 +6,8 @@ import type {
   VertexPreferencesStorageModel,
 } from "@/core/StateProvider/userPreferences";
 
+import { reconcileUserStyling } from "@/core/StateProvider/userPreferences";
+
 import { openPersistenceTab, readPersistedValue } from "./persistence";
 import { createRandomVertexType } from "./randomData";
 
@@ -99,52 +101,41 @@ describe("per-test storage isolation", () => {
 });
 
 /**
- * REGRESSION — #1820 cross-tab styling clobber
+ * REGRESSION — #1820 cross-tab styling clobber, fixed by #1831
  *
  * Two tabs share one IndexedDB but each keeps its own in-memory copy of the
- * user styling collection. `atomWithLocalForage` writes the whole collection
- * back on every change, so a tab with a stale in-memory copy silently drops
- * entries another tab added.
+ * user styling collection. Without reconciliation, the whole collection is
+ * written back on every change, so a tab with a stale in-memory copy silently
+ * drops entries another tab added.
  *
  * Scenario from the issue: Tab A styles vertex type X and persists it. Tab B —
  * opened before that write and never having seen X — styles type Y and persists
- * its stale collection, clobbering X.
- *
- * Two assertions encode this:
- *
- * 1. A normal, currently-passing test that pins the CLOBBER as it behaves today
- *    — type X is dropped, only type Y survives. This is the deterministic guard:
- *    if the scenario ever stops reproducing (setup breaks, the bug changes
- *    shape), this test fails loudly instead of silently passing.
- * 2. A `test.fails` describing the DESIRED behaviour — both types survive. It
- *    turns green when reconciliation (#1831) lands, signalling that the fix
- *    works and this whole block should be collapsed into a single passing test.
- *
- * The fixture runs in `beforeAll`, OUTSIDE both tests. `test.fails` passes on
- * any throw, so building the fixture inside it would let a setup failure keep
- * the test green for the wrong reason. Keeping setup out means only the final
- * assertion can satisfy (or break) the expectation.
- *
- * TODO #1820 / #1831: collapse into one passing test once reconciliation lands.
+ * its stale collection. With per-type diff-merge reconciliation wired into the
+ * user styling atom, both types survive instead of X being clobbered.
  */
 describe("cross-tab user styling reconciliation", () => {
-  let persistedTypes: Set<string>;
-  let typeX: VertexType;
-  let typeY: VertexType;
-
-  beforeAll(async () => {
+  test("preserves styling written concurrently by two tabs", async () => {
     const key = createRandomName("user-styling");
-    typeX = createRandomVertexType();
-    typeY = createRandomVertexType();
+    const typeX = createRandomVertexType();
+    const typeY = createRandomVertexType();
 
     const styleForType = (type: VertexType): VertexPreferencesStorageModel => ({
       type,
       color: "#ff0000",
     });
 
-    // Both tabs open against empty styling.
-    const tabA = await openPersistenceTab<UserStyling>(key, {});
-    const tabB = await openPersistenceTab<UserStyling>(key, {});
+    // Both tabs open against empty styling, using the same reconciler the real
+    // user styling atom is wired with.
+    const tabA = await openPersistenceTab<UserStyling>(
+      key,
+      {},
+      reconcileUserStyling,
+    );
+    const tabB = await openPersistenceTab<UserStyling>(
+      key,
+      {},
+      reconcileUserStyling,
+    );
 
     // Tab A styles type X and persists.
     tabA.write({ vertices: [styleForType(typeX)] });
@@ -154,17 +145,13 @@ describe("cross-tab user styling reconciliation", () => {
     tabB.write(prev => ({
       vertices: [...(prev.vertices ?? []), styleForType(typeY)],
     }));
-
     await tabB.flush();
+
     const persisted = await readPersistedValue<UserStyling>(key);
-    persistedTypes = new Set(persisted?.vertices?.map(vertex => vertex.type));
-  });
+    const persistedTypes = new Set(
+      persisted?.vertices?.map(vertex => vertex.type),
+    );
 
-  test("clobbers type X today — only the stale tab's type Y survives", () => {
-    expect(persistedTypes).toEqual(new Set([typeY]));
-  });
-
-  test.fails("should preserve styling from both tabs (fixed by #1831)", () => {
     expect(persistedTypes).toEqual(new Set([typeX, typeY]));
   });
 });

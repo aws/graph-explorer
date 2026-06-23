@@ -10,8 +10,10 @@ import {
   defaultVertexPreferences,
   edgePreferencesAtom,
   type EdgePreferencesStorageModel,
+  reconcileUserStyling,
   useEdgeStyling,
   useVertexStyling,
+  type UserStyling,
   vertexPreferencesAtom,
   type VertexPreferencesStorageModel,
 } from "./userPreferences";
@@ -458,5 +460,88 @@ describe("edgePreferencesAtom", () => {
     expect(result.current.get(edgeType)).toStrictEqual(
       createExpectedEdge({ type: edgeType }),
     );
+  });
+});
+
+describe("reconcileUserStyling", () => {
+  it("preserves a sibling vertex entry another tab added", () => {
+    const ownType = createVertexType("own");
+    const siblingType = createVertexType("sibling");
+
+    // This tab loaded with empty styling and added its own type.
+    const previous: UserStyling = {};
+    const next: UserStyling = { vertices: [{ type: ownType, color: "red" }] };
+
+    // Meanwhile another tab persisted a sibling type.
+    const persisted: UserStyling = {
+      vertices: [{ type: siblingType, color: "blue" }],
+    };
+
+    const merged = reconcileUserStyling({ persisted, previous, next });
+
+    expect(merged.vertices).toStrictEqual([
+      { type: siblingType, color: "blue" },
+      { type: ownType, color: "red" },
+    ]);
+  });
+
+  it("applies this tab's update over the persisted entry for the same type", () => {
+    const sharedType = createVertexType("shared");
+
+    const previous: UserStyling = {
+      vertices: [{ type: sharedType, color: "red" }],
+    };
+    const next: UserStyling = {
+      vertices: [{ type: sharedType, color: "green" }],
+    };
+    const persisted: UserStyling = {
+      vertices: [{ type: sharedType, color: "blue" }],
+    };
+
+    const merged = reconcileUserStyling({ persisted, previous, next });
+
+    expect(merged.vertices).toStrictEqual([
+      { type: sharedType, color: "green" },
+    ]);
+  });
+
+  it("drops a type this tab removed while keeping a sibling", () => {
+    const removedType = createVertexType("removed");
+    const siblingType = createVertexType("sibling");
+
+    const previous: UserStyling = {
+      vertices: [{ type: removedType, color: "red" }],
+    };
+    const next: UserStyling = {};
+    const persisted: UserStyling = {
+      vertices: [
+        { type: removedType, color: "red" },
+        { type: siblingType, color: "blue" },
+      ],
+    };
+
+    const merged = reconcileUserStyling({ persisted, previous, next });
+
+    expect(merged.vertices).toStrictEqual([
+      { type: siblingType, color: "blue" },
+    ]);
+  });
+
+  it("merges edge entries independently of vertices", () => {
+    const ownEdge = createEdgeType("own");
+    const siblingEdge = createEdgeType("sibling");
+
+    const previous: UserStyling = {};
+    const next: UserStyling = { edges: [{ type: ownEdge, lineColor: "red" }] };
+    const persisted: UserStyling = {
+      edges: [{ type: siblingEdge, lineColor: "blue" }],
+    };
+
+    const merged = reconcileUserStyling({ persisted, previous, next });
+
+    expect(merged.edges).toStrictEqual([
+      { type: siblingEdge, lineColor: "blue" },
+      { type: ownEdge, lineColor: "red" },
+    ]);
   });
 });

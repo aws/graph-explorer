@@ -7,8 +7,12 @@ import type { SchemaStorageModel } from "./schema";
 import type { UserStyling } from "./userPreferences";
 
 import { createActiveConfigurationAtom } from "./activeConnectionStorage";
-import { atomWithLocalForage } from "./atomWithLocalForage";
+import {
+  atomWithLocalForage,
+  atomWithReconciledLocalForage,
+} from "./atomWithLocalForage";
 import { defaultUserLayout } from "./userLayoutDefaults";
+import { reconcileUserStyling } from "./userPreferences";
 
 /**
  DEV NOTE
@@ -66,7 +70,11 @@ const [
   ),
   /** All the stored schemas */
   atomWithLocalForage("schema", new Map<string, SchemaStorageModel>()),
-  atomWithLocalForage<UserStyling>("user-styling", {}),
+  atomWithReconciledLocalForage<UserStyling>(
+    "user-styling",
+    {},
+    reconcileUserStyling,
+  ),
   atomWithLocalForage("user-layout", defaultUserLayout),
   /** Stores the graph session data for each connection. */
   atomWithLocalForage<Map<ConfigurationId, GraphSessionStorageModel>>(

@@ -2,8 +2,12 @@ import { createStore } from "jotai";
 import localforage from "localforage";
 
 import type { AppStore } from "@/core";
+import type { ReconcileWrite } from "@/core/StateProvider/atomWithLocalForage";
 
-import { atomWithLocalForage } from "@/core/StateProvider/atomWithLocalForage";
+import {
+  atomWithLocalForage,
+  atomWithReconciledLocalForage,
+} from "@/core/StateProvider/atomWithLocalForage";
 import { persistenceStatusStore } from "@/core/StateProvider/persistence";
 
 type SetStateAction<Value> = Value | ((prev: Value) => Value);
@@ -58,13 +62,19 @@ export class PersistenceTab<T> {
  * Opens a new {@link PersistenceTab} for the given key, preloading whatever is
  * currently persisted (or the initial value when storage is empty), mirroring
  * how the app loads a localForage atom at startup.
+ *
+ * Pass the same `reconcile` the real atom is wired with to exercise cross-tab
+ * reconciliation; omit it to model a plain whole-value-overwrite atom.
  */
 export async function openPersistenceTab<T>(
   key: string,
   initialValue: T,
+  reconcile?: ReconcileWrite<T>,
 ): Promise<PersistenceTab<T>> {
   const store = createStore();
-  const atom = await atomWithLocalForage<T>(key, initialValue);
+  const atom = reconcile
+    ? await atomWithReconciledLocalForage<T>(key, initialValue, reconcile)
+    : await atomWithLocalForage<T>(key, initialValue);
   return new PersistenceTab(store, atom);
 }
 

@@ -2,6 +2,7 @@ import type { Simplify } from "type-fest";
 
 import { atom, useAtomValue, useSetAtom } from "jotai";
 import { atomFamily } from "jotai-family";
+import { isEqual } from "lodash";
 import { useDeferredValue } from "react";
 
 import { RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
@@ -157,6 +158,76 @@ export type UserStyling = {
   vertices?: Array<VertexPreferencesStorageModel>;
   edges?: Array<EdgePreferencesStorageModel>;
 };
+
+/**
+ * Merges this tab's changes onto the freshly-read persisted styling, keyed by
+ * the per-`type` entry, so a tab editing one type never clobbers a sibling type
+ * another tab persisted concurrently (issue #1820).
+ *
+ * The diff is computed from resulting values — `next` is this tab's styling
+ * after its change, `previous` is the styling this tab last persisted (the diff
+ * baseline) — never by replaying the updater, so it stays correct for
+ * non-idempotent updaters.
+ *
+ * @param persisted The styling currently in storage (may include other tabs' writes)
+ * @param previous The styling this tab last persisted; the diff baseline, which
+ *   may predate several in-memory changes when rapid writes coalesce
+ * @param next This tab's styling after its change
+ */
+export function reconcileUserStyling({
+  persisted,
+  previous,
+  next,
+}: {
+  persisted: UserStyling;
+  previous: UserStyling;
+  next: UserStyling;
+}): UserStyling {
+  return {
+    vertices: mergeStylingEntriesByType(
+      persisted.vertices,
+      previous.vertices,
+      next.vertices,
+    ),
+    edges: mergeStylingEntriesByType(
+      persisted.edges,
+      previous.edges,
+      next.edges,
+    ),
+  };
+}
+
+/**
+ * Applies this tab's net per-`type` changes onto the persisted entries: types
+ * this tab added or modified are upserted, types it removed are dropped, and
+ * every other type in storage is left untouched.
+ */
+function mergeStylingEntriesByType<T extends { type: string }>(
+  persisted: Array<T> = [],
+  previous: Array<T> = [],
+  next: Array<T> = [],
+): Array<T> | undefined {
+  const previousByType = new Map(previous.map(entry => [entry.type, entry]));
+  const nextByType = new Map(next.map(entry => [entry.type, entry]));
+
+  const merged = new Map(persisted.map(entry => [entry.type, entry]));
+
+  // Upsert types this tab added or changed.
+  for (const [type, entry] of nextByType) {
+    if (!isEqual(previousByType.get(type), entry)) {
+      merged.set(type, entry);
+    }
+  }
+
+  // Drop types this tab removed.
+  for (const type of previousByType.keys()) {
+    if (!nextByType.has(type)) {
+      merged.delete(type);
+    }
+  }
+
+  return merged.size > 0 ? [...merged.values()] : undefined;
+}
 
 /** Vertex preferences indexed by type for O(1) lookup with default fallback. */
 export const vertexPreferencesAtom = atom(get => {
