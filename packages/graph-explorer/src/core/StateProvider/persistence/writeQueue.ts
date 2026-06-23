@@ -1,3 +1,8 @@
+import {
+  createErrorDetails,
+  type ErrorDetails,
+} from "@/utils/createErrorDetails";
+
 import type { PersistenceStatusStore } from "./persistenceStatusStore";
 
 import {
@@ -57,6 +62,7 @@ export function createWriteQueue({
   interface TerminalFailure {
     reason: StorageErrorClassification;
     attemptCount: number;
+    details: ErrorDetails;
   }
 
   /** Runs one flush with retry, returning the terminal failure if it gives up. */
@@ -69,7 +75,11 @@ export function createWriteQueue({
         const classification = classifyStorageError(error);
         const isLastAttempt = attempt === maxAttempts - 1;
         if (classification !== "retryable" || isLastAttempt) {
-          return { reason: classification, attemptCount: attempt + 1 };
+          return {
+            reason: classification,
+            attemptCount: attempt + 1,
+            details: createErrorDetails(error),
+          };
         }
         await delay(attempt);
       }
@@ -90,7 +100,12 @@ export function createWriteQueue({
 
     running.delete(key);
     if (failure) {
-      store.markFailed(key, failure.reason, failure.attemptCount);
+      store.markFailed(
+        key,
+        failure.reason,
+        failure.attemptCount,
+        failure.details,
+      );
     } else {
       store.markSaved(key);
     }

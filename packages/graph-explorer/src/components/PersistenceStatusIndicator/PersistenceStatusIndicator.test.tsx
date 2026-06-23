@@ -18,7 +18,12 @@ afterEach(() => {
 });
 
 function fail(key: string, reason: "terminal-quota" | "terminal-access") {
-  act(() => persistenceStatusStore.markFailed(key, reason, 1));
+  act(() =>
+    persistenceStatusStore.markFailed(key, reason, 1, {
+      name: "QuotaExceededError",
+      message: "storage full",
+    }),
+  );
 }
 
 describe("PersistenceStatusIndicator", () => {

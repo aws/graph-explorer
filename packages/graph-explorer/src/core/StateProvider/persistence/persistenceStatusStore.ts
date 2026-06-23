@@ -1,3 +1,5 @@
+import type { ErrorDetails } from "@/utils/createErrorDetails";
+
 import { logger } from "@/utils";
 
 import type { StorageErrorClassification } from "./classifyStorageError";
@@ -21,6 +23,8 @@ export interface PersistenceFailure {
   attemptCount: number;
   /** When the final, failed attempt occurred. */
   lastAttemptAt: Date;
+  /** Name, message, and any cause data from the underlying error. */
+  details: ErrorDetails;
 }
 
 export interface PersistenceStatusSnapshot {
@@ -46,6 +50,7 @@ export interface PersistenceStatusStore {
     key: string,
     reason: StorageErrorClassification,
     attemptCount: number,
+    details: ErrorDetails,
   ): void;
   /**
    * Resolves once no write is in flight. The test seam that replaces awaiting a
@@ -138,7 +143,7 @@ export function createPersistenceStatusStore({
       failuresByKey.delete(key);
       recompute();
     },
-    markFailed(key, reason, attemptCount) {
+    markFailed(key, reason, attemptCount, details) {
       logger.debug(
         `[persistence] failed "${key}" (${reason}, ${attemptCount} attempts)`,
       );
@@ -148,6 +153,7 @@ export function createPersistenceStatusStore({
         reason,
         attemptCount,
         lastAttemptAt: now(),
+        details,
       });
       recompute();
     },

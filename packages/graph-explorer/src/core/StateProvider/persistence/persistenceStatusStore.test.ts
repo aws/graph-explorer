@@ -1,6 +1,10 @@
 import { describe, expect, test, vi } from "vitest";
 
+import type { ErrorDetails } from "@/utils/createErrorDetails";
+
 import { createPersistenceStatusStore } from "./persistenceStatusStore";
+
+const DETAILS: ErrorDetails = { name: "QuotaExceededError", message: "full" };
 
 describe("persistenceStatusStore", () => {
   test("starts idle with no failures", () => {
@@ -35,7 +39,7 @@ describe("persistenceStatusStore", () => {
     const store = createPersistenceStatusStore({ now: () => failedAt });
 
     store.markSaving("schema");
-    store.markFailed("configuration", "terminal-quota", 3);
+    store.markFailed("configuration", "terminal-quota", 3, DETAILS);
 
     const snapshot = store.getSnapshot();
     expect(snapshot.status).toBe("failed");
@@ -45,6 +49,7 @@ describe("persistenceStatusStore", () => {
         reason: "terminal-quota",
         attemptCount: 3,
         lastAttemptAt: failedAt,
+        details: DETAILS,
       },
     ]);
   });
@@ -52,7 +57,7 @@ describe("persistenceStatusStore", () => {
   test("a failed key clears on its next successful write", () => {
     const store = createPersistenceStatusStore();
 
-    store.markFailed("user-styling", "terminal-quota", 1);
+    store.markFailed("user-styling", "terminal-quota", 1, DETAILS);
     store.markSaved("user-styling");
 
     expect(store.getSnapshot()).toStrictEqual({
@@ -65,8 +70,8 @@ describe("persistenceStatusStore", () => {
   test("stays failed while another key still has an outstanding failure", () => {
     const store = createPersistenceStatusStore();
 
-    store.markFailed("schema", "terminal-access", 1);
-    store.markFailed("user-styling", "terminal-quota", 2);
+    store.markFailed("schema", "terminal-access", 1, DETAILS);
+    store.markFailed("user-styling", "terminal-quota", 2, DETAILS);
     store.markSaved("schema");
 
     const snapshot = store.getSnapshot();
@@ -79,7 +84,7 @@ describe("persistenceStatusStore", () => {
   test("reset clears all in-flight and failed state", () => {
     const store = createPersistenceStatusStore();
     store.markSaving("schema");
-    store.markFailed("configuration", "terminal-quota", 1);
+    store.markFailed("configuration", "terminal-quota", 1, DETAILS);
 
     store.reset();
 
@@ -124,7 +129,7 @@ describe("persistenceStatusStore", () => {
     store.markSaving("schema");
 
     const idle = store.waitForIdle();
-    store.markFailed("schema", "terminal-quota", 1);
+    store.markFailed("schema", "terminal-quota", 1, DETAILS);
 
     await expect(idle).resolves.toBeUndefined();
   });
@@ -141,7 +146,7 @@ describe("persistenceStatusStore", () => {
 
     // One key fails terminally, but the other is still draining. Status flips to
     // "failed", yet a write is genuinely still in flight, so idle must wait.
-    store.markFailed("configuration", "terminal-quota", 1);
+    store.markFailed("configuration", "terminal-quota", 1, DETAILS);
     await Promise.resolve();
     expect(resolved).toBe(false);
 
