@@ -212,6 +212,14 @@ function mergeStylingEntriesByType<T extends { type: string }>(
   previous: Array<T> = [],
   next: Array<T> = [],
 ): Array<T> | undefined {
+  // This tab did not touch this collection — the styling setters preserve the
+  // untouched array's reference, and that reference survives coalesced writes.
+  // The stored value wins as-is, so there is nothing to diff and nothing to
+  // copy.
+  if (previous === next) {
+    return persisted.length > 0 ? persisted : undefined;
+  }
+
   const previousByType = new Map(previous.map(entry => [entry.type, entry]));
   const nextByType = new Map(next.map(entry => [entry.type, entry]));
 

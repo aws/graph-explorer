@@ -554,4 +554,28 @@ describe("reconcileUserStyling", () => {
 
     expect(merged).toStrictEqual({});
   });
+
+  it("keeps a collection this tab did not touch, by reference and without copying", () => {
+    // The styling setters preserve the untouched array's reference, so editing
+    // only vertices leaves `edges` reference-equal between previous and next.
+    const untouchedEdges: UserStyling["edges"] = [];
+    const previous: UserStyling = {
+      vertices: [{ type: createVertexType("a"), color: "red" }],
+      edges: untouchedEdges,
+    };
+    const next: UserStyling = {
+      vertices: [{ type: createVertexType("a"), color: "green" }],
+      edges: untouchedEdges,
+    };
+    // Another tab persisted an edge style in the meantime.
+    const persistedEdges = [
+      { type: createEdgeType("other"), lineColor: "blue" },
+    ];
+    const persisted: UserStyling = { vertices: [], edges: persistedEdges };
+
+    const merged = reconcileUserStyling({ persisted, previous, next });
+
+    // The stored edges win untouched and are returned as-is, not re-copied.
+    expect(merged.edges).toBe(persistedEdges);
+  });
 });
