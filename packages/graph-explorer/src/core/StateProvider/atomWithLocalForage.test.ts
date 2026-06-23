@@ -225,4 +225,28 @@ describe("reconcileMapByKey", () => {
     expect(merged.get("sibling")).toBe("concurrent");
     expect(merged.get("own")).toBe("after");
   });
+
+  test("does not detect an entry mutated in place — write sites must replace entries, not mutate them", () => {
+    // The reference-equality diff only works because every production write
+    // site replaces a whole entry (`new Map(prev).set(id, freshEntry)`) rather
+    // than mutating one in place. This pins that contract: if a tab mutates the
+    // SAME entry object (so `previous` and `next` hold one shared reference),
+    // `Object.is` sees no change, the mutation is NOT upserted, and a concurrent
+    // value another tab wrote for that key survives instead.
+    const sharedEntry = { value: "original" };
+    const previous = new Map([["key", sharedEntry]]);
+
+    // Mutate in place and reuse the same reference as `next`.
+    sharedEntry.value = "mutated-in-place";
+    const next = new Map([["key", sharedEntry]]);
+
+    const concurrentEntry = { value: "from-another-tab" };
+    const persisted = new Map([["key", concurrentEntry]]);
+
+    const merged = reconcileMapByKey({ persisted, previous, next });
+
+    // The in-place mutation is invisible to the diff, so the concurrent value
+    // wins — demonstrating why write sites must construct fresh entries.
+    expect(merged.get("key")).toBe(concurrentEntry);
+  });
 });

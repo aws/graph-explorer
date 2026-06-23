@@ -212,10 +212,15 @@ function mergeStylingEntriesByType<T extends { type: string }>(
   previous: Array<T> = [],
   next: Array<T> = [],
 ): Array<T> | undefined {
-  // This tab did not touch this collection — the styling setters preserve the
-  // untouched array's reference, and that reference survives coalesced writes.
-  // The stored value wins as-is, so there is nothing to diff and nothing to
-  // copy.
+  // Fast-path a collection this tab never touched: when the caller passes the
+  // SAME array reference for `previous` and `next`, there is nothing to diff
+  // and nothing to copy, so the stored value wins as-is. The styling setters
+  // guarantee this for the untouched collection — `{ ...prev, vertices: next }`
+  // keeps `prev.edges` by reference — and that reference survives coalesced
+  // writes. This keys on reference identity, not emptiness: two empty-but-
+  // distinct arrays (e.g. both defaulted from `undefined`) are not `===` and
+  // correctly fall through to the diff path below, which also returns the
+  // stored value unchanged.
   if (previous === next) {
     return persisted.length > 0 ? persisted : undefined;
   }

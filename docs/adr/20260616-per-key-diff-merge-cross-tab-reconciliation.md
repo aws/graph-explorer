@@ -19,7 +19,7 @@ Scalar atoms (e.g. active connection) are unaffected — each write is a complet
 Reconcile at the **storage layer**, inside the `atomWithLocalForage` write path, using a **per-key, diff-the-output merge**. On each persist:
 
 1. **Re-read** the current persisted value from IndexedDB (it may reflect writes by other tabs since this tab loaded).
-2. **Diff this tab's output** — compare the value this tab is about to write against this tab's _previous in-memory value_ to determine exactly which keys this tab changed.
+2. **Diff this tab's output** — compare the value this tab is about to write against _the value this tab last persisted_ (the merge baseline) to determine exactly which keys this tab changed. The baseline advances only once a write lands, so it may predate several in-memory changes when rapid writes coalesce.
 3. **Apply only those changed keys** onto the freshly-read value, and persist the result.
 
 The unit of reconciliation is the **key** (collection entry — e.g. one **Vertex Type**'s styling, one **Connection**, one **Schema** entry), so a tab editing entry Y never overwrites entry X that another tab added. The diff is computed from the _resulting_ values, not by replaying the updater function.
@@ -41,7 +41,7 @@ This decision fixes **durability** of concurrent writes to _different_ entries. 
 ## Consequences
 
 - The write path becomes **read-modify-write against live IndexedDB** rather than a blind whole-value overwrite, adding one re-read per persist. Acceptable for the mutation frequencies involved (User Preferences is the highest, still human-interaction-paced).
-- The merge needs each tab's **previous in-memory value** to compute its diff — `atomWithLocalForage` already holds this in its base atom, so no new state is introduced.
+- The merge needs each tab's **last-persisted value** as the diff baseline — the reconciling factory holds this in a closure variable that advances only after a write lands, so no new shared state is introduced.
 - Reconciliation is **per key**, so the persisted collections must be key-addressable (objects/maps keyed by entry id or type, or arrays reducible to such). Collections shaped as opaque blobs would not benefit.
 - **Same-entry conflicts and stale reads persist by design** — anyone surprised by either should read this ADR's scope boundary before "fixing" it, and the live-sync follow-up is the intended home for the freshness work.
 - This is the **inverse** of the per-tab active-connection decision (#1788): those scalars want each tab to _diverge_; these collections are genuinely shared and must _reconcile_. The two ship separately and must not be conflated.
