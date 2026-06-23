@@ -15,5 +15,5 @@
 # Local planning docs
 plans/
 
-# Claude Code local files
-.claude
+# Local-only files (settings, overrides, secrets)
+*.local.*
