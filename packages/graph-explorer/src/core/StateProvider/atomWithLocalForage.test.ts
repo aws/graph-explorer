@@ -2,7 +2,7 @@ import { createStore } from "jotai";
 import localforage from "localforage";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { atomWithLocalForage } from "./atomWithLocalForage";
+import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
 import { persistenceStatusStore } from "./persistence";
 
 describe("atomWithLocalForage", () => {
@@ -165,5 +165,64 @@ describe("atomWithLocalForage", () => {
     );
     store.set(objAtom, { b: 2 });
     expect(store.get(objAtom)).toEqual({ b: 2 });
+  });
+});
+
+describe("reconcileMapByKey", () => {
+  test("preserves a sibling key another tab added", () => {
+    // This tab loaded empty and added its own key.
+    const previous = new Map<string, string>();
+    const next = new Map([["own", "mine"]]);
+    // Another tab persisted a sibling key in the meantime.
+    const persisted = new Map([["sibling", "theirs"]]);
+
+    const merged = reconcileMapByKey({ persisted, previous, next });
+
+    expect([...merged]).toStrictEqual([
+      ["sibling", "theirs"],
+      ["own", "mine"],
+    ]);
+  });
+
+  test("applies this tab's update over the persisted entry for the same key", () => {
+    const previous = new Map([["shared", "before"]]);
+    const next = new Map([["shared", "after"]]);
+    const persisted = new Map([["shared", "concurrent"]]);
+
+    const merged = reconcileMapByKey({ persisted, previous, next });
+
+    expect([...merged]).toStrictEqual([["shared", "after"]]);
+  });
+
+  test("drops a key this tab removed while keeping a sibling", () => {
+    const previous = new Map([["removed", "gone"]]);
+    const next = new Map<string, string>();
+    const persisted = new Map([
+      ["removed", "gone"],
+      ["sibling", "theirs"],
+    ]);
+
+    const merged = reconcileMapByKey({ persisted, previous, next });
+
+    expect([...merged]).toStrictEqual([["sibling", "theirs"]]);
+  });
+
+  test("leaves a key this tab never touched at the value another tab wrote", () => {
+    // This tab only ever edited "own"; "sibling" stayed identical between its
+    // previous and next, so another tab's concurrent change to it must win.
+    const previous = new Map([
+      ["own", "before"],
+      ["sibling", "stale"],
+    ]);
+    const next = new Map([
+      ["own", "after"],
+      ["sibling", "stale"],
+    ]);
+    const persisted = new Map([["sibling", "concurrent"]]);
+
+    const merged = reconcileMapByKey({ persisted, previous, next });
+
+    expect(merged.get("sibling")).toBe("concurrent");
+    expect(merged.get("own")).toBe("after");
   });
 });

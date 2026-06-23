@@ -1,15 +1,17 @@
 import { createRandomName } from "@shared/utils/testing";
 
 import type { VertexType } from "@/core/entities/vertex";
+import type { SchemaStorageModel } from "@/core/StateProvider/schema";
 import type {
   UserStyling,
   VertexPreferencesStorageModel,
 } from "@/core/StateProvider/userPreferences";
 
+import { reconcileMapByKey } from "@/core/StateProvider/atomWithLocalForage";
 import { reconcileUserStyling } from "@/core/StateProvider/userPreferences";
 
 import { openPersistenceTab, readPersistedValue } from "./persistence";
-import { createRandomVertexType } from "./randomData";
+import { createRandomSchema, createRandomVertexType } from "./randomData";
 
 describe("persistence test helpers", () => {
   test("a tab reads back the value it persisted", async () => {
@@ -202,5 +204,55 @@ describe("cross-tab user styling reconciliation", () => {
     );
 
     expect(persistedTypes).toEqual(new Set([siblingType, typeX, typeY, typeZ]));
+  });
+});
+
+/**
+ * REGRESSION — #1820 cross-tab schema clobber
+ *
+ * The schema atom stores `Map<ConfigurationId, SchemaStorageModel>` — one entry
+ * per connection. Two tabs each hold their own in-memory copy of that map, so a
+ * tab that syncs one connection's schema would, on a blind whole-map write,
+ * silently drop a schema another tab discovered for a different connection.
+ *
+ * Because the merge unit is the native map key (a whole connection's schema),
+ * the same `atomWithReconciledLocalForage` seam fixes this with the generic
+ * `reconcileMapByKey` reconciler — no per-collection diffing like styling needs.
+ */
+describe("cross-tab schema reconciliation", () => {
+  test("preserves schemas discovered concurrently by two tabs", async () => {
+    const key = createRandomName("schema");
+    const connectionA = createRandomName("connection");
+    const connectionB = createRandomName("connection");
+    const schemaA = createRandomSchema();
+    const schemaB = createRandomSchema();
+
+    type SchemaMap = Map<string, SchemaStorageModel>;
+
+    // Both tabs open against an empty schema map.
+    const tabA = await openPersistenceTab<SchemaMap>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+    const tabB = await openPersistenceTab<SchemaMap>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+
+    // Tab A discovers connection A's schema and persists.
+    tabA.write(prev => new Map(prev).set(connectionA, schemaA));
+    await tabA.flush();
+
+    // Tab B, still holding its stale empty map, discovers connection B and
+    // persists its stale map.
+    tabB.write(prev => new Map(prev).set(connectionB, schemaB));
+    await tabB.flush();
+
+    const persisted = await readPersistedValue<SchemaMap>(key);
+
+    expect(persisted?.get(connectionA)).toEqual(schemaA);
+    expect(persisted?.get(connectionB)).toEqual(schemaB);
   });
 });

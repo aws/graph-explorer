@@ -62,6 +62,47 @@ export type ReconcileWrite<T> = (args: {
 }) => T;
 
 /**
+ * The reconciler for any atom whose stored value is a `Map` keyed by the merge
+ * unit — one entry per connection, per id, etc. Applies this tab's net per-key
+ * changes onto the freshly-read map: keys this tab added or changed are
+ * upserted, keys it removed are dropped, and every other key another tab wrote
+ * is left untouched.
+ *
+ * Whether a key changed is decided by reference (`Object.is`), since these
+ * atoms replace a whole entry on every write (e.g. `new Map(prev).set(id, …)`)
+ * rather than mutating it in place — so an unchanged entry keeps its identity
+ * and a changed one is a fresh object. No deep compare is needed, unlike the
+ * per-`type` styling merge whose array entries are rebuilt structurally.
+ */
+export function reconcileMapByKey<K, V>({
+  persisted,
+  previous,
+  next,
+}: {
+  persisted: Map<K, V>;
+  previous: Map<K, V>;
+  next: Map<K, V>;
+}): Map<K, V> {
+  const merged = new Map(persisted);
+
+  // Upsert keys this tab added or changed.
+  for (const [key, value] of next) {
+    if (!Object.is(previous.get(key), value)) {
+      merged.set(key, value);
+    }
+  }
+
+  // Drop keys this tab removed.
+  for (const key of previous.keys()) {
+    if (!next.has(key)) {
+      merged.delete(key);
+    }
+  }
+
+  return merged;
+}
+
+/**
  * Like {@link atomWithLocalForage}, but reconciles each persist against the
  * value currently in storage instead of overwriting it blindly.
  *

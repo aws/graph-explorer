@@ -10,6 +10,7 @@ import { createActiveConfigurationAtom } from "./activeConnectionStorage";
 import {
   atomWithLocalForage,
   atomWithReconciledLocalForage,
+  reconcileMapByKey,
 } from "./atomWithLocalForage";
 import { defaultUserLayout } from "./userLayoutDefaults";
 import { reconcileUserStyling } from "./userPreferences";
@@ -69,7 +70,11 @@ const [
     new Map(),
   ),
   /** All the stored schemas */
-  atomWithLocalForage("schema", new Map<string, SchemaStorageModel>()),
+  atomWithReconciledLocalForage(
+    "schema",
+    new Map<string, SchemaStorageModel>(),
+    reconcileMapByKey,
+  ),
   atomWithReconciledLocalForage<UserStyling>(
     "user-styling",
     {},
