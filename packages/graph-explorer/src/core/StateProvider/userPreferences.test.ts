@@ -544,4 +544,14 @@ describe("reconcileUserStyling", () => {
       { type: ownEdge, lineColor: "red" },
     ]);
   });
+
+  it("omits empty collections rather than storing undefined keys", () => {
+    const merged = reconcileUserStyling({
+      persisted: {},
+      previous: {},
+      next: {},
+    });
+
+    expect(merged).toStrictEqual({});
+  });
 });

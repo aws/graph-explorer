@@ -183,17 +183,22 @@ export function reconcileUserStyling({
   previous: UserStyling;
   next: UserStyling;
 }): UserStyling {
+  const vertices = mergeStylingEntriesByType(
+    persisted.vertices,
+    previous.vertices,
+    next.vertices,
+  );
+  const edges = mergeStylingEntriesByType(
+    persisted.edges,
+    previous.edges,
+    next.edges,
+  );
+
+  // Omit empty collections so the reconciled value keeps the same shape as the
+  // `{}` the atom seeds with, rather than persisting explicit `undefined` keys.
   return {
-    vertices: mergeStylingEntriesByType(
-      persisted.vertices,
-      previous.vertices,
-      next.vertices,
-    ),
-    edges: mergeStylingEntriesByType(
-      persisted.edges,
-      previous.edges,
-      next.edges,
-    ),
+    ...(vertices && { vertices }),
+    ...(edges && { edges }),
   };
 }
 
