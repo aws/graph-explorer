@@ -122,7 +122,7 @@ describe("migrateUserStylingIfNeeded", () => {
     expect(await localForage.getItem("edge-styles")).toStrictEqual(
       new Map([[edgeStyle.type, edgeStyle]]),
     );
-    // vertex-styles is re-derived from user-styling (same data, idempotent).
+    // vertex-styles is preserved, not overwritten from the legacy key.
     expect(await localForage.getItem("vertex-styles")).toStrictEqual(
       new Map([[vertexStyle.type, vertexStyle]]),
     );
@@ -153,7 +153,42 @@ describe("migrateUserStylingIfNeeded", () => {
     expect(await localForage.getItem("vertex-styles")).toStrictEqual(
       new Map([[vertexStyle.type, vertexStyle]]),
     );
-    // edge-styles is re-derived from user-styling (same data, idempotent).
+    // edge-styles is preserved, not overwritten from the legacy key.
+    expect(await localForage.getItem("edge-styles")).toStrictEqual(
+      new Map([[edgeStyle.type, edgeStyle]]),
+    );
+  });
+
+  it("preserves a surviving key that was edited after the first migration", async () => {
+    // The legacy snapshot is never updated post-migration, so a key that
+    // survives a partial loss may hold newer edits the snapshot doesn't know
+    // about. Recovery must fill the missing key without clobbering the edited one.
+    const legacyVertexStyle: VertexPreferencesStorageModel = {
+      type: createVertexType("Person"),
+      color: "#ff0000",
+    };
+    const edgeStyle: EdgePreferencesStorageModel = {
+      type: createEdgeType("knows"),
+      lineColor: "#00ff00",
+    };
+    await localForage.setItem<LegacyUserStylingStorageModel>("user-styling", {
+      vertices: [legacyVertexStyle],
+      edges: [edgeStyle],
+    });
+    // vertex-styles has diverged from the legacy snapshot (user changed the color),
+    // and edge-styles was lost (e.g. single-key eviction).
+    const editedVertexStyles = new Map([
+      [legacyVertexStyle.type, { ...legacyVertexStyle, color: "#0000ff" }],
+    ]);
+    await localForage.setItem("vertex-styles", editedVertexStyles);
+
+    await migrateUserStylingIfNeeded();
+
+    // The edited vertex-styles must survive, not revert to the legacy color.
+    expect(await localForage.getItem("vertex-styles")).toStrictEqual(
+      editedVertexStyles,
+    );
+    // edge-styles is recovered from the legacy key.
     expect(await localForage.getItem("edge-styles")).toStrictEqual(
       new Map([[edgeStyle.type, edgeStyle]]),
     );

@@ -14,16 +14,20 @@ import { createActiveConfigurationAtom } from "./activeConnectionStorage";
 import { atomWithLocalForage } from "./atomWithLocalForage";
 import { migrateUserStylingIfNeeded } from "./migrateUserStyling";
 import { defaultUserLayout } from "./userLayoutDefaults";
+import { markUserStylingMigrationFailed } from "./userStylingMigrationStatus";
 
 // Convert any legacy single-key user styling into the type-keyed map atoms
 // below before they preload. Must run before the `Promise.all`. Errors are
-// caught so a migration failure degrades gracefully rather than crashing the
-// module and leaving all atoms undefined.
+// caught so a migration failure does not crash the module and leave all atoms
+// undefined. The legacy `"user-styling"` key is never deleted, so the data is
+// preserved on disk; we record the failure here and surface it to the user
+// once React mounts (see `useReportUserStylingMigrationFailure`).
 try {
   await migrateUserStylingIfNeeded();
 } catch (err) {
+  markUserStylingMigrationFailed();
   console.error(
-    "[graph-explorer] User styling migration failed; continuing with defaults.",
+    "[graph-explorer] User styling migration failed; previous styling is preserved and will be retried on next reload.",
     err,
   );
 }

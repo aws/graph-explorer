@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-06-23
-- **Related:** ADR `per-key-diff-merge-cross-tab-reconciliation` — the Map-keyed shape is the prerequisite for per-type merge. Issue #1864 (this change). Issues #1820 / #1831 (cross-tab merge, separate follow-up).
+- **Related:** ADR `per-key-diff-merge-cross-tab-reconciliation` — the Map-keyed shape is the prerequisite for per-type merge. ADR `storage-layer-owns-persistence-failure` — the migration's "catch and degrade to defaults on failure" posture follows that ADR's established startup-failure stance. Issue #1864 (this change). Issues #1820 / #1831 (cross-tab merge, separate follow-up).
 
 ## Context
 
@@ -43,9 +43,10 @@ Maps persist natively through localForage/IndexedDB via the structured-clone alg
 Existing data under `"user-styling"` is converted on first startup by `migrateUserStylingIfNeeded` (`core/StateProvider/migrateUserStyling.ts`):
 
 - **Idempotent:** skips migration when both `"vertex-styles"` and `"edge-styles"` are already present in IndexedDB.
-- **Partial-write recovery:** checks for both keys with AND, so a crash between the two `setItem` calls re-runs the migration on the next load rather than permanently losing the missing half.
+- **Partial-write recovery without clobbering:** writes only the key(s) still missing. A crash between the two `setItem` calls re-runs the migration on the next load and fills only the absent half. Because the legacy `"user-styling"` snapshot is never updated after migration, re-deriving an already-present key from it would discard edits the user made after the first migration — so a surviving key is left untouched.
 - **Non-destructive:** the old `"user-styling"` key is left in place as a rollback escape hatch. Deleting it is a separate follow-up once confidence in the migration is established.
 - **Duplicate collapse:** if the old array contains duplicate type entries (data integrity issue in old storage), the last entry wins and a console warning is emitted listing the dropped type.
+- **User-visible on failure:** the migration runs at module load (a top-level `await` in `storageAtoms.ts`), before React mounts. A thrown failure is caught — the legacy data is preserved on disk and the migration retries on the next reload — and recorded in a module-level flag that `useReportUserStylingMigrationFailure` surfaces as a non-blocking toast once the UI is up, so missing customizations are explained rather than appearing as silent data loss.
 
 ### Old type
 
