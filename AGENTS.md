@@ -6,6 +6,7 @@
 - Prefer deep modules
 - Prefer descriptive variable and function names over code comments
 - Prefer simple to follow logic over clever concise code
+- Prefer single-pass, copy-free processing for collections that can grow large; small fixed lists don't need it
 - Every commit should have no type errors, lint errors, formatting issues, or failing tests
 - Don't hard-wrap Markdown prose to a fixed column width, let it soft-wrap
 - When possible, create failing tests first then implement the logic to make the tests pass
