@@ -2,7 +2,12 @@ import { createRandomName } from "@shared/utils/testing";
 import { createStore } from "jotai";
 
 import { activeConfigurationAtom, configurationAtom } from "@/core";
-import { createEdgeType, createVertexType } from "@/core/entities";
+import {
+  createEdgeType,
+  createVertexType,
+  type EdgeType,
+  type VertexType,
+} from "@/core/entities";
 import { RESERVED_TYPES_PROPERTY } from "@/utils";
 import {
   createRandomEdgePreferencesStorageModel,
@@ -19,7 +24,10 @@ import type {
   VertexTypeConfig,
 } from "../ConfigurationProvider";
 import type { SchemaStorageModel } from "./schema";
-import type { UserStyling } from "./userPreferences";
+import type {
+  EdgePreferencesStorageModel,
+  VertexPreferencesStorageModel,
+} from "./userPreferences";
 
 import {
   activeConfigSelector,
@@ -33,6 +41,18 @@ import {
   patchToRemoveDisplayLabel,
 } from "./configuration";
 
+function toVertexStyles(
+  styles: VertexPreferencesStorageModel[] = [],
+): Map<VertexType, VertexPreferencesStorageModel> {
+  return new Map(styles.map(style => [style.type, style]));
+}
+
+function toEdgeStyles(
+  styles: EdgePreferencesStorageModel[] = [],
+): Map<EdgeType, EdgePreferencesStorageModel> {
+  return new Map(styles.map(style => [style.type, style]));
+}
+
 /** The default empty connection values when no value is provided. */
 const defaultEmptyConnection: NormalizedConnection = {
   url: "",
@@ -45,7 +65,7 @@ const defaultEmptyConnection: NormalizedConnection = {
 describe("mergedConfiguration", () => {
   it("should produce empty defaults when empty object is passed", () => {
     const config = {} as RawConfiguration;
-    const result = mergeConfiguration(null, config, {});
+    const result = mergeConfiguration(null, config, new Map(), new Map());
 
     expect(result).toEqual({
       connection: defaultEmptyConnection,
@@ -60,7 +80,7 @@ describe("mergedConfiguration", () => {
 
   it("should produce empty schema when no schema provided", () => {
     const config = createRandomRawConfiguration();
-    const result = mergeConfiguration(null, config, {});
+    const result = mergeConfiguration(null, config, new Map(), new Map());
 
     expect(result).toEqual({
       ...config,
@@ -80,7 +100,7 @@ describe("mergedConfiguration", () => {
   it("should use schema when provided", () => {
     const config = createRandomRawConfiguration();
     const schema = createRandomSchema();
-    const result = mergeConfiguration(schema, config, {});
+    const result = mergeConfiguration(schema, config, new Map(), new Map());
 
     const expectedSchema = {
       ...schema,
@@ -121,24 +141,26 @@ describe("mergedConfiguration", () => {
   it("should use styling when provided", () => {
     const config = createRandomRawConfiguration();
     const schema = createRandomSchema();
-    const styling: UserStyling = {
-      vertices: schema.vertices.map(v => ({
+    const vertexStyles = toVertexStyles(
+      schema.vertices.map(v => ({
         ...createRandomVertexPreferencesStorageModel(),
         type: v.type,
       })),
-      edges: schema.edges.map(v => ({
+    );
+    const edgeStyles = toEdgeStyles(
+      schema.edges.map(v => ({
         ...createRandomEdgePreferencesStorageModel(),
         type: v.type,
       })),
-    };
-    const result = mergeConfiguration(schema, config, styling);
+    );
+    const result = mergeConfiguration(schema, config, vertexStyles, edgeStyles);
 
     const expectedSchema = {
       ...schema,
       vertices: schema.vertices
         .map(patchToRemoveDisplayLabel)
         .map(v => {
-          const style = styling.vertices?.find(s => s.type === v.type) ?? {};
+          const style = vertexStyles.get(v.type) ?? {};
           return {
             ...defaultVertexTypeConfig,
             ...v,
@@ -147,7 +169,7 @@ describe("mergedConfiguration", () => {
         })
         .toSorted(byType),
       edges: schema.edges.map(patchToRemoveDisplayLabel).map(e => {
-        const style = styling.edges?.find(s => s.type === e.type) ?? {};
+        const style = edgeStyles.get(e.type) ?? {};
         return {
           ...defaultEdgeTypeConfig,
           ...e,
@@ -177,14 +199,13 @@ describe("mergedConfiguration", () => {
 
   it("should have undefined vertex display label when not provided", () => {
     const config = createRandomRawConfiguration();
-    const styling: UserStyling = {};
     const schema = createRandomSchema();
 
     const vtConfig = createRandomVertexTypeConfig();
     delete vtConfig.displayLabel;
     schema.vertices = [vtConfig];
 
-    const result = mergeConfiguration(schema, config, styling);
+    const result = mergeConfiguration(schema, config, new Map(), new Map());
 
     const actualVtConfig = result.schema?.vertices.find(
       v => v.type === vtConfig.type,
@@ -195,14 +216,13 @@ describe("mergedConfiguration", () => {
 
   it("should have undefined edge display label when not provided", () => {
     const config: RawConfiguration = createRandomRawConfiguration();
-    const styling: UserStyling = {};
     const schema = createRandomSchema();
 
     const etConfig = createRandomEdgeTypeConfig();
     delete etConfig.displayLabel;
     schema.edges = [etConfig];
 
-    const result = mergeConfiguration(schema, config, styling);
+    const result = mergeConfiguration(schema, config, new Map(), new Map());
 
     const actualEtConfig = result.schema?.edges.find(
       e => e.type === etConfig.type,
@@ -218,18 +238,16 @@ describe("mergedConfiguration", () => {
     const customDisplayLabel = createRandomName("Display Label");
 
     const config: RawConfiguration = createRandomRawConfiguration();
-    const styling: UserStyling = {
-      vertices: [
-        {
-          type: vtConfig.type,
-          displayLabel: customDisplayLabel,
-        },
-      ],
-    };
+    const vertexStyles = toVertexStyles([
+      {
+        type: vtConfig.type,
+        displayLabel: customDisplayLabel,
+      },
+    ]);
     const schema = createRandomSchema();
     schema.vertices = [vtConfig];
 
-    const result = mergeConfiguration(schema, config, styling);
+    const result = mergeConfiguration(schema, config, vertexStyles, new Map());
 
     const actualVtConfig = result.schema?.vertices.find(
       v => v.type === vtConfig.type,
@@ -245,18 +263,16 @@ describe("mergedConfiguration", () => {
     const customDisplayLabel = createRandomName("Display Label");
 
     const config: RawConfiguration = createRandomRawConfiguration();
-    const styling: UserStyling = {
-      edges: [
-        {
-          type: etConfig.type,
-          displayLabel: customDisplayLabel,
-        },
-      ],
-    };
+    const edgeStyles = toEdgeStyles([
+      {
+        type: etConfig.type,
+        displayLabel: customDisplayLabel,
+      },
+    ]);
     const schema = createRandomSchema();
     schema.edges = [etConfig];
 
-    const result = mergeConfiguration(schema, config, styling);
+    const result = mergeConfiguration(schema, config, new Map(), edgeStyles);
 
     const actualEtConfig = result.schema?.edges.find(
       e => e.type === etConfig.type,
@@ -269,18 +285,16 @@ describe("mergedConfiguration", () => {
     const etConfig = createRandomEdgeTypeConfig();
 
     const config: RawConfiguration = createRandomRawConfiguration();
-    const styling: UserStyling = {
-      edges: [
-        {
-          type: etConfig.type,
-          displayNameAttribute: "type",
-        },
-      ],
-    };
+    const edgeStyles = toEdgeStyles([
+      {
+        type: etConfig.type,
+        displayNameAttribute: "type",
+      },
+    ]);
     const schema = createRandomSchema();
     schema.edges = [etConfig];
 
-    const result = mergeConfiguration(schema, config, styling);
+    const result = mergeConfiguration(schema, config, new Map(), edgeStyles);
 
     const actualEtConfig = result.schema?.edges.find(
       e => e.type === etConfig.type,
@@ -310,7 +324,12 @@ describe("mergedConfiguration", () => {
     const activeSchema = createRandomSchema();
     activeSchema.vertices = [activeVertex];
 
-    const result = mergeConfiguration(activeSchema, config, {});
+    const result = mergeConfiguration(
+      activeSchema,
+      config,
+      new Map(),
+      new Map(),
+    );
 
     expect(result.schema.vertices.map(v => v.type)).toEqual([
       createVertexType("ActiveType"),

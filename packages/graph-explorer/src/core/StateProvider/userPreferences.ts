@@ -10,7 +10,7 @@ import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import type { EdgeType, VertexType } from "../entities";
 
 import { useActiveSchema } from "./schema";
-import { userStylingAtom } from "./storageAtoms";
+import { edgeStylesAtom, vertexStylesAtom } from "./storageAtoms";
 
 export type ShapeStyle =
   | "rectangle"
@@ -160,30 +160,20 @@ export type UserStyling = {
 
 /** Vertex preferences indexed by type for O(1) lookup with default fallback. */
 export const vertexPreferencesAtom = atom(get => {
-  const userStyling = get(userStylingAtom);
-  const lookup = new Map(
-    userStyling.vertices?.map(v => [
-      v.type,
-      createVertexPreference(v.type, v),
-    ]) ?? [],
-  );
+  const vertexStyles = get(vertexStylesAtom);
   return {
     get(type: VertexType) {
-      return lookup.get(type) ?? createVertexPreference(type);
+      return createVertexPreference(type, vertexStyles.get(type));
     },
   };
 });
 
 /** Edge preferences indexed by type for O(1) lookup with default fallback. */
 export const edgePreferencesAtom = atom(get => {
-  const userStyling = get(userStylingAtom);
-  const lookup = new Map(
-    userStyling.edges?.map(e => [e.type, createEdgePreference(e.type, e)]) ??
-      [],
-  );
+  const edgeStyles = get(edgeStylesAtom);
   return {
     get(type: EdgeType) {
-      return lookup.get(type) ?? createEdgePreference(type);
+      return createEdgePreference(type, edgeStyles.get(type));
     },
   };
 });
@@ -259,34 +249,19 @@ type UpdatedVertexStyle = Partial<Omit<VertexPreferences, "type">>;
  * @returns The vertex style if it exists, an update function, and a reset function
  */
 export function useVertexStyling(type: VertexType) {
-  const setAllStyling = useSetAtom(userStylingAtom);
+  const setVertexStyles = useSetAtom(vertexStylesAtom);
   const vertexStyle = useVertexPreferences(type);
 
   const setVertexStyle = (updatedStyle: UpdatedVertexStyle) =>
-    setAllStyling(prev => {
-      const vertices = prev.vertices ?? [];
-      const existingIndex = vertices.findIndex(v => v.type === type);
-
-      if (existingIndex >= 0) {
-        // Update existing entry
-        const updatedVertices = [...vertices];
-        updatedVertices[existingIndex] = {
-          ...vertices[existingIndex],
-          ...updatedStyle,
-        };
-        return { ...prev, vertices: updatedVertices };
-      } else {
-        // Add new entry
-        return { ...prev, vertices: [...vertices, { type, ...updatedStyle }] };
-      }
-    });
+    setVertexStyles(prev =>
+      new Map(prev).set(type, { ...prev.get(type), ...updatedStyle, type }),
+    );
 
   const resetVertexStyle = () =>
-    setAllStyling(prev => {
-      return {
-        ...prev,
-        vertices: prev.vertices?.filter(v => v.type !== type),
-      };
+    setVertexStyles(prev => {
+      const next = new Map(prev);
+      next.delete(type);
+      return next;
     });
 
   return {
@@ -305,34 +280,19 @@ type UpdatedEdgeStyle = Omit<EdgePreferencesStorageModel, "type">;
  * @returns The edge style if it exists, an update function, and a reset function
  */
 export function useEdgeStyling(type: EdgeType) {
-  const setAllStyling = useSetAtom(userStylingAtom);
+  const setEdgeStyles = useSetAtom(edgeStylesAtom);
   const edgeStyle = useEdgePreferences(type);
 
   const setEdgeStyle = (updatedStyle: UpdatedEdgeStyle) =>
-    setAllStyling(prev => {
-      const edges = prev.edges ?? [];
-      const existingIndex = edges.findIndex(v => v.type === type);
-
-      if (existingIndex >= 0) {
-        // Update existing entry
-        const updatedEdges = [...edges];
-        updatedEdges[existingIndex] = {
-          ...edges[existingIndex],
-          ...updatedStyle,
-        };
-        return { ...prev, edges: updatedEdges };
-      } else {
-        // Add new entry
-        return { ...prev, edges: [...edges, { type, ...updatedStyle }] };
-      }
-    });
+    setEdgeStyles(prev =>
+      new Map(prev).set(type, { ...prev.get(type), ...updatedStyle, type }),
+    );
 
   const resetEdgeStyle = () =>
-    setAllStyling(prev => {
-      return {
-        ...prev,
-        edges: prev.edges?.filter(v => v.type !== type),
-      };
+    setEdgeStyles(prev => {
+      const next = new Map(prev);
+      next.delete(type);
+      return next;
     });
 
   return {

@@ -2,13 +2,22 @@ import type {
   ConfigurationId,
   RawConfiguration,
 } from "../ConfigurationProvider";
+import type { EdgeType, VertexType } from "../entities";
 import type { GraphSessionStorageModel } from "./graphSession/storage";
 import type { SchemaStorageModel } from "./schema";
-import type { UserStyling } from "./userPreferences";
+import type {
+  EdgePreferencesStorageModel,
+  VertexPreferencesStorageModel,
+} from "./userPreferences";
 
 import { createActiveConfigurationAtom } from "./activeConnectionStorage";
 import { atomWithLocalForage } from "./atomWithLocalForage";
+import { migrateUserStylingIfNeeded } from "./migrateUserStyling";
 import { defaultUserLayout } from "./userLayoutDefaults";
+
+// Convert any legacy single-key user styling into the type-keyed map atoms
+// below before they preload. Must run before the `Promise.all`.
+await migrateUserStylingIfNeeded();
 
 /**
  DEV NOTE
@@ -50,7 +59,8 @@ const [
   activeConfigurationAtom,
   configurationAtom,
   schemaAtom,
-  userStylingAtom,
+  vertexStylesAtom,
+  edgeStylesAtom,
   userLayoutAtom,
   allGraphSessionsAtom,
   showDebugActionsAtom,
@@ -66,7 +76,16 @@ const [
   ),
   /** All the stored schemas */
   atomWithLocalForage("schema", new Map<string, SchemaStorageModel>()),
-  atomWithLocalForage<UserStyling>("user-styling", {}),
+  /** User styling for vertex types, keyed by type. */
+  atomWithLocalForage(
+    "vertex-styles",
+    new Map<VertexType, VertexPreferencesStorageModel>(),
+  ),
+  /** User styling for edge types, keyed by type. */
+  atomWithLocalForage(
+    "edge-styles",
+    new Map<EdgeType, EdgePreferencesStorageModel>(),
+  ),
   atomWithLocalForage("user-layout", defaultUserLayout),
   /** Stores the graph session data for each connection. */
   atomWithLocalForage<Map<ConfigurationId, GraphSessionStorageModel>>(
@@ -92,7 +111,8 @@ export {
   activeConfigurationAtom,
   configurationAtom,
   schemaAtom,
-  userStylingAtom,
+  vertexStylesAtom,
+  edgeStylesAtom,
   userLayoutAtom,
   allGraphSessionsAtom,
   showDebugActionsAtom,

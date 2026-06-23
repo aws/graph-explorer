@@ -65,7 +65,7 @@ describe("useDisplayVertexTypeConfig", () => {
     const vtConfig = createRandomVertexTypeConfig();
     vtConfig.displayLabel = createRandomName("displayLabel");
     dbState.activeSchema.vertices.push(vtConfig);
-    dbState.activeStyling.vertices?.push(vtConfig);
+    dbState.vertexStyles.set(vtConfig.type, vtConfig);
 
     const { result } = renderHookWithState(
       () => useDisplayVertexTypeConfig(vtConfig.type),
@@ -367,7 +367,7 @@ describe("useDisplayEdgeTypeConfig", () => {
     const etConfig = createRandomEdgeTypeConfig();
     etConfig.displayLabel = createRandomName("displayLabel");
     dbState.activeSchema.edges.push(etConfig);
-    dbState.activeStyling.edges?.push(etConfig);
+    dbState.edgeStyles.set(etConfig.type, etConfig);
 
     const { result } = renderHookWithState(
       () => useDisplayEdgeTypeConfig(etConfig.type),

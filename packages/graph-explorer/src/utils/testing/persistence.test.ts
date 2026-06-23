@@ -1,13 +1,12 @@
 import { createRandomName } from "@shared/utils/testing";
 
 import type { VertexType } from "@/core/entities/vertex";
-import type {
-  UserStyling,
-  VertexPreferencesStorageModel,
-} from "@/core/StateProvider/userPreferences";
+import type { VertexPreferencesStorageModel } from "@/core/StateProvider/userPreferences";
 
 import { openPersistenceTab, readPersistedValue } from "./persistence";
 import { createRandomVertexType } from "./randomData";
+
+type VertexStyles = Map<VertexType, VertexPreferencesStorageModel>;
 
 describe("persistence test helpers", () => {
   test("a tab reads back the value it persisted", async () => {
@@ -102,13 +101,13 @@ describe("per-test storage isolation", () => {
  * REGRESSION — #1820 cross-tab styling clobber
  *
  * Two tabs share one IndexedDB but each keeps its own in-memory copy of the
- * user styling collection. `atomWithLocalForage` writes the whole collection
- * back on every change, so a tab with a stale in-memory copy silently drops
- * entries another tab added.
+ * vertex styling map. `atomWithLocalForage` writes the whole map back on every
+ * change, so a tab with a stale in-memory copy silently drops entries another
+ * tab added.
  *
  * Scenario from the issue: Tab A styles vertex type X and persists it. Tab B —
  * opened before that write and never having seen X — styles type Y and persists
- * its stale collection, clobbering X.
+ * its stale map, clobbering X.
  *
  * Two assertions encode this:
  *
@@ -133,7 +132,7 @@ describe("cross-tab user styling reconciliation", () => {
   let typeY: VertexType;
 
   beforeAll(async () => {
-    const key = createRandomName("user-styling");
+    const key = createRandomName("vertex-styles");
     typeX = createRandomVertexType();
     typeY = createRandomVertexType();
 
@@ -143,21 +142,19 @@ describe("cross-tab user styling reconciliation", () => {
     });
 
     // Both tabs open against empty styling.
-    const tabA = await openPersistenceTab<UserStyling>(key, {});
-    const tabB = await openPersistenceTab<UserStyling>(key, {});
+    const tabA = await openPersistenceTab<VertexStyles>(key, new Map());
+    const tabB = await openPersistenceTab<VertexStyles>(key, new Map());
 
     // Tab A styles type X and persists.
-    tabA.write({ vertices: [styleForType(typeX)] });
+    tabA.write(new Map([[typeX, styleForType(typeX)]]));
     await tabA.flush();
 
     // Tab B, still holding its stale empty copy, styles type Y and persists.
-    tabB.write(prev => ({
-      vertices: [...(prev.vertices ?? []), styleForType(typeY)],
-    }));
+    tabB.write(prev => new Map(prev).set(typeY, styleForType(typeY)));
 
     await tabB.flush();
-    const persisted = await readPersistedValue<UserStyling>(key);
-    persistedTypes = new Set(persisted?.vertices?.map(vertex => vertex.type));
+    const persisted = await readPersistedValue<VertexStyles>(key);
+    persistedTypes = new Set(persisted?.keys());
   });
 
   test("clobbers type X today — only the stale tab's type Y survives", () => {

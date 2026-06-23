@@ -81,7 +81,7 @@ describe("useDisplayVertexFromVertex", () => {
     const userPrefs = createRandomVertexPreferencesStorageModel();
     userPrefs.type = vertex.type;
     userPrefs.displayLabel = createRandomName("userPrefs");
-    dbState.activeStyling.vertices?.push(userPrefs);
+    dbState.vertexStyles.set(userPrefs.type, userPrefs);
 
     const { result } = renderHookWithState(
       () => useDisplayVertexFromVertex(vertex),

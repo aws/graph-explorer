@@ -8,13 +8,14 @@ import {
   activeConfigurationAtom,
   type AttributeConfig,
   configurationAtom,
+  edgeStylesAtom,
   type EdgeType,
   type EdgeTypeConfig,
   type MergedConfiguration,
   type RawConfiguration,
-  userStylingAtom,
   type VertexType,
   type VertexTypeConfig,
+  vertexStylesAtom,
 } from "@/core";
 import { RESERVED_TYPES_PROPERTY } from "@/utils/constants";
 
@@ -23,7 +24,6 @@ import {
   defaultEdgePreferences,
   defaultVertexPreferences,
   type EdgePreferencesStorageModel,
-  type UserStyling,
   type VertexPreferencesStorageModel,
 } from "./userPreferences";
 
@@ -53,26 +53,31 @@ export const mergedConfigurationSelector = atom(get => {
   }
 
   const currentSchema = get(activeSchemaSelector);
-  const userStyling = get(userStylingAtom);
+  const vertexStyles = get(vertexStylesAtom);
+  const edgeStyles = get(edgeStylesAtom);
 
-  return mergeConfiguration(currentSchema, currentConfig, userStyling);
+  return mergeConfiguration(
+    currentSchema,
+    currentConfig,
+    vertexStyles,
+    edgeStyles,
+  );
 });
 
 export function mergeConfiguration(
   currentSchema: SchemaStorageModel | null | undefined,
   currentConfig: RawConfiguration,
-  userStyling: UserStyling,
+  vertexStyles: ReadonlyMap<VertexType, VertexPreferencesStorageModel>,
+  edgeStyles: ReadonlyMap<EdgeType, EdgePreferencesStorageModel>,
 ): MergedConfiguration {
-  const prefsVertexMap = toMapByType(userStyling.vertices);
   const mergedVertices = (currentSchema?.vertices ?? [])
     .map(schemaVertex =>
-      mergeVertex(schemaVertex, prefsVertexMap.get(schemaVertex.type)),
+      mergeVertex(schemaVertex, vertexStyles.get(schemaVertex.type)),
     )
     .toSorted((a, b) => a.type.localeCompare(b.type));
 
-  const prefsEdgeMap = toMapByType(userStyling.edges);
   const mergedEdges = (currentSchema?.edges ?? []).map(schemaEdge =>
-    mergeEdge(schemaEdge, prefsEdgeMap.get(schemaEdge.type)),
+    mergeEdge(schemaEdge, edgeStyles.get(schemaEdge.type)),
   );
 
   return {
@@ -221,10 +226,4 @@ export function patchToRemoveDisplayLabel<
       return attrRest;
     }),
   } as TypeConfig;
-}
-
-function toMapByType<T extends { type: string }>(
-  items: T[] | undefined | null,
-): Map<string, T> {
-  return new Map(items?.map(item => [item.type, item]));
 }
