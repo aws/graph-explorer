@@ -1,11 +1,7 @@
 import localForage from "localforage";
 
 import type { EdgeType, VertexType } from "../entities";
-import type {
-  EdgePreferencesStorageModel,
-  UserStyling,
-  VertexPreferencesStorageModel,
-} from "./userPreferences";
+import type { LegacyUserStylingStorageModel } from "./userPreferences";
 
 /**
  * Migrates legacy `"user-styling"` data into the type-keyed `"vertex-styles"`
@@ -28,21 +24,34 @@ export async function migrateUserStylingIfNeeded() {
     return;
   }
 
-  const old = await localForage.getItem<UserStyling>("user-styling");
+  const old =
+    await localForage.getItem<LegacyUserStylingStorageModel>("user-styling");
   if (!old) {
     return;
   }
 
   await localForage.setItem(
     "vertex-styles",
-    new Map<VertexType, VertexPreferencesStorageModel>(
-      (old.vertices ?? []).map(vertex => [vertex.type, vertex]),
-    ),
+    toTypeKeyedMap(old.vertices ?? [], "vertex"),
   );
   await localForage.setItem(
     "edge-styles",
-    new Map<EdgeType, EdgePreferencesStorageModel>(
-      (old.edges ?? []).map(edge => [edge.type, edge]),
-    ),
+    toTypeKeyedMap(old.edges ?? [], "edge"),
   );
+}
+
+function toTypeKeyedMap<T extends { type: VertexType | EdgeType }>(
+  items: T[],
+  label: string,
+): Map<T["type"], T> {
+  const map = new Map<T["type"], T>();
+  for (const item of items) {
+    if (map.has(item.type)) {
+      console.warn(
+        `[graph-explorer] Duplicate ${label} type "${item.type}" found in legacy user-styling data; keeping the last entry.`,
+      );
+    }
+    map.set(item.type, item);
+  }
+  return map;
 }

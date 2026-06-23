@@ -4,7 +4,7 @@ import { createEdgeType, createVertexType } from "@/core/entities";
 
 import type {
   EdgePreferencesStorageModel,
-  UserStyling,
+  LegacyUserStylingStorageModel,
   VertexPreferencesStorageModel,
 } from "./userPreferences";
 
@@ -14,7 +14,7 @@ import { migrateUserStylingIfNeeded } from "./migrateUserStyling";
  * BACKWARD COMPATIBILITY — PERSISTED DATA
  *
  * Older versions stored all styling under a single `"user-styling"` key as a
- * `UserStyling` object: `{ vertices: VertexPreferencesStorageModel[], edges:
+ * `LegacyUserStylingStorageModel` object: `{ vertices: VertexPreferencesStorageModel[], edges:
  * EdgePreferencesStorageModel[] }`. Styling is now stored as two type-keyed maps
  * under `"vertex-styles"` and `"edge-styles"`. This migration converts the old
  * shape to the new one on startup.
@@ -35,7 +35,7 @@ describe("migrateUserStylingIfNeeded", () => {
       type: createEdgeType("knows"),
       lineColor: "#00ff00",
     };
-    await localForage.setItem<UserStyling>("user-styling", {
+    await localForage.setItem<LegacyUserStylingStorageModel>("user-styling", {
       vertices: [vertexStyle],
       edges: [edgeStyle],
     });
@@ -51,11 +51,14 @@ describe("migrateUserStylingIfNeeded", () => {
   });
 
   it("leaves the old user-styling key untouched as a rollback escape hatch", async () => {
-    const old: UserStyling = {
+    const old: LegacyUserStylingStorageModel = {
       vertices: [{ type: createVertexType("Person") }],
       edges: [{ type: createEdgeType("knows") }],
     };
-    await localForage.setItem<UserStyling>("user-styling", old);
+    await localForage.setItem<LegacyUserStylingStorageModel>(
+      "user-styling",
+      old,
+    );
 
     await migrateUserStylingIfNeeded();
 
@@ -78,7 +81,7 @@ describe("migrateUserStylingIfNeeded", () => {
     ]);
     await localForage.setItem("vertex-styles", existingVertexStyles);
     await localForage.setItem("edge-styles", existingEdgeStyles);
-    await localForage.setItem<UserStyling>("user-styling", {
+    await localForage.setItem<LegacyUserStylingStorageModel>("user-styling", {
       vertices: [{ type: createVertexType("Person") }],
       edges: [{ type: createEdgeType("knows") }],
     });
@@ -104,7 +107,7 @@ describe("migrateUserStylingIfNeeded", () => {
       lineColor: "#00ff00",
     };
     // Simulate a crash after vertex-styles was written but before edge-styles was written.
-    await localForage.setItem<UserStyling>("user-styling", {
+    await localForage.setItem<LegacyUserStylingStorageModel>("user-styling", {
       vertices: [vertexStyle],
       edges: [edgeStyle],
     });
@@ -135,7 +138,7 @@ describe("migrateUserStylingIfNeeded", () => {
       lineColor: "#00ff00",
     };
     // Simulate a crash after edge-styles was written but before vertex-styles was written.
-    await localForage.setItem<UserStyling>("user-styling", {
+    await localForage.setItem<LegacyUserStylingStorageModel>("user-styling", {
       vertices: [vertexStyle],
       edges: [edgeStyle],
     });
@@ -165,7 +168,7 @@ describe("migrateUserStylingIfNeeded", () => {
       type: createVertexType("Person"),
       color: "#222222",
     };
-    await localForage.setItem<UserStyling>("user-styling", {
+    await localForage.setItem<LegacyUserStylingStorageModel>("user-styling", {
       vertices: [first, second],
     });
 

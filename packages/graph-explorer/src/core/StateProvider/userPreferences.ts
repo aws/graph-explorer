@@ -153,7 +153,13 @@ export const defaultEdgePreferences: Omit<
   targetArrowStyle: "triangle",
 };
 
-export type UserStyling = {
+/**
+ * @deprecated Legacy IndexedDB shape stored under the `"user-styling"` key.
+ * Superseded by `vertexStylesAtom` and `edgeStylesAtom`. Only referenced by
+ * the startup migration in `migrateUserStyling.ts`. Do not use this type in
+ * new code.
+ */
+export type LegacyUserStylingStorageModel = {
   vertices?: Array<VertexPreferencesStorageModel>;
   edges?: Array<EdgePreferencesStorageModel>;
 };
@@ -271,7 +277,7 @@ export function useVertexStyling(type: VertexType) {
   };
 }
 
-type UpdatedEdgeStyle = Omit<EdgePreferencesStorageModel, "type">;
+type UpdatedEdgeStyle = Partial<Omit<EdgePreferences, "type">>;
 
 /**
  * Provides the necessary functions for managing edge styles.
