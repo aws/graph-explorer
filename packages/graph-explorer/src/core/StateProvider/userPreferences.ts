@@ -10,7 +10,7 @@ import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import type { EdgeType, VertexType } from "../entities";
 
 import { useActiveSchema } from "./schema";
-import { edgeStylesAtom, vertexStylesAtom } from "./storageAtoms";
+import { userEdgeStylesAtom, userVertexStylesAtom } from "./storageAtoms";
 
 export type ShapeStyle =
   | "rectangle"
@@ -155,7 +155,7 @@ export const defaultEdgePreferences: Omit<
 
 /**
  * @deprecated Legacy IndexedDB shape stored under the `"user-styling"` key.
- * Superseded by `vertexStylesAtom` and `edgeStylesAtom`. Only referenced by
+ * Superseded by `userVertexStylesAtom` and `userEdgeStylesAtom`. Only referenced by
  * the startup migration in `migrateUserStyling.ts`. Do not use this type in
  * new code.
  */
@@ -166,7 +166,7 @@ export type LegacyUserStylingStorageModel = {
 
 /** Vertex preferences indexed by type for O(1) lookup with default fallback. */
 export const vertexPreferencesAtom = atom(get => {
-  const vertexStyles = get(vertexStylesAtom);
+  const vertexStyles = get(userVertexStylesAtom);
   return {
     get(type: VertexType) {
       return createVertexPreference(type, vertexStyles.get(type));
@@ -176,7 +176,7 @@ export const vertexPreferencesAtom = atom(get => {
 
 /** Edge preferences indexed by type for O(1) lookup with default fallback. */
 export const edgePreferencesAtom = atom(get => {
-  const edgeStyles = get(edgeStylesAtom);
+  const edgeStyles = get(userEdgeStylesAtom);
   return {
     get(type: EdgeType) {
       return createEdgePreference(type, edgeStyles.get(type));
@@ -255,7 +255,7 @@ type UpdatedVertexStyle = Partial<Omit<VertexPreferences, "type">>;
  * @returns The vertex style if it exists, an update function, and a reset function
  */
 export function useVertexStyling(type: VertexType) {
-  const setVertexStyles = useSetAtom(vertexStylesAtom);
+  const setVertexStyles = useSetAtom(userVertexStylesAtom);
   const vertexStyle = useVertexPreferences(type);
 
   const setVertexStyle = (updatedStyle: UpdatedVertexStyle) =>
@@ -286,7 +286,7 @@ type UpdatedEdgeStyle = Partial<Omit<EdgePreferences, "type">>;
  * @returns The edge style if it exists, an update function, and a reset function
  */
 export function useEdgeStyling(type: EdgeType) {
-  const setEdgeStyles = useSetAtom(edgeStylesAtom);
+  const setEdgeStyles = useSetAtom(userEdgeStylesAtom);
   const edgeStyle = useEdgePreferences(type);
 
   const setEdgeStyle = (updatedStyle: UpdatedEdgeStyle) =>

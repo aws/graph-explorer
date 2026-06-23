@@ -10,7 +10,7 @@ import {
   type EdgePreferencesStorageModel,
   edgesAtom,
   edgesFilteredIdsAtom,
-  edgeStylesAtom,
+  userEdgeStylesAtom,
   edgesTypesFilteredAtom,
   type EdgeType,
   explorerForTestingAtom,
@@ -27,7 +27,7 @@ import {
   type Vertex,
   type VertexId,
   type VertexPreferencesStorageModel,
-  vertexStylesAtom,
+  userVertexStylesAtom,
   type VertexType,
 } from "@/core";
 
@@ -200,8 +200,8 @@ export class DbState {
     store.set(activeConfigurationAtom, this.activeConfig.id);
 
     // Styling
-    store.set(vertexStylesAtom, this.vertexStyles);
-    store.set(edgeStylesAtom, this.edgeStyles);
+    store.set(userVertexStylesAtom, this.vertexStyles);
+    store.set(userEdgeStylesAtom, this.edgeStyles);
 
     // Vertices
     store.set(nodesAtom, toNodeMap(this.vertices));

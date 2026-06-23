@@ -72,8 +72,8 @@ const [
   activeConfigurationAtom,
   configurationAtom,
   schemaAtom,
-  vertexStylesAtom,
-  edgeStylesAtom,
+  userVertexStylesAtom,
+  userEdgeStylesAtom,
   userLayoutAtom,
   allGraphSessionsAtom,
   showDebugActionsAtom,
@@ -89,14 +89,18 @@ const [
   ),
   /** All the stored schemas */
   atomWithLocalForage("schema", new Map<string, SchemaStorageModel>()),
-  /** User styling for vertex types, keyed by type. */
+  /**
+   * User-defined vertex style overrides, keyed by type. The `user-` prefix
+   * marks the user-defined layer of the planned `<layer>-<entity>-styles` set
+   * (imported, server, base layers land in later work).
+   */
   atomWithLocalForage(
-    "vertex-styles",
+    "user-vertex-styles",
     new Map<VertexType, VertexPreferencesStorageModel>(),
   ),
-  /** User styling for edge types, keyed by type. */
+  /** User-defined edge style overrides, keyed by type. See above. */
   atomWithLocalForage(
-    "edge-styles",
+    "user-edge-styles",
     new Map<EdgeType, EdgePreferencesStorageModel>(),
   ),
   atomWithLocalForage("user-layout", defaultUserLayout),
@@ -124,8 +128,8 @@ export {
   activeConfigurationAtom,
   configurationAtom,
   schemaAtom,
-  vertexStylesAtom,
-  edgeStylesAtom,
+  userVertexStylesAtom,
+  userEdgeStylesAtom,
   userLayoutAtom,
   allGraphSessionsAtom,
   showDebugActionsAtom,

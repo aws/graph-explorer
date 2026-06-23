@@ -16,8 +16,9 @@ import { migrateUserStylingIfNeeded } from "./migrateUserStyling";
  * Older versions stored all styling under a single `"user-styling"` key as a
  * `LegacyUserStylingStorageModel` object: `{ vertices: VertexPreferencesStorageModel[], edges:
  * EdgePreferencesStorageModel[] }`. Styling is now stored as two type-keyed maps
- * under `"vertex-styles"` and `"edge-styles"`. This migration converts the old
- * shape to the new one on startup.
+ * under `"user-vertex-styles"` and `"user-edge-styles"` — the user-defined layer of the
+ * planned `<layer>-<entity>-styles` set. This migration converts the old shape
+ * to the new one on startup.
  *
  * The old `"user-styling"` key is intentionally left untouched as a rollback
  * escape hatch; deleting it is a separate follow-up.
@@ -42,10 +43,10 @@ describe("migrateUserStylingIfNeeded", () => {
 
     await migrateUserStylingIfNeeded();
 
-    expect(await localForage.getItem("vertex-styles")).toStrictEqual(
+    expect(await localForage.getItem("user-vertex-styles")).toStrictEqual(
       new Map([[vertexStyle.type, vertexStyle]]),
     );
-    expect(await localForage.getItem("edge-styles")).toStrictEqual(
+    expect(await localForage.getItem("user-edge-styles")).toStrictEqual(
       new Map([[edgeStyle.type, edgeStyle]]),
     );
   });
@@ -68,8 +69,8 @@ describe("migrateUserStylingIfNeeded", () => {
   it("does nothing for a fresh user with no stored styling", async () => {
     await migrateUserStylingIfNeeded();
 
-    expect(await localForage.getItem("vertex-styles")).toBeNull();
-    expect(await localForage.getItem("edge-styles")).toBeNull();
+    expect(await localForage.getItem("user-vertex-styles")).toBeNull();
+    expect(await localForage.getItem("user-edge-styles")).toBeNull();
   });
 
   it("is a no-op when both new keys already exist", async () => {
@@ -79,8 +80,8 @@ describe("migrateUserStylingIfNeeded", () => {
     const existingEdgeStyles = new Map([
       [createEdgeType("has"), { type: createEdgeType("has") }],
     ]);
-    await localForage.setItem("vertex-styles", existingVertexStyles);
-    await localForage.setItem("edge-styles", existingEdgeStyles);
+    await localForage.setItem("user-vertex-styles", existingVertexStyles);
+    await localForage.setItem("user-edge-styles", existingEdgeStyles);
     await localForage.setItem<LegacyUserStylingStorageModel>("user-styling", {
       vertices: [{ type: createVertexType("Person") }],
       edges: [{ type: createEdgeType("knows") }],
@@ -89,10 +90,10 @@ describe("migrateUserStylingIfNeeded", () => {
     await migrateUserStylingIfNeeded();
 
     // Both pre-existing migrated maps are preserved, not overwritten from the old key.
-    expect(await localForage.getItem("vertex-styles")).toStrictEqual(
+    expect(await localForage.getItem("user-vertex-styles")).toStrictEqual(
       existingVertexStyles,
     );
-    expect(await localForage.getItem("edge-styles")).toStrictEqual(
+    expect(await localForage.getItem("user-edge-styles")).toStrictEqual(
       existingEdgeStyles,
     );
   });
@@ -112,18 +113,18 @@ describe("migrateUserStylingIfNeeded", () => {
       edges: [edgeStyle],
     });
     await localForage.setItem(
-      "vertex-styles",
+      "user-vertex-styles",
       new Map([[vertexStyle.type, vertexStyle]]),
     );
 
     await migrateUserStylingIfNeeded();
 
     // edge-styles is recovered from user-styling.
-    expect(await localForage.getItem("edge-styles")).toStrictEqual(
+    expect(await localForage.getItem("user-edge-styles")).toStrictEqual(
       new Map([[edgeStyle.type, edgeStyle]]),
     );
     // vertex-styles is preserved, not overwritten from the legacy key.
-    expect(await localForage.getItem("vertex-styles")).toStrictEqual(
+    expect(await localForage.getItem("user-vertex-styles")).toStrictEqual(
       new Map([[vertexStyle.type, vertexStyle]]),
     );
   });
@@ -143,18 +144,18 @@ describe("migrateUserStylingIfNeeded", () => {
       edges: [edgeStyle],
     });
     await localForage.setItem(
-      "edge-styles",
+      "user-edge-styles",
       new Map([[edgeStyle.type, edgeStyle]]),
     );
 
     await migrateUserStylingIfNeeded();
 
     // vertex-styles is recovered from user-styling.
-    expect(await localForage.getItem("vertex-styles")).toStrictEqual(
+    expect(await localForage.getItem("user-vertex-styles")).toStrictEqual(
       new Map([[vertexStyle.type, vertexStyle]]),
     );
     // edge-styles is preserved, not overwritten from the legacy key.
-    expect(await localForage.getItem("edge-styles")).toStrictEqual(
+    expect(await localForage.getItem("user-edge-styles")).toStrictEqual(
       new Map([[edgeStyle.type, edgeStyle]]),
     );
   });
@@ -180,16 +181,16 @@ describe("migrateUserStylingIfNeeded", () => {
     const editedVertexStyles = new Map([
       [legacyVertexStyle.type, { ...legacyVertexStyle, color: "#0000ff" }],
     ]);
-    await localForage.setItem("vertex-styles", editedVertexStyles);
+    await localForage.setItem("user-vertex-styles", editedVertexStyles);
 
     await migrateUserStylingIfNeeded();
 
     // The edited vertex-styles must survive, not revert to the legacy color.
-    expect(await localForage.getItem("vertex-styles")).toStrictEqual(
+    expect(await localForage.getItem("user-vertex-styles")).toStrictEqual(
       editedVertexStyles,
     );
     // edge-styles is recovered from the legacy key.
-    expect(await localForage.getItem("edge-styles")).toStrictEqual(
+    expect(await localForage.getItem("user-edge-styles")).toStrictEqual(
       new Map([[edgeStyle.type, edgeStyle]]),
     );
   });
@@ -209,7 +210,7 @@ describe("migrateUserStylingIfNeeded", () => {
 
     await migrateUserStylingIfNeeded();
 
-    expect(await localForage.getItem("vertex-styles")).toStrictEqual(
+    expect(await localForage.getItem("user-vertex-styles")).toStrictEqual(
       new Map([[first.type, second]]),
     );
   });

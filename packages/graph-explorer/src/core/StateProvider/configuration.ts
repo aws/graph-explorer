@@ -8,14 +8,14 @@ import {
   activeConfigurationAtom,
   type AttributeConfig,
   configurationAtom,
-  edgeStylesAtom,
+  userEdgeStylesAtom,
   type EdgeType,
   type EdgeTypeConfig,
   type MergedConfiguration,
   type RawConfiguration,
   type VertexType,
   type VertexTypeConfig,
-  vertexStylesAtom,
+  userVertexStylesAtom,
 } from "@/core";
 import { RESERVED_TYPES_PROPERTY } from "@/utils/constants";
 
@@ -53,8 +53,8 @@ export const mergedConfigurationSelector = atom(get => {
   }
 
   const currentSchema = get(activeSchemaSelector);
-  const vertexStyles = get(vertexStylesAtom);
-  const edgeStyles = get(edgeStylesAtom);
+  const vertexStyles = get(userVertexStylesAtom);
+  const edgeStyles = get(userEdgeStylesAtom);
 
   return mergeConfiguration(
     currentSchema,

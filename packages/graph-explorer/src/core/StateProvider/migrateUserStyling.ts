@@ -4,8 +4,8 @@ import type { EdgeType, VertexType } from "../entities";
 import type { LegacyUserStylingStorageModel } from "./userPreferences";
 
 /**
- * Migrates legacy `"user-styling"` data into the type-keyed `"vertex-styles"`
- * and `"edge-styles"` maps.
+ * Migrates legacy `"user-styling"` data into the type-keyed `"user-vertex-styles"`
+ * and `"user-edge-styles"` maps.
  *
  * Runs once at startup, before the styling atoms are created. It is idempotent
  * and only writes the new keys that are still missing, so a partial write (the
@@ -20,8 +20,8 @@ import type { LegacyUserStylingStorageModel } from "./userPreferences";
  */
 export async function migrateUserStylingIfNeeded() {
   const [existingVertexStyles, existingEdgeStyles] = await Promise.all([
-    localForage.getItem("vertex-styles"),
-    localForage.getItem("edge-styles"),
+    localForage.getItem("user-vertex-styles"),
+    localForage.getItem("user-edge-styles"),
   ]);
 
   const vertexStylesMissing = existingVertexStyles === null;
@@ -41,13 +41,13 @@ export async function migrateUserStylingIfNeeded() {
   // overwrite.
   if (vertexStylesMissing) {
     await localForage.setItem(
-      "vertex-styles",
+      "user-vertex-styles",
       toTypeKeyedMap(old.vertices ?? [], "vertex"),
     );
   }
   if (edgeStylesMissing) {
     await localForage.setItem(
-      "edge-styles",
+      "user-edge-styles",
       toTypeKeyedMap(old.edges ?? [], "edge"),
     );
   }

@@ -8,11 +8,11 @@ import {
   defaultNeighborExpansionLimitAtom,
   defaultNeighborExpansionLimitEnabledAtom,
   diagnosticLoggingAtom,
-  edgeStylesAtom,
+  userEdgeStylesAtom,
   schemaAtom,
   showDebugActionsAtom,
   userLayoutAtom,
-  vertexStylesAtom,
+  userVertexStylesAtom,
 } from "./storageAtoms";
 import { defaultUserLayout } from "./userLayoutDefaults";
 
@@ -27,8 +27,8 @@ describe("storageAtoms", () => {
     expect(activeConfigurationAtom).toBeDefined();
     expect(configurationAtom).toBeDefined();
     expect(schemaAtom).toBeDefined();
-    expect(vertexStylesAtom).toBeDefined();
-    expect(edgeStylesAtom).toBeDefined();
+    expect(userVertexStylesAtom).toBeDefined();
+    expect(userEdgeStylesAtom).toBeDefined();
     expect(userLayoutAtom).toBeDefined();
     expect(allGraphSessionsAtom).toBeDefined();
     expect(showDebugActionsAtom).toBeDefined();
@@ -44,8 +44,8 @@ describe("storageAtoms", () => {
     expect(store.get(activeConfigurationAtom)).toBeNull();
     expect(store.get(configurationAtom)).toStrictEqual(new Map());
     expect(store.get(schemaAtom)).toStrictEqual(new Map());
-    expect(store.get(vertexStylesAtom)).toStrictEqual(new Map());
-    expect(store.get(edgeStylesAtom)).toStrictEqual(new Map());
+    expect(store.get(userVertexStylesAtom)).toStrictEqual(new Map());
+    expect(store.get(userEdgeStylesAtom)).toStrictEqual(new Map());
     expect(store.get(userLayoutAtom)).toStrictEqual(defaultUserLayout);
     expect(store.get(allGraphSessionsAtom)).toStrictEqual(new Map());
     expect(store.get(showDebugActionsAtom)).toBe(false);

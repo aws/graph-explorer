@@ -30,11 +30,13 @@ The three other major persisted collections — `configurationAtom`, `schemaAtom
 User Preferences are stored as two separate type-keyed Maps:
 
 ```ts
-vertexStylesAtom: Map<VertexType, VertexPreferencesStorageModel>; // key: "vertex-styles"
-edgeStylesAtom: Map<EdgeType, EdgePreferencesStorageModel>; // key: "edge-styles"
+userVertexStylesAtom: Map<VertexType, VertexPreferencesStorageModel>; // key: "user-vertex-styles"
+userEdgeStylesAtom: Map<EdgeType, EdgePreferencesStorageModel>; // key: "user-edge-styles"
 ```
 
 Splitting vertex styles from edge styles (rather than a single `Map<string, ...>`) keeps the types precise and avoids a heterogeneous map that mixes `VertexPreferencesStorageModel` and `EdgePreferencesStorageModel` values under untyped string keys.
+
+The keys follow a `<layer>-<entity>-styles` convention. Only the user-defined layer (`user-`) exists today; planned later work adds imported (UI file import), server (fetched from server config), and base (hard-coded codebase defaults) layers, which merge by precedence to produce the final rendering. Naming the user layer `user-vertex-styles` now — rather than a bare `vertex-styles` — means those sibling keys slot in without renaming or re-migrating this one.
 
 Maps persist natively through localForage/IndexedDB via the structured-clone algorithm — no serialization work is needed.
 
@@ -42,7 +44,7 @@ Maps persist natively through localForage/IndexedDB via the structured-clone alg
 
 Existing data under `"user-styling"` is converted on first startup by `migrateUserStylingIfNeeded` (`core/StateProvider/migrateUserStyling.ts`):
 
-- **Idempotent:** skips migration when both `"vertex-styles"` and `"edge-styles"` are already present in IndexedDB.
+- **Idempotent:** skips migration when both `"user-vertex-styles"` and `"user-edge-styles"` are already present in IndexedDB.
 - **Partial-write recovery without clobbering:** writes only the key(s) still missing. A crash between the two `setItem` calls re-runs the migration on the next load and fills only the absent half. Because the legacy `"user-styling"` snapshot is never updated after migration, re-deriving an already-present key from it would discard edits the user made after the first migration — so a surviving key is left untouched.
 - **Non-destructive:** the old `"user-styling"` key is left in place as a rollback escape hatch. Deleting it is a separate follow-up once confidence in the migration is established.
 - **Duplicate collapse:** if the old array contains duplicate type entries (data integrity issue in old storage), the last entry wins and a console warning is emitted listing the dropped type.

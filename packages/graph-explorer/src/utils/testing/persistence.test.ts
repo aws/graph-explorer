@@ -132,7 +132,7 @@ describe("cross-tab user styling reconciliation", () => {
   let typeY: VertexType;
 
   beforeAll(async () => {
-    const key = createRandomName("vertex-styles");
+    const key = createRandomName("user-vertex-styles");
     typeX = createRandomVertexType();
     typeY = createRandomVertexType();
 
