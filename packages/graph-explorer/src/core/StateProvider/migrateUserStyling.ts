@@ -1,7 +1,43 @@
 import localForage from "localforage";
 
+import { createErrorDetails } from "@/utils/createErrorDetails";
+
 import type { EdgeType, VertexType } from "../entities";
 import type { LegacyUserStylingStorageModel } from "./userPreferences";
+
+import { persistenceStatusStore } from "./persistence";
+import { classifyStorageError } from "./persistence/classifyStorageError";
+
+/**
+ * The synthetic persistence-status key a migration failure is reported under.
+ * Intentionally distinct from any `atomWithLocalForage` storage key so it never
+ * receives a successful write that would auto-clear it — the failure stays
+ * outstanding until the next reload re-runs the migration.
+ */
+const MIGRATION_STATUS_KEY = "user-styling-migration";
+
+/**
+ * Runs the user-styling migration at startup, reporting any failure through the
+ * shared persistence-status store rather than crashing the caller.
+ *
+ * A migration failure is a storage failure, so it flows through the same
+ * channel as every other IndexedDB write failure: the "Changes not saved"
+ * indicator lights up and its dialog shows this error alongside the rest. The
+ * legacy `"user-styling"` key is never deleted, so the data is preserved on
+ * disk and the migration retries on the next reload.
+ */
+export async function runUserStylingMigration() {
+  try {
+    await migrateUserStylingIfNeeded();
+  } catch (err) {
+    persistenceStatusStore.markFailed(
+      MIGRATION_STATUS_KEY,
+      classifyStorageError(err),
+      1,
+      createErrorDetails(err),
+    );
+  }
+}
 
 /**
  * Migrates legacy `"user-styling"` data into the type-keyed `"user-vertex-styles"`

@@ -1,4 +1,5 @@
 import localForage from "localforage";
+import { afterEach, vi } from "vitest";
 
 import { createEdgeType, createVertexType } from "@/core/entities";
 
@@ -8,7 +9,11 @@ import type {
   VertexPreferencesStorageModel,
 } from "./userPreferences";
 
-import { migrateUserStylingIfNeeded } from "./migrateUserStyling";
+import {
+  migrateUserStylingIfNeeded,
+  runUserStylingMigration,
+} from "./migrateUserStyling";
+import { persistenceStatusStore } from "./persistence";
 
 /**
  * BACKWARD COMPATIBILITY — PERSISTED DATA
@@ -213,5 +218,54 @@ describe("migrateUserStylingIfNeeded", () => {
     expect(await localForage.getItem("user-vertex-styles")).toStrictEqual(
       new Map([[first.type, second]]),
     );
+  });
+});
+
+/**
+ * `runUserStylingMigration` wraps the migration so it never throws into its
+ * caller (the top-level `await` in `storageAtoms.ts`). A failure is reported
+ * through the shared persistence-status store — the same channel as every other
+ * IndexedDB write failure — so the "Changes not saved" indicator surfaces it.
+ */
+describe("runUserStylingMigration", () => {
+  afterEach(() => {
+    persistenceStatusStore.reset();
+    vi.restoreAllMocks();
+  });
+
+  it("reports a migration failure to the persistence-status store", async () => {
+    const error = new DOMException("Migration boom", "InvalidStateError");
+    vi.spyOn(localForage, "getItem").mockRejectedValue(error);
+
+    await expect(runUserStylingMigration()).resolves.toBeUndefined();
+
+    const snapshot = persistenceStatusStore.getSnapshot();
+    expect(snapshot.status).toBe("failed");
+    expect(snapshot.failures).toHaveLength(1);
+    expect(snapshot.failures[0]).toMatchObject({
+      key: "user-styling-migration",
+      // InvalidStateError is not a known terminal error, so it classifies as retryable.
+      reason: "retryable",
+      attemptCount: 1,
+      details: { name: "InvalidStateError", message: "Migration boom" },
+    });
+  });
+
+  it("classifies a quota failure as terminal", async () => {
+    vi.spyOn(localForage, "getItem").mockRejectedValue(
+      new DOMException("Out of space", "QuotaExceededError"),
+    );
+
+    await runUserStylingMigration();
+
+    expect(persistenceStatusStore.getSnapshot().failures[0]?.reason).toBe(
+      "terminal-quota",
+    );
+  });
+
+  it("leaves the store idle when the migration succeeds", async () => {
+    await runUserStylingMigration();
+
+    expect(persistenceStatusStore.getSnapshot().status).toBe("idle");
   });
 });
