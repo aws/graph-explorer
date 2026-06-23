@@ -77,7 +77,13 @@ describe("createWriteQueue", () => {
     expect(delay).not.toHaveBeenCalled();
     expect(store.getSnapshot().status).toBe("failed");
     expect(store.getSnapshot().failures).toMatchObject([
-      { key: "graph-sessions", reason: "terminal-quota", attemptCount: 1 },
+      {
+        key: "graph-sessions",
+        reason: "terminal-quota",
+        attemptCount: 1,
+        // The thrown error's name and message are captured on the record.
+        details: { name: "QuotaExceededError", message: "full" },
+      },
     ]);
   });
 
@@ -112,5 +118,46 @@ describe("createWriteQueue", () => {
     expect(store.getSnapshot().failures).toMatchObject([
       { key: "schema", reason: "terminal-quota" },
     ]);
+  });
+
+  test("captures the underlying error's cause chain on the failure record", async () => {
+    const store = createPersistenceStatusStore();
+    const queue = createWriteQueue({ store, delay: noDelay });
+    const error = new Error("could not open database", {
+      cause: new Error("disk write failed"),
+    });
+    const flush = vi.fn().mockRejectedValue(error);
+
+    queue.enqueue("configuration", flush);
+    await store.waitForIdle();
+
+    const [failure] = store.getSnapshot().failures;
+    expect(failure.details).toMatchObject({
+      name: "Error",
+      message: "could not open database",
+    });
+    // createErrorDetails serializes the cause into the `data` field.
+    expect(failure.details.data).toContain("disk write failed");
+  });
+
+  test("records each failed key's own error details", async () => {
+    const store = createPersistenceStatusStore();
+    const queue = createWriteQueue({ store, delay: noDelay });
+
+    queue.enqueue("configuration", () =>
+      Promise.reject(new DOMException("full", "QuotaExceededError")),
+    );
+    queue.enqueue("schema", () =>
+      Promise.reject(new DOMException("blocked", "SecurityError")),
+    );
+    await store.waitForIdle();
+
+    const detailsByKey = Object.fromEntries(
+      store.getSnapshot().failures.map(f => [f.key, f.details.name]),
+    );
+    expect(detailsByKey).toStrictEqual({
+      configuration: "QuotaExceededError",
+      schema: "SecurityError",
+    });
   });
 });
