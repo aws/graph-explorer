@@ -37,7 +37,8 @@ import {
   createRandomRawConfiguration,
   createRandomSchema,
   createRandomVertex,
-  createRandomVertexAndEdgeStyles,
+  createRandomEdgeStyles,
+  createRandomVertexStyles,
   type TestableEdge,
   type TestableVertex,
 } from "./randomData";
@@ -66,9 +67,8 @@ export class DbState {
 
     this.activeConfig = createRandomRawConfiguration();
 
-    const { vertexStyles, edgeStyles } = createRandomVertexAndEdgeStyles();
-    this.vertexStyles = vertexStyles;
-    this.edgeStyles = edgeStyles;
+    this.vertexStyles = createRandomVertexStyles();
+    this.edgeStyles = createRandomEdgeStyles();
 
     this.explorer = explorer;
   }

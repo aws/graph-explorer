@@ -693,24 +693,28 @@ export function createRandomEdgePreferencesStorageModel(): EdgePreferencesStorag
   };
 }
 
-export function createRandomVertexAndEdgeStyles(): {
-  vertexStyles: Map<VertexType, VertexPreferencesStorageModel>;
-  edgeStyles: Map<EdgeType, EdgePreferencesStorageModel>;
-} {
-  return {
-    vertexStyles: new Map(
-      createArray(3, createRandomVertexPreferencesStorageModel).map(style => [
-        style.type,
-        style,
-      ]),
-    ),
-    edgeStyles: new Map(
-      createArray(3, createRandomEdgePreferencesStorageModel).map(style => [
-        style.type,
-        style,
-      ]),
-    ),
-  };
+export function createRandomVertexStyles(): Map<
+  VertexType,
+  VertexPreferencesStorageModel
+> {
+  return new Map(
+    createArray(3, createRandomVertexPreferencesStorageModel).map(style => [
+      style.type,
+      style,
+    ]),
+  );
+}
+
+export function createRandomEdgeStyles(): Map<
+  EdgeType,
+  EdgePreferencesStorageModel
+> {
+  return new Map(
+    createArray(3, createRandomEdgePreferencesStorageModel).map(style => [
+      style.type,
+      style,
+    ]),
+  );
 }
 
 export function createRandomVertexPreferences(): Writable<VertexPreferences> {
