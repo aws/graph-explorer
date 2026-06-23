@@ -1,5 +1,6 @@
 import localForage from "localforage";
 
+import { logger } from "@/utils";
 import { createErrorDetails } from "@/utils/createErrorDetails";
 
 import type { EdgeType, VertexType } from "../entities";
@@ -76,12 +77,18 @@ export async function migrateUserStylingIfNeeded() {
   // edits made after a prior migration, which the stale legacy snapshot would
   // overwrite.
   if (vertexStylesMissing) {
+    logger.debug(
+      `[user-styling-migration] migrating "user-styling" into "user-vertex-styles"`,
+    );
     await localForage.setItem(
       "user-vertex-styles",
       toTypeKeyedMap(old.vertices ?? [], "vertex"),
     );
   }
   if (edgeStylesMissing) {
+    logger.debug(
+      `[user-styling-migration] migrating "user-styling" into "user-edge-styles"`,
+    );
     await localForage.setItem(
       "user-edge-styles",
       toTypeKeyedMap(old.edges ?? [], "edge"),

@@ -2,6 +2,7 @@ import localForage from "localforage";
 import { afterEach, vi } from "vitest";
 
 import { createEdgeType, createVertexType } from "@/core/entities";
+import { logger } from "@/utils";
 
 import type {
   EdgePreferencesStorageModel,
@@ -217,6 +218,49 @@ describe("migrateUserStylingIfNeeded", () => {
 
     expect(await localForage.getItem("user-vertex-styles")).toStrictEqual(
       new Map([[first.type, second]]),
+    );
+  });
+
+  it("logs each storage key it migrates", async () => {
+    await localForage.setItem<LegacyUserStylingStorageModel>("user-styling", {
+      vertices: [{ type: createVertexType("Person") }],
+      edges: [{ type: createEdgeType("knows") }],
+    });
+
+    await migrateUserStylingIfNeeded();
+
+    expect(logger.debug).toHaveBeenCalledWith(
+      expect.stringContaining(`"user-vertex-styles"`),
+    );
+    expect(logger.debug).toHaveBeenCalledWith(
+      expect.stringContaining(`"user-edge-styles"`),
+    );
+  });
+
+  it("only logs the key it actually migrates during partial-write recovery", async () => {
+    const edgeStyle: EdgePreferencesStorageModel = {
+      type: createEdgeType("knows"),
+      lineColor: "#00ff00",
+    };
+    await localForage.setItem<LegacyUserStylingStorageModel>("user-styling", {
+      vertices: [{ type: createVertexType("Person") }],
+      edges: [edgeStyle],
+    });
+    // vertex-styles already migrated; only edge-styles is missing.
+    await localForage.setItem(
+      "user-vertex-styles",
+      new Map([
+        [createVertexType("Person"), { type: createVertexType("Person") }],
+      ]),
+    );
+
+    await migrateUserStylingIfNeeded();
+
+    expect(logger.debug).toHaveBeenCalledWith(
+      expect.stringContaining(`"user-edge-styles"`),
+    );
+    expect(logger.debug).not.toHaveBeenCalledWith(
+      expect.stringContaining(`"user-vertex-styles"`),
     );
   });
 });
