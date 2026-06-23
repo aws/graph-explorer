@@ -1,12 +1,32 @@
 import { createRandomName } from "@shared/utils/testing";
 
-import type { VertexType } from "@/core/entities/vertex";
-import type { VertexPreferencesStorageModel } from "@/core/StateProvider/userPreferences";
+import type {
+  ConfigurationId,
+  RawConfiguration,
+} from "@/core/ConfigurationProvider";
+import type { EdgeType, VertexType } from "@/core/entities";
+import type { GraphSessionStorageModel } from "@/core/StateProvider/graphSession/storage";
+import type { SchemaStorageModel } from "@/core/StateProvider/schema";
+import type {
+  EdgePreferencesStorageModel,
+  VertexPreferencesStorageModel,
+} from "@/core/StateProvider/userPreferences";
+
+import { reconcileMapByKey } from "@/core/StateProvider/atomWithLocalForage";
 
 import { openPersistenceTab, readPersistedValue } from "./persistence";
-import { createRandomVertexType } from "./randomData";
+import {
+  createRandomConfigurationId,
+  createRandomEdgeId,
+  createRandomEdgeType,
+  createRandomRawConfiguration,
+  createRandomSchema,
+  createRandomVertexId,
+  createRandomVertexType,
+} from "./randomData";
 
 type VertexStyles = Map<VertexType, VertexPreferencesStorageModel>;
+type EdgeStyles = Map<EdgeType, EdgePreferencesStorageModel>;
 
 describe("persistence test helpers", () => {
   test("a tab reads back the value it persisted", async () => {
@@ -98,70 +118,356 @@ describe("per-test storage isolation", () => {
 });
 
 /**
- * REGRESSION — #1820 cross-tab styling clobber
+ * REGRESSION — #1820 cross-tab styling clobber, fixed by #1831
  *
  * Two tabs share one IndexedDB but each keeps its own in-memory copy of the
- * vertex styling map. `atomWithLocalForage` writes the whole map back on every
- * change, so a tab with a stale in-memory copy silently drops entries another
- * tab added.
+ * vertex styling map. Without reconciliation, the whole map is written back on
+ * every change, so a tab with a stale in-memory copy silently drops entries
+ * another tab added.
  *
  * Scenario from the issue: Tab A styles vertex type X and persists it. Tab B —
  * opened before that write and never having seen X — styles type Y and persists
- * its stale map, clobbering X.
- *
- * Two assertions encode this:
- *
- * 1. A normal, currently-passing test that pins the CLOBBER as it behaves today
- *    — type X is dropped, only type Y survives. This is the deterministic guard:
- *    if the scenario ever stops reproducing (setup breaks, the bug changes
- *    shape), this test fails loudly instead of silently passing.
- * 2. A `test.fails` describing the DESIRED behaviour — both types survive. It
- *    turns green when reconciliation (#1831) lands, signalling that the fix
- *    works and this whole block should be collapsed into a single passing test.
- *
- * The fixture runs in `beforeAll`, OUTSIDE both tests. `test.fails` passes on
- * any throw, so building the fixture inside it would let a setup failure keep
- * the test green for the wrong reason. Keeping setup out means only the final
- * assertion can satisfy (or break) the expectation.
- *
- * TODO #1820 / #1831: collapse into one passing test once reconciliation lands.
+ * its stale map. With the per-key map merge wired into the styling atoms, both
+ * types survive instead of X being clobbered.
  */
 describe("cross-tab user styling reconciliation", () => {
-  let persistedTypes: Set<string>;
-  let typeX: VertexType;
-  let typeY: VertexType;
-
-  beforeAll(async () => {
+  test("preserves vertex styling when one tab writes against a stale memory copy", async () => {
     const key = createRandomName("user-vertex-styles");
-    typeX = createRandomVertexType();
-    typeY = createRandomVertexType();
+    const typeX = createRandomVertexType();
+    const typeY = createRandomVertexType();
 
     const styleForType = (type: VertexType): VertexPreferencesStorageModel => ({
       type,
       color: "#ff0000",
     });
 
-    // Both tabs open against empty styling.
-    const tabA = await openPersistenceTab<VertexStyles>(key, new Map());
-    const tabB = await openPersistenceTab<VertexStyles>(key, new Map());
+    // Both tabs open against empty styling, using the same reconciler the real
+    // styling atoms are wired with.
+    const tabA = await openPersistenceTab<VertexStyles>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+    const tabB = await openPersistenceTab<VertexStyles>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
 
     // Tab A styles type X and persists.
-    tabA.write(new Map([[typeX, styleForType(typeX)]]));
+    tabA.write(prev => new Map(prev).set(typeX, styleForType(typeX)));
     await tabA.flush();
 
     // Tab B, still holding its stale empty copy, styles type Y and persists.
     tabB.write(prev => new Map(prev).set(typeY, styleForType(typeY)));
-
     await tabB.flush();
+
     const persisted = await readPersistedValue<VertexStyles>(key);
-    persistedTypes = new Set(persisted?.keys());
+
+    expect(new Set(persisted?.keys())).toEqual(new Set([typeX, typeY]));
   });
 
-  test("clobbers type X today — only the stale tab's type Y survives", () => {
-    expect(persistedTypes).toEqual(new Set([typeY]));
+  test("preserves edge styling when one tab writes against a stale memory copy", async () => {
+    const key = createRandomName("user-edge-styles");
+    const typeX = createRandomEdgeType();
+    const typeY = createRandomEdgeType();
+
+    const styleForType = (type: EdgeType): EdgePreferencesStorageModel => ({
+      type,
+      lineColor: "#ff0000",
+    });
+
+    const tabA = await openPersistenceTab<EdgeStyles>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+    const tabB = await openPersistenceTab<EdgeStyles>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+
+    tabA.write(prev => new Map(prev).set(typeX, styleForType(typeX)));
+    await tabA.flush();
+
+    tabB.write(prev => new Map(prev).set(typeY, styleForType(typeY)));
+    await tabB.flush();
+
+    const persisted = await readPersistedValue<EdgeStyles>(key);
+
+    expect(new Set(persisted?.keys())).toEqual(new Set([typeX, typeY]));
+  });
+});
+
+/**
+ * REGRESSION — #1820 cross-tab schema clobber
+ *
+ * The schema atom stores `Map<ConfigurationId, SchemaStorageModel>` — one entry
+ * per connection. Two tabs each hold their own in-memory copy of that map, so a
+ * tab that syncs one connection's schema would, on a blind whole-map write,
+ * silently drop a schema another tab discovered for a different connection. The
+ * same per-key map merge protects it.
+ */
+describe("cross-tab schema reconciliation", () => {
+  test("preserves schemas when one tab writes against a stale memory copy", async () => {
+    const key = createRandomName("schema");
+    const connectionA = createRandomName("connection");
+    const connectionB = createRandomName("connection");
+    const schemaA = createRandomSchema();
+    const schemaB = createRandomSchema();
+
+    type SchemaMap = Map<string, SchemaStorageModel>;
+
+    const tabA = await openPersistenceTab<SchemaMap>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+    const tabB = await openPersistenceTab<SchemaMap>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+
+    // Tab A discovers connection A's schema and persists.
+    tabA.write(prev => new Map(prev).set(connectionA, schemaA));
+    await tabA.flush();
+
+    // Tab B, still holding its stale empty map, discovers connection B and
+    // persists its stale map.
+    tabB.write(prev => new Map(prev).set(connectionB, schemaB));
+    await tabB.flush();
+
+    const persisted = await readPersistedValue<SchemaMap>(key);
+
+    expect(persisted?.get(connectionA)).toEqual(schemaA);
+    expect(persisted?.get(connectionB)).toEqual(schemaB);
+  });
+});
+
+/**
+ * REGRESSION — #1820 cross-tab connection clobber
+ *
+ * The configuration atom stores `Map<ConfigurationId, RawConfiguration>` — one
+ * entry per connection. Creating a connection in one tab while another tab
+ * holds a stale copy would, on a blind whole-map write, silently drop the
+ * connection the other tab created. The same per-key map merge protects it.
+ */
+describe("cross-tab connection reconciliation", () => {
+  test("preserves connections when one tab writes against a stale memory copy", async () => {
+    const key = createRandomName("configuration");
+    const connectionX = createRandomRawConfiguration();
+    const connectionY = createRandomRawConfiguration();
+
+    type ConfigMap = Map<ConfigurationId, RawConfiguration>;
+
+    const tabA = await openPersistenceTab<ConfigMap>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+    const tabB = await openPersistenceTab<ConfigMap>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+
+    // Tab A creates connection X and persists.
+    tabA.write(prev => new Map(prev).set(connectionX.id, connectionX));
+    await tabA.flush();
+
+    // Tab B, still holding its stale empty map, creates connection Y.
+    tabB.write(prev => new Map(prev).set(connectionY.id, connectionY));
+    await tabB.flush();
+
+    const persisted = await readPersistedValue<ConfigMap>(key);
+
+    expect(persisted?.get(connectionX.id)).toEqual(connectionX);
+    expect(persisted?.get(connectionY.id)).toEqual(connectionY);
   });
 
-  test.fails("should preserve styling from both tabs (fixed by #1831)", () => {
-    expect(persistedTypes).toEqual(new Set([typeX, typeY]));
+  test("drops a connection one tab removed while preserving a sibling another added", async () => {
+    const key = createRandomName("configuration");
+    const connectionX = createRandomRawConfiguration();
+    const connectionY = createRandomRawConfiguration();
+    const connectionZ = createRandomRawConfiguration();
+
+    type ConfigMap = Map<ConfigurationId, RawConfiguration>;
+
+    // Tab A creates connections X and Y, then a later tab preloads both.
+    const tabA = await openPersistenceTab<ConfigMap>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+    tabA.write(
+      new Map([
+        [connectionX.id, connectionX],
+        [connectionY.id, connectionY],
+      ]),
+    );
+    await tabA.flush();
+
+    // Tab B opens after that write, so it preloads {X, Y}.
+    const tabB = await openPersistenceTab<ConfigMap>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+
+    // Another tab creates connection Z — Tab B never sees it.
+    tabA.write(prev => new Map(prev).set(connectionZ.id, connectionZ));
+    await tabA.flush();
+
+    // Tab B removes connection X from its stale {X, Y} copy.
+    tabB.write(prev => {
+      const next = new Map(prev);
+      next.delete(connectionX.id);
+      return next;
+    });
+    await tabB.flush();
+
+    const persisted = await readPersistedValue<ConfigMap>(key);
+
+    // X is dropped (Tab B removed it), Y survives (untouched), and Z survives
+    // even though Tab B never saw it — the removal merges onto live storage.
+    expect(persisted?.has(connectionX.id)).toBe(false);
+    expect(persisted?.get(connectionY.id)).toEqual(connectionY);
+    expect(persisted?.get(connectionZ.id)).toEqual(connectionZ);
+  });
+});
+
+/**
+ * REGRESSION — #1820 cross-tab session clobber
+ *
+ * The graph-sessions atom stores `Map<ConfigurationId, GraphSessionStorageModel>`
+ * — one session per connection. Concurrent session changes for different
+ * connections must not clobber each other; the per-key map merge keeps each
+ * connection's session intact.
+ */
+describe("cross-tab session reconciliation", () => {
+  test("preserves sessions when one tab writes against a stale memory copy", async () => {
+    const key = createRandomName("graph-sessions");
+    const connectionA = createRandomConfigurationId();
+    const connectionB = createRandomConfigurationId();
+    const sessionA: GraphSessionStorageModel = {
+      vertices: new Set([createRandomVertexId()]),
+      edges: new Set([createRandomEdgeId()]),
+    };
+    const sessionB: GraphSessionStorageModel = {
+      vertices: new Set([createRandomVertexId()]),
+      edges: new Set([createRandomEdgeId()]),
+    };
+
+    type SessionMap = Map<ConfigurationId, GraphSessionStorageModel>;
+
+    const tabA = await openPersistenceTab<SessionMap>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+    const tabB = await openPersistenceTab<SessionMap>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+
+    // Tab A records connection A's session and persists.
+    tabA.write(prev => new Map(prev).set(connectionA, sessionA));
+    await tabA.flush();
+
+    // Tab B, still holding its stale empty map, records connection B's session.
+    tabB.write(prev => new Map(prev).set(connectionB, sessionB));
+    await tabB.flush();
+
+    const persisted = await readPersistedValue<SessionMap>(key);
+
+    expect(persisted?.get(connectionA)).toEqual(sessionA);
+    expect(persisted?.get(connectionB)).toEqual(sessionB);
+  });
+});
+
+/**
+ * The stale-memory scenarios above each await one tab's flush before the next
+ * tab writes. These exercise the harder path: two writes still in flight when a
+ * later write enters the same per-key queue, so the reconcile flush must merge
+ * against in-progress live storage and the merge baseline must advance
+ * correctly across coalesced drops.
+ */
+describe("cross-tab reconciliation under in-flight writes", () => {
+  test("coalesces rapid same-tab writes while merging onto another tab's concurrent sibling", async () => {
+    const key = createRandomName("configuration");
+    const siblingConnection = createRandomRawConfiguration();
+    const connectionX = createRandomRawConfiguration();
+    const connectionY = createRandomRawConfiguration();
+    const connectionZ = createRandomRawConfiguration();
+
+    type ConfigMap = Map<ConfigurationId, RawConfiguration>;
+
+    // A sibling tab persists its connection first, so it is already in storage
+    // when this tab — which opened stale against an empty map — writes.
+    const siblingTab = await openPersistenceTab<ConfigMap>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+    const editingTab = await openPersistenceTab<ConfigMap>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+
+    siblingTab.write(new Map([[siblingConnection.id, siblingConnection]]));
+    await siblingTab.flush();
+
+    // Three rapid writes without awaiting between them. The write queue
+    // coalesces pending flushes to the latest, dropping the intermediate one,
+    // so the baseline must only advance for the writes that actually run for
+    // the net per-key result to be correct.
+    editingTab.write(new Map([[connectionX.id, connectionX]]));
+    editingTab.write(prev => new Map(prev).set(connectionY.id, connectionY));
+    editingTab.write(prev => new Map(prev).set(connectionZ.id, connectionZ));
+    await editingTab.flush();
+
+    const persisted = await readPersistedValue<ConfigMap>(key);
+
+    expect(persisted?.get(siblingConnection.id)).toEqual(siblingConnection);
+    expect(persisted?.get(connectionX.id)).toEqual(connectionX);
+    expect(persisted?.get(connectionY.id)).toEqual(connectionY);
+    expect(persisted?.get(connectionZ.id)).toEqual(connectionZ);
+  });
+
+  test("two tabs whose writes are still in flight both land without clobber", async () => {
+    const key = createRandomName("configuration");
+    const connectionA = createRandomRawConfiguration();
+    const connectionB = createRandomRawConfiguration();
+
+    type ConfigMap = Map<ConfigurationId, RawConfiguration>;
+
+    const tabA = await openPersistenceTab<ConfigMap>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+    const tabB = await openPersistenceTab<ConfigMap>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+
+    // Both tabs write before either flush resolves — neither has seen the
+    // other's write land in storage. The shared per-key write queue serializes
+    // the two flushes, and the second flush's reconcile re-reads live storage
+    // (now containing the first flush's output) and merges against its own
+    // stale baseline, so both connections survive.
+    tabA.write(new Map([[connectionA.id, connectionA]]));
+    tabB.write(new Map([[connectionB.id, connectionB]]));
+    await Promise.all([tabA.flush(), tabB.flush()]);
+
+    const persisted = await readPersistedValue<ConfigMap>(key);
+
+    expect(persisted?.get(connectionA.id)).toEqual(connectionA);
+    expect(persisted?.get(connectionB.id)).toEqual(connectionB);
   });
 });

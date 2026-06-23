@@ -22,7 +22,7 @@ The **storage layer owns the write, so it owns the failure.** Concretely:
 
 ### Internal seams (deep ≠ monolithic)
 
-The depth is hidden behind composition, not crammed into one file: `classifyStorageError` (pure taxonomy) · per-key write queue (coalesce + retry, knows only a `flush` thunk) · the merge-flush (the re-read-diff-write from the cross-tab ADR) · the global status store (write-only from the queue's side). `atomWithLocalForage` composes them.
+The depth is hidden behind composition, not crammed into one file: `classifyStorageError` (pure taxonomy) · per-key write queue (coalesce + retry, knows only a `flush` thunk) · the merge-flush (the re-read-diff-write from the cross-tab ADR, built by `createReconcilingFlush`) · the global status store (write-only from the queue's side). `atomWithLocalForage` composes the queue, taxonomy, and status store; by default its flush is a blind whole-value write, and when given a `reconcile` function it instead composes the merge-flush — opted into per atom.
 
 ## Considered Options
 
