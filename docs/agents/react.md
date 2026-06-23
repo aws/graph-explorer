@@ -1,19 +1,3 @@
----
-name: react
-description: React component patterns, hooks, naming conventions, and the query-language translation system for Graph Explorer.
-tools:
-  [
-    "fs_read",
-    "code",
-    "read",
-    "write",
-    "grep",
-    "glob",
-    "web_search",
-    "web_fetch",
-  ]
----
-
 ## React Version & Compiler
 
 - This project uses React 19

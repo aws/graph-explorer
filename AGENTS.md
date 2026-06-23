@@ -2,89 +2,64 @@
 
 ## Core Rules
 
+- Follow YAGNI principles
+- Prefer deep modules
 - Prefer descriptive variable and function names over code comments
 - Prefer simple to follow logic over clever concise code
+- Prefer single-pass, copy-free processing for collections that can grow large; small fixed lists don't need it
 - Every commit should have no type errors, lint errors, formatting issues, or failing tests
 - Don't hard-wrap Markdown prose to a fixed column width, let it soft-wrap
 - When possible, create failing tests first then implement the logic to make the tests pass
 - Add or update tests for the code you change, even if nobody asked
-- For TypeScript conventions and rules, refer to `.kiro/skills/typescript/SKILL.md`
-- For Tailwind style guidelines, refer to `.kiro/skills/tailwind/SKILL.md`
-- For testing patterns and examples, refer to `.kiro/skills/testing/SKILL.md`
-- For code organization patterns and conventions, refer to `.kiro/skills/connectors/SKILL.md`
-- For React related patterns and conventions, refer to `.kiro/skills/react/SKILL.md`
-- For schema storage and discovery, refer to `.kiro/skills/schema/SKILL.md`
-- For GitHub issue and PR management, refer to `.kiro/skills/github/SKILL.md`
-- For git workflow conventions, refer to `.kiro/skills/git/SKILL.md`
-- For product overview and architecture, refer to `.kiro/skills/product/SKILL.md`
+- Keep agent rules terse: strip everything the model doesn't need, including markdown unless the formatting itself carries meaning
 
-## Monorepo Commands
+## TypeScript
 
-- **Always run commands from the project root** — never `cd` into a subfolder
-- Only use scripts defined in the root `package.json`
-- Use `pnpm` as the package manager
+- Prefer named function syntax over anonymous arrow functions for module-level declarations (`function handleClick() {}`, not `const handleClick = () => {}`). Arrow functions inside a function body are fine.
+- Use an explicit type alias instead of `ReturnType<typeof ...>` when one exists (e.g. `AppStore`, not `ReturnType<typeof getAppStore>`)
+- Prefer a branded type over a raw `string`/`number` whenever the value is used for a lookup or passed to a function expecting a value that represents a specific concept — an ID, a node/edge label, a type name, etc. Construct them with their creator function (e.g. `createVertexId()`); never cast a bare string. This makes "which kind of string is this" a compile-time guarantee.
+- Don't change the VS Code setting `typescript.autoClosingTags`
 
-### Examples
+## Git
 
-```bash
-# All checks (lint, format, types)
-pnpm run checks
+- Single trunk branch `main`, always releasable
+- No branch or commit message prefixes (no `chore:`, `fix:`, `feature/`, etc.)
+- Each commit is self-contained and cohesive — one logical change per commit
+- Keep commit messages brief and descriptive
 
-# All tests with coverage threshold enforcement
-pnpm coverage
+## Conventions
 
-# Single test file
-pnpm test packages/graph-explorer/src/path/to/file.test.ts
+Read the relevant doc before working in that area:
 
-# Test name pattern match
-pnpm test -- -t "pattern"
+- `docs/agents/react.md` — components, hooks, query-language translation
+- `docs/agents/tailwind.md` — Tailwind v4 styling, responsive, data attributes
+- `docs/agents/testing.md` — Vitest patterns, DbState, factories, backward-compat
+- `docs/agents/connectors.md` — Gremlin/openCypher/SPARQL query templates
+- `docs/agents/schema.md` — schema storage, discovery, Jotai atoms
+- `docs/agents/issue-tracker.md` — GitHub issue and PR conventions
+- `docs/agents/documentation.md` — writing user-facing docs (READMEs, guides, docs site)
+- `docs/agents/product.md` — product overview, supported databases, architecture
 
-# Format all files
-pnpm format
+## Commands
 
-# Format specific files or globs (pass paths after --)
-pnpm format -- src/foo.ts 'packages/graph-explorer/src/**/*.tsx'
+Run from project root with `pnpm`. Use only these scripts — never invoke `tsc`, `vitest`, `oxlint`, or `oxfmt` directly or via `pnpx`. The scripts pin tool versions and configs and cover every workspace package; bare tools use the wrong version and miss project context.
 
-# Check formatting on specific files
-pnpm check:format -- src/foo.ts
+- `pnpm check:types` — typecheck all packages (no per-file/per-package option; this is the granularity)
+- `pnpm checks` — all static checks (types + lint + format); default validation for small changes
+- `pnpm check:lint` / `pnpm lint` — lint / lint and fix
+- `pnpm check:format` / `pnpm format` — check / fix formatting
+- `pnpm test` — run all tests
+- `pnpm test <path>` — test files matching a path substring (file, dir, or partial)
+- `pnpm test -- -t "pattern"` — test by name
+- `pnpm coverage` — tests with coverage
 
-# Lint and auto-fix all files
-pnpm lint
-
-# Lint specific files or globs
-pnpm lint -- 'packages/graph-explorer/src/**/*.ts'
-```
-
-# Project Organization
-
-## Key Architectural Patterns
-
-- **State Management**: Use Jotai atoms for global state
-- **Data Fetching**: Use TanStack Query for remote data
-- **Graph Rendering**: Cytoscape.js with custom layout plugins
-- **Query Abstraction**: Explorers that provide unified interfaces for different query languages
-- **Configuration**: Environment variables and configuration providers
-- **Error Handling**: Error boundaries and consistent error display components
-- **State Persistence**: localforage for client-side persistence using IndexedDB
-
-## Data Storage & Persistence
-
-- **Client-Side Only**: Graph Explorer stores all user data and preferences client-side
-- **No Server Storage**: The backend proxy server does not store any user data
-- **IndexedDB**: Used as the primary storage mechanism via localforage
-- **Persistence Scope**:
-  - User preferences and settings
-  - Connection configurations
-  - Query history
-  - Visualization settings
-  - Layout preferences
-- **External Data**: Graph data is queried directly from the connected graph databases and is not owned or persisted by Graph Explorer
+`pnpm check:types` runs in parallel across packages in under a minute; just run it.
 
 ## Agent skills
 
 ### Issue tracker
 
-Issues are tracked in GitHub Issues on aws/graph-explorer. See `docs/agents/issue-tracker.md`.
+Issues are tracked in GitHub Issues on aws/graph-explorer; external PRs are also a triage surface. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

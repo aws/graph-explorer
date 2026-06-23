@@ -1,9 +1,3 @@
----
-name: schema
-description: Schema storage and discovery in Graph Explorer, including SchemaStorageModel persistence, edge connections, incremental schema growth, and related Jotai atoms.
-tools: ["fs_read", "code", "grep", "glob", "web_search", "web_fetch"]
----
-
 # Schema Storage
 
 Schema discovery is expensive in both time and database compute, so the discovered schema is persisted in IndexedDB (via localforage) as a `SchemaStorageModel`. This acts as a persistent cache per connection.
