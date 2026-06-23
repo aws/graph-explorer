@@ -59,7 +59,7 @@ Run from project root with `pnpm`. Use only these scripts — never invoke `tsc`
 
 ### Issue tracker
 
-Issues are tracked in GitHub Issues on aws/graph-explorer. See `docs/agents/issue-tracker.md`.
+Issues are tracked in GitHub Issues on aws/graph-explorer; external PRs are also a triage surface. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

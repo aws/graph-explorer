@@ -16,6 +16,16 @@ Issues and PRDs for this repo live as GitHub issues. Use the `gh` CLI for all op
 
 When a skill says "publish to the issue tracker", create a GitHub issue. When it says "fetch the relevant ticket", run `gh issue view <number> --comments`.
 
+## Pull requests as a triage surface
+
+**PRs as a request surface: yes.** `/triage` pulls external PRs into the same queue as issues and runs them through the same labels and states, using the `gh pr` equivalents (collaborators' in-flight PRs are left alone):
+
+- **Read a PR**: `gh pr view <number> --comments`, plus `gh pr diff <number>` for the diff.
+- **List external PRs for triage**: `gh pr list --state open --json number,title,body,labels,author,authorAssociation,comments`, then keep only `authorAssociation` of `CONTRIBUTOR`, `FIRST_TIME_CONTRIBUTOR`, or `NONE` (drop `OWNER`/`MEMBER`/`COLLABORATOR`).
+- **Comment / label / close**: `gh pr comment`, `gh pr edit --add-label`/`--remove-label`, `gh pr close`.
+
+GitHub shares one number space across issues and PRs, so a bare `#42` may be either — resolve with `gh pr view 42` and fall back to `gh issue view 42`.
+
 ## Issues
 
 - Assign an issue type on creation: `Bug`, `Feature`, `Epic`, `Task`, or `Spike`. Set it via REST after creation: `gh api -X PATCH repos/{owner}/{repo}/issues/{number} --field type={type_name}`
