@@ -7,6 +7,7 @@ This page contains workarounds for common issues and information on how to diagn
 - [Docker Container Issues](#docker-container-issues)
 - [Schema Sync Fails](#schema-sync-fails)
 - [Save & Load Configuration](#save--load-configuration)
+- [Graph Explorer Can't Save Your Changes](#graph-explorer-cant-save-your-changes)
 - [Gathering SageMaker Logs](#gathering-sagemaker-logs)
 
 ## Docker Container Issues
@@ -130,6 +131,17 @@ To save the configuration data:
 6. Choose where to save the configuration file
 
 This configuration can be restored using the "Load Configuration" button in the same settings page.
+
+## Graph Explorer Can't Save Your Changes
+
+Graph Explorer stores all of your data — connections, schema, styling, and exploration sessions — in your browser, not on the server. When it can't write that data to browser storage, a "Changes not saved" indicator appears in the navigation bar. Click it to see which data failed to save and why.
+
+There are two common causes:
+
+- **Browser storage is full.** Graph Explorer has run out of space to save changes. The dialog offers a "Save Configuration" button — use it to export your data to a file (the same format as [Save & Load Configuration](#save--load-configuration)) so you don't lose your work, then free up browser storage and reload the page. You can restore the file afterward with "Load Configuration". Exploration sessions are the largest data and the most likely cause; clearing old sessions or other sites' storage frees space.
+- **Storage is blocked or inaccessible.** Graph Explorer can't access browser storage at all, so changes won't be saved for the session. No backup is offered here, since the data can't be read out. This commonly happens in private/incognito windows or when browser settings or policy block storage for the site. Open Graph Explorer in a normal window, or allow storage for the site, to persist your work.
+
+Transient storage hiccups are retried automatically, so the indicator only appears for failures that could not be recovered.
 
 ## Gathering SageMaker Logs
 

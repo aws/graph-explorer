@@ -1,0 +1,157 @@
+import { describe, expect, test, vi } from "vitest";
+
+import type { ErrorDetails } from "@/utils/createErrorDetails";
+
+import { createPersistenceStatusStore } from "./persistenceStatusStore";
+
+const DETAILS: ErrorDetails = { name: "QuotaExceededError", message: "full" };
+
+describe("persistenceStatusStore", () => {
+  test("starts idle with no failures", () => {
+    const store = createPersistenceStatusStore();
+
+    expect(store.getSnapshot()).toStrictEqual({
+      status: "idle",
+      failures: [],
+      isSettling: false,
+    });
+  });
+
+  test("reports saving while a key is in flight", () => {
+    const store = createPersistenceStatusStore();
+
+    store.markSaving("configuration");
+
+    expect(store.getSnapshot().status).toBe("saving");
+  });
+
+  test("returns to idle once an in-flight key is saved", () => {
+    const store = createPersistenceStatusStore();
+
+    store.markSaving("configuration");
+    store.markSaved("configuration");
+
+    expect(store.getSnapshot().status).toBe("idle");
+  });
+
+  test("a terminal failure takes precedence over other in-flight writes", () => {
+    const failedAt = new Date("2026-06-22T00:00:00Z");
+    const store = createPersistenceStatusStore({ now: () => failedAt });
+
+    store.markSaving("schema");
+    store.markFailed("configuration", "terminal-quota", 3, DETAILS);
+
+    const snapshot = store.getSnapshot();
+    expect(snapshot.status).toBe("failed");
+    expect(snapshot.failures).toStrictEqual([
+      {
+        key: "configuration",
+        reason: "terminal-quota",
+        attemptCount: 3,
+        lastAttemptAt: failedAt,
+        details: DETAILS,
+      },
+    ]);
+  });
+
+  test("a failed key clears on its next successful write", () => {
+    const store = createPersistenceStatusStore();
+
+    store.markFailed("user-styling", "terminal-quota", 1, DETAILS);
+    store.markSaved("user-styling");
+
+    expect(store.getSnapshot()).toStrictEqual({
+      status: "idle",
+      failures: [],
+      isSettling: false,
+    });
+  });
+
+  test("stays failed while another key still has an outstanding failure", () => {
+    const store = createPersistenceStatusStore();
+
+    store.markFailed("schema", "terminal-access", 1, DETAILS);
+    store.markFailed("user-styling", "terminal-quota", 2, DETAILS);
+    store.markSaved("schema");
+
+    const snapshot = store.getSnapshot();
+    expect(snapshot.status).toBe("failed");
+    expect(snapshot.failures).toMatchObject([
+      { key: "user-styling", reason: "terminal-quota", attemptCount: 2 },
+    ]);
+  });
+
+  test("reset clears all in-flight and failed state", () => {
+    const store = createPersistenceStatusStore();
+    store.markSaving("schema");
+    store.markFailed("configuration", "terminal-quota", 1, DETAILS);
+
+    store.reset();
+
+    expect(store.getSnapshot()).toStrictEqual({
+      status: "idle",
+      failures: [],
+      isSettling: false,
+    });
+  });
+
+  test("notifies subscribers on change and stops after unsubscribe", () => {
+    const store = createPersistenceStatusStore();
+    const listener = vi.fn();
+
+    const unsubscribe = store.subscribe(listener);
+    store.markSaving("configuration");
+    expect(listener).toHaveBeenCalledTimes(1);
+
+    unsubscribe();
+    store.markSaved("configuration");
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  test("waitForIdle resolves once outstanding writes drain", async () => {
+    const store = createPersistenceStatusStore();
+    store.markSaving("configuration");
+
+    const idle = store.waitForIdle();
+    store.markSaved("configuration");
+
+    await expect(idle).resolves.toBeUndefined();
+  });
+
+  test("waitForIdle resolves immediately when already idle", async () => {
+    const store = createPersistenceStatusStore();
+
+    await expect(store.waitForIdle()).resolves.toBeUndefined();
+  });
+
+  test("waitForIdle resolves once a failure is the only thing outstanding", async () => {
+    const store = createPersistenceStatusStore();
+    store.markSaving("schema");
+
+    const idle = store.waitForIdle();
+    store.markFailed("schema", "terminal-quota", 1, DETAILS);
+
+    await expect(idle).resolves.toBeUndefined();
+  });
+
+  test("waitForIdle does not resolve while another key is still in flight after a failure", async () => {
+    const store = createPersistenceStatusStore();
+    store.markSaving("configuration");
+    store.markSaving("schema");
+
+    let resolved = false;
+    const idle = store.waitForIdle().then(() => {
+      resolved = true;
+    });
+
+    // One key fails terminally, but the other is still draining. Status flips to
+    // "failed", yet a write is genuinely still in flight, so idle must wait.
+    store.markFailed("configuration", "terminal-quota", 1, DETAILS);
+    await Promise.resolve();
+    expect(resolved).toBe(false);
+
+    store.markSaved("schema");
+    await idle;
+    expect(resolved).toBe(true);
+  });
+});

@@ -4,6 +4,7 @@ import localforage from "localforage";
 import type { AppStore } from "@/core";
 
 import { atomWithLocalForage } from "@/core/StateProvider/atomWithLocalForage";
+import { persistenceStatusStore } from "@/core/StateProvider/persistence";
 
 type SetStateAction<Value> = Value | ((prev: Value) => Value);
 
@@ -22,7 +23,6 @@ type SetStateAction<Value> = Value | ((prev: Value) => Value);
 export class PersistenceTab<T> {
   #store: AppStore;
   #atom: Awaited<ReturnType<typeof atomWithLocalForage<T>>>;
-  #pendingWrite: Promise<void> = Promise.resolve();
 
   constructor(
     store: AppStore,
@@ -39,25 +39,18 @@ export class PersistenceTab<T> {
 
   /**
    * Writes a new value to this tab. The in-memory value updates synchronously;
-   * the returned promise resolves once this write has been persisted to storage.
+   * persistence happens in the background through the shared write queue.
    */
-  write(update: SetStateAction<T>): Promise<void> {
-    // store.set updates the in-memory value synchronously and returns the
-    // background persistence promise for THIS write.
-    const persisted = this.#store.set(this.#atom, update);
-    // Accumulate every write so flush() waits for all of them, not just the
-    // latest. Replacing #pendingWrite here would drop earlier writes that have
-    // not yet landed, leaving flush() to await an incomplete set.
-    this.#pendingWrite = this.#pendingWrite.then(() => persisted);
-    return persisted;
+  write(update: SetStateAction<T>): void {
+    this.#store.set(this.#atom, update);
   }
 
   /**
-   * Waits for all of this tab's background writes to land in storage, letting
+   * Waits for all outstanding background writes to land in storage, letting
    * tests assert against persisted state without arbitrary timeouts.
    */
   flush(): Promise<void> {
-    return this.#pendingWrite;
+    return persistenceStatusStore.waitForIdle();
   }
 }
 

@@ -11,26 +11,24 @@ export type SetStateAction<Value> = Value | ((prev: Value) => Value);
  * update the cache, then persist. Callers supply how seeding and persistence
  * map to their backing store (localForage, sessionStorage, etc.).
  *
- * The in-memory value updates synchronously; the write returns the background
- * persistence promise so callers can await the value landing in storage when
- * they need to (the app does not, but tests do). It is never awaited in
- * production.
+ * The in-memory value updates synchronously and the setter returns `void`:
+ * persistence happens in the background and the caller owns its outcome (the
+ * `persist` callback must not let its work float — it handles its own failures).
  *
  * @param seed The initial value, already loaded from the backing store.
- * @param persist Writes a changed value to the backing store, returning a
- * promise that resolves once it has landed.
+ * @param persist Writes a changed value to the backing store in the background.
  * @param debugLabel Label surfaced in Jotai devtools.
  */
 export function createWriteThroughAtom<Value>(
   seed: Value,
-  persist: (value: Value) => Promise<void>,
+  persist: (value: Value) => void,
   debugLabel: string,
 ) {
   const baseAtom = atom<Value>(seed);
 
   const derivedAtom = atom(
     get => get(baseAtom),
-    (get, set, update: SetStateAction<Value>): Promise<void> => {
+    (get, set, update: SetStateAction<Value>): void => {
       const prevValue = get(baseAtom);
       const nextValue =
         typeof update === "function"
@@ -38,11 +36,11 @@ export function createWriteThroughAtom<Value>(
           : update;
 
       if (prevValue === nextValue) {
-        return Promise.resolve();
+        return;
       }
 
       set(baseAtom, nextValue);
-      return persist(nextValue);
+      persist(nextValue);
     },
   );
 

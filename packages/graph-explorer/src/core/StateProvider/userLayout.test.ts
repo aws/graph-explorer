@@ -25,29 +25,29 @@ describe("useViewToggles", () => {
     expect(result.current.isTableVisible).toBe(true);
   });
 
-  it("should toggle graph view", async () => {
+  it("should toggle graph view", () => {
     const { result } = renderHookWithState(() => useViewToggles());
 
-    await act(async () => result.current.toggleGraphVisibility());
+    act(() => result.current.toggleGraphVisibility());
 
     expect(result.current.isGraphVisible).toBe(false);
     expect(result.current.isTableVisible).toBe(true);
 
-    await act(async () => result.current.toggleGraphVisibility());
+    act(() => result.current.toggleGraphVisibility());
 
     expect(result.current.isGraphVisible).toBe(true);
     expect(result.current.isTableVisible).toBe(true);
   });
 
-  it("should toggle table view", async () => {
+  it("should toggle table view", () => {
     const { result } = renderHookWithState(() => useViewToggles());
 
-    await act(async () => result.current.toggleTableVisibility());
+    act(() => result.current.toggleTableVisibility());
 
     expect(result.current.isGraphVisible).toBe(true);
     expect(result.current.isTableVisible).toBe(false);
 
-    await act(async () => result.current.toggleTableVisibility());
+    act(() => result.current.toggleTableVisibility());
 
     expect(result.current.isGraphVisible).toBe(true);
     expect(result.current.isTableVisible).toBe(true);
@@ -61,19 +61,19 @@ describe("useSidebar", () => {
     expect(result.current.isSidebarOpen).toBe(true);
   });
 
-  it("should change to the given sidebar item", async () => {
+  it("should change to the given sidebar item", () => {
     const { result } = renderHookWithJotai(() => useSidebar());
 
-    await act(async () => result.current.toggleSidebar("details"));
+    act(() => result.current.toggleSidebar("details"));
     expect(result.current.isSidebarOpen).toBe(true);
     expect(result.current.activeSidebarItem).toBe("details");
 
-    await act(async () => result.current.toggleSidebar("search"));
+    act(() => result.current.toggleSidebar("search"));
     expect(result.current.isSidebarOpen).toBe(true);
     expect(result.current.activeSidebarItem).toBe("search");
   });
 
-  it("should close the sidebar if toggling to the same item", async () => {
+  it("should close the sidebar if toggling to the same item", () => {
     const { result } = renderHookWithJotai(
       () => useSidebar(),
       store =>
@@ -83,16 +83,16 @@ describe("useSidebar", () => {
         } satisfies UserLayout),
     );
 
-    await act(async () => result.current.toggleSidebar("details"));
+    act(() => result.current.toggleSidebar("details"));
 
     expect(result.current.isSidebarOpen).toBe(false);
     expect(result.current.activeSidebarItem).toBeNull();
   });
 
-  it("should close the sidebar", async () => {
+  it("should close the sidebar", () => {
     const { result } = renderHookWithJotai(() => useSidebar());
 
-    await act(async () => result.current.closeSidebar());
+    act(() => result.current.closeSidebar());
 
     expect(result.current.isSidebarOpen).toBe(false);
   });
@@ -145,25 +145,25 @@ describe("useTableViewSize", () => {
     expect(result.current[0]).toBe(300);
   });
 
-  it("should return 100% when graph viewer is hidden", async () => {
+  it("should return 100% when graph viewer is hidden", () => {
     const { result } = renderHookWithState(() => ({
       tableView: useTableViewSize(),
       toggles: useViewToggles(),
     }));
 
-    await act(async () => result.current.toggles.toggleGraphVisibility());
+    act(() => result.current.toggles.toggleGraphVisibility());
 
     expect(result.current.tableView[0]).toBe("100%");
   });
 
-  it("should adjust height by delta", async () => {
+  it("should adjust height by delta", () => {
     const { result } = renderHookWithState(() => useTableViewSize());
 
-    await act(async () => result.current[1](50));
+    act(() => result.current[1](50));
 
     expect(result.current[0]).toBe(350);
 
-    await act(async () => result.current[1](-100));
+    act(() => result.current[1](-100));
 
     expect(result.current[0]).toBe(250);
   });

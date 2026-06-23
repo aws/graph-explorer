@@ -3,6 +3,7 @@ import localforage from "localforage";
 import { beforeEach, describe, expect, test } from "vitest";
 
 import { atomWithLocalForage } from "./atomWithLocalForage";
+import { persistenceStatusStore } from "./persistence";
 
 describe("atomWithLocalForage", () => {
   let store: ReturnType<typeof createStore>;
@@ -24,36 +25,20 @@ describe("atomWithLocalForage", () => {
     const atom = await atomWithLocalForage(key, "initial");
 
     store.set(atom, "new-value");
-
-    // Wait a bit for async persistence
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await persistenceStatusStore.waitForIdle();
 
     const stored = await localforage.getItem(key);
     expect(stored).toBe("new-value");
   });
 
-  test("should return the persistence promise from a write", async () => {
-    const key = "test-awaitable-write";
-    const atom = await atomWithLocalForage(key, "initial");
+  test("should report persistence status while a write lands", async () => {
+    const atom = await atomWithLocalForage("test-status", "initial");
 
-    // The in-memory value updates synchronously; the write returns the
-    // background persistence promise so callers can wait for the value to land
-    // in storage without relying on arbitrary timeouts.
-    const persisted = store.set(atom, "new-value");
-    expect(persisted).toBeInstanceOf(Promise);
-    await persisted;
+    store.set(atom, "new-value");
+    expect(persistenceStatusStore.getSnapshot().status).toBe("saving");
 
-    const stored = await localforage.getItem(key);
-    expect(stored).toBe("new-value");
-  });
-
-  test("should return a resolved promise when a write is a no-op", async () => {
-    const atom = await atomWithLocalForage("test-no-op", "initial");
-
-    // Writing the same value short-circuits, but callers can still await the
-    // result uniformly.
-    const persisted = store.set(atom, "initial");
-    await expect(persisted).resolves.toBeUndefined();
+    await persistenceStatusStore.waitForIdle();
+    expect(persistenceStatusStore.getSnapshot().status).toBe("idle");
   });
 
   test("should handle function updates", async () => {
@@ -111,8 +96,7 @@ describe("atomWithLocalForage", () => {
 
     expect(store.get(atom)).toBe(complexObject);
 
-    // Wait for async persistence
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await persistenceStatusStore.waitForIdle();
 
     const stored = await localforage.getItem(key);
     expect(stored).toEqual(complexObject);
@@ -145,8 +129,7 @@ describe("atomWithLocalForage", () => {
 
     expect(store.get(atom)).toBe(3);
 
-    // Wait for async persistence
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await persistenceStatusStore.waitForIdle();
 
     const stored = await localforage.getItem(key);
     expect(stored).toBe(3);

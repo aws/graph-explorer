@@ -2,6 +2,7 @@ import localForage from "localforage";
 
 import type { ConfigurationId } from "../ConfigurationProvider";
 
+import { persistThroughQueue } from "./persistence";
 import { resolveSessionStorage } from "./safeSessionStorage";
 import { createWriteThroughAtom } from "./writeThroughAtom";
 
@@ -54,15 +55,18 @@ export async function createActiveConfigurationAtom({
 
   return createWriteThroughAtom<ConfigurationId | null>(
     seedValue,
-    // sessionStorage updates synchronously; the returned promise tracks the
-    // breadcrumb landing in localForage.
-    async nextValue => {
+    // The per-tab sessionStorage value updates synchronously; the shared
+    // localForage breadcrumb is persisted through the queue so its outcome
+    // joins the global persistence status like any other IndexedDB write.
+    nextValue => {
       if (nextValue === null) {
         sessionStorage.removeItem(ACTIVE_CONNECTION_STORAGE_KEY);
       } else {
         sessionStorage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, nextValue);
       }
-      await localForage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, nextValue);
+      persistThroughQueue(ACTIVE_CONNECTION_STORAGE_KEY, async () => {
+        await localForage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, nextValue);
+      });
     },
     "activeConfigurationAtom",
   );

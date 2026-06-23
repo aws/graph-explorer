@@ -34,7 +34,7 @@ export function NavBarContent({
   return (
     <div
       data-slot="nav-bar-content"
-      className={cn("flex flex-1 flex-row items-center gap-3", className)}
+      className={cn("flex flex-1 flex-row items-center gap-6", className)}
       {...props}
     />
   );

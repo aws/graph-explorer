@@ -3,6 +3,7 @@ import {
   NavBarContent,
   NavBarTitle,
   RouteButtonGroup,
+  PersistenceStatusIndicator,
   SchemaDiscoveryBoundary,
   Workspace,
   WorkspaceContent,
@@ -24,6 +25,7 @@ export default function SchemaExplorer() {
             title="Schema Explorer"
             subtitle={`Connection: ${config?.displayLabel || config?.id || "none"}`}
           />
+          <PersistenceStatusIndicator />
         </NavBarContent>
 
         <RouteButtonGroup active="schema-explorer" />

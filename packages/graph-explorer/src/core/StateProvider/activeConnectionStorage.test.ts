@@ -9,6 +9,7 @@ import {
   ACTIVE_CONNECTION_STORAGE_KEY,
   createActiveConfigurationAtom,
 } from "./activeConnectionStorage";
+import { persistenceStatusStore } from "./persistence";
 import { createInMemorySessionStorage } from "./safeSessionStorage";
 
 /**
@@ -26,8 +27,10 @@ async function openTab() {
   return {
     read: () => store.get(atom),
     /** Activates a connection; resolves once the breadcrumb has landed. */
-    activate: (id: ReturnType<typeof createNewConfigurationId> | null) =>
-      store.set(atom, id),
+    activate: (id: ReturnType<typeof createNewConfigurationId> | null) => {
+      store.set(atom, id);
+      return persistenceStatusStore.waitForIdle();
+    },
     /** Reloads this tab: a fresh store and atom over the same sessionStorage. */
     reload: async () => {
       store = createStore();
@@ -83,15 +86,15 @@ describe("activeConnectionStorage", () => {
     const store = createStore();
 
     const activated = createNewConfigurationId();
-    // The in-memory value and sessionStorage update synchronously; the write
-    // returns the breadcrumb persistence promise to await without timeouts.
-    const persisted = store.set(atom, activated);
+    // The in-memory value and sessionStorage update synchronously; the
+    // breadcrumb lands in the background through the shared write queue.
+    store.set(atom, activated);
 
     expect(store.get(atom)).toBe(activated);
     expect(sessionStorage.getItem(ACTIVE_CONNECTION_STORAGE_KEY)).toBe(
       activated,
     );
-    await persisted;
+    await persistenceStatusStore.waitForIdle();
     expect(await localForage.getItem(ACTIVE_CONNECTION_STORAGE_KEY)).toBe(
       activated,
     );
@@ -105,11 +108,11 @@ describe("activeConnectionStorage", () => {
 
     const atom = await createActiveConfigurationAtom({ sessionStorage });
     const store = createStore();
-    const persisted = store.set(atom, null);
+    store.set(atom, null);
 
     expect(store.get(atom)).toBeNull();
     expect(sessionStorage.getItem(ACTIVE_CONNECTION_STORAGE_KEY)).toBeNull();
-    await persisted;
+    await persistenceStatusStore.waitForIdle();
     expect(await localForage.getItem(ACTIVE_CONNECTION_STORAGE_KEY)).toBeNull();
   });
 

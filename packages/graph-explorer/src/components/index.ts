@@ -52,6 +52,8 @@ export * from "./NavBar";
 export * from "./NoEdgeTypesEmptyState";
 export * from "./NoNodeTypesEmptyState";
 
+export * from "./PersistenceStatusIndicator/PersistenceStatusIndicator";
+
 export * from "./Toaster";
 
 export * from "./RouteButton";
