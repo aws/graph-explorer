@@ -69,20 +69,90 @@ describe("migrateUserStylingIfNeeded", () => {
     expect(await localForage.getItem("edge-styles")).toBeNull();
   });
 
-  it("is a no-op when the new keys already exist", async () => {
+  it("is a no-op when both new keys already exist", async () => {
     const existingVertexStyles = new Map([
       [createVertexType("Existing"), { type: createVertexType("Existing") }],
     ]);
+    const existingEdgeStyles = new Map([
+      [createEdgeType("has"), { type: createEdgeType("has") }],
+    ]);
     await localForage.setItem("vertex-styles", existingVertexStyles);
+    await localForage.setItem("edge-styles", existingEdgeStyles);
     await localForage.setItem<UserStyling>("user-styling", {
       vertices: [{ type: createVertexType("Person") }],
+      edges: [{ type: createEdgeType("knows") }],
     });
 
     await migrateUserStylingIfNeeded();
 
-    // The pre-existing migrated data is preserved, not overwritten from the old key.
+    // Both pre-existing migrated maps are preserved, not overwritten from the old key.
     expect(await localForage.getItem("vertex-styles")).toStrictEqual(
       existingVertexStyles,
+    );
+    expect(await localForage.getItem("edge-styles")).toStrictEqual(
+      existingEdgeStyles,
+    );
+  });
+
+  it("completes a partial write when only vertex-styles exists", async () => {
+    const vertexStyle: VertexPreferencesStorageModel = {
+      type: createVertexType("Person"),
+      color: "#ff0000",
+    };
+    const edgeStyle: EdgePreferencesStorageModel = {
+      type: createEdgeType("knows"),
+      lineColor: "#00ff00",
+    };
+    // Simulate a crash after vertex-styles was written but before edge-styles was written.
+    await localForage.setItem<UserStyling>("user-styling", {
+      vertices: [vertexStyle],
+      edges: [edgeStyle],
+    });
+    await localForage.setItem(
+      "vertex-styles",
+      new Map([[vertexStyle.type, vertexStyle]]),
+    );
+
+    await migrateUserStylingIfNeeded();
+
+    // edge-styles is recovered from user-styling.
+    expect(await localForage.getItem("edge-styles")).toStrictEqual(
+      new Map([[edgeStyle.type, edgeStyle]]),
+    );
+    // vertex-styles is re-derived from user-styling (same data, idempotent).
+    expect(await localForage.getItem("vertex-styles")).toStrictEqual(
+      new Map([[vertexStyle.type, vertexStyle]]),
+    );
+  });
+
+  it("completes a partial write when only edge-styles exists", async () => {
+    const vertexStyle: VertexPreferencesStorageModel = {
+      type: createVertexType("Person"),
+      color: "#ff0000",
+    };
+    const edgeStyle: EdgePreferencesStorageModel = {
+      type: createEdgeType("knows"),
+      lineColor: "#00ff00",
+    };
+    // Simulate a crash after edge-styles was written but before vertex-styles was written.
+    await localForage.setItem<UserStyling>("user-styling", {
+      vertices: [vertexStyle],
+      edges: [edgeStyle],
+    });
+    await localForage.setItem(
+      "edge-styles",
+      new Map([[edgeStyle.type, edgeStyle]]),
+    );
+
+    await migrateUserStylingIfNeeded();
+
+    // vertex-styles is recovered from user-styling.
+    expect(await localForage.getItem("vertex-styles")).toStrictEqual(
+      new Map([[vertexStyle.type, vertexStyle]]),
+    );
+    // edge-styles is re-derived from user-styling (same data, idempotent).
+    expect(await localForage.getItem("edge-styles")).toStrictEqual(
+      new Map([[edgeStyle.type, edgeStyle]]),
     );
   });
 

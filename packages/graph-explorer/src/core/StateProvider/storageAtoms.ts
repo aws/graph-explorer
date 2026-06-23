@@ -16,8 +16,17 @@ import { migrateUserStylingIfNeeded } from "./migrateUserStyling";
 import { defaultUserLayout } from "./userLayoutDefaults";
 
 // Convert any legacy single-key user styling into the type-keyed map atoms
-// below before they preload. Must run before the `Promise.all`.
-await migrateUserStylingIfNeeded();
+// below before they preload. Must run before the `Promise.all`. Errors are
+// caught so a migration failure degrades gracefully rather than crashing the
+// module and leaving all atoms undefined.
+try {
+  await migrateUserStylingIfNeeded();
+} catch (err) {
+  console.error(
+    "[graph-explorer] User styling migration failed; continuing with defaults.",
+    err,
+  );
+}
 
 /**
  DEV NOTE

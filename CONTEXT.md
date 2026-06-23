@@ -63,7 +63,7 @@ A key-value pair on a Vertex or Edge. UI label varies by query language: "Proper
 _Avoid_: Attribute (legacy code term being phased out)
 
 **User Preferences**:
-Display customizations per Vertex Type and Edge Type — shape, color, icon, line style, and display labels. Persisted and merged with Schema-discovered metadata to produce the final rendering.
+Display customizations per Vertex Type and Edge Type — shape, color, icon, line style, and display labels. Persisted and merged with Schema-discovered metadata to produce the final rendering. Stored in IndexedDB as two type-keyed Maps: `vertexStylesAtom` (`Map<VertexType, VertexPreferencesStorageModel>`) and `edgeStylesAtom` (`Map<EdgeType, EdgePreferencesStorageModel>`), replacing the former single `userStylingAtom` object.
 _Avoid_: User styling, user settings
 
 **Schema Sync**:
