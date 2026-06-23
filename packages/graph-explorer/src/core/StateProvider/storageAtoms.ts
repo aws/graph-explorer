@@ -65,9 +65,10 @@ const [
   diagnosticLoggingAtom,
 ] = await Promise.all([
   createActiveConfigurationAtom(),
-  atomWithLocalForage<Map<ConfigurationId, RawConfiguration>>(
+  atomWithReconciledLocalForage<Map<ConfigurationId, RawConfiguration>>(
     "configuration",
     new Map(),
+    reconcileMapByKey,
   ),
   /** All the stored schemas */
   atomWithReconciledLocalForage(
@@ -82,9 +83,10 @@ const [
   ),
   atomWithLocalForage("user-layout", defaultUserLayout),
   /** Stores the graph session data for each connection. */
-  atomWithLocalForage<Map<ConfigurationId, GraphSessionStorageModel>>(
+  atomWithReconciledLocalForage<Map<ConfigurationId, GraphSessionStorageModel>>(
     "graph-sessions",
     new Map(),
+    reconcileMapByKey,
   ),
   /*
    * General App Settings

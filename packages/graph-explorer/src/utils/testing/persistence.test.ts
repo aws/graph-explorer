@@ -1,6 +1,9 @@
 import { createRandomName } from "@shared/utils/testing";
 
+import type { RawConfiguration } from "@/core/ConfigurationProvider";
+import type { ConfigurationId } from "@/core/ConfigurationProvider";
 import type { VertexType } from "@/core/entities/vertex";
+import type { GraphSessionStorageModel } from "@/core/StateProvider/graphSession/storage";
 import type { SchemaStorageModel } from "@/core/StateProvider/schema";
 import type {
   UserStyling,
@@ -11,7 +14,13 @@ import { reconcileMapByKey } from "@/core/StateProvider/atomWithLocalForage";
 import { reconcileUserStyling } from "@/core/StateProvider/userPreferences";
 
 import { openPersistenceTab, readPersistedValue } from "./persistence";
-import { createRandomSchema, createRandomVertexType } from "./randomData";
+import {
+  createRandomEdgeId,
+  createRandomRawConfiguration,
+  createRandomSchema,
+  createRandomVertexId,
+  createRandomVertexType,
+} from "./randomData";
 
 describe("persistence test helpers", () => {
   test("a tab reads back the value it persisted", async () => {
@@ -254,5 +263,97 @@ describe("cross-tab schema reconciliation", () => {
 
     expect(persisted?.get(connectionA)).toEqual(schemaA);
     expect(persisted?.get(connectionB)).toEqual(schemaB);
+  });
+});
+
+/**
+ * REGRESSION — #1820 cross-tab connection clobber
+ *
+ * The configuration atom stores `Map<ConfigurationId, RawConfiguration>` — one
+ * entry per connection. Creating a connection in one tab while another tab
+ * holds a stale copy would, on a blind whole-map write, silently drop the
+ * connection the other tab created. The same per-key map merge protects it.
+ */
+describe("cross-tab connection reconciliation", () => {
+  test("preserves connections created concurrently by two tabs", async () => {
+    const key = createRandomName("configuration");
+    const connectionX = createRandomRawConfiguration();
+    const connectionY = createRandomRawConfiguration();
+
+    type ConfigMap = Map<ConfigurationId, RawConfiguration>;
+
+    const tabA = await openPersistenceTab<ConfigMap>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+    const tabB = await openPersistenceTab<ConfigMap>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+
+    // Tab A creates connection X and persists.
+    tabA.write(prev => new Map(prev).set(connectionX.id, connectionX));
+    await tabA.flush();
+
+    // Tab B, still holding its stale empty map, creates connection Y.
+    tabB.write(prev => new Map(prev).set(connectionY.id, connectionY));
+    await tabB.flush();
+
+    const persisted = await readPersistedValue<ConfigMap>(key);
+
+    expect(persisted?.get(connectionX.id)).toEqual(connectionX);
+    expect(persisted?.get(connectionY.id)).toEqual(connectionY);
+  });
+});
+
+/**
+ * REGRESSION — #1820 cross-tab session clobber
+ *
+ * The graph-sessions atom stores `Map<ConfigurationId, GraphSessionStorageModel>`
+ * — one session per connection. Concurrent session changes for different
+ * connections must not clobber each other; the per-key map merge keeps each
+ * connection's session intact.
+ */
+describe("cross-tab session reconciliation", () => {
+  test("preserves sessions written concurrently for different connections", async () => {
+    const key = createRandomName("graph-sessions");
+    const connectionA = createRandomName("connection") as ConfigurationId;
+    const connectionB = createRandomName("connection") as ConfigurationId;
+    const sessionA: GraphSessionStorageModel = {
+      vertices: new Set([createRandomVertexId()]),
+      edges: new Set([createRandomEdgeId()]),
+    };
+    const sessionB: GraphSessionStorageModel = {
+      vertices: new Set([createRandomVertexId()]),
+      edges: new Set([createRandomEdgeId()]),
+    };
+
+    type SessionMap = Map<ConfigurationId, GraphSessionStorageModel>;
+
+    const tabA = await openPersistenceTab<SessionMap>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+    const tabB = await openPersistenceTab<SessionMap>(
+      key,
+      new Map(),
+      reconcileMapByKey,
+    );
+
+    // Tab A records connection A's session and persists.
+    tabA.write(prev => new Map(prev).set(connectionA, sessionA));
+    await tabA.flush();
+
+    // Tab B, still holding its stale empty map, records connection B's session.
+    tabB.write(prev => new Map(prev).set(connectionB, sessionB));
+    await tabB.flush();
+
+    const persisted = await readPersistedValue<SessionMap>(key);
+
+    expect(persisted?.get(connectionA)).toEqual(sessionA);
+    expect(persisted?.get(connectionB)).toEqual(sessionB);
   });
 });
