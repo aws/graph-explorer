@@ -10,6 +10,7 @@ import {
   type EdgePreferencesStorageModel,
   edgesAtom,
   edgesFilteredIdsAtom,
+  userEdgeStylesAtom,
   edgesTypesFilteredAtom,
   type EdgeType,
   explorerForTestingAtom,
@@ -23,11 +24,10 @@ import {
   type SchemaStorageModel,
   toEdgeMap,
   toNodeMap,
-  type UserStyling,
-  userStylingAtom,
   type Vertex,
   type VertexId,
   type VertexPreferencesStorageModel,
+  userVertexStylesAtom,
   type VertexType,
 } from "@/core";
 
@@ -36,8 +36,9 @@ import {
   createRandomEdge,
   createRandomRawConfiguration,
   createRandomSchema,
-  createRandomUserStyling,
   createRandomVertex,
+  createRandomEdgeStyles,
+  createRandomVertexStyles,
   type TestableEdge,
   type TestableVertex,
 } from "./randomData";
@@ -48,7 +49,8 @@ import {
 export class DbState {
   #activeSchema: SchemaStorageModel | null;
   activeConfig: RawConfiguration;
-  activeStyling: UserStyling;
+  vertexStyles: Map<VertexType, VertexPreferencesStorageModel>;
+  edgeStyles: Map<EdgeType, EdgePreferencesStorageModel>;
 
   explorer: Explorer;
 
@@ -65,7 +67,8 @@ export class DbState {
 
     this.activeConfig = createRandomRawConfiguration();
 
-    this.activeStyling = createRandomUserStyling();
+    this.vertexStyles = createRandomVertexStyles();
+    this.edgeStyles = createRandomEdgeStyles();
 
     this.explorer = explorer;
   }
@@ -160,9 +163,7 @@ export class DbState {
     style: Omit<VertexPreferencesStorageModel, "type">,
   ): VertexPreferencesStorageModel {
     const composedStyle = { ...style, type: vertexType };
-    const vertices = this.activeStyling.vertices ?? [];
-    vertices.push(composedStyle);
-    this.activeStyling.vertices = vertices;
+    this.vertexStyles.set(vertexType, composedStyle);
     return composedStyle;
   }
 
@@ -177,9 +178,7 @@ export class DbState {
     style: Omit<EdgePreferencesStorageModel, "type">,
   ): EdgePreferencesStorageModel {
     const composedStyle = { ...style, type: edgeType };
-    const edges = this.activeStyling.edges ?? [];
-    edges.push(composedStyle);
-    this.activeStyling.edges = edges;
+    this.edgeStyles.set(edgeType, composedStyle);
     return composedStyle;
   }
 
@@ -201,7 +200,8 @@ export class DbState {
     store.set(activeConfigurationAtom, this.activeConfig.id);
 
     // Styling
-    store.set(userStylingAtom, this.activeStyling);
+    store.set(userVertexStylesAtom, this.vertexStyles);
+    store.set(userEdgeStylesAtom, this.edgeStyles);
 
     // Vertices
     store.set(nodesAtom, toNodeMap(this.vertices));

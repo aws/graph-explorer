@@ -132,7 +132,7 @@ describe("useDisplayEdgeFromEdge", () => {
     const edgePrefs = createRandomEdgePreferencesStorageModel();
     edgePrefs.type = edge.type;
     edgePrefs.displayLabel = createRandomName("prefs");
-    dbState.activeStyling.edges?.push(edgePrefs);
+    dbState.edgeStyles.set(edgePrefs.type, edgePrefs);
 
     const { result } = renderHookWithState(
       () => useDisplayEdgeFromEdge(edge),

@@ -54,7 +54,6 @@ import {
   type PrefixTypeConfig,
   type RawConfiguration,
   type SchemaStorageModel,
-  type UserStyling,
   type Vertex,
   type VertexId,
   type VertexPreferences,
@@ -694,11 +693,28 @@ export function createRandomEdgePreferencesStorageModel(): EdgePreferencesStorag
   };
 }
 
-export function createRandomUserStyling(): UserStyling {
-  return {
-    vertices: createArray(3, createRandomVertexPreferencesStorageModel),
-    edges: createArray(3, createRandomEdgePreferencesStorageModel),
-  };
+export function createRandomVertexStyles(): Map<
+  VertexType,
+  VertexPreferencesStorageModel
+> {
+  return new Map(
+    createArray(3, createRandomVertexPreferencesStorageModel).map(style => [
+      style.type,
+      style,
+    ]),
+  );
+}
+
+export function createRandomEdgeStyles(): Map<
+  EdgeType,
+  EdgePreferencesStorageModel
+> {
+  return new Map(
+    createArray(3, createRandomEdgePreferencesStorageModel).map(style => [
+      style.type,
+      style,
+    ]),
+  );
 }
 
 export function createRandomVertexPreferences(): Writable<VertexPreferences> {

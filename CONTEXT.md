@@ -14,7 +14,7 @@ _Avoid_: Relationship, link
 
 **Connection**:
 A saved database profile — the URL, query engine, authentication settings, and proxy routing needed to reach a graph database. Users create and manage these in the UI.
-_Avoid_: Configuration (legacy term being phased out — previously bundled connection + schema + user preferences into one object)
+_Avoid_: Configuration (legacy term being phased out — previously bundled connection + schema + Styles into one object)
 
 **Active Connection**:
 The one Connection a single browser tab is currently exploring — what the entire app reads to decide which Schema, Session, and queries are in play. Held per-tab (sessionStorage): it survives that tab's reload but dies with the tab, and one tab activating a Connection never changes another tab's Active Connection.
@@ -62,9 +62,9 @@ _Avoid_: Relationship (Gremlin UI term), Object Property (SPARQL UI term)
 A key-value pair on a Vertex or Edge. UI label varies by query language: "Property" (Gremlin/openCypher), "Datatype Property" (SPARQL).
 _Avoid_: Attribute (legacy code term being phased out)
 
-**User Preferences**:
-Display customizations per Vertex Type and Edge Type — shape, color, icon, line style, and display labels. Persisted and merged with Schema-discovered metadata to produce the final rendering.
-_Avoid_: User styling, user settings
+**Styles**:
+Display customizations per Vertex Type and Edge Type — shape, color, icon, line style, and display labels. Persisted and merged with Schema-discovered metadata to produce the final rendering. The two specific instances are **Vertex Styles** and **Edge Styles**, each stored in IndexedDB as its own type-keyed Map: `userVertexStylesAtom` (`Map<VertexType, VertexPreferencesStorageModel>`, key `"user-vertex-styles"`) and `userEdgeStylesAtom` (`Map<EdgeType, EdgePreferencesStorageModel>`, key `"user-edge-styles"`), replacing the former single `userStylingAtom` object. Storage keys follow a `<layer>-<entity>-styles` convention; only the user-defined layer (`user-`) exists today, with additional style layers planned in later work.
+_Avoid_: User Preferences, preferences, user styling, user settings (the `*Preferences*` code names — `VertexPreferencesStorageModel`, `userPreferences.ts`, `vertexPreferencesAtom` — are the legacy term being phased out)
 
 **Schema Sync**:
 The process that queries the database to discover vertex types, edge types, and their attributes. Required before a user can explore a new Connection.
@@ -98,7 +98,7 @@ _Avoid_: Save-status indicator
 - An **Edge Connection** links a source **Vertex Type** to a target **Vertex Type** via an **Edge Type**
 - A **Session** belongs to a **Connection** and contains **Vertices** and **Edges**
 - **Neighbors** are **Vertices** one hop away from a given **Vertex**
-- **User Preferences** are scoped per **Vertex Type** and **Edge Type**
+- **Styles** are scoped per **Vertex Type** (**Vertex Styles**) and **Edge Type** (**Edge Styles**)
 - The **Graph View**, **Data Table View**, and **Schema View** all render from the same **Session** and **Schema**
 
 ## Example dialogue
@@ -109,12 +109,13 @@ _Avoid_: Save-status indicator
 > **Dev:** "If a user expands **Neighbors** on a vertex, do we fetch all connected vertices at once?"
 > **Domain expert:** "No, it's progressive. We fetch one page at a time and track unfetched **Neighbor** counts so the user knows how much is left to explore."
 
-> **Dev:** "Are **User Preferences** shared across **Connections**?"
+> **Dev:** "Are **Styles** shared across **Connections**?"
 > **Domain expert:** "No — well, actually right now they're per **Vertex Type** and **Edge Type** globally, not scoped to a specific **Connection**. So if two databases happen to have the same type name, they'd share styling."
 
 ## Flagged ambiguities
 
-- "Configuration" was used to mean both **Connection** and the bundled object (connection + schema + user preferences) — resolved: **Connection** is canonical, "Configuration" is legacy.
+- "Configuration" was used to mean both **Connection** and the bundled object (connection + schema + Styles) — resolved: **Connection** is canonical, "Configuration" is legacy.
+- "User Preferences" / "preferences" was used for display customizations, but the code is mid-migration to "styles" (`userVertexStylesAtom` / `userEdgeStylesAtom`, `"user-vertex-styles"` / `"user-edge-styles"`) — resolved: **Styles** is canonical (with **Vertex Styles** / **Edge Styles** as instances); the `*Preferences*` code names are legacy being phased out.
 - A Connection's data now has three distinct shapes that look similar but must not be conflated, each with its own explicit type: the **Exported Connection File** (`ExportedConnectionFile`, on-disk wire format), the in-memory merged configuration (`MergedConfiguration` — connection plus a live `Schema` with `lastUpdate` as a `Date`), and the persisted storage shape (`RawConfiguration` — connection only; the schema is stored separately in `schemaAtom`, never embedded). `mergeConfiguration` assembles a `MergedConfiguration` from a stored `RawConfiguration` and its active schema. Remaining work: `configurationAtom` still keys by `RawConfiguration`, to be migrated to a connection record.
 - "Node" means **Vertex** in code but is the preferred UI term for property graphs — resolved: use **Vertex** in code, "node" in UI copy.
 - "Attribute" vs "Property" — resolved: **Property** is canonical, "attribute" is legacy code term being phased out.
