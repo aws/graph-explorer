@@ -7,11 +7,12 @@ We encourage you to participate in the discussion within the individual roadmap 
 > [!IMPORTANT]
 > These items are subject to change.
 
-## Q1 2026
+## Q3 2026
 
-- [Schema visualization](https://github.com/aws/graph-explorer/issues/685)
+- [Schema Explorer enhancements](https://github.com/aws/graph-explorer/issues/1486)
+- [Query editor enhancements](https://github.com/aws/graph-explorer/issues/810)
 
-## Q2 2026
+## Q4 2026
 
 - [Improved graph rendering](https://github.com/aws/graph-explorer/issues/691)
 
