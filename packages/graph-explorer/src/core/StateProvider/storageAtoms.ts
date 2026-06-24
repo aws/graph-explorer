@@ -11,7 +11,7 @@ import type {
 } from "./userPreferences";
 
 import { createActiveConfigurationAtom } from "./activeConnectionStorage";
-import { atomWithLocalForage } from "./atomWithLocalForage";
+import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
 import { runUserStylingMigration } from "./migrateUserStyling";
 import { defaultUserLayout } from "./userLayoutDefaults";
 
@@ -75,9 +75,14 @@ const [
   atomWithLocalForage<Map<ConfigurationId, RawConfiguration>>(
     "configuration",
     new Map(),
+    reconcileMapByKey,
   ),
   /** All the stored schemas */
-  atomWithLocalForage("schema", new Map<string, SchemaStorageModel>()),
+  atomWithLocalForage(
+    "schema",
+    new Map<string, SchemaStorageModel>(),
+    reconcileMapByKey,
+  ),
   /**
    * User-defined vertex style overrides, keyed by type. The `user-` prefix
    * marks the user-defined layer of the planned `<layer>-<entity>-styles` set
@@ -86,17 +91,20 @@ const [
   atomWithLocalForage(
     "user-vertex-styles",
     new Map<VertexType, VertexPreferencesStorageModel>(),
+    reconcileMapByKey,
   ),
   /** User-defined edge style overrides, keyed by type. See above. */
   atomWithLocalForage(
     "user-edge-styles",
     new Map<EdgeType, EdgePreferencesStorageModel>(),
+    reconcileMapByKey,
   ),
   atomWithLocalForage("user-layout", defaultUserLayout),
   /** Stores the graph session data for each connection. */
   atomWithLocalForage<Map<ConfigurationId, GraphSessionStorageModel>>(
     "graph-sessions",
     new Map(),
+    reconcileMapByKey,
   ),
   /*
    * General App Settings

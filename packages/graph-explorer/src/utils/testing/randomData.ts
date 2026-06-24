@@ -30,6 +30,7 @@ import { createRdfEdgeId } from "@/connector/sparql/createRdfEdgeId";
 import {
   type ArrowStyle,
   type AttributeConfig,
+  type ConfigurationId,
   type ConnectionWithId,
   createEdge,
   createEdgeId,
@@ -260,6 +261,11 @@ export function createRandomVertexId(): VertexId {
 /** Creates a random edge ID. */
 export function createRandomEdgeId(): EdgeId {
   return createEdgeId(createRandomName("EdgeId"));
+}
+
+/** Creates a random configuration (connection) ID. */
+export function createRandomConfigurationId(): ConfigurationId {
+  return createNewConfigurationId();
 }
 
 export function createRandomVertexType(): VertexType {
