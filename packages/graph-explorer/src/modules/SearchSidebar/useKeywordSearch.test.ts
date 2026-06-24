@@ -40,13 +40,13 @@ function initializeConfigWithQueryEngine(queryEngine: QueryEngine) {
 
 describe("useKeywordSearch", () => {
   describe("Gremlin", () => {
-    it("Should default to precision match exact", () => {
+    it("Should default to precision match partial", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("gremlin"),
       );
 
-      expect(result.current.partialMatch).toBe(false);
+      expect(result.current.partialMatch).toBe(true);
     });
 
     it("Should default to attribute ID", () => {
@@ -83,13 +83,13 @@ describe("useKeywordSearch", () => {
   });
 
   describe("OpenCypher", () => {
-    it("Should default to precision match exact", () => {
+    it("Should default to precision match partial", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("openCypher"),
       );
 
-      expect(result.current.partialMatch).toBe(false);
+      expect(result.current.partialMatch).toBe(true);
     });
 
     it("Should default to attribute ID", () => {
@@ -143,13 +143,13 @@ describe("useKeywordSearch", () => {
       store.set(activeConfigurationAtom, config.id);
     }
 
-    it("Should default to precision match exact", () => {
+    it("Should default to precision match partial", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithRdfLabel,
       );
 
-      expect(result.current.partialMatch).toBe(false);
+      expect(result.current.partialMatch).toBe(true);
     });
 
     it("Should default to attribute rdfs:label", () => {
@@ -189,13 +189,13 @@ describe("useKeywordSearch", () => {
   });
 
   describe("SPARQL without rdfs:label", () => {
-    it("Should default to precision match exact", () => {
+    it("Should default to precision match partial", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
         initializeConfigWithQueryEngine("sparql"),
       );
 
-      expect(result.current.partialMatch).toBe(false);
+      expect(result.current.partialMatch).toBe(true);
     });
 
     it("Should default to attribute All", () => {

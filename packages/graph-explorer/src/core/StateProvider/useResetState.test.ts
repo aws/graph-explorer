@@ -100,10 +100,10 @@ describe("useResetState", () => {
 
     act(() => result.current());
 
-    expect(store.get(searchTermAtom)).toBe("");
+    expect(store.get(searchTermAtom)).toBe("(root)");
     expect(store.get(selectedVertexTypeAtom)).toBe("__all");
-    expect(store.get(selectedAttributeAtom)).toBe("__id");
-    expect(store.get(partialMatchAtom)).toBe(false);
+    expect(store.get(selectedAttributeAtom)).toBe("caption");
+    expect(store.get(partialMatchAtom)).toBe(true);
     expect(store.get(selectedTabAtom)).toBe("filter");
     expect(store.get(queryTextAtom)).toBe("");
   });

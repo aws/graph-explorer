@@ -15,14 +15,12 @@ export interface PromiseWithCancel<T> extends Promise<T> {
   cancel?: () => void;
 }
 
-export const searchTermAtom = atomWithReset("");
+export const searchTermAtom = atomWithReset("(root)");
 export const selectedVertexTypeAtom = atomWithReset<string>(
   SEARCH_TOKENS.ALL_VERTEX_TYPES,
 );
-export const selectedAttributeAtom = atomWithReset<string>(
-  SEARCH_TOKENS.NODE_ID,
-);
-export const partialMatchAtom = atomWithReset(false);
+export const selectedAttributeAtom = atomWithReset<string>("caption");
+export const partialMatchAtom = atomWithReset(true);
 
 /** Gets all the searchable attributes for the selected vertex type */
 function useAttributeOptions(selectedVertexType: string) {

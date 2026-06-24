@@ -23,7 +23,27 @@
 - Only use scripts defined in the root `package.json`
 - Use `pnpm` as the package manager
 
-### Examples
+### Running tests and checks (use Docker)
+
+The host environment's Node version is often too old to run `pnpm` directly. **Run tests and checks through the dedicated Docker container** defined in `Dockerfile.test` / `docker-compose.test.yml`, which pins the repo's Node + pnpm and provides openssl for the SSL tests.
+
+```bash
+# Full test suite (installs deps on first run, then runs `pnpm test`)
+docker compose -f docker-compose.test.yml run --rm test
+
+# Checks (lint + format + types)
+docker compose -f docker-compose.test.yml run --rm test pnpm run checks
+
+# A single test file
+docker compose -f docker-compose.test.yml run --rm test pnpm test packages/graph-explorer/src/path/to/file.test.ts
+
+# Coverage
+docker compose -f docker-compose.test.yml run --rm test pnpm coverage
+```
+
+The working tree is bind-mounted (code changes are picked up without a rebuild) and `node_modules` live in named volumes. See the header comments in `docker-compose.test.yml` for details.
+
+### Command reference (run via the Docker container above)
 
 ```bash
 # All checks (lint, format, types)
