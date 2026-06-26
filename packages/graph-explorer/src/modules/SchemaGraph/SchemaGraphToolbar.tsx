@@ -17,7 +17,7 @@ import {
   ZoomToFitButton,
 } from "@/components/Graph";
 import { useSchemaSync } from "@/hooks/useSchemaSync";
-import { logger } from "@/utils";
+import { ASCII, logger } from "@/utils";
 
 import { schemaGraphLayoutAtom } from "./SchemaGraph";
 
@@ -69,7 +69,7 @@ function SchemaRefreshButton() {
       <Spinner loading={isFetching}>
         <RefreshCcwIcon />
       </Spinner>
-      Refresh Schema
+      Refresh{ASCII.NBSP}Schema
     </Button>
   );
 }

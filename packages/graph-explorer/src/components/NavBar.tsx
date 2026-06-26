@@ -56,7 +56,10 @@ export function NavBarActions({
   );
 }
 
-function NavBarLogo({ className, ...rest }: ComponentPropsWithRef<"div">) {
+export function NavBarLogo({
+  className,
+  ...rest
+}: ComponentPropsWithRef<"div">) {
   return (
     <div
       data-slot="nav-bar-logo"

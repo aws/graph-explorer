@@ -1,4 +1,5 @@
 export * from "./Alert";
+export * from "./AlertDialog";
 export * from "./Button";
 
 export * from "./Checkbox";
@@ -32,6 +33,7 @@ export * from "./EmptyState";
 export * from "./Field";
 export * from "./FileButton";
 export * from "./Form";
+export * from "./Group";
 
 export * from "./IconPicker";
 
@@ -40,6 +42,7 @@ export * from "./numberFormat";
 export * from "./icons";
 
 export * from "./Input";
+export * from "./LabelledSetting";
 export { default as InputField } from "./InputField";
 export * from "./InputField";
 
@@ -75,7 +78,7 @@ export { default as SelectField } from "./SelectField";
 export * from "./SelectField";
 export * from "./Separator";
 
-export * from "./SettingsSection";
+export * from "./SettingsPage";
 
 export * from "./SidebarTabs";
 

@@ -17,6 +17,8 @@ const buttonStyles = cva({
         "text-primary-foreground hover:bg-primary-subtle data-open:bg-primary-subtle",
       outline:
         "text-text-primary border-input hover:bg-muted data-open:border-primary-main border bg-transparent shadow-xs",
+      "primary-danger":
+        "bg-danger hover:bg-danger-hover data-open:bg-danger-hover text-white",
       danger:
         "bg-danger-subtle text-danger hover:bg-danger-subtle-hover data-open:bg-danger-subtle-hover",
       "danger-ghost":
