@@ -26,6 +26,7 @@ export async function fromFileToJson(blob: Blob) {
 export async function saveFile(file: Blob, defaultFileName: string) {
   if (!("showSaveFilePicker" in window)) {
     saveAs(file, defaultFileName);
+    return;
   }
 
   const fileHandle = await window.showSaveFilePicker({

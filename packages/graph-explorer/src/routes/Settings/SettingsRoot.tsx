@@ -1,4 +1,4 @@
-import { CogIcon, InfoIcon } from "lucide-react";
+import { CogIcon, InfoIcon, SwatchBookIcon } from "lucide-react";
 import { type PropsWithChildren, Suspense } from "react";
 import { NavLink, Outlet, type To } from "react-router";
 
@@ -60,6 +60,12 @@ function SideBar() {
           <SideBarItem to="general">
             <CogIcon />
             General
+          </SideBarItem>
+        </li>
+        <li>
+          <SideBarItem to="styles">
+            <SwatchBookIcon />
+            Styles
           </SideBarItem>
         </li>
         <li>

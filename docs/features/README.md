@@ -22,7 +22,7 @@ Execute raw Gremlin, openCypher, or SPARQL queries directly from the Search pane
 
 ### Customizable Styles
 
-Personalize how each node and edge type appears on the canvas. Change colors, shapes, borders, icons, and which property is displayed as the label. You can also rename how type names are displayed throughout the application — for example, show the `airport` label as "Airport" or a `route` edge as "Flies To" — without modifying the underlying data.
+Personalize how each node and edge type appears on the canvas. Change colors, shapes, borders, icons, and which property is displayed as the label. You can also rename how type names are displayed throughout the application — for example, show the `airport` label as "Airport" or a `route` edge as "Flies To" — without modifying the underlying data. Styles can be [exported and imported](./settings.md#styles) from the Settings → Styles page to share a visual configuration across machines or with teammates.
 
 ### Save & Load Graph
 

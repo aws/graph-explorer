@@ -63,8 +63,21 @@ A key-value pair on a Vertex or Edge. UI label varies by query language: "Proper
 _Avoid_: Attribute (legacy code term being phased out)
 
 **Styles**:
-Display customizations per Vertex Type and Edge Type — shape, color, icon, line style, and display labels. Persisted and merged with Schema-discovered metadata to produce the final rendering. The two specific instances are **Vertex Styles** and **Edge Styles**, each stored in IndexedDB as its own type-keyed Map: `userVertexStylesAtom` (`Map<VertexType, VertexPreferencesStorageModel>`, key `"user-vertex-styles"`) and `userEdgeStylesAtom` (`Map<EdgeType, EdgePreferencesStorageModel>`, key `"user-edge-styles"`), replacing the former single `userStylingAtom` object. Storage keys follow a `<layer>-<entity>-styles` convention; only the user-defined layer (`user-`) exists today, with additional style layers planned in later work.
-_Avoid_: User Preferences, preferences, user styling, user settings (the `*Preferences*` code names — `VertexPreferencesStorageModel`, `userPreferences.ts`, `vertexPreferencesAtom` — are the legacy term being phased out)
+Display customizations per Vertex Type and Edge Type — shape, color, icon, line style, and display labels. Resolved through a **Styles Cascade** (highest precedence first): User Custom Styles → Imported Default Styles → App Default Styles. Persisted and merged with Schema-discovered metadata to produce the final rendering. The two specific instances are **Vertex Styles** and **Edge Styles**, each stored in IndexedDB as its own type-keyed Map per layer. Storage keys follow a `<layer>-<entity>-styles` convention.
+_Avoid_: User Preferences, preferences, user styling, user settings (the `*Preferences*` code names — `VertexPreferencesStorageModel`, `userPreferences.ts`, `vertexPreferencesAtom` — are the legacy term being phased out); "customization" as a standalone noun
+
+**Styles Cascade**:
+The precedence stack that resolves which style value a vertex or edge type displays. From highest to lowest priority: (4) **User Custom Styles** — per-type edits made in the style dialogs, (3) **Imported Default Styles** — loaded from a file via Settings, (2) **Server Default Styles** — fetched from server config (future, out of scope), (1) **App Default Styles** — hardcoded in the codebase (`defaultVertexPreferences` / `defaultEdgePreferences`). All layers below User Custom Styles (1–3) collectively are **Default Styles** — what "Reset to Default" restores to. The verb is **customize**; the UI shorthand is **custom styles** / **default styles**.
+_Avoid_: Effective styles (no separate atom), style overrides
+
+**User Custom Styles**:
+The highest-precedence layer in the Styles Cascade. Per-type edits a user makes in the vertex/edge style dialogs. Stored in `userVertexStylesAtom` (`Map<VertexType, VertexPreferencesStorageModel>`, key `"user-vertex-styles"`) and `userEdgeStylesAtom` (`Map<EdgeType, EdgePreferencesStorageModel>`, key `"user-edge-styles"`). Clearing these ("Reset all custom styles" in Settings) reveals Imported Default Styles beneath.
+
+**Imported Default Styles**:
+The second-highest-precedence layer in the Styles Cascade (below User Custom, above App Default). Loaded from a styling export file via the Settings → Styles screen. Stored in `importedVertexStylesAtom` (key `"imported-vertex-styles"`) and `importedEdgeStylesAtom` (key `"imported-edge-styles"`). Non-destructive to User Custom Styles — import writes only this layer. Clearing these ("Clear imported defaults" in Settings) falls through to App Default Styles.
+
+**App Default Styles**:
+The lowest-precedence layer in the Styles Cascade. Hardcoded in the codebase as `defaultVertexPreferences` and `defaultEdgePreferences`. Not persisted — always available as the final fallback.
 
 **Schema Sync**:
 The process that queries the database to discover vertex types, edge types, and their attributes. Required before a user can explore a new Connection.

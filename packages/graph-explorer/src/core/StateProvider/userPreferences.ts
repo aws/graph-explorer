@@ -10,46 +10,58 @@ import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import type { EdgeType, VertexType } from "../entities";
 
 import { useActiveSchema } from "./schema";
-import { userEdgeStylesAtom, userVertexStylesAtom } from "./storageAtoms";
+import {
+  importedEdgeStylesAtom,
+  importedVertexStylesAtom,
+  userEdgeStylesAtom,
+  userVertexStylesAtom,
+} from "./storageAtoms";
 
-export type ShapeStyle =
-  | "rectangle"
-  | "roundrectangle"
-  | "ellipse"
-  | "triangle"
-  | "pentagon"
-  | "hexagon"
-  | "heptagon"
-  | "octagon"
-  | "star"
-  | "barrel"
-  | "diamond"
-  | "vee"
-  | "rhomboid"
-  | "tag"
-  | "round-rectangle"
-  | "round-triangle"
-  | "round-diamond"
-  | "round-pentagon"
-  | "round-hexagon"
-  | "round-heptagon"
-  | "round-octagon"
-  | "round-tag"
-  | "cut-rectangle"
-  | "concave-hexagon";
-export type LineStyle = "solid" | "dashed" | "dotted";
-export type ArrowStyle =
-  | "triangle"
-  | "triangle-tee"
-  | "circle-triangle"
-  | "triangle-cross"
-  | "triangle-backcurve"
-  | "tee"
-  | "vee"
-  | "square"
-  | "circle"
-  | "diamond"
-  | "none";
+export const SHAPE_STYLES = [
+  "rectangle",
+  "roundrectangle",
+  "ellipse",
+  "triangle",
+  "pentagon",
+  "hexagon",
+  "heptagon",
+  "octagon",
+  "star",
+  "barrel",
+  "diamond",
+  "vee",
+  "rhomboid",
+  "tag",
+  "round-rectangle",
+  "round-triangle",
+  "round-diamond",
+  "round-pentagon",
+  "round-hexagon",
+  "round-heptagon",
+  "round-octagon",
+  "round-tag",
+  "cut-rectangle",
+  "concave-hexagon",
+] as const;
+export type ShapeStyle = (typeof SHAPE_STYLES)[number];
+
+export const LINE_STYLES = ["solid", "dashed", "dotted"] as const;
+export type LineStyle = (typeof LINE_STYLES)[number];
+
+export const ARROW_STYLES = [
+  "triangle",
+  "triangle-tee",
+  "circle-triangle",
+  "triangle-cross",
+  "triangle-backcurve",
+  "tee",
+  "vee",
+  "square",
+  "circle",
+  "diamond",
+  "none",
+] as const;
+export type ArrowStyle = (typeof ARROW_STYLES)[number];
 
 /** The user preferences to be used for the specified vertex type as the type used for storing in local storage. */
 export type VertexPreferencesStorageModel = {
@@ -164,48 +176,83 @@ export type LegacyUserStylingStorageModel = {
   edges?: Array<EdgePreferencesStorageModel>;
 };
 
-/** Vertex preferences indexed by type for O(1) lookup with default fallback. */
+/**
+ * The styles cascade — the single place vertex/edge appearance is assembled.
+ *
+ * Three layers, lowest precedence first:
+ * 1. App defaults — {@link defaultVertexPreferences} / {@link defaultEdgePreferences}.
+ * 2. Imported defaults — `importedVertexStylesAtom` / `importedEdgeStylesAtom`
+ *    (storage keys `imported-vertex-styles` / `imported-edge-styles`), loaded
+ *    from a styling export file on the Settings → Styles page.
+ * 3. User customizations — `userVertexStylesAtom` / `userEdgeStylesAtom`
+ *    (storage keys `user-vertex-styles` / `user-edge-styles`), edits made in the
+ *    style dialogs.
+ *
+ * Higher layers override lower ones per field (see {@link createVertexPreference}
+ * / {@link createEdgePreference}). Related modules: `core/styling` (the salvaging
+ * import parser and import/export hooks) and `core/fileEnvelope` (the file
+ * wrapper). The `icon`↔`iconUrl` rename happens at the file-format seam in the
+ * styling parser, not here.
+ */
+
+/** Vertex preferences indexed by type for O(1) lookup with cascade fallback.
+ * Cascade: user > imported > app defaults. */
 export const vertexPreferencesAtom = atom(get => {
-  const vertexStyles = get(userVertexStylesAtom);
+  const userStyles = get(userVertexStylesAtom);
+  const importedStyles = get(importedVertexStylesAtom);
   return {
     get(type: VertexType) {
-      return createVertexPreference(type, vertexStyles.get(type));
+      return createVertexPreference(
+        type,
+        importedStyles.get(type),
+        userStyles.get(type),
+      );
     },
   };
 });
 
-/** Edge preferences indexed by type for O(1) lookup with default fallback. */
+/** Edge preferences indexed by type for O(1) lookup with cascade fallback.
+ * Cascade: user > imported > app defaults. */
 export const edgePreferencesAtom = atom(get => {
-  const edgeStyles = get(userEdgeStylesAtom);
+  const userStyles = get(userEdgeStylesAtom);
+  const importedStyles = get(importedEdgeStylesAtom);
   return {
     get(type: EdgeType) {
-      return createEdgePreference(type, edgeStyles.get(type));
+      return createEdgePreference(
+        type,
+        importedStyles.get(type),
+        userStyles.get(type),
+      );
     },
   };
 });
 
-/** Combines the stored user preferences with the defined default values. */
+/** Combines the cascade layers: app defaults < imported < user. */
 export function createVertexPreference(
   type: VertexType,
-  stored?: VertexPreferencesStorageModel,
+  imported?: VertexPreferencesStorageModel,
+  user?: VertexPreferencesStorageModel,
 ): VertexPreferences {
   return {
     type,
     ...defaultVertexPreferences,
-    ...stored,
+    ...imported,
+    ...user,
   } as const;
 }
 
-/** Combines the stored user preferences with the defined default values. */
+/** Combines the cascade layers: app defaults < imported < user. */
 export function createEdgePreference(
   type: EdgeType,
-  stored?: EdgePreferencesStorageModel,
-) {
+  imported?: EdgePreferencesStorageModel,
+  user?: EdgePreferencesStorageModel,
+): EdgePreferences {
   return {
     type,
     ...defaultEdgePreferences,
-    ...stored,
-  };
+    ...imported,
+    ...user,
+  } as const;
 }
 
 /** Returns an array of vertex preferences based on the known vertex types in the schema. */
