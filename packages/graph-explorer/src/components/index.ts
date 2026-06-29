@@ -4,6 +4,8 @@ export * from "./Button";
 
 export * from "./Checkbox";
 
+export * from "./ConfirmDialog";
+
 export { default as CheckboxList } from "./CheckboxList";
 export * from "./CheckboxList";
 

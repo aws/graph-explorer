@@ -8,12 +8,11 @@ import {
 } from "lucide-react";
 import { useRef, useState } from "react";
 
-import type { ImportConflicts, StylingParseResult } from "@/core/styling";
+import type { ImportConflicts, ImportIssue } from "@/core/styling";
 
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -32,6 +31,7 @@ import {
   SettingsPageIcon,
   SettingsPageTitle,
   SettingsPage,
+  useConfirm,
 } from "@/components";
 import { createFileEnvelope } from "@/core/fileEnvelope";
 import {
@@ -40,15 +40,35 @@ import {
   userEdgeStylesAtom,
   userVertexStylesAtom,
 } from "@/core/StateProvider/storageAtoms";
-import { useExportStylingFile, useImportStylingFile } from "@/core/styling";
+import {
+  STYLING_EXPORT_KIND,
+  STYLING_EXPORT_VERSION,
+  useExportStylingFile,
+  useImportStylingFile,
+} from "@/core/styling";
 import { logger } from "@/utils";
 import { saveFile, toJsonFileData } from "@/utils/fileData";
 
-import StylingImportIssuesDialog, {
-  type ImportOutcome,
-} from "./StylingImportIssuesDialog";
+import StylingImportIssuesDialog from "./StylingImportIssuesDialog";
+
+/**
+ * The single lifecycle of an export or import operation. Modeled as one union
+ * so illegal combinations (busy while a result dialog is open, or two result
+ * dialogs at once) are unrepresentable. Conflict confirmation is handled inline
+ * via {@link useConfirm}, so it is not a state here.
+ */
+type StylingOpState =
+  | { status: "idle" }
+  | { status: "busy" }
+  | { status: "importDone"; issues: ImportIssue[] }
+  | { status: "importError"; message: string }
+  | { status: "exportError"; message: string };
+
+const IDLE: StylingOpState = { status: "idle" };
+const BUSY: StylingOpState = { status: "busy" };
 
 export default function SettingsStyles() {
+  const confirm = useConfirm();
   const { parseFile, getConflicts, applyImport } = useImportStylingFile();
   const { getExportPayload } = useExportStylingFile();
   const setUserVertexStyles = useSetAtom(userVertexStylesAtom);
@@ -59,45 +79,70 @@ export default function SettingsStyles() {
   const importedEdgeStyles = useAtomValue(importedEdgeStylesAtom);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [importOutcome, setImportOutcome] = useState<ImportOutcome | null>(
-    null,
-  );
-  const [exportError, setExportError] = useState<string | null>(null);
-  const [isBusy, setIsBusy] = useState(false);
-  const [confirmReset, setConfirmReset] = useState(false);
-  const [confirmClear, setConfirmClear] = useState(false);
-  const [pendingImport, setPendingImport] = useState<{
-    parsed: StylingParseResult;
-    conflicts: ImportConflicts;
-  } | null>(null);
+  const [op, setOp] = useState<StylingOpState>(IDLE);
 
-  function handleResetCustomStyles() {
+  async function handleResetCustomStyles() {
+    const confirmed = await confirm({
+      title: "Reset All Custom Styles",
+      description: (
+        <>
+          <p>
+            This will clear all your per-type style customizations. Your
+            imported defaults will remain. Consider exporting first.
+          </p>
+          <p>This cannot be undone.</p>
+        </>
+      ),
+      icon: <Trash2Icon />,
+      mediaClassName: "bg-danger-subtle text-danger",
+      confirmLabel: "Reset Custom Styles",
+      confirmVariant: "primary-danger",
+    });
+    if (!confirmed) return;
     setUserVertexStyles(new Map());
     setUserEdgeStyles(new Map());
-    setConfirmReset(false);
   }
 
-  function handleClearImportedDefaults() {
+  async function handleClearImportedDefaults() {
+    const confirmed = await confirm({
+      title: "Reset Imported Defaults",
+      description:
+        "This will remove all imported default styles. Your custom styles will remain. You can re-import a file at any time.",
+      icon: <Trash2Icon />,
+      mediaClassName: "bg-danger-subtle text-danger",
+      confirmLabel: "Reset Imported Defaults",
+      confirmVariant: "primary-danger",
+    });
+    if (!confirmed) return;
     setImportedVertexStyles(new Map());
     setImportedEdgeStyles(new Map());
-    setConfirmClear(false);
   }
 
   async function handleExport() {
-    setIsBusy(true);
+    setOp(BUSY);
     try {
       const payload = getExportPayload();
-      const envelope = createFileEnvelope("styling-export", "1.0", payload);
+      const envelope = createFileEnvelope(
+        STYLING_EXPORT_KIND,
+        STYLING_EXPORT_VERSION,
+        payload,
+      );
       const blob = toJsonFileData(envelope);
       await saveFile(blob, "graph-explorer-styles.json");
+      setOp(IDLE);
     } catch (e: unknown) {
-      if (e instanceof Error && e.name === "AbortError") return;
+      if (e instanceof Error && e.name === "AbortError") {
+        setOp(IDLE);
+        return;
+      }
       logger.warn("Export failed", e);
-      setExportError(
-        e instanceof Error ? e.message : "The styles file could not be saved.",
-      );
-    } finally {
-      setIsBusy(false);
+      setOp({
+        status: "exportError",
+        message:
+          e instanceof Error
+            ? e.message
+            : "The styles file could not be saved.",
+      });
     }
   }
 
@@ -105,7 +150,7 @@ export default function SettingsStyles() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setIsBusy(true);
+    setOp(BUSY);
     try {
       const parsed = await parseFile(file);
 
@@ -114,29 +159,37 @@ export default function SettingsStyles() {
       }
 
       const conflicts = getConflicts(parsed);
-      if (conflicts.vertices.length > 0 || conflicts.edges.length > 0) {
-        setPendingImport({ parsed, conflicts });
-      } else {
-        const issues = applyImport(parsed);
-        setImportOutcome({ issues });
+      const conflictCount = conflicts.vertices.length + conflicts.edges.length;
+      if (conflictCount > 0) {
+        const confirmed = await confirm({
+          title: `Replace ${conflictCount} existing ${conflictCount === 1 ? "default" : "defaults"}?`,
+          description:
+            "The imported file will overwrite these existing imported defaults. New types will be added alongside them.",
+          icon: <UploadIcon />,
+          mediaClassName: "bg-primary-subtle text-primary-foreground",
+          confirmLabel: "Import & Replace",
+          body: <ConflictLists conflicts={conflicts} />,
+        });
+        if (!confirmed) {
+          setOp(IDLE);
+          return;
+        }
       }
+
+      const issues = applyImport(parsed);
+      setOp({ status: "importDone", issues });
     } catch (error: unknown) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "An unexpected error occurred while importing the file.";
-      setImportOutcome({ error: message });
-    } finally {
-      setIsBusy(false);
+      setOp({
+        status: "importError",
+        message:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred while importing the file.",
+      });
     }
   }
 
-  function handleConfirmImport() {
-    if (!pendingImport) return;
-    const issues = applyImport(pendingImport.parsed);
-    setPendingImport(null);
-    setImportOutcome({ issues });
-  }
+  const isBusy = op.status === "busy";
 
   return (
     <SettingsPage>
@@ -158,7 +211,7 @@ export default function SettingsStyles() {
         <GroupItem>
           <LabelledSetting
             label="Export styles"
-            description="Save your current styles to a file. This includes both your custom styles and any imported defaults, merged together."
+            description="Save your current node and edge styling to a file. Share it with others or import it on another machine to get the same look."
           >
             <Button
               className="min-w-28"
@@ -214,7 +267,7 @@ export default function SettingsStyles() {
             <Button
               variant="danger"
               className="min-w-28"
-              onClick={() => setConfirmReset(true)}
+              onClick={handleResetCustomStyles}
             >
               <Trash2Icon />
               Reset Custom Styles
@@ -229,7 +282,7 @@ export default function SettingsStyles() {
             <Button
               variant="danger"
               className="min-w-28"
-              onClick={() => setConfirmClear(true)}
+              onClick={handleClearImportedDefaults}
             >
               <Trash2Icon />
               Reset Imported Defaults
@@ -238,28 +291,19 @@ export default function SettingsStyles() {
         </GroupItem>
       </Group>
 
-      <ConfirmResetDialog
-        open={confirmReset}
-        onConfirm={handleResetCustomStyles}
-        onCancel={() => setConfirmReset(false)}
-      />
-      <ConfirmClearDialog
-        open={confirmClear}
-        onConfirm={handleClearImportedDefaults}
-        onCancel={() => setConfirmClear(false)}
-      />
-      <ConfirmImportMergeDialog
-        pending={pendingImport}
-        onConfirm={handleConfirmImport}
-        onCancel={() => setPendingImport(null)}
-      />
       <StylingImportIssuesDialog
-        outcome={importOutcome}
-        onClose={() => setImportOutcome(null)}
+        outcome={
+          op.status === "importDone"
+            ? { issues: op.issues }
+            : op.status === "importError"
+              ? { error: op.message }
+              : null
+        }
+        onClose={() => setOp(IDLE)}
       />
       <ExportFailedDialog
-        error={exportError}
-        onClose={() => setExportError(null)}
+        error={op.status === "exportError" ? op.message : null}
+        onClose={() => setOp(IDLE)}
       />
     </SettingsPage>
   );
@@ -292,126 +336,23 @@ function ExportFailedDialog({
   );
 }
 
-function ConfirmResetDialog({
-  open,
-  onConfirm,
-  onCancel,
-}: {
-  open: boolean;
-  onConfirm: () => void;
-  onCancel: () => void;
-}) {
+function ConflictLists({ conflicts }: { conflicts: ImportConflicts }) {
+  const { vertices, edges } = conflicts;
   return (
-    <AlertDialog open={open} onOpenChange={o => !o && onCancel()}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogMedia className="bg-danger-subtle text-danger">
-            <Trash2Icon />
-          </AlertDialogMedia>
-          <AlertDialogTitle>Reset All Custom Styles</AlertDialogTitle>
-          <AlertDialogDescription>
-            <p>
-              This will clear all your per-type style customizations. Your
-              imported defaults will remain. Consider exporting first.
-            </p>
-            <p>This cannot be undone.</p>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
-          <AlertDialogAction variant="primary-danger" onClick={onConfirm}>
-            Reset Custom Styles
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-}
-
-function ConfirmClearDialog({
-  open,
-  onConfirm,
-  onCancel,
-}: {
-  open: boolean;
-  onConfirm: () => void;
-  onCancel: () => void;
-}) {
-  return (
-    <AlertDialog open={open} onOpenChange={o => !o && onCancel()}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogMedia className="bg-danger-subtle text-danger">
-            <Trash2Icon />
-          </AlertDialogMedia>
-          <AlertDialogTitle>Reset Imported Defaults</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will remove all imported default styles. Your custom styles
-            will remain. You can re-import a file at any time.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
-          <AlertDialogAction variant="primary-danger" onClick={onConfirm}>
-            Reset Imported Defaults
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-}
-
-function ConfirmImportMergeDialog({
-  pending,
-  onConfirm,
-  onCancel,
-}: {
-  pending: { parsed: StylingParseResult; conflicts: ImportConflicts } | null;
-  onConfirm: () => void;
-  onCancel: () => void;
-}) {
-  if (!pending) return null;
-
-  const { vertices, edges } = pending.conflicts;
-  const total = vertices.length + edges.length;
-
-  return (
-    <AlertDialog open onOpenChange={o => !o && onCancel()}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogMedia className="bg-primary-subtle text-primary-foreground">
-            <UploadIcon />
-          </AlertDialogMedia>
-          <AlertDialogTitle>
-            Replace {total} existing {total === 1 ? "default" : "defaults"}?
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            The imported file will overwrite these existing imported defaults.
-            New types will be added alongside them.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <div className="min-h-0 space-y-3 overflow-y-auto">
-          {vertices.length > 0 ? (
-            <ConflictGroup
-              label={`${vertices.length} vertex ${vertices.length === 1 ? "type" : "types"}`}
-              types={vertices}
-            />
-          ) : null}
-          {edges.length > 0 ? (
-            <ConflictGroup
-              label={`${edges.length} edge ${edges.length === 1 ? "type" : "types"}`}
-              types={edges}
-            />
-          ) : null}
-        </div>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
-          <AlertDialogAction variant="primary" onClick={onConfirm}>
-            Import & Replace
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <div className="min-h-0 space-y-3 overflow-y-auto">
+      {vertices.length > 0 ? (
+        <ConflictGroup
+          label={`${vertices.length} vertex ${vertices.length === 1 ? "type" : "types"}`}
+          types={vertices}
+        />
+      ) : null}
+      {edges.length > 0 ? (
+        <ConflictGroup
+          label={`${edges.length} edge ${edges.length === 1 ? "type" : "types"}`}
+          types={edges}
+        />
+      ) : null}
+    </div>
   );
 }
 
