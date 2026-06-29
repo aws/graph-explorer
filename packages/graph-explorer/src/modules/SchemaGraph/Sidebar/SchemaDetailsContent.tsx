@@ -1,20 +1,13 @@
-import {
-  GraphIcon,
-  Panel,
-  PanelContent,
-  PanelEmptyState,
-  PanelHeader,
-  PanelTitle,
-} from "@/components";
+import { GraphIcon, Panel, PanelContent, PanelEmptyState } from "@/components";
 import { useGraphSchema } from "@/core";
 import { useTranslations } from "@/hooks";
-import { LABELS } from "@/utils";
 
 import type {
   SchemaGraphSelection,
   SchemaGraphSelectionItem,
 } from "../SchemaGraph";
 
+import { DetailsPanelHeader } from "./DetailsPanelHeader";
 import { EdgeConnectionDetails } from "./EdgeConnectionDetails";
 import { NodeLabelDetails } from "./NodeLabelDetails";
 
@@ -34,9 +27,7 @@ export function SchemaDetailsContent({
   if (!selection) {
     return (
       <Panel className="size-full" variant="sidebar">
-        <PanelHeader>
-          <PanelTitle>{LABELS.SIDEBAR.SELECTION_DETAILS}</PanelTitle>
-        </PanelHeader>
+        <DetailsPanelHeader />
         <PanelContent className="p-6">
           <PanelEmptyState
             icon={<GraphIcon />}
@@ -51,9 +42,7 @@ export function SchemaDetailsContent({
   if (selection.type === "multiple") {
     return (
       <Panel className="size-full" variant="sidebar">
-        <PanelHeader>
-          <PanelTitle>{LABELS.SIDEBAR.SELECTION_DETAILS}</PanelTitle>
-        </PanelHeader>
+        <DetailsPanelHeader />
         <PanelContent className="p-6">
           <PanelEmptyState
             icon={<GraphIcon />}

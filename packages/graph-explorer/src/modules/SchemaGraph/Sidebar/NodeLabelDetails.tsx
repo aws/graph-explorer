@@ -3,8 +3,6 @@ import type { ComponentPropsWithRef } from "react";
 import {
   Panel,
   PanelContent,
-  PanelHeader,
-  PanelTitle,
   toHumanString,
   VertexSymbolByType,
 } from "@/components";
@@ -16,7 +14,6 @@ import {
   type VertexType,
 } from "@/core";
 import { useTranslations } from "@/hooks";
-import { LABELS } from "@/utils";
 
 import type { SchemaGraphSelectionItem } from "../SchemaGraph";
 
@@ -28,6 +25,7 @@ import {
   EdgeConnectionRow,
   PropertiesDetails,
 } from "./Details";
+import { DetailsPanelHeader } from "./DetailsPanelHeader";
 import { SchemaDiscoveryAlert } from "./SchemaDiscoveryAlert";
 
 export type NodeLabelDetailsProps = {
@@ -51,9 +49,7 @@ export function NodeLabelDetails({
 
   return (
     <Panel {...props}>
-      <PanelHeader>
-        <PanelTitle>{LABELS.SIDEBAR.SELECTION_DETAILS}</PanelTitle>
-      </PanelHeader>
+      <DetailsPanelHeader />
       <PanelContent className="space-y-8 p-3">
         <div className="flex flex-row items-center justify-between gap-2">
           <DetailsHeader>

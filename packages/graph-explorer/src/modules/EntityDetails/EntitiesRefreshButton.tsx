@@ -21,7 +21,7 @@ export function EntitiesRefreshButton() {
       onClick={() => refresh({ vertexIds, edgeIds })}
       tooltip="Refresh"
       variant="ghost"
-      size="icon"
+      size="icon-small"
       disabled={isPending}
     >
       <Spinner loading={isPending}>

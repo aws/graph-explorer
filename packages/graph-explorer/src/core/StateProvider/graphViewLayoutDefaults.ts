@@ -26,9 +26,6 @@ export const DEFAULT_TABLE_VIEW_HEIGHT = 300;
 /** Default width for the graph view sidebar in pixels. */
 export const DEFAULT_SIDEBAR_WIDTH = 400;
 
-/** Width of the sidebar when collapsed to just the icon strip. */
-export const CLOSED_SIDEBAR_WIDTH = 50;
-
 /** Initial layout state used when no persisted layout exists. */
 export const defaultGraphViewLayout: GraphViewLayout = {
   activeToggles: new Set(["graph-viewer", "table-view"]),

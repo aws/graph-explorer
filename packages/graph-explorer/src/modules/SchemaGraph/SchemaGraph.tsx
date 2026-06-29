@@ -21,6 +21,7 @@ import { cn, logger } from "@/utils";
 
 import { SchemaGraphToolbar } from "./SchemaGraphToolbar";
 import { SchemaExplorerSidebar } from "./Sidebar/SchemaExplorerSidebar";
+import { useSchemaViewSidebar } from "./Sidebar/schemaViewLayout";
 import { useSchemaGraphData } from "./useSchemaGraphData";
 import { useSchemaGraphStyles } from "./useSchemaGraphStyles";
 
@@ -58,12 +59,17 @@ export default function SchemaGraph({ className, ...props }: SchemaGraphProps) {
   const [graphSelection, setGraphSelection] = useState<SelectedElements | null>(
     null,
   );
+  const { autoOpenDetails } = useSchemaViewSidebar();
 
   const handleSelectionChange = (selected: SelectedElements) => {
     setGraphSelection(selected);
 
     const newSelection = toSchemaGraphSelection(selected);
     setSelection(newSelection);
+
+    if (shouldAutoOpenDetailsForSelection(newSelection)) {
+      autoOpenDetails();
+    }
 
     if (newSelection) {
       const items =
@@ -116,6 +122,18 @@ export default function SchemaGraph({ className, ...props }: SchemaGraphProps) {
       />
     </div>
   );
+}
+
+/**
+ * Whether selecting in the schema graph should auto-open the details panel.
+ * Only a single vertex type or edge connection has details to show — a
+ * multiple or cleared selection would land on a dead-end empty state, so it
+ * does not trigger auto-open (mirrors the graph view's single-selection gate).
+ */
+export function shouldAutoOpenDetailsForSelection(
+  selection: SchemaGraphSelection,
+): boolean {
+  return selection !== null && selection.type !== "multiple";
 }
 
 /** Maps a single schema graph selection item to the graph view's selected elements. */

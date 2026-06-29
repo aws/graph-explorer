@@ -7,21 +7,29 @@ import {
   Panel,
   PanelContent,
   PanelHeader,
+  PanelHeaderActions,
+  PanelHeaderCloseButton,
   PanelTitle,
 } from "@/components";
 import { useDisplayVertexTypeConfigs } from "@/core";
 import { useTranslations } from "@/hooks";
 import SingleNodeStyling from "@/modules/NodesStyling/SingleNodeStyling";
 
-/** Styling panel for node types in the schema explorer sidebar. */
+import { useSchemaViewSidebar } from "./schemaViewLayout";
+
+/** Styling panel for node types in the schema view sidebar. */
 export function SchemaNodesStyling() {
   const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
   const t = useTranslations();
+  const { closeSidebar } = useSchemaViewSidebar();
 
   return (
     <Panel variant="sidebar" className="size-full">
       <PanelHeader>
         <PanelTitle>{t("nodes-styling.title")}</PanelTitle>
+        <PanelHeaderActions>
+          <PanelHeaderCloseButton onClose={closeSidebar} />
+        </PanelHeaderActions>
       </PanelHeader>
       <PanelContent className="gap-2">
         {vtConfigs.length === 0 ? (

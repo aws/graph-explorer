@@ -1,11 +1,4 @@
 import { useAtomValue } from "jotai";
-import { Tabs as TabsPrimitive } from "radix-ui";
-import { Resizable } from "re-resizable";
-import {
-  type ComponentPropsWithRef,
-  type PropsWithChildren,
-  useState,
-} from "react";
 
 import {
   DetailsIcon,
@@ -16,13 +9,14 @@ import {
   NamespaceIcon,
   SearchIcon,
 } from "@/components";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/Tooltip";
 import {
-  CLOSED_SIDEBAR_WIDTH,
-  DEFAULT_SIDEBAR_WIDTH,
-  type GraphViewSidebarItem,
-  useGraphViewSidebar,
-} from "@/core";
+  CollapsibleSidebar,
+  SidebarTabs,
+  SidebarTabsContent,
+  SidebarTabsList,
+  SidebarTabsTrigger,
+} from "@/components/CollapsibleSidebar";
+import { useGraphViewSidebar } from "@/core";
 import { totalFilteredCount } from "@/core/StateProvider/filterCount";
 import { useTranslations } from "@/hooks";
 import { EdgesStyling } from "@/modules/EdgesStyling";
@@ -32,59 +26,76 @@ import Namespaces from "@/modules/Namespaces/Namespaces";
 import NodeExpand from "@/modules/NodeExpand";
 import { NodesStyling } from "@/modules/NodesStyling";
 import { SearchSidebarPanel } from "@/modules/SearchSidebar";
-import { cn } from "@/utils";
 
-export function Sidebar({
-  className,
-  ...props
-}: ComponentPropsWithRef<typeof SidebarTabs>) {
+export function Sidebar() {
   const t = useTranslations();
   const filteredEntitiesCount = useAtomValue(totalFilteredCount);
-  const { shouldShowNamespaces, activeSidebarItem } = useGraphViewSidebar();
+  const {
+    shouldShowNamespaces,
+    activeSidebarItem,
+    isSidebarOpen,
+    sidebarWidth,
+    setSidebarWidth,
+    toggleSidebar,
+  } = useGraphViewSidebar();
 
   return (
-    <ResizableSidebar>
-      <SidebarTabs
-        value={activeSidebarItem ?? ""}
-        orientation="vertical"
-        className={cn(
-          className,
-          "bg-background-default shadow-primary-dark/25 grid min-h-0 flex-none shrink-0 shadow",
-        )}
-        {...props}
-      >
+    <CollapsibleSidebar
+      isSidebarOpen={isSidebarOpen}
+      sidebarWidth={sidebarWidth}
+      onResize={setSidebarWidth}
+    >
+      <SidebarTabs value={activeSidebarItem ?? ""} orientation="vertical">
         <SidebarTabsList>
-          <SidebarTabsTrigger value="search" title="Search">
+          <SidebarTabsTrigger
+            value="search"
+            title="Search"
+            onToggle={() => toggleSidebar("search")}
+          >
             <SearchIcon />
           </SidebarTabsTrigger>
-          <SidebarTabsTrigger value="details" title="Details">
+          <SidebarTabsTrigger
+            value="details"
+            title="Details"
+            onToggle={() => toggleSidebar("details")}
+          >
             <DetailsIcon />
           </SidebarTabsTrigger>
-
-          <SidebarTabsTrigger value="expand" title="Expand">
+          <SidebarTabsTrigger
+            value="expand"
+            title="Expand"
+            onToggle={() => toggleSidebar("expand")}
+          >
             <ExpandGraphIcon />
           </SidebarTabsTrigger>
           <SidebarTabsTrigger
             value="filters"
             title="Filters"
             badge={filteredEntitiesCount > 0}
+            onToggle={() => toggleSidebar("filters")}
           >
             <FilterIcon />
           </SidebarTabsTrigger>
           <SidebarTabsTrigger
             value="nodes-styling"
             title={t("nodes-styling.title")}
+            onToggle={() => toggleSidebar("nodes-styling")}
           >
             <GraphIcon />
           </SidebarTabsTrigger>
           <SidebarTabsTrigger
             value="edges-styling"
             title={t("edges-styling.title")}
+            onToggle={() => toggleSidebar("edges-styling")}
           >
             <EdgeIcon />
           </SidebarTabsTrigger>
           {shouldShowNamespaces && (
-            <SidebarTabsTrigger value="namespaces" title="Namespaces">
+            <SidebarTabsTrigger
+              value="namespaces"
+              title="Namespaces"
+              onToggle={() => toggleSidebar("namespaces")}
+            >
               <NamespaceIcon />
             </SidebarTabsTrigger>
           )}
@@ -111,146 +122,6 @@ export function Sidebar({
           <Namespaces />
         </SidebarTabsContent>
       </SidebarTabs>
-    </ResizableSidebar>
-  );
-}
-
-function ResizableSidebar({ children }: PropsWithChildren) {
-  const { isSidebarOpen, sidebarWidth, setSidebarWidth } =
-    useGraphViewSidebar();
-
-  // The transition animation used for opening and closing sidebar animation
-  // does not play well with the resizing behavior of the Resizable component.
-  // If the animation is not disabled, the resize will feel jerky.
-  const [enableAnimation, setEnableAnimation] = useState(true);
-
-  return (
-    <Resizable
-      size={{
-        width: isSidebarOpen ? sidebarWidth : CLOSED_SIDEBAR_WIDTH,
-      }}
-      minWidth={isSidebarOpen ? DEFAULT_SIDEBAR_WIDTH : CLOSED_SIDEBAR_WIDTH}
-      defaultSize={{
-        width: isSidebarOpen ? DEFAULT_SIDEBAR_WIDTH : CLOSED_SIDEBAR_WIDTH,
-      }}
-      enable={{ left: isSidebarOpen }}
-      onResizeStart={() => setEnableAnimation(false)}
-      onResizeStop={(_e, _direction, _ref, delta) => {
-        setEnableAnimation(true);
-        setSidebarWidth(delta.width);
-      }}
-      className={cn(
-        enableAnimation &&
-          "transition-width min-h-0 transform duration-200 ease-in-out",
-      )}
-    >
-      {children}
-    </Resizable>
-  );
-}
-
-function SidebarTabs({
-  className,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Root>) {
-  return (
-    <TabsPrimitive.Root
-      data-slot="workspace-sidebar-tabs"
-      className={cn("grid size-full grid-cols-[auto_1fr]", className)}
-      {...props}
-    />
-  );
-}
-
-function SidebarTabsList({
-  className,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.List>) {
-  return (
-    <TabsPrimitive.List
-      data-slot="workspace-sidebar-tabs-list"
-      className={cn(
-        "bg-primary-subtle border-border/50 text-muted-foreground flex flex-col items-center gap-2 border-r p-2",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
-
-function SidebarTabsTrigger({
-  className,
-  title,
-  badge,
-  children,
-  value,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Trigger> & {
-  title: string;
-  badge?: boolean;
-}) {
-  const { toggleSidebar } = useGraphViewSidebar();
-
-  const handleClick = () => {
-    toggleSidebar(value as GraphViewSidebarItem);
-  };
-
-  return (
-    <BadgeIndicator value={badge}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span>
-            <TabsPrimitive.Trigger
-              data-slot="workspace-sidebar-tabs-trigger"
-              value={value}
-              onClick={handleClick}
-              className={cn(
-                "text-brand-900 active:bg-brand-300 data-[state=active]:bg-brand-500 inline-flex size-10 items-center justify-center rounded-md bg-transparent p-2 ring-0 transition-colors duration-100 focus:shadow-none active:text-white disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-white [&_svg]:size-6",
-                "hover:data-[state=active]:bg-brand-400 hover:bg-primary-subtle-hover",
-                "dark:text-brand-300 dark:data-[state=active]:bg-brand-400 dark:hover:data-[state=active]:bg-brand-500 dark:hover:bg-gray-800 dark:data-[state=active]:text-white",
-                "focus-visible:ring-brand-500 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-hidden active:ring-0",
-                className,
-              )}
-              {...props}
-            >
-              {children}
-              <span className="sr-only">{title}</span>
-            </TabsPrimitive.Trigger>
-          </span>
-        </TooltipTrigger>
-        <TooltipContent side="left">{title}</TooltipContent>
-      </Tooltip>
-    </BadgeIndicator>
-  );
-}
-
-function SidebarTabsContent({
-  className,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Content>) {
-  return (
-    <TabsPrimitive.Content
-      data-slot="workspace-sidebar-tabs-content"
-      className={cn("flex-1 overflow-y-auto outline-none", className)}
-      {...props}
-    />
-  );
-}
-
-function BadgeIndicator({
-  children,
-  value,
-  ...props
-}: React.ComponentPropsWithoutRef<"div"> & { value?: boolean }) {
-  return (
-    <div className="stack" {...props}>
-      {children}
-      {value ? (
-        <span
-          aria-description="badge"
-          className="bg-error-main pointer-events-none -mt-0.5 -mr-0.5 size-2.5 place-self-start justify-self-end rounded-full"
-        />
-      ) : null}
-    </div>
+    </CollapsibleSidebar>
   );
 }
