@@ -14,5 +14,4 @@ export * from "./userPreferences";
 export * from "./schema";
 export * from "./storageAtoms";
 export * from "./graphSession";
-export * from "./userLayout";
-export * from "./userLayoutDefaults";
+export * from "./graphViewLayout";

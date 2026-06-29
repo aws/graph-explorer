@@ -1,16 +1,11 @@
 // @vitest-environment happy-dom
 import { act } from "react";
 
+import { useGraphViewSidebar } from "@/core";
 import { renderHookWithState } from "@/utils/testing";
 import { createRandomEdgeId, createRandomVertexId } from "@/utils/testing";
 
 import { useGraphSelection } from "./useGraphSelection";
-
-const mockAutoOpenDetails = vi.fn();
-
-vi.mock("./useAutoOpenDetailsSidebar", () => ({
-  useAutoOpenDetailsSidebar: () => mockAutoOpenDetails,
-}));
 
 describe("useGraphSelection", () => {
   test("should return empty selection initially", () => {
@@ -167,75 +162,90 @@ describe("useGraphSelection", () => {
     ]);
   });
 
-  test("should call autoOpenDetails when selecting single vertex", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("should auto-open details when selecting single vertex", () => {
+    const { result } = renderHookWithState(() => ({
+      selection: useGraphSelection(),
+      sidebar: useGraphViewSidebar(),
+    }));
 
     const vertexId = createRandomVertexId();
 
     act(() =>
-      result.current.replaceGraphSelection({
+      result.current.selection.replaceGraphSelection({
         vertices: [vertexId],
       }),
     );
 
-    expect(mockAutoOpenDetails).toHaveBeenCalledTimes(1);
+    expect(result.current.sidebar.activeSidebarItem).toBe("details");
   });
 
-  test("should call autoOpenDetails when selecting single edge", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("should auto-open details when selecting single edge", () => {
+    const { result } = renderHookWithState(() => ({
+      selection: useGraphSelection(),
+      sidebar: useGraphViewSidebar(),
+    }));
 
     const edgeId = createRandomEdgeId();
 
     act(() =>
-      result.current.replaceGraphSelection({
+      result.current.selection.replaceGraphSelection({
         edges: [edgeId],
       }),
     );
 
-    expect(mockAutoOpenDetails).toHaveBeenCalledTimes(1);
+    expect(result.current.sidebar.activeSidebarItem).toBe("details");
   });
 
-  test("should not call autoOpenDetails when selecting multiple entities", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("should not auto-open details when selecting multiple entities", () => {
+    const { result } = renderHookWithState(() => ({
+      selection: useGraphSelection(),
+      sidebar: useGraphViewSidebar(),
+    }));
 
     const vertexId1 = createRandomVertexId();
     const vertexId2 = createRandomVertexId();
 
     act(() =>
-      result.current.replaceGraphSelection({
+      result.current.selection.replaceGraphSelection({
         vertices: [vertexId1, vertexId2],
       }),
     );
 
-    expect(mockAutoOpenDetails).not.toHaveBeenCalled();
+    expect(result.current.sidebar.activeSidebarItem).toBe("search");
   });
 
-  test("should not call autoOpenDetails when disableSideEffects is true", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("should not auto-open details when disableSideEffects is true", () => {
+    const { result } = renderHookWithState(() => ({
+      selection: useGraphSelection(),
+      sidebar: useGraphViewSidebar(),
+    }));
 
     const vertexId = createRandomVertexId();
 
     act(() =>
-      result.current.replaceGraphSelection({
+      result.current.selection.replaceGraphSelection({
         vertices: [vertexId],
         disableSideEffects: true,
       }),
     );
 
-    expect(mockAutoOpenDetails).not.toHaveBeenCalled();
+    expect(result.current.sidebar.activeSidebarItem).toBe("search");
   });
 
-  test("should not call autoOpenDetails when clearing selection", () => {
-    const { result } = renderHookWithState(() => useGraphSelection());
+  test("should not auto-open details when clearing selection", () => {
+    const { result } = renderHookWithState(() => ({
+      selection: useGraphSelection(),
+      sidebar: useGraphViewSidebar(),
+    }));
 
     act(() =>
-      result.current.replaceGraphSelection({
+      result.current.selection.replaceGraphSelection({
         vertices: [],
         edges: [],
       }),
     );
 
-    expect(mockAutoOpenDetails).not.toHaveBeenCalled();
+    expect(result.current.sidebar.activeSidebarItem).toBe("search");
   });
 
   test("isVertexSelected should return true for selected vertex", () => {

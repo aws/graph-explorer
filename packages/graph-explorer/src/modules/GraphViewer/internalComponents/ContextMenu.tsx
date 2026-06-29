@@ -25,10 +25,10 @@ import {
 } from "@/components/icons";
 import {
   type EdgeId,
-  type SidebarItems,
+  graphViewLayoutAtom,
+  type GraphViewSidebarItem,
   useDisplayEdgeInCanvas,
   useDisplayVertex,
-  userLayoutAtom,
   type VertexId,
 } from "@/core";
 import {
@@ -93,7 +93,7 @@ export default function ContextMenu({
 function SingleVertexMenu({ vertexId }: { vertexId: VertexId }) {
   const t = useTranslations();
   const vertex = useDisplayVertex(vertexId);
-  const setUserLayout = useSetAtom(userLayoutAtom);
+  const setLayout = useSetAtom(graphViewLayoutAtom);
   const { replaceGraphSelection } = useGraphSelection();
   const { refresh: refreshEntities } = useRefreshEntities();
   const removeFromGraph = useRemoveFromGraph();
@@ -110,8 +110,8 @@ function SingleVertexMenu({ vertexId }: { vertexId: VertexId }) {
       limit: defaultNeighborExpansionLimit ?? undefined,
     });
 
-  const openSidebarPanel = (panelName: SidebarItems) => () => {
-    setUserLayout(prev => ({ ...prev, activeSidebarItem: panelName }));
+  const openSidebarPanel = (panelName: GraphViewSidebarItem) => () => {
+    setLayout(prev => ({ ...prev, activeSidebarItem: panelName }));
     replaceGraphSelection({ vertices: [vertexId], disableSideEffects: true });
   };
 
@@ -172,7 +172,7 @@ function SingleVertexMenu({ vertexId }: { vertexId: VertexId }) {
 function SingleEdgeMenu({ edgeId }: { edgeId: EdgeId }) {
   const t = useTranslations();
   const edge = useDisplayEdgeInCanvas(edgeId);
-  const setUserLayout = useSetAtom(userLayoutAtom);
+  const setLayout = useSetAtom(graphViewLayoutAtom);
   const { replaceGraphSelection } = useGraphSelection();
   const { refresh: refreshEntities } = useRefreshEntities();
   const removeFromGraph = useRemoveFromGraph();
@@ -182,8 +182,8 @@ function SingleEdgeMenu({ edgeId }: { edgeId: EdgeId }) {
   const handleCenter = () => onCenterEdge(edgeId);
   const handleFit = () => onFitEdgeToCanvas(edgeId);
 
-  const openSidebarPanel = (panelName: SidebarItems) => () => {
-    setUserLayout(prev => ({ ...prev, activeSidebarItem: panelName }));
+  const openSidebarPanel = (panelName: GraphViewSidebarItem) => () => {
+    setLayout(prev => ({ ...prev, activeSidebarItem: panelName }));
     replaceGraphSelection({ edges: [edgeId], disableSideEffects: true });
   };
 
