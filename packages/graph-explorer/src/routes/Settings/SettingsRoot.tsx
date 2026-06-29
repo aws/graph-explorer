@@ -1,8 +1,8 @@
+import { CogIcon, InfoIcon } from "lucide-react";
 import { type PropsWithChildren, Suspense } from "react";
 import { NavLink, Outlet, type To } from "react-router";
 
 import {
-  ForwardIcon,
   NavBar,
   NavBarContent,
   NavBarTitle,
@@ -32,12 +32,12 @@ export default function SettingsRoot() {
       <WorkspaceContent>
         <PanelGroup>
           <Panel className="min-w-64">
-            <PanelContent className="px-3 py-6">
+            <PanelContent className="px-4 py-6">
               <SideBar />
             </PanelContent>
           </Panel>
           <Panel className="w-full grow">
-            <PanelContent className="p-6">
+            <PanelContent className="px-12 py-12 max-md:px-4">
               <Suspense fallback={<AppLoadingPage />}>
                 <Outlet />
               </Suspense>
@@ -51,13 +51,22 @@ export default function SettingsRoot() {
 
 function SideBar() {
   return (
-    <nav>
+    <nav className="space-y-4">
+      <p className="text-muted-foreground px-3 text-xs font-medium tracking-wide uppercase">
+        Settings
+      </p>
       <ul className="flex w-full flex-col gap-1">
         <li>
-          <SideBarItem to="general">General</SideBarItem>
+          <SideBarItem to="general">
+            <CogIcon />
+            General
+          </SideBarItem>
         </li>
         <li>
-          <SideBarItem to="about">About</SideBarItem>
+          <SideBarItem to="about">
+            <InfoIcon />
+            About
+          </SideBarItem>
         </li>
       </ul>
     </nav>
@@ -70,14 +79,12 @@ function SideBarItem(props: PropsWithChildren<{ to: To }>) {
       to={props.to}
       className={({ isActive }) =>
         cn(
-          "flex w-full flex-row items-center rounded-md px-2 py-1 text-lg",
-          isActive &&
-            "bg-primary-main hover:bg-primary-light font-bold text-white",
-          !isActive && "font-base text-text-secondary hover:bg-gray-200",
+          "flex w-full flex-row items-center gap-2 rounded-lg px-3 py-2 text-base tracking-wide [&_svg]:size-4.5",
+          isActive && "bg-brand text-white",
+          !isActive && "text-foreground hover:bg-neutral-subtle",
         )
       }
     >
-      <ForwardIcon className="h-6 w-6" />
       {props.children}
     </NavLink>
   );
