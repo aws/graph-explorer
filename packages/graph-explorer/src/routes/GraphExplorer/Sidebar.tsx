@@ -20,9 +20,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/Tooltip";
 import {
   CLOSED_SIDEBAR_WIDTH,
   DEFAULT_SIDEBAR_WIDTH,
-  type SidebarItems,
-  useSidebar,
-  useSidebarSize,
+  type GraphViewSidebarItem,
+  useGraphViewSidebar,
 } from "@/core";
 import { totalFilteredCount } from "@/core/StateProvider/filterCount";
 import { useTranslations } from "@/hooks";
@@ -41,7 +40,7 @@ export function Sidebar({
 }: ComponentPropsWithRef<typeof SidebarTabs>) {
   const t = useTranslations();
   const filteredEntitiesCount = useAtomValue(totalFilteredCount);
-  const { shouldShowNamespaces, activeSidebarItem } = useSidebar();
+  const { shouldShowNamespaces, activeSidebarItem } = useGraphViewSidebar();
 
   return (
     <ResizableSidebar>
@@ -117,8 +116,8 @@ export function Sidebar({
 }
 
 function ResizableSidebar({ children }: PropsWithChildren) {
-  const { isSidebarOpen } = useSidebar();
-  const [sidebarWidth, setSidebarWidth] = useSidebarSize();
+  const { isSidebarOpen, sidebarWidth, setSidebarWidth } =
+    useGraphViewSidebar();
 
   // The transition animation used for opening and closing sidebar animation
   // does not play well with the resizing behavior of the Resizable component.
@@ -190,10 +189,10 @@ function SidebarTabsTrigger({
   title: string;
   badge?: boolean;
 }) {
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar } = useGraphViewSidebar();
 
   const handleClick = () => {
-    toggleSidebar(value as SidebarItems);
+    toggleSidebar(value as GraphViewSidebarItem);
   };
 
   return (

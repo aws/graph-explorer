@@ -1,5 +1,3 @@
-import { useAtom } from "jotai";
-
 import {
   AutoFitLeftIcon,
   Button,
@@ -13,7 +11,7 @@ import {
 import GraphIcon from "@/components/icons/GraphIcon";
 import PanelEmptyState from "@/components/PanelEmptyState/PanelEmptyState";
 import {
-  userLayoutAtom,
+  useGraphViewSidebar,
   useSelectedDisplayEdges,
   useSelectedDisplayVertices,
 } from "@/core";
@@ -24,7 +22,8 @@ import { EntitiesRefreshButton } from "./EntitiesRefreshButton";
 import NodeDetail from "./NodeDetail";
 
 function EntityDetails() {
-  const [userLayout, setUserLayout] = useAtom(userLayoutAtom);
+  const { detailsAutoOpenOnSelection, toggleDetailsAutoOpen } =
+    useGraphViewSidebar();
   const selectedNodes = useSelectedDisplayVertices();
   const selectedNode = selectedNodes[0];
   const selectedEdges = useSelectedDisplayEdges();
@@ -41,18 +40,9 @@ function EntityDetails() {
           <EntitiesRefreshButton />
           <Button
             tooltip="Automatically open on selection"
-            variant={
-              userLayout.detailsAutoOpenOnSelection ? "primary" : "ghost"
-            }
+            variant={detailsAutoOpenOnSelection ? "primary" : "ghost"}
             size="icon"
-            onClick={() =>
-              setUserLayout(prev => {
-                return {
-                  ...prev,
-                  detailsAutoOpenOnSelection: !prev.detailsAutoOpenOnSelection,
-                };
-              })
-            }
+            onClick={toggleDetailsAutoOpen}
           >
             <AutoFitLeftIcon />
           </Button>

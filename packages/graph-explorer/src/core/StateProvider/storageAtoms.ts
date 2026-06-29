@@ -12,14 +12,14 @@ import type {
 
 import { createActiveConfigurationAtom } from "./activeConnectionStorage";
 import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
+import { defaultGraphViewLayout } from "./graphViewLayoutDefaults";
+import { runUserLayoutMigration } from "./migrateUserLayout";
 import { runUserStylingMigration } from "./migrateUserStyling";
-import { defaultUserLayout } from "./userLayoutDefaults";
 
-// Convert any legacy single-key user styling into the type-keyed map atoms
-// below before they preload. Must run before the `Promise.all` so the atoms
-// preload the migrated data. The migration owns its own failure reporting (a
-// failure surfaces through the persistence-status store), so it never throws.
-await runUserStylingMigration();
+// Run migrations before the atoms preload so they read the migrated data.
+// Each migration owns its own failure reporting (surfacing through the
+// persistence-status store), so they never throw.
+await Promise.all([runUserStylingMigration(), runUserLayoutMigration()]);
 
 /**
  DEV NOTE
@@ -63,7 +63,7 @@ const [
   schemaAtom,
   userVertexStylesAtom,
   userEdgeStylesAtom,
-  userLayoutAtom,
+  graphViewLayoutAtom,
   allGraphSessionsAtom,
   showDebugActionsAtom,
   allowLoggingDbQueryAtom,
@@ -99,7 +99,7 @@ const [
     new Map<EdgeType, EdgePreferencesStorageModel>(),
     reconcileMapByKey,
   ),
-  atomWithLocalForage("user-layout", defaultUserLayout),
+  atomWithLocalForage("graph-view-layout", defaultGraphViewLayout),
   /** Stores the graph session data for each connection. */
   atomWithLocalForage<Map<ConfigurationId, GraphSessionStorageModel>>(
     "graph-sessions",
@@ -127,7 +127,7 @@ export {
   schemaAtom,
   userVertexStylesAtom,
   userEdgeStylesAtom,
-  userLayoutAtom,
+  graphViewLayoutAtom,
   allGraphSessionsAtom,
   showDebugActionsAtom,
   allowLoggingDbQueryAtom,

@@ -1,5 +1,6 @@
 import { createStore } from "jotai";
 
+import { defaultGraphViewLayout } from "./graphViewLayoutDefaults";
 import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
@@ -9,12 +10,11 @@ import {
   defaultNeighborExpansionLimitEnabledAtom,
   diagnosticLoggingAtom,
   userEdgeStylesAtom,
+  graphViewLayoutAtom,
   schemaAtom,
   showDebugActionsAtom,
-  userLayoutAtom,
   userVertexStylesAtom,
 } from "./storageAtoms";
-import { defaultUserLayout } from "./userLayoutDefaults";
 
 /**
  * storageAtoms.ts uses top-level await to preload IndexedDB data into Jotai
@@ -29,7 +29,7 @@ describe("storageAtoms", () => {
     expect(schemaAtom).toBeDefined();
     expect(userVertexStylesAtom).toBeDefined();
     expect(userEdgeStylesAtom).toBeDefined();
-    expect(userLayoutAtom).toBeDefined();
+    expect(graphViewLayoutAtom).toBeDefined();
     expect(allGraphSessionsAtom).toBeDefined();
     expect(showDebugActionsAtom).toBeDefined();
     expect(allowLoggingDbQueryAtom).toBeDefined();
@@ -46,7 +46,9 @@ describe("storageAtoms", () => {
     expect(store.get(schemaAtom)).toStrictEqual(new Map());
     expect(store.get(userVertexStylesAtom)).toStrictEqual(new Map());
     expect(store.get(userEdgeStylesAtom)).toStrictEqual(new Map());
-    expect(store.get(userLayoutAtom)).toStrictEqual(defaultUserLayout);
+    expect(store.get(graphViewLayoutAtom)).toStrictEqual(
+      defaultGraphViewLayout,
+    );
     expect(store.get(allGraphSessionsAtom)).toStrictEqual(new Map());
     expect(store.get(showDebugActionsAtom)).toBe(false);
     expect(store.get(allowLoggingDbQueryAtom)).toBe(false);

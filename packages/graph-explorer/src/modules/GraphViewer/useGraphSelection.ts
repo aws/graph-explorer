@@ -6,8 +6,7 @@ import {
   nodesSelectedIdsAtom,
   type VertexId,
 } from "@/core";
-
-import { useAutoOpenDetailsSidebar } from "./useAutoOpenDetailsSidebar";
+import { useGraphViewSidebar } from "@/core";
 
 /**
  * Creates a graph selection object from sets of vertex and edge IDs.
@@ -69,7 +68,7 @@ export function useGraphSelection() {
   const [selectedVertices, setSelectedVertices] = useAtom(nodesSelectedIdsAtom);
   const [selectedEdges, setSelectedEdges] = useAtom(edgesSelectedIdsAtom);
 
-  const autoOpenDetails = useAutoOpenDetailsSidebar();
+  const { autoOpenDetails } = useGraphViewSidebar();
 
   return {
     /**
