@@ -215,7 +215,29 @@ describe("useImportStylingFile", () => {
     });
 
     await expect(result.current.parseFile(file)).rejects.toThrow(
-      'Expected a styling export file, got "connection-export"',
+      'Expected a "styling-export" file, but got "connection-export"',
+    );
+  });
+
+  test("throws when the file was made by a newer major version", async () => {
+    const { result } = renderHookWithJotai(() => useImportStylingFile());
+
+    const envelope = {
+      meta: {
+        kind: "styling-export",
+        version: "2.0",
+        timestamp: "2026-01-01T00:00:00Z",
+        source: "Graph Explorer",
+        sourceVersion: "9.9.9",
+      },
+      data: { vertices: {}, edges: {} },
+    };
+    const file = new File([JSON.stringify(envelope)], "styles.json", {
+      type: "application/json",
+    });
+
+    await expect(result.current.parseFile(file)).rejects.toThrow(
+      /newer version of Graph Explorer/,
     );
   });
 });

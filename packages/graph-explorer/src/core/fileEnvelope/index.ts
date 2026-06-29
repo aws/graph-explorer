@@ -1,5 +1,6 @@
 export {
   createFileEnvelope,
+  type EnvelopeExpectation,
   FileEnvelopeError,
   parseFileEnvelope,
   type FileEnvelope,

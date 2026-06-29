@@ -5,6 +5,8 @@ import {
 } from "@shared/types";
 import { z } from "zod";
 
+import type { FileEnvelope } from "@/core/fileEnvelope";
+
 import { parseRdfEdgeIdString } from "@/connector/sparql/parseEdgeId";
 import {
   createEdgeId,
@@ -13,28 +15,31 @@ import {
   type EntityRawId,
   type VertexId,
 } from "@/core/entities";
-import { escapeString, LABELS, logger } from "@/utils";
+import { createFileEnvelope, parseFileEnvelope } from "@/core/fileEnvelope";
+import { escapeString, logger } from "@/utils";
 
-export const exportedGraphSchema = z.object({
-  meta: z.object({
-    kind: z.literal("graph-export"),
-    version: z.literal("1.0"),
-    timestamp: z.coerce.date(),
-    source: z.string(),
-    sourceVersion: z.string(),
+/** The envelope `kind` discriminator for graph export files. */
+export const GRAPH_EXPORT_KIND = "graph-export";
+
+/**
+ * Payload schema version. Bump the major for a breaking change; bump the minor
+ * for additive changes that older readers can safely ignore.
+ */
+export const GRAPH_EXPORT_VERSION = "1.0";
+export const GRAPH_EXPORT_MAJOR_VERSION = 1;
+
+const graphExportPayloadSchema = z.object({
+  connection: z.object({
+    dbUrl: z.string(),
+    queryEngine: z.enum(queryEngineOptions),
   }),
-  data: z.object({
-    connection: z.object({
-      dbUrl: z.string(),
-      queryEngine: z.enum(queryEngineOptions),
-    }),
-    vertices: z.array(z.union([z.string(), z.number()])),
-    edges: z.array(z.union([z.string(), z.number()])),
-  }),
+  vertices: z.array(z.union([z.string(), z.number()])),
+  edges: z.array(z.union([z.string(), z.number()])),
 });
 
-export type ExportedGraphFile = z.infer<typeof exportedGraphSchema>;
-export type ExportedGraphConnection = ExportedGraphFile["data"]["connection"];
+export type GraphExportPayload = z.infer<typeof graphExportPayloadSchema>;
+export type ExportedGraphFile = FileEnvelope<GraphExportPayload>;
+export type ExportedGraphConnection = GraphExportPayload["connection"];
 
 /** Creates an exported graph suitable for saving to a file. */
 export function createExportedGraph(
@@ -42,20 +47,11 @@ export function createExportedGraph(
   edgeIds: EdgeId[],
   connection: ConnectionConfig,
 ): ExportedGraphFile {
-  return {
-    meta: {
-      kind: "graph-export",
-      source: LABELS.APP_NAME,
-      sourceVersion: __GRAPH_EXP_VERSION__,
-      version: "1.0",
-      timestamp: new Date(),
-    },
-    data: {
-      connection: createExportedConnection(connection),
-      vertices: vertexIds,
-      edges: edgeIds,
-    },
-  };
+  return createFileEnvelope(GRAPH_EXPORT_KIND, GRAPH_EXPORT_VERSION, {
+    connection: createExportedConnection(connection),
+    vertices: vertexIds,
+    edges: edgeIds,
+  });
 }
 
 /** Creates an exported connection object from the given connection config. */
@@ -73,14 +69,24 @@ export function createExportedConnection(
   };
 }
 
-export async function parseExportedGraph(data: unknown) {
-  const parsed = await exportedGraphSchema.parseAsync(data);
+/**
+ * Reads a graph export file: validates the shared envelope (kind + major
+ * version), then the graph payload, then sanitizes the entity ids. Throws
+ * {@link FileEnvelopeError} for a non-graph or too-new file and {@link ZodError}
+ * for a malformed payload.
+ */
+export async function parseExportedGraph(blob: Blob) {
+  const envelope = await parseFileEnvelope(blob, {
+    kind: GRAPH_EXPORT_KIND,
+    supportedMajorVersion: GRAPH_EXPORT_MAJOR_VERSION,
+  });
+  const payload = graphExportPayloadSchema.parse(envelope.data);
 
-  const connection = parsed.data.connection;
+  const connection = payload.connection;
 
   // Do some basic validation and skip any invalid IDs
   const vertices = new Set(
-    parsed.data.vertices
+    payload.vertices
       .values()
       .map(trimIfString)
       .filter(isNotEmptyIfString)
@@ -91,7 +97,7 @@ export async function parseExportedGraph(data: unknown) {
 
   // Do some basic validation and skip any invalid IDs
   const edges = new Set(
-    parsed.data.edges
+    payload.edges
       .values()
       .map(trimIfString)
       .filter(isNotEmptyIfString)

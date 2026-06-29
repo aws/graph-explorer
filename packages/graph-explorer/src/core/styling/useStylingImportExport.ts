@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import type { EdgeType, VertexType } from "@/core/entities";
 import type { EdgePreferencesStorageModel } from "@/core/StateProvider/userPreferences";
 
-import { FileEnvelopeError, parseFileEnvelope } from "@/core/fileEnvelope";
+import { parseFileEnvelope } from "@/core/fileEnvelope";
 import {
   importedEdgeStylesAtom,
   importedVertexStylesAtom,
@@ -18,7 +18,12 @@ import type {
   VertexStyleFileEntry,
 } from "./stylingParser";
 
-import { parseStylingPayload, toFileEntry } from "./stylingParser";
+import {
+  parseStylingPayload,
+  STYLING_EXPORT_KIND,
+  STYLING_EXPORT_MAJOR_VERSION,
+  toFileEntry,
+} from "./stylingParser";
 
 export type ImportConflicts = {
   vertices: string[];
@@ -33,20 +38,17 @@ export function useImportStylingFile() {
 
   /**
    * Parses a styling export file. Throws {@link FileEnvelopeError} if the file
-   * is not valid JSON or lacks the envelope structure, and
-   * {@link StylingParseError} if the payload is structurally unusable. Per-field
-   * salvage issues are returned in the result (not thrown).
+   * is not valid JSON, lacks the envelope structure, is the wrong kind, or was
+   * created by a newer major version; and {@link StylingParseError} if the
+   * payload is structurally unusable. Per-field salvage issues are returned in
+   * the result (not thrown).
    */
   const parseFile = useCallback(
     async (file: File): Promise<StylingParseResult> => {
-      const envelope = await parseFileEnvelope(file);
-
-      if (envelope.meta.kind !== "styling-export") {
-        throw new FileEnvelopeError(
-          `Expected a styling export file, got "${envelope.meta.kind}"`,
-        );
-      }
-
+      const envelope = await parseFileEnvelope(file, {
+        kind: STYLING_EXPORT_KIND,
+        supportedMajorVersion: STYLING_EXPORT_MAJOR_VERSION,
+      });
       return parseStylingPayload(envelope.data);
     },
     [],

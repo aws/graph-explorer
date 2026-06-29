@@ -11,6 +11,19 @@ import {
   type VertexPreferencesStorageModel,
 } from "@/core/StateProvider/userPreferences";
 
+// --- Format identity ---
+
+/** The envelope `kind` discriminator for styling export files. */
+export const STYLING_EXPORT_KIND = "styling-export";
+
+/**
+ * Payload schema version. Bump the major for a breaking change (renamed or
+ * removed fields); bump the minor for additive changes that older readers can
+ * safely ignore via the salvaging parser.
+ */
+export const STYLING_EXPORT_VERSION = "1.0";
+export const STYLING_EXPORT_MAJOR_VERSION = 1;
+
 // --- Public types ---
 
 export type ImportIssue = {
@@ -43,9 +56,11 @@ export type VertexStyleFileEntry = Omit<
   "type" | "iconUrl"
 > & { icon?: string };
 
+export type EdgeStyleFileEntry = Omit<EdgePreferencesStorageModel, "type">;
+
 export type StylingExportPayload = {
   vertices: Record<string, VertexStyleFileEntry>;
-  edges: Record<string, Omit<EdgePreferencesStorageModel, "type">>;
+  edges: Record<string, EdgeStyleFileEntry>;
 };
 
 export function toFileEntry(
@@ -143,7 +158,7 @@ export function parseStylingPayload(rawData: unknown): StylingParseResult {
   const edgeStyles = new Map<EdgeType, EdgePreferencesStorageModel>();
 
   for (const [typeName, entry] of Object.entries(structure.data.vertices)) {
-    const resolved = salvageEntry(
+    const resolved = salvageEntry<VertexPreferencesStorageModel>(
       "vertex",
       typeName,
       entry,
@@ -154,12 +169,12 @@ export function parseStylingPayload(rawData: unknown): StylingParseResult {
       vertexStyles.set(createVertexType(typeName), {
         type: createVertexType(typeName),
         ...resolved,
-      } as VertexPreferencesStorageModel);
+      });
     }
   }
 
   for (const [typeName, entry] of Object.entries(structure.data.edges)) {
-    const resolved = salvageEntry(
+    const resolved = salvageEntry<EdgePreferencesStorageModel>(
       "edge",
       typeName,
       entry,
@@ -170,7 +185,7 @@ export function parseStylingPayload(rawData: unknown): StylingParseResult {
       edgeStyles.set(createEdgeType(typeName), {
         type: createEdgeType(typeName),
         ...resolved,
-      } as EdgePreferencesStorageModel);
+      });
     }
   }
 
@@ -179,14 +194,20 @@ export function parseStylingPayload(rawData: unknown): StylingParseResult {
 
 // --- Generic salvaging entry parser ---
 
-function salvageEntry(
+/**
+ * Validates each field of one entry independently. Invalid and unknown fields
+ * are dropped and reported in `issues`; valid fields are collected into a
+ * partial storage model. The single file→storage rename (`icon`→`iconUrl`)
+ * happens here so it stays at this seam rather than spreading to consumers.
+ */
+function salvageEntry<Storage extends { type: unknown }>(
   entityType: "vertex" | "edge",
   typeName: string,
   entry: Record<string, unknown>,
   fieldSchemas: Record<string, z.ZodType>,
   issues: ImportIssue[],
-): Record<string, unknown> {
-  const resolved: Record<string, unknown> = {};
+): Partial<Omit<Storage, "type">> {
+  const resolved: Partial<Omit<Storage, "type">> = {};
 
   for (const [field, value] of Object.entries(entry)) {
     if (!Object.hasOwn(fieldSchemas, field)) {
@@ -211,9 +232,9 @@ function salvageEntry(
       continue;
     }
 
-    // The single field rename: file uses `icon`, storage uses `iconUrl`
     const storageField = field === "icon" ? "iconUrl" : field;
-    resolved[storageField] = parsed.data;
+    resolved[storageField as keyof typeof resolved] =
+      parsed.data as (typeof resolved)[keyof typeof resolved];
   }
 
   return resolved;

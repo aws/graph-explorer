@@ -6,7 +6,13 @@
 
 ## Context
 
-Graph Explorer already exports connection configurations to JSON files (`saveConfigurationToFile`). A new styling import/export feature needs its own file format. Both share the same structural concerns: identifying what the file contains, which version of the format was used, and when it was created. Without a shared envelope, each feature invents its own metadata shape, making it harder to add future exports (graph snapshots, layout presets) consistently.
+Graph Explorer already exports several kinds of data to JSON files, and the same `{meta, data}` envelope shape was independently reinvented more than once:
+
+- **Graph export** (`modules/GraphViewer/exportedGraph.ts`) had this exact envelope inline: `meta: { kind, version, timestamp, source, sourceVersion }` wrapping a `data` payload. It was the prior art the shared module generalizes, and now **consumes** the module — `createExportedGraph` calls `createFileEnvelope("graph-export", "1.0", …)` and `parseExportedGraph(blob)` runs through `parseFileEnvelope`'s kind + major-version guard before validating its payload and sanitizing entity ids.
+- **Backup** (`SerializedBackupSchema` in `localDb.ts`) uses the same five concepts with renamed fields (`backupSource`, `backupSourceVersion`, `backupVersion`, `backupTimestamp`, `data`).
+- **Connection export** (`saveConfigurationToFile`) is the outlier — a flat `{ id, displayLabel, connection, schema }` with no envelope at all.
+
+A new styling import/export feature needs the same structural concerns: identifying what the file contains, which version of the format was used, and when it was created. Rather than reinvent the metadata shape a fourth time, the styling feature adopts a shared envelope, and the module documents the canonical shape so the next consumer reuses it instead of hand-rolling another copy.
 
 ## Decision
 
@@ -23,19 +29,36 @@ A shared **file envelope** primitive lives in `packages/graph-explorer/src/core/
 
 2. **`meta` uses `z.looseObject()`** — unknown fields are preserved, not stripped. This is forward-compatibility: a newer exporter can add fields (e.g., `exportedBy`) without breaking older importers that ignore them.
 
-3. **`kind` discriminates the file type.** Known kinds today: `"styling-export"`. Connection export adopts the envelope in follow-up work (not this PR). Each `kind` has its own payload schema registered separately.
+3. **`kind` discriminates the file type.** Known kinds today: `"styling-export"`. Each `kind` has its own payload schema, validated by the caller. The caller passes the `kind` it expects; the envelope rejects a mismatch with a clear error so a wrong-kind file (e.g. a connection export) is never silently misinterpreted.
 
 4. **`version` is the payload schema version**, not the app version. The `sourceVersion` field carries the app version for diagnostics. Semver-style (`"1.0"`) — major bump = breaking, minor = additive.
 
-5. **Helpers:**
-   - `createFileEnvelope(kind, version, data)` — stamps `timestamp`, `source` ("Graph Explorer"), and `sourceVersion` from the build constant.
-   - `parseFileEnvelope(blob)` — reads JSON, validates the outer envelope schema, returns `{ meta, rawData }` without validating the payload (caller validates `rawData` per `kind`).
+5. **`parseFileEnvelope` guards `kind` and major `version`.** The caller passes an `EnvelopeExpectation` (`{ kind, supportedMajorVersion }`). The envelope:
+   - rejects a mismatched `kind`,
+   - rejects a file whose **major** version is newer than the build supports — turning "a file from a future Graph Explorer" into one clear error instead of a wall of "unknown field" warnings from the salvaging payload parser,
+   - accepts a newer **minor** version of the same major — the additive-only contract means the salvaging parser ignores fields it doesn't recognize.
 
-   Callers compose the envelope with their own file-save logic (e.g., `toJsonFileData` + `saveFile` from `utils/fileData`).
+   Major (not exact) matching is deliberate: an exact `z.literal` match would reject forward-compatible minor additions, defeating the `looseObject` design.
+
+6. **Helpers:**
+   - `createFileEnvelope(kind, version, data)` — stamps `timestamp`, `source` ("Graph Explorer"), and `sourceVersion` from the build constant.
+   - `parseFileEnvelope(blob, expectation)` — reads JSON, validates the outer envelope schema, guards kind + major version, and returns `{ meta, data }` without validating the payload (caller validates `data` per `kind`).
+
+   Callers compose the envelope with their own file-save logic (e.g., `toJsonFileData` + `saveFile` from `utils/fileData`), and own a named version constant (e.g. `STYLING_EXPORT_VERSION` / `STYLING_EXPORT_MAJOR_VERSION`) so the bumpable value lives next to the payload schema.
+
+### Future shape: discriminated union on kind + version
+
+Today there is one payload schema per kind and the guard is the only version-aware code. When a breaking **v2** payload arrives, the consumer selects its schema by discriminating on `(kind, majorVersion)` — the guard already supplies a validated major version for that switch. The envelope stays a thin gate; the kind-specific dispatch lives in the consumer, not a registry in the envelope.
 
 ### Why a separate module (not inline in the styling code)
 
-The envelope is intentionally generic so that the existing connection export and future formats (graph session snapshots, layout exports) can reuse it without coupling to the styling module. Keeping it in `core/fileEnvelope/` makes the reuse path obvious.
+The `{meta, data}` envelope already exists independently in graph export (`exportedGraph.ts`) and, with renamed fields, in backup (`SerializedBackupSchema`). Extracting the canonical shape into `core/fileEnvelope/` gives the next consumer a reuse path instead of a fourth hand-rolled copy.
+
+### Migration status of the other consumers
+
+- **Graph export** — migrated. Its file format was already byte-identical to the envelope (same `kind`, same `version: "1.0"`, same five meta fields), so adopting the module is a pure refactor with no on-disk change: files written before and after the migration parse identically. Adopting `parseFileEnvelope` also upgraded it from an exact `z.literal("1.0")` match (which would have rejected a future minor `1.1`) to forward-compatible major-version guarding.
+- **Backup** — left alone. Would require renaming persisted fields (`backupVersion` → `version`, …) on the disaster-recovery restore path — a data migration, not a refactor.
+- **Connection export** — left alone. Flat (no envelope); wrapping it nests the file one level deeper, so every previously-exported file becomes unreadable unless the importer detects both shapes forever. That is a deliberate versioned format break, not a "backward-compatible follow-up," and is out of scope here.
 
 ### Why not reuse `SerializedBackupSchema` from `localDb.ts`
 
@@ -43,7 +66,6 @@ The backup format (`graph-explorer-config.json`) dumps the entire IndexedDB stor
 
 ## Consequences
 
-- New file-based import/export features get metadata handling for free — they only define their payload schema and `kind` string.
-- The styling import validates `kind === "styling-export"` and rejects other kinds with a clear error, rather than silently misinterpreting a connection export file.
-- The existing connection export (`saveConfigurationToFile`) does **not** migrate to this envelope in this PR — that is a separate, backward-compatible follow-up. The envelope is designed so it can wrap the existing connection shape without breaking existing importers (they already use `z.looseObject`).
-- `parseFileEnvelope` returns the raw payload as `unknown` — the caller is responsible for kind-specific validation. This keeps the envelope layer thin and avoids a registry pattern.
+- New file-based import/export features get metadata handling and version-guarding for free — they only define their payload schema, `kind` string, and supported major version.
+- A wrong-kind or too-new file produces one clear, actionable error instead of a confusing partial import.
+- `parseFileEnvelope` returns the payload as `unknown` — the caller is responsible for kind-specific validation. This keeps the envelope layer thin and avoids a registry pattern.

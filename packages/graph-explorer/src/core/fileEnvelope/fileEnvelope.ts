@@ -51,7 +51,28 @@ export function createFileEnvelope<T>(
   };
 }
 
-export async function parseFileEnvelope(blob: Blob): Promise<ParsedEnvelope> {
+export type EnvelopeExpectation = {
+  /** The `kind` discriminator this caller knows how to read. */
+  kind: string;
+  /**
+   * The highest payload-schema major version this build understands. A file
+   * with the same major imports (the salvaging payload parser ignores unknown
+   * minor-version additions); a higher major is rejected as too new.
+   */
+  supportedMajorVersion: number;
+};
+
+/**
+ * Reads and validates the outer envelope, then guards `kind` and major
+ * `version` against what the caller supports. Throws {@link FileEnvelopeError}
+ * for invalid JSON, a malformed envelope, the wrong `kind`, an unparseable
+ * version, or a major version newer than this build. The payload (`data`) is
+ * returned unvalidated for the caller to parse per kind.
+ */
+export async function parseFileEnvelope(
+  blob: Blob,
+  expectation: EnvelopeExpectation,
+): Promise<ParsedEnvelope> {
   let json: unknown;
   try {
     const text = await blob.text();
@@ -68,5 +89,31 @@ export async function parseFileEnvelope(blob: Blob): Promise<ParsedEnvelope> {
     );
   }
 
+  const { meta } = result.data;
+
+  if (meta.kind !== expectation.kind) {
+    throw new FileEnvelopeError(
+      `Expected a "${expectation.kind}" file, but got "${meta.kind}"`,
+    );
+  }
+
+  const majorVersion = parseMajorVersion(meta.version);
+  if (majorVersion === null) {
+    throw new FileEnvelopeError(
+      `File has an unrecognized version "${meta.version}"`,
+    );
+  }
+  if (majorVersion > expectation.supportedMajorVersion) {
+    throw new FileEnvelopeError(
+      `This file was created by a newer version of ${LABELS.APP_NAME} and cannot be imported. Update ${LABELS.APP_NAME} and try again.`,
+    );
+  }
+
   return result.data;
+}
+
+/** Extracts the leading integer of a semver-style `"major.minor"` string. */
+function parseMajorVersion(version: string): number | null {
+  const major = Number.parseInt(version, 10);
+  return Number.isNaN(major) ? null : major;
 }

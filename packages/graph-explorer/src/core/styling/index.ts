@@ -1,5 +1,8 @@
 export {
   parseStylingPayload,
+  STYLING_EXPORT_KIND,
+  STYLING_EXPORT_MAJOR_VERSION,
+  STYLING_EXPORT_VERSION,
   StylingParseError,
   toFileEntry,
   type ImportIssue,

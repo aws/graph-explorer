@@ -2,9 +2,19 @@ import { describe, expect, test } from "vitest";
 
 import {
   createFileEnvelope,
-  parseFileEnvelope,
+  type EnvelopeExpectation,
   type FileEnvelope,
+  parseFileEnvelope,
 } from "./fileEnvelope";
+
+const stylingExpectation: EnvelopeExpectation = {
+  kind: "styling-export",
+  supportedMajorVersion: 1,
+};
+
+function blobOf(value: unknown): Blob {
+  return new Blob([JSON.stringify(value)], { type: "application/json" });
+}
 
 describe("createFileEnvelope", () => {
   test("stamps metadata with kind, version, and payload", () => {
@@ -27,10 +37,11 @@ describe("parseFileEnvelope", () => {
       "1.0",
       { foo: "bar" },
     );
-    const json = JSON.stringify(envelope);
-    const blob = new Blob([json], { type: "application/json" });
+    const blob = blobOf(envelope);
 
-    return expect(parseFileEnvelope(blob)).resolves.toStrictEqual({
+    return expect(
+      parseFileEnvelope(blob, stylingExpectation),
+    ).resolves.toStrictEqual({
       meta: envelope.meta,
       data: { foo: "bar" },
     });
@@ -40,7 +51,7 @@ describe("parseFileEnvelope", () => {
     const envelope = {
       meta: {
         kind: "styling-export",
-        version: "2.0",
+        version: "1.0",
         timestamp: "2026-06-24T00:00:00.000Z",
         source: "Graph Explorer",
         sourceVersion: "9.9.9",
@@ -48,11 +59,10 @@ describe("parseFileEnvelope", () => {
       },
       data: { hello: "world" },
     };
-    const blob = new Blob([JSON.stringify(envelope)], {
-      type: "application/json",
-    });
 
-    return expect(parseFileEnvelope(blob)).resolves.toStrictEqual({
+    return expect(
+      parseFileEnvelope(blobOf(envelope), stylingExpectation),
+    ).resolves.toStrictEqual({
       meta: envelope.meta,
       data: { hello: "world" },
     });
@@ -60,78 +70,102 @@ describe("parseFileEnvelope", () => {
 
   test("throws for invalid JSON", () => {
     const blob = new Blob(["not json"], { type: "application/json" });
-    return expect(parseFileEnvelope(blob)).rejects.toThrow(
+    return expect(parseFileEnvelope(blob, stylingExpectation)).rejects.toThrow(
       "File is not valid JSON",
     );
   });
 
   test("throws when meta is missing", () => {
-    const blob = new Blob([JSON.stringify({ data: {} })], {
-      type: "application/json",
-    });
-    return expect(parseFileEnvelope(blob)).rejects.toThrow(
-      "envelope structure",
-    );
+    return expect(
+      parseFileEnvelope(blobOf({ data: {} }), stylingExpectation),
+    ).rejects.toThrow("envelope structure");
   });
 
   test("throws when meta.kind is missing", () => {
-    const blob = new Blob(
-      [
-        JSON.stringify({
-          meta: {
-            version: "1.0",
-            timestamp: "x",
-            source: "x",
-            sourceVersion: "x",
-          },
-          data: {},
-        }),
-      ],
-      { type: "application/json" },
-    );
-    return expect(parseFileEnvelope(blob)).rejects.toThrow(
+    const blob = blobOf({
+      meta: { version: "1.0", timestamp: "x", source: "x", sourceVersion: "x" },
+      data: {},
+    });
+    return expect(parseFileEnvelope(blob, stylingExpectation)).rejects.toThrow(
       "envelope structure",
     );
   });
 
   test("throws when data is missing", () => {
-    const blob = new Blob(
-      [
-        JSON.stringify({
-          meta: {
-            kind: "styling-export",
-            version: "1.0",
-            timestamp: "x",
-            source: "x",
-            sourceVersion: "x",
-          },
-        }),
-      ],
-      { type: "application/json" },
-    );
-    return expect(parseFileEnvelope(blob)).rejects.toThrow(
+    const blob = blobOf({
+      meta: {
+        kind: "styling-export",
+        version: "1.0",
+        timestamp: "x",
+        source: "x",
+        sourceVersion: "x",
+      },
+    });
+    return expect(parseFileEnvelope(blob, stylingExpectation)).rejects.toThrow(
       "envelope structure",
     );
   });
 
-  test("parses unknown version on a best-effort basis (forward-compat)", async () => {
-    const blob = new Blob(
-      [
-        JSON.stringify({
-          meta: {
-            kind: "styling-export",
-            version: "99.0",
-            timestamp: "x",
-            source: "x",
-            sourceVersion: "x",
-          },
-          data: { vertices: {}, edges: {} },
-        }),
-      ],
-      { type: "application/json" },
+  test("rejects a file whose kind does not match the expectation", () => {
+    const blob = blobOf({
+      meta: {
+        kind: "graph-export",
+        version: "1.0",
+        timestamp: "x",
+        source: "x",
+        sourceVersion: "x",
+      },
+      data: {},
+    });
+    return expect(parseFileEnvelope(blob, stylingExpectation)).rejects.toThrow(
+      /Expected a "styling-export" file.*got "graph-export"/,
     );
-    const result = await parseFileEnvelope(blob);
-    expect(result.meta.version).toBe("99.0");
-    expect(result.data).toStrictEqual({ vertices: {}, edges: {} });
+  });
+
+  test("accepts a newer minor version of the same major", async () => {
+    const blob = blobOf({
+      meta: {
+        kind: "styling-export",
+        version: "1.5",
+        timestamp: "x",
+        source: "x",
+        sourceVersion: "x",
+      },
+      data: { vertices: {}, edges: {} },
+    });
+    const result = await parseFileEnvelope(blob, stylingExpectation);
+    expect(result.meta.version).toBe("1.5");
+  });
+
+  test("rejects a newer major version as too new", () => {
+    const blob = blobOf({
+      meta: {
+        kind: "styling-export",
+        version: "2.0",
+        timestamp: "x",
+        source: "x",
+        sourceVersion: "x",
+      },
+      data: { vertices: {}, edges: {} },
+    });
+    return expect(parseFileEnvelope(blob, stylingExpectation)).rejects.toThrow(
+      /newer version of Graph Explorer/,
+    );
+  });
+
+  test("rejects an unparseable version string", () => {
+    const blob = blobOf({
+      meta: {
+        kind: "styling-export",
+        version: "not-a-version",
+        timestamp: "x",
+        source: "x",
+        sourceVersion: "x",
+      },
+      data: { vertices: {}, edges: {} },
+    });
+    return expect(parseFileEnvelope(blob, stylingExpectation)).rejects.toThrow(
+      /unrecognized version/,
+    );
   });
 });
