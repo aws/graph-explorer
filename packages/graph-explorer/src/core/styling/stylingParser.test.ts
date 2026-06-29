@@ -177,21 +177,17 @@ describe("parseStylingPayload", () => {
     expect("icon" in style!).toBe(false);
   });
 
-  test("rejects iconUrl as an unknown input field", () => {
-    // The file format uses `icon`; `iconUrl` is the internal storage name and is
-    // not an accepted import field.
+  test("ignores iconUrl as it is not a file field, preventing allowlist bypass", () => {
+    // The file format uses `icon`; `iconUrl` is the internal storage name. A
+    // file supplying `iconUrl` directly (e.g. a remote URL to dodge the icon
+    // allowlist) is stripped silently and never reaches storage.
     const result = parseStylingPayload({
-      vertices: { Airport: { iconUrl: "lucide:plane" } },
+      vertices: { Airport: { iconUrl: "http://evil.example/x.svg" } },
       edges: {},
     });
 
     expect(result.vertexStyles.has(createVertexType("Airport"))).toBe(false);
-    expect(result.issues[0]).toStrictEqual({
-      entityType: "vertex",
-      typeName: "Airport",
-      field: "iconUrl",
-      message: expect.stringContaining("unknown field"),
-    });
+    expect(result.issues).toStrictEqual([]);
   });
 
   test("parses valid edge entry with all fields", () => {
@@ -235,7 +231,9 @@ describe("parseStylingPayload", () => {
     });
   });
 
-  test("drops invalid fields and reports issues", () => {
+  test("drops the whole entry when any known field is invalid", () => {
+    // Whole-entry validation: one bad field rejects the entry rather than
+    // leaving it half-styled. The good `color` is dropped along with it.
     const result = parseStylingPayload({
       vertices: {
         Airport: {
@@ -247,54 +245,52 @@ describe("parseStylingPayload", () => {
       edges: {},
     });
 
-    const style = result.vertexStyles.get(createVertexType("Airport"));
-    expect(style).toStrictEqual({
-      type: createVertexType("Airport"),
-      color: "#ff0000",
-    });
-
+    expect(result.vertexStyles.has(createVertexType("Airport"))).toBe(false);
     expect(result.issues).toStrictEqual([
       {
         entityType: "vertex",
         typeName: "Airport",
-        field: "shape",
-        message: expect.stringContaining("invalid-shape"),
-      },
-      {
-        entityType: "vertex",
-        typeName: "Airport",
-        field: "backgroundOpacity",
-        message: expect.stringContaining("number"),
+        field: expect.any(String),
+        message: expect.any(String),
       },
     ]);
   });
 
-  test("reports unknown fields as issues (typo detection)", () => {
+  test("ignores unknown fields without reporting them", () => {
     const result = parseStylingPayload({
       vertices: {
-        Person: { colour: "#ff0000", colr: "blue" },
+        Person: { colour: "#ff0000", colr: "blue", color: "#00ff00" },
       },
       edges: {},
     });
 
-    expect(result.vertexStyles.has(createVertexType("Person"))).toBe(false);
-    expect(result.issues).toStrictEqual([
-      {
-        entityType: "vertex",
-        typeName: "Person",
-        field: "colour",
-        message: expect.stringContaining("unknown"),
-      },
-      {
-        entityType: "vertex",
-        typeName: "Person",
-        field: "colr",
-        message: expect.stringContaining("unknown"),
-      },
-    ]);
+    // Known `color` survives; the misspelled `colour`/`colr` are stripped.
+    expect(result.vertexStyles.get(createVertexType("Person"))).toStrictEqual({
+      type: createVertexType("Person"),
+      color: "#00ff00",
+    });
+    expect(result.issues).toStrictEqual([]);
   });
 
-  test("drops entries with only invalid fields (no valid fields remain)", () => {
+  test("imports a same-version file from a newer build, ignoring its new fields", () => {
+    // Forward compat: additive changes ship as new optional fields without
+    // bumping the version, so an older build sees the same version with extra
+    // keys it does not know. It keeps what it recognizes and ignores the rest.
+    const result = parseStylingPayload({
+      vertices: {
+        Person: { color: "#abc", glow: true, animationMs: 300 },
+      },
+      edges: {},
+    });
+
+    expect(result.vertexStyles.get(createVertexType("Person"))).toStrictEqual({
+      type: createVertexType("Person"),
+      color: "#abc",
+    });
+    expect(result.issues).toStrictEqual([]);
+  });
+
+  test("drops entries with no recognized fields", () => {
     const result = parseStylingPayload({
       vertices: {
         Ghost: { bogus: "value" },
@@ -303,7 +299,7 @@ describe("parseStylingPayload", () => {
     });
 
     expect(result.vertexStyles.has(createVertexType("Ghost"))).toBe(false);
-    expect(result.issues).toHaveLength(1);
+    expect(result.issues).toStrictEqual([]);
   });
 
   describe("icon allowlist", () => {
@@ -409,12 +405,12 @@ describe("parseStylingPayload", () => {
         entityType: "vertex",
         typeName: "A",
         field: "iconImageType",
-        message: expect.stringContaining("text/html"),
+        message: expect.any(String),
       });
     });
   });
 
-  test("handles multiple types with mixed valid and invalid fields", () => {
+  test("keeps valid entries and drops invalid ones across types", () => {
     const result = parseStylingPayload({
       vertices: {
         Person: { color: "#aaa", shape: "star" },
@@ -425,32 +421,28 @@ describe("parseStylingPayload", () => {
       },
     });
 
+    // Valid entry kept in full.
     expect(result.vertexStyles.get(createVertexType("Person"))).toStrictEqual({
       type: createVertexType("Person"),
       color: "#aaa",
       shape: "star",
     });
-    expect(result.vertexStyles.get(createVertexType("Airport"))).toStrictEqual({
-      type: createVertexType("Airport"),
-      shape: "ellipse",
-    });
-    expect(result.edgeStyles.get(createEdgeType("route"))).toStrictEqual({
-      type: createEdgeType("route"),
-      lineColor: "#bbb",
-    });
+    // Entries with any invalid field are dropped whole.
+    expect(result.vertexStyles.has(createVertexType("Airport"))).toBe(false);
+    expect(result.edgeStyles.has(createEdgeType("route"))).toBe(false);
 
     expect(result.issues).toStrictEqual([
       {
         entityType: "vertex",
         typeName: "Airport",
-        field: "color",
-        message: expect.stringContaining("string"),
+        field: expect.any(String),
+        message: expect.any(String),
       },
       {
         entityType: "edge",
         typeName: "route",
-        field: "lineStyle",
-        message: expect.stringContaining("nope"),
+        field: expect.any(String),
+        message: expect.any(String),
       },
     ]);
   });
@@ -489,16 +481,16 @@ describe("parseStylingPayload", () => {
       expect(result.issues).toStrictEqual([]);
     });
 
-    test("constructor as a field name is rejected as unknown", () => {
+    test("constructor as a field name is ignored as an unknown field", () => {
       const result = parseStylingPayload({
         vertices: {},
         edges: { A: { constructor: "malicious" } },
       });
 
-      expect(result.issues[0]).toMatchObject({
-        field: "constructor",
-        message: expect.stringContaining("unknown field"),
-      });
+      // `constructor` is not a known field, so it is stripped; the entry has no
+      // recognized fields and is dropped without an issue.
+      expect(result.edgeStyles.has(createEdgeType("A"))).toBe(false);
+      expect(result.issues).toStrictEqual([]);
     });
   });
 });

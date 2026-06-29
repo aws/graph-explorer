@@ -17,12 +17,13 @@ import {
 export const STYLING_EXPORT_KIND = "styling-export";
 
 /**
- * Payload schema version. Bump the major for a breaking change (renamed or
- * removed fields); bump the minor for additive changes that older readers can
- * safely ignore via the salvaging parser.
+ * Format generation. A single integer that bumps only on a breaking change
+ * (renamed or removed fields). Additive changes are made as optional fields and
+ * do not bump it. Written to disk as `"1.0"` for historical reasons; read back
+ * as the integer {@link STYLING_EXPORT_SUPPORTED_VERSION}.
  */
 export const STYLING_EXPORT_VERSION = "1.0";
-export const STYLING_EXPORT_MAJOR_VERSION = 1;
+export const STYLING_EXPORT_SUPPORTED_VERSION = 1;
 
 // --- Public types ---
 
@@ -74,7 +75,7 @@ export function toFileEntry(
   return entry;
 }
 
-// --- Per-field zod schemas ---
+// --- Per-entry zod schemas ---
 
 /**
  * Imported icons must be either a Lucide reference or a base64-encoded data URI.
@@ -86,49 +87,54 @@ const safeIconValue = z
     /^(lucide:[a-z0-9-]+|data:image\/(svg\+xml|png|jpeg|gif|webp);base64,)/,
   );
 
-type VertexStorageField = Exclude<keyof VertexPreferencesStorageModel, "type">;
-type EdgeStorageField = Exclude<keyof EdgePreferencesStorageModel, "type">;
+const imageType = z.enum([
+  "image/svg+xml",
+  "image/png",
+  "image/jpeg",
+  "image/gif",
+  "image/webp",
+]);
 
-type FieldSchemas<StorageField extends string, Storage> = {
-  [K in StorageField as K extends "iconUrl" ? "icon" : K]: z.ZodType<
-    NonNullable<Storage[K & keyof Storage]>
-  >;
-};
+/**
+ * One vertex entry. Unknown fields are stripped (Zod's default), so a file with
+ * extra keys imports without error and without storing them — in particular an
+ * injected `iconUrl` is dropped, never bypassing the `icon` allowlist. The
+ * `icon`→`iconUrl` rename to the storage model happens in `.transform()`, so it
+ * stays at this seam.
+ */
+const vertexEntrySchema = z
+  .object({
+    icon: safeIconValue.optional(),
+    iconImageType: imageType.optional(),
+    color: z.string().optional(),
+    displayLabel: z.string().optional(),
+    displayNameAttribute: z.string().optional(),
+    longDisplayNameAttribute: z.string().optional(),
+    shape: z.enum(SHAPE_STYLES).optional(),
+    backgroundOpacity: z.number().optional(),
+    borderWidth: z.number().optional(),
+    borderColor: z.string().optional(),
+    borderStyle: z.enum(LINE_STYLES).optional(),
+  })
+  .transform(
+    ({ icon, ...rest }): Omit<VertexPreferencesStorageModel, "type"> =>
+      icon !== undefined ? { ...rest, iconUrl: icon } : rest,
+  );
 
-const vertexFieldSchemas = {
-  icon: safeIconValue,
-  iconImageType: z.enum([
-    "image/svg+xml",
-    "image/png",
-    "image/jpeg",
-    "image/gif",
-    "image/webp",
-  ]),
-  color: z.string(),
-  displayLabel: z.string(),
-  displayNameAttribute: z.string(),
-  longDisplayNameAttribute: z.string(),
-  shape: z.enum(SHAPE_STYLES),
-  backgroundOpacity: z.number(),
-  borderWidth: z.number(),
-  borderColor: z.string(),
-  borderStyle: z.enum(LINE_STYLES),
-} satisfies FieldSchemas<VertexStorageField, VertexPreferencesStorageModel>;
-
-const edgeFieldSchemas = {
-  displayLabel: z.string(),
-  displayNameAttribute: z.string(),
-  labelColor: z.string(),
-  labelBackgroundOpacity: z.number(),
-  labelBorderColor: z.string(),
-  labelBorderStyle: z.enum(LINE_STYLES),
-  labelBorderWidth: z.number(),
-  lineColor: z.string(),
-  lineThickness: z.number(),
-  lineStyle: z.enum(LINE_STYLES),
-  sourceArrowStyle: z.enum(ARROW_STYLES),
-  targetArrowStyle: z.enum(ARROW_STYLES),
-} satisfies FieldSchemas<EdgeStorageField, EdgePreferencesStorageModel>;
+const edgeEntrySchema = z.object({
+  displayLabel: z.string().optional(),
+  displayNameAttribute: z.string().optional(),
+  labelColor: z.string().optional(),
+  labelBackgroundOpacity: z.number().optional(),
+  labelBorderColor: z.string().optional(),
+  labelBorderStyle: z.enum(LINE_STYLES).optional(),
+  labelBorderWidth: z.number().optional(),
+  lineColor: z.string().optional(),
+  lineThickness: z.number().optional(),
+  lineStyle: z.enum(LINE_STYLES).optional(),
+  sourceArrowStyle: z.enum(ARROW_STYLES).optional(),
+  targetArrowStyle: z.enum(ARROW_STYLES).optional(),
+});
 
 // --- Top-level structural schema ---
 
@@ -142,7 +148,9 @@ const stylingPayloadSchema = z.object({
 /**
  * Parses a styling payload (the `data` from the envelope). Throws
  * {@link StylingParseError} on structural failure (not a record of entries).
- * Per-field issues are salvaged and returned in `issues`.
+ * Each entry is validated as a whole: any invalid known field drops the entire
+ * entry (reported in `issues`); unknown fields are stripped silently. Empty
+ * entries (no recognized fields) are skipped.
  */
 export function parseStylingPayload(rawData: unknown): StylingParseResult {
   const structure = stylingPayloadSchema.safeParse(rawData);
@@ -154,104 +162,64 @@ export function parseStylingPayload(rawData: unknown): StylingParseResult {
   }
 
   const issues: ImportIssue[] = [];
-  const vertexStyles = new Map<VertexType, VertexPreferencesStorageModel>();
-  const edgeStyles = new Map<EdgeType, EdgePreferencesStorageModel>();
 
-  for (const [typeName, entry] of Object.entries(structure.data.vertices)) {
-    const resolved = salvageEntry<VertexPreferencesStorageModel>(
-      "vertex",
-      typeName,
-      entry,
-      vertexFieldSchemas,
-      issues,
-    );
-    if (Object.keys(resolved).length > 0) {
-      vertexStyles.set(createVertexType(typeName), {
-        type: createVertexType(typeName),
-        ...resolved,
-      });
-    }
-  }
-
-  for (const [typeName, entry] of Object.entries(structure.data.edges)) {
-    const resolved = salvageEntry<EdgePreferencesStorageModel>(
-      "edge",
-      typeName,
-      entry,
-      edgeFieldSchemas,
-      issues,
-    );
-    if (Object.keys(resolved).length > 0) {
-      edgeStyles.set(createEdgeType(typeName), {
-        type: createEdgeType(typeName),
-        ...resolved,
-      });
-    }
-  }
+  const vertexStyles = parseEntries(
+    "vertex",
+    structure.data.vertices,
+    vertexEntrySchema,
+    createVertexType,
+    issues,
+  );
+  const edgeStyles = parseEntries(
+    "edge",
+    structure.data.edges,
+    edgeEntrySchema,
+    createEdgeType,
+    issues,
+  );
 
   return { vertexStyles, edgeStyles, issues };
 }
 
-// --- Generic salvaging entry parser ---
-
-/**
- * Validates each field of one entry independently. Invalid and unknown fields
- * are dropped and reported in `issues`; valid fields are collected into a
- * partial storage model. The single file→storage rename (`icon`→`iconUrl`)
- * happens here so it stays at this seam rather than spreading to consumers.
- */
-function salvageEntry<Storage extends { type: unknown }>(
+function parseEntries<Type, Fields extends object>(
   entityType: "vertex" | "edge",
-  typeName: string,
-  entry: Record<string, unknown>,
-  fieldSchemas: Record<string, z.ZodType>,
+  entries: Record<string, unknown>,
+  entrySchema: z.ZodType<Fields, unknown>,
+  createType: (typeName: string) => Type,
   issues: ImportIssue[],
-): Partial<Omit<Storage, "type">> {
-  const resolved: Partial<Omit<Storage, "type">> = {};
-
-  for (const [field, value] of Object.entries(entry)) {
-    if (!Object.hasOwn(fieldSchemas, field)) {
-      issues.push({
-        entityType,
-        typeName,
-        field,
-        message: `unknown field "${field}"`,
-      });
-      continue;
-    }
-
-    const schema = fieldSchemas[field];
-    const parsed = schema.safeParse(value);
+): Map<Type, Fields & { type: Type }> {
+  const styles = new Map<Type, Fields & { type: Type }>();
+  for (const [typeName, entry] of Object.entries(entries)) {
+    const parsed = entrySchema.safeParse(entry);
     if (!parsed.success) {
-      issues.push({
-        entityType,
-        typeName,
-        field,
-        message: formatZodError(parsed.error, value),
-      });
+      issues.push(toEntryIssue(entityType, typeName, parsed.error));
       continue;
     }
-
-    const storageField = field === "icon" ? "iconUrl" : field;
-    resolved[storageField as keyof typeof resolved] =
-      parsed.data as (typeof resolved)[keyof typeof resolved];
+    if (Object.keys(parsed.data).length === 0) {
+      continue;
+    }
+    const type = createType(typeName);
+    styles.set(type, { type, ...parsed.data });
   }
-
-  return resolved;
+  return styles;
 }
 
-function formatZodError(error: z.core.$ZodError, rawValue: unknown): string {
+function toEntryIssue(
+  entityType: "vertex" | "edge",
+  typeName: string,
+  error: z.core.$ZodError,
+): ImportIssue {
   const issue = error.issues[0];
-  if (!issue) return `invalid value "${String(rawValue)}"`;
+  const field = issue?.path.join(".") || "(entry)";
+  return { entityType, typeName, field, message: describeZodIssue(issue) };
+}
 
-  if (issue.code === "invalid_value") {
-    return `value "${String(rawValue)}" is not a valid option`;
-  }
-  if (issue.code === "invalid_type") {
-    return `expected ${issue.expected}, got ${typeof rawValue}`;
-  }
+function describeZodIssue(issue: z.core.$ZodIssue | undefined): string {
+  if (!issue) return "invalid value";
+  if (issue.code === "invalid_value") return "value is not a valid option";
+  if (issue.code === "invalid_type") return `expected ${issue.expected}`;
   if (issue.code === "invalid_format") {
-    return `value "${String(rawValue)}" does not match the allowlist (lucide:<name> or data:image/*;base64,)`;
+    return "value does not match the allowlist (lucide:<name> or data:image/*;base64,)";
   }
-  return `invalid value "${String(rawValue)}"`;
+  return "invalid value";
 }

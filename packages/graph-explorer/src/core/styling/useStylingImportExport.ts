@@ -21,7 +21,7 @@ import type {
 import {
   parseStylingPayload,
   STYLING_EXPORT_KIND,
-  STYLING_EXPORT_MAJOR_VERSION,
+  STYLING_EXPORT_SUPPORTED_VERSION,
   toFileEntry,
 } from "./stylingParser";
 
@@ -39,15 +39,15 @@ export function useImportStylingFile() {
   /**
    * Parses a styling export file. Throws {@link FileEnvelopeError} if the file
    * is not valid JSON, lacks the envelope structure, is the wrong kind, or was
-   * created by a newer major version; and {@link StylingParseError} if the
-   * payload is structurally unusable. Per-field salvage issues are returned in
-   * the result (not thrown).
+   * created by a newer version; and {@link StylingParseError} if the payload is
+   * structurally unusable. Per-entry validation issues are returned in the
+   * result (not thrown).
    */
   const parseFile = useCallback(
     async (file: File): Promise<StylingParseResult> => {
       const envelope = await parseFileEnvelope(file, {
         kind: STYLING_EXPORT_KIND,
-        supportedMajorVersion: STYLING_EXPORT_MAJOR_VERSION,
+        supportedVersion: STYLING_EXPORT_SUPPORTED_VERSION,
       });
       return parseStylingPayload(envelope.data);
     },

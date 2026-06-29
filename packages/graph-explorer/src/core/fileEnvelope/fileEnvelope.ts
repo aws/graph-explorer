@@ -55,19 +55,20 @@ export type EnvelopeExpectation = {
   /** The `kind` discriminator this caller knows how to read. */
   kind: string;
   /**
-   * The highest payload-schema major version this build understands. A file
-   * with the same major imports (the salvaging payload parser ignores unknown
-   * minor-version additions); a higher major is rejected as too new.
+   * The newest format generation this build understands. The version is a
+   * single integer that bumps only on a breaking change — additive changes are
+   * made as optional fields and do not bump it. A file from the same or an
+   * older generation imports; a newer one is rejected as too new.
    */
-  supportedMajorVersion: number;
+  supportedVersion: number;
 };
 
 /**
- * Reads and validates the outer envelope, then guards `kind` and major
- * `version` against what the caller supports. Throws {@link FileEnvelopeError}
- * for invalid JSON, a malformed envelope, the wrong `kind`, an unparseable
- * version, or a major version newer than this build. The payload (`data`) is
- * returned unvalidated for the caller to parse per kind.
+ * Reads and validates the outer envelope, then guards `kind` and `version`
+ * against what the caller supports. Throws {@link FileEnvelopeError} for
+ * invalid JSON, a malformed envelope, the wrong `kind`, an unparseable version,
+ * or a version newer than this build. The payload (`data`) is returned
+ * unvalidated for the caller to parse per kind.
  */
 export async function parseFileEnvelope(
   blob: Blob,
@@ -97,13 +98,13 @@ export async function parseFileEnvelope(
     );
   }
 
-  const majorVersion = parseMajorVersion(meta.version);
-  if (majorVersion === null) {
+  const version = parseVersion(meta.version);
+  if (version === null) {
     throw new FileEnvelopeError(
       `File has an unrecognized version "${meta.version}"`,
     );
   }
-  if (majorVersion > expectation.supportedMajorVersion) {
+  if (version > expectation.supportedVersion) {
     throw new FileEnvelopeError(
       `This file was created by a newer version of ${LABELS.APP_NAME} and cannot be imported. Update ${LABELS.APP_NAME} and try again.`,
     );
@@ -112,8 +113,11 @@ export async function parseFileEnvelope(
   return result.data;
 }
 
-/** Extracts the leading integer of a semver-style `"major.minor"` string. */
-function parseMajorVersion(version: string): number | null {
-  const major = Number.parseInt(version, 10);
-  return Number.isNaN(major) ? null : major;
+/**
+ * Reads the format generation as a single integer. Tolerates the legacy
+ * `"1.0"` string form (parsed as `1`) that early exports wrote to disk.
+ */
+function parseVersion(version: string): number | null {
+  const parsed = Number.parseInt(version, 10);
+  return Number.isNaN(parsed) ? null : parsed;
 }

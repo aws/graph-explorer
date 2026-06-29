@@ -189,7 +189,7 @@ export type LegacyUserStylingStorageModel = {
  *    style dialogs.
  *
  * Higher layers override lower ones per field (see {@link createVertexPreference}
- * / {@link createEdgePreference}). Related modules: `core/styling` (the salvaging
+ * / {@link createEdgePreference}). Related modules: `core/styling` (the styling
  * import parser and import/export hooks) and `core/fileEnvelope` (the file
  * wrapper). The `icon`↔`iconUrl` rename happens at the file-format seam in the
  * styling parser, not here.

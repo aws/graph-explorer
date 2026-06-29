@@ -9,7 +9,7 @@ import {
 
 const stylingExpectation: EnvelopeExpectation = {
   kind: "styling-export",
-  supportedMajorVersion: 1,
+  supportedVersion: 1,
 };
 
 function blobOf(value: unknown): Blob {
@@ -122,11 +122,11 @@ describe("parseFileEnvelope", () => {
     );
   });
 
-  test("accepts a newer minor version of the same major", async () => {
+  test("tolerates the legacy decimal version string form", async () => {
     const blob = blobOf({
       meta: {
         kind: "styling-export",
-        version: "1.5",
+        version: "1.0",
         timestamp: "x",
         source: "x",
         sourceVersion: "x",
@@ -134,10 +134,10 @@ describe("parseFileEnvelope", () => {
       data: { vertices: {}, edges: {} },
     });
     const result = await parseFileEnvelope(blob, stylingExpectation);
-    expect(result.meta.version).toBe("1.5");
+    expect(result.meta.version).toBe("1.0");
   });
 
-  test("rejects a newer major version as too new", () => {
+  test("rejects a newer version as too new", () => {
     const blob = blobOf({
       meta: {
         kind: "styling-export",
