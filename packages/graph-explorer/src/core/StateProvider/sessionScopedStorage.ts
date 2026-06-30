@@ -15,8 +15,11 @@ import { createWriteThroughAtom } from "./writeThroughAtom";
  *
  * `serialize` returns `null` to mean "remove the per-tab key" — used when the
  * value is the kind of empty/cleared state that should not seed a later reload.
- * `deserialize` returns `null` when the stored string is missing or corrupt, so
- * seeding falls through to the breadcrumb rather than adopting a bad value.
+ * `deserialize` returns `null` for an absent value (a legitimate miss); a
+ * present-but-invalid value is corrupt and **throws** — the seam
+ * (`createSessionScopedAtom`) catches it and treats it as a miss, so detecting
+ * corruption stays separate from deciding what to do about it. Do not swallow
+ * errors here.
  */
 export type SessionValueCodec<T> = {
   serialize: (value: T) => string | null;

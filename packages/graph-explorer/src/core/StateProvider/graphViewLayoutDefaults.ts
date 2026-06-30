@@ -40,20 +40,15 @@ export type GraphViewLayout = {
  * rebuilds the runtime {@link GraphViewLayout}, so a hand-edited or stale
  * per-tab value with the wrong shape is rejected rather than seeding bad state.
  */
-const serializedGraphViewLayoutSchema = z
-  .object({
-    activeSidebarItem: graphViewSidebarItemSchema.nullable(),
-    sidebar: z.object({ width: z.number() }),
-    activeToggles: z.array(toggleableViewSchema),
-    tableView: z.object({ height: z.number() }).optional(),
-    detailsAutoOpenOnSelection: z.boolean().optional(),
-  })
-  .transform(
-    (value): GraphViewLayout => ({
-      ...value,
-      activeToggles: new Set(value.activeToggles),
-    }),
-  );
+const serializedGraphViewLayoutSchema = z.object({
+  activeSidebarItem: graphViewSidebarItemSchema.nullable(),
+  sidebar: z.object({ width: z.number() }),
+  activeToggles: z
+    .array(toggleableViewSchema)
+    .transform(toggles => new Set(toggles)),
+  tableView: z.object({ height: z.number() }).optional(),
+  detailsAutoOpenOnSelection: z.boolean().optional(),
+});
 
 /** Default height for the table view panel in pixels. */
 export const DEFAULT_TABLE_VIEW_HEIGHT = 300;

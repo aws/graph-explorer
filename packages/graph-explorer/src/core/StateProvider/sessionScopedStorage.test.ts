@@ -13,6 +13,11 @@ import {
 import { persistenceStatusStore } from "./persistence";
 import { createInMemorySessionStorage } from "./safeSessionStorage";
 import {
+  defaultSchemaViewLayout,
+  type SchemaViewLayout,
+  schemaViewLayoutCodec,
+} from "./schemaViewLayoutDefaults";
+import {
   createSessionScopedAtom,
   parseSessionJson,
   type SessionValueCodec,
@@ -34,37 +39,46 @@ const counterCodec: SessionValueCodec<Counter> = {
 const KEY = "test-counter";
 
 /**
- * Simulates one browser tab over the counter atom: its own Jotai store and
- * sessionStorage (per-tab), all tabs sharing the one fake-indexeddb. Mirrors
- * the active-connection test harness.
+ * Builds a tab-opener bound to one key/default/codec. Each opened tab has its
+ * own Jotai store and sessionStorage (per-tab), while all tabs share the one
+ * fake-indexeddb — exactly how same-origin tabs relate. Mirrors the
+ * active-connection test harness, parameterized so each real codec can be
+ * exercised through the same multi-tab sequences rather than only a toy codec.
  */
-async function openTab() {
-  const sessionStorage = createInMemorySessionStorage();
-  let store = createStore();
-  let atom = await createSessionScopedAtom<Counter>({
-    key: KEY,
-    defaultValue: { count: 0 },
-    codec: counterCodec,
-    sessionStorage,
-  });
-  return {
-    read: () => store.get(atom),
-    write: (value: Counter) => {
-      store.set(atom, value);
-      return persistenceStatusStore.waitForIdle();
-    },
-    session: () => sessionStorage.getItem(KEY),
-    reload: async () => {
-      store = createStore();
-      atom = await createSessionScopedAtom<Counter>({
-        key: KEY,
-        defaultValue: { count: 0 },
-        codec: counterCodec,
-        sessionStorage,
-      });
-    },
+function tabOpener<T>(
+  key: string,
+  defaultValue: T,
+  codec: SessionValueCodec<T>,
+) {
+  return async function openTab() {
+    const sessionStorage = createInMemorySessionStorage();
+    let store = createStore();
+    let atom = await createSessionScopedAtom<T>({
+      key,
+      defaultValue,
+      codec,
+      sessionStorage,
+    });
+    return {
+      read: () => store.get(atom),
+      write: (value: T) => {
+        store.set(atom, value);
+        return persistenceStatusStore.waitForIdle();
+      },
+      reload: async () => {
+        store = createStore();
+        atom = await createSessionScopedAtom<T>({
+          key,
+          defaultValue,
+          codec,
+          sessionStorage,
+        });
+      },
+    };
   };
 }
+
+const openTab = tabOpener<Counter>(KEY, { count: 0 }, counterCodec);
 
 describe("createSessionScopedAtom", () => {
   beforeEach(async () => {
@@ -276,5 +290,100 @@ describe("createSessionScopedAtom with the graph view layout codec", () => {
     expect(
       graphViewLayoutCodec.deserialize(sessionStorage.getItem(LAYOUT_KEY)),
     ).toStrictEqual(breadcrumb);
+  });
+});
+
+// The two layout atoms ride the same primitive as the active connection, so
+// they get the same multi-tab assurances active-connection has — proven
+// through their real codecs, not the toy counter codec. The graph view codec
+// is the interesting one: its activeToggles Set must survive the array
+// serialization across a write-in-one-tab / cold-start-in-another sequence.
+describe("graph view layout across tabs", () => {
+  const openGraphViewTab = tabOpener<GraphViewLayout>(
+    "graph-view-layout",
+    defaultGraphViewLayout,
+    graphViewLayoutCodec,
+  );
+
+  beforeEach(async () => {
+    await localForage.clear();
+  });
+
+  test("changing layout in one tab does not change an already-open tab", async () => {
+    const tabB = await openGraphViewTab();
+    const tabBLayout: GraphViewLayout = {
+      ...defaultGraphViewLayout,
+      activeSidebarItem: "filters",
+      activeToggles: new Set(["graph-viewer"]),
+    };
+    await tabB.write(tabBLayout);
+
+    const tabA = await openGraphViewTab();
+    await tabA.write({
+      ...defaultGraphViewLayout,
+      activeSidebarItem: "edges-styling",
+    });
+
+    expect(tabB.read()).toStrictEqual(tabBLayout);
+  });
+
+  test("a later tab cold-starts to the layout an earlier tab wrote, with toggles rebuilt as a Set", async () => {
+    const earlierTab = await openGraphViewTab();
+    const written: GraphViewLayout = {
+      ...defaultGraphViewLayout,
+      activeSidebarItem: "expand",
+      activeToggles: new Set(["table-view"]),
+      sidebar: { width: 512 },
+    };
+    await earlierTab.write(written);
+
+    const freshTab = await openGraphViewTab();
+
+    const seeded = freshTab.read();
+    expect(seeded).toStrictEqual(written);
+    expect(seeded.activeToggles).toBeInstanceOf(Set);
+  });
+});
+
+describe("schema view layout across tabs", () => {
+  const openSchemaViewTab = tabOpener<SchemaViewLayout>(
+    "schema-view-layout",
+    defaultSchemaViewLayout,
+    schemaViewLayoutCodec,
+  );
+
+  beforeEach(async () => {
+    await localForage.clear();
+  });
+
+  test("changing layout in one tab does not change an already-open tab", async () => {
+    const tabB = await openSchemaViewTab();
+    const tabBLayout: SchemaViewLayout = {
+      ...defaultSchemaViewLayout,
+      activeSidebarItem: "nodes-styling",
+    };
+    await tabB.write(tabBLayout);
+
+    const tabA = await openSchemaViewTab();
+    await tabA.write({
+      ...defaultSchemaViewLayout,
+      activeSidebarItem: "edges-styling",
+    });
+
+    expect(tabB.read()).toStrictEqual(tabBLayout);
+  });
+
+  test("a later tab cold-starts to the layout an earlier tab wrote", async () => {
+    const earlierTab = await openSchemaViewTab();
+    const written: SchemaViewLayout = {
+      ...defaultSchemaViewLayout,
+      activeSidebarItem: "edges-styling",
+      sidebar: { width: 480 },
+    };
+    await earlierTab.write(written);
+
+    const freshTab = await openSchemaViewTab();
+
+    expect(freshTab.read()).toStrictEqual(written);
   });
 });
