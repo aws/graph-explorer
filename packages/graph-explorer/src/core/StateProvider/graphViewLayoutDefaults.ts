@@ -1,9 +1,18 @@
+import { z } from "zod";
+
+import {
+  parseSessionJson,
+  type SessionValueCodec,
+} from "./sessionScopedStorage";
+
 /** The two main content views that can be toggled on or off. */
-export const toggleableViews = ["graph-viewer", "table-view"] as const;
-export type ToggleableView = (typeof toggleableViews)[number];
+export const toggleableViewSchema = z.enum(["graph-viewer", "table-view"]);
+export type ToggleableView = z.infer<typeof toggleableViewSchema>;
+/** The toggleable views as a readonly tuple, e.g. for random test selection. */
+export const toggleableViews = toggleableViewSchema.options;
 
 /** Identifiers for the graph view sidebar panels. */
-export const graphViewSidebarItems = [
+export const graphViewSidebarItemSchema = z.enum([
   "search",
   "details",
   "filters",
@@ -11,8 +20,10 @@ export const graphViewSidebarItems = [
   "nodes-styling",
   "edges-styling",
   "namespaces",
-] as const;
-export type GraphViewSidebarItem = (typeof graphViewSidebarItems)[number];
+]);
+export type GraphViewSidebarItem = z.infer<typeof graphViewSidebarItemSchema>;
+/** The sidebar panels as a readonly tuple, e.g. for random test selection. */
+export const graphViewSidebarItems = graphViewSidebarItemSchema.options;
 
 /** Persisted layout preferences for the graph view. */
 export type GraphViewLayout = {
@@ -22,6 +33,27 @@ export type GraphViewLayout = {
   tableView?: { height: number };
   detailsAutoOpenOnSelection?: boolean;
 };
+
+/**
+ * The graph view layout as JSON holds it: `activeToggles` is an array because a
+ * `Set` does not survive `JSON.stringify`. The schema parses this shape and
+ * rebuilds the runtime {@link GraphViewLayout}, so a hand-edited or stale
+ * per-tab value with the wrong shape is rejected rather than seeding bad state.
+ */
+const serializedGraphViewLayoutSchema = z
+  .object({
+    activeSidebarItem: graphViewSidebarItemSchema.nullable(),
+    sidebar: z.object({ width: z.number() }),
+    activeToggles: z.array(toggleableViewSchema),
+    tableView: z.object({ height: z.number() }).optional(),
+    detailsAutoOpenOnSelection: z.boolean().optional(),
+  })
+  .transform(
+    (value): GraphViewLayout => ({
+      ...value,
+      activeToggles: new Set(value.activeToggles),
+    }),
+  );
 
 /** Default height for the table view panel in pixels. */
 export const DEFAULT_TABLE_VIEW_HEIGHT = 300;
@@ -36,4 +68,14 @@ export const defaultGraphViewLayout: GraphViewLayout = {
   detailsAutoOpenOnSelection: true,
   sidebar: { width: DEFAULT_SIDEBAR_WIDTH },
   tableView: { height: DEFAULT_TABLE_VIEW_HEIGHT },
+};
+
+/** Per-tab session codec; serializes the toggles Set as an array for JSON. */
+export const graphViewLayoutCodec: SessionValueCodec<GraphViewLayout> = {
+  serialize: layout =>
+    JSON.stringify({
+      ...layout,
+      activeToggles: [...layout.activeToggles],
+    }),
+  deserialize: raw => parseSessionJson(raw, serializedGraphViewLayoutSchema),
 };
