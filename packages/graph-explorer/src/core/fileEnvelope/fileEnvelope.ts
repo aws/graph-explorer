@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { LABELS } from "@/utils/constants";
 
-const fileEnvelopeMetaSchema = z.looseObject({
+const fileEnvelopeMetaSchema = z.object({
   kind: z.string(),
   version: z.string(),
   timestamp: z.string(),

@@ -27,7 +27,7 @@ A shared **file envelope** primitive lives in `packages/graph-explorer/src/core/
    }
    ```
 
-2. **`meta` uses `z.looseObject()`** — unknown fields are preserved, not stripped. This is forward-compatibility: a newer exporter can add fields (e.g., `exportedBy`) without breaking older importers that ignore them.
+2. **`meta` uses `z.object()`** — unknown fields are stripped, matching the payload's default. `meta` is read only to gate `kind`/`version`; it is never round-tripped back to disk, so preserving fields a build does not understand buys nothing. A newer exporter that adds a `meta` field still imports cleanly on an older build (the field is dropped, not rejected); the field simply does not survive into the parsed envelope.
 
 3. **`kind` discriminates the file type.** Known kinds today: `"styling-export"`. Each `kind` has its own payload schema, validated by the caller. The caller passes the `kind` it expects; the envelope rejects a mismatch with a clear error so a wrong-kind file (e.g. a connection export) is never silently misinterpreted.
 

@@ -47,7 +47,7 @@ describe("parseFileEnvelope", () => {
     });
   });
 
-  test("preserves unknown meta fields (forward-compat)", () => {
+  test("strips unknown meta fields", () => {
     const envelope = {
       meta: {
         kind: "styling-export",
@@ -59,11 +59,12 @@ describe("parseFileEnvelope", () => {
       },
       data: { hello: "world" },
     };
+    const { exportedBy: _exportedBy, ...expectedMeta } = envelope.meta;
 
     return expect(
       parseFileEnvelope(blobOf(envelope), stylingExpectation),
     ).resolves.toStrictEqual({
-      meta: envelope.meta,
+      meta: expectedMeta,
       data: { hello: "world" },
     });
   });
