@@ -17,8 +17,10 @@ import {
 import { renderHookWithJotai } from "@/utils/testing";
 
 import {
+  getStylingConflicts,
+  parseStylingFile,
+  useApplyStylingImport,
   useExportStylingFile,
-  useImportStylingFile,
 } from "./useStylingImportExport";
 
 vi.mock("@/utils/fileData", () => ({
@@ -27,9 +29,9 @@ vi.mock("@/utils/fileData", () => ({
   saveFile: vi.fn(),
 }));
 
-describe("useImportStylingFile", () => {
-  test("parseFile + applyImport writes styles to imported atoms", async () => {
-    const { result } = renderHookWithJotai(() => useImportStylingFile());
+describe("styling import", () => {
+  test("parseStylingFile + applyImport writes styles to imported atoms", async () => {
+    const { result } = renderHookWithJotai(() => useApplyStylingImport());
 
     const file = createStylingFile({
       vertices: {
@@ -41,9 +43,8 @@ describe("useImportStylingFile", () => {
       },
     });
 
-    const parsed = await result.current.parseFile(file);
-    const issues = result.current.applyImport(parsed);
-    expect(issues).toStrictEqual([]);
+    const parsed = await parseStylingFile(file);
+    result.current(parsed);
 
     const store = getAppStore();
     const vertexStyles = store.get(importedVertexStylesAtom);
@@ -76,15 +77,15 @@ describe("useImportStylingFile", () => {
       ]),
     );
 
-    const { result } = renderHookWithJotai(() => useImportStylingFile());
+    const { result } = renderHookWithJotai(() => useApplyStylingImport());
 
     const file = createStylingFile({
       vertices: { Person: { color: "#999" } },
       edges: {},
     });
 
-    const parsed = await result.current.parseFile(file);
-    result.current.applyImport(parsed);
+    const parsed = await parseStylingFile(file);
+    result.current(parsed);
 
     const userStyles = store.get(userVertexStylesAtom);
     expect(userStyles.get(createVertexType("Person"))?.color).toBe("#111");
@@ -102,43 +103,37 @@ describe("useImportStylingFile", () => {
       ]),
     );
 
-    const { result } = renderHookWithJotai(() => useImportStylingFile());
+    const { result } = renderHookWithJotai(() => useApplyStylingImport());
 
     const file = createStylingFile({
       vertices: { NewType: { color: "#new" } },
       edges: {},
     });
 
-    const parsed = await result.current.parseFile(file);
-    result.current.applyImport(parsed);
+    const parsed = await parseStylingFile(file);
+    result.current(parsed);
 
     const vertexStyles = store.get(importedVertexStylesAtom);
     expect(vertexStyles.has(createVertexType("OldType"))).toBe(true);
     expect(vertexStyles.has(createVertexType("NewType"))).toBe(true);
   });
 
-  test("getConflicts identifies overlapping keys", () => {
-    const store = getAppStore();
-    store.set(
-      importedVertexStylesAtom,
-      new Map<VertexType, VertexPreferencesStorageModel>([
-        [
-          createVertexType("Person"),
-          { type: createVertexType("Person"), color: "#existing" },
-        ],
-      ]),
-    );
-    store.set(
-      importedEdgeStylesAtom,
-      new Map<EdgeType, EdgePreferencesStorageModel>([
-        [
-          createEdgeType("knows"),
-          { type: createEdgeType("knows"), lineColor: "#old" },
-        ],
-      ]),
-    );
-
-    const { result } = renderHookWithJotai(() => useImportStylingFile());
+  test("getStylingConflicts identifies overlapping keys", () => {
+    const importedVertexStyles = new Map<
+      VertexType,
+      VertexPreferencesStorageModel
+    >([
+      [
+        createVertexType("Person"),
+        { type: createVertexType("Person"), color: "#existing" },
+      ],
+    ]);
+    const importedEdgeStyles = new Map<EdgeType, EdgePreferencesStorageModel>([
+      [
+        createEdgeType("knows"),
+        { type: createEdgeType("knows"), lineColor: "#old" },
+      ],
+    ]);
 
     const parsed = {
       vertexStyles: new Map<VertexType, VertexPreferencesStorageModel>([
@@ -157,19 +152,20 @@ describe("useImportStylingFile", () => {
           { type: createEdgeType("knows"), lineColor: "#new" },
         ],
       ]),
-      issues: [],
     };
 
-    const conflicts = result.current.getConflicts(parsed);
+    const conflicts = getStylingConflicts(
+      parsed,
+      importedVertexStyles,
+      importedEdgeStyles,
+    );
     expect(conflicts).toStrictEqual({
       vertices: ["Person"],
       edges: ["knows"],
     });
   });
 
-  test("getConflicts returns empty when no overlap", () => {
-    const { result } = renderHookWithJotai(() => useImportStylingFile());
-
+  test("getStylingConflicts returns empty when no overlap", () => {
     const parsed = {
       vertexStyles: new Map<VertexType, VertexPreferencesStorageModel>([
         [
@@ -178,28 +174,27 @@ describe("useImportStylingFile", () => {
         ],
       ]),
       edgeStyles: new Map<EdgeType, EdgePreferencesStorageModel>(),
-      issues: [],
     };
 
-    const conflicts = result.current.getConflicts(parsed);
+    const conflicts = getStylingConflicts(
+      parsed,
+      new Map<VertexType, VertexPreferencesStorageModel>(),
+      new Map<EdgeType, EdgePreferencesStorageModel>(),
+    );
     expect(conflicts).toStrictEqual({ vertices: [], edges: [] });
   });
 
   test("throws for invalid file", async () => {
-    const { result } = renderHookWithJotai(() => useImportStylingFile());
-
     const file = new File(["not json"], "bad.json", {
       type: "application/json",
     });
 
-    await expect(result.current.parseFile(file)).rejects.toThrow(
+    await expect(parseStylingFile(file)).rejects.toThrow(
       "File is not valid JSON",
     );
   });
 
   test("throws for wrong kind", async () => {
-    const { result } = renderHookWithJotai(() => useImportStylingFile());
-
     const envelope = {
       meta: {
         kind: "connection-export",
@@ -214,14 +209,12 @@ describe("useImportStylingFile", () => {
       type: "application/json",
     });
 
-    await expect(result.current.parseFile(file)).rejects.toThrow(
+    await expect(parseStylingFile(file)).rejects.toThrow(
       'Expected a "styling-export" file, but got "connection-export"',
     );
   });
 
   test("throws when the file was made by a newer major version", async () => {
-    const { result } = renderHookWithJotai(() => useImportStylingFile());
-
     const envelope = {
       meta: {
         kind: "styling-export",
@@ -236,7 +229,7 @@ describe("useImportStylingFile", () => {
       type: "application/json",
     });
 
-    await expect(result.current.parseFile(file)).rejects.toThrow(
+    await expect(parseStylingFile(file)).rejects.toThrow(
       /newer version of Graph Explorer/,
     );
   });

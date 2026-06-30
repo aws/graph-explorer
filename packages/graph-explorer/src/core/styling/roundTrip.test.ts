@@ -19,8 +19,9 @@ import {
 import { renderHookWithJotai } from "@/utils/testing";
 
 import {
+  parseStylingFile,
+  useApplyStylingImport,
   useExportStylingFile,
-  useImportStylingFile,
 } from "./useStylingImportExport";
 
 vi.mock("@/utils/fileData", () => ({
@@ -97,13 +98,11 @@ describe("round-trip: export then import", () => {
     store.set(userEdgeStylesAtom, new Map());
 
     const { result: importResult } = renderHookWithJotai(() =>
-      useImportStylingFile(),
+      useApplyStylingImport(),
     );
-    const parseOut = await importResult.current.parseFile(file);
+    const parseOut = await parseStylingFile(file);
 
-    importResult.current.applyImport(parseOut);
-
-    expect(parseOut.issues).toStrictEqual([]);
+    importResult.current(parseOut);
 
     const importedVertices = store.get(importedVertexStylesAtom);
     expect(importedVertices.get(createVertexType("airport"))).toStrictEqual({
@@ -180,13 +179,11 @@ describe("round-trip: export then import", () => {
     store.set(userVertexStylesAtom, new Map());
 
     const { result: importResult } = renderHookWithJotai(() =>
-      useImportStylingFile(),
+      useApplyStylingImport(),
     );
-    const parseOut = await importResult.current.parseFile(file);
+    const parseOut = await parseStylingFile(file);
 
-    importResult.current.applyImport(parseOut);
-
-    expect(parseOut.issues).toStrictEqual([]);
+    importResult.current(parseOut);
 
     const imported = store.get(importedVertexStylesAtom);
     expect(
@@ -255,13 +252,11 @@ describe("round-trip: export then import", () => {
     store.set(userVertexStylesAtom, new Map());
 
     const { result: importResult } = renderHookWithJotai(() =>
-      useImportStylingFile(),
+      useApplyStylingImport(),
     );
-    const parseOut = await importResult.current.parseFile(file);
+    const parseOut = await parseStylingFile(file);
 
-    importResult.current.applyImport(parseOut);
-
-    expect(parseOut.issues).toStrictEqual([]);
+    importResult.current(parseOut);
 
     const imported = store.get(importedVertexStylesAtom);
     expect(imported.get(createVertexType("CustomNode"))!.iconUrl).toBe(
@@ -307,13 +302,11 @@ describe("round-trip: export then import", () => {
     store.set(userVertexStylesAtom, new Map());
 
     const { result: importResult } = renderHookWithJotai(() =>
-      useImportStylingFile(),
+      useApplyStylingImport(),
     );
-    const parseOut = await importResult.current.parseFile(file);
+    const parseOut = await parseStylingFile(file);
 
-    importResult.current.applyImport(parseOut);
-
-    expect(parseOut.issues).toStrictEqual([]);
+    importResult.current(parseOut);
 
     const imported = store.get(importedVertexStylesAtom);
     expect(imported.get(createVertexType("PngNode"))).toStrictEqual({
@@ -330,7 +323,7 @@ describe("round-trip: export then import", () => {
     });
   });
 
-  test("HTTP/HTTPS URL icons are dropped on import (no outbound requests)", async () => {
+  test("HTTP/HTTPS URL icons reject the whole import (no outbound requests)", async () => {
     const httpsUrl = "https://cdn.example.com/icons/airport.png";
     const httpUrl = "http://internal.corp/icon.svg";
 
@@ -365,22 +358,19 @@ describe("round-trip: export then import", () => {
 
     store.set(userVertexStylesAtom, new Map());
 
-    const { result: importResult } = renderHookWithJotai(() =>
-      useImportStylingFile(),
-    );
-    const parseOut = await importResult.current.parseFile(file);
-
-    importResult.current.applyImport(parseOut);
-
-    // Both icons fail the allowlist, so each entry's only field is dropped and
-    // the icon issue is reported. iconImageType still survives for HttpsNode.
-    expect(parseOut.issues.map(i => i.field)).toStrictEqual(["icon", "icon"]);
+    // Both icons fail the allowlist. Import is atomic, so the whole file is
+    // rejected and both icon issues are reported; nothing is persisted, so no
+    // outbound request can be triggered.
+    await expect(parseStylingFile(file)).rejects.toMatchObject({
+      issues: expect.arrayContaining([
+        expect.objectContaining({ field: "icon", typeName: "HttpsNode" }),
+        expect.objectContaining({ field: "icon", typeName: "HttpNode" }),
+      ]),
+    });
 
     const imported = store.get(importedVertexStylesAtom);
-    expect(
-      imported.get(createVertexType("HttpsNode"))?.iconUrl,
-    ).toBeUndefined();
-    expect(imported.get(createVertexType("HttpNode"))?.iconUrl).toBeUndefined();
+    expect(imported.has(createVertexType("HttpsNode"))).toBe(false);
+    expect(imported.has(createVertexType("HttpNode"))).toBe(false);
   });
 
   test("mixed icon types in a single export all survive round-trip", async () => {
@@ -432,13 +422,11 @@ describe("round-trip: export then import", () => {
     store.set(userVertexStylesAtom, new Map());
 
     const { result: importResult } = renderHookWithJotai(() =>
-      useImportStylingFile(),
+      useApplyStylingImport(),
     );
-    const parseOut = await importResult.current.parseFile(file);
+    const parseOut = await parseStylingFile(file);
 
-    importResult.current.applyImport(parseOut);
-
-    expect(parseOut.issues).toStrictEqual([]);
+    importResult.current(parseOut);
 
     const imported = store.get(importedVertexStylesAtom);
     expect(imported.get(createVertexType("LucideType"))!.iconUrl).toBe(
@@ -508,12 +496,10 @@ describe("round-trip: export then import", () => {
       type: "application/json",
     });
 
-    const { result } = renderHookWithJotai(() => useImportStylingFile());
-    const parseOut = await result.current.parseFile(file);
+    const { result } = renderHookWithJotai(() => useApplyStylingImport());
+    const parseOut = await parseStylingFile(file);
 
-    result.current.applyImport(parseOut);
-
-    expect(parseOut.issues).toStrictEqual([]);
+    result.current(parseOut);
 
     const store = getAppStore();
     const imported = store.get(importedVertexStylesAtom);

@@ -1,8 +1,10 @@
 import { useAtomValue, useSetAtom } from "jotai";
-import { useCallback } from "react";
 
 import type { EdgeType, VertexType } from "@/core/entities";
-import type { EdgePreferencesStorageModel } from "@/core/StateProvider/userPreferences";
+import type {
+  EdgePreferencesStorageModel,
+  VertexPreferencesStorageModel,
+} from "@/core/StateProvider/userPreferences";
 
 import { parseFileEnvelope } from "@/core/fileEnvelope";
 import {
@@ -12,7 +14,7 @@ import {
   userVertexStylesAtom,
 } from "@/core/StateProvider/storageAtoms";
 
-import type { ImportIssue, StylingParseResult } from "./stylingParser";
+import type { StylingParseResult } from "./stylingParser";
 import type {
   StylingExportPayload,
   VertexStyleFileEntry,
@@ -30,71 +32,71 @@ export type ImportConflicts = {
   edges: string[];
 };
 
-export function useImportStylingFile() {
-  const importedVertexStyles = useAtomValue(importedVertexStylesAtom);
-  const importedEdgeStyles = useAtomValue(importedEdgeStylesAtom);
+/**
+ * Parses a styling export file. Throws {@link FileEnvelopeError} if the file is
+ * not valid JSON, lacks the envelope structure, is the wrong kind, or was
+ * created by a newer version; and {@link StylingParseError} (carrying the
+ * offending locations) if any payload value is invalid. Import is atomic — a
+ * successful parse means the whole file is valid.
+ */
+export async function parseStylingFile(
+  file: File,
+): Promise<StylingParseResult> {
+  const envelope = await parseFileEnvelope(file, {
+    kind: STYLING_EXPORT_KIND,
+    supportedVersion: STYLING_EXPORT_SUPPORTED_VERSION,
+  });
+  return parseStylingPayload(envelope.data);
+}
+
+/**
+ * The types in `parsed` that already have an imported default. These are the
+ * entries an import would overwrite, so the caller can warn before applying.
+ */
+export function getStylingConflicts(
+  parsed: StylingParseResult,
+  importedVertexStyles: Map<VertexType, VertexPreferencesStorageModel>,
+  importedEdgeStyles: Map<EdgeType, EdgePreferencesStorageModel>,
+): ImportConflicts {
+  const vertices: string[] = [];
+  const edges: string[] = [];
+  for (const type of parsed.vertexStyles.keys()) {
+    if (importedVertexStyles.has(type)) {
+      vertices.push(type);
+    }
+  }
+  for (const type of parsed.edgeStyles.keys()) {
+    if (importedEdgeStyles.has(type)) {
+      edges.push(type);
+    }
+  }
+  return { vertices, edges };
+}
+
+/**
+ * Merges a parsed styling file into the imported-defaults layer, leaving user
+ * customizations untouched.
+ */
+export function useApplyStylingImport() {
   const setImportedVertexStyles = useSetAtom(importedVertexStylesAtom);
   const setImportedEdgeStyles = useSetAtom(importedEdgeStylesAtom);
 
-  /**
-   * Parses a styling export file. Throws {@link FileEnvelopeError} if the file
-   * is not valid JSON, lacks the envelope structure, is the wrong kind, or was
-   * created by a newer version; and {@link StylingParseError} if the payload is
-   * structurally unusable. Per-entry validation issues are returned in the
-   * result (not thrown).
-   */
-  const parseFile = useCallback(
-    async (file: File): Promise<StylingParseResult> => {
-      const envelope = await parseFileEnvelope(file, {
-        kind: STYLING_EXPORT_KIND,
-        supportedVersion: STYLING_EXPORT_SUPPORTED_VERSION,
-      });
-      return parseStylingPayload(envelope.data);
-    },
-    [],
-  );
-
-  const getConflicts = useCallback(
-    (parsed: StylingParseResult): ImportConflicts => {
-      const vertices: string[] = [];
-      const edges: string[] = [];
-      for (const type of parsed.vertexStyles.keys()) {
-        if (importedVertexStyles.has(type)) {
-          vertices.push(type);
-        }
+  return function applyImport(parsed: StylingParseResult): void {
+    setImportedVertexStyles(prev => {
+      const merged = new Map(prev);
+      for (const [type, style] of parsed.vertexStyles) {
+        merged.set(type, style);
       }
-      for (const type of parsed.edgeStyles.keys()) {
-        if (importedEdgeStyles.has(type)) {
-          edges.push(type);
-        }
+      return merged;
+    });
+    setImportedEdgeStyles(prev => {
+      const merged = new Map(prev);
+      for (const [type, style] of parsed.edgeStyles) {
+        merged.set(type, style);
       }
-      return { vertices, edges };
-    },
-    [importedVertexStyles, importedEdgeStyles],
-  );
-
-  const applyImport = useCallback(
-    (parsed: StylingParseResult): ImportIssue[] => {
-      setImportedVertexStyles(prev => {
-        const merged = new Map(prev);
-        for (const [type, style] of parsed.vertexStyles) {
-          merged.set(type, style);
-        }
-        return merged;
-      });
-      setImportedEdgeStyles(prev => {
-        const merged = new Map(prev);
-        for (const [type, style] of parsed.edgeStyles) {
-          merged.set(type, style);
-        }
-        return merged;
-      });
-      return parsed.issues;
-    },
-    [setImportedVertexStyles, setImportedEdgeStyles],
-  );
-
-  return { parseFile, getConflicts, applyImport };
+      return merged;
+    });
+  };
 }
 
 export function useExportStylingFile() {
@@ -103,7 +105,7 @@ export function useExportStylingFile() {
   const importedVertexStyles = useAtomValue(importedVertexStylesAtom);
   const importedEdgeStyles = useAtomValue(importedEdgeStylesAtom);
 
-  const getExportPayload = useCallback((): StylingExportPayload => {
+  function getExportPayload(): StylingExportPayload {
     const vertices: Record<string, VertexStyleFileEntry> = {};
 
     const allVertexTypes = new Set<VertexType>([
@@ -130,12 +132,7 @@ export function useExportStylingFile() {
     }
 
     return { vertices, edges };
-  }, [
-    userVertexStyles,
-    userEdgeStyles,
-    importedVertexStyles,
-    importedEdgeStyles,
-  ]);
+  }
 
   return { getExportPayload };
 }

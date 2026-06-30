@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Outlet } from "react-router";
 
-import { ConfirmDialogProvider, TooltipProvider } from "@/components";
+import { TooltipProvider } from "@/components";
 import { Toaster } from "@/components/Toaster";
 import { diagnosticLoggingAtom } from "@/core";
 import AppErrorPage from "@/core/AppErrorPage";
@@ -35,12 +35,10 @@ export default function DefaultLayout() {
     <ErrorBoundary FallbackComponent={AppErrorPage}>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider delayDuration={200}>
-          <ConfirmDialogProvider>
-            <AppStatusLoader>
-              <Outlet />
-              <Toaster />
-            </AppStatusLoader>
-          </ConfirmDialogProvider>
+          <AppStatusLoader>
+            <Outlet />
+            <Toaster />
+          </AppStatusLoader>
         </TooltipProvider>
       </QueryClientProvider>
     </ErrorBoundary>

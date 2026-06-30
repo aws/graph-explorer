@@ -5,13 +5,17 @@ export {
   STYLING_EXPORT_VERSION,
   StylingParseError,
   toFileEntry,
+  type EntryImportIssue,
+  type GeneralImportIssue,
   type ImportIssue,
   type StylingExportPayload,
   type StylingParseResult,
   type VertexStyleFileEntry,
 } from "./stylingParser";
 export {
-  useImportStylingFile,
+  getStylingConflicts,
+  parseStylingFile,
+  useApplyStylingImport,
   useExportStylingFile,
   type ImportConflicts,
 } from "./useStylingImportExport";

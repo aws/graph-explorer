@@ -2,7 +2,20 @@ import { describe, expect, test } from "vitest";
 
 import { createVertexType, createEdgeType } from "@/core/entities";
 
-import { parseStylingPayload } from "./stylingParser";
+import { parseStylingPayload, StylingParseError } from "./stylingParser";
+
+/** Parses, asserting failure, and returns the thrown issues for inspection. */
+function parseExpectingIssues(rawData: unknown) {
+  try {
+    parseStylingPayload(rawData);
+  } catch (error) {
+    if (error instanceof StylingParseError) {
+      return error.issues;
+    }
+    throw error;
+  }
+  throw new Error("Expected parseStylingPayload to throw");
+}
 
 describe("style enum validation", () => {
   const SHAPES = [
@@ -52,16 +65,14 @@ describe("style enum validation", () => {
       edges: {},
     });
     expect(result.vertexStyles.get(createVertexType("A"))!.shape).toBe(shape);
-    expect(result.issues).toHaveLength(0);
   });
 
   test("rejects an unknown shape", () => {
-    const result = parseStylingPayload({
+    const issues = parseExpectingIssues({
       vertices: { A: { shape: "blob" } },
       edges: {},
     });
-    expect(result.vertexStyles.has(createVertexType("A"))).toBe(false);
-    expect(result.issues[0]).toMatchObject({ field: "shape" });
+    expect(issues[0]).toMatchObject({ scope: "entry", field: "shape" });
   });
 
   test.each(LINE_STYLES)("accepts border line style %s", borderStyle => {
@@ -72,7 +83,6 @@ describe("style enum validation", () => {
     expect(result.vertexStyles.get(createVertexType("A"))!.borderStyle).toBe(
       borderStyle,
     );
-    expect(result.issues).toHaveLength(0);
   });
 
   test.each(ARROW_STYLES)("accepts arrow style %s", sourceArrowStyle => {
@@ -83,47 +93,64 @@ describe("style enum validation", () => {
     expect(result.edgeStyles.get(createEdgeType("A"))!.sourceArrowStyle).toBe(
       sourceArrowStyle,
     );
-    expect(result.issues).toHaveLength(0);
   });
 
   test("rejects an unknown arrow style", () => {
-    const result = parseStylingPayload({
+    const issues = parseExpectingIssues({
       vertices: {},
       edges: { A: { sourceArrowStyle: "swoosh" } },
     });
-    expect(result.edgeStyles.has(createEdgeType("A"))).toBe(false);
-    expect(result.issues[0]).toMatchObject({ field: "sourceArrowStyle" });
+    expect(issues[0]).toMatchObject({
+      scope: "entry",
+      field: "sourceArrowStyle",
+    });
   });
 });
 
 describe("parseStylingPayload", () => {
-  test("throws for non-object input", () => {
-    expect(() => parseStylingPayload(null)).toThrow();
-    expect(() => parseStylingPayload("string")).toThrow();
-    expect(() => parseStylingPayload(42)).toThrow();
-    expect(() => parseStylingPayload(undefined)).toThrow();
+  test("throws a general issue for non-object input", () => {
+    for (const input of [null, "string", 42, undefined]) {
+      const issues = parseExpectingIssues(input);
+      expect(issues[0].scope).toBe("general");
+    }
   });
 
   test("throws when vertices/edges keys are missing", () => {
-    expect(() => parseStylingPayload({})).toThrow();
-    expect(() => parseStylingPayload({ vertices: {} })).toThrow();
-    expect(() => parseStylingPayload({ edges: {} })).toThrow();
+    expect(parseExpectingIssues({})[0].scope).toBe("general");
+    expect(parseExpectingIssues({ vertices: {} })[0].scope).toBe("general");
+    expect(parseExpectingIssues({ edges: {} })[0].scope).toBe("general");
   });
 
-  test("throws when vertices is not an object", () => {
-    expect(() => parseStylingPayload({ vertices: [], edges: {} })).toThrow();
+  test("throws a general issue when vertices is not an object", () => {
+    const issues = parseExpectingIssues({ vertices: [], edges: {} });
+    expect(issues[0]).toMatchObject({ scope: "general", location: "vertices" });
   });
 
-  test("throws when edges is not an object", () => {
-    expect(() => parseStylingPayload({ vertices: {}, edges: [] })).toThrow();
+  test("throws a general issue when edges is not an object", () => {
+    const issues = parseExpectingIssues({ vertices: {}, edges: [] });
+    expect(issues[0]).toMatchObject({ scope: "general", location: "edges" });
   });
 
-  test("parses empty vertices and edges with no issues", () => {
+  test("treats a non-object entry as a malformed entry issue", () => {
+    const issues = parseExpectingIssues({
+      vertices: { A: 42 },
+      edges: {},
+    });
+    expect(issues[0]).toStrictEqual({
+      scope: "entry",
+      entityType: "vertex",
+      typeName: "A",
+      field: "(entry)",
+      value: 42,
+      message: expect.any(String),
+    });
+  });
+
+  test("parses empty vertices and edges", () => {
     const result = parseStylingPayload({ vertices: {}, edges: {} });
     expect(result).toStrictEqual({
       vertexStyles: new Map(),
       edgeStyles: new Map(),
-      issues: [],
     });
   });
 
@@ -147,7 +174,6 @@ describe("parseStylingPayload", () => {
       edges: {},
     });
 
-    expect(result.issues).toStrictEqual([]);
     expect(result.vertexStyles.size).toBe(1);
     const personStyle = result.vertexStyles.get(createVertexType("Person"));
     expect(personStyle).toStrictEqual({
@@ -187,7 +213,6 @@ describe("parseStylingPayload", () => {
     });
 
     expect(result.vertexStyles.has(createVertexType("Airport"))).toBe(false);
-    expect(result.issues).toStrictEqual([]);
   });
 
   test("parses valid edge entry with all fields", () => {
@@ -211,7 +236,6 @@ describe("parseStylingPayload", () => {
       },
     });
 
-    expect(result.issues).toStrictEqual([]);
     expect(result.edgeStyles.size).toBe(1);
     const knowsStyle = result.edgeStyles.get(createEdgeType("knows"));
     expect(knowsStyle).toStrictEqual({
@@ -231,10 +255,10 @@ describe("parseStylingPayload", () => {
     });
   });
 
-  test("drops the whole entry when any known field is invalid", () => {
-    // Whole-entry validation: one bad field rejects the entry rather than
-    // leaving it half-styled. The good `color` is dropped along with it.
-    const result = parseStylingPayload({
+  test("rejects the whole file when any known field is invalid", () => {
+    // Atomic validation: one bad field rejects the entire import, reported as
+    // an entry issue. Nothing is persisted.
+    const issues = parseExpectingIssues({
       vertices: {
         Airport: {
           color: "#ff0000",
@@ -245,15 +269,14 @@ describe("parseStylingPayload", () => {
       edges: {},
     });
 
-    expect(result.vertexStyles.has(createVertexType("Airport"))).toBe(false);
-    expect(result.issues).toStrictEqual([
-      {
-        entityType: "vertex",
-        typeName: "Airport",
-        field: expect.any(String),
-        message: expect.any(String),
-      },
-    ]);
+    expect(issues).toContainEqual({
+      scope: "entry",
+      entityType: "vertex",
+      typeName: "Airport",
+      field: expect.any(String),
+      value: expect.anything(),
+      message: expect.any(String),
+    });
   });
 
   test("ignores unknown fields without reporting them", () => {
@@ -269,7 +292,6 @@ describe("parseStylingPayload", () => {
       type: createVertexType("Person"),
       color: "#00ff00",
     });
-    expect(result.issues).toStrictEqual([]);
   });
 
   test("imports a same-version file from a newer build, ignoring its new fields", () => {
@@ -287,7 +309,6 @@ describe("parseStylingPayload", () => {
       type: createVertexType("Person"),
       color: "#abc",
     });
-    expect(result.issues).toStrictEqual([]);
   });
 
   test("drops entries with no recognized fields", () => {
@@ -299,7 +320,6 @@ describe("parseStylingPayload", () => {
     });
 
     expect(result.vertexStyles.has(createVertexType("Ghost"))).toBe(false);
-    expect(result.issues).toStrictEqual([]);
   });
 
   describe("icon allowlist", () => {
@@ -311,7 +331,6 @@ describe("parseStylingPayload", () => {
       expect(result.vertexStyles.get(createVertexType("A"))!.iconUrl).toBe(
         "lucide:arrow-right",
       );
-      expect(result.issues).toStrictEqual([]);
     });
 
     test("accepts data:image/ URIs", () => {
@@ -326,53 +345,58 @@ describe("parseStylingPayload", () => {
     });
 
     test("rejects http:// URLs (no outbound requests from imports)", () => {
-      const result = parseStylingPayload({
+      const issues = parseExpectingIssues({
         vertices: { A: { icon: "http://example.com/icon.png" } },
         edges: {},
       });
-      expect(result.vertexStyles.has(createVertexType("A"))).toBe(false);
-      expect(result.issues[0].field).toBe("icon");
+      expect(issues[0]).toMatchObject({ scope: "entry", field: "icon" });
     });
 
     test("rejects https:// URLs (no outbound requests from imports)", () => {
-      const result = parseStylingPayload({
+      const issues = parseExpectingIssues({
         vertices: { A: { icon: "https://cdn.example.com/icon.svg" } },
         edges: {},
       });
-      expect(result.vertexStyles.has(createVertexType("A"))).toBe(false);
-      expect(result.issues[0].field).toBe("icon");
+      expect(issues[0]).toMatchObject({ scope: "entry", field: "icon" });
     });
 
     test("rejects bare icon names", () => {
-      const result = parseStylingPayload({
+      const issues = parseExpectingIssues({
         vertices: { A: { icon: "user" } },
         edges: {},
       });
-      expect(result.vertexStyles.has(createVertexType("A"))).toBe(false);
-      expect(result.issues[0]).toStrictEqual({
+      expect(issues[0]).toStrictEqual({
+        scope: "entry",
         entityType: "vertex",
         typeName: "A",
         field: "icon",
+        value: "user",
         message: expect.stringContaining("allowlist"),
       });
     });
 
+    test("reports the rejected value", () => {
+      const issues = parseExpectingIssues({
+        vertices: { A: { icon: "https://evil.example/x.svg" } },
+        edges: {},
+      });
+      expect(issues[0].value).toBe("https://evil.example/x.svg");
+    });
+
     test("rejects javascript: protocol", () => {
-      const result = parseStylingPayload({
+      const issues = parseExpectingIssues({
         vertices: { A: { icon: "javascript:alert(1)" } },
         edges: {},
       });
-      expect(result.vertexStyles.has(createVertexType("A"))).toBe(false);
-      expect(result.issues[0].field).toBe("icon");
+      expect(issues[0]).toMatchObject({ scope: "entry", field: "icon" });
     });
 
     test("rejects lucide: with invalid characters", () => {
-      const result = parseStylingPayload({
+      const issues = parseExpectingIssues({
         vertices: { A: { icon: "lucide:<script>" } },
         edges: {},
       });
-      expect(result.vertexStyles.has(createVertexType("A"))).toBe(false);
-      expect(result.issues[0].field).toBe("icon");
+      expect(issues[0]).toMatchObject({ scope: "entry", field: "icon" });
     });
   });
 
@@ -395,23 +419,24 @@ describe("parseStylingPayload", () => {
       }
     });
 
-    test("drops unknown MIME types and reports issue", () => {
-      const result = parseStylingPayload({
+    test("rejects unknown MIME types", () => {
+      const issues = parseExpectingIssues({
         vertices: { A: { iconImageType: "text/html" } },
         edges: {},
       });
-      expect(result.vertexStyles.has(createVertexType("A"))).toBe(false);
-      expect(result.issues[0]).toStrictEqual({
+      expect(issues[0]).toStrictEqual({
+        scope: "entry",
         entityType: "vertex",
         typeName: "A",
         field: "iconImageType",
+        value: "text/html",
         message: expect.any(String),
       });
     });
   });
 
-  test("keeps valid entries and drops invalid ones across types", () => {
-    const result = parseStylingPayload({
+  test("reports every invalid entry across types in one rejection", () => {
+    const issues = parseExpectingIssues({
       vertices: {
         Person: { color: "#aaa", shape: "star" },
         Airport: { color: 123, shape: "ellipse" },
@@ -421,27 +446,21 @@ describe("parseStylingPayload", () => {
       },
     });
 
-    // Valid entry kept in full.
-    expect(result.vertexStyles.get(createVertexType("Person"))).toStrictEqual({
-      type: createVertexType("Person"),
-      color: "#aaa",
-      shape: "star",
-    });
-    // Entries with any invalid field are dropped whole.
-    expect(result.vertexStyles.has(createVertexType("Airport"))).toBe(false);
-    expect(result.edgeStyles.has(createEdgeType("route"))).toBe(false);
-
-    expect(result.issues).toStrictEqual([
+    expect(issues).toStrictEqual([
       {
+        scope: "entry",
         entityType: "vertex",
         typeName: "Airport",
-        field: expect.any(String),
+        field: "color",
+        value: 123,
         message: expect.any(String),
       },
       {
+        scope: "entry",
         entityType: "edge",
         typeName: "route",
-        field: expect.any(String),
+        field: "lineStyle",
+        value: "nope",
         message: expect.any(String),
       },
     ]);
@@ -460,7 +479,6 @@ describe("parseStylingPayload", () => {
       expect(result.vertexStyles.has(createVertexType("__proto__"))).toBe(
         false,
       );
-      expect(result.issues).toStrictEqual([]);
       // Confirm no actual prototype pollution
       const plain = {} as Record<string, unknown>;
       expect(plain["color"]).toBeUndefined();
@@ -477,8 +495,6 @@ describe("parseStylingPayload", () => {
       expect(result.vertexStyles.get(createVertexType("A"))!.color).toBe(
         "#000",
       );
-      // __proto__ never reaches our code — no issue reported for it
-      expect(result.issues).toStrictEqual([]);
     });
 
     test("constructor as a field name is ignored as an unknown field", () => {
@@ -488,9 +504,8 @@ describe("parseStylingPayload", () => {
       });
 
       // `constructor` is not a known field, so it is stripped; the entry has no
-      // recognized fields and is dropped without an issue.
+      // recognized fields and is dropped without rejecting the file.
       expect(result.edgeStyles.has(createEdgeType("A"))).toBe(false);
-      expect(result.issues).toStrictEqual([]);
     });
   });
 });
