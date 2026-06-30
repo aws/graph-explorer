@@ -49,12 +49,12 @@ describe("useImportConnectionFile", () => {
     );
 
     const displayLabel = createRandomName("Config");
-    const url = createRandomUrlString();
+    const graphDbUrl = createRandomUrlString();
     const validConfig = {
       id: createNewConfigurationId(),
       displayLabel,
       connection: {
-        url,
+        graphDbUrl,
         queryEngine: "gremlin" as const,
       },
       schema: {
@@ -80,7 +80,7 @@ describe("useImportConnectionFile", () => {
     expect(importedId).not.toBe(state.activeConfig.id);
 
     expect(config.displayLabel).toBe(displayLabel);
-    expect(config.connection?.url).toBe(url);
+    expect(config.connection?.graphDbUrl).toBe(graphDbUrl);
     expect(config.connection?.queryEngine).toBe("gremlin");
 
     expect(schema.vertices).toHaveLength(1);
@@ -88,6 +88,48 @@ describe("useImportConnectionFile", () => {
     expect(schema.edges).toHaveLength(1);
     expect(schema.edges[0].type).toBe("knows");
 
+    expect(mockResetState).toHaveBeenCalledOnce();
+  });
+
+  test("should migrate a legacy connection file with url and proxyConnection", async () => {
+    const state = new DbState();
+    const { result } = renderHookWithState(
+      () => useImportConnectionFile(),
+      state,
+    );
+
+    // A direct (non-proxy) connection exported before the unified-proxy model
+    // stored the database endpoint in `url`, not `graphDbUrl`.
+    const url = createRandomUrlString();
+    const legacyConfig = {
+      id: createNewConfigurationId(),
+      displayLabel: createRandomName("Config"),
+      connection: {
+        url,
+        proxyConnection: false,
+        queryEngine: "gremlin" as const,
+      },
+      schema: {
+        totalVertices: 0,
+        vertices: [],
+        totalEdges: 0,
+        edges: [],
+      },
+    };
+
+    const file = new File([JSON.stringify(legacyConfig)], "connection.json", {
+      type: "application/json",
+    });
+
+    await act(async () => {
+      await result.current(file);
+    });
+
+    const { config } = getImportedConnection();
+    expect(config.connection?.graphDbUrl).toBe(url);
+    // The legacy fields are folded away during migration.
+    expect(config.connection).not.toHaveProperty("url");
+    expect(config.connection).not.toHaveProperty("proxyConnection");
     expect(mockResetState).toHaveBeenCalledOnce();
   });
 
@@ -524,13 +566,21 @@ describe("backward compatibility: legacy exported connection file with embedded 
     const { config: importedConfig, schema: importedSchema } =
       getImportedConnection();
 
-    // The connection lands in the config entry, fully preserved.
+    // The connection lands in the config entry. Legacy proxy fields (`url`,
+    // `proxyConnection`) are folded into the canonical `graphDbUrl` on import;
+    // the remaining fields are preserved.
     expect(importedConfig.displayLabel).toBe(
       legacyExportedConnectionFile.displayLabel,
     );
-    expect(importedConfig.connection).toMatchObject(
-      legacyExportedConnectionFile.connection,
-    );
+    expect(importedConfig.connection).toMatchObject({
+      graphDbUrl: legacyExportedConnectionFile.connection.graphDbUrl,
+      queryEngine: legacyExportedConnectionFile.connection.queryEngine,
+      awsAuthEnabled: legacyExportedConnectionFile.connection.awsAuthEnabled,
+      serviceType: legacyExportedConnectionFile.connection.serviceType,
+      awsRegion: legacyExportedConnectionFile.connection.awsRegion,
+    });
+    expect(importedConfig.connection).not.toHaveProperty("url");
+    expect(importedConfig.connection).not.toHaveProperty("proxyConnection");
 
     // The schema must NOT be stored on the config entry — it belongs in
     // schemaAtom. `RawConfiguration` no longer declares a `schema` field, so we

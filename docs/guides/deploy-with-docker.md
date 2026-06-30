@@ -9,7 +9,7 @@ You can find the latest version of the image on
 
 > [!NOTE]
 >
-> Make sure to use the version of the image that does not include `sagemaker` in the tag.
+> Both the regular and `sagemaker-*` image tags contain the same image. You can use either.
 
 ## Prerequisites
 

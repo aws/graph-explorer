@@ -36,10 +36,8 @@ import {
 
 type ConnectionForm = {
   name?: string;
-  url?: string;
-  queryEngine?: QueryEngine;
-  proxyConnection?: boolean;
   graphDbUrl?: string;
+  queryEngine?: QueryEngine;
   awsAuthEnabled?: boolean;
   serviceType?: NeptuneServiceType;
   awsRegion?: string;
@@ -65,10 +63,8 @@ export type CreateConnectionProps = {
 
 function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
   return {
-    url: data.url,
-    queryEngine: data.queryEngine,
-    proxyConnection: data.proxyConnection,
     graphDbUrl: data.graphDbUrl,
+    queryEngine: data.queryEngine,
     awsAuthEnabled: data.awsAuthEnabled,
     serviceType: data.serviceType,
     awsRegion: data.awsRegion,
@@ -144,11 +140,10 @@ const CreateConnection = ({
           return updated;
         });
 
-        const urlChange = initialData?.url !== data.url;
         const dbUrlChange = initialData?.graphDbUrl !== data.graphDbUrl;
         const typeChange = initialData?.queryEngine !== data.queryEngine;
 
-        if (urlChange || dbUrlChange || typeChange) {
+        if (dbUrlChange || typeChange) {
           logger.log(
             "Clearing cached schema and previous graph session because connection to database meaningfully changed",
             { original: initialData, updated: data },
@@ -183,8 +178,6 @@ const CreateConnection = ({
     name:
       initialData?.name ||
       `Connection (${formatDate(new Date(), "yyyy-MM-dd HH:mm")})`,
-    url: initialData?.url || "",
-    proxyConnection: initialData?.proxyConnection || false,
     graphDbUrl: initialData?.graphDbUrl || "",
     awsAuthEnabled: initialData?.awsAuthEnabled || false,
     serviceType: initialData?.serviceType || "neptune-db",
@@ -233,17 +226,12 @@ const CreateConnection = ({
 
   const reset = useResetState();
   const onSubmit = () => {
-    if (!form.name || !form.url || !form.queryEngine) {
+    if (!form.name || !form.graphDbUrl || !form.queryEngine) {
       setError(true);
       return;
     }
 
-    if (form.proxyConnection && !form.graphDbUrl) {
-      setError(true);
-      return;
-    }
-
-    if (form.awsAuthEnabled && (!form.awsRegion || !form.serviceType)) {
+    if (form.awsAuthEnabled && !form.awsRegion) {
       setError(true);
       return;
     }
@@ -277,63 +265,35 @@ const CreateConnection = ({
         </FormItem>
         <FormItem>
           <Label>
-            Public or Proxy Endpoint
+            Graph Connection URL
             <InfoTooltip>
-              Provide the endpoint URL for an open graph database, e.g., Gremlin
-              Server. If connecting to Amazon Neptune, then provide a proxy
-              endpoint URL that is accessible from outside the VPC, e.g., EC2.
+              Provide the endpoint URL for your graph database, e.g., an Amazon
+              Neptune cluster endpoint, a Gremlin Server URL, or a SPARQL
+              endpoint.
             </InfoTooltip>
           </Label>
           <TextAreaField
-            aria-label="Public or Proxy Endpoint"
+            aria-label="Graph Connection URL"
             data-autofocus={true}
-            value={form.url}
-            onChange={onFormChange("url")}
+            value={form.graphDbUrl}
+            onChange={onFormChange("graphDbUrl")}
             errorMessage="URL is required"
-            placeholder="https://example.com"
-            validationState={hasError && !form.url ? "invalid" : "valid"}
+            placeholder="https://neptune-cluster.amazonaws.com"
+            validationState={hasError && !form.graphDbUrl ? "invalid" : "valid"}
           />
         </FormItem>
 
         <Label className="cursor-pointer">
           <Checkbox
-            value="proxyConnection"
-            checked={form.proxyConnection}
+            value="awsAuthEnabled"
+            checked={form.awsAuthEnabled}
             onCheckedChange={checked => {
-              onFormChange("proxyConnection")(checked);
+              onFormChange("awsAuthEnabled")(checked);
             }}
           />
-          Using Proxy-Server
+          AWS IAM Auth Enabled
         </Label>
-        {form.proxyConnection && (
-          <FormItem>
-            <Label>Graph Connection URL</Label>
-            <TextAreaField
-              aria-label="Graph Connection URL"
-              data-autofocus={true}
-              value={form.graphDbUrl}
-              onChange={onFormChange("graphDbUrl")}
-              errorMessage="URL is required"
-              placeholder="https://neptune-cluster.amazonaws.com"
-              validationState={
-                hasError && !form.graphDbUrl ? "invalid" : "valid"
-              }
-            />
-          </FormItem>
-        )}
-        {form.proxyConnection && (
-          <Label className="cursor-pointer">
-            <Checkbox
-              value="awsAuthEnabled"
-              checked={form.awsAuthEnabled}
-              onCheckedChange={checked => {
-                onFormChange("awsAuthEnabled")(checked);
-              }}
-            />
-            AWS IAM Auth Enabled
-          </Label>
-        )}
-        {form.proxyConnection && form.awsAuthEnabled && (
+        {form.awsAuthEnabled && (
           <>
             <FormItem>
               <Label>AWS Region</Label>

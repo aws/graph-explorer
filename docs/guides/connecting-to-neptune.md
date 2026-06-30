@@ -8,8 +8,6 @@ Graph Explorer connects to Amazon Neptune through its proxy server, which forwar
 
 - Name: `My Neptune Cluster`
 - Query Language: Choose the query language for your graph
-- Public or Proxy Endpoint: `https://localhost` (or wherever Graph Explorer is hosted)
-- Using Proxy Server: `true`
 - Graph Connection URL: `https://{your-cluster-endpoint}:8182`
 - AWS IAM Auth Enabled: `true` if IAM authentication is enabled on your cluster
 - Service Type: `neptune-db` (or `neptune-graph` for Neptune Analytics)

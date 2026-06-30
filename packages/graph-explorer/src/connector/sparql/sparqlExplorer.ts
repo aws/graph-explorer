@@ -18,6 +18,7 @@ import type {
 } from "./types";
 
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
+import { apiUrl } from "../utils/apiUrl";
 import { edgeDetails } from "./edgeDetails";
 import fetchEdgeConnections from "./fetchEdgeConnections";
 import fetchNeighbors from "./fetchNeighbors";
@@ -40,28 +41,22 @@ function _sparqlFetch(
     logger.debug(queryTemplate);
     const body = `query=${encodeURIComponent(queryTemplate)}`;
     const queryId = options?.queryId;
-    const headers: Record<string, string> =
-      queryId && connection.proxyConnection === true
-        ? {
-            accept: "application/sparql-results+json",
-            "Content-Type": "application/x-www-form-urlencoded",
-            queryId: queryId,
-          }
-        : {
-            accept: "application/sparql-results+json",
-            "Content-Type": "application/x-www-form-urlencoded",
-          };
-    return fetchDatabaseRequest(
-      connection,
-      featureFlags,
-      `${connection.url}/sparql`,
-      {
-        method: "POST",
-        headers,
-        body,
-        ...options,
-      },
-    );
+    const headers: Record<string, string> = queryId
+      ? {
+          accept: "application/sparql-results+json",
+          "Content-Type": "application/x-www-form-urlencoded",
+          queryId: queryId,
+        }
+      : {
+          accept: "application/sparql-results+json",
+          "Content-Type": "application/x-www-form-urlencoded",
+        };
+    return fetchDatabaseRequest(connection, featureFlags, apiUrl("sparql"), {
+      method: "POST",
+      headers,
+      body,
+      ...options,
+    });
   };
 }
 
@@ -74,7 +69,7 @@ async function fetchSummary(
     const response = await fetchDatabaseRequest(
       connection,
       featureFlags,
-      `${connection.url}/rdf/statistics/summary?mode=basic`,
+      apiUrl("rdf/statistics/summary?mode=basic"),
       {
         method: "GET",
         ...options,

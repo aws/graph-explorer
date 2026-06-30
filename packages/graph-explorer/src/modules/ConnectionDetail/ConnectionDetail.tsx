@@ -87,11 +87,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
 
   const deleteActiveConfig = useDeleteActiveConfiguration();
 
-  const dbUrl = config.connection
-    ? config.connection.proxyConnection
-      ? config.connection.graphDbUrl
-      : config.connection.url
-    : LABELS.MISSING_VALUE;
+  const dbUrl = config.connection?.graphDbUrl || LABELS.MISSING_VALUE;
 
   const connectionName = config.displayLabel || config.id;
 

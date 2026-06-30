@@ -1,4 +1,4 @@
-import type { ConnectionConfig } from "@shared/types";
+import type { ConnectionConfig, LegacyConnectionConfig } from "@shared/types";
 
 import { atom } from "jotai";
 import { selectAtom } from "jotai/utils";
@@ -83,7 +83,9 @@ export function mergeConfiguration(
   return {
     id: currentConfig.id,
     displayLabel: currentConfig.displayLabel,
-    connection: normalizeConnection(currentConfig.connection || { url: "" }),
+    connection: normalizeConnection(
+      currentConfig.connection || { graphDbUrl: "" },
+    ),
     schema: {
       vertices: mergedVertices,
       edges: mergedEdges,
@@ -100,16 +102,30 @@ export function mergeConfiguration(
   };
 }
 
-export function normalizeConnection(connection: ConnectionConfig) {
+/** Migrates a legacy connection (with `url` and `proxyConnection`) to the new
+ * format where only `graphDbUrl` exists. */
+export function migrateLegacyConnection(
+  connection: LegacyConnectionConfig,
+): ConnectionConfig {
+  const { url, proxyConnection, ...rest } = connection;
+  // Proxy connections stored the database endpoint in `graphDbUrl`; direct
+  // connections stored it in `url`. The final `connection.graphDbUrl` fallback
+  // covers already-migrated data where `url` is absent, and the empty-string
+  // fallback keeps the result valid when no URL is present at all.
+  const graphDbUrl = proxyConnection ? connection.graphDbUrl : url;
   return {
-    ...connection,
-    // Remove trailing slash
-    url: connection.url.replace(/\/$/, "") || "",
-    queryEngine: connection.queryEngine || "gremlin",
-    graphDbUrl: connection.graphDbUrl?.replace(/\/$/, "") || "",
-    proxyConnection:
-      connection.proxyConnection ?? connection.graphDbUrl != null,
-    awsAuthEnabled: connection.awsAuthEnabled ?? false,
+    ...rest,
+    graphDbUrl: graphDbUrl || connection.graphDbUrl || "",
+  };
+}
+
+export function normalizeConnection(connection: LegacyConnectionConfig) {
+  const migrated = migrateLegacyConnection(connection);
+  return {
+    ...migrated,
+    graphDbUrl: migrated.graphDbUrl.replace(/\/$/, "") || "",
+    queryEngine: migrated.queryEngine || "gremlin",
+    awsAuthEnabled: migrated.awsAuthEnabled ?? false,
   };
 }
 export type NormalizedConnection = ReturnType<typeof normalizeConnection>;

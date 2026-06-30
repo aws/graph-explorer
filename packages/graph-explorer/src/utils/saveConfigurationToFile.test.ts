@@ -61,7 +61,7 @@ describe("saveConfigurationToFile", () => {
   it("should include connection with default queryEngine if not provided", async () => {
     const config = makeConfig({
       connection: {
-        url: "https://example.com",
+        graphDbUrl: "https://example.com",
       },
     });
 
@@ -72,13 +72,13 @@ describe("saveConfigurationToFile", () => {
     const parsed = JSON.parse(text);
 
     expect(parsed.connection.queryEngine).toBe("gremlin");
-    expect(parsed.connection.url).toBe("https://example.com");
+    expect(parsed.connection.graphDbUrl).toBe("https://example.com");
   });
 
   it("should preserve existing queryEngine", async () => {
     const config = makeConfig({
       connection: {
-        url: "https://example.com",
+        graphDbUrl: "https://example.com",
         queryEngine: "sparql",
       },
     });
@@ -232,11 +232,11 @@ describe("saveConfigurationToFile", () => {
 
     // A connection-less config is not a real, reachable state — every config
     // the app produces has a connection. The `?? ""` fallback in the writer
-    // emits `url: ""` rather than omitting it, and the parser then rejects
-    // the file (empty string is not a valid URL). This pins that accepted
-    // asymmetry; it should disappear in a later slice that makes a connection
-    // non-optional on the config rather than defaulting here.
-    expect(parsed.connection.url).toBe("");
+    // emits `graphDbUrl: ""` rather than omitting it, and the parser then
+    // rejects the file (empty string is not a valid URL). This pins that
+    // accepted asymmetry; it should disappear in a later slice that makes a
+    // connection non-optional on the config rather than defaulting here.
+    expect(parsed.connection.graphDbUrl).toBe("");
     expect(parseConnectionFile(parsed)).toBeNull();
   });
 
@@ -270,7 +270,7 @@ describe("saveConfigurationToFile", () => {
   it("should produce a file that passes import validation", async () => {
     const config = makeConfig({
       connection: {
-        url: "https://neptune.example.com:8182",
+        graphDbUrl: "https://neptune.example.com:8182",
         queryEngine: "gremlin",
       },
       schema: {
@@ -310,7 +310,9 @@ describe("saveConfigurationToFile", () => {
     const result = parseConnectionFile(parsed);
     expect(result?.id).toBe(config.id);
     expect(result?.displayLabel).toBe(config.displayLabel);
-    expect(result?.connection.url).toBe("https://neptune.example.com:8182");
+    expect(result?.connection.graphDbUrl).toBe(
+      "https://neptune.example.com:8182",
+    );
     expect(result?.connection.queryEngine).toBe("gremlin");
     expect(result?.schema.vertices.map(vertex => vertex.type)).toStrictEqual([
       "Person",

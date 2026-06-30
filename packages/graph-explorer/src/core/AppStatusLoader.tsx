@@ -27,7 +27,7 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
 
   const defaultConfigQuery = useQuery({
     queryKey: ["default-connection"],
-    queryFn: fetchDefaultConnection,
+    queryFn: () => fetchDefaultConnection(),
     staleTime: Infinity,
     // Run the query only if the store is loaded and there are no configs
     enabled: configuration.size === 0,

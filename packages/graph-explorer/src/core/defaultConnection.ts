@@ -1,6 +1,7 @@
 import { neptuneServiceTypeOptions, queryEngineOptions } from "@shared/types";
 import { z } from "zod";
 
+import { apiUrl } from "@/connector/utils/apiUrl";
 import { DEFAULT_SERVICE_TYPE, logger } from "@/utils";
 
 import type {
@@ -10,9 +11,7 @@ import type {
 
 export const DefaultConnectionDataSchema = z.object({
   // Connection info
-  GRAPH_EXP_USING_PROXY_SERVER: z.boolean().default(false),
   GRAPH_EXP_CONNECTION_URL: z.string().url().catch(""),
-  GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT: z.string().url().catch(""),
   GRAPH_EXP_GRAPH_TYPE: z.enum(queryEngineOptions).optional(),
   // IAM auth info
   GRAPH_EXP_IAM: z.boolean().default(false),
@@ -28,15 +27,11 @@ export const DefaultConnectionDataSchema = z.object({
 
 export type DefaultConnectionData = z.infer<typeof DefaultConnectionDataSchema>;
 
-/** Fetches the default connections from multiple possible locations and returns an empty array on failure. */
+/** Fetches the default connection from the server and returns an empty array on failure. */
 export async function fetchDefaultConnection() {
-  const defaultConnectionPath = `${location.origin}/defaultConnection`;
-  const sagemakerConnectionPath = `${location.origin}/proxy/9250/defaultConnection`;
-
   try {
-    const defaultConnection =
-      (await fetchDefaultConnectionFor(defaultConnectionPath)) ??
-      (await fetchDefaultConnectionFor(sagemakerConnectionPath));
+    const url = apiUrl("defaultConnection");
+    const defaultConnection = await fetchDefaultConnectionFor(url);
 
     if (!defaultConnection) {
       return [];
@@ -44,12 +39,10 @@ export async function fetchDefaultConnection() {
 
     const config = mapToConnection(defaultConnection);
 
-    // A specific query engine was specified, so just return that
     if (config.connection?.queryEngine) {
       return [config];
     }
 
-    // No query engine was specified, so return all the possible ones
     const configs = queryEngineOptions.map(queryEngine => {
       return {
         ...config,
@@ -72,7 +65,7 @@ export async function fetchDefaultConnection() {
 
 /** Attempts to fetch a default connection from the given URL and returns null on a failure. */
 export async function fetchDefaultConnectionFor(
-  url: string,
+  url: URL | string,
 ): Promise<DefaultConnectionData | null> {
   try {
     logger.debug("Fetching default connection from", url);
@@ -109,10 +102,8 @@ export function mapToConnection(data: DefaultConnectionData): RawConfiguration {
     id: "Default Connection" as ConfigurationId,
     displayLabel: "Default Connection",
     connection: {
-      url: data.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT,
-      queryEngine: data.GRAPH_EXP_GRAPH_TYPE,
-      proxyConnection: data.GRAPH_EXP_USING_PROXY_SERVER,
       graphDbUrl: data.GRAPH_EXP_CONNECTION_URL,
+      queryEngine: data.GRAPH_EXP_GRAPH_TYPE,
       awsAuthEnabled: data.GRAPH_EXP_IAM,
       awsRegion: data.GRAPH_EXP_AWS_REGION,
       serviceType: data.GRAPH_EXP_SERVICE_TYPE,
