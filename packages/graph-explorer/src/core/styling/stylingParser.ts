@@ -5,6 +5,7 @@ import { z } from "zod";
 import type { EdgeType, VertexType } from "@/core/entities";
 
 import { createEdgeType, createVertexType } from "@/core/entities";
+import { FileEnvelopeError } from "@/core/fileEnvelope";
 import {
   ARROW_STYLES,
   type EdgePreferencesStorageModel,
@@ -212,6 +213,30 @@ export function parseStylingPayload(rawData: unknown): StylingParseResult {
     vertexStyles: toStyleMap(result.data.vertices),
     edgeStyles: toStyleMap(result.data.edges),
   };
+}
+
+/**
+ * Selects the payload parser for a styling file's format generation. Today only
+ * generation 1 exists; a future breaking change adds its `case` here alongside
+ * the old one. Routing through an explicit switch means a generation with no
+ * parser fails loudly instead of being mis-parsed by the current schema (which
+ * would silently strip renamed or retyped fields). The envelope's version guard
+ * already rejects a generation newer than this build supports, so the `default`
+ * is reached only when a supported generation is left unhandled here — a
+ * programming error, surfaced rather than swallowed.
+ */
+export function parseStylingPayloadForVersion(
+  version: number,
+  rawData: unknown,
+): StylingParseResult {
+  switch (version) {
+    case 1:
+      return parseStylingPayload(rawData);
+    default:
+      throw new FileEnvelopeError(
+        `No styling parser for format generation ${version}`,
+      );
+  }
 }
 
 /**

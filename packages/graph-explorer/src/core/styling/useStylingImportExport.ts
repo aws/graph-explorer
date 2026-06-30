@@ -22,7 +22,7 @@ import type {
 } from "./stylingParser";
 
 import {
-  parseStylingPayload,
+  parseStylingPayloadForVersion,
   STYLING_EXPORT_KIND,
   STYLING_EXPORT_VERSION,
   toEdgeFileEntry,
@@ -48,7 +48,7 @@ export async function parseStylingFile(
     kind: STYLING_EXPORT_KIND,
     supportedVersion: STYLING_EXPORT_VERSION,
   });
-  return parseStylingPayload(envelope.data);
+  return parseStylingPayloadForVersion(envelope.version, envelope.data);
 }
 
 /**

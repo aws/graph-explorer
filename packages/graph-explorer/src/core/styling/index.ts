@@ -1,5 +1,6 @@
 export {
   parseStylingPayload,
+  parseStylingPayloadForVersion,
   STYLING_EXPORT_KIND,
   STYLING_EXPORT_VERSION,
   StylingParseError,

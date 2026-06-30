@@ -15,7 +15,11 @@ import {
   type EntityRawId,
   type VertexId,
 } from "@/core/entities";
-import { createFileEnvelope, parseFileEnvelope } from "@/core/fileEnvelope";
+import {
+  createFileEnvelope,
+  FileEnvelopeError,
+  parseFileEnvelope,
+} from "@/core/fileEnvelope";
 import { escapeString, logger } from "@/utils";
 
 /** The envelope `kind` discriminator for graph export files. */
@@ -72,6 +76,29 @@ export function createExportedConnection(
 }
 
 /**
+ * Selects the payload parser for a graph export file's format generation. Today
+ * only generation 1 exists; a future breaking change adds its `case` here
+ * alongside the old one. Routing through an explicit switch means a generation
+ * with no parser fails loudly instead of being mis-parsed by the current schema.
+ * The envelope's version guard already rejects a generation newer than this
+ * build supports, so the `default` is reached only when a supported generation
+ * is left unhandled here — a programming error, surfaced rather than swallowed.
+ */
+export function parseGraphExportPayloadForVersion(
+  version: number,
+  rawData: unknown,
+): GraphExportPayload {
+  switch (version) {
+    case 1:
+      return graphExportPayloadSchema.parse(rawData);
+    default:
+      throw new FileEnvelopeError(
+        `No graph export parser for format generation ${version}`,
+      );
+  }
+}
+
+/**
  * Reads a graph export file: validates the shared envelope (kind + major
  * version), then the graph payload, then sanitizes the entity ids. Throws
  * {@link FileEnvelopeError} for a non-graph or too-new file and {@link ZodError}
@@ -82,7 +109,10 @@ export async function parseExportedGraph(blob: Blob) {
     kind: GRAPH_EXPORT_KIND,
     supportedVersion: GRAPH_EXPORT_VERSION,
   });
-  const payload = graphExportPayloadSchema.parse(envelope.data);
+  const payload = parseGraphExportPayloadForVersion(
+    envelope.version,
+    envelope.data,
+  );
 
   const connection = payload.connection;
 

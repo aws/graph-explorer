@@ -1,8 +1,13 @@
 import { describe, expect, test } from "vitest";
 
 import { createVertexType, createEdgeType } from "@/core/entities";
+import { FileEnvelopeError } from "@/core/fileEnvelope";
 
-import { parseStylingPayload, StylingParseError } from "./stylingParser";
+import {
+  parseStylingPayload,
+  parseStylingPayloadForVersion,
+  StylingParseError,
+} from "./stylingParser";
 
 /** Parses, asserting failure, and returns the thrown issues for inspection. */
 function parseExpectingIssues(rawData: unknown) {
@@ -507,5 +512,22 @@ describe("parseStylingPayload", () => {
       // recognized fields and is dropped without rejecting the file.
       expect(result.edgeStyles.has(createEdgeType("A"))).toBe(false);
     });
+  });
+});
+
+describe("parseStylingPayloadForVersion", () => {
+  test("dispatches generation 1 to the current parser", () => {
+    const result = parseStylingPayloadForVersion(1, {
+      vertices: { A: { color: "#000" } },
+      edges: {},
+    });
+
+    expect(result.vertexStyles.get(createVertexType("A"))!.color).toBe("#000");
+  });
+
+  test("throws loudly for a generation with no parser", () => {
+    expect(() =>
+      parseStylingPayloadForVersion(2, { vertices: {}, edges: {} }),
+    ).toThrow(FileEnvelopeError);
   });
 });

@@ -44,9 +44,9 @@ A shared **file envelope** primitive lives in `packages/graph-explorer/src/core/
 
    Callers compose the envelope with their own file-save logic (e.g., `toJsonFileData` + `saveFile` from `utils/fileData`), and own a named version pair (e.g. `STYLING_EXPORT_VERSION` written to disk / `STYLING_EXPORT_SUPPORTED_VERSION` read back) so the bumpable value lives next to the payload schema.
 
-### Future shape: discriminated union on kind + version
+### Version dispatch in the consumer
 
-Today there is one payload schema per kind and the guard is the only version-aware code. When a breaking **v2** payload arrives, the consumer selects its schema by discriminating on `(kind, version)` — the guard already supplies a validated integer version for that switch. The envelope stays a thin gate; the kind-specific dispatch lives in the consumer, not a registry in the envelope.
+`parseFileEnvelope` returns the validated integer `version`, and each consumer routes its payload through a `…ForVersion(version, data)` switch (`parseStylingPayloadForVersion`, `parseGraphExportPayloadForVersion`) that maps a generation to its parser. Today only `case 1` exists; the `default` throws `FileEnvelopeError`. This is deliberate: the envelope guard already rejects a generation newer than the build supports, so a supported-but-unhandled generation is a programming error, and the switch surfaces it loudly instead of letting the current schema silently strip renamed or retyped fields. When a breaking **v2** payload arrives, the consumer adds a `case 2` beside the existing one — the envelope stays a thin gate and the kind-specific dispatch lives in the consumer, not a registry in the envelope.
 
 ### Why a separate module (not inline in the styling code)
 

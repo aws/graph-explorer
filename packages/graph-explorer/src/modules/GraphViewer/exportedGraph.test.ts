@@ -27,6 +27,7 @@ import {
   type ExportedGraphFile,
   isMatchingConnection,
   parseExportedGraph,
+  parseGraphExportPayloadForVersion,
 } from "./exportedGraph";
 
 /** Wraps an exported-graph object in a Blob, as the file entry point expects. */
@@ -327,6 +328,19 @@ describe("parseExportedGraph", () => {
 
     const parsed = await parseExportedGraph(toGraphFileBlob(newerMinor));
     expect(parsed.vertices).toEqual(new Set(exportedGraph.data.vertices));
+  });
+
+  it("dispatches generation 1 to the current parser", () => {
+    const exportedGraph = createRandomExportedGraph();
+    const parsed = parseGraphExportPayloadForVersion(1, exportedGraph.data);
+    expect(parsed).toEqual(exportedGraph.data);
+  });
+
+  it("throws loudly for a generation with no parser", () => {
+    const exportedGraph = createRandomExportedGraph();
+    expect(() =>
+      parseGraphExportPayloadForVersion(2, exportedGraph.data),
+    ).toThrow(/No graph export parser for format generation 2/);
   });
 
   it("should reject a malformed payload", async () => {
