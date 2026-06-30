@@ -1,16 +1,10 @@
-import { useAtomCallback } from "jotai/utils";
 import { DatabaseIcon } from "lucide-react";
-import { useCallback } from "react";
+
+import type { RawConfiguration } from "@/core";
 
 import { ListRowContent, ListRowSubtitle, ListRowTitle } from "@/components";
-import {
-  activeConfigurationAtom,
-  type ConfigurationId,
-  type RawConfiguration,
-} from "@/core";
-import useResetState from "@/core/StateProvider/useResetState";
+import useActivateConnection from "@/core/StateProvider/useActivateConnection";
 import { useTranslations } from "@/hooks";
-import { logger } from "@/utils";
 
 function ConnectionRow({
   connection,
@@ -22,7 +16,8 @@ function ConnectionRow({
   isDisabled: boolean;
 }) {
   const t = useTranslations();
-  const setActiveConfig = useSetActiveConfigCallback(connection.id);
+  const activateConnection = useActivateConnection();
+  const setActiveConfig = () => activateConnection(connection.id);
 
   const dbUrl = connection.connection
     ? connection.connection.proxyConnection
@@ -58,20 +53,6 @@ function ConnectionRow({
         className="hidden"
       />
     </div>
-  );
-}
-
-function useSetActiveConfigCallback(configId: ConfigurationId) {
-  const resetState = useResetState();
-  return useAtomCallback(
-    useCallback(
-      (_get, set) => {
-        logger.debug("Setting active connection to", configId);
-        set(activeConfigurationAtom, configId);
-        resetState();
-      },
-      [configId, resetState],
-    ),
   );
 }
 

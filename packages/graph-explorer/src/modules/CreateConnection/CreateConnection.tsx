@@ -60,6 +60,12 @@ const CONNECTIONS_OP: {
 
 export type CreateConnectionProps = {
   existingConfig?: ConfigurationContextProps;
+  /**
+   * Seeds a new connection form with prefilled, fully editable values. Unlike
+   * `existingConfig`, this stays in "add" mode and does not run the
+   * meaningful-change reset logic.
+   */
+  initialValues?: Partial<ConnectionForm>;
   onClose(): void;
 };
 
@@ -79,8 +85,8 @@ function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
   };
 }
 
-function mapToConnectionForm(
-  existingConfig: ConfigurationContextProps | undefined,
+export function mapToConnectionForm(
+  existingConfig: RawConfiguration | undefined,
 ) {
   if (!existingConfig) {
     return;
@@ -99,12 +105,13 @@ function mapToConnectionForm(
 
 const CreateConnection = ({
   existingConfig,
+  initialValues,
   onClose,
 }: CreateConnectionProps) => {
   const queryClient = useQueryClient();
 
   const configId = existingConfig?.id;
-  const initialData = mapToConnectionForm(existingConfig);
+  const initialData = mapToConnectionForm(existingConfig) ?? initialValues;
 
   const onSave = useAtomCallback(
     useCallback(
