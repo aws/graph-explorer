@@ -1,0 +1,17 @@
+{
+  "meta": {
+    "kind": "graph-export",
+    "version": 1,
+    "timestamp": "2026-06-30T18:30:00.000Z",
+    "source": "Graph Explorer",
+    "sourceVersion": "3.2.0"
+  },
+  "data": {
+    "connection": {
+      "dbUrl": "https://example.cluster-abc.us-west-2.neptune.amazonaws.com:8182",
+      "queryEngine": "gremlin"
+    },
+    "vertices": ["1", "2", 3],
+    "edges": ["10", "11"]
+  }
+}
