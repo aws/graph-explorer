@@ -3,6 +3,11 @@ import localForage from "localforage";
 import { beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
+import {
+  defaultGraphViewLayout,
+  type GraphViewLayout,
+  graphViewLayoutCodec,
+} from "./graphViewLayoutDefaults";
 import { persistenceStatusStore } from "./persistence";
 import { createInMemorySessionStorage } from "./safeSessionStorage";
 import {
@@ -201,5 +206,51 @@ describe("createSessionScopedAtom across tabs", () => {
 
     await tabA.reload();
     expect(tabA.read()).toStrictEqual({ count: 1 });
+  });
+});
+
+// The breadcrumb keeps the native value (structured clone preserves the
+// activeToggles Set), but the per-tab sessionStorage claim must go through the
+// codec, which serializes that Set as an array. This exercises the helper and
+// graphViewLayoutCodec together over that exact path — the reason the branch
+// exists — rather than each in isolation.
+describe("createSessionScopedAtom with the graph view layout codec", () => {
+  const LAYOUT_KEY = "graph-view-layout";
+
+  beforeEach(async () => {
+    await localForage.clear();
+  });
+
+  test("cold start claims a Set-bearing breadcrumb into sessionStorage as its array form", async () => {
+    const breadcrumb: GraphViewLayout = {
+      activeSidebarItem: "filters",
+      activeToggles: new Set(["graph-viewer", "table-view"]),
+      sidebar: { width: 321 },
+      tableView: { height: 250 },
+      detailsAutoOpenOnSelection: false,
+    };
+    await localForage.setItem<GraphViewLayout>(LAYOUT_KEY, breadcrumb);
+    const sessionStorage = createInMemorySessionStorage();
+
+    const atom = await createSessionScopedAtom<GraphViewLayout>({
+      key: LAYOUT_KEY,
+      defaultValue: defaultGraphViewLayout,
+      codec: graphViewLayoutCodec,
+      sessionStorage,
+    });
+
+    const store = createStore();
+    const seeded = store.get(atom);
+    expect(seeded.activeToggles).toBeInstanceOf(Set);
+    expect(seeded).toStrictEqual(breadcrumb);
+
+    // The claimed per-tab value is the array-serialized form, and a warm reload
+    // off it rebuilds the Set rather than seeding from the breadcrumb again.
+    expect(sessionStorage.getItem(LAYOUT_KEY)).toBe(
+      graphViewLayoutCodec.serialize(breadcrumb),
+    );
+    expect(
+      graphViewLayoutCodec.deserialize(sessionStorage.getItem(LAYOUT_KEY)),
+    ).toStrictEqual(breadcrumb);
   });
 });
