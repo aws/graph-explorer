@@ -2,6 +2,8 @@ import type { z } from "zod";
 
 import localForage from "localforage";
 
+import { logger } from "@/utils";
+
 import { persistThroughQueue } from "./persistence";
 import { resolveSessionStorage } from "./safeSessionStorage";
 import { createWriteThroughAtom } from "./writeThroughAtom";
@@ -22,10 +24,12 @@ export type SessionValueCodec<T> = {
 };
 
 /**
- * Parses a sessionStorage JSON string against `schema`, returning `null` for a
- * missing, unparseable, or schema-invalid value so the caller treats it as a
- * miss. This keeps a stale or hand-edited per-tab value from seeding the atom
- * with the wrong shape.
+ * Parses a sessionStorage JSON string against `schema`. Returns `null` only for
+ * an absent value (`null` or empty string) — a legitimate miss. A present but
+ * unparseable or schema-invalid value is corrupt and **throws** (`SyntaxError`
+ * from `JSON.parse` or `ZodError` from the schema); the seam that owns seeding
+ * (`createSessionScopedAtom`) catches it, so detecting corruption stays separate
+ * from deciding what to do about it.
  */
 export function parseSessionJson<T>(
   raw: string | null,
@@ -34,12 +38,7 @@ export function parseSessionJson<T>(
   if (raw === null || raw === "") {
     return null;
   }
-  try {
-    const result = schema.safeParse(JSON.parse(raw));
-    return result.success ? result.data : null;
-  } catch {
-    return null;
-  }
+  return schema.parse(JSON.parse(raw));
 }
 
 /**
@@ -75,7 +74,7 @@ export async function createSessionScopedAtom<T>({
   codec: SessionValueCodec<T>;
   sessionStorage?: Storage;
 }) {
-  let seedValue = codec.deserialize(sessionStorage.getItem(key));
+  let seedValue = readSessionSeed(sessionStorage, key, codec);
   if (seedValue === null) {
     // Cold start: seed from the shared breadcrumb and claim it into this tab's
     // sessionStorage, so a later reload reads this value back rather than
@@ -99,6 +98,31 @@ export async function createSessionScopedAtom<T>({
     },
     `createSessionScopedAtom(${key})`,
   );
+}
+
+/**
+ * Reads and decodes this tab's per-tab seed, recovering from a corrupt value.
+ *
+ * `codec.deserialize` throws on a present-but-invalid value (and reading
+ * sessionStorage itself can throw a `SecurityError` when DOM storage is
+ * blocked). Either is a recoverable miss: a stale or hand-edited per-tab value
+ * should not crash app startup, so it is logged and treated as absent, letting
+ * the caller fall through to the shared breadcrumb then the default.
+ */
+function readSessionSeed<T>(
+  sessionStorage: Storage,
+  key: string,
+  codec: SessionValueCodec<T>,
+): T | null {
+  try {
+    return codec.deserialize(sessionStorage.getItem(key));
+  } catch (error) {
+    logger.warn(
+      `Discarding corrupt per-tab value for "${key}"; falling back to the persisted breadcrumb.`,
+      error,
+    );
+    return null;
+  }
 }
 
 /** Applies a serialized value to sessionStorage, removing the key for `null`. */

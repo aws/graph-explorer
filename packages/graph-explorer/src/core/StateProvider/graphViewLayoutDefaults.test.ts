@@ -32,9 +32,13 @@ describe("graphViewLayoutCodec", () => {
     ).toStrictEqual(defaultGraphViewLayout);
   });
 
-  test("treats a missing or corrupt value as a miss", () => {
+  test("treats an absent value as a miss", () => {
     expect(graphViewLayoutCodec.deserialize(null)).toBeNull();
-    expect(graphViewLayoutCodec.deserialize("{ not json")).toBeNull();
-    expect(graphViewLayoutCodec.deserialize("{}")).toBeNull();
+    expect(graphViewLayoutCodec.deserialize("")).toBeNull();
+  });
+
+  test("throws on a corrupt value so the seam can discard it", () => {
+    expect(() => graphViewLayoutCodec.deserialize("{ not json")).toThrow();
+    expect(() => graphViewLayoutCodec.deserialize("{}")).toThrow();
   });
 });

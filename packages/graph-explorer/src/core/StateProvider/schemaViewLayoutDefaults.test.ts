@@ -29,9 +29,13 @@ describe("schemaViewLayoutCodec", () => {
     ).toStrictEqual(defaultSchemaViewLayout);
   });
 
-  test("treats a missing or corrupt value as a miss", () => {
+  test("treats an absent value as a miss", () => {
     expect(schemaViewLayoutCodec.deserialize(null)).toBeNull();
-    expect(schemaViewLayoutCodec.deserialize("{ not json")).toBeNull();
-    expect(schemaViewLayoutCodec.deserialize("{}")).toBeNull();
+    expect(schemaViewLayoutCodec.deserialize("")).toBeNull();
+  });
+
+  test("throws on a corrupt value so the seam can discard it", () => {
+    expect(() => schemaViewLayoutCodec.deserialize("{ not json")).toThrow();
+    expect(() => schemaViewLayoutCodec.deserialize("{}")).toThrow();
   });
 });
