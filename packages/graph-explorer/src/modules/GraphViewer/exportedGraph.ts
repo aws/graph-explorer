@@ -22,13 +22,13 @@ import { escapeString, logger } from "@/utils";
 export const GRAPH_EXPORT_KIND = "graph-export";
 
 /**
- * Format generation. A single integer that bumps only on a breaking change;
- * additive changes are made as optional fields and do not bump it. Written to
- * disk as `"1.0"` for historical reasons; read back as the integer
- * {@link GRAPH_EXPORT_SUPPORTED_VERSION}.
+ * Format generation. A single integer that bumps only on a breaking change
+ * (renamed or removed fields). Additive changes are made as optional fields and
+ * do not bump it. This is both the version written to new files and the newest
+ * generation this build can read; files on disk from before the integer switch
+ * carry the legacy `"1.0"` string, which the envelope normalizes to `1`.
  */
-export const GRAPH_EXPORT_VERSION = "1.0";
-export const GRAPH_EXPORT_SUPPORTED_VERSION = 1;
+export const GRAPH_EXPORT_VERSION = 1;
 
 const graphExportPayloadSchema = z.object({
   connection: z.object({
@@ -80,7 +80,7 @@ export function createExportedConnection(
 export async function parseExportedGraph(blob: Blob) {
   const envelope = await parseFileEnvelope(blob, {
     kind: GRAPH_EXPORT_KIND,
-    supportedVersion: GRAPH_EXPORT_SUPPORTED_VERSION,
+    supportedVersion: GRAPH_EXPORT_VERSION,
   });
   const payload = graphExportPayloadSchema.parse(envelope.data);
 

@@ -63,7 +63,7 @@ describe("createExportedGraph", () => {
     const expectedConnection = createExportedConnection(connection);
     const expectedMeta = {
       kind: "graph-export",
-      version: "1.0",
+      version: 1,
       timestamp: timestamp.toISOString(),
       source: "Graph Explorer",
       sourceVersion: appVersion,
@@ -118,14 +118,14 @@ describe("createExportedGraph", () => {
     expect(graph.meta.kind).toBe("graph-export");
   });
 
-  it("should set meta version to 1.0", () => {
+  it("should set meta version to 1", () => {
     const vertexIds = createArray(2, () => createRandomVertexId());
     const edgeIds = createArray(2, () => createRandomEdgeId());
     const connection = createRandomConnectionWithId();
 
     const graph = createExportedGraph(vertexIds, edgeIds, connection);
 
-    expect(graph.meta.version).toBe("1.0");
+    expect(graph.meta.version).toBe(1);
   });
 
   it("should set meta source to Graph Explorer", () => {

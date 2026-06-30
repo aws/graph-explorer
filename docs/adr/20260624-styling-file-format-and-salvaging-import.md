@@ -12,21 +12,16 @@ Users want to share styling configurations across machines and team members. The
 
 ### File format
 
-The styling export file uses the shared file envelope (ADR `shared-file-envelope`) with `kind: "styling-export"`, `version: "1.0"`. The payload shape:
+The styling export file uses the shared file envelope (ADR `shared-file-envelope`) with `kind: "styling-export"`, `version: 1`. The payload shape:
 
 ```ts
 type StylingExportPayload = {
   vertices: Record<string, VertexStyleFileEntry>;
-  edges: Record<string, Omit<EdgePreferencesStorageModel, "type">>;
+  edges: Record<string, EdgeStyleFileEntry>;
 };
-
-type VertexStyleFileEntry = Omit<
-  VertexPreferencesStorageModel,
-  "type" | "iconUrl"
-> & { icon?: string };
 ```
 
-Vertex and edge entries mirror `VertexPreferencesStorageModel` / `EdgePreferencesStorageModel` minus the `type` field (the type is the Record key). The vertex entry additionally renames `iconUrl` → `icon` at this seam (see below). Fields are all optional — a partial entry is valid (only the specified fields override defaults). These types live in `stylingParser.ts` alongside the entry schemas.
+`VertexStyleFileEntry` and `EdgeStyleFileEntry` are inferred from the entry schemas' `z.input` (pre-transform), so the file format has a single source of truth in `stylingParser.ts`. Vertex and edge entries mirror `VertexPreferencesStorageModel` / `EdgePreferencesStorageModel` minus the `type` field (the type is the Record key). The vertex entry additionally renames `iconUrl` → `icon` at this seam (see below). Fields are all optional — a partial entry is valid (only the specified fields override defaults). `toVertexFileEntry` / `toEdgeFileEntry` produce these entries on export.
 
 ### Icon security
 

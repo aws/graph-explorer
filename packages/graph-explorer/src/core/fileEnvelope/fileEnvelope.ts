@@ -4,7 +4,9 @@ import { LABELS } from "@/utils/constants";
 
 const fileEnvelopeMetaSchema = z.object({
   kind: z.string(),
-  version: z.string(),
+  // Written as an integer; older files on disk carry the legacy `"1.0"` string,
+  // so both forms are accepted and normalized by `parseVersion`.
+  version: z.union([z.string(), z.number()]),
   timestamp: z.string(),
   source: z.string(),
   sourceVersion: z.string(),
@@ -22,7 +24,16 @@ export type FileEnvelope<T = unknown> = {
   data: T;
 };
 
-export type ParsedEnvelope = z.infer<typeof fileEnvelopeSchema>;
+/**
+ * A validated envelope. `version` is the normalized integer generation (the
+ * field on disk may be a legacy decimal string); consumers switch on it to
+ * pick their per-generation payload parser.
+ */
+export type ParsedEnvelope = {
+  meta: FileEnvelopeMeta;
+  version: number;
+  data: unknown;
+};
 
 export class FileEnvelopeError extends Error {
   readonly issues: z.core.$ZodIssue[] | undefined;
@@ -36,7 +47,7 @@ export class FileEnvelopeError extends Error {
 
 export function createFileEnvelope<T>(
   kind: string,
-  version: string,
+  version: number,
   data: T,
 ): FileEnvelope<T> {
   return {
@@ -110,14 +121,16 @@ export async function parseFileEnvelope(
     );
   }
 
-  return result.data;
+  return { meta, version, data: result.data.data };
 }
 
 /**
- * Reads the format generation as a single integer. Tolerates the legacy
- * `"1.0"` string form (parsed as `1`) that early exports wrote to disk.
+ * Reads the format generation as a positive integer. Generations start at `1`,
+ * so anything below it is unrecognized. Tolerates the legacy `"1.0"`
+ * decimal-string form (parsed as `1`) that early exports wrote to disk.
  */
-function parseVersion(version: string): number | null {
-  const parsed = Number.parseInt(version, 10);
-  return Number.isNaN(parsed) ? null : parsed;
+function parseVersion(version: string | number): number | null {
+  const parsed =
+    typeof version === "number" ? version : Number.parseInt(version, 10);
+  return Number.isInteger(parsed) && parsed >= 1 ? parsed : null;
 }

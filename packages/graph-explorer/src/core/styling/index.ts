@@ -1,10 +1,11 @@
 export {
   parseStylingPayload,
   STYLING_EXPORT_KIND,
-  STYLING_EXPORT_SUPPORTED_VERSION,
   STYLING_EXPORT_VERSION,
   StylingParseError,
-  toFileEntry,
+  toEdgeFileEntry,
+  toVertexFileEntry,
+  type EdgeStyleFileEntry,
   type EntryImportIssue,
   type GeneralImportIssue,
   type ImportIssue,

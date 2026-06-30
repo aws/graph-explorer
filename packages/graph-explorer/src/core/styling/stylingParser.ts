@@ -12,6 +12,7 @@ import {
   SHAPE_STYLES,
   type VertexPreferencesStorageModel,
 } from "@/core/StateProvider/userPreferences";
+import { typedEntries } from "@/utils";
 
 // --- Format identity ---
 
@@ -21,11 +22,11 @@ export const STYLING_EXPORT_KIND = "styling-export";
 /**
  * Format generation. A single integer that bumps only on a breaking change
  * (renamed or removed fields). Additive changes are made as optional fields and
- * do not bump it. Written to disk as `"1.0"` for historical reasons; read back
- * as the integer {@link STYLING_EXPORT_SUPPORTED_VERSION}.
+ * do not bump it. This is both the version written to new files and the newest
+ * generation this build can read; files on disk from before the integer switch
+ * carry the legacy `"1.0"` string, which the envelope normalizes to `1`.
  */
-export const STYLING_EXPORT_VERSION = "1.0";
-export const STYLING_EXPORT_SUPPORTED_VERSION = 1;
+export const STYLING_EXPORT_VERSION = 1;
 
 // --- Public types ---
 
@@ -158,7 +159,7 @@ export type StylingExportPayload = {
   edges: Record<string, EdgeStyleFileEntry>;
 };
 
-export function toFileEntry(
+export function toVertexFileEntry(
   model: VertexPreferencesStorageModel,
 ): VertexStyleFileEntry {
   const { type: _type, iconUrl, ...rest } = model;
@@ -170,6 +171,13 @@ export function toFileEntry(
     entry.icon = iconUrl;
   }
   return entry;
+}
+
+export function toEdgeFileEntry(
+  model: EdgePreferencesStorageModel,
+): EdgeStyleFileEntry {
+  const { type: _type, ...rest } = model;
+  return rest;
 }
 
 // --- Top-level structural schema ---
@@ -206,11 +214,6 @@ export function parseStylingPayload(rawData: unknown): StylingParseResult {
   };
 }
 
-/** `Object.entries` that preserves the key type rather than widening to `string`. */
-function entries<T extends object>(obj: T): [keyof T, T[keyof T]][] {
-  return Object.entries(obj) as [keyof T, T[keyof T]][];
-}
-
 /**
  * Brands each entry with its `type` and drops entries with no recognized
  * fields (an object of only unknown keys parses to `{}`).
@@ -219,7 +222,7 @@ function toStyleMap<Type extends string, Fields extends object>(
   records: Record<Type, Fields>,
 ): Map<Type, Fields & { type: Type }> {
   const styles = new Map<Type, Fields & { type: Type }>();
-  for (const [type, fields] of entries(records)) {
+  for (const [type, fields] of typedEntries(records)) {
     if (Object.keys(fields).length === 0) {
       continue;
     }

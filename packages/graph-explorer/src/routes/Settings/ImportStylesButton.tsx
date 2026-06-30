@@ -3,11 +3,6 @@ import { useAtomValue } from "jotai";
 import { AlertTriangleIcon, CheckCircleIcon, UploadIcon } from "lucide-react";
 import { useState } from "react";
 
-import type { EdgeType, VertexType } from "@/core/entities";
-import type {
-  EdgePreferencesStorageModel,
-  VertexPreferencesStorageModel,
-} from "@/core/StateProvider/userPreferences";
 import type {
   EntryImportIssue,
   GeneralImportIssue,
@@ -63,7 +58,7 @@ type Phase =
     }
   | { kind: "failed"; message: string }
   | { kind: "invalid"; issues: ImportIssue[] }
-  | { kind: "complete" };
+  | { kind: "complete"; vertexCount: number; edgeCount: number };
 
 export default function ImportStylesButton() {
   const applyImport = useApplyStylingImport();
@@ -75,13 +70,16 @@ export default function ImportStylesButton() {
   const [applied, setApplied] = useState(false);
 
   const parse = useMutation({
-    mutationFn: (file: File) => parseStylingFile(file),
-    onSuccess: parsed => {
+    mutationFn: async (file: File) => {
+      const parsed = await parseStylingFile(file);
       const conflicts = getStylingConflicts(
         parsed,
         importedVertexStyles,
         importedEdgeStyles,
       );
+      return { parsed, conflicts };
+    },
+    onSuccess: ({ parsed, conflicts }) => {
       // No conflicts → apply immediately. Otherwise wait for confirmation.
       if (conflicts.vertices.length + conflicts.edges.length === 0) {
         applyImport(parsed);
@@ -95,13 +93,7 @@ export default function ImportStylesButton() {
     setApplied(false);
   }
 
-  const phase = derivePhase(
-    parse.data,
-    parse.error,
-    applied,
-    importedVertexStyles,
-    importedEdgeStyles,
-  );
+  const phase = derivePhase(parse.data, parse.error, applied);
 
   function confirmConflicts(parsed: StylingParseResult) {
     applyImport(parsed);
@@ -122,7 +114,12 @@ export default function ImportStylesButton() {
       case "invalid":
         return <ImportInvalidContent issues={phase.issues} />;
       case "complete":
-        return <ImportCompleteContent />;
+        return (
+          <ImportCompleteContent
+            vertexCount={phase.vertexCount}
+            edgeCount={phase.edgeCount}
+          />
+        );
       case undefined:
         return null;
     }
@@ -149,28 +146,28 @@ export default function ImportStylesButton() {
 }
 
 function derivePhase(
-  parsed: StylingParseResult | undefined,
+  result:
+    | { parsed: StylingParseResult; conflicts: ImportConflicts }
+    | undefined,
   error: Error | null,
   applied: boolean,
-  importedVertexStyles: Map<VertexType, VertexPreferencesStorageModel>,
-  importedEdgeStyles: Map<EdgeType, EdgePreferencesStorageModel>,
 ): Phase | null {
   if (error) {
     return error instanceof StylingParseError
       ? { kind: "invalid", issues: error.issues }
       : { kind: "failed", message: error.message };
   }
-  if (applied) {
-    return { kind: "complete" };
-  }
-  if (!parsed) {
+  if (!result) {
     return null;
   }
-  const conflicts = getStylingConflicts(
-    parsed,
-    importedVertexStyles,
-    importedEdgeStyles,
-  );
+  const { parsed, conflicts } = result;
+  if (applied) {
+    return {
+      kind: "complete",
+      vertexCount: parsed.vertexStyles.size,
+      edgeCount: parsed.edgeStyles.size,
+    };
+  }
   return conflicts.vertices.length + conflicts.edges.length > 0
     ? { kind: "conflicts", parsed, conflicts }
     : null;
@@ -195,7 +192,8 @@ function ConflictContent({
         </AlertDialogTitle>
         <AlertDialogDescription>
           The imported file will overwrite these existing imported defaults. New
-          types will be added alongside them.
+          types will be added alongside them. This cannot be undone — consider
+          exporting first.
         </AlertDialogDescription>
       </AlertDialogHeader>
       <ConflictLists conflicts={conflicts} />
@@ -249,7 +247,35 @@ function ImportInvalidContent({ issues }: { issues: ImportIssue[] }) {
   );
 }
 
-function ImportCompleteContent() {
+function ImportCompleteContent({
+  vertexCount,
+  edgeCount,
+}: {
+  vertexCount: number;
+  edgeCount: number;
+}) {
+  // A structurally valid file can still carry zero recognized styles (every
+  // entry held only unknown fields). Nothing was applied, so say so rather than
+  // claiming a successful import.
+  if (vertexCount + edgeCount === 0) {
+    return (
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogMedia className="bg-warning-subtle text-warning-main">
+            <AlertTriangleIcon />
+          </AlertDialogMedia>
+          <AlertDialogTitle>No Styles Found</AlertDialogTitle>
+          <AlertDialogDescription>
+            The file was read successfully but contained no styles to import.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogAction>Close</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    );
+  }
+
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
@@ -258,7 +284,7 @@ function ImportCompleteContent() {
         </AlertDialogMedia>
         <AlertDialogTitle>Import Complete</AlertDialogTitle>
         <AlertDialogDescription>
-          All styles were imported successfully.
+          {`Imported ${formatTypeCount(vertexCount, "vertex")} and ${formatTypeCount(edgeCount, "edge")}.`}
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
@@ -266,6 +292,11 @@ function ImportCompleteContent() {
       </AlertDialogFooter>
     </AlertDialogContent>
   );
+}
+
+/** e.g. `formatTypeCount(2, "vertex")` → `"2 vertex types"`. */
+function formatTypeCount(count: number, entity: string): string {
+  return `${count} ${entity} ${count === 1 ? "type" : "types"}`;
 }
 
 function ConflictLists({ conflicts }: { conflicts: ImportConflicts }) {

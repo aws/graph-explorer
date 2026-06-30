@@ -19,10 +19,10 @@ function blobOf(value: unknown): Blob {
 describe("createFileEnvelope", () => {
   test("stamps metadata with kind, version, and payload", () => {
     const data = { vertices: {}, edges: {} };
-    const envelope = createFileEnvelope("styling-export", "1.0", data);
+    const envelope = createFileEnvelope("styling-export", 1, data);
 
     expect(envelope.meta.kind).toBe("styling-export");
-    expect(envelope.meta.version).toBe("1.0");
+    expect(envelope.meta.version).toBe(1);
     expect(envelope.meta.source).toBe("Graph Explorer");
     expect(envelope.meta.sourceVersion).toBe(__GRAPH_EXP_VERSION__);
     expect(envelope.meta.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
@@ -34,7 +34,7 @@ describe("parseFileEnvelope", () => {
   test("parses a valid envelope and returns meta + data", () => {
     const envelope: FileEnvelope<{ foo: string }> = createFileEnvelope(
       "styling-export",
-      "1.0",
+      1,
       { foo: "bar" },
     );
     const blob = blobOf(envelope);
@@ -43,6 +43,7 @@ describe("parseFileEnvelope", () => {
       parseFileEnvelope(blob, stylingExpectation),
     ).resolves.toStrictEqual({
       meta: envelope.meta,
+      version: 1,
       data: { foo: "bar" },
     });
   });
@@ -65,6 +66,7 @@ describe("parseFileEnvelope", () => {
       parseFileEnvelope(blobOf(envelope), stylingExpectation),
     ).resolves.toStrictEqual({
       meta: expectedMeta,
+      version: 1,
       data: { hello: "world" },
     });
   });
@@ -159,6 +161,22 @@ describe("parseFileEnvelope", () => {
       meta: {
         kind: "styling-export",
         version: "not-a-version",
+        timestamp: "x",
+        source: "x",
+        sourceVersion: "x",
+      },
+      data: { vertices: {}, edges: {} },
+    });
+    return expect(parseFileEnvelope(blob, stylingExpectation)).rejects.toThrow(
+      /unrecognized version/,
+    );
+  });
+
+  test("rejects a sub-1 version as unrecognized", () => {
+    const blob = blobOf({
+      meta: {
+        kind: "styling-export",
+        version: "0",
         timestamp: "x",
         source: "x",
         sourceVersion: "x",

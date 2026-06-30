@@ -16,6 +16,7 @@ import {
 
 import type { StylingParseResult } from "./stylingParser";
 import type {
+  EdgeStyleFileEntry,
   StylingExportPayload,
   VertexStyleFileEntry,
 } from "./stylingParser";
@@ -23,8 +24,9 @@ import type {
 import {
   parseStylingPayload,
   STYLING_EXPORT_KIND,
-  STYLING_EXPORT_SUPPORTED_VERSION,
-  toFileEntry,
+  STYLING_EXPORT_VERSION,
+  toEdgeFileEntry,
+  toVertexFileEntry,
 } from "./stylingParser";
 
 export type ImportConflicts = {
@@ -44,7 +46,7 @@ export async function parseStylingFile(
 ): Promise<StylingParseResult> {
   const envelope = await parseFileEnvelope(file, {
     kind: STYLING_EXPORT_KIND,
-    supportedVersion: STYLING_EXPORT_SUPPORTED_VERSION,
+    supportedVersion: STYLING_EXPORT_VERSION,
   });
   return parseStylingPayload(envelope.data);
 }
@@ -115,10 +117,10 @@ export function useExportStylingFile() {
     for (const type of allVertexTypes) {
       const imported = importedVertexStyles.get(type);
       const user = userVertexStyles.get(type);
-      vertices[type] = toFileEntry({ type, ...imported, ...user });
+      vertices[type] = toVertexFileEntry({ type, ...imported, ...user });
     }
 
-    const edges: Record<string, Omit<EdgePreferencesStorageModel, "type">> = {};
+    const edges: Record<string, EdgeStyleFileEntry> = {};
 
     const allEdgeTypes = new Set<EdgeType>([
       ...importedEdgeStyles.keys(),
@@ -127,8 +129,7 @@ export function useExportStylingFile() {
     for (const type of allEdgeTypes) {
       const imported = importedEdgeStyles.get(type);
       const user = userEdgeStyles.get(type);
-      const { type: _type, ...merged } = { ...imported, ...user };
-      edges[type] = merged;
+      edges[type] = toEdgeFileEntry({ type, ...imported, ...user });
     }
 
     return { vertices, edges };

@@ -26,9 +26,9 @@ Saves your current effective styles (custom + imported, merged) to `graph-explor
 
 ### Import default styles
 
-Loads a styling file and merges it into your imported defaults. Your custom styles are not affected — they continue to take priority. If the file contains types that already have imported defaults, you'll see a confirmation listing the types that will be replaced. Types not in the file are left unchanged.
+Loads a styling file and merges it into your imported defaults. Your custom styles are not affected — they continue to take priority. If there are no conflicts the file is applied immediately; if the file contains types that already have imported defaults, you'll see a confirmation listing the types that will be replaced before anything changes. Types not in the file are left unchanged.
 
-The import is resilient to partially-invalid files: valid entries are imported and invalid fields are skipped with a warning report. Icons must be Lucide references or base64-encoded data URIs; remote URLs are not imported.
+Import is all-or-nothing: if the file contains any invalid value, nothing is imported and you'll see a report listing every offending type and field so you can fix the file and re-import. Icons must be Lucide references (`lucide:<name>`) or base64-encoded data URIs; remote URLs are rejected. Unrecognized or extra fields are ignored silently (this is how a file from a newer version still imports), so a file whose entries contain only unrecognized fields imports nothing and reports that no styles were found.
 
 ### Reset custom styles
 

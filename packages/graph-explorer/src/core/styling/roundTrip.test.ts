@@ -540,7 +540,7 @@ describe("round-trip: export then import", () => {
 });
 
 function envelopeToFile(payload: unknown): File {
-  const envelope = createFileEnvelope("styling-export", "1.0", payload);
+  const envelope = createFileEnvelope("styling-export", 1, payload);
   return new File([JSON.stringify(envelope)], "styles.json", {
     type: "application/json",
   });
