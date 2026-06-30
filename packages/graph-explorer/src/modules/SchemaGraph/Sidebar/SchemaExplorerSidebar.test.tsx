@@ -92,4 +92,35 @@ describe("SchemaExplorerSidebar", () => {
 
     expect(screen.getByText("locatedIn")).toBeInTheDocument();
   });
+
+  test("collapses sidebar when clicking the active tab", async () => {
+    const user = userEvent.setup();
+    const state = new DbState();
+    renderSidebar(state);
+
+    expect(screen.getByText("Empty Selection")).toBeInTheDocument();
+
+    const tabs = screen.getAllByRole("tab");
+    await user.click(tabs[0]);
+
+    expect(screen.queryByText("Empty Selection")).not.toBeInTheDocument();
+  });
+
+  test("reopens sidebar when clicking a tab while collapsed", async () => {
+    const user = userEvent.setup();
+    const state = new DbState();
+    const vertex = createTestableVertex().with({ types: ["Airport"] });
+    state.addTestableVertexToGraph(vertex);
+
+    renderSidebar(state);
+
+    const tabs = screen.getAllByRole("tab");
+    // Close by clicking the active tab
+    await user.click(tabs[0]);
+    expect(screen.queryByText("Empty Selection")).not.toBeInTheDocument();
+
+    // Reopen by clicking a different tab
+    await user.click(tabs[1]);
+    expect(screen.getByText("Airport")).toBeInTheDocument();
+  });
 });

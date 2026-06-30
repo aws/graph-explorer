@@ -1,7 +1,11 @@
 import { createEdgeType, createVertexType } from "@/core";
 import { createEdgeConnectionId } from "@/core/StateProvider/edgeConnectionId";
 
-import { toSchemaGraphSelection, toSelectedElements } from "./SchemaGraph";
+import {
+  shouldAutoOpenDetailsForSelection,
+  toSchemaGraphSelection,
+  toSelectedElements,
+} from "./SchemaGraph";
 
 function createSelectedElements(
   nodeIds: string[] = [],
@@ -72,6 +76,48 @@ describe("toSchemaGraphSelection", () => {
         { type: "edge-connection", id: edgeId },
       ],
     });
+  });
+});
+
+describe("shouldAutoOpenDetailsForSelection", () => {
+  test("returns false for a null (cleared) selection", () => {
+    expect(shouldAutoOpenDetailsForSelection(null)).toBe(false);
+  });
+
+  test("returns true for a single vertex-type selection", () => {
+    expect(
+      shouldAutoOpenDetailsForSelection({
+        type: "vertex-type",
+        id: createVertexType("Person"),
+      }),
+    ).toBe(true);
+  });
+
+  test("returns true for a single edge-connection selection", () => {
+    const edgeId = createEdgeConnectionId({
+      sourceVertexType: createVertexType("Person"),
+      edgeType: createEdgeType("knows"),
+      targetVertexType: createVertexType("Person"),
+    });
+
+    expect(
+      shouldAutoOpenDetailsForSelection({
+        type: "edge-connection",
+        id: edgeId,
+      }),
+    ).toBe(true);
+  });
+
+  test("returns false for a multiple selection", () => {
+    expect(
+      shouldAutoOpenDetailsForSelection({
+        type: "multiple",
+        items: [
+          { type: "vertex-type", id: createVertexType("Person") },
+          { type: "vertex-type", id: createVertexType("Company") },
+        ],
+      }),
+    ).toBe(false);
   });
 });
 

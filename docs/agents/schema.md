@@ -11,7 +11,7 @@ Key files:
 
 ## Edge Connections
 
-Edge connections (`EdgeConnection[]`) describe relationships between vertex types and are used by the Schema Explorer feature. Because the edge connection query can be expensive and unreliable, it runs separately from the main schema sync so that a failure only affects Schema Explorer — all other features work without edge connections.
+Edge connections (`EdgeConnection[]`) describe relationships between vertex types and are used by the Schema View feature. Because the edge connection query can be expensive and unreliable, it runs separately from the main schema sync so that a failure only affects the Schema View — all other features work without edge connections.
 
 The `edgeConnections` property on `SchemaStorageModel` has three meaningful states:
 

@@ -15,6 +15,7 @@ import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
 import { defaultGraphViewLayout } from "./graphViewLayoutDefaults";
 import { runUserLayoutMigration } from "./migrateUserLayout";
 import { runUserStylingMigration } from "./migrateUserStyling";
+import { defaultSchemaViewLayout } from "./schemaViewLayoutDefaults";
 
 // Run migrations before the atoms preload so they read the migrated data.
 // Each migration owns its own failure reporting (surfacing through the
@@ -64,6 +65,7 @@ const [
   userVertexStylesAtom,
   userEdgeStylesAtom,
   graphViewLayoutAtom,
+  schemaViewLayoutAtom,
   allGraphSessionsAtom,
   showDebugActionsAtom,
   allowLoggingDbQueryAtom,
@@ -100,6 +102,7 @@ const [
     reconcileMapByKey,
   ),
   atomWithLocalForage("graph-view-layout", defaultGraphViewLayout),
+  atomWithLocalForage("schema-view-layout", defaultSchemaViewLayout),
   /** Stores the graph session data for each connection. */
   atomWithLocalForage<Map<ConfigurationId, GraphSessionStorageModel>>(
     "graph-sessions",
@@ -128,6 +131,7 @@ export {
   userVertexStylesAtom,
   userEdgeStylesAtom,
   graphViewLayoutAtom,
+  schemaViewLayoutAtom,
   allGraphSessionsAtom,
   showDebugActionsAtom,
   allowLoggingDbQueryAtom,
