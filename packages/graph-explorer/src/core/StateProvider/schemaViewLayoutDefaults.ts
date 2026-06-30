@@ -1,18 +1,27 @@
+import { z } from "zod";
+
 import {
   DEFAULT_SIDEBAR_WIDTH,
   transformLegacySidebarItem,
 } from "./graphViewLayoutDefaults";
+import {
+  parseSessionJson,
+  type SessionValueCodec,
+} from "./sessionScopedStorage";
 
 /** Identifiers for the schema view sidebar panels. */
-export const schemaViewSidebarItems = ["details", "styles"] as const;
-export type SchemaViewSidebarItem = (typeof schemaViewSidebarItems)[number];
+export const schemaViewSidebarItemSchema = z.enum(["details", "styles"]);
+export type SchemaViewSidebarItem = z.infer<typeof schemaViewSidebarItemSchema>;
+/** The sidebar panels as a readonly tuple, e.g. for random test selection. */
+export const schemaViewSidebarItems = schemaViewSidebarItemSchema.options;
 
 /** Persisted layout preferences for the schema view. */
-export type SchemaViewLayout = {
-  activeSidebarItem: SchemaViewSidebarItem | null;
-  sidebar: { width: number };
-  detailsAutoOpenOnSelection?: boolean;
-};
+const schemaViewLayoutSchema = z.object({
+  activeSidebarItem: schemaViewSidebarItemSchema.nullable(),
+  sidebar: z.object({ width: z.number() }),
+  detailsAutoOpenOnSelection: z.boolean().optional(),
+});
+export type SchemaViewLayout = z.infer<typeof schemaViewLayoutSchema>;
 
 /** Initial layout state used when no persisted layout exists. */
 export const defaultSchemaViewLayout: SchemaViewLayout = {
@@ -32,3 +41,9 @@ export function transformSchemaViewLayout(
     ? layout
     : { ...layout, activeSidebarItem };
 }
+
+/** Per-tab session codec; the schema view layout is plain JSON. */
+export const schemaViewLayoutCodec: SessionValueCodec<SchemaViewLayout> = {
+  serialize: layout => JSON.stringify(layout),
+  deserialize: raw => parseSessionJson(raw, schemaViewLayoutSchema),
+};
