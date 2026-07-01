@@ -57,11 +57,7 @@ const fileEnvelopeSchema = z.object({
  * (the field on disk may be the legacy `"1.0"` string); consumers switch on it
  * to pick their per-generation payload parser.
  */
-export type ParsedEnvelope = {
-  meta: z.infer<typeof parsedMetaSchema>;
-  version: number;
-  data: unknown;
-};
+export type ParsedEnvelope = z.infer<typeof fileEnvelopeSchema>;
 
 export class FileEnvelopeError extends Error {
   readonly issues: z.core.$ZodIssue[] | undefined;
@@ -143,5 +139,5 @@ export async function parseFileEnvelope(
     );
   }
 
-  return { meta, version: meta.version, data: result.data.data };
+  return result.data;
 }

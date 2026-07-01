@@ -110,7 +110,7 @@ export async function parseExportedGraph(blob: Blob) {
     supportedVersion: GRAPH_EXPORT_VERSION,
   });
   const payload = parseGraphExportPayloadForVersion(
-    envelope.version,
+    envelope.meta.version,
     envelope.data,
   );
 

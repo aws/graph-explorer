@@ -45,7 +45,6 @@ describe("parseFileEnvelope", () => {
       parseFileEnvelope(blob, stylingExpectation),
     ).resolves.toStrictEqual({
       meta: { kind: "styling-export", version: 1 },
-      version: 1,
       data: { foo: "bar" },
     });
   });
@@ -67,7 +66,6 @@ describe("parseFileEnvelope", () => {
       parseFileEnvelope(blobOf(envelope), stylingExpectation),
     ).resolves.toStrictEqual({
       meta: { kind: "styling-export", version: 1 },
-      version: 1,
       data: { hello: "world" },
     });
   });
@@ -139,7 +137,6 @@ describe("parseFileEnvelope", () => {
     });
     const result = await parseFileEnvelope(blob, stylingExpectation);
     expect(result.meta.version).toBe(1);
-    expect(result.version).toBe(1);
   });
 
   test("rejects a newer generation as too new", () => {

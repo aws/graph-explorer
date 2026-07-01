@@ -48,7 +48,7 @@ export async function parseStylingFile(
     kind: STYLING_EXPORT_KIND,
     supportedVersion: STYLING_EXPORT_VERSION,
   });
-  return parseStylingPayloadForVersion(envelope.version, envelope.data);
+  return parseStylingPayloadForVersion(envelope.meta.version, envelope.data);
 }
 
 /**
