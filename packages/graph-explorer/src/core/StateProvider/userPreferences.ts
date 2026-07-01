@@ -11,8 +11,8 @@ import type { EdgeType, VertexType } from "../entities";
 
 import { useActiveSchema } from "./schema";
 import {
-  importedEdgeStylesAtom,
-  importedVertexStylesAtom,
+  sharedEdgeStylesAtom,
+  sharedVertexStylesAtom,
   userEdgeStylesAtom,
   userVertexStylesAtom,
 } from "./storageAtoms";
@@ -181,9 +181,9 @@ export type LegacyUserStylingStorageModel = {
  *
  * Three layers, lowest precedence first:
  * 1. App defaults — {@link defaultVertexPreferences} / {@link defaultEdgePreferences}.
- * 2. Imported defaults — `importedVertexStylesAtom` / `importedEdgeStylesAtom`
- *    (storage keys `imported-vertex-styles` / `imported-edge-styles`), loaded
- *    from a styling export file on the Settings → Styles page.
+ * 2. Shared styles — `sharedVertexStylesAtom` / `sharedEdgeStylesAtom`
+ *    (storage keys `shared-vertex-styles` / `shared-edge-styles`), loaded
+ *    from a styling file on the Settings → Styles page.
  * 3. User customizations — `userVertexStylesAtom` / `userEdgeStylesAtom`
  *    (storage keys `user-vertex-styles` / `user-edge-styles`), edits made in the
  *    style dialogs.
@@ -196,15 +196,15 @@ export type LegacyUserStylingStorageModel = {
  */
 
 /** Vertex preferences indexed by type for O(1) lookup with cascade fallback.
- * Cascade: user > imported > app defaults. */
+ * Cascade: user > shared > app defaults. */
 export const vertexPreferencesAtom = atom(get => {
   const userStyles = get(userVertexStylesAtom);
-  const importedStyles = get(importedVertexStylesAtom);
+  const sharedStyles = get(sharedVertexStylesAtom);
   return {
     get(type: VertexType) {
       return createVertexPreference(
         type,
-        importedStyles.get(type),
+        sharedStyles.get(type),
         userStyles.get(type),
       );
     },
@@ -212,45 +212,45 @@ export const vertexPreferencesAtom = atom(get => {
 });
 
 /** Edge preferences indexed by type for O(1) lookup with cascade fallback.
- * Cascade: user > imported > app defaults. */
+ * Cascade: user > shared > app defaults. */
 export const edgePreferencesAtom = atom(get => {
   const userStyles = get(userEdgeStylesAtom);
-  const importedStyles = get(importedEdgeStylesAtom);
+  const sharedStyles = get(sharedEdgeStylesAtom);
   return {
     get(type: EdgeType) {
       return createEdgePreference(
         type,
-        importedStyles.get(type),
+        sharedStyles.get(type),
         userStyles.get(type),
       );
     },
   };
 });
 
-/** Combines the cascade layers: app defaults < imported < user. */
+/** Combines the cascade layers: app defaults < shared < user. */
 export function createVertexPreference(
   type: VertexType,
-  imported?: VertexPreferencesStorageModel,
+  shared?: VertexPreferencesStorageModel,
   user?: VertexPreferencesStorageModel,
 ): VertexPreferences {
   return {
     type,
     ...defaultVertexPreferences,
-    ...imported,
+    ...shared,
     ...user,
   } as const;
 }
 
-/** Combines the cascade layers: app defaults < imported < user. */
+/** Combines the cascade layers: app defaults < shared < user. */
 export function createEdgePreference(
   type: EdgeType,
-  imported?: EdgePreferencesStorageModel,
+  shared?: EdgePreferencesStorageModel,
   user?: EdgePreferencesStorageModel,
 ): EdgePreferences {
   return {
     type,
     ...defaultEdgePreferences,
-    ...imported,
+    ...shared,
     ...user,
   } as const;
 }

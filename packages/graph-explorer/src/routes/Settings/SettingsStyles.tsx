@@ -15,18 +15,18 @@ import {
   SettingsPage,
 } from "@/components";
 import {
-  importedEdgeStylesAtom,
-  importedVertexStylesAtom,
+  sharedEdgeStylesAtom,
+  sharedVertexStylesAtom,
 } from "@/core/StateProvider/storageAtoms";
 
-import ExportStylesButton from "./ExportStylesButton";
-import ImportStylesButton from "./ImportStylesButton";
+import LoadStylesButton from "./LoadStylesButton";
 import ResetCustomStylesButton from "./ResetCustomStylesButton";
-import ResetImportedDefaultsButton from "./ResetImportedDefaultsButton";
+import ResetSharedStylesButton from "./ResetSharedStylesButton";
+import SaveStylesButton from "./SaveStylesButton";
 
 export default function SettingsStyles() {
-  const importedVertexStyles = useAtomValue(importedVertexStylesAtom);
-  const importedEdgeStyles = useAtomValue(importedEdgeStylesAtom);
+  const sharedVertexStyles = useAtomValue(sharedVertexStylesAtom);
+  const sharedEdgeStyles = useAtomValue(sharedEdgeStylesAtom);
 
   return (
     <SettingsPage>
@@ -37,7 +37,7 @@ export default function SettingsStyles() {
         <SettingsPageTitle>Styles</SettingsPageTitle>
         <SettingsPageDescription>
           Share your node and edge styling with others, or reset them back to
-          defaults. Custom styles and imported defaults are tracked separately.
+          defaults. Custom styles and shared styles are tracked separately.
         </SettingsPageDescription>
       </SettingsPageHeader>
 
@@ -47,22 +47,22 @@ export default function SettingsStyles() {
         </GroupHeader>
         <GroupItem>
           <LabelledSetting
-            label="Export styles"
-            description="Save your current node and edge styling to a file. Share it with others or import it on another machine to get the same look."
+            label="Save styles"
+            description="Save your current node and edge styling to a file. Share it with others or load it on another machine to get the same look."
           >
-            <ExportStylesButton />
+            <SaveStylesButton />
           </LabelledSetting>
         </GroupItem>
         <GroupItem className="space-y-2">
           <LabelledSetting
-            label="Import default styles"
-            description="Load styles from a file to become your new imported defaults. Your custom styles are left untouched."
+            label="Load shared styles"
+            description="Load styles from a file to become your new shared styles. Your custom styles are left untouched."
           >
-            <ImportStylesButton />
+            <LoadStylesButton />
           </LabelledSetting>
-          <ImportedStylesStatus
-            vertexCount={importedVertexStyles.size}
-            edgeCount={importedEdgeStyles.size}
+          <SharedStylesStatus
+            vertexCount={sharedVertexStyles.size}
+            edgeCount={sharedEdgeStyles.size}
           />
         </GroupItem>
       </Group>
@@ -77,17 +77,17 @@ export default function SettingsStyles() {
         <GroupItem>
           <LabelledSetting
             label="Reset custom styles"
-            description="Clear all per-type style customizations you've made. Imported defaults remain."
+            description="Clear all per-type style customizations you've made. Shared styles remain."
           >
             <ResetCustomStylesButton />
           </LabelledSetting>
         </GroupItem>
         <GroupItem>
           <LabelledSetting
-            label="Reset imported defaults"
-            description="Remove the imported default styles. Your custom styles remain."
+            label="Reset shared styles"
+            description="Remove the shared styles. Your custom styles remain."
           >
-            <ResetImportedDefaultsButton />
+            <ResetSharedStylesButton />
           </LabelledSetting>
         </GroupItem>
       </Group>
@@ -95,7 +95,7 @@ export default function SettingsStyles() {
   );
 }
 
-function ImportedStylesStatus({
+function SharedStylesStatus({
   vertexCount,
   edgeCount,
 }: {
@@ -119,8 +119,8 @@ function ImportedStylesStatus({
       </div>
       <p className="text-text-secondary">
         {parts.join(" and ")}{" "}
-        {vertexCount + edgeCount === 1 ? "type has" : "types have"} imported
-        default styles
+        {vertexCount + edgeCount === 1 ? "type has" : "types have"} shared
+        styles
       </p>
     </div>
   );

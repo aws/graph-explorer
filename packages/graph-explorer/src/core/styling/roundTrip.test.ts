@@ -11,8 +11,8 @@ import { getAppStore } from "@/core";
 import { createEdgeType, createVertexType } from "@/core/entities";
 import { createFileEnvelope } from "@/core/fileEnvelope";
 import {
-  importedEdgeStylesAtom,
-  importedVertexStylesAtom,
+  sharedEdgeStylesAtom,
+  sharedVertexStylesAtom,
   userEdgeStylesAtom,
   userVertexStylesAtom,
 } from "@/core/StateProvider/storageAtoms";
@@ -104,21 +104,21 @@ describe("round-trip: export then import", () => {
 
     importResult.current(parseOut);
 
-    const importedVertices = store.get(importedVertexStylesAtom);
-    expect(importedVertices.get(createVertexType("airport"))).toStrictEqual({
+    const sharedVertices = store.get(sharedVertexStylesAtom);
+    expect(sharedVertices.get(createVertexType("airport"))).toStrictEqual({
       type: createVertexType("airport"),
       displayNameAttribute: "code",
       iconUrl: "lucide:anchor",
       iconImageType: "image/svg+xml",
       color: "#e66412",
     });
-    expect(importedVertices.get(createVertexType("country"))).toStrictEqual({
+    expect(sharedVertices.get(createVertexType("country"))).toStrictEqual({
       type: createVertexType("country"),
       color: "#e612b8",
     });
 
-    const importedEdges = store.get(importedEdgeStylesAtom);
-    expect(importedEdges.get(createEdgeType("route"))).toStrictEqual({
+    const sharedEdges = store.get(sharedEdgeStylesAtom);
+    expect(sharedEdges.get(createEdgeType("route"))).toStrictEqual({
       type: createEdgeType("route"),
       lineThickness: 1,
       labelColor: "#eef4ff",
@@ -185,9 +185,9 @@ describe("round-trip: export then import", () => {
 
     importResult.current(parseOut);
 
-    const imported = store.get(importedVertexStylesAtom);
+    const shared = store.get(sharedVertexStylesAtom);
     expect(
-      imported.get(
+      shared.get(
         createVertexType("http://data.nobelprize.org/terms/LaureateAward"),
       ),
     ).toStrictEqual({
@@ -197,9 +197,7 @@ describe("round-trip: export then import", () => {
       color: "#1229e6",
     });
     expect(
-      imported.get(
-        createVertexType("http://data.nobelprize.org/terms/Laureate"),
-      ),
+      shared.get(createVertexType("http://data.nobelprize.org/terms/Laureate")),
     ).toStrictEqual({
       type: createVertexType("http://data.nobelprize.org/terms/Laureate"),
       iconUrl: "lucide:angry",
@@ -207,14 +205,14 @@ describe("round-trip: export then import", () => {
       color: "#ba12e6",
     });
     expect(
-      imported.get(createVertexType("http://www.w3.org/ns/dcat#Catalog")),
+      shared.get(createVertexType("http://www.w3.org/ns/dcat#Catalog")),
     ).toStrictEqual({
       type: createVertexType("http://www.w3.org/ns/dcat#Catalog"),
       iconUrl: "lucide:alert-octagon",
       iconImageType: "image/svg+xml",
     });
     expect(
-      imported.get(createVertexType("http://dbpedia.org/ontology/Award")),
+      shared.get(createVertexType("http://dbpedia.org/ontology/Award")),
     ).toStrictEqual({
       type: createVertexType("http://dbpedia.org/ontology/Award"),
       displayNameAttribute: "http://www.w3.org/2000/01/rdf-schema#label",
@@ -258,8 +256,8 @@ describe("round-trip: export then import", () => {
 
     importResult.current(parseOut);
 
-    const imported = store.get(importedVertexStylesAtom);
-    expect(imported.get(createVertexType("CustomNode"))!.iconUrl).toBe(
+    const shared = store.get(sharedVertexStylesAtom);
+    expect(shared.get(createVertexType("CustomNode"))!.iconUrl).toBe(
       svgDataUri,
     );
   });
@@ -308,14 +306,14 @@ describe("round-trip: export then import", () => {
 
     importResult.current(parseOut);
 
-    const imported = store.get(importedVertexStylesAtom);
-    expect(imported.get(createVertexType("PngNode"))).toStrictEqual({
+    const shared = store.get(sharedVertexStylesAtom);
+    expect(shared.get(createVertexType("PngNode"))).toStrictEqual({
       type: createVertexType("PngNode"),
       iconUrl: pngDataUri,
       iconImageType: "image/png",
       color: "#111",
     });
-    expect(imported.get(createVertexType("JpegNode"))).toStrictEqual({
+    expect(shared.get(createVertexType("JpegNode"))).toStrictEqual({
       type: createVertexType("JpegNode"),
       iconUrl: jpegDataUri,
       iconImageType: "image/jpeg",
@@ -368,9 +366,9 @@ describe("round-trip: export then import", () => {
       ]),
     });
 
-    const imported = store.get(importedVertexStylesAtom);
-    expect(imported.has(createVertexType("HttpsNode"))).toBe(false);
-    expect(imported.has(createVertexType("HttpNode"))).toBe(false);
+    const shared = store.get(sharedVertexStylesAtom);
+    expect(shared.has(createVertexType("HttpsNode"))).toBe(false);
+    expect(shared.has(createVertexType("HttpNode"))).toBe(false);
   });
 
   test("mixed icon types in a single export all survive round-trip", async () => {
@@ -428,17 +426,17 @@ describe("round-trip: export then import", () => {
 
     importResult.current(parseOut);
 
-    const imported = store.get(importedVertexStylesAtom);
-    expect(imported.get(createVertexType("LucideType"))!.iconUrl).toBe(
+    const shared = store.get(sharedVertexStylesAtom);
+    expect(shared.get(createVertexType("LucideType"))!.iconUrl).toBe(
       "lucide:user",
     );
-    expect(imported.get(createVertexType("SvgDataType"))!.iconUrl).toBe(
+    expect(shared.get(createVertexType("SvgDataType"))!.iconUrl).toBe(
       "data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=",
     );
-    expect(imported.get(createVertexType("PngDataType"))!.iconUrl).toBe(
+    expect(shared.get(createVertexType("PngDataType"))!.iconUrl).toBe(
       "data:image/png;base64,iVBORw0KGgo=",
     );
-    expect(imported.get(createVertexType("NoIconType"))).toStrictEqual({
+    expect(shared.get(createVertexType("NoIconType"))).toStrictEqual({
       type: createVertexType("NoIconType"),
       color: "#abc",
       shape: "diamond",
@@ -502,10 +500,10 @@ describe("round-trip: export then import", () => {
     result.current(parseOut);
 
     const store = getAppStore();
-    const imported = store.get(importedVertexStylesAtom);
+    const shared = store.get(sharedVertexStylesAtom);
 
     expect(
-      imported.get(
+      shared.get(
         createVertexType("http://data.nobelprize.org/terms/LaureateAward"),
       ),
     ).toStrictEqual({
@@ -515,7 +513,7 @@ describe("round-trip: export then import", () => {
       color: "#1229e6",
     });
 
-    expect(imported.get(createVertexType("airport"))).toStrictEqual({
+    expect(shared.get(createVertexType("airport"))).toStrictEqual({
       type: createVertexType("airport"),
       displayNameAttribute: "code",
       iconUrl: "lucide:anchor",
@@ -523,13 +521,13 @@ describe("round-trip: export then import", () => {
       color: "#e66412",
     });
 
-    expect(imported.get(createVertexType("country"))).toStrictEqual({
+    expect(shared.get(createVertexType("country"))).toStrictEqual({
       type: createVertexType("country"),
       color: "#e612b8",
     });
 
-    const importedEdges = store.get(importedEdgeStylesAtom);
-    expect(importedEdges.get(createEdgeType("route"))).toStrictEqual({
+    const sharedEdges = store.get(sharedEdgeStylesAtom);
+    expect(sharedEdges.get(createEdgeType("route"))).toStrictEqual({
       type: createEdgeType("route"),
       lineThickness: 1,
       labelColor: "#eef4ff",

@@ -8,8 +8,8 @@ import type {
 
 import { parseFileEnvelope } from "@/core/fileEnvelope";
 import {
-  importedEdgeStylesAtom,
-  importedVertexStylesAtom,
+  sharedEdgeStylesAtom,
+  sharedVertexStylesAtom,
   userEdgeStylesAtom,
   userVertexStylesAtom,
 } from "@/core/StateProvider/storageAtoms";
@@ -52,23 +52,23 @@ export async function parseStylingFile(
 }
 
 /**
- * The types in `parsed` that already have an imported default. These are the
- * entries an import would overwrite, so the caller can warn before applying.
+ * The types in `parsed` that already have a shared style. These are the entries
+ * a load would overwrite, so the caller can warn before applying.
  */
 export function getStylingConflicts(
   parsed: StylingParseResult,
-  importedVertexStyles: Map<VertexType, VertexPreferencesStorageModel>,
-  importedEdgeStyles: Map<EdgeType, EdgePreferencesStorageModel>,
+  sharedVertexStyles: Map<VertexType, VertexPreferencesStorageModel>,
+  sharedEdgeStyles: Map<EdgeType, EdgePreferencesStorageModel>,
 ): ImportConflicts {
   const vertices: string[] = [];
   const edges: string[] = [];
   for (const type of parsed.vertexStyles.keys()) {
-    if (importedVertexStyles.has(type)) {
+    if (sharedVertexStyles.has(type)) {
       vertices.push(type);
     }
   }
   for (const type of parsed.edgeStyles.keys()) {
-    if (importedEdgeStyles.has(type)) {
+    if (sharedEdgeStyles.has(type)) {
       edges.push(type);
     }
   }
@@ -76,22 +76,22 @@ export function getStylingConflicts(
 }
 
 /**
- * Merges a parsed styling file into the imported-defaults layer, leaving user
+ * Merges a parsed styling file into the shared-styles layer, leaving user
  * customizations untouched.
  */
 export function useApplyStylingImport() {
-  const setImportedVertexStyles = useSetAtom(importedVertexStylesAtom);
-  const setImportedEdgeStyles = useSetAtom(importedEdgeStylesAtom);
+  const setSharedVertexStyles = useSetAtom(sharedVertexStylesAtom);
+  const setSharedEdgeStyles = useSetAtom(sharedEdgeStylesAtom);
 
   return function applyImport(parsed: StylingParseResult): void {
-    setImportedVertexStyles(prev => {
+    setSharedVertexStyles(prev => {
       const merged = new Map(prev);
       for (const [type, style] of parsed.vertexStyles) {
         merged.set(type, style);
       }
       return merged;
     });
-    setImportedEdgeStyles(prev => {
+    setSharedEdgeStyles(prev => {
       const merged = new Map(prev);
       for (const [type, style] of parsed.edgeStyles) {
         merged.set(type, style);
@@ -104,32 +104,32 @@ export function useApplyStylingImport() {
 export function useExportStylingFile() {
   const userVertexStyles = useAtomValue(userVertexStylesAtom);
   const userEdgeStyles = useAtomValue(userEdgeStylesAtom);
-  const importedVertexStyles = useAtomValue(importedVertexStylesAtom);
-  const importedEdgeStyles = useAtomValue(importedEdgeStylesAtom);
+  const sharedVertexStyles = useAtomValue(sharedVertexStylesAtom);
+  const sharedEdgeStyles = useAtomValue(sharedEdgeStylesAtom);
 
   function getExportPayload(): StylingExportPayload {
     const vertices: Record<string, VertexStyleFileEntry> = {};
 
     const allVertexTypes = new Set<VertexType>([
-      ...importedVertexStyles.keys(),
+      ...sharedVertexStyles.keys(),
       ...userVertexStyles.keys(),
     ]);
     for (const type of allVertexTypes) {
-      const imported = importedVertexStyles.get(type);
+      const shared = sharedVertexStyles.get(type);
       const user = userVertexStyles.get(type);
-      vertices[type] = toVertexFileEntry({ type, ...imported, ...user });
+      vertices[type] = toVertexFileEntry({ type, ...shared, ...user });
     }
 
     const edges: Record<string, EdgeStyleFileEntry> = {};
 
     const allEdgeTypes = new Set<EdgeType>([
-      ...importedEdgeStyles.keys(),
+      ...sharedEdgeStyles.keys(),
       ...userEdgeStyles.keys(),
     ]);
     for (const type of allEdgeTypes) {
-      const imported = importedEdgeStyles.get(type);
+      const shared = sharedEdgeStyles.get(type);
       const user = userEdgeStyles.get(type);
-      edges[type] = toEdgeFileEntry({ type, ...imported, ...user });
+      edges[type] = toEdgeFileEntry({ type, ...shared, ...user });
     }
 
     return { vertices, edges };

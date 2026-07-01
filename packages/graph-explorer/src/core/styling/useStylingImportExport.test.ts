@@ -10,8 +10,8 @@ import type {
 import { getAppStore } from "@/core";
 import { createEdgeType, createVertexType } from "@/core/entities";
 import {
-  importedVertexStylesAtom,
-  importedEdgeStylesAtom,
+  sharedVertexStylesAtom,
+  sharedEdgeStylesAtom,
   userVertexStylesAtom,
 } from "@/core/StateProvider/storageAtoms";
 import { renderHookWithJotai } from "@/utils/testing";
@@ -30,7 +30,7 @@ vi.mock("@/utils/fileData", () => ({
 }));
 
 describe("styling import", () => {
-  test("parseStylingFile + applyImport writes styles to imported atoms", async () => {
+  test("parseStylingFile + applyImport writes styles to shared atoms", async () => {
     const { result } = renderHookWithJotai(() => useApplyStylingImport());
 
     const file = createStylingFile({
@@ -47,7 +47,7 @@ describe("styling import", () => {
     result.current(parsed);
 
     const store = getAppStore();
-    const vertexStyles = store.get(importedVertexStylesAtom);
+    const vertexStyles = store.get(sharedVertexStylesAtom);
     expect(vertexStyles.get(createVertexType("Person"))).toStrictEqual({
       type: createVertexType("Person"),
       color: "#ff0000",
@@ -58,7 +58,7 @@ describe("styling import", () => {
       color: "#00ff00",
     });
 
-    const edgeStyles = store.get(importedEdgeStylesAtom);
+    const edgeStyles = store.get(sharedEdgeStylesAtom);
     expect(edgeStyles.get(createEdgeType("route"))).toStrictEqual({
       type: createEdgeType("route"),
       lineColor: "#0000ff",
@@ -91,10 +91,10 @@ describe("styling import", () => {
     expect(userStyles.get(createVertexType("Person"))?.color).toBe("#111");
   });
 
-  test("merges new import with existing imported styles", async () => {
+  test("merges new import with existing shared styles", async () => {
     const store = getAppStore();
     store.set(
-      importedVertexStylesAtom,
+      sharedVertexStylesAtom,
       new Map<VertexType, VertexPreferencesStorageModel>([
         [
           createVertexType("OldType"),
@@ -113,13 +113,13 @@ describe("styling import", () => {
     const parsed = await parseStylingFile(file);
     result.current(parsed);
 
-    const vertexStyles = store.get(importedVertexStylesAtom);
+    const vertexStyles = store.get(sharedVertexStylesAtom);
     expect(vertexStyles.has(createVertexType("OldType"))).toBe(true);
     expect(vertexStyles.has(createVertexType("NewType"))).toBe(true);
   });
 
   test("getStylingConflicts identifies overlapping keys", () => {
-    const importedVertexStyles = new Map<
+    const sharedVertexStyles = new Map<
       VertexType,
       VertexPreferencesStorageModel
     >([
@@ -128,7 +128,7 @@ describe("styling import", () => {
         { type: createVertexType("Person"), color: "#existing" },
       ],
     ]);
-    const importedEdgeStyles = new Map<EdgeType, EdgePreferencesStorageModel>([
+    const sharedEdgeStyles = new Map<EdgeType, EdgePreferencesStorageModel>([
       [
         createEdgeType("knows"),
         { type: createEdgeType("knows"), lineColor: "#old" },
@@ -156,8 +156,8 @@ describe("styling import", () => {
 
     const conflicts = getStylingConflicts(
       parsed,
-      importedVertexStyles,
-      importedEdgeStyles,
+      sharedVertexStyles,
+      sharedEdgeStyles,
     );
     expect(conflicts).toStrictEqual({
       vertices: ["Person"],
@@ -236,16 +236,16 @@ describe("styling import", () => {
 });
 
 describe("useExportStylingFile", () => {
-  test("exports merged user+imported styles with user winning", () => {
+  test("exports merged user+shared styles with user winning", () => {
     const store = getAppStore();
     store.set(
-      importedVertexStylesAtom,
+      sharedVertexStylesAtom,
       new Map<VertexType, VertexPreferencesStorageModel>([
         [
           createVertexType("Person"),
           {
             type: createVertexType("Person"),
-            color: "#imported",
+            color: "#shared",
             shape: "star",
           },
         ],
@@ -261,11 +261,11 @@ describe("useExportStylingFile", () => {
       ]),
     );
     store.set(
-      importedEdgeStylesAtom,
+      sharedEdgeStylesAtom,
       new Map<EdgeType, EdgePreferencesStorageModel>([
         [
           createEdgeType("route"),
-          { type: createEdgeType("route"), lineColor: "#edge-imported" },
+          { type: createEdgeType("route"), lineColor: "#edge-shared" },
         ],
       ]),
     );
@@ -278,7 +278,7 @@ describe("useExportStylingFile", () => {
       Person: { color: "#user", shape: "star" },
     });
     expect(payload.edges).toStrictEqual({
-      route: { lineColor: "#edge-imported" },
+      route: { lineColor: "#edge-shared" },
     });
   });
 
@@ -301,10 +301,10 @@ describe("useExportStylingFile", () => {
     expect(payload.edges).toStrictEqual({});
   });
 
-  test("exports types only present in imported layer", () => {
+  test("exports types only present in shared layer", () => {
     const store = getAppStore();
     store.set(
-      importedEdgeStylesAtom,
+      sharedEdgeStylesAtom,
       new Map<EdgeType, EdgePreferencesStorageModel>([
         [
           createEdgeType("likes"),

@@ -45,7 +45,7 @@ export default function ResetCustomStylesButton() {
           <AlertDialogDescription>
             <span className="block">
               This will clear all your per-type style customizations. Your
-              imported defaults will remain. Consider exporting first.
+              shared styles will remain. Consider saving first.
             </span>
             <span className="mbs-4 block">This cannot be undone.</span>
           </AlertDialogDescription>

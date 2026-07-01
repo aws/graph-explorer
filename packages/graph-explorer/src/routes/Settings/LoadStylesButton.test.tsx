@@ -10,10 +10,10 @@ import { getAppStore } from "@/core";
 import { createVertexType, type VertexType } from "@/core/entities";
 import { createFileEnvelope } from "@/core/fileEnvelope";
 import { createQueryClient } from "@/core/queryClient";
-import { importedVertexStylesAtom } from "@/core/StateProvider/storageAtoms";
+import { sharedVertexStylesAtom } from "@/core/StateProvider/storageAtoms";
 import { TestProvider } from "@/utils/testing";
 
-import ImportStylesButton from "./ImportStylesButton";
+import LoadStylesButton from "./LoadStylesButton";
 
 vi.mock("@/utils/fileData", () => ({
   toJsonFileData: vi.fn(),
@@ -27,7 +27,7 @@ function renderButton() {
   render(
     <TestProvider client={queryClient} store={store}>
       <TooltipProvider>
-        <ImportStylesButton />
+        <LoadStylesButton />
       </TooltipProvider>
     </TestProvider>,
   );
@@ -48,7 +48,7 @@ function fileInput() {
   return document.querySelector<HTMLInputElement>('input[type="file"]')!;
 }
 
-describe("ImportStylesButton", () => {
+describe("LoadStylesButton", () => {
   test("applies immediately and reports counts when there are no conflicts", async () => {
     const user = userEvent.setup();
     const store = renderButton();
@@ -61,15 +61,15 @@ describe("ImportStylesButton", () => {
       }),
     );
 
-    expect(await screen.findByText("Import Complete")).toBeInTheDocument();
-    // Vertex-only import omits the zero edge side.
-    expect(screen.getByText("Imported 2 vertex styles.")).toBeInTheDocument();
+    expect(await screen.findByText("Styles Loaded")).toBeInTheDocument();
+    // Vertex-only load omits the zero edge side.
+    expect(screen.getByText("Loaded 2 vertex styles.")).toBeInTheDocument();
     expect(
-      store.get(importedVertexStylesAtom).get(createVertexType("Person")),
+      store.get(sharedVertexStylesAtom).get(createVertexType("Person")),
     ).toStrictEqual({ type: createVertexType("Person"), color: "#abc" });
   });
 
-  test("joins both sides of the count message when a file imports vertices and edges", async () => {
+  test("joins both sides of the count message when a file loads vertices and edges", async () => {
     const user = userEvent.setup();
     renderButton();
 
@@ -81,17 +81,17 @@ describe("ImportStylesButton", () => {
       }),
     );
 
-    expect(await screen.findByText("Import Complete")).toBeInTheDocument();
+    expect(await screen.findByText("Styles Loaded")).toBeInTheDocument();
     expect(
-      screen.getByText("Imported 1 vertex style and 1 edge style."),
+      screen.getByText("Loaded 1 vertex style and 1 edge style."),
     ).toBeInTheDocument();
   });
 
-  test("prompts before overwriting an existing imported default, then completes on confirm", async () => {
+  test("prompts before overwriting an existing shared style, then completes on confirm", async () => {
     const user = userEvent.setup();
     const store = renderButton();
     store.set(
-      importedVertexStylesAtom,
+      sharedVertexStylesAtom,
       new Map<VertexType, VertexPreferencesStorageModel>([
         [
           createVertexType("Person"),
@@ -107,19 +107,17 @@ describe("ImportStylesButton", () => {
 
     // Conflict prompt first — nothing applied yet.
     expect(
-      await screen.findByText("Replace 1 existing default?"),
+      await screen.findByText("Replace 1 existing shared style?"),
     ).toBeInTheDocument();
     expect(
-      store.get(importedVertexStylesAtom).get(createVertexType("Person"))
-        ?.color,
+      store.get(sharedVertexStylesAtom).get(createVertexType("Person"))?.color,
     ).toBe("#old");
 
-    await user.click(screen.getByRole("button", { name: "Import & Replace" }));
+    await user.click(screen.getByRole("button", { name: "Load & Replace" }));
 
-    expect(await screen.findByText("Import Complete")).toBeInTheDocument();
+    expect(await screen.findByText("Styles Loaded")).toBeInTheDocument();
     expect(
-      store.get(importedVertexStylesAtom).get(createVertexType("Person"))
-        ?.color,
+      store.get(sharedVertexStylesAtom).get(createVertexType("Person"))?.color,
     ).toBe("#new");
   });
 
@@ -132,10 +130,10 @@ describe("ImportStylesButton", () => {
       stylingFile({ vertices: { Person: { shape: "blob" } }, edges: {} }),
     );
 
-    expect(await screen.findByText("Import Failed")).toBeInTheDocument();
+    expect(await screen.findByText("Load Failed")).toBeInTheDocument();
     expect(screen.getByText("Person")).toBeInTheDocument();
     // Nothing persisted.
-    expect(store.get(importedVertexStylesAtom).size).toBe(0);
+    expect(store.get(sharedVertexStylesAtom).size).toBe(0);
   });
 
   test("reports when a valid file contains no recognized styles", async () => {
@@ -165,7 +163,7 @@ describe("ImportStylesButton", () => {
       }),
     );
 
-    expect(await screen.findByText("Import Failed")).toBeInTheDocument();
+    expect(await screen.findByText("Load Failed")).toBeInTheDocument();
     expect(
       screen.getByText(/Expected a "styling-export" file/),
     ).toBeInTheDocument();
@@ -180,10 +178,10 @@ describe("ImportStylesButton", () => {
       stylingFile({ vertices: { Person: { color: "#abc" } }, edges: {} }),
     );
 
-    expect(await screen.findByText("Import Complete")).toBeInTheDocument();
+    expect(await screen.findByText("Styles Loaded")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Close" }));
 
-    expect(screen.queryByText("Import Complete")).not.toBeInTheDocument();
+    expect(screen.queryByText("Styles Loaded")).not.toBeInTheDocument();
   });
 });

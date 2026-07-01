@@ -21,10 +21,10 @@ import {
 import { logger } from "@/utils";
 import { saveFile, toJsonFileData } from "@/utils/fileData";
 
-export default function ExportStylesButton() {
+export default function SaveStylesButton() {
   const { getExportPayload } = useExportStylingFile();
 
-  const exportStyles = useMutation({
+  const saveStyles = useMutation({
     mutationFn: async () => {
       const payload = getExportPayload();
       const envelope = createFileEnvelope(
@@ -43,36 +43,36 @@ export default function ExportStylesButton() {
         throw e;
       }
     },
-    onError: error => logger.warn("Export failed", error),
+    onError: error => logger.warn("Save failed", error),
   });
 
   return (
     <>
       <Button
         className="min-w-28"
-        onClick={() => exportStyles.mutate()}
-        disabled={exportStyles.isPending}
+        onClick={() => saveStyles.mutate()}
+        disabled={saveStyles.isPending}
       >
         <DownloadIcon />
-        Export
+        Save
       </Button>
       <AlertDialog
-        open={exportStyles.isError}
-        onOpenChange={o => !o && exportStyles.reset()}
+        open={saveStyles.isError}
+        onOpenChange={o => !o && saveStyles.reset()}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogMedia className="bg-danger-subtle text-danger">
               <TriangleAlertIcon />
             </AlertDialogMedia>
-            <AlertDialogTitle>Export Failed</AlertDialogTitle>
+            <AlertDialogTitle>Save Failed</AlertDialogTitle>
             <AlertDialogDescription>
-              {exportStyles.error?.message ??
+              {saveStyles.error?.message ??
                 "The styles file could not be saved."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => exportStyles.reset()}>
+            <AlertDialogAction onClick={() => saveStyles.reset()}>
               Close
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -15,17 +15,17 @@ import {
   Button,
 } from "@/components";
 import {
-  importedEdgeStylesAtom,
-  importedVertexStylesAtom,
+  sharedEdgeStylesAtom,
+  sharedVertexStylesAtom,
 } from "@/core/StateProvider/storageAtoms";
 
-export default function ResetImportedDefaultsButton() {
-  const setImportedVertexStyles = useSetAtom(importedVertexStylesAtom);
-  const setImportedEdgeStyles = useSetAtom(importedEdgeStylesAtom);
+export default function ResetSharedStylesButton() {
+  const setSharedVertexStyles = useSetAtom(sharedVertexStylesAtom);
+  const setSharedEdgeStyles = useSetAtom(sharedEdgeStylesAtom);
 
-  function resetImportedDefaults() {
-    setImportedVertexStyles(new Map());
-    setImportedEdgeStyles(new Map());
+  function resetSharedStyles() {
+    setSharedVertexStyles(new Map());
+    setSharedEdgeStyles(new Map());
   }
 
   return (
@@ -33,7 +33,7 @@ export default function ResetImportedDefaultsButton() {
       <AlertDialogTrigger asChild>
         <Button variant="danger" className="min-w-28">
           <Trash2Icon />
-          Reset Imported Defaults
+          Reset Shared Styles
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -41,12 +41,12 @@ export default function ResetImportedDefaultsButton() {
           <AlertDialogMedia className="bg-danger-subtle text-danger">
             <Trash2Icon />
           </AlertDialogMedia>
-          <AlertDialogTitle>Reset Imported Defaults</AlertDialogTitle>
+          <AlertDialogTitle>Reset Shared Styles</AlertDialogTitle>
           <AlertDialogDescription>
             <span className="block">
-              This will remove all imported default styles. Your custom styles
-              will remain. You can re-import a file at any time; consider
-              exporting first.
+              This will remove all shared styles. Your custom styles will
+              remain. You can load a file again at any time; consider saving
+              first.
             </span>
             <span className="mbs-4 block">This cannot be undone.</span>
           </AlertDialogDescription>
@@ -55,9 +55,9 @@ export default function ResetImportedDefaultsButton() {
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             variant="primary-danger"
-            onClick={resetImportedDefaults}
+            onClick={resetSharedStyles}
           >
-            Reset Imported Defaults
+            Reset Shared Styles
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

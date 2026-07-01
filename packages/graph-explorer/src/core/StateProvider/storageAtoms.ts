@@ -63,8 +63,8 @@ const [
   schemaAtom,
   userVertexStylesAtom,
   userEdgeStylesAtom,
-  importedVertexStylesAtom,
-  importedEdgeStylesAtom,
+  sharedVertexStylesAtom,
+  sharedEdgeStylesAtom,
   graphViewLayoutAtom,
   allGraphSessionsAtom,
   showDebugActionsAtom,
@@ -100,15 +100,19 @@ const [
     new Map<EdgeType, EdgePreferencesStorageModel>(),
     reconcileMapByKey,
   ),
-  /** Imported default vertex styles, loaded from a styling export file. */
+  /**
+   * Shared vertex styles, loaded from a styling file. The `shared-` prefix marks
+   * the shared layer of the `<layer>-<entity>-styles` set — the fallback beneath
+   * a user's own edits.
+   */
   atomWithLocalForage(
-    "imported-vertex-styles",
+    "shared-vertex-styles",
     new Map<VertexType, VertexPreferencesStorageModel>(),
     reconcileMapByKey,
   ),
-  /** Imported default edge styles, loaded from a styling export file. */
+  /** Shared edge styles, loaded from a styling file. */
   atomWithLocalForage(
-    "imported-edge-styles",
+    "shared-edge-styles",
     new Map<EdgeType, EdgePreferencesStorageModel>(),
     reconcileMapByKey,
   ),
@@ -140,8 +144,8 @@ export {
   schemaAtom,
   userVertexStylesAtom,
   userEdgeStylesAtom,
-  importedVertexStylesAtom,
-  importedEdgeStylesAtom,
+  sharedVertexStylesAtom,
+  sharedEdgeStylesAtom,
   graphViewLayoutAtom,
   allGraphSessionsAtom,
   showDebugActionsAtom,
