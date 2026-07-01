@@ -37,6 +37,11 @@ import {
   StylingParseError,
   useApplyStylingImport,
 } from "@/core/styling";
+import { logger } from "@/utils";
+import {
+  createDisplayError,
+  type DisplayError,
+} from "@/utils/createDisplayError";
 
 /**
  * What the load dialog is showing. `closed` is the resting state — the dialog
@@ -57,7 +62,7 @@ type DialogState =
       parsed: StylingParseResult;
       conflicts: ImportConflicts;
     }
-  | { kind: "failed"; message: string }
+  | { kind: "failed"; error: DisplayError }
   | { kind: "invalid"; issues: ImportIssue[] }
   | { kind: "empty" }
   | { kind: "complete"; vertexCount: number; edgeCount: number };
@@ -127,7 +132,7 @@ export default function LoadStylesButton() {
           />
         );
       case "failed":
-        return <LoadFailedContent error={state.message} />;
+        return <LoadFailedContent error={state.error} />;
       case "invalid":
         return <LoadInvalidContent issues={state.issues} />;
       case "empty":
@@ -183,10 +188,8 @@ function toErrorState(error: unknown): DialogState {
   if (error instanceof StylingParseError) {
     return { kind: "invalid", issues: error.issues };
   }
-  return {
-    kind: "failed",
-    message: error instanceof Error ? error.message : String(error),
-  };
+  logger.error("Load failed", error);
+  return { kind: "failed", error: createDisplayError(error) };
 }
 
 function ConflictContent({
@@ -225,15 +228,15 @@ function ConflictContent({
   );
 }
 
-function LoadFailedContent({ error }: { error: string }) {
+function LoadFailedContent({ error }: { error: DisplayError }) {
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
         <AlertDialogMedia className="bg-danger-subtle text-danger">
           <AlertTriangleIcon />
         </AlertDialogMedia>
-        <AlertDialogTitle>Load Failed</AlertDialogTitle>
-        <AlertDialogDescription>{error}</AlertDialogDescription>
+        <AlertDialogTitle>{error.title}</AlertDialogTitle>
+        <AlertDialogDescription>{error.message}</AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogAction>Close</AlertDialogAction>

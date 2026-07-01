@@ -166,7 +166,7 @@ describe("LoadStylesButton", () => {
       }),
     );
 
-    expect(await screen.findByText("Load Failed")).toBeInTheDocument();
+    expect(await screen.findByText("Invalid file")).toBeInTheDocument();
     expect(
       screen.getByText(/Expected a "styling-export" file/),
     ).toBeInTheDocument();
