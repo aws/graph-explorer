@@ -15,28 +15,28 @@ The Styles settings page lets you manage your styling configuration — the colo
 Graph Explorer uses a three-layer cascade to determine how each type looks:
 
 1. **Custom styles** (highest priority) — per-type edits you make in the style dialogs
-2. **Imported defaults** — loaded from a file via this settings page
+2. **Shared styles** — loaded from a file via this settings page
 3. **App defaults** — the built-in fallback styles
 
-When you customize a type in the style dialog, that change only affects your custom layer. Imported defaults fill in where you haven't customized.
+When you customize a type in the style dialog, that change only affects your custom layer. Shared styles fill in where you haven't customized.
 
-### Export styles
+### Save styles to share
 
-Saves your current effective styles (custom + imported, merged) to `graph-explorer-styles.json`. Re-importing this file on another machine or browser reproduces your full visual configuration.
+Saves your current effective styles (custom and shared, merged) to `graph-explorer.styles.json`. Loading this file on another machine or browser reproduces your full visual configuration.
 
-### Import default styles
+### Load shared styles
 
-Loads a styling file and merges it into your imported defaults. Your custom styles are not affected — they continue to take priority. If there are no conflicts the file is applied immediately; if the file contains types that already have imported defaults, you'll see a confirmation listing the types that will be replaced before anything changes. Types not in the file are left unchanged.
+Loads a styling file and merges it into your shared styles. Your custom styles are not affected — they continue to take priority. If there are no conflicts the file is applied immediately; if the file contains types that already have shared styles, you'll see a confirmation listing the types that will be replaced before anything changes. Types not in the file are left unchanged. The page shows an indicator of how many types currently have shared styles.
 
-Import is all-or-nothing: if the file contains any invalid value, nothing is imported and you'll see a report listing every offending type and field so you can fix the file and re-import. Icons must be Lucide references (`lucide:<name>`) or base64-encoded data URIs; remote URLs are rejected. Unrecognized or extra fields are ignored silently (this is how a file from a newer version still imports), so a file whose entries contain only unrecognized fields imports nothing and reports that no styles were found.
+Loading is all-or-nothing: if the file contains any invalid value, nothing is loaded and you'll see a report listing every offending type and field so you can fix the file and load it again. Icons must be Lucide references (`lucide:<name>`) or base64-encoded data URIs; remote URLs are rejected. Unrecognized or extra fields are ignored silently (this is how a file from a newer version still loads), so a file whose entries contain only unrecognized fields loads nothing and reports that no styles were found.
 
 ### Reset custom styles
 
-Clears all your per-type style customizations. After this, types will show their imported defaults (if any) or the app defaults. This cannot be undone — consider exporting first.
+Clears all your per-type style customizations. After this, types will show their shared styles (if any) or the app defaults. This cannot be undone — consider saving first.
 
-### Reset imported defaults
+### Reset shared styles
 
-Removes all imported default styles. Your custom styles remain unaffected. The page shows an indicator of how many types currently have imported defaults loaded.
+Removes all shared styles. Your custom styles remain unaffected.
 
 ## About
 
