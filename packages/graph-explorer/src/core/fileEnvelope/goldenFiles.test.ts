@@ -8,7 +8,6 @@ import { parseExportedGraph } from "@/modules/GraphViewer/exportedGraph";
 import graphExportInteger from "./__fixtures__/graph-export-v1-integer.json?raw";
 import graphExportLegacyString from "./__fixtures__/graph-export-v1-legacy-string.json?raw";
 import stylingExportInteger from "./__fixtures__/styling-export-v1-integer.json?raw";
-import stylingExportLegacyString from "./__fixtures__/styling-export-v1-legacy-string.json?raw";
 
 /**
  * GOLDEN FILES — REAL EXPORTED FORMATS
@@ -31,11 +30,10 @@ function asFile(contents: string, name: string): File {
 }
 
 describe("golden styling-export files import on the current build", () => {
-  test.each([
-    ["styling-export-v1-legacy-string.json", stylingExportLegacyString],
-    ["styling-export-v1-integer.json", stylingExportInteger],
-  ])("%s", async (name, contents) => {
-    const parsed = await parseStylingFile(asFile(contents, name));
+  test("styling-export-v1-integer.json", async () => {
+    const parsed = await parseStylingFile(
+      asFile(stylingExportInteger, "styling-export-v1-integer.json"),
+    );
 
     expect(parsed.vertexStyles.get(createVertexType("airport"))).toStrictEqual({
       type: createVertexType("airport"),

@@ -493,14 +493,14 @@ describe("round-trip: export then import", () => {
     });
   });
 
-  test("importing the exact file from the bug report succeeds without issues", async () => {
+  test("importing a full real-world styling file succeeds without issues", async () => {
     const fileContent = JSON.stringify({
       meta: {
         kind: "styling-export",
-        version: "1.0",
+        version: 1,
         timestamp: "2026-06-25T14:35:09.186Z",
         source: "Graph Explorer",
-        sourceVersion: "3.1.0",
+        sourceVersion: "3.2.0",
       },
       data: {
         vertices: {

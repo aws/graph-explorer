@@ -201,7 +201,7 @@ describe("styling import", () => {
         version: "1.0",
         timestamp: "2026-01-01T00:00:00Z",
         source: "Graph Explorer",
-        sourceVersion: "3.0.0",
+        sourceVersion: "3.2.0",
       },
       data: { vertices: {}, edges: {} },
     };
@@ -363,10 +363,10 @@ function createStylingFile(data: {
   const envelope = {
     meta: {
       kind: "styling-export",
-      version: "1.0",
+      version: 1,
       timestamp: "2026-06-24T00:00:00.000Z",
       source: "Graph Explorer",
-      sourceVersion: "3.0.0",
+      sourceVersion: "3.2.0",
     },
     data,
   };
