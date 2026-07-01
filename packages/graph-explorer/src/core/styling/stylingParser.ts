@@ -91,6 +91,10 @@ const safeIconValue = z
   .string()
   .regex(
     /^(lucide:[a-z0-9-]+|data:image\/(svg\+xml|png|jpeg|gif|webp);base64,)/,
+    {
+      error:
+        "value does not match the allowlist (lucide:<name> or data:image/*;base64,)",
+    },
   );
 
 const imageType = z.enum([
@@ -203,11 +207,9 @@ const stylingPayloadSchema = z.object({
  * stripped silently and entries with no recognized fields are dropped.
  */
 export function parseStylingPayload(rawData: unknown): StylingParseResult {
-  const result = stylingPayloadSchema.safeParse(rawData);
+  const result = stylingPayloadSchema.safeParse(rawData, { reportInput: true });
   if (!result.success) {
-    throw new StylingParseError(
-      result.error.issues.map(issue => toImportIssue(issue, rawData)),
-    );
+    throw new StylingParseError(result.error.issues.map(toImportIssue));
   }
   return {
     vertexStyles: toStyleMap(result.data.vertices),
@@ -260,12 +262,14 @@ function toStyleMap<Type extends string, Fields extends object>(
  * Maps a Zod issue to an {@link ImportIssue}, classifying by path depth. A
  * field failure has the full `vertices`/`edges` → type → field shape; a
  * malformed entry stops at the type (reported with `field: "(entry)"`); a bad
- * top-level container is a general, file-level issue.
+ * top-level container is a general, file-level issue. The rejected `value` and
+ * human `message` come straight from Zod — `reportInput` populates `input`, and
+ * Zod's default messages (or a schema-level `error`) already read well.
  */
-function toImportIssue(issue: z.core.$ZodIssue, rawData: unknown): ImportIssue {
+function toImportIssue(issue: z.core.$ZodIssue): ImportIssue {
   const [section, typeName, ...fieldPath] = issue.path;
-  const value = readValueAtPath(rawData, issue.path);
-  const message = describeZodIssue(issue);
+  const value = issue.input;
+  const message = issue.message;
 
   if (section !== "vertices" && section !== "edges") {
     return { scope: "general", location: "(file)", value, message };
@@ -281,32 +285,4 @@ function toImportIssue(issue: z.core.$ZodIssue, rawData: unknown): ImportIssue {
     value,
     message,
   };
-}
-
-/** Reads the value the failing Zod issue points at, for display in the report. */
-function readValueAtPath(
-  entry: unknown,
-  path: PropertyKey[] | undefined,
-): unknown {
-  if (!path || path.length === 0) {
-    return entry;
-  }
-  let current: unknown = entry;
-  for (const key of path) {
-    if (typeof current !== "object" || current === null) {
-      return undefined;
-    }
-    current = (current as Record<PropertyKey, unknown>)[key];
-  }
-  return current;
-}
-
-function describeZodIssue(issue: z.core.$ZodIssue | undefined): string {
-  if (!issue) return "invalid value";
-  if (issue.code === "invalid_value") return "value is not a valid option";
-  if (issue.code === "invalid_type") return `expected ${issue.expected}`;
-  if (issue.code === "invalid_format") {
-    return "value does not match the allowlist (lucide:<name> or data:image/*;base64,)";
-  }
-  return "invalid value";
 }

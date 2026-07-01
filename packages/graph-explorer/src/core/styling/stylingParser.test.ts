@@ -72,12 +72,15 @@ describe("style enum validation", () => {
     expect(result.vertexStyles.get(createVertexType("A"))!.shape).toBe(shape);
   });
 
-  test("rejects an unknown shape", () => {
+  test("rejects an unknown shape, listing the valid options", () => {
     const issues = parseExpectingIssues({
       vertices: { A: { shape: "blob" } },
       edges: {},
     });
     expect(issues[0]).toMatchObject({ scope: "entry", field: "shape" });
+    // Zod's default enum message enumerates the accepted values, which is more
+    // useful to the user than a generic "not a valid option".
+    expect(issues[0].message).toContain("ellipse");
   });
 
   test.each(LINE_STYLES)("accepts border line style %s", borderStyle => {
@@ -147,7 +150,8 @@ describe("parseStylingPayload", () => {
       typeName: "A",
       field: "(entry)",
       value: 42,
-      message: expect.any(String),
+      // Zod's default type message names both the expected and received types.
+      message: expect.stringContaining("received number"),
     });
   });
 
