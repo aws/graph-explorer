@@ -32,7 +32,7 @@ The icon field (named `icon` in the file format, mapped to `iconUrl` at the stor
 
 Any other value (bare names, `javascript:`, relative paths, **and `http(s)://` URLs**) fails validation, which rejects the whole file and reports one issue against that field. Remote URLs are intentionally rejected: importing a file should never cause the app to issue outbound requests to a host chosen by the file's author. Only `icon` is accepted as an input field — `iconUrl` (the storage-model name) is not a known field, so a file supplying it has that key stripped silently and it never reaches storage.
 
-`iconImageType` is constrained to known image MIME types: `image/svg+xml`, `image/png`, `image/jpeg`, `image/gif`, `image/webp`. An unknown value fails validation and rejects the file.
+`iconImageType` is **not** a security boundary and is stored as a loose `string`, mirroring the storage model. It is descriptive metadata: the only consumer that reads it (`VertexIcon` / `renderNode`) does an exact match on `"image/svg+xml"` to decide whether to render through the inline-SVG path (which is DOMPurify-sanitized) versus the `<img>`/raster path. Any other value simply takes the safer raster path, so constraining the field would not remove an XSS vector — the icon **data** is what matters, and that is guarded by the `icon` allowlist above. It is left unconstrained so that an icon uploaded with any browser-reported MIME type (the upload seam fills it from `file.type`) round-trips through export and re-import instead of rejecting the whole file.
 
 ### Whole-file (atomic) parser contract
 

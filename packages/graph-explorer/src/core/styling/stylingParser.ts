@@ -98,22 +98,6 @@ const safeIconValue = z
   );
 
 /**
- * Allowlisted icon MIME types. Constraining `iconImageType` to known image
- * types is a defense-in-depth control from a security review (ADR
- * `styling-file-format-and-salvaging-import`): the value gates whether an icon
- * renders through the inline-SVG sink (`iconImageType === "image/svg+xml"`), so
- * the format refuses to store an unknown type rather than trust a value from an
- * untrusted file. An unknown value rejects the file like any other bad field.
- */
-const imageType = z.enum([
-  "image/svg+xml",
-  "image/png",
-  "image/jpeg",
-  "image/gif",
-  "image/webp",
-]);
-
-/**
  * One vertex entry. Unknown fields are stripped (Zod's default), so a file with
  * extra keys imports without error and without storing them — in particular an
  * injected `iconUrl` is dropped, never bypassing the `icon` allowlist. The
@@ -123,7 +107,14 @@ const imageType = z.enum([
 const vertexEntrySchema = z
   .object({
     icon: safeIconValue.optional(),
-    iconImageType: imageType.optional(),
+    // Loose `string`, matching storage. The upload seam fills this from the
+    // browser's `file.type` (any `image/*` the OS reports), so a fixed enum
+    // would reject valid uploads on round-trip. It is not a security boundary:
+    // the icon data is guarded by `safeIconValue`, and the only consumer that
+    // reads this field does an exact match on `"image/svg+xml"` to choose the
+    // inline-SVG render path — which is DOMPurify-sanitized — so any other
+    // value simply takes the safer `<img>`/raster path.
+    iconImageType: z.string().optional(),
     color: z.string().optional(),
     displayLabel: z.string().optional(),
     displayNameAttribute: z.string().optional(),
@@ -175,22 +166,10 @@ export type StylingExportPayload = {
 export function toVertexFileEntry(
   model: VertexPreferencesStorageModel,
 ): VertexStyleFileEntry {
-  const { type: _type, iconUrl, iconImageType, ...rest } = model;
-  const entry: VertexStyleFileEntry = { ...rest };
-  // The file format uses `icon`; storage uses `iconUrl`. This rename is the only
-  // structural transformation on the way out.
-  if (iconUrl !== undefined) {
-    entry.icon = iconUrl;
-  }
-  // Storage types `iconImageType` as a loose `string`; the file format narrows
-  // it to the MIME enum as a security control (see `imageType`). Export trusts
-  // the stored value — it is set from the upload seam's `file.type` — but TS
-  // cannot prove it is an enum member, so this one field is asserted.
-  if (iconImageType !== undefined) {
-    entry.iconImageType =
-      iconImageType as VertexStyleFileEntry["iconImageType"];
-  }
-  return entry;
+  const { type: _type, iconUrl, ...rest } = model;
+  // The file format uses `icon`; storage uses `iconUrl`. Every other field maps
+  // straight across, so this rename is the only transformation on the way out.
+  return iconUrl !== undefined ? { ...rest, icon: iconUrl } : rest;
 }
 
 export function toEdgeFileEntry(

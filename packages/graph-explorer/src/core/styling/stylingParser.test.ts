@@ -409,17 +409,18 @@ describe("parseStylingPayload", () => {
     });
   });
 
-  describe("iconImageType validation", () => {
-    // Constrained to known image MIME types as a security control: the value
-    // gates the inline-SVG render sink, so an untrusted file cannot supply an
-    // arbitrary type. See the styling-file-format ADR.
+  describe("iconImageType", () => {
+    // Mirrors storage's loose `string`: the upload seam fills it from the
+    // browser's `file.type`, which can be any `image/*` the OS reports, so any
+    // string is preserved rather than rejected against a fixed list. It is not a
+    // security boundary — see the styling-file-format ADR.
     test.each([
       "image/svg+xml",
       "image/png",
-      "image/jpeg",
-      "image/gif",
-      "image/webp",
-    ])("accepts the known MIME type %s", mime => {
+      "image/bmp",
+      "image/avif",
+      "image/x-icon",
+    ])("preserves the stored MIME type %s", mime => {
       const result = parseStylingPayload({
         vertices: { A: { iconImageType: mime } },
         edges: {},
@@ -427,20 +428,6 @@ describe("parseStylingPayload", () => {
       expect(
         result.vertexStyles.get(createVertexType("A"))!.iconImageType,
       ).toBe(mime);
-    });
-
-    test("rejects an unknown MIME type", () => {
-      const issues = parseExpectingIssues({
-        vertices: { A: { iconImageType: "text/html" } },
-        edges: {},
-      });
-      expect(issues[0]).toMatchObject({
-        scope: "entry",
-        entityType: "vertex",
-        typeName: "A",
-        field: "iconImageType",
-        value: "text/html",
-      });
     });
   });
 

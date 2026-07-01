@@ -321,6 +321,56 @@ describe("round-trip: export then import", () => {
     });
   });
 
+  test("an iconImageType outside the common set survives round-trip", async () => {
+    // The upload seam stores `iconImageType` from the browser's `file.type`,
+    // which can be any `image/*` the OS reports (e.g. BMP). The field is not
+    // constrained to a fixed list, so such a value round-trips instead of
+    // rejecting the whole file on re-import. The icon data itself still passes
+    // `safeIconValue` (a PNG data URI here); `iconImageType` is metadata.
+    const pngDataUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB";
+
+    const store = getAppStore();
+    store.set(
+      userVertexStylesAtom,
+      new Map<VertexType, VertexPreferencesStorageModel>([
+        [
+          createVertexType("BmpNode"),
+          {
+            type: createVertexType("BmpNode"),
+            iconUrl: pngDataUri,
+            iconImageType: "image/bmp",
+            color: "#444",
+          },
+        ],
+      ]),
+    );
+
+    const { result: exportResult } = renderHookWithJotai(() =>
+      useExportStylingFile(),
+    );
+    const payload = exportResult.current.getExportPayload();
+
+    expect(payload.vertices["BmpNode"].iconImageType).toBe("image/bmp");
+
+    const file = envelopeToFile(payload);
+    store.set(userVertexStylesAtom, new Map());
+
+    const { result: importResult } = renderHookWithJotai(() =>
+      useApplyStylingImport(),
+    );
+    const parseOut = await parseStylingFile(file);
+
+    importResult.current(parseOut);
+
+    const shared = store.get(sharedVertexStylesAtom);
+    expect(shared.get(createVertexType("BmpNode"))).toStrictEqual({
+      type: createVertexType("BmpNode"),
+      iconUrl: pngDataUri,
+      iconImageType: "image/bmp",
+      color: "#444",
+    });
+  });
+
   test("HTTP/HTTPS URL icons reject the whole import (no outbound requests)", async () => {
     const httpsUrl = "https://cdn.example.com/icons/airport.png";
     const httpUrl = "http://internal.corp/icon.svg";
