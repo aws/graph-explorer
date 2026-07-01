@@ -22,8 +22,16 @@ export async function fromFileToJson(blob: Blob) {
  *
  * If the browser does not support the native file save dialog, it will fall back
  * to using the `file-saver` library.
+ *
+ * `description` labels the file type in the native save picker (e.g. "Graph
+ * Explorer styles"), helping the user recognize what they are saving. It has no
+ * effect on the `file-saver` fallback, which cannot set a picker label.
  */
-export async function saveFile(file: Blob, defaultFileName: string) {
+export async function saveFile(
+  file: Blob,
+  defaultFileName: string,
+  description = "JSON",
+) {
   if (!("showSaveFilePicker" in window)) {
     saveAs(file, defaultFileName);
     return;
@@ -33,7 +41,7 @@ export async function saveFile(file: Blob, defaultFileName: string) {
     suggestedName: defaultFileName,
     types: [
       {
-        description: "JSON",
+        description,
         accept: { "application/json": [".json"] },
       },
     ],

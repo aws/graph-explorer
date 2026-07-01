@@ -490,7 +490,7 @@ describe("round-trip: export then import", () => {
       },
     });
 
-    const file = new File([fileContent], "graph-explorer-styles.json", {
+    const file = new File([fileContent], "graph-explorer.styles.json", {
       type: "application/json",
     });
 

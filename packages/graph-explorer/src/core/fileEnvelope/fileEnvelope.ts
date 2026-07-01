@@ -69,6 +69,17 @@ export class FileEnvelopeError extends Error {
   }
 }
 
+/**
+ * Filename convention for saved Graph Explorer documents: `<name>.<type>.json`,
+ * e.g. `graph-explorer.styles.json`, `graph-explorer.config.json`,
+ * `<connection>.connection.json`, `<connection>.<timestamp>.graph.json`. The
+ * `.<type>.` segment makes files self-describing so a human can tell them apart
+ * in an OS file dialog — where every kind otherwise shows as a generic `.json`.
+ *
+ * It is a naming convention only: loads validate by content (the envelope
+ * `kind` here, or a backup's structure), never by filename, so a renamed file
+ * still loads and files saved before this convention are unaffected.
+ */
 export function createFileEnvelope<T>(
   kind: string,
   version: number,

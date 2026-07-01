@@ -34,7 +34,11 @@ export default function SaveStylesButton() {
       );
       const blob = toJsonFileData(envelope);
       try {
-        await saveFile(blob, "graph-explorer-styles.json");
+        await saveFile(
+          blob,
+          "graph-explorer.styles.json",
+          "Graph Explorer styles",
+        );
       } catch (e: unknown) {
         // The user dismissing the save picker is a cancel, not a failure.
         if (e instanceof Error && e.name === "AbortError") {
