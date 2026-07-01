@@ -407,6 +407,14 @@ describe("parseStylingPayload", () => {
       });
       expect(issues[0]).toMatchObject({ scope: "entry", field: "icon" });
     });
+
+    test("rejects trailing junk after an otherwise-valid lucide name", () => {
+      const issues = parseExpectingIssues({
+        vertices: { A: { icon: 'lucide:arrow-right"><script>' } },
+        edges: {},
+      });
+      expect(issues[0]).toMatchObject({ scope: "entry", field: "icon" });
+    });
   });
 
   describe("iconImageType", () => {

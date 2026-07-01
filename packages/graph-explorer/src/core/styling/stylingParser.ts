@@ -90,7 +90,7 @@ export class StylingParseError extends Error {
 const safeIconValue = z
   .string()
   .regex(
-    /^(lucide:[a-z0-9-]+|data:image\/(svg\+xml|png|jpeg|gif|webp);base64,)/,
+    /^(lucide:[a-z0-9-]+$|data:image\/(svg\+xml|png|jpeg|gif|webp);base64,)/,
     {
       error:
         "value does not match the allowlist (lucide:<name> or data:image/*;base64,)",
