@@ -170,4 +170,20 @@ describe("ImportStylesButton", () => {
       screen.getByText(/Expected a "styling-export" file/),
     ).toBeInTheDocument();
   });
+
+  test("closes the dialog when the result is dismissed", async () => {
+    const user = userEvent.setup();
+    renderButton();
+
+    await user.upload(
+      fileInput(),
+      stylingFile({ vertices: { Person: { color: "#abc" } }, edges: {} }),
+    );
+
+    expect(await screen.findByText("Import Complete")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Close" }));
+
+    expect(screen.queryByText("Import Complete")).not.toBeInTheDocument();
+  });
 });
