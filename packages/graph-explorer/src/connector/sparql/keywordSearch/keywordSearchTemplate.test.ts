@@ -305,4 +305,106 @@ describe("SPARQL > keywordSearchTemplate", () => {
       `),
     );
   });
+
+  it("Should return a case-insensitive template for partial match", () => {
+    const template = keywordSearchTemplate({
+      subjectClasses: ["air:airport"],
+      searchTerm: "JFK",
+      predicates: ["air:city"],
+      exactMatch: false,
+      caseInsensitive: true,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
+              FILTER (?pValue IN (<air:city>))
+              FILTER (?class IN (<air:airport>))
+              FILTER (regex(str(?value), "JFK", "i"))
+            }
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
+        }
+      `),
+    );
+  });
+
+  it("Should return a case-insensitive template for exact match", () => {
+    const template = keywordSearchTemplate({
+      subjectClasses: ["air:airport"],
+      searchTerm: "JFK",
+      predicates: ["air:city"],
+      exactMatch: true,
+      caseInsensitive: true,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
+              FILTER (?pValue IN (<air:city>))
+              FILTER (?class IN (<air:airport>))
+              FILTER (lcase(str(?value)) = lcase("JFK"))
+            }
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
+        }
+      `),
+    );
+  });
+
+  it("Should keep partial match case-insensitive even when caseInsensitive is false", () => {
+    const template = keywordSearchTemplate({
+      subjectClasses: ["air:airport"],
+      searchTerm: "JFK",
+      predicates: ["air:city"],
+      exactMatch: false,
+      caseInsensitive: false,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
+              FILTER (?pValue IN (<air:city>))
+              FILTER (?class IN (<air:airport>))
+              FILTER (regex(str(?value), "JFK", "i"))
+            }
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
+        }
+      `),
+    );
+  });
 });

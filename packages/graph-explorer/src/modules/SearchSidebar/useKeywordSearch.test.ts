@@ -49,6 +49,15 @@ describe("useKeywordSearch", () => {
       expect(result.current.partialMatch).toBe(false);
     });
 
+    it("Should default to case insensitive off", () => {
+      const { result } = renderHookWithJotai(
+        () => useKeywordSearch(),
+        initializeConfigWithQueryEngine("gremlin"),
+      );
+
+      expect(result.current.caseInsensitive).toBe(false);
+    });
+
     it("Should default to attribute ID", () => {
       const { result } = renderHookWithJotai(
         () => useKeywordSearch(),
@@ -90,6 +99,15 @@ describe("useKeywordSearch", () => {
       );
 
       expect(result.current.partialMatch).toBe(false);
+    });
+
+    it("Should default to case insensitive off", () => {
+      const { result } = renderHookWithJotai(
+        () => useKeywordSearch(),
+        initializeConfigWithQueryEngine("openCypher"),
+      );
+
+      expect(result.current.caseInsensitive).toBe(false);
     });
 
     it("Should default to attribute ID", () => {
@@ -150,6 +168,15 @@ describe("useKeywordSearch", () => {
       );
 
       expect(result.current.partialMatch).toBe(false);
+    });
+
+    it("Should default to case insensitive off", () => {
+      const { result } = renderHookWithJotai(
+        () => useKeywordSearch(),
+        initializeConfigWithRdfLabel,
+      );
+
+      expect(result.current.caseInsensitive).toBe(false);
     });
 
     it("Should default to attribute rdfs:label", () => {

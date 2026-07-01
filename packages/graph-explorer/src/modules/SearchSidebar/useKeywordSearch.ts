@@ -23,7 +23,7 @@ export const selectedAttributeAtom = atomWithReset<string>(
   SEARCH_TOKENS.NODE_ID,
 );
 export const partialMatchAtom = atomWithReset(false);
-
+export const caseInsensitiveAtom = atomWithReset(false);
 /** Gets all the searchable attributes for the selected vertex type */
 function useAttributeOptions(selectedVertexType: string) {
   const allSearchableAttributes = useSearchableAttributes(selectedVertexType);
@@ -65,6 +65,7 @@ export default function useKeywordSearch() {
     selectedAttributeAtom,
   );
   const [partialMatch, setPartialMatch] = useAtom(partialMatchAtom);
+  const [caseInsensitive, setCaseInsensitive] = useAtom(caseInsensitiveAtom);
 
   const exactMatchOptions = [
     { label: "Exact", value: "Exact" },
@@ -103,7 +104,7 @@ export default function useKeywordSearch() {
     setSelectedAttribute(value);
 
   const onPartialMatchChange = (value: boolean) => setPartialMatch(value);
-
+  const onCaseInsensitiveChange = (value: boolean) => setCaseInsensitive(value);
   const attributes =
     safeSelectedAttribute === SEARCH_TOKENS.ALL_ATTRIBUTES
       ? attributesOptions
@@ -130,6 +131,7 @@ export default function useKeywordSearch() {
     vertexTypes,
     searchByAttributes,
     exactMatch: !partialMatch,
+    caseInsensitive,
   });
 
   return {
@@ -147,5 +149,7 @@ export default function useKeywordSearch() {
     partialMatch,
     exactMatchOptions,
     onPartialMatchChange,
+    caseInsensitive,
+    onCaseInsensitiveChange,
   };
 }
