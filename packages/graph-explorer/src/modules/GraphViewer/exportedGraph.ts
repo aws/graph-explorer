@@ -99,8 +99,8 @@ export function parseGraphExportPayloadForVersion(
 }
 
 /**
- * Reads a graph export file: validates the shared envelope (kind + major
- * version), then the graph payload, then sanitizes the entity ids. Throws
+ * Reads a graph export file: validates the shared envelope (kind + format
+ * generation), then the graph payload, then sanitizes the entity ids. Throws
  * {@link FileEnvelopeError} for a non-graph or too-new file and {@link ZodError}
  * for a malformed payload.
  */
