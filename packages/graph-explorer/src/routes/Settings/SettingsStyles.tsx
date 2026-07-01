@@ -48,7 +48,7 @@ export default function SettingsStyles() {
         <GroupItem>
           <LabelledSetting
             label="Save styles to share"
-            description="Save your current node and edge styling to a file. Share it with others or load it on another machine to get the same look."
+            description="Save your current node and edge styling to a file, including any shared styles you've loaded. Share it with others or load it on another machine to get the same look."
           >
             <SaveStylesButton />
           </LabelledSetting>
