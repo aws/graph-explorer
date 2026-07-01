@@ -1,7 +1,6 @@
-import { useMutation } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { AlertTriangleIcon, CheckCircleIcon, UploadIcon } from "lucide-react";
-import { useState } from "react";
+import { useActionState } from "react";
 
 import type {
   EntryImportIssue,
@@ -40,11 +39,10 @@ import {
 } from "@/core/styling";
 
 /**
- * What the import dialog is showing, derived each render from the parse mutation
- * plus whether a conflicting overwrite has been confirmed. `null` means the
- * dialog is closed. Confirming a conflict advances the phase in place
- * (`conflicts` → terminal) without closing the dialog, so the result replaces
- * the prompt seamlessly.
+ * What the import dialog is showing. `closed` is the resting state — the dialog
+ * is hidden. Confirming a conflict advances the state in place (`conflicts` →
+ * terminal) without closing the dialog, so the result replaces the prompt
+ * seamlessly.
  *
  * Import is atomic: a file with any invalid value never reaches `conflicts` or a
  * terminal state — it surfaces as `invalid` with the full list of offending
@@ -52,7 +50,8 @@ import {
  * new), which are a single message with no per-field detail. A structurally
  * valid file that carries no recognized styles lands on `empty`, not `complete`.
  */
-type Phase =
+type DialogState =
+  | { kind: "closed" }
   | {
       kind: "conflicts";
       parsed: StylingParseResult;
@@ -63,69 +62,84 @@ type Phase =
   | { kind: "empty" }
   | { kind: "complete"; vertexCount: number; edgeCount: number };
 
+type ImportAction =
+  | { type: "submitFile"; file: File }
+  | { type: "confirmConflicts" }
+  | { type: "dismiss" };
+
 export default function ImportStylesButton() {
   const applyImport = useApplyStylingImport();
   const importedVertexStyles = useAtomValue(importedVertexStylesAtom);
   const importedEdgeStyles = useAtomValue(importedEdgeStylesAtom);
 
-  // Whether the user has confirmed overwriting conflicting imported defaults.
-  // Only meaningful on the conflict path; the no-conflict path applies in
-  // `onSuccess` and derives its terminal phase straight from the parse result.
-  const [confirmed, setConfirmed] = useState(false);
+  // The action is a reducer that may await and perform the import side effect,
+  // since it runs as an event rather than as a pure reducer. React tracks
+  // `isPending` across the await, so there is no manual async state to keep in
+  // sync — `state` is the single source of truth for what the dialog shows.
+  async function runImport(
+    state: DialogState,
+    action: ImportAction,
+  ): Promise<DialogState> {
+    switch (action.type) {
+      case "submitFile":
+        try {
+          const parsed = await parseStylingFile(action.file);
+          const conflicts = getStylingConflicts(
+            parsed,
+            importedVertexStyles,
+            importedEdgeStyles,
+          );
+          // Conflicts must be confirmed before overwriting; otherwise apply now.
+          if (hasConflicts(conflicts)) {
+            return { kind: "conflicts", parsed, conflicts };
+          }
+          applyImport(parsed);
+          return terminalState(parsed);
+        } catch (error) {
+          // Expected failures become state, not throws — an uncaught throw would
+          // escape to the nearest error boundary instead of the dialog.
+          return toErrorState(error);
+        }
+      // Confirming the overwrite advances the same parsed file to its terminal
+      // outcome in place. This transition replaces the old `confirmed` flag.
+      case "confirmConflicts":
+        if (state.kind !== "conflicts") {
+          return state;
+        }
+        applyImport(state.parsed);
+        return terminalState(state.parsed);
+      case "dismiss":
+        return { kind: "closed" };
+    }
+  }
 
-  const parse = useMutation({
-    mutationFn: async (file: File) => {
-      const parsed = await parseStylingFile(file);
-      const conflicts = getStylingConflicts(
-        parsed,
-        importedVertexStyles,
-        importedEdgeStyles,
-      );
-      return { parsed, conflicts };
-    },
-    onSuccess: ({ parsed, conflicts }) => {
-      // No conflicts → apply immediately. Otherwise wait for confirmation.
-      if (conflicts.vertices.length + conflicts.edges.length === 0) {
-        applyImport(parsed);
-      }
-    },
+  const [state, dispatch, isPending] = useActionState(runImport, {
+    kind: "closed",
   });
 
-  function reset() {
-    parse.reset();
-    setConfirmed(false);
-  }
-
-  const phase = derivePhase(parse.data, parse.error, confirmed);
-
-  function confirmConflicts(parsed: StylingParseResult) {
-    applyImport(parsed);
-    setConfirmed(true);
-  }
-
-  function renderPhase() {
-    switch (phase?.kind) {
+  function renderState() {
+    switch (state.kind) {
       case "conflicts":
         return (
           <ConflictContent
-            conflicts={phase.conflicts}
-            onConfirm={() => confirmConflicts(phase.parsed)}
+            conflicts={state.conflicts}
+            onConfirm={() => dispatch({ type: "confirmConflicts" })}
           />
         );
       case "failed":
-        return <ImportFailedContent error={phase.message} />;
+        return <ImportFailedContent error={state.message} />;
       case "invalid":
-        return <ImportInvalidContent issues={phase.issues} />;
+        return <ImportInvalidContent issues={state.issues} />;
       case "empty":
         return <ImportEmptyContent />;
       case "complete":
         return (
           <ImportCompleteContent
-            vertexCount={phase.vertexCount}
-            edgeCount={phase.edgeCount}
+            vertexCount={state.vertexCount}
+            edgeCount={state.edgeCount}
           />
         );
-      case undefined:
+      case "closed":
         return null;
     }
   }
@@ -133,53 +147,46 @@ export default function ImportStylesButton() {
   return (
     <>
       <FileButton
-        onChange={file => file && parse.mutate(file)}
+        onChange={file => file && dispatch({ type: "submitFile", file })}
         accept=".json"
         asChild
       >
-        <Button className="min-w-28" disabled={parse.isPending}>
+        <Button className="min-w-28" disabled={isPending}>
           <UploadIcon />
           Import
         </Button>
       </FileButton>
 
-      <AlertDialog open={phase !== null} onOpenChange={o => !o && reset()}>
-        {renderPhase()}
+      <AlertDialog
+        open={state.kind !== "closed"}
+        onOpenChange={o => !o && dispatch({ type: "dismiss" })}
+      >
+        {renderState()}
       </AlertDialog>
     </>
   );
 }
 
-function derivePhase(
-  result:
-    | { parsed: StylingParseResult; conflicts: ImportConflicts }
-    | undefined,
-  error: Error | null,
-  confirmed: boolean,
-): Phase | null {
-  if (error) {
-    return error instanceof StylingParseError
-      ? { kind: "invalid", issues: error.issues }
-      : { kind: "failed", message: error.message };
-  }
-  if (!result) {
-    return null;
-  }
-  const { parsed, conflicts } = result;
+function hasConflicts(conflicts: ImportConflicts): boolean {
+  return conflicts.vertices.length + conflicts.edges.length > 0;
+}
 
-  // Conflicts that haven't been confirmed yet: prompt before overwriting.
-  const hasConflicts = conflicts.vertices.length + conflicts.edges.length > 0;
-  if (hasConflicts && !confirmed) {
-    return { kind: "conflicts", parsed, conflicts };
-  }
-
-  // Terminal state — the file has been (or will be, in onSuccess) applied. The
-  // outcome follows straight from what the file carried, not a separate flag.
+function terminalState(parsed: StylingParseResult): DialogState {
   const vertexCount = parsed.vertexStyles.size;
   const edgeCount = parsed.edgeStyles.size;
   return vertexCount + edgeCount === 0
     ? { kind: "empty" }
     : { kind: "complete", vertexCount, edgeCount };
+}
+
+function toErrorState(error: unknown): DialogState {
+  if (error instanceof StylingParseError) {
+    return { kind: "invalid", issues: error.issues };
+  }
+  return {
+    kind: "failed",
+    message: error instanceof Error ? error.message : String(error),
+  };
 }
 
 function ConflictContent({
