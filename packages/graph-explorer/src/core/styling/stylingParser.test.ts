@@ -409,38 +409,24 @@ describe("parseStylingPayload", () => {
     });
   });
 
-  describe("iconImageType validation", () => {
-    test("accepts known MIME types", () => {
-      for (const mime of [
-        "image/svg+xml",
-        "image/png",
-        "image/jpeg",
-        "image/gif",
-        "image/webp",
-      ]) {
-        const result = parseStylingPayload({
-          vertices: { A: { iconImageType: mime } },
-          edges: {},
-        });
-        expect(
-          result.vertexStyles.get(createVertexType("A"))!.iconImageType,
-        ).toBe(mime);
-      }
-    });
-
-    test("rejects unknown MIME types", () => {
-      const issues = parseExpectingIssues({
-        vertices: { A: { iconImageType: "text/html" } },
+  describe("iconImageType", () => {
+    // The field mirrors storage's loose `string`: the upload seam fills it from
+    // the browser's `file.type`, which can be any `image/*` the OS reports, so
+    // any string round-trips rather than being rejected against a fixed list.
+    test.each([
+      "image/svg+xml",
+      "image/png",
+      "image/bmp",
+      "image/avif",
+      "image/x-icon",
+    ])("preserves the stored MIME type %s", mime => {
+      const result = parseStylingPayload({
+        vertices: { A: { iconImageType: mime } },
         edges: {},
       });
-      expect(issues[0]).toStrictEqual({
-        scope: "entry",
-        entityType: "vertex",
-        typeName: "A",
-        field: "iconImageType",
-        value: "text/html",
-        message: expect.any(String),
-      });
+      expect(
+        result.vertexStyles.get(createVertexType("A"))!.iconImageType,
+      ).toBe(mime);
     });
   });
 

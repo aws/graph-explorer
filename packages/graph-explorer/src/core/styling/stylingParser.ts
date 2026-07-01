@@ -97,14 +97,6 @@ const safeIconValue = z
     },
   );
 
-const imageType = z.enum([
-  "image/svg+xml",
-  "image/png",
-  "image/jpeg",
-  "image/gif",
-  "image/webp",
-]);
-
 /**
  * One vertex entry. Unknown fields are stripped (Zod's default), so a file with
  * extra keys imports without error and without storing them — in particular an
@@ -115,7 +107,12 @@ const imageType = z.enum([
 const vertexEntrySchema = z
   .object({
     icon: safeIconValue.optional(),
-    iconImageType: imageType.optional(),
+    // Matches storage's loose `string`. The upload seam fills this from the
+    // browser's `file.type` (any `image/*` the OS reports), and no consumer
+    // switches on its specific value — only SVG-vs-raster, gated on an exact
+    // string match. The icon data itself is guarded by `safeIconValue`; this is
+    // descriptive metadata, so it does not need its own allowlist.
+    iconImageType: z.string().optional(),
     color: z.string().optional(),
     displayLabel: z.string().optional(),
     displayNameAttribute: z.string().optional(),
@@ -168,14 +165,9 @@ export function toVertexFileEntry(
   model: VertexPreferencesStorageModel,
 ): VertexStyleFileEntry {
   const { type: _type, iconUrl, ...rest } = model;
-  // Storage types `iconImageType` as a loose `string`; the file format narrows
-  // it to the MIME enum. Stored values come from a constrained picker, so the
-  // value already satisfies the enum at runtime — this bridges that gap.
-  const entry = { ...rest } as VertexStyleFileEntry;
-  if (iconUrl !== undefined) {
-    entry.icon = iconUrl;
-  }
-  return entry;
+  // The file format uses `icon`; storage uses `iconUrl`. Every other field maps
+  // straight across, so this rename is the only transformation on the way out.
+  return iconUrl !== undefined ? { ...rest, icon: iconUrl } : rest;
 }
 
 export function toEdgeFileEntry(
