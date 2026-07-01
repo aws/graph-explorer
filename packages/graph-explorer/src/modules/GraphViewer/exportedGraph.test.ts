@@ -30,8 +30,15 @@ import {
   parseGraphExportPayloadForVersion,
 } from "./exportedGraph";
 
-/** Wraps an exported-graph object in a Blob, as the file entry point expects. */
-function toGraphFileBlob(graph: ExportedGraphFile): Blob {
+/**
+ * Wraps an exported-graph object in a Blob, as the file entry point expects.
+ * Accepts a loosened `meta` so tests can build deliberately off-contract files
+ * (wrong kind, malformed version) without per-call casts.
+ */
+function toGraphFileBlob(graph: {
+  meta: Record<string, unknown>;
+  data: unknown;
+}): Blob {
   return new Blob([JSON.stringify(graph)], { type: "application/json" });
 }
 
@@ -303,15 +310,15 @@ describe("parseExportedGraph", () => {
     };
 
     await expect(
-      parseExportedGraph(toGraphFileBlob(wrongKind as ExportedGraphFile)),
+      parseExportedGraph(toGraphFileBlob(wrongKind)),
     ).rejects.toThrow(/Expected a "graph-export" file/);
   });
 
-  it("should reject a file from a newer major version", async () => {
+  it("should reject a file from a newer generation", async () => {
     const exportedGraph = createRandomExportedGraph();
     const tooNew = {
       ...exportedGraph,
-      meta: { ...exportedGraph.meta, version: "2.0" },
+      meta: { ...exportedGraph.meta, version: 2 },
     };
 
     await expect(parseExportedGraph(toGraphFileBlob(tooNew))).rejects.toThrow(
@@ -319,14 +326,26 @@ describe("parseExportedGraph", () => {
     );
   });
 
-  it("should accept a newer minor version of the same major", async () => {
+  it("should reject a non-integer version as malformed", async () => {
     const exportedGraph = createRandomExportedGraph();
-    const newerMinor = {
+    const malformed = {
       ...exportedGraph,
       meta: { ...exportedGraph.meta, version: "1.5" },
     };
 
-    const parsed = await parseExportedGraph(toGraphFileBlob(newerMinor));
+    await expect(
+      parseExportedGraph(toGraphFileBlob(malformed)),
+    ).rejects.toThrow(/expected envelope structure/);
+  });
+
+  it("should accept the legacy '1.0' version string", async () => {
+    const exportedGraph = createRandomExportedGraph();
+    const legacy = {
+      ...exportedGraph,
+      meta: { ...exportedGraph.meta, version: "1.0" },
+    };
+
+    const parsed = await parseExportedGraph(toGraphFileBlob(legacy));
     expect(parsed.vertices).toEqual(new Set(exportedGraph.data.vertices));
   });
 

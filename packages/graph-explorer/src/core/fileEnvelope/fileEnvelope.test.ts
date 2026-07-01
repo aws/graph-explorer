@@ -39,16 +39,18 @@ describe("parseFileEnvelope", () => {
     );
     const blob = blobOf(envelope);
 
+    // The read schema keeps only the load-bearing fields; the diagnostic
+    // timestamp/source/sourceVersion are stripped.
     return expect(
       parseFileEnvelope(blob, stylingExpectation),
     ).resolves.toStrictEqual({
-      meta: envelope.meta,
+      meta: { kind: "styling-export", version: 1 },
       version: 1,
       data: { foo: "bar" },
     });
   });
 
-  test("strips unknown meta fields", () => {
+  test("keeps only the load-bearing meta fields, dropping diagnostics and unknowns", () => {
     const envelope = {
       meta: {
         kind: "styling-export",
@@ -60,12 +62,11 @@ describe("parseFileEnvelope", () => {
       },
       data: { hello: "world" },
     };
-    const { exportedBy: _exportedBy, ...expectedMeta } = envelope.meta;
 
     return expect(
       parseFileEnvelope(blobOf(envelope), stylingExpectation),
     ).resolves.toStrictEqual({
-      meta: expectedMeta,
+      meta: { kind: "styling-export", version: 1 },
       version: 1,
       data: { hello: "world" },
     });
@@ -125,7 +126,7 @@ describe("parseFileEnvelope", () => {
     );
   });
 
-  test("tolerates the legacy decimal version string form", async () => {
+  test("normalizes the legacy '1.0' version string to the integer 1", async () => {
     const blob = blobOf({
       meta: {
         kind: "styling-export",
@@ -137,14 +138,15 @@ describe("parseFileEnvelope", () => {
       data: { vertices: {}, edges: {} },
     });
     const result = await parseFileEnvelope(blob, stylingExpectation);
-    expect(result.meta.version).toBe("1.0");
+    expect(result.meta.version).toBe(1);
+    expect(result.version).toBe(1);
   });
 
-  test("rejects a newer version as too new", () => {
+  test("rejects a newer generation as too new", () => {
     const blob = blobOf({
       meta: {
         kind: "styling-export",
-        version: "2.0",
+        version: 2,
         timestamp: "x",
         source: "x",
         sourceVersion: "x",
@@ -156,7 +158,7 @@ describe("parseFileEnvelope", () => {
     );
   });
 
-  test("rejects an unparseable version string", () => {
+  test("rejects an unparseable version string as malformed structure", () => {
     const blob = blobOf({
       meta: {
         kind: "styling-export",
@@ -168,15 +170,15 @@ describe("parseFileEnvelope", () => {
       data: { vertices: {}, edges: {} },
     });
     return expect(parseFileEnvelope(blob, stylingExpectation)).rejects.toThrow(
-      /unrecognized version/,
+      /envelope structure/,
     );
   });
 
-  test("rejects a sub-1 version as unrecognized", () => {
+  test("rejects a non-integer version as malformed structure", () => {
     const blob = blobOf({
       meta: {
         kind: "styling-export",
-        version: "0",
+        version: "1.5",
         timestamp: "x",
         source: "x",
         sourceVersion: "x",
@@ -184,7 +186,23 @@ describe("parseFileEnvelope", () => {
       data: { vertices: {}, edges: {} },
     });
     return expect(parseFileEnvelope(blob, stylingExpectation)).rejects.toThrow(
-      /unrecognized version/,
+      /envelope structure/,
+    );
+  });
+
+  test("rejects a sub-1 version as malformed structure", () => {
+    const blob = blobOf({
+      meta: {
+        kind: "styling-export",
+        version: 0,
+        timestamp: "x",
+        source: "x",
+        sourceVersion: "x",
+      },
+      data: { vertices: {}, edges: {} },
+    });
+    return expect(parseFileEnvelope(blob, stylingExpectation)).rejects.toThrow(
+      /envelope structure/,
     );
   });
 });

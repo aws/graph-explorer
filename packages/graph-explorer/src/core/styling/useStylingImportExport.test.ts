@@ -214,11 +214,11 @@ describe("styling import", () => {
     );
   });
 
-  test("throws when the file was made by a newer major version", async () => {
+  test("throws when the file was made by a newer generation", async () => {
     const envelope = {
       meta: {
         kind: "styling-export",
-        version: "2.0",
+        version: 2,
         timestamp: "2026-01-01T00:00:00Z",
         source: "Graph Explorer",
         sourceVersion: "9.9.9",

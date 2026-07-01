@@ -2,22 +2,33 @@ import { z } from "zod";
 
 import { LABELS } from "@/utils/constants";
 
-const fileEnvelopeMetaSchema = z.object({
-  kind: z.string(),
-  // Written as an integer; older files on disk carry the legacy `"1.0"` string,
-  // so both forms are accepted and normalized by `parseVersion`.
-  version: z.union([z.string(), z.number()]),
-  timestamp: z.string(),
-  source: z.string(),
-  sourceVersion: z.string(),
-});
+/**
+ * The one non-integer version any shipped build ever wrote to disk. New files
+ * write the integer form; this string is normalized to `1` on read.
+ */
+const LEGACY_VERSION_STRING = "1.0";
 
-const fileEnvelopeSchema = z.object({
-  meta: fileEnvelopeMetaSchema,
-  data: z.unknown(),
-});
+/**
+ * Version as it appears in a file: either the integer generation or the legacy
+ * `"1.0"` string. Normalized to the integer generation. Lives in the parse
+ * schema so a malformed version fails structural parsing, not a later guard.
+ */
+const versionSchema = z
+  .union([z.literal(LEGACY_VERSION_STRING), z.int().min(1)])
+  .transform(version => (version === LEGACY_VERSION_STRING ? 1 : version));
 
-export type FileEnvelopeMeta = z.infer<typeof fileEnvelopeMetaSchema>;
+/**
+ * The full metadata every export writes. `timestamp`/`source`/`sourceVersion`
+ * are diagnostic only — they are part of the write contract but nothing reads
+ * them back, so the read schema below does not require them.
+ */
+export type FileEnvelopeMeta = {
+  kind: string;
+  version: number;
+  timestamp: string;
+  source: string;
+  sourceVersion: string;
+};
 
 export type FileEnvelope<T = unknown> = {
   meta: FileEnvelopeMeta;
@@ -25,12 +36,29 @@ export type FileEnvelope<T = unknown> = {
 };
 
 /**
- * A validated envelope. `version` is the normalized integer generation (the
- * field on disk may be a legacy decimal string); consumers switch on it to
- * pick their per-generation payload parser.
+ * The read contract: only the fields the reader acts on. `kind` selects the
+ * expected file type and `version` selects the payload generation; the
+ * diagnostic fields are ignored (and stripped) rather than validated, so a file
+ * that omits or malforms them still imports. A malformed `version` fails here,
+ * at structural parse time.
+ */
+const parsedMetaSchema = z.object({
+  kind: z.string(),
+  version: versionSchema,
+});
+
+const fileEnvelopeSchema = z.object({
+  meta: parsedMetaSchema,
+  data: z.unknown(),
+});
+
+/**
+ * A validated envelope. `meta.version` is the normalized integer generation
+ * (the field on disk may be the legacy `"1.0"` string); consumers switch on it
+ * to pick their per-generation payload parser.
  */
 export type ParsedEnvelope = {
-  meta: FileEnvelopeMeta;
+  meta: z.infer<typeof parsedMetaSchema>;
   version: number;
   data: unknown;
 };
@@ -77,9 +105,9 @@ export type EnvelopeExpectation = {
 /**
  * Reads and validates the outer envelope, then guards `kind` and `version`
  * against what the caller supports. Throws {@link FileEnvelopeError} for
- * invalid JSON, a malformed envelope, the wrong `kind`, an unparseable version,
- * or a version newer than this build. The payload (`data`) is returned
- * unvalidated for the caller to parse per kind.
+ * invalid JSON, a malformed envelope (including an unrecognized version), the
+ * wrong `kind`, or a version newer than this build. The payload (`data`) is
+ * returned unvalidated for the caller to parse per kind.
  */
 export async function parseFileEnvelope(
   blob: Blob,
@@ -109,28 +137,11 @@ export async function parseFileEnvelope(
     );
   }
 
-  const version = parseVersion(meta.version);
-  if (version === null) {
-    throw new FileEnvelopeError(
-      `File has an unrecognized version "${meta.version}"`,
-    );
-  }
-  if (version > expectation.supportedVersion) {
+  if (meta.version > expectation.supportedVersion) {
     throw new FileEnvelopeError(
       `This file was created by a newer version of ${LABELS.APP_NAME} and cannot be imported. Update ${LABELS.APP_NAME} and try again.`,
     );
   }
 
-  return { meta, version, data: result.data.data };
-}
-
-/**
- * Reads the format generation as a positive integer. Generations start at `1`,
- * so anything below it is unrecognized. Tolerates the legacy `"1.0"`
- * decimal-string form (parsed as `1`) that early exports wrote to disk.
- */
-function parseVersion(version: string | number): number | null {
-  const parsed =
-    typeof version === "number" ? version : Number.parseInt(version, 10);
-  return Number.isInteger(parsed) && parsed >= 1 ? parsed : null;
+  return { meta, version: meta.version, data: result.data.data };
 }

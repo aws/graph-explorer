@@ -18,20 +18,22 @@ A new styling import/export feature needs the same structural concerns: identify
 
 A shared **file envelope** primitive lives in `packages/graph-explorer/src/core/fileEnvelope/`. It provides:
 
-1. **An envelope schema** — a Zod object wrapping any payload:
+1. **Separate write and read contracts.** Every export writes the full metadata; the reader validates only the fields it acts on.
 
    ```ts
-   {
-     meta: { kind: string, version: string, timestamp: string, source: string, sourceVersion: string },
-     data: T  // payload — validated separately per kind
-   }
+   // Write contract — what createFileEnvelope stamps and what lands on disk:
+   meta: { kind: string, version: number, timestamp: string, source: string, sourceVersion: string }
+
+   // Read contract — the only fields parseFileEnvelope validates and returns:
+   meta: { kind: string, version: number }  // version normalized from the legacy "1.0" string
+   data: T  // payload — validated separately per kind
    ```
 
-2. **`meta` uses `z.object()`** — unknown fields are stripped, matching the payload's default. `meta` is read only to gate `kind`/`version`; it is never round-tripped back to disk, so preserving fields a build does not understand buys nothing. A newer exporter that adds a `meta` field still imports cleanly on an older build (the field is dropped, not rejected); the field simply does not survive into the parsed envelope.
+2. **The read schema keeps only the load-bearing fields.** `kind` selects the expected file type and `version` selects the payload generation — those gate behavior. `timestamp`/`source`/`sourceVersion` are diagnostic only: nothing reads them back, so the read schema does not require or validate them and `z.object()` strips them (along with any unknown field). Consequences: a newer exporter that adds a `meta` field still imports cleanly (dropped, not rejected); a file that omits or malforms a diagnostic field still imports (it is not validated); and no field beyond `kind`/`version` survives into the parsed envelope. They remain part of the write contract because a human inspecting the file still wants them.
 
 3. **`kind` discriminates the file type.** Known kinds today: `"styling-export"`. Each `kind` has its own payload schema, validated by the caller. The caller passes the `kind` it expects; the envelope rejects a mismatch with a clear error so a wrong-kind file (e.g. a connection export) is never silently misinterpreted.
 
-4. **`version` is a single-integer format generation** of the payload schema, not the app version. The `sourceVersion` field carries the app version for diagnostics. It bumps **only on a breaking change** (a renamed or removed field). Additive changes ship as new optional fields and do **not** bump it — an older build simply ignores fields it doesn't know (see #5 and the styling ADR). There is therefore no "minor" concept. It is written to disk as `"1.0"` for historical reasons and read back as the leading integer (`1`), which also tolerates that legacy decimal string.
+4. **`version` is a single-integer format generation** of the payload schema, not the app version. The `sourceVersion` field carries the app version for diagnostics. It bumps **only on a breaking change** (a renamed or removed field). Additive changes ship as new optional fields and do **not** bump it — an older build simply ignores fields it doesn't know (see #5 and the styling ADR). There is therefore no "minor" concept. New files write the integer form; the read schema accepts exactly the integer generation or the one legacy `"1.0"` string any shipped build ever wrote, normalizing the latter to `1`. Every other form — `"1.5"`, `"2.0"`, `"banana"`, `0` — fails structural parsing, so a malformed version is rejected at the schema level rather than by a later guard.
 
 5. **`parseFileEnvelope` guards `kind` and `version`.** The caller passes an `EnvelopeExpectation` (`{ kind, supportedVersion }`). The envelope:
    - rejects a mismatched `kind`,
@@ -40,9 +42,9 @@ A shared **file envelope** primitive lives in `packages/graph-explorer/src/core/
 
 6. **Helpers:**
    - `createFileEnvelope(kind, version, data)` — stamps `timestamp`, `source` ("Graph Explorer"), and `sourceVersion` from the build constant.
-   - `parseFileEnvelope(blob, expectation)` — reads JSON, validates the outer envelope schema, guards kind + version, and returns `{ meta, data }` without validating the payload (caller validates `data` per `kind`).
+   - `parseFileEnvelope(blob, expectation)` — reads JSON, validates the outer envelope schema (including version format), guards kind + version, and returns `{ meta, version, data }` without validating the payload (caller validates `data` per `kind`). `version` is the normalized integer generation, surfaced alongside `meta` for the consumer's version dispatch.
 
-   Callers compose the envelope with their own file-save logic (e.g., `toJsonFileData` + `saveFile` from `utils/fileData`), and own a named version pair (e.g. `STYLING_EXPORT_VERSION` written to disk / `STYLING_EXPORT_SUPPORTED_VERSION` read back) so the bumpable value lives next to the payload schema.
+   Callers compose the envelope with their own file-save logic (e.g., `toJsonFileData` + `saveFile` from `utils/fileData`), and own a single named generation constant (e.g. `STYLING_EXPORT_VERSION`) used both as the value written to disk and the newest generation the build reads, so the bumpable value lives next to the payload schema.
 
 ### Version dispatch in the consumer
 
@@ -54,7 +56,7 @@ The `{meta, data}` envelope already exists independently in graph export (`expor
 
 ### Migration status of the other consumers
 
-- **Graph export** — migrated. Its file format was already byte-identical to the envelope (same `kind`, same `version: "1.0"`, same five meta fields), so adopting the module is a pure refactor with no on-disk change: files written before and after the migration parse identically. Adopting `parseFileEnvelope` also upgraded it from an exact `z.literal("1.0")` match (which would have rejected any future generation) to the shared version guard.
+- **Graph export** — migrated. Its file format was already structurally identical to the envelope (same `kind`, same five meta fields, `version: "1.0"` on disk), so adopting the module is a pure refactor: files written before the migration still parse (the legacy `"1.0"` string normalizes to `1`), and new files write the integer `1`. Adopting `parseFileEnvelope` also upgraded it from an exact `z.literal("1.0")` match (which would have rejected any future generation) to the shared version guard.
 - **Backup** — left alone. Would require renaming persisted fields (`backupVersion` → `version`, …) on the disaster-recovery restore path — a data migration, not a refactor.
 - **Connection export** — left alone. Flat (no envelope); wrapping it nests the file one level deeper, so every previously-exported file becomes unreadable unless the importer detects both shapes forever. That is a deliberate versioned format break, not a "backward-compatible follow-up," and is out of scope here.
 
