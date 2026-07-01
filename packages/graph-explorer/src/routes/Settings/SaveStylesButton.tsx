@@ -54,7 +54,7 @@ export default function SaveStylesButton() {
         disabled={saveStyles.isPending}
       >
         <DownloadIcon />
-        Save
+        Save to File
       </Button>
       <AlertDialog
         open={saveStyles.isError}
