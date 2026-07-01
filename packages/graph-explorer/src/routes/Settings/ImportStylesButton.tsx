@@ -41,14 +41,16 @@ import {
 
 /**
  * What the import dialog is showing, derived each render from the parse mutation
- * plus whether an apply has happened. `null` means the dialog is closed.
- * Confirming a conflict advances the phase in place (`conflicts` → `complete`)
- * without closing the dialog, so the result replaces the prompt seamlessly.
+ * plus whether a conflicting overwrite has been confirmed. `null` means the
+ * dialog is closed. Confirming a conflict advances the phase in place
+ * (`conflicts` → terminal) without closing the dialog, so the result replaces
+ * the prompt seamlessly.
  *
- * Import is atomic: a file with any invalid value never reaches `conflicts` or
- * `complete` — it surfaces as `invalid` with the full list of offending
+ * Import is atomic: a file with any invalid value never reaches `conflicts` or a
+ * terminal state — it surfaces as `invalid` with the full list of offending
  * locations. `failed` is reserved for envelope-level errors (wrong file, too
- * new), which are a single message with no per-field detail.
+ * new), which are a single message with no per-field detail. A structurally
+ * valid file that carries no recognized styles lands on `empty`, not `complete`.
  */
 type Phase =
   | {
@@ -58,6 +60,7 @@ type Phase =
     }
   | { kind: "failed"; message: string }
   | { kind: "invalid"; issues: ImportIssue[] }
+  | { kind: "empty" }
   | { kind: "complete"; vertexCount: number; edgeCount: number };
 
 export default function ImportStylesButton() {
@@ -65,9 +68,10 @@ export default function ImportStylesButton() {
   const importedVertexStyles = useAtomValue(importedVertexStylesAtom);
   const importedEdgeStyles = useAtomValue(importedEdgeStylesAtom);
 
-  // Whether the parsed file has been merged into the imported-defaults layer.
-  // The only outcome not already captured by the parse mutation.
-  const [applied, setApplied] = useState(false);
+  // Whether the user has confirmed overwriting conflicting imported defaults.
+  // Only meaningful on the conflict path; the no-conflict path applies in
+  // `onSuccess` and derives its terminal phase straight from the parse result.
+  const [confirmed, setConfirmed] = useState(false);
 
   const parse = useMutation({
     mutationFn: async (file: File) => {
@@ -83,21 +87,20 @@ export default function ImportStylesButton() {
       // No conflicts → apply immediately. Otherwise wait for confirmation.
       if (conflicts.vertices.length + conflicts.edges.length === 0) {
         applyImport(parsed);
-        setApplied(true);
       }
     },
   });
 
   function reset() {
     parse.reset();
-    setApplied(false);
+    setConfirmed(false);
   }
 
-  const phase = derivePhase(parse.data, parse.error, applied);
+  const phase = derivePhase(parse.data, parse.error, confirmed);
 
   function confirmConflicts(parsed: StylingParseResult) {
     applyImport(parsed);
-    setApplied(true);
+    setConfirmed(true);
   }
 
   function renderPhase() {
@@ -113,6 +116,8 @@ export default function ImportStylesButton() {
         return <ImportFailedContent error={phase.message} />;
       case "invalid":
         return <ImportInvalidContent issues={phase.issues} />;
+      case "empty":
+        return <ImportEmptyContent />;
       case "complete":
         return (
           <ImportCompleteContent
@@ -150,7 +155,7 @@ function derivePhase(
     | { parsed: StylingParseResult; conflicts: ImportConflicts }
     | undefined,
   error: Error | null,
-  applied: boolean,
+  confirmed: boolean,
 ): Phase | null {
   if (error) {
     return error instanceof StylingParseError
@@ -161,16 +166,20 @@ function derivePhase(
     return null;
   }
   const { parsed, conflicts } = result;
-  if (applied) {
-    return {
-      kind: "complete",
-      vertexCount: parsed.vertexStyles.size,
-      edgeCount: parsed.edgeStyles.size,
-    };
+
+  // Conflicts that haven't been confirmed yet: prompt before overwriting.
+  const hasConflicts = conflicts.vertices.length + conflicts.edges.length > 0;
+  if (hasConflicts && !confirmed) {
+    return { kind: "conflicts", parsed, conflicts };
   }
-  return conflicts.vertices.length + conflicts.edges.length > 0
-    ? { kind: "conflicts", parsed, conflicts }
-    : null;
+
+  // Terminal state — the file has been (or will be, in onSuccess) applied. The
+  // outcome follows straight from what the file carried, not a separate flag.
+  const vertexCount = parsed.vertexStyles.size;
+  const edgeCount = parsed.edgeStyles.size;
+  return vertexCount + edgeCount === 0
+    ? { kind: "empty" }
+    : { kind: "complete", vertexCount, edgeCount };
 }
 
 function ConflictContent({
@@ -247,44 +256,16 @@ function ImportInvalidContent({ issues }: { issues: ImportIssue[] }) {
   );
 }
 
-function ImportCompleteContent({
-  vertexCount,
-  edgeCount,
-}: {
-  vertexCount: number;
-  edgeCount: number;
-}) {
-  // A structurally valid file can still carry zero recognized styles (every
-  // entry held only unknown fields). Nothing was applied, so say so rather than
-  // claiming a successful import.
-  if (vertexCount + edgeCount === 0) {
-    return (
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogMedia className="bg-warning-subtle text-warning-main">
-            <AlertTriangleIcon />
-          </AlertDialogMedia>
-          <AlertDialogTitle>No Styles Found</AlertDialogTitle>
-          <AlertDialogDescription>
-            The file was read successfully but contained no styles to import.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogAction>Close</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    );
-  }
-
+function ImportEmptyContent() {
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogMedia className="bg-success-subtle text-success-main">
-          <CheckCircleIcon />
+        <AlertDialogMedia className="bg-warning-subtle text-warning-main">
+          <AlertTriangleIcon />
         </AlertDialogMedia>
-        <AlertDialogTitle>Import Complete</AlertDialogTitle>
+        <AlertDialogTitle>No Styles Found</AlertDialogTitle>
         <AlertDialogDescription>
-          {`Imported ${formatTypeCount(vertexCount, "vertex")} and ${formatTypeCount(edgeCount, "edge")}.`}
+          The file was read successfully but contained no styles to import.
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
@@ -294,9 +275,50 @@ function ImportCompleteContent({
   );
 }
 
-/** e.g. `formatTypeCount(2, "vertex")` → `"2 vertex types"`. */
-function formatTypeCount(count: number, entity: string): string {
-  return `${count} ${entity} ${count === 1 ? "type" : "types"}`;
+function ImportCompleteContent({
+  vertexCount,
+  edgeCount,
+}: {
+  vertexCount: number;
+  edgeCount: number;
+}) {
+  return (
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogMedia className="bg-success-subtle text-success-main">
+          <CheckCircleIcon />
+        </AlertDialogMedia>
+        <AlertDialogTitle>Import Complete</AlertDialogTitle>
+        <AlertDialogDescription>
+          {`Imported ${formatImportedCounts(vertexCount, edgeCount)}.`}
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogAction>Close</AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  );
+}
+
+/**
+ * Summarizes what was imported, omitting a zero side so a vertex-only import
+ * reads "2 vertex styles" rather than "2 vertex styles and 0 edge styles". The
+ * empty case is handled by its own phase, so at least one count is non-zero.
+ */
+function formatImportedCounts(vertexCount: number, edgeCount: number): string {
+  const clauses: string[] = [];
+  if (vertexCount > 0) {
+    clauses.push(formatStyleCount(vertexCount, "vertex"));
+  }
+  if (edgeCount > 0) {
+    clauses.push(formatStyleCount(edgeCount, "edge"));
+  }
+  return clauses.join(" and ");
+}
+
+/** e.g. `formatStyleCount(2, "vertex")` → `"2 vertex styles"`. */
+function formatStyleCount(count: number, entity: string): string {
+  return `${count} ${entity} ${count === 1 ? "style" : "styles"}`;
 }
 
 function ConflictLists({ conflicts }: { conflicts: ImportConflicts }) {

@@ -62,12 +62,29 @@ describe("ImportStylesButton", () => {
     );
 
     expect(await screen.findByText("Import Complete")).toBeInTheDocument();
-    expect(
-      screen.getByText("Imported 2 vertex types and 0 edge types."),
-    ).toBeInTheDocument();
+    // Vertex-only import omits the zero edge side.
+    expect(screen.getByText("Imported 2 vertex styles.")).toBeInTheDocument();
     expect(
       store.get(importedVertexStylesAtom).get(createVertexType("Person")),
     ).toStrictEqual({ type: createVertexType("Person"), color: "#abc" });
+  });
+
+  test("joins both sides of the count message when a file imports vertices and edges", async () => {
+    const user = userEvent.setup();
+    renderButton();
+
+    await user.upload(
+      fileInput(),
+      stylingFile({
+        vertices: { Person: { color: "#abc" } },
+        edges: { knows: { lineColor: "#def" } },
+      }),
+    );
+
+    expect(await screen.findByText("Import Complete")).toBeInTheDocument();
+    expect(
+      screen.getByText("Imported 1 vertex style and 1 edge style."),
+    ).toBeInTheDocument();
   });
 
   test("prompts before overwriting an existing imported default, then completes on confirm", async () => {

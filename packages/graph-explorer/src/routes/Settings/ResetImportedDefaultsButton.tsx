@@ -45,7 +45,8 @@ export default function ResetImportedDefaultsButton() {
           <AlertDialogDescription>
             <span className="block">
               This will remove all imported default styles. Your custom styles
-              will remain. You can re-import a file at any time.
+              will remain. You can re-import a file at any time; consider
+              exporting first.
             </span>
             <span className="mbs-4 block">This cannot be undone.</span>
           </AlertDialogDescription>
