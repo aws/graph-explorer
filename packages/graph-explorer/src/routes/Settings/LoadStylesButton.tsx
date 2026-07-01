@@ -148,7 +148,7 @@ export default function LoadStylesButton() {
     <>
       <FileButton
         onChange={file => file && dispatch({ type: "submitFile", file })}
-        accept=".json"
+        accept=".styles.json"
         asChild
       >
         <Button className="min-w-28" disabled={isPending}>

@@ -37,7 +37,7 @@ function renderButton() {
 /** Builds a styling-export file with the given payload data. */
 function stylingFile(data: unknown) {
   const envelope = createFileEnvelope("styling-export", 1, data);
-  return new File([JSON.stringify(envelope)], "styles.json", {
+  return new File([JSON.stringify(envelope)], "graph-explorer.styles.json", {
     type: "application/json",
   });
 }
@@ -152,13 +152,16 @@ describe("LoadStylesButton", () => {
     const user = userEvent.setup();
     renderButton();
 
+    // A file that clears the .styles.json filter (renamed, or force-picked via
+    // "All Files") but carries the wrong envelope kind — content validation,
+    // not the filename, must reject it.
     const wrongKind = createFileEnvelope("connection-export", 1, {
       vertices: {},
       edges: {},
     });
     await user.upload(
       fileInput(),
-      new File([JSON.stringify(wrongKind)], "conn.json", {
+      new File([JSON.stringify(wrongKind)], "graph-explorer.styles.json", {
         type: "application/json",
       }),
     );
