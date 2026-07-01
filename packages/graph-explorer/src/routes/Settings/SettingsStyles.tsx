@@ -56,7 +56,7 @@ export default function SettingsStyles() {
         <GroupItem className="space-y-2">
           <LabelledSetting
             label="Load shared styles"
-            description="Load styles from a file to become your new shared styles. Your custom styles are left untouched."
+            description="Load styles from a file into your shared styles. New types are added and matching ones are replaced; your custom styles are left untouched."
           >
             <LoadStylesButton />
           </LabelledSetting>
