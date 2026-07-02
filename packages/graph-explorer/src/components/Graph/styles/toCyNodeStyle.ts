@@ -1,6 +1,8 @@
-import type { CyNodeStyle, NodeStyle } from "../Graph.model";
+import type { CyNodeStyle, RenderedNodeStyle } from "../Graph.model";
 
-const toCyNodeStyle = (nodeStyle: Partial<NodeStyle>): Partial<CyNodeStyle> => {
+const toCyNodeStyle = (
+  nodeStyle: Partial<RenderedNodeStyle>,
+): Partial<CyNodeStyle> => {
   return {
     backgroundColor: nodeStyle.background,
     backgroundFit: nodeStyle.backgroundFit,

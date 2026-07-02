@@ -7,7 +7,7 @@ import {
   configurationAtom,
   type Edge,
   type EdgeId,
-  type EdgePreferencesStorageModel,
+  type EdgeStyleStorage,
   edgesAtom,
   edgesFilteredIdsAtom,
   userEdgeStylesAtom,
@@ -26,7 +26,7 @@ import {
   toNodeMap,
   type Vertex,
   type VertexId,
-  type VertexPreferencesStorageModel,
+  type VertexStyleStorage,
   userVertexStylesAtom,
   type VertexType,
 } from "@/core";
@@ -49,8 +49,8 @@ import {
 export class DbState {
   #activeSchema: SchemaStorageModel | null;
   activeConfig: RawConfiguration;
-  vertexStyles: Map<VertexType, VertexPreferencesStorageModel>;
-  edgeStyles: Map<EdgeType, EdgePreferencesStorageModel>;
+  vertexStyles: Map<VertexType, VertexStyleStorage>;
+  edgeStyles: Map<EdgeType, EdgeStyleStorage>;
 
   explorer: Explorer;
 
@@ -160,8 +160,8 @@ export class DbState {
    */
   addVertexStyle(
     vertexType: VertexType,
-    style: Omit<VertexPreferencesStorageModel, "type">,
-  ): VertexPreferencesStorageModel {
+    style: Omit<VertexStyleStorage, "type">,
+  ): VertexStyleStorage {
     const composedStyle = { ...style, type: vertexType };
     this.vertexStyles.set(vertexType, composedStyle);
     return composedStyle;
@@ -175,8 +175,8 @@ export class DbState {
    */
   addEdgeStyle(
     edgeType: EdgeType,
-    style: Omit<EdgePreferencesStorageModel, "type">,
-  ): EdgePreferencesStorageModel {
+    style: Omit<EdgeStyleStorage, "type">,
+  ): EdgeStyleStorage {
     const composedStyle = { ...style, type: edgeType };
     this.edgeStyles.set(edgeType, composedStyle);
     return composedStyle;

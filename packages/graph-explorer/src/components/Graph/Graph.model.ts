@@ -92,7 +92,7 @@ export type TextStyle = {
   wrap: "none" | "wrap" | "ellipsis";
 };
 
-export type NodeStyle = {
+export type RenderedNodeStyle = {
   background: string;
   backgroundFit?: "none" | "contain" | "cover";
   backgroundWidth?: string;
@@ -171,7 +171,7 @@ export type CurveStyle =
   | "segments"
   | "taxi";
 
-export type EdgeStyle = {
+export type RenderedEdgeStyle = {
   color: string;
   curveStyle: CurveStyle;
   label?: string | ((edge: cytoscape.EdgeSingular) => string);

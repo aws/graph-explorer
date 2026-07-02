@@ -2,7 +2,8 @@
 
 - **Status:** Accepted
 - **Date:** 2026-06-24
-- **Related:** ADR `shared-file-envelope` (the outer envelope this payload lives inside). ADR `type-keyed-map-atoms-for-user-preferences` (the Map storage shape that the shared layer mirrors). Issue #1866 (Preferences → Styles rename — deferred, not bundled here).
+- **Updated:** 2026-07-06 — the Preferences → Styles rename (#1866) has since shipped. The decision below is unchanged; read `VertexPreferencesStorageModel`→`VertexStyleStorage` and `EdgePreferencesStorageModel`→`EdgeStyleStorage`.
+- **Related:** ADR `shared-file-envelope` (the outer envelope this payload lives inside). ADR `type-keyed-map-atoms-for-user-preferences` (the Map storage shape that the shared layer mirrors). Issue #1866 (Preferences → Styles rename).
 
 ## Context
 

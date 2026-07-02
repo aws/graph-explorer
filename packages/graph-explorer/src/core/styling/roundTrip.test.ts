@@ -3,9 +3,9 @@ import { describe, expect, test, vi } from "vitest";
 
 import type { VertexType, EdgeType } from "@/core/entities";
 import type {
-  VertexPreferencesStorageModel,
-  EdgePreferencesStorageModel,
-} from "@/core/StateProvider/userPreferences";
+  VertexStyleStorage,
+  EdgeStyleStorage,
+} from "@/core/StateProvider/graphStyles";
 
 import { getAppStore } from "@/core";
 import { createEdgeType, createVertexType } from "@/core/entities";
@@ -35,7 +35,7 @@ describe("round-trip: export then import", () => {
     const store = getAppStore();
     store.set(
       userVertexStylesAtom,
-      new Map<VertexType, VertexPreferencesStorageModel>([
+      new Map<VertexType, VertexStyleStorage>([
         [
           createVertexType("airport"),
           {
@@ -57,7 +57,7 @@ describe("round-trip: export then import", () => {
     );
     store.set(
       userEdgeStylesAtom,
-      new Map<EdgeType, EdgePreferencesStorageModel>([
+      new Map<EdgeType, EdgeStyleStorage>([
         [
           createEdgeType("route"),
           {
@@ -131,7 +131,7 @@ describe("round-trip: export then import", () => {
     const store = getAppStore();
     store.set(
       userVertexStylesAtom,
-      new Map<VertexType, VertexPreferencesStorageModel>([
+      new Map<VertexType, VertexStyleStorage>([
         [
           createVertexType("http://data.nobelprize.org/terms/LaureateAward"),
           {
@@ -226,7 +226,7 @@ describe("round-trip: export then import", () => {
     const store = getAppStore();
     store.set(
       userVertexStylesAtom,
-      new Map<VertexType, VertexPreferencesStorageModel>([
+      new Map<VertexType, VertexStyleStorage>([
         [
           createVertexType("CustomNode"),
           {
@@ -269,7 +269,7 @@ describe("round-trip: export then import", () => {
     const store = getAppStore();
     store.set(
       userVertexStylesAtom,
-      new Map<VertexType, VertexPreferencesStorageModel>([
+      new Map<VertexType, VertexStyleStorage>([
         [
           createVertexType("PngNode"),
           {
@@ -332,7 +332,7 @@ describe("round-trip: export then import", () => {
     const store = getAppStore();
     store.set(
       userVertexStylesAtom,
-      new Map<VertexType, VertexPreferencesStorageModel>([
+      new Map<VertexType, VertexStyleStorage>([
         [
           createVertexType("BmpNode"),
           {
@@ -378,7 +378,7 @@ describe("round-trip: export then import", () => {
     const store = getAppStore();
     store.set(
       userVertexStylesAtom,
-      new Map<VertexType, VertexPreferencesStorageModel>([
+      new Map<VertexType, VertexStyleStorage>([
         [
           createVertexType("HttpsNode"),
           {
@@ -425,7 +425,7 @@ describe("round-trip: export then import", () => {
     const store = getAppStore();
     store.set(
       userVertexStylesAtom,
-      new Map<VertexType, VertexPreferencesStorageModel>([
+      new Map<VertexType, VertexStyleStorage>([
         [
           createVertexType("LucideType"),
           {

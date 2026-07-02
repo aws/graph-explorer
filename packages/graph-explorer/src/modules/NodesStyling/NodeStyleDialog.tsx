@@ -34,7 +34,7 @@ import {
   type LineStyle,
   type ShapeStyle,
   useVertexStyling,
-} from "@/core/StateProvider/userPreferences";
+} from "@/core/StateProvider/graphStyles";
 import { isAllowedIconValue } from "@/core/styling";
 import useTranslations from "@/hooks/useTranslations";
 import { parseNumberSafely } from "@/utils";

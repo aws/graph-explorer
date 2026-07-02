@@ -63,78 +63,81 @@ export const ARROW_STYLES = [
 ] as const;
 export type ArrowStyle = (typeof ARROW_STYLES)[number];
 
-/** The user preferences to be used for the specified vertex type as the type used for storing in local storage. */
-export type VertexPreferencesStorageModel = {
-  type: VertexType;
-  /**
-   * Color overwrite for vertex
-   */
-  color?: string;
-  /**
-   * Label overwrite for vertex
-   */
-  displayLabel?: string;
-  /**
-   * Icon overwrite for vertex
-   */
-  iconUrl?: string;
-  /**
-   * Icon overwrite for vertex
-   */
-  iconImageType?: string;
-  /**
-   * Vertex attribute to be used as label
-   */
-  displayNameAttribute?: string;
-  /**
-   * Vertex attribute to be used as description
-   */
-  longDisplayNameAttribute?: string;
-  shape?: ShapeStyle;
-  backgroundOpacity?: number;
-  borderWidth?: number;
-  borderColor?: string;
-  borderStyle?: LineStyle;
+/**
+ * The visual appearance of a vertex — the fields that make sense for both a
+ * per-type style and a type-less global default. Every field is required: this
+ * is the resolved baseline shape a rendered vertex always has.
+ */
+export type VertexVisualStyle = {
+  /** Color overwrite for vertex */
+  color: string;
+  /** Icon overwrite for vertex */
+  iconUrl: string;
+  /** Icon overwrite for vertex */
+  iconImageType: string;
+  shape: ShapeStyle;
+  backgroundOpacity: number;
+  borderWidth: number;
+  borderColor: string;
+  borderStyle: LineStyle;
 };
 
-/** The user preferences to be used for the specified edge type as the type used for storing in local storage. */
-export type EdgePreferencesStorageModel = {
-  type: EdgeType;
+/**
+ * The type-specific fields of a vertex style — a display label and the
+ * attributes used to derive labels. These only make sense per vertex type, so
+ * they are excluded from the type-less global default.
+ */
+export type VertexTypeStyle = {
+  /** Label overwrite for vertex */
   displayLabel?: string;
-  displayNameAttribute?: string;
-  labelColor?: string;
-  labelBackgroundOpacity?: number;
-  labelBorderColor?: string;
-  labelBorderStyle?: LineStyle;
-  labelBorderWidth?: number;
-  lineColor?: string;
-  lineThickness?: number;
-  lineStyle?: LineStyle;
-  sourceArrowStyle?: ArrowStyle;
-  targetArrowStyle?: ArrowStyle;
+  /** Vertex attribute to be used as label */
+  displayNameAttribute: string;
+  /** Vertex attribute to be used as description */
+  longDisplayNameAttribute: string;
 };
 
-/** The user preferences to be used for the specified vertex type as an immutable object. */
-export type VertexPreferences = Simplify<
-  Readonly<
-    Pick<VertexPreferencesStorageModel, "displayLabel"> &
-      Required<Omit<VertexPreferencesStorageModel, "displayLabel">>
-  >
+/** The visual appearance of an edge, shared by per-type styles and defaults. */
+export type EdgeVisualStyle = {
+  labelColor: string;
+  labelBackgroundOpacity: number;
+  labelBorderColor: string;
+  labelBorderStyle: LineStyle;
+  labelBorderWidth: number;
+  lineColor: string;
+  lineThickness: number;
+  lineStyle: LineStyle;
+  sourceArrowStyle: ArrowStyle;
+  targetArrowStyle: ArrowStyle;
+};
+
+/** The type-specific fields of an edge style. */
+export type EdgeTypeStyle = {
+  displayLabel?: string;
+  displayNameAttribute: string;
+};
+
+/** The style for the specified vertex type as stored in local storage. */
+export type VertexStyleStorage = Simplify<
+  Partial<VertexVisualStyle & VertexTypeStyle> & { type: VertexType }
 >;
 
-/** The user preferences to be used for the specified edge type as an immutable object. */
-export type EdgePreferences = Simplify<
-  Readonly<
-    Pick<EdgePreferencesStorageModel, "displayLabel"> &
-      Required<Omit<EdgePreferencesStorageModel, "displayLabel">>
-  >
+/** The style for the specified edge type as stored in local storage. */
+export type EdgeStyleStorage = Simplify<
+  Partial<EdgeVisualStyle & EdgeTypeStyle> & { type: EdgeType }
+>;
+
+/** The resolved style for the specified vertex type as an immutable object. */
+export type VertexStyle = Simplify<
+  Readonly<VertexVisualStyle & VertexTypeStyle & { type: VertexType }>
+>;
+
+/** The resolved style for the specified edge type as an immutable object. */
+export type EdgeStyle = Simplify<
+  Readonly<EdgeVisualStyle & EdgeTypeStyle & { type: EdgeType }>
 >;
 
 /** The default values to use when no user provided value is given. */
-export const defaultVertexPreferences: Omit<
-  VertexPreferences,
-  "type" | "displayLabel"
-> = {
+export const appDefaultVertexStyle = {
   displayNameAttribute: RESERVED_ID_PROPERTY,
   longDisplayNameAttribute: RESERVED_TYPES_PROPERTY,
   iconUrl: DEFAULT_ICON_URL,
@@ -145,13 +148,10 @@ export const defaultVertexPreferences: Omit<
   borderWidth: 0,
   borderColor: "#128EE5",
   borderStyle: "solid",
-};
+} as const satisfies Omit<VertexStyle, "type">;
 
 /** The default values to use when no user provided value is given. */
-export const defaultEdgePreferences: Omit<
-  EdgePreferences,
-  "type" | "displayLabel"
-> = {
+export const appDefaultEdgeStyle = {
   displayNameAttribute: RESERVED_TYPES_PROPERTY,
   labelColor: "#17457b",
   labelBackgroundOpacity: 0.7,
@@ -163,7 +163,7 @@ export const defaultEdgePreferences: Omit<
   lineStyle: "solid",
   sourceArrowStyle: "none",
   targetArrowStyle: "triangle",
-};
+} as const satisfies Omit<EdgeStyle, "type">;
 
 /**
  * @deprecated Legacy IndexedDB shape stored under the `"user-styling"` key.
@@ -171,16 +171,16 @@ export const defaultEdgePreferences: Omit<
  * the startup migration in `migrateUserStyling.ts`. Do not use this type in
  * new code.
  */
-export type LegacyUserStylingStorageModel = {
-  vertices?: Array<VertexPreferencesStorageModel>;
-  edges?: Array<EdgePreferencesStorageModel>;
+export type LegacyUserStylingStorage = {
+  vertices?: Array<VertexStyleStorage>;
+  edges?: Array<EdgeStyleStorage>;
 };
 
 /**
  * The styles cascade — the single place vertex/edge appearance is assembled.
  *
  * Three layers, lowest precedence first:
- * 1. App defaults — {@link defaultVertexPreferences} / {@link defaultEdgePreferences}.
+ * 1. App defaults — {@link appDefaultVertexStyle} / {@link appDefaultEdgeStyle}.
  * 2. Shared styles — `sharedVertexStylesAtom` / `sharedEdgeStylesAtom`
  *    (storage keys `shared-vertex-styles` / `shared-edge-styles`), loaded
  *    from a styling file on the Settings → Styles page.
@@ -188,21 +188,21 @@ export type LegacyUserStylingStorageModel = {
  *    (storage keys `user-vertex-styles` / `user-edge-styles`), edits made in the
  *    style dialogs.
  *
- * Higher layers override lower ones per field (see {@link createVertexPreference}
- * / {@link createEdgePreference}). Related modules: `core/styling` (the styling
+ * Higher layers override lower ones per field (see {@link resolveVertexStyle}
+ * / {@link resolveEdgeStyle}). Related modules: `core/styling` (the styling
  * import parser and import/export hooks) and `core/fileEnvelope` (the file
  * wrapper). The `icon`↔`iconUrl` rename happens at the file-format seam in the
  * styling parser, not here.
  */
 
-/** Vertex preferences indexed by type for O(1) lookup with cascade fallback.
+/** Vertex styles indexed by type for O(1) lookup with cascade fallback.
  * Cascade: user > shared > app defaults. */
-export const vertexPreferencesAtom = atom(get => {
+export const vertexStyleAtom = atom(get => {
   const userStyles = get(userVertexStylesAtom);
   const sharedStyles = get(sharedVertexStylesAtom);
   return {
     get(type: VertexType) {
-      return createVertexPreference(
+      return resolveVertexStyle(
         type,
         sharedStyles.get(type),
         userStyles.get(type),
@@ -211,14 +211,14 @@ export const vertexPreferencesAtom = atom(get => {
   };
 });
 
-/** Edge preferences indexed by type for O(1) lookup with cascade fallback.
+/** Edge styles indexed by type for O(1) lookup with cascade fallback.
  * Cascade: user > shared > app defaults. */
-export const edgePreferencesAtom = atom(get => {
+export const edgeStyleAtom = atom(get => {
   const userStyles = get(userEdgeStylesAtom);
   const sharedStyles = get(sharedEdgeStylesAtom);
   return {
     get(type: EdgeType) {
-      return createEdgePreference(
+      return resolveEdgeStyle(
         type,
         sharedStyles.get(type),
         userStyles.get(type),
@@ -228,82 +228,82 @@ export const edgePreferencesAtom = atom(get => {
 });
 
 /** Combines the cascade layers: app defaults < shared < user. */
-export function createVertexPreference(
+export function resolveVertexStyle(
   type: VertexType,
-  shared?: VertexPreferencesStorageModel,
-  user?: VertexPreferencesStorageModel,
-): VertexPreferences {
+  shared?: VertexStyleStorage,
+  user?: VertexStyleStorage,
+): VertexStyle {
   return {
     type,
-    ...defaultVertexPreferences,
+    ...appDefaultVertexStyle,
     ...shared,
     ...user,
   } as const;
 }
 
 /** Combines the cascade layers: app defaults < shared < user. */
-export function createEdgePreference(
+export function resolveEdgeStyle(
   type: EdgeType,
-  shared?: EdgePreferencesStorageModel,
-  user?: EdgePreferencesStorageModel,
-): EdgePreferences {
+  shared?: EdgeStyleStorage,
+  user?: EdgeStyleStorage,
+): EdgeStyle {
   return {
     type,
-    ...defaultEdgePreferences,
+    ...appDefaultEdgeStyle,
     ...shared,
     ...user,
   } as const;
 }
 
-/** Returns an array of vertex preferences based on the known vertex types in the schema.
+/** Returns an array of vertex styles based on the known vertex types in the schema.
  * Always includes an entry for `LABELS.MISSING_TYPE` so that blank nodes (which are
  * assigned that synthetic type at runtime) receive icon styling on the canvas.
  */
-export function useAllVertexPreferences(): VertexPreferences[] {
-  const prefs = useAtomValue(vertexPreferencesAtom);
+export function useAllVertexStyles(): VertexStyle[] {
+  const styles = useAtomValue(vertexStyleAtom);
   const { vertices: allSchemas } = useActiveSchema();
-  const schemaPrefs = allSchemas.map(({ type }) => prefs.get(type));
+  const schemaStyles = allSchemas.map(({ type }) => styles.get(type));
 
   const missingType = LABELS.MISSING_TYPE as VertexType;
-  const alreadyIncluded = schemaPrefs.some(p => p.type === missingType);
+  const alreadyIncluded = schemaStyles.some(s => s.type === missingType);
   if (alreadyIncluded) {
-    return schemaPrefs;
+    return schemaStyles;
   }
-  return [...schemaPrefs, prefs.get(missingType)];
+  return [...schemaStyles, styles.get(missingType)];
 }
 
-/** Returns an array of edge preferences based on the known edge types in the schema. */
-export function useAllEdgePreferences(): EdgePreferences[] {
-  const prefs = useAtomValue(edgePreferencesAtom);
+/** Returns an array of edge styles based on the known edge types in the schema. */
+export function useAllEdgeStyles(): EdgeStyle[] {
+  const styles = useAtomValue(edgeStyleAtom);
   const { edges: allSchemas } = useActiveSchema();
-  return allSchemas.map(({ type }) => prefs.get(type));
+  return allSchemas.map(({ type }) => styles.get(type));
 }
 
-/** Returns the user preferences for the specified vertex type. */
-export function useVertexPreferences(type: VertexType): VertexPreferences {
-  return useDeferredValue(useAtomValue(vertexPreferenceByTypeAtom(type)));
+/** Returns the resolved style for the specified vertex type. */
+export function useVertexStyle(type: VertexType): VertexStyle {
+  return useDeferredValue(useAtomValue(vertexStyleByTypeAtom(type)));
 }
 
-/** Returns the user preferences for the specified edge type. */
-export function useEdgePreferences(type: EdgeType): EdgePreferences {
-  return useDeferredValue(useAtomValue(edgePreferenceByTypeAtom(type)));
+/** Returns the resolved style for the specified edge type. */
+export function useEdgeStyle(type: EdgeType): EdgeStyle {
+  return useDeferredValue(useAtomValue(edgeStyleByTypeAtom(type)));
 }
 
 /**
- * Returns the user preferences for the specified vertex type.
+ * Returns the resolved style for the specified vertex type.
  */
-export const vertexPreferenceByTypeAtom = atomFamily((type: VertexType) =>
-  atom(get => get(vertexPreferencesAtom).get(type)),
+export const vertexStyleByTypeAtom = atomFamily((type: VertexType) =>
+  atom(get => get(vertexStyleAtom).get(type)),
 );
 
 /**
- * Returns the user preferences for the specified edge type.
+ * Returns the resolved style for the specified edge type.
  */
-export const edgePreferenceByTypeAtom = atomFamily((type: EdgeType) =>
-  atom(get => get(edgePreferencesAtom).get(type)),
+export const edgeStyleByTypeAtom = atomFamily((type: EdgeType) =>
+  atom(get => get(edgeStyleAtom).get(type)),
 );
 
-type UpdatedVertexStyle = Partial<Omit<VertexPreferences, "type">>;
+type UpdatedVertexStyle = Partial<Omit<VertexStyle, "type">>;
 
 /**
  * Provides the necessary functions for managing vertex styles.
@@ -313,7 +313,7 @@ type UpdatedVertexStyle = Partial<Omit<VertexPreferences, "type">>;
  */
 export function useVertexStyling(type: VertexType) {
   const setVertexStyles = useSetAtom(userVertexStylesAtom);
-  const vertexStyle = useVertexPreferences(type);
+  const vertexStyle = useVertexStyle(type);
 
   const setVertexStyle = (updatedStyle: UpdatedVertexStyle) =>
     setVertexStyles(prev =>
@@ -334,7 +334,7 @@ export function useVertexStyling(type: VertexType) {
   };
 }
 
-type UpdatedEdgeStyle = Partial<Omit<EdgePreferences, "type">>;
+type UpdatedEdgeStyle = Partial<Omit<EdgeStyle, "type">>;
 
 /**
  * Provides the necessary functions for managing edge styles.
@@ -344,7 +344,7 @@ type UpdatedEdgeStyle = Partial<Omit<EdgePreferences, "type">>;
  */
 export function useEdgeStyling(type: EdgeType) {
   const setEdgeStyles = useSetAtom(userEdgeStylesAtom);
-  const edgeStyle = useEdgePreferences(type);
+  const edgeStyle = useEdgeStyle(type);
 
   const setEdgeStyle = (updatedStyle: UpdatedEdgeStyle) =>
     setEdgeStyles(prev =>

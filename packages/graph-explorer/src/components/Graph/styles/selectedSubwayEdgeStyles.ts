@@ -1,8 +1,8 @@
-import type { EdgeStyle } from "../Graph.model";
+import type { RenderedEdgeStyle } from "../Graph.model";
 
 import selectedEdgeStyle from "./selectedEdgeStyle";
 
-const selectedSubwayEdgeStyles: Partial<EdgeStyle> = {
+const selectedSubwayEdgeStyles: Partial<RenderedEdgeStyle> = {
   ...selectedEdgeStyle,
   curveStyle: "taxi",
   taxiDirection: "rightward",

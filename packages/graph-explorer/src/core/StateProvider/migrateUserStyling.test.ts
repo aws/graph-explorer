@@ -5,10 +5,10 @@ import { createEdgeType, createVertexType } from "@/core/entities";
 import { logger } from "@/utils";
 
 import type {
-  EdgePreferencesStorageModel,
-  LegacyUserStylingStorageModel,
-  VertexPreferencesStorageModel,
-} from "./userPreferences";
+  EdgeStyleStorage,
+  LegacyUserStylingStorage,
+  VertexStyleStorage,
+} from "./graphStyles";
 
 import {
   migrateUserStylingIfNeeded,
@@ -20,8 +20,8 @@ import { persistenceStatusStore } from "./persistence";
  * BACKWARD COMPATIBILITY — PERSISTED DATA
  *
  * Older versions stored all styling under a single `"user-styling"` key as a
- * `LegacyUserStylingStorageModel` object: `{ vertices: VertexPreferencesStorageModel[], edges:
- * EdgePreferencesStorageModel[] }`. Styling is now stored as two type-keyed maps
+ * `LegacyUserStylingStorage` object: `{ vertices: VertexStyleStorage[], edges:
+ * EdgeStyleStorage[] }`. Styling is now stored as two type-keyed maps
  * under `"user-vertex-styles"` and `"user-edge-styles"` — the user-defined layer of the
  * planned `<layer>-<entity>-styles` set. This migration converts the old shape
  * to the new one on startup.
@@ -34,15 +34,15 @@ import { persistenceStatusStore } from "./persistence";
  */
 describe("migrateUserStylingIfNeeded", () => {
   it("converts old user-styling arrays into type-keyed maps", async () => {
-    const vertexStyle: VertexPreferencesStorageModel = {
+    const vertexStyle: VertexStyleStorage = {
       type: createVertexType("Person"),
       color: "#ff0000",
     };
-    const edgeStyle: EdgePreferencesStorageModel = {
+    const edgeStyle: EdgeStyleStorage = {
       type: createEdgeType("knows"),
       lineColor: "#00ff00",
     };
-    await localForage.setItem<LegacyUserStylingStorageModel>("user-styling", {
+    await localForage.setItem<LegacyUserStylingStorage>("user-styling", {
       vertices: [vertexStyle],
       edges: [edgeStyle],
     });
@@ -58,14 +58,11 @@ describe("migrateUserStylingIfNeeded", () => {
   });
 
   it("leaves the old user-styling key untouched as a rollback escape hatch", async () => {
-    const old: LegacyUserStylingStorageModel = {
+    const old: LegacyUserStylingStorage = {
       vertices: [{ type: createVertexType("Person") }],
       edges: [{ type: createEdgeType("knows") }],
     };
-    await localForage.setItem<LegacyUserStylingStorageModel>(
-      "user-styling",
-      old,
-    );
+    await localForage.setItem<LegacyUserStylingStorage>("user-styling", old);
 
     await migrateUserStylingIfNeeded();
 
@@ -88,7 +85,7 @@ describe("migrateUserStylingIfNeeded", () => {
     ]);
     await localForage.setItem("user-vertex-styles", existingVertexStyles);
     await localForage.setItem("user-edge-styles", existingEdgeStyles);
-    await localForage.setItem<LegacyUserStylingStorageModel>("user-styling", {
+    await localForage.setItem<LegacyUserStylingStorage>("user-styling", {
       vertices: [{ type: createVertexType("Person") }],
       edges: [{ type: createEdgeType("knows") }],
     });
@@ -105,16 +102,16 @@ describe("migrateUserStylingIfNeeded", () => {
   });
 
   it("completes a partial write when only vertex-styles exists", async () => {
-    const vertexStyle: VertexPreferencesStorageModel = {
+    const vertexStyle: VertexStyleStorage = {
       type: createVertexType("Person"),
       color: "#ff0000",
     };
-    const edgeStyle: EdgePreferencesStorageModel = {
+    const edgeStyle: EdgeStyleStorage = {
       type: createEdgeType("knows"),
       lineColor: "#00ff00",
     };
     // Simulate a crash after vertex-styles was written but before edge-styles was written.
-    await localForage.setItem<LegacyUserStylingStorageModel>("user-styling", {
+    await localForage.setItem<LegacyUserStylingStorage>("user-styling", {
       vertices: [vertexStyle],
       edges: [edgeStyle],
     });
@@ -136,16 +133,16 @@ describe("migrateUserStylingIfNeeded", () => {
   });
 
   it("completes a partial write when only edge-styles exists", async () => {
-    const vertexStyle: VertexPreferencesStorageModel = {
+    const vertexStyle: VertexStyleStorage = {
       type: createVertexType("Person"),
       color: "#ff0000",
     };
-    const edgeStyle: EdgePreferencesStorageModel = {
+    const edgeStyle: EdgeStyleStorage = {
       type: createEdgeType("knows"),
       lineColor: "#00ff00",
     };
     // Simulate a crash after edge-styles was written but before vertex-styles was written.
-    await localForage.setItem<LegacyUserStylingStorageModel>("user-styling", {
+    await localForage.setItem<LegacyUserStylingStorage>("user-styling", {
       vertices: [vertexStyle],
       edges: [edgeStyle],
     });
@@ -170,15 +167,15 @@ describe("migrateUserStylingIfNeeded", () => {
     // The legacy snapshot is never updated post-migration, so a key that
     // survives a partial loss may hold newer edits the snapshot doesn't know
     // about. Recovery must fill the missing key without clobbering the edited one.
-    const legacyVertexStyle: VertexPreferencesStorageModel = {
+    const legacyVertexStyle: VertexStyleStorage = {
       type: createVertexType("Person"),
       color: "#ff0000",
     };
-    const edgeStyle: EdgePreferencesStorageModel = {
+    const edgeStyle: EdgeStyleStorage = {
       type: createEdgeType("knows"),
       lineColor: "#00ff00",
     };
-    await localForage.setItem<LegacyUserStylingStorageModel>("user-styling", {
+    await localForage.setItem<LegacyUserStylingStorage>("user-styling", {
       vertices: [legacyVertexStyle],
       edges: [edgeStyle],
     });
@@ -202,15 +199,15 @@ describe("migrateUserStylingIfNeeded", () => {
   });
 
   it("collapses duplicate types to the last entry", async () => {
-    const first: VertexPreferencesStorageModel = {
+    const first: VertexStyleStorage = {
       type: createVertexType("Person"),
       color: "#111111",
     };
-    const second: VertexPreferencesStorageModel = {
+    const second: VertexStyleStorage = {
       type: createVertexType("Person"),
       color: "#222222",
     };
-    await localForage.setItem<LegacyUserStylingStorageModel>("user-styling", {
+    await localForage.setItem<LegacyUserStylingStorage>("user-styling", {
       vertices: [first, second],
     });
 
@@ -222,7 +219,7 @@ describe("migrateUserStylingIfNeeded", () => {
   });
 
   it("logs each storage key it migrates", async () => {
-    await localForage.setItem<LegacyUserStylingStorageModel>("user-styling", {
+    await localForage.setItem<LegacyUserStylingStorage>("user-styling", {
       vertices: [{ type: createVertexType("Person") }],
       edges: [{ type: createEdgeType("knows") }],
     });
@@ -238,11 +235,11 @@ describe("migrateUserStylingIfNeeded", () => {
   });
 
   it("only logs the key it actually migrates during partial-write recovery", async () => {
-    const edgeStyle: EdgePreferencesStorageModel = {
+    const edgeStyle: EdgeStyleStorage = {
       type: createEdgeType("knows"),
       lineColor: "#00ff00",
     };
-    await localForage.setItem<LegacyUserStylingStorageModel>("user-styling", {
+    await localForage.setItem<LegacyUserStylingStorage>("user-styling", {
       vertices: [{ type: createVertexType("Person") }],
       edges: [edgeStyle],
     });

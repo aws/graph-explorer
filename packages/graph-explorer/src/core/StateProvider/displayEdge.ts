@@ -6,7 +6,7 @@ import {
   displayEdgeTypeConfigSelector,
   type Edge,
   type EdgeId,
-  edgePreferenceByTypeAtom,
+  edgeStyleByTypeAtom,
   edgesAtom,
   edgeSelector,
   edgesSelectedIdsAtom,
@@ -71,7 +71,7 @@ const displayEdgeSelector = atomFamily((edge: Edge) =>
     const isSparql = queryEngine === "sparql";
 
     // One type config used for shape, color, icon, etc.
-    const preferences = get(edgePreferenceByTypeAtom(edge.type));
+    const style = get(edgeStyleByTypeAtom(edge.type));
 
     // List all edge types for displaying
     const edgeTypes = [edge.type];
@@ -102,7 +102,7 @@ const displayEdgeSelector = atomFamily((edge: Edge) =>
     }
 
     const displayName = getDisplayAttributeValueByName(
-      preferences.displayNameAttribute,
+      style.displayNameAttribute,
     );
 
     const displayEdge: DisplayEdge = {

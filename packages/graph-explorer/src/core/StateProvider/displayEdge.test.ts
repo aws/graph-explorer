@@ -19,7 +19,7 @@ import {
 import { formatDate } from "@/utils";
 import {
   createRandomEdge,
-  createRandomEdgePreferencesStorageModel,
+  createRandomEdgeStyleStorage,
   createRandomEdgeTypeConfig,
   createRandomRawConfiguration,
   createRandomSchema,
@@ -120,7 +120,7 @@ describe("useDisplayEdgeFromEdge", () => {
     expect(result.current.displayTypes).toStrictEqual(edge.type);
   });
 
-  it("should use display label from user preferences", () => {
+  it("should use display label from user styles", () => {
     const dbState = new DbState();
     const edge = createRandomEdge();
 
@@ -129,7 +129,7 @@ describe("useDisplayEdgeFromEdge", () => {
     etConfig.displayLabel = createRandomName("schema");
     dbState.activeSchema.edges.push(etConfig);
 
-    const edgePrefs = createRandomEdgePreferencesStorageModel();
+    const edgePrefs = createRandomEdgeStyleStorage();
     edgePrefs.type = edge.type;
     edgePrefs.displayLabel = createRandomName("prefs");
     dbState.edgeStyles.set(edgePrefs.type, edgePrefs);

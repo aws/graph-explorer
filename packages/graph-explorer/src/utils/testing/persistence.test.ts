@@ -6,11 +6,11 @@ import type {
 } from "@/core/ConfigurationProvider";
 import type { EdgeType, VertexType } from "@/core/entities";
 import type { GraphSessionStorageModel } from "@/core/StateProvider/graphSession/storage";
-import type { SchemaStorageModel } from "@/core/StateProvider/schema";
 import type {
-  EdgePreferencesStorageModel,
-  VertexPreferencesStorageModel,
-} from "@/core/StateProvider/userPreferences";
+  EdgeStyleStorage,
+  VertexStyleStorage,
+} from "@/core/StateProvider/graphStyles";
+import type { SchemaStorageModel } from "@/core/StateProvider/schema";
 
 import { reconcileMapByKey } from "@/core/StateProvider/atomWithLocalForage";
 
@@ -25,8 +25,8 @@ import {
   createRandomVertexType,
 } from "./randomData";
 
-type VertexStyles = Map<VertexType, VertexPreferencesStorageModel>;
-type EdgeStyles = Map<EdgeType, EdgePreferencesStorageModel>;
+type VertexStyles = Map<VertexType, VertexStyleStorage>;
+type EdgeStyles = Map<EdgeType, EdgeStyleStorage>;
 
 describe("persistence test helpers", () => {
   test("a tab reads back the value it persisted", async () => {
@@ -136,7 +136,7 @@ describe("cross-tab user styling reconciliation", () => {
     const typeX = createRandomVertexType();
     const typeY = createRandomVertexType();
 
-    const styleForType = (type: VertexType): VertexPreferencesStorageModel => ({
+    const styleForType = (type: VertexType): VertexStyleStorage => ({
       type,
       color: "#ff0000",
     });
@@ -172,7 +172,7 @@ describe("cross-tab user styling reconciliation", () => {
     const typeX = createRandomEdgeType();
     const typeY = createRandomEdgeType();
 
-    const styleForType = (type: EdgeType): EdgePreferencesStorageModel => ({
+    const styleForType = (type: EdgeType): EdgeStyleStorage => ({
       type,
       lineColor: "#ff0000",
     });

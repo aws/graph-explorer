@@ -64,21 +64,21 @@ _Avoid_: Attribute (legacy code term being phased out)
 
 **Styles**:
 Display customizations per Vertex Type and Edge Type — shape, color, icon, line style, and display labels. Resolved through a **Styles Cascade** (highest precedence first): User Custom Styles → Shared Styles → App Default Styles. Persisted and merged with Schema-discovered metadata to produce the final rendering. The two specific instances are **Vertex Styles** and **Edge Styles**, each stored in IndexedDB as its own type-keyed Map per layer. Storage keys follow a `<layer>-<entity>-styles` convention.
-_Avoid_: User Preferences, preferences, user styling, user settings (the `*Preferences*` code names — `VertexPreferencesStorageModel`, `userPreferences.ts`, `vertexPreferencesAtom` — are the legacy term being phased out); "customization" as a standalone noun
+_Avoid_: User Preferences, preferences, user styling, user settings; "customization" as a standalone noun
 
 **Styles Cascade**:
-The precedence stack that resolves which style value a vertex or edge type displays. From highest to lowest priority: (3) **User Custom Styles** — per-type edits made in the style dialogs, (2) **Shared Styles** — loaded from a file via Settings, (1) **App Default Styles** — hardcoded in the codebase (`defaultVertexPreferences` / `defaultEdgePreferences`). The layers below User Custom Styles (1–2) collectively are **Default Styles** — what a per-type "Reset to Default" restores to (it clears the user's edit, revealing the Shared or App Default beneath). The verb is **customize**; the UI shorthand is **custom styles** / **shared styles**.
+The precedence stack that resolves which style value a vertex or edge type displays. From highest to lowest priority: (3) **User Custom Styles** — per-type edits made in the style dialogs, (2) **Shared Styles** — loaded from a file via Settings, (1) **App Default Styles** — hardcoded in the codebase (`appDefaultVertexStyle` / `appDefaultEdgeStyle`). The layers below User Custom Styles (1–2) collectively are **Default Styles** — what a per-type "Reset to Default" restores to (it clears the user's edit, revealing the Shared or App Default beneath). The verb is **customize**; the UI shorthand is **custom styles** / **shared styles**.
 _Avoid_: Imported Default Styles, imported defaults (the layer is **Shared Styles**); Effective styles (no separate atom), style overrides
 
 **User Custom Styles**:
-The highest-precedence layer in the Styles Cascade. Per-type edits a user makes in the vertex/edge style dialogs. Stored in `userVertexStylesAtom` (`Map<VertexType, VertexPreferencesStorageModel>`, key `"user-vertex-styles"`) and `userEdgeStylesAtom` (`Map<EdgeType, EdgePreferencesStorageModel>`, key `"user-edge-styles"`). Clearing these ("Reset Custom Styles" in Settings) reveals Shared Styles beneath.
+The highest-precedence layer in the Styles Cascade. Per-type edits a user makes in the vertex/edge style dialogs. Stored in `userVertexStylesAtom` (`Map<VertexType, VertexStyleStorage>`, key `"user-vertex-styles"`) and `userEdgeStylesAtom` (`Map<EdgeType, EdgeStyleStorage>`, key `"user-edge-styles"`). Clearing these ("Reset Custom Styles" in Settings) reveals Shared Styles beneath.
 
 **Shared Styles**:
 The second-highest-precedence layer in the Styles Cascade (below User Custom, above App Default). Loaded from a styling file via the Settings → Styles screen. Stored in `sharedVertexStylesAtom` (key `"shared-vertex-styles"`) and `sharedEdgeStylesAtom` (key `"shared-edge-styles"`). Non-destructive to User Custom Styles — loading writes only this layer. Clearing these ("Reset Shared Styles" in Settings) falls through to App Default Styles. Named for their purpose: a user **saves** their styles to a file and others **load** it to get the same look.
 _Avoid_: Imported Default Styles, imported defaults (renamed — "shared" names the purpose and reads better)
 
 **App Default Styles**:
-The lowest-precedence layer in the Styles Cascade. Hardcoded in the codebase as `defaultVertexPreferences` and `defaultEdgePreferences`. Not persisted — always available as the final fallback.
+The lowest-precedence layer in the Styles Cascade. Hardcoded in the codebase as `appDefaultVertexStyle` and `appDefaultEdgeStyle`. Not persisted — always available as the final fallback.
 
 **Schema Sync**:
 The process that queries the database to discover vertex types, edge types, and their attributes. Required before a user can explore a new Connection.
@@ -137,13 +137,3 @@ _Avoid_: Save-status indicator
 
 > **Dev:** "Are **Styles** shared across **Connections**?"
 > **Domain expert:** "No — well, actually right now they're per **Vertex Type** and **Edge Type** globally, not scoped to a specific **Connection**. So if two databases happen to have the same type name, they'd share styling."
-
-## Flagged ambiguities
-
-- "Configuration" was used to mean both **Connection** and the bundled object (connection + schema + Styles) — resolved: **Connection** is canonical, "Configuration" is legacy.
-- "User Preferences" / "preferences" was used for display customizations, but the code is mid-migration to "styles" (`userVertexStylesAtom` / `userEdgeStylesAtom`, `"user-vertex-styles"` / `"user-edge-styles"`) — resolved: **Styles** is canonical (with **Vertex Styles** / **Edge Styles** as instances); the `*Preferences*` code names are legacy being phased out.
-- "Imported Default Styles" / "imported defaults" named the cascade's middle layer, and its file actions were "Import" / "Export" — resolved: the layer is **Shared Styles** ("shared" names the purpose and reads better than a bare adjective-noun), and the actions are **Load** / **Save** to match the house style used by the graph and configuration file features. "Default" now lives only in the cascade generally and the per-type "Reset to Default" button, not the layer name. Renamed end-to-end (atoms `shared*StylesAtom`, keys `"shared-*-styles"`) since the feature had not shipped — no migration. The core-styling plumbing keeps `import`-flavored names (`parseStylingFile`, `useApplyStylingImport`, `getStylingConflicts`) as an internal detail of the load action.
-- A Connection's data now has three distinct shapes that look similar but must not be conflated, each with its own explicit type: the **Exported Connection File** (`ExportedConnectionFile`, on-disk wire format), the in-memory merged configuration (`MergedConfiguration` — connection plus a live `Schema` with `lastUpdate` as a `Date`), and the persisted storage shape (`RawConfiguration` — connection only; the schema is stored separately in `schemaAtom`, never embedded). `mergeConfiguration` assembles a `MergedConfiguration` from a stored `RawConfiguration` and its active schema. Remaining work: `configurationAtom` still keys by `RawConfiguration`, to be migrated to a connection record.
-- "Node" means **Vertex** in code but is the preferred UI term for property graphs — resolved: use **Vertex** in code, "node" in UI copy.
-- "Attribute" vs "Property" — resolved: **Property** is canonical, "attribute" is legacy code term being phased out.
-- "Active connection" meant a single shared per-origin value, but the app consumed it as if it were per-tab — resolved: **Active Connection** is per-tab (sessionStorage), **Last Active Connection** is the shared persisted breadcrumb. The legacy `activeConfigurationAtom` / `active-configuration` key is reused as the breadcrumb.

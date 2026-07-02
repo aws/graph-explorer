@@ -8,11 +8,11 @@ import { createEdgeType, createVertexType } from "@/core/entities";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 import {
   ARROW_STYLES,
-  type EdgePreferencesStorageModel,
+  type EdgeStyleStorage,
   LINE_STYLES,
   SHAPE_STYLES,
-  type VertexPreferencesStorageModel,
-} from "@/core/StateProvider/userPreferences";
+  type VertexStyleStorage,
+} from "@/core/StateProvider/graphStyles";
 import { typedEntries } from "@/utils";
 
 // --- Format identity ---
@@ -62,8 +62,8 @@ export type EntryImportIssue = {
 export type ImportIssue = GeneralImportIssue | EntryImportIssue;
 
 export type StylingParseResult = {
-  vertexStyles: Map<VertexType, VertexPreferencesStorageModel>;
-  edgeStyles: Map<EdgeType, EdgePreferencesStorageModel>;
+  vertexStyles: Map<VertexType, VertexStyleStorage>;
+  edgeStyles: Map<EdgeType, EdgeStyleStorage>;
 };
 
 /**
@@ -140,7 +140,7 @@ const vertexEntrySchema = z
     borderStyle: z.enum(LINE_STYLES).optional(),
   })
   .transform(
-    ({ icon, ...rest }): Omit<VertexPreferencesStorageModel, "type"> =>
+    ({ icon, ...rest }): Omit<VertexStyleStorage, "type"> =>
       icon !== undefined ? { ...rest, iconUrl: icon } : rest,
   );
 
@@ -178,7 +178,7 @@ export type StylingExportPayload = {
 };
 
 export function toVertexFileEntry(
-  model: VertexPreferencesStorageModel,
+  model: VertexStyleStorage,
 ): VertexStyleFileEntry {
   const { type: _type, iconUrl, ...rest } = model;
   // The file format uses `icon`; storage uses `iconUrl`. Every other field maps
@@ -186,9 +186,7 @@ export function toVertexFileEntry(
   return iconUrl !== undefined ? { ...rest, icon: iconUrl } : rest;
 }
 
-export function toEdgeFileEntry(
-  model: EdgePreferencesStorageModel,
-): EdgeStyleFileEntry {
+export function toEdgeFileEntry(model: EdgeStyleStorage): EdgeStyleFileEntry {
   const { type: _type, ...rest } = model;
   return rest;
 }

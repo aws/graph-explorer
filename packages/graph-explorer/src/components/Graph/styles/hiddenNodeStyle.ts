@@ -1,6 +1,6 @@
-import type { NodeStyle } from "../Graph.model";
+import type { RenderedNodeStyle } from "../Graph.model";
 
-const hiddenNodeStyle: Partial<NodeStyle> = {
+const hiddenNodeStyle: Partial<RenderedNodeStyle> = {
   visible: false,
 };
 

@@ -4,10 +4,10 @@ import { useDeferredValue } from "react";
 import type { GraphProps } from "@/components/Graph";
 
 import {
-  type EdgePreferences,
-  useAllEdgePreferences,
-  useAllVertexPreferences,
-  type VertexPreferences,
+  type EdgeStyle,
+  useAllEdgeStyles,
+  useAllVertexStyles,
+  type VertexStyle,
 } from "@/core";
 
 import { useBackgroundImageMap } from "./useBackgroundImageMap";
@@ -19,8 +19,8 @@ const LINE_PATTERN = {
 };
 
 export default function useGraphStyles() {
-  const vtConfigs = useAllVertexPreferences();
-  const etConfigs = useAllEdgePreferences();
+  const vtConfigs = useAllVertexStyles();
+  const etConfigs = useAllEdgeStyles();
 
   const deferredVtConfigs = useDeferredValue(vtConfigs);
   const deferredEtConfigs = useDeferredValue(etConfigs);
@@ -35,8 +35,8 @@ export default function useGraphStyles() {
 }
 
 function createGraphStyles(
-  deferredVtConfigs: VertexPreferences[],
-  deferredEtConfigs: EdgePreferences[],
+  deferredVtConfigs: VertexStyle[],
+  deferredEtConfigs: EdgeStyle[],
   backgroundImageMap: Map<string, string | null>,
 ): GraphProps["styles"] {
   const styles: GraphProps["styles"] = {};

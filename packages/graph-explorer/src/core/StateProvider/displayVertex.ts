@@ -12,7 +12,7 @@ import {
   useVertex,
   type Vertex,
   type VertexId,
-  vertexPreferenceByTypeAtom,
+  vertexStyleByTypeAtom,
   type VertexType,
 } from "@/core";
 import { textTransformSelector } from "@/hooks";
@@ -44,12 +44,12 @@ export function useDisplayVerticesInCanvas() {
   return useAtomValue(displayVerticesInCanvasSelector);
 }
 
-/** Maps a `Vertex` instance to a `DisplayVertex` instance using the schema and any user preferences. */
+/** Maps a `Vertex` instance to a `DisplayVertex` instance using the schema and any user styles. */
 export function useDisplayVertexFromVertex(vertex: Vertex) {
   return useAtomValue(displayVertexSelector(vertex));
 }
 
-/** Maps the `Vertex` instances to a `DisplayVertex` instances using the schema and any user preferences. */
+/** Maps the `Vertex` instances to a `DisplayVertex` instances using the schema and any user styles. */
 export function useDisplayVerticesFromVertices(vertices: Vertex[]) {
   return useAtomValue(displayVerticesSelector(vertices));
 }
@@ -85,8 +85,7 @@ const displayVertexSelector = atomFamily((vertex: Vertex) =>
     const displayTypes = vertexTypes
       .map(
         type =>
-          get(vertexPreferenceByTypeAtom(type)).displayLabel ??
-          textTransform(type),
+          get(vertexStyleByTypeAtom(type)).displayLabel ?? textTransform(type),
       )
       .join(", ");
 
@@ -109,12 +108,12 @@ const displayVertexSelector = atomFamily((vertex: Vertex) =>
       return LABELS.MISSING_VALUE;
     }
 
-    const vertexPreferences = get(vertexPreferenceByTypeAtom(vertex.type));
+    const vertexStyle = get(vertexStyleByTypeAtom(vertex.type));
     const displayName = getDisplayAttributeValueByName(
-      vertexPreferences.displayNameAttribute,
+      vertexStyle.displayNameAttribute,
     );
     const displayDescription = getDisplayAttributeValueByName(
-      vertexPreferences.longDisplayNameAttribute,
+      vertexStyle.longDisplayNameAttribute,
     );
 
     const result: DisplayVertex = {

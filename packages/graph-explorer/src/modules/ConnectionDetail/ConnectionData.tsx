@@ -17,7 +17,7 @@ import {
 import {
   type DisplayVertexTypeConfig,
   useDisplayVertexTypeConfigs,
-  useVertexPreferences,
+  useVertexStyle,
 } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 import { cn } from "@/utils";
@@ -103,16 +103,13 @@ function VertexTypeList({
 
 function Row({ config }: { config: DisplayVertexTypeConfig }) {
   const t = useTranslations();
-  const vertexPreferences = useVertexPreferences(config.type);
+  const vertexStyle = useVertexStyle(config.type);
   const unit = config.attributes.length === 1 ? t("property") : t("properties");
 
   return (
     <Link to={`/data-explorer/${encodeURIComponent(config.type)}`}>
       <div className="@container/vertex-row flex min-h-12 items-center gap-4 px-4 py-2 hover:cursor-pointer">
-        <VertexIcon
-          vertexStyle={vertexPreferences}
-          className="@max-md:hidden"
-        />
+        <VertexIcon vertexStyle={vertexStyle} className="@max-md:hidden" />
         <ListRowContent>
           <ListRowTitle className="wrap-anywhere">
             {config.displayLabel}

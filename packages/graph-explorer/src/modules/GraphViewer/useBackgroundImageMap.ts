@@ -1,6 +1,6 @@
 import { useQueries } from "@tanstack/react-query";
 
-import type { VertexPreferences } from "@/core";
+import type { VertexStyle } from "@/core";
 
 import { renderNode } from "./renderNode";
 
@@ -13,7 +13,7 @@ import { renderNode } from "./renderNode";
  * @returns A Map where keys are vertex type names and values are their
  * corresponding background image strings
  */
-export function useBackgroundImageMap(vtConfigs: VertexPreferences[]) {
+export function useBackgroundImageMap(vtConfigs: VertexStyle[]) {
   return useQueries({
     queries: vtConfigs.map(vtConfig => ({
       queryKey: ["vertexIcon", vtConfig],

@@ -2,9 +2,9 @@
 import { waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 
-import { defaultVertexPreferences } from "@/core";
+import { appDefaultVertexStyle } from "@/core";
 import {
-  createRandomVertexPreferences,
+  createRandomVertexStyle,
   DbState,
   renderHookWithState,
 } from "@/utils/testing";
@@ -35,7 +35,7 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should generate background image map for single vertex config", async () => {
-    const vertexConfig = createRandomVertexPreferences();
+    const vertexConfig = createRandomVertexStyle();
     const expectedImage = "data:image/svg+xml;utf8,<svg>person</svg>";
     mockRenderNode.mockResolvedValue(expectedImage);
 
@@ -55,8 +55,8 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should generate background image map for multiple vertex configs", async () => {
-    const config1 = createRandomVertexPreferences();
-    const config2 = createRandomVertexPreferences();
+    const config1 = createRandomVertexStyle();
+    const config2 = createRandomVertexStyle();
 
     const image1 = "data:image/svg+xml;utf8,<svg>first</svg>";
     const image2 = "data:image/svg+xml;utf8,<svg>second</svg>";
@@ -79,8 +79,8 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should filter out failed renders from the map", async () => {
-    const config1 = createRandomVertexPreferences();
-    const config2 = createRandomVertexPreferences();
+    const config1 = createRandomVertexStyle();
+    const config2 = createRandomVertexStyle();
 
     const successImage = "data:image/svg+xml;utf8,<svg>success</svg>";
 
@@ -101,7 +101,7 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should handle renderNode returning undefined", async () => {
-    const vertexConfig = createRandomVertexPreferences();
+    const vertexConfig = createRandomVertexStyle();
     mockRenderNode.mockResolvedValue(undefined);
 
     const { result } = renderHookWithState(
@@ -116,7 +116,7 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should handle renderNode throwing an error", async () => {
-    const vertexConfig = createRandomVertexPreferences();
+    const vertexConfig = createRandomVertexStyle();
     mockRenderNode.mockRejectedValue(new Error("Render failed"));
 
     const { result } = renderHookWithState(
@@ -131,8 +131,8 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should update map when vertex configs change", async () => {
-    const initialConfig = createRandomVertexPreferences();
-    const updatedConfig = createRandomVertexPreferences();
+    const initialConfig = createRandomVertexStyle();
+    const updatedConfig = createRandomVertexStyle();
 
     const initialImage = "data:image/svg+xml;utf8,<svg>initial</svg>";
     const updatedImage = "data:image/svg+xml;utf8,<svg>updated</svg>";
@@ -165,9 +165,9 @@ describe("useBackgroundImageMap", () => {
 
   it("should handle mixed success and failure renders", async () => {
     const configs = [
-      createRandomVertexPreferences(),
-      createRandomVertexPreferences(),
-      createRandomVertexPreferences(),
+      createRandomVertexStyle(),
+      createRandomVertexStyle(),
+      createRandomVertexStyle(),
     ];
 
     const image1 = "data:image/svg+xml;utf8,<svg>first</svg>";
@@ -192,7 +192,7 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should use correct query key for caching", async () => {
-    const vertexConfig = createRandomVertexPreferences();
+    const vertexConfig = createRandomVertexStyle();
     mockRenderNode.mockResolvedValue("data:image/svg+xml;utf8,<svg></svg>");
 
     renderHookWithState(() => useBackgroundImageMap([vertexConfig]), dbState);
@@ -210,8 +210,8 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should handle vertex configs with different image types", async () => {
-    const svgConfig = createRandomVertexPreferences();
-    const pngConfig = createRandomVertexPreferences();
+    const svgConfig = createRandomVertexStyle();
+    const pngConfig = createRandomVertexStyle();
 
     const svgImage = "data:image/svg+xml;utf8,<svg>svg</svg>";
     const pngImage = "https://example.com/image.png";
@@ -232,11 +232,11 @@ describe("useBackgroundImageMap", () => {
   });
 
   it("should handle vertex configs with no icon URL", async () => {
-    const configWithIcon = createRandomVertexPreferences();
+    const configWithIcon = createRandomVertexStyle();
     configWithIcon.iconUrl = "https://example.com/icon.svg";
 
-    const configWithoutIcon = createRandomVertexPreferences();
-    configWithoutIcon.iconUrl = defaultVertexPreferences.iconUrl;
+    const configWithoutIcon = createRandomVertexStyle();
+    configWithoutIcon.iconUrl = appDefaultVertexStyle.iconUrl;
 
     const successImage = "data:image/svg+xml;utf8,<svg>success</svg>";
 

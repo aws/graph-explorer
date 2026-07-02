@@ -2,7 +2,7 @@ import { type ComponentPropsWithRef, useEffect, useState } from "react";
 
 import { Button, FormItem, InputField, Label, StylingIcon } from "@/components";
 import { type EdgeType, useDisplayEdgeTypeConfig } from "@/core";
-import { useEdgeStyling } from "@/core/StateProvider/userPreferences";
+import { useEdgeStyling } from "@/core/StateProvider/graphStyles";
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { LABELS } from "@/utils";
 

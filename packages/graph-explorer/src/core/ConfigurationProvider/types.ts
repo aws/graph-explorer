@@ -3,9 +3,9 @@ import type { ConnectionConfig } from "@shared/types";
 import { v4 } from "uuid";
 
 import type {
-  EdgePreferencesStorageModel,
-  VertexPreferencesStorageModel,
-} from "@/core/StateProvider/userPreferences";
+  EdgeStyleStorage,
+  VertexStyleStorage,
+} from "@/core/StateProvider/graphStyles";
 import type { Branded } from "@/utils";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
@@ -66,7 +66,7 @@ export type VertexTypeConfig = {
    * Total number of vertices of this type
    */
   total?: number;
-} & VertexPreferencesStorageModel;
+} & VertexStyleStorage;
 
 export type EdgeTypeConfig = {
   /**
@@ -89,7 +89,7 @@ export type EdgeTypeConfig = {
    * Total number of edges of this type
    */
   total?: number;
-} & EdgePreferencesStorageModel;
+} & EdgeStyleStorage;
 
 export type PrefixTypeConfig = {
   prefix: RdfPrefix;

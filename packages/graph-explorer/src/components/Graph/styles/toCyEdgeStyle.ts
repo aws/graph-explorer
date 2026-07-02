@@ -1,6 +1,8 @@
-import type { CyEdgeStyle, EdgeStyle } from "../Graph.model";
+import type { CyEdgeStyle, RenderedEdgeStyle } from "../Graph.model";
 
-const toCyEdgeStyle = (edgeStyle: Partial<EdgeStyle>): Partial<CyEdgeStyle> => {
+const toCyEdgeStyle = (
+  edgeStyle: Partial<RenderedEdgeStyle>,
+): Partial<CyEdgeStyle> => {
   return {
     color: edgeStyle.text?.color,
     curveStyle: edgeStyle.curveStyle,

@@ -10,11 +10,11 @@ import {
 } from "@/core/entities";
 import { RESERVED_TYPES_PROPERTY } from "@/utils";
 import {
-  createRandomEdgePreferencesStorageModel,
+  createRandomEdgeStyleStorage,
   createRandomEdgeTypeConfig,
   createRandomRawConfiguration,
   createRandomSchema,
-  createRandomVertexPreferencesStorageModel,
+  createRandomVertexStyleStorage,
   createRandomVertexTypeConfig,
 } from "@/utils/testing";
 
@@ -23,11 +23,8 @@ import type {
   RawConfiguration,
   VertexTypeConfig,
 } from "../ConfigurationProvider";
+import type { EdgeStyleStorage, VertexStyleStorage } from "./graphStyles";
 import type { SchemaStorageModel } from "./schema";
-import type {
-  EdgePreferencesStorageModel,
-  VertexPreferencesStorageModel,
-} from "./userPreferences";
 
 import {
   activeConfigSelector,
@@ -42,14 +39,14 @@ import {
 } from "./configuration";
 
 function toVertexStyles(
-  styles: VertexPreferencesStorageModel[] = [],
-): Map<VertexType, VertexPreferencesStorageModel> {
+  styles: VertexStyleStorage[] = [],
+): Map<VertexType, VertexStyleStorage> {
   return new Map(styles.map(style => [style.type, style]));
 }
 
 function toEdgeStyles(
-  styles: EdgePreferencesStorageModel[] = [],
-): Map<EdgeType, EdgePreferencesStorageModel> {
+  styles: EdgeStyleStorage[] = [],
+): Map<EdgeType, EdgeStyleStorage> {
   return new Map(styles.map(style => [style.type, style]));
 }
 
@@ -143,13 +140,13 @@ describe("mergedConfiguration", () => {
     const schema = createRandomSchema();
     const vertexStyles = toVertexStyles(
       schema.vertices.map(v => ({
-        ...createRandomVertexPreferencesStorageModel(),
+        ...createRandomVertexStyleStorage(),
         type: v.type,
       })),
     );
     const edgeStyles = toEdgeStyles(
       schema.edges.map(v => ({
-        ...createRandomEdgePreferencesStorageModel(),
+        ...createRandomEdgeStyleStorage(),
         type: v.type,
       })),
     );
