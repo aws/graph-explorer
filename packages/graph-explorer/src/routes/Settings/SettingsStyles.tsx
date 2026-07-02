@@ -36,7 +36,7 @@ export default function SettingsStyles() {
         </SettingsPageIcon>
         <SettingsPageTitle>Styles</SettingsPageTitle>
         <SettingsPageDescription>
-          Share your node and edge styling with others, or reset them back to
+          Share your node and edge styles with others, or reset them back to
           defaults. Your styles and shared styles are tracked separately.
         </SettingsPageDescription>
       </SettingsPageHeader>
@@ -48,7 +48,7 @@ export default function SettingsStyles() {
         <GroupItem>
           <LabelledSetting
             label="Save styles to share"
-            description="Save your current node and edge styling to a file, including any shared styles you've loaded. Share it with others or load it on another machine to get the same look."
+            description="Save your current node and edge styles to a file, including any shared styles you've loaded. Share it with others or load it on another machine to get the same look."
           >
             <SaveStylesButton />
           </LabelledSetting>
