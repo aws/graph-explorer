@@ -219,8 +219,8 @@ function ConflictContent({
         </AlertDialogTitle>
         <AlertDialogDescription>
           The loaded file will overwrite these existing shared styles. New types
-          will be added alongside them. This cannot be undone — consider saving
-          first.
+          will be added alongside them. This cannot be undone, so consider
+          saving first.
         </AlertDialogDescription>
       </AlertDialogHeader>
       <ConflictLists conflicts={conflicts} />
@@ -433,7 +433,7 @@ function EntryIssuesGroup({
             <span className="text-text-primary font-mono font-medium">
               {issue.typeName}
             </span>
-            {" — "}
+            {" → "}
             <span className="font-mono">{issue.field}</span>: {issue.message}
           </div>
           <div className="text-text-secondary">
