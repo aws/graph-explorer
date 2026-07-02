@@ -45,6 +45,7 @@ import { createDisplayError } from "@/utils/createDisplayError";
 
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import { NODE_SHAPE } from "./nodeShape";
+import { SpikeNodePreview } from "./SpikeNodePreview";
 
 const customizeNodeTypeAtom = atom<VertexType | undefined>(undefined);
 
@@ -145,6 +146,7 @@ function Content({ vertexType }: { vertexType: VertexType }) {
         </DialogHeader>
 
         <DialogBody>
+          <SpikeNodePreview style={vertexStyle} />
           <FieldSet>
             <FieldGroup>
               <Field>
