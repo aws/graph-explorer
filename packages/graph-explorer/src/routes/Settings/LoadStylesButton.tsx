@@ -13,6 +13,7 @@ import type {
 import {
   AlertDialog,
   AlertDialogAction,
+  AlertDialogBody,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -342,7 +343,7 @@ function formatStyleCount(count: number, entity: string): string {
 function ConflictLists({ conflicts }: { conflicts: ImportConflicts }) {
   const { vertices, edges } = conflicts;
   return (
-    <div className="min-h-0 space-y-3 overflow-y-auto">
+    <AlertDialogBody className="space-y-3">
       {vertices.length > 0 ? (
         <ConflictGroup
           label={`${vertices.length} node ${vertices.length === 1 ? "type" : "types"}`}
@@ -355,7 +356,7 @@ function ConflictLists({ conflicts }: { conflicts: ImportConflicts }) {
           types={edges}
         />
       ) : null}
-    </div>
+    </AlertDialogBody>
   );
 }
 
@@ -380,7 +381,7 @@ function IssuesList({ issues }: { issues: ImportIssue[] }) {
   const vertices = entries.filter(issue => issue.entityType === "vertex");
   const edges = entries.filter(issue => issue.entityType === "edge");
   return (
-    <div className="min-h-0 space-y-3 overflow-y-auto">
+    <AlertDialogBody className="space-y-3">
       {general.length > 0 ? <GeneralIssuesGroup issues={general} /> : null}
       {vertices.length > 0 ? (
         <EntryIssuesGroup
@@ -394,7 +395,7 @@ function IssuesList({ issues }: { issues: ImportIssue[] }) {
           issues={edges}
         />
       ) : null}
-    </div>
+    </AlertDialogBody>
   );
 }
 
