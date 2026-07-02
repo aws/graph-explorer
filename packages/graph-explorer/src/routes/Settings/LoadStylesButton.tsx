@@ -319,14 +319,14 @@ function LoadCompleteContent({
 }
 
 /**
- * Summarizes what was loaded, omitting a zero side so a vertex-only load reads
- * "2 vertex styles" rather than "2 vertex styles and 0 edge styles". The empty
- * case is handled by its own phase, so at least one count is non-zero.
+ * Summarizes what was loaded, omitting a zero side so a node-only load reads
+ * "2 node styles" rather than "2 node styles and 0 edge styles". The empty case
+ * is handled by its own phase, so at least one count is non-zero.
  */
 function formatLoadedCounts(vertexCount: number, edgeCount: number): string {
   const clauses: string[] = [];
   if (vertexCount > 0) {
-    clauses.push(formatStyleCount(vertexCount, "vertex"));
+    clauses.push(formatStyleCount(vertexCount, "node"));
   }
   if (edgeCount > 0) {
     clauses.push(formatStyleCount(edgeCount, "edge"));
@@ -334,7 +334,7 @@ function formatLoadedCounts(vertexCount: number, edgeCount: number): string {
   return clauses.join(" and ");
 }
 
-/** e.g. `formatStyleCount(2, "vertex")` → `"2 vertex styles"`. */
+/** e.g. `formatStyleCount(2, "node")` → `"2 node styles"`. */
 function formatStyleCount(count: number, entity: string): string {
   return `${count} ${entity} ${count === 1 ? "style" : "styles"}`;
 }
@@ -345,7 +345,7 @@ function ConflictLists({ conflicts }: { conflicts: ImportConflicts }) {
     <div className="min-h-0 space-y-3 overflow-y-auto">
       {vertices.length > 0 ? (
         <ConflictGroup
-          label={`${vertices.length} vertex ${vertices.length === 1 ? "type" : "types"}`}
+          label={`${vertices.length} node ${vertices.length === 1 ? "type" : "types"}`}
           types={vertices}
         />
       ) : null}
@@ -384,7 +384,7 @@ function IssuesList({ issues }: { issues: ImportIssue[] }) {
       {general.length > 0 ? <GeneralIssuesGroup issues={general} /> : null}
       {vertices.length > 0 ? (
         <EntryIssuesGroup
-          label={`${vertices.length} vertex ${vertices.length === 1 ? "type" : "types"}`}
+          label={`${vertices.length} node ${vertices.length === 1 ? "type" : "types"}`}
           issues={vertices}
         />
       ) : null}

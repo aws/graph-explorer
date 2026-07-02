@@ -37,7 +37,7 @@ export default function SettingsStyles() {
         <SettingsPageTitle>Styles</SettingsPageTitle>
         <SettingsPageDescription>
           Share your node and edge styling with others, or reset them back to
-          defaults. Custom styles and shared styles are tracked separately.
+          defaults. Your styles and shared styles are tracked separately.
         </SettingsPageDescription>
       </SettingsPageHeader>
 
@@ -56,7 +56,7 @@ export default function SettingsStyles() {
         <GroupItem className="space-y-2">
           <LabelledSetting
             label="Load shared styles"
-            description="Load styles from a file into your shared styles. New types are added and matching ones are replaced; your custom styles are left untouched."
+            description="Load styles from a file into your shared styles. New types are added and matching ones are replaced; your own styles are left untouched."
           >
             <LoadStylesButton />
           </LabelledSetting>
@@ -76,8 +76,8 @@ export default function SettingsStyles() {
         </GroupHeader>
         <GroupItem>
           <LabelledSetting
-            label="Reset custom styles"
-            description="Clear all per-type style customizations you've made. Shared styles remain."
+            label="Reset your styles"
+            description="Clear the styles you've set yourself. Shared styles remain."
           >
             <ResetCustomStylesButton />
           </LabelledSetting>
@@ -85,7 +85,7 @@ export default function SettingsStyles() {
         <GroupItem>
           <LabelledSetting
             label="Reset shared styles"
-            description="Remove the shared styles. Your custom styles remain."
+            description="Remove the shared styles. Your styles remain."
           >
             <ResetSharedStylesButton />
           </LabelledSetting>
@@ -106,7 +106,7 @@ function SharedStylesStatus({
 
   const parts: string[] = [];
   if (vertexCount > 0) {
-    parts.push(`${vertexCount} vertex`);
+    parts.push(`${vertexCount} node`);
   }
   if (edgeCount > 0) {
     parts.push(`${edgeCount} edge`);

@@ -44,9 +44,8 @@ export default function ResetSharedStylesButton() {
           <AlertDialogTitle>Reset Shared Styles</AlertDialogTitle>
           <AlertDialogDescription>
             <span className="block">
-              This will remove all shared styles. Your custom styles will
-              remain. You can load a file again at any time; consider saving
-              first.
+              This will remove all shared styles. Your styles will remain. You
+              can load a file again at any time; consider saving first.
             </span>
             <span className="mbs-4 block">This cannot be undone.</span>
           </AlertDialogDescription>

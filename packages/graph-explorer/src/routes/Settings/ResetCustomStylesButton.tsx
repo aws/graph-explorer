@@ -33,7 +33,7 @@ export default function ResetCustomStylesButton() {
       <AlertDialogTrigger asChild>
         <Button variant="danger" className="min-w-28">
           <Trash2Icon />
-          Reset Custom Styles
+          Reset Your Styles
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -41,11 +41,11 @@ export default function ResetCustomStylesButton() {
           <AlertDialogMedia className="bg-danger-subtle text-danger">
             <Trash2Icon />
           </AlertDialogMedia>
-          <AlertDialogTitle>Reset All Custom Styles</AlertDialogTitle>
+          <AlertDialogTitle>Reset Your Styles</AlertDialogTitle>
           <AlertDialogDescription>
             <span className="block">
-              This will clear all your per-type style customizations. Your
-              shared styles will remain. Consider saving first.
+              This will clear all the styles you&apos;ve set yourself. Shared
+              styles will remain. Consider saving first.
             </span>
             <span className="mbs-4 block">This cannot be undone.</span>
           </AlertDialogDescription>
@@ -56,7 +56,7 @@ export default function ResetCustomStylesButton() {
             variant="primary-danger"
             onClick={resetCustomStyles}
           >
-            Reset Custom Styles
+            Reset Your Styles
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

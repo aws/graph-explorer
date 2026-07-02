@@ -63,8 +63,8 @@ describe("LoadStylesButton", () => {
     );
 
     expect(await screen.findByText("Styles Loaded")).toBeInTheDocument();
-    // Vertex-only load omits the zero edge side.
-    expect(screen.getByText("Loaded 2 vertex styles.")).toBeInTheDocument();
+    // Node-only load omits the zero edge side.
+    expect(screen.getByText("Loaded 2 node styles.")).toBeInTheDocument();
     expect(
       store.get(sharedVertexStylesAtom).get(createVertexType("Person")),
     ).toStrictEqual({ type: createVertexType("Person"), color: "#abc" });
@@ -84,7 +84,7 @@ describe("LoadStylesButton", () => {
 
     expect(await screen.findByText("Styles Loaded")).toBeInTheDocument();
     expect(
-      screen.getByText("Loaded 1 vertex style and 1 edge style."),
+      screen.getByText("Loaded 1 node style and 1 edge style."),
     ).toBeInTheDocument();
   });
 
