@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { Suspense } from "react";
 import { describe, expect, test, vi } from "vitest";
 
 import type { VertexPreferencesStorageModel } from "@/core/StateProvider/userPreferences";
@@ -186,5 +187,34 @@ describe("LoadStylesButton", () => {
     await user.click(screen.getByRole("button", { name: "Close" }));
 
     expect(screen.queryByText("Styles Loaded")).not.toBeInTheDocument();
+  });
+
+  test("never reveals an ancestor Suspense fallback while loading", async () => {
+    const user = userEvent.setup();
+    const store = getAppStore();
+    render(
+      <TestProvider client={createQueryClient()} store={store}>
+        <TooltipProvider>
+          <Suspense fallback={<div>page loading</div>}>
+            <LoadStylesButton />
+          </Suspense>
+        </TooltipProvider>
+      </TestProvider>,
+    );
+
+    let fallbackSeen = false;
+    const observer = new MutationObserver(() => {
+      if (screen.queryByText("page loading")) fallbackSeen = true;
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    await user.upload(
+      fileInput(),
+      stylingFile({ vertices: { Person: { color: "#abc" } }, edges: {} }),
+    );
+    await screen.findByText("Styles Loaded");
+    observer.disconnect();
+
+    expect(fallbackSeen).toBe(false);
   });
 });

@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { Suspense } from "react";
 import { describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
@@ -83,5 +84,36 @@ describe("SaveStylesButton", () => {
     await user.click(screen.getByRole("button", { name: "Close" }));
 
     expect(screen.queryByText("Something went wrong")).not.toBeInTheDocument();
+  });
+
+  test("never reveals an ancestor Suspense fallback while saving", async () => {
+    const user = userEvent.setup();
+    // Hold the save open so a non-transitioned dispatch would have time to
+    // reveal the boundary while pending.
+    vi.mocked(saveFile).mockImplementation(
+      () => new Promise(resolve => setTimeout(resolve, 20)),
+    );
+    const store = getAppStore();
+    render(
+      <TestProvider client={createQueryClient()} store={store}>
+        <TooltipProvider>
+          <Suspense fallback={<div>page loading</div>}>
+            <SaveStylesButton />
+          </Suspense>
+        </TooltipProvider>
+      </TestProvider>,
+    );
+
+    let fallbackSeen = false;
+    const observer = new MutationObserver(() => {
+      if (screen.queryByText("page loading")) fallbackSeen = true;
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    await user.click(saveButton());
+    await vi.waitFor(() => expect(saveFile).toHaveBeenCalled());
+    observer.disconnect();
+
+    expect(fallbackSeen).toBe(false);
   });
 });

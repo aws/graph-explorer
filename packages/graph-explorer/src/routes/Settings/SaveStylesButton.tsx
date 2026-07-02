@@ -1,5 +1,5 @@
 import { DownloadIcon, TriangleAlertIcon } from "lucide-react";
-import { useActionState } from "react";
+import { startTransition, useActionState } from "react";
 
 import {
   AlertDialog,
@@ -74,9 +74,17 @@ export default function SaveStylesButton() {
     }
   }
 
-  const [state, dispatch, isPending] = useActionState(runSave, {
+  const [state, dispatchAction, isPending] = useActionState(runSave, {
     kind: "closed",
   });
+
+  // The action awaits, so every dispatch must run inside a transition — else
+  // React both warns and lets the pending update reveal the nearest Suspense
+  // fallback (the whole Settings page). Wrapping here makes every call site
+  // transition-safe by construction.
+  function dispatch(action: SaveAction) {
+    startTransition(() => dispatchAction(action));
+  }
 
   return (
     <>

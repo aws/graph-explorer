@@ -1,6 +1,6 @@
 import { useAtomValue } from "jotai";
 import { AlertTriangleIcon, CheckCircleIcon, UploadIcon } from "lucide-react";
-import { useActionState } from "react";
+import { startTransition, useActionState } from "react";
 
 import type {
   EntryImportIssue,
@@ -118,9 +118,17 @@ export default function LoadStylesButton() {
     }
   }
 
-  const [state, dispatch, isPending] = useActionState(runLoad, {
+  const [state, dispatchAction, isPending] = useActionState(runLoad, {
     kind: "closed",
   });
+
+  // The action awaits, so every dispatch must run inside a transition — else
+  // React both warns and lets the pending update reveal the nearest Suspense
+  // fallback (the whole Settings page). Wrapping here makes every call site
+  // transition-safe by construction.
+  function dispatch(action: LoadAction) {
+    startTransition(() => dispatchAction(action));
+  }
 
   function renderState() {
     switch (state.kind) {
