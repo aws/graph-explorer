@@ -59,6 +59,9 @@ RUN pnpm install --frozen-lockfile && \
     rm -rf /usr/local/bin/pnpm* /usr/local/bin/corepack && \
     rm -rf $HOME/.local && \
     rm -rf $HOME/.cache && \
+    sed -i 's/\r//' ./docker-entrypoint.sh && \
+    sed -i 's/\r//' ./process-environment.sh && \
+    sed -i 's/\r//' ./setup-ssl.sh && \
     chmod a+x ./process-environment.sh && \
     chmod a+x ./setup-ssl.sh && \
     chmod a+x ./docker-entrypoint.sh

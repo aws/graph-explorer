@@ -47,6 +47,8 @@ type ConnectionForm = {
   fetchTimeoutMs?: number;
   nodeExpansionLimitEnabled: boolean;
   nodeExpansionLimit?: number;
+  username?: string;
+  password?: string;
 };
 
 const CONNECTIONS_OP: {
@@ -76,6 +78,8 @@ function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
     nodeExpansionLimit: data.nodeExpansionLimitEnabled
       ? data.nodeExpansionLimit
       : undefined,
+    username: data.username || undefined,
+    password: data.password || undefined,
   };
 }
 
@@ -193,6 +197,8 @@ const CreateConnection = ({
     fetchTimeoutMs: initialData?.fetchTimeoutMs,
     nodeExpansionLimitEnabled: initialData?.nodeExpansionLimitEnabled || false,
     nodeExpansionLimit: initialData?.nodeExpansionLimit,
+    username: initialData?.username || "",
+    password: initialData?.password || "",
   });
 
   const [hasError, setError] = useState(false);
@@ -292,6 +298,31 @@ const CreateConnection = ({
             errorMessage="URL is required"
             placeholder="https://example.com"
             validationState={hasError && !form.url ? "invalid" : "valid"}
+          />
+        </FormItem>
+
+        <FormItem>
+          <Label>
+            Username
+            <InfoTooltip>
+              Optional. Required when the graph database uses HTTP Basic
+              authentication, e.g. JanusGraph with SaslAndHMACAuthenticator.
+            </InfoTooltip>
+          </Label>
+          <InputField
+            aria-label="Username"
+            value={form.username}
+            onChange={onFormChange("username")}
+            placeholder="Leave empty for unauthenticated connections"
+          />
+        </FormItem>
+        <FormItem>
+          <Label>Password</Label>
+          <InputField
+            aria-label="Password"
+            type="password"
+            value={form.password}
+            onChange={onFormChange("password")}
           />
         </FormItem>
 
