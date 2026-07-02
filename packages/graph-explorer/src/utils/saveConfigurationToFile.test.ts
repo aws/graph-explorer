@@ -44,7 +44,7 @@ describe("saveConfigurationToFile", () => {
     expect(saveAsMock).toHaveBeenCalledTimes(1);
     const [blob, filename] = saveAsMock.mock.calls[0];
 
-    expect(filename).toBe(`${config.displayLabel}.json`);
+    expect(filename).toBe(`${config.displayLabel}.connection.json`);
     expect(blob).toBeInstanceOf(Blob);
     expect((blob as Blob).type).toBe("application/json");
   });
@@ -55,7 +55,7 @@ describe("saveConfigurationToFile", () => {
     saveConfigurationToFile(config);
 
     const [, filename] = saveAsMock.mock.calls[0];
-    expect(filename).toBe(`${config.id}.json`);
+    expect(filename).toBe(`${config.id}.connection.json`);
   });
 
   it("should include connection with default queryEngine if not provided", async () => {

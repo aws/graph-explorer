@@ -63,7 +63,7 @@ export async function saveLocalForageToFile(localDb: LocalDb) {
   logger.debug("Backup serialized for file", serializedExportData);
   const fileData = toJsonFileData(serializedExportData);
   logger.debug(`Converted data to JSON file blob`);
-  const fileName = "graph-explorer-config.json";
+  const fileName = "graph-explorer.config.json";
   saveAs(fileData, fileName);
   logger.debug(`Saved config data as ${fileName}`);
 }

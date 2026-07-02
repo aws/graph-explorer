@@ -20,3 +20,4 @@ export * from "./numbers";
 export * from "./isCancellationError";
 export * from "./isVisible";
 export * from "./parseNumberSafely";
+export * from "./typedEntries";

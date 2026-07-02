@@ -5,6 +5,8 @@ import {
 } from "@shared/types";
 import { z } from "zod";
 
+import type { FileEnvelope } from "@/core/fileEnvelope";
+
 import { parseRdfEdgeIdString } from "@/connector/sparql/parseEdgeId";
 import {
   createEdgeId,
@@ -13,28 +15,37 @@ import {
   type EntityRawId,
   type VertexId,
 } from "@/core/entities";
-import { escapeString, LABELS, logger } from "@/utils";
+import {
+  createFileEnvelope,
+  FileEnvelopeError,
+  parseFileEnvelope,
+} from "@/core/fileEnvelope";
+import { escapeString, logger } from "@/utils";
 
-export const exportedGraphSchema = z.object({
-  meta: z.object({
-    kind: z.literal("graph-export"),
-    version: z.literal("1.0"),
-    timestamp: z.coerce.date(),
-    source: z.string(),
-    sourceVersion: z.string(),
+/** The envelope `kind` discriminator for graph export files. */
+export const GRAPH_EXPORT_KIND = "graph-export";
+
+/**
+ * Format generation. A single integer that bumps only on a breaking change
+ * (renamed or removed fields). Additive changes are made as optional fields and
+ * do not bump it. This is both the version written to new files and the newest
+ * generation this build can read; files on disk from before the integer switch
+ * carry the legacy `"1.0"` string, which the envelope normalizes to `1`.
+ */
+export const GRAPH_EXPORT_VERSION = 1;
+
+const graphExportPayloadSchema = z.object({
+  connection: z.object({
+    dbUrl: z.string(),
+    queryEngine: z.enum(queryEngineOptions),
   }),
-  data: z.object({
-    connection: z.object({
-      dbUrl: z.string(),
-      queryEngine: z.enum(queryEngineOptions),
-    }),
-    vertices: z.array(z.union([z.string(), z.number()])),
-    edges: z.array(z.union([z.string(), z.number()])),
-  }),
+  vertices: z.array(z.union([z.string(), z.number()])),
+  edges: z.array(z.union([z.string(), z.number()])),
 });
 
-export type ExportedGraphFile = z.infer<typeof exportedGraphSchema>;
-export type ExportedGraphConnection = ExportedGraphFile["data"]["connection"];
+export type GraphExportPayload = z.infer<typeof graphExportPayloadSchema>;
+export type ExportedGraphFile = FileEnvelope<GraphExportPayload>;
+export type ExportedGraphConnection = GraphExportPayload["connection"];
 
 /** Creates an exported graph suitable for saving to a file. */
 export function createExportedGraph(
@@ -42,20 +53,11 @@ export function createExportedGraph(
   edgeIds: EdgeId[],
   connection: ConnectionConfig,
 ): ExportedGraphFile {
-  return {
-    meta: {
-      kind: "graph-export",
-      source: LABELS.APP_NAME,
-      sourceVersion: __GRAPH_EXP_VERSION__,
-      version: "1.0",
-      timestamp: new Date(),
-    },
-    data: {
-      connection: createExportedConnection(connection),
-      vertices: vertexIds,
-      edges: edgeIds,
-    },
-  };
+  return createFileEnvelope(GRAPH_EXPORT_KIND, GRAPH_EXPORT_VERSION, {
+    connection: createExportedConnection(connection),
+    vertices: vertexIds,
+    edges: edgeIds,
+  });
 }
 
 /** Creates an exported connection object from the given connection config. */
@@ -73,14 +75,50 @@ export function createExportedConnection(
   };
 }
 
-export async function parseExportedGraph(data: unknown) {
-  const parsed = await exportedGraphSchema.parseAsync(data);
+/**
+ * Selects the payload parser for a graph export file's format generation. Today
+ * only generation 1 exists; a future breaking change adds its `case` here
+ * alongside the old one. Routing through an explicit switch means a generation
+ * with no parser fails loudly instead of being mis-parsed by the current schema.
+ * The envelope's version guard already rejects a generation newer than this
+ * build supports, so the `default` is reached only when a supported generation
+ * is left unhandled here — a programming error, surfaced rather than swallowed.
+ */
+export function parseGraphExportPayloadForVersion(
+  version: number,
+  rawData: unknown,
+): GraphExportPayload {
+  switch (version) {
+    case 1:
+      return graphExportPayloadSchema.parse(rawData);
+    default:
+      throw new FileEnvelopeError(
+        `No graph export parser for format generation ${version}`,
+      );
+  }
+}
 
-  const connection = parsed.data.connection;
+/**
+ * Reads a graph export file: validates the shared envelope (kind + format
+ * generation), then the graph payload, then sanitizes the entity ids. Throws
+ * {@link FileEnvelopeError} for a non-graph or too-new file and {@link ZodError}
+ * for a malformed payload.
+ */
+export async function parseExportedGraph(blob: Blob) {
+  const envelope = await parseFileEnvelope(blob, {
+    kind: GRAPH_EXPORT_KIND,
+    supportedVersion: GRAPH_EXPORT_VERSION,
+  });
+  const payload = parseGraphExportPayloadForVersion(
+    envelope.meta.version,
+    envelope.data,
+  );
+
+  const connection = payload.connection;
 
   // Do some basic validation and skip any invalid IDs
   const vertices = new Set(
-    parsed.data.vertices
+    payload.vertices
       .values()
       .map(trimIfString)
       .filter(isNotEmptyIfString)
@@ -91,7 +129,7 @@ export async function parseExportedGraph(data: unknown) {
 
   // Do some basic validation and skip any invalid IDs
   const edges = new Set(
-    parsed.data.edges
+    payload.edges
       .values()
       .map(trimIfString)
       .filter(isNotEmptyIfString)

@@ -25,7 +25,7 @@ const saveConfigurationToFile = (config: ConfigurationContextProps) => {
   };
 
   const fileToSave = toJsonFileData(exportableConfig);
-  saveAs(fileToSave, `${exportableConfig.displayLabel}.json`);
+  saveAs(fileToSave, `${exportableConfig.displayLabel}.connection.json`);
 };
 
 export default saveConfigurationToFile;

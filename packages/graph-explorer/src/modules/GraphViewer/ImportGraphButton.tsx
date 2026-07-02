@@ -7,11 +7,11 @@ import { ZodError } from "zod";
 import { Button, FileButton, Spinner } from "@/components";
 import { fetchEntityDetails, notifyOnIncompleteRestoration } from "@/connector";
 import { configurationAtom, type ConnectionWithId, useExplorer } from "@/core";
+import { FileEnvelopeError } from "@/core/fileEnvelope";
 import { useAddToGraph } from "@/hooks";
 import { useEntityCountFormatterCallback } from "@/hooks/useEntityCountFormatter";
 import { getTranslation } from "@/hooks/useTranslations";
 import { logger } from "@/utils";
-import { fromFileToJson } from "@/utils/fileData";
 
 import {
   type ExportedGraphConnection,
@@ -25,7 +25,7 @@ export function ImportGraphButton() {
   return (
     <FileButton
       onChange={payload => payload && importGraph.mutate(payload)}
-      accept="application/json"
+      accept=".graph.json"
       asChild
     >
       <Button
@@ -63,8 +63,7 @@ function useImportGraphMutation() {
   const mutation = useMutation({
     mutationFn: async (file: File) => {
       // 1. Parse the file
-      const data = await fromFileToJson(file);
-      const graph = await parseExportedGraph(data);
+      const graph = await parseExportedGraph(file);
 
       // 2. Check connection
       if (!isMatchingConnection(explorer.connection, graph.connection)) {
@@ -118,7 +117,9 @@ export function createErrorNotification(
   file: File,
   allConnections: ConnectionWithId[],
 ) {
-  if (error instanceof ZodError) {
+  if (error instanceof FileEnvelopeError) {
+    return error.message;
+  } else if (error instanceof ZodError) {
     return `Parsing the file "${file.name}" failed. Please ensure the file was originally saved from Graph Explorer and is not corrupt.`;
   } else if (error instanceof InvalidConnectionError) {
     const matchingByUrlAndQueryEngine = allConnections.filter(connection =>

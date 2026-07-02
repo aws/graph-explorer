@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 
+import DOMPurify from "dompurify";
 import { DynamicIcon } from "lucide-react/dynamic";
 import SVG from "react-inlinesvg";
 
@@ -12,6 +13,12 @@ import { cn } from "@/utils";
 import { getLucideName, isValidLucideIconName } from "@/utils/lucideIcons";
 
 import { SearchResultSymbol } from "./SearchResult";
+
+function sanitizeSvg(svg: string): string {
+  return DOMPurify.sanitize(svg, {
+    USE_PROFILES: { svg: true, svgFilters: true },
+  });
+}
 
 interface Props {
   vertexStyle: VertexPreferences;
@@ -43,6 +50,7 @@ function VertexIcon({ vertexStyle, className, alt }: Props) {
     return (
       <SVG
         src={vertexStyle.iconUrl}
+        preProcessor={sanitizeSvg}
         className={cn("size-6 shrink-0", className)}
         style={{ color: vertexStyle.color }}
         title={altText}
