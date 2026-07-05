@@ -4,7 +4,7 @@ import { atom, useAtomValue, useSetAtom } from "jotai";
 import { atomFamily } from "jotai-family";
 import { useDeferredValue } from "react";
 
-import { RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
+import { LABELS, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
 import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 
 import type { EdgeType, VertexType } from "../entities";
@@ -208,11 +208,21 @@ export function createEdgePreference(
   };
 }
 
-/** Returns an array of vertex preferences based on the known vertex types in the schema. */
+/** Returns an array of vertex preferences based on the known vertex types in the schema.
+ * Always includes an entry for `LABELS.MISSING_TYPE` so that blank nodes (which are
+ * assigned that synthetic type at runtime) receive icon styling on the canvas.
+ */
 export function useAllVertexPreferences(): VertexPreferences[] {
   const prefs = useAtomValue(vertexPreferencesAtom);
   const { vertices: allSchemas } = useActiveSchema();
-  return allSchemas.map(({ type }) => prefs.get(type));
+  const schemaPrefs = allSchemas.map(({ type }) => prefs.get(type));
+
+  const missingType = LABELS.MISSING_TYPE as VertexType;
+  const alreadyIncluded = schemaPrefs.some(p => p.type === missingType);
+  if (alreadyIncluded) {
+    return schemaPrefs;
+  }
+  return [...schemaPrefs, prefs.get(missingType)];
 }
 
 /** Returns an array of edge preferences based on the known edge types in the schema. */
