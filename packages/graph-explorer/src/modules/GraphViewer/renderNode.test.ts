@@ -217,6 +217,71 @@ describe("renderNode", () => {
     expect(decodedSvg).toContain("<svg");
     expect(decodedSvg).toContain(node.color);
   });
+
+  // Custom SVG icons are DOMPurify-sanitized (svg + svgFilters profiles) before
+  // rendering. These tests pin the actual sanitizer contract for a legacy custom
+  // icon: dangerous constructs are dropped, but the surrounding drawing survives,
+  // so such an icon degrades gracefully rather than rendering blank.
+  describe("sanitizes custom SVG icons at the render sink", () => {
+    async function renderCustomSvg(svgContent: string) {
+      fetchMock.mockResolvedValue(new Response(svgContent));
+      const node: VertexIconConfig = {
+        type: createRandomVertexType(),
+        color: createRandomColor(),
+        iconUrl: createRandomName("iconUrl"),
+        iconImageType: "image/svg+xml",
+      };
+      const result = await renderNode(client, node);
+      return decodeSvg(result);
+    }
+
+    it("strips a <script> element but keeps the rest of the drawing", async () => {
+      const decoded = await renderCustomSvg(
+        `<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script><rect width="5" height="5"/></svg>`,
+      );
+
+      expect(decoded).not.toContain("<script");
+      expect(decoded).toContain("<rect");
+    });
+
+    it("strips an event-handler attribute but keeps the element", async () => {
+      const decoded = await renderCustomSvg(
+        `<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"><rect width="5" height="5"/></svg>`,
+      );
+
+      expect(decoded).not.toContain("onload");
+      expect(decoded).toContain("<rect");
+    });
+
+    it("strips a <foreignObject> but keeps the rest of the drawing", async () => {
+      const decoded = await renderCustomSvg(
+        `<svg xmlns="http://www.w3.org/2000/svg"><foreignObject width="10" height="10"><span xmlns="http://www.w3.org/1999/xhtml">hi</span></foreignObject><rect width="5" height="5"/></svg>`,
+      );
+
+      expect(decoded).not.toContain("foreignObject");
+      expect(decoded).toContain("<rect");
+    });
+
+    it("preserves an inline <style> element", async () => {
+      const decoded = await renderCustomSvg(
+        `<svg xmlns="http://www.w3.org/2000/svg"><style>.x{fill:red}</style><rect width="5" height="5"/></svg>`,
+      );
+
+      expect(decoded).toContain("<style");
+      expect(decoded).toContain("<rect");
+    });
+
+    it("preserves an external <image href> without fetching it", async () => {
+      const externalHref = "http://external.example/icon.png";
+      const decoded = await renderCustomSvg(
+        `<svg xmlns="http://www.w3.org/2000/svg"><image href="${externalHref}"/><rect width="5" height="5"/></svg>`,
+      );
+
+      expect(decoded).toContain(externalHref);
+      expect(fetchMock).toBeCalledTimes(1);
+      expect(fetchMock).not.toBeCalledWith(externalHref);
+    });
+  });
 });
 
 /** Wraps SVG string in another SVG element matching what is expected.  */
