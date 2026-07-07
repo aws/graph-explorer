@@ -1,4 +1,4 @@
-# ADR — Styling file format and salvaging import contract
+# ADR — Styling file format and atomic import contract
 
 - **Status:** Accepted
 - **Date:** 2026-06-24
@@ -38,9 +38,11 @@ The image **subtype** is deliberately left open (any RFC-6838-shaped subtype: `s
 
 ### Whole-file (atomic) parser contract
 
-> **Evolution note.** This began as a _salvaging, per-field_ parser, was narrowed to _whole-entry_ validation, and is now **whole-file (atomic)**. Rationale: forward-compatible import of non-breaking revisions (new entries, new optional fields) is fully served by `z.record` openness plus silent unknown-field stripping — it never required per-entry salvage. Per-entry salvage only ever tolerated _invalid_ data, a goal we do not have for export-produced files. Collapsing to a single `safeParse` over the whole payload removed the hand-rolled validation loop and the dual throw-or-return error model: there is now exactly one failure path. The filename retains "salvaging" for stable links.
+The parser validates the **entire payload in one `safeParse`** by plugging the entry schemas straight into `z.record`. Import is atomic — the file imports in full or not at all.
 
-The parser validates the **entire payload in one `safeParse`** by plugging the entry schemas straight into `z.record`. Import is atomic — the file imports in full or not at all. Contract:
+It is deliberately **not** a salvaging (per-field or per-entry) parser. Salvage only ever buys tolerance of _invalid_ data, which is not a goal for files the app itself produces — a bad value signals a corrupted or hand-edited file the user should fix, not one to import partially. The forward-compatibility that salvage might seem to offer (new entries, new optional fields from a newer build) is already served by `z.record` openness plus silent unknown-field stripping. So a single `safeParse` over the whole payload is both sufficient and simpler: one failure path, no hand-rolled validation loop, no dual throw-or-return error model.
+
+Contract:
 
 ```ts
 function parseStylingPayload(rawData: unknown): StylingParseResult; // throws StylingParseError on ANY invalid value

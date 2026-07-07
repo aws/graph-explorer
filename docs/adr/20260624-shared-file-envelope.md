@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-06-24
-- **Related:** ADR `styling-file-format-and-salvaging-import` (first consumer beyond connection export). `saveConfigurationToFile` in `utils/saveConfigurationToFile.ts` (predecessor pattern that predates this envelope).
+- **Related:** ADR `styling-file-format` (first consumer beyond connection export). `saveConfigurationToFile` in `utils/saveConfigurationToFile.ts` (predecessor pattern that predates this envelope).
 
 ## Context
 
