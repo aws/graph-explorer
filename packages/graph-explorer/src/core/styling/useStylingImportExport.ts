@@ -2,9 +2,9 @@ import { useAtomValue, useSetAtom } from "jotai";
 
 import type { EdgeType, VertexType } from "@/core/entities";
 import type {
-  EdgePreferencesStorageModel,
-  VertexPreferencesStorageModel,
-} from "@/core/StateProvider/userPreferences";
+  EdgeStyleStorage,
+  VertexStyleStorage,
+} from "@/core/StateProvider/graphStyles";
 
 import { parseFileEnvelope } from "@/core/fileEnvelope";
 import {
@@ -57,8 +57,8 @@ export async function parseStylingFile(
  */
 export function getStylingConflicts(
   parsed: StylingParseResult,
-  sharedVertexStyles: Map<VertexType, VertexPreferencesStorageModel>,
-  sharedEdgeStyles: Map<EdgeType, EdgePreferencesStorageModel>,
+  sharedVertexStyles: Map<VertexType, VertexStyleStorage>,
+  sharedEdgeStyles: Map<EdgeType, EdgeStyleStorage>,
 ): ImportConflicts {
   const vertices: string[] = [];
   const edges: string[] = [];

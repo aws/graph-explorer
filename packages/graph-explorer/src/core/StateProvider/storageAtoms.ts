@@ -4,11 +4,8 @@ import type {
 } from "../ConfigurationProvider";
 import type { EdgeType, VertexType } from "../entities";
 import type { GraphSessionStorageModel } from "./graphSession/storage";
+import type { EdgeStyleStorage, VertexStyleStorage } from "./graphStyles";
 import type { SchemaStorageModel } from "./schema";
-import type {
-  EdgePreferencesStorageModel,
-  VertexPreferencesStorageModel,
-} from "./userPreferences";
 
 import { createActiveConfigurationAtom } from "./activeConnectionStorage";
 import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
@@ -93,13 +90,13 @@ const [
    */
   atomWithLocalForage(
     "user-vertex-styles",
-    new Map<VertexType, VertexPreferencesStorageModel>(),
+    new Map<VertexType, VertexStyleStorage>(),
     reconcileMapByKey,
   ),
   /** User-defined edge style overrides, keyed by type. */
   atomWithLocalForage(
     "user-edge-styles",
-    new Map<EdgeType, EdgePreferencesStorageModel>(),
+    new Map<EdgeType, EdgeStyleStorage>(),
     reconcileMapByKey,
   ),
   /**
@@ -109,13 +106,13 @@ const [
    */
   atomWithLocalForage(
     "shared-vertex-styles",
-    new Map<VertexType, VertexPreferencesStorageModel>(),
+    new Map<VertexType, VertexStyleStorage>(),
     reconcileMapByKey,
   ),
   /** Shared edge styles, loaded from a styling file. */
   atomWithLocalForage(
     "shared-edge-styles",
-    new Map<EdgeType, EdgePreferencesStorageModel>(),
+    new Map<EdgeType, EdgeStyleStorage>(),
     reconcileMapByKey,
   ),
   atomWithLocalForage("graph-view-layout", defaultGraphViewLayout),

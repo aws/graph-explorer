@@ -1,6 +1,6 @@
-import type { NodeStyle } from "../Graph.model";
+import type { RenderedNodeStyle } from "../Graph.model";
 
-const defaultNodeStyle: NodeStyle = {
+const defaultNodeStyle: RenderedNodeStyle = {
   background: "#128EE5",
   backgroundOpacity: 0.4,
   borderColor: "#128EE5",

@@ -3,9 +3,9 @@ import { describe, expect, test, vi } from "vitest";
 
 import type { VertexType, EdgeType } from "@/core/entities";
 import type {
-  VertexPreferencesStorageModel,
-  EdgePreferencesStorageModel,
-} from "@/core/StateProvider/userPreferences";
+  VertexStyleStorage,
+  EdgeStyleStorage,
+} from "@/core/StateProvider/graphStyles";
 
 import { getAppStore } from "@/core";
 import { createEdgeType, createVertexType } from "@/core/entities";
@@ -69,7 +69,7 @@ describe("styling import", () => {
     const store = getAppStore();
     store.set(
       userVertexStylesAtom,
-      new Map<VertexType, VertexPreferencesStorageModel>([
+      new Map<VertexType, VertexStyleStorage>([
         [
           createVertexType("Person"),
           { type: createVertexType("Person"), color: "#111" },
@@ -95,7 +95,7 @@ describe("styling import", () => {
     const store = getAppStore();
     store.set(
       sharedVertexStylesAtom,
-      new Map<VertexType, VertexPreferencesStorageModel>([
+      new Map<VertexType, VertexStyleStorage>([
         [
           createVertexType("OldType"),
           { type: createVertexType("OldType"), color: "#old" },
@@ -119,16 +119,13 @@ describe("styling import", () => {
   });
 
   test("getStylingConflicts identifies overlapping keys", () => {
-    const sharedVertexStyles = new Map<
-      VertexType,
-      VertexPreferencesStorageModel
-    >([
+    const sharedVertexStyles = new Map<VertexType, VertexStyleStorage>([
       [
         createVertexType("Person"),
         { type: createVertexType("Person"), color: "#existing" },
       ],
     ]);
-    const sharedEdgeStyles = new Map<EdgeType, EdgePreferencesStorageModel>([
+    const sharedEdgeStyles = new Map<EdgeType, EdgeStyleStorage>([
       [
         createEdgeType("knows"),
         { type: createEdgeType("knows"), lineColor: "#old" },
@@ -136,7 +133,7 @@ describe("styling import", () => {
     ]);
 
     const parsed = {
-      vertexStyles: new Map<VertexType, VertexPreferencesStorageModel>([
+      vertexStyles: new Map<VertexType, VertexStyleStorage>([
         [
           createVertexType("Person"),
           { type: createVertexType("Person"), color: "#new" },
@@ -146,7 +143,7 @@ describe("styling import", () => {
           { type: createVertexType("Airport"), color: "#fresh" },
         ],
       ]),
-      edgeStyles: new Map<EdgeType, EdgePreferencesStorageModel>([
+      edgeStyles: new Map<EdgeType, EdgeStyleStorage>([
         [
           createEdgeType("knows"),
           { type: createEdgeType("knows"), lineColor: "#new" },
@@ -167,19 +164,19 @@ describe("styling import", () => {
 
   test("getStylingConflicts returns empty when no overlap", () => {
     const parsed = {
-      vertexStyles: new Map<VertexType, VertexPreferencesStorageModel>([
+      vertexStyles: new Map<VertexType, VertexStyleStorage>([
         [
           createVertexType("Brand New"),
           { type: createVertexType("Brand New"), color: "#aaa" },
         ],
       ]),
-      edgeStyles: new Map<EdgeType, EdgePreferencesStorageModel>(),
+      edgeStyles: new Map<EdgeType, EdgeStyleStorage>(),
     };
 
     const conflicts = getStylingConflicts(
       parsed,
-      new Map<VertexType, VertexPreferencesStorageModel>(),
-      new Map<EdgeType, EdgePreferencesStorageModel>(),
+      new Map<VertexType, VertexStyleStorage>(),
+      new Map<EdgeType, EdgeStyleStorage>(),
     );
     expect(conflicts).toStrictEqual({ vertices: [], edges: [] });
   });
@@ -240,7 +237,7 @@ describe("useExportStylingFile", () => {
     const store = getAppStore();
     store.set(
       sharedVertexStylesAtom,
-      new Map<VertexType, VertexPreferencesStorageModel>([
+      new Map<VertexType, VertexStyleStorage>([
         [
           createVertexType("Person"),
           {
@@ -253,7 +250,7 @@ describe("useExportStylingFile", () => {
     );
     store.set(
       userVertexStylesAtom,
-      new Map<VertexType, VertexPreferencesStorageModel>([
+      new Map<VertexType, VertexStyleStorage>([
         [
           createVertexType("Person"),
           { type: createVertexType("Person"), color: "#user" },
@@ -262,7 +259,7 @@ describe("useExportStylingFile", () => {
     );
     store.set(
       sharedEdgeStylesAtom,
-      new Map<EdgeType, EdgePreferencesStorageModel>([
+      new Map<EdgeType, EdgeStyleStorage>([
         [
           createEdgeType("route"),
           { type: createEdgeType("route"), lineColor: "#edge-shared" },
@@ -286,7 +283,7 @@ describe("useExportStylingFile", () => {
     const store = getAppStore();
     store.set(
       userVertexStylesAtom,
-      new Map<VertexType, VertexPreferencesStorageModel>([
+      new Map<VertexType, VertexStyleStorage>([
         [
           createVertexType("City"),
           { type: createVertexType("City"), color: "#city" },
@@ -305,7 +302,7 @@ describe("useExportStylingFile", () => {
     const store = getAppStore();
     store.set(
       sharedEdgeStylesAtom,
-      new Map<EdgeType, EdgePreferencesStorageModel>([
+      new Map<EdgeType, EdgeStyleStorage>([
         [
           createEdgeType("likes"),
           { type: createEdgeType("likes"), lineStyle: "dashed" },
@@ -331,7 +328,7 @@ describe("useExportStylingFile", () => {
     const store = getAppStore();
     store.set(
       userVertexStylesAtom,
-      new Map<VertexType, VertexPreferencesStorageModel>([
+      new Map<VertexType, VertexStyleStorage>([
         [
           createVertexType("Airport"),
           {

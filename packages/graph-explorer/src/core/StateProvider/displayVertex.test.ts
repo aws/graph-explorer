@@ -26,7 +26,7 @@ import {
   createRandomSchema,
   createRandomVertex,
   createRandomVertexId,
-  createRandomVertexPreferencesStorageModel,
+  createRandomVertexStyleStorage,
   createRandomVertexTypeConfig,
   DbState,
   renderHookWithJotai,
@@ -67,7 +67,7 @@ describe("useDisplayVertexFromVertex", () => {
     expect(act(vertex).displayTypes).toStrictEqual(LABELS.MISSING_TYPE);
   });
 
-  it("should use the display label from user preferences", () => {
+  it("should use the display label from user styles", () => {
     const dbState = new DbState();
     const vertex = createRandomVertex();
 
@@ -77,8 +77,8 @@ describe("useDisplayVertexFromVertex", () => {
     vtConfig.displayLabel = createRandomName("schema");
     dbState.activeSchema.vertices.push(vtConfig);
 
-    // User vertex preferences
-    const userPrefs = createRandomVertexPreferencesStorageModel();
+    // User vertex styles
+    const userPrefs = createRandomVertexStyleStorage();
     userPrefs.type = vertex.type;
     userPrefs.displayLabel = createRandomName("userPrefs");
     dbState.vertexStyles.set(userPrefs.type, userPrefs);

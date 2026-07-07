@@ -1,6 +1,6 @@
-import type { EdgeStyle } from "../Graph.model";
+import type { RenderedEdgeStyle } from "../Graph.model";
 
-const hiddenEdgeStyle: Partial<EdgeStyle> = {
+const hiddenEdgeStyle: Partial<RenderedEdgeStyle> = {
   visible: false,
 };
 

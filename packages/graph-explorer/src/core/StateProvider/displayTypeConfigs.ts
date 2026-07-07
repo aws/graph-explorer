@@ -6,13 +6,13 @@ import { useCallback } from "react";
 import {
   activeSchemaAtom,
   type AttributeConfig,
-  edgePreferenceByTypeAtom,
-  type EdgePreferences,
+  edgeStyleByTypeAtom,
+  type EdgeStyle,
   type EdgeType,
   type EdgeTypeConfig,
   edgeTypeConfigSelector,
-  vertexPreferenceByTypeAtom,
-  type VertexPreferences,
+  vertexStyleByTypeAtom,
+  type VertexStyle,
   type VertexType,
   type VertexTypeConfig,
   vertexTypeConfigSelector,
@@ -114,9 +114,9 @@ export function useSearchableAttributes(type: string) {
 export const displayVertexTypeConfigSelector = atomFamily((type: VertexType) =>
   atom(get => {
     const textTransform = get(textTransformSelector);
-    const preferences = get(vertexPreferenceByTypeAtom(type));
+    const style = get(vertexStyleByTypeAtom(type));
     const typeConfig = get(vertexTypeConfigSelector(type));
-    return mapToDisplayVertexTypeConfig(typeConfig, preferences, textTransform);
+    return mapToDisplayVertexTypeConfig(typeConfig, style, textTransform);
   }),
 );
 
@@ -135,9 +135,9 @@ export const displayVertexTypeConfigsSelector = atom(get => {
 export const displayEdgeTypeConfigSelector = atomFamily((type: EdgeType) =>
   atom(get => {
     const textTransform = get(textTransformSelector);
-    const preferences = get(edgePreferenceByTypeAtom(type));
+    const style = get(edgeStyleByTypeAtom(type));
     const typeConfig = get(edgeTypeConfigSelector(type));
-    return mapToDisplayEdgeTypeConfig(typeConfig, preferences, textTransform);
+    return mapToDisplayEdgeTypeConfig(typeConfig, style, textTransform);
   }),
 );
 
@@ -154,13 +154,11 @@ export const displayEdgeTypeConfigsSelector = atom(get => {
 
 export function mapToDisplayVertexTypeConfig(
   typeConfig: VertexTypeConfig,
-  preferences: VertexPreferences,
+  style: VertexStyle,
   textTransform: TextTransformer,
 ): DisplayVertexTypeConfig {
   const displayLabel =
-    preferences.displayLabel ||
-    textTransform(typeConfig.type) ||
-    LABELS.MISSING_TYPE;
+    style.displayLabel || textTransform(typeConfig.type) || LABELS.MISSING_TYPE;
 
   const attributes: DisplayConfigAttribute[] = typeConfig.attributes
     .map(attr => ({
@@ -181,13 +179,11 @@ export function mapToDisplayVertexTypeConfig(
 
 export function mapToDisplayEdgeTypeConfig(
   typeConfig: EdgeTypeConfig,
-  preferences: EdgePreferences,
+  style: EdgeStyle,
   textTransform: TextTransformer,
 ): DisplayEdgeTypeConfig {
   const displayLabel =
-    preferences.displayLabel ||
-    textTransform(typeConfig.type) ||
-    LABELS.MISSING_TYPE;
+    style.displayLabel || textTransform(typeConfig.type) || LABELS.MISSING_TYPE;
 
   const attributes: DisplayConfigAttribute[] = typeConfig.attributes
     .map(attr => ({

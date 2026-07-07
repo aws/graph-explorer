@@ -23,7 +23,7 @@ import {
   type DisplayEdge,
   type LineStyle,
   useDisplayVertex,
-  useEdgePreferences,
+  useEdgeStyle,
 } from "@/core";
 import { useTranslations } from "@/hooks";
 import {
@@ -42,7 +42,7 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
   const sourceVertex = useDisplayVertex(edge.sourceId);
   const targetVertex = useDisplayVertex(edge.targetId);
 
-  const style = useEdgePreferences(edge.type);
+  const style = useEdgeStyle(edge.type);
 
   const allAttributes: DisplayAttribute[] = [
     ...(edge.hasUniqueId

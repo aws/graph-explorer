@@ -41,7 +41,7 @@ vi.mock("@/core", async () => {
       displayLabel: vertexType,
       attributes: [],
     }),
-    useVertexPreferences: () => ({ color: "#000000" }),
+    useVertexStyle: () => ({ color: "#000000" }),
   };
 });
 

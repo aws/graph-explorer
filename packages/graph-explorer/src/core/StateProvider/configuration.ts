@@ -19,13 +19,13 @@ import {
 } from "@/core";
 import { RESERVED_TYPES_PROPERTY } from "@/utils/constants";
 
-import { activeSchemaSelector, type SchemaStorageModel } from "./schema";
 import {
-  defaultEdgePreferences,
-  defaultVertexPreferences,
-  type EdgePreferencesStorageModel,
-  type VertexPreferencesStorageModel,
-} from "./userPreferences";
+  appDefaultEdgeStyle,
+  appDefaultVertexStyle,
+  type EdgeStyleStorage,
+  type VertexStyleStorage,
+} from "./graphStyles";
+import { activeSchemaSelector, type SchemaStorageModel } from "./schema";
 
 /** Gets the currently active config. */
 export const activeConfigSelector = atom(get => {
@@ -67,8 +67,8 @@ export const mergedConfigurationSelector = atom(get => {
 export function mergeConfiguration(
   currentSchema: SchemaStorageModel | null | undefined,
   currentConfig: RawConfiguration,
-  vertexStyles: ReadonlyMap<VertexType, VertexPreferencesStorageModel>,
-  edgeStyles: ReadonlyMap<EdgeType, EdgePreferencesStorageModel>,
+  vertexStyles: ReadonlyMap<VertexType, VertexStyleStorage>,
+  edgeStyles: ReadonlyMap<EdgeType, EdgeStyleStorage>,
 ): MergedConfiguration {
   const mergedVertices = (currentSchema?.vertices ?? [])
     .map(schemaVertex =>
@@ -116,7 +116,7 @@ export type NormalizedConnection = ReturnType<typeof normalizeConnection>;
 
 const mergeVertex = (
   schemaVertex: VertexTypeConfig,
-  preferences?: VertexPreferencesStorageModel,
+  style?: VertexStyleStorage,
 ): VertexTypeConfig => {
   // Ignore the displayLabel from the schema
   const patchedSchema = patchToRemoveDisplayLabel(schemaVertex);
@@ -126,14 +126,14 @@ const mergeVertex = (
     ...getDefaultVertexTypeConfig(schemaVertex.type),
     // Automatic schema override
     ...patchedSchema,
-    // User preferences override
-    ...preferences,
+    // User style override
+    ...style,
   };
 };
 
 const mergeEdge = (
   schemaEdge: EdgeTypeConfig,
-  preferences?: EdgePreferencesStorageModel,
+  style?: EdgeStyleStorage,
 ): EdgeTypeConfig => {
   // Ignore the displayLabel from the schema
   const patchedSchema = patchToRemoveDisplayLabel(schemaEdge);
@@ -143,8 +143,8 @@ const mergeEdge = (
     ...getDefaultEdgeTypeConfig(schemaEdge.type),
     // Automatic schema override
     ...patchedSchema,
-    // User preferences override
-    ...preferences,
+    // User style override
+    ...style,
   };
 
   if (config.displayNameAttribute === "type") {
@@ -179,7 +179,7 @@ export const edgeTypesSelector = atom(get => {
 
 export const defaultVertexTypeConfig = {
   attributes: [],
-  ...defaultVertexPreferences,
+  ...appDefaultVertexStyle,
 } satisfies Omit<VertexTypeConfig, "type">;
 
 export function getDefaultVertexTypeConfig(
@@ -193,7 +193,7 @@ export function getDefaultVertexTypeConfig(
 
 export const defaultEdgeTypeConfig = {
   attributes: [],
-  ...defaultEdgePreferences,
+  ...appDefaultEdgeStyle,
 } satisfies Omit<EdgeTypeConfig, "type">;
 
 export function getDefaultEdgeTypeConfig(edgeType: EdgeType): EdgeTypeConfig {

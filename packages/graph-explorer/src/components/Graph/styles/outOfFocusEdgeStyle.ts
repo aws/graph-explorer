@@ -1,6 +1,6 @@
-import type { EdgeStyle } from "../Graph.model";
+import type { RenderedEdgeStyle } from "../Graph.model";
 
-const outOfFocusEdgeStyle: Partial<EdgeStyle> = {
+const outOfFocusEdgeStyle: Partial<RenderedEdgeStyle> = {
   label: "",
   lineColor: "#a0a0a0",
   opacity: 0.2,

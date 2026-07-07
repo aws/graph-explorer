@@ -2,7 +2,7 @@ import { type ComponentPropsWithRef, useEffect, useState } from "react";
 
 import { Button, FormItem, InputField, Label, StylingIcon } from "@/components";
 import { useDisplayVertexTypeConfig, type VertexType } from "@/core";
-import { useVertexStyling } from "@/core/StateProvider/userPreferences";
+import { useVertexStyling } from "@/core/StateProvider/graphStyles";
 import { useDebounceValue, usePrevious } from "@/hooks";
 import { LABELS } from "@/utils/constants";
 

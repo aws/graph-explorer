@@ -4,7 +4,7 @@ import { logger } from "@/utils";
 import { createErrorDetails } from "@/utils/createErrorDetails";
 
 import type { EdgeType, VertexType } from "../entities";
-import type { LegacyUserStylingStorageModel } from "./userPreferences";
+import type { LegacyUserStylingStorage } from "./graphStyles";
 
 import { persistenceStatusStore } from "./persistence";
 import { classifyStorageError } from "./persistence/classifyStorageError";
@@ -68,7 +68,7 @@ export async function migrateUserStylingIfNeeded() {
   }
 
   const old =
-    await localForage.getItem<LegacyUserStylingStorageModel>("user-styling");
+    await localForage.getItem<LegacyUserStylingStorage>("user-styling");
   if (!old) {
     return;
   }

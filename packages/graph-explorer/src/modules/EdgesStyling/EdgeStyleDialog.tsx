@@ -34,7 +34,7 @@ import {
   type ArrowStyle,
   type LineStyle,
   useEdgeStyling,
-} from "@/core/StateProvider/userPreferences";
+} from "@/core/StateProvider/graphStyles";
 import useTranslations from "@/hooks/useTranslations";
 import { parseNumberSafely, RESERVED_TYPES_PROPERTY } from "@/utils";
 

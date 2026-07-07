@@ -13,7 +13,7 @@ import {
   createVertexType,
   useNeighbors,
   useNeighborByType as useNeighborsByType,
-  useVertexPreferences,
+  useVertexStyle,
   type VertexId,
 } from "@/core";
 import { useQueryEngine } from "@/core/connector";
@@ -70,12 +70,12 @@ function NeighborTypeRow({
   op: NeighborOption;
 }) {
   const neighbors = useNeighborsByType(vertexId, createVertexType(op.value));
-  const vertexPreferences = useVertexPreferences(op.config.type);
+  const vertexStyle = useVertexStyle(op.config.type);
 
   return (
     <>
       <span className="flex items-center gap-2 font-medium break-all">
-        <VertexIcon vertexStyle={vertexPreferences} />
+        <VertexIcon vertexStyle={vertexStyle} />
         {op.label}
       </span>
       <Tooltip>

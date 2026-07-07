@@ -6,26 +6,26 @@ import { createEdgeType, createVertexType } from "@/core";
 import { DbState, renderHookWithState } from "@/utils/testing";
 
 import {
-  defaultEdgePreferences,
-  defaultVertexPreferences,
-  edgePreferencesAtom,
-  type EdgePreferencesStorageModel,
+  appDefaultEdgeStyle,
+  appDefaultVertexStyle,
+  edgeStyleAtom,
+  type EdgeStyleStorage,
   useEdgeStyling,
   useVertexStyling,
-  vertexPreferencesAtom,
-  type VertexPreferencesStorageModel,
-} from "./userPreferences";
+  vertexStyleAtom,
+  type VertexStyleStorage,
+} from "./graphStyles";
 
-function createExpectedVertex(existing: VertexPreferencesStorageModel) {
+function createExpectedVertex(existing: VertexStyleStorage) {
   return {
-    ...defaultVertexPreferences,
+    ...appDefaultVertexStyle,
     ...existing,
   };
 }
 
-function createExpectedEdge(existing: EdgePreferencesStorageModel) {
+function createExpectedEdge(existing: EdgeStyleStorage) {
   return {
-    ...defaultEdgePreferences,
+    ...appDefaultEdgeStyle,
     ...existing,
   };
 }
@@ -399,14 +399,14 @@ describe("useDeferredAtom integration", () => {
   });
 });
 
-describe("vertexPreferencesAtom", () => {
-  it("should return stored preferences for a known type", () => {
+describe("vertexStyleAtom", () => {
+  it("should return stored styles for a known type", () => {
     const dbState = new DbState();
     const vertexType = createVertexType("Person");
     dbState.addVertexStyle(vertexType, { color: "#ff0000" });
 
     const { result } = renderHookWithState(
-      () => useAtomValue(vertexPreferencesAtom),
+      () => useAtomValue(vertexStyleAtom),
       dbState,
     );
 
@@ -420,7 +420,7 @@ describe("vertexPreferencesAtom", () => {
     const vertexType = createVertexType("Unknown");
 
     const { result } = renderHookWithState(
-      () => useAtomValue(vertexPreferencesAtom),
+      () => useAtomValue(vertexStyleAtom),
       dbState,
     );
 
@@ -430,14 +430,14 @@ describe("vertexPreferencesAtom", () => {
   });
 });
 
-describe("edgePreferencesAtom", () => {
-  it("should return stored preferences for a known type", () => {
+describe("edgeStyleAtom", () => {
+  it("should return stored styles for a known type", () => {
     const dbState = new DbState();
     const edgeType = createEdgeType("KNOWS");
     dbState.addEdgeStyle(edgeType, { lineColor: "#00ff00" });
 
     const { result } = renderHookWithState(
-      () => useAtomValue(edgePreferencesAtom),
+      () => useAtomValue(edgeStyleAtom),
       dbState,
     );
 
@@ -451,7 +451,7 @@ describe("edgePreferencesAtom", () => {
     const edgeType = createEdgeType("Unknown");
 
     const { result } = renderHookWithState(
-      () => useAtomValue(edgePreferencesAtom),
+      () => useAtomValue(edgeStyleAtom),
       dbState,
     );
 

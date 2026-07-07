@@ -10,7 +10,7 @@ export * from "./featureFlags";
 export * from "./neighbors";
 export * from "./nodes";
 export * from "./renderedEntities";
-export * from "./userPreferences";
+export * from "./graphStyles";
 export * from "./schema";
 export * from "./storageAtoms";
 export * from "./graphSession";

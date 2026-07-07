@@ -54,7 +54,7 @@ import {
   type VertexType,
 } from "@/core";
 import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
-import { useVertexStyling } from "@/core/StateProvider/userPreferences";
+import { useVertexStyling } from "@/core/StateProvider/graphStyles";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import {
@@ -254,15 +254,15 @@ function DisplayNameAndDescriptionOptions({
     return options;
   })();
 
-  const { setVertexStyle: setPreferences } = useVertexStyling(vertexType);
+  const { setVertexStyle } = useVertexStyling(vertexType);
   const onDisplayNameChange =
     (field: "name" | "longName") => (value: string | string[]) => {
       if (field === "name") {
-        setPreferences({ displayNameAttribute: value as string });
+        setVertexStyle({ displayNameAttribute: value as string });
       }
 
       if (field === "longName") {
-        setPreferences({ longDisplayNameAttribute: value as string });
+        setVertexStyle({ longDisplayNameAttribute: value as string });
       }
     };
 

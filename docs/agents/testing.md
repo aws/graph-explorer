@@ -75,4 +75,4 @@ Anything persisted to IndexedDB via localForage/Jotai may be reloaded in an olde
 
 Group them in a dedicated `describe("backward compatibility: ...")` with a comment block stating the old shape, why the tests exist, and a "do not delete without confirming migration" warning. Cast legacy fixtures with `as TypeName` to bypass compile-time checks. See `src/utils/parseConnectionFile.test.ts` for a worked example.
 
-Persisted types that require this when modified: `SchemaStorageModel`, `PrefixTypeConfig`, `VertexTypeConfig`, `EdgeTypeConfig`, `RawConfiguration`, and the user-preference storage models. Triggers: removing/renaming a property, changing a property's type, adding a required property, or changing a property's semantics.
+Persisted types that require this when modified: `SchemaStorageModel`, `PrefixTypeConfig`, `VertexTypeConfig`, `EdgeTypeConfig`, `RawConfiguration`, and the style storage models (`VertexStyleStorage`, `EdgeStyleStorage`). Triggers: removing/renaming a property, changing a property's type, adding a required property, or changing a property's semantics.

@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { Suspense } from "react";
 import { describe, expect, test, vi } from "vitest";
 
-import type { VertexPreferencesStorageModel } from "@/core/StateProvider/userPreferences";
+import type { VertexStyleStorage } from "@/core/StateProvider/graphStyles";
 
 import { TooltipProvider } from "@/components";
 import { type AppStore, getAppStore } from "@/core";
@@ -100,7 +100,7 @@ describe("LoadStylesButton", () => {
     const store = renderButton(store =>
       store.set(
         sharedVertexStylesAtom,
-        new Map<VertexType, VertexPreferencesStorageModel>([
+        new Map<VertexType, VertexStyleStorage>([
           [
             createVertexType("Person"),
             { type: createVertexType("Person"), color: "#old" },

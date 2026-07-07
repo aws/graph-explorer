@@ -4,11 +4,7 @@ import DOMPurify from "dompurify";
 import { DynamicIcon } from "lucide-react/dynamic";
 import SVG from "react-inlinesvg";
 
-import {
-  useVertexPreferences,
-  type VertexPreferences,
-  type VertexType,
-} from "@/core";
+import { useVertexStyle, type VertexStyle, type VertexType } from "@/core";
 import { cn } from "@/utils";
 import { getLucideName, isValidLucideIconName } from "@/utils/lucideIcons";
 
@@ -21,7 +17,7 @@ function sanitizeSvg(svg: string): string {
 }
 
 interface Props {
-  vertexStyle: VertexPreferences;
+  vertexStyle: VertexStyle;
   className?: string;
   alt?: string;
 }
@@ -75,15 +71,15 @@ export function VertexIconByType({
   vertexType: VertexType;
   className?: string;
 }) {
-  const vertexPreferences = useVertexPreferences(vertexType);
-  return <VertexIcon vertexStyle={vertexPreferences} className={className} />;
+  const vertexStyle = useVertexStyle(vertexType);
+  return <VertexIcon vertexStyle={vertexStyle} className={className} />;
 }
 
 export function VertexSymbol({
   vertexStyle,
   className,
 }: {
-  vertexStyle: VertexPreferences;
+  vertexStyle: VertexStyle;
   className?: string;
 }) {
   return (
@@ -108,8 +104,8 @@ export function VertexSymbolByType({
   vertexType: VertexType;
   className?: string;
 }) {
-  const vertexPreferences = useVertexPreferences(vertexType);
-  return <VertexSymbol vertexStyle={vertexPreferences} className={className} />;
+  const vertexStyle = useVertexStyle(vertexType);
+  return <VertexSymbol vertexStyle={vertexStyle} className={className} />;
 }
 
 export default VertexIcon;

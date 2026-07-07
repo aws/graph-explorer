@@ -21,7 +21,7 @@ import {
   type EdgeType,
   useDisplayEdgeTypeConfig,
   useDisplayVertexTypeConfig,
-  useVertexPreferences,
+  useVertexStyle,
   type VertexType,
 } from "@/core";
 import { useTranslations } from "@/hooks";
@@ -282,7 +282,7 @@ function VertexTypeText({
   selected: boolean;
   onClick?: () => void;
 }) {
-  const style = useVertexPreferences(vertexType);
+  const style = useVertexStyle(vertexType);
   const { displayLabel } = useDisplayVertexTypeConfig(vertexType);
 
   return (

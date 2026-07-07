@@ -34,17 +34,15 @@ import {
   type ConnectionWithId,
   createEdge,
   createEdgeId,
-  createEdgePreference,
   createEdgeType,
   createNewConfigurationId,
   createVertex,
   createVertexId,
-  createVertexPreference,
   createVertexType,
   type EdgeConnection,
   type EdgeId,
-  type EdgePreferences,
-  type EdgePreferencesStorageModel,
+  type EdgeStyle,
+  type EdgeStyleStorage,
   type EdgeType,
   type EdgeTypeConfig,
   type Entities,
@@ -54,11 +52,13 @@ import {
   type LineStyle,
   type PrefixTypeConfig,
   type RawConfiguration,
+  resolveEdgeStyle,
+  resolveVertexStyle,
   type SchemaStorageModel,
   type Vertex,
   type VertexId,
-  type VertexPreferences,
-  type VertexPreferencesStorageModel,
+  type VertexStyle,
+  type VertexStyleStorage,
   type VertexType,
   type VertexTypeConfig,
 } from "@/core";
@@ -657,7 +657,7 @@ export function createRandomAwsRegion(): string {
   return pickRandomElement(["us-west-1", "us-west-2", "us-east-1"]);
 }
 
-export function createRandomVertexPreferencesStorageModel(): VertexPreferencesStorageModel {
+export function createRandomVertexStyleStorage(): VertexStyleStorage {
   const color = randomlyUndefined(createRandomColor());
   const borderColor = randomlyUndefined(createRandomColor());
   const iconUrl = randomlyUndefined(createRandomUrlString());
@@ -679,7 +679,7 @@ export function createRandomVertexPreferencesStorageModel(): VertexPreferencesSt
   };
 }
 
-export function createRandomEdgePreferencesStorageModel(): EdgePreferencesStorageModel {
+export function createRandomEdgeStyleStorage(): EdgeStyleStorage {
   const displayLabel = randomlyUndefined(createRandomName("DisplayLabel"));
   const displayNameAttribute = randomlyUndefined(
     createRandomName("DisplayNameAttribute"),
@@ -701,36 +701,33 @@ export function createRandomEdgePreferencesStorageModel(): EdgePreferencesStorag
 
 export function createRandomVertexStyles(): Map<
   VertexType,
-  VertexPreferencesStorageModel
+  VertexStyleStorage
 > {
   return new Map(
-    createArray(3, createRandomVertexPreferencesStorageModel).map(style => [
+    createArray(3, createRandomVertexStyleStorage).map(style => [
       style.type,
       style,
     ]),
   );
 }
 
-export function createRandomEdgeStyles(): Map<
-  EdgeType,
-  EdgePreferencesStorageModel
-> {
+export function createRandomEdgeStyles(): Map<EdgeType, EdgeStyleStorage> {
   return new Map(
-    createArray(3, createRandomEdgePreferencesStorageModel).map(style => [
+    createArray(3, createRandomEdgeStyleStorage).map(style => [
       style.type,
       style,
     ]),
   );
 }
 
-export function createRandomVertexPreferences(): Writable<VertexPreferences> {
-  const stored = createRandomVertexPreferencesStorageModel();
-  return createVertexPreference(stored.type, stored);
+export function createRandomVertexStyle(): Writable<VertexStyle> {
+  const stored = createRandomVertexStyleStorage();
+  return resolveVertexStyle(stored.type, stored);
 }
 
-export function createRandomEdgePreferences(): Writable<EdgePreferences> {
-  const stored = createRandomEdgePreferencesStorageModel();
-  return createEdgePreference(stored.type, stored);
+export function createRandomEdgeStyle(): Writable<EdgeStyle> {
+  const stored = createRandomEdgeStyleStorage();
+  return resolveEdgeStyle(stored.type, stored);
 }
 
 export function createRandomFeatureFlags(): FeatureFlags {

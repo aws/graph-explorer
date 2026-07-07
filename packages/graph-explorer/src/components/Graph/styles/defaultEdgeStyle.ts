@@ -1,6 +1,6 @@
-import type { EdgeStyle } from "../Graph.model";
+import type { RenderedEdgeStyle } from "../Graph.model";
 
-const defaultEdgeStyle: EdgeStyle = {
+const defaultEdgeStyle: RenderedEdgeStyle = {
   visible: true,
   opacity: 1,
   color: "#f0f0f0",
