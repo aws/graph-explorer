@@ -7,7 +7,7 @@ import { describe, expect, test, vi } from "vitest";
 import type { VertexPreferencesStorageModel } from "@/core/StateProvider/userPreferences";
 
 import { TooltipProvider } from "@/components";
-import { getAppStore } from "@/core";
+import { type AppStore, getAppStore } from "@/core";
 import { createVertexType, type VertexType } from "@/core/entities";
 import { createFileEnvelope } from "@/core/fileEnvelope";
 import { createQueryClient } from "@/core/queryClient";
@@ -22,8 +22,15 @@ vi.mock("@/utils/fileData", () => ({
   saveFile: vi.fn(),
 }));
 
-function renderButton() {
+/**
+ * Renders the button, optionally seeding the shared-styles atoms first. The
+ * seed happens before render so the component's first render already reflects
+ * it — seeding after render leaves the load action closing over the stale
+ * initial value until an async re-render flushes, which races the upload.
+ */
+function renderButton(seed?: (store: AppStore) => void) {
   const store = getAppStore();
+  seed?.(store);
   const queryClient = createQueryClient();
   render(
     <TestProvider client={queryClient} store={store}>
@@ -90,15 +97,16 @@ describe("LoadStylesButton", () => {
 
   test("prompts before overwriting an existing shared style, then completes on confirm", async () => {
     const user = userEvent.setup();
-    const store = renderButton();
-    store.set(
-      sharedVertexStylesAtom,
-      new Map<VertexType, VertexPreferencesStorageModel>([
-        [
-          createVertexType("Person"),
-          { type: createVertexType("Person"), color: "#old" },
-        ],
-      ]),
+    const store = renderButton(store =>
+      store.set(
+        sharedVertexStylesAtom,
+        new Map<VertexType, VertexPreferencesStorageModel>([
+          [
+            createVertexType("Person"),
+            { type: createVertexType("Person"), color: "#old" },
+          ],
+        ]),
+      ),
     );
 
     await user.upload(
