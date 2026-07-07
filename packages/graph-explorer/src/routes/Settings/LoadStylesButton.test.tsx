@@ -153,9 +153,8 @@ describe("LoadStylesButton", () => {
     const user = userEvent.setup();
     renderButton();
 
-    // A file that clears the .styles.json filter (renamed, or force-picked via
-    // "All Files") but carries the wrong envelope kind — content validation,
-    // not the filename, must reject it.
+    // A JSON file that carries the wrong envelope kind — content validation,
+    // not the filename or picker filter, must reject it.
     const wrongKind = createFileEnvelope("connection-export", 1, {
       vertices: {},
       edges: {},
