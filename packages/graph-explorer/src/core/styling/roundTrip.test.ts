@@ -321,13 +321,13 @@ describe("round-trip: export then import", () => {
     });
   });
 
-  test("an iconImageType outside the common set survives round-trip", async () => {
-    // The upload seam stores `iconImageType` from the browser's `file.type`,
-    // which can be any `image/*` the OS reports (e.g. BMP). The field is not
-    // constrained to a fixed list, so such a value round-trips instead of
-    // rejecting the whole file on re-import. The icon data itself still passes
-    // `safeIconValue` (a PNG data URI here); `iconImageType` is metadata.
-    const pngDataUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB";
+  test("a BMP data-URI icon survives round-trip", async () => {
+    // The uploader accepts any `image/*` the browser reports (`accept="image/*"`)
+    // and stores the resulting data URI verbatim, so an uncommon-but-valid image
+    // type like BMP must round-trip through export and re-import rather than
+    // rejecting the whole file. This exercises a real `data:image/bmp` icon
+    // value against the allowlist, not just a BMP-labeled `iconImageType`.
+    const bmpDataUri = "data:image/bmp;base64,Qk0eAAAAAAAAABoAAAAMAAAAAQAB";
 
     const store = getAppStore();
     store.set(
@@ -337,7 +337,7 @@ describe("round-trip: export then import", () => {
           createVertexType("BmpNode"),
           {
             type: createVertexType("BmpNode"),
-            iconUrl: pngDataUri,
+            iconUrl: bmpDataUri,
             iconImageType: "image/bmp",
             color: "#444",
           },
@@ -350,7 +350,7 @@ describe("round-trip: export then import", () => {
     );
     const payload = exportResult.current.getExportPayload();
 
-    expect(payload.vertices["BmpNode"].iconImageType).toBe("image/bmp");
+    expect(payload.vertices["BmpNode"].icon).toBe(bmpDataUri);
 
     const file = envelopeToFile(payload);
     store.set(userVertexStylesAtom, new Map());
@@ -365,7 +365,7 @@ describe("round-trip: export then import", () => {
     const shared = store.get(sharedVertexStylesAtom);
     expect(shared.get(createVertexType("BmpNode"))).toStrictEqual({
       type: createVertexType("BmpNode"),
-      iconUrl: pngDataUri,
+      iconUrl: bmpDataUri,
       iconImageType: "image/bmp",
       color: "#444",
     });

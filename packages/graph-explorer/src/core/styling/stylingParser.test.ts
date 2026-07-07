@@ -342,8 +342,16 @@ describe("parseStylingPayload", () => {
       );
     });
 
-    test("accepts data:image/ URIs", () => {
-      const dataUri = "data:image/svg+xml;base64,PHN2Zz4=";
+    // The uploader accepts any `image/*` the browser reports (`accept="image/*"`)
+    // and stores the resulting `data:` URI verbatim, so the allowlist must admit
+    // any image subtype — not just a fixed set — or the app rejects its own
+    // exports on re-import. These cover the common and the uncommon-but-valid.
+    test.each([
+      "data:image/svg+xml;base64,PHN2Zz4=",
+      "data:image/png;base64,iVBORw0KGgo=",
+      "data:image/bmp;base64,Qk0eAAAA",
+      "data:image/x-icon;base64,AAABAAEAEBA=",
+    ])("accepts the data:image URI %s", dataUri => {
       const result = parseStylingPayload({
         vertices: { A: { icon: dataUri } },
         edges: {},
@@ -351,6 +359,17 @@ describe("parseStylingPayload", () => {
       expect(result.vertexStyles.get(createVertexType("A"))!.iconUrl).toBe(
         dataUri,
       );
+    });
+
+    test.each([
+      "data:text/html;base64,PHNjcmlwdD4=",
+      "data:application/json;base64,e30=",
+    ])("rejects non-image data URIs like %s", icon => {
+      const issues = parseExpectingIssues({
+        vertices: { A: { icon } },
+        edges: {},
+      });
+      expect(issues[0]).toMatchObject({ scope: "entry", field: "icon" });
     });
 
     test("rejects http:// URLs (no outbound requests from imports)", () => {
