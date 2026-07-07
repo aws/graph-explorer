@@ -3,6 +3,7 @@ import {
   type QueryClient,
   queryOptions,
 } from "@tanstack/react-query";
+import DOMPurify from "dompurify";
 
 import type { VertexTypeConfig } from "@/core";
 
@@ -33,7 +34,10 @@ const iconQueryOptions = (url: string) =>
       }
       logger.debug("Fetching icon", url);
       const response = await fetch(url);
-      return await response.text();
+      const text = await response.text();
+      return DOMPurify.sanitize(text, {
+        USE_PROFILES: { svg: true, svgFilters: true },
+      });
     },
     placeholderData: keepPreviousData,
     staleTime: Infinity,

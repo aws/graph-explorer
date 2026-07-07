@@ -25,10 +25,22 @@ import {
   createFileSafeTimestamp,
   type ExportedGraphConnection,
   type ExportedGraphFile,
-  exportedGraphSchema,
   isMatchingConnection,
   parseExportedGraph,
+  parseGraphExportPayloadForVersion,
 } from "./exportedGraph";
+
+/**
+ * Wraps an exported-graph object in a Blob, as the file entry point expects.
+ * Accepts a loosened `meta` so tests can build deliberately off-contract files
+ * (wrong kind, malformed version) without per-call casts.
+ */
+function toGraphFileBlob(graph: {
+  meta: Record<string, unknown>;
+  data: unknown;
+}): Blob {
+  return new Blob([JSON.stringify(graph)], { type: "application/json" });
+}
 
 describe("createExportedGraph", () => {
   let timestamp: Date;
@@ -60,7 +72,7 @@ describe("createExportedGraph", () => {
     const expectedMeta = {
       kind: "graph-export",
       version: "1.0",
-      timestamp: timestamp,
+      timestamp: timestamp.toISOString(),
       source: "Graph Explorer",
       sourceVersion: appVersion,
     } satisfies ExportedGraphFile["meta"];
@@ -71,6 +83,18 @@ describe("createExportedGraph", () => {
     expect(graph.data.connection).toEqual(expectedConnection);
     expect(graph.data.vertices).toEqual(vertexIds);
     expect(graph.data.edges).toEqual(edgeIds);
+  });
+
+  it("stamps the generation-1 version as the '1.0' decimal string", () => {
+    // Builds that predate the integer version switch validate `meta.version`
+    // as the literal `"1.0"`. Writing the integer `1` would make files this
+    // build exports fail to import on those older builds, so generation 1 must
+    // stay on the wire as the decimal string.
+    const connection = createRandomConnectionWithId();
+
+    const graph = createExportedGraph([], [], connection);
+
+    expect(graph.meta.version).toBe("1.0");
   });
 
   it("should create an exported graph with empty vertices and edges", () => {
@@ -91,7 +115,7 @@ describe("createExportedGraph", () => {
 
     const graph = createExportedGraph(vertexIds, edgeIds, connection);
 
-    expect(graph.meta.timestamp).toEqual(timestamp);
+    expect(graph.meta.timestamp).toEqual(timestamp.toISOString());
   });
 
   it("should use app version from global variable", () => {
@@ -112,16 +136,6 @@ describe("createExportedGraph", () => {
     const graph = createExportedGraph(vertexIds, edgeIds, connection);
 
     expect(graph.meta.kind).toBe("graph-export");
-  });
-
-  it("should set meta version to 1.0", () => {
-    const vertexIds = createArray(2, () => createRandomVertexId());
-    const edgeIds = createArray(2, () => createRandomEdgeId());
-    const connection = createRandomConnectionWithId();
-
-    const graph = createExportedGraph(vertexIds, edgeIds, connection);
-
-    expect(graph.meta.version).toBe("1.0");
   });
 
   it("should set meta source to Graph Explorer", () => {
@@ -184,7 +198,7 @@ describe("parseExportedGraph", () => {
       vertices: new Set(exportedGraph.data.vertices),
       edges: new Set(exportedGraph.data.edges),
     };
-    const parsed = await parseExportedGraph(exportedGraph);
+    const parsed = await parseExportedGraph(toGraphFileBlob(exportedGraph));
     expect(parsed).toEqual(expected);
   });
 
@@ -195,7 +209,7 @@ describe("parseExportedGraph", () => {
       vertices: new Set(exportedGraph.data.vertices),
       edges: new Set(exportedGraph.data.edges),
     };
-    const parsed = await parseExportedGraph(exportedGraph);
+    const parsed = await parseExportedGraph(toGraphFileBlob(exportedGraph));
     expect(parsed).toEqual(expected);
   });
 
@@ -204,7 +218,7 @@ describe("parseExportedGraph", () => {
     exportedGraph.data.vertices.push("");
     exportedGraph.data.edges.push("");
 
-    const parsed = await parseExportedGraph(exportedGraph);
+    const parsed = await parseExportedGraph(toGraphFileBlob(exportedGraph));
 
     expect(parsed.vertices.has("" as VertexId)).toBeFalsy();
     expect(parsed.edges.has("" as EdgeId)).toBeFalsy();
@@ -217,7 +231,7 @@ describe("parseExportedGraph", () => {
     exportedGraph.data.vertices.push(vertexId);
     exportedGraph.data.edges.push(edgeId);
 
-    const parsed = await parseExportedGraph(exportedGraph);
+    const parsed = await parseExportedGraph(toGraphFileBlob(exportedGraph));
 
     expect(parsed.vertices.has(vertexId as VertexId)).toBeTruthy();
     expect(parsed.edges.has(edgeId as EdgeId)).toBeTruthy();
@@ -230,7 +244,7 @@ describe("parseExportedGraph", () => {
     exportedGraph.data.vertices.push(maliciousVertexId);
     exportedGraph.data.edges.push(maliciousEdgeId);
 
-    const parsed = await parseExportedGraph(exportedGraph);
+    const parsed = await parseExportedGraph(toGraphFileBlob(exportedGraph));
 
     expect(parsed.vertices.has(maliciousVertexId as VertexId)).toBeFalsy();
     expect(parsed.edges.has(maliciousEdgeId as EdgeId)).toBeFalsy();
@@ -249,7 +263,7 @@ describe("parseExportedGraph", () => {
     exportedGraph.data.vertices.push(vertexIdWithWhitespace);
     exportedGraph.data.edges.push(edgeIdWithWhitespace);
 
-    const parsed = await parseExportedGraph(exportedGraph);
+    const parsed = await parseExportedGraph(toGraphFileBlob(exportedGraph));
 
     expect(parsed.vertices.has(vertexIdWithWhitespace as VertexId)).toBeFalsy();
     expect(parsed.edges.has(edgeIdWithWhitespace as EdgeId)).toBeFalsy();
@@ -272,7 +286,7 @@ describe("parseExportedGraph", () => {
       vertices: new Set(exportedGraph.data.vertices),
       edges: new Set(exportedGraph.data.edges.slice(0, -1)),
     };
-    const parsed = await parseExportedGraph(exportedGraph);
+    const parsed = await parseExportedGraph(toGraphFileBlob(exportedGraph));
     expect(parsed).toEqual(expected);
   });
 
@@ -286,40 +300,87 @@ describe("parseExportedGraph", () => {
       vertices: new Set(exportedGraph.data.vertices),
       edges: new Set(exportedGraph.data.edges.slice(0, -1)),
     };
-    const parsed = await parseExportedGraph(exportedGraph);
+    const parsed = await parseExportedGraph(toGraphFileBlob(exportedGraph));
     expect(parsed).toEqual(expected);
   });
-});
 
-describe("exportedGraphSchema", () => {
-  it("should validate exported graph schema", () => {
+  it("should reject a file that is not a graph export", async () => {
     const exportedGraph = createRandomExportedGraph();
-    expect(exportedGraphSchema.safeParse(exportedGraph).success).toBeTruthy();
+    const wrongKind = {
+      ...exportedGraph,
+      meta: { ...exportedGraph.meta, kind: "styling-export" },
+    };
+
+    await expect(
+      parseExportedGraph(toGraphFileBlob(wrongKind)),
+    ).rejects.toThrow(/Expected a "graph-export" file/);
   });
 
-  it("should validate exported graph with empty vertices and edges", () => {
+  it("should reject a file from a newer generation", async () => {
     const exportedGraph = createRandomExportedGraph();
-    exportedGraph.data.vertices = [];
-    exportedGraph.data.edges = [];
-    expect(exportedGraphSchema.safeParse(exportedGraph).success).toBeTruthy();
+    const tooNew = {
+      ...exportedGraph,
+      meta: { ...exportedGraph.meta, version: 2 },
+    };
+
+    await expect(parseExportedGraph(toGraphFileBlob(tooNew))).rejects.toThrow(
+      /newer version of Graph Explorer/,
+    );
   });
 
-  it("should not validate exported graph schema with invalid vertices", () => {
+  it("should reject a non-integer version as malformed", async () => {
     const exportedGraph = createRandomExportedGraph();
-    exportedGraph.data.vertices = [false, true] as any;
-    expect(exportedGraphSchema.safeParse(exportedGraph).success).toBeFalsy();
+    const malformed = {
+      ...exportedGraph,
+      meta: { ...exportedGraph.meta, version: "1.5" },
+    };
+
+    await expect(
+      parseExportedGraph(toGraphFileBlob(malformed)),
+    ).rejects.toThrow(/expected envelope structure/);
   });
 
-  it("should not validate exported graph schema with invalid edges", () => {
+  it("should accept the legacy '1.0' version string", async () => {
     const exportedGraph = createRandomExportedGraph();
-    exportedGraph.data.edges = [false, true] as any;
-    expect(exportedGraphSchema.safeParse(exportedGraph).success).toBeFalsy();
+    const legacy = {
+      ...exportedGraph,
+      meta: { ...exportedGraph.meta, version: "1.0" },
+    };
+
+    const parsed = await parseExportedGraph(toGraphFileBlob(legacy));
+    expect(parsed.vertices).toEqual(new Set(exportedGraph.data.vertices));
   });
 
-  it("should not validate exported graph with different meta kind value", () => {
+  it("dispatches generation 1 to the current parser", () => {
     const exportedGraph = createRandomExportedGraph();
-    exportedGraph.meta.kind = "not-graph-export" as any;
-    expect(exportedGraphSchema.safeParse(exportedGraph).success).toBeFalsy();
+    const parsed = parseGraphExportPayloadForVersion(1, exportedGraph.data);
+    expect(parsed).toEqual(exportedGraph.data);
+  });
+
+  it("throws loudly for a generation with no parser", () => {
+    const exportedGraph = createRandomExportedGraph();
+    expect(() =>
+      parseGraphExportPayloadForVersion(2, exportedGraph.data),
+    ).toThrow(/No graph export parser for format generation 2/);
+  });
+
+  it("should reject a malformed payload", async () => {
+    const exportedGraph = createRandomExportedGraph();
+    const malformed = {
+      ...exportedGraph,
+      data: { ...exportedGraph.data, vertices: [false, true] as any },
+    };
+
+    await expect(
+      parseExportedGraph(toGraphFileBlob(malformed)),
+    ).rejects.toThrow();
+  });
+
+  it("should reject a file that is not valid JSON", async () => {
+    const blob = new Blob(["not json"], { type: "application/json" });
+    await expect(parseExportedGraph(blob)).rejects.toThrow(
+      "File is not valid JSON",
+    );
   });
 });
 

@@ -1,5 +1,7 @@
 import { ZodError } from "zod";
 
+import { FileEnvelopeError } from "@/core/fileEnvelope";
+
 import { extractErrorMessage } from "./extractErrorMessage";
 import { isCancellationError } from "./isCancellationError";
 import { NetworkError } from "./NetworkError";
@@ -132,6 +134,11 @@ export function createDisplayError(error: any): DisplayError {
       title: `Network Response ${error.statusCode}`,
       message: extractErrorMessage(error.data) ?? defaultDisplayError.message,
     };
+  }
+
+  if (error instanceof FileEnvelopeError) {
+    // The message is already written for humans (wrong kind, too new, not JSON).
+    return { title: "Invalid file", message: error.message };
   }
 
   if (error instanceof ZodError) {

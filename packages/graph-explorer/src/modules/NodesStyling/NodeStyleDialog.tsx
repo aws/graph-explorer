@@ -35,6 +35,7 @@ import {
   type ShapeStyle,
   useVertexStyling,
 } from "@/core/StateProvider/userPreferences";
+import { isAllowedIconValue } from "@/core/styling";
 import useTranslations from "@/hooks/useTranslations";
 import { parseNumberSafely } from "@/utils";
 import {
@@ -119,6 +120,12 @@ function Content({ vertexType }: { vertexType: VertexType }) {
     }
     try {
       const result = await file2Base64(file);
+      if (!isAllowedIconValue(result)) {
+        toast.error("Invalid file", {
+          description: "Choose an image file (the icon must be an image).",
+        });
+        return;
+      }
       setVertexStyle({ iconUrl: result, iconImageType: file.type });
     } catch (error) {
       console.error("Unable to convert uploaded image to base64: ", error);

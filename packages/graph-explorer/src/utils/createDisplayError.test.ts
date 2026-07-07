@@ -1,6 +1,8 @@
 // @vitest-environment happy-dom
 import { z } from "zod";
 
+import { FileEnvelopeError } from "@/core/fileEnvelope";
+
 import { createDisplayError } from "./createDisplayError";
 import { NetworkError } from "./NetworkError";
 import { ServerConnectionError } from "./ServerConnectionError";
@@ -204,6 +206,18 @@ describe("createDisplayError", () => {
     expect(result).toStrictEqual({
       title: "Network Response 500",
       message: "An error occurred. Please try again.",
+    });
+  });
+
+  it("Should surface a file envelope error message under an Invalid file title", () => {
+    const result = createDisplayError(
+      new FileEnvelopeError(
+        'Expected a "styling-export" file, but got "connection-export"',
+      ),
+    );
+    expect(result).toStrictEqual({
+      title: "Invalid file",
+      message: 'Expected a "styling-export" file, but got "connection-export"',
     });
   });
 

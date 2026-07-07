@@ -10,6 +10,7 @@ import {
   SettingsAbout,
   SettingsGeneral,
   SettingsRoot,
+  SettingsStyles,
 } from "./routes/Settings";
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/schema-explorer" element={<SchemaExplorer />} />
         <Route path="/settings" element={<SettingsRoot />}>
           <Route path="general" element={<SettingsGeneral />} />
+          <Route path="styles" element={<SettingsStyles />} />
           <Route path="about" element={<SettingsAbout />} />
         </Route>
         <Route path="*" element={<Redirect to="/graph-explorer" />} />

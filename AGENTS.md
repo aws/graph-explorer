@@ -28,7 +28,11 @@ Correct behavior is necessary but not sufficient — structural quality is a har
 - Prefer named function syntax over anonymous arrow functions for module-level declarations (`function handleClick() {}`, not `const handleClick = () => {}`). Arrow functions inside a function body are fine.
 - Use an explicit type alias instead of `ReturnType<typeof ...>` when one exists (e.g. `AppStore`, not `ReturnType<typeof getAppStore>`)
 - Prefer a branded type over a raw `string`/`number` whenever the value is used for a lookup or passed to a function expecting a value that represents a specific concept — an ID, a node/edge label, a type name, etc. Construct them with their creator function (e.g. `createVertexId()`); never cast a bare string. This makes "which kind of string is this" a compile-time guarantee.
+- Prefer Zod at boundaries to enforce contract and strong typing
 - Don't change the VS Code setting `typescript.autoClosingTags`
+- Prefer throwing upward over local error laundering
+- Prefer named domain types over `Record<string, unknown>`
+- Do not encode uncertainty as adapters, defaults, optionals, spreads, or catch blocks. Resolve it into the owned contract.
 
 ## Git
 

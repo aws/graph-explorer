@@ -64,6 +64,8 @@ const [
   schemaAtom,
   userVertexStylesAtom,
   userEdgeStylesAtom,
+  sharedVertexStylesAtom,
+  sharedEdgeStylesAtom,
   graphViewLayoutAtom,
   schemaViewLayoutAtom,
   allGraphSessionsAtom,
@@ -87,17 +89,32 @@ const [
   ),
   /**
    * User-defined vertex style overrides, keyed by type. The `user-` prefix
-   * marks the user-defined layer of the planned `<layer>-<entity>-styles` set
-   * (imported, server, base layers land in later work).
+   * marks the user-defined layer of the `<layer>-<entity>-styles` set.
    */
   atomWithLocalForage(
     "user-vertex-styles",
     new Map<VertexType, VertexPreferencesStorageModel>(),
     reconcileMapByKey,
   ),
-  /** User-defined edge style overrides, keyed by type. See above. */
+  /** User-defined edge style overrides, keyed by type. */
   atomWithLocalForage(
     "user-edge-styles",
+    new Map<EdgeType, EdgePreferencesStorageModel>(),
+    reconcileMapByKey,
+  ),
+  /**
+   * Shared vertex styles, loaded from a styling file. The `shared-` prefix marks
+   * the shared layer of the `<layer>-<entity>-styles` set — the fallback beneath
+   * a user's own edits.
+   */
+  atomWithLocalForage(
+    "shared-vertex-styles",
+    new Map<VertexType, VertexPreferencesStorageModel>(),
+    reconcileMapByKey,
+  ),
+  /** Shared edge styles, loaded from a styling file. */
+  atomWithLocalForage(
+    "shared-edge-styles",
     new Map<EdgeType, EdgePreferencesStorageModel>(),
     reconcileMapByKey,
   ),
@@ -130,6 +147,8 @@ export {
   schemaAtom,
   userVertexStylesAtom,
   userEdgeStylesAtom,
+  sharedVertexStylesAtom,
+  sharedEdgeStylesAtom,
   graphViewLayoutAtom,
   schemaViewLayoutAtom,
   allGraphSessionsAtom,
