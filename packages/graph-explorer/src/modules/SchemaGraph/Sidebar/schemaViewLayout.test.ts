@@ -1,15 +1,29 @@
 // @vitest-environment happy-dom
 import { act } from "react";
 
+import type { SchemaViewLayout } from "@/core/StateProvider/schemaViewLayoutDefaults";
+
 import { DEFAULT_SIDEBAR_WIDTH } from "@/core/StateProvider/graphViewLayoutDefaults";
-import { schemaViewLayoutAtom } from "@/core/StateProvider/storageAtoms";
-import { renderHookWithJotai } from "@/utils/testing";
+import { DbState, renderHookWithState } from "@/utils/testing";
 
 import { useSchemaViewSidebar } from "./schemaViewLayout";
 
+const baseLayout: SchemaViewLayout = {
+  activeSidebarItem: "details",
+  sidebar: { width: DEFAULT_SIDEBAR_WIDTH },
+};
+
+/** Seeds a schema view layout, overriding only the fields a test pins. */
+function stateWithLayout(overrides: Partial<SchemaViewLayout> = {}) {
+  return new DbState().withSchemaViewLayout({ ...baseLayout, ...overrides });
+}
+
 describe("useSchemaViewSidebar", () => {
-  it("should default to sidebar open with details tab", () => {
-    const { result } = renderHookWithJotai(() => useSchemaViewSidebar());
+  it("should reflect the seeded active tab and width", () => {
+    const { result } = renderHookWithState(
+      () => useSchemaViewSidebar(),
+      stateWithLayout(),
+    );
 
     expect(result.current.isSidebarOpen).toBe(true);
     expect(result.current.activeSidebarItem).toBe("details");
@@ -17,7 +31,10 @@ describe("useSchemaViewSidebar", () => {
   });
 
   it("should toggle to a different tab", () => {
-    const { result } = renderHookWithJotai(() => useSchemaViewSidebar());
+    const { result } = renderHookWithState(
+      () => useSchemaViewSidebar(),
+      stateWithLayout(),
+    );
 
     act(() => result.current.toggleSidebar("nodes-styling"));
 
@@ -26,7 +43,10 @@ describe("useSchemaViewSidebar", () => {
   });
 
   it("should close the sidebar when toggling the active tab", () => {
-    const { result } = renderHookWithJotai(() => useSchemaViewSidebar());
+    const { result } = renderHookWithState(
+      () => useSchemaViewSidebar(),
+      stateWithLayout(),
+    );
 
     act(() => result.current.toggleSidebar("details"));
 
@@ -35,13 +55,9 @@ describe("useSchemaViewSidebar", () => {
   });
 
   it("should open the sidebar when toggling from closed state", () => {
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useSchemaViewSidebar(),
-      store =>
-        store.set(schemaViewLayoutAtom, {
-          activeSidebarItem: null,
-          sidebar: { width: 350 },
-        }),
+      stateWithLayout({ activeSidebarItem: null }),
     );
 
     act(() => result.current.toggleSidebar("edges-styling"));
@@ -51,7 +67,10 @@ describe("useSchemaViewSidebar", () => {
   });
 
   it("should close the sidebar with closeSidebar", () => {
-    const { result } = renderHookWithJotai(() => useSchemaViewSidebar());
+    const { result } = renderHookWithState(
+      () => useSchemaViewSidebar(),
+      stateWithLayout(),
+    );
 
     act(() => result.current.closeSidebar());
 
@@ -60,24 +79,25 @@ describe("useSchemaViewSidebar", () => {
   });
 
   it("should persist sidebar width changes", () => {
-    const { result } = renderHookWithJotai(() => useSchemaViewSidebar());
+    const { result } = renderHookWithState(
+      () => useSchemaViewSidebar(),
+      stateWithLayout(),
+    );
 
     act(() => result.current.setSidebarWidth(50));
-    expect(result.current.sidebarWidth).toBe(450);
+    expect(result.current.sidebarWidth).toBe(DEFAULT_SIDEBAR_WIDTH + 50);
 
     act(() => result.current.setSidebarWidth(-100));
-    expect(result.current.sidebarWidth).toBe(350);
+    expect(result.current.sidebarWidth).toBe(DEFAULT_SIDEBAR_WIDTH - 50);
   });
 
   it("should auto-open details tab when enabled and selection changes", () => {
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useSchemaViewSidebar(),
-      store =>
-        store.set(schemaViewLayoutAtom, {
-          activeSidebarItem: "nodes-styling",
-          sidebar: { width: 350 },
-          detailsAutoOpenOnSelection: true,
-        }),
+      stateWithLayout({
+        activeSidebarItem: "nodes-styling",
+        detailsAutoOpenOnSelection: true,
+      }),
     );
 
     act(() => result.current.autoOpenDetails());
@@ -86,14 +106,12 @@ describe("useSchemaViewSidebar", () => {
   });
 
   it("should not auto-open details when disabled", () => {
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useSchemaViewSidebar(),
-      store =>
-        store.set(schemaViewLayoutAtom, {
-          activeSidebarItem: "nodes-styling",
-          sidebar: { width: 350 },
-          detailsAutoOpenOnSelection: false,
-        }),
+      stateWithLayout({
+        activeSidebarItem: "nodes-styling",
+        detailsAutoOpenOnSelection: false,
+      }),
     );
 
     act(() => result.current.autoOpenDetails());
@@ -102,13 +120,9 @@ describe("useSchemaViewSidebar", () => {
   });
 
   it("should auto-open details when detailsAutoOpenOnSelection is undefined (legacy data)", () => {
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useSchemaViewSidebar(),
-      store =>
-        store.set(schemaViewLayoutAtom, {
-          activeSidebarItem: "nodes-styling",
-          sidebar: { width: 350 },
-        }),
+      stateWithLayout({ activeSidebarItem: "nodes-styling" }),
     );
 
     act(() => result.current.autoOpenDetails());
@@ -117,14 +131,12 @@ describe("useSchemaViewSidebar", () => {
   });
 
   it("should open a closed sidebar to details when auto-open is enabled", () => {
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useSchemaViewSidebar(),
-      store =>
-        store.set(schemaViewLayoutAtom, {
-          activeSidebarItem: null,
-          sidebar: { width: 350 },
-          detailsAutoOpenOnSelection: true,
-        }),
+      stateWithLayout({
+        activeSidebarItem: null,
+        detailsAutoOpenOnSelection: true,
+      }),
     );
 
     act(() => result.current.autoOpenDetails());
@@ -133,22 +145,13 @@ describe("useSchemaViewSidebar", () => {
     expect(result.current.isSidebarOpen).toBe(true);
   });
 
-  it("should default detailsAutoOpenOnSelection to enabled", () => {
-    const { result } = renderHookWithJotai(() => useSchemaViewSidebar());
+  it("should toggle detailsAutoOpenOnSelection from true to false", () => {
+    const { result } = renderHookWithState(
+      () => useSchemaViewSidebar(),
+      stateWithLayout({ detailsAutoOpenOnSelection: true }),
+    );
 
     expect(result.current.detailsAutoOpenOnSelection).toBe(true);
-  });
-
-  it("should toggle detailsAutoOpenOnSelection from true to false", () => {
-    const { result } = renderHookWithJotai(
-      () => useSchemaViewSidebar(),
-      store =>
-        store.set(schemaViewLayoutAtom, {
-          activeSidebarItem: "details",
-          sidebar: { width: 350 },
-          detailsAutoOpenOnSelection: true,
-        }),
-    );
 
     act(() => result.current.toggleDetailsAutoOpen());
 
@@ -156,14 +159,9 @@ describe("useSchemaViewSidebar", () => {
   });
 
   it("should toggle detailsAutoOpenOnSelection from false to true", () => {
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useSchemaViewSidebar(),
-      store =>
-        store.set(schemaViewLayoutAtom, {
-          activeSidebarItem: "details",
-          sidebar: { width: 350 },
-          detailsAutoOpenOnSelection: false,
-        }),
+      stateWithLayout({ detailsAutoOpenOnSelection: false }),
     );
 
     act(() => result.current.toggleDetailsAutoOpen());
@@ -172,13 +170,9 @@ describe("useSchemaViewSidebar", () => {
   });
 
   it("should toggle detailsAutoOpenOnSelection from undefined (enabled) to false", () => {
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useSchemaViewSidebar(),
-      store =>
-        store.set(schemaViewLayoutAtom, {
-          activeSidebarItem: "details",
-          sidebar: { width: 350 },
-        }),
+      stateWithLayout(),
     );
 
     // The button shows enabled (undefined reads as `?? true`), so toggling

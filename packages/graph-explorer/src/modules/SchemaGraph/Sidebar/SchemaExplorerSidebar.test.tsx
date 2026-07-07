@@ -25,6 +25,17 @@ vi.mock("react-virtuoso", () => ({
   }) => data?.map((item, index) => itemContent(index, item)),
 }));
 
+/**
+ * Seeds the sidebar open on the Details tab so tests that assert the default
+ * rendered content aren't affected by the random layout DbState applies.
+ */
+function stateWithDetailsTab() {
+  return new DbState().withSchemaViewLayout({
+    activeSidebarItem: "details",
+    sidebar: { width: 400 },
+  });
+}
+
 function renderSidebar(state: DbState) {
   const store = getAppStore();
   state.applyTo(store);
@@ -46,8 +57,7 @@ function renderSidebar(state: DbState) {
 
 describe("SchemaExplorerSidebar", () => {
   test("renders details tab by default with empty selection message", () => {
-    const state = new DbState();
-    renderSidebar(state);
+    renderSidebar(stateWithDetailsTab());
 
     expect(screen.getByText("Empty Selection")).toBeInTheDocument();
   });
@@ -62,7 +72,7 @@ describe("SchemaExplorerSidebar", () => {
 
   test("renders node styling content when clicking second tab", async () => {
     const user = userEvent.setup();
-    const state = new DbState();
+    const state = stateWithDetailsTab();
     const vertex = createTestableVertex().with({ types: ["Airport"] });
     state.addTestableVertexToGraph(vertex);
 
@@ -76,7 +86,7 @@ describe("SchemaExplorerSidebar", () => {
 
   test("renders edge styling content when clicking third tab", async () => {
     const user = userEvent.setup();
-    const state = new DbState();
+    const state = stateWithDetailsTab();
     const source = createTestableVertex().with({ types: ["Airport"] });
     const target = createTestableVertex().with({ types: ["City"] });
     const edge = createTestableEdge()
@@ -95,8 +105,7 @@ describe("SchemaExplorerSidebar", () => {
 
   test("collapses sidebar when clicking the active tab", async () => {
     const user = userEvent.setup();
-    const state = new DbState();
-    renderSidebar(state);
+    renderSidebar(stateWithDetailsTab());
 
     expect(screen.getByText("Empty Selection")).toBeInTheDocument();
 
@@ -108,7 +117,7 @@ describe("SchemaExplorerSidebar", () => {
 
   test("reopens sidebar when clicking a tab while collapsed", async () => {
     const user = userEvent.setup();
-    const state = new DbState();
+    const state = stateWithDetailsTab();
     const vertex = createTestableVertex().with({ types: ["Airport"] });
     state.addTestableVertexToGraph(vertex);
 

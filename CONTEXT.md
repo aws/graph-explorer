@@ -12,6 +12,10 @@ _Avoid_: Node (in code)
 A directed relationship between two vertices (source → target), with a type and optional attributes. Always directed in the data model regardless of graph type.
 _Avoid_: Relationship, link
 
+**Graph Database**:
+The external graph database a user connects to and explores — the source of all vertices and edges, reached over HTTP via a Connection. It is the user's own data, brought along and queried live; distinct from the local persisted app state (connections, schema cache, styles, sessions, layout) that Graph Explorer keeps in the browser's IndexedDB.
+_Avoid_: Database (ambiguous — clarify remote graph database vs. local persisted state)
+
 **Connection**:
 A saved database profile — the URL, query engine, authentication settings, and proxy routing needed to reach a graph database. Users create and manage these in the UI.
 _Avoid_: Configuration (legacy term being phased out — previously bundled connection + schema + Styles into one object)
