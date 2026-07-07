@@ -24,8 +24,8 @@ export const STYLING_EXPORT_KIND = "styling-export";
  * Format generation. A single integer that bumps only on a breaking change
  * (renamed or removed fields). Additive changes are made as optional fields and
  * do not bump it. This is both the version written to new files and the newest
- * generation this build can read; files on disk from before the integer switch
- * carry the legacy `"1.0"` string, which the envelope normalizes to `1`.
+ * generation this build can read. Unlike `graph-export`, styling export has no
+ * pre-integer installed base, so generation 1 is written as the integer `1`.
  */
 export const STYLING_EXPORT_VERSION = 1;
 

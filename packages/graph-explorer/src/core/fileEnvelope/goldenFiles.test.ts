@@ -5,8 +5,7 @@ import { createEdgeType, createVertexType } from "@/core/entities";
 import { parseStylingFile } from "@/core/styling";
 import { parseExportedGraph } from "@/modules/GraphViewer/exportedGraph";
 
-import graphExportInteger from "./__fixtures__/graph-export-v1-integer.json?raw";
-import graphExportLegacyString from "./__fixtures__/graph-export-v1-legacy-string.json?raw";
+import graphExportDecimalString from "./__fixtures__/graph-export-v1-decimal-string.json?raw";
 import stylingExportInteger from "./__fixtures__/styling-export-v1-integer.json?raw";
 
 /**
@@ -16,8 +15,8 @@ import stylingExportInteger from "./__fixtures__/styling-export-v1-integer.json?
  * wrote it, loaded here with `?raw` so the test imports the exact on-disk bytes
  * (not a re-serialized object). The version integer in `fileEnvelope.ts` means
  * nothing on its own; these are what actually prove a current build still
- * imports every generation we have ever written — including the legacy `"1.0"`
- * decimal-string encoding that predates the integer switch.
+ * imports every generation we have ever written — including graph-export's
+ * `"1.0"` decimal-string encoding, the wire form it still writes today.
  *
  * DO NOT edit a fixture to make a test pass. A fixture is a historical artifact;
  * if a current build can no longer read it, that is a backward-compatibility
@@ -57,11 +56,10 @@ describe("golden styling-export files import on the current build", () => {
 });
 
 describe("golden graph-export files import on the current build", () => {
-  test.each([
-    ["graph-export-v1-legacy-string.json", graphExportLegacyString],
-    ["graph-export-v1-integer.json", graphExportInteger],
-  ])("%s", async (name, contents) => {
-    const parsed = await parseExportedGraph(asFile(contents, name));
+  test("graph-export-v1-decimal-string.json", async () => {
+    const parsed = await parseExportedGraph(
+      asFile(graphExportDecimalString, "graph-export-v1-decimal-string.json"),
+    );
 
     expect(parsed.connection).toStrictEqual({
       dbUrl: "https://example.cluster-abc.us-west-2.neptune.amazonaws.com:8182",

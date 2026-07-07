@@ -3,19 +3,30 @@ import { z } from "zod";
 import { LABELS } from "@/utils/constants";
 
 /**
- * The one non-integer version any shipped build ever wrote to disk. New files
- * write the integer form; this string is normalized to `1` on read.
+ * The `"1.0"` decimal-string encoding of generation 1. `graph-export` still
+ * writes it so builds that predate the integer switch — which validate
+ * `version` as the literal `"1.0"` — keep importing files this build writes.
+ * It is normalized to `1` on read. See the shared-file-envelope ADR.
  */
-const LEGACY_VERSION_STRING = "1.0";
+const DECIMAL_VERSION_STRING = "1.0";
 
 /**
- * Version as it appears in a file: either the integer generation or the legacy
- * `"1.0"` string. Normalized to the integer generation. Lives in the parse
- * schema so a malformed version fails structural parsing, not a later guard.
+ * Version as it appears in a file: either the integer generation or the
+ * `"1.0"` decimal string (the wire form `graph-export` gen 1 writes).
+ * Normalized to the integer generation. Lives in the parse schema so a
+ * malformed version fails structural parsing, not a later guard.
  */
 const versionSchema = z
-  .union([z.literal(LEGACY_VERSION_STRING), z.int().min(1)])
-  .transform(version => (version === LEGACY_VERSION_STRING ? 1 : version));
+  .union([z.literal(DECIMAL_VERSION_STRING), z.int().min(1)])
+  .transform(version => (version === DECIMAL_VERSION_STRING ? 1 : version));
+
+/**
+ * The version value a writer may stamp into a file — the pre-normalization
+ * input of {@link versionSchema}: an integer generation, or the `"1.0"`
+ * decimal string for `graph-export` gen 1's old-build compatibility. Derived
+ * from the schema so the write and read contracts cannot drift apart.
+ */
+export type EnvelopeVersion = z.input<typeof versionSchema>;
 
 /**
  * The full metadata every export writes. `timestamp`/`source`/`sourceVersion`
@@ -24,7 +35,7 @@ const versionSchema = z
  */
 export type FileEnvelopeMeta = {
   kind: string;
-  version: number;
+  version: EnvelopeVersion;
   timestamp: string;
   source: string;
   sourceVersion: string;
@@ -82,7 +93,7 @@ export class FileEnvelopeError extends Error {
  */
 export function createFileEnvelope<T>(
   kind: string,
-  version: number,
+  version: EnvelopeVersion,
   data: T,
 ): FileEnvelope<T> {
   return {

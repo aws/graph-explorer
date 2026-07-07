@@ -71,7 +71,7 @@ describe("createExportedGraph", () => {
     const expectedConnection = createExportedConnection(connection);
     const expectedMeta = {
       kind: "graph-export",
-      version: 1,
+      version: "1.0",
       timestamp: timestamp.toISOString(),
       source: "Graph Explorer",
       sourceVersion: appVersion,
@@ -83,6 +83,18 @@ describe("createExportedGraph", () => {
     expect(graph.data.connection).toEqual(expectedConnection);
     expect(graph.data.vertices).toEqual(vertexIds);
     expect(graph.data.edges).toEqual(edgeIds);
+  });
+
+  it("stamps the generation-1 version as the '1.0' decimal string", () => {
+    // Builds that predate the integer version switch validate `meta.version`
+    // as the literal `"1.0"`. Writing the integer `1` would make files this
+    // build exports fail to import on those older builds, so generation 1 must
+    // stay on the wire as the decimal string.
+    const connection = createRandomConnectionWithId();
+
+    const graph = createExportedGraph([], [], connection);
+
+    expect(graph.meta.version).toBe("1.0");
   });
 
   it("should create an exported graph with empty vertices and edges", () => {
@@ -124,16 +136,6 @@ describe("createExportedGraph", () => {
     const graph = createExportedGraph(vertexIds, edgeIds, connection);
 
     expect(graph.meta.kind).toBe("graph-export");
-  });
-
-  it("should set meta version to 1", () => {
-    const vertexIds = createArray(2, () => createRandomVertexId());
-    const edgeIds = createArray(2, () => createRandomEdgeId());
-    const connection = createRandomConnectionWithId();
-
-    const graph = createExportedGraph(vertexIds, edgeIds, connection);
-
-    expect(graph.meta.version).toBe(1);
   });
 
   it("should set meta source to Graph Explorer", () => {

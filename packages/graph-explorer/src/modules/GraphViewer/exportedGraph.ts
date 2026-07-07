@@ -17,6 +17,7 @@ import {
 } from "@/core/entities";
 import {
   createFileEnvelope,
+  type EnvelopeVersion,
   FileEnvelopeError,
   parseFileEnvelope,
 } from "@/core/fileEnvelope";
@@ -28,11 +29,21 @@ export const GRAPH_EXPORT_KIND = "graph-export";
 /**
  * Format generation. A single integer that bumps only on a breaking change
  * (renamed or removed fields). Additive changes are made as optional fields and
- * do not bump it. This is both the version written to new files and the newest
- * generation this build can read; files on disk from before the integer switch
- * carry the legacy `"1.0"` string, which the envelope normalizes to `1`.
+ * do not bump it. This is the newest generation this build can read, and the
+ * value the version dispatch switches on after the envelope normalizes the
+ * wire form.
  */
 export const GRAPH_EXPORT_VERSION = 1;
+
+/**
+ * The version value written into new graph-export files. Generation 1 is
+ * stamped as the `"1.0"` decimal string rather than the integer `1` so that
+ * builds predating the integer switch — which validate `version` as the
+ * literal `"1.0"` — can still import files this build writes. The envelope
+ * normalizes both forms to {@link GRAPH_EXPORT_VERSION} on read. See the
+ * shared-file-envelope ADR.
+ */
+export const GRAPH_EXPORT_WIRE_VERSION: EnvelopeVersion = "1.0";
 
 const graphExportPayloadSchema = z.object({
   connection: z.object({
@@ -53,7 +64,7 @@ export function createExportedGraph(
   edgeIds: EdgeId[],
   connection: ConnectionConfig,
 ): ExportedGraphFile {
-  return createFileEnvelope(GRAPH_EXPORT_KIND, GRAPH_EXPORT_VERSION, {
+  return createFileEnvelope(GRAPH_EXPORT_KIND, GRAPH_EXPORT_WIRE_VERSION, {
     connection: createExportedConnection(connection),
     vertices: vertexIds,
     edges: edgeIds,
