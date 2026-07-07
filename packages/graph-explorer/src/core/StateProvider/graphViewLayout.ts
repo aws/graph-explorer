@@ -15,7 +15,6 @@ export type {
   ToggleableView,
 } from "./graphViewLayoutDefaults";
 export {
-  CLOSED_SIDEBAR_WIDTH,
   DEFAULT_SIDEBAR_WIDTH,
   DEFAULT_TABLE_VIEW_HEIGHT,
   defaultGraphViewLayout,

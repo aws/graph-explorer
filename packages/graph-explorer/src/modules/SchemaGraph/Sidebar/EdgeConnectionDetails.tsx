@@ -1,20 +1,12 @@
 import type { ComponentPropsWithRef } from "react";
 
-import {
-  EdgeIcon,
-  Panel,
-  PanelContent,
-  PanelHeader,
-  PanelTitle,
-  toHumanString,
-} from "@/components";
+import { EdgeIcon, Panel, PanelContent, toHumanString } from "@/components";
 import {
   type EdgeConnection,
   useDisplayEdgeTypeConfig,
   useEdgeTypeTotal,
 } from "@/core";
 import { useTranslations } from "@/hooks";
-import { LABELS } from "@/utils";
 
 import type { SchemaGraphSelectionItem } from "../SchemaGraph";
 
@@ -26,6 +18,7 @@ import {
   EdgeConnectionRow,
   PropertiesDetails,
 } from "./Details";
+import { DetailsPanelHeader } from "./DetailsPanelHeader";
 import { SchemaDiscoveryAlert } from "./SchemaDiscoveryAlert";
 
 export type EdgeConnectionDetailsProps = {
@@ -45,9 +38,7 @@ export function EdgeConnectionDetails({
 
   return (
     <Panel {...props}>
-      <PanelHeader>
-        <PanelTitle>{LABELS.SIDEBAR.SELECTION_DETAILS}</PanelTitle>
-      </PanelHeader>
+      <DetailsPanelHeader />
       <PanelContent className="space-y-8 p-3">
         <div className="flex flex-row items-center justify-between">
           <DetailsHeader>

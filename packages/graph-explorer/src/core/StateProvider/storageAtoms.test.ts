@@ -1,6 +1,7 @@
 import { createStore } from "jotai";
 
 import { defaultGraphViewLayout } from "./graphViewLayoutDefaults";
+import { defaultSchemaViewLayout } from "./schemaViewLayoutDefaults";
 import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
@@ -10,9 +11,10 @@ import {
   defaultNeighborExpansionLimitEnabledAtom,
   diagnosticLoggingAtom,
   userEdgeStylesAtom,
-  graphViewLayoutAtom,
   schemaAtom,
+  schemaViewLayoutAtom,
   showDebugActionsAtom,
+  graphViewLayoutAtom,
   userVertexStylesAtom,
 } from "./storageAtoms";
 
@@ -30,6 +32,7 @@ describe("storageAtoms", () => {
     expect(userVertexStylesAtom).toBeDefined();
     expect(userEdgeStylesAtom).toBeDefined();
     expect(graphViewLayoutAtom).toBeDefined();
+    expect(schemaViewLayoutAtom).toBeDefined();
     expect(allGraphSessionsAtom).toBeDefined();
     expect(showDebugActionsAtom).toBeDefined();
     expect(allowLoggingDbQueryAtom).toBeDefined();
@@ -48,6 +51,9 @@ describe("storageAtoms", () => {
     expect(store.get(userEdgeStylesAtom)).toStrictEqual(new Map());
     expect(store.get(graphViewLayoutAtom)).toStrictEqual(
       defaultGraphViewLayout,
+    );
+    expect(store.get(schemaViewLayoutAtom)).toStrictEqual(
+      defaultSchemaViewLayout,
     );
     expect(store.get(allGraphSessionsAtom)).toStrictEqual(new Map());
     expect(store.get(showDebugActionsAtom)).toBe(false);

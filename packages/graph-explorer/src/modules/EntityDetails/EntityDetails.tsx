@@ -41,7 +41,7 @@ function EntityDetails() {
           <Button
             tooltip="Automatically open on selection"
             variant={detailsAutoOpenOnSelection ? "primary" : "ghost"}
-            size="icon"
+            size="icon-small"
             onClick={toggleDetailsAutoOpen}
           >
             <AutoFitLeftIcon />
