@@ -1,3 +1,5 @@
+import type { VertexId } from "@/core";
+
 import { query } from "@/utils";
 
 import {
@@ -172,6 +174,7 @@ export function oneHopNeighborsTemplate(
 export function findNeighborsUsingFilters({
   resourceURI,
   subjectClasses = [],
+  filterByIds = [],
   filterCriteria = [],
   excludedVertices = new Set(),
   limit = 0,
@@ -185,7 +188,7 @@ export function findNeighborsUsingFilters({
       BIND(${resourceTemplate} AS ?resource)
       {
         # Incoming neighbors
-        ?neighbor ?predicate ?resource . 
+        ?neighbor ?predicate ?resource .
         OPTIONAL { ?neighbor a ?class } .
         ${getNeighborsFilter(excludedVertices)}
         ${getSubjectClasses(subjectClasses)}
@@ -193,15 +196,28 @@ export function findNeighborsUsingFilters({
       UNION
       {
         # Outgoing neighbors
-        ?resource ?predicate ?neighbor . 
+        ?resource ?predicate ?neighbor .
         OPTIONAL { ?neighbor a ?class } .
         ${getNeighborsFilter(excludedVertices)}
         ${getSubjectClasses(subjectClasses)}
       }
+      ${getIdsFilter(filterByIds)}
       ${getFilterTemplate(filterCriteria)}
     }
     ${getLimit(limit)}
   `;
+}
+
+/**
+ * Creates a filter template that narrows neighbors to the given resource URIs.
+ */
+function getIdsFilter(filterByIds: VertexId[]) {
+  if (filterByIds.length === 0) {
+    return "";
+  }
+
+  const idList = filterByIds.map(id => idParam(id)).join(", ");
+  return query`FILTER(?neighbor IN (${idList}))`;
 }
 
 /**

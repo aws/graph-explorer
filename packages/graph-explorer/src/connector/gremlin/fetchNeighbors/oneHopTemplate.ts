@@ -121,6 +121,7 @@ export default function oneHopTemplate({
   vertexId,
   excludedVertices = new Set(),
   filterByVertexTypes = [],
+  filterByIds = [],
   filterCriteria = [],
   limit = 0,
 }: Omit<NeighborsRequest, "vertexTypes">): string {
@@ -133,14 +134,21 @@ export default function oneHopTemplate({
       ? `hasLabel(${vertexTypes.map(type => `"${type}"`).join(", ")})`
       : ``;
 
+  const idsTemplate =
+    filterByIds.length > 0
+      ? `hasId(${filterByIds.map(idParam).join(", ")})`
+      : ``;
+
   const filterCriteriaTemplate =
     filterCriteria.length > 0
       ? `and(${filterCriteria.map(criterionTemplate).join(", ")})`
       : ``;
 
-  const nodeFilters = [vertexTypesTemplate, filterCriteriaTemplate].filter(
-    Boolean,
-  );
+  const nodeFilters = [
+    vertexTypesTemplate,
+    idsTemplate,
+    filterCriteriaTemplate,
+  ].filter(Boolean);
 
   const nodeFiltersTemplate =
     nodeFilters.length > 0 ? `.${nodeFilters.join(".")}` : ``;

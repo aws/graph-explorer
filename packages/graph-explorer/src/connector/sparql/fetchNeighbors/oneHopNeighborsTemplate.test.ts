@@ -247,6 +247,43 @@ describe("oneHopNeighborsTemplate", () => {
       `),
     );
   });
+
+  it("should produce query filtering neighbors by id", () => {
+    const template = oneHopNeighborsTemplate({
+      resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
+      filterByIds: [
+        createVertexId("http://www.example.com/soccer/resource#Arsenal"),
+        createVertexId("http://www.example.com/soccer/resource#Chelsea"),
+      ],
+    });
+
+    expect(normalize(template)).toEqual(
+      normalize(query`
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            SELECT DISTINCT ?neighbor
+            WHERE {
+              BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
+              {
+                ?neighbor ?predicate ?resource .
+                OPTIONAL { ?neighbor a ?class } .
+                FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+              }
+              UNION
+              {
+                ?resource ?predicate ?neighbor .
+                OPTIONAL { ?neighbor a ?class } .
+                FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+              }
+              FILTER(?neighbor IN (<http://www.example.com/soccer/resource#Arsenal>, <http://www.example.com/soccer/resource#Chelsea>))
+            }
+          }
+          ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
+        }
+      `),
+    );
+  });
 });
 
 /**

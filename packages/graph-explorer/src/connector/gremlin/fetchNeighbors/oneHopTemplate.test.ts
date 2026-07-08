@@ -192,4 +192,49 @@ describe("Gremlin > oneHopTemplate", () => {
       `),
     );
   });
+
+  it("should filter neighbors by a single id", () => {
+    const template = oneHopTemplate({
+      vertexId: createVertexId("12"),
+      filterByIds: [createVertexId("42")],
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V("12").as("start")
+          .both().hasId("42")
+          .dedup().as("neighbor")
+          .project("vertex", "edges")
+            .by()
+            .by(
+              __.select("start").bothE()
+                .where(otherV().where(eq("neighbor")))
+                .dedup().fold()
+            )
+      `),
+    );
+  });
+
+  it("should filter neighbors by multiple ids combined with a type", () => {
+    const template = oneHopTemplate({
+      vertexId: createVertexId("12"),
+      filterByVertexTypes: ["airport"],
+      filterByIds: [createVertexId("42"), createVertexId(7)],
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V("12").as("start")
+          .both().hasLabel("airport").hasId("42", 7L)
+          .dedup().as("neighbor")
+          .project("vertex", "edges")
+            .by()
+            .by(
+              __.select("start").bothE()
+                .where(otherV().where(eq("neighbor")))
+                .dedup().fold()
+            )
+      `),
+    );
+  });
 });
