@@ -1,11 +1,10 @@
 import { useAtomValue } from "jotai";
-import { SwatchBookIcon, TriangleAlertIcon } from "lucide-react";
+import { SwatchBookIcon } from "lucide-react";
 
 import {
   Group,
   GroupHeader,
   GroupItem,
-  GroupMedia,
   GroupTitle,
   LabelledSetting,
   SettingsPageDescription,
@@ -43,7 +42,7 @@ export default function SettingsStyles() {
 
       <Group>
         <GroupHeader>
-          <GroupTitle>Style Sharing</GroupTitle>
+          <GroupTitle>Manage Your Styles</GroupTitle>
         </GroupHeader>
         <GroupItem>
           <LabelledSetting
@@ -53,6 +52,20 @@ export default function SettingsStyles() {
             <SaveStylesButton />
           </LabelledSetting>
         </GroupItem>
+        <GroupItem>
+          <LabelledSetting
+            label="Reset your styles"
+            description="Clear the styles you've set yourself. Shared styles remain."
+          >
+            <ResetCustomStylesButton />
+          </LabelledSetting>
+        </GroupItem>
+      </Group>
+
+      <Group>
+        <GroupHeader>
+          <GroupTitle>Manage Shared Styles</GroupTitle>
+        </GroupHeader>
         <GroupItem className="space-y-2">
           <LabelledSetting
             label="Load shared styles"
@@ -64,23 +77,6 @@ export default function SettingsStyles() {
             vertexCount={sharedVertexStyles.size}
             edgeCount={sharedEdgeStyles.size}
           />
-        </GroupItem>
-      </Group>
-
-      <Group variant="danger">
-        <GroupHeader>
-          <GroupMedia>
-            <TriangleAlertIcon />
-          </GroupMedia>
-          <GroupTitle>Danger Zone</GroupTitle>
-        </GroupHeader>
-        <GroupItem>
-          <LabelledSetting
-            label="Reset your styles"
-            description="Clear the styles you've set yourself. Shared styles remain."
-          >
-            <ResetCustomStylesButton />
-          </LabelledSetting>
         </GroupItem>
         <GroupItem>
           <LabelledSetting

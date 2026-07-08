@@ -94,7 +94,7 @@ export default function SaveStylesButton() {
         disabled={isPending}
       >
         <DownloadIcon />
-        Save to File
+        Save
       </Button>
       <AlertDialog
         open={state.kind !== "closed"}

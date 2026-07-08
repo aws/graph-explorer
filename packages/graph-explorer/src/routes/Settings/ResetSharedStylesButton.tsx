@@ -31,9 +31,13 @@ export default function ResetSharedStylesButton() {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="danger" className="min-w-28">
+        <Button
+          variant="danger"
+          className="min-w-28"
+          aria-label="Reset shared styles"
+        >
           <Trash2Icon />
-          Reset Shared Styles
+          Reset
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

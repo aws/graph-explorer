@@ -31,9 +31,13 @@ export default function ResetCustomStylesButton() {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="danger" className="min-w-28">
+        <Button
+          variant="danger"
+          className="min-w-28"
+          aria-label="Reset your styles"
+        >
           <Trash2Icon />
-          Reset Your Styles
+          Reset
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

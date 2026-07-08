@@ -167,7 +167,7 @@ export default function LoadStylesButton() {
       >
         <Button className="min-w-28" disabled={isPending}>
           <UploadIcon />
-          Load from File
+          Load
         </Button>
       </FileButton>
 
