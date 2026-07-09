@@ -1,10 +1,12 @@
 import { DEFAULT_SIDEBAR_WIDTH } from "./graphViewLayoutDefaults";
 
 /** Identifiers for the schema view sidebar panels. */
-export type SchemaViewSidebarItem =
-  | "details"
-  | "nodes-styling"
-  | "edges-styling";
+export const schemaViewSidebarItems = [
+  "details",
+  "nodes-styling",
+  "edges-styling",
+] as const;
+export type SchemaViewSidebarItem = (typeof schemaViewSidebarItems)[number];
 
 /** Persisted layout preferences for the schema view. */
 export type SchemaViewLayout = {

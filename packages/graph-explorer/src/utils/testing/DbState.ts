@@ -1,4 +1,5 @@
 import type { Explorer } from "@/connector";
+import type { SchemaViewLayout } from "@/core/StateProvider/schemaViewLayoutDefaults";
 
 import {
   activeConfigurationAtom,
@@ -14,6 +15,8 @@ import {
   edgesTypesFilteredAtom,
   type EdgeType,
   explorerForTestingAtom,
+  type GraphViewLayout,
+  graphViewLayoutAtom,
   mapEdgeToTypeConfig,
   mapVertexToTypeConfigs,
   nodesAtom,
@@ -22,6 +25,7 @@ import {
   type RawConfiguration,
   schemaAtom,
   type SchemaStorageModel,
+  schemaViewLayoutAtom,
   toEdgeMap,
   toNodeMap,
   type Vertex,
@@ -34,8 +38,10 @@ import {
 import { createMockExplorer } from "./createMockExplorer";
 import {
   createRandomEdge,
+  createRandomGraphViewLayout,
   createRandomRawConfiguration,
   createRandomSchema,
+  createRandomSchemaViewLayout,
   createRandomVertex,
   createRandomEdgeStyles,
   createRandomVertexStyles,
@@ -51,6 +57,8 @@ export class DbState {
   activeConfig: RawConfiguration;
   vertexStyles: Map<VertexType, VertexStyleStorage>;
   edgeStyles: Map<EdgeType, EdgeStyleStorage>;
+  graphViewLayout: GraphViewLayout;
+  schemaViewLayout: SchemaViewLayout;
 
   explorer: Explorer;
 
@@ -69,6 +77,9 @@ export class DbState {
 
     this.vertexStyles = createRandomVertexStyles();
     this.edgeStyles = createRandomEdgeStyles();
+
+    this.graphViewLayout = createRandomGraphViewLayout();
+    this.schemaViewLayout = createRandomSchemaViewLayout();
 
     this.explorer = explorer;
   }
@@ -182,6 +193,28 @@ export class DbState {
     return composedStyle;
   }
 
+  /* View Layout Helpers */
+
+  /**
+   * Sets the graph view layout, replacing the random default. Applied verbatim
+   * so callers can seed legacy shapes (cast with `as GraphViewLayout`) to
+   * exercise backward-compat handling.
+   */
+  withGraphViewLayout(layout: GraphViewLayout) {
+    this.graphViewLayout = layout;
+    return this;
+  }
+
+  /**
+   * Sets the schema view layout, replacing the random default. Applied verbatim
+   * so callers can seed legacy shapes (cast with `as SchemaViewLayout`) to
+   * exercise backward-compat handling.
+   */
+  withSchemaViewLayout(layout: SchemaViewLayout) {
+    this.schemaViewLayout = layout;
+    return this;
+  }
+
   /** Applies the state to the given Jotai store. */
   applyTo(store: AppStore) {
     // Config
@@ -202,6 +235,10 @@ export class DbState {
     // Styling
     store.set(userVertexStylesAtom, this.vertexStyles);
     store.set(userEdgeStylesAtom, this.edgeStyles);
+
+    // View Layout
+    store.set(graphViewLayoutAtom, this.graphViewLayout);
+    store.set(schemaViewLayoutAtom, this.schemaViewLayout);
 
     // Vertices
     store.set(nodesAtom, toNodeMap(this.vertices));

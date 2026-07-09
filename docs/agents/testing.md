@@ -4,17 +4,17 @@ Vitest. Tests co-locate with source as `*.test.ts` (or `*.test.tsx` for componen
 
 ## Rules
 
-- Use `renderHookWithState` for hooks, not `renderHook` or `renderHookWithJotai`
-- Use `DbState` to set up Jotai state, not manual atom wiring
+- Use `renderHookWithState` for hooks, not `renderHook`
+- Set up state with `DbState`, not manual atom wiring or `renderHookWithJotai`. When `DbState` can't express what a test needs, extend `DbState` — growing it is the intended path, not working around it.
 - Mock only external systems (network, etc.); don't mock internal modules
-- Use random factories for any data that doesn't affect the assertion; specify only the fields that matter
+- Constrained non-determinism: randomize everything the assertion doesn't depend on, pin only what it does. A flake on random data is an unpinned dependency — pin the field, don't narrow the factory.
 - Assert full expected values with `toStrictEqual([...])`, not length checks plus per-index `toEqual`
 - Test behavior, not implementation. Don't assert on CSS classes, element types, or layout — those break on harmless visual changes. A purely presentational component with no branching needs no test.
 - `setupTests.ts` handles environment (UTC, en-US), mock cleanup, and a real localForage backend on `fake-indexeddb` (fresh per test). Don't re-do this setup; assume it.
 
 ## Key helpers (`@/utils/testing`)
 
-- `DbState` — build graph/schema/styling state, then `renderHookWithState(useThing, state)`
+- `DbState` — set up the persisted app state a test needs, then `renderHookWithState(useThing, state)`. Extend it when it lacks a capability.
 - `createTestableVertex()` / `createTestableEdge()` — fluent builders: `.with({...})`, `.withSource()`, `.withTarget()`, `.withRdfValues()`, `.asVertex()`, `.asResult()`
 - `createMockExplorer` / `FakeExplorer` — explorer test doubles
 - SPARQL: `createUriValue`, `createLiteralValue`, `createQuadBindingsForEntities`, `createQuadSparqlResponse` (`sparqlHelpers.ts`)
@@ -73,6 +73,6 @@ Commands are in AGENTS.md.
 
 Anything persisted to IndexedDB via localForage/Jotai may be reloaded in an older shape after a type change, silently breaking logic that assumes the new shape. So: **when you change the shape of a persisted type, add tests that exercise the old shape alongside the new** — old shape loads without error, consuming logic produces correct results for both, and old/new can coexist in a collection.
 
-Group them in a dedicated `describe("backward compatibility: ...")` with a comment block stating the old shape, why the tests exist, and a "do not delete without confirming migration" warning. Cast legacy fixtures with `as TypeName` to bypass compile-time checks. See `src/utils/parseConnectionFile.test.ts` for a worked example.
+Group them in a dedicated `describe("backward compatibility: ...")` with a comment block stating the old shape, why the tests exist, and a "do not delete without confirming migration" warning. Cast legacy fixtures with `as TypeName` to bypass compile-time checks. See `src/utils/parseConnectionFile.test.ts` or `src/core/StateProvider/graphViewLayout.test.ts` for worked examples.
 
-Persisted types that require this when modified: `SchemaStorageModel`, `PrefixTypeConfig`, `VertexTypeConfig`, `EdgeTypeConfig`, `RawConfiguration`, and the style storage models (`VertexStyleStorage`, `EdgeStyleStorage`). Triggers: removing/renaming a property, changing a property's type, adding a required property, or changing a property's semantics.
+Applies to any object type persisted via `atomWithLocalForage`. Triggers: removing/renaming a property, changing a property's type, adding a required property, or changing a property's semantics.

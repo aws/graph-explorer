@@ -1,15 +1,18 @@
 /** The two main content views that can be toggled on or off. */
-export type ToggleableView = "graph-viewer" | "table-view";
+export const toggleableViews = ["graph-viewer", "table-view"] as const;
+export type ToggleableView = (typeof toggleableViews)[number];
 
 /** Identifiers for the graph view sidebar panels. */
-export type GraphViewSidebarItem =
-  | "search"
-  | "details"
-  | "filters"
-  | "expand"
-  | "nodes-styling"
-  | "edges-styling"
-  | "namespaces";
+export const graphViewSidebarItems = [
+  "search",
+  "details",
+  "filters",
+  "expand",
+  "nodes-styling",
+  "edges-styling",
+  "namespaces",
+] as const;
+export type GraphViewSidebarItem = (typeof graphViewSidebarItems)[number];
 
 /** Persisted layout preferences for the graph view. */
 export type GraphViewLayout = {
