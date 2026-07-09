@@ -4,12 +4,15 @@ import type { EdgeType, VertexType } from "@/core/entities";
 import type {
   EdgeStyle,
   EdgeStyleStorage,
+  StyleCondition,
   VertexStyle,
   VertexStyleStorage,
 } from "@/core/StateProvider/graphStyles";
 import type { StylingParseResult } from "@/core/styling";
 
 import {
+  resolveConditionalEdgeStyle,
+  resolveConditionalVertexStyle,
   resolveEdgeStyle,
   resolveVertexStyle,
 } from "@/core/StateProvider/graphStyles";
@@ -22,11 +25,22 @@ import {
 export type StyleImportStatus = "new" | "existing";
 
 /**
+ * A type's conditional style is a separately selectable item so the user can
+ * import the base style without the condition (or vice versa). The `base`
+ * variant writes the entry without a condition; the `conditional` variant writes
+ * the full entry including the condition, so selecting it always brings the base
+ * along and no cross-item dependency is needed.
+ */
+export type StyleImportVariant = "base" | "conditional";
+
+/**
  * One loadable style, ready to render as a before→after card. `incoming` is the
  * storage entry that gets written on load; `incomingStyle`/`currentStyle` are
- * the resolved styles the previews draw. A vertex and edge item are the same
- * shape apart from their branded type and style types, so the discriminated
- * `kind` keeps them in one list without losing type safety at the leaves.
+ * the resolved styles the previews draw (for a `conditional` item, the "before"
+ * is the base appearance and the "after" is the condition-met appearance). A
+ * vertex and edge item are the same shape apart from their branded type and
+ * style types, so the discriminated `kind` keeps them in one list without losing
+ * type safety at the leaves.
  */
 export type VertexStyleImportItem = {
   kind: "vertex";
@@ -35,7 +49,10 @@ export type VertexStyleImportItem = {
   incoming: VertexStyleStorage;
   incomingStyle: VertexStyle;
   currentStyle: VertexStyle;
-};
+} & (
+  | { variant: "base" }
+  | { variant: "conditional"; condition: StyleCondition }
+);
 
 export type EdgeStyleImportItem = {
   kind: "edge";
@@ -44,7 +61,10 @@ export type EdgeStyleImportItem = {
   incoming: EdgeStyleStorage;
   incomingStyle: EdgeStyle;
   currentStyle: EdgeStyle;
-};
+} & (
+  | { variant: "base" }
+  | { variant: "conditional"; condition: StyleCondition }
+);
 
 export type StyleImportItem = VertexStyleImportItem | EdgeStyleImportItem;
 
@@ -59,10 +79,23 @@ export type StyleImportPlan = {
 };
 
 /**
- * Turns a parsed styling file into the load plan: for each type, resolve the
- * incoming and current styles, drop the ones that resolve identically (a no-op
- * the user shouldn't have to decide about), and classify the rest as new or
- * existing. Comparison is at the resolved level so a file that merely sets a
+ * A resolved style without its conditional block, so the base item's no-op
+ * check compares only the base appearance — a type whose base is unchanged but
+ * whose condition is new should still surface (as a conditional item).
+ */
+function baseAppearance<S extends { conditionalStyle?: unknown }>(
+  style: S,
+): Omit<S, "conditionalStyle"> {
+  const { conditionalStyle: _drop, ...rest } = style;
+  return rest;
+}
+
+/**
+ * Turns a parsed styling file into the load plan. Each type yields up to two
+ * items: a `base` item (the style without its condition) and, when the file
+ * carries one, a `conditional` item. Items that resolve identically to the
+ * current style are dropped; a type is counted as skipped only when it yields no
+ * items at all. Comparison is at the resolved level so a file that merely sets a
  * field to its existing effective value is skipped, regardless of how the two
  * storage partials happen to differ.
  */
@@ -76,38 +109,103 @@ export function buildStyleImportPlan(
 
   for (const [type, incoming] of parsed.vertexStyles) {
     const current = currentVertexStyles.get(type);
-    const incomingStyle = resolveVertexStyle(type, incoming);
+    const { conditionalStyle, ...baseIncoming } = incoming;
+
+    const baseIncomingStyle = resolveVertexStyle(type, baseIncoming);
     const currentStyle = resolveVertexStyle(type, current);
-    if (isEqual(incomingStyle, currentStyle)) {
-      skippedCount++;
-      continue;
+    let emitted = false;
+
+    if (
+      !isEqual(baseAppearance(baseIncomingStyle), baseAppearance(currentStyle))
+    ) {
+      items.push({
+        kind: "vertex",
+        variant: "base",
+        type,
+        status: current ? "existing" : "new",
+        incoming: baseIncoming,
+        incomingStyle: baseIncomingStyle,
+        currentStyle,
+      });
+      emitted = true;
     }
-    items.push({
-      kind: "vertex",
-      type,
-      status: current ? "existing" : "new",
-      incoming,
-      incomingStyle,
-      currentStyle,
-    });
+
+    const incomingConditional = resolveConditionalVertexStyle(
+      resolveVertexStyle(type, incoming),
+    );
+    if (conditionalStyle && incomingConditional) {
+      const currentConditionalStyle = current
+        ? resolveConditionalVertexStyle(resolveVertexStyle(type, current))
+            ?.style
+        : undefined;
+      if (!isEqual(incomingConditional.style, currentConditionalStyle)) {
+        items.push({
+          kind: "vertex",
+          variant: "conditional",
+          type,
+          status: current?.conditionalStyle ? "existing" : "new",
+          condition: conditionalStyle.condition,
+          incoming,
+          incomingStyle: incomingConditional.style,
+          currentStyle: baseIncomingStyle,
+        });
+        emitted = true;
+      }
+    }
+
+    if (!emitted) {
+      skippedCount++;
+    }
   }
 
   for (const [type, incoming] of parsed.edgeStyles) {
     const current = currentEdgeStyles.get(type);
-    const incomingStyle = resolveEdgeStyle(type, incoming);
+    const { conditionalStyle, ...baseIncoming } = incoming;
+
+    const baseIncomingStyle = resolveEdgeStyle(type, baseIncoming);
     const currentStyle = resolveEdgeStyle(type, current);
-    if (isEqual(incomingStyle, currentStyle)) {
-      skippedCount++;
-      continue;
+    let emitted = false;
+
+    if (
+      !isEqual(baseAppearance(baseIncomingStyle), baseAppearance(currentStyle))
+    ) {
+      items.push({
+        kind: "edge",
+        variant: "base",
+        type,
+        status: current ? "existing" : "new",
+        incoming: baseIncoming,
+        incomingStyle: baseIncomingStyle,
+        currentStyle,
+      });
+      emitted = true;
     }
-    items.push({
-      kind: "edge",
-      type,
-      status: current ? "existing" : "new",
-      incoming,
-      incomingStyle,
-      currentStyle,
-    });
+
+    const incomingConditional = resolveConditionalEdgeStyle(
+      resolveEdgeStyle(type, incoming),
+    );
+    if (conditionalStyle && incomingConditional) {
+      const currentConditionalStyle = current
+        ? resolveConditionalEdgeStyle(resolveEdgeStyle(type, current))?.style
+        : undefined;
+      if (!isEqual(incomingConditional.style, currentConditionalStyle)) {
+        items.push({
+          kind: "edge",
+          variant: "conditional",
+          type,
+          status: current?.conditionalStyle ? "existing" : "new",
+          condition: conditionalStyle.condition,
+          incoming,
+          incomingStyle: incomingConditional.style,
+          currentStyle: baseIncomingStyle,
+        });
+        emitted = true;
+      }
+    }
+
+    if (!emitted) {
+      skippedCount++;
+    }
   }
 
   return { items, skippedCount };

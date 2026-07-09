@@ -83,6 +83,7 @@ On the **Nodes** tab, each node type can be customized in a variety of ways.
 - **Display description attribute** allows you to choose the attribute on the node that is used to describe the node in search
 - **Icon** can be picked from the built-in Lucide library via the **Browse** button, or uploaded as a custom SVG/raster image.
 - **Colors and borders** can be customized to visually distinguish from other node types
+- **Conditional style** applies a different appearance to individual nodes of the type when they meet a condition (see [Conditional Styling](#conditional-styling))
 
 On the **Edges** tab, each edge type can be customized in a variety of ways.
 
@@ -91,6 +92,24 @@ On the **Edges** tab, each edge type can be customized in a variety of ways.
 - **Arrow symbol** can be chosen for both source and target variations
 - **Colors and borders** can be customized for the edge label and the line
 - **Line style** can be solid, dotted, or dashed
+- **Conditional style** applies a different appearance to individual edges of the type when they meet a condition (see [Conditional Styling](#conditional-styling))
+
+### Conditional Styling
+
+Both the node and edge styling panels include a **Conditional Style** toggle. Enable it to flag individual entities that meet a condition — for example, coloring `Person` nodes red when `known_bad = true`, without creating a separate type. The base style applies to all entities of the type; the conditional style is layered on top of the base only for the entities that match.
+
+A condition has three parts:
+
+- **Attribute** — the property to test, chosen from the type's attributes (or the node/edge id and type)
+- **Operator** — `equals`, `not equals`, `greater than`, `less than`, `greater than or equal`, or `less than or equal`
+- **Value** — the value to compare against
+
+Comparisons are type-aware: numbers compare numerically, dates compare chronologically (both `2025-03-03` and `3/3/2025` formats are understood), and other values compare as text. An entity that does not have the attribute never matches. Selection highlighting and focus dimming always take visual priority over a conditional style.
+
+The conditional style reuses the same pickers as the base style and only overrides the properties you change — anything you leave alone inherits from the base style. Conditional styles are included when you save your styles to share and are restored on import.
+
+> [!NOTE]
+> Each type supports one condition. The condition is evaluated against the primary type of each rendered entity.
 
 ### Namespace Panel
 

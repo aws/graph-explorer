@@ -10,6 +10,11 @@ import {
   appDefaultVertexStyle,
   edgeStyleAtom,
   type EdgeStyleStorage,
+  resolveConditionalEdgeStyle,
+  resolveConditionalVertexStyle,
+  resolveEdgeStyle,
+  resolveVertexStyle,
+  type StyleCondition,
   useEdgeStyling,
   useVertexStyling,
   vertexStyleAtom,
@@ -427,6 +432,74 @@ describe("vertexStyleAtom", () => {
     expect(result.current.get(vertexType)).toStrictEqual(
       createExpectedVertex({ type: vertexType }),
     );
+  });
+});
+
+describe("resolveConditionalVertexStyle", () => {
+  const condition: StyleCondition = {
+    attribute: "known_bad",
+    operator: "=",
+    value: "true",
+  };
+
+  it("returns undefined when the base style has no conditional style", () => {
+    const base = resolveVertexStyle(createVertexType("Person"));
+
+    expect(resolveConditionalVertexStyle(base)).toBeUndefined();
+  });
+
+  it("inherits the base style and applies the conditional overrides", () => {
+    const base = resolveVertexStyle(createVertexType("Person"), {
+      type: createVertexType("Person"),
+      color: "blue",
+      conditionalStyle: { condition, borderColor: "red", borderWidth: 4 },
+    });
+
+    const resolved = resolveConditionalVertexStyle(base);
+
+    expect(resolved).toStrictEqual({
+      condition,
+      style: {
+        ...base,
+        borderColor: "red",
+        borderWidth: 4,
+        conditionalStyle: undefined,
+      },
+    });
+  });
+});
+
+describe("resolveConditionalEdgeStyle", () => {
+  const condition: StyleCondition = {
+    attribute: "weight",
+    operator: ">",
+    value: "10",
+  };
+
+  it("returns undefined when the base style has no conditional style", () => {
+    const base = resolveEdgeStyle(createEdgeType("KNOWS"));
+
+    expect(resolveConditionalEdgeStyle(base)).toBeUndefined();
+  });
+
+  it("inherits the base style and applies the conditional overrides", () => {
+    const base = resolveEdgeStyle(createEdgeType("KNOWS"), {
+      type: createEdgeType("KNOWS"),
+      lineColor: "grey",
+      conditionalStyle: { condition, lineColor: "red", lineThickness: 6 },
+    });
+
+    const resolved = resolveConditionalEdgeStyle(base);
+
+    expect(resolved).toStrictEqual({
+      condition,
+      style: {
+        ...base,
+        lineColor: "red",
+        lineThickness: 6,
+        conditionalStyle: undefined,
+      },
+    });
   });
 });
 

@@ -3,12 +3,14 @@ import { waitFor } from "@testing-library/react";
 
 import {
   createEdgeId,
+  createEdgeType,
   createVertexId,
   createVertexType,
 } from "@/core/entities";
 import {
   createRandomEdge,
   createRandomVertex,
+  createTestableEdge,
   createTestableVertex,
   DbState,
   renderHookWithJotai,
@@ -135,6 +137,111 @@ describe("useRenderedVertices", () => {
     await waitFor(() => {
       const vertexIds = result.current.vertices.map(v => v.data.vertexId);
       expect(vertexIds).toStrictEqual([vertex3.id]);
+    });
+  });
+});
+
+describe("conditional styling match flag", () => {
+  it("stamps conditionMet when a vertex satisfies its type's condition", async () => {
+    const dbState = new DbState();
+    const personType = createVertexType("Person");
+    const vertex = createTestableVertex().with({
+      types: [personType],
+      attributes: { score: 90 },
+    });
+    dbState.addTestableVertexToGraph(vertex);
+    dbState.addVertexStyle(personType, {
+      conditionalStyle: {
+        condition: { attribute: "score", operator: ">", value: "50" },
+        borderColor: "red",
+      },
+    });
+
+    const { result } = renderHookWithJotai(
+      () => useRenderedEntities(),
+      store => dbState.applyTo(store),
+    );
+
+    await waitFor(() => {
+      expect(result.current.vertices[0].data).toMatchObject({
+        conditionMet: "true",
+      });
+    });
+  });
+
+  it("does not stamp conditionMet when the vertex fails its condition", async () => {
+    const dbState = new DbState();
+    const personType = createVertexType("Person");
+    const vertex = createTestableVertex().with({
+      types: [personType],
+      attributes: { score: 10 },
+    });
+    dbState.addTestableVertexToGraph(vertex);
+    dbState.addVertexStyle(personType, {
+      conditionalStyle: {
+        condition: { attribute: "score", operator: ">", value: "50" },
+        borderColor: "red",
+      },
+    });
+
+    const { result } = renderHookWithJotai(
+      () => useRenderedEntities(),
+      store => dbState.applyTo(store),
+    );
+
+    await waitFor(() => {
+      expect(result.current.vertices[0].data).not.toHaveProperty(
+        "conditionMet",
+      );
+    });
+  });
+
+  it("does not stamp conditionMet when the vertex type has no condition", async () => {
+    const dbState = new DbState();
+    const vertex = createTestableVertex().with({
+      types: [createVertexType("Person")],
+      attributes: { score: 90 },
+    });
+    dbState.addTestableVertexToGraph(vertex);
+
+    const { result } = renderHookWithJotai(
+      () => useRenderedEntities(),
+      store => dbState.applyTo(store),
+    );
+
+    await waitFor(() => {
+      expect(result.current.vertices[0].data).not.toHaveProperty(
+        "conditionMet",
+      );
+    });
+  });
+
+  it("stamps conditionMet when an edge satisfies its type's condition", async () => {
+    const dbState = new DbState();
+    const knowsType = createEdgeType("KNOWS");
+    const source = createTestableVertex();
+    const target = createTestableVertex();
+    const edge = createTestableEdge()
+      .with({ type: knowsType, attributes: { weight: 5 } })
+      .withSource(source)
+      .withTarget(target);
+    dbState.addTestableEdgeToGraph(edge);
+    dbState.addEdgeStyle(knowsType, {
+      conditionalStyle: {
+        condition: { attribute: "weight", operator: ">=", value: "3" },
+        lineColor: "red",
+      },
+    });
+
+    const { result } = renderHookWithJotai(
+      () => useRenderedEntities(),
+      store => dbState.applyTo(store),
+    );
+
+    await waitFor(() => {
+      expect(result.current.edges[0].data).toMatchObject({
+        conditionMet: "true",
+      });
     });
   });
 });

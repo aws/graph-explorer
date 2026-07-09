@@ -59,6 +59,36 @@ export const ARROW_STYLES = [
 export type ArrowStyle = (typeof ARROW_STYLES)[number];
 
 /**
+ * The comparison operators available for a conditional style. Each maps 1:1
+ * onto a Cytoscape attribute-selector operator, so condition matching is done
+ * natively by the rendering engine rather than in a JavaScript evaluation loop.
+ */
+export const CONDITION_OPERATORS = ["=", "!=", ">", "<", ">=", "<="] as const;
+export type ConditionOperator = (typeof CONDITION_OPERATORS)[number];
+
+/** Human-readable labels for the condition operators, for the condition builder UI. */
+export const CONDITION_OPERATOR_LABELS: Record<ConditionOperator, string> = {
+  "=": "equals",
+  "!=": "not equals",
+  ">": "greater than",
+  "<": "less than",
+  ">=": "greater than or equal",
+  "<=": "less than or equal",
+};
+
+/**
+ * A single condition evaluated against a rendered entity's attribute. The value
+ * is stored as a string and coerced to the attribute's runtime type when the
+ * Cytoscape selector is built.
+ */
+export type StyleCondition = {
+  /** Schema attribute name, or a reserved id/type property. */
+  attribute: string;
+  operator: ConditionOperator;
+  value: string;
+};
+
+/**
  * The visual appearance of a vertex — the fields that make sense for both a
  * per-type style and a type-less global default. Every field is required: this
  * is the resolved baseline shape a rendered vertex always has.
@@ -115,25 +145,73 @@ export type EdgeTypeStyle = {
   displayNameAttribute: string;
 };
 
+/**
+ * The alternate appearance applied to a vertex when its {@link StyleCondition}
+ * matches. The style fields are partial overrides layered on the resolved base
+ * style — unset fields inherit from the base.
+ */
+export type VertexConditionalStyle = { condition: StyleCondition } & Partial<
+  VertexVisualStyle & VertexTypeStyle
+>;
+
+/** The alternate appearance applied to an edge when its condition matches. */
+export type EdgeConditionalStyle = { condition: StyleCondition } & Partial<
+  EdgeVisualStyle & EdgeTypeStyle
+>;
+
 /** The style for the specified vertex type as stored in local storage. */
 export type VertexStyleStorage = Simplify<
-  Partial<VertexVisualStyle & VertexTypeStyle> & { type: VertexType }
+  Partial<VertexVisualStyle & VertexTypeStyle> & {
+    type: VertexType;
+    conditionalStyle?: VertexConditionalStyle;
+  }
 >;
 
 /** The style for the specified edge type as stored in local storage. */
 export type EdgeStyleStorage = Simplify<
-  Partial<EdgeVisualStyle & EdgeTypeStyle> & { type: EdgeType }
+  Partial<EdgeVisualStyle & EdgeTypeStyle> & {
+    type: EdgeType;
+    conditionalStyle?: EdgeConditionalStyle;
+  }
 >;
 
 /** The resolved style for the specified vertex type as an immutable object. */
 export type VertexStyle = Simplify<
-  Readonly<VertexVisualStyle & VertexTypeStyle & { type: VertexType }>
+  Readonly<
+    VertexVisualStyle &
+      VertexTypeStyle & {
+        type: VertexType;
+        conditionalStyle?: VertexConditionalStyle;
+      }
+  >
 >;
 
 /** The resolved style for the specified edge type as an immutable object. */
 export type EdgeStyle = Simplify<
-  Readonly<EdgeVisualStyle & EdgeTypeStyle & { type: EdgeType }>
+  Readonly<
+    EdgeVisualStyle &
+      EdgeTypeStyle & {
+        type: EdgeType;
+        conditionalStyle?: EdgeConditionalStyle;
+      }
+  >
 >;
+
+/**
+ * A vertex's resolved conditional appearance paired with the condition that
+ * activates it. Produced by {@link resolveConditionalVertexStyle} and consumed
+ * by the graph-canvas style generation to emit a conditional Cytoscape selector.
+ */
+export type ResolvedConditionalVertexStyle = {
+  condition: StyleCondition;
+  style: VertexStyle;
+};
+
+/** An edge's resolved conditional appearance paired with its activating condition. */
+export type ResolvedConditionalEdgeStyle = {
+  condition: StyleCondition;
+  style: EdgeStyle;
+};
 
 /** The default values to use when no user provided value is given. */
 export const appDefaultVertexStyle = {
@@ -241,6 +319,39 @@ export function resolveEdgeStyle(
     ...appDefaultEdgeStyle,
     ...user,
   } as const;
+}
+
+/**
+ * Resolves the conditional appearance for a vertex, if it has one. The
+ * conditional style inherits the resolved base style and layers its own partial
+ * overrides on top, so a user sets only the fields that differ. Returns
+ * `undefined` when the base style defines no condition.
+ */
+export function resolveConditionalVertexStyle(
+  base: VertexStyle,
+): ResolvedConditionalVertexStyle | undefined {
+  if (!base.conditionalStyle) {
+    return undefined;
+  }
+  const { condition, ...overrides } = base.conditionalStyle;
+  return {
+    condition,
+    style: { ...base, ...overrides, conditionalStyle: undefined },
+  };
+}
+
+/** Resolves the conditional appearance for an edge, if it has one. */
+export function resolveConditionalEdgeStyle(
+  base: EdgeStyle,
+): ResolvedConditionalEdgeStyle | undefined {
+  if (!base.conditionalStyle) {
+    return undefined;
+  }
+  const { condition, ...overrides } = base.conditionalStyle;
+  return {
+    condition,
+    style: { ...base, ...overrides, conditionalStyle: undefined },
+  };
 }
 
 /** Returns an array of vertex styles based on the known vertex types in the schema.

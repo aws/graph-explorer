@@ -88,6 +88,8 @@ export * from "./SettingsPage";
 
 export * from "./SidebarTabs";
 
+export * from "./ConditionBuilder";
+
 export * from "./Switch";
 
 export * from "./TextArea";

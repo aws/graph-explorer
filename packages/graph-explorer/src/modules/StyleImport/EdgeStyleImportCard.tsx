@@ -1,4 +1,5 @@
 import { EdgePreview } from "@/components";
+import { formatStyleCondition } from "@/core/StateProvider/conditionalStyling";
 
 import type { EdgeStyleImportItem } from "./styleImportPlan";
 
@@ -23,11 +24,17 @@ export function EdgeStyleImportCard({
   selected: boolean;
   onToggle: () => void;
 }) {
+  const isConditional = item.variant === "conditional";
+
   return (
-    <ImportCard label={item.type} checked={selected} onCheckedChange={onToggle}>
+    <ImportCard
+      label={isConditional ? `${item.type} conditional` : item.type}
+      checked={selected}
+      onCheckedChange={onToggle}
+    >
       <ImportCardSurface className="space-y-9">
         <div className="flex flex-col items-center gap-3">
-          <PreviewLabel>Before</PreviewLabel>
+          <PreviewLabel>{isConditional ? "Base" : "Before"}</PreviewLabel>
           <EdgePreview
             edgeStyle={item.currentStyle}
             label={item.currentStyle.displayLabel || item.type}
@@ -35,7 +42,7 @@ export function EdgeStyleImportCard({
           />
         </div>
         <div className="flex flex-col items-center gap-3">
-          <PreviewLabel>After</PreviewLabel>
+          <PreviewLabel>{isConditional ? "When met" : "After"}</PreviewLabel>
           <EdgePreview
             edgeStyle={item.incomingStyle}
             label={item.incomingStyle.displayLabel || item.type}
@@ -43,13 +50,29 @@ export function EdgeStyleImportCard({
           />
         </div>
       </ImportCardSurface>
-      <ImportCardTitle>{item.type}</ImportCardTitle>
-      <ImportCardProperties
-        properties={[
-          { label: "Display name", value: item.incoming.displayNameAttribute },
-          { label: "Display type", value: item.incoming.displayLabel },
-        ]}
-      />
+      <ImportCardTitle>
+        {item.type}
+        {isConditional ? (
+          <span className="text-muted-foreground"> · conditional</span>
+        ) : null}
+      </ImportCardTitle>
+      {isConditional ? (
+        <ImportCardProperties
+          properties={[
+            { label: "Condition", value: formatStyleCondition(item.condition) },
+          ]}
+        />
+      ) : (
+        <ImportCardProperties
+          properties={[
+            {
+              label: "Display name",
+              value: item.incoming.displayNameAttribute,
+            },
+            { label: "Display type", value: item.incoming.displayLabel },
+          ]}
+        />
+      )}
     </ImportCard>
   );
 }

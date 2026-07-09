@@ -32,6 +32,7 @@ export type DisplayEdge = {
   targetId: VertexId;
   attributes: DisplayAttribute[];
   hasUniqueId: boolean;
+  original: Edge;
 };
 
 export function useDisplayEdgeInCanvas(edgeId: EdgeId) {
@@ -117,6 +118,7 @@ const displayEdgeSelector = atomFamily((edge: Edge) =>
       attributes: sortedAttributes,
       // SPARQL does not have unique ID values for predicates, so the UI should hide them
       hasUniqueId: isSparql === false,
+      original: edge,
     };
     return displayEdge;
   }),

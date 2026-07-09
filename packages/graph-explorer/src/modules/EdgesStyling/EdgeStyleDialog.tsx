@@ -3,12 +3,15 @@ import { atom, useAtom, useSetAtom } from "jotai";
 import {
   Button,
   ColorPopover,
+  ConditionBuilder,
+  createDefaultCondition,
   EdgePreview,
   Field,
   FieldGroup,
   FieldLabel,
   FieldLegend,
   FieldSet,
+  LabelledSetting,
   NumberInput,
   PreviewSurface,
   Select,
@@ -16,6 +19,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Switch,
 } from "@/components";
 import {
   Dialog,
@@ -35,12 +39,15 @@ import {
 import {
   type ArrowStyle,
   type LineStyle,
+  resolveConditionalEdgeStyle,
+  type StyleCondition,
   useEdgeStyling,
 } from "@/core/StateProvider/graphStyles";
 import useTranslations from "@/hooks/useTranslations";
 import { RESERVED_TYPES_PROPERTY } from "@/utils";
 
 import { ARROW_STYLE_OPTIONS } from "./arrowsStyling";
+import { EdgeStyleFields, type EdgeStyleUpdate } from "./EdgeStyleFields";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 
 const customizeEdgeTypeAtom = atom<EdgeType | undefined>(undefined);
@@ -95,6 +102,26 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
     return options;
   })();
 
+  const conditionalStyle = edgeStyle.conditionalStyle;
+  const resolvedConditional = resolveConditionalEdgeStyle(edgeStyle);
+
+  const setConditionEnabled = (enabled: boolean) =>
+    setEdgeStyle({
+      conditionalStyle: enabled
+        ? { condition: createDefaultCondition(selectOptions) }
+        : undefined,
+    });
+
+  const updateCondition = (condition: StyleCondition) => {
+    if (!conditionalStyle) return;
+    setEdgeStyle({ conditionalStyle: { ...conditionalStyle, condition } });
+  };
+
+  const updateConditionalStyle = (update: EdgeStyleUpdate) => {
+    if (!conditionalStyle) return;
+    setEdgeStyle({ conditionalStyle: { ...conditionalStyle, ...update } });
+  };
+
   return (
     <DialogContent className="max-w-2xl">
       <form className="flex min-h-0 flex-col">
@@ -104,7 +131,7 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
             Changes here override the default style for this {t("edge-type")}.
           </DialogDescription>
         </DialogHeader>
-        <DialogBody>
+        <DialogBody className="space-y-6">
           <FieldSet>
             <Field>
               <FieldLabel className="sr-only">Preview</FieldLabel>
@@ -306,6 +333,33 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
                 </Field>
               </FieldGroup>
             </FieldSet>
+          </FieldSet>
+
+          <FieldSet>
+            <FieldLegend>Conditional Style</FieldLegend>
+            <LabelledSetting
+              htmlFor="edgeConditionalStyleEnabled"
+              label="Apply a different style when a condition is met"
+            >
+              <Switch
+                id="edgeConditionalStyleEnabled"
+                checked={Boolean(conditionalStyle)}
+                onCheckedChange={setConditionEnabled}
+              />
+            </LabelledSetting>
+            {conditionalStyle && resolvedConditional ? (
+              <>
+                <ConditionBuilder
+                  condition={conditionalStyle.condition}
+                  attributeOptions={selectOptions}
+                  onChange={updateCondition}
+                />
+                <EdgeStyleFields
+                  style={resolvedConditional.style}
+                  onChange={updateConditionalStyle}
+                />
+              </>
+            ) : null}
           </FieldSet>
         </DialogBody>
         <DialogFooter className="sm:justify-between">

@@ -7,6 +7,7 @@ import {
   parseStylingPayload,
   parseStylingPayloadForVersion,
   StylingParseError,
+  toVertexFileEntry,
 } from "./stylingParser";
 
 /** Parses, asserting failure, and returns the thrown issues for inspection. */
@@ -547,5 +548,147 @@ describe("parseStylingPayloadForVersion", () => {
     expect(() =>
       parseStylingPayloadForVersion(2, { vertices: {}, edges: {} }),
     ).toThrow(FileEnvelopeError);
+  });
+});
+
+describe("conditional styling", () => {
+  test("parses a vertex conditional style, renaming the nested icon to iconUrl", () => {
+    const result = parseStylingPayload({
+      vertices: {
+        Person: {
+          color: "#111111",
+          conditionalStyle: {
+            condition: {
+              attribute: "known_bad",
+              operator: "=",
+              value: "true",
+            },
+            borderColor: "#ff0000",
+            icon: "lucide:shield-alert",
+          },
+        },
+      },
+      edges: {},
+    });
+
+    expect(result.vertexStyles.get(createVertexType("Person"))).toStrictEqual({
+      type: createVertexType("Person"),
+      color: "#111111",
+      conditionalStyle: {
+        condition: { attribute: "known_bad", operator: "=", value: "true" },
+        borderColor: "#ff0000",
+        iconUrl: "lucide:shield-alert",
+      },
+    });
+  });
+
+  test("parses an edge conditional style", () => {
+    const result = parseStylingPayload({
+      vertices: {},
+      edges: {
+        KNOWS: {
+          lineColor: "#111111",
+          conditionalStyle: {
+            condition: { attribute: "weight", operator: ">", value: "10" },
+            lineColor: "#ff0000",
+          },
+        },
+      },
+    });
+
+    expect(result.edgeStyles.get(createEdgeType("KNOWS"))).toStrictEqual({
+      type: createEdgeType("KNOWS"),
+      lineColor: "#111111",
+      conditionalStyle: {
+        condition: { attribute: "weight", operator: ">", value: "10" },
+        lineColor: "#ff0000",
+      },
+    });
+  });
+
+  test("strips an injected iconUrl inside a conditional style", () => {
+    const result = parseStylingPayload({
+      vertices: {
+        Person: {
+          conditionalStyle: {
+            condition: { attribute: "x", operator: "=", value: "1" },
+            iconUrl: "https://evil.example.com/x.svg",
+            color: "#abcabc",
+          },
+        },
+      },
+      edges: {},
+    });
+
+    expect(
+      result.vertexStyles.get(createVertexType("Person"))!.conditionalStyle,
+    ).toStrictEqual({
+      condition: { attribute: "x", operator: "=", value: "1" },
+      color: "#abcabc",
+    });
+  });
+
+  test("rejects the whole file when a nested condition operator is invalid", () => {
+    const issues = parseExpectingIssues({
+      vertices: {
+        Person: {
+          conditionalStyle: {
+            condition: { attribute: "x", operator: "??", value: "1" },
+          },
+        },
+      },
+      edges: {},
+    });
+
+    expect(issues).toContainEqual(
+      expect.objectContaining({
+        scope: "entry",
+        entityType: "vertex",
+        typeName: "Person",
+        field: "conditionalStyle.condition.operator",
+      }),
+    );
+  });
+
+  test("rejects a nested icon that fails the allowlist", () => {
+    const issues = parseExpectingIssues({
+      vertices: {
+        Person: {
+          conditionalStyle: {
+            condition: { attribute: "x", operator: "=", value: "1" },
+            icon: "javascript:alert(1)",
+          },
+        },
+      },
+      edges: {},
+    });
+
+    expect(issues).toContainEqual(
+      expect.objectContaining({
+        typeName: "Person",
+        field: "conditionalStyle.icon",
+      }),
+    );
+  });
+
+  test("exports a conditional style, renaming the nested iconUrl to icon", () => {
+    const entry = toVertexFileEntry({
+      type: createVertexType("Person"),
+      color: "#111111",
+      conditionalStyle: {
+        condition: { attribute: "x", operator: "=", value: "1" },
+        iconUrl: "lucide:shield",
+        borderColor: "#ff0000",
+      },
+    });
+
+    expect(entry).toStrictEqual({
+      color: "#111111",
+      conditionalStyle: {
+        condition: { attribute: "x", operator: "=", value: "1" },
+        icon: "lucide:shield",
+        borderColor: "#ff0000",
+      },
+    });
   });
 });
