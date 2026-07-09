@@ -11,7 +11,6 @@ import {
   type EdgeStyleStorage,
   edgesAtom,
   edgesFilteredIdsAtom,
-  userEdgeStylesAtom,
   edgesTypesFilteredAtom,
   type EdgeType,
   explorerForTestingAtom,
@@ -26,11 +25,14 @@ import {
   schemaAtom,
   type SchemaStorageModel,
   schemaViewLayoutAtom,
+  sharedEdgeStylesAtom,
+  sharedVertexStylesAtom,
   toEdgeMap,
   toNodeMap,
   type Vertex,
   type VertexId,
   type VertexStyleStorage,
+  userEdgeStylesAtom,
   userVertexStylesAtom,
   type VertexType,
 } from "@/core";
@@ -57,6 +59,8 @@ export class DbState {
   activeConfig: RawConfiguration;
   vertexStyles: Map<VertexType, VertexStyleStorage>;
   edgeStyles: Map<EdgeType, EdgeStyleStorage>;
+  sharedVertexStyles: Map<VertexType, VertexStyleStorage>;
+  sharedEdgeStyles: Map<EdgeType, EdgeStyleStorage>;
   graphViewLayout: GraphViewLayout;
   schemaViewLayout: SchemaViewLayout;
 
@@ -77,6 +81,8 @@ export class DbState {
 
     this.vertexStyles = createRandomVertexStyles();
     this.edgeStyles = createRandomEdgeStyles();
+    this.sharedVertexStyles = createRandomVertexStyles();
+    this.sharedEdgeStyles = createRandomEdgeStyles();
 
     this.graphViewLayout = createRandomGraphViewLayout();
     this.schemaViewLayout = createRandomSchemaViewLayout();
@@ -161,10 +167,10 @@ export class DbState {
     this.filteredEdgeTypes.add(edgeType);
   }
 
-  /* User Styling Helpers */
+  /* User Styles Helpers */
 
   /**
-   * Adds a style configuration for the vertex type to the user styling.
+   * Adds a style configuration for the vertex type to the user styles.
    * @param vertexType The type of the vertex to add the style to.
    * @param style The style configuration to add.
    * @returns The fully composed style configuration.
@@ -179,7 +185,7 @@ export class DbState {
   }
 
   /**
-   * Adds a style configuration for the edge type to the user styling.
+   * Adds a style configuration for the edge type to the user styles.
    * @param edgeType The type of the edge to add the style to.
    * @param style The style configuration to add.
    * @returns The fully composed style configuration.
@@ -190,6 +196,38 @@ export class DbState {
   ): EdgeStyleStorage {
     const composedStyle = { ...style, type: edgeType };
     this.edgeStyles.set(edgeType, composedStyle);
+    return composedStyle;
+  }
+
+  /* Shared Styles Helpers */
+
+  /**
+   * Adds a style configuration for the vertex type to the shared styles.
+   * @param vertexType The type of the vertex to add the style to.
+   * @param style The style configuration to add.
+   * @returns The fully composed style configuration.
+   */
+  addSharedVertexStyle(
+    vertexType: VertexType,
+    style: Omit<VertexStyleStorage, "type">,
+  ): VertexStyleStorage {
+    const composedStyle = { ...style, type: vertexType };
+    this.sharedVertexStyles.set(vertexType, composedStyle);
+    return composedStyle;
+  }
+
+  /**
+   * Adds a style configuration for the edge type to the shared styles.
+   * @param edgeType The type of the edge to add the style to.
+   * @param style The style configuration to add.
+   * @returns The fully composed style configuration.
+   */
+  addSharedEdgeStyle(
+    edgeType: EdgeType,
+    style: Omit<EdgeStyleStorage, "type">,
+  ): EdgeStyleStorage {
+    const composedStyle = { ...style, type: edgeType };
+    this.sharedEdgeStyles.set(edgeType, composedStyle);
     return composedStyle;
   }
 
@@ -235,6 +273,8 @@ export class DbState {
     // Styling
     store.set(userVertexStylesAtom, this.vertexStyles);
     store.set(userEdgeStylesAtom, this.edgeStyles);
+    store.set(sharedVertexStylesAtom, this.sharedVertexStyles);
+    store.set(sharedEdgeStylesAtom, this.sharedEdgeStyles);
 
     // View Layout
     store.set(graphViewLayoutAtom, this.graphViewLayout);
