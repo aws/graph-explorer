@@ -20,6 +20,7 @@ import {
 } from "@/core/StateProvider/storageAtoms";
 
 import LoadStylesButton from "./LoadStylesButton";
+import ResetAllStylesButton from "./ResetAllStylesButton";
 import ResetCustomStylesButton from "./ResetCustomStylesButton";
 import ResetSharedStylesButton from "./ResetSharedStylesButton";
 import SaveStylesButton from "./SaveStylesButton";
@@ -88,6 +89,14 @@ export default function SettingsStyles() {
             description="Remove the shared styles. Your styles remain."
           >
             <ResetSharedStylesButton />
+          </LabelledSetting>
+        </GroupItem>
+        <GroupItem>
+          <LabelledSetting
+            label="Reset all styles"
+            description="Clear both your styles and shared styles, returning everything to defaults."
+          >
+            <ResetAllStylesButton />
           </LabelledSetting>
         </GroupItem>
       </Group>
