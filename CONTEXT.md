@@ -116,6 +116,14 @@ _Avoid_: Save state (ambiguous with Session)
 The UI element in the nav bar (after the page title) that renders Persistence Status. It surfaces only on `failed` — a standing danger "Changes not saved" button — and stays absent at `idle` and `saving`. Clicking it opens a dialog showing the raw failure records (key, reason, attempt count, last attempt, and the underlying error's name/message/cause) in a read-only JSON editor. The dialog offers to save the configuration to a file via `saveLocalForageToFile` (`core/StateProvider/localDb.ts`) when storage is full (quota) — IndexedDB is still readable then — but not when storage is inaccessible (private mode, blocked), since the database never opened and there is nothing to read. Recovery scope is retry (transient failures) plus that backup (terminal-quota failures) — it does not guarantee the write eventually lands.
 _Avoid_: Save-status indicator
 
+**URL Connection Params**:
+Connection details carried in the query string of the `#/connect` route (`graphDbUrl`, `queryEngine`, `awsRegion`, `serviceType`, `name`) that let an external link pre-configure or activate a Connection. Resolved once when the Connect route is entered; the route redirects to the Graph View afterward so the params do not linger in history.
+_Avoid_: deep link, connection link, auto-connect
+
+**URL Connection Intent**:
+The action a set of URL Connection Params resolves to against the current Connections: `none` (the params target the already-active Connection — do nothing), `activate` (the params match an inactive Connection — switch to it, replacing the Session), `create` (no match — open the create form pre-filled from the params), or `invalid` (a link carrying a `graphDbUrl` that fails validation — warn and ignore it). A Connection matches only when its `graphDbUrl`, `queryEngine`, and auth posture (IAM on/off, and when on, `awsRegion` and `serviceType`) all agree — auth posture is identity-bearing, so a link requesting different auth than any existing Connection resolves to `create` rather than silently reusing one.
+_Avoid_: connection action, deep-link mode
+
 ## Relationships
 
 - Each browser tab has at most one **Active Connection**; different tabs may have different ones
@@ -130,6 +138,8 @@ _Avoid_: Save-status indicator
 - **Neighbors** are **Vertices** one hop away from a given **Vertex**
 - **Styles** are scoped per **Vertex Type** (**Vertex Styles**) and **Edge Type** (**Edge Styles**)
 - The **Graph View**, **Data Table View**, and **Schema View** all render from the same **Session** and **Schema**
+- **URL Connection Params** resolve to a **URL Connection Intent** against the current **Connections** and active **Connection**
+- Activating a different **Connection** replaces the current **Session** — so an `activate` or `create` **URL Connection Intent** resets the **Session**, while a `none` intent leaves it untouched
 
 ## Example dialogue
 
