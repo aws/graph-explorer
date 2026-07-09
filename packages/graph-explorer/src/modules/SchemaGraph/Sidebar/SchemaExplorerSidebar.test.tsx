@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Provider } from "jotai";
 import { describe, expect, test, vi } from "vitest";
@@ -62,15 +62,18 @@ describe("SchemaExplorerSidebar", () => {
     expect(screen.getByText("Empty Selection")).toBeInTheDocument();
   });
 
-  test("shows three sidebar tabs", () => {
+  test("shows details and styles sidebar tabs", () => {
     const state = new DbState();
     renderSidebar(state);
 
-    const tabs = screen.getAllByRole("tab");
-    expect(tabs).toHaveLength(3);
+    const sidebarTablist = document.querySelector(
+      '[role="tablist"][aria-orientation="vertical"]',
+    )!;
+    const tabs = within(sidebarTablist as HTMLElement).getAllByRole("tab");
+    expect(tabs).toHaveLength(2);
   });
 
-  test("renders node styling content when clicking second tab", async () => {
+  test("renders vertex styling content when opening the styles tab", async () => {
     const user = userEvent.setup();
     const state = stateWithDetailsTab();
     const vertex = createTestableVertex().with({ types: ["Airport"] });
@@ -78,13 +81,12 @@ describe("SchemaExplorerSidebar", () => {
 
     renderSidebar(state);
 
-    const tabs = screen.getAllByRole("tab");
-    await user.click(tabs[1]);
+    await user.click(screen.getByRole("tab", { name: "Styles" }));
 
     expect(screen.getByText("Airport")).toBeInTheDocument();
   });
 
-  test("renders edge styling content when clicking third tab", async () => {
+  test("renders edge styling content when switching to the edges tab", async () => {
     const user = userEvent.setup();
     const state = stateWithDetailsTab();
     const source = createTestableVertex().with({ types: ["Airport"] });
@@ -97,8 +99,17 @@ describe("SchemaExplorerSidebar", () => {
 
     renderSidebar(state);
 
-    const tabs = screen.getAllByRole("tab");
-    await user.click(tabs[2]);
+    await user.click(screen.getByRole("tab", { name: "Styles" }));
+
+    // The inner tab label varies by query engine (Edges / Relationships), so
+    // select by position within the horizontal tablist that just appeared.
+    const horizontalTablist = document.querySelector(
+      '[role="tablist"][aria-orientation="horizontal"]',
+    )!;
+    const innerTabs = within(horizontalTablist as HTMLElement).getAllByRole(
+      "tab",
+    );
+    await user.click(innerTabs[1]);
 
     expect(screen.getByText("locatedIn")).toBeInTheDocument();
   });
@@ -109,8 +120,7 @@ describe("SchemaExplorerSidebar", () => {
 
     expect(screen.getByText("Empty Selection")).toBeInTheDocument();
 
-    const tabs = screen.getAllByRole("tab");
-    await user.click(tabs[0]);
+    await user.click(screen.getByRole("tab", { name: "Selection Details" }));
 
     expect(screen.queryByText("Empty Selection")).not.toBeInTheDocument();
   });
@@ -123,13 +133,10 @@ describe("SchemaExplorerSidebar", () => {
 
     renderSidebar(state);
 
-    const tabs = screen.getAllByRole("tab");
-    // Close by clicking the active tab
-    await user.click(tabs[0]);
+    await user.click(screen.getByRole("tab", { name: "Selection Details" }));
     expect(screen.queryByText("Empty Selection")).not.toBeInTheDocument();
 
-    // Reopen by clicking a different tab
-    await user.click(tabs[1]);
+    await user.click(screen.getByRole("tab", { name: "Styles" }));
     expect(screen.getByText("Airport")).toBeInTheDocument();
   });
 });

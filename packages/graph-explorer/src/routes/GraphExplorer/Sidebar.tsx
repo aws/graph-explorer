@@ -2,12 +2,11 @@ import { useAtomValue } from "jotai";
 
 import {
   DetailsIcon,
-  EdgeIcon,
   ExpandGraphIcon,
   FilterIcon,
-  GraphIcon,
   NamespaceIcon,
   SearchIcon,
+  StylingIcon,
 } from "@/components";
 import {
   CollapsibleSidebar,
@@ -18,17 +17,15 @@ import {
 } from "@/components/CollapsibleSidebar";
 import { useGraphViewSidebar } from "@/core";
 import { totalFilteredCount } from "@/core/StateProvider/filterCount";
-import { useTranslations } from "@/hooks";
-import { EdgesStyling } from "@/modules/EdgesStyling";
 import EntitiesFilter from "@/modules/EntitiesFilter";
 import EntityDetails from "@/modules/EntityDetails";
 import Namespaces from "@/modules/Namespaces/Namespaces";
 import NodeExpand from "@/modules/NodeExpand";
-import { NodesStyling } from "@/modules/NodesStyling";
 import { SearchSidebarPanel } from "@/modules/SearchSidebar";
+import { graphViewStylesTabAtom, Styles } from "@/modules/Styles";
+import { LABELS } from "@/utils";
 
 export function Sidebar() {
-  const t = useTranslations();
   const filteredEntitiesCount = useAtomValue(totalFilteredCount);
   const {
     shouldShowNamespaces,
@@ -36,6 +33,7 @@ export function Sidebar() {
     isSidebarOpen,
     sidebarWidth,
     setSidebarWidth,
+    closeSidebar,
     toggleSidebar,
   } = useGraphViewSidebar();
 
@@ -77,18 +75,11 @@ export function Sidebar() {
             <FilterIcon />
           </SidebarTabsTrigger>
           <SidebarTabsTrigger
-            value="nodes-styling"
-            title={t("nodes-styling.title")}
-            onToggle={() => toggleSidebar("nodes-styling")}
+            value="styles"
+            title={LABELS.SIDEBAR.STYLES}
+            onToggle={() => toggleSidebar("styles")}
           >
-            <GraphIcon />
-          </SidebarTabsTrigger>
-          <SidebarTabsTrigger
-            value="edges-styling"
-            title={t("edges-styling.title")}
-            onToggle={() => toggleSidebar("edges-styling")}
-          >
-            <EdgeIcon />
+            <StylingIcon />
           </SidebarTabsTrigger>
           {shouldShowNamespaces && (
             <SidebarTabsTrigger
@@ -112,11 +103,8 @@ export function Sidebar() {
         <SidebarTabsContent value="filters">
           <EntitiesFilter />
         </SidebarTabsContent>
-        <SidebarTabsContent value="nodes-styling">
-          <NodesStyling />
-        </SidebarTabsContent>
-        <SidebarTabsContent value="edges-styling">
-          <EdgesStyling />
+        <SidebarTabsContent value="styles">
+          <Styles onClose={closeSidebar} tabAtom={graphViewStylesTabAtom} />
         </SidebarTabsContent>
         <SidebarTabsContent value="namespaces">
           <Namespaces />

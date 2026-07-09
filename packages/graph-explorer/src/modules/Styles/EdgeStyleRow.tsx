@@ -4,18 +4,14 @@ import { Button, FormItem, InputField, Label, StylingIcon } from "@/components";
 import { type EdgeType, useDisplayEdgeTypeConfig } from "@/core";
 import { useEdgeStyling } from "@/core/StateProvider/graphStyles";
 import { useDebounceValue, usePrevious } from "@/hooks";
+import { useOpenEdgeStyleDialog } from "@/modules/EdgesStyling";
 import { LABELS } from "@/utils";
 
-import { useOpenEdgeStyleDialog } from "./EdgeStyleDialog";
-
-export type SingleEdgeStylingProps = {
+export type EdgeStyleRowProps = {
   edgeType: EdgeType;
 } & ComponentPropsWithRef<typeof FormItem>;
 
-export default function SingleEdgeStyling({
-  edgeType,
-  ...rest
-}: SingleEdgeStylingProps) {
+export function EdgeStyleRow({ edgeType, ...rest }: EdgeStyleRowProps) {
   const { setEdgeStyle } = useEdgeStyling(edgeType);
   const openEdgeStyleDialog = useOpenEdgeStyleDialog();
   const displayConfig = useDisplayEdgeTypeConfig(edgeType);

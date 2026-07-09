@@ -69,7 +69,7 @@ export async function openPersistenceTab<T>(
   reconcile?: ReconcileWrite<T>,
 ): Promise<PersistenceTab<T>> {
   const store = createStore();
-  const atom = await atomWithLocalForage<T>(key, initialValue, reconcile);
+  const atom = await atomWithLocalForage<T>(key, initialValue, { reconcile });
   return new PersistenceTab(store, atom);
 }
 

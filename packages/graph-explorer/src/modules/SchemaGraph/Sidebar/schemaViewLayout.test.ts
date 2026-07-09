@@ -36,9 +36,9 @@ describe("useSchemaViewSidebar", () => {
       stateWithLayout(),
     );
 
-    act(() => result.current.toggleSidebar("nodes-styling"));
+    act(() => result.current.toggleSidebar("styles"));
 
-    expect(result.current.activeSidebarItem).toBe("nodes-styling");
+    expect(result.current.activeSidebarItem).toBe("styles");
     expect(result.current.isSidebarOpen).toBe(true);
   });
 
@@ -60,9 +60,9 @@ describe("useSchemaViewSidebar", () => {
       stateWithLayout({ activeSidebarItem: null }),
     );
 
-    act(() => result.current.toggleSidebar("edges-styling"));
+    act(() => result.current.toggleSidebar("styles"));
 
-    expect(result.current.activeSidebarItem).toBe("edges-styling");
+    expect(result.current.activeSidebarItem).toBe("styles");
     expect(result.current.isSidebarOpen).toBe(true);
   });
 
@@ -95,7 +95,7 @@ describe("useSchemaViewSidebar", () => {
     const { result } = renderHookWithState(
       () => useSchemaViewSidebar(),
       stateWithLayout({
-        activeSidebarItem: "nodes-styling",
+        activeSidebarItem: "styles",
         detailsAutoOpenOnSelection: true,
       }),
     );
@@ -109,20 +109,20 @@ describe("useSchemaViewSidebar", () => {
     const { result } = renderHookWithState(
       () => useSchemaViewSidebar(),
       stateWithLayout({
-        activeSidebarItem: "nodes-styling",
+        activeSidebarItem: "styles",
         detailsAutoOpenOnSelection: false,
       }),
     );
 
     act(() => result.current.autoOpenDetails());
 
-    expect(result.current.activeSidebarItem).toBe("nodes-styling");
+    expect(result.current.activeSidebarItem).toBe("styles");
   });
 
   it("should auto-open details when detailsAutoOpenOnSelection is undefined (legacy data)", () => {
     const { result } = renderHookWithState(
       () => useSchemaViewSidebar(),
-      stateWithLayout({ activeSidebarItem: "nodes-styling" }),
+      stateWithLayout({ activeSidebarItem: "styles" }),
     );
 
     act(() => result.current.autoOpenDetails());

@@ -4,18 +4,14 @@ import { Button, FormItem, InputField, Label, StylingIcon } from "@/components";
 import { useDisplayVertexTypeConfig, type VertexType } from "@/core";
 import { useVertexStyling } from "@/core/StateProvider/graphStyles";
 import { useDebounceValue, usePrevious } from "@/hooks";
+import { useOpenNodeStyleDialog } from "@/modules/NodesStyling";
 import { LABELS } from "@/utils/constants";
 
-import { useOpenNodeStyleDialog } from "./NodeStyleDialog";
-
-export type SingleNodeStylingProps = {
+export type VertexStyleRowProps = {
   vertexType: VertexType;
 } & ComponentPropsWithRef<typeof FormItem>;
 
-export default function SingleNodeStyling({
-  vertexType,
-  ...rest
-}: SingleNodeStylingProps) {
+export function VertexStyleRow({ vertexType, ...rest }: VertexStyleRowProps) {
   const { setVertexStyle } = useVertexStyling(vertexType);
   const displayConfig = useDisplayVertexTypeConfig(vertexType);
 

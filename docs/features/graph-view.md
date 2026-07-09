@@ -25,8 +25,7 @@ The panel on the right of the graph provides various actions, configuration, and
 - [**Details panel**](#details-panel) shows details about a selected node/edge such as properties etc.
 - [**Entities filter panel**](#entities-filter-panel) is used to control the display of nodes and edges that are already expanded in the Graph View; click to hide or show nodes/edges.
 - [**Expand panel**](#expand-panel) provides controls and filters to help focus large neighbor expansions.
-- [**Node styling panel**](#node-styling-panel) of node display options (e.g., color, icon, the property to use for the displayed name).
-- [**Edge styling panel**](#edge-styling-panel) of edge display options (e.g., color, icon, the property to use for the displayed name).
+- [**Styles panel**](#styles-panel) of node and edge display options (e.g., color, icon, the property to use for the displayed name), split across a Nodes tab and an Edges tab.
 - [**Namespaces panel (RDF only)**](#namespace-panel) allows you to shorten the display of Resource URIs within the app based on auto-generated prefixes, commonly-used prefix libraries, or custom prefixes set by the user. Order of priority is set to Custom > Common > Auto-generated.
 
 ### Search Panel
@@ -73,9 +72,11 @@ Provides fine grained control over neighbor expansions
 
 Provides the ability to filter nodes or edges from the visualization by label (or rdf:type for RDF databases)
 
-### Node Styling Panel
+### Styles Panel
 
-Each node type can be customized in a variety of ways.
+The Styles panel holds node and edge styling behind two tabs: **Nodes** and **Edges**.
+
+On the **Nodes** tab, each node type can be customized in a variety of ways.
 
 - **Display label** allows you to change how the node label (or rdf:type) is represented
 - **Display name attribute** allows you to choose the attribute on the node that is used to uniquely label the node in the graph visualization and search
@@ -83,9 +84,7 @@ Each node type can be customized in a variety of ways.
 - **Icon** can be picked from the built-in Lucide library via the **Browse** button, or uploaded as a custom SVG/raster image.
 - **Colors and borders** can be customized to visually distinguish from other node types
 
-### Edge Styling Panel
-
-Each edge type can be customized in a variety of ways.
+On the **Edges** tab, each edge type can be customized in a variety of ways.
 
 - **Display label** allows you to change how the edge label (or predicate in RDF databases) is represented
 - **Display name attribute** allows you to choose the attribute on the edge that is used to uniquely label the edge in the graph visualization and search
@@ -113,8 +112,8 @@ The following columns are available for filtering on property graphs (RDF graphs
 - Source Type (Source Class)
 - Target ID (Target URI)
 - Target Type (Target Class)
-- Display Name - Set in the Node/Edge Styling panes
-- Display Description - Set in the Node/Edge Styling panes
+- Display Name - Set in the Styles panel
+- Display Description - Set in the Styles panel
 - Total Neighbors - Enter an integer to be used as the >= limit
 
 ### Additional Table View Features
