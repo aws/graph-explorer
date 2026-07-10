@@ -12,6 +12,8 @@ Persisted state in IndexedDB (via `atomWithLocalForage`) reloads in its stored s
 
 Reshape the value **on read**, via a `transform` option on `atomWithLocalForage`: `transform: (loaded: T) => T` runs on the preloaded value before it seeds the atom. The transform lives beside its type (`transformGraphViewLayout` / `transformSchemaViewLayout`, sharing `transformLegacySidebarItem`) and is wired onto the atom in `storageAtoms.ts`.
 
+- **Updated 2026-07-10:** `transformVertexStyles` (in `vertexStylesTransform.ts`) is a second consumer, applied to both `user-vertex-styles` and `shared-vertex-styles`. It coerces retired round-polygon shapes to their non-round counterpart (see ADR `coerce-retired-round-polygon-shapes`). Values arriving through file import are stored verbatim — the same ReadTransform coerces them on the next load, so both entry points (persisted storage and imported files) converge on the same coercion without the import path needing its own transform.
+
 Two decisions here are not obvious from the code:
 
 1. **No write-back.** The corrected value lives in memory; the stale value stays in storage until an unrelated write rewrites the key. This is fine because the transform is pure and total, so re-running it every load is free — convergence buys nothing. It is also why the transform must never throw or do I/O: it seeds atom init with no failure channel.

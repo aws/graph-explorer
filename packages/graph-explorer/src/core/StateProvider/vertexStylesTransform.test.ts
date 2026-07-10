@@ -2,7 +2,10 @@ import { createVertexType, type VertexType } from "@/core/entities";
 
 import type { ShapeStyle, VertexStyleStorage } from "./graphStyles";
 
-import { transformVertexStyles } from "./vertexStylesTransform";
+import {
+  coerceBrokenShape,
+  transformVertexStyles,
+} from "./vertexStylesTransform";
 
 function vertexMap(
   entries: Array<[string, Omit<VertexStyleStorage, "type">]>,
@@ -15,6 +18,33 @@ function vertexMap(
   );
 }
 
+describe("coerceBrokenShape", () => {
+  it.each([
+    ["round-triangle", "triangle"],
+    ["round-pentagon", "pentagon"],
+    ["round-hexagon", "hexagon"],
+    ["round-heptagon", "heptagon"],
+    ["round-octagon", "octagon"],
+    ["round-tag", "tag"],
+  ] as [ShapeStyle, ShapeStyle][])("coerces %s to %s", (broken, expected) => {
+    expect(coerceBrokenShape(broken)).toBe(expected);
+  });
+
+  it.each([
+    "ellipse",
+    "rectangle",
+    "roundrectangle",
+    "round-rectangle",
+    "round-diamond",
+    "star",
+    "diamond",
+    "triangle",
+    "tag",
+  ] as ShapeStyle[])("passes %s through unchanged", shape => {
+    expect(coerceBrokenShape(shape)).toBe(shape);
+  });
+});
+
 describe("transformVertexStyles", () => {
   it("returns the same reference when no shapes need coercion", () => {
     const styles = vertexMap([
@@ -25,28 +55,26 @@ describe("transformVertexStyles", () => {
     expect(transformVertexStyles(styles)).toBe(styles);
   });
 
-  it("coerces each broken round-polygon shape to round-rectangle", () => {
-    const broken: ShapeStyle[] = [
-      "round-triangle",
-      "round-pentagon",
-      "round-hexagon",
-      "round-heptagon",
-      "round-octagon",
-      "round-tag",
-    ];
-
-    for (const shape of broken) {
-      const styles = vertexMap([["X", { shape }]]);
+  it.each([
+    ["round-triangle", "triangle"],
+    ["round-pentagon", "pentagon"],
+    ["round-hexagon", "hexagon"],
+    ["round-heptagon", "heptagon"],
+    ["round-octagon", "octagon"],
+    ["round-tag", "tag"],
+  ] as [ShapeStyle, ShapeStyle][])(
+    "coerces %s to %s in a stored map",
+    (broken, expected) => {
+      const styles = vertexMap([["X", { shape: broken }]]);
       const result = transformVertexStyles(styles);
-      expect(result.get(createVertexType("X"))!.shape).toBe("roundrectangle");
-    }
-  });
+      expect(result.get(createVertexType("X"))!.shape).toBe(expected);
+    },
+  );
 
-  it("does not coerce roundrectangle, round-rectangle, or round-diamond", () => {
+  it("does not coerce round-rectangle or round-diamond", () => {
     const styles = vertexMap([
-      ["A", { shape: "roundrectangle" }],
-      ["B", { shape: "round-rectangle" }],
-      ["C", { shape: "round-diamond" }],
+      ["A", { shape: "round-rectangle" }],
+      ["B", { shape: "round-diamond" }],
     ]);
 
     expect(transformVertexStyles(styles)).toBe(styles);
@@ -59,7 +87,7 @@ describe("transformVertexStyles", () => {
 
     const result = transformVertexStyles(styles);
     const entry = result.get(createVertexType("A"))!;
-    expect(entry.shape).toBe("roundrectangle");
+    expect(entry.shape).toBe("tag");
     expect(entry.color).toBe("#ff0000");
     expect(entry.borderWidth).toBe(2);
   });

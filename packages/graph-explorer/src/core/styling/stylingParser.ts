@@ -13,7 +13,6 @@ import {
   SHAPE_STYLES,
   type VertexStyleStorage,
 } from "@/core/StateProvider/graphStyles";
-import { coerceBrokenShape } from "@/core/StateProvider/vertexStylesTransform";
 import { typedEntries } from "@/utils";
 
 // --- Format identity ---
@@ -134,7 +133,7 @@ const vertexEntrySchema = z
     displayLabel: z.string().optional(),
     displayNameAttribute: z.string().optional(),
     longDisplayNameAttribute: z.string().optional(),
-    shape: z.enum(SHAPE_STYLES).transform(coerceBrokenShape).optional(),
+    shape: z.enum(SHAPE_STYLES).optional(),
     backgroundOpacity: z.number().optional(),
     borderWidth: z.number().optional(),
     borderColor: z.string().optional(),

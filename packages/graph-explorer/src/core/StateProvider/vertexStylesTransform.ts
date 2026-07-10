@@ -1,3 +1,5 @@
+import { logger } from "@/utils";
+
 import type { VertexType } from "../entities";
 import type { ShapeStyle, VertexStyleStorage } from "./graphStyles";
 
@@ -6,30 +8,31 @@ import type { ShapeStyle, VertexStyleStorage } from "./graphStyles";
  * node size (24px): their corner computation degenerates, rendering as a blob
  * and producing invalid edge endpoints that cause edges to disappear. These are
  * kept in {@link SHAPE_STYLES} so older files still parse, but are coerced to
- * `round-rectangle` at every read boundary.
+ * their sharp-cornered counterpart at every read boundary.
+ *
+ * Each broken shape maps to its non-round sibling to preserve the user's
+ * visual-differentiation intent (a round-hexagon becomes a hexagon, not a
+ * generic rectangle).
  */
-const BROKEN_ROUND_POLYGON_SHAPES: ReadonlySet<ShapeStyle> = new Set([
-  "round-triangle",
-  "round-pentagon",
-  "round-hexagon",
-  "round-heptagon",
-  "round-octagon",
-  "round-tag",
+const BROKEN_SHAPE_REPLACEMENTS = new Map<ShapeStyle, ShapeStyle>([
+  ["round-triangle", "triangle"],
+  ["round-pentagon", "pentagon"],
+  ["round-hexagon", "hexagon"],
+  ["round-heptagon", "heptagon"],
+  ["round-octagon", "octagon"],
+  ["round-tag", "tag"],
 ]);
 
-const BROKEN_SHAPE_REPLACEMENT: ShapeStyle = "roundrectangle";
-
-/** Coerces a broken round-polygon shape to `round-rectangle`, passing all others through. */
+/** Coerces a broken round-polygon shape to its non-round counterpart, passing all others through. */
 export function coerceBrokenShape(shape: ShapeStyle): ShapeStyle {
-  return BROKEN_ROUND_POLYGON_SHAPES.has(shape)
-    ? BROKEN_SHAPE_REPLACEMENT
-    : shape;
+  return BROKEN_SHAPE_REPLACEMENTS.get(shape) ?? shape;
 }
 
 /**
  * ReadTransform for vertex style maps: coerces broken round-polygon shapes to
- * `round-rectangle` at load time. Entries without a `shape` field are passed
- * through unchanged. Returns the same reference when no coercion was needed.
+ * their non-round counterpart at load time. Entries without a `shape` field are
+ * passed through unchanged. Returns the same reference when no coercion was
+ * needed.
  */
 export function transformVertexStyles(
   styles: Map<VertexType, VertexStyleStorage>,
@@ -41,6 +44,9 @@ export function transformVertexStyles(
     if (entry.shape !== undefined) {
       const coerced = coerceBrokenShape(entry.shape);
       if (coerced !== entry.shape) {
+        logger.debug(
+          `[vertex-styles] Coercing broken shape "${entry.shape}" to "${coerced}" for type "${type}"`,
+        );
         result.set(type, { ...entry, shape: coerced });
         changed = true;
         continue;

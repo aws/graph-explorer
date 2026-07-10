@@ -10,13 +10,11 @@ import {
   appDefaultVertexStyle,
   edgeStyleAtom,
   type EdgeStyleStorage,
-  type ShapeStyle,
   useEdgeStyling,
   useVertexStyling,
   vertexStyleAtom,
   type VertexStyleStorage,
 } from "./graphStyles";
-import { coerceBrokenShape } from "./vertexStylesTransform";
 
 function createExpectedVertex(existing: VertexStyleStorage) {
   return {
@@ -460,35 +458,5 @@ describe("edgeStyleAtom", () => {
     expect(result.current.get(edgeType)).toStrictEqual(
       createExpectedEdge({ type: edgeType }),
     );
-  });
-});
-
-describe("coerceBrokenShape", () => {
-  const BROKEN: ShapeStyle[] = [
-    "round-triangle",
-    "round-pentagon",
-    "round-hexagon",
-    "round-heptagon",
-    "round-octagon",
-    "round-tag",
-  ];
-
-  it.each(BROKEN)("coerces %s to roundrectangle", shape => {
-    expect(coerceBrokenShape(shape)).toBe("roundrectangle");
-  });
-
-  const SAFE: ShapeStyle[] = [
-    "ellipse",
-    "rectangle",
-    "roundrectangle",
-    "round-rectangle",
-    "round-diamond",
-    "star",
-    "diamond",
-    "triangle",
-  ];
-
-  it.each(SAFE)("passes %s through unchanged", shape => {
-    expect(coerceBrokenShape(shape)).toBe(shape);
   });
 });
