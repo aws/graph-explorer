@@ -23,7 +23,6 @@ import {
 } from "@/components";
 import {
   Dialog,
-  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -138,9 +137,7 @@ const AvailableConnections = ({ isSync }: AvailableConnectionsProps) => {
             Enter the details of the new connection.
           </DialogDescription>
         </DialogHeader>
-        <DialogBody>
-          <CreateConnection onClose={() => setDialogOpen(false)} />
-        </DialogBody>
+        <CreateConnection onClose={() => setDialogOpen(false)} />
       </DialogContent>
     </Dialog>
   );

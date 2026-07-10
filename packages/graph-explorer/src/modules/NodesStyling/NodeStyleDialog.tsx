@@ -137,7 +137,7 @@ function Content({ vertexType }: { vertexType: VertexType }) {
 
   return (
     <DialogContent className="max-w-2xl">
-      <form>
+      <form className="flex min-h-0 flex-col">
         <DialogHeader>
           <DialogTitle>{t("nodes-styling.title")}</DialogTitle>
           <DialogDescription>
@@ -313,11 +313,17 @@ function Content({ vertexType }: { vertexType: VertexType }) {
           </FieldSet>
         </DialogBody>
         <DialogFooter className="sm:justify-between">
-          <Button type="button" variant="danger" onClick={resetVertexStyle}>
+          <Button
+            type="button"
+            variant="outline-danger"
+            onClick={resetVertexStyle}
+          >
             Reset to Default
           </Button>
           <DialogClose asChild>
-            <Button type="button">Done</Button>
+            <Button type="button" variant="primary">
+              Done
+            </Button>
           </DialogClose>
         </DialogFooter>
       </form>

@@ -53,9 +53,9 @@ export function ShowRawResponseDialogButton({
           </div>
         </DialogBody>
         <DialogFooter className="justify-between">
-          <CopyToClipboardButton text={rawResponseText} />
+          <CopyToClipboardButton variant="outline" text={rawResponseText} />
           <DialogClose asChild>
-            <Button>Close</Button>
+            <Button variant="primary">Close</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

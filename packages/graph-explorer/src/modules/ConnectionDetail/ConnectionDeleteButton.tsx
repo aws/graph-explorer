@@ -64,8 +64,12 @@ export default function ConnectionDeleteButton({
             </div>
           </DialogBody>
           <DialogFooter>
-            <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-            <Button onClick={saveAndDelete}>Save a Copy & Delete</Button>
+            <Button variant="outline" onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="outline" onClick={saveAndDelete}>
+              Save a Copy & Delete
+            </Button>
             <Button onClick={deleteActiveConfig} variant="danger">
               Delete
             </Button>
