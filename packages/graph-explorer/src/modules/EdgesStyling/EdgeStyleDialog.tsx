@@ -8,7 +8,7 @@ import {
   FieldLabel,
   FieldLegend,
   FieldSet,
-  Input,
+  NumberInput,
   Select,
   SelectContent,
   SelectItem,
@@ -36,7 +36,7 @@ import {
   useEdgeStyling,
 } from "@/core/StateProvider/graphStyles";
 import useTranslations from "@/hooks/useTranslations";
-import { parseNumberSafely, RESERVED_TYPES_PROPERTY } from "@/utils";
+import { RESERVED_TYPES_PROPERTY } from "@/utils";
 
 import { ARROW_STYLE_OPTIONS } from "./arrowsStyling";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
@@ -141,18 +141,13 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
                 </Field>
                 <Field>
                   <FieldLabel>Background Opacity</FieldLabel>
-                  <Input
-                    type="number"
+                  <NumberInput
                     min={0}
                     max={1}
                     step={0.1}
                     value={edgeStyle.labelBackgroundOpacity}
-                    onChange={e =>
-                      setEdgeStyle({
-                        labelBackgroundOpacity: parseNumberSafely(
-                          e.target.value,
-                        ),
-                      })
+                    onValueChange={labelBackgroundOpacity =>
+                      setEdgeStyle({ labelBackgroundOpacity })
                     }
                   />
                 </Field>
@@ -169,14 +164,12 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
                 </Field>
                 <Field>
                   <FieldLabel>Border Width</FieldLabel>
-                  <Input
-                    type="number"
+                  <NumberInput
                     min={0}
+                    step={0.5}
                     value={edgeStyle.labelBorderWidth}
-                    onChange={e =>
-                      setEdgeStyle({
-                        labelBorderWidth: parseNumberSafely(e.target.value),
-                      })
+                    onValueChange={labelBorderWidth =>
+                      setEdgeStyle({ labelBorderWidth })
                     }
                   />
                 </Field>
@@ -218,14 +211,12 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
 
                 <Field>
                   <FieldLabel>Line Thickness</FieldLabel>
-                  <Input
-                    type="number"
+                  <NumberInput
                     min={1}
+                    step={0.5}
                     value={edgeStyle.lineThickness}
-                    onChange={e =>
-                      setEdgeStyle({
-                        lineThickness: parseNumberSafely(e.target.value),
-                      })
+                    onValueChange={lineThickness =>
+                      setEdgeStyle({ lineThickness })
                     }
                   />
                 </Field>
