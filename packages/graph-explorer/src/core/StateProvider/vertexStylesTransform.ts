@@ -37,23 +37,22 @@ export function coerceBrokenShape(shape: ShapeStyle): ShapeStyle {
 export function transformVertexStyles(
   styles: Map<VertexType, VertexStyleStorage>,
 ): Map<VertexType, VertexStyleStorage> {
-  let changed = false;
-  const result = new Map<VertexType, VertexStyleStorage>();
+  let result: Map<VertexType, VertexStyleStorage> | null = null;
 
   for (const [type, entry] of styles) {
     if (entry.shape !== undefined) {
       const coerced = coerceBrokenShape(entry.shape);
       if (coerced !== entry.shape) {
+        if (!result) {
+          result = new Map(styles);
+        }
         logger.debug(
           `[vertex-styles] Coercing broken shape "${entry.shape}" to "${coerced}" for type "${type}"`,
         );
         result.set(type, { ...entry, shape: coerced });
-        changed = true;
-        continue;
       }
     }
-    result.set(type, entry);
   }
 
-  return changed ? result : styles;
+  return result ?? styles;
 }
