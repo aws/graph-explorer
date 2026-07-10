@@ -8,6 +8,10 @@ import { handleError } from "./error-handler.ts";
 import { createLogger } from "./logging.ts";
 import { clientRoot, isDirectory } from "./paths.ts";
 import { resolveServerConfig, ServerConfigError } from "./server-config.ts";
+import {
+  attachGracefulShutdown,
+  attachServerErrorHandler,
+} from "./server-lifecycle.ts";
 import { createServer } from "./server.ts";
 
 // Load .env files into process.env before parsing
@@ -71,6 +75,28 @@ const server = createServer(app, {
   certPath: certificateFilePath,
 });
 
+attachServerErrorHandler(server, {
+  port,
+  logger,
+  exit: code => process.exit(code),
+});
+
+attachGracefulShutdown(server, {
+  logger,
+  exit: code => process.exit(code),
+  onSignal: (signal, handler) => process.on(signal, handler),
+});
+
+process.on("uncaughtException", (error: Error) => {
+  handleError(error, logger);
+  process.exit(1);
+});
+
+process.on("unhandledRejection", reason => {
+  handleError(reason, logger);
+  process.exit(1);
+});
+
 // Start the server
 server.listen(port, () => {
   logger.info(`Proxy server located at ${baseUrl}`);
@@ -78,21 +104,3 @@ server.listen(port, () => {
     `Graph Explorer UI located at: ${baseUrl}${staticFilesVirtualPath}`,
   );
 });
-
-process.on("uncaughtException", (error: Error) => {
-  handleError(error, logger);
-});
-
-process.on("unhandledRejection", reason => {
-  handleError(reason, logger);
-});
-
-// Watch for shutdown events and close gracefully.
-function gracefulShutdown(signal: string) {
-  logger.info(`${signal} signal received: closing HTTP server`);
-  server.close(() => {
-    logger.info("HTTP server closed");
-  });
-}
-process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
-process.on("SIGINT", () => gracefulShutdown("SIGINT"));
