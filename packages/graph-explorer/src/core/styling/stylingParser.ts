@@ -8,6 +8,7 @@ import { createEdgeType, createVertexType } from "@/core/entities";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 import {
   ARROW_STYLES,
+  coerceBrokenShape,
   type EdgeStyleStorage,
   LINE_STYLES,
   SHAPE_STYLES,
@@ -133,7 +134,7 @@ const vertexEntrySchema = z
     displayLabel: z.string().optional(),
     displayNameAttribute: z.string().optional(),
     longDisplayNameAttribute: z.string().optional(),
-    shape: z.enum(SHAPE_STYLES).optional(),
+    shape: z.enum(SHAPE_STYLES).transform(coerceBrokenShape).optional(),
     backgroundOpacity: z.number().optional(),
     borderWidth: z.number().optional(),
     borderColor: z.string().optional(),

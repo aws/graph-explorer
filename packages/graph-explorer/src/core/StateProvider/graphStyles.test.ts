@@ -8,8 +8,10 @@ import { DbState, renderHookWithState } from "@/utils/testing";
 import {
   appDefaultEdgeStyle,
   appDefaultVertexStyle,
+  coerceBrokenShape,
   edgeStyleAtom,
   type EdgeStyleStorage,
+  type ShapeStyle,
   useEdgeStyling,
   useVertexStyling,
   vertexStyleAtom,
@@ -458,5 +460,34 @@ describe("edgeStyleAtom", () => {
     expect(result.current.get(edgeType)).toStrictEqual(
       createExpectedEdge({ type: edgeType }),
     );
+  });
+});
+
+describe("coerceBrokenShape", () => {
+  const BROKEN: ShapeStyle[] = [
+    "round-triangle",
+    "round-pentagon",
+    "round-hexagon",
+    "round-heptagon",
+    "round-octagon",
+    "round-tag",
+  ];
+
+  it.each(BROKEN)("coerces %s to round-rectangle", shape => {
+    expect(coerceBrokenShape(shape)).toBe("round-rectangle");
+  });
+
+  const SAFE: ShapeStyle[] = [
+    "ellipse",
+    "rectangle",
+    "round-rectangle",
+    "round-diamond",
+    "star",
+    "diamond",
+    "triangle",
+  ];
+
+  it.each(SAFE)("passes %s through unchanged", shape => {
+    expect(coerceBrokenShape(shape)).toBe(shape);
   });
 });

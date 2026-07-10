@@ -64,12 +64,34 @@ describe("style enum validation", () => {
     "none",
   ];
 
+  const BROKEN_SHAPES = new Set([
+    "round-triangle",
+    "round-pentagon",
+    "round-hexagon",
+    "round-heptagon",
+    "round-octagon",
+    "round-tag",
+  ]);
+
   test.each(SHAPES)("accepts shape %s", shape => {
     const result = parseStylingPayload({
       vertices: { A: { shape } },
       edges: {},
     });
-    expect(result.vertexStyles.get(createVertexType("A"))!.shape).toBe(shape);
+    const expected = BROKEN_SHAPES.has(shape) ? "round-rectangle" : shape;
+    expect(result.vertexStyles.get(createVertexType("A"))!.shape).toBe(
+      expected,
+    );
+  });
+
+  test("coerces broken round-polygon shapes to round-rectangle on import", () => {
+    const result = parseStylingPayload({
+      vertices: { A: { shape: "round-tag" } },
+      edges: {},
+    });
+    expect(result.vertexStyles.get(createVertexType("A"))!.shape).toBe(
+      "round-rectangle",
+    );
   });
 
   test("rejects an unknown shape, listing the valid options", () => {
