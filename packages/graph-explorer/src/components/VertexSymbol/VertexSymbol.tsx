@@ -1,3 +1,5 @@
+import { useId } from "react";
+
 import { useVertexStyle, type VertexStyle, type VertexType } from "@/core";
 import { cn } from "@/utils";
 
@@ -14,15 +16,21 @@ interface Props {
 
 export function VertexSymbol({ vertexStyle, className }: Props) {
   const iconDataUrl = useIconDataUrl(vertexStyle);
+  // SVG url(#...) references reject the colons in React's raw useId format.
+  const clipId = `vs-${useId().replace(/:/g, "")}`;
   const strokeWidth = vertexStyle.borderWidth;
   const insetSize = VIEWBOX - strokeWidth * 2;
   const geometry = resolveShapeGeometry(vertexStyle.shape, insetSize);
-  const clipId = `vs-clip-${vertexStyle.type}`;
 
   const iconSize = VIEWBOX * ICON_RATIO;
   const iconOffset = (VIEWBOX - iconSize) / 2;
 
-  const shapeEl = renderShape(geometry, insetSize);
+  // The shape is rendered twice: once filled/stroked, once as the icon's
+  // clipPath. clipPath children must be shape elements directly — a wrapping
+  // <g> is ignored by the spec and yields an empty clip — so the inset
+  // transform is carried by the shape element itself.
+  const transform = `translate(${strokeWidth} ${strokeWidth})`;
+  const shapeEl = renderShape(geometry, insetSize, transform);
 
   return (
     <svg
@@ -32,14 +40,9 @@ export function VertexSymbol({ vertexStyle, className }: Props) {
       aria-label={`${vertexStyle.displayLabel ?? vertexStyle.type} symbol`}
     >
       <defs>
-        <clipPath id={clipId}>
-          <g transform={`translate(${strokeWidth} ${strokeWidth})`}>
-            {shapeEl}
-          </g>
-        </clipPath>
+        <clipPath id={clipId}>{shapeEl}</clipPath>
       </defs>
       <g
-        transform={`translate(${strokeWidth} ${strokeWidth})`}
         fill={vertexStyle.color}
         fillOpacity={vertexStyle.backgroundOpacity}
         stroke={strokeWidth > 0 ? vertexStyle.borderColor : "none"}
@@ -83,18 +86,25 @@ function strokeDash(style: string): string | undefined {
 function renderShape(
   geometry: ReturnType<typeof resolveShapeGeometry>,
   size: number,
+  transform: string,
 ) {
   switch (geometry.type) {
     case "polygon":
-      return <polygon points={geometry.points} />;
+      return <polygon points={geometry.points} transform={transform} />;
     case "round-polygon":
     case "round-rectangle":
     case "cut-rectangle":
     case "barrel":
-      return <path d={geometry.path} />;
+      return <path d={geometry.path} transform={transform} />;
     case "ellipse":
       return (
-        <ellipse cx={size / 2} cy={size / 2} rx={size / 2} ry={size / 2} />
+        <ellipse
+          cx={size / 2}
+          cy={size / 2}
+          rx={size / 2}
+          ry={size / 2}
+          transform={transform}
+        />
       );
   }
 }
