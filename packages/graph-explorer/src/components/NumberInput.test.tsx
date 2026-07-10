@@ -154,4 +154,63 @@ describe("NumberInput", () => {
     fireEvent.click(screen.getByRole("button", { name: "reset" }));
     expect(widthInput()).toHaveValue(2);
   });
+
+  it("should reset after an edit that did not change the parsed value", () => {
+    function Parent() {
+      const [value, setValue] = useState<number | undefined>(1.4);
+      return (
+        <>
+          <NumberInput
+            aria-label="width"
+            value={value}
+            onValueChange={setValue}
+          />
+          <button onClick={() => setValue(0)}>reset</button>
+        </>
+      );
+    }
+    render(<Parent />);
+
+    // Trailing zero: "1.40" still parses to 1.4, so value prop doesn't change
+    fireEvent.change(widthInput(), { target: { value: "1.40" } });
+    expect(widthInput().value).toBe("1.40");
+
+    fireEvent.click(screen.getByRole("button", { name: "reset" }));
+    expect(widthInput()).toHaveValue(0);
+  });
+
+  it("should accept an external value change to a non-default value", () => {
+    function Parent() {
+      const [value, setValue] = useState<number | undefined>(1);
+      return (
+        <>
+          <NumberInput
+            aria-label="width"
+            value={value}
+            onValueChange={setValue}
+          />
+          <button onClick={() => setValue(9.5)}>set-external</button>
+        </>
+      );
+    }
+    render(<Parent />);
+
+    fireEvent.change(widthInput(), { target: { value: "3" } });
+    expect(widthInput().value).toBe("3");
+
+    fireEvent.click(screen.getByRole("button", { name: "set-external" }));
+    expect(widthInput().value).toBe("9.5");
+  });
+
+  it("should preserve buffer across rapid edits", () => {
+    const onChange = vi.fn();
+    render(<Harness initialValue={1} onChange={onChange} />);
+
+    fireEvent.change(widthInput(), { target: { value: "1." } });
+    fireEvent.change(widthInput(), { target: { value: "1.5" } });
+    fireEvent.change(widthInput(), { target: { value: "1.55" } });
+
+    expect(widthInput().value).toBe("1.55");
+    expect(onChange).toHaveBeenLastCalledWith(1.55);
+  });
 });
