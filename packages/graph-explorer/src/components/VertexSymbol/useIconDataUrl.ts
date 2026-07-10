@@ -17,6 +17,7 @@ export function useIconDataUrl(style: VertexStyle): string | null {
     queryKey: ["vertex-symbol-icon", type, iconUrl, iconImageType, color],
     queryFn: () => renderNode(client, { type, iconUrl, iconImageType, color }),
     staleTime: Infinity,
+    enabled: !!iconUrl,
   });
   return data ?? null;
 }

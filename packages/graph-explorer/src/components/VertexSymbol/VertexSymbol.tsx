@@ -21,7 +21,7 @@ export function VertexSymbol({ vertexStyle, className }: Props) {
   // SVG url(#...) references reject the colons in React's raw useId format.
   const clipId = `vs-${useId().replace(/:/g, "")}`;
   const strokeWidth = vertexStyle.borderWidth * BORDER_SCALE;
-  const insetSize = VIEWBOX - strokeWidth * 2;
+  const insetSize = Math.max(1, VIEWBOX - strokeWidth * 2);
   const geometry = resolveShapeGeometry(vertexStyle.shape, insetSize);
 
   const iconSize = VIEWBOX * ICON_RATIO;
@@ -108,5 +108,9 @@ function renderShape(
           transform={transform}
         />
       );
+    default: {
+      const _exhaustive: never = geometry;
+      return _exhaustive;
+    }
   }
 }
