@@ -97,7 +97,7 @@ function RouteButton({
       size="default"
       data-active={active || undefined}
       className={cn(
-        "hover:text-primary-foreground text-muted-foreground font-base data-active:border-b-primary-foreground data-active:text-primary-foreground h-full cursor-pointer rounded-none border-y-3 border-y-transparent px-5 hover:bg-transparent data-active:bg-transparent data-active:font-bold",
+        "hover:text-primary-foreground text-muted-foreground font-base data-active:border-b-primary-foreground data-active:text-primary-foreground h-full cursor-pointer rounded-none border-y-2 border-y-transparent px-5 hover:bg-transparent data-active:bg-transparent data-active:font-bold",
         className,
       )}
       {...props}
