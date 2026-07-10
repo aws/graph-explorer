@@ -19,12 +19,6 @@
   "edge-connections": "Relationships",
   "query-language": "PG-openCypher",
 
-  "nodes-styling": {
-    "title": "Node Label Styling"
-  },
-  "edges-styling": {
-    "title": "Relationship Type Styling"
-  },
   "keyword-search": {
     "node-type-placeholder": "Select a node label",
     "node-attribute-placeholder": "Select a property"

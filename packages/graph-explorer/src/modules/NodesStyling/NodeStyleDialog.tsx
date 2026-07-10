@@ -138,9 +138,9 @@ function Content({ vertexType }: { vertexType: VertexType }) {
     <DialogContent className="max-w-2xl">
       <form className="flex min-h-0 flex-col">
         <DialogHeader>
-          <DialogTitle>{t("nodes-styling.title")}</DialogTitle>
+          <DialogTitle>Customize Your {t("node")} Style</DialogTitle>
           <DialogDescription>
-            Customize styling for {displayConfig.displayLabel}
+            Changes here become your custom style and override shared styles.
           </DialogDescription>
         </DialogHeader>
 
@@ -312,7 +312,7 @@ function Content({ vertexType }: { vertexType: VertexType }) {
             variant="outline-danger"
             onClick={resetVertexStyle}
           >
-            Reset to Default
+            Clear Customization
           </Button>
           <DialogClose asChild>
             <Button type="button" variant="primary">

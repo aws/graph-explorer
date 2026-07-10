@@ -97,9 +97,9 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
     <DialogContent className="max-w-2xl">
       <form className="flex min-h-0 flex-col">
         <DialogHeader>
-          <DialogTitle>{t("edges-styling.title")}</DialogTitle>
+          <DialogTitle>Customize Your {t("edge")} Style</DialogTitle>
           <DialogDescription>
-            Customize styling for {displayConfig.displayLabel}
+            Changes here become your custom style and override shared styles.
           </DialogDescription>
         </DialogHeader>
         <DialogBody>
@@ -301,7 +301,7 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
             variant="outline-danger"
             onClick={resetEdgeStyle}
           >
-            Reset to Default
+            Clear Customization
           </Button>
           <DialogClose asChild>
             <Button type="button" variant="primary">
