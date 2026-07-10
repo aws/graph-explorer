@@ -1,5 +1,3 @@
-import type { CSSProperties } from "react";
-
 import DOMPurify from "dompurify";
 import { DynamicIcon } from "lucide-react/dynamic";
 import SVG from "react-inlinesvg";
@@ -7,8 +5,6 @@ import SVG from "react-inlinesvg";
 import { useVertexStyle, type VertexStyle, type VertexType } from "@/core";
 import { cn } from "@/utils";
 import { getLucideName, isValidLucideIconName } from "@/utils/lucideIcons";
-
-import { SearchResultSymbol } from "./SearchResult";
 
 function sanitizeSvg(svg: string): string {
   return DOMPurify.sanitize(svg, {
@@ -73,39 +69,6 @@ export function VertexIconByType({
 }) {
   const vertexStyle = useVertexStyle(vertexType);
   return <VertexIcon vertexStyle={vertexStyle} className={className} />;
-}
-
-export function VertexSymbol({
-  vertexStyle,
-  className,
-}: {
-  vertexStyle: VertexStyle;
-  className?: string;
-}) {
-  return (
-    <SearchResultSymbol
-      className={cn("text-primary-main bg-(--bg-color)", className)}
-      style={
-        {
-          // Defines the background color with the configured amount of transparency added
-          "--bg-color": `color-mix(in srgb, ${vertexStyle.color} ${vertexStyle.backgroundOpacity * 100}%, transparent)`,
-        } as CSSProperties
-      }
-    >
-      <VertexIcon vertexStyle={vertexStyle} className="size-full" />
-    </SearchResultSymbol>
-  );
-}
-
-export function VertexSymbolByType({
-  vertexType,
-  className,
-}: {
-  vertexType: VertexType;
-  className?: string;
-}) {
-  const vertexStyle = useVertexStyle(vertexType);
-  return <VertexSymbol vertexStyle={vertexStyle} className={className} />;
 }
 
 export default VertexIcon;

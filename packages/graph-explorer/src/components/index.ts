@@ -96,6 +96,8 @@ export * from "./Typography";
 export { default as VertexIcon } from "./VertexIcon";
 export * from "./VertexIcon";
 
+export * from "./VertexSymbol";
+
 export * from "./VertexRow";
 
 export * from "./Workspace";

@@ -1,12 +1,17 @@
 /**
- * SPIKE — throwaway. Verbatim port of cytoscape 3.34.0's node-shape point
- * generation (`generateUnitNgonPoints` / `fitPolygonToSquare`) plus its
- * hardcoded special-shape point lists, so an SVG `<polygon>` draws the exact
- * same geometry cytoscape rasterizes to canvas. Points live in a [-1,1] box
- * (x right, y down in SVG terms — cytoscape uses y-down too).
+ * Verbatim port of cytoscape 3.34.0's node-shape geometry so an SVG preview
+ * draws the exact same outlines cytoscape rasterizes to canvas. All shapes in
+ * SHAPE_STYLES are covered: sharp polygons, round polygons, round-rectangle,
+ * cut-rectangle, barrel, and ellipse (which needs no geometry — it's native SVG).
+ *
+ * Points live in a [-1,1] unit box; consumers map to display coordinates via
+ * `toSvgPoints` or the path builders (`getRoundPolygonPath`, `getBarrelPath`,
+ * `getCutRectanglePath`).
  */
 
 type Points = number[];
+
+// --- Unit polygon generation (from cytoscape math.mjs) ---
 
 function generateUnitNgonPoints(
   sides: number,
@@ -78,8 +83,8 @@ function star5(): Points {
   return fitPolygonToSquare(pts);
 }
 
-/** Polygon point lists keyed by cytoscape shape name. Non-polygon shapes
- * (ellipse, the round-/cut-/barrel rectangles) are handled separately. */
+// --- Sharp polygon point lists ---
+
 const POLYGON_POINTS: Record<string, Points> = {
   triangle: ngon(3, 0),
   rectangle: ngon(4, 0),
@@ -116,12 +121,6 @@ export function getPolygonPoints(shape: string): Points | null {
 
 // --- Round polygons ---
 
-/**
- * The round-cornered polygon shapes. Each reuses its sharp counterpart's point
- * list (cytoscape's `round-diamond` shares `diamond`'s points) and rounds the
- * corners at draw time, so the name maps to the base shape by dropping the
- * `round-` prefix. `roundrectangle` is not here — it's an SVG `<rect rx>`.
- */
 const ROUND_POLYGON_SHAPES = new Set([
   "round-triangle",
   "round-pentagon",
@@ -154,12 +153,6 @@ function unitVector(from: Point, to: Point): Vector {
   return { len, nx: x / len, ny: y / len };
 }
 
-/**
- * Verbatim port of cytoscape 3.34's corner rounding (`round.mjs`
- * `getRoundCorner` with its default `isArcRadius = true`), for one polygon
- * vertex given its neighbours. Returns the arc that replaces the sharp corner:
- * a circle center, radius, the arc's start/stop points, and its winding.
- */
 function getRoundCorner(
   previous: Point,
   current: Point,
@@ -226,15 +219,14 @@ function getRoundCorner(
   };
 }
 
-function formatPoint(x: number, y: number): string {
+function formatCoord(x: number, y: number): string {
   return `${x.toFixed(3)},${y.toFixed(3)}`;
 }
 
 /**
- * SVG path (`d`) for a round-cornered polygon in a [0,size] box, or null if the
- * shape isn't a round polygon. The corner radius mirrors cytoscape's
- * `getRoundPolygonRadius` (`size/10`) but drops its absolute 8px cap so the
- * preview stays proportional when drawn larger than the graph's real node.
+ * SVG path for a round-cornered polygon in a [0,size] box. Corner radius
+ * mirrors cytoscape's `getRoundPolygonRadius` (size/10), without the absolute
+ * 8px cap so the preview stays proportional at larger display sizes.
  */
 export function getRoundPolygonPath(
   shape: string,
@@ -268,17 +260,129 @@ export function getRoundPolygonPath(
       cornerRadius,
     );
     segments.push(
-      `${i === 0 ? "M" : "L"} ${formatPoint(corner.startX, corner.startY)}`,
+      `${i === 0 ? "M" : "L"} ${formatCoord(corner.startX, corner.startY)}`,
     );
     if (corner.radius === 0) {
-      segments.push(`L ${formatPoint(corner.stopX, corner.stopY)}`);
+      segments.push(`L ${formatCoord(corner.stopX, corner.stopY)}`);
     } else {
       const sweep = corner.counterClockwise ? 0 : 1;
       segments.push(
-        `A ${corner.radius.toFixed(3)} ${corner.radius.toFixed(3)} 0 0 ${sweep} ${formatPoint(corner.stopX, corner.stopY)}`,
+        `A ${corner.radius.toFixed(3)} ${corner.radius.toFixed(3)} 0 0 ${sweep} ${formatCoord(corner.stopX, corner.stopY)}`,
       );
     }
   }
   segments.push("Z");
   return segments.join(" ");
+}
+
+// --- Round rectangle ---
+
+/**
+ * SVG path for a round-rectangle in a [0,size] box. Corner radius matches
+ * cytoscape's `getRoundRectangleRadius`: min(w/4, h/4, 8). Since the viewBox
+ * is square and proportional, we drop the absolute 8px cap (it would shrink
+ * relative to the rendered box at large sizes).
+ */
+export function getRoundRectanglePath(size: number): string {
+  const r = size / 4;
+  return [
+    `M ${formatCoord(r, 0)}`,
+    `L ${formatCoord(size - r, 0)}`,
+    `A ${r.toFixed(3)} ${r.toFixed(3)} 0 0 1 ${formatCoord(size, r)}`,
+    `L ${formatCoord(size, size - r)}`,
+    `A ${r.toFixed(3)} ${r.toFixed(3)} 0 0 1 ${formatCoord(size - r, size)}`,
+    `L ${formatCoord(r, size)}`,
+    `A ${r.toFixed(3)} ${r.toFixed(3)} 0 0 1 ${formatCoord(0, size - r)}`,
+    `L ${formatCoord(0, r)}`,
+    `A ${r.toFixed(3)} ${r.toFixed(3)} 0 0 1 ${formatCoord(r, 0)}`,
+    "Z",
+  ].join(" ");
+}
+
+// --- Cut rectangle ---
+
+/**
+ * SVG path for a cut-rectangle (chamfered corners) in a [0,size] box. Corner
+ * length matches cytoscape's `getCutRectangleCornerLength()` = 8, scaled
+ * proportionally to the viewBox.
+ */
+export function getCutRectanglePath(size: number): string {
+  const cl = size * (8 / 24);
+  return [
+    `M ${formatCoord(cl, 0)}`,
+    `L ${formatCoord(size - cl, 0)}`,
+    `L ${formatCoord(size, cl)}`,
+    `L ${formatCoord(size, size - cl)}`,
+    `L ${formatCoord(size - cl, size)}`,
+    `L ${formatCoord(cl, size)}`,
+    `L ${formatCoord(0, size - cl)}`,
+    `L ${formatCoord(0, cl)}`,
+    "Z",
+  ].join(" ");
+}
+
+// --- Barrel ---
+
+/**
+ * SVG path for a barrel shape in a [0,size] box. Matches cytoscape's barrel
+ * draw: straight vertical sides with quadratic bezier curved top/bottom.
+ * Constants from `getBarrelCurveConstants(width, height)`.
+ */
+export function getBarrelPath(size: number): string {
+  const hOffset = Math.min(15, 0.05 * size);
+  const wOffset = Math.min(100, 0.25 * size);
+  const ctrlPtXOffset = 0.05 * wOffset;
+
+  return [
+    `M ${formatCoord(0, hOffset)}`,
+    `L ${formatCoord(0, size - hOffset)}`,
+    `Q ${formatCoord(ctrlPtXOffset, size)} ${formatCoord(wOffset, size)}`,
+    `L ${formatCoord(size - wOffset, size)}`,
+    `Q ${formatCoord(size - ctrlPtXOffset, size)} ${formatCoord(size, size - hOffset)}`,
+    `L ${formatCoord(size, hOffset)}`,
+    `Q ${formatCoord(size - ctrlPtXOffset, 0)} ${formatCoord(size - wOffset, 0)}`,
+    `L ${formatCoord(wOffset, 0)}`,
+    `Q ${formatCoord(ctrlPtXOffset, 0)} ${formatCoord(0, hOffset)}`,
+    "Z",
+  ].join(" ");
+}
+
+// --- Shape classification ---
+
+export type ShapeKind =
+  | { type: "polygon"; points: string }
+  | { type: "round-polygon"; path: string }
+  | { type: "round-rectangle"; path: string }
+  | { type: "cut-rectangle"; path: string }
+  | { type: "barrel"; path: string }
+  | { type: "ellipse" };
+
+/**
+ * Resolves a cytoscape shape name into its SVG rendering geometry at the given
+ * box size. Covers all 24 SHAPE_STYLES values.
+ */
+export function resolveShapeGeometry(shape: string, size: number): ShapeKind {
+  const polygon = getPolygonPoints(shape);
+  if (polygon) {
+    return { type: "polygon", points: toSvgPoints(polygon, size) };
+  }
+
+  const roundPath = getRoundPolygonPath(shape, size);
+  if (roundPath) {
+    return { type: "round-polygon", path: roundPath };
+  }
+
+  if (shape === "roundrectangle" || shape === "round-rectangle") {
+    return { type: "round-rectangle", path: getRoundRectanglePath(size) };
+  }
+
+  if (shape === "cut-rectangle") {
+    return { type: "cut-rectangle", path: getCutRectanglePath(size) };
+  }
+
+  if (shape === "barrel") {
+    return { type: "barrel", path: getBarrelPath(size) };
+  }
+
+  return { type: "ellipse" };
 }
