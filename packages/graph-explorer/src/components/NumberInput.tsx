@@ -26,14 +26,18 @@ export function NumberInput({
 }: NumberInputProps) {
   const [buffer, setBuffer] = useState(formatValue(value));
   const [syncedValue, setSyncedValue] = useState(value);
+  const [editing, setEditing] = useState(false);
 
-  // Resync the buffer when the value changes externally (e.g. reset to
-  // default), but not when the change is our own edit echoing back.
   if (value !== syncedValue) {
     setSyncedValue(value);
-    if (parseNumberSafely(buffer) !== value) {
+    // When the value prop changes because of our own edit (the parent echoes
+    // back the parsed number), keep the raw buffer so intermediate states like
+    // "1." or "" aren't overwritten. When it changes for any other reason
+    // (e.g. Reset to Default), force the buffer to match.
+    if (!editing) {
       setBuffer(formatValue(value));
     }
+    setEditing(false);
   }
 
   return (
@@ -41,6 +45,7 @@ export function NumberInput({
       type="number"
       value={buffer}
       onChange={e => {
+        setEditing(true);
         setBuffer(e.target.value);
         onValueChange(parseNumberSafely(e.target.value));
       }}

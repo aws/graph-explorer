@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { fireEvent, render, screen } from "@testing-library/react";
-import { useState } from "react";
+import { useDeferredValue, useState } from "react";
 
 import { NumberInput } from "./NumberInput";
 
@@ -105,5 +105,53 @@ describe("NumberInput", () => {
     fireEvent.click(screen.getByRole("button", { name: "reset" }));
 
     expect(widthInput()).toHaveValue(7);
+  });
+
+  it("should reset after editing when value is deferred", () => {
+    function DeferredParent() {
+      const [raw, setRaw] = useState<number | undefined>(0);
+      const deferred = useDeferredValue(raw);
+      return (
+        <>
+          <NumberInput
+            aria-label="width"
+            value={deferred}
+            onValueChange={setRaw}
+          />
+          <button onClick={() => setRaw(0)}>reset</button>
+        </>
+      );
+    }
+    render(<DeferredParent />);
+
+    fireEvent.change(widthInput(), { target: { value: "3.5" } });
+    expect(widthInput().value).toBe("3.5");
+
+    fireEvent.click(screen.getByRole("button", { name: "reset" }));
+    expect(widthInput()).toHaveValue(0);
+  });
+
+  it("should reset after clearing when value is deferred", () => {
+    function DeferredParent() {
+      const [raw, setRaw] = useState<number | undefined>(2);
+      const deferred = useDeferredValue(raw);
+      return (
+        <>
+          <NumberInput
+            aria-label="width"
+            value={deferred}
+            onValueChange={setRaw}
+          />
+          <button onClick={() => setRaw(2)}>reset</button>
+        </>
+      );
+    }
+    render(<DeferredParent />);
+
+    fireEvent.change(widthInput(), { target: { value: "5" } });
+    fireEvent.change(widthInput(), { target: { value: "" } });
+
+    fireEvent.click(screen.getByRole("button", { name: "reset" }));
+    expect(widthInput()).toHaveValue(2);
   });
 });
