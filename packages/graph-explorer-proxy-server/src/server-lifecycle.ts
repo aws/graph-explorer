@@ -7,7 +7,7 @@ interface LifecycleLogger {
 /** The subset of `http.Server` the lifecycle handlers depend on. */
 export interface LifecycleServer {
   on(event: "error", handler: (error: NodeJS.ErrnoException) => void): unknown;
-  close(onClosed?: () => void): unknown;
+  close(onClosed?: (error?: Error) => void): unknown;
 }
 
 export interface ServerErrorHandlerOptions {
@@ -60,10 +60,15 @@ export function attachGracefulShutdown(
     }, timeout);
     timer.unref();
 
-    server.close(() => {
+    server.close(err => {
       clearTimeout(timer);
-      logger.info("HTTP server closed");
-      exit(0);
+      if (err) {
+        logger.error(`Error closing HTTP server: ${err.message}`);
+        exit(1);
+      } else {
+        logger.info("HTTP server closed");
+        exit(0);
+      }
     });
   }
 

@@ -4,10 +4,13 @@ import {
   type LifecycleServer,
 } from "./server-lifecycle.ts";
 
-function createMockServer({ hangOnClose = false } = {}) {
+function createMockServer({
+  hangOnClose = false,
+  closeError,
+}: { hangOnClose?: boolean; closeError?: Error } = {}) {
   const errorHandlers: Array<(error: NodeJS.ErrnoException) => void> = [];
-  const close = vi.fn((onClosed?: () => void) => {
-    if (!hangOnClose) onClosed?.();
+  const close = vi.fn((onClosed?: (error?: Error) => void) => {
+    if (!hangOnClose) onClosed?.(closeError);
   });
   const server: LifecycleServer = {
     on: (_event, handler) => errorHandlers.push(handler),
@@ -135,6 +138,25 @@ describe("attachGracefulShutdown", () => {
     expect(exit).not.toHaveBeenCalled();
 
     vi.advanceTimersByTime(3000);
+
+    expect(exit).toHaveBeenCalledWith(1);
+    expect(logger.error).toHaveBeenCalled();
+  });
+
+  it("exits 1 and logs when server.close reports an error", () => {
+    const closeError = new Error("Not running");
+    const { server } = createMockServer({ closeError });
+    const logger = createMockLogger();
+    const exit = vi.fn();
+    const signals = createSignalBus();
+
+    attachGracefulShutdown(server, {
+      logger,
+      exit,
+      onSignal: signals.onSignal,
+    });
+
+    signals.emit("SIGTERM");
 
     expect(exit).toHaveBeenCalledWith(1);
     expect(logger.error).toHaveBeenCalled();
