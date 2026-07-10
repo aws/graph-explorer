@@ -127,6 +127,8 @@ describe("NumberInput", () => {
     fireEvent.change(widthInput(), { target: { value: "3.5" } });
     expect(widthInput().value).toBe("3.5");
 
+    // Clicking a button in a real browser blurs the input first
+    fireEvent.blur(widthInput());
     fireEvent.click(screen.getByRole("button", { name: "reset" }));
     expect(widthInput()).toHaveValue(0);
   });
@@ -151,6 +153,7 @@ describe("NumberInput", () => {
     fireEvent.change(widthInput(), { target: { value: "5" } });
     fireEvent.change(widthInput(), { target: { value: "" } });
 
+    fireEvent.blur(widthInput());
     fireEvent.click(screen.getByRole("button", { name: "reset" }));
     expect(widthInput()).toHaveValue(2);
   });
@@ -175,6 +178,7 @@ describe("NumberInput", () => {
     fireEvent.change(widthInput(), { target: { value: "1.40" } });
     expect(widthInput().value).toBe("1.40");
 
+    fireEvent.blur(widthInput());
     fireEvent.click(screen.getByRole("button", { name: "reset" }));
     expect(widthInput()).toHaveValue(0);
   });
@@ -198,6 +202,7 @@ describe("NumberInput", () => {
     fireEvent.change(widthInput(), { target: { value: "3" } });
     expect(widthInput().value).toBe("3");
 
+    fireEvent.blur(widthInput());
     fireEvent.click(screen.getByRole("button", { name: "set-external" }));
     expect(widthInput().value).toBe("9.5");
   });

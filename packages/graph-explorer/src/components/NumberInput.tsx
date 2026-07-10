@@ -18,39 +18,27 @@ export interface NumberInputProps extends Omit<
  * directly to a number destroys intermediate states — `Number("1.")` is `1`,
  * so the decimal point vanishes as soon as it is typed or exposed by
  * deleting a digit.
+ *
+ * While the user is editing, the draft string owns the display. Outside of an
+ * edit the display derives directly from the value prop, so external changes
+ * (e.g. Reset to Default, which blurs the input by taking focus) always show.
  */
 export function NumberInput({
   value,
   onValueChange,
   ...props
 }: NumberInputProps) {
-  const [buffer, setBuffer] = useState(formatValue(value));
-  const [syncedValue, setSyncedValue] = useState(value);
-  // The last parsed value we reported upward via onValueChange.
-  const [reportedValue, setReportedValue] = useState(value);
-
-  if (value !== syncedValue) {
-    setSyncedValue(value);
-    // When the value prop changes to match what we just reported (the parent
-    // echoes back our edit), keep the raw buffer so intermediate states like
-    // "1." or "" aren't overwritten. When it changes to anything else (e.g.
-    // Reset to Default, external update), force the buffer to match.
-    if (value !== reportedValue) {
-      setBuffer(formatValue(value));
-    }
-  }
+  const [draft, setDraft] = useState<string | null>(null);
 
   return (
     <Input
       type="number"
-      value={buffer}
+      value={draft ?? formatValue(value)}
       onChange={e => {
-        const parsed = parseNumberSafely(e.target.value);
-        setBuffer(e.target.value);
-        setReportedValue(parsed);
-        onValueChange(parsed);
+        setDraft(e.target.value);
+        onValueChange(parseNumberSafely(e.target.value));
       }}
-      onBlur={() => setBuffer(formatValue(value))}
+      onBlur={() => setDraft(null)}
       {...props}
     />
   );
