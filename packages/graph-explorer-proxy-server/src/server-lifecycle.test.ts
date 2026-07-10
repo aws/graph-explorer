@@ -32,11 +32,11 @@ function createMockLogger() {
 function createSignalBus() {
   const handlers = new Map<string, Array<() => void>>();
   return {
-    onSignal: (signal: string, handler: () => void) => {
+    onSignal: (signal: "SIGTERM" | "SIGINT", handler: () => void) => {
       const existing = handlers.get(signal) ?? [];
       handlers.set(signal, [...existing, handler]);
     },
-    emit: (signal: string) =>
+    emit: (signal: "SIGTERM" | "SIGINT") =>
       handlers.get(signal)?.forEach(handler => handler()),
   };
 }
@@ -75,6 +75,10 @@ describe("attachServerErrorHandler", () => {
 });
 
 describe("attachGracefulShutdown", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("calls server.close and exits 0 on SIGTERM", () => {
     const { server, close } = createMockServer();
     const logger = createMockLogger();
@@ -134,8 +138,6 @@ describe("attachGracefulShutdown", () => {
 
     expect(exit).toHaveBeenCalledWith(1);
     expect(logger.error).toHaveBeenCalled();
-
-    vi.useRealTimers();
   });
 
   it("does not double-exit on repeated signals", () => {

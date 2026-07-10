@@ -23,7 +23,7 @@ export function attachServerErrorHandler(
   server.on("error", (error: NodeJS.ErrnoException) => {
     if (error.code === "EADDRINUSE") {
       logger.fatal(
-        `Port ${port} is already in use — another proxy server or worktree may already be running.`,
+        `Port ${port} is already in use — another proxy server or worktree may already be running. Stop the other process or set a different port.`,
       );
     } else {
       logger.fatal(`Server error: ${error.message}`);
@@ -35,7 +35,7 @@ export function attachServerErrorHandler(
 export interface GracefulShutdownOptions {
   logger: LifecycleLogger;
   exit: (code: number) => void;
-  onSignal: (signal: string, handler: () => void) => void;
+  onSignal: (signal: "SIGTERM" | "SIGINT", handler: () => void) => void;
   forceExitTimeout?: number;
 }
 
