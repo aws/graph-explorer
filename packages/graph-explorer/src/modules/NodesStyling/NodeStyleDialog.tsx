@@ -11,7 +11,7 @@ import {
   FieldSet,
   FileButton,
   IconPicker,
-  Input,
+  NumberInput,
   Select,
   SelectContent,
   SelectItem,
@@ -37,7 +37,6 @@ import {
 } from "@/core/StateProvider/graphStyles";
 import { isAllowedIconValue } from "@/core/styling";
 import useTranslations from "@/hooks/useTranslations";
-import { parseNumberSafely } from "@/utils";
 import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
@@ -251,16 +250,13 @@ function Content({ vertexType }: { vertexType: VertexType }) {
                 </Field>
                 <Field>
                   <FieldLabel>Background Opacity</FieldLabel>
-                  <Input
-                    type="number"
+                  <NumberInput
                     min={0}
                     max={1}
                     step={0.1}
                     value={vertexStyle.backgroundOpacity}
-                    onChange={e =>
-                      setVertexStyle({
-                        backgroundOpacity: parseNumberSafely(e.target.value),
-                      })
+                    onValueChange={backgroundOpacity =>
+                      setVertexStyle({ backgroundOpacity })
                     }
                   />
                 </Field>
@@ -277,14 +273,12 @@ function Content({ vertexType }: { vertexType: VertexType }) {
                 </Field>
                 <Field>
                   <FieldLabel>Border Width</FieldLabel>
-                  <Input
-                    type="number"
+                  <NumberInput
                     min={0}
+                    step={0.5}
                     value={vertexStyle.borderWidth}
-                    onChange={e =>
-                      setVertexStyle({
-                        borderWidth: parseNumberSafely(e.target.value),
-                      })
+                    onValueChange={borderWidth =>
+                      setVertexStyle({ borderWidth })
                     }
                   />
                 </Field>

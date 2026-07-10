@@ -42,6 +42,7 @@ export * from "./numberFormat";
 export * from "./icons";
 
 export * from "./Input";
+export * from "./NumberInput";
 export * from "./LabelledSetting";
 export { default as InputField } from "./InputField";
 export * from "./InputField";
