@@ -113,3 +113,172 @@ export function toSvgPoints(points: Points, size: number): string {
 export function getPolygonPoints(shape: string): Points | null {
   return POLYGON_POINTS[shape] ?? null;
 }
+
+// --- Round polygons ---
+
+/**
+ * The round-cornered polygon shapes. Each reuses its sharp counterpart's point
+ * list (cytoscape's `round-diamond` shares `diamond`'s points) and rounds the
+ * corners at draw time, so the name maps to the base shape by dropping the
+ * `round-` prefix. `roundrectangle` is not here — it's an SVG `<rect rx>`.
+ */
+const ROUND_POLYGON_SHAPES = new Set([
+  "round-triangle",
+  "round-pentagon",
+  "round-hexagon",
+  "round-heptagon",
+  "round-octagon",
+  "round-diamond",
+  "round-tag",
+]);
+
+type Point = { x: number; y: number };
+
+type RoundCorner = {
+  cx: number;
+  cy: number;
+  radius: number;
+  startX: number;
+  startY: number;
+  stopX: number;
+  stopY: number;
+  counterClockwise: boolean;
+};
+
+type Vector = { len: number; nx: number; ny: number };
+
+function unitVector(from: Point, to: Point): Vector {
+  const x = to.x - from.x;
+  const y = to.y - from.y;
+  const len = Math.sqrt(x * x + y * y);
+  return { len, nx: x / len, ny: y / len };
+}
+
+/**
+ * Verbatim port of cytoscape 3.34's corner rounding (`round.mjs`
+ * `getRoundCorner` with its default `isArcRadius = true`), for one polygon
+ * vertex given its neighbours. Returns the arc that replaces the sharp corner:
+ * a circle center, radius, the arc's start/stop points, and its winding.
+ */
+function getRoundCorner(
+  previous: Point,
+  current: Point,
+  next: Point,
+  radiusMax: number,
+): RoundCorner {
+  const v1 = unitVector(current, previous);
+  const v2 = unitVector(current, next);
+  const sinA = v1.nx * v2.ny - v1.ny * v2.nx;
+  const sinA90 = v1.nx * v2.nx - v1.ny * -v2.ny;
+  let angle = Math.asin(Math.max(-1, Math.min(1, sinA)));
+  if (Math.abs(angle) < 1e-6) {
+    return {
+      cx: current.x,
+      cy: current.y,
+      radius: 0,
+      startX: current.x,
+      startY: current.y,
+      stopX: current.x,
+      stopY: current.y,
+      counterClockwise: false,
+    };
+  }
+
+  let radDirection = 1;
+  let drawDirection = false;
+  if (sinA90 < 0) {
+    if (angle < 0) {
+      angle = Math.PI + angle;
+    } else {
+      angle = Math.PI - angle;
+      radDirection = -1;
+      drawDirection = true;
+    }
+  } else if (angle > 0) {
+    radDirection = -1;
+    drawDirection = true;
+  }
+
+  const halfAngle = angle / 2;
+  const limit = Math.min(v1.len / 2, v2.len / 2);
+  let lenOut = Math.abs(
+    (Math.cos(halfAngle) * radiusMax) / Math.sin(halfAngle),
+  );
+  let cRadius: number;
+  if (lenOut > limit) {
+    lenOut = limit;
+    cRadius = Math.abs((lenOut * Math.sin(halfAngle)) / Math.cos(halfAngle));
+  } else {
+    cRadius = radiusMax;
+  }
+
+  const stopX = current.x + v2.nx * lenOut;
+  const stopY = current.y + v2.ny * lenOut;
+  return {
+    cx: stopX - v2.ny * cRadius * radDirection,
+    cy: stopY + v2.nx * cRadius * radDirection,
+    radius: cRadius,
+    startX: current.x + v1.nx * lenOut,
+    startY: current.y + v1.ny * lenOut,
+    stopX,
+    stopY,
+    counterClockwise: drawDirection,
+  };
+}
+
+function formatPoint(x: number, y: number): string {
+  return `${x.toFixed(3)},${y.toFixed(3)}`;
+}
+
+/**
+ * SVG path (`d`) for a round-cornered polygon in a [0,size] box, or null if the
+ * shape isn't a round polygon. The corner radius mirrors cytoscape's
+ * `getRoundPolygonRadius` (`size/10`) but drops its absolute 8px cap so the
+ * preview stays proportional when drawn larger than the graph's real node.
+ */
+export function getRoundPolygonPath(
+  shape: string,
+  size: number,
+): string | null {
+  if (!ROUND_POLYGON_SHAPES.has(shape)) {
+    return null;
+  }
+  const basePoints = POLYGON_POINTS[shape.slice("round-".length)];
+  if (!basePoints) {
+    return null;
+  }
+
+  const half = size / 2;
+  const cornerRadius = size / 10;
+  const vertices: Point[] = [];
+  for (let i = 0; i < basePoints.length / 2; i++) {
+    vertices.push({
+      x: half + basePoints[2 * i] * half,
+      y: half + basePoints[2 * i + 1] * half,
+    });
+  }
+
+  const count = vertices.length;
+  const segments: string[] = [];
+  for (let i = 0; i < count; i++) {
+    const corner = getRoundCorner(
+      vertices[(i - 1 + count) % count],
+      vertices[i],
+      vertices[(i + 1) % count],
+      cornerRadius,
+    );
+    segments.push(
+      `${i === 0 ? "M" : "L"} ${formatPoint(corner.startX, corner.startY)}`,
+    );
+    if (corner.radius === 0) {
+      segments.push(`L ${formatPoint(corner.stopX, corner.stopY)}`);
+    } else {
+      const sweep = corner.counterClockwise ? 0 : 1;
+      segments.push(
+        `A ${corner.radius.toFixed(3)} ${corner.radius.toFixed(3)} 0 0 ${sweep} ${formatPoint(corner.stopX, corner.stopY)}`,
+      );
+    }
+  }
+  segments.push("Z");
+  return segments.join(" ");
+}

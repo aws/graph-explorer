@@ -13,7 +13,11 @@ import type { VertexStyle } from "@/core";
 
 import { renderNode } from "@/modules/GraphViewer/renderNode";
 
-import { getPolygonPoints, toSvgPoints } from "./spikeNodeShapes";
+import {
+  getPolygonPoints,
+  getRoundPolygonPath,
+  toSvgPoints,
+} from "./spikeNodeShapes";
 
 const SIZE = 96;
 
@@ -66,12 +70,25 @@ function SvgNodePreview({ style }: { style: VertexStyle }) {
   const strokeWidth = style.borderWidth;
   const clipId = `spike-clip-${style.type}`;
 
+  const iconPadding = 38;
+  const iconSize = SIZE - iconPadding;
+  const iconPosition = iconPadding / 2;
+
   // The shape element, rendered twice: once as the filled/stroked background,
   // once (fill only) as the clip path so the icon is clipped to the outline —
   // matching cytoscape's default `background-clip: 'node'`.
+  const roundPolygonPath = getRoundPolygonPath(
+    style.shape,
+    SIZE - strokeWidth * 2,
+  );
   const shapeEl = polygon ? (
     <polygon
       points={toSvgPoints(polygon, SIZE - strokeWidth * 2)}
+      transform={`translate(${strokeWidth} ${strokeWidth})`}
+    />
+  ) : roundPolygonPath ? (
+    <path
+      d={roundPolygonPath}
       transform={`translate(${strokeWidth} ${strokeWidth})`}
     />
   ) : isRoundRectangle(style.shape) ? (
@@ -110,10 +127,10 @@ function SvgNodePreview({ style }: { style: VertexStyle }) {
       {iconDataUrl ? (
         <image
           href={iconDataUrl}
-          x={0}
-          y={0}
-          width={SIZE}
-          height={SIZE}
+          x={iconPosition}
+          y={iconPosition}
+          width={iconSize}
+          height={iconSize}
           clipPath={`url(#${clipId})`}
           preserveAspectRatio="xMidYMid meet"
         />
