@@ -65,7 +65,10 @@ function useSetActiveConfigCallback(configId: ConfigurationId) {
   const resetState = useResetState();
   return useAtomCallback(
     useCallback(
-      (_get, set) => {
+      (get, set) => {
+        if (get(activeConfigurationAtom) === configId) {
+          return;
+        }
         logger.debug("Setting active connection to", configId);
         set(activeConfigurationAtom, configId);
         resetState();
