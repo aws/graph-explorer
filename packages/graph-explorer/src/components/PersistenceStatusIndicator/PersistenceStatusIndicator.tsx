@@ -89,7 +89,7 @@ export function PersistenceStatusIndicator() {
             </Button>
           ) : null}
           <DialogClose asChild>
-            <Button variant={canBackUp ? "secondary" : "primary"}>Close</Button>
+            <Button variant={canBackUp ? "outline" : "primary"}>Close</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

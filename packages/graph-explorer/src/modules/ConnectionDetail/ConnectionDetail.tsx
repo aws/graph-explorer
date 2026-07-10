@@ -36,7 +36,6 @@ import {
 import { LinkButton } from "@/components/Button";
 import {
   Dialog,
-  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -179,12 +178,10 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
                 Update the connection details for {connectionName}.
               </DialogDescription>
             </DialogHeader>
-            <DialogBody>
-              <CreateConnection
-                onClose={() => setEdit(false)}
-                existingConfig={config}
-              />
-            </DialogBody>
+            <CreateConnection
+              onClose={() => setEdit(false)}
+              existingConfig={config}
+            />
           </DialogContent>
         </Dialog>
       </PanelContent>

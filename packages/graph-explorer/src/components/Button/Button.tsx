@@ -16,7 +16,9 @@ const buttonStyles = cva({
       ghost:
         "text-primary-foreground hover:bg-primary-subtle data-open:bg-primary-subtle",
       outline:
-        "text-text-primary border-input hover:bg-muted data-open:border-primary-main border bg-transparent shadow-xs",
+        "text-text-primary border-input hover:bg-muted data-open:border-primary-main font-base border bg-transparent shadow-xs",
+      "outline-danger":
+        "text-danger border-input font-base hover:bg-danger-subtle data-open:bg-danger-subtle border bg-transparent shadow-xs",
       "primary-danger":
         "bg-danger hover:bg-danger-hover data-open:bg-danger-hover text-white",
       danger:
@@ -25,8 +27,8 @@ const buttonStyles = cva({
         "text-danger hover:bg-danger-subtle data-open:bg-danger-subtle",
     },
     size: {
-      small: "h-8 rounded-md px-2 text-sm [&_svg]:size-4",
-      default: "h-10 rounded-md px-4 text-base [&_svg]:size-5",
+      small: "h-8 rounded-md px-3 text-sm [&_svg]:size-4",
+      default: "h-10 rounded-md px-5 text-base [&_svg]:size-5",
       large: "h-12 rounded-md px-5 text-lg [&_svg]:size-6",
 
       "icon-small": "h-8 min-w-8 rounded-md text-sm [&_svg]:size-4",

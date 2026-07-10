@@ -16,7 +16,6 @@ import {
   NamespaceIcon,
   PanelEmptyState,
   PanelFooter,
-  SaveIcon,
   SearchBar,
   useSearchItems,
 } from "@/components";
@@ -282,9 +281,11 @@ function EditPrefixModal({
           />
         </DialogBody>
         <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
           <Button variant="primary" onClick={onSubmit}>
-            <SaveIcon />
-            Save
+            Create Namespace
           </Button>
         </DialogFooter>
       </DialogContent>

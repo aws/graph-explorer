@@ -95,7 +95,7 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
 
   return (
     <DialogContent className="max-w-2xl">
-      <form>
+      <form className="flex min-h-0 flex-col">
         <DialogHeader>
           <DialogTitle>{t("edges-styling.title")}</DialogTitle>
           <DialogDescription>
@@ -296,11 +296,17 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
           </FieldSet>
         </DialogBody>
         <DialogFooter className="sm:justify-between">
-          <Button type="button" variant="danger" onClick={resetEdgeStyle}>
+          <Button
+            type="button"
+            variant="outline-danger"
+            onClick={resetEdgeStyle}
+          >
             Reset to Default
           </Button>
           <DialogClose asChild>
-            <Button type="button">Done</Button>
+            <Button type="button" variant="primary">
+              Done
+            </Button>
           </DialogClose>
         </DialogFooter>
       </form>

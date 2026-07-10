@@ -133,7 +133,7 @@ function ConfirmationModal({
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button disabled={isPending} onClick={onCancel}>
+          <Button variant="outline" disabled={isPending} onClick={onCancel}>
             Cancel
           </Button>
           <Button
@@ -188,7 +188,9 @@ function ParseFailureModal({
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button onClick={onCancel}>Close</Button>
+          <Button variant="outline" onClick={onCancel}>
+            Close
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

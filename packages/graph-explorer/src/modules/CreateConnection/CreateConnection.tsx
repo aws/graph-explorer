@@ -18,6 +18,7 @@ import {
   SelectField,
   TextAreaField,
 } from "@/components";
+import { DialogBody, DialogFooter } from "@/components/Dialog";
 import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
@@ -254,8 +255,8 @@ const CreateConnection = ({
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="space-y-6">
+    <>
+      <DialogBody className="gap-6">
         <FormItem>
           <Label>Name</Label>
           <InputField
@@ -422,14 +423,16 @@ const CreateConnection = ({
             />
           </FormItem>
         )}
-      </div>
-      <div className="flex justify-between border-t pt-4">
-        <Button onClick={onClose}>Cancel</Button>
+      </DialogBody>
+      <DialogFooter>
+        <Button variant="outline" onClick={onClose}>
+          Cancel
+        </Button>
         <Button variant="primary" onClick={onSubmit}>
           {!configId ? "Add Connection" : "Update Connection"}
         </Button>
-      </div>
-    </div>
+      </DialogFooter>
+    </>
   );
 };
 
