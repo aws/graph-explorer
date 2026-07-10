@@ -1,6 +1,6 @@
 import { createStore } from "jotai";
 import localForage from "localforage";
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { z } from "zod";
 
 import { logger } from "@/utils";
@@ -81,10 +81,6 @@ function tabOpener<T>(
 const openTab = tabOpener<Counter>(KEY, { count: 0 }, counterCodec);
 
 describe("createSessionScopedAtom", () => {
-  beforeEach(async () => {
-    await localForage.clear();
-  });
-
   test("cold start seeds from the persisted breadcrumb and claims it into this tab", async () => {
     await localForage.setItem<Counter>(KEY, { count: 7 });
     const sessionStorage = createInMemorySessionStorage();
@@ -211,10 +207,6 @@ describe("createSessionScopedAtom", () => {
 });
 
 describe("createSessionScopedAtom across tabs", () => {
-  beforeEach(async () => {
-    await localForage.clear();
-  });
-
   test("writing in one tab does not change an already-open tab", async () => {
     const tabB = await openTab();
     await tabB.write({ count: 2 });
@@ -254,10 +246,6 @@ describe("createSessionScopedAtom across tabs", () => {
 // exists — rather than each in isolation.
 describe("createSessionScopedAtom with the graph view layout codec", () => {
   const LAYOUT_KEY = "graph-view-layout";
-
-  beforeEach(async () => {
-    await localForage.clear();
-  });
 
   test("cold start claims a Set-bearing breadcrumb into sessionStorage as its array form", async () => {
     const breadcrumb: GraphViewLayout = {
@@ -305,10 +293,6 @@ describe("graph view layout across tabs", () => {
     graphViewLayoutCodec,
   );
 
-  beforeEach(async () => {
-    await localForage.clear();
-  });
-
   test("changing layout in one tab does not change an already-open tab", async () => {
     const tabB = await openGraphViewTab();
     const tabBLayout: GraphViewLayout = {
@@ -351,10 +335,6 @@ describe("schema view layout across tabs", () => {
     defaultSchemaViewLayout,
     schemaViewLayoutCodec,
   );
-
-  beforeEach(async () => {
-    await localForage.clear();
-  });
 
   test("changing layout in one tab does not change an already-open tab", async () => {
     const tabB = await openSchemaViewTab();
