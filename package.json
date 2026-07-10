@@ -22,7 +22,7 @@
     "clean": "pnpm --stream -r run clean",
     "clean:dep": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
     "build": "pnpm --stream -r run build",
-    "dev": "pnpm --stream -r run dev"
+    "dev": "concurrently --kill-others --names proxy,vite \"pnpm --filter ./packages/graph-explorer-proxy-server run dev\" \"pnpm --filter ./packages/graph-explorer run dev\""
   },
   "dependencies": {
     "dompurify": "^3.4.11"
@@ -32,6 +32,7 @@
     "@types/node": "^24.13.1",
     "@vitest/coverage-v8": "4.1.9",
     "babel-plugin-react-compiler": "^1.0.0",
+    "concurrently": "^10.0.3",
     "eslint-plugin-react-hooks": "7.1.1",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.7",
