@@ -48,6 +48,8 @@ export const LABELS = {
   SIDEBAR: {
     /** The title for the selection details panel */
     SELECTION_DETAILS: "Selection Details",
+    /** The title for the combined node and edge styles panel */
+    STYLES: "Styles",
   },
 } as const;
 

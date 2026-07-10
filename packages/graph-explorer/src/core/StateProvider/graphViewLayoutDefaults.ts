@@ -8,11 +8,32 @@ export const graphViewSidebarItems = [
   "details",
   "filters",
   "expand",
-  "nodes-styling",
-  "edges-styling",
+  "styles",
   "namespaces",
 ] as const;
 export type GraphViewSidebarItem = (typeof graphViewSidebarItems)[number];
+
+/**
+ * Legacy `activeSidebarItem` values, from when node and edge styling were two
+ * separate sidebar panels. They now map to the combined "styles" panel.
+ */
+const LEGACY_STYLING_SIDEBAR_ITEMS = new Set([
+  "nodes-styling",
+  "edges-styling",
+]);
+
+/**
+ * Normalizes a persisted sidebar item that a newer version has retired. The
+ * schema view's sidebar items are a subset of the graph view's, so this bound
+ * covers both views' persisted `activeSidebarItem` values.
+ */
+export function transformLegacySidebarItem<
+  T extends GraphViewSidebarItem | null,
+>(item: T): T | "styles" {
+  return typeof item === "string" && LEGACY_STYLING_SIDEBAR_ITEMS.has(item)
+    ? "styles"
+    : item;
+}
 
 /** Persisted layout preferences for the graph view. */
 export type GraphViewLayout = {
@@ -37,3 +58,15 @@ export const defaultGraphViewLayout: GraphViewLayout = {
   sidebar: { width: DEFAULT_SIDEBAR_WIDTH },
   tableView: { height: DEFAULT_TABLE_VIEW_HEIGHT },
 };
+
+/** Normalizes a persisted graph view layout from an older app version. */
+export function transformGraphViewLayout(
+  layout: GraphViewLayout,
+): GraphViewLayout {
+  const activeSidebarItem = transformLegacySidebarItem(
+    layout.activeSidebarItem,
+  );
+  return activeSidebarItem === layout.activeSidebarItem
+    ? layout
+    : { ...layout, activeSidebarItem };
+}

@@ -71,6 +71,34 @@ function createReconcilingFlush<T>(
 }
 
 /**
+ * Reshapes a value loaded from a previous app version onto the current type.
+ * Must be pure and total — it seeds atom initialization and runs on every load,
+ * so it must not throw or have side effects. This is a read-time transform, not
+ * a migration: it never writes and leaves the stored value untouched. See the
+ * read-time-transform-for-persisted-values ADR.
+ */
+export type ReadTransform<T> = (loaded: T) => T;
+
+export type AtomWithLocalForageOptions<T> = {
+  /**
+   * Merge applied against live storage before each write. Pass for an atom
+   * backing a collection shared across tabs: each persist re-reads live storage
+   * and merges this tab's change onto it (see {@link createReconcilingFlush}),
+   * so concurrent edits to different entries by other tabs survive. Opt-in
+   * because reconciliation is meaningless for scalar atoms and wrong for per-tab
+   * atoms; see the per-key diff-merge reconciliation ADR.
+   */
+  reconcile?: ReconcileWrite<T>;
+  /**
+   * Reshapes the preloaded value before it becomes the atom's initial value, so
+   * data persisted by an older app version is normalized on read. Runs against
+   * both the stored value and, when storage is empty, the `initialValue`. See
+   * {@link ReadTransform} for the purity contract.
+   */
+  transform?: ReadTransform<T>;
+};
+
+/**
  * Creates an atom that persists its value in localForage.
  *
  * This function is async and preloads the stored value before returning the
@@ -80,26 +108,19 @@ function createReconcilingFlush<T>(
  * After initialization, the atom provides synchronous read/write operations
  * while persistence happens asynchronously in the background.
  *
- * By default each write blindly overwrites the whole stored value. Pass
- * `reconcile` for an atom backing a collection shared across tabs: each persist
- * then re-reads live storage and merges this tab's change onto it (see
- * {@link createReconcilingFlush}), so concurrent edits to different entries by
- * other tabs survive. This is opt-in because reconciliation is meaningless for
- * scalar atoms and wrong for per-tab atoms; see the per-key diff-merge
- * reconciliation ADR.
- *
  * @param key The key to use for the stored value in localForage
  * @param initialValue The initial value if none is found in storage
- * @param reconcile Optional merge applied against live storage before each write
+ * @param options Optional {@link AtomWithLocalForageOptions}
  * @returns An atom that persists to localForage
  */
 export async function atomWithLocalForage<T>(
   key: string,
   initialValue: T,
-  reconcile?: ReconcileWrite<T>,
+  { reconcile, transform }: AtomWithLocalForageOptions<T> = {},
 ) {
   const storage = createLocalForageStorage<T>(key, initialValue);
-  const preloadValue = await storage.getItem();
+  const loadedValue = await storage.getItem();
+  const preloadValue = transform ? transform(loadedValue) : loadedValue;
 
   const flush = reconcile
     ? createReconcilingFlush(storage, reconcile, preloadValue)

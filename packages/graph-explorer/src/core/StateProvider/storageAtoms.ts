@@ -9,10 +9,16 @@ import type { SchemaStorageModel } from "./schema";
 
 import { createActiveConfigurationAtom } from "./activeConnectionStorage";
 import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
-import { defaultGraphViewLayout } from "./graphViewLayoutDefaults";
+import {
+  defaultGraphViewLayout,
+  transformGraphViewLayout,
+} from "./graphViewLayoutDefaults";
 import { runUserLayoutMigration } from "./migrateUserLayout";
 import { runUserStylingMigration } from "./migrateUserStyling";
-import { defaultSchemaViewLayout } from "./schemaViewLayoutDefaults";
+import {
+  defaultSchemaViewLayout,
+  transformSchemaViewLayout,
+} from "./schemaViewLayoutDefaults";
 
 // Run migrations before the atoms preload so they read the migrated data.
 // Each migration owns its own failure reporting (surfacing through the
@@ -76,14 +82,12 @@ const [
   atomWithLocalForage<Map<ConfigurationId, RawConfiguration>>(
     "configuration",
     new Map(),
-    reconcileMapByKey,
+    { reconcile: reconcileMapByKey },
   ),
   /** All the stored schemas */
-  atomWithLocalForage(
-    "schema",
-    new Map<string, SchemaStorageModel>(),
-    reconcileMapByKey,
-  ),
+  atomWithLocalForage("schema", new Map<string, SchemaStorageModel>(), {
+    reconcile: reconcileMapByKey,
+  }),
   /**
    * User-defined vertex style overrides, keyed by type. The `user-` prefix
    * marks the user-defined layer of the `<layer>-<entity>-styles` set.
@@ -91,13 +95,13 @@ const [
   atomWithLocalForage(
     "user-vertex-styles",
     new Map<VertexType, VertexStyleStorage>(),
-    reconcileMapByKey,
+    { reconcile: reconcileMapByKey },
   ),
   /** User-defined edge style overrides, keyed by type. */
   atomWithLocalForage(
     "user-edge-styles",
     new Map<EdgeType, EdgeStyleStorage>(),
-    reconcileMapByKey,
+    { reconcile: reconcileMapByKey },
   ),
   /**
    * Shared vertex styles, loaded from a styling file. The `shared-` prefix marks
@@ -107,21 +111,25 @@ const [
   atomWithLocalForage(
     "shared-vertex-styles",
     new Map<VertexType, VertexStyleStorage>(),
-    reconcileMapByKey,
+    { reconcile: reconcileMapByKey },
   ),
   /** Shared edge styles, loaded from a styling file. */
   atomWithLocalForage(
     "shared-edge-styles",
     new Map<EdgeType, EdgeStyleStorage>(),
-    reconcileMapByKey,
+    { reconcile: reconcileMapByKey },
   ),
-  atomWithLocalForage("graph-view-layout", defaultGraphViewLayout),
-  atomWithLocalForage("schema-view-layout", defaultSchemaViewLayout),
+  atomWithLocalForage("graph-view-layout", defaultGraphViewLayout, {
+    transform: transformGraphViewLayout,
+  }),
+  atomWithLocalForage("schema-view-layout", defaultSchemaViewLayout, {
+    transform: transformSchemaViewLayout,
+  }),
   /** Stores the graph session data for each connection. */
   atomWithLocalForage<Map<ConfigurationId, GraphSessionStorageModel>>(
     "graph-sessions",
     new Map(),
-    reconcileMapByKey,
+    { reconcile: reconcileMapByKey },
   ),
   /*
    * General App Settings

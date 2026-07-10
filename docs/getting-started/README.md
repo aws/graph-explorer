@@ -34,7 +34,7 @@ Graph Explorer has four main pages, accessible from the navigation bar at the to
 
 Click **Connections** in the navigation bar to verify the "Default Connection" is active, then click **Graph** to return to the graph view.
 
-On the right side of the graph view, you will see a vertical strip of sidebar icons. These open panels for **Search**, **Details**, **Expand**, **Filters**, and **Node Label Styling**. You will use each of these as you work through the tutorial.
+On the right side of the graph view, you will see a vertical strip of sidebar icons. These open panels for **Search**, **Details**, **Expand**, **Filters**, and **Styles**. You will use each of these as you work through the tutorial.
 
 ## Search for a Node
 
@@ -84,7 +84,7 @@ This table only shows what is on the canvas — it is a different view of the sa
 
 You can customize how each node type looks on the canvas.
 
-1. Click the **Node Label Styling** icon in the right sidebar.
+1. Click the **Styles** icon in the right sidebar, then select the **Nodes** tab (it opens by default).
 2. Find the **airport** type in the list.
 3. Click **Customize** to open the style dialog.
 4. Change the **Display Name Property** to **code** so each airport shows its IATA code.
