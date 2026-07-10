@@ -9,10 +9,17 @@ import type { SchemaStorageModel } from "./schema";
 
 import { createActiveConfigurationAtom } from "./activeConnectionStorage";
 import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
-import { defaultGraphViewLayout } from "./graphViewLayoutDefaults";
+import {
+  defaultGraphViewLayout,
+  graphViewLayoutCodec,
+} from "./graphViewLayoutDefaults";
 import { runUserLayoutMigration } from "./migrateUserLayout";
 import { runUserStylingMigration } from "./migrateUserStyling";
-import { defaultSchemaViewLayout } from "./schemaViewLayoutDefaults";
+import {
+  defaultSchemaViewLayout,
+  schemaViewLayoutCodec,
+} from "./schemaViewLayoutDefaults";
+import { createSessionScopedAtom } from "./sessionScopedStorage";
 
 // Run migrations before the atoms preload so they read the migrated data.
 // Each migration owns its own failure reporting (surfacing through the
@@ -115,8 +122,18 @@ const [
     new Map<EdgeType, EdgeStyleStorage>(),
     reconcileMapByKey,
   ),
-  atomWithLocalForage("graph-view-layout", defaultGraphViewLayout),
-  atomWithLocalForage("schema-view-layout", defaultSchemaViewLayout),
+  // Layout is per-tab: each tab keeps its own sidebar/toggle state in
+  // sessionStorage, with a shared localForage breadcrumb seeding a fresh tab.
+  createSessionScopedAtom({
+    key: "graph-view-layout",
+    defaultValue: defaultGraphViewLayout,
+    codec: graphViewLayoutCodec,
+  }),
+  createSessionScopedAtom({
+    key: "schema-view-layout",
+    defaultValue: defaultSchemaViewLayout,
+    codec: schemaViewLayoutCodec,
+  }),
   /** Stores the graph session data for each connection. */
   atomWithLocalForage<Map<ConfigurationId, GraphSessionStorageModel>>(
     "graph-sessions",
