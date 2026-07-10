@@ -6,7 +6,7 @@ import { Input, type InputProps } from "./Input";
 
 export interface NumberInputProps extends Omit<
   InputProps,
-  "type" | "value" | "onChange"
+  "type" | "value" | "onChange" | "onBlur"
 > {
   value: number | undefined;
   onValueChange: (value: number | undefined) => void;

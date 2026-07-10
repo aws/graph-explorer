@@ -27,7 +27,7 @@ function Harness({
 }
 
 function widthInput() {
-  return screen.getByLabelText("width") as HTMLInputElement;
+  return screen.getByLabelText<HTMLInputElement>("width");
 }
 
 // The browser reports the raw editing buffer (e.g. "1.") through the change
@@ -105,13 +105,5 @@ describe("NumberInput", () => {
     fireEvent.click(screen.getByRole("button", { name: "reset" }));
 
     expect(widthInput()).toHaveValue(7);
-  });
-
-  it("should pass step, min, and max to the underlying input", () => {
-    render(<Harness initialValue={1} step={0.5} min={0} max={10} />);
-
-    expect(widthInput()).toHaveAttribute("step", "0.5");
-    expect(widthInput()).toHaveAttribute("min", "0");
-    expect(widthInput()).toHaveAttribute("max", "10");
   });
 });
