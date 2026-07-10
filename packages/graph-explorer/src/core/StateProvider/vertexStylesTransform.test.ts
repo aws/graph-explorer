@@ -38,14 +38,15 @@ describe("transformVertexStyles", () => {
     for (const shape of broken) {
       const styles = vertexMap([["X", { shape }]]);
       const result = transformVertexStyles(styles);
-      expect(result.get(createVertexType("X"))!.shape).toBe("round-rectangle");
+      expect(result.get(createVertexType("X"))!.shape).toBe("roundrectangle");
     }
   });
 
-  it("does not coerce round-rectangle or round-diamond", () => {
+  it("does not coerce roundrectangle, round-rectangle, or round-diamond", () => {
     const styles = vertexMap([
-      ["A", { shape: "round-rectangle" }],
-      ["B", { shape: "round-diamond" }],
+      ["A", { shape: "roundrectangle" }],
+      ["B", { shape: "round-rectangle" }],
+      ["C", { shape: "round-diamond" }],
     ]);
 
     expect(transformVertexStyles(styles)).toBe(styles);
@@ -58,7 +59,7 @@ describe("transformVertexStyles", () => {
 
     const result = transformVertexStyles(styles);
     const entry = result.get(createVertexType("A"))!;
-    expect(entry.shape).toBe("round-rectangle");
+    expect(entry.shape).toBe("roundrectangle");
     expect(entry.color).toBe("#ff0000");
     expect(entry.borderWidth).toBe(2);
   });

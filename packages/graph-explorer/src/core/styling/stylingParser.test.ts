@@ -78,19 +78,19 @@ describe("style enum validation", () => {
       vertices: { A: { shape } },
       edges: {},
     });
-    const expected = BROKEN_SHAPES.has(shape) ? "round-rectangle" : shape;
+    const expected = BROKEN_SHAPES.has(shape) ? "roundrectangle" : shape;
     expect(result.vertexStyles.get(createVertexType("A"))!.shape).toBe(
       expected,
     );
   });
 
-  test("coerces broken round-polygon shapes to round-rectangle on import", () => {
+  test("coerces broken round-polygon shapes to roundrectangle on import", () => {
     const result = parseStylingPayload({
       vertices: { A: { shape: "round-tag" } },
       edges: {},
     });
     expect(result.vertexStyles.get(createVertexType("A"))!.shape).toBe(
-      "round-rectangle",
+      "roundrectangle",
     );
   });
 

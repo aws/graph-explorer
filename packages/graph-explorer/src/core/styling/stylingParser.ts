@@ -8,12 +8,12 @@ import { createEdgeType, createVertexType } from "@/core/entities";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 import {
   ARROW_STYLES,
-  coerceBrokenShape,
   type EdgeStyleStorage,
   LINE_STYLES,
   SHAPE_STYLES,
   type VertexStyleStorage,
 } from "@/core/StateProvider/graphStyles";
+import { coerceBrokenShape } from "@/core/StateProvider/vertexStylesTransform";
 import { typedEntries } from "@/utils";
 
 // --- Format identity ---

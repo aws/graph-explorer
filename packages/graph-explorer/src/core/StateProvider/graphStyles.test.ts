@@ -8,7 +8,6 @@ import { DbState, renderHookWithState } from "@/utils/testing";
 import {
   appDefaultEdgeStyle,
   appDefaultVertexStyle,
-  coerceBrokenShape,
   edgeStyleAtom,
   type EdgeStyleStorage,
   type ShapeStyle,
@@ -17,6 +16,7 @@ import {
   vertexStyleAtom,
   type VertexStyleStorage,
 } from "./graphStyles";
+import { coerceBrokenShape } from "./vertexStylesTransform";
 
 function createExpectedVertex(existing: VertexStyleStorage) {
   return {
@@ -473,13 +473,14 @@ describe("coerceBrokenShape", () => {
     "round-tag",
   ];
 
-  it.each(BROKEN)("coerces %s to round-rectangle", shape => {
-    expect(coerceBrokenShape(shape)).toBe("round-rectangle");
+  it.each(BROKEN)("coerces %s to roundrectangle", shape => {
+    expect(coerceBrokenShape(shape)).toBe("roundrectangle");
   });
 
   const SAFE: ShapeStyle[] = [
     "ellipse",
     "rectangle",
+    "roundrectangle",
     "round-rectangle",
     "round-diamond",
     "star",
