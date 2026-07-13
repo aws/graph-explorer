@@ -73,4 +73,16 @@ describe("Styles", () => {
 
     expect(screen.getByText("locatedIn")).toBeInTheDocument();
   });
+
+  test("does not show a vertex visibility toggle for the main graph view", () => {
+    const state = new DbState();
+    const vertex = createTestableVertex().with({ types: ["Airport"] });
+    state.addTestableVertexToGraph(vertex);
+
+    renderStyles(state);
+
+    expect(
+      screen.queryByRole("button", { name: /schema view/ }),
+    ).not.toBeInTheDocument();
+  });
 });

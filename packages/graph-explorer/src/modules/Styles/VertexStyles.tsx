@@ -6,8 +6,13 @@ import { useDisplayVertexTypeConfigs } from "@/core";
 
 import { VertexStyleRow } from "./VertexStyleRow";
 
+export type VertexStylesProps = {
+  /** Shows a per-row eye toggle to hide vertex types from the Schema view. */
+  showVisibilityToggle?: boolean;
+};
+
 /** Styling list for every vertex type, shown on the Nodes tab. */
-export function VertexStyles() {
+export function VertexStyles({ showVisibilityToggle }: VertexStylesProps) {
   const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
 
   if (vtConfigs.length === 0) {
@@ -23,6 +28,7 @@ export function VertexStyles() {
           {index !== 0 ? <Divider /> : null}
           <VertexStyleRow
             vertexType={vtConfig.type}
+            showVisibilityToggle={showVisibilityToggle}
             className="px-3 pt-2 pb-3"
           />
         </Fragment>

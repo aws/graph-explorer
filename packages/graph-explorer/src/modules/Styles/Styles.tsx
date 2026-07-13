@@ -34,13 +34,19 @@ export const schemaViewStylesTabAtom = atom<StylesTab>("nodes");
 export type StylesProps = {
   onClose: () => void;
   tabAtom: PrimitiveAtom<StylesTab>;
+  /** Shows a per-row eye toggle to hide vertex types from the Schema view. */
+  showVertexVisibilityToggle?: boolean;
 };
 
 /**
  * Combined node and edge styling sidebar panel. The two style lists live behind
  * an internal Nodes/Edges tab switch so both share one styling entry point.
  */
-export function Styles({ onClose, tabAtom }: StylesProps) {
+export function Styles({
+  onClose,
+  tabAtom,
+  showVertexVisibilityToggle,
+}: StylesProps) {
   const t = useTranslations();
   const [selectedTab, setSelectedTab] = useAtom(tabAtom);
 
@@ -63,7 +69,7 @@ export function Styles({ onClose, tabAtom }: StylesProps) {
             <SidebarTabsTrigger value="edges">{t("edges")}</SidebarTabsTrigger>
           </SidebarTabsList>
           <SidebarTabsContent value="nodes">
-            <VertexStyles />
+            <VertexStyles showVisibilityToggle={showVertexVisibilityToggle} />
           </SidebarTabsContent>
           <SidebarTabsContent value="edges">
             <EdgeStyles />

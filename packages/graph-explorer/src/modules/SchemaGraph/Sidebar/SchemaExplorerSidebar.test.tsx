@@ -114,6 +114,26 @@ describe("SchemaExplorerSidebar", () => {
     expect(screen.getByText("locatedIn")).toBeInTheDocument();
   });
 
+  test("toggles a vertex type's visibility from the styles tab", async () => {
+    const user = userEvent.setup();
+    const state = stateWithDetailsTab();
+    const vertex = createTestableVertex().with({ types: ["Airport"] });
+    state.addTestableVertexToGraph(vertex);
+
+    renderSidebar(state);
+
+    await user.click(screen.getByRole("tab", { name: "Styles" }));
+
+    const toggle = screen.getByRole("button", {
+      name: "Hide Airport from schema view",
+    });
+    await user.click(toggle);
+
+    expect(
+      screen.getByRole("button", { name: "Show Airport in schema view" }),
+    ).toBeInTheDocument();
+  });
+
   test("collapses sidebar when clicking the active tab", async () => {
     const user = userEvent.setup();
     renderSidebar(stateWithDetailsTab());
