@@ -22,9 +22,9 @@ describe("resolveShapeGeometry", () => {
       "concave-hexagon",
     ])("%s resolves to a polygon with valid points", shape => {
       const result = resolveShapeGeometry(shape, SIZE);
-      expect(result.type).toBe("polygon");
-      expect("points" in result && result.points.length).toBeGreaterThan(0);
-      const points = (result as { points: string }).points;
+      expect.assert(result.type === "polygon");
+      expect(result.points.length).toBeGreaterThan(0);
+      const points = result.points;
       const coords = points.split(" ").map(p => p.split(",").map(Number));
       for (const [x, y] of coords) {
         expect(x).toBeGreaterThanOrEqual(-0.01);
@@ -46,11 +46,10 @@ describe("resolveShapeGeometry", () => {
       "round-tag",
     ])("%s resolves to a round-polygon with arcs", shape => {
       const result = resolveShapeGeometry(shape, SIZE);
-      expect(result.type).toBe("round-polygon");
-      const path = (result as { path: string }).path;
-      expect(path).toMatch(/^M /);
-      expect(path).toMatch(/ Z$/);
-      expect(path).toMatch(/ A /);
+      expect.assert(result.type === "round-polygon");
+      expect(result.path).toMatch(/^M /);
+      expect(result.path).toMatch(/ Z$/);
+      expect(result.path).toMatch(/ A /);
     });
   });
 
@@ -59,10 +58,9 @@ describe("resolveShapeGeometry", () => {
       "%s resolves to round-rectangle",
       shape => {
         const result = resolveShapeGeometry(shape, SIZE);
-        expect(result.type).toBe("round-rectangle");
-        const path = (result as { path: string }).path;
-        expect(path).toMatch(/^M /);
-        expect(path).toMatch(/ A /);
+        expect.assert(result.type === "round-rectangle");
+        expect(result.path).toMatch(/^M /);
+        expect(result.path).toMatch(/ A /);
       },
     );
   });
@@ -70,21 +68,19 @@ describe("resolveShapeGeometry", () => {
   describe("cut-rectangle", () => {
     it("resolves with chamfered corners", () => {
       const result = resolveShapeGeometry("cut-rectangle", SIZE);
-      expect(result.type).toBe("cut-rectangle");
-      const path = (result as { path: string }).path;
-      expect(path).toMatch(/^M /);
-      expect(path).toMatch(/ Z$/);
-      expect(path).not.toMatch(/ A /);
+      expect.assert(result.type === "cut-rectangle");
+      expect(result.path).toMatch(/^M /);
+      expect(result.path).toMatch(/ Z$/);
+      expect(result.path).not.toMatch(/ A /);
     });
   });
 
   describe("barrel", () => {
     it("resolves with quadratic curves", () => {
       const result = resolveShapeGeometry("barrel", SIZE);
-      expect(result.type).toBe("barrel");
-      const path = (result as { path: string }).path;
-      expect(path).toMatch(/^M /);
-      expect(path).toMatch(/ Q /);
+      expect.assert(result.type === "barrel");
+      expect(result.path).toMatch(/^M /);
+      expect(result.path).toMatch(/ Q /);
     });
   });
 
