@@ -1,4 +1,8 @@
-export const NODE_SHAPE = [
+import type { ShapeStyle } from "@/core";
+
+type LabeledShapeStyle = { label: string; value: ShapeStyle };
+
+export const NODE_SHAPE: LabeledShapeStyle[] = [
   { label: "Barrel", value: "barrel" },
   { label: "Concave Hexagon", value: "concave-hexagon" },
   { label: "Cut Rectangle", value: "cut-rectangle" },
