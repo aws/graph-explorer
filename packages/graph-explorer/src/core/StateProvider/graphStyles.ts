@@ -80,6 +80,10 @@ export type VertexVisualStyle = {
   borderWidth: number;
   borderColor: string;
   borderStyle: LineStyle;
+  /** Label font size in pixels. */
+  fontSize: number;
+  /** Minimum on-screen font size before labels are hidden while zooming. */
+  minZoomedFontSize: number;
 };
 
 /**
@@ -108,6 +112,10 @@ export type EdgeVisualStyle = {
   lineStyle: LineStyle;
   sourceArrowStyle: ArrowStyle;
   targetArrowStyle: ArrowStyle;
+  /** Label font size in pixels. */
+  fontSize: number;
+  /** Minimum on-screen font size before labels are hidden while zooming. */
+  minZoomedFontSize: number;
 };
 
 /** The type-specific fields of an edge style. */
@@ -148,6 +156,9 @@ export const appDefaultVertexStyle = {
   borderWidth: 0,
   borderColor: "#128EE5",
   borderStyle: "solid",
+  // Keep in sync with `components/Graph/styles/defaultNodeStyle.ts`.
+  fontSize: 7,
+  minZoomedFontSize: 6,
 } as const satisfies Omit<VertexStyle, "type">;
 
 /** The default values to use when no user provided value is given. */
@@ -163,6 +174,9 @@ export const appDefaultEdgeStyle = {
   lineStyle: "solid",
   sourceArrowStyle: "none",
   targetArrowStyle: "triangle",
+  // Keep in sync with `components/Graph/styles/defaultEdgeStyle.ts`.
+  fontSize: 7,
+  minZoomedFontSize: 6,
 } as const satisfies Omit<EdgeStyle, "type">;
 
 /**

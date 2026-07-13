@@ -197,6 +197,28 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
                   </Select>
                 </Field>
               </FieldGroup>
+              <FieldGroup className="grid grid-cols-2 gap-4">
+                <Field>
+                  <FieldLabel>Label Font Size</FieldLabel>
+                  <NumberInput
+                    min={1}
+                    step={1}
+                    value={edgeStyle.fontSize}
+                    onValueChange={fontSize => setEdgeStyle({ fontSize })}
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel>Min Zoomed Font Size</FieldLabel>
+                  <NumberInput
+                    min={1}
+                    step={1}
+                    value={edgeStyle.minZoomedFontSize}
+                    onValueChange={minZoomedFontSize =>
+                      setEdgeStyle({ minZoomedFontSize })
+                    }
+                  />
+                </Field>
+              </FieldGroup>
             </FieldSet>
             <FieldSet>
               <FieldLegend>Line Styling</FieldLegend>

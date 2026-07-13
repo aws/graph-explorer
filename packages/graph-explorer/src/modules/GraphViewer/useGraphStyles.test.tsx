@@ -66,6 +66,8 @@ describe("useGraphStyles", () => {
         "border-opacity": 1,
         "border-style": "solid",
         shape: "ellipse",
+        "font-size": 7,
+        "min-zoomed-font-size": 6,
         width: 24,
         height: 24,
       });
