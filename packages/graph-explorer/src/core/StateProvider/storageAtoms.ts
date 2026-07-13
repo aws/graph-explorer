@@ -19,6 +19,7 @@ import {
   defaultSchemaViewLayout,
   transformSchemaViewLayout,
 } from "./schemaViewLayoutDefaults";
+import { transformVertexStyles } from "./vertexStylesTransform";
 
 // Run migrations before the atoms preload so they read the migrated data.
 // Each migration owns its own failure reporting (surfacing through the
@@ -95,7 +96,7 @@ const [
   atomWithLocalForage(
     "user-vertex-styles",
     new Map<VertexType, VertexStyleStorage>(),
-    { reconcile: reconcileMapByKey },
+    { reconcile: reconcileMapByKey, transform: transformVertexStyles },
   ),
   /** User-defined edge style overrides, keyed by type. */
   atomWithLocalForage(
@@ -111,7 +112,7 @@ const [
   atomWithLocalForage(
     "shared-vertex-styles",
     new Map<VertexType, VertexStyleStorage>(),
-    { reconcile: reconcileMapByKey },
+    { reconcile: reconcileMapByKey, transform: transformVertexStyles },
   ),
   /** Shared edge styles, loaded from a styling file. */
   atomWithLocalForage(
