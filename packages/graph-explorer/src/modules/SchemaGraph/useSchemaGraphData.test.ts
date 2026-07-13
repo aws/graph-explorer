@@ -13,6 +13,7 @@ import { useSchemaGraphData } from "./useSchemaGraphData";
 describe("useSchemaGraphData", () => {
   it("excludes hidden vertex types from the nodes", () => {
     const state = new DbState();
+    state.activeSchema.vertices = [];
     state.addTestableVertexToGraph(
       createTestableVertex().with({ types: ["Airport"] }),
     );
@@ -28,15 +29,15 @@ describe("useSchemaGraphData", () => {
       state,
     );
 
-    expect(result.current.data.nodes.map(n => n.data.type)).toContain(
-      createVertexType("Airport"),
-    );
+    expect(
+      result.current.data.nodes.map(n => n.data.type).toSorted(),
+    ).toStrictEqual([createVertexType("Airport"), createVertexType("City")]);
 
     act(() => result.current.hidden.toggleType(createVertexType("Airport")));
 
-    const types = result.current.data.nodes.map(n => n.data.type);
-    expect(types).not.toContain(createVertexType("Airport"));
-    expect(types).toContain(createVertexType("City"));
+    expect(result.current.data.nodes.map(n => n.data.type)).toStrictEqual([
+      createVertexType("City"),
+    ]);
   });
 
   it("drops edges whose endpoint vertex type is hidden", () => {
@@ -63,7 +64,7 @@ describe("useSchemaGraphData", () => {
       state,
     );
 
-    expect(result.current.data.edges.length).toBeGreaterThan(0);
+    expect(result.current.data.edges).toHaveLength(1);
 
     act(() => result.current.hidden.toggleType(createVertexType("City")));
 

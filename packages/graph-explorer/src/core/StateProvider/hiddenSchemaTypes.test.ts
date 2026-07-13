@@ -67,6 +67,6 @@ describe("useHiddenSchemaTypes", () => {
 
     const map = store.get(hiddenSchemaTypesAtom);
     expect(map.size).toBe(1);
-    expect([...map.keys()]).toEqual([dbState.activeConfig.id]);
+    expect([...map.keys()]).toStrictEqual([dbState.activeConfig.id]);
   });
 });
