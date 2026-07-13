@@ -1,5 +1,7 @@
 import { useId } from "react";
 
+import type { VertexVisualStyle } from "@/core/StateProvider/graphStyles";
+
 import { useVertexStyle, type VertexStyle, type VertexType } from "@/core";
 import { cn } from "@/utils";
 
@@ -11,6 +13,41 @@ const ICON_RATIO = 0.6;
 const CANVAS_NODE_SIZE = 24;
 const BORDER_SCALE = VIEWBOX / CANVAS_NODE_SIZE;
 
+/**
+ * Extracts the visual fields from a VertexStyle. Every field of VertexStyle is
+ * destructured explicitly — the rest must be empty. Adding a field to the type
+ * without listing it here is a compile error.
+ */
+function pickVisual({
+  // Non-visual (intentionally unused by the preview)
+  type: _type,
+  displayLabel: _displayLabel,
+  displayNameAttribute: _displayNameAttribute,
+  longDisplayNameAttribute: _longDisplayNameAttribute,
+  // Visual (consumed by the preview)
+  color,
+  iconUrl,
+  iconImageType,
+  shape,
+  backgroundOpacity,
+  borderWidth,
+  borderColor,
+  borderStyle,
+  ...rest
+}: VertexStyle): VertexVisualStyle {
+  rest satisfies Record<string, never>;
+  return {
+    color,
+    iconUrl,
+    iconImageType,
+    shape,
+    backgroundOpacity,
+    borderWidth,
+    borderColor,
+    borderStyle,
+  };
+}
+
 interface Props {
   vertexStyle: VertexStyle;
   className?: string;
@@ -18,11 +55,12 @@ interface Props {
 
 export function VertexSymbol({ vertexStyle, className }: Props) {
   const iconDataUrl = useIconDataUrl(vertexStyle);
+  const visual = pickVisual(vertexStyle);
   // SVG url(#...) references reject the colons in React's raw useId format.
   const clipId = `vs-${useId().replace(/:/g, "")}`;
-  const strokeWidth = vertexStyle.borderWidth * BORDER_SCALE;
+  const strokeWidth = visual.borderWidth * BORDER_SCALE;
   const insetSize = Math.max(1, VIEWBOX - strokeWidth * 2);
-  const geometry = resolveShapeGeometry(vertexStyle.shape, insetSize);
+  const geometry = resolveShapeGeometry(visual.shape, insetSize);
 
   const iconSize = VIEWBOX * ICON_RATIO;
   const iconOffset = (VIEWBOX - iconSize) / 2;
@@ -45,11 +83,11 @@ export function VertexSymbol({ vertexStyle, className }: Props) {
         <clipPath id={clipId}>{shapeEl}</clipPath>
       </defs>
       <g
-        fill={vertexStyle.color}
-        fillOpacity={vertexStyle.backgroundOpacity}
-        stroke={strokeWidth > 0 ? vertexStyle.borderColor : "none"}
+        fill={visual.color}
+        fillOpacity={visual.backgroundOpacity}
+        stroke={strokeWidth > 0 ? visual.borderColor : "none"}
         strokeWidth={strokeWidth}
-        strokeDasharray={strokeDash(vertexStyle.borderStyle)}
+        strokeDasharray={strokeDash(visual.borderStyle)}
       >
         {shapeEl}
       </g>
