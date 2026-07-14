@@ -1,5 +1,5 @@
 import { atom, useAtom, useSetAtom } from "jotai";
-import { ImageUpIcon } from "lucide-react";
+import { ImageUpIcon, SearchIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -188,56 +188,70 @@ function Content({ vertexType }: { vertexType: VertexType }) {
                 </Select>
               </Field>
             </FieldGroup>
-            <FieldGroup className="flex w-full flex-row gap-4">
-              <div className="flex-1">
-                <Field>
-                  <FieldLabel>Shape</FieldLabel>
-                  <Select
-                    value={vertexStyle.shape}
-                    onValueChange={value =>
-                      setVertexStyle({ shape: value as ShapeStyle })
+            <FieldGroup className="grid grid-cols-[1fr_auto] gap-4">
+              <Field className="col-start-1 row-start-1">
+                <FieldLabel>Shape</FieldLabel>
+                <Select
+                  value={vertexStyle.shape}
+                  onValueChange={value =>
+                    setVertexStyle({ shape: value as ShapeStyle })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose shape" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {NODE_SHAPE.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field className="col-start-1 row-start-2">
+                <FieldLabel>Icon</FieldLabel>
+                <div className="grid grid-cols-2 items-center gap-2">
+                  <IconPicker
+                    currentIconUrl={vertexStyle.iconUrl}
+                    onSelect={(iconUrl, iconImageType) =>
+                      setVertexStyle({ iconUrl, iconImageType })
                     }
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose shape" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {NODE_SHAPE.map(option => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-              </div>
-              <div>
-                <Field>
-                  <FieldLabel>Icon</FieldLabel>
-                  <div className="flex flex-row items-center gap-2">
-                    <IconPicker
-                      currentIconUrl={vertexStyle.iconUrl}
-                      onSelect={(iconUrl, iconImageType) =>
-                        setVertexStyle({ iconUrl, iconImageType })
+                    <Button variant="outline">
+                      <SearchIcon className="size-4" />
+                      Browse
+                    </Button>
+                  </IconPicker>
+                  <FileButton
+                    accept="image/*"
+                    onChange={file => {
+                      if (file) {
+                        convertImageToBase64AndSetNewIcon(file);
                       }
+                    }}
+                    variant="outline"
+                  >
+                    <ImageUpIcon />
+                    Upload
+                  </FileButton>
+                </div>
+              </Field>
+
+              <Field className="col-start-2 row-span-2 w-auto">
+                <FieldLabel>Preview</FieldLabel>
+                <div className="bg-background-secondary border-input grid rounded-lg border shadow-xs">
+                  <div className="flex flex-col items-center justify-center px-6">
+                    <VertexSymbol
+                      vertexStyle={vertexStyle}
+                      className="size-16"
                     />
-                    <FileButton
-                      accept="image/*"
-                      onChange={file => {
-                        if (file) {
-                          convertImageToBase64AndSetNewIcon(file);
-                        }
-                      }}
-                      variant="outline"
-                      className="rounded-full"
-                    >
-                      <ImageUpIcon />
-                      Upload
-                    </FileButton>
-                    <VertexSymbol vertexStyle={vertexStyle} />
+                    <span className="-mt-2 rounded-md bg-[#1d2531]/80 px-3 py-1.5 text-sm leading-none font-medium tracking-wide text-white">
+                      {displayConfig.displayLabel}
+                    </span>
                   </div>
-                </Field>
-              </div>
+                </div>
+              </Field>
             </FieldGroup>
             <FieldGroup>
               <div className="grid grid-cols-2 gap-4">

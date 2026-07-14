@@ -1,4 +1,4 @@
-import { ChevronLeftIcon, ChevronRightIcon, SearchIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { DynamicIcon } from "lucide-react/dynamic";
 import { useState } from "react";
 
@@ -26,6 +26,7 @@ const PAGE_SIZE = 64;
 export function IconPicker({
   currentIconUrl,
   onSelect,
+  children,
 }: {
   /**
    * The vertex's currently stored iconUrl. When this is a `lucide:<name>`
@@ -38,6 +39,8 @@ export function IconPicker({
    * Resolution to a data URI happens at render time, not here.
    */
   onSelect: (iconUrl: string, iconImageType: string) => void;
+  /** The trigger element for the popover (must be a single element for Radix `asChild`). */
+  children: React.ReactElement;
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -69,12 +72,7 @@ export function IconPicker({
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild>
-        <Button variant="outline" className="rounded-full">
-          <SearchIcon className="size-4" />
-          Browse
-        </Button>
-      </PopoverTrigger>
+      <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent
         side="bottom"
         align="start"

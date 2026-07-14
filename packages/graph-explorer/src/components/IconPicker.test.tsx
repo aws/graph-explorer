@@ -10,9 +10,13 @@ import { TooltipProvider } from "./Tooltip";
 // The icon tooltips require a TooltipProvider ancestor, which the app supplies
 // globally in DefaultLayout.
 function renderPicker(props: Partial<ComponentProps<typeof IconPicker>> = {}) {
-  return render(<IconPicker onSelect={vi.fn()} {...props} />, {
-    wrapper: TooltipProvider,
-  });
+  const { children = <button>Browse</button>, ...rest } = props;
+  return render(
+    <IconPicker onSelect={vi.fn()} {...rest}>
+      {children}
+    </IconPicker>,
+    { wrapper: TooltipProvider },
+  );
 }
 
 // Icon buttons are the only buttons in the picker with `aria-pressed`, and
