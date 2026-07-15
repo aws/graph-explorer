@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Provider } from "jotai";
+import { MemoryRouter } from "react-router";
 import { describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
@@ -45,13 +46,15 @@ function renderSidebar(state: DbState) {
   });
 
   return render(
-    <QueryClientProvider client={queryClient}>
-      <Provider store={store}>
-        <TooltipProvider>
-          <SchemaExplorerSidebar selection={null} />
-        </TooltipProvider>
-      </Provider>
-    </QueryClientProvider>,
+    <MemoryRouter>
+      <QueryClientProvider client={queryClient}>
+        <Provider store={store}>
+          <TooltipProvider>
+            <SchemaExplorerSidebar selection={null} />
+          </TooltipProvider>
+        </Provider>
+      </QueryClientProvider>
+    </MemoryRouter>,
   );
 }
 
