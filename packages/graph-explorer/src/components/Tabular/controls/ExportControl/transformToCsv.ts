@@ -1,7 +1,5 @@
 import { unparse } from "papaparse";
-
 import type { TabularColumnInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
-
 import { LABELS } from "@/utils/constants";
 
 export function transformToCsv<T extends object>(
@@ -37,7 +35,9 @@ export function transformToCsv<T extends object>(
     }),
   );
 
-  const headers = columns.map(col => col.definition?.label || col.instance.id);
+  const headers = columns.map(
+    col => col.definition?.label || col.instance.id,
+  );
 
   return unparse([headers, ...csvRows], { header: false });
 }
