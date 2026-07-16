@@ -1,8 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@config "../tailwind.config.ts";
-
 /*
  * Use `dark` class name to indicate dark mode.
  *
@@ -14,7 +12,43 @@
  */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Radix UI uses data-state="open"/"closed" on interactive elements */
+@custom-variant data-open (&[data-state="open"]);
+@custom-variant data-closed (&[data-state="closed"]);
+
 @theme {
+  /* Background images */
+  --background-image-logo-gradient: linear-gradient(
+    225deg,
+    #4d72f2 12.15%,
+    #3334b9 87.02%
+  );
+
+  /* Max widths */
+  --max-width-paragraph: 36rem;
+
+  /* Keyframes */
+  --animate-expand: expand 0.2s cubic-bezier(0.87, 0, 0.13, 1);
+  --animate-collapse: collapse 0.2s cubic-bezier(0.87, 0, 0.13, 1);
+
+  @keyframes expand {
+    from {
+      height: 0;
+    }
+    to {
+      height: auto;
+    }
+  }
+
+  @keyframes collapse {
+    from {
+      height: auto;
+    }
+    to {
+      height: 0;
+    }
+  }
+
   /* Custom color palette */
 
   /* Remove unused neutral colors from Tailwind theme */
@@ -195,4 +229,47 @@
   word-break: break-word;
   hyphens: auto;
   text-wrap: pretty;
+}
+
+@utility content-auto {
+  content-visibility: auto;
+}
+
+@utility content-hidden {
+  content-visibility: hidden;
+}
+
+@utility content-visible {
+  content-visibility: visible;
+}
+
+@utility intrinsic-size-* {
+  contain-intrinsic-size: --spacing(--value(integer));
+  contain-intrinsic-size: --value([length]);
+}
+
+/* Semantic z-index scale */
+
+@utility z-appBar {
+  z-index: 1000;
+}
+
+@utility z-panes {
+  z-index: 1100;
+}
+
+@utility z-modal {
+  z-index: 1200;
+}
+
+@utility z-popover {
+  z-index: 1300;
+}
+
+@utility z-menu {
+  z-index: 1400;
+}
+
+@utility z-tooltip {
+  z-index: 1500;
 }

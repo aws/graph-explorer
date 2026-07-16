@@ -3,7 +3,7 @@
 The visual design system for Graph Explorer. Read this before modifying UI styling, adding color tokens, or writing Tailwind classes in components.
 
 > [!NOTE]
-> **Migration in progress.** This document describes the _target_ state; the cleanup is tracked in [#1952](https://github.com/aws/graph-explorer/issues/1952). Until it completes, the codebase deviates in known ways: `tailwind.config.ts` still exists and owns fonts, z-index, keyframes, and some utilities; legacy color aliases (`text-text-primary`, `bg-background-default`, `primary-main`, etc.) are still in use pending migration to the canonical tokens below; and a few `dark:` classes and shadcn compat tokens (`destructive`, `popover`) remain pending removal. When touching styled code during the transition, migrate toward this document, not away from it.
+> **Migration in progress.** This document describes the _target_ state; the cleanup is tracked in [#1952](https://github.com/aws/graph-explorer/issues/1952). Until it completes, the codebase deviates in known ways: legacy color aliases (`text-text-primary`, `bg-background-default`, `primary-main`, etc.) are still in use pending migration to the canonical tokens below; and a few `dark:` classes and shadcn compat tokens (`destructive`, `popover`) remain pending removal. When touching styled code during the transition, migrate toward this document, not away from it.
 
 ## Color Architecture
 
@@ -113,4 +113,4 @@ The `tw-animate-css` library is imported and provides enter/exit animation utili
 
 ## Source of Truth
 
-The target is a single source of truth: `packages/graph-explorer/src/index.css` — all tokens, utilities, and theme values in one CSS file with no separate JS config. Until the migration completes, `tailwind.config.ts` still exists (loaded via `@config`) and owns fonts, weights, z-index, keyframes, and the content-visibility plugin utilities.
+All styling tokens, utilities, and theme values live in one file: `packages/graph-explorer/src/index.css`. There is no separate JS config file.

@@ -37,7 +37,7 @@ export function CollapsibleSidebar({
       }}
       className={cn(
         enableAnimation &&
-          "transition-width min-h-0 transform duration-200 ease-in-out",
+          "min-h-0 transform transition-[width] duration-200 ease-in-out",
       )}
     >
       {children}
