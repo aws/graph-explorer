@@ -108,7 +108,9 @@ export function NavBarTitle({
     <div className={cn("flex h-full items-center", className)} {...props}>
       <div className="flex flex-col">
         {title && (
-          <div className="line-clamp-1 overflow-hidden font-bold">{title}</div>
+          <div className="line-clamp-1 overflow-hidden font-semibold">
+            {title}
+          </div>
         )}
         {subtitle && (
           <div className="text-text-secondary line-clamp-1 overflow-hidden text-sm leading-tight font-medium">

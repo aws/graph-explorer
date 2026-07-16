@@ -93,7 +93,7 @@ const NodeExpandFilters = ({
 
   return (
     <div className="grow space-y-6 p-3">
-      <h1 className="text-lg font-bold">Neighbor Expansion Options</h1>
+      <h1 className="text-lg font-semibold">Neighbor Expansion Options</h1>
       <Section>
         <SectionTitle>{t("node-expand.neighbors-of-type")}</SectionTitle>
         <SelectField

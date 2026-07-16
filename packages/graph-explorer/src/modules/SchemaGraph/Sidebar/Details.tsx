@@ -50,7 +50,7 @@ export function DetailsTitle({
 }: ComponentPropsWithRef<"h2">) {
   return (
     <h2
-      className={cn("text-foreground text-base/7 font-bold", className)}
+      className={cn("text-foreground text-base/7 font-semibold", className)}
       {...props}
     >
       {children}
@@ -266,7 +266,7 @@ function EdgeTypeText({
       label={displayLabel}
       selected={selected}
       onClick={onClick}
-      className="data-selected:text-text-primary italic data-selected:font-bold"
+      className="data-selected:text-text-primary italic data-selected:font-semibold"
     >
       {displayLabel}
     </ClickableTypeText>
@@ -290,7 +290,7 @@ function VertexTypeText({
       label={displayLabel}
       selected={selected}
       onClick={onClick}
-      className="data-selected:text-text-primary underline decoration-2 underline-offset-4 data-selected:font-bold"
+      className="data-selected:text-text-primary underline decoration-2 underline-offset-4 data-selected:font-semibold"
       style={{ textDecorationColor: style.color }}
     >
       {displayLabel}

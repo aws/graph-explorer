@@ -14,7 +14,7 @@ export function PageHeading({
   return (
     <h1
       className={cn(
-        "font-extraBold text-text-primary text-4xl leading-snug",
+        "text-text-primary text-4xl leading-snug font-bold",
         className,
       )}
       {...props}

@@ -75,7 +75,7 @@ function EmptyStateTitle({
   return (
     <h3
       className={cn(
-        "text-text-primary gx-wrap-break-word text-lg font-bold text-balance group-data-[size=small]/empty:text-sm",
+        "text-text-primary gx-wrap-break-word text-lg font-semibold text-balance group-data-[size=small]/empty:text-sm",
         className,
       )}
       {...props}
@@ -93,7 +93,7 @@ function EmptyStateDescription({
   return (
     <div
       className={cn(
-        "font-base text-text-primary/75 gx-wrap-break-word text-base group-data-[size=small]/empty:text-sm",
+        "text-text-primary/75 gx-wrap-break-word text-base font-normal group-data-[size=small]/empty:text-sm",
         className,
       )}
       {...props}

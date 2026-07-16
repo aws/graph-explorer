@@ -110,7 +110,7 @@ function DialogTitle({
   return (
     <DialogPrimitive.Title
       className={cn(
-        "gx-wrap-break-word text-lg leading-none font-bold tracking-tight",
+        "gx-wrap-break-word text-lg leading-none font-semibold tracking-tight",
         className,
       )}
       {...props}
