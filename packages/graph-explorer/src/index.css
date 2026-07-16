@@ -1,17 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/*
- * Use `dark` class name to indicate dark mode.
- *
- * We will need to slowly build up dark mode support component by component, so
- * this is a way to force dark mode to be off, unless we explicitly set `dark`
- * in the classes in the root component.
- *
- * https://github.com/aws/graph-explorer/issues/645
- */
-@custom-variant dark (&:where(.dark, .dark *));
-
 /* Radix UI uses data-state="open"/"closed" on interactive elements */
 @custom-variant data-open (&[data-state="open"]);
 @custom-variant data-closed (&[data-state="closed"]);
