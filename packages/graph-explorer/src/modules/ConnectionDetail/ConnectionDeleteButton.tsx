@@ -58,8 +58,8 @@ export default function ConnectionDeleteButton({
               </div>
               <Paragraph>
                 Are you sure you want to delete the connection,{" "}
-                <strong className="font-bold">{connectionName}</strong>? This
-                cannot be undone.
+                <strong className="font-semibold">{connectionName}</strong>?
+                This cannot be undone.
               </Paragraph>
             </div>
           </DialogBody>

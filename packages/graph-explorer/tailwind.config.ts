@@ -21,13 +21,6 @@ export default {
       ],
       mono: defaultTheme.fontFamily.mono,
     },
-    fontWeight: {
-      light: "300",
-      base: "400",
-      medium: "500",
-      bold: "600",
-      extraBold: "700",
-    },
     extend: {
       aria: {
         invalid: 'invalid="true"',

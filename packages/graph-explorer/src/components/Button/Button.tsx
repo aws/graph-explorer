@@ -16,9 +16,9 @@ const buttonStyles = cva({
       ghost:
         "text-primary-foreground hover:bg-primary-subtle data-open:bg-primary-subtle",
       outline:
-        "text-text-primary border-input hover:bg-muted data-open:border-primary-main font-base border bg-transparent shadow-xs",
+        "text-text-primary border-input hover:bg-muted data-open:border-primary-main border bg-transparent font-normal shadow-xs",
       "outline-danger":
-        "text-danger border-input font-base hover:bg-danger-subtle data-open:bg-danger-subtle border bg-transparent shadow-xs",
+        "text-danger border-input hover:bg-danger-subtle data-open:bg-danger-subtle border bg-transparent font-normal shadow-xs",
       "primary-danger":
         "bg-danger hover:bg-danger-hover data-open:bg-danger-hover text-white",
       danger:

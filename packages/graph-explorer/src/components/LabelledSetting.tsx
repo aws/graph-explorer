@@ -20,7 +20,7 @@ export function LabelledSetting({
           {label}
         </p>
         {description ? (
-          <p className="font-base text-text-secondary text-sm leading-normal text-pretty">
+          <p className="text-text-secondary text-sm leading-normal font-normal text-pretty">
             {description}
           </p>
         ) : null}

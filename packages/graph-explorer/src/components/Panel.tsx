@@ -101,7 +101,7 @@ function PanelTitle({
   return (
     <div
       className={cn(
-        "text-text-primary inline-flex shrink-0 items-center gap-2 text-base leading-none font-bold whitespace-nowrap",
+        "text-text-primary inline-flex shrink-0 items-center gap-2 text-base leading-none font-semibold whitespace-nowrap",
         className,
       )}
       {...props}

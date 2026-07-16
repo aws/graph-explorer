@@ -3,7 +3,7 @@
 The visual design system for Graph Explorer. Read this before modifying UI styling, adding color tokens, or writing Tailwind classes in components.
 
 > [!NOTE]
-> **Migration in progress.** This document describes the _target_ state; the cleanup is tracked in [#1952](https://github.com/aws/graph-explorer/issues/1952). Until it completes, the codebase deviates in known ways: `tailwind.config.ts` still exists and owns fonts, weights, z-index, keyframes, and some utilities; legacy color aliases (`text-text-primary`, `bg-background-default`, `primary-main`, etc.) are still in use pending migration to the canonical tokens below; a few `dark:` classes and shadcn compat tokens (`destructive`, `popover`) remain pending removal; and the custom font weight classes (`font-base`, `font-extraBold`) are still active — `font-semibold` does not exist until the weight migration lands. When touching styled code during the transition, migrate toward this document, not away from it.
+> **Migration in progress.** This document describes the _target_ state; the cleanup is tracked in [#1952](https://github.com/aws/graph-explorer/issues/1952). Until it completes, the codebase deviates in known ways: `tailwind.config.ts` still exists and owns fonts, z-index, keyframes, and some utilities; legacy color aliases (`text-text-primary`, `bg-background-default`, `primary-main`, etc.) are still in use pending migration to the canonical tokens below; and a few `dark:` classes and shadcn compat tokens (`destructive`, `popover`) remain pending removal. When touching styled code during the transition, migrate toward this document, not away from it.
 
 ## Color Architecture
 

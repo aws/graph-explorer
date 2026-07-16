@@ -42,7 +42,7 @@ export default function NeighborsList({
       className={cn("space-y-[1.125rem] border-b p-3", className)}
       {...props}
     >
-      <div className="text-lg font-bold">Neighbors ({neighbors.all})</div>
+      <div className="text-lg font-semibold">Neighbors ({neighbors.all})</div>
       <ul className="grid grid-cols-[1fr_auto_auto] gap-x-2 gap-y-3">
         {neighborsOptions
           .slice(0, showMore ? undefined : MAX_NEIGHBOR_TYPE_ROWS)

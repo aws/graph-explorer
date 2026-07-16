@@ -30,7 +30,7 @@ export function ListRowTitle({
   return (
     <div
       className={cn(
-        "gx-wrap-break-word line-clamp-1 text-base leading-6 font-bold text-current",
+        "gx-wrap-break-word line-clamp-1 text-base leading-6 font-semibold text-current",
         className,
       )}
       {...props}
