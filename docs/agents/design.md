@@ -23,16 +23,18 @@ The Tailwind neutral scales (`slate`, `zinc`, `neutral`, `stone`) are removed. `
 
 **Base layer** — surface-agnostic defaults:
 
-| Token              | Purpose                                   | Value    |
-| ------------------ | ----------------------------------------- | -------- |
-| `foreground`       | Default text color                        | gray-900 |
-| `background`       | App background                            | white    |
-| `background-alt`   | Alternate background (e.g. sidebar area)  | gray-50  |
-| `muted`            | Muted/deemphasized surface                | gray-100 |
-| `muted-foreground` | Secondary/deemphasized text (any surface) | gray-500 |
-| `border`           | Default border color                      | gray-200 |
-| `input-background` | Form input fill                           | white    |
-| `input-border`     | Form input border                         | gray-300 |
+| Token              | Purpose                                     | Value     |
+| ------------------ | ------------------------------------------- | --------- |
+| `foreground`       | Default text color                          | gray-900  |
+| `background`       | App background                              | white     |
+| `background-alt`   | Alternate background (e.g. sidebar area)    | gray-50   |
+| `workspace`        | Tinted workspace background panels float in | brand-100 |
+| `workspace-canvas` | Graph/schema canvas surface                 | brand-50  |
+| `muted`            | Muted/deemphasized surface                  | gray-100  |
+| `muted-foreground` | Secondary/deemphasized text (any surface)   | gray-500  |
+| `border`           | Default border color                        | gray-200  |
+| `input-background` | Form input fill                             | white     |
+| `input-border`     | Form input border                           | gray-300  |
 
 **Role colors** — each role follows a consistent slot pattern:
 

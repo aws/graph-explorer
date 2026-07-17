@@ -13,6 +13,18 @@
     #3334b9 87.02%
   );
 
+  /* Empty state icon gradients */
+  --background-image-empty-info-gradient: linear-gradient(
+    to bottom,
+    var(--color-primary),
+    var(--color-brand-300)
+  );
+  --background-image-empty-error-gradient: linear-gradient(
+    to bottom,
+    var(--color-danger),
+    var(--color-red-300)
+  );
+
   /* Max widths */
   --max-width-paragraph: 36rem;
 
@@ -86,6 +98,12 @@
   --color-foreground: var(--color-gray-900);
   --color-background: var(--color-white);
   --color-background-alt: var(--color-gray-50);
+
+  /* The tinted workspace background that panels float in */
+  --color-workspace: var(--color-brand-100);
+
+  /* The graph/schema canvas surface */
+  --color-workspace-canvas: var(--color-brand-50);
 
   --color-muted-foreground: var(--color-gray-500);
   --color-muted: var(--color-gray-100);

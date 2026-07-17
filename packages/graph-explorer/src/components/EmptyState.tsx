@@ -26,9 +26,9 @@ const emptyStateIconStyles = cva({
   base: "mb-6 flex size-24 items-center justify-center rounded-full text-7xl text-white group-data-[size=small]/empty:mb-3 group-data-[size=small]/empty:size-10 [&>svg]:size-1/2",
   variants: {
     variant: {
-      info: "from-primary to-brand-300 bg-linear-to-b shadow-[0_0_20px_2px_hsl(205,95%,71%,70%)]",
+      info: "bg-empty-info-gradient shadow-[0_0_20px_2px_hsl(205,95%,71%,70%)]",
       error:
-        "from-danger bg-linear-to-b to-red-300 shadow-[0_0_20px_2px_rgba(255,144,119,0.7)]",
+        "bg-empty-error-gradient shadow-[0_0_20px_2px_rgba(255,144,119,0.7)]",
       subtle: "bg-muted text-muted-foreground rounded-lg",
     },
   },
