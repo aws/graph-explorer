@@ -99,7 +99,6 @@ export function SidebarTabsTrigger({
               className={cn(
                 "text-brand-900 active:bg-brand-300 data-[state=active]:bg-brand-500 inline-flex size-10 items-center justify-center rounded-md bg-transparent p-2 ring-0 transition-colors duration-100 focus:shadow-none active:text-white disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-white [&_svg]:size-6",
                 "hover:data-[state=active]:bg-brand-400 hover:bg-primary-subtle-hover",
-                "dark:text-brand-300 dark:data-[state=active]:bg-brand-400 dark:hover:data-[state=active]:bg-brand-500 dark:hover:bg-gray-800 dark:data-[state=active]:text-white",
                 "focus-visible:ring-brand-500 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-hidden active:ring-0",
                 className,
               )}
