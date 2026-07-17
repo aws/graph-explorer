@@ -90,11 +90,6 @@
   --color-muted-foreground: var(--color-gray-500);
   --color-muted: var(--color-gray-100);
 
-  /* Used for highlights and selections */
-  --color-accent-foreground: var(--color-primary-foreground);
-  --color-accent: var(--color-primary-subtle);
-  --color-accent-hover: var(--color-primary-subtle-hover);
-
   --color-neutral-foreground: var(--color-gray-900);
   --color-neutral: var(--color-gray-900);
   --color-neutral-hover: var(--color-gray-700);
@@ -129,12 +124,6 @@
 
   --color-input-background: var(--color-white);
   --color-input-border: var(--color-gray-300);
-
-  /* Semantic colors for shadcn/ui components */
-
-  --color-destructive: var(--color-danger);
-  --color-popover: var(--color-background);
-  --color-popover-foreground: var(--color-foreground);
 
   /* Legacy colors */
 
