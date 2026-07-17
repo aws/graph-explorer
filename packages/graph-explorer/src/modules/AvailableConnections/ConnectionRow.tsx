@@ -40,7 +40,7 @@ function ConnectionRow({
       onClick={setActiveConfig}
       className="@container flex flex-row items-center gap-4 px-6 py-4 hover:cursor-pointer"
     >
-      <DatabaseIcon className="text-primary-main hidden size-8 shrink-0 @md:block" />
+      <DatabaseIcon className="text-primary hidden size-8 shrink-0 @md:block" />
       <ListRowContent>
         <ListRowTitle className="inline-flex items-center gap-1">
           {connection.displayLabel || connection.id}

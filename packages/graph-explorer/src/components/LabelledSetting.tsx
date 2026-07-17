@@ -16,11 +16,11 @@ export function LabelledSetting({
         htmlFor={htmlFor}
         className="block flex-1 space-y-1 group-has-disabled/labelled-setting:cursor-not-allowed group-has-disabled/labelled-setting:opacity-70"
       >
-        <p className="text-text-primary text-base leading-none font-medium text-pretty">
+        <p className="text-foreground text-base leading-none font-medium text-pretty">
           {label}
         </p>
         {description ? (
-          <p className="text-text-secondary text-sm leading-normal font-normal text-pretty">
+          <p className="text-muted-foreground text-sm leading-normal font-normal text-pretty">
             {description}
           </p>
         ) : null}

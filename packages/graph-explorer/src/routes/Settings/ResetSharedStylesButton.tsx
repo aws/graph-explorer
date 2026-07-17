@@ -38,7 +38,7 @@ export default function ResetSharedStylesButton() {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogMedia className="bg-danger-subtle text-danger">
+          <AlertDialogMedia className="bg-danger-subtle text-danger-foreground">
             <Trash2Icon />
           </AlertDialogMedia>
           <AlertDialogTitle>Reset Shared Styles</AlertDialogTitle>

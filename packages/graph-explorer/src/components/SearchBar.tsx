@@ -20,7 +20,7 @@ export default function SearchBar({
 }: SearchBarProps) {
   return (
     <div className={cn("relative w-full", className)}>
-      <SearchIcon className="text-text-secondary absolute top-[9px] left-4 size-5" />
+      <SearchIcon className="text-muted-foreground absolute top-[9px] left-4 size-5" />
       <Input
         value={search}
         onChange={event => onSearch(event.target.value)}

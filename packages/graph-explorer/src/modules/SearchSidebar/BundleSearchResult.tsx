@@ -30,7 +30,7 @@ export function BundleSearchResult({
   return (
     <SearchResultCollapsible level={level}>
       <SearchResultCollapsibleTrigger>
-        <SearchResultSymbol className="bg-primary-main/20 text-primary-main rounded-lg">
+        <SearchResultSymbol className="bg-primary/20 text-primary rounded-lg">
           <BracketsIcon className="size-5" />
         </SearchResultSymbol>
         <div>

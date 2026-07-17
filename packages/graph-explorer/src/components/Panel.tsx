@@ -29,7 +29,7 @@ function Panel({ variant = "default", className, ...props }: PanelProps) {
     <div
       data-slot="panel"
       className={cn(
-        "bg-background-default flex h-full flex-col overflow-hidden",
+        "bg-background flex h-full flex-col overflow-hidden",
         variant === "default" &&
           "shadow-primary-foreground/25 rounded-lg shadow",
         className,
@@ -47,7 +47,7 @@ function PanelContent({
   return (
     <div
       className={cn(
-        "bg-background-default flex h-full w-full grow flex-col overflow-y-auto",
+        "bg-background flex h-full w-full grow flex-col overflow-y-auto",
         className,
       )}
       {...props}
@@ -64,7 +64,7 @@ function PanelHeader({
   return (
     <div
       className={cn(
-        "bg-background-default flex min-h-[48px] w-full shrink-0 items-center gap-4 overflow-x-auto border-b px-3 py-1",
+        "bg-background flex min-h-[48px] w-full shrink-0 items-center gap-4 overflow-x-auto border-b px-3 py-1",
         className,
       )}
       {...props}
@@ -82,10 +82,7 @@ function PanelFooter({
 }: React.PropsWithChildren<React.ComponentPropsWithRef<"div">>) {
   return (
     <div
-      className={cn(
-        "bg-background-default w-full border-t px-3 py-3",
-        className,
-      )}
+      className={cn("bg-background w-full border-t px-3 py-3", className)}
       {...props}
     >
       {children}
@@ -101,7 +98,7 @@ function PanelTitle({
   return (
     <div
       className={cn(
-        "text-text-primary inline-flex shrink-0 items-center gap-2 text-base leading-none font-semibold whitespace-nowrap",
+        "text-foreground inline-flex shrink-0 items-center gap-2 text-base leading-none font-semibold whitespace-nowrap",
         className,
       )}
       {...props}

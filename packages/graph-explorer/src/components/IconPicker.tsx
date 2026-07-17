@@ -126,7 +126,7 @@ function PagerFooter({
 }) {
   return (
     <div className="flex flex-row items-center justify-end gap-2">
-      <p className="text-text-secondary text-sm">
+      <p className="text-muted-foreground text-sm">
         Page {page + 1} of {pageCount}
       </p>
       <div className="flex">

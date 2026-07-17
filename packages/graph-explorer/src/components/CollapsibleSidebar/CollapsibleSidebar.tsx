@@ -52,7 +52,7 @@ export function SidebarTabs({
   return (
     <TabsPrimitive.Root
       className={cn(
-        "bg-background-default shadow-primary-dark/25 grid size-full min-h-0 flex-none shrink-0 grid-cols-[auto_1fr] shadow",
+        "bg-background shadow-primary-foreground/25 grid size-full min-h-0 flex-none shrink-0 grid-cols-[auto_1fr] shadow",
         className,
       )}
       {...props}
@@ -138,7 +138,7 @@ function BadgeIndicator({
       {value ? (
         <span
           aria-description="badge"
-          className="bg-error-main pointer-events-none -mt-0.5 -mr-0.5 size-2.5 place-self-start justify-self-end rounded-full"
+          className="bg-danger pointer-events-none -mt-0.5 -mr-0.5 size-2.5 place-self-start justify-self-end rounded-full"
         />
       ) : null}
     </div>

@@ -124,9 +124,9 @@ function SharedStylesStatus({
   return (
     <div className="flex gap-2 text-sm" role="status">
       <div className="grid h-lh place-items-center">
-        <span className="bg-primary-main size-2 rounded-full" />
+        <span className="bg-primary size-2 rounded-full" />
       </div>
-      <p className="text-text-secondary">
+      <p className="text-muted-foreground">
         {parts.join(" and ")}{" "}
         {vertexCount + edgeCount === 1 ? "type has" : "types have"} shared
         styles

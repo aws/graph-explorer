@@ -16,7 +16,7 @@ export function SearchResult({
       {...props}
       className={cn(
         "content-auto intrinsic-size-[4.75rem] rounded-xl border shadow-xs",
-        isEven(level) ? "bg-gray-50" : "bg-default",
+        isEven(level) ? "bg-gray-50" : "bg-background",
         className,
       )}
     />
@@ -37,8 +37,10 @@ export function SearchResultCollapsible({
       {...props}
       className={cn(
         "group ring-border content-auto intrinsic-size-[4.75rem] rounded-xl shadow-xs ring-1 transition duration-100 ease-in-out",
-        isEven(level) ? "bg-gray-50" : "bg-default",
-        highlighted ? "shadow-primary-dark/50 ring-primary-dark/75" : "",
+        isEven(level) ? "bg-gray-50" : "bg-background",
+        highlighted
+          ? "shadow-primary-foreground/50 ring-primary-foreground/75"
+          : "",
         className,
       )}
     />
@@ -60,7 +62,7 @@ export function SearchResultCollapsibleTrigger({
       >
         <ChevronRightIcon
           className={cn(
-            "text-primary-dark/50 size-5 shrink-0 transition-transform duration-200 ease-in-out group-data-[state=open]/search-result-collapsible-trigger:rotate-90",
+            "text-primary-foreground/50 size-5 shrink-0 transition-transform duration-200 ease-in-out group-data-[state=open]/search-result-collapsible-trigger:rotate-90",
           )}
         />
         {children}
@@ -77,7 +79,7 @@ export function SearchResultTitle({
     <div
       {...props}
       className={cn(
-        "text-text-primary gx-wrap-break-word line-clamp-2 text-base leading-snug font-semibold",
+        "text-foreground gx-wrap-break-word line-clamp-2 text-base leading-snug font-semibold",
         className,
       )}
     />
@@ -92,7 +94,7 @@ export function SearchResultSubtitle({
     <div
       {...props}
       className={cn(
-        "text-text-secondary gx-wrap-break-word line-clamp-2 text-base leading-snug",
+        "text-muted-foreground gx-wrap-break-word line-clamp-2 text-base leading-snug",
         className,
       )}
     />
@@ -121,7 +123,7 @@ export function SearchResultExpandChevron({
   return (
     <ChevronRightIcon
       className={cn(
-        "text-primary-dark/50 size-5 shrink-0 transition-transform duration-200 ease-in-out group-data-closed:rotate-0 group-data-open:rotate-90",
+        "text-primary-foreground/50 size-5 shrink-0 transition-transform duration-200 ease-in-out group-data-closed:rotate-0 group-data-open:rotate-90",
         className,
       )}
       {...props}
@@ -139,7 +141,7 @@ export function SearchResultAttribute({
       {...props}
       className={cn(
         "flex w-full flex-wrap justify-between gap-2 rounded-xl border px-4 py-2 shadow-xs",
-        isEven(level) ? "bg-gray-50" : "bg-default",
+        isEven(level) ? "bg-gray-50" : "bg-background",
         className,
       )}
     />
@@ -169,7 +171,7 @@ export function SearchResultAttributeValue({
     <div
       {...props}
       className={cn(
-        "flex-[2 1 150px] text-text-primary gx-wrap-break-word text-base leading-snug",
+        "flex-[2 1 150px] text-foreground gx-wrap-break-word text-base leading-snug",
         className,
       )}
     />
