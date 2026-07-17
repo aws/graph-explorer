@@ -240,7 +240,7 @@ function Content({ vertexType }: { vertexType: VertexType }) {
 
               <Field className="col-start-2 row-span-2 w-auto">
                 <FieldLabel>Preview</FieldLabel>
-                <div className="bg-background-secondary border-input grid rounded-lg border shadow-xs">
+                <div className="bg-primary-subtle border-input-border grid rounded-lg border shadow-xs">
                   <div className="flex flex-col items-center justify-center px-6">
                     <VertexSymbol
                       vertexStyle={vertexStyle}

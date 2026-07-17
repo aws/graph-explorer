@@ -85,7 +85,7 @@ export function QuerySearchTabContent() {
   };
 
   return (
-    <div className="bg-background-default flex h-full flex-col">
+    <div className="bg-background flex h-full flex-col">
       <Form {...form}>
         <form
           className="shrink-0 space-y-3 p-3"

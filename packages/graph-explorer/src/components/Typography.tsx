@@ -14,7 +14,7 @@ export function PageHeading({
   return (
     <h1
       className={cn(
-        "text-text-primary text-4xl leading-snug font-bold",
+        "text-foreground text-4xl leading-snug font-bold",
         className,
       )}
       {...props}
@@ -28,7 +28,7 @@ export function Paragraph({ className, ...props }: ComponentProps<"p">) {
   return (
     <p
       className={cn(
-        "text-text-secondary my-2 text-base font-light text-pretty",
+        "text-muted-foreground my-2 text-base font-light text-pretty",
         className,
       )}
       {...props}

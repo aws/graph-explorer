@@ -124,40 +124,6 @@
 
   --color-input-background: var(--color-white);
   --color-input-border: var(--color-gray-300);
-
-  /* Legacy colors */
-
-  --color-text-primary: var(--color-foreground);
-  --color-text-secondary: var(--color-muted-foreground);
-
-  --color-background-default: var(--color-background);
-  --color-background-secondary: var(--color-primary-subtle);
-
-  --color-primary-light: var(--color-brand-300);
-  --color-primary-main: var(--color-primary);
-  --color-primary-dark: var(--color-primary-foreground);
-
-  --color-error-light: var(--color-red-300);
-  --color-error-main: var(--color-danger);
-  --color-error-dark: var(--color-danger-foreground);
-
-  --color-success-main: var(--color-success);
-
-  --color-warning-main: var(--color-warning);
-
-  --background-color-default: var(--color-background);
-  --background-color-secondary: var(--color-muted);
-  --background-color-secondary-subtle: var(--color-primary-subtle);
-
-  --background-color-brand: var(--color-primary);
-  --background-color-brand-hover: var(--color-primary-hover);
-  --background-color-brand-subtle: var(--color-primary-subtle);
-  --background-color-brand-subtle-hover: var(--color-primary-subtle-hover);
-
-  --text-color-danger: var(--color-danger-foreground);
-  --text-color-brand: var(--color-primary-foreground);
-
-  --border-color-input: var(--color-input-border);
 }
 
 @layer base {
@@ -172,7 +138,7 @@
   }
 
   body {
-    @apply bg-background-default text-text-primary h-screen w-full overflow-hidden overscroll-none font-sans;
+    @apply bg-background text-foreground h-screen w-full overflow-hidden overscroll-none font-sans;
   }
 
   #root {

@@ -112,7 +112,7 @@ function SaveFailedContent({ error }: { error: DisplayError }) {
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogMedia className="bg-danger-subtle text-danger">
+        <AlertDialogMedia className="bg-danger-subtle text-danger-foreground">
           <TriangleAlertIcon />
         </AlertDialogMedia>
         <AlertDialogTitle>{error.title}</AlertDialogTitle>

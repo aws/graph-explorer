@@ -19,7 +19,7 @@ const TabularFooterControls: FC<TabularFooterControlsProps> = ({
   return (
     <div
       className={cn(
-        "bg-background-default text-text-primary sticky left-0 flex w-full flex-wrap items-center justify-between border-t px-3 py-2",
+        "bg-background text-foreground sticky left-0 flex w-full flex-wrap items-center justify-between border-t px-3 py-2",
         !disableSticky && "-bottom-px z-3",
         className,
       )}

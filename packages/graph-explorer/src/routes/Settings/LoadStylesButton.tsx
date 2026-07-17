@@ -241,7 +241,7 @@ function LoadFailedContent({ error }: { error: DisplayError }) {
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogMedia className="bg-danger-subtle text-danger">
+        <AlertDialogMedia className="bg-danger-subtle text-danger-foreground">
           <AlertTriangleIcon />
         </AlertDialogMedia>
         <AlertDialogTitle>{error.title}</AlertDialogTitle>
@@ -258,7 +258,7 @@ function LoadInvalidContent({ issues }: { issues: ImportIssue[] }) {
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogMedia className="bg-danger-subtle text-danger">
+        <AlertDialogMedia className="bg-danger-subtle text-danger-foreground">
           <AlertTriangleIcon />
         </AlertDialogMedia>
         <AlertDialogTitle>Load Failed</AlertDialogTitle>
@@ -279,7 +279,7 @@ function LoadEmptyContent() {
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogMedia className="bg-warning-subtle text-warning-main">
+        <AlertDialogMedia className="bg-warning-subtle text-warning">
           <AlertTriangleIcon />
         </AlertDialogMedia>
         <AlertDialogTitle>No Styles Found</AlertDialogTitle>
@@ -304,7 +304,7 @@ function LoadCompleteContent({
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogMedia className="bg-success-subtle text-success-main">
+        <AlertDialogMedia className="bg-success-subtle text-success">
           <CheckCircleIcon />
         </AlertDialogMedia>
         <AlertDialogTitle>Styles Loaded</AlertDialogTitle>
@@ -431,13 +431,13 @@ function EntryIssuesGroup({
       {issues.map((issue, i) => (
         <GroupItem key={i} className="gx-wrap-break-word space-y-1 text-xs">
           <div>
-            <span className="text-text-primary font-mono font-medium">
+            <span className="text-foreground font-mono font-medium">
               {issue.typeName}
             </span>
             {" → "}
             <span className="font-mono">{issue.field}</span>: {issue.message}
           </div>
-          <div className="text-text-secondary">
+          <div className="text-muted-foreground">
             value:{" "}
             <span className="font-mono">{formatIssueValue(issue.value)}</span>
           </div>

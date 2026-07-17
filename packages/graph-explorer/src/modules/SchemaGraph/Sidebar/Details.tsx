@@ -66,7 +66,7 @@ export function DetailsValue({
   return (
     <div
       className={cn(
-        "text-text-secondary gx-wrap-break-word text-base leading-tight font-medium",
+        "text-muted-foreground gx-wrap-break-word text-base leading-tight font-medium",
         className,
       )}
       {...props}
@@ -236,7 +236,7 @@ function ClickableTypeText({
         <button
           type="button"
           className={cn(
-            "hover:text-text-primary hover:bg-brand-300/25 focus-visible:ring-ring-3 cursor-pointer bg-transparent p-0 font-[inherit] focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
+            "hover:text-foreground hover:bg-brand-300/25 focus-visible:ring-ring-3 cursor-pointer bg-transparent p-0 font-[inherit] focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
             className,
           )}
           style={style}
@@ -266,7 +266,7 @@ function EdgeTypeText({
       label={displayLabel}
       selected={selected}
       onClick={onClick}
-      className="data-selected:text-text-primary italic data-selected:font-semibold"
+      className="data-selected:text-foreground italic data-selected:font-semibold"
     >
       {displayLabel}
     </ClickableTypeText>
@@ -290,7 +290,7 @@ function VertexTypeText({
       label={displayLabel}
       selected={selected}
       onClick={onClick}
-      className="data-selected:text-text-primary underline decoration-2 underline-offset-4 data-selected:font-semibold"
+      className="data-selected:text-foreground underline decoration-2 underline-offset-4 data-selected:font-semibold"
       style={{ textDecorationColor: style.color }}
     >
       {displayLabel}

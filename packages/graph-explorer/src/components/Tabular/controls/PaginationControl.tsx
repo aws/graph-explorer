@@ -68,7 +68,7 @@ export function PaginationControl({
         className,
       )}
     >
-      <div className="text-text-secondary">
+      <div className="text-muted-foreground">
         {totalRows > 0
           ? `Displaying ${pageRange} of ${toHumanString(totalRows)} results`
           : `No results`}

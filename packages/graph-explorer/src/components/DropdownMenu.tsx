@@ -74,7 +74,7 @@ function DropdownMenuItem({
       data-inset={inset}
       data-variant={variant}
       className={cn(
-        "focus:bg-primary-subtle focus:text-primary-foreground data-[variant=destructive]:text-danger data-[variant=destructive]:focus:bg-danger/10 data-[variant=destructive]:focus:text-danger data-[variant=destructive]:*:[svg]:text-danger not-data-[variant=destructive]:focus:**:text-primary-foreground group/dropdown-menu-item relative flex cursor-default items-center gap-1.5 rounded-md px-3 py-2 text-base outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-inset:pl-7 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "focus:bg-primary-subtle focus:text-primary-foreground data-[variant=destructive]:text-danger-foreground data-[variant=destructive]:focus:bg-danger/10 data-[variant=destructive]:focus:text-danger-foreground data-[variant=destructive]:*:[svg]:text-danger-foreground not-data-[variant=destructive]:focus:**:text-primary-foreground group/dropdown-menu-item relative flex cursor-default items-center gap-1.5 rounded-md px-3 py-2 text-base outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-inset:pl-7 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}

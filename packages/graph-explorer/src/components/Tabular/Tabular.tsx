@@ -161,7 +161,7 @@ const TabularContent = <T extends object>({
     <div
       ref={tableRef}
       className={cn(
-        "bg-background-default text-text-primary flex h-full max-h-full w-full max-w-full flex-col overflow-hidden",
+        "bg-background text-foreground flex h-full max-h-full w-full max-w-full flex-col overflow-hidden",
         className,
       )}
       style={{

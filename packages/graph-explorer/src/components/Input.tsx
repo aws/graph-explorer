@@ -11,7 +11,7 @@ import { cn } from "@/utils";
  */
 
 export const inputStyles = cva({
-  base: "border-input bg-input-background text-text-primary placeholder:text-text-secondary invalid:border-error-main focus-visible:border-primary-main aria-invalid:border-error-main flex h-10 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors file:bg-transparent file:text-sm file:font-medium focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
+  base: "border-input-border bg-input-background text-foreground placeholder:text-muted-foreground invalid:border-danger focus-visible:border-primary aria-invalid:border-danger flex h-10 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors file:bg-transparent file:text-sm file:font-medium focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
 });
 
 export type InputProps = React.ComponentPropsWithRef<"input">;

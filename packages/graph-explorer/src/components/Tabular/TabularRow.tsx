@@ -49,7 +49,7 @@ const TabularRow = <T extends object>({
   return (
     <tr
       {...rowProps}
-      className="group/tr text-text-primary data-selected:text-primary-dark data-selected:border-primary-dark data-selected:bg-background-secondary grow-0 border border-x-transparent border-t-transparent data-[selection-mode='row']:hover:cursor-pointer data-[selection-mode='row']:hover:bg-gray-50 data-[selection-mode='row']:data-selected:hover:bg-blue-200/75"
+      className="group/tr text-foreground data-selected:text-primary-foreground data-selected:border-primary-foreground data-selected:bg-primary-subtle grow-0 border border-x-transparent border-t-transparent data-[selection-mode='row']:hover:cursor-pointer data-[selection-mode='row']:hover:bg-gray-50 data-[selection-mode='row']:data-selected:hover:bg-blue-200/75"
       onClick={() =>
         rowSelectionMode === "row" && selectable && row.toggleRowSelected()
       }
@@ -67,9 +67,9 @@ const TabularRow = <T extends object>({
             key={key}
             {...cellProps}
             className={cn(
-              "group-data-selected/tr:border-primary-dark/25 relative grid items-center border-r px-2 py-1 transition-[border] duration-150 last:border-none data-[align='right']:text-right",
+              "group-data-selected/tr:border-primary-foreground/25 relative grid items-center border-r px-2 py-1 transition-[border] duration-150 last:border-none data-[align='right']:text-right",
               (cell.column.isResizing || isResizing(cell.column.id)) &&
-                "border-primary-dark cursor-col-resize! border-dashed",
+                "border-primary-foreground cursor-col-resize! border-dashed",
             )}
             data-align={cell.column.align}
           >

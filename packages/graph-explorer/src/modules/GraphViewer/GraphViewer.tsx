@@ -184,7 +184,7 @@ function GraphViewerContent({
             </Button>
           </PanelHeaderActions>
         </PanelHeader>
-        <PanelContent className="bg-background-secondary grid" ref={parentRef}>
+        <PanelContent className="bg-primary-subtle grid" ref={parentRef}>
           <Graph
             nodes={nodes}
             edges={edges}

@@ -41,7 +41,7 @@ function DialogContent({
       <div className="fixed inset-0 z-50 flex h-full w-full items-center justify-center p-20">
         <DialogPrimitive.Content
           className={cn(
-            "bg-background-default data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 relative flex max-h-full w-[500px] flex-col overflow-hidden rounded-lg shadow-2xl duration-200",
+            "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 relative flex max-h-full w-[500px] flex-col overflow-hidden rounded-lg shadow-2xl duration-200",
             className,
           )}
           {...props}
@@ -126,7 +126,7 @@ function DialogDescription({
   return (
     <DialogPrimitive.Description
       className={cn(
-        "text-text-secondary gx-wrap-break-word text-sm",
+        "text-muted-foreground gx-wrap-break-word text-sm",
         className,
       )}
       {...props}

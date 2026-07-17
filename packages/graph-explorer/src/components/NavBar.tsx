@@ -16,7 +16,7 @@ export function NavBar({
     <div
       data-slot="nav-bar"
       className={cn(
-        "bg-background-default text-text-primary flex min-h-16 flex-row items-center gap-3 border-b pr-3",
+        "bg-background text-foreground flex min-h-16 flex-row items-center gap-3 border-b pr-3",
         !logoVisible && "pl-3",
         className,
       )}
@@ -113,7 +113,7 @@ export function NavBarTitle({
           </div>
         )}
         {subtitle && (
-          <div className="text-text-secondary line-clamp-1 overflow-hidden text-sm leading-tight font-medium">
+          <div className="text-muted-foreground line-clamp-1 overflow-hidden text-sm leading-tight font-medium">
             {subtitle}
           </div>
         )}

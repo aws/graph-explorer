@@ -26,9 +26,9 @@ const emptyStateIconStyles = cva({
   base: "mb-6 flex size-24 items-center justify-center rounded-full text-7xl text-white group-data-[size=small]/empty:mb-3 group-data-[size=small]/empty:size-10 [&>svg]:size-1/2",
   variants: {
     variant: {
-      info: "from-primary-main to-primary-light bg-linear-to-b shadow-[0_0_20px_2px_hsl(205,95%,71%,70%)]",
+      info: "from-primary to-brand-300 bg-linear-to-b shadow-[0_0_20px_2px_hsl(205,95%,71%,70%)]",
       error:
-        "from-error-main to-error-light bg-linear-to-b shadow-[0_0_20px_2px_rgba(255,144,119,0.7)]",
+        "from-danger bg-linear-to-b to-red-300 shadow-[0_0_20px_2px_rgba(255,144,119,0.7)]",
       subtle: "bg-muted text-muted-foreground rounded-lg",
     },
   },
@@ -75,7 +75,7 @@ function EmptyStateTitle({
   return (
     <h3
       className={cn(
-        "text-text-primary gx-wrap-break-word text-lg font-semibold text-balance group-data-[size=small]/empty:text-sm",
+        "text-foreground gx-wrap-break-word text-lg font-semibold text-balance group-data-[size=small]/empty:text-sm",
         className,
       )}
       {...props}
@@ -93,7 +93,7 @@ function EmptyStateDescription({
   return (
     <div
       className={cn(
-        "text-text-primary/75 gx-wrap-break-word text-base font-normal group-data-[size=small]/empty:text-sm",
+        "text-foreground/75 gx-wrap-break-word text-base font-normal group-data-[size=small]/empty:text-sm",
         className,
       )}
       {...props}

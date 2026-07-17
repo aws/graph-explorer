@@ -347,9 +347,7 @@ function useContextMenuClose() {
 
 function ContextMenuContent({ children }: PropsWithChildren) {
   return (
-    <div className="bg-background-default rounded-lg p-1 shadow-lg">
-      {children}
-    </div>
+    <div className="bg-background rounded-lg p-1 shadow-lg">{children}</div>
   );
 }
 
@@ -369,7 +367,7 @@ function ContextMenuItem({
   return (
     <button
       className={cn(
-        "text-text-primary [&_svg]:text-primary-dark hover:bg-background-secondary line-clamp-1 flex w-full flex-row items-center gap-3 rounded-sm px-3 py-2 hover:cursor-pointer [&_svg]:size-5",
+        "text-foreground [&_svg]:text-primary-foreground hover:bg-primary-subtle line-clamp-1 flex w-full flex-row items-center gap-3 rounded-sm px-3 py-2 hover:cursor-pointer [&_svg]:size-5",
         className,
       )}
       onClick={handleClick}
@@ -385,7 +383,7 @@ function ContextMenuTitle({
   return (
     <div
       className={cn(
-        "text-text-primary [&_svg]:text-primary-dark line-clamp-1 flex flex-row items-center gap-3 rounded-sm px-3 py-2 font-semibold [&_svg]:size-5",
+        "text-foreground [&_svg]:text-primary-foreground line-clamp-1 flex flex-row items-center gap-3 rounded-sm px-3 py-2 font-semibold [&_svg]:size-5",
         className,
       )}
       {...props}
