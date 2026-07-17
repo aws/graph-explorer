@@ -21,7 +21,7 @@ const TabularHeader = <T extends object>({
     <tr
       key={key}
       {...otherProps}
-      className="grow-0 border border-x-transparent border-t-transparent bg-gray-50"
+      className="bg-background-alt grow-0 border border-x-transparent border-t-transparent"
     >
       {headerGroup.headers.map(column => {
         const { key, ...headerProps } = column.getHeaderProps(

@@ -16,7 +16,7 @@ export function SearchResult({
       {...props}
       className={cn(
         "content-auto intrinsic-size-[4.75rem] rounded-xl border shadow-xs",
-        isEven(level) ? "bg-gray-50" : "bg-background",
+        isEven(level) ? "bg-background-alt" : "bg-background",
         className,
       )}
     />
@@ -37,7 +37,7 @@ export function SearchResultCollapsible({
       {...props}
       className={cn(
         "group ring-border content-auto intrinsic-size-[4.75rem] rounded-xl shadow-xs ring-1 transition duration-100 ease-in-out",
-        isEven(level) ? "bg-gray-50" : "bg-background",
+        isEven(level) ? "bg-background-alt" : "bg-background",
         highlighted
           ? "shadow-primary-foreground/50 ring-primary-foreground/75"
           : "",
@@ -141,7 +141,7 @@ export function SearchResultAttribute({
       {...props}
       className={cn(
         "flex w-full flex-wrap justify-between gap-2 rounded-xl border px-4 py-2 shadow-xs",
-        isEven(level) ? "bg-gray-50" : "bg-background",
+        isEven(level) ? "bg-background-alt" : "bg-background",
         className,
       )}
     />

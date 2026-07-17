@@ -96,7 +96,7 @@ export default function SchemaGraph({ className, ...props }: SchemaGraphProps) {
       <PanelGroup>
         <Panel className="min-h-0 min-w-0 flex-1">
           <SchemaGraphToolbar />
-          <PanelContent className="bg-primary-subtle size-full min-h-0 min-w-0">
+          <PanelContent className="bg-workspace-canvas size-full min-h-0 min-w-0">
             {!hasSchemaData ? (
               <NoNodeTypesEmptyState />
             ) : (
