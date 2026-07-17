@@ -3,7 +3,7 @@
 The visual design system for Graph Explorer. Read this before modifying UI styling, adding color tokens, or writing Tailwind classes in components.
 
 > [!NOTE]
-> **Migration in progress.** This document describes the _target_ state; the cleanup is tracked in [#1952](https://github.com/aws/graph-explorer/issues/1952). Until it completes, the codebase deviates in known ways: legacy color aliases (`text-text-primary`, `bg-background-default`, `primary-main`, etc.) are still in use pending migration to the canonical tokens below; and a few `dark:` classes and shadcn compat tokens (`destructive`, `popover`) remain pending removal. When touching styled code during the transition, migrate toward this document, not away from it.
+> **Migration in progress.** This document describes the _target_ state; the cleanup is tracked in [#1952](https://github.com/aws/graph-explorer/issues/1952). Until it completes, the codebase deviates in known ways: legacy color aliases (`text-text-primary`, `bg-background-default`, `primary-main`, etc.) are still in use pending migration to the canonical tokens below. When touching styled code during the transition, migrate toward this document, not away from it.
 
 ## Color Architecture
 
@@ -46,8 +46,6 @@ The Tailwind neutral scales (`slate`, `zinc`, `neutral`, `stone`) are removed. `
 
 Roles: `primary`, `danger`, `warning`, `success`, `neutral`.
 
-**Accent** is an alias group used for highlight/selection states — `accent` → `primary-subtle`, `accent-hover` → `primary-subtle-hover`, `accent-foreground` → `primary-foreground`. Whether it survives as a distinct abstraction or gets inlined to the primary tokens is an open question for the migration ([#1956](https://github.com/aws/graph-explorer/issues/1956)).
-
 ### Using color in components
 
 **Strong preference: use semantic tokens.** Write `bg-primary-subtle text-primary-foreground`, not `bg-brand-50 text-brand-700`.
@@ -66,7 +64,7 @@ Roles: `primary`, `danger`, `warning`, `success`, `neutral`.
 
 Dark mode is a planned future feature. The semantic token structure is designed to support it via CSS `light-dark()` on the token definitions — when dark mode arrives, components should not need `dark:` classes because the semantic tokens themselves will resolve to appropriate values per mode.
 
-**Policy:** Do not add new `dark:` variant classes. A few legacy usages remain pending removal ([#1955](https://github.com/aws/graph-explorer/issues/1955)).
+**Policy:** Do not add `dark:` variant classes.
 
 ## Tailwind Conventions
 
