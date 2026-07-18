@@ -26,7 +26,7 @@
   );
 
   /* Max widths */
-  --max-width-paragraph: 36rem;
+  --max-width-paragraph: 80ch;
 
   /* Keyframes */
   --animate-expand: expand 0.2s cubic-bezier(0.87, 0, 0.13, 1);

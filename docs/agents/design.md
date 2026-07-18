@@ -2,9 +2,6 @@
 
 The visual design system for Graph Explorer. Read this before modifying UI styling, adding color tokens, or writing Tailwind classes in components.
 
-> [!NOTE]
-> **Migration in progress.** This document describes the _target_ state; the cleanup is tracked in [#1952](https://github.com/aws/graph-explorer/issues/1952). Until it completes, the codebase deviates in known ways: legacy color aliases (`text-text-primary`, `bg-background-default`, `primary-main`, etc.) are still in use pending migration to the canonical tokens below. When touching styled code during the transition, migrate toward this document, not away from it.
-
 ## Color Architecture
 
 ### Palette → Semantic → Component
@@ -56,6 +53,10 @@ Roles: `primary`, `danger`, `warning`, `success`, `neutral`.
 
 **When neither fits:** If a component needs a color that isn't covered by existing semantic tokens and isn't a one-off, propose a new token. Add it to the `@theme` block in `index.css` with a comment explaining its role, and update this document.
 
+**Sanctioned palette one-offs.** These direct palette usages are known and intentional; don't re-flag or "fix" them:
+
+- `CollapsibleSidebar` tab buttons: `active:bg-brand-300`, `hover:data-[state=active]:bg-brand-400` — pressed/hover-on-active interaction shades that fall between the semantic slots.
+
 ### Text on colored surfaces
 
 - On solid role surfaces (`bg-primary`, `bg-danger`): use `text-white`.
@@ -72,7 +73,7 @@ Dark mode is a planned future feature. The semantic token structure is designed 
 
 - Use **Tailwind v4 CSS syntax** — `@theme`, `@utility`, `@custom-variant` blocks in CSS.
 - Prefer **data attributes** for conditional styles. Tailwind v4 provides two forms:
-  - `data-open:` / `data-closed:` — shorthand variants (defined via `@custom-variant` in the config, matching `[data-state="open"]` / `[data-state="closed"]`). These are the Radix convention used throughout the codebase (~27 usages). Also: `aria-invalid:` for form validation.
+  - `data-open:` / `data-closed:` — shorthand variants (defined via `@custom-variant` in `index.css`) that match `[data-state="open"]` / `[data-state="closed"]`, the Radix convention. Note: this **redefines** Tailwind's native behavior, where a bare `data-open:` would match the presence of a `data-open` attribute. Also: `aria-invalid:` for form validation.
   - `data-[attr=value]:` — arbitrary-value form for one-off attributes.
 - Prefer **Tailwind responsive directives and container queries** over `ResizeObserver` for responsive layout changes.
 - Reference: https://tailwindcss.com/docs
@@ -99,15 +100,24 @@ A semantic z-index scale prevents stacking conflicts:
 | `z-menu`    | 1400  | Dropdown menus      |
 | `z-tooltip` | 1500  | Tooltips            |
 
+### Background images
+
+Named gradients available as `bg-*` classes:
+
+- `bg-logo-gradient` — the Graph Explorer brand mark gradient
+- `bg-empty-info-gradient` — info empty-state icon (primary → brand-300)
+- `bg-empty-error-gradient` — error empty-state icon (danger → red-300)
+
 ### Typography
 
 - Font family: Tailwind's default sans stack (`ui-sans-serif, system-ui, sans-serif, ...`). The app renders in the platform system font (San Francisco on macOS, Segoe UI on Windows). No custom font is loaded.
 - Font weights: Tailwind's default scale. In practice the app uses `font-normal` (400), `font-medium` (500), `font-semibold` (600), and `font-bold` (700).
 - Base font size: 14px (set on `html`)
+- Max prose width: `max-w-paragraph` (80ch) — for readable line lengths in body text
 
 ### Animations
 
-Two shared keyframes for collapsible regions: `expand` and `collapse` (0.2s, `cubic-bezier(0.87, 0, 0.13, 1)` — a sharp ease-in-out-quint curve).
+Two shared keyframes for collapsible regions: `expand` and `collapse` (0.2s, `cubic-bezier(0.87, 0, 0.13, 1)` — a sharp ease-in-out-quint curve). These rely on `interpolate-size: allow-keywords` on `html` to animate `height: auto`.
 
 The `tw-animate-css` library is imported and provides enter/exit animation utilities (`animate-in`, `animate-out`, `fade-in-0`, `zoom-in-95`, etc.) used by popovers, dialogs, and dropdown menus.
 
