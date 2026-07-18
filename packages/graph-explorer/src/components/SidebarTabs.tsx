@@ -39,7 +39,7 @@ function SidebarTabsTrigger({
   return (
     <TabsPrimitive.Trigger
       className={cn(
-        "focus-visible:ring-ring-3 bg-background text-muted-foreground ring-offset-muted data-[state=active]:border-b-primary-foreground data-[state=active]:text-primary-foreground inline-flex grow items-center justify-center gap-2 border-y-2 border-transparent border-y-transparent px-4 py-2 text-sm font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 data-[state=active]:font-medium [&_svg]:size-4",
+        "focus-visible:ring-primary bg-background text-muted-foreground ring-offset-muted data-[state=active]:border-b-primary-foreground data-[state=active]:text-primary-foreground inline-flex grow items-center justify-center gap-2 border-y-2 border-transparent border-y-transparent px-4 py-2 text-sm font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 data-[state=active]:font-medium [&_svg]:size-4",
         className,
       )}
       {...props}
@@ -55,7 +55,7 @@ function SidebarTabsContent({
   return (
     <TabsPrimitive.Content
       className={cn(
-        "ring-offset-background focus-visible:ring-ring-3 h-full overflow-y-auto focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
+        "ring-offset-background focus-visible:ring-primary h-full overflow-y-auto focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
         className,
       )}
       {...props}

@@ -58,9 +58,11 @@ type MonacoThemeData = Parameters<Monaco["editor"]["defineTheme"]>[1];
 
 const lightTheme = createMonacoTheme({
   // DEV NOTE: This is currently limited to the colors needed for JSON syntax highlighting.
-  foreground: "#1f2937",
-  background: "#f9fafb",
-  mutedForeground: "#9ca3af",
+  // Monaco requires hex values, so these mirror the design system tokens
+  // (see docs/agents/design.md) rather than referencing the CSS variables.
+  foreground: "#18181b", // --color-foreground (gray-900)
+  background: "#fafafa", // --color-background-alt (gray-50)
+  mutedForeground: "#a1a1aa", // gray-400
   keys: "#3730a3",
   strings: "#9f1239",
   numbers: "#065f46",
