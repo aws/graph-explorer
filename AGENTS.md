@@ -6,6 +6,7 @@
 - Don't hard-wrap Markdown prose to a fixed column width, let it soft-wrap
 - When possible, create failing tests first then implement the logic to make the tests pass
 - Add or update tests for the code you change, even if nobody asked
+- Write temporary files (scratch notes, intermediate output) to the git-ignored `.scratch/` directory at the repo root, never elsewhere in the tree
 
 ## Code Quality Standards
 
