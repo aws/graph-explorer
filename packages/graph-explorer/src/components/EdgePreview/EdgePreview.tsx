@@ -13,10 +13,12 @@ import {
 } from "./arrowShapes";
 
 /**
- * Pixels per cytoscape unit. Cytoscape renders 1:1 (1 unit = 1px at zoom 1);
- * we render at 2× so the preview is crisp, and callers can CSS-`zoom` down.
+ * Pixels per cytoscape unit. Cytoscape renders 1:1 (1 unit = 1px at zoom 1),
+ * which is small for a dialog preview, so we scale up by default to land near a
+ * comfortable viewing size. Everything (SVG geometry and label) scales
+ * uniformly, so callers can still CSS-`zoom` from here without losing crispness.
  */
-const RENDER_SCALE = 2;
+const DEFAULT_ZOOM = 2;
 
 /** A neutral placeholder node representing an endpoint of the edge. */
 function VertexPlaceholder({
@@ -43,11 +45,11 @@ interface EdgePreviewProps {
  * Full edge preview: two placeholder nodes connected by the styled edge with
  * the type name as the label. Line thickness, arrow geometry, and the gap
  * between line and arrow are ported verbatim from cytoscape so the preview
- * matches the canvas. Apply CSS `zoom` via className to scale it down.
+ * matches the canvas. Apply CSS `zoom` via className to scale from DEFAULT_ZOOM.
  */
 export function EdgePreview({ edgeStyle, className }: EdgePreviewProps) {
-  const lineWidthPx = edgeStyle.lineThickness * RENDER_SCALE;
-  const arrowUnit = getArrowWidth(edgeStyle.lineThickness) * RENDER_SCALE;
+  const lineWidthPx = edgeStyle.lineThickness * DEFAULT_ZOOM;
+  const arrowUnit = getArrowWidth(edgeStyle.lineThickness) * DEFAULT_ZOOM;
 
   const sourceArrow = resolveArrowGeometry(
     edgeStyle.sourceArrowStyle,
@@ -150,7 +152,7 @@ function EdgeLine({
 
       <LabelPreview
         labelStyle={edgeStyle}
-        scale={RENDER_SCALE}
+        scale={DEFAULT_ZOOM}
         className="absolute inset-x-0 top-1/2 mx-auto -translate-y-1/2"
         style={{ maxWidth: `calc(100% - ${labelInset}px)` }}
       >

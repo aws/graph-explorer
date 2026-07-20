@@ -24,7 +24,7 @@ describe("getArrowWidth", () => {
 });
 
 describe("resolveArrowGeometry", () => {
-  const UNIT = 58; // getArrowWidth(2) * RENDER_SCALE ≈ real usage
+  const UNIT = 58; // getArrowWidth(2) * DEFAULT_ZOOM ≈ real usage
   const LINE_WIDTH = 4;
 
   it("returns null for none", () => {

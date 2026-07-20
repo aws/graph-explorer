@@ -169,7 +169,7 @@ export function resolveArrowGeometry(
     case "tee":
       primitives.push(polygon(TEE, unit));
       // Cytoscape uses a literal 1px spacing/gap for tee (arrow-shapes.mjs:296),
-      // not a width-proportional value; kept verbatim rather than RENDER_SCALEd.
+      // not a width-proportional value; kept verbatim rather than zoom-scaled.
       spacing = 1;
       gap = 1;
       break;
