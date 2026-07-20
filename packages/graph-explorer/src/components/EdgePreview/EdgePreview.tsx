@@ -38,16 +38,17 @@ function VertexPlaceholder({
 
 interface EdgePreviewProps {
   edgeStyle: EdgeStyle;
+  label: string;
   className?: string;
 }
 
 /**
  * Full edge preview: two placeholder nodes connected by the styled edge with
- * the type name as the label. Line thickness, arrow geometry, and the gap
- * between line and arrow are ported verbatim from cytoscape so the preview
- * matches the canvas. Apply CSS `zoom` via className to scale from DEFAULT_ZOOM.
+ * the given label. Line thickness, arrow geometry, and the gap between line and
+ * arrow are ported verbatim from cytoscape so the preview matches the canvas.
+ * Apply CSS `zoom` via className to scale from DEFAULT_ZOOM.
  */
-export function EdgePreview({ edgeStyle, className }: EdgePreviewProps) {
+export function EdgePreview({ edgeStyle, label, className }: EdgePreviewProps) {
   const lineWidthPx = edgeStyle.lineThickness * DEFAULT_ZOOM;
   const arrowUnit = getArrowWidth(edgeStyle.lineThickness) * DEFAULT_ZOOM;
 
@@ -62,21 +63,18 @@ export function EdgePreview({ edgeStyle, className }: EdgePreviewProps) {
     lineWidthPx,
   );
 
-  const labelText =
-    edgeStyle.displayLabel ?? String(edgeStyle.type).replace(/^__/, "");
-
   return (
     <div
       className={cn("flex w-full items-center px-4 py-3", className)}
       role="img"
-      aria-label={`${labelText} edge preview`}
+      aria-label={`${label} edge preview`}
     >
       <VertexPlaceholder />
 
       <div className="flex min-w-24 flex-1 items-center self-center">
         <EdgeLine
           edgeStyle={edgeStyle}
-          labelText={labelText}
+          labelText={label}
           lineWidthPx={lineWidthPx}
           sourceArrow={sourceArrow}
           targetArrow={targetArrow}

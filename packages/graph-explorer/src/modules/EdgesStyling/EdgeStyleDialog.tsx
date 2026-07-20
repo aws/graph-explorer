@@ -109,7 +109,11 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
             <Field>
               <FieldLabel className="sr-only">Preview</FieldLabel>
               <PreviewSurface>
-                <EdgePreview edgeStyle={edgeStyle} className="zoom-90" />
+                <EdgePreview
+                  edgeStyle={edgeStyle}
+                  label={displayConfig.displayLabel}
+                  className="zoom-90"
+                />
               </PreviewSurface>
             </Field>
 
