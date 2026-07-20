@@ -1,8 +1,7 @@
-import type { VertexStyle } from "@/core";
-
+import { appDefaultNodeLabelStyle, type VertexStyle } from "@/core";
 import { cn } from "@/utils";
 
-import { defaultNodeLabelStyle, LabelPreview } from "../LabelPreview";
+import { LabelPreview } from "../LabelPreview";
 import { VertexSymbol } from "./VertexSymbol";
 
 /**
@@ -30,11 +29,12 @@ export function VertexPreview({
   className,
 }: VertexPreviewProps) {
   return (
-    <div className={cn("shrink-0", className)}>
-      <div className="flex origin-top-left flex-col items-center">
+    <div className={cn("w-full min-w-0", className)}>
+      {/* min-w-0 lets the column shrink so a long label truncates instead of overflowing */}
+      <div className="flex min-w-0 flex-col items-center">
         <VertexSymbol vertexStyle={vertexStyle} className="size-[96px]" />
         <LabelPreview
-          labelStyle={defaultNodeLabelStyle}
+          labelStyle={appDefaultNodeLabelStyle}
           scale={LABEL_SCALE}
           className="-mt-3"
         >

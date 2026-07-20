@@ -73,17 +73,3 @@ export function LabelPreview({
     </span>
   );
 }
-
-/**
- * The default label style matching cytoscape's node label appearance. Values
- * mirror the canonical node label config in
- * `components/Graph/styles/defaultNodeStyle.ts` (`color`, `opacity`) — keep in
- * sync if that changes.
- */
-export const defaultNodeLabelStyle: LabelVisualStyle = {
-  labelColor: "#1d2531",
-  labelBackgroundOpacity: 0.7,
-  labelBorderColor: "#1d2531",
-  labelBorderStyle: "solid",
-  labelBorderWidth: 0,
-};

@@ -189,7 +189,7 @@ function Content({ vertexType }: { vertexType: VertexType }) {
                 </Select>
               </Field>
             </FieldGroup>
-            <FieldGroup className="grid grid-cols-[1fr_auto] gap-4">
+            <FieldGroup className="grid grid-cols-2 gap-4">
               <Field className="col-start-1 row-start-1">
                 <FieldLabel>Shape</FieldLabel>
                 <Select
@@ -239,7 +239,7 @@ function Content({ vertexType }: { vertexType: VertexType }) {
                 </div>
               </Field>
 
-              <Field className="col-start-2 row-span-2 w-auto">
+              <Field className="col-start-2 row-span-2">
                 <FieldLabel>Preview</FieldLabel>
                 <PreviewSurface className="flex-1">
                   <VertexPreview

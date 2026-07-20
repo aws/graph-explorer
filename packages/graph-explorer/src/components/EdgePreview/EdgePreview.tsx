@@ -118,8 +118,11 @@ function EdgeLine({
     arrowHeight(targetArrow),
   );
 
-  // Space reserved on each side so the label never overlaps an arrow.
-  const labelInset = lineInsetLeft + lineInsetRight + 8;
+  // The label is centered, so reserving space on the wider-reaching side must
+  // be mirrored on both. Reserve twice the deepest arrow reach (plus a small
+  // gap) so the centered label truncates before it touches either arrow head.
+  const labelInset =
+    2 * Math.max(arrowReach(sourceArrow), arrowReach(targetArrow)) + 8;
 
   return (
     <div className="relative w-full" style={{ height: containerHeight }}>
@@ -165,6 +168,15 @@ function EdgeLine({
 function arrowHeight(geometry: ArrowGeometry | null): number {
   if (!geometry) return 0;
   return geometry.bbox.maxY - geometry.bbox.minY;
+}
+
+/**
+ * How far an arrow head reaches inward from the node boundary: its tip sits
+ * `spacing` in, and its body extends the bbox width further toward the center.
+ */
+function arrowReach(geometry: ArrowGeometry | null): number {
+  if (!geometry) return 0;
+  return geometry.spacing + (geometry.bbox.maxX - geometry.bbox.minX);
 }
 
 // --- Arrow head ---
