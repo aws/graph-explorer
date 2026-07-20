@@ -178,6 +178,30 @@ describe("createDisplayError", () => {
     });
   });
 
+  it("Should handle access denied error", () => {
+    const result = createDisplayError(
+      new NetworkError("Network error", 403, null),
+    );
+    expect(result).toStrictEqual({
+      title: "Access denied",
+      message:
+        "The server refused this request. Check that your connection credentials and permissions are correct, then try again.",
+    });
+  });
+
+  it("Should handle access denied error ignoring raw server data", () => {
+    const result = createDisplayError(
+      new NetworkError("Network error", 403, {
+        message: '{"requestId":"abc","code":"AccessDeniedException"}',
+      }),
+    );
+    expect(result).toStrictEqual({
+      title: "Access denied",
+      message:
+        "The server refused this request. Check that your connection credentials and permissions are correct, then try again.",
+    });
+  });
+
   it("Should handle too many requests error", () => {
     const result = createDisplayError(
       new NetworkError("Network error", 429, null),

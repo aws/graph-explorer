@@ -122,6 +122,17 @@ export function createDisplayError(error: any): DisplayError {
       };
     }
 
+    if (error.statusCode === 403) {
+      // A 403 can be caused by several things (credentials, permissions,
+      // proxy configuration), so the message stays generic and points the
+      // user at what they can reasonably check.
+      return {
+        title: "Access denied",
+        message:
+          "The server refused this request. Check that your connection credentials and permissions are correct, then try again.",
+      };
+    }
+
     if (error.statusCode === 429) {
       return {
         title: "Too Many Requests",
