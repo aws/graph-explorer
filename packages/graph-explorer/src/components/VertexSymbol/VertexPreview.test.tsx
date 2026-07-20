@@ -34,5 +34,9 @@ describe("VertexPreview", () => {
     );
 
     expect(screen.getByText("foaf:Person")).toBeInTheDocument();
+    // The symbol renders its own accessible name from the vertex style.
+    expect(
+      screen.getByRole("img", { name: "http://x/Person symbol" }),
+    ).toBeInTheDocument();
   });
 });
