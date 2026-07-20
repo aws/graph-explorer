@@ -3,12 +3,14 @@ import { atom, useAtom, useSetAtom } from "jotai";
 import {
   Button,
   ColorPopover,
+  EdgePreview,
   Field,
   FieldGroup,
   FieldLabel,
   FieldLegend,
   FieldSet,
   NumberInput,
+  PreviewSurface,
   Select,
   SelectContent,
   SelectItem,
@@ -104,6 +106,13 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
         </DialogHeader>
         <DialogBody>
           <FieldSet>
+            <Field>
+              <FieldLabel className="sr-only">Preview</FieldLabel>
+              <PreviewSurface>
+                <EdgePreview edgeStyle={edgeStyle} className="zoom-90" />
+              </PreviewSurface>
+            </Field>
+
             {hideDisplayNameAttribute ? null : (
               <FieldGroup>
                 <Field>

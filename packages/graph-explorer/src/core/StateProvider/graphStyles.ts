@@ -96,13 +96,17 @@ export type VertexTypeStyle = {
   longDisplayNameAttribute: string;
 };
 
-/** The visual appearance of an edge, shared by per-type styles and defaults. */
-export type EdgeVisualStyle = {
+/** The visual appearance of a label badge (shared by edge and vertex labels). */
+export type LabelVisualStyle = {
   labelColor: string;
   labelBackgroundOpacity: number;
   labelBorderColor: string;
   labelBorderStyle: LineStyle;
   labelBorderWidth: number;
+};
+
+/** The visual appearance of an edge, shared by per-type styles and defaults. */
+export type EdgeVisualStyle = LabelVisualStyle & {
   lineColor: string;
   lineThickness: number;
   lineStyle: LineStyle;
