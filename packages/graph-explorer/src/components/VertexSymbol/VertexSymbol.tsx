@@ -9,9 +9,13 @@ import { useIconDataUrl } from "./useIconDataUrl";
 const VIEWBOX = 96;
 const ICON_RATIO = 0.6;
 const CANVAS_NODE_SIZE = 24;
-/** Scale from cytoscape model units (a 24px node) to the SVG viewBox (96). */
-export const MODEL_TO_VIEWBOX_SCALE = VIEWBOX / CANVAS_NODE_SIZE;
-const BORDER_SCALE = MODEL_TO_VIEWBOX_SCALE;
+/**
+ * How much larger the preview draws things than the graph canvas: the ratio of
+ * the SVG viewBox (96) to a canvas node's size in cytoscape units (24). Applied
+ * to any canvas-unit length (border width, label font/padding) to render it at
+ * preview size.
+ */
+export const PREVIEW_SCALE = VIEWBOX / CANVAS_NODE_SIZE;
 
 interface Props {
   vertexStyle: VertexStyle;
@@ -22,7 +26,7 @@ export function VertexSymbol({ vertexStyle, className }: Props) {
   const iconDataUrl = useIconDataUrl(vertexStyle);
   // SVG url(#...) references reject the colons in React's raw useId format.
   const clipId = `vs-${useId().replace(/:/g, "")}`;
-  const strokeWidth = vertexStyle.borderWidth * BORDER_SCALE;
+  const strokeWidth = vertexStyle.borderWidth * PREVIEW_SCALE;
   const insetSize = Math.max(1, VIEWBOX - strokeWidth * 2);
   const geometry = resolveShapeGeometry(vertexStyle.shape, insetSize);
 

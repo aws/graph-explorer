@@ -2,7 +2,7 @@ import { appDefaultNodeLabelStyle, type VertexStyle } from "@/core";
 import { cn } from "@/utils";
 
 import { LabelPreview } from "../LabelPreview";
-import { MODEL_TO_VIEWBOX_SCALE, VertexSymbol } from "./VertexSymbol";
+import { PREVIEW_SCALE, VertexSymbol } from "./VertexSymbol";
 
 interface VertexPreviewProps {
   vertexStyle: VertexStyle;
@@ -27,7 +27,7 @@ export function VertexPreview({
         <VertexSymbol vertexStyle={vertexStyle} className="size-[96px]" />
         <LabelPreview
           labelStyle={appDefaultNodeLabelStyle}
-          scale={MODEL_TO_VIEWBOX_SCALE}
+          scale={PREVIEW_SCALE}
           className="-mt-3"
         >
           {label}
