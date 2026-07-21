@@ -87,6 +87,39 @@ describe("buildStyleImportPlan", () => {
     expect(plan.skippedCount).toBe(1);
   });
 
+  test("keeps actionable types while counting the identical ones as skipped", () => {
+    const changed = createVertexType("Airport");
+    const unchanged = createVertexType("Country");
+    const changedIncoming: VertexStyleStorage = {
+      type: changed,
+      color: "#abc",
+    };
+
+    const plan = buildStyleImportPlan(
+      parseResult(
+        new Map([
+          [changed, changedIncoming],
+          // Resolves identically to the current style, so it is skipped.
+          [unchanged, { type: unchanged, color: appDefaultVertexStyle.color }],
+        ]),
+      ),
+      new Map([[unchanged, { type: unchanged }]]),
+      new Map(),
+    );
+
+    expect(plan.items).toStrictEqual([
+      {
+        kind: "vertex",
+        type: changed,
+        status: "new",
+        incoming: changedIncoming,
+        incomingStyle: resolveVertexStyle(changed, changedIncoming),
+        currentStyle: resolveVertexStyle(changed),
+      },
+    ]);
+    expect(plan.skippedCount).toBe(1);
+  });
+
   test("includes edge styles alongside vertex styles", () => {
     const edgeType = createEdgeType("route");
     const incoming: EdgeStyleStorage = { type: edgeType, lineColor: "#def" };
