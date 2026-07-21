@@ -7,9 +7,9 @@ import { cn } from "@/utils";
 
 import { LabelPreview } from "../LabelPreview";
 import { edgePreviewLabel } from "../previewLabels";
+import { ArrowPrimitiveShape } from "./ArrowPrimitiveShape";
 import {
   type ArrowGeometry,
-  type ArrowPrimitive,
   getArrowWidth,
   resolveArrowGeometry,
 } from "./arrowShapes";
@@ -232,15 +232,4 @@ function ArrowHead({
       ))}
     </svg>
   );
-}
-
-function ArrowPrimitiveShape({ primitive }: { primitive: ArrowPrimitive }) {
-  if (primitive.kind === "circle") {
-    return <circle cx={primitive.cx} cy={primitive.cy} r={primitive.r} />;
-  }
-  if (primitive.kind === "path") {
-    return <path d={primitive.d} />;
-  }
-  const points = primitive.points.map(([x, y]) => `${x},${y}`).join(" ");
-  return <polygon points={points} />;
 }
