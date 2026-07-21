@@ -92,6 +92,9 @@ export * from "./Switch";
 
 export * from "./TextArea";
 
+export * from "./Toggle";
+export * from "./ToggleGroup";
+
 export { default as TextAreaField } from "./TextAreaField";
 export * from "./TextAreaField";
 
