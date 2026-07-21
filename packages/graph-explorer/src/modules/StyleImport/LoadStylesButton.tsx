@@ -177,7 +177,7 @@ function toErrorState(error: unknown): LoadState {
     logger.warn("Style import rejected the file", error.issues);
     return { kind: "invalid", issues: error.issues };
   }
-  logger.error("Load failed", error);
+  logger.warn("Style import could not read the file", error);
   return { kind: "failed", error: createDisplayError(error) };
 }
 
