@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { UploadIcon } from "lucide-react";
 import { useState } from "react";
 
-import { Button } from "@/components";
+import { Button, Checkbox, ToggleGroup, ToggleGroupItem } from "@/components";
 import {
   DialogBody,
   DialogContent,
@@ -13,10 +13,17 @@ import {
   DialogMedia,
   DialogTitle,
 } from "@/components/Dialog";
+import SearchBar from "@/components/SearchBar";
 
 import type { StyleImportItem, StyleImportPlan } from "./styleImportPlan";
+import type { StyleImportFilter } from "./styleImportView";
 
 import { EdgeStyleImportCard } from "./EdgeStyleImportCard";
+import {
+  filterCounts,
+  selectAllState,
+  selectVisibleItems,
+} from "./styleImportView";
 import { VertexStyleImportCard } from "./VertexStyleImportCard";
 
 /**
@@ -28,10 +35,19 @@ function itemKey(item: StyleImportItem): string {
   return `${item.kind}:${item.type}`;
 }
 
+const filterLabels: Record<StyleImportFilter, string> = {
+  all: "All",
+  nodes: "Nodes",
+  edges: "Edges",
+  conflicts: "Conflicts",
+};
+
 /**
  * The selective style load modal: every actionable style from the file as a
- * before→after card, all selected by default. Loading writes the checked
- * styles to the user styles layer via `onLoad` and dismisses.
+ * before→after card, all selected by default. A filter tab, search box, and
+ * Select-All narrow what is shown; selection stays the source of truth, so the
+ * footer and Load button count every checked item regardless of the view.
+ * Loading writes the checked styles to the user styles layer via `onLoad`.
  */
 export function StyleImportModal({
   fileName,
@@ -47,10 +63,14 @@ export function StyleImportModal({
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(
     () => new Set(plan.items.map(itemKey)),
   );
+  const [filter, setFilter] = useState<StyleImportFilter>("all");
+  const [search, setSearch] = useState("");
 
-  const selectedItems = plan.items.filter(item =>
-    selectedKeys.has(itemKey(item)),
-  );
+  const isSelected = (item: StyleImportItem) => selectedKeys.has(itemKey(item));
+
+  const selectedItems = plan.items.filter(isSelected);
+  const visibleItems = selectVisibleItems(plan.items, filter, search);
+  const counts = filterCounts(plan.items, search);
 
   function toggle(item: StyleImportItem) {
     setSelectedKeys(prev => {
@@ -65,8 +85,25 @@ export function StyleImportModal({
     });
   }
 
-  const vertexItems = plan.items.filter(item => item.kind === "vertex");
-  const edgeItems = plan.items.filter(item => item.kind === "edge");
+  function toggleVisible(select: boolean) {
+    setSelectedKeys(prev => {
+      const next = new Set(prev);
+      for (const item of visibleItems) {
+        if (select) {
+          next.add(itemKey(item));
+        } else {
+          next.delete(itemKey(item));
+        }
+      }
+      return next;
+    });
+  }
+
+  const visibleVertexItems = visibleItems.filter(
+    item => item.kind === "vertex",
+  );
+  const visibleEdgeItems = visibleItems.filter(item => item.kind === "edge");
+  const selectAll = selectAllState(visibleItems, isSelected);
 
   return (
     <DialogContent className="w-[min(64rem,calc(100vw-2rem))] max-w-none">
@@ -82,23 +119,62 @@ export function StyleImportModal({
           ones you want to import. This cannot be undone.
         </DialogDescription>
       </DialogHeader>
-      <DialogBody className="@container gap-8 border-t">
-        <StyleGroupGrid heading="Node styles" count={vertexItems.length}>
-          {vertexItems.map(item => (
+      <div className="flex flex-col gap-3 border-t pt-6 sm:flex-row sm:items-center">
+        <ToggleGroup
+          type="single"
+          value={filter}
+          onValueChange={value =>
+            value && setFilter(value as StyleImportFilter)
+          }
+          spacing={0}
+          variant="outline"
+        >
+          {(Object.keys(filterLabels) as StyleImportFilter[]).map(key => (
+            <ToggleGroupItem key={key} value={key}>
+              {`${filterLabels[key]} ${counts[key]}`}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+        <SearchBar
+          search={search}
+          onSearch={setSearch}
+          searchPlaceholder="Search by type name"
+          className="sm:ml-auto sm:max-w-xs"
+        />
+      </div>
+      <label
+        htmlFor="style-import-select-all"
+        className="flex w-fit cursor-pointer items-center gap-2 text-sm"
+      >
+        <Checkbox
+          id="style-import-select-all"
+          checked={
+            selectAll === "indeterminate"
+              ? "indeterminate"
+              : selectAll === "checked"
+          }
+          disabled={visibleItems.length === 0}
+          onCheckedChange={checked => toggleVisible(checked === true)}
+        />
+        Select all
+      </label>
+      <DialogBody className="@container gap-8">
+        <StyleGroupGrid heading="Node types" count={visibleVertexItems.length}>
+          {visibleVertexItems.map(item => (
             <VertexStyleImportCard
               key={itemKey(item)}
               item={item}
-              selected={selectedKeys.has(itemKey(item))}
+              selected={isSelected(item)}
               onToggle={() => toggle(item)}
             />
           ))}
         </StyleGroupGrid>
-        <StyleGroupGrid heading="Edge styles" count={edgeItems.length}>
-          {edgeItems.map(item => (
+        <StyleGroupGrid heading="Edge types" count={visibleEdgeItems.length}>
+          {visibleEdgeItems.map(item => (
             <EdgeStyleImportCard
               key={itemKey(item)}
               item={item}
-              selected={selectedKeys.has(itemKey(item))}
+              selected={isSelected(item)}
               onToggle={() => toggle(item)}
             />
           ))}
@@ -129,8 +205,8 @@ export function StyleImportModal({
 
 /**
  * A titled, responsive grid of cards for one entity kind. Renders nothing when
- * the kind has no items so an all-nodes or all-edges file shows just the one
- * section.
+ * the kind has no visible items, so a group disappears under a filter or search
+ * that excludes it.
  */
 function StyleGroupGrid({
   heading,

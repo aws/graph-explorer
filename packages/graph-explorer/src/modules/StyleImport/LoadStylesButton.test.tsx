@@ -6,10 +6,13 @@ import { describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
 import { getAppStore } from "@/core";
-import { createVertexType } from "@/core/entities";
+import { createEdgeType, createVertexType } from "@/core/entities";
 import { createFileEnvelope } from "@/core/fileEnvelope";
 import { createQueryClient } from "@/core/queryClient";
-import { userVertexStylesAtom } from "@/core/StateProvider/storageAtoms";
+import {
+  userEdgeStylesAtom,
+  userVertexStylesAtom,
+} from "@/core/StateProvider/storageAtoms";
 import { DbState, TestProvider } from "@/utils/testing";
 
 import { LoadStylesButton } from "./LoadStylesButton";
@@ -224,6 +227,51 @@ describe("LoadStylesButton", () => {
     ).toBeInTheDocument();
     // Both edge previews render, each labelled by the resolved edge type.
     expect(screen.getAllByLabelText("route edge preview")).toHaveLength(2);
+  });
+
+  test("Select all within a filter and search only toggles the matching items", async () => {
+    const user = userEvent.setup();
+    const store = renderButton();
+
+    await user.upload(
+      fileInput(),
+      stylingFile({
+        vertices: { Airport: { color: "#abc" } },
+        edges: {
+          airRoute: { lineColor: "#111" },
+          seaRoute: { lineColor: "#222" },
+          contains: { lineColor: "#333" },
+        },
+      }),
+    );
+
+    // Everything starts selected; clear it so Select-All's effect is isolated.
+    await user.click(
+      await screen.findByRole("checkbox", { name: "Select all" }),
+    );
+    expect(
+      screen.getByRole("button", { name: "Load 0 selected" }),
+    ).toBeInTheDocument();
+
+    // Filter to edges, then search "route" — leaves airRoute and seaRoute.
+    await user.click(screen.getByRole("radio", { name: "Edges 3" }));
+    await user.type(
+      screen.getByPlaceholderText("Search by type name"),
+      "route",
+    );
+
+    // Select all now toggles only the two visible, matching edges.
+    await user.click(screen.getByRole("checkbox", { name: "Select all" }));
+    await user.click(screen.getByRole("button", { name: "Load 2 selected" }));
+
+    const styles = store.get(userEdgeStylesAtom);
+    expect(styles.has(createEdgeType("airRoute"))).toBe(true);
+    expect(styles.has(createEdgeType("seaRoute"))).toBe(true);
+    // The vertex and the non-matching edge stayed unselected.
+    expect(styles.has(createEdgeType("contains"))).toBe(false);
+    expect(
+      store.get(userVertexStylesAtom).has(createVertexType("Airport")),
+    ).toBe(false);
   });
 
   test("surfaces an envelope-level error for the wrong file kind", async () => {
