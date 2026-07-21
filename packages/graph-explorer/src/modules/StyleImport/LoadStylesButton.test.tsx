@@ -274,6 +274,27 @@ describe("LoadStylesButton", () => {
     ).toBe(false);
   });
 
+  test("shows an empty state when the search matches no type", async () => {
+    const user = userEvent.setup();
+    renderButton();
+
+    await user.upload(
+      fileInput(),
+      stylingFile({ vertices: { Airport: { color: "#abc" } }, edges: {} }),
+    );
+
+    await user.type(
+      await screen.findByPlaceholderText("Search by type name"),
+      "zzz",
+    );
+
+    expect(screen.getByText("No matching types")).toBeInTheDocument();
+    // The card is gone but the modal is still open for editing the search.
+    expect(
+      screen.queryByRole("checkbox", { name: "Load Airport style" }),
+    ).not.toBeInTheDocument();
+  });
+
   test("surfaces an envelope-level error for the wrong file kind", async () => {
     const user = userEvent.setup();
     renderButton();
