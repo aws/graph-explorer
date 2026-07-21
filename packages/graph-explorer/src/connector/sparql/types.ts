@@ -29,6 +29,10 @@ export type SPARQLNeighborsRequest = {
    */
   subjectClasses?: Array<string>;
   /**
+   * Filter to neighbors matching one of these resource URIs.
+   */
+  filterByIds?: Array<VertexId>;
+  /**
    * Filter by predicates and objects matching values.
    */
   filterCriteria?: Array<SPARQLCriterion>;

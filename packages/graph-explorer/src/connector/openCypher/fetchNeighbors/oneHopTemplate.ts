@@ -110,6 +110,7 @@ const criterionTemplate = (criterion: Criterion): string => {
 const oneHopTemplate = ({
   vertexId,
   filterByVertexTypes = [],
+  filterByIds = [],
   filterCriteria = [],
   excludedVertices = new Set(),
   limit = 0,
@@ -117,6 +118,11 @@ const oneHopTemplate = ({
   const formattedExcludedVertices =
     excludedVertices.size > 0
       ? `NOT ID(tgt) IN [${excludedVertices.values().map(idParam).toArray().join(", ")}]`
+      : "";
+
+  const formattedIds =
+    filterByIds.length > 0
+      ? `ID(tgt) IN [${filterByIds.map(idParam).join(", ")}]`
       : "";
 
   // List of possible vertex labels when there are multiple (single label is handled elsewhere)
@@ -137,6 +143,7 @@ const oneHopTemplate = ({
     `ID(v) = ${idParam(vertexId)}`,
     formattedExcludedVertices,
     formattedVertexTypes,
+    formattedIds,
     ...(filterCriteria?.map(criterionTemplate) ?? []),
   ]
     .filter(Boolean)

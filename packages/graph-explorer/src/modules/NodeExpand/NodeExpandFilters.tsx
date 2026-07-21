@@ -25,6 +25,15 @@ import { useSearchableAttributes } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
 
 let nextFilterId = 1;
+
+/**
+ * Reserved filter name used to represent filtering by a neighbor's vertex ID
+ * rather than by one of its properties. The ID is not a real attribute, so this
+ * sentinel is partitioned out of the property filter criteria before the
+ * neighbor request is built.
+ */
+export const ID_FILTER_NAME = "__ge_neighbor_id__";
+
 export type NodeExpandFilter = {
   id: number;
   name: string;
@@ -43,12 +52,18 @@ export type NodeExpandFiltersProps = {
   onLimitEnabledToggle(enabled: boolean): void;
 };
 
-function useAttributeOptions(selectedType: string) {
+function useAttributeOptions(selectedType: string): SelectOption[] {
   const allSearchableAttributes = useSearchableAttributes(selectedType);
-  return allSearchableAttributes.map(a => ({
-    label: a.displayLabel,
-    value: a.name,
-  }));
+
+  // ID is always available as a filter, even for types with no searchable
+  // attributes, so a specific neighbor can be found by its ID.
+  return [
+    { label: "ID", value: ID_FILTER_NAME },
+    ...allSearchableAttributes.map(a => ({
+      label: a.displayLabel,
+      value: a.name,
+    })),
+  ];
 }
 
 const NodeExpandFilters = ({
@@ -65,7 +80,7 @@ const NodeExpandFilters = ({
   const t = useTranslations();
 
   const attributeSelectOptions = useAttributeOptions(selectedType);
-  const hasSearchableAttributes = attributeSelectOptions.length > 0;
+  const hasFilterOptions = attributeSelectOptions.length > 0;
 
   const onFilterAdd = () => {
     onFiltersChange([
@@ -103,7 +118,7 @@ const NodeExpandFilters = ({
           options={neighborsOptions}
         />
       </Section>
-      {hasSearchableAttributes ? (
+      {hasFilterOptions ? (
         <Section>
           <SectionTitle>Filter to narrow results</SectionTitle>
           <div className="space-y-4">

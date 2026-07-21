@@ -144,4 +144,39 @@ describe("OpenCypher > oneHopTemplate", () => {
       `,
     );
   });
+
+  it("should filter neighbors by a single id", () => {
+    const template = oneHopTemplate({
+      vertexId: createVertexId("12"),
+      filterByIds: [createVertexId("42")],
+    });
+
+    expect(template).toEqual(
+      query`
+        MATCH (v)-[e]-(tgt)
+        WHERE ID(v) = "12" AND ID(tgt) IN ["42"]
+        RETURN
+          collect(DISTINCT tgt) AS vObjects,
+          collect(e) AS eObjects
+      `,
+    );
+  });
+
+  it("should filter neighbors by multiple ids combined with a type", () => {
+    const template = oneHopTemplate({
+      vertexId: createVertexId("12"),
+      filterByVertexTypes: ["country"],
+      filterByIds: [createVertexId("42"), createVertexId("7")],
+    });
+
+    expect(template).toEqual(
+      query`
+        MATCH (v)-[e]-(tgt:country)
+        WHERE ID(v) = "12" AND ID(tgt) IN ["42", "7"]
+        RETURN
+          collect(DISTINCT tgt) AS vObjects,
+          collect(e) AS eObjects
+      `,
+    );
+  });
 });
