@@ -17,6 +17,5 @@ export {
 } from "./stylingParser";
 export {
   parseStylingFile,
-  useApplyStylingImport,
   useExportStylingFile,
 } from "./useStylingImportExport";

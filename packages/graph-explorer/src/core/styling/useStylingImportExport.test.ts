@@ -17,7 +17,6 @@ import { renderHookWithJotai } from "@/utils/testing";
 
 import {
   parseStylingFile,
-  useApplyStylingImport,
   useExportStylingFile,
 } from "./useStylingImportExport";
 
@@ -27,69 +26,7 @@ vi.mock("@/utils/fileData", () => ({
   saveFile: vi.fn(),
 }));
 
-describe("styling import", () => {
-  test("parseStylingFile + applyImport writes styles to user atoms", async () => {
-    const { result } = renderHookWithJotai(() => useApplyStylingImport());
-
-    const file = createStylingFile({
-      vertices: {
-        Person: { color: "#ff0000", shape: "star" },
-        Airport: { color: "#00ff00" },
-      },
-      edges: {
-        route: { lineColor: "#0000ff" },
-      },
-    });
-
-    const parsed = await parseStylingFile(file);
-    result.current(parsed);
-
-    const store = getAppStore();
-    const vertexStyles = store.get(userVertexStylesAtom);
-    expect(vertexStyles.get(createVertexType("Person"))).toStrictEqual({
-      type: createVertexType("Person"),
-      color: "#ff0000",
-      shape: "star",
-    });
-    expect(vertexStyles.get(createVertexType("Airport"))).toStrictEqual({
-      type: createVertexType("Airport"),
-      color: "#00ff00",
-    });
-
-    const edgeStyles = store.get(userEdgeStylesAtom);
-    expect(edgeStyles.get(createEdgeType("route"))).toStrictEqual({
-      type: createEdgeType("route"),
-      lineColor: "#0000ff",
-    });
-  });
-
-  test("merges new import with existing user styles", async () => {
-    const store = getAppStore();
-    store.set(
-      userVertexStylesAtom,
-      new Map<VertexType, VertexStyleStorage>([
-        [
-          createVertexType("OldType"),
-          { type: createVertexType("OldType"), color: "#old" },
-        ],
-      ]),
-    );
-
-    const { result } = renderHookWithJotai(() => useApplyStylingImport());
-
-    const file = createStylingFile({
-      vertices: { NewType: { color: "#new" } },
-      edges: {},
-    });
-
-    const parsed = await parseStylingFile(file);
-    result.current(parsed);
-
-    const vertexStyles = store.get(userVertexStylesAtom);
-    expect(vertexStyles.has(createVertexType("OldType"))).toBe(true);
-    expect(vertexStyles.has(createVertexType("NewType"))).toBe(true);
-  });
-
+describe("parseStylingFile", () => {
   test("throws for invalid file", async () => {
     const file = new File(["not json"], "bad.json", {
       type: "application/json",
@@ -214,22 +151,3 @@ describe("useExportStylingFile", () => {
     expect("iconUrl" in payload.vertices["Airport"]).toBe(false);
   });
 });
-
-function createStylingFile(data: {
-  vertices: Record<string, Record<string, unknown>>;
-  edges: Record<string, Record<string, unknown>>;
-}) {
-  const envelope = {
-    meta: {
-      kind: "styling-export",
-      version: 1,
-      timestamp: "2026-06-24T00:00:00.000Z",
-      source: "Graph Explorer",
-      sourceVersion: "3.2.0",
-    },
-    data,
-  };
-  return new File([JSON.stringify(envelope)], "styles.json", {
-    type: "application/json",
-  });
-}

@@ -1,5 +1,5 @@
 import { useAtomValue } from "jotai";
-import { AlertTriangleIcon, FolderOpenIcon } from "lucide-react";
+import { AlertTriangleIcon, FolderOpenIcon, InfoIcon } from "lucide-react";
 import { startTransition, useActionState } from "react";
 import { toast } from "sonner";
 
@@ -212,9 +212,15 @@ function LoadEmptyContent({ allMatched }: { allMatched: boolean }) {
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogMedia className="bg-warning-subtle text-warning-foreground">
-          <AlertTriangleIcon />
-        </AlertDialogMedia>
+        {allMatched ? (
+          <AlertDialogMedia className="bg-primary-subtle text-primary-foreground">
+            <InfoIcon />
+          </AlertDialogMedia>
+        ) : (
+          <AlertDialogMedia className="bg-warning-subtle text-warning-foreground">
+            <AlertTriangleIcon />
+          </AlertDialogMedia>
+        )}
         <AlertDialogTitle>
           {allMatched ? "No Styles to Load" : "No Styles Found"}
         </AlertDialogTitle>

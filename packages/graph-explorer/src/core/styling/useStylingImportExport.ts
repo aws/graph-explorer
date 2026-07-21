@@ -1,4 +1,4 @@
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue } from "jotai";
 
 import { parseFileEnvelope } from "@/core/fileEnvelope";
 import {
@@ -36,29 +36,6 @@ export async function parseStylingFile(
     supportedVersion: STYLING_EXPORT_VERSION,
   });
   return parseStylingPayloadForVersion(envelope.meta.version, envelope.data);
-}
-
-/** Merges a parsed styling file into the user styles. */
-export function useApplyStylingImport() {
-  const setUserVertexStyles = useSetAtom(userVertexStylesAtom);
-  const setUserEdgeStyles = useSetAtom(userEdgeStylesAtom);
-
-  return function applyImport(parsed: StylingParseResult): void {
-    setUserVertexStyles(prev => {
-      const merged = new Map(prev);
-      for (const [type, style] of parsed.vertexStyles) {
-        merged.set(type, style);
-      }
-      return merged;
-    });
-    setUserEdgeStyles(prev => {
-      const merged = new Map(prev);
-      for (const [type, style] of parsed.edgeStyles) {
-        merged.set(type, style);
-      }
-      return merged;
-    });
-  };
 }
 
 export function useExportStylingFile() {
