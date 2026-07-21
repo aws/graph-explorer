@@ -82,7 +82,7 @@ export function StyleImportModal({
           ones you want to import. This cannot be undone.
         </DialogDescription>
       </DialogHeader>
-      <DialogBody className="@container border-t">
+      <DialogBody className="@container gap-8 border-t">
         <StyleGroupGrid heading="Node styles" count={vertexItems.length}>
           {vertexItems.map(item => (
             <VertexStyleImportCard
@@ -146,11 +146,11 @@ function StyleGroupGrid({
   }
 
   return (
-    <section className="space-y-3">
+    <section className="space-y-4">
       <h3 className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
         {`${heading} · ${count}`}
       </h3>
-      <div className="grid grid-cols-1 gap-3 @md:grid-cols-2 @2xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 @md:grid-cols-2 @2xl:grid-cols-3">
         {children}
       </div>
     </section>
