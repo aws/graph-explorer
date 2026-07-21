@@ -25,7 +25,7 @@
     "dev": "pnpm --stream -r run dev"
   },
   "dependencies": {
-    "dompurify": "^3.4.11"
+    "dompurify": "^3.4.12"
   },
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "5.101.0",
