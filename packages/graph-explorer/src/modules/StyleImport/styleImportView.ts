@@ -26,8 +26,8 @@ function matchesFilter(item: StyleImportItem, filter: StyleImportFilter) {
   }
 }
 
-function matchesSearch(item: StyleImportItem, search: string) {
-  return item.type.toLowerCase().includes(search.toLowerCase());
+function matchesSearch(item: StyleImportItem, normalizedSearch: string) {
+  return item.type.toLowerCase().includes(normalizedSearch);
 }
 
 /**
@@ -40,8 +40,10 @@ export function selectVisibleItems(
   filter: StyleImportFilter,
   search: string,
 ): StyleImportItem[] {
+  const normalizedSearch = search.toLowerCase();
   return items.filter(
-    item => matchesFilter(item, filter) && matchesSearch(item, search),
+    item =>
+      matchesFilter(item, filter) && matchesSearch(item, normalizedSearch),
   );
 }
 
@@ -59,8 +61,9 @@ export function filterCounts(
     edges: 0,
     conflicts: 0,
   };
+  const normalizedSearch = search.toLowerCase();
   for (const item of items) {
-    if (!matchesSearch(item, search)) {
+    if (!matchesSearch(item, normalizedSearch)) {
       continue;
     }
     counts.all++;

@@ -16,7 +16,7 @@ import {
 import SearchBar from "@/components/SearchBar";
 
 import type { StyleImportItem, StyleImportPlan } from "./styleImportPlan";
-import type { StyleImportFilter } from "./styleImportView";
+import type { SelectAllState, StyleImportFilter } from "./styleImportView";
 
 import { EdgeStyleImportCard } from "./EdgeStyleImportCard";
 import {
@@ -41,6 +41,14 @@ const filterLabels: Record<StyleImportFilter, string> = {
   edges: "Edges",
   conflicts: "Conflicts",
 };
+
+/** Maps the three-state Select-All to Radix's `checked` value. */
+const selectAllCheckedState: Record<SelectAllState, boolean | "indeterminate"> =
+  {
+    checked: true,
+    unchecked: false,
+    indeterminate: "indeterminate",
+  };
 
 /**
  * The selective style load modal: every actionable style from the file as a
@@ -123,9 +131,11 @@ export function StyleImportModal({
         <ToggleGroup
           type="single"
           value={filter}
-          onValueChange={value =>
-            value && setFilter(value as StyleImportFilter)
-          }
+          onValueChange={value => {
+            if (value in filterLabels) {
+              setFilter(value as StyleImportFilter);
+            }
+          }}
           spacing={0}
           variant="outline"
         >
@@ -148,11 +158,7 @@ export function StyleImportModal({
       >
         <Checkbox
           id="style-import-select-all"
-          checked={
-            selectAll === "indeterminate"
-              ? "indeterminate"
-              : selectAll === "checked"
-          }
+          checked={selectAllCheckedState[selectAll]}
           disabled={visibleItems.length === 0}
           onCheckedChange={checked => toggleVisible(checked === true)}
         />
@@ -246,12 +252,12 @@ function FooterSummary({
   const edgeCount = selectedItems.length - nodeCount;
 
   return (
-    <div className="text-muted-foreground text-sm">
+    <div className="text-muted-foreground text-base">
       <p>
         {`${selectedItems.length} of ${totalCount} selected · ${nodeCount} ${nodeCount === 1 ? "node" : "nodes"}, ${edgeCount} ${edgeCount === 1 ? "edge" : "edges"}`}
       </p>
       {skippedCount > 0 ? (
-        <p>{`${skippedCount} ${skippedCount === 1 ? "style" : "styles"} already match and were skipped`}</p>
+        <p className="text-xs">{`${skippedCount} ${skippedCount === 1 ? "style" : "styles"} already match and were skipped`}</p>
       ) : null}
     </div>
   );
