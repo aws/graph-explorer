@@ -4,6 +4,7 @@
 - **Date:** 2026-06-24
 - **Updated:** 2026-07-06 — the Preferences → Styles rename (#1866) has since shipped. The decision below is unchanged; read `VertexPreferencesStorageModel`→`VertexStyleStorage` and `EdgePreferencesStorageModel`→`EdgeStyleStorage`.
 - **Updated:** 2026-07-20 — the styles cascade collapsed to a single user layer (#1974). Import and export now target the user styles (`userVertexStylesAtom` / `userEdgeStylesAtom`) directly; the never-shipped shared layer was removed with no data migration. The file format itself is unchanged.
+- **Updated:** 2026-07-21 — import is now selective (#1972). The whole-file confirm dialog and `getStylingConflicts` are gone; see the rewritten Import semantics below. The file format and atomic-parser contract are unchanged.
 - **Related:** ADR `shared-file-envelope` (the outer envelope this payload lives inside). ADR `type-keyed-map-atoms-for-user-preferences` (the Map storage shape the user styles mirror). Issue #1866 (Preferences → Styles rename).
 
 ## Context
@@ -87,9 +88,9 @@ Export produces each type's stored **user style** verbatim (`userVertexStylesAto
 
 ### Import semantics
 
-Import writes to the **user styles** (`userVertexStylesAtom` / `userEdgeStylesAtom`).
+Import writes to the **user styles** (`userVertexStylesAtom` / `userEdgeStylesAtom`) and is **selective** (`modules/StyleImport/`).
 
-Import **merges** into the existing user styles rather than replacing them: each type in the file is set onto the current map, and types not present in the file are retained. When the file specifies a type that already has a user style, that overlap is surfaced via `getStylingConflicts` and the user confirms before the overwrite proceeds. This lets a user assemble styles from several files while still being warned before any existing style is overwritten.
+A plan is built by resolving each incoming style against the current one; types that resolve identically are dropped as no-ops (skipped, with the count surfaced in the modal footer). The remaining types are classified `new` or `conflict` and shown as before→after cards, all selected by default. Loading writes the checked items to the user styles as **wholesale full-type replacement** (`useApplyStyleImport`) — the incoming entry replaces the type's entry outright, not a per-field merge. Unchecked types and types absent from the file are left untouched. There is no separate confirm-before-overwrite step: the per-card selection is the confirmation.
 
 ## Consequences
 

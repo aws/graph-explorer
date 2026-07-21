@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { Suspense } from "react";
 import { describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
@@ -197,5 +198,35 @@ describe("LoadStylesButton", () => {
     );
 
     expect(await screen.findByText("Invalid file")).toBeInTheDocument();
+  });
+
+  test("never reveals an ancestor Suspense fallback while loading", async () => {
+    const user = userEvent.setup();
+    const store = getAppStore();
+    new DbState().applyTo(store);
+    render(
+      <TestProvider client={createQueryClient()} store={store}>
+        <TooltipProvider>
+          <Suspense fallback={<div>page loading</div>}>
+            <LoadStylesButton />
+          </Suspense>
+        </TooltipProvider>
+      </TestProvider>,
+    );
+
+    let fallbackSeen = false;
+    const observer = new MutationObserver(() => {
+      if (screen.queryByText("page loading")) fallbackSeen = true;
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    await user.upload(
+      fileInput(),
+      stylingFile({ vertices: { Airport: { color: "#abc" } }, edges: {} }),
+    );
+    await screen.findByText("graph-explorer.styles.json");
+    observer.disconnect();
+
+    expect(fallbackSeen).toBe(false);
   });
 });

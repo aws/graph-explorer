@@ -20,9 +20,9 @@ Saves your current styles to `graph-explorer.styles.json`. Loading this file on 
 
 ### Load styles
 
-Loads a styling file and merges it into your styles. If there are no conflicts the file is applied immediately; if the file contains types you've already styled, you'll see a confirmation listing the types that will be replaced before anything changes. Types not in the file are left unchanged.
+Loads a styling file and opens a preview where each affected node and edge type is shown as a before→after card. All are selected by default; uncheck any you don't want, then choose **Load N selected** to apply just those. Types not in the file, and types whose style already matches the file, are left unchanged (matches are skipped and noted in the summary). Applying is not automatic and cannot be undone.
 
-Loading is all-or-nothing: if the file contains any invalid value, nothing is loaded and you'll see a report listing every offending type and field so you can fix the file and load it again. Icons must be Lucide references (`lucide:<name>`) or base64-encoded data URIs; remote URLs are rejected. Unrecognized or extra fields are ignored silently (this is how a file from a newer version still loads), so a file whose entries contain only unrecognized fields loads nothing and reports that no styles were found.
+Validation is all-or-nothing: if the file contains any invalid value, nothing is loaded (the preview never opens) and you'll see a report listing every offending type and field so you can fix the file and load it again. Icons must be Lucide references (`lucide:<name>`) or base64-encoded data URIs; remote URLs are rejected. Unrecognized or extra fields are ignored silently (this is how a file from a newer version still loads), so a file whose entries contain only unrecognized fields loads nothing and reports that no styles were found.
 
 ### Reset your styles
 
