@@ -140,7 +140,7 @@ function Content({ vertexType }: { vertexType: VertexType }) {
         <DialogHeader>
           <DialogTitle>Customize Your {t("node")} Style</DialogTitle>
           <DialogDescription>
-            Changes here become your custom style and override shared styles.
+            Changes here override the default style for this {t("node-type")}.
           </DialogDescription>
         </DialogHeader>
 

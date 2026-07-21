@@ -67,22 +67,14 @@ A key-value pair on a Vertex or Edge. UI label varies by query language: "Proper
 _Avoid_: Attribute (legacy code term being phased out)
 
 **Styles**:
-Display customizations per Vertex Type and Edge Type — shape, color, icon, line style, and display labels. Resolved through a **Styles Cascade** (highest precedence first): User Custom Styles → Shared Styles → App Default Styles. Persisted and merged with Schema-discovered metadata to produce the final rendering. The two specific instances are **Vertex Styles** and **Edge Styles**, each stored in IndexedDB as its own type-keyed Map per layer. Storage keys follow a `<layer>-<entity>-styles` convention.
-_Avoid_: User Preferences, preferences, user styling, user settings; "customization" as a standalone noun
+Display customizations per Vertex Type and Edge Type — shape, color, icon, line style, and display labels. A type's style resolves as the **User Style** if the user has set one, otherwise the **App Default Style**. Persisted and merged with Schema-discovered metadata to produce the final rendering. The two specific instances are **Vertex Styles** and **Edge Styles**, each stored in IndexedDB as its own type-keyed Map. Storage keys follow a `user-<entity>-styles` convention. The verb is **customize**; the UI shorthand is **your styles**.
+_Avoid_: User Preferences, preferences, user styling, user settings; "customization" as a standalone noun; Effective styles (no separate atom), style overrides
 
-**Styles Cascade**:
-The precedence stack that resolves which style value a vertex or edge type displays. From highest to lowest priority: (3) **User Custom Styles** — per-type edits made in the style dialogs, (2) **Shared Styles** — loaded from a file via Settings, (1) **App Default Styles** — hardcoded in the codebase (`appDefaultVertexStyle` / `appDefaultEdgeStyle`). The layers below User Custom Styles (1–2) collectively are **Default Styles** — what a per-type "Reset to Default" restores to (it clears the user's edit, revealing the Shared or App Default beneath). The verb is **customize**; the UI shorthand is **custom styles** / **shared styles**.
-_Avoid_: Imported Default Styles, imported defaults (the layer is **Shared Styles**); Effective styles (no separate atom), style overrides
-
-**User Custom Styles**:
-The highest-precedence layer in the Styles Cascade. Per-type edits a user makes in the vertex/edge style dialogs. Stored in `userVertexStylesAtom` (`Map<VertexType, VertexStyleStorage>`, key `"user-vertex-styles"`) and `userEdgeStylesAtom` (`Map<EdgeType, EdgeStyleStorage>`, key `"user-edge-styles"`). Clearing these ("Reset Custom Styles" in Settings) reveals Shared Styles beneath.
-
-**Shared Styles**:
-The second-highest-precedence layer in the Styles Cascade (below User Custom, above App Default). Loaded from a styling file via the Settings → Styles screen. Stored in `sharedVertexStylesAtom` (key `"shared-vertex-styles"`) and `sharedEdgeStylesAtom` (key `"shared-edge-styles"`). Non-destructive to User Custom Styles — loading writes only this layer. Clearing these ("Reset Shared Styles" in Settings) falls through to App Default Styles. Named for their purpose: a user **saves** their styles to a file and others **load** it to get the same look.
-_Avoid_: Imported Default Styles, imported defaults (renamed — "shared" names the purpose and reads better)
+**User Styles**:
+The user's own styles, taking precedence over the app defaults. Per-type edits a user makes in the vertex/edge style dialogs, plus styles loaded from a file. Stored in `userVertexStylesAtom` (`Map<VertexType, VertexStyleStorage>`, key `"user-vertex-styles"`) and `userEdgeStylesAtom` (`Map<EdgeType, EdgeStyleStorage>`, key `"user-edge-styles"`). Clearing these ("Reset to Defaults" in Settings) falls back to App Default Styles. A user **saves** their styles to a file and others **load** it to get the same look.
 
 **App Default Styles**:
-The lowest-precedence layer in the Styles Cascade. Hardcoded in the codebase as `appDefaultVertexStyle` and `appDefaultEdgeStyle`. Not persisted — always available as the final fallback.
+The built-in fallback style, used for any type the user hasn't styled. Hardcoded in the codebase as `appDefaultVertexStyle` and `appDefaultEdgeStyle`. Not persisted — always available as the final fallback. In UI copy this is just the **default style** (the "app" qualifier is internal only).
 
 **Schema Sync**:
 The process that queries the database to discover vertex types, edge types, and their attributes. Required before a user can explore a new Connection.

@@ -1,4 +1,4 @@
-import { DownloadIcon, TriangleAlertIcon } from "lucide-react";
+import { SaveAllIcon, TriangleAlertIcon } from "lucide-react";
 import { startTransition, useActionState } from "react";
 
 import {
@@ -93,8 +93,8 @@ export default function SaveStylesButton() {
         onClick={() => dispatch({ type: "save" })}
         disabled={isPending}
       >
-        <DownloadIcon />
-        Save to File
+        <SaveAllIcon />
+        Save
       </Button>
       <AlertDialog
         open={state.kind !== "closed"}

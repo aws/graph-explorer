@@ -3,7 +3,8 @@
 - **Status:** Accepted
 - **Date:** 2026-06-24
 - **Updated:** 2026-07-06 — the Preferences → Styles rename (#1866) has since shipped. The decision below is unchanged; read `VertexPreferencesStorageModel`→`VertexStyleStorage` and `EdgePreferencesStorageModel`→`EdgeStyleStorage`.
-- **Related:** ADR `shared-file-envelope` (the outer envelope this payload lives inside). ADR `type-keyed-map-atoms-for-user-preferences` (the Map storage shape that the shared layer mirrors). Issue #1866 (Preferences → Styles rename).
+- **Updated:** 2026-07-20 — the styles cascade collapsed to a single user layer (#1974). Import and export now target the user styles (`userVertexStylesAtom` / `userEdgeStylesAtom`) directly; the never-shipped shared layer was removed with no data migration. The file format itself is unchanged.
+- **Related:** ADR `shared-file-envelope` (the outer envelope this payload lives inside). ADR `type-keyed-map-atoms-for-user-preferences` (the Map storage shape the user styles mirror). Issue #1866 (Preferences → Styles rename).
 
 ## Context
 
@@ -82,13 +83,13 @@ type EntryImportIssue = {
 
 ### Export semantics
 
-Export produces the **effective merged view**: for each type that has either user or shared styling, the output is `{ ...sharedMap.get(type), ...userMap.get(type) }` with user fields winning on conflict. Re-importing this file on a fresh machine reproduces the full visual appearance.
+Export produces each type's stored **user style** verbatim (`userVertexStylesAtom` / `userEdgeStylesAtom`). Re-importing this file on a fresh machine reproduces the full visual appearance.
 
 ### Import semantics
 
-Import writes to the **shared layer** (`sharedVertexStylesAtom` / `sharedEdgeStylesAtom`) — it is **non-destructive** to user customizations. The user layer is untouched. If the user has customized a field that the import also specifies, the user's value wins in the cascade (user layer has higher precedence).
+Import writes to the **user styles** (`userVertexStylesAtom` / `userEdgeStylesAtom`).
 
-Import **merges** into the existing shared layer rather than replacing it: each type in the file is set onto the current shared map, and types not present in the file are retained. When the file specifies a type that already has a shared style, that overlap is surfaced via `getStylingConflicts` and the user confirms before the overwrite proceeds. This lets a user assemble shared styles from several files while still being warned before any existing shared style is overwritten.
+Import **merges** into the existing user styles rather than replacing them: each type in the file is set onto the current map, and types not present in the file are retained. When the file specifies a type that already has a user style, that overlap is surfaced via `getStylingConflicts` and the user confirms before the overwrite proceeds. This lets a user assemble styles from several files while still being warned before any existing style is overwritten.
 
 ## Consequences
 

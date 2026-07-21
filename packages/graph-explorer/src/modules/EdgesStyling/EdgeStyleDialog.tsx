@@ -99,7 +99,7 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
         <DialogHeader>
           <DialogTitle>Customize Your {t("edge")} Style</DialogTitle>
           <DialogDescription>
-            Changes here become your custom style and override shared styles.
+            Changes here override the default style for this {t("edge-type")}.
           </DialogDescription>
         </DialogHeader>
         <DialogBody>

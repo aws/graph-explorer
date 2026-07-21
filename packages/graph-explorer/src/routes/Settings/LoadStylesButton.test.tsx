@@ -11,7 +11,7 @@ import { type AppStore, getAppStore } from "@/core";
 import { createVertexType, type VertexType } from "@/core/entities";
 import { createFileEnvelope } from "@/core/fileEnvelope";
 import { createQueryClient } from "@/core/queryClient";
-import { sharedVertexStylesAtom } from "@/core/StateProvider/storageAtoms";
+import { userVertexStylesAtom } from "@/core/StateProvider/storageAtoms";
 import { TestProvider } from "@/utils/testing";
 
 import LoadStylesButton from "./LoadStylesButton";
@@ -23,7 +23,7 @@ vi.mock("@/utils/fileData", () => ({
 }));
 
 /**
- * Renders the button, optionally seeding the shared-styles atoms first. The
+ * Renders the button, optionally seeding the user-styles atoms first. The
  * seed happens before render so the component's first render already reflects
  * it — seeding after render leaves the load action closing over the stale
  * initial value until an async re-render flushes, which races the upload.
@@ -73,7 +73,7 @@ describe("LoadStylesButton", () => {
     // Node-only load omits the zero edge side.
     expect(screen.getByText("Loaded 2 node styles.")).toBeInTheDocument();
     expect(
-      store.get(sharedVertexStylesAtom).get(createVertexType("Person")),
+      store.get(userVertexStylesAtom).get(createVertexType("Person")),
     ).toStrictEqual({ type: createVertexType("Person"), color: "#abc" });
   });
 
@@ -95,11 +95,11 @@ describe("LoadStylesButton", () => {
     ).toBeInTheDocument();
   });
 
-  test("prompts before overwriting an existing shared style, then completes on confirm", async () => {
+  test("prompts before overwriting an existing style, then completes on confirm", async () => {
     const user = userEvent.setup();
     const store = renderButton(store =>
       store.set(
-        sharedVertexStylesAtom,
+        userVertexStylesAtom,
         new Map<VertexType, VertexStyleStorage>([
           [
             createVertexType("Person"),
@@ -116,17 +116,17 @@ describe("LoadStylesButton", () => {
 
     // Conflict prompt first — nothing applied yet.
     expect(
-      await screen.findByText("Replace 1 existing shared style?"),
+      await screen.findByText("Replace 1 existing style?"),
     ).toBeInTheDocument();
     expect(
-      store.get(sharedVertexStylesAtom).get(createVertexType("Person"))?.color,
+      store.get(userVertexStylesAtom).get(createVertexType("Person"))?.color,
     ).toBe("#old");
 
     await user.click(screen.getByRole("button", { name: "Load & Replace" }));
 
     expect(await screen.findByText("Styles Loaded")).toBeInTheDocument();
     expect(
-      store.get(sharedVertexStylesAtom).get(createVertexType("Person"))?.color,
+      store.get(userVertexStylesAtom).get(createVertexType("Person"))?.color,
     ).toBe("#new");
   });
 
@@ -142,7 +142,7 @@ describe("LoadStylesButton", () => {
     expect(await screen.findByText("Load Failed")).toBeInTheDocument();
     expect(screen.getByText("Person")).toBeInTheDocument();
     // Nothing persisted.
-    expect(store.get(sharedVertexStylesAtom).size).toBe(0);
+    expect(store.get(userVertexStylesAtom).size).toBe(0);
   });
 
   test("reports when a valid file contains no recognized styles", async () => {

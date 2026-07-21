@@ -10,8 +10,7 @@ import type {
 import { getAppStore } from "@/core";
 import { createEdgeType, createVertexType } from "@/core/entities";
 import {
-  sharedVertexStylesAtom,
-  sharedEdgeStylesAtom,
+  userEdgeStylesAtom,
   userVertexStylesAtom,
 } from "@/core/StateProvider/storageAtoms";
 import { renderHookWithJotai } from "@/utils/testing";
@@ -30,7 +29,7 @@ vi.mock("@/utils/fileData", () => ({
 }));
 
 describe("styling import", () => {
-  test("parseStylingFile + applyImport writes styles to shared atoms", async () => {
+  test("parseStylingFile + applyImport writes styles to user atoms", async () => {
     const { result } = renderHookWithJotai(() => useApplyStylingImport());
 
     const file = createStylingFile({
@@ -47,7 +46,7 @@ describe("styling import", () => {
     result.current(parsed);
 
     const store = getAppStore();
-    const vertexStyles = store.get(sharedVertexStylesAtom);
+    const vertexStyles = store.get(userVertexStylesAtom);
     expect(vertexStyles.get(createVertexType("Person"))).toStrictEqual({
       type: createVertexType("Person"),
       color: "#ff0000",
@@ -58,43 +57,17 @@ describe("styling import", () => {
       color: "#00ff00",
     });
 
-    const edgeStyles = store.get(sharedEdgeStylesAtom);
+    const edgeStyles = store.get(userEdgeStylesAtom);
     expect(edgeStyles.get(createEdgeType("route"))).toStrictEqual({
       type: createEdgeType("route"),
       lineColor: "#0000ff",
     });
   });
 
-  test("does not modify user atoms on import", async () => {
+  test("merges new import with existing user styles", async () => {
     const store = getAppStore();
     store.set(
       userVertexStylesAtom,
-      new Map<VertexType, VertexStyleStorage>([
-        [
-          createVertexType("Person"),
-          { type: createVertexType("Person"), color: "#111" },
-        ],
-      ]),
-    );
-
-    const { result } = renderHookWithJotai(() => useApplyStylingImport());
-
-    const file = createStylingFile({
-      vertices: { Person: { color: "#999" } },
-      edges: {},
-    });
-
-    const parsed = await parseStylingFile(file);
-    result.current(parsed);
-
-    const userStyles = store.get(userVertexStylesAtom);
-    expect(userStyles.get(createVertexType("Person"))?.color).toBe("#111");
-  });
-
-  test("merges new import with existing shared styles", async () => {
-    const store = getAppStore();
-    store.set(
-      sharedVertexStylesAtom,
       new Map<VertexType, VertexStyleStorage>([
         [
           createVertexType("OldType"),
@@ -113,19 +86,19 @@ describe("styling import", () => {
     const parsed = await parseStylingFile(file);
     result.current(parsed);
 
-    const vertexStyles = store.get(sharedVertexStylesAtom);
+    const vertexStyles = store.get(userVertexStylesAtom);
     expect(vertexStyles.has(createVertexType("OldType"))).toBe(true);
     expect(vertexStyles.has(createVertexType("NewType"))).toBe(true);
   });
 
   test("getStylingConflicts identifies overlapping keys", () => {
-    const sharedVertexStyles = new Map<VertexType, VertexStyleStorage>([
+    const userVertexStyles = new Map<VertexType, VertexStyleStorage>([
       [
         createVertexType("Person"),
         { type: createVertexType("Person"), color: "#existing" },
       ],
     ]);
-    const sharedEdgeStyles = new Map<EdgeType, EdgeStyleStorage>([
+    const userEdgeStyles = new Map<EdgeType, EdgeStyleStorage>([
       [
         createEdgeType("knows"),
         { type: createEdgeType("knows"), lineColor: "#old" },
@@ -153,8 +126,8 @@ describe("styling import", () => {
 
     const conflicts = getStylingConflicts(
       parsed,
-      sharedVertexStyles,
-      sharedEdgeStyles,
+      userVertexStyles,
+      userEdgeStyles,
     );
     expect(conflicts).toStrictEqual({
       vertices: ["Person"],
@@ -233,36 +206,27 @@ describe("styling import", () => {
 });
 
 describe("useExportStylingFile", () => {
-  test("exports merged user+shared styles with user winning", () => {
+  test("exports user styles", () => {
     const store = getAppStore();
     store.set(
-      sharedVertexStylesAtom,
+      userVertexStylesAtom,
       new Map<VertexType, VertexStyleStorage>([
         [
           createVertexType("Person"),
           {
             type: createVertexType("Person"),
-            color: "#shared",
+            color: "#user",
             shape: "star",
           },
         ],
       ]),
     );
     store.set(
-      userVertexStylesAtom,
-      new Map<VertexType, VertexStyleStorage>([
-        [
-          createVertexType("Person"),
-          { type: createVertexType("Person"), color: "#user" },
-        ],
-      ]),
-    );
-    store.set(
-      sharedEdgeStylesAtom,
+      userEdgeStylesAtom,
       new Map<EdgeType, EdgeStyleStorage>([
         [
           createEdgeType("route"),
-          { type: createEdgeType("route"), lineColor: "#edge-shared" },
+          { type: createEdgeType("route"), lineColor: "#edge-user" },
         ],
       ]),
     );
@@ -275,46 +239,8 @@ describe("useExportStylingFile", () => {
       Person: { color: "#user", shape: "star" },
     });
     expect(payload.edges).toStrictEqual({
-      route: { lineColor: "#edge-shared" },
+      route: { lineColor: "#edge-user" },
     });
-  });
-
-  test("exports types only present in user layer", () => {
-    const store = getAppStore();
-    store.set(
-      userVertexStylesAtom,
-      new Map<VertexType, VertexStyleStorage>([
-        [
-          createVertexType("City"),
-          { type: createVertexType("City"), color: "#city" },
-        ],
-      ]),
-    );
-
-    const { result } = renderHookWithJotai(() => useExportStylingFile());
-    const payload = result.current.getExportPayload();
-
-    expect(payload.vertices).toStrictEqual({ City: { color: "#city" } });
-    expect(payload.edges).toStrictEqual({});
-  });
-
-  test("exports types only present in shared layer", () => {
-    const store = getAppStore();
-    store.set(
-      sharedEdgeStylesAtom,
-      new Map<EdgeType, EdgeStyleStorage>([
-        [
-          createEdgeType("likes"),
-          { type: createEdgeType("likes"), lineStyle: "dashed" },
-        ],
-      ]),
-    );
-
-    const { result } = renderHookWithJotai(() => useExportStylingFile());
-    const payload = result.current.getExportPayload();
-
-    expect(payload.vertices).toStrictEqual({});
-    expect(payload.edges).toStrictEqual({ likes: { lineStyle: "dashed" } });
   });
 
   test("returns empty payload when no styles exist", () => {

@@ -8,7 +8,7 @@
 
 Cytoscape's round-polygon canvas renderer degenerates at 24px (our node size) for six shapes: `round-triangle`, `round-pentagon`, `round-hexagon`, `round-heptagon`, `round-octagon`, `round-tag`. The corner computation collapses, rendering each as a formless blob and producing invalid edge-endpoint coordinates that cause connected edges to disappear. `round-rectangle` and `round-diamond` are unaffected (they use a different code path). No upstream fix exists; the one related issue (cytoscape/cytoscape.js#3282) describes a crash, not this visual collapse.
 
-The shapes became selectable in the UI via #1886, so users may have stored them in IndexedDB (user-vertex-styles, shared-vertex-styles) or in exported styling files. We must handle that existing data.
+The shapes became selectable in the UI via #1886, so users may have stored them in IndexedDB (user-vertex-styles) or in exported styling files. We must handle that existing data.
 
 ## Decision
 
