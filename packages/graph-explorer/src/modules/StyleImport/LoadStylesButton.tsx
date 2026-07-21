@@ -70,6 +70,7 @@ export function LoadStylesButton() {
     switch (action.type) {
       case "submitFile":
         try {
+          logger.log(`Style import: parsing ${action.file.name}`);
           const parsed = await parseStylingFile(action.file);
           return toPickingOrEmpty(action.file.name, parsed);
         } catch (error) {
@@ -90,8 +91,12 @@ export function LoadStylesButton() {
       // No cards to show for two different reasons: the file carried no styles
       // at all, or every style it carried already matches. The copy differs, so
       // distinguish them by whether anything was skipped as identical.
+      logger.log(
+        `Style import: nothing to apply (${plan.skippedCount} already match)`,
+      );
       return { kind: "empty", allMatched: plan.skippedCount > 0 };
     }
+    logger.log(`Style import: ${plan.items.length} styles to review`);
     return { kind: "picking", fileName, plan };
   }
 
@@ -106,6 +111,11 @@ export function LoadStylesButton() {
   }
 
   function load(items: StyleImportItem[]) {
+    const nodeCount = items.filter(item => item.kind === "vertex").length;
+    const edgeCount = items.length - nodeCount;
+    logger.log(
+      `Style import: applying ${nodeCount} node and ${edgeCount} edge styles`,
+    );
     applyStyleImport(items);
     dispatch({ type: "loaded" });
     toast.success(
@@ -164,6 +174,7 @@ export function LoadStylesButton() {
 
 function toErrorState(error: unknown): LoadState {
   if (error instanceof StylingParseError) {
+    logger.warn("Style import rejected the file", error.issues);
     return { kind: "invalid", issues: error.issues };
   }
   logger.error("Load failed", error);
