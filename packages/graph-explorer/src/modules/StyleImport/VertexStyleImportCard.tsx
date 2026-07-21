@@ -1,9 +1,15 @@
-import { CardContent, VertexSymbol } from "@/components";
+import { VertexSymbol } from "@/components";
 
 import type { VertexStyleImportItem } from "./styleImportPlan";
 
 import { BeforeAfterPreview } from "./BeforeAfterPreview";
-import { StyleImportCardShell } from "./StyleImportCardShell";
+import {
+  ImportCard,
+  ImportCardDetailItem,
+  ImportCardDetails,
+  ImportCardSurface,
+  ImportCardTitle,
+} from "./ImportCard";
 
 /** A node style shown as a before→after card, with its label settings listed. */
 export function VertexStyleImportCard({
@@ -16,11 +22,8 @@ export function VertexStyleImportCard({
   onToggle: () => void;
 }) {
   return (
-    <StyleImportCardShell
-      type={item.type}
-      selected={selected}
-      onToggle={onToggle}
-      preview={
+    <ImportCard label={item.type} checked={selected} onCheckedChange={onToggle}>
+      <ImportCardSurface>
         <BeforeAfterPreview
           beforeLabel={item.status === "conflict" ? "Current" : "Default"}
           afterLabel="Incoming"
@@ -34,10 +37,10 @@ export function VertexStyleImportCard({
             />
           }
         />
-      }
-    >
+      </ImportCardSurface>
+      <ImportCardTitle>{item.type}</ImportCardTitle>
       <LabelSettings item={item} />
-    </StyleImportCardShell>
+    </ImportCard>
   );
 }
 
@@ -57,20 +60,12 @@ function LabelSettings({ item }: { item: VertexStyleImportItem }) {
   }
 
   return (
-    <CardContent>
-      <dl className="text-muted-foreground space-y-3 border-t pt-4 text-sm">
-        {rows.map(row => (
-          <div
-            key={row.label}
-            className="flex flex-wrap justify-between gap-2 leading-snug"
-          >
-            <dt>{row.label}</dt>
-            <dd className="gx-wrap-break-word text-foreground font-mono leading-snug">
-              {row.value}
-            </dd>
-          </div>
-        ))}
-      </dl>
-    </CardContent>
+    <ImportCardDetails>
+      {rows.map(row => (
+        <ImportCardDetailItem key={row.label} label={row.label}>
+          {row.value}
+        </ImportCardDetailItem>
+      ))}
+    </ImportCardDetails>
   );
 }

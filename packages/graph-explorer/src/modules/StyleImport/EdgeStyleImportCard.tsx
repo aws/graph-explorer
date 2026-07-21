@@ -5,7 +5,7 @@ import { EdgePreview } from "@/components";
 import type { EdgeStyleImportItem } from "./styleImportPlan";
 
 import { VerticalBeforeAfterPreview } from "./BeforeAfterPreview";
-import { StyleImportCardShell } from "./StyleImportCardShell";
+import { ImportCard, ImportCardSurface, ImportCardTitle } from "./ImportCard";
 
 /**
  * An edge style shown as a before→after card, the same size as a node card. The
@@ -21,19 +21,17 @@ export function EdgeStyleImportCard({
   onToggle: () => void;
 }) {
   return (
-    <StyleImportCardShell
-      type={item.type}
-      selected={selected}
-      onToggle={onToggle}
-      preview={
+    <ImportCard label={item.type} checked={selected} onCheckedChange={onToggle}>
+      <ImportCardSurface>
         <VerticalBeforeAfterPreview
           beforeLabel={item.status === "conflict" ? "Current" : "Default"}
           afterLabel="Incoming"
           before={<Preview edgeStyle={item.currentStyle} type={item.type} />}
           after={<Preview edgeStyle={item.incomingStyle} type={item.type} />}
         />
-      }
-    />
+      </ImportCardSurface>
+      <ImportCardTitle>{item.type}</ImportCardTitle>
+    </ImportCard>
   );
 }
 
