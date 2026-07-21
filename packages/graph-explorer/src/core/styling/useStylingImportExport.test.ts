@@ -16,7 +16,6 @@ import {
 import { renderHookWithJotai } from "@/utils/testing";
 
 import {
-  getStylingConflicts,
   parseStylingFile,
   useApplyStylingImport,
   useExportStylingFile,
@@ -89,69 +88,6 @@ describe("styling import", () => {
     const vertexStyles = store.get(userVertexStylesAtom);
     expect(vertexStyles.has(createVertexType("OldType"))).toBe(true);
     expect(vertexStyles.has(createVertexType("NewType"))).toBe(true);
-  });
-
-  test("getStylingConflicts identifies overlapping keys", () => {
-    const userVertexStyles = new Map<VertexType, VertexStyleStorage>([
-      [
-        createVertexType("Person"),
-        { type: createVertexType("Person"), color: "#existing" },
-      ],
-    ]);
-    const userEdgeStyles = new Map<EdgeType, EdgeStyleStorage>([
-      [
-        createEdgeType("knows"),
-        { type: createEdgeType("knows"), lineColor: "#old" },
-      ],
-    ]);
-
-    const parsed = {
-      vertexStyles: new Map<VertexType, VertexStyleStorage>([
-        [
-          createVertexType("Person"),
-          { type: createVertexType("Person"), color: "#new" },
-        ],
-        [
-          createVertexType("Airport"),
-          { type: createVertexType("Airport"), color: "#fresh" },
-        ],
-      ]),
-      edgeStyles: new Map<EdgeType, EdgeStyleStorage>([
-        [
-          createEdgeType("knows"),
-          { type: createEdgeType("knows"), lineColor: "#new" },
-        ],
-      ]),
-    };
-
-    const conflicts = getStylingConflicts(
-      parsed,
-      userVertexStyles,
-      userEdgeStyles,
-    );
-    expect(conflicts).toStrictEqual({
-      vertices: ["Person"],
-      edges: ["knows"],
-    });
-  });
-
-  test("getStylingConflicts returns empty when no overlap", () => {
-    const parsed = {
-      vertexStyles: new Map<VertexType, VertexStyleStorage>([
-        [
-          createVertexType("Brand New"),
-          { type: createVertexType("Brand New"), color: "#aaa" },
-        ],
-      ]),
-      edgeStyles: new Map<EdgeType, EdgeStyleStorage>(),
-    };
-
-    const conflicts = getStylingConflicts(
-      parsed,
-      new Map<VertexType, VertexStyleStorage>(),
-      new Map<EdgeType, EdgeStyleStorage>(),
-    );
-    expect(conflicts).toStrictEqual({ vertices: [], edges: [] });
   });
 
   test("throws for invalid file", async () => {

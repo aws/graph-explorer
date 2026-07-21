@@ -16,9 +16,7 @@ export {
   type VertexStyleFileEntry,
 } from "./stylingParser";
 export {
-  getStylingConflicts,
   parseStylingFile,
   useApplyStylingImport,
   useExportStylingFile,
-  type ImportConflicts,
 } from "./useStylingImportExport";

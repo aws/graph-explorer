@@ -28,7 +28,7 @@ function VertexPlaceholder({
   return (
     <div
       className={cn(
-        "bg-primary-subtle-hover border-primary-foreground/25 size-12 shrink-0 rounded-full border-2",
+        "bg-primary-subtle-hover border-primary-foreground/25 size-8 shrink-0 rounded-full border-2",
         className,
       )}
       {...props}
