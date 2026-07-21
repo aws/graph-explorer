@@ -26,6 +26,7 @@ export { default as PanelError } from "./PanelError";
 export * from "./Dialog";
 export { default as Divider } from "./Divider";
 
+export * from "./EdgePreview";
 export * from "./EdgeRow";
 export * from "./EdgeSymbol";
 export * from "./EmptyState";
@@ -44,6 +45,8 @@ export * from "./icons";
 export * from "./Input";
 export * from "./NumberInput";
 export * from "./LabelledSetting";
+export * from "./LabelPreview";
+export * from "./PreviewSurface";
 export { default as InputField } from "./InputField";
 export * from "./InputField";
 

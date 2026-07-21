@@ -12,12 +12,13 @@ import {
   FileButton,
   IconPicker,
   NumberInput,
+  PreviewSurface,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  VertexSymbol,
+  VertexPreview,
 } from "@/components";
 import {
   Dialog,
@@ -188,7 +189,7 @@ function Content({ vertexType }: { vertexType: VertexType }) {
                 </Select>
               </Field>
             </FieldGroup>
-            <FieldGroup className="grid grid-cols-[1fr_auto] gap-4">
+            <FieldGroup className="grid grid-cols-2 gap-4">
               <Field className="col-start-1 row-start-1">
                 <FieldLabel>Shape</FieldLabel>
                 <Select
@@ -238,19 +239,15 @@ function Content({ vertexType }: { vertexType: VertexType }) {
                 </div>
               </Field>
 
-              <Field className="col-start-2 row-span-2 w-auto">
+              <Field className="col-start-2 row-span-2">
                 <FieldLabel>Preview</FieldLabel>
-                <div className="bg-primary-subtle border-input-border grid rounded-lg border shadow-xs">
-                  <div className="flex flex-col items-center justify-center px-6">
-                    <VertexSymbol
-                      vertexStyle={vertexStyle}
-                      className="size-16"
-                    />
-                    <span className="-mt-2 rounded-md bg-[#1d2531]/80 px-3 py-1.5 text-sm leading-none font-medium tracking-wide text-white">
-                      {displayConfig.displayLabel}
-                    </span>
-                  </div>
-                </div>
+                <PreviewSurface className="flex-1">
+                  <VertexPreview
+                    vertexStyle={vertexStyle}
+                    label={displayConfig.displayLabel}
+                    className="zoom-50"
+                  />
+                </PreviewSurface>
               </Field>
             </FieldGroup>
             <FieldGroup>

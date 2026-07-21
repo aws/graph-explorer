@@ -96,13 +96,17 @@ export type VertexTypeStyle = {
   longDisplayNameAttribute: string;
 };
 
-/** The visual appearance of an edge, shared by per-type styles and defaults. */
-export type EdgeVisualStyle = {
+/** The visual appearance of a label badge (shared by edge and vertex labels). */
+export type LabelVisualStyle = {
   labelColor: string;
   labelBackgroundOpacity: number;
   labelBorderColor: string;
   labelBorderStyle: LineStyle;
   labelBorderWidth: number;
+};
+
+/** The visual appearance of an edge, shared by per-type styles and defaults. */
+export type EdgeVisualStyle = LabelVisualStyle & {
   lineColor: string;
   lineThickness: number;
   lineStyle: LineStyle;
@@ -149,6 +153,22 @@ export const appDefaultVertexStyle = {
   borderColor: "#128EE5",
   borderStyle: "solid",
 } as const satisfies Omit<VertexStyle, "type">;
+
+/**
+ * The default appearance of a node's label badge. Nodes have no per-type label
+ * styling (see {@link VertexVisualStyle}), so this is the single source for how
+ * a node label looks. Values mirror the node label config in
+ * `components/Graph/styles/defaultNodeStyle.ts` (`text.background` →
+ * `labelColor`, `text.opacity` → `labelBackgroundOpacity`) — keep in sync if
+ * that canvas style changes.
+ */
+export const appDefaultNodeLabelStyle = {
+  labelColor: "#1d2531",
+  labelBackgroundOpacity: 0.7,
+  labelBorderColor: "#1d2531",
+  labelBorderStyle: "solid",
+  labelBorderWidth: 0,
+} as const satisfies LabelVisualStyle;
 
 /** The default values to use when no user provided value is given. */
 export const appDefaultEdgeStyle = {
