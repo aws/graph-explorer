@@ -1,17 +1,13 @@
+import { ArrowRightIcon } from "lucide-react";
+
 import { VertexSymbol } from "@/components";
 
 import type { VertexStyleImportItem } from "./styleImportPlan";
 
-import { BeforeAfterPreview } from "./BeforeAfterPreview";
-import {
-  ImportCard,
-  ImportCardDetailItem,
-  ImportCardDetails,
-  ImportCardSurface,
-  ImportCardTitle,
-} from "./ImportCard";
+import { ImportCard, ImportCardSurface, ImportCardTitle } from "./ImportCard";
+import { PreviewLabel } from "./PreviewLabel";
 
-/** A node style shown as a before→after card, with its label settings listed. */
+/** A node style shown as a before and after card. */
 export function VertexStyleImportCard({
   item,
   selected,
@@ -23,49 +19,19 @@ export function VertexStyleImportCard({
 }) {
   return (
     <ImportCard label={item.type} checked={selected} onCheckedChange={onToggle}>
-      <ImportCardSurface>
-        <BeforeAfterPreview
-          beforeLabel={item.status === "conflict" ? "Current" : "Default"}
-          afterLabel="Incoming"
-          before={
-            <VertexSymbol vertexStyle={item.currentStyle} className="size-12" />
-          }
-          after={
-            <VertexSymbol
-              vertexStyle={item.incomingStyle}
-              className="size-12"
-            />
-          }
+      <ImportCardSurface className="grid grid-cols-[1fr_auto_1fr] items-center justify-items-center gap-(--card-spacing)">
+        <PreviewLabel className="opacity-60">
+          {item.status === "conflict" ? "Current" : "Default"}
+        </PreviewLabel>
+        <PreviewLabel className="col-start-3">Incoming</PreviewLabel>
+        <VertexSymbol
+          vertexStyle={item.currentStyle}
+          className="size-12 opacity-60"
         />
+        <ArrowRightIcon className="text-primary-foreground/50 size-4 shrink-0" />
+        <VertexSymbol vertexStyle={item.incomingStyle} className="size-12" />
       </ImportCardSurface>
       <ImportCardTitle>{item.type}</ImportCardTitle>
-      <LabelSettings item={item} />
     </ImportCard>
-  );
-}
-
-/**
- * The label-derived settings a node style carries. Only rows the incoming style
- * actually sets are rendered — an all-visual style shows no list.
- */
-function LabelSettings({ item }: { item: VertexStyleImportItem }) {
-  const rows = [
-    { label: "Display name", value: item.incoming.displayNameAttribute },
-    { label: "Description", value: item.incoming.longDisplayNameAttribute },
-    { label: "Type override", value: item.incoming.displayLabel },
-  ].filter(row => row.value !== undefined);
-
-  if (rows.length === 0) {
-    return null;
-  }
-
-  return (
-    <ImportCardDetails>
-      {rows.map(row => (
-        <ImportCardDetailItem key={row.label} label={row.label}>
-          {row.value}
-        </ImportCardDetailItem>
-      ))}
-    </ImportCardDetails>
   );
 }

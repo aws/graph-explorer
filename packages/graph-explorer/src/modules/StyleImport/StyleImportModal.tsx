@@ -78,12 +78,12 @@ export function StyleImportModal({
           Load styles from <span className="font-mono">{fileName}</span>
         </DialogTitle>
         <DialogDescription>
-          Each card shows the current style on the left and what it becomes on
-          the right. Choose which to apply — this cannot be undone.
+          Each card shows the current style and the incoming style. Choose which
+          ones you want to import. This cannot be undone.
         </DialogDescription>
       </DialogHeader>
       <DialogBody className="@container border-t">
-        <StyleGroupGrid heading="Node types" count={vertexItems.length}>
+        <StyleGroupGrid heading="Node styles" count={vertexItems.length}>
           {vertexItems.map(item => (
             <VertexStyleImportCard
               key={itemKey(item)}
@@ -93,7 +93,7 @@ export function StyleImportModal({
             />
           ))}
         </StyleGroupGrid>
-        <StyleGroupGrid heading="Edge types" count={edgeItems.length}>
+        <StyleGroupGrid heading="Edge styles" count={edgeItems.length}>
           {edgeItems.map(item => (
             <EdgeStyleImportCard
               key={itemKey(item)}

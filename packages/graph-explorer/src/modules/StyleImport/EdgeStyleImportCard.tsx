@@ -1,15 +1,17 @@
-import type { EdgeStyle } from "@/core";
+import { ArrowDownIcon } from "lucide-react";
 
 import { EdgePreview } from "@/components";
 
 import type { EdgeStyleImportItem } from "./styleImportPlan";
 
-import { VerticalBeforeAfterPreview } from "./BeforeAfterPreview";
 import { ImportCard, ImportCardSurface, ImportCardTitle } from "./ImportCard";
+import { PreviewLabel } from "./PreviewLabel";
 
 /**
- * An edge style shown as a before→after card, the same size as a node card. The
- * two edge previews stack vertically so the wide edge rendering fits the card.
+ * An edge style shown as a before and after card, the same size as a node card.
+ * The two edge previews stack vertically so the wide edge rendering fits. Each
+ * preview falls back to the type name when the style sets no display-label
+ * override, the same text the canvas draws.
  */
 export function EdgeStyleImportCard({
   item,
@@ -22,29 +24,24 @@ export function EdgeStyleImportCard({
 }) {
   return (
     <ImportCard label={item.type} checked={selected} onCheckedChange={onToggle}>
-      <ImportCardSurface>
-        <VerticalBeforeAfterPreview
-          beforeLabel={item.status === "conflict" ? "Current" : "Default"}
-          afterLabel="Incoming"
-          before={<Preview edgeStyle={item.currentStyle} type={item.type} />}
-          after={<Preview edgeStyle={item.incomingStyle} type={item.type} />}
+      <ImportCardSurface className="flex flex-col items-center gap-(--card-spacing)">
+        <PreviewLabel className="opacity-60">
+          {item.status === "conflict" ? "Current" : "Default"}
+        </PreviewLabel>
+        <EdgePreview
+          edgeStyle={item.currentStyle}
+          label={item.currentStyle.displayLabel || item.type}
+          className="zoom-75 opacity-60"
+        />
+        <ArrowDownIcon className="text-primary-foreground/50 size-4 shrink-0" />
+        <PreviewLabel>Incoming</PreviewLabel>
+        <EdgePreview
+          edgeStyle={item.incomingStyle}
+          label={item.incomingStyle.displayLabel || item.type}
+          className="zoom-75"
         />
       </ImportCardSurface>
       <ImportCardTitle>{item.type}</ImportCardTitle>
     </ImportCard>
-  );
-}
-
-/**
- * One side of the before→after. Falls back to the type name for the label when
- * the style sets no display-label override — the same text the canvas draws.
- */
-function Preview({ edgeStyle, type }: { edgeStyle: EdgeStyle; type: string }) {
-  return (
-    <EdgePreview
-      edgeStyle={edgeStyle}
-      label={edgeStyle.displayLabel || type}
-      className="zoom-75"
-    />
   );
 }
