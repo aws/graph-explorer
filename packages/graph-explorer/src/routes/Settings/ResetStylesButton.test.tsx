@@ -4,17 +4,11 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, test } from "vitest";
 
 import { TooltipProvider } from "@/components";
-import {
-  getAppStore,
-  sharedEdgeStylesAtom,
-  sharedVertexStylesAtom,
-  userEdgeStylesAtom,
-  userVertexStylesAtom,
-} from "@/core";
+import { getAppStore, userEdgeStylesAtom, userVertexStylesAtom } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import { DbState, TestProvider } from "@/utils/testing";
 
-import ResetAllStylesButton from "./ResetAllStylesButton";
+import ResetStylesButton from "./ResetStylesButton";
 
 function renderButton(state = new DbState()) {
   const store = getAppStore();
@@ -23,7 +17,7 @@ function renderButton(state = new DbState()) {
   render(
     <TestProvider client={queryClient} store={store}>
       <TooltipProvider>
-        <ResetAllStylesButton />
+        <ResetStylesButton />
       </TooltipProvider>
     </TestProvider>,
   );
@@ -31,10 +25,10 @@ function renderButton(state = new DbState()) {
 }
 
 function triggerButton() {
-  return screen.getByRole("button", { name: "Reset All Styles" });
+  return screen.getByRole("button", { name: "Reset" });
 }
 
-describe("ResetAllStylesButton", () => {
+describe("ResetStylesButton", () => {
   test("renders a trigger button", () => {
     renderButton();
     expect(triggerButton()).toBeInTheDocument();
@@ -47,41 +41,30 @@ describe("ResetAllStylesButton", () => {
     await user.click(triggerButton());
 
     expect(screen.getByRole("alertdialog")).toBeInTheDocument();
-    expect(
-      screen.getByText(/clear all your styles and all shared styles/),
-    ).toBeInTheDocument();
   });
 
-  test("resets all user and shared styles when confirmed", async () => {
+  test("clears all styles when confirmed", async () => {
     const user = userEvent.setup();
     const store = renderButton();
 
     await user.click(triggerButton());
-    await user.click(screen.getByRole("button", { name: "Reset All Styles" }));
+    await user.click(screen.getByRole("button", { name: "Reset to Defaults" }));
 
     expect(store.get(userVertexStylesAtom)).toStrictEqual(new Map());
     expect(store.get(userEdgeStylesAtom)).toStrictEqual(new Map());
-    expect(store.get(sharedVertexStylesAtom)).toStrictEqual(new Map());
-    expect(store.get(sharedEdgeStylesAtom)).toStrictEqual(new Map());
   });
 
   test("does nothing when cancelled", async () => {
     const user = userEvent.setup();
     const store = renderButton();
 
-    const expectedUserVertex = new Map(store.get(userVertexStylesAtom));
-    const expectedUserEdge = new Map(store.get(userEdgeStylesAtom));
-    const expectedSharedVertex = new Map(store.get(sharedVertexStylesAtom));
-    const expectedSharedEdge = new Map(store.get(sharedEdgeStylesAtom));
+    const expectedVertex = new Map(store.get(userVertexStylesAtom));
+    const expectedEdge = new Map(store.get(userEdgeStylesAtom));
 
     await user.click(triggerButton());
     await user.click(screen.getByRole("button", { name: "Cancel" }));
 
-    expect(store.get(userVertexStylesAtom)).toStrictEqual(expectedUserVertex);
-    expect(store.get(userEdgeStylesAtom)).toStrictEqual(expectedUserEdge);
-    expect(store.get(sharedVertexStylesAtom)).toStrictEqual(
-      expectedSharedVertex,
-    );
-    expect(store.get(sharedEdgeStylesAtom)).toStrictEqual(expectedSharedEdge);
+    expect(store.get(userVertexStylesAtom)).toStrictEqual(expectedVertex);
+    expect(store.get(userEdgeStylesAtom)).toStrictEqual(expectedEdge);
   });
 });

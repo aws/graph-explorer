@@ -3,6 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-06-23
 - **Updated:** 2026-07-06 — the styling vocabulary was renamed to the Styles convention (#1866). The decision below is unchanged; only the identifiers drifted. Read it with these substitutions: `VertexPreferencesStorageModel`→`VertexStyleStorage`, `EdgePreferencesStorageModel`→`EdgeStyleStorage`, `vertexPreferencesAtom`→`vertexStyleAtom`, `edgePreferencesAtom`→`edgeStyleAtom`, `LegacyUserStylingStorageModel`→`LegacyUserStylingStorage`, `userPreferences.ts`→`graphStyles.ts`.
+- **Updated:** 2026-07-20 — the multi-layer roadmap was abandoned (#1974). Styles resolve as a single user layer over the app defaults; the never-shipped shared layer was removed. The type-keyed Map decision below is unchanged.
 - **Related:** ADR `per-key-diff-merge-cross-tab-reconciliation` — the Map-keyed shape is the prerequisite for per-type merge. ADR `storage-layer-owns-persistence-failure` — the migration's "catch and degrade to defaults on failure" posture follows that ADR's established startup-failure stance. Issue #1864 (this change). Issues #1820 / #1831 (cross-tab merge, separate follow-up).
 
 ## Context
@@ -37,7 +38,7 @@ userEdgeStylesAtom: Map<EdgeType, EdgePreferencesStorageModel>; // key: "user-ed
 
 Splitting vertex styles from edge styles (rather than a single `Map<string, ...>`) keeps the types precise and avoids a heterogeneous map that mixes `VertexPreferencesStorageModel` and `EdgePreferencesStorageModel` values under untyped string keys.
 
-The keys follow a `<layer>-<entity>-styles` convention. Only the user-defined layer (`user-`) exists today; planned later work adds imported (UI file import), server (fetched from server config), and base (hard-coded codebase defaults) layers, which merge by precedence to produce the final rendering. Naming the user layer `user-vertex-styles` now — rather than a bare `vertex-styles` — means those sibling keys slot in without renaming or re-migrating this one.
+The keys are `user-vertex-styles` and `user-edge-styles`. The `user-` prefix is a historical artifact of a since-abandoned multi-layer roadmap (see the 2026-07-20 note); styles now resolve as this single user layer over the hard-coded app defaults.
 
 Maps persist natively through localForage/IndexedDB via the structured-clone algorithm — no serialization work is needed.
 

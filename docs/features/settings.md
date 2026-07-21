@@ -10,33 +10,23 @@
 
 ## Styles
 
-The Styles settings page lets you manage your styling configuration — the colors, shapes, icons, and other visual properties applied to vertex and edge types in the graph view.
+The Styles settings page lets you manage your styling configuration: the colors, shapes, icons, and other visual properties applied to vertex and edge types in the graph view.
 
-Graph Explorer uses a three-layer cascade to determine how each type looks:
-
-1. **Custom styles** (highest priority) — per-type edits you make in the style dialogs
-2. **Shared styles** — loaded from a file via this settings page
-3. **App defaults** — the built-in fallback styles
-
-When you customize a type in the style dialog, that change only affects your custom layer. Shared styles fill in where you haven't customized.
+Each type's appearance comes from your styles when you've set them, falling back to the built-in defaults otherwise. You set a type's style by editing it in the style dialog or by loading a styling file.
 
 ### Save styles to share
 
-Saves your current effective styles (custom and shared, merged) to `graph-explorer.styles.json`. Loading this file on another machine or browser reproduces your full visual configuration.
+Saves your current styles to `graph-explorer.styles.json`. Loading this file on another machine or browser reproduces your full visual configuration.
 
-### Load shared styles
+### Load styles
 
-Loads a styling file and merges it into your shared styles. Your custom styles are not affected — they continue to take priority. If there are no conflicts the file is applied immediately; if the file contains types that already have shared styles, you'll see a confirmation listing the types that will be replaced before anything changes. Types not in the file are left unchanged. The page shows an indicator of how many types currently have shared styles.
+Loads a styling file and merges it into your styles. If there are no conflicts the file is applied immediately; if the file contains types you've already styled, you'll see a confirmation listing the types that will be replaced before anything changes. Types not in the file are left unchanged.
 
 Loading is all-or-nothing: if the file contains any invalid value, nothing is loaded and you'll see a report listing every offending type and field so you can fix the file and load it again. Icons must be Lucide references (`lucide:<name>`) or base64-encoded data URIs; remote URLs are rejected. Unrecognized or extra fields are ignored silently (this is how a file from a newer version still loads), so a file whose entries contain only unrecognized fields loads nothing and reports that no styles were found.
 
-### Reset custom styles
+### Reset your styles
 
-Clears all your per-type style customizations. After this, types will show their shared styles (if any) or the app defaults. This cannot be undone — consider saving first.
-
-### Reset shared styles
-
-Removes all shared styles. Your custom styles remain unaffected.
+Clears all your node and edge styles, returning every type to the defaults. This cannot be undone, so consider saving first.
 
 ## About
 

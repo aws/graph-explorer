@@ -15,23 +15,17 @@ import {
   Button,
 } from "@/components";
 import {
-  sharedEdgeStylesAtom,
-  sharedVertexStylesAtom,
   userEdgeStylesAtom,
   userVertexStylesAtom,
 } from "@/core/StateProvider/storageAtoms";
 
-export default function ResetAllStylesButton() {
+export default function ResetStylesButton() {
   const setUserVertexStyles = useSetAtom(userVertexStylesAtom);
   const setUserEdgeStyles = useSetAtom(userEdgeStylesAtom);
-  const setSharedVertexStyles = useSetAtom(sharedVertexStylesAtom);
-  const setSharedEdgeStyles = useSetAtom(sharedEdgeStylesAtom);
 
-  function resetAllStyles() {
+  function resetStyles() {
     setUserVertexStyles(new Map());
     setUserEdgeStyles(new Map());
-    setSharedVertexStyles(new Map());
-    setSharedEdgeStyles(new Map());
   }
 
   return (
@@ -39,7 +33,7 @@ export default function ResetAllStylesButton() {
       <AlertDialogTrigger asChild>
         <Button variant="danger" className="min-w-28">
           <Trash2Icon />
-          Reset All Styles
+          Reset
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -47,19 +41,19 @@ export default function ResetAllStylesButton() {
           <AlertDialogMedia className="bg-danger-subtle text-danger-foreground">
             <Trash2Icon />
           </AlertDialogMedia>
-          <AlertDialogTitle>Reset All Styles</AlertDialogTitle>
+          <AlertDialogTitle>Reset to Defaults</AlertDialogTitle>
           <AlertDialogDescription>
             <span className="block">
-              This will clear all your styles and all shared styles, returning
-              everything to defaults. Consider saving first.
+              This will clear all your node and edge styles, returning
+              everything to the defaults. Consider saving first.
             </span>
             <span className="mbs-4 block">This cannot be undone.</span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction variant="primary-danger" onClick={resetAllStyles}>
-            Reset All Styles
+          <AlertDialogAction variant="primary-danger" onClick={resetStyles}>
+            Reset to Defaults
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

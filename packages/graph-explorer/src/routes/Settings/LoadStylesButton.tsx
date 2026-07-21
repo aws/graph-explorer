@@ -1,5 +1,10 @@
 import { useAtomValue } from "jotai";
-import { AlertTriangleIcon, CheckCircleIcon, UploadIcon } from "lucide-react";
+import {
+  AlertTriangleIcon,
+  CheckCircleIcon,
+  FolderOpenIcon,
+  UploadIcon,
+} from "lucide-react";
 import { startTransition, useActionState } from "react";
 
 import type {
@@ -29,8 +34,8 @@ import {
   GroupTitle,
 } from "@/components";
 import {
-  sharedEdgeStylesAtom,
-  sharedVertexStylesAtom,
+  userEdgeStylesAtom,
+  userVertexStylesAtom,
 } from "@/core/StateProvider/storageAtoms";
 import {
   getStylingConflicts,
@@ -75,8 +80,8 @@ type LoadAction =
 
 export default function LoadStylesButton() {
   const applyImport = useApplyStylingImport();
-  const sharedVertexStyles = useAtomValue(sharedVertexStylesAtom);
-  const sharedEdgeStyles = useAtomValue(sharedEdgeStylesAtom);
+  const userVertexStyles = useAtomValue(userVertexStylesAtom);
+  const userEdgeStyles = useAtomValue(userEdgeStylesAtom);
 
   // The action is a reducer that may await and perform the load side effect,
   // since it runs as an event rather than as a pure reducer. React tracks
@@ -92,8 +97,8 @@ export default function LoadStylesButton() {
           const parsed = await parseStylingFile(action.file);
           const conflicts = getStylingConflicts(
             parsed,
-            sharedVertexStyles,
-            sharedEdgeStyles,
+            userVertexStyles,
+            userEdgeStyles,
           );
           // Conflicts must be confirmed before overwriting; otherwise apply now.
           if (hasConflicts(conflicts)) {
@@ -166,8 +171,8 @@ export default function LoadStylesButton() {
         asChild
       >
         <Button className="min-w-28" disabled={isPending}>
-          <UploadIcon />
-          Load from File
+          <FolderOpenIcon />
+          Load
         </Button>
       </FileButton>
 
@@ -216,12 +221,12 @@ function ConflictContent({
           <UploadIcon />
         </AlertDialogMedia>
         <AlertDialogTitle>
-          {`Replace ${conflictCount} existing shared ${conflictCount === 1 ? "style" : "styles"}?`}
+          {`Replace ${conflictCount} existing ${conflictCount === 1 ? "style" : "styles"}?`}
         </AlertDialogTitle>
         <AlertDialogDescription>
-          The loaded file will overwrite these existing shared styles. New types
-          will be added alongside them. This cannot be undone, so consider
-          saving first.
+          The loaded file will overwrite these existing styles. New types will
+          be added alongside them. This cannot be undone, so consider saving
+          first.
         </AlertDialogDescription>
       </AlertDialogHeader>
       <ConflictLists conflicts={conflicts} />
