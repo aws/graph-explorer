@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Suspense } from "react";
 import { describe, expect, test, vi } from "vitest";
@@ -104,6 +104,13 @@ describe("LoadStylesButton", () => {
       color: "#abc",
     });
     expect(styles.has(createVertexType("Country"))).toBe(false);
+
+    // The modal closes once the load is applied.
+    await waitFor(() =>
+      expect(
+        screen.queryByText("graph-explorer.styles.json"),
+      ).not.toBeInTheDocument(),
+    );
   });
 
   test("toggles selection when the card body, not just the checkbox, is clicked", async () => {
