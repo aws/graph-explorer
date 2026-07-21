@@ -59,16 +59,48 @@ function DialogContent({
 }
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
+/**
+ * The dialog's title/description block, optionally preceded by a
+ * {@link DialogMedia} tile. With no media it's a single stacked column; when a
+ * media tile is present the header becomes a two-column grid — the tile spans
+ * both rows on the left and the title/description flow into the right column,
+ * mirroring {@link AlertDialogHeader}.
+ */
 const DialogHeader = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn("flex flex-col space-y-1.5 p-6 pb-3", className)}
+    data-slot="dialog-header"
+    className={cn(
+      "group/dialog-header grid gap-1.5 p-6 pb-3 has-data-[slot=dialog-media]:grid-cols-[auto_1fr] has-data-[slot=dialog-media]:grid-rows-[auto_1fr] has-data-[slot=dialog-media]:gap-x-4",
+      className,
+    )}
     {...props}
   />
 );
 DialogHeader.displayName = "DialogHeader";
+
+/**
+ * An icon tile shown to the left of the dialog title. Give it a role tint via
+ * `className` the same way {@link AlertDialogMedia} is used (e.g.
+ * `bg-primary-subtle text-primary-foreground`); it spans both header rows so
+ * the title and description sit beside it.
+ */
+const DialogMedia = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    data-slot="dialog-media"
+    className={cn(
+      "bg-muted row-span-2 inline-flex size-10 items-center justify-center rounded-md *:[svg:not([class*='size-'])]:size-6",
+      className,
+    )}
+    {...props}
+  />
+);
+DialogMedia.displayName = "DialogMedia";
 
 /**
  * The scrollable region of a dialog. Header and footer sit outside it and stay
@@ -110,7 +142,7 @@ function DialogTitle({
   return (
     <DialogPrimitive.Title
       className={cn(
-        "gx-wrap-break-word text-lg leading-none font-semibold tracking-tight",
+        "gx-wrap-break-word text-lg leading-none font-semibold tracking-tight group-has-data-[slot=dialog-media]/dialog-header:col-start-2",
         className,
       )}
       {...props}
@@ -144,6 +176,7 @@ export {
   DialogContent,
   DialogBody,
   DialogHeader,
+  DialogMedia,
   DialogFooter,
   DialogTitle,
   DialogDescription,

@@ -20,9 +20,11 @@ Saves your current styles to `graph-explorer.styles.json`. Loading this file on 
 
 ### Load styles
 
-Loads a styling file and merges it into your styles. If there are no conflicts the file is applied immediately; if the file contains types you've already styled, you'll see a confirmation listing the types that will be replaced before anything changes. Types not in the file are left unchanged.
+Load a styling file to apply a saved look to your graph. This is how you pick up styles someone shared with you, restore your own setup on another machine, or roll back to a look you saved earlier.
 
-Loading is all-or-nothing: if the file contains any invalid value, nothing is loaded and you'll see a report listing every offending type and field so you can fix the file and load it again. Icons must be Lucide references (`lucide:<name>`) or base64-encoded data URIs; remote URLs are rejected. Unrecognized or extra fields are ignored silently (this is how a file from a newer version still loads), so a file whose entries contain only unrecognized fields loads nothing and reports that no styles were found.
+Loading opens a preview so you can see what each type looks like now next to what the file would change it to. Every change starts selected, so you can review the whole set at a glance and uncheck anything you'd rather keep. Choosing **Load N selected** applies just the ones you kept.
+
+Only the types you select change. Anything not in the file stays as it is, and any type that already looks the way the file describes is left out of the preview, so you only ever review real changes.
 
 ### Reset your styles
 

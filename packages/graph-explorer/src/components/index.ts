@@ -7,6 +7,8 @@ export * from "./Checkbox";
 export { default as CheckboxList } from "./CheckboxList";
 export * from "./CheckboxList";
 
+export * from "./Card";
+
 export { default as Chip } from "./Chip";
 export * from "./Chip";
 

@@ -13,8 +13,8 @@ import {
   SettingsPageTitle,
   SettingsPage,
 } from "@/components";
+import { LoadStylesButton } from "@/modules/StyleImport";
 
-import LoadStylesButton from "./LoadStylesButton";
 import ResetStylesButton from "./ResetStylesButton";
 import SaveStylesButton from "./SaveStylesButton";
 
@@ -47,7 +47,7 @@ export default function SettingsStyles() {
         <GroupItem>
           <LabelledSetting
             label="Load styles"
-            description="Load styles from a file. New types are added and matching ones are replaced."
+            description="Load styles from a file. Preview each one and choose which to apply."
           >
             <LoadStylesButton />
           </LabelledSetting>
