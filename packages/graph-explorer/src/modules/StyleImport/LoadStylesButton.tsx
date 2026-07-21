@@ -212,15 +212,9 @@ function LoadEmptyContent({ allMatched }: { allMatched: boolean }) {
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
-        {allMatched ? (
-          <AlertDialogMedia className="bg-primary-subtle text-primary-foreground">
-            <InfoIcon />
-          </AlertDialogMedia>
-        ) : (
-          <AlertDialogMedia className="bg-warning-subtle text-warning-foreground">
-            <AlertTriangleIcon />
-          </AlertDialogMedia>
-        )}
+        <AlertDialogMedia className="bg-primary-subtle text-primary-foreground">
+          <InfoIcon />
+        </AlertDialogMedia>
         <AlertDialogTitle>
           {allMatched ? "No Styles to Load" : "No Styles Found"}
         </AlertDialogTitle>

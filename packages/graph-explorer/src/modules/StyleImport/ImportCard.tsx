@@ -43,7 +43,8 @@ export function ImportCard({
 
 /**
  * The canvas-tinted region a style preview floats on, bleeding to the card
- * edges. Left-padded to clear the floating checkbox.
+ * edges. Padded symmetrically so the preview stays centered despite the
+ * left-anchored floating checkbox.
  */
 export function ImportCardSurface({
   className,

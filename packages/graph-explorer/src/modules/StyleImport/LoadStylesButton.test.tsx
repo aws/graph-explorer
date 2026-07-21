@@ -182,6 +182,43 @@ describe("LoadStylesButton", () => {
     expect(await screen.findByText("No Styles Found")).toBeInTheDocument();
   });
 
+  test("labels a card that replaces an existing style 'Current' and a new one 'Default'", async () => {
+    const user = userEvent.setup();
+    renderButton(state => {
+      // Airport already has a user style, so loading a different one conflicts.
+      state.addVertexStyle(createVertexType("Airport"), { color: "#abc" });
+    });
+
+    await user.upload(
+      fileInput(),
+      stylingFile({
+        vertices: { Airport: { color: "#def" }, Country: { color: "#111" } },
+        edges: {},
+      }),
+    );
+
+    // The conflicting Airport card tags its before side "Current"; the brand-new
+    // Country card tags its before side "Default".
+    expect(await screen.findByText("Current")).toBeInTheDocument();
+    expect(screen.getByText("Default")).toBeInTheDocument();
+  });
+
+  test("renders an edge card with its before and after previews", async () => {
+    const user = userEvent.setup();
+    renderButton();
+
+    await user.upload(
+      fileInput(),
+      stylingFile({ vertices: {}, edges: { route: { lineColor: "#123" } } }),
+    );
+
+    expect(
+      await screen.findByRole("checkbox", { name: "Load route style" }),
+    ).toBeInTheDocument();
+    // Both edge previews render, each labelled by the resolved edge type.
+    expect(screen.getAllByLabelText("route edge preview")).toHaveLength(2);
+  });
+
   test("surfaces an envelope-level error for the wrong file kind", async () => {
     const user = userEvent.setup();
     renderButton();
