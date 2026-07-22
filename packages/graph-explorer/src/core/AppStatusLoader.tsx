@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import {
   type PropsWithChildren,
   startTransition,
@@ -22,7 +22,7 @@ function AppStatusLoader({ children }: PropsWithChildren) {
 }
 
 function LoadDefaultConfig({ children }: PropsWithChildren) {
-  const [activeConfig, setActiveConfig] = useAtom(activeConfigurationAtom);
+  const setActiveConfig = useSetAtom(activeConfigurationAtom);
   const [configuration, setConfiguration] = useAtom(configurationAtom);
 
   const defaultConfigQuery = useQuery({
@@ -46,6 +46,13 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
       return;
     }
 
+    // Only seed the default connection into an empty store. Guarding on size
+    // lets the effect re-fire and re-add the default when the last connection
+    // is deleted, while settling after the write instead of looping.
+    if (configuration.size > 0) {
+      return;
+    }
+
     startTransition(() => {
       logger.debug("Adding default connections", defaultConnectionConfigs);
       setConfiguration(prev => {
@@ -58,8 +65,7 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
       setActiveConfig(defaultConnectionConfigs[0].id);
     });
   }, [
-    activeConfig,
-    configuration,
+    configuration.size,
     setActiveConfig,
     setConfiguration,
     defaultConnectionConfigs,
