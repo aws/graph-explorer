@@ -36,12 +36,12 @@ export function VertexStyleImportCard({
       <ImportCardTitle>{item.type}</ImportCardTitle>
       <ImportCardProperties
         properties={[
-          { label: "Display as", value: item.incoming.displayLabel },
           { label: "Display name", value: item.incoming.displayNameAttribute },
           {
             label: "Display description",
             value: item.incoming.longDisplayNameAttribute,
           },
+          { label: "Display type", value: item.incoming.displayLabel },
         ]}
       />
     </ImportCard>

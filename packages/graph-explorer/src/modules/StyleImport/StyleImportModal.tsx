@@ -125,7 +125,7 @@ export function StyleImportModal({
   const selectAll = selectAllState(visibleItems, isSelected);
 
   return (
-    <DialogContent className="h-[52rem] w-[min(64rem,calc(100vw-2rem))] max-w-none">
+    <DialogContent className="h-full w-5xl">
       <DialogHeader className="pb-6">
         <DialogMedia className="bg-primary-subtle text-primary-foreground">
           <UploadIcon />
@@ -142,7 +142,7 @@ export function StyleImportModal({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <label
             htmlFor="style-import-select-all"
-            className="flex w-fit shrink-0 cursor-pointer items-center gap-2 text-sm"
+            className="flex w-fit shrink-0 cursor-pointer items-center gap-2 text-sm font-medium"
           >
             <Checkbox
               id="style-import-select-all"
