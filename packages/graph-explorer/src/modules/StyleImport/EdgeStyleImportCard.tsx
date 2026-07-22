@@ -1,5 +1,3 @@
-import { ArrowDownIcon } from "lucide-react";
-
 import { EdgePreview } from "@/components";
 
 import type { EdgeStyleImportItem } from "./styleImportPlan";
@@ -29,22 +27,21 @@ export function EdgeStyleImportCard({
 }) {
   return (
     <ImportCard label={item.type} checked={selected} onCheckedChange={onToggle}>
-      <ImportCardSurface className="space-y-5">
-        <div className="flex w-full flex-col items-center gap-3">
+      <ImportCardSurface className="space-y-9">
+        <div className="flex flex-col items-center gap-3">
           <PreviewLabel>Before</PreviewLabel>
           <EdgePreview
             edgeStyle={item.currentStyle}
             label={item.currentStyle.displayLabel || item.type}
-            className="zoom-75 px-4"
+            className="zoom-75"
           />
         </div>
-        <ArrowDownIcon className="text-primary-foreground/50 mx-auto size-4 shrink-0" />
-        <div className="flex w-full flex-col items-center gap-3">
+        <div className="flex flex-col items-center gap-3">
           <PreviewLabel>After</PreviewLabel>
           <EdgePreview
             edgeStyle={item.incomingStyle}
             label={item.incomingStyle.displayLabel || item.type}
-            className="zoom-75 px-4"
+            className="zoom-75"
           />
         </div>
       </ImportCardSurface>
