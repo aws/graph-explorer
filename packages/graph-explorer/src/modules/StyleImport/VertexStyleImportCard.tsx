@@ -21,7 +21,7 @@ export function VertexStyleImportCard({
     <ImportCard label={item.type} checked={selected} onCheckedChange={onToggle}>
       <ImportCardSurface className="grid grid-cols-[1fr_auto_1fr] items-center justify-items-center gap-(--card-spacing)">
         <PreviewLabel className="opacity-60">
-          {item.status === "conflict" ? "Current" : "Default"}
+          {item.status === "existing" ? "Current" : "Default"}
         </PreviewLabel>
         <PreviewLabel className="col-start-3">Incoming</PreviewLabel>
         <VertexSymbol

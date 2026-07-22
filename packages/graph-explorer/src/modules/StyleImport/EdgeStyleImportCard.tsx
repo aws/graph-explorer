@@ -26,7 +26,7 @@ export function EdgeStyleImportCard({
     <ImportCard label={item.type} checked={selected} onCheckedChange={onToggle}>
       <ImportCardSurface className="flex flex-col items-center gap-(--card-spacing)">
         <PreviewLabel className="opacity-60">
-          {item.status === "conflict" ? "Current" : "Default"}
+          {item.status === "existing" ? "Current" : "Default"}
         </PreviewLabel>
         <EdgePreview
           edgeStyle={item.currentStyle}

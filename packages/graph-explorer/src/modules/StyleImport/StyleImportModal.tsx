@@ -1,9 +1,19 @@
 import type { ReactNode } from "react";
 
-import { UploadIcon } from "lucide-react";
+import { SearchXIcon, UploadIcon } from "lucide-react";
 import { useState } from "react";
 
-import { Button } from "@/components";
+import {
+  Button,
+  Checkbox,
+  EmptyState,
+  EmptyStateContent,
+  EmptyStateDescription,
+  EmptyStateIcon,
+  EmptyStateTitle,
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components";
 import {
   DialogBody,
   DialogContent,
@@ -13,10 +23,17 @@ import {
   DialogMedia,
   DialogTitle,
 } from "@/components/Dialog";
+import SearchBar from "@/components/SearchBar";
 
 import type { StyleImportItem, StyleImportPlan } from "./styleImportPlan";
+import type { SelectAllState, StyleImportFilter } from "./styleImportView";
 
 import { EdgeStyleImportCard } from "./EdgeStyleImportCard";
+import {
+  filterCounts,
+  selectAllState,
+  selectVisibleItems,
+} from "./styleImportView";
 import { VertexStyleImportCard } from "./VertexStyleImportCard";
 
 /**
@@ -28,10 +45,28 @@ function itemKey(item: StyleImportItem): string {
   return `${item.kind}:${item.type}`;
 }
 
+const filterLabels: Record<StyleImportFilter, string> = {
+  all: "All",
+  nodes: "Nodes",
+  edges: "Edges",
+  new: "New",
+  existing: "Existing",
+};
+
+/** Maps the three-state Select-All to Radix's `checked` value. */
+const selectAllCheckedState: Record<SelectAllState, boolean | "indeterminate"> =
+  {
+    checked: true,
+    unchecked: false,
+    indeterminate: "indeterminate",
+  };
+
 /**
  * The selective style load modal: every actionable style from the file as a
- * before→after card, all selected by default. Loading writes the checked
- * styles to the user styles layer via `onLoad` and dismisses.
+ * before→after card, all selected by default. A filter tab, search box, and
+ * Select-All narrow what is shown; selection stays the source of truth, so the
+ * footer and Load button count every checked item regardless of the view.
+ * Loading writes the checked styles to the user styles layer via `onLoad`.
  */
 export function StyleImportModal({
   fileName,
@@ -47,10 +82,14 @@ export function StyleImportModal({
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(
     () => new Set(plan.items.map(itemKey)),
   );
+  const [filter, setFilter] = useState<StyleImportFilter>("all");
+  const [search, setSearch] = useState("");
 
-  const selectedItems = plan.items.filter(item =>
-    selectedKeys.has(itemKey(item)),
-  );
+  const isSelected = (item: StyleImportItem) => selectedKeys.has(itemKey(item));
+
+  const selectedItems = plan.items.filter(isSelected);
+  const visibleItems = selectVisibleItems(plan.items, filter, search);
+  const counts = filterCounts(plan.items, search);
 
   function toggle(item: StyleImportItem) {
     setSelectedKeys(prev => {
@@ -65,12 +104,29 @@ export function StyleImportModal({
     });
   }
 
-  const vertexItems = plan.items.filter(item => item.kind === "vertex");
-  const edgeItems = plan.items.filter(item => item.kind === "edge");
+  function toggleVisible(select: boolean) {
+    setSelectedKeys(prev => {
+      const next = new Set(prev);
+      for (const item of visibleItems) {
+        if (select) {
+          next.add(itemKey(item));
+        } else {
+          next.delete(itemKey(item));
+        }
+      }
+      return next;
+    });
+  }
+
+  const visibleVertexItems = visibleItems.filter(
+    item => item.kind === "vertex",
+  );
+  const visibleEdgeItems = visibleItems.filter(item => item.kind === "edge");
+  const selectAll = selectAllState(visibleItems, isSelected);
 
   return (
-    <DialogContent className="w-[min(64rem,calc(100vw-2rem))] max-w-none">
-      <DialogHeader>
+    <DialogContent className="h-[52rem] w-[min(64rem,calc(100vw-2rem))] max-w-none">
+      <DialogHeader className="pb-6">
         <DialogMedia className="bg-primary-subtle text-primary-foreground">
           <UploadIcon />
         </DialogMedia>
@@ -82,27 +138,89 @@ export function StyleImportModal({
           ones you want to import. This cannot be undone.
         </DialogDescription>
       </DialogHeader>
-      <DialogBody className="@container gap-8 border-t">
-        <StyleGroupGrid heading="Node styles" count={vertexItems.length}>
-          {vertexItems.map(item => (
-            <VertexStyleImportCard
-              key={itemKey(item)}
-              item={item}
-              selected={selectedKeys.has(itemKey(item))}
-              onToggle={() => toggle(item)}
+      <div className="flex flex-col gap-3 border-t px-6 py-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <label
+            htmlFor="style-import-select-all"
+            className="flex w-fit shrink-0 cursor-pointer items-center gap-2 text-sm"
+          >
+            <Checkbox
+              id="style-import-select-all"
+              checked={selectAllCheckedState[selectAll]}
+              disabled={visibleItems.length === 0}
+              onCheckedChange={checked => toggleVisible(checked === true)}
             />
-          ))}
-        </StyleGroupGrid>
-        <StyleGroupGrid heading="Edge styles" count={edgeItems.length}>
-          {edgeItems.map(item => (
-            <EdgeStyleImportCard
-              key={itemKey(item)}
-              item={item}
-              selected={selectedKeys.has(itemKey(item))}
-              onToggle={() => toggle(item)}
-            />
-          ))}
-        </StyleGroupGrid>
+            Select all
+          </label>
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            spacing={0}
+            className="sm:ml-auto"
+            value={filter}
+            onValueChange={value => {
+              if (value in filterLabels) {
+                setFilter(value as StyleImportFilter);
+              }
+            }}
+          >
+            {(Object.keys(filterLabels) as StyleImportFilter[]).map(key => (
+              <ToggleGroupItem key={key} value={key}>
+                {`${filterLabels[key]} ${counts[key]}`}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+          <SearchBar
+            search={search}
+            onSearch={setSearch}
+            searchPlaceholder="Search by type name"
+            className="sm:max-w-xs"
+          />
+        </div>
+      </div>
+      <DialogBody className="@container gap-8 border-t pt-3">
+        {visibleItems.length === 0 ? (
+          <EmptyState>
+            <EmptyStateIcon variant="subtle">
+              <SearchXIcon />
+            </EmptyStateIcon>
+            <EmptyStateContent>
+              <EmptyStateTitle>No matching types</EmptyStateTitle>
+              <EmptyStateDescription>
+                Your filters matched 0 items. Try removing some filters.
+              </EmptyStateDescription>
+            </EmptyStateContent>
+          </EmptyState>
+        ) : (
+          <>
+            <StyleGroupGrid
+              heading="Node types"
+              count={visibleVertexItems.length}
+            >
+              {visibleVertexItems.map(item => (
+                <VertexStyleImportCard
+                  key={itemKey(item)}
+                  item={item}
+                  selected={isSelected(item)}
+                  onToggle={() => toggle(item)}
+                />
+              ))}
+            </StyleGroupGrid>
+            <StyleGroupGrid
+              heading="Edge types"
+              count={visibleEdgeItems.length}
+            >
+              {visibleEdgeItems.map(item => (
+                <EdgeStyleImportCard
+                  key={itemKey(item)}
+                  item={item}
+                  selected={isSelected(item)}
+                  onToggle={() => toggle(item)}
+                />
+              ))}
+            </StyleGroupGrid>
+          </>
+        )}
       </DialogBody>
       <DialogFooter className="items-center sm:justify-between">
         <FooterSummary
@@ -129,8 +247,8 @@ export function StyleImportModal({
 
 /**
  * A titled, responsive grid of cards for one entity kind. Renders nothing when
- * the kind has no items so an all-nodes or all-edges file shows just the one
- * section.
+ * the kind has no visible items, so a group disappears under a filter or search
+ * that excludes it.
  */
 function StyleGroupGrid({
   heading,
@@ -170,12 +288,18 @@ function FooterSummary({
   const edgeCount = selectedItems.length - nodeCount;
 
   return (
-    <div className="text-muted-foreground text-sm">
+    <div className="text-muted-foreground space-y-0.5 text-base">
       <p>
-        {`${selectedItems.length} of ${totalCount} selected · ${nodeCount} ${nodeCount === 1 ? "node" : "nodes"}, ${edgeCount} ${edgeCount === 1 ? "edge" : "edges"}`}
+        <span className="text-foreground font-medium">
+          {selectedItems.length}
+        </span>
+        <span> of </span>
+        <span className="text-foreground font-medium">{totalCount}</span>
+        <span> selected · </span>
+        <span>{`${nodeCount} ${nodeCount === 1 ? "node" : "nodes"}, ${edgeCount} ${edgeCount === 1 ? "edge" : "edges"}`}</span>
       </p>
       {skippedCount > 0 ? (
-        <p>{`${skippedCount} ${skippedCount === 1 ? "style" : "styles"} already match and were skipped`}</p>
+        <p className="text-sm">{`${skippedCount} ${skippedCount === 1 ? "style" : "styles"} already matched and ${skippedCount === 1 ? "was" : "were"} skipped`}</p>
       ) : null}
     </div>
   );

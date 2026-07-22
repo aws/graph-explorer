@@ -45,7 +45,7 @@ describe("buildStyleImportPlan", () => {
     expect(plan.skippedCount).toBe(0);
   });
 
-  test("classifies a type that already has a user style as a conflict", () => {
+  test("classifies a type that already has a user style as existing", () => {
     const type = createVertexType("Airport");
     const current: VertexStyleStorage = { type, color: "#111" };
     const incoming: VertexStyleStorage = { type, color: "#abc" };
@@ -60,7 +60,7 @@ describe("buildStyleImportPlan", () => {
       {
         kind: "vertex",
         type,
-        status: "conflict",
+        status: "existing",
         incoming,
         incomingStyle: resolveVertexStyle(type, incoming),
         currentStyle: resolveVertexStyle(type, current),

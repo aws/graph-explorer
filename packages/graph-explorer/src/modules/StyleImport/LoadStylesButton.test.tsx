@@ -6,10 +6,13 @@ import { describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
 import { getAppStore } from "@/core";
-import { createVertexType } from "@/core/entities";
+import { createEdgeType, createVertexType } from "@/core/entities";
 import { createFileEnvelope } from "@/core/fileEnvelope";
 import { createQueryClient } from "@/core/queryClient";
-import { userVertexStylesAtom } from "@/core/StateProvider/storageAtoms";
+import {
+  userEdgeStylesAtom,
+  userVertexStylesAtom,
+} from "@/core/StateProvider/storageAtoms";
 import { DbState, TestProvider } from "@/utils/testing";
 
 import { LoadStylesButton } from "./LoadStylesButton";
@@ -22,7 +25,7 @@ vi.mock("@/utils/fileData", () => ({
 
 function renderButton(seed?: (state: DbState) => void) {
   const state = new DbState();
-  // Start with no user styles so seeded ones are the only conflicts.
+  // Start with no user styles so seeded ones are the only existing styles.
   state.vertexStyles.clear();
   state.edgeStyles.clear();
   seed?.(state);
@@ -192,7 +195,7 @@ describe("LoadStylesButton", () => {
   test("labels a card that replaces an existing style 'Current' and a new one 'Default'", async () => {
     const user = userEvent.setup();
     renderButton(state => {
-      // Airport already has a user style, so loading a different one conflicts.
+      // Airport already has a user style, so loading a different one replaces it.
       state.addVertexStyle(createVertexType("Airport"), { color: "#abc" });
     });
 
@@ -204,8 +207,8 @@ describe("LoadStylesButton", () => {
       }),
     );
 
-    // The conflicting Airport card tags its before side "Current"; the brand-new
-    // Country card tags its before side "Default".
+    // The existing-style Airport card tags its before side "Current"; the
+    // brand-new Country card tags its before side "Default".
     expect(await screen.findByText("Current")).toBeInTheDocument();
     expect(screen.getByText("Default")).toBeInTheDocument();
   });
@@ -224,6 +227,72 @@ describe("LoadStylesButton", () => {
     ).toBeInTheDocument();
     // Both edge previews render, each labelled by the resolved edge type.
     expect(screen.getAllByLabelText("route edge preview")).toHaveLength(2);
+  });
+
+  test("Select all within a filter and search only toggles the matching items", async () => {
+    const user = userEvent.setup();
+    const store = renderButton();
+
+    await user.upload(
+      fileInput(),
+      stylingFile({
+        vertices: { Airport: { color: "#abc" } },
+        edges: {
+          airRoute: { lineColor: "#111" },
+          seaRoute: { lineColor: "#222" },
+          contains: { lineColor: "#333" },
+        },
+      }),
+    );
+
+    // Everything starts selected; clear it so Select-All's effect is isolated.
+    await user.click(
+      await screen.findByRole("checkbox", { name: "Select all" }),
+    );
+    expect(
+      screen.getByRole("button", { name: "Load 0 selected" }),
+    ).toBeInTheDocument();
+
+    // Filter to edges, then search "route" — leaves airRoute and seaRoute.
+    await user.click(screen.getByRole("radio", { name: "Edges 3" }));
+    await user.type(
+      screen.getByPlaceholderText("Search by type name"),
+      "route",
+    );
+
+    // Select all now toggles only the two visible, matching edges.
+    await user.click(screen.getByRole("checkbox", { name: "Select all" }));
+    await user.click(screen.getByRole("button", { name: "Load 2 selected" }));
+
+    const styles = store.get(userEdgeStylesAtom);
+    expect(styles.has(createEdgeType("airRoute"))).toBe(true);
+    expect(styles.has(createEdgeType("seaRoute"))).toBe(true);
+    // The vertex and the non-matching edge stayed unselected.
+    expect(styles.has(createEdgeType("contains"))).toBe(false);
+    expect(
+      store.get(userVertexStylesAtom).has(createVertexType("Airport")),
+    ).toBe(false);
+  });
+
+  test("shows an empty state when the search matches no type", async () => {
+    const user = userEvent.setup();
+    renderButton();
+
+    await user.upload(
+      fileInput(),
+      stylingFile({ vertices: { Airport: { color: "#abc" } }, edges: {} }),
+    );
+
+    await user.type(
+      await screen.findByPlaceholderText("Search by type name"),
+      "zzz",
+    );
+
+    expect(screen.getByText("No matching types")).toBeInTheDocument();
+    // The card is gone but the modal is still open for editing the search.
+    expect(
+      screen.queryByRole("checkbox", { name: "Load Airport style" }),
+    ).not.toBeInTheDocument();
   });
 
   test("surfaces an envelope-level error for the wrong file kind", async () => {
