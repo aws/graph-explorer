@@ -6,6 +6,7 @@ import { Provider } from "jotai";
 import { vi } from "vitest";
 
 import { type AppStore, getAppStore } from "@/core";
+import { logger } from "@/utils";
 import { createRandomRawConfiguration } from "@/utils/testing";
 
 import type { RawConfiguration } from "./ConfigurationProvider";
@@ -103,9 +104,12 @@ test("renders the app when no default connection is configured", async () => {
   const { findByText } = renderAppStatusLoader(store);
 
   // With no default to seed, the app falls through to its children rather
-  // than stalling on a loading state.
+  // than stalling on a loading state, and logs that none were found.
   await findByText("ready");
   expect(store.get(configurationAtom).size).toBe(0);
+  expect(vi.mocked(logger.debug)).toHaveBeenCalledWith(
+    "No default connections found",
+  );
 
   // Emptying the store keeps the app rendered rather than showing a spinner.
   act(() => {
