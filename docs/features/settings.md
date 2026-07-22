@@ -6,7 +6,10 @@
 
 - **Default Neighbor Expansion Limit:** This setting will allow you to enable or disable the default limit applied during neighbor expansion. This applies to both double click expansion and the expand sidebar. This setting can be overridden by a similar setting on the connection itself.
 - **Save Configuration:** This action will export all the configuration data within the Graph Explorer local database. This will not store any data from the connected graph databases. However, the export may contain the shape of the schema for your databases and the connection URL.
-- **Load Configuration:** This action will replace all the Graph Explorer configuration data you currently have with the data in the provided configuration file. This is a destructive act and can not be undone. It is **strongly** suggested that you perform a **Save Configuration** action before performing a **Load Configuration** action to preserve any existing configuration data.
+- **Load Configuration:** This action replaces all the Graph Explorer configuration data you currently have with the data in the provided configuration file.
+
+> [!CAUTION]
+> Loading a configuration cannot be undone. Run **Save Configuration** first to preserve your existing configuration data.
 
 ## Styles
 
@@ -26,11 +29,14 @@ Loading opens a preview so you can see what each type looks like now next to wha
 
 Only the types you select change. Anything not in the file stays as it is, and any type that already looks the way the file describes is left out of the preview, so you only ever review real changes.
 
-For larger files, filter the preview by **All**, **Nodes**, **Edges**, **New** (types you haven't styled yet), or **Existing** (types that already have a style the file would replace), or search by type name. **Select all** toggles just the types currently shown. Filtering only changes what you see — your selections are preserved, so **Load N selected** always applies every type you kept checked, across every tab.
+For larger files, filter the preview by **All**, **Nodes**, **Edges**, **New** (types you haven't styled yet), or **Existing** (types that already have a style the file would replace), or search by type name. **Select all** toggles just the types currently shown. Filtering only changes what you see. Your selections are preserved, so **Load N selected** always applies every type you kept checked, across every tab.
 
 ### Reset your styles
 
-Clears all your node and edge styles, returning every type to the defaults. This cannot be undone, so consider saving first.
+Clears all your node and edge styles, returning every type to the defaults.
+
+> [!CAUTION]
+> Resetting cannot be undone. Run **Save styles** first if you might want your current look back.
 
 ## About
 
