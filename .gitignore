@@ -23,3 +23,6 @@ plans/
 
 # Local-only files (settings, overrides, secrets)
 *.local.*
+
+# Local dev default-connection fixture, generated per-environment at runtime
+**/defaultConnection.json

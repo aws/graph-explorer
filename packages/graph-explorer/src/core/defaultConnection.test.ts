@@ -1,3 +1,4 @@
+import { queryEngineOptions } from "@shared/types";
 import {
   createRandomBoolean,
   createRandomInteger,
@@ -13,6 +14,7 @@ import {
 
 import {
   DefaultConnectionDataSchema,
+  fetchDefaultConnection,
   mapToConnection,
 } from "./defaultConnection";
 
@@ -107,6 +109,51 @@ describe("DefaultConnectionDataSchema", () => {
     );
   });
 });
+
+describe("fetchDefaultConnection", () => {
+  beforeEach(() => {
+    vi.stubGlobal("location", { origin: "https://example.com" });
+  });
+
+  test("expands into one connection per query language when no query engine is provided", async () => {
+    const data = createRandomDefaultConnectionData();
+    delete (data as { GRAPH_EXP_GRAPH_TYPE?: string }).GRAPH_EXP_GRAPH_TYPE;
+    stubDefaultConnectionResponse(data);
+
+    const configs = await fetchDefaultConnection();
+
+    expect(configs.map(config => config.connection?.queryEngine)).toEqual([
+      ...queryEngineOptions,
+    ]);
+    expect(configs.map(config => config.id)).toEqual(
+      queryEngineOptions.map(engine => `Default Connection-${engine}`),
+    );
+  });
+
+  test("returns a single connection when a query engine is provided", async () => {
+    const data = createRandomDefaultConnectionData();
+    data.GRAPH_EXP_GRAPH_TYPE = "gremlin";
+    stubDefaultConnectionResponse(data);
+
+    const configs = await fetchDefaultConnection();
+
+    expect(configs).toHaveLength(1);
+    expect(configs[0].connection?.queryEngine).toBe("gremlin");
+    expect(configs[0].id).toBe("Default Connection");
+  });
+});
+
+function stubDefaultConnectionResponse(data: unknown) {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(data), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    ),
+  );
+}
 
 function createRandomDefaultConnectionData() {
   return {

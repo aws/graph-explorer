@@ -26,7 +26,10 @@ _Avoid_: Active configuration (legacy code term `activeConfigurationAtom`)
 
 **Last Active Connection**:
 A persisted, shared breadcrumb recording the most recently activated Connection across all tabs. Last-writer-wins; used only as the cold-start seed for a fresh tab's Active Connection, never read live by the app.
-_Avoid_: Default connection (that is a separate new-user/notebook injection path)
+
+**Default Connection**:
+A Connection injected automatically into an empty store from environment-provided config — a `defaultConnection.json` file (local/self-hosted) or the SageMaker proxy endpoint (notebook). Seeded only when no Connections exist, and re-seeded if the last Connection is deleted. When the config names no Query Language, one Default Connection is produced per Query Language. Distinct from the Last Active Connection, which is a persisted breadcrumb rather than a connection.
+_Avoid_: Seed connection
 
 **Query Language**:
 The graph query protocol a Connection uses — one of Gremlin, openCypher, or SPARQL. Determines which Explorer is instantiated and implies the graph type (Gremlin/openCypher → property graph, SPARQL → RDF).
