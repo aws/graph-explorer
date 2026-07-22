@@ -43,7 +43,8 @@ interface EdgePreviewProps {
 }
 
 /**
- * Two placeholder nodes connected by the styled edge, matching the canvas.
+ * Two placeholder nodes connected by the styled edge. Geometry is ported
+ * verbatim from cytoscape so the preview matches the canvas.
  */
 export function EdgePreview({ edgeStyle, label, className }: EdgePreviewProps) {
   const lineWidthPx = edgeStyle.lineThickness * DEFAULT_ZOOM;

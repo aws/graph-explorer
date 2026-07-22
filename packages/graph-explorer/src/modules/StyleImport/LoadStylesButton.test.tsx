@@ -264,8 +264,9 @@ describe("LoadStylesButton", () => {
     );
 
     await screen.findByRole("checkbox", { name: "Load route style" });
-    // "Flight" also labels the previews, so it appears more than once.
-    expect(screen.getAllByText("Flight").length).toBeGreaterThan(0);
+    // "Flight" labels the after preview and the Display type row; the before
+    // preview falls back to "route", so it appears exactly twice.
+    expect(screen.getAllByText("Flight")).toHaveLength(2);
     expect(screen.getByText("dist")).toBeInTheDocument();
     // Edges have no description attribute, so that row never appears.
     expect(screen.queryByText("Display description")).not.toBeInTheDocument();
