@@ -70,19 +70,35 @@ describe("selectVisibleItems", () => {
     expect(selectVisibleItems(items, "edges", "")).toStrictEqual([route]);
   });
 
-  test("keeps only conflicts across both kinds for the conflicts filter", () => {
-    const conflictVertex = vertexItem("Airport", "conflict");
-    const conflictEdge = edgeItem("route", "conflict");
+  test("keeps only existing-style types across both kinds for the existing filter", () => {
+    const existingVertex = vertexItem("Airport", "existing");
+    const existingEdge = edgeItem("route", "existing");
     const items = [
-      conflictVertex,
+      existingVertex,
       vertexItem("Country", "new"),
-      conflictEdge,
+      existingEdge,
       edgeItem("contains", "new"),
     ];
 
-    expect(selectVisibleItems(items, "conflicts", "")).toStrictEqual([
-      conflictVertex,
-      conflictEdge,
+    expect(selectVisibleItems(items, "existing", "")).toStrictEqual([
+      existingVertex,
+      existingEdge,
+    ]);
+  });
+
+  test("keeps only brand-new types across both kinds for the new filter", () => {
+    const newVertex = vertexItem("Country", "new");
+    const newEdge = edgeItem("contains", "new");
+    const items = [
+      vertexItem("Airport", "existing"),
+      newVertex,
+      edgeItem("route", "existing"),
+      newEdge,
+    ];
+
+    expect(selectVisibleItems(items, "new", "")).toStrictEqual([
+      newVertex,
+      newEdge,
     ]);
   });
 
@@ -105,32 +121,34 @@ describe("selectVisibleItems", () => {
 describe("filterCounts", () => {
   test("counts each tab independently with no search", () => {
     const items = [
-      vertexItem("Airport", "conflict"),
+      vertexItem("Airport", "existing"),
       vertexItem("Country", "new"),
-      edgeItem("route", "conflict"),
+      edgeItem("route", "existing"),
     ];
 
     expect(filterCounts(items, "")).toStrictEqual({
       all: 3,
       nodes: 2,
       edges: 1,
-      conflicts: 2,
+      new: 1,
+      existing: 2,
     });
   });
 
   test("reflects the active search in every tab count", () => {
     const items = [
-      vertexItem("Airport", "conflict"),
+      vertexItem("Airport", "existing"),
       vertexItem("Country", "new"),
-      edgeItem("route", "conflict"),
+      edgeItem("route", "existing"),
     ];
 
-    // Only "Airport" matches, and it is both a node and a conflict.
+    // Only "Airport" matches, and it is both a node with an existing style.
     expect(filterCounts(items, "air")).toStrictEqual({
       all: 1,
       nodes: 1,
       edges: 0,
-      conflicts: 1,
+      new: 0,
+      existing: 1,
     });
   });
 });

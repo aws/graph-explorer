@@ -15,10 +15,11 @@ import {
 } from "@/core/StateProvider/graphStyles";
 
 /**
- * Whether the type already has a style the load would replace (`conflict`) or is
- * brand new (`new`). Drives the "Current" vs. "Default" before-label on a card.
+ * Whether the type already has a user style the load would replace (`existing`)
+ * or is brand new (`new`). Drives the "Current" vs. "Default" before-label on a
+ * card and the New / Existing filter tabs.
  */
-export type StyleImportStatus = "new" | "conflict";
+export type StyleImportStatus = "new" | "existing";
 
 /**
  * One loadable style, ready to render as a before→after card. `incoming` is the
@@ -61,7 +62,7 @@ export type StyleImportPlan = {
  * Turns a parsed styling file into the load plan: for each type, resolve the
  * incoming and current styles, drop the ones that resolve identically (a no-op
  * the user shouldn't have to decide about), and classify the rest as new or
- * conflict. Comparison is at the resolved level so a file that merely sets a
+ * existing. Comparison is at the resolved level so a file that merely sets a
  * field to its existing effective value is skipped, regardless of how the two
  * storage partials happen to differ.
  */
@@ -84,7 +85,7 @@ export function buildStyleImportPlan(
     items.push({
       kind: "vertex",
       type,
-      status: current ? "conflict" : "new",
+      status: current ? "existing" : "new",
       incoming,
       incomingStyle,
       currentStyle,
@@ -102,7 +103,7 @@ export function buildStyleImportPlan(
     items.push({
       kind: "edge",
       type,
-      status: current ? "conflict" : "new",
+      status: current ? "existing" : "new",
       incoming,
       incomingStyle,
       currentStyle,

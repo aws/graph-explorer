@@ -2,10 +2,11 @@ import type { StyleImportItem } from "./styleImportPlan";
 
 /**
  * Which subset of the import list a filter tab shows. `all` is every item;
- * `nodes`/`edges` narrow by kind; `conflicts` keeps only types that already
- * have a user-layer style the load would replace.
+ * `nodes`/`edges` narrow by kind; `new` keeps types the user has not styled yet;
+ * `existing` keeps types that already have a user-layer style the load would
+ * replace.
  */
-export type StyleImportFilter = "all" | "nodes" | "edges" | "conflicts";
+export type StyleImportFilter = "all" | "nodes" | "edges" | "new" | "existing";
 
 /** The per-tab counts, reflecting the active search. */
 export type StyleImportFilterCounts = Record<StyleImportFilter, number>;
@@ -21,8 +22,10 @@ function matchesFilter(item: StyleImportItem, filter: StyleImportFilter) {
       return item.kind === "vertex";
     case "edges":
       return item.kind === "edge";
-    case "conflicts":
-      return item.status === "conflict";
+    case "new":
+      return item.status === "new";
+    case "existing":
+      return item.status === "existing";
   }
 }
 
@@ -59,7 +62,8 @@ export function filterCounts(
     all: 0,
     nodes: 0,
     edges: 0,
-    conflicts: 0,
+    new: 0,
+    existing: 0,
   };
   const normalizedSearch = search.toLowerCase();
   for (const item of items) {
@@ -72,8 +76,10 @@ export function filterCounts(
     } else {
       counts.edges++;
     }
-    if (item.status === "conflict") {
-      counts.conflicts++;
+    if (item.status === "existing") {
+      counts.existing++;
+    } else {
+      counts.new++;
     }
   }
   return counts;

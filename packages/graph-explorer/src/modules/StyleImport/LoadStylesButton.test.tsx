@@ -25,7 +25,7 @@ vi.mock("@/utils/fileData", () => ({
 
 function renderButton(seed?: (state: DbState) => void) {
   const state = new DbState();
-  // Start with no user styles so seeded ones are the only conflicts.
+  // Start with no user styles so seeded ones are the only existing styles.
   state.vertexStyles.clear();
   state.edgeStyles.clear();
   seed?.(state);
@@ -195,7 +195,7 @@ describe("LoadStylesButton", () => {
   test("labels a card that replaces an existing style 'Current' and a new one 'Default'", async () => {
     const user = userEvent.setup();
     renderButton(state => {
-      // Airport already has a user style, so loading a different one conflicts.
+      // Airport already has a user style, so loading a different one replaces it.
       state.addVertexStyle(createVertexType("Airport"), { color: "#abc" });
     });
 
@@ -207,8 +207,8 @@ describe("LoadStylesButton", () => {
       }),
     );
 
-    // The conflicting Airport card tags its before side "Current"; the brand-new
-    // Country card tags its before side "Default".
+    // The existing-style Airport card tags its before side "Current"; the
+    // brand-new Country card tags its before side "Default".
     expect(await screen.findByText("Current")).toBeInTheDocument();
     expect(screen.getByText("Default")).toBeInTheDocument();
   });

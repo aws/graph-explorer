@@ -49,7 +49,8 @@ const filterLabels: Record<StyleImportFilter, string> = {
   all: "All",
   nodes: "Nodes",
   edges: "Edges",
-  conflicts: "Conflicts",
+  new: "New",
+  existing: "Existing",
 };
 
 /** Maps the three-state Select-All to Radix's `checked` value. */

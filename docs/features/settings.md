@@ -26,7 +26,7 @@ Loading opens a preview so you can see what each type looks like now next to wha
 
 Only the types you select change. Anything not in the file stays as it is, and any type that already looks the way the file describes is left out of the preview, so you only ever review real changes.
 
-For larger files, filter the preview by **All**, **Nodes**, **Edges**, or **Conflicts** (types that already have a style the file would replace), or search by type name. **Select all** toggles just the types currently shown. Filtering only changes what you see — your selections are preserved, so **Load N selected** always applies every type you kept checked, across every tab.
+For larger files, filter the preview by **All**, **Nodes**, **Edges**, **New** (types you haven't styled yet), or **Existing** (types that already have a style the file would replace), or search by type name. **Select all** toggles just the types currently shown. Filtering only changes what you see — your selections are preserved, so **Load N selected** always applies every type you kept checked, across every tab.
 
 ### Reset your styles
 
