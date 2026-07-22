@@ -1,6 +1,12 @@
 import type { ComponentProps } from "react";
 
-import { Card, CardHeader, CardTitle, Checkbox } from "@/components";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Checkbox,
+} from "@/components";
 import { cn } from "@/utils";
 
 /**
@@ -70,11 +76,44 @@ export function ImportCardTitle({
     <CardHeader>
       <CardTitle
         className={cn(
-          "gx-wrap-break-word text-center font-mono text-base leading-snug font-normal",
+          "gx-wrap-break-word font-mono text-base leading-snug font-normal",
           className,
         )}
         {...props}
       />
     </CardHeader>
+  );
+}
+
+/**
+ * The incoming style's non-visual properties; unset values show as "Not set".
+ */
+export function ImportCardProperties({
+  properties,
+}: {
+  properties: { label: string; value: string | undefined }[];
+}) {
+  return (
+    <CardContent>
+      <dl className="flex flex-col gap-y-2 border-t pt-(--card-spacing) text-sm">
+        {properties.map(({ label, value }) => (
+          <div
+            key={label}
+            className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1"
+          >
+            <dt className="text-muted-foreground">{label}</dt>
+            <dd>
+              {value === undefined ? (
+                <span className="text-muted-foreground italic">Not set</span>
+              ) : (
+                <span className="gx-wrap-break-word font-mono text-sm">
+                  {value}
+                </span>
+              )}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </CardContent>
   );
 }

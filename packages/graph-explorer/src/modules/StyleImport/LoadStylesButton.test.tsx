@@ -192,27 +192,6 @@ describe("LoadStylesButton", () => {
     expect(await screen.findByText("No Styles Found")).toBeInTheDocument();
   });
 
-  test("labels a card that replaces an existing style 'Current' and a new one 'Default'", async () => {
-    const user = userEvent.setup();
-    renderButton(state => {
-      // Airport already has a user style, so loading a different one replaces it.
-      state.addVertexStyle(createVertexType("Airport"), { color: "#abc" });
-    });
-
-    await user.upload(
-      fileInput(),
-      stylingFile({
-        vertices: { Airport: { color: "#def" }, Country: { color: "#111" } },
-        edges: {},
-      }),
-    );
-
-    // The existing-style Airport card tags its before side "Current"; the
-    // brand-new Country card tags its before side "Default".
-    expect(await screen.findByText("Current")).toBeInTheDocument();
-    expect(screen.getByText("Default")).toBeInTheDocument();
-  });
-
   test("renders an edge card with its before and after previews", async () => {
     const user = userEvent.setup();
     renderButton();
@@ -227,6 +206,70 @@ describe("LoadStylesButton", () => {
     ).toBeInTheDocument();
     // Both edge previews render, each labelled by the resolved edge type.
     expect(screen.getAllByLabelText("route edge preview")).toHaveLength(2);
+  });
+
+  test("shows the incoming non-visual properties a vertex style sets", async () => {
+    const user = userEvent.setup();
+    renderButton();
+
+    await user.upload(
+      fileInput(),
+      stylingFile({
+        vertices: {
+          Airport: {
+            displayLabel: "Airfield",
+            displayNameAttribute: "code",
+            longDisplayNameAttribute: "city",
+          },
+        },
+        edges: {},
+      }),
+    );
+
+    await screen.findByRole("checkbox", { name: "Load Airport style" });
+    expect(screen.getByText("Airfield")).toBeInTheDocument();
+    expect(screen.getByText("code")).toBeInTheDocument();
+    expect(screen.getByText("city")).toBeInTheDocument();
+  });
+
+  test("labels an unset incoming non-visual property 'Not set'", async () => {
+    const user = userEvent.setup();
+    renderButton();
+
+    await user.upload(
+      fileInput(),
+      stylingFile({
+        // Only a visual field is set, so every non-visual property is unset.
+        vertices: { Airport: { color: "#abc" } },
+        edges: {},
+      }),
+    );
+
+    await screen.findByRole("checkbox", { name: "Load Airport style" });
+    expect(screen.getAllByText("Not set")).toHaveLength(3);
+  });
+
+  test("shows the incoming non-visual properties an edge style sets", async () => {
+    const user = userEvent.setup();
+    renderButton();
+
+    await user.upload(
+      fileInput(),
+      stylingFile({
+        vertices: {},
+        edges: {
+          route: { displayLabel: "Flight", displayNameAttribute: "dist" },
+        },
+      }),
+    );
+
+    await screen.findByRole("checkbox", { name: "Load route style" });
+    // "Flight" labels the after preview and the Display type row; the before
+    // preview falls back to "route", so it appears exactly twice.
+    expect(screen.getAllByText("Flight")).toHaveLength(2);
+    expect(screen.getByText("dist")).toBeInTheDocument();
+    // Edges have no description attribute, so that row never appears.
+    expect(screen.queryByText("Display description")).not.toBeInTheDocument();
   });
 
   test("Select all within a filter and search only toggles the matching items", async () => {

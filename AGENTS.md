@@ -14,7 +14,6 @@ Correct behavior is necessary but not sufficient — structural quality is a har
 
 - Follow YAGNI principles.
 - Prefer deep modules: simple interface, substantial implementation.
-- Prefer descriptive variable and function names over code comments.
 - Prefer single-pass, copy-free processing for collections that can grow large; small fixed lists don't need it.
 - Prefer "code judo": restructurings that delete whole layers, branches, or concepts rather than rearrange them. Don't stop at "a bit cleaner."
 - Don't push a file from under 1000 lines to over without explicit justification — treat the boundary as a decomposition signal and extract instead.
@@ -23,6 +22,14 @@ Correct behavior is necessary but not sufficient — structural quality is a har
 - Avoid unnecessary `any`, `unknown`, casts, or optionality; make invariants explicit at boundaries instead of papering over them with silent fallbacks.
 - Keep feature logic in the feature layer; reuse existing canonical helpers instead of introducing near-duplicates in shared modules.
 - Don't serialize independent work or leave related state half-applied when a more atomic structure is available.
+
+## Comments
+
+- Default to none; justify every one.
+- Capture _rationale_, never _what_ or _how_ the code already says.
+- Prefer descriptive names instead.
+- Doc comments (JSDoc) state _what_ a symbol does — the exception.
+- Be extremely concise.
 
 ## TypeScript
 

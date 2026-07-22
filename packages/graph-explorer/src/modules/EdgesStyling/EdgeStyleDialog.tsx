@@ -112,7 +112,7 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
                 <EdgePreview
                   edgeStyle={edgeStyle}
                   label={displayConfig.displayLabel}
-                  className="zoom-90"
+                  className="zoom-90 px-4 py-3"
                 />
               </PreviewSurface>
             </Field>
