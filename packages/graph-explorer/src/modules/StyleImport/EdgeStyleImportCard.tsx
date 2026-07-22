@@ -11,10 +11,8 @@ import {
 import { PreviewLabel } from "./PreviewLabel";
 
 /**
- * An edge style shown as a before and after card, the same size as a node card.
- * The two edge previews stack vertically so the wide edge rendering fits. Each
- * preview falls back to the type name when the style sets no display-label
- * override, the same text the canvas draws.
+ * An edge style shown as a before and after card. The previews stack
+ * vertically so the wide edge rendering fits the node-card width.
  */
 export function EdgeStyleImportCard({
   item,

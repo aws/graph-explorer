@@ -86,9 +86,7 @@ export function ImportCardTitle({
 }
 
 /**
- * The incoming style's non-visual properties as a labeled list, one row per
- * property. Each value is the raw incoming value the file sets, or a muted
- * "Not set" placeholder when the file leaves it unset.
+ * The incoming style's non-visual properties; unset values show as "Not set".
  */
 export function ImportCardProperties({
   properties,

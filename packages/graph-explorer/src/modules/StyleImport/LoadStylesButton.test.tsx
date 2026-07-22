@@ -246,7 +246,6 @@ describe("LoadStylesButton", () => {
     );
 
     await screen.findByRole("checkbox", { name: "Load Airport style" });
-    // Display as, Display name, and Display description are all unset.
     expect(screen.getAllByText("Not set")).toHaveLength(3);
   });
 
