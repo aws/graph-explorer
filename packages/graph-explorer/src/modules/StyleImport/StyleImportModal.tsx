@@ -125,7 +125,7 @@ export function StyleImportModal({
 
   return (
     <DialogContent className="h-[52rem] w-[min(64rem,calc(100vw-2rem))] max-w-none">
-      <DialogHeader>
+      <DialogHeader className="pb-6">
         <DialogMedia className="bg-primary-subtle text-primary-foreground">
           <UploadIcon />
         </DialogMedia>
@@ -137,10 +137,25 @@ export function StyleImportModal({
           ones you want to import. This cannot be undone.
         </DialogDescription>
       </DialogHeader>
-      <div className="flex flex-col gap-3 border-t px-6 pt-6">
+      <div className="flex flex-col gap-3 border-t px-6 py-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <label
+            htmlFor="style-import-select-all"
+            className="flex w-fit shrink-0 cursor-pointer items-center gap-2 text-sm"
+          >
+            <Checkbox
+              id="style-import-select-all"
+              checked={selectAllCheckedState[selectAll]}
+              disabled={visibleItems.length === 0}
+              onCheckedChange={checked => toggleVisible(checked === true)}
+            />
+            Select all
+          </label>
           <ToggleGroup
             type="single"
+            variant="outline"
+            spacing={0}
+            className="sm:ml-auto"
             value={filter}
             onValueChange={value => {
               if (value in filterLabels) {
@@ -158,23 +173,11 @@ export function StyleImportModal({
             search={search}
             onSearch={setSearch}
             searchPlaceholder="Search by type name"
-            className="sm:ml-auto sm:max-w-xs"
+            className="sm:max-w-xs"
           />
         </div>
-        <label
-          htmlFor="style-import-select-all"
-          className="flex w-fit cursor-pointer items-center gap-2 text-sm"
-        >
-          <Checkbox
-            id="style-import-select-all"
-            checked={selectAllCheckedState[selectAll]}
-            disabled={visibleItems.length === 0}
-            onCheckedChange={checked => toggleVisible(checked === true)}
-          />
-          Select all
-        </label>
       </div>
-      <DialogBody className="@container gap-8 pt-3">
+      <DialogBody className="@container gap-8 border-t pt-3">
         {visibleItems.length === 0 ? (
           <EmptyState>
             <EmptyStateIcon variant="subtle">
@@ -183,8 +186,7 @@ export function StyleImportModal({
             <EmptyStateContent>
               <EmptyStateTitle>No matching types</EmptyStateTitle>
               <EmptyStateDescription>
-                No types match the current filter and search. Clear the search
-                or switch tabs to see more.
+                Your filters matched 0 items. Try removing some filters.
               </EmptyStateDescription>
             </EmptyStateContent>
           </EmptyState>
@@ -296,7 +298,7 @@ function FooterSummary({
         <span>{`${nodeCount} ${nodeCount === 1 ? "node" : "nodes"}, ${edgeCount} ${edgeCount === 1 ? "edge" : "edges"}`}</span>
       </p>
       {skippedCount > 0 ? (
-        <p className="text-sm">{`${skippedCount} ${skippedCount === 1 ? "style" : "styles"} already match and were skipped`}</p>
+        <p className="text-sm">{`${skippedCount} ${skippedCount === 1 ? "style" : "styles"} already matched and ${skippedCount === 1 ? "was" : "were"} skipped`}</p>
       ) : null}
     </div>
   );
