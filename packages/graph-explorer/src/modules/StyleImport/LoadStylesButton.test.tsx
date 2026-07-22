@@ -192,27 +192,6 @@ describe("LoadStylesButton", () => {
     expect(await screen.findByText("No Styles Found")).toBeInTheDocument();
   });
 
-  test("labels a card that replaces an existing style 'Current' and a new one 'Default'", async () => {
-    const user = userEvent.setup();
-    renderButton(state => {
-      // Airport already has a user style, so loading a different one replaces it.
-      state.addVertexStyle(createVertexType("Airport"), { color: "#abc" });
-    });
-
-    await user.upload(
-      fileInput(),
-      stylingFile({
-        vertices: { Airport: { color: "#def" }, Country: { color: "#111" } },
-        edges: {},
-      }),
-    );
-
-    // The existing-style Airport card tags its before side "Current"; the
-    // brand-new Country card tags its before side "Default".
-    expect(await screen.findByText("Current")).toBeInTheDocument();
-    expect(screen.getByText("Default")).toBeInTheDocument();
-  });
-
   test("renders an edge card with its before and after previews", async () => {
     const user = userEvent.setup();
     renderButton();

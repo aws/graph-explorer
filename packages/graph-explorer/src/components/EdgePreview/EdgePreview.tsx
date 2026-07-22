@@ -46,7 +46,8 @@ interface EdgePreviewProps {
  * Full edge preview: two placeholder nodes connected by the styled edge with
  * the given label. Line thickness, arrow geometry, and the gap between line and
  * arrow are ported verbatim from cytoscape so the preview matches the canvas.
- * Apply CSS `zoom` via className to scale from DEFAULT_ZOOM.
+ * Apply CSS `zoom` via className to scale from DEFAULT_ZOOM. The preview carries
+ * no padding of its own — callers add the spacing that suits their surface.
  */
 export function EdgePreview({ edgeStyle, label, className }: EdgePreviewProps) {
   const lineWidthPx = edgeStyle.lineThickness * DEFAULT_ZOOM;
@@ -65,7 +66,7 @@ export function EdgePreview({ edgeStyle, label, className }: EdgePreviewProps) {
 
   return (
     <div
-      className={cn("flex w-full items-center px-4 py-3", className)}
+      className={cn("flex w-full items-center", className)}
       role="img"
       aria-label={`${label} edge preview`}
     >

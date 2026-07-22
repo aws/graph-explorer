@@ -29,22 +29,24 @@ export function EdgeStyleImportCard({
 }) {
   return (
     <ImportCard label={item.type} checked={selected} onCheckedChange={onToggle}>
-      <ImportCardSurface className="flex flex-col items-center gap-(--card-spacing)">
-        <PreviewLabel>
-          {item.status === "existing" ? "Current" : "Default"}
-        </PreviewLabel>
-        <EdgePreview
-          edgeStyle={item.currentStyle}
-          label={item.currentStyle.displayLabel || item.type}
-          className="zoom-75"
-        />
-        <ArrowDownIcon className="text-primary-foreground/50 size-4 shrink-0" />
-        <PreviewLabel>Incoming</PreviewLabel>
-        <EdgePreview
-          edgeStyle={item.incomingStyle}
-          label={item.incomingStyle.displayLabel || item.type}
-          className="zoom-75"
-        />
+      <ImportCardSurface className="space-y-5">
+        <div className="flex w-full flex-col items-center gap-3">
+          <PreviewLabel>Before</PreviewLabel>
+          <EdgePreview
+            edgeStyle={item.currentStyle}
+            label={item.currentStyle.displayLabel || item.type}
+            className="zoom-75 px-4"
+          />
+        </div>
+        <ArrowDownIcon className="text-primary-foreground/50 mx-auto size-4 shrink-0" />
+        <div className="flex w-full flex-col items-center gap-3">
+          <PreviewLabel>After</PreviewLabel>
+          <EdgePreview
+            edgeStyle={item.incomingStyle}
+            label={item.incomingStyle.displayLabel || item.type}
+            className="zoom-75 px-4"
+          />
+        </div>
       </ImportCardSurface>
       <ImportCardTitle>{item.type}</ImportCardTitle>
       <ImportCardProperties

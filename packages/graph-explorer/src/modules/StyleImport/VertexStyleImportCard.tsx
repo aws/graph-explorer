@@ -25,10 +25,8 @@ export function VertexStyleImportCard({
   return (
     <ImportCard label={item.type} checked={selected} onCheckedChange={onToggle}>
       <ImportCardSurface className="grid grid-cols-[1fr_auto_1fr] items-center justify-items-center gap-(--card-spacing)">
-        <PreviewLabel>
-          {item.status === "existing" ? "Current" : "Default"}
-        </PreviewLabel>
-        <PreviewLabel className="col-start-3">Incoming</PreviewLabel>
+        <PreviewLabel>Before</PreviewLabel>
+        <PreviewLabel className="col-start-3">After</PreviewLabel>
         <VertexSymbol vertexStyle={item.currentStyle} className="size-12" />
         <ArrowRightIcon className="text-primary-foreground/50 size-4 shrink-0" />
         <VertexSymbol vertexStyle={item.incomingStyle} className="size-12" />
