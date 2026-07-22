@@ -4,7 +4,12 @@ import { EdgePreview } from "@/components";
 
 import type { EdgeStyleImportItem } from "./styleImportPlan";
 
-import { ImportCard, ImportCardSurface, ImportCardTitle } from "./ImportCard";
+import {
+  ImportCard,
+  ImportCardProperties,
+  ImportCardSurface,
+  ImportCardTitle,
+} from "./ImportCard";
 import { PreviewLabel } from "./PreviewLabel";
 
 /**
@@ -25,13 +30,13 @@ export function EdgeStyleImportCard({
   return (
     <ImportCard label={item.type} checked={selected} onCheckedChange={onToggle}>
       <ImportCardSurface className="flex flex-col items-center gap-(--card-spacing)">
-        <PreviewLabel className="opacity-60">
+        <PreviewLabel>
           {item.status === "existing" ? "Current" : "Default"}
         </PreviewLabel>
         <EdgePreview
           edgeStyle={item.currentStyle}
           label={item.currentStyle.displayLabel || item.type}
-          className="zoom-75 opacity-60"
+          className="zoom-75"
         />
         <ArrowDownIcon className="text-primary-foreground/50 size-4 shrink-0" />
         <PreviewLabel>Incoming</PreviewLabel>
@@ -42,6 +47,12 @@ export function EdgeStyleImportCard({
         />
       </ImportCardSurface>
       <ImportCardTitle>{item.type}</ImportCardTitle>
+      <ImportCardProperties
+        properties={[
+          { label: "Display as", value: item.incoming.displayLabel },
+          { label: "Display name", value: item.incoming.displayNameAttribute },
+        ]}
+      />
     </ImportCard>
   );
 }

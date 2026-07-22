@@ -1,6 +1,12 @@
 import type { ComponentProps } from "react";
 
-import { Card, CardHeader, CardTitle, Checkbox } from "@/components";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Checkbox,
+} from "@/components";
 import { cn } from "@/utils";
 
 /**
@@ -76,5 +82,37 @@ export function ImportCardTitle({
         {...props}
       />
     </CardHeader>
+  );
+}
+
+/**
+ * The incoming style's non-visual properties as a labeled list, one row per
+ * property. Each value is the raw incoming value the file sets, or a muted
+ * "Not set" placeholder when the file leaves it unset.
+ */
+export function ImportCardProperties({
+  properties,
+}: {
+  properties: { label: string; value: string | undefined }[];
+}) {
+  return (
+    <CardContent>
+      <dl className="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2 border-t pt-(--card-spacing) text-sm">
+        {properties.map(({ label, value }) => (
+          <div key={label} className="col-span-2 grid grid-cols-subgrid">
+            <dt className="text-muted-foreground">{label}</dt>
+            <dd className="justify-self-end">
+              {value === undefined ? (
+                <span className="text-muted-foreground italic">Not set</span>
+              ) : (
+                <span className="bg-muted rounded px-1.5 py-0.5 font-mono text-xs">
+                  {value}
+                </span>
+              )}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </CardContent>
   );
 }

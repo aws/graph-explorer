@@ -229,6 +229,70 @@ describe("LoadStylesButton", () => {
     expect(screen.getAllByLabelText("route edge preview")).toHaveLength(2);
   });
 
+  test("shows the incoming non-visual properties a vertex style sets", async () => {
+    const user = userEvent.setup();
+    renderButton();
+
+    await user.upload(
+      fileInput(),
+      stylingFile({
+        vertices: {
+          Airport: {
+            displayLabel: "Airfield",
+            displayNameAttribute: "code",
+            longDisplayNameAttribute: "city",
+          },
+        },
+        edges: {},
+      }),
+    );
+
+    await screen.findByRole("checkbox", { name: "Load Airport style" });
+    expect(screen.getByText("Airfield")).toBeInTheDocument();
+    expect(screen.getByText("code")).toBeInTheDocument();
+    expect(screen.getByText("city")).toBeInTheDocument();
+  });
+
+  test("labels an unset incoming non-visual property 'Not set'", async () => {
+    const user = userEvent.setup();
+    renderButton();
+
+    await user.upload(
+      fileInput(),
+      stylingFile({
+        // Only a visual field is set, so every non-visual property is unset.
+        vertices: { Airport: { color: "#abc" } },
+        edges: {},
+      }),
+    );
+
+    await screen.findByRole("checkbox", { name: "Load Airport style" });
+    // Display as, Display name, and Display description are all unset.
+    expect(screen.getAllByText("Not set")).toHaveLength(3);
+  });
+
+  test("shows the incoming non-visual properties an edge style sets", async () => {
+    const user = userEvent.setup();
+    renderButton();
+
+    await user.upload(
+      fileInput(),
+      stylingFile({
+        vertices: {},
+        edges: {
+          route: { displayLabel: "Flight", displayNameAttribute: "dist" },
+        },
+      }),
+    );
+
+    await screen.findByRole("checkbox", { name: "Load route style" });
+    // "Flight" also labels the previews, so it appears more than once.
+    expect(screen.getAllByText("Flight").length).toBeGreaterThan(0);
+    expect(screen.getByText("dist")).toBeInTheDocument();
+    // Edges have no description attribute, so that row never appears.
+    expect(screen.queryByText("Display description")).not.toBeInTheDocument();
+  });
+
   test("Select all within a filter and search only toggles the matching items", async () => {
     const user = userEvent.setup();
     const store = renderButton();
