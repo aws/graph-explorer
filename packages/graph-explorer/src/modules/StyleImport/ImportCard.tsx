@@ -86,7 +86,7 @@ export function ImportCardTitle({
 }
 
 /**
- * The incoming style's non-visual properties; unset values show as "Not set".
+ * The incoming style's non-visual properties; unset values show as "Not present".
  */
 export function ImportCardProperties({
   properties,
@@ -104,7 +104,9 @@ export function ImportCardProperties({
             <dt className="text-muted-foreground">{label}</dt>
             <dd>
               {value === undefined ? (
-                <span className="text-muted-foreground italic">Not set</span>
+                <span className="text-muted-foreground italic">
+                  Not present
+                </span>
               ) : (
                 <span className="gx-wrap-break-word font-mono text-sm">
                   {value}

@@ -232,7 +232,7 @@ describe("LoadStylesButton", () => {
     expect(screen.getByText("city")).toBeInTheDocument();
   });
 
-  test("labels an unset incoming non-visual property 'Not set'", async () => {
+  test("labels an unset incoming non-visual property 'Not present'", async () => {
     const user = userEvent.setup();
     renderButton();
 
@@ -246,7 +246,7 @@ describe("LoadStylesButton", () => {
     );
 
     await screen.findByRole("checkbox", { name: "Load Airport style" });
-    expect(screen.getAllByText("Not set")).toHaveLength(3);
+    expect(screen.getAllByText("Not present")).toHaveLength(3);
   });
 
   test("shows the incoming non-visual properties an edge style sets", async () => {
