@@ -17,9 +17,9 @@ Graph Explorer is a React-based web application that enables users to visualize 
 ## Key Features
 
 - **Connections Management**: Create and manage database connections
-- **Graph Visualization**: Interactive graph view with search, custom queries, and styling
+- **Graph Visualization**: Interactive graph view with search, custom queries, and styles
 - **Tabular View**: Show/hide nodes and edges, export to CSV/JSON
-- **Data Explorer**: List all nodes and properties for a specific node type and send to graph view
+- **Data Table View**: List all nodes and properties for a specific node type and send to graph view
 - **Schema View**: View node types and their relationships as a graph
 - **Authentication**: AWS IAM authentication via SigV4 signing protocol
 
@@ -41,7 +41,7 @@ Graph Explorer is a React-based web application that enables users to visualize 
 
 ## Data Storage & Persistence
 
-- Client-side only — all user data and preferences are stored client-side; the backend proxy server stores nothing
+- Client-side only — all user data and styles are stored client-side; the backend proxy server stores nothing
 - IndexedDB via localforage is the primary storage mechanism
-- Persisted: user preferences and settings, connection configurations, query history, visualization settings, layout preferences
+- Persisted: user styles and settings, connection configurations, query history, visualization settings, layout preferences
 - Graph data is queried directly from the connected databases and is not owned or persisted by Graph Explorer

@@ -74,14 +74,14 @@ Provides the ability to filter nodes or edges from the visualization by label (o
 
 ### Styles Panel
 
-The Styles panel holds node and edge styling behind two tabs: **Nodes** and **Edges**.
+The Styles panel holds node and edge styling behind two tabs: **Nodes** and **Edges**. As you edit a node or edge type, a live preview shows it exactly as it will appear on the canvas.
 
 On the **Nodes** tab, each node type can be customized in a variety of ways.
 
 - **Display label** allows you to change how the node label (or rdf:type) is represented
 - **Display name attribute** allows you to choose the attribute on the node that is used to uniquely label the node in the graph visualization and search
 - **Display description attribute** allows you to choose the attribute on the node that is used to describe the node in search
-- **Icon** can be picked from the built-in Lucide library via the **Browse** button, or uploaded as a custom SVG/raster image.
+- **Icon** can be searched or paged through in the built-in Lucide library via the **Browse** button, or uploaded as a custom SVG/raster image.
 - **Colors and borders** can be customized to visually distinguish from other node types
 
 On the **Edges** tab, each edge type can be customized in a variety of ways.
