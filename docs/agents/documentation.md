@@ -8,6 +8,7 @@ How to write user-facing docs (READMEs, guides, the docs site). For agent-facing
 - State prerequisites up front — what the reader needs before starting
 - kebab-case file names (`getting-started.md`)
 - No emojis
+- Avoid emdashes and semicolons if possible
 
 ## Pitch to the audience
 
