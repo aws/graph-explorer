@@ -30,9 +30,12 @@ export type Vertex = {
   id: VertexId;
 
   /**
-   * Single vertex type.
+   * The primary vertex type, used to drive styling and naming.
    * - For PG, the node label
    * - For RDF, the resource class
+   *
+   * When a node carries several labels, this is the most specific one: the
+   * generic `vertex` base label is skipped unless it is the only label.
    */
   type: VertexType;
 
@@ -63,9 +66,10 @@ export function createVertex(options: {
   id: EntityRawId;
 
   /**
-   * The primary type (used for styling) will be the first type in the array. If
-   * no types are provided, then types will be an empty array and the primary
-   * type will be empty string.
+   * The primary type (used for styling and naming) is the first specific label
+   * in the array, skipping the generic `vertex` base label unless it is the
+   * only label. If no types are provided, the vertex falls back to a single
+   * "missing type" label.
    */
   types?: string[];
 
@@ -83,11 +87,26 @@ export function createVertex(options: {
   ) as VertexType[];
   return {
     id: createVertexId(options.id),
-    type: types[0],
+    type: selectPrimaryType(types),
     types,
     attributes: options.attributes != null ? options.attributes : {},
     isBlankNode: options.isBlankNode ?? false,
   };
+}
+
+/** The default label Gremlin/TinkerPop assigns to a vertex created without one. */
+const GENERIC_VERTEX_LABEL = "vertex";
+
+/**
+ * Picks the type that drives a vertex's styling and naming. The generic
+ * `vertex` base label (matched case-insensitively) is skipped when a more
+ * specific label exists, so a node labeled `["vertex", "sqsqueue"]` is styled
+ * and named as `sqsqueue`. A vertex whose only label is `vertex` keeps it.
+ */
+function selectPrimaryType(types: VertexType[]): VertexType {
+  return (
+    types.find(type => type.toLowerCase() !== GENERIC_VERTEX_LABEL) ?? types[0]
+  );
 }
 
 /** Creates a VertexType from a string */

@@ -11,6 +11,7 @@ export * from "./neighbors";
 export * from "./nodes";
 export * from "./renderedEntities";
 export * from "./graphStyles";
+export * from "./hiddenSchemaTypes";
 export * from "./schema";
 export * from "./storageAtoms";
 export * from "./graphSession";

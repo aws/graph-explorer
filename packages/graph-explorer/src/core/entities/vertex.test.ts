@@ -43,6 +43,33 @@ describe("createVertex", () => {
     });
   });
 
+  it("should style by the specific label when the generic vertex label is present", () => {
+    const vertex = createVertex({
+      id: "1",
+      types: ["vertex", "sqsqueue"],
+    });
+
+    expect(vertex.type).toBe("sqsqueue");
+    expect(vertex.types).toStrictEqual(["vertex", "sqsqueue"]);
+  });
+
+  it("should ignore the generic vertex label regardless of case or position", () => {
+    expect(createVertex({ id: "1", types: ["Vertex", "sqsqueue"] }).type).toBe(
+      "sqsqueue",
+    );
+    expect(createVertex({ id: "1", types: ["VERTEX", "sqsqueue"] }).type).toBe(
+      "sqsqueue",
+    );
+    expect(
+      createVertex({ id: "1", types: ["vertex", "sqsqueue", "resource"] }).type,
+    ).toBe("sqsqueue");
+  });
+
+  it("should keep the generic vertex label when it is the only label", () => {
+    expect(createVertex({ id: "1", types: ["vertex"] }).type).toBe("vertex");
+    expect(createVertex({ id: "1", types: ["Vertex"] }).type).toBe("Vertex");
+  });
+
   it("should create a vertex with missing types", () => {
     const vertex = createVertex({
       id: "1",
