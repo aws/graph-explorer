@@ -8,9 +8,11 @@ import { createEdgeType, createVertexType } from "@/core/entities";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 import {
   ARROW_STYLES,
+  CONDITION_OPERATORS,
   type EdgeStyleStorage,
   LINE_STYLES,
   SHAPE_STYLES,
+  type VertexConditionalStyle,
   type VertexStyleStorage,
 } from "@/core/StateProvider/graphStyles";
 import { typedEntries } from "@/utils";
@@ -112,39 +114,39 @@ export function isAllowedIconValue(value: string): boolean {
 }
 
 /**
- * One vertex entry. Unknown fields are stripped (Zod's default), so a file with
- * extra keys imports without error and without storing them — in particular an
- * injected `iconUrl` is dropped, never bypassing the `icon` allowlist. The
- * `icon`→`iconUrl` rename to the storage model happens in `.transform()`, so it
- * stays at this seam.
+ * A styling condition. The value is always a string in the file; coercion to
+ * the attribute's runtime type happens when the Cytoscape selector is built.
  */
-const vertexEntrySchema = z
-  .object({
-    icon: safeIconValue.optional(),
-    // Loose `string`, matching storage. The upload seam fills this from the
-    // browser's `file.type` (any `image/*` the OS reports), so a fixed enum
-    // would reject valid uploads on round-trip. It is not a security boundary:
-    // the icon data is guarded by `safeIconValue`, and the only consumer that
-    // reads this field does an exact match on `"image/svg+xml"` to choose the
-    // inline-SVG render path — which is DOMPurify-sanitized — so any other
-    // value simply takes the safer `<img>`/raster path.
-    iconImageType: z.string().optional(),
-    color: z.string().optional(),
-    displayLabel: z.string().optional(),
-    displayNameAttribute: z.string().optional(),
-    longDisplayNameAttribute: z.string().optional(),
-    shape: z.enum(SHAPE_STYLES).optional(),
-    backgroundOpacity: z.number().optional(),
-    borderWidth: z.number().optional(),
-    borderColor: z.string().optional(),
-    borderStyle: z.enum(LINE_STYLES).optional(),
-  })
-  .transform(
-    ({ icon, ...rest }): Omit<VertexStyleStorage, "type"> =>
-      icon !== undefined ? { ...rest, iconUrl: icon } : rest,
-  );
+const conditionSchema = z.object({
+  attribute: z.string(),
+  operator: z.enum(CONDITION_OPERATORS),
+  value: z.string(),
+});
 
-const edgeEntrySchema = z.object({
+/**
+ * The vertex style fields shared by a base entry and its conditional style. The
+ * `icon`→`iconUrl` rename is applied by whichever schema embeds these fields.
+ * Loose `iconImageType` string matches storage — the upload seam fills it from
+ * the browser's `file.type`, so a fixed enum would reject valid uploads on
+ * round-trip. It is not a security boundary: the icon data is guarded by
+ * `safeIconValue`, and the only consumer that reads it does an exact match on
+ * `"image/svg+xml"` to choose the DOMPurify-sanitized inline-SVG render path.
+ */
+const vertexStyleFields = {
+  icon: safeIconValue.optional(),
+  iconImageType: z.string().optional(),
+  color: z.string().optional(),
+  displayLabel: z.string().optional(),
+  displayNameAttribute: z.string().optional(),
+  longDisplayNameAttribute: z.string().optional(),
+  shape: z.enum(SHAPE_STYLES).optional(),
+  backgroundOpacity: z.number().optional(),
+  borderWidth: z.number().optional(),
+  borderColor: z.string().optional(),
+  borderStyle: z.enum(LINE_STYLES).optional(),
+};
+
+const edgeStyleFields = {
   displayLabel: z.string().optional(),
   displayNameAttribute: z.string().optional(),
   labelColor: z.string().optional(),
@@ -157,6 +159,41 @@ const edgeEntrySchema = z.object({
   lineStyle: z.enum(LINE_STYLES).optional(),
   sourceArrowStyle: z.enum(ARROW_STYLES).optional(),
   targetArrowStyle: z.enum(ARROW_STYLES).optional(),
+};
+
+/** A vertex conditional style — the shared style fields plus a required condition. */
+const vertexConditionalStyleSchema = z
+  .object({ condition: conditionSchema, ...vertexStyleFields })
+  .transform(
+    ({ icon, ...rest }): VertexConditionalStyle =>
+      icon !== undefined ? { ...rest, iconUrl: icon } : rest,
+  );
+
+const edgeConditionalStyleSchema = z.object({
+  condition: conditionSchema,
+  ...edgeStyleFields,
+});
+
+/**
+ * One vertex entry. Unknown fields are stripped (Zod's default), so a file with
+ * extra keys imports without error and without storing them — in particular an
+ * injected `iconUrl` is dropped, never bypassing the `icon` allowlist, at both
+ * the top level and inside `conditionalStyle`. The `icon`→`iconUrl` rename to
+ * the storage model happens in `.transform()`, so it stays at this seam.
+ */
+const vertexEntrySchema = z
+  .object({
+    ...vertexStyleFields,
+    conditionalStyle: vertexConditionalStyleSchema.optional(),
+  })
+  .transform(
+    ({ icon, ...rest }): Omit<VertexStyleStorage, "type"> =>
+      icon !== undefined ? { ...rest, iconUrl: icon } : rest,
+  );
+
+const edgeEntrySchema = z.object({
+  ...edgeStyleFields,
+  conditionalStyle: edgeConditionalStyleSchema.optional(),
 });
 
 // --- File-format types ---
@@ -180,14 +217,28 @@ export type StylingExportPayload = {
 export function toVertexFileEntry(
   model: VertexStyleStorage,
 ): VertexStyleFileEntry {
-  const { type: _type, iconUrl, ...rest } = model;
+  const { type: _type, iconUrl, conditionalStyle, ...rest } = model;
   // The file format uses `icon`; storage uses `iconUrl`. Every other field maps
-  // straight across, so this rename is the only transformation on the way out.
+  // straight across, so this rename — applied at the top level and inside the
+  // conditional style — is the only transformation on the way out.
+  return {
+    ...rest,
+    ...(iconUrl !== undefined ? { icon: iconUrl } : {}),
+    ...(conditionalStyle !== undefined
+      ? { conditionalStyle: toVertexConditionalFileEntry(conditionalStyle) }
+      : {}),
+  };
+}
+
+function toVertexConditionalFileEntry(conditional: VertexConditionalStyle) {
+  const { iconUrl, ...rest } = conditional;
   return iconUrl !== undefined ? { ...rest, icon: iconUrl } : rest;
 }
 
 export function toEdgeFileEntry(model: EdgeStyleStorage): EdgeStyleFileEntry {
   const { type: _type, ...rest } = model;
+  // Edges have no `icon`↔`iconUrl` rename, so the conditional style (in `rest`)
+  // maps straight across.
   return rest;
 }
 

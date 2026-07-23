@@ -332,6 +332,70 @@ describe("useGraphStyles", () => {
     expect(edgeStyle["text-border-width"]).toBeUndefined();
   });
 
+  it("should emit a conditionMet selector carrying the conditional vertex style", async () => {
+    const vertexConfig = {
+      ...createRandomVertexTypeConfig(),
+      type: createVertexType("Person"),
+      color: "#128EE5",
+    };
+    dbState.activeSchema.vertices = [vertexConfig];
+    dbState.addVertexStyle(vertexConfig.type, {
+      ...vertexConfig,
+      conditionalStyle: {
+        condition: { attribute: "score", operator: ">", value: "50" },
+        color: "#ff0000",
+      },
+    });
+
+    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+
+    await waitFor(() => {
+      const conditionalStyle = getStyles(result)[
+        `node[type="Person"][conditionMet = "true"]`
+      ] as any;
+      expect(conditionalStyle["background-color"]).toBe("#ff0000");
+    });
+  });
+
+  it("should emit a conditionMet selector carrying the conditional edge style", () => {
+    const edgeConfig = {
+      ...createRandomEdgeTypeConfig(),
+      type: createEdgeType("KNOWS"),
+      lineColor: "#b3b3b3",
+    };
+    dbState.activeSchema.edges = [edgeConfig];
+    dbState.addEdgeStyle(edgeConfig.type, {
+      ...edgeConfig,
+      conditionalStyle: {
+        condition: { attribute: "status", operator: "=", value: "flagged" },
+        lineColor: "#ff0000",
+      },
+    });
+
+    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+
+    const conditionalStyle = getStyles(result)[
+      `edge[type="KNOWS"][conditionMet = "true"]`
+    ] as any;
+    expect(conditionalStyle["line-color"]).toBe("#ff0000");
+  });
+
+  it("should not emit a conditional selector when no condition is defined", () => {
+    const vertexConfig = {
+      ...createRandomVertexTypeConfig(),
+      type: createVertexType("Person"),
+    };
+    dbState.activeSchema.vertices = [vertexConfig];
+    dbState.addVertexStyle(vertexConfig.type, vertexConfig);
+
+    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+
+    const conditionalKeys = Object.keys(getStyles(result)).filter(k =>
+      k.includes("conditionMet"),
+    );
+    expect(conditionalKeys).toStrictEqual([]);
+  });
+
   it("should use deferred values for performance", () => {
     const vertexConfig = createRandomVertexTypeConfig();
     const edgeConfig = createRandomEdgeTypeConfig();

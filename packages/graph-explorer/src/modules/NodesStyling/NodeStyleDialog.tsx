@@ -5,12 +5,16 @@ import { toast } from "sonner";
 import {
   Button,
   ColorPopover,
+  ConditionBuilder,
+  createDefaultCondition,
   Field,
   FieldGroup,
   FieldLabel,
+  FieldLegend,
   FieldSet,
   FileButton,
   IconPicker,
+  LabelledSetting,
   NumberInput,
   PreviewSurface,
   Select,
@@ -18,6 +22,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Switch,
   VertexPreview,
 } from "@/components";
 import {
@@ -33,7 +38,9 @@ import {
 import { useDisplayVertexTypeConfig, type VertexType } from "@/core";
 import {
   type LineStyle,
+  resolveConditionalVertexStyle,
   type ShapeStyle,
+  type StyleCondition,
   useVertexStyling,
 } from "@/core/StateProvider/graphStyles";
 import { isAllowedIconValue } from "@/core/styling";
@@ -46,6 +53,7 @@ import { createDisplayError } from "@/utils/createDisplayError";
 
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
 import { NODE_SHAPE } from "./nodeShape";
+import { NodeStyleFields, type VertexStyleUpdate } from "./NodeStyleFields";
 
 const customizeNodeTypeAtom = atom<VertexType | undefined>(undefined);
 
@@ -111,6 +119,26 @@ function Content({ vertexType }: { vertexType: VertexType }) {
     return options;
   })();
 
+  const conditionalStyle = vertexStyle.conditionalStyle;
+  const resolvedConditional = resolveConditionalVertexStyle(vertexStyle);
+
+  const setConditionEnabled = (enabled: boolean) =>
+    setVertexStyle({
+      conditionalStyle: enabled
+        ? { condition: createDefaultCondition(selectOptions) }
+        : undefined,
+    });
+
+  const updateCondition = (condition: StyleCondition) => {
+    if (!conditionalStyle) return;
+    setVertexStyle({ conditionalStyle: { ...conditionalStyle, condition } });
+  };
+
+  const updateConditionalStyle = (update: VertexStyleUpdate) => {
+    if (!conditionalStyle) return;
+    setVertexStyle({ conditionalStyle: { ...conditionalStyle, ...update } });
+  };
+
   const convertImageToBase64AndSetNewIcon = async (file: File) => {
     if (file.size > 50 * 1024) {
       toast.error("Invalid file", {
@@ -145,7 +173,7 @@ function Content({ vertexType }: { vertexType: VertexType }) {
           </DialogDescription>
         </DialogHeader>
 
-        <DialogBody>
+        <DialogBody className="space-y-6">
           <FieldSet>
             <FieldGroup>
               <Field>
@@ -315,6 +343,33 @@ function Content({ vertexType }: { vertexType: VertexType }) {
                 </Field>
               </div>
             </FieldGroup>
+          </FieldSet>
+
+          <FieldSet>
+            <FieldLegend>Conditional Style</FieldLegend>
+            <LabelledSetting
+              htmlFor="nodeConditionalStyleEnabled"
+              label="Apply a different style when a condition is met"
+            >
+              <Switch
+                id="nodeConditionalStyleEnabled"
+                checked={Boolean(conditionalStyle)}
+                onCheckedChange={setConditionEnabled}
+              />
+            </LabelledSetting>
+            {conditionalStyle && resolvedConditional ? (
+              <>
+                <ConditionBuilder
+                  condition={conditionalStyle.condition}
+                  attributeOptions={selectOptions}
+                  onChange={updateCondition}
+                />
+                <NodeStyleFields
+                  style={resolvedConditional.style}
+                  onChange={updateConditionalStyle}
+                />
+              </>
+            ) : null}
           </FieldSet>
         </DialogBody>
         <DialogFooter className="sm:justify-between">
