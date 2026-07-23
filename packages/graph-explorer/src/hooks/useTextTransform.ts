@@ -6,6 +6,9 @@ import { replacePrefixes } from "@/utils/rdf";
 
 export type TextTransformer = (text: string) => string;
 
+/** A no-op transform: text passes through unchanged. */
+export const identityTransform: TextTransformer = text => text;
+
 export const textTransformSelector = atom(get => {
   const queryEngine = get(queryEngineSelector);
   const prefixes = get(prefixesAtom);

@@ -15,8 +15,8 @@ const PADDING = 2;
 const BORDER_RADIUS = 2;
 
 interface LabelPreviewProps {
-  /** The label text to display. */
-  children: string;
+  /** The label content to display. */
+  children: React.ReactNode;
   /** The label visual style (colors, border, opacity). */
   labelStyle: LabelVisualStyle;
   /**

@@ -2,9 +2,11 @@ import type { ComponentPropsWithoutRef } from "react";
 
 import type { EdgeStyle } from "@/core";
 
+import { identityTransform, type TextTransformer } from "@/hooks";
 import { cn } from "@/utils";
 
 import { LabelPreview } from "../LabelPreview";
+import { edgePreviewLabel } from "../previewLabels";
 import {
   type ArrowGeometry,
   type ArrowPrimitive,
@@ -38,7 +40,13 @@ function VertexPlaceholder({
 
 interface EdgePreviewProps {
   edgeStyle: EdgeStyle;
-  label: string;
+  /**
+   * Transform applied to type/attribute names in the label — pass the
+   * connection's `useTextTransform()` to match the canvas (e.g. SPARQL prefix
+   * folding). Defaults to identity so a preview of a style from another source
+   * (an import file) is not reinterpreted through the active connection.
+   */
+  transform?: TextTransformer;
   className?: string;
 }
 
@@ -46,7 +54,12 @@ interface EdgePreviewProps {
  * Two placeholder nodes connected by the styled edge. Geometry is ported
  * verbatim from cytoscape so the preview matches the canvas.
  */
-export function EdgePreview({ edgeStyle, label, className }: EdgePreviewProps) {
+export function EdgePreview({
+  edgeStyle,
+  transform = identityTransform,
+  className,
+}: EdgePreviewProps) {
+  const label = edgePreviewLabel(edgeStyle, transform);
   const lineWidthPx = edgeStyle.lineThickness * DEFAULT_ZOOM;
   const arrowUnit = getArrowWidth(edgeStyle.lineThickness) * DEFAULT_ZOOM;
 
