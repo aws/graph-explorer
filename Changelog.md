@@ -1,5 +1,119 @@
 # Graph Explorer Change Log
 
+## Release 3.2.0
+
+This release makes styling your graph easier to manage and share. Node and edge styles now live together in one panel, previews everywhere show your nodes and edges exactly as they appear on the canvas, and a new Styles settings page lets you save your styles to a file and selectively load them on another machine or browser. This release also makes Graph Explorer reliable across multiple browser tabs, with connections now scoped per-tab and your data no longer lost between tabs, plus a set of fixes to connections, the proxy server, and the Schema View.
+
+### Styling
+
+- **One Styles panel.** Node and edge styles used to be two separate sidebar tabs. They're now combined into a single **Styles** panel with a Nodes/Edges switch, in both the Graph View and the Schema View. A gear button in the panel header jumps to the Styles settings page.
+- **Canvas-accurate previews everywhere.** Node and edge previews now render the true shape, color, border, icon, and label instead of a generic blue circle. This applies across search results, the legend, the Schema View sidebar, and the style dialogs. The node and edge style dialogs each show a prominent live preview that updates as you customize.
+- **New Styles settings page.** A dedicated page in Settings is the home for saving, loading, and resetting your styles.
+- **Save and share your styles.** Save your styles to a file and load them on another machine or browser to reproduce your look. Loading is selective, so you preview each type's current style beside the incoming one and choose exactly which to apply.
+- **Reset your styles.** A single Reset action on the Styles settings page returns every type to the defaults.
+
+### Reliable Across Multiple Tabs
+
+Graph Explorer stores all your data in your browser. This release makes that dependable when you have more than one tab open.
+
+- **Per-tab connections.** The active connection is now scoped to each tab, so switching connections in one tab no longer changes what every other tab is viewing. When you reopen Graph Explorer after closing all tabs, it resumes the connection you most recently used.
+- **No more cross-tab data loss.** Connections, schemas, styles, and sessions saved in two tabs at once now merge instead of one tab's copy overwriting the other's.
+- **Save-failure recovery.** When a write to browser storage fails, such as when storage is full, a "Changes not saved" indicator now appears in the nav bar with the failure details. When storage is full, it also offers to back up your configuration to a file, rather than losing the change silently on reload.
+
+### Bug Fixes
+
+- Clicking a connection that's already active no longer resets it, so you no longer lose your in-progress graph by re-selecting the connection you're on.
+- Blank nodes now show the default icon on the canvas, matching the details panel (thanks @arnavnagzirkar!).
+- The proxy server now stops with a clear message when its port is already in use, and shuts down cleanly instead of lingering in the background.
+- Removed six rounded node shapes that rendered as rounded diamonds and made connected edges disappear at the size nodes are drawn on the canvas. Any node already using one now falls back to its straight-sided equivalent.
+- Fixed a thin inset gap around dialog footers, so the footer background and divider now reach the dialog edges.
+- Connection URLs with stray whitespace or line breaks are now cleaned up, both when you save a connection (thanks @bakar-dev!) and when an existing connection is used, so a pasted URL with a trailing newline no longer breaks the connection.
+
+### Schema View
+
+- Node types and edge types in the Schema View details panel are now clickable, selecting that type in the graph and keeping the sidebar and canvas highlight in sync (thanks @1wos!).
+- The Schema View sidebar can now collapse and expand, and remembers its width and active tab across sessions, matching the Graph View sidebar.
+- The Schema View can auto-open the Details panel when you select a single type.
+
+### New Contributors
+
+Welcome and thank you to our first-time contributors!
+
+- @1wos made their first contribution in https://github.com/aws/graph-explorer/pull/1731
+- @arnavnagzirkar made their first contribution in https://github.com/aws/graph-explorer/pull/1799
+- @bakar-dev made their first contribution in https://github.com/aws/graph-explorer/pull/1982
+
+### All Changes
+
+- Upgrade dependencies across the workspace by @kmcginnes in https://github.com/aws/graph-explorer/pull/1818
+- Add paging to the icon picker by @kmcginnes in https://github.com/aws/graph-explorer/pull/1819
+- Remove the dead config schema leg from the configuration merge by @kmcginnes in https://github.com/aws/graph-explorer/pull/1821
+- Fully parse the exported connection file with a Zod wire-format schema by @kmcginnes in https://github.com/aws/graph-explorer/pull/1822
+- Remove the schema field from the stored configuration type by @kmcginnes in https://github.com/aws/graph-explorer/pull/1823
+- Make active connection per-tab with a persisted breadcrumb by @kmcginnes in https://github.com/aws/graph-explorer/pull/1826
+- Update dependency versions across the workspace by @kmcginnes in https://github.com/aws/graph-explorer/pull/1827
+- Adopt date-prefixed ADR filenames by @kmcginnes in https://github.com/aws/graph-explorer/pull/1835
+- Add ADRs for cross-tab persistence reconciliation strategy by @kmcginnes in https://github.com/aws/graph-explorer/pull/1836
+- Use fake-indexeddb as the persistence test backend by @kmcginnes in https://github.com/aws/graph-explorer/pull/1844
+- Update dependencies and upgrade react-router to v8 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1851
+- Migrate private members to ECMAScript # private fields by @vishwakt in https://github.com/aws/graph-explorer/pull/1856
+- Add a client-side persistence-status layer with save-failure recovery by @kmcginnes in https://github.com/aws/graph-explorer/pull/1859
+- Add tooltips and refine clickable schema type affordances by @kmcginnes in https://github.com/aws/graph-explorer/pull/1860
+- Refresh Docker base image package snapshot by @kmcginnes in https://github.com/aws/graph-explorer/pull/1861
+- Reorganize agent steering into harness-neutral docs/agents by @kmcginnes in https://github.com/aws/graph-explorer/pull/1863
+- Add Matt Pocock agent skills by @kmcginnes in https://github.com/aws/graph-explorer/pull/1865
+- Migrate user styling to type-keyed map atoms by @kmcginnes in https://github.com/aws/graph-explorer/pull/1867
+- Add Code Quality Standards section to agent rules by @kmcginnes in https://github.com/aws/graph-explorer/pull/1868
+- Reconcile all Map-keyed storage atoms across tabs by @kmcginnes in https://github.com/aws/graph-explorer/pull/1869
+- Update public roadmap for Q3/Q4 2026 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1871
+- Restyle Settings pages and add shared UI components by @kmcginnes in https://github.com/aws/graph-explorer/pull/1872
+- Update pnpm to 11.9.0 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1873
+- Rename graph layout to graph view and flatten sidebar hooks by @kmcginnes in https://github.com/aws/graph-explorer/pull/1874
+- Add collapsible Schema View sidebar with shared sidebar shell by @kmcginnes in https://github.com/aws/graph-explorer/pull/1875
+- Bump version to 3.2.0 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1877
+- Restructure issue-tracker agent doc and fix issue-creation conventions by @kmcginnes in https://github.com/aws/graph-explorer/pull/1878
+- Add styling import/export with a shared file envelope by @kmcginnes in https://github.com/aws/graph-explorer/pull/1879
+- Rename styling vocabulary to Styles and reshape style types by @kmcginnes in https://github.com/aws/graph-explorer/pull/1886
+- Seed view layout through DbState with random defaults by @kmcginnes in https://github.com/aws/graph-explorer/pull/1893
+- Fix AlertDialog footer padding inset by @kmcginnes in https://github.com/aws/graph-explorer/pull/1908
+- Sync mattpocock agent skills to latest upstream by @kmcginnes in https://github.com/aws/graph-explorer/pull/1913
+- Combine node and edge styling into one Styles sidebar by @kmcginnes in https://github.com/aws/graph-explorer/pull/1914
+- Add "Reset all styles" action to the Styles settings screen by @kmcginnes in https://github.com/aws/graph-explorer/pull/1916
+- Add buffered NumberInput for decimal-friendly width editing by @kmcginnes in https://github.com/aws/graph-explorer/pull/1919
+- Polish dialog styles and button variants by @kmcginnes in https://github.com/aws/graph-explorer/pull/1920
+- Remove broken round-polygon shapes from the picker and coerce stored values by @kmcginnes in https://github.com/aws/graph-explorer/pull/1923
+- Skip reset when clicking the already-active connection by @kmcginnes in https://github.com/aws/graph-explorer/pull/1924
+- Align style dialog wording with the Settings screen by @kmcginnes in https://github.com/aws/graph-explorer/pull/1927
+- Fix proxy server lifecycle: fail fast on port conflicts, exit on signals by @kmcginnes in https://github.com/aws/graph-explorer/pull/1928
+- Faithful vertex shape preview matching the canvas by @kmcginnes in https://github.com/aws/graph-explorer/pull/1929
+- Add canvas-style node preview to the style dialog by @kmcginnes in https://github.com/aws/graph-explorer/pull/1935
+- Add settings navigation link to styles sidebar header by @kmcginnes in https://github.com/aws/graph-explorer/pull/1942
+- Add draft design.md for the visual design system by @kmcginnes in https://github.com/aws/graph-explorer/pull/1962
+- Migrate to Tailwind default font weight classes by @kmcginnes in https://github.com/aws/graph-explorer/pull/1963
+- Delete tailwind.config.ts and migrate to CSS-native declarations by @kmcginnes in https://github.com/aws/graph-explorer/pull/1964
+- Strip orphaned dark mode fragments by @kmcginnes in https://github.com/aws/graph-explorer/pull/1965
+- Inline shadcn compatibility tokens by @kmcginnes in https://github.com/aws/graph-explorer/pull/1966
+- Migrate legacy color token aliases to canonical semantic tokens by @kmcginnes in https://github.com/aws/graph-explorer/pull/1967
+- Eliminate direct palette scale references in components by @kmcginnes in https://github.com/aws/graph-explorer/pull/1968
+- Finalize design.md and remove tailwind.md by @kmcginnes in https://github.com/aws/graph-explorer/pull/1969
+- Fix dead token classes from shadcn compat cleanup by @kmcginnes in https://github.com/aws/graph-explorer/pull/1975
+- Ignore Claude worktrees and add agent scratch directory by @kmcginnes in https://github.com/aws/graph-explorer/pull/1976
+- Add clickable links for node types and edge types in schema explorer details panel by @1wos in https://github.com/aws/graph-explorer/pull/1731
+- Show default icon for blank nodes on graph canvas by @arnavnagzirkar in https://github.com/aws/graph-explorer/pull/1799
+- Add edge preview to the edge style dialog by @kmcginnes in https://github.com/aws/graph-explorer/pull/1980
+- Collapse styles cascade to a single user layer by @kmcginnes in https://github.com/aws/graph-explorer/pull/1981
+- Add selective style import modal to Settings by @kmcginnes in https://github.com/aws/graph-explorer/pull/1984
+- Update dependencies and base image snapshot by @kmcginnes in https://github.com/aws/graph-explorer/pull/1988
+- Add filtering, search, and bulk selection to the style import modal by @kmcginnes in https://github.com/aws/graph-explorer/pull/1989
+- Seed default connection only when the store is empty by @kmcginnes in https://github.com/aws/graph-explorer/pull/1991
+- Show incoming non-visual properties on style import cards by @kmcginnes in https://github.com/aws/graph-explorer/pull/1992
+- Derive style-preview labels from the resolved style by @kmcginnes in https://github.com/aws/graph-explorer/pull/1993
+- Normalize connection URL whitespace by @bakar-dev in https://github.com/aws/graph-explorer/pull/1982
+- Clean up release-review nits: logging seam and doc drift by @kmcginnes in https://github.com/aws/graph-explorer/pull/1996
+- Normalize connection URLs on the read path by @kmcginnes in https://github.com/aws/graph-explorer/pull/1998
+
+**Full Changelog**: https://github.com/aws/graph-explorer/compare/v3.1.0...v3.2.0
+
 ## Release 3.1.0
 
 This release adds a built-in icon library, faster schema sync on large graphs, a new proxy security option, and several compatibility fixes.
