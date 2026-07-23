@@ -50,6 +50,10 @@ type ConnectionForm = {
   nodeExpansionLimit?: number;
 };
 
+function normalizeUrlField(value: string | undefined) {
+  return value?.replace(/[\r\n]/g, "").trim();
+}
+
 const CONNECTIONS_OP: {
   label: string;
   value: QueryEngine;
@@ -234,22 +238,35 @@ const CreateConnection = ({
 
   const reset = useResetState();
   const onSubmit = () => {
-    if (!form.name || !form.url || !form.queryEngine) {
+    const normalizedForm: ConnectionForm = {
+      ...form,
+      url: normalizeUrlField(form.url),
+      graphDbUrl: normalizeUrlField(form.graphDbUrl),
+    };
+
+    if (
+      !normalizedForm.name ||
+      !normalizedForm.url ||
+      !normalizedForm.queryEngine
+    ) {
       setError(true);
       return;
     }
 
-    if (form.proxyConnection && !form.graphDbUrl) {
+    if (normalizedForm.proxyConnection && !normalizedForm.graphDbUrl) {
       setError(true);
       return;
     }
 
-    if (form.awsAuthEnabled && (!form.awsRegion || !form.serviceType)) {
+    if (
+      normalizedForm.awsAuthEnabled &&
+      (!normalizedForm.awsRegion || !normalizedForm.serviceType)
+    ) {
       setError(true);
       return;
     }
 
-    onSave(form as Required<ConnectionForm>);
+    onSave(normalizedForm as Required<ConnectionForm>);
     reset();
     onClose();
   };
@@ -292,7 +309,9 @@ const CreateConnection = ({
             onChange={onFormChange("url")}
             errorMessage="URL is required"
             placeholder="https://example.com"
-            validationState={hasError && !form.url ? "invalid" : "valid"}
+            validationState={
+              hasError && !normalizeUrlField(form.url) ? "invalid" : "valid"
+            }
           />
         </FormItem>
 
@@ -317,7 +336,9 @@ const CreateConnection = ({
               errorMessage="URL is required"
               placeholder="https://neptune-cluster.amazonaws.com"
               validationState={
-                hasError && !form.graphDbUrl ? "invalid" : "valid"
+                hasError && !normalizeUrlField(form.graphDbUrl)
+                  ? "invalid"
+                  : "valid"
               }
             />
           </FormItem>
