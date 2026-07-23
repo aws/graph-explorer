@@ -28,19 +28,11 @@ export function EdgeStyleImportCard({
       <ImportCardSurface className="space-y-9">
         <div className="flex flex-col items-center gap-3">
           <PreviewLabel>Before</PreviewLabel>
-          <EdgePreview
-            edgeStyle={item.currentStyle}
-            label={item.currentStyle.displayLabel || item.type}
-            className="zoom-75"
-          />
+          <EdgePreview edgeStyle={item.currentStyle} className="zoom-75" />
         </div>
         <div className="flex flex-col items-center gap-3">
           <PreviewLabel>After</PreviewLabel>
-          <EdgePreview
-            edgeStyle={item.incomingStyle}
-            label={item.incomingStyle.displayLabel || item.type}
-            className="zoom-75"
-          />
+          <EdgePreview edgeStyle={item.incomingStyle} className="zoom-75" />
         </div>
       </ImportCardSurface>
       <ImportCardTitle>{item.type}</ImportCardTitle>

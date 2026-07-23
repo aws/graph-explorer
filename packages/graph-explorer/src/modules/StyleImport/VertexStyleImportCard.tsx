@@ -1,6 +1,6 @@
 import { ArrowRightIcon } from "lucide-react";
 
-import { VertexSymbol } from "@/components";
+import { VertexPreview } from "@/components";
 
 import type { VertexStyleImportItem } from "./styleImportPlan";
 
@@ -26,10 +26,10 @@ export function VertexStyleImportCard({
     <ImportCard label={item.type} checked={selected} onCheckedChange={onToggle}>
       <ImportCardSurface className="grid grid-cols-[1fr_auto_1fr] items-center justify-items-center gap-(--card-spacing)">
         <PreviewLabel>Before</PreviewLabel>
-        <PreviewLabel className="col-start-3">After</PreviewLabel>
-        <VertexSymbol vertexStyle={item.currentStyle} className="size-12" />
-        <ArrowRightIcon className="text-primary-foreground/50 size-4 shrink-0" />
-        <VertexSymbol vertexStyle={item.incomingStyle} className="size-12" />
+        <ArrowRightIcon className="text-primary-foreground/50 row-span-2 size-4 shrink-0" />
+        <PreviewLabel>After</PreviewLabel>
+        <VertexPreview vertexStyle={item.currentStyle} className="zoom-50" />
+        <VertexPreview vertexStyle={item.incomingStyle} className="zoom-50" />
       </ImportCardSurface>
       <ImportCardTitle>{item.type}</ImportCardTitle>
       <ImportCardProperties
