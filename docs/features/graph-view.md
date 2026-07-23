@@ -83,6 +83,7 @@ On the **Nodes** tab, each node type can be customized in a variety of ways.
 - **Display description attribute** allows you to choose the attribute on the node that is used to describe the node in search
 - **Icon** can be picked from the built-in Lucide library via the **Browse** button, or uploaded as a custom SVG/raster image.
 - **Colors and borders** can be customized to visually distinguish from other node types
+- **Label font size** and **minimum zoomed font size** control how large the node's label renders and how small it can shrink before it hides while zooming out
 
 On the **Edges** tab, each edge type can be customized in a variety of ways.
 
@@ -91,6 +92,7 @@ On the **Edges** tab, each edge type can be customized in a variety of ways.
 - **Arrow symbol** can be chosen for both source and target variations
 - **Colors and borders** can be customized for the edge label and the line
 - **Line style** can be solid, dotted, or dashed
+- **Label font size** and **minimum zoomed font size** control how large the edge's label renders and how small it can shrink before it hides while zooming out
 
 ### Namespace Panel
 

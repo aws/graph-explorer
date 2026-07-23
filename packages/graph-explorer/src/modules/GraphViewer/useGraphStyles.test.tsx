@@ -66,6 +66,8 @@ describe("useGraphStyles", () => {
         "border-opacity": 1,
         "border-style": "solid",
         shape: "ellipse",
+        "font-size": 7,
+        "min-zoomed-font-size": 6,
         width: 24,
         height: 24,
       });
@@ -86,6 +88,8 @@ describe("useGraphStyles", () => {
       labelBorderWidth: 1,
       labelBorderColor: "#000000",
       labelBorderStyle: "solid" as const,
+      fontSize: 12,
+      minZoomedFontSize: 7,
     };
     dbState.activeSchema.edges = [edgeConfig];
     dbState.addEdgeStyle(edgeConfig.type, edgeConfig);
@@ -107,6 +111,8 @@ describe("useGraphStyles", () => {
       "text-border-width": 1,
       "text-border-color": "#000000",
       "text-border-style": "solid",
+      "font-size": 12,
+      "min-zoomed-font-size": 7,
       width: 2,
       "source-distance-from-node": 0,
       "target-distance-from-node": 0,
