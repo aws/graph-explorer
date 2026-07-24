@@ -50,7 +50,7 @@ An _optional_ placeholder child issue under an Initiative, used when there's no 
 _Avoid_: Spark, prospect, stub, discovery
 
 **Wayfinder**:
-`/wayfinder` — plans a chunk of work too big for one agent session as a shared map of investigation tickets on the issue tracker, resolved one at a time until the route to the destination is clear. Run against an Initiative — either directly, or later off a Kickoff placeholder — it creates a `wayfinder:map` issue as a sibling child under the Initiative, which then owns the scoping route until features and epics can be landed under the Initiative.
+The exercise (invoked with `/wayfinder`) that plans a chunk of work too big for one agent session as a shared map of investigation tickets on the issue tracker, resolved one at a time until the route to the destination is clear. Run against an Initiative — either directly, or later off a Kickoff placeholder — it creates a `wayfinder:map` issue as a sibling child under the Initiative, which then owns the scoping route until features and epics can be landed under the Initiative.
 
 ## Pull requests
 
