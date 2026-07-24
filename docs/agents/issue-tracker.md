@@ -37,6 +37,21 @@ When a skill says "publish to the issue tracker", create a GitHub issue. When it
 
 To change these on an existing issue, use `gh issue edit <number>` — note the flag names differ from create: `--parent <n>` / `--remove-parent`, `--add-blocked-by <n>` / `--remove-blocked-by <n>`, `--add-blocking <n>` / `--remove-blocking <n>`, and `--add-sub-issue <n>` / `--remove-sub-issue <n>`.
 
+## Planning vocabulary
+
+Terms for the pre-build planning hierarchy on the project board. All map onto the native GitHub issue types above.
+
+**Initiative**:
+A body of work too big for one release, expressing a vision (e.g. overhauling the style system). Always typed **Epic**. It is a never-tracked container — the board tracks its children, not the initiative itself — and it parents the features and epics that eventually deliver the vision. Sits below a Roadmap Item in scope and _may_ be flagged as one, but never requires it.
+_Avoid_: Roadmap item (higher-level), theme
+
+**Kickoff**:
+The first child issue under an Initiative — the trackable spike whose job is to scope the still-vague initiative. Always typed **Spike**, parented to its Initiative, and labelled `wayfinder:kickoff`. It _contains_ a [Wayfinder](#wayfinder) session: running Wayfinder charts the map on this same issue, so it also carries `wayfinder:map`, and the kickoff is done once the Wayfinder route is clear. Its deliverable is the scoping; completing it turns a vague Initiative into planned work (features and epics as further children, siblings to the kickoff).
+_Avoid_: Spark, prospect, stub, discovery
+
+**Wayfinder**:
+The `/wayfinder` skill (`~/.claude/skills/wayfinder`) — plans a chunk of work too big for one agent session as a shared map of investigation tickets on the issue tracker, resolved one at a time until the route to the destination is clear. Runs inside a Kickoff; the Kickoff issue _is_ the `wayfinder:map`.
+
 ## Pull requests
 
 - Always publish as a draft, and set up remote tracking when publishing a branch
