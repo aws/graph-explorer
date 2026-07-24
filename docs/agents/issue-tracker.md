@@ -37,6 +37,21 @@ When a skill says "publish to the issue tracker", create a GitHub issue. When it
 
 To change these on an existing issue, use `gh issue edit <number>` — note the flag names differ from create: `--parent <n>` / `--remove-parent`, `--add-blocked-by <n>` / `--remove-blocked-by <n>`, `--add-blocking <n>` / `--remove-blocking <n>`, and `--add-sub-issue <n>` / `--remove-sub-issue <n>`.
 
+## Planning vocabulary
+
+Terms for the pre-build planning hierarchy on the project board. All map onto the native GitHub issue types above.
+
+**Initiative**:
+A body of work too big for one release, expressing a vision (e.g. overhauling the style system). Always typed **Epic**. It is a never-tracked container — the board tracks its children, not the initiative itself — and it parents the features and epics that eventually deliver the vision. Sits below a Roadmap Item in scope and _may_ be flagged as one, but never requires it.
+_Avoid_: Roadmap item (higher-level), theme
+
+**Kickoff**:
+An _optional_ placeholder child issue under an Initiative, used when there's no time to run the [Wayfinder](#wayfinder) exercise immediately — it flags that the initiative is awaiting scoping. Always typed **Spike**, parented to its Initiative, and labelled `wayfinder:kickoff`. A thin trigger: it closes once a Wayfinder session spins up the map, handing the scoping lifecycle off to that map. It does not own the scoping itself, and is skipped entirely when Wayfinder is run straight away.
+_Avoid_: Spark, prospect, stub, discovery
+
+**Wayfinder**:
+The exercise (invoked with `/wayfinder`) that plans a chunk of work too big for one agent session as a shared map of investigation tickets on the issue tracker, resolved one at a time until the route to the destination is clear. Run against an Initiative — either directly, or later off a Kickoff placeholder — it creates a `wayfinder:map` issue as a sibling child under the Initiative, which then owns the scoping route until features and epics can be landed under the Initiative.
+
 ## Pull requests
 
 - Always publish as a draft, and set up remote tracking when publishing a branch
