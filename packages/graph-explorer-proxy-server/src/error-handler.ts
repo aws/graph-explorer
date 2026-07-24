@@ -68,7 +68,7 @@ function extractErrorInfo(error: unknown) {
   if (error instanceof Error) {
     return {
       status: 500,
-      message: error.message || defaultErrorMessage,
+      message: defaultErrorMessage,
     };
   }
 
