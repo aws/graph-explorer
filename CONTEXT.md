@@ -4,6 +4,8 @@ A React-based web application that lets users visually explore graph databases w
 
 ## Language
 
+### Graph Data
+
 **Vertex**:
 A node in the graph — an entity with an ID, one or more types, and attributes. Called "node" in the UI to match user expectations; called "vertex" in code to avoid collision with Node.js global types.
 _Avoid_: Node (in code)
@@ -11,6 +13,26 @@ _Avoid_: Node (in code)
 **Edge**:
 A directed relationship between two vertices (source → target), with a type and optional attributes. Always directed in the data model regardless of graph type.
 _Avoid_: Relationship, link
+
+**Property**:
+A key-value pair on a Vertex or Edge. UI label varies by query language: "Property" (Gremlin/openCypher), "Datatype Property" (SPARQL).
+_Avoid_: Attribute (legacy code term being phased out)
+
+**Vertex Type**:
+A classification of vertices. The schema, styling, filtering, and exploration all operate at the type level. UI label varies by query language: "Node Label" (Gremlin/openCypher), "Class" (SPARQL).
+
+**Edge Type**:
+A classification of edges. UI label varies by query language: "Edge Label" (Gremlin), "Relationship Type" (openCypher), "Predicate" (SPARQL).
+
+**Edge Connection**:
+A schema-level pattern describing how two vertex types can be related via an edge type: sourceVertexType --[edgeType]--> targetVertexType. What the Schema View visualizes. Not an actual edge instance.
+_Avoid_: Relationship (Gremlin UI term), Object Property (SPARQL UI term)
+
+**Neighbors**:
+Vertices directly connected to a given vertex (one hop away). Users "expand neighbors" to progressively discover the graph. Neighbor counts track total vs. unfetched to indicate how much remains unexplored.
+_Avoid_: Connections (ambiguous with Connection)
+
+### Connections
 
 **Graph Database**:
 The external graph database a user connects to and explores — the source of all vertices and edges, reached over HTTP via a Connection. It is the user's own data, brought along and queried live; distinct from the local persisted app state (connections, schema cache, styles, sessions, layout) that Graph Explorer keeps in the browser's IndexedDB.
@@ -35,15 +57,17 @@ _Avoid_: Seed connection
 The graph query protocol a Connection uses — one of Gremlin, openCypher, or SPARQL. Determines which Explorer is instantiated and implies the graph type (Gremlin/openCypher → property graph, SPARQL → RDF).
 _Avoid_: Query engine (internal code name `queryEngine`, but UI says "Query Language")
 
-**Vertex Type**:
-A classification of vertices. The schema, styling, filtering, and exploration all operate at the type level. UI label varies by query language: "Node Label" (Gremlin/openCypher), "Class" (SPARQL).
+### Schema
 
-**Edge Type**:
-A classification of edges. UI label varies by query language: "Edge Label" (Gremlin), "Relationship Type" (openCypher), "Predicate" (SPARQL).
+**Schema**:
+The discovered structure of a connected graph database — vertex types, edge types, their attributes, and how they connect. Populated by Schema Sync when a Connection is first used; not user-defined.
+_Avoid_: Model, structure
 
-**Neighbors**:
-Vertices directly connected to a given vertex (one hop away). Users "expand neighbors" to progressively discover the graph. Neighbor counts track total vs. unfetched to indicate how much remains unexplored.
-_Avoid_: Connections (ambiguous with Connection)
+**Schema Sync**:
+The process that queries the database to discover vertex types, edge types, and their attributes. Required before a user can explore a new Connection.
+_Avoid_: Fetch, load
+
+### Exploration & Views
 
 **Session**:
 The set of vertices and edges a user has loaded through exploration for a given Connection. Persisted to IndexedDB so users can close the browser and restore where they left off.
@@ -61,13 +85,7 @@ _Avoid_: Data Explorer (legacy route name)
 Visual representation of the Schema — shows vertex types and their edge connections as a graph.
 _Avoid_: Schema Explorer (legacy route name)
 
-**Edge Connection**:
-A schema-level pattern describing how two vertex types can be related via an edge type: sourceVertexType --[edgeType]--> targetVertexType. What the Schema View visualizes. Not an actual edge instance.
-_Avoid_: Relationship (Gremlin UI term), Object Property (SPARQL UI term)
-
-**Property**:
-A key-value pair on a Vertex or Edge. UI label varies by query language: "Property" (Gremlin/openCypher), "Datatype Property" (SPARQL).
-_Avoid_: Attribute (legacy code term being phased out)
+### Styling
 
 **Styles**:
 Display customizations per Vertex Type and Edge Type — shape, color, icon, line style, and display labels. A type's style resolves as the **User Style** if the user has set one, otherwise the **App Default Style**. Persisted and merged with Schema-discovered metadata to produce the final rendering. The two specific instances are **Vertex Styles** and **Edge Styles**, each stored in IndexedDB as its own type-keyed Map. Storage keys follow a `user-<entity>-styles` convention. The verb is **customize**; the UI shorthand is **your styles**.
@@ -79,13 +97,7 @@ The user's own styles, taking precedence over the app defaults. Per-type edits a
 **App Default Styles**:
 The built-in fallback style, used for any type the user hasn't styled. Hardcoded in the codebase as `appDefaultVertexStyle` and `appDefaultEdgeStyle`. Not persisted — always available as the final fallback. In UI copy this is just the **default style** (the "app" qualifier is internal only).
 
-**Schema Sync**:
-The process that queries the database to discover vertex types, edge types, and their attributes. Required before a user can explore a new Connection.
-_Avoid_: Fetch, load
-
-**Schema**:
-The discovered structure of a connected graph database — vertex types, edge types, their attributes, and how they connect. Populated by Schema Sync when a Connection is first used; not user-defined.
-_Avoid_: Model, structure
+### Files & Wire Formats
 
 **Exported Connection File**:
 The on-disk JSON format a user gets when they export a Connection (`saveConfigurationToFile`), and which import consumes. It bundles the connection config with a snapshot of the Schema (`lastUpdate` is an ISO string on disk). A single Zod schema in `parseConnectionFile.ts` is the source of truth: both the writer and the importer target the same inferred type (`ExportedConnectionFile`). The writer assigns a `Date` for `lastUpdate` and `JSON.stringify` serializes it to the ISO string; the parser coerces it back via `z.coerce.date()`. The schema is lenient (every level is a `looseObject`), so unknown and legacy fields — styling, `__inferred`/`__matches` on prefixes, attribute `dataType` — pass through untouched. It is intentionally decoupled from the in-memory configuration and from the IndexedDB storage shape, so the wire format can evolve independently. On import it is split — the connection lands in `configurationAtom`, the schema in `schemaAtom`.
@@ -102,6 +114,8 @@ _Avoid_: Version (unqualified — ambiguous with the app version and the Wire Ve
 **Wire Version**:
 The version value as literally written in a file's `meta.version`, which normalizes to the **Format Generation** on read (`EnvelopeVersion` = `number | "1.0"`). Usually equals the generation integer, but **graph-export** writes generation 1 as the decimal string `"1.0"` (`GRAPH_EXPORT_WIRE_VERSION`) so builds predating the envelope — which validate `version` as the literal `"1.0"` — can still import files this build writes. **styling-export** has no such installed base and writes the integer `1`. So a reader must not assume `meta.version` is an integer _on disk_ (it always is _after_ normalization).
 _Avoid_: Storage version, on-disk version ("storage" means the IndexedDB/persisted shape; "on-disk" already names the whole wire format)
+
+### Persistence
 
 **Persistence Status**:
 The single, global state of whether the app's client-side data is safely written to IndexedDB — `idle | saving | failed`. One source of truth that the Persistence Status Indicator subscribes to. `idle` = nothing queued and everything durable (no separate "saved" state — visually identical to a fresh session). `saving` = at least one write queued or in flight, including retryable retries. `failed` = at least one terminal failure outstanding, carrying failure records for a drill-in detail view. Aggregated across all per-key write queues by precedence: any terminal → `failed`; else any in-flight → `saving`; else `idle`. A `failed` key clears on its next successful write; status returns to `idle` when no failure records remain. Deliberately **not** per-key: a failed write flips the whole status rather than naming which collection failed, because the user cannot act on an individual key (the storage layer retries on their behalf). Lives in a plain external store outside React/Jotai; the React edge bridges it via `useSyncExternalStore`.
