@@ -46,11 +46,11 @@ A body of work too big for one release, expressing a vision (e.g. overhauling th
 _Avoid_: Roadmap item (higher-level), theme
 
 **Kickoff**:
-The first child issue under an Initiative — the trackable spike whose job is to scope the still-vague initiative. Always typed **Spike**, parented to its Initiative, and labelled `wayfinder:kickoff`. It _contains_ a [Wayfinder](#wayfinder) session: running Wayfinder charts the map on this same issue, so it also carries `wayfinder:map`, and the kickoff is done once the Wayfinder route is clear. Its deliverable is the scoping; completing it turns a vague Initiative into planned work (features and epics as further children, siblings to the kickoff).
+The first child issue under an Initiative — the placeholder that flags the initiative has been picked up for scoping. Always typed **Spike**, parented to its Initiative, and labelled `wayfinder:kickoff`. A thin trigger: it closes once a [Wayfinder](#wayfinder) session spins up the map, handing the scoping lifecycle off to that map. It does not own the scoping itself.
 _Avoid_: Spark, prospect, stub, discovery
 
 **Wayfinder**:
-The `/wayfinder` skill (`~/.claude/skills/wayfinder`) — plans a chunk of work too big for one agent session as a shared map of investigation tickets on the issue tracker, resolved one at a time until the route to the destination is clear. Runs inside a Kickoff; the Kickoff issue _is_ the `wayfinder:map`.
+The `/wayfinder` skill (`~/.claude/skills/wayfinder`) — plans a chunk of work too big for one agent session as a shared map of investigation tickets on the issue tracker, resolved one at a time until the route to the destination is clear. Started from a Kickoff; it creates a `wayfinder:map` issue as a sibling child under the same Initiative, which then owns the scoping route until features and epics can be landed under the Initiative.
 
 ## Pull requests
 
