@@ -109,7 +109,7 @@ export function findSubjectsMatchingFilters(
       OPTIONAL { ?subject a ?class } .
       ${getFilterPredicates(request.predicates)}
       ${getSubjectClasses(request.subjectClasses)}
-      ${getFilterObject(request.exactMatch, request.searchTerm)}
+      ${getFilterObject(request.exactMatch, request.searchTerm, request.caseInsensitive)}
     }
     ${getLimit(request.limit, request.offset)}
   `;
@@ -125,14 +125,25 @@ function getFilterPredicates(predicates?: string[]) {
   return `FILTER (?pValue IN (${filteredPredicates.map(idParam).join(", ")}))`;
 }
 
-function getFilterObject(exactMatch?: boolean, searchTerm?: string) {
+function getFilterObject(
+  exactMatch?: boolean,
+  searchTerm?: string,
+  caseInsensitive?: boolean,
+) {
   if (!searchTerm) {
     return "";
   }
 
   const escapedSearchTerm = escapeString(searchTerm);
 
-  return exactMatch === true
-    ? `FILTER (?value = "${escapedSearchTerm}")`
-    : `FILTER (regex(str(?value), "${escapedSearchTerm}", "i"))`;
+  if (exactMatch === true) {
+    return caseInsensitive
+      ? `FILTER (lcase(str(?value)) = lcase("${escapedSearchTerm}"))`
+      : `FILTER (?value = "${escapedSearchTerm}")`;
+  }
+
+  // Always use case-insensitive regex for partial match to maintain
+  // backward compatibility. SPARQL search was always case-insensitive
+  // before the caseInsensitive parameter was introduced.
+  return `FILTER (regex(str(?value), "${escapedSearchTerm}", "i"))`;
 }
