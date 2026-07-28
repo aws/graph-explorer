@@ -138,6 +138,8 @@ const vertexEntrySchema = z
     borderWidth: z.number().optional(),
     borderColor: z.string().optional(),
     borderStyle: z.enum(LINE_STYLES).optional(),
+    fontSize: z.number().optional(),
+    minZoomedFontSize: z.number().optional(),
   })
   .transform(
     ({ icon, ...rest }): Omit<VertexStyleStorage, "type"> =>
@@ -157,6 +159,8 @@ const edgeEntrySchema = z.object({
   lineStyle: z.enum(LINE_STYLES).optional(),
   sourceArrowStyle: z.enum(ARROW_STYLES).optional(),
   targetArrowStyle: z.enum(ARROW_STYLES).optional(),
+  fontSize: z.number().optional(),
+  minZoomedFontSize: z.number().optional(),
 });
 
 // --- File-format types ---
