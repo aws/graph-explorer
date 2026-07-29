@@ -65,7 +65,11 @@ export function SchemaExplorerSidebar({
           />
         </SidebarTabsContent>
         <SidebarTabsContent value="styles">
-          <Styles onClose={closeSidebar} tabAtom={schemaViewStylesTabAtom} />
+          <Styles
+            onClose={closeSidebar}
+            tabAtom={schemaViewStylesTabAtom}
+            showVertexVisibilityToggle
+          />
         </SidebarTabsContent>
       </SidebarTabs>
     </CollapsibleSidebar>
