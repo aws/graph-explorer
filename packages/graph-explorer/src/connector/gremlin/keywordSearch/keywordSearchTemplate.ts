@@ -4,6 +4,10 @@ import type { KeywordSearchRequest } from "@/connector";
 
 import { escapeString, SEARCH_TOKENS } from "@/utils";
 
+function escapeRegexForGremlin(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]]/g, "\\\\$&");
+}
+
 /**
  * @example
  * searchTerm = "JFK"
@@ -28,6 +32,7 @@ export default function keywordSearchTemplate({
   limit,
   offset = 0,
   exactMatch = false,
+  caseInsensitive = false,
 }: KeywordSearchRequest): string {
   let template = "g.V()";
 
@@ -55,6 +60,14 @@ export default function keywordSearchTemplate({
           }
           return `has(id,containing("${escapedSearchTerm}"))`;
         }
+
+        if (caseInsensitive) {
+          const regexTerm = escapeRegexForGremlin(escapedSearchTerm);
+          return exactMatch === true
+            ? `has("${attr}",regex("(?i)^${regexTerm}\\$"))`
+            : `has("${attr}",regex("(?i).*${regexTerm}.*"))`;
+        }
+
         if (exactMatch === true) {
           return `has("${attr}","${escapedSearchTerm}")`;
         }

@@ -258,4 +258,98 @@ describe("OpenCypher > keywordSearchTemplate", () => {
       `),
     );
   });
+
+  it("Should return a case-insensitive template for searched attributes containing the search term", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport"],
+      searchTerm: "JFK",
+      searchByAttributes: ["city", "code"],
+      exactMatch: false,
+      caseInsensitive: true,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        MATCH (v:\`airport\`)
+        WHERE (toLower(toString(v.city)) CONTAINS toLower("JFK") OR toLower(toString(v.code)) CONTAINS toLower("JFK"))
+        RETURN v AS object
+      `),
+    );
+  });
+
+  it("Should return a case-insensitive template for searched attributes exactly matching the search term", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport"],
+      searchTerm: "JFK",
+      searchByAttributes: ["city", "code"],
+      exactMatch: true,
+      caseInsensitive: true,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        MATCH (v:\`airport\`)
+        WHERE (toLower(toString(v.city)) = toLower("JFK") OR toLower(toString(v.code)) = toLower("JFK"))
+        RETURN v AS object
+      `),
+    );
+  });
+
+  it("Should not apply case-insensitive to ID searches", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport"],
+      searchTerm: "JFK",
+      exactMatch: false,
+      caseInsensitive: true,
+      searchByAttributes: [SEARCH_TOKENS.NODE_ID],
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        MATCH (v:\`airport\`)
+        WHERE (toString(id(v)) CONTAINS "JFK")
+        RETURN v AS object
+      `),
+    );
+  });
+
+  it("Should not apply toLower when caseInsensitive is false", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport"],
+      searchTerm: "JFK",
+      searchByAttributes: ["city"],
+      exactMatch: false,
+      caseInsensitive: false,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        MATCH (v:\`airport\`)
+        WHERE (v.city CONTAINS "JFK")
+        RETURN v AS object
+      `),
+    );
+  });
+
+  it("Should return a case-insensitive template with multiple vertex types and all search parameters", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport", "country"],
+      searchTerm: "JFK",
+      exactMatch: false,
+      caseInsensitive: true,
+      searchByAttributes: ["city", "code", SEARCH_TOKENS.ALL_ATTRIBUTES],
+      limit: 50,
+      offset: 25,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        MATCH (v)
+        WHERE (v:\`airport\` OR v:\`country\`)
+          AND (toString(id(v)) CONTAINS "JFK" OR toLower(toString(v.city)) CONTAINS toLower("JFK") OR toLower(toString(v.code)) CONTAINS toLower("JFK"))
+        RETURN v AS object
+        SKIP 25 LIMIT 50
+      `),
+    );
+  });
 });

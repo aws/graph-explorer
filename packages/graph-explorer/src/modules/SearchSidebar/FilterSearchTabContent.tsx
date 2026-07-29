@@ -40,6 +40,8 @@ export function FilterSearchTabContent() {
     onAttributeOptionChange,
     partialMatch,
     onPartialMatchChange,
+    caseInsensitive,
+    onCaseInsensitiveChange,
   } = useKeywordSearch();
 
   return (
@@ -112,6 +114,15 @@ export function FilterSearchTabContent() {
               }
             />
             Partial match
+          </Label>
+          <Label className="inline-flex items-center gap-2 hover:cursor-pointer">
+            <Checkbox
+              checked={caseInsensitive}
+              onCheckedChange={checked =>
+                onCaseInsensitiveChange(Boolean(checked))
+              }
+            />
+            Case insensitive
           </Label>
         </div>
       </div>

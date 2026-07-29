@@ -26,6 +26,7 @@ const keywordSearchTemplate = ({
   limit,
   offset,
   exactMatch,
+  caseInsensitive,
 }: KeywordSearchRequest): string => {
   // Check if we're searching for nodes with no type by checking that the MISSING_TYPE is the only type defined
   const isMissingTypeSearch =
@@ -60,6 +61,12 @@ const keywordSearchTemplate = ({
           return exactMatch === true
             ? `id(v) = "${escapeString(searchTerm)}"`
             : `toString(id(v)) CONTAINS "${escapeString(searchTerm)}"`;
+        }
+
+        if (caseInsensitive) {
+          return exactMatch === true
+            ? `toLower(toString(v.${attr})) = toLower("${escapeString(searchTerm)}")`
+            : `toLower(toString(v.${attr})) CONTAINS toLower("${escapeString(searchTerm)}")`;
         }
 
         return exactMatch === true

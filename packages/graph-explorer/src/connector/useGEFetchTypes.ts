@@ -169,6 +169,10 @@ export type KeywordSearchRequest = {
    * Only return exact attribute value matches.
    */
   exactMatch?: boolean;
+  /**
+   * Perform case-insensitive matching on attribute values.
+   */
+  caseInsensitive?: boolean;
 };
 
 export type KeywordSearchResponse = { vertices: Vertex[] };

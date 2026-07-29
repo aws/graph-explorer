@@ -101,9 +101,12 @@ export type SPARQLKeywordSearchRequest = {
   offset?: number;
   /**
    * Filter by exact matching values.
-   *
    */
   exactMatch?: boolean;
+  /**
+   * Perform case-insensitive matching on attribute values.
+   */
+  caseInsensitive?: boolean;
 };
 
 export type SPARQLBlankNodeNeighborsRequest = {
