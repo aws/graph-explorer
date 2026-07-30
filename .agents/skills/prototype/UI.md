@@ -19,7 +19,7 @@ A UI prototype is much easier to judge when it's **butting up against the rest o
 
 The route already exists. Variants are rendered **on the same route**, gated by a `?variant=` URL search param. The existing data fetching, params, and auth all stay — only the rendering swaps. This is the default; pick it unless there's a specific reason not to.
 
-If the prototype is for something that doesn't yet have a page but _would naturally live inside one_ (a new section of the dashboard, a new card on the settings screen, a new step in an existing flow) — that's still sub-shape A. Mount the variants inside the host page.
+If the prototype is for something that doesn't yet have a page but *would naturally live inside one* (a new section of the dashboard, a new card on the settings screen, a new step in an existing flow) — that's still sub-shape A. Mount the variants inside the host page.
 
 ### Sub-shape B — a new page (last resort)
 
@@ -59,13 +59,13 @@ Create a single switcher component on the route:
 
 ```tsx
 // pseudo-code — adapt to the project's framework
-const variant = searchParams.get("variant") ?? "A";
+const variant = searchParams.get('variant') ?? 'A';
 return (
   <>
-    {variant === "A" && <VariantA {...data} />}
-    {variant === "B" && <VariantB {...data} />}
-    {variant === "C" && <VariantC {...data} />}
-    <PrototypeSwitcher variants={["A", "B", "C"]} current={variant} />
+    {variant === 'A' && <VariantA {...data} />}
+    {variant === 'B' && <VariantB {...data} />}
+    {variant === 'C' && <VariantC {...data} />}
+    <PrototypeSwitcher variants={['A','B','C']} current={variant} />
   </>
 );
 ```
@@ -97,12 +97,12 @@ Surface the URL (and the `?variant=` keys). The user will flip through whenever 
 
 ### 6. Capture the answer and clean up
 
-Once a variant has won, write down which one and why (commit message, ADR, issue, or a `NOTES.md` next to the prototype if running AFK and the user hasn't responded yet). Then:
+Once a variant has won, capture the answer — which variant and why — then capture the prototype the way the [SKILL](SKILL.md) describes. Fold the winner into the real code and move the rest onto the throwaway branch, not into main:
 
-- **Sub-shape A** — delete the losing variants and the switcher; fold the winner into the existing page.
-- **Sub-shape B** — promote the winning variant to a real route, delete the throwaway route and the switcher.
+- **Sub-shape A** — fold the winner into the existing page; drop the losing variants and the switcher from main.
+- **Sub-shape B** — promote the winning variant to a real route; drop the throwaway route and the switcher from main.
 
-Don't leave variant components or the switcher lying around. They rot fast and confuse the next reader.
+The full set of variants is the primary source, so it lands on the throwaway branch, not the bin — variant components and the switcher left in the main branch rot fast and confuse the next reader.
 
 ## Anti-patterns
 
