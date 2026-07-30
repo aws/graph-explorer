@@ -145,13 +145,13 @@ describe("OpenCypher > oneHopTemplate", () => {
     );
   });
 
-  it("should split namespaced vertex types on the '::' separator", () => {
+  it("should expand Neptune multi-label types into separate labels on '::'", () => {
     const template = oneHopTemplate({
       vertexId: createVertexId("12"),
-      filterByVertexTypes: ["ns::country", "ns::airport"],
+      filterByVertexTypes: ["country::capital", "city::town"],
     });
 
-    expect(template).toContain("(v:ns OR v:country OR v:ns OR v:airport)");
+    expect(template).toContain("(v:country OR v:capital OR v:city OR v:town)");
   });
 
   // Each criterion dataType and operator produces a distinct WHERE fragment.

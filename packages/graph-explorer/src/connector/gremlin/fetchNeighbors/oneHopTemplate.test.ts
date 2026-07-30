@@ -193,14 +193,14 @@ describe("Gremlin > oneHopTemplate", () => {
     );
   });
 
-  it("should split a namespaced vertex type on the '::' separator", () => {
+  it("should expand a Neptune multi-label type into separate labels on '::'", () => {
     const template = oneHopTemplate({
       vertexId: createVertexId("12"),
-      filterByVertexTypes: ["namespace::country"],
+      filterByVertexTypes: ["country::capital"],
     });
 
     expect(normalize(template)).toContain(
-      normalize('.both().hasLabel("namespace", "country").dedup()'),
+      normalize('.both().hasLabel("country", "capital").dedup()'),
     );
   });
 

@@ -28,13 +28,13 @@ describe("Gremlin > keywordSearchTemplate", () => {
     );
   });
 
-  it("Should split a namespaced vertex type on the '::' separator", () => {
+  it("Should expand a Neptune multi-label type into separate labels on '::'", () => {
     const template = keywordSearchTemplate({
-      vertexTypes: ["namespace::airport"],
+      vertexTypes: ["country::capital"],
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().hasLabel("namespace","airport")'),
+      normalize('g.V().hasLabel("country","capital")'),
     );
   });
 
