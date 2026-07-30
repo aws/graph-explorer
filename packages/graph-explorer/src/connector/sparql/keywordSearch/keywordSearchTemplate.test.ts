@@ -1,9 +1,29 @@
-import { SEARCH_TOKENS } from "@/utils";
+import { LABELS, SEARCH_TOKENS } from "@/utils";
 import { normalize } from "@/utils/testing";
 
 import keywordSearchTemplate from "./keywordSearchTemplate";
 
 describe("SPARQL > keywordSearchTemplate", () => {
+  it("Should filter to subjects with no type when the missing-type class is requested", () => {
+    const template = keywordSearchTemplate({
+      subjectClasses: [LABELS.MISSING_TYPE],
+    });
+
+    expect(normalize(template)).toContain(
+      normalize("FILTER NOT EXISTS { ?subject a ?class }"),
+    );
+    expect(normalize(template)).not.toContain(normalize("FILTER (?class IN ("));
+  });
+
+  it("Should return a template with an offset but no limit", () => {
+    const template = keywordSearchTemplate({
+      offset: 20,
+    });
+
+    expect(normalize(template)).toContain(normalize("OFFSET 20"));
+    expect(normalize(template)).not.toContain(normalize("LIMIT"));
+  });
+
   it("Should return a template for an empty request", () => {
     const template = keywordSearchTemplate({});
 

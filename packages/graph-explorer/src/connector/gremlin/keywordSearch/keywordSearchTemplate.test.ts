@@ -18,6 +18,26 @@ describe("Gremlin > keywordSearchTemplate", () => {
     expect(normalize(template)).toBe(normalize('g.V().hasLabel("airport")'));
   });
 
+  it("Should return a template for multiple vertex types", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport", "country"],
+    });
+
+    expect(normalize(template)).toBe(
+      normalize('g.V().hasLabel("airport","country")'),
+    );
+  });
+
+  it("Should split a namespaced vertex type on the '::' separator", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["namespace::airport"],
+    });
+
+    expect(normalize(template)).toBe(
+      normalize('g.V().hasLabel("namespace","airport")'),
+    );
+  });
+
   it("Should return a template for searched attributes containing the search term", () => {
     const template = keywordSearchTemplate({
       searchTerm: "JFK",
