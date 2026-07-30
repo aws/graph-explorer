@@ -1,9 +1,65 @@
-import { SEARCH_TOKENS } from "@/utils";
+import { LABELS, SEARCH_TOKENS } from "@/utils";
 import { normalize } from "@/utils/testing";
 
 import keywordSearchTemplate from "./keywordSearchTemplate";
 
 describe("SPARQL > keywordSearchTemplate", () => {
+  it("Should filter to subjects with no type when the missing-type class is requested", () => {
+    const template = keywordSearchTemplate({
+      subjectClasses: [LABELS.MISSING_TYPE],
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
+              FILTER NOT EXISTS { ?subject a ?class }
+            }
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
+        }
+      `),
+    );
+  });
+
+  it("Should return a template with an offset but no limit", () => {
+    const template = keywordSearchTemplate({
+      offset: 20,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
+            }
+            OFFSET 20
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
+        }
+      `),
+    );
+  });
+
   it("Should return a template for an empty request", () => {
     const template = keywordSearchTemplate({});
 
