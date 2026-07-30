@@ -11,24 +11,25 @@ describe("SPARQL > keywordSearchBlankNodesIdsTemplate", () => {
       limit: 10,
     });
 
-    expect(normalize(template)).toContain(
-      normalize("SELECT DISTINCT (?subject as ?bNode)"),
-    );
-    expect(normalize(template)).toContain(
-      normalize("SELECT DISTINCT ?subject"),
-    );
-    expect(normalize(template)).toContain(
-      normalize("FILTER (?pValue IN (<air:city>))"),
-    );
-    expect(normalize(template)).toContain(
-      normalize("FILTER (?class IN (<air:airport>))"),
-    );
-    expect(normalize(template)).toContain(
-      normalize('FILTER (regex(str(?value), "JFK", "i"))'),
-    );
-    expect(normalize(template)).toContain(normalize("LIMIT 10"));
-    expect(normalize(template)).toContain(
-      normalize("FILTER(isBlank(?subject))"),
+    expect(normalize(template)).toBe(
+      normalize(`
+        SELECT DISTINCT (?subject as ?bNode)
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
+              FILTER (?pValue IN (<air:city>))
+              FILTER (?class IN (<air:airport>))
+              FILTER (regex(str(?value), "JFK", "i"))
+            }
+            LIMIT 10
+          }
+          FILTER(isBlank(?subject))
+        }
+      `),
     );
   });
 });

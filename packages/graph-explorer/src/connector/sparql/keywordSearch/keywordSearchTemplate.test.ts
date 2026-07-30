@@ -9,10 +9,27 @@ describe("SPARQL > keywordSearchTemplate", () => {
       subjectClasses: [LABELS.MISSING_TYPE],
     });
 
-    expect(normalize(template)).toContain(
-      normalize("FILTER NOT EXISTS { ?subject a ?class }"),
+    expect(normalize(template)).toBe(
+      normalize(`
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
+              FILTER NOT EXISTS { ?subject a ?class }
+            }
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
+        }
+      `),
     );
-    expect(normalize(template)).not.toContain(normalize("FILTER (?class IN ("));
   });
 
   it("Should return a template with an offset but no limit", () => {
@@ -20,8 +37,27 @@ describe("SPARQL > keywordSearchTemplate", () => {
       offset: 20,
     });
 
-    expect(normalize(template)).toContain(normalize("OFFSET 20"));
-    expect(normalize(template)).not.toContain(normalize("LIMIT"));
+    expect(normalize(template)).toBe(
+      normalize(`
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
+            }
+            OFFSET 20
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
+        }
+      `),
+    );
   });
 
   it("Should return a template for an empty request", () => {

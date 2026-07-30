@@ -11,10 +11,33 @@ describe("oneHopNeighborsTemplate", () => {
       subjectClasses: [LABELS.MISSING_TYPE],
     });
 
-    expect(normalize(template)).toContain(
-      normalize("FILTER NOT EXISTS { ?subject a ?class }"),
+    expect(normalize(template)).toEqual(
+      normalize(query`
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            SELECT DISTINCT ?neighbor
+            WHERE {
+              BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
+              {
+                ?neighbor ?predicate ?resource .
+                OPTIONAL { ?neighbor a ?class } .
+                FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+                FILTER NOT EXISTS { ?subject a ?class }
+              }
+              UNION
+              {
+                ?resource ?predicate ?neighbor .
+                OPTIONAL { ?neighbor a ?class } .
+                FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+                FILTER NOT EXISTS { ?subject a ?class }
+              }
+            }
+          }
+          ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
+        }
+      `),
     );
-    expect(normalize(template)).not.toContain(normalize("FILTER (?class IN ("));
   });
 
   it("should produce documentation example", () => {
