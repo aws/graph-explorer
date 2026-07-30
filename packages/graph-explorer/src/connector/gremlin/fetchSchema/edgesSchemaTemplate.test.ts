@@ -36,4 +36,18 @@ describe("Gremlin > edgesSchemaTemplate", () => {
       `),
     );
   });
+
+  it("should escape a double quote in a label", () => {
+    const template = edgesSchemaTemplate({ types: ['rou"te'] });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V().limit(1)
+          .project(
+            "rou\\"te"
+          )
+          .by(V().bothE("rou\\"te").limit(1))
+      `),
+    );
+  });
 });

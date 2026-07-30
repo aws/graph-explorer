@@ -36,4 +36,18 @@ describe("Gremlin > verticesSchemaTemplate", () => {
       `),
     );
   });
+
+  it("should escape a double quote in a label", () => {
+    const template = verticesSchemaTemplate({ types: ['air"port'] });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V().limit(1)
+          .project(
+            "air\\"port"
+          )
+          .by(V().hasLabel("air\\"port").limit(1))
+      `),
+    );
+  });
 });

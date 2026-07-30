@@ -183,4 +183,23 @@ describe("Gremlin > keywordSearchTemplate", () => {
       ),
     );
   });
+
+  it("Should escape a double quote in a vertex type", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ['air"port'],
+    });
+
+    expect(normalize(template)).toBe(normalize('g.V().hasLabel("air\\"port")'));
+  });
+
+  it("Should escape a double quote in a searched attribute name", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: "JFK",
+      searchByAttributes: ['co"de'],
+    });
+
+    expect(normalize(template)).toBe(
+      normalize('g.V().or(has("co\\"de",containing("JFK")))'),
+    );
+  });
 });

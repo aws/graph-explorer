@@ -9,7 +9,7 @@ import type {
 import type { GInt64, GremlinFetch } from "./types";
 
 import isErrorResponse from "../utils/isErrorResponse";
-import { idParam } from "./idParam";
+import { fragment } from "./fragments";
 import { extractRawId } from "./mappers/extractRawId";
 import { parseGMap } from "./mappers/parseGMap";
 
@@ -46,7 +46,7 @@ export async function neighborCounts(
     return { counts: [] };
   }
 
-  const ids = request.vertexIds.map(idParam).join(",");
+  const ids = request.vertexIds.map(fragment.id).join(",");
   const template = query`
     g.V(${ids})
      .group()

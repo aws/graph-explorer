@@ -2,33 +2,34 @@ import type { Criterion, NeighborsRequest } from "@/connector/useGEFetchTypes";
 
 import { query } from "@/utils";
 
-import { idParam } from "../idParam";
+import { fragment } from "../fragments";
 
 function criterionNumberTemplate({
   name,
   operator,
   value,
 }: Omit<Criterion, "dataType">): string {
+  const key = fragment.identifier(name);
   switch (operator.toLowerCase()) {
     case "eq":
     case "==":
     default:
-      return `has("${name}",eq(${value}))`;
+      return `has(${key},eq(${value}))`;
     case "gt":
     case ">":
-      return `has("${name}",gt(${value}))`;
+      return `has(${key},gt(${value}))`;
     case "gte":
     case ">=":
-      return `has("${name}",gte(${value}))`;
+      return `has(${key},gte(${value}))`;
     case "lt":
     case "<":
-      return `has("${name}",lt(${value}))`;
+      return `has(${key},lt(${value}))`;
     case "lte":
     case "<=":
-      return `has("${name}",lte(${value}))`;
+      return `has(${key},lte(${value}))`;
     case "neq":
     case "!=":
-      return `has("${name}",neq(${value}))`;
+      return `has(${key},neq(${value}))`;
   }
 }
 
@@ -37,16 +38,18 @@ function criterionStringTemplate({
   operator,
   value,
 }: Omit<Criterion, "dataType">): string {
+  const key = fragment.identifier(name);
+  const literal = fragment.string(value);
   switch (operator.toLowerCase()) {
     case "eq":
     case "==":
     default:
-      return `has("${name}","${value}")`;
+      return `has(${key},${literal})`;
     case "neq":
     case "!=":
-      return `has("${name}",neq("${value}"))`;
+      return `has(${key},neq(${literal}))`;
     case "like":
-      return `has("${name}",containing("${value}"))`;
+      return `has(${key},containing(${literal}))`;
   }
 }
 
@@ -55,26 +58,27 @@ function criterionDateTemplate({
   operator,
   value,
 }: Omit<Criterion, "dataType">): string {
+  const key = fragment.identifier(name);
   switch (operator.toLowerCase()) {
     case "eq":
     case "==":
     default:
-      return `has("${name}",eq(datetime(${value})))`;
+      return `has(${key},eq(datetime(${value})))`;
     case "gt":
     case ">":
-      return `has("${name}",gt(datetime(${value})))`;
+      return `has(${key},gt(datetime(${value})))`;
     case "gte":
     case ">=":
-      return `has("${name}",gte(datetime(${value})))`;
+      return `has(${key},gte(datetime(${value})))`;
     case "lt":
     case "<":
-      return `has("${name}",lt(datetime(${value})))`;
+      return `has(${key},lt(datetime(${value})))`;
     case "lte":
     case "<=":
-      return `has("${name}",lte(datetime(${value})))`;
+      return `has(${key},lte(datetime(${value})))`;
     case "neq":
     case "!=":
-      return `has("${name}",neq(datetime(${value})))`;
+      return `has(${key},neq(datetime(${value})))`;
   }
 }
 
@@ -124,13 +128,13 @@ export default function oneHopTemplate({
   filterCriteria = [],
   limit = 0,
 }: Omit<NeighborsRequest, "vertexTypes">): string {
-  const idTemplate = idParam(vertexId);
+  const idTemplate = fragment.id(vertexId);
   const range = limit > 0 ? `.range(0, ${limit})` : "";
 
   const vertexTypes = filterByVertexTypes.flatMap(type => type.split("::"));
   const vertexTypesTemplate =
     vertexTypes.length > 0
-      ? `hasLabel(${vertexTypes.map(type => `"${type}"`).join(", ")})`
+      ? `hasLabel(${vertexTypes.map(fragment.identifier).join(", ")})`
       : ``;
 
   const filterCriteriaTemplate =
@@ -147,7 +151,7 @@ export default function oneHopTemplate({
 
   const excludedList = excludedVertices
     .values()
-    .map(id => idParam(id))
+    .map(fragment.id)
     .toArray()
     .join(",");
   const excludedTemplate = excludedList

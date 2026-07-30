@@ -6,4 +6,10 @@ describe("Gremlin > vertexTypeCountTemplate", () => {
 
     expect(template).toBe('g.V().hasLabel("airport").count()');
   });
+
+  it("should escape a double quote in the label", () => {
+    const template = vertexTypeCountTemplate('air"port');
+
+    expect(template).toBe('g.V().hasLabel("air\\"port").count()');
+  });
 });

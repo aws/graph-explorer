@@ -277,5 +277,38 @@ describe("Gremlin > oneHopTemplate", () => {
         }),
       ).toContain(normalize(`and(${frag})`));
     });
+
+    it("escapes a double quote in the criterion name", () => {
+      expect(
+        fragmentFor({
+          name: 'lo"ngest',
+          value: 10000,
+          operator: "gt",
+          dataType: "Number",
+        }),
+      ).toContain(normalize('and(has("lo\\"ngest",gt(10000)))'));
+    });
+
+    it("escapes a double quote in a String criterion value", () => {
+      expect(
+        fragmentFor({
+          name: "country",
+          value: 'E"S',
+          operator: "eq",
+          dataType: "String",
+        }),
+      ).toContain(normalize('and(has("country","E\\"S"))'));
+    });
+  });
+
+  it("escapes a double quote in a vertex type", () => {
+    const template = oneHopTemplate({
+      vertexId: createVertexId("12"),
+      filterByVertexTypes: ['air"port'],
+    });
+
+    expect(normalize(template)).toContain(
+      normalize('.both().hasLabel("air\\"port").dedup()'),
+    );
   });
 });
