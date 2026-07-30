@@ -35,6 +35,10 @@ _Avoid_: Seed connection
 The graph query protocol a Connection uses — one of Gremlin, openCypher, or SPARQL. Determines which Explorer is instantiated and implies the graph type (Gremlin/openCypher → property graph, SPARQL → RDF).
 _Avoid_: Query engine (internal code name `queryEngine`, but UI says "Query Language")
 
+**Query Fragment**:
+A piece of query text that carries its own delimiters, so a template interpolating it never writes quotes around it. Every value reaching a query — a string literal, an identifier such as a Property key or type label, or an IRI — becomes a Query Fragment first. Each Query Language has its own fragments; one language's fragment is not valid in another.
+_Avoid_: Query Parameter Value (implies parameterization, which no supported backend offers for identifiers), Query Literal (an identifier is not a literal), Fragment (unqualified — the connector code already calls a Vertex or Edge returned without its attributes a "fragment", which is a result rather than query text)
+
 **Vertex Type**:
 A classification of vertices. The schema, styling, filtering, and exploration all operate at the type level. UI label varies by query language: "Node Label" (Gremlin/openCypher), "Class" (SPARQL).
 
