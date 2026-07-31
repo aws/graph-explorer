@@ -6,7 +6,7 @@ import type {
   VertexDetailsResponse,
 } from "../useGEFetchTypes";
 
-import { idParam } from "./idParam";
+import { fragment } from "./fragments";
 import { parseAndMapQuads } from "./parseAndMapQuads";
 import { rdfTypeUri, type SparqlFetch } from "./types";
 
@@ -24,11 +24,11 @@ export async function vertexDetails(
     SELECT ?subject ?predicate ?object
     WHERE {
       VALUES ?subject {
-        ${request.vertexIds.map(idParam).join("\n")}
+        ${request.vertexIds.map(fragment.iri).join("\n")}
       }
 
       ?subject ?predicate ?object .
-      FILTER(isLiteral(?object) || ?predicate = ${idParam(rdfTypeUri)})
+      FILTER(isLiteral(?object) || ?predicate = ${fragment.iri(rdfTypeUri)})
     }
   `;
 
