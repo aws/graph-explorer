@@ -8,7 +8,6 @@ import {
 
 import type { EdgeId, VertexId } from "@/core";
 
-import { escapeString } from "@/utils";
 import {
   createRandomConnectionWithId,
   createRandomEdgeId,
@@ -239,8 +238,12 @@ describe("parseExportedGraph", () => {
 
   it("should escape strings with double quotes", async () => {
     const exportedGraph = createRandomExportedGraph();
-    const maliciousVertexId = `${createRandomName("VertexId")}").constant("Hello, World!"`;
-    const maliciousEdgeId = `${createRandomName("EdgeId")}").constant("Hello, World!"`;
+    const suffix = `").constant("Hello, World!"`;
+    const escapedSuffix = `\\").constant(\\"Hello, World!\\"`;
+    const vertexName = createRandomName("VertexId");
+    const edgeName = createRandomName("EdgeId");
+    const maliciousVertexId = `${vertexName}${suffix}`;
+    const maliciousEdgeId = `${edgeName}${suffix}`;
     exportedGraph.data.vertices.push(maliciousVertexId);
     exportedGraph.data.edges.push(maliciousEdgeId);
 
@@ -249,10 +252,10 @@ describe("parseExportedGraph", () => {
     expect(parsed.vertices.has(maliciousVertexId as VertexId)).toBeFalsy();
     expect(parsed.edges.has(maliciousEdgeId as EdgeId)).toBeFalsy();
     expect(
-      parsed.vertices.has(escapeString(maliciousVertexId) as VertexId),
+      parsed.vertices.has(`${vertexName}${escapedSuffix}` as VertexId),
     ).toBeTruthy();
     expect(
-      parsed.edges.has(escapeString(maliciousEdgeId) as EdgeId),
+      parsed.edges.has(`${edgeName}${escapedSuffix}` as EdgeId),
     ).toBeTruthy();
   });
 
