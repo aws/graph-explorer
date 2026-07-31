@@ -14,7 +14,7 @@ import type {
 import type { OpenCypherFetch } from "./types";
 
 import isErrorResponse from "../utils/isErrorResponse";
-import { idParam } from "./idParam";
+import { fragment } from "./fragments";
 import { parseResults } from "./mappers/mapResults";
 
 export async function neighborCounts(
@@ -26,7 +26,7 @@ export async function neighborCounts(
     return { counts: [] };
   }
 
-  const ids = request.vertexIds.map(idParam).join(",");
+  const ids = request.vertexIds.map(fragment.id).join(",");
   const template = query`
     MATCH (source)--(neighbor)
     WHERE id(source) IN [${ids}]

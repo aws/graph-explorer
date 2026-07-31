@@ -9,8 +9,10 @@
  * RETURN e AS object
  * LIMIT 1`
  */
+import { fragment } from "../fragments";
+
 const edgesSchemaTemplate = ({ type }: { type: string }) => {
-  return `MATCH () -[e:\`${type}\`]- () RETURN e AS object LIMIT 1`;
+  return `MATCH () -[e:${fragment.identifier(type)}]- () RETURN e AS object LIMIT 1`;
 };
 
 export default edgesSchemaTemplate;

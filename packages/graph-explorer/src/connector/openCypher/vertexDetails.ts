@@ -8,7 +8,7 @@ import type {
 import type { OpenCypherFetch } from "./types";
 
 import isErrorResponse from "../utils/isErrorResponse";
-import { idParam } from "./idParam";
+import { fragment } from "./fragments";
 import { mapResults } from "./mappers/mapResults";
 
 export async function vertexDetails(
@@ -20,7 +20,7 @@ export async function vertexDetails(
     return { vertices: [] };
   }
 
-  const ids = request.vertexIds.map(idParam).join(",");
+  const ids = request.vertexIds.map(fragment.id).join(",");
   const template = query`
     MATCH (vertex) 
     WHERE ID(vertex) in [${ids}] 

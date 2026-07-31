@@ -10,7 +10,7 @@ import { logger, query } from "@/utils";
 
 import type { OCEdge, OpenCypherFetch } from "./types";
 
-import { idParam } from "./idParam";
+import { fragment } from "./fragments";
 import mapApiEdge from "./mappers/mapApiEdge";
 
 type Response = {
@@ -30,7 +30,7 @@ export async function edgeDetails(
     return { edges: [] };
   }
 
-  const ids = request.edgeIds.map(idParam).join(",");
+  const ids = request.edgeIds.map(fragment.id).join(",");
   const template = query`
     MATCH ()-[edge]-()
     WHERE ID(edge) in [${ids}]

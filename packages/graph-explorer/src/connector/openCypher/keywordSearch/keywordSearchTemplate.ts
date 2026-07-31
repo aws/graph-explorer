@@ -2,7 +2,9 @@ import uniq from "lodash/uniq";
 
 import type { KeywordSearchRequest } from "@/connector/useGEFetchTypes";
 
-import { escapeString, LABELS, query, SEARCH_TOKENS } from "@/utils";
+import { LABELS, query, SEARCH_TOKENS } from "@/utils";
+
+import { fragment } from "../fragments";
 
 /**
  * @example
@@ -35,19 +37,20 @@ const keywordSearchTemplate = ({
   // For exactly one vertex type we put the type in the match (unless it's MISSING_TYPE)
   const vertexMatchTemplate =
     vertexTypes.length === 1 && !isMissingTypeSearch
-      ? `v:\`${vertexTypes[0]}\``
+      ? `v:${fragment.identifier(vertexTypes[0])}`
       : "v";
 
   // For multiple vertex types we use the where clause
   const vertexTypeWhereClause = isMissingTypeSearch
     ? "labels(v) = []"
     : vertexTypes.length > 1 &&
-      vertexTypes.map(type => `v:\`${type}\``).join(" OR ");
+      vertexTypes.map(type => `v:${fragment.identifier(type)}`).join(" OR ");
 
-  // If we have a search term we need to build the search term where clause
-  const hasSearchTerm = Boolean(searchTerm);
+  // If we have a search term we need to build the search term where clause.
+  // The truthiness check narrows searchTerm to a string for the literal.
+  const searchLiteral = searchTerm ? fragment.string(searchTerm) : undefined;
   const searchTermWhereClause =
-    hasSearchTerm &&
+    searchLiteral !== undefined &&
     uniq(
       searchByAttributes.includes(SEARCH_TOKENS.ALL_ATTRIBUTES)
         ? [SEARCH_TOKENS.NODE_ID, ...searchByAttributes]
@@ -58,13 +61,13 @@ const keywordSearchTemplate = ({
         // ID is a special case
         if (attr === SEARCH_TOKENS.NODE_ID) {
           return exactMatch === true
-            ? `id(v) = "${escapeString(searchTerm)}"`
-            : `toString(id(v)) CONTAINS "${escapeString(searchTerm)}"`;
+            ? `id(v) = ${searchLiteral}`
+            : `toString(id(v)) CONTAINS ${searchLiteral}`;
         }
 
         return exactMatch === true
-          ? `v.${attr} = "${escapeString(searchTerm)}"`
-          : `v.${attr} CONTAINS "${escapeString(searchTerm)}"`;
+          ? `v.${attr} = ${searchLiteral}`
+          : `v.${attr} CONTAINS ${searchLiteral}`;
       })
       .join(" OR ");
 

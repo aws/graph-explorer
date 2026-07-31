@@ -225,5 +225,16 @@ describe("OpenCypher > oneHopTemplate", () => {
         }),
       ).toContain(frag);
     });
+
+    it("coerces a non-string String criterion value to text", () => {
+      expect(
+        templateFor({
+          name: "longest",
+          value: 10000,
+          operator: "eq",
+          dataType: "String",
+        }),
+      ).toContain('tgt.longest = "10000"');
+    });
   });
 });
