@@ -2,7 +2,7 @@ import type { Criterion, NeighborsRequest } from "@/connector/useGEFetchTypes";
 
 import { query } from "@/utils";
 
-import { idParam } from "../idParam";
+import { fragment } from "../fragments";
 
 const criterionNumberTemplate = ({
   name,
@@ -41,12 +41,12 @@ const criterionStringTemplate = ({
     case "eq":
     case "==":
     default:
-      return `tgt.${name} = "${value}"`;
+      return `tgt.${name} = ${fragment.string(String(value))}`;
     case "neq":
     case "!=":
-      return `tgt.${name} <> "${value}"`;
+      return `tgt.${name} <> ${fragment.string(String(value))}`;
     case "like":
-      return `tgt.${name} CONTAINS "${value}"`;
+      return `tgt.${name} CONTAINS ${fragment.string(String(value))}`;
   }
 };
 
@@ -59,22 +59,22 @@ const criterionDateTemplate = ({
     case "eq":
     case "==":
     default:
-      return `tgt.${name} = DateTime("${value}")`;
+      return `tgt.${name} = DateTime(${fragment.string(String(value))})`;
     case "gt":
     case ">":
-      return `tgt.${name} > DateTime("${value}")`;
+      return `tgt.${name} > DateTime(${fragment.string(String(value))})`;
     case "gte":
     case ">=":
-      return `tgt.${name} >= DateTime("${value}")`;
+      return `tgt.${name} >= DateTime(${fragment.string(String(value))})`;
     case "lt":
     case "<":
-      return `tgt.${name} < DateTime("${value}")`;
+      return `tgt.${name} < DateTime(${fragment.string(String(value))})`;
     case "lte":
     case "<=":
-      return `tgt.${name} <= DateTime("${value}")`;
+      return `tgt.${name} <= DateTime(${fragment.string(String(value))})`;
     case "neq":
     case "!=":
-      return `tgt.${name} <> DateTime("${value}")`;
+      return `tgt.${name} <> DateTime(${fragment.string(String(value))})`;
   }
 };
 
@@ -116,7 +116,7 @@ const oneHopTemplate = ({
 }: Omit<NeighborsRequest, "vertexTypes">): string => {
   const formattedExcludedVertices =
     excludedVertices.size > 0
-      ? `NOT ID(tgt) IN [${excludedVertices.values().map(idParam).toArray().join(", ")}]`
+      ? `NOT ID(tgt) IN [${excludedVertices.values().map(fragment.id).toArray().join(", ")}]`
       : "";
 
   // List of possible vertex labels when there are multiple (single label is handled elsewhere)
@@ -134,7 +134,7 @@ const oneHopTemplate = ({
 
   // Combine all the WHERE conditions
   const whereConditions = [
-    `ID(v) = ${idParam(vertexId)}`,
+    `ID(v) = ${fragment.id(vertexId)}`,
     formattedExcludedVertices,
     formattedVertexTypes,
     ...(filterCriteria?.map(criterionTemplate) ?? []),
