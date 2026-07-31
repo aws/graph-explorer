@@ -1,7 +1,7 @@
-import { escapeString, query, SEARCH_TOKENS } from "@/utils";
+import { query, SEARCH_TOKENS } from "@/utils";
 
 import { getLimit, getSubjectClasses } from "../filterHelpers";
-import { idParam } from "../idParam";
+import { fragment } from "../fragments";
 import { rdfTypeUri, type SPARQLKeywordSearchRequest } from "../types";
 
 /**
@@ -58,7 +58,7 @@ export default function keywordSearchTemplate(
       {
         # Values and types
         ?subject ?predicate ?object
-        FILTER(isLiteral(?object) || ?predicate = ${idParam(rdfTypeUri)})
+        FILTER(isLiteral(?object) || ?predicate = ${fragment.iri(rdfTypeUri)})
       }
     }
   `;
@@ -122,7 +122,7 @@ function getFilterPredicates(predicates?: string[]) {
     return "";
   }
 
-  return `FILTER (?pValue IN (${filteredPredicates.map(idParam).join(", ")}))`;
+  return `FILTER (?pValue IN (${filteredPredicates.map(fragment.iri).join(", ")}))`;
 }
 
 function getFilterObject(exactMatch?: boolean, searchTerm?: string) {
@@ -130,9 +130,9 @@ function getFilterObject(exactMatch?: boolean, searchTerm?: string) {
     return "";
   }
 
-  const escapedSearchTerm = escapeString(searchTerm);
+  const searchLiteral = fragment.string(searchTerm);
 
   return exactMatch === true
-    ? `FILTER (?value = "${escapedSearchTerm}")`
-    : `FILTER (regex(str(?value), "${escapedSearchTerm}", "i"))`;
+    ? `FILTER (?value = ${searchLiteral})`
+    : `FILTER (regex(str(?value), ${searchLiteral}, "i"))`;
 }

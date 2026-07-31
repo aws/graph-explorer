@@ -114,7 +114,7 @@ describe("vertexDetails", () => {
 
     await expect(
       vertexDetails(mockFetch, { vertexIds: [vertex.id] }),
-    ).rejects.toThrow("ID must be a URI");
+    ).rejects.toThrow(/must be a URI/);
   });
 });
 

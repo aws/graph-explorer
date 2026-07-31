@@ -2,7 +2,7 @@ import type { VertexType } from "@/core";
 
 import { query } from "@/utils";
 
-import { idParam } from "../idParam";
+import { fragment } from "../fragments";
 
 // Return all predicates which are connected from the given class
 export default function predicatesByClassTemplate(props: {
@@ -15,7 +15,7 @@ export default function predicatesByClassTemplate(props: {
       {
         SELECT ?subject
         WHERE {
-          ?subject a ${idParam(props.class)}.
+          ?subject a ${fragment.iri(props.class)}.
         }
         LIMIT 1
       }
