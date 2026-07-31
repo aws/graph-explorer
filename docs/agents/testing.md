@@ -20,6 +20,7 @@ Vitest. Tests co-locate with source as `*.test.ts` (or `*.test.tsx` for componen
 - SPARQL: `createUriValue`, `createLiteralValue`, `createQuadBindingsForEntities`, `createQuadSparqlResponse` (`sparqlHelpers.ts`)
 - Gremlin/openCypher response builders: `graphsonHelpers.ts`, `ocHelpers.ts`
 - `normalizeWithNoSpace` — normalize query strings before asserting
+- Fragment tests: `@/connector/testUtils/fragmentInputs` — shared awkward inputs (`awkwardStrings`) and the `stringLiteralInputs` case set (`StringLiteralCase`). Share the _inputs_ across languages; each language declares its own expected output as `const expected = {...} satisfies Record<StringLiteralCase, string>` (a missing or invented case is a compile error) and its own literal decoder for round-trip cases. Never share expectations — that would hide a per-language divergence.
 - Persistence: `PersistenceTab`, `readPersistedValue` (`persistence.ts`)
 - `@shared/utils/testing` — primitives: `createRandomName`, `createRandomInteger`, `createRandomColor`, `createRandomUrlString`, …
 
@@ -29,6 +30,7 @@ These files are the canonical, always-current examples. Open the closest one and
 
 - Hook + `DbState`: `src/core/StateProvider/displayVertex.test.ts`
 - Query-string generation (Gremlin): `src/connector/gremlin/fetchNeighbors/oneHopTemplate.test.ts`; SPARQL: `src/connector/sparql/fetchNeighbors/oneHopNeighborsTemplate.test.ts`
+- Per-language fragment constructor (shared inputs, per-language `satisfies` expectations, round-trip decoder): `src/connector/gremlin/fragments.test.ts`
 - SPARQL response parsing: `src/connector/sparql/parseAndMapQuads.test.ts`
 - Cross-tab persistence: `src/utils/testing/persistence.test.ts`
 - Legacy persisted-shape handling: `src/utils/parseConnectionFile.test.ts`

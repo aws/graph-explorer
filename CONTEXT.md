@@ -36,7 +36,7 @@ The graph query protocol a Connection uses — one of Gremlin, openCypher, or SP
 _Avoid_: Query engine (internal code name `queryEngine`, but UI says "Query Language")
 
 **Query Fragment**:
-A piece of query text that carries its own delimiters, so a template interpolating it never writes quotes around it. Every value reaching a query — a string literal, an identifier such as a Property key or type label, or an IRI — becomes a Query Fragment first. Each Query Language has its own fragments; one language's fragment is not valid in another.
+A piece of query text that carries its own delimiters, so a template interpolating it never writes quotes around it. Every value reaching a query — a string literal, an identifier such as a Property key or type label, or an IRI — becomes a Query Fragment first. Construction can also refuse a value the position cannot represent, rather than coercing it. Each Query Language has its own fragments; one language's fragment is not valid in another.
 _Avoid_: Query Parameter Value (implies parameterization, which no supported backend offers for identifiers), Query Literal (an identifier is not a literal), Fragment (unqualified — the connector code already calls a Vertex or Edge returned without its attributes a "fragment", which is a result rather than query text)
 
 **Vertex Type**:
