@@ -3,7 +3,6 @@ import { type EdgeId, getRawId, type VertexId } from "@/core";
 import {
   InvalidFragmentValueError,
   type QueryFragment,
-  toFiniteNumber,
   toQueryFragment,
 } from "../queryFragment";
 
@@ -77,24 +76,6 @@ export const fragment = {
       );
     }
     return toQueryFragment(`\`${name.replaceAll("`", "``")}\``);
-  },
-
-  /**
-   * A numeric comparison operand, emitted without delimiters so the database
-   * compares it as a number rather than as text. The value is validated rather
-   * than quoted: a non-numeric value cannot be represented here, and quoting it
-   * would silently turn a numeric comparison into a string one.
-   */
-  number(value: unknown): QueryFragment {
-    const asNumber = toFiniteNumber(value);
-    if (asNumber === undefined) {
-      throw InvalidFragmentValueError.unsupportedType(
-        "openCypher",
-        "value",
-        value,
-      );
-    }
-    return toQueryFragment(String(asNumber));
   },
 
   /** An entity ID. openCypher only supports string IDs. */

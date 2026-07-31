@@ -60,9 +60,10 @@ const keywordSearchTemplate = ({
             : `toString(id(v)) CONTAINS ${searchLiteral}`;
         }
 
+        const key = `v.${fragment.identifier(attr)}`;
         return exactMatch === true
-          ? `v.${attr} = ${searchLiteral}`
-          : `v.${attr} CONTAINS ${searchLiteral}`;
+          ? `${key} = ${searchLiteral}`
+          : `${key} CONTAINS ${searchLiteral}`;
       })
       .join(" OR ");
 

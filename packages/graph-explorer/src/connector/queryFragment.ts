@@ -22,25 +22,7 @@ export function toQueryFragment(text: string): QueryFragment {
 }
 
 /** The position within a query that a fragment constructor fills. */
-export type FragmentPosition = "IRI" | "identifier" | "id" | "value";
-
-/**
- * Converts a value to a finite number, or `undefined` when it is not one.
- *
- * Deliberately stricter than `Number(...)`, which maps `""`, `null`, and `[]` to
- * `0` — a numeric comparison against a blank or absent value would silently
- * compare against zero rather than reporting that the value cannot be used.
- */
-export function toFiniteNumber(value: unknown): number | undefined {
-  if (typeof value === "number") {
-    return Number.isFinite(value) ? value : undefined;
-  }
-  if (typeof value !== "string" || value.trim() === "") {
-    return undefined;
-  }
-  const asNumber = Number(value);
-  return Number.isFinite(asNumber) ? asNumber : undefined;
-}
+export type FragmentPosition = "IRI" | "identifier" | "id";
 
 /**
  * Why a value could not be turned into a fragment for the position it was

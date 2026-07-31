@@ -16,10 +16,10 @@ import { fragment } from "../fragments";
  * exactMatch = false
  *
  * g.V()
- *  .hasLabel("airport")
+ *  .hasLabel('airport')
  *  .or(
- *    has("city", containing("JFK"),
- *    has("code", containing("JFK")
+ *    has('city', containing('JFK'),
+ *    has('code', containing('JFK')
  *  )
  *  .range(0, 100)
  */
@@ -36,7 +36,7 @@ export default function keywordSearchTemplate({
   if (vertexTypes.length !== 0) {
     const hasLabelContent = vertexTypes
       .flatMap(type => type.split("::"))
-      .map(type => `"${type}"`)
+      .map(type => fragment.identifier(type))
       .join(",");
     template += `.hasLabel(${hasLabelContent})`;
   }
@@ -53,9 +53,9 @@ export default function keywordSearchTemplate({
           return `has(id,containing(${searchLiteral}))`;
         }
         if (exactMatch === true) {
-          return `has("${attr}",${searchLiteral})`;
+          return `has(${fragment.identifier(attr)},${searchLiteral})`;
         }
-        return `has("${attr}",containing(${searchLiteral}))`;
+        return `has(${fragment.identifier(attr)},containing(${searchLiteral}))`;
       })
       .join(",");
 

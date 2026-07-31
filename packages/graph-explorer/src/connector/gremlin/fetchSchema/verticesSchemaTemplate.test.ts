@@ -10,11 +10,11 @@ describe("Gremlin > verticesSchemaTemplate", () => {
       normalize(`
         g.V().limit(1)
           .project(
-            "airport",
-            "country"
+            'airport',
+            'country'
           )
-          .by(V().hasLabel("airport").limit(1))
-          .by(V().hasLabel("country").limit(1))
+          .by(V().hasLabel('airport').limit(1))
+          .by(V().hasLabel('country').limit(1))
       `),
     );
   });
@@ -26,13 +26,44 @@ describe("Gremlin > verticesSchemaTemplate", () => {
       normalize(`
         g.V().limit(1)
           .project(
-            "a",
-            "b",
-            "c"
+            'a',
+            'b',
+            'c'
           )
-          .by(V().hasLabel("a").limit(1))
-          .by(V().hasLabel("b").limit(1))
-          .by(V().hasLabel("c").limit(1))
+          .by(V().hasLabel('a').limit(1))
+          .by(V().hasLabel('b').limit(1))
+          .by(V().hasLabel('c').limit(1))
+      `),
+    );
+  });
+
+  it("should drop an empty segment from a multi-label type", () => {
+    // A database label like `airport::` splits to an empty segment. Schema
+    // discovery has no user to show an error to, so the segment is dropped
+    // rather than failing the whole sync.
+    const template = verticesSchemaTemplate({ types: ["airport::"] });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V().limit(1)
+          .project(
+            'airport'
+          )
+          .by(V().hasLabel('airport').limit(1))
+      `),
+    );
+  });
+
+  it("should escape a single quote in a label", () => {
+    const template = verticesSchemaTemplate({ types: ["air'port"] });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V().limit(1)
+          .project(
+            'air\\'port'
+          )
+          .by(V().hasLabel('air\\'port').limit(1))
       `),
     );
   });

@@ -32,7 +32,7 @@ import { rdfTypeUri, type SPARQLKeywordSearchRequest } from "../types";
  *       FILTER (?class IN (
  *         <http://www.example.com/soccer/ontology/Team>
  *       ))
- *       FILTER (regex(str(?value), "Ch", "i"))
+ *       FILTER (CONTAINS(LCASE(str(?value)), LCASE("Ch")))
  *     }
  *     LIMIT 10
  *     OFFSET 0
@@ -80,7 +80,7 @@ export default function keywordSearchTemplate(
  * //   OPTIONAL { ?subject a ?class } .
  * //   FILTER (?pValue IN (<http://example.org/name>, <http://example.org/title>))
  * //   FILTER (?class IN (<http://example.org/Person>))
- * //   FILTER (regex(str(?value), "John", "i"))
+ * //   FILTER (CONTAINS(LCASE(str(?value)), LCASE("John")))
  * // }
  * // LIMIT 10 OFFSET 0"
  * findSubjectsMatchingFilters({
@@ -132,5 +132,5 @@ function getFilterObject(exactMatch?: boolean, searchTerm?: string) {
 
   return exactMatch === true
     ? `FILTER (?value = ${searchLiteral})`
-    : `FILTER (regex(str(?value), ${searchLiteral}, "i"))`;
+    : `FILTER (CONTAINS(LCASE(str(?value)), LCASE(${searchLiteral})))`;
 }

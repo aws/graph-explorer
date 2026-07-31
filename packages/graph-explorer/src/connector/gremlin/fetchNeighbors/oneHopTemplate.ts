@@ -8,7 +8,7 @@ import { query } from "@/utils";
 import { fragment } from "../fragments";
 
 function attributeFilterTemplate({ name, value }: AttributeFilter): string {
-  return `has("${name}",containing("${value}"))`;
+  return `has(${fragment.identifier(name)},containing(${fragment.string(value)}))`;
 }
 
 /**
@@ -22,18 +22,18 @@ function attributeFilterTemplate({ name, value }: AttributeFilter): string {
  * excludedVertices = new Set(["256"])
  * limit = 10
  *
- * g.V("124").as("start")
+ * g.V('124').as('start')
  *   .both()
- *   .hasLabel("airport").and(has("city",containing("Sea")), has("country",containing("ES")))
- *   .filter(__.not(__.hasId("256")))
+ *   .hasLabel('airport').and(has('city',containing('Sea')), has('country',containing('ES')))
+ *   .filter(__.not(__.hasId('256')))
  *   .dedup()
  *   .range(0, 10)
- *   .as("neighbor")
- *   .project("vertex", "edges")
+ *   .as('neighbor')
+ *   .project('vertex', 'edges')
  *     .by()
  *     .by(
- *       __.select("start").bothE()
- *         .where(otherV().where(eq("neighbor")))
+ *       __.select('start').bothE()
+ *         .where(otherV().where(eq('neighbor')))
  *         .dedup().fold()
  *     )
  */
@@ -50,7 +50,7 @@ export default function oneHopTemplate({
   const vertexTypes = filterByVertexTypes.flatMap(type => type.split("::"));
   const vertexTypesTemplate =
     vertexTypes.length > 0
-      ? `hasLabel(${vertexTypes.map(type => `"${type}"`).join(", ")})`
+      ? `hasLabel(${vertexTypes.map(type => fragment.identifier(type)).join(", ")})`
       : ``;
 
   const attributeFiltersTemplate =
@@ -75,18 +75,18 @@ export default function oneHopTemplate({
     : ``;
 
   return query`
-    g.V(${idTemplate}).as("start")
+    g.V(${idTemplate}).as('start')
       .both()
       ${nodeFiltersTemplate}
       ${excludedTemplate}
       .dedup()
       ${range}
-      .as("neighbor")
-      .project("vertex", "edges")
+      .as('neighbor')
+      .project('vertex', 'edges')
         .by()
         .by(
-          __.select("start").bothE()
-            .where(otherV().where(eq("neighbor")))
+          __.select('start').bothE()
+            .where(otherV().where(eq('neighbor')))
             .dedup().fold()
         )
   `;

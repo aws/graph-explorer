@@ -10,11 +10,11 @@ describe("Gremlin > edgesSchemaTemplate", () => {
       normalize(`
         g.V().limit(1)
           .project(
-            "route",
-            "contain"
+            'route',
+            'contain'
           )
-          .by(V().bothE("route").limit(1))
-          .by(V().bothE("contain").limit(1))
+          .by(V().bothE('route').limit(1))
+          .by(V().bothE('contain').limit(1))
       `),
     );
   });
@@ -26,13 +26,44 @@ describe("Gremlin > edgesSchemaTemplate", () => {
       normalize(`
         g.V().limit(1)
           .project(
-            "a",
-            "b",
-            "c"
+            'a',
+            'b',
+            'c'
           )
-          .by(V().bothE("a").limit(1))
-          .by(V().bothE("b").limit(1))
-          .by(V().bothE("c").limit(1))
+          .by(V().bothE('a').limit(1))
+          .by(V().bothE('b').limit(1))
+          .by(V().bothE('c').limit(1))
+      `),
+    );
+  });
+
+  it("should drop an empty segment from a multi-label type", () => {
+    // A database label like `route::` splits to an empty segment. Schema
+    // discovery has no user to show an error to, so the segment is dropped
+    // rather than failing the whole sync.
+    const template = edgesSchemaTemplate({ types: ["route::"] });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V().limit(1)
+          .project(
+            'route'
+          )
+          .by(V().bothE('route').limit(1))
+      `),
+    );
+  });
+
+  it("should escape a single quote in a label", () => {
+    const template = edgesSchemaTemplate({ types: ["rou'te"] });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V().limit(1)
+          .project(
+            'rou\\'te'
+          )
+          .by(V().bothE('rou\\'te').limit(1))
       `),
     );
   });

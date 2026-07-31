@@ -87,23 +87,6 @@ describe("fragment.identifier", () => {
   );
 });
 
-describe("fragment.number", () => {
-  it("should emit a number without delimiters, so it compares numerically", () => {
-    expect(fragment.number(10000)).toEqual("10000");
-  });
-
-  it("should accept a numeric string", () => {
-    expect(fragment.number("10000")).toEqual("10000");
-  });
-
-  it.each(["", "abc", "10) ; g.V().drop() ; //", NaN, Infinity, null, {}])(
-    "should report %j, which cannot be a numeric operand",
-    value => {
-      expect(() => fragment.number(value)).toThrow(InvalidFragmentValueError);
-    },
-  );
-});
-
 describe("fragment.id", () => {
   it("should wrap a string ID in single quotes", () => {
     expect(fragment.id(createVertexId("124"))).toEqual("'124'");

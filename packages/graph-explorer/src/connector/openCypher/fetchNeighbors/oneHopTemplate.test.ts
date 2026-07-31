@@ -69,7 +69,7 @@ describe("OpenCypher > oneHopTemplate", () => {
 
     expect(template).toBe(
       query`
-        MATCH (v)-[e]-(tgt:country) 
+        MATCH (v)-[e]-(tgt:\`country\`) 
         WHERE ID(v) = "12" 
         WITH DISTINCT v, tgt 
         ORDER BY toInteger(ID(tgt)) 
@@ -91,7 +91,7 @@ describe("OpenCypher > oneHopTemplate", () => {
     expect(template).toBe(
       query`
         MATCH (v)-[e]-(tgt)
-        WHERE ID(v) = "12" AND (v:country OR v:continent OR v:airport OR v:person)
+        WHERE ID(v) = "12" AND (v:\`country\` OR v:\`continent\` OR v:\`airport\` OR v:\`person\`)
         RETURN
           collect(DISTINCT tgt) AS vObjects,
           collect(e) AS eObjects
@@ -112,8 +112,8 @@ describe("OpenCypher > oneHopTemplate", () => {
 
     expect(template).toBe(
       query`
-        MATCH (v)-[e]-(tgt:country)
-        WHERE ID(v) = "12" AND tgt.city CONTAINS "Sea" AND tgt.country CONTAINS "ES"
+        MATCH (v)-[e]-(tgt:\`country\`)
+        WHERE ID(v) = "12" AND tgt.\`city\` CONTAINS "Sea" AND tgt.\`country\` CONTAINS "ES"
         WITH DISTINCT v, tgt
         ORDER BY toInteger(ID(tgt)) 
         LIMIT 10
@@ -134,7 +134,7 @@ describe("OpenCypher > oneHopTemplate", () => {
 
     expect(template).toBe(
       query`
-        MATCH (v)-[e]-(tgt:airport)
+        MATCH (v)-[e]-(tgt:\`airport\`)
         WHERE ID(v) = "124"
         WITH DISTINCT v, tgt
         ORDER BY toInteger(ID(tgt))
@@ -153,7 +153,9 @@ describe("OpenCypher > oneHopTemplate", () => {
       filterByVertexTypes: ["country::capital", "city::town"],
     });
 
-    expect(template).toContain("(v:country OR v:capital OR v:city OR v:town)");
+    expect(template).toContain(
+      "(v:`country` OR v:`capital` OR v:`city` OR v:`town`)",
+    );
   });
 
   describe("attribute filters", () => {
@@ -166,7 +168,7 @@ describe("OpenCypher > oneHopTemplate", () => {
 
     it("matches an attribute containing the value", () => {
       expect(templateFor([{ name: "country", value: "ES" }])).toContain(
-        'tgt.country CONTAINS "ES"',
+        'tgt.`country` CONTAINS "ES"',
       );
     });
 
@@ -176,7 +178,7 @@ describe("OpenCypher > oneHopTemplate", () => {
           { name: "city", value: "Sea" },
           { name: "country", value: "US" },
         ]),
-      ).toContain('tgt.city CONTAINS "Sea" AND tgt.country CONTAINS "US"');
+      ).toContain('tgt.`city` CONTAINS "Sea" AND tgt.`country` CONTAINS "US"');
     });
 
     it("omits the filter condition when there are no filters", () => {

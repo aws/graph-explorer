@@ -82,8 +82,8 @@ describe("oneHopNeighborsTemplate", () => {
               ?neighbor ?pValue ?object .
               FILTER(
                 isLiteral(?object) && (
-                  (?pValue=<http://www.example.com/soccer/ontology/teamName> && regex(str(?object), "Arsenal", "i")) ||
-                  (?pValue=<http://www.example.com/soccer/ontology/nickname> && regex(str(?object), "Gunners", "i"))
+                  (?pValue=<http://www.example.com/soccer/ontology/teamName> && CONTAINS(LCASE(str(?object)), LCASE("Arsenal"))) ||
+                  (?pValue=<http://www.example.com/soccer/ontology/nickname> && CONTAINS(LCASE(str(?object)), LCASE("Gunners")))
                 )
               )
             }
@@ -99,10 +99,10 @@ describe("oneHopNeighborsTemplate", () => {
     const template = oneHopNeighborsTemplate({
       resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
       subjectClasses: ["http://www.example.com/soccer/ontology/Team"],
-      filterCriteria: [
+      attributeFilters: [
         {
-          predicate: "http://www.example.com/soccer/ontology/teamName",
-          object: "a.b*c",
+          name: "http://www.example.com/soccer/ontology/teamName",
+          value: "a.b*c",
         },
       ],
     });

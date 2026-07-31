@@ -65,8 +65,8 @@ import { rdfTypeUri, type SPARQLNeighborsRequest } from "../types";
  *       ?neighbor ?pValue ?object .
  *       FILTER(
  *         isLiteral(?object) && (
- *           (?pValue=<http://www.example.com/soccer/ontology/teamName> && regex(str(?object), "Arsenal", "i")) ||
- *           (?pValue=<http://www.example.com/soccer/ontology/nickname> && regex(str(?object), "Gunners", "i"))
+ *           (?pValue=<http://www.example.com/soccer/ontology/teamName> && CONTAINS(LCASE(str(?object)), LCASE("Arsenal"))) ||
+ *           (?pValue=<http://www.example.com/soccer/ontology/nickname> && CONTAINS(LCASE(str(?object)), LCASE("Gunners")))
  *         )
  *       )
  *     }
@@ -211,7 +211,7 @@ function getFilterTemplate(attributeFilters: AttributeFilter[]) {
   const hasFilters = attributeFilters.length > 0;
 
   const createFilterTemplate = (filter: AttributeFilter) =>
-    `(?pValue=${fragment.iri(filter.name)} && regex(str(?object), "${filter.value}", "i"))`;
+    `(?pValue=${fragment.iri(filter.name)} && CONTAINS(LCASE(str(?object)), LCASE(${fragment.string(filter.value)})))`;
 
   return hasFilters
     ? query`

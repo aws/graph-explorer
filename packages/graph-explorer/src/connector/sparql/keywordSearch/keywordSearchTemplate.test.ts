@@ -217,7 +217,7 @@ describe("SPARQL > keywordSearchTemplate", () => {
               OPTIONAL { ?subject a ?class } .
               FILTER (?pValue IN (<air:city>, <air:code>))
               FILTER (?class IN (<air:airport>))
-              FILTER (regex(str(?value), "JFK", "i"))
+              FILTER (CONTAINS(LCASE(str(?value)), LCASE("JFK")))
             }
           }
           {
@@ -227,6 +227,22 @@ describe("SPARQL > keywordSearchTemplate", () => {
           }
         }
       `),
+    );
+  });
+
+  it("Should match a search term with regex metacharacters as literal text", () => {
+    const template = keywordSearchTemplate({
+      subjectClasses: ["air:airport"],
+      searchTerm: "a.b*c",
+      predicates: ["air:code"],
+      exactMatch: false,
+    });
+
+    // The term reaches CONTAINS as a plain literal — its `.` and `*` are matched
+    // literally, not as pattern syntax (the reason the filter uses CONTAINS
+    // rather than regex).
+    expect(normalize(template)).toContain(
+      normalize(`FILTER (CONTAINS(LCASE(str(?value)), LCASE("a.b*c")))`),
     );
   });
 
@@ -316,7 +332,7 @@ describe("SPARQL > keywordSearchTemplate", () => {
               OPTIONAL { ?subject a ?class } .
               FILTER (?pValue IN (<rdfs:label>))
               FILTER (?class IN (<air:airport>))
-              FILTER (regex(str(?value), "JFK", "i"))
+              FILTER (CONTAINS(LCASE(str(?value)), LCASE("JFK")))
             }
           }
           {

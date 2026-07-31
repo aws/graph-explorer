@@ -21,18 +21,18 @@ describe("Gremlin > oneHopTemplate", () => {
 
     expect(normalize(template)).toEqual(
       normalize(`
-        g.V("124").as("start")
+        g.V('124').as('start')
           .both()
-          .hasLabel("airport").and(has("city",containing("Sea")), has("country",containing("ES")))
-          .filter(__.not(__.hasId("256")))
+          .hasLabel('airport').and(has('city',containing('Sea')), has('country',containing('ES')))
+          .filter(__.not(__.hasId('256')))
           .dedup()
           .range(0, 10)
-          .as("neighbor")
-          .project("vertex", "edges")
+          .as('neighbor')
+          .project('vertex', 'edges')
             .by()
             .by(
-              __.select("start").bothE()
-                .where(otherV().where(eq("neighbor")))
+              __.select('start').bothE()
+                .where(otherV().where(eq('neighbor')))
                 .dedup().fold()
             )
       `),
@@ -46,13 +46,13 @@ describe("Gremlin > oneHopTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        g.V("12").as("start")
-          .both().dedup().as("neighbor")
-          .project("vertex", "edges")
+        g.V('12').as('start')
+          .both().dedup().as('neighbor')
+          .project('vertex', 'edges')
             .by()
             .by(
-              __.select("start").bothE()
-                .where(otherV().where(eq("neighbor")))
+              __.select('start').bothE()
+                .where(otherV().where(eq('neighbor')))
                 .dedup().fold()
             )
       `),
@@ -67,15 +67,15 @@ describe("Gremlin > oneHopTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        g.V("12").as("start")
+        g.V('12').as('start')
           .both()
-          .filter(__.not(__.hasId("256", "512")))
-          .dedup().as("neighbor")
-          .project("vertex", "edges")
+          .filter(__.not(__.hasId('256', '512')))
+          .dedup().as('neighbor')
+          .project('vertex', 'edges')
             .by()
             .by(
-              __.select("start").bothE()
-                .where(otherV().where(eq("neighbor")))
+              __.select('start').bothE()
+                .where(otherV().where(eq('neighbor')))
                 .dedup().fold()
             )
       `),
@@ -89,13 +89,13 @@ describe("Gremlin > oneHopTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        g.V(12L).as("start")
-          .both().dedup().as("neighbor")
-          .project("vertex", "edges")
+        g.V(12L).as('start')
+          .both().dedup().as('neighbor')
+          .project('vertex', 'edges')
             .by()
             .by(
-              __.select("start").bothE()
-                .where(otherV().where(eq("neighbor")))
+              __.select('start').bothE()
+                .where(otherV().where(eq('neighbor')))
                 .dedup().fold()
             )
       `),
@@ -110,13 +110,13 @@ describe("Gremlin > oneHopTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        g.V("12").as("start")
-          .both().dedup().range(0, 5).as("neighbor")
-          .project("vertex", "edges")
+        g.V('12').as('start')
+          .both().dedup().range(0, 5).as('neighbor')
+          .project('vertex', 'edges')
             .by()
             .by(
-              __.select("start").bothE()
-                .where(otherV().where(eq("neighbor")))
+              __.select('start').bothE()
+                .where(otherV().where(eq('neighbor')))
                 .dedup().fold()
             )
       `),
@@ -132,13 +132,13 @@ describe("Gremlin > oneHopTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        g.V("12").as("start")
-          .both().hasLabel("country").dedup().range(0, 10).as("neighbor")
-          .project("vertex", "edges")
+        g.V('12').as('start')
+          .both().hasLabel('country').dedup().range(0, 10).as('neighbor')
+          .project('vertex', 'edges')
             .by()
             .by(
-              __.select("start").bothE()
-                .where(otherV().where(eq("neighbor")))
+              __.select('start').bothE()
+                .where(otherV().where(eq('neighbor')))
                 .dedup().fold()
             )
       `),
@@ -154,13 +154,13 @@ describe("Gremlin > oneHopTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        g.V("12").as("start")
-          .both().hasLabel("country", "airport", "continent").dedup().range(0, 10).as("neighbor")
-          .project("vertex", "edges")
+        g.V('12').as('start')
+          .both().hasLabel('country', 'airport', 'continent').dedup().range(0, 10).as('neighbor')
+          .project('vertex', 'edges')
             .by()
             .by(
-              __.select("start").bothE()
-                .where(otherV().where(eq("neighbor")))
+              __.select('start').bothE()
+                .where(otherV().where(eq('neighbor')))
                 .dedup().fold()
             )
       `),
@@ -180,15 +180,15 @@ describe("Gremlin > oneHopTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        g.V("12").as("start")
-          .both().hasLabel("country")
-            .and(has("city",containing("Sea")),has("country",containing("ES")))
-            .dedup().range(0, 10).as("neighbor")
-          .project("vertex", "edges")
+        g.V('12').as('start')
+          .both().hasLabel('country')
+            .and(has('city',containing('Sea')),has('country',containing('ES')))
+            .dedup().range(0, 10).as('neighbor')
+          .project('vertex', 'edges')
             .by()
             .by(
-              __.select("start").bothE()
-                .where(otherV().where(eq("neighbor")))
+              __.select('start').bothE()
+                .where(otherV().where(eq('neighbor')))
                 .dedup().fold()
             )
       `),
@@ -202,7 +202,7 @@ describe("Gremlin > oneHopTemplate", () => {
     });
 
     expect(normalize(template)).toContain(
-      normalize('.both().hasLabel("country", "capital").dedup()'),
+      normalize(".both().hasLabel('country', 'capital').dedup()"),
     );
   });
 
@@ -218,7 +218,7 @@ describe("Gremlin > oneHopTemplate", () => {
 
     it("matches an attribute containing the value", () => {
       expect(fragmentFor([{ name: "country", value: "ES" }])).toContain(
-        normalize('and(has("country",containing("ES")))'),
+        normalize("and(has('country',containing('ES')))"),
       );
     });
 
@@ -230,7 +230,7 @@ describe("Gremlin > oneHopTemplate", () => {
         ]),
       ).toContain(
         normalize(
-          'and(has("city",containing("Sea")), has("country",containing("US")))',
+          "and(has('city',containing('Sea')), has('country',containing('US')))",
         ),
       );
     });
@@ -238,15 +238,15 @@ describe("Gremlin > oneHopTemplate", () => {
     it("omits the filter step when there are no filters", () => {
       expect(fragmentFor([])).toBe(
         normalize(`
-          g.V("12").as("start")
+          g.V('12').as('start')
             .both()
             .dedup()
-            .as("neighbor")
-            .project("vertex", "edges")
+            .as('neighbor')
+            .project('vertex', 'edges')
               .by()
               .by(
-                __.select("start").bothE()
-                  .where(otherV().where(eq("neighbor")))
+                __.select('start').bothE()
+                  .where(otherV().where(eq('neighbor')))
                   .dedup().fold()
               )
         `),
