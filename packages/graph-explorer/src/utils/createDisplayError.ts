@@ -149,18 +149,35 @@ export function createDisplayError(error: any): DisplayError {
     };
   }
 
-  // A value could not be placed into the query position it was given — an ID
-  // the database cannot express. Name the offending value in end-user terms;
-  // the technical language, position, and reason are in the error details
-  // dialog.
+  // A value could not be placed into the query position it was given — an
+  // attribute name, type label, or ID the database cannot express. Speak in
+  // end-user terms; the technical language, position, and reason are in the
+  // error details dialog.
   if (error instanceof InvalidFragmentValueError) {
     return {
       title: "This value cannot be used",
-      message: `The value "${String(error.value)}" cannot be used in a query against this database.`,
+      message: displayMessageForFragmentError(error),
     };
   }
 
   return defaultDisplayError;
+}
+
+/**
+ * End-user message for a value a fragment position could not represent. A
+ * `switch` over `reason` so a new reason is a compile error here, matching the
+ * exhaustiveness of the error's own message derivation.
+ */
+function displayMessageForFragmentError(
+  error: InvalidFragmentValueError,
+): string {
+  switch (error.reason) {
+    case "empty":
+      return "An attribute name or type is empty, so it cannot be used in a query.";
+    case "unsupported-type":
+    case "forbidden-characters":
+      return `The value "${String(error.value)}" cannot be used in a query against this database.`;
+  }
 }
 
 function hasOriginMismatch(url: string): boolean {

@@ -34,6 +34,33 @@ describe("createDisplayError", () => {
     });
   });
 
+  it("Should name the offending value for a value with forbidden characters", () => {
+    const error = InvalidFragmentValueError.forbiddenCharacters(
+      "sparql",
+      "IRI",
+      "http://example.com/a b",
+    );
+    const result = createDisplayError(error);
+    expect(result).toStrictEqual({
+      title: "This value cannot be used",
+      message:
+        'The value "http://example.com/a b" cannot be used in a query against this database.',
+    });
+  });
+
+  it("Should describe an empty identifier distinctly", () => {
+    const error = InvalidFragmentValueError.emptyIdentifier(
+      "gremlin",
+      "identifier",
+    );
+    const result = createDisplayError(error);
+    expect(result).toStrictEqual({
+      title: "This value cannot be used",
+      message:
+        "An attribute name or type is empty, so it cannot be used in a query.",
+    });
+  });
+
   it("Should handle null", () => {
     const result = createDisplayError(null);
     expect(result).toStrictEqual(defaultResult);
