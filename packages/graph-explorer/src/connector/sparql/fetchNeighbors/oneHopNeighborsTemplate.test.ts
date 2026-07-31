@@ -95,6 +95,25 @@ describe("oneHopNeighborsTemplate", () => {
     );
   });
 
+  it("should match a filter value with regex metacharacters as literal text", () => {
+    const template = oneHopNeighborsTemplate({
+      resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
+      subjectClasses: ["http://www.example.com/soccer/ontology/Team"],
+      filterCriteria: [
+        {
+          predicate: "http://www.example.com/soccer/ontology/teamName",
+          object: "a.b*c",
+        },
+      ],
+    });
+
+    // The filter value reaches CONTAINS as a plain literal, so its `.` and `*`
+    // match literally rather than as pattern syntax.
+    expect(normalize(template)).toContain(
+      normalize(`CONTAINS(LCASE(str(?object)), LCASE("a.b*c"))`),
+    );
+  });
+
   it("should produce query for resource", () => {
     const template = oneHopNeighborsTemplate({
       resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
