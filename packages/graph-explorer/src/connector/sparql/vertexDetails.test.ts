@@ -9,6 +9,7 @@ import {
   type TestableVertex,
 } from "@/utils/testing";
 
+import { InvalidFragmentValueError } from "../queryFragment";
 import { rdfTypeUri } from "./types";
 import { vertexDetails } from "./vertexDetails";
 
@@ -114,7 +115,7 @@ describe("vertexDetails", () => {
 
     await expect(
       vertexDetails(mockFetch, { vertexIds: [vertex.id] }),
-    ).rejects.toThrow(/must be a URI/);
+    ).rejects.toThrow(InvalidFragmentValueError);
   });
 });
 

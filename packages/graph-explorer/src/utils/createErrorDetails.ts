@@ -1,5 +1,7 @@
 import { ZodError } from "zod";
 
+import { InvalidFragmentValueError } from "@/connector/queryFragment";
+
 import { NetworkError } from "./NetworkError";
 import { ServerConnectionError } from "./ServerConnectionError";
 
@@ -38,6 +40,23 @@ export function createErrorDetails(error: unknown): ErrorDetails {
       name: "ZodError",
       message: error.message,
       data: JSON.stringify(error.issues, null, 2),
+    };
+  }
+  if (error instanceof InvalidFragmentValueError) {
+    return {
+      name: error.name,
+      message: error.message,
+      data: JSON.stringify(
+        {
+          language: error.language,
+          position: error.position,
+          reason: error.reason,
+          valueType: typeof error.value,
+          value: error.value,
+        },
+        null,
+        2,
+      ),
     };
   }
   if (Error.isError(error)) {

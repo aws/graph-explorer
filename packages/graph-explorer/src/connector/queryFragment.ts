@@ -1,3 +1,5 @@
+import type { QueryEngine } from "@shared/types";
+
 import type { Branded } from "@/utils";
 
 /**
@@ -17,4 +19,91 @@ export type QueryFragment = Branded<string, "QueryFragment">;
  */
 export function toQueryFragment(text: string): QueryFragment {
   return text as QueryFragment;
+}
+
+/**
+ * The position within a query that a fragment constructor fills. The set grows
+ * as more positions can report a value they cannot represent; today only an
+ * entity ID and a SPARQL IRI do.
+ */
+export type FragmentPosition = "IRI" | "id";
+
+/**
+ * Why a value could not be turned into a fragment for the position it was
+ * given. The union grows as more construction rules are enforced; today the
+ * only enforced case is a value whose type the position does not support.
+ */
+export type InvalidFragmentReason = "unsupported-type";
+
+/**
+ * Raised by a fragment constructor when a value cannot be placed into the
+ * query position it was given. The value is reported rather than coerced,
+ * because silently changing it — stringifying an ID, rewriting an IRI — would
+ * address a different entity than the caller asked for. Callers that build a
+ * user-triggered query (search, filter) catch this to tell the user the value
+ * cannot be searched, instead of letting a malformed query reach the database.
+ *
+ * One error type usable across every language, so consumers handle one shape.
+ * The `language`, `position`, and `reason` fields let a consumer describe what
+ * went wrong without parsing the message text, and `value` is kept in its
+ * original type so the error details dialog can show it faithfully.
+ *
+ * Construct through the static factories rather than the constructor: each
+ * names a specific failure and owns the wording, so no call site assembles the
+ * shape by hand.
+ */
+export class InvalidFragmentValueError extends Error {
+  /** The query language whose constructor rejected the value. */
+  readonly language: QueryEngine;
+  /** The position that could not accept the value. */
+  readonly position: FragmentPosition;
+  /** Which construction rule the value failed. */
+  readonly reason: InvalidFragmentReason;
+  /** The offending value, unmodified, for logging and message context. */
+  readonly value: unknown;
+
+  private constructor(
+    language: QueryEngine,
+    position: FragmentPosition,
+    reason: InvalidFragmentReason,
+    value: unknown,
+  ) {
+    super(deriveMessage(language, position, reason, value));
+    this.name = "InvalidFragmentValueError";
+    this.language = language;
+    this.position = position;
+    this.reason = reason;
+    this.value = value;
+  }
+
+  /**
+   * The value's type is not one the position supports — e.g. a numeric ID
+   * where a language only accepts string IDs, or a non-string where an IRI
+   * reference is required.
+   */
+  static unsupportedType(
+    language: QueryEngine,
+    position: FragmentPosition,
+    value: unknown,
+  ): InvalidFragmentValueError {
+    return new InvalidFragmentValueError(
+      language,
+      position,
+      "unsupported-type",
+      value,
+    );
+  }
+}
+
+/** Builds the technical message from the error's fields, in one place. */
+function deriveMessage(
+  language: QueryEngine,
+  position: FragmentPosition,
+  reason: InvalidFragmentReason,
+  value: unknown,
+): string {
+  switch (reason) {
+    case "unsupported-type":
+      return `The ${language} ${position} position does not support a value of type ${typeof value}.`;
+  }
 }

@@ -1,5 +1,6 @@
 import { createEdgeId, createVertexId } from "@/core";
 
+import { InvalidFragmentValueError } from "../queryFragment";
 import { fragment } from "./fragments";
 
 describe("fragment.string", () => {
@@ -45,7 +46,7 @@ describe("fragment.id", () => {
 
   it("should throw for a numeric ID, which openCypher does not support", () => {
     expect(() => fragment.id(createVertexId(124))).toThrow(
-      "Invalid ID type: number",
+      InvalidFragmentValueError,
     );
   });
 });

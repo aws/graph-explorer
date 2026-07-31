@@ -1,5 +1,6 @@
 import { createEdgeId, createVertexId } from "@/core";
 
+import { InvalidFragmentValueError } from "../queryFragment";
 import { fragment } from "./fragments";
 
 describe("fragment.string", () => {
@@ -45,7 +46,7 @@ describe("fragment.iri", () => {
 
   it("should throw when the value is not a string, since an IRI is text", () => {
     expect(() => fragment.iri(createVertexId(124))).toThrow(
-      "Invalid ID type: number",
+      InvalidFragmentValueError,
     );
   });
 });

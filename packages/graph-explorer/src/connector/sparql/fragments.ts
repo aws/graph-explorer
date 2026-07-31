@@ -1,6 +1,10 @@
 import type { EdgeId, VertexId } from "@/core";
 
-import { type QueryFragment, toQueryFragment } from "../queryFragment";
+import {
+  InvalidFragmentValueError,
+  type QueryFragment,
+  toQueryFragment,
+} from "../queryFragment";
 
 /*
  * Constructs Query Fragments for SPARQL. A fragment is safe to interpolate
@@ -33,9 +37,7 @@ export const fragment = {
   /** An IRI reference, delimited by angle brackets. */
   iri(value: VertexId | EdgeId | string): QueryFragment {
     if (typeof value !== "string") {
-      throw new Error(
-        `Invalid ID type: ${typeof value} (${String(value)}), must be a URI`,
-      );
+      throw InvalidFragmentValueError.unsupportedType("sparql", "IRI", value);
     }
     return toQueryFragment(`<${value}>`);
   },
