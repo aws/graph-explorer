@@ -13,6 +13,13 @@ This sample uses Gremlin Server 3.8 as the database pre-loaded with the [air rou
 > [!NOTE]
 > The data is not persisted between restarts of the Docker container.
 
+> [!WARNING]
+> This sample's Gremlin Server configuration is intended for local testing. It
+> enables the `gremlin-groovy` script engine, which the bundled startup script
+> uses to load the dataset, and configures no authentication. The database port
+> is not published to the host — only Graph Explorer is. Do not reuse this
+> configuration for a deployed server.
+
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) installed on your machine
