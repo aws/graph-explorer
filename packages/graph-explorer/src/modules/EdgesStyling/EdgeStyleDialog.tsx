@@ -3,12 +3,14 @@ import { atom, useAtom, useSetAtom } from "jotai";
 import {
   Button,
   ColorPopover,
+  EdgePreview,
   Field,
   FieldGroup,
   FieldLabel,
   FieldLegend,
   FieldSet,
-  Input,
+  NumberInput,
+  PreviewSurface,
   Select,
   SelectContent,
   SelectItem,
@@ -35,8 +37,9 @@ import {
   type LineStyle,
   useEdgeStyling,
 } from "@/core/StateProvider/graphStyles";
+import { useTextTransform } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
-import { parseNumberSafely, RESERVED_TYPES_PROPERTY } from "@/utils";
+import { RESERVED_TYPES_PROPERTY } from "@/utils";
 
 import { ARROW_STYLE_OPTIONS } from "./arrowsStyling";
 import { LINE_STYLE_OPTIONS } from "./lineStyling";
@@ -73,6 +76,7 @@ export function EdgeStyleDialog() {
 function Content({ edgeType }: { edgeType: EdgeType }) {
   const displayConfig = useDisplayEdgeTypeConfig(edgeType);
   const t = useTranslations();
+  const textTransform = useTextTransform();
   const queryEngine = useQueryEngine();
 
   const { edgeStyle, setEdgeStyle, resetEdgeStyle } = useEdgeStyling(edgeType);
@@ -95,15 +99,26 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
 
   return (
     <DialogContent className="max-w-2xl">
-      <form>
+      <form className="flex min-h-0 flex-col">
         <DialogHeader>
-          <DialogTitle>{t("edges-styling.title")}</DialogTitle>
+          <DialogTitle>Customize Your {t("edge")} Style</DialogTitle>
           <DialogDescription>
-            Customize styling for {displayConfig.displayLabel}
+            Changes here override the default style for this {t("edge-type")}.
           </DialogDescription>
         </DialogHeader>
         <DialogBody>
           <FieldSet>
+            <Field>
+              <FieldLabel className="sr-only">Preview</FieldLabel>
+              <PreviewSurface>
+                <EdgePreview
+                  edgeStyle={edgeStyle}
+                  transform={textTransform}
+                  className="zoom-90 px-4 py-3"
+                />
+              </PreviewSurface>
+            </Field>
+
             {hideDisplayNameAttribute ? null : (
               <FieldGroup>
                 <Field>
@@ -141,18 +156,13 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
                 </Field>
                 <Field>
                   <FieldLabel>Background Opacity</FieldLabel>
-                  <Input
-                    type="number"
+                  <NumberInput
                     min={0}
                     max={1}
                     step={0.1}
                     value={edgeStyle.labelBackgroundOpacity}
-                    onChange={e =>
-                      setEdgeStyle({
-                        labelBackgroundOpacity: parseNumberSafely(
-                          e.target.value,
-                        ),
-                      })
+                    onValueChange={labelBackgroundOpacity =>
+                      setEdgeStyle({ labelBackgroundOpacity })
                     }
                   />
                 </Field>
@@ -169,14 +179,12 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
                 </Field>
                 <Field>
                   <FieldLabel>Border Width</FieldLabel>
-                  <Input
-                    type="number"
+                  <NumberInput
                     min={0}
+                    step={0.5}
                     value={edgeStyle.labelBorderWidth}
-                    onChange={e =>
-                      setEdgeStyle({
-                        labelBorderWidth: parseNumberSafely(e.target.value),
-                      })
+                    onValueChange={labelBorderWidth =>
+                      setEdgeStyle({ labelBorderWidth })
                     }
                   />
                 </Field>
@@ -218,14 +226,12 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
 
                 <Field>
                   <FieldLabel>Line Thickness</FieldLabel>
-                  <Input
-                    type="number"
+                  <NumberInput
                     min={1}
+                    step={0.5}
                     value={edgeStyle.lineThickness}
-                    onChange={e =>
-                      setEdgeStyle({
-                        lineThickness: parseNumberSafely(e.target.value),
-                      })
+                    onValueChange={lineThickness =>
+                      setEdgeStyle({ lineThickness })
                     }
                   />
                 </Field>
@@ -305,11 +311,17 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
           </FieldSet>
         </DialogBody>
         <DialogFooter className="sm:justify-between">
-          <Button type="button" variant="danger" onClick={resetEdgeStyle}>
-            Reset to Default
+          <Button
+            type="button"
+            variant="outline-danger"
+            onClick={resetEdgeStyle}
+          >
+            Clear Customization
           </Button>
           <DialogClose asChild>
-            <Button type="button">Done</Button>
+            <Button type="button" variant="primary">
+              Done
+            </Button>
           </DialogClose>
         </DialogFooter>
       </form>

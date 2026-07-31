@@ -108,7 +108,7 @@ const NodeExpandFilters = ({
 
   return (
     <div className="grow space-y-6 p-3">
-      <h1 className="text-lg font-bold">Neighbor Expansion Options</h1>
+      <h1 className="text-lg font-semibold">Neighbor Expansion Options</h1>
       <Section>
         <SectionTitle>{t("node-expand.neighbors-of-type")}</SectionTitle>
         <SelectField
@@ -224,7 +224,7 @@ function Section({ children }: PropsWithChildren) {
 
 function SectionTitle({ children }: PropsWithChildren) {
   return (
-    <div className="text-text-primary flex justify-between gap-2 text-base font-medium">
+    <div className="text-foreground flex justify-between gap-2 text-base font-medium">
       {children}
     </div>
   );

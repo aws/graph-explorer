@@ -88,7 +88,7 @@ function FormLabel({
 
   return (
     <Label
-      className={cn(error && "text-error-main", className)}
+      className={cn(error && "text-danger-foreground", className)}
       htmlFor={formItemId}
       {...props}
     />
@@ -124,7 +124,7 @@ function FormDescription({
   return (
     <p
       id={formDescriptionId}
-      className={cn("text-text-secondary text-sm", className)}
+      className={cn("text-muted-foreground text-sm", className)}
       {...props}
     />
   );
@@ -154,7 +154,7 @@ function FormError({
 }: React.ComponentPropsWithRef<"p">) {
   return (
     <p
-      className={cn("text-error-main text-sm font-medium", className)}
+      className={cn("text-danger-foreground text-sm font-medium", className)}
       {...props}
     >
       {children}

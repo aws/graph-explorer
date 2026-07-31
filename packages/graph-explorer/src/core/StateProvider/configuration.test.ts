@@ -1,3 +1,5 @@
+import type { ConnectionConfig } from "@shared/types";
+
 import { createRandomName } from "@shared/utils/testing";
 import { createStore } from "jotai";
 
@@ -435,6 +437,28 @@ describe("normalizeConnection", () => {
     expect(result.graphDbUrl).toBe(
       "http://blazegraph:9999/blazegraph/namespace/kb",
     );
+  });
+
+  test("should yield an empty url when the url key is missing", () => {
+    // Persisted configs are not schema-validated on read, so a stored
+    // connection can lack `url` despite the compile-time required type.
+    const result = normalizeConnection({} as ConnectionConfig);
+    expect(result.url).toBe("");
+  });
+
+  test("should strip newlines and surrounding whitespace from url", () => {
+    const result = normalizeConnection({
+      url: "  https://example.com/\r\ngraph  ",
+    });
+    expect(result.url).toBe("https://example.com/graph");
+  });
+
+  test("should strip newlines and surrounding whitespace from graphDbUrl", () => {
+    const result = normalizeConnection({
+      url: "https://proxy.com",
+      graphDbUrl: "  https://db.com/\r\ngraph  ",
+    });
+    expect(result.graphDbUrl).toBe("https://db.com/graph");
   });
 });
 

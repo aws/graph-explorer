@@ -22,9 +22,8 @@ import { persistenceStatusStore } from "./persistence";
  * Older versions stored all styling under a single `"user-styling"` key as a
  * `LegacyUserStylingStorage` object: `{ vertices: VertexStyleStorage[], edges:
  * EdgeStyleStorage[] }`. Styling is now stored as two type-keyed maps
- * under `"user-vertex-styles"` and `"user-edge-styles"` — the user-defined layer of the
- * planned `<layer>-<entity>-styles` set. This migration converts the old shape
- * to the new one on startup.
+ * under `"user-vertex-styles"` and `"user-edge-styles"`. This migration converts
+ * the old shape to the new one on startup.
  *
  * The old `"user-styling"` key is intentionally left untouched as a rollback
  * escape hatch; deleting it is a separate follow-up.

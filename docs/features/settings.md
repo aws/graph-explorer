@@ -6,37 +6,37 @@
 
 - **Default Neighbor Expansion Limit:** This setting will allow you to enable or disable the default limit applied during neighbor expansion. This applies to both double click expansion and the expand sidebar. This setting can be overridden by a similar setting on the connection itself.
 - **Save Configuration:** This action will export all the configuration data within the Graph Explorer local database. This will not store any data from the connected graph databases. However, the export may contain the shape of the schema for your databases and the connection URL.
-- **Load Configuration:** This action will replace all the Graph Explorer configuration data you currently have with the data in the provided configuration file. This is a destructive act and can not be undone. It is **strongly** suggested that you perform a **Save Configuration** action before performing a **Load Configuration** action to preserve any existing configuration data.
+- **Load Configuration:** This action replaces all the Graph Explorer configuration data you currently have with the data in the provided configuration file.
+
+> [!CAUTION]
+> Loading a configuration cannot be undone. Run **Save Configuration** first to preserve your existing configuration data.
 
 ## Styles
 
-The Styles settings page lets you manage your styling configuration — the colors, shapes, icons, and other visual properties applied to vertex and edge types in the graph view.
+The Styles settings page lets you manage your styling configuration: the colors, shapes, icons, and other visual properties applied to vertex and edge types in the graph view.
 
-Graph Explorer uses a three-layer cascade to determine how each type looks:
-
-1. **Custom styles** (highest priority) — per-type edits you make in the style dialogs
-2. **Shared styles** — loaded from a file via this settings page
-3. **App defaults** — the built-in fallback styles
-
-When you customize a type in the style dialog, that change only affects your custom layer. Shared styles fill in where you haven't customized.
+Each type's appearance comes from your styles when you've set them, falling back to the built-in defaults otherwise. You set a type's style by editing it in the style dialog or by loading a styling file.
 
 ### Save styles to share
 
-Saves your current effective styles (custom and shared, merged) to `graph-explorer.styles.json`. Loading this file on another machine or browser reproduces your full visual configuration.
+Saves your current styles to `graph-explorer.styles.json`. Loading this file on another machine or browser reproduces your full visual configuration.
 
-### Load shared styles
+### Load styles
 
-Loads a styling file and merges it into your shared styles. Your custom styles are not affected — they continue to take priority. If there are no conflicts the file is applied immediately; if the file contains types that already have shared styles, you'll see a confirmation listing the types that will be replaced before anything changes. Types not in the file are left unchanged. The page shows an indicator of how many types currently have shared styles.
+Load a styling file to apply a saved look to your graph. This is how you pick up styles someone shared with you, restore your own setup on another machine, or roll back to a look you saved earlier.
 
-Loading is all-or-nothing: if the file contains any invalid value, nothing is loaded and you'll see a report listing every offending type and field so you can fix the file and load it again. Icons must be Lucide references (`lucide:<name>`) or base64-encoded data URIs; remote URLs are rejected. Unrecognized or extra fields are ignored silently (this is how a file from a newer version still loads), so a file whose entries contain only unrecognized fields loads nothing and reports that no styles were found.
+Loading opens a preview so you can see what each type looks like now next to what the file would change it to. Every change starts selected, so you can review the whole set at a glance and uncheck anything you'd rather keep. Choosing **Load N selected** applies just the ones you kept.
 
-### Reset custom styles
+Only the types you select change. Anything not in the file stays as it is, and any type that already looks the way the file describes is left out of the preview, so you only ever review real changes.
 
-Clears all your per-type style customizations. After this, types will show their shared styles (if any) or the app defaults. This cannot be undone — consider saving first.
+For larger files, filter the preview by **All**, **Nodes**, **Edges**, **New** (types you haven't styled yet), or **Existing** (types that already have a style the file would replace), or search by type name. **Select all** toggles just the types currently shown. Filtering only changes what you see. Your selections are preserved, so **Load N selected** always applies every type you kept checked, across every tab.
 
-### Reset shared styles
+### Reset your styles
 
-Removes all shared styles. Your custom styles remain unaffected.
+Clears all your node and edge styles, returning every type to the defaults.
+
+> [!CAUTION]
+> Resetting cannot be undone. Run **Save styles** first if you might want your current look back.
 
 ## About
 

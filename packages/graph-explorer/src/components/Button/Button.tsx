@@ -10,23 +10,25 @@ const buttonStyles = cva({
   variants: {
     variant: {
       primary:
-        "bg-brand hover:bg-brand-hover data-open:bg-brand-hover text-white",
+        "bg-primary hover:bg-primary-hover data-open:bg-primary-hover text-white",
       secondary:
-        "text-text-primary bg-gray-100 hover:bg-gray-200 data-open:bg-gray-200",
+        "text-foreground bg-neutral-subtle hover:bg-neutral-subtle-hover data-open:bg-neutral-subtle-hover",
       ghost:
         "text-primary-foreground hover:bg-primary-subtle data-open:bg-primary-subtle",
       outline:
-        "text-text-primary border-input hover:bg-muted data-open:border-primary-main border bg-transparent shadow-xs",
+        "text-foreground border-input-border hover:bg-muted data-open:border-primary border bg-transparent font-normal shadow-xs",
+      "outline-danger":
+        "text-danger-foreground border-input-border hover:bg-danger-subtle data-open:bg-danger-subtle border bg-transparent font-normal shadow-xs",
       "primary-danger":
         "bg-danger hover:bg-danger-hover data-open:bg-danger-hover text-white",
       danger:
-        "bg-danger-subtle text-danger hover:bg-danger-subtle-hover data-open:bg-danger-subtle-hover",
+        "bg-danger-subtle text-danger-foreground hover:bg-danger-subtle-hover data-open:bg-danger-subtle-hover",
       "danger-ghost":
-        "text-danger hover:bg-danger-subtle data-open:bg-danger-subtle",
+        "text-danger-foreground hover:bg-danger-subtle data-open:bg-danger-subtle",
     },
     size: {
-      small: "h-8 rounded-md px-2 text-sm [&_svg]:size-4",
-      default: "h-10 rounded-md px-4 text-base [&_svg]:size-5",
+      small: "h-8 rounded-md px-3 text-sm [&_svg]:size-4",
+      default: "h-10 rounded-md px-5 text-base [&_svg]:size-5",
       large: "h-12 rounded-md px-5 text-lg [&_svg]:size-6",
 
       "icon-small": "h-8 min-w-8 rounded-md text-sm [&_svg]:size-4",

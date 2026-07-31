@@ -1,11 +1,7 @@
 // @vitest-environment happy-dom
 import { act } from "react";
 
-import {
-  DbState,
-  renderHookWithJotai,
-  renderHookWithState,
-} from "@/utils/testing";
+import { DbState, renderHookWithState } from "@/utils/testing";
 
 import type { GraphViewLayout } from "./graphViewLayout";
 
@@ -14,18 +10,39 @@ import {
   useTableViewSize,
   useViewToggles,
 } from "./graphViewLayout";
-import { graphViewLayoutAtom } from "./storageAtoms";
+import {
+  DEFAULT_SIDEBAR_WIDTH,
+  DEFAULT_TABLE_VIEW_HEIGHT,
+} from "./graphViewLayoutDefaults";
+
+const baseLayout: GraphViewLayout = {
+  activeSidebarItem: "search",
+  activeToggles: new Set(["graph-viewer", "table-view"]),
+  sidebar: { width: DEFAULT_SIDEBAR_WIDTH },
+  tableView: { height: DEFAULT_TABLE_VIEW_HEIGHT },
+};
+
+/** Seeds a graph view layout, overriding only the fields a test pins. */
+function stateWithLayout(overrides: Partial<GraphViewLayout> = {}) {
+  return new DbState().withGraphViewLayout({ ...baseLayout, ...overrides });
+}
 
 describe("useViewToggles", () => {
-  it("should default to both views open", () => {
-    const { result } = renderHookWithState(() => useViewToggles());
+  it("should reflect both views open when seeded", () => {
+    const { result } = renderHookWithState(
+      () => useViewToggles(),
+      stateWithLayout(),
+    );
 
     expect(result.current.isGraphVisible).toBe(true);
     expect(result.current.isTableVisible).toBe(true);
   });
 
   it("should toggle graph view", () => {
-    const { result } = renderHookWithState(() => useViewToggles());
+    const { result } = renderHookWithState(
+      () => useViewToggles(),
+      stateWithLayout(),
+    );
 
     act(() => result.current.toggleGraphVisibility());
 
@@ -39,7 +56,10 @@ describe("useViewToggles", () => {
   });
 
   it("should toggle table view", () => {
-    const { result } = renderHookWithState(() => useViewToggles());
+    const { result } = renderHookWithState(
+      () => useViewToggles(),
+      stateWithLayout(),
+    );
 
     act(() => result.current.toggleTableVisibility());
 
@@ -54,14 +74,20 @@ describe("useViewToggles", () => {
 });
 
 describe("useGraphViewSidebar", () => {
-  it("should default to sidebar open", () => {
-    const { result } = renderHookWithJotai(() => useGraphViewSidebar());
+  it("should reflect the seeded open sidebar", () => {
+    const { result } = renderHookWithState(
+      () => useGraphViewSidebar(),
+      stateWithLayout(),
+    );
 
     expect(result.current.isSidebarOpen).toBe(true);
   });
 
   it("should change to the given sidebar item", () => {
-    const { result } = renderHookWithJotai(() => useGraphViewSidebar());
+    const { result } = renderHookWithState(
+      () => useGraphViewSidebar(),
+      stateWithLayout(),
+    );
 
     act(() => result.current.toggleSidebar("details"));
     expect(result.current.isSidebarOpen).toBe(true);
@@ -73,14 +99,9 @@ describe("useGraphViewSidebar", () => {
   });
 
   it("should close the sidebar if toggling to the same item", () => {
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useGraphViewSidebar(),
-      store =>
-        store.set(graphViewLayoutAtom, {
-          activeSidebarItem: "details",
-          activeToggles: new Set(),
-          sidebar: { width: 400 },
-        } satisfies GraphViewLayout),
+      stateWithLayout({ activeSidebarItem: "details" }),
     );
 
     act(() => result.current.toggleSidebar("details"));
@@ -90,7 +111,10 @@ describe("useGraphViewSidebar", () => {
   });
 
   it("should close the sidebar", () => {
-    const { result } = renderHookWithJotai(() => useGraphViewSidebar());
+    const { result } = renderHookWithState(
+      () => useGraphViewSidebar(),
+      stateWithLayout(),
+    );
 
     act(() => result.current.closeSidebar());
 
@@ -98,20 +122,10 @@ describe("useGraphViewSidebar", () => {
   });
 
   it("should show namespaces when the connection is a SPARQL connection", () => {
-    const dbState = new DbState();
-    dbState.activeConfig.connection!.queryEngine = "sparql";
+    const state = stateWithLayout({ activeSidebarItem: "namespaces" });
+    state.activeConfig.connection!.queryEngine = "sparql";
 
-    const { result } = renderHookWithJotai(
-      () => useGraphViewSidebar(),
-      store => {
-        dbState.applyTo(store);
-        store.set(graphViewLayoutAtom, {
-          activeSidebarItem: "namespaces",
-          activeToggles: new Set(),
-          sidebar: { width: 400 },
-        } satisfies GraphViewLayout);
-      },
-    );
+    const { result } = renderHookWithState(() => useGraphViewSidebar(), state);
 
     expect(result.current.isSidebarOpen).toBe(true);
     expect(result.current.activeSidebarItem).toBe("namespaces");
@@ -119,20 +133,10 @@ describe("useGraphViewSidebar", () => {
   });
 
   it("should be closed when active item is namespaces but connection is not RDF", () => {
-    const dbState = new DbState();
-    dbState.activeConfig.connection!.queryEngine = "gremlin";
+    const state = stateWithLayout({ activeSidebarItem: "namespaces" });
+    state.activeConfig.connection!.queryEngine = "gremlin";
 
-    const { result } = renderHookWithJotai(
-      () => useGraphViewSidebar(),
-      store => {
-        dbState.applyTo(store);
-        store.set(graphViewLayoutAtom, {
-          activeSidebarItem: "namespaces",
-          activeToggles: new Set(),
-          sidebar: { width: 400 },
-        } satisfies GraphViewLayout);
-      },
-    );
+    const { result } = renderHookWithState(() => useGraphViewSidebar(), state);
 
     expect(result.current.isSidebarOpen).toBe(false);
     expect(result.current.activeSidebarItem).toBeNull();
@@ -140,39 +144,31 @@ describe("useGraphViewSidebar", () => {
   });
 
   it("should return persisted sidebar width", () => {
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useGraphViewSidebar(),
-      store =>
-        store.set(graphViewLayoutAtom, {
-          activeSidebarItem: "search",
-          activeToggles: new Set(),
-          sidebar: { width: 500 },
-        } satisfies GraphViewLayout),
+      stateWithLayout({ sidebar: { width: 500 } }),
     );
 
     expect(result.current.sidebarWidth).toBe(500);
   });
 
   it("should adjust sidebar width by delta", () => {
-    const { result } = renderHookWithJotai(() => useGraphViewSidebar());
+    const { result } = renderHookWithState(
+      () => useGraphViewSidebar(),
+      stateWithLayout(),
+    );
 
     act(() => result.current.setSidebarWidth(100));
-    expect(result.current.sidebarWidth).toBe(500);
+    expect(result.current.sidebarWidth).toBe(DEFAULT_SIDEBAR_WIDTH + 100);
 
     act(() => result.current.setSidebarWidth(-200));
-    expect(result.current.sidebarWidth).toBe(300);
+    expect(result.current.sidebarWidth).toBe(DEFAULT_SIDEBAR_WIDTH - 100);
   });
 
   it("should auto-open details when detailsAutoOpenOnSelection is true", () => {
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useGraphViewSidebar(),
-      store =>
-        store.set(graphViewLayoutAtom, {
-          activeSidebarItem: "search",
-          activeToggles: new Set(),
-          sidebar: { width: 400 },
-          detailsAutoOpenOnSelection: true,
-        } satisfies GraphViewLayout),
+      stateWithLayout({ detailsAutoOpenOnSelection: true }),
     );
 
     act(() => result.current.autoOpenDetails());
@@ -181,15 +177,9 @@ describe("useGraphViewSidebar", () => {
   });
 
   it("should not auto-open details when detailsAutoOpenOnSelection is false", () => {
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useGraphViewSidebar(),
-      store =>
-        store.set(graphViewLayoutAtom, {
-          activeSidebarItem: "search",
-          activeToggles: new Set(),
-          sidebar: { width: 400 },
-          detailsAutoOpenOnSelection: false,
-        } satisfies GraphViewLayout),
+      stateWithLayout({ detailsAutoOpenOnSelection: false }),
     );
 
     act(() => result.current.autoOpenDetails());
@@ -198,14 +188,9 @@ describe("useGraphViewSidebar", () => {
   });
 
   it("should auto-open details when detailsAutoOpenOnSelection is undefined (legacy data)", () => {
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useGraphViewSidebar(),
-      store =>
-        store.set(graphViewLayoutAtom, {
-          activeSidebarItem: "search",
-          activeToggles: new Set(),
-          sidebar: { width: 400 },
-        } satisfies GraphViewLayout),
+      stateWithLayout(),
     );
 
     act(() => result.current.autoOpenDetails());
@@ -213,23 +198,13 @@ describe("useGraphViewSidebar", () => {
     expect(result.current.activeSidebarItem).toBe("details");
   });
 
-  it("should report detailsAutoOpenOnSelection as enabled by default", () => {
-    const { result } = renderHookWithJotai(() => useGraphViewSidebar());
+  it("should toggle detailsAutoOpenOnSelection from true to false", () => {
+    const { result } = renderHookWithState(
+      () => useGraphViewSidebar(),
+      stateWithLayout({ detailsAutoOpenOnSelection: true }),
+    );
 
     expect(result.current.detailsAutoOpenOnSelection).toBe(true);
-  });
-
-  it("should toggle detailsAutoOpenOnSelection from true to false", () => {
-    const { result } = renderHookWithJotai(
-      () => useGraphViewSidebar(),
-      store =>
-        store.set(graphViewLayoutAtom, {
-          activeSidebarItem: "search",
-          activeToggles: new Set(),
-          sidebar: { width: 400 },
-          detailsAutoOpenOnSelection: true,
-        } satisfies GraphViewLayout),
-    );
 
     act(() => result.current.toggleDetailsAutoOpen());
 
@@ -237,15 +212,9 @@ describe("useGraphViewSidebar", () => {
   });
 
   it("should toggle detailsAutoOpenOnSelection from false to true", () => {
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useGraphViewSidebar(),
-      store =>
-        store.set(graphViewLayoutAtom, {
-          activeSidebarItem: "search",
-          activeToggles: new Set(),
-          sidebar: { width: 400 },
-          detailsAutoOpenOnSelection: false,
-        } satisfies GraphViewLayout),
+      stateWithLayout({ detailsAutoOpenOnSelection: false }),
     );
 
     act(() => result.current.toggleDetailsAutoOpen());
@@ -254,14 +223,9 @@ describe("useGraphViewSidebar", () => {
   });
 
   it("should toggle detailsAutoOpenOnSelection from undefined (enabled) to false", () => {
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useGraphViewSidebar(),
-      store =>
-        store.set(graphViewLayoutAtom, {
-          activeSidebarItem: "search",
-          activeToggles: new Set(),
-          sidebar: { width: 400 },
-        } satisfies GraphViewLayout),
+      stateWithLayout(),
     );
 
     // The button shows enabled (undefined reads as `?? true`), so toggling
@@ -273,17 +237,14 @@ describe("useGraphViewSidebar", () => {
 });
 
 describe("useTableViewSize", () => {
-  it("should default to DEFAULT_TABLE_VIEW_HEIGHT", () => {
-    const { result } = renderHookWithState(() => useTableViewSize());
-
-    expect(result.current[0]).toBe(300);
-  });
-
   it("should return 100% when graph viewer is hidden", () => {
-    const { result } = renderHookWithState(() => ({
-      tableView: useTableViewSize(),
-      toggles: useViewToggles(),
-    }));
+    const { result } = renderHookWithState(
+      () => ({
+        tableView: useTableViewSize(),
+        toggles: useViewToggles(),
+      }),
+      stateWithLayout(),
+    );
 
     act(() => result.current.toggles.toggleGraphVisibility());
 
@@ -291,13 +252,16 @@ describe("useTableViewSize", () => {
   });
 
   it("should adjust height by delta", () => {
-    const { result } = renderHookWithState(() => useTableViewSize());
+    const { result } = renderHookWithState(
+      () => useTableViewSize(),
+      stateWithLayout(),
+    );
 
     act(() => result.current[1](50));
-    expect(result.current[0]).toBe(350);
+    expect(result.current[0]).toBe(DEFAULT_TABLE_VIEW_HEIGHT + 50);
 
     act(() => result.current[1](-100));
-    expect(result.current[0]).toBe(250);
+    expect(result.current[0]).toBe(DEFAULT_TABLE_VIEW_HEIGHT - 50);
   });
 });
 
@@ -310,6 +274,10 @@ describe("useTableViewSize", () => {
  * persisted data may not have the `sidebar` field at all. These tests verify
  * that the hooks still work correctly with the old shape.
  *
+ * These seed the legacy shape verbatim via `withGraphViewLayout` (not the
+ * `stateWithLayout` spread helper, which would re-add the absent `sidebar`
+ * field and mask the fallback under test).
+ *
  * DO NOT delete or weaken these tests without confirming that all persisted
  * data has been migrated or that the old shape is no longer in the wild.
  */
@@ -321,12 +289,12 @@ describe("backward compatibility: missing sidebar field", () => {
       detailsAutoOpenOnSelection: true,
     } as GraphViewLayout;
 
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useGraphViewSidebar(),
-      store => store.set(graphViewLayoutAtom, legacyLayout),
+      new DbState().withGraphViewLayout(legacyLayout),
     );
 
-    expect(result.current.sidebarWidth).toBe(400);
+    expect(result.current.sidebarWidth).toBe(DEFAULT_SIDEBAR_WIDTH);
     expect(result.current.isSidebarOpen).toBe(true);
   });
 
@@ -336,12 +304,12 @@ describe("backward compatibility: missing sidebar field", () => {
       activeToggles: new Set(),
     } as GraphViewLayout;
 
-    const { result } = renderHookWithJotai(
+    const { result } = renderHookWithState(
       () => useGraphViewSidebar(),
-      store => store.set(graphViewLayoutAtom, legacyLayout),
+      new DbState().withGraphViewLayout(legacyLayout),
     );
 
     act(() => result.current.setSidebarWidth(50));
-    expect(result.current.sidebarWidth).toBe(450);
+    expect(result.current.sidebarWidth).toBe(DEFAULT_SIDEBAR_WIDTH + 50);
   });
 });

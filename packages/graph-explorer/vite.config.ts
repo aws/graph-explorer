@@ -88,7 +88,6 @@ export default defineConfig(({ mode }) => {
           "src/**/*.style.ts",
           "src/**/*.styles.ts",
           "src/**/*.styles.css.ts",
-          "tailwind.config.ts",
           ...coverageConfigDefaults.exclude,
         ],
       },

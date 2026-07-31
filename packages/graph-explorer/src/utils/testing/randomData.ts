@@ -49,6 +49,7 @@ import {
   type EntityProperties,
   type EntityRawId,
   type FeatureFlags,
+  type GraphViewLayout,
   type LineStyle,
   type PrefixTypeConfig,
   type RawConfiguration,
@@ -62,6 +63,14 @@ import {
   type VertexType,
   type VertexTypeConfig,
 } from "@/core";
+import {
+  graphViewSidebarItems,
+  toggleableViews,
+} from "@/core/StateProvider/graphViewLayoutDefaults";
+import {
+  type SchemaViewLayout,
+  schemaViewSidebarItems,
+} from "@/core/StateProvider/schemaViewLayoutDefaults";
 import {
   createExportedGraph,
   type ExportedGraphConnection,
@@ -778,4 +787,59 @@ export function createRandomeResultScalar() {
     name: createRandomName("name"),
     value: createRandomScalarValue(),
   });
+}
+
+/** Picks a random subset (possibly empty) of the given values. */
+function randomSubset<T>(values: readonly T[]): Set<T> {
+  return new Set(values.filter(() => createRandomBoolean()));
+}
+
+// Arbitrary but plausible pixel bounds for randomized panel dimensions. The
+// exact values carry no meaning — they only need to be positive and varied so
+// tests reading a width or height pin their own expected value.
+const RANDOM_PANEL_MIN_PX = 100;
+const RANDOM_PANEL_MAX_PX = 800;
+
+/**
+ * Creates a random {@link GraphViewLayout}. Every field spans its full
+ * production domain — a closed sidebar (`null`), an empty toggle set, and
+ * `undefined` optionals are all reachable — so tests that read layout must pin
+ * the fields they depend on rather than relying on a convenient default.
+ */
+export function createRandomGraphViewLayout(): GraphViewLayout {
+  return {
+    activeSidebarItem: pickRandomElement([...graphViewSidebarItems, null]),
+    sidebar: {
+      width: createRandomInteger({
+        min: RANDOM_PANEL_MIN_PX,
+        max: RANDOM_PANEL_MAX_PX,
+      }),
+    },
+    activeToggles: randomSubset(toggleableViews),
+    tableView: randomlyUndefined({
+      height: createRandomInteger({
+        min: RANDOM_PANEL_MIN_PX,
+        max: RANDOM_PANEL_MAX_PX,
+      }),
+    }),
+    detailsAutoOpenOnSelection: randomlyUndefined(createRandomBoolean()),
+  };
+}
+
+/**
+ * Creates a random {@link SchemaViewLayout}. As with the graph view layout,
+ * every field spans its full production domain, including a closed sidebar and
+ * an `undefined` auto-open flag.
+ */
+export function createRandomSchemaViewLayout(): SchemaViewLayout {
+  return {
+    activeSidebarItem: pickRandomElement([...schemaViewSidebarItems, null]),
+    sidebar: {
+      width: createRandomInteger({
+        min: RANDOM_PANEL_MIN_PX,
+        max: RANDOM_PANEL_MAX_PX,
+      }),
+    },
+    detailsAutoOpenOnSelection: randomlyUndefined(createRandomBoolean()),
+  };
 }

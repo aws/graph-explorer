@@ -2,7 +2,16 @@
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "printWidth": 80,
   "arrowParens": "avoid",
-  "ignorePatterns": ["pnpm-lock.yaml", ".claude/"],
+  // Skills are vendored verbatim from upstream — format them and every sync
+  // diff fills with our own reformatting instead of real changes. Everything
+  // else under the agent directories is ours, and is formatted normally.
+  "ignorePatterns": [
+    "pnpm-lock.yaml",
+    ".agents/skills/",
+    ".claude/skills/",
+    ".codex/skills/",
+    ".kiro/skills/",
+  ],
   "sortImports": {
     "groups": [
       "type-import",

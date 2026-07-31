@@ -86,7 +86,7 @@ function SideBarItem(props: PropsWithChildren<{ to: To }>) {
       className={({ isActive }) =>
         cn(
           "flex w-full flex-row items-center gap-2 rounded-lg px-3 py-2 text-base tracking-wide [&_svg]:size-4.5",
-          isActive && "bg-brand text-white",
+          isActive && "bg-primary text-white",
           !isActive && "text-foreground hover:bg-neutral-subtle",
         )
       }

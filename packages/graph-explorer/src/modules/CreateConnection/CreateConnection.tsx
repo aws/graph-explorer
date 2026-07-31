@@ -18,6 +18,7 @@ import {
   SelectField,
   TextAreaField,
 } from "@/components";
+import { DialogBody, DialogFooter } from "@/components/Dialog";
 import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
@@ -48,6 +49,10 @@ type ConnectionForm = {
   nodeExpansionLimitEnabled: boolean;
   nodeExpansionLimit?: number;
 };
+
+function normalizeUrlField(value: string | undefined) {
+  return value?.replace(/[\r\n]/g, "").trim();
+}
 
 const CONNECTIONS_OP: {
   label: string;
@@ -233,29 +238,42 @@ const CreateConnection = ({
 
   const reset = useResetState();
   const onSubmit = () => {
-    if (!form.name || !form.url || !form.queryEngine) {
+    const normalizedForm: ConnectionForm = {
+      ...form,
+      url: normalizeUrlField(form.url),
+      graphDbUrl: normalizeUrlField(form.graphDbUrl),
+    };
+
+    if (
+      !normalizedForm.name ||
+      !normalizedForm.url ||
+      !normalizedForm.queryEngine
+    ) {
       setError(true);
       return;
     }
 
-    if (form.proxyConnection && !form.graphDbUrl) {
+    if (normalizedForm.proxyConnection && !normalizedForm.graphDbUrl) {
       setError(true);
       return;
     }
 
-    if (form.awsAuthEnabled && (!form.awsRegion || !form.serviceType)) {
+    if (
+      normalizedForm.awsAuthEnabled &&
+      (!normalizedForm.awsRegion || !normalizedForm.serviceType)
+    ) {
       setError(true);
       return;
     }
 
-    onSave(form as Required<ConnectionForm>);
+    onSave(normalizedForm as Required<ConnectionForm>);
     reset();
     onClose();
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="space-y-6">
+    <>
+      <DialogBody className="gap-6">
         <FormItem>
           <Label>Name</Label>
           <InputField
@@ -291,7 +309,9 @@ const CreateConnection = ({
             onChange={onFormChange("url")}
             errorMessage="URL is required"
             placeholder="https://example.com"
-            validationState={hasError && !form.url ? "invalid" : "valid"}
+            validationState={
+              hasError && !normalizeUrlField(form.url) ? "invalid" : "valid"
+            }
           />
         </FormItem>
 
@@ -316,7 +336,9 @@ const CreateConnection = ({
               errorMessage="URL is required"
               placeholder="https://neptune-cluster.amazonaws.com"
               validationState={
-                hasError && !form.graphDbUrl ? "invalid" : "valid"
+                hasError && !normalizeUrlField(form.graphDbUrl)
+                  ? "invalid"
+                  : "valid"
               }
             />
           </FormItem>
@@ -422,14 +444,16 @@ const CreateConnection = ({
             />
           </FormItem>
         )}
-      </div>
-      <div className="flex justify-between border-t pt-4">
-        <Button onClick={onClose}>Cancel</Button>
+      </DialogBody>
+      <DialogFooter>
+        <Button variant="outline" onClick={onClose}>
+          Cancel
+        </Button>
         <Button variant="primary" onClick={onSubmit}>
           {!configId ? "Add Connection" : "Update Connection"}
         </Button>
-      </div>
-    </div>
+      </DialogFooter>
+    </>
   );
 };
 

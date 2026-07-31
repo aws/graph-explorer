@@ -1,5 +1,5 @@
 import { atom, useAtom, useSetAtom } from "jotai";
-import { ImageUpIcon } from "lucide-react";
+import { ImageUpIcon, SearchIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -11,13 +11,14 @@ import {
   FieldSet,
   FileButton,
   IconPicker,
-  Input,
+  NumberInput,
+  PreviewSurface,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  VertexSymbol,
+  VertexPreview,
 } from "@/components";
 import {
   Dialog,
@@ -36,8 +37,8 @@ import {
   useVertexStyling,
 } from "@/core/StateProvider/graphStyles";
 import { isAllowedIconValue } from "@/core/styling";
+import { useTextTransform } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
-import { parseNumberSafely } from "@/utils";
 import {
   RESERVED_ID_PROPERTY,
   RESERVED_TYPES_PROPERTY,
@@ -88,6 +89,7 @@ export function NodeStyleDialog() {
 
 function Content({ vertexType }: { vertexType: VertexType }) {
   const t = useTranslations();
+  const textTransform = useTextTransform();
 
   const { vertexStyle, setVertexStyle, resetVertexStyle } =
     useVertexStyling(vertexType);
@@ -137,11 +139,11 @@ function Content({ vertexType }: { vertexType: VertexType }) {
 
   return (
     <DialogContent className="max-w-2xl">
-      <form>
+      <form className="flex min-h-0 flex-col">
         <DialogHeader>
-          <DialogTitle>{t("nodes-styling.title")}</DialogTitle>
+          <DialogTitle>Customize Your {t("node")} Style</DialogTitle>
           <DialogDescription>
-            Customize styling for {displayConfig.displayLabel}
+            Changes here override the default style for this {t("node-type")}.
           </DialogDescription>
         </DialogHeader>
 
@@ -189,56 +191,66 @@ function Content({ vertexType }: { vertexType: VertexType }) {
                 </Select>
               </Field>
             </FieldGroup>
-            <FieldGroup className="flex w-full flex-row gap-4">
-              <div className="flex-1">
-                <Field>
-                  <FieldLabel>Shape</FieldLabel>
-                  <Select
-                    value={vertexStyle.shape}
-                    onValueChange={value =>
-                      setVertexStyle({ shape: value as ShapeStyle })
+            <FieldGroup className="grid grid-cols-2 gap-4">
+              <Field className="col-start-1 row-start-1">
+                <FieldLabel>Shape</FieldLabel>
+                <Select
+                  value={vertexStyle.shape}
+                  onValueChange={value =>
+                    setVertexStyle({ shape: value as ShapeStyle })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose shape" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {NODE_SHAPE.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field className="col-start-1 row-start-2">
+                <FieldLabel>Icon</FieldLabel>
+                <div className="grid grid-cols-2 items-center gap-2">
+                  <IconPicker
+                    currentIconUrl={vertexStyle.iconUrl}
+                    onSelect={(iconUrl, iconImageType) =>
+                      setVertexStyle({ iconUrl, iconImageType })
                     }
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose shape" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {NODE_SHAPE.map(option => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-              </div>
-              <div>
-                <Field>
-                  <FieldLabel>Icon</FieldLabel>
-                  <div className="flex flex-row items-center gap-2">
-                    <IconPicker
-                      currentIconUrl={vertexStyle.iconUrl}
-                      onSelect={(iconUrl, iconImageType) =>
-                        setVertexStyle({ iconUrl, iconImageType })
+                    <Button variant="outline">
+                      <SearchIcon className="size-4" />
+                      Browse
+                    </Button>
+                  </IconPicker>
+                  <FileButton
+                    accept="image/*"
+                    onChange={file => {
+                      if (file) {
+                        convertImageToBase64AndSetNewIcon(file);
                       }
-                    />
-                    <FileButton
-                      accept="image/*"
-                      onChange={file => {
-                        if (file) {
-                          convertImageToBase64AndSetNewIcon(file);
-                        }
-                      }}
-                      variant="outline"
-                      className="rounded-full"
-                    >
-                      <ImageUpIcon />
-                      Upload
-                    </FileButton>
-                    <VertexSymbol vertexStyle={vertexStyle} />
-                  </div>
-                </Field>
-              </div>
+                    }}
+                    variant="outline"
+                  >
+                    <ImageUpIcon />
+                    Upload
+                  </FileButton>
+                </div>
+              </Field>
+
+              <Field className="col-start-2 row-span-2">
+                <FieldLabel>Preview</FieldLabel>
+                <PreviewSurface className="flex-1">
+                  <VertexPreview
+                    vertexStyle={vertexStyle}
+                    transform={textTransform}
+                    className="zoom-50"
+                  />
+                </PreviewSurface>
+              </Field>
             </FieldGroup>
             <FieldGroup>
               <div className="grid grid-cols-2 gap-4">
@@ -251,16 +263,13 @@ function Content({ vertexType }: { vertexType: VertexType }) {
                 </Field>
                 <Field>
                   <FieldLabel>Background Opacity</FieldLabel>
-                  <Input
-                    type="number"
+                  <NumberInput
                     min={0}
                     max={1}
                     step={0.1}
                     value={vertexStyle.backgroundOpacity}
-                    onChange={e =>
-                      setVertexStyle({
-                        backgroundOpacity: parseNumberSafely(e.target.value),
-                      })
+                    onValueChange={backgroundOpacity =>
+                      setVertexStyle({ backgroundOpacity })
                     }
                   />
                 </Field>
@@ -277,14 +286,12 @@ function Content({ vertexType }: { vertexType: VertexType }) {
                 </Field>
                 <Field>
                   <FieldLabel>Border Width</FieldLabel>
-                  <Input
-                    type="number"
+                  <NumberInput
                     min={0}
+                    step={0.5}
                     value={vertexStyle.borderWidth}
-                    onChange={e =>
-                      setVertexStyle({
-                        borderWidth: parseNumberSafely(e.target.value),
-                      })
+                    onValueChange={borderWidth =>
+                      setVertexStyle({ borderWidth })
                     }
                   />
                 </Field>
@@ -313,11 +320,17 @@ function Content({ vertexType }: { vertexType: VertexType }) {
           </FieldSet>
         </DialogBody>
         <DialogFooter className="sm:justify-between">
-          <Button type="button" variant="danger" onClick={resetVertexStyle}>
-            Reset to Default
+          <Button
+            type="button"
+            variant="outline-danger"
+            onClick={resetVertexStyle}
+          >
+            Clear Customization
           </Button>
           <DialogClose asChild>
-            <Button type="button">Done</Button>
+            <Button type="button" variant="primary">
+              Done
+            </Button>
           </DialogClose>
         </DialogFooter>
       </form>

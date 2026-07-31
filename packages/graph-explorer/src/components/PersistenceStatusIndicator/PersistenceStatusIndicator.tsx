@@ -64,7 +64,7 @@ export function PersistenceStatusIndicator() {
           </FormItem>
           <FormItem>
             <Label>Failed writes</Label>
-            <div className="grid min-h-64 overflow-auto rounded-lg border bg-gray-50 shadow-xs">
+            <div className="bg-background-alt grid min-h-64 overflow-auto rounded-lg border shadow-xs">
               <CodeEditor
                 defaultLanguage="json"
                 value={JSON.stringify(failures, null, 2)}
@@ -89,7 +89,7 @@ export function PersistenceStatusIndicator() {
             </Button>
           ) : null}
           <DialogClose asChild>
-            <Button variant={canBackUp ? "secondary" : "primary"}>Close</Button>
+            <Button variant={canBackUp ? "outline" : "primary"}>Close</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

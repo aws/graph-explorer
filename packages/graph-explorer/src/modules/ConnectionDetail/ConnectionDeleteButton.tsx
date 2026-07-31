@@ -23,13 +23,17 @@ export default function ConnectionDeleteButton({
   connectionName: string;
   isSync: boolean;
   deleteActiveConfig: () => void;
-  saveCopy: () => void;
+  saveCopy: () => boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const saveAndDelete = () => {
-    saveCopy();
-    deleteActiveConfig();
+    // Only delete once the backup copy is actually written; a refused export
+    // (e.g. a connection with no URL) already surfaced its own error, and
+    // deleting anyway would destroy the connection the copy was meant to save.
+    if (saveCopy()) {
+      deleteActiveConfig();
+    }
   };
 
   return (
@@ -54,18 +58,22 @@ export default function ConnectionDeleteButton({
           <DialogBody>
             <div className="flex flex-row items-start gap-8">
               <div className="py-1">
-                <ErrorIcon className="text-warning-main size-16" />
+                <ErrorIcon className="text-warning size-16" />
               </div>
               <Paragraph>
                 Are you sure you want to delete the connection,{" "}
-                <strong className="font-bold">{connectionName}</strong>? This
-                cannot be undone.
+                <strong className="font-semibold">{connectionName}</strong>?
+                This cannot be undone.
               </Paragraph>
             </div>
           </DialogBody>
           <DialogFooter>
-            <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-            <Button onClick={saveAndDelete}>Save a Copy & Delete</Button>
+            <Button variant="outline" onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="outline" onClick={saveAndDelete}>
+              Save a Copy & Delete
+            </Button>
             <Button onClick={deleteActiveConfig} variant="danger">
               Delete
             </Button>

@@ -100,13 +100,27 @@ export function mergeConfiguration(
   };
 }
 
+/**
+ * Cleans a URL for storage and request use: strips newlines and surrounding
+ * whitespace (pasted from docs/chat), then the trailing slash. Tolerates a
+ * missing value because persisted configs are not schema-validated on read, so
+ * a stored connection can lack `url` despite the compile-time required type.
+ */
+export function normalizeUrl(url: string | undefined): string {
+  return (
+    url
+      ?.replace(/[\r\n]/g, "")
+      .trim()
+      .replace(/\/$/, "") ?? ""
+  );
+}
+
 export function normalizeConnection(connection: ConnectionConfig) {
   return {
     ...connection,
-    // Remove trailing slash
-    url: connection.url.replace(/\/$/, "") || "",
+    url: normalizeUrl(connection.url),
     queryEngine: connection.queryEngine || "gremlin",
-    graphDbUrl: connection.graphDbUrl?.replace(/\/$/, "") || "",
+    graphDbUrl: normalizeUrl(connection.graphDbUrl),
     proxyConnection:
       connection.proxyConnection ?? connection.graphDbUrl != null,
     awsAuthEnabled: connection.awsAuthEnabled ?? false,

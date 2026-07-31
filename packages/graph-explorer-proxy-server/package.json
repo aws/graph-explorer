@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "dev": "node --watch src/node-server.ts",
+    "dev": "node src/node-server.ts",
     "start": "NODE_ENV=production node src/node-server.ts"
   },
   "dependencies": {

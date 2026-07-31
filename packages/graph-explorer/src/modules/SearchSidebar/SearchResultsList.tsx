@@ -52,7 +52,7 @@ export function SearchResultsList({
       <div className="grow space-y-6 p-3">
         <div className="flex flex-row items-center gap-3">
           <div>
-            <h1 className="text-xl font-bold">Results</h1>
+            <h1 className="text-xl font-semibold">Results</h1>
             <ResultCounts results={results} />
           </div>
           <div className="grow" />
@@ -110,7 +110,7 @@ function ResultCounts({ results }: { results: PatchedResultEntity[] }) {
   const count = results.length;
   const label = count === 1 ? `${count} Item` : `${count} Items`;
 
-  return <p className="text-text-secondary text-sm text-pretty">{label}</p>;
+  return <p className="text-muted-foreground text-sm text-pretty">{label}</p>;
 }
 
 function AddAllToGraphButton({

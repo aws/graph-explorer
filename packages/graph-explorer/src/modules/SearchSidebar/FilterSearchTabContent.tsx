@@ -43,7 +43,7 @@ export function FilterSearchTabContent() {
   } = useKeywordSearch();
 
   return (
-    <div className="bg-background-default flex h-full flex-col gap-3">
+    <div className="bg-background flex h-full flex-col gap-3">
       <div className="flex flex-col gap-4 p-3">
         <div className="grid w-full grid-cols-2 gap-4">
           <FormItem>

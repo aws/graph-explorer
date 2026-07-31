@@ -12,7 +12,7 @@ export function EdgeSymbol({
 }: ComponentPropsWithoutRef<"div">) {
   return (
     <SearchResultSymbol
-      className={cn("bg-primary-main/20 text-primary-main", className)}
+      className={cn("bg-primary/20 text-primary", className)}
       {...props}
     >
       <EdgeIcon className="size-full" />

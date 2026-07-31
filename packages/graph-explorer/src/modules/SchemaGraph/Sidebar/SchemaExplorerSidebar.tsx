@@ -1,4 +1,4 @@
-import { DetailsIcon, EdgeIcon, GraphIcon } from "@/components";
+import { DetailsIcon, StylingIcon } from "@/components";
 import {
   CollapsibleSidebar,
   SidebarTabs,
@@ -6,7 +6,7 @@ import {
   SidebarTabsList,
   SidebarTabsTrigger,
 } from "@/components/CollapsibleSidebar";
-import { useTranslations } from "@/hooks";
+import { schemaViewStylesTabAtom, Styles } from "@/modules/Styles";
 import { LABELS } from "@/utils";
 
 import type {
@@ -15,8 +15,6 @@ import type {
 } from "../SchemaGraph";
 
 import { SchemaDetailsContent } from "./SchemaDetailsContent";
-import { SchemaEdgesStyling } from "./SchemaEdgesStyling";
-import { SchemaNodesStyling } from "./SchemaNodesStyling";
 import { useSchemaViewSidebar } from "./schemaViewLayout";
 
 export type SchemaExplorerSidebarProps = {
@@ -28,12 +26,12 @@ export function SchemaExplorerSidebar({
   selection,
   onSelectionChange,
 }: SchemaExplorerSidebarProps) {
-  const t = useTranslations();
   const {
     activeSidebarItem,
     isSidebarOpen,
     sidebarWidth,
     setSidebarWidth,
+    closeSidebar,
     toggleSidebar,
   } = useSchemaViewSidebar();
 
@@ -53,18 +51,11 @@ export function SchemaExplorerSidebar({
             <DetailsIcon />
           </SidebarTabsTrigger>
           <SidebarTabsTrigger
-            value="nodes-styling"
-            title={t("nodes-styling.title")}
-            onToggle={() => toggleSidebar("nodes-styling")}
+            value="styles"
+            title={LABELS.SIDEBAR.STYLES}
+            onToggle={() => toggleSidebar("styles")}
           >
-            <GraphIcon />
-          </SidebarTabsTrigger>
-          <SidebarTabsTrigger
-            value="edges-styling"
-            title={t("edges-styling.title")}
-            onToggle={() => toggleSidebar("edges-styling")}
-          >
-            <EdgeIcon />
+            <StylingIcon />
           </SidebarTabsTrigger>
         </SidebarTabsList>
         <SidebarTabsContent value="details">
@@ -73,11 +64,8 @@ export function SchemaExplorerSidebar({
             onSelectionChange={onSelectionChange}
           />
         </SidebarTabsContent>
-        <SidebarTabsContent value="nodes-styling">
-          <SchemaNodesStyling />
-        </SidebarTabsContent>
-        <SidebarTabsContent value="edges-styling">
-          <SchemaEdgesStyling />
+        <SidebarTabsContent value="styles">
+          <Styles onClose={closeSidebar} tabAtom={schemaViewStylesTabAtom} />
         </SidebarTabsContent>
       </SidebarTabs>
     </CollapsibleSidebar>

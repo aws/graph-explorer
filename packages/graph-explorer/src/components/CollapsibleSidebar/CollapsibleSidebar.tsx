@@ -37,7 +37,7 @@ export function CollapsibleSidebar({
       }}
       className={cn(
         enableAnimation &&
-          "transition-width min-h-0 transform duration-200 ease-in-out",
+          "min-h-0 transform transition-[width] duration-200 ease-in-out",
       )}
     >
       {children}
@@ -52,7 +52,7 @@ export function SidebarTabs({
   return (
     <TabsPrimitive.Root
       className={cn(
-        "bg-background-default shadow-primary-dark/25 grid size-full min-h-0 flex-none shrink-0 grid-cols-[auto_1fr] shadow",
+        "bg-background shadow-primary-foreground/25 grid size-full min-h-0 flex-none shrink-0 grid-cols-[auto_1fr] shadow",
         className,
       )}
       {...props}
@@ -97,10 +97,9 @@ export function SidebarTabsTrigger({
               value={value}
               onClick={onToggle}
               className={cn(
-                "text-brand-900 active:bg-brand-300 data-[state=active]:bg-brand-500 inline-flex size-10 items-center justify-center rounded-md bg-transparent p-2 ring-0 transition-colors duration-100 focus:shadow-none active:text-white disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-white [&_svg]:size-6",
+                "text-primary-foreground active:bg-brand-300 data-[state=active]:bg-primary inline-flex size-10 items-center justify-center rounded-md bg-transparent p-2 ring-0 transition-colors duration-100 focus:shadow-none active:text-white disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-white [&_svg]:size-6",
                 "hover:data-[state=active]:bg-brand-400 hover:bg-primary-subtle-hover",
-                "dark:text-brand-300 dark:data-[state=active]:bg-brand-400 dark:hover:data-[state=active]:bg-brand-500 dark:hover:bg-gray-800 dark:data-[state=active]:text-white",
-                "focus-visible:ring-brand-500 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-hidden active:ring-0",
+                "focus-visible:ring-primary focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-hidden active:ring-0",
                 className,
               )}
               {...props}
@@ -139,7 +138,7 @@ function BadgeIndicator({
       {value ? (
         <span
           aria-description="badge"
-          className="bg-error-main pointer-events-none -mt-0.5 -mr-0.5 size-2.5 place-self-start justify-self-end rounded-full"
+          className="bg-danger pointer-events-none -mt-0.5 -mr-0.5 size-2.5 place-self-start justify-self-end rounded-full"
         />
       ) : null}
     </div>

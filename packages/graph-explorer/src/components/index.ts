@@ -7,6 +7,8 @@ export * from "./Checkbox";
 export { default as CheckboxList } from "./CheckboxList";
 export * from "./CheckboxList";
 
+export * from "./Card";
+
 export { default as Chip } from "./Chip";
 export * from "./Chip";
 
@@ -26,6 +28,7 @@ export { default as PanelError } from "./PanelError";
 export * from "./Dialog";
 export { default as Divider } from "./Divider";
 
+export * from "./EdgePreview";
 export * from "./EdgeRow";
 export * from "./EdgeSymbol";
 export * from "./EmptyState";
@@ -42,7 +45,10 @@ export * from "./numberFormat";
 export * from "./icons";
 
 export * from "./Input";
+export * from "./NumberInput";
 export * from "./LabelledSetting";
+export * from "./LabelPreview";
+export * from "./PreviewSurface";
 export { default as InputField } from "./InputField";
 export * from "./InputField";
 
@@ -86,6 +92,9 @@ export * from "./Switch";
 
 export * from "./TextArea";
 
+export * from "./Toggle";
+export * from "./ToggleGroup";
+
 export { default as TextAreaField } from "./TextAreaField";
 export * from "./TextAreaField";
 
@@ -94,6 +103,8 @@ export * from "./Typography";
 
 export { default as VertexIcon } from "./VertexIcon";
 export * from "./VertexIcon";
+
+export * from "./VertexSymbol";
 
 export * from "./VertexRow";
 

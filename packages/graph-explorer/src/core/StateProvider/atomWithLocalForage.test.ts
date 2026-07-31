@@ -135,6 +135,28 @@ describe("atomWithLocalForage", () => {
     expect(stored).toBe(3);
   });
 
+  test("should apply transform to a stored value before first read", async () => {
+    const key = "test-transform";
+    await localforage.setItem(key, "legacy");
+
+    const atom = await atomWithLocalForage(key, "initial", {
+      transform: value => (value === "legacy" ? "transformed" : value),
+    });
+
+    expect(store.get(atom)).toBe("transformed");
+  });
+
+  test("should apply transform to the initial value when storage is empty", async () => {
+    const key = "test-transform-empty";
+    await localforage.removeItem(key);
+
+    const atom = await atomWithLocalForage(key, "legacy", {
+      transform: value => (value === "legacy" ? "transformed" : value),
+    });
+
+    expect(store.get(atom)).toBe("transformed");
+  });
+
   test("should work with different data types", async () => {
     // String
     const stringAtom = await atomWithLocalForage("test-string", "hello");

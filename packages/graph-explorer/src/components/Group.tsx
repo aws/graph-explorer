@@ -38,7 +38,7 @@ function GroupHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "bg-neutral-subtle/50 text-text-secondary group-data-[variant=danger]/group:bg-danger-subtle/50 group-data-[variant=danger]/group:text-danger group-data-[variant=success]/group:bg-success-subtle/50 group-data-[variant=success]/group:text-success-main group-data-[variant=warning]/group:bg-warning-subtle/50 group-data-[variant=warning]/group:text-warning-main flex items-center gap-2 px-5 py-3 group-data-[size=small]/group:px-3 group-data-[size=small]/group:py-2",
+        "bg-neutral-subtle/50 text-muted-foreground group-data-[variant=danger]/group:bg-danger-subtle/50 group-data-[variant=danger]/group:text-danger-foreground group-data-[variant=success]/group:bg-success-subtle/50 group-data-[variant=success]/group:text-success group-data-[variant=warning]/group:bg-warning-subtle/50 group-data-[variant=warning]/group:text-warning flex items-center gap-2 px-5 py-3 group-data-[size=small]/group:px-3 group-data-[size=small]/group:py-2",
         className,
       )}
       {...props}

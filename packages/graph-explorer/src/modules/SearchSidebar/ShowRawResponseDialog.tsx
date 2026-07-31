@@ -38,7 +38,7 @@ export function ShowRawResponseDialogButton({
           </DialogDescription>
         </DialogHeader>
         <DialogBody className="grid min-h-0 py-3">
-          <div className="overflow-auto rounded-lg border bg-gray-50 shadow-xs">
+          <div className="bg-background-alt overflow-auto rounded-lg border shadow-xs">
             <CodeEditor
               defaultLanguage="json"
               value={rawResponseText}
@@ -53,9 +53,9 @@ export function ShowRawResponseDialogButton({
           </div>
         </DialogBody>
         <DialogFooter className="justify-between">
-          <CopyToClipboardButton text={rawResponseText} />
+          <CopyToClipboardButton variant="outline" text={rawResponseText} />
           <DialogClose asChild>
-            <Button>Close</Button>
+            <Button variant="primary">Close</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

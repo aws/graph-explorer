@@ -96,7 +96,7 @@ function ErrorDetailsButton({ error }: { error: unknown }) {
           {errorData ? (
             <FormItem>
               <Label>Error data</Label>
-              <div className="grid min-h-64 overflow-auto rounded-lg border bg-gray-50 shadow-xs">
+              <div className="bg-background-alt grid min-h-64 overflow-auto rounded-lg border shadow-xs">
                 <CodeEditor
                   defaultLanguage="json"
                   value={errorData}

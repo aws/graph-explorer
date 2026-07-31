@@ -10,7 +10,7 @@ export function Workspace({
     <div
       data-slot="workspace"
       className={cn(
-        "bg-background-secondary flex min-h-0 flex-1 flex-col overflow-hidden",
+        "bg-primary-subtle flex min-h-0 flex-1 flex-col overflow-hidden",
         className,
       )}
       {...props}

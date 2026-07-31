@@ -19,12 +19,6 @@
   "edge-connections": "Object Properties",
   "query-language": "RDF-SPARQL",
 
-  "nodes-styling": {
-    "title": "Resource Styling"
-  },
-  "edges-styling": {
-    "title": "Predicate Styling"
-  },
   "keyword-search": {
     "node-type-placeholder": "Select a class",
     "node-attribute-placeholder": "Select a predicate"

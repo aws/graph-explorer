@@ -2,10 +2,24 @@
 import { act } from "react";
 
 import { useGraphViewSidebar } from "@/core";
-import { renderHookWithState } from "@/utils/testing";
+import { DbState, renderHookWithState } from "@/utils/testing";
 import { createRandomEdgeId, createRandomVertexId } from "@/utils/testing";
 
 import { useGraphSelection } from "./useGraphSelection";
+
+/**
+ * Seeds a known pre-selection layout — sidebar open on Search with auto-open
+ * enabled — so the auto-open assertions measure the selection's effect rather
+ * than the random default layout DbState would otherwise apply.
+ */
+function stateWithSearchTabAndAutoOpen() {
+  return new DbState().withGraphViewLayout({
+    activeSidebarItem: "search",
+    activeToggles: new Set(),
+    sidebar: { width: 400 },
+    detailsAutoOpenOnSelection: true,
+  });
+}
 
 describe("useGraphSelection", () => {
   test("should return empty selection initially", () => {
@@ -163,10 +177,13 @@ describe("useGraphSelection", () => {
   });
 
   test("should auto-open details when selecting single vertex", () => {
-    const { result } = renderHookWithState(() => ({
-      selection: useGraphSelection(),
-      sidebar: useGraphViewSidebar(),
-    }));
+    const { result } = renderHookWithState(
+      () => ({
+        selection: useGraphSelection(),
+        sidebar: useGraphViewSidebar(),
+      }),
+      stateWithSearchTabAndAutoOpen(),
+    );
 
     const vertexId = createRandomVertexId();
 
@@ -180,10 +197,13 @@ describe("useGraphSelection", () => {
   });
 
   test("should auto-open details when selecting single edge", () => {
-    const { result } = renderHookWithState(() => ({
-      selection: useGraphSelection(),
-      sidebar: useGraphViewSidebar(),
-    }));
+    const { result } = renderHookWithState(
+      () => ({
+        selection: useGraphSelection(),
+        sidebar: useGraphViewSidebar(),
+      }),
+      stateWithSearchTabAndAutoOpen(),
+    );
 
     const edgeId = createRandomEdgeId();
 
@@ -197,10 +217,13 @@ describe("useGraphSelection", () => {
   });
 
   test("should not auto-open details when selecting multiple entities", () => {
-    const { result } = renderHookWithState(() => ({
-      selection: useGraphSelection(),
-      sidebar: useGraphViewSidebar(),
-    }));
+    const { result } = renderHookWithState(
+      () => ({
+        selection: useGraphSelection(),
+        sidebar: useGraphViewSidebar(),
+      }),
+      stateWithSearchTabAndAutoOpen(),
+    );
 
     const vertexId1 = createRandomVertexId();
     const vertexId2 = createRandomVertexId();
@@ -215,10 +238,13 @@ describe("useGraphSelection", () => {
   });
 
   test("should not auto-open details when disableSideEffects is true", () => {
-    const { result } = renderHookWithState(() => ({
-      selection: useGraphSelection(),
-      sidebar: useGraphViewSidebar(),
-    }));
+    const { result } = renderHookWithState(
+      () => ({
+        selection: useGraphSelection(),
+        sidebar: useGraphViewSidebar(),
+      }),
+      stateWithSearchTabAndAutoOpen(),
+    );
 
     const vertexId = createRandomVertexId();
 
@@ -233,10 +259,13 @@ describe("useGraphSelection", () => {
   });
 
   test("should not auto-open details when clearing selection", () => {
-    const { result } = renderHookWithState(() => ({
-      selection: useGraphSelection(),
-      sidebar: useGraphViewSidebar(),
-    }));
+    const { result } = renderHookWithState(
+      () => ({
+        selection: useGraphSelection(),
+        sidebar: useGraphViewSidebar(),
+      }),
+      stateWithSearchTabAndAutoOpen(),
+    );
 
     act(() =>
       result.current.selection.replaceGraphSelection({

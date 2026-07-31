@@ -1,4 +1,5 @@
 import type { Explorer } from "@/connector";
+import type { SchemaViewLayout } from "@/core/StateProvider/schemaViewLayoutDefaults";
 
 import {
   activeConfigurationAtom,
@@ -10,10 +11,11 @@ import {
   type EdgeStyleStorage,
   edgesAtom,
   edgesFilteredIdsAtom,
-  userEdgeStylesAtom,
   edgesTypesFilteredAtom,
   type EdgeType,
   explorerForTestingAtom,
+  type GraphViewLayout,
+  graphViewLayoutAtom,
   mapEdgeToTypeConfig,
   mapVertexToTypeConfigs,
   nodesAtom,
@@ -22,11 +24,13 @@ import {
   type RawConfiguration,
   schemaAtom,
   type SchemaStorageModel,
+  schemaViewLayoutAtom,
   toEdgeMap,
   toNodeMap,
   type Vertex,
   type VertexId,
   type VertexStyleStorage,
+  userEdgeStylesAtom,
   userVertexStylesAtom,
   type VertexType,
 } from "@/core";
@@ -34,8 +38,10 @@ import {
 import { createMockExplorer } from "./createMockExplorer";
 import {
   createRandomEdge,
+  createRandomGraphViewLayout,
   createRandomRawConfiguration,
   createRandomSchema,
+  createRandomSchemaViewLayout,
   createRandomVertex,
   createRandomEdgeStyles,
   createRandomVertexStyles,
@@ -51,6 +57,8 @@ export class DbState {
   activeConfig: RawConfiguration;
   vertexStyles: Map<VertexType, VertexStyleStorage>;
   edgeStyles: Map<EdgeType, EdgeStyleStorage>;
+  graphViewLayout: GraphViewLayout;
+  schemaViewLayout: SchemaViewLayout;
 
   explorer: Explorer;
 
@@ -69,6 +77,9 @@ export class DbState {
 
     this.vertexStyles = createRandomVertexStyles();
     this.edgeStyles = createRandomEdgeStyles();
+
+    this.graphViewLayout = createRandomGraphViewLayout();
+    this.schemaViewLayout = createRandomSchemaViewLayout();
 
     this.explorer = explorer;
   }
@@ -150,10 +161,10 @@ export class DbState {
     this.filteredEdgeTypes.add(edgeType);
   }
 
-  /* User Styling Helpers */
+  /* User Styles Helpers */
 
   /**
-   * Adds a style configuration for the vertex type to the user styling.
+   * Adds a style configuration for the vertex type to the user styles.
    * @param vertexType The type of the vertex to add the style to.
    * @param style The style configuration to add.
    * @returns The fully composed style configuration.
@@ -168,7 +179,7 @@ export class DbState {
   }
 
   /**
-   * Adds a style configuration for the edge type to the user styling.
+   * Adds a style configuration for the edge type to the user styles.
    * @param edgeType The type of the edge to add the style to.
    * @param style The style configuration to add.
    * @returns The fully composed style configuration.
@@ -180,6 +191,28 @@ export class DbState {
     const composedStyle = { ...style, type: edgeType };
     this.edgeStyles.set(edgeType, composedStyle);
     return composedStyle;
+  }
+
+  /* View Layout Helpers */
+
+  /**
+   * Sets the graph view layout, replacing the random default. Applied verbatim
+   * so callers can seed legacy shapes (cast with `as GraphViewLayout`) to
+   * exercise backward-compat handling.
+   */
+  withGraphViewLayout(layout: GraphViewLayout) {
+    this.graphViewLayout = layout;
+    return this;
+  }
+
+  /**
+   * Sets the schema view layout, replacing the random default. Applied verbatim
+   * so callers can seed legacy shapes (cast with `as SchemaViewLayout`) to
+   * exercise backward-compat handling.
+   */
+  withSchemaViewLayout(layout: SchemaViewLayout) {
+    this.schemaViewLayout = layout;
+    return this;
   }
 
   /** Applies the state to the given Jotai store. */
@@ -202,6 +235,10 @@ export class DbState {
     // Styling
     store.set(userVertexStylesAtom, this.vertexStyles);
     store.set(userEdgeStylesAtom, this.edgeStyles);
+
+    // View Layout
+    store.set(graphViewLayoutAtom, this.graphViewLayout);
+    store.set(schemaViewLayoutAtom, this.schemaViewLayout);
 
     // Vertices
     store.set(nodesAtom, toNodeMap(this.vertices));
