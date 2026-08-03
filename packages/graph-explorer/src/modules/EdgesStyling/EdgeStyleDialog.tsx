@@ -43,6 +43,7 @@ import {
   type StyleCondition,
   useEdgeStyling,
 } from "@/core/StateProvider/graphStyles";
+import { useTextTransform } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import { RESERVED_TYPES_PROPERTY } from "@/utils";
 
@@ -82,6 +83,7 @@ export function EdgeStyleDialog() {
 function Content({ edgeType }: { edgeType: EdgeType }) {
   const displayConfig = useDisplayEdgeTypeConfig(edgeType);
   const t = useTranslations();
+  const textTransform = useTextTransform();
   const queryEngine = useQueryEngine();
 
   const { edgeStyle, setEdgeStyle, resetEdgeStyle } = useEdgeStyling(edgeType);
@@ -138,7 +140,7 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
               <PreviewSurface>
                 <EdgePreview
                   edgeStyle={edgeStyle}
-                  label={displayConfig.displayLabel}
+                  transform={textTransform}
                   className="zoom-90 px-4 py-3"
                 />
               </PreviewSurface>

@@ -125,9 +125,9 @@ describe("LoadStylesButton", () => {
       stylingFile({ vertices: { Airport: { color: "#abc" } }, edges: {} }),
     );
 
-    // Click the type name in the card body — the wrapping label forwards to the
-    // checkbox, so the whole card is one control.
-    await user.click(await screen.findByText("Airport"));
+    // Click a preview label in the card body — the wrapping label forwards to
+    // the checkbox, so the whole card is one control.
+    await user.click(await screen.findByText("Before"));
 
     expect(
       screen.getByRole("checkbox", { name: "Load Airport style" }),
@@ -227,12 +227,13 @@ describe("LoadStylesButton", () => {
     );
 
     await screen.findByRole("checkbox", { name: "Load Airport style" });
-    expect(screen.getByText("Airfield")).toBeInTheDocument();
+    // "Airfield" labels the Display type row and the after-preview type line.
+    expect(screen.getAllByText("Airfield")).toHaveLength(2);
     expect(screen.getByText("code")).toBeInTheDocument();
     expect(screen.getByText("city")).toBeInTheDocument();
   });
 
-  test("labels an unset incoming non-visual property 'Not set'", async () => {
+  test("labels an unset incoming non-visual property 'Not present'", async () => {
     const user = userEvent.setup();
     renderButton();
 
@@ -246,7 +247,7 @@ describe("LoadStylesButton", () => {
     );
 
     await screen.findByRole("checkbox", { name: "Load Airport style" });
-    expect(screen.getAllByText("Not set")).toHaveLength(3);
+    expect(screen.getAllByText("Not present")).toHaveLength(3);
   });
 
   test("shows the incoming non-visual properties an edge style sets", async () => {
@@ -264,9 +265,10 @@ describe("LoadStylesButton", () => {
     );
 
     await screen.findByRole("checkbox", { name: "Load route style" });
-    // "Flight" labels the after preview and the Display type row; the before
-    // preview falls back to "route", so it appears exactly twice.
-    expect(screen.getAllByText("Flight")).toHaveLength(2);
+    // "Flight" labels the Display type row; the after preview shows
+    // the placeholder "<dist>" for the display name attribute.
+    expect(screen.getByText("Flight")).toBeInTheDocument();
+    expect(screen.getByText("<dist>")).toBeInTheDocument();
     expect(screen.getByText("dist")).toBeInTheDocument();
     // Edges have no description attribute, so that row never appears.
     expect(screen.queryByText("Display description")).not.toBeInTheDocument();

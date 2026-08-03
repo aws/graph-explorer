@@ -240,6 +240,71 @@ describe("saveConfigurationToFile", () => {
     expect(parseConnectionFile(parsed)).toBeNull();
   });
 
+  it("should strip whitespace and newlines from the exported url", async () => {
+    const config = makeConfig({
+      connection: {
+        url: "  https://neptune.example.com:8182/\r\n  ",
+        queryEngine: "gremlin",
+      },
+    });
+
+    saveConfigurationToFile(config);
+
+    const [blob] = saveAsMock.mock.calls[0];
+    const parsed = JSON.parse(await (blob as Blob).text());
+
+    expect(parsed.connection.url).toBe("https://neptune.example.com:8182");
+    // The cleaned file must survive its own import validation.
+    expect(parseConnectionFile(parsed)?.connection.url).toBe(
+      "https://neptune.example.com:8182",
+    );
+  });
+
+  it("should not add a graphDbUrl to a non-proxy exported connection", async () => {
+    // Production configs reach the writer already normalized, where a non-proxy
+    // connection carries graphDbUrl: "" (never undefined). The writer must not
+    // re-emit that empty string.
+    const config = makeConfig({
+      connection: {
+        url: "https://example.com",
+        queryEngine: "gremlin",
+        graphDbUrl: "",
+      },
+    });
+
+    saveConfigurationToFile(config);
+
+    const [blob] = saveAsMock.mock.calls[0];
+    const parsed = JSON.parse(await (blob as Blob).text());
+
+    // An empty-string graphDbUrl would fail import validation (z.url), so a
+    // connection without one must omit the key rather than emit "".
+    expect(parsed.connection.graphDbUrl).toBeUndefined();
+    expect(parseConnectionFile(parsed)).not.toBeNull();
+  });
+
+  it("should keep and clean a proxy graphDbUrl", async () => {
+    const config = makeConfig({
+      connection: {
+        url: "https://proxy.example.com",
+        queryEngine: "gremlin",
+        graphDbUrl: "  https://neptune.example.com:8182/\r\n  ",
+      },
+    });
+
+    saveConfigurationToFile(config);
+
+    const [blob] = saveAsMock.mock.calls[0];
+    const parsed = JSON.parse(await (blob as Blob).text());
+
+    expect(parsed.connection.graphDbUrl).toBe(
+      "https://neptune.example.com:8182",
+    );
+    expect(parseConnectionFile(parsed)?.connection.graphDbUrl).toBe(
+      "https://neptune.example.com:8182",
+    );
+  });
+
   it("should only export necessary fields", async () => {
     const config = makeConfig({
       totalVertices: 100,

@@ -1,10 +1,45 @@
 import { createVertexId } from "@/core";
-import { query } from "@/utils";
+import { LABELS, query } from "@/utils";
 import { normalizeWithNewlines as normalize } from "@/utils/testing";
 
 import { oneHopNeighborsTemplate } from "./oneHopNeighborsTemplate";
 
 describe("oneHopNeighborsTemplate", () => {
+  it("should filter to subjects with no type when the missing-type class is requested", () => {
+    const template = oneHopNeighborsTemplate({
+      resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
+      subjectClasses: [LABELS.MISSING_TYPE],
+    });
+
+    expect(normalize(template)).toEqual(
+      normalize(query`
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            SELECT DISTINCT ?neighbor
+            WHERE {
+              BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
+              {
+                ?neighbor ?predicate ?resource .
+                OPTIONAL { ?neighbor a ?class } .
+                FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+                FILTER NOT EXISTS { ?subject a ?class }
+              }
+              UNION
+              {
+                ?resource ?predicate ?neighbor .
+                OPTIONAL { ?neighbor a ?class } .
+                FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+                FILTER NOT EXISTS { ?subject a ?class }
+              }
+            }
+          }
+          ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
+        }
+      `),
+    );
+  });
+
   it("should produce documentation example", () => {
     // This represents the filter criteria used in the example documentation
     const template = oneHopNeighborsTemplate({

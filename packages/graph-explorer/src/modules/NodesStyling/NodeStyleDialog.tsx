@@ -44,6 +44,7 @@ import {
   useVertexStyling,
 } from "@/core/StateProvider/graphStyles";
 import { isAllowedIconValue } from "@/core/styling";
+import { useTextTransform } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import {
   RESERVED_ID_PROPERTY,
@@ -96,6 +97,7 @@ export function NodeStyleDialog() {
 
 function Content({ vertexType }: { vertexType: VertexType }) {
   const t = useTranslations();
+  const textTransform = useTextTransform();
 
   const { vertexStyle, setVertexStyle, resetVertexStyle } =
     useVertexStyling(vertexType);
@@ -272,7 +274,7 @@ function Content({ vertexType }: { vertexType: VertexType }) {
                 <PreviewSurface className="flex-1">
                   <VertexPreview
                     vertexStyle={vertexStyle}
-                    label={displayConfig.displayLabel}
+                    transform={textTransform}
                     className="zoom-50"
                   />
                 </PreviewSurface>

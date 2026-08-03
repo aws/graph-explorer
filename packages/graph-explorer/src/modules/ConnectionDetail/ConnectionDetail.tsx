@@ -59,10 +59,10 @@ import { useCancelSchemaSync, useSchemaSync } from "@/hooks/useSchemaSync";
 import useTranslations from "@/hooks/useTranslations";
 import CreateConnection from "@/modules/CreateConnection";
 import { formatDate, formatRelativeDate, LABELS, logger } from "@/utils";
-import saveConfigurationToFile from "@/utils/saveConfigurationToFile";
 
 import ConnectionData from "./ConnectionData";
 import ConnectionDeleteButton from "./ConnectionDeleteButton";
+import { exportConnectionWithFeedback } from "./exportConnection";
 import {
   InfoBar,
   InfoItem,
@@ -82,7 +82,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
 
   const { isFetching } = useSchemaSync();
 
-  const onConfigExport = () => saveConfigurationToFile(config);
+  const onConfigExport = () => exportConnectionWithFeedback(config);
 
   const deleteActiveConfig = useDeleteActiveConfiguration();
 

@@ -23,13 +23,17 @@ export default function ConnectionDeleteButton({
   connectionName: string;
   isSync: boolean;
   deleteActiveConfig: () => void;
-  saveCopy: () => void;
+  saveCopy: () => boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const saveAndDelete = () => {
-    saveCopy();
-    deleteActiveConfig();
+    // Only delete once the backup copy is actually written; a refused export
+    // (e.g. a connection with no URL) already surfaced its own error, and
+    // deleting anyway would destroy the connection the copy was meant to save.
+    if (saveCopy()) {
+      deleteActiveConfig();
+    }
   };
 
   return (

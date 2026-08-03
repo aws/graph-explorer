@@ -192,4 +192,90 @@ describe("Gremlin > oneHopTemplate", () => {
       `),
     );
   });
+
+  it("should expand a Neptune multi-label type into separate labels on '::'", () => {
+    const template = oneHopTemplate({
+      vertexId: createVertexId("12"),
+      filterByVertexTypes: ["country::capital"],
+    });
+
+    expect(normalize(template)).toContain(
+      normalize('.both().hasLabel("country", "capital").dedup()'),
+    );
+  });
+
+  // Each criterion dataType and operator produces a distinct predicate fragment.
+  describe("filter criteria", () => {
+    function fragmentFor(criterion: {
+      name: string;
+      value: string | number;
+      operator: string;
+      dataType?: "Number" | "String" | "Date";
+    }) {
+      return normalize(
+        oneHopTemplate({
+          vertexId: createVertexId("12"),
+          filterCriteria: [criterion],
+        }),
+      );
+    }
+
+    it.each([
+      ["eq", 'has("longest",eq(10000))'],
+      ["==", 'has("longest",eq(10000))'],
+      ["gt", 'has("longest",gt(10000))'],
+      ["gte", 'has("longest",gte(10000))'],
+      ["lt", 'has("longest",lt(10000))'],
+      ["lte", 'has("longest",lte(10000))'],
+      ["neq", 'has("longest",neq(10000))'],
+    ])("renders a Number criterion with the %s operator", (operator, frag) => {
+      expect(
+        fragmentFor({
+          name: "longest",
+          value: 10000,
+          operator,
+          dataType: "Number",
+        }),
+      ).toContain(normalize(`and(${frag})`));
+    });
+
+    it.each([
+      ["eq", 'has("country","ES")'],
+      ["neq", 'has("country",neq("ES"))'],
+      ["like", 'has("country",containing("ES"))'],
+    ])("renders a String criterion with the %s operator", (operator, frag) => {
+      expect(
+        fragmentFor({
+          name: "country",
+          value: "ES",
+          operator,
+          dataType: "String",
+        }),
+      ).toContain(normalize(`and(${frag})`));
+    });
+
+    it("treats a criterion without a dataType as a String", () => {
+      expect(
+        fragmentFor({ name: "country", value: "ES", operator: "eq" }),
+      ).toContain(normalize('and(has("country","ES"))'));
+    });
+
+    it.each([
+      ["eq", 'has("created",eq(datetime(2020)))'],
+      ["gt", 'has("created",gt(datetime(2020)))'],
+      ["gte", 'has("created",gte(datetime(2020)))'],
+      ["lt", 'has("created",lt(datetime(2020)))'],
+      ["lte", 'has("created",lte(datetime(2020)))'],
+      ["neq", 'has("created",neq(datetime(2020)))'],
+    ])("renders a Date criterion with the %s operator", (operator, frag) => {
+      expect(
+        fragmentFor({
+          name: "created",
+          value: 2020,
+          operator,
+          dataType: "Date",
+        }),
+      ).toContain(normalize(`and(${frag})`));
+    });
+  });
 });
