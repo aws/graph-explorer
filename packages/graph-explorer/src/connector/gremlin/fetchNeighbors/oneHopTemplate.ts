@@ -2,7 +2,7 @@ import type { Criterion, NeighborsRequest } from "@/connector/useGEFetchTypes";
 
 import { query } from "@/utils";
 
-import { idParam } from "../idParam";
+import { fragment } from "../fragments";
 
 function criterionNumberTemplate({
   name,
@@ -124,7 +124,7 @@ export default function oneHopTemplate({
   filterCriteria = [],
   limit = 0,
 }: Omit<NeighborsRequest, "vertexTypes">): string {
-  const idTemplate = idParam(vertexId);
+  const idTemplate = fragment.id(vertexId);
   const range = limit > 0 ? `.range(0, ${limit})` : "";
 
   const vertexTypes = filterByVertexTypes.flatMap(type => type.split("::"));
@@ -147,7 +147,7 @@ export default function oneHopTemplate({
 
   const excludedList = excludedVertices
     .values()
-    .map(id => idParam(id))
+    .map(fragment.id)
     .toArray()
     .join(",");
   const excludedTemplate = excludedList

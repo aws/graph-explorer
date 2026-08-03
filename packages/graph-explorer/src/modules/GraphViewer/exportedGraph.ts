@@ -21,7 +21,7 @@ import {
   FileEnvelopeError,
   parseFileEnvelope,
 } from "@/core/fileEnvelope";
-import { escapeString, logger } from "@/utils";
+import { logger } from "@/utils";
 
 /** The envelope `kind` discriminator for graph export files. */
 export const GRAPH_EXPORT_KIND = "graph-export";
@@ -222,7 +222,17 @@ function escapeIfPropertyGraphAndString(queryEngine: QueryEngine) {
   return (value: EntityRawId) =>
     queryEngine === "sparql" || typeof value !== "string"
       ? value
-      : escapeString(value);
+      : escapeDoubleQuotes(value);
+}
+
+/**
+ * Escapes double quotes in an imported property-graph entity ID so it cannot
+ * break out of the quoted position it is later interpolated into. Property-graph
+ * ID interpolation does not yet escape the value itself, so this sanitization
+ * happens here at the import boundary.
+ */
+function escapeDoubleQuotes(text: string): string {
+  return text.includes('"') ? JSON.stringify(text).slice(1, -1) : text;
 }
 
 /** Compares the connection config to the exported connection. */

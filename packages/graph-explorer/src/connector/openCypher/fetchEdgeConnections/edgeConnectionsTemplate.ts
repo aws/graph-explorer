@@ -2,6 +2,8 @@ import type { EdgeType } from "@/core";
 
 import { DEFAULT_SAMPLE_SIZE, query } from "@/utils";
 
+import { fragment } from "../fragments";
+
 /**
  * Returns an openCypher query to discover distinct edge connection patterns for a specific edge type.
  * Uses sampling with DISTINCT to efficiently discover patterns in large databases.
@@ -11,7 +13,7 @@ import { DEFAULT_SAMPLE_SIZE, query } from "@/utils";
  */
 export default function edgeConnectionsTemplate(edgeType: EdgeType) {
   return query`
-    MATCH (s)-[e:\`${edgeType}\`]->(t)
+    MATCH (s)-[e:${fragment.identifier(edgeType)}]->(t)
     WITH labels(s) AS sourceLabels, labels(t) AS targetLabels
     LIMIT ${DEFAULT_SAMPLE_SIZE}
     RETURN DISTINCT sourceLabels, targetLabels

@@ -2,7 +2,7 @@ import type { Criterion, NeighborsRequest } from "@/connector/useGEFetchTypes";
 
 import { query } from "@/utils";
 
-import { idParam } from "../idParam";
+import { fragment } from "../fragments";
 
 const criterionNumberTemplate = ({
   name,
@@ -116,7 +116,7 @@ const oneHopTemplate = ({
 }: Omit<NeighborsRequest, "vertexTypes">): string => {
   const formattedExcludedVertices =
     excludedVertices.size > 0
-      ? `NOT ID(tgt) IN [${excludedVertices.values().map(idParam).toArray().join(", ")}]`
+      ? `NOT ID(tgt) IN [${excludedVertices.values().map(fragment.id).toArray().join(", ")}]`
       : "";
 
   // List of possible vertex labels when there are multiple (single label is handled elsewhere)
@@ -134,7 +134,7 @@ const oneHopTemplate = ({
 
   // Combine all the WHERE conditions
   const whereConditions = [
-    `ID(v) = ${idParam(vertexId)}`,
+    `ID(v) = ${fragment.id(vertexId)}`,
     formattedExcludedVertices,
     formattedVertexTypes,
     ...(filterCriteria?.map(criterionTemplate) ?? []),

@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { InvalidFragmentValueError } from "@/connector/queryFragment";
+
 import { createErrorDetails } from "./createErrorDetails";
 import { NetworkError } from "./NetworkError";
 import { ServerConnectionError } from "./ServerConnectionError";
@@ -274,6 +276,31 @@ describe("createErrorDetails", () => {
 
       const details = createErrorDetails(result.error);
       expect(details.message).toBe(result.error.message);
+    });
+  });
+
+  describe("InvalidFragmentValueError", () => {
+    it("serializes the language, position, reason, and value type as data", () => {
+      const error = InvalidFragmentValueError.unsupportedType(
+        "openCypher",
+        "id",
+        124,
+      );
+      expect(createErrorDetails(error)).toStrictEqual({
+        name: "InvalidFragmentValueError",
+        message: error.message,
+        data: JSON.stringify(
+          {
+            language: "openCypher",
+            position: "id",
+            reason: "unsupported-type",
+            valueType: "number",
+            value: 124,
+          },
+          null,
+          2,
+        ),
+      });
     });
   });
 

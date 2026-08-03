@@ -242,6 +242,40 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     );
   });
 
+  it("Should escape a double quote in the search term", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport"],
+      searchTerm: 'JF"K',
+      searchByAttributes: ["code"],
+      exactMatch: false,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        MATCH (v:\`airport\`)
+        WHERE (v.code CONTAINS "JF\\"K")
+        RETURN v AS object
+      `),
+    );
+  });
+
+  it("Should escape a double quote in the search term for the ID token", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport"],
+      searchTerm: 'JF"K',
+      exactMatch: true,
+      searchByAttributes: [SEARCH_TOKENS.NODE_ID],
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        MATCH (v:\`airport\`)
+        WHERE (id(v) = "JF\\"K")
+        RETURN v AS object
+      `),
+    );
+  });
+
   it("Should return a template for nodes with no type with pagination", () => {
     const template = keywordSearchTemplate({
       vertexTypes: [LABELS.MISSING_TYPE],

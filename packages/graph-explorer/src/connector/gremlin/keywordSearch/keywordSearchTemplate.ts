@@ -2,7 +2,9 @@ import uniq from "lodash/uniq";
 
 import type { KeywordSearchRequest } from "@/connector";
 
-import { escapeString, SEARCH_TOKENS } from "@/utils";
+import { SEARCH_TOKENS } from "@/utils";
+
+import { fragment } from "../fragments";
 
 /**
  * @example
@@ -40,7 +42,7 @@ export default function keywordSearchTemplate({
   }
 
   if (searchTerm) {
-    const escapedSearchTerm = escapeString(searchTerm);
+    const searchLiteral = fragment.string(searchTerm);
 
     const orContent = uniq(
       searchByAttributes.includes(SEARCH_TOKENS.ALL_ATTRIBUTES)
@@ -51,14 +53,14 @@ export default function keywordSearchTemplate({
       .map(attr => {
         if (attr === SEARCH_TOKENS.NODE_ID) {
           if (exactMatch === true) {
-            return `has(id,"${escapedSearchTerm}")`;
+            return `has(id,${searchLiteral})`;
           }
-          return `has(id,containing("${escapedSearchTerm}"))`;
+          return `has(id,containing(${searchLiteral}))`;
         }
         if (exactMatch === true) {
-          return `has("${attr}","${escapedSearchTerm}")`;
+          return `has("${attr}",${searchLiteral})`;
         }
-        return `has("${attr}",containing("${escapedSearchTerm}"))`;
+        return `has("${attr}",containing(${searchLiteral}))`;
       })
       .join(",");
 

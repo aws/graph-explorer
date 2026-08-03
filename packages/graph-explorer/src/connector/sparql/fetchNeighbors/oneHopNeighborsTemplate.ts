@@ -5,7 +5,7 @@ import {
   getNeighborsFilter,
   getSubjectClasses,
 } from "../filterHelpers";
-import { idParam } from "../idParam";
+import { fragment } from "../fragments";
 import {
   rdfTypeUri,
   type SPARQLCriterion,
@@ -107,8 +107,8 @@ import {
 export function oneHopNeighborsTemplate(
   request: SPARQLNeighborsRequest,
 ): string {
-  const resourceTemplate = idParam(request.resourceURI);
-  const rdfTypeUriTemplate = idParam(rdfTypeUri);
+  const resourceTemplate = fragment.iri(request.resourceURI);
+  const rdfTypeUriTemplate = fragment.iri(rdfTypeUri);
 
   return query`
     # Fetch all neighbors and their predicates, values, and classes
@@ -176,7 +176,7 @@ export function findNeighborsUsingFilters({
   excludedVertices = new Set(),
   limit = 0,
 }: SPARQLNeighborsRequest): string {
-  const resourceTemplate = idParam(resourceURI);
+  const resourceTemplate = fragment.iri(resourceURI);
 
   return query`
     # This sub-query will give us all unique neighbors within the given limit
@@ -213,7 +213,7 @@ function getFilterTemplate(filterCriteria: SPARQLCriterion[]) {
   const hasFilters = filterCriteria.length > 0;
 
   const createFilterTemplate = (c: SPARQLCriterion) =>
-    `(?pValue=${idParam(c.predicate)} && regex(str(?object), "${c.object}", "i"))`;
+    `(?pValue=${fragment.iri(c.predicate)} && regex(str(?object), "${c.object}", "i"))`;
 
   return hasFilters
     ? query`

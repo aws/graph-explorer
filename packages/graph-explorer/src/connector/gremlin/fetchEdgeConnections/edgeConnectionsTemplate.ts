@@ -1,6 +1,8 @@
 import type { EdgeType } from "@/core";
 
-import { DEFAULT_SAMPLE_SIZE, escapeString, query } from "@/utils";
+import { DEFAULT_SAMPLE_SIZE, query } from "@/utils";
+
+import { fragment } from "../fragments";
 
 /**
  * Returns a Gremlin query to discover distinct edge connection patterns for a specific edge type.
@@ -10,9 +12,8 @@ import { DEFAULT_SAMPLE_SIZE, escapeString, query } from "@/utils";
  * then deduplicates to find unique patterns.
  */
 export default function edgeConnectionsTemplate(edgeType: EdgeType) {
-  const escapedEdgeType = escapeString(edgeType);
   return query`
-    g.E().hasLabel("${escapedEdgeType}").limit(${DEFAULT_SAMPLE_SIZE})
+    g.E().hasLabel(${fragment.identifier(edgeType)}).limit(${DEFAULT_SAMPLE_SIZE})
       .project('sourceType', 'targetType')
       .by(outV().label())
       .by(inV().label())

@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { z } from "zod";
 
+import { InvalidFragmentValueError } from "@/connector/queryFragment";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 
 import { createDisplayError } from "./createDisplayError";
@@ -17,6 +18,20 @@ describe("createDisplayError", () => {
   it("Should handle empty object", () => {
     const result = createDisplayError({});
     expect(result).toStrictEqual(defaultResult);
+  });
+
+  it("Should give a specific message for a value that cannot be used in a query", () => {
+    const error = InvalidFragmentValueError.unsupportedType(
+      "openCypher",
+      "id",
+      124,
+    );
+    const result = createDisplayError(error);
+    expect(result).toStrictEqual({
+      title: "This value cannot be used",
+      message:
+        'The value "124" cannot be used in a query against this database.',
+    });
   });
 
   it("Should handle null", () => {

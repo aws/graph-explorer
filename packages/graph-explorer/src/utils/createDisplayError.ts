@@ -1,5 +1,6 @@
 import { ZodError } from "zod";
 
+import { InvalidFragmentValueError } from "@/connector/queryFragment";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 
 import { extractErrorMessage } from "./extractErrorMessage";
@@ -145,6 +146,17 @@ export function createDisplayError(error: any): DisplayError {
     return {
       title: "Unrecognized Result Format",
       message: "The data returned did not match the expected format.",
+    };
+  }
+
+  // A value could not be placed into the query position it was given — an ID
+  // the database cannot express. Name the offending value in end-user terms;
+  // the technical language, position, and reason are in the error details
+  // dialog.
+  if (error instanceof InvalidFragmentValueError) {
+    return {
+      title: "This value cannot be used",
+      message: `The value "${String(error.value)}" cannot be used in a query against this database.`,
     };
   }
 

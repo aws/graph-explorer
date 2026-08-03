@@ -9,7 +9,7 @@ import type {
 import type { GEdge, GremlinFetch } from "./types";
 
 import isErrorResponse from "../utils/isErrorResponse";
-import { idParam } from "./idParam";
+import { fragment } from "./fragments";
 import { mapResults } from "./mappers/mapResults";
 
 type Response = {
@@ -35,7 +35,7 @@ export async function edgeDetails(
     return { edges: [] };
   }
 
-  const ids = request.edgeIds.map(idParam).join(",");
+  const ids = request.edgeIds.map(fragment.id).join(",");
   const template = query`
     g.E(${ids})
   `;

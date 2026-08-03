@@ -2,7 +2,7 @@ import type { EdgeType } from "@/core";
 
 import { DEFAULT_SAMPLE_SIZE, query } from "@/utils";
 
-import { idParam } from "../idParam";
+import { fragment } from "../fragments";
 
 /**
  * Returns a SPARQL query to discover distinct edge connection patterns for a specific predicate.
@@ -17,7 +17,7 @@ export default function edgeConnectionsTemplate(predicate: EdgeType) {
     WHERE {
       SELECT ?sourceType ?targetType
       WHERE {
-        ?s ${idParam(predicate)} ?o .
+        ?s ${fragment.iri(predicate)} ?o .
         FILTER(!isLiteral(?o))
         ?s a ?sourceType .
         ?o a ?targetType .
