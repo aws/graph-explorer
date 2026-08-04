@@ -118,6 +118,7 @@ export function createSparqlExplorer(
       const request: SPARQLNeighborsRequest = {
         resourceURI: req.vertexId,
         subjectClasses: req.filterByVertexTypes,
+        filterByIds: req.filterByIds,
         filterCriteria: req.filterCriteria?.map((c: Criterion) => ({
           predicate: c.name,
           object: c.value,

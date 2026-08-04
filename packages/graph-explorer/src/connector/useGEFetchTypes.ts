@@ -103,6 +103,10 @@ export type NeighborsRequest = {
    */
   filterByVertexTypes?: Array<string>;
   /**
+   * Filter to neighbors matching one of these vertex IDs.
+   */
+  filterByIds?: Array<VertexId>;
+  /**
    * Filter by vertex attributes.
    */
   filterCriteria?: Array<Criterion>;

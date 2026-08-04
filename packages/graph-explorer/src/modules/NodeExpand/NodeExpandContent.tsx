@@ -1,8 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Suspense, useState } from "react";
 
-import type { VertexId } from "@/core";
-
 import {
   Button,
   DefaultQueryErrorBoundary,
@@ -14,7 +12,12 @@ import {
   VertexRow,
 } from "@/components";
 import { neighborsCountQuery } from "@/connector";
-import { type DisplayVertex, useNeighbors } from "@/core";
+import {
+  createVertexId,
+  type DisplayVertex,
+  useNeighbors,
+  type VertexId,
+} from "@/core";
 import { useExpandNode } from "@/hooks";
 import {
   type ExpandNodeFilters,
@@ -26,7 +29,10 @@ import useNeighborsOptions, {
 import useTranslations from "@/hooks/useTranslations";
 import NeighborsList from "@/modules/common/NeighborsList/NeighborsList";
 
-import NodeExpandFilters, { type NodeExpandFilter } from "./NodeExpandFilters";
+import NodeExpandFilters, {
+  ID_FILTER_NAME,
+  type NodeExpandFilter,
+} from "./NodeExpandFilters";
 
 export type NodeExpandContentProps = {
   vertex: DisplayVertex;
@@ -133,11 +139,16 @@ function ExpansionOptions({
           vertexId={vertexId}
           filters={{
             filterByVertexTypes: [selectedType],
-            filterCriteria: filters.map(filter => ({
-              name: filter.name,
-              operator: "LIKE",
-              value: filter.value,
-            })),
+            filterByIds: filters
+              .filter(filter => filter.name === ID_FILTER_NAME && filter.value)
+              .map(filter => createVertexId(filter.value)),
+            filterCriteria: filters
+              .filter(filter => filter.name !== ID_FILTER_NAME)
+              .map(filter => ({
+                name: filter.name,
+                operator: "LIKE",
+                value: filter.value,
+              })),
             limit: limitEnabled && limit ? limit : undefined,
           }}
         />
