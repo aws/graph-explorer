@@ -2,6 +2,8 @@ import { uniq } from "lodash";
 
 import { query } from "@/utils";
 
+import { fragment } from "../fragments";
+
 /**
  * Given a set of edge types, it returns a Gremlin template that contains
  * one sample of each edge type.
@@ -23,7 +25,7 @@ import { query } from "@/utils";
  */
 export default function edgesSchemaTemplate({ types }: { types: string[] }) {
   const labels = uniq(types.flatMap(type => type.split("::"))).map(
-    label => `"${label}"`,
+    fragment.identifier,
   );
 
   return query`

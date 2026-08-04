@@ -31,6 +31,28 @@ export abstract class QueryValueError extends Error {
 export abstract class UnrepresentableValueError extends QueryValueError {}
 
 /**
+ * A number with no plain-decimal text form: `NaN` and the infinities render as
+ * bare words, and magnitudes outside roughly 1e-7 to 1e21 switch to exponential
+ * notation (`1e+21`, `5e-7`). None of these are a numeric literal in any query
+ * language, so the failure is a property of the value rather than the position.
+ */
+export class UnrepresentableNumberError extends UnrepresentableValueError {
+  readonly value: number;
+
+  constructor(value: number) {
+    super(
+      "UnrepresentableNumberError",
+      `The value ${String(value)} has no plain-decimal form and cannot be used in a query.`,
+    );
+    this.value = value;
+  }
+
+  get details() {
+    return { value: this.value, valueText: String(this.value) };
+  }
+}
+
+/**
  * The position accepts a value, but not one of this type — a numeric ID where a
  * language only supports string IDs, or a non-string where an IRI is required.
  *

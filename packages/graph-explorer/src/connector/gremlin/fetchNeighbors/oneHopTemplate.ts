@@ -8,7 +8,7 @@ import { query } from "@/utils";
 import { fragment } from "../fragments";
 
 function attributeFilterTemplate({ name, value }: AttributeFilter): string {
-  return `has("${name}",containing("${value}"))`;
+  return `has(${fragment.identifier(name)},containing(${fragment.string(value)}))`;
 }
 
 /**
@@ -45,12 +45,12 @@ export default function oneHopTemplate({
   limit = 0,
 }: Omit<NeighborsRequest, "vertexTypes">): string {
   const idTemplate = fragment.id(vertexId);
-  const range = limit > 0 ? `.range(0, ${limit})` : "";
+  const range = limit > 0 ? `.range(0, ${fragment.number(limit)})` : "";
 
   const vertexTypes = filterByVertexTypes.flatMap(type => type.split("::"));
   const vertexTypesTemplate =
     vertexTypes.length > 0
-      ? `hasLabel(${vertexTypes.map(type => `"${type}"`).join(", ")})`
+      ? `hasLabel(${vertexTypes.map(fragment.identifier).join(", ")})`
       : ``;
 
   const attributeFiltersTemplate =

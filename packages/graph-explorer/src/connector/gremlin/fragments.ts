@@ -1,6 +1,7 @@
 import { type EdgeId, getRawId, type VertexId } from "@/core";
 
 import { type QueryFragment, toQueryFragment } from "../queryFragment";
+import { UnrepresentableNumberError } from "../queryValueError";
 
 /*
  * Constructs Query Fragments for Gremlin. A fragment is safe to interpolate
@@ -65,6 +66,9 @@ export const ESCAPABLE_PATTERN = new RegExp(
   "g",
 );
 
+/** A number written out in full, rather than as a word or in exponential form. */
+const BARE_DECIMAL = /^-?(?:0|[1-9]\d*)(?:\.\d+)?$/;
+
 function escapeStringLiteralBody(value: string): string {
   return value.replaceAll(
     ESCAPABLE_PATTERN,
@@ -84,6 +88,22 @@ export const fragment = {
    */
   identifier(name: string): QueryFragment {
     return toQueryFragment(`"${escapeStringLiteralBody(name)}"`);
+  },
+
+  /**
+   * A numeric operand, emitted without delimiters so the database reads it as a
+   * number rather than as text.
+   *
+   * The check is on the emitted text, not the value, because it is that text the
+   * database parses: a value is representable only if `String` renders it as a
+   * plain decimal.
+   */
+  number(value: number): QueryFragment {
+    const text = String(value);
+    if (!BARE_DECIMAL.test(text)) {
+      throw new UnrepresentableNumberError(value);
+    }
+    return toQueryFragment(text);
   },
 
   /**
