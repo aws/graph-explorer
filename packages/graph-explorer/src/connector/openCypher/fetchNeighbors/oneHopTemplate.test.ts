@@ -1,3 +1,5 @@
+import type { AttributeFilter } from "@/connector/useGEFetchTypes";
+
 import { createVertexId } from "@/core";
 import { query } from "@/utils";
 
@@ -97,22 +99,22 @@ describe("OpenCypher > oneHopTemplate", () => {
     );
   });
 
-  it("Should return a template with specific filter criteria", () => {
+  it("Should return a template with specific attribute filters", () => {
     const template = oneHopTemplate({
       vertexId: createVertexId("12"),
       filterByVertexTypes: ["country"],
-      filterCriteria: [
-        { name: "longest", value: 10000, operator: "gte", dataType: "Number" },
-        { name: "country", value: "ES", operator: "like" },
+      attributeFilters: [
+        { name: "city", value: "Sea" },
+        { name: "country", value: "ES" },
       ],
       limit: 10,
     });
 
     expect(template).toBe(
       query`
-        MATCH (v)-[e]-(tgt:country) 
-        WHERE ID(v) = "12" AND tgt.longest >= 10000 AND tgt.country CONTAINS "ES" 
-        WITH DISTINCT v, tgt 
+        MATCH (v)-[e]-(tgt:country)
+        WHERE ID(v) = "12" AND tgt.city CONTAINS "Sea" AND tgt.country CONTAINS "ES"
+        WITH DISTINCT v, tgt
         ORDER BY toInteger(ID(tgt)) 
         LIMIT 10
         MATCH (v)-[e]-(tgt)
@@ -154,87 +156,39 @@ describe("OpenCypher > oneHopTemplate", () => {
     expect(template).toContain("(v:country OR v:capital OR v:city OR v:town)");
   });
 
-  // Each criterion dataType and operator produces a distinct WHERE fragment.
-  describe("filter criteria", () => {
-    function templateFor(criterion: {
-      name: string;
-      value: string | number;
-      operator: string;
-      dataType?: "Number" | "String" | "Date";
-    }) {
+  describe("attribute filters", () => {
+    function templateFor(attributeFilters: AttributeFilter[]) {
       return oneHopTemplate({
         vertexId: createVertexId("12"),
-        filterCriteria: [criterion],
+        attributeFilters,
       });
     }
 
-    it.each([
-      ["eq", "tgt.longest = 10000"],
-      ["==", "tgt.longest = 10000"],
-      ["gt", "tgt.longest > 10000"],
-      ["gte", "tgt.longest >= 10000"],
-      ["lt", "tgt.longest < 10000"],
-      ["lte", "tgt.longest <= 10000"],
-      ["neq", "tgt.longest <> 10000"],
-    ])("renders a Number criterion with the %s operator", (operator, frag) => {
-      expect(
-        templateFor({
-          name: "longest",
-          value: 10000,
-          operator,
-          dataType: "Number",
-        }),
-      ).toContain(frag);
+    it("matches an attribute containing the value", () => {
+      expect(templateFor([{ name: "country", value: "ES" }])).toContain(
+        'tgt.country CONTAINS "ES"',
+      );
     });
 
-    it.each([
-      ["eq", 'tgt.country = "ES"'],
-      ["neq", 'tgt.country <> "ES"'],
-      ["like", 'tgt.country CONTAINS "ES"'],
-    ])("renders a String criterion with the %s operator", (operator, frag) => {
+    it("requires every filter to match", () => {
       expect(
-        templateFor({
-          name: "country",
-          value: "ES",
-          operator,
-          dataType: "String",
-        }),
-      ).toContain(frag);
+        templateFor([
+          { name: "city", value: "Sea" },
+          { name: "country", value: "US" },
+        ]),
+      ).toContain('tgt.city CONTAINS "Sea" AND tgt.country CONTAINS "US"');
     });
 
-    it("treats a criterion without a dataType as a String", () => {
-      expect(
-        templateFor({ name: "country", value: "ES", operator: "eq" }),
-      ).toContain('tgt.country = "ES"');
-    });
-
-    it.each([
-      ["eq", 'tgt.created = DateTime("2020")'],
-      ["gt", 'tgt.created > DateTime("2020")'],
-      ["gte", 'tgt.created >= DateTime("2020")'],
-      ["lt", 'tgt.created < DateTime("2020")'],
-      ["lte", 'tgt.created <= DateTime("2020")'],
-      ["neq", 'tgt.created <> DateTime("2020")'],
-    ])("renders a Date criterion with the %s operator", (operator, frag) => {
-      expect(
-        templateFor({
-          name: "created",
-          value: "2020",
-          operator,
-          dataType: "Date",
-        }),
-      ).toContain(frag);
-    });
-
-    it("coerces a non-string String criterion value to text", () => {
-      expect(
-        templateFor({
-          name: "longest",
-          value: 10000,
-          operator: "eq",
-          dataType: "String",
-        }),
-      ).toContain('tgt.longest = "10000"');
+    it("omits the filter condition when there are no filters", () => {
+      expect(templateFor([])).toBe(
+        query`
+          MATCH (v)-[e]-(tgt)
+          WHERE ID(v) = "12"
+          RETURN
+            collect(DISTINCT tgt) AS vObjects,
+            collect(e) AS eObjects
+        `,
+      );
     });
   });
 });

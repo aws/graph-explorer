@@ -1,3 +1,5 @@
+import type { AttributeFilter } from "@/connector/useGEFetchTypes";
+
 import { query } from "@/utils";
 
 import {
@@ -6,11 +8,7 @@ import {
   getSubjectClasses,
 } from "../filterHelpers";
 import { fragment } from "../fragments";
-import {
-  rdfTypeUri,
-  type SPARQLCriterion,
-  type SPARQLNeighborsRequest,
-} from "../types";
+import { rdfTypeUri, type SPARQLNeighborsRequest } from "../types";
 
 /**
  * Creates a SPARQL query that will find all neighbors for the given resource URI and search filters.
@@ -27,9 +25,9 @@ import {
  * subjectClasses = [
  *   "http://www.example.com/soccer/ontology/Team",
  * ]
- * filterCriteria = [
- *   { predicate: "http://www.example.com/soccer/ontology/teamName", object: "Arsenal" },
- *   { predicate: "http://www.example.com/soccer/ontology/nickname", object: "Gunners" },
+ * attributeFilters = [
+ *   { name: "http://www.example.com/soccer/ontology/teamName", value: "Arsenal" },
+ *   { name: "http://www.example.com/soccer/ontology/nickname", value: "Gunners" },
  * ]
  * limit = 2
  *
@@ -172,7 +170,7 @@ export function oneHopNeighborsTemplate(
 export function findNeighborsUsingFilters({
   resourceURI,
   subjectClasses = [],
-  filterCriteria = [],
+  attributeFilters = [],
   excludedVertices = new Set(),
   limit = 0,
 }: SPARQLNeighborsRequest): string {
@@ -198,29 +196,29 @@ export function findNeighborsUsingFilters({
         ${getNeighborsFilter(excludedVertices)}
         ${getSubjectClasses(subjectClasses)}
       }
-      ${getFilterTemplate(filterCriteria)}
+      ${getFilterTemplate(attributeFilters)}
     }
     ${getLimit(limit)}
   `;
 }
 
 /**
- * Creates a filter template for the given filter criteria.
+ * Creates a filter template for the given attribute filters.
  *
- * The ?pValue must equal the given criteria predicate and the ?object must match the given criteria object with a partial match.
+ * The ?pValue must equal the filter's attribute name and the ?object must contain the filter's value.
  */
-function getFilterTemplate(filterCriteria: SPARQLCriterion[]) {
-  const hasFilters = filterCriteria.length > 0;
+function getFilterTemplate(attributeFilters: AttributeFilter[]) {
+  const hasFilters = attributeFilters.length > 0;
 
-  const createFilterTemplate = (c: SPARQLCriterion) =>
-    `(?pValue=${fragment.iri(c.predicate)} && regex(str(?object), "${c.object}", "i"))`;
+  const createFilterTemplate = (filter: AttributeFilter) =>
+    `(?pValue=${fragment.iri(filter.name)} && regex(str(?object), "${filter.value}", "i"))`;
 
   return hasFilters
     ? query`
         ?neighbor ?pValue ?object .
         FILTER(
           isLiteral(?object) && (
-            ${filterCriteria.map(createFilterTemplate).join(" ||\n")}
+            ${attributeFilters.map(createFilterTemplate).join(" ||\n")}
           )
         )
       `

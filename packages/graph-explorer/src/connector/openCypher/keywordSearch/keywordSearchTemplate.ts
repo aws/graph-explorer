@@ -51,12 +51,7 @@ const keywordSearchTemplate = ({
   const searchLiteral = searchTerm ? fragment.string(searchTerm) : undefined;
   const searchTermWhereClause =
     searchLiteral !== undefined &&
-    uniq(
-      searchByAttributes.includes(SEARCH_TOKENS.ALL_ATTRIBUTES)
-        ? [SEARCH_TOKENS.NODE_ID, ...searchByAttributes]
-        : searchByAttributes,
-    )
-      .filter(attr => attr !== SEARCH_TOKENS.ALL_ATTRIBUTES)
+    uniq(searchByAttributes)
       .map(attr => {
         // ID is a special case
         if (attr === SEARCH_TOKENS.NODE_ID) {

@@ -104,7 +104,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
   it("Should return a template for searched attributes matching with the search terms, and the ID token attribute", () => {
     const template = keywordSearchTemplate({
       searchTerm: "JFK",
-      searchByAttributes: ["city", "code", SEARCH_TOKENS.ALL_ATTRIBUTES],
+      searchByAttributes: [SEARCH_TOKENS.NODE_ID, "city", "code"],
     });
 
     expect(normalize(template)).toBe(

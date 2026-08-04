@@ -18,24 +18,19 @@ export const storedBlankNodeNeighborsRequest = (
     }
 
     const filteredVertices = bNode.neighbors.vertices.filter(vertex => {
-      if (!req.subjectClasses && !req.filterCriteria?.length) {
-        return true;
-      }
-
-      if (!req.subjectClasses?.includes(vertex.type)) {
+      if (
+        req.subjectClasses?.length &&
+        !req.subjectClasses.includes(vertex.type)
+      ) {
         return false;
       }
 
-      if (!req.filterCriteria?.length) {
-        return true;
-      }
-
-      for (const criterion of req.filterCriteria) {
-        const attrVal = vertex.attributes[criterion.predicate];
+      for (const filter of req.attributeFilters ?? []) {
+        const attrVal = vertex.attributes[filter.name];
         if (attrVal == null) {
           return false;
         }
-        if (!String(attrVal).match(new RegExp(criterion.object, "gi"))) {
+        if (!String(attrVal).match(new RegExp(filter.value, "gi"))) {
           return false;
         }
       }

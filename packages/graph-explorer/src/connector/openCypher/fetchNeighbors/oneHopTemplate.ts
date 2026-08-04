@@ -1,95 +1,14 @@
-import type { Criterion, NeighborsRequest } from "@/connector/useGEFetchTypes";
+import type {
+  AttributeFilter,
+  NeighborsRequest,
+} from "@/connector/useGEFetchTypes";
 
 import { query } from "@/utils";
 
 import { fragment } from "../fragments";
 
-const criterionNumberTemplate = ({
-  name,
-  operator,
-  value,
-}: Omit<Criterion, "dataType">): string => {
-  switch (operator.toLowerCase()) {
-    case "eq":
-    case "==":
-    default:
-      return `tgt.${name} = ${value}`;
-    case "gt":
-    case ">":
-      return `tgt.${name} > ${value}`;
-    case "gte":
-    case ">=":
-      return `tgt.${name} >= ${value}`;
-    case "lt":
-    case "<":
-      return `tgt.${name} < ${value}`;
-    case "lte":
-    case "<=":
-      return `tgt.${name} <= ${value}`;
-    case "neq":
-    case "!=":
-      return `tgt.${name} <> ${value}`;
-  }
-};
-
-const criterionStringTemplate = ({
-  name,
-  operator,
-  value,
-}: Omit<Criterion, "dataType">): string => {
-  switch (operator.toLowerCase()) {
-    case "eq":
-    case "==":
-    default:
-      return `tgt.${name} = "${value}"`;
-    case "neq":
-    case "!=":
-      return `tgt.${name} <> "${value}"`;
-    case "like":
-      return `tgt.${name} CONTAINS "${value}"`;
-  }
-};
-
-const criterionDateTemplate = ({
-  name,
-  operator,
-  value,
-}: Omit<Criterion, "dataType">): string => {
-  switch (operator.toLowerCase()) {
-    case "eq":
-    case "==":
-    default:
-      return `tgt.${name} = DateTime("${value}")`;
-    case "gt":
-    case ">":
-      return `tgt.${name} > DateTime("${value}")`;
-    case "gte":
-    case ">=":
-      return `tgt.${name} >= DateTime("${value}")`;
-    case "lt":
-    case "<":
-      return `tgt.${name} < DateTime("${value}")`;
-    case "lte":
-    case "<=":
-      return `tgt.${name} <= DateTime("${value}")`;
-    case "neq":
-    case "!=":
-      return `tgt.${name} <> DateTime("${value}")`;
-  }
-};
-
-const criterionTemplate = (criterion: Criterion): string => {
-  switch (criterion.dataType) {
-    case "Number":
-      return criterionNumberTemplate(criterion);
-    case "Date":
-      return criterionDateTemplate(criterion);
-    case "String":
-    case undefined:
-    default:
-      return criterionStringTemplate(criterion);
-  }
-};
+const attributeFilterTemplate = ({ name, value }: AttributeFilter): string =>
+  `tgt.${name} CONTAINS "${value}"`;
 
 /**
  * @example
@@ -110,7 +29,7 @@ const criterionTemplate = (criterion: Criterion): string => {
 const oneHopTemplate = ({
   vertexId,
   filterByVertexTypes = [],
-  filterCriteria = [],
+  attributeFilters = [],
   excludedVertices = new Set(),
   limit = 0,
 }: Omit<NeighborsRequest, "vertexTypes">): string => {
@@ -137,7 +56,7 @@ const oneHopTemplate = ({
     `ID(v) = ${fragment.id(vertexId)}`,
     formattedExcludedVertices,
     formattedVertexTypes,
-    ...(filterCriteria?.map(criterionTemplate) ?? []),
+    ...attributeFilters.map(attributeFilterTemplate),
   ]
     .filter(Boolean)
     .join(" AND ");

@@ -44,12 +44,7 @@ export default function keywordSearchTemplate({
   if (searchTerm) {
     const searchLiteral = fragment.string(searchTerm);
 
-    const orContent = uniq(
-      searchByAttributes.includes(SEARCH_TOKENS.ALL_ATTRIBUTES)
-        ? [SEARCH_TOKENS.NODE_ID, ...searchByAttributes]
-        : searchByAttributes,
-    )
-      .filter(attr => attr !== SEARCH_TOKENS.ALL_ATTRIBUTES)
+    const orContent = uniq(searchByAttributes)
       .map(attr => {
         if (attr === SEARCH_TOKENS.NODE_ID) {
           if (exactMatch === true) {

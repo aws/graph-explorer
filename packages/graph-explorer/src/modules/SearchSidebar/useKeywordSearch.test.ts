@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import type { QueryEngine } from "@shared/types";
 
+import { act } from "@testing-library/react";
 import { vi } from "vitest";
 
 import {
@@ -17,6 +18,7 @@ import {
 } from "@/utils/testing";
 
 import useKeywordSearch from "./useKeywordSearch";
+import { useKeywordSearchQuery } from "./useKeywordSearchQuery";
 
 vi.mock("./useKeywordSearchQuery", () => ({
   useKeywordSearchQuery: vi.fn().mockReturnValue({
@@ -232,6 +234,76 @@ describe("useKeywordSearch", () => {
           label: "All string datatype properties",
         },
       ]);
+    });
+  });
+
+  /*
+   * The all-attributes token is expanded here and never reaches a query
+   * template, so these tests pin the only place the fan-out happens.
+   */
+  describe("all attributes token expansion", () => {
+    function initializeConfigWithStringAttributes(queryEngine: QueryEngine) {
+      return (store: AppStore) => {
+        const config = createRandomRawConfiguration();
+        const schema = createRandomSchema();
+        config.connection!.queryEngine = queryEngine;
+        schema.vertices[0].attributes = [
+          { name: "city", dataType: "String" },
+          { name: "code", dataType: "String" },
+          { name: "elevation", dataType: "Number" },
+        ];
+
+        store.set(configurationAtom, new Map([[config.id, config]]));
+        store.set(schemaAtom, new Map([[config.id, schema]]));
+        store.set(activeConfigurationAtom, config.id);
+      };
+    }
+
+    it("Should search the ID and every string attribute when all attributes is selected", () => {
+      const { result } = renderHookWithJotai(
+        () => useKeywordSearch(),
+        initializeConfigWithStringAttributes("gremlin"),
+      );
+
+      act(() =>
+        result.current.onAttributeOptionChange(SEARCH_TOKENS.ALL_ATTRIBUTES),
+      );
+
+      expect(vi.mocked(useKeywordSearchQuery)).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          searchByAttributes: [SEARCH_TOKENS.NODE_ID, "city", "code"],
+        }),
+      );
+    });
+
+    it("Should omit the ID for SPARQL, which cannot search by it", () => {
+      const { result } = renderHookWithJotai(
+        () => useKeywordSearch(),
+        initializeConfigWithStringAttributes("sparql"),
+      );
+
+      act(() =>
+        result.current.onAttributeOptionChange(SEARCH_TOKENS.ALL_ATTRIBUTES),
+      );
+
+      expect(vi.mocked(useKeywordSearchQuery)).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          searchByAttributes: ["city", "code"],
+        }),
+      );
+    });
+
+    it("Should send just the chosen attribute when one is selected", () => {
+      const { result } = renderHookWithJotai(
+        () => useKeywordSearch(),
+        initializeConfigWithStringAttributes("gremlin"),
+      );
+
+      act(() => result.current.onAttributeOptionChange("city"));
+
+      expect(vi.mocked(useKeywordSearchQuery)).toHaveBeenLastCalledWith(
+        expect.objectContaining({ searchByAttributes: ["city"] }),
+      );
     });
   });
 });

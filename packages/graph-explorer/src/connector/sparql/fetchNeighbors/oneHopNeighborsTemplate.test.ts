@@ -41,18 +41,18 @@ describe("oneHopNeighborsTemplate", () => {
   });
 
   it("should produce documentation example", () => {
-    // This represents the filter criteria used in the example documentation
+    // This represents the attribute filters used in the example documentation
     const template = oneHopNeighborsTemplate({
       resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
       subjectClasses: ["http://www.example.com/soccer/ontology/Team"],
-      filterCriteria: [
+      attributeFilters: [
         {
-          predicate: "http://www.example.com/soccer/ontology/teamName",
-          object: "Arsenal",
+          name: "http://www.example.com/soccer/ontology/teamName",
+          value: "Arsenal",
         },
         {
-          predicate: "http://www.example.com/soccer/ontology/nickname",
-          object: "Gunners",
+          name: "http://www.example.com/soccer/ontology/nickname",
+          value: "Gunners",
         },
       ],
       limit: 2,
