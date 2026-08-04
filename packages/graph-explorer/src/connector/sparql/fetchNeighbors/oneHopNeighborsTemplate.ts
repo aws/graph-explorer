@@ -62,13 +62,14 @@ import { rdfTypeUri, type SPARQLNeighborsRequest } from "../types";
  *           <http://www.example.com/soccer/ontology/Team>
  *         ))
  *       }
- *       ?neighbor ?pValue ?object .
- *       FILTER(
- *         isLiteral(?object) && (
- *           (?pValue=<http://www.example.com/soccer/ontology/teamName> && regex(str(?object), "Arsenal", "i")) ||
- *           (?pValue=<http://www.example.com/soccer/ontology/nickname> && regex(str(?object), "Gunners", "i"))
- *         )
- *       )
+ *       FILTER EXISTS {
+ *         ?neighbor <http://www.example.com/soccer/ontology/teamName> ?filterValue .
+ *         FILTER(isLiteral(?filterValue) && regex(str(?filterValue), "Arsenal", "i"))
+ *       }
+ *       FILTER EXISTS {
+ *         ?neighbor <http://www.example.com/soccer/ontology/nickname> ?filterValue .
+ *         FILTER(isLiteral(?filterValue) && regex(str(?filterValue), "Gunners", "i"))
+ *       }
  *     }
  *     LIMIT 2
  *   }
@@ -205,22 +206,21 @@ export function findNeighborsUsingFilters({
 /**
  * Creates a filter template for the given attribute filters.
  *
- * The ?pValue must equal the filter's attribute name and the ?object must contain the filter's value.
+ * A neighbor must satisfy every filter, and satisfies one when any value of
+ * that attribute contains the filter's value.
+ *
+ * Each filter gets its own `FILTER EXISTS` rather than sharing one triple
+ * pattern, because a shared pattern binds a single predicate variable that
+ * cannot equal two attribute names at once, making a conjunction over it
+ * unsatisfiable.
  */
 function getFilterTemplate(attributeFilters: AttributeFilter[]) {
-  const hasFilters = attributeFilters.length > 0;
+  const createFilterTemplate = (filter: AttributeFilter) => query`
+    FILTER EXISTS {
+      ?neighbor ${fragment.iri(filter.name)} ?filterValue .
+      FILTER(isLiteral(?filterValue) && regex(str(?filterValue), "${filter.value}", "i"))
+    }
+  `;
 
-  const createFilterTemplate = (filter: AttributeFilter) =>
-    `(?pValue=${fragment.iri(filter.name)} && regex(str(?object), "${filter.value}", "i"))`;
-
-  return hasFilters
-    ? query`
-        ?neighbor ?pValue ?object .
-        FILTER(
-          isLiteral(?object) && (
-            ${attributeFilters.map(createFilterTemplate).join(" ||\n")}
-          )
-        )
-      `
-    : "";
+  return attributeFilters.map(createFilterTemplate).join("\n");
 }

@@ -50,7 +50,7 @@ Vertices directly connected to a given vertex (one hop away). Users "expand neig
 _Avoid_: Connections (ambiguous with Connection)
 
 **Attribute Filter**:
-A named property paired with a value that a neighbor's property must contain for that neighbor to be expanded. Only string properties are filterable, and every filter must match. Users add these when expanding neighbors to narrow the results.
+A named property paired with a value that a neighbor's property must contain for that neighbor to be expanded. Only string properties are filterable, and every filter must match. A single filter matches when any value of that property contains the value, which is visible in RDF where a subject may repeat a predicate. Users add these when expanding neighbors to narrow the results.
 _Avoid_: Criterion (implies a configurable operator, which the product does not offer), filter criteria
 
 **Session**:
