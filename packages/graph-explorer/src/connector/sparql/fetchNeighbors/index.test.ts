@@ -222,9 +222,7 @@ describe("fetchNeighbors", () => {
     const request: SPARQLNeighborsRequest = {
       resourceURI: createRandomUrlString() as any,
       subjectClasses: [createRandomUrlString()],
-      filterCriteria: [
-        { predicate: "http://example.com/name", object: "test" },
-      ],
+      attributeFilters: [{ name: "http://example.com/name", value: "test" }],
       excludedVertices: new Set([createRandomUrlString() as any]),
       limit: 10,
     };

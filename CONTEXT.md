@@ -49,6 +49,10 @@ A classification of edges. UI label varies by query language: "Edge Label" (Grem
 Vertices directly connected to a given vertex (one hop away). Users "expand neighbors" to progressively discover the graph. Neighbor counts track total vs. unfetched to indicate how much remains unexplored.
 _Avoid_: Connections (ambiguous with Connection)
 
+**Attribute Filter**:
+A named property paired with a value that a neighbor's property must contain for that neighbor to be expanded. Only string properties are filterable, and every filter must match. Users add these when expanding neighbors to narrow the results.
+_Avoid_: Criterion (implies a configurable operator, which the product does not offer), filter criteria
+
 **Session**:
 The set of vertices and edges a user has loaded through exploration for a given Connection. Persisted to IndexedDB so users can close the browser and restore where they left off.
 _Avoid_: State, workspace

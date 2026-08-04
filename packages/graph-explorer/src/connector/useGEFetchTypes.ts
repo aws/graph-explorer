@@ -61,24 +61,16 @@ export type SchemaResponse = {
   edgeConnections?: EdgeConnection[];
 };
 
-export type Criterion = {
-  /**
-   * Attribute name.
-   */
+/**
+ * Narrows neighbors to those whose attribute contains the given value.
+ *
+ * Only string attributes are filterable, so the value needs no type of its own.
+ */
+export type AttributeFilter = {
+  /** Attribute name. */
   name: string;
-  /**
-   * Operator value =, >=, LIKE, ...
-   */
-  operator: string;
-  /**
-   * Filter value.
-   */
-  value: any;
-  /**
-   * Attribute data type.
-   * By default, String.
-   */
-  dataType?: "String" | "Number" | "Date";
+  /** Value the attribute must contain. */
+  value: string;
 };
 
 /**
@@ -105,7 +97,7 @@ export type NeighborsRequest = {
   /**
    * Filter by vertex attributes.
    */
-  filterCriteria?: Array<Criterion>;
+  attributeFilters?: Array<AttributeFilter>;
   /**
    * Limit the number of results.
    * 0 = No limit.

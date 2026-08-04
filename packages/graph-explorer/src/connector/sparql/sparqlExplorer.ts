@@ -5,11 +5,7 @@ import type { FeatureFlags, NormalizedConnection } from "@/core";
 import { createLoggerFromConnection } from "@/core/connector";
 import { env, logger } from "@/utils";
 
-import type {
-  Criterion,
-  Explorer,
-  ExplorerRequestOptions,
-} from "../useGEFetchTypes";
+import type { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
 import type {
   BlankNodesMap,
   GraphSummary,
@@ -118,10 +114,7 @@ export function createSparqlExplorer(
       const request: SPARQLNeighborsRequest = {
         resourceURI: req.vertexId,
         subjectClasses: req.filterByVertexTypes,
-        filterCriteria: req.filterCriteria?.map((c: Criterion) => ({
-          predicate: c.name,
-          object: c.value,
-        })),
+        attributeFilters: req.attributeFilters,
         excludedVertices: req.excludedVertices,
         limit: req.limit,
       };

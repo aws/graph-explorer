@@ -183,7 +183,7 @@ describe("Gremlin > fetchNeighbors", () => {
     const response = await fetchNeighbors(mockGremlinFetch(), {
       vertexId: createVertexId("2018"),
       filterByVertexTypes: ["airport"],
-      filterCriteria: [{ name: "code", value: "TF", operator: "LIKE" }],
+      attributeFilters: [{ name: "code", value: "TF" }],
     });
 
     expect(response).toStrictEqual({

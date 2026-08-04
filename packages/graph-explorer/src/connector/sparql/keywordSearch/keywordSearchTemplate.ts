@@ -1,4 +1,4 @@
-import { query, SEARCH_TOKENS } from "@/utils";
+import { query } from "@/utils";
 
 import { getLimit, getSubjectClasses } from "../filterHelpers";
 import { fragment } from "../fragments";
@@ -116,13 +116,11 @@ export function findSubjectsMatchingFilters(
 }
 
 function getFilterPredicates(predicates?: string[]) {
-  const filteredPredicates =
-    predicates?.filter(p => p !== SEARCH_TOKENS.ALL_ATTRIBUTES) || [];
-  if (!filteredPredicates.length) {
+  if (!predicates?.length) {
     return "";
   }
 
-  return `FILTER (?pValue IN (${filteredPredicates.map(fragment.iri).join(", ")}))`;
+  return `FILTER (?pValue IN (${predicates.map(fragment.iri).join(", ")}))`;
 }
 
 function getFilterObject(exactMatch?: boolean, searchTerm?: string) {

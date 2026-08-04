@@ -177,7 +177,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     const template = keywordSearchTemplate({
       vertexTypes: ["airport"],
       searchTerm: "JFK",
-      searchByAttributes: ["city", "code", SEARCH_TOKENS.ALL_ATTRIBUTES],
+      searchByAttributes: [SEARCH_TOKENS.NODE_ID, "city", "code"],
     });
 
     expect(normalize(template)).toBe(
@@ -194,7 +194,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
       vertexTypes: ["airport", "country"],
       searchTerm: "JFK",
       exactMatch: false,
-      searchByAttributes: ["city", "code", SEARCH_TOKENS.ALL_ATTRIBUTES],
+      searchByAttributes: [SEARCH_TOKENS.NODE_ID, "city", "code"],
       limit: 50,
       offset: 25,
     });
