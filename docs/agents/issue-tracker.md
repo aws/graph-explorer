@@ -46,11 +46,11 @@ A body of work too big for one release, expressing a vision (e.g. overhauling th
 _Avoid_: Roadmap item (higher-level), theme
 
 **Kickoff**:
-An _optional_ placeholder child issue under an Initiative, used when there's no time to run the [Wayfinder](#wayfinder) exercise immediately — it flags that the initiative is awaiting scoping. Always typed **Spike**, parented to its Initiative, and labelled `wayfinder:kickoff`. A thin trigger: it closes once a Wayfinder session spins up the map, handing the scoping lifecycle off to that map. It does not own the scoping itself, and is skipped entirely when Wayfinder is run straight away.
-_Avoid_: Spark, prospect, stub, discovery
+An _optional_ child issue under an Initiative that captures the raw, unscoped brain-dump for it — hypotheses, references to libraries or prior art, suspected blockers and open questions, all still speculative. Always typed **Spike**, parented to its Initiative, and labelled `wayfinder:kickoff`. It holds everything about the initiative _except_ the chart: a later [Wayfinder](#wayfinder) session reads this dump as its seed input, grills from there, and produces the map. Created only when you can't grill immediately and want to park the notes in writing; skip it and those same thoughts go straight into a live Wayfinder session instead. Closes once Wayfinder has spun up the map.
+_Avoid_: Spark, prospect, stub, discovery, thin trigger
 
 **Wayfinder**:
-The exercise (invoked with `/wayfinder`) that plans a chunk of work too big for one agent session as a shared map of investigation tickets on the issue tracker, resolved one at a time until the route to the destination is clear. Run against an Initiative — either directly, or later off a Kickoff placeholder — it creates a `wayfinder:map` issue as a sibling child under the Initiative, which then owns the scoping route until features and epics can be landed under the Initiative.
+The exercise (invoked with `/wayfinder`) that plans a chunk of work too big for one agent session as a shared map of investigation tickets on the issue tracker, resolved one at a time until the route to the destination is clear. Run against an Initiative — either directly, or seeded by a Kickoff's brain-dump — it creates a `wayfinder:map` issue as a sibling child under the Initiative, which then owns the scoping route until features and epics can be landed under the Initiative.
 
 ## Pull requests
 
