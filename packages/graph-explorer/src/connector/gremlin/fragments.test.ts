@@ -4,7 +4,7 @@ import { UnrepresentableNumberError } from "../queryValueError";
 import { ESCAPABLE_PATTERN, fragment, SHORT_ESCAPES } from "./fragments";
 
 /**
- * Decodes a Gremlin double-quoted string literal back to its value, reversing
+ * Decodes a Gremlin single-quoted string literal back to its value, reversing
  * the seven escape sequences the escaper emits.
  */
 function parseGremlinLiteral(literal: string): string {
@@ -29,10 +29,10 @@ function parseGremlinLiteral(literal: string): string {
 /**
  * A literal whose body contains no bare delimiter and no escape outside the set
  * the escaper emits. Asserted alongside each round trip because the decoder
- * alone is tolerant: it maps an unescaped `\"` and a lone trailing `\\` back to
+ * alone is tolerant: it maps an unescaped `\'` and a lone trailing `\\` back to
  * themselves, so decoding would still succeed if the escaper stopped escaping.
  */
-const WELL_FORMED_LITERAL = /^"(?:[^"\\]|\\[btnfr\\"])*"$/;
+const WELL_FORMED_LITERAL = /^'(?:[^'\\]|\\[btnfr\\'])*'$/;
 
 /**
  * Asserts the literal is well formed and decodes back to the original value.
@@ -62,8 +62,8 @@ const awkwardStrings = [
   `has a ${String.fromCharCode(0x0c)} form feed`,
   `has a ${String.fromCharCode(0x01)} control character`,
   `has a ${String.fromCharCode(0x0b)} vertical tab`,
-  'backslash before a double quote a\\"b',
-  'two backslashes before a quote a\\\\"b',
+  "backslash before a single quote a\\'b",
+  "two backslashes before a quote a\\\\'b",
   "trailing backslash\\",
   "\\",
   "café — naïve — 日本語",
@@ -96,20 +96,20 @@ describe("the escape table and its match pattern", () => {
 });
 
 describe("fragment.string", () => {
-  // Double-quoted: `"` and `\` are escaped and control characters take their
-  // short escapes, so `'` and `$` are the characters left bare.
+  // Single-quoted: `'` and `\` are escaped and control characters take their
+  // short escapes, so `"` and `$` are the characters left bare.
   const cases: [input: string, literal: string][] = [
-    ["test", '"test"'],
-    [" te st ", '" te st "'],
-    ["", '""'],
-    ["te\\st", '"te\\\\st"'],
-    ['te"st', '"te\\"st"'],
-    ["te'st", `"te'st"`],
-    ["a\bb", '"a\\bb"'],
-    ["a\tb", '"a\\tb"'],
-    ["a\nb", '"a\\nb"'],
-    ["a\fb", '"a\\fb"'],
-    ["a\rb", '"a\\rb"'],
+    ["test", "'test'"],
+    [" te st ", "' te st '"],
+    ["", "''"],
+    ["te\\st", "'te\\\\st'"],
+    ["te'st", "'te\\'st'"],
+    ['te"st', `'te"st'`],
+    ["a\bb", "'a\\bb'"],
+    ["a\tb", "'a\\tb'"],
+    ["a\nb", "'a\\nb'"],
+    ["a\fb", "'a\\fb'"],
+    ["a\rb", "'a\\rb'"],
   ];
 
   it.each(cases)("encodes %j", (value, literal) => {
@@ -117,15 +117,15 @@ describe("fragment.string", () => {
   });
 
   it("should leave a dollar sign alone, since escaping it breaks the query on Neptune", () => {
-    expect(fragment.string("cost is $total")).toBe('"cost is $total"');
+    expect(fragment.string("cost is $total")).toBe("'cost is $total'");
   });
 
   it("should emit a control character without a short escape raw, never as \\uXXXX", () => {
     expect(fragment.string(`a${String.fromCharCode(0x01)}b`)).toBe(
-      `"a${String.fromCharCode(0x01)}b"`,
+      `'a${String.fromCharCode(0x01)}b'`,
     );
     expect(fragment.string(`a${String.fromCharCode(0x0b)}b`)).toBe(
-      `"a${String.fromCharCode(0x0b)}b"`,
+      `'a${String.fromCharCode(0x0b)}b'`,
     );
   });
 
@@ -135,24 +135,24 @@ describe("fragment.string", () => {
 });
 
 describe("fragment.identifier", () => {
-  it("should wrap the name in double quotes", () => {
-    expect(fragment.identifier("city")).toEqual('"city"');
+  it("should wrap the name in single quotes", () => {
+    expect(fragment.identifier("city")).toEqual("'city'");
   });
 
   it("should preserve spaces in the name", () => {
-    expect(fragment.identifier("home city")).toEqual('"home city"');
+    expect(fragment.identifier("home city")).toEqual("'home city'");
   });
 
-  it("should escape a double quote", () => {
-    expect(fragment.identifier('ci"ty')).toEqual('"ci\\"ty"');
+  it("should escape a single quote", () => {
+    expect(fragment.identifier("ci'ty")).toEqual("'ci\\'ty'");
   });
 
   it("should escape a backslash", () => {
-    expect(fragment.identifier("ci\\ty")).toEqual('"ci\\\\ty"');
+    expect(fragment.identifier("ci\\ty")).toEqual("'ci\\\\ty'");
   });
 
   it("should leave a dollar sign alone", () => {
-    expect(fragment.identifier("wei$rd")).toEqual('"wei$rd"');
+    expect(fragment.identifier("wei$rd")).toEqual("'wei$rd'");
   });
 
   it.each(awkwardStrings)("round-trips a name %j", value => {
@@ -199,24 +199,24 @@ describe("fragment.number", () => {
 });
 
 describe("fragment.id", () => {
-  it("should wrap a string ID in double quotes", () => {
-    expect(fragment.id(createVertexId("124"))).toEqual('"124"');
+  it("should wrap a string ID in single quotes", () => {
+    expect(fragment.id(createVertexId("124"))).toEqual("'124'");
   });
 
   it("should accept an edge ID", () => {
-    expect(fragment.id(createEdgeId("e1"))).toEqual('"e1"');
+    expect(fragment.id(createEdgeId("e1"))).toEqual("'e1'");
   });
 
   it("should add the long suffix to a numeric ID", () => {
     expect(fragment.id(createVertexId(124))).toEqual("124L");
   });
 
-  it("should escape a double quote in a string ID", () => {
-    expect(fragment.id(createVertexId('1"2'))).toEqual('"1\\"2"');
+  it("should escape a single quote in a string ID", () => {
+    expect(fragment.id(createVertexId("1'2"))).toEqual("'1\\'2'");
   });
 
   it("should escape a backslash in a string ID", () => {
-    expect(fragment.id(createVertexId("1\\2"))).toEqual('"1\\\\2"');
+    expect(fragment.id(createVertexId("1\\2"))).toEqual("'1\\\\2'");
   });
 
   it.each(awkwardStrings)("round-trips a string ID %j", value => {

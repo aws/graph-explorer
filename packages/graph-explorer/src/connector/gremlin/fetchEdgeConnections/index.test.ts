@@ -17,10 +17,10 @@ describe("Gremlin > fetchEdgeConnections", () => {
 
     expect(gremlinFetch).toHaveBeenCalledTimes(2);
     expect(gremlinFetch).toHaveBeenCalledWith(
-      expect.stringContaining('hasLabel("route")'),
+      expect.stringContaining("hasLabel('route')"),
     );
     expect(gremlinFetch).toHaveBeenCalledWith(
-      expect.stringContaining('hasLabel("contains")'),
+      expect.stringContaining("hasLabel('contains')"),
     );
     expect(result).toStrictEqual({
       edgeConnections: [
@@ -112,11 +112,11 @@ describe("Gremlin > fetchEdgeConnections", () => {
     const gremlinFetch = vi.fn().mockResolvedValue(emptyResponse);
 
     await fetchEdgeConnections(gremlinFetch, {
-      edgeTypes: [createEdgeType('edge"with"quotes')],
+      edgeTypes: [createEdgeType("edge'with'quotes")],
     });
 
     expect(gremlinFetch).toHaveBeenCalledWith(
-      expect.stringContaining('hasLabel("edge\\"with\\"quotes")'),
+      expect.stringContaining("hasLabel('edge\\'with\\'quotes')"),
     );
   });
 

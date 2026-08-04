@@ -19,14 +19,20 @@ import { UnrepresentableNumberError } from "../queryValueError";
  */
 
 /**
- * Escapes a value for a double-quoted Gremlin string literal, returning the
- * body without the surrounding quotes.
+ * The escape sequence for each character a Gremlin string literal cannot carry
+ * verbatim: the backslash, the single-quote delimiter, and the five whitespace
+ * controls that have a short form.
  *
- * The escape vocabulary is deliberately minimal — backslash, the double-quote
- * delimiter, and the five whitespace controls with a short form — because it is
- * the intersection of what every supported engine accepts. Two engines parse
- * the query text differently: Neptune uses an ANTLR grammar, while open-source
- * Apache TinkerPop Gremlin Server and JanusGraph parse it as Groovy. Notably:
+ * Each key is one character. `ESCAPABLE_PATTERN` is derived from the keys, so
+ * the two cannot disagree about which characters get escaped. Both properties
+ * are asserted in the tests: a key spanning more than one UTF-16 code unit would
+ * contribute only its first unit to the pattern, matching characters it was
+ * never meant to.
+ *
+ * The set is the intersection of what every supported engine accepts, and it is
+ * deliberately no larger — two engines parse the query text differently, Neptune
+ * with an ANTLR grammar and open-source Apache TinkerPop Gremlin Server and
+ * JanusGraph as Groovy. Notably:
  *
  * - `\uXXXX` is not used: Groovy 2.5 (TinkerPop 3.6.2) resolves unicode escapes
  *   at the source level before lexing, so a `\` at a literal's edge would
@@ -34,22 +40,15 @@ import { UnrepresentableNumberError } from "../queryValueError";
  *   without a short form are emitted raw instead, which every engine accepts.
  * - A raw newline or carriage return is rejected by the Groovy lexer, so both
  *   take their short escape rather than passing through.
- * - `$` is left unescaped, since a `\$` escape is a parse error on Neptune.
- *   Keeping it verbatim on every engine depends on the delimiter rather than on
- *   an escape.
+ * - A double quote needs no escape inside a single-quoted literal, and `$` is
+ *   left alone because a `\$` escape is a parse error on Neptune. Keeping `$`
+ *   verbatim is what the delimiter choice buys — see the ADR.
  *
  * Verified live against Neptune 1.2.1.0/1.4.7.0 and Gremlin Server 3.6.2/3.8.
  */
-/**
- * Each key is one character, and its value is that character's escape sequence.
- * `ESCAPABLE_PATTERN` is derived from the keys, so the two cannot disagree about
- * which characters get escaped. Both properties are asserted in the tests: a key
- * spanning more than one UTF-16 code unit would contribute only its first unit
- * to the pattern, matching characters it was never meant to.
- */
 export const SHORT_ESCAPES = {
   "\\": "\\\\",
-  '"': '\\"',
+  "'": "\\'",
   "\b": "\\b",
   "\t": "\\t",
   "\n": "\\n",
@@ -77,9 +76,9 @@ function escapeStringLiteralBody(value: string): string {
 }
 
 export const fragment = {
-  /** A Gremlin string literal, including the surrounding double quotes. */
+  /** A Gremlin string literal, including the surrounding single quotes. */
   string(value: string): QueryFragment {
-    return toQueryFragment(`"${escapeStringLiteralBody(value)}"`);
+    return toQueryFragment(`'${escapeStringLiteralBody(value)}'`);
   },
 
   /**
@@ -87,7 +86,7 @@ export const fragment = {
    * use the same delimiters and escaping as any other literal.
    */
   identifier(name: string): QueryFragment {
-    return toQueryFragment(`"${escapeStringLiteralBody(name)}"`);
+    return toQueryFragment(`'${escapeStringLiteralBody(name)}'`);
   },
 
   /**
@@ -115,7 +114,7 @@ export const fragment = {
     return toQueryFragment(
       typeof rawId === "number"
         ? `${rawId}L`
-        : `"${escapeStringLiteralBody(rawId)}"`,
+        : `'${escapeStringLiteralBody(rawId)}'`,
     );
   },
 };

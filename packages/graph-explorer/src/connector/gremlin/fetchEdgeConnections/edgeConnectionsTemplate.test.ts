@@ -9,7 +9,7 @@ describe("Gremlin > edgeConnectionsTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(`
-        g.E().hasLabel("route").limit(10000)
+        g.E().hasLabel('route').limit(10000)
           .project('sourceType', 'targetType')
           .by(outV().label())
           .by(inV().label())
