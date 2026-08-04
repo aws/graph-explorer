@@ -17,14 +17,65 @@ import { type QueryFragment, toQueryFragment } from "../queryFragment";
  * its own.
  */
 
-function escape(value: string): string {
-  return value.includes('"') ? JSON.stringify(value).slice(1, -1) : value;
+/**
+ * Escapes a value for a double-quoted Gremlin string literal, returning the
+ * body without the surrounding quotes.
+ *
+ * The escape vocabulary is deliberately minimal — backslash, the double-quote
+ * delimiter, and the five whitespace controls with a short form — because it is
+ * the intersection of what every supported engine accepts. Two engines parse
+ * the query text differently: Neptune uses an ANTLR grammar, while open-source
+ * Apache TinkerPop Gremlin Server and JanusGraph parse it as Groovy. Notably:
+ *
+ * - `\uXXXX` is not used: Groovy 2.5 (TinkerPop 3.6.2) resolves unicode escapes
+ *   at the source level before lexing, so a `\` at a literal's edge would
+ *   decode to a backslash and break out of the string. C0 control characters
+ *   without a short form are emitted raw instead, which every engine accepts.
+ * - A raw newline or carriage return is rejected by the Groovy lexer, so both
+ *   take their short escape rather than passing through.
+ * - `$` is left unescaped, since a `\$` escape is a parse error on Neptune.
+ *   Keeping it verbatim on every engine depends on the delimiter rather than on
+ *   an escape.
+ *
+ * Verified live against Neptune 1.2.1.0/1.4.7.0 and Gremlin Server 3.6.2/3.8.
+ */
+/**
+ * Each key is one character, and its value is that character's escape sequence.
+ * `ESCAPABLE_PATTERN` is derived from the keys, so the two cannot disagree about
+ * which characters get escaped. Both properties are asserted in the tests: a key
+ * spanning more than one UTF-16 code unit would contribute only its first unit
+ * to the pattern, matching characters it was never meant to.
+ */
+export const SHORT_ESCAPES = {
+  "\\": "\\\\",
+  '"': '\\"',
+  "\b": "\\b",
+  "\t": "\\t",
+  "\n": "\\n",
+  "\f": "\\f",
+  "\r": "\\r",
+} as const;
+
+type EscapableCharacter = keyof typeof SHORT_ESCAPES;
+
+export const ESCAPABLE_PATTERN = new RegExp(
+  `[${Object.keys(SHORT_ESCAPES)
+    .map(char => `\\u${char.charCodeAt(0).toString(16).padStart(4, "0")}`)
+    .join("")}]`,
+  "g",
+);
+
+function escapeStringLiteralBody(value: string): string {
+  return value.replaceAll(
+    ESCAPABLE_PATTERN,
+    char => SHORT_ESCAPES[char as EscapableCharacter],
+  );
 }
 
 export const fragment = {
   /** A Gremlin string literal, including the surrounding double quotes. */
   string(value: string): QueryFragment {
-    return toQueryFragment(`"${escape(value)}"`);
+    return toQueryFragment(`"${escapeStringLiteralBody(value)}"`);
   },
 
   /**
@@ -32,17 +83,19 @@ export const fragment = {
    * use the same delimiters and escaping as any other literal.
    */
   identifier(name: string): QueryFragment {
-    return toQueryFragment(`"${escape(name)}"`);
+    return toQueryFragment(`"${escapeStringLiteralBody(name)}"`);
   },
 
   /**
    * An entity ID. A numeric ID takes the Gremlin long suffix and therefore
-   * needs no delimiters.
+   * needs no delimiters; a string ID is a string literal like any other.
    */
   id(entityId: VertexId | EdgeId): QueryFragment {
     const rawId = getRawId(entityId);
     return toQueryFragment(
-      typeof rawId === "number" ? `${rawId}L` : `"${rawId}"`,
+      typeof rawId === "number"
+        ? `${rawId}L`
+        : `"${escapeStringLiteralBody(rawId)}"`,
     );
   },
 };

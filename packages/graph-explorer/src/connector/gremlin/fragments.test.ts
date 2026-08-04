@@ -1,26 +1,135 @@
 import { createEdgeId, createVertexId } from "@/core";
 
-import { fragment } from "./fragments";
+import { ESCAPABLE_PATTERN, fragment, SHORT_ESCAPES } from "./fragments";
+
+/**
+ * Decodes a Gremlin double-quoted string literal back to its value, reversing
+ * the seven escape sequences the escaper emits.
+ */
+function parseGremlinLiteral(literal: string): string {
+  return literal.slice(1, -1).replace(/\\(.)/g, (_, escaped: string) => {
+    switch (escaped) {
+      case "b":
+        return "\b";
+      case "t":
+        return "\t";
+      case "n":
+        return "\n";
+      case "f":
+        return "\f";
+      case "r":
+        return "\r";
+      default:
+        return escaped;
+    }
+  });
+}
+
+/**
+ * A literal whose body contains no bare delimiter and no escape outside the set
+ * the escaper emits. Asserted alongside each round trip because the decoder
+ * alone is tolerant: it maps an unescaped `\"` and a lone trailing `\\` back to
+ * themselves, so decoding would still succeed if the escaper stopped escaping.
+ */
+const WELL_FORMED_LITERAL = /^"(?:[^"\\]|\\[btnfr\\"])*"$/;
+
+/**
+ * Asserts the literal is well formed and decodes back to the original value.
+ */
+function expectRoundTrip(literal: string, value: string) {
+  expect(literal).toMatch(WELL_FORMED_LITERAL);
+  expect(parseGremlinLiteral(literal)).toBe(value);
+}
+
+/**
+ * Inputs every constructor is round-tripped over: embedded delimiters,
+ * backslashes, control characters, unicode, and strings resembling query syntax
+ * — the cases the curated exact-literal table does not enumerate.
+ */
+const awkwardStrings = [
+  "",
+  " leading and trailing ",
+  'has a " double quote',
+  "has a ' single quote",
+  "has a \\ backslash",
+  "has a ` backtick",
+  "has <angle> brackets",
+  "has a newline\nin it",
+  "has a tab\tin it",
+  "has a carriage\rreturn",
+  `has a ${String.fromCharCode(0x08)} backspace`,
+  `has a ${String.fromCharCode(0x0c)} form feed`,
+  `has a ${String.fromCharCode(0x01)} control character`,
+  `has a ${String.fromCharCode(0x0b)} vertical tab`,
+  'backslash before a double quote a\\"b',
+  'two backslashes before a quote a\\\\"b',
+  "trailing backslash\\",
+  "\\",
+  "café — naïve — 日本語",
+  "emoji 😀 here",
+  `line ${String.fromCharCode(0x2028)} separator`,
+  `delete ${String.fromCharCode(0x7f)} character`,
+  `nbsp ${String.fromCharCode(0x00a0)} character`,
+  "\ud800",
+  "cost is $total",
+] as const;
+
+describe("the escape table and its match pattern", () => {
+  it("should hold a single UTF-16 code unit per key, which is all the pattern can express", () => {
+    expect(
+      Object.keys(SHORT_ESCAPES).filter(char => char.length !== 1),
+    ).toEqual([]);
+  });
+
+  it("should match every character the table escapes, and no others", () => {
+    // `matchAll` rather than `test`, which advances `lastIndex` on a global regex.
+    const matched: string[] = [];
+    for (let code = 0; code < 0x110000; code++) {
+      const char = String.fromCodePoint(code);
+      if ([...char.matchAll(ESCAPABLE_PATTERN)].length > 0) {
+        matched.push(char);
+      }
+    }
+    expect(matched.toSorted()).toEqual(Object.keys(SHORT_ESCAPES).toSorted());
+  });
+});
 
 describe("fragment.string", () => {
-  it("should wrap the value in double quotes", () => {
-    expect(fragment.string("test")).toEqual('"test"');
+  // Double-quoted: `"` and `\` are escaped and control characters take their
+  // short escapes, so `'` and `$` are the characters left bare.
+  const cases: [input: string, literal: string][] = [
+    ["test", '"test"'],
+    [" te st ", '" te st "'],
+    ["", '""'],
+    ["te\\st", '"te\\\\st"'],
+    ['te"st', '"te\\"st"'],
+    ["te'st", `"te'st"`],
+    ["a\bb", '"a\\bb"'],
+    ["a\tb", '"a\\tb"'],
+    ["a\nb", '"a\\nb"'],
+    ["a\fb", '"a\\fb"'],
+    ["a\rb", '"a\\rb"'],
+  ];
+
+  it.each(cases)("encodes %j", (value, literal) => {
+    expect(fragment.string(value)).toBe(literal);
   });
 
-  it("should preserve surrounding whitespace", () => {
-    expect(fragment.string(" te st ")).toEqual('" te st "');
+  it("should leave a dollar sign alone, since escaping it breaks the query on Neptune", () => {
+    expect(fragment.string("cost is $total")).toBe('"cost is $total"');
   });
 
-  it("should produce an empty literal for an empty string", () => {
-    expect(fragment.string("")).toEqual('""');
+  it("should emit a control character without a short escape raw, never as \\uXXXX", () => {
+    expect(fragment.string(`a${String.fromCharCode(0x01)}b`)).toBe(
+      `"a${String.fromCharCode(0x01)}b"`,
+    );
+    expect(fragment.string(`a${String.fromCharCode(0x0b)}b`)).toBe(
+      `"a${String.fromCharCode(0x0b)}b"`,
+    );
   });
 
-  it("should escape a double quote", () => {
-    expect(fragment.string('te"st')).toEqual('"te\\"st"');
-  });
-
-  it("should leave a single quote alone, since it needs no escaping", () => {
-    expect(fragment.string("t'est")).toEqual('"t\'est"');
+  it.each(awkwardStrings)("round-trips %j", value => {
+    expectRoundTrip(fragment.string(value), value);
   });
 });
 
@@ -36,6 +145,18 @@ describe("fragment.identifier", () => {
   it("should escape a double quote", () => {
     expect(fragment.identifier('ci"ty')).toEqual('"ci\\"ty"');
   });
+
+  it("should escape a backslash", () => {
+    expect(fragment.identifier("ci\\ty")).toEqual('"ci\\\\ty"');
+  });
+
+  it("should leave a dollar sign alone", () => {
+    expect(fragment.identifier("wei$rd")).toEqual('"wei$rd"');
+  });
+
+  it.each(awkwardStrings)("round-trips a name %j", value => {
+    expectRoundTrip(fragment.identifier(value), value);
+  });
 });
 
 describe("fragment.id", () => {
@@ -49,5 +170,17 @@ describe("fragment.id", () => {
 
   it("should add the long suffix to a numeric ID", () => {
     expect(fragment.id(createVertexId(124))).toEqual("124L");
+  });
+
+  it("should escape a double quote in a string ID", () => {
+    expect(fragment.id(createVertexId('1"2'))).toEqual('"1\\"2"');
+  });
+
+  it("should escape a backslash in a string ID", () => {
+    expect(fragment.id(createVertexId("1\\2"))).toEqual('"1\\\\2"');
+  });
+
+  it.each(awkwardStrings)("round-trips a string ID %j", value => {
+    expectRoundTrip(fragment.id(createVertexId(value)), value);
   });
 });
