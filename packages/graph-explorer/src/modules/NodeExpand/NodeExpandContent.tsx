@@ -26,7 +26,10 @@ import useNeighborsOptions, {
 import useTranslations from "@/hooks/useTranslations";
 import NeighborsList from "@/modules/common/NeighborsList/NeighborsList";
 
-import NodeExpandFilters, { type NodeExpandFilter } from "./NodeExpandFilters";
+import NodeExpandFilters, {
+  type NodeExpandFilter,
+  toAttributeFilters,
+} from "./NodeExpandFilters";
 
 export type NodeExpandContentProps = {
   vertex: DisplayVertex;
@@ -133,10 +136,7 @@ function ExpansionOptions({
           vertexId={vertexId}
           filters={{
             filterByVertexTypes: [selectedType],
-            attributeFilters: filters.map(filter => ({
-              name: filter.name,
-              value: filter.value,
-            })),
+            attributeFilters: toAttributeFilters(filters),
             limit: limitEnabled && limit ? limit : undefined,
           }}
         />

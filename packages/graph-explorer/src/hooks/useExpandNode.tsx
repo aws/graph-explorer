@@ -54,6 +54,18 @@ export function useDefaultNeighborExpansionLimit() {
 }
 
 /**
+ * Explains an expansion that returned nothing. Attributing it to the filters
+ * when there were any keeps the message from claiming the node is exhausted.
+ */
+function emptyExpansionMessage({
+  attributeFilters,
+}: Pick<NeighborsRequest, "attributeFilters">) {
+  return attributeFilters?.length
+    ? "No neighbors matched every filter"
+    : "No more neighbors to expand";
+}
+
+/**
  * Provides a callback to submit a node expansion request, the query
  * information, and a callback to reset the request state.
  */
@@ -94,7 +106,7 @@ export default function useExpandNode() {
 
       // No neighbors to add
       if (result.vertices.length + result.edges.length <= 0) {
-        toast.info("No more neighbors to expand");
+        toast.info(emptyExpansionMessage(request));
         return;
       }
 
@@ -166,7 +178,7 @@ export default function useExpandNode() {
       const combined = await expandPromise;
 
       if (combined.vertices.length + combined.edges.length <= 0) {
-        toast.info("No more neighbors to expand");
+        toast.info(emptyExpansionMessage(filters));
         return;
       }
 

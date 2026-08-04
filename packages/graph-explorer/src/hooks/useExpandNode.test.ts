@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { act, waitFor } from "@testing-library/react";
+import { toast } from "sonner";
 
 import {
   defaultNeighborExpansionLimitAtom,
@@ -122,6 +123,45 @@ describe("useExpandNode", () => {
 
     // Should not have added any new vertices since all neighbors are already fetched
     expect(result.current.isPending).toBe(false);
+  });
+
+  it.each([
+    [
+      "blames the filters when the request carried some",
+      [{ name: "name", value: "nothing matches this" }],
+      "No neighbors matched every filter",
+    ],
+    [
+      "reports exhaustion when the request carried no filters",
+      undefined,
+      "No more neighbors to expand",
+    ],
+  ])("should explain an empty expansion — %s", async (_, filters, message) => {
+    const vertex = createTestableVertex();
+    const neighbor = createTestableVertex();
+    const edge = createTestableEdge().withSource(vertex).withTarget(neighbor);
+
+    dbState.addTestableVertexToGraph(vertex);
+    explorer.addTestableEdge(edge);
+    vi.spyOn(explorer, "fetchNeighbors").mockResolvedValue({
+      vertices: [],
+      edges: [],
+    });
+
+    const { result } = renderHookExpandNode();
+
+    act(() => {
+      result.current.expandNode({
+        vertexId: vertex.id,
+        attributeFilters: filters,
+      });
+    });
+
+    await waitFor(() => {
+      expect(result.current.isPending).toBe(false);
+    });
+
+    expect(toast.info).toHaveBeenCalledWith(message);
   });
 
   it("should expand node and add neighbors to graph", async () => {

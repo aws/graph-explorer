@@ -65,7 +65,7 @@ The Search UI provides two powerful ways to search and interact with your graph 
 Provides fine grained control over neighbor expansions
 
 - Filter by node label (or rdf:type for RDF databases)
-- Filter by attribute value
+- Filter by attribute value — add several filters to narrow further, and a neighbor must match every one
 - Limit results to a maximum size
 
 ### Entities Filter Panel

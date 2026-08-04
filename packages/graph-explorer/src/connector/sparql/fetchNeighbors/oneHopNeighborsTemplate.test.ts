@@ -1,7 +1,7 @@
 import { createVertexId } from "@/core";
 import { LABELS, query } from "@/utils";
 import {
-  normalize as collapse,
+  normalize as normalizeWhitespace,
   normalizeWithNewlines as normalize,
 } from "@/utils/testing";
 
@@ -114,10 +114,8 @@ describe("oneHopNeighborsTemplate", () => {
       ],
     });
 
-    // Each filter gets its own EXISTS, so the filters conjoin rather than
-    // widening the results as a shared disjunctive filter would
-    expect(collapse(template)).toContain(
-      collapse(query`
+    expect(normalizeWhitespace(template)).toContain(
+      normalizeWhitespace(query`
         FILTER EXISTS {
           ?neighbor <http://www.example.com/soccer/ontology/teamName> ?filterValue .
           FILTER(isLiteral(?filterValue) && regex(str(?filterValue), "Arsenal", "i"))
@@ -128,6 +126,15 @@ describe("oneHopNeighborsTemplate", () => {
         }
       `),
     );
+  });
+
+  it("should omit the filter clauses when there are no filters", () => {
+    const template = oneHopNeighborsTemplate({
+      resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
+      attributeFilters: [],
+    });
+
+    expect(template).not.toContain("FILTER EXISTS");
   });
 
   it("should filter on a single attribute", () => {
@@ -141,8 +148,8 @@ describe("oneHopNeighborsTemplate", () => {
       ],
     });
 
-    expect(collapse(template)).toContain(
-      collapse(query`
+    expect(normalizeWhitespace(template)).toContain(
+      normalizeWhitespace(query`
         FILTER EXISTS {
           ?neighbor <http://www.example.com/soccer/ontology/teamName> ?filterValue .
           FILTER(isLiteral(?filterValue) && regex(str(?filterValue), "Arsenal", "i"))
@@ -166,10 +173,8 @@ describe("oneHopNeighborsTemplate", () => {
       ],
     });
 
-    // Separate EXISTS clauses let two different values of the same attribute
-    // satisfy the pair of filters
-    expect(collapse(template)).toContain(
-      collapse(query`
+    expect(normalizeWhitespace(template)).toContain(
+      normalizeWhitespace(query`
         FILTER EXISTS {
           ?neighbor <http://www.example.com/soccer/ontology/nickname> ?filterValue .
           FILTER(isLiteral(?filterValue) && regex(str(?filterValue), "Gunners", "i"))

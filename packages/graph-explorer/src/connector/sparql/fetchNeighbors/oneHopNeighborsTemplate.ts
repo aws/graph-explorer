@@ -209,10 +209,8 @@ export function findNeighborsUsingFilters({
  * A neighbor must satisfy every filter, and satisfies one when any value of
  * that attribute contains the filter's value.
  *
- * Each filter gets its own `FILTER EXISTS` rather than sharing one triple
- * pattern, because a shared pattern binds a single predicate variable that
- * cannot equal two attribute names at once, making a conjunction over it
- * unsatisfiable.
+ * Each filter needs its own `FILTER EXISTS` rather than a shared triple
+ * pattern. See `docs/adr/20260804-sparql-attribute-filters-conjoin-via-filter-exists.md`.
  */
 function getFilterTemplate(attributeFilters: AttributeFilter[]) {
   const createFilterTemplate = (filter: AttributeFilter) => query`

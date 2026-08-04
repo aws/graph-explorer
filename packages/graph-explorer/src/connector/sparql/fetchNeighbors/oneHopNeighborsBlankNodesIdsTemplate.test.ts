@@ -1,6 +1,9 @@
 import { createVertexId } from "@/core";
 import { query } from "@/utils";
-import { normalizeWithNewlines as normalize } from "@/utils/testing";
+import {
+  normalize as normalizeWhitespace,
+  normalizeWithNewlines as normalize,
+} from "@/utils/testing";
 
 import oneHopNeighborsBlankNodesIdsTemplate from "./oneHopNeighborsBlankNodesIdsTemplate";
 
@@ -33,6 +36,35 @@ describe("oneHopNeighborsBlankNodesIdsTemplate", () => {
             LIMIT 10
           }
           FILTER(isBlank(?neighbor))
+        }
+      `),
+    );
+  });
+
+  it("should require every attribute filter to match", () => {
+    const template = oneHopNeighborsBlankNodesIdsTemplate({
+      resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
+      attributeFilters: [
+        {
+          name: "http://www.example.com/soccer/ontology/teamName",
+          value: "Arsenal",
+        },
+        {
+          name: "http://www.example.com/soccer/ontology/nickname",
+          value: "Gunners",
+        },
+      ],
+    });
+
+    expect(normalizeWhitespace(template)).toContain(
+      normalizeWhitespace(query`
+        FILTER EXISTS {
+          ?neighbor <http://www.example.com/soccer/ontology/teamName> ?filterValue .
+          FILTER(isLiteral(?filterValue) && regex(str(?filterValue), "Arsenal", "i"))
+        }
+        FILTER EXISTS {
+          ?neighbor <http://www.example.com/soccer/ontology/nickname> ?filterValue .
+          FILTER(isLiteral(?filterValue) && regex(str(?filterValue), "Gunners", "i"))
         }
       `),
     );

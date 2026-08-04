@@ -50,7 +50,7 @@ Vertices directly connected to a given vertex (one hop away). Users "expand neig
 _Avoid_: Connections (ambiguous with Connection)
 
 **Attribute Filter**:
-A named property paired with a value that a neighbor's property must contain for that neighbor to be expanded. Only string properties are filterable, and every filter must match. A single filter matches when any value of that property contains the value, which is visible in RDF where a subject may repeat a predicate. Users add these when expanding neighbors to narrow the results.
+A named property paired with a value that a neighbor's property must contain for that neighbor to be expanded. Only string properties are filterable, and every filter must match. A filter is satisfied when any one value of that property contains the value. Users add these when expanding neighbors to narrow the results.
 _Avoid_: Criterion (implies a configurable operator, which the product does not offer), filter criteria
 
 **Session**:
@@ -74,7 +74,7 @@ A schema-level pattern describing how two vertex types can be related via an edg
 _Avoid_: Relationship (Gremlin UI term), Object Property (SPARQL UI term)
 
 **Property**:
-A key-value pair on a Vertex or Edge. UI label varies by query language: "Property" (Gremlin/openCypher), "Datatype Property" (SPARQL).
+A named value on a Vertex or Edge. In RDF a subject may carry the same predicate more than once, so a property may hold several values; the property-graph connectors surface a single value per property. UI label varies by query language: "Property" (Gremlin/openCypher), "Datatype Property" (SPARQL).
 _Avoid_: Attribute (legacy code term being phased out)
 
 **Styles**:

@@ -3,6 +3,8 @@ import type { PropsWithChildren } from "react";
 import { ListFilterPlusIcon, Trash2Icon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
+import type { AttributeFilter } from "@/connector/useGEFetchTypes";
+
 import {
   addRemoveAnimationProps,
   Button,
@@ -30,6 +32,19 @@ export type NodeExpandFilter = {
   name: string;
   value: string;
 };
+
+/**
+ * Converts filter rows to the request shape, dropping those with a blank
+ * value. Every filter must match, so a blank row would require the attribute
+ * to be present on the neighbor rather than express no constraint.
+ */
+export function toAttributeFilters(
+  filters: Array<NodeExpandFilter>,
+): AttributeFilter[] {
+  return filters
+    .filter(filter => filter.value !== "")
+    .map(filter => ({ name: filter.name, value: filter.value }));
+}
 
 export type NodeExpandFiltersProps = {
   neighborsOptions: SelectOption[];
