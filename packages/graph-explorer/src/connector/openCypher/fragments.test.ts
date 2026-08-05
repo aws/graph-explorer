@@ -1,6 +1,11 @@
+import fc from "fast-check";
+
 import { createEdgeId, createVertexId } from "@/core";
 
-import { UnsupportedValueTypeError } from "../queryValueError";
+import {
+  UnrepresentableStringError,
+  UnsupportedValueTypeError,
+} from "../queryValueError";
 import { fragment } from "./fragments";
 
 describe("fragment.string", () => {
@@ -22,6 +27,23 @@ describe("fragment.string", () => {
 
   it("should leave a single quote alone, since it needs no escaping", () => {
     expect(fragment.string("t'est")).toEqual('"t\'est"');
+  });
+
+  it("should escape a backslash", () => {
+    expect(fragment.string("te\\st")).toEqual('"te\\\\st"');
+  });
+
+  it("should escape a control character", () => {
+    expect(fragment.string("a\nb")).toEqual('"a\\nb"');
+  });
+
+  it("should round-trip arbitrary strings through the literal", () => {
+    fc.assert(
+      fc.property(fc.string(), value => {
+        fc.pre(value.isWellFormed() && !value.includes("\0"));
+        expect(JSON.parse(fragment.string(value))).toBe(value);
+      }),
+    );
   });
 });
 
@@ -47,6 +69,20 @@ describe("fragment.id", () => {
   it("should throw for a numeric ID, which openCypher does not support", () => {
     expect(() => fragment.id(createVertexId(124))).toThrow(
       UnsupportedValueTypeError,
+    );
+  });
+
+  it("should escape a double quote in a string ID", () => {
+    expect(fragment.id(createVertexId('1"2'))).toEqual('"1\\"2"');
+  });
+
+  it("should escape a backslash in a string ID", () => {
+    expect(fragment.id(createVertexId("1\\2"))).toEqual('"1\\\\2"');
+  });
+
+  it("should reject an unrepresentable string ID via the string guard", () => {
+    expect(() => fragment.id(createVertexId("a\0b"))).toThrow(
+      UnrepresentableStringError,
     );
   });
 });

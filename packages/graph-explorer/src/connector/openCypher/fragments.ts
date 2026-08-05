@@ -21,15 +21,16 @@ import {
  * its own.
  */
 
-function escape(value: string): string {
-  return value.includes('"') ? JSON.stringify(value).slice(1, -1) : value;
-}
-
 export const fragment = {
-  /** An openCypher string literal, including the surrounding double quotes. */
+  /**
+   * An openCypher string literal, including the surrounding double quotes.
+   * `JSON.stringify` produces a double-quoted literal whose escapes — `\"`,
+   * `\\`, the shorthand control escapes (`\n`, `\t`, `\r`, `\b`, `\f`), and
+   * `\uXXXX` for any other control character — are all valid Cypher escapes.
+   */
   string(value: string): QueryFragment {
     assertRepresentable(value);
-    return toQueryFragment(`"${escape(value)}"`);
+    return toQueryFragment(JSON.stringify(value));
   },
 
   /** A property key or label, delimited by backticks. */
@@ -44,7 +45,6 @@ export const fragment = {
     if (typeof rawId !== "string") {
       throw new UnsupportedValueTypeError("openCypher", "id", rawId);
     }
-    assertRepresentable(rawId);
-    return toQueryFragment(`"${rawId}"`);
+    return fragment.string(rawId);
   },
 };
