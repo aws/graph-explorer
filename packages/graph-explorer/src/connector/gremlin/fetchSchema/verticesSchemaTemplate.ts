@@ -17,11 +17,11 @@ import { fragment } from "../fragments";
  * // Returns:
  * // g.V().limit(1)
  * //   .project(
- * //     "airport",
- * //     "country"
+ * //     'airport',
+ * //     'country'
  * //   )
- * //   .by(V().hasLabel("airport").limit(1))
- * //   .by(V().hasLabel("country").limit(1))
+ * //   .by(V().hasLabel('airport').limit(1))
+ * //   .by(V().hasLabel('country').limit(1))
  */
 export default function verticesSchemaTemplate({ types }: { types: string[] }) {
   const labels = uniq(types.flatMap(type => type.split("::"))).map(

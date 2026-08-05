@@ -16,10 +16,10 @@ import { fragment } from "../fragments";
  * exactMatch = false
  *
  * g.V()
- *  .hasLabel("airport")
+ *  .hasLabel('airport')
  *  .or(
- *    has("city",containing("JFK")),
- *    has("code",containing("JFK"))
+ *    has('city',containing('JFK')),
+ *    has('code',containing('JFK'))
  *  )
  *  .range(0,100)
  */

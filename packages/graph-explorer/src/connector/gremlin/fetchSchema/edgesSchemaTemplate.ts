@@ -17,11 +17,11 @@ import { fragment } from "../fragments";
  * // Returns:
  * // g.V().limit(1)
  * //   .project(
- * //     "route",
- * //     "contain"
+ * //     'route',
+ * //     'contain'
  * //   )
- * //   .by(V().bothE("route").limit(1))
- * //   .by(V().bothE("contain").limit(1))
+ * //   .by(V().bothE('route').limit(1))
+ * //   .by(V().bothE('contain').limit(1))
  */
 export default function edgesSchemaTemplate({ types }: { types: string[] }) {
   const labels = uniq(types.flatMap(type => type.split("::"))).map(
