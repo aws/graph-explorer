@@ -1,6 +1,9 @@
 import { ZodError } from "zod";
 
-import { InvalidFragmentValueError } from "@/connector/queryFragment";
+import {
+  QueryValueError,
+  UnsupportedValueTypeError,
+} from "@/connector/queryValueError";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 
 import { extractErrorMessage } from "./extractErrorMessage";
@@ -149,14 +152,21 @@ export function createDisplayError(error: any): DisplayError {
     };
   }
 
-  // A value could not be placed into the query position it was given — an ID
-  // the database cannot express. Name the offending value in end-user terms;
-  // the technical language, position, and reason are in the error details
-  // dialog.
-  if (error instanceof InvalidFragmentValueError) {
+  // Name the offending value in end-user terms; the technical language and
+  // position are in the error details dialog.
+  if (error instanceof UnsupportedValueTypeError) {
     return {
       title: "This value cannot be used",
       message: `The value "${String(error.value)}" cannot be used in a query against this database.`,
+    };
+  }
+
+  // A new failure type degrades to correct-but-generic wording rather than
+  // falling through to the misleading "Something went wrong".
+  if (error instanceof QueryValueError) {
+    return {
+      title: "This value cannot be used",
+      message: "This value cannot be used in a query against this database.",
     };
   }
 

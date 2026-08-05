@@ -1,10 +1,7 @@
 import { type EdgeId, getRawId, type VertexId } from "@/core";
 
-import {
-  InvalidFragmentValueError,
-  type QueryFragment,
-  toQueryFragment,
-} from "../queryFragment";
+import { type QueryFragment, toQueryFragment } from "../queryFragment";
+import { UnsupportedValueTypeError } from "../queryValueError";
 
 /*
  * Constructs Query Fragments for openCypher. A fragment is safe to interpolate
@@ -40,11 +37,7 @@ export const fragment = {
   id(entityId: VertexId | EdgeId): QueryFragment {
     const rawId = getRawId(entityId);
     if (typeof rawId !== "string") {
-      throw InvalidFragmentValueError.unsupportedType(
-        "openCypher",
-        "id",
-        rawId,
-      );
+      throw new UnsupportedValueTypeError("openCypher", "id", rawId);
     }
     return toQueryFragment(`"${rawId}"`);
   },

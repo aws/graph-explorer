@@ -9,7 +9,7 @@ import {
   type TestableVertex,
 } from "@/utils/testing";
 
-import { InvalidFragmentValueError } from "../queryFragment";
+import { UnsupportedValueTypeError } from "../queryValueError";
 import { rdfTypeUri } from "./types";
 import { vertexDetails } from "./vertexDetails";
 
@@ -115,7 +115,7 @@ describe("vertexDetails", () => {
 
     await expect(
       vertexDetails(mockFetch, { vertexIds: [vertex.id] }),
-    ).rejects.toThrow(InvalidFragmentValueError);
+    ).rejects.toThrow(UnsupportedValueTypeError);
   });
 });
 
