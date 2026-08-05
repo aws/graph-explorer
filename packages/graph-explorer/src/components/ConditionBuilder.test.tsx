@@ -43,4 +43,50 @@ describe("ConditionBuilder", () => {
       value: "20",
     });
   });
+
+  it("hides the case-sensitivity checkbox for an ordering operator", () => {
+    render(
+      <ConditionBuilder
+        condition={{ attribute: "score", operator: ">", value: "10" }}
+        attributeOptions={[{ label: "Score", value: "score" }]}
+        onChange={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
+  });
+
+  it("shows a checked case-sensitivity checkbox by default for equals", () => {
+    render(
+      <ConditionBuilder
+        condition={{ attribute: "score", operator: "=", value: "10" }}
+        attributeOptions={[{ label: "Score", value: "score" }]}
+        onChange={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByRole("checkbox", { name: /case sensitive/i }),
+    ).toBeChecked();
+  });
+
+  it("emits caseSensitive: false when the checkbox is unchecked for matches", () => {
+    const onChange = vi.fn();
+    render(
+      <ConditionBuilder
+        condition={{ attribute: "score", operator: "matches", value: "Jo*" }}
+        attributeOptions={[{ label: "Score", value: "score" }]}
+        onChange={onChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("checkbox", { name: /case sensitive/i }));
+
+    expect(onChange).toHaveBeenCalledWith({
+      attribute: "score",
+      operator: "matches",
+      value: "Jo*",
+      caseSensitive: false,
+    });
+  });
 });

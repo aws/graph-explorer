@@ -121,6 +121,7 @@ const conditionSchema = z.object({
   attribute: z.string(),
   operator: z.enum(CONDITION_OPERATORS),
   value: z.string(),
+  caseSensitive: z.boolean().optional(),
 });
 
 /**

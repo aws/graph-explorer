@@ -124,4 +124,16 @@ describe("conditional styling applies only to matching entities", () => {
       nonMatching: BASE_COLOR,
     });
   });
+
+  it("wildcard pattern match", () => {
+    const colors = backgroundColors(
+      { attribute: "name", operator: "matches", value: "Jo*" },
+      "John",
+      "Amy",
+    );
+    expect(colors).toStrictEqual({
+      matching: CONDITIONAL_COLOR,
+      nonMatching: BASE_COLOR,
+    });
+  });
 });

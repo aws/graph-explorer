@@ -628,6 +628,56 @@ describe("conditional styling", () => {
     });
   });
 
+  test("parses a conditional style with the matches operator and caseSensitive", () => {
+    const result = parseStylingPayload({
+      vertices: {
+        Person: {
+          conditionalStyle: {
+            condition: {
+              attribute: "name",
+              operator: "matches",
+              value: "Jo*",
+              caseSensitive: false,
+            },
+            color: "#ff0000",
+          },
+        },
+      },
+      edges: {},
+    });
+
+    expect(
+      result.vertexStyles.get(createVertexType("Person"))!.conditionalStyle,
+    ).toStrictEqual({
+      condition: {
+        attribute: "name",
+        operator: "matches",
+        value: "Jo*",
+        caseSensitive: false,
+      },
+      color: "#ff0000",
+    });
+  });
+
+  test("parses a condition with no caseSensitive field, leaving it unset", () => {
+    const result = parseStylingPayload({
+      vertices: {
+        Person: {
+          conditionalStyle: {
+            condition: { attribute: "x", operator: "=", value: "1" },
+            color: "#abcabc",
+          },
+        },
+      },
+      edges: {},
+    });
+
+    expect(
+      result.vertexStyles.get(createVertexType("Person"))!.conditionalStyle
+        ?.condition,
+    ).toStrictEqual({ attribute: "x", operator: "=", value: "1" });
+  });
+
   test("rejects the whole file when a nested condition operator is invalid", () => {
     const issues = parseExpectingIssues({
       vertices: {

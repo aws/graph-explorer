@@ -32,11 +32,13 @@ export function evaluateStyleCondition(
     return false;
   }
 
+  const caseSensitive = condition.caseSensitive !== false;
+
   switch (condition.operator) {
     case "=":
-      return valuesEqual(rawValue, condition.value);
+      return valuesEqual(rawValue, condition.value, caseSensitive);
     case "!=":
-      return !valuesEqual(rawValue, condition.value);
+      return !valuesEqual(rawValue, condition.value, caseSensitive);
     case ">":
       return compareValues(rawValue, condition.value) > 0;
     case "<":
@@ -45,11 +47,22 @@ export function evaluateStyleCondition(
       return compareValues(rawValue, condition.value) >= 0;
     case "<=":
       return compareValues(rawValue, condition.value) <= 0;
+    case "matches":
+      return matchesWildcard(rawValue, condition.value, caseSensitive);
   }
 }
 
-function valuesEqual(rawValue: EntityPropertyValue, value: string): boolean {
-  if (String(rawValue) === value) {
+function valuesEqual(
+  rawValue: EntityPropertyValue,
+  value: string,
+  caseSensitive: boolean,
+): boolean {
+  const rawString = String(rawValue);
+  if (
+    caseSensitive
+      ? rawString === value
+      : rawString.toLowerCase() === value.toLowerCase()
+  ) {
     return true;
   }
   const rawNumber = Number(rawValue);
@@ -59,6 +72,25 @@ function valuesEqual(rawValue: EntityPropertyValue, value: string): boolean {
     Number.isFinite(valueNumber) &&
     rawNumber === valueNumber
   );
+}
+
+/**
+ * Matches `rawValue` against a `*`-wildcard pattern (`*` = any sequence of
+ * characters, including none). Every other character in `pattern` is matched
+ * literally, so regex-significant characters like `.` or `(` never gain
+ * special meaning just because a user typed them into a condition value.
+ */
+function matchesWildcard(
+  rawValue: EntityPropertyValue,
+  pattern: string,
+  caseSensitive: boolean,
+): boolean {
+  const escaped = pattern
+    .split("*")
+    .map(segment => segment.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join(".*");
+  const regex = new RegExp(`^${escaped}$`, caseSensitive ? "" : "i");
+  return regex.test(String(rawValue));
 }
 
 /**

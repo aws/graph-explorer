@@ -14,8 +14,11 @@ function condition(
   attribute: string,
   operator: ConditionOperator,
   value: string,
+  caseSensitive?: boolean,
 ): StyleCondition {
-  return { attribute, operator, value };
+  return caseSensitive === undefined
+    ? { attribute, operator, value }
+    : { attribute, operator, value, caseSensitive };
 }
 
 describe("evaluateStyleCondition", () => {
@@ -49,6 +52,94 @@ describe("evaluateStyleCondition", () => {
       expect(
         evaluateStyleCondition("ok", condition("s", "!=", "flagged")),
       ).toBe(true);
+    });
+
+    it("is case-sensitive by default", () => {
+      expect(evaluateStyleCondition("John", condition("s", "=", "john"))).toBe(
+        false,
+      );
+    });
+
+    it("ignores case when caseSensitive is false", () => {
+      expect(
+        evaluateStyleCondition("John", condition("s", "=", "john", false)),
+      ).toBe(true);
+      expect(
+        evaluateStyleCondition("John", condition("s", "!=", "john", false)),
+      ).toBe(false);
+    });
+  });
+
+  describe("matches pattern", () => {
+    it("matches a literal value with no wildcard", () => {
+      expect(
+        evaluateStyleCondition("flagged", condition("s", "matches", "flagged")),
+      ).toBe(true);
+      expect(
+        evaluateStyleCondition("flagged", condition("s", "matches", "other")),
+      ).toBe(false);
+    });
+
+    it("matches * as a prefix, suffix, and infix wildcard", () => {
+      expect(
+        evaluateStyleCondition(
+          "John Smith",
+          condition("s", "matches", "John*"),
+        ),
+      ).toBe(true);
+      expect(
+        evaluateStyleCondition(
+          "John Smith",
+          condition("s", "matches", "*Smith"),
+        ),
+      ).toBe(true);
+      expect(
+        evaluateStyleCondition(
+          "John Smith",
+          condition("s", "matches", "*n Sm*"),
+        ),
+      ).toBe(true);
+      expect(
+        evaluateStyleCondition(
+          "John Smith",
+          condition("s", "matches", "Smith*"),
+        ),
+      ).toBe(false);
+    });
+
+    it("is case-sensitive by default", () => {
+      expect(
+        evaluateStyleCondition(
+          "John Smith",
+          condition("s", "matches", "john*"),
+        ),
+      ).toBe(false);
+    });
+
+    it("ignores case when caseSensitive is false", () => {
+      expect(
+        evaluateStyleCondition(
+          "John Smith",
+          condition("s", "matches", "john*", false),
+        ),
+      ).toBe(true);
+    });
+
+    it("escapes regex-significant characters in the literal portion", () => {
+      // The `.` is a literal dot in the pattern, not "any character" — "axb"
+      // must not match even though it would if `.` were treated as regex.
+      expect(
+        evaluateStyleCondition("a.b", condition("s", "matches", "a.b")),
+      ).toBe(true);
+      expect(
+        evaluateStyleCondition("axb", condition("s", "matches", "a.b")),
+      ).toBe(false);
+    });
+
+    it("returns false when the attribute value is missing", () => {
+      expect(
+        evaluateStyleCondition(undefined, condition("s", "matches", "*")),
+      ).toBe(false);
     });
   });
 

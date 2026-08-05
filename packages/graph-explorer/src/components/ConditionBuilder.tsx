@@ -5,6 +5,7 @@ import {
   type StyleCondition,
 } from "@/core/StateProvider/graphStyles";
 
+import { Checkbox } from "./Checkbox";
 import { Field, FieldLabel } from "./Field";
 import { Input } from "./Input";
 import {
@@ -14,6 +15,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./Select";
+
+/** The operators whose text comparison can be toggled case-sensitive or not. */
+const CASE_SENSITIVITY_OPERATORS = new Set<ConditionOperator>([
+  "=",
+  "!=",
+  "matches",
+]);
 
 export type AttributeOption = { label: string; value: string };
 
@@ -92,6 +100,18 @@ export function ConditionBuilder({
             onChange({ ...condition, value: event.target.value })
           }
         />
+        {CASE_SENSITIVITY_OPERATORS.has(condition.operator) ? (
+          <FieldLabel className="flex-row items-center text-sm font-normal">
+            <Checkbox
+              checked={condition.caseSensitive !== false}
+              onCheckedChange={checked =>
+                onChange({ ...condition, caseSensitive: checked === true })
+              }
+              aria-label="Case sensitive"
+            />
+            Case sensitive
+          </FieldLabel>
+        ) : null}
       </Field>
     </div>
   );

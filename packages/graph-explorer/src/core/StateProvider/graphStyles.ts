@@ -59,11 +59,20 @@ export const ARROW_STYLES = [
 export type ArrowStyle = (typeof ARROW_STYLES)[number];
 
 /**
- * The comparison operators available for a conditional style. Each maps 1:1
- * onto a Cytoscape attribute-selector operator, so condition matching is done
- * natively by the rendering engine rather than in a JavaScript evaluation loop.
+ * The comparison operators available for a conditional style. Matching is done
+ * in a JavaScript evaluation loop (`evaluateStyleCondition`), not by Cytoscape's
+ * native attribute selectors — those compare lexicographically or via
+ * `parseFloat`, which mishandles dates and mixed types.
  */
-export const CONDITION_OPERATORS = ["=", "!=", ">", "<", ">=", "<="] as const;
+export const CONDITION_OPERATORS = [
+  "=",
+  "!=",
+  ">",
+  "<",
+  ">=",
+  "<=",
+  "matches",
+] as const;
 export type ConditionOperator = (typeof CONDITION_OPERATORS)[number];
 
 /** Human-readable labels for the condition operators, for the condition builder UI. */
@@ -74,6 +83,7 @@ export const CONDITION_OPERATOR_LABELS: Record<ConditionOperator, string> = {
   "<": "less than",
   ">=": "greater than or equal",
   "<=": "less than or equal",
+  matches: "matches pattern",
 };
 
 /**
@@ -86,6 +96,13 @@ export type StyleCondition = {
   attribute: string;
   operator: ConditionOperator;
   value: string;
+  /**
+   * Whether `=`, `!=`, and `matches` compare text exactly or ignoring case.
+   * Omitted (or `true`) means case-sensitive — the original behavior, so
+   * conditions from before this field existed are unaffected. Only `matches`
+   * treats `value` as a `*`-wildcard pattern; the others compare it verbatim.
+   */
+  caseSensitive?: boolean;
 };
 
 /**
