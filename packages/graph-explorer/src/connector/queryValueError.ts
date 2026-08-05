@@ -87,3 +87,53 @@ export class UnsupportedValueTypeError extends QueryValueError {
     };
   }
 }
+
+/**
+ * The value cannot be escaped for this position — the position's grammar offers
+ * no escape mechanism for the characters it carries, so there is no faithful
+ * query text to emit. Position-specific rather than an `UnrepresentableValueError`,
+ * because the same character can be legal elsewhere: a space or `>` has no escape
+ * inside a SPARQL IRI, yet a space is fine in a SPARQL string literal.
+ *
+ * The caller detects the offending characters, since only it knows the
+ * position's grammar; this class only reports them.
+ */
+export class UnescapableValueError extends QueryValueError {
+  readonly language: QueryEngine;
+  readonly position: FragmentPosition;
+  readonly value: string;
+  readonly unescapableCharacters: readonly string[];
+
+  constructor(
+    language: QueryEngine,
+    position: FragmentPosition,
+    value: string,
+    unescapableCharacters: readonly string[],
+  ) {
+    super(
+      "UnescapableValueError",
+      `The ${language} ${position} value contains characters that cannot be represented in a query.`,
+    );
+    this.language = language;
+    this.position = position;
+    this.value = value;
+    this.unescapableCharacters = unescapableCharacters;
+  }
+
+  get details() {
+    // Each entry is a single character the caller detected; codePointAt(0) is always defined.
+    const codepoints = [...new Set(this.unescapableCharacters)]
+      .map(char => char.codePointAt(0)!)
+      .sort((a, b) => a - b);
+    return {
+      language: this.language,
+      position: this.position,
+      value: this.value,
+      unescapableCharacters: codepoints.map(toCodepointLabel),
+    };
+  }
+}
+
+function toCodepointLabel(codepoint: number): string {
+  return `U+${codepoint.toString(16).toUpperCase().padStart(4, "0")}`;
+}

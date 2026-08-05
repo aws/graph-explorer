@@ -1,5 +1,6 @@
 import {
   QueryValueError,
+  UnescapableValueError,
   UnrepresentableNumberError,
   UnrepresentableValueError,
   UnsupportedValueTypeError,
@@ -91,6 +92,86 @@ describe("UnrepresentableNumberError", () => {
     expect(new UnrepresentableNumberError(1e21).details).toStrictEqual({
       value: 1e21,
       valueText: "1e+21",
+    });
+  });
+});
+
+describe("UnescapableValueError", () => {
+  it("carries the language, position, value, and unescapable characters", () => {
+    const error = new UnescapableValueError("sparql", "IRI", "a b>c", [
+      " ",
+      ">",
+    ]);
+
+    expect(error.language).toBe("sparql");
+    expect(error.position).toBe("IRI");
+    expect(error.value).toBe("a b>c");
+    expect(error.unescapableCharacters).toStrictEqual([" ", ">"]);
+  });
+
+  it("is an Error and a QueryValueError, but not an UnrepresentableValueError", () => {
+    const error = new UnescapableValueError("sparql", "IRI", "a b", [" "]);
+
+    expect(error).toBeInstanceOf(Error);
+    expect(error).toBeInstanceOf(QueryValueError);
+    expect(error).not.toBeInstanceOf(UnrepresentableValueError);
+  });
+
+  it("names itself after the subclass", () => {
+    expect(new UnescapableValueError("sparql", "IRI", "a b", [" "]).name).toBe(
+      "UnescapableValueError",
+    );
+  });
+
+  it("derives a message that names the language and position", () => {
+    const error = new UnescapableValueError("sparql", "IRI", "a b", [" "]);
+
+    expect(error.message).toContain("sparql");
+    expect(error.message).toContain("IRI");
+    expect(error.message).toContain("characters that cannot be represented");
+  });
+
+  it("exposes the unescapable characters as sorted codepoint labels in details", () => {
+    const error = new UnescapableValueError("sparql", "IRI", "a b>c", [
+      " ",
+      ">",
+    ]);
+
+    expect(error.details).toStrictEqual({
+      language: "sparql",
+      position: "IRI",
+      value: "a b>c",
+      unescapableCharacters: ["U+0020", "U+003E"],
+    });
+  });
+
+  it("dedupes and sorts the unescapable characters by codepoint", () => {
+    const error = new UnescapableValueError("sparql", "IRI", "a b>c", [
+      ">",
+      " ",
+      ">",
+    ]);
+
+    expect(error.details).toStrictEqual({
+      language: "sparql",
+      position: "IRI",
+      value: "a b>c",
+      unescapableCharacters: ["U+0020", "U+003E"],
+    });
+  });
+
+  it("preserves the full value verbatim in details, including control characters", () => {
+    const value = "line\u0001\nend";
+    const error = new UnescapableValueError("sparql", "IRI", value, [
+      "\u0001",
+      "\n",
+    ]);
+
+    expect(error.details).toStrictEqual({
+      language: "sparql",
+      position: "IRI",
+      value,
+      unescapableCharacters: ["U+0001", "U+000A"],
     });
   });
 });

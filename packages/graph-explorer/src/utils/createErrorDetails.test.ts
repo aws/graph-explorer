@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import {
   QueryValueError,
+  UnescapableValueError,
   UnsupportedValueTypeError,
 } from "@/connector/queryValueError";
 
@@ -309,6 +310,15 @@ describe("createErrorDetails", () => {
         name: "DetailedQueryValueError",
         message: "cannot be used",
         data: JSON.stringify({ someContext: "value" }, null, 2),
+      });
+    });
+
+    it("serializes an UnescapableValueError through its own details", () => {
+      const error = new UnescapableValueError("sparql", "IRI", "a b", [" "]);
+      expect(createErrorDetails(error)).toStrictEqual({
+        name: "UnescapableValueError",
+        message: error.message,
+        data: JSON.stringify(error.details, null, 2),
       });
     });
   });

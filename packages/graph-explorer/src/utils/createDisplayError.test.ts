@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import {
   QueryValueError,
+  UnescapableValueError,
   UnsupportedValueTypeError,
 } from "@/connector/queryValueError";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
@@ -35,6 +36,15 @@ describe("createDisplayError", () => {
 
   it("Should fall back to generic wording for an unrecognized query value failure", () => {
     const result = createDisplayError(new UnrecognizedQueryValueError());
+    expect(result).toStrictEqual({
+      title: "This value cannot be used",
+      message: "This value cannot be used in a query against this database.",
+    });
+  });
+
+  it("Should fall back to generic wording for an unescapable value failure", () => {
+    const error = new UnescapableValueError("sparql", "IRI", "a b", [" "]);
+    const result = createDisplayError(error);
     expect(result).toStrictEqual({
       title: "This value cannot be used",
       message: "This value cannot be used in a query against this database.",
