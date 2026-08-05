@@ -233,8 +233,12 @@ function createRenderedEdge(edge: DisplayEdge, condition?: StyleCondition) {
 }
 
 /**
- * Stamps the `conditionMet` flag when the entity satisfies the condition, or an
- * empty object otherwise. The comparison runs in JavaScript (see
+ * Stamps the `conditionMet` flag as `"true"` or `"false"`. Always explicit,
+ * never omitted: Cytoscape's `data()` setter merges by key and never clears a
+ * key that a later update simply leaves out, so an entity that stops matching
+ * (or whose type's conditional style is removed) would keep a stale `"true"`
+ * forever on a live update — only a full remove-and-re-add would reflect the
+ * current truth. The comparison runs in JavaScript (see
  * {@link evaluateStyleCondition}) so dates and mixed types compare correctly,
  * rather than delegating to Cytoscape's lexicographic/`parseFloat` operators.
  * The attribute's raw value is resolved by the caller so vertices and edges can
@@ -244,13 +248,11 @@ function conditionMetData(
   condition: StyleCondition | undefined,
   resolveValue: (attribute: string) => EntityPropertyValue | undefined,
 ): Record<string, string> {
-  if (!condition) {
-    return {};
-  }
-  const rawValue = resolveValue(condition.attribute);
-  return evaluateStyleCondition(rawValue, condition)
-    ? { [CONDITION_MET_DATA_KEY]: "true" }
-    : {};
+  const matched = Boolean(
+    condition &&
+    evaluateStyleCondition(resolveValue(condition.attribute), condition),
+  );
+  return { [CONDITION_MET_DATA_KEY]: matched ? "true" : "false" };
 }
 
 function resolveVertexAttributeValue(

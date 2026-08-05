@@ -1,10 +1,16 @@
 // @vitest-environment happy-dom
+import { waitFor } from "@testing-library/react";
 import cytoscape from "cytoscape";
 
 import type { StyleCondition } from "@/core/StateProvider/graphStyles";
 
 import { getStyles } from "@/components/Graph/hooks/useManageStyles";
-import { createVertexType, useRenderedEntities, type VertexId } from "@/core";
+import {
+  createVertexType,
+  getAppStore,
+  useRenderedEntities,
+  type VertexId,
+} from "@/core";
 import {
   createTestableVertex,
   DbState,
@@ -135,5 +141,67 @@ describe("conditional styling applies only to matching entities", () => {
       matching: CONDITIONAL_COLOR,
       nonMatching: BASE_COLOR,
     });
+  });
+});
+
+describe("conditional styling re-evaluates on a live update", () => {
+  it("clears a previously-matching node's conditional color when the condition changes to no longer match it, without removing the node from the canvas first", async () => {
+    const dbState = new DbState();
+    const type = createVertexType("Person");
+
+    const vertex = createTestableVertex().with({
+      types: [type],
+      attributes: { score: 90 },
+    });
+    dbState.addTestableVertexToGraph(vertex);
+    dbState.addVertexStyle(type, {
+      color: "#7B1FA2",
+      conditionalStyle: {
+        condition: { attribute: "score", operator: ">", value: "50" },
+        color: "#EC1111",
+      },
+    });
+
+    const store = getAppStore();
+    const { result } = renderHookWithState(
+      () => ({ styles: useGraphStyles(), entities: useRenderedEntities() }),
+      dbState,
+    );
+
+    const nodeData = () =>
+      result.current.entities.vertices.find(v => v.data.vertexId === vertex.id)!
+        .data;
+
+    const cy = cytoscape({
+      headless: true,
+      styleEnabled: true,
+      elements: [{ data: nodeData() }],
+      style: getStyles({ styles: result.current.styles, layout: "FORCE" }),
+    });
+    const cyId = String(nodeData().id);
+
+    expect(cy.getElementById(cyId).style("background-color")).toBe(
+      CONDITIONAL_COLOR,
+    );
+
+    // Change the condition so the same vertex (score=90) no longer matches.
+    dbState.addVertexStyle(type, {
+      color: "#7B1FA2",
+      conditionalStyle: {
+        condition: { attribute: "score", operator: "<", value: "10" },
+        color: "#EC1111",
+      },
+    });
+    dbState.applyTo(store);
+
+    await waitFor(() => {
+      expect(nodeData()).toMatchObject({ conditionMet: "false" });
+    });
+
+    // Mimic useUpdateGraphElements's live update: cy.json() on the existing
+    // cy instance, not a remove-and-re-add of the element.
+    cy.json({ elements: { nodes: [{ data: nodeData() }], edges: [] } });
+
+    expect(cy.getElementById(cyId).style("background-color")).toBe(BASE_COLOR);
   });
 });

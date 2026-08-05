@@ -190,13 +190,13 @@ describe("conditional styling match flag", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.vertices[0].data).not.toHaveProperty(
-        "conditionMet",
-      );
+      expect(result.current.vertices[0].data).toMatchObject({
+        conditionMet: "false",
+      });
     });
   });
 
-  it("does not stamp conditionMet when the vertex type has no condition", async () => {
+  it("stamps conditionMet false when the vertex type has no condition", async () => {
     const dbState = new DbState();
     const vertex = createTestableVertex().with({
       types: [createVertexType("Person")],
@@ -210,9 +210,9 @@ describe("conditional styling match flag", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.vertices[0].data).not.toHaveProperty(
-        "conditionMet",
-      );
+      expect(result.current.vertices[0].data).toMatchObject({
+        conditionMet: "false",
+      });
     });
   });
 
