@@ -1,6 +1,6 @@
 import { ZodError } from "zod";
 
-import { InvalidFragmentValueError } from "@/connector/queryFragment";
+import { QueryValueError } from "@/connector/queryValueError";
 
 import { NetworkError } from "./NetworkError";
 import { ServerConnectionError } from "./ServerConnectionError";
@@ -42,21 +42,11 @@ export function createErrorDetails(error: unknown): ErrorDetails {
       data: JSON.stringify(error.issues, null, 2),
     };
   }
-  if (error instanceof InvalidFragmentValueError) {
+  if (error instanceof QueryValueError) {
     return {
       name: error.name,
       message: error.message,
-      data: JSON.stringify(
-        {
-          language: error.language,
-          position: error.position,
-          reason: error.reason,
-          valueType: typeof error.value,
-          value: error.value,
-        },
-        null,
-        2,
-      ),
+      data: JSON.stringify(error.details, null, 2),
     };
   }
   if (Error.isError(error)) {

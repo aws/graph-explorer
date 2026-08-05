@@ -1,6 +1,9 @@
 import { z } from "zod";
 
-import { InvalidFragmentValueError } from "@/connector/queryFragment";
+import {
+  QueryValueError,
+  UnsupportedValueTypeError,
+} from "@/connector/queryValueError";
 
 import { createErrorDetails } from "./createErrorDetails";
 import { NetworkError } from "./NetworkError";
@@ -279,27 +282,33 @@ describe("createErrorDetails", () => {
     });
   });
 
-  describe("InvalidFragmentValueError", () => {
-    it("serializes the language, position, reason, and value type as data", () => {
-      const error = InvalidFragmentValueError.unsupportedType(
-        "openCypher",
-        "id",
-        124,
-      );
+  describe("UnsupportedValueTypeError", () => {
+    it("serializes the language, position, and value type as data", () => {
+      const error = new UnsupportedValueTypeError("openCypher", "id", 124);
       expect(createErrorDetails(error)).toStrictEqual({
-        name: "InvalidFragmentValueError",
+        name: "UnsupportedValueTypeError",
         message: error.message,
         data: JSON.stringify(
           {
             language: "openCypher",
             position: "id",
-            reason: "unsupported-type",
             valueType: "number",
             value: 124,
           },
           null,
           2,
         ),
+      });
+    });
+  });
+
+  describe("QueryValueError", () => {
+    it("serializes any subclass through its own details", () => {
+      const error = new DetailedQueryValueError();
+      expect(createErrorDetails(error)).toStrictEqual({
+        name: "DetailedQueryValueError",
+        message: "cannot be used",
+        data: JSON.stringify({ someContext: "value" }, null, 2),
       });
     });
   });
@@ -375,3 +384,12 @@ describe("createErrorDetails", () => {
     });
   });
 });
+
+/** Stands in for a query value failure type that `createErrorDetails` has no specific branch for. */
+class DetailedQueryValueError extends QueryValueError {
+  readonly details = { someContext: "value" };
+
+  constructor() {
+    super("DetailedQueryValueError", "cannot be used");
+  }
+}

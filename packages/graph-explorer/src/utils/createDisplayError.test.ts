@@ -1,7 +1,10 @@
 // @vitest-environment happy-dom
 import { z } from "zod";
 
-import { InvalidFragmentValueError } from "@/connector/queryFragment";
+import {
+  QueryValueError,
+  UnsupportedValueTypeError,
+} from "@/connector/queryValueError";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 
 import { createDisplayError } from "./createDisplayError";
@@ -21,16 +24,20 @@ describe("createDisplayError", () => {
   });
 
   it("Should give a specific message for a value that cannot be used in a query", () => {
-    const error = InvalidFragmentValueError.unsupportedType(
-      "openCypher",
-      "id",
-      124,
-    );
+    const error = new UnsupportedValueTypeError("openCypher", "id", 124);
     const result = createDisplayError(error);
     expect(result).toStrictEqual({
       title: "This value cannot be used",
       message:
         'The value "124" cannot be used in a query against this database.',
+    });
+  });
+
+  it("Should fall back to generic wording for an unrecognized query value failure", () => {
+    const result = createDisplayError(new UnrecognizedQueryValueError());
+    expect(result).toStrictEqual({
+      title: "This value cannot be used",
+      message: "This value cannot be used in a query against this database.",
     });
   });
 
@@ -247,6 +254,15 @@ describe("createDisplayError", () => {
     });
   });
 });
+
+/** Stands in for a query value failure type that `createDisplayError` has no branch for. */
+class UnrecognizedQueryValueError extends QueryValueError {
+  readonly details = {};
+
+  constructor() {
+    super("UnrecognizedQueryValueError", "unrecognized");
+  }
+}
 
 /** Used to create errors for test code. */
 class FakeError extends Error {
