@@ -36,4 +36,18 @@ describe("Gremlin > edgesSchemaTemplate", () => {
       `),
     );
   });
+
+  it("Should escape a label containing the delimiter", () => {
+    const template = edgesSchemaTemplate({ types: ['ro"ute'] });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V().limit(1)
+          .project(
+            "ro\\"ute"
+          )
+          .by(V().bothE("ro\\"ute").limit(1))
+      `),
+    );
+  });
 });

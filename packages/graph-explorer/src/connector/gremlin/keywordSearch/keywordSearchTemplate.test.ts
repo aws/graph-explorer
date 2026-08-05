@@ -1,6 +1,7 @@
 import { SEARCH_TOKENS } from "@/utils";
 import { normalizeWithNoSpace as normalize } from "@/utils/testing";
 
+import { UnrepresentableNumberError } from "../../queryValueError";
 import keywordSearchTemplate from "./keywordSearchTemplate";
 
 describe("Gremlin > keywordSearchTemplate", () => {
@@ -72,6 +73,37 @@ describe("Gremlin > keywordSearchTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize('g.V().or(has("code","\\"JFK\\""))'),
+    );
+  });
+
+  it("Should escape a vertex type containing the delimiter", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ['air"port'],
+    });
+
+    expect(normalize(template)).toBe(normalize('g.V().hasLabel("air\\"port")'));
+  });
+
+  it("Should escape an attribute name containing the delimiter", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: "JFK",
+      searchByAttributes: ['ci"ty'],
+    });
+
+    expect(normalize(template)).toBe(
+      normalize('g.V().or(has("ci\\"ty",containing("JFK")))'),
+    );
+  });
+
+  it("Should escape an attribute name when matching exactly", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: "JFK",
+      searchByAttributes: ['ci"ty'],
+      exactMatch: true,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize('g.V().or(has("ci\\"ty","JFK"))'),
     );
   });
 
@@ -166,6 +198,16 @@ describe("Gremlin > keywordSearchTemplate", () => {
     expect(normalize(template)).toBe(
       normalize('g.V().or(has("code",containing("JFK")))'),
     );
+  });
+
+  it("Should reject a limit with no plain decimal form", () => {
+    expect(() =>
+      keywordSearchTemplate({
+        searchTerm: "JFK",
+        searchByAttributes: ["code"],
+        limit: Infinity,
+      }),
+    ).toThrow(new UnrepresentableNumberError(Infinity));
   });
 
   it("Should return a template for a specific vertex type", () => {

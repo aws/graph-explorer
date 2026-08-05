@@ -18,10 +18,10 @@ import { fragment } from "../fragments";
  * g.V()
  *  .hasLabel("airport")
  *  .or(
- *    has("city", containing("JFK"),
- *    has("code", containing("JFK")
+ *    has("city",containing("JFK")),
+ *    has("code",containing("JFK"))
  *  )
- *  .range(0, 100)
+ *  .range(0,100)
  */
 export default function keywordSearchTemplate({
   searchTerm,
@@ -36,7 +36,7 @@ export default function keywordSearchTemplate({
   if (vertexTypes.length !== 0) {
     const hasLabelContent = vertexTypes
       .flatMap(type => type.split("::"))
-      .map(type => `"${type}"`)
+      .map(fragment.identifier)
       .join(",");
     template += `.hasLabel(${hasLabelContent})`;
   }
@@ -52,10 +52,11 @@ export default function keywordSearchTemplate({
           }
           return `has(id,containing(${searchLiteral}))`;
         }
+        const key = fragment.identifier(attr);
         if (exactMatch === true) {
-          return `has("${attr}",${searchLiteral})`;
+          return `has(${key},${searchLiteral})`;
         }
-        return `has("${attr}",containing(${searchLiteral}))`;
+        return `has(${key},containing(${searchLiteral}))`;
       })
       .join(",");
 
@@ -63,7 +64,7 @@ export default function keywordSearchTemplate({
   }
 
   if (limit) {
-    template += `.range(${offset},${offset + limit})`;
+    template += `.range(${fragment.number(offset)},${fragment.number(offset + limit)})`;
   }
   return template;
 }

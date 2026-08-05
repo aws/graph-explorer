@@ -36,4 +36,18 @@ describe("Gremlin > verticesSchemaTemplate", () => {
       `),
     );
   });
+
+  it("Should escape a label containing the delimiter", () => {
+    const template = verticesSchemaTemplate({ types: ['air"port'] });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V().limit(1)
+          .project(
+            "air\\"port"
+          )
+          .by(V().hasLabel("air\\"port").limit(1))
+      `),
+    );
+  });
 });

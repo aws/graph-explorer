@@ -3,6 +3,7 @@ import type { AttributeFilter } from "@/connector/useGEFetchTypes";
 import { createVertexId } from "@/core";
 import { normalizeWithNoSpace as normalize } from "@/utils/testing";
 
+import { UnrepresentableNumberError } from "../../queryValueError";
 import oneHopTemplate from "./oneHopTemplate";
 
 describe("Gremlin > oneHopTemplate", () => {
@@ -123,6 +124,12 @@ describe("Gremlin > oneHopTemplate", () => {
     );
   });
 
+  it("Should reject a limit with no plain decimal form", () => {
+    expect(() =>
+      oneHopTemplate({ vertexId: createVertexId("12"), limit: Infinity }),
+    ).toThrow(new UnrepresentableNumberError(Infinity));
+  });
+
   it("Should return a template for specific vertex type", () => {
     const template = oneHopTemplate({
       vertexId: createVertexId("12"),
@@ -206,6 +213,17 @@ describe("Gremlin > oneHopTemplate", () => {
     );
   });
 
+  it("should escape a vertex type containing the delimiter", () => {
+    const template = oneHopTemplate({
+      vertexId: createVertexId("12"),
+      filterByVertexTypes: ['coun"try'],
+    });
+
+    expect(normalize(template)).toContain(
+      normalize('.both().hasLabel("coun\\"try").dedup()'),
+    );
+  });
+
   describe("attribute filters", () => {
     function fragmentFor(attributeFilters: AttributeFilter[]) {
       return normalize(
@@ -232,6 +250,18 @@ describe("Gremlin > oneHopTemplate", () => {
         normalize(
           'and(has("city",containing("Sea")), has("country",containing("US")))',
         ),
+      );
+    });
+
+    it("escapes an attribute name containing the delimiter", () => {
+      expect(fragmentFor([{ name: 'ci"ty', value: "Sea" }])).toContain(
+        normalize('and(has("ci\\"ty",containing("Sea")))'),
+      );
+    });
+
+    it("escapes a filter value containing the delimiter", () => {
+      expect(fragmentFor([{ name: "city", value: 'Se"a' }])).toContain(
+        normalize('and(has("city",containing("Se\\"a")))'),
       );
     });
 

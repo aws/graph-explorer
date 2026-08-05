@@ -1,5 +1,6 @@
 import { createEdgeId, createVertexId } from "@/core";
 
+import { UnrepresentableNumberError } from "../queryValueError";
 import { ESCAPABLE_PATTERN, fragment, SHORT_ESCAPES } from "./fragments";
 
 /**
@@ -157,6 +158,44 @@ describe("fragment.identifier", () => {
   it.each(awkwardStrings)("round-trips a name %j", value => {
     expectRoundTrip(fragment.identifier(value), value);
   });
+
+  // Gremlin takes a property key or label as an ordinary string literal, so
+  // `identifier` and `string` coincide. Nothing in a generated query reveals
+  // which one a call site chose; if the two ever diverge, every call site's
+  // choice has to be re-checked rather than assumed.
+  it.each(awkwardStrings)(
+    "should render %j identically to a string literal",
+    value => {
+      expect(fragment.identifier(value)).toBe(fragment.string(value));
+    },
+  );
+});
+
+describe("fragment.number", () => {
+  // `%s` rather than `%j`, which renders NaN and the infinities as `null`.
+  it.each([
+    [0, "0"],
+    [100, "100"],
+    [-5, "-5"],
+    [1.5, "1.5"],
+    [-1.5, "-1.5"],
+    [0.000001, "0.000001"],
+    [Number.MAX_SAFE_INTEGER, "9007199254740991"],
+    // Large enough to lose precision, but still written out in full, so the
+    // parser reads it as a number.
+    [1e20, "100000000000000000000"],
+  ])("should emit %s without delimiters", (value, text) => {
+    expect(fragment.number(value)).toBe(text);
+  });
+
+  it.each([NaN, Infinity, -Infinity, 1e21, -1e21, 1e-7, Number.MIN_VALUE])(
+    "should reject %s, which has no plain decimal form",
+    value => {
+      expect(() => fragment.number(value)).toThrow(
+        new UnrepresentableNumberError(value),
+      );
+    },
+  );
 });
 
 describe("fragment.id", () => {
