@@ -1,7 +1,10 @@
 import { type EdgeId, getRawId, type VertexId } from "@/core";
 
 import { type QueryFragment, toQueryFragment } from "../queryFragment";
-import { UnsupportedValueTypeError } from "../queryValueError";
+import {
+  assertRepresentable,
+  UnsupportedValueTypeError,
+} from "../queryValueError";
 
 /*
  * Constructs Query Fragments for openCypher. A fragment is safe to interpolate
@@ -25,11 +28,13 @@ function escape(value: string): string {
 export const fragment = {
   /** An openCypher string literal, including the surrounding double quotes. */
   string(value: string): QueryFragment {
+    assertRepresentable(value);
     return toQueryFragment(`"${escape(value)}"`);
   },
 
   /** A property key or label, delimited by backticks. */
   identifier(name: string): QueryFragment {
+    assertRepresentable(name);
     return toQueryFragment(`\`${name}\``);
   },
 
@@ -39,6 +44,7 @@ export const fragment = {
     if (typeof rawId !== "string") {
       throw new UnsupportedValueTypeError("openCypher", "id", rawId);
     }
+    assertRepresentable(rawId);
     return toQueryFragment(`"${rawId}"`);
   },
 };

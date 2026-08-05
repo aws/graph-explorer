@@ -53,6 +53,42 @@ export class UnrepresentableNumberError extends UnrepresentableValueError {
 }
 
 /**
+ * The value cannot be transmitted to any database: an unpaired surrogate has no
+ * UTF-8 encoding, and graph data cannot hold a NUL (XSD `xsd:string` is defined
+ * over XML's `Char` production, which excludes U+0000). Independent of language
+ * and position — no query in any language can carry it — so it carries neither.
+ */
+export class UnrepresentableStringError extends UnrepresentableValueError {
+  readonly value: string;
+
+  constructor(value: string) {
+    super(
+      "UnrepresentableStringError",
+      "This value contains characters that cannot be sent to a database.",
+    );
+    this.value = value;
+  }
+
+  get details() {
+    return { value: this.value };
+  }
+}
+
+/**
+ * Throws if a value cannot be transmitted to any database. A guard rather than a
+ * boolean predicate so a call site cannot forget to act on the result. The check
+ * must run on the raw value: escaping (`JSON.stringify`) turns a NUL into the
+ * six characters `\u0000` and a lone surrogate into `\ud800`, so a check after
+ * escaping — in `toQueryFragment` or at the transport boundary — would inspect
+ * escaped text and always pass.
+ */
+export function assertRepresentable(value: string): void {
+  if (!value.isWellFormed() || value.includes("\0")) {
+    throw new UnrepresentableStringError(value);
+  }
+}
+
+/**
  * The position accepts a value, but not one of this type — a numeric ID where a
  * language only supports string IDs, or a non-string where an IRI is required.
  *

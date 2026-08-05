@@ -1,7 +1,10 @@
 import { type EdgeId, getRawId, type VertexId } from "@/core";
 
 import { type QueryFragment, toQueryFragment } from "../queryFragment";
-import { UnrepresentableNumberError } from "../queryValueError";
+import {
+  assertRepresentable,
+  UnrepresentableNumberError,
+} from "../queryValueError";
 
 /*
  * Constructs Query Fragments for Gremlin. A fragment is safe to interpolate
@@ -78,6 +81,7 @@ function escapeStringLiteralBody(value: string): string {
 export const fragment = {
   /** A Gremlin string literal, including the surrounding single quotes. */
   string(value: string): QueryFragment {
+    assertRepresentable(value);
     return toQueryFragment(`'${escapeStringLiteralBody(value)}'`);
   },
 
@@ -86,6 +90,7 @@ export const fragment = {
    * use the same delimiters and escaping as any other literal.
    */
   identifier(name: string): QueryFragment {
+    assertRepresentable(name);
     return toQueryFragment(`'${escapeStringLiteralBody(name)}'`);
   },
 
@@ -111,10 +116,10 @@ export const fragment = {
    */
   id(entityId: VertexId | EdgeId): QueryFragment {
     const rawId = getRawId(entityId);
-    return toQueryFragment(
-      typeof rawId === "number"
-        ? `${rawId}L`
-        : `'${escapeStringLiteralBody(rawId)}'`,
-    );
+    if (typeof rawId === "number") {
+      return toQueryFragment(`${rawId}L`);
+    }
+    assertRepresentable(rawId);
+    return toQueryFragment(`'${escapeStringLiteralBody(rawId)}'`);
   },
 };

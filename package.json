@@ -33,6 +33,7 @@
     "@vitest/coverage-v8": "4.1.9",
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint-plugin-react-hooks": "7.1.1",
+    "fast-check": "^4.9.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.7",
     "oxfmt": "^0.55.0",

@@ -1,7 +1,9 @@
 import {
+  assertRepresentable,
   QueryValueError,
   UnescapableValueError,
   UnrepresentableNumberError,
+  UnrepresentableStringError,
   UnrepresentableValueError,
   UnsupportedValueTypeError,
 } from "./queryValueError";
@@ -173,5 +175,35 @@ describe("UnescapableValueError", () => {
       value,
       unescapableCharacters: ["U+0001", "U+000A"],
     });
+  });
+});
+
+describe("assertRepresentable", () => {
+  it.each([
+    ["a lone high surrogate", "a\uD800b"],
+    ["a lone low surrogate", "a\uDC00b"],
+    ["a NUL mid-string", "a\0b"],
+    ["a NUL alone", "\0"],
+  ])("throws UnrepresentableStringError for %s", (_, value) => {
+    expect(() => assertRepresentable(value)).toThrow(
+      UnrepresentableStringError,
+    );
+  });
+
+  it.each([
+    ["a valid surrogate pair", "a😀b"],
+    ["a plain control character", "a\u0001b"],
+    ["an empty string", ""],
+    ["ordinary text", "hello"],
+  ])("does not throw for %s", (_, value) => {
+    expect(() => assertRepresentable(value)).not.toThrow();
+  });
+
+  it("carries the offending value on the error", () => {
+    const value = "a\0b";
+    const error = new UnrepresentableStringError(value);
+
+    expect(error.value).toBe(value);
+    expect(error.details).toStrictEqual({ value });
   });
 });
