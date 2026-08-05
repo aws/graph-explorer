@@ -82,8 +82,8 @@ describe("oneHopNeighborsTemplate", () => {
               ?neighbor ?pValue ?object .
               FILTER(
                 isLiteral(?object) && (
-                  (?pValue=<http://www.example.com/soccer/ontology/teamName> && regex(str(?object), "Arsenal", "i")) ||
-                  (?pValue=<http://www.example.com/soccer/ontology/nickname> && regex(str(?object), "Gunners", "i"))
+                  (?pValue=<http://www.example.com/soccer/ontology/teamName> && CONTAINS(LCASE(STR(?object)), LCASE("Arsenal"))) ||
+                  (?pValue=<http://www.example.com/soccer/ontology/nickname> && CONTAINS(LCASE(STR(?object)), LCASE("Gunners")))
                 )
               )
             }

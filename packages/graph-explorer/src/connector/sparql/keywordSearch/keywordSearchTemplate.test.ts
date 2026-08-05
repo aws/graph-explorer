@@ -217,7 +217,40 @@ describe("SPARQL > keywordSearchTemplate", () => {
               OPTIONAL { ?subject a ?class } .
               FILTER (?pValue IN (<air:city>, <air:code>))
               FILTER (?class IN (<air:airport>))
-              FILTER (regex(str(?value), "JFK", "i"))
+              FILTER (CONTAINS(LCASE(STR(?value)), LCASE("JFK")))
+            }
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
+        }
+      `),
+    );
+  });
+
+  it("Should treat regex metacharacters in the search term as literal text", () => {
+    const template = keywordSearchTemplate({
+      subjectClasses: ["air:airport"],
+      searchTerm: "a.(b",
+      predicates: ["air:city"],
+      exactMatch: false,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
+              FILTER (?pValue IN (<air:city>))
+              FILTER (?class IN (<air:airport>))
+              FILTER (CONTAINS(LCASE(STR(?value)), LCASE("a.(b")))
             }
           }
           {
@@ -316,7 +349,7 @@ describe("SPARQL > keywordSearchTemplate", () => {
               OPTIONAL { ?subject a ?class } .
               FILTER (?pValue IN (<rdfs:label>))
               FILTER (?class IN (<air:airport>))
-              FILTER (regex(str(?value), "JFK", "i"))
+              FILTER (CONTAINS(LCASE(STR(?value)), LCASE("JFK")))
             }
           }
           {
