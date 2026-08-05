@@ -1,7 +1,10 @@
 import type { EdgeId, VertexId } from "@/core";
 
 import { type QueryFragment, toQueryFragment } from "../queryFragment";
-import { UnsupportedValueTypeError } from "../queryValueError";
+import {
+  assertRepresentable,
+  UnsupportedValueTypeError,
+} from "../queryValueError";
 
 /*
  * Constructs Query Fragments for SPARQL. A fragment is safe to interpolate
@@ -28,6 +31,7 @@ function escape(value: string): string {
 export const fragment = {
   /** A SPARQL string literal, including the surrounding double quotes. */
   string(value: string): QueryFragment {
+    assertRepresentable(value);
     return toQueryFragment(`"${escape(value)}"`);
   },
 
@@ -36,6 +40,7 @@ export const fragment = {
     if (typeof value !== "string") {
       throw new UnsupportedValueTypeError("sparql", "IRI", value);
     }
+    assertRepresentable(value);
     return toQueryFragment(`<${value}>`);
   },
 };

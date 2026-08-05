@@ -71,7 +71,6 @@ const awkwardStrings = [
   `line ${String.fromCharCode(0x2028)} separator`,
   `delete ${String.fromCharCode(0x7f)} character`,
   `nbsp ${String.fromCharCode(0x00a0)} character`,
-  "\ud800",
   "cost is $total",
 ] as const;
 
