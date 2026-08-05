@@ -12,11 +12,13 @@ const modules = { openCypher, gremlin, sparql };
 describe.each(Object.entries(modules))(
   "%s constructors reject unrepresentable values",
   (_, fragment) => {
-    // Branded IDs are strings at runtime, so every constructor accepts a string.
-    const constructors = Object.entries(fragment) as [
-      string,
-      (value: string) => QueryFragment,
-    ][];
+    // Every string-accepting constructor takes a string (branded IDs are
+    // strings at runtime). Gremlin's `number` is the one non-string
+    // constructor; the guard is a string check, so it is not part of this
+    // sweep — including it would pass for an unrelated reason and mask a gap.
+    const constructors = (
+      Object.entries(fragment) as [string, (value: string) => QueryFragment][]
+    ).filter(([name]) => name !== "number");
 
     it.each(constructors)("%s throws QueryValueError", (_, construct) => {
       for (const value of ["a\uD800b", "a\0b"]) {
