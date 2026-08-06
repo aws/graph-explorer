@@ -1,6 +1,9 @@
 import { createVertexId } from "@/core";
 import { query } from "@/utils";
-import { normalizeWithNewlines as normalize } from "@/utils/testing";
+import {
+  normalize as normalizeCollapsed,
+  normalizeWithNewlines as normalize,
+} from "@/utils/testing";
 
 import oneHopNeighborsBlankNodesIdsTemplate from "./oneHopNeighborsBlankNodesIdsTemplate";
 
@@ -36,5 +39,35 @@ describe("oneHopNeighborsBlankNodesIdsTemplate", () => {
         }
       `),
     );
+  });
+
+  it("should conjoin multiple attribute filters as adjacent FILTER EXISTS blocks", () => {
+    const template = oneHopNeighborsBlankNodesIdsTemplate({
+      resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
+      attributeFilters: [
+        {
+          name: "http://www.example.com/soccer/ontology/teamName",
+          value: "Arsenal",
+        },
+        {
+          name: "http://www.example.com/soccer/ontology/nickname",
+          value: "Gunners",
+        },
+      ],
+    });
+
+    expect(normalizeCollapsed(template)).toContain(
+      normalizeCollapsed(query`
+        FILTER EXISTS {
+          ?neighbor <http://www.example.com/soccer/ontology/teamName> ?filterValue .
+          FILTER(isLiteral(?filterValue) && CONTAINS(LCASE(STR(?filterValue)), LCASE("Arsenal")))
+        }
+        FILTER EXISTS {
+          ?neighbor <http://www.example.com/soccer/ontology/nickname> ?filterValue .
+          FILTER(isLiteral(?filterValue) && CONTAINS(LCASE(STR(?filterValue)), LCASE("Gunners")))
+        }
+      `),
+    );
+    expect(template).not.toContain("?pValue");
   });
 });

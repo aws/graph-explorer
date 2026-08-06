@@ -62,13 +62,14 @@ import { rdfTypeUri, type SPARQLNeighborsRequest } from "../types";
  *           <http://www.example.com/soccer/ontology/Team>
  *         ))
  *       }
- *       ?neighbor ?pValue ?object .
- *       FILTER(
- *         isLiteral(?object) && (
- *           (?pValue=<http://www.example.com/soccer/ontology/teamName> && CONTAINS(LCASE(STR(?object)), LCASE("Arsenal"))) ||
- *           (?pValue=<http://www.example.com/soccer/ontology/nickname> && CONTAINS(LCASE(STR(?object)), LCASE("Gunners")))
- *         )
- *       )
+ *       FILTER EXISTS {
+ *         ?neighbor <http://www.example.com/soccer/ontology/teamName> ?filterValue .
+ *         FILTER(isLiteral(?filterValue) && CONTAINS(LCASE(STR(?filterValue)), LCASE("Arsenal")))
+ *       }
+ *       FILTER EXISTS {
+ *         ?neighbor <http://www.example.com/soccer/ontology/nickname> ?filterValue .
+ *         FILTER(isLiteral(?filterValue) && CONTAINS(LCASE(STR(?filterValue)), LCASE("Gunners")))
+ *       }
  *     }
  *     LIMIT 2
  *   }
@@ -205,22 +206,20 @@ export function findNeighborsUsingFilters({
 /**
  * Creates a filter template for the given attribute filters.
  *
- * The ?pValue must equal the filter's attribute name and the ?object must contain the filter's value.
+ * Each filter becomes its own `FILTER EXISTS` block; juxtaposing them conjoins
+ * the filters (AND) — every filter must match. A single filter matches when any
+ * value of that attribute contains the value (existential, since RDF may repeat
+ * a predicate). A shared unbound predicate variable is deliberately avoided: it
+ * makes `&&` across filters unsatisfiable and dominates query cost.
  */
 function getFilterTemplate(attributeFilters: AttributeFilter[]) {
-  const hasFilters = attributeFilters.length > 0;
-
   const createFilterTemplate = (filter: AttributeFilter) =>
-    `(?pValue=${fragment.iri(filter.name)} && CONTAINS(LCASE(STR(?object)), LCASE(${fragment.string(filter.value)})))`;
+    query`
+      FILTER EXISTS {
+        ?neighbor ${fragment.iri(filter.name)} ?filterValue .
+        FILTER(isLiteral(?filterValue) && CONTAINS(LCASE(STR(?filterValue)), LCASE(${fragment.string(filter.value)})))
+      }
+    `;
 
-  return hasFilters
-    ? query`
-        ?neighbor ?pValue ?object .
-        FILTER(
-          isLiteral(?object) && (
-            ${attributeFilters.map(createFilterTemplate).join(" ||\n")}
-          )
-        )
-      `
-    : "";
+  return attributeFilters.map(createFilterTemplate).join("\n");
 }
