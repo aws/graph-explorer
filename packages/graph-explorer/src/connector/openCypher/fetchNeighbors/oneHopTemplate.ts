@@ -8,7 +8,7 @@ import { query } from "@/utils";
 import { fragment } from "../fragments";
 
 const attributeFilterTemplate = ({ name, value }: AttributeFilter): string =>
-  `tgt.${name} CONTAINS "${value}"`;
+  `tgt.${fragment.identifier(name)} CONTAINS ${fragment.string(value)}`;
 
 /**
  * @example
@@ -43,13 +43,15 @@ const oneHopTemplate = ({
     filterByVertexTypes.length > 1
       ? `(${filterByVertexTypes
           .flatMap((type: string) => type.split("::"))
-          .map((type: string) => `v:${type}`)
+          .map((type: string) => `v:${fragment.identifier(type)}`)
           .join(" OR ")})`
       : "";
 
   // Specify node type for target if provided and only one
   const targetMatch =
-    filterByVertexTypes.length == 1 ? `tgt:${filterByVertexTypes[0]}` : `tgt`;
+    filterByVertexTypes.length == 1
+      ? `tgt:${fragment.identifier(filterByVertexTypes[0])}`
+      : `tgt`;
 
   // Combine all the WHERE conditions
   const whereConditions = [
