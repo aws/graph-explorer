@@ -13,6 +13,11 @@ This sample uses Gremlin Server 3.8 as the database pre-loaded with the [air rou
 > [!NOTE]
 > The data is not persisted between restarts of the Docker container.
 
+> [!WARNING]
+> This sample is intended for local development and evaluation only. Its
+> Gremlin Server is not hardened for production and should not be used as a
+> template for a production deployment.
+
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) installed on your machine
