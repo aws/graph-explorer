@@ -61,8 +61,8 @@ const keywordSearchTemplate = ({
         }
 
         return exactMatch === true
-          ? `v.${attr} = ${searchLiteral}`
-          : `v.${attr} CONTAINS ${searchLiteral}`;
+          ? `v.${fragment.identifier(attr)} = ${searchLiteral}`
+          : `v.${fragment.identifier(attr)} CONTAINS ${searchLiteral}`;
       })
       .join(" OR ");
 

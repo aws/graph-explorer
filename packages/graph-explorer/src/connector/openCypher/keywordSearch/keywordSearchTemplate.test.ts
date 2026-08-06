@@ -98,8 +98,8 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         MATCH (v)
-        WHERE (v:\`airport\` OR v:\`country\`) 
-          AND (v.city CONTAINS "JFK" OR v.code CONTAINS "JFK")
+        WHERE (v:\`airport\` OR v:\`country\`)
+          AND (v.\`city\` CONTAINS "JFK" OR v.\`code\` CONTAINS "JFK")
         RETURN v AS object
       `),
     );
@@ -116,7 +116,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         MATCH (v:\`airport\`)
-        WHERE (v.city CONTAINS "JFK" OR v.code CONTAINS "JFK")
+        WHERE (v.\`city\` CONTAINS "JFK" OR v.\`code\` CONTAINS "JFK")
         RETURN v AS object
       `),
     );
@@ -133,7 +133,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         MATCH (v:\`airport\`)
-        WHERE (v.city = "JFK" OR v.code = "JFK")
+        WHERE (v.\`city\` = "JFK" OR v.\`code\` = "JFK")
         RETURN v AS object
       `),
     );
@@ -183,7 +183,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         MATCH (v:\`airport\`)
-        WHERE (toString(id(v)) CONTAINS "JFK" OR v.city CONTAINS "JFK" OR v.code CONTAINS "JFK")
+        WHERE (toString(id(v)) CONTAINS "JFK" OR v.\`city\` CONTAINS "JFK" OR v.\`code\` CONTAINS "JFK")
         RETURN v AS object
       `),
     );
@@ -203,7 +203,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
       normalize(`
         MATCH (v)
         WHERE (v:\`airport\` OR v:\`country\`)
-          AND (toString(id(v)) CONTAINS "JFK" OR v.city CONTAINS "JFK" OR v.code CONTAINS "JFK")
+          AND (toString(id(v)) CONTAINS "JFK" OR v.\`city\` CONTAINS "JFK" OR v.\`code\` CONTAINS "JFK")
         RETURN v AS object
         SKIP 25 LIMIT 50
       `),
@@ -236,7 +236,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
       normalize(`
         MATCH (v)
         WHERE (labels(v) = [])
-          AND (v.name CONTAINS "test" OR v.value CONTAINS "test")
+          AND (v.\`name\` CONTAINS "test" OR v.\`value\` CONTAINS "test")
         RETURN v AS object
       `),
     );
@@ -253,7 +253,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         MATCH (v:\`airport\`)
-        WHERE (v.code CONTAINS "JF\\"K")
+        WHERE (v.\`code\` CONTAINS "JF\\"K")
         RETURN v AS object
       `),
     );
