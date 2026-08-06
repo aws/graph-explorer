@@ -125,6 +125,27 @@ export class UnsupportedValueTypeError extends QueryValueError {
 }
 
 /**
+ * An identifier that names nothing. An empty property key or label cannot select
+ * anything, and emitting an empty delimited name would silently match a
+ * different position.
+ */
+export class EmptyIdentifierError extends QueryValueError {
+  readonly language: QueryEngine;
+
+  constructor(language: QueryEngine) {
+    super(
+      "EmptyIdentifierError",
+      `An empty ${language} identifier cannot be used in a query.`,
+    );
+    this.language = language;
+  }
+
+  get details() {
+    return { language: this.language };
+  }
+}
+
+/**
  * The value cannot be escaped for this position — the position's grammar offers
  * no escape mechanism for the characters it carries, so there is no faithful
  * query text to emit. Position-specific rather than an `UnrepresentableValueError`,

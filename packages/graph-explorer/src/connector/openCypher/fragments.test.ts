@@ -3,6 +3,8 @@ import fc from "fast-check";
 import { createEdgeId, createVertexId } from "@/core";
 
 import {
+  EmptyIdentifierError,
+  UnescapableValueError,
   UnrepresentableStringError,
   UnsupportedValueTypeError,
 } from "../queryValueError";
@@ -54,6 +56,32 @@ describe("fragment.identifier", () => {
 
   it("should preserve spaces in the name", () => {
     expect(fragment.identifier("home airport")).toEqual("`home airport`");
+  });
+
+  it("should double an embedded backtick, how openCypher escapes it", () => {
+    expect(fragment.identifier("a`b")).toEqual("`a``b`");
+  });
+
+  it("should reject an empty name, which names nothing", () => {
+    expect(() => fragment.identifier("")).toThrow(EmptyIdentifierError);
+  });
+
+  it("should reject a newline, a control character an identifier cannot carry", () => {
+    expect(() => fragment.identifier("a\nb")).toThrow(
+      new UnescapableValueError("openCypher", "identifier", "a\nb", ["\n"]),
+    );
+  });
+
+  it("should reject a tab, a control character an identifier cannot carry", () => {
+    expect(() => fragment.identifier("a\tb")).toThrow(
+      new UnescapableValueError("openCypher", "identifier", "a\tb", ["\t"]),
+    );
+  });
+
+  it("should reject an unrepresentable name via the string guard", () => {
+    expect(() => fragment.identifier("a\0b")).toThrow(
+      UnrepresentableStringError,
+    );
   });
 });
 

@@ -21,6 +21,6 @@ export function toQueryFragment(text: string): QueryFragment {
 
 /**
  * The positions within a query whose value type the query language constrains:
- * an entity ID and a SPARQL IRI.
+ * an entity ID, a SPARQL IRI, and an openCypher identifier.
  */
-export type FragmentPosition = "IRI" | "id";
+export type FragmentPosition = "IRI" | "identifier" | "id";

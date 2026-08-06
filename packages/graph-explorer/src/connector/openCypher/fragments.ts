@@ -3,6 +3,8 @@ import { type EdgeId, getRawId, type VertexId } from "@/core";
 import { type QueryFragment, toQueryFragment } from "../queryFragment";
 import {
   assertRepresentable,
+  EmptyIdentifierError,
+  UnescapableValueError,
   UnsupportedValueTypeError,
 } from "../queryValueError";
 
@@ -21,6 +23,16 @@ import {
  * its own.
  */
 
+function controlCharacters(name: string): string[] {
+  const offenders: string[] = [];
+  for (const char of name) {
+    if (char < " ") {
+      offenders.push(char);
+    }
+  }
+  return offenders;
+}
+
 export const fragment = {
   /**
    * An openCypher string literal, including the surrounding double quotes.
@@ -33,10 +45,28 @@ export const fragment = {
     return toQueryFragment(JSON.stringify(value));
   },
 
-  /** A property key or label, delimited by backticks. */
+  /**
+   * A property key or label, delimited by backticks. An embedded backtick is
+   * doubled — how openCypher escapes it within a backtick-quoted name. An empty
+   * name names nothing and is reported. A control character is reported rather
+   * than emitted: a control character in a label is malformed data, and a
+   * backtick-quoted name spanning lines is unreadable in the assembled query.
+   */
   identifier(name: string): QueryFragment {
     assertRepresentable(name);
-    return toQueryFragment(`\`${name}\``);
+    if (name === "") {
+      throw new EmptyIdentifierError("openCypher");
+    }
+    const offenders = controlCharacters(name);
+    if (offenders.length > 0) {
+      throw new UnescapableValueError(
+        "openCypher",
+        "identifier",
+        name,
+        offenders,
+      );
+    }
+    return toQueryFragment(`\`${name.replaceAll("`", "``")}\``);
   },
 
   /** An entity ID. openCypher only supports string IDs. */
