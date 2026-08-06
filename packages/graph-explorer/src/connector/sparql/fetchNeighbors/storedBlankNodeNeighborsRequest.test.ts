@@ -63,6 +63,35 @@ describe("SPARQL > storedBlankNodeNeighborsRequest", () => {
     expect(response.vertices).toStrictEqual([seattle]);
   });
 
+  it("should match the attribute regardless of case", async () => {
+    const seattle = airportWith({ city: "Seattle" });
+
+    const response = await storedBlankNodeNeighborsRequest(
+      blankNodesWithNeighbors([seattle]),
+      {
+        resourceURI: blankNodeId,
+        attributeFilters: [{ name: "city", value: "sEAT" }],
+      },
+    );
+
+    expect(response.vertices).toStrictEqual([seattle]);
+  });
+
+  it("should treat regex metacharacters in the filter value as literal text", async () => {
+    const literal = airportWith({ city: "a.(b" });
+    const resembling = airportWith({ city: "axyb" });
+
+    const response = await storedBlankNodeNeighborsRequest(
+      blankNodesWithNeighbors([literal, resembling]),
+      {
+        resourceURI: blankNodeId,
+        attributeFilters: [{ name: "city", value: "a.(b" }],
+      },
+    );
+
+    expect(response.vertices).toStrictEqual([literal]);
+  });
+
   it("should require every filter to match", async () => {
     const seattleWa = airportWith({ city: "Seattle", state: "WA" });
     const seattleOr = airportWith({ city: "Seattle", state: "OR" });
