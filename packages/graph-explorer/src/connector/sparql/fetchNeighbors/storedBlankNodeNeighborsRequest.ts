@@ -30,7 +30,9 @@ export const storedBlankNodeNeighborsRequest = (
         if (attrVal == null) {
           return false;
         }
-        if (!String(attrVal).match(new RegExp(filter.value, "gi"))) {
+        if (
+          !String(attrVal).toLowerCase().includes(filter.value.toLowerCase())
+        ) {
           return false;
         }
       }

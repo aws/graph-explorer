@@ -19,7 +19,7 @@ Vitest. Tests co-locate with source as `*.test.ts` (or `*.test.tsx` for componen
 - `createMockExplorer` / `FakeExplorer` — explorer test doubles
 - SPARQL: `createUriValue`, `createLiteralValue`, `createQuadBindingsForEntities`, `createQuadSparqlResponse` (`sparqlHelpers.ts`)
 - Gremlin/openCypher response builders: `graphsonHelpers.ts`, `ocHelpers.ts`
-- `normalizeWithNoSpace` — normalize query strings before asserting
+- `normalizeWithNoSpace` / `normalize` / `normalizeWithNewlines` — normalize query strings before asserting (`normalize.ts`). They differ in whitespace and comment handling; use whichever the file you're editing already uses.
 - Persistence: `PersistenceTab`, `readPersistedValue` (`persistence.ts`)
 - `@shared/utils/testing` — primitives: `createRandomName`, `createRandomInteger`, `createRandomColor`, `createRandomUrlString`, …
 
