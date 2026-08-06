@@ -23,7 +23,7 @@ describe("SPARQL > keywordSearchBlankNodesIdsTemplate", () => {
               OPTIONAL { ?subject a ?class } .
               FILTER (?pValue IN (<air:city>))
               FILTER (?class IN (<air:airport>))
-              FILTER (regex(str(?value), "JFK", "i"))
+              FILTER (CONTAINS(LCASE(STR(?value)), LCASE("JFK")))
             }
             LIMIT 10
           }
