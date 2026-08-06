@@ -68,7 +68,7 @@ export function getNeighborsFilter(excludedVertices?: Set<VertexId>) {
           !isLiteral(?neighbor) &&
           ?predicate != ${fragment.iri(rdfTypeUri)} &&
           ?neighbor NOT IN (
-            ${excludedVerticesTemplates.join(", \n")}
+            ${excludedVerticesTemplates.join(",\n")}
           )
         )
       `
