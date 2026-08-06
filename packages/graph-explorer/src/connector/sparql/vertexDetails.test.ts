@@ -115,7 +115,9 @@ describe("vertexDetails", () => {
 
     await expect(
       vertexDetails(mockFetch, { vertexIds: [vertex.id] }),
-    ).rejects.toThrow(UnsupportedValueTypeError);
+    ).rejects.toThrow(
+      new UnsupportedValueTypeError("sparql", "IRI", vertex.id),
+    );
   });
 });
 

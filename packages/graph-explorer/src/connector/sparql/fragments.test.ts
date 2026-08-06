@@ -46,7 +46,7 @@ describe("fragment.iri", () => {
 
   it("should throw when the value is not a string, since an IRI is text", () => {
     expect(() => fragment.iri(createVertexId(124))).toThrow(
-      UnsupportedValueTypeError,
+      new UnsupportedValueTypeError("sparql", "IRI", createVertexId(124)),
     );
   });
 });
