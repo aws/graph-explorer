@@ -282,6 +282,21 @@ describe("oneHopNeighborsTemplate", () => {
       `),
     );
   });
+
+  it("should treat regex metacharacters in an attribute filter value as literal text", () => {
+    const template = oneHopNeighborsTemplate({
+      resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
+      attributeFilters: [
+        {
+          name: "http://www.example.com/soccer/ontology/teamName",
+          value: "a.(b",
+        },
+      ],
+    });
+
+    expect(template).toContain(`LCASE("a.(b")`);
+    expect(template).not.toContain("regex(");
+  });
 });
 
 /**
