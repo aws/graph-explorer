@@ -19,7 +19,7 @@ The fragment constructors **refuse** such a value rather than emit it. A single 
 
 ## Considered Options
 
-- **Refuse via a runtime guard (chosen).** A guard, not a boolean predicate, so a call site cannot forget to act on its result. A reflective conformance sweep (one test that enumerates every constructor via `Object.entries`) asserts that an unrepresentable value throws `QueryValueError`, so a ninth constructor added later is covered automatically. The sweep asserts the base class, not the concrete subclass, so it survives a future change that rejects a position for its own reason.
+- **Refuse via a runtime guard (chosen).** A guard, not a boolean predicate, so a call site cannot forget to act on its result. A reflective conformance sweep (one test that enumerates every constructor via `Object.entries`) asserts that an unrepresentable value throws `UnrepresentableStringError`, so a ninth constructor added later is covered automatically. The sweep pins the concrete subclass rather than the base class: representability is refused uniformly regardless of language or position, so a constructor that reclassified an unrepresentable value as some other `QueryValueError` subclass would be a regression the sweep should catch.
 - **A branded `RepresentableString` type**, making a missing guard a _compile_ error. A stronger guarantee, but it pushes validation up into the template layer and collides with the existing ID branding (`VertexId`/`EdgeId`) — a value would need to be both a `VertexId` and a `RepresentableString`. Rejected in favour of the runtime guard plus the conformance sweep.
 - **Emit and let the database decide.** Rejected: acceptance without faithful semantics is worse than a clean refusal — see below.
 
