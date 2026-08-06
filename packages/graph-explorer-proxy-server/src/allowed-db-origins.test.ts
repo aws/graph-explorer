@@ -48,13 +48,21 @@ describe("assertAllowedDbOrigin", () => {
     const allowed = new Set(["https://neptune:8182"]);
     expect(() =>
       assertAllowedDbOrigin("https://neptune:8183", allowed),
-    ).toThrow(HttpError);
+    ).toThrow(
+      new HttpError(
+        403,
+        `Database origin "https://neptune:8183" is not in the allowed origins list. Contact your administrator.`,
+      ),
+    );
   });
 
   it("treats different schemes as different origins", () => {
     const allowed = new Set(["https://neptune:8182"]);
     expect(() => assertAllowedDbOrigin("http://neptune:8182", allowed)).toThrow(
-      HttpError,
+      new HttpError(
+        403,
+        `Database origin "http://neptune:8182" is not in the allowed origins list. Contact your administrator.`,
+      ),
     );
   });
 
@@ -62,7 +70,12 @@ describe("assertAllowedDbOrigin", () => {
     const allowed = new Set<string>();
     expect(() =>
       assertAllowedDbOrigin("https://neptune:8182", allowed),
-    ).toThrow(HttpError);
+    ).toThrow(
+      new HttpError(
+        403,
+        `Database origin "https://neptune:8182" is not in the allowed origins list. Contact your administrator.`,
+      ),
+    );
   });
 
   it("normalizes default ports (443 for https, 80 for http)", () => {

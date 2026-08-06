@@ -546,6 +546,8 @@ describe("parseStylingPayloadForVersion", () => {
   test("throws loudly for a generation with no parser", () => {
     expect(() =>
       parseStylingPayloadForVersion(2, { vertices: {}, edges: {} }),
-    ).toThrow(FileEnvelopeError);
+    ).toThrow(
+      new FileEnvelopeError("No styling parser for format generation 2"),
+    );
   });
 });

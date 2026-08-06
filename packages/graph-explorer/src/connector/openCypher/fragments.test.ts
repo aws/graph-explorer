@@ -68,7 +68,7 @@ describe("fragment.id", () => {
 
   it("should throw for a numeric ID, which openCypher does not support", () => {
     expect(() => fragment.id(createVertexId(124))).toThrow(
-      UnsupportedValueTypeError,
+      new UnsupportedValueTypeError("openCypher", "id", createVertexId(124)),
     );
   });
 
@@ -82,7 +82,7 @@ describe("fragment.id", () => {
 
   it("should reject an unrepresentable string ID via the string guard", () => {
     expect(() => fragment.id(createVertexId("a\0b"))).toThrow(
-      UnrepresentableStringError,
+      new UnrepresentableStringError("a\0b"),
     );
   });
 });

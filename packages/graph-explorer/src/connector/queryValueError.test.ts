@@ -186,7 +186,7 @@ describe("assertRepresentable", () => {
     ["a NUL alone", "\0"],
   ])("throws UnrepresentableStringError for %s", (_, value) => {
     expect(() => assertRepresentable(value)).toThrow(
-      UnrepresentableStringError,
+      new UnrepresentableStringError(value),
     );
   });
 

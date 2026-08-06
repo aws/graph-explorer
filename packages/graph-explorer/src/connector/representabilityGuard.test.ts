@@ -4,7 +4,7 @@ import type { QueryFragment } from "./queryFragment";
 
 import { fragment as gremlin } from "./gremlin/fragments";
 import { fragment as openCypher } from "./openCypher/fragments";
-import { QueryValueError } from "./queryValueError";
+import { UnrepresentableStringError } from "./queryValueError";
 import { fragment as sparql } from "./sparql/fragments";
 
 const modules = { openCypher, gremlin, sparql };
@@ -20,11 +20,16 @@ describe.each(Object.entries(modules))(
       Object.entries(fragment) as [string, (value: string) => QueryFragment][]
     ).filter(([name]) => name !== "number");
 
-    it.each(constructors)("%s throws QueryValueError", (_, construct) => {
-      for (const value of ["a\uD800b", "a\0b"]) {
-        expect(() => construct(value)).toThrow(QueryValueError);
-      }
-    });
+    it.each(constructors)(
+      "%s throws UnrepresentableStringError",
+      (_, construct) => {
+        for (const value of ["a\uD800b", "a\0b"]) {
+          expect(() => construct(value)).toThrow(
+            new UnrepresentableStringError(value),
+          );
+        }
+      },
+    );
   },
 );
 
@@ -34,9 +39,10 @@ it("refuses any string carrying a NUL or lone surrogate", () => {
       fc.string(),
       fc.constantFrom("\0", "\uD800", "\uDC00"),
       (s, bad) => {
-        expect(() =>
-          openCypher.string(s.slice(0, 1) + bad + s.slice(1)),
-        ).toThrow(QueryValueError);
+        const value = s.slice(0, 1) + bad + s.slice(1);
+        expect(() => openCypher.string(value)).toThrow(
+          new UnrepresentableStringError(value),
+        );
       },
     ),
   );
