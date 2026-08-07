@@ -12,6 +12,7 @@ import isErrorResponse from "../utils/isErrorResponse";
 import { fragment } from "./fragments";
 import { extractRawId } from "./mappers/extractRawId";
 import { parseGMap } from "./mappers/parseGMap";
+import { splitLabel } from "./splitLabel";
 
 type GIdentifier = string | GInt64;
 
@@ -83,7 +84,7 @@ export async function neighborCounts(
       for (const [rawType, gValue] of countsByTypeMap.entries()) {
         const count = gValue["@value"];
         totalCount += count;
-        const types = rawType.split("::");
+        const types = splitLabel(rawType);
         for (const type of types) {
           const vertexType = createVertexType(type);
           countsByType.set(

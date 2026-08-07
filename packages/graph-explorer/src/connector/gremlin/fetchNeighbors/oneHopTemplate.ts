@@ -47,10 +47,9 @@ export default function oneHopTemplate({
   const idTemplate = fragment.id(vertexId);
   const range = limit > 0 ? `.range(0, ${fragment.number(limit)})` : "";
 
-  const vertexTypes = filterByVertexTypes.flatMap(type => type.split("::"));
   const vertexTypesTemplate =
-    vertexTypes.length > 0
-      ? `hasLabel(${vertexTypes.map(fragment.identifier).join(", ")})`
+    filterByVertexTypes.length > 0
+      ? `hasLabel(${filterByVertexTypes.map(fragment.identifier).join(", ")})`
       : ``;
 
   const attributeFiltersTemplate =

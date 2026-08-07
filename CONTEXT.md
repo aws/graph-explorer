@@ -45,6 +45,10 @@ A classification of vertices. The schema, styling, filtering, and exploration al
 **Edge Type**:
 A classification of edges. UI label varies by query language: "Edge Label" (Gremlin), "Relationship Type" (openCypher), "Predicate" (SPARQL).
 
+**Composite Label**:
+A single string in which Amazon Neptune joins the multiple labels of one vertex with the reserved `::` delimiter (`g.addV("A::B")`). It appears only on the Gremlin wire (element label, `by(label)` keys, `label()` output); openCypher returns labels as an array and never uses `::`. Graph Explorer splits a composite label into its constituent Vertex Types once, at the Gremlin ingestion boundary — a Vertex Type is always a single label thereafter.
+_Avoid_: Multi-label (describes the vertex, not the joined string), Label list (it is a delimited string, not a list until split)
+
 **Neighbors**:
 Vertices directly connected to a given vertex (one hop away). Users "expand neighbors" to progressively discover the graph. Neighbor counts track total vs. unfetched to indicate how much remains unexplored.
 _Avoid_: Connections (ambiguous with Connection)

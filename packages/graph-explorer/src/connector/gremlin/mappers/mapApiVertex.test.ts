@@ -6,6 +6,7 @@ import {
   createRandomName,
 } from "@shared/utils/testing";
 
+import { createVertexType } from "@/core";
 import {
   createGDate,
   createGDouble,
@@ -81,7 +82,17 @@ describe("mapApiVertex", () => {
     expect(mappedVertex).toStrictEqual(vertex);
   });
 
-  it("should map a graphSON vertex without labels", () => {
+  it("splits a Neptune composite label into separate types", () => {
+    const vertex = createTestableVertex().asResult();
+    vertex.types = [createVertexType("country"), createVertexType("capital")];
+    const gVertex = createGVertex(vertex);
+
+    const mappedVertex = mapApiVertex(gVertex);
+
+    expect(mappedVertex.types).toStrictEqual(["country", "capital"]);
+  });
+
+  it("maps an empty label to no types", () => {
     const vertex = createTestableVertex().asResult();
     vertex.types = [];
     const gVertex = createGVertex(vertex);
@@ -89,6 +100,7 @@ describe("mapApiVertex", () => {
     const mappedVertex = mapApiVertex(gVertex);
 
     expect(mappedVertex).toStrictEqual(vertex);
+    expect(mappedVertex.types).toStrictEqual([]);
   });
 
   it("should map a graphSON vertex with name", () => {

@@ -147,15 +147,15 @@ describe("OpenCypher > oneHopTemplate", () => {
     );
   });
 
-  it("should expand Neptune multi-label types into separate labels on '::'", () => {
+  // filterByVertexTypes carries VertexType ids that were already split apart at
+  // ingestion, so a value bearing :: must be used verbatim, not re-split.
+  it("uses each vertex type verbatim without splitting on '::'", () => {
     const template = oneHopTemplate({
       vertexId: createVertexId("12"),
       filterByVertexTypes: ["country::capital", "city::town"],
     });
 
-    expect(template).toContain(
-      "(v:`country` OR v:`capital` OR v:`city` OR v:`town`)",
-    );
+    expect(template).toContain("(v:`country::capital` OR v:`city::town`)");
   });
 
   describe("attribute filters", () => {

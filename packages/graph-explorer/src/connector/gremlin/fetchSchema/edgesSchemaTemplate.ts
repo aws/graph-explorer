@@ -3,6 +3,7 @@ import { uniq } from "lodash";
 import { query } from "@/utils";
 
 import { fragment } from "../fragments";
+import { splitLabel } from "../splitLabel";
 
 /**
  * Given a set of edge types, it returns a Gremlin template that contains
@@ -24,9 +25,7 @@ import { fragment } from "../fragments";
  * //   .by(V().bothE('contain').limit(1))
  */
 export default function edgesSchemaTemplate({ types }: { types: string[] }) {
-  const labels = uniq(types.flatMap(type => type.split("::"))).map(
-    fragment.identifier,
-  );
+  const labels = uniq(types.flatMap(splitLabel)).map(fragment.identifier);
 
   return query`
     g.V().limit(1)

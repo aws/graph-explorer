@@ -34,10 +34,7 @@ export default function keywordSearchTemplate({
   let template = "g.V()";
 
   if (vertexTypes.length !== 0) {
-    const hasLabelContent = vertexTypes
-      .flatMap(type => type.split("::"))
-      .map(fragment.identifier)
-      .join(",");
+    const hasLabelContent = vertexTypes.map(fragment.identifier).join(",");
     template += `.hasLabel(${hasLabelContent})`;
   }
 

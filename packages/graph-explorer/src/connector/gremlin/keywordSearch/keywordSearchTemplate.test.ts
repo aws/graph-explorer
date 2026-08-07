@@ -29,13 +29,15 @@ describe("Gremlin > keywordSearchTemplate", () => {
     );
   });
 
-  it("Should expand a Neptune multi-label type into separate labels on '::'", () => {
+  // vertexTypes carries VertexType ids that were already split apart at
+  // ingestion, so a value bearing :: must be used verbatim, not re-split.
+  it("uses each vertex type verbatim without splitting on '::'", () => {
     const template = keywordSearchTemplate({
       vertexTypes: ["country::capital"],
     });
 
     expect(normalize(template)).toBe(
-      normalize("g.V().hasLabel('country','capital')"),
+      normalize("g.V().hasLabel('country::capital')"),
     );
   });
 
