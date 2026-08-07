@@ -19,10 +19,10 @@
 # WARNING: This is a sample Gremlin Server configuration intended for local
 # development and evaluation only. It is not hardened for production use.
 #
-# This server evaluates submitted Gremlin scripts, so it should only be run
-# against a trusted graph on a trusted local network. Do not use this file
+# It has no authentication and is configured for convenience, not security,
+# so it should only be run on a trusted local network. Do not use this file
 # as a template for a production deployment or expose it to untrusted
-# networks or data.
+# networks.
 # ---------------------------------------------------------------------------
 
 host: database
