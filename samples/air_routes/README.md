@@ -10,8 +10,15 @@
 
 This sample uses Gremlin Server 3.8 as the database pre-loaded with the [air routes dataset](https://tinkerpop.apache.org/docs/3.8.1/upgrade/#air-routes-dataset) and shows how to configure Graph Explorer to connect to it automatically with a default connection.
 
-> [!NOTE]
-> The data is not persisted between restarts of the Docker container.
+> [!WARNING]
+> **This sample is for local development and evaluation only.** Do not use it
+> as a template for a production deployment.
+>
+> - **No authentication** — anyone who can reach it has full access.
+> - **Not hardened** — it is configured for convenience, not security.
+> - **No persistence** — data is lost when the container restarts.
+>
+> Run it only on a trusted local network.
 
 ## Prerequisites
 
@@ -29,3 +36,5 @@ This sample uses Gremlin Server 3.8 as the database pre-loaded with the [air rou
    docker compose up
    ```
 4. Open the browser and navigate to: [http://localhost:8080/explorer](http://localhost:8080/explorer)
+
+Once it is running, the [Getting Started tutorial](../../docs/getting-started/README.md) walks you through exploring the air routes data step by step.

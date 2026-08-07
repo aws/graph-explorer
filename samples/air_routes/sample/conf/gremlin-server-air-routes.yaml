@@ -15,6 +15,16 @@
 # specific language governing permissions and limitations
 # under the License.
 
+# ---------------------------------------------------------------------------
+# WARNING: This is a sample Gremlin Server configuration intended for local
+# development and evaluation only. It is not hardened for production use.
+#
+# It has no authentication and is configured for convenience, not security,
+# so it should only be run on a trusted local network. Do not use this file
+# as a template for a production deployment or expose it to untrusted
+# networks.
+# ---------------------------------------------------------------------------
+
 host: database
 port: 8182
 evaluationTimeout: 30000
