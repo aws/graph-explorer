@@ -37,12 +37,13 @@ import {
 import { VertexStyleImportCard } from "./VertexStyleImportCard";
 
 /**
- * A stable per-item key that stays unique across the two type namespaces —
- * a vertex and an edge can share a raw type string, so the `kind` prefix keeps
- * their selection state distinct.
+ * A stable per-item key that stays unique across the two type namespaces and
+ * the base/conditional variants — a vertex and an edge can share a raw type
+ * string, and a type can contribute both a base and a conditional item, so the
+ * `kind` and `variant` prefixes keep their selection state distinct.
  */
 function itemKey(item: StyleImportItem): string {
-  return `${item.kind}:${item.type}`;
+  return `${item.kind}:${item.variant}:${item.type}`;
 }
 
 const filterLabels: Record<StyleImportFilter, string> = {

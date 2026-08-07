@@ -25,6 +25,7 @@ function vertexItem(
   const incoming = { type };
   return {
     kind: "vertex",
+    variant: "base",
     type,
     status,
     incoming,
@@ -41,6 +42,7 @@ function edgeItem(
   const incoming = { type };
   return {
     kind: "edge",
+    variant: "base",
     type,
     status,
     incoming,

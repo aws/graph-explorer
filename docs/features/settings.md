@@ -31,6 +31,8 @@ Only the types you select change. Anything not in the file stays as it is, and a
 
 For larger files, filter the preview by **All**, **Nodes**, **Edges**, **New** (types you haven't styled yet), or **Existing** (types that already have a style the file would replace), or search by type name. **Select all** toggles just the types currently shown. Filtering only changes what you see. Your selections are preserved, so **Load N selected** always applies every type you kept checked, across every tab.
 
+A type that carries a [conditional style](./graph-view.md#conditional-styling) shows a second tile right after its base tile, labeled `<type> · conditional`. It previews the base appearance next to the condition-met appearance and lists the condition, with its own checkbox. Load it to bring in the base style and the condition together, or load only the base tile to take the base style without the condition.
+
 ### Reset your styles
 
 Clears all your node and edge styles, returning every type to the defaults.

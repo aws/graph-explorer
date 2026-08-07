@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { createResultScalar } from "@/connector/entities";
 import {
+  createEdge,
   createEdgeId,
   createEdgeType,
   createVertexId,
@@ -38,6 +39,13 @@ describe("useEdgeAttributesAsScalars", () => {
       },
     ] as DisplayAttribute[],
     hasUniqueId: true,
+    original: createEdge({
+      id: "edge-1",
+      type: "knows",
+      sourceId: "vertex-1",
+      targetId: "vertex-2",
+      attributes: { since: "2020", weight: 0.8 },
+    }),
   };
 
   beforeEach(() => {

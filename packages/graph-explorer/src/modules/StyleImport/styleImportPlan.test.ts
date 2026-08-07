@@ -8,6 +8,8 @@ import type { StylingParseResult } from "@/core/styling";
 import { createEdgeType, createVertexType } from "@/core/entities";
 import {
   appDefaultVertexStyle,
+  resolveConditionalEdgeStyle,
+  resolveConditionalVertexStyle,
   resolveEdgeStyle,
   resolveVertexStyle,
 } from "@/core/StateProvider/graphStyles";
@@ -35,6 +37,7 @@ describe("buildStyleImportPlan", () => {
     expect(plan.items).toStrictEqual([
       {
         kind: "vertex",
+        variant: "base",
         type,
         status: "new",
         incoming,
@@ -59,6 +62,7 @@ describe("buildStyleImportPlan", () => {
     expect(plan.items).toStrictEqual([
       {
         kind: "vertex",
+        variant: "base",
         type,
         status: "existing",
         incoming,
@@ -110,6 +114,7 @@ describe("buildStyleImportPlan", () => {
     expect(plan.items).toStrictEqual([
       {
         kind: "vertex",
+        variant: "base",
         type: changed,
         status: "new",
         incoming: changedIncoming,
@@ -118,6 +123,51 @@ describe("buildStyleImportPlan", () => {
       },
     ]);
     expect(plan.skippedCount).toBe(1);
+  });
+
+  test("splits a type with a conditional style into base and conditional items", () => {
+    const type = createVertexType("Person");
+    const condition = {
+      attribute: "known_bad",
+      operator: "=",
+      value: "true",
+    } as const;
+    const base: VertexStyleStorage = { type, color: "#abc" };
+    const incoming: VertexStyleStorage = {
+      ...base,
+      conditionalStyle: { condition, color: "#f00" },
+    };
+
+    const plan = buildStyleImportPlan(
+      parseResult(new Map([[type, incoming]])),
+      new Map(),
+      new Map(),
+    );
+
+    expect(plan.items).toStrictEqual([
+      {
+        kind: "vertex",
+        variant: "base",
+        type,
+        status: "new",
+        incoming: base,
+        incomingStyle: resolveVertexStyle(type, base),
+        currentStyle: resolveVertexStyle(type),
+      },
+      {
+        kind: "vertex",
+        variant: "conditional",
+        type,
+        status: "new",
+        condition,
+        incoming,
+        incomingStyle: resolveConditionalVertexStyle(
+          resolveVertexStyle(type, incoming),
+        )!.style,
+        currentStyle: resolveVertexStyle(type, base),
+      },
+    ]);
+    expect(plan.skippedCount).toBe(0);
   });
 
   test("includes edge styles alongside vertex styles", () => {
@@ -133,6 +183,7 @@ describe("buildStyleImportPlan", () => {
     expect(plan.items).toStrictEqual([
       {
         kind: "edge",
+        variant: "base",
         type: edgeType,
         status: "new",
         incoming,
@@ -140,5 +191,111 @@ describe("buildStyleImportPlan", () => {
         currentStyle: resolveEdgeStyle(edgeType),
       },
     ]);
+  });
+
+  test("splits an edge type with a conditional style into base and conditional items", () => {
+    const type = createEdgeType("route");
+    const condition = {
+      attribute: "weight",
+      operator: ">",
+      value: "10",
+    } as const;
+    const base: EdgeStyleStorage = { type, lineColor: "#def" };
+    const incoming: EdgeStyleStorage = {
+      ...base,
+      conditionalStyle: { condition, lineColor: "#f00" },
+    };
+
+    const plan = buildStyleImportPlan(
+      parseResult(new Map(), new Map([[type, incoming]])),
+      new Map(),
+      new Map(),
+    );
+
+    expect(plan.items).toStrictEqual([
+      {
+        kind: "edge",
+        variant: "base",
+        type,
+        status: "new",
+        incoming: base,
+        incomingStyle: resolveEdgeStyle(type, base),
+        currentStyle: resolveEdgeStyle(type),
+      },
+      {
+        kind: "edge",
+        variant: "conditional",
+        type,
+        status: "new",
+        condition,
+        incoming,
+        incomingStyle: resolveConditionalEdgeStyle(
+          resolveEdgeStyle(type, incoming),
+        )!.style,
+        currentStyle: resolveEdgeStyle(type, base),
+      },
+    ]);
+    expect(plan.skippedCount).toBe(0);
+  });
+
+  test("emits only the conditional item when the base matches but the condition is new", () => {
+    const type = createVertexType("Person");
+    const condition = {
+      attribute: "known_bad",
+      operator: "=",
+      value: "true",
+    } as const;
+    const current: VertexStyleStorage = { type, color: "#abc" };
+    // Same base color as current, so the base item is a no-op; only the
+    // condition is new.
+    const incoming: VertexStyleStorage = {
+      ...current,
+      conditionalStyle: { condition, color: "#f00" },
+    };
+
+    const plan = buildStyleImportPlan(
+      parseResult(new Map([[type, incoming]])),
+      new Map([[type, current]]),
+      new Map(),
+    );
+
+    expect(plan.items).toStrictEqual([
+      {
+        kind: "vertex",
+        variant: "conditional",
+        type,
+        status: "new",
+        condition,
+        incoming,
+        incomingStyle: resolveConditionalVertexStyle(
+          resolveVertexStyle(type, incoming),
+        )!.style,
+        currentStyle: resolveVertexStyle(type, current),
+      },
+    ]);
+    expect(plan.skippedCount).toBe(0);
+  });
+
+  test("skips a type whose base and conditional both match the current style", () => {
+    const type = createVertexType("Person");
+    const condition = {
+      attribute: "known_bad",
+      operator: "=",
+      value: "true",
+    } as const;
+    const style: VertexStyleStorage = {
+      type,
+      color: "#abc",
+      conditionalStyle: { condition, color: "#f00" },
+    };
+
+    const plan = buildStyleImportPlan(
+      parseResult(new Map([[type, style]])),
+      new Map([[type, style]]),
+      new Map(),
+    );
+
+    expect(plan.items).toStrictEqual([]);
+    expect(plan.skippedCount).toBe(1);
   });
 });

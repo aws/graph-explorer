@@ -27,6 +27,7 @@ function vertexItem(
 ): StyleImportItem {
   return {
     kind: "vertex",
+    variant: "base",
     type,
     status: "new",
     incoming,
@@ -54,6 +55,7 @@ describe("useApplyStyleImport", () => {
       vertexItem(vertexType, vertexIncoming),
       {
         kind: "edge",
+        variant: "base",
         type: edgeType,
         status: "new",
         incoming: edgeIncoming,
@@ -89,6 +91,49 @@ describe("useApplyStyleImport", () => {
       type,
       color: "#new",
     });
+  });
+
+  test("a selected conditional item writes the full entry including the condition", () => {
+    const type = createVertexType("Person");
+    const base: VertexStyleStorage = { type, color: "#abc" };
+    const full: VertexStyleStorage = {
+      ...base,
+      conditionalStyle: {
+        condition: { attribute: "known_bad", operator: "=", value: "true" },
+        color: "#f00",
+      },
+    };
+
+    const { result } = renderHookWithJotai(() => useApplyStyleImport());
+    result.current([
+      vertexItem(type, base),
+      {
+        kind: "vertex",
+        variant: "conditional",
+        type,
+        status: "new",
+        condition: { attribute: "known_bad", operator: "=", value: "true" },
+        incoming: full,
+        incomingStyle: resolveVertexStyle(type, full),
+        currentStyle: resolveVertexStyle(type, base),
+      },
+    ]);
+
+    expect(getAppStore().get(userVertexStylesAtom).get(type)).toStrictEqual(
+      full,
+    );
+  });
+
+  test("the base item alone writes the entry without the condition", () => {
+    const type = createVertexType("Beacon");
+    const base: VertexStyleStorage = { type, color: "#abc" };
+
+    const { result } = renderHookWithJotai(() => useApplyStyleImport());
+    result.current([vertexItem(type, base)]);
+
+    expect(getAppStore().get(userVertexStylesAtom).get(type)).toStrictEqual(
+      base,
+    );
   });
 
   test("leaves unselected types untouched", () => {
