@@ -3,6 +3,7 @@ import { type EdgeId, getRawId, type VertexId } from "@/core";
 import { type QueryFragment, toQueryFragment } from "../queryFragment";
 import {
   assertRepresentable,
+  EmptyIdentifierError,
   UnrepresentableNumberError,
 } from "../queryValueError";
 
@@ -91,6 +92,9 @@ export const fragment = {
    */
   identifier(name: string): QueryFragment {
     assertRepresentable(name);
+    if (name === "") {
+      throw new EmptyIdentifierError("gremlin");
+    }
     return toQueryFragment(`'${escapeStringLiteralBody(name)}'`);
   },
 

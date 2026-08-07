@@ -1,6 +1,7 @@
 import { ZodError } from "zod";
 
 import {
+  EmptyIdentifierError,
   QueryValueError,
   UnsupportedValueTypeError,
 } from "@/connector/queryValueError";
@@ -158,6 +159,13 @@ export function createDisplayError(error: any): DisplayError {
     return {
       title: "This value cannot be used",
       message: `The value "${String(error.value)}" cannot be used in a query against this database.`,
+    };
+  }
+
+  if (error instanceof EmptyIdentifierError) {
+    return {
+      title: "This identifier cannot be used",
+      message: "An empty identifier cannot be used in a query.",
     };
   }
 

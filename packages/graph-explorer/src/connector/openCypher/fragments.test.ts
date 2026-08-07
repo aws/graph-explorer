@@ -63,7 +63,9 @@ describe("fragment.identifier", () => {
   });
 
   it("should reject an empty name, which names nothing", () => {
-    expect(() => fragment.identifier("")).toThrow(EmptyIdentifierError);
+    expect(() => fragment.identifier("")).toThrow(
+      new EmptyIdentifierError("openCypher"),
+    );
   });
 
   it("should reject a newline, a control character an identifier cannot carry", () => {

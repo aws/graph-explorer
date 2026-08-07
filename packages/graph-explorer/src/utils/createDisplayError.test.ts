@@ -2,6 +2,7 @@
 import { z } from "zod";
 
 import {
+  EmptyIdentifierError,
   QueryValueError,
   UnescapableValueError,
   UnsupportedValueTypeError,
@@ -41,6 +42,17 @@ describe("createDisplayError", () => {
       message: "This value cannot be used in a query against this database.",
     });
   });
+
+  it.each(["gremlin", "openCypher"] as const)(
+    "Should give the same language-agnostic message for an empty %s identifier",
+    language => {
+      const result = createDisplayError(new EmptyIdentifierError(language));
+      expect(result).toStrictEqual({
+        title: "This identifier cannot be used",
+        message: "An empty identifier cannot be used in a query.",
+      });
+    },
+  );
 
   it("Should fall back to generic wording for an unescapable value failure", () => {
     const error = new UnescapableValueError("sparql", "IRI", "a b", [" "]);
