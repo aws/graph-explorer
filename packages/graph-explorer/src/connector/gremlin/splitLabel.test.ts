@@ -25,6 +25,22 @@ describe("splitLabel", () => {
     expect(splitLabel("a::::b")).toEqual(["a::::b"]);
   });
 
+  it("does not split on a single colon", () => {
+    expect(splitLabel("foo:bar")).toEqual(["foo:bar"]);
+  });
+
+  it("does not split on three colons", () => {
+    expect(splitLabel("foo:::bar")).toEqual(["foo:::bar"]);
+  });
+
+  it("does not split on four colons", () => {
+    expect(splitLabel("foo::::bar")).toEqual(["foo::::bar"]);
+  });
+
+  it("splits only on the run of exactly two colons", () => {
+    expect(splitLabel("a:::b::c")).toEqual(["a:::b", "c"]);
+  });
+
   it("keeps a lone :: verbatim", () => {
     expect(splitLabel("::")).toEqual(["::"]);
   });

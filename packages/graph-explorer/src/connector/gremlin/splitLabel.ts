@@ -10,9 +10,16 @@
  * than guess at a split that would misidentify the label. See the ADR.
  */
 export function splitLabel(label: string): string[] {
-  const segments = label.split("::");
+  const segments = label.split(DELIMITER);
   if (segments.some(segment => segment === "")) {
     return [label];
   }
   return segments;
 }
+
+/**
+ * Neptune's delimiter is precisely two colons, so a run of one, three, or more
+ * colons is part of a label and must not split. The lookarounds exclude a `::`
+ * that has another colon on either side.
+ */
+const DELIMITER = /(?<!:)::(?!:)/;

@@ -20,10 +20,11 @@ Two facts, verified live, shaped the decision:
 **Split `::` exactly once, at the Gremlin ingestion boundary; domain `VertexType`s are single-label and are never re-split.**
 
 1. **One shared helper, `connector/gremlin/splitLabel.ts`.** It owns the `::` convention and the empty-segment rule. Gremlin-only — openCypher has no `::` on the wire, and the fragment modules are already strictly per-language.
-2. **Keep-whole on any empty segment.** If splitting yields any empty segment — trailing (`foo::`), leading (`::foo`), doubled (`a::::b`), or lone (`::`) — the helper discards the split and returns the original string as a single label. An empty segment signals that the `::` is not our delimiter (a generic-TinkerPop label, or otherwise unexpected input), so we do not guess a split that would misidentify the label.
-3. **Split only at the five ingestion sites** that consume raw Neptune wire labels: `mapApiVertex`, `fetchEdgeConnections`, `verticesSchemaTemplate`, `edgesSchemaTemplate`, `neighborCounts`.
-4. **Delete the split at the three sites that operated on domain ids** (Gremlin `fetchNeighbors/oneHopTemplate`, `keywordSearch/keywordSearchTemplate`, openCypher `fetchNeighbors/oneHopTemplate`). Their inputs (`filterByVertexTypes`, `vertexTypes`) are already single-label `VertexType` ids; re-splitting them was a no-op on real data and wrong for a generic backend.
-5. **The helper does not refuse the empty string.** `splitLabel("")` returns `[""]`; empty-identifier refusal is the fragment layer's job. The one exception is `mapApiVertex`, where an empty element label means _no labels_ and maps to `[]` at that boundary.
+2. **The delimiter is precisely two colons.** A run of one, three, or more colons (`foo:bar`, `foo:::bar`) is part of a label and does not split — the helper splits only on a `::` with no adjacent colon.
+3. **Keep-whole on any empty segment.** If splitting yields any empty segment — trailing (`foo::`), leading (`::foo`), doubled (`a::::b`), or lone (`::`) — the helper discards the split and returns the original string as a single label. An empty segment signals that the `::` is not our delimiter (a generic-TinkerPop label, or otherwise unexpected input), so we do not guess a split that would misidentify the label.
+4. **Split only at the five ingestion sites** that consume raw Neptune wire labels: `mapApiVertex`, `fetchEdgeConnections`, `verticesSchemaTemplate`, `edgesSchemaTemplate`, `neighborCounts`.
+5. **Delete the split at the three sites that operated on domain ids** (Gremlin `fetchNeighbors/oneHopTemplate`, `keywordSearch/keywordSearchTemplate`, openCypher `fetchNeighbors/oneHopTemplate`). Their inputs (`filterByVertexTypes`, `vertexTypes`) are already single-label `VertexType` ids; re-splitting them was a no-op on real data and wrong for a generic backend.
+6. **The helper does not refuse the empty string.** `splitLabel("")` returns `[""]`; empty-identifier refusal is the fragment layer's job. The one exception is `mapApiVertex`, where an empty element label means _no labels_ and maps to `[]` at that boundary.
 
 ## Considered Options
 
