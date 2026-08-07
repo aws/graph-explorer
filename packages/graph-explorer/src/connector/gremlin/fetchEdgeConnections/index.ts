@@ -10,6 +10,7 @@ import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
 import type { GMapWithValue, GremlinFetch } from "../types";
 
 import { parseGMap } from "../mappers/parseGMap";
+import { splitLabel } from "../splitLabel";
 import edgeConnectionsTemplate from "./edgeConnectionsTemplate";
 
 type RawEdgeConnectionsResponse = {
@@ -53,9 +54,8 @@ export default async function fetchEdgeConnections(
         continue;
       }
 
-      // Neptune multi-label vertices use :: delimiter
-      const sourceTypes = sourceValue.split("::").filter(Boolean);
-      const targetTypes = targetValue.split("::").filter(Boolean);
+      const sourceTypes = splitLabel(sourceValue);
+      const targetTypes = splitLabel(targetValue);
 
       for (const sourceType of sourceTypes) {
         for (const targetType of targetTypes) {

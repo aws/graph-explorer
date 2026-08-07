@@ -42,8 +42,7 @@ const oneHopTemplate = ({
   const formattedVertexTypes =
     filterByVertexTypes.length > 1
       ? `(${filterByVertexTypes
-          .flatMap((type: string) => type.split("::"))
-          .map((type: string) => `v:${fragment.identifier(type)}`)
+          .map(type => `v:${fragment.identifier(type)}`)
           .join(" OR ")})`
       : "";
 

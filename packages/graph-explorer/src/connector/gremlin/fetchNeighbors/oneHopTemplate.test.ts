@@ -202,14 +202,16 @@ describe("Gremlin > oneHopTemplate", () => {
     );
   });
 
-  it("should expand a Neptune multi-label type into separate labels on '::'", () => {
+  // filterByVertexTypes carries VertexType ids that were already split apart at
+  // ingestion, so a value bearing :: must be used verbatim, not re-split.
+  it("uses each vertex type verbatim without splitting on '::'", () => {
     const template = oneHopTemplate({
       vertexId: createVertexId("12"),
       filterByVertexTypes: ["country::capital"],
     });
 
     expect(normalize(template)).toContain(
-      normalize(".both().hasLabel('country', 'capital').dedup()"),
+      normalize(".both().hasLabel('country::capital').dedup()"),
     );
   });
 
