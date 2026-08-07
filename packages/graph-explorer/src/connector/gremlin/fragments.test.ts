@@ -1,6 +1,9 @@
 import { createEdgeId, createVertexId } from "@/core";
 
-import { UnrepresentableNumberError } from "../queryValueError";
+import {
+  EmptyIdentifierError,
+  UnrepresentableNumberError,
+} from "../queryValueError";
 import { ESCAPABLE_PATTERN, fragment, SHORT_ESCAPES } from "./fragments";
 
 /**
@@ -154,7 +157,16 @@ describe("fragment.identifier", () => {
     expect(fragment.identifier("wei$rd")).toEqual("'wei$rd'");
   });
 
-  it.each(awkwardStrings)("round-trips a name %j", value => {
+  it("should reject an empty name, which names nothing", () => {
+    expect(() => fragment.identifier("")).toThrow(
+      new EmptyIdentifierError("gremlin"),
+    );
+  });
+
+  // Empty is rejected above, so exclude it from the representable-identifier suites.
+  const awkwardIdentifiers = awkwardStrings.filter(value => value !== "");
+
+  it.each(awkwardIdentifiers)("round-trips a name %j", value => {
     expectRoundTrip(fragment.identifier(value), value);
   });
 
@@ -162,7 +174,7 @@ describe("fragment.identifier", () => {
   // `identifier` and `string` coincide. Nothing in a generated query reveals
   // which one a call site chose; if the two ever diverge, every call site's
   // choice has to be re-checked rather than assumed.
-  it.each(awkwardStrings)(
+  it.each(awkwardIdentifiers)(
     "should render %j identically to a string literal",
     value => {
       expect(fragment.identifier(value)).toBe(fragment.string(value));
