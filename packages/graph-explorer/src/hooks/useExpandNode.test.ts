@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { act, waitFor } from "@testing-library/react";
+import { toast } from "sonner";
 
 import {
   defaultNeighborExpansionLimitAtom,
@@ -194,6 +195,63 @@ describe("useExpandNode", () => {
     );
   });
 
+  it("should show the generic exhausted message when expansion returns nothing and no filters were applied", async () => {
+    const vertex = createTestableVertex();
+    const neighbor = createTestableVertex();
+    const edge = createTestableEdge().withSource(vertex).withTarget(neighbor);
+
+    dbState.addTestableVertexToGraph(vertex);
+    explorer.addTestableEdge(edge);
+
+    vi.spyOn(explorer, "fetchNeighbors").mockResolvedValue({
+      vertices: [],
+      edges: [],
+    });
+
+    const { result } = renderHookExpandNode();
+
+    act(() => {
+      result.current.expandNode({ vertexId: vertex.id });
+    });
+
+    await waitFor(() => {
+      expect(result.current.isPending).toBe(false);
+    });
+
+    expect(toast.info).toHaveBeenCalledWith("No more neighbors to expand");
+  });
+
+  it("should show the filter-specific message when attribute filters excluded all neighbors", async () => {
+    const vertex = createTestableVertex();
+    const neighbor = createTestableVertex();
+    const edge = createTestableEdge().withSource(vertex).withTarget(neighbor);
+
+    dbState.addTestableVertexToGraph(vertex);
+    explorer.addTestableEdge(edge);
+
+    vi.spyOn(explorer, "fetchNeighbors").mockResolvedValue({
+      vertices: [],
+      edges: [],
+    });
+
+    const { result } = renderHookExpandNode();
+
+    act(() => {
+      result.current.expandNode({
+        vertexId: vertex.id,
+        attributeFilters: [{ name: "name", value: "no-match" }],
+      });
+    });
+
+    await waitFor(() => {
+      expect(result.current.isPending).toBe(false);
+    });
+
+    expect(toast.info).toHaveBeenCalledWith(
+      "No neighbors matched your filters",
+    );
+  });
+
   describe("expandNodes (multiple)", () => {
     it("should expand multiple nodes in parallel", async () => {
       const vertex1 = createTestableVertex();
@@ -316,6 +374,49 @@ describe("useExpandNode", () => {
           filterByVertexTypes: ["Person"],
           limit: 10,
         }),
+      );
+    });
+
+    it("should show the filter-specific message when attribute filters excluded all neighbors", async () => {
+      const vertex1 = createTestableVertex();
+      const vertex2 = createTestableVertex();
+      const neighbor1 = createTestableVertex();
+      const neighbor2 = createTestableVertex();
+      const edge1 = createTestableEdge()
+        .withSource(vertex1)
+        .withTarget(neighbor1);
+      const edge2 = createTestableEdge()
+        .withSource(vertex2)
+        .withTarget(neighbor2);
+
+      dbState.addTestableVertexToGraph(vertex1);
+      dbState.addTestableVertexToGraph(vertex2);
+
+      explorer.addTestableEdge(edge1);
+      explorer.addTestableEdge(edge2);
+
+      vi.spyOn(explorer, "fetchNeighbors").mockResolvedValue({
+        vertices: [],
+        edges: [],
+      });
+
+      const { result } = renderHookExpandNode();
+
+      const request: ExpandNodesRequest = {
+        vertexIds: [vertex1.id, vertex2.id],
+        attributeFilters: [{ name: "name", value: "no-match" }],
+      };
+
+      act(() => {
+        result.current.expandNodes(request);
+      });
+
+      await waitFor(() => {
+        expect(result.current.isPending).toBe(false);
+      });
+
+      expect(toast.info).toHaveBeenCalledWith(
+        "No neighbors matched your filters",
       );
     });
   });
