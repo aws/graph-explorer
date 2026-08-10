@@ -1,5 +1,44 @@
 # Graph Explorer Change Log
 
+## Release 3.2.1
+
+Release 3.2.1 hardens how Graph Explorer builds queries. User-supplied values — attribute names, labels, filter text, and IDs — are now escaped completely and consistently across Gremlin, openCypher, and SPARQL, and values no database can carry are refused up front with a clear error instead of silently returning wrong results. Composite Gremlin labels (Neptune's `::` convention) are now split consistently in one place, and empty Gremlin identifiers are refused with a clear message. It also fixes SPARQL neighbor-attribute filtering so multiple filters narrow results (all must match) and match your text literally rather than as a regular expression.
+
+### All Changes
+
+- Use Tailwind IntelliSense for CSS files in Zed by @kmcginnes in https://github.com/aws/graph-explorer/pull/2001
+- Add initiative, kickoff, and wayfinder planning vocabulary by @kmcginnes in https://github.com/aws/graph-explorer/pull/2004
+- Sync mattpocock skills and stop formatting vendored skills by @kmcginnes in https://github.com/aws/graph-explorer/pull/2019
+- Update dependencies and refresh lockfile by @kmcginnes in https://github.com/aws/graph-explorer/pull/2029
+- Add query template characterization tests by @kmcginnes in https://github.com/aws/graph-explorer/pull/2028
+- Route query construction through per-language Query Fragment modules by @kmcginnes in https://github.com/aws/graph-explorer/pull/2035
+- Delete the unused attribute filter operator matrix by @kmcginnes in https://github.com/aws/graph-explorer/pull/2042
+- Refresh lockfile dependencies by @kmcginnes in https://github.com/aws/graph-explorer/pull/2044
+- Escape Gremlin string literals completely and consistently by @kmcginnes in https://github.com/aws/graph-explorer/pull/2043
+- Add 3.2.0 release notes by @kmcginnes in https://github.com/aws/graph-explorer/pull/1997
+- Reframe kickoff as the initiative's brain-dump by @kmcginnes in https://github.com/aws/graph-explorer/pull/2007
+- Give each query-construction failure its own error type by @kmcginnes in https://github.com/aws/graph-explorer/pull/2048
+- Refresh Amazon Linux base image snapshot by @kmcginnes in https://github.com/aws/graph-explorer/pull/2049
+- Build every Gremlin literal through the fragment constructors by @kmcginnes in https://github.com/aws/graph-explorer/pull/2046
+- Delimit Gremlin string literals with single quotes by @kmcginnes in https://github.com/aws/graph-explorer/pull/2047
+- Add UnescapableValueError for values a query position cannot represent by @kmcginnes in https://github.com/aws/graph-explorer/pull/2051
+- Refuse query values no database can carry by @kmcginnes in https://github.com/aws/graph-explorer/pull/2052
+- Escape openCypher string literals for the full character set by @kmcginnes in https://github.com/aws/graph-explorer/pull/2053
+- Escape the full SPARQL literal character set and forbid unrepresentable IRIs by @kmcginnes in https://github.com/aws/graph-explorer/pull/2054
+- Preserve interpolated values when normalizing query whitespace by @kmcginnes in https://github.com/aws/graph-explorer/pull/2055
+- Require full-instance assertions for thrown errors by @kmcginnes in https://github.com/aws/graph-explorer/pull/2056
+- Enforce openCypher identifier rules and route bare template identifiers by @kmcginnes in https://github.com/aws/graph-explorer/pull/2057
+- Sync mattpocock skills to latest upstream by @kmcginnes in https://github.com/aws/graph-explorer/pull/2059
+- Match SPARQL attribute values by substring instead of by regular expression by @kmcginnes in https://github.com/aws/graph-explorer/pull/2058
+- Conjoin SPARQL neighbor attribute filters with AND instead of OR by @kmcginnes in https://github.com/aws/graph-explorer/pull/2061
+- Add local-development-only warning to Gremlin Server sample config by @kmcginnes in https://github.com/aws/graph-explorer/pull/2062
+- Refuse empty Gremlin identifiers and surface a clear message by @kmcginnes in https://github.com/aws/graph-explorer/pull/2064
+- Split composite labels once at the Gremlin ingestion boundary by @kmcginnes in https://github.com/aws/graph-explorer/pull/2063
+- Update dependencies to latest versions by @kmcginnes in https://github.com/aws/graph-explorer/pull/2065
+- Bump version to 3.2.1 by @kmcginnes in https://github.com/aws/graph-explorer/pull/2066
+
+**Full Changelog**: https://github.com/aws/graph-explorer/compare/v3.2.0...v3.2.1
+
 ## Release 3.2.0
 
 This release makes styling your graph easier to manage and share. Node and edge styles now live together in one panel, previews everywhere show your nodes and edges exactly as they appear on the canvas, and a new Styles settings page lets you save your styles to a file and selectively load them on another machine or browser. This release also makes Graph Explorer reliable across multiple browser tabs, with connections now scoped per-tab and your data no longer lost between tabs, plus a set of fixes to connections, the proxy server, and the Schema View.
