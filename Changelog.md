@@ -2,7 +2,22 @@
 
 ## Release 3.2.1
 
-Release 3.2.1 hardens how Graph Explorer builds queries. User-supplied values — attribute names, labels, filter text, and IDs — are now escaped completely and consistently across Gremlin, openCypher, and SPARQL, and values no database can carry are refused up front with a clear error instead of silently returning wrong results. Composite Gremlin labels (Neptune's `::` convention) are now split consistently in one place, and empty Gremlin identifiers are refused with a clear message. It also fixes SPARQL neighbor-attribute filtering so multiple filters narrow results (all must match) and match your text literally rather than as a regular expression.
+Release 3.2.1 hardens how Graph Explorer builds queries, making value handling correct and consistent across Gremlin, openCypher, and SPARQL.
+
+### Query Input Sanitization
+
+- User-supplied values (attribute names, labels, filter text, and IDs) are now escaped completely and consistently across Gremlin, openCypher, and SPARQL.
+- Values that no database can store are rejected up front with a clear error message instead of silently returning incorrect results.
+
+### Gremlin & openCypher Improvements
+
+- Composite labels (Neptune's `::` convention) are now split in a single, consistent location.
+- Empty and invalid identifier names are rejected with a clear error message (Gremlin and openCypher).
+
+### SPARQL Fixes
+
+- Neighbor-attribute filtering now applies multiple filters as a conjunction (all must match).
+- Filter text is matched literally rather than interpreted as a regular expression.
 
 ### All Changes
 
