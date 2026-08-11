@@ -1,7 +1,9 @@
 import type { IncomingHttpHeaders } from "http";
 
+import { Sha256 } from "@aws-crypto/sha256-js";
 import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
-import aws4 from "aws4";
+import { HttpRequest } from "@smithy/protocol-http";
+import { SignatureV4 } from "@smithy/signature-v4";
 import bodyParser from "body-parser";
 import compression from "compression";
 import cors from "cors";
@@ -129,28 +131,21 @@ export function createApp({
     return app.locals.logger;
   }
 
-  // Created once and reused: the SDK's node provider chain memoizes
-  // credentials, refreshes them near expiry, and single-flights concurrent
-  // refreshes. A new provider per request would defeat all three and re-query
-  // IMDS on every request.
-  const credentialProvider = fromNodeProviderChain();
-
-  // Function to get IAM headers for AWS4 signing process.
-  async function getIAMHeaders(options: string | aws4.Request) {
-    const creds = await credentialProvider();
-    return aws4.sign(options, {
-      accessKeyId: creds.accessKeyId,
-      secretAccessKey: creds.secretAccessKey,
-      ...(creds.sessionToken && { sessionToken: creds.sessionToken }),
-    });
-  }
+  // One signer reused across requests. It holds the SDK's node provider chain,
+  // which memoizes credentials, refreshes them near expiry, and single-flights
+  // concurrent refreshes. Region and service vary per request, so they are
+  // passed as sign() overrides rather than fixed on the signer.
+  const signer = new SignatureV4({
+    service: DEFAULT_SERVICE_TYPE,
+    region: "",
+    credentials: fromNodeProviderChain(),
+    sha256: Sha256,
+  });
 
   const userAgent = version ? `graph-explorer/${version}` : "graph-explorer";
 
-  // Signs with the current (cached) credentials when IAM is enabled. The
-  // host/port/path/service fields are inputs to aws4 signing only; node-fetch
-  // derives the request from the URL, so they are absent from the returned
-  // RequestInit.
+  // node-fetch derives the request line from the URL, so only request-init
+  // fields are returned; the fields fed to the signer are signing inputs only.
   async function buildFetchOptions(
     url: URL,
     options: any,
@@ -160,16 +155,23 @@ export function createApp({
   ): Promise<RequestInit> {
     let headers = options.headers;
     if (isIamEnabled) {
-      const signed = await getIAMHeaders({
-        host: url.hostname,
-        port: url.port,
-        path: url.pathname + url.search,
-        service: serviceType,
-        region,
-        method: options.method,
-        body: options.body ?? undefined,
-        headers: options.headers,
-      });
+      const signed = await signer.sign(
+        new HttpRequest({
+          method: options.method,
+          protocol: url.protocol,
+          hostname: url.hostname,
+          port: url.port ? Number(url.port) : undefined,
+          path: url.pathname,
+          // Signed queries are single-valued by construction — the proxy's
+          // fixed endpoints only ever set mode, cancelQuery, or queryId once.
+          // Revisit if a repeated-key query is ever added (fromEntries would
+          // drop all but the last, diverging from the signed request).
+          query: Object.fromEntries(url.searchParams),
+          headers: { ...options.headers, host: url.host },
+          body: options.body ?? undefined,
+        }),
+        { signingRegion: region, signingService: serviceType },
+      );
       headers = signed.headers;
     }
     return {

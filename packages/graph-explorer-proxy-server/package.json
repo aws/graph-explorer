@@ -11,9 +11,11 @@
     "start": "NODE_ENV=production node src/node-server.ts"
   },
   "dependencies": {
+    "@aws-crypto/sha256-js": "^5.2.0",
     "@aws-sdk/credential-providers": "^3.1071.0",
     "@graph-explorer/shared": "workspace:*",
-    "aws4": "^1.13.2",
+    "@smithy/protocol-http": "^5.5.1",
+    "@smithy/signature-v4": "^5.5.1",
     "body-parser": "^2.3.0",
     "compression": "^1.8.1",
     "cors": "^2.8.6",
@@ -28,7 +30,6 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/aws4": "^1.11.6",
     "@types/body-parser": "^1.19.6",
     "@types/compression": "^1.8.1",
     "@types/cors": "^2.8.19",
