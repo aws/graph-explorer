@@ -63,6 +63,9 @@ function getAuthHeaders(
     headers["aws-neptune-region"] = connection.awsRegion || "";
     headers["service-type"] = connection.serviceType || DEFAULT_SERVICE_TYPE;
   }
+  if (connection.username && connection.password) {
+    headers["Authorization"] = `Basic ${btoa(`${connection.username}:${connection.password}`)}`;
+  }
 
   if (typeHeaders) {
     Object.assign(headers, Object.fromEntries(new Headers(typeHeaders)));
