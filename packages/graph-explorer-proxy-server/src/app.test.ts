@@ -711,7 +711,10 @@ describe("createApp", () => {
         .send({ query: "SELECT 1" });
 
       const fetchOptions = mockFetch.mock.calls[0][1] as any;
-      expect(fetchOptions.service).toBe("neptune-db");
+      // The service appears in the SigV4 credential scope, not on the request.
+      expect(fetchOptions.headers["Authorization"]).toContain(
+        "/us-east-1/neptune-db/aws4_request",
+      );
     });
 
     it("uses provided service-type when IAM is enabled", async () => {
@@ -729,7 +732,9 @@ describe("createApp", () => {
         .send({ query: "SELECT 1" });
 
       const fetchOptions = mockFetch.mock.calls[0][1] as any;
-      expect(fetchOptions.service).toBe("neptune-graph");
+      expect(fetchOptions.headers["Authorization"]).toContain(
+        "/us-east-1/neptune-graph/aws4_request",
+      );
     });
   });
 

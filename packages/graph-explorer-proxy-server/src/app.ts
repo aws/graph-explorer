@@ -129,26 +129,57 @@ export function createApp({
     return app.locals.logger;
   }
 
+  // Created once and reused: the SDK's node provider chain memoizes
+  // credentials, refreshes them near expiry, and single-flights concurrent
+  // refreshes. A new provider per request would defeat all three and re-query
+  // IMDS on every request.
+  const credentialProvider = fromNodeProviderChain();
+
   // Function to get IAM headers for AWS4 signing process.
   async function getIAMHeaders(options: string | aws4.Request) {
-    const credentialProvider = fromNodeProviderChain();
     const creds = await credentialProvider();
-    if (creds === undefined) {
-      throw new Error(
-        "IAM is enabled but credentials cannot be found on the credential provider chain.",
-      );
-    }
-
-    const headers = aws4.sign(options, {
+    return aws4.sign(options, {
       accessKeyId: creds.accessKeyId,
       secretAccessKey: creds.secretAccessKey,
       ...(creds.sessionToken && { sessionToken: creds.sessionToken }),
     });
-
-    return headers;
   }
 
   const userAgent = version ? `graph-explorer/${version}` : "graph-explorer";
+
+  // Signs with the current (cached) credentials when IAM is enabled. The
+  // host/port/path/service fields are inputs to aws4 signing only; node-fetch
+  // derives the request from the URL, so they are absent from the returned
+  // RequestInit.
+  async function buildFetchOptions(
+    url: URL,
+    options: any,
+    isIamEnabled: boolean,
+    region: string | undefined,
+    serviceType: string,
+  ): Promise<RequestInit> {
+    let headers = options.headers;
+    if (isIamEnabled) {
+      const signed = await getIAMHeaders({
+        host: url.hostname,
+        port: url.port,
+        path: url.pathname + url.search,
+        service: serviceType,
+        region,
+        method: options.method,
+        body: options.body ?? undefined,
+        headers: options.headers,
+      });
+      headers = signed.headers;
+    }
+    return {
+      method: options.method,
+      body: options.body ?? undefined,
+      headers,
+      compress: false,
+      redirect: "error",
+    };
+  }
 
   // Function to retry fetch requests with exponential backoff.
   const retryFetch = async (
@@ -162,49 +193,20 @@ export function createApp({
   ) => {
     const logger = getLogger();
     for (let i = 0; i < refetchMaxRetries; i++) {
-      if (isIamEnabled) {
-        const data = await getIAMHeaders({
-          host: url.hostname,
-          port: url.port,
-          path: url.pathname + url.search,
-          service: serviceType,
-          region,
-          method: options.method,
-          body: options.body ?? undefined,
-          headers: options.headers,
-        });
-
-        options = {
-          host: url.hostname,
-          port: url.port,
-          path: url.pathname + url.search,
-          service: serviceType,
-          region,
-          method: options.method,
-          body: options.body ?? undefined,
-          headers: data.headers,
-        };
-      }
-      options = {
-        host: url.hostname,
-        port: url.port,
-        path: url.pathname + url.search,
-        service: serviceType,
-        method: options.method,
-        body: options.body ?? undefined,
-        headers: options.headers,
-        compress: false,
-        redirect: "error",
-      };
+      const fetchOptions = await buildFetchOptions(
+        url,
+        options,
+        isIamEnabled,
+        region,
+        serviceType,
+      );
 
       try {
-        const res = await fetch(url.href, options);
+        const res = await fetch(url.href, fetchOptions);
         if (!res.ok) {
           logger.error("!!Request failure!!");
-          return res;
-        } else {
-          return res;
         }
+        return res;
       } catch (err) {
         if (refetchMaxRetries === 1) {
           // Don't log about retries if retrying is not used
