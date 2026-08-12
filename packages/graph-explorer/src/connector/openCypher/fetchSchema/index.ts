@@ -9,7 +9,11 @@ import {
   mapEdgeToTypeConfig,
   mapVertexToTypeConfigs,
 } from "@/core";
-import { DEFAULT_BATCH_REQUEST_SIZE } from "@/utils";
+import {
+  batchPromisesSerially,
+  DEFAULT_BATCH_REQUEST_SIZE,
+  DEFAULT_CONCURRENT_REQUESTS_LIMIT,
+} from "@/utils";
 
 import type { OCEdge, OCVertex } from "../types";
 import type { GraphSummary, OpenCypherFetch } from "../types";
@@ -95,28 +99,30 @@ const fetchVerticesAttributes = async (
   }
 
   remoteLogger.info("[openCypher Explorer] Fetching vertices attributes...");
-  const vertices: SchemaResponse["vertices"] = [];
+  const batches = chunk(labels, DEFAULT_BATCH_REQUEST_SIZE);
+  const batchResults = await batchPromisesSerially(
+    batches,
+    DEFAULT_CONCURRENT_REQUESTS_LIMIT,
+    async batch => {
+      const response = await openCypherFetch<RawVerticesSchemaResponse>(
+        verticesSchemaTemplate({ types: batch }),
+      );
 
-  for (const batch of chunk(labels, DEFAULT_BATCH_REQUEST_SIZE)) {
-    const verticesTemplate = verticesSchemaTemplate({ types: batch });
-    const response =
-      await openCypherFetch<RawVerticesSchemaResponse>(verticesTemplate);
+      return (response.results ?? []).flatMap(({ object: ocVertex }) => {
+        // verify response has the info we need
+        if (!ocVertex || !ocVertex["~labels"]) {
+          return [];
+        }
 
-    for (const { object: ocVertex } of response.results ?? []) {
-      // verify response has the info we need
-      if (!ocVertex || !ocVertex["~labels"]) {
-        continue;
-      }
-
-      const vertex = createVertex(mapApiVertex(ocVertex));
-      for (const vertexTypeConfig of mapVertexToTypeConfigs(vertex)) {
-        vertices.push({
+        const vertex = createVertex(mapApiVertex(ocVertex));
+        return mapVertexToTypeConfigs(vertex).map(vertexTypeConfig => ({
           ...vertexTypeConfig,
           total: countsByLabel[vertexTypeConfig.type],
-        });
-      }
-    }
-  }
+        }));
+      });
+    },
+  );
+  const vertices = batchResults.flat();
 
   remoteLogger.info(
     `[openCypher Explorer] Found ${vertices.flatMap(v => v.attributes).length} vertex attributes across ${vertices.length} vertex types.`,
@@ -193,27 +199,30 @@ const fetchEdgesAttributes = async (
   }
 
   remoteLogger.info("[openCypher Explorer] Fetching edges attributes...");
-  const edges: SchemaResponse["edges"] = [];
+  const batches = chunk(labels, DEFAULT_BATCH_REQUEST_SIZE);
+  const batchResults = await batchPromisesSerially(
+    batches,
+    DEFAULT_CONCURRENT_REQUESTS_LIMIT,
+    async batch => {
+      const response = await openCypherFetch<RawEdgesSchemaResponse>(
+        edgesSchemaTemplate({ types: batch }),
+      );
 
-  for (const batch of chunk(labels, DEFAULT_BATCH_REQUEST_SIZE)) {
-    const edgesTemplate = edgesSchemaTemplate({ types: batch });
-    const response =
-      await openCypherFetch<RawEdgesSchemaResponse>(edgesTemplate);
+      return (response.results ?? []).flatMap(({ object: ocEdge }) => {
+        // verify response has the info we need
+        if (!ocEdge || !ocEdge["~entityType"] || !ocEdge["~type"]) {
+          return [];
+        }
 
-    for (const { object: ocEdge } of response.results ?? []) {
-      // verify response has the info we need
-      if (!ocEdge || !ocEdge["~entityType"] || !ocEdge["~type"]) {
-        continue;
-      }
-
-      const edge = createEdge(mapApiEdge(ocEdge));
-      const edgeTypeConfig = mapEdgeToTypeConfig(edge);
-      edges.push({
-        ...edgeTypeConfig,
-        total: countsByLabel[edgeTypeConfig.type],
+        const edge = createEdge(mapApiEdge(ocEdge));
+        const edgeTypeConfig = mapEdgeToTypeConfig(edge);
+        return [
+          { ...edgeTypeConfig, total: countsByLabel[edgeTypeConfig.type] },
+        ];
       });
-    }
-  }
+    },
+  );
+  const edges = batchResults.flat();
 
   remoteLogger.info(
     `[openCypher Explorer] Found ${edges.flatMap(e => e.attributes).length} edge attributes across ${edges.length} edge types.`,

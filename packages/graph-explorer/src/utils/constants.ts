@@ -15,7 +15,8 @@ export const ASCII = {
 export const DEFAULT_SERVICE_TYPE = "neptune-db";
 export const DEFAULT_FETCH_TIMEOUT = 240000;
 export const DEFAULT_NODE_EXPAND_LIMIT = 500;
-export const DEFAULT_CONCURRENT_REQUESTS_LIMIT = 10;
+/** Max requests in flight when fanning out batched queries; kept low to bound concurrent load on the database. */
+export const DEFAULT_CONCURRENT_REQUESTS_LIMIT = 4;
 export const DEFAULT_BATCH_REQUEST_SIZE = 100;
 export const DEFAULT_SAMPLE_SIZE = 10000;
 
