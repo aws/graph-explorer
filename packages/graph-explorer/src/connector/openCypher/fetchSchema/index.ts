@@ -7,7 +7,7 @@ import {
   mapEdgeToTypeConfig,
   mapVertexToTypeConfigs,
 } from "@/core";
-import { batchPromisesSerially } from "@/utils";
+import { mapWithConcurrency } from "@/utils";
 import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
 
 import type { OCEdge, OCVertex } from "../types";
@@ -108,7 +108,7 @@ const fetchVerticesAttributes = async (
   }
 
   remoteLogger.info("[openCypher Explorer] Fetching vertices attributes...");
-  const responses = await batchPromisesSerially(
+  const responses = await mapWithConcurrency(
     labels,
     DEFAULT_CONCURRENT_REQUESTS_LIMIT,
     async label => {
@@ -214,7 +214,7 @@ const fetchEdgesAttributes = async (
   }
 
   remoteLogger.info("[openCypher Explorer] Fetching edges attributes...");
-  const responses = await batchPromisesSerially(
+  const responses = await mapWithConcurrency(
     labels,
     DEFAULT_CONCURRENT_REQUESTS_LIMIT,
     async label => {

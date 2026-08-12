@@ -4,8 +4,8 @@ import type {
 } from "@/connector/useGEFetchTypes";
 
 import { createEdgeType, createVertexType, type EdgeConnection } from "@/core";
-import batchPromisesSerially from "@/utils/batchPromisesSerially";
 import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
+import mapWithConcurrency from "@/utils/mapWithConcurrency";
 
 import type { SparqlFetch } from "../types";
 
@@ -24,7 +24,7 @@ export default async function fetchEdgeConnections(
   sparqlFetch: SparqlFetch,
   req: EdgeConnectionsRequest,
 ): Promise<EdgeConnectionsResponse> {
-  const results = await batchPromisesSerially(
+  const results = await mapWithConcurrency(
     req.edgeTypes,
     DEFAULT_CONCURRENT_REQUESTS_LIMIT,
     async edgeType => {
