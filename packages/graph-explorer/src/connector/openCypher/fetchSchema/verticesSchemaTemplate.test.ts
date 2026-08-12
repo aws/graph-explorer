@@ -1,15 +1,29 @@
+import { normalize } from "@/utils/testing";
+
 import { UnescapableValueError } from "../../queryValueError";
 import verticesSchemaTemplate from "./verticesSchemaTemplate";
 
 describe("OpenCypher > verticesSchemaTemplate", () => {
-  it("Should return a template with the projection of each type", () => {
-    const template = verticesSchemaTemplate({ type: "country" });
+  it("returns one index-scoped sample block per label, joined by UNION ALL", () => {
+    const template = verticesSchemaTemplate({ types: ["airport", "country"] });
 
-    expect(template).toBe("MATCH (v:`country`) RETURN v AS object LIMIT 1");
+    expect(normalize(template)).toBe(
+      normalize(`
+        MATCH (v:\`airport\`) RETURN v AS object LIMIT 1
+        UNION ALL
+        MATCH (v:\`country\`) RETURN v AS object LIMIT 1
+      `),
+    );
+  });
+
+  it("returns a single block for a single label", () => {
+    expect(verticesSchemaTemplate({ types: ["country"] })).toBe(
+      "MATCH (v:`country`) RETURN v AS object LIMIT 1",
+    );
   });
 
   it("throws on a control-character label rather than emitting a malformed query", () => {
-    expect(() => verticesSchemaTemplate({ type: "coun\ntry" })).toThrow(
+    expect(() => verticesSchemaTemplate({ types: ["coun\ntry"] })).toThrow(
       UnescapableValueError,
     );
   });
