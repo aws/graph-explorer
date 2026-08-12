@@ -1,7 +1,9 @@
 import type { IncomingHttpHeaders } from "http";
 
+import { Sha256 } from "@aws-crypto/sha256-js";
 import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
-import aws4 from "aws4";
+import { HttpRequest } from "@smithy/protocol-http";
+import { SignatureV4 } from "@smithy/signature-v4";
 import bodyParser from "body-parser";
 import compression from "compression";
 import cors from "cors";
@@ -129,26 +131,57 @@ export function createApp({
     return app.locals.logger;
   }
 
-  // Function to get IAM headers for AWS4 signing process.
-  async function getIAMHeaders(options: string | aws4.Request) {
-    const credentialProvider = fromNodeProviderChain();
-    const creds = await credentialProvider();
-    if (creds === undefined) {
-      throw new Error(
-        "IAM is enabled but credentials cannot be found on the credential provider chain.",
-      );
-    }
-
-    const headers = aws4.sign(options, {
-      accessKeyId: creds.accessKeyId,
-      secretAccessKey: creds.secretAccessKey,
-      ...(creds.sessionToken && { sessionToken: creds.sessionToken }),
-    });
-
-    return headers;
-  }
+  // One signer reused across requests. It holds the SDK's node provider chain,
+  // which memoizes credentials, refreshes them near expiry, and single-flights
+  // concurrent refreshes. Region and service vary per request, so they are
+  // passed as sign() overrides rather than fixed on the signer.
+  const signer = new SignatureV4({
+    service: DEFAULT_SERVICE_TYPE,
+    region: "",
+    credentials: fromNodeProviderChain(),
+    sha256: Sha256,
+  });
 
   const userAgent = version ? `graph-explorer/${version}` : "graph-explorer";
+
+  // node-fetch derives the request line from the URL, so only request-init
+  // fields are returned; the fields fed to the signer are signing inputs only.
+  async function buildFetchOptions(
+    url: URL,
+    options: any,
+    isIamEnabled: boolean,
+    region: string | undefined,
+    serviceType: string,
+  ): Promise<RequestInit> {
+    let headers = options.headers;
+    if (isIamEnabled) {
+      const signed = await signer.sign(
+        new HttpRequest({
+          method: options.method,
+          protocol: url.protocol,
+          hostname: url.hostname,
+          port: url.port ? Number(url.port) : undefined,
+          path: url.pathname,
+          // Signed queries are single-valued by construction — the proxy's
+          // fixed endpoints only ever set mode, cancelQuery, or queryId once.
+          // Revisit if a repeated-key query is ever added (fromEntries would
+          // drop all but the last, diverging from the signed request).
+          query: Object.fromEntries(url.searchParams),
+          headers: { ...options.headers, host: url.host },
+          body: options.body ?? undefined,
+        }),
+        { signingRegion: region, signingService: serviceType },
+      );
+      headers = signed.headers;
+    }
+    return {
+      method: options.method,
+      body: options.body ?? undefined,
+      headers,
+      compress: false,
+      redirect: "error",
+    };
+  }
 
   // Function to retry fetch requests with exponential backoff.
   const retryFetch = async (
@@ -162,49 +195,20 @@ export function createApp({
   ) => {
     const logger = getLogger();
     for (let i = 0; i < refetchMaxRetries; i++) {
-      if (isIamEnabled) {
-        const data = await getIAMHeaders({
-          host: url.hostname,
-          port: url.port,
-          path: url.pathname + url.search,
-          service: serviceType,
-          region,
-          method: options.method,
-          body: options.body ?? undefined,
-          headers: options.headers,
-        });
-
-        options = {
-          host: url.hostname,
-          port: url.port,
-          path: url.pathname + url.search,
-          service: serviceType,
-          region,
-          method: options.method,
-          body: options.body ?? undefined,
-          headers: data.headers,
-        };
-      }
-      options = {
-        host: url.hostname,
-        port: url.port,
-        path: url.pathname + url.search,
-        service: serviceType,
-        method: options.method,
-        body: options.body ?? undefined,
-        headers: options.headers,
-        compress: false,
-        redirect: "error",
-      };
+      const fetchOptions = await buildFetchOptions(
+        url,
+        options,
+        isIamEnabled,
+        region,
+        serviceType,
+      );
 
       try {
-        const res = await fetch(url.href, options);
+        const res = await fetch(url.href, fetchOptions);
         if (!res.ok) {
           logger.error("!!Request failure!!");
-          return res;
-        } else {
-          return res;
         }
+        return res;
       } catch (err) {
         if (refetchMaxRetries === 1) {
           // Don't log about retries if retrying is not used

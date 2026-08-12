@@ -601,9 +601,9 @@ describe("createApp", () => {
         )
         .send({ query: "SELECT 1" });
 
-      // aws4 signing adds Authorization and X-Amz headers to the options
+      // SigV4 signing adds the authorization and x-amz-* headers to the options
       const fetchOptions = mockFetch.mock.calls[0][1] as any;
-      expect(fetchOptions.headers).toHaveProperty("Authorization");
+      expect(fetchOptions.headers).toHaveProperty("authorization");
     });
 
     it("uses only the mocked credentials, never real ones", async () => {
@@ -621,7 +621,7 @@ describe("createApp", () => {
         .send({ query: "SELECT 1" });
 
       const fetchOptions = mockFetch.mock.calls[0][1] as any;
-      const authHeader: string = fetchOptions.headers["Authorization"];
+      const authHeader: string = fetchOptions.headers["authorization"];
       // The Authorization header must reference our fake credential, proving
       // the mock intercepted the credential provider chain.
       expect(
@@ -644,7 +644,7 @@ describe("createApp", () => {
         .send({ query: "SELECT 1" });
 
       const fetchOptions = mockFetch.mock.calls[0][1] as any;
-      expect(fetchOptions.headers).not.toHaveProperty("Authorization");
+      expect(fetchOptions.headers).not.toHaveProperty("authorization");
     });
   });
 
@@ -711,7 +711,10 @@ describe("createApp", () => {
         .send({ query: "SELECT 1" });
 
       const fetchOptions = mockFetch.mock.calls[0][1] as any;
-      expect(fetchOptions.service).toBe("neptune-db");
+      // The service appears in the SigV4 credential scope, not on the request.
+      expect(fetchOptions.headers["authorization"]).toContain(
+        "/us-east-1/neptune-db/aws4_request",
+      );
     });
 
     it("uses provided service-type when IAM is enabled", async () => {
@@ -729,7 +732,9 @@ describe("createApp", () => {
         .send({ query: "SELECT 1" });
 
       const fetchOptions = mockFetch.mock.calls[0][1] as any;
-      expect(fetchOptions.service).toBe("neptune-graph");
+      expect(fetchOptions.headers["authorization"]).toContain(
+        "/us-east-1/neptune-graph/aws4_request",
+      );
     });
   });
 
@@ -818,7 +823,7 @@ describe("createApp", () => {
       expect(fetchOptions.headers["accept"]).toBe(
         "application/sparql-results+json",
       );
-      expect(fetchOptions.headers["Authorization"]).toBeDefined();
+      expect(fetchOptions.headers["authorization"]).toBeDefined();
     });
   });
 
