@@ -10,7 +10,7 @@ import {
   mapVertexToTypeConfigs,
 } from "@/core";
 import {
-  batchPromisesSerially,
+  mapWithConcurrency,
   DEFAULT_BATCH_REQUEST_SIZE,
   DEFAULT_CONCURRENT_REQUESTS_LIMIT,
 } from "@/utils";
@@ -100,7 +100,7 @@ const fetchVerticesAttributes = async (
 
   remoteLogger.info("[openCypher Explorer] Fetching vertices attributes...");
   const batches = chunk(labels, DEFAULT_BATCH_REQUEST_SIZE);
-  const batchResults = await batchPromisesSerially(
+  const batchResults = await mapWithConcurrency(
     batches,
     DEFAULT_CONCURRENT_REQUESTS_LIMIT,
     async batch => {
@@ -200,7 +200,7 @@ const fetchEdgesAttributes = async (
 
   remoteLogger.info("[openCypher Explorer] Fetching edges attributes...");
   const batches = chunk(labels, DEFAULT_BATCH_REQUEST_SIZE);
-  const batchResults = await batchPromisesSerially(
+  const batchResults = await mapWithConcurrency(
     batches,
     DEFAULT_CONCURRENT_REQUESTS_LIMIT,
     async batch => {
