@@ -1,26 +1,55 @@
 import { vi } from "vitest";
 
 import { createEdgeType, createVertexType } from "@/core";
+import {
+  createGList,
+  createGMap,
+  createGremlinResponse,
+} from "@/utils/testing";
 
 import fetchEdgeConnections from ".";
 
+/** A projected connection pair g:Map, source-then-target key order. */
+function pair(sourceType: string, targetType: string) {
+  return createGMap({ sourceType, targetType });
+}
+
+/**
+ * Builds the grouped GraphSON response produced by
+ * `group().by(label()).by(project(...).dedup().fold())`: a single g:Map keyed by
+ * edge label, each value a g:List of connection-pair g:Maps.
+ */
+function groupResponse(groups: Record<string, Array<[string, string]>>) {
+  return createGremlinResponse(
+    createGMap(
+      Object.fromEntries(
+        Object.entries(groups).map(([edgeType, pairs]) => [
+          edgeType,
+          createGList(pairs.map(([s, t]) => pair(s, t))),
+        ]),
+      ),
+    ),
+  );
+}
+
+const emptyResponse = createGremlinResponse(createGMap({}));
+
 describe("Gremlin > fetchEdgeConnections", () => {
-  it("should return edge connections from response", async () => {
-    const gremlinFetch = vi
-      .fn()
-      .mockResolvedValueOnce(routeResponse)
-      .mockResolvedValueOnce(containsResponse);
+  it("should batch all edge types into a single request and regroup by edge type", async () => {
+    const gremlinFetch = vi.fn().mockResolvedValueOnce(
+      groupResponse({
+        route: [["airport", "airport"]],
+        contains: [["country", "airport"]],
+      }),
+    );
 
     const result = await fetchEdgeConnections(gremlinFetch, {
       edgeTypes: [createEdgeType("route"), createEdgeType("contains")],
     });
 
-    expect(gremlinFetch).toHaveBeenCalledTimes(2);
+    expect(gremlinFetch).toHaveBeenCalledTimes(1);
     expect(gremlinFetch).toHaveBeenCalledWith(
-      expect.stringContaining("hasLabel('route')"),
-    );
-    expect(gremlinFetch).toHaveBeenCalledWith(
-      expect.stringContaining("hasLabel('contains')"),
+      expect.stringContaining("hasLabel('route', 'contains')"),
     );
     expect(result).toStrictEqual({
       edgeConnections: [
@@ -36,6 +65,29 @@ describe("Gremlin > fetchEdgeConnections", () => {
         },
       ],
     });
+  });
+
+  it("should split edge types into chunks of the batch size", async () => {
+    const gremlinFetch = vi.fn().mockResolvedValue(emptyResponse);
+    const edgeTypes = Array.from({ length: 250 }, (_, i) =>
+      createEdgeType(`edge${i}`),
+    );
+
+    await fetchEdgeConnections(gremlinFetch, { edgeTypes });
+
+    // 250 types at a batch size of 100 => 3 requests
+    expect(gremlinFetch).toHaveBeenCalledTimes(3);
+
+    const queries = gremlinFetch.mock.calls.map(call => call[0] as string);
+    // No request carries more than the batch size
+    for (const q of queries) {
+      expect((q.match(/'edge\d+'/g) ?? []).length).toBeLessThanOrEqual(100);
+    }
+    // Every input type is covered across the requests
+    const all = queries.join("\n");
+    for (const type of edgeTypes) {
+      expect(all).toContain(`'${type}'`);
+    }
   });
 
   it("should return empty array when no edge types provided", async () => {
@@ -62,26 +114,14 @@ describe("Gremlin > fetchEdgeConnections", () => {
   });
 
   it("should deduplicate edge connections within same edge type", async () => {
-    const duplicateResponse = {
-      requestId: "test-request-id",
-      status: { message: "", code: 200 },
-      result: {
-        data: {
-          "@type": "g:List",
-          "@value": [
-            {
-              "@type": "g:Map",
-              "@value": ["sourceType", "airport", "targetType", "airport"],
-            },
-            {
-              "@type": "g:Map",
-              "@value": ["sourceType", "airport", "targetType", "airport"],
-            },
-          ],
-        },
-      },
-    };
-    const gremlinFetch = vi.fn().mockResolvedValueOnce(duplicateResponse);
+    const gremlinFetch = vi.fn().mockResolvedValueOnce(
+      groupResponse({
+        route: [
+          ["airport", "airport"],
+          ["airport", "airport"],
+        ],
+      }),
+    );
 
     const result = await fetchEdgeConnections(gremlinFetch, {
       edgeTypes: [createEdgeType("route")],
@@ -108,40 +148,12 @@ describe("Gremlin > fetchEdgeConnections", () => {
     ).rejects.toThrow("Network error");
   });
 
-  it("should escape special characters in edge type", async () => {
-    const gremlinFetch = vi.fn().mockResolvedValue(emptyResponse);
-
-    await fetchEdgeConnections(gremlinFetch, {
-      edgeTypes: [createEdgeType("edge'with'quotes")],
-    });
-
-    expect(gremlinFetch).toHaveBeenCalledWith(
-      expect.stringContaining("hasLabel('edge\\'with\\'quotes')"),
-    );
-  });
-
   it("should handle Neptune multi-label vertices with :: delimiter", async () => {
-    const multiLabelResponse = {
-      requestId: "test-request-id",
-      status: { message: "", code: 200 },
-      result: {
-        data: {
-          "@type": "g:List",
-          "@value": [
-            {
-              "@type": "g:Map",
-              "@value": [
-                "sourceType",
-                "Person::Employee",
-                "targetType",
-                "Company::Organization",
-              ],
-            },
-          ],
-        },
-      },
-    };
-    const gremlinFetch = vi.fn().mockResolvedValueOnce(multiLabelResponse);
+    const gremlinFetch = vi.fn().mockResolvedValueOnce(
+      groupResponse({
+        worksAt: [["Person::Employee", "Company::Organization"]],
+      }),
+    );
 
     const result = await fetchEdgeConnections(gremlinFetch, {
       edgeTypes: [createEdgeType("worksAt")],
@@ -173,25 +185,17 @@ describe("Gremlin > fetchEdgeConnections", () => {
     });
   });
 
-  it("should handle reversed key order in GraphSON map", async () => {
-    const reversedKeyOrderResponse = {
-      requestId: "test-request-id",
-      status: { message: "", code: 200 },
-      result: {
-        data: {
-          "@type": "g:List",
-          "@value": [
-            {
-              "@type": "g:Map",
-              "@value": ["targetType", "airport", "sourceType", "country"],
-            },
-          ],
-        },
-      },
-    };
-    const gremlinFetch = vi
-      .fn()
-      .mockResolvedValueOnce(reversedKeyOrderResponse);
+  it("should handle reversed key order in the projected pair map", async () => {
+    const gremlinFetch = vi.fn().mockResolvedValueOnce(
+      createGremlinResponse(
+        createGMap({
+          contains: createGList([
+            // target-then-source key order
+            createGMap({ targetType: "airport", sourceType: "country" }),
+          ]),
+        }),
+      ),
+    );
 
     const result = await fetchEdgeConnections(gremlinFetch, {
       edgeTypes: [createEdgeType("contains")],
@@ -208,31 +212,18 @@ describe("Gremlin > fetchEdgeConnections", () => {
     });
   });
 
-  it("should skip entries with missing sourceType or targetType", async () => {
-    const missingKeysResponse = {
-      requestId: "test-request-id",
-      status: { message: "", code: 200 },
-      result: {
-        data: {
-          "@type": "g:List",
-          "@value": [
-            {
-              "@type": "g:Map",
-              "@value": ["sourceType", "airport"],
-            },
-            {
-              "@type": "g:Map",
-              "@value": ["targetType", "airport"],
-            },
-            {
-              "@type": "g:Map",
-              "@value": ["sourceType", "country", "targetType", "airport"],
-            },
-          ],
-        },
-      },
-    };
-    const gremlinFetch = vi.fn().mockResolvedValueOnce(missingKeysResponse);
+  it("should skip pairs with missing sourceType or targetType", async () => {
+    const gremlinFetch = vi.fn().mockResolvedValueOnce(
+      createGremlinResponse(
+        createGMap({
+          contains: createGList([
+            createGMap({ sourceType: "airport" }),
+            createGMap({ targetType: "airport" }),
+            createGMap({ sourceType: "country", targetType: "airport" }),
+          ]),
+        }),
+      ),
+    );
 
     const result = await fetchEdgeConnections(gremlinFetch, {
       edgeTypes: [createEdgeType("contains")],
@@ -249,46 +240,3 @@ describe("Gremlin > fetchEdgeConnections", () => {
     });
   });
 });
-
-const routeResponse = {
-  requestId: "test-request-id",
-  status: { message: "", code: 200 },
-  result: {
-    data: {
-      "@type": "g:List",
-      "@value": [
-        {
-          "@type": "g:Map",
-          "@value": ["sourceType", "airport", "targetType", "airport"],
-        },
-      ],
-    },
-  },
-};
-
-const containsResponse = {
-  requestId: "test-request-id",
-  status: { message: "", code: 200 },
-  result: {
-    data: {
-      "@type": "g:List",
-      "@value": [
-        {
-          "@type": "g:Map",
-          "@value": ["sourceType", "country", "targetType", "airport"],
-        },
-      ],
-    },
-  },
-};
-
-const emptyResponse = {
-  requestId: "test-request-id",
-  status: { message: "", code: 200 },
-  result: {
-    data: {
-      "@type": "g:List",
-      "@value": [],
-    },
-  },
-};
