@@ -11,7 +11,7 @@ import {
   type VertexType,
 } from "@/core";
 import { defaultVertexTypeConfig } from "@/core/StateProvider/configuration";
-import { batchPromisesSerially } from "@/utils";
+import { mapWithConcurrency } from "@/utils";
 import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
 
 import type { GraphSummary, SparqlFetch, SparqlValue } from "../types";
@@ -84,7 +84,7 @@ const fetchPredicatesByClass = async (
   classes: Array<VertexType>,
   countsByClass: Record<VertexType, number>,
 ) => {
-  const responses = await batchPromisesSerially(
+  const responses = await mapWithConcurrency(
     classes,
     DEFAULT_CONCURRENT_REQUESTS_LIMIT,
     async resourceClass => {
