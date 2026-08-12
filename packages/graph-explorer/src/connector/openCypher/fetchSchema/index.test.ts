@@ -4,6 +4,7 @@ import type { SchemaResponse } from "@/connector/useGEFetchTypes";
 
 import { ClientLoggerConnector } from "@/connector/LoggerConnector";
 import { createEdgeType, createVertexType } from "@/core";
+import { normalize } from "@/utils/testing";
 
 import fetchSchema from ".";
 
@@ -14,8 +15,7 @@ describe("OpenCypher > fetchSchema", () => {
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesResponse)
-      .mockResolvedValueOnce(routeEdgePropertiesResponse)
-      .mockResolvedValueOnce(containsEdgePropertiesResponse)
+      .mockResolvedValueOnce(batchedEdgePropertiesResponse)
       .mockImplementation(query => {
         throw new Error(query);
       });
@@ -410,48 +410,85 @@ describe("OpenCypher > fetchSchema", () => {
     expect(schema.edges.length).toBe(1);
   });
 
-  it("Should request properties for edges where labels are strings", async () => {
+  it("Should sample all edge types in a single batched request when labels are strings", async () => {
     const openCypherFetchFn = vi
       .fn()
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesResponse)
-      .mockResolvedValueOnce(routeEdgePropertiesResponse)
-      .mockResolvedValueOnce(containsEdgePropertiesResponse)
+      .mockResolvedValueOnce(batchedEdgePropertiesResponse)
       .mockImplementation(query => {
         throw new Error(query);
       });
 
     await fetchSchema(openCypherFetchFn, new ClientLoggerConnector());
 
-    expect(openCypherFetchFn.mock.calls[3][0]).toStrictEqual(
-      "MATCH () -[e:`route`]- () RETURN e AS object LIMIT 1",
-    );
-    expect(openCypherFetchFn.mock.calls[4][0]).toStrictEqual(
-      "MATCH () -[e:`contains`]- () RETURN e AS object LIMIT 1",
+    expect(normalize(openCypherFetchFn.mock.calls[3][0])).toBe(
+      normalize(`
+        MATCH () -[e:\`route\`]-> () RETURN e AS object LIMIT 1
+        UNION ALL
+        MATCH () -[e:\`contains\`]-> () RETURN e AS object LIMIT 1
+      `),
     );
   });
 
-  it("Should request properties for edges where labels are arrays of strings", async () => {
+  it("Should sample all edge types in a single batched request when labels are arrays of strings", async () => {
     const openCypherFetchFn = vi
       .fn()
       .mockResolvedValueOnce(allVertexLabelsResponse)
       .mockResolvedValueOnce(airportPropertiesResponse)
       .mockResolvedValueOnce(allEdgesLabelsInArrayResponse)
-      .mockResolvedValueOnce(routeEdgePropertiesResponse)
-      .mockResolvedValueOnce(containsEdgePropertiesResponse)
+      .mockResolvedValueOnce(batchedEdgePropertiesResponse)
       .mockImplementation(query => {
         throw new Error(query);
       });
 
     await fetchSchema(openCypherFetchFn, new ClientLoggerConnector());
 
-    expect(openCypherFetchFn.mock.calls[3][0]).toStrictEqual(
-      "MATCH () -[e:`route`]- () RETURN e AS object LIMIT 1",
+    expect(normalize(openCypherFetchFn.mock.calls[3][0])).toBe(
+      normalize(`
+        MATCH () -[e:\`route\`]-> () RETURN e AS object LIMIT 1
+        UNION ALL
+        MATCH () -[e:\`contains\`]-> () RETURN e AS object LIMIT 1
+      `),
     );
-    expect(openCypherFetchFn.mock.calls[4][0]).toStrictEqual(
-      "MATCH () -[e:`contains`]- () RETURN e AS object LIMIT 1",
+  });
+
+  it("Should batch attribute sampling into one request per DEFAULT_BATCH_REQUEST_SIZE labels", async () => {
+    const labelCount = 250;
+    const vertexLabels = Array.from(
+      { length: labelCount },
+      (_, i) => `Vertex${i}`,
     );
+    const edgeLabels = Array.from({ length: labelCount }, (_, i) => `Edge${i}`);
+
+    const openCypherFetchFn = vi
+      .fn()
+      .mockResolvedValueOnce({
+        results: vertexLabels.map(label => ({ label, count: 1 })),
+      })
+      .mockResolvedValueOnce({ results: [] })
+      .mockResolvedValueOnce({ results: [] })
+      .mockResolvedValueOnce({ results: [] })
+      .mockResolvedValueOnce({
+        results: edgeLabels.map(label => ({ label, count: 1 })),
+      })
+      .mockResolvedValueOnce({ results: [] })
+      .mockResolvedValueOnce({ results: [] })
+      .mockResolvedValueOnce({ results: [] })
+      .mockImplementation(query => {
+        throw new Error(query);
+      });
+
+    await fetchSchema(openCypherFetchFn, new ClientLoggerConnector());
+
+    // 250 labels / 100 per batch = 3 attribute requests each, plus the two
+    // label-count queries = 8 requests total (not 250 + 250 + 2).
+    expect(openCypherFetchFn).toHaveBeenCalledTimes(8);
+
+    const firstVertexBatch = openCypherFetchFn.mock.calls[1][0] as string;
+    expect(firstVertexBatch.match(/LIMIT 1/g)).toHaveLength(100);
+    expect(firstVertexBatch).toContain("UNION ALL");
   });
 });
 
@@ -546,5 +583,13 @@ const containsEdgePropertiesResponse = {
         "~properties": {},
       },
     },
+  ],
+};
+
+// One batched request returns a sample per edge type in a single `results` array.
+const batchedEdgePropertiesResponse = {
+  results: [
+    routeEdgePropertiesResponse.results[0],
+    containsEdgePropertiesResponse.results[0],
   ],
 };
