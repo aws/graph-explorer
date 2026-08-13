@@ -25,6 +25,8 @@
     "dev": "pnpm --stream -r run dev"
   },
   "dependencies": {
+    "@base-ui/react": "^1.7.0",
+    "@tanstack/react-virtual": "^3.14.9",
     "dompurify": "^3.4.13"
   },
   "devDependencies": {
