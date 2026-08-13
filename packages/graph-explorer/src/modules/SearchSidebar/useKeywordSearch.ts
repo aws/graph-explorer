@@ -1,5 +1,6 @@
 import { useAtom } from "jotai";
 import { atomWithReset } from "jotai/utils";
+import { useMemo } from "react";
 
 import type { SelectOption } from "@/components";
 
@@ -26,28 +27,34 @@ export const partialMatchAtom = atomWithReset(false);
 
 /** Gets all the searchable attributes for the selected vertex type */
 function useAttributeOptions(selectedVertexType: string) {
-  const allSearchableAttributes = useSearchableAttributes(selectedVertexType);
   const queryEngine = useQueryEngine();
   const t = useTranslations();
 
-  const options: SelectOption[] = [
-    {
-      label: `All string ${t("properties").toLocaleLowerCase()}`,
-      value: SEARCH_TOKENS.ALL_ATTRIBUTES,
-    },
-  ];
+  // Call hook directly (not inside memoization callback)
+  const allSearchableAttributes = useSearchableAttributes(selectedVertexType);
 
-  // SPARQL support for ID search is not yet implemented
-  if (queryEngine !== "sparql") {
-    options.push({ label: "ID", value: SEARCH_TOKENS.NODE_ID });
-  }
+  const options: SelectOption[] = useMemo(() => {
+    const result: SelectOption[] = [
+      {
+        label: `All string ${t("properties").toLocaleLowerCase()}`,
+        value: SEARCH_TOKENS.ALL_ATTRIBUTES,
+      },
+    ];
 
-  for (const attribute of allSearchableAttributes) {
-    options.push({
-      label: attribute.displayLabel,
-      value: attribute.name,
-    });
-  }
+    // SPARQL support for ID search is not yet implemented
+    if (queryEngine !== "sparql") {
+      result.push({ label: "ID", value: SEARCH_TOKENS.NODE_ID });
+    }
+
+    for (const attribute of allSearchableAttributes) {
+      result.push({
+        label: attribute.displayLabel,
+        value: attribute.name,
+      });
+    }
+    return result;
+  }, [allSearchableAttributes, t, queryEngine]);
+
   return options;
 }
 

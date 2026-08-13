@@ -4,18 +4,13 @@ import type { KeywordSearchResponse } from "@/connector";
 
 import {
   Checkbox,
+  Combobox,
   FormItem,
   Input,
   Label,
   PanelEmptyState,
   PanelError,
   SearchSadIcon,
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Spinner,
 } from "@/components";
 import { createPatchedResultVertex } from "@/connector/entities";
@@ -48,49 +43,23 @@ export function FilterSearchTabContent() {
         <div className="grid w-full grid-cols-2 gap-4">
           <FormItem>
             <Label htmlFor="nodeType">{t("node-type")}</Label>
-            <Select
-              name="nodeType"
+            <Combobox
+              id="nodeType"
+              options={vertexOptions}
               value={selectedVertexType}
               onValueChange={onVertexOptionChange}
-            >
-              <SelectTrigger>
-                <SelectValue
-                  placeholder={t("keyword-search.node-type-placeholder")}
-                />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {vertexOptions.map(o => (
-                    <SelectItem key={o.value} value={o.value}>
-                      {o.label}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+              placeholder={t("keyword-search.node-type-placeholder")}
+            />
           </FormItem>
           <FormItem>
             <Label htmlFor="attribute">{t("property")}</Label>
-            <Select
-              name="attribute"
+            <Combobox
+              id="attribute"
+              options={attributesOptions}
               value={selectedAttribute}
               onValueChange={onAttributeOptionChange}
-            >
-              <SelectTrigger>
-                <SelectValue
-                  placeholder={t("keyword-search.node-attribute-placeholder")}
-                />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {attributesOptions.map(o => (
-                    <SelectItem key={o.value} value={o.value}>
-                      {o.label}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+              placeholder={t("keyword-search.node-attribute-placeholder")}
+            />
           </FormItem>
         </div>
 
