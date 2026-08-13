@@ -1,3 +1,5 @@
+import { chunk } from "lodash";
+
 import type { LoggerConnector } from "@/connector/LoggerConnector";
 import type {
   EdgeSchemaResponse,
@@ -11,8 +13,11 @@ import {
   type VertexType,
 } from "@/core";
 import { defaultVertexTypeConfig } from "@/core/StateProvider/configuration";
-import { mapWithConcurrency } from "@/utils";
-import { DEFAULT_CONCURRENT_REQUESTS_LIMIT } from "@/utils/constants";
+import {
+  DEFAULT_BATCH_REQUEST_SIZE,
+  DEFAULT_CONCURRENT_REQUESTS_LIMIT,
+  mapWithConcurrency,
+} from "@/utils";
 
 import type { GraphSummary, SparqlFetch, SparqlValue } from "../types";
 
@@ -31,6 +36,7 @@ type RawClassesWCountsResponse = {
 type RawPredicatesSamplesResponse = {
   results: {
     bindings: Array<{
+      class: SparqlValue;
       pred: SparqlValue;
       sample: SparqlValue;
     }>;
@@ -84,57 +90,65 @@ const fetchPredicatesByClass = async (
   classes: Array<VertexType>,
   countsByClass: Record<VertexType, number>,
 ) => {
+  remoteLogger.info(
+    `[SPARQL Explorer] Fetching predicates for ${classes.length} classes...`,
+  );
+  const batches = chunk(classes, DEFAULT_BATCH_REQUEST_SIZE);
   const responses = await mapWithConcurrency(
-    classes,
+    batches,
     DEFAULT_CONCURRENT_REQUESTS_LIMIT,
-    async resourceClass => {
-      const classPredicatesTemplate = predicatesByClassTemplate({
-        class: resourceClass,
-      });
-      remoteLogger.info(
-        `[SPARQL Explorer] Fetching predicates by class ${resourceClass}...`,
-      );
-      const predicatesResponse =
-        await sparqlFetch<RawPredicatesSamplesResponse>(
-          classPredicatesTemplate,
-        );
-
-      const attributes = new Map(
-        predicatesResponse.results.bindings
-          .map(
-            item =>
-              ({
-                name: item.pred.value,
-                dataType: TYPE_MAP[item.sample.datatype || ""] || "String",
-              }) satisfies AttributeConfig,
-          )
-          .map(a => [a.name, a]),
-      );
-
-      return {
-        attributes,
-        resourceClass,
-      };
-    },
+    batch =>
+      sparqlFetch<RawPredicatesSamplesResponse>(
+        predicatesByClassTemplate({ classes: batch }),
+      ),
   );
 
-  return responses.map(({ attributes, resourceClass }) => ({
-    type: createVertexType(resourceClass),
-    total: countsByClass[resourceClass],
-    displayNameAttribute:
-      displayNameCandidates
-        .values()
-        .map(c => attributes.get(c)?.name)
-        .filter(n => n != null)
-        .next().value ?? defaultVertexTypeConfig.displayNameAttribute,
-    longDisplayNameAttribute:
-      displayDescCandidates
-        .values()
-        .map(c => attributes.get(c)?.name)
-        .filter(n => n != null)
-        .next().value ?? defaultVertexTypeConfig.longDisplayNameAttribute,
-    attributes: attributes.values().toArray(),
-  }));
+  // Regroup the flat (class, pred, sample) rows into a per-class attribute map,
+  // keyed by the class IRI the arm projected. The response contract is an
+  // unchecked assertion (no Zod at this boundary; see #2078), so guard each
+  // field before use.
+  const attributesByClass = new Map<string, Map<string, AttributeConfig>>();
+  for (const response of responses) {
+    for (const item of response.results?.bindings ?? []) {
+      const resourceClass = item.class?.value;
+      const name = item.pred?.value;
+      if (!resourceClass || !name) {
+        continue;
+      }
+      let attributes = attributesByClass.get(resourceClass);
+      if (!attributes) {
+        attributes = new Map<string, AttributeConfig>();
+        attributesByClass.set(resourceClass, attributes);
+      }
+      attributes.set(name, {
+        name,
+        dataType: TYPE_MAP[item.sample?.datatype || ""] || "String",
+      });
+    }
+  }
+
+  return classes.map(resourceClass => {
+    const attributes =
+      attributesByClass.get(resourceClass) ??
+      new Map<string, AttributeConfig>();
+    return {
+      type: createVertexType(resourceClass),
+      total: countsByClass[resourceClass],
+      displayNameAttribute:
+        displayNameCandidates
+          .values()
+          .map(c => attributes.get(c)?.name)
+          .filter(n => n != null)
+          .next().value ?? defaultVertexTypeConfig.displayNameAttribute,
+      longDisplayNameAttribute:
+        displayDescCandidates
+          .values()
+          .map(c => attributes.get(c)?.name)
+          .filter(n => n != null)
+          .next().value ?? defaultVertexTypeConfig.longDisplayNameAttribute,
+      attributes: attributes.values().toArray(),
+    };
+  });
 };
 
 const fetchClassesSchema = async (
@@ -203,9 +217,8 @@ const fetchPredicatesSchema = async (
  * Fetch the database shape.
  * It follows this process:
  * 1. Fetch all distinct classes their counts
- * 2. For each class,
- *    - fetch all predicates to literals
- *    - and map those predicates to know the shape of the class
+ * 2. Discover each class's literal predicates by sampling one instance per
+ *    class, batching the classes into a few requests
  * 3. Fetch all predicates to non-literals and their counts
  * 4. Generate prefixes using the received URIs
  */
