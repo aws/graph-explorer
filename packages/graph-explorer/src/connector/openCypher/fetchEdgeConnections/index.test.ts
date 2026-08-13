@@ -5,22 +5,22 @@ import { createEdgeType, createVertexType } from "@/core";
 import fetchEdgeConnections from ".";
 
 describe("openCypher > fetchEdgeConnections", () => {
-  it("should return edge connections from response", async () => {
-    const openCypherFetch = vi
-      .fn()
-      .mockResolvedValueOnce(routeResponse)
-      .mockResolvedValueOnce(containsResponse);
+  it("should batch all edge types into a single request and regroup by edge type", async () => {
+    const openCypherFetch = vi.fn().mockResolvedValueOnce(batchedResponse);
 
     const result = await fetchEdgeConnections(openCypherFetch, {
       edgeTypes: [createEdgeType("route"), createEdgeType("contains")],
     });
 
-    expect(openCypherFetch).toHaveBeenCalledTimes(2);
+    expect(openCypherFetch).toHaveBeenCalledTimes(1);
     expect(openCypherFetch).toHaveBeenCalledWith(
       expect.stringContaining("[e:`route`]"),
     );
     expect(openCypherFetch).toHaveBeenCalledWith(
       expect.stringContaining("[e:`contains`]"),
+    );
+    expect(openCypherFetch).toHaveBeenCalledWith(
+      expect.stringContaining("UNION ALL"),
     );
     expect(result).toStrictEqual({
       edgeConnections: [
@@ -36,6 +36,31 @@ describe("openCypher > fetchEdgeConnections", () => {
         },
       ],
     });
+  });
+
+  it("should split edge types into chunks of the batch size", async () => {
+    const openCypherFetch = vi.fn().mockResolvedValue({ results: [] });
+    const edgeTypes = Array.from({ length: 250 }, (_, i) =>
+      createEdgeType(`edge${i}`),
+    );
+
+    await fetchEdgeConnections(openCypherFetch, { edgeTypes });
+
+    // 250 types at a batch size of 100 => 3 requests
+    expect(openCypherFetch).toHaveBeenCalledTimes(3);
+
+    const queries = openCypherFetch.mock.calls.map(call => call[0] as string);
+    // No request carries more than the batch size (one block per type)
+    for (const q of queries) {
+      expect((q.match(/RETURN DISTINCT/g) ?? []).length).toBeLessThanOrEqual(
+        100,
+      );
+    }
+    // Every input type is covered across the requests
+    const all = queries.join("\n");
+    for (const type of edgeTypes) {
+      expect(all).toContain(`[e:\`${type}\`]`);
+    }
   });
 
   it("should return empty array when no edge types provided", async () => {
@@ -97,8 +122,16 @@ describe("openCypher > fetchEdgeConnections", () => {
   it("should deduplicate edge connections within same edge type", async () => {
     const duplicateResponse = {
       results: [
-        { sourceLabels: ["airport"], targetLabels: ["airport"] },
-        { sourceLabels: ["airport"], targetLabels: ["airport"] },
+        {
+          edgeType: "route",
+          sourceLabels: ["airport"],
+          targetLabels: ["airport"],
+        },
+        {
+          edgeType: "route",
+          sourceLabels: ["airport"],
+          targetLabels: ["airport"],
+        },
       ],
     };
     const openCypherFetch = vi.fn().mockResolvedValueOnce(duplicateResponse);
@@ -122,6 +155,7 @@ describe("openCypher > fetchEdgeConnections", () => {
     const multiLabelResponse = {
       results: [
         {
+          edgeType: "worksAt",
           sourceLabels: ["Person", "Employee"],
           targetLabels: ["Company", "Organization"],
         },
@@ -160,18 +194,15 @@ describe("openCypher > fetchEdgeConnections", () => {
   });
 });
 
-const routeResponse = {
+const batchedResponse = {
   results: [
     {
+      edgeType: "route",
       sourceLabels: ["airport"],
       targetLabels: ["airport"],
     },
-  ],
-};
-
-const containsResponse = {
-  results: [
     {
+      edgeType: "contains",
       sourceLabels: ["country"],
       targetLabels: ["airport"],
     },
@@ -185,14 +216,17 @@ const emptyResponse = {
 const incompleteResponse = {
   results: [
     {
+      edgeType: "route",
       sourceLabels: ["airport"],
       targetLabels: ["airport"],
     },
     {
+      edgeType: "route",
       sourceLabels: [],
       targetLabels: ["airport"],
     },
     {
+      edgeType: "route",
       sourceLabels: ["country"],
       targetLabels: [],
     },

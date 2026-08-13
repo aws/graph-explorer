@@ -4,12 +4,32 @@ import { createEdgeType, createVertexType } from "@/core";
 
 import fetchEdgeConnections from ".";
 
+function binding(edgeType: string, sourceType: string, targetType: string) {
+  return {
+    edgeType: { type: "uri", value: edgeType },
+    sourceType: { type: "uri", value: sourceType },
+    targetType: { type: "uri", value: targetType },
+  };
+}
+
 describe("SPARQL > fetchEdgeConnections", () => {
-  it("should return edge connections from response", async () => {
-    const sparqlFetch = vi
-      .fn()
-      .mockResolvedValueOnce(knowsResponse)
-      .mockResolvedValueOnce(worksAtResponse);
+  it("should batch all predicates into a single request and regroup by edge type", async () => {
+    const sparqlFetch = vi.fn().mockResolvedValueOnce({
+      results: {
+        bindings: [
+          binding(
+            "http://example.org/knows",
+            "http://example.org/Person",
+            "http://example.org/Person",
+          ),
+          binding(
+            "http://example.org/worksAt",
+            "http://example.org/Person",
+            "http://example.org/Company",
+          ),
+        ],
+      },
+    });
 
     const result = await fetchEdgeConnections(sparqlFetch, {
       edgeTypes: [
@@ -18,7 +38,7 @@ describe("SPARQL > fetchEdgeConnections", () => {
       ],
     });
 
-    expect(sparqlFetch).toHaveBeenCalledTimes(2);
+    expect(sparqlFetch).toHaveBeenCalledTimes(1);
     expect(sparqlFetch).toHaveBeenCalledWith(
       expect.stringContaining("<http://example.org/knows>"),
     );
@@ -39,6 +59,31 @@ describe("SPARQL > fetchEdgeConnections", () => {
         },
       ],
     });
+  });
+
+  it("should split predicates into chunks of the batch size", async () => {
+    const sparqlFetch = vi
+      .fn()
+      .mockResolvedValue({ results: { bindings: [] } });
+    const edgeTypes = Array.from({ length: 250 }, (_, i) =>
+      createEdgeType(`http://example.org/p${i}`),
+    );
+
+    await fetchEdgeConnections(sparqlFetch, { edgeTypes });
+
+    // 250 predicates at a batch size of 100 => 3 requests
+    expect(sparqlFetch).toHaveBeenCalledTimes(3);
+
+    const queries = sparqlFetch.mock.calls.map(call => call[0] as string);
+    // No request carries more than the batch size (one UNION arm per predicate)
+    for (const q of queries) {
+      expect((q.match(/AS \?edgeType/g) ?? []).length).toBeLessThanOrEqual(100);
+    }
+    // Every input predicate is covered across the requests
+    const all = queries.join("\n");
+    for (const type of edgeTypes) {
+      expect(all).toContain(`<${type}>`);
+    }
   });
 
   it("should return empty array when no edge types provided", async () => {
@@ -65,7 +110,22 @@ describe("SPARQL > fetchEdgeConnections", () => {
   });
 
   it("should filter out incomplete bindings", async () => {
-    const sparqlFetch = vi.fn().mockResolvedValue(incompleteResponse);
+    const sparqlFetch = vi.fn().mockResolvedValue({
+      results: {
+        bindings: [
+          binding(
+            "http://example.org/knows",
+            "http://example.org/Person",
+            "http://example.org/Person",
+          ),
+          {
+            edgeType: { type: "uri", value: "http://example.org/knows" },
+            sourceType: { type: "uri", value: "http://example.org/Person" },
+            // Missing targetType
+          },
+        ],
+      },
+    });
 
     const result = await fetchEdgeConnections(sparqlFetch, {
       edgeTypes: [createEdgeType("http://example.org/knows")],
@@ -93,21 +153,22 @@ describe("SPARQL > fetchEdgeConnections", () => {
   });
 
   it("should deduplicate edge connections within same edge type", async () => {
-    const duplicateResponse = {
+    const sparqlFetch = vi.fn().mockResolvedValueOnce({
       results: {
         bindings: [
-          {
-            sourceType: { type: "uri", value: "http://example.org/Person" },
-            targetType: { type: "uri", value: "http://example.org/Person" },
-          },
-          {
-            sourceType: { type: "uri", value: "http://example.org/Person" },
-            targetType: { type: "uri", value: "http://example.org/Person" },
-          },
+          binding(
+            "http://example.org/knows",
+            "http://example.org/Person",
+            "http://example.org/Person",
+          ),
+          binding(
+            "http://example.org/knows",
+            "http://example.org/Person",
+            "http://example.org/Person",
+          ),
         ],
       },
-    };
-    const sparqlFetch = vi.fn().mockResolvedValueOnce(duplicateResponse);
+    });
 
     const result = await fetchEdgeConnections(sparqlFetch, {
       edgeTypes: [createEdgeType("http://example.org/knows")],
@@ -126,35 +187,32 @@ describe("SPARQL > fetchEdgeConnections", () => {
 
   it("should handle resources with multiple rdf:type values", async () => {
     // In SPARQL, multiple types return as separate bindings
-    const multiTypeResponse = {
+    const sparqlFetch = vi.fn().mockResolvedValueOnce({
       results: {
         bindings: [
-          {
-            sourceType: { type: "uri", value: "http://example.org/Person" },
-            targetType: { type: "uri", value: "http://example.org/Company" },
-          },
-          {
-            sourceType: { type: "uri", value: "http://example.org/Person" },
-            targetType: {
-              type: "uri",
-              value: "http://example.org/Organization",
-            },
-          },
-          {
-            sourceType: { type: "uri", value: "http://example.org/Employee" },
-            targetType: { type: "uri", value: "http://example.org/Company" },
-          },
-          {
-            sourceType: { type: "uri", value: "http://example.org/Employee" },
-            targetType: {
-              type: "uri",
-              value: "http://example.org/Organization",
-            },
-          },
+          binding(
+            "http://example.org/worksAt",
+            "http://example.org/Person",
+            "http://example.org/Company",
+          ),
+          binding(
+            "http://example.org/worksAt",
+            "http://example.org/Person",
+            "http://example.org/Organization",
+          ),
+          binding(
+            "http://example.org/worksAt",
+            "http://example.org/Employee",
+            "http://example.org/Company",
+          ),
+          binding(
+            "http://example.org/worksAt",
+            "http://example.org/Employee",
+            "http://example.org/Organization",
+          ),
         ],
       },
-    };
-    const sparqlFetch = vi.fn().mockResolvedValueOnce(multiTypeResponse);
+    });
 
     const result = await fetchEdgeConnections(sparqlFetch, {
       edgeTypes: [createEdgeType("http://example.org/worksAt")],
@@ -187,45 +245,8 @@ describe("SPARQL > fetchEdgeConnections", () => {
   });
 });
 
-const knowsResponse = {
-  results: {
-    bindings: [
-      {
-        sourceType: { type: "uri", value: "http://example.org/Person" },
-        targetType: { type: "uri", value: "http://example.org/Person" },
-      },
-    ],
-  },
-};
-
-const worksAtResponse = {
-  results: {
-    bindings: [
-      {
-        sourceType: { type: "uri", value: "http://example.org/Person" },
-        targetType: { type: "uri", value: "http://example.org/Company" },
-      },
-    ],
-  },
-};
-
 const emptyResponse = {
   results: {
     bindings: [],
-  },
-};
-
-const incompleteResponse = {
-  results: {
-    bindings: [
-      {
-        sourceType: { type: "uri", value: "http://example.org/Person" },
-        targetType: { type: "uri", value: "http://example.org/Person" },
-      },
-      {
-        sourceType: { type: "uri", value: "http://example.org/Person" },
-        // Missing targetType
-      },
-    ],
   },
 };
