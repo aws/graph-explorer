@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-08-13
-- **Related:** PR #2102; issues #2091, #2103, #2105, #2107. Supersedes the icon-resolution decisions in PR #1777. Affects `core/icons/`, `modules/GraphViewer/useBackgroundImageMap.ts`, `components/VertexSymbol/`.
+- **Related:** PR #2102; issues #2091, #2103, #2105, #2107. Supersedes the icon-resolution decisions in PR #1777. Affects `core/icons/`, `components/VertexSymbol/`.
 
 ## Context
 

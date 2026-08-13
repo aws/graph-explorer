@@ -1,21 +1,31 @@
+import { useAtomValue } from "jotai";
+
 import type { GraphEdge, GraphNode } from "@/components/Graph";
 
 import {
   createEdgeConnectionId,
   type EdgeConnectionId,
+  edgeStyleAtom,
+  edgeStyleData,
+  type EdgeStyleData,
   type EdgeType,
   useActiveSchema,
+  useAllVertexStyles,
   useDisplayEdgeTypeConfigs,
   useDisplayVertexTypeConfigs,
+  vertexStyleAtom,
+  vertexStyleData,
+  type VertexStyleData,
   type VertexType,
 } from "@/core";
+import { useBackgroundImageMap } from "@/core/icons";
 
 type SchemaGraphNode = GraphNode & {
   data: {
     id: VertexType;
     type: VertexType;
     displayLabel: string;
-  };
+  } & VertexStyleData;
 };
 
 type SchemaGraphEdge = GraphEdge & {
@@ -25,7 +35,7 @@ type SchemaGraphEdge = GraphEdge & {
     target: VertexType;
     type: EdgeType;
     displayLabel: string;
-  };
+  } & EdgeStyleData;
 };
 
 /**
@@ -44,15 +54,20 @@ export function useSchemaGraphData() {
 /** Transforms vertex type configs into schema graph nodes. */
 function useSchemaGraphNodes(): SchemaGraphNode[] {
   const vtConfigs = useDisplayVertexTypeConfigs();
+  const vertexStyles = useAtomValue(vertexStyleAtom);
+  const backgroundImages = useBackgroundImageMap(useAllVertexStyles());
 
   const nodes: SchemaGraphNode[] = [];
 
   for (const config of vtConfigs.values()) {
+    const style = vertexStyles.get(config.type);
+    const backgroundImage = backgroundImages.get(config.type);
     nodes.push({
       data: {
         id: config.type,
         type: config.type,
         displayLabel: config.displayLabel,
+        ...vertexStyleData(style, backgroundImage),
       },
     });
   }
@@ -67,6 +82,7 @@ function useSchemaGraphEdges(
   const schema = useActiveSchema();
   const edgeConnections = schema.edgeConnections ?? [];
   const etConfigs = useDisplayEdgeTypeConfigs();
+  const edgeStyles = useAtomValue(edgeStyleAtom);
 
   const edges: SchemaGraphEdge[] = [];
 
@@ -77,6 +93,7 @@ function useSchemaGraphEdges(
 
     const edgeConfig = etConfigs.get(connection.edgeType);
     const displayLabel = edgeConfig?.displayLabel ?? connection.edgeType;
+    const style = edgeStyles.get(connection.edgeType);
 
     edges.push({
       data: {
@@ -85,6 +102,7 @@ function useSchemaGraphEdges(
         target: connection.targetVertexType,
         type: connection.edgeType,
         displayLabel,
+        ...edgeStyleData(style),
       },
     });
   }

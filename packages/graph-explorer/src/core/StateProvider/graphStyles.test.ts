@@ -30,6 +30,35 @@ function createExpectedEdge(existing: EdgeStyleStorage) {
   };
 }
 
+// The single source of truth for the design defaults. Other tests consume
+// `appDefaultVertexStyle` / `appDefaultEdgeStyle` (or the resolved styles) as
+// a fixture rather than copying these values; this pins them so a change is
+// deliberate and consumers stay trustworthy.
+describe("app default styles", () => {
+  it("pins the default vertex style values", () => {
+    expect(appDefaultVertexStyle).toMatchObject({
+      color: "#128EE5",
+      shape: "ellipse",
+      backgroundOpacity: 0.4,
+      borderWidth: 0,
+      borderColor: "#128EE5",
+      borderStyle: "solid",
+    });
+  });
+
+  it("pins the default edge style values", () => {
+    expect(appDefaultEdgeStyle).toMatchObject({
+      labelColor: "#17457b",
+      labelBackgroundOpacity: 0.7,
+      lineColor: "#b3b3b3",
+      lineThickness: 2,
+      lineStyle: "solid",
+      sourceArrowStyle: "none",
+      targetArrowStyle: "triangle",
+    });
+  });
+});
+
 describe("useVertexStyling", () => {
   it("should return defaults when the style does not exist", () => {
     const dbState = new DbState();
