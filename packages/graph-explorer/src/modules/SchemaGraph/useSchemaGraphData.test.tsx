@@ -48,7 +48,7 @@ describe("useSchemaGraphData", () => {
     expect(node.data.ge_shape).toBe("hexagon");
     expect(node.data.ge_borderWidth).toBe(2);
     expect(node.data.ge_borderOpacity).toBe(1);
-    expect(node.data.__iconUrl).toBe("img:Person");
+    expect(node.data.ge_iconUrl).toBe("img:Person");
   });
 
   it("enriches edges with per-type ge_* style data (solid: no dash pattern)", async () => {
@@ -84,10 +84,10 @@ describe("useSchemaGraphData", () => {
     expect(edge.data.ge_lineColor).toBe("#ff0000");
     expect(edge.data.ge_lineStyle).toBe("solid");
     expect(edge.data.ge_targetArrowShape).toBe("triangle");
-    expect(edge.data.ge_lineDashPattern).toBeUndefined();
+    expect(edge.data.ge_lineDashPattern).toEqual([6, 3]);
   });
 
-  it("emits ge_lineDashPattern for dashed edges", async () => {
+  it("emits the dashed ge_lineDashPattern for dashed edges", async () => {
     const vertexConfig = {
       ...createRandomVertexTypeConfig(),
       type: createVertexType("Person"),

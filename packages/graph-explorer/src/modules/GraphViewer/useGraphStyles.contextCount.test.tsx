@@ -56,10 +56,6 @@ describe("useGraphStyles style-context count", () => {
     );
     await waitFor(() => expect(result.current).toBeDefined());
 
-    expect(Object.keys(result.current).sort()).toStrictEqual([
-      "edge",
-      "edge[ge_lineDashPattern]",
-      "node",
-    ]);
+    expect(Object.keys(result.current).sort()).toStrictEqual(["edge", "node"]);
   });
 });

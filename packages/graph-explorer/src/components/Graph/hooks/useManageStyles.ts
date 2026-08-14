@@ -125,13 +125,6 @@ export const getStyles = ({
   addDefault("edge.connections-filter-out", toCyEdgeStyle(outOfFocusEdgeStyle));
   addDefault("edge.out-of-focus", toCyEdgeStyle(outOfFocusEdgeStyle));
 
-  rootStyles.push({
-    selector: "node[__iconUrl]",
-    style: {
-      "background-image": "data(__iconUrl)",
-    },
-  });
-
   return rootStyles;
 };
 

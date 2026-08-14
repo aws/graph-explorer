@@ -12,7 +12,7 @@ describe("useGraphStyles", () => {
   it("emits one node rule + one edge rule + one gated dash-pattern rule", () => {
     const { result } = renderHookWithState(() => useGraphStyles());
     const selectors = Object.keys(result.current).sort();
-    expect(selectors).toEqual(["edge", "edge[ge_lineDashPattern]", "node"]);
+    expect(selectors).toEqual(["edge", "node"]);
   });
 
   it("uses data() mappers for every per-type property", () => {
@@ -39,14 +39,17 @@ describe("useGraphStyles", () => {
     expect(edgeRule["width"]).toBe("data(ge_lineThickness)");
   });
 
-  it("gates line-dash-pattern on ge_lineDashPattern presence", () => {
-    // Solid edges omit the field and fall through to the default; only dashed/
-    // dotted edges pick up the pattern via the gated selector.
+  // No gated selector: every element always sets the field, because cytoscape
+  // merges element data and could never clear an absent one.
+  it("maps line-dash-pattern on the base edge rule", () => {
     const { result } = renderHookWithState(() => useGraphStyles());
-    const dashRule = result.current["edge[ge_lineDashPattern]"] as Record<
-      string,
-      unknown
-    >;
-    expect(dashRule["line-dash-pattern"]).toBe("data(ge_lineDashPattern)");
+    const edgeRule = result.current["edge"] as Record<string, unknown>;
+    expect(edgeRule["line-dash-pattern"]).toBe("data(ge_lineDashPattern)");
+  });
+
+  it("maps background-image on the base node rule", () => {
+    const { result } = renderHookWithState(() => useGraphStyles());
+    const nodeRule = result.current["node"] as Record<string, unknown>;
+    expect(nodeRule["background-image"]).toBe("data(ge_iconUrl)");
   });
 });
