@@ -12,6 +12,7 @@ export * from "./nodes";
 export * from "./renderedEntities";
 export * from "./graphStyles";
 export * from "./graphElementStyleData";
+export * from "./styleDataResolvers";
 export * from "./schema";
 export * from "./storageAtoms";
 export * from "./graphSession";
