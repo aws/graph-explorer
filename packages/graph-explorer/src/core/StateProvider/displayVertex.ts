@@ -12,10 +12,11 @@ import {
   useVertex,
   type Vertex,
   type VertexId,
-  vertexStyleByTypeAtom,
+  vertexStyleAtom,
+  type VertexStyleLookup,
   type VertexType,
 } from "@/core";
-import { textTransformSelector } from "@/hooks";
+import { type TextTransformer, textTransformSelector } from "@/hooks";
 import { LABELS, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
 
 /** Represents a vertex's display information after all transformations have been applied. */
@@ -46,101 +47,122 @@ export function useDisplayVerticesInCanvas() {
 
 /** Maps a `Vertex` instance to a `DisplayVertex` instance using the schema and any user styles. */
 export function useDisplayVertexFromVertex(vertex: Vertex) {
-  return useAtomValue(displayVertexSelector(vertex));
+  return toDisplayVertex(vertex, useAtomValue(displayVertexContextSelector));
 }
 
 /** Maps the `Vertex` instances to a `DisplayVertex` instances using the schema and any user styles. */
 export function useDisplayVerticesFromVertices(vertices: Vertex[]) {
-  return useAtomValue(displayVerticesSelector(vertices));
+  const context = useAtomValue(displayVertexContextSelector);
+  return new Map(vertices.map(v => [v.id, toDisplayVertex(v, context)]));
 }
 
-const selectedDisplayVerticesSelector = atom(get => {
-  const selectedIds = get(nodesSelectedIdsAtom);
-  return selectedIds
+const selectedDisplayVerticesSelector = atom(get =>
+  get(nodesSelectedIdsAtom)
     .values()
-    .map(id => get(nodeSelector(id)))
-    .filter(n => n != null)
-    .map(n => get(displayVertexSelector(n)))
-    .filter(n => n != null)
-    .toArray();
-});
+    .map(id => get(displayVertexSelector(id)))
+    .filter(v => v != null)
+    .toArray(),
+);
 
 /** Maps all `Vertex` instances which are selected in the graph canvas to `DisplayVertex` instances. */
 export function useSelectedDisplayVertices() {
   return useAtomValue(selectedDisplayVerticesSelector);
 }
 
-const displayVertexSelector = atomFamily((vertex: Vertex) =>
+/**
+ * Everything a `Vertex` needs to become a `DisplayVertex`, resolved once per
+ * store change instead of once per vertex.
+ */
+type DisplayVertexContext = {
+  textTransform: TextTransformer;
+  isSparql: boolean;
+  vertexStyles: VertexStyleLookup;
+};
+
+const displayVertexContextSelector = atom<DisplayVertexContext>(get => ({
+  textTransform: get(textTransformSelector),
+  isSparql: get(queryEngineSelector) === "sparql",
+  vertexStyles: get(vertexStyleAtom),
+}));
+
+/**
+ * Keyed by `VertexId` rather than the `Vertex` object so the family interns one
+ * entry per node instead of one per object identity, which `nodesAtom` mutations
+ * would otherwise leak on every recomputation.
+ */
+const displayVertexSelector = atomFamily((id: VertexId) =>
   atom(get => {
-    const textTransform = get(textTransformSelector);
-    const queryEngine = get(queryEngineSelector);
-    const isSparql = queryEngine === "sparql";
+    const vertex = get(nodeSelector(id));
+    if (!vertex) {
+      return null;
+    }
+    return toDisplayVertex(vertex, get(displayVertexContextSelector));
+  }),
+);
 
-    const rawStringId = String(getRawId(vertex.id));
-    const displayId = isSparql ? textTransform(rawStringId) : rawStringId;
+function toDisplayVertex(
+  vertex: Vertex,
+  { textTransform, isSparql, vertexStyles }: DisplayVertexContext,
+): DisplayVertex {
+  const rawStringId = String(getRawId(vertex.id));
+  const displayId = isSparql ? textTransform(rawStringId) : rawStringId;
 
-    // List all vertex types for displaying
-    const vertexTypes =
-      vertex.types && vertex.types.length > 0 ? vertex.types : [vertex.type];
-    const displayTypes = vertexTypes
-      .map(
-        type =>
-          get(vertexStyleByTypeAtom(type)).displayLabel ?? textTransform(type),
-      )
-      .join(", ");
+  // List all vertex types for displaying
+  const vertexTypes =
+    vertex.types && vertex.types.length > 0 ? vertex.types : [vertex.type];
+  const displayTypes = vertexTypes
+    .map(type => vertexStyles.get(type).displayLabel ?? textTransform(type))
+    .join(", ");
 
-    // Map all the attributes for displaying
-    const sortedAttributes = getSortedDisplayAttributes(vertex, textTransform);
+  // Map all the attributes for displaying
+  const sortedAttributes = getSortedDisplayAttributes(vertex, textTransform);
 
-    // Get the display name and description for the vertex
-    function getDisplayAttributeValueByName(name: string | undefined) {
-      if (name === RESERVED_ID_PROPERTY) {
-        return displayId;
-      } else if (name === RESERVED_TYPES_PROPERTY) {
-        return displayTypes;
-      } else if (name) {
-        return (
-          sortedAttributes.find(attr => attr.name === name)?.displayValue ??
-          LABELS.MISSING_VALUE
-        );
-      }
-
-      return LABELS.MISSING_VALUE;
+  // Get the display name and description for the vertex
+  function getDisplayAttributeValueByName(name: string | undefined) {
+    if (name === RESERVED_ID_PROPERTY) {
+      return displayId;
+    } else if (name === RESERVED_TYPES_PROPERTY) {
+      return displayTypes;
+    } else if (name) {
+      return (
+        sortedAttributes.find(attr => attr.name === name)?.displayValue ??
+        LABELS.MISSING_VALUE
+      );
     }
 
-    const vertexStyle = get(vertexStyleByTypeAtom(vertex.type));
-    const displayName = getDisplayAttributeValueByName(
-      vertexStyle.displayNameAttribute,
-    );
-    const displayDescription = getDisplayAttributeValueByName(
-      vertexStyle.longDisplayNameAttribute,
-    );
+    return LABELS.MISSING_VALUE;
+  }
 
-    const result: DisplayVertex = {
-      entityType: "vertex",
-      id: vertex.id,
-      primaryType: vertex.type,
-      types: vertexTypes,
-      displayId,
-      displayTypes,
-      displayName,
-      displayDescription,
-      attributes: sortedAttributes,
-      isBlankNode: vertex.isBlankNode ?? false,
-      original: vertex,
-    };
-    return result;
-  }),
+  const vertexStyle = vertexStyles.get(vertex.type);
+  const displayName = getDisplayAttributeValueByName(
+    vertexStyle.displayNameAttribute,
+  );
+  const displayDescription = getDisplayAttributeValueByName(
+    vertexStyle.longDisplayNameAttribute,
+  );
+
+  return {
+    entityType: "vertex",
+    id: vertex.id,
+    primaryType: vertex.type,
+    types: vertexTypes,
+    displayId,
+    displayTypes,
+    displayName,
+    displayDescription,
+    attributes: sortedAttributes,
+    isBlankNode: vertex.isBlankNode ?? false,
+    original: vertex,
+  };
+}
+
+export const displayVerticesInCanvasSelector = atom(
+  get =>
+    new Map(
+      get(nodesAtom)
+        .keys()
+        .map(id => get(displayVertexSelector(id)))
+        .filter(v => v != null)
+        .map(v => [v.id, v] as const),
+    ),
 );
-
-const displayVerticesSelector = atomFamily((vertices: Vertex[]) =>
-  atom(get => {
-    return new Map(
-      vertices.map(vertex => [vertex.id, get(displayVertexSelector(vertex))]),
-    );
-  }),
-);
-
-export const displayVerticesInCanvasSelector = atom(get => {
-  return get(displayVerticesSelector(get(nodesAtom).values().toArray()));
-});
