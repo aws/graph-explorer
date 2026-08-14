@@ -1,43 +1,37 @@
 // @vitest-environment happy-dom
 import { act, waitFor } from "@testing-library/react";
+import { useAtomValue } from "jotai";
 
 import type { AppStore } from "@/core";
 
-import { createEdgeType, createVertexType } from "@/core/entities";
+import { createVertexType, type VertexType } from "@/core/entities";
 import { DbState, renderHookWithJotai } from "@/utils/testing";
 
-import { userEdgeStylesAtom, userVertexStylesAtom } from "./storageAtoms";
-import {
-  useEdgeStyleDataResolver,
-  useVertexStyleDataResolver,
-} from "./styleDataResolvers";
+import { vertexStyleAtom } from "./graphStyles";
+import { userVertexStylesAtom } from "./storageAtoms";
+import { useVertexStyleDataByType } from "./styleDataResolvers";
 
-describe("useVertexStyleDataResolver", () => {
-  it("should return the same object for repeated lookups of a type", () => {
-    const type = createVertexType("Person");
-    const { result } = renderHookWithJotai(() =>
-      useVertexStyleDataResolver([]),
-    );
+/** Mirrors a caller: resolve the styles for a scope, then build the style data. */
+function useStyleDataForTypes(types: VertexType[]) {
+  const styles = useAtomValue(vertexStyleAtom);
+  return useVertexStyleDataByType(types.map(type => styles.get(type)));
+}
 
-    expect(result.current(type)).toBe(result.current(type));
-  });
-
-  // The cache is keyed only by type, so a style edit has to replace the whole
-  // resolver. If it doesn't, the canvas keeps the old colors.
-  it("should reflect a style edited after the first lookup", async () => {
+describe("useVertexStyleDataByType", () => {
+  it("should reflect a style edited after the first render", async () => {
     const type = createVertexType("Person");
     const dbState = new DbState();
     dbState.addVertexStyle(type, { color: "#111111" });
 
     let store!: AppStore;
     const { result } = renderHookWithJotai(
-      () => useVertexStyleDataResolver([]),
+      () => useStyleDataForTypes([type]),
       s => {
         store = s;
         dbState.applyTo(s);
       },
     );
-    expect(result.current(type).ge_color).toBe("#111111");
+    expect(result.current.get(type)?.ge_color).toBe("#111111");
 
     act(() =>
       store.set(userVertexStylesAtom, prev =>
@@ -46,7 +40,7 @@ describe("useVertexStyleDataResolver", () => {
     );
 
     await waitFor(() => {
-      expect(result.current(type).ge_color).toBe("#222222");
+      expect(result.current.get(type)?.ge_color).toBe("#222222");
     });
   });
 
@@ -56,72 +50,32 @@ describe("useVertexStyleDataResolver", () => {
     dbState.addVertexStyle(createVertexType("City"), { color: "#222222" });
 
     const { result } = renderHookWithJotai(
-      () => useVertexStyleDataResolver([]),
+      () =>
+        useStyleDataForTypes([
+          createVertexType("Person"),
+          createVertexType("City"),
+        ]),
       store => dbState.applyTo(store),
     );
 
-    expect(result.current(createVertexType("Person")).ge_color).toBe("#111111");
-    expect(result.current(createVertexType("City")).ge_color).toBe("#222222");
-  });
-
-  // The canvas passes only the types it draws, so a type outside that scope must
-  // still resolve — without an icon.
-  it("should resolve a type outside the icon scope without an icon", () => {
-    const { result } = renderHookWithJotai(() =>
-      useVertexStyleDataResolver([]),
-    );
-
-    expect(result.current(createVertexType("Person")).ge_iconUrl).toBe("none");
-  });
-});
-
-describe("useEdgeStyleDataResolver", () => {
-  it("should reflect a style edited after the first lookup", async () => {
-    const type = createEdgeType("route");
-    const dbState = new DbState();
-    dbState.addEdgeStyle(type, { lineColor: "#111111" });
-
-    let store!: AppStore;
-    const { result } = renderHookWithJotai(
-      () => useEdgeStyleDataResolver(),
-      s => {
-        store = s;
-        dbState.applyTo(s);
-      },
-    );
-    expect(result.current(type).ge_lineColor).toBe("#111111");
-
-    act(() =>
-      store.set(userEdgeStylesAtom, prev =>
-        new Map(prev).set(type, { type, lineColor: "#222222" }),
-      ),
-    );
-
-    await waitFor(() => {
-      expect(result.current(type).ge_lineColor).toBe("#222222");
-    });
-  });
-
-  it("should return the same object for repeated lookups of a type", () => {
-    const type = createEdgeType("route");
-    const { result } = renderHookWithJotai(() => useEdgeStyleDataResolver());
-
-    expect(result.current(type)).toBe(result.current(type));
-  });
-
-  it("should resolve distinct style data per type", () => {
-    const dbState = new DbState();
-    dbState.addEdgeStyle(createEdgeType("route"), { lineColor: "#111111" });
-    dbState.addEdgeStyle(createEdgeType("owns"), { lineColor: "#222222" });
-
-    const { result } = renderHookWithJotai(
-      () => useEdgeStyleDataResolver(),
-      store => dbState.applyTo(store),
-    );
-
-    expect(result.current(createEdgeType("route")).ge_lineColor).toBe(
+    expect(result.current.get(createVertexType("Person"))?.ge_color).toBe(
       "#111111",
     );
-    expect(result.current(createEdgeType("owns")).ge_lineColor).toBe("#222222");
+    expect(result.current.get(createVertexType("City"))?.ge_color).toBe(
+      "#222222",
+    );
+  });
+
+  // Scalar fields and icon come from the same list, so a type outside the scope
+  // is absent rather than present-but-icon-less.
+  it("should omit a type outside the given styles", () => {
+    const { result } = renderHookWithJotai(() =>
+      useStyleDataForTypes([createVertexType("Person")]),
+    );
+
+    expect(result.current.has(createVertexType("City"))).toBe(false);
+    expect(result.current.get(createVertexType("Person"))?.ge_iconUrl).toBe(
+      "none",
+    );
   });
 });

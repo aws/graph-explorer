@@ -270,7 +270,7 @@ export function resolveEdgeStyle(
 
 /** Returns an array of vertex styles based on the known vertex types in the schema.
  * For the schema view, which draws every type; the canvas scopes itself to the
- * types it draws via `canvasVertexStylesAtom`. Always includes an entry for
+ * types it draws via `canvasVerticesAtom`. Always includes an entry for
  * `LABELS.MISSING_TYPE` so blank nodes (assigned that synthetic type at runtime)
  * are styled rather than skipped.
  */

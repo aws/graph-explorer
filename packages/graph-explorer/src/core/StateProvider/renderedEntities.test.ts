@@ -19,7 +19,7 @@ import {
 } from "@/utils/testing";
 
 import {
-  canvasVertexStylesAtom,
+  canvasVerticesAtom,
   createRenderedEdgeId,
   createRenderedVertexId,
   getEdgeIdFromRenderedEdgeId,
@@ -27,7 +27,6 @@ import {
   type RenderedEdgeId,
   type RenderedVertexId,
   useRenderedEntities,
-  visibleVertexIdsAtom,
 } from "./renderedEntities";
 
 describe("createRenderedVertexId", () => {
@@ -96,7 +95,7 @@ describe("getEdgeIdFromRenderedEdgeId", () => {
   });
 });
 
-describe("visibleVertexIdsAtom", () => {
+describe("canvasVerticesAtom", () => {
   it("should exclude vertices filtered by ID and by type", () => {
     const dbState = new DbState();
     const kept = createTestableVertex();
@@ -112,12 +111,12 @@ describe("visibleVertexIdsAtom", () => {
     const store = createStore();
     dbState.applyTo(store);
 
-    expect([...store.get(visibleVertexIdsAtom)]).toStrictEqual([kept.id]);
+    const { vertices, ids } = store.get(canvasVerticesAtom);
+    expect(vertices.map(v => v.id)).toStrictEqual([kept.id]);
+    expect([...ids]).toStrictEqual([kept.id]);
   });
-});
 
-describe("canvasVertexStylesAtom", () => {
-  // The point of the atom: a schema can carry far more types than the canvas
+  // The point of the scoping: a schema can carry far more types than the canvas
   // draws, and resolving an icon for every one of them dominated render cost.
   it("should cover only the types drawn on the canvas", () => {
     const dbState = new DbState();
@@ -130,9 +129,9 @@ describe("canvasVertexStylesAtom", () => {
     const store = createStore();
     dbState.applyTo(store);
 
-    expect(store.get(canvasVertexStylesAtom).map(s => s.type)).toStrictEqual([
-      createVertexType(onCanvas.types[0]),
-    ]);
+    expect([
+      ...store.get(canvasVerticesAtom).stylesByType.keys(),
+    ]).toStrictEqual([createVertexType(onCanvas.types[0])]);
   });
 
   it("should exclude the types of filtered-out vertices", () => {
@@ -146,9 +145,9 @@ describe("canvasVertexStylesAtom", () => {
     const store = createStore();
     dbState.applyTo(store);
 
-    expect(store.get(canvasVertexStylesAtom).map(s => s.type)).toStrictEqual([
-      createVertexType(kept.types[0]),
-    ]);
+    expect([
+      ...store.get(canvasVerticesAtom).stylesByType.keys(),
+    ]).toStrictEqual([createVertexType(kept.types[0])]);
   });
 
   // `useAllVertexStyles` states this guarantee explicitly; here it has to hold
@@ -163,9 +162,9 @@ describe("canvasVertexStylesAtom", () => {
     const store = createStore();
     dbState.applyTo(store);
 
-    expect(store.get(canvasVertexStylesAtom).map(s => s.type)).toStrictEqual([
-      LABELS.MISSING_TYPE,
-    ]);
+    expect([
+      ...store.get(canvasVerticesAtom).stylesByType.keys(),
+    ]).toStrictEqual([LABELS.MISSING_TYPE]);
   });
 
   it("should list a shared type once", () => {
@@ -178,7 +177,34 @@ describe("canvasVertexStylesAtom", () => {
     const store = createStore();
     dbState.applyTo(store);
 
-    expect(store.get(canvasVertexStylesAtom)).toHaveLength(1);
+    expect(store.get(canvasVerticesAtom).stylesByType.size).toBe(1);
+  });
+
+  // The invariant `useRenderedVertices` throws on: every drawn vertex has a
+  // style, because the same loop produced both.
+  it("should cover the primary type of every vertex it returns", () => {
+    const dbState = new DbState();
+    const first = createTestableVertex();
+    const shared = createTestableVertex().with({ types: first.types });
+    const filtered = createTestableVertex();
+    dbState.addTestableVertexToGraph(first);
+    dbState.addTestableVertexToGraph(shared);
+    dbState.addTestableVertexToGraph(filtered);
+    dbState.addVertexToGraph(
+      createVertex({ id: "blank", isBlankNode: true, types: [] }),
+    );
+    dbState.filterVertex(filtered.id);
+
+    const store = createStore();
+    dbState.applyTo(store);
+
+    const { vertices, stylesByType } = store.get(canvasVerticesAtom);
+    expect(vertices).not.toHaveLength(0);
+    for (const vertex of vertices) {
+      expect(stylesByType.get(vertex.primaryType)?.type).toBe(
+        vertex.primaryType,
+      );
+    }
   });
 });
 
