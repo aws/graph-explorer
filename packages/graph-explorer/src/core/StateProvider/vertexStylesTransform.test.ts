@@ -6,6 +6,7 @@ import { createVertexType, type VertexType } from "@/core/entities";
 import type { ShapeStyle, VertexStyleStorage } from "./graphStyles";
 
 import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
+import { appDefaultVertexStyle, resolveVertexStyle } from "./graphStyles";
 import {
   coerceBrokenShape,
   transformVertexStyles,
@@ -21,6 +22,90 @@ function vertexMap(
     }),
   );
 }
+
+/**
+ * BACKWARD COMPATIBILITY — PERSISTED DATA
+ *
+ * A vertex style's colors are validated as bare optional strings on import
+ * (`stylingParser.ts`), so a styling file carrying `"color": ""` is stored
+ * verbatim. An empty color is not a color: it overrides the app default through
+ * the plain spread in `resolveVertexStyle`, and every consumer then renders
+ * nothing for it — a node with no background, an icon that falls back to black.
+ * Blank colors are therefore dropped at load time, letting the default apply.
+ *
+ * DO NOT delete these tests without confirming no stored or importable style
+ * can carry a blank color.
+ */
+describe("backward compatibility: blank colors in storage", () => {
+  it("drops an empty color", () => {
+    const styles = vertexMap([["Person", { color: "" }]]);
+
+    const result = transformVertexStyles(styles);
+
+    expect(result.get(createVertexType("Person"))).toStrictEqual({
+      type: createVertexType("Person"),
+    });
+  });
+
+  // Dropping the field rather than substituting a value is what lets the style
+  // keep following the app default, so assert the resolved outcome too.
+  it("resolves a dropped color to the app default", () => {
+    const type = createVertexType("Person");
+    const styles = vertexMap([["Person", { color: "", borderColor: "" }]]);
+
+    const resolved = resolveVertexStyle(
+      type,
+      transformVertexStyles(styles).get(type),
+    );
+
+    expect(resolved.color).toBe(appDefaultVertexStyle.color);
+    expect(resolved.borderColor).toBe(appDefaultVertexStyle.borderColor);
+  });
+
+  it("drops a whitespace-only border color", () => {
+    const styles = vertexMap([["Person", { borderColor: "   " }]]);
+
+    const result = transformVertexStyles(styles);
+
+    expect(result.get(createVertexType("Person"))).toStrictEqual({
+      type: createVertexType("Person"),
+    });
+  });
+
+  it("keeps the other fields of an entry with a blank color", () => {
+    const styles = vertexMap([
+      ["Person", { color: "", shape: "hexagon", iconUrl: "lucide:user" }],
+    ]);
+
+    const result = transformVertexStyles(styles);
+
+    expect(result.get(createVertexType("Person"))).toStrictEqual({
+      type: createVertexType("Person"),
+      shape: "hexagon",
+      iconUrl: "lucide:user",
+    });
+  });
+
+  // An empty iconUrl means "no icon", so it must survive.
+  it("leaves an empty icon url alone", () => {
+    const styles = vertexMap([["Person", { iconUrl: "" }]]);
+
+    const result = transformVertexStyles(styles);
+
+    expect(result.get(createVertexType("Person"))).toStrictEqual({
+      type: createVertexType("Person"),
+      iconUrl: "",
+    });
+  });
+
+  it("passes usable colors through by reference", () => {
+    const styles = vertexMap([
+      ["Person", { color: "#FF0000", borderColor: "#00FF00" }],
+    ]);
+
+    expect(transformVertexStyles(styles)).toBe(styles);
+  });
+});
 
 /**
  * BACKWARD COMPATIBILITY — PERSISTED DATA

@@ -10,6 +10,8 @@ import { createStore } from "jotai";
 import localforage from "localforage";
 import { afterEach, expect, vi } from "vitest";
 
+import { iconRegistry } from "@/core/icons";
+
 expect.extend(matchers);
 
 // Mock getAppStore to return a specific test store
@@ -28,6 +30,10 @@ beforeEach(async () => {
   store = createStore();
   vi.stubEnv("DEV", true);
   vi.stubEnv("PROD", false);
+
+  // The icon registry is a module singleton, so resolved icons would otherwise
+  // bleed between tests.
+  iconRegistry.reset();
 
   // Give each test a fresh IndexedDB so persisted state never bleeds between
   // tests. The vitest thread pool reuses workers, so the database must be

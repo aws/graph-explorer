@@ -11,6 +11,11 @@
 - Avoid prop drilling - use context or state management
 - Follow principle of least privilege for component props
 
+## Async state
+
+- Server state goes in TanStack Query
+- **Exception: vertex icons.** They resolve through the `core/icons/` registry, read via `useSyncExternalStore`, because a per-hook subscription scaled with vertex-type count and locked up the schema view at 10k types. Don't move icon resolution back into TanStack Query — see `docs/adr/20260813-icon-registry-not-react-query.md`
+
 ## Feature Modules
 
 - Feature modules in `src/modules/` contain all related components, hooks, and utilities

@@ -36,6 +36,27 @@ function vertexItem(
 }
 
 describe("useApplyStyleImport", () => {
+  // The read-time transform only runs when the atom is seeded from storage, so
+  // without normalizing here an imported blank color would render as no color
+  // until the page reloaded.
+  test("normalizes an imported style that carries a blank color", () => {
+    const vertexType = createVertexType("Airport");
+    const { result } = renderHookWithJotai(() => useApplyStyleImport());
+
+    result.current([vertexItem(vertexType, { type: vertexType, color: "" })]);
+
+    const store = getAppStore();
+    expect(store.get(userVertexStylesAtom).get(vertexType)).toStrictEqual({
+      type: vertexType,
+    });
+    expect(resolveVertexStyle(vertexType, undefined).color).toBe(
+      resolveVertexStyle(
+        vertexType,
+        store.get(userVertexStylesAtom).get(vertexType),
+      ).color,
+    );
+  });
+
   test("writes selected vertex and edge styles to the user atoms", () => {
     const vertexType = createVertexType("Airport");
     const edgeType = createEdgeType("route");

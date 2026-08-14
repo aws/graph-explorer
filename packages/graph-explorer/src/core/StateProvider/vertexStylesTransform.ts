@@ -29,10 +29,38 @@ export function coerceBrokenShape(shape: ShapeStyle): ShapeStyle {
 }
 
 /**
+ * Color fields whose value must be usable or absent. Named explicitly because
+ * `iconUrl` is also a string where empty is *meaningful* — it means "no icon".
+ */
+const COLOR_FIELDS = ["color", "borderColor"] as const;
+
+/**
+ * Drops color fields that hold nothing renderable.
+ *
+ * Colors are validated as bare optional strings on import, so a styling file
+ * can carry `"color": ""`. An empty value still overrides the app default
+ * through the spread in `resolveVertexStyle`, leaving every consumer to render
+ * a node with no background or an icon that falls back to black. Removing the
+ * field instead lets the default apply — and keeps following it if it changes.
+ */
+function dropBlankColors(entry: VertexStyleStorage): VertexStyleStorage | null {
+  let cleaned: VertexStyleStorage | null = null;
+
+  for (const field of COLOR_FIELDS) {
+    const value = entry[field];
+    if (value !== undefined && !value.trim()) {
+      cleaned ??= { ...entry };
+      delete cleaned[field];
+    }
+  }
+
+  return cleaned;
+}
+
+/**
  * ReadTransform for vertex style maps: coerces broken round-polygon shapes to
- * their non-round counterpart at load time. Entries without a `shape` field are
- * passed through unchanged. Returns the same reference when no coercion was
- * needed.
+ * their non-round counterpart and drops unusable colors at load time. Returns
+ * the same reference when nothing needed changing.
  */
 export function transformVertexStyles(
   styles: Map<VertexType, VertexStyleStorage>,
@@ -40,17 +68,21 @@ export function transformVertexStyles(
   let result: Map<VertexType, VertexStyleStorage> | null = null;
 
   for (const [type, entry] of styles) {
+    let updated = dropBlankColors(entry);
+
     if (entry.shape !== undefined) {
       const coerced = coerceBrokenShape(entry.shape);
       if (coerced !== entry.shape) {
-        if (!result) {
-          result = new Map(styles);
-        }
         logger.debug(
           `[vertex-styles] Coercing broken shape "${entry.shape}" to "${coerced}" for type "${type}"`,
         );
-        result.set(type, { ...entry, shape: coerced });
+        updated = { ...(updated ?? entry), shape: coerced };
       }
+    }
+
+    if (updated) {
+      result ??= new Map(styles);
+      result.set(type, updated);
     }
   }
 

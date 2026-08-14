@@ -8,6 +8,7 @@ import {
   useAllEdgeStyles,
   useAllVertexStyles,
   type VertexStyle,
+  type VertexType,
 } from "@/core";
 
 import { useBackgroundImageMap } from "./useBackgroundImageMap";
@@ -37,15 +38,14 @@ export default function useGraphStyles() {
 function createGraphStyles(
   deferredVtConfigs: VertexStyle[],
   deferredEtConfigs: EdgeStyle[],
-  backgroundImageMap: Map<string, string | null>,
+  backgroundImageMap: Map<VertexType, string>,
 ): GraphProps["styles"] {
   const styles: GraphProps["styles"] = {};
 
   for (const vtConfig of deferredVtConfigs) {
     const vt = vtConfig.type;
 
-    // Process the image data or SVG
-    const backgroundImage = backgroundImageMap.get(vt) ?? undefined;
+    const backgroundImage = backgroundImageMap.get(vt);
 
     styles[`node[type="${vt}"]`] = {
       "background-image": backgroundImage,
