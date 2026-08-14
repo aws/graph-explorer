@@ -51,7 +51,8 @@ export type RenderedEdge = ReturnType<typeof createRenderedEdge>;
  *
  * Note this still recomputes when a vertex style changes, because
  * `displayVerticesInCanvasSelector` resolves display labels through
- * `vertexStyleByTypeAtom`.
+ * `displayVertexContextSelector`, which reads `vertexStyleAtom`. Decoupling it
+ * is tracked in #2116.
  */
 export const canvasVerticesAtom = atom(get => {
   const filteredIds = get(nodesFilteredIdsAtom);
