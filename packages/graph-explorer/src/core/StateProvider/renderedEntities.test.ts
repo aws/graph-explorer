@@ -1,11 +1,15 @@
 // @vitest-environment happy-dom
 import { waitFor } from "@testing-library/react";
+import { createStore } from "jotai";
 
 import {
   createEdgeId,
+  createVertex,
   createVertexId,
   createVertexType,
 } from "@/core/entities";
+import { iconRegistry } from "@/core/icons";
+import { LABELS } from "@/utils";
 import {
   createRandomEdge,
   createRandomVertex,
@@ -15,6 +19,7 @@ import {
 } from "@/utils/testing";
 
 import {
+  canvasVertexStylesAtom,
   createRenderedEdgeId,
   createRenderedVertexId,
   getEdgeIdFromRenderedEdgeId,
@@ -22,6 +27,7 @@ import {
   type RenderedEdgeId,
   type RenderedVertexId,
   useRenderedEntities,
+  visibleVertexIdsAtom,
 } from "./renderedEntities";
 
 describe("createRenderedVertexId", () => {
@@ -87,6 +93,125 @@ describe("getEdgeIdFromRenderedEdgeId", () => {
   it("should return the id as is if it is not marked as a string or number", () => {
     const id = getEdgeIdFromRenderedEdgeId("123" as RenderedEdgeId);
     expect(id).toBe("123");
+  });
+});
+
+describe("visibleVertexIdsAtom", () => {
+  it("should exclude vertices filtered by ID and by type", () => {
+    const dbState = new DbState();
+    const kept = createTestableVertex();
+    const filteredById = createTestableVertex();
+    const filteredByType = createTestableVertex();
+
+    dbState.addTestableVertexToGraph(kept);
+    dbState.addTestableVertexToGraph(filteredById);
+    dbState.addTestableVertexToGraph(filteredByType);
+    dbState.filterVertex(filteredById.id);
+    dbState.filterVertexType(createVertexType(filteredByType.types[0]));
+
+    const store = createStore();
+    dbState.applyTo(store);
+
+    expect([...store.get(visibleVertexIdsAtom)]).toStrictEqual([kept.id]);
+  });
+});
+
+describe("canvasVertexStylesAtom", () => {
+  // The point of the atom: a schema can carry far more types than the canvas
+  // draws, and resolving an icon for every one of them dominated render cost.
+  it("should cover only the types drawn on the canvas", () => {
+    const dbState = new DbState();
+    const onCanvas = createTestableVertex();
+    dbState.addTestableVertexToGraph(onCanvas);
+    dbState.addVertexStyle(createVertexType("NotOnCanvas"), {
+      color: "#123456",
+    });
+
+    const store = createStore();
+    dbState.applyTo(store);
+
+    expect(store.get(canvasVertexStylesAtom).map(s => s.type)).toStrictEqual([
+      createVertexType(onCanvas.types[0]),
+    ]);
+  });
+
+  it("should exclude the types of filtered-out vertices", () => {
+    const dbState = new DbState();
+    const kept = createTestableVertex();
+    const filtered = createTestableVertex();
+    dbState.addTestableVertexToGraph(kept);
+    dbState.addTestableVertexToGraph(filtered);
+    dbState.filterVertex(filtered.id);
+
+    const store = createStore();
+    dbState.applyTo(store);
+
+    expect(store.get(canvasVertexStylesAtom).map(s => s.type)).toStrictEqual([
+      createVertexType(kept.types[0]),
+    ]);
+  });
+
+  // `useAllVertexStyles` states this guarantee explicitly; here it has to hold
+  // via `createVertex` defaulting an untyped vertex to `LABELS.MISSING_TYPE`.
+  // Without it, blank nodes lose their icon silently.
+  it("should cover a blank node's synthetic missing type", () => {
+    const dbState = new DbState();
+    dbState.addVertexToGraph(
+      createVertex({ id: "blank", isBlankNode: true, types: [] }),
+    );
+
+    const store = createStore();
+    dbState.applyTo(store);
+
+    expect(store.get(canvasVertexStylesAtom).map(s => s.type)).toStrictEqual([
+      LABELS.MISSING_TYPE,
+    ]);
+  });
+
+  it("should list a shared type once", () => {
+    const dbState = new DbState();
+    const first = createTestableVertex();
+    const second = createTestableVertex().with({ types: first.types });
+    dbState.addTestableVertexToGraph(first);
+    dbState.addTestableVertexToGraph(second);
+
+    const store = createStore();
+    dbState.applyTo(store);
+
+    expect(store.get(canvasVertexStylesAtom)).toHaveLength(1);
+  });
+});
+
+// The canvas resolves icons only for the types it draws, so the scope and the
+// per-element lookup have to agree. A miss is silent — the node just renders
+// without an icon — so assert the hit case on a real element.
+describe("useRenderedVertices icon coverage", () => {
+  beforeEach(() => {
+    iconRegistry.reset();
+  });
+
+  it("should carry the resolved icon url onto the element data", async () => {
+    const dbState = new DbState();
+    const vertex = createTestableVertex();
+    dbState.addTestableVertexToGraph(vertex);
+    // A raster icon resolves synchronously in the registry, so no fetch stub.
+    dbState.addVertexStyle(createVertexType(vertex.types[0]), {
+      iconUrl: "https://example.test/icon.png",
+      iconImageType: "image/png",
+      color: "#abcdef",
+    });
+
+    const { result } = renderHookWithJotai(
+      () => useRenderedEntities(),
+      store => dbState.applyTo(store),
+    );
+
+    await waitFor(() => {
+      expect(result.current.vertices[0].data.__iconUrl).toBe(
+        "https://example.test/icon.png",
+      );
+      expect(result.current.vertices[0].data.ge_color).toBe("#abcdef");
+    });
   });
 });
 

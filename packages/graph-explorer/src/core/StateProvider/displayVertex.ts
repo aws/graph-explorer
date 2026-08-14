@@ -141,6 +141,6 @@ const displayVerticesSelector = atomFamily((vertices: Vertex[]) =>
   }),
 );
 
-const displayVerticesInCanvasSelector = atom(get => {
+export const displayVerticesInCanvasSelector = atom(get => {
   return get(displayVerticesSelector(get(nodesAtom).values().toArray()));
 });

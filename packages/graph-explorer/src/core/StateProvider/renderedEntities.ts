@@ -1,33 +1,32 @@
-import { useAtomValue } from "jotai";
+import { atom, useAtomValue } from "jotai";
 
 import type { Branded } from "@/utils";
 
 import {
   type DisplayEdge,
   type DisplayVertex,
+  displayVerticesInCanvasSelector,
   edgesFilteredIdsAtom,
   edgesTypesFilteredAtom,
-  edgeStyleAtom,
   type EntityRawId,
   nodesFilteredIdsAtom,
   nodesTypesFilteredAtom,
   useAllNeighbors,
-  useAllVertexStyles,
   useDisplayEdgesInCanvas,
   useDisplayVerticesInCanvas,
-  vertexStyleAtom,
   type VertexId,
+  type VertexStyle,
+  vertexStyleAtom,
+  type VertexType,
 } from "@/core";
-import { useBackgroundImageMap } from "@/core/icons";
 
 import type { EdgeId } from "../entities/edge";
+import type { EdgeStyleData, VertexStyleData } from "./graphElementStyleData";
 
 import {
-  type EdgeStyleData,
-  edgeStyleData,
-  type VertexStyleData,
-  vertexStyleData,
-} from "./graphElementStyleData";
+  useEdgeStyleDataResolver,
+  useVertexStyleDataResolver,
+} from "./styleDataResolvers";
 
 /** A string representation of a vertex ID that encodes the original type. Cytoscape requires IDs to be strings. */
 export type RenderedVertexId = Branded<string, "RenderedVertexId">;
@@ -41,41 +40,83 @@ export type RenderedVertex = ReturnType<typeof createRenderedVertex>;
 /** A representation of an edge that Cytoscape can use. */
 export type RenderedEdge = ReturnType<typeof createRenderedEdge>;
 
-/** Returns the filtered array of `RenderedVertex` instances for use by Cytoscape. */
-export function useRenderedVertices(): RenderedVertex[] {
-  const filteredIds = useAtomValue(nodesFilteredIdsAtom);
-  const filteredTypes = useAtomValue(nodesTypesFilteredAtom);
-  const displayVerticesInGraph = useDisplayVerticesInCanvas();
-  const neighborCounts = useAllNeighbors();
-  const vertexStyles = useAtomValue(vertexStyleAtom);
-  const backgroundImages = useBackgroundImageMap(useAllVertexStyles());
+/**
+ * The IDs of the canvas vertices that survive filtering.
+ *
+ * An atom rather than a hook so both the vertex and edge pipelines share one
+ * computation per store — as a hook it ran once per call site.
+ *
+ * Note this still recomputes when a vertex style changes, because
+ * `displayVerticesInCanvasSelector` resolves display labels through
+ * `vertexStyleByTypeAtom`. Only `id` and `types` are actually needed, so
+ * sourcing the predicate from `nodesAtom` would decouple it.
+ */
+export const visibleVertexIdsAtom = atom(get => {
+  const filteredIds = get(nodesFilteredIdsAtom);
+  const filteredTypes = get(nodesTypesFilteredAtom);
+  const displayVerticesInGraph = get(displayVerticesInCanvasSelector);
 
-  const result: RenderedVertex[] = [];
+  const result = new Set<VertexId>();
 
   for (const vertex of displayVerticesInGraph.values()) {
     // Filters the nodes added to the graph by:
     // - Individual nodes hidden using the table view
     // - Vertex types unselected in the filter sidebar
     if (filteredIds.has(vertex.id)) continue;
+    if (vertex.types.some(type => filteredTypes.has(type))) continue;
 
-    // Check if any vertex type is in the filtered types
-    let hasFilteredType = false;
-    for (const type of vertex.types) {
-      if (filteredTypes.has(type)) {
-        hasFilteredType = true;
-        break;
-      }
+    result.add(vertex.id);
+  }
+
+  return result;
+});
+
+/**
+ * Vertex styles for only the types drawn on the canvas.
+ *
+ * The schema can carry tens of thousands of vertex types while the canvas shows
+ * a handful, and resolving a style plus an icon for every type in the schema on
+ * every render is the dominant render cost otherwise. The schema view, which
+ * genuinely draws every type, uses `useAllVertexStyles` instead.
+ */
+export const canvasVertexStylesAtom = atom(get => {
+  const styles = get(vertexStyleAtom);
+  const displayVerticesInGraph = get(displayVerticesInCanvasSelector);
+  const visibleIds = get(visibleVertexIdsAtom);
+
+  const types = new Set<VertexType>();
+  for (const vertex of displayVerticesInGraph.values()) {
+    if (visibleIds.has(vertex.id)) {
+      types.add(vertex.primaryType);
     }
-    if (hasFilteredType) continue;
+  }
+
+  const result: VertexStyle[] = [];
+  for (const type of types) {
+    result.push(styles.get(type));
+  }
+  return result;
+});
+
+/** Returns the filtered array of `RenderedVertex` instances for use by Cytoscape. */
+export function useRenderedVertices(): RenderedVertex[] {
+  const displayVerticesInGraph = useDisplayVerticesInCanvas();
+  const visibleIds = useAtomValue(visibleVertexIdsAtom);
+  const neighborCounts = useAllNeighbors();
+  const canvasVertexStyles = useAtomValue(canvasVertexStylesAtom);
+  const resolveStyleData = useVertexStyleDataResolver(canvasVertexStyles);
+
+  const result: RenderedVertex[] = [];
+
+  for (const vertex of displayVerticesInGraph.values()) {
+    if (!visibleIds.has(vertex.id)) continue;
 
     const neighborCount = neighborCounts.get(vertex.id)?.unfetched ?? 0;
-    const style = vertexStyles.get(vertex.primaryType);
-    const backgroundImage = backgroundImages.get(vertex.primaryType);
     result.push(
       createRenderedVertex(
         vertex,
         neighborCount,
-        vertexStyleData(style, backgroundImage),
+        resolveStyleData(vertex.primaryType),
       ),
     );
   }
@@ -88,11 +129,8 @@ export function useRenderedEdges(): RenderedEdge[] {
   const edges = useDisplayEdgesInCanvas();
   const filteredEdgeIds = useAtomValue(edgesFilteredIdsAtom);
   const filteredEdgeTypes = useAtomValue(edgesTypesFilteredAtom);
-  const vertices = useRenderedVertices();
-  const edgeStyles = useAtomValue(edgeStyleAtom);
-
-  // Get the IDs of the existing vertices
-  const existingVertexIds = new Set(vertices.map(v => v.data.vertexId));
+  const visibleVertexIds = useAtomValue(visibleVertexIdsAtom);
+  const resolveStyleData = useEdgeStyleDataResolver();
 
   const result: RenderedEdge[] = [];
 
@@ -103,11 +141,10 @@ export function useRenderedEdges(): RenderedEdge[] {
     // - Missing source or target vertex
     if (filteredEdgeTypes.has(edge.type)) continue;
     if (filteredEdgeIds.has(edge.id)) continue;
-    if (!existingVertexIds.has(edge.sourceId)) continue;
-    if (!existingVertexIds.has(edge.targetId)) continue;
+    if (!visibleVertexIds.has(edge.sourceId)) continue;
+    if (!visibleVertexIds.has(edge.targetId)) continue;
 
-    const style = edgeStyles.get(edge.type);
-    result.push(createRenderedEdge(edge, edgeStyleData(style)));
+    result.push(createRenderedEdge(edge, resolveStyleData(edge.type)));
   }
 
   return result;
