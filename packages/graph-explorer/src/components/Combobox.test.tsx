@@ -9,7 +9,7 @@
  * Run: pnpm test Combobox.test.tsx
  */
 
-import { render, fireEvent } from "@testing-library/react";
+import { render, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 
 import { Combobox, type ComboboxOption } from "./Combobox";
@@ -20,8 +20,24 @@ import { Combobox, type ComboboxOption } from "./Combobox";
 // elements a realistic size so tests can assert against actually-rendered
 // options.
 beforeEach(() => {
-  vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(300);
-  vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockReturnValue(300);
+  // Reads the element's own inline style when set (as our virtualized spacer
+  // always does: style={{ height: `${totalSize}px` }}), falling back to a
+  // fixed size otherwise. A blanket constant for every element can't tell
+  // "measured the real bounded viewport" apart from "measured the spacer
+  // that's deliberately as tall as the whole list" — both would report the
+  // same fake number. Reading inline style keeps that distinction intact.
+  vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockImplementation(
+    function (this: HTMLElement) {
+      const inline = parseFloat(this.style.height);
+      return Number.isFinite(inline) ? inline : 300;
+    },
+  );
+  vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(
+    function (this: HTMLElement) {
+      const inline = parseFloat(this.style.width);
+      return Number.isFinite(inline) ? inline : 300;
+    },
+  );
 });
 
 afterEach(() => {
@@ -322,6 +338,49 @@ describe("Combobox", () => {
       fireEvent.click(toggleButton);
       expect(input.getAttribute("aria-expanded")).toBe("true");
     });
+
+    it("should close the list when the toggle button is clicked again", async () => {
+      // Base UI's click-to-open/close handling keys off the real
+      // pointerdown-before-click sequence (it tracks which element was
+      // pressed to distinguish "open the newly active trigger" from "toggle
+      // this same trigger closed"). A bare fireEvent.click skips that
+      // sequence and can't exercise the toggle-closed path. userEvent.click
+      // doesn't work either here — it never registers the initial open on
+      // this aria-hidden decorative button — so this dispatches the raw
+      // pointer/mouse sequence directly instead.
+      const options = createTestOptions(10);
+      const { container } = render(
+        <Combobox options={options} placeholder="Select type" />,
+      );
+
+      const toggleButton = container.querySelector(
+        "button",
+      ) as HTMLButtonElement;
+      const input = container.querySelector("input") as HTMLInputElement;
+
+      // Base UI's mousedown-based click handling defers the actual open/
+      // close state update to a requestAnimationFrame tick (it waits for
+      // focus to land before flipping state, to avoid a focus-visible
+      // outline flash). A real user's click resolves that within one
+      // frame; a test has to wait for it explicitly.
+      function realClick(el: HTMLElement) {
+        fireEvent.pointerDown(el, { pointerType: "mouse", button: 0 });
+        fireEvent.mouseDown(el, { button: 0 });
+        fireEvent.pointerUp(el, { pointerType: "mouse", button: 0 });
+        fireEvent.mouseUp(el, { button: 0 });
+        fireEvent.click(el, { button: 0 });
+      }
+
+      realClick(toggleButton);
+      await waitFor(() =>
+        expect(input.getAttribute("aria-expanded")).toBe("true"),
+      );
+
+      realClick(toggleButton);
+      await waitFor(() =>
+        expect(input.getAttribute("aria-expanded")).toBe("false"),
+      );
+    });
   });
 
   describe("No Results State", () => {
@@ -454,6 +513,38 @@ describe("Combobox", () => {
     });
 
     describe("10,000 options (extreme scale)", () => {
+      it("keeps rendered option count bounded regardless of total items", () => {
+        // Not the exact-count assertion the project's testing philosophy
+        // warns against (that's about pinning an implementation detail like
+        // a specific overscan value, which breaks on harmless tuning) — this
+        // is a wide behavioral bound on whether windowing happened at all.
+        // It guards against measuring the wrong scroll element: the
+        // virtualizer must read the bounded, overflow-y-auto viewport
+        // (Combobox.List), not the inner spacer div (which is deliberately
+        // as tall as the full list). Measuring the spacer reports its own
+        // huge height as "visible", so the virtualizer renders nearly every
+        // item instead of a small window — a real regression this project
+        // shipped that jsdom's global offsetHeight/offsetWidth mock can't
+        // catch by itself, since it can't tell which element got measured.
+        const largeOptions = createTestOptions(10000);
+        const { container } = render(
+          <Combobox options={largeOptions} placeholder="Select type" />,
+        );
+
+        const input = container.querySelector("input") as HTMLInputElement;
+        fireEvent.focus(input);
+        fireEvent.keyDown(input, { key: "ArrowDown" });
+
+        // A fraction of the total, not a fixed number: the real failure
+        // mode this guards against is rendering essentially everything
+        // (the bug rendered ~10,000 of 10,000), so this stays well clear
+        // of any reasonable overscan/container-height tuning instead of
+        // coupling to today's specific values.
+        const renderedOptions = document.querySelectorAll('[role="option"]');
+        expect(renderedOptions.length).toBeGreaterThan(0);
+        expect(renderedOptions.length).toBeLessThan(largeOptions.length / 10);
+      });
+
       it("should mount without UI freeze", () => {
         const largeOptions = createTestOptions(10000);
 
@@ -495,6 +586,27 @@ describe("Combobox", () => {
 
         // Input must be instant regardless of 10k items (useDeferredValue keeps this responsive)
         expect(inputLatency).toBeLessThan(50);
+      });
+
+      it("should select a specific late item after filtering at 10,000-item scale", async () => {
+        const largeOptions = createTestOptions(10000);
+        const handleChange = vi.fn();
+        const { container, findByText } = render(
+          <Combobox
+            options={largeOptions}
+            placeholder="Select type"
+            onValueChange={handleChange}
+          />,
+        );
+
+        const input = container.querySelector("input") as HTMLInputElement;
+        fireEvent.focus(input);
+        fireEvent.change(input, { target: { value: "08500" } });
+
+        const option = await findByText("Vertex Type 08500");
+        fireEvent.click(option);
+
+        expect(handleChange).toHaveBeenCalledWith("type_8500");
       });
     });
   });

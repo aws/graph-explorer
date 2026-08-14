@@ -2,6 +2,7 @@
 import type { QueryEngine } from "@shared/types";
 
 import { act } from "@testing-library/react";
+import { useState } from "react";
 import { vi } from "vitest";
 
 import {
@@ -9,6 +10,7 @@ import {
   type AppStore,
   configurationAtom,
   schemaAtom,
+  useSearchableAttributes,
 } from "@/core";
 import { SEARCH_TOKENS } from "@/utils";
 import {
@@ -304,6 +306,69 @@ describe("useKeywordSearch", () => {
       expect(vi.mocked(useKeywordSearchQuery)).toHaveBeenLastCalledWith(
         expect.objectContaining({ searchByAttributes: ["city"] }),
       );
+    });
+  });
+
+  describe("useSearchableAttributes referential stability", () => {
+    function useSearchableAttributesHarness(initialType: string) {
+      const [type, setType] = useState(initialType);
+      const attributes = useSearchableAttributes(type);
+      return { attributes, setType };
+    }
+
+    function initializeConfigWithTwoVertexTypes(store: AppStore) {
+      const config = createRandomRawConfiguration();
+      const schema = createRandomSchema();
+      config.connection!.queryEngine = "gremlin";
+      schema.vertices[0].attributes = [
+        { name: "city", dataType: "String" },
+        { name: "code", dataType: "String" },
+      ];
+      schema.vertices[1].attributes = [{ name: "airline", dataType: "String" }];
+
+      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(schemaAtom, new Map([[config.id, schema]]));
+      store.set(activeConfigurationAtom, config.id);
+
+      return {
+        vertexType1: schema.vertices[0].type,
+        vertexType2: schema.vertices[1].type,
+      };
+    }
+
+    it("returns the same array reference across renders when the vertex type is unchanged", () => {
+      let vertexType1 = "";
+      const { result, rerender } = renderHookWithJotai(
+        () => useSearchableAttributesHarness(vertexType1),
+        store => {
+          vertexType1 = initializeConfigWithTwoVertexTypes(store).vertexType1;
+        },
+      );
+
+      const firstAttributes = result.current.attributes;
+      rerender();
+
+      expect(result.current.attributes).toBe(firstAttributes);
+    });
+
+    it("returns a new array reference when the vertex type changes", () => {
+      let vertexType1 = "";
+      let vertexType2 = "";
+      const { result } = renderHookWithJotai(
+        () => useSearchableAttributesHarness(vertexType1),
+        store => {
+          ({ vertexType1, vertexType2 } =
+            initializeConfigWithTwoVertexTypes(store));
+        },
+      );
+
+      const firstAttributes = result.current.attributes;
+      act(() => result.current.setType(vertexType2));
+
+      expect(result.current.attributes).not.toBe(firstAttributes);
+      expect(result.current.attributes.map(attr => attr.name)).toStrictEqual([
+        "airline",
+      ]);
     });
   });
 });

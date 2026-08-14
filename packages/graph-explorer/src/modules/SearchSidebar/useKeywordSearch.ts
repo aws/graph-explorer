@@ -30,7 +30,8 @@ function useAttributeOptions(selectedVertexType: string) {
   const queryEngine = useQueryEngine();
   const t = useTranslations();
 
-  // Call hook directly (not inside memoization callback)
+  // Rules of hooks forbid calling a hook inside the useMemo callback below,
+  // so useSearchableAttributes runs here and only the derived array is memoized.
   const allSearchableAttributes = useSearchableAttributes(selectedVertexType);
 
   const options: SelectOption[] = useMemo(() => {
