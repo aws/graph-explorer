@@ -53,26 +53,18 @@ export type EdgeStyleData = {
 };
 
 /**
- * Memoized because parsing a color is the one non-trivial computation in this
- * module, and the number of distinct label colors in a graph is tiny next to
- * the number of edges asking about them.
- */
-const labelTextColors = new Map<string, "#FFFFFF" | "#000000">();
-
-/**
  * Picks white-on-dark / black-on-light for a label against its background color.
  * Falls back to the default label color when unset: an imported style file can
  * carry an empty `labelColor`, and `new Color("")` throws.
+ *
+ * Deliberately not memoized. Profiling this at 0.1ms over a 10s expansion put it
+ * far below the per-type resolution that dominates, so a module-level cache
+ * would only add global state shared across stores and tests.
  */
 export function labelTextColorFor(labelColor: string): "#FFFFFF" | "#000000" {
-  let textColor = labelTextColors.get(labelColor);
-  if (textColor === undefined) {
-    textColor = new Color(labelColor || appDefaultEdgeStyle.labelColor).isDark()
-      ? "#FFFFFF"
-      : "#000000";
-    labelTextColors.set(labelColor, textColor);
-  }
-  return textColor;
+  return new Color(labelColor || appDefaultEdgeStyle.labelColor).isDark()
+    ? "#FFFFFF"
+    : "#000000";
 }
 
 /** Precomputed cytoscape data-mapper fields for a rendered vertex. */

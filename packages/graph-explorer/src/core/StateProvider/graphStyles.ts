@@ -225,6 +225,25 @@ export const edgeStyleAtom = atom<EdgeStyleLookup>(get => {
   };
 });
 
+/**
+ * Spreading `user` directly would let a key present but set to `undefined` — an
+ * imported style file can carry one — overwrite the default with `undefined`,
+ * which then reaches cytoscape as a `data()` mapper against a missing field and
+ * cannot fall back. Only keys with a value override.
+ */
+function withoutUndefined<T extends object>(user: T | undefined): Partial<T> {
+  if (user === undefined) {
+    return {};
+  }
+  const defined: Partial<T> = {};
+  for (const [key, value] of Object.entries(user)) {
+    if (value !== undefined) {
+      defined[key as keyof T] = value as T[keyof T];
+    }
+  }
+  return defined;
+}
+
 /** The user's vertex style overlaid on the app defaults. */
 export function resolveVertexStyle(
   type: VertexType,
@@ -233,7 +252,7 @@ export function resolveVertexStyle(
   return {
     type,
     ...appDefaultVertexStyle,
-    ...user,
+    ...withoutUndefined(user),
   } as const;
 }
 
@@ -245,7 +264,7 @@ export function resolveEdgeStyle(
   return {
     type,
     ...appDefaultEdgeStyle,
-    ...user,
+    ...withoutUndefined(user),
   } as const;
 }
 
