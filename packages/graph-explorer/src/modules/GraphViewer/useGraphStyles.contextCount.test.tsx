@@ -49,9 +49,13 @@ describe("useGraphStyles style-context count", () => {
     expect(large).toBe(small);
   });
 
-  it("emits a small fixed number of selectors, not per-type", async () => {
-    const count = await selectorCountFor(50);
-    // node rule + edge rule + at most a couple of gated rules
-    expect(count).toBeLessThanOrEqual(6);
+  it("emits exactly the fixed selector set, not per-type", async () => {
+    const { result } = renderHookWithState(
+      () => useGraphStyles(),
+      seedWithTypes(50),
+    );
+    await waitFor(() => expect(result.current).toBeDefined());
+
+    expect(Object.keys(result.current).sort()).toStrictEqual(["edge", "node"]);
   });
 });

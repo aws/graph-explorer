@@ -5,20 +5,18 @@ import type { GraphEdge, GraphNode } from "@/components/Graph";
 import {
   createEdgeConnectionId,
   type EdgeConnectionId,
+  type EdgeStyleData,
   edgeStyleAtom,
   edgeStyleData,
-  type EdgeStyleData,
   type EdgeType,
   useActiveSchema,
-  useAllVertexStyles,
   useDisplayEdgeTypeConfigs,
   useDisplayVertexTypeConfigs,
+  useVertexStyleDataByType,
   vertexStyleAtom,
-  vertexStyleData,
   type VertexStyleData,
   type VertexType,
 } from "@/core";
-import { useBackgroundImageMap } from "@/core/icons";
 
 type SchemaGraphNode = GraphNode & {
   data: {
@@ -51,23 +49,31 @@ export function useSchemaGraphData() {
   return { nodes, edges };
 }
 
-/** Transforms vertex type configs into schema graph nodes. */
+/**
+ * Transforms vertex type configs into schema graph nodes.
+ *
+ * The style scope is derived from the same type configs the loop iterates, so
+ * the drawn set and the styled set are the same set. Scoping it from the schema
+ * instead would not be equivalent: `useActiveSchema` is deferred while the type
+ * configs read the schema atom directly, so mid-sync a render could see a type
+ * in the configs whose style had not arrived yet.
+ */
 function useSchemaGraphNodes(): SchemaGraphNode[] {
   const vtConfigs = useDisplayVertexTypeConfigs();
-  const vertexStyles = useAtomValue(vertexStyleAtom);
-  const backgroundImages = useBackgroundImageMap(useAllVertexStyles());
+  const styles = useAtomValue(vertexStyleAtom);
+  const styleDataByType = useVertexStyleDataByType(
+    vtConfigs.values().map(config => styles.get(config.type)),
+  );
 
   const nodes: SchemaGraphNode[] = [];
 
-  for (const config of vtConfigs.values()) {
-    const style = vertexStyles.get(config.type);
-    const backgroundImage = backgroundImages.get(config.type);
+  for (const [type, styleData] of styleDataByType) {
     nodes.push({
       data: {
-        id: config.type,
-        type: config.type,
-        displayLabel: config.displayLabel,
-        ...vertexStyleData(style, backgroundImage),
+        id: type,
+        type,
+        displayLabel: vtConfigs.get(type)?.displayLabel ?? type,
+        ...styleData,
       },
     });
   }
@@ -82,8 +88,11 @@ function useSchemaGraphEdges(
   const schema = useActiveSchema();
   const edgeConnections = schema.edgeConnections ?? [];
   const etConfigs = useDisplayEdgeTypeConfigs();
-  const edgeStyles = useAtomValue(edgeStyleAtom);
+  const styles = useAtomValue(edgeStyleAtom);
 
+  // Many connections share an edge type, so style data is resolved on first
+  // sight of a type — one `Color` parse per type, not per connection.
+  const styleDataByType = new Map<EdgeType, EdgeStyleData>();
   const edges: SchemaGraphEdge[] = [];
 
   for (const connection of edgeConnections) {
@@ -93,7 +102,12 @@ function useSchemaGraphEdges(
 
     const edgeConfig = etConfigs.get(connection.edgeType);
     const displayLabel = edgeConfig?.displayLabel ?? connection.edgeType;
-    const style = edgeStyles.get(connection.edgeType);
+
+    let styleData = styleDataByType.get(connection.edgeType);
+    if (styleData === undefined) {
+      styleData = edgeStyleData(styles.get(connection.edgeType));
+      styleDataByType.set(connection.edgeType, styleData);
+    }
 
     edges.push({
       data: {
@@ -102,7 +116,7 @@ function useSchemaGraphEdges(
         target: connection.targetVertexType,
         type: connection.edgeType,
         displayLabel,
-        ...edgeStyleData(style),
+        ...styleData,
       },
     });
   }

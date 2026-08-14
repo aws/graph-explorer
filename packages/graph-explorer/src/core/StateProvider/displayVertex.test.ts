@@ -14,10 +14,17 @@ import {
   createVertexId,
   createVertexType,
   type DisplayAttribute,
+  displayVerticesInCanvasSelector,
+  getAppStore,
   getRawId,
+  nodesAtom,
+  nodesSelectedIdsAtom,
   schemaAtom,
   type SchemaStorageModel,
+  toNodeMap,
   useDisplayVertexFromVertex,
+  useDisplayVerticesFromVertices,
+  useSelectedDisplayVertices,
   type Vertex,
 } from "@/core";
 import { formatDate, LABELS } from "@/utils";
@@ -237,4 +244,111 @@ describe("useDisplayVertexFromVertex", () => {
       store.set(activeConfigurationAtom, config.id);
     };
   }
+});
+
+describe("displayVerticesInCanvasSelector", () => {
+  it("should map every node in the canvas, keyed by id, in insertion order", () => {
+    const store = getAppStore();
+    const vertices = [
+      createRandomVertex(),
+      createRandomVertex(),
+      createRandomVertex(),
+    ];
+    store.set(nodesAtom, toNodeMap(vertices));
+
+    const result = store.get(displayVerticesInCanvasSelector);
+
+    expect(result.keys().toArray()).toStrictEqual(vertices.map(v => v.id));
+    for (const vertex of vertices) {
+      expect(result.get(vertex.id)?.original).toBe(vertex);
+    }
+  });
+
+  it("should be empty when the canvas is empty", () => {
+    const store = getAppStore();
+    expect(store.get(displayVerticesInCanvasSelector).size).toBe(0);
+  });
+
+  it("should reflect nodes added and removed across mutations", () => {
+    const store = getAppStore();
+    const first = createRandomVertex();
+    const second = createRandomVertex();
+
+    store.set(nodesAtom, toNodeMap([first]));
+    expect(
+      store.get(displayVerticesInCanvasSelector).keys().toArray(),
+    ).toStrictEqual([first.id]);
+
+    store.set(nodesAtom, toNodeMap([first, second]));
+    expect(
+      store.get(displayVerticesInCanvasSelector).keys().toArray(),
+    ).toStrictEqual([first.id, second.id]);
+
+    store.set(nodesAtom, toNodeMap([second]));
+    expect(
+      store.get(displayVerticesInCanvasSelector).keys().toArray(),
+    ).toStrictEqual([second.id]);
+  });
+
+  /**
+   * Pins the per-id caching that replaced the array-keyed atom family: an
+   * unchanged node must not be re-derived when other nodes are added.
+   */
+  it("should keep the same DisplayVertex instance for an unchanged node", () => {
+    const store = getAppStore();
+    const unchanged = createRandomVertex();
+
+    store.set(nodesAtom, toNodeMap([unchanged]));
+    const before = store.get(displayVerticesInCanvasSelector).get(unchanged.id);
+
+    store.set(nodesAtom, toNodeMap([unchanged, createRandomVertex()]));
+    const after = store.get(displayVerticesInCanvasSelector).get(unchanged.id);
+
+    expect(after).toBe(before);
+  });
+});
+
+describe("useSelectedDisplayVertices", () => {
+  it("should map only the selected nodes", () => {
+    const selected = createRandomVertex();
+    const notSelected = createRandomVertex();
+
+    const { result } = renderHookWithJotai(
+      useSelectedDisplayVertices,
+      store => {
+        store.set(nodesAtom, toNodeMap([selected, notSelected]));
+        store.set(nodesSelectedIdsAtom, new Set([selected.id]));
+      },
+    );
+
+    expect(result.current.map(v => v.id)).toStrictEqual([selected.id]);
+  });
+
+  it("should ignore selected ids that are no longer in the canvas", () => {
+    const missing = createRandomVertex();
+
+    const { result } = renderHookWithJotai(
+      useSelectedDisplayVertices,
+      store => {
+        store.set(nodesSelectedIdsAtom, new Set([missing.id]));
+      },
+    );
+
+    expect(result.current).toStrictEqual([]);
+  });
+});
+
+describe("useDisplayVerticesFromVertices", () => {
+  it("should map arbitrary vertices that are not in the canvas", () => {
+    const vertices = [createRandomVertex(), createRandomVertex()];
+
+    const { result } = renderHookWithJotai(() =>
+      useDisplayVerticesFromVertices(vertices),
+    );
+
+    expect(result.current.keys().toArray()).toStrictEqual(
+      vertices.map(v => v.id),
+    );
+    expect(result.current.get(vertices[0].id)?.original).toBe(vertices[0]);
+  });
 });

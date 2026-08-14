@@ -4,12 +4,11 @@ import { atom, useAtomValue, useSetAtom } from "jotai";
 import { atomFamily } from "jotai-family";
 import { useDeferredValue } from "react";
 
-import { LABELS, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
+import { RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
 import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 
 import type { EdgeType, VertexType } from "../entities";
 
-import { useActiveSchema } from "./schema";
 import { userEdgeStylesAtom, userVertexStylesAtom } from "./storageAtoms";
 
 export const SHAPE_STYLES = [
@@ -199,8 +198,14 @@ export type LegacyUserStylingStorage = {
  * seam in that parser, not here.
  */
 
+/** Resolves the full style of any vertex type. */
+export type VertexStyleLookup = { get(type: VertexType): VertexStyle };
+
+/** Resolves the full style of any edge type. */
+export type EdgeStyleLookup = { get(type: EdgeType): EdgeStyle };
+
 /** Vertex styles indexed by type for O(1) lookup, resolved against defaults. */
-export const vertexStyleAtom = atom(get => {
+export const vertexStyleAtom = atom<VertexStyleLookup>(get => {
   const userStyles = get(userVertexStylesAtom);
   return {
     get(type: VertexType) {
@@ -210,7 +215,7 @@ export const vertexStyleAtom = atom(get => {
 });
 
 /** Edge styles indexed by type for O(1) lookup, resolved against defaults. */
-export const edgeStyleAtom = atom(get => {
+export const edgeStyleAtom = atom<EdgeStyleLookup>(get => {
   const userStyles = get(userEdgeStylesAtom);
   return {
     get(type: EdgeType) {
@@ -218,6 +223,25 @@ export const edgeStyleAtom = atom(get => {
     },
   };
 });
+
+/**
+ * Spreading `user` directly would let a key present but set to `undefined` — an
+ * imported style file can carry one — overwrite the default with `undefined`,
+ * which then reaches cytoscape as a `data()` mapper against a missing field and
+ * cannot fall back. Only keys with a value override.
+ */
+function withoutUndefined<T extends object>(user: T | undefined): Partial<T> {
+  if (user === undefined) {
+    return {};
+  }
+  const defined: Partial<T> = {};
+  for (const [key, value] of Object.entries(user)) {
+    if (value !== undefined) {
+      defined[key as keyof T] = value as T[keyof T];
+    }
+  }
+  return defined;
+}
 
 /** The user's vertex style overlaid on the app defaults. */
 export function resolveVertexStyle(
@@ -227,7 +251,7 @@ export function resolveVertexStyle(
   return {
     type,
     ...appDefaultVertexStyle,
-    ...user,
+    ...withoutUndefined(user),
   } as const;
 }
 
@@ -239,32 +263,8 @@ export function resolveEdgeStyle(
   return {
     type,
     ...appDefaultEdgeStyle,
-    ...user,
+    ...withoutUndefined(user),
   } as const;
-}
-
-/** Returns an array of vertex styles based on the known vertex types in the schema.
- * Always includes an entry for `LABELS.MISSING_TYPE` so that blank nodes (which are
- * assigned that synthetic type at runtime) receive icon styling on the canvas.
- */
-export function useAllVertexStyles(): VertexStyle[] {
-  const styles = useAtomValue(vertexStyleAtom);
-  const { vertices: allSchemas } = useActiveSchema();
-  const schemaStyles = allSchemas.map(({ type }) => styles.get(type));
-
-  const missingType = LABELS.MISSING_TYPE as VertexType;
-  const alreadyIncluded = schemaStyles.some(s => s.type === missingType);
-  if (alreadyIncluded) {
-    return schemaStyles;
-  }
-  return [...schemaStyles, styles.get(missingType)];
-}
-
-/** Returns an array of edge styles based on the known edge types in the schema. */
-export function useAllEdgeStyles(): EdgeStyle[] {
-  const styles = useAtomValue(edgeStyleAtom);
-  const { edges: allSchemas } = useActiveSchema();
-  return allSchemas.map(({ type }) => styles.get(type));
 }
 
 /** Returns the resolved style for the specified vertex type. */

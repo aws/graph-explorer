@@ -1,11 +1,10 @@
 // @vitest-environment happy-dom
 import { waitFor } from "@testing-library/react";
+import { createStore } from "jotai";
 
-import {
-  createEdgeId,
-  createVertexId,
-  createVertexType,
-} from "@/core/entities";
+import { createVertex, createVertexType } from "@/core/entities";
+import { iconRegistry } from "@/core/icons";
+import { LABELS } from "@/utils";
 import {
   createRandomEdge,
   createRandomVertex,
@@ -14,79 +13,155 @@ import {
   renderHookWithJotai,
 } from "@/utils/testing";
 
+import { canvasVerticesAtom, useRenderedEntities } from "./renderedEntities";
 import {
   createRenderedEdgeId,
   createRenderedVertexId,
-  getEdgeIdFromRenderedEdgeId,
-  getVertexIdFromRenderedVertexId,
-  type RenderedEdgeId,
-  type RenderedVertexId,
-  useRenderedEntities,
-} from "./renderedEntities";
+} from "./renderedEntityIds";
 
-describe("createRenderedVertexId", () => {
-  it("should create a rendered vertex id out of a string", () => {
-    const id = createRenderedVertexId(createVertexId("123"));
-    expect(id).toBe("(str)123");
+describe("canvasVerticesAtom", () => {
+  it("should exclude vertices filtered by ID and by type", () => {
+    const dbState = new DbState();
+    const kept = createTestableVertex();
+    const filteredById = createTestableVertex();
+    const filteredByType = createTestableVertex();
+
+    dbState.addTestableVertexToGraph(kept);
+    dbState.addTestableVertexToGraph(filteredById);
+    dbState.addTestableVertexToGraph(filteredByType);
+    dbState.filterVertex(filteredById.id);
+    dbState.filterVertexType(createVertexType(filteredByType.types[0]));
+
+    const store = createStore();
+    dbState.applyTo(store);
+
+    const { vertices, ids } = store.get(canvasVerticesAtom);
+    expect(vertices.map(v => v.vertex.id)).toStrictEqual([kept.id]);
+    expect([...ids]).toStrictEqual([kept.id]);
   });
 
-  it("should create a rendered vertex id out of a number", () => {
-    const id = createRenderedVertexId(createVertexId(123));
-    expect(id).toBe("(num)123");
+  // The point of the scoping: a schema can carry far more types than the canvas
+  // draws, and resolving an icon for every one of them dominated render cost.
+  it("should cover only the types drawn on the canvas", () => {
+    const dbState = new DbState();
+    const onCanvas = createTestableVertex();
+    dbState.addTestableVertexToGraph(onCanvas);
+    dbState.addVertexStyle(createVertexType("NotOnCanvas"), {
+      color: "#123456",
+    });
+
+    const store = createStore();
+    dbState.applyTo(store);
+
+    expect([
+      ...store.get(canvasVerticesAtom).stylesByType.keys(),
+    ]).toStrictEqual([createVertexType(onCanvas.types[0])]);
+  });
+
+  it("should exclude the types of filtered-out vertices", () => {
+    const dbState = new DbState();
+    const kept = createTestableVertex();
+    const filtered = createTestableVertex();
+    dbState.addTestableVertexToGraph(kept);
+    dbState.addTestableVertexToGraph(filtered);
+    dbState.filterVertex(filtered.id);
+
+    const store = createStore();
+    dbState.applyTo(store);
+
+    expect([
+      ...store.get(canvasVerticesAtom).stylesByType.keys(),
+    ]).toStrictEqual([createVertexType(kept.types[0])]);
+  });
+
+  // Blank nodes are assigned the synthetic `LABELS.MISSING_TYPE` by
+  // `createVertex`, and the canvas scopes styles to the types it draws, so this
+  // is what keeps a blank node from losing its icon.
+  it("should cover a blank node's synthetic missing type", () => {
+    const dbState = new DbState();
+    dbState.addVertexToGraph(
+      createVertex({ id: "blank", isBlankNode: true, types: [] }),
+    );
+
+    const store = createStore();
+    dbState.applyTo(store);
+
+    expect([
+      ...store.get(canvasVerticesAtom).stylesByType.keys(),
+    ]).toStrictEqual([LABELS.MISSING_TYPE]);
+  });
+
+  it("should list a shared type once", () => {
+    const dbState = new DbState();
+    const first = createTestableVertex();
+    const second = createTestableVertex().with({ types: first.types });
+    dbState.addTestableVertexToGraph(first);
+    dbState.addTestableVertexToGraph(second);
+
+    const store = createStore();
+    dbState.applyTo(store);
+
+    expect(store.get(canvasVerticesAtom).stylesByType.size).toBe(1);
+  });
+
+  // The invariant `useRenderedVertices` throws on: every drawn vertex has a
+  // style, because the same loop produced both.
+  it("should cover the primary type of every vertex it returns", () => {
+    const dbState = new DbState();
+    const first = createTestableVertex();
+    const shared = createTestableVertex().with({ types: first.types });
+    const filtered = createTestableVertex();
+    dbState.addTestableVertexToGraph(first);
+    dbState.addTestableVertexToGraph(shared);
+    dbState.addTestableVertexToGraph(filtered);
+    dbState.addVertexToGraph(
+      createVertex({ id: "blank", isBlankNode: true, types: [] }),
+    );
+    dbState.filterVertex(filtered.id);
+
+    const store = createStore();
+    dbState.applyTo(store);
+
+    const { vertices, stylesByType } = store.get(canvasVerticesAtom);
+    expect(vertices).not.toHaveLength(0);
+    for (const { vertex, style } of vertices) {
+      // The style travels with the vertex, so this cannot be a miss by design.
+      expect(style.type).toBe(vertex.primaryType);
+      expect(stylesByType.get(vertex.primaryType)).toBe(style);
+    }
   });
 });
 
-describe("createRenderedEdgeId", () => {
-  it("should create a rendered edge id out of a string", () => {
-    const id = createRenderedEdgeId(createEdgeId("123"));
-    expect(id).toBe("(str)123");
+// The canvas resolves icons only for the types it draws, so the scope and the
+// per-element lookup have to agree. A miss is silent — the node just renders
+// without an icon — so assert the hit case on a real element.
+describe("useRenderedVertices icon coverage", () => {
+  beforeEach(() => {
+    iconRegistry.reset();
   });
 
-  it("should create a rendered edge id out of a number", () => {
-    const id = createRenderedEdgeId(createEdgeId(123));
-    expect(id).toBe("(num)123");
-  });
-});
+  it("should carry the resolved icon url onto the element data", async () => {
+    const dbState = new DbState();
+    const vertex = createTestableVertex();
+    dbState.addTestableVertexToGraph(vertex);
+    // A raster icon resolves synchronously in the registry, so no fetch stub.
+    dbState.addVertexStyle(createVertexType(vertex.types[0]), {
+      iconUrl: "https://example.test/icon.png",
+      iconImageType: "image/png",
+      color: "#abcdef",
+    });
 
-describe("getVertexIdFromRenderedVertexId", () => {
-  it("should return the raw string id without the prefix", () => {
-    const id = getVertexIdFromRenderedVertexId(
-      createRenderedVertexId(createVertexId("123")),
+    const { result } = renderHookWithJotai(
+      () => useRenderedEntities(),
+      store => dbState.applyTo(store),
     );
-    expect(id).toBe("123");
-  });
 
-  it("should return the raw number id without the prefix", () => {
-    const id = getVertexIdFromRenderedVertexId(
-      createRenderedVertexId(createVertexId(123)),
-    );
-    expect(id).toBe(123);
-  });
-
-  it("should return the id as is if it is not marked as a string or number", () => {
-    const id = getVertexIdFromRenderedVertexId("123" as RenderedVertexId);
-    expect(id).toBe("123");
-  });
-});
-
-describe("getEdgeIdFromRenderedEdgeId", () => {
-  it("should return the raw string id without the prefix", () => {
-    const id = getEdgeIdFromRenderedEdgeId(
-      createRenderedEdgeId(createEdgeId("123")),
-    );
-    expect(id).toBe("123");
-  });
-
-  it("should return the raw number id without the prefix", () => {
-    const id = getEdgeIdFromRenderedEdgeId(
-      createRenderedEdgeId(createEdgeId(123)),
-    );
-    expect(id).toBe(123);
-  });
-
-  it("should return the id as is if it is not marked as a string or number", () => {
-    const id = getEdgeIdFromRenderedEdgeId("123" as RenderedEdgeId);
-    expect(id).toBe("123");
+    await waitFor(() => {
+      expect(result.current.vertices[0].data.ge_iconUrl).toBe(
+        "https://example.test/icon.png",
+      );
+      expect(result.current.vertices[0].data.ge_color).toBe("#abcdef");
+    });
   });
 });
 

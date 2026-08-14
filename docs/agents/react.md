@@ -2,6 +2,7 @@
 
 - This project uses React 19
 - The React Compiler is enabled — it auto-memoizes components and hooks, so manual `useMemo`, `useCallback`, and `React.memo` are unnecessary in most cases and should be avoided unless profiling shows a specific need
+- When per-call memoization genuinely is needed, a hook must not build and return a closure that mutates its own captured cache — the `react-compiler/*` lint rules reject it. Put the cache in a plain `create*` factory and have the hook call it, as `core/StateProvider/styleDataResolvers.ts` does. The two-line hook is not a pointless wrapper: collapsing it back inline fails lint. The factory also ends up store-free and directly unit-testable.
 - Official React docs: https://react.dev
 
 ## General
@@ -15,6 +16,11 @@
 
 - Server state goes in TanStack Query
 - **Exception: vertex icons.** They resolve through the `core/icons/` registry, read via `useSyncExternalStore`, because a per-hook subscription scaled with vertex-type count and locked up the schema view at 10k types. Don't move icon resolution back into TanStack Query — see `docs/adr/20260813-icon-registry-not-react-query.md`
+
+## Client state (Jotai)
+
+- When a derivation is consumed by more than one hook or pipeline, define it as a derived atom so the store computes it once, rather than a hook each caller re-runs. `visibleVertexIdsAtom` is shared by `useRenderedVertices` and `useRenderedEdges` for exactly this reason; as a hook it ran the filter loop once per call site
+- `atomFamily` never evicts unless you call `remove`/`setShouldRemove`, and nothing in this codebase does. Key a family on a stable branded ID, never on a freshly allocated object or array — the latter interns a new entry per recomputation that can never be reached again
 
 ## Feature Modules
 

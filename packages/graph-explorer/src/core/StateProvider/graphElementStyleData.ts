@@ -16,11 +16,31 @@ import {
  * dash-pattern remap so the style loop stays pure `data()`.
  */
 
-/** A `Map` so a type name colliding with `Object.prototype` cannot resolve to a function. */
+/** Cytoscape's own default, used for solid lines, which ignore the pattern. */
+const SOLID_PATTERN: readonly number[] = [6, 3];
+
+/**
+ * A `Map` so a `lineStyle` colliding with `Object.prototype` cannot resolve to a
+ * function.
+ */
 const LINE_PATTERN = new Map<LineStyle, readonly number[]>([
+  ["solid", SOLID_PATTERN],
   ["dashed", [5, 6]],
   ["dotted", [1, 2]],
 ]);
+
+/** Emitted when a vertex type has no resolved icon; cytoscape's "no image" value. */
+const NO_ICON = "none";
+
+/**
+ * ALWAYS_SET: every field below is set on every element, never omitted.
+ *
+ * `cy.json({ elements })` *merges* element data — `ele.data(obj)` adds and
+ * overwrites keys but never deletes ones missing from the new object. A field
+ * that is sometimes absent can therefore never be cleared once it has been
+ * applied, stranding a stale value on an already-drawn element. That is why
+ * there are no gated `node[…]` / `edge[…]` selectors for these.
+ */
 
 /** Data-mapper fields set on every rendered vertex. Feeds the single `node` rule. */
 export type VertexStyleData = {
@@ -31,16 +51,16 @@ export type VertexStyleData = {
   ge_borderOpacity: 0 | 1;
   ge_borderStyle: LineStyle;
   ge_shape: VertexStyle["shape"];
-  /** Absent when the type has no resolved icon; the `node[__iconUrl]` selector gates on it. */
-  __iconUrl?: string;
+  /** `"none"` when the type has no resolved icon. */
+  ge_iconUrl: string;
 };
 
 /** Data-mapper fields set on every rendered edge. Feeds the single `edge` rule. */
 export type EdgeStyleData = {
   ge_lineColor: string;
   ge_lineStyle: LineStyle;
-  /** Absent for solid lines; the `edge[ge_lineDashPattern]` selector gates on it. */
-  ge_lineDashPattern?: readonly number[];
+  /** Cytoscape's default for solid lines, which ignore it. */
+  ge_lineDashPattern: readonly number[];
   ge_sourceArrowShape: EdgeStyle["sourceArrowStyle"];
   ge_targetArrowShape: EdgeStyle["targetArrowStyle"];
   ge_labelTextColor: "#FFFFFF" | "#000000";
@@ -53,26 +73,18 @@ export type EdgeStyleData = {
 };
 
 /**
- * Memoized because parsing a color is the one non-trivial computation in this
- * module, and the number of distinct label colors in a graph is tiny next to
- * the number of edges asking about them.
- */
-const labelTextColors = new Map<string, "#FFFFFF" | "#000000">();
-
-/**
  * Picks white-on-dark / black-on-light for a label against its background color.
  * Falls back to the default label color when unset: an imported style file can
  * carry an empty `labelColor`, and `new Color("")` throws.
+ *
+ * Deliberately not memoized. Profiling this at 0.1ms over a 10s expansion put it
+ * far below the per-type resolution that dominates, so a module-level cache
+ * would only add global state shared across stores and tests.
  */
 export function labelTextColorFor(labelColor: string): "#FFFFFF" | "#000000" {
-  let textColor = labelTextColors.get(labelColor);
-  if (textColor === undefined) {
-    textColor = new Color(labelColor || appDefaultEdgeStyle.labelColor).isDark()
-      ? "#FFFFFF"
-      : "#000000";
-    labelTextColors.set(labelColor, textColor);
-  }
-  return textColor;
+  return new Color(labelColor || appDefaultEdgeStyle.labelColor).isDark()
+    ? "#FFFFFF"
+    : "#000000";
 }
 
 /** Precomputed cytoscape data-mapper fields for a rendered vertex. */
@@ -80,7 +92,7 @@ export function vertexStyleData(
   style: VertexStyle,
   backgroundImage: string | undefined,
 ): VertexStyleData {
-  const data: VertexStyleData = {
+  return {
     ge_color: style.color,
     ge_backgroundOpacity: style.backgroundOpacity,
     ge_borderColor: style.borderColor,
@@ -88,19 +100,15 @@ export function vertexStyleData(
     ge_borderOpacity: style.borderWidth > 0 ? 1 : 0,
     ge_borderStyle: style.borderStyle,
     ge_shape: style.shape,
+    ge_iconUrl: backgroundImage ?? NO_ICON,
   };
-  if (backgroundImage !== undefined) {
-    data.__iconUrl = backgroundImage;
-  }
-  return data;
 }
 
 /** Precomputed cytoscape data-mapper fields for a rendered edge. */
 export function edgeStyleData(style: EdgeStyle): EdgeStyleData {
   const lineStyle: LineStyle =
     style.lineStyle === "dotted" ? "dashed" : style.lineStyle;
-  const dashPattern = LINE_PATTERN.get(style.lineStyle);
-  const data: EdgeStyleData = {
+  return {
     ge_lineColor: style.lineColor,
     ge_lineStyle: lineStyle,
     ge_sourceArrowShape: style.sourceArrowStyle,
@@ -112,9 +120,6 @@ export function edgeStyleData(style: EdgeStyle): EdgeStyleData {
     ge_labelBorderColor: style.labelBorderColor,
     ge_labelBorderStyle: style.labelBorderStyle,
     ge_lineThickness: style.lineThickness,
+    ge_lineDashPattern: LINE_PATTERN.get(style.lineStyle) ?? SOLID_PATTERN,
   };
-  if (dashPattern !== undefined) {
-    data.ge_lineDashPattern = dashPattern;
-  }
-  return data;
 }

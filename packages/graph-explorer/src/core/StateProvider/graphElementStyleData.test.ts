@@ -47,9 +47,11 @@ describe("vertexStyleData", () => {
     ).toBe(1);
   });
 
-  it("gates __iconUrl on backgroundImage presence", () => {
-    expect(vertexStyleData(vertex(), undefined).__iconUrl).toBeUndefined();
-    expect(vertexStyleData(vertex(), "img").__iconUrl).toBe("img");
+  // Always set, never omitted: cytoscape merges element data and never deletes a
+  // key, so an absent field could not clear a previously applied icon.
+  it("always sets ge_iconUrl, using none when there is no icon", () => {
+    expect(vertexStyleData(vertex(), undefined).ge_iconUrl).toBe("none");
+    expect(vertexStyleData(vertex(), "img").ge_iconUrl).toBe("img");
   });
 });
 
@@ -77,10 +79,10 @@ describe("edgeStyleData", () => {
     );
   });
 
-  it("emits ge_lineDashPattern only for non-solid lines", () => {
+  it("always sets ge_lineDashPattern, using the default for solid lines", () => {
     expect(
       edgeStyleData(edge({ lineStyle: "solid" })).ge_lineDashPattern,
-    ).toBeUndefined();
+    ).toEqual([6, 3]);
     expect(
       edgeStyleData(edge({ lineStyle: "dashed" })).ge_lineDashPattern,
     ).toEqual([5, 6]);
@@ -118,14 +120,12 @@ describe("labelTextColorFor", () => {
     expect(labelTextColorFor("")).toBe("#FFFFFF");
   });
 
-  // The result is memoized in a module-level map, so a repeat call must not be
-  // able to return a different answer than the first.
   it("returns a stable answer across repeated calls", () => {
     expect(labelTextColorFor("#123456")).toBe(labelTextColorFor("#123456"));
     expect(labelTextColorFor("")).toBe(labelTextColorFor(""));
   });
 
-  it("keys the memo per color rather than sharing one answer", () => {
+  it("answers per color rather than returning one answer for all", () => {
     expect(labelTextColorFor("#000000")).not.toBe(labelTextColorFor("#ffffff"));
   });
 });

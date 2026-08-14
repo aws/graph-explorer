@@ -28,7 +28,6 @@ describe("useSchemaGraphStyles", () => {
 
   it("stays O(1) in selector count", () => {
     const { result } = renderHookWithState(() => useSchemaGraphStyles());
-    // node + edge + gated edge[ge_lineDashPattern]
-    expect(Object.keys(result.current!).length).toBeLessThanOrEqual(6);
+    expect(Object.keys(result.current!).sort()).toStrictEqual(["edge", "node"]);
   });
 });
