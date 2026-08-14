@@ -2,12 +2,7 @@
 import { waitFor } from "@testing-library/react";
 import { createStore } from "jotai";
 
-import {
-  createEdgeId,
-  createVertex,
-  createVertexId,
-  createVertexType,
-} from "@/core/entities";
+import { createVertex, createVertexType } from "@/core/entities";
 import { iconRegistry } from "@/core/icons";
 import { LABELS } from "@/utils";
 import {
@@ -18,82 +13,11 @@ import {
   renderHookWithJotai,
 } from "@/utils/testing";
 
+import { canvasVerticesAtom, useRenderedEntities } from "./renderedEntities";
 import {
-  canvasVerticesAtom,
   createRenderedEdgeId,
   createRenderedVertexId,
-  getEdgeIdFromRenderedEdgeId,
-  getVertexIdFromRenderedVertexId,
-  type RenderedEdgeId,
-  type RenderedVertexId,
-  useRenderedEntities,
-} from "./renderedEntities";
-
-describe("createRenderedVertexId", () => {
-  it("should create a rendered vertex id out of a string", () => {
-    const id = createRenderedVertexId(createVertexId("123"));
-    expect(id).toBe("(str)123");
-  });
-
-  it("should create a rendered vertex id out of a number", () => {
-    const id = createRenderedVertexId(createVertexId(123));
-    expect(id).toBe("(num)123");
-  });
-});
-
-describe("createRenderedEdgeId", () => {
-  it("should create a rendered edge id out of a string", () => {
-    const id = createRenderedEdgeId(createEdgeId("123"));
-    expect(id).toBe("(str)123");
-  });
-
-  it("should create a rendered edge id out of a number", () => {
-    const id = createRenderedEdgeId(createEdgeId(123));
-    expect(id).toBe("(num)123");
-  });
-});
-
-describe("getVertexIdFromRenderedVertexId", () => {
-  it("should return the raw string id without the prefix", () => {
-    const id = getVertexIdFromRenderedVertexId(
-      createRenderedVertexId(createVertexId("123")),
-    );
-    expect(id).toBe("123");
-  });
-
-  it("should return the raw number id without the prefix", () => {
-    const id = getVertexIdFromRenderedVertexId(
-      createRenderedVertexId(createVertexId(123)),
-    );
-    expect(id).toBe(123);
-  });
-
-  it("should return the id as is if it is not marked as a string or number", () => {
-    const id = getVertexIdFromRenderedVertexId("123" as RenderedVertexId);
-    expect(id).toBe("123");
-  });
-});
-
-describe("getEdgeIdFromRenderedEdgeId", () => {
-  it("should return the raw string id without the prefix", () => {
-    const id = getEdgeIdFromRenderedEdgeId(
-      createRenderedEdgeId(createEdgeId("123")),
-    );
-    expect(id).toBe("123");
-  });
-
-  it("should return the raw number id without the prefix", () => {
-    const id = getEdgeIdFromRenderedEdgeId(
-      createRenderedEdgeId(createEdgeId(123)),
-    );
-    expect(id).toBe(123);
-  });
-
-  it("should return the id as is if it is not marked as a string or number", () => {
-    const id = getEdgeIdFromRenderedEdgeId("123" as RenderedEdgeId);
-    expect(id).toBe("123");
-  });
-});
+} from "./renderedEntityIds";
 
 describe("canvasVerticesAtom", () => {
   it("should exclude vertices filtered by ID and by type", () => {

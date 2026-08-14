@@ -10,6 +10,7 @@ export * from "./featureFlags";
 export * from "./neighbors";
 export * from "./nodes";
 export * from "./renderedEntities";
+export * from "./renderedEntityIds";
 export * from "./graphStyles";
 export * from "./graphElementStyleData";
 export * from "./styleDataResolvers";
