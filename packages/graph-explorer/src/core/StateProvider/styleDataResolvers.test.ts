@@ -71,9 +71,7 @@ describe("useVertexStyleDataResolver", () => {
       useVertexStyleDataResolver([]),
     );
 
-    expect(
-      result.current(createVertexType("Person")).__iconUrl,
-    ).toBeUndefined();
+    expect(result.current(createVertexType("Person")).ge_iconUrl).toBe("none");
   });
 });
 

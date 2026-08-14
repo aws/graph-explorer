@@ -6,9 +6,12 @@ import type { GraphProps } from "@/components/Graph";
  * Every per-type visual value is precomputed onto element `data()` by
  * `vertexStyleData` / `edgeStyleData` and read back through `data(...)`
  * mappers, so the stylesheet is O(1) in the number of types rather than one
- * selector per type — see #2104. Two gated selectors handle absent-field
- * cases (`__iconUrl` for typed icons, `ge_lineDashPattern` for non-solid
- * edges).
+ * selector per type — see #2104.
+ *
+ * There are no gated `node[…]` / `edge[…]` selectors: cytoscape merges element
+ * data and never deletes a key, so a sometimes-absent field would strand a
+ * stale value on an already-drawn element. Every field is always set, so every
+ * mapper can live on the base rule.
  */
 export default function useGraphStyles(): NonNullable<GraphProps["styles"]> {
   return CANVAS_STYLES;
@@ -23,6 +26,7 @@ const CANVAS_STYLES: NonNullable<GraphProps["styles"]> = {
     "border-opacity": "data(ge_borderOpacity)",
     "border-style": "data(ge_borderStyle)",
     shape: "data(ge_shape)",
+    "background-image": "data(ge_iconUrl)",
     width: 24,
     height: 24,
   },
@@ -31,6 +35,7 @@ const CANVAS_STYLES: NonNullable<GraphProps["styles"]> = {
     color: "data(ge_labelTextColor)",
     "line-color": "data(ge_lineColor)",
     "line-style": "data(ge_lineStyle)",
+    "line-dash-pattern": "data(ge_lineDashPattern)",
     "source-arrow-shape": "data(ge_sourceArrowShape)",
     "source-arrow-color": "data(ge_lineColor)",
     "target-arrow-shape": "data(ge_targetArrowShape)",
@@ -45,8 +50,5 @@ const CANVAS_STYLES: NonNullable<GraphProps["styles"]> = {
     // string/mapper branch, which rejects numeric literals; cytoscape coerces.
     "source-distance-from-node": "0",
     "target-distance-from-node": "0",
-  },
-  "edge[ge_lineDashPattern]": {
-    "line-dash-pattern": "data(ge_lineDashPattern)",
   },
 };

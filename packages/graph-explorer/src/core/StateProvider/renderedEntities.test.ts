@@ -207,7 +207,7 @@ describe("useRenderedVertices icon coverage", () => {
     );
 
     await waitFor(() => {
-      expect(result.current.vertices[0].data.__iconUrl).toBe(
+      expect(result.current.vertices[0].data.ge_iconUrl).toBe(
         "https://example.test/icon.png",
       );
       expect(result.current.vertices[0].data.ge_color).toBe("#abcdef");
