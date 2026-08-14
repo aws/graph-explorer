@@ -36,7 +36,7 @@ describe("canvasVerticesAtom", () => {
     dbState.applyTo(store);
 
     const { vertices, ids } = store.get(canvasVerticesAtom);
-    expect(vertices.map(v => v.id)).toStrictEqual([kept.id]);
+    expect(vertices.map(v => v.vertex.id)).toStrictEqual([kept.id]);
     expect([...ids]).toStrictEqual([kept.id]);
   });
 
@@ -74,9 +74,9 @@ describe("canvasVerticesAtom", () => {
     ]).toStrictEqual([createVertexType(kept.types[0])]);
   });
 
-  // `useAllVertexStyles` states this guarantee explicitly; here it has to hold
-  // via `createVertex` defaulting an untyped vertex to `LABELS.MISSING_TYPE`.
-  // Without it, blank nodes lose their icon silently.
+  // Blank nodes are assigned the synthetic `LABELS.MISSING_TYPE` by
+  // `createVertex`, and the canvas scopes styles to the types it draws, so this
+  // is what keeps a blank node from losing its icon.
   it("should cover a blank node's synthetic missing type", () => {
     const dbState = new DbState();
     dbState.addVertexToGraph(
@@ -124,10 +124,10 @@ describe("canvasVerticesAtom", () => {
 
     const { vertices, stylesByType } = store.get(canvasVerticesAtom);
     expect(vertices).not.toHaveLength(0);
-    for (const vertex of vertices) {
-      expect(stylesByType.get(vertex.primaryType)?.type).toBe(
-        vertex.primaryType,
-      );
+    for (const { vertex, style } of vertices) {
+      // The style travels with the vertex, so this cannot be a miss by design.
+      expect(style.type).toBe(vertex.primaryType);
+      expect(stylesByType.get(vertex.primaryType)).toBe(style);
     }
   });
 });

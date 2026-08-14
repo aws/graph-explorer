@@ -10,10 +10,10 @@ import {
   edgeStyleData,
   type EdgeType,
   useActiveSchema,
-  useAllVertexStyles,
   useDisplayEdgeTypeConfigs,
   useDisplayVertexTypeConfigs,
   useVertexStyleDataByType,
+  vertexStyleAtom,
   type VertexStyleData,
   type VertexType,
 } from "@/core";
@@ -49,28 +49,30 @@ export function useSchemaGraphData() {
   return { nodes, edges };
 }
 
-/** Transforms vertex type configs into schema graph nodes. */
+/**
+ * Transforms vertex type configs into schema graph nodes.
+ *
+ * The style scope is derived from the same type configs the loop iterates, so
+ * the drawn set and the styled set are the same set. Scoping it from the schema
+ * instead would not be equivalent: `useActiveSchema` is deferred while the type
+ * configs read the schema atom directly, so mid-sync a render could see a type
+ * in the configs whose style had not arrived yet.
+ */
 function useSchemaGraphNodes(): SchemaGraphNode[] {
   const vtConfigs = useDisplayVertexTypeConfigs();
-  // The schema view draws every type, so every type's icon is in scope here.
-  const styleDataByType = useVertexStyleDataByType(useAllVertexStyles());
+  const styles = useAtomValue(vertexStyleAtom);
+  const styleDataByType = useVertexStyleDataByType(
+    vtConfigs.values().map(config => styles.get(config.type)),
+  );
 
   const nodes: SchemaGraphNode[] = [];
 
-  for (const config of vtConfigs.values()) {
-    const styleData = styleDataByType.get(config.type);
-    // Both the configs and the styles come from the active schema's vertices.
-    if (styleData === undefined) {
-      throw new Error(
-        `No style data resolved for schema vertex type "${config.type}"`,
-      );
-    }
-
+  for (const [type, styleData] of styleDataByType) {
     nodes.push({
       data: {
-        id: config.type,
-        type: config.type,
-        displayLabel: config.displayLabel,
+        id: type,
+        type,
+        displayLabel: vtConfigs.get(type)?.displayLabel ?? type,
         ...styleData,
       },
     });

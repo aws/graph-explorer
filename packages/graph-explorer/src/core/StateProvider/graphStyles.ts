@@ -4,12 +4,11 @@ import { atom, useAtomValue, useSetAtom } from "jotai";
 import { atomFamily } from "jotai-family";
 import { useDeferredValue } from "react";
 
-import { LABELS, RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
+import { RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
 import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 
 import type { EdgeType, VertexType } from "../entities";
 
-import { useActiveSchema } from "./schema";
 import { userEdgeStylesAtom, userVertexStylesAtom } from "./storageAtoms";
 
 export const SHAPE_STYLES = [
@@ -266,25 +265,6 @@ export function resolveEdgeStyle(
     ...appDefaultEdgeStyle,
     ...withoutUndefined(user),
   } as const;
-}
-
-/** Returns an array of vertex styles based on the known vertex types in the schema.
- * For the schema view, which draws every type; the canvas scopes itself to the
- * types it draws via `canvasVerticesAtom`. Always includes an entry for
- * `LABELS.MISSING_TYPE` so blank nodes (assigned that synthetic type at runtime)
- * are styled rather than skipped.
- */
-export function useAllVertexStyles(): VertexStyle[] {
-  const styles = useAtomValue(vertexStyleAtom);
-  const { vertices: allSchemas } = useActiveSchema();
-  const schemaStyles = allSchemas.map(({ type }) => styles.get(type));
-
-  const missingType = LABELS.MISSING_TYPE as VertexType;
-  const alreadyIncluded = schemaStyles.some(s => s.type === missingType);
-  if (alreadyIncluded) {
-    return schemaStyles;
-  }
-  return [...schemaStyles, styles.get(missingType)];
 }
 
 /** Returns the resolved style for the specified vertex type. */

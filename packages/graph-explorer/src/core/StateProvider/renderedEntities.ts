@@ -17,17 +17,18 @@ import {
   vertexStyleAtom,
   type VertexType,
 } from "@/core";
+import { useBackgroundImageMap } from "@/core/icons";
 
 import {
   type EdgeStyleData,
   edgeStyleData,
   type VertexStyleData,
+  vertexStyleData,
 } from "./graphElementStyleData";
 import {
   createRenderedEdgeId,
   createRenderedVertexId,
 } from "./renderedEntityIds";
-import { useVertexStyleDataByType } from "./styleDataResolvers";
 
 /** A representation of a vertex that Cytoscape can use. */
 export type RenderedVertex = ReturnType<typeof createRenderedVertex>;
@@ -35,16 +36,23 @@ export type RenderedVertex = ReturnType<typeof createRenderedVertex>;
 /** A representation of an edge that Cytoscape can use. */
 export type RenderedEdge = ReturnType<typeof createRenderedEdge>;
 
+/** A drawn canvas vertex carrying the resolved style of its primary type. */
+export type CanvasVertex = {
+  vertex: DisplayVertex;
+  style: VertexStyle;
+};
+
 /**
- * The canvas vertices that survive filtering, in canvas insertion order, plus
- * their IDs for membership tests and the styles of the types they draw.
+ * The canvas vertices that survive filtering, in canvas insertion order, each
+ * paired with its style, plus their IDs for membership tests and the distinct
+ * styles of the types drawn.
  *
- * One loop, so the style scope and the drawn set cannot disagree: a drawn
- * vertex's `primaryType` is in `stylesByType` by construction. The schema can
+ * The style travels with the vertex rather than being looked up later, so a
+ * drawn vertex cannot fail to have one — there is no lookup to miss and nothing
+ * to assert. `stylesByType` exists only to scope icon resolution: the schema can
  * carry tens of thousands of vertex types while the canvas shows a handful, and
  * resolving a style plus an icon for every type in the schema on every render is
- * the dominant render cost otherwise. The schema view, which genuinely draws
- * every type, uses `useAllVertexStyles` instead.
+ * the dominant render cost otherwise.
  *
  * An atom rather than a hook so both the vertex and edge pipelines share one
  * computation per store — as a hook it ran once per call site.
@@ -60,7 +68,7 @@ export const canvasVerticesAtom = atom(get => {
   const displayVertices = get(displayVerticesInCanvasSelector);
   const styles = get(vertexStyleAtom);
 
-  const vertices: DisplayVertex[] = [];
+  const vertices: CanvasVertex[] = [];
   const ids = new Set<VertexId>();
   const stylesByType = new Map<VertexType, VertexStyle>();
 
@@ -71,11 +79,14 @@ export const canvasVerticesAtom = atom(get => {
     if (filteredIds.has(vertex.id)) continue;
     if (vertex.types.some(type => filteredTypes.has(type))) continue;
 
-    vertices.push(vertex);
-    ids.add(vertex.id);
-    if (!stylesByType.has(vertex.primaryType)) {
-      stylesByType.set(vertex.primaryType, styles.get(vertex.primaryType));
+    let style = stylesByType.get(vertex.primaryType);
+    if (style === undefined) {
+      style = styles.get(vertex.primaryType);
+      stylesByType.set(vertex.primaryType, style);
     }
+
+    vertices.push({ vertex, style });
+    ids.add(vertex.id);
   }
 
   return { vertices, ids, stylesByType };
@@ -85,17 +96,19 @@ export const canvasVerticesAtom = atom(get => {
 export function useRenderedVertices(): RenderedVertex[] {
   const { vertices, stylesByType } = useAtomValue(canvasVerticesAtom);
   const neighborCounts = useAllNeighbors();
-  const styleDataByType = useVertexStyleDataByType(stylesByType.values());
+  const backgroundImages = useBackgroundImageMap([...stylesByType.values()]);
 
+  // Resolved on first sight of a type, from the style paired with the vertex, so
+  // N nodes of a type cost one `vertexStyleData` call and no vertex can be drawn
+  // without its style. Same shape as `useRenderedEdges` below.
+  const styleDataByType = new Map<VertexType, VertexStyleData>();
   const result: RenderedVertex[] = [];
 
-  for (const vertex of vertices) {
-    const styleData = styleDataByType.get(vertex.primaryType);
-    // `canvasVerticesAtom` scopes the styles to the types it drew.
+  for (const { vertex, style } of vertices) {
+    let styleData = styleDataByType.get(style.type);
     if (styleData === undefined) {
-      throw new Error(
-        `No style data resolved for drawn vertex type "${vertex.primaryType}"`,
-      );
+      styleData = vertexStyleData(style, backgroundImages.get(style.type));
+      styleDataByType.set(style.type, styleData);
     }
 
     const neighborCount = neighborCounts.get(vertex.id)?.unfetched ?? 0;
