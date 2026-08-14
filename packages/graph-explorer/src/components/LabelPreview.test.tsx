@@ -20,9 +20,10 @@ function renderLabel(style: LabelVisualStyle, scale = 2) {
 
 describe("LabelPreview", () => {
   describe("text color follows label darkness for contrast", () => {
+    // Casing follows `labelTextColorFor`, the helper the canvas shares.
     it("uses white text on a dark label color", () => {
       const el = renderLabel(labelStyle({ labelColor: "#1d2531" }));
-      expect(el.style.color).toBe("#ffffff");
+      expect(el.style.color).toBe("#FFFFFF");
     });
 
     it("uses black text on a light label color", () => {
