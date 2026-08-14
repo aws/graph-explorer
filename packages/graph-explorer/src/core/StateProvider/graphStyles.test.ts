@@ -3,6 +3,8 @@ import { useAtomValue } from "jotai";
 import { act } from "react";
 
 import { createEdgeType, createVertexType } from "@/core";
+import { RESERVED_ID_PROPERTY, RESERVED_TYPES_PROPERTY } from "@/utils";
+import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import { DbState, renderHookWithState } from "@/utils/testing";
 
 import {
@@ -10,6 +12,8 @@ import {
   appDefaultVertexStyle,
   edgeStyleAtom,
   type EdgeStyleStorage,
+  resolveEdgeStyle,
+  resolveVertexStyle,
   useEdgeStyling,
   useVertexStyling,
   vertexStyleAtom,
@@ -36,7 +40,11 @@ function createExpectedEdge(existing: EdgeStyleStorage) {
 // deliberate and consumers stay trustworthy.
 describe("app default styles", () => {
   it("pins the default vertex style values", () => {
-    expect(appDefaultVertexStyle).toMatchObject({
+    expect(appDefaultVertexStyle).toStrictEqual({
+      displayNameAttribute: RESERVED_ID_PROPERTY,
+      longDisplayNameAttribute: RESERVED_TYPES_PROPERTY,
+      iconUrl: DEFAULT_ICON_URL,
+      iconImageType: "image/svg+xml",
       color: "#128EE5",
       shape: "ellipse",
       backgroundOpacity: 0.4,
@@ -47,9 +55,13 @@ describe("app default styles", () => {
   });
 
   it("pins the default edge style values", () => {
-    expect(appDefaultEdgeStyle).toMatchObject({
+    expect(appDefaultEdgeStyle).toStrictEqual({
+      displayNameAttribute: RESERVED_TYPES_PROPERTY,
       labelColor: "#17457b",
       labelBackgroundOpacity: 0.7,
+      labelBorderColor: "#17457b",
+      labelBorderStyle: "solid",
+      labelBorderWidth: 0,
       lineColor: "#b3b3b3",
       lineThickness: 2,
       lineStyle: "solid",
@@ -487,5 +499,48 @@ describe("edgeStyleAtom", () => {
     expect(result.current.get(edgeType)).toStrictEqual(
       createExpectedEdge({ type: edgeType }),
     );
+  });
+});
+
+// A style file can carry an optional key explicitly set to undefined. Spreading
+// it over the defaults would overwrite them, and the resulting `data()` mapper
+// has no missing-value fallback on the cytoscape side.
+describe("explicitly undefined optional fields", () => {
+  it("keeps the edge default rather than taking the undefined", () => {
+    const type = createEdgeType("knows");
+    const resolved = resolveEdgeStyle(type, {
+      type,
+      labelBackgroundOpacity: undefined,
+      lineColor: undefined,
+    });
+
+    expect(resolved.labelBackgroundOpacity).toBe(
+      appDefaultEdgeStyle.labelBackgroundOpacity,
+    );
+    expect(resolved.lineColor).toBe(appDefaultEdgeStyle.lineColor);
+  });
+
+  it("keeps the vertex default rather than taking the undefined", () => {
+    const type = createVertexType("Person");
+    const resolved = resolveVertexStyle(type, {
+      type,
+      color: undefined,
+      borderWidth: undefined,
+    });
+
+    expect(resolved.color).toBe(appDefaultVertexStyle.color);
+    expect(resolved.borderWidth).toBe(appDefaultVertexStyle.borderWidth);
+  });
+
+  it("still applies a defined override", () => {
+    const type = createEdgeType("knows");
+    const resolved = resolveEdgeStyle(type, {
+      type,
+      lineColor: "#abcdef",
+      labelColor: undefined,
+    });
+
+    expect(resolved.lineColor).toBe("#abcdef");
+    expect(resolved.labelColor).toBe(appDefaultEdgeStyle.labelColor);
   });
 });
