@@ -4,7 +4,7 @@ import { useVertexStyle, type VertexStyle, type VertexType } from "@/core";
 import { cn } from "@/utils";
 
 import { resolveShapeGeometry } from "./nodeShapes";
-import { useIconDataUrl } from "./useIconDataUrl";
+import { VertexSymbolIcon } from "./VertexSymbolIcon";
 
 const VIEWBOX = 96;
 const ICON_RATIO = 0.6;
@@ -23,7 +23,6 @@ interface Props {
 }
 
 export function VertexSymbol({ vertexStyle, className }: Props) {
-  const iconDataUrl = useIconDataUrl(vertexStyle);
   // SVG url(#...) references reject the colons in React's raw useId format.
   const clipId = `vs-${useId().replace(/:/g, "")}`;
   const strokeWidth = vertexStyle.borderWidth * PREVIEW_SCALE;
@@ -59,17 +58,14 @@ export function VertexSymbol({ vertexStyle, className }: Props) {
       >
         {shapeEl}
       </g>
-      {iconDataUrl ? (
-        <image
-          href={iconDataUrl}
+      <g clipPath={`url(#${clipId})`}>
+        <VertexSymbolIcon
+          vertexStyle={vertexStyle}
           x={iconOffset}
           y={iconOffset}
-          width={iconSize}
-          height={iconSize}
-          clipPath={`url(#${clipId})`}
-          preserveAspectRatio="xMidYMid meet"
+          size={iconSize}
         />
-      ) : null}
+      </g>
     </svg>
   );
 }

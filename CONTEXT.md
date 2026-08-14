@@ -49,6 +49,18 @@ A classification of edges. UI label varies by query language: "Edge Label" (Grem
 A single string in which Amazon Neptune joins the multiple labels of one vertex with the reserved `::` delimiter (`g.addV("A::B")`). It appears only on the Gremlin wire (element label, `by(label)` keys, `label()` output); openCypher returns labels as an array and never uses `::`. Graph Explorer splits a composite label into its constituent Vertex Types once, at the Gremlin ingestion boundary — a Vertex Type is always a single label thereafter.
 _Avoid_: Multi-label (describes the vertex, not the joined string), Label list (it is a delimited string, not a list until split)
 
+**Icon Source**:
+The classification of a Vertex Type's configured icon into what it takes to render it: `lucide` (a `lucide:<name>` reference to bundled, trusted geometry), `svg` (user-supplied SVG markup, untrusted), `raster` (a plain image url), or `none`. Derived from `iconUrl` + `iconImageType`; the `lucide:` prefix is authoritative and wins over the image type. Its **Icon Source Id** is the identity key — namespaced by kind so a url and a lucide name cannot collide — and deliberately carries **no color**, because one icon is drawn in as many colors as there are Vertex Types using it.
+_Avoid_: Icon type (ambiguous with `iconImageType`, the stored MIME string)
+
+**Icon Registry**:
+The single store of resolved icons, keyed by Icon Source Id and shared by every Icon Surface. Holds a color-free artifact — a sanitized SVG string or a raster url — so applying a Vertex Type's color stays a pure transform at the point of use. A plain external store outside React/Jotai, bridged by `useSyncExternalStore`; explicitly **not** TanStack Query, because a per-hook subscription scaled with Vertex Type count and locked up the Schema View at 10k. Resolves a raster url synchronously, allows a failed icon three attempts in total, and never stores a failure as a result. See `docs/adr/20260813-icon-registry-not-react-query.md`.
+_Avoid_: Icon cache (it is the source of truth for resolution, not a layer in front of one)
+
+**Icon Surface**:
+One of the three places an icon is drawn, which differ in how color is applied and how much they trust the markup. The **canvas** (`useBackgroundImageMap` → cytoscape `background-image`) and the **sandboxed DOM** (`VertexSymbolIcon` → `<image href>`) both render the icon as a separate image document, so CSS cannot reach it: an SVG is passed as a `data:` uri with the color baked into the markup, a raster as its plain url. **Inline DOM** (`VertexIcon`, and the lucide branch of `VertexSymbolIcon`) renders live elements that inherit `color` through `currentColor`, making recolor free. Only trusted lucide geometry is inlined by `VertexSymbolIcon`; `VertexIcon` also inlines sanitized user SVG, which predates that rule and is the known outlier.
+_Avoid_: Icon renderer (three similarly-named components — `VertexIcon`, `VertexSymbol`, `VertexSymbolIcon` — differ by surface, so name the surface)
+
 **Neighbors**:
 Vertices directly connected to a given vertex (one hop away). Users "expand neighbors" to progressively discover the graph. Neighbor counts track total vs. unfetched to indicate how much remains unexplored.
 _Avoid_: Connections (ambiguous with Connection)

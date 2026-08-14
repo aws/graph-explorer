@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import type { GraphProps } from "@/components/Graph";
 
@@ -12,13 +12,14 @@ import {
   renderHookWithState,
 } from "@/utils/testing";
 
-import { renderNode } from "./renderNode";
 import useGraphStyles from "./useGraphStyles";
 
-// Mock dependencies
-vi.mock("./renderNode");
-
-const mockRenderNode = renderNode as Mock;
+// A raster icon resolves synchronously to its url, so this test can exercise
+// the real icon pipeline and still pin the expected background image.
+const RASTER_ICON = {
+  iconUrl: "https://example.test/icon.png",
+  iconImageType: "image/png",
+} as const;
 
 describe("useGraphStyles", () => {
   let dbState: DbState;
@@ -32,16 +33,13 @@ describe("useGraphStyles", () => {
   };
 
   beforeEach(() => {
-    vi.clearAllMocks();
     dbState = new DbState();
-
-    // Setup mock implementations
-    mockRenderNode.mockResolvedValue("data:image/svg+xml;utf8,<svg></svg>");
   });
 
   it("should generate vertex styles correctly", async () => {
     const vertexConfig = {
       ...createRandomVertexTypeConfig(),
+      ...RASTER_ICON,
       type: createVertexType("Person"),
       color: "#128EE5",
       backgroundOpacity: 0.8,
@@ -58,7 +56,7 @@ describe("useGraphStyles", () => {
     await waitFor(() => {
       const vertexStyle = getStyles(result)[`node[type="Person"]`] as any;
       expect(vertexStyle).toEqual({
-        "background-image": "data:image/svg+xml;utf8,<svg></svg>",
+        "background-image": RASTER_ICON.iconUrl,
         "background-color": "#128EE5",
         "background-opacity": 0.8,
         "border-color": "#000000",
@@ -236,15 +234,14 @@ describe("useGraphStyles", () => {
     expect(edgeStyle.label).toEqual("data(displayName)");
   });
 
-  it("should handle renderNode failure gracefully", () => {
+  it("omits the background image when the vertex type has no icon", () => {
     const vertexConfig = {
       ...createRandomVertexTypeConfig(),
       type: createVertexType("Person"),
+      iconUrl: "",
     };
     dbState.activeSchema.vertices = [vertexConfig];
     dbState.addVertexStyle(vertexConfig.type, vertexConfig);
-
-    mockRenderNode.mockResolvedValue(undefined);
 
     const { result } = renderHookWithState(() => useGraphStyles(), dbState);
 
