@@ -1,6 +1,11 @@
 import Color from "color";
 
-import type { EdgeStyle, LineStyle, VertexStyle } from "./graphStyles";
+import {
+  appDefaultEdgeStyle,
+  type EdgeStyle,
+  type LineStyle,
+  type VertexStyle,
+} from "./graphStyles";
 
 /**
  * Per-element style data pushed onto cytoscape `ele.data()` so a single
@@ -11,11 +16,11 @@ import type { EdgeStyle, LineStyle, VertexStyle } from "./graphStyles";
  * dash-pattern remap so the style loop stays pure `data()`.
  */
 
-const LINE_PATTERN: Record<LineStyle, readonly number[] | undefined> = {
-  solid: undefined,
-  dashed: [5, 6],
-  dotted: [1, 2],
-};
+/** A `Map` so a type name colliding with `Object.prototype` cannot resolve to a function. */
+const LINE_PATTERN = new Map<LineStyle, readonly number[]>([
+  ["dashed", [5, 6]],
+  ["dotted", [1, 2]],
+]);
 
 /** Data-mapper fields set on every rendered vertex. Feeds the single `node` rule. */
 export type VertexStyleData = {
@@ -48,12 +53,26 @@ export type EdgeStyleData = {
 };
 
 /**
+ * Memoized because parsing a color is the one non-trivial computation in this
+ * module, and the number of distinct label colors in a graph is tiny next to
+ * the number of edges asking about them.
+ */
+const labelTextColors = new Map<string, "#FFFFFF" | "#000000">();
+
+/**
  * Picks white-on-dark / black-on-light for a label against its background color.
  * Falls back to the default label color when unset: an imported style file can
  * carry an empty `labelColor`, and `new Color("")` throws.
  */
 export function labelTextColorFor(labelColor: string): "#FFFFFF" | "#000000" {
-  return new Color(labelColor || "#17457b").isDark() ? "#FFFFFF" : "#000000";
+  let textColor = labelTextColors.get(labelColor);
+  if (textColor === undefined) {
+    textColor = new Color(labelColor || appDefaultEdgeStyle.labelColor).isDark()
+      ? "#FFFFFF"
+      : "#000000";
+    labelTextColors.set(labelColor, textColor);
+  }
+  return textColor;
 }
 
 /** Precomputed cytoscape data-mapper fields for a rendered vertex. */
@@ -80,7 +99,7 @@ export function vertexStyleData(
 export function edgeStyleData(style: EdgeStyle): EdgeStyleData {
   const lineStyle: LineStyle =
     style.lineStyle === "dotted" ? "dashed" : style.lineStyle;
-  const dashPattern = LINE_PATTERN[style.lineStyle];
+  const dashPattern = LINE_PATTERN.get(style.lineStyle);
   const data: EdgeStyleData = {
     ge_lineColor: style.lineColor,
     ge_lineStyle: lineStyle,

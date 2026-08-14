@@ -1,9 +1,6 @@
 import type React from "react";
 
-import Color from "color";
-
-import type { LabelVisualStyle } from "@/core";
-
+import { type LabelVisualStyle, labelTextColorFor } from "@/core";
 import { cn } from "@/utils";
 
 /**
@@ -31,8 +28,8 @@ interface LabelPreviewProps {
 
 /**
  * A label badge preview that faithfully matches cytoscape's canvas rendering
- * at any scale. Text color is derived from `labelColor` darkness (white on dark,
- * black on light) — same logic as `useGraphStyles.ts`.
+ * at any scale. Text color comes from `labelTextColorFor`, the same helper the
+ * canvas uses, so a preview cannot drift from what gets drawn.
  *
  * Used for both vertex and edge label previews.
  */
@@ -53,9 +50,7 @@ export function LabelPreview({
         fontSize: FONT_SIZE * scale,
         padding: PADDING * scale,
         borderRadius: BORDER_RADIUS * scale,
-        color: new Color(labelStyle.labelColor).isDark()
-          ? "#ffffff"
-          : "#000000",
+        color: labelTextColorFor(labelStyle.labelColor),
         backgroundColor: `color-mix(in srgb, ${labelStyle.labelColor} ${labelStyle.labelBackgroundOpacity * 100}%, transparent)`,
         borderWidth: labelStyle.labelBorderWidth * scale || undefined,
         borderStyle:

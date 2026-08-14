@@ -117,4 +117,15 @@ describe("labelTextColorFor", () => {
     expect(() => labelTextColorFor("")).not.toThrow();
     expect(labelTextColorFor("")).toBe("#FFFFFF");
   });
+
+  // The result is memoized in a module-level map, so a repeat call must not be
+  // able to return a different answer than the first.
+  it("returns a stable answer across repeated calls", () => {
+    expect(labelTextColorFor("#123456")).toBe(labelTextColorFor("#123456"));
+    expect(labelTextColorFor("")).toBe(labelTextColorFor(""));
+  });
+
+  it("keys the memo per color rather than sharing one answer", () => {
+    expect(labelTextColorFor("#000000")).not.toBe(labelTextColorFor("#ffffff"));
+  });
 });
