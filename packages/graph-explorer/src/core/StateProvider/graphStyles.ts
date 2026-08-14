@@ -199,8 +199,14 @@ export type LegacyUserStylingStorage = {
  * seam in that parser, not here.
  */
 
+/** Resolves the full style of any vertex type. */
+export type VertexStyleLookup = { get(type: VertexType): VertexStyle };
+
+/** Resolves the full style of any edge type. */
+export type EdgeStyleLookup = { get(type: EdgeType): EdgeStyle };
+
 /** Vertex styles indexed by type for O(1) lookup, resolved against defaults. */
-export const vertexStyleAtom = atom(get => {
+export const vertexStyleAtom = atom<VertexStyleLookup>(get => {
   const userStyles = get(userVertexStylesAtom);
   return {
     get(type: VertexType) {
@@ -210,7 +216,7 @@ export const vertexStyleAtom = atom(get => {
 });
 
 /** Edge styles indexed by type for O(1) lookup, resolved against defaults. */
-export const edgeStyleAtom = atom(get => {
+export const edgeStyleAtom = atom<EdgeStyleLookup>(get => {
   const userStyles = get(userEdgeStylesAtom);
   return {
     get(type: EdgeType) {
@@ -244,8 +250,10 @@ export function resolveEdgeStyle(
 }
 
 /** Returns an array of vertex styles based on the known vertex types in the schema.
- * Always includes an entry for `LABELS.MISSING_TYPE` so that blank nodes (which are
- * assigned that synthetic type at runtime) receive icon styling on the canvas.
+ * For the schema view, which draws every type; the canvas scopes itself to the
+ * types it draws via `canvasVertexStylesAtom`. Always includes an entry for
+ * `LABELS.MISSING_TYPE` so blank nodes (assigned that synthetic type at runtime)
+ * are styled rather than skipped.
  */
 export function useAllVertexStyles(): VertexStyle[] {
   const styles = useAtomValue(vertexStyleAtom);
@@ -258,13 +266,6 @@ export function useAllVertexStyles(): VertexStyle[] {
     return schemaStyles;
   }
   return [...schemaStyles, styles.get(missingType)];
-}
-
-/** Returns an array of edge styles based on the known edge types in the schema. */
-export function useAllEdgeStyles(): EdgeStyle[] {
-  const styles = useAtomValue(edgeStyleAtom);
-  const { edges: allSchemas } = useActiveSchema();
-  return allSchemas.map(({ type }) => styles.get(type));
 }
 
 /** Returns the resolved style for the specified vertex type. */
