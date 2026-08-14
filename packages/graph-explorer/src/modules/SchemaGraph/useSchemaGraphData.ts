@@ -1,16 +1,19 @@
+import { useAtomValue } from "jotai";
+
 import type { GraphEdge, GraphNode } from "@/components/Graph";
 
 import {
   createEdgeConnectionId,
   type EdgeConnectionId,
   type EdgeStyleData,
+  edgeStyleAtom,
+  edgeStyleData,
   type EdgeType,
   useActiveSchema,
   useAllVertexStyles,
   useDisplayEdgeTypeConfigs,
   useDisplayVertexTypeConfigs,
-  useEdgeStyleDataResolver,
-  useVertexStyleDataResolver,
+  useVertexStyleDataByType,
   type VertexStyleData,
   type VertexType,
 } from "@/core";
@@ -50,17 +53,25 @@ export function useSchemaGraphData() {
 function useSchemaGraphNodes(): SchemaGraphNode[] {
   const vtConfigs = useDisplayVertexTypeConfigs();
   // The schema view draws every type, so every type's icon is in scope here.
-  const resolveStyleData = useVertexStyleDataResolver(useAllVertexStyles());
+  const styleDataByType = useVertexStyleDataByType(useAllVertexStyles());
 
   const nodes: SchemaGraphNode[] = [];
 
   for (const config of vtConfigs.values()) {
+    const styleData = styleDataByType.get(config.type);
+    // Both the configs and the styles come from the active schema's vertices.
+    if (styleData === undefined) {
+      throw new Error(
+        `No style data resolved for schema vertex type "${config.type}"`,
+      );
+    }
+
     nodes.push({
       data: {
         id: config.type,
         type: config.type,
         displayLabel: config.displayLabel,
-        ...resolveStyleData(config.type),
+        ...styleData,
       },
     });
   }
@@ -75,8 +86,11 @@ function useSchemaGraphEdges(
   const schema = useActiveSchema();
   const edgeConnections = schema.edgeConnections ?? [];
   const etConfigs = useDisplayEdgeTypeConfigs();
-  const resolveStyleData = useEdgeStyleDataResolver();
+  const styles = useAtomValue(edgeStyleAtom);
 
+  // Many connections share an edge type, so style data is resolved on first
+  // sight of a type — one `Color` parse per type, not per connection.
+  const styleDataByType = new Map<EdgeType, EdgeStyleData>();
   const edges: SchemaGraphEdge[] = [];
 
   for (const connection of edgeConnections) {
@@ -87,6 +101,12 @@ function useSchemaGraphEdges(
     const edgeConfig = etConfigs.get(connection.edgeType);
     const displayLabel = edgeConfig?.displayLabel ?? connection.edgeType;
 
+    let styleData = styleDataByType.get(connection.edgeType);
+    if (styleData === undefined) {
+      styleData = edgeStyleData(styles.get(connection.edgeType));
+      styleDataByType.set(connection.edgeType, styleData);
+    }
+
     edges.push({
       data: {
         id: createEdgeConnectionId(connection),
@@ -94,7 +114,7 @@ function useSchemaGraphEdges(
         target: connection.targetVertexType,
         type: connection.edgeType,
         displayLabel,
-        ...resolveStyleData(connection.edgeType),
+        ...styleData,
       },
     });
   }
