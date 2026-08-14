@@ -7,16 +7,27 @@ import {
   type DisplayVertex,
   edgesFilteredIdsAtom,
   edgesTypesFilteredAtom,
+  edgeStyleAtom,
   type EntityRawId,
   nodesFilteredIdsAtom,
   nodesTypesFilteredAtom,
   useAllNeighbors,
+  useAllVertexStyles,
   useDisplayEdgesInCanvas,
   useDisplayVerticesInCanvas,
+  vertexStyleAtom,
   type VertexId,
 } from "@/core";
+import { useBackgroundImageMap } from "@/core/icons";
 
 import type { EdgeId } from "../entities/edge";
+
+import {
+  type EdgeStyleData,
+  edgeStyleData,
+  type VertexStyleData,
+  vertexStyleData,
+} from "./graphElementStyleData";
 
 /** A string representation of a vertex ID that encodes the original type. Cytoscape requires IDs to be strings. */
 export type RenderedVertexId = Branded<string, "RenderedVertexId">;
@@ -36,6 +47,8 @@ export function useRenderedVertices(): RenderedVertex[] {
   const filteredTypes = useAtomValue(nodesTypesFilteredAtom);
   const displayVerticesInGraph = useDisplayVerticesInCanvas();
   const neighborCounts = useAllNeighbors();
+  const vertexStyles = useAtomValue(vertexStyleAtom);
+  const backgroundImages = useBackgroundImageMap(useAllVertexStyles());
 
   const result: RenderedVertex[] = [];
 
@@ -56,7 +69,15 @@ export function useRenderedVertices(): RenderedVertex[] {
     if (hasFilteredType) continue;
 
     const neighborCount = neighborCounts.get(vertex.id)?.unfetched ?? 0;
-    result.push(createRenderedVertex(vertex, neighborCount));
+    const style = vertexStyles.get(vertex.primaryType);
+    const backgroundImage = backgroundImages.get(vertex.primaryType);
+    result.push(
+      createRenderedVertex(
+        vertex,
+        neighborCount,
+        vertexStyleData(style, backgroundImage),
+      ),
+    );
   }
 
   return result;
@@ -68,6 +89,7 @@ export function useRenderedEdges(): RenderedEdge[] {
   const filteredEdgeIds = useAtomValue(edgesFilteredIdsAtom);
   const filteredEdgeTypes = useAtomValue(edgesTypesFilteredAtom);
   const vertices = useRenderedVertices();
+  const edgeStyles = useAtomValue(edgeStyleAtom);
 
   // Get the IDs of the existing vertices
   const existingVertexIds = new Set(vertices.map(v => v.data.vertexId));
@@ -84,7 +106,8 @@ export function useRenderedEdges(): RenderedEdge[] {
     if (!existingVertexIds.has(edge.sourceId)) continue;
     if (!existingVertexIds.has(edge.targetId)) continue;
 
-    result.push(createRenderedEdge(edge));
+    const style = edgeStyles.get(edge.type);
+    result.push(createRenderedEdge(edge, edgeStyleData(style)));
   }
 
   return result;
@@ -166,7 +189,11 @@ function stripIdTypePrefix(id: string): string {
  * - The `id` property is a string
  * - There exists a `data` property where any custom data is stored
  */
-function createRenderedVertex(vertex: DisplayVertex, neighborCount: number) {
+function createRenderedVertex(
+  vertex: DisplayVertex,
+  neighborCount: number,
+  styleData: VertexStyleData,
+) {
   return {
     data: {
       id: createRenderedVertexId(vertex.id),
@@ -175,6 +202,7 @@ function createRenderedVertex(vertex: DisplayVertex, neighborCount: number) {
       displayName: vertex.displayName,
       displayTypes: vertex.displayTypes,
       neighborCount,
+      ...styleData,
     },
   };
 }
@@ -187,7 +215,7 @@ function createRenderedVertex(vertex: DisplayVertex, neighborCount: number) {
  * - The `source` and `target` properties are strings
  * - There exists a `data` property where any custom data is stored
  */
-function createRenderedEdge(edge: DisplayEdge) {
+function createRenderedEdge(edge: DisplayEdge, styleData: EdgeStyleData) {
   return {
     data: {
       id: createRenderedEdgeId(edge.id),
@@ -196,6 +224,7 @@ function createRenderedEdge(edge: DisplayEdge) {
       edgeId: edge.id,
       type: edge.type,
       displayName: edge.displayName,
+      ...styleData,
     },
   };
 }
