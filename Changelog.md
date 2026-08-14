@@ -1,5 +1,36 @@
 # Graph Explorer Change Log
 
+## Release 3.2.2
+
+Release 3.2.2 is about scale. Connecting to a graph with thousands of node and edge types took thousands of requests during schema sync. This release batches them, removes one of the stalls that kept the Schema View from rendering, and fixes a proxy failure that surfaced under the same load.
+
+### Large Schemas
+
+- Schema sync now batches attribute and edge connection discovery instead of issuing one request per label or class. On a graph with roughly 10,000 edge types that is about 100 requests instead of 10,000, with the same results. Gremlin, openCypher, and SPARQL all benefit.
+- A single slow request no longer holds up the rest of the sync.
+- Loading icons for thousands of node types no longer stalls the Schema View. More improvements are coming in future releases.
+
+### Proxy Server
+
+- The proxy now caches IAM credentials instead of resolving them on every request. This fixes intermittent "Could not load credentials from any providers" errors under heavy load, such as a schema sync against an IAM authenticated Neptune cluster.
+
+### Bug Fixes
+
+- A styles file with a blank node color or border color now falls back to the default instead of rendering no background or a black icon.
+
+### All Changes
+
+- Replace fixed-batch barrier with an eager concurrency pool by @kmcginnes in https://github.com/aws/graph-explorer/pull/2096
+- Cache proxy IAM credentials and sign with @smithy/signature-v4 by @kmcginnes in https://github.com/aws/graph-explorer/pull/2082
+- Batch openCypher schema-sync attribute sampling into UNION ALL requests by @kmcginnes in https://github.com/aws/graph-explorer/pull/2099
+- Batch edge-connections discovery across all three connectors by @kmcginnes in https://github.com/aws/graph-explorer/pull/2100
+- Batch SPARQL schema-sync class attribute discovery into UNION requests by @kmcginnes in https://github.com/aws/graph-explorer/pull/2106
+- Resolve vertex icons through an icon registry to fix schema-view lockup by @kmcginnes in https://github.com/aws/graph-explorer/pull/2102
+- Bump version to 3.2.2 by @kmcginnes in https://github.com/aws/graph-explorer/pull/2115
+- Update dependencies to latest versions by @kmcginnes in https://github.com/aws/graph-explorer/pull/2117
+
+**Full Changelog**: https://github.com/aws/graph-explorer/compare/v3.2.1...v3.2.2
+
 ## Release 3.2.1
 
 Release 3.2.1 hardens how Graph Explorer builds queries, making value handling correct and consistent across Gremlin, openCypher, and SPARQL.
