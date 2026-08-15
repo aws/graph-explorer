@@ -46,16 +46,35 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
 
-      - name: Scan Docker image for vulnerabilities
+      - name: Build Docker images
+        run: |
+          docker build -t graph-explorer .
+          docker build -t graph-explorer-sagemaker --build-arg NEPTUNE_NOTEBOOK=true .
+
+      - name: Scan standard image for vulnerabilities
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # v0.35.0
         with:
-          image-ref: public.ecr.aws/neptune/graph-explorer:latest-SNAPSHOT
-          vuln-type: os
+          image-ref: graph-explorer
+          vuln-type: os,library
           format: sarif
           output: trivy-image-results.sarif
 
-      - name: Upload Trivy image results to GitHub Security tab
+      - name: Upload standard image results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
         with:
           sarif_file: trivy-image-results.sarif
           category: docker-image-scan
+
+      - name: Scan sagemaker image for vulnerabilities
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # v0.35.0
+        with:
+          image-ref: graph-explorer-sagemaker
+          vuln-type: os,library
+          format: sarif
+          output: trivy-sagemaker-results.sarif
+
+      - name: Upload sagemaker image results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
+        with:
+          sarif_file: trivy-sagemaker-results.sarif
+          category: docker-sagemaker-image-scan
