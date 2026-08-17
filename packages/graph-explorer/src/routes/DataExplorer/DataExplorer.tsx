@@ -138,8 +138,7 @@ function DataExplorerContent({ vertexType }: { vertexType: VertexType }) {
     label: config.displayLabel,
   }));
 
-  const onVertexTypeChange = (value: string | string[]) => {
-    const newType = Array.isArray(value) ? value[0] : value;
+  const onVertexTypeChange = (newType: string) => {
     navigate(`/data-explorer/${encodeURIComponent(newType)}`, {
       replace: true,
     });
@@ -154,7 +153,6 @@ function DataExplorerContent({ vertexType }: { vertexType: VertexType }) {
           onValueChange={onVertexTypeChange}
           options={vertexTypeOptions}
           label={t("node-type")}
-          aria-label={t("node-type")}
         />
         <div className="flex items-center gap-2">
           <DisplayNameAndDescriptionOptions vertexType={vertexType} />

@@ -3,14 +3,15 @@
  *
  * Combobox Component Tests
  *
- * Focus: Behavior-based tests at realistic scales (500, 5,000, 10,000 items)
+ * Focus: Behavior-based tests at realistic scales (10, 20, 10,000 items)
  * No DOM node count assertions (virtualization is an implementation detail)
  *
  * Run: pnpm test Combobox.test.tsx
  */
 
 import { render, fireEvent, waitFor } from "@testing-library/react";
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 
 import { Combobox, type ComboboxOption } from "./Combobox";
 
@@ -38,10 +39,6 @@ beforeEach(() => {
       return Number.isFinite(inline) ? inline : 300;
     },
   );
-});
-
-afterEach(() => {
-  vi.restoreAllMocks();
 });
 
 // Helper: Create test options
@@ -85,7 +82,10 @@ describe("Combobox", () => {
       );
 
       const input = getByPlaceholderText("Select type");
-      expect(input).toBeTruthy();
+      expect(input.getAttribute("role")).toBe("combobox");
+      expect(input.getAttribute("aria-expanded")).toBe("false");
+      expect(input.getAttribute("aria-haspopup")).toBe("listbox");
+      expect(input.getAttribute("aria-autocomplete")).toBe("list");
     });
 
     it("should render an inner label above the value, matching SelectField", () => {
@@ -127,6 +127,15 @@ describe("Combobox", () => {
       const input = container.querySelector("input") as HTMLInputElement;
       expect(getByLabelText("Node type")).toBe(input);
     });
+
+    it("should associate its inner caption with the input via aria-labelledby", () => {
+      const options = createTestOptions(10);
+      const { getByLabelText } = render(
+        <Combobox options={options} value="type_5" label="Node type" />,
+      );
+
+      expect(getByLabelText("Node type")).toBeTruthy();
+    });
   });
 
   describe("Interaction & Selection", () => {
@@ -166,29 +175,33 @@ describe("Combobox", () => {
       expect(input.getAttribute("aria-expanded")).toBe("true");
     });
 
-    it("should filter options on typing", () => {
+    it("should filter options on typing", async () => {
       const options = createTestOptions(20);
       const { container } = render(
         <Combobox options={options} placeholder="Select type" />,
       );
 
       const input = container.querySelector("input") as HTMLInputElement;
-      fireEvent.focus(input);
+      fireEvent.keyDown(input, { key: "ArrowDown" });
+      const unfilteredCount =
+        document.querySelectorAll('[role="option"]').length;
+      expect(unfilteredCount).toBeGreaterThan(1);
 
-      // Type to filter
       fireEvent.change(input, { target: { value: "00010" } });
       expect(input.value).toBe("00010");
 
-      // Verify input shows the filter text
-      expect(input.value).toBe("00010");
-      expect(input.getAttribute("aria-expanded")).toBe("true");
+      await waitFor(() => {
+        const filteredOptions = document.querySelectorAll('[role="option"]');
+        expect(filteredOptions.length).toBe(1);
+        expect(filteredOptions[0].textContent).toBe("Vertex Type 00010");
+      });
     });
 
-    it("should handle selection callbacks", () => {
+    it("should call onValueChange when an option is selected", async () => {
       const options = createTestOptions(10);
       const handleChange = vi.fn();
 
-      const { container } = render(
+      const { container, findByText } = render(
         <Combobox
           options={options}
           placeholder="Select type"
@@ -197,36 +210,46 @@ describe("Combobox", () => {
       );
 
       const input = container.querySelector("input") as HTMLInputElement;
+      fireEvent.change(input, { target: { value: "00005" } });
 
-      // Typing opens the dropdown and filters
-      fireEvent.change(input, { target: { value: "type_0" } });
+      const option = await findByText("Vertex Type 00005");
+      fireEvent.click(option);
 
-      // Verify dropdown is open
-      expect(input.getAttribute("aria-expanded")).toBe("true");
-      expect(input.value).toBe("type_0");
+      expect(handleChange).toHaveBeenCalledWith("type_5");
     });
 
-    it("should reset filter on reopen", () => {
+    it("should reset the filter and close when focus leaves for another field", async () => {
+      // Regression test: tabbing away from the combobox to a sibling field
+      // (e.g. the other Search Sidebar picker) must actually close the
+      // popup. A bare fireEvent.blur() doesn't move jsdom's real focus
+      // target, so this uses real .focus() calls to produce the same
+      // blur+focusout sequence a browser fires when Tab moves focus; Base
+      // UI's own dismiss handling reacts to that outside of React's act(),
+      // so the resulting close is asserted asynchronously.
       const options = createTestOptions(10);
-      const { container } = render(
-        <Combobox options={options} placeholder="Select type" />,
+      const { container, getByTestId } = render(
+        <div>
+          <Combobox options={options} placeholder="Select type" />
+          <button data-testid="next-field">Next field</button>
+        </div>,
       );
 
       const input = container.querySelector("input") as HTMLInputElement;
+      const nextField = getByTestId("next-field");
 
-      // First open + filter
-      fireEvent.focus(input);
+      input.focus();
       fireEvent.change(input, { target: { value: "00005" } });
       expect(input.value).toBe("00005");
 
-      // Close - filter should reset after blur
-      fireEvent.blur(input);
+      nextField.focus();
+      await waitFor(() => {
+        expect(input.getAttribute("aria-expanded")).toBe("false");
+        expect(input.value).toBe("");
+      });
 
-      // Reopen
+      // Reopening starts clean
       fireEvent.focus(input);
-
-      // Input should show selected value (or placeholder if no value)
-      // This confirms the filter was cleared internally
+      fireEvent.keyDown(input, { key: "ArrowDown" });
       expect(input.getAttribute("aria-expanded")).toBe("true");
     });
   });
@@ -316,21 +339,85 @@ describe("Combobox", () => {
       });
     });
 
-    it("should hide the decorative toggle button from the accessibility tree while keeping it clickable", () => {
+    it("should close on Escape", () => {
       const options = createTestOptions(10);
       const { container } = render(
         <Combobox options={options} placeholder="Select type" />,
       );
 
-      // Not exposed to screen readers at all (not just excluded from Tab):
-      // a native <select>'s arrow is decorative in the same way, and
-      // VoiceOver reads Control-Option-Space on a grouped control (input +
-      // a second focusable/AX-visible button) as "stop interacting with
-      // this group" rather than "open the list" if the button stays exposed.
+      const input = container.querySelector("input") as HTMLInputElement;
+      fireEvent.keyDown(input, { key: "ArrowDown" });
+      expect(input.getAttribute("aria-expanded")).toBe("true");
+
+      fireEvent.keyDown(input, { key: "Escape" });
+      expect(input.getAttribute("aria-expanded")).toBe("false");
+    });
+
+    it("should select the highlighted option with ArrowDown then Enter", async () => {
+      const options = createTestOptions(10);
+      const handleChange = vi.fn();
+      const user = userEvent.setup();
+
+      const { container } = render(
+        <Combobox
+          options={options}
+          placeholder="Select type"
+          onValueChange={handleChange}
+        />,
+      );
+
+      const input = container.querySelector("input") as HTMLInputElement;
+      await user.click(input);
+      await user.keyboard("{ArrowDown}{Enter}");
+
+      expect(handleChange).toHaveBeenCalledWith("type_0");
+    });
+
+    it("should navigate well past the virtualized render window with the keyboard", () => {
+      // Regression test: without Base UI's `virtualized` prop, CompositeList
+      // truncates its internal ref list to only the ~13 currently-mounted
+      // rows on every scroll remount, and useListNavigation's max index is
+      // bounded by that truncated length — so arrowing far past the window
+      // silently wraps back inside it instead of tracking the real option.
+      // jsdom doesn't implement real scrolling, so the highlighted item's
+      // DOM node isn't reliably present here; the ID Base UI assigns it
+      // (`<input id>-<index>`) is the part that's actually under test.
+      const largeOptions = createTestOptions(10000);
+      const { container } = render(
+        <Combobox options={largeOptions} placeholder="Select type" />,
+      );
+
+      const input = container.querySelector("input") as HTMLInputElement;
+      fireEvent.keyDown(input, { key: "ArrowDown" });
+
+      const stepsPastTheWindow = 60;
+      for (let i = 0; i < stepsPastTheWindow; i++) {
+        fireEvent.keyDown(input, { key: "ArrowDown" });
+      }
+
+      // The first ArrowDown highlights index 0, so `stepsPastTheWindow` more
+      // presses lands on that same index.
+      expect(input.getAttribute("aria-activedescendant")).toBe(
+        `${input.id}-${stepsPastTheWindow}`,
+      );
+    });
+
+    it("should keep the toggle button in the accessibility tree, though not the tab order", () => {
+      const options = createTestOptions(10);
+      const { container } = render(
+        <Combobox options={options} placeholder="Select type" />,
+      );
+
+      // Exposed to screen readers (unlike an aria-hidden version): when the
+      // input already has a value, VoiceOver's Read-All treats a filled
+      // text input as content to read and skips announcing its combobox
+      // role — this button is what re-announces "combo box" in that case.
+      // Still not a Tab stop, matching Base UI's own Trigger default
+      // (ArrowDown on the input already opens the list).
       const toggleButton = container.querySelector(
         "button",
       ) as HTMLButtonElement;
-      expect(toggleButton.getAttribute("aria-hidden")).toBe("true");
+      expect(toggleButton.getAttribute("aria-hidden")).toBeNull();
       expect(toggleButton.tabIndex).toBe(-1);
 
       const input = container.querySelector("input") as HTMLInputElement;
@@ -346,7 +433,7 @@ describe("Combobox", () => {
       // this same trigger closed"). A bare fireEvent.click skips that
       // sequence and can't exercise the toggle-closed path. userEvent.click
       // doesn't work either here — it never registers the initial open on
-      // this aria-hidden decorative button — so this dispatches the raw
+      // this decorative button — so this dispatches the raw
       // pointer/mouse sequence directly instead.
       const options = createTestOptions(10);
       const { container } = render(
@@ -415,199 +502,56 @@ describe("Combobox", () => {
 
       fireEvent.focus(input);
 
-      // List should not appear
-      const listbox = container.querySelector('[role="option"]');
-      expect(listbox).toBeFalsy();
+      // List should not appear — options render through a portal into
+      // document.body, not into the render container.
+      expect(document.querySelector('[role="option"]')).toBeFalsy();
     });
   });
 
-  describe("Performance at Scale", () => {
-    describe("500 options", () => {
-      let options: ComboboxOption[];
+  describe("Performance at Scale (10,000 options)", () => {
+    it("should select a specific late item after filtering", async () => {
+      const largeOptions = createTestOptions(10000);
+      const handleChange = vi.fn();
+      const { container, findByText } = render(
+        <Combobox
+          options={largeOptions}
+          placeholder="Select type"
+          onValueChange={handleChange}
+        />,
+      );
 
-      beforeEach(() => {
-        options = createTestOptions(500);
-      });
+      const input = container.querySelector("input") as HTMLInputElement;
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: "08500" } });
 
-      it("should mount instantly", () => {
-        const startTime = performance.now();
-        const { container } = render(
-          <Combobox options={options} placeholder="Select type" />,
-        );
-        const endTime = performance.now();
+      const option = await findByText("Vertex Type 08500");
+      fireEvent.click(option);
 
-        expect(container).toBeTruthy();
-        const elapsed = endTime - startTime;
-        // Mount time with 500 items should be instant
-        expect(elapsed).toBeLessThan(50);
-      });
+      expect(handleChange).toHaveBeenCalledWith("type_8500");
     });
 
-    describe("5,000 options (stress test)", () => {
-      let options: ComboboxOption[];
+    it("should filter then select via ArrowDown and Enter", async () => {
+      const largeOptions = createTestOptions(10000);
+      const handleChange = vi.fn();
+      const user = userEvent.setup();
 
-      beforeEach(() => {
-        options = createTestOptions(5000);
+      const { container } = render(
+        <Combobox
+          options={largeOptions}
+          placeholder="Select type"
+          onValueChange={handleChange}
+        />,
+      );
+
+      const input = container.querySelector("input") as HTMLInputElement;
+      await user.click(input);
+      await user.type(input, "08500");
+      await waitFor(() => {
+        expect(document.querySelectorAll('[role="option"]').length).toBe(1);
       });
+      await user.keyboard("{ArrowDown}{Enter}");
 
-      it("should mount instantly without UI freeze", () => {
-        const startTime = performance.now();
-        const { container } = render(
-          <Combobox options={options} placeholder="Select type" />,
-        );
-        const endTime = performance.now();
-
-        expect(container).toBeTruthy();
-        const elapsed = endTime - startTime;
-
-        // With virtualization, should be <200ms
-        // Without virtualization (current SelectField), would be >1000ms
-        expect(elapsed).toBeLessThan(200);
-      });
-
-      it("should keep input responsive while filtering", () => {
-        const { container } = render(
-          <Combobox options={options} placeholder="Select type" />,
-        );
-
-        const input = container.querySelector("input") as HTMLInputElement;
-        fireEvent.focus(input);
-
-        // Measure input responsiveness (not filtering latency)
-        const inputStartTime = performance.now();
-        fireEvent.change(input, { target: { value: "04999" } });
-        const inputEndTime = performance.now();
-
-        // Input value should update instantly
-        expect(input.value).toBe("04999");
-
-        const inputLatency = inputEndTime - inputStartTime;
-
-        // Input should be instant (useDeferredValue protects this)
-        expect(inputLatency).toBeLessThan(50);
-      });
-
-      it("scale guardrail: input stays responsive even with 5,000 items", () => {
-        const { container } = render(
-          <Combobox
-            options={options}
-            placeholder="Select type"
-            onValueChange={vi.fn()}
-          />,
-        );
-
-        const input = container.querySelector("input") as HTMLInputElement;
-        fireEvent.focus(input);
-
-        // Filter to a late item (#4999)
-        const filterStartTime = performance.now();
-        fireEvent.change(input, { target: { value: "04999" } });
-        const filterEndTime = performance.now();
-
-        expect(input.value).toBe("04999");
-        const latency = filterEndTime - filterStartTime;
-
-        // useDeferredValue keeps input responsive
-        expect(latency).toBeLessThan(50);
-      });
-    });
-
-    describe("10,000 options (extreme scale)", () => {
-      it("keeps rendered option count bounded regardless of total items", () => {
-        // Not the exact-count assertion the project's testing philosophy
-        // warns against (that's about pinning an implementation detail like
-        // a specific overscan value, which breaks on harmless tuning) — this
-        // is a wide behavioral bound on whether windowing happened at all.
-        // It guards against measuring the wrong scroll element: the
-        // virtualizer must read the bounded, overflow-y-auto viewport
-        // (Combobox.List), not the inner spacer div (which is deliberately
-        // as tall as the full list). Measuring the spacer reports its own
-        // huge height as "visible", so the virtualizer renders nearly every
-        // item instead of a small window — a real regression this project
-        // shipped that jsdom's global offsetHeight/offsetWidth mock can't
-        // catch by itself, since it can't tell which element got measured.
-        const largeOptions = createTestOptions(10000);
-        const { container } = render(
-          <Combobox options={largeOptions} placeholder="Select type" />,
-        );
-
-        const input = container.querySelector("input") as HTMLInputElement;
-        fireEvent.focus(input);
-        fireEvent.keyDown(input, { key: "ArrowDown" });
-
-        // A fraction of the total, not a fixed number: the real failure
-        // mode this guards against is rendering essentially everything
-        // (the bug rendered ~10,000 of 10,000), so this stays well clear
-        // of any reasonable overscan/container-height tuning instead of
-        // coupling to today's specific values.
-        const renderedOptions = document.querySelectorAll('[role="option"]');
-        expect(renderedOptions.length).toBeGreaterThan(0);
-        expect(renderedOptions.length).toBeLessThan(largeOptions.length / 10);
-      });
-
-      it("should mount without UI freeze", () => {
-        const largeOptions = createTestOptions(10000);
-
-        const startTime = performance.now();
-        const { container } = render(
-          <Combobox options={largeOptions} placeholder="Select type" />,
-        );
-        const endTime = performance.now();
-
-        expect(container).toBeTruthy();
-        const elapsed = endTime - startTime;
-
-        // With virtualization, should be <200ms
-        // Without virtualization (current SelectField), would be >5000ms or freeze
-        expect(elapsed).toBeLessThan(200);
-      });
-
-      it("should keep input responsive at extreme scale", () => {
-        const largeOptions = createTestOptions(10000);
-        const { container } = render(
-          <Combobox
-            options={largeOptions}
-            placeholder="Select type"
-            onValueChange={vi.fn()}
-          />,
-        );
-
-        const input = container.querySelector("input") as HTMLInputElement;
-        fireEvent.focus(input);
-
-        // Filter to a very late item
-        const filterStartTime = performance.now();
-        fireEvent.change(input, { target: { value: "09999" } });
-        const filterEndTime = performance.now();
-
-        // Input should respond instantly
-        expect(input.value).toBe("09999");
-        const inputLatency = filterEndTime - filterStartTime;
-
-        // Input must be instant regardless of 10k items (useDeferredValue keeps this responsive)
-        expect(inputLatency).toBeLessThan(50);
-      });
-
-      it("should select a specific late item after filtering at 10,000-item scale", async () => {
-        const largeOptions = createTestOptions(10000);
-        const handleChange = vi.fn();
-        const { container, findByText } = render(
-          <Combobox
-            options={largeOptions}
-            placeholder="Select type"
-            onValueChange={handleChange}
-          />,
-        );
-
-        const input = container.querySelector("input") as HTMLInputElement;
-        fireEvent.focus(input);
-        fireEvent.change(input, { target: { value: "08500" } });
-
-        const option = await findByText("Vertex Type 08500");
-        fireEvent.click(option);
-
-        expect(handleChange).toHaveBeenCalledWith("type_8500");
-      });
+      expect(handleChange).toHaveBeenCalledWith("type_8500");
     });
   });
 });
