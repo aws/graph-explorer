@@ -92,10 +92,13 @@ function ExpansionOptions({
   );
   const [filters, setFilters] = useState<Array<NodeExpandFilter>>([]);
   const [limitEnabled, setLimitEnabled] = useState(Boolean(defaultLimit));
-  const [limit, setLimit] = useState<number>(defaultLimit ?? 100);
+  const [limit, setLimit] = useState<number | null>(defaultLimit ?? 100);
 
   const hasSelectedType = Boolean(selectedType);
   const hasUnfetchedNeighbors = (neighbors?.unfetched ?? 0) > 0;
+  // An empty or invalid limit must block expansion, otherwise the request
+  // would go out unlimited while the toggle still shows a limit is applied
+  const hasValidLimit = !limitEnabled || (limit != null && limit >= 1);
 
   // Reset filters when selected type changes
   const [prevSelectedType, setPrevSelectedType] = useState(selectedType);
@@ -129,7 +132,9 @@ function ExpansionOptions({
       />
       <PanelFooter className="sticky bottom-0 flex flex-row justify-end">
         <ExpandButton
-          isDisabled={!hasUnfetchedNeighbors || !hasSelectedType}
+          isDisabled={
+            !hasUnfetchedNeighbors || !hasSelectedType || !hasValidLimit
+          }
           vertexId={vertexId}
           filters={{
             filterByVertexTypes: [selectedType],
