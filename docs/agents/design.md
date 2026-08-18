@@ -74,6 +74,7 @@ Dark mode is a planned future feature. The semantic token structure is designed 
 - Use **Tailwind v4 CSS syntax** — `@theme`, `@utility`, `@custom-variant` blocks in CSS.
 - Prefer **data attributes** for conditional styles. Tailwind v4 provides two forms:
   - `data-open:` / `data-closed:` — shorthand variants (defined via `@custom-variant` in `index.css`) that match `[data-state="open"]` / `[data-state="closed"]`, the Radix convention. Note: this **redefines** Tailwind's native behavior, where a bare `data-open:` would match the presence of a `data-open` attribute. Also: `aria-invalid:` for form validation.
+    - **Base UI components don't emit `data-state`.** They set bare boolean attributes instead (`data-open`, `data-closed`, `data-starting-style`, `data-ending-style`), so the project's `data-open:`/`data-closed:` shorthand above will silently never match a Base UI element. For Base UI components (currently only `components/Combobox.tsx`), use Tailwind's native bare-attribute variants directly — `data-open:`, `data-ending-style:`, etc. — not the Radix-scoped shorthand.
   - `data-[attr=value]:` — arbitrary-value form for one-off attributes.
 - Prefer **Tailwind responsive directives and container queries** over `ResizeObserver` for responsive layout changes.
 - Reference: https://tailwindcss.com/docs

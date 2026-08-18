@@ -15,6 +15,8 @@
 
 - Server state goes in TanStack Query
 - **Exception: vertex icons.** They resolve through the `core/icons/` registry, read via `useSyncExternalStore`, because a per-hook subscription scaled with vertex-type count and locked up the schema view at 10k types. Don't move icon resolution back into TanStack Query — see `docs/adr/20260813-icon-registry-not-react-query.md`
+- **Exception: `useSearchableAttributes`'s internal `useMemo`** (`core/StateProvider/displayTypeConfigs.ts`). The compiler doesn't run under Vitest, so this memo is load-bearing for the test suite even though it would be redundant in the compiled production bundle. Don't remove it without also proving the referential-stability test in `useKeywordSearch.test.ts` still passes. Elsewhere, prefer stabilizing the _input_ to a memo (e.g. `useTranslations()`'s returned function is wrapped in `useCallback`) over adding more manual memos downstream of an unstable dependency
+- **Exception: `useVirtualizer` (`@tanstack/react-virtual`)**, used in `components/Combobox.tsx`. It needs a `// eslint-disable-next-line react-compiler/incompatible-library` comment on the call — the compiler can't verify the hook's internal mutation patterns are safe to auto-memoize
 
 ## Feature Modules
 
