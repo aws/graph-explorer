@@ -1,6 +1,18 @@
 import type { ComponentProps } from "react";
 
-import { Editor, type Monaco } from "@monaco-editor/react";
+import { Editor, loader, type Monaco } from "@monaco-editor/react";
+
+import logger from "@/utils/logger";
+
+// Define theme once when Monaco loads - this ensures it's available for all editor instances
+loader
+  .init()
+  .then(monaco => {
+    monaco.editor.defineTheme("graph-explorer-light", lightTheme);
+  })
+  .catch(err => {
+    logger.error("Failed to load Monaco editor:", err);
+  });
 
 export function CodeEditor({
   options,
@@ -45,9 +57,6 @@ export function CodeEditor({
         },
 
         ...options,
-      }}
-      onMount={(_editor, monaco) => {
-        monaco.editor.defineTheme("graph-explorer-light", lightTheme);
       }}
       {...props}
     />
