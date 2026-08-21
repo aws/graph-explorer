@@ -138,6 +138,11 @@ const vertexEntrySchema = z
     borderWidth: z.number().optional(),
     borderColor: z.string().optional(),
     borderStyle: z.enum(LINE_STYLES).optional(),
+    labelColor: z.string().optional(),
+    labelBackgroundOpacity: z.number().optional(),
+    labelBorderColor: z.string().optional(),
+    labelBorderStyle: z.enum(LINE_STYLES).optional(),
+    labelBorderWidth: z.number().optional(),
   })
   .transform(
     ({ icon, ...rest }): Omit<VertexStyleStorage, "type"> =>
