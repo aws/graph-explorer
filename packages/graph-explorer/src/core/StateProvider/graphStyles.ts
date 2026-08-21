@@ -206,6 +206,15 @@ export const vertexStyleAtom = atom(get => {
     get(type: VertexType) {
       return resolveVertexStyle(type, userStyles.get(type));
     },
+    /**
+     * The resolved style for a vertex carrying one or more types — see
+     * {@link resolveVertexStyleForTypes}. Use this (not repeated `get` calls)
+     * whenever the caller has an actual vertex instance rather than a single
+     * schema type, so styling reflects every type the vertex has.
+     */
+    getForTypes(types: readonly VertexType[]) {
+      return resolveVertexStyleForTypes(types, userStyles);
+    },
   };
 });
 
@@ -228,6 +237,83 @@ export function resolveVertexStyle(
     type,
     ...appDefaultVertexStyle,
     ...user,
+  } as const;
+}
+
+/**
+ * A stable, order-independent identity for a vertex's full set of types —
+ * every distinct combination of types gets one key, and the same set of
+ * types (in any order) always produces the same key. Reuses the
+ * {@link VertexType} brand since it is consumed exactly like one: as an
+ * opaque Cytoscape selector value and style-lookup key (see
+ * `useGraphStyles.ts` and {@link resolveVertexStyleForTypes}). It is never a
+ * real schema type and must not be shown to the user or looked up against
+ * schema/connection data — {@link DisplayVertex.displayTypes} is the
+ * user-facing type label.
+ */
+function sortedUniqueTypes(types: readonly VertexType[]): VertexType[] {
+  return [...new Set(types)].sort();
+}
+
+export function vertexTypeSetKey(types: readonly VertexType[]): VertexType {
+  return sortedUniqueTypes(types).join(" ") as VertexType;
+}
+
+/**
+ * Merges the stored user style for every one of a vertex's types into one set
+ * of fields, so a vertex with multiple `rdf:type` values (common once RDFS/OWL
+ * inference is in play — every superclass ends up asserted as a peer
+ * `rdf:type`) picks up styling from all of them rather than an arbitrary one.
+ * A field left unset by one type falls through to another type that does set
+ * it — e.g. a `borderColor` styled once on a shared ancestor class applies to
+ * every subtype automatically, without repeating it on each one.
+ *
+ * Conflicts — two of the vertex's types both set the same field — are
+ * resolved by folding the types in ascending lexicographic order, so the
+ * lexicographically-last type's value wins. This is a **stable, reproducible
+ * tiebreak, not a specificity judgement**: nothing in the app tracks
+ * `rdfs:subClassOf` (or any other) class hierarchy today — schema sync only
+ * samples instance data (types + attribute names) for every connector, so
+ * there is no signal available to determine which of a resource's asserted
+ * types is actually "more specific" than another. Sorting at least makes the
+ * outcome a deterministic property of the type names themselves instead of an
+ * accident of SPARQL query result order, which is what motivated this fix
+ * (see the linked issue). A hierarchy-aware tiebreak would be a natural
+ * follow-up once class-hierarchy data is tracked anywhere in the app.
+ */
+export function mergeVertexStyleFields(
+  types: readonly VertexType[],
+  userStyles: ReadonlyMap<VertexType, VertexStyleStorage>,
+): Omit<VertexStyleStorage, "type"> {
+  let merged: Omit<VertexStyleStorage, "type"> = {};
+  for (const type of sortedUniqueTypes(types)) {
+    const style = userStyles.get(type);
+    if (!style) {
+      continue;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- drop the per-type `type` field, only the fields matter
+    const { type: _type, ...fields } = style;
+    merged = { ...merged, ...fields };
+  }
+  return merged;
+}
+
+/**
+ * The resolved style for a vertex carrying one or more types — see
+ * {@link mergeVertexStyleFields} for how conflicts across types are resolved.
+ * `type` on the result is {@link vertexTypeSetKey}'s composite key, not a
+ * single real type, since the resolved style may draw fields from more than
+ * one type.
+ */
+export function resolveVertexStyleForTypes(
+  types: readonly VertexType[],
+  userStyles: ReadonlyMap<VertexType, VertexStyleStorage>,
+): VertexStyle {
+  const merged = mergeVertexStyleFields(types, userStyles);
+  return {
+    type: vertexTypeSetKey(types),
+    ...appDefaultVertexStyle,
+    ...merged,
   } as const;
 }
 
@@ -272,6 +358,22 @@ export function useVertexStyle(type: VertexType): VertexStyle {
   return useDeferredValue(useAtomValue(vertexStyleByTypeAtom(type)));
 }
 
+/**
+ * Returns the resolved style for a vertex instance, merged across every type
+ * it has — see {@link resolveVertexStyleForTypes}. Use this instead of
+ * {@link useVertexStyle} whenever `types` is an actual vertex's asserted
+ * types rather than a single schema type being styled/edited on its own
+ * (e.g. the Schema view's Styles panel, or a legend listing every known
+ * type — those still want {@link useVertexStyle} for one type at a time).
+ */
+export function useVertexStyleForTypes(
+  types: readonly VertexType[],
+): VertexStyle {
+  return useDeferredValue(
+    useAtomValue(vertexStyleByTypesAtom(vertexTypeSetKey(types))),
+  );
+}
+
 /** Returns the resolved style for the specified edge type. */
 export function useEdgeStyle(type: EdgeType): EdgeStyle {
   return useDeferredValue(useAtomValue(edgeStyleByTypeAtom(type)));
@@ -282,6 +384,20 @@ export function useEdgeStyle(type: EdgeType): EdgeStyle {
  */
 export const vertexStyleByTypeAtom = atomFamily((type: VertexType) =>
   atom(get => get(vertexStyleAtom).get(type)),
+);
+
+/**
+ * Returns the resolved style for a vertex's full set of types, keyed by
+ * {@link vertexTypeSetKey} — atomFamily needs a primitive key, and the key
+ * already carries the sorted, deduplicated type list, so it is split back
+ * into types rather than threading the original array through separately.
+ */
+export const vertexStyleByTypesAtom = atomFamily((typesKey: VertexType) =>
+  atom(get =>
+    get(vertexStyleAtom).getForTypes(
+      typesKey === "" ? [] : (typesKey.split(" ") as VertexType[]),
+    ),
+  ),
 );
 
 /**

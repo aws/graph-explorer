@@ -13,6 +13,7 @@ import {
   useAllNeighbors,
   useDisplayEdgesInCanvas,
   useDisplayVerticesInCanvas,
+  vertexTypeSetKey,
   type VertexId,
 } from "@/core";
 
@@ -170,7 +171,10 @@ function createRenderedVertex(vertex: DisplayVertex, neighborCount: number) {
   return {
     data: {
       id: createRenderedVertexId(vertex.id),
-      type: vertex.primaryType,
+      // The Cytoscape stylesheet selector key — see useGraphStyles.ts. Covers every
+      // type the vertex has (not just primaryType) so a multi-typed vertex's rule
+      // is built from all of them; see resolveVertexStyleForTypes for why.
+      type: vertexTypeSetKey(vertex.types),
       vertexId: vertex.id,
       displayName: vertex.displayName,
       displayTypes: vertex.displayTypes,

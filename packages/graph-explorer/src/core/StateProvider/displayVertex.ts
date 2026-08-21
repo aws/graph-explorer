@@ -9,7 +9,9 @@ import {
   nodeSelector,
   nodesSelectedIdsAtom,
   queryEngineSelector,
+  resolveVertexStyleForTypes,
   useVertex,
+  userVertexStylesAtom,
   type Vertex,
   type VertexId,
   vertexStyleByTypeAtom,
@@ -108,7 +110,14 @@ const displayVertexSelector = atomFamily((vertex: Vertex) =>
       return LABELS.MISSING_VALUE;
     }
 
-    const vertexStyle = get(vertexStyleByTypeAtom(vertex.type));
+    // Merged across every type the vertex has, not just `vertex.type`/`primaryType` —
+    // a resource asserting multiple rdf:type values (e.g. under RDFS/OWL inference,
+    // where every superclass becomes a peer rdf:type) should pick up styling and the
+    // displayNameAttribute from whichever of its types set them, not an arbitrary one.
+    const vertexStyle = resolveVertexStyleForTypes(
+      vertexTypes,
+      get(userVertexStylesAtom),
+    );
     const displayName = getDisplayAttributeValueByName(
       vertexStyle.displayNameAttribute,
     );
