@@ -14,6 +14,7 @@ import {
   edgesTypesFilteredAtom,
   type EdgeType,
   explorerForTestingAtom,
+  type GraphSessionStorageModel,
   type GraphViewLayout,
   graphViewLayoutAtom,
   mapEdgeToTypeConfig,
@@ -54,6 +55,7 @@ import {
  */
 export class DbState {
   #activeSchema: SchemaStorageModel | null;
+  #graphSession: GraphSessionStorageModel | undefined;
   activeConfig: RawConfiguration;
   vertexStyles: Map<VertexType, VertexStyleStorage>;
   edgeStyles: Map<EdgeType, EdgeStyleStorage>;
@@ -107,6 +109,12 @@ export class DbState {
   /** Removes the active schema from the state. */
   withNoActiveSchema() {
     this.#activeSchema = null;
+    return this;
+  }
+
+  /** Sets the persisted graph session independently from the current graph. */
+  withGraphSession(graphSession: GraphSessionStorageModel) {
+    this.#graphSession = graphSession;
     return this;
   }
 
@@ -256,7 +264,7 @@ export class DbState {
       new Map([
         [
           this.activeConfig.id,
-          {
+          this.#graphSession ?? {
             vertices: new Set(this.vertices.map(v => v.id)),
             edges: new Set(this.edges.map(e => e.id)),
           },
