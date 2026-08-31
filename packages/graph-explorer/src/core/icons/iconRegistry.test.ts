@@ -49,7 +49,7 @@ describe("iconRegistry", () => {
     iconRegistry.request([source]);
     await settle();
 
-    expect(iconRegistry.getSnapshot().get(iconSourceId(source)!)).toStrictEqual(
+    expect(iconRegistry.getSnapshot().get(iconSourceId(source)!)).toMatchObject(
       {
         kind: "raster",
         url: "https://example.test/a.png",
@@ -58,18 +58,23 @@ describe("iconRegistry", () => {
     expect(fetch).not.toBeCalled();
   });
 
-  // A url needs no resolution, so making the consumer wait a render for it
-  // would be a pointless async round trip.
-  it("resolves a raster icon synchronously", () => {
+  // Measuring a raster's natural size requires loading it, so — unlike a url,
+  // which needs no resolution — this can no longer settle in the same tick.
+  it("measures a raster icon's natural dimensions", async () => {
     const source = classifyIconSource({
       iconUrl: "https://example.test/a.png",
       iconImageType: "image/png",
     });
 
     iconRegistry.request([source]);
+    await settle();
 
-    expect(iconRegistry.getSnapshot().has(iconSourceId(source)!)).toBe(true);
-    expect(iconRegistry.pendingCount).toBe(0);
+    expect(iconRegistry.getSnapshot().get(iconSourceId(source)!)).toMatchObject(
+      {
+        width: expect.any(Number),
+        height: expect.any(Number),
+      },
+    );
   });
 
   it("fetches and sanitizes a remote svg", async () => {
@@ -290,6 +295,31 @@ describe("sanitizes a user-supplied svg before storing it", () => {
     expect(resolved?.kind).toBe("svg");
     return (resolved as { kind: "svg"; svg: string }).svg;
   }
+
+  // The svg profile already allowlists these, so no ALLOWED_ATTR override is
+  // needed to keep aspect ratio. An explicit list would also be a trap: it
+  // cannot take effect alongside USE_PROFILES (DOMPurify rebuilds ALLOWED_ATTR
+  // from the profile sets), so it reads as load-bearing while doing nothing,
+  // and any attribute it omitted would silently vanish if the profiles were
+  // ever dropped.
+  it("preserves the geometry and path attributes an icon needs to scale", async () => {
+    const svg = await resolveCustomSvg(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="100" viewBox="0 0 400 100" preserveAspectRatio="xMidYMid meet"><path d="M0 0h400v100H0z" stroke-width="2" transform="translate(1 1)"/><polyline points="0,0 10,10"/></svg>`,
+    );
+
+    for (const attribute of [
+      "width",
+      "height",
+      "viewBox",
+      "preserveAspectRatio",
+      "d",
+      "stroke-width",
+      "transform",
+      "points",
+    ]) {
+      expect(svg).toContain(attribute);
+    }
+  });
 
   it("strips a <script> element but keeps the rest of the drawing", async () => {
     const svg = await resolveCustomSvg(

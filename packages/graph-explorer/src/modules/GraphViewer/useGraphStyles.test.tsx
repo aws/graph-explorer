@@ -59,6 +59,11 @@ describe("useGraphStyles", () => {
         "background-image": RASTER_ICON.iconUrl,
         "background-color": "#128EE5",
         "background-opacity": 0.8,
+        // Aspect-ratio-aware sizing (issue #2108): square by default since
+        // the test double measures every raster icon as 24x24.
+        "background-fit": "none",
+        "background-width": "60%",
+        "background-height": "60%",
         "border-color": "#000000",
         "border-width": 2,
         "border-opacity": 1,
