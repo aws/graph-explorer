@@ -202,6 +202,7 @@ export function Combobox({
           // previously validated behavior (fixed across several rounds of
           // manual testing).
           if (reason !== "keyboard" && reason !== "none") return;
+          if (index < 0) return;
           virtualizerRef.current?.scrollToIndex(index, { align: "center" });
         }}
         disabled={disabled}
