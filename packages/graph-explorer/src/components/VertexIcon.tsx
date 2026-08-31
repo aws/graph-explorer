@@ -3,13 +3,15 @@ import { DynamicIcon } from "lucide-react/dynamic";
 import SVG from "react-inlinesvg";
 
 import { useVertexStyle, type VertexStyle, type VertexType } from "@/core";
+import { ensureSvgViewBox } from "@/core/icons";
 import { cn } from "@/utils";
 import { getLucideName, isValidLucideIconName } from "@/utils/lucideIcons";
 
 function sanitizeSvg(svg: string): string {
-  return DOMPurify.sanitize(svg, {
+  const sanitized = DOMPurify.sanitize(svg, {
     USE_PROFILES: { svg: true, svgFilters: true },
   });
+  return ensureSvgViewBox(sanitized);
 }
 
 interface Props {
@@ -54,7 +56,7 @@ function VertexIcon({ vertexStyle, className, alt }: Props) {
     <img
       src={vertexStyle.iconUrl}
       alt={altText}
-      className={cn("size-6 shrink-0", className)}
+      className={cn("size-6 shrink-0 object-contain", className)}
       style={{ color: vertexStyle.color }}
     />
   );

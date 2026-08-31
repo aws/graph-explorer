@@ -54,7 +54,7 @@ The classification of a Vertex Type's configured icon into what it takes to rend
 _Avoid_: Icon type (ambiguous with `iconImageType`, the stored MIME string)
 
 **Icon Registry**:
-The single store of resolved icons, keyed by Icon Source Id and shared by every Icon Surface. Holds a color-free artifact — a sanitized SVG string or a raster url — so applying a Vertex Type's color stays a pure transform at the point of use. A plain external store outside React/Jotai, bridged by `useSyncExternalStore`; explicitly **not** TanStack Query, because a per-hook subscription scaled with Vertex Type count and locked up the Schema View at 10k. Resolves a raster url synchronously, allows a failed icon three attempts in total, and never stores a failure as a result. See `docs/adr/20260813-icon-registry-not-react-query.md`.
+The single store of resolved icons, keyed by Icon Source Id and shared by every Icon Surface. Holds a color-free artifact — a sanitized SVG string or a raster url, plus its natural width/height so a non-square icon scales instead of stretching — so applying a Vertex Type's color stays a pure transform at the point of use. A plain external store outside React/Jotai, bridged by `useSyncExternalStore`; explicitly **not** TanStack Query, because a per-hook subscription scaled with Vertex Type count and locked up the Schema View at 10k. Every icon kind resolves asynchronously (a raster's dimensions are measured by loading it), allows a failed icon three attempts in total, and never stores a failure as a result. See `docs/adr/20260813-icon-registry-not-react-query.md`.
 _Avoid_: Icon cache (it is the source of truth for resolution, not a layer in front of one)
 
 **Icon Surface**:
