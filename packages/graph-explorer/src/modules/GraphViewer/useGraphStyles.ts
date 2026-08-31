@@ -11,7 +11,10 @@ import {
   type VertexType,
 } from "@/core";
 
-import { useBackgroundImageMap } from "./useBackgroundImageMap";
+import {
+  useBackgroundImageMap,
+  type BackgroundImageData,
+} from "./useBackgroundImageMap";
 
 const LINE_PATTERN = {
   solid: undefined,
@@ -38,19 +41,22 @@ export default function useGraphStyles() {
 function createGraphStyles(
   deferredVtConfigs: VertexStyle[],
   deferredEtConfigs: EdgeStyle[],
-  backgroundImageMap: Map<VertexType, string>,
+  backgroundImageMap: Map<VertexType, BackgroundImageData>,
 ): GraphProps["styles"] {
   const styles: GraphProps["styles"] = {};
 
   for (const vtConfig of deferredVtConfigs) {
     const vt = vtConfig.type;
 
-    const backgroundImage = backgroundImageMap.get(vt);
+    const imageData = backgroundImageMap.get(vt);
 
     styles[`node[type="${vt}"]`] = {
-      "background-image": backgroundImage,
+      "background-image": imageData?.url,
       "background-color": vtConfig.color,
       "background-opacity": vtConfig.backgroundOpacity,
+      "background-width": imageData?.width,
+      "background-height": imageData?.height,
+      "background-fit": "none",
       "border-color": vtConfig.borderColor,
       "border-width": vtConfig.borderWidth,
       "border-opacity": vtConfig.borderWidth > 0 ? 1 : 0,

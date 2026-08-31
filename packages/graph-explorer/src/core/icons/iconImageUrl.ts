@@ -1,7 +1,9 @@
 import type { ResolvedIcon } from "./iconRegistry";
 
-/** Intrinsic size; both consumers scale from it. Matches the cytoscape node size. */
-const ICON_SIZE = "24";
+import { fitAspectRatio } from "./aspectFit";
+
+/** Intrinsic size baseline; matches the cytoscape node size. */
+const ICON_SIZE = 24;
 
 /**
  * Pure transform to an image url.
@@ -16,17 +18,42 @@ export function toIconImageUrl(icon: ResolvedIcon, color: string): string {
     case "raster":
       return icon.url;
     case "svg":
-      return encodeSvg(applySizeAndColor(icon.svg, color));
+      return encodeSvg(
+        applySizeAndColor(icon.svg, color, icon.width, icon.height),
+      );
   }
 }
 
-function applySizeAndColor(svgContent: string, color: string): string {
+/**
+ * Sets the SVG's own intrinsic width/height. This must preserve the icon's
+ * real aspect ratio (scaled to fit a 24px box), not force a fixed square:
+ * forcing a square here bakes a mismatched-aspect letterbox into the
+ * rasterized image, which the consumer's own aspect-aware background-width/
+ * height then stretches a second time, distorting worse than doing nothing.
+ */
+function applySizeAndColor(
+  svgContent: string,
+  color: string,
+  naturalWidth?: number,
+  naturalHeight?: number,
+): string {
   const doc = new DOMParser().parseFromString(svgContent, "application/xml");
   const root = doc.documentElement;
-  root.setAttribute("width", ICON_SIZE);
-  root.setAttribute("height", ICON_SIZE);
+  const [width, height] = fitToIconSize(naturalWidth, naturalHeight);
+  root.setAttribute("width", String(width));
+  root.setAttribute("height", String(height));
   applyColor(root, color);
   return new XMLSerializer().serializeToString(root);
+}
+
+function fitToIconSize(
+  naturalWidth?: number,
+  naturalHeight?: number,
+): [width: number, height: number] {
+  if (!naturalWidth || !naturalHeight) {
+    return [ICON_SIZE, ICON_SIZE];
+  }
+  return fitAspectRatio(naturalWidth, naturalHeight, ICON_SIZE);
 }
 
 /**
