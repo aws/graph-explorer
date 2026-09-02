@@ -11,6 +11,7 @@ import { useSchemaViewSidebar } from "./schemaViewLayout";
 const baseLayout: SchemaViewLayout = {
   activeSidebarItem: "details",
   sidebar: { width: DEFAULT_SIDEBAR_WIDTH },
+  layoutAlgorithm: "F_COSE",
 };
 
 /** Seeds a schema view layout, overriding only the fields a test pins. */
