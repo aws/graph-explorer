@@ -1,6 +1,11 @@
 import { z } from "zod";
 
 import {
+  DEFAULT_LAYOUT_NAME,
+  storedLayoutNameSchema,
+} from "@/core/graphLayout";
+
+import {
   DEFAULT_SIDEBAR_WIDTH,
   legacyStylingSidebarItemSchema,
 } from "./graphViewLayoutDefaults";
@@ -17,7 +22,8 @@ export const schemaViewSidebarItems = schemaViewSidebarItemSchema.options;
 
 /**
  * The Schema View Layout. Plain JSON, so one schema serves both backings; it
- * also accepts a retired styling sidebar item an older version stored.
+ * also accepts a retired styling sidebar item an older version stored, and a
+ * layout algorithm that is missing (pre-feature data) or unknown (e.g. removed).
  */
 const schemaViewLayoutSchema = z.object({
   activeSidebarItem: z
@@ -25,6 +31,7 @@ const schemaViewLayoutSchema = z.object({
     .nullable(),
   sidebar: z.object({ width: z.number() }),
   detailsAutoOpenOnSelection: z.boolean().optional(),
+  layoutAlgorithm: storedLayoutNameSchema,
 });
 export type SchemaViewLayout = z.infer<typeof schemaViewLayoutSchema>;
 
@@ -33,6 +40,7 @@ export const defaultSchemaViewLayout: SchemaViewLayout = {
   activeSidebarItem: "details",
   sidebar: { width: DEFAULT_SIDEBAR_WIDTH },
   detailsAutoOpenOnSelection: true,
+  layoutAlgorithm: DEFAULT_LAYOUT_NAME,
 };
 
 /** Per-tab codec; the schema view layout is plain JSON. */

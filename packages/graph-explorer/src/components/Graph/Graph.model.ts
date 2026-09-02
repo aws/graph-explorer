@@ -54,8 +54,6 @@ export type Selection = {
   onSelectedEdgesIdsChange?(edgesIds: Array<string> | Set<string>): void;
 };
 
-export type { LayoutName } from "./helpers/layoutConfig";
-
 export type GraphNode = {
   data: {
     id: string;
