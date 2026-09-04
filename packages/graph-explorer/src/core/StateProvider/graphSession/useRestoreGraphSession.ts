@@ -1,14 +1,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useSetAtom } from "jotai";
+import { useAtomCallback } from "jotai/utils";
+import { useCallback } from "react";
 import { toast } from "sonner";
 
 import { fetchEntityDetails, notifyOnIncompleteRestoration } from "@/connector";
-import { useAddToGraph } from "@/hooks";
+import { activeConfigurationAtom, usePopulateGraph } from "@/core";
 import { useEntityCountFormatterCallback } from "@/hooks/useEntityCountFormatter";
 import { logger } from "@/utils";
 import { createDisplayError } from "@/utils/createDisplayError";
 
-import { graphViewLayoutAlgorithmAtom } from "./graphViewLayoutAlgorithm";
+import {
+  commitGraphRestoration,
+  graphRestorationRequestAtom,
+  isCurrentGraphRestoration,
+  startGraphRestoration,
+} from "./restoration";
 import {
   type GraphSessionStorageModel,
   resolveGraphSessionLayout,
@@ -19,49 +25,81 @@ import {
  */
 export function useRestoreGraphSession() {
   const queryClient = useQueryClient();
-  const addToGraph = useAddToGraph();
-  const setLayout = useSetAtom(graphViewLayoutAlgorithmAtom);
+  const populateGraph = usePopulateGraph();
   const formatEntityCounts = useEntityCountFormatterCallback();
 
-  const mutation = useMutation({
-    mutationFn: async (graph: GraphSessionStorageModel) => {
-      logger.debug("Restoring graph session", graph);
+  const mutationFn = useAtomCallback(
+    useCallback(
+      async (get, set, graph: GraphSessionStorageModel) => {
+        const target = get(activeConfigurationAtom);
 
-      const entityCountMessage = formatEntityCounts(
-        graph.vertices.size,
-        graph.edges.size,
-      );
+        if (!target) {
+          throw new Error("No active connection to restore the graph session");
+        }
 
-      const restorePromise = (async () => {
-        // Get the vertex and edge details from the database
-        const result = await fetchEntityDetails(
-          graph.vertices,
-          graph.edges,
-          queryClient,
+        const token = startGraphRestoration(set, target);
+        logger.debug("Restoring graph session", graph);
+
+        const entityCountMessage = formatEntityCounts(
+          graph.vertices.size,
+          graph.edges.size,
         );
 
-        // Update Graph Explorer state
-        await addToGraph(result.entities);
-        const layout = resolveGraphSessionLayout(graph.layout);
-        if (layout) setLayout(layout);
+        let committed = false;
 
-        return result;
-      })();
+        const restorePromise = (async () => {
+          const result = await fetchEntityDetails(
+            graph.vertices,
+            graph.edges,
+            queryClient,
+          );
 
-      toast.promise(restorePromise, {
-        loading: `Loading ${entityCountMessage}`,
-        error: err => ({
-          message: createDisplayError(err).title,
-          description: createDisplayError(err).message,
-        }),
-      });
+          if (!isCurrentGraphRestoration(get, token, target)) {
+            return result;
+          }
 
-      const result = await restorePromise;
+          populateGraph(result.entities);
 
-      notifyOnIncompleteRestoration(result);
+          if (!isCurrentGraphRestoration(get, token, target)) {
+            return result;
+          }
 
-      return result;
-    },
-  });
-  return mutation;
+          committed = commitGraphRestoration(get, set, {
+            token,
+            target,
+            source: graph,
+            layout: resolveGraphSessionLayout(graph.layout),
+            arrangement: graph.arrangement,
+          });
+
+          return result;
+        })();
+
+        toast.promise(restorePromise, {
+          loading: `Loading ${entityCountMessage}`,
+          error: err => ({
+            message: createDisplayError(err).title,
+            description: createDisplayError(err).message,
+          }),
+        });
+
+        try {
+          const result = await restorePromise;
+
+          if (committed) {
+            notifyOnIncompleteRestoration(result);
+          }
+
+          return result;
+        } finally {
+          if (isCurrentGraphRestoration(get, token, target)) {
+            set(graphRestorationRequestAtom, null);
+          }
+        }
+      },
+      [queryClient, populateGraph, formatEntityCounts],
+    ),
+  );
+
+  return useMutation({ mutationFn });
 }

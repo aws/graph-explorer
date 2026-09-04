@@ -53,7 +53,10 @@ describe("graphViewLayoutAlgorithmAtom", () => {
   });
 
   it("does not update an existing empty active session", () => {
-    const state = new DbState();
+    const state = new DbState().withGraphSession({
+      vertices: new Set(),
+      edges: new Set(),
+    });
     const { result } = renderHookWithState(() => {
       const [, setLayout] = useAtom(graphViewLayoutAlgorithmAtom);
       const session = useAtomValue(activeGraphSessionAtom);

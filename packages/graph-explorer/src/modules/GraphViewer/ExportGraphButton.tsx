@@ -2,6 +2,7 @@ import { useAtomValue } from "jotai";
 import { SaveIcon } from "lucide-react";
 
 import { Button } from "@/components";
+import { useGraphRef } from "@/components/Graph/GraphContext";
 import {
   edgesAtom,
   graphViewLayoutAlgorithmAtom,
@@ -12,6 +13,7 @@ import {
 import { saveFile, toJsonFileData } from "@/utils/fileData";
 
 import { createDefaultFileName, createExportedGraph } from "./exportedGraph";
+import { captureGraphArrangement } from "./graphArrangement";
 
 export function ExportGraphButton() {
   const exportGraph = useExportGraph();
@@ -34,6 +36,7 @@ export function useExportGraph() {
   const connection = useExplorer().connection;
   const config = useConfiguration();
   const layout = useAtomValue(graphViewLayoutAlgorithmAtom);
+  const graphRef = useGraphRef();
 
   const exportGraph = async () => {
     const fileName = createDefaultFileName(
@@ -44,6 +47,9 @@ export function useExportGraph() {
       edgeIds,
       connection,
       layout,
+      graphRef.current?.cytoscape
+        ? captureGraphArrangement(graphRef.current.cytoscape, vertexIds)
+        : undefined,
     );
     const fileToSave = toJsonFileData(exportData);
     await saveFile(fileToSave, fileName);

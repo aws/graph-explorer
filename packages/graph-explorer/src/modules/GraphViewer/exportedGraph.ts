@@ -6,6 +6,7 @@ import {
 import { z } from "zod";
 
 import type { FileEnvelope } from "@/core/fileEnvelope";
+import type { GraphArrangement } from "@/core/StateProvider/graphSession";
 
 import { parseRdfEdgeIdString } from "@/connector/sparql/parseEdgeId";
 import {
@@ -21,11 +22,7 @@ import {
   FileEnvelopeError,
   parseFileEnvelope,
 } from "@/core/fileEnvelope";
-import {
-  DEFAULT_GRAPH_LAYOUT,
-  layoutNames,
-  type LayoutName,
-} from "@/core/graphLayout";
+import { layoutNames, type LayoutName } from "@/core/graphLayout";
 import { logger } from "@/utils";
 
 /** The envelope `kind` discriminator for graph export files. */
@@ -50,6 +47,39 @@ export const GRAPH_EXPORT_VERSION = 1;
  */
 export const GRAPH_EXPORT_WIRE_VERSION: EnvelopeVersion = "1.0";
 
+const rawIdSchema = z.union([z.string(), z.number()]);
+const finiteNumberSchema = z.number().finite();
+const graphArrangementSchema = z
+  .object({
+    positions: z.array(
+      z.object({
+        id: rawIdSchema,
+        x: finiteNumberSchema,
+        y: finiteNumberSchema,
+      }),
+    ),
+    viewport: z
+      .object({
+        pan: z.object({ x: finiteNumberSchema, y: finiteNumberSchema }),
+        zoom: finiteNumberSchema,
+      })
+      .optional(),
+  })
+  .superRefine((arrangement, context) => {
+    const ids = new Set<string>();
+    arrangement.positions.forEach((position, index) => {
+      const key = `${typeof position.id}:${position.id}`;
+      if (ids.has(key)) {
+        context.addIssue({
+          code: "custom",
+          message: "Duplicate node position",
+          path: ["positions", index, "id"],
+        });
+      }
+      ids.add(key);
+    });
+  });
+
 const graphExportPayloadSchema = z.object({
   connection: z.object({
     dbUrl: z.string(),
@@ -58,6 +88,7 @@ const graphExportPayloadSchema = z.object({
   vertices: z.array(z.union([z.string(), z.number()])),
   edges: z.array(z.union([z.string(), z.number()])),
   layout: z.enum(layoutNames).optional(),
+  arrangement: graphArrangementSchema.optional(),
 });
 
 export type GraphExportPayload = z.infer<typeof graphExportPayloadSchema>;
@@ -69,13 +100,15 @@ export function createExportedGraph(
   vertexIds: VertexId[],
   edgeIds: EdgeId[],
   connection: ConnectionConfig,
-  layout: LayoutName = DEFAULT_GRAPH_LAYOUT,
+  layout: LayoutName,
+  arrangement?: GraphArrangement,
 ): ExportedGraphFile {
   return createFileEnvelope(GRAPH_EXPORT_KIND, GRAPH_EXPORT_WIRE_VERSION, {
     connection: createExportedConnection(connection),
     vertices: vertexIds,
     edges: edgeIds,
     layout,
+    arrangement,
   });
 }
 
@@ -136,15 +169,11 @@ export async function parseExportedGraph(blob: Blob) {
   const connection = payload.connection;
 
   // Do some basic validation and skip any invalid IDs
-  const vertices = new Set(
-    payload.vertices
-      .values()
-      .map(trimIfString)
-      .filter(isNotEmptyIfString)
-      .filter(isNotMaliciousIfSparql(connection.queryEngine))
-      .map(escapeIfPropertyGraphAndString(connection.queryEngine))
-      .map(createVertexId),
-  );
+  const vertices = new Set<VertexId>();
+  for (const value of payload.vertices) {
+    const id = normalizeVertexId(value, connection.queryEngine);
+    if (id != null) vertices.add(id);
+  }
 
   // Do some basic validation and skip any invalid IDs
   const edges = new Set(
@@ -157,7 +186,23 @@ export async function parseExportedGraph(blob: Blob) {
       .map(createEdgeId),
   );
 
-  return { connection, vertices, edges, layout: payload.layout };
+  const arrangement = payload.arrangement
+    ? {
+        ...payload.arrangement,
+        positions: payload.arrangement.positions.flatMap(position => {
+          const id = normalizeVertexId(position.id, connection.queryEngine);
+          return id != null ? [{ ...position, id }] : [];
+        }),
+      }
+    : undefined;
+
+  return {
+    connection,
+    vertices,
+    edges,
+    layout: payload.layout,
+    arrangement,
+  };
 }
 
 function isNotEmptyIfString(value: EntityRawId) {
@@ -220,6 +265,20 @@ function isValidRdfEdgeIdIfSparql(queryEngine: QueryEngine) {
 
     return true;
   };
+}
+
+function normalizeVertexId(
+  value: EntityRawId,
+  queryEngine: QueryEngine,
+): VertexId | undefined {
+  const trimmed = trimIfString(value);
+  if (
+    !isNotEmptyIfString(trimmed) ||
+    !isNotMaliciousIfSparql(queryEngine)(trimmed)
+  ) {
+    return undefined;
+  }
+  return createVertexId(escapeIfPropertyGraphAndString(queryEngine)(trimmed));
 }
 
 function trimIfString(value: EntityRawId) {

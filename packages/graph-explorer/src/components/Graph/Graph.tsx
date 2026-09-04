@@ -8,9 +8,13 @@ import {
   type ComponentPropsWithoutRef,
   memo,
   useCallback,
+  useEffect,
   useImperativeHandle,
+  useRef,
   useState,
 } from "react";
+
+import type { ConfigurationId } from "@/core";
 
 import { DEFAULT_GRAPH_LAYOUT } from "@/core/graphLayout";
 import { cn } from "@/utils";
@@ -75,6 +79,17 @@ export interface GraphProps<
   layout?: LayoutName;
   additionalLayoutsConfig?: { [key: string]: Partial<cytoscape.LayoutOptions> };
   onLayoutUpdated?: (cy: CytoscapeType, layout: string) => any;
+  restoration?: {
+    revision: number;
+    positions: { id: string; x: number; y: number }[];
+    viewport?: { pan: { x: number; y: number }; zoom: number };
+  };
+  onRestorationConsumed?: (revision: number) => void;
+  connectionId?: ConfigurationId;
+  onArrangementChanged?: (
+    cy: CytoscapeType,
+    connectionId?: ConfigurationId,
+  ) => void;
   //callbacks
   // TODO: Update callbacks type
   onGraphClick?: (...args: any) => any;
@@ -173,6 +188,10 @@ export const Graph = ({
   connectionsFilterConfig,
   onLayoutRunningChanged,
   onLayoutUpdated,
+  restoration,
+  onRestorationConsumed,
+  connectionId,
+  onArrangementChanged,
   minZoom = 0.01,
   maxZoom = 5,
   motionBlur = true,
@@ -218,11 +237,16 @@ export const Graph = ({
     [],
   );
   // init cytoscape instance and attach some events listeners
+  const arrangementCaptureSuppressedRef = useRef(false);
   const cy = useInitCytoscape({
     wrapper,
+    arrangementCaptureSuppressed: arrangementCaptureSuppressedRef,
+    arrangementCaptureResetKey: restoration?.revision,
+    connectionId,
     onLayoutRunningChanged,
     onPanChanged,
     onZoomChanged,
+    onArrangementChanged,
     zoom,
     minZoom,
     pan,
@@ -268,6 +292,43 @@ export const Graph = ({
     lockedNodesIds,
     disableLockOnChange,
   });
+  const skipLayoutVersionRef = useRef<number | undefined>(undefined);
+  const restorationLocksRef = useRef<Map<string, boolean> | undefined>(
+    undefined,
+  );
+  const consumedRestorationRef = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    if (
+      !cy ||
+      !restoration ||
+      (consumedRestorationRef.current != null &&
+        restoration.revision <= consumedRestorationRef.current) ||
+      graphStructureVersion === 0
+    ) {
+      return;
+    }
+    arrangementCaptureSuppressedRef.current = true;
+    const restoredNodeLocks = new Map<string, boolean>();
+    cy.batch(() => {
+      restoration.positions.forEach(position => {
+        const node = cy.getElementById(position.id);
+        if (node.empty()) return;
+        node.position(position);
+        restoredNodeLocks.set(node.id(), node.locked());
+      });
+    });
+    if (restoration.viewport) {
+      cy.viewport(restoration.viewport);
+    }
+    arrangementCaptureSuppressedRef.current = false;
+    consumedRestorationRef.current = restoration.revision;
+    if (restoredNodeLocks.size === cy.nodes().length) {
+      skipLayoutVersionRef.current = graphStructureVersion;
+    } else if (restoredNodeLocks.size > 0) {
+      restorationLocksRef.current = restoredNodeLocks;
+    }
+    onRestorationConsumed?.(restoration.revision);
+  }, [cy, graphStructureVersion, onRestorationConsumed, restoration]);
 
   useManageElementsSelection(
     {
@@ -354,6 +415,8 @@ export const Graph = ({
     additionalLayoutsConfig,
     graphStructureVersion,
     mounted,
+    skipLayoutVersionRef,
+    restorationLocksRef,
   });
 
   // Set the graphRef context value so that the GraphContextProvider can access the graphRef

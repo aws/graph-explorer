@@ -446,3 +446,20 @@ test("should ignore blank nodes when updating graph storage", async () => {
 
   expect(result.current.graph).toStrictEqual(expectedGraph);
 });
+
+test("does not create an empty session when adding only blank nodes", async () => {
+  const dbState = new DbState();
+
+  const blankNode = createRandomVertexForRdf();
+  blankNode.isBlankNode = true;
+
+  const { result } = renderHookWithState(() => {
+    const callback = useAddToGraph();
+    const graph = useAtomValue(activeGraphSessionAtom);
+    return { callback, graph };
+  }, dbState);
+
+  await act(() => result.current.callback({ vertices: [blankNode] }));
+
+  expect(result.current.graph).toBeNull();
+});

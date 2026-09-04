@@ -21,6 +21,7 @@ import {
 import {
   createRandomEdge,
   createRandomVertex,
+  createRandomVertexForRdf,
   DbState,
   renderHookWithJotai,
 } from "@/utils/testing";
@@ -227,6 +228,18 @@ test("should update graph session", async () => {
   dbState.addVertexToGraph(node2);
   dbState.addEdgeToGraph(edge1);
   dbState.addEdgeToGraph(edge2);
+  dbState.withGraphSession({
+    vertices: new Set([node1.id, node2.id]),
+    edges: new Set([edge1.id, edge2.id]),
+    layout: "F_COSE",
+    arrangement: {
+      positions: [
+        { id: node1.id, x: 10, y: 20 },
+        { id: node2.id, x: 30, y: 40 },
+      ],
+      viewport: { pan: { x: 50, y: 60 }, zoom: 2 },
+    },
+  });
 
   const { result } = renderHookWithJotai(
     () => {
@@ -249,9 +262,43 @@ test("should update graph session", async () => {
     vertices: new Set([node2.id]),
     edges: new Set(),
     layout: "F_COSE",
+    arrangement: {
+      positions: [{ id: node2.id, x: 30, y: 40 }],
+      viewport: { pan: { x: 50, y: 60 }, zoom: 2 },
+    },
   };
 
   await waitFor(() => {
     expect(result.current.graph).toEqual(expected);
+  });
+});
+
+test("deletes the active session when only blank nodes remain", async () => {
+  const dbState = new DbState();
+
+  const nonBlank = createRandomVertexForRdf();
+  const blankNode = createRandomVertexForRdf();
+  blankNode.isBlankNode = true;
+  const edge = createRandomEdge(nonBlank, blankNode);
+
+  dbState.addVertexToGraph(nonBlank);
+  dbState.addVertexToGraph(blankNode);
+  dbState.addEdgeToGraph(edge);
+
+  const { result } = renderHookWithJotai(
+    () => {
+      const callback = useRemoveFromGraph();
+      const graph = useAtomValue(activeGraphSessionAtom);
+      return { callback, graph };
+    },
+    store => {
+      dbState.applyTo(store);
+    },
+  );
+
+  act(() => result.current.callback({ vertices: [nonBlank.id] }));
+
+  await waitFor(() => {
+    expect(result.current.graph).toBeNull();
   });
 });
