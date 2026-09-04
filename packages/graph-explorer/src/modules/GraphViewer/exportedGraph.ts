@@ -21,6 +21,11 @@ import {
   FileEnvelopeError,
   parseFileEnvelope,
 } from "@/core/fileEnvelope";
+import {
+  DEFAULT_GRAPH_LAYOUT,
+  layoutNames,
+  type LayoutName,
+} from "@/core/graphLayout";
 import { logger } from "@/utils";
 
 /** The envelope `kind` discriminator for graph export files. */
@@ -52,6 +57,7 @@ const graphExportPayloadSchema = z.object({
   }),
   vertices: z.array(z.union([z.string(), z.number()])),
   edges: z.array(z.union([z.string(), z.number()])),
+  layout: z.enum(layoutNames).optional(),
 });
 
 export type GraphExportPayload = z.infer<typeof graphExportPayloadSchema>;
@@ -63,11 +69,13 @@ export function createExportedGraph(
   vertexIds: VertexId[],
   edgeIds: EdgeId[],
   connection: ConnectionConfig,
+  layout: LayoutName = DEFAULT_GRAPH_LAYOUT,
 ): ExportedGraphFile {
   return createFileEnvelope(GRAPH_EXPORT_KIND, GRAPH_EXPORT_WIRE_VERSION, {
     connection: createExportedConnection(connection),
     vertices: vertexIds,
     edges: edgeIds,
+    layout,
   });
 }
 
@@ -149,7 +157,7 @@ export async function parseExportedGraph(blob: Blob) {
       .map(createEdgeId),
   );
 
-  return { connection, vertices, edges };
+  return { connection, vertices, edges, layout: payload.layout };
 }
 
 function isNotEmptyIfString(value: EntityRawId) {

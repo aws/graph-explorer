@@ -10,6 +10,7 @@ import { z } from "zod";
 import type { EdgeId, VertexId } from "@/core";
 
 import { FileEnvelopeError } from "@/core/fileEnvelope";
+import { DEFAULT_GRAPH_LAYOUT } from "@/core/graphLayout";
 import {
   createRandomConnectionWithId,
   createRandomEdgeId,
@@ -84,6 +85,7 @@ describe("createExportedGraph", () => {
     expect(graph.data.connection).toEqual(expectedConnection);
     expect(graph.data.vertices).toEqual(vertexIds);
     expect(graph.data.edges).toEqual(edgeIds);
+    expect(graph.data.layout).toBe(DEFAULT_GRAPH_LAYOUT);
   });
 
   it("stamps the generation-1 version as the '1.0' decimal string", () => {
@@ -107,6 +109,17 @@ describe("createExportedGraph", () => {
     expect(graph.data.connection).toEqual(expectedConnection);
     expect(graph.data.vertices).toEqual([]);
     expect(graph.data.edges).toEqual([]);
+  });
+
+  it("includes the selected layout in the export payload", () => {
+    const graph = createExportedGraph(
+      [],
+      [],
+      createRandomConnectionWithId(),
+      "DAGRE_TB",
+    );
+
+    expect(graph.data.layout).toBe("DAGRE_TB");
   });
 
   it("should use current timestamp when creating graph", () => {
@@ -198,6 +211,7 @@ describe("parseExportedGraph", () => {
       connection: exportedGraph.data.connection,
       vertices: new Set(exportedGraph.data.vertices),
       edges: new Set(exportedGraph.data.edges),
+      layout: exportedGraph.data.layout,
     };
     const parsed = await parseExportedGraph(toGraphFileBlob(exportedGraph));
     expect(parsed).toEqual(expected);
@@ -209,9 +223,34 @@ describe("parseExportedGraph", () => {
       connection: exportedGraph.data.connection,
       vertices: new Set(exportedGraph.data.vertices),
       edges: new Set(exportedGraph.data.edges),
+      layout: exportedGraph.data.layout,
     };
     const parsed = await parseExportedGraph(toGraphFileBlob(exportedGraph));
     expect(parsed).toEqual(expected);
+  });
+
+  it("parses a legacy export with no layout", async () => {
+    const exportedGraph = createRandomExportedGraph();
+    const legacy = {
+      ...exportedGraph,
+      data: { ...exportedGraph.data, layout: undefined },
+    };
+
+    const parsed = await parseExportedGraph(toGraphFileBlob(legacy));
+
+    expect(parsed.layout).toBeUndefined();
+  });
+
+  it("rejects an export with an unknown layout", async () => {
+    const exportedGraph = createRandomExportedGraph();
+    const unknownLayout = {
+      ...exportedGraph,
+      data: { ...exportedGraph.data, layout: "UNKNOWN_LAYOUT" },
+    };
+
+    await expect(
+      parseExportedGraph(toGraphFileBlob(unknownLayout)),
+    ).rejects.toThrow();
   });
 
   it("should skip empty IDs", async () => {
@@ -290,6 +329,7 @@ describe("parseExportedGraph", () => {
       connection: exportedGraph.data.connection,
       vertices: new Set(exportedGraph.data.vertices),
       edges: new Set(exportedGraph.data.edges.slice(0, -1)),
+      layout: exportedGraph.data.layout,
     };
     const parsed = await parseExportedGraph(toGraphFileBlob(exportedGraph));
     expect(parsed).toEqual(expected);
@@ -304,6 +344,7 @@ describe("parseExportedGraph", () => {
       connection: exportedGraph.data.connection,
       vertices: new Set(exportedGraph.data.vertices),
       edges: new Set(exportedGraph.data.edges.slice(0, -1)),
+      layout: exportedGraph.data.layout,
     };
     const parsed = await parseExportedGraph(toGraphFileBlob(exportedGraph));
     expect(parsed).toEqual(expected);

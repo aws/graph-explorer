@@ -5,6 +5,7 @@ import { logger } from "@/utils";
 
 import { edgesAtom } from "../edges";
 import { nodesAtom } from "../nodes";
+import { graphViewLayoutAlgorithmAtom } from "./graphViewLayoutAlgorithm";
 import {
   activeGraphSessionAtom,
   type GraphSessionStorageModel,
@@ -44,6 +45,7 @@ export function useUpdateGraphSession() {
       const graphSession: GraphSessionStorageModel = {
         vertices,
         edges,
+        layout: get(graphViewLayoutAlgorithmAtom),
       };
 
       // Update the session

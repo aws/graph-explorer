@@ -3,12 +3,15 @@ import type {
   RawConfiguration,
 } from "../ConfigurationProvider";
 import type { EdgeType, VertexType } from "../entities";
-import type { GraphSessionStorageModel } from "./graphSession/storage";
 import type { EdgeStyleStorage, VertexStyleStorage } from "./graphStyles";
 import type { SchemaStorageModel } from "./schema";
 
 import { createActiveConfigurationAtom } from "./activeConnectionStorage";
 import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
+import {
+  type GraphSessionStorageModel,
+  transformGraphSessions,
+} from "./graphSession/storage";
 import {
   defaultGraphViewLayout,
   transformGraphViewLayout,
@@ -109,7 +112,7 @@ const [
   atomWithLocalForage<Map<ConfigurationId, GraphSessionStorageModel>>(
     "graph-sessions",
     new Map(),
-    { reconcile: reconcileMapByKey },
+    { reconcile: reconcileMapByKey, transform: transformGraphSessions },
   ),
   /*
    * General App Settings

@@ -4,7 +4,7 @@ import type {
   ConfigurationId,
   RawConfiguration,
 } from "@/core/ConfigurationProvider";
-import type { EdgeType, VertexType } from "@/core/entities";
+import type { EdgeId, EdgeType, VertexId, VertexType } from "@/core/entities";
 import type { GraphSessionStorageModel } from "@/core/StateProvider/graphSession/storage";
 import type {
   EdgeStyleStorage,
@@ -12,7 +12,10 @@ import type {
 } from "@/core/StateProvider/graphStyles";
 import type { SchemaStorageModel } from "@/core/StateProvider/schema";
 
+import { DEFAULT_GRAPH_LAYOUT } from "@/core/graphLayout";
 import { reconcileMapByKey } from "@/core/StateProvider/atomWithLocalForage";
+import { transformGraphSessions } from "@/core/StateProvider/graphSession/storage";
+import { logger } from "@/utils";
 
 import { openPersistenceTab, readPersistedValue } from "./persistence";
 import {
@@ -335,6 +338,60 @@ describe("cross-tab connection reconciliation", () => {
     expect(persisted?.has(connectionX.id)).toBe(false);
     expect(persisted?.get(connectionY.id)).toEqual(connectionY);
     expect(persisted?.get(connectionZ.id)).toEqual(connectionZ);
+  });
+});
+
+/**
+ * BACKWARD COMPATIBILITY — PERSISTED GRAPH SESSION LAYOUT
+ *
+ * Older sessions stored only vertices and edges. Keep those sessions usable,
+ * preserve recognized layouts, and replace invalid layout values safely.
+ *
+ * DO NOT delete without confirming that legacy sessions are no longer in use.
+ */
+describe("backward compatibility: graph session layout", () => {
+  type RawGraphSessionStorageModel = {
+    vertices: Set<VertexId>;
+    edges: Set<EdgeId>;
+    layout?: string;
+  };
+
+  test("normalizes legacy, current, and invalid session layouts", () => {
+    const legacy: RawGraphSessionStorageModel = {
+      vertices: new Set(),
+      edges: new Set(),
+    };
+    const current: RawGraphSessionStorageModel = {
+      ...legacy,
+      layout: "DAGRE_LR",
+    };
+    const invalid: RawGraphSessionStorageModel = {
+      ...legacy,
+      layout: "INVALID_LAYOUT",
+    };
+    const legacyId = createRandomConfigurationId();
+    const currentId = createRandomConfigurationId();
+    const invalidId = createRandomConfigurationId();
+    const sessions = new Map<ConfigurationId, GraphSessionStorageModel>([
+      [legacyId, legacy as GraphSessionStorageModel],
+      [currentId, current as GraphSessionStorageModel],
+      [invalidId, invalid as GraphSessionStorageModel],
+    ]);
+    vi.spyOn(logger, "debug").mockImplementation(() => {});
+
+    expect(transformGraphSessions(sessions)).toStrictEqual(
+      new Map<ConfigurationId, GraphSessionStorageModel>([
+        [legacyId, legacy as GraphSessionStorageModel],
+        [currentId, current as GraphSessionStorageModel],
+        [
+          invalidId,
+          {
+            ...invalid,
+            layout: DEFAULT_GRAPH_LAYOUT,
+          } as GraphSessionStorageModel,
+        ],
+      ]),
+    );
   });
 });
 

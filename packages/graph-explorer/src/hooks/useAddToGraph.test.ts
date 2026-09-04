@@ -291,6 +291,7 @@ test("should update graph storage when adding a node", async () => {
   const expectedGraph: GraphSessionStorageModel = {
     vertices: new Set([vertex.id]),
     edges: new Set(),
+    layout: "F_COSE",
   };
 
   expect(result.current.graph).toStrictEqual(expectedGraph);
@@ -317,6 +318,7 @@ test("should update graph storage when adding an edge", async () => {
   const expectedGraph: GraphSessionStorageModel = {
     vertices: new Set([node1.id, node2.id]),
     edges: new Set([edge.id]),
+    layout: "F_COSE",
   };
 
   expect(result.current.graph).toStrictEqual(expectedGraph);
@@ -439,6 +441,7 @@ test("should ignore blank nodes when updating graph storage", async () => {
   const expectedGraph: GraphSessionStorageModel = {
     vertices: new Set([vertex.id]),
     edges: new Set(),
+    layout: "F_COSE",
   };
 
   expect(result.current.graph).toStrictEqual(expectedGraph);

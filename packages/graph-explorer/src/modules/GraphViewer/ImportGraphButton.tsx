@@ -1,13 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { FolderOpenIcon } from "lucide-react";
 import { toast } from "sonner";
 import { ZodError } from "zod";
 
 import { Button, FileButton, Spinner } from "@/components";
 import { fetchEntityDetails, notifyOnIncompleteRestoration } from "@/connector";
-import { configurationAtom, type ConnectionWithId, useExplorer } from "@/core";
+import {
+  configurationAtom,
+  type ConnectionWithId,
+  graphViewLayoutAlgorithmAtom,
+  useExplorer,
+} from "@/core";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
+import { resolveGraphSessionLayout } from "@/core/StateProvider/graphSession/storage";
 import { useAddToGraph } from "@/hooks";
 import { useEntityCountFormatterCallback } from "@/hooks/useEntityCountFormatter";
 import { getTranslation } from "@/hooks/useTranslations";
@@ -44,6 +50,7 @@ function useImportGraphMutation() {
   const queryClient = useQueryClient();
   const explorer = useExplorer();
   const addToGraph = useAddToGraph();
+  const setLayout = useSetAtom(graphViewLayoutAlgorithmAtom);
   const formatEntityCounts = useEntityCountFormatterCallback();
   const allConfigs = useAtomValue(configurationAtom);
   const allConnections = allConfigs
@@ -88,6 +95,8 @@ function useImportGraphMutation() {
 
         // 4. Update Graph Explorer state
         await addToGraph(result.entities);
+        const layout = resolveGraphSessionLayout(graph.layout);
+        if (layout) setLayout(layout);
 
         return result;
       })();

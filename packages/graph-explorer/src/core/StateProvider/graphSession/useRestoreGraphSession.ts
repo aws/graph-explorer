@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSetAtom } from "jotai";
 import { toast } from "sonner";
 
 import { fetchEntityDetails, notifyOnIncompleteRestoration } from "@/connector";
@@ -7,7 +8,11 @@ import { useEntityCountFormatterCallback } from "@/hooks/useEntityCountFormatter
 import { logger } from "@/utils";
 import { createDisplayError } from "@/utils/createDisplayError";
 
-import type { GraphSessionStorageModel } from "./storage";
+import { graphViewLayoutAlgorithmAtom } from "./graphViewLayoutAlgorithm";
+import {
+  type GraphSessionStorageModel,
+  resolveGraphSessionLayout,
+} from "./storage";
 
 /**
  * Provides a mutation that restores the graph session from storage.
@@ -15,6 +20,7 @@ import type { GraphSessionStorageModel } from "./storage";
 export function useRestoreGraphSession() {
   const queryClient = useQueryClient();
   const addToGraph = useAddToGraph();
+  const setLayout = useSetAtom(graphViewLayoutAlgorithmAtom);
   const formatEntityCounts = useEntityCountFormatterCallback();
 
   const mutation = useMutation({
@@ -36,6 +42,8 @@ export function useRestoreGraphSession() {
 
         // Update Graph Explorer state
         await addToGraph(result.entities);
+        const layout = resolveGraphSessionLayout(graph.layout);
+        if (layout) setLayout(layout);
 
         return result;
       })();
