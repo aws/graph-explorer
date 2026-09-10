@@ -353,6 +353,48 @@ describe("findMatchingConnection", () => {
     });
     expect(match?.id).toBe("dupe-2");
   });
+
+  // A nameless link identifies the connection it would have created, and the
+  // name it would have created is the hostname. So when the user later adds a
+  // second connection to the same endpoint under a name of their own, reopening
+  // the original link returns to the original connection.
+  test("a nameless link prefers the connection its own derived name created", () => {
+    const duplicateUrl = "https://dupe.neptune.amazonaws.com";
+    const params = parseUrlConnectionParams(
+      `?graphDbUrl=${encodeURIComponent(duplicateUrl)}`,
+    )!;
+    const dupes = new Map<ConfigurationId, RawConfiguration>([
+      [
+        "hand-named" as ConfigurationId,
+        {
+          id: "hand-named" as ConfigurationId,
+          displayLabel: "My Cluster",
+          connection: {
+            url: "https://localhost",
+            queryEngine: "gremlin",
+            graphDbUrl: duplicateUrl,
+          },
+        },
+      ],
+      [
+        "from-link" as ConfigurationId,
+        {
+          id: "from-link" as ConfigurationId,
+          displayLabel: "dupe.neptune.amazonaws.com",
+          connection: {
+            url: "https://localhost",
+            queryEngine: "gremlin",
+            graphDbUrl: duplicateUrl,
+          },
+        },
+      ],
+    ]);
+
+    // The hand-named connection is first in the map, so falling through to the
+    // first match would return it.
+    const match = findMatchingConnection(dupes, params);
+    expect(match?.id).toBe("from-link");
+  });
 });
 
 describe("buildConnectionFromParams", () => {

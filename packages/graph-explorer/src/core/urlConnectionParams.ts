@@ -69,6 +69,11 @@ export function parseUrlConnectionParams(
  * Derives a connection name from a database URL by taking the full hostname
  * (without scheme or port), which the user can recognize at a glance. The URL
  * is already validated as http(s) by the time this runs, so `new URL` is safe.
+ *
+ * Derived at parse time rather than only when creating, so a nameless link keeps
+ * identifying the connection it created even after the user adds a second
+ * connection to the same endpoint under a name of their own: the link's derived
+ * name still matches the connection that same derivation named.
  */
 function deriveNameFromUrl(graphDbUrl: string): string {
   const { hostname } = new URL(graphDbUrl);
