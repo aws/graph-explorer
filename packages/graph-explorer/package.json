@@ -61,10 +61,10 @@
     "zod-validation-error": "^5.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^8.0.1",
-    "@babel/preset-env": "^8.0.2",
-    "@babel/preset-react": "^8.0.1",
-    "@babel/preset-typescript": "^8.0.1",
+    "@babel/core": "^7.29.7",
+    "@babel/preset-env": "^7.29.7",
+    "@babel/preset-react": "^7.29.7",
+    "@babel/preset-typescript": "^7.29.7",
     "@react-stately/radio": "^3.12.1",
     "@react-types/button": "^3.16.0",
     "@react-types/checkbox": "^3.11.0",
