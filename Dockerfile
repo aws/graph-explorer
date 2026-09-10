@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # Pinned to a dated ECR Public snapshot for reproducible builds; bump to move forward.
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023.12.20260803.3 AS base
-ENV NODE_VERSION=24.16.0
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023.12.20260909.0 AS base
+ENV NODE_VERSION=24.21.0
 
 # Install Node.js and openssl, then remove everything not needed at runtime
 # (package managers, python3, build tools) to minimize potential issues.

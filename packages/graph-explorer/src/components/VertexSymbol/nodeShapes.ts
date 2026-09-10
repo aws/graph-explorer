@@ -1,5 +1,5 @@
 /**
- * Verbatim port of cytoscape 3.34.0's node-shape geometry so an SVG preview
+ * Verbatim port of cytoscape 3.34.3's node-shape geometry so an SVG preview
  * draws the exact same outlines cytoscape rasterizes to canvas. All shapes in
  * SHAPE_STYLES are covered: sharp polygons, round polygons, round-rectangle,
  * cut-rectangle, barrel, and ellipse (which needs no geometry — it's native SVG).

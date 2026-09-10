@@ -2,7 +2,11 @@
 
 - **Status:** Accepted
 - **Date:** 2026-07-20
-- **Related:** PR #1929 (node-shape preview); issue #1947 (edge preview). Cytoscape 3.34.0 is the pinned and latest published version. Affects `components/VertexSymbol/nodeShapes.ts` and `components/EdgePreview/arrowShapes.ts`.
+- **Related:** PR #1929 (node-shape preview); issue #1947 (edge preview). Cytoscape 3.34.3 is the pinned and latest published version. Affects `components/VertexSymbol/nodeShapes.ts` and `components/EdgePreview/arrowShapes.ts`.
+
+## Upgrade log
+
+- **2026-09-10 — re-verified against cytoscape 3.34.3 (from 3.34.0). Port unaffected.** `arrow-shapes.mjs` (base and canvas) and `edge-arrows.mjs` are byte-identical, so `arrowShapes.ts` needs no change. `math.mjs` only gains `gcd` and `gcdMultipleZeroIfNonInt` helpers, which nothing in the port calls. `node-shapes.mjs` changed only inside `getOrCreateCorners`, and only its memo key — it now includes width, height, and `cornerRadius` alongside center x/y, where before it keyed on center alone. The corner formula itself is untouched, so `nodeShapes.ts` needs no change.
 
 ## Context
 

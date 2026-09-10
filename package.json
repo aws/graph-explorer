@@ -25,22 +25,22 @@
     "dev": "pnpm --stream -r run dev"
   },
   "dependencies": {
-    "dompurify": "^3.4.13"
+    "dompurify": "^3.4.15"
   },
   "devDependencies": {
-    "@tanstack/eslint-plugin-query": "5.101.0",
-    "@types/node": "^24.13.1",
-    "@vitest/coverage-v8": "4.1.9",
+    "@tanstack/eslint-plugin-query": "5.102.8",
+    "@types/node": "^24.13.4",
+    "@vitest/coverage-v8": "4.1.11",
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint-plugin-react-hooks": "7.1.1",
     "fast-check": "^4.9.0",
     "husky": "^9.1.7",
-    "lint-staged": "^17.0.7",
-    "oxfmt": "^0.55.0",
+    "lint-staged": "^17.5.0",
+    "oxfmt": "0.55.0",
     "oxlint": "1.62.0",
     "oxlint-tsgolint": "0.23.0",
-    "typescript": "^6.0.3",
-    "vitest": "4.1.9"
+    "typescript": "^7.0.2",
+    "vitest": "4.1.11"
   },
   "lint-staged": {
     "!(**/*.{js,ts,tsx})": "oxfmt --no-error-on-unmatched-pattern",
@@ -52,12 +52,12 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": ">=24.16.0",
+      "version": ">=24.21.0",
       "onFail": "error"
     }
   },
   "engines": {
-    "node": ">=24.16.0",
+    "node": ">=24.21.0",
     "pnpm": ">=11.9.0"
   },
   "packageManager": "pnpm@11.9.0+sha512.bd682d5d03fe525ef7c9fd6780c6884d1e756ac4c9c9fe00c538782824310dcf90e3ddc4f53835f06dfaebd5085e41855e0bcbb3b60de2ac5bbab89e5036f03b"

@@ -1,7 +1,7 @@
 import type { ArrowStyle } from "@/core";
 
 /**
- * Verbatim port of cytoscape 3.34.0's arrow-shape geometry so an SVG preview
+ * Verbatim port of cytoscape 3.34.3's arrow-shape geometry so an SVG preview
  * draws the exact same arrow heads cytoscape rasterizes to canvas.
  *
  * Cytoscape authors each arrow in a normalized frame (arrow-shapes.mjs:13-16):

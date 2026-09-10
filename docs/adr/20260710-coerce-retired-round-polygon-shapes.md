@@ -2,7 +2,10 @@
 
 - **Status:** Accepted
 - **Date:** 2026-07-10
-- **Related:** ADR `read-time-transform-for-persisted-values` (the mechanism); issue #1922 (the defect); PR #1886 (exposed the shapes in the picker). Cytoscape 3.34.0 is the latest published version.
+- **Related:** ADR `read-time-transform-for-persisted-values` (the mechanism); issue #1922 (the defect); PR #1886 (exposed the shapes in the picker). Cytoscape 3.34.3 is the latest published version.
+
+> [!NOTE]
+> **2026-09-10, cytoscape 3.34.0 → 3.34.3.** No upstream fix for the 24px collapse. The only change in `node-shapes.mjs` is that `getOrCreateCorners` now includes width, height, and `cornerRadius` in its memo key rather than keying on center x/y alone, so resizing a node no longer reuses stale corners. The corner formula is unchanged, so the degeneracy this ADR works around should still occur and the coercion stays. The reversal trigger below has not fired, but the caching change is close enough to the affected code that a visual check of one `round-hexagon` at 24px would settle it.
 
 ## Context
 
