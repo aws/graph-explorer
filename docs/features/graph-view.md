@@ -12,8 +12,8 @@ The graph visualization canvas that you can interact with. Double-click to expan
 
 - **Layout drop-down & reset:** You can display graph data using standard graph layouts in the Graph View. You can use the circular arrow to reset the physics of a layout.
 - **Screenshot:** Download a picture of the current window in Graph View.
-- **Save Graph:** Save the current rendered graph as a JSON file that can be shared with others having the same connection or reloaded at a later time.
-- **Load Graph:** Load a previously saved graph from a JSON file.
+- **Save Graph:** Save the current graph as a JSON file, including its selected layout, node positions, pan, and zoom. The file can be shared with others using the same connection or loaded later.
+- **Load Graph:** Load a saved graph and restore its arrangement. Graphs saved by older versions remain supported and use the selected or default layout when arrangement data is unavailable.
 - **Zoom In/Out & Clear:** To help users quickly zoom in/out or clear the whole canvas in the Graph View.
 - **Legend (i):** This displays an informational list of icons, colors, and display names available.
 

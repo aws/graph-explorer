@@ -1,4 +1,6 @@
-import { atom, useAtomValue } from "jotai";
+import type { Core } from "cytoscape";
+
+import { useAtomValue, useSetAtom } from "jotai";
 import { BadgeInfoIcon } from "lucide-react";
 import {
   Activity,
@@ -25,7 +27,6 @@ import {
   DownloadScreenshotButton,
   Graph,
   GraphProvider,
-  type LayoutName,
   RerunLayoutButton,
   type SelectedElements,
   SelectLayout,
@@ -34,14 +35,22 @@ import {
   ZoomToFitButton,
 } from "@/components/Graph";
 import {
+  allGraphSessionsAtom,
+  createPendingGraphRestoration,
   createRenderedEdgeId,
   createRenderedVertexId,
   getEdgeIdFromRenderedEdgeId,
   getVertexIdFromRenderedVertexId,
+  graphViewLayoutAlgorithmAtom,
+  getGraphRestorationForTarget,
+  pendingGraphRestorationAtom,
+  type ConfigurationId,
   type RenderedEdgeId,
   type RenderedVertex,
   type RenderedVertexId,
+  useConfiguration,
   useDisplayVertexTypeConfigs,
+  useSaveGraphArrangement,
   useRenderedEdges,
   useRenderedVertices,
 } from "@/core";
@@ -52,6 +61,7 @@ import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
 import { cn, isVisible } from "@/utils";
 
 import { ExportGraphButton } from "./ExportGraphButton";
+import { captureGraphArrangement } from "./graphArrangement";
 import { GraphViewerEmptyState } from "./GraphViewerEmptyState";
 import { ImportGraphButton } from "./ImportGraphButton";
 import ContextMenu from "./internalComponents/ContextMenu";
@@ -59,8 +69,6 @@ import useContextMenu from "./useContextMenu";
 import { useGraphSelection } from "./useGraphSelection";
 import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
-
-const graphLayoutSelectionAtom = atom<LayoutName>("F_COSE");
 
 // Prevent open context menu on Windows
 function onContextMenu(e: MouseEvent<HTMLDivElement>) {
@@ -72,9 +80,11 @@ export default function GraphViewer({
   className,
   ...props
 }: Omit<ComponentPropsWithRef<"div">, "children" | "onContextMenu">) {
+  const config = useConfiguration();
+
   return (
     <GraphProvider>
-      <GraphViewerContent className={className} {...props} />
+      <GraphViewerContent key={config?.id} className={className} {...props} />
     </GraphProvider>
   );
 }
@@ -146,10 +156,50 @@ function GraphViewerContent({
     });
   };
 
-  const layout = useAtomValue(graphLayoutSelectionAtom);
+  const layout = useAtomValue(graphViewLayoutAlgorithmAtom);
 
   const nodes = useRenderedVertices();
   const edges = useRenderedEdges();
+  const config = useConfiguration();
+  const sessions = useAtomValue(allGraphSessionsAtom);
+  const pendingRestoration = useAtomValue(pendingGraphRestorationAtom);
+  const setPendingRestoration = useSetAtom(pendingGraphRestorationAtom);
+  const [mountedRestoration, setMountedRestoration] = useState(() => {
+    const arrangement = config
+      ? sessions.get(config.id)?.arrangement
+      : undefined;
+    return config && arrangement
+      ? createPendingGraphRestoration(config.id, arrangement)
+      : null;
+  });
+  const targetedRestoration =
+    getGraphRestorationForTarget(pendingRestoration, config?.id) ??
+    getGraphRestorationForTarget(mountedRestoration, config?.id);
+  const restoration = targetedRestoration
+    ? {
+        ...targetedRestoration,
+        positions: targetedRestoration.positions.map(position => ({
+          ...position,
+          id: createRenderedVertexId(position.id),
+        })),
+      }
+    : undefined;
+
+  const saveGraphArrangement = useSaveGraphArrangement();
+  function saveArrangement(cy: Core, target?: ConfigurationId) {
+    if (!target) return;
+    const targetSession = sessions.get(target);
+    if (!targetSession || targetSession.vertices.size === 0) return;
+    saveGraphArrangement(
+      target,
+      targetSession,
+      captureGraphArrangement(
+        cy,
+        targetSession.vertices,
+        targetSession.arrangement,
+      ),
+    );
+  }
 
   const isEmpty = !nodes.length && !edges.length;
 
@@ -161,7 +211,7 @@ function GraphViewerContent({
           <PanelHeaderActions>
             <SelectLayout
               className="max-w-64 min-w-auto"
-              layoutAtom={graphLayoutSelectionAtom}
+              layoutAtom={graphViewLayoutAlgorithmAtom}
             />
             <RerunLayoutButton />
             <ZoomToFitButton />
@@ -201,6 +251,15 @@ function GraphViewerContent({
             onGraphRightClick={onGraphRightClick}
             styles={styles}
             layout={layout}
+            connectionId={config?.id}
+            restoration={restoration}
+            onRestorationConsumed={revision => {
+              if (pendingRestoration?.revision === revision) {
+                setMountedRestoration(null);
+                setPendingRestoration(null);
+              }
+            }}
+            onArrangementChanged={saveArrangement}
             className="col-start-1 row-start-1 min-h-0 min-w-0"
             onContextMenu={onContextMenu}
           />

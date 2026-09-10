@@ -1,6 +1,6 @@
 import type cytoscape from "cytoscape";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 
 import type { CytoscapeType, LayoutName } from "../Graph.model";
 
@@ -16,6 +16,8 @@ interface UseUpdateLayout {
   onLayoutUpdated?: (cy: CytoscapeType, layout: string) => void;
   graphStructureVersion: number;
   mounted: boolean;
+  skipLayoutVersionRef?: RefObject<number | undefined>;
+  restorationLocksRef?: RefObject<Map<string, boolean> | undefined>;
 }
 
 /**
@@ -31,6 +33,8 @@ function useUpdateLayout({
   useAnimation,
   graphStructureVersion,
   mounted,
+  skipLayoutVersionRef,
+  restorationLocksRef,
 }: UseUpdateLayout) {
   const previousNodesRef = useRef(new Set<string>());
   const previousLayoutRef = useRef(layout);
@@ -39,6 +43,14 @@ function useUpdateLayout({
   useEffect(() => {
     // Ensure Cytoscape is mounted and skip the first graph structure version
     if (!cy || !layout || !mounted || graphStructureVersion === 0) {
+      return;
+    }
+
+    if (skipLayoutVersionRef?.current === graphStructureVersion) {
+      skipLayoutVersionRef.current = undefined;
+      previousLayoutRef.current = layout;
+      previousNodesRef.current = new Set(cy.nodes().map(node => node.id()));
+      previousGraphStructureVersionRef.current = graphStructureVersion;
       return;
     }
 
@@ -56,26 +68,29 @@ function useUpdateLayout({
         )
       : [];
 
-    if (shouldLock) {
-      // Lock all the previous nodes
+    const restorationLocks = restorationLocksRef?.current;
+    if (shouldLock || restorationLocks) {
       cy.batch(() => {
         nodesToLock.forEach(node => {
           node.lock();
         });
+        restorationLocks?.forEach((_, id) => cy.getElementById(id).lock());
       });
     }
 
-    // Perform the layout for any new nodes
     runLayout(cy, layout, additionalLayoutsConfig, useAnimation);
     onLayoutUpdated?.(cy, layout);
 
-    if (shouldLock) {
-      // Unlock all the previous nodes
+    if (shouldLock || restorationLocks) {
       cy.batch(() => {
         nodesToLock.forEach(node => {
           node.unlock();
         });
+        restorationLocks?.forEach((wasLocked, id) => {
+          if (!wasLocked) cy.getElementById(id).unlock();
+        });
       });
+      if (restorationLocksRef) restorationLocksRef.current = undefined;
     }
 
     // Update the refs for previous state so we can compare the next time the graph is updated
@@ -90,6 +105,8 @@ function useUpdateLayout({
     onLayoutUpdated,
     graphStructureVersion,
     mounted,
+    skipLayoutVersionRef,
+    restorationLocksRef,
   ]);
 }
 

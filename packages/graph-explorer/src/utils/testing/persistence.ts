@@ -2,7 +2,10 @@ import { createStore } from "jotai";
 import localforage from "localforage";
 
 import type { AppStore } from "@/core";
-import type { ReconcileWrite } from "@/core/StateProvider/atomWithLocalForage";
+import type {
+  ReadTransform,
+  ReconcileWrite,
+} from "@/core/StateProvider/atomWithLocalForage";
 
 import { atomWithLocalForage } from "@/core/StateProvider/atomWithLocalForage";
 import { persistenceStatusStore } from "@/core/StateProvider/persistence";
@@ -67,9 +70,13 @@ export async function openPersistenceTab<T>(
   key: string,
   initialValue: T,
   reconcile?: ReconcileWrite<T>,
+  transform?: ReadTransform<T>,
 ): Promise<PersistenceTab<T>> {
   const store = createStore();
-  const atom = await atomWithLocalForage<T>(key, initialValue, { reconcile });
+  const atom = await atomWithLocalForage<T>(key, initialValue, {
+    reconcile,
+    transform,
+  });
   return new PersistenceTab(store, atom);
 }
 

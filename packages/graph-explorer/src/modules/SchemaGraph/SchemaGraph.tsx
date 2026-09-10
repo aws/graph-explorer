@@ -1,4 +1,4 @@
-import { atom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import { type ComponentPropsWithRef, type MouseEvent, useState } from "react";
 
 import {
@@ -7,11 +7,7 @@ import {
   PanelContent,
   PanelGroup,
 } from "@/components";
-import {
-  Graph,
-  type LayoutName,
-  type SelectedElements,
-} from "@/components/Graph";
+import { Graph, type SelectedElements } from "@/components/Graph";
 import {
   createVertexType,
   type EdgeConnectionId,
@@ -19,6 +15,7 @@ import {
 } from "@/core";
 import { cn, logger } from "@/utils";
 
+import { schemaViewLayoutAlgorithmAtom } from "./schemaGraphLayout";
 import { SchemaGraphToolbar } from "./SchemaGraphToolbar";
 import { SchemaExplorerSidebar } from "./Sidebar/SchemaExplorerSidebar";
 import { useSchemaViewSidebar } from "./Sidebar/schemaViewLayout";
@@ -41,9 +38,6 @@ export type SchemaGraphProps = Omit<
   "children" | "onContextMenu"
 >;
 
-/** Atom for storing the selected graph layout algorithm */
-export const schemaGraphLayoutAtom = atom<LayoutName>("F_COSE");
-
 function preventContextMenu(e: MouseEvent<HTMLDivElement>) {
   e.preventDefault();
   e.stopPropagation();
@@ -53,7 +47,7 @@ function preventContextMenu(e: MouseEvent<HTMLDivElement>) {
 export default function SchemaGraph({ className, ...props }: SchemaGraphProps) {
   const { nodes, edges } = useSchemaGraphData();
   const styles = useSchemaGraphStyles();
-  const layout = useAtomValue(schemaGraphLayoutAtom);
+  const layout = useAtomValue(schemaViewLayoutAlgorithmAtom);
 
   const [selection, setSelection] = useState<SchemaGraphSelection>(null);
   const [graphSelection, setGraphSelection] = useState<SelectedElements | null>(

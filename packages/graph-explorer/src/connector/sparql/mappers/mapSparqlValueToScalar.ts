@@ -25,8 +25,10 @@ export function mapSparqlValueToScalar(sparqlValue: SparqlValue) {
       return sparqlValue.value === "true" || sparqlValue.value === "1";
 
     case "http://www.w3.org/2001/XMLSchema#dateTime":
-    case "http://www.w3.org/2001/XMLSchema#date":
-      return new Date(sparqlValue.value);
+    case "http://www.w3.org/2001/XMLSchema#date": {
+      const date = new Date(sparqlValue.value);
+      return Number.isNaN(date.getTime()) ? sparqlValue.value : date;
+    }
 
     default:
       // For unknown datatypes, return as string

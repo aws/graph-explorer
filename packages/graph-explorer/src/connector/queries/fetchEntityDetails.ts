@@ -2,9 +2,8 @@ import type { QueryClient } from "@tanstack/react-query";
 
 import { toast } from "sonner";
 
-import type { EdgeId, VertexId } from "@/core";
-
 import { bulkEdgeDetailsQuery, bulkVertexDetailsQuery } from "@/connector";
+import { createVertex, type EdgeId, type VertexId } from "@/core";
 import { formatEntityCounts } from "@/utils";
 
 /**
@@ -28,11 +27,21 @@ export async function fetchEntityDetails(
     bulkEdgeDetailsQuery(edgesArray),
   );
 
-  const vertexDetails = vertexResults.vertices;
+  const vertexDetails = [...vertexResults.vertices];
   const edgeDetails = edgeResults.edges;
+  const requestedVertexIds = new Set(verticesArray);
+  const restoredVertexIds = new Set(vertexDetails.map(vertex => vertex.id));
+  for (const edge of edgeDetails) {
+    for (const id of [edge.sourceId, edge.targetId]) {
+      if (requestedVertexIds.has(id) && !restoredVertexIds.has(id)) {
+        vertexDetails.push(createVertex({ id }));
+        restoredVertexIds.add(id);
+      }
+    }
+  }
 
   const countOfVertexNotFound = verticesArray.filter(
-    id => vertexDetails.find(v => v.id === id) == null,
+    id => !restoredVertexIds.has(id),
   ).length;
   const countOfEdgeNotFound = edgesArray.filter(
     id => edgeDetails.find(e => e.id === id) == null,

@@ -1,6 +1,8 @@
 import cytoscape from "cytoscape";
 import debounce from "lodash/debounce";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
+
+import type { ConfigurationId } from "@/core";
 
 import { useDeepMemo } from "@/hooks";
 
@@ -14,18 +16,29 @@ export interface UseInitCytoscapeProps extends Required<
   minZoom?: number;
   maxZoom?: number;
   pan?: { x: number; y: number };
+  connectionId?: ConfigurationId;
   onLayoutRunningChanged?: (isRunning: boolean) => void;
   onZoomChanged?: (e: unknown) => void;
   onPanChanged?: (e: unknown) => void;
+  onArrangementChanged?: (
+    cy: CytoscapeType,
+    connectionId?: ConfigurationId,
+  ) => void;
+  arrangementCaptureSuppressed?: RefObject<boolean>;
+  arrangementCaptureResetKey?: number;
 }
 
-const useInitCytoscape = ({
+function useInitCytoscape({
   wrapper,
   onLayoutRunningChanged,
   onPanChanged,
   onZoomChanged,
+  onArrangementChanged,
+  arrangementCaptureSuppressed,
+  arrangementCaptureResetKey,
+  connectionId,
   ...config
-}: UseInitCytoscapeProps) => {
+}: UseInitCytoscapeProps) {
   const [cy, setCy] = useState<CytoscapeType | undefined>();
 
   const memoizedConfig = useDeepMemo(() => config, [config]);
@@ -42,6 +55,7 @@ const useInitCytoscape = ({
     onLayoutRunningChanged,
     onPanChanged,
     onZoomChanged,
+    onArrangementChanged,
   });
 
   useEffect(() => {
@@ -49,8 +63,14 @@ const useInitCytoscape = ({
       onLayoutRunningChanged,
       onPanChanged,
       onZoomChanged,
+      onArrangementChanged,
     };
-  }, [onLayoutRunningChanged, onPanChanged, onZoomChanged]);
+  }, [
+    onLayoutRunningChanged,
+    onPanChanged,
+    onZoomChanged,
+    onArrangementChanged,
+  ]);
 
   useEffect(() => {
     layoutGraphConfig.current = {
@@ -59,6 +79,28 @@ const useInitCytoscape = ({
       userPanningEnabled,
     };
   }, [autolock, userZoomingEnabled, userPanningEnabled]);
+
+  const connectionIdRef = useRef(connectionId);
+  const layoutTargetRef = useRef<ConfigurationId | undefined>(connectionId);
+  const dragTargetRef = useRef<ConfigurationId | undefined>(connectionId);
+  const pendingViewportRef = useRef<{
+    pan?: { x: number; y: number };
+    zoom?: number;
+  }>({});
+  const debouncedArrangementRef = useRef<ReturnType<typeof debounce> | null>(
+    null,
+  );
+
+  useEffect(() => {
+    connectionIdRef.current = connectionId;
+    pendingViewportRef.current = {};
+    debouncedArrangementRef.current?.cancel();
+  }, [connectionId]);
+
+  useEffect(() => {
+    pendingViewportRef.current = {};
+    debouncedArrangementRef.current?.cancel();
+  }, [arrangementCaptureResetKey]);
 
   useEffect(() => {
     if (wrapper) {
@@ -71,6 +113,7 @@ const useInitCytoscape = ({
       cy.on("layoutstart", () => {
         cy.userPanningEnabled(false);
         cy.userZoomingEnabled(false);
+        layoutTargetRef.current = connectionIdRef.current;
         eventHandlerRefs.current.onLayoutRunningChanged?.(true);
       });
 
@@ -81,22 +124,70 @@ const useInitCytoscape = ({
           cy.nodes().lock();
         }
         eventHandlerRefs.current.onLayoutRunningChanged?.(false);
+        if (!arrangementCaptureSuppressed?.current) {
+          eventHandlerRefs.current.onArrangementChanged?.(
+            cy,
+            layoutTargetRef.current,
+          );
+        }
+      });
+
+      cy.on("grab", "node", () => {
+        dragTargetRef.current = connectionIdRef.current;
+      });
+
+      cy.on("dragfree", "node", () => {
+        if (!arrangementCaptureSuppressed?.current) {
+          eventHandlerRefs.current.onArrangementChanged?.(
+            cy,
+            dragTargetRef.current,
+          );
+        }
       });
 
       // Avoid to notify every single change during animation
-      const debouncedZoom = debounce(() => {
-        eventHandlerRefs.current.onZoomChanged?.(cy.zoom());
-      }, 100);
-      cy.on("zoom", debouncedZoom);
+      const debouncedArrangement = debounce(
+        (cy: CytoscapeType, targetId?: ConfigurationId) => {
+          if (
+            arrangementCaptureSuppressed?.current ||
+            targetId !== connectionIdRef.current
+          ) {
+            pendingViewportRef.current = {};
+            return;
+          }
+          if (pendingViewportRef.current.pan) {
+            eventHandlerRefs.current.onPanChanged?.(
+              pendingViewportRef.current.pan,
+            );
+          }
+          if (pendingViewportRef.current.zoom) {
+            eventHandlerRefs.current.onZoomChanged?.(
+              pendingViewportRef.current.zoom,
+            );
+          }
+          eventHandlerRefs.current.onArrangementChanged?.(cy, targetId);
+          pendingViewportRef.current = {};
+        },
+        100,
+      );
+      debouncedArrangementRef.current = debouncedArrangement;
 
-      const debouncedPan = debounce(() => {
-        eventHandlerRefs.current.onPanChanged?.(cy.pan());
-      }, 100);
-      cy.on("pan", debouncedPan);
+      cy.on("pan", () => {
+        if (arrangementCaptureSuppressed?.current) return;
+        pendingViewportRef.current.pan = cy.pan();
+        debouncedArrangement(cy, connectionIdRef.current);
+      });
+
+      cy.on("zoom", () => {
+        if (arrangementCaptureSuppressed?.current) return;
+        pendingViewportRef.current.zoom = cy.zoom();
+        debouncedArrangement(cy, connectionIdRef.current);
+      });
 
       setCy(cy);
 
       return () => {
+        debouncedArrangement.cancel();
         (cy.elements() as any).removeAllListeners();
         (cy as any).removeAllListeners();
         cy.destroy();
@@ -105,9 +196,9 @@ const useInitCytoscape = ({
       };
     }
     // since this is to init cytoscape, this should only run when wrapper is set
-  }, [memoizedConfig, wrapper]);
+  }, [arrangementCaptureSuppressed, memoizedConfig, wrapper]);
 
   return cy;
-};
+}
 
 export default useInitCytoscape;
