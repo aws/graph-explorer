@@ -19,9 +19,13 @@ const UrlConnectionParamsSchema = z.object({
   // crafted link from seeding the form with something like `javascript:` —
   // defense in depth on top of the editable create form and proxy allowlist.
   graphDbUrl: z.url({ protocol: /^https?$/ }),
-  queryEngine: z.enum(queryEngineOptions).catch("gremlin"),
+  // Absent values take a default, but an explicit value we do not support is a
+  // rejection rather than a coercion: silently answering `queryEngine=sql` with
+  // Gremlin would build a connection that queries the database in a language the
+  // caller never asked for.
+  queryEngine: z.enum(queryEngineOptions).default("gremlin"),
   awsRegion: z.string().default(""),
-  serviceType: z.enum(neptuneServiceTypeOptions).optional().catch(undefined),
+  serviceType: z.enum(neptuneServiceTypeOptions).optional(),
   name: z.string().optional(),
 });
 

@@ -68,18 +68,22 @@ describe("parseUrlConnectionParams", () => {
     });
   });
 
-  test("falls back to gremlin when queryEngine is invalid", () => {
+  // A link naming a query engine or service type we do not support asked for
+  // something we cannot deliver. Coercing it to a default would connect with a
+  // different query language than the caller requested, so it is rejected and
+  // the user is told the link was bad.
+  test("rejects an unsupported queryEngine instead of defaulting it", () => {
     const result = parseUrlConnectionParams(
       "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&queryEngine=sql",
     );
-    expect(result?.queryEngine).toBe("gremlin");
+    expect(result).toBeNull();
   });
 
-  test("drops invalid serviceType", () => {
+  test("rejects an unsupported serviceType instead of dropping it", () => {
     const result = parseUrlConnectionParams(
       "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&serviceType=bogus",
     );
-    expect(result?.serviceType).toBeUndefined();
+    expect(result).toBeNull();
   });
 });
 

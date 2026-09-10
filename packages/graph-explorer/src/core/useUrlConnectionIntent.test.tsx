@@ -44,4 +44,11 @@ describe("useUrlConnectionIntent", () => {
     const { result } = renderIntent("?graphDbUrl=not-a-url");
     expect(result.current).toEqual({ kind: "invalid" });
   });
+
+  test("is invalid when the link names an unsupported query engine", () => {
+    const { result } = renderIntent(
+      searchFor("https://brand-new.neptune.amazonaws.com", "sql"),
+    );
+    expect(result.current).toEqual({ kind: "invalid" });
+  });
 });
