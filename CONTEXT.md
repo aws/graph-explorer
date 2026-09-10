@@ -144,7 +144,7 @@ The UI element in the nav bar (after the page title) that renders Persistence St
 _Avoid_: Save-status indicator
 
 **URL Connection Params**:
-Connection details carried in the query string of the `#/connect` route (`graphDbUrl`, `queryEngine`, `awsRegion`, `serviceType`, `name`) that let an external link pre-configure or activate a Connection. Resolved against the current Connections while the Connect route is mounted; the route redirects to the Graph View afterward so the params do not linger in history.
+Connection details carried in the query string of the `#/connect` route (`graphDbUrl`, `queryEngine`, `awsRegion`, `serviceType`, `name`) that let an external link pre-configure or activate a Connection. Resolved once when the Connect route is entered, because opening a link is a single event rather than a value to re-derive; the route redirects to the Graph View afterward so the params do not linger in history.
 _Avoid_: deep link, connection link, auto-connect
 
 **URL Connection Intent**:

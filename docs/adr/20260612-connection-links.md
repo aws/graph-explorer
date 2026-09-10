@@ -27,17 +27,37 @@ stripped the params via `history.replaceState`. That coupled a reactive
 computation to a one-shot lifecycle and put connection-handling logic in the app
 shell.
 
-Connection links are now a first-class route, `#/connect?graphDbUrl=…`. The
-route resolves the params against live connection state on every render and
-redirects (router `navigate`, with `replace`) to the graph canvas on completion.
-Resolution stays reactive rather than snapshotted at mount, because every intent
-ends at the same destination: a link that resolves to `create` and then matches a
-connection created while the form was open lands on the canvas either way. Because Graph Explorer uses a hash
-router, the parameters sit **after** the `#` like every other route — third-party
-integrators build the link the same way they would any in-app link, and
-`window.location.search` (everything before the `#`) is no longer a trap. The
-redirect leaves no `#/connect` entry in history, so refresh and back behave
-normally without any manual param stripping.
+Connection links are now a first-class route, `#/connect?graphDbUrl=…`. Because
+Graph Explorer uses a hash router, the parameters sit **after** the `#` like every
+other route — third-party integrators build the link the same way they would any
+in-app link, and `window.location.search` (everything before the `#`) is no
+longer a trap. The route redirects (router `navigate`, with `replace`) to the
+graph canvas on completion, leaving no `#/connect` entry in history, so refresh
+and back behave normally without any manual param stripping.
+
+### Opening a link is an action, not a derived value
+
+The route resolves the link exactly once, in a `useState` initializer, and the
+resulting intent is the component's initial state. An effect then acts on it.
+
+Deriving the intent on every render was the first attempt, and it inverted the
+problem rather than solving it: the resolved intent allocated a fresh object each
+render, so the effect acting on it needed either `useEffectEvent` or a snapshot to
+avoid re-firing. Resolving inside the effect and calling `setState` for the create
+case is the same mistake wearing a different hat — it decides during render's
+aftermath what could have been decided before the first paint, and the lint rule
+against `setState` in an effect says so.
+
+Opening a link is a single event with a single decision. Making that decision the
+initial state says exactly that, and it means the create form is on screen from
+the first render instead of appearing one render later.
+
+`resolveUrlConnectionIntent` remains a pure function over a link plus the current
+connections, so the four-intent contract is unit-tested in isolation; only the
+wiring lives in the route. Resolving in the initializer is safe because
+`AppStatusLoader` gates the route behind a spinner until the default connections
+have loaded — otherwise a one-shot resolution could miss a connection that was
+still arriving. There is a test pinning that ordering.
 
 ### Auth posture is part of connection identity
 
@@ -63,6 +83,14 @@ single click, resetting the graph session, with no prompt. The link only ever
 activates a connection the user already created and validated, so there is
 nothing new to confirm. Adding a prompt here would guard an operation the rest
 of the app treats as routine.
+
+Nor is there session data to protect. Sessions are stored per connection
+(`allGraphSessionsAtom`, keyed by connection id) and `useResetState` only clears
+the in-memory view atoms, so switching swaps which session is displayed rather
+than destroying the previous one — return to that connection and it restores. And
+a link cannot change an already-open window's state: following one opens a new
+tab, or the user pastes it deliberately. Either way the intent to start somewhere
+new is explicit.
 
 The `create` path keeps its friction: the pre-filled form is fully editable and
 the user must submit it. This is the deliberate trust gate for the untrusted

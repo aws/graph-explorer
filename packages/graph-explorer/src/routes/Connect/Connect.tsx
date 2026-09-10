@@ -1,5 +1,5 @@
-import { useEffect, useEffectEvent } from "react";
-import { useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
 
 import {
@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components";
 import useActivateConnection from "@/core/StateProvider/useActivateConnection";
-import { useUrlConnectionIntent } from "@/core/useUrlConnectionIntent";
+import { useResolveUrlConnectionIntent } from "@/core/useResolveUrlConnectionIntent";
 import CreateConnection, {
   mapToConnectionForm,
 } from "@/modules/CreateConnection";
@@ -20,13 +20,16 @@ import { createDisplayError } from "@/utils/createDisplayError";
 const GRAPH_CANVAS_ROUTE = "/graph-explorer";
 
 /**
- * Route that opens a connection from link params (`#/connect?graphDbUrl=…`). It
- * resolves the params against the current connections and either redirects
- * straight to the graph canvas (the params target the active connection or are
- * absent), warns and redirects when the link's data is invalid, silently
- * switches to a matching existing connection, or opens the create-connection
- * form prefilled from the params. Every outcome ends at the graph canvas, so
- * the connect URL never lingers in history.
+ * Route that opens a connection from link params (`#/connect?graphDbUrl=…`).
+ * Opening a link is a one-shot event, so the route resolves it once on entry and
+ * acts: it switches to a matching existing connection, warns when the link's
+ * data is invalid, or opens the create-connection form prefilled from the
+ * params. Every outcome ends at the graph canvas, so the connect URL never
+ * lingers in history.
+ *
+ * Only the create form outlives that moment, and it is the one thing held in
+ * state. The rest is a side effect, not a rendered value — which is why the
+ * intent is resolved inside the effect rather than derived on every render.
  *
  * Switching to an existing connection needs no confirmation: it is the same
  * no-prompt operation as clicking that connection in the connections list, and
@@ -36,20 +39,24 @@ const GRAPH_CANVAS_ROUTE = "/graph-explorer";
  */
 export default function Connect() {
   const navigate = useNavigate();
-  const intent = useUrlConnectionIntent();
+  const { search } = useLocation();
+  const resolveIntent = useResolveUrlConnectionIntent();
   const activateConnection = useActivateConnection();
 
-  // Every intent except `create` ends by leaving for the canvas. Activating a
-  // connection and warning about a bad link are side effects that happen
-  // because the link was opened (not from any in-app gesture), so they belong
-  // in an effect — and pairing each with the redirect in the same effect
-  // guarantees the toast is raised before we navigate away, rather than racing
-  // a render-phase redirect. (`create` redirects from its own dialog button.)
-  //
-  // An effect event so the intent itself stays out of the dependencies: it is
-  // recomputed every render, and the `invalid` error is a fresh object each
-  // time, which would re-fire an effect that only needs to run on entry.
-  const actOnIntent = useEffectEvent(() => {
+  // Resolved on entry and never again: the link was opened once, so the decision
+  // is initial state rather than a value derived each render or an effect that
+  // sets state after the first paint.
+  const [intent] = useState(() => resolveIntent(search));
+
+  const leave = () => navigate(GRAPH_CANVAS_ROUTE, { replace: true });
+
+  useEffect(() => {
+    // The create form is the one outcome that waits on the user, so it renders
+    // instead of redirecting.
+    if (intent.kind === "create") {
+      return;
+    }
+
     if (intent.kind === "activate") {
       logger.debug(
         "Activating matching connection from URL params",
@@ -59,49 +66,33 @@ export default function Connect() {
     } else if (intent.kind === "invalid") {
       logger.warn("Ignoring invalid connection link", intent.error);
       const displayError = createDisplayError(intent.error);
-      toast.error(displayError.title, {
-        // A stable id dedupes the toast if the effect runs more than once.
-        id: "invalid-connection-link",
-        description: displayError.message,
-      });
+      toast.error(displayError.title, { description: displayError.message });
     }
+
+    // Paired with the side effect above so the toast is raised before we leave,
+    // rather than racing a render-phase redirect.
     navigate(GRAPH_CANVAS_ROUTE, { replace: true });
-  });
+  }, [intent, activateConnection, navigate]);
 
-  const isCreate = intent.kind === "create";
-  useEffect(() => {
-    if (isCreate) {
-      return;
-    }
-    actOnIntent();
-  }, [isCreate]);
-
-  if (isCreate) {
-    return (
-      <Dialog
-        open
-        onOpenChange={open =>
-          !open && navigate(GRAPH_CANVAS_ROUTE, { replace: true })
-        }
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create connection from link</DialogTitle>
-            <DialogDescription>
-              Review the connection details from your link and create it to
-              continue.
-            </DialogDescription>
-          </DialogHeader>
-          <CreateConnection
-            initialValues={mapToConnectionForm(intent.connection)}
-            onClose={() => navigate(GRAPH_CANVAS_ROUTE, { replace: true })}
-          />
-        </DialogContent>
-      </Dialog>
-    );
+  if (intent.kind !== "create") {
+    return null;
   }
 
-  // none / invalid / activate: the effect above handles the side effect and
-  // the redirect, so there is nothing to render in the meantime.
-  return null;
+  return (
+    <Dialog open onOpenChange={open => !open && leave()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create connection from link</DialogTitle>
+          <DialogDescription>
+            Review the connection details from your link and create it to
+            continue.
+          </DialogDescription>
+        </DialogHeader>
+        <CreateConnection
+          initialValues={mapToConnectionForm(intent.connection)}
+          onClose={leave}
+        />
+      </DialogContent>
+    </Dialog>
+  );
 }
