@@ -3,26 +3,49 @@ import type {
   RawConfiguration,
 } from "./ConfigurationProvider";
 
+import { ConnectionLinkError } from "./connectionLinkError";
 import {
-  parseUrlConnectionParams,
-  findMatchingConnection,
   buildConnectionFromParams,
   deriveProxyBaseUrl,
+  findMatchingConnection,
+  readConnectionLink,
   resolveUrlConnectionIntent,
   type UrlConnectionParams,
 } from "./urlConnectionParams";
 
-describe("parseUrlConnectionParams", () => {
-  test("returns null when graphDbUrl is missing", () => {
-    expect(parseUrlConnectionParams("")).toBeNull();
-    expect(parseUrlConnectionParams("?queryEngine=openCypher")).toBeNull();
+/** The problems of an invalid link, as `param requirement` strings. */
+function problemsOf(search: string) {
+  const link = readConnectionLink(search);
+  if (link.kind !== "invalid") {
+    throw new Error(`Expected an invalid link, got "${link.kind}"`);
+  }
+  return link.error.problems.map(
+    problem => `${problem.param} ${problem.requirement}`,
+  );
+}
+
+function paramsOf(search: string) {
+  const link = readConnectionLink(search);
+  if (link.kind !== "valid") {
+    throw new Error(`Expected a valid link, got "${link.kind}"`);
+  }
+  return link.params;
+}
+
+describe("readConnectionLink", () => {
+  test("is absent when graphDbUrl is missing", () => {
+    expect(readConnectionLink("")).toEqual({ kind: "absent" });
+    expect(readConnectionLink("?queryEngine=openCypher")).toEqual({
+      kind: "absent",
+    });
   });
 
   test("parses graphDbUrl with defaults", () => {
-    const result = parseUrlConnectionParams(
-      "?graphDbUrl=https%3A%2F%2Fg-xxx.us-west-2.neptune-graph.amazonaws.com",
-    );
-    expect(result).toEqual({
+    expect(
+      paramsOf(
+        "?graphDbUrl=https%3A%2F%2Fg-xxx.us-west-2.neptune-graph.amazonaws.com",
+      ),
+    ).toEqual({
       graphDbUrl: "https://g-xxx.us-west-2.neptune-graph.amazonaws.com",
       queryEngine: "gremlin",
       awsRegion: "",
@@ -32,34 +55,19 @@ describe("parseUrlConnectionParams", () => {
   });
 
   test("derives the name from the full hostname (without the port) when name is absent", () => {
-    const result = parseUrlConnectionParams(
-      "?graphDbUrl=https%3A%2F%2Fmy-cluster.us-east-1.neptune.amazonaws.com%3A8182",
-    );
-    expect(result?.name).toBe("my-cluster.us-east-1.neptune.amazonaws.com");
-  });
-
-  test("returns null when graphDbUrl is not a valid URL", () => {
-    expect(parseUrlConnectionParams("?graphDbUrl=not-a-url")).toBeNull();
-  });
-
-  test("returns null when graphDbUrl is not an http(s) URL", () => {
     expect(
-      parseUrlConnectionParams(
-        "?graphDbUrl=javascript%3Aalert(1)&queryEngine=gremlin",
-      ),
-    ).toBeNull();
-    expect(
-      parseUrlConnectionParams(
-        "?graphDbUrl=ftp%3A%2F%2Fexample.com&queryEngine=gremlin",
-      ),
-    ).toBeNull();
+      paramsOf(
+        "?graphDbUrl=https%3A%2F%2Fmy-cluster.us-east-1.neptune.amazonaws.com%3A8182",
+      ).name,
+    ).toBe("my-cluster.us-east-1.neptune.amazonaws.com");
   });
 
   test("parses all parameters", () => {
-    const result = parseUrlConnectionParams(
-      "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&queryEngine=openCypher&awsRegion=us-west-2&serviceType=neptune-graph&name=My+Graph",
-    );
-    expect(result).toEqual({
+    expect(
+      paramsOf(
+        "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&queryEngine=openCypher&awsRegion=us-west-2&serviceType=neptune-graph&name=My+Graph",
+      ),
+    ).toEqual({
       graphDbUrl: "https://g-xxx.neptune-graph.amazonaws.com",
       queryEngine: "openCypher",
       awsRegion: "us-west-2",
@@ -68,24 +76,41 @@ describe("parseUrlConnectionParams", () => {
     });
   });
 
+  // Each problem names the parameter at fault, so the user is told what to fix
+  // rather than that the link was generically bad.
+  test("reports which parameter failed and what it requires", () => {
+    expect(problemsOf("?graphDbUrl=not-a-url")).toEqual([
+      "graphDbUrl must be a valid http or https URL",
+    ]);
+  });
+
+  test("rejects a graphDbUrl that is not http(s)", () => {
+    expect(problemsOf("?graphDbUrl=javascript%3Aalert(1)")).toEqual([
+      "graphDbUrl must be a valid http or https URL",
+    ]);
+    expect(problemsOf("?graphDbUrl=ftp%3A%2F%2Fexample.com")).toEqual([
+      "graphDbUrl must be a valid http or https URL",
+    ]);
+  });
+
   // `fetch` refuses a URL carrying credentials (the Request constructor throws
   // a TypeError), so such a link could only ever produce a connection that
   // fails every query — while writing the password into IndexedDB and any
   // exported connection file on the way.
   test("rejects a graphDbUrl carrying credentials", () => {
     expect(
-      parseUrlConnectionParams(
+      problemsOf(
         `?graphDbUrl=${encodeURIComponent("https://user:secret@my-cluster.neptune.amazonaws.com:8182")}`,
       ),
-    ).toBeNull();
+    ).toEqual(["graphDbUrl cannot include a username or password"]);
   });
 
   test("rejects a graphDbUrl carrying only a username", () => {
     expect(
-      parseUrlConnectionParams(
+      problemsOf(
         `?graphDbUrl=${encodeURIComponent("https://user@my-cluster.neptune.amazonaws.com:8182")}`,
       ),
-    ).toBeNull();
+    ).toEqual(["graphDbUrl cannot include a username or password"]);
   });
 
   // A link naming a query engine or service type we do not support asked for
@@ -93,17 +118,25 @@ describe("parseUrlConnectionParams", () => {
   // different query language than the caller requested, so it is rejected and
   // the user is told the link was bad.
   test("rejects an unsupported queryEngine instead of defaulting it", () => {
-    const result = parseUrlConnectionParams(
-      "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&queryEngine=sql",
-    );
-    expect(result).toBeNull();
+    expect(
+      problemsOf(
+        "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&queryEngine=sql",
+      ),
+    ).toEqual(['queryEngine must be one of "gremlin", "openCypher", "sparql"']);
   });
 
   test("rejects an unsupported serviceType instead of dropping it", () => {
-    const result = parseUrlConnectionParams(
-      "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&serviceType=bogus",
-    );
-    expect(result).toBeNull();
+    expect(
+      problemsOf(
+        "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&serviceType=bogus",
+      ),
+    ).toEqual(['serviceType must be one of "neptune-db", "neptune-graph"']);
+  });
+
+  test("reports every offending parameter, not just the first", () => {
+    expect(
+      problemsOf("?graphDbUrl=not-a-url&queryEngine=sql&serviceType=bogus"),
+    ).toHaveLength(3);
   });
 });
 
@@ -384,9 +417,7 @@ describe("findMatchingConnection", () => {
   // the original link returns to the original connection.
   test("a nameless link prefers the connection its own derived name created", () => {
     const duplicateUrl = "https://dupe.neptune.amazonaws.com";
-    const params = parseUrlConnectionParams(
-      `?graphDbUrl=${encodeURIComponent(duplicateUrl)}`,
-    )!;
+    const params = paramsOf(`?graphDbUrl=${encodeURIComponent(duplicateUrl)}`);
     const dupes = new Map<ConfigurationId, RawConfiguration>([
       [
         "hand-named" as ConfigurationId,
@@ -535,9 +566,35 @@ describe("resolveUrlConnectionIntent", () => {
     name: "Whatever",
   });
 
+  const linkFor = (params: UrlConnectionParams) =>
+    ({ kind: "valid", params }) as const;
+
+  test("is a no-op when there is no link at all", () => {
+    const intent = resolveUrlConnectionIntent(
+      { kind: "absent" },
+      configs,
+      activeId,
+      "https://localhost",
+    );
+    expect(intent).toEqual({ kind: "none" });
+  });
+
+  test("passes an invalid link through with its error", () => {
+    const error = new ConnectionLinkError([
+      { param: "graphDbUrl", requirement: "must be a valid http or https URL" },
+    ]);
+    const intent = resolveUrlConnectionIntent(
+      { kind: "invalid", error },
+      configs,
+      activeId,
+      "https://localhost",
+    );
+    expect(intent).toEqual({ kind: "invalid", error });
+  });
+
   test("is a no-op when the URL matches the active connection", () => {
     const intent = resolveUrlConnectionIntent(
-      paramsFor(activeUrl),
+      linkFor(paramsFor(activeUrl)),
       configs,
       activeId,
       "https://localhost",
@@ -560,7 +617,7 @@ describe("resolveUrlConnectionIntent", () => {
     });
 
     const intent = resolveUrlConnectionIntent(
-      paramsFor(inactiveUrl),
+      linkFor(paramsFor(inactiveUrl)),
       withInactive,
       activeId,
       "https://localhost",
@@ -573,7 +630,7 @@ describe("resolveUrlConnectionIntent", () => {
 
   test("creates rather than reusing the active connection when the link requests a different auth posture", () => {
     const intent = resolveUrlConnectionIntent(
-      { ...paramsFor(activeUrl), awsRegion: "us-east-1" },
+      linkFor({ ...paramsFor(activeUrl), awsRegion: "us-east-1" }),
       configs,
       activeId,
       "https://localhost",
@@ -583,7 +640,7 @@ describe("resolveUrlConnectionIntent", () => {
 
   test("creates a new connection when nothing matches", () => {
     const intent = resolveUrlConnectionIntent(
-      paramsFor("https://brand-new.neptune.amazonaws.com"),
+      linkFor(paramsFor("https://brand-new.neptune.amazonaws.com")),
       configs,
       activeId,
       "https://localhost",

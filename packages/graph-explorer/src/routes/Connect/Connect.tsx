@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useEffectEvent } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
@@ -15,6 +15,7 @@ import CreateConnection, {
   mapToConnectionForm,
 } from "@/modules/CreateConnection";
 import { logger } from "@/utils";
+import { createDisplayError } from "@/utils/createDisplayError";
 
 const GRAPH_CANVAS_ROUTE = "/graph-explorer";
 
@@ -44,37 +45,36 @@ export default function Connect() {
   // in an effect — and pairing each with the redirect in the same effect
   // guarantees the toast is raised before we navigate away, rather than racing
   // a render-phase redirect. (`create` redirects from its own dialog button.)
-  const connectionIdToActivate =
-    intent.kind === "activate" ? intent.connection.id : null;
-  const isInvalid = intent.kind === "invalid";
+  //
+  // An effect event so the intent itself stays out of the dependencies: it is
+  // recomputed every render, and the `invalid` error is a fresh object each
+  // time, which would re-fire an effect that only needs to run on entry.
+  const actOnIntent = useEffectEvent(() => {
+    if (intent.kind === "activate") {
+      logger.debug(
+        "Activating matching connection from URL params",
+        intent.connection.id,
+      );
+      activateConnection(intent.connection.id);
+    } else if (intent.kind === "invalid") {
+      logger.warn("Ignoring invalid connection link", intent.error);
+      const displayError = createDisplayError(intent.error);
+      toast.error(displayError.title, {
+        // A stable id dedupes the toast if the effect runs more than once.
+        id: "invalid-connection-link",
+        description: displayError.message,
+      });
+    }
+    navigate(GRAPH_CANVAS_ROUTE, { replace: true });
+  });
+
   const isCreate = intent.kind === "create";
   useEffect(() => {
     if (isCreate) {
       return;
     }
-    if (connectionIdToActivate) {
-      logger.debug(
-        "Activating matching connection from URL params",
-        connectionIdToActivate,
-      );
-      activateConnection(connectionIdToActivate);
-    } else if (isInvalid) {
-      logger.debug("Ignoring connection link with invalid params");
-      toast.error("Invalid connection link", {
-        // A stable id dedupes the toast if the effect runs more than once.
-        id: "invalid-connection-link",
-        description:
-          "The link's connection details were invalid, so it was ignored. Check the graph database URL and try again.",
-      });
-    }
-    navigate(GRAPH_CANVAS_ROUTE, { replace: true });
-  }, [
-    isCreate,
-    connectionIdToActivate,
-    isInvalid,
-    activateConnection,
-    navigate,
-  ]);
+    actOnIntent();
+  }, [isCreate]);
 
   if (isCreate) {
     return (

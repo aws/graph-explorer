@@ -5,6 +5,7 @@ import {
   UnescapableValueError,
   UnsupportedValueTypeError,
 } from "@/connector/queryValueError";
+import { ConnectionLinkError } from "@/core/connectionLinkError";
 
 import { createErrorDetails } from "./createErrorDetails";
 import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
@@ -353,6 +354,23 @@ describe("createErrorDetails", () => {
       expect(createErrorDetails(error)).toStrictEqual({
         name: "UnescapableValueError",
         message: error.message,
+        data: JSON.stringify(error.details, null, 2),
+      });
+    });
+  });
+
+  describe("ConnectionLinkError", () => {
+    it("serializes the offending link parameters", () => {
+      const error = new ConnectionLinkError([
+        {
+          param: "graphDbUrl",
+          requirement: "must be a valid http or https URL",
+        },
+      ]);
+      expect(createErrorDetails(error)).toStrictEqual({
+        name: "ConnectionLinkError",
+        message:
+          "Invalid connection link: graphDbUrl must be a valid http or https URL",
         data: JSON.stringify(error.details, null, 2),
       });
     });

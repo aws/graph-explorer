@@ -42,13 +42,28 @@ describe("useUrlConnectionIntent", () => {
 
   test("is invalid when a connection link carries a malformed graphDbUrl", () => {
     const { result } = renderIntent("?graphDbUrl=not-a-url");
-    expect(result.current).toEqual({ kind: "invalid" });
+    expect(result.current.kind).toBe("invalid");
   });
 
   test("is invalid when the link names an unsupported query engine", () => {
     const { result } = renderIntent(
       searchFor("https://brand-new.neptune.amazonaws.com", "sql"),
     );
-    expect(result.current).toEqual({ kind: "invalid" });
+    expect(result.current.kind).toBe("invalid");
+  });
+
+  test("carries what was wrong with an invalid link", () => {
+    const { result } = renderIntent("?graphDbUrl=not-a-url");
+    expect(result.current).toEqual({
+      kind: "invalid",
+      error: expect.objectContaining({
+        problems: [
+          {
+            param: "graphDbUrl",
+            requirement: "must be a valid http or https URL",
+          },
+        ],
+      }),
+    });
   });
 });

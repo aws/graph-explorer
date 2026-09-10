@@ -66,10 +66,19 @@ When you open a connection link, Graph Explorer does one of the following:
 
 - **The link matches your active connection** — nothing changes.
 - **The link matches a different existing connection** — Graph Explorer switches to it, the same as selecting it in the connections list. No prompt: the connection was already created and validated by you, so there is nothing new to confirm.
-- **The link matches no existing connection** — the create-connection form opens, pre-filled with the link's details so you can review or edit any setting before creating it.
-- **The link's details are invalid** (for example, a `graphDbUrl` that is not a valid `http`/`https` URL) — the link is ignored and a notification explains what went wrong.
+- **The link matches no existing connection** — the create-connection form opens, pre-filled with the link's details so you can review or edit any setting before creating it. Saving the form creates the connection and activates it; closing or cancelling the form creates nothing.
+- **The link's details are invalid** — the link is ignored and a notification names the parameter at fault and what it requires, for example "graphDbUrl must be a valid http or https URL".
 
 In all cases Graph Explorer redirects to the graph view once the link is handled, so the `#/connect` URL does not linger in your history and refreshing behaves normally.
+
+#### What makes a link invalid
+
+- `graphDbUrl` is missing, is not a valid URL, or does not use `http`/`https`.
+- `graphDbUrl` includes a username or password. Graph Explorer authenticates with AWS IAM, and browsers refuse to send a request to a URL that carries credentials.
+- `queryEngine` names something other than `gremlin`, `openCypher`, or `sparql`.
+- `serviceType` names something other than `neptune-db` or `neptune-graph`.
+
+An unsupported value is rejected rather than replaced with a default, so a link never quietly connects you with settings you did not ask for.
 
 #### What counts as a match
 

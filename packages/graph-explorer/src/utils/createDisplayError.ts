@@ -5,6 +5,10 @@ import {
   QueryValueError,
   UnsupportedValueTypeError,
 } from "@/connector/queryValueError";
+import {
+  ConnectionLinkError,
+  describeLinkProblems,
+} from "@/core/connectionLinkError";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 
 import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
@@ -164,6 +168,15 @@ export function createDisplayError(error: any): DisplayError {
   if (error instanceof FileEnvelopeError) {
     // The message is already written for humans (wrong kind, too new, not JSON).
     return { title: "Invalid file", message: error.message };
+  }
+
+  // Name the offending link parameters, so the user can correct the link (or
+  // report it) instead of only learning that it was bad.
+  if (error instanceof ConnectionLinkError) {
+    return {
+      title: "Invalid connection link",
+      message: `${describeLinkProblems(error.problems)}. The link was ignored, so nothing changed.`,
+    };
   }
 
   if (error instanceof ZodError) {

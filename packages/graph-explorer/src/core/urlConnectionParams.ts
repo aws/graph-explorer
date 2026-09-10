@@ -13,7 +13,13 @@ import {
   createNewConfigurationId,
   type RawConfiguration,
 } from "./ConfigurationProvider";
+import { ConnectionLinkError } from "./connectionLinkError";
 
+/**
+ * Every message is phrased to follow the parameter's own name, so a failure
+ * reads back to the user as the requirement it broke: "graphDbUrl must be a
+ * valid http or https URL".
+ */
 const UrlConnectionParamsSchema = z.object({
   // Only http(s) endpoints are meaningful, and constraining the scheme keeps a
   // crafted link from seeding the form with something like `javascript:`.
@@ -24,19 +30,32 @@ const UrlConnectionParamsSchema = z.object({
   // IndexedDB and into any exported connection file. Graph Explorer
   // authenticates with IAM, never userinfo.
   graphDbUrl: z
-    .url({ protocol: /^https?$/ })
+    .url({
+      protocol: /^https?$/,
+      error: "must be a valid http or https URL",
+    })
     .refine(value => !hasCredentials(value), {
-      message: "A graph database URL cannot carry credentials",
+      error: "cannot include a username or password",
     }),
   // Absent values take a default, but an explicit value we do not support is a
   // rejection rather than a coercion: silently answering `queryEngine=sql` with
   // Gremlin would build a connection that queries the database in a language the
   // caller never asked for.
-  queryEngine: z.enum(queryEngineOptions).default("gremlin"),
+  queryEngine: z
+    .enum(queryEngineOptions, { error: mustBeOneOf(queryEngineOptions) })
+    .default("gremlin"),
   awsRegion: z.string().default(""),
-  serviceType: z.enum(neptuneServiceTypeOptions).optional(),
+  serviceType: z
+    .enum(neptuneServiceTypeOptions, {
+      error: mustBeOneOf(neptuneServiceTypeOptions),
+    })
+    .optional(),
   name: z.string().optional(),
 });
+
+function mustBeOneOf(options: readonly string[]): string {
+  return `must be one of ${options.map(option => `"${option}"`).join(", ")}`;
+}
 
 export type UrlConnectionParams = z.infer<typeof UrlConnectionParamsSchema> & {
   name: string;
@@ -61,25 +80,23 @@ function safeParseUrl(value: string): URL | null {
 }
 
 /**
- * Whether the search string carries a connection link at all (a `graphDbUrl` is
- * present, valid or not). Lets callers tell "this isn't a connection link" apart
- * from "this is a connection link with invalid data", which `parseUrlConnectionParams`
- * collapses into a single `null`.
+ * What a route's search string carries. `absent` and `invalid` are deliberately
+ * distinct: a link whose `graphDbUrl` failed validation is a broken link worth
+ * telling the user about, while no `graphDbUrl` at all means the user simply is
+ * not following a connection link.
  */
-export function hasConnectionLinkParams(search: string): boolean {
-  return Boolean(new URLSearchParams(search).get("graphDbUrl"));
-}
+export type ConnectionLink =
+  | { kind: "absent" }
+  | { kind: "invalid"; error: ConnectionLinkError }
+  | { kind: "valid"; params: UrlConnectionParams };
 
-/**
- * Parse URL search params into connection params. Returns null when there is no
- * `graphDbUrl`, or when it is not a valid http(s) URL.
- */
-export function parseUrlConnectionParams(
-  search: string,
-): UrlConnectionParams | null {
+/** Reads URL search params as a connection link. */
+export function readConnectionLink(search: string): ConnectionLink {
   const params = new URLSearchParams(search);
   const graphDbUrl = params.get("graphDbUrl");
-  if (!graphDbUrl) return null;
+  if (!graphDbUrl) {
+    return { kind: "absent" };
+  }
 
   const parsed = UrlConnectionParamsSchema.safeParse({
     graphDbUrl,
@@ -88,11 +105,25 @@ export function parseUrlConnectionParams(
     serviceType: params.get("serviceType") ?? undefined,
     name: params.get("name") ?? undefined,
   });
-  if (!parsed.success) return null;
+
+  if (!parsed.success) {
+    return {
+      kind: "invalid",
+      error: new ConnectionLinkError(
+        parsed.error.issues.map(issue => ({
+          param: issue.path.join("."),
+          requirement: issue.message,
+        })),
+      ),
+    };
+  }
 
   return {
-    ...parsed.data,
-    name: parsed.data.name ?? deriveNameFromUrl(graphDbUrl),
+    kind: "valid",
+    params: {
+      ...parsed.data,
+      name: parsed.data.name ?? deriveNameFromUrl(graphDbUrl),
+    },
   };
 }
 
@@ -235,29 +266,36 @@ export function buildConnectionFromParams(
 }
 
 /**
- * The action a set of URL connection params resolves to, given the current
- * connections. Callers dispatch on `kind` rather than juggling match/pending
- * booleans.
+ * The action a connection link resolves to, given the current connections.
+ * Callers dispatch on `kind` rather than juggling match/pending booleans.
  */
 export type UrlConnectionIntent =
   | { kind: "none" }
-  | { kind: "invalid" }
+  | { kind: "invalid"; error: ConnectionLinkError }
   | { kind: "activate"; connection: RawConfiguration }
   | { kind: "create"; connection: RawConfiguration };
 
 /**
- * Resolve URL params into a single intent:
- * - matches the active connection → `none` (nothing to do)
+ * Resolve a connection link into a single intent:
+ * - no link, or one matching the active connection → `none` (nothing to do)
  * - matches an inactive connection → `activate` it
- * - no match → `create` a new connection seeded from the params
+ * - no match → `create` a new connection seeded from the link
+ * - the link failed validation → `invalid`, carrying what was wrong with it
  */
 export function resolveUrlConnectionIntent(
-  params: UrlConnectionParams,
+  link: ConnectionLink,
   configurations: Map<ConfigurationId, RawConfiguration>,
   activeId: ConfigurationId | null,
   proxyBaseUrl: string,
 ): UrlConnectionIntent {
-  const match = findMatchingConnection(configurations, params, activeId);
+  if (link.kind === "absent") {
+    return { kind: "none" };
+  }
+  if (link.kind === "invalid") {
+    return { kind: "invalid", error: link.error };
+  }
+
+  const match = findMatchingConnection(configurations, link.params, activeId);
 
   if (match) {
     return match.id === activeId
@@ -267,6 +305,6 @@ export function resolveUrlConnectionIntent(
 
   return {
     kind: "create",
-    connection: buildConnectionFromParams(params, proxyBaseUrl),
+    connection: buildConnectionFromParams(link.params, proxyBaseUrl),
   };
 }

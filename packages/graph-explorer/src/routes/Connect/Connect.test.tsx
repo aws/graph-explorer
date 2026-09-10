@@ -127,10 +127,16 @@ describe("Connect route", () => {
 
     renderConnect("?graphDbUrl=not-a-url");
 
+    // The warning names the offending parameter rather than saying the link was
+    // generically bad.
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(
         "Invalid connection link",
-        expect.objectContaining({ description: expect.any(String) }),
+        expect.objectContaining({
+          description: expect.stringContaining(
+            "graphDbUrl must be a valid http or https URL",
+          ),
+        }),
       );
     });
     expect(screen.getByTestId("location")).toHaveTextContent("/graph-explorer");
