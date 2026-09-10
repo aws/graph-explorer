@@ -28,8 +28,11 @@ computation to a one-shot lifecycle and put connection-handling logic in the app
 shell.
 
 Connection links are now a first-class route, `#/connect?graphDbUrl=…`. The
-route resolves the params once on entry and redirects (router `navigate`, with
-`replace`) to the graph canvas on completion. Because Graph Explorer uses a hash
+route resolves the params against live connection state on every render and
+redirects (router `navigate`, with `replace`) to the graph canvas on completion.
+Resolution stays reactive rather than snapshotted at mount, because every intent
+ends at the same destination: a link that resolves to `create` and then matches a
+connection created while the form was open lands on the canvas either way. Because Graph Explorer uses a hash
 router, the parameters sit **after** the `#` like every other route — third-party
 integrators build the link the same way they would any in-app link, and
 `window.location.search` (everything before the `#`) is no longer a trap. The

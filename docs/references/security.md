@@ -105,7 +105,7 @@ By default, the proxy server forwards requests to any database URL specified by 
 
 > [!NOTE]
 >
-> [Connection links](../features/connections.md#connection-links) never connect to a new database without your confirmation: a link whose details do not match an existing connection only pre-fills the create form for you to review. A link may switch to a connection you already created, but it cannot create one on your behalf. And in every case the proxy still rejects forwarding to any origin outside `PROXY_SERVER_ALLOWED_DB_ORIGINS`, so a crafted link cannot reach an arbitrary database.
+> [Connection links](../features/connections.md#connection-links) never connect to a new database without your confirmation: a link whose details do not match an existing connection only pre-fills the create form for you to review. A link may switch to a connection you already created, but it cannot create one on your behalf. Connections a link creates always route through the proxy, so setting `PROXY_SERVER_ALLOWED_DB_ORIGINS` also limits which databases a link can reach. A link that matches a connection you configured to contact the database directly bypasses the proxy, and therefore the allowlist, as any direct connection does.
 
 ## HTTP Redirects
 
