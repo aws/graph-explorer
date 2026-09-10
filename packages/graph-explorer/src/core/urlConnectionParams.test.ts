@@ -68,6 +68,26 @@ describe("parseUrlConnectionParams", () => {
     });
   });
 
+  // `fetch` refuses a URL carrying credentials (the Request constructor throws
+  // a TypeError), so such a link could only ever produce a connection that
+  // fails every query — while writing the password into IndexedDB and any
+  // exported connection file on the way.
+  test("rejects a graphDbUrl carrying credentials", () => {
+    expect(
+      parseUrlConnectionParams(
+        `?graphDbUrl=${encodeURIComponent("https://user:secret@my-cluster.neptune.amazonaws.com:8182")}`,
+      ),
+    ).toBeNull();
+  });
+
+  test("rejects a graphDbUrl carrying only a username", () => {
+    expect(
+      parseUrlConnectionParams(
+        `?graphDbUrl=${encodeURIComponent("https://user@my-cluster.neptune.amazonaws.com:8182")}`,
+      ),
+    ).toBeNull();
+  });
+
   // A link naming a query engine or service type we do not support asked for
   // something we cannot deliver. Coercing it to a default would connect with a
   // different query language than the caller requested, so it is rejected and

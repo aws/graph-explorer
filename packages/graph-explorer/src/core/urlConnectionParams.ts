@@ -16,9 +16,18 @@ import {
 
 const UrlConnectionParamsSchema = z.object({
   // Only http(s) endpoints are meaningful, and constraining the scheme keeps a
-  // crafted link from seeding the form with something like `javascript:` —
-  // defense in depth on top of the editable create form and proxy allowlist.
-  graphDbUrl: z.url({ protocol: /^https?$/ }),
+  // crafted link from seeding the form with something like `javascript:`.
+  //
+  // Credentials in the URL are refused by `fetch` itself (the Request
+  // constructor throws on them), so a link carrying them could only build a
+  // connection that fails every query, after persisting the password to
+  // IndexedDB and into any exported connection file. Graph Explorer
+  // authenticates with IAM, never userinfo.
+  graphDbUrl: z
+    .url({ protocol: /^https?$/ })
+    .refine(value => !hasCredentials(value), {
+      message: "A graph database URL cannot carry credentials",
+    }),
   // Absent values take a default, but an explicit value we do not support is a
   // rejection rather than a coercion: silently answering `queryEngine=sql` with
   // Gremlin would build a connection that queries the database in a language the
@@ -32,6 +41,24 @@ const UrlConnectionParamsSchema = z.object({
 export type UrlConnectionParams = z.infer<typeof UrlConnectionParamsSchema> & {
   name: string;
 };
+
+/**
+ * Whether a URL carries userinfo. Zod runs every check on a field even after an
+ * earlier one failed, so this also sees values that are not URLs at all; those
+ * are reported by the `url()` check and carry no credentials to find here.
+ */
+function hasCredentials(graphDbUrl: string): boolean {
+  const parsed = safeParseUrl(graphDbUrl);
+  return Boolean(parsed?.username || parsed?.password);
+}
+
+function safeParseUrl(value: string): URL | null {
+  try {
+    return new URL(value);
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Whether the search string carries a connection link at all (a `graphDbUrl` is
