@@ -4,7 +4,6 @@ import { toast } from "sonner";
 
 import {
   Dialog,
-  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -93,12 +92,10 @@ export default function Connect() {
               continue.
             </DialogDescription>
           </DialogHeader>
-          <DialogBody>
-            <CreateConnection
-              initialValues={mapToConnectionForm(intent.connection)}
-              onClose={() => navigate(GRAPH_CANVAS_ROUTE, { replace: true })}
-            />
-          </DialogBody>
+          <CreateConnection
+            initialValues={mapToConnectionForm(intent.connection)}
+            onClose={() => navigate(GRAPH_CANVAS_ROUTE, { replace: true })}
+          />
         </DialogContent>
       </Dialog>
     );
