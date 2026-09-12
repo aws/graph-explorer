@@ -23,6 +23,7 @@ import {
 } from "@/components";
 import { useSearchableAttributes } from "@/core";
 import useTranslations from "@/hooks/useTranslations";
+import { SEARCH_TOKENS } from "@/utils";
 
 let nextFilterId = 1;
 export type NodeExpandFilter = {
@@ -45,10 +46,13 @@ export type NodeExpandFiltersProps = {
 
 function useAttributeOptions(selectedType: string) {
   const allSearchableAttributes = useSearchableAttributes(selectedType);
-  return allSearchableAttributes.map(a => ({
-    label: a.displayLabel,
-    value: a.name,
-  }));
+  return [
+    { label: "ID", value: SEARCH_TOKENS.NODE_ID },
+    ...allSearchableAttributes.map(a => ({
+      label: a.displayLabel,
+      value: a.name,
+    })),
+  ];
 }
 
 const NodeExpandFilters = ({

@@ -3,12 +3,16 @@ import type {
   NeighborsRequest,
 } from "@/connector/useGEFetchTypes";
 
-import { query } from "@/utils";
+import { createVertexId } from "@/core";
+import { query, SEARCH_TOKENS } from "@/utils";
 
 import { fragment } from "../fragments";
 
-const attributeFilterTemplate = ({ name, value }: AttributeFilter): string =>
-  `tgt.${fragment.identifier(name)} CONTAINS ${fragment.string(value)}`;
+function attributeFilterTemplate({ name, value }: AttributeFilter): string {
+  return name === SEARCH_TOKENS.NODE_ID
+    ? `ID(tgt) = ${fragment.id(createVertexId(value))}`
+    : `tgt.${fragment.identifier(name)} CONTAINS ${fragment.string(value)}`;
+}
 
 /**
  * @example
