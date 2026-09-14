@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from "react";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import { Provider } from "jotai";
 
 import { type AppStore, getAppStore } from "@/core";
@@ -66,4 +66,17 @@ export function renderHookWithJotai<TResult>(
       <TestProvider client={queryClient} store={store} {...props} />
     ),
   });
+}
+
+/**
+ * Settles pending React work under `act()`.
+ *
+ * Jotai v2 always re-rendered once right after mount, which absorbed store
+ * writes that landed before `useAtomValue` subscribed. v3 drops that extra
+ * render and only re-renders on an actual change, so such a write now arrives
+ * as its own render after `renderHook` or `store.set` returns. Await this
+ * before asserting to keep that render inside `act()`.
+ */
+export async function flushPendingAtomUpdates() {
+  await act(async () => {});
 }
