@@ -20,6 +20,8 @@ export default function edgeConnectionsTemplate({
 }: {
   predicates: EdgeType[];
 }) {
+  const limit = fragment.number(DEFAULT_SAMPLE_SIZE);
+
   // Plain-string arms joined with a bare UNION, normalized once by the outer
   // `query` tag. Nesting `query` inside `query` double-normalizes and leaves the
   // output raggedly indented (cosmetic, but confusing when debugging).
@@ -37,7 +39,7 @@ export default function edgeConnectionsTemplate({
         ?s a ?sourceType .
         ?o a ?targetType .
       }
-      LIMIT ${DEFAULT_SAMPLE_SIZE}
+      LIMIT ${limit}
     }
   }
 }`;
