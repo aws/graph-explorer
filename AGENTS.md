@@ -73,7 +73,7 @@ Run from project root with `pnpm`. Use only these scripts — never invoke `tsc`
 - `pnpm check:format` / `pnpm format` — check / fix formatting
 - `pnpm test` — run all tests
 - `pnpm test <path>` — test files matching a path substring (file, dir, or partial)
-- `pnpm test -- -t "pattern"` — test by name
+- `pnpm test -t "pattern"` — test by name
 - `pnpm coverage` — tests with coverage
 - `pnpm check:pnpm-pin` — verify the `packageManager` integrity hash against the registry (needs network; not part of `checks`)
 
