@@ -1,7 +1,10 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "allowJs": true
+    "allowJs": true,
+    "allowImportingTsExtensions": true,
+    "types": ["node"]
   },
-  "files": ["vitest.config.ts"]
+  "files": ["vitest.config.ts"],
+  "include": ["scripts/**/*.ts"]
 }
