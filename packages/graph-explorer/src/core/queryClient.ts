@@ -1,5 +1,3 @@
-import type { Store } from "jotai/vanilla/store";
-
 import {
   type DefaultOptions,
   QueryCache,
@@ -8,7 +6,7 @@ import {
 
 import { logger, NetworkError } from "@/utils";
 
-import { getAppStore } from "./StateProvider/appStore";
+import { getAppStore, type AppStore } from "./StateProvider/appStore";
 
 function exponentialBackoff(attempt: number): number {
   return Math.min(attempt > 1 ? 2 ** attempt * 1000 : 1000, 30 * 1000);
@@ -18,7 +16,7 @@ const MAX_RETRIES = 3;
 const HTTP_STATUS_TO_NOT_RETRY = [400, 401, 403, 404, 429];
 
 export interface GraphExplorerMeta extends Record<string, unknown> {
-  store?: Store;
+  store?: AppStore;
 }
 
 declare module "@tanstack/react-query" {
@@ -51,7 +49,7 @@ export function createQueryClient() {
  * @param store The Jotai store to use for the default options.
  * @returns The query client default options
  */
-function createDefaultOptions(store: Store): DefaultOptions<Error> {
+function createDefaultOptions(store: AppStore): DefaultOptions<Error> {
   const meta: GraphExplorerMeta = { store };
   return {
     queries: {

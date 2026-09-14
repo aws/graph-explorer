@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 
 import {
@@ -71,15 +71,21 @@ const DEFAULT_COLUMN = {
 export default function DataExplorer() {
   const { vertexType } = useParams();
   const navigate = useNavigate();
-  const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
+  const vtConfigs = useDisplayVertexTypeConfigs();
 
-  if (!vertexType && vtConfigs.length > 0) {
-    navigate(`/data-explorer/${encodeURIComponent(vtConfigs[0].type)}`, {
-      replace: true,
-    });
-  }
+  useEffect(() => {
+    if (vertexType) {
+      return;
+    }
+    const firstConfig = [...vtConfigs.values()][0];
+    if (firstConfig) {
+      navigate(`/data-explorer/${encodeURIComponent(firstConfig.type)}`, {
+        replace: true,
+      });
+    }
+  }, [navigate, vertexType, vtConfigs]);
 
-  if (vtConfigs.length === 0 || !vertexType) {
+  if (vtConfigs.size === 0 || !vertexType) {
     return (
       <Layout>
         <PanelGroup className="grid">
