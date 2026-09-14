@@ -506,7 +506,7 @@ describe("useIsSyncing", () => {
     expect(result.current).toBe(false);
   });
 
-  it("should return true when a schema query is fetching", () => {
+  it("should return true when a schema query is fetching", async () => {
     const state = new DbState(explorer).withNoActiveSchema();
 
     vi.spyOn(explorer, "fetchSchema").mockImplementation(
@@ -519,7 +519,9 @@ describe("useIsSyncing", () => {
       state,
     );
 
-    expect(result.current.syncing).toBe(true);
+    await waitFor(() => {
+      expect(result.current.syncing).toBe(true);
+    });
   });
 });
 
