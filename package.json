@@ -15,7 +15,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
-    "check:pnpm-pin": "node scripts/verify-pnpm-pin.mjs",
+    "check:pnpm-pin": "node scripts/verify-pnpm-pin.ts",
     "check:types": "pnpm -r --include-workspace-root --parallel --stream run typecheck",
     "typecheck": "tsc --noEmit",
     "checks": "pnpm run check:lint && pnpm run check:format && pnpm run check:types",

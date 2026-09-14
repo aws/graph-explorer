@@ -2,7 +2,7 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    projects: ["packages/*"],
+    projects: ["packages/*", "scripts"],
     coverage: {
       thresholds: {
         autoUpdate: (newThreshold: number) => Math.floor(newThreshold),
