@@ -75,11 +75,10 @@ export function EdgePreview({
   );
 
   return (
-    // The preview is a composite of SVG arrows and a label; it cannot be an
-    // <img> because it has children, so the div carries role="img" instead.
-    /* eslint-disable jsx-a11y/prefer-tag-over-role */
     <div
       className={cn("flex w-full items-center", className)}
+      // The preview cannot be an <img> because it contains SVG arrows and a label.
+      // eslint-disable-next-line jsx-a11y/prefer-tag-over-role
       role="img"
       aria-label={`${label} edge preview`}
     >
@@ -96,7 +95,7 @@ export function EdgePreview({
       </div>
 
       <VertexPlaceholder />
-    </div> /* eslint-enable jsx-a11y/prefer-tag-over-role */
+    </div>
   );
 }
 

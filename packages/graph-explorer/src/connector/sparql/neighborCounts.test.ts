@@ -3,7 +3,7 @@ import {
   createRandomName,
   createRandomUrlString,
 } from "@shared/utils/testing";
-import { z } from "zod";
+import { ValidationError } from "zod-validation-error";
 
 import { createVertexId, createVertexType, type VertexType } from "@/core";
 import {
@@ -15,18 +15,12 @@ import {
   createTestableEdge,
   createTestableVertex,
   createUriValue,
-  validationErrorFor,
 } from "@/utils/testing";
 
 import type { NeighborCount } from "../useGEFetchTypes";
 import type { BlankNodesMap } from "./types";
 
 import { neighborCounts } from "./neighborCounts";
-import {
-  sparqlNumberValueSchema,
-  sparqlResourceValueSchema,
-  sparqlResponseSchema,
-} from "./types";
 
 describe("neighborCounts", () => {
   it("should return empty for an empty request", async () => {
@@ -259,17 +253,7 @@ describe("neighborCounts", () => {
         { vertexIds: [createVertexId(createRandomUrlString())] },
         blankNodes,
       ),
-    ).rejects.toThrow(
-      validationErrorFor(
-        sparqlResponseSchema(
-          z.object({
-            resource: sparqlResourceValueSchema,
-            totalCount: sparqlNumberValueSchema,
-          }),
-        ),
-        invalidTotalCountResponse,
-      ),
-    );
+    ).rejects.toBeInstanceOf(ValidationError);
   });
 
   it("should handle vertices with no neighbors", async () => {

@@ -40,12 +40,11 @@ export function VertexSymbol({ vertexStyle, className }: Props) {
   const shapeEl = renderShape(geometry, insetSize, transform);
 
   return (
-    // <svg> is the correct vector-graphics element; role="img" is the
-    // standard ARIA pattern for exposing it as an image to assistive tech.
-    /* eslint-disable jsx-a11y/prefer-tag-over-role */
     <svg
       viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`}
       className={cn("size-9 shrink-0", className)}
+      // An inline SVG is required for the clipPath and nested icon.
+      // eslint-disable-next-line jsx-a11y/prefer-tag-over-role
       role="img"
       aria-label={`${vertexStyle.displayLabel ?? vertexStyle.type} symbol`}
     >
@@ -69,7 +68,7 @@ export function VertexSymbol({ vertexStyle, className }: Props) {
           size={iconSize}
         />
       </g>
-    </svg> /* eslint-enable jsx-a11y/prefer-tag-over-role */
+    </svg>
   );
 }
 

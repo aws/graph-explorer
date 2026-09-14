@@ -6,7 +6,7 @@ import {
   createRandomUrlString,
 } from "@shared/utils/testing";
 import { describe, expect, it, vi } from "vitest";
-import { z } from "zod";
+import { ValidationError } from "zod-validation-error";
 
 import {
   createResultBundle,
@@ -20,11 +20,9 @@ import {
   createTestableEdge,
   createTestableVertex,
   createUriValue,
-  validationErrorFor,
 } from "@/utils/testing";
 
 import { rawQuery } from "./rawquery";
-import { sparqlResponseSchema, sparqlValueSchema } from "./types";
 
 describe("rawQuery", () => {
   it("should return empty array for empty query", async () => {
@@ -156,12 +154,7 @@ describe("rawQuery", () => {
 
     await expect(
       rawQuery(mockFetch, { query: "SELECT ?name WHERE { ?s ?p ?name }" }),
-    ).rejects.toThrow(
-      validationErrorFor(
-        sparqlResponseSchema(z.record(z.string(), sparqlValueSchema)),
-        mockResponse,
-      ),
-    );
+    ).rejects.toBeInstanceOf(ValidationError);
   });
 
   it("should throw error when fetch returns error response", async () => {

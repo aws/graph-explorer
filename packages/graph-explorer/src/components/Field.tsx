@@ -81,16 +81,15 @@ function Field({
   ...props
 }: ComponentPropsWithRef<"div"> & VariantProps<typeof fieldVariants>) {
   return (
-    // Field is a composite layout wrapper, not a <fieldset>; the div carries
-    // role="group" so screen readers expose the related label/control cluster.
-    /* eslint-disable jsx-a11y/prefer-tag-over-role */
     <div
+      // A fieldset would break the component's layout composition and add default styling.
+      // eslint-disable-next-line jsx-a11y/prefer-tag-over-role
       role="group"
       data-slot="field"
       data-orientation={orientation}
       className={cn(fieldVariants({ orientation }), className)}
       {...props}
-    /> /* eslint-enable jsx-a11y/prefer-tag-over-role */
+    />
   );
 }
 

@@ -322,7 +322,7 @@ describe("edgeConnectionsQuery", () => {
         signal: abortController.signal,
         meta: { store, explorer },
       } as any),
-    ).rejects.toThrow(abortController.signal.reason);
+    ).rejects.toBe(abortController.signal.reason);
 
     const schemaMap = store.get(schemaAtom);
     const activeSchema = schemaMap.get(state.activeConfig.id);

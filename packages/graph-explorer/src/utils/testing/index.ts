@@ -1,5 +1,5 @@
-export * from "./createMockExplorer";
 export * from "./createCancelledError";
+export * from "./createMockExplorer";
 export * from "./DbState";
 export * from "./errorInstances";
 export * from "./FakeExplorer";
