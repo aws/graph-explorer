@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from "react";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import { Provider } from "jotai";
 
 import { type AppStore, getAppStore } from "@/core";
@@ -66,4 +66,16 @@ export function renderHookWithJotai<TResult>(
       <TestProvider client={queryClient} store={store} {...props} />
     ),
   });
+}
+
+/**
+ * Flushes pending microtasks under `act()`.
+ *
+ * Jotai v3 notifies `useAtomValue` subscribers on mount via a microtask
+ * rather than synchronously, so an update can land just after `renderHook`
+ * or `store.set` returns. Await this right after such a call, before making
+ * assertions, to avoid a "not wrapped in act(...)" warning from that update.
+ */
+export async function flushPendingAtomUpdates() {
+  await act(async () => {});
 }

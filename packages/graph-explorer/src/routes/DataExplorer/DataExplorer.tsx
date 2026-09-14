@@ -131,8 +131,8 @@ function DataExplorerContent({ vertexType }: { vertexType: VertexType }) {
     .values()
     .toArray();
 
-  const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
-  const vertexTypeOptions = vtConfigs.map(config => ({
+  const vtConfigs = useDisplayVertexTypeConfigs();
+  const vertexTypeOptions = [...vtConfigs.values()].map(config => ({
     value: config.type,
     label: config.displayLabel,
   }));
