@@ -38,11 +38,19 @@ export function integrityToHex(integrity: string): string {
   return Buffer.from(base64, "base64").toString("hex");
 }
 
-function main() {
-  const { packageManager } = JSON.parse(
-    readFileSync("package.json", "utf8"),
-  ) as { packageManager?: unknown };
-  const pin = parsePin(packageManager);
+/** Reads `packageManager` out of a manifest without assuming the rest of its shape. */
+function readPinField(manifestJson: string): unknown {
+  const manifest: unknown = JSON.parse(manifestJson);
+  if (typeof manifest !== "object" || manifest === null) {
+    throw new Error("package.json does not contain a JSON object");
+  }
+  return Object.hasOwn(manifest, "packageManager")
+    ? (manifest as Record<"packageManager", unknown>).packageManager
+    : undefined;
+}
+
+export function main() {
+  const pin = parsePin(readPinField(readFileSync("package.json", "utf8")));
 
   const registryHash = integrityToHex(
     execFileSync("pnpm", ["view", `pnpm@${pin.version}`, "dist.integrity"], {
@@ -63,7 +71,9 @@ function main() {
   }).trim();
   if (running !== pin.version) {
     throw new Error(
-      `packageManager pins pnpm@${pin.version} but pnpm ${running} is running`,
+      `packageManager pins pnpm@${pin.version} but pnpm ${running} is running.\n` +
+        `pnpm reads packageManager and switches to the pinned version from pnpm 11 onwards, ` +
+        `so upgrade your pnpm (or run "corepack enable") and try again.`,
     );
   }
 
