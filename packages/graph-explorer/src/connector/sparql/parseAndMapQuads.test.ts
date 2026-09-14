@@ -414,14 +414,19 @@ describe("parseAndMapQuads", () => {
   describe("edge cases", () => {
     it("should handle null data", () => {
       expect(() => parseAndMapQuads(null)).toThrow(
-        new TypeError("Cannot read properties of null (reading 'code')"),
+        validationErrorFor(sparqlResponseSchema(sparqlQuadBindingSchema), null),
       );
+      expect(logger.error).toHaveBeenCalled();
     });
 
     it("should handle undefined data", () => {
       expect(() => parseAndMapQuads(undefined)).toThrow(
-        new TypeError("Cannot read properties of undefined (reading 'code')"),
+        validationErrorFor(
+          sparqlResponseSchema(sparqlQuadBindingSchema),
+          undefined,
+        ),
       );
+      expect(logger.error).toHaveBeenCalled();
     });
 
     it("should handle string data", () => {
