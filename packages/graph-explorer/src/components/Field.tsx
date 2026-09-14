@@ -82,6 +82,8 @@ function Field({
 }: ComponentPropsWithRef<"div"> & VariantProps<typeof fieldVariants>) {
   return (
     <div
+      // A fieldset would break the component's layout composition and add default styling.
+      // eslint-disable-next-line jsx-a11y/prefer-tag-over-role
       role="group"
       data-slot="field"
       data-orientation={orientation}

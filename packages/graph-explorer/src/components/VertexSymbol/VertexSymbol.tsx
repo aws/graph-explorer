@@ -43,6 +43,8 @@ export function VertexSymbol({ vertexStyle, className }: Props) {
     <svg
       viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`}
       className={cn("size-9 shrink-0", className)}
+      // An inline SVG is required for the clipPath and nested icon.
+      // eslint-disable-next-line jsx-a11y/prefer-tag-over-role
       role="img"
       aria-label={`${vertexStyle.displayLabel ?? vertexStyle.type} symbol`}
     >

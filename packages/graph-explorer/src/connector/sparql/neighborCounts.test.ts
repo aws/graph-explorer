@@ -3,6 +3,7 @@ import {
   createRandomName,
   createRandomUrlString,
 } from "@shared/utils/testing";
+import { ValidationError } from "zod-validation-error";
 
 import { createVertexId, createVertexType, type VertexType } from "@/core";
 import {
@@ -222,24 +223,25 @@ describe("neighborCounts", () => {
         { vertexIds: [createVertexId(createRandomUrlString())] },
         blankNodes,
       ),
-    ).rejects.toThrow("Total neighbor count request failed");
+    ).rejects.toThrow(new Error("Total neighbor count request failed"));
   });
 
   it("should handle malformed response for total counts", async () => {
     const blankNodes: BlankNodesMap = new Map();
+    const invalidTotalCountResponse = {
+      head: { vars: ["resource", "totalCount"] },
+      results: {
+        bindings: [
+          {
+            resource: createUriValue("invalid"),
+            totalCount: { type: "invalid", value: "not-a-number" },
+          },
+        ],
+      },
+    };
     const mockFetch = vi
       .fn()
-      .mockResolvedValueOnce({
-        head: { vars: ["resource", "totalCount"] },
-        results: {
-          bindings: [
-            {
-              resource: createUriValue("invalid"),
-              totalCount: { type: "invalid", value: "not-a-number" },
-            },
-          ],
-        },
-      })
+      .mockResolvedValueOnce(invalidTotalCountResponse)
       .mockResolvedValueOnce({
         head: { vars: ["resource", "type", "typeCount"] },
         results: { bindings: [] },
@@ -251,7 +253,7 @@ describe("neighborCounts", () => {
         { vertexIds: [createVertexId(createRandomUrlString())] },
         blankNodes,
       ),
-    ).rejects.toThrow();
+    ).rejects.toBeInstanceOf(ValidationError);
   });
 
   it("should handle vertices with no neighbors", async () => {
@@ -348,7 +350,7 @@ describe("neighborCounts", () => {
 
     await expect(
       neighborCounts(mockFetch, { vertexIds: [vertex.id] }, blankNodes),
-    ).rejects.toThrow("Network error");
+    ).rejects.toThrow(new Error("Network error"));
   });
 });
 

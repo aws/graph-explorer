@@ -36,9 +36,9 @@
     "fast-check": "^4.9.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.5.0",
-    "oxfmt": "0.55.0",
-    "oxlint": "1.62.0",
-    "oxlint-tsgolint": "0.23.0",
+    "oxfmt": "0.67.0",
+    "oxlint": "1.82.0",
+    "oxlint-tsgolint": "7.0.2001",
     "typescript": "^7.0.2",
     "vitest": "4.1.11"
   },

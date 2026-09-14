@@ -12,6 +12,7 @@ import {
 } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import {
+  createCancelledError,
   createRandomEdgeConnection,
   createRandomRawConfiguration,
   createTestableVertex,
@@ -151,7 +152,7 @@ describe("schemaSyncQuery", () => {
     const queryClient = createQueryClient();
 
     await expect(queryClient.fetchQuery(defaultOptions())).rejects.toThrow(
-      "Network error",
+      new Error("Network error"),
     );
 
     const activeConfigId = store.get(activeConfigurationAtom);
@@ -219,7 +220,7 @@ describe("schemaSyncQuery", () => {
     const queryClient = createQueryClient();
 
     await expect(queryClient.fetchQuery(defaultOptions())).rejects.toThrow(
-      "Network error",
+      new Error("Network error"),
     );
 
     // Verify existing data was preserved
@@ -291,7 +292,7 @@ describe("schemaSyncQuery", () => {
     // Cancel the query
     await queryClient.cancelQueries({ queryKey: ["schema"] });
 
-    await expect(queryPromise).rejects.toThrow();
+    await expect(queryPromise).rejects.toThrow(await createCancelledError());
   });
 
   it("should handle schema with multiple vertex and edge types", async () => {
@@ -348,7 +349,7 @@ describe("schemaSyncQuery", () => {
     const queryClient = createQueryClient();
 
     await expect(queryClient.fetchQuery(defaultOptions())).rejects.toThrow(
-      "Network error",
+      new Error("Network error"),
     );
 
     const storedSchema = store.get(schemaAtom).get(activeConfigId);

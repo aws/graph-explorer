@@ -134,7 +134,7 @@ describe("backward compatibility: retired round-polygon shapes in storage", () =
         createVertexType("Airport"),
         {
           type: createVertexType("Airport"),
-          shape: "round-hexagon" as ShapeStyle,
+          shape: "round-hexagon",
           color: "#ff0000",
         },
       ],
@@ -142,7 +142,7 @@ describe("backward compatibility: retired round-polygon shapes in storage", () =
         createVertexType("City"),
         {
           type: createVertexType("City"),
-          shape: "ellipse" as ShapeStyle,
+          shape: "ellipse",
           color: "#00ff00",
         },
       ],
@@ -178,7 +178,7 @@ describe("backward compatibility: retired round-polygon shapes in storage", () =
         createVertexType("Airport"),
         {
           type: createVertexType("Airport"),
-          shape: "round-tag" as ShapeStyle,
+          shape: "round-tag",
         },
       ],
     ]);

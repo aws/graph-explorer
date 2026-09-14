@@ -77,6 +77,8 @@ export function EdgePreview({
   return (
     <div
       className={cn("flex w-full items-center", className)}
+      // The preview cannot be an <img> because it contains SVG arrows and a label.
+      // eslint-disable-next-line jsx-a11y/prefer-tag-over-role
       role="img"
       aria-label={`${label} edge preview`}
     >

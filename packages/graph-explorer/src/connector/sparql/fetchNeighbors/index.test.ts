@@ -7,10 +7,12 @@ import {
   createQuadSparqlResponse,
   createTestableEdge,
   createTestableVertex,
+  validationErrorFor,
 } from "@/utils/testing";
 
 import type { SPARQLNeighborsRequest } from "../types";
 
+import { sparqlQuadBindingSchema, sparqlResponseSchema } from "../types";
 import fetchNeighbors from "./index";
 
 describe("fetchNeighbors", () => {
@@ -127,7 +129,12 @@ describe("fetchNeighbors", () => {
     mockSparqlFetch.mockResolvedValue(malformedResponse);
 
     // Act & Assert
-    await expect(fetchNeighbors(mockSparqlFetch, request)).rejects.toThrow();
+    await expect(fetchNeighbors(mockSparqlFetch, request)).rejects.toThrow(
+      validationErrorFor(
+        sparqlResponseSchema(sparqlQuadBindingSchema),
+        malformedResponse,
+      ),
+    );
   });
 
   test("should throw validation error for missing required fields", async () => {
@@ -151,7 +158,12 @@ describe("fetchNeighbors", () => {
     mockSparqlFetch.mockResolvedValue(invalidResponse);
 
     // Act & Assert
-    await expect(fetchNeighbors(mockSparqlFetch, request)).rejects.toThrow();
+    await expect(fetchNeighbors(mockSparqlFetch, request)).rejects.toThrow(
+      validationErrorFor(
+        sparqlResponseSchema(sparqlQuadBindingSchema),
+        invalidResponse,
+      ),
+    );
   });
 
   test("should throw validation error for response without head", async () => {
@@ -169,7 +181,12 @@ describe("fetchNeighbors", () => {
     mockSparqlFetch.mockResolvedValue(invalidResponse);
 
     // Act & Assert
-    await expect(fetchNeighbors(mockSparqlFetch, request)).rejects.toThrow();
+    await expect(fetchNeighbors(mockSparqlFetch, request)).rejects.toThrow(
+      validationErrorFor(
+        sparqlResponseSchema(sparqlQuadBindingSchema),
+        invalidResponse,
+      ),
+    );
   });
 
   test("should throw validation error for response without results", async () => {
@@ -185,7 +202,12 @@ describe("fetchNeighbors", () => {
     mockSparqlFetch.mockResolvedValue(invalidResponse);
 
     // Act & Assert
-    await expect(fetchNeighbors(mockSparqlFetch, request)).rejects.toThrow();
+    await expect(fetchNeighbors(mockSparqlFetch, request)).rejects.toThrow(
+      validationErrorFor(
+        sparqlResponseSchema(sparqlQuadBindingSchema),
+        invalidResponse,
+      ),
+    );
   });
 
   test("should handle blank node vertices correctly", async () => {
@@ -253,7 +275,7 @@ describe("fetchNeighbors", () => {
 
     // Act & Assert
     await expect(fetchNeighbors(mockSparqlFetch, request)).rejects.toThrow(
-      "Network error",
+      new Error("Network error"),
     );
   });
 

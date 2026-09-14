@@ -1,5 +1,7 @@
+export * from "./createCancelledError";
 export * from "./createMockExplorer";
 export * from "./DbState";
+export * from "./errorInstances";
 export * from "./FakeExplorer";
 export * from "./graphsonHelpers";
 export * from "./legacyExportedConnectionFile";
@@ -11,4 +13,3 @@ export * from "./randomSchemaResponse";
 export * from "./renderHookWithJotai";
 export * from "./sparqlHelpers";
 export * from "./waitForValueToChange";
-export * from "./createCancelledError";

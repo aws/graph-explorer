@@ -6,9 +6,11 @@ import {
   createQuadSparqlResponse,
   createTestableEdge,
   createTestableVertex,
+  validationErrorFor,
 } from "@/utils/testing";
 
 import { parseAndMapQuads } from "./parseAndMapQuads";
+import { sparqlQuadBindingSchema, sparqlResponseSchema } from "./types";
 
 describe("parseAndMapQuads", () => {
   describe("error handling", () => {
@@ -19,7 +21,7 @@ describe("parseAndMapQuads", () => {
       };
 
       expect(() => parseAndMapQuads(errorData)).toThrow(
-        "Invalid SPARQL query syntax",
+        new Error("Invalid SPARQL query syntax"),
       );
       expect(logger.error).toHaveBeenCalledWith("Invalid SPARQL query syntax");
     });
@@ -29,7 +31,12 @@ describe("parseAndMapQuads", () => {
         invalidField: "not a valid SPARQL response",
       };
 
-      expect(() => parseAndMapQuads(invalidData)).toThrow();
+      expect(() => parseAndMapQuads(invalidData)).toThrow(
+        validationErrorFor(
+          sparqlResponseSchema(sparqlQuadBindingSchema),
+          invalidData,
+        ),
+      );
       expect(logger.error).toHaveBeenCalledWith(
         "Failed to parse SPARQL JSON response",
         expect.any(String),
@@ -44,7 +51,12 @@ describe("parseAndMapQuads", () => {
         },
       };
 
-      expect(() => parseAndMapQuads(invalidData)).toThrow();
+      expect(() => parseAndMapQuads(invalidData)).toThrow(
+        validationErrorFor(
+          sparqlResponseSchema(sparqlQuadBindingSchema),
+          invalidData,
+        ),
+      );
       expect(logger.error).toHaveBeenCalled();
     });
 
@@ -53,7 +65,12 @@ describe("parseAndMapQuads", () => {
         head: { vars: ["subject", "predicate", "object"] },
       };
 
-      expect(() => parseAndMapQuads(invalidData)).toThrow();
+      expect(() => parseAndMapQuads(invalidData)).toThrow(
+        validationErrorFor(
+          sparqlResponseSchema(sparqlQuadBindingSchema),
+          invalidData,
+        ),
+      );
       expect(logger.error).toHaveBeenCalled();
     });
 
@@ -71,7 +88,12 @@ describe("parseAndMapQuads", () => {
         },
       };
 
-      expect(() => parseAndMapQuads(invalidData)).toThrow();
+      expect(() => parseAndMapQuads(invalidData)).toThrow(
+        validationErrorFor(
+          sparqlResponseSchema(sparqlQuadBindingSchema),
+          invalidData,
+        ),
+      );
       expect(logger.error).toHaveBeenCalled();
     });
 
@@ -89,7 +111,12 @@ describe("parseAndMapQuads", () => {
         },
       };
 
-      expect(() => parseAndMapQuads(invalidData)).toThrow();
+      expect(() => parseAndMapQuads(invalidData)).toThrow(
+        validationErrorFor(
+          sparqlResponseSchema(sparqlQuadBindingSchema),
+          invalidData,
+        ),
+      );
     });
 
     it("should throw validation error for invalid predicate type", () => {
@@ -106,7 +133,12 @@ describe("parseAndMapQuads", () => {
         },
       };
 
-      expect(() => parseAndMapQuads(invalidData)).toThrow();
+      expect(() => parseAndMapQuads(invalidData)).toThrow(
+        validationErrorFor(
+          sparqlResponseSchema(sparqlQuadBindingSchema),
+          invalidData,
+        ),
+      );
       expect(logger.error).toHaveBeenCalled();
     });
 
@@ -124,7 +156,12 @@ describe("parseAndMapQuads", () => {
         },
       };
 
-      expect(() => parseAndMapQuads(invalidData)).toThrow();
+      expect(() => parseAndMapQuads(invalidData)).toThrow(
+        validationErrorFor(
+          sparqlResponseSchema(sparqlQuadBindingSchema),
+          invalidData,
+        ),
+      );
       expect(logger.error).toHaveBeenCalled();
     });
   });
@@ -376,20 +413,36 @@ describe("parseAndMapQuads", () => {
 
   describe("edge cases", () => {
     it("should handle null data", () => {
-      expect(() => parseAndMapQuads(null)).toThrow();
+      expect(() => parseAndMapQuads(null)).toThrow(
+        validationErrorFor(sparqlResponseSchema(sparqlQuadBindingSchema), null),
+      );
+      expect(logger.error).toHaveBeenCalled();
     });
 
     it("should handle undefined data", () => {
-      expect(() => parseAndMapQuads(undefined)).toThrow();
+      expect(() => parseAndMapQuads(undefined)).toThrow(
+        validationErrorFor(
+          sparqlResponseSchema(sparqlQuadBindingSchema),
+          undefined,
+        ),
+      );
+      expect(logger.error).toHaveBeenCalled();
     });
 
     it("should handle string data", () => {
-      expect(() => parseAndMapQuads("invalid")).toThrow();
+      expect(() => parseAndMapQuads("invalid")).toThrow(
+        validationErrorFor(
+          sparqlResponseSchema(sparqlQuadBindingSchema),
+          "invalid",
+        ),
+      );
       expect(logger.error).toHaveBeenCalled();
     });
 
     it("should handle array data", () => {
-      expect(() => parseAndMapQuads([])).toThrow();
+      expect(() => parseAndMapQuads([])).toThrow(
+        validationErrorFor(sparqlResponseSchema(sparqlQuadBindingSchema), []),
+      );
       expect(logger.error).toHaveBeenCalled();
     });
 

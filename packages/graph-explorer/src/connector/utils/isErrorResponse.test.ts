@@ -3,7 +3,7 @@ import isErrorResponse from "./isErrorResponse";
 describe("isErrorResponse", () => {
   it("should return true for error response", () => {
     const errorResponse = {
-      code: 400,
+      code: "400",
       detailedMessage: "Detailed error message",
     };
 
@@ -29,9 +29,17 @@ describe("isErrorResponse", () => {
 
   it("should return false for error-like response missing detailedMessage", () => {
     const errorLikeResponse = {
-      code: 400,
+      code: "400",
     };
 
     expect(isErrorResponse(errorLikeResponse)).toBe(false);
+  });
+
+  it("should return false for null", () => {
+    expect(isErrorResponse(null)).toBe(false);
+  });
+
+  it("should return false for undefined", () => {
+    expect(isErrorResponse(undefined)).toBe(false);
   });
 });

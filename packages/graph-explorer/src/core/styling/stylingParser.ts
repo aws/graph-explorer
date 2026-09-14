@@ -139,9 +139,8 @@ const vertexEntrySchema = z
     borderColor: z.string().optional(),
     borderStyle: z.enum(LINE_STYLES).optional(),
   })
-  .transform(
-    ({ icon, ...rest }): Omit<VertexStyleStorage, "type"> =>
-      icon !== undefined ? { ...rest, iconUrl: icon } : rest,
+  .transform(({ icon, ...rest }): Omit<VertexStyleStorage, "type"> =>
+    icon !== undefined ? { ...rest, iconUrl: icon } : rest,
   );
 
 const edgeEntrySchema = z.object({
