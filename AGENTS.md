@@ -61,6 +61,7 @@ Read the relevant doc before working in that area:
 - `docs/agents/issue-tracker.md` — GitHub issue and PR conventions
 - `docs/agents/documentation.md` — writing user-facing docs (READMEs, guides, docs site)
 - `docs/agents/product.md` — product overview, supported databases, architecture
+- `docs/development.md` — toolchain setup and the pnpm upgrade procedure (`packageManager` and the doc's own requirement line move together)
 
 ## Commands
 
@@ -74,6 +75,7 @@ Run from project root with `pnpm`. Use only these scripts — never invoke `tsc`
 - `pnpm test <path>` — test files matching a path substring (file, dir, or partial)
 - `pnpm test -- -t "pattern"` — test by name
 - `pnpm coverage` — tests with coverage
+- `pnpm check:pnpm-pin` — verify the `packageManager` integrity hash against the registry (needs network; not part of `checks`)
 
 `pnpm check:types` runs in parallel across packages in under a minute; just run it.
 

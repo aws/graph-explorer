@@ -4,7 +4,7 @@ Build instructions and development setup for contributing to Graph Explorer. For
 
 ## Requirements
 
-- pnpm >=11.9.0
+- pnpm 12.4.1, pinned by `packageManager`; any pnpm 11 or newer switches to it automatically
 - node >=24.21.0
 
 ### Node Version
@@ -17,15 +17,45 @@ nvm use
 
 Otherwise, use whatever method you use to install [Node v24.21.0](https://nodejs.org/en/download).
 
-### Node Corepack
+### pnpm version
 
-[Corepack](https://nodejs.org/api/corepack.html) is used to ensure the package manager used for the project is consistent.
+`packageManager` in the root `package.json` pins the exact pnpm version, and you do not have to match it yourself. Any pnpm 11 or newer reads that field and hands the command to the pinned version, so install pnpm however you like and let it switch:
+
+```bash
+brew install pnpm            # or: npm install -g pnpm
+pnpm --version               # prints the pinned version, not the one you installed
+```
+
+[The standalone script](https://pnpm.io/installation) works too. Prefer any of these over Corepack, because letting pnpm switch versions itself brings the pinned version in as a normal package install, whose integrity the lockfile records for every platform.
+
+If you have Node but no pnpm at all, [Corepack](https://nodejs.org/api/corepack.html) ships with Node 24 and can bootstrap it for you:
 
 ```bash
 corepack enable
 ```
 
-If `corepack` is not found, install it first with `npm install -g corepack@latest`.
+Corepack takes a different path to the same version. pnpm 12 is a native executable rather than a JavaScript bundle, and Corepack installs no dependencies, so on first use it downloads the binary separately and verifies it against npm's registry signature rather than against the hash in `packageManager`. Never set `COREPACK_INTEGRITY_KEYS` to `0` or empty to work around a failed download; that turns the signature check off entirely.
+
+### Upgrading pnpm
+
+The version is pinned in two places and they have to move together:
+
+- `packageManager` in `package.json`, which is what self-managing pnpm, Corepack, and CI all resolve.
+- The pnpm requirement at the top of this document.
+
+Run `corepack use pnpm@<version>` from the repo root. It rewrites `packageManager` with a freshly computed integrity hash and then runs `pnpm install`, so any lockfile movement shows up immediately. Do not hand-write the hash. Update this document to the same version, then confirm nothing shifted:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm checks
+pnpm test
+```
+
+`.github/workflows/unit.yml` reads the version from `packageManager`, so a patch or minor bump needs no workflow edit. A major bump usually does. [`pnpm/action-setup`](https://github.com/pnpm/action-setup) bootstraps pnpm from lockfiles committed inside the action itself, so it needs a release that knows about the new major, and v6.1.0 is the one that added pnpm 12. When that happens, update the pinned commit SHA and its version comment in the workflow.
+
+CI also runs `pnpm check:pnpm-pin`, which confirms the `+sha512` hash matches what the registry publishes for the pinned version and that the pinned version is the one running. `pnpm/action-setup` reads only the version out of `packageManager` and discards the hash, so without that step nothing would ever check it.
+
+A major bump is also where `pnpm-workspace.yaml` deserves a read. Since pnpm 12, a key that pnpm does not recognize fails the install with `ERR_PNPM_UNRECOGNIZED_WORKSPACE_SETTINGS` instead of being ignored, so a setting removed or renamed upstream turns into a hard error rather than silently doing nothing. `pnpm config list` prints the `pnpm-workspace.yaml` settings pnpm resolved, which is the quickest way to check, though it lists neither pnpm's defaults nor anything from `.npmrc`.
 
 ## Run in development mode
 
@@ -112,7 +142,7 @@ Each of these `package.json` files has an independent `version` property. Howeve
 The `pnpm-workspace.yaml` file includes several settings that harden the project against supply chain attacks. These may cause `pnpm install` to fail when adding new dependencies, which is intentional.
 
 - **`minimumReleaseAge`** — Newly published package versions are blocked for 24 hours, giving the community time to discover and report compromised releases.
-- **`strictDepBuilds`** — Any dependency that tries to run a build script (e.g. `postinstall`) will cause installation to fail unless it is explicitly listed in `onlyBuiltDependencies` or `ignoredBuiltDependencies`.
+- **`allowBuilds`** — A map giving each dependency that wants to run a build script (e.g. `postinstall`) an explicit `true` or `false`. Anything absent from the map fails the install, because pnpm's own `strictDepBuilds` is on by default.
 - **`blockExoticSubdeps`** — Transitive dependencies cannot resolve to git repositories or raw tarball URLs. Only direct dependencies in `package.json` may use exotic sources.
 - **`trustPolicy`** — Refuses to install a package version whose publish-time trust evidence (provenance, signatures) is weaker than a previously published version of that package.
 
