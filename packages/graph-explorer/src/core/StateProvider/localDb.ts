@@ -116,7 +116,7 @@ export interface LocalDb {
 }
 
 /** Serialized backup data structure schema. This allows validation and parsing of `unknown` data. */
-export const SerializedBackupSchema = z.object({
+const SerializedBackupSchema = z.object({
   backupSource: z.string(),
   backupSourceVersion: z.string(),
   backupVersion: z.string(),

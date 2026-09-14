@@ -5,11 +5,11 @@ import {
   createRandomName,
   createRandomUrlString,
 } from "@shared/utils/testing";
+import { z } from "zod";
 
 import type { EdgeId, VertexId } from "@/core";
 
-import { FileEnvelopeError, fileEnvelopeSchema } from "@/core/fileEnvelope";
-import { expectZodErrorFor } from "@/utils/testing";
+import { FileEnvelopeError } from "@/core/fileEnvelope";
 import {
   createRandomConnectionWithId,
   createRandomEdgeId,
@@ -24,7 +24,6 @@ import {
   createExportedConnection,
   createExportedGraph,
   createFileSafeTimestamp,
-  graphExportPayloadSchema,
   type ExportedGraphConnection,
   type ExportedGraphFile,
   isMatchingConnection,
@@ -347,15 +346,12 @@ describe("parseExportedGraph", () => {
       meta: { ...exportedGraph.meta, version: "1.5" },
     };
 
-    const { issues } = fileEnvelopeSchema.safeParse(malformed).error!;
     await expect(
       parseExportedGraph(toGraphFileBlob(malformed)),
-    ).rejects.toThrow(
-      new FileEnvelopeError(
-        "File does not have the expected envelope structure",
-        issues,
-      ),
-    );
+    ).rejects.toMatchObject({
+      message: "File does not have the expected envelope structure",
+      issues: [{ code: "invalid_union", path: ["meta", "version"] }],
+    });
   });
 
   it("should accept the legacy '1.0' version string", async () => {
@@ -391,9 +387,16 @@ describe("parseExportedGraph", () => {
       data: { ...exportedGraph.data, vertices: [false, true] as any },
     };
 
-    await expectZodErrorFor(graphExportPayloadSchema, malformed.data, () =>
-      parseExportedGraph(toGraphFileBlob(malformed)),
+    const error = await parseExportedGraph(toGraphFileBlob(malformed)).catch(
+      (e: unknown) => e,
     );
+    expect(error).toBeInstanceOf(z.ZodError);
+    expect(z.prettifyError(error as z.ZodError)).toMatchInlineSnapshot(`
+      "✖ Invalid input
+        → at vertices[0]
+      ✖ Invalid input
+        → at vertices[1]"
+    `);
   });
 
   it("should reject a file that is not valid JSON", async () => {

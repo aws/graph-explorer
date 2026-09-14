@@ -45,7 +45,7 @@ export const GRAPH_EXPORT_VERSION = 1;
  */
 export const GRAPH_EXPORT_WIRE_VERSION: EnvelopeVersion = "1.0";
 
-export const graphExportPayloadSchema = z.object({
+const graphExportPayloadSchema = z.object({
   connection: z.object({
     dbUrl: z.string(),
     queryEngine: z.enum(queryEngineOptions),

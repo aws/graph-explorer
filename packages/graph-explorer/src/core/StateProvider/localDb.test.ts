@@ -4,6 +4,7 @@ import {
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
+import { z } from "zod";
 
 import type { RawConfiguration } from "@/core";
 
@@ -11,7 +12,6 @@ import { toJsonFileData } from "@/utils/fileData";
 import {
   createRandomRawConfiguration,
   createRandomSchema,
-  expectZodErrorFor,
 } from "@/utils/testing";
 
 import type { SchemaStorageModel } from "./schema";
@@ -26,7 +26,6 @@ import {
   removeRestoredPrefix,
   renameEntry,
   restoreBackup,
-  SerializedBackupSchema,
 } from "./localDb";
 import { serializeData } from "./serializeData";
 
@@ -176,9 +175,20 @@ describe("exportFromLocalForage", () => {
     const serialized = serializeData(backupBefore);
     const blob = toJsonFileData(serialized);
 
-    await expectZodErrorFor(SerializedBackupSchema, backupBefore, () =>
-      readBackupDataFromFile(blob),
-    );
+    const error = await readBackupDataFromFile(blob).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(z.ZodError);
+    expect(z.prettifyError(error as z.ZodError)).toMatchInlineSnapshot(`
+      "✖ Invalid input: expected string, received undefined
+        → at backupSource
+      ✖ Invalid input: expected string, received undefined
+        → at backupSourceVersion
+      ✖ Invalid input: expected string, received undefined
+        → at backupVersion
+      ✖ Invalid input: expected date, received Date
+        → at backupTimestamp
+      ✖ Invalid input: expected record, received undefined
+        → at data"
+    `);
   });
 });
 
