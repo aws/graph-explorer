@@ -14,6 +14,24 @@ import { iconRegistry } from "@/core/icons";
 
 expect.extend(matchers);
 
+/**
+ * jsdom never actually decodes images, so a real `Image` never fires
+ * `onload`/`onerror` — raster icon dimension measurement would hang every
+ * test that resolves one. This double fires `onload` on the next microtask
+ * with a fixed square size, matching the pre-measurement fallback so
+ * existing assertions about square icons stay valid.
+ */
+class MockImage {
+  onload: (() => void) | null = null;
+  onerror: (() => void) | null = null;
+  naturalWidth = 24;
+  naturalHeight = 24;
+
+  set src(_value: string) {
+    queueMicrotask(() => this.onload?.());
+  }
+}
+
 // Mock getAppStore to return a specific test store
 let store = createStore();
 vi.mock(import("@/core/StateProvider/appStore"), () => {
@@ -30,6 +48,9 @@ beforeEach(async () => {
   store = createStore();
   vi.stubEnv("DEV", true);
   vi.stubEnv("PROD", false);
+  // Re-stubbed every test: a test file's own afterEach may call
+  // `vi.unstubAllGlobals()`, which would otherwise wipe this after its first test.
+  vi.stubGlobal("Image", MockImage);
 
   // The icon registry is a module singleton, so resolved icons would otherwise
   // bleed between tests.

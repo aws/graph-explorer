@@ -4,11 +4,13 @@ import { logger } from "@/utils";
 import { getLucideSvgString } from "@/utils/lucideIcons";
 
 import { type IconSource, type IconSourceId, iconSourceId } from "./iconSource";
+import { SVG_ALLOWED_ATTR } from "./svgSanitize";
+import { ensureSvgViewBox } from "./svgViewBox";
 
 /** An icon resolved to a renderable form, with no color applied yet. */
 export type ResolvedIcon =
-  | { kind: "raster"; url: string }
-  | { kind: "svg"; svg: string };
+  | { kind: "raster"; url: string; width?: number; height?: number }
+  | { kind: "svg"; svg: string; width?: number; height?: number };
 
 /**
  * Bounded so a permanently broken icon stops re-fetching, but not one-shot: a
@@ -48,17 +50,9 @@ class IconRegistry {
 
   /** Idempotent: starts only what is neither resolved, running, nor exhausted. */
   request(sources: Iterable<IconSource>): void {
-    let next: Map<IconSourceId, ResolvedIcon> | undefined;
-
     for (const source of sources) {
       const id = iconSourceId(source);
       if (id === null || this.#resolved.has(id) || this.#inFlight.has(id)) {
-        continue;
-      }
-      if (source.kind === "raster") {
-        // A url needs no work, so resolve it now rather than a render later.
-        next ??= new Map(this.#resolved);
-        next.set(id, { kind: "raster", url: source.url });
         continue;
       }
       if ((this.#failures.get(id) ?? 0) >= MAX_ATTEMPTS) {
@@ -66,11 +60,6 @@ class IconRegistry {
       }
       this.#inFlight.add(id);
       void this.#resolve(id, source, this.#epoch);
-    }
-
-    if (next) {
-      this.#resolved = next;
-      this.#notify();
     }
   }
 
@@ -139,26 +128,94 @@ async function resolveIconSource(
   switch (source.kind) {
     case "none":
       return null;
-    case "raster":
-      return { kind: "raster", url: source.url };
+    case "raster": {
+      const dimensions = await measureImageDimensions(source.url);
+      return { kind: "raster", url: source.url, ...dimensions };
+    }
     case "lucide": {
-      const svg = await getLucideSvgString(source.name);
-      if (svg === null) {
+      const raw = await getLucideSvgString(source.name);
+      if (raw === null) {
         logger.warn("Unknown lucide icon", source.name);
         return null;
       }
-      return { kind: "svg", svg };
+      const svg = ensureSvgViewBox(raw);
+      const dimensions = extractSvgDimensions(svg);
+      return { kind: "svg", svg, ...dimensions };
     }
     case "svg": {
       // Untrusted: a user-supplied SVG, sanitized before it is used anywhere.
       const response = await fetch(source.url);
-      const svg = DOMPurify.sanitize(await response.text(), {
+      const sanitized = DOMPurify.sanitize(await response.text(), {
         USE_PROFILES: { svg: true, svgFilters: true },
+        ALLOWED_ATTR: SVG_ALLOWED_ATTR,
       });
       // A 404 body sanitizes to something that is not SVG. Reject it here so
       // consumers can treat `ResolvedIcon` as renderable.
-      return isParseableSvg(svg) ? { kind: "svg", svg } : null;
+      if (!isParseableSvg(sanitized)) {
+        return null;
+      }
+      const svg = ensureSvgViewBox(sanitized);
+      const dimensions = extractSvgDimensions(svg);
+      return { kind: "svg", svg, ...dimensions };
     }
+  }
+}
+
+async function measureImageDimensions(
+  url: string,
+): Promise<{ width?: number; height?: number }> {
+  try {
+    // Never rejects — `onerror` resolves to a fallback instead. This only
+    // guards a synchronous throw from constructing `Image` or setting `src`.
+    return await new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        resolve({ width: img.naturalWidth, height: img.naturalHeight });
+      };
+      img.onerror = () => {
+        resolve({});
+      };
+      img.src = url;
+    });
+  } catch (_e) {
+    return {};
+  }
+}
+
+function extractSvgDimensions(svg: string): {
+  width?: number;
+  height?: number;
+} {
+  try {
+    const doc = new DOMParser().parseFromString(svg, "application/xml");
+    const root = doc.documentElement;
+
+    if (root.localName !== "svg") {
+      return {};
+    }
+
+    const width = parseFloat(root.getAttribute("width") ?? "");
+    const height = parseFloat(root.getAttribute("height") ?? "");
+
+    if (!isNaN(width) && !isNaN(height)) {
+      return { width, height };
+    }
+
+    const viewBox = root.getAttribute("viewBox");
+    if (viewBox) {
+      const parts = viewBox.split(/\s+/);
+      if (parts.length >= 4) {
+        const vbWidth = parseFloat(parts[2]);
+        const vbHeight = parseFloat(parts[3]);
+        if (!isNaN(vbWidth) && !isNaN(vbHeight)) {
+          return { width: vbWidth, height: vbHeight };
+        }
+      }
+    }
+
+    return {};
+  } catch (_e) {
+    return {};
   }
 }
 
