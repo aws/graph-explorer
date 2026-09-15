@@ -52,6 +52,7 @@ const DbQueryHeadersSchema = z.object({
     .optional()
     .default(DEFAULT_SERVICE_TYPE),
   "db-query-logging-enabled": z.stringbool().optional().default(false),
+  authorization: z.string().optional(),
 });
 
 /** Validates and extracts database query headers. Throws {@link RequestValidationError} on failure. */
@@ -78,6 +79,7 @@ function parseDbQueryHeaders(headers: IncomingHttpHeaders) {
     queryId: parsed.queryid,
     graphDbConnectionUrl: parsed["graph-db-connection-url"],
     shouldLogDbQuery: parsed["db-query-logging-enabled"],
+    authorization: parsed.authorization,
     ...authOptions,
   };
 }
@@ -289,6 +291,7 @@ export function createApp({
       isIamEnabled,
       region,
       serviceType,
+      authorization,
     } = parseDbQueryHeaders(req.headers);
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
 
@@ -359,6 +362,7 @@ export function createApp({
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
         Accept: "application/sparql-results+json",
+        ...(authorization && { Authorization: authorization }),
       },
       body,
     };
@@ -384,6 +388,7 @@ export function createApp({
       isIamEnabled,
       region,
       serviceType,
+      authorization,
     } = parseDbQueryHeaders(req.headers);
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
 
@@ -445,6 +450,7 @@ export function createApp({
       headers: {
         "Content-Type": "application/json",
         Accept: "application/vnd.gremlin-v3.0+json",
+        ...(authorization && { Authorization: authorization }),
       },
       body: JSON.stringify(body),
     };
@@ -469,6 +475,7 @@ export function createApp({
       isIamEnabled,
       region,
       serviceType,
+      authorization,
     } = parseDbQueryHeaders(req.headers);
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
 
@@ -492,6 +499,7 @@ export function createApp({
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
         Accept: "application/json",
+        ...(authorization && { Authorization: authorization }),
       },
       body: `query=${encodeURIComponent(queryString)}`,
     };
@@ -509,7 +517,7 @@ export function createApp({
 
   // GET endpoint to retrieve PropertyGraph statistics summary for Neptune Analytics.
   app.get("/summary", async (req, res, next) => {
-    const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
+    const { graphDbConnectionUrl, isIamEnabled, region, serviceType, authorization } =
       parseDbQueryHeaders(req.headers);
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
@@ -521,7 +529,7 @@ export function createApp({
       res,
       next,
       rawUrl,
-      { method: "GET" },
+      { method: "GET", headers: { ...(authorization && { Authorization: authorization }) } },
       isIamEnabled,
       region,
       serviceType,
@@ -530,7 +538,7 @@ export function createApp({
 
   // GET endpoint to retrieve PropertyGraph statistics summary for Neptune DB.
   app.get("/pg/statistics/summary", async (req, res, next) => {
-    const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
+    const { graphDbConnectionUrl, isIamEnabled, region, serviceType, authorization } =
       parseDbQueryHeaders(req.headers);
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
@@ -542,7 +550,7 @@ export function createApp({
       res,
       next,
       rawUrl,
-      { method: "GET" },
+      { method: "GET", headers: { ...(authorization && { Authorization: authorization }) } },
       isIamEnabled,
       region,
       serviceType,
@@ -551,7 +559,7 @@ export function createApp({
 
   // GET endpoint to retrieve RDF statistics summary.
   app.get("/rdf/statistics/summary", async (req, res, next) => {
-    const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
+    const { graphDbConnectionUrl, isIamEnabled, region, serviceType, authorization } =
       parseDbQueryHeaders(req.headers);
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
@@ -563,7 +571,7 @@ export function createApp({
       res,
       next,
       rawUrl,
-      { method: "GET" },
+      { method: "GET", headers: { ...(authorization && { Authorization: authorization }) } },
       isIamEnabled,
       region,
       serviceType,

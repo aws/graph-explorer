@@ -51,4 +51,13 @@ export type ConnectionConfig = {
    * This value overrides the app wide default limit.
    */
   nodeExpansionLimit?: number;
+  /**
+   * Username for HTTP Basic authentication (e.g. JanusGraph with
+   * SaslAndHMACAuthenticator). Leave empty to send unauthenticated requests.
+   */
+  username?: string;
+  /**
+   * Password for HTTP Basic authentication. Stored client-side only.
+   */
+  password?: string;
 };
