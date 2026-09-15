@@ -155,10 +155,13 @@ export function Combobox({
   const inputValue = filterText ?? selectedOption?.label ?? "";
 
   // Select the input text when the popup opens so the first typed character
-  // replaces the current label instead of appending to it.
+  // replaces the current label instead of appending to it. The state effect
+  // covers keyboard opens (ArrowDown, Alt+Down); pointer opens also call
+  // select() synchronously in onClick/onFocus so the browser doesn't get a
+  // chance to collapse the selection on the input's mousedown.
   useEffect(() => {
-    if (open) inputRef.current?.select();
-  }, [open]);
+    if (open && filterText === null) inputRef.current?.select();
+  }, [open, filterText]);
 
   const filteredOptions = useFilteredOptions(options, filterText);
 
@@ -228,6 +231,22 @@ export function Combobox({
               disabled={disabled}
               placeholder={!inputValue ? placeholder : ""}
               className="placeholder:text-muted-foreground w-full bg-transparent outline-hidden"
+              onMouseDown={e => {
+                // The browser's mousedown default places the text cursor at
+                // the click point, collapsing any selection. That turns the
+                // first typed character into an append instead of a replace.
+                // Focus manually; onFocus will then select the full value.
+                e.preventDefault();
+                inputRef.current?.focus();
+              }}
+              onFocus={e => {
+                // Keep the closed-state label fully selected whenever the
+                // input gains focus (click, Tab, or the trigger button
+                // focusing it), so typing starts by replacing the label.
+                if (filterText === null && inputValue) {
+                  e.currentTarget.select();
+                }
+              }}
               onClick={() => {
                 // A <button> has "click" as its native default action, which
                 // is what VoiceOver's Control-Option-Space reliably triggers
