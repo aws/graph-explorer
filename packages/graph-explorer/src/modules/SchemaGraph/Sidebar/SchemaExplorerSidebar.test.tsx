@@ -34,6 +34,7 @@ function stateWithDetailsTab() {
   return new DbState().withSchemaViewLayout({
     activeSidebarItem: "details",
     sidebar: { width: 400 },
+    layoutAlgorithm: "F_COSE",
   });
 }
 
