@@ -428,6 +428,33 @@ describe("vertexStyleAtom", () => {
       createExpectedVertex({ type: vertexType }),
     );
   });
+
+  it("should default font size fields to 7/6", () => {
+    const dbState = new DbState();
+    const vertexType = createVertexType("Person");
+
+    const { result } = renderHookWithState(
+      () => useAtomValue(vertexStyleAtom),
+      dbState,
+    );
+
+    const style = result.current.get(vertexType);
+    expect(style.fontSize).toBe(7);
+    expect(style.minZoomedFontSize).toBe(6);
+  });
+
+  it("should let a user override the font size", () => {
+    const dbState = new DbState();
+    const vertexType = createVertexType("Person");
+    dbState.addVertexStyle(vertexType, { fontSize: 12 });
+
+    const { result } = renderHookWithState(
+      () => useAtomValue(vertexStyleAtom),
+      dbState,
+    );
+
+    expect(result.current.get(vertexType).fontSize).toBe(12);
+  });
 });
 
 describe("edgeStyleAtom", () => {
@@ -458,5 +485,32 @@ describe("edgeStyleAtom", () => {
     expect(result.current.get(edgeType)).toStrictEqual(
       createExpectedEdge({ type: edgeType }),
     );
+  });
+
+  it("should default font size fields to 7/6", () => {
+    const dbState = new DbState();
+    const edgeType = createEdgeType("KNOWS");
+
+    const { result } = renderHookWithState(
+      () => useAtomValue(edgeStyleAtom),
+      dbState,
+    );
+
+    const style = result.current.get(edgeType);
+    expect(style.fontSize).toBe(7);
+    expect(style.minZoomedFontSize).toBe(6);
+  });
+
+  it("should let a user override the font size", () => {
+    const dbState = new DbState();
+    const edgeType = createEdgeType("KNOWS");
+    dbState.addEdgeStyle(edgeType, { fontSize: 10 });
+
+    const { result } = renderHookWithState(
+      () => useAtomValue(edgeStyleAtom),
+      dbState,
+    );
+
+    expect(result.current.get(edgeType).fontSize).toBe(10);
   });
 });
