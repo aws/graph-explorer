@@ -3,11 +3,20 @@ import type { ComponentProps } from "react";
 import { Editor, type Monaco } from "@monaco-editor/react";
 
 export function CodeEditor({
+  beforeMount,
   options,
   ...props
 }: ComponentProps<typeof Editor>) {
+  // Monaco applies `theme` when it creates the editor, so the theme must be
+  // defined before mount. Using `loader.init()` would lose lazy loading.
+  function handleBeforeMount(monaco: Monaco) {
+    monaco.editor.defineTheme("graph-explorer-light", lightTheme);
+    beforeMount?.(monaco);
+  }
+
   return (
     <Editor
+      beforeMount={handleBeforeMount}
       theme="graph-explorer-light"
       options={{
         // Match Tailwind style as much as possible
@@ -45,9 +54,6 @@ export function CodeEditor({
         },
 
         ...options,
-      }}
-      onMount={(_editor, monaco) => {
-        monaco.editor.defineTheme("graph-explorer-light", lightTheme);
       }}
       {...props}
     />
