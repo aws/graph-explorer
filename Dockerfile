@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1
 # Pinned to a dated ECR Public snapshot for reproducible builds; bump to move forward.
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023.12.20260909.0 AS base
+# The tag also pins dnf repo metadata to that date, so the yum update below resolves
+# against that snapshot and cannot reach anything published after it.
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023.12.20260914.0 AS base
 ENV NODE_VERSION=24.21.0
 
 # Install Node.js and openssl, then remove everything not needed at runtime

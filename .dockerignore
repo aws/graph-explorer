@@ -8,6 +8,11 @@ node_modules
 .husky
 .vscode
 coverage
+.scratch
+.agents
+.claude
+.kiro
+.zed
 
 # Ignore documentation related files
 docs
