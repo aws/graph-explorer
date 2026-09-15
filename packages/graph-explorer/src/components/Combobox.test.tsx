@@ -197,6 +197,32 @@ describe("Combobox", () => {
       });
     });
 
+    it("should replace the selected label and filter on the first keystroke", async () => {
+      const options = createTestOptions(20);
+      const { container, findByText } = render(
+        <Combobox
+          options={options}
+          value="type_0"
+          onValueChange={() => {}}
+          placeholder="Select type"
+        />,
+      );
+
+      const input = container.querySelector("input") as HTMLInputElement;
+      expect(input.value).toBe("Vertex Type 00000");
+
+      fireEvent.click(input);
+
+      await waitFor(() =>
+        expect(input.getAttribute("aria-expanded")).toBe("true"),
+      );
+
+      fireEvent.change(input, { target: { value: "00010" } });
+      expect(input.value).toBe("00010");
+
+      await findByText("Vertex Type 00010");
+    });
+
     it("should call onValueChange when an option is selected", async () => {
       const options = createTestOptions(10);
       const handleChange = vi.fn();
@@ -418,6 +444,7 @@ describe("Combobox", () => {
         "button",
       ) as HTMLButtonElement;
       expect(toggleButton.getAttribute("aria-hidden")).toBeNull();
+      expect(toggleButton.getAttribute("aria-label")).toBe("Show options");
       expect(toggleButton.tabIndex).toBe(-1);
 
       const input = container.querySelector("input") as HTMLInputElement;
@@ -498,9 +525,24 @@ describe("Combobox", () => {
       );
 
       const input = container.querySelector("input") as HTMLInputElement;
+      const toggleButton = container.querySelector(
+        "button",
+      ) as HTMLButtonElement;
       expect(input.disabled).toBe(true);
 
+      // Focus alone should not open, just as it does not when enabled.
       fireEvent.focus(input);
+      expect(input.getAttribute("aria-expanded")).toBe("false");
+
+      // The real open gestures must also be disabled.
+      fireEvent.click(input);
+      expect(input.getAttribute("aria-expanded")).toBe("false");
+
+      fireEvent.keyDown(input, { key: "ArrowDown" });
+      expect(input.getAttribute("aria-expanded")).toBe("false");
+
+      fireEvent.click(toggleButton);
+      expect(input.getAttribute("aria-expanded")).toBe("false");
 
       // List should not appear — options render through a portal into
       // document.body, not into the render container.

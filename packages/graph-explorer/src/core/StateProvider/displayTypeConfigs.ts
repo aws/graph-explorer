@@ -1,7 +1,7 @@
 import { atom, useAtomValue } from "jotai";
 import { atomFamily } from "jotai-family";
 import { useAtomCallback } from "jotai/utils";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 
 import {
   activeSchemaAtom,
@@ -87,35 +87,28 @@ export function useDisplayEdgeTypeConfigs() {
 export function useSearchableAttributes(type: string) {
   const displayTypeConfigs = useDisplayVertexTypeConfigs();
 
-  // React Compiler doesn't stabilize this on its own: without this useMemo,
-  // useKeywordSearch's own memoized attribute options recompute every
-  // render because their dependency here changes identity each time.
-  // Referential stability is a tested contract (see "useSearchableAttributes
-  // referential stability" in useKeywordSearch.test.ts), not a guess.
-  return useMemo(() => {
-    const includeAllTypes = type === SEARCH_TOKENS.ALL_VERTEX_TYPES;
+  const includeAllTypes = type === SEARCH_TOKENS.ALL_VERTEX_TYPES;
 
-    const alreadyAdded = new Set<string>();
-    const results: DisplayConfigAttribute[] = [];
+  const alreadyAdded = new Set<string>();
+  const results: DisplayConfigAttribute[] = [];
 
-    for (const [, value] of displayTypeConfigs) {
-      if (!includeAllTypes && value.type !== type) {
+  for (const [, value] of displayTypeConfigs) {
+    if (!includeAllTypes && value.type !== type) {
+      continue;
+    }
+    for (const attr of value.attributes) {
+      if (!attr.isSearchable || alreadyAdded.has(attr.name)) {
         continue;
       }
-      for (const attr of value.attributes) {
-        if (!attr.isSearchable || alreadyAdded.has(attr.name)) {
-          continue;
-        }
-        alreadyAdded.add(attr.name);
-        results.push(attr);
-      }
+      alreadyAdded.add(attr.name);
+      results.push(attr);
     }
+  }
 
-    // Sort by name
-    return results.toSorted((a, b) =>
-      a.displayLabel.localeCompare(b.displayLabel),
-    );
-  }, [displayTypeConfigs, type]);
+  // Sort by name
+  return results.toSorted((a, b) =>
+    a.displayLabel.localeCompare(b.displayLabel),
+  );
 }
 
 /** Gets the matching vertex type config or a generated default value. */

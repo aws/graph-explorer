@@ -1,7 +1,6 @@
 import type { QueryEngine } from "@shared/types";
 
 import { flatten } from "flat";
-import { useCallback } from "react";
 
 import { useQueryEngine } from "@/core/connector";
 
@@ -29,13 +28,8 @@ export function getTranslation(
 export default function useTranslations() {
   const queryEngine = useQueryEngine();
 
-  // Stable across renders so callers can safely depend on `t` in their own
-  // useMemo/useCallback deps without it defeating their memoization.
-  return useCallback(
-    (key: TranslationPaths, ns?: QueryEngine) =>
-      getTranslation(key, ns || queryEngine),
-    [queryEngine],
-  );
+  return (key: TranslationPaths, ns?: QueryEngine) =>
+    getTranslation(key, ns || queryEngine);
 }
 
 /*
