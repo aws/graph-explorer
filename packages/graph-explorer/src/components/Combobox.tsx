@@ -40,6 +40,10 @@ export interface ComboboxProps {
   id?: string;
   /** Accessible name for the input; omit when using `label` for a visible caption instead */
   "aria-label"?: string;
+  /** Accessible name for the trigger button; defaults to a generic prompt */
+  triggerLabel?: string;
+  /** Message shown when filtering returns no options */
+  emptyText?: string;
 }
 
 type Virtualizer = ReactVirtualizer<HTMLDivElement, Element>;
@@ -121,6 +125,8 @@ export function Combobox({
   className,
   id,
   "aria-label": ariaLabel,
+  triggerLabel = "Show options",
+  emptyText = "No results found",
 }: ComboboxProps) {
   const [{ open, filterText }, dispatch] = useReducer(comboboxReducer, {
     open: false,
@@ -275,7 +281,7 @@ export function Combobox({
           </div>
           <BaseCombobox.Trigger
             disabled={disabled}
-            aria-label="Show options"
+            aria-label={triggerLabel}
             // Kept in the accessibility tree and pointer-operable on purpose,
             // but deliberately not a Tab stop (tabIndex is -1): when the
             // input already has a value, VoiceOver's Read-All treats a filled
@@ -330,7 +336,7 @@ export function Combobox({
                 // list even when there's nothing inside it to show.
                 className="text-muted-foreground p-3 text-center text-sm empty:p-0"
               >
-                No results found
+                {emptyText}
               </BaseCombobox.Empty>
               <BaseCombobox.List
                 ref={handleScrollElementRef}
@@ -427,7 +433,7 @@ function VirtualizedOptions({
             }}
             className={cn(
               "text-foreground data-highlighted:bg-primary-subtle",
-              "flex w-full cursor-default items-center justify-between rounded-sm px-3 py-2 text-left text-base outline-hidden transition-colors duration-100",
+              "flex h-10 w-full cursor-default items-center justify-between rounded-sm px-3 py-2 text-left text-base outline-hidden transition-colors duration-100",
             )}
           >
             <span className="block truncate" title={option.label}>
