@@ -5,6 +5,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router";
 import {
   Button,
   CheckIcon,
+  Combobox,
   EmptyState,
   EmptyStateContent,
   EmptyStateDescription,
@@ -131,8 +132,7 @@ function DataExplorerContent({ vertexType }: { vertexType: VertexType }) {
     label: config.displayLabel,
   }));
 
-  const onVertexTypeChange = (value: string | string[]) => {
-    const newType = Array.isArray(value) ? value[0] : value;
+  const onVertexTypeChange = (newType: string) => {
     navigate(`/data-explorer/${encodeURIComponent(newType)}`, {
       replace: true,
     });
@@ -141,13 +141,12 @@ function DataExplorerContent({ vertexType }: { vertexType: VertexType }) {
   return (
     <Panel>
       <PanelHeader className="justify-between py-3">
-        <SelectField
+        <Combobox
           className="w-64"
           value={vertexType}
           onValueChange={onVertexTypeChange}
           options={vertexTypeOptions}
           label={t("node-type")}
-          labelPlacement="inner"
         />
         <div className="flex items-center gap-2">
           <DisplayNameAndDescriptionOptions vertexType={vertexType} />

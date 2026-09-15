@@ -39,8 +39,8 @@ On the right side of the graph view, you will see a vertical strip of sidebar ic
 ## Search for a Node
 
 1. Click the **Search** icon (magnifying glass) in the right sidebar to open the Search panel.
-2. In the **Node Label** dropdown, select **airport**.
-3. In the **Property** dropdown, select **code**.
+2. In the **Node Label** combobox, select **airport** (you can type to filter the list).
+3. In the **Property** combobox, select **code**.
 4. In the search text field, type `AUS`.
 5. Click the result for Austin to expand it, then click the **⊕** button to add it to the graph canvas.
 
@@ -75,7 +75,7 @@ This does not remove nodes from the graph — it only controls visibility. You c
 You can view the nodes and edges currently on the canvas in a table format without leaving the Graph page.
 
 1. Click the grid icon in the navigation bar to toggle the Table View open.
-2. Use the dropdown to switch between **All Nodes** and **All Edges**.
+2. Use the combobox to switch between **All Nodes** and **All Edges**.
 3. You can sort, filter, and export the table data to CSV or JSON.
 
 This table only shows what is on the canvas — it is a different view of the same data you have been exploring.
@@ -99,7 +99,7 @@ All airport nodes on the canvas update with the new labels and color. You can al
 The Data Table page lets you browse all nodes in the database without adding them to the graph first.
 
 1. Click **Data Table** in the navigation bar.
-2. The **Node Label** dropdown at the top left is pre-selected to **airport**. Use it to switch to other types like **country** or **continent**.
+2. The **Node Label** combobox at the top left is pre-selected to **airport**. Use it to switch to other types like **country** or **continent** (you can type to filter the list).
 3. Browse the paginated table of all airports in the dataset.
 4. To send a specific airport to the graph view, click the **Send to Explorer** button on its row.
 
