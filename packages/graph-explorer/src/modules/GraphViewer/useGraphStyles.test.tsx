@@ -1,18 +1,27 @@
 // @vitest-environment happy-dom
-import { waitFor } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import type { GraphProps } from "@/components/Graph";
 
-import { createEdgeType, createVertexType } from "@/core";
+import {
+  type AppStore,
+  createVertex,
+  createEdgeType,
+  createVertexType,
+  nodesAtom,
+  toNodeMap,
+  userVertexStylesAtom,
+} from "@/core";
 import {
   createRandomEdgeTypeConfig,
   createRandomVertexTypeConfig,
   DbState,
+  renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
 
-import useGraphStyles from "./useGraphStyles";
+import useGraphStyles, { useAllRenderedVertexStyles } from "./useGraphStyles";
 
 // A raster icon resolves synchronously to its url, so this test can exercise
 // the real icon pipeline and still pin the expected background image.
@@ -348,5 +357,110 @@ describe("useGraphStyles", () => {
       getStyles(result)[`node[type="${vertexConfig.type}"]`],
     ).toBeDefined();
     expect(getStyles(result)[`edge[type="${edgeConfig.type}"]`]).toBeDefined();
+  });
+
+  // Regression test for a real infinite render loop this hook caused in
+  // manual testing (multi-typed vertex + a fresh mount/session restore).
+  //
+  // Root cause: `useAllRenderedVertexStyles` used to source its vertex list
+  // via `useDisplayVerticesInCanvas()`, whose underlying selector
+  // (`displayVerticesInCanvasSelector`) allocates a brand-new array/Map on
+  // every single read (`get(nodesAtom).values().toArray()` feeding a
+  // reference-keyed atomFamily), even when `nodesAtom` itself hasn't changed.
+  // The hook's `useMemo` therefore never actually memoized, so every render
+  // produced a "new" config array by identity — which, chained through
+  // `useGraphStyles`'s `useDeferredValue`, never converged and pegged the CPU
+  // in a real browser tab. The fix reads `nodesAtom` directly instead, which
+  // Jotai only changes identity for when it's actually written to.
+  //
+  // This is asserted directly on the memoized value's referential stability,
+  // not via a render-count/timing probe: an isolated `renderHook` test of
+  // `useGraphStyles` alone did not reproduce the actual hang even on the
+  // unfixed code — the real feedback loop needs the mounted `<Graph>`
+  // component's Cytoscape-sync effects (which aren't exercised here) to close
+  // the cycle. Referential stability of the memoized array is the precise,
+  // deterministic property whose violation caused the bug, and is what any
+  // future change here must preserve regardless of how it's wired downstream.
+  it("returns the same array reference across re-renders when nothing changed", () => {
+    const typeA = createVertexType("TypeA");
+    const typeB = createVertexType("TypeB");
+    dbState.addVertexStyle(typeA, { color: "red" });
+    dbState.addVertexStyle(typeB, { borderColor: "blue" });
+    dbState.addVertexToGraph(createVertex({ id: "v1", types: [typeA, typeB] }));
+
+    const { result, rerender } = renderHookWithState(
+      () => useAllRenderedVertexStyles(),
+      dbState,
+    );
+
+    const firstRender = result.current;
+    expect(firstRender.length).toBe(1);
+
+    act(() => rerender());
+
+    expect(result.current).toBe(firstRender);
+  });
+
+  // A stronger version of the regression above, closer to the actual reported
+  // scenario: a session restore adds vertices one at a time (a fresh
+  // `nodesAtom` identity per vertex), most of them reusing a type combination
+  // already on the canvas. If this hook rebuilds its array on every one of
+  // those adds — not just when the *set of distinct combinations* changes —
+  // it forces a full Cytoscape stylesheet rebuild per vertex, which for a
+  // large restored graph is what actually produced the reported hang (not a
+  // literal non-terminating loop, but indistinguishable from one).
+  it("does not rebuild the resolved styles when a new vertex reuses an existing type combination", () => {
+    const typeA = createVertexType("TypeA");
+    let store!: AppStore;
+
+    const { result } = renderHookWithJotai(
+      () => useAllRenderedVertexStyles(),
+      s => {
+        store = s;
+        store.set(
+          userVertexStylesAtom,
+          new Map([[typeA, { type: typeA, color: "red" }]]),
+        );
+        store.set(
+          nodesAtom,
+          toNodeMap([createVertex({ id: "v1", types: [typeA] })]),
+        );
+      },
+    );
+
+    const firstRender = result.current;
+    expect(firstRender.length).toBe(1);
+
+    // Simulate the next step of a session restore: one more vertex of the
+    // exact same type combination, via a brand-new nodesAtom identity (the
+    // same shape as a real incremental restore).
+    act(() => {
+      store.set(
+        nodesAtom,
+        toNodeMap([
+          createVertex({ id: "v1", types: [typeA] }),
+          createVertex({ id: "v2", types: [typeA] }),
+        ]),
+      );
+    });
+
+    expect(result.current).toBe(firstRender);
+
+    // A vertex that introduces a genuinely new combination must still produce
+    // a new (correct) result — this isn't just permanently stuck on the first
+    // value.
+    const typeB = createVertexType("TypeB");
+    act(() => {
+      store.set(
+        nodesAtom,
+        toNodeMap([
+          createVertex({ id: "v1", types: [typeA] }),
+          createVertex({ id: "v3", types: [typeB] }),
+        ]),
+      );
+    });
+
+    expect(result.current).not.toBe(firstRender);
+    expect(result.current.length).toBe(2);
   });
 });

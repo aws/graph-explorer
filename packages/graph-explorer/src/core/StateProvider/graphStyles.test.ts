@@ -5,15 +5,19 @@ import { act } from "react";
 import { createEdgeType, createVertexType } from "@/core";
 import { DbState, renderHookWithState } from "@/utils/testing";
 
+import type { VertexType } from "../entities";
+
 import {
   appDefaultEdgeStyle,
   appDefaultVertexStyle,
   edgeStyleAtom,
   type EdgeStyleStorage,
+  mergeVertexStyleFields,
   useEdgeStyling,
   useVertexStyling,
   vertexStyleAtom,
   type VertexStyleStorage,
+  vertexTypeSetKey,
 } from "./graphStyles";
 
 function createExpectedVertex(existing: VertexStyleStorage) {
@@ -457,6 +461,118 @@ describe("edgeStyleAtom", () => {
 
     expect(result.current.get(edgeType)).toStrictEqual(
       createExpectedEdge({ type: edgeType }),
+    );
+  });
+});
+
+describe("vertexTypeSetKey", () => {
+  it("is stable regardless of the input order", () => {
+    const a = createVertexType("A");
+    const b = createVertexType("B");
+    const c = createVertexType("C");
+
+    expect(vertexTypeSetKey([a, b, c])).toBe(vertexTypeSetKey([c, a, b]));
+  });
+
+  it("ignores duplicate types", () => {
+    const a = createVertexType("A");
+    const b = createVertexType("B");
+
+    expect(vertexTypeSetKey([a, b, a])).toBe(vertexTypeSetKey([a, b]));
+  });
+
+  it("differs for different type sets", () => {
+    const a = createVertexType("A");
+    const b = createVertexType("B");
+
+    expect(vertexTypeSetKey([a])).not.toBe(vertexTypeSetKey([a, b]));
+  });
+});
+
+describe("mergeVertexStyleFields", () => {
+  it("merges non-conflicting fields from every type", () => {
+    const equipment = createVertexType("Equipment");
+    const breaker = createVertexType("Breaker");
+    const userStyles = new Map<VertexType, VertexStyleStorage>([
+      [equipment, { type: equipment, borderColor: "black", shape: "hexagon" }],
+      [breaker, { type: breaker, color: "red", iconUrl: "lucide:zap-off" }],
+    ]);
+
+    expect(
+      mergeVertexStyleFields([breaker, equipment], userStyles),
+    ).toStrictEqual({
+      borderColor: "black",
+      shape: "hexagon",
+      color: "red",
+      iconUrl: "lucide:zap-off",
+    });
+  });
+
+  it("resolves a field set by more than one type by lexicographic order, last wins", () => {
+    const a = createVertexType("A");
+    const z = createVertexType("Z");
+    const userStyles = new Map<VertexType, VertexStyleStorage>([
+      [a, { type: a, color: "from-a" }],
+      [z, { type: z, color: "from-z" }],
+    ]);
+
+    // Order of the input array must not matter — only the type names' sort order does.
+    expect(mergeVertexStyleFields([a, z], userStyles).color).toBe("from-z");
+    expect(mergeVertexStyleFields([z, a], userStyles).color).toBe("from-z");
+  });
+
+  it("skips types with no stored style", () => {
+    const styled = createVertexType("Styled");
+    const unstyled = createVertexType("Unstyled");
+    const userStyles = new Map<VertexType, VertexStyleStorage>([
+      [styled, { type: styled, color: "red" }],
+    ]);
+
+    expect(
+      mergeVertexStyleFields([styled, unstyled], userStyles),
+    ).toStrictEqual({ color: "red" });
+  });
+
+  it("returns an empty object when no type has a stored style", () => {
+    const a = createVertexType("A");
+    expect(mergeVertexStyleFields([a], new Map())).toStrictEqual({});
+  });
+});
+
+describe("vertexStyleAtom.getForTypes", () => {
+  it("merges styles across all of a vertex's types, overlaid on defaults", () => {
+    const dbState = new DbState();
+    const equipment = createVertexType("Equipment");
+    const breaker = createVertexType("Breaker");
+    dbState.addVertexStyle(equipment, { borderColor: "black" });
+    dbState.addVertexStyle(breaker, { color: "red" });
+
+    const { result } = renderHookWithState(
+      () => useAtomValue(vertexStyleAtom),
+      dbState,
+    );
+
+    const resolved = result.current.getForTypes([breaker, equipment]);
+    expect(resolved.color).toBe("red");
+    expect(resolved.borderColor).toBe("black");
+    // Every other field still falls back to the app default.
+    expect(resolved.shape).toBe(appDefaultVertexStyle.shape);
+  });
+
+  it("is order-independent — the same two types resolve identically regardless of array order", () => {
+    const dbState = new DbState();
+    const a = createVertexType("A");
+    const z = createVertexType("Z");
+    dbState.addVertexStyle(a, { color: "from-a" });
+    dbState.addVertexStyle(z, { color: "from-z" });
+
+    const { result } = renderHookWithState(
+      () => useAtomValue(vertexStyleAtom),
+      dbState,
+    );
+
+    expect(result.current.getForTypes([a, z])).toStrictEqual(
+      result.current.getForTypes([z, a]),
     );
   });
 });
