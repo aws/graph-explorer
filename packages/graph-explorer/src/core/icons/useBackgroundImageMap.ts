@@ -1,13 +1,13 @@
 import type { VertexStyle, VertexType } from "@/core";
 
+import { toIconImageUrl } from "./iconImageUrl";
 import {
   classifyIconSource,
   type IconSource,
   type IconSourceId,
   iconSourceId,
-  toIconImageUrl,
-  useResolvedIcons,
-} from "@/core/icons";
+} from "./iconSource";
+import { useResolvedIcons } from "./useResolvedIcons";
 
 /**
  * Maps each vertex type to its cytoscape `background-image`.
