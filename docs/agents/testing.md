@@ -2,6 +2,12 @@
 
 Vitest. Tests co-locate with source as `*.test.ts` (or `*.test.tsx` for component/hook tests) — no `__tests__/` dirs. Test utilities live in `@/utils/testing` (frontend) and `@shared/utils/testing` (primitives).
 
+## Where tests live
+
+Vitest collects only the projects listed in the root `vitest.config.ts`, currently `packages/*` and `scripts`. A test file outside those is never collected, and `pnpm test` still reports green, so adding a new top-level test directory means giving it a `vitest.config.ts` and adding it to that list.
+
+Each project sets up its own environment. `setupTests.ts` below is registered by `packages/graph-explorer` only, so tests in `packages/shared` and `scripts` reset their own mocks.
+
 ## Rules
 
 - Use `renderHookWithState` for hooks, not `renderHook`
@@ -10,7 +16,7 @@ Vitest. Tests co-locate with source as `*.test.ts` (or `*.test.tsx` for componen
 - Constrained non-determinism: randomize everything the assertion doesn't depend on, pin only what it does. A flake on random data is an unpinned dependency — pin the field, don't narrow the factory.
 - Assert full expected values with `toStrictEqual([...])`, not length checks plus per-index `toEqual`
 - Test behavior, not implementation. Don't assert on CSS classes, element types, or layout — those break on harmless visual changes. A purely presentational component with no branching needs no test.
-- `setupTests.ts` handles environment (UTC, en-US), mock cleanup, and a real localForage backend on `fake-indexeddb` (fresh per test). Don't re-do this setup; assume it.
+- `setupTests.ts` handles environment (UTC, en-US), mock cleanup, and a real localForage backend on `fake-indexeddb` (fresh per test). Don't re-do this setup; assume it inside `packages/graph-explorer`.
 
 ## Key helpers (`@/utils/testing`)
 

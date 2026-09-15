@@ -4,9 +4,10 @@
 // integrity hash, so without this check the hash is never verified in CI and a
 // wrong or hand-written one would go unnoticed.
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
 
 const PIN_PATTERN = /^pnpm@(\d+\.\d+\.\d+)\+sha512\.([0-9a-f]{128})$/;
+const HEX_SHA512 = /^[0-9a-f]{128}$/;
 
 export type PnpmPin = {
   version: string;
@@ -32,10 +33,19 @@ export function integrityToHex(integrity: string): string {
   // Quotes and whitespace go first: a leading quote would otherwise keep the
   // prefix off the line start and leave "sha512-" inside the decoded bytes.
   const base64 = integrity.replace(/["\s]/g, "").replace(/^sha512-/, "");
-  if (base64.length === 0) {
-    throw new Error("the registry returned an empty dist.integrity");
+  const hex = Buffer.from(base64, "base64").toString("hex");
+  // Buffer.from silently drops anything outside the base64 alphabet instead of
+  // throwing, so a proxy error page or a truncated response still decodes to
+  // some shorter hex. Rejecting it here keeps it out of the hash comparison,
+  // which would otherwise report a network problem as a mismatched pin.
+  if (!HEX_SHA512.test(hex)) {
+    throw new Error(
+      `the registry did not return a sha512 dist.integrity, so the pin was ` +
+        `not checked. This step needs network access to the npm registry. ` +
+        `Got "${integrity.trim().slice(0, 200)}"`,
+    );
   }
-  return Buffer.from(base64, "base64").toString("hex");
+  return hex;
 }
 
 /** Reads `packageManager` out of a manifest without assuming the rest of its shape. */
@@ -44,13 +54,12 @@ function readPinField(manifestJson: string): unknown {
   if (typeof manifest !== "object" || manifest === null) {
     throw new Error("package.json does not contain a JSON object");
   }
-  return Object.hasOwn(manifest, "packageManager")
-    ? (manifest as Record<"packageManager", unknown>).packageManager
-    : undefined;
+  return "packageManager" in manifest ? manifest.packageManager : undefined;
 }
 
 export function main() {
-  const pin = parsePin(readPinField(readFileSync("package.json", "utf8")));
+  const manifestPath = new URL("../package.json", import.meta.url);
+  const pin = parsePin(readPinField(readFileSync(manifestPath, "utf8")));
 
   const registryHash = integrityToHex(
     execFileSync("pnpm", ["view", `pnpm@${pin.version}`, "dist.integrity"], {
@@ -79,11 +88,22 @@ export function main() {
 
   // oxlint-disable-next-line no-console -- stdout is this script's output
   console.log(
-    `pnpm@${pin.version} matches its pinned integrity hash and is the version running.`,
+    `the pinned hash for pnpm@${pin.version} matches the registry, and pnpm ${pin.version} is running.`,
   );
 }
 
-if (import.meta.filename === process.argv[1]) {
+/** True when Node was asked to run this file rather than import it. */
+function isEntryPoint(): boolean {
+  const invoked = process.argv[1];
+  if (invoked === undefined) {
+    return false;
+  }
+  // `import.meta.filename` is realpath-resolved and `process.argv[1]` is not,
+  // so comparing them raw makes a symlinked path skip the check and exit 0.
+  return realpathSync(invoked) === import.meta.filename;
+}
+
+if (isEntryPoint()) {
   try {
     main();
   } catch (error) {

@@ -41,8 +41,11 @@ jobs:
         with:
           node-version-file: ".nvmrc"
 
+      # Invoked directly rather than through `pnpm check:pnpm-pin`, because
+      # pnpm's verifyDepsBeforeRun default installs the whole workspace before
+      # running a script, which would defeat checking the pin ahead of install.
       - name: Verify the pinned pnpm integrity hash
-        run: pnpm check:pnpm-pin
+        run: node scripts/verify-pnpm-pin.ts
 
       - name: Install package and dependencies
         run: pnpm install --frozen-lockfile
