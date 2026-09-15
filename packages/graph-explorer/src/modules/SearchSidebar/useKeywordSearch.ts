@@ -1,8 +1,7 @@
 import { useAtom } from "jotai";
 import { atomWithReset } from "jotai/utils";
-import { useMemo } from "react";
 
-import type { SelectOption } from "@/components";
+import type { ComboboxOption } from "@/components";
 
 import { useDisplayVertexTypeConfigs, useSearchableAttributes } from "@/core";
 import { useQueryEngine } from "@/core/connector";
@@ -30,31 +29,26 @@ function useAttributeOptions(selectedVertexType: string) {
   const queryEngine = useQueryEngine();
   const t = useTranslations();
 
-  // Rules of hooks forbid calling a hook inside the useMemo callback below,
-  // so useSearchableAttributes runs here and only the derived array is memoized.
   const allSearchableAttributes = useSearchableAttributes(selectedVertexType);
 
-  const options: SelectOption[] = useMemo(() => {
-    const result: SelectOption[] = [
-      {
-        label: `All string ${t("properties").toLocaleLowerCase()}`,
-        value: SEARCH_TOKENS.ALL_ATTRIBUTES,
-      },
-    ];
+  const options: ComboboxOption[] = [
+    {
+      label: `All string ${t("properties").toLocaleLowerCase()}`,
+      value: SEARCH_TOKENS.ALL_ATTRIBUTES,
+    },
+  ];
 
-    // SPARQL support for ID search is not yet implemented
-    if (queryEngine !== "sparql") {
-      result.push({ label: "ID", value: SEARCH_TOKENS.NODE_ID });
-    }
+  // SPARQL support for ID search is not yet implemented
+  if (queryEngine !== "sparql") {
+    options.push({ label: "ID", value: SEARCH_TOKENS.NODE_ID });
+  }
 
-    for (const attribute of allSearchableAttributes) {
-      result.push({
-        label: attribute.displayLabel,
-        value: attribute.name,
-      });
-    }
-    return result;
-  }, [allSearchableAttributes, t, queryEngine]);
+  for (const attribute of allSearchableAttributes) {
+    options.push({
+      label: attribute.displayLabel,
+      value: attribute.name,
+    });
+  }
 
   return options;
 }
@@ -80,20 +74,17 @@ export default function useKeywordSearch() {
   ];
 
   const vtConfigs = useDisplayVertexTypeConfigs();
-  const vertexOptions = useMemo(
-    () => [
-      { label: "All", value: SEARCH_TOKENS.ALL_VERTEX_TYPES },
-      ...vtConfigs
-        .values()
-        // Filtering out empty types because the queries need to be updated to support them
-        .filter(vtConfig => vtConfig.type !== "")
-        .map(vtConfig => ({
-          label: vtConfig.displayLabel,
-          value: vtConfig.type,
-        })),
-    ],
-    [vtConfigs],
-  );
+  const vertexOptions = [
+    { label: "All", value: SEARCH_TOKENS.ALL_VERTEX_TYPES },
+    ...vtConfigs
+      .values()
+      // Filtering out empty types because the queries need to be updated to support them
+      .filter(vtConfig => vtConfig.type !== "")
+      .map(vtConfig => ({
+        label: vtConfig.displayLabel,
+        value: vtConfig.type,
+      })),
+  ];
 
   const attributesOptions = useAttributeOptions(selectedVertexType);
   const defaultSearchAttribute =

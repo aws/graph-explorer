@@ -6,6 +6,7 @@ import { CheckIcon, ChevronDownIcon } from "lucide-react";
 import {
   useCallback,
   useDeferredValue,
+  useEffect,
   useId,
   useImperativeHandle,
   useMemo,
@@ -146,28 +147,20 @@ export function Combobox({
     [],
   );
 
-  // Defer filtered list rendering to keep input responsive during filtering
-  const deferredFilter = useDeferredValue(filterText ?? "");
-
-  // Base UI's useFilter() returns a fresh Filter object every render (it
-  // isn't memoized internally) even though its actual matching behavior
-  // never changes here (no locale/sensitivity options are passed in), so
-  // including it in the deps below would recompute filteredOptions on every
-  // incidental re-render for no behavioral reason.
-  const filter = BaseCombobox.useFilter();
-
-  const filteredOptions = useMemo(() => {
-    if (!deferredFilter) return options;
-    return options.filter(opt =>
-      filter.contains(opt, deferredFilter, o => o.label),
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `filter` intentionally excluded, see comment above
-  }, [deferredFilter, options]);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const selectedOption = options.find(opt => opt.value === value) ?? null;
   // Mirrors the closed-state label until the user types, without needing a
   // separate "display value" prop on Base UI's fully-controlled Input.
   const inputValue = filterText ?? selectedOption?.label ?? "";
+
+  // Select the input text when the popup opens so the first typed character
+  // replaces the current label instead of appending to it.
+  useEffect(() => {
+    if (open) inputRef.current?.select();
+  }, [open]);
+
+  const filteredOptions = useFilteredOptions(options, filterText);
 
   return (
     <div className={cn("relative w-full", className)}>
@@ -227,11 +220,13 @@ export function Combobox({
               </span>
             ) : null}
             <BaseCombobox.Input
+              ref={inputRef}
               id={id}
               aria-label={ariaLabel}
               aria-labelledby={!ariaLabel && label ? captionId : undefined}
+              autoComplete="off"
               disabled={disabled}
-              placeholder={!selectedOption ? placeholder : ""}
+              placeholder={!inputValue ? placeholder : ""}
               className="placeholder:text-muted-foreground w-full bg-transparent outline-hidden"
               onClick={() => {
                 // A <button> has "click" as its native default action, which
@@ -261,11 +256,13 @@ export function Combobox({
           </div>
           <BaseCombobox.Trigger
             disabled={disabled}
-            // Kept in the accessibility tree and tab order on purpose: when
-            // the input already has a value, VoiceOver's Read-All treats a
-            // filled text input as content to read and skips announcing its
-            // combobox role — this button is what re-announces "combo box"
-            // in that case (confirmed against shadcn's Base UI reference
+            aria-label="Show options"
+            // Kept in the accessibility tree and pointer-operable on purpose,
+            // but deliberately not a Tab stop (tabIndex is -1): when the
+            // input already has a value, VoiceOver's Read-All treats a filled
+            // text input as content to read and skips announcing its combobox
+            // role — this button is what re-announces "combo box" in that
+            // case (confirmed against shadcn's Base UI reference
             // implementation, which does the same). An earlier revision
             // hid this from screen readers to avoid VoiceOver reading
             // Control-Option-Space on a grouped control as "stop
@@ -331,6 +328,29 @@ export function Combobox({
       </BaseCombobox.Root>
     </div>
   );
+}
+
+function useFilteredOptions(
+  options: ComboboxOption[],
+  filterText: string | null,
+) {
+  // Defer filtered list rendering to keep input responsive during filtering
+  const deferredFilter = useDeferredValue(filterText ?? "");
+
+  // Base UI's useFilter() returns a fresh Filter object every render (it
+  // isn't memoized internally) even though its actual matching behavior
+  // never changes here (no locale/sensitivity options are passed in), so
+  // including it in the deps below would recompute filteredOptions on every
+  // incidental re-render for no behavioral reason.
+  const filter = BaseCombobox.useFilter();
+
+  return useMemo(() => {
+    if (!deferredFilter) return options;
+    return options.filter(opt =>
+      filter.contains(opt, deferredFilter, o => o.label),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `filter` intentionally excluded, see comment above
+  }, [deferredFilter, options]);
 }
 
 /**
@@ -403,5 +423,3 @@ function VirtualizedOptions({
     </div>
   );
 }
-
-export default Combobox;

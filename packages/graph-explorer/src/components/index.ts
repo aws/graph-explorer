@@ -2,7 +2,6 @@ export * from "./Alert";
 export * from "./AlertDialog";
 export * from "./Button";
 
-export { default as Combobox } from "./Combobox";
 export * from "./Combobox";
 
 export * from "./Checkbox";
