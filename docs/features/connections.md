@@ -37,3 +37,45 @@ When a connection is created, Graph Explorer will perform a scan of the graph to
 ### Data Table
 
 Under a listed node type, you can click on the ">" arrow to get to the [Data Table](./data-table.md) view. This allows you to see a sample list of nodes under this type and choose one or more nodes to "Send to Explorer" for getting started quickly if you are new to the data. You can also navigate directly to the Data Table view using the "Data Table" link in the navigation bar.
+
+## Connection Links
+
+External applications can link directly to Graph Explorer with a connection pre-configured by opening the `#/connect` route with query parameters. Graph Explorer reads the parameters, then either switches to the matching connection or opens a pre-filled create form for a new one, and redirects to the graph view.
+
+### Parameters
+
+| Parameter     | Required | Default                       | Description                                                                                    |
+| ------------- | -------- | ----------------------------- | ---------------------------------------------------------------------------------------------- |
+| `graphDbUrl`  | Yes      | —                             | The graph database endpoint, URL-encoded.                                                      |
+| `queryEngine` | No       | `gremlin`                     | One of `gremlin`, `openCypher`, or `sparql`. Invalid values fall back to `gremlin`.            |
+| `awsRegion`   | No       | —                             | AWS region for the connection. Providing a region enables IAM auth (SigV4 signed requests).    |
+| `serviceType` | No       | `neptune-db` (when IAM is on) | One of `neptune-db` or `neptune-graph`. Only applies when IAM auth is enabled via `awsRegion`. |
+| `name`        | No       | The endpoint's hostname       | Display label for the connection. Defaults to the full hostname of `graphDbUrl`.               |
+
+The parameters belong to the `#/connect` route, so they go _after_ the `#` (Graph Explorer uses hash-based routing). `graphDbUrl` must be URL-encoded. Most languages provide this via `encodeURIComponent()` (JavaScript), `urllib.parse.quote()` (Python), or `URLEncoder.encode()` (Java).
+
+### Example
+
+```
+https://[GRAPH_EXPLORER_HOST]/#/connect?graphDbUrl=https%3A%2F%2Fmy-cluster.us-east-1.neptune.amazonaws.com%3A8182&queryEngine=gremlin&awsRegion=us-east-1&serviceType=neptune-db&name=My%20Database
+```
+
+### Behavior
+
+When you open a connection link, Graph Explorer does one of the following:
+
+- **The link matches your active connection** — nothing changes.
+- **The link matches a different existing connection** — Graph Explorer switches to it, the same as selecting it in the connections list. No prompt: the connection was already created and validated by you, so there is nothing new to confirm.
+- **The link matches no existing connection** — the create-connection form opens, pre-filled with the link's details so you can review or edit any setting before creating it.
+- **The link's details are invalid** (for example, a `graphDbUrl` that is not a valid `http`/`https` URL) — the link is ignored and a notification explains what went wrong.
+
+In all cases Graph Explorer redirects to the graph view once the link is handled, so the `#/connect` URL does not linger in your history and refreshing behaves normally.
+
+#### What counts as a match
+
+A link matches an existing connection only when its endpoint, query engine, **and authentication posture** all agree:
+
+- the same `graphDbUrl` (compared case-insensitively) and the same `queryEngine`, and
+- the same auth posture — whether IAM is on (a link enables it by providing `awsRegion`), and when it is on, the same `awsRegion` and `serviceType`.
+
+Authentication is part of a connection's identity: a link requesting IAM in a region is a _different_ connection from a plaintext one to the same endpoint, and vice versa. A link whose auth posture differs from every existing connection never silently reuses one — it opens the pre-filled create form instead, where you can review the authentication settings before connecting.
