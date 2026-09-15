@@ -6,10 +6,8 @@ if [ -f "./config.json" ]; then
 
     json=$(cat ./config.json)
 
-    PUBLIC_OR_PROXY_ENDPOINT=$(echo "$json" | grep -o '"PUBLIC_OR_PROXY_ENDPOINT":[^,}]*' | cut -d '"' -f 4)
     GRAPH_TYPE=$(echo "$json" | grep -o '"GRAPH_TYPE":[^,}]*' | cut -d '"' -f 4)
     SERVICE_TYPE=$(echo "$json" | grep -o '"SERVICE_TYPE":[^,}]*' | cut -d '"' -f 4)
-    USING_PROXY_SERVER=$(echo "$json" | grep -o '"USING_PROXY_SERVER":[^,}]*' | cut -d ':' -f 2 | tr -d '[:space:]' | sed 's/"//g')
     IAM=$(echo "$json" | grep -o '"IAM":[^,}]*' | cut -d ':' -f 2 | tr -d '[:space:]' | sed 's/"//g')
     GRAPH_CONNECTION_URL=$(echo "$json" | grep -o '"GRAPH_CONNECTION_URL":[^,}]*' | cut -d '"' -f 4)
     AWS_REGION=$(echo "$json" | grep -o '"AWS_REGION":[^,}]*' | cut -d '"' -f 4)
@@ -18,15 +16,17 @@ if [ -f "./config.json" ]; then
     NEPTUNE_NOTEBOOK=$(echo "$json" | grep -o '"NEPTUNE_NOTEBOOK":[^,}]*' | cut -d ':' -f 2 | tr -d '[:space:]' | sed 's/"//g')
 fi
 
-if [ -n "$NEPTUNE_NOTEBOOK" ]; then
-    printf '\nNEPTUNE_NOTEBOOK=%s\n' "$NEPTUNE_NOTEBOOK" >> $CONFIGURATION_FOLDER_PATH/.env
-    if [ "$NEPTUNE_NOTEBOOK" = "true" ]; then
-      # Override Proxy SSL setting if Neptune notebook
-      PROXY_SERVER_HTTPS_CONNECTION="false"
-      GRAPH_EXP_HTTPS_CONNECTION="false"
+if [ "$NEPTUNE_NOTEBOOK" = "true" ]; then
+    # Force SSL off for Neptune Notebook environments
+    PROXY_SERVER_HTTPS_CONNECTION="false"
+    GRAPH_EXP_HTTPS_CONNECTION="false"
+    # Set port and log style unless explicitly overridden
+    if [ -z "$PROXY_SERVER_HTTP_PORT" ]; then
+        printf '\nPROXY_SERVER_HTTP_PORT=9250\n' >> $CONFIGURATION_FOLDER_PATH/.env
     fi
-else
-    printf '\nNEPTUNE_NOTEBOOK=false\n' >> $CONFIGURATION_FOLDER_PATH/.env
+    if [ -z "$LOG_STYLE" ]; then
+        printf '\nLOG_STYLE=cloudwatch\n' >> $CONFIGURATION_FOLDER_PATH/.env
+    fi
 fi
 
 if [ -n "$PROXY_SERVER_HTTPS_CONNECTION" ]; then
@@ -42,11 +42,11 @@ else
 fi
 
 # Update the default connection file with the configuration values
-if [ -n "$PUBLIC_OR_PROXY_ENDPOINT" ]; then 
+if [ -n "$GRAPH_CONNECTION_URL" ]; then
     # Overwrite existing file with an empty string
     echo "" > $CONFIGURATION_FOLDER_PATH/defaultConnection.json
-    
-    printf '{\n"GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT":"%s",\n' "$PUBLIC_OR_PROXY_ENDPOINT" >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
+
+    printf '{\n"GRAPH_EXP_CONNECTION_URL":"%s",\n' "$GRAPH_CONNECTION_URL" >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
 
     if [ -n "$SERVICE_TYPE" ]; then
         echo "\"GRAPH_EXP_SERVICE_TYPE\":\"${SERVICE_TYPE}\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
@@ -54,26 +54,19 @@ if [ -n "$PUBLIC_OR_PROXY_ENDPOINT" ]; then
         echo "\"GRAPH_EXP_SERVICE_TYPE\":\"neptune-db\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
     fi
 
-    if [ -n "$GRAPH_TYPE" ]; then 
+    if [ -n "$GRAPH_TYPE" ]; then
         echo "\"GRAPH_EXP_GRAPH_TYPE\":\"${GRAPH_TYPE}\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
     else
       if [ "$SERVICE_TYPE" = "neptune-graph" ]; then
         echo "\"GRAPH_EXP_GRAPH_TYPE\":\"openCypher\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
       fi
     fi
-    
-    if [ -n "$USING_PROXY_SERVER" ]; then 
-        echo "\"GRAPH_EXP_USING_PROXY_SERVER\":${USING_PROXY_SERVER}," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
-    else 
-        echo "\"GRAPH_EXP_USING_PROXY_SERVER\":false," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
-    fi 
 
-    if [ -n "$IAM" ]; then 
+    if [ -n "$IAM" ]; then
         echo "\"GRAPH_EXP_IAM\":${IAM}," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
-    else 
+    else
         echo "\"GRAPH_EXP_IAM\":false," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
     fi
 
-    echo "\"GRAPH_EXP_CONNECTION_URL\":\"${GRAPH_CONNECTION_URL}\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
     printf '"GRAPH_EXP_AWS_REGION":"%s"\n}\n' "$AWS_REGION" >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
 fi

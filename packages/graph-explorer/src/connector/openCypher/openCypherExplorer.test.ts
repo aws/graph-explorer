@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
 import { createOpenCypherExplorer } from "./openCypherExplorer";
@@ -6,10 +7,8 @@ function createConnection(
   overrides?: Partial<NormalizedConnection>,
 ): NormalizedConnection {
   return {
-    url: "http://localhost:8182",
     queryEngine: "openCypher",
-    graphDbUrl: "",
-    proxyConnection: false,
+    graphDbUrl: "https://my-neptune:8182",
     awsAuthEnabled: false,
     ...overrides,
   };
@@ -35,6 +34,7 @@ describe("createOpenCypherExplorer", () => {
   beforeEach(() => {
     mockFetch = vi.fn();
     vi.stubGlobal("fetch", mockFetch);
+    document.head.innerHTML = '<base href="http://localhost/explorer/" />';
   });
 
   afterEach(() => {
@@ -66,7 +66,7 @@ describe("createOpenCypherExplorer", () => {
       await explorer.fetchSchema();
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "http://localhost:8182/pg/statistics/summary?mode=basic",
+        new URL("http://localhost/pg/statistics/summary?mode=basic"),
         expect.objectContaining({ method: "GET" }),
       );
     });
@@ -93,7 +93,7 @@ describe("createOpenCypherExplorer", () => {
       await explorer.fetchSchema();
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "http://localhost:8182/summary?mode=basic",
+        new URL("http://localhost/summary?mode=basic"),
         expect.objectContaining({ method: "GET" }),
       );
     });

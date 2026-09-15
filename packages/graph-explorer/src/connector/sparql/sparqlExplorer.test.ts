@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
 import { createSparqlExplorer } from "./sparqlExplorer";
@@ -6,10 +7,8 @@ function createConnection(
   overrides?: Partial<NormalizedConnection>,
 ): NormalizedConnection {
   return {
-    url: "http://localhost:8182",
     queryEngine: "sparql",
-    graphDbUrl: "",
-    proxyConnection: false,
+    graphDbUrl: "https://my-neptune:8182",
     awsAuthEnabled: false,
     ...overrides,
   };
@@ -35,6 +34,7 @@ describe("createSparqlExplorer", () => {
   beforeEach(() => {
     mockFetch = vi.fn();
     vi.stubGlobal("fetch", mockFetch);
+    document.head.innerHTML = '<base href="http://localhost/explorer/" />';
   });
 
   afterEach(() => {
@@ -68,7 +68,7 @@ describe("createSparqlExplorer", () => {
       await explorer.fetchSchema();
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "http://localhost:8182/rdf/statistics/summary?mode=basic",
+        new URL("http://localhost/rdf/statistics/summary?mode=basic"),
         expect.objectContaining({ method: "GET" }),
       );
     });
