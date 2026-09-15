@@ -67,8 +67,18 @@ describe("integrityToHex", () => {
     expect(integrityToHex(INTEGRITY.replace("sha512-", ""))).toBe(HASH);
   });
 
-  test("rejects an empty value rather than returning an empty hash", () => {
-    expect(() => integrityToHex("  \n")).toThrow(/empty dist\.integrity/);
+  test.for([
+    ["an empty value", "  \n"],
+    ["a truncated integrity", INTEGRITY.slice(0, 20)],
+    ["a proxy error page", "<html><title>502 Bad Gateway</title></html>"],
+    [
+      "a deprecation warning ahead of the value",
+      `npm warn deprecated\n${INTEGRITY}`,
+    ],
+  ])("rejects %s rather than decoding it to a short hash", ([, value]) => {
+    expect(() => integrityToHex(value)).toThrow(
+      /did not return a sha512 dist\.integrity/,
+    );
   });
 });
 
@@ -84,9 +94,17 @@ describe("main", () => {
     running?: string;
   } = {}) {
     vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ packageManager }));
+    // Matched in full rather than dispatched on argv[0], so that a wrong flag,
+    // a wrong version, or an extra shell-out fails instead of being answered.
     vi.mocked(execFileSync).mockImplementation((_file, args) => {
-      const argv = args as string[];
-      return argv[0] === "view" ? `${integrity}\n` : `${running}\n`;
+      const argv = (args as string[]).join(" ");
+      if (argv === `view pnpm@${VERSION} dist.integrity`) {
+        return `${integrity}\n`;
+      }
+      if (argv === "--version") {
+        return `${running}\n`;
+      }
+      throw new Error(`unexpected pnpm invocation: ${argv}`);
     });
   }
 
@@ -102,13 +120,25 @@ describe("main", () => {
     expect(() => main()).not.toThrow();
 
     expect(log).toHaveBeenCalledWith(
-      `pnpm@${VERSION} matches its pinned integrity hash and is the version running.`,
+      `the pinned hash for pnpm@${VERSION} matches the registry, and pnpm ${VERSION} is running.`,
     );
     expect(execFileSync).toHaveBeenCalledWith(
       "pnpm",
       ["view", `pnpm@${VERSION}`, "dist.integrity"],
       { encoding: "utf8" },
     );
+    expect(execFileSync).toHaveBeenCalledWith("pnpm", ["--version"], {
+      encoding: "utf8",
+    });
+  });
+
+  test("blames the registry, not the pin, when the response is not an integrity", () => {
+    stubEnvironment({
+      integrity: "<html><title>502 Bad Gateway</title></html>",
+    });
+
+    expect(() => main()).toThrow(/did not return a sha512 dist\.integrity/);
+    expect(() => main()).not.toThrow(/Regenerate the pin/);
   });
 
   test("reports both hashes and how to regenerate when the registry disagrees", () => {
