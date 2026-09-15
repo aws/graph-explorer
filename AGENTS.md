@@ -75,7 +75,7 @@ Run from project root with `pnpm`. Use only these scripts — never invoke `tsc`
 - `pnpm test <path>` — test files matching a path substring (file, dir, or partial)
 - `pnpm test -t "pattern"` — test by name (no `--` separator; pnpm forwards args verbatim, unlike npm)
 - `pnpm coverage` — tests with coverage
-- `pnpm check:pnpm-pin` — verify the `packageManager` integrity hash against the registry and that the pinned pnpm is the one running (needs network; not part of `checks`)
+- `pnpm check:pnpm-pin` — verify the `packageManager` hash against `pnpm-lock.yaml` and that the pinned pnpm is the one running (offline; included in `checks`)
 
 `pnpm check:types` runs in parallel across packages in under a minute; just run it.
 

@@ -4,7 +4,7 @@ Build instructions and development setup for contributing to Graph Explorer. For
 
 ## Requirements
 
-- pnpm 12.4.1, pinned by `packageManager`
+- pnpm 12.4.2, pinned by `packageManager`
 - node >=24.21.0
 
 ### Node Version
@@ -38,13 +38,20 @@ Corepack takes a different path to the same version, in two hops. It downloads t
 
 ### Upgrading pnpm
 
-The version is pinned in three places and they have to move together:
+Three files carry the pnpm version itself:
 
 - `packageManager` in `package.json`, which is what self-managing pnpm, Corepack, and CI all resolve.
+- `pnpm-lock.yaml`, which records the version under `packageManagerDependencies` plus an `integrity` for `pnpm` and for each `@pnpm/exe.*` platform package. `corepack use` regenerates this; never hand-edit it. It is the one that fails silently, because editing `packageManager` alone leaves the lockfile stale and `pnpm install` still reports "Already up to date".
 - The pnpm requirement at the top of this document.
-- `corepack@<version>` in the `Dockerfile`, which is an exact version rather than a floor. The container gets pnpm only through `corepack enable`, and pnpm 12 ships as a native executable, so a pnpm major needs a Corepack release that knows how to fetch and verify that binary.
 
-Run `corepack use pnpm@<version>` from the repo root. It rewrites `packageManager` with a freshly computed integrity hash and then runs `pnpm install`, so any lockfile movement shows up immediately. Do not hand-write the hash. If `corepack` is not on your `PATH`, install the version the `Dockerfile` pins first with `npm install -g corepack@<version>`. Node 24 bundles Corepack but only behind `corepack enable`, and later Node lines drop it entirely.
+Two more pin a _different tool_ whose version is tied to the pnpm major, so they stay put on a patch or minor bump and move only when the major changes:
+
+- `corepack@<version>` in the `Dockerfile`. The container gets pnpm only through `corepack enable`, and pnpm 12 ships as a native executable, so a new pnpm major needs a Corepack release that can fetch and verify that binary. A Corepack release's notes name the pnpm majors it handles.
+- `pnpm/action-setup` in `.github/workflows/unit.yml`, covered below.
+
+Run `corepack use pnpm@<version>` from the repo root. It rewrites `packageManager` with a freshly computed integrity hash and then runs `pnpm install`, which updates the lockfile. Do not hand-write the hash. If `corepack` is not on your `PATH`, install it with `npm install -g corepack@<version>`; Node 24 bundles Corepack but only behind `corepack enable`, and later Node lines drop it entirely.
+
+On a major bump, raise the `Dockerfile`'s Corepack pin _before_ running `corepack use`, because the Corepack currently pinned is by definition the one that predates the new pnpm major. Nothing in the commands below builds the image, so a Corepack pin too old to fetch the new pnpm surfaces only when `test_build_docker.yml` runs on the pull request. Run `docker build .` locally if you would rather find out sooner.
 
 Do not reach for `pnpm self-update`. It rewrites `packageManager` without the `+sha512` hash, throwing the integrity pin away. `pnpm check:pnpm-pin` fails afterwards, so the mistake does not ship, but `corepack use` is the only command that writes a correct pin.
 
@@ -54,12 +61,13 @@ Update this document to the same version, then confirm nothing shifted:
 pnpm install --frozen-lockfile
 pnpm checks
 pnpm test
-pnpm check:pnpm-pin          # needs network; not part of pnpm checks
 ```
 
 `.github/workflows/unit.yml` reads the version from `packageManager`, so a patch or minor bump needs no workflow edit. A major bump usually does. [`pnpm/action-setup`](https://github.com/pnpm/action-setup) bootstraps pnpm from lockfiles committed inside the action itself, so it needs a release that knows about the new major. v6.1.0 is the release that added pnpm 12. On a major bump, update the pinned commit SHA and its version comment in the workflow.
 
-CI runs the same check as `pnpm check:pnpm-pin`, confirming the `+sha512` hash matches what the registry publishes for the pinned version and that the pinned version is the one running. `pnpm/action-setup` reads only the version out of `packageManager` and discards the hash, so without that step nothing would ever check it. The workflow calls `node scripts/verify-pnpm-pin.ts` rather than the script name, because pnpm installs the whole workspace before running a `pnpm run` script and that would undo checking the pin before install.
+`pnpm check:pnpm-pin` compares the `+sha512` hash in `packageManager` against the `integrity` `pnpm-lock.yaml` records for the same version, and checks that the pinned version is the one running. `pnpm/action-setup` reads only the version out of `packageManager` and discards the hash, so without this nothing would ever check it. The comparison is against the lockfile rather than the registry on purpose: the pin is worth something because it is a commitment recorded in git, and asking the registry what the hash should be would accept whatever a compromised registry served. `corepack use` and `pnpm install` write those two values from separate downloads, so their agreement is meaningful.
+
+It reads two files and shells out once, with no network, so it runs as part of `pnpm checks`. CI also runs it before installing, as `node scripts/verify-pnpm-pin.ts` rather than the script name, because `pnpm run` installs the whole workspace first and that would defeat checking the pin ahead of install.
 
 A major bump is also where `pnpm-workspace.yaml` deserves a read. Since pnpm 12, a key that pnpm does not recognize fails the install with `ERR_PNPM_UNRECOGNIZED_WORKSPACE_SETTINGS` instead of being ignored. So a setting removed or renamed upstream stops the install rather than quietly doing nothing. `pnpm config list` prints the `pnpm-workspace.yaml` settings pnpm resolved, which is the quickest way to check, though it lists neither pnpm's defaults nor anything from `.npmrc`.
 
