@@ -374,7 +374,7 @@ function VirtualizedOptions({
   const virtualizer = useVirtualizer({
     count: filteredOptions.length,
     getScrollElement: () => scrollElementRef.current,
-    estimateSize: () => 40,
+    estimateSize: () => 36,
     overscan: 5,
   });
 
@@ -410,7 +410,7 @@ function VirtualizedOptions({
             }}
             className={cn(
               "text-foreground data-highlighted:bg-primary-subtle",
-              "flex h-10 w-full cursor-default items-center justify-between rounded-sm px-3 py-2 text-left text-base outline-hidden transition-colors duration-100",
+              "flex h-9 w-full cursor-default items-center justify-between rounded-sm px-3 py-1.5 text-left text-base outline-hidden transition-colors duration-100",
             )}
           >
             <span className="block truncate" title={option.label}>
