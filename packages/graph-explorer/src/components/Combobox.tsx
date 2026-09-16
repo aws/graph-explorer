@@ -40,10 +40,6 @@ export interface ComboboxProps {
   id?: string;
   /** Accessible name for the input; omit when using `label` for a visible caption instead */
   "aria-label"?: string;
-  /** Accessible name for the trigger button; defaults to a generic prompt */
-  triggerLabel?: string;
-  /** Message shown when filtering returns no options */
-  emptyText?: string;
 }
 
 type Virtualizer = ReactVirtualizer<HTMLDivElement, Element>;
@@ -125,8 +121,6 @@ export function Combobox({
   className,
   id,
   "aria-label": ariaLabel,
-  triggerLabel = "Show options",
-  emptyText = "No results found",
 }: ComboboxProps) {
   const [{ open, filterText }, dispatch] = useReducer(comboboxReducer, {
     open: false,
@@ -241,7 +235,10 @@ export function Combobox({
                 // The browser's mousedown default places the text cursor at
                 // the click point, collapsing any selection. That turns the
                 // first typed character into an append instead of a replace.
-                // Focus manually; onFocus will then select the full value.
+                // Only do this while the closed-state label is showing; once
+                // the user is filtering, mousedown must be allowed so the
+                // caret can be placed and drag/double-click selection works.
+                if (filterText !== null) return;
                 e.preventDefault();
                 inputRef.current?.focus();
               }}
@@ -271,9 +268,9 @@ export function Combobox({
           </div>
           <BaseCombobox.Trigger
             disabled={disabled}
-            aria-label={triggerLabel}
+            aria-label="Show options"
             // In the a11y tree but not a Tab stop; VoiceOver rationale is in the ADR.
-            className="hover:bg-input-background ml-2 shrink-0 p-1 disabled:cursor-not-allowed"
+            className="hover:bg-muted ml-2 shrink-0 p-1 disabled:cursor-not-allowed"
           >
             <BaseCombobox.Icon>
               <ChevronDownIcon
@@ -295,14 +292,14 @@ export function Combobox({
           >
             <BaseCombobox.Popup
               className={cn(
-                "bg-background text-foreground border-input-border",
+                "bg-background text-foreground border",
                 // No duration-* override: matches SelectContent's entrance
                 // (tw-animate-css's 150ms default). The 300ms this used to
                 // carry made the list feel twice as slow to appear as every
                 // other dropdown in the app.
                 "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 origin-(--transform-origin) transition-none",
                 "data-ending-style:animate-out data-ending-style:fade-out-0 data-ending-style:zoom-out-95",
-                "max-w-sm min-w-(--anchor-width) overflow-hidden rounded-md border p-1 shadow-md",
+                "max-w-sm min-w-(--anchor-width) overflow-hidden rounded-md p-1 shadow-md",
               )}
             >
               <BaseCombobox.Empty
@@ -313,7 +310,7 @@ export function Combobox({
                 // list even when there's nothing inside it to show.
                 className="text-muted-foreground p-3 text-center text-sm empty:p-0"
               >
-                {emptyText}
+                No results found
               </BaseCombobox.Empty>
               <BaseCombobox.List
                 ref={handleScrollElementRef}
@@ -410,7 +407,7 @@ function VirtualizedOptions({
             }}
             className={cn(
               "text-foreground data-highlighted:bg-primary-subtle",
-              "flex h-9 w-full cursor-default items-center justify-between rounded-sm px-3 py-1.5 text-left text-base outline-hidden transition-colors duration-100",
+              "flex w-full cursor-default items-center justify-between rounded-sm px-3 py-1.5 text-left text-base outline-hidden transition-colors duration-100",
             )}
           >
             <span className="block truncate" title={option.label}>

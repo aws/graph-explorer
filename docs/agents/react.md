@@ -3,7 +3,10 @@
 - This project uses React 19
 - The React Compiler is enabled — it auto-memoizes components and hooks, so manual `useMemo`, `useCallback`, and `React.memo` are unnecessary in most cases and should be avoided unless profiling shows a specific need
 - Official React docs: https://react.dev
-- **Exception: `useVirtualizer` (`@tanstack/react-virtual`)**, used in `components/Combobox.tsx`. It needs a `// eslint-disable-next-line react-compiler/incompatible-library` comment on the call — the compiler can't verify the hook's internal mutation patterns are safe to auto-memoize
+- **`useVirtualizer` (`@tanstack/react-virtual`)**, used in `components/Combobox.tsx`, bails the compiler out because it can't verify the hook's internal mutation patterns. The `// eslint-disable-next-line react-compiler/incompatible-library` comment is a lint suppression only: the compiler output is the same with or without it, but deleting the comment fails `pnpm check:lint`. See `docs/adr/20260814-base-ui-combobox-for-virtualized-search.md`.
+
+## Components
+
 - **Select vs. Combobox:** `Select`/`SelectField` wrap Radix and are for small, bounded option lists. `Combobox` wraps Base UI + TanStack Virtual and is for schema-sized or unbounded lists that need type-to-filter and virtualization. Don't introduce a third picker primitive — extend `Combobox` instead. See `docs/adr/20260814-base-ui-combobox-for-virtualized-search.md`.
 
 ## General
