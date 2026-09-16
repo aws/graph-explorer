@@ -41,12 +41,6 @@ jobs:
         with:
           node-version-file: ".nvmrc"
 
-      # Invoked directly rather than through `pnpm check:pnpm-pin`: pnpm installs
-      # the workspace before running a script, which would defeat checking the
-      # pin ahead of install. `pnpm checks` runs the same check after install.
-      - name: Verify the pinned pnpm version and hash
-        run: node scripts/verify-pnpm-pin.ts
-
       - name: Install package and dependencies
         run: pnpm install --frozen-lockfile
 

@@ -41,7 +41,7 @@ Corepack takes a different path to the same version, in two hops. It downloads t
 Three files carry the pnpm version itself:
 
 - `packageManager` in `package.json`, which is what self-managing pnpm, Corepack, and CI all resolve.
-- `pnpm-lock.yaml`, which records the version under `packageManagerDependencies` plus an `integrity` for `pnpm` and for each `@pnpm/exe.*` platform package. `corepack use` regenerates this; never hand-edit it. It is the one that fails silently, because editing `packageManager` alone leaves the lockfile stale and `pnpm install` still reports "Already up to date".
+- `pnpm-lock.yaml`, which records the version under `packageManagerDependencies` plus an `integrity` for `pnpm` and for each `@pnpm/exe.*` platform package. `corepack use` regenerates this; never hand-edit it. Editing `packageManager` by hand still runs the version you typed, and rewrites these entries to match it, even under `--frozen-lockfile`. So the lockfile does not go stale, but the change lands in a commit nobody reviewed as a lockfile change.
 - The pnpm requirement at the top of this document.
 
 Two more pin a _different tool_ whose version is tied to the pnpm major, so they stay put on a patch or minor bump and move only when the major changes:
@@ -53,7 +53,7 @@ Run `corepack use pnpm@<version>` from the repo root. It rewrites `packageManage
 
 On a major bump, raise the `Dockerfile`'s Corepack pin _before_ running `corepack use`, because the Corepack currently pinned is by definition the one that predates the new pnpm major. Nothing in the commands below builds the image, so a Corepack pin too old to fetch the new pnpm surfaces only when `test_build_docker.yml` runs on the pull request. Run `docker build .` locally if you would rather find out sooner.
 
-Do not reach for `pnpm self-update`. It rewrites `packageManager` without the `+sha512` hash, throwing the integrity pin away. `pnpm check:pnpm-pin` fails afterwards, so the mistake does not ship, but `corepack use` is the only command that writes a correct pin.
+Do not reach for `pnpm self-update`. It rewrites `packageManager` without the `+sha512` hash, throwing the integrity pin away. `corepack use` is the only command that writes a correct pin.
 
 Update this document to the same version, then confirm nothing shifted:
 
@@ -65,9 +65,7 @@ pnpm test
 
 `.github/workflows/unit.yml` reads the version from `packageManager`, so a patch or minor bump needs no workflow edit. A major bump usually does. [`pnpm/action-setup`](https://github.com/pnpm/action-setup) bootstraps pnpm from lockfiles committed inside the action itself, so it needs a release that knows about the new major. v6.1.0 is the release that added pnpm 12. On a major bump, update the pinned commit SHA and its version comment in the workflow.
 
-`pnpm check:pnpm-pin` compares the `+sha512` hash in `packageManager` against the `integrity` `pnpm-lock.yaml` records for the same version, and checks that the pinned version is the one running. `pnpm/action-setup` reads only the version out of `packageManager` and discards the hash, so without this nothing would ever check it. The comparison is against the lockfile rather than the registry on purpose: the pin is worth something because it is a commitment recorded in git, and asking the registry what the hash should be would accept whatever a compromised registry served. `corepack use` and `pnpm install` write those two values from separate downloads, so their agreement is meaningful.
-
-It reads two files and shells out once, with no network, so it runs as part of `pnpm checks`. CI also runs it before installing, as `node scripts/verify-pnpm-pin.ts` rather than the script name, because `pnpm run` installs the whole workspace first and that would defeat checking the pin ahead of install.
+No check compares the `+sha512` hash against anything, because the two tools that install pnpm already verify the bytes they fetch and both fail closed. Corepack reads the hash and refuses a wrapper that does not match it. pnpm ignores the hash and instead checks each download against the `integrity` in `pnpm-lock.yaml` and against npm's registry signature, so a tampered lockfile stops the install with "its npm registry signature could not be verified" rather than passing quietly.
 
 A major bump is also where `pnpm-workspace.yaml` deserves a read. Since pnpm 12, a key that pnpm does not recognize fails the install with `ERR_PNPM_UNRECOGNIZED_WORKSPACE_SETTINGS` instead of being ignored. So a setting removed or renamed upstream stops the install rather than quietly doing nothing. `pnpm config list` prints the `pnpm-workspace.yaml` settings pnpm resolved, which is the quickest way to check, though it lists neither pnpm's defaults nor anything from `.npmrc`.
 
