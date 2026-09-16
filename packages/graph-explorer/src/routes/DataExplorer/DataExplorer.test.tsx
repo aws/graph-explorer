@@ -1,9 +1,9 @@
 // @vitest-environment happy-dom
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Provider } from "jotai";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
 import { getAppStore } from "@/core";
@@ -49,6 +49,24 @@ function renderDataExplorer(initialPath: string, state: DbState) {
     </QueryClientProvider>,
   );
 }
+
+// happy-dom never lays out elements, so TanStack Virtual measures offsetHeight as 0
+// and renders nothing. Read the element's own inline style, if any, and fall back to
+// a realistic viewport size so the virtualized Combobox actually paints options.
+beforeEach(() => {
+  vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockImplementation(
+    function (this: HTMLElement) {
+      const inline = parseFloat(this.style.height);
+      return Number.isFinite(inline) ? inline : 300;
+    },
+  );
+  vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(
+    function (this: HTMLElement) {
+      const inline = parseFloat(this.style.width);
+      return Number.isFinite(inline) ? inline : 300;
+    },
+  );
+});
 
 describe("DataExplorer", () => {
   test("redirects to first vertex type when no vertexType param", async () => {
@@ -111,6 +129,31 @@ describe("DataExplorer", () => {
     await waitFor(() => {
       expect(screen.getByTestId("location")).toHaveTextContent(
         "/data-explorer/Has%20Space",
+      );
+    });
+  });
+
+  test("filters the node type combobox and navigates to the selected type", async () => {
+    const state = new DbState();
+    const vertex = createTestableVertex().with({
+      types: ["Airport", "Country", "Continent"],
+    });
+    state.addTestableVertexToGraph(vertex);
+
+    const { container } = renderDataExplorer("/data-explorer/Airport", state);
+
+    const input = container.querySelector("input") as HTMLInputElement;
+    expect(input.value).toBe("Airport");
+
+    fireEvent.click(input);
+    fireEvent.change(input, { target: { value: "Cou" } });
+
+    const option = await waitFor(() => screen.getByText("Country"));
+    fireEvent.click(option);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("location")).toHaveTextContent(
+        "/data-explorer/Country",
       );
     });
   });

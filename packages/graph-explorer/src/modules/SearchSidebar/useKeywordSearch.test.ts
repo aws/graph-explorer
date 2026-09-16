@@ -16,6 +16,7 @@ import { SEARCH_TOKENS } from "@/utils";
 import {
   createRandomRawConfiguration,
   createRandomSchema,
+  createRandomVertexTypeConfig,
   renderHookWithJotai,
 } from "@/utils/testing";
 
@@ -336,6 +337,21 @@ describe("useKeywordSearch", () => {
       };
     }
 
+    function initializeConfigWithManyVertexTypes(store: AppStore) {
+      const config = createRandomRawConfiguration();
+      const schema = createRandomSchema();
+      config.connection!.queryEngine = "gremlin";
+
+      schema.vertices = Array.from({ length: 1000 }, (_, i) => ({
+        ...createRandomVertexTypeConfig(),
+        attributes: [{ name: `attr-${i}`, dataType: "String" }],
+      }));
+
+      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(schemaAtom, new Map([[config.id, schema]]));
+      store.set(activeConfigurationAtom, config.id);
+    }
+
     it("returns the same array reference across renders when the vertex type is unchanged", () => {
       let vertexType1 = "";
       const { result, rerender } = renderHookWithJotai(
@@ -369,6 +385,19 @@ describe("useKeywordSearch", () => {
       expect(result.current.attributes.map(attr => attr.name)).toStrictEqual([
         "airline",
       ]);
+    });
+
+    it("returns the same array reference across renders for a 1000-type schema", () => {
+      const { result, rerender } = renderHookWithJotai(
+        () => useSearchableAttributesHarness(SEARCH_TOKENS.ALL_VERTEX_TYPES),
+        initializeConfigWithManyVertexTypes,
+      );
+
+      const firstAttributes = result.current.attributes;
+      expect(firstAttributes.length).toBe(1000);
+      rerender();
+
+      expect(result.current.attributes).toBe(firstAttributes);
     });
   });
 });
