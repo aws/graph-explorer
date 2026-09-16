@@ -13,33 +13,11 @@ import { render, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
+import { mockVirtualizedLayout } from "@/utils/testing";
+
 import { Combobox, type ComboboxOption } from "./Combobox";
 
-// jsdom never lays out elements, so offsetWidth/offsetHeight are always 0.
-// TanStack Virtual measures the scroll container via offsetHeight to decide
-// which rows are visible, so a real 0 means it renders zero rows. Give
-// elements a realistic size so tests can assert against actually-rendered
-// options.
-beforeEach(() => {
-  // Reads the element's own inline style when set (as our virtualized spacer
-  // always does: style={{ height: `${totalSize}px` }}), falling back to a
-  // fixed size otherwise. A blanket constant for every element can't tell
-  // "measured the real bounded viewport" apart from "measured the spacer
-  // that's deliberately as tall as the whole list" — both would report the
-  // same fake number. Reading inline style keeps that distinction intact.
-  vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockImplementation(
-    function (this: HTMLElement) {
-      const inline = parseFloat(this.style.height);
-      return Number.isFinite(inline) ? inline : 300;
-    },
-  );
-  vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(
-    function (this: HTMLElement) {
-      const inline = parseFloat(this.style.width);
-      return Number.isFinite(inline) ? inline : 300;
-    },
-  );
-});
+beforeEach(mockVirtualizedLayout);
 
 // Helper: Create test options
 function createTestOptions(count: number): ComboboxOption[] {
@@ -126,6 +104,20 @@ describe("Combobox", () => {
 
       const input = container.querySelector("input") as HTMLInputElement;
       expect(getByLabelText("Node type")).toBe(input);
+    });
+
+    it("should forward the name prop to the input", () => {
+      const options = createTestOptions(10);
+      const { container } = render(
+        <Combobox
+          name="nodeType"
+          options={options}
+          placeholder="Select type"
+        />,
+      );
+
+      const input = container.querySelector("input") as HTMLInputElement;
+      expect(input.name).toBe("nodeType");
     });
 
     it("should associate its inner caption with the input via aria-labelledby", () => {

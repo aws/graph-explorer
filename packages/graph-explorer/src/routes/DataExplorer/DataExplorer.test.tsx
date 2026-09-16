@@ -7,7 +7,11 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
 import { getAppStore } from "@/core";
-import { createTestableVertex, DbState } from "@/utils/testing";
+import {
+  createTestableVertex,
+  DbState,
+  mockVirtualizedLayout,
+} from "@/utils/testing";
 
 import DataExplorer from "./DataExplorer";
 
@@ -50,23 +54,7 @@ function renderDataExplorer(initialPath: string, state: DbState) {
   );
 }
 
-// happy-dom never lays out elements, so TanStack Virtual measures offsetHeight as 0
-// and renders nothing. Read the element's own inline style, if any, and fall back to
-// a realistic viewport size so the virtualized Combobox actually paints options.
-beforeEach(() => {
-  vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockImplementation(
-    function (this: HTMLElement) {
-      const inline = parseFloat(this.style.height);
-      return Number.isFinite(inline) ? inline : 300;
-    },
-  );
-  vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(
-    function (this: HTMLElement) {
-      const inline = parseFloat(this.style.width);
-      return Number.isFinite(inline) ? inline : 300;
-    },
-  );
-});
+beforeEach(mockVirtualizedLayout);
 
 describe("DataExplorer", () => {
   test("redirects to first vertex type when no vertexType param", async () => {

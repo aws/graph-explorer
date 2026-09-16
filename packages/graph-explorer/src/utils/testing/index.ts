@@ -5,6 +5,7 @@ export * from "./errorInstances";
 export * from "./FakeExplorer";
 export * from "./graphsonHelpers";
 export * from "./legacyExportedConnectionFile";
+export * from "./mockVirtualizedLayout";
 export * from "./normalize";
 export * from "./ocHelpers";
 export * from "./persistence";
