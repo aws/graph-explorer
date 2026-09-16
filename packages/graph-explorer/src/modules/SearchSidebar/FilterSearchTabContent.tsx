@@ -45,6 +45,7 @@ export function FilterSearchTabContent() {
             <Label htmlFor="nodeType">{t("node-type")}</Label>
             <Combobox
               id="nodeType"
+              name="nodeType"
               options={vertexOptions}
               value={selectedVertexType}
               onValueChange={onVertexOptionChange}
@@ -55,6 +56,7 @@ export function FilterSearchTabContent() {
             <Label htmlFor="attribute">{t("property")}</Label>
             <Combobox
               id="attribute"
+              name="attribute"
               options={attributesOptions}
               value={selectedAttribute}
               onValueChange={onAttributeOptionChange}
