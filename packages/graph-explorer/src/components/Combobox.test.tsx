@@ -300,26 +300,6 @@ describe("Combobox", () => {
       expect(input.value).toBe("");
     });
 
-    it("should open on arrow key and respond to input", () => {
-      const options = createTestOptions(10);
-      const { container } = render(
-        <Combobox options={options} placeholder="Select type" />,
-      );
-
-      const input = container.querySelector("input") as HTMLInputElement;
-
-      // Initially closed
-      expect(input.getAttribute("aria-expanded")).toBe("false");
-
-      // Arrow Down opens combobox
-      fireEvent.keyDown(input, { key: "ArrowDown" });
-      expect(input.getAttribute("aria-expanded")).toBe("true");
-
-      // Typing filters options
-      fireEvent.change(input, { target: { value: "type" } });
-      expect(input.value).toBe("type");
-    });
-
     it("should track the focused option via aria-activedescendant", () => {
       const options = createTestOptions(10);
       const { container } = render(

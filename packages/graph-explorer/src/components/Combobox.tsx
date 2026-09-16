@@ -254,24 +254,14 @@ export function Combobox({
                 }
               }}
               onClick={() => {
-                // A <button> has "click" as its native default action, which
-                // is what VoiceOver's Control-Option-Space reliably triggers
-                // (this is how the button-based Select/SelectField opens
-                // under VoiceOver). A text input has no such default action,
-                // so give it an explicit one instead of relying on Base UI's
-                // pointer-based open detection to recognize a synthetic
-                // click. Only open, never toggle closed: closing on a
-                // second click would fight repositioning the cursor while
-                // typing.
+                // Inputs have no native "click" default action, so give it one
+                // for VoiceOver's Control-Option-Space gesture. Only open, not
+                // toggle, so a second click doesn't fight cursor placement.
                 if (!open) dispatch({ type: "opened" });
               }}
               onKeyDown={e => {
-                // VoiceOver's built-in combobox hint tells users to press
-                // Control-Option-Space to show the list. That gesture isn't
-                // bound to anything by default, so on macOS the Option
-                // modifier types a literal non-breaking space into the
-                // field instead. Honor the hint directly and swallow the
-                // keystroke so it can't leak into the filter text.
+                // Swallow VoiceOver's Control-Option-Space hint instead of
+                // letting Option insert a non-breaking space into the filter.
                 if (e.ctrlKey && e.altKey && e.code === "Space") {
                   e.preventDefault();
                   dispatch({ type: "opened" });
@@ -282,20 +272,7 @@ export function Combobox({
           <BaseCombobox.Trigger
             disabled={disabled}
             aria-label={triggerLabel}
-            // Kept in the accessibility tree and pointer-operable on purpose,
-            // but deliberately not a Tab stop (tabIndex is -1): when the
-            // input already has a value, VoiceOver's Read-All treats a filled
-            // text input as content to read and skips announcing its combobox
-            // role — this button is what re-announces "combo box" in that
-            // case (confirmed against shadcn's Base UI reference
-            // implementation, which does the same). An earlier revision
-            // hid this from screen readers to avoid VoiceOver reading
-            // Control-Option-Space on a grouped control as "stop
-            // interacting with this group" — re-verify that specific
-            // interaction if it resurfaces. Base UI's own Trigger (rather
-            // than a hand-rolled button) is what makes a second click
-            // reliably close the list instead of racing the library's own
-            // open-state handling.
+            // In the a11y tree but not a Tab stop; VoiceOver rationale is in the ADR.
             className="hover:bg-input-background ml-2 shrink-0 p-1 disabled:cursor-not-allowed"
           >
             <BaseCombobox.Icon>
