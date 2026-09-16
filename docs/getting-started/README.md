@@ -40,7 +40,7 @@ On the right side of the graph view, you will see a vertical strip of sidebar ic
 
 1. Click the **Search** icon (magnifying glass) in the right sidebar to open the Search panel.
 2. In the **Node Label** combobox, select **airport** (you can type to filter the list).
-3. In the **Property** combobox, select **code**.
+3. In the **Property** combobox, select **code** (you can type to filter the list).
 4. In the search text field, type `AUS`.
 5. Click the result for Austin to expand it, then click the **⊕** button to add it to the graph canvas.
 
