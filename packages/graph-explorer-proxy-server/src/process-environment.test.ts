@@ -320,6 +320,24 @@ describe("process-environment.sh", () => {
       });
       expect(defaultConnection).toHaveProperty("GRAPH_EXP_IAM", false);
     });
+
+    it("contains exactly the expected keys when all values provided", () => {
+      const { defaultConnection } = runScript(workDir, {
+        GRAPH_CONNECTION_URL: "https://db:8182",
+        SERVICE_TYPE: "neptune-db",
+        GRAPH_TYPE: "gremlin",
+        IAM: "true",
+        AWS_REGION: "us-east-1",
+      });
+
+      expect(Object.keys(defaultConnection!).sort()).toEqual([
+        "GRAPH_EXP_AWS_REGION",
+        "GRAPH_EXP_CONNECTION_URL",
+        "GRAPH_EXP_GRAPH_TYPE",
+        "GRAPH_EXP_IAM",
+        "GRAPH_EXP_SERVICE_TYPE",
+      ]);
+    });
   });
 
   describe("SERVICE_TYPE=neptune-graph auto-sets openCypher", () => {
@@ -378,11 +396,10 @@ describe("process-environment.sh", () => {
   });
 
   describe("default values for optional fields", () => {
-    it("defaults GRAPH_CONNECTION_URL to empty string in output", () => {
+    it("does not create defaultConnection.json when GRAPH_CONNECTION_URL is empty", () => {
       const { defaultConnection } = runScript(workDir, {
         GRAPH_CONNECTION_URL: "",
       });
-      // No defaultConnection generated when GRAPH_CONNECTION_URL is empty
       expect(defaultConnection).toBeNull();
     });
 
@@ -393,6 +410,16 @@ describe("process-environment.sh", () => {
       expect(defaultConnection).toHaveProperty(
         "GRAPH_EXP_CONNECTION_URL",
         "http://blazegraph:9999/blazegraph/namespace/kb",
+      );
+    });
+
+    it("preserves trailing slash in GRAPH_CONNECTION_URL", () => {
+      const { defaultConnection } = runScript(workDir, {
+        GRAPH_CONNECTION_URL: "http://blazegraph:9999/blazegraph/namespace/kb/",
+      });
+      expect(defaultConnection).toHaveProperty(
+        "GRAPH_EXP_CONNECTION_URL",
+        "http://blazegraph:9999/blazegraph/namespace/kb/",
       );
     });
 
@@ -451,6 +478,11 @@ describe("process-environment.sh", () => {
     it("PROXY_SERVER_HTTPS_CONNECTION is on its own line", () => {
       const { envFile } = runScript(workDir);
       expect(envFile).toMatch(/^PROXY_SERVER_HTTPS_CONNECTION=true$/m);
+    });
+
+    it("does not produce commented-out PROXY_SERVER_HTTPS_CONNECTION", () => {
+      const { envFile } = runScript(workDir);
+      expect(envFile).not.toContain("# PROXY_SERVER_HTTPS_CONNECTION");
     });
 
     it("value has no trailing whitespace", () => {
