@@ -101,6 +101,10 @@ By default, the proxy server forwards requests to any database URL specified by 
 >
 > This check only applies to requests routed through the proxy server. Connections configured to contact the database directly (bypassing the proxy) are not subject to the allowlist.
 
+> [!NOTE]
+>
+> [Connection links](../features/connections.md#connection-links) never connect to a new database without your confirmation: a link whose details do not match an existing connection only pre-fills the create form for you to review. A link may switch to a connection you already created, but it cannot create one on your behalf. And in every case the proxy still rejects forwarding to any origin outside `PROXY_SERVER_ALLOWED_DB_ORIGINS`, so a crafted link cannot reach an arbitrary database.
+
 ## HTTP Redirects
 
 The proxy server does not follow HTTP redirects from the database. If the database responds with a redirect (3xx status), the proxy returns an error to the client instead of following it. This prevents a compromised or misconfigured database endpoint from redirecting the proxy to an unrelated internal service.

@@ -6,10 +6,10 @@ export default defineConfig({
     coverage: {
       thresholds: {
         autoUpdate: (newThreshold: number) => Math.floor(newThreshold),
-        statements: 65,
-        branches: 44,
-        functions: 58,
-        lines: 73,
+        statements: 66,
+        branches: 47,
+        functions: 59,
+        lines: 74,
       },
     },
   },
