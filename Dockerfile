@@ -14,7 +14,7 @@ RUN yum update -y && \
     elif [ "$ARCH" = "aarch64" ]; then NODE_ARCH="arm64"; \
     else echo "Unsupported architecture: $ARCH" && exit 1; fi && \
     curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz | tar -xJ -C /usr/local --strip-components=1 && \
-    npm install --global corepack@latest && \
+    npm install --global corepack@0.36.0 && \
     corepack enable && \
     yum remove -y tar xz && \
     yum clean all && \
