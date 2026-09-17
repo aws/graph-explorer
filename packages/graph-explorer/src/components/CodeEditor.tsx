@@ -37,6 +37,9 @@ export function CodeEditor({
         stickyScroll: {
           enabled: false,
         },
+        // These viewers show database and proxy responses verbatim; a URL in
+        // that text is content, not an endpoint we want to offer to open.
+        links: false,
         lineDecorationsWidth: 0,
         overviewRulerLanes: 0,
         renderWhitespace: "none",
