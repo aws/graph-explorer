@@ -9,6 +9,8 @@ import { createDisplayError } from "@/utils/createDisplayError";
 
 import type { GraphSessionStorageModel } from "./storage";
 
+import { useUpdateGraphSession } from "./useUpdateGraphSession";
+
 /**
  * Provides a mutation that restores the graph session from storage.
  */
@@ -16,6 +18,7 @@ export function useRestoreGraphSession() {
   const queryClient = useQueryClient();
   const addToGraph = useAddToGraph();
   const formatEntityCounts = useEntityCountFormatterCallback();
+  const updateGraphSession = useUpdateGraphSession();
 
   const mutation = useMutation({
     mutationFn: async (graph: GraphSessionStorageModel) => {
@@ -36,6 +39,12 @@ export function useRestoreGraphSession() {
 
         // Update Graph Explorer state
         await addToGraph(result.entities);
+        if (
+          result.entities.vertices.length === 0 &&
+          result.entities.edges.length === 0
+        ) {
+          updateGraphSession();
+        }
 
         return result;
       })();
