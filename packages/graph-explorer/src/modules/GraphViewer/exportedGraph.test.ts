@@ -151,25 +151,27 @@ describe("createExportedGraph", () => {
 });
 
 describe("createExportedConnection", () => {
-  it("should map graphDbUrl", () => {
+  it("should lowercase graphDbUrl", () => {
     const connection = createRandomConnectionWithId();
+    connection.graphDbUrl = "https://My-Neptune.Example.com:8182";
 
     const exportedConnection = createExportedConnection(connection);
 
     expect(exportedConnection).toEqual({
-      dbUrl: connection.graphDbUrl.toLowerCase(),
+      dbUrl: "https://my-neptune.example.com:8182",
       queryEngine: connection.queryEngine!,
     } satisfies ExportedGraphConnection);
   });
 
   it("should default to gremlin when no query engine is provided", () => {
     const connection = createRandomConnectionWithId();
+    connection.graphDbUrl = "https://My-Neptune.Example.com:8182";
     delete connection.queryEngine;
 
     const exportedConnection = createExportedConnection(connection);
 
     expect(exportedConnection).toEqual({
-      dbUrl: connection.graphDbUrl.toLowerCase(),
+      dbUrl: "https://my-neptune.example.com:8182",
       queryEngine: "gremlin",
     } satisfies ExportedGraphConnection);
   });
