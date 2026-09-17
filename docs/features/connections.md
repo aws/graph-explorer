@@ -15,7 +15,7 @@ For guides on connecting to specific databases, see [Connecting to databases](..
 - **Service Type:** Choose the service type (`neptune-db` or `neptune-graph`).
 - **AWS Region:** Specify the AWS region where the Neptune cluster is hosted (e.g., us-east-1).
 - **Fetch Timeout:** Specify the timeout for the fetch request.
-- **Neighbor Expansion Limit:** Specify the default limit for neighbor expansion. This will override the app setting for neighbor expansion.
+- **Node Expansion Limit:** Check **Override Default Neighbor Expansion Limit** to reveal this field, then specify the default limit for neighbor expansion. This will override the app setting for neighbor expansion.
 
 ## Available Connections
 

@@ -136,7 +136,7 @@ This can manifest as different types of errors depending on the root cause. You 
 - The proxy server can be hosting HTTP or HTTPS
 - The port of the proxy server could be the default (i.e. 80 or 443 with SSL) or a specific port provided through environment values
 - The proxy server paths are not exposed by the networking layer (load balancer, proxy, firewall, etc)
-  - The client is hosted at `/explorer` by default, which is configurable
+  - The client is hosted at `/explorer`
   - Queries are handled via `/gremlin`, `/opencypher`, `/sparql`
   - Summary APIs are handled via `/summary`, `/pg/statistics/summary`, `/rdf/statistics/summary`
   - Logging is handled by `/logger`

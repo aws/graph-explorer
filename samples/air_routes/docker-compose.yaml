@@ -5,9 +5,7 @@ services:
       - "8080:80"
     environment:
       - HOST=localhost
-      - PUBLIC_OR_PROXY_ENDPOINT=http://localhost:8080
       - GRAPH_TYPE=gremlin
-      - USING_PROXY_SERVER=true
       - PROXY_SERVER_HTTPS_CONNECTION=false
       - GRAPH_CONNECTION_URL=http://database:8182
 
