@@ -119,7 +119,10 @@ describe("process-environment.sh", () => {
         NEPTUNE_NOTEBOOK: "true",
         PROXY_SERVER_HTTP_PORT: "8080",
       });
-      expect(envFile).not.toContain("PROXY_SERVER_HTTP_PORT=9250");
+      // The script only ever writes the 9250 default when the var is unset;
+      // it never writes an explicitly-set override back to .env. No
+      // PROXY_SERVER_HTTP_PORT line at all is what proves the override wins.
+      expect(envFile).not.toMatch(/^PROXY_SERVER_HTTP_PORT=/m);
     });
 
     it("respects explicit LOG_STYLE override", () => {

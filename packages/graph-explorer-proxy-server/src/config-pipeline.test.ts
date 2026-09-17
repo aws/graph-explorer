@@ -266,6 +266,31 @@ const deployments: Deployment[] = [
     expected: notebookPreset,
   },
   {
+    // With no image ENV, the port and log style come from the preset's .env
+    // write, which an explicit -e value still beats.
+    name: "image without ENV defaults and -e NEPTUNE_NOTEBOOK=true serves HTTP on 9250",
+    image: {},
+    dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
+    expected: {
+      ...notebookPreset,
+      envFile: {
+        ...notebookPreset.envFile,
+        PROXY_SERVER_HTTP_PORT: "9250",
+        LOG_STYLE: "cloudwatch",
+      },
+    },
+  },
+  {
+    name: "image without ENV defaults and -e NEPTUNE_NOTEBOOK=true and -e PROXY_SERVER_HTTP_PORT=8080 serves HTTP on 8080",
+    image: {},
+    dockerEnv: { NEPTUNE_NOTEBOOK: "true", PROXY_SERVER_HTTP_PORT: "8080" },
+    expected: {
+      ...notebookPreset,
+      envFile: { ...notebookPreset.envFile, LOG_STYLE: "cloudwatch" },
+      startup: { useHttps: false, port: 8080 },
+    },
+  },
+  {
     name: "standard image with -e NEPTUNE_NOTEBOOK=true applies the preset but keeps port 80",
     image: standardImage,
     dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
