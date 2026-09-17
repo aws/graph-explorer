@@ -63,7 +63,7 @@ Eliminate the separate SageMaker image by:
 - Relative paths create a fixed contract: the API root is always one directory above
   the static files mount. This is enforced in one place (`server-config.ts`) so drift
   is unlikely but possible.
-- Legacy stored connections (localStorage) need a read-time migration:
+- Legacy stored connections (IndexedDB) need a read-time migration:
   `graphDbUrl = old.proxyConnection ? old.graphDbUrl : old.url`.
 - The `sagemaker-*` tags must be published for several release cycles until existing
   deployed lifecycle scripts are updated.
