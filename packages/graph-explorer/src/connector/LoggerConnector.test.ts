@@ -1,4 +1,6 @@
 // @vitest-environment happy-dom
+import { stubApiBaseUri } from "@/utils/testing";
+
 import {
   ClientLoggerConnector,
   ServerLoggerConnector,
@@ -19,7 +21,7 @@ describe("ServerLoggerConnector", () => {
   test("should send logs to the server via relative URL", () => {
     const mockFetch = vi.fn().mockResolvedValue({});
     vi.stubGlobal("fetch", mockFetch);
-    document.head.innerHTML = '<base href="https://example.com/explorer/" />';
+    stubApiBaseUri("https://example.com/explorer/");
 
     const connector = new ServerLoggerConnector();
 
@@ -72,8 +74,7 @@ describe("ServerLoggerConnector", () => {
   test("should resolve logger path relative to baseURI", () => {
     const mockFetch = vi.fn().mockResolvedValue({});
     vi.stubGlobal("fetch", mockFetch);
-    document.head.innerHTML =
-      '<base href="https://example.com/proxy/9250/explorer/" />';
+    stubApiBaseUri("https://example.com/proxy/9250/explorer/");
 
     const connector = new ServerLoggerConnector();
     connector.info("test");

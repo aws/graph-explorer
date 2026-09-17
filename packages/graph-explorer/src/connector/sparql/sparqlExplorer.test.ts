@@ -2,7 +2,7 @@
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
 import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
-import { abortableFetch } from "@/utils/testing";
+import { abortableFetch, stubApiBaseUri } from "@/utils/testing";
 
 import { createSparqlExplorer } from "./sparqlExplorer";
 
@@ -37,7 +37,7 @@ describe("createSparqlExplorer", () => {
   beforeEach(() => {
     mockFetch = vi.fn();
     vi.stubGlobal("fetch", mockFetch);
-    document.head.innerHTML = '<base href="http://localhost/explorer/" />';
+    stubApiBaseUri();
   });
 
   afterEach(() => {

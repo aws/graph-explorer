@@ -11,6 +11,7 @@ import {
   createRandomAwsRegion,
   createRandomQueryEngine,
   createRandomServiceType,
+  stubApiBaseUri,
 } from "@/utils/testing";
 
 import {
@@ -25,7 +26,7 @@ describe("fetchDefaultConnection", () => {
   beforeEach(() => {
     mockFetch = vi.fn();
     vi.stubGlobal("fetch", mockFetch);
-    document.head.innerHTML = '<base href="http://localhost/explorer/" />';
+    stubApiBaseUri();
   });
 
   afterEach(() => {
@@ -87,6 +88,33 @@ describe("fetchDefaultConnection", () => {
       "openCypher",
       "sparql",
     ]);
+  });
+
+  test("expands into one connection per query language when no query engine is provided", async () => {
+    const data = createRandomDefaultConnectionData();
+    delete (data as { GRAPH_EXP_GRAPH_TYPE?: string }).GRAPH_EXP_GRAPH_TYPE;
+    stubDefaultConnectionResponse(data);
+
+    const configs = await fetchDefaultConnection();
+
+    expect(configs.map(config => config.connection?.queryEngine)).toEqual([
+      ...queryEngineOptions,
+    ]);
+    expect(configs.map(config => config.id)).toEqual(
+      queryEngineOptions.map(engine => `Default Connection-${engine}`),
+    );
+  });
+
+  test("returns a single connection when a query engine is provided", async () => {
+    const data = createRandomDefaultConnectionData();
+    data.GRAPH_EXP_GRAPH_TYPE = "gremlin";
+    stubDefaultConnectionResponse(data);
+
+    const configs = await fetchDefaultConnection();
+
+    expect(configs).toHaveLength(1);
+    expect(configs[0].connection?.queryEngine).toBe("gremlin");
+    expect(configs[0].id).toBe("Default Connection");
   });
 });
 
@@ -157,39 +185,6 @@ describe("DefaultConnectionDataSchema", () => {
     expect(actual.GRAPH_EXP_CONNECTION_URL).toBe(
       "http://blazegraph:9999/blazegraph/namespace/kb",
     );
-  });
-});
-
-describe("fetchDefaultConnection", () => {
-  beforeEach(() => {
-    vi.stubGlobal("location", { origin: "https://example.com" });
-  });
-
-  test("expands into one connection per query language when no query engine is provided", async () => {
-    const data = createRandomDefaultConnectionData();
-    delete (data as { GRAPH_EXP_GRAPH_TYPE?: string }).GRAPH_EXP_GRAPH_TYPE;
-    stubDefaultConnectionResponse(data);
-
-    const configs = await fetchDefaultConnection();
-
-    expect(configs.map(config => config.connection?.queryEngine)).toEqual([
-      ...queryEngineOptions,
-    ]);
-    expect(configs.map(config => config.id)).toEqual(
-      queryEngineOptions.map(engine => `Default Connection-${engine}`),
-    );
-  });
-
-  test("returns a single connection when a query engine is provided", async () => {
-    const data = createRandomDefaultConnectionData();
-    data.GRAPH_EXP_GRAPH_TYPE = "gremlin";
-    stubDefaultConnectionResponse(data);
-
-    const configs = await fetchDefaultConnection();
-
-    expect(configs).toHaveLength(1);
-    expect(configs[0].connection?.queryEngine).toBe("gremlin");
-    expect(configs[0].id).toBe("Default Connection");
   });
 });
 
