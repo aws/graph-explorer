@@ -111,7 +111,7 @@ Mounting `config.json` read-only at `/graph-explorer/config.json` (see [JSON Con
 
 ### `NEPTUNE_NOTEBOOK`
 
-Runtime convenience preset for SageMaker/Jupyter deployments. When set to `true`, configures port 9250, cloudwatch logging, and disables SSL automatically.
+Runtime convenience preset for SageMaker/Jupyter deployments. When set to `true`, it defaults the port to 9250 and the log style to cloudwatch, but an explicitly set `PROXY_SERVER_HTTP_PORT` or `LOG_STYLE` overrides those defaults. SSL is forced off unconditionally and cannot be re-enabled while `NEPTUNE_NOTEBOOK=true`.
 
 - Optional
 - Default: not set
