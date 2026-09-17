@@ -37,16 +37,11 @@ function _sparqlFetch(
     logger.debug(queryTemplate);
     const body = `query=${encodeURIComponent(queryTemplate)}`;
     const queryId = options?.queryId;
-    const headers: Record<string, string> = queryId
-      ? {
-          accept: "application/sparql-results+json",
-          "Content-Type": "application/x-www-form-urlencoded",
-          queryId: queryId,
-        }
-      : {
-          accept: "application/sparql-results+json",
-          "Content-Type": "application/x-www-form-urlencoded",
-        };
+    const headers: Record<string, string> = {
+      accept: "application/sparql-results+json",
+      "Content-Type": "application/x-www-form-urlencoded",
+      ...(queryId && { queryId }),
+    };
     return fetchDatabaseRequest(connection, featureFlags, apiUrl("sparql"), {
       method: "POST",
       headers,
