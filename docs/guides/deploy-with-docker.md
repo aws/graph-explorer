@@ -9,7 +9,11 @@ You can find the latest version of the image on
 
 > [!NOTE]
 >
-> Both the regular and `sagemaker-*` image tags contain the same image. You can use either.
+> The `sagemaker-*` image tags are now aliases for the same image as the regular tag. They exist only for compatibility with existing SageMaker lifecycle scripts and will stop being published in a future release. Use the regular tag for new deployments.
+
+> [!IMPORTANT]
+>
+> The Graph Explorer server, not your browser, connects to the database, so it needs network access to the database endpoint. See [System overview](../architecture.md#system-overview) for details.
 
 ## Prerequisites
 
