@@ -94,7 +94,13 @@ export default function useExpandNode() {
 
       // No neighbors to add
       if (result.vertices.length + result.edges.length <= 0) {
-        toast.info("No more neighbors to expand");
+        const hasAttributeFilters = (request.attributeFilters?.length ?? 0) > 0;
+
+        toast.info(
+          hasAttributeFilters
+            ? "No neighbors matched your filters"
+            : "No more neighbors to expand",
+        );
         return;
       }
 
@@ -166,7 +172,14 @@ export default function useExpandNode() {
       const combined = await expandPromise;
 
       if (combined.vertices.length + combined.edges.length <= 0) {
-        toast.info("No more neighbors to expand");
+        const hasAttributeFilters = (filters.attributeFilters?.length ?? 0) > 0;
+
+        toast.info(
+          hasAttributeFilters
+            ? "No neighbors matched your filters"
+            : "No more neighbors to expand",
+        );
+
         return;
       }
 
