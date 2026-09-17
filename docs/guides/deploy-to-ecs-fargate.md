@@ -4,6 +4,10 @@
 
 The following steps will allow you to set up Graph Explorer on AWS Fargate in Amazon ECS, and connect to a running Neptune database.
 
+> [!IMPORTANT]
+>
+> The Graph Explorer server, not your browser, connects to the database, so it needs network access to the database endpoint. See [System overview](../architecture.md#system-overview) for details.
+
 ## Create a new IAM role and permission policies
 
 1. Open the IAM console at https://console.aws.amazon.com/iam/.
