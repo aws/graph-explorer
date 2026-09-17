@@ -27,6 +27,33 @@ function renderCreateConnection(ui: React.ReactElement) {
 }
 
 describe("CreateConnection", () => {
+  test("does not render the removed proxy server controls", () => {
+    renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+
+    // Proves the queries below fail on absence rather than a wrong name
+    expect(
+      screen.getByRole("textbox", { name: "Graph Connection URL" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByRole("textbox", { name: "Public or Proxy Endpoint" }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole("checkbox", { name: "Using Proxy-Server" }),
+    ).toBeNull();
+  });
+
+  test("offers AWS IAM auth without requiring a proxy server first", () => {
+    renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+
+    expect(
+      screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
+    ).toBeInTheDocument();
+  });
+
   test("removes newlines and surrounding whitespace from the graph connection URL", async () => {
     const user = userEvent.setup();
     const store = renderCreateConnection(
@@ -53,6 +80,8 @@ describe("CreateConnection", () => {
         graphDbUrl: "https://database.example.com/graph",
       },
     });
+    expect(savedConnection.connection).not.toHaveProperty("url");
+    expect(savedConnection.connection).not.toHaveProperty("proxyConnection");
   });
 
   test("labels the override field Neighbor Expansion Limit", async () => {
