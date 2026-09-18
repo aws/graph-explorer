@@ -35,8 +35,8 @@
     "@types/express": "^5.0.6",
     "@types/node": "^24.13.4",
     "@types/supertest": "^7.2.1",
-    "@vitest/coverage-v8": "4.1.11",
+    "@vitest/coverage-v8": "5.0.0",
     "supertest": "^7.2.2",
-    "vitest": "4.1.11"
+    "vitest": "5.0.0"
   }
 }
