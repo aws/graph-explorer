@@ -107,6 +107,10 @@ The built-in fallback style, used for any type the user hasn't styled. Hardcoded
 The process that queries the database to discover vertex types, edge types, and their attributes. Required before a user can explore a new Connection.
 _Avoid_: Fetch, load
 
+**Edge Connection Discovery**:
+The process that finds which Edge Connections exist. Runs after Schema Sync completes and is a separate step: Schema Sync finds the Edge Types, Edge Connection Discovery finds how they link Vertex Types. Only the Schema View depends on it, so a failure degrades that view and leaves the rest of the app working.
+_Avoid_: Relationship Discovery (follows the Edge Connection entry), edge discovery
+
 **Schema**:
 The discovered structure of a connected graph database — vertex types, edge types, their attributes, and how they connect. Populated by Schema Sync when a Connection is first used; not user-defined.
 _Avoid_: Model, structure
@@ -144,7 +148,7 @@ _Avoid_: Save-status indicator
 - A **Schema** contains **Vertex Types**, **Edge Types**, and **Edge Connections**
 - A **Vertex** has one or more **Vertex Types** and zero or more **Properties**
 - An **Edge** connects exactly two **Vertices** (source → target), has one **Edge Type**, and zero or more **Properties**
-- An **Edge Connection** links a source **Vertex Type** to a target **Vertex Type** via an **Edge Type**
+- An **Edge Connection** links a source **Vertex Type** to a target **Vertex Type** via an **Edge Type**, and is found by **Edge Connection Discovery**
 - A **Session** belongs to a **Connection** and contains **Vertices** and **Edges**
 - **Neighbors** are **Vertices** one hop away from a given **Vertex**
 - **Styles** are scoped per **Vertex Type** (**Vertex Styles**) and **Edge Type** (**Edge Styles**)
