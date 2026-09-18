@@ -341,6 +341,37 @@ describe("createErrorDetails", () => {
     });
   });
 
+  describe("browsers without Error.isError", () => {
+    it("returns name and message from a standard Error", () => {
+      const error = new Error("something broke");
+      expect(
+        withoutErrorIsError(() => createErrorDetails(error)),
+      ).toStrictEqual({
+        name: "Error",
+        message: "something broke",
+      });
+    });
+
+    it("includes the nested cause chain as data", () => {
+      const root = new Error("ECONNREFUSED");
+      const error = new Error("request failed", { cause: root });
+      const details = withoutErrorIsError(() => createErrorDetails(error));
+      expect(details.data).toBe(
+        JSON.stringify({ name: root.name, message: root.message }, null, 2),
+      );
+    });
+
+    it("returns name and message from a DOMException", () => {
+      const error = new DOMException("The operation was aborted", "AbortError");
+      expect(
+        withoutErrorIsError(() => createErrorDetails(error)),
+      ).toStrictEqual({
+        name: "AbortError",
+        message: "The operation was aborted",
+      });
+    });
+  });
+
   describe("non-Error values", () => {
     it("returns 'Unknown Error' with JSON for a plain object", () => {
       const error = { code: "ECONNREFUSED" };
@@ -394,6 +425,25 @@ describe("createErrorDetails", () => {
     });
   });
 });
+
+/**
+ * Runs `fn` with `Error.isError` absent, as on browsers that do not implement
+ * it.
+ *
+ * Reflection keeps the property name out of the type system, so this stays
+ * compilable under a `lib` that predates `Error.isError`.
+ */
+function withoutErrorIsError<T>(fn: () => T): T {
+  const descriptor = Object.getOwnPropertyDescriptor(Error, "isError");
+  Reflect.deleteProperty(Error, "isError");
+  try {
+    return fn();
+  } finally {
+    if (descriptor) {
+      Object.defineProperty(Error, "isError", descriptor);
+    }
+  }
+}
 
 /** Stands in for a query value failure type that `createErrorDetails` has no specific branch for. */
 class DetailedQueryValueError extends QueryValueError {
