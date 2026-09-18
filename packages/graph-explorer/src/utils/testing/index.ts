@@ -14,5 +14,5 @@ export * from "./randomData";
 export * from "./randomSchemaResponse";
 export * from "./renderHookWithJotai";
 export * from "./sparqlHelpers";
-export * from "./stubApiBaseUri";
+export * from "./stubDocumentUrl";
 export * from "./waitForValueToChange";

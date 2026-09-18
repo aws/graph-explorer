@@ -2,7 +2,7 @@
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
 import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
-import { abortableFetch, stubApiBaseUri } from "@/utils/testing";
+import { abortableFetch, stubDocumentUrl } from "@/utils/testing";
 
 import { createOpenCypherExplorer } from "./openCypherExplorer";
 
@@ -37,7 +37,7 @@ describe("createOpenCypherExplorer", () => {
   beforeEach(() => {
     mockFetch = vi.fn();
     vi.stubGlobal("fetch", mockFetch);
-    stubApiBaseUri();
+    stubDocumentUrl();
   });
 
   afterEach(() => {

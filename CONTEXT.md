@@ -144,7 +144,7 @@ The UI element in the nav bar (after the page title) that renders Persistence St
 _Avoid_: Save-status indicator
 
 **Proxy Server**:
-The Node.js server that serves the frontend (mounted at `/explorer`) and proxies all database requests (mounted at `/`). The client resolves API endpoints relative to its own origin via `apiUrl()` — `../endpoint` from the static mount — so the frontend and proxy are always same-origin. This means every database request routes through the Proxy Server, which has network access to the database and handles SigV4 signing. See ADR `unify-docker-image-remove-sagemaker-variant`.
+The Node.js server that serves the frontend (mounted at `/explorer`) and proxies all database requests (mounted at `/`). The client resolves API endpoints relative to its own origin via `apiUrl()`, so the frontend and proxy are always same-origin regardless of any reverse proxy in front of them. This means every database request routes through the Proxy Server, which has network access to the database and handles SigV4 signing. See ADR `unify-docker-image-remove-sagemaker-variant`.
 _Avoid_: proxy endpoint URL (no longer user-configured)
 
 ## Relationships

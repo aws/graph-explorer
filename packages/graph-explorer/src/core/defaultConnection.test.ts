@@ -11,7 +11,7 @@ import {
   createRandomAwsRegion,
   createRandomQueryEngine,
   createRandomServiceType,
-  stubApiBaseUri,
+  stubDocumentUrl,
 } from "@/utils/testing";
 
 import {
@@ -26,7 +26,7 @@ describe("fetchDefaultConnection", () => {
   beforeEach(() => {
     mockFetch = vi.fn();
     vi.stubGlobal("fetch", mockFetch);
-    stubApiBaseUri();
+    stubDocumentUrl();
   });
 
   afterEach(() => {
