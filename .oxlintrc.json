@@ -18,11 +18,7 @@
   "env": {
     "builtin": true
   },
-  "ignorePatterns": [
-    "**/*.config.{js,ts,mjs}",
-    "**/vitest.workspace.ts",
-    ".claude/"
-  ],
+  "ignorePatterns": ["**/*.config.{js,ts,mjs}", ".claude/"],
   "rules": {
     "vitest/require-mock-type-parameters": "off",
     "vitest/expect-expect": [
