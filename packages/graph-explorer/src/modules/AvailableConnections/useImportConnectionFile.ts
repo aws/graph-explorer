@@ -8,7 +8,7 @@ import {
   createNewConfigurationId,
   schemaAtom,
 } from "@/core";
-import { migrateLegacyConnection } from "@/core/StateProvider/configuration";
+import { transformLegacyConnection } from "@/core/StateProvider/configuration";
 import useResetState from "@/core/StateProvider/useResetState";
 import { fromFileToJson } from "@/utils/fileData";
 import { parseConnectionFile } from "@/utils/parseConnectionFile";
@@ -29,8 +29,10 @@ export function useImportConnectionFile() {
         }
 
         // Fold any legacy `url`/`proxyConnection` from files exported before the
-        // unified-proxy model into the canonical `graphDbUrl` shape.
-        const connection = migrateLegacyConnection(parsedFile.connection);
+        // unified-proxy model into the canonical `graphDbUrl` shape. Imported
+        // data enters `configurationAtom` after preload, so it misses the
+        // atom's read-time transform and needs this call.
+        const connection = transformLegacyConnection(parsedFile.connection);
 
         // Create new id to avoid collisions
         const newId = createNewConfigurationId();

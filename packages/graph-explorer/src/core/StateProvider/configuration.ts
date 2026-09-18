@@ -118,30 +118,33 @@ export function normalizeUrl(url: string | undefined): string {
   );
 }
 
-/** Migrates a legacy connection (with `url` and `proxyConnection`) to the new
+/** Transforms a legacy connection (with `url` and `proxyConnection`) to the new
  * format where only `graphDbUrl` exists. */
-export function migrateLegacyConnection(
+export function transformLegacyConnection(
   connection: LegacyConnectionConfig,
 ): ConnectionConfig {
   const { url, proxyConnection, ...rest } = connection;
-  // Proxy connections stored the database endpoint in `graphDbUrl`; direct
-  // connections stored it in `url`. The final `connection.graphDbUrl` fallback
-  // covers already-migrated data where `url` is absent, and the empty-string
-  // fallback keeps the result valid when no URL is present at all.
-  const graphDbUrl = proxyConnection ? connection.graphDbUrl : url;
+  // A missing `proxyConnection` flag is treated as a proxy connection when
+  // `graphDbUrl` — proxy-only in the legacy shape — is already present.
+  const isProxyConnection =
+    proxyConnection === true ||
+    (proxyConnection === undefined && connection.graphDbUrl != null);
+  const graphDbUrl = isProxyConnection
+    ? connection.graphDbUrl
+    : url || connection.graphDbUrl;
   return {
     ...rest,
-    graphDbUrl: graphDbUrl || connection.graphDbUrl || "",
+    graphDbUrl: graphDbUrl || "",
   };
 }
 
 export function normalizeConnection(connection: LegacyConnectionConfig) {
-  const migrated = migrateLegacyConnection(connection);
+  const transformed = transformLegacyConnection(connection);
   return {
-    ...migrated,
-    graphDbUrl: normalizeUrl(migrated.graphDbUrl),
-    queryEngine: migrated.queryEngine || "gremlin",
-    awsAuthEnabled: migrated.awsAuthEnabled ?? false,
+    ...transformed,
+    graphDbUrl: normalizeUrl(transformed.graphDbUrl),
+    queryEngine: transformed.queryEngine || "gremlin",
+    awsAuthEnabled: transformed.awsAuthEnabled ?? false,
   };
 }
 export type NormalizedConnection = ReturnType<typeof normalizeConnection>;

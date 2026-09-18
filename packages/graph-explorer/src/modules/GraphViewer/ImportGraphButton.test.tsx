@@ -1,7 +1,12 @@
 // @vitest-environment happy-dom
+import type { LegacyConnectionConfig } from "@shared/types";
+
 import { createArray } from "@shared/utils/testing";
 import { ZodError } from "zod";
 
+import type { RawConfiguration } from "@/core";
+
+import { transformConfiguration } from "@/core/StateProvider/configurationTransform";
 import {
   createRandomExportedGraphConnection,
   createRandomFile,
@@ -93,6 +98,46 @@ describe("createErrorNotification", () => {
 
     expect(notification).toBe(
       `The graph file requires switching to connection ${matchingConnectionName}.`,
+    );
+  });
+
+  // Regression: `configurationAtom`'s read-time transform migrates a legacy
+  // `url`/`proxyConnection` connection to `graphDbUrl` before
+  // `useImportGraphMutation` reads it, so matching against a pre-upgrade
+  // connection still finds it instead of reporting no match.
+  it("should show the connection name when a match is found via a legacy stored connection", () => {
+    const legacyConfig: RawConfiguration = {
+      ...createRandomRawConfiguration(),
+      // Stored data is not schema-validated on read, so an entry can carry a
+      // legacy connection despite the compile-time `ConnectionConfig` shape.
+      connection: {
+        url: "https://my-neptune:8182",
+        proxyConnection: false,
+      } as LegacyConnectionConfig as RawConfiguration["connection"],
+    };
+    const [migratedConfig] = transformConfiguration(
+      new Map([[legacyConfig.id, legacyConfig]]),
+    ).values();
+
+    const allConnections = createRandomAllConnections();
+    allConnections[0] = {
+      ...migratedConfig.connection!,
+      id: migratedConfig.id,
+      displayLabel: migratedConfig.displayLabel,
+    };
+
+    const connection = createRandomExportedGraphConnection();
+    connection.dbUrl = "https://my-neptune:8182";
+    // The legacy connection carries no queryEngine, so matching falls back to
+    // "gremlin" (see `createExportedConnection`).
+    connection.queryEngine = "gremlin";
+    const error = new InvalidConnectionError("test", connection);
+    const file = createRandomFile();
+
+    const notification = createErrorNotification(error, file, allConnections);
+
+    expect(notification).toBe(
+      `The graph file requires switching to connection ${allConnections[0].displayLabel}.`,
     );
   });
 });

@@ -33,10 +33,10 @@ import {
   getDefaultEdgeTypeConfig,
   getDefaultVertexTypeConfig,
   mergeConfiguration,
-  migrateLegacyConnection,
   normalizeConnection,
   type NormalizedConnection,
   patchToRemoveDisplayLabel,
+  transformLegacyConnection,
 } from "./configuration";
 
 function toVertexStyles(
@@ -419,7 +419,7 @@ describe("normalizeConnection", () => {
     expect(result.graphDbUrl).toBe("https://db.com/graph");
   });
 
-  test("should migrate legacy connection with url and proxyConnection=true", () => {
+  test("should transform legacy connection with url and proxyConnection=true", () => {
     const result = normalizeConnection({
       url: "https://proxy.com",
       proxyConnection: true,
@@ -428,7 +428,7 @@ describe("normalizeConnection", () => {
     expect(result.graphDbUrl).toBe("https://db.com");
   });
 
-  test("should migrate legacy connection with url and proxyConnection=false", () => {
+  test("should transform legacy connection with url and proxyConnection=false", () => {
     const result = normalizeConnection({
       url: "https://my-neptune:8182",
       proxyConnection: false,
@@ -437,9 +437,9 @@ describe("normalizeConnection", () => {
   });
 });
 
-describe("migrateLegacyConnection", () => {
+describe("transformLegacyConnection", () => {
   test("should use graphDbUrl directly when proxyConnection is true", () => {
-    const result = migrateLegacyConnection({
+    const result = transformLegacyConnection({
       url: "https://proxy.example.com",
       proxyConnection: true,
       graphDbUrl: "https://my-neptune:8182",
@@ -448,22 +448,40 @@ describe("migrateLegacyConnection", () => {
   });
 
   test("should use url as graphDbUrl when proxyConnection is false", () => {
-    const result = migrateLegacyConnection({
+    const result = transformLegacyConnection({
       url: "https://my-neptune:8182",
       proxyConnection: false,
     });
     expect(result.graphDbUrl).toBe("https://my-neptune:8182");
   });
 
-  test("should use url as graphDbUrl when proxyConnection is absent and no graphDbUrl", () => {
-    const result = migrateLegacyConnection({
+  test("should infer a proxy connection and use graphDbUrl when proxyConnection is absent but graphDbUrl is present", () => {
+    const result = transformLegacyConnection({
+      graphDbUrl: "https://db.com",
+      queryEngine: "gremlin",
+    });
+    expect(result.graphDbUrl).toBe("https://db.com");
+  });
+
+  test("should use url as graphDbUrl when proxyConnection and graphDbUrl are both absent", () => {
+    const result = transformLegacyConnection({
       url: "https://my-neptune:8182",
     });
     expect(result.graphDbUrl).toBe("https://my-neptune:8182");
   });
 
+  // Out of scope: a `proxyConnection: true` connection with only `url` set
+  // (no `graphDbUrl`) yields an empty `graphDbUrl`, matching base behavior.
+  test("should yield an empty graphDbUrl when proxyConnection is true and only url is set", () => {
+    const result = transformLegacyConnection({
+      url: "https://proxy.example.com",
+      proxyConnection: true,
+    });
+    expect(result.graphDbUrl).toBe("");
+  });
+
   test("should not include proxyConnection in result", () => {
-    const result = migrateLegacyConnection({
+    const result = transformLegacyConnection({
       url: "https://proxy.com",
       proxyConnection: true,
       graphDbUrl: "https://db.com",
@@ -472,7 +490,7 @@ describe("migrateLegacyConnection", () => {
   });
 
   test("should not include url in result", () => {
-    const result = migrateLegacyConnection({
+    const result = transformLegacyConnection({
       url: "https://proxy.com",
       proxyConnection: true,
       graphDbUrl: "https://db.com",
@@ -481,7 +499,7 @@ describe("migrateLegacyConnection", () => {
   });
 
   test("should preserve other connection properties", () => {
-    const result = migrateLegacyConnection({
+    const result = transformLegacyConnection({
       url: "https://proxy.com",
       proxyConnection: true,
       graphDbUrl: "https://db.com",
@@ -500,16 +518,19 @@ describe("migrateLegacyConnection", () => {
     expect(result.nodeExpansionLimit).toBe(100);
   });
 
-  test("should pass through a connection that already has graphDbUrl and no url", () => {
-    const result = migrateLegacyConnection({
+  test("should pass through a connection that already has graphDbUrl and no url unchanged", () => {
+    const result = transformLegacyConnection({
       graphDbUrl: "https://db.com",
       queryEngine: "gremlin",
     });
-    expect(result.graphDbUrl).toBe("https://db.com");
+    expect(result).toStrictEqual({
+      graphDbUrl: "https://db.com",
+      queryEngine: "gremlin",
+    });
   });
 
   test("should fall back to empty string when no url is present", () => {
-    const result = migrateLegacyConnection({
+    const result = transformLegacyConnection({
       proxyConnection: false,
       queryEngine: "gremlin",
     });
