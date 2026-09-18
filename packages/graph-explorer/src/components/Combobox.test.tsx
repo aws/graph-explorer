@@ -205,6 +205,40 @@ describe("Combobox", () => {
       await findByText("Vertex Type 00001");
     });
 
+    it("prevents the mousedown default only while the label is showing", () => {
+      const options = createTestOptions(20);
+      const { container } = render(
+        <Combobox
+          options={options}
+          value="type_0"
+          onValueChange={() => {}}
+          placeholder="Select type"
+        />,
+      );
+
+      const input = container.querySelector("input") as HTMLInputElement;
+
+      // The browser's mousedown default collapses the select-on-open
+      // selection, which turns the first keystroke into an append.
+      const onLabel = new MouseEvent("mousedown", {
+        bubbles: true,
+        cancelable: true,
+      });
+      fireEvent(input, onLabel);
+      expect(onLabel.defaultPrevented).toBe(true);
+
+      // Once the user is filtering there is no label to protect, and the
+      // default has to run or the caret can't be placed and double-click
+      // can't select a word.
+      fireEvent.change(input, { target: { value: "0001" } });
+      const whileFiltering = new MouseEvent("mousedown", {
+        bubbles: true,
+        cancelable: true,
+      });
+      fireEvent(input, whileFiltering);
+      expect(whileFiltering.defaultPrevented).toBe(false);
+    });
+
     it("should call onValueChange when an option is selected", async () => {
       const options = createTestOptions(10);
       const handleChange = vi.fn();
@@ -320,7 +354,9 @@ describe("Combobox", () => {
 
       // The listbox renders through a portal into document.body
       fireEvent.keyDown(input, { key: "ArrowDown" });
-      document.querySelectorAll('[role="option"]').forEach(option => {
+      const renderedOptions = document.querySelectorAll('[role="option"]');
+      expect(renderedOptions[0]?.textContent).toBe(options[0].label);
+      renderedOptions.forEach(option => {
         expect((option as HTMLElement).tabIndex).toBe(-1);
       });
     });
