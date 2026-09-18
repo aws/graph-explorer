@@ -430,4 +430,75 @@ describe("parseConnectionFile", () => {
       "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
     ]);
   });
+
+  test("parses valid AWS auth fields", () => {
+    const config = {
+      id: createNewConfigurationId(),
+      connection: {
+        url: createRandomUrlString(),
+        queryEngine: "gremlin" as const,
+        awsAuthEnabled: true,
+        awsRegion: "us-west-2",
+        serviceType: "neptune-db" as const,
+      },
+      schema: { vertices: [], edges: [] },
+    };
+
+    const result = parseConnectionFile(config);
+
+    expect(result?.connection.awsAuthEnabled).toBe(true);
+    expect(result?.connection.awsRegion).toBe("us-west-2");
+    expect(result?.connection.serviceType).toBe("neptune-db");
+  });
+
+  test("degrades an invalid awsAuthEnabled to absent, and it must never become true", () => {
+    const config = {
+      id: createNewConfigurationId(),
+      connection: {
+        url: createRandomUrlString(),
+        queryEngine: "gremlin" as const,
+        awsAuthEnabled: "not-a-boolean",
+      },
+      schema: { vertices: [], edges: [] },
+    };
+
+    const result = parseConnectionFile(config);
+
+    expect(result).not.toBeNull();
+    expect(result?.connection.awsAuthEnabled).toBeUndefined();
+  });
+
+  test("degrades an invalid awsRegion to absent while parsing the rest of the file", () => {
+    const config = {
+      id: createNewConfigurationId(),
+      connection: {
+        url: createRandomUrlString(),
+        queryEngine: "gremlin" as const,
+        awsRegion: 12345,
+      },
+      schema: { vertices: [], edges: [] },
+    };
+
+    const result = parseConnectionFile(config);
+
+    expect(result).not.toBeNull();
+    expect(result?.connection.awsRegion).toBeUndefined();
+  });
+
+  test("degrades an invalid serviceType to absent while parsing the rest of the file", () => {
+    const config = {
+      id: createNewConfigurationId(),
+      connection: {
+        url: createRandomUrlString(),
+        queryEngine: "gremlin" as const,
+        serviceType: "not-a-real-service-type",
+      },
+      schema: { vertices: [], edges: [] },
+    };
+
+    const result = parseConnectionFile(config);
+
+    expect(result).not.toBeNull();
+    expect(result?.connection.serviceType).toBeUndefined();
+  });
 });

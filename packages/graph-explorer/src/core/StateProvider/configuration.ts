@@ -132,6 +132,17 @@ export function transformLegacyConnection(
   const graphDbUrl = isProxyConnection
     ? connection.graphDbUrl
     : url || connection.graphDbUrl;
+
+  if (!isProxyConnection) {
+    // The IAM controls only ever rendered for a proxy connection, so these
+    // fields are meaningless on a direct connection — and dangerous if stale
+    // or imported, since the Proxy Server signs the outbound request with
+    // its own IAM credentials whenever `awsAuthEnabled` is set.
+    delete rest.awsAuthEnabled;
+    delete rest.awsRegion;
+    delete rest.serviceType;
+  }
+
   return {
     ...rest,
     graphDbUrl: graphDbUrl || "",

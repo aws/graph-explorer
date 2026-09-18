@@ -536,6 +536,48 @@ describe("transformLegacyConnection", () => {
     });
     expect(result.graphDbUrl).toBe("");
   });
+
+  test("should clear AWS auth settings on a legacy direct connection", () => {
+    const result = transformLegacyConnection({
+      url: "https://my-neptune:8182",
+      proxyConnection: false,
+      awsAuthEnabled: true,
+      awsRegion: "us-east-1",
+      serviceType: "neptune-db",
+    });
+    expect(result.awsAuthEnabled).toBeUndefined();
+    expect(result.awsRegion).toBeUndefined();
+    expect(result.serviceType).toBeUndefined();
+    expect(result).not.toHaveProperty("awsAuthEnabled");
+    expect(result).not.toHaveProperty("awsRegion");
+    expect(result).not.toHaveProperty("serviceType");
+  });
+
+  test("should keep AWS auth settings on a legacy proxy connection", () => {
+    const result = transformLegacyConnection({
+      url: "https://proxy.example.com",
+      graphDbUrl: "https://db.com",
+      proxyConnection: true,
+      awsAuthEnabled: true,
+      awsRegion: "us-east-1",
+      serviceType: "neptune-db",
+    });
+    expect(result.awsAuthEnabled).toBe(true);
+    expect(result.awsRegion).toBe("us-east-1");
+    expect(result.serviceType).toBe("neptune-db");
+  });
+
+  test("should keep AWS auth settings when proxyConnection is absent but graphDbUrl infers a proxy connection", () => {
+    const result = transformLegacyConnection({
+      graphDbUrl: "https://db.com",
+      awsAuthEnabled: true,
+      awsRegion: "us-east-1",
+      serviceType: "neptune-db",
+    });
+    expect(result.awsAuthEnabled).toBe(true);
+    expect(result.awsRegion).toBe("us-east-1");
+    expect(result.serviceType).toBe("neptune-db");
+  });
 });
 
 describe("getDefaultVertexTypeConfig", () => {

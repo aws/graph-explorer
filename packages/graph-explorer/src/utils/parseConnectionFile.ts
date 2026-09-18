@@ -1,4 +1,4 @@
-import { queryEngineOptions } from "@shared/types";
+import { neptuneServiceTypeOptions, queryEngineOptions } from "@shared/types";
 import { z } from "zod";
 
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
@@ -47,6 +47,17 @@ const exportedConnectionFileSchema = z.looseObject({
       // a legacy file cannot smuggle in a non-http(s) target either.
       url: z.url({ protocol: /^https?$/ }).optional(),
       proxyConnection: z.boolean().optional(),
+      // Best-effort: an unparseable value degrades to absent rather than
+      // rejecting the whole file. `awsAuthEnabled` must fail safe to falsy —
+      // `transformLegacyConnection` only keeps these fields for a proxy
+      // connection, and a stray truthy value would make the Proxy Server
+      // sign outbound requests with its own IAM credentials.
+      awsAuthEnabled: z.boolean().optional().catch(undefined),
+      awsRegion: z.string().optional().catch(undefined),
+      serviceType: z
+        .enum(neptuneServiceTypeOptions)
+        .optional()
+        .catch(undefined),
     })
     // Requires at least one of the canonical or legacy endpoint fields to be
     // present. This does not guarantee a non-empty `graphDbUrl` after
