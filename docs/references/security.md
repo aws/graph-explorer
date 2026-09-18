@@ -75,9 +75,9 @@ For browsers like Safari and Firefox, trusting the certificate from the browser 
 
 ## CORS
 
-By default, the proxy server does not allow cross-origin requests. Since the proxy server serves both the API and the UI from the same origin, CORS is not needed in standard deployments. In development mode, the Vite dev server proxies API requests to the Express server to maintain same-origin behavior.
+By default, the proxy server does not allow cross-origin requests. The browser always reaches the proxy server's API from the same origin it served the UI from, so CORS is not needed for the UI itself. In development mode, the Vite dev server proxies API requests to the Express server to maintain same-origin behavior.
 
-If you serve the UI from a different origin than the proxy server, set the `PROXY_SERVER_CORS_ORIGIN` environment variable to the origin you want to allow.
+`PROXY_SERVER_CORS_ORIGIN` is for a different case: some other web application, running at its own origin, calling the proxy server's API directly (not through the Graph Explorer UI). Set it to the origin you want to allow.
 
 ```bash
 PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com
