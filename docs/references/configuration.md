@@ -121,6 +121,9 @@ Runtime convenience preset for SageMaker/Jupyter deployments. When set to `true`
 
 To provide a default connection such that initial loads of Graph Explorer always result with the same starting connection, modify the `docker run ...` command to either take in a JSON configuration or runtime environment variables. If you provide both a JSON configuration and environmental variables, the JSON will be prioritized.
 
+> [!NOTE]
+> `PUBLIC_OR_PROXY_ENDPOINT` and `USING_PROXY_SERVER` are still honored for backward compatibility and are resolved into `GRAPH_CONNECTION_URL`. An existing deployment that sets these needs no change.
+
 ### Environment Variables
 
 These are the valid environment variables used for the default connection, their defaults, and their descriptions.

@@ -343,6 +343,104 @@ describe("process-environment.sh", () => {
     });
   });
 
+  describe("legacy PUBLIC_OR_PROXY_ENDPOINT / USING_PROXY_SERVER resolution", () => {
+    it("resolves to GRAPH_CONNECTION_URL when USING_PROXY_SERVER=true", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "true",
+        GRAPH_CONNECTION_URL: "https://proxied:8182",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://ignored:9250",
+      });
+      expect(defaultConnection).toHaveProperty(
+        "GRAPH_EXP_CONNECTION_URL",
+        "https://proxied:8182",
+      );
+    });
+
+    it("resolves to PUBLIC_OR_PROXY_ENDPOINT when USING_PROXY_SERVER=false and GRAPH_CONNECTION_URL is unset", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "false",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+      });
+      expect(defaultConnection).toHaveProperty(
+        "GRAPH_EXP_CONNECTION_URL",
+        "https://public:9250",
+      );
+    });
+
+    it("resolves to GRAPH_CONNECTION_URL when USING_PROXY_SERVER is unset and GRAPH_CONNECTION_URL is set", () => {
+      const { defaultConnection } = runScript(workDir, {
+        GRAPH_CONNECTION_URL: "https://direct:8182",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://ignored:9250",
+      });
+      expect(defaultConnection).toHaveProperty(
+        "GRAPH_EXP_CONNECTION_URL",
+        "https://direct:8182",
+      );
+    });
+
+    it("resolves to PUBLIC_OR_PROXY_ENDPOINT when both USING_PROXY_SERVER and GRAPH_CONNECTION_URL are unset", () => {
+      const { defaultConnection } = runScript(workDir, {
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+      });
+      expect(defaultConnection).toHaveProperty(
+        "GRAPH_EXP_CONNECTION_URL",
+        "https://public:9250",
+      );
+    });
+
+    it("writes no defaultConnection.json when USING_PROXY_SERVER=true and GRAPH_CONNECTION_URL is unset", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "true",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+      });
+      expect(defaultConnection).toBeNull();
+    });
+
+    it("resolves USING_PROXY_SERVER case-insensitively", () => {
+      // Mixed case "True" must still be recognized as the proxy case, which
+      // is only observable here because it is the one row where getting the
+      // comparison wrong flips the result: a case-sensitive check would miss
+      // "True", fall through to PUBLIC_OR_PROXY_ENDPOINT, and wrongly produce
+      // a defaultConnection.json instead of none.
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "True",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+      });
+      expect(defaultConnection).toBeNull();
+    });
+
+    it("resolves through config.json as well as through environment variables", () => {
+      fs.writeFileSync(
+        path.join(workDir, "config.json"),
+        JSON.stringify({
+          USING_PROXY_SERVER: false,
+          PUBLIC_OR_PROXY_ENDPOINT: "https://from-config:9250",
+        }),
+      );
+
+      const { defaultConnection } = runScript(workDir);
+
+      expect(defaultConnection).toHaveProperty(
+        "GRAPH_EXP_CONNECTION_URL",
+        "https://from-config:9250",
+      );
+    });
+
+    it("does not write the legacy variable names to defaultConnection.json", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "true",
+        GRAPH_CONNECTION_URL: "https://proxied:8182",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+      });
+      expect(defaultConnection).not.toHaveProperty(
+        "GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT",
+      );
+      expect(defaultConnection).not.toHaveProperty(
+        "GRAPH_EXP_USING_PROXY_SERVER",
+      );
+    });
+  });
+
   describe("SERVICE_TYPE=neptune-graph auto-sets openCypher", () => {
     it("sets GRAPH_TYPE to openCypher when SERVICE_TYPE is neptune-graph", () => {
       const { defaultConnection } = runScript(workDir, {

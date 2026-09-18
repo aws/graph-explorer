@@ -16,8 +16,10 @@ if [ -f "./config.json" ]; then
 
     json=$(cat ./config.json)
 
+    PUBLIC_OR_PROXY_ENDPOINT=$(echo "$json" | grep -o '"PUBLIC_OR_PROXY_ENDPOINT":[^,}]*' | cut -d '"' -f 4)
     GRAPH_TYPE=$(echo "$json" | grep -o '"GRAPH_TYPE":[^,}]*' | cut -d '"' -f 4)
     SERVICE_TYPE=$(echo "$json" | grep -o '"SERVICE_TYPE":[^,}]*' | cut -d '"' -f 4)
+    USING_PROXY_SERVER=$(echo "$json" | grep -o '"USING_PROXY_SERVER":[^,}]*' | cut -d ':' -f 2 | tr -d '[:space:]' | sed 's/"//g')
     IAM=$(echo "$json" | grep -o '"IAM":[^,}]*' | cut -d ':' -f 2 | tr -d '[:space:]' | sed 's/"//g')
     GRAPH_CONNECTION_URL=$(echo "$json" | grep -o '"GRAPH_CONNECTION_URL":[^,}]*' | cut -d '"' -f 4)
     AWS_REGION=$(echo "$json" | grep -o '"AWS_REGION":[^,}]*' | cut -d '"' -f 4)
@@ -66,12 +68,31 @@ else
   printf '\nGRAPH_EXP_HTTPS_CONNECTION=true\n' >> $CONFIGURATION_FOLDER_PATH/.env
 fi
 
+# Resolve the legacy PUBLIC_OR_PROXY_ENDPOINT/USING_PROXY_SERVER variables into
+# GRAPH_CONNECTION_URL, mirroring transformLegacyConnection() in
+# configuration.ts so the product has one legacy-resolution rule.
+USING_PROXY_SERVER_LOWER=$(printf '%s' "$USING_PROXY_SERVER" | tr '[:upper:]' '[:lower:]')
+IS_PROXY_CONNECTION=false
+if [ "$USING_PROXY_SERVER_LOWER" = "true" ]; then
+    IS_PROXY_CONNECTION=true
+elif [ -z "$USING_PROXY_SERVER" ] && [ -n "$GRAPH_CONNECTION_URL" ]; then
+    IS_PROXY_CONNECTION=true
+fi
+
+if [ "$IS_PROXY_CONNECTION" = "true" ]; then
+    RESOLVED_CONNECTION_URL="$GRAPH_CONNECTION_URL"
+elif [ -n "$PUBLIC_OR_PROXY_ENDPOINT" ]; then
+    RESOLVED_CONNECTION_URL="$PUBLIC_OR_PROXY_ENDPOINT"
+else
+    RESOLVED_CONNECTION_URL="$GRAPH_CONNECTION_URL"
+fi
+
 # Update the default connection file with the configuration values
-if [ -n "$GRAPH_CONNECTION_URL" ]; then
+if [ -n "$RESOLVED_CONNECTION_URL" ]; then
     # Overwrite existing file with an empty string
     echo "" > $CONFIGURATION_FOLDER_PATH/defaultConnection.json
 
-    printf '{\n"GRAPH_EXP_CONNECTION_URL":"%s",\n' "$GRAPH_CONNECTION_URL" >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
+    printf '{\n"GRAPH_EXP_CONNECTION_URL":"%s",\n' "$RESOLVED_CONNECTION_URL" >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
 
     if [ -n "$SERVICE_TYPE" ]; then
         echo "\"GRAPH_EXP_SERVICE_TYPE\":\"${SERVICE_TYPE}\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
