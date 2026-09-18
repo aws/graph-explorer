@@ -1,5 +1,7 @@
 import type cytoscape from "cytoscape";
 
+import type { LayoutName } from "@/core/graphLayout";
+
 export const concentricLayout = {
   name: "concentric",
 
@@ -335,6 +337,6 @@ export const availableLayoutsConfig = {
   SUBWAY_BT: subwayLayoutBottomToTop,
   SUBWAY_LR: subwayLayoutLeftToRight,
   SUBWAY_RL: subwayLayoutRightToLeft,
-};
+} satisfies Record<LayoutName, unknown>;
 
-export type LayoutName = keyof typeof availableLayoutsConfig;
+export type { LayoutName } from "@/core/graphLayout";

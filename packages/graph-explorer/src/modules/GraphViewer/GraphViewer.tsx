@@ -25,7 +25,6 @@ import {
   DownloadScreenshotButton,
   Graph,
   GraphProvider,
-  type LayoutName,
   RerunLayoutButton,
   type SelectedElements,
   SelectLayout,
@@ -34,6 +33,7 @@ import {
   ZoomToFitButton,
 } from "@/components/Graph";
 import {
+  DEFAULT_GRAPH_LAYOUT,
   createRenderedEdgeId,
   createRenderedVertexId,
   getEdgeIdFromRenderedEdgeId,
@@ -60,7 +60,7 @@ import { useGraphSelection } from "./useGraphSelection";
 import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
 
-const graphLayoutSelectionAtom = atom<LayoutName>("F_COSE");
+const graphLayoutSelectionAtom = atom(DEFAULT_GRAPH_LAYOUT);
 
 // Prevent open context menu on Windows
 function onContextMenu(e: MouseEvent<HTMLDivElement>) {
