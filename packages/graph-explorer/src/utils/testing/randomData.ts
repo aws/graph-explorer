@@ -50,6 +50,7 @@ import {
   type EntityRawId,
   type FeatureFlags,
   type GraphViewLayout,
+  layoutNames,
   type LineStyle,
   type PrefixTypeConfig,
   type RawConfiguration,
@@ -578,7 +579,8 @@ export function createRandomExportedGraph() {
   connection.queryEngine = pickRandomElement(
     queryEngineOptions.filter(e => e !== "sparql"),
   );
-  const result = createExportedGraph(vertexIds, edgeIds, connection);
+  const layout = pickRandomElement([...layoutNames]);
+  const result = createExportedGraph(vertexIds, edgeIds, connection, layout);
   result.meta.sourceVersion = createRandomVersion();
   return result;
 }
@@ -589,7 +591,8 @@ export function createRandomExportedGraphForRdf() {
   const edgeIds = entities.edges.map(e => e.id);
   const connection = createRandomConnectionWithId();
   connection.queryEngine = "sparql";
-  const result = createExportedGraph(vertexIds, edgeIds, connection);
+  const layout = pickRandomElement([...layoutNames]);
+  const result = createExportedGraph(vertexIds, edgeIds, connection, layout);
   result.meta.sourceVersion = createRandomVersion();
   return result;
 }
@@ -841,5 +844,6 @@ export function createRandomSchemaViewLayout(): SchemaViewLayout {
       }),
     },
     detailsAutoOpenOnSelection: randomlyUndefined(createRandomBoolean()),
+    layoutAlgorithm: pickRandomElement([...layoutNames]),
   };
 }

@@ -73,6 +73,10 @@ _Avoid_: Criterion (implies a configurable operator, which the product does not 
 The set of vertices and edges a user has loaded through exploration for a given Connection. Persisted to IndexedDB so users can close the browser and restore where they left off.
 _Avoid_: State, workspace
 
+**Graph Arrangement**:
+The reproducible visual state of a Session in the Graph View: the selected layout, exact vertex positions, and viewport pan and zoom. Captured after layouts and user interaction, persisted with the Session, and restored without rerunning a complete layout. See `docs/adr/20260903-persist-exact-graph-arrangements.md`.
+_Avoid_: Layout (only the algorithm), Graph state (too broad)
+
 **Graph View**:
 The interactive canvas where vertices and edges are visualized using Cytoscape.js. Users explore the graph here by expanding neighbors and applying layouts. Nav label: "Graph".
 _Avoid_: Graph Explorer (ambiguous with the product name)
@@ -145,7 +149,7 @@ _Avoid_: Save-status indicator
 - A **Vertex** has one or more **Vertex Types** and zero or more **Properties**
 - An **Edge** connects exactly two **Vertices** (source → target), has one **Edge Type**, and zero or more **Properties**
 - An **Edge Connection** links a source **Vertex Type** to a target **Vertex Type** via an **Edge Type**
-- A **Session** belongs to a **Connection** and contains **Vertices** and **Edges**
+- A **Session** belongs to a **Connection** and contains **Vertices**, **Edges**, and its **Graph Arrangement**
 - **Neighbors** are **Vertices** one hop away from a given **Vertex**
 - **Styles** are scoped per **Vertex Type** (**Vertex Styles**) and **Edge Type** (**Edge Styles**)
 - The **Graph View**, **Data Table View**, and **Schema View** all render from the same **Session** and **Schema**

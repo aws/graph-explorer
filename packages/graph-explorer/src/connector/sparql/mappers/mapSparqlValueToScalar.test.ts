@@ -349,8 +349,7 @@ describe("mapSparqlValueToScalar", () => {
 
       const result = mapSparqlValueToScalar(sparqlValue);
 
-      expect(result).toBeInstanceOf(Date);
-      expect(result.toString()).toBe("Invalid Date");
+      expect(result).toBe("not-a-date");
     });
   });
 });

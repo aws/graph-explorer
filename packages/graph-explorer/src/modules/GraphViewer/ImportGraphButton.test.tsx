@@ -1,17 +1,199 @@
 // @vitest-environment happy-dom
 import { createArray } from "@shared/utils/testing";
+import { useAtom, useAtomValue } from "jotai";
+import { act } from "react";
 import { ZodError } from "zod";
 
+import {
+  activeGraphSessionAtom,
+  graphViewLayoutAlgorithmAtom,
+  pendingGraphRestorationAtom,
+} from "@/core";
 import {
   createRandomExportedGraphConnection,
   createRandomFile,
   createRandomRawConfiguration,
+  createRandomVertex,
+  DbState,
+  FakeExplorer,
+  renderHookWithState,
 } from "@/utils/testing";
 
+import { createExportedGraph } from "./exportedGraph";
 import {
   createErrorNotification,
   InvalidConnectionError,
+  useImportGraphMutation,
 } from "./ImportGraphButton";
+
+function importFile(data: object) {
+  return new File([JSON.stringify(data)], "graph.json", {
+    type: "application/json",
+  });
+}
+
+function setupImport() {
+  const explorer = new FakeExplorer();
+  const vertex = createRandomVertex();
+  explorer.addVertex(vertex);
+  const state = new DbState(explorer);
+  const { result } = renderHookWithState(() => {
+    const mutation = useImportGraphMutation();
+    const [layout, setLayout] = useAtom(graphViewLayoutAlgorithmAtom);
+    const [restoration, setRestoration] = useAtom(pendingGraphRestorationAtom);
+    const session = useAtomValue(activeGraphSessionAtom);
+    return {
+      mutation,
+      layout,
+      setLayout,
+      restoration,
+      setRestoration,
+      session,
+    };
+  }, state);
+  act(() => result.current.setLayout("KLAY_LR"));
+  return { explorer, vertex, result };
+}
+
+describe("useImportGraphMutation", () => {
+  it("applies a valid layout after successful entity restoration", async () => {
+    const { explorer, vertex, result } = setupImport();
+    const exported = createExportedGraph(
+      [vertex.id],
+      [],
+      explorer.connection,
+      "DAGRE_TB",
+    );
+
+    await act(() => result.current.mutation.mutateAsync(importFile(exported)));
+
+    expect(result.current.layout).toBe("DAGRE_TB");
+  });
+
+  it("installs a target-scoped arrangement after successful entity restoration", async () => {
+    const { explorer, vertex, result } = setupImport();
+    const arrangement = {
+      positions: [{ id: vertex.id, x: 12, y: 34 }],
+      viewport: { pan: { x: 56, y: 78 }, zoom: 2 },
+    };
+    const exported = createExportedGraph(
+      [vertex.id],
+      [],
+      explorer.connection,
+      "F_COSE",
+      arrangement,
+    );
+
+    await act(() => result.current.mutation.mutateAsync(importFile(exported)));
+
+    expect(result.current.restoration).toMatchObject(arrangement);
+    expect(result.current.restoration?.target).toBeDefined();
+  });
+
+  it("commits a coherent session with actual restored entities and arrangement for matches", async () => {
+    const { explorer, vertex, result } = setupImport();
+    const missing = createRandomVertex();
+    const arrangement = {
+      positions: [
+        { id: vertex.id, x: 12, y: 34 },
+        { id: missing.id, x: 56, y: 78 },
+      ],
+      viewport: { pan: { x: 1, y: 2 }, zoom: 3 },
+    };
+    const exported = createExportedGraph(
+      [vertex.id, missing.id],
+      [],
+      explorer.connection,
+      "DAGRE_TB",
+      arrangement,
+    );
+
+    await act(() => result.current.mutation.mutateAsync(importFile(exported)));
+
+    expect(result.current.session?.vertices.size).toBe(1);
+    expect(result.current.session?.vertices.has(vertex.id)).toBe(true);
+    expect(result.current.session?.arrangement?.positions).toHaveLength(1);
+    expect(result.current.session?.arrangement?.positions[0].id).toBe(
+      vertex.id,
+    );
+  });
+
+  it("does not replace pending restoration when entity restoration fails", async () => {
+    const { explorer, vertex, result } = setupImport();
+    const exported = createExportedGraph(
+      [vertex.id],
+      [],
+      explorer.connection,
+      "F_COSE",
+      { positions: [{ id: vertex.id, x: 12, y: 34 }] },
+    );
+    vi.spyOn(explorer, "vertexDetails").mockRejectedValue(
+      new Error("restore failed"),
+    );
+
+    await act(async () => {
+      await expect(
+        result.current.mutation.mutateAsync(importFile(exported)),
+      ).rejects.toThrow(new Error("restore failed"));
+    });
+
+    expect(result.current.restoration).toBeNull();
+  });
+
+  it("preserves the live layout for a legacy export", async () => {
+    const { explorer, vertex, result } = setupImport();
+    const exported = createExportedGraph(
+      [vertex.id],
+      [],
+      explorer.connection,
+      "DAGRE_TB",
+    );
+    delete exported.data.layout;
+
+    await act(() => result.current.mutation.mutateAsync(importFile(exported)));
+
+    expect(result.current.layout).toBe("KLAY_LR");
+  });
+
+  it("preserves the live layout when the connection does not match", async () => {
+    const { vertex, result } = setupImport();
+    const exported = createExportedGraph(
+      [vertex.id],
+      [],
+      new FakeExplorer().connection,
+      "DAGRE_TB",
+    );
+
+    await act(async () => {
+      await expect(
+        result.current.mutation.mutateAsync(importFile(exported)),
+      ).rejects.toBeInstanceOf(InvalidConnectionError);
+    });
+
+    expect(result.current.layout).toBe("KLAY_LR");
+  });
+
+  it("preserves the live layout when entity restoration fails", async () => {
+    const { explorer, vertex, result } = setupImport();
+    const exported = createExportedGraph(
+      [vertex.id],
+      [],
+      explorer.connection,
+      "DAGRE_TB",
+    );
+    vi.spyOn(explorer, "vertexDetails").mockRejectedValue(
+      new Error("restore failed"),
+    );
+
+    await act(async () => {
+      await expect(
+        result.current.mutation.mutateAsync(importFile(exported)),
+      ).rejects.toThrow(new Error("restore failed"));
+    });
+
+    expect(result.current.layout).toBe("KLAY_LR");
+  });
+});
 
 describe("createErrorNotification", () => {
   it("should use generic error for an unrecognized error", () => {

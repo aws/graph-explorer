@@ -4,7 +4,6 @@ import type {
   ConfigurationId,
   RawConfiguration,
 } from "@/core/ConfigurationProvider";
-import type { EdgeType, VertexType } from "@/core/entities";
 import type { GraphSessionStorageModel } from "@/core/StateProvider/graphSession/storage";
 import type {
   EdgeStyleStorage,
@@ -12,7 +11,17 @@ import type {
 } from "@/core/StateProvider/graphStyles";
 import type { SchemaStorageModel } from "@/core/StateProvider/schema";
 
+import {
+  createVertexId,
+  type EdgeId,
+  type EdgeType,
+  type VertexId,
+  type VertexType,
+} from "@/core/entities";
+import { DEFAULT_GRAPH_LAYOUT } from "@/core/graphLayout";
 import { reconcileMapByKey } from "@/core/StateProvider/atomWithLocalForage";
+import { transformGraphSessions } from "@/core/StateProvider/graphSession/storage";
+import { logger } from "@/utils";
 
 import { openPersistenceTab, readPersistedValue } from "./persistence";
 import {
@@ -335,6 +344,217 @@ describe("cross-tab connection reconciliation", () => {
     expect(persisted?.has(connectionX.id)).toBe(false);
     expect(persisted?.get(connectionY.id)).toEqual(connectionY);
     expect(persisted?.get(connectionZ.id)).toEqual(connectionZ);
+  });
+});
+
+/**
+ * BACKWARD COMPATIBILITY — PERSISTED GRAPH SESSION ARRANGEMENT
+ *
+ * GraphSessionStorageModel may contain an `arrangement` with saved node
+ * positions and viewport. Older versions stored no arrangement, and persisted
+ * values may include non-finite coordinates, duplicate positions, or a malformed
+ * shape. `transformGraphSessions` validates each arrangement on read and drops
+ * invalid ones with a diagnostic so the app never crashes on bad legacy data.
+ *
+ * DO NOT delete or weaken these tests without confirming that all persisted
+ * data has been migrated or that the old/invalid shapes are no longer in the
+ * wild.
+ */
+describe("backward compatibility: graph session arrangement", () => {
+  function arrangementSession(
+    arrangement?: GraphSessionStorageModel["arrangement"],
+  ): GraphSessionStorageModel {
+    return {
+      vertices: new Set([createRandomVertexId()]),
+      edges: new Set(),
+      layout: "F_COSE",
+      arrangement,
+    };
+  }
+
+  test("normalizes legacy, current, and invalid arrangements when preloading persistence", async () => {
+    const key = createRandomName("graph-sessions");
+    const legacyConnection = createRandomConfigurationId();
+    const currentConnection = createRandomConfigurationId();
+    const invalidConnection = createRandomConfigurationId();
+
+    const legacySession = arrangementSession(undefined);
+    const currentSession = arrangementSession({
+      positions: [{ id: createRandomVertexId(), x: 10, y: 20 }],
+      viewport: { pan: { x: 30, y: 40 }, zoom: 2 },
+    });
+    const invalidSession = arrangementSession({
+      positions: [{ id: createRandomVertexId(), x: Number.NaN, y: 0 }],
+      viewport: { pan: { x: 0, y: 0 }, zoom: 1 },
+    });
+
+    const sessions = new Map<ConfigurationId, GraphSessionStorageModel>([
+      [legacyConnection, legacySession],
+      [currentConnection, currentSession],
+      [invalidConnection, invalidSession],
+    ]);
+
+    const writer = await openPersistenceTab(key, new Map());
+    writer.write(sessions);
+    await writer.flush();
+
+    vi.spyOn(logger, "warn").mockImplementation(() => {});
+
+    const reader = await openPersistenceTab(
+      key,
+      new Map<ConfigurationId, GraphSessionStorageModel>(),
+      reconcileMapByKey,
+      transformGraphSessions,
+    );
+
+    const read = reader.read();
+    expect(read.get(legacyConnection)?.arrangement).toBeUndefined();
+    expect(read.get(currentConnection)?.arrangement).toEqual(
+      currentSession.arrangement,
+    );
+    expect(read.get(invalidConnection)?.arrangement).toBeUndefined();
+    expect(logger.warn).toHaveBeenCalled();
+  });
+
+  test("preserves numeric and string vertex IDs in valid arrangements", async () => {
+    const key = createRandomName("graph-sessions");
+    const connection = createRandomConfigurationId();
+    const arrangement = {
+      positions: [
+        { id: createVertexId(1), x: 10, y: 20 },
+        { id: createVertexId("1"), x: 30, y: 40 },
+      ],
+    };
+
+    const sessions = new Map<ConfigurationId, GraphSessionStorageModel>([
+      [connection, arrangementSession(arrangement)],
+    ]);
+
+    const writer = await openPersistenceTab(key, new Map());
+    writer.write(sessions);
+    await writer.flush();
+
+    const reader = await openPersistenceTab(
+      key,
+      new Map<ConfigurationId, GraphSessionStorageModel>(),
+      reconcileMapByKey,
+      transformGraphSessions,
+    );
+
+    const read = reader.read().get(connection)?.arrangement;
+    expect(read?.positions.map(p => [p.id, p.x, p.y])).toEqual([
+      [1, 10, 20],
+      ["1", 30, 40],
+    ]);
+  });
+
+  test("drops arrangements with duplicate position IDs", async () => {
+    const key = createRandomName("graph-sessions");
+    const connection = createRandomConfigurationId();
+    const arrangement = {
+      positions: [
+        { id: createVertexId(1), x: 10, y: 20 },
+        { id: createVertexId(1), x: 30, y: 40 },
+      ],
+    };
+
+    const sessions = new Map<ConfigurationId, GraphSessionStorageModel>([
+      [connection, arrangementSession(arrangement)],
+    ]);
+
+    const writer = await openPersistenceTab(key, new Map());
+    writer.write(sessions);
+    await writer.flush();
+
+    vi.spyOn(logger, "warn").mockImplementation(() => {});
+
+    const reader = await openPersistenceTab(
+      key,
+      new Map<ConfigurationId, GraphSessionStorageModel>(),
+      reconcileMapByKey,
+      transformGraphSessions,
+    );
+
+    expect(reader.read().get(connection)?.arrangement).toBeUndefined();
+  });
+});
+
+/**
+ * BACKWARD COMPATIBILITY — PERSISTED GRAPH SESSION LAYOUT
+ *
+ * GraphSessionStorageModel is persisted to IndexedDB via localForage in the
+ * `graph-sessions` atom. Older versions stored only `vertices` and `edges`
+ * without a `layout` field, and persisted values may include an invalid or
+ * unrecognized layout string. `transformGraphSessions` normalizes each session's
+ * `layout` to a recognized `LayoutName` or `undefined` on read so previously
+ * saved sessions remain usable.
+ *
+ * DO NOT delete or weaken these tests without confirming that all persisted
+ * data has been migrated or that the old/invalid shapes are no longer in the
+ * wild.
+ */
+describe("backward compatibility: graph session layout", () => {
+  type RawGraphSessionStorageModel = {
+    vertices: Set<VertexId>;
+    edges: Set<EdgeId>;
+    layout?: string;
+  };
+
+  test("normalizes legacy, current, and invalid session layouts when preloading persistence", async () => {
+    const key = createRandomName("graph-sessions");
+    const legacyConnection = createRandomConfigurationId();
+    const currentConnection = createRandomConfigurationId();
+    const invalidConnection = createRandomConfigurationId();
+    const legacySession: RawGraphSessionStorageModel = {
+      vertices: new Set([createRandomVertexId()]),
+      edges: new Set(),
+    };
+    const currentSession: RawGraphSessionStorageModel = {
+      vertices: new Set([createRandomVertexId()]),
+      edges: new Set(),
+      layout: "DAGRE_LR",
+    };
+    const invalidSession: RawGraphSessionStorageModel = {
+      vertices: new Set([createRandomVertexId()]),
+      edges: new Set(),
+      layout: "INVALID_LAYOUT",
+    };
+    const sessions = new Map<ConfigurationId, GraphSessionStorageModel>([
+      [legacyConnection, legacySession as GraphSessionStorageModel],
+      [currentConnection, currentSession as GraphSessionStorageModel],
+      [invalidConnection, invalidSession as GraphSessionStorageModel],
+    ]);
+    const writer = await openPersistenceTab(key, new Map());
+    writer.write(sessions);
+    await writer.flush();
+
+    vi.spyOn(logger, "debug").mockImplementation(() => {});
+
+    const reader = await openPersistenceTab(
+      key,
+      new Map<ConfigurationId, GraphSessionStorageModel>(),
+      reconcileMapByKey,
+      transformGraphSessions,
+    );
+
+    expect(reader.read()).toStrictEqual(
+      new Map<ConfigurationId, GraphSessionStorageModel>([
+        [legacyConnection, legacySession as GraphSessionStorageModel],
+        [currentConnection, currentSession as GraphSessionStorageModel],
+        [
+          invalidConnection,
+          {
+            ...invalidSession,
+            layout: DEFAULT_GRAPH_LAYOUT,
+          },
+        ],
+      ]),
+    );
+
+    expect(logger.debug).toHaveBeenCalledWith(
+      `[graph-session] Unrecognized saved layout algorithm; using "${DEFAULT_GRAPH_LAYOUT}"`,
+      "INVALID_LAYOUT",
+    );
   });
 });
 
