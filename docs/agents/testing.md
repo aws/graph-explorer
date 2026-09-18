@@ -73,6 +73,7 @@ Commands are in AGENTS.md.
 
 - **`vi.doMock` + dynamic `import()`**: call `vi.resetModules()` in the test's own `beforeEach` (not global — it's expensive). See any test that swaps a module impl between cases.
 - **Production behavior**: tests run `DEV=true`/`PROD=false`; override per-test with `vi.stubEnv("PROD", true)`.
+- **Runtime features newer than the browser floor**: to cover the path taken by a browser that lacks a global or method, delete the property reflectively and restore it in a `finally` — `Object.getOwnPropertyDescriptor` plus `Reflect.deleteProperty`. Don't write the typed reference (`Error.isError`), which stops compiling as soon as `lib` excludes the feature. See `withoutErrorIsError` in `src/utils/createErrorDetails.test.ts`.
 - **Errors**: assert the full error, not just that one was thrown. `expect(() => fn()).toThrow(new FooError(a, b))` — or `await expect(fn()).rejects.toThrow(new FooError(a, b))` for a rejected promise — deep-compares every property, so a wrong field fails the test. Prefer this over `toThrow(FooError)` (type only) or `toThrow("message")` (message only), which pass even when the code built the error with the wrong data. No need to catch the error and assert fields separately — the instance form already covers them.
 
 ## Backward compatibility for persisted data
