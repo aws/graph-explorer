@@ -5,6 +5,7 @@ import {
   DatabaseTimeoutError,
   FetchTimeoutError,
   logger,
+  MissingDatabaseUrlError,
   NetworkError,
   ServerConnectionError,
 } from "@/utils";
@@ -126,6 +127,10 @@ export async function fetchDatabaseRequest(
   uri: URL | RequestInfo,
   options: RequestInit,
 ) {
+  if (!connection.graphDbUrl) {
+    throw new MissingDatabaseUrlError();
+  }
+
   const fetchTimeout = createFetchTimeout(connection);
   const signal = anySignal(fetchTimeout?.signal, options.signal);
 

@@ -4,6 +4,7 @@ import {
   DatabaseTimeoutError,
   FetchTimeoutError,
   logger,
+  MissingDatabaseUrlError,
   NetworkError,
   ServerConnectionError,
 } from "@/utils";
@@ -16,7 +17,7 @@ function createConnection(
 ): NormalizedConnection {
   return {
     queryEngine: "gremlin",
-    graphDbUrl: "",
+    graphDbUrl: "https://db.example.com:8182",
     awsAuthEnabled: false,
     ...overrides,
   };
@@ -104,6 +105,40 @@ describe("fetchDatabaseRequest", () => {
       expect(mockFetch).toHaveBeenCalledWith(
         "/query",
         expect.objectContaining({ body: "g.V().limit(10)" }),
+      );
+    });
+  });
+
+  describe("missing database url", () => {
+    it("throws MissingDatabaseUrlError before fetching when graphDbUrl is empty", async () => {
+      const conn = createConnection({ graphDbUrl: "" });
+
+      await expect(
+        fetchDatabaseRequest(conn, featureFlags, "/query", {
+          method: "POST",
+        }),
+      ).rejects.toThrow(new MissingDatabaseUrlError());
+
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    it("sends the request when graphDbUrl is populated", async () => {
+      mockFetch.mockResolvedValue(jsonResponse({}));
+      const conn = createConnection({
+        graphDbUrl: "https://my-neptune:8182",
+      });
+
+      await fetchDatabaseRequest(conn, featureFlags, "/query", {
+        method: "POST",
+      });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        "/query",
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            "graph-db-connection-url": "https://my-neptune:8182",
+          }),
+        }),
       );
     });
   });

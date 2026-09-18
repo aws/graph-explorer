@@ -11,6 +11,7 @@ import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
 import { extractErrorMessage } from "./extractErrorMessage";
 import { FetchTimeoutError } from "./FetchTimeoutError";
 import { isCancellationError } from "./isCancellationError";
+import { MissingDatabaseUrlError } from "./MissingDatabaseUrlError";
 import { NetworkError } from "./NetworkError";
 import { ServerConnectionError } from "./ServerConnectionError";
 
@@ -50,7 +51,8 @@ export function createDisplayError(error: any): DisplayError {
     if (data.code === "ECONNREFUSED" || data.cause?.code === "ECONNREFUSED") {
       return {
         title: "Connection refused",
-        message: "Please check your connection and try again.",
+        message:
+          "The Graph Explorer server could not connect to the database. Verify the database is running and reachable from the host running Graph Explorer.",
       };
     }
     if (data.code === "ECONNRESET" || data.cause?.code === "ECONNRESET") {
@@ -136,6 +138,14 @@ export function createDisplayError(error: any): DisplayError {
       title: "Connection Error",
       message:
         "Unable to reach the proxy server. This is typically caused by the proxy server not running, an incorrect connection URL, or a CORS configuration issue.",
+    };
+  }
+
+  if (error instanceof MissingDatabaseUrlError) {
+    return {
+      title: "Missing Database URL",
+      message:
+        "This Connection has no database URL. Edit the Connection and enter the database endpoint.",
     };
   }
 

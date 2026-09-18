@@ -12,6 +12,7 @@ import { FileEnvelopeError } from "@/core/fileEnvelope";
 import { createDisplayError } from "./createDisplayError";
 import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
 import { FetchTimeoutError } from "./FetchTimeoutError";
+import { MissingDatabaseUrlError } from "./MissingDatabaseUrlError";
 import { NetworkError } from "./NetworkError";
 import { ServerConnectionError } from "./ServerConnectionError";
 import { createCancelledError } from "./testing";
@@ -84,7 +85,8 @@ describe("createDisplayError", () => {
     const result = createDisplayError({ code: "ECONNREFUSED" });
     expect(result).toStrictEqual({
       title: "Connection refused",
-      message: "Please check your connection and try again.",
+      message:
+        "The Graph Explorer server could not connect to the database. Verify the database is running and reachable from the host running Graph Explorer.",
     });
   });
 
@@ -103,7 +105,8 @@ describe("createDisplayError", () => {
     const result = createDisplayError(error);
     expect(result).toStrictEqual({
       title: "Connection refused",
-      message: "Please check your connection and try again.",
+      message:
+        "The Graph Explorer server could not connect to the database. Verify the database is running and reachable from the host running Graph Explorer.",
     });
   });
 
@@ -196,7 +199,8 @@ describe("createDisplayError", () => {
 
       expect(createDisplayError(error)).toStrictEqual({
         title: "Connection refused",
-        message: "Please check your connection and try again.",
+        message:
+          "The Graph Explorer server could not connect to the database. Verify the database is running and reachable from the host running Graph Explorer.",
       });
     });
   });
@@ -322,6 +326,15 @@ describe("createDisplayError", () => {
       title: "Connection Error",
       message:
         "Unable to reach the proxy server. This is typically caused by the proxy server not running, an incorrect connection URL, or a CORS configuration issue.",
+    });
+  });
+
+  it("Should handle a Connection with no database URL", () => {
+    const result = createDisplayError(new MissingDatabaseUrlError());
+    expect(result).toStrictEqual({
+      title: "Missing Database URL",
+      message:
+        "This Connection has no database URL. Edit the Connection and enter the database endpoint.",
     });
   });
 

@@ -15,6 +15,7 @@ export * from "./NetworkError";
 export * from "./DatabaseTimeoutError";
 export * from "./FetchTimeoutError";
 export * from "./ServerConnectionError";
+export * from "./MissingDatabaseUrlError";
 export * from "./formatEntityCounts";
 export * from "./formatRelativeDate";
 export * from "./numbers";
