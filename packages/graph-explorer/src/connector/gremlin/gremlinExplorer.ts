@@ -2,7 +2,7 @@ import { v4 } from "uuid";
 
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
-import { createLoggerFromConnection } from "@/core/connector";
+import { serverLogger } from "@/core/connector";
 import { logger } from "@/utils";
 
 import type { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
@@ -73,7 +73,7 @@ export function createGremlinExplorer(
   connection: NormalizedConnection,
   featureFlags: FeatureFlags,
 ): Explorer {
-  const remoteLogger = createLoggerFromConnection(connection);
+  const remoteLogger = serverLogger;
   return {
     connection: connection,
     async fetchSchema(options) {

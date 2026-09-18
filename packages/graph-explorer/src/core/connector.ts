@@ -5,20 +5,13 @@ import type { Explorer } from "@/connector/useGEFetchTypes";
 
 import { emptyExplorer } from "@/connector/emptyExplorer";
 import { createGremlinExplorer } from "@/connector/gremlin/gremlinExplorer";
-import {
-  ClientLoggerConnector,
-  type LoggerConnector,
-  ServerLoggerConnector,
-} from "@/connector/LoggerConnector";
+import { ServerLoggerConnector } from "@/connector/LoggerConnector";
 import { createOpenCypherExplorer } from "@/connector/openCypher/openCypherExplorer";
 import { createSparqlExplorer } from "@/connector/sparql/sparqlExplorer";
 import { logger } from "@/utils";
 
 import { featureFlagsSelector } from "./StateProvider";
-import {
-  activeConnectionAtom,
-  type NormalizedConnection,
-} from "./StateProvider/configuration";
+import { activeConnectionAtom } from "./StateProvider/configuration";
 
 export const explorerAtom = atom(get => {
   const explorerForTesting = get(explorerForTestingAtom);
@@ -66,21 +59,5 @@ export function useQueryEngine() {
   return useAtomValue(queryEngineSelector);
 }
 
-/**
- * Logger based on the active connection proxy URL.
- */
-export const loggerSelector = atom(get =>
-  createLoggerFromConnection(get(activeConnectionAtom)),
-);
-
-/** Creates a logger instance that sends logs to the server via relative URL. */
-export function createLoggerFromConnection(
-  connection: NormalizedConnection | null,
-): LoggerConnector {
-  if (!connection) {
-    logger.debug("No connection provided, using a client logger instead");
-    return new ClientLoggerConnector();
-  }
-
-  return new ServerLoggerConnector();
-}
+/** Sends log entries to the server's same-origin `/logger` endpoint. */
+export const serverLogger = new ServerLoggerConnector();

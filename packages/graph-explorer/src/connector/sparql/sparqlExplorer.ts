@@ -2,7 +2,7 @@ import { v4 } from "uuid";
 
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
-import { createLoggerFromConnection } from "@/core/connector";
+import { serverLogger } from "@/core/connector";
 import { env, logger } from "@/utils";
 
 import type { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
@@ -80,7 +80,7 @@ export function createSparqlExplorer(
   featureFlags: FeatureFlags,
   blankNodes: BlankNodesMap,
 ): Explorer {
-  const remoteLogger = createLoggerFromConnection(connection);
+  const remoteLogger = serverLogger;
   return {
     connection: connection,
     async fetchSchema(options) {

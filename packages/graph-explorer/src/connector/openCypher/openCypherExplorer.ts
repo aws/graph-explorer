@@ -1,6 +1,6 @@
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
-import { createLoggerFromConnection } from "@/core/connector";
+import { serverLogger } from "@/core/connector";
 import { env, logger } from "@/utils";
 import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 
@@ -46,7 +46,7 @@ export function createOpenCypherExplorer(
   connection: NormalizedConnection,
   featureFlags: FeatureFlags,
 ): Explorer {
-  const remoteLogger = createLoggerFromConnection(connection);
+  const remoteLogger = serverLogger;
   const serviceType = connection.serviceType || DEFAULT_SERVICE_TYPE;
   return {
     connection,
