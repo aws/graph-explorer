@@ -343,7 +343,22 @@ describe("process-environment.sh", () => {
     });
   });
 
-  describe("legacy PUBLIC_OR_PROXY_ENDPOINT / USING_PROXY_SERVER resolution", () => {
+  /**
+   * BACKWARD COMPATIBILITY — LEGACY DEPLOYMENT INPUT
+   *
+   * Older deployments, and the SageMaker lifecycle script still in use today,
+   * set `PUBLIC_OR_PROXY_ENDPOINT` and `USING_PROXY_SERVER` instead of the
+   * current `GRAPH_CONNECTION_URL`. process-environment.sh must keep
+   * resolving those variables into the Default Connection's
+   * `GRAPH_EXP_CONNECTION_URL`, whether they arrive alone, together with the
+   * current variable, or via `config.json`, and must never leak the legacy
+   * names themselves into `defaultConnection.json`.
+   *
+   * DO NOT delete or weaken these tests without confirming that no deployment
+   * still in the wild sets these legacy environment variables instead of
+   * `GRAPH_CONNECTION_URL`.
+   */
+  describe("backward compatibility: legacy PUBLIC_OR_PROXY_ENDPOINT / USING_PROXY_SERVER resolution", () => {
     it("resolves to GRAPH_CONNECTION_URL when USING_PROXY_SERVER=true", () => {
       const { defaultConnection } = runScript(workDir, {
         USING_PROXY_SERVER: "true",

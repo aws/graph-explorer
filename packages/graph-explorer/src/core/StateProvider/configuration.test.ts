@@ -437,7 +437,21 @@ describe("normalizeConnection", () => {
   });
 });
 
-describe("transformLegacyConnection", () => {
+/**
+ * BACKWARD COMPATIBILITY — PERSISTED DATA
+ *
+ * Connections persisted before the unified-proxy model carried a
+ * `url`/`proxyConnection` pair instead of the canonical `graphDbUrl`.
+ * `transformLegacyConnection` folds every combination of that legacy shape
+ * (both fields, either alone, `proxyConnection` true/false/absent) into
+ * `graphDbUrl`, drops `url`/`proxyConnection` from the result, and decides
+ * whether AWS auth settings survive based on whether the connection resolves
+ * to a proxy or direct connection.
+ *
+ * DO NOT delete or weaken these tests without confirming no stored connection
+ * can still carry the legacy `url`/`proxyConnection` shape.
+ */
+describe("backward compatibility: legacy url/proxyConnection connection shape", () => {
   test("should use graphDbUrl directly when proxyConnection is true", () => {
     const result = transformLegacyConnection({
       url: "https://proxy.example.com",

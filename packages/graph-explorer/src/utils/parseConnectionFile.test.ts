@@ -64,32 +64,6 @@ describe("parseConnectionFile", () => {
     expect(parseConnectionFile(config)).toBeNull();
   });
 
-  test("returns null when neither graphDbUrl nor url is present", () => {
-    const config = {
-      id: createNewConfigurationId(),
-      connection: { queryEngine: "gremlin" as const },
-      schema: { vertices: [], edges: [] },
-    };
-
-    expect(parseConnectionFile(config)).toBeNull();
-  });
-
-  test("accepts a connection with only graphDbUrl and no legacy url", () => {
-    const graphDbUrl = "https://neptune.example.com:8182";
-    const config = {
-      id: createNewConfigurationId(),
-      connection: {
-        graphDbUrl,
-        queryEngine: "gremlin" as const,
-      },
-      schema: { vertices: [], edges: [] },
-    };
-
-    const result = parseConnectionFile(config);
-
-    expect(result?.connection.graphDbUrl).toBe(graphDbUrl);
-  });
-
   test("returns null when connection.queryEngine is missing", () => {
     const config = {
       id: createNewConfigurationId(),
@@ -379,58 +353,6 @@ describe("parseConnectionFile", () => {
     );
   });
 
-  test("keeps unknown styling and legacy keys in the parsed output", () => {
-    const config = {
-      id: createNewConfigurationId(),
-      connection: {
-        url: createRandomUrlString(),
-        queryEngine: "sparql" as const,
-        proxyConnection: true,
-        awsRegion: "us-west-2",
-      },
-      schema: {
-        vertices: [
-          {
-            type: "Person",
-            attributes: [{ name: "name", dataType: "String" }],
-            color: "#5947e6",
-            iconUrl: "lucide:user",
-          },
-        ],
-        edges: [],
-        prefixes: [
-          {
-            prefix: "rdf",
-            uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-            __inferred: true,
-            __matches: ["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"],
-          },
-        ],
-      },
-    };
-
-    const result = parseConnectionFile(config);
-    const parsedConnection = result?.connection as Record<string, unknown>;
-    const parsedVertex = result?.schema.vertices[0] as Record<string, unknown>;
-    const parsedPrefix = result?.schema.prefixes?.[0] as Record<
-      string,
-      unknown
-    >;
-
-    expect(parsedConnection.proxyConnection).toBe(true);
-    expect(parsedConnection.awsRegion).toBe("us-west-2");
-    expect(parsedVertex.color).toBe("#5947e6");
-    expect(parsedVertex.iconUrl).toBe("lucide:user");
-    expect((parsedVertex.attributes as Record<string, unknown>[])[0]).toEqual({
-      name: "name",
-      dataType: "String",
-    });
-    expect(parsedPrefix.__inferred).toBe(true);
-    expect(parsedPrefix.__matches).toStrictEqual([
-      "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-    ]);
-  });
-
   test("parses valid AWS auth fields", () => {
     const config = {
       id: createNewConfigurationId(),
@@ -500,5 +422,103 @@ describe("parseConnectionFile", () => {
 
     expect(result).not.toBeNull();
     expect(result?.connection.serviceType).toBeUndefined();
+  });
+});
+
+/**
+ * BACKWARD COMPATIBILITY — PERSISTED DATA
+ *
+ * Exported connection files predating the unified-proxy model stored the
+ * database endpoint in `url` (plus a `proxyConnection` flag) instead of the
+ * canonical `graphDbUrl`, and files from even older versions carried
+ * additional ad-hoc keys — a `proxyConnection`/`awsRegion` pair on the
+ * connection, and `__inferred`/`__matches` on prefix entries — that the
+ * current schema no longer defines. `parseConnectionFile` still needs to
+ * accept a file with only `url`, still needs to accept a file with only the
+ * canonical `graphDbUrl`, and must pass legacy/unknown keys through
+ * untouched rather than stripping or rejecting them, since downstream
+ * migration (`transformLegacyConnection`) depends on seeing them.
+ *
+ * DO NOT delete or weaken these tests without confirming that no exported
+ * file in the wild can still be missing `graphDbUrl` or carrying these
+ * legacy keys.
+ */
+describe("backward compatibility: legacy url/proxyConnection shape in exported files", () => {
+  test("returns null when neither graphDbUrl nor url is present", () => {
+    const config = {
+      id: createNewConfigurationId(),
+      connection: { queryEngine: "gremlin" as const },
+      schema: { vertices: [], edges: [] },
+    };
+
+    expect(parseConnectionFile(config)).toBeNull();
+  });
+
+  test("accepts a connection with only graphDbUrl and no legacy url", () => {
+    const graphDbUrl = "https://neptune.example.com:8182";
+    const config = {
+      id: createNewConfigurationId(),
+      connection: {
+        graphDbUrl,
+        queryEngine: "gremlin" as const,
+      },
+      schema: { vertices: [], edges: [] },
+    };
+
+    const result = parseConnectionFile(config);
+
+    expect(result?.connection.graphDbUrl).toBe(graphDbUrl);
+  });
+
+  test("keeps unknown styling and legacy keys in the parsed output", () => {
+    const config = {
+      id: createNewConfigurationId(),
+      connection: {
+        url: createRandomUrlString(),
+        queryEngine: "sparql" as const,
+        proxyConnection: true,
+        awsRegion: "us-west-2",
+      },
+      schema: {
+        vertices: [
+          {
+            type: "Person",
+            attributes: [{ name: "name", dataType: "String" }],
+            color: "#5947e6",
+            iconUrl: "lucide:user",
+          },
+        ],
+        edges: [],
+        prefixes: [
+          {
+            prefix: "rdf",
+            uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+            __inferred: true,
+            __matches: ["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"],
+          },
+        ],
+      },
+    };
+
+    const result = parseConnectionFile(config);
+    const parsedConnection = result?.connection as Record<string, unknown>;
+    const parsedVertex = result?.schema.vertices[0] as Record<string, unknown>;
+    const parsedPrefix = result?.schema.prefixes?.[0] as Record<
+      string,
+      unknown
+    >;
+
+    expect(parsedConnection.proxyConnection).toBe(true);
+    expect(parsedConnection.awsRegion).toBe("us-west-2");
+    expect(parsedVertex.color).toBe("#5947e6");
+    expect(parsedVertex.iconUrl).toBe("lucide:user");
+    expect((parsedVertex.attributes as Record<string, unknown>[])[0]).toEqual({
+      name: "name",
+      dataType: "String",
+    });
+    expect(parsedPrefix.__inferred).toBe(true);
+    expect(parsedPrefix.__matches).toStrictEqual([
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+    ]);
   });
 });
