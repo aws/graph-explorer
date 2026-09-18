@@ -106,20 +106,6 @@ describe("Combobox", () => {
       expect(getByLabelText("Node type")).toBe(input);
     });
 
-    it("should forward the name prop to the input", () => {
-      const options = createTestOptions(10);
-      const { container } = render(
-        <Combobox
-          name="nodeType"
-          options={options}
-          placeholder="Select type"
-        />,
-      );
-
-      const input = container.querySelector("input") as HTMLInputElement;
-      expect(input.name).toBe("nodeType");
-    });
-
     it("should associate its inner caption with the input via aria-labelledby", () => {
       const options = createTestOptions(10);
       const { getByLabelText } = render(

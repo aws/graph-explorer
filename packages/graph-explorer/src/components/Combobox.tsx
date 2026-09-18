@@ -38,8 +38,6 @@ export interface ComboboxProps {
   className?: string;
   /** Forwarded to the input, for external `<label htmlFor>` association */
   id?: string;
-  /** Forwarded to the input, for form submission or query parameters */
-  name?: string;
   /** Accessible name for the input; omit when using `label` for a visible caption instead */
   "aria-label"?: string;
 }
@@ -122,7 +120,6 @@ export function Combobox({
   disabled = false,
   className,
   id,
-  name,
   "aria-label": ariaLabel,
 }: ComboboxProps) {
   const [{ open, filterText }, dispatch] = useReducer(comboboxReducer, {
@@ -228,7 +225,6 @@ export function Combobox({
             <BaseCombobox.Input
               ref={inputRef}
               id={id}
-              name={name}
               aria-label={ariaLabel}
               aria-labelledby={!ariaLabel && label ? captionId : undefined}
               autoComplete="off"
