@@ -294,7 +294,9 @@ const CreateConnection = ({
             <InfoTooltip>
               Provide the endpoint URL for your graph database, e.g., an Amazon
               Neptune cluster endpoint, a Gremlin Server URL, or a SPARQL
-              endpoint.
+              endpoint. The Graph Explorer server, not your browser, connects to
+              this endpoint, so it must be reachable from the host where Graph
+              Explorer runs.
             </InfoTooltip>
           </Label>
           <TextAreaField
@@ -303,7 +305,7 @@ const CreateConnection = ({
             value={form.graphDbUrl}
             onChange={onFormChange("graphDbUrl")}
             errorMessage="URL is required"
-            placeholder="https://neptune-cluster.amazonaws.com"
+            placeholder="https://neptune-cluster.amazonaws.com:8182"
             validationState={
               hasError && !normalizeUrlField(form.graphDbUrl)
                 ? "invalid"

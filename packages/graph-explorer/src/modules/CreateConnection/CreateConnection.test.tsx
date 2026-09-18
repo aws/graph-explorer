@@ -38,6 +38,15 @@ describe("CreateConnection", () => {
       screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
     ).toBeInTheDocument();
 
+    // The placeholder must include the port so copying its shape doesn't
+    // produce a connection that silently fails against the default HTTPS port
+    expect(
+      screen.getByRole("textbox", { name: "Graph Connection URL" }),
+    ).toHaveAttribute(
+      "placeholder",
+      "https://neptune-cluster.amazonaws.com:8182",
+    );
+
     expect(
       screen.queryByRole("textbox", { name: "Public or Proxy Endpoint" }),
     ).toBeNull();
@@ -131,9 +140,9 @@ describe("CreateConnection", () => {
     );
 
     expect(screen.getByLabelText("Name")).toHaveValue("Seeded Graph");
-    expect(screen.getByLabelText("Graph Connection URL")).toHaveValue(
-      "https://seed.neptune.amazonaws.com",
-    );
+    expect(
+      screen.getByRole("textbox", { name: "Graph Connection URL" }),
+    ).toHaveValue("https://seed.neptune.amazonaws.com");
     // Still in "add" mode, not "update"
     expect(
       screen.getByRole("button", { name: "Add Connection" }),
