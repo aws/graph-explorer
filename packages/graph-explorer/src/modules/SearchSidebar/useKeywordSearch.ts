@@ -1,7 +1,7 @@
 import { useAtom } from "jotai";
 import { atomWithReset } from "jotai/utils";
 
-import type { SelectOption } from "@/components";
+import type { ComboboxOption } from "@/components";
 
 import { useDisplayVertexTypeConfigs, useSearchableAttributes } from "@/core";
 import { useQueryEngine } from "@/core/connector";
@@ -26,11 +26,12 @@ export const partialMatchAtom = atomWithReset(false);
 
 /** Gets all the searchable attributes for the selected vertex type */
 function useAttributeOptions(selectedVertexType: string) {
-  const allSearchableAttributes = useSearchableAttributes(selectedVertexType);
   const queryEngine = useQueryEngine();
   const t = useTranslations();
 
-  const options: SelectOption[] = [
+  const allSearchableAttributes = useSearchableAttributes(selectedVertexType);
+
+  const options: ComboboxOption[] = [
     {
       label: `All string ${t("properties").toLocaleLowerCase()}`,
       value: SEARCH_TOKENS.ALL_ATTRIBUTES,
@@ -48,6 +49,7 @@ function useAttributeOptions(selectedVertexType: string) {
       value: attribute.name,
     });
   }
+
   return options;
 }
 

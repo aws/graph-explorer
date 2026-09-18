@@ -86,6 +86,7 @@ export function useDisplayEdgeTypeConfigs() {
  */
 export function useSearchableAttributes(type: string) {
   const displayTypeConfigs = useDisplayVertexTypeConfigs();
+
   const includeAllTypes = type === SEARCH_TOKENS.ALL_VERTEX_TYPES;
 
   const alreadyAdded = new Set<string>();

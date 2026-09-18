@@ -37,7 +37,8 @@ The Search UI provides two powerful ways to search and interact with your graph 
 - Enables faceted filtering of nodes based on:
   - Node labels (or rdf:type for RDF databases)
   - Node attribute values
-- Supports partial text matching
+- The **Node Label** and **Property** pickers support type-to-filter, so you can find one by typing part of its name instead of scrolling
+- Supports partial text matching on the search term
 - Search results can be added to the graph individually or all at once
 - Supports cancellation of long-running queries
 

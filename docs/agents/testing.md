@@ -23,6 +23,7 @@ Each project sets up its own environment. `setupTests.ts` below is registered by
 - `DbState` — set up the persisted app state a test needs, then `renderHookWithState(useThing, state)`. Extend it when it lacks a capability.
 - `createTestableVertex()` / `createTestableEdge()` — fluent builders: `.with({...})`, `.withSource()`, `.withTarget()`, `.withRdfValues()`, `.asVertex()`, `.asResult()`
 - `createMockExplorer` / `FakeExplorer` — explorer test doubles
+- `mockVirtualizedLayout` — give jsdom/happy-dom elements a measurable size so a virtualizer renders rows; see **jsdom/happy-dom layout** under Special cases
 - SPARQL: `createUriValue`, `createLiteralValue`, `createQuadBindingsForEntities`, `createQuadSparqlResponse` (`sparqlHelpers.ts`)
 - Gremlin/openCypher response builders: `graphsonHelpers.ts`, `ocHelpers.ts`
 - `normalizeWithNoSpace` / `normalize` / `normalizeWithNewlines` — normalize query strings before asserting (`normalize.ts`). They differ in whitespace and comment handling; use whichever the file you're editing already uses.
@@ -73,6 +74,7 @@ Commands are in AGENTS.md.
 
 - **`vi.doMock` + dynamic `import()`**: call `vi.resetModules()` in the test's own `beforeEach` (not global — it's expensive). See any test that swaps a module impl between cases.
 - **Production behavior**: tests run `DEV=true`/`PROD=false`; override per-test with `vi.stubEnv("PROD", true)`.
+- **jsdom/happy-dom layout**: jsdom and happy-dom never lay out elements, so `offsetHeight`/`offsetWidth` are always `0`. A component that measures its own size (e.g. a virtualizer deciding which rows are visible) will render as empty, and the failure looks like a component bug rather than an environment limitation. Call `mockVirtualizedLayout` in a `beforeEach` — it mocks `offsetHeight`/`offsetWidth` to read the element's own inline style, falling back to a fixed size, so real measurements are distinguishable from unmeasured ones.
 - **Errors**: assert the full error, not just that one was thrown. `expect(() => fn()).toThrow(new FooError(a, b))` — or `await expect(fn()).rejects.toThrow(new FooError(a, b))` for a rejected promise — deep-compares every property, so a wrong field fails the test. Prefer this over `toThrow(FooError)` (type only) or `toThrow("message")` (message only), which pass even when the code built the error with the wrong data. No need to catch the error and assert fields separately — the instance form already covers them.
 
 ## Backward compatibility for persisted data
