@@ -52,7 +52,7 @@ describe("CodeEditor", () => {
     });
   });
 
-  test("should let a caller opt back in to link detection", () => {
+  test("should let a caller's options override the shared default", () => {
     render(
       <CodeEditor
         defaultLanguage="json"
