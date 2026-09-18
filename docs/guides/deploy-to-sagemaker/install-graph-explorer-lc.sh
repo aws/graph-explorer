@@ -130,14 +130,17 @@ LATEST_ECR_RELEASE=$(curl -k -H "Authorization: Bearer $ECR_TOKEN" https://publi
 
 echo "Pulling and starting graph-explorer..."
 if [[ ${EXPLORER_VERSION} == "" ]]; then
-  EXPLORER_ECR_TAG=${LATEST_ECR_RELEASE}
+  EXPLORER_ECR_TAG=sagemaker-${LATEST_ECR_RELEASE}
 else
-  if [[ ${EXPLORER_VERSION} == *latest* ]]; then
-    EXPLORER_ECR_TAG=latest-SNAPSHOT
+  if [[ ${EXPLORER_VERSION//./} -ge 140 ]]; then
+    EXPLORER_ECR_TAG=sagemaker-${EXPLORER_VERSION}
+  elif [[ ${EXPLORER_VERSION} == *latest* ]]; then
+    EXPLORER_ECR_TAG=sagemaker-latest-SNAPSHOT
   elif [[ ${EXPLORER_VERSION} == *dev* ]]; then
-    EXPLORER_ECR_TAG=dev
+    EXPLORER_ECR_TAG=sagemaker-dev
   else
-    EXPLORER_ECR_TAG=${EXPLORER_VERSION}
+    echo "Specified Graph Explorer version does not support use on SageMaker. Defaulting to latest release."
+    EXPLORER_ECR_TAG=sagemaker-${LATEST_ECR_RELEASE}
   fi
 fi
 echo "Using explorer image tag: ${EXPLORER_ECR_TAG}"
