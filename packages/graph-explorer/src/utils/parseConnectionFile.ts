@@ -48,8 +48,10 @@ const exportedConnectionFileSchema = z.looseObject({
       url: z.url({ protocol: /^https?$/ }).optional(),
       proxyConnection: z.boolean().optional(),
     })
-    // The file must carry a usable endpoint in either the canonical or the
-    // legacy field, otherwise migration would yield an empty `graphDbUrl`.
+    // Requires at least one of the canonical or legacy endpoint fields to be
+    // present. This does not guarantee a non-empty `graphDbUrl` after
+    // transforming: a proxy connection (`proxyConnection: true`) with only
+    // `url` set still transforms to an empty `graphDbUrl`.
     .refine(
       connection => connection.graphDbUrl != null || connection.url != null,
       {
