@@ -109,14 +109,6 @@ Mounting `config.json` read-only at `/graph-explorer/config.json` (see [JSON Con
 - Default: `<client root>` (`packages/graph-explorer`)
 - Type: `string`
 
-### `NEPTUNE_NOTEBOOK`
-
-Runtime convenience preset for SageMaker/Jupyter deployments. When set to `true`, it defaults the port to 9250 and the log style to cloudwatch, but an explicitly set `PROXY_SERVER_HTTP_PORT` or `LOG_STYLE` overrides those defaults. SSL is forced off unconditionally and cannot be re-enabled while `NEPTUNE_NOTEBOOK=true`.
-
-- Optional
-- Default: not set
-- Type: `boolean`
-
 ## Default Connection
 
 To provide a default connection such that initial loads of Graph Explorer always result with the same starting connection, modify the `docker run ...` command to either take in a JSON configuration or runtime environment variables. If you provide both a JSON configuration and environmental variables, the JSON will be prioritized.
