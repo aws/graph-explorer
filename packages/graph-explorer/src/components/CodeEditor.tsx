@@ -37,6 +37,9 @@ export function CodeEditor({
         stickyScroll: {
           enabled: false,
         },
+        // URLs here are content, not endpoints. A caller that wants a
+        // clickable endpoint passes `links: true`.
+        links: false,
         lineDecorationsWidth: 0,
         overviewRulerLanes: 0,
         renderWhitespace: "none",

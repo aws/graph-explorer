@@ -43,4 +43,24 @@ describe("CodeEditor", () => {
       theme: "graph-explorer-light",
     });
   });
+
+  test("should disable link detection by default", () => {
+    render(<CodeEditor defaultLanguage="json" value="{}" />);
+
+    expect(mockEditor.mock.calls[0][0].options).toMatchObject({
+      links: false,
+    });
+  });
+
+  test("should let a caller's options override the shared default", () => {
+    render(
+      <CodeEditor
+        defaultLanguage="json"
+        value="{}"
+        options={{ links: true }}
+      />,
+    );
+
+    expect(mockEditor.mock.calls[0][0].options).toMatchObject({ links: true });
+  });
 });
