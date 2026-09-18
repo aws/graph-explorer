@@ -133,6 +133,131 @@ describe("useImportConnectionFile", () => {
     expect(mockResetState).toHaveBeenCalledOnce();
   });
 
+  test("should migrate a legacy connection file with proxyConnection true, preferring graphDbUrl over url", async () => {
+    const state = new DbState();
+    const { result } = renderHookWithState(
+      () => useImportConnectionFile(),
+      state,
+    );
+
+    // A proxy connection stores the real database endpoint in `graphDbUrl`;
+    // `url` (the proxy endpoint itself) is legacy and must not survive.
+    const graphDbUrl = createRandomUrlString();
+    const url = createRandomUrlString();
+    const legacyConfig = {
+      id: createNewConfigurationId(),
+      displayLabel: createRandomName("Config"),
+      connection: {
+        url,
+        graphDbUrl,
+        proxyConnection: true,
+        queryEngine: "gremlin" as const,
+      },
+      schema: {
+        totalVertices: 0,
+        vertices: [],
+        totalEdges: 0,
+        edges: [],
+      },
+    };
+
+    const file = new File([JSON.stringify(legacyConfig)], "connection.json", {
+      type: "application/json",
+    });
+
+    await act(async () => {
+      await result.current(file);
+    });
+
+    const { config } = getImportedConnection();
+    expect(config.connection?.graphDbUrl).toBe(graphDbUrl);
+    expect(config.connection).not.toHaveProperty("url");
+    expect(config.connection).not.toHaveProperty("proxyConnection");
+    expect(mockResetState).toHaveBeenCalledOnce();
+  });
+
+  test("should migrate a legacy connection file with graphDbUrl and no proxyConnection flag", async () => {
+    const state = new DbState();
+    const { result } = renderHookWithState(
+      () => useImportConnectionFile(),
+      state,
+    );
+
+    // An absent `proxyConnection` is inferred as a proxy connection when
+    // `graphDbUrl` is already present, since `graphDbUrl` was proxy-only in
+    // the legacy shape.
+    const graphDbUrl = createRandomUrlString();
+    const legacyConfig = {
+      id: createNewConfigurationId(),
+      displayLabel: createRandomName("Config"),
+      connection: {
+        graphDbUrl,
+        queryEngine: "gremlin" as const,
+      },
+      schema: {
+        totalVertices: 0,
+        vertices: [],
+        totalEdges: 0,
+        edges: [],
+      },
+    };
+
+    const file = new File([JSON.stringify(legacyConfig)], "connection.json", {
+      type: "application/json",
+    });
+
+    await act(async () => {
+      await result.current(file);
+    });
+
+    const { config } = getImportedConnection();
+    expect(config.connection?.graphDbUrl).toBe(graphDbUrl);
+    expect(config.connection).not.toHaveProperty("url");
+    expect(config.connection).not.toHaveProperty("proxyConnection");
+    expect(mockResetState).toHaveBeenCalledOnce();
+  });
+
+  test("should migrate a legacy connection file with url and no proxyConnection or graphDbUrl", async () => {
+    const state = new DbState();
+    const { result } = renderHookWithState(
+      () => useImportConnectionFile(),
+      state,
+    );
+
+    // Without a `graphDbUrl` to infer proxy status from, an absent
+    // `proxyConnection` falls back to treating this as a direct connection,
+    // so `url` becomes the endpoint.
+    const url = createRandomUrlString();
+    const legacyConfig = {
+      id: createNewConfigurationId(),
+      displayLabel: createRandomName("Config"),
+      connection: {
+        url,
+        queryEngine: "gremlin" as const,
+      },
+      schema: {
+        totalVertices: 0,
+        vertices: [],
+        totalEdges: 0,
+        edges: [],
+      },
+    };
+
+    const file = new File([JSON.stringify(legacyConfig)], "connection.json", {
+      type: "application/json",
+    });
+
+    await act(async () => {
+      await result.current(file);
+    });
+
+    const { config } = getImportedConnection();
+    expect(config.connection?.graphDbUrl).toBe(url);
+    expect(config.connection).not.toHaveProperty("url");
+    expect(config.connection).not.toHaveProperty("proxyConnection");
+    expect(mockResetState).toHaveBeenCalledOnce();
+  });
+
   test("should reject invalid configuration file", async () => {
     const state = new DbState();
     const { result } = renderHookWithState(
