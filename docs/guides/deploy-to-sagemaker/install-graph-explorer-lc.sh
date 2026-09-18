@@ -155,10 +155,13 @@ start_graph_explorer_with_cw_logs() {
       --log-opt awslogs-multiline-pattern='^(INFO|DEBUG|ERROR|WARN|TRACE|FATAL)' \
       --env LOG_LEVEL=debug \
       --env HOST=127.0.0.1 \
+      --env PUBLIC_OR_PROXY_ENDPOINT=${EXPLORER_URI} \
       --env GRAPH_CONNECTION_URL=${NEPTUNE_URI} \
+      --env USING_PROXY_SERVER=true \
       --env IAM=${IAM} \
       --env AWS_REGION=${AWS_REGION} \
       --env SERVICE_TYPE=${SERVICE} \
+      --env PROXY_SERVER_HTTPS_CONNECTION=false \
       --env NEPTUNE_NOTEBOOK=true public.ecr.aws/neptune/graph-explorer:${EXPLORER_ECR_TAG}
 }
 
@@ -167,10 +170,13 @@ start_graph_explorer_with_default_logs() {
       --restart always \
       --env LOG_LEVEL=debug \
       --env HOST=127.0.0.1 \
+      --env PUBLIC_OR_PROXY_ENDPOINT=${EXPLORER_URI} \
       --env GRAPH_CONNECTION_URL=${NEPTUNE_URI} \
+      --env USING_PROXY_SERVER=true \
       --env IAM=${IAM} \
       --env AWS_REGION=${AWS_REGION} \
       --env SERVICE_TYPE=${SERVICE} \
+      --env PROXY_SERVER_HTTPS_CONNECTION=false \
       --env NEPTUNE_NOTEBOOK=true public.ecr.aws/neptune/graph-explorer:${EXPLORER_ECR_TAG}
 }
 

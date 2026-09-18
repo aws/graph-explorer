@@ -356,6 +356,19 @@ describe("process-environment.sh", () => {
       );
     });
 
+    it("resolves to GRAPH_CONNECTION_URL when all three legacy variables are set together, matching the SageMaker notebook's real environment", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "true",
+        PROXY_SERVER_HTTPS_CONNECTION: "false",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://notebook.sagemaker.aws/proxy/9250",
+        GRAPH_CONNECTION_URL: "https://neptune-cluster:8182",
+      });
+      expect(defaultConnection).toHaveProperty(
+        "GRAPH_EXP_CONNECTION_URL",
+        "https://neptune-cluster:8182",
+      );
+    });
+
     it("resolves to PUBLIC_OR_PROXY_ENDPOINT when USING_PROXY_SERVER=false and GRAPH_CONNECTION_URL is unset", () => {
       const { defaultConnection } = runScript(workDir, {
         USING_PROXY_SERVER: "false",
