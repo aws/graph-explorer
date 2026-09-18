@@ -42,14 +42,17 @@ export function SchemaDiscoveryBoundary({
   requireEdgeConnections = false,
 }: SchemaDiscoveryBoundaryProps) {
   const config = useConfiguration();
+  // Must precede useSchemaSync(): its mount fetch can write the schema
+  // synchronously, and these readers only observe writes that land after they
+  // subscribe, which React does in hook declaration order.
+  const hasSchema = useHasActiveSchema();
+  const schema = useMaybeActiveSchema();
   const {
     schemaDiscoveryQuery,
     edgeDiscoveryQuery,
     refreshSchema,
     isFetching,
   } = useSchemaSync();
-  const hasSchema = useHasActiveSchema();
-  const schema = useMaybeActiveSchema();
   const cancel = useCancelSchemaSync();
   const t = useTranslations();
 
