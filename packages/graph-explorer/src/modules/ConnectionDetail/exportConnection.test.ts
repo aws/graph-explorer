@@ -31,7 +31,7 @@ function makeConfig(
 describe("exportConnectionWithFeedback", () => {
   it("exports a connection that has a url and reports success", () => {
     const exported = exportConnectionWithFeedback(
-      makeConfig({ url: "https://example.com", queryEngine: "gremlin" }),
+      makeConfig({ graphDbUrl: "https://example.com", queryEngine: "gremlin" }),
     );
 
     expect(exported).toBe(true);
@@ -41,7 +41,7 @@ describe("exportConnectionWithFeedback", () => {
 
   it("reports failure and does not export when the url is only whitespace", () => {
     const exported = exportConnectionWithFeedback(
-      makeConfig({ url: "  \r\n  ", queryEngine: "gremlin" }),
+      makeConfig({ graphDbUrl: "  \r\n  ", queryEngine: "gremlin" }),
     );
 
     expect(exported).toBe(false);

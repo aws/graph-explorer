@@ -9,6 +9,7 @@ import type { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
 import type { GraphSummary, GremlinFetch } from "./types";
 
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
+import { apiUrl } from "../utils/apiUrl";
 import { edgeDetails } from "./edgeDetails";
 import fetchEdgeConnections from "./fetchEdgeConnections";
 import fetchNeighbors from "./fetchNeighbors";
@@ -31,21 +32,16 @@ function _gremlinFetch(
       "Content-Type": "application/json",
       Accept: "application/vnd.gremlin-v3.0+json",
     };
-    if (options?.queryId && connection.proxyConnection === true) {
+    if (options?.queryId) {
       headers.queryId = options.queryId;
     }
 
-    return fetchDatabaseRequest(
-      connection,
-      featureFlags,
-      `${connection.url}/gremlin`,
-      {
-        method: "POST",
-        headers,
-        body,
-        ...options,
-      },
-    );
+    return fetchDatabaseRequest(connection, featureFlags, apiUrl("gremlin"), {
+      method: "POST",
+      headers,
+      body,
+      ...options,
+    });
   };
 }
 
@@ -58,7 +54,7 @@ async function fetchSummary(
     const response = await fetchDatabaseRequest(
       connection,
       featureFlags,
-      `${connection.url}/pg/statistics/summary?mode=basic`,
+      apiUrl("pg/statistics/summary?mode=basic"),
       {
         method: "GET",
         ...options,

@@ -10,14 +10,11 @@ For guides on connecting to specific databases, see [Connecting to databases](..
 
 - **Name:** Enter a name for your connection (e.g., `MyNeptuneCluster`).
 - **Query Language:** Choose a query language that corresponds to your graph database.
-- **Public or proxy endpoint:** Provide the publicly accessible endpoint URL for a graph database, e.g., Gremlin Server. If connecting to Amazon Neptune, then provide a proxy endpoint URL that is accessible from outside the VPC, e.g., EC2.
-  - **Note:** For connecting to Amazon Neptune, ensure that the graph connection URL is in the format `https://[NEPTUNE_ENDPOINT]:8182`, and that the proxy endpoint URL is either `https://[EC2_PUBLIC_HOSTNAME]:443` or `http://[EC2_PUBLIC_HOSTNAME]:80`, depending on the protocol used. Ensure that you don't end either of the URLs with `/`.
-- **Using proxy server:** Check this box if using a proxy endpoint.
-- **Graph connection URL:** Provide the endpoint for the graph database
-- **AWS IAM Auth Enabled:** Check this box if connecting to Amazon Neptune using IAM Auth and SigV4 signed requests
-- **Service Type:** Choose the service type
-- **AWS Region:** Specify the AWS region where the Neptune cluster is hosted (e.g., us-east-1)
-- **Fetch Timeout:** Specify the timeout for the fetch request
+- **Graph Connection URL:** Provide the endpoint URL for your graph database (e.g., `https://[NEPTUNE_ENDPOINT]:8182`). Ensure that the URL does not end with `/`.
+- **AWS IAM Auth Enabled:** Check this box if connecting to Amazon Neptune using IAM Auth and SigV4 signed requests.
+- **Service Type:** Choose the service type (`neptune-db` or `neptune-graph`).
+- **AWS Region:** Specify the AWS region where the Neptune cluster is hosted (e.g., us-east-1).
+- **Fetch Timeout:** Specify the timeout for the fetch request.
 - **Neighbor Expansion Limit:** Specify the default limit for neighbor expansion. This will override the app setting for neighbor expansion.
 
 ## Available Connections

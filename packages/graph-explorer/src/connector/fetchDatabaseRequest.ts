@@ -53,12 +53,10 @@ function getAuthHeaders(
   typeHeaders: HeadersInit | undefined,
 ) {
   const headers: Record<string, string> = {};
-  if (connection.proxyConnection) {
-    headers["graph-db-connection-url"] = connection.graphDbUrl || "";
-    headers["db-query-logging-enabled"] = String(
-      featureFlags.allowLoggingDbQuery,
-    );
-  }
+  headers["graph-db-connection-url"] = connection.graphDbUrl || "";
+  headers["db-query-logging-enabled"] = String(
+    featureFlags.allowLoggingDbQuery,
+  );
   if (connection.awsAuthEnabled) {
     headers["aws-neptune-region"] = connection.awsRegion || "";
     headers["service-type"] = connection.serviceType || DEFAULT_SERVICE_TYPE;

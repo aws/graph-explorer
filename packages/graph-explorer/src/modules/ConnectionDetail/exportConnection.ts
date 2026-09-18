@@ -14,7 +14,7 @@ import saveConfigurationToFile from "@/utils/saveConfigurationToFile";
 export function exportConnectionWithFeedback(
   config: ConfigurationContextProps,
 ): boolean {
-  if (!normalizeUrl(config.connection?.url)) {
+  if (!normalizeUrl(config.connection?.graphDbUrl)) {
     toast.error("Cannot Export Connection", {
       description: "This connection has no URL to export",
     });
