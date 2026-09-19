@@ -76,6 +76,7 @@ const [
   defaultNeighborExpansionLimitEnabledAtom,
   defaultNeighborExpansionLimitAtom,
   diagnosticLoggingAtom,
+  hiddenSchemaTypesAtom,
 ] = await Promise.all([
   createActiveConfigurationAtom(),
   atomWithLocalForage<Map<ConfigurationId, RawConfiguration>>(
@@ -124,6 +125,12 @@ const [
   atomWithLocalForage<number>("defaultNeighborExpansionLimit", 10),
   /** Enables verbose diagnostic logging to the browser console. */
   atomWithLocalForage<boolean>("diagnosticLogging", false),
+  /** Vertex types hidden from the Schema view, per connection. */
+  atomWithLocalForage(
+    "hidden-schema-types",
+    new Map<ConfigurationId, Set<VertexType>>(),
+    { reconcile: reconcileMapByKey },
+  ),
 ]);
 
 export {
@@ -140,4 +147,5 @@ export {
   defaultNeighborExpansionLimitEnabledAtom,
   defaultNeighborExpansionLimitAtom,
   diagnosticLoggingAtom,
+  hiddenSchemaTypesAtom,
 };

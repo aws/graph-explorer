@@ -7,6 +7,7 @@ import {
   useActiveSchema,
   useDisplayEdgeTypeConfigs,
   useDisplayVertexTypeConfigs,
+  useHiddenSchemaTypes,
   type VertexType,
 } from "@/core";
 
@@ -44,10 +45,12 @@ export function useSchemaGraphData() {
 /** Transforms vertex type configs into schema graph nodes. */
 function useSchemaGraphNodes(): SchemaGraphNode[] {
   const vtConfigs = useDisplayVertexTypeConfigs();
+  const { isHidden } = useHiddenSchemaTypes();
 
   const nodes: SchemaGraphNode[] = [];
 
   for (const config of vtConfigs.values()) {
+    if (isHidden(config.type)) continue;
     nodes.push({
       data: {
         id: config.type,
