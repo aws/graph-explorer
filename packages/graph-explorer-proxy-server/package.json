@@ -22,7 +22,6 @@
     "date-fns": "^4.4.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "https": "^1.0.0",
     "node-fetch": "^3.3.2",
     "pino": "^10.3.1",
     "pino-pretty": "^13.1.3",
