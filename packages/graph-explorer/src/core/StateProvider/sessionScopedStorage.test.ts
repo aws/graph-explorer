@@ -206,6 +206,27 @@ describe("createSessionScopedAtom", () => {
     expect(await localForage.getItem<Counter>(KEY)).toStrictEqual({ count: 5 });
   });
 
+  test("lets a throwing codec escape instead of logging it as a write failure", async () => {
+    // A codec that throws is a defect, not a storage condition, so it must not
+    // be laundered into the warning that QuotaExceededError gets.
+    const brokenCodec: SessionValueCodec<Counter> = {
+      serialize: () => {
+        throw new TypeError("activeToggles is not iterable");
+      },
+      deserialize: raw => parseSessionJson(raw, counterSchema),
+    };
+    const atom = await createSessionScopedAtom<Counter>({
+      key: KEY,
+      defaultValue: { count: 0 },
+      codec: brokenCodec,
+      sessionStorage: createInMemorySessionStorage(),
+    });
+    const store = createStore();
+
+    expect(() => store.set(atom, { count: 5 })).toThrow(TypeError);
+    expect(vi.mocked(logger.warn)).not.toHaveBeenCalled();
+  });
+
   test("a serialize that returns null removes the per-tab key but still writes the breadcrumb", async () => {
     // A codec that refuses to persist the empty state to the per-tab layer, so
     // a later reload of this tab does not re-seed from it.

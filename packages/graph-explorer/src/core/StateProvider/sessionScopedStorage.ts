@@ -140,13 +140,16 @@ function readSessionSeed<T>(
  * Serializes a value into this tab's sessionStorage, removing the key when the
  * codec returns `null`.
  *
- * A write can throw `QuotaExceededError` once storage fills, or `SecurityError`
- * where DOM storage is blocked — `resolveSessionStorage` only guards the initial
- * access, not every later write. The atom has already updated in memory and the
- * shared breadcrumb still persists through the queue, so a failed per-tab write
- * costs this tab its warm-reload value and nothing more. Log and continue rather
- * than letting the throw escape the Jotai setter and take down the React subtree
- * that set the atom.
+ * Only the storage call is guarded. It can throw `QuotaExceededError` once
+ * storage fills, or `SecurityError` where DOM storage is blocked, because
+ * `resolveSessionStorage` guards the initial access and not every later write.
+ * The atom has already updated in memory and the shared breadcrumb still
+ * persists through the queue, so a failed per-tab write costs this tab its
+ * warm-reload value and nothing more. Log and continue rather than letting the
+ * throw escape the Jotai setter and take down the React subtree that set it.
+ *
+ * A throw from `codec.serialize` is a defect rather than a storage condition, so
+ * it stays outside the `try` and propagates.
  */
 function writeSession<T>(
   sessionStorage: Storage,
@@ -154,8 +157,8 @@ function writeSession<T>(
   codec: SessionValueCodec<T>,
   value: T,
 ) {
+  const serialized = codec.serialize(value);
   try {
-    const serialized = codec.serialize(value);
     if (serialized === null) {
       sessionStorage.removeItem(key);
     } else {
