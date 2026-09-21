@@ -88,6 +88,33 @@ describe("useBackgroundImageMap", () => {
     );
   });
 
+  // The (icon, color) render cache is keyed by concatenation, so the separator
+  // must be a character that cannot occur in either half. An IconSourceId
+  // embeds the user-supplied icon url verbatim, and the color is an
+  // unvalidated string, so a printable separator like "|" lets two distinct
+  // pairs produce one key and swap icons between vertex types.
+  it("does not collide when a separator character appears in the icon url and color", async () => {
+    const shared = makeConfig({
+      type: createVertexType("PipeInColor"),
+      iconUrl: "https://example.test/a.svg",
+      iconImageType: "image/svg+xml",
+      color: "x|#FF0000",
+    });
+    const shifted = makeConfig({
+      type: createVertexType("PipeInUrl"),
+      iconUrl: "https://example.test/a.svg|x",
+      iconImageType: "image/svg+xml",
+      color: "#FF0000",
+    });
+
+    const { result } = renderMap([shared, shifted]);
+
+    await waitFor(() => expect(result.current.size).toBe(2));
+    const second = result.current.get(createVertexType("PipeInUrl"))!;
+    expect(decodeURIComponent(second.url)).toContain("color:#FF0000");
+    expect(decodeURIComponent(second.url)).not.toContain("color:x|#FF0000");
+  });
+
   it("styles a fetched svg into a data uri", async () => {
     const config = makeConfig({
       type: createVertexType("Svg"),

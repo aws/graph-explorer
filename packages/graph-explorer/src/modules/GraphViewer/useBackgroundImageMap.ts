@@ -56,7 +56,9 @@ export function useBackgroundImageMap(
     if (!icon) {
       continue;
     }
-    const renderKey = `${id}|${color}`;
+    // NUL cannot occur in an icon url or a color, so it is the only safe
+    // separator: an IconSourceId embeds the user-supplied url verbatim.
+    const renderKey = `${id}\u0000${color}`;
     let imageData = rendered.get(renderKey);
     if (imageData === undefined) {
       const url = toIconImageUrl(icon, color);
