@@ -29,11 +29,19 @@ export const DefaultConnectionDataSchema = z.object({
   GRAPH_EXP_FETCH_REQUEST_TIMEOUT: z.number().default(240000),
   GRAPH_EXP_NODE_EXPANSION_LIMIT: z.number().optional(),
   // An unrecognized value falls back to automatic rather than failing the parse,
-  // which would drop the whole default connection over one typo.
+  // which would drop the whole default connection over one typo. Logged, because
+  // silently ignoring it leaves an operator with no way to tell their override
+  // never took effect.
   GRAPH_EXP_EDGE_CONNECTION_DISCOVERY: z
     .enum(edgeConnectionDiscoveryOptions)
     .optional()
-    .catch(undefined),
+    .catch(ctx => {
+      logger.warn(
+        "Ignoring unrecognized GRAPH_EXP_EDGE_CONNECTION_DISCOVERY value, using automatic",
+        ctx.value,
+      );
+      return undefined;
+    }),
 });
 
 export type DefaultConnectionData = z.infer<typeof DefaultConnectionDataSchema>;

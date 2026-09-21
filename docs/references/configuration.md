@@ -204,6 +204,8 @@ The Schema view draws which node types each edge type connects. Working that out
 | `complete` | Scans every edge to find all edge connections. Can be slow, or fail, on very large graphs.                                        |
 | `sampled`  | Checks up to 10,000 edges per edge type. Fast and predictable on very large graphs. Will miss edge connections that occur rarely. |
 
-`auto` already attempts a complete scan and falls back to sampling if the database rejects it, so reach for the other two only when you need to pin the behaviour. `sampled` is the one to try if the Schema view is slow or erroring on a large graph.
+`auto` picks one of the other two up front, from the number of edge types and the size of the graph. It does not always try a complete scan first: on a graph with a few very large edge types it goes straight to sampling. When it does choose a complete scan and the database rejects that as too large, it falls back to sampling on its own. So reach for the other two values only when you need to pin the behavior, and `sampled` is the one to try if the Schema view is slow or erroring on a large graph.
+
+openCypher and SPARQL connections always sample up to 10,000 edges per edge type and have no complete option, so they can miss rare edge connections too. That is why this setting appears only on Gremlin connections, and why the same graph can give a more complete Schema view over Gremlin than over the other two.
 
 Nothing else in Graph Explorer depends on edge connections, so a failure here degrades the Schema view and leaves every other view working.

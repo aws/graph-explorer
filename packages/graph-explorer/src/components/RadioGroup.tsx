@@ -56,7 +56,7 @@ function RadioGroupOption({
 }) {
   return (
     <div className="flex flex-row items-start gap-2">
-      <RadioGroupItem value={value} id={id} className="mt-1" />
+      <RadioGroupItem value={value} id={id} className="mt-[1.5px]" />
       <label htmlFor={id} className="cursor-pointer space-y-0.5">
         <p className="text-foreground text-sm leading-none font-medium">
           {label}

@@ -19,7 +19,7 @@ The `edgeConnections` property on `SchemaStorageModel` has three meaningful stat
 - `[]` (empty array) — query succeeded but no edge connections exist
 - populated array — query succeeded with results
 
-If the edge connection query fails, the error is stored in the schema via the `edgeConnectionDiscoveryFailed` flag.
+If the edge connection query fails, the error is stored in the schema via the `lastEdgeConnectionSyncFail` flag.
 
 ## Incremental Schema Growth
 

@@ -6,6 +6,7 @@ import type {
 } from "@/connector/useGEFetchTypes";
 
 import {
+  createEdgeConnectionId,
   createEdgeType,
   createVertexType,
   type EdgeConnection,
@@ -174,16 +175,20 @@ function parseEdgeConnections(
 
         for (const sourceType of splitLabel(sourceLabel)) {
           for (const targetType of splitLabel(targetLabel)) {
-            const key = `${sourceType}-${edgeType}-${targetType}`;
+            const connection: EdgeConnection = {
+              sourceVertexType: createVertexType(sourceType),
+              edgeType: createEdgeType(edgeType),
+              targetVertexType: createVertexType(targetType),
+            };
+            // Keyed through the canonical id builder because its bracket
+            // delimiters cannot collide, unlike joining three labels that may
+            // themselves contain the separator.
+            const key = createEdgeConnectionId(connection);
             if (seen.has(key)) {
               continue;
             }
             seen.add(key);
-            edgeConnections.push({
-              sourceVertexType: createVertexType(sourceType),
-              edgeType: createEdgeType(edgeType),
-              targetVertexType: createVertexType(targetType),
-            });
+            edgeConnections.push(connection);
           }
         }
       }

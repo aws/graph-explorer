@@ -95,18 +95,6 @@ describe("Gremlin > planDiscovery", () => {
       expect(plan.requests).toHaveLength(21);
       expect(coveredTypes(plan.requests)).toStrictEqual(types);
     });
-
-    it("should never plan more chunks than there are edge types", () => {
-      const types = edgeTypes(3);
-      const plan = planDiscovery({
-        edgeTypes: types,
-        totalEdges: 19_928_805,
-        discovery: "complete",
-      });
-
-      expect(plan.requests).toHaveLength(3);
-      expect(coveredTypes(plan.requests)).toStrictEqual(types);
-    });
   });
 
   describe("auto with no recorded edge total", () => {
@@ -170,6 +158,18 @@ describe("Gremlin > planDiscovery", () => {
 
       expect(plan.strategy).toBe("complete");
       expect(plan.requests.every(r => r.limit === undefined)).toBe(true);
+    });
+
+    it("should never plan more chunks than there are edge types", () => {
+      const types = edgeTypes(3);
+      const plan = planDiscovery({
+        edgeTypes: types,
+        totalEdges: 19_928_805,
+        discovery: "complete",
+      });
+
+      expect(plan.requests).toHaveLength(3);
+      expect(coveredTypes(plan.requests)).toStrictEqual(types);
     });
 
     it("should still use one unfiltered request when forced complete fits the budget", () => {

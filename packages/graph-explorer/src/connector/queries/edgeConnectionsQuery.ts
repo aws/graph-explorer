@@ -13,6 +13,9 @@ import { logger } from "@/utils";
 import { getExplorer, getStore } from "./helpers";
 import { schemaSyncQueryKey } from "./schemaSyncQuery";
 
+/** Shared by every edge connection discovery query, so callers can invalidate them all. */
+export const edgeConnectionsQueryKeyPrefix = ["schema", "edgeConnections"];
+
 /**
  * Fetches edge connections for the edge types in the active schema and persists
  * them to the local cache on success.
@@ -26,9 +29,6 @@ import { schemaSyncQueryKey } from "./schemaSyncQuery";
  * @param activeSchema - The active schema to derive edge types from. `undefined`
  *   disables the query.
  */
-/** Shared by every edge connection discovery query, so callers can invalidate them all. */
-export const edgeConnectionsQueryKeyPrefix = ["schema", "edgeConnections"];
-
 export function edgeConnectionsQuery(
   activeSchema: SchemaStorageModel | undefined,
 ) {

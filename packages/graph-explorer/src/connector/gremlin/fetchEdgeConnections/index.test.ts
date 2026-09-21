@@ -214,6 +214,40 @@ describe("Gremlin > fetchEdgeConnections", () => {
     ]);
   });
 
+  it("should read the projected triple by key, whatever order the keys arrive in", async () => {
+    // The whole reason the key is a named project() rather than a union() is that
+    // Neptune's DFE engine permutes an unnamed key and silently inverts the edge
+    // direction. Reading by name is what makes the shape safe, so pin it.
+    const gremlinFetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        createGremlinResponse(
+          createGMap(
+            new Map([
+              [
+                createGMap({ t: "airport", e: "contains", s: "country" }),
+                createGInt64(1),
+              ],
+            ]),
+          ),
+        ),
+      );
+
+    const result = await fetchEdgeConnections(
+      gremlinFetch,
+      { edgeTypes: [createEdgeType("contains")], totalEdges: 10 },
+      "auto",
+    );
+
+    expect(result.edgeConnections).toStrictEqual([
+      {
+        sourceVertexType: createVertexType("country"),
+        edgeType: createEdgeType("contains"),
+        targetVertexType: createVertexType("airport"),
+      },
+    ]);
+  });
+
   it("should skip combinations missing a projected label", async () => {
     const gremlinFetch = vi.fn().mockResolvedValueOnce(
       createGremlinResponse(

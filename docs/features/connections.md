@@ -19,6 +19,7 @@ For guides on connecting to specific databases, see [Connecting to databases](..
 - **AWS Region:** Specify the AWS region where the Neptune cluster is hosted (e.g., us-east-1)
 - **Fetch Timeout:** Specify the timeout for the fetch request
 - **Neighbor Expansion Limit:** Specify the default limit for neighbor expansion. This will override the app setting for neighbor expansion.
+- **Edge Connection Discovery:** Gremlin only. Choose how much of the graph is read to work out which node types each edge type connects — Automatic (recommended), Complete, or Sampled. See [Edge connection discovery](../references/configuration.md#edge-connection-discovery).
 
 ## Available Connections
 
