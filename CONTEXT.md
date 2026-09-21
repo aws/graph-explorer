@@ -111,6 +111,10 @@ _Avoid_: Fetch, load
 The process that finds which Edge Connections exist. Runs after Schema Sync completes and is a separate step: Schema Sync finds the Edge Types, Edge Connection Discovery finds how they link Vertex Types. Only the Schema View depends on it, so a failure degrades that view and leaves the rest of the app working.
 _Avoid_: Relationship Discovery (follows the Edge Connection entry), edge discovery
 
+**Complete** / **Sampled**:
+The two strategies Edge Connection Discovery can take. **Complete** reads every edge, so it finds every Edge Connection. **Sampled** caps the edges it reads per Edge Type, so it is bounded on a large graph but will miss an Edge Connection that occurs rarely. A user can force either per Connection; left alone, Complete is attempted and abandoned for Sampled if the database rejects it. Splitting Complete across several requests is **chunking**, not a third strategy.
+_Avoid_: Full, exhaustive, partial, approximate, mode (for the pair)
+
 **Schema**:
 The discovered structure of a connected graph database — vertex types, edge types, their attributes, and how they connect. Populated by Schema Sync when a Connection is first used; not user-defined.
 _Avoid_: Model, structure

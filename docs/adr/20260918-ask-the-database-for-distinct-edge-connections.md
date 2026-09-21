@@ -1,6 +1,6 @@
 # ADR — Ask the database for distinct edge connections instead of sampling edges
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-18
 - **Related:** Fixes [#2141](https://github.com/aws/graph-explorer/issues/2141). Replaces the Gremlin half of [#2100](https://github.com/aws/graph-explorer/pull/2100), which batched edge connection discovery for [#2085](https://github.com/aws/graph-explorer/issues/2085). openCypher and SPARQL keep their `#2100` shapes.
 
@@ -41,11 +41,15 @@ g.E()[.hasLabel(...)][.limit(10000)]
 2. **Sampled strategy.** `hasLabel(X).limit(10000)`, one request per edge type. Matches today's sampling semantics.
 3. **Choose by comparing predicted cost.** Complete scales with edge count, sampled with edge type count. Below the budget, take complete. Above it, take the cheaper of `edgeTypes x 1.5s` and `edges x 85us`.
 4. **Scan budget is 50,000 edges, and it is not a safety prediction.** It is the highest volume that never failed on any configuration tested. Given the measured spread, no constant can predict the real ceiling.
-5. **The degrade path is what recovers from a budget we cannot predict.** A complete request that fails because it was too big abandons the complete strategy and redoes the whole discovery as sampled. The trigger is our own request timeout, with Neptune's `MemoryLimitExceededException` and `TimeLimitExceededException` as a fast path. Fail fast on the first such error and cancel in-flight requests through the existing `AbortSignal`; do not retry individual chunks.
+5. **The degrade path is what recovers from a budget we cannot predict.** A complete request that fails because it was too big abandons the complete strategy and redoes the whole discovery as sampled. The trigger is our own request timeout, with Neptune's `MemoryLimitExceededException` and `TimeLimitExceededException` as a fast path. Fail fast on the first such error and do not retry individual chunks.
 6. **Degrading applies only when the strategy was chosen automatically.** A user who forces complete gets the failure reported. Silently sampling would contradict the setting.
 7. **The `count` the complete strategy returns is not persisted.** The `EdgeConnection.count` field stays unpopulated, because the same field would be capped and misleading on the sampled path.
 
-The decision is evaluated in the Gremlin connector. `EdgeConnectionsRequest` carries `{ edgeTypes, totalEdges, discovery }`; openCypher and SPARQL ignore the last two.
+The decision is evaluated in the Gremlin connector, by a pure `planDiscovery` that takes the edge types, the edge total, and the setting, and returns the strategy with the requests it takes.
+
+`EdgeConnectionsRequest` carries `{ edgeTypes, totalEdges }`, and openCypher and SPARQL ignore the total. The setting is not part of the request: it is connection configuration like `fetchTimeoutMs`, so `normalizeConnection` resolves its absence to `auto` and the Gremlin explorer reads it from the connection it was built with.
+
+A complete scan that is abandoned leaves no runaway behind, because `mapWithConcurrency` stops pulling work once a callback rejects. Requests already in flight are not cancelled: without a per-request `queryId` the proxy cannot cancel them at the database either, so aborting the client side would only stop us waiting for a result we have already discarded.
 
 ## Considered options
 
