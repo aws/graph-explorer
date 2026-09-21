@@ -4,9 +4,12 @@ const defaultNodeStyle: RenderedNodeStyle = {
   background: "#128EE5",
   backgroundOpacity: 0.4,
   borderColor: "#128EE5",
-  backgroundFit: "none",
-  backgroundWidth: "60%",
-  backgroundHeight: "60%",
+  // The icon image is a square wrapper that already insets the artwork, so the
+  // node only has to fit that square. `auto` axes keep cytoscape from forcing
+  // both dimensions, which is what squashed non-square icons (issue #2108).
+  backgroundFit: "contain",
+  backgroundWidth: "auto",
+  backgroundHeight: "auto",
   borderWidth: 1,
   borderStyle: "solid",
   borderOpacity: 0,

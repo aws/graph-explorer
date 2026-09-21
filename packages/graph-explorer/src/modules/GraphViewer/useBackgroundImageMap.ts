@@ -2,23 +2,15 @@ import type { VertexStyle, VertexType } from "@/core";
 
 import {
   classifyIconSource,
-  fitAspectRatio,
   type IconSource,
   type IconSourceId,
   iconSourceId,
-  type ResolvedIcon,
   toIconImageUrl,
   useResolvedIcons,
 } from "@/core/icons";
 
-export interface BackgroundImageData {
-  url: string;
-  width: string;
-  height: string;
-}
-
 /**
- * Maps each vertex type to its cytoscape `background-image` with aspect-ratio-aware dimensions.
+ * Maps each vertex type to its cytoscape `background-image`.
  *
  * The set of UNIQUE icons is tiny (dozens) even with thousands of vertex types,
  * so resolution is keyed by icon identity and shared through the icon registry.
@@ -26,7 +18,7 @@ export interface BackgroundImageData {
  */
 export function useBackgroundImageMap(
   vtConfigs: VertexStyle[],
-): Map<VertexType, BackgroundImageData> {
+): Map<VertexType, string> {
   // Single pass: this runs on every render over every vertex type, so each
   // config is classified once and the id is reused for both lookups below.
   const uniqueSources = new Map<IconSourceId, IconSource>();
@@ -49,8 +41,8 @@ export function useBackgroundImageMap(
 
   const icons = useResolvedIcons([...uniqueSources.values()]);
 
-  const result = new Map<VertexType, BackgroundImageData>();
-  const rendered = new Map<string, BackgroundImageData>();
+  const result = new Map<VertexType, string>();
+  const rendered = new Map<string, string>();
   for (const { type, id, color } of identified) {
     const icon = icons.get(id);
     if (!icon) {
@@ -59,37 +51,51 @@ export function useBackgroundImageMap(
     // NUL cannot occur in an icon url or a color, so it is the only safe
     // separator: an IconSourceId embeds the user-supplied url verbatim.
     const renderKey = `${id}\u0000${color}`;
-    let imageData = rendered.get(renderKey);
-    if (imageData === undefined) {
-      const url = toIconImageUrl(icon, color);
-      const { width, height } = computeAspectRatioAwareDimensions(icon);
-      imageData = { url, width, height };
-      rendered.set(renderKey, imageData);
+    let backgroundImage = rendered.get(renderKey);
+    if (backgroundImage === undefined) {
+      backgroundImage = insetIconImage(toIconImageUrl(icon, color));
+      rendered.set(renderKey, backgroundImage);
     }
-    result.set(type, imageData);
+    result.set(type, backgroundImage);
   }
   return result;
 }
 
-const BASE_PERCENT = 60;
+/** Fraction of the node the icon occupies, leaving room for the shape's curve. */
+const ICON_RATIO = 0.6;
+/** Arbitrary wrapper viewport; only the ratio of inset to box matters. */
+const BOX = 100;
 
-function computeAspectRatioAwareDimensions(icon: ResolvedIcon): {
-  width: string;
-  height: string;
-} {
-  if (!icon.width || !icon.height) {
-    return { width: "60%", height: "60%" };
-  }
-
-  const [width, height] = fitAspectRatio(icon.width, icon.height, BASE_PERCENT);
-  return {
-    width: toPercent(width),
-    height: toPercent(height),
-  };
+/**
+ * Centers an icon at {@link ICON_RATIO} of a square canvas, preserving its
+ * aspect ratio.
+ *
+ * Cytoscape cannot do both parts itself: `background-fit: contain` keeps the
+ * ratio but fills the whole node box, and the node is an ellipse, so a
+ * square-ish icon's corners spill outside the shape. Setting explicit
+ * percentages insets the icon but forces both axes, which is what squashed
+ * non-square icons (issue #2108). Baking the inset into a square svg leaves
+ * cytoscape a square to fit, and delegates the ratio to the nested image's
+ * `preserveAspectRatio`.
+ *
+ * The nested icon must carry a `viewBox`, or it has no intrinsic ratio to fit
+ * and fills the padded box — square again. The icon registry guarantees one.
+ */
+function insetIconImage(iconUrl: string): string {
+  const size = BOX * ICON_RATIO;
+  const offset = (BOX - size) / 2;
+  return encodeSvg(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${BOX}" height="${BOX}" viewBox="0 0 ${BOX} ${BOX}">` +
+      `<image href="${escapeXmlAttribute(iconUrl)}" x="${offset}" y="${offset}" width="${size}" height="${size}" preserveAspectRatio="xMidYMid meet"/>` +
+      `</svg>`,
+  );
 }
 
-// The untouched axis stays an exact "60%" rather than "60.0%", matching the
-// existing default so this is a no-op change in style output for square icons.
-function toPercent(value: number): string {
-  return value === BASE_PERCENT ? "60%" : `${value.toFixed(1)}%`;
+/** The url becomes an XML attribute value, so `&` and `"` must not break it. */
+function escapeXmlAttribute(value: string): string {
+  return value.replaceAll("&", "&amp;").replaceAll('"', "&quot;");
+}
+
+function encodeSvg(svgContent: string): string {
+  return "data:image/svg+xml;utf8," + encodeURIComponent(svgContent);
 }

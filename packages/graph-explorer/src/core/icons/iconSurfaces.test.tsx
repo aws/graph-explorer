@@ -77,9 +77,10 @@ describe("icon resolution across surfaces", () => {
   // Issue #2108: a non-square custom icon (a wide logo, say) must keep its
   // aspect ratio on the canvas rather than being squashed into a square.
   // The uploaded SVG has width/height but no viewBox — exactly what a plain
-  // `<svg width height>` export produces — so this also covers viewBox
-  // synthesis end to end, not just the aspect-ratio math in isolation.
-  it("computes aspect-ratio-preserving background dimensions for a wide custom icon", async () => {
+  // `<svg width height>` export produces — and without a viewBox the wrapper's
+  // `preserveAspectRatio` has no ratio to fit and the icon fills the padded box
+  // square. So this covers viewBox synthesis end to end.
+  it("carries a synthesized viewBox through to the canvas image for a wide custom icon", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(() =>
@@ -101,9 +102,13 @@ describe("icon resolution across surfaces", () => {
     );
     await waitFor(() => expect(canvas.result.current.size).toBe(1));
 
-    const imageData = canvas.result.current.get(createVertexType("Wide"))!;
-    expect(imageData.width).toBe("60%");
-    // 60% / (400/100) = 15%, not the 60% a square icon would get.
-    expect(imageData.height).toBe("15.0%");
+    const url = canvas.result.current.get(createVertexType("Wide"))!;
+    // The wrapper nests the icon as its own data uri, hence the double decode.
+    expect(decodeURIComponent(decodeURIComponent(url))).toContain(
+      'viewBox="0 0 400 100"',
+    );
+    expect(decodeURIComponent(url)).toContain(
+      'preserveAspectRatio="xMidYMid meet"',
+    );
   });
 });
