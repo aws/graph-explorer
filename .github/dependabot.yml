@@ -1,0 +1,65 @@
+version: 2
+updates:
+  # Only the `FROM` tag in Dockerfile is visible here. ENV NODE_VERSION and the
+  # corepack pin are not, and stay manual. Daily because a new Amazon Linux 2023
+  # snapshot is a single ungrouped dependency, so a run without one is a no-op.
+  #
+  # No `cooldown`: it needs a registry-assigned publication date, and Docker Hub's
+  # tag_last_pushed is currently the only accepted source. ECR Public has none, so
+  # any cooldown here would be silently skipped.
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: America/Chicago
+    open-pull-requests-limit: 2
+
+  # actions/checkout is pinned in all four workflows, so an ungrouped bump would
+  # open four pull requests for one version.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "13:00"
+      timezone: America/Chicago
+    open-pull-requests-limit: 3
+    groups:
+      actions:
+        patterns: ["*"]
+
+  # `npm` is the correct ecosystem for pnpm. Weekly rather than daily because a
+  # change in target versions closes and replaces the open group pull request,
+  # which for a ~130 dependency group would happen on nearly every daily run.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "13:00"
+      timezone: America/Chicago
+    open-pull-requests-limit: 10
+    # Covers minimumReleaseAge: 1440 in pnpm-workspace.yaml, which refuses to
+    # resolve a release under 24h old and would fail the lockfile step. Do not
+    # remove as redundant with Dependabot's 3 day default — the margin is the point.
+    cooldown:
+      default-days: 2
+    groups:
+      # Each group below pairs packages that peer-depend on each other, and so
+      # carries no update-types filter: it has to catch majors, which arrive
+      # ungrouped otherwise. Listed before minor-and-patch because a dependency
+      # joins the first group it matches.
+      #
+      # @vitest/coverage-v8 peers vitest at an exact version rather than a range,
+      # so every release splits them, not just majors.
+      vitest:
+        patterns: ["vitest", "@vitest/*"]
+      react:
+        patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
+      # Scoped to the coupled pair. @tanstack/react-virtual and
+      # @tanstack/eslint-plugin-query are independent and belong below.
+      tanstack-query:
+        patterns: ["@tanstack/react-query", "@tanstack/react-query-devtools"]
+      minor-and-patch:
+        update-types: [minor, patch]
