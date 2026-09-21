@@ -20,7 +20,7 @@
     "compression": "^1.8.1",
     "cors": "^2.8.6",
     "date-fns": "^4.4.0",
-    "dotenv": "^17.4.2",
+    "dotenv": "^18.0.1",
     "express": "^5.2.1",
     "https": "^1.0.0",
     "node-fetch": "^3.3.2",
