@@ -1,7 +1,9 @@
 import { createStore } from "jotai";
 import localForage from "localforage";
-import { beforeEach, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { z } from "zod";
+
+import { logger } from "@/utils";
 
 import {
   defaultGraphViewLayout,
@@ -113,7 +115,7 @@ describe("createSessionScopedAtom", () => {
     expect(store.get(atom)).toStrictEqual({ count: 42 });
   });
 
-  test("treats a corrupt session value as a miss and falls back to the breadcrumb", async () => {
+  test("discards a corrupt session value with a warning and falls back to the breadcrumb", async () => {
     await localForage.setItem<Counter>(KEY, { count: 7 });
     const sessionStorage = createInMemorySessionStorage();
     sessionStorage.setItem(KEY, "{ not valid json");
@@ -127,6 +129,28 @@ describe("createSessionScopedAtom", () => {
 
     const store = createStore();
     expect(store.get(atom)).toStrictEqual({ count: 7 });
+    expect(vi.mocked(logger.warn)).toHaveBeenCalledOnce();
+  });
+
+  test("recovers when reading sessionStorage throws, falling back to the breadcrumb", async () => {
+    await localForage.setItem<Counter>(KEY, { count: 7 });
+    const sessionStorage = createInMemorySessionStorage();
+    // DOM storage blocked: accessing the value throws a SecurityError rather
+    // than returning null. The seam must treat this as a miss, not crash boot.
+    vi.spyOn(sessionStorage, "getItem").mockImplementation(() => {
+      throw new DOMException("blocked", "SecurityError");
+    });
+
+    const atom = await createSessionScopedAtom<Counter>({
+      key: KEY,
+      defaultValue: { count: 0 },
+      codec: counterCodec,
+      sessionStorage,
+    });
+
+    const store = createStore();
+    expect(store.get(atom)).toStrictEqual({ count: 7 });
+    expect(vi.mocked(logger.warn)).toHaveBeenCalledOnce();
   });
 
   test("writing updates this tab synchronously and the breadcrumb in the background", async () => {
