@@ -40,6 +40,12 @@ updates:
       time: "13:00"
       timezone: America/Chicago
     open-pull-requests-limit: 10
+    # @rolldown/plugin-babel peers `^7.29.0 || ^8.0.0-rc.1`, so Babel 8 stable
+    # cannot resolve. Revisit when that peer range accepts it. 7.x minor and
+    # patch bumps still come through.
+    ignore:
+      - dependency-name: "@babel/core"
+        update-types: ["version-update:semver-major"]
     # Covers minimumReleaseAge: 1440 in pnpm-workspace.yaml, which refuses to
     # resolve a release under 24h old and would fail the lockfile step. Do not
     # remove as redundant with Dependabot's 3 day default — the margin is the point.
