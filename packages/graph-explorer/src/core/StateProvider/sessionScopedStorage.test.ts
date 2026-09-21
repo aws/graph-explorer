@@ -402,11 +402,9 @@ describe("createSessionScopedAtom with the graph view layout codec", () => {
   });
 });
 
-// The two layout atoms ride the same primitive as the active connection, so
-// they get the same multi-tab assurances active-connection has — proven
-// through their real codecs, not the toy counter codec. The graph view codec
-// is the interesting one: its activeToggles Set must survive the array
-// serialization across a write-in-one-tab / cold-start-in-another sequence.
+// Graph view is the codec with real risk: its activeToggles Set must survive
+// the array serialization across a write-in-one-tab / cold-start-in-another
+// sequence, which the toy counter codec above cannot reach.
 describe("graph view layout across tabs", () => {
   const openGraphViewTab = tabOpener<GraphViewLayout>(
     "graph-view-layout",
@@ -450,6 +448,10 @@ describe("graph view layout across tabs", () => {
   });
 });
 
+// Schema view's codec is structurally the same as the counter codec above, so
+// these cover the storageAtoms wiring rather than codec risk: that the atom is
+// really built with this codec under the schema-view-layout key. The codec
+// itself is covered in schemaViewLayoutDefaults.test.ts.
 describe("schema view layout across tabs", () => {
   const openSchemaViewTab = tabOpener<SchemaViewLayout>(
     "schema-view-layout",
