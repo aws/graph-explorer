@@ -13,7 +13,7 @@ A directed relationship between two vertices (source → target), with a type an
 _Avoid_: Relationship, link
 
 **Graph Database**:
-The external graph database a user connects to and explores — the source of all vertices and edges, reached over HTTP via a Connection. It is the user's own data, brought along and queried live; distinct from the local persisted app state (connections, schema cache, styles, sessions, layout) that Graph Explorer keeps in the browser's IndexedDB.
+The external graph database a user connects to and explores — the source of all vertices and edges, reached over HTTP via a Connection. It is the user's own data, brought along and queried live; distinct from the local app state (connections, schema cache, styles, sessions) that Graph Explorer keeps in the browser's IndexedDB, plus per-tab layout in sessionStorage.
 _Avoid_: Database (ambiguous — clarify remote graph database vs. local persisted state)
 
 **Connection**:
@@ -85,6 +85,18 @@ _Avoid_: Data Explorer (legacy route name)
 Visual representation of the Schema — shows vertex types and their edge connections as a graph.
 _Avoid_: Schema Explorer (legacy route name)
 
+**Graph View Layout**:
+Per-tab UI state for the Graph View — active sidebar panel, sidebar width, active content toggles, table-view height, and the details-auto-open preference. A per-tab Storage Scope concept (`createSessionScopedAtom`, key `"graph-view-layout"`): it survives that tab's reload but not its close, and a fresh tab cold-starts from the shared breadcrumb.
+_Avoid_: Graph preferences, graph settings
+
+**Schema View Layout**:
+Per-tab UI state for the Schema View — active sidebar panel, sidebar width, and the details-auto-open preference. Same per-tab Storage Scope as Graph View Layout (key `"schema-view-layout"`).
+_Avoid_: Schema preferences, schema settings
+
+**Storage Scope**:
+The cross-tab behavior a persisted atom picks at creation, so scope is a visible decision rather than a side effect of which factory was reached for. Three named scopes: **per-tab** (`createSessionScopedAtom`) keeps the live value in sessionStorage with a shared localForage breadcrumb seeding a fresh tab on cold start, so tabs diverge — it backs Active Connection, Graph View Layout, and Schema View Layout; **shared-reconciled** (`atomWithLocalForage` with `reconcileMapByKey`) merges Map-keyed collections per key across tabs — it backs Connections, Schema, Vertex and Edge Styles, and Sessions; **shared-blind-write** (`atomWithLocalForage` with no reconciler) writes the whole value each time, for scalars where tabs need not diverge. See the `per-tab-session-scoped-storage-primitive` and `per-key-diff-merge-cross-tab-reconciliation` ADRs.
+_Avoid_: Persistence mode, storage strategy
+
 **Edge Connection**:
 A schema-level pattern describing how two vertex types can be related via an edge type: sourceVertexType --[edgeType]--> targetVertexType. What the Schema View visualizes. Not an actual edge instance.
 _Avoid_: Relationship (Gremlin UI term), Object Property (SPARQL UI term)
@@ -149,6 +161,8 @@ _Avoid_: Save-status indicator
 - **Neighbors** are **Vertices** one hop away from a given **Vertex**
 - **Styles** are scoped per **Vertex Type** (**Vertex Styles**) and **Edge Type** (**Edge Styles**)
 - The **Graph View**, **Data Table View**, and **Schema View** all render from the same **Session** and **Schema**
+- Each browser tab has its own **Graph View Layout** and **Schema View Layout**, the same divergence as **Active Connection**
+- Every persisted atom picks one of the three **Storage Scopes** at creation
 
 ## Example dialogue
 
