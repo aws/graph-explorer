@@ -49,7 +49,7 @@ describe("iconRegistry", () => {
     iconRegistry.request([source]);
     await settle();
 
-    expect(iconRegistry.getSnapshot().get(iconSourceId(source)!)).toMatchObject(
+    expect(iconRegistry.getSnapshot().get(iconSourceId(source)!)).toStrictEqual(
       {
         kind: "raster",
         url: "https://example.test/a.png",
@@ -58,23 +58,18 @@ describe("iconRegistry", () => {
     expect(fetch).not.toBeCalled();
   });
 
-  // Measuring a raster's natural size requires loading it, so — unlike a url,
-  // which needs no resolution — this can no longer settle in the same tick.
-  it("measures a raster icon's natural dimensions", async () => {
+  // A url needs no resolution, so making the consumer wait a render for it
+  // would be a pointless async round trip.
+  it("resolves a raster icon synchronously", () => {
     const source = classifyIconSource({
       iconUrl: "https://example.test/a.png",
       iconImageType: "image/png",
     });
 
     iconRegistry.request([source]);
-    await settle();
 
-    expect(iconRegistry.getSnapshot().get(iconSourceId(source)!)).toMatchObject(
-      {
-        width: expect.any(Number),
-        height: expect.any(Number),
-      },
-    );
+    expect(iconRegistry.getSnapshot().has(iconSourceId(source)!)).toBe(true);
+    expect(iconRegistry.pendingCount).toBe(0);
   });
 
   it("fetches and sanitizes a remote svg", async () => {

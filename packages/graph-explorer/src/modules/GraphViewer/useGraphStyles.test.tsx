@@ -56,14 +56,12 @@ describe("useGraphStyles", () => {
     await waitFor(() => {
       const vertexStyle = getStyles(result)[`node[type="Person"]`] as any;
       expect(vertexStyle).toEqual({
-        "background-image": RASTER_ICON.iconUrl,
+        // The raster is wrapped in a padded square svg so the canvas can fit it
+        // without measuring (issue #2108); sizing now comes from the node
+        // defaults, not per type.
+        "background-image": expect.stringContaining("data:image/svg+xml;utf8,"),
         "background-color": "#128EE5",
         "background-opacity": 0.8,
-        // Aspect-ratio-aware sizing (issue #2108): square by default since
-        // the test double measures every raster icon as 24x24.
-        "background-fit": "none",
-        "background-width": "60%",
-        "background-height": "60%",
         "border-color": "#000000",
         "border-width": 2,
         "border-opacity": 1,
