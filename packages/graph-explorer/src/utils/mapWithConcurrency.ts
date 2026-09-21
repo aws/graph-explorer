@@ -5,8 +5,10 @@
  * the other lanes. Results are returned in the order of `items`.
  *
  * A rejected callback propagates: the returned promise rejects once any worker
- * throws (already-running callbacks are not cancelled), so callers get
- * full-failure semantics.
+ * throws, so callers get full-failure semantics. The first rejection also stops
+ * the pool pulling new work, so a caller that gives up on a long queue does not
+ * leave the remaining lanes issuing requests nobody is waiting for. Callbacks
+ * already running are not cancelled.
  *
  * @param items The items to process
  * @param concurrency The maximum number of callbacks running at once
@@ -20,12 +22,18 @@ export default async function mapWithConcurrency<Item, Result>(
 ): Promise<Result[]> {
   const results: Result[] = [];
   let cursor = 0;
+  let failed = false;
 
   async function worker() {
-    while (cursor < items.length) {
+    while (cursor < items.length && !failed) {
       const index = cursor;
       cursor += 1;
-      results[index] = await callback(items[index]);
+      try {
+        results[index] = await callback(items[index]);
+      } catch (error) {
+        failed = true;
+        throw error;
+      }
     }
   }
 
