@@ -19,7 +19,7 @@ The sidebar has two panels:
 - **Details** — shows properties and connections for the selected node type or edge connection
 - **Styles** — customize colors and icons for node types and edge types, split across a Nodes tab and an Edges tab
 
-Click the active tab icon to collapse the sidebar to just the icon strip. Click any tab icon to reopen it. Both the active tab and sidebar width are remembered across sessions.
+Click the active tab icon to collapse the sidebar to just the icon strip. Click any tab icon to reopen it. The active tab and sidebar width are remembered per browser tab, so two tabs can keep different layouts side by side. When you reopen Graph Explorer after closing all tabs, it resumes the layout you most recently used.
 
 The Details panel header includes an "Automatically open on selection" toggle. When enabled (the default), selecting a single node type or edge connection in the schema graph automatically opens the Details panel — so while it is enabled, a collapsed sidebar reopens on your next selection.
 

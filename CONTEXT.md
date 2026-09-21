@@ -74,7 +74,7 @@ The set of vertices and edges a user has loaded through exploration for a given 
 _Avoid_: State, workspace
 
 **Graph View**:
-The interactive canvas where vertices and edges are visualized using Cytoscape.js. Users explore the graph here by expanding neighbors and applying layouts. Nav label: "Graph".
+The interactive canvas where vertices and edges are visualized using Cytoscape.js. Users explore the graph here by expanding neighbors and applying a Layout. Nav label: "Graph".
 _Avoid_: Graph Explorer (ambiguous with the product name)
 
 **Data Table View**:
@@ -85,12 +85,20 @@ _Avoid_: Data Explorer (legacy route name)
 Visual representation of the Schema — shows vertex types and their edge connections as a graph.
 _Avoid_: Schema Explorer (legacy route name)
 
+**Layout**:
+The algorithm that positions vertices on the Graph View canvas, chosen from the layout picker and run by Cytoscape (`LayoutName`). The unqualified word always means this.
+_Avoid_: View Layout (a different concept, below), graph arrangement
+
+**View Layout**:
+The per-tab UI state of a view: which sidebar panel is active, how wide the sidebar is, and which content is toggled on. A per-tab Storage Scope concept, so it survives a tab's reload but not its close, and a fresh tab starts from the View Layout most recently used. The two are Graph View Layout and Schema View Layout. Never shortened to Layout, which is the positioning algorithm.
+_Avoid_: Layout (means the algorithm), preferences, settings
+
 **Graph View Layout**:
-Per-tab UI state for the Graph View — active sidebar panel, sidebar width, active content toggles, table-view height, and the details-auto-open preference. A per-tab Storage Scope concept: it survives that tab's reload but not its close, and a fresh tab starts from the layout most recently used.
+The View Layout for the Graph View — active sidebar panel, sidebar width, active content toggles, table-view height, and the details-auto-open preference.
 _Avoid_: Graph preferences, graph settings
 
 **Schema View Layout**:
-Per-tab UI state for the Schema View — active sidebar panel, sidebar width, and the details-auto-open preference. Same per-tab Storage Scope as Graph View Layout.
+The View Layout for the Schema View — active sidebar panel, sidebar width, and the details-auto-open preference.
 _Avoid_: Schema preferences, schema settings
 
 **Storage Scope**:
@@ -161,7 +169,8 @@ _Avoid_: Save-status indicator
 - **Neighbors** are **Vertices** one hop away from a given **Vertex**
 - **Styles** are scoped per **Vertex Type** (**Vertex Styles**) and **Edge Type** (**Edge Styles**)
 - The **Graph View**, **Data Table View**, and **Schema View** all render from the same **Session** and **Schema**
-- Each browser tab has its own **Graph View Layout** and **Schema View Layout**, the same divergence as **Active Connection**
+- Each browser tab has its own **View Layout** per view, the same divergence as **Active Connection**
+- A **Layout** positions **Vertices** on the **Graph View** canvas and is not part of any **View Layout**
 - Every persisted atom picks one of the three **Storage Scopes** at creation
 
 ## Example dialogue
