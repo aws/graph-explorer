@@ -1,5 +1,6 @@
 import type {
   ConnectionConfig,
+  EdgeConnectionDiscovery,
   NeptuneServiceType,
   QueryEngine,
 } from "@shared/types";
@@ -15,16 +16,20 @@ import {
   InfoTooltip,
   InputField,
   Label,
+  RadioGroup,
+  RadioGroupOption,
   SelectField,
   TextAreaField,
 } from "@/components";
 import { DialogBody, DialogFooter } from "@/components/Dialog";
+import { edgeConnectionsQueryKeyPrefix } from "@/connector";
 import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
   configurationAtom,
   type ConfigurationContextProps,
   createNewConfigurationId,
+  discardEdgeConnectionsAtom,
   type RawConfiguration,
   schemaAtom,
 } from "@/core";
@@ -48,7 +53,38 @@ type ConnectionForm = {
   fetchTimeoutMs?: number;
   nodeExpansionLimitEnabled: boolean;
   nodeExpansionLimit?: number;
+  edgeConnectionDiscovery: EdgeConnectionDiscovery;
 };
+
+/**
+ * The discovery choices, with the consequence of each spelled out. A label alone
+ * does not tell anyone that sampled can miss a connection, or that complete can
+ * fail on a large graph, which is the whole basis for choosing.
+ */
+const EDGE_CONNECTION_DISCOVERY_OPTIONS: {
+  value: EdgeConnectionDiscovery;
+  label: string;
+  description: string;
+}[] = [
+  {
+    value: "auto",
+    label: "Automatic",
+    description:
+      "Chooses based on how many edge types the graph has and how large it is. Recommended.",
+  },
+  {
+    value: "complete",
+    label: "Complete",
+    description:
+      "Scans every edge to find all edge connections. Can be slow, or fail, on very large graphs.",
+  },
+  {
+    value: "sampled",
+    label: "Sampled",
+    description:
+      "Checks up to 10,000 edges per edge type. Fast and predictable on very large graphs. Will miss edge connections that occur rarely.",
+  },
+];
 
 function normalizeUrlField(value: string | undefined) {
   return value?.replace(/[\r\n]/g, "").trim();
@@ -81,6 +117,9 @@ function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
     nodeExpansionLimit: data.nodeExpansionLimitEnabled
       ? data.nodeExpansionLimit
       : undefined,
+    // Always written, `auto` included, so a missing value only ever means the
+    // connection was saved before this setting existed.
+    edgeConnectionDiscovery: data.edgeConnectionDiscovery,
   };
 }
 
@@ -98,6 +137,8 @@ function mapToConnectionForm(
     nodeExpansionLimitEnabled: Boolean(
       existingConfig.connection?.nodeExpansionLimit,
     ),
+    edgeConnectionDiscovery:
+      existingConfig.connection?.edgeConnectionDiscovery ?? "auto",
   };
   return result;
 }
@@ -152,6 +193,8 @@ const CreateConnection = ({
         const urlChange = initialData?.url !== data.url;
         const dbUrlChange = initialData?.graphDbUrl !== data.graphDbUrl;
         const typeChange = initialData?.queryEngine !== data.queryEngine;
+        const discoveryChange =
+          initialData?.edgeConnectionDiscovery !== data.edgeConnectionDiscovery;
 
         if (urlChange || dbUrlChange || typeChange) {
           logger.log(
@@ -177,6 +220,18 @@ const CreateConnection = ({
           // Reseting all query state. Using `removeQueries()` to ensure initial data is recalculated.
           // This ensures dependent queries execute in the right order
           queryClient.removeQueries();
+        } else if (discoveryChange) {
+          logger.log(
+            "Discarding discovered edge connections because the discovery setting changed",
+            { original: initialData, updated: data },
+          );
+
+          // The stored edge connections are the real cache: they seed the query
+          // as initial data, so the query only reruns once they are gone.
+          set(discardEdgeConnectionsAtom, configId);
+          queryClient.removeQueries({
+            queryKey: edgeConnectionsQueryKeyPrefix,
+          });
         }
       },
       [configId, initialData, queryClient],
@@ -198,6 +253,7 @@ const CreateConnection = ({
     fetchTimeoutMs: initialData?.fetchTimeoutMs,
     nodeExpansionLimitEnabled: initialData?.nodeExpansionLimitEnabled || false,
     nodeExpansionLimit: initialData?.nodeExpansionLimit,
+    edgeConnectionDiscovery: initialData?.edgeConnectionDiscovery ?? "auto",
   });
 
   const [hasError, setError] = useState(false);
@@ -442,6 +498,32 @@ const CreateConnection = ({
               onChange={onFormChange("nodeExpansionLimit")}
               min={0}
             />
+          </FormItem>
+        )}
+        {form.queryEngine === "gremlin" && (
+          <FormItem>
+            <Label>
+              Edge Connection Discovery
+              <InfoTooltip>
+                How much of the graph is read to work out which node types each
+                edge type connects. Only the Schema view uses this.
+              </InfoTooltip>
+            </Label>
+            <RadioGroup
+              aria-label="Edge Connection Discovery"
+              value={form.edgeConnectionDiscovery}
+              onValueChange={onFormChange("edgeConnectionDiscovery")}
+            >
+              {EDGE_CONNECTION_DISCOVERY_OPTIONS.map(option => (
+                <RadioGroupOption
+                  key={option.value}
+                  id={`edge-connection-discovery-${option.value}`}
+                  value={option.value}
+                  label={option.label}
+                  description={option.description}
+                />
+              ))}
+            </RadioGroup>
           </FormItem>
         )}
       </DialogBody>

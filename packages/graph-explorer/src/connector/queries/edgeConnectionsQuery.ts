@@ -26,6 +26,9 @@ import { schemaSyncQueryKey } from "./schemaSyncQuery";
  * @param activeSchema - The active schema to derive edge types from. `undefined`
  *   disables the query.
  */
+/** Shared by every edge connection discovery query, so callers can invalidate them all. */
+export const edgeConnectionsQueryKeyPrefix = ["schema", "edgeConnections"];
+
 export function edgeConnectionsQuery(
   activeSchema: SchemaStorageModel | undefined,
 ) {
@@ -37,7 +40,7 @@ export function edgeConnectionsQuery(
   const totalEdges = activeSchema?.totalEdges;
 
   return queryOptions({
-    queryKey: ["schema", "edgeConnections", sortedEdgeTypes, totalEdges],
+    queryKey: [...edgeConnectionsQueryKeyPrefix, sortedEdgeTypes, totalEdges],
     staleTime: Infinity,
     retryOnMount: false,
     enabled: activeSchema != null && !activeSchema.lastEdgeConnectionSyncFail,

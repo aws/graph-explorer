@@ -36,6 +36,8 @@ describe("mapToConnection", () => {
         fetchTimeoutMs: defaultConnectionData.GRAPH_EXP_FETCH_REQUEST_TIMEOUT,
         nodeExpansionLimit:
           defaultConnectionData.GRAPH_EXP_NODE_EXPANSION_LIMIT,
+        edgeConnectionDiscovery:
+          defaultConnectionData.GRAPH_EXP_EDGE_CONNECTION_DISCOVERY,
       },
     });
   });
@@ -68,6 +70,18 @@ describe("DefaultConnectionDataSchema", () => {
     // Make the enum less strict
     const actual = DefaultConnectionDataSchema.parse(data);
     expect(actual).toEqual({ ...data, GRAPH_EXP_SERVICE_TYPE: "neptune-db" });
+  });
+
+  test("should fall back to automatic for an unrecognized edge connection discovery value", () => {
+    const data: any = createRandomDefaultConnectionData();
+    data.GRAPH_EXP_EDGE_CONNECTION_DISCOVERY = createRandomName("discovery");
+
+    const actual = DefaultConnectionDataSchema.parse(data);
+
+    expect(actual).toEqual({
+      ...data,
+      GRAPH_EXP_EDGE_CONNECTION_DISCOVERY: undefined,
+    });
   });
 
   test("should handle invalid URLs", () => {
@@ -166,5 +180,6 @@ function createRandomDefaultConnectionData() {
     GRAPH_EXP_SERVICE_TYPE: createRandomServiceType(),
     GRAPH_EXP_FETCH_REQUEST_TIMEOUT: createRandomInteger(),
     GRAPH_EXP_NODE_EXPANSION_LIMIT: createRandomInteger(),
+    GRAPH_EXP_EDGE_CONNECTION_DISCOVERY: "sampled" as const,
   };
 }

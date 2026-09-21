@@ -133,6 +133,7 @@ These are the valid environment variables used for the default connection, their
   - `PROXY_SERVER_HTTPS_CONNECTION` - `True` - Controls whether the server uses SSL or not
   - `GRAPH_EXP_FETCH_REQUEST_TIMEOUT` - `240000` - Controls the timeout for the fetch request. Measured in milliseconds (i.e. 240000 is 240 seconds or 4 minutes).
   - `GRAPH_EXP_NODE_EXPANSION_LIMIT` - `None` - Controls the limit for node counts and expansion queries.
+  - `EDGE_CONNECTION_DISCOVERY` - `auto` - Gremlin only. Controls how much of the graph is read to work out which node types each edge type connects. See [Edge connection discovery](#edge-connection-discovery).
 - Conditionally Required:
   - Required if `USING_PROXY_SERVER=True`
     - `GRAPH_CONNECTION_URL` - `None`
@@ -156,7 +157,8 @@ First, create a `config.json` file containing values for the connection attribut
   "GRAPH_EXP_HTTPS_CONNECTION": true,
   "PROXY_SERVER_HTTPS_CONNECTION": true,
   "GRAPH_EXP_FETCH_REQUEST_TIMEOUT": 240000,
-  "GRAPH_EXP_NODE_EXPANSION_LIMIT": 500
+  "GRAPH_EXP_NODE_EXPANSION_LIMIT": 500,
+  "EDGE_CONNECTION_DISCOVERY": "auto"
 }
 ```
 
@@ -188,5 +190,20 @@ docker run -p 80:80 -p 443:443 \
  --env PROXY_SERVER_HTTPS_CONNECTION=true \
  --env GRAPH_EXP_FETCH_REQUEST_TIMEOUT=240000 \
  --env GRAPH_EXP_NODE_EXPANSION_LIMIT=500 \
+ --env EDGE_CONNECTION_DISCOVERY=auto \
  public.ecr.aws/neptune/graph-explorer
 ```
+
+## Edge connection discovery
+
+The Schema view draws which node types each edge type connects. Working that out means reading edges, and on a large graph reading all of them can be slow or exceed what the database allows. `EDGE_CONNECTION_DISCOVERY`, also available per connection in the connection dialog, controls how much gets read. Gremlin connections only.
+
+| Value      | Behavior                                                                                                                          |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `auto`     | Chooses based on how many edge types the graph has and how large it is. The default, and the right answer for almost everyone.    |
+| `complete` | Scans every edge to find all edge connections. Can be slow, or fail, on very large graphs.                                        |
+| `sampled`  | Checks up to 10,000 edges per edge type. Fast and predictable on very large graphs. Will miss edge connections that occur rarely. |
+
+`auto` already attempts a complete scan and falls back to sampling if the database rejects it, so reach for the other two only when you need to pin the behaviour. `sampled` is the one to try if the Schema view is slow or erroring on a large graph.
+
+Nothing else in Graph Explorer depends on edge connections, so a failure here degrades the Schema view and leaves every other view working.
