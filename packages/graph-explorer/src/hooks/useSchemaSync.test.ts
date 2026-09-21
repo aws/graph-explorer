@@ -120,9 +120,14 @@ describe("useSchemaSync", () => {
       const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
 
       const { result } = renderHookWithState(() => useSchemaSync(), state);
-      await flushPendingAtomUpdates();
 
+      // Asserted before settling because there is no initialData to seed the
+      // query. Waiting first would race the fetch, which resolves immediately.
       expect(result.current.schemaDiscoveryQuery.data).toBeUndefined();
+
+      await waitFor(() => {
+        expect(result.current.schemaDiscoveryQuery.data).toBeDefined();
+      });
       expect(fetchSchemaSpy).toHaveBeenCalled();
     });
   });
@@ -353,17 +358,6 @@ describe("useSchemaSync", () => {
       // Should use initialData but not fetch
       expect(result.current.schemaDiscoveryQuery.data).toBeDefined();
       expect(fetchSchemaSpy).not.toHaveBeenCalled();
-    });
-
-    it("should fetch schema when no active schema exists", async () => {
-      const state = new DbState(explorer).withNoActiveSchema();
-
-      const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
-
-      renderHookWithState(() => useSchemaSync(), state);
-      await flushPendingAtomUpdates();
-
-      expect(fetchSchemaSpy).toHaveBeenCalled();
     });
 
     it("should allow manual refresh when initialData exists", async () => {
