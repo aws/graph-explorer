@@ -182,6 +182,30 @@ describe("createSessionScopedAtom", () => {
     expect(await localForage.getItem<Counter>(KEY)).toStrictEqual({ count: 5 });
   });
 
+  test("tolerates a failing per-tab write and still persists the breadcrumb", async () => {
+    // sessionStorage.setItem can throw QuotaExceededError once storage fills,
+    // after resolveSessionStorage already handed back a working store. The throw
+    // must not escape the Jotai setter into the React subtree that set the atom.
+    const sessionStorage = createInMemorySessionStorage();
+    const atom = await createSessionScopedAtom<Counter>({
+      key: KEY,
+      defaultValue: { count: 0 },
+      codec: counterCodec,
+      sessionStorage,
+    });
+    vi.spyOn(sessionStorage, "setItem").mockImplementation(() => {
+      throw new DOMException("full", "QuotaExceededError");
+    });
+    const store = createStore();
+
+    expect(() => store.set(atom, { count: 5 })).not.toThrow();
+
+    expect(store.get(atom)).toStrictEqual({ count: 5 });
+    expect(vi.mocked(logger.warn)).toHaveBeenCalledOnce();
+    await persistenceStatusStore.waitForIdle();
+    expect(await localForage.getItem<Counter>(KEY)).toStrictEqual({ count: 5 });
+  });
+
   test("a serialize that returns null removes the per-tab key but still writes the breadcrumb", async () => {
     // A codec that refuses to persist the empty state to the per-tab layer, so
     // a later reload of this tab does not re-seed from it.
