@@ -59,6 +59,7 @@ const defaultEmptyConnection: NormalizedConnection = {
   queryEngine: "gremlin",
   proxyConnection: false,
   awsAuthEnabled: false,
+  edgeConnectionDiscovery: "auto",
 };
 
 describe("mergedConfiguration", () => {
@@ -403,6 +404,19 @@ describe("normalizeConnection", () => {
   test("should default awsAuthEnabled to false", () => {
     const result = normalizeConnection({ url: "https://example.com" });
     expect(result.awsAuthEnabled).toBe(false);
+  });
+
+  test("should default edgeConnectionDiscovery to auto", () => {
+    const result = normalizeConnection({ url: "https://example.com" });
+    expect(result.edgeConnectionDiscovery).toBe("auto");
+  });
+
+  test("should keep an explicit edgeConnectionDiscovery choice", () => {
+    const result = normalizeConnection({
+      url: "https://example.com",
+      edgeConnectionDiscovery: "sampled",
+    });
+    expect(result.edgeConnectionDiscovery).toBe("sampled");
   });
 
   test("should preserve path in url", () => {

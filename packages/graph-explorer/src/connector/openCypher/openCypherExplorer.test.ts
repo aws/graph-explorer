@@ -1,18 +1,19 @@
+import type { ConnectionConfig } from "@shared/types";
+
 import type { FeatureFlags, NormalizedConnection } from "@/core";
+
+import { normalizeConnection } from "@/core";
 
 import { createOpenCypherExplorer } from "./openCypherExplorer";
 
 function createConnection(
-  overrides?: Partial<NormalizedConnection>,
+  overrides?: Partial<ConnectionConfig>,
 ): NormalizedConnection {
-  return {
+  return normalizeConnection({
     url: "http://localhost:8182",
     queryEngine: "openCypher",
-    graphDbUrl: "",
-    proxyConnection: false,
-    awsAuthEnabled: false,
     ...overrides,
-  };
+  });
 }
 
 function createFeatureFlags(): FeatureFlags {

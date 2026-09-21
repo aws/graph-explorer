@@ -124,6 +124,7 @@ export function normalizeConnection(connection: ConnectionConfig) {
     proxyConnection:
       connection.proxyConnection ?? connection.graphDbUrl != null,
     awsAuthEnabled: connection.awsAuthEnabled ?? false,
+    edgeConnectionDiscovery: connection.edgeConnectionDiscovery ?? "auto",
   };
 }
 export type NormalizedConnection = ReturnType<typeof normalizeConnection>;
