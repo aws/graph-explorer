@@ -342,11 +342,18 @@ describe("createSessionScopedAtom with the graph view layout codec", () => {
     expect(seeded.activeToggles).toBeInstanceOf(Set);
     expect(seeded).toStrictEqual(breadcrumb);
 
-    // The claimed per-tab value is the array-serialized form, and a warm reload
-    // off it rebuilds the Set rather than seeding from the breadcrumb again.
+    // The claimed per-tab value is the array-serialized form, pinned literally
+    // so a serialize that dropped a field could not satisfy both sides at once.
     expect(sessionStorage.getItem(LAYOUT_KEY)).toBe(
-      graphViewLayoutCodec.serialize(breadcrumb),
+      JSON.stringify({
+        activeSidebarItem: "filters",
+        activeToggles: ["graph-viewer", "table-view"],
+        sidebar: { width: 321 },
+        tableView: { height: 250 },
+        detailsAutoOpenOnSelection: false,
+      }),
     );
+    // A warm reload off that value rebuilds the Set rather than re-seeding.
     expect(
       graphViewLayoutCodec.deserialize(sessionStorage.getItem(LAYOUT_KEY)),
     ).toStrictEqual(breadcrumb);
