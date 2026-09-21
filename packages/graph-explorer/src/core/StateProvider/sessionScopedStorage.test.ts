@@ -9,6 +9,7 @@ import {
   defaultGraphViewLayout,
   type GraphViewLayout,
   graphViewLayoutCodec,
+  transformGraphViewLayout,
 } from "./graphViewLayoutDefaults";
 import { persistenceStatusStore } from "./persistence";
 import { createInMemorySessionStorage } from "./safeSessionStorage";
@@ -204,6 +205,53 @@ describe("createSessionScopedAtom", () => {
     await persistenceStatusStore.waitForIdle();
     expect(await localForage.getItem<Counter>(KEY)).toStrictEqual({ count: 0 });
   });
+
+  test("normalizes the breadcrumb through transform and claims the normalized value", async () => {
+    await localForage.setItem<Counter>(KEY, { count: 7 });
+    const sessionStorage = createInMemorySessionStorage();
+
+    const atom = await createSessionScopedAtom<Counter>({
+      key: KEY,
+      defaultValue: { count: 0 },
+      codec: counterCodec,
+      transform: loaded => ({ count: loaded.count * 10 }),
+      sessionStorage,
+    });
+
+    const store = createStore();
+    expect(store.get(atom)).toStrictEqual({ count: 70 });
+    // The tab claims the normalized value, so a later reload reads it back
+    // rather than re-normalizing an old shape every boot.
+    expect(sessionStorage.getItem(KEY)).toBe(JSON.stringify({ count: 70 }));
+  });
+
+  test("leaves this tab's own session value and the default untransformed", async () => {
+    const transform = vi.fn((loaded: Counter) => ({
+      count: loaded.count * 10,
+    }));
+    const warmStorage = createInMemorySessionStorage();
+    warmStorage.setItem(KEY, JSON.stringify({ count: 42 }));
+
+    const warmAtom = await createSessionScopedAtom<Counter>({
+      key: KEY,
+      defaultValue: { count: 0 },
+      codec: counterCodec,
+      transform,
+      sessionStorage: warmStorage,
+    });
+    const coldAtom = await createSessionScopedAtom<Counter>({
+      key: KEY,
+      defaultValue: { count: 0 },
+      codec: counterCodec,
+      transform,
+      sessionStorage: createInMemorySessionStorage(),
+    });
+
+    const store = createStore();
+    expect(store.get(warmAtom)).toStrictEqual({ count: 42 });
+    expect(store.get(coldAtom)).toStrictEqual({ count: 0 });
+    expect(transform).not.toHaveBeenCalled();
+  });
 });
 
 describe("createSessionScopedAtom across tabs", () => {
@@ -278,6 +326,27 @@ describe("createSessionScopedAtom with the graph view layout codec", () => {
     expect(
       graphViewLayoutCodec.deserialize(sessionStorage.getItem(LAYOUT_KEY)),
     ).toStrictEqual(breadcrumb);
+  });
+
+  test("remaps a retired sidebar item in the breadcrumb on cold start", async () => {
+    // A layout stored before node and edge styling merged into one panel. The
+    // breadcrumb is the only path a retired shape can arrive by, so without the
+    // transform the codec would reject the claimed value on every reload and the
+    // sidebar would point at a panel that no longer exists.
+    await localForage.setItem(LAYOUT_KEY, {
+      ...defaultGraphViewLayout,
+      activeSidebarItem: "nodes-styling",
+    } as unknown as GraphViewLayout);
+
+    const atom = await createSessionScopedAtom<GraphViewLayout>({
+      key: LAYOUT_KEY,
+      defaultValue: defaultGraphViewLayout,
+      codec: graphViewLayoutCodec,
+      transform: transformGraphViewLayout,
+      sessionStorage: createInMemorySessionStorage(),
+    });
+
+    expect(createStore().get(atom).activeSidebarItem).toBe("styles");
   });
 });
 
