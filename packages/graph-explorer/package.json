@@ -65,7 +65,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
-    "@babel/preset-env": "^7.29.7",
+    "@babel/preset-env": "^8.0.6",
     "@babel/preset-react": "^7.29.7",
     "@babel/preset-typescript": "^7.29.7",
     "@react-stately/radio": "^3.12.1",
