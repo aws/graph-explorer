@@ -92,7 +92,7 @@ export async function createSessionScopedAtom<T>({
     const breadcrumb = await localForage.getItem<T>(key);
     if (breadcrumb !== null) {
       seedValue = transform ? transform(breadcrumb) : breadcrumb;
-      writeSession(sessionStorage, key, codec.serialize(seedValue));
+      writeSession(sessionStorage, key, codec, seedValue);
     }
   }
 
@@ -102,7 +102,7 @@ export async function createSessionScopedAtom<T>({
     // localForage breadcrumb is persisted through the queue so its outcome
     // joins the global persistence status like any other IndexedDB write.
     nextValue => {
-      writeSession(sessionStorage, key, codec.serialize(nextValue));
+      writeSession(sessionStorage, key, codec, nextValue);
       persistThroughQueue(key, async () => {
         await localForage.setItem(key, nextValue);
       });
@@ -136,15 +136,35 @@ function readSessionSeed<T>(
   }
 }
 
-/** Applies a serialized value to sessionStorage, removing the key for `null`. */
-function writeSession(
+/**
+ * Serializes a value into this tab's sessionStorage, removing the key when the
+ * codec returns `null`.
+ *
+ * A write can throw `QuotaExceededError` once storage fills, or `SecurityError`
+ * where DOM storage is blocked — `resolveSessionStorage` only guards the initial
+ * access, not every later write. The atom has already updated in memory and the
+ * shared breadcrumb still persists through the queue, so a failed per-tab write
+ * costs this tab its warm-reload value and nothing more. Log and continue rather
+ * than letting the throw escape the Jotai setter and take down the React subtree
+ * that set the atom.
+ */
+function writeSession<T>(
   sessionStorage: Storage,
   key: string,
-  serialized: string | null,
+  codec: SessionValueCodec<T>,
+  value: T,
 ) {
-  if (serialized === null) {
-    sessionStorage.removeItem(key);
-  } else {
-    sessionStorage.setItem(key, serialized);
+  try {
+    const serialized = codec.serialize(value);
+    if (serialized === null) {
+      sessionStorage.removeItem(key);
+    } else {
+      sessionStorage.setItem(key, serialized);
+    }
+  } catch (error) {
+    logger.warn(
+      `Could not persist the per-tab value for "${key}"; this tab will re-seed from the breadcrumb on its next reload.`,
+      error,
+    );
   }
 }
