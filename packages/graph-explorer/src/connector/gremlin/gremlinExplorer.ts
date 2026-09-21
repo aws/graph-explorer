@@ -157,6 +157,7 @@ export function createGremlinExplorer(
       return fetchEdgeConnections(
         _gremlinFetch(connection, featureFlags, options),
         req,
+        connection.edgeConnectionDiscovery,
       );
     },
   } satisfies Explorer;

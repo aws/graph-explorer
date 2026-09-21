@@ -1,44 +1,59 @@
-import type { EdgeType } from "@/core";
+import { query } from "@/utils";
 
-import { DEFAULT_SAMPLE_SIZE, query } from "@/utils";
+import type { DiscoveryRequest } from "./discoveryPlan";
 
 import { fragment } from "../fragments";
 
 /**
- * Returns a Gremlin query that discovers distinct edge connection patterns for a
- * batch of edge types in a single request.
+ * Keys of the projected triple that identifies one edge connection.
  *
- * `g.E().hasLabel(...)` is a native, index-backed edge scan on Neptune; the
- * `group().by(label())` reduction buckets the edges by edge type, and each
- * bucket samples up to `DEFAULT_SAMPLE_SIZE` edges and projects the distinct
- * (source label, target label) pairs. The caller regroups by the returned edge
- * label.
+ * Single letters because they repeat once per distinct combination, and a graph
+ * with ten thousand edge types returns ten thousand of them. The template writes
+ * them and the response parser reads them, so both derive from this object.
+ */
+export const projectionKeys = {
+  edgeType: "e",
+  sourceType: "s",
+  targetType: "t",
+} as const;
+
+/**
+ * Returns a Gremlin query that counts the distinct
+ * `(edge type, source label, target label)` combinations in one request.
  *
- * The `limit` sits inside the `group()` value traversal, which TinkerPop runs
- * per group, so each edge type is sampled independently — no shared cap that
- * starves rarer types. It bounds the per-type label-resolution and dedup work,
- * not the initial edge scan: `group()` still enumerates every edge of the
- * batched types to bucket them. A per-type scan cap is not expressible in one
- * native TinkerPop 3.6.2 request.
+ * `groupCount()` keyed by a `project()` is native on every Neptune engine we
+ * tested and on reference TinkerPop 3.6.2, and its accumulator is keyed by the
+ * answer rather than the input, so it holds one entry per distinct combination
+ * instead of one per edge. That is what makes it survive a graph the previous
+ * `group().by(label())` shape ran out of memory on.
+ *
+ * The key must be a named `project()`. A `union()` of the three labels is also
+ * native but does not guarantee order, and Neptune's DFE engine permuted it,
+ * silently reporting edges in the wrong direction. See the ADR.
+ *
+ * @param edgeTypes Restricts the scan. Omit to scan every edge, which is
+ *   cheaper than naming every type when the whole graph fits one request.
+ * @param limit Caps the edges scanned. Omit for the complete answer.
  */
 export default function edgeConnectionsTemplate({
-  types,
-}: {
-  types: EdgeType[];
-}) {
-  const labels = types.map(fragment.identifier);
+  edgeTypes,
+  limit,
+}: DiscoveryRequest) {
+  const labelFilter = edgeTypes?.length
+    ? `.hasLabel(${edgeTypes.map(fragment.identifier).join(", ")})`
+    : "";
+  const sampleCap =
+    limit === undefined ? "" : `.limit(${fragment.number(limit)})`;
+  const keys = Object.values(projectionKeys).map(fragment.identifier);
 
   return query`
-    g.E().hasLabel(${labels.join(", ")})
-      .group()
-        .by(label())
+    g.E()${labelFilter}${sampleCap}
+      .groupCount()
         .by(
-          limit(${DEFAULT_SAMPLE_SIZE})
-            .project('sourceType', 'targetType')
+          project(${keys.join(", ")})
+            .by(label())
             .by(outV().label())
             .by(inV().label())
-            .dedup()
-            .fold()
         )
   `;
 }

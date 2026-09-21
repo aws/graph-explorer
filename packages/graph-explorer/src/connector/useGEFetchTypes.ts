@@ -207,6 +207,12 @@ export type RawQueryResponse = {
 
 export type EdgeConnectionsRequest = {
   edgeTypes: EdgeType[];
+  /**
+   * Total edges in the graph, which the Gremlin connector uses to size the work.
+   * Absent when the cached schema predates us recording it, which costs extra
+   * requests rather than correctness.
+   */
+  totalEdges?: number;
 };
 
 export type EdgeConnectionsResponse = {

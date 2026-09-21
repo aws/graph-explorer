@@ -4,31 +4,43 @@ import { normalizeWithNoSpace as normalize } from "@/utils/testing";
 import edgeConnectionsTemplate from "./edgeConnectionsTemplate";
 
 describe("Gremlin > edgeConnectionsTemplate", () => {
-  it("should scan a batch of edge types and group the endpoint labels by edge type", () => {
-    const template = edgeConnectionsTemplate({
-      types: [createEdgeType("route"), createEdgeType("contains")],
-    });
+  it("should count the distinct edge type and endpoint label combinations over every edge", () => {
+    const template = edgeConnectionsTemplate({});
 
     expect(normalize(template)).toBe(
       normalize(`
-        g.E().hasLabel('route', 'contains')
-          .group()
-            .by(label())
+        g.E()
+          .groupCount()
             .by(
-              limit(10000)
-                .project('sourceType', 'targetType')
+              project('e', 's', 't')
+                .by(label())
                 .by(outV().label())
                 .by(inV().label())
-                .dedup()
-                .fold()
             )
       `),
     );
   });
 
+  it("should filter to the given edge types", () => {
+    const template = edgeConnectionsTemplate({
+      edgeTypes: [createEdgeType("route"), createEdgeType("contains")],
+    });
+
+    expect(template).toContain("g.E().hasLabel('route', 'contains')");
+  });
+
+  it("should cap the edges scanned when sampling", () => {
+    const template = edgeConnectionsTemplate({
+      edgeTypes: [createEdgeType("route")],
+      limit: 10000,
+    });
+
+    expect(template).toContain("g.E().hasLabel('route').limit(10000)");
+  });
+
   it("should escape special characters in the edge type", () => {
     const template = edgeConnectionsTemplate({
-      types: [createEdgeType("edge'with'quotes")],
+      edgeTypes: [createEdgeType("edge'with'quotes")],
     });
 
     expect(template).toContain("hasLabel('edge\\'with\\'quotes')");

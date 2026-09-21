@@ -1,106 +1,194 @@
-import { chunk } from "lodash";
+import type { EdgeConnectionDiscovery } from "@shared/types";
 
 import type {
   EdgeConnectionsRequest,
   EdgeConnectionsResponse,
 } from "@/connector/useGEFetchTypes";
 
-import { createEdgeType, createVertexType, type EdgeConnection } from "@/core";
 import {
-  DEFAULT_BATCH_REQUEST_SIZE,
+  createEdgeType,
+  createVertexType,
+  type EdgeConnection,
+  type EdgeType,
+} from "@/core";
+import {
   DEFAULT_CONCURRENT_REQUESTS_LIMIT,
+  logger,
   mapWithConcurrency,
+  NetworkError,
 } from "@/utils";
 
-import type { GList, GMapWithValue, GremlinFetch } from "../types";
+import type { GInt64, GMapWithValue, GremlinFetch } from "../types";
+import type { DiscoveryPlan, DiscoveryRequest } from "./discoveryPlan";
 
 import { parseGMap } from "../mappers/parseGMap";
 import { splitLabel } from "../splitLabel";
-import edgeConnectionsTemplate from "./edgeConnectionsTemplate";
+import { planDiscovery } from "./discoveryPlan";
+import edgeConnectionsTemplate, {
+  projectionKeys,
+} from "./edgeConnectionsTemplate";
+
+/** The projected triple that keys one `groupCount()` entry. */
+type ProjectedTriple = GMapWithValue<string, string>;
 
 type RawEdgeConnectionsResponse = {
-  requestId: string;
-  status: {
-    message: string;
-    code: number;
-  };
   result: {
     data: {
       "@type": "g:List";
-      // group().by(label()).by(...) returns a single g:Map keyed by edge label,
-      // each value a g:List of the projected {sourceType, targetType} g:Maps.
-      "@value": Array<GMapWithValue<string, GList>>;
+      // groupCount() returns a single g:Map keyed by the projected triple, or an
+      // empty one when no edge matched.
+      "@value": Array<GMapWithValue<ProjectedTriple, GInt64>>;
     };
   };
 };
 
 /**
- * Expands one edge type's folded pair list into edge connections, splitting
- * Neptune `::` composite labels on both endpoints. Localizes the GraphSON pair
- * cast to this boundary.
+ * Neptune's codes for a query that needed more of the instance than it could
+ * have. No other engine reports an equivalent, which is why our own fetch
+ * timeout is the primary trigger and these are only a fast path.
  */
-function connectionsFromPairs(
-  edgeType: string,
-  pairs: GList,
-): EdgeConnection[] {
-  const connections: EdgeConnection[] = [];
-
-  for (const pair of pairs["@value"]) {
-    const map = parseGMap<string, string>(
-      pair as GMapWithValue<string, string>,
-    );
-    const sourceValue = map.get("sourceType");
-    const targetValue = map.get("targetType");
-
-    if (!sourceValue || !targetValue) {
-      continue;
-    }
-
-    for (const sourceType of splitLabel(sourceValue)) {
-      for (const targetType of splitLabel(targetValue)) {
-        connections.push({
-          sourceVertexType: createVertexType(sourceType),
-          edgeType: createEdgeType(edgeType),
-          targetVertexType: createVertexType(targetType),
-        });
-      }
-    }
-  }
-
-  return connections;
-}
+const TOO_BIG_ERROR_CODES = [
+  "MemoryLimitExceededException",
+  "TimeLimitExceededException",
+];
 
 export default async function fetchEdgeConnections(
   gremlinFetch: GremlinFetch,
   req: EdgeConnectionsRequest,
+  discovery: EdgeConnectionDiscovery,
 ): Promise<EdgeConnectionsResponse> {
-  const batches = chunk(req.edgeTypes, DEFAULT_BATCH_REQUEST_SIZE);
+  const plan = planDiscovery({
+    edgeTypes: req.edgeTypes,
+    totalEdges: req.totalEdges,
+    discovery,
+  });
+
+  logger.log("Edge connection discovery plan", {
+    strategy: plan.strategy,
+    requests: plan.requests.length,
+    edgeTypes: req.edgeTypes.length,
+    totalEdges: req.totalEdges,
+    discovery,
+  });
+
+  try {
+    return await runPlan(gremlinFetch, plan.requests, req.edgeTypes);
+  } catch (error) {
+    if (!shouldDegradeToSampled(plan, discovery, error)) {
+      throw error;
+    }
+
+    logger.warn(
+      "A complete edge connection scan was too large for the database, sampling each edge type instead",
+      error,
+    );
+    const sampled = planDiscovery({
+      edgeTypes: req.edgeTypes,
+      totalEdges: req.totalEdges,
+      discovery: "sampled",
+    });
+    return runPlan(gremlinFetch, sampled.requests, req.edgeTypes);
+  }
+}
+
+async function runPlan(
+  gremlinFetch: GremlinFetch,
+  requests: DiscoveryRequest[],
+  schemaEdgeTypes: EdgeType[],
+): Promise<EdgeConnectionsResponse> {
   const responses = await mapWithConcurrency(
-    batches,
+    requests,
     DEFAULT_CONCURRENT_REQUESTS_LIMIT,
-    batch =>
+    request =>
       gremlinFetch<RawEdgeConnectionsResponse>(
-        edgeConnectionsTemplate({ types: batch }),
+        edgeConnectionsTemplate(request),
       ),
   );
 
+  return { edgeConnections: parseEdgeConnections(responses, schemaEdgeTypes) };
+}
+
+/**
+ * Whether a failed complete scan should be abandoned and redone as sampled.
+ *
+ * Only on the automatic path. A user who asked for complete gets the failure
+ * reported, because silently sampling would contradict the setting. A sampled
+ * pass never degrades either, since there is nothing cheaper to fall back to.
+ */
+function shouldDegradeToSampled(
+  plan: DiscoveryPlan,
+  discovery: EdgeConnectionDiscovery,
+  error: unknown,
+): boolean {
+  return (
+    plan.strategy === "complete" && discovery === "auto" && isTooBig(error)
+  );
+}
+
+function isTooBig(error: unknown): boolean {
+  const code = error instanceof NetworkError ? error.data?.code : undefined;
+  if (typeof code === "string") {
+    return TOO_BIG_ERROR_CODES.includes(code);
+  }
+  // Our own fetch timeout, which is the only size signal a non-Neptune engine
+  // gives us. A user-initiated cancellation raises `AbortError` and must not
+  // look like a size problem.
+  return error instanceof DOMException && error.name === "TimeoutError";
+}
+
+/**
+ * Flattens the counted triples into edge connections, expanding Neptune `::`
+ * composite labels on both endpoints.
+ *
+ * The counts are read and discarded. `EdgeConnection.count` stays unpopulated
+ * because the same field would be capped, and so misleading, whenever the
+ * sampled strategy produced it.
+ *
+ * @param schemaEdgeTypes Edge types the app can render. An unfiltered scan sees
+ *   every edge type in the graph, including ones discovery was not asked about.
+ */
+function parseEdgeConnections(
+  responses: RawEdgeConnectionsResponse[],
+  schemaEdgeTypes: EdgeType[],
+): EdgeConnection[] {
+  const knownEdgeTypes = new Set<string>(schemaEdgeTypes);
   const seen = new Set<string>();
   const edgeConnections: EdgeConnection[] = [];
 
-  for (const data of responses) {
-    for (const group of data.result.data["@value"]) {
-      for (const [edgeType, pairs] of parseGMap<string, GList>(group)) {
-        for (const connection of connectionsFromPairs(edgeType, pairs)) {
-          const key = `${connection.sourceVertexType}-${connection.edgeType}-${connection.targetVertexType}`;
-          if (seen.has(key)) {
-            continue;
+  for (const response of responses) {
+    for (const counts of response.result.data["@value"]) {
+      for (const triple of parseGMap(counts).keys()) {
+        const labels = parseGMap<string, string>(triple);
+        const edgeType = labels.get(projectionKeys.edgeType);
+        const sourceLabel = labels.get(projectionKeys.sourceType);
+        const targetLabel = labels.get(projectionKeys.targetType);
+
+        if (
+          !edgeType ||
+          !sourceLabel ||
+          !targetLabel ||
+          !knownEdgeTypes.has(edgeType)
+        ) {
+          continue;
+        }
+
+        for (const sourceType of splitLabel(sourceLabel)) {
+          for (const targetType of splitLabel(targetLabel)) {
+            const key = `${sourceType}-${edgeType}-${targetType}`;
+            if (seen.has(key)) {
+              continue;
+            }
+            seen.add(key);
+            edgeConnections.push({
+              sourceVertexType: createVertexType(sourceType),
+              edgeType: createEdgeType(edgeType),
+              targetVertexType: createVertexType(targetType),
+            });
           }
-          seen.add(key);
-          edgeConnections.push(connection);
         }
       }
     }
   }
 
-  return { edgeConnections };
+  return edgeConnections;
 }
