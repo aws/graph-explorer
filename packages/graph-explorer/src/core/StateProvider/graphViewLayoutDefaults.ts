@@ -46,22 +46,15 @@ export function transformLegacySidebarItem<
     : item;
 }
 
-/** Persisted layout preferences for the graph view. */
-export type GraphViewLayout = {
-  activeSidebarItem: GraphViewSidebarItem | null;
-  sidebar: { width: number };
-  activeToggles: Set<ToggleableView>;
-  tableView?: { height: number };
-  detailsAutoOpenOnSelection?: boolean;
-};
-
 /**
- * The graph view layout as JSON holds it: `activeToggles` is an array because a
- * `Set` does not survive `JSON.stringify`. The schema parses this shape and
- * rebuilds the runtime {@link GraphViewLayout}, so a hand-edited or stale
- * per-tab value with the wrong shape is rejected rather than seeding bad state.
+ * Persisted layout preferences for the graph view, and the single declaration of
+ * that shape so the runtime type and the parser cannot drift apart. The schema's
+ * *input* is the JSON the per-tab value holds, where `activeToggles` is an array
+ * because a `Set` does not survive `JSON.stringify`; its *output* is the runtime
+ * {@link GraphViewLayout} with the `Set` rebuilt. A stale or hand-edited per-tab
+ * value with the wrong shape is rejected rather than seeding bad state.
  */
-const serializedGraphViewLayoutSchema = z.object({
+const graphViewLayoutSchema = z.object({
   activeSidebarItem: graphViewSidebarItemSchema.nullable(),
   sidebar: z.object({ width: z.number() }),
   activeToggles: z
@@ -70,6 +63,7 @@ const serializedGraphViewLayoutSchema = z.object({
   tableView: z.object({ height: z.number() }).optional(),
   detailsAutoOpenOnSelection: z.boolean().optional(),
 });
+export type GraphViewLayout = z.infer<typeof graphViewLayoutSchema>;
 
 /** Default height for the table view panel in pixels. */
 export const DEFAULT_TABLE_VIEW_HEIGHT = 300;
@@ -105,5 +99,5 @@ export const graphViewLayoutCodec: SessionValueCodec<GraphViewLayout> = {
       ...layout,
       activeToggles: [...layout.activeToggles],
     }),
-  deserialize: raw => parseSessionJson(raw, serializedGraphViewLayoutSchema),
+  deserialize: raw => parseSessionJson(raw, graphViewLayoutSchema),
 };
