@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 import {
   defaultGraphViewLayout,
   graphViewLayoutCodec,
@@ -86,9 +88,17 @@ describe("graphViewLayoutCodec", () => {
     ).toStrictEqual(defaultGraphViewLayout);
   });
 
-  test("treats a missing or corrupt value as a miss", () => {
+  test("treats an absent value as a miss", () => {
     expect(graphViewLayoutCodec.deserialize(null)).toBeNull();
-    expect(graphViewLayoutCodec.deserialize("{ not json")).toBeNull();
-    expect(graphViewLayoutCodec.deserialize("{}")).toBeNull();
+    expect(graphViewLayoutCodec.deserialize("")).toBeNull();
+  });
+
+  test("throws on a corrupt value so the seam can discard it", () => {
+    // Asserted by type, not instance: these errors come from JSON.parse and
+    // zod, whose messages shift between engine and library versions.
+    expect(() => graphViewLayoutCodec.deserialize("{ not json")).toThrow(
+      SyntaxError,
+    );
+    expect(() => graphViewLayoutCodec.deserialize("{}")).toThrow(z.ZodError);
   });
 });

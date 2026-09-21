@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 import {
   defaultSchemaViewLayout,
   schemaViewLayoutCodec,
@@ -79,9 +81,17 @@ describe("schemaViewLayoutCodec", () => {
     ).toStrictEqual(defaultSchemaViewLayout);
   });
 
-  test("treats a missing or corrupt value as a miss", () => {
+  test("treats an absent value as a miss", () => {
     expect(schemaViewLayoutCodec.deserialize(null)).toBeNull();
-    expect(schemaViewLayoutCodec.deserialize("{ not json")).toBeNull();
-    expect(schemaViewLayoutCodec.deserialize("{}")).toBeNull();
+    expect(schemaViewLayoutCodec.deserialize("")).toBeNull();
+  });
+
+  test("throws on a corrupt value so the seam can discard it", () => {
+    // Asserted by type, not instance: these errors come from JSON.parse and
+    // zod, whose messages shift between engine and library versions.
+    expect(() => schemaViewLayoutCodec.deserialize("{ not json")).toThrow(
+      SyntaxError,
+    );
+    expect(() => schemaViewLayoutCodec.deserialize("{}")).toThrow(z.ZodError);
   });
 });
