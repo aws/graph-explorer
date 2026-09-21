@@ -29,11 +29,14 @@ describe("toIconImageUrl", () => {
     expect(decode(result)).toContain("<path");
   });
 
-  it("sizes the svg to the cytoscape node size", () => {
+  // Sizing belongs to the consumer, which fits the icon by `preserveAspectRatio`
+  // against its own `viewBox`. Overriding the intrinsic size here would fight
+  // that, and forcing a square would reintroduce issue #2108.
+  it("leaves the svg's own size and viewBox alone", () => {
     const result = toIconImageUrl({ kind: "svg", svg: SVG }, "#FF0000");
 
-    expect(decode(result)).toContain('width="24"');
-    expect(decode(result)).toContain('height="24"');
+    expect(decode(result)).toContain('viewBox="0 0 24 24"');
+    expect(decode(result)).not.toContain('width="24"');
   });
 
   // The color reaches a currentColor-authored icon through CSS inheritance, so
@@ -104,39 +107,21 @@ describe("toIconImageUrl", () => {
     expect(red).not.toBe(blue);
   });
 
-  // Issue #2108: forcing every icon's intrinsic size to a fixed 24x24 square
-  // bakes a mismatched-aspect letterbox into the rasterized image, which the
-  // consumer's own aspect-aware background-width/height then stretches a
-  // second time — distorting a non-square icon worse than doing nothing.
+  // Issue #2108: sizing is the consumer's job. Both consumers place the icon
+  // with `preserveAspectRatio`, which fits the icon against its own `viewBox`,
+  // so overriding its intrinsic size here would only fight that — and forcing
+  // a square would bake in the very distortion the issue is about.
   describe("non-square icons (issue #2108)", () => {
     const WIDE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100"><rect width="400" height="100"/></svg>`;
-    const TALL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 400"><rect width="100" height="400"/></svg>`;
 
-    it("scales a wide icon's intrinsic width/height to its real aspect ratio", () => {
-      const result = toIconImageUrl(
-        { kind: "svg", svg: WIDE_SVG, width: 400, height: 100 },
-        "#FF0000",
+    it("leaves the icon's own geometry untouched", () => {
+      const result = decode(
+        toIconImageUrl({ kind: "svg", svg: WIDE_SVG }, "#FF0000"),
       );
 
-      expect(decode(result)).toContain('width="24"');
-      expect(decode(result)).toContain('height="6"');
-    });
-
-    it("scales a tall icon's intrinsic width/height to its real aspect ratio", () => {
-      const result = toIconImageUrl(
-        { kind: "svg", svg: TALL_SVG, width: 100, height: 400 },
-        "#FF0000",
-      );
-
-      expect(decode(result)).toContain('width="6"');
-      expect(decode(result)).toContain('height="24"');
-    });
-
-    it("falls back to a 24x24 square when dimensions are unknown", () => {
-      const result = toIconImageUrl({ kind: "svg", svg: WIDE_SVG }, "#FF0000");
-
-      expect(decode(result)).toContain('width="24"');
-      expect(decode(result)).toContain('height="24"');
+      expect(result).toContain('viewBox="0 0 400 100"');
+      expect(result).not.toContain('width="24"');
+      expect(result).not.toContain('height="24"');
     });
   });
 });
