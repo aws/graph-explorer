@@ -86,15 +86,15 @@ Visual representation of the Schema — shows vertex types and their edge connec
 _Avoid_: Schema Explorer (legacy route name)
 
 **Graph View Layout**:
-Per-tab UI state for the Graph View — active sidebar panel, sidebar width, active content toggles, table-view height, and the details-auto-open preference. A per-tab Storage Scope concept (`createSessionScopedAtom`, key `"graph-view-layout"`): it survives that tab's reload but not its close, and a fresh tab cold-starts from the shared breadcrumb.
+Per-tab UI state for the Graph View — active sidebar panel, sidebar width, active content toggles, table-view height, and the details-auto-open preference. A per-tab Storage Scope concept: it survives that tab's reload but not its close, and a fresh tab starts from the layout most recently used.
 _Avoid_: Graph preferences, graph settings
 
 **Schema View Layout**:
-Per-tab UI state for the Schema View — active sidebar panel, sidebar width, and the details-auto-open preference. Same per-tab Storage Scope as Graph View Layout (key `"schema-view-layout"`).
+Per-tab UI state for the Schema View — active sidebar panel, sidebar width, and the details-auto-open preference. Same per-tab Storage Scope as Graph View Layout.
 _Avoid_: Schema preferences, schema settings
 
 **Storage Scope**:
-The cross-tab behavior a persisted atom picks at creation, so scope is a visible decision rather than a side effect of which factory was reached for. Three named scopes: **per-tab** (`createSessionScopedAtom`) keeps the live value in sessionStorage with a shared localForage breadcrumb seeding a fresh tab on cold start, so tabs diverge — it backs Active Connection, Graph View Layout, and Schema View Layout; **shared-reconciled** (`atomWithLocalForage` with `reconcileMapByKey`) merges Map-keyed collections per key across tabs — it backs Connections, Schema, Vertex and Edge Styles, and Sessions; **shared-blind-write** (`atomWithLocalForage` with no reconciler) writes the whole value each time, for scalars where tabs need not diverge. See the `per-tab-session-scoped-storage-primitive` and `per-key-diff-merge-cross-tab-reconciliation` ADRs.
+The cross-tab behavior a persisted atom picks at creation, so scope is a visible decision rather than a side effect of which factory was reached for. Three named scopes: **per-tab**, where tabs diverge and a fresh tab starts from the value most recently used; **shared-reconciled**, where a Map-keyed collection is merged per key across tabs; and **shared-blind-write**, where each write is the whole value. See the `per-tab-session-scoped-storage-primitive` ADR for which atoms use which, and `per-key-diff-merge-cross-tab-reconciliation` for the merge rule.
 _Avoid_: Persistence mode, storage strategy
 
 **Edge Connection**:
