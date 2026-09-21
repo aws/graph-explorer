@@ -44,6 +44,9 @@ jobs:
       - name: Install package and dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Check for lockfile drift
+        run: pnpm dedupe --check
+
       - name: Run type, lint, and format checks
         run: pnpm checks
 
