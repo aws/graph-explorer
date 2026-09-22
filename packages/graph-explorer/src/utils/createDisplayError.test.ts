@@ -14,6 +14,7 @@ import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
 import { FetchTimeoutError } from "./FetchTimeoutError";
 import { MissingDatabaseUrlError } from "./MissingDatabaseUrlError";
 import { NetworkError } from "./NetworkError";
+import { ReverseProxyMisconfiguredError } from "./ReverseProxyMisconfiguredError";
 import { ServerConnectionError } from "./ServerConnectionError";
 import { createCancelledError } from "./testing";
 
@@ -335,6 +336,15 @@ describe("createDisplayError", () => {
       title: "Missing Database URL",
       message:
         "This Connection has no database URL. Edit the Connection and enter the database endpoint.",
+    });
+  });
+
+  it("Should handle a reverse proxy that renamed away the /explorer mount segment", () => {
+    const error = new ReverseProxyMisconfiguredError("/gx/");
+    const result = createDisplayError(error);
+    expect(result).toStrictEqual({
+      title: "Reverse Proxy Misconfigured",
+      message: error.message,
     });
   });
 

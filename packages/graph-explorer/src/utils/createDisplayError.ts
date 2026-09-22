@@ -13,6 +13,7 @@ import { FetchTimeoutError } from "./FetchTimeoutError";
 import { isCancellationError } from "./isCancellationError";
 import { MissingDatabaseUrlError } from "./MissingDatabaseUrlError";
 import { NetworkError } from "./NetworkError";
+import { ReverseProxyMisconfiguredError } from "./ReverseProxyMisconfiguredError";
 import { ServerConnectionError } from "./ServerConnectionError";
 
 export type DisplayError = {
@@ -147,6 +148,12 @@ export function createDisplayError(error: any): DisplayError {
       message:
         "This Connection has no database URL. Edit the Connection and enter the database endpoint.",
     };
+  }
+
+  if (error instanceof ReverseProxyMisconfiguredError) {
+    // The message is already written for the operator who deployed this,
+    // naming the missing path segment and the fix.
+    return { title: "Reverse Proxy Misconfigured", message: error.message };
   }
 
   if (error instanceof NetworkError) {

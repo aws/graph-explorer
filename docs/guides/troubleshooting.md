@@ -143,6 +143,16 @@ This error can take a minute or more to appear, because the proxy server waits f
 
 For the network setup Neptune needs, see [Network Access](./connecting-to-neptune.md#network-access).
 
+### Reverse Proxy Path Rewriting
+
+Graph Explorer works behind a reverse proxy at any prefix depth, and the prefix can even contain the word "explorer" without conflict, as long as the proxy strips the prefix and forwards the rest of the path unchanged, including the client's own `/explorer` segment. For example, an nginx rule mapping `/gx/` onto the server looks like:
+
+```
+location /gx/explorer/ { proxy_pass http://server:9250/explorer/; }
+```
+
+A proxy that renames the `/explorer` segment away instead, for example mapping an external `/gx/` directly onto the server's `/explorer/`, is not supported. The page will still render, since assets resolve with a relative base path, but the browser has no way to tell where the API root is, and Graph Explorer now fails with a clear "Reverse Proxy Misconfigured" error rather than sending requests to the wrong place.
+
 ## Save & Load Configuration
 
 Inside of Graph Explorer there is an option to save all the configuration data that Graph Explorer uses. This data is local to the user's browser and does not exist on the server.

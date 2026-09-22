@@ -1,4 +1,5 @@
 // @vitest-environment happy-dom
+import { ReverseProxyMisconfiguredError } from "@/utils";
 import { stubDocumentUrl } from "@/utils/testing";
 
 import { apiUrl } from "./apiUrl";
@@ -58,6 +59,19 @@ describe("apiUrl", () => {
     const result = apiUrl("gremlin");
 
     expect(result.href).toBe("http://localhost/gremlin");
+  });
+
+  // A reverse proxy that renames the mount segment away (e.g. mapping an
+  // external /gx/ onto the server's /explorer/) leaves a path with segments
+  // but none of them the static mount. Falling back to "/" here would send
+  // every database request, connection URL and query text included, to the
+  // wrong place, so this must fail loudly instead.
+  test("throws when the document path has segments but none of them is the static mount", () => {
+    stubDocumentUrl("http://localhost/gx/");
+
+    expect(() => apiUrl("gremlin")).toThrow(
+      new ReverseProxyMisconfiguredError("/gx/"),
+    );
   });
 
   test("preserves the query string on the endpoint", () => {

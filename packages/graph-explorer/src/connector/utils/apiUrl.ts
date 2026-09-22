@@ -1,5 +1,7 @@
 import { STATIC_MOUNT_PATH } from "@shared/constants";
 
+import { ReverseProxyMisconfiguredError } from "@/utils";
+
 /**
  * Resolves an API endpoint path against the app's own origin.
  *
@@ -20,13 +22,19 @@ export function apiUrl(endpoint: string): URL {
 /**
  * Cuts the static mount segment out of the document's path, using its last
  * occurrence so a deployment path that happens to contain that segment still
- * resolves correctly. If the segment is absent, as in dev mode where Vite
- * serves the app at the root, the document's own root is the API root.
+ * resolves correctly. The one exception is the document root itself: in dev
+ * mode, Vite serves the app at `/` with no mount segment, and the document's
+ * own root is the API root. Any other path without the mount segment means a
+ * reverse proxy renamed it away, which would otherwise send every database
+ * request to the wrong place, so that case throws instead of guessing.
  */
 function resolveApiRoot(pathname: string): string {
+  if (pathname === "/") {
+    return "/";
+  }
   const mountIndex = pathname.lastIndexOf(STATIC_MOUNT_PATH);
   if (mountIndex === -1) {
-    return "/";
+    throw new ReverseProxyMisconfiguredError(pathname);
   }
   return `${pathname.slice(0, mountIndex)}/`;
 }
