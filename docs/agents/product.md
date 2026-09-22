@@ -44,4 +44,4 @@ Graph Explorer is a React-based web application that enables users to visualize 
 - Client-side only — all user data and styles are stored client-side; the backend proxy server stores nothing
 - IndexedDB via localforage is the primary storage mechanism
 - Persisted: user styles and settings, connection configurations, query history, visualization settings, layout preferences
-- Graph data is queried directly from the connected databases and is not owned or persisted by Graph Explorer
+- Graph data is queried live through the Proxy Server and is not owned or persisted by Graph Explorer
