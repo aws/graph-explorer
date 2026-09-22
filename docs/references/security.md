@@ -101,7 +101,7 @@ By default, the proxy server forwards requests to any database URL specified by 
 
 > [!NOTE]
 >
-> This check only applies to requests routed through the proxy server. Connections configured to contact the database directly (bypassing the proxy) are not subject to the allowlist.
+> This check applies to every database request: the client always reaches the database through the Proxy Server, so there is no way to bypass it.
 
 ## HTTP Redirects
 

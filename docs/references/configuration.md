@@ -85,7 +85,7 @@ PROXY_SERVER_ALLOWED_DB_ORIGINS=https://my-neptune-cluster:8182/sparql
 
 > [!NOTE]
 >
-> This check only applies to requests routed through the proxy server. Connections configured to contact the database directly (bypassing the proxy) are not subject to the allowlist.
+> This check applies to every database request: the client always reaches the database through the Proxy Server, so there is no way to bypass it.
 
 ### `LOG_STYLE`
 
