@@ -35,6 +35,14 @@ function renderCreateConnection() {
   return store;
 }
 
+/** The advanced settings are behind a disclosure, so their content is unmounted until it opens. */
+async function openAdvancedOptions(user: ReturnType<typeof userEvent.setup>) {
+  const trigger = screen.getByRole("button", { name: "Advanced options" });
+  expect(trigger).toHaveAttribute("aria-expanded", "false");
+  await user.click(trigger);
+  expect(trigger).toHaveAttribute("aria-expanded", "true");
+}
+
 describe("CreateConnection", () => {
   test("removes newlines and surrounding whitespace from URL fields", async () => {
     const user = userEvent.setup();
@@ -92,7 +100,8 @@ describe("CreateConnection", () => {
       screen.getByRole("textbox", { name: "Public or Proxy Endpoint" }),
       "https://proxy.example.com",
     );
-    await user.click(screen.getByRole("radio", { name: /Sampled/ }));
+    await openAdvancedOptions(user);
+    await user.click(screen.getByRole("radio", { name: "Sampled" }));
     await user.click(screen.getByRole("button", { name: "Add Connection" }));
 
     await waitFor(() => {
@@ -103,9 +112,25 @@ describe("CreateConnection", () => {
     expect(savedConnection.connection?.edgeConnectionDiscovery).toBe("sampled");
   });
 
+  test("names each discovery option by its title and exposes the rest as a description", async () => {
+    const user = userEvent.setup();
+    renderCreateConnection();
+    await openAdvancedOptions(user);
+
+    // The whole card is a label so any part of it is clickable, which would
+    // otherwise fold the description into each option's accessible name and
+    // re-read the full sentence on every arrow key.
+    for (const name of ["Automatic", "Complete", "Sampled"]) {
+      const option = screen.getByRole("radio", { name });
+      expect(option).toHaveAccessibleName(name);
+      expect(option).toHaveAccessibleDescription(/edge/);
+    }
+  });
+
   test("hides edge connection discovery for query languages that do not use it", async () => {
     const user = userEvent.setup();
     renderCreateConnection();
+    await openAdvancedOptions(user);
 
     expect(
       screen.getByRole("radiogroup", { name: "Edge Connection Discovery" }),
@@ -169,7 +194,8 @@ describe("CreateConnection", () => {
       </TestProvider>,
     );
 
-    await user.click(screen.getByRole("radio", { name: /Sampled/ }));
+    await openAdvancedOptions(user);
+    await user.click(screen.getByRole("radio", { name: "Sampled" }));
     await user.click(screen.getByRole("button", { name: "Update Connection" }));
 
     await waitFor(() => {
@@ -182,6 +208,39 @@ describe("CreateConnection", () => {
     expect(
       store.get(schemaAtom).get(configId)?.lastEdgeConnectionSyncFail,
     ).toBe(false);
+  });
+
+  test("opens the advanced options when the connection already overrides one", () => {
+    const configId = createNewConfigurationId();
+    const store = getAppStore();
+    const connection: ConnectionConfig = {
+      url: "https://proxy.example.com",
+      graphDbUrl: "",
+      queryEngine: "gremlin",
+      edgeConnectionDiscovery: "sampled",
+    };
+    store.set(
+      configurationAtom,
+      new Map([[configId, { id: configId, connection }]]),
+    );
+
+    render(
+      <TestProvider client={createQueryClient()} store={store}>
+        <TooltipProvider>
+          <CreateConnection
+            existingConfig={
+              { id: configId, connection } as ConfigurationContextProps
+            }
+            onClose={vi.fn()}
+          />
+        </TooltipProvider>
+      </TestProvider>,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Advanced options" }),
+    ).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("radio", { name: "Sampled" })).toBeChecked();
   });
 
   test("rejects a URL that is empty after normalization", async () => {
