@@ -63,9 +63,5 @@ updates:
         patterns: ["vitest", "@vitest/*"]
       react:
         patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
-      # Scoped to the coupled pair. @tanstack/react-virtual and
-      # @tanstack/eslint-plugin-query are independent and belong below.
-      tanstack-query:
-        patterns: ["@tanstack/react-query", "@tanstack/react-query-devtools"]
       minor-and-patch:
         update-types: [minor, patch]
