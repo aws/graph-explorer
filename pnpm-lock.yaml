@@ -236,9 +236,6 @@ importers:
       '@tanstack/react-virtual':
         specifier: ^3.14.9
         version: 3.14.13(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      babel-plugin-react-compiler:
-        specifier: ^1.0.0
-        version: 1.0.0
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -420,6 +417,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: 5.0.0
         version: 5.0.0(vitest@5.0.1)
+      babel-plugin-react-compiler:
+        specifier: ^1.0.0
+        version: 1.0.0
       fake-indexeddb:
         specifier: ^6.2.5
         version: 6.2.5
