@@ -18,3 +18,10 @@ coverage
 docs
 images
 *.md
+
+# Ignore local dev artifacts that may contain secrets or stale build output
+**/.env*
+**/defaultConnection.json
+**/cert-info/
+**/*.local.*
+**/dist
