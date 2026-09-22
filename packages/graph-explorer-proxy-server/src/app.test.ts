@@ -73,16 +73,26 @@ function mockFetchOnce(body = "ok", status = 200, headers = {}) {
  * Selected by URL rather than by call index because a query cancellation from
  * an abandoned request can be recorded after the test that triggered it,
  * landing in `mock.calls[0]` for whichever test runs next.
+ *
+ * The length assertion is what makes this stricter than the indexing it
+ * replaced: it fails on a missing call and on an unexpected second call to the
+ * same path, where reading an index silently accepted both.
  */
 function fetchOptionsFor(endpointPath: string): any {
   const url = `${graphDbUrl}/${endpointPath}`;
-  const calls = mockFetch.mock.calls.filter(
-    ([calledUrl]) =>
-      typeof calledUrl === "string" &&
-      (calledUrl === url || calledUrl.startsWith(`${url}?`)),
+  // The proxy always passes url.href, so anything else is a test setup mistake
+  const calledUrls = mockFetch.mock.calls.map(([calledUrl]) =>
+    typeof calledUrl === "string" ? calledUrl : "(non-string url)",
   );
-  expect(calls).toHaveLength(1);
-  return calls[0][1];
+  const matches = mockFetch.mock.calls.filter(
+    (_, index) =>
+      calledUrls[index] === url || calledUrls[index].startsWith(`${url}?`),
+  );
+  expect(
+    matches,
+    `expected exactly one fetch to ${url}, called: ${calledUrls.join(", ") || "(none)"}`,
+  ).toHaveLength(1);
+  return matches[0][1];
 }
 
 describe("createApp", () => {

@@ -77,6 +77,19 @@ Commands are in AGENTS.md.
 - **jsdom/happy-dom layout**: jsdom and happy-dom never lay out elements, so `offsetHeight`/`offsetWidth` are always `0`. A component that measures its own size (e.g. a virtualizer deciding which rows are visible) will render as empty, and the failure looks like a component bug rather than an environment limitation. Call `mockVirtualizedLayout` in a `beforeEach` — it mocks `offsetHeight`/`offsetWidth` to read the element's own inline style, falling back to a fixed size, so real measurements are distinguishable from unmeasured ones.
 - **Errors**: assert the full error, not just that one was thrown. `expect(() => fn()).toThrow(new FooError(a, b))` — or `await expect(fn()).rejects.toThrow(new FooError(a, b))` for a rejected promise — deep-compares every property, so a wrong field fails the test. Prefer this over `toThrow(FooError)` (type only) or `toThrow("message")` (message only), which pass even when the code built the error with the wrong data. No need to catch the error and assert fields separately — the instance form already covers them.
 
+## Proxy server: asserting outbound fetches
+
+`packages/graph-explorer-proxy-server` mocks `node-fetch` globally and resets it in `beforeEach`. Assert what the proxy sent by matching the request URL and expecting exactly one call, never by call index:
+
+```ts
+const fetchOptions = fetchOptionsFor("sparql"); // filters mock.calls by URL
+expect(fetchOptions.headers["User-Agent"]).toBe("graph-explorer/1.2.3");
+```
+
+`mock.calls[0]` is wrong here even though the reset makes it look safe. When a client abandons a request the proxy cancels the query from the `res` close handler, and that fetch is dispatched by socket death rather than by the request finishing, so it can be recorded after the test that caused it. It then lands in slot 0 for whichever test runs next. Positive `toHaveBeenCalledWith(url, …)` assertions are already immune. A negative assertion needs scoping to the URL it cares about, because a bare `not.toHaveBeenCalled()` fails on any stray call.
+
+A test that deliberately abandons a request should await the cancellation before it ends, rather than leaving it in flight for the next test.
+
 ## Backward compatibility for persisted data
 
 Anything persisted to IndexedDB via localForage/Jotai may be reloaded in an older shape after a type change, silently breaking logic that assumes the new shape. So: **when you change the shape of a persisted type, add tests that exercise the old shape alongside the new** — old shape loads without error, consuming logic produces correct results for both, and old/new can coexist in a collection.
