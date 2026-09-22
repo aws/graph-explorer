@@ -49,7 +49,7 @@ export function createErrorDetails(error: unknown): ErrorDetails {
       data: JSON.stringify(error.details, null, 2),
     };
   }
-  if (Error.isError(error)) {
+  if (error instanceof Error) {
     const data = error.cause
       ? JSON.stringify(serializeCause(error.cause), null, 2)
       : undefined;
@@ -63,7 +63,7 @@ export function createErrorDetails(error: unknown): ErrorDetails {
 const EXCLUDED_ERROR_PROPERTIES = new Set(["stack", "cause"]);
 
 function serializeCause(cause: unknown): unknown {
-  if (Error.isError(cause)) {
+  if (cause instanceof Error) {
     // `name` is on the prototype, not an own property, so we include it explicitly
     const result: Record<string, unknown> = { name: cause.name };
     for (const key of Object.getOwnPropertyNames(cause)) {
