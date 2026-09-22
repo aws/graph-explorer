@@ -67,6 +67,34 @@ function mockFetchOnce(body = "ok", status = 200, headers = {}) {
   );
 }
 
+/**
+ * Returns the request options of the single outbound fetch to the given path.
+ *
+ * Selected by URL rather than by call index because a query cancellation from
+ * an abandoned request can be recorded after the test that triggered it,
+ * landing in `mock.calls[0]` for whichever test runs next.
+ *
+ * The length assertion is what makes this stricter than the indexing it
+ * replaced: it fails on a missing call and on an unexpected second call to the
+ * same path, where reading an index silently accepted both.
+ */
+function fetchOptionsFor(endpointPath: string): any {
+  const url = `${graphDbUrl}/${endpointPath}`;
+  // The proxy always passes url.href, so anything else is a test setup mistake
+  const calledUrls = mockFetch.mock.calls.map(([calledUrl]) =>
+    typeof calledUrl === "string" ? calledUrl : "(non-string url)",
+  );
+  const matches = mockFetch.mock.calls.filter(
+    (_, index) =>
+      calledUrls[index] === url || calledUrls[index].startsWith(`${url}?`),
+  );
+  expect(
+    matches,
+    `expected exactly one fetch to ${url}, called: ${calledUrls.join(", ") || "(none)"}`,
+  ).toHaveLength(1);
+  return matches[0][1];
+}
+
 describe("createApp", () => {
   beforeEach(() => {
     mockFetch.mockReset();
@@ -366,7 +394,7 @@ describe("createApp", () => {
       const query = "SELECT * WHERE { ?s ?p ?o }";
       await request(app).post("/sparql").set(dbHeaders()).send({ query });
 
-      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      const fetchOptions = fetchOptionsFor("sparql");
       expect(fetchOptions.headers["content-type"]).toBe(
         "application/x-www-form-urlencoded",
       );
@@ -382,7 +410,7 @@ describe("createApp", () => {
         .set(dbHeaders({ queryid: "q-123" }))
         .send({ query: "SELECT 1" });
 
-      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      const fetchOptions = fetchOptionsFor("sparql");
       expect(fetchOptions.body).toContain(
         `queryId=${encodeURIComponent("q-123")}`,
       );
@@ -447,7 +475,7 @@ describe("createApp", () => {
       const query = "g.V().limit(1)";
       await request(app).post("/gremlin").set(dbHeaders()).send({ query });
 
-      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      const fetchOptions = fetchOptionsFor("gremlin");
       const body = JSON.parse(fetchOptions.body);
       expect(body.gremlin).toBe(query);
     });
@@ -461,7 +489,7 @@ describe("createApp", () => {
         .set(dbHeaders({ queryid: "q-456" }))
         .send({ query: "g.V()" });
 
-      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      const fetchOptions = fetchOptionsFor("gremlin");
       const body = JSON.parse(fetchOptions.body);
       expect(body.queryId).toBe("q-456");
     });
@@ -507,7 +535,7 @@ describe("createApp", () => {
       const query = "MATCH (n) RETURN n";
       await request(app).post("/openCypher").set(dbHeaders()).send({ query });
 
-      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      const fetchOptions = fetchOptionsFor("openCypher");
       expect(fetchOptions.headers["content-type"]).toBe(
         "application/x-www-form-urlencoded",
       );
@@ -602,7 +630,7 @@ describe("createApp", () => {
         .send({ query: "SELECT 1" });
 
       // SigV4 signing adds the authorization and x-amz-* headers to the options
-      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      const fetchOptions = fetchOptionsFor("sparql");
       expect(fetchOptions.headers).toHaveProperty("authorization");
     });
 
@@ -620,7 +648,7 @@ describe("createApp", () => {
         )
         .send({ query: "SELECT 1" });
 
-      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      const fetchOptions = fetchOptionsFor("sparql");
       const authHeader: string = fetchOptions.headers["authorization"];
       // The Authorization header must reference our fake credential, proving
       // the mock intercepted the credential provider chain.
@@ -643,7 +671,7 @@ describe("createApp", () => {
         .set(dbHeaders())
         .send({ query: "SELECT 1" });
 
-      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      const fetchOptions = fetchOptionsFor("sparql");
       expect(fetchOptions.headers).not.toHaveProperty("authorization");
     });
   });
@@ -710,7 +738,7 @@ describe("createApp", () => {
         )
         .send({ query: "SELECT 1" });
 
-      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      const fetchOptions = fetchOptionsFor("sparql");
       // The service appears in the SigV4 credential scope, not on the request.
       expect(fetchOptions.headers["authorization"]).toContain(
         "/us-east-1/neptune-db/aws4_request",
@@ -731,7 +759,7 @@ describe("createApp", () => {
         )
         .send({ query: "SELECT 1" });
 
-      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      const fetchOptions = fetchOptionsFor("sparql");
       expect(fetchOptions.headers["authorization"]).toContain(
         "/us-east-1/neptune-graph/aws4_request",
       );
@@ -750,7 +778,7 @@ describe("createApp", () => {
         .set(dbHeaders())
         .send({ query: "SELECT 1" });
 
-      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      const fetchOptions = fetchOptionsFor("sparql");
       expect(fetchOptions.headers["User-Agent"]).toBe(
         `graph-explorer/${testVersion}`,
       );
@@ -778,7 +806,7 @@ describe("createApp", () => {
         .set(dbHeaders())
         .send({ query: "SELECT 1" });
 
-      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      const fetchOptions = fetchOptionsFor("sparql");
       expect(fetchOptions.headers["User-Agent"]).toBe("graph-explorer");
     });
 
@@ -796,7 +824,7 @@ describe("createApp", () => {
         )
         .send({ query: "SELECT 1" });
 
-      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      const fetchOptions = fetchOptionsFor("sparql");
       expect(fetchOptions.headers["User-Agent"]).toBe(
         `graph-explorer/${testVersion}`,
       );
@@ -816,7 +844,7 @@ describe("createApp", () => {
         )
         .send({ query: "SELECT 1" });
 
-      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      const fetchOptions = fetchOptionsFor("sparql");
       expect(fetchOptions.headers["content-type"]).toBe(
         "application/x-www-form-urlencoded",
       );
@@ -947,7 +975,7 @@ describe("createApp", () => {
         .set(dbHeaders())
         .send({ query: "SELECT 1" });
 
-      const fetchOptions = mockFetch.mock.calls[0][1] as any;
+      const fetchOptions = fetchOptionsFor("sparql");
       expect(fetchOptions.redirect).toBe("error");
     });
   });
@@ -991,7 +1019,7 @@ describe("createApp", () => {
       { method: "get", route: "/pg/statistics/summary", body: undefined },
       { method: "get", route: "/rdf/statistics/summary", body: undefined },
     ] as const)(
-      "$method $route returns 403 for disallowed origin without calling fetch",
+      "$method $route returns 403 without fetching the disallowed origin",
       async ({ method, route, body }) => {
         const app = createTestApp(".", undefined, allowedOrigins);
         const req = request(app)
@@ -1003,7 +1031,10 @@ describe("createApp", () => {
 
         expect(response.status).toBe(403);
         expect(response.body.error.message).toContain("allowed origins list");
-        expect(mockFetch).not.toHaveBeenCalled();
+        expect(mockFetch).not.toHaveBeenCalledWith(
+          expect.stringContaining("https://blocked:8182"),
+          expect.anything(),
+        );
       },
     );
   });
