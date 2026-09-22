@@ -19,9 +19,17 @@ docs
 images
 *.md
 
-# Ignore local dev artifacts that may contain secrets or stale build output
-**/.env*
+# Ignore local dev artifacts that may contain secrets or stale build output.
+# packages/graph-explorer/.env is a tracked default and docker-entrypoint.sh
+# requires it to exist, so only the gitignored local-override variant is
+# excluded here. Likewise cert-info/cert.conf and csr.conf are tracked
+# templates setup-ssl.sh needs at runtime; only the generated cert material
+# is excluded.
+**/.env.local
 **/defaultConnection.json
-**/cert-info/
+**/cert-info/*.key
+**/cert-info/*.crt
+**/cert-info/*.csr
+**/cert-info/*.srl
 **/*.local.*
 **/dist
