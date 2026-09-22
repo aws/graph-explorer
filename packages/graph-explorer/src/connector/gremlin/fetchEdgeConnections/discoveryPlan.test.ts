@@ -3,6 +3,7 @@ import { DEFAULT_SAMPLE_SIZE } from "@/utils";
 
 import {
   EDGE_TYPES_PER_CHUNK,
+  LABEL_BUDGET_CHARS,
   planDiscovery,
   SCAN_BUDGET,
 } from "./discoveryPlan";
@@ -78,7 +79,9 @@ describe("Gremlin > planDiscovery", () => {
       });
 
       expect(plan.strategy).toBe("complete");
-      expect(plan.requests).toHaveLength(2);
+      // The edge count alone asks for 2 chunks. Naming 5,008 edge types in one
+      // filter overruns the character budget, so it splits once more.
+      expect(plan.requests).toHaveLength(3);
       expect(plan.requests.every(r => r.limit === undefined)).toBe(true);
       expect(coveredTypes(plan.requests)).toStrictEqual(types);
     });
@@ -180,6 +183,107 @@ describe("Gremlin > planDiscovery", () => {
       });
 
       expect(plan.requests).toStrictEqual([{}]);
+    });
+  });
+
+  describe("an edge total that is not a usable number", () => {
+    // `totalEdges` is cast out of the summary API response and copied verbatim
+    // from an imported connection file, so neither source guarantees a number.
+    // A request naming zero edge types reads as "no filter" downstream, which is
+    // the unbounded query this whole module exists to avoid.
+    it.each([
+      ["NaN", NaN],
+      ["Infinity", Infinity],
+      ["an object", {} as unknown as number],
+      ["null", null as unknown as number],
+      ["a negative count", -1],
+      ["a string", "19928805" as unknown as number],
+    ])(
+      "should never plan an empty edge type filter for %s",
+      (_label, total) => {
+        const plan = planDiscovery({
+          edgeTypes: edgeTypes(3),
+          totalEdges: total,
+          discovery: "auto",
+        });
+
+        for (const request of plan.requests) {
+          expect(request.edgeTypes).not.toStrictEqual([]);
+        }
+      },
+    );
+
+    it("should decide as though the total were unrecorded", () => {
+      const types = edgeTypes(3);
+      const unusable = planDiscovery({
+        edgeTypes: types,
+        totalEdges: NaN,
+        discovery: "auto",
+      });
+      const unrecorded = planDiscovery({
+        edgeTypes: types,
+        totalEdges: undefined,
+        discovery: "auto",
+      });
+
+      expect(unusable).toStrictEqual(unrecorded);
+    });
+  });
+
+  describe("query size", () => {
+    function longEdgeTypes(count: number, nameLength: number): EdgeType[] {
+      return Array.from({ length: count }, (_, i) =>
+        createEdgeType(`${String(i).padStart(nameLength, "t")}`),
+      );
+    }
+
+    it("should keep the reported request count small for a graph with very many edge types", () => {
+      const types = edgeTypes(10_015);
+      const plan = planDiscovery({
+        edgeTypes: types,
+        totalEdges: 68_582,
+        discovery: "auto",
+      });
+
+      // 3.2.2 issued 101 requests for this graph. The point of the change is
+      // that the count comes from the work, not from the edge type count.
+      expect(plan.requests.length).toBeLessThan(10);
+      expect(coveredTypes(plan.requests)).toStrictEqual(types);
+    });
+
+    it("should split a chunk further when the edge type names are long", () => {
+      const short = planDiscovery({
+        edgeTypes: longEdgeTypes(10_000, 8),
+        totalEdges: 200_000,
+        discovery: "auto",
+      });
+      const long = planDiscovery({
+        edgeTypes: longEdgeTypes(10_000, 400),
+        totalEdges: 200_000,
+        discovery: "auto",
+      });
+
+      // Same edge count and same edge type count, so the volume plan is
+      // identical. Only the rendered query text differs.
+      expect(long.requests.length).toBeGreaterThan(short.requests.length);
+    });
+
+    it("should hold every chunk inside the label budget", () => {
+      const types = longEdgeTypes(5_000, 300);
+      const plan = planDiscovery({
+        edgeTypes: types,
+        totalEdges: 500_000,
+        discovery: "auto",
+      });
+
+      for (const request of plan.requests) {
+        const rendered = (request.edgeTypes ?? []).reduce(
+          (total, type) => total + type.length,
+          0,
+        );
+        expect(rendered).toBeLessThanOrEqual(LABEL_BUDGET_CHARS);
+      }
+      expect(coveredTypes(plan.requests)).toStrictEqual(types);
     });
   });
 });

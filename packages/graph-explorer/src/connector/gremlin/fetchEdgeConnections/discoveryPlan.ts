@@ -19,6 +19,20 @@ export const SCAN_BUDGET = 50_000;
 /** Edge types per request when chunking a graph whose edge total is unknown. */
 export const EDGE_TYPES_PER_CHUNK = 100;
 
+/**
+ * Characters of edge type names one request may name in its filter.
+ *
+ * The edge total says how many edges a request scans, not how much query text it
+ * carries, so a graph with thousands of edge types needs its own bound. The
+ * largest filter measured live was about 55,000 characters, 5,008 names of 11,
+ * which completed in 7.1s on Neptune 1.4.7.0. Like the scan budget this is the
+ * largest size known to work rather than the point where it breaks.
+ */
+export const LABEL_BUDGET_CHARS = 60_000;
+
+/** Quotes and the separator each name costs on top of its own characters. */
+const LABEL_OVERHEAD_CHARS = 4;
+
 /** Measured cost of one sampled request. Range seen across four engines: 0.9s to 1.8s. */
 const PER_REQUEST_MS = 1_500;
 
@@ -70,9 +84,11 @@ export function planDiscovery({
     return { strategy: "none", requests: [] };
   }
 
+  const edgeTotal = toEdgeTotal(totalEdges);
+
   const sample =
     discovery === "sampled" ||
-    (discovery === "auto" && shouldSample(edgeTypes.length, totalEdges));
+    (discovery === "auto" && shouldSample(edgeTypes.length, edgeTotal));
 
   if (sample) {
     return {
@@ -86,8 +102,24 @@ export function planDiscovery({
 
   return {
     strategy: "complete",
-    requests: chunkForCompleteScan(edgeTypes, totalEdges),
+    requests: chunkForCompleteScan(edgeTypes, edgeTotal),
   };
+}
+
+/**
+ * Accepts an edge total only when it can actually size work, and treats anything
+ * else as unrecorded.
+ *
+ * The declared type says `number | undefined`, but the value is cast out of the
+ * summary API response and copied verbatim out of an imported connection file, so
+ * neither source guarantees one. Arithmetic on a non-number yields `NaN`, which
+ * compares false against every threshold and would send the planner down the
+ * complete path with a chunk count it cannot use.
+ */
+function toEdgeTotal(value: number | undefined): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0
+    ? value
+    : undefined;
 }
 
 /** Whether sampling is the cheaper way to cover this graph. Only consulted on the automatic path. */
@@ -109,13 +141,16 @@ function shouldSample(
 }
 
 /**
- * Splits a complete scan into requests small enough to land inside the budget.
+ * Splits a complete scan into requests that stay inside two independent bounds:
+ * the edges one request may scan, and the characters its filter may name.
  *
- * A scan that fits in one request drops the edge type filter: naming every type
- * would only make the query longer, and the caller discards anything outside the
- * schema anyway. Chunking cannot go finer than one edge type per request, so a
- * graph far above the budget with few edge types gets fewer, larger chunks than
- * the budget asks for — the case a forced complete is allowed to fail on.
+ * A scan that fits in one request drops the filter entirely, so its query text is
+ * a constant regardless of how many edge types the graph has. Beyond that every
+ * request has to name its types, and the two bounds constrain different things:
+ * the edge total says how much a request reads, the character budget says how
+ * much it carries. Chunking cannot go finer than one edge type per request, so a
+ * graph far above the scan budget with few edge types still gets chunks larger
+ * than the budget asks for, which is the case a forced complete may fail on.
  */
 function chunkForCompleteScan(
   edgeTypes: EdgeType[],
@@ -131,10 +166,28 @@ function chunkForCompleteScan(
     return [{}];
   }
 
-  const chunkSize = Math.ceil(edgeTypes.length / chunkCount);
+  const targetSize = Math.ceil(edgeTypes.length / chunkCount);
   const requests: DiscoveryRequest[] = [];
-  for (let start = 0; start < edgeTypes.length; start += chunkSize) {
-    requests.push({ edgeTypes: edgeTypes.slice(start, start + chunkSize) });
+  let chunk: EdgeType[] = [];
+  let chars = 0;
+
+  for (const edgeType of edgeTypes) {
+    const cost = edgeType.length + LABEL_OVERHEAD_CHARS;
+    const full =
+      chunk.length >= targetSize || chars + cost > LABEL_BUDGET_CHARS;
+    if (chunk.length > 0 && full) {
+      requests.push({ edgeTypes: chunk });
+      chunk = [];
+      chars = 0;
+    }
+    chunk.push(edgeType);
+    chars += cost;
   }
+  // Only ever pushed non-empty, because a request naming zero edge types reads
+  // downstream as no filter at all, which is the unbounded scan.
+  if (chunk.length > 0) {
+    requests.push({ edgeTypes: chunk });
+  }
+
   return requests;
 }

@@ -1,5 +1,6 @@
-import type { ConnectionConfig } from "@shared/types";
+import type { ConnectionConfig, EdgeConnectionDiscovery } from "@shared/types";
 
+import { edgeConnectionDiscoveryOptions } from "@shared/types";
 import { atom } from "jotai";
 import { selectAtom } from "jotai/utils";
 import { isEqual } from "lodash";
@@ -115,6 +116,22 @@ export function normalizeUrl(url: string | undefined): string {
   );
 }
 
+/**
+ * Resolves the discovery setting to one of its three values.
+ *
+ * Checks membership rather than trusting the static type, because persisted
+ * configs are not schema-validated on read. An unrecognized value would select
+ * the complete strategy with the sampled fallback switched off, which is the one
+ * combination that reproduces the failure the setting exists to avoid.
+ */
+function normalizeEdgeConnectionDiscovery(
+  value: EdgeConnectionDiscovery | undefined,
+): EdgeConnectionDiscovery {
+  return value !== undefined && edgeConnectionDiscoveryOptions.includes(value)
+    ? value
+    : "auto";
+}
+
 export function normalizeConnection(connection: ConnectionConfig) {
   return {
     ...connection,
@@ -124,7 +141,9 @@ export function normalizeConnection(connection: ConnectionConfig) {
     proxyConnection:
       connection.proxyConnection ?? connection.graphDbUrl != null,
     awsAuthEnabled: connection.awsAuthEnabled ?? false,
-    edgeConnectionDiscovery: connection.edgeConnectionDiscovery ?? "auto",
+    edgeConnectionDiscovery: normalizeEdgeConnectionDiscovery(
+      connection.edgeConnectionDiscovery,
+    ),
   };
 }
 export type NormalizedConnection = ReturnType<typeof normalizeConnection>;

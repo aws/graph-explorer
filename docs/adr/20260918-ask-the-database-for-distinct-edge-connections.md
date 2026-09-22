@@ -41,9 +41,10 @@ g.E()[.hasLabel(...)][.limit(10000)]
 2. **Sampled strategy.** `hasLabel(X).limit(10000)`, one request per edge type. Matches today's sampling semantics. `DiscoveryStrategy` carries a third value, `none`, for a schema with no edge types; that is a guard clause rather than a strategy choice.
 3. **Choose by comparing predicted cost.** Complete scales with edge count, sampled with edge type count. Below the budget, take complete. Above it, take the cheaper of `edgeTypes x 1.5s` and `edges x 85us`.
 4. **Scan budget is 50,000 edges, and it is not a safety prediction.** It is the highest volume that never failed on any configuration tested. Given the measured spread, no constant can predict the real ceiling.
-5. **The degrade path is what recovers from a budget we cannot predict.** A complete request that fails because it was too big abandons the complete strategy and redoes the whole discovery as sampled. The trigger is our own request timeout, with Neptune's `MemoryLimitExceededException` and `TimeLimitExceededException` as a fast path. Fail fast on the first such error and do not retry individual chunks.
-6. **Degrading applies only when the strategy was chosen automatically.** A user who forces complete gets the failure reported. Silently sampling would contradict the setting.
-7. **The `count` the complete strategy returns is not persisted.** The `EdgeConnection.count` field stays unpopulated, because the same field would be capped and misleading on the sampled path.
+5. **A second bound caps the query text, at 60,000 characters of edge type names.** The edge total says how much a request reads; it says nothing about how much it carries. A graph with thousands of edge types would otherwise name them all in one filter, so the two bounds are enforced independently and a chunk splits when either is reached. Also the largest size measured rather than the point of failure: 5,008 names of 11 characters completed in 7.1s on 1.4.7.0.
+6. **The degrade path is what recovers from a budget we cannot predict.** A complete request that fails because it was too big abandons the complete strategy and redoes the whole discovery as sampled. The trigger is our own request timeout, with Neptune's `MemoryLimitExceededException` and `TimeLimitExceededException` as a fast path. Fail fast on the first such error and do not retry individual chunks.
+7. **Degrading applies only when the strategy was chosen automatically.** A user who forces complete gets the failure reported. Silently sampling would contradict the setting.
+8. **The `count` the complete strategy returns is not persisted.** The `EdgeConnection.count` field stays unpopulated, because the same field would be capped and misleading on the sampled path.
 
 The decision is evaluated in the Gremlin connector, by a pure `planDiscovery` that takes the edge types, the edge total, and the setting, and returns the strategy with the requests it takes.
 
@@ -63,7 +64,7 @@ A complete scan that is abandoned leaves no runaway behind, because `mapWithConc
 
 ## Consequences
 
-- **The `#2085` request collapse is preserved and improved for most graphs.** A 10,015-edge-type graph goes from 101 requests to 2 at the 50,000 budget, and to 1 on any graph under it.
+- **The `#2085` request collapse is preserved and improved for most graphs.** A 10,015-edge-type graph goes from 101 requests to 3 at the two budgets, and to 1 on any graph under the scan budget. The character budget costs one request over what the scan budget alone would ask for, and buys a bound that holds however long the edge type names are.
 - **Sampled coverage is engine-dependent, and only complete looks at every edge.** On Neptune, sampled found a pair occurring 50 times in 550,050. On reference TinkerPop 3.6.2 and 3.7.3 the same test missed it, because TinkerGraph iterates in insertion order. The user-facing description for the sampled setting must say this plainly rather than imply it is theoretical.
 - **Attempting complete and degrading costs the user time.** On a graph above the budget, the first sync spends 8 to 12 seconds discovering that complete does not fit. That is the price of the budget being a guess rather than a prediction.
 - **The cost constants are Neptune-derived.** 85 microseconds per edge and 1.5s per request come from Neptune measurements and will be wrong for JanusGraph on Cassandra. Tolerable because the crossover is insensitive, with real graphs sitting one to three orders of magnitude away from it, but the numbers are not universal.

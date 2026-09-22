@@ -414,4 +414,37 @@ describe("parseConnectionFile", () => {
       "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
     ]);
   });
+
+  describe("edgeConnectionDiscovery", () => {
+    function configWithDiscovery(edgeConnectionDiscovery: unknown) {
+      return {
+        id: createNewConfigurationId(),
+        connection: {
+          url: createRandomUrlString(),
+          queryEngine: "gremlin" as const,
+          edgeConnectionDiscovery,
+        },
+        schema: { vertices: [], edges: [] },
+      };
+    }
+
+    test("keeps a recognized value", () => {
+      const result = parseConnectionFile(configWithDiscovery("sampled"));
+
+      expect(result?.connection.edgeConnectionDiscovery).toBe("sampled");
+    });
+
+    test.each(["COMPLETE", "complete ", "nonsense", 7, null])(
+      "drops the unrecognized value %o rather than trusting it",
+      value => {
+        // An unrecognized value used to fall through to the complete strategy
+        // with the sampled fallback switched off, which is the one combination
+        // that reproduces the failure this setting exists to avoid.
+        const result = parseConnectionFile(configWithDiscovery(value));
+
+        expect(result).not.toBeNull();
+        expect(result?.connection.edgeConnectionDiscovery).toBeUndefined();
+      },
+    );
+  });
 });
