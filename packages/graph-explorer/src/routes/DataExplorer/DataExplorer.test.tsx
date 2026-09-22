@@ -102,6 +102,14 @@ describe("DataExplorer", () => {
     expect(screen.queryByText(/no .* available/i)).not.toBeInTheDocument();
   });
 
+  test("shows subtitle as 'Connection: none' when no connection is active", () => {
+    const state = new DbState().withNoActiveConnection();
+
+    renderDataExplorer("/data-explorer", state);
+
+    expect(screen.getByText("Connection: none")).toBeInTheDocument();
+  });
+
   test("encodes vertex type in redirect URL", async () => {
     const state = new DbState();
     const vertex = createTestableVertex().with({
