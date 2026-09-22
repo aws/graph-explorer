@@ -1009,7 +1009,7 @@ describe("createApp", () => {
       { method: "get", route: "/pg/statistics/summary", body: undefined },
       { method: "get", route: "/rdf/statistics/summary", body: undefined },
     ] as const)(
-      "$method $route returns 403 for disallowed origin without calling fetch",
+      "$method $route returns 403 without fetching the disallowed origin",
       async ({ method, route, body }) => {
         const app = createTestApp(".", undefined, allowedOrigins);
         const req = request(app)
