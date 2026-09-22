@@ -4,6 +4,7 @@ import { DEFAULT_SAMPLE_SIZE } from "@/utils";
 import {
   EDGE_TYPES_PER_CHUNK,
   LABEL_BUDGET_CHARS,
+  COMPLETE_ATTEMPT_TIMEOUT_MS,
   planDiscovery,
   SCAN_BUDGET,
 } from "./discoveryPlan";
@@ -39,6 +40,7 @@ describe("Gremlin > planDiscovery", () => {
       expect(plan).toStrictEqual({
         strategy: "complete",
         requests: [{}],
+        requestTimeoutMs: COMPLETE_ATTEMPT_TIMEOUT_MS,
       });
     });
 
@@ -227,6 +229,58 @@ describe("Gremlin > planDiscovery", () => {
       });
 
       expect(unusable).toStrictEqual(unrecorded);
+    });
+  });
+
+  describe("bounding a complete attempt", () => {
+    // Without a bound of its own, a complete attempt runs until the
+    // connection-wide fetch timeout, which defaults to four minutes. The degrade
+    // path only helps if the attempt gives up in seconds.
+    it("should bound every automatic complete scan, chunked or not", () => {
+      const whole = planDiscovery({
+        edgeTypes: edgeTypes(3),
+        totalEdges: 40_000,
+        discovery: "auto",
+      });
+      const chunked = planDiscovery({
+        edgeTypes: edgeTypes(2_010),
+        totalEdges: 1_015_639,
+        discovery: "auto",
+      });
+
+      expect(whole.requestTimeoutMs).toBe(COMPLETE_ATTEMPT_TIMEOUT_MS);
+      expect(chunked.requestTimeoutMs).toBe(COMPLETE_ATTEMPT_TIMEOUT_MS);
+    });
+
+    it("should not bound a scan the user asked for, which has nothing to degrade to", () => {
+      const plan = planDiscovery({
+        edgeTypes: edgeTypes(3),
+        totalEdges: 1_000_000,
+        discovery: "complete",
+      });
+
+      expect(plan.requestTimeoutMs).toBeUndefined();
+    });
+
+    it("should not bound a sampled plan, whose work is already capped per request", () => {
+      const plan = planDiscovery({
+        edgeTypes: edgeTypes(3),
+        totalEdges: 19_928_805,
+        discovery: "auto",
+      });
+
+      expect(plan.requestTimeoutMs).toBeUndefined();
+    });
+
+    it("should bound a scan planned without an edge total, where the volume is a guess", () => {
+      const plan = planDiscovery({
+        edgeTypes: edgeTypes(10_015),
+        totalEdges: undefined,
+        discovery: "auto",
+      });
+
+      expect(plan.strategy).toBe("complete");
+      expect(plan.requestTimeoutMs).toBe(COMPLETE_ATTEMPT_TIMEOUT_MS);
     });
   });
 

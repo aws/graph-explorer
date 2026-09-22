@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { EdgeConnectionDiscoveryError } from "@/connector/gremlin/fetchEdgeConnections/discoveryError";
 import {
   QueryValueError,
   UnescapableValueError,
@@ -319,6 +320,33 @@ describe("createErrorDetails", () => {
         name: "UnescapableValueError",
         message: error.message,
         data: JSON.stringify(error.details, null, 2),
+      });
+    });
+  });
+
+  describe("EdgeConnectionDiscoveryError", () => {
+    it("serializes the attempt alongside the database's own error", () => {
+      const error = new EdgeConnectionDiscoveryError(
+        {
+          strategy: "sampled",
+          setting: "auto",
+          requests: 3,
+          totalEdges: 19_928_805,
+          degraded: true,
+        },
+        new NetworkError("Query cannot be completed", 500, {
+          code: "MemoryLimitExceededException",
+        }),
+      );
+
+      const details = createErrorDetails(error);
+
+      expect(details.name).toBe("EdgeConnectionDiscoveryError");
+      // Our interpretation and the database's error, so support can read both.
+      expect(JSON.parse(details.data!)).toMatchObject({
+        strategy: "sampled",
+        completeScanAbandoned: true,
+        cause: { name: "NetworkError", statusCode: 500 },
       });
     });
   });

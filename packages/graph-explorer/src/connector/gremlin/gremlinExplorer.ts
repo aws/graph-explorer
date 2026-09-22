@@ -9,6 +9,7 @@ import type { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
 import type { GraphSummary, GremlinFetch } from "./types";
 
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
+import { anySignal } from "../utils/anySignal";
 import { edgeDetails } from "./edgeDetails";
 import fetchEdgeConnections from "./fetchEdgeConnections";
 import fetchNeighbors from "./fetchNeighbors";
@@ -24,15 +25,16 @@ function _gremlinFetch(
   featureFlags: FeatureFlags,
   options?: ExplorerRequestOptions,
 ): GremlinFetch {
-  return async (queryTemplate: string) => {
+  return async (queryTemplate: string, requestOptions?) => {
     logger.debug(queryTemplate);
     const body = JSON.stringify({ query: queryTemplate });
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       Accept: "application/vnd.gremlin-v3.0+json",
     };
-    if (options?.queryId && connection.proxyConnection === true) {
-      headers.queryId = options.queryId;
+    const queryId = requestOptions?.queryId ?? options?.queryId;
+    if (queryId && connection.proxyConnection === true) {
+      headers.queryId = queryId;
     }
 
     return fetchDatabaseRequest(
@@ -44,6 +46,9 @@ function _gremlinFetch(
         headers,
         body,
         ...options,
+        // Merged rather than overridden, so a per-request bound cannot outlive
+        // the cancellation the caller already holds.
+        signal: anySignal(options?.signal, requestOptions?.signal),
       },
     );
   };

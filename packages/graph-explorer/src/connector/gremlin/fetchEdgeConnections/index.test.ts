@@ -1,7 +1,7 @@
-import { vi } from "vitest";
+import { type Mock, vi } from "vitest";
 
 import { createEdgeType, createVertexType, type EdgeType } from "@/core";
-import { NetworkError } from "@/utils";
+import { logger, NetworkError } from "@/utils";
 import {
   createGInt64,
   createGMap,
@@ -9,6 +9,7 @@ import {
 } from "@/utils/testing";
 
 import fetchEdgeConnections from ".";
+import { EdgeConnectionDiscoveryError } from "./discoveryError";
 
 /** One distinct `(edge type, source label, target label)` combination. */
 type Triple = [edgeType: string, sourceType: string, targetType: string];
@@ -35,6 +36,29 @@ function edgeTypes(count: number): EdgeType[] {
   return Array.from({ length: count }, (_, i) => createEdgeType(`edge${i}`));
 }
 
+/** Every request carries its own id and signal, so one can be cancelled alone. */
+const perRequest = {
+  queryId: expect.any(String),
+  signal: expect.any(AbortSignal),
+};
+
+/** Awaits a discovery that is expected to give up, and returns why. */
+async function discoveryErrorFrom(
+  discovery: Promise<unknown>,
+): Promise<EdgeConnectionDiscoveryError> {
+  const error = await discovery.then(
+    () => undefined,
+    (thrown: unknown) => thrown,
+  );
+  expect(error).toBeInstanceOf(EdgeConnectionDiscoveryError);
+  return error as EdgeConnectionDiscoveryError;
+}
+
+/** The signal handed to the nth request, which the caller aborts when it gives up. */
+function signalOfCall(gremlinFetch: Mock, call: number): AbortSignal {
+  return gremlinFetch.mock.calls[call][1].signal;
+}
+
 describe("Gremlin > fetchEdgeConnections", () => {
   it("should ask for the distinct combinations in one request when the graph fits the budget", async () => {
     const gremlinFetch = vi
@@ -58,6 +82,7 @@ describe("Gremlin > fetchEdgeConnections", () => {
     expect(gremlinFetch).toHaveBeenCalledTimes(1);
     expect(gremlinFetch).toHaveBeenCalledWith(
       expect.stringContaining("g.E()\n  .groupCount()"),
+      perRequest,
     );
     expect(result).toStrictEqual({
       edgeConnections: [
@@ -93,6 +118,7 @@ describe("Gremlin > fetchEdgeConnections", () => {
     expect(gremlinFetch).toHaveBeenCalledTimes(2);
     expect(gremlinFetch).toHaveBeenCalledWith(
       expect.stringContaining("hasLabel('route').limit(10000)"),
+      perRequest,
     );
     expect(result.edgeConnections).toHaveLength(2);
   });
@@ -299,6 +325,7 @@ describe("Gremlin > fetchEdgeConnections", () => {
         expect(gremlinFetch).toHaveBeenCalledTimes(2);
         expect(gremlinFetch).toHaveBeenLastCalledWith(
           expect.stringContaining("hasLabel('route').limit(10000)"),
+          perRequest,
         );
         expect(result.edgeConnections).toHaveLength(1);
       },
@@ -342,18 +369,27 @@ describe("Gremlin > fetchEdgeConnections", () => {
       );
     });
 
-    it("should report the failure instead of sampling when the user forced complete", async () => {
-      const gremlinFetch = vi
-        .fn()
-        .mockRejectedValue(tooBigError("MemoryLimitExceededException"));
+    it("should tell a user who forced complete which setting to change", async () => {
+      const cause = tooBigError("MemoryLimitExceededException");
+      const gremlinFetch = vi.fn().mockRejectedValue(cause);
 
-      await expect(
+      const error = await discoveryErrorFrom(
         fetchEdgeConnections(
           gremlinFetch,
           { edgeTypes: [createEdgeType("route")], totalEdges: 10 },
           "complete",
         ),
-      ).rejects.toThrow("Query cannot be completed");
+      );
+
+      expect(error.recovery).toContain("Automatic or Sampled");
+      // The database's own error stays reachable for the error details dialog.
+      expect(error.cause).toBe(cause);
+      expect(error.details).toMatchObject({
+        strategy: "complete",
+        setting: "complete",
+        totalEdges: 10,
+        completeScanAbandoned: false,
+      });
     });
 
     it("should not degrade a sampled pass, because there is nothing cheaper to try", async () => {
@@ -367,8 +403,70 @@ describe("Gremlin > fetchEdgeConnections", () => {
           { edgeTypes: [createEdgeType("route")], totalEdges: 19_928_805 },
           "auto",
         ),
-      ).rejects.toThrow("Query cannot be completed");
+      ).rejects.toThrow(/could not sample/);
       expect(gremlinFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("should say both strategies were tried when sampling fails after degrading", async () => {
+      const gremlinFetch = vi
+        .fn()
+        .mockRejectedValue(tooBigError("MemoryLimitExceededException"));
+
+      const error = await discoveryErrorFrom(
+        fetchEdgeConnections(
+          gremlinFetch,
+          { edgeTypes: [createEdgeType("route")], totalEdges: 10 },
+          "auto",
+        ),
+      );
+
+      expect(error.details).toMatchObject({
+        strategy: "sampled",
+        setting: "auto",
+        completeScanAbandoned: true,
+      });
+      expect(error.recovery).toContain("Sampling was already tried");
+    });
+
+    it("should record the degrade at warn level, where a user will see it without dev tools", async () => {
+      const gremlinFetch = vi
+        .fn()
+        .mockRejectedValueOnce(tooBigError("MemoryLimitExceededException"))
+        .mockResolvedValue(countResponse(["route", "airport", "airport"]));
+
+      await fetchEdgeConnections(
+        gremlinFetch,
+        { edgeTypes: [createEdgeType("route")], totalEdges: 10 },
+        "auto",
+      );
+
+      // Discovery succeeded, so nothing else tells the user the schema they are
+      // looking at came from a sample rather than a full scan.
+      expect(logger.warn).toHaveBeenCalledWith(
+        expect.stringContaining("sampling each edge type instead"),
+        expect.anything(),
+      );
+      expect(logger.error).not.toHaveBeenCalled();
+    });
+
+    it("should cancel a request still in flight when it abandons the attempt", async () => {
+      const gremlinFetch: Mock = vi.fn().mockImplementation((query: string) =>
+        query.includes("limit(10000)") || gremlinFetch.mock.calls.length === 1
+          ? Promise.reject(tooBigError("MemoryLimitExceededException"))
+          : // Never settles, so this chunk is still in flight when the first
+            // one fails and the whole complete attempt is abandoned.
+            new Promise(() => {}),
+      );
+
+      await expect(
+        fetchEdgeConnections(
+          gremlinFetch,
+          { edgeTypes: edgeTypes(500), totalEdges: 5_000_000 },
+          "auto",
+        ),
+      ).rejects.toThrow(/could not discover edge connections either way/);
+
+      expect(signalOfCall(gremlinFetch, 1).aborted).toBe(true);
     });
 
     it("should propagate an error that is not about the query being too large", async () => {

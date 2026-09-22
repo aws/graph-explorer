@@ -137,8 +137,20 @@ export type GAnyValue =
   | GType
   | null;
 
+/**
+ * Overrides for one request out of many sharing a `GremlinFetch`, so a caller
+ * that issues several can identify and cancel them individually.
+ */
+export type GremlinRequestOptions = {
+  /** Lets the proxy cancel this request at the database. Proxy connections only. */
+  queryId?: string;
+  /** Combined with the connection's timeout and the caller's own signal, not replacing them. */
+  signal?: AbortSignal;
+};
+
 export type GremlinFetch = <TResult = any>(
   queryTemplate: string,
+  requestOptions?: GremlinRequestOptions,
 ) => Promise<TResult>;
 
 export type GraphSummary = {

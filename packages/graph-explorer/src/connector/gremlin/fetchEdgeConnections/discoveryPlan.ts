@@ -43,6 +43,19 @@ const PER_EDGE_SCAN_US = 85;
 const UNKNOWN_TOTAL_BUDGET_MS = 60_000;
 
 /**
+ * How long one request of a complete scan may run before it is abandoned.
+ *
+ * Reading the whole scan budget costs 4.3s at the measured per-edge rate, and
+ * 5.8s at the slowest rate seen, so this only fires on a request reading far more
+ * than the budget asked for. Chunks are balanced by edge type count rather than
+ * by edge count, so one chunk holding a dominant edge type is exactly that case.
+ *
+ * Below the 30 to 35 seconds at which Neptune failed in both reproductions, on
+ * purpose: if the database's own error arrives first the bound has done nothing.
+ */
+export const COMPLETE_ATTEMPT_TIMEOUT_MS = 20_000;
+
+/**
  * Complete reads every edge and reports exact counts; sampled caps the edges it
  * reads per edge type and can miss a connection that occurs rarely. Chunking is
  * not a third strategy, it is complete split so no single request is too large.
@@ -59,6 +72,12 @@ export type DiscoveryRequest = {
 export type DiscoveryPlan = {
   strategy: DiscoveryStrategy;
   requests: DiscoveryRequest[];
+  /**
+   * How long one request may run before it is abandoned, when the plan can
+   * predict its cost. Absent means the connection's own fetch timeout is the
+   * only bound.
+   */
+  requestTimeoutMs?: number;
 };
 
 /**
@@ -100,10 +119,20 @@ export function planDiscovery({
     };
   }
 
-  return {
-    strategy: "complete",
-    requests: chunkForCompleteScan(edgeTypes, edgeTotal),
-  };
+  const requests = chunkForCompleteScan(edgeTypes, edgeTotal);
+
+  // Bounded only on the automatic path, where abandoning the attempt leads
+  // somewhere. A forced complete has nothing to degrade to, so cutting it short
+  // would just deny the user the scan they asked for.
+  if (discovery === "auto") {
+    return {
+      strategy: "complete",
+      requests,
+      requestTimeoutMs: COMPLETE_ATTEMPT_TIMEOUT_MS,
+    };
+  }
+
+  return { strategy: "complete", requests };
 }
 
 /**

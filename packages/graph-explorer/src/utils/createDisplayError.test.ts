@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { z } from "zod";
 
+import { EdgeConnectionDiscoveryError } from "@/connector/gremlin/fetchEdgeConnections/discoveryError";
 import {
   EmptyIdentifierError,
   QueryValueError,
@@ -136,6 +137,37 @@ describe("createDisplayError", () => {
       message:
         "The request exceeded the configured timeout length or was cancelled by the user.",
     });
+  });
+
+  it("Should handle the database running out of memory", () => {
+    const result = createDisplayError({ code: "MemoryLimitExceededException" });
+    expect(result).toStrictEqual({
+      title: "Not enough memory",
+      message:
+        "The database ran out of memory answering the query. Try a smaller request, or use an instance with more memory.",
+    });
+  });
+
+  it("Should give edge connection discovery its own recovery instructions", () => {
+    const result = createDisplayError(
+      new EdgeConnectionDiscoveryError(
+        {
+          strategy: "complete",
+          setting: "complete",
+          requests: 1,
+          totalEdges: 19_928_805,
+          degraded: false,
+        },
+        new NetworkError("Query cannot be completed", 500, {
+          code: "MemoryLimitExceededException",
+        }),
+      ),
+    );
+
+    expect(result.title).toBe("Could not discover edge connections");
+    // The generic memory branch would say "try a smaller request", which is not
+    // something the user can do here. The setting is.
+    expect(result.message).toContain("Automatic or Sampled");
   });
 
   it("Should handle deadline exceeded", () => {

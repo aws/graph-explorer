@@ -1,5 +1,7 @@
 import type { EdgeConnectionDiscovery } from "@shared/types";
 
+import { v4 } from "uuid";
+
 import type {
   EdgeConnectionsRequest,
   EdgeConnectionsResponse,
@@ -16,14 +18,16 @@ import {
   DEFAULT_CONCURRENT_REQUESTS_LIMIT,
   logger,
   mapWithConcurrency,
-  NetworkError,
 } from "@/utils";
 
 import type { GInt64, GMapWithValue, GremlinFetch } from "../types";
-import type { DiscoveryPlan, DiscoveryRequest } from "./discoveryPlan";
+import type { FailedDiscovery } from "./discoveryError";
+import type { DiscoveryPlan } from "./discoveryPlan";
 
+import { anySignal } from "../../utils/anySignal";
 import { parseGMap } from "../mappers/parseGMap";
 import { splitLabel } from "../splitLabel";
+import { EdgeConnectionDiscoveryError, isTooBig } from "./discoveryError";
 import { planDiscovery } from "./discoveryPlan";
 import edgeConnectionsTemplate, {
   projectionKeys,
@@ -43,16 +47,6 @@ type RawEdgeConnectionsResponse = {
   };
 };
 
-/**
- * Neptune's codes for a query that needed more of the instance than it could
- * have. No other engine reports an equivalent, which is why our own fetch
- * timeout is the primary trigger and these are only a fast path.
- */
-const TOO_BIG_ERROR_CODES = [
-  "MemoryLimitExceededException",
-  "TimeLimitExceededException",
-];
-
 export default async function fetchEdgeConnections(
   gremlinFetch: GremlinFetch,
   req: EdgeConnectionsRequest,
@@ -64,77 +58,118 @@ export default async function fetchEdgeConnections(
     discovery,
   });
 
-  logger.log("Edge connection discovery plan", {
+  logger.log("[Edge connection discovery] Planned", {
     strategy: plan.strategy,
     requests: plan.requests.length,
+    requestTimeoutMs: plan.requestTimeoutMs,
     edgeTypes: req.edgeTypes.length,
     totalEdges: req.totalEdges,
-    discovery,
+    setting: discovery,
   });
 
   try {
-    return await runPlan(gremlinFetch, plan.requests, req.edgeTypes);
+    return await runPlan(gremlinFetch, plan, req.edgeTypes);
   } catch (error) {
-    if (!shouldDegradeToSampled(plan, discovery, error)) {
+    if (!isTooBig(error)) {
       throw error;
     }
 
+    // A user who asked for complete gets the failure reported, because silently
+    // sampling would contradict the setting. A sampled pass has nothing cheaper
+    // to fall back to.
+    if (plan.strategy !== "complete" || discovery !== "auto") {
+      throw giveUp(
+        plan,
+        { setting: discovery, totalEdges: req.totalEdges, degraded: false },
+        error,
+      );
+    }
+
     logger.warn(
-      "A complete edge connection scan was too large for the database, sampling each edge type instead",
+      "[Edge connection discovery] A complete scan was too large for the database, sampling each edge type instead",
       error,
     );
+
     const sampled = planDiscovery({
       edgeTypes: req.edgeTypes,
       totalEdges: req.totalEdges,
       discovery: "sampled",
     });
-    return runPlan(gremlinFetch, sampled.requests, req.edgeTypes);
+
+    try {
+      return await runPlan(gremlinFetch, sampled, req.edgeTypes);
+    } catch (sampledError) {
+      if (!isTooBig(sampledError)) {
+        throw sampledError;
+      }
+      throw giveUp(
+        sampled,
+        { setting: discovery, totalEdges: req.totalEdges, degraded: true },
+        sampledError,
+      );
+    }
   }
+}
+
+/** Reports a size failure with the recovery path that is still open. */
+function giveUp(
+  plan: DiscoveryPlan,
+  attempt: Omit<FailedDiscovery, "strategy" | "requests">,
+  cause: unknown,
+): EdgeConnectionDiscoveryError {
+  const error = new EdgeConnectionDiscoveryError(
+    { ...attempt, strategy: plan.strategy, requests: plan.requests.length },
+    cause,
+  );
+  logger.error(`[Edge connection discovery] Gave up. ${error.recovery}`, error);
+  return error;
 }
 
 async function runPlan(
   gremlinFetch: GremlinFetch,
-  requests: DiscoveryRequest[],
+  plan: DiscoveryPlan,
   schemaEdgeTypes: EdgeType[],
 ): Promise<EdgeConnectionsResponse> {
-  const responses = await mapWithConcurrency(
-    requests,
-    DEFAULT_CONCURRENT_REQUESTS_LIMIT,
-    request =>
-      gremlinFetch<RawEdgeConnectionsResponse>(
-        edgeConnectionsTemplate(request),
-      ),
-  );
+  const startedAt = performance.now();
+  const abandon = new AbortController();
 
-  return { edgeConnections: parseEdgeConnections(responses, schemaEdgeTypes) };
-}
+  try {
+    const responses = await mapWithConcurrency(
+      plan.requests,
+      DEFAULT_CONCURRENT_REQUESTS_LIMIT,
+      request =>
+        gremlinFetch<RawEdgeConnectionsResponse>(
+          edgeConnectionsTemplate(request),
+          {
+            // Per request, so the proxy cancels this scan at the database rather
+            // than whatever else the connection happens to be doing.
+            queryId: v4(),
+            signal: anySignal(abandon.signal, requestTimeoutSignal(plan)),
+          },
+        ),
+    );
 
-/**
- * Whether a failed complete scan should be abandoned and redone as sampled.
- *
- * Only on the automatic path. A user who asked for complete gets the failure
- * reported, because silently sampling would contradict the setting. A sampled
- * pass never degrades either, since there is nothing cheaper to fall back to.
- */
-function shouldDegradeToSampled(
-  plan: DiscoveryPlan,
-  discovery: EdgeConnectionDiscovery,
-  error: unknown,
-): boolean {
-  return (
-    plan.strategy === "complete" && discovery === "auto" && isTooBig(error)
-  );
-}
-
-function isTooBig(error: unknown): boolean {
-  const code = error instanceof NetworkError ? error.data?.code : undefined;
-  if (typeof code === "string") {
-    return TOO_BIG_ERROR_CODES.includes(code);
+    const edgeConnections = parseEdgeConnections(responses, schemaEdgeTypes);
+    logger.log("[Edge connection discovery] Finished", {
+      strategy: plan.strategy,
+      requests: plan.requests.length,
+      edgeConnections: edgeConnections.length,
+      elapsedMs: Math.round(performance.now() - startedAt),
+    });
+    return { edgeConnections };
+  } finally {
+    // Whatever is still in flight belongs to an attempt nobody is waiting for
+    // any more. Aborting closes the connection to the proxy, which turns that
+    // into a `cancelQuery` for the `queryId` the request carried, so the
+    // database stops scanning too.
+    abandon.abort();
   }
-  // Our own fetch timeout, which is the only size signal a non-Neptune engine
-  // gives us. A user-initiated cancellation raises `AbortError` and must not
-  // look like a size problem.
-  return error instanceof DOMException && error.name === "TimeoutError";
+}
+
+function requestTimeoutSignal(plan: DiscoveryPlan): AbortSignal | undefined {
+  return plan.requestTimeoutMs === undefined
+    ? undefined
+    : AbortSignal.timeout(plan.requestTimeoutMs);
 }
 
 /**
