@@ -7,6 +7,7 @@ This page contains workarounds for common issues and information on how to diagn
 - [Docker Container Issues](#docker-container-issues)
 - [Graph Explorer can't start because it can't write .env](#graph-explorer-cant-start-because-it-cant-write-env)
 - [Schema Sync Fails](#schema-sync-fails)
+- [Reverse Proxy Misconfigured](#reverse-proxy-misconfigured)
 - [Save & Load Configuration](#save--load-configuration)
 - [Graph Explorer Can't Save Your Changes](#graph-explorer-cant-save-your-changes)
 - [Gathering SageMaker Logs](#gathering-sagemaker-logs)
@@ -143,7 +144,9 @@ This error can take a minute or more to appear, because the proxy server waits f
 
 For the network setup Neptune needs, see [Network Access](./connecting-to-neptune.md#network-access).
 
-### Reverse Proxy Path Rewriting
+## Reverse Proxy Misconfigured
+
+This error appears on the first database request after the app loads, not during schema sync, because the client resolves the API root from its own path as soon as it needs it.
 
 Graph Explorer works behind a reverse proxy at any prefix depth, and the prefix can even contain the word "explorer" without conflict, as long as the proxy strips the prefix and forwards the rest of the path unchanged, including the client's own `/explorer` segment. For example, an nginx rule mapping `/gx/` onto the server looks like:
 
