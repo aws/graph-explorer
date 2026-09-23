@@ -1,6 +1,8 @@
 import { useAtomCallback } from "jotai/utils";
 import { useCallback } from "react";
 
+import type { EdgeId, VertexId } from "@/core";
+
 import { logger } from "@/utils";
 
 import { edgesAtom } from "../edges";
@@ -23,20 +25,20 @@ export function useUpdateGraphSession() {
       const edgesInGraph = get(edgesAtom);
 
       // Get the entity IDs, ignoring blank nodes
-      const vertices = new Set(
-        Array.from(nodesInGraph.entries())
-          .filter(([, node]) => !node.isBlankNode)
-          .map(([key]) => key),
-      );
-      const edges = new Set(
-        Array.from(edgesInGraph.entries())
-          .filter(([, edge]) => {
-            const source = nodesInGraph.get(edge.sourceId);
-            const target = nodesInGraph.get(edge.targetId);
-            return !source?.isBlankNode && !target?.isBlankNode;
-          })
-          .map(([key]) => key),
-      );
+      const vertices = new Set<VertexId>();
+      for (const [key, node] of nodesInGraph) {
+        if (!node.isBlankNode) {
+          vertices.add(key);
+        }
+      }
+      const edges = new Set<EdgeId>();
+      for (const [key, edge] of edgesInGraph) {
+        const source = nodesInGraph.get(edge.sourceId);
+        const target = nodesInGraph.get(edge.targetId);
+        if (!source?.isBlankNode && !target?.isBlankNode) {
+          edges.add(key);
+        }
+      }
 
       // Construct the graph storage model
       const graphSession: GraphSessionStorageModel = {

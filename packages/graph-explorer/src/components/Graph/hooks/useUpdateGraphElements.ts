@@ -3,7 +3,7 @@ import type cytoscape from "cytoscape";
 import cloneDeep from "lodash/cloneDeep";
 import { useEffect, useState } from "react";
 
-import { setIsSubsetOf } from "@/utils/setHelpers";
+import { setIsSubsetOf } from "@/utils";
 
 import type { CytoscapeType, GraphEdge, GraphNode } from "../Graph.model";
 
