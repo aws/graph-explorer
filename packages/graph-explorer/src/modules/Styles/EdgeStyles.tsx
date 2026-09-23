@@ -8,7 +8,7 @@ import { EdgeStyleRow } from "./EdgeStyleRow";
 
 /** Styling list for every edge type, shown on the Edges tab. */
 export function EdgeStyles() {
-  const etConfigs = useDisplayEdgeTypeConfigs().values().toArray();
+  const etConfigs = Array.from(useDisplayEdgeTypeConfigs().values());
 
   if (etConfigs.length === 0) {
     return <NoEdgeTypesEmptyState />;

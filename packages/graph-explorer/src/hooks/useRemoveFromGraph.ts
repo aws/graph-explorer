@@ -17,6 +17,7 @@ import {
   type VertexId,
 } from "@/core";
 import { logger } from "@/utils";
+import { setDifference, setUnion } from "@/utils/setHelpers";
 
 export function useRemoveFromGraph() {
   const setVertices = useSetAtom(nodesAtom);
@@ -43,30 +44,29 @@ export function useRemoveFromGraph() {
 
     // Find associated edges for removed vertices
     const associatedEdges = new Set(
-      allEdges
-        .entries()
+      Array.from(allEdges.entries())
         .filter(
-          ([_id, edge]) =>
+          ([, edge]) =>
             vertices.has(edge.sourceId) || vertices.has(edge.targetId),
         )
         .map(([id]) => id),
     );
-    const edgesToRemove = edges.union(associatedEdges);
+    const edgesToRemove = setUnion(edges, associatedEdges);
 
     // Remove vertices
     if (vertices.size > 0) {
       setVertices(prev => deleteFromMap(prev, vertices));
-      setSelectedVertices(prev => prev.difference(vertices));
-      setOutOfFocusVertices(prev => prev.difference(vertices));
-      setFilteredVertices(prev => prev.difference(vertices));
+      setSelectedVertices(prev => setDifference(prev, vertices));
+      setOutOfFocusVertices(prev => setDifference(prev, vertices));
+      setFilteredVertices(prev => setDifference(prev, vertices));
     }
 
     // Remove edges
     if (edgesToRemove.size > 0) {
       setEdges(prev => deleteFromMap(prev, edgesToRemove));
-      setSelectedEdges(prev => prev.difference(edgesToRemove));
-      setOutOfFocusEdges(prev => prev.difference(edgesToRemove));
-      setFilteredEdges(prev => prev.difference(edgesToRemove));
+      setSelectedEdges(prev => setDifference(prev, edgesToRemove));
+      setOutOfFocusEdges(prev => setDifference(prev, edgesToRemove));
+      setFilteredEdges(prev => setDifference(prev, edgesToRemove));
     }
 
     updateGraphStorage();

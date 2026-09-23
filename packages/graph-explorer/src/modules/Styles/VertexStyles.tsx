@@ -8,7 +8,7 @@ import { VertexStyleRow } from "./VertexStyleRow";
 
 /** Styling list for every vertex type, shown on the Nodes tab. */
 export function VertexStyles() {
-  const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
+  const vtConfigs = Array.from(useDisplayVertexTypeConfigs().values());
 
   if (vtConfigs.length === 0) {
     return <NoNodeTypesEmptyState />;

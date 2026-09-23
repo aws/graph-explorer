@@ -129,9 +129,7 @@ export async function parseExportedGraph(blob: Blob) {
 
   // Do some basic validation and skip any invalid IDs
   const vertices = new Set(
-    payload.vertices
-      .values()
-      .map(trimIfString)
+    Array.from(payload.vertices.values(), trimIfString)
       .filter(isNotEmptyIfString)
       .filter(isNotMaliciousIfSparql(connection.queryEngine))
       .map(escapeIfPropertyGraphAndString(connection.queryEngine))
@@ -140,9 +138,7 @@ export async function parseExportedGraph(blob: Blob) {
 
   // Do some basic validation and skip any invalid IDs
   const edges = new Set(
-    payload.edges
-      .values()
-      .map(trimIfString)
+    Array.from(payload.edges.values(), trimIfString)
       .filter(isNotEmptyIfString)
       .filter(isValidRdfEdgeIdIfSparql(connection.queryEngine))
       .map(escapeIfPropertyGraphAndString(connection.queryEngine))

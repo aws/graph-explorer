@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 
 import {
@@ -126,11 +126,13 @@ function DataExplorerContent({ vertexType }: { vertexType: VertexType }) {
   const columns = useColumnDefinitions(vertexType);
 
   const query = useDataExplorerQuery(vertexType, pageSize, pageIndex);
-  const displayVertices = useDisplayVerticesFromVertices(
+  const displayVerticesMap = useDisplayVerticesFromVertices(
     query.data?.vertices ?? [],
-  )
-    .values()
-    .toArray();
+  );
+  const displayVertices = useMemo(
+    () => Array.from(displayVerticesMap.values()),
+    [displayVerticesMap],
+  );
 
   const vtConfigs = useDisplayVertexTypeConfigs();
   const vertexTypeOptions = [...vtConfigs.values()].map(config => ({

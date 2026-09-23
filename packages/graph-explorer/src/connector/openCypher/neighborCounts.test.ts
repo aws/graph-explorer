@@ -238,12 +238,10 @@ function createResponse(...counts: NeighborCount[]) {
   return {
     results: counts.map(count => ({
       id: String(count.vertexId),
-      counts: Array.from(
-        count.counts.entries().map(([type, countVal]) => ({
-          label: type.split("::"),
-          count: countVal,
-        })),
-      ),
+      counts: Array.from(count.counts.entries(), ([type, countVal]) => ({
+        label: type.split("::"),
+        count: countVal,
+      })),
     })),
   };
 }

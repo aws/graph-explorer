@@ -24,15 +24,13 @@ export function useUpdateGraphSession() {
 
       // Get the entity IDs, ignoring blank nodes
       const vertices = new Set(
-        nodesInGraph
-          .entries()
-          .filter(([_key, node]) => !node.isBlankNode)
+        Array.from(nodesInGraph.entries())
+          .filter(([, node]) => !node.isBlankNode)
           .map(([key]) => key),
       );
       const edges = new Set(
-        edgesInGraph
-          .entries()
-          .filter(([_key, edge]) => {
+        Array.from(edgesInGraph.entries())
+          .filter(([, edge]) => {
             const source = nodesInGraph.get(edge.sourceId);
             const target = nodesInGraph.get(edge.targetId);
             return !source?.isBlankNode && !target?.isBlankNode;

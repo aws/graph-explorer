@@ -1,6 +1,7 @@
 import fc from "fast-check";
 
 import { createEdgeId, createVertexId } from "@/core";
+import { isWellFormedString } from "@/utils/isWellFormedString";
 
 import {
   EmptyIdentifierError,
@@ -42,7 +43,7 @@ describe("fragment.string", () => {
   it("should round-trip arbitrary strings through the literal", () => {
     fc.assert(
       fc.property(fc.string(), value => {
-        fc.pre(value.isWellFormed() && !value.includes("\0"));
+        fc.pre(isWellFormedString(value) && !value.includes("\0"));
         expect(JSON.parse(fragment.string(value))).toBe(value);
       }),
     );

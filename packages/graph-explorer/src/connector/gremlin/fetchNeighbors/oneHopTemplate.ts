@@ -64,11 +64,9 @@ export default function oneHopTemplate({
   const nodeFiltersTemplate =
     nodeFilters.length > 0 ? `.${nodeFilters.join(".")}` : ``;
 
-  const excludedList = excludedVertices
-    .values()
-    .map(fragment.id)
-    .toArray()
-    .join(",");
+  const excludedList = Array.from(excludedVertices.values(), fragment.id).join(
+    ",",
+  );
   const excludedTemplate = excludedList
     ? `.filter(__.not(__.hasId(${excludedList})))`
     : ``;

@@ -5,7 +5,7 @@ import { atomWithReset } from "jotai/utils";
 import type { Edge, EdgeId } from "@/core";
 
 export function toEdgeMap(edges: Iterable<Edge>): Map<EdgeId, Edge> {
-  return new Map(Iterator.from(edges).map(e => [e.id, e]));
+  return new Map(Array.from(edges, e => [e.id, e]));
 }
 
 export const edgesAtom = atomWithReset(new Map<EdgeId, Edge>());
