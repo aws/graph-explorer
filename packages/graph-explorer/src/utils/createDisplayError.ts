@@ -128,17 +128,10 @@ export function createDisplayError(error: any): DisplayError {
   }
 
   if (error instanceof ServerConnectionError) {
-    if (hasOriginMismatch(error.url)) {
-      return {
-        title: "Cross-Origin Request Blocked",
-        message:
-          "The proxy server URL does not match the browser's origin, which can cause CORS errors. Update the connection URL to match the browser's origin.",
-      };
-    }
     return {
       title: "Connection Error",
       message:
-        "Unable to reach the proxy server. This is typically caused by the proxy server not running, an incorrect connection URL, or a CORS configuration issue.",
+        "The Graph Explorer server is not reachable from this page. It has usually stopped running, or this tab is stale. Reload the page and try again.",
     };
   }
 
@@ -216,28 +209,4 @@ export function createDisplayError(error: any): DisplayError {
   }
 
   return defaultDisplayError;
-}
-
-function hasOriginMismatch(url: string): boolean {
-  try {
-    const parsed = new URL(url);
-
-    // Browsers don't enforce CORS between localhost ports
-    if (isLoopback(parsed.hostname) && isLoopback(window.location.hostname)) {
-      return false;
-    }
-
-    return parsed.origin !== window.location.origin;
-  } catch {
-    return false;
-  }
-}
-
-function isLoopback(hostname: string): boolean {
-  return (
-    hostname === "localhost" ||
-    hostname === "127.0.0.1" ||
-    hostname === "[::1]" ||
-    hostname === "0.0.0.0"
-  );
 }
