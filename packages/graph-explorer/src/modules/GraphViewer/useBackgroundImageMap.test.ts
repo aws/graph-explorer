@@ -9,6 +9,7 @@ import type { VertexStyle } from "@/core";
 
 import { createVertexType } from "@/core/entities/vertex";
 import { iconRegistry } from "@/core/icons";
+import { ICON_BOX, ICON_RATIO } from "@/core/icons/iconGeometry";
 import { createRandomVertexStyle, renderHookWithState } from "@/utils/testing";
 
 import { useBackgroundImageMap } from "./useBackgroundImageMap";
@@ -50,6 +51,27 @@ describe("useBackgroundImageMap", () => {
     await waitFor(() => expect(result.current.size).toBe(0));
   });
 
+  // A stored icon url is not guaranteed to be well-formed UTF-16 (a lone
+  // surrogate, say). `encodeURIComponent` throws `URIError` on one, and this
+  // hook runs during style computation, so an uncaught throw here takes down
+  // the whole app through the route-level error boundary with no in-app way
+  // back to fix the value. The vertex must render with no background image
+  // instead.
+  it("omits an icon whose url is not well-formed UTF-16 instead of throwing", async () => {
+    const config = makeConfig({
+      type: createVertexType("Malformed"),
+      iconUrl: "data:image/png;base64,AAA\uD800BBB",
+      iconImageType: "image/png",
+    });
+
+    let result: ReturnType<typeof renderMap>["result"];
+    expect(() => {
+      ({ result } = renderMap([config]));
+    }).not.toThrow();
+
+    await waitFor(() => expect(result!.current.size).toBe(0));
+  });
+
   // Issue #2108: cytoscape cannot both preserve an image's aspect ratio and
   // inset it, so the inset is baked into a square svg wrapper and the nested
   // `preserveAspectRatio` does the fitting. That works for every icon kind
@@ -69,13 +91,17 @@ describe("useBackgroundImageMap", () => {
     const url = result.current.get(createVertexType("Raster"))!;
     expect(url.startsWith("data:image/svg+xml;utf8,")).toBe(true);
     const wrapper = decodeURIComponent(url);
-    expect(wrapper).toContain('viewBox="0 0 100 100"');
+    expect(wrapper).toContain(`viewBox="0 0 ${ICON_BOX} ${ICON_BOX}"`);
     expect(wrapper).toContain('preserveAspectRatio="xMidYMid meet"');
-    // 60% of the node, centred — the inset the ellipse shape needs.
-    expect(wrapper).toContain('x="20"');
-    expect(wrapper).toContain('y="20"');
-    expect(wrapper).toContain('width="60"');
-    expect(wrapper).toContain('height="60"');
+    // Inset the icon needs for the ellipse shape, computed from the same
+    // constants VertexSymbol's preview box uses, so this also guards the two
+    // staying in sync.
+    const size = ICON_BOX * ICON_RATIO;
+    const offset = (ICON_BOX - size) / 2;
+    expect(wrapper).toContain(`x="${offset}"`);
+    expect(wrapper).toContain(`y="${offset}"`);
+    expect(wrapper).toContain(`width="${size}"`);
+    expect(wrapper).toContain(`height="${size}"`);
     expect(decodeIcon(url)).toContain("https://example.test/a.png");
     expect(fetch).not.toBeCalled();
   });
@@ -111,6 +137,36 @@ describe("useBackgroundImageMap", () => {
     expect(
       decodeIcon(result.current.get(createVertexType("NoViewBox"))!),
     ).toContain('viewBox="0 0 400 100"');
+  });
+
+  // Same fix, the other axis: a tall icon must synthesize a viewBox that
+  // keeps height as the dominant dimension, not just width.
+  it("carries a synthesized viewBox for a tall svg that declares only width and height", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve(
+          new Response(
+            `<svg width="100" height="400" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="400"/></svg>`,
+          ),
+        ),
+      ),
+    );
+
+    const config = makeConfig({
+      type: createVertexType("TallNoViewBox"),
+      iconUrl: "https://example.test/tall.svg",
+      iconImageType: "image/svg+xml",
+    });
+
+    const { result } = renderMap([config]);
+
+    await waitFor(() =>
+      expect(result.current.has(createVertexType("TallNoViewBox"))).toBe(true),
+    );
+    expect(
+      decodeIcon(result.current.get(createVertexType("TallNoViewBox"))!),
+    ).toContain('viewBox="0 0 100 400"');
   });
 
   // The (icon, color) render cache is keyed by concatenation, so the separator
