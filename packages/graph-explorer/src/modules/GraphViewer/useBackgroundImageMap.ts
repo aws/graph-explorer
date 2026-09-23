@@ -8,6 +8,8 @@ import {
   toIconImageUrl,
   useResolvedIcons,
 } from "@/core/icons";
+import { encodeSvg, ICON_BOX, ICON_RATIO } from "@/core/icons/iconGeometry";
+import { logger } from "@/utils";
 
 /**
  * Maps each vertex type to its cytoscape `background-image`.
@@ -53,18 +55,17 @@ export function useBackgroundImageMap(
     const renderKey = `${id}\u0000${color}`;
     let backgroundImage = rendered.get(renderKey);
     if (backgroundImage === undefined) {
-      backgroundImage = insetIconImage(toIconImageUrl(icon, color));
+      const wrapped = insetIconImage(toIconImageUrl(icon, color));
+      if (wrapped === null) {
+        continue;
+      }
+      backgroundImage = wrapped;
       rendered.set(renderKey, backgroundImage);
     }
     result.set(type, backgroundImage);
   }
   return result;
 }
-
-/** Fraction of the node the icon occupies, leaving room for the shape's curve. */
-const ICON_RATIO = 0.6;
-/** Arbitrary wrapper viewport; only the ratio of inset to box matters. */
-const BOX = 100;
 
 /**
  * Centers an icon at {@link ICON_RATIO} of a square canvas, preserving its
@@ -80,12 +81,23 @@ const BOX = 100;
  *
  * The nested icon must carry a `viewBox`, or it has no intrinsic ratio to fit
  * and fills the padded box — square again. The icon registry guarantees one.
+ *
+ * Returns `null`, rather than throwing, for a url that is not well-formed
+ * UTF-16 (e.g. a stored value containing a lone surrogate): `encodeURIComponent`
+ * throws `URIError` on one, and this runs during style computation, so an
+ * uncaught throw here takes down the whole app through the route-level error
+ * boundary with no in-app way back. The vertex renders with no background
+ * image instead.
  */
-function insetIconImage(iconUrl: string): string {
-  const size = BOX * ICON_RATIO;
-  const offset = (BOX - size) / 2;
+function insetIconImage(iconUrl: string): string | null {
+  if (!iconUrl.isWellFormed()) {
+    logger.warn("Icon url is not well-formed, skipping", iconUrl);
+    return null;
+  }
+  const size = ICON_BOX * ICON_RATIO;
+  const offset = (ICON_BOX - size) / 2;
   return encodeSvg(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${BOX}" height="${BOX}" viewBox="0 0 ${BOX} ${BOX}">` +
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${ICON_BOX}" height="${ICON_BOX}" viewBox="0 0 ${ICON_BOX} ${ICON_BOX}">` +
       `<image href="${escapeXmlAttribute(iconUrl)}" x="${offset}" y="${offset}" width="${size}" height="${size}" preserveAspectRatio="xMidYMid meet"/>` +
       `</svg>`,
   );
@@ -94,8 +106,4 @@ function insetIconImage(iconUrl: string): string {
 /** The url becomes an XML attribute value, so `&` and `"` must not break it. */
 function escapeXmlAttribute(value: string): string {
   return value.replaceAll("&", "&amp;").replaceAll('"', "&quot;");
-}
-
-function encodeSvg(svgContent: string): string {
-  return "data:image/svg+xml;utf8," + encodeURIComponent(svgContent);
 }
