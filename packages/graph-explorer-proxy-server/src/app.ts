@@ -146,8 +146,30 @@ export function createApp({
     express.static(path.join(configPath, "defaultConnection.json")),
   );
 
-  // Host the Graph Explorer UI static files
-  app.use(staticFilesVirtualPath, express.static(staticFilesPath));
+  // Host the Graph Explorer UI static files. express.static's built-in
+  // redirect sends an absolute Location, e.g. "/explorer/", for a request to
+  // the bare mount path, which throws the browser out of any reverse-proxy
+  // prefix unless the proxy rewrites the header. Issue a relative Location
+  // instead so the browser resolves it against its own URL and keeps the
+  // prefix. Express matches a route path and its trailing-slash form as the
+  // same route, so the already-correct form falls through to the static
+  // middleware rather than redirecting again.
+  // The target is the last segment of the mount path, so a multi-segment
+  // mount resolves correctly too: from "/a/b", "b/" resolves to "/a/b/".
+  const mountSegment = staticFilesVirtualPath.slice(
+    staticFilesVirtualPath.lastIndexOf("/") + 1,
+  );
+  app.get(staticFilesVirtualPath, (req, res, next) => {
+    if (req.path.endsWith("/")) {
+      next();
+      return;
+    }
+    res.redirect(301, `${mountSegment}/`);
+  });
+  app.use(
+    staticFilesVirtualPath,
+    express.static(staticFilesPath, { redirect: false }),
+  );
 
   function getLogger(): AppLogger {
     return app.locals.logger;
