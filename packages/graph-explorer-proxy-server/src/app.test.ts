@@ -360,6 +360,74 @@ describe("createApp", () => {
     },
   );
 
+  // ── Database URLs carrying userinfo ───────────────────────────────
+
+  describe("graph-db-connection-url with embedded credentials", () => {
+    const credentialedUrl = `https://someone:hunter2@my-graph-db.example.com:8182`;
+
+    it.each([
+      { method: "post", route: "/sparql", body: { query: "test" } },
+      { method: "post", route: "/gremlin", body: { query: "test" } },
+      { method: "post", route: "/openCypher", body: { query: "test" } },
+      { method: "get", route: "/summary", body: undefined },
+      { method: "get", route: "/pg/statistics/summary", body: undefined },
+      { method: "get", route: "/rdf/statistics/summary", body: undefined },
+    ] as const)(
+      "$method $route returns 400 without fetching",
+      async ({ method, route, body }) => {
+        const app = createTestApp();
+        const req = request(app)
+          [method](route)
+          .set(dbHeaders({ "graph-db-connection-url": credentialedUrl }));
+        const response = body ? await req.send(body) : await req;
+
+        expect(response.status).toBe(400);
+        expect(response.body.error.message).toContain(
+          "Must not include a username or password",
+        );
+        expect(mockFetch).not.toHaveBeenCalledWith(
+          expect.stringContaining("my-graph-db.example.com"),
+          expect.anything(),
+        );
+      },
+    );
+
+    it("rejects a URL carrying only a username", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/gremlin")
+        .set({
+          "graph-db-connection-url": "https://someone@my-graph-db.example.com",
+        })
+        .send({ query: "test" });
+
+      expect(response.status).toBe(400);
+    });
+
+    it("does not echo the rejected value back to the client", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/gremlin")
+        .set(dbHeaders({ "graph-db-connection-url": credentialedUrl }))
+        .send({ query: "test" });
+
+      expect(JSON.stringify(response.body)).not.toContain("hunter2");
+    });
+
+    it("still accepts a URL without userinfo", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/gremlin")
+        .set(dbHeaders())
+        .send({ query: "test" });
+
+      expect(response.status).toBe(200);
+      expect(fetchOptionsFor("gremlin")).toBeDefined();
+    });
+  });
+
   // ── SPARQL happy path ─────────────────────────────────────────────
 
   describe("POST /sparql", () => {
