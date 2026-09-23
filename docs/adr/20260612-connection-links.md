@@ -112,9 +112,11 @@ database, so it is the only one that asks the user to confirm.
   drops the explicit proxy `url` in favor of always-relative requests — see
   PR #1773 — this derivation goes away and links inherit that behavior.)
 - A link can switch to or pre-fill a connection, but it can never create or
-  connect to a new database without the user submitting the form. The proxy
-  server's `PROXY_SERVER_ALLOWED_DB_ORIGINS` allowlist remains the unconditional
-  backstop regardless of what a link requests. See
+  connect to a new database without the user submitting the form. Connections a
+  link creates always route through the proxy, so `PROXY_SERVER_ALLOWED_DB_ORIGINS`
+  also bounds what a link can reach when that variable is set. It is unset by
+  default, and a link that matches a connection configured to contact the
+  database directly bypasses the proxy as any direct connection does. See
   [security reference](../references/security.md).
 - Parameters are plaintext, not an encoded token. This was deliberate: links are
   meant to be human-readable and constructible by any integrator. The trust gate

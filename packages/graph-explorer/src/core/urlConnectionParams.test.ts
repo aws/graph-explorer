@@ -54,6 +54,12 @@ describe("readConnectionLink", () => {
     });
   });
 
+  test("falls back to the hostname when name is present but empty", () => {
+    expect(
+      paramsOf("?graphDbUrl=https%3A%2F%2Fdb.example.com&name=").name,
+    ).toBe("db.example.com");
+  });
+
   test("derives the name from the full hostname (without the port) when name is absent", () => {
     expect(
       paramsOf(
@@ -465,8 +471,7 @@ describe("buildConnectionFromParams", () => {
       "https://localhost",
     );
 
-    expect(connection.displayLabel).toBe("My Graph");
-    expect(connection.connection).toEqual({
+    expect(connection).toEqual({
       url: "https://localhost",
       queryEngine: "openCypher",
       proxyConnection: true,
@@ -489,8 +494,8 @@ describe("buildConnectionFromParams", () => {
       "https://localhost",
     );
 
-    expect(connection.connection?.awsAuthEnabled).toBe(false);
-    expect(connection.connection?.serviceType).toBeUndefined();
+    expect(connection.awsAuthEnabled).toBe(false);
+    expect(connection.serviceType).toBeUndefined();
   });
 
   test("enables IAM with a default service type when only region is given", () => {
@@ -505,22 +510,9 @@ describe("buildConnectionFromParams", () => {
       "https://localhost",
     );
 
-    expect(connection.connection?.awsAuthEnabled).toBe(true);
-    expect(connection.connection?.awsRegion).toBe("us-west-2");
-    expect(connection.connection?.serviceType).toBe("neptune-db");
-  });
-
-  test("generates a unique id per call", () => {
-    const params = {
-      graphDbUrl: "https://g-xxx.neptune-graph.amazonaws.com",
-      queryEngine: "openCypher" as const,
-      awsRegion: "",
-      serviceType: undefined,
-      name: "A",
-    };
-    const a = buildConnectionFromParams(params, "https://localhost");
-    const b = buildConnectionFromParams(params, "https://localhost");
-    expect(a.id).not.toBe(b.id);
+    expect(connection.awsAuthEnabled).toBe(true);
+    expect(connection.awsRegion).toBe("us-west-2");
+    expect(connection.serviceType).toBe("neptune-db");
   });
 });
 

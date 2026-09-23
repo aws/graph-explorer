@@ -8,11 +8,11 @@ import { z } from "zod";
 
 import { DEFAULT_SERVICE_TYPE } from "@/utils";
 
-import {
-  type ConfigurationId,
-  createNewConfigurationId,
-  type RawConfiguration,
+import type {
+  ConfigurationId,
+  RawConfiguration,
 } from "./ConfigurationProvider";
+
 import { ConnectionLinkError } from "./connectionLinkError";
 
 /**
@@ -50,7 +50,13 @@ const UrlConnectionParamsSchema = z.object({
       error: mustBeOneOf(neptuneServiceTypeOptions),
     })
     .optional(),
-  name: z.string().optional(),
+  // An explicit `?name=` is the same as omitting it: `URLSearchParams.get`
+  // returns "" rather than null, which would otherwise survive as an empty
+  // display label instead of falling back to the hostname.
+  name: z
+    .string()
+    .optional()
+    .transform(name => name || undefined),
 });
 
 function mustBeOneOf(options: readonly string[]): string {
@@ -240,40 +246,45 @@ export function deriveProxyBaseUrl(baseURI: string): string {
 }
 
 /**
- * Build a RawConfiguration from URL params. IAM auth is enabled whenever a
- * region is provided, defaulting the service type rather than silently leaving
- * auth off when only a region is given.
+ * Build the connection a link proposes. IAM auth is enabled whenever a region is
+ * provided, defaulting the service type rather than silently leaving auth off
+ * when only a region is given.
+ *
+ * Returns the connection body without an id, because a link only ever proposes a
+ * connection. `CreateConnection` mints the id if and when the user saves the
+ * form, so generating one here would produce a value nothing reads.
  */
 export function buildConnectionFromParams(
   params: UrlConnectionParams,
   proxyBaseUrl: string,
-): RawConfiguration {
+): ConnectionConfig {
   const { awsAuthEnabled, awsRegion, serviceType } =
     authPostureFromParams(params);
   return {
-    id: createNewConfigurationId(),
-    displayLabel: params.name,
-    connection: {
-      url: proxyBaseUrl,
-      queryEngine: params.queryEngine,
-      proxyConnection: true,
-      graphDbUrl: params.graphDbUrl,
-      awsAuthEnabled,
-      awsRegion,
-      serviceType,
-    },
+    url: proxyBaseUrl,
+    queryEngine: params.queryEngine,
+    proxyConnection: true,
+    graphDbUrl: params.graphDbUrl,
+    awsAuthEnabled,
+    awsRegion,
+    serviceType,
   };
 }
 
 /**
  * The action a connection link resolves to, given the current connections.
  * Callers dispatch on `kind` rather than juggling match/pending booleans.
+ *
+ * `activate` names a connection the user already has, so it carries the stored
+ * configuration, id and all. `create` only proposes one, so it carries the
+ * connection body and the name to seed the form with, and nothing exists yet to
+ * have an id.
  */
 export type UrlConnectionIntent =
   | { kind: "none" }
   | { kind: "invalid"; error: ConnectionLinkError }
   | { kind: "activate"; connection: RawConfiguration }
-  | { kind: "create"; connection: RawConfiguration };
+  | { kind: "create"; name: string; connection: ConnectionConfig };
 
 /**
  * Resolve a connection link into a single intent:
@@ -305,6 +316,7 @@ export function resolveUrlConnectionIntent(
 
   return {
     kind: "create",
+    name: link.params.name,
     connection: buildConnectionFromParams(link.params, proxyBaseUrl),
   };
 }

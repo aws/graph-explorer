@@ -9,8 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components";
+import { resolveConnectionLink } from "@/core/resolveConnectionLink";
 import useActivateConnection from "@/core/StateProvider/useActivateConnection";
-import { useResolveUrlConnectionIntent } from "@/core/useResolveUrlConnectionIntent";
 import CreateConnection, {
   mapToConnectionForm,
 } from "@/modules/CreateConnection";
@@ -27,9 +27,16 @@ const GRAPH_CANVAS_ROUTE = "/graph-explorer";
  * params. Every outcome ends at the graph canvas, so the connect URL never
  * lingers in history.
  *
- * Only the create form outlives that moment, and it is the one thing held in
- * state. The rest is a side effect, not a rendered value — which is why the
- * intent is resolved inside the effect rather than derived on every render.
+ * The intent is resolved once, on entry, and held as this component's initial
+ * state. Deriving it on every render would re-decide a question the link already
+ * answered, and resolving it in the effect would decide after the first paint
+ * what could be known before it. The create form is the only outcome that
+ * outlives that moment, so it is the only thing rendered.
+ *
+ * Resolving on entry is correct because `AppStatusLoader` gates this route
+ * behind a loading state until the default connections have arrived. The test
+ * "does not prompt to create when a loading default connection matches the
+ * connect URL" in `core/AppStatusLoader.test.tsx` pins that ordering.
  *
  * Switching to an existing connection needs no confirmation: it is the same
  * no-prompt operation as clicking that connection in the connections list, and
@@ -40,13 +47,9 @@ const GRAPH_CANVAS_ROUTE = "/graph-explorer";
 export default function Connect() {
   const navigate = useNavigate();
   const { search } = useLocation();
-  const resolveIntent = useResolveUrlConnectionIntent();
   const activateConnection = useActivateConnection();
 
-  // Resolved on entry and never again: the link was opened once, so the decision
-  // is initial state rather than a value derived each render or an effect that
-  // sets state after the first paint.
-  const [intent] = useState(() => resolveIntent(search));
+  const [intent] = useState(() => resolveConnectionLink(search));
 
   const leave = () => navigate(GRAPH_CANVAS_ROUTE, { replace: true });
 
@@ -89,7 +92,10 @@ export default function Connect() {
           </DialogDescription>
         </DialogHeader>
         <CreateConnection
-          initialValues={mapToConnectionForm(intent.connection)}
+          initialValues={mapToConnectionForm({
+            displayLabel: intent.name,
+            connection: intent.connection,
+          })}
           onClose={leave}
         />
       </DialogContent>
