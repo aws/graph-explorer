@@ -5,11 +5,22 @@ describe("parseEnvironmentValues", () => {
     const result = parseEnvironmentValues({});
 
     expect(result.HOST).toBe("localhost");
+    expect(result.NEPTUNE_NOTEBOOK).toBe(false);
     expect(result.PROXY_SERVER_HTTPS_CONNECTION).toBe(false);
     expect(result.PROXY_SERVER_HTTPS_PORT).toBe(443);
     expect(result.PROXY_SERVER_HTTP_PORT).toBe(80);
     expect(result.LOG_LEVEL).toBe("debug");
     expect(result.LOG_STYLE).toBe("default");
+  });
+
+  it("parses NEPTUNE_NOTEBOOK case-insensitively", () => {
+    expect(
+      parseEnvironmentValues({ NEPTUNE_NOTEBOOK: "TRUE" }).NEPTUNE_NOTEBOOK,
+    ).toBe(true);
+
+    expect(
+      parseEnvironmentValues({ NEPTUNE_NOTEBOOK: "False" }).NEPTUNE_NOTEBOOK,
+    ).toBe(false);
   });
 
   it("parses provided values", () => {

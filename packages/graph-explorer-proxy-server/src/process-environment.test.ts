@@ -101,6 +101,47 @@ describe("process-environment.sh", () => {
     });
   });
 
+  describe("NEPTUNE_NOTEBOOK=true with an explicit HTTPS request", () => {
+    // Node never reads config.json, so .env is the only way it learns what the
+    // operator asked for. Overwriting the requested value here would leave the
+    // server unable to tell this conflict from the ordinary notebook setup.
+    it("keeps a value requested through config.json", () => {
+      fs.writeFileSync(
+        path.join(workDir, "config.json"),
+        JSON.stringify({
+          NEPTUNE_NOTEBOOK: true,
+          PROXY_SERVER_HTTPS_CONNECTION: true,
+        }),
+      );
+
+      const { envFile } = runScript(workDir);
+
+      expect(envFile).toMatch(/^NEPTUNE_NOTEBOOK=true$/m);
+      expect(envFile).toMatch(/^PROXY_SERVER_HTTPS_CONNECTION=true$/m);
+    });
+
+    it("keeps a value requested as an environment variable", () => {
+      const { envFile } = runScript(workDir, {
+        NEPTUNE_NOTEBOOK: "true",
+        PROXY_SERVER_HTTPS_CONNECTION: "true",
+      });
+
+      expect(envFile).toMatch(/^NEPTUNE_NOTEBOOK=true$/m);
+      expect(envFile).toMatch(/^PROXY_SERVER_HTTPS_CONNECTION=true$/m);
+    });
+
+    it("still forces SSL off when nothing was requested", () => {
+      fs.writeFileSync(
+        path.join(workDir, "config.json"),
+        JSON.stringify({ NEPTUNE_NOTEBOOK: true }),
+      );
+
+      const { envFile } = runScript(workDir);
+
+      expect(envFile).toMatch(/^PROXY_SERVER_HTTPS_CONNECTION=false$/m);
+    });
+  });
+
   describe("NEPTUNE_NOTEBOOK=false does not force SSL off", () => {
     it("does not override HTTPS vars when NEPTUNE_NOTEBOOK is false", () => {
       const { envFile } = runScript(workDir, {

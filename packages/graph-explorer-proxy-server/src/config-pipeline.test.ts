@@ -41,9 +41,33 @@ function runPipeline(
 
   const envFilePath = path.join(resolvedConfigFolder, ".env");
   const envFileContent = fs.readFileSync(envFilePath, "utf-8");
-  const parsed = dotenv.parse(envFileContent);
-  return parseEnvironmentValues(parsed);
+  const parsedFromFile = dotenv.parse(envFileContent);
+  // dotenv.config() never overwrites a key already in process.env, so a
+  // variable passed to the container wins over whatever the shell script wrote
+  // to .env for that key.
+  return parseEnvironmentValues({ ...parsedFromFile, ...env });
 }
+
+/** The two ways an operator can set the conflicting pair. */
+const conflictRoutes: {
+  route: string;
+  envVars: Record<string, string>;
+  configJson: Record<string, boolean> | null;
+}[] = [
+  {
+    route: "container environment variables",
+    envVars: {
+      NEPTUNE_NOTEBOOK: "true",
+      PROXY_SERVER_HTTPS_CONNECTION: "true",
+    },
+    configJson: null,
+  },
+  {
+    route: "config.json",
+    envVars: {},
+    configJson: { NEPTUNE_NOTEBOOK: true, PROXY_SERVER_HTTPS_CONNECTION: true },
+  },
+];
 
 describe("config pipeline: shell → dotenv → Zod → server config", () => {
   let workDir: string;
@@ -82,9 +106,41 @@ describe("config pipeline: shell → dotenv → Zod → server config", () => {
   it("Neptune Notebook forces HTTPS off", () => {
     const env = runPipeline(workDir, { NEPTUNE_NOTEBOOK: "true" });
 
+    expect(env.NEPTUNE_NOTEBOOK).toBe(true);
     const config = resolveServerConfig(env);
     expect(config.useHttps).toBe(false);
   });
+
+  describe.each(conflictRoutes)(
+    "Neptune Notebook conflicting with an explicit HTTPS request via $route",
+    ({ envVars, configJson }) => {
+      it("refuses to start with both variables named", () => {
+        if (configJson) {
+          fs.writeFileSync(
+            path.join(workDir, "config.json"),
+            JSON.stringify(configJson),
+          );
+        }
+        // Certificates present, so the conflict is the only thing that can fail.
+        vi.spyOn(fs, "existsSync").mockReturnValue(true);
+
+        const env = runPipeline(workDir, envVars);
+
+        expect(env.NEPTUNE_NOTEBOOK).toBe(true);
+        expect(env.PROXY_SERVER_HTTPS_CONNECTION).toBe(true);
+
+        let message = "";
+        expect(() => resolveServerConfig(env)).toThrow(ServerConfigError);
+        try {
+          resolveServerConfig(env);
+        } catch (e) {
+          message = (e as Error).message;
+        }
+        expect(message).toContain("NEPTUNE_NOTEBOOK");
+        expect(message).toContain("PROXY_SERVER_HTTPS_CONNECTION");
+      });
+    },
+  );
 
   it("HTTPS enabled but certs missing throws ServerConfigError", () => {
     const env = runPipeline(workDir);
