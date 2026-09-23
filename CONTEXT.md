@@ -144,8 +144,12 @@ The UI element in the nav bar (after the page title) that renders Persistence St
 _Avoid_: Save-status indicator
 
 **Proxy Server**:
-The Node.js server that serves the frontend (mounted at `/explorer`) and proxies all database requests (mounted at `/`). The client resolves API endpoints relative to its own origin via `apiUrl()`, so the frontend and proxy are always same-origin regardless of any reverse proxy in front of them. This means every database request routes through the Proxy Server, which has network access to the database and handles SigV4 signing. See ADR `unify-docker-image-remove-sagemaker-variant`.
+The Node.js server that serves the frontend (mounted at the **Static Mount Path**) and proxies all database requests (mounted at `/`). The client resolves API endpoints from its own path via `apiUrl()`, so the frontend and proxy are same-origin behind any external prefix, as long as a reverse proxy in front of them forwards the **Static Mount Path** segment unchanged. A proxy that renames that segment away raises `ReverseProxyMisconfiguredError` instead. Every database request routes through the Proxy Server, which has network access to the database and handles SigV4 signing. See ADR `unify-docker-image-remove-sagemaker-variant`.
 _Avoid_: proxy endpoint URL (no longer user-configured)
+
+**Static Mount Path**:
+The path segment the **Proxy Server** mounts the client's static files under — `STATIC_MOUNT_PATH` in `packages/shared/src/constants.ts`, currently `/explorer`. The server reads it to mount the static files and to redirect the bare segment to its trailing-slash form; the client reads it in `apiUrl()`, which resolves the API root by cutting this segment out of `location.pathname`. A reverse proxy may put any prefix in front of it but must forward the segment itself intact.
+_Avoid_: `/explorer` as a bare literal (the constant is the source of truth); base path (ambiguous with Vite's `base` and the HTML `<base href>`)
 
 ## Relationships
 
