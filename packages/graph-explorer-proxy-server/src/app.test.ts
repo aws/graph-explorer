@@ -6,6 +6,7 @@ import request from "supertest";
 
 import { createApp, resolveEndpointUrl } from "./app.ts";
 import { createLogger } from "./logging.ts";
+import { createTestEnvironment } from "./testing.ts";
 
 // node-fetch is globally mocked in test-setup.ts
 const { default: fetch } = await import("node-fetch");
@@ -26,14 +27,7 @@ function createTestApp(
     corsOrigin,
     allowedDbOrigins,
   });
-  app.locals.logger = createLogger({
-    HOST: "localhost",
-    PROXY_SERVER_HTTPS_CONNECTION: false,
-    PROXY_SERVER_HTTPS_PORT: 443,
-    PROXY_SERVER_HTTP_PORT: 80,
-    LOG_LEVEL: "silent",
-    LOG_STYLE: "default",
-  });
+  app.locals.logger = createLogger(createTestEnvironment());
   return app;
 }
 
@@ -792,14 +786,7 @@ describe("createApp", () => {
         staticFilesVirtualPath: "/explorer",
         staticFilesPath: ".",
       });
-      app.locals.logger = createLogger({
-        HOST: "localhost",
-        PROXY_SERVER_HTTPS_CONNECTION: false,
-        PROXY_SERVER_HTTPS_PORT: 443,
-        PROXY_SERVER_HTTP_PORT: 80,
-        LOG_LEVEL: "silent",
-        LOG_STYLE: "default",
-      });
+      app.locals.logger = createLogger(createTestEnvironment());
 
       await request(app)
         .post("/sparql")
