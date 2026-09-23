@@ -69,8 +69,12 @@ else
 fi
 
 # Resolve the legacy PUBLIC_OR_PROXY_ENDPOINT/USING_PROXY_SERVER variables into
-# GRAPH_CONNECTION_URL, mirroring transformLegacyConnection() in
-# configuration.ts so the product has one legacy-resolution rule.
+# GRAPH_CONNECTION_URL. The URL rule below matches transformLegacyConnection()
+# in configuration.ts, but the auth fields deliberately diverge: that transform
+# drops IAM/region/service type from a never-proxied connection because a stored
+# one can be stale or imported and never showed IAM controls, whereas an
+# operator who set IAM here asked for signing, which now works because every
+# request routes through the proxy.
 USING_PROXY_SERVER_LOWER=$(printf '%s' "$USING_PROXY_SERVER" | tr '[:upper:]' '[:lower:]')
 IS_PROXY_CONNECTION=false
 if [ "$USING_PROXY_SERVER_LOWER" = "true" ]; then

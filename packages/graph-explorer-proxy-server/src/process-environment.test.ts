@@ -454,6 +454,29 @@ describe("process-environment.sh", () => {
       );
     });
 
+    /**
+     * The client's `transformLegacyConnection` drops the auth fields from a
+     * connection that was never proxied. The shell deliberately keeps them: an
+     * operator who set `IAM=true` in the container environment asked for
+     * signing, and signing works now that every request routes through the
+     * proxy. Same URL rule, different auth answer, on purpose.
+     */
+    it("keeps IAM, region, and service type when USING_PROXY_SERVER=false", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "false",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+        IAM: "true",
+        AWS_REGION: "us-east-1",
+        SERVICE_TYPE: "neptune-db",
+      });
+      expect(defaultConnection).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+        GRAPH_EXP_IAM: true,
+        GRAPH_EXP_AWS_REGION: "us-east-1",
+        GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+      });
+    });
+
     it("does not write the legacy variable names to defaultConnection.json", () => {
       const { defaultConnection } = runScript(workDir, {
         USING_PROXY_SERVER: "true",
