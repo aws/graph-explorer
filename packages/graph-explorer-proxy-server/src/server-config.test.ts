@@ -1,39 +1,24 @@
 import fs from "fs";
 import path from "path";
 
-import type { EnvironmentValues } from "./env.ts";
-
 import { clientRoot, proxyServerRoot } from "./paths.ts";
 import { buildBaseUrl, resolveServerConfig } from "./server-config.ts";
+import { createTestEnvironment } from "./testing.ts";
 
 const expectedKeyPath = path.join(proxyServerRoot, "cert-info/server.key");
 const expectedCertPath = path.join(proxyServerRoot, "cert-info/server.crt");
 const expectedStaticFilesPath = path.join(clientRoot, "dist");
 
-function createEnv(
-  overrides: Partial<EnvironmentValues> = {},
-): EnvironmentValues {
-  return {
-    HOST: "localhost",
-    PROXY_SERVER_HTTPS_CONNECTION: false,
-    PROXY_SERVER_HTTPS_PORT: 443,
-    PROXY_SERVER_HTTP_PORT: 80,
-    LOG_LEVEL: "debug",
-    LOG_STYLE: "default",
-    ...overrides,
-  };
-}
-
 describe("resolveServerConfig", () => {
   it("returns certificate paths relative to proxyServerRoot", () => {
-    const config = resolveServerConfig(createEnv());
+    const config = resolveServerConfig(createTestEnvironment());
 
     expect(config.certificateKeyFilePath).toBe(expectedKeyPath);
     expect(config.certificateFilePath).toBe(expectedCertPath);
   });
 
   it("returns static file paths", () => {
-    const config = resolveServerConfig(createEnv());
+    const config = resolveServerConfig(createTestEnvironment());
 
     expect(config.staticFilesVirtualPath).toBe("/explorer");
     expect(config.staticFilesPath).toBe(expectedStaticFilesPath);
@@ -41,7 +26,7 @@ describe("resolveServerConfig", () => {
 
   it("passes through host and port values from env", () => {
     const config = resolveServerConfig(
-      createEnv({
+      createTestEnvironment({
         HOST: "my-host",
         PROXY_SERVER_HTTP_PORT: 8080,
       }),
@@ -56,7 +41,7 @@ describe("resolveServerConfig", () => {
     vi.spyOn(fs, "existsSync").mockReturnValue(true);
 
     const config = resolveServerConfig(
-      createEnv({
+      createTestEnvironment({
         HOST: "my-host",
         PROXY_SERVER_HTTPS_CONNECTION: true,
         PROXY_SERVER_HTTP_PORT: 8080,
@@ -70,7 +55,7 @@ describe("resolveServerConfig", () => {
 
   it("sets useHttps to false when PROXY_SERVER_HTTPS_CONNECTION is false", () => {
     const config = resolveServerConfig(
-      createEnv({ PROXY_SERVER_HTTPS_CONNECTION: false }),
+      createTestEnvironment({ PROXY_SERVER_HTTPS_CONNECTION: false }),
     );
 
     expect(config.useHttps).toBe(false);
@@ -80,7 +65,9 @@ describe("resolveServerConfig", () => {
     vi.spyOn(fs, "existsSync").mockReturnValue(false);
 
     expect(() =>
-      resolveServerConfig(createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true })),
+      resolveServerConfig(
+        createTestEnvironment({ PROXY_SERVER_HTTPS_CONNECTION: true }),
+      ),
     ).toThrow(
       expect.objectContaining({
         name: "ServerConfigError",
@@ -93,7 +80,9 @@ describe("resolveServerConfig", () => {
     vi.spyOn(fs, "existsSync").mockImplementation(p => p === expectedKeyPath);
 
     expect(() =>
-      resolveServerConfig(createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true })),
+      resolveServerConfig(
+        createTestEnvironment({ PROXY_SERVER_HTTPS_CONNECTION: true }),
+      ),
     ).toThrow(
       expect.objectContaining({
         name: "ServerConfigError",
@@ -106,7 +95,9 @@ describe("resolveServerConfig", () => {
     vi.spyOn(fs, "existsSync").mockImplementation(p => p === expectedCertPath);
 
     expect(() =>
-      resolveServerConfig(createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true })),
+      resolveServerConfig(
+        createTestEnvironment({ PROXY_SERVER_HTTPS_CONNECTION: true }),
+      ),
     ).toThrow(
       expect.objectContaining({
         name: "ServerConfigError",
@@ -119,7 +110,7 @@ describe("resolveServerConfig", () => {
     vi.spyOn(fs, "existsSync").mockReturnValue(true);
 
     const config = resolveServerConfig(
-      createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true }),
+      createTestEnvironment({ PROXY_SERVER_HTTPS_CONNECTION: true }),
     );
 
     expect(config.useHttps).toBe(true);
@@ -131,7 +122,9 @@ describe("resolveServerConfig", () => {
 
       let message = "";
       try {
-        resolveServerConfig(createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true }));
+        resolveServerConfig(
+          createTestEnvironment({ PROXY_SERVER_HTTPS_CONNECTION: true }),
+        );
       } catch (e) {
         message = (e as Error).message;
       }
@@ -147,7 +140,9 @@ describe("resolveServerConfig", () => {
 
       let message = "";
       try {
-        resolveServerConfig(createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true }));
+        resolveServerConfig(
+          createTestEnvironment({ PROXY_SERVER_HTTPS_CONNECTION: true }),
+        );
       } catch (e) {
         message = (e as Error).message;
       }
@@ -161,7 +156,9 @@ describe("resolveServerConfig", () => {
 
       let message = "";
       try {
-        resolveServerConfig(createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true }));
+        resolveServerConfig(
+          createTestEnvironment({ PROXY_SERVER_HTTPS_CONNECTION: true }),
+        );
       } catch (e) {
         message = (e as Error).message;
       }
@@ -174,7 +171,9 @@ describe("resolveServerConfig", () => {
       vi.spyOn(fs, "existsSync").mockReturnValue(false);
 
       expect(() =>
-        resolveServerConfig(createEnv({ PROXY_SERVER_HTTPS_CONNECTION: true })),
+        resolveServerConfig(
+          createTestEnvironment({ PROXY_SERVER_HTTPS_CONNECTION: true }),
+        ),
       ).toThrow(
         expect.objectContaining({
           message: expect.stringContaining("PROXY_SERVER_HTTPS_CONNECTION"),

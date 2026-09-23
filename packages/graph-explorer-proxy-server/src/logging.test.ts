@@ -1,29 +1,14 @@
 import type { Request, Response } from "express";
 
-import type { EnvironmentValues } from "./env.ts";
-
 import {
   createLogger,
   getRequestLoggerPrefix,
   logRequestAndResponse,
   requestLoggingMiddleware,
 } from "./logging.ts";
+import { createTestEnvironment } from "./testing.ts";
 
-function createMockEnv(
-  overrides: Partial<EnvironmentValues> = {},
-): EnvironmentValues {
-  return {
-    HOST: "localhost",
-    PROXY_SERVER_HTTPS_CONNECTION: false,
-    PROXY_SERVER_HTTPS_PORT: 443,
-    PROXY_SERVER_HTTP_PORT: 80,
-    LOG_LEVEL: "silent",
-    LOG_STYLE: "default",
-    ...overrides,
-  };
-}
-
-const sharedLogger = createLogger(createMockEnv());
+const sharedLogger = createLogger(createTestEnvironment());
 
 function createMockRequest(overrides: Partial<Request> = {}) {
   return {
@@ -49,12 +34,12 @@ function createMockResponse(statusCode: number) {
 
 describe("createLogger", () => {
   it("creates a logger with the configured log level", () => {
-    const logger = createLogger(createMockEnv({ LOG_LEVEL: "warn" }));
+    const logger = createLogger(createTestEnvironment({ LOG_LEVEL: "warn" }));
     expect(logger.level).toBe("warn");
   });
 
   it("creates a logger with debug level by default", () => {
-    const logger = createLogger(createMockEnv({ LOG_LEVEL: "debug" }));
+    const logger = createLogger(createTestEnvironment({ LOG_LEVEL: "debug" }));
     expect(logger.level).toBe("debug");
   });
 
@@ -69,7 +54,7 @@ describe("createLogger", () => {
       "silent",
     ] as const;
     for (const level of levels) {
-      const logger = createLogger(createMockEnv({ LOG_LEVEL: level }));
+      const logger = createLogger(createTestEnvironment({ LOG_LEVEL: level }));
       expect(logger.level).toBe(level);
     }
   });
