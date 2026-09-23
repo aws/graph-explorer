@@ -56,13 +56,10 @@ export function useDisplayVerticesFromVertices(vertices: Vertex[]) {
 
 const selectedDisplayVerticesSelector = atom(get => {
   const selectedIds = get(nodesSelectedIdsAtom);
-  return selectedIds
-    .values()
-    .map(id => get(nodeSelector(id)))
-    .filter(n => n != null)
+  return Array.from(selectedIds.values(), id => get(nodeSelector(id)))
+    .filter((n): n is Vertex => n != null)
     .map(n => get(displayVertexSelector(n)))
-    .filter(n => n != null)
-    .toArray();
+    .filter((n): n is DisplayVertex => n != null);
 });
 
 /** Maps all `Vertex` instances which are selected in the graph canvas to `DisplayVertex` instances. */
@@ -142,5 +139,5 @@ const displayVerticesSelector = atomFamily((vertices: Vertex[]) =>
 );
 
 const displayVerticesInCanvasSelector = atom(get => {
-  return get(displayVerticesSelector(get(nodesAtom).values().toArray()));
+  return get(displayVerticesSelector(Array.from(get(nodesAtom).values())));
 });

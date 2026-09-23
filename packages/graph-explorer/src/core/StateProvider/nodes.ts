@@ -7,7 +7,7 @@ import { vertexDetailsQuery } from "@/connector";
 import { createVertex, type Vertex, type VertexId } from "@/core";
 
 export function toNodeMap(nodes: Iterable<Vertex>): Map<VertexId, Vertex> {
-  return new Map(Iterator.from(nodes).map(n => [n.id, n]));
+  return new Map(Array.from(nodes, n => [n.id, n]));
 }
 
 export const nodesAtom = atomWithReset(new Map<VertexId, Vertex>());

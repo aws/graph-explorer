@@ -265,7 +265,7 @@ async function fetchBlankNodeNeighborCounts(
 
   // Fetch any missing blank node neighbor counts
   const blankNodeResponses = await Promise.all(
-    missing.entries().map(async ([vertexId, bNode]) => {
+    Array.from(missing.entries(), async ([vertexId, bNode]) => {
       const response = await fetchBlankNodeNeighbors(sparqlFetch, {
         resourceURI: bNode.vertex.id,
         resourceClasses: bNode.vertex.types,

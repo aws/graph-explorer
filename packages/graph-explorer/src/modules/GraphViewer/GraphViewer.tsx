@@ -92,10 +92,10 @@ function GraphViewerContent({
 
   // Map the ids to rendered IDs for compatibility with Cytoscape
   const nodesOutRenderedIds = new Set(
-    nodesOutIds.values().map(createRenderedVertexId),
+    Array.from(nodesOutIds.values(), createRenderedVertexId),
   );
   const edgesOutRenderedIds = new Set(
-    edgesOutIds.values().map(createRenderedEdgeId),
+    Array.from(edgesOutIds.values(), createRenderedEdgeId),
   );
 
   const onSelectedElementIdsChange = ({
@@ -104,12 +104,14 @@ function GraphViewerContent({
   }: SelectedElements) => {
     // Map the rendered ids to the original ids and change selection
     replaceGraphSelection({
-      vertices: (nodeIds as Set<RenderedVertexId>)
-        .values()
-        .map(getVertexIdFromRenderedVertexId),
-      edges: (edgeIds as Set<RenderedEdgeId>)
-        .values()
-        .map(getEdgeIdFromRenderedEdgeId),
+      vertices: Array.from(
+        (nodeIds as Set<RenderedVertexId>).values(),
+        getVertexIdFromRenderedVertexId,
+      ),
+      edges: Array.from(
+        (edgeIds as Set<RenderedEdgeId>).values(),
+        getEdgeIdFromRenderedEdgeId,
+      ),
       disableSideEffects: false,
     });
   };
@@ -238,7 +240,7 @@ function Legend({
   className,
   ...props
 }: { onClose: () => void } & ComponentPropsWithRef<typeof Panel>) {
-  const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
+  const vtConfigs = Array.from(useDisplayVertexTypeConfigs().values());
 
   return (
     <Panel className={cn("max-w-md shadow-md", className)} {...props}>

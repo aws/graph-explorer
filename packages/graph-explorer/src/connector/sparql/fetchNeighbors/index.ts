@@ -36,21 +36,21 @@ export default async function fetchNeighbors(
 
   // Seed the vertex map with the ResultVertex instances in the response
   const verticesMap = new Map(
-    results.vertices.values().map(v => [v.id, createVertex(v)]),
+    Array.from(results.vertices.values(), v => [v.id, createVertex(v)]),
   );
 
   // Find any missing vertices from the edges and add them to the vertex array
-  results.edges
-    .values()
-    .flatMap(e => [e.sourceId, e.targetId])
-    .filter(id => !verticesMap.has(id))
-    .forEach(id => {
-      verticesMap.set(id, createVertex({ id: id }));
-    });
+  for (const edge of results.edges.values()) {
+    for (const id of [edge.sourceId, edge.targetId]) {
+      if (!verticesMap.has(id)) {
+        verticesMap.set(id, createVertex({ id }));
+      }
+    }
+  }
 
   // Filter out the source vertex since it is already in the graph and this one is missing the attributes
-  const vertices = Array.from(
-    verticesMap.values().filter(v => v.id !== req.resourceURI),
+  const vertices = Array.from(verticesMap.values()).filter(
+    v => v.id !== req.resourceURI,
   );
 
   // Create edges from the ResultEdge instances in the response

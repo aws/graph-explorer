@@ -1,5 +1,5 @@
 import { createEdge } from "@/core";
-import { logger, query } from "@/utils";
+import { logger, query, setDifference } from "@/utils";
 
 import type {
   EdgeDetailsRequest,
@@ -52,13 +52,12 @@ export async function edgeDetails(
   const edges = entities.filter(e => e.entityType === "edge").map(createEdge);
 
   // Log a warning if some edges are missing
-  const missing = new Set(request.edgeIds).difference(
-    new Set(edges.map(e => e.id)),
-  );
+  const foundEdgeIds = new Set(edges.map(e => e.id));
+  const missing = setDifference(new Set(request.edgeIds), foundEdgeIds);
   if (missing.size) {
     logger.warn("Did not find all requested edges", {
       requested: request.edgeIds,
-      missing: missing.values().toArray(),
+      missing: Array.from(missing.values()),
       data,
     });
   }

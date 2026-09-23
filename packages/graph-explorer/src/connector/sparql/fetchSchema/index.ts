@@ -135,18 +135,17 @@ const fetchPredicatesByClass = async (
       type: createVertexType(resourceClass),
       total: countsByClass[resourceClass],
       displayNameAttribute:
-        displayNameCandidates
-          .values()
-          .map(c => attributes.get(c)?.name)
-          .filter(n => n != null)
-          .next().value ?? defaultVertexTypeConfig.displayNameAttribute,
+        Array.from(
+          displayNameCandidates.values(),
+          c => attributes.get(c)?.name,
+        ).find(n => n != null) ?? defaultVertexTypeConfig.displayNameAttribute,
       longDisplayNameAttribute:
-        displayDescCandidates
-          .values()
-          .map(c => attributes.get(c)?.name)
-          .filter(n => n != null)
-          .next().value ?? defaultVertexTypeConfig.longDisplayNameAttribute,
-      attributes: attributes.values().toArray(),
+        Array.from(
+          displayDescCandidates.values(),
+          c => attributes.get(c)?.name,
+        ).find(n => n != null) ??
+        defaultVertexTypeConfig.longDisplayNameAttribute,
+      attributes: Array.from(attributes.values()),
     };
   });
 };

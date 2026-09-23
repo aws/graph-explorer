@@ -117,17 +117,14 @@ function EdgesTabular({ ref }: EdgesTabularProps) {
   ];
 
   const data: ToggleEdge[] = useDeepMemo(() => {
-    return edges
-      .values()
-      .map(edge => ({
-        ...createEdgeForTable(
-          edge,
-          nodes.get(edge.sourceId),
-          nodes.get(edge.targetId),
-        ),
-        __is_visible: !filteredEdges.has(edge.id),
-      }))
-      .toArray();
+    return Array.from(edges.values(), edge => ({
+      ...createEdgeForTable(
+        edge,
+        nodes.get(edge.sourceId),
+        nodes.get(edge.targetId),
+      ),
+      __is_visible: !filteredEdges.has(edge.id),
+    }));
   }, [edges, filteredEdges]);
 
   const onSelectRows = (rowIndex: string) => {
@@ -157,7 +154,7 @@ function EdgesTabular({ ref }: EdgesTabularProps) {
       columns={columns}
       initialFilters={tableFilters}
       onDataFilteredChange={(rows, filters) => {
-        const edgesIds = edges.keys().toArray();
+        const edgesIds = Array.from(edges.keys());
         const ids = rows.map(row => row.original.id);
         setEdgesOut(new Set(difference(edgesIds, ids)));
         setTableFilters(filters);

@@ -113,14 +113,11 @@ function NodesTabular({ ref }: NodesTabularProps) {
   ] satisfies ColumnDefinition<ToggleVertex>[];
 
   const data: ToggleVertex[] = useDeepMemo(() => {
-    return displayNodes
-      .values()
-      .map(node => ({
-        ...node,
-        __is_visible: !filteredNodes.has(node.id),
-        neighborCounts: neighborCounts.get(node.id)?.all ?? 0,
-      }))
-      .toArray();
+    return Array.from(displayNodes.values(), node => ({
+      ...node,
+      __is_visible: !filteredNodes.has(node.id),
+      neighborCounts: neighborCounts.get(node.id)?.all ?? 0,
+    }));
   }, [filteredNodes, displayNodes, neighborCounts]);
 
   const onSelectRows = (rowIndex: string) => {
@@ -150,7 +147,7 @@ function NodesTabular({ ref }: NodesTabularProps) {
       columns={columns}
       initialFilters={tableFilters}
       onDataFilteredChange={(rows, filters) => {
-        const nodesIds = displayNodes.keys().toArray();
+        const nodesIds = Array.from(displayNodes.keys());
         const ids = rows.map(row => row.original.id);
         setNodesOut(new Set(difference(nodesIds, ids)));
         setTableFilters(filters);
