@@ -31,17 +31,19 @@ Separately, the DOM surface paid for a workaround it did not need. `VertexSymbol
 
 **2. Icons render per kind, on the surface's own terms.**
 
-| kind     | canvas         | DOM                                        |
-| -------- | -------------- | ------------------------------------------ |
-| Lucide   | baked data uri | `<DynamicIcon>`, live DOM, color inherited |
-| user SVG | baked data uri | `<image href="data:…">`, color baked       |
-| raster   | url            | `<image href>`                             |
+| kind     | canvas                                 | DOM                                        |
+| -------- | -------------------------------------- | ------------------------------------------ |
+| Lucide   | baked data uri, wrapped for aspect fit | `<DynamicIcon>`, live DOM, color inherited |
+| user SVG | baked data uri, wrapped for aspect fit | `<image href="data:…">`, color baked       |
+| raster   | plain url, wrapped for aspect fit      | `<image href>`                             |
 
 Lucide markup is trusted bundled geometry with no ids, defs, or script, so inlining it costs nothing and recoloring becomes synchronous.
 
-Untrusted SVG is deliberately **not** inlined on these surfaces. `<image href="data:…">` renders it as a script-disabled image document (W3C SVG Integration §3.4/§3.6 — an image context disables both script execution and external references). Inlining would trade that browser-enforced boundary for DOMPurify alone, and add id collisions with the `useId()`-generated `clipPath` ids and unsanitized `<style>` blocks. DOMPurify stays; the sandbox stays with it. The cost is that hardcoded fills in custom SVG still do not follow the vertex color (#2105, pre-existing).
+Untrusted SVG is deliberately **not** inlined on these surfaces. `<image href="data:…">` renders it as a script-disabled image document (W3C SVG Integration §3.4/§3.6 — an image context disables both script execution and external references not embedded in the `data:` uri itself). Inlining would trade that browser-enforced boundary for DOMPurify alone, and add id collisions with the `useId()`-generated `clipPath` ids and unsanitized `<style>` blocks. DOMPurify stays; the sandbox stays with it. The cost is that hardcoded fills in custom SVG still do not follow the vertex color (#2105, pre-existing).
 
 This is not codebase-wide: `components/VertexIcon.tsx` inlines sanitized user SVG into the live DOM via `react-inlinesvg`, with no sandbox. It predates this decision and is the outlier, not the pattern to copy.
+
+**Canvas sizing (issue #2108, PR #2142).** Cytoscape cannot both preserve an icon's aspect ratio and inset it to 60% of the node: `background-fit: contain` keeps the ratio but fills the whole node, and the node is an ellipse, so a square-ish icon's corners spill past the shape. The canvas wraps every kind's icon url in its own padded square SVG and lets a nested `<image preserveAspectRatio>` do the fitting — the same mechanism `VertexSymbolIcon` already uses directly. That wrapper is itself a `data:` uri, so it stays within the image-document sandbox above: nesting one `data:`-uri image inside another issues no external request either.
 
 **3. `clip-path` goes on an ancestor `<g>`, never on the nested `<svg>`.**
 
