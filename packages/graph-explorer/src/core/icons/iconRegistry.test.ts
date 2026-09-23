@@ -299,21 +299,21 @@ describe("sanitizes a user-supplied svg before storing it", () => {
   // ever dropped.
   it("preserves the geometry and path attributes an icon needs to scale", async () => {
     const svg = await resolveCustomSvg(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="100" viewBox="0 0 400 100" preserveAspectRatio="xMidYMid meet"><path d="M0 0h400v100H0z" stroke-width="2" transform="translate(1 1)"/><polyline points="0,0 10,10"/></svg>`,
+      `<svg xmlns="http://www.w3.org/2000/svg" width="401" height="102" viewBox="0 0 403 104" preserveAspectRatio="xMidYMid meet"><path d="M0 0h405v106H0z" stroke-width="7" transform="translate(9 9)"/><polyline points="1,1 11,11"/></svg>`,
     );
 
-    for (const attribute of [
-      "width",
-      "height",
-      "viewBox",
-      "preserveAspectRatio",
-      "d",
-      "stroke-width",
-      "transform",
-      "points",
-    ]) {
-      expect(svg).toContain(attribute);
-    }
+    // Distinct numbers per attribute, so a check can only pass if that
+    // specific attribute-value pair survived — unlike `toContain(name)`,
+    // which a substring of an unrelated attribute (`preserveAspectRatio`
+    // contains "d"; `stroke-width` contains "width") can satisfy for free.
+    expect(svg).toContain('width="401"');
+    expect(svg).toContain('height="102"');
+    expect(svg).toContain('viewBox="0 0 403 104"');
+    expect(svg).toContain('preserveAspectRatio="xMidYMid meet"');
+    expect(svg).toContain('d="M0 0h405v106H0z"');
+    expect(svg).toContain('stroke-width="7"');
+    expect(svg).toContain('transform="translate(9 9)"');
+    expect(svg).toContain('points="1,1 11,11"');
   });
 
   it("strips a <script> element but keeps the rest of the drawing", async () => {

@@ -55,11 +55,18 @@ describe("useGraphStyles", () => {
 
     await waitFor(() => {
       const vertexStyle = getStyles(result)[`node[type="Person"]`] as any;
+      // The raster is wrapped in a padded square svg so the canvas can fit it
+      // without measuring (issue #2108); sizing now comes from the node
+      // defaults, not per type. Decode and check the wrapper actually nests
+      // the icon's real url — a bare data-uri prefix check would also pass if
+      // the wrapper had lost the url or wrapped the wrong one.
+      const backgroundImage = vertexStyle["background-image"] as string;
+      expect(backgroundImage.startsWith("data:image/svg+xml;utf8,")).toBe(true);
+      expect(decodeURIComponent(backgroundImage)).toContain(
+        RASTER_ICON.iconUrl,
+      );
       expect(vertexStyle).toEqual({
-        // The raster is wrapped in a padded square svg so the canvas can fit it
-        // without measuring (issue #2108); sizing now comes from the node
-        // defaults, not per type.
-        "background-image": expect.stringContaining("data:image/svg+xml;utf8,"),
+        "background-image": backgroundImage,
         "background-color": "#128EE5",
         "background-opacity": 0.8,
         "border-color": "#000000",
