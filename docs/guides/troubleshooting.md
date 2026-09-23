@@ -148,8 +148,10 @@ For the network setup Neptune needs, see [Network Access](./connecting-to-neptun
 Graph Explorer works behind a reverse proxy at any prefix depth, and the prefix can even contain the word "explorer" without conflict, as long as the proxy strips the prefix and forwards the rest of the path unchanged, including the client's own `/explorer` segment. For example, an nginx rule mapping `/gx/` onto the server looks like:
 
 ```
-location /gx/explorer/ { proxy_pass http://server:9250/explorer/; }
+location /gx/ { proxy_pass http://server:9250/; }
 ```
+
+That rule forwards the whole `/gx/` prefix, so `/gx/explorer/` reaches the client at `/explorer/` and the API calls at `/gx/sparql`, `/gx/gremlin`, `/gx/summary`, `/gx/logger`, and `/gx/defaultConnection` reach `/sparql`, `/gremlin`, `/summary`, `/logger`, and `/defaultConnection`. A rule scoped to `/gx/explorer/` alone would serve the page but match none of the API paths, so every query would fail.
 
 A proxy that renames the `/explorer` segment away instead, for example mapping an external `/gx/` directly onto the server's `/explorer/`, is not supported. The page will still render, since assets resolve with a relative base path, but the browser has no way to tell where the API root is, and Graph Explorer now fails with a clear "Reverse Proxy Misconfigured" error rather than sending requests to the wrong place.
 
