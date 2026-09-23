@@ -8,6 +8,8 @@ import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { type ConfigurationId, createEdgeType, createVertexType } from "@/core";
 
+import logger from "./logger";
+
 const attributesSchema = z
   .array(z.looseObject({ name: z.string().min(1) }))
   .optional()
@@ -46,11 +48,18 @@ const exportedConnectionFileSchema = z.looseObject({
     // An unrecognized value would select the complete strategy with the sampled
     // fallback switched off, the one combination that reproduces the failure the
     // setting exists to avoid. Dropped rather than rejected so one bad field does
-    // not cost the user the whole file.
+    // not cost the user the whole file, and logged for the same reason the env
+    // var is: silence leaves nobody able to tell the value never took effect.
     edgeConnectionDiscovery: z
       .enum(edgeConnectionDiscoveryOptions)
       .optional()
-      .catch(undefined),
+      .catch(ctx => {
+        logger.warn(
+          "Ignoring unrecognized edgeConnectionDiscovery value in the imported connection, using automatic",
+          ctx.value,
+        );
+        return undefined;
+      }),
   }),
   schema: z.looseObject({
     vertices: z.array(

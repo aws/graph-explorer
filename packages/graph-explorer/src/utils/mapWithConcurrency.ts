@@ -10,6 +10,10 @@
  * leave the remaining lanes issuing requests nobody is waiting for. Callbacks
  * already running are not cancelled.
  *
+ * That stop applies to every caller, including the openCypher and SPARQL schema
+ * and edge connection fetches. They previously drained the whole queue after a
+ * failure their caller had already given up on, so the change is theirs too.
+ *
  * @param items The items to process
  * @param concurrency The maximum number of callbacks running at once
  * @param callback The async operation to run for each item

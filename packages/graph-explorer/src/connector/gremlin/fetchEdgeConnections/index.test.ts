@@ -392,6 +392,46 @@ describe("Gremlin > fetchEdgeConnections", () => {
       });
     });
 
+    it("should report an unusable edge total as unrecorded, like the planner does", async () => {
+      const gremlinFetch = vi
+        .fn()
+        .mockRejectedValue(tooBigError("MemoryLimitExceededException"));
+
+      const error = await discoveryErrorFrom(
+        fetchEdgeConnections(
+          gremlinFetch,
+          {
+            edgeTypes: [createEdgeType("route")],
+            totalEdges: "19928805" as unknown as number,
+          },
+          "complete",
+        ),
+      );
+
+      // Showing the raw value would have the error details disagree with the
+      // plan, which ignored it.
+      expect(error.details.totalEdges).toBeUndefined();
+    });
+
+    it("should take the fast degrade path when the code arrives nested in a cause", async () => {
+      const gremlinFetch = vi
+        .fn()
+        .mockRejectedValueOnce(
+          new NetworkError("Query cannot be completed", 500, {
+            cause: { code: "MemoryLimitExceededException" },
+          }),
+        )
+        .mockResolvedValue(countResponse(["route", "airport", "airport"]));
+
+      const result = await fetchEdgeConnections(
+        gremlinFetch,
+        { edgeTypes: [createEdgeType("route")], totalEdges: 10 },
+        "auto",
+      );
+
+      expect(result.edgeConnections).toHaveLength(1);
+    });
+
     it("should not degrade a sampled pass, because there is nothing cheaper to try", async () => {
       const gremlinFetch = vi
         .fn()

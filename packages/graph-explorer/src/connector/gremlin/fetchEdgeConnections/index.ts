@@ -28,7 +28,7 @@ import { anySignal } from "../../utils/anySignal";
 import { parseGMap } from "../mappers/parseGMap";
 import { splitLabel } from "../splitLabel";
 import { EdgeConnectionDiscoveryError, isTooBig } from "./discoveryError";
-import { planDiscovery } from "./discoveryPlan";
+import { planDiscovery, toEdgeTotal } from "./discoveryPlan";
 import edgeConnectionsTemplate, {
   projectionKeys,
 } from "./edgeConnectionsTemplate";
@@ -118,7 +118,15 @@ function giveUp(
   cause: unknown,
 ): EdgeConnectionDiscoveryError {
   const error = new EdgeConnectionDiscoveryError(
-    { ...attempt, strategy: plan.strategy, requests: plan.requests.length },
+    {
+      ...attempt,
+      strategy: plan.strategy,
+      requests: plan.requests.length,
+      // Through the same guard the planner used, so the error reports the total
+      // the plan was actually made from. The raw value is cast out of a response
+      // and may not be a number at all.
+      totalEdges: toEdgeTotal(attempt.totalEdges),
+    },
     cause,
   );
   logger.error(`[Edge connection discovery] Gave up. ${error.recovery}`, error);

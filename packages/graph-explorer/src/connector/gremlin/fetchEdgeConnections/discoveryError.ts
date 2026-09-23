@@ -16,14 +16,25 @@ const TOO_BIG_ERROR_CODES = [
 
 /** Whether the database gave up because one request asked for too much at once. */
 export function isTooBig(error: unknown): boolean {
-  const code = error instanceof NetworkError ? error.data?.code : undefined;
-  if (typeof code === "string") {
+  const code = errorCode(error);
+  if (code !== undefined) {
     return TOO_BIG_ERROR_CODES.includes(code);
   }
   // A request timeout, which is the only size signal a non-Neptune engine gives
   // us. A user-initiated cancellation raises `AbortError` and must not look like
   // a size problem.
   return error instanceof DOMException && error.name === "TimeoutError";
+}
+
+/**
+ * The database's own error code, from either shape the body arrives in. Reading
+ * only the top level would miss a nested code and cost the degrade path its fast
+ * exit, leaving the user to wait out the request bound instead.
+ */
+function errorCode(error: unknown): string | undefined {
+  const data = error instanceof NetworkError ? error.data : undefined;
+  const code = data?.code ?? data?.cause?.code;
+  return typeof code === "string" ? code : undefined;
 }
 
 /** What edge connection discovery had already tried when it gave up. */
@@ -88,7 +99,9 @@ function describeFailure({ setting, degraded }: FailedDiscovery): string {
 
 function describeRecovery({ setting, degraded }: FailedDiscovery): string {
   if (setting === "complete") {
-    return "Change Edge Connection Discovery to Automatic or Sampled in this connection's advanced options. Automatic samples a graph this large instead of scanning it.";
+    // The failure may be the connection's own fetch timeout rather than the
+    // database refusing, and those have opposite remedies, so name both.
+    return "Change Edge Connection Discovery to Automatic or Sampled in this connection's advanced options, because Automatic samples a graph this large instead of scanning it. If the connection sets a fetch timeout, a complete scan may simply need longer than that allows.";
   }
   const alreadyTried = degraded ? " Sampling was already tried." : "";
   return `Raise the query timeout in the DB cluster parameter group, or use an instance with more memory.${alreadyTried} The Schema view still lists node types and edge types without this.`;

@@ -16,7 +16,15 @@ import { DEFAULT_SAMPLE_SIZE } from "@/utils";
  */
 export const SCAN_BUDGET = 50_000;
 
-/** Edge types per request when chunking a graph whose edge total is unknown. */
+/**
+ * Edge types per request when chunking a graph whose edge total is unknown.
+ *
+ * Shares the value of `DEFAULT_BATCH_REQUEST_SIZE` and nothing else. That one is
+ * a fan-out width for batching independent queries; this one is a guess at how
+ * much of an unmeasured graph one scan can carry, and it moves with the cost
+ * model in the ADR. Deduplicating them would tie two unrelated decisions
+ * together.
+ */
 export const EDGE_TYPES_PER_CHUNK = 100;
 
 /**
@@ -145,7 +153,7 @@ export function planDiscovery({
  * compares false against every threshold and would send the planner down the
  * complete path with a chunk count it cannot use.
  */
-function toEdgeTotal(value: number | undefined): number | undefined {
+export function toEdgeTotal(value: number | undefined): number | undefined {
   return typeof value === "number" && Number.isFinite(value) && value >= 0
     ? value
     : undefined;

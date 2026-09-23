@@ -3,6 +3,7 @@ import { describe, expect, test } from "vitest";
 
 import { createNewConfigurationId } from "@/core/ConfigurationProvider/types";
 
+import logger from "./logger";
 import { parseConnectionFile } from "./parseConnectionFile";
 
 describe("parseConnectionFile", () => {
@@ -444,6 +445,12 @@ describe("parseConnectionFile", () => {
 
         expect(result).not.toBeNull();
         expect(result?.connection.edgeConnectionDiscovery).toBeUndefined();
+        // Dropping it silently would leave nobody able to tell the value in the
+        // file never took effect.
+        expect(logger.warn).toHaveBeenCalledWith(
+          expect.stringContaining("edgeConnectionDiscovery"),
+          value,
+        );
       },
     );
   });
