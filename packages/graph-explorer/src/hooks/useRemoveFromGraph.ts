@@ -16,8 +16,7 @@ import {
   useUpdateGraphSession,
   type VertexId,
 } from "@/core";
-import { logger } from "@/utils";
-import { setDifference, setUnion } from "@/utils/setHelpers";
+import { logger, setDifference, setUnion } from "@/utils";
 
 export function useRemoveFromGraph() {
   const setVertices = useSetAtom(nodesAtom);
@@ -43,14 +42,12 @@ export function useRemoveFromGraph() {
     }
 
     // Find associated edges for removed vertices
-    const associatedEdges = new Set(
-      Array.from(allEdges.entries())
-        .filter(
-          ([, edge]) =>
-            vertices.has(edge.sourceId) || vertices.has(edge.targetId),
-        )
-        .map(([id]) => id),
-    );
+    const associatedEdges = new Set<EdgeId>();
+    for (const [id, edge] of allEdges) {
+      if (vertices.has(edge.sourceId) || vertices.has(edge.targetId)) {
+        associatedEdges.add(id);
+      }
+    }
     const edgesToRemove = setUnion(edges, associatedEdges);
 
     // Remove vertices

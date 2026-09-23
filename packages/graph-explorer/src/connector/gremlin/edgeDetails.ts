@@ -1,5 +1,6 @@
+import { warnMissingIds } from "@/connector/utils/warnMissingIds";
 import { createEdge } from "@/core";
-import { logger, query, setDifference } from "@/utils";
+import { logger, query } from "@/utils";
 
 import type {
   EdgeDetailsRequest,
@@ -52,15 +53,12 @@ export async function edgeDetails(
   const edges = entities.filter(e => e.entityType === "edge").map(createEdge);
 
   // Log a warning if some edges are missing
-  const foundEdgeIds = new Set(edges.map(e => e.id));
-  const missing = setDifference(new Set(request.edgeIds), foundEdgeIds);
-  if (missing.size) {
-    logger.warn("Did not find all requested edges", {
-      requested: request.edgeIds,
-      missing: Array.from(missing.values()),
-      data,
-    });
-  }
+  warnMissingIds(
+    "edges",
+    request.edgeIds,
+    edges.map(e => e.id),
+    { data },
+  );
 
   return { edges };
 }
