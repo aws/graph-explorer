@@ -16,7 +16,7 @@ Eliminate the separate SageMaker image by:
 
 1. **Using relative asset paths** — set Vite `base: "./"` and add `<base href="./">` to `index.html`. This makes the compiled frontend work behind any reverse proxy without build-time knowledge of the path prefix.
 
-2. **Using relative fetch paths** — the client fetches API routes (sparql, gremlin, openCypher, defaultConnection, etc.) via `new URL("../sparql", document.baseURI)` instead of constructing absolute URLs from a configured proxy endpoint. The server mounts static files at `/explorer` and API routes at `/`, so `../` from the static directory always resolves to the API root.
+2. **Resolving API routes from the document's own path** — the client builds API routes (sparql, gremlin, openCypher, defaultConnection, etc.) with `apiUrl()`, which cuts the last occurrence of the static mount segment (`STATIC_MOUNT_PATH`, `/explorer`) out of `location.pathname` and joins the endpoint onto what is left, against `location.origin`. The server mounts static files at `/explorer` and API routes at `/`, so removing that segment lands on the API root at any external prefix. A path that has no mount segment at all means a reverse proxy renamed it away, and that throws `ReverseProxyMisconfiguredError` rather than guessing.
 
 3. **Always routing through the proxy** — remove the `proxyConnection` toggle and `url` (proxy endpoint) from the connection model. The client always sends requests to the same-origin proxy server. The connection config simplifies to: database endpoint, query engine, and optional IAM settings.
 
@@ -28,6 +28,7 @@ Eliminate the separate SageMaker image by:
 
 - **Keep the two images.** Costs double CI build and vulnerability-scan time, and forces the SageMaker lifecycle script to track a separate tag lineage.
 - **Keep `proxyConnection` as an advanced opt-in while still unifying the image.** The relative-URL work alone unifies the image, so this was possible on its own. It costs keeping two request paths permanently, and keeping the feature gates that made the direct path quietly worse than the proxy path.
+- **Resolve API routes against `document.baseURI` instead.** `new URL("../sparql", document.baseURI)` needs no shared constant and no string surgery on the path. It loses because `<base href="./">` resolves against the document's own URL, which already drops the last segment when the page is served from a path with no trailing slash. At `/gx/explorer/` the base is `/gx/explorer/` and `../sparql` lands on `/gx/sparql`, but at `/gx/explorer` the base is `/gx/` and `../sparql` climbs one segment too high to `/sparql`. The server redirects its own `/explorer` to `/explorer/`, but a reverse proxy in front of it is under no obligation to preserve that, so the trailing slash is not ours to guarantee.
 - **Derive the proxy endpoint automatically but keep the field.** Removes the configuration burden without removing the concept, leaving a vestigial field in the Connection model and in every exported file.
 - **Move the database endpoint into server configuration entirely, so the browser never names a database URL.** This would close the open-proxy exposure that `PROXY_SERVER_ALLOWED_DB_ORIGINS` currently patches, but it contradicts the client-owns-its-connections model described in `docs/agents/product.md`, and it is a much larger change.
 
@@ -49,7 +50,8 @@ The direct path also silently lacked IAM authentication, because the IAM control
 
 ### Negative
 
-- Relative paths create a fixed contract: the API root is always one directory above the static files mount. This is enforced in one place (`server-config.ts`) so drift is unlikely but possible.
+- Relative paths create a fixed contract: the API root is always one directory above the static files mount. The segment itself is declared once, as `STATIC_MOUNT_PATH` in `packages/shared/src/constants.ts`, but three readers apply it independently — `server-config.ts` mounts the static files under it, `app.ts` redirects the bare mount path to it, and the client's `apiUrl.ts` cuts it back out — so honoring the contract is spread across all three.
+- A reverse proxy that renames the mount segment away, for example mapping an external `/gx/` straight onto the server's `/explorer/`, is unsupported. The page still renders, because assets resolve against a relative base, but nothing left in the path names the API root, so `apiUrl()` raises `ReverseProxyMisconfiguredError` instead of sending database requests somewhere wrong. A supported proxy forwards the client's `/explorer` segment intact, at whatever prefix depth it likes.
 - Legacy stored connections (IndexedDB) need a read-time transform: `graphDbUrl = old.proxyConnection ? old.graphDbUrl : old.url`.
 - The `sagemaker-*` tags must be published for several release cycles until existing deployed lifecycle scripts are updated.
 - For now, the bundled SageMaker lifecycle script keeps pulling the `sagemaker-` prefixed tag and its minimum-version floor instead of switching to the unprefixed tag. CI publishes both tag families pointing at the identical image, so the prefixed tag is just an alias, and keeping it means the script's version floor still works and no existing notebook breaks. This is a transition-period choice, expected to be revisited once deployed notebooks have had time to move off the prefixed tag.
@@ -57,5 +59,5 @@ The direct path also silently lacked IAM authentication, because the IAM control
 
 ### Neutral
 
-- `NEPTUNE_NOTEBOOK` remains as a runtime convenience preset (sets port, log style, disables SSL). It is not written to `.env` itself — only its side effects are applied.
+- `NEPTUNE_NOTEBOOK` remains as a runtime convenience preset (sets port, log style, disables SSL). `process-environment.sh` writes the flag itself to `.env` alongside those side effects, and `env.ts` parses it, because the server only ever sees the variable through `.env` and needs it to tell a notebook deployment apart from an explicit `PROXY_SERVER_HTTPS_CONNECTION=true`.
 - Extra environment variables passed by old deployments (`PUBLIC_OR_PROXY_ENDPOINT`, `USING_PROXY_SERVER`) are still honored. `process-environment.sh` resolves them into `GRAPH_CONNECTION_URL`, mirroring the client's `transformLegacyConnection`, so an existing deployment keeps its Default Connection with no change.
