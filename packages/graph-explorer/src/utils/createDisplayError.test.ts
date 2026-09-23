@@ -116,6 +116,74 @@ describe("createDisplayError", () => {
     });
   });
 
+  // The proxy server's error handler used to send only { status, message }, so
+  // an errno could never reach the browser and every network failure fell
+  // through to a generic "Network Response 500". These use the exact payload
+  // extractErrorInfo now sends
+  // (packages/graph-explorer-proxy-server/src/error-handler.ts).
+  describe("errno codes from the proxy server's error payload", () => {
+    const unreachable = {
+      title: "Database unreachable",
+      message:
+        "The database hostname could not be resolved, or the endpoint did not answer. Check the hostname in the connection and that the endpoint is reachable.",
+    };
+
+    it("Should handle an unresolvable host", () => {
+      const error = new NetworkError("getaddrinfo ENOTFOUND bad-host", 500, {
+        status: 500,
+        message: "getaddrinfo ENOTFOUND bad-host",
+        code: "ENOTFOUND",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual(unreachable);
+    });
+
+    it("Should handle a connection that timed out", () => {
+      const error = new NetworkError("connect ETIMEDOUT 10.0.0.4:8182", 500, {
+        status: 500,
+        message: "connect ETIMEDOUT 10.0.0.4:8182",
+        code: "ETIMEDOUT",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual(unreachable);
+    });
+
+    it("Should handle a temporary DNS failure", () => {
+      const error = new NetworkError("getaddrinfo EAI_AGAIN db", 500, {
+        status: 500,
+        message: "getaddrinfo EAI_AGAIN db",
+        code: "EAI_AGAIN",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual(unreachable);
+    });
+
+    it("Should handle an unresolvable host reported under cause", () => {
+      const error = new NetworkError("fetch failed", 500, {
+        status: 500,
+        message: "fetch failed",
+        cause: { code: "ENOTFOUND" },
+      });
+
+      expect(createDisplayError(error)).toStrictEqual(unreachable);
+    });
+
+    it("Should handle a refused port", () => {
+      const message =
+        "request to http://localhost:9999/gremlin failed, reason: connect ECONNREFUSED 127.0.0.1:9999";
+      const error = new NetworkError(message, 500, {
+        status: 500,
+        message,
+        code: "ECONNREFUSED",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual({
+        title: "Connection refused",
+        message: "Please check your connection and try again.",
+      });
+    });
+  });
+
   it("should handle cancelled error", async () => {
     const error = await createCancelledError();
     const result = createDisplayError(error);

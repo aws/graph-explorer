@@ -84,7 +84,7 @@ export function errorHandlingMiddleware() {
   };
 }
 
-function extractErrorInfo(error: unknown) {
+export function extractErrorInfo(error: unknown) {
   const defaultErrorMessage = "Internal Server Error";
 
   if (error instanceof HttpError) {
@@ -99,6 +99,7 @@ function extractErrorInfo(error: unknown) {
     return {
       status: 500,
       message: error.message || defaultErrorMessage,
+      ...extractErrno(error),
     };
   }
 
@@ -107,4 +108,32 @@ function extractErrorInfo(error: unknown) {
     message: defaultErrorMessage,
     name: "Error",
   };
+}
+
+/**
+ * Picks the errno `code` off a Node.js system error or a node-fetch
+ * `FetchError`, plus the same field off its `cause`, so the client's
+ * `createDisplayError` can tell ECONNREFUSED from ENOTFOUND. Nothing else is
+ * copied: the stack and any other `cause` property stay out of the response.
+ */
+function extractErrno(error: Error): {
+  code?: string;
+  cause?: { code: string };
+} {
+  const code = errnoCode(error);
+  const causeCode = errnoCode(error.cause);
+
+  return {
+    ...(code ? { code } : {}),
+    ...(causeCode ? { cause: { code: causeCode } } : {}),
+  };
+}
+
+function errnoCode(value: unknown): string | undefined {
+  return typeof value === "object" &&
+    value !== null &&
+    "code" in value &&
+    typeof value.code === "string"
+    ? value.code
+    : undefined;
 }

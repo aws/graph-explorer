@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 
-import { errorHandlingMiddleware } from "./error-handler.ts";
+import { errorHandlingMiddleware, extractErrorInfo } from "./error-handler.ts";
+import { HttpError } from "./errors.ts";
 import { type AppLogger, createLogger } from "./logging.ts";
 import { createTestEnvironment } from "./testing.ts";
 
@@ -33,7 +34,110 @@ function createMockResponse() {
   } as unknown as Response;
 }
 
+describe("extractErrorInfo", () => {
+  it("carries status, message, and details from an HttpError", () => {
+    const error = new HttpError(403, "Forbidden", { field: "name" });
+
+    expect(extractErrorInfo(error)).toStrictEqual({
+      status: 403,
+      message: "Forbidden",
+      field: "name",
+    });
+  });
+
+  it("surfaces a top-level errno code", () => {
+    const error = Object.assign(
+      new Error(
+        "request to http://db:8182/gremlin failed, reason: connect ECONNREFUSED 10.0.0.4:8182",
+      ),
+      { code: "ECONNREFUSED" },
+    );
+
+    expect(extractErrorInfo(error)).toStrictEqual({
+      status: 500,
+      message:
+        "request to http://db:8182/gremlin failed, reason: connect ECONNREFUSED 10.0.0.4:8182",
+      code: "ECONNREFUSED",
+    });
+  });
+
+  it("surfaces cause.code when the error has no code of its own", () => {
+    const error = new Error("fetch failed", {
+      cause: { code: "ENOTFOUND" },
+    });
+
+    expect(extractErrorInfo(error)).toStrictEqual({
+      status: 500,
+      message: "fetch failed",
+      cause: { code: "ENOTFOUND" },
+    });
+  });
+
+  it("omits code and cause when neither is present", () => {
+    expect(extractErrorInfo(new Error("Something broke"))).toStrictEqual({
+      status: 500,
+      message: "Something broke",
+    });
+  });
+
+  it("ignores a non-string code", () => {
+    const error = Object.assign(new Error("bad code"), { code: 500 });
+
+    expect(extractErrorInfo(error)).toStrictEqual({
+      status: 500,
+      message: "bad code",
+    });
+  });
+
+  // The payload goes straight to the browser, so a wrapped system error must
+  // not drag the rest of its cause along with the errno.
+  it("does not forward unrelated cause properties", () => {
+    const error = new Error("fetch failed", {
+      cause: {
+        code: "ENOTFOUND",
+        stack: "Error: fetch failed\n    at /graph-explorer/src/app.ts:210",
+        hostname: "internal-db.example.com",
+        path: "/etc/ssl/private/server.key",
+        syscall: "getaddrinfo",
+      },
+    });
+
+    expect(extractErrorInfo(error)).toStrictEqual({
+      status: 500,
+      message: "fetch failed",
+      cause: { code: "ENOTFOUND" },
+    });
+  });
+
+  it("falls back to a generic message for a thrown non-Error", () => {
+    expect(extractErrorInfo("boom")).toStrictEqual({
+      status: 500,
+      message: "Internal Server Error",
+      name: "Error",
+    });
+  });
+});
+
 describe("errorHandlingMiddleware", () => {
+  it("sends the errno code to the client so display errors can use it", () => {
+    const middleware = errorHandlingMiddleware();
+    const response = createMockResponse();
+    const error = Object.assign(new Error("connect ECONNREFUSED"), {
+      code: "ECONNREFUSED",
+    });
+
+    middleware(error, createMockRequest(), response, vi.fn());
+
+    expect(response.status).toHaveBeenCalledWith(500);
+    expect(response.send).toHaveBeenCalledWith({
+      error: {
+        status: 500,
+        message: "connect ECONNREFUSED",
+        code: "ECONNREFUSED",
+      },
+    });
+  });
+
   describe("request header logging", () => {
     // node-fetch's real wording when handed a URL carrying userinfo, verified
     // against node-fetch 3. The value appears in the header log line the

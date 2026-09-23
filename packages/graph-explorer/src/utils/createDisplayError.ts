@@ -23,6 +23,13 @@ const defaultDisplayError: DisplayError = {
 };
 
 /**
+ * Errno codes that all mean the endpoint was never reached: DNS said no such
+ * host, DNS failed temporarily, or nothing answered. They share one message
+ * because the remedy is the same.
+ */
+const UNREACHABLE_HOST_CODES = new Set(["ENOTFOUND", "ETIMEDOUT", "EAI_AGAIN"]);
+
+/**
  * Attempts to convert the technicality of errors in to humane
  * friendly errors that are suitable for display.
  *
@@ -48,6 +55,16 @@ export function createDisplayError(error: any): DisplayError {
       return {
         title: "Connection reset",
         message: "Please check your connection and try again.",
+      };
+    }
+    if (
+      UNREACHABLE_HOST_CODES.has(data.code) ||
+      UNREACHABLE_HOST_CODES.has(data.cause?.code)
+    ) {
+      return {
+        title: "Database unreachable",
+        message:
+          "The database hostname could not be resolved, or the endpoint did not answer. Check the hostname in the connection and that the endpoint is reachable.",
       };
     }
     if (
