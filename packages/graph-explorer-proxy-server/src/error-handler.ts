@@ -22,6 +22,36 @@ const HEADER_WHITE_LIST = [
   "origin",
 ];
 
+/**
+ * Replaces the username and password of a header value that parses as a URL.
+ * Scoped to the header values listed in {@link HEADER_WHITE_LIST}; a value that
+ * is not a URL, or a URL without userinfo, is returned unchanged.
+ */
+function redactUrlCredentials(value: string | undefined) {
+  if (value === undefined) {
+    return value;
+  }
+
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return value;
+  }
+
+  if (!url.username && !url.password) {
+    return value;
+  }
+
+  if (url.username) {
+    url.username = "REDACTED";
+  }
+  if (url.password) {
+    url.password = "REDACTED";
+  }
+  return url.href;
+}
+
 /** Handles any errors thrown within Express routes. */
 export function errorHandlingMiddleware() {
   return (
@@ -43,10 +73,10 @@ export function errorHandlingMiddleware() {
       `[${getRequestLoggerPrefix(request)}] Request headers: %s`,
       Object.entries(request.headers)
         .filter(([key]) => HEADER_WHITE_LIST.includes(key.toLowerCase()))
-        .map(
-          ([key, value]) =>
-            `\n\t- ${key}: ${Array.isArray(value) ? value.join(", ") : value}`,
-        )
+        .map(([key, value]) => {
+          const text = Array.isArray(value) ? value.join(", ") : value;
+          return `\n\t- ${key}: ${redactUrlCredentials(text)}`;
+        })
         .join(""),
     );
 

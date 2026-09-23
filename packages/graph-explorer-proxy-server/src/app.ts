@@ -42,10 +42,32 @@ export function resolveEndpointUrl<T extends string>(
   return resolved;
 }
 
+/**
+ * True when the database URL carries no userinfo.
+ *
+ * node-fetch refuses to build a request from a URL with an embedded username
+ * or password, so such a connection has never been able to run a query.
+ * Failing the request while it is still a header means the value is never
+ * turned into a `URL` and never reaches a request.
+ */
+function hasNoEmbeddedCredentials(value: string) {
+  try {
+    const url = new URL(value);
+    return !url.username && !url.password;
+  } catch {
+    // Not a URL at all; the format check reports that on its own.
+    return true;
+  }
+}
+
 /** Zod schema for the custom headers expected on database query requests. */
 const DbQueryHeadersSchema = z.object({
   queryid: z.string().optional(),
-  "graph-db-connection-url": z.url({ protocol: /^https?$/ }),
+  "graph-db-connection-url": z
+    .url({ protocol: /^https?$/ })
+    .refine(hasNoEmbeddedCredentials, {
+      message: "Must not include a username or password",
+    }),
   "aws-neptune-region": z.string().optional(),
   "service-type": z
     .enum(["neptune-db", "neptune-graph"])
