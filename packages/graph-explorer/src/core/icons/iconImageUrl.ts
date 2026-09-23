@@ -1,5 +1,7 @@
 import type { ResolvedIcon } from "./iconRegistry";
 
+import { encodeSvg } from "./iconGeometry";
+
 /**
  * Pure transform to an image url.
  *
@@ -11,6 +13,12 @@ import type { ResolvedIcon } from "./iconRegistry";
  * No size is applied. Both consumers place the icon with
  * `preserveAspectRatio`, which needs the icon's own `viewBox` to fit against;
  * overriding its intrinsic size here would only fight that.
+ *
+ * Do not wrap the result in another inset SVG here: `VertexSymbolIcon` already
+ * insets to 60% in its own SVG coordinates, so this stays a single fit for
+ * every caller. Only the canvas path (`useBackgroundImageMap`) needs its own
+ * wrapper, because cytoscape — unlike an inline SVG — cannot fit an image by
+ * `preserveAspectRatio` itself.
  */
 export function toIconImageUrl(icon: ResolvedIcon, color: string): string {
   switch (icon.kind) {
@@ -35,8 +43,4 @@ function applyColor(svgContent: string, color: string): string {
     existing ? `${existing};color:${color}` : `color:${color}`,
   );
   return new XMLSerializer().serializeToString(root);
-}
-
-function encodeSvg(svgContent: string): string {
-  return "data:image/svg+xml;utf8," + encodeURIComponent(svgContent);
 }
