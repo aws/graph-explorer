@@ -112,21 +112,15 @@ export function extractErrorInfo(error: unknown) {
 
 /**
  * Picks the errno `code` off a Node.js system error or a node-fetch
- * `FetchError`, plus the same field off its `cause`, so the client's
- * `createDisplayError` can tell ECONNREFUSED from ENOTFOUND. Nothing else is
- * copied: the stack and any other `cause` property stay out of the response.
+ * `FetchError`, falling back to the same field on its `cause` for wrappers that
+ * carry the errno one level down, so the client's `createDisplayError` can tell
+ * ECONNREFUSED from ENOTFOUND. Nothing else is copied: the stack and any other
+ * `cause` property stay out of the response.
  */
-function extractErrno(error: Error): {
-  code?: string;
-  cause?: { code: string };
-} {
-  const code = errnoCode(error);
-  const causeCode = errnoCode(error.cause);
+function extractErrno(error: Error) {
+  const code = errnoCode(error) ?? errnoCode(error.cause);
 
-  return {
-    ...(code ? { code } : {}),
-    ...(causeCode ? { cause: { code: causeCode } } : {}),
-  };
+  return code ? { code } : {};
 }
 
 function errnoCode(value: unknown): string | undefined {

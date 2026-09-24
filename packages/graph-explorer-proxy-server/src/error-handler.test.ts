@@ -1,31 +1,8 @@
-import type { Request, Response } from "express";
+import type { Response } from "express";
 
 import { errorHandlingMiddleware, extractErrorInfo } from "./error-handler.ts";
 import { HttpError } from "./errors.ts";
-import { type AppLogger, createLogger } from "./logging.ts";
-import { createTestEnvironment } from "./testing.ts";
-
-const sharedLogger = createLogger(createTestEnvironment());
-
-function createMockRequest(
-  headers: Record<string, string> = {},
-  logger: AppLogger = sharedLogger,
-) {
-  return {
-    method: "POST",
-    path: "/gremlin",
-    headers,
-    app: {
-      locals: {
-        logger,
-      },
-    },
-  } as unknown as Request;
-}
-
-function createSpyLogger() {
-  return { error: vi.fn() } as unknown as AppLogger;
-}
+import { createMockRequest } from "./testing.ts";
 
 function createMockResponse() {
   return {
@@ -61,37 +38,9 @@ describe("extractErrorInfo", () => {
     });
   });
 
-  it("surfaces cause.code when the error has no code of its own", () => {
-    const error = new Error("fetch failed", {
-      cause: { code: "ENOTFOUND" },
-    });
-
-    expect(extractErrorInfo(error)).toStrictEqual({
-      status: 500,
-      message: "fetch failed",
-      cause: { code: "ENOTFOUND" },
-    });
-  });
-
-  it("omits code and cause when neither is present", () => {
-    expect(extractErrorInfo(new Error("Something broke"))).toStrictEqual({
-      status: 500,
-      message: "Something broke",
-    });
-  });
-
-  it("ignores a non-string code", () => {
-    const error = Object.assign(new Error("bad code"), { code: 500 });
-
-    expect(extractErrorInfo(error)).toStrictEqual({
-      status: 500,
-      message: "bad code",
-    });
-  });
-
   // The payload goes straight to the browser, so a wrapped system error must
   // not drag the rest of its cause along with the errno.
-  it("does not forward unrelated cause properties", () => {
+  it("surfaces cause.code without forwarding the rest of the cause", () => {
     const error = new Error("fetch failed", {
       cause: {
         code: "ENOTFOUND",
@@ -105,7 +54,23 @@ describe("extractErrorInfo", () => {
     expect(extractErrorInfo(error)).toStrictEqual({
       status: 500,
       message: "fetch failed",
-      cause: { code: "ENOTFOUND" },
+      code: "ENOTFOUND",
+    });
+  });
+
+  it("omits the code when the error has none", () => {
+    expect(extractErrorInfo(new Error("Something broke"))).toStrictEqual({
+      status: 500,
+      message: "Something broke",
+    });
+  });
+
+  it("ignores a non-string code", () => {
+    const error = Object.assign(new Error("bad code"), { code: 500 });
+
+    expect(extractErrorInfo(error)).toStrictEqual({
+      status: 500,
+      message: "bad code",
     });
   });
 
@@ -148,21 +113,20 @@ describe("errorHandlingMiddleware", () => {
     );
 
     function logHeaderLine(headers: Record<string, string>) {
-      const logger = createSpyLogger();
+      const request = createMockRequest({ headers });
+      const errorSpy = vi.spyOn(request.app.locals.logger, "error");
 
       errorHandlingMiddleware()(
         fetchError,
-        createMockRequest(headers, logger),
+        request,
         createMockResponse(),
         vi.fn(),
       );
 
-      const headerCall = vi
-        .mocked(logger.error)
-        .mock.calls.find(
-          ([first]) =>
-            typeof first === "string" && first.includes("Request headers"),
-        );
+      const headerCall = errorSpy.mock.calls.find(
+        ([first]) =>
+          typeof first === "string" && first.includes("Request headers"),
+      );
       expect(headerCall).toBeDefined();
       return String(headerCall![1]);
     }
