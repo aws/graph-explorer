@@ -260,6 +260,89 @@ describe("createApp", () => {
     }
   });
 
+  // ── Static mount redirect ─────────────────────────────────────────
+
+  describe("static mount redirect", () => {
+    let tmpDir: string;
+
+    beforeEach(() => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-static-test-"));
+      fs.writeFileSync(
+        path.join(tmpDir, "index.html"),
+        "<html>explorer</html>",
+      );
+      fs.mkdirSync(path.join(tmpDir, "assets"));
+      fs.writeFileSync(
+        path.join(tmpDir, "assets", "app.js"),
+        "console.log('ok');",
+      );
+    });
+
+    afterEach(() => {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    function createStaticTestApp(staticFilesVirtualPath = "/explorer") {
+      const app = createApp({
+        configPath: ".",
+        staticFilesVirtualPath,
+        staticFilesPath: tmpDir,
+        version: testVersion,
+      });
+      app.locals.logger = createLogger(createTestEnvironment());
+      return app;
+    }
+
+    it("redirects the bare mount path with a relative Location", async () => {
+      const response = await request(createStaticTestApp()).get("/explorer");
+
+      expect(response.status).toBe(301);
+      expect(response.headers["location"]).toBe("explorer/");
+    });
+
+    it("uses the last segment of a multi-segment mount path", async () => {
+      const response = await request(createStaticTestApp("/ui/graph")).get(
+        "/ui/graph",
+      );
+
+      expect(response.status).toBe(301);
+      // Resolved against "/ui/graph" this gives "/ui/graph/".
+      expect(response.headers["location"]).toBe("graph/");
+    });
+
+    it("serves index.html for a multi-segment mount path", async () => {
+      const response = await request(createStaticTestApp("/ui/graph")).get(
+        "/ui/graph/",
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.text).toContain("explorer");
+    });
+
+    it("serves index.html for the trailing-slash form without redirecting", async () => {
+      const response = await request(createStaticTestApp()).get("/explorer/");
+
+      expect(response.status).toBe(200);
+      expect(response.text).toContain("explorer");
+    });
+
+    it("serves an asset beneath the mount path", async () => {
+      const response = await request(createStaticTestApp()).get(
+        "/explorer/assets/app.js",
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.text).toContain("console.log");
+    });
+
+    it("does not shadow an API route mounted at root", async () => {
+      const response = await request(createStaticTestApp()).get("/status");
+
+      expect(response.status).toBe(200);
+      expect(response.text).toBe("OK");
+    });
+  });
+
   // ── Logger route ───────────────────────────────────────────────────
 
   it("POST /logger returns error when level header is missing", async () => {
