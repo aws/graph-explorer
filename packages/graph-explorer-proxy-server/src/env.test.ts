@@ -13,22 +13,35 @@ describe("parseEnvironmentValues", () => {
     expect(result.LOG_STYLE).toBe("default");
   });
 
-  it("parses NEPTUNE_NOTEBOOK case-insensitively", () => {
-    expect(
-      parseEnvironmentValues({ NEPTUNE_NOTEBOOK: "TRUE" }).NEPTUNE_NOTEBOOK,
-    ).toBe(true);
+  // process-environment.sh applies the notebook preset only on an exact
+  // `= "true"` match. The server has to agree, or it would reject a
+  // configuration the shell set up as an ordinary HTTPS server.
+  describe("NEPTUNE_NOTEBOOK matches the shell's exact-match rule", () => {
+    it("is true only for the exact string true", () => {
+      expect(
+        parseEnvironmentValues({ NEPTUNE_NOTEBOOK: "true" }).NEPTUNE_NOTEBOOK,
+      ).toBe(true);
+    });
 
-    expect(
-      parseEnvironmentValues({ NEPTUNE_NOTEBOOK: "False" }).NEPTUNE_NOTEBOOK,
-    ).toBe(false);
-  });
+    it("is false when unset", () => {
+      expect(parseEnvironmentValues({}).NEPTUNE_NOTEBOOK).toBe(false);
+    });
 
-  // The standard Docker image declares `ENV NEPTUNE_NOTEBOOK=$NEPTUNE_NOTEBOOK`
-  // with no build argument, so the variable arrives set but empty.
-  it("treats an empty NEPTUNE_NOTEBOOK as unset", () => {
-    expect(
-      parseEnvironmentValues({ NEPTUNE_NOTEBOOK: "" }).NEPTUNE_NOTEBOOK,
-    ).toBe(false);
+    // The standard Docker image declares `ENV NEPTUNE_NOTEBOOK=$NEPTUNE_NOTEBOOK`
+    // with no build argument, so the variable arrives set but empty.
+    it.each(["", "false", "TRUE", "True", "1", "yes", "on", " true"])(
+      "is false for %j without failing the parse",
+      value => {
+        const exit = vi
+          .spyOn(process, "exit")
+          .mockImplementation(() => undefined as never);
+
+        const result = parseEnvironmentValues({ NEPTUNE_NOTEBOOK: value });
+
+        expect(result.NEPTUNE_NOTEBOOK).toBe(false);
+        expect(exit).not.toHaveBeenCalled();
+      },
+    );
   });
 
   it("treats an empty PROXY_SERVER_HTTPS_CONNECTION as unset", () => {

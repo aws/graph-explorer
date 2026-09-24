@@ -23,7 +23,13 @@ function booleanStringWithDefault(defaultValue: boolean) {
 /** Schema for the environment values we expect along with their defaults. */
 export const EnvironmentValuesSchema = z.object({
   HOST: z.string().default("localhost"),
-  NEPTUNE_NOTEBOOK: booleanStringWithDefault(false),
+  // Mirrors process-environment.sh, which applies the notebook preset only on
+  // an exact `= "true"` match. Reading it any looser would refuse a server the
+  // shell set up for HTTPS, and a parse error would stop one that runs on main.
+  NEPTUNE_NOTEBOOK: z
+    .string()
+    .optional()
+    .transform(value => value === "true"),
   PROXY_SERVER_HTTPS_CONNECTION: booleanStringWithDefault(false),
   PROXY_SERVER_HTTPS_PORT: z.coerce.number().default(443),
   PROXY_SERVER_HTTP_PORT: z.coerce.number().default(80),
