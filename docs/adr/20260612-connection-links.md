@@ -31,8 +31,8 @@ Connection links are now a first-class route, `#/connect?graphDbUrl=…`. Becaus
 Graph Explorer uses a hash router, the parameters sit **after** the `#` like every
 other route — third-party integrators build the link the same way they would any
 in-app link, and `window.location.search` (everything before the `#`) is no
-longer a trap. The route redirects (router `navigate`, with `replace`) to the
-graph canvas on completion, leaving no `#/connect` entry in history, so refresh
+longer a trap. The route redirects (router `navigate`, with `replace`) away on
+completion, leaving no `#/connect` entry in history, so refresh
 and back behave normally without any manual param stripping.
 
 ### Opening a link is an action, not a derived value
@@ -99,10 +99,12 @@ database, so it is the only one that asks the user to confirm.
 
 The form renders in place inside the app shell rather than as a portaled modal.
 A modal over an otherwise empty route left the user looking at a blank page
-behind the dialog. `DialogInlineContent` keeps the dialog's look, but as a
-non-modal dialog that ignores outside clicks, so clicking the nav bar cannot
-silently discard the form. Escape, the close button, and Cancel all leave for the
-graph view without creating anything.
+behind the dialog. The route renders `DialogSurface`, the same panel
+`DialogContent` portals, inside a non-modal dialog that ignores outside clicks,
+so clicking the nav bar cannot silently discard the form. Saving lands on the
+graph view for the new connection. Escape and Cancel create nothing and land on
+the connections list, since declining the link leaves the user to choose a
+connection rather than dropping them into whichever one was active before.
 
 ## Consequences
 

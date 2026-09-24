@@ -6,7 +6,7 @@ import {
   Dialog,
   DialogDescription,
   DialogHeader,
-  DialogInlineContent,
+  DialogSurface,
   DialogTitle,
   NavBar,
   NavBarContent,
@@ -18,6 +18,7 @@ import {
 import { resolveConnectionLink } from "@/core/resolveConnectionLink";
 import useActivateConnection from "@/core/StateProvider/useActivateConnection";
 import CreateConnection, {
+  type CreateConnectionOutcome,
   mapToConnectionForm,
 } from "@/modules/CreateConnection";
 import { logger } from "@/utils";
@@ -25,14 +26,14 @@ import { LABELS } from "@/utils/constants";
 import { createDisplayError } from "@/utils/createDisplayError";
 
 const GRAPH_CANVAS_ROUTE = "/graph-explorer";
+const CONNECTIONS_ROUTE = "/connections";
 
 /**
  * Route that opens a connection from link params (`#/connect?graphDbUrl=…`).
  * Opening a link is a one-shot event, so the route resolves it once on entry and
  * acts: it switches to a matching existing connection, warns when the link's
  * data is invalid, or opens the create-connection form prefilled from the
- * params. Every outcome ends at the graph canvas, so the connect URL never
- * lingers in history.
+ * params. Every outcome replaces the connect URL, so it never lingers in history.
  *
  * The intent is resolved once, on entry, and held as this component's initial
  * state. Deriving it on every render would re-decide a question the link already
@@ -58,7 +59,12 @@ export default function Connect() {
 
   const [intent] = useState(() => resolveConnectionLink(search));
 
-  const leave = () => navigate(GRAPH_CANVAS_ROUTE, { replace: true });
+  // Declining the link lands on the connections list, where the user can pick
+  // a connection themselves; saving activated the new one, so show its graph.
+  const leave = (outcome: CreateConnectionOutcome) =>
+    navigate(outcome === "saved" ? GRAPH_CANVAS_ROUTE : CONNECTIONS_ROUTE, {
+      replace: true,
+    });
 
   useEffect(() => {
     // The create form is the one outcome that waits on the user, so it renders
@@ -99,8 +105,16 @@ export default function Connect() {
       </NavBar>
       <WorkspaceContent>
         <PanelGroup className="items-center justify-center p-20">
-          <Dialog open modal={false} onOpenChange={open => !open && leave()}>
-            <DialogInlineContent>
+          <Dialog
+            open
+            modal={false}
+            onOpenChange={open => !open && leave("cancelled")}
+          >
+            <DialogSurface
+              // Outside is the rest of this page, so an outside click would
+              // silently discard the form.
+              onInteractOutside={event => event.preventDefault()}
+            >
               <DialogHeader>
                 <DialogTitle>Create connection from link</DialogTitle>
                 <DialogDescription>
@@ -115,7 +129,7 @@ export default function Connect() {
                 })}
                 onClose={leave}
               />
-            </DialogInlineContent>
+            </DialogSurface>
           </Dialog>
         </PanelGroup>
       </WorkspaceContent>

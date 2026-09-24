@@ -39,6 +39,7 @@ function renderConnect(search: string) {
         <Routes>
           <Route path="/connect" element={<Connect />} />
           <Route path="/graph-explorer" element={<div>graph canvas</div>} />
+          <Route path="/connections" element={<div>connections list</div>} />
         </Routes>
         <LocationDisplay />
       </TooltipProvider>
@@ -152,7 +153,9 @@ describe("Connect route", () => {
     expect(screen.getByTestId("location")).toHaveTextContent("/connect");
   });
 
-  test("pressing Escape cancels without creating and lands on the graph canvas", async () => {
+  // Declining a link leaves the user where they can pick a connection
+  // themselves, rather than on a graph view for whatever was active before.
+  test("pressing Escape cancels without creating and lands on the connections list", async () => {
     const user = userEvent.setup();
     new DbState().applyTo(getAppStore());
     const store = getAppStore();
@@ -161,8 +164,37 @@ describe("Connect route", () => {
     renderConnect(searchFor("https://brand-new.neptune.amazonaws.com"));
     await user.keyboard("{Escape}");
 
-    expect(await screen.findByText("graph canvas")).toBeInTheDocument();
+    expect(await screen.findByText("connections list")).toBeInTheDocument();
     expect(store.get(configurationAtom).size).toBe(connectionsBefore);
+  });
+
+  test("clicking Cancel lands on the connections list without creating", async () => {
+    const user = userEvent.setup();
+    new DbState().applyTo(getAppStore());
+    const store = getAppStore();
+    const connectionsBefore = store.get(configurationAtom).size;
+
+    renderConnect(searchFor("https://brand-new.neptune.amazonaws.com"));
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(await screen.findByText("connections list")).toBeInTheDocument();
+    expect(store.get(configurationAtom).size).toBe(connectionsBefore);
+  });
+
+  test("adding the connection activates it and lands on the graph canvas", async () => {
+    const user = userEvent.setup();
+    new DbState().applyTo(getAppStore());
+    const store = getAppStore();
+    const newUrl = "https://brand-new.neptune.amazonaws.com";
+
+    renderConnect(searchFor(newUrl));
+    await user.click(screen.getByRole("button", { name: "Add Connection" }));
+
+    expect(await screen.findByText("graph canvas")).toBeInTheDocument();
+    const active = store
+      .get(configurationAtom)
+      .get(store.get(activeConfigurationAtom)!);
+    expect(active?.connection?.graphDbUrl).toBe(newUrl);
   });
 
   test("warns and redirects when the link's data is invalid", async () => {

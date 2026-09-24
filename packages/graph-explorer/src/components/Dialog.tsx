@@ -30,21 +30,27 @@ function DialogOverlay({
 }
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
-const dialogSurfaceClassName =
-  "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 relative flex max-h-full w-[500px] flex-col overflow-hidden rounded-lg shadow-2xl duration-200";
-
-function DialogCloseButton() {
+/**
+ * The dialog's visible panel, without positioning, overlay, or close button.
+ * {@link DialogContent} portals it over the viewport; a page whose whole purpose
+ * is the dialog can render it in place under a `Dialog` with `modal={false}`.
+ */
+function DialogSurface({
+  className,
+  ...props
+}: React.ComponentPropsWithRef<typeof DialogPrimitive.Content>) {
   return (
-    <DialogPrimitive.Close asChild className="absolute top-5 right-5">
-      <Button variant="ghost" size="icon-small" tooltip="Close">
-        <XIcon />
-      </Button>
-    </DialogPrimitive.Close>
+    <DialogPrimitive.Content
+      className={cn(
+        "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 relative flex max-h-full w-[500px] flex-col overflow-hidden rounded-lg shadow-2xl duration-200",
+        className,
+      )}
+      {...props}
+    />
   );
 }
 
 function DialogContent({
-  className,
   children,
   ...props
 }: React.ComponentPropsWithRef<typeof DialogPrimitive.Content>) {
@@ -52,48 +58,19 @@ function DialogContent({
     <DialogPortal>
       <DialogOverlay />
       <div className="fixed inset-0 z-50 flex h-full w-full items-center justify-center p-20">
-        <DialogPrimitive.Content
-          className={cn(dialogSurfaceClassName, className)}
-          {...props}
-        >
+        <DialogSurface {...props}>
           {children}
-          <DialogCloseButton />
-        </DialogPrimitive.Content>
+          <DialogPrimitive.Close asChild className="absolute top-5 right-5">
+            <Button variant="ghost" size="icon-small" tooltip="Close">
+              <XIcon />
+            </Button>
+          </DialogPrimitive.Close>
+        </DialogSurface>
       </div>
     </DialogPortal>
   );
 }
 DialogContent.displayName = DialogPrimitive.Content.displayName;
-
-/**
- * Dialog content rendered where it sits in the tree instead of portaled over the
- * viewport, for a page whose whole purpose is the dialog. Looks the same as
- * {@link DialogContent}; the parent positions it. Use under a `Dialog` with
- * `modal={false}`.
- *
- * Clicks outside never dismiss it. A non-modal Radix dialog closes on any outside
- * interaction, and here "outside" is the rest of the page, so clicking the nav
- * bar would silently discard the form. Escape and the close button still close.
- */
-function DialogInlineContent({
-  className,
-  children,
-  ...props
-}: Omit<
-  React.ComponentPropsWithRef<typeof DialogPrimitive.Content>,
-  "onInteractOutside"
->) {
-  return (
-    <DialogPrimitive.Content
-      className={cn(dialogSurfaceClassName, className)}
-      onInteractOutside={event => event.preventDefault()}
-      {...props}
-    >
-      {children}
-      <DialogCloseButton />
-    </DialogPrimitive.Content>
-  );
-}
 
 /**
  * The dialog's title/description block, optionally preceded by a
@@ -210,7 +187,7 @@ export {
   DialogTrigger,
   DialogClose,
   DialogContent,
-  DialogInlineContent,
+  DialogSurface,
   DialogBody,
   DialogHeader,
   DialogMedia,

@@ -40,7 +40,7 @@ Under a listed node type, you can click on the ">" arrow to get to the [Data Tab
 
 ## Connection Links
 
-External applications can link directly to Graph Explorer with a connection pre-configured by opening the `#/connect` route with query parameters. Graph Explorer reads the parameters, then either switches to the matching connection or opens a pre-filled create form for a new one, and redirects to the graph view.
+External applications can link directly to Graph Explorer with a connection pre-configured by opening the `#/connect` route with query parameters. Graph Explorer reads the parameters, then either switches to the matching connection or opens a pre-filled create form for a new one.
 
 ### Parameters
 
@@ -66,10 +66,10 @@ When you open a connection link, Graph Explorer does one of the following:
 
 - **The link matches your active connection** — nothing changes.
 - **The link matches a different existing connection** — Graph Explorer switches to it, the same as selecting it in the connections list. No prompt: the connection was already created and validated by you, so there is nothing new to confirm.
-- **The link matches no existing connection** — the create-connection form opens, pre-filled with the link's details so you can review or edit any setting before creating it. Saving the form creates the connection and activates it; closing or cancelling the form creates nothing.
+- **The link matches no existing connection** — the create-connection form opens, pre-filled with the link's details so you can review or edit any setting before creating it. Saving the form creates the connection, activates it, and opens the graph view. Cancelling the form, or pressing Escape, creates nothing and opens the connections list so you can pick a connection yourself.
 - **The link's details are invalid** — the link is ignored and a notification names the parameter at fault and what it requires, for example "graphDbUrl must be a valid http or https URL".
 
-In all cases Graph Explorer redirects to the graph view once the link is handled, so the `#/connect` URL does not linger in your history and refreshing behaves normally.
+In every case Graph Explorer replaces the `#/connect` URL once the link is handled, so it does not linger in your history and refreshing behaves normally.
 
 #### What makes a link invalid
 
