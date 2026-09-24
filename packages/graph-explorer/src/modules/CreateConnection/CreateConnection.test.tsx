@@ -6,7 +6,8 @@ import { describe, expect, test, vi } from "vitest";
 import { TooltipProvider } from "@/components";
 import { configurationAtom, getAppStore } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
-import { TestProvider } from "@/utils/testing";
+import { mergeConfiguration } from "@/core/StateProvider/configuration";
+import { createRandomRawConfiguration, TestProvider } from "@/utils/testing";
 
 import CreateConnection, { mapToConnectionForm } from "./CreateConnection";
 
@@ -95,21 +96,42 @@ describe("CreateConnection", () => {
       screen.getByRole("button", { name: "Add Connection" }),
     ).toBeInTheDocument();
   });
+
+  // The rest of the app shows an unlabeled connection by its id, so the form
+  // should too rather than presenting it as nameless.
+  test("names an unlabeled connection by its id when editing it", () => {
+    const config = {
+      ...createRandomRawConfiguration(),
+      displayLabel: undefined,
+    };
+
+    renderCreateConnection(
+      <CreateConnection
+        existingConfig={{
+          ...mergeConfiguration(null, config, new Map(), new Map()),
+          totalVertices: 0,
+          vertexTypes: [],
+          totalEdges: 0,
+          edgeTypes: [],
+        }}
+        onClose={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByLabelText("Name")).toHaveValue(config.id);
+  });
 });
 
 describe("mapToConnectionForm", () => {
   test("maps a connection's IAM auth into form values", () => {
-    const form = mapToConnectionForm({
-      displayLabel: "My Graph",
-      connection: {
-        url: "https://localhost",
-        queryEngine: "openCypher",
-        proxyConnection: true,
-        graphDbUrl: "https://g.example.com",
-        awsAuthEnabled: true,
-        awsRegion: "us-west-2",
-        serviceType: "neptune-graph",
-      },
+    const form = mapToConnectionForm("My Graph", {
+      url: "https://localhost",
+      queryEngine: "openCypher",
+      proxyConnection: true,
+      graphDbUrl: "https://g.example.com",
+      awsAuthEnabled: true,
+      awsRegion: "us-west-2",
+      serviceType: "neptune-graph",
     });
 
     expect(form).toMatchObject({
@@ -121,9 +143,5 @@ describe("mapToConnectionForm", () => {
       awsRegion: "us-west-2",
       serviceType: "neptune-graph",
     });
-  });
-
-  test("returns undefined when given no config", () => {
-    expect(mapToConnectionForm(undefined)).toBeUndefined();
   });
 });

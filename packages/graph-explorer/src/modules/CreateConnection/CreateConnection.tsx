@@ -90,25 +90,21 @@ function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
   };
 }
 
-/** Maps a stored connection into form values. */
+/**
+ * Maps a connection into form values under the given name. The caller picks the
+ * name because only it knows the fallback: a stored connection falls back to
+ * its id, and a connection that hasn't been saved has no id.
+ */
 export function mapToConnectionForm(
-  existingConfig:
-    | Pick<RawConfiguration, "displayLabel" | "connection">
-    | undefined,
-) {
-  if (!existingConfig) {
-    return;
-  }
-
-  const result: ConnectionForm = {
-    ...existingConfig.connection,
-    name: existingConfig.displayLabel,
-    fetchTimeoutEnabled: Boolean(existingConfig.connection?.fetchTimeoutMs),
-    nodeExpansionLimitEnabled: Boolean(
-      existingConfig.connection?.nodeExpansionLimit,
-    ),
+  name: string,
+  connection: ConnectionConfig | undefined,
+): ConnectionForm {
+  return {
+    ...connection,
+    name,
+    fetchTimeoutEnabled: Boolean(connection?.fetchTimeoutMs),
+    nodeExpansionLimitEnabled: Boolean(connection?.nodeExpansionLimit),
   };
-  return result;
 }
 
 const CreateConnection = ({
@@ -119,7 +115,12 @@ const CreateConnection = ({
   const queryClient = useQueryClient();
 
   const configId = existingConfig?.id;
-  const initialData = mapToConnectionForm(existingConfig) ?? initialValues;
+  const initialData = existingConfig
+    ? mapToConnectionForm(
+        existingConfig.displayLabel || existingConfig.id,
+        existingConfig.connection,
+      )
+    : initialValues;
 
   const onSave = useAtomCallback(
     useCallback(
