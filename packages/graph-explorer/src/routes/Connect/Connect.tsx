@@ -82,7 +82,12 @@ export default function Connect() {
     } else if (intent.kind === "invalid") {
       logger.warn("Ignoring invalid connection link", intent.error);
       const displayError = createDisplayError(intent.error);
-      toast.error(displayError.title, { description: displayError.message });
+      // A stable id keeps StrictMode's double-invoked effect from showing the
+      // same toast twice in dev.
+      toast.error(displayError.title, {
+        id: "invalid-connection-link",
+        description: displayError.message,
+      });
     }
 
     // Paired with the side effect above so the toast is raised before we leave,

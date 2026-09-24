@@ -208,6 +208,7 @@ describe("Connect route", () => {
       expect(toast.error).toHaveBeenCalledWith(
         "Invalid connection link",
         expect.objectContaining({
+          id: "invalid-connection-link",
           description: expect.stringContaining(
             "graphDbUrl must be a valid http or https URL",
           ),
