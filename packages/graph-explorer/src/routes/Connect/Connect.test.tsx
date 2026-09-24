@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { Route, Routes, useLocation } from "react-router";
 import { toast } from "sonner";
 
@@ -120,6 +121,48 @@ describe("Connect route", () => {
     expect(screen.getByLabelText("Name")).toHaveValue("Brand New");
     // The dialog explains the connection details came from the user's link
     expect(screen.getByText(/details from your link/i)).toBeInTheDocument();
+  });
+
+  // The form is the page, not a layer over it, so it renders in place and
+  // leaves the rest of the page usable.
+  test("renders the create form in the page rather than as a modal", () => {
+    new DbState().applyTo(getAppStore());
+
+    renderConnect(searchFor("https://brand-new.neptune.amazonaws.com"));
+
+    const form = screen.getByRole("dialog", {
+      name: "Create connection from link",
+    });
+    expect(form).not.toHaveAttribute("aria-modal", "true");
+    expect(screen.getByTestId("location").compareDocumentPosition(form)).toBe(
+      Node.DOCUMENT_POSITION_PRECEDING,
+    );
+  });
+
+  test("stays on the form when the page around it is clicked", async () => {
+    const user = userEvent.setup();
+    new DbState().applyTo(getAppStore());
+
+    renderConnect(searchFor("https://brand-new.neptune.amazonaws.com"));
+    await user.click(screen.getByTestId("location"));
+
+    expect(
+      screen.getByRole("dialog", { name: "Create connection from link" }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("location")).toHaveTextContent("/connect");
+  });
+
+  test("pressing Escape cancels without creating and lands on the graph canvas", async () => {
+    const user = userEvent.setup();
+    new DbState().applyTo(getAppStore());
+    const store = getAppStore();
+    const connectionsBefore = store.get(configurationAtom).size;
+
+    renderConnect(searchFor("https://brand-new.neptune.amazonaws.com"));
+    await user.keyboard("{Escape}");
+
+    expect(await screen.findByText("graph canvas")).toBeInTheDocument();
+    expect(store.get(configurationAtom).size).toBe(connectionsBefore);
   });
 
   test("warns and redirects when the link's data is invalid", async () => {

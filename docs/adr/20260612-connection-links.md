@@ -97,6 +97,13 @@ the user must submit it. This is the deliberate trust gate for the untrusted
 endpoint details a link can carry — it is the only path that can introduce a new
 database, so it is the only one that asks the user to confirm.
 
+The form renders in place inside the app shell rather than as a portaled modal.
+A modal over an otherwise empty route left the user looking at a blank page
+behind the dialog. `DialogInlineContent` keeps the dialog's look, but as a
+non-modal dialog that ignores outside clicks, so clicking the nav bar cannot
+silently discard the form. Escape, the close button, and Cancel all leave for the
+graph view without creating anything.
+
 ## Consequences
 
 - The contract other code and external integrators depend on is the parameter

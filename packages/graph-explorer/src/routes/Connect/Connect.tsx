@@ -4,10 +4,16 @@ import { toast } from "sonner";
 
 import {
   Dialog,
-  DialogContent,
   DialogDescription,
   DialogHeader,
+  DialogInlineContent,
   DialogTitle,
+  NavBar,
+  NavBarContent,
+  NavBarTitle,
+  PanelGroup,
+  Workspace,
+  WorkspaceContent,
 } from "@/components";
 import { resolveConnectionLink } from "@/core/resolveConnectionLink";
 import useActivateConnection from "@/core/StateProvider/useActivateConnection";
@@ -15,6 +21,7 @@ import CreateConnection, {
   mapToConnectionForm,
 } from "@/modules/CreateConnection";
 import { logger } from "@/utils";
+import { LABELS } from "@/utils/constants";
 import { createDisplayError } from "@/utils/createDisplayError";
 
 const GRAPH_CANVAS_ROUTE = "/graph-explorer";
@@ -81,24 +88,37 @@ export default function Connect() {
     return null;
   }
 
+  // The form is the whole page rather than a layer over an empty one, so it
+  // renders in place inside the app shell instead of in a portal.
   return (
-    <Dialog open onOpenChange={open => !open && leave()}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Create connection from link</DialogTitle>
-          <DialogDescription>
-            Review the connection details from your link and create it to
-            continue.
-          </DialogDescription>
-        </DialogHeader>
-        <CreateConnection
-          initialValues={mapToConnectionForm({
-            displayLabel: intent.name,
-            connection: intent.connection,
-          })}
-          onClose={leave}
-        />
-      </DialogContent>
-    </Dialog>
+    <Workspace>
+      <NavBar logoVisible>
+        <NavBarContent>
+          <NavBarTitle title={LABELS.APP_NAME} />
+        </NavBarContent>
+      </NavBar>
+      <WorkspaceContent>
+        <PanelGroup className="items-center justify-center p-20">
+          <Dialog open modal={false} onOpenChange={open => !open && leave()}>
+            <DialogInlineContent>
+              <DialogHeader>
+                <DialogTitle>Create connection from link</DialogTitle>
+                <DialogDescription>
+                  Review the connection details from your link and create it to
+                  continue.
+                </DialogDescription>
+              </DialogHeader>
+              <CreateConnection
+                initialValues={mapToConnectionForm({
+                  displayLabel: intent.name,
+                  connection: intent.connection,
+                })}
+                onClose={leave}
+              />
+            </DialogInlineContent>
+          </Dialog>
+        </PanelGroup>
+      </WorkspaceContent>
+    </Workspace>
   );
 }
