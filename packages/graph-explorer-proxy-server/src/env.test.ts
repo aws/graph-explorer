@@ -44,13 +44,6 @@ describe("parseEnvironmentValues", () => {
     );
   });
 
-  it("treats an empty PROXY_SERVER_HTTPS_CONNECTION as unset", () => {
-    expect(
-      parseEnvironmentValues({ PROXY_SERVER_HTTPS_CONNECTION: "" })
-        .PROXY_SERVER_HTTPS_CONNECTION,
-    ).toBe(false);
-  });
-
   it("parses provided values", () => {
     const result = parseEnvironmentValues({
       HOST: "my-server",
@@ -115,6 +108,11 @@ describe("parseEnvironmentValues", () => {
       expect(console.error).toHaveBeenCalledWith(
         expect.stringContaining('Must be "true" or "false"'),
       );
+    });
+
+    it("exits process on an empty PROXY_SERVER_HTTPS_CONNECTION", () => {
+      parseEnvironmentValues({ PROXY_SERVER_HTTPS_CONNECTION: "" });
+      expect(process.exit).toHaveBeenCalledWith(1);
     });
 
     it("exits process on invalid LOG_LEVEL", () => {

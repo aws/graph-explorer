@@ -177,7 +177,8 @@ type Deployment = {
     certificatesGenerated: boolean;
     server:
       | { useHttps: boolean; port: number; logStyle: "default" | "cloudwatch" }
-      | ServerConfigError;
+      | ServerConfigError
+      | typeof environmentParseFailure;
   };
 };
 
@@ -188,6 +189,12 @@ const notebookHttp = {
   port: 9250,
   logStyle: "cloudwatch",
 } as const;
+
+/**
+ * Sentinel for rows where the server never reaches {@link resolveServerConfig}
+ * because {@link parseEnvironmentValues} itself exits(1) on an invalid value.
+ */
+const environmentParseFailure = "ENVIRONMENT_PARSE_FAILURE" as const;
 
 const standardTls = {
   envFile: {
@@ -365,11 +372,11 @@ const deployments: Deployment[] = [
     row: 15,
     // The shell treats the empty value as unset and writes the TLS default,
     // but dotenv never overrides a variable already in the environment, so
-    // the server reads the empty value and falls back to HTTP.
-    name: "standard image with -e PROXY_SERVER_HTTPS_CONNECTION= generates certificates but serves HTTP",
+    // the server reads the empty value directly and its schema rejects it.
+    name: "standard image with -e PROXY_SERVER_HTTPS_CONNECTION= generates certificates but fails the environment parse",
     image: standardImage,
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "" },
-    expected: { ...standardTls, server: http },
+    expected: { ...standardTls, server: environmentParseFailure },
   },
   {
     row: 16,
@@ -416,6 +423,25 @@ function serverOutcome(env: EnvironmentValues) {
     return { useHttps, port, logStyle: env.LOG_STYLE };
   } catch (error) {
     return error;
+  }
+}
+
+/** Thrown by the mocked `process.exit` so a parse failure can be caught. */
+class ProcessExitSignal extends Error {}
+
+/**
+ * What the server does at startup, including a failure to parse the
+ * environment at all. Callers must mock `process.exit` to throw
+ * {@link ProcessExitSignal} before calling this.
+ */
+function environmentOutcome(serverEnv: Record<string, string | undefined>) {
+  try {
+    return serverOutcome(parseEnvironmentValues(serverEnv));
+  } catch (error) {
+    if (error instanceof ProcessExitSignal) {
+      return environmentParseFailure;
+    }
+    throw error;
   }
 }
 
@@ -472,18 +498,23 @@ describe("deployment scenarios: entrypoint → dotenv → Zod → server config"
       expect(certificatesGenerated).toBe(expected.certificatesGenerated);
 
       // dotenv.config() never overwrites a key already in process.env.
-      const env = parseEnvironmentValues({
+      const serverEnv = {
         ...envFile,
         ...readServerEnvironment(workDir),
-      });
+      };
+
       const existsSync = fs.existsSync;
       vi.spyOn(fs, "existsSync").mockImplementation(p =>
         p === expectedKeyPath || p === expectedCertPath
           ? certificatesGenerated
           : existsSync(p),
       );
+      vi.spyOn(console, "error").mockImplementation(() => undefined);
+      vi.spyOn(process, "exit").mockImplementation(() => {
+        throw new ProcessExitSignal();
+      });
 
-      expect(serverOutcome(env)).toStrictEqual(expected.server);
+      expect(environmentOutcome(serverEnv)).toStrictEqual(expected.server);
     },
   );
 });
