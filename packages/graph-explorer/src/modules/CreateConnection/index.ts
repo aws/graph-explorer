@@ -1,1 +1,1 @@
-export { default } from "./CreateConnection";
+export { default, mapToConnectionForm } from "./CreateConnection";
