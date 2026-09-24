@@ -148,7 +148,7 @@ Connection details carried in the query string of the `#/connect` route (`graphD
 _Avoid_: deep link, connection link, auto-connect
 
 **URL Connection Intent**:
-The action a set of URL Connection Params resolves to against the current Connections: `none` (the params target the already-active Connection — do nothing), `activate` (the params match an inactive Connection — switch to it, replacing the Session), `create` (no match — open the create form pre-filled from the params), or `invalid` (a link carrying a `graphDbUrl` that fails validation — warn and ignore it). A Connection matches only when its `graphDbUrl`, `queryEngine`, and auth posture (IAM on/off, and when on, `awsRegion` and `serviceType`) all agree — auth posture is identity-bearing, so a link requesting different auth than any existing Connection resolves to `create` rather than silently reusing one.
+The action a set of URL Connection Params resolves to against the current Connections: `none` (the params target the already-active Connection — do nothing), `activate` (the params match an inactive Connection — switch to it, replacing the Session), `create` (no match — open the create form pre-filled from the params), or `invalid` (a link whose params fail validation, such as an unsupported `queryEngine` or `serviceType`, or a malformed or credential-bearing `graphDbUrl` — warn naming each bad param and ignore the link). A Connection matches only when its `graphDbUrl`, `queryEngine`, and auth posture (IAM on/off, and when on, `awsRegion` and `serviceType`) all agree — auth posture is identity-bearing, so a link requesting different auth than any existing Connection resolves to `create` rather than silently reusing one.
 _Avoid_: connection action, deep-link mode
 
 ## Relationships

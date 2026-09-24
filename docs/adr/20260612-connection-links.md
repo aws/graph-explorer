@@ -32,7 +32,7 @@ Opening a link is a single event with a single decision. Making that decision th
 
 ### Auth posture is part of connection identity
 
-A link resolves to one of four intents against the existing connections: `none` (it targets the active connection — do nothing), `activate` (it matches an inactive connection — switch to it), `create` (no match — open a pre-filled form), or `invalid` (the link's `graphDbUrl` failed validation — warn and ignore it). A connection matches only when its `graphDbUrl`, `queryEngine`, **and auth posture** all agree, where auth posture is IAM on/off and, when on, the region and service type.
+A link resolves to one of four intents against the existing connections: `none` (it targets the active connection — do nothing), `activate` (it matches an inactive connection — switch to it), `create` (no match — open a pre-filled form), or `invalid` (a param failed validation, such as an unsupported `queryEngine` or `serviceType`, or a malformed or credential-bearing `graphDbUrl` — warn naming each bad param and ignore the link). A connection matches only when its `graphDbUrl`, `queryEngine`, **and auth posture** all agree, where auth posture is IAM on/off and, when on, the region and service type.
 
 Auth posture is identity-bearing because activating the wrong-auth connection would silently connect with credentials the link did not ask for. A link requesting IAM in `us-east-1` must not reuse a plaintext connection to the same endpoint, and vice versa. When posture differs, the link falls through to the `create` form rather than silently reusing a connection.
 
@@ -48,11 +48,11 @@ The form renders in place inside the app shell rather than as a portaled modal. 
 
 ## Consequences
 
-- The contract other code and external integrators depend on is the parameter set (`graphDbUrl`, `queryEngine`, `awsRegion`, `serviceType`, `name`) and the four-intent model, both in `core/urlConnectionParams.ts`. Parameters are validated with zod; `graphDbUrl` must be an http(s) URL or the link is ignored.
+- The contract other code and external integrators depend on is the parameter set (`graphDbUrl`, `queryEngine`, `awsRegion`, `serviceType`, `name`) and the four-intent model, both in `core/urlConnectionParams.ts`. Parameters are validated with zod: an absent optional param takes its default, while an explicit unsupported value rejects the link, so a link never connects with settings it did not ask for.
 - A connection from a link always proxies through the same host that serves Graph Explorer. The proxy base URL is derived from `document.baseURI` rather than `window.location.origin`, so it keeps the path prefix of path-hosted deployments (e.g. a Neptune notebook at `/proxy/9250/explorer/` resolves the proxy to `/proxy/9250`). There is no parameter to target a different proxy host or to make a direct, non-proxy connection. (When the connection model drops the explicit proxy `url` in favor of always-relative requests — see PR #1773 — this derivation goes away and links inherit that behavior.)
 - A link can switch to or pre-fill a connection, but it can never create or connect to a new database without the user submitting the form. Connections a link creates always route through the proxy, so `PROXY_SERVER_ALLOWED_DB_ORIGINS` also bounds what a link can reach when that variable is set. It is unset by default, and a link that matches a connection configured to contact the database directly bypasses the proxy as any direct connection does. See [security reference](../references/security.md).
 - Parameters are plaintext, not an encoded token. This was deliberate: links are meant to be human-readable and constructible by any integrator. The trust gate is the create form plus the proxy allowlist, not obscurity.
-- Active-connection state is currently global. A separate workstream makes it per-tab; this route is written against the current global behavior and does not bake in cross-tab assumptions.
+- The active connection is scoped per tab (see [Per-tab Active Connection ADR](20260618-per-tab-active-connection.md)): it lives in that tab's `sessionStorage`, seeded at cold start from a shared, last-writer-wins breadcrumb. A link resolves and activates against the tab it opens in, so it never changes what another open tab is viewing.
 
 ## User-facing documentation
 

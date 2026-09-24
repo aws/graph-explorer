@@ -44,13 +44,13 @@ External applications can link directly to Graph Explorer with a connection pre-
 
 ### Parameters
 
-| Parameter     | Required | Default                       | Description                                                                                    |
-| ------------- | -------- | ----------------------------- | ---------------------------------------------------------------------------------------------- |
-| `graphDbUrl`  | Yes      | —                             | The graph database endpoint, URL-encoded.                                                      |
-| `queryEngine` | No       | `gremlin`                     | One of `gremlin`, `openCypher`, or `sparql`. Invalid values fall back to `gremlin`.            |
-| `awsRegion`   | No       | —                             | AWS region for the connection. Providing a region enables IAM auth (SigV4 signed requests).    |
-| `serviceType` | No       | `neptune-db` (when IAM is on) | One of `neptune-db` or `neptune-graph`. Only applies when IAM auth is enabled via `awsRegion`. |
-| `name`        | No       | The endpoint's hostname       | Display label for the connection. Defaults to the full hostname of `graphDbUrl`.               |
+| Parameter     | Required | Default                       | Description                                                                                                                                            |
+| ------------- | -------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `graphDbUrl`  | Yes      | None                          | The graph database endpoint, URL-encoded.                                                                                                              |
+| `queryEngine` | No       | `gremlin`                     | One of `gremlin`, `openCypher`, or `sparql`. Defaults to `gremlin` when omitted. An unsupported value makes the link invalid rather than falling back. |
+| `awsRegion`   | No       | None                          | AWS region for the connection. Providing a region enables IAM auth (SigV4 signed requests).                                                            |
+| `serviceType` | No       | `neptune-db` (when IAM is on) | One of `neptune-db` or `neptune-graph`. Only affects the connection when `awsRegion` is set. An unsupported value makes the link invalid either way.   |
+| `name`        | No       | The endpoint's hostname       | Display label for the connection. Defaults to the full hostname of `graphDbUrl`.                                                                       |
 
 The parameters belong to the `#/connect` route, so they go _after_ the `#` (Graph Explorer uses hash-based routing). `graphDbUrl` must be URL-encoded. Most languages provide this via `encodeURIComponent()` (JavaScript), `urllib.parse.quote()` (Python), or `URLEncoder.encode()` (Java).
 
@@ -64,10 +64,10 @@ https://[GRAPH_EXPLORER_HOST]/#/connect?graphDbUrl=https%3A%2F%2Fmy-cluster.us-e
 
 When you open a connection link, Graph Explorer does one of the following:
 
-- **The link matches your active connection** — nothing changes.
-- **The link matches a different existing connection** — Graph Explorer switches to it, the same as selecting it in the connections list. No prompt: the connection was already created and validated by you, so there is nothing new to confirm.
-- **The link matches no existing connection** — the create-connection form opens, pre-filled with the link's details so you can review or edit any setting before creating it. Saving the form creates the connection, activates it, and opens the graph view. Cancelling the form, or pressing Escape, creates nothing and opens the connections list so you can pick a connection yourself.
-- **The link's details are invalid** — the link is ignored and a notification names the parameter at fault and what it requires, for example "graphDbUrl must be a valid http or https URL".
+- **The link matches your active connection.** Nothing changes.
+- **The link matches a different existing connection.** Graph Explorer switches to it, the same as selecting it in the connections list. No prompt: the connection was already created and validated by you, so there is nothing new to confirm.
+- **The link matches no existing connection.** The create-connection form opens, pre-filled with the link's details so you can review or edit any setting before creating it. Saving the form creates the connection, activates it, and opens the graph view. Cancelling the form, or pressing Escape, creates nothing and opens the connections list so you can pick a connection yourself.
+- **The link's details are invalid.** The link is ignored and a notification names the parameter at fault and what it requires, for example "graphDbUrl must be a valid http or https URL".
 
 In every case Graph Explorer replaces the `#/connect` URL once the link is handled, so it does not linger in your history and refreshing behaves normally.
 
@@ -85,6 +85,8 @@ An unsupported value is rejected rather than replaced with a default, so a link 
 A link matches an existing connection only when its endpoint, query engine, **and authentication posture** all agree:
 
 - the same `graphDbUrl` (compared case-insensitively) and the same `queryEngine`, and
-- the same auth posture — whether IAM is on (a link enables it by providing `awsRegion`), and when it is on, the same `awsRegion` and `serviceType`.
+- the same auth posture: whether IAM is on (a link enables it by providing `awsRegion`), and when it is on, the same `awsRegion` and `serviceType`.
 
-Authentication is part of a connection's identity: a link requesting IAM in a region is a _different_ connection from a plaintext one to the same endpoint, and vice versa. A link whose auth posture differs from every existing connection never silently reuses one — it opens the pre-filled create form instead, where you can review the authentication settings before connecting.
+Authentication is part of a connection's identity: a link requesting IAM in a region is a _different_ connection from a plaintext one to the same endpoint, and vice versa. A link whose auth posture differs from every existing connection never silently reuses one. It opens the pre-filled create form instead, where you can review the authentication settings before connecting.
+
+When several connections match, Graph Explorer picks one in priority order: your active connection first (so a link targeting it is a no-op), then the connection whose name equals the link's `name` parameter (the endpoint's hostname when `name` is omitted), then the first match found. `name` never prevents a match on its own, so a connection you have since renamed still matches a link that was built with its old name.
