@@ -3,6 +3,8 @@ import { DEFAULT_SAMPLE_SIZE } from "@/utils";
 
 import {
   EDGE_TYPES_PER_CHUNK,
+  EDGE_TYPES_PER_SAMPLE,
+  SAMPLE_EDGE_BUDGET,
   LABEL_BUDGET_CHARS,
   COMPLETE_ATTEMPT_TIMEOUT_MS,
   planDiscovery,
@@ -65,10 +67,7 @@ describe("Gremlin > planDiscovery", () => {
 
       expect(plan).toStrictEqual({
         strategy: "sampled",
-        requests: types.map(type => ({
-          edgeTypes: [type],
-          limit: DEFAULT_SAMPLE_SIZE,
-        })),
+        requests: [{ edgeTypes: types, limitPerType: DEFAULT_SAMPLE_SIZE }],
       });
     });
 
@@ -84,7 +83,7 @@ describe("Gremlin > planDiscovery", () => {
       // The edge count alone asks for 2 chunks. Naming 5,008 edge types in one
       // filter overruns the character budget, so it splits once more.
       expect(plan.requests).toHaveLength(3);
-      expect(plan.requests.every(r => r.limit === undefined)).toBe(true);
+      expect(plan.requests.every(r => !("limitPerType" in r))).toBe(true);
       expect(coveredTypes(plan.requests)).toStrictEqual(types);
     });
 
@@ -113,10 +112,7 @@ describe("Gremlin > planDiscovery", () => {
 
       expect(plan).toStrictEqual({
         strategy: "sampled",
-        requests: types.map(type => ({
-          edgeTypes: [type],
-          limit: DEFAULT_SAMPLE_SIZE,
-        })),
+        requests: [{ edgeTypes: types, limitPerType: DEFAULT_SAMPLE_SIZE }],
       });
     });
 
@@ -147,10 +143,7 @@ describe("Gremlin > planDiscovery", () => {
 
       expect(plan).toStrictEqual({
         strategy: "sampled",
-        requests: types.map(type => ({
-          edgeTypes: [type],
-          limit: DEFAULT_SAMPLE_SIZE,
-        })),
+        requests: [{ edgeTypes: types, limitPerType: DEFAULT_SAMPLE_SIZE }],
       });
     });
 
@@ -162,7 +155,7 @@ describe("Gremlin > planDiscovery", () => {
       });
 
       expect(plan.strategy).toBe("complete");
-      expect(plan.requests.every(r => r.limit === undefined)).toBe(true);
+      expect(plan.requests.every(r => !("limitPerType" in r))).toBe(true);
     });
 
     it("should never plan more chunks than there are edge types", () => {
@@ -229,6 +222,52 @@ describe("Gremlin > planDiscovery", () => {
       });
 
       expect(unusable).toStrictEqual(unrecorded);
+    });
+  });
+
+  describe("batching a sampled pass", () => {
+    it("should name several edge types per request, each with its own limit", () => {
+      const types = edgeTypes(25);
+      const plan = planDiscovery({
+        edgeTypes: types,
+        totalEdges: 19_928_805,
+        discovery: "sampled",
+      });
+
+      expect(plan.requests).toHaveLength(
+        Math.ceil(types.length / EDGE_TYPES_PER_SAMPLE),
+      );
+      expect(coveredTypes(plan.requests)).toStrictEqual(types);
+    });
+
+    it("should keep the worst case of every branch reaching its limit inside the sample budget", () => {
+      // A type's edge count is unknown until it is read, so every branch is
+      // assumed full. On a small instance 100 full branches ran for 116s.
+      const plan = planDiscovery({
+        edgeTypes: edgeTypes(1_000),
+        totalEdges: 19_928_805,
+        discovery: "sampled",
+      });
+
+      for (const request of plan.requests) {
+        expect(
+          (request.edgeTypes ?? []).length * DEFAULT_SAMPLE_SIZE,
+        ).toBeLessThanOrEqual(SAMPLE_EDGE_BUDGET);
+      }
+    });
+
+    it("should split a sampled batch early when the edge type names are long", () => {
+      const types = Array.from({ length: EDGE_TYPES_PER_SAMPLE }, (_, i) =>
+        createEdgeType(String(i).padStart(LABEL_BUDGET_CHARS / 2, "t")),
+      );
+      const plan = planDiscovery({
+        edgeTypes: types,
+        totalEdges: 19_928_805,
+        discovery: "sampled",
+      });
+
+      expect(plan.requests.length).toBeGreaterThan(1);
+      expect(coveredTypes(plan.requests)).toStrictEqual(types);
     });
   });
 

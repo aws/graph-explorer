@@ -1,6 +1,10 @@
 import { query } from "@/utils";
 
-import type { DiscoveryRequest } from "./discoveryPlan";
+import type {
+  DiscoveryRequest,
+  SampleRequest,
+  ScanRequest,
+} from "./discoveryPlan";
 
 import { fragment } from "../fragments";
 
@@ -36,23 +40,16 @@ export const projectionKeys = {
  * 1.3.5 emits each label separately, and a bare `by(outV().label())` keeps only
  * the first, silently dropping the vertex's other types.
  *
- * @param edgeTypes Restricts the scan. Omit to scan every edge, which is
- *   cheaper than naming every type when the whole graph fits one request.
- * @param limit Caps the edges scanned. Omit for the complete answer.
+ * A sampled request reads each edge type through its own limited branch. See
+ * {@link sampledEdges}.
  */
-export default function edgeConnectionsTemplate({
-  edgeTypes,
-  limit,
-}: DiscoveryRequest) {
-  const labelFilter = edgeTypes?.length
-    ? `.hasLabel(${edgeTypes.map(fragment.identifier).join(", ")})`
-    : "";
-  const sampleCap =
-    limit === undefined ? "" : `.limit(${fragment.number(limit)})`;
+export default function edgeConnectionsTemplate(request: DiscoveryRequest) {
+  const edges =
+    "limitPerType" in request ? sampledEdges(request) : scannedEdges(request);
   const keys = Object.values(projectionKeys).map(fragment.identifier);
 
   return query`
-    g.E()${labelFilter}${sampleCap}
+    ${edges}
       .groupCount()
         .by(
           project(${keys.join(", ")})
@@ -61,4 +58,30 @@ export default function edgeConnectionsTemplate({
             .by(inV().label().fold())
         )
   `;
+}
+
+/** Every edge, or every edge of the named types. Naming none scans them all. */
+function scannedEdges({ edgeTypes }: ScanRequest) {
+  return edgeTypes?.length
+    ? `g.E().hasLabel(${edgeTypes.map(fragment.identifier).join(", ")})`
+    : "g.E()";
+}
+
+/**
+ * Up to `limitPerType` edges of each named type.
+ *
+ * One limit after `hasLabel(A, B, ...)` would be shared, so a dominant type fills
+ * it and the rest come back empty. Each type gets its own `union()` branch
+ * instead, and on Neptune each branch is an index lookup by edge label.
+ *
+ * Mid-traversal `V()` rather than `E()`, which needs TinkerPop 3.7. The
+ * `V().limit(1)` anchor keeps the plan native on Neptune, where anchoring on
+ * `inject()` falls back to generic evaluation.
+ */
+function sampledEdges({ edgeTypes, limitPerType }: SampleRequest) {
+  const limit = fragment.number(limitPerType);
+  const branches = edgeTypes.map(
+    type => `V().outE(${fragment.identifier(type)}).limit(${limit})`,
+  );
+  return `g.V().limit(1).union(${branches.join(", ")})`;
 }

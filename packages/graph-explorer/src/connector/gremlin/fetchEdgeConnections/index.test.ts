@@ -11,6 +11,7 @@ import {
 
 import fetchEdgeConnections from ".";
 import { EdgeConnectionDiscoveryError } from "./discoveryError";
+import { EDGE_TYPES_PER_SAMPLE } from "./discoveryPlan";
 
 /** One distinct `(edge type, source label, target label)` combination. */
 type Triple = [edgeType: string, sourceType: string, targetType: string];
@@ -106,11 +107,15 @@ describe("Gremlin > fetchEdgeConnections", () => {
     });
   });
 
-  it("should sample each edge type separately when the graph is too large to scan", async () => {
+  it("should sample several edge types in one request when the graph is too large to scan", async () => {
     const gremlinFetch = vi
       .fn()
-      .mockResolvedValueOnce(countResponse(["route", "airport", "airport"]))
-      .mockResolvedValueOnce(countResponse(["contains", "country", "airport"]));
+      .mockResolvedValueOnce(
+        countResponse(
+          ["route", "airport", "airport"],
+          ["contains", "country", "airport"],
+        ),
+      );
 
     const result = await fetchEdgeConnections(
       gremlinFetch,
@@ -121,9 +126,11 @@ describe("Gremlin > fetchEdgeConnections", () => {
       "auto",
     );
 
-    expect(gremlinFetch).toHaveBeenCalledTimes(2);
+    expect(gremlinFetch).toHaveBeenCalledTimes(1);
     expect(gremlinFetch).toHaveBeenCalledWith(
-      expect.stringContaining("hasLabel('route').limit(10000)"),
+      expect.stringContaining(
+        "V().outE('route').limit(10000), V().outE('contains').limit(10000)",
+      ),
       perRequest,
     );
     expect(result.edgeConnections).toHaveLength(2);
@@ -162,7 +169,11 @@ describe("Gremlin > fetchEdgeConnections", () => {
     const result = await fetchEdgeConnections(
       gremlinFetch,
       {
-        edgeTypes: [createEdgeType("route"), createEdgeType("contains")],
+        // One more than a sampled request carries, so the pass takes two.
+        edgeTypes: [
+          createEdgeType("route"),
+          ...edgeTypes(EDGE_TYPES_PER_SAMPLE),
+        ],
         totalEdges: 19_928_805,
       },
       "auto",
@@ -371,7 +382,7 @@ describe("Gremlin > fetchEdgeConnections", () => {
 
         expect(gremlinFetch).toHaveBeenCalledTimes(2);
         expect(gremlinFetch).toHaveBeenLastCalledWith(
-          expect.stringContaining("hasLabel('route').limit(10000)"),
+          expect.stringContaining("V().outE('route').limit(10000)"),
           perRequest,
         );
         expect(result.edgeConnections).toHaveLength(1);
@@ -409,10 +420,13 @@ describe("Gremlin > fetchEdgeConnections", () => {
       );
 
       // 100 complete chunks were planned. The failure stops the pool, so only the
-      // requests already in flight run before the 500 sampled requests.
-      expect(gremlinFetch.mock.calls.length).toBeLessThan(types.length + 100);
+      // requests already in flight run before the sampled requests.
+      const sampledRequests = Math.ceil(types.length / EDGE_TYPES_PER_SAMPLE);
+      expect(gremlinFetch.mock.calls.length).toBeLessThan(
+        sampledRequests + 100,
+      );
       expect(gremlinFetch.mock.calls.length).toBeGreaterThanOrEqual(
-        types.length + 1,
+        sampledRequests + 1,
       );
     });
 

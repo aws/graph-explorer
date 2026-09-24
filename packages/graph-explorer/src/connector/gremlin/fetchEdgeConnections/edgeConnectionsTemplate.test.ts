@@ -29,13 +29,38 @@ describe("Gremlin > edgeConnectionsTemplate", () => {
     expect(template).toContain("g.E().hasLabel('route', 'contains')");
   });
 
-  it("should cap the edges scanned when sampling", () => {
+  it("should give each sampled edge type its own limited branch", () => {
     const template = edgeConnectionsTemplate({
-      edgeTypes: [createEdgeType("route")],
-      limit: 10000,
+      edgeTypes: [createEdgeType("route"), createEdgeType("contains")],
+      limitPerType: 10000,
     });
 
-    expect(template).toContain("g.E().hasLabel('route').limit(10000)");
+    // A single limit after hasLabel() would be shared, and a dominant type would
+    // fill it before the rest were read at all.
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V().limit(1).union(
+          V().outE('route').limit(10000),
+          V().outE('contains').limit(10000)
+        )
+          .groupCount()
+            .by(
+              project('e', 's', 't')
+                .by(label())
+                .by(outV().label().fold())
+                .by(inV().label().fold())
+            )
+      `),
+    );
+  });
+
+  it("should escape special characters in a sampled edge type", () => {
+    const template = edgeConnectionsTemplate({
+      edgeTypes: [createEdgeType("edge'with'quotes")],
+      limitPerType: 10000,
+    });
+
+    expect(template).toContain("V().outE('edge\\'with\\'quotes')");
   });
 
   it("should escape special characters in the edge type", () => {

@@ -38,10 +38,33 @@ export const EDGE_TYPES_PER_CHUNK = 100;
  */
 export const LABEL_BUDGET_CHARS = 60_000;
 
+/**
+ * Edges one sampled request may read, counting every edge type it names as
+ * though it reached the per-type limit.
+ *
+ * A branch that reaches the limit costs about a second on a small instance
+ * whether it shares a request or not, so batching saves round trips, not reads.
+ * Measured on Neptune 1.4.5.1 (db.t3.medium): 10 full branches took 9.7s, 100
+ * took 116s, just under the query timeout, and left the instance refusing even a
+ * single-type sample on memory for two minutes afterwards. The worst case is
+ * assumed because a type's edge count is not known before it is read.
+ */
+export const SAMPLE_EDGE_BUDGET = 100_000;
+
+/** Edge types per sampled request, derived so the worst case fits the sample budget. */
+export const EDGE_TYPES_PER_SAMPLE = Math.max(
+  1,
+  Math.floor(SAMPLE_EDGE_BUDGET / DEFAULT_SAMPLE_SIZE),
+);
+
 /** Quotes and the separator each name costs on top of its own characters. */
 const LABEL_OVERHEAD_CHARS = 4;
 
-/** Measured cost of one sampled request. Range seen across four engines: 0.9s to 1.8s. */
+/**
+ * Measured cost of sampling one edge type. Range seen across four engines: 0.9s
+ * to 1.8s. Still charged per type, not per batched request, because a branch
+ * that reaches the limit costs as much as the separate request it replaced.
+ */
 const PER_REQUEST_MS = 1_500;
 
 /** Measured cost of scanning one edge, in microseconds. Range seen: 74 to 115. */
@@ -70,12 +93,19 @@ export const COMPLETE_ATTEMPT_TIMEOUT_MS = 20_000;
  */
 export type DiscoveryStrategy = "none" | "complete" | "sampled";
 
-export type DiscoveryRequest = {
+/** Reads every matching edge. */
+export type ScanRequest = {
   /** Absent scans every edge type, which is cheaper than naming them all. */
   edgeTypes?: EdgeType[];
-  /** Absent scans every matching edge. */
-  limit?: number;
 };
+
+/** Reads at most `limitPerType` edges of each named edge type, in one request. */
+export type SampleRequest = {
+  edgeTypes: EdgeType[];
+  limitPerType: number;
+};
+
+export type DiscoveryRequest = ScanRequest | SampleRequest;
 
 export type DiscoveryPlan = {
   strategy: DiscoveryStrategy;
@@ -120,9 +150,9 @@ export function planDiscovery({
   if (sample) {
     return {
       strategy: "sampled",
-      requests: edgeTypes.map(type => ({
-        edgeTypes: [type],
-        limit: DEFAULT_SAMPLE_SIZE,
+      requests: chunkEdgeTypes(edgeTypes, EDGE_TYPES_PER_SAMPLE).map(chunk => ({
+        edgeTypes: chunk,
+        limitPerType: DEFAULT_SAMPLE_SIZE,
       })),
     };
   }
@@ -192,7 +222,7 @@ function shouldSample(
 function chunkForCompleteScan(
   edgeTypes: EdgeType[],
   totalEdges: number | undefined,
-): DiscoveryRequest[] {
+): ScanRequest[] {
   const wanted =
     totalEdges === undefined
       ? Math.ceil(edgeTypes.length / EDGE_TYPES_PER_CHUNK)
@@ -203,17 +233,30 @@ function chunkForCompleteScan(
     return [{}];
   }
 
-  const targetSize = Math.ceil(edgeTypes.length / chunkCount);
-  const requests: DiscoveryRequest[] = [];
+  return chunkEdgeTypes(
+    edgeTypes,
+    Math.ceil(edgeTypes.length / chunkCount),
+  ).map(chunk => ({ edgeTypes: chunk }));
+}
+
+/**
+ * Splits edge types into chunks of at most `maxPerChunk`, splitting early when a
+ * chunk's names would overrun the label budget.
+ */
+function chunkEdgeTypes(
+  edgeTypes: EdgeType[],
+  maxPerChunk: number,
+): EdgeType[][] {
+  const chunks: EdgeType[][] = [];
   let chunk: EdgeType[] = [];
   let chars = 0;
 
   for (const edgeType of edgeTypes) {
     const cost = edgeType.length + LABEL_OVERHEAD_CHARS;
     const full =
-      chunk.length >= targetSize || chars + cost > LABEL_BUDGET_CHARS;
+      chunk.length >= maxPerChunk || chars + cost > LABEL_BUDGET_CHARS;
     if (chunk.length > 0 && full) {
-      requests.push({ edgeTypes: chunk });
+      chunks.push(chunk);
       chunk = [];
       chars = 0;
     }
@@ -223,8 +266,8 @@ function chunkForCompleteScan(
   // Only ever pushed non-empty, because a request naming zero edge types reads
   // downstream as no filter at all, which is the unbounded scan.
   if (chunk.length > 0) {
-    requests.push({ edgeTypes: chunk });
+    chunks.push(chunk);
   }
 
-  return requests;
+  return chunks;
 }
