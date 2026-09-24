@@ -11,8 +11,15 @@ if [ ! -f "$CONFIGURATION_FOLDER_PATH/.env" ]; then
 fi
 
 PROXY_SERVER_HTTPS_CONNECTION_VALUE=$(grep -e '^PROXY_SERVER_HTTPS_CONNECTION=' "$CONFIGURATION_FOLDER_PATH/.env" | cut -d "=" -f 2 || true)
+NEPTUNE_NOTEBOOK_VALUE=$(grep -e '^NEPTUNE_NOTEBOOK=' "$CONFIGURATION_FOLDER_PATH/.env" | cut -d "=" -f 2 || true)
 
-if [ -n "$PROXY_SERVER_HTTPS_CONNECTION_VALUE" ] && [ "$PROXY_SERVER_HTTPS_CONNECTION_VALUE" = "true" ]; then
+# The notebook preset serves HTTP only, so certificates would go unused. With
+# HTTPS also requested the server refuses to start, and it has to get that far
+# to name the conflict instead of failing here on a missing HOST.
+# Exact match, the same rule process-environment.sh and the server apply.
+if [ "$NEPTUNE_NOTEBOOK_VALUE" = "true" ]; then
+    echo "Neptune Notebook preset enabled. Skipping self-signed certificate generation."
+elif [ -n "$PROXY_SERVER_HTTPS_CONNECTION_VALUE" ] && [ "$PROXY_SERVER_HTTPS_CONNECTION_VALUE" = "true" ]; then
     CERT_DIR=/graph-explorer/packages/graph-explorer-proxy-server/cert-info \
         HOST="$HOST" \
         ./setup-ssl.sh

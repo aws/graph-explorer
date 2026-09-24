@@ -147,6 +147,76 @@ describe("docker-entrypoint.sh", () => {
     expect(stdout).toContain("SSL disabled");
   });
 
+  describe("under the notebook preset", () => {
+    // The preset serves HTTP only, so certificates would never be used. With
+    // no HOST, setup-ssl.sh would also exit before the server could name the
+    // real NEPTUNE_NOTEBOOK/HTTPS conflict.
+    it("skips setup-ssl.sh even when HTTPS is requested", () => {
+      writeEnv(
+        configDir,
+        "NEPTUNE_NOTEBOOK=true\nPROXY_SERVER_HTTPS_CONNECTION=true\n",
+      );
+
+      const { exitCode, stdout } = runScript(workDir, scriptPath, {
+        HOST: "localhost",
+      });
+
+      expect(exitCode).toBe(0);
+      expect(fs.existsSync(path.join(workDir, "ssl-called"))).toBe(false);
+      expect(stdout).toContain(
+        "Neptune Notebook preset enabled. Skipping self-signed certificate generation.",
+      );
+      expect(stdout).toContain("SERVER_STARTED");
+    });
+
+    it("starts the server when HOST is unset", () => {
+      // Without HOST and existing certificates the real script exits nonzero.
+      fs.writeFileSync(
+        path.join(workDir, "setup-ssl.sh"),
+        '#!/bin/sh\ntouch ./ssl-called\n[ -n "$HOST" ] || exit 1\n',
+        { mode: 0o755 },
+      );
+      writeEnv(
+        configDir,
+        "NEPTUNE_NOTEBOOK=true\nPROXY_SERVER_HTTPS_CONNECTION=true\n",
+      );
+
+      const { exitCode, stdout } = runScript(workDir, scriptPath);
+
+      expect(exitCode).toBe(0);
+      expect(fs.existsSync(path.join(workDir, "ssl-called"))).toBe(false);
+      expect(stdout).toContain("SERVER_STARTED");
+    });
+
+    it.each(["TRUE", "True", "1", "yes", "false", ""])(
+      "still calls setup-ssl.sh when NEPTUNE_NOTEBOOK is %j",
+      value => {
+        writeEnv(
+          configDir,
+          `NEPTUNE_NOTEBOOK=${value}\nPROXY_SERVER_HTTPS_CONNECTION=true\n`,
+        );
+
+        const { exitCode } = runScript(workDir, scriptPath, {
+          HOST: "localhost",
+        });
+
+        expect(exitCode).toBe(0);
+        expect(fs.existsSync(path.join(workDir, "ssl-called"))).toBe(true);
+      },
+    );
+
+    it("grep ignores similarly-named variables", () => {
+      writeEnv(
+        configDir,
+        "GRAPH_EXP_NEPTUNE_NOTEBOOK=true\nPROXY_SERVER_HTTPS_CONNECTION=true\n",
+      );
+
+      runScript(workDir, scriptPath, { HOST: "localhost" });
+
+      expect(fs.existsSync(path.join(workDir, "ssl-called"))).toBe(true);
+    });
+  });
+
   it("grep ignores commented-out lines", () => {
     writeEnv(configDir, "# PROXY_SERVER_HTTPS_CONNECTION=true\n");
 
