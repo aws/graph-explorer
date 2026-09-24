@@ -5,7 +5,7 @@ import { Route, Routes, useLocation } from "react-router";
 import { toast } from "sonner";
 
 import { TooltipProvider } from "@/components";
-import { type ConfigurationId, getAppStore } from "@/core";
+import { type AppStore, type ConfigurationId, getAppStore } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import {
   activeConfigurationAtom,
@@ -48,7 +48,7 @@ function renderConnect(search: string) {
   return store;
 }
 
-function seedInactiveConnection(store: ReturnType<typeof getAppStore>) {
+function seedInactiveConnection(store: AppStore) {
   const inactiveUrl = "https://inactive.neptune.amazonaws.com";
   const inactiveConfig = {
     id: "inactive-conn" as ConfigurationId,
@@ -113,7 +113,7 @@ describe("Connect route", () => {
     new DbState().applyTo(getAppStore());
 
     renderConnect(
-      `${searchFor("https://brand-new.neptune.amazonaws.com")}&name=Brand+New`,
+      `${searchFor("https://brand-new.neptune.amazonaws.com", "openCypher")}&awsRegion=us-west-2&serviceType=neptune-db&name=Brand+New`,
     );
 
     expect(
@@ -122,6 +122,14 @@ describe("Connect route", () => {
     expect(screen.getByLabelText("Name")).toHaveValue("Brand New");
     // The dialog explains the connection details came from the user's link
     expect(screen.getByText(/details from your link/i)).toBeInTheDocument();
+    expect(
+      screen.getByText("OpenCypher - PG (Property Graph)"),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("AWS Region")).toHaveValue("us-west-2");
+    expect(screen.getByText("Neptune DB")).toBeInTheDocument();
+    expect(
+      screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
+    ).toBeChecked();
   });
 
   // The form is the page, not a layer over it, so it renders in place and
