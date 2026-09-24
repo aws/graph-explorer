@@ -133,7 +133,7 @@ These are the valid environment variables used for the default connection, their
   - `PROXY_SERVER_HTTPS_CONNECTION` - `True` - Controls whether the server uses SSL or not
   - `GRAPH_EXP_FETCH_REQUEST_TIMEOUT` - `240000` - Controls the timeout for the fetch request. Measured in milliseconds (i.e. 240000 is 240 seconds or 4 minutes).
   - `GRAPH_EXP_NODE_EXPANSION_LIMIT` - `None` - Controls the limit for node counts and expansion queries.
-  - `EDGE_CONNECTION_DISCOVERY` - `auto` - Gremlin only. Controls how much of the graph is read to work out which node types each edge type connects. See [Edge connection discovery](#edge-connection-discovery).
+  - `EDGE_CONNECTION_DISCOVERY` - `auto` - Gremlin only. Controls how much of the graph is read to work out which node types each edge type connects. Accepts `auto`, `complete`, or `sampled`, in lowercase. Any other value is ignored with a warning in the browser console, and discovery stays on `auto`. See [Edge connection discovery](#edge-connection-discovery).
 - Conditionally Required:
   - Required if `USING_PROXY_SERVER=True`
     - `GRAPH_CONNECTION_URL` - `None`

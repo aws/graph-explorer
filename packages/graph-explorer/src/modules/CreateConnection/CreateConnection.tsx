@@ -48,6 +48,7 @@ import useResetState from "@/core/StateProvider/useResetState";
 import { formatDate, logger } from "@/utils";
 import {
   DEFAULT_FETCH_TIMEOUT,
+  DEFAULT_SAMPLE_SIZE,
   DEFAULT_NODE_EXPAND_LIMIT,
 } from "@/utils/constants";
 
@@ -94,8 +95,7 @@ const EDGE_CONNECTION_DISCOVERY_OPTIONS: {
   {
     value: "sampled",
     label: "Sampled",
-    description:
-      "Checks up to 10,000 edges per edge type. Fast and predictable on very large graphs. Will miss edge connections that occur rarely.",
+    description: `Checks up to ${DEFAULT_SAMPLE_SIZE.toLocaleString()} edges per edge type. Fast and predictable on very large graphs. Will miss edge connections that occur rarely.`,
   },
 ];
 
@@ -473,7 +473,7 @@ const CreateConnection = ({
           {/* Renders its own button rather than `asChild` onto a div, so the
               disclosure stays keyboard operable and announces its expanded state. */}
           <CollapsibleTrigger className="group/advanced-trigger focus-visible:ring-primary/50 text-foreground flex w-fit cursor-pointer flex-row items-center gap-2 rounded-md text-sm leading-tight font-medium focus-visible:ring-[3px] focus-visible:outline-hidden">
-            <ChevronRightIcon className="text-muted-foreground size-5 shrink-0 transition-transform duration-200 ease-in-out group-data-[state=open]/advanced-trigger:rotate-90" />
+            <ChevronRightIcon className="text-muted-foreground size-5 shrink-0 transition-transform duration-200 ease-in-out group-data-open/advanced-trigger:rotate-90" />
             Advanced options
           </CollapsibleTrigger>
           <CollapsibleContent className="flex flex-col gap-6">

@@ -83,9 +83,9 @@ export class EdgeConnectionDiscoveryError extends Error {
 }
 
 /**
- * Both halves are keyed on the setting and whether a complete scan was already
- * abandoned, never on the strategy: a forced complete is the only case with a
- * setting to change, and everything else has run out of cheaper options.
+ * Keyed on the setting and whether a complete scan was already abandoned, never
+ * on the strategy: a forced complete is the only case with a setting to change,
+ * and everything else has run out of cheaper options.
  */
 function describeFailure({ setting, degraded }: FailedDiscovery): string {
   if (setting === "complete") {
@@ -97,12 +97,11 @@ function describeFailure({ setting, degraded }: FailedDiscovery): string {
   return "The database could not sample the edges of each edge type to discover edge connections.";
 }
 
-function describeRecovery({ setting, degraded }: FailedDiscovery): string {
+function describeRecovery({ setting }: FailedDiscovery): string {
   if (setting === "complete") {
     // The failure may be the connection's own fetch timeout rather than the
     // database refusing, and those have opposite remedies, so name both.
     return "Change Edge Connection Discovery to Automatic or Sampled in this connection's advanced options, because Automatic samples a graph this large instead of scanning it. If the connection sets a fetch timeout, a complete scan may simply need longer than that allows.";
   }
-  const alreadyTried = degraded ? " Sampling was already tried." : "";
-  return `Raise the query timeout in the DB cluster parameter group, or use an instance with more memory.${alreadyTried} The Schema view still lists node types and edge types without this.`;
+  return "Raise the query timeout in the DB cluster parameter group, or use an instance with more memory. The Schema view still lists node types and edge types without this.";
 }

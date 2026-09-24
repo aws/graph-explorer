@@ -587,7 +587,7 @@ describe("Gremlin > fetchEdgeConnections", () => {
         setting: "auto",
         completeScanAbandoned: true,
       });
-      expect(error.recovery).toContain("Sampling was already tried");
+      expect(error.message).toContain("sampling each edge type failed as well");
     });
 
     it("should record the degrade at warn level, where a user will see it without dev tools", async () => {

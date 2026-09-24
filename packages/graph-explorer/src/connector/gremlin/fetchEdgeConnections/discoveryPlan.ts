@@ -51,14 +51,24 @@ export const LABEL_BUDGET_CHARS = 60_000;
  *
  * It is also the most edges one request holds in memory at once, because the
  * sampled query groups by edge type and keeps each type's sample until it is
- * counted.
+ * counted. The budget is per request, and requests run four at a time: four
+ * concurrent requests of 10 full branches each finished in 36s on both
+ * db.t3.medium instances measured, with and without DFE, and a single-type
+ * sample sent straight afterwards succeeded.
  */
 export const SAMPLE_EDGE_BUDGET = 100_000;
 
+/**
+ * Most `union()` branches one sampled request may name. Gremlin Server compiles
+ * the script as Groovy, where a call takes at most about 250 arguments, and DFE
+ * crashed a db.t3.medium on 200 branches.
+ */
+export const MAX_UNION_BRANCHES = 100;
+
 /** Edge types per sampled request, derived so the worst case fits the sample budget. */
-export const EDGE_TYPES_PER_SAMPLE = Math.max(
-  1,
-  Math.floor(SAMPLE_EDGE_BUDGET / DEFAULT_SAMPLE_SIZE),
+export const EDGE_TYPES_PER_SAMPLE = Math.min(
+  MAX_UNION_BRANCHES,
+  Math.max(1, Math.floor(SAMPLE_EDGE_BUDGET / DEFAULT_SAMPLE_SIZE)),
 );
 
 /** Quotes and the separator each name costs on top of its own characters. */

@@ -4,6 +4,7 @@ import { DEFAULT_SAMPLE_SIZE } from "@/utils";
 import {
   EDGE_TYPES_PER_CHUNK,
   EDGE_TYPES_PER_SAMPLE,
+  MAX_UNION_BRANCHES,
   SAMPLE_EDGE_BUDGET,
   LABEL_BUDGET_CHARS,
   COMPLETE_ATTEMPT_TIMEOUT_MS,
@@ -253,6 +254,22 @@ describe("Gremlin > planDiscovery", () => {
         expect(
           (request.edgeTypes ?? []).length * DEFAULT_SAMPLE_SIZE,
         ).toBeLessThanOrEqual(SAMPLE_EDGE_BUDGET);
+      }
+    });
+
+    it("should never name more union branches than Gremlin Server can compile", () => {
+      // Gremlin Server compiles the script as Groovy, where one call takes at
+      // most about 250 arguments, so a wider union() fails outright.
+      const plan = planDiscovery({
+        edgeTypes: edgeTypes(1_000),
+        totalEdges: 19_928_805,
+        discovery: "sampled",
+      });
+
+      for (const request of plan.requests) {
+        expect((request.edgeTypes ?? []).length).toBeLessThanOrEqual(
+          MAX_UNION_BRANCHES,
+        );
       }
     });
 
