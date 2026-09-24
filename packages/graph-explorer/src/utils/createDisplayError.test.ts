@@ -125,7 +125,12 @@ describe("createDisplayError", () => {
     const unreachable = {
       title: "Database unreachable",
       message:
-        "The database hostname could not be resolved, or the endpoint did not answer. Check the hostname in the connection and that the endpoint is reachable.",
+        "The database hostname could not be resolved. Check the hostname in the connection and try again.",
+    };
+    const timedOut = {
+      title: "Database connection timed out",
+      message:
+        "The database hostname resolved, but nothing answered at that address. Check that a security group or firewall permits the Graph Explorer server, and that the port in the connection is correct.",
     };
 
     it("Should handle an unresolvable host", () => {
@@ -145,7 +150,17 @@ describe("createDisplayError", () => {
         code: "ETIMEDOUT",
       });
 
-      expect(createDisplayError(error)).toStrictEqual(unreachable);
+      expect(createDisplayError(error)).toStrictEqual(timedOut);
+    });
+
+    it("Should handle a connection that timed out reported under cause", () => {
+      const error = new NetworkError("fetch failed", 500, {
+        status: 500,
+        message: "fetch failed",
+        cause: { code: "ETIMEDOUT" },
+      });
+
+      expect(createDisplayError(error)).toStrictEqual(timedOut);
     });
 
     it("Should handle a temporary DNS failure", () => {

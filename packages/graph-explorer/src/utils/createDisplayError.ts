@@ -23,11 +23,11 @@ const defaultDisplayError: DisplayError = {
 };
 
 /**
- * Errno codes that all mean the endpoint was never reached: DNS said no such
- * host, DNS failed temporarily, or nothing answered. They share one message
- * because the remedy is the same.
+ * Errno codes that mean DNS never produced an address: no such host, or a
+ * temporary resolver failure. They share one message because both point at the
+ * hostname.
  */
-const UNREACHABLE_HOST_CODES = new Set(["ENOTFOUND", "ETIMEDOUT", "EAI_AGAIN"]);
+const UNREACHABLE_HOST_CODES = new Set(["ENOTFOUND", "EAI_AGAIN"]);
 
 /**
  * Attempts to convert the technicality of errors in to humane
@@ -64,7 +64,16 @@ export function createDisplayError(error: any): DisplayError {
       return {
         title: "Database unreachable",
         message:
-          "The database hostname could not be resolved, or the endpoint did not answer. Check the hostname in the connection and that the endpoint is reachable.",
+          "The database hostname could not be resolved. Check the hostname in the connection and try again.",
+      };
+    }
+    // The hostname is the one thing already proven correct, so this cannot
+    // reuse the message above.
+    if (data.code === "ETIMEDOUT" || data.cause?.code === "ETIMEDOUT") {
+      return {
+        title: "Database connection timed out",
+        message:
+          "The database hostname resolved, but nothing answered at that address. Check that a security group or firewall permits the Graph Explorer server, and that the port in the connection is correct.",
       };
     }
     if (
