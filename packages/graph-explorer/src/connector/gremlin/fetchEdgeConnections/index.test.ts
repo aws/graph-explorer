@@ -32,6 +32,31 @@ function countResponse(...triples: Triple[]) {
   );
 }
 
+/** Builds the `group().by(label())` response a sampled request returns. */
+function sampleResponse(...triples: Triple[]) {
+  const byEdgeType = new Map<string, Triple[]>();
+  for (const triple of triples) {
+    byEdgeType.set(triple[0], [...(byEdgeType.get(triple[0]) ?? []), triple]);
+  }
+  return createGremlinResponse(
+    createGMap(
+      new Map(
+        [...byEdgeType].map(([e, ofType]) => [
+          e,
+          createGMap(
+            new Map(
+              ofType.map(([, s, t]) => [
+                createGMap({ s: createGList([s]), t: createGList([t]) }),
+                createGInt64(1),
+              ]),
+            ),
+          ),
+        ]),
+      ),
+    ),
+  );
+}
+
 /** A `groupCount()` over a graph with no matching edges returns an empty map. */
 const emptyResponse = createGremlinResponse(createGMap({}));
 
@@ -111,7 +136,7 @@ describe("Gremlin > fetchEdgeConnections", () => {
     const gremlinFetch = vi
       .fn()
       .mockResolvedValueOnce(
-        countResponse(
+        sampleResponse(
           ["route", "airport", "airport"],
           ["contains", "country", "airport"],
         ),
@@ -164,7 +189,7 @@ describe("Gremlin > fetchEdgeConnections", () => {
   it("should deduplicate combinations returned by more than one request", async () => {
     const gremlinFetch = vi
       .fn()
-      .mockResolvedValue(countResponse(["route", "airport", "airport"]));
+      .mockResolvedValue(sampleResponse(["route", "airport", "airport"]));
 
     const result = await fetchEdgeConnections(
       gremlinFetch,
@@ -266,6 +291,42 @@ describe("Gremlin > fetchEdgeConnections", () => {
         edgeType: createEdgeType("worksAt"),
         targetVertexType: createVertexType("Company"),
       },
+    ]);
+  });
+
+  it("should keep every label of a multi-label endpoint when sampling", async () => {
+    const gremlinFetch = vi.fn().mockResolvedValueOnce(
+      createGremlinResponse(
+        createGMap(
+          new Map([
+            [
+              "worksAt",
+              createGMap(
+                new Map([
+                  [
+                    createGMap({
+                      s: createGList(["Person", "Employee"]),
+                      t: createGList(["Company"]),
+                    }),
+                    createGInt64(1),
+                  ],
+                ]),
+              ),
+            ],
+          ]),
+        ),
+      ),
+    );
+
+    const result = await fetchEdgeConnections(
+      gremlinFetch,
+      { edgeTypes: [createEdgeType("worksAt")], totalEdges: 19_928_805 },
+      "auto",
+    );
+
+    expect(result.edgeConnections.map(c => c.sourceVertexType)).toStrictEqual([
+      createVertexType("Person"),
+      createVertexType("Employee"),
     ]);
   });
 
@@ -372,7 +433,7 @@ describe("Gremlin > fetchEdgeConnections", () => {
         const gremlinFetch = vi
           .fn()
           .mockRejectedValueOnce(tooBigError(code))
-          .mockResolvedValue(countResponse(["route", "airport", "airport"]));
+          .mockResolvedValue(sampleResponse(["route", "airport", "airport"]));
 
         const result = await fetchEdgeConnections(
           gremlinFetch,
@@ -395,7 +456,7 @@ describe("Gremlin > fetchEdgeConnections", () => {
         .mockRejectedValueOnce(
           new DOMException("The operation timed out", "TimeoutError"),
         )
-        .mockResolvedValue(countResponse(["route", "airport", "airport"]));
+        .mockResolvedValue(sampleResponse(["route", "airport", "airport"]));
 
       const result = await fetchEdgeConnections(
         gremlinFetch,
@@ -482,7 +543,7 @@ describe("Gremlin > fetchEdgeConnections", () => {
             cause: { code: "MemoryLimitExceededException" },
           }),
         )
-        .mockResolvedValue(countResponse(["route", "airport", "airport"]));
+        .mockResolvedValue(sampleResponse(["route", "airport", "airport"]));
 
       const result = await fetchEdgeConnections(
         gremlinFetch,
@@ -533,7 +594,7 @@ describe("Gremlin > fetchEdgeConnections", () => {
       const gremlinFetch = vi
         .fn()
         .mockRejectedValueOnce(tooBigError("MemoryLimitExceededException"))
-        .mockResolvedValue(countResponse(["route", "airport", "airport"]));
+        .mockResolvedValue(sampleResponse(["route", "airport", "airport"]));
 
       await fetchEdgeConnections(
         gremlinFetch,

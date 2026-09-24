@@ -43,12 +43,13 @@ describe("Gremlin > edgeConnectionsTemplate", () => {
           V().outE('route').limit(10000),
           V().outE('contains').limit(10000)
         )
-          .groupCount()
+          .group()
+            .by(label())
             .by(
-              project('e', 's', 't')
-                .by(label())
+              project('s', 't')
                 .by(outV().label().fold())
                 .by(inV().label().fold())
+                .groupCount()
             )
       `),
     );

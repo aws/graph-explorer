@@ -40,12 +40,18 @@ export const projectionKeys = {
  * 1.3.5 emits each label separately, and a bare `by(outV().label())` keeps only
  * the first, silently dropping the vertex's other types.
  *
- * A sampled request reads each edge type through its own limited branch. See
- * {@link sampledEdges}.
+ * A sampled request is shaped differently. See {@link sampledEdgesTemplate}.
  */
 export default function edgeConnectionsTemplate(request: DiscoveryRequest) {
-  const edges =
-    "limitPerType" in request ? sampledEdges(request) : scannedEdges(request);
+  return "limitPerType" in request
+    ? sampledEdgesTemplate(request)
+    : scannedEdgesTemplate(request);
+}
+
+function scannedEdgesTemplate({ edgeTypes }: ScanRequest) {
+  const edges = edgeTypes?.length
+    ? `g.E().hasLabel(${edgeTypes.map(fragment.identifier).join(", ")})`
+    : "g.E()";
   const keys = Object.values(projectionKeys).map(fragment.identifier);
 
   return query`
@@ -60,28 +66,40 @@ export default function edgeConnectionsTemplate(request: DiscoveryRequest) {
   `;
 }
 
-/** Every edge, or every edge of the named types. Naming none scans them all. */
-function scannedEdges({ edgeTypes }: ScanRequest) {
-  return edgeTypes?.length
-    ? `g.E().hasLabel(${edgeTypes.map(fragment.identifier).join(", ")})`
-    : "g.E()";
-}
-
 /**
- * Up to `limitPerType` edges of each named type.
+ * Counts the endpoint label combinations of up to `limitPerType` edges of each
+ * named type, grouped by edge type.
  *
  * One limit after `hasLabel(A, B, ...)` would be shared, so a dominant type fills
  * it and the rest come back empty. Each type gets its own `union()` branch
  * instead, and on Neptune each branch is an index lookup by edge label.
+ * Mid-traversal `V()` rather than `E()`, which needs TinkerPop 3.7, and anchored
+ * on `V().limit(1)` because anchoring on `inject()` is not native on Neptune.
  *
- * Mid-traversal `V()` rather than `E()`, which needs TinkerPop 3.7. The
- * `V().limit(1)` anchor keeps the plan native on Neptune, where anchoring on
- * `inject()` falls back to generic evaluation.
+ * Grouped by edge type first, unlike the scan, because Neptune's DFE engine
+ * cannot count one `project()` key across several full branches: two took 54s
+ * and five timed out, where grouping first handled ten in 9s. Grouping holds
+ * each type's sample until it is counted, which the per-type limit bounds, and
+ * is why the scan, which has no limit, cannot use it.
  */
-function sampledEdges({ edgeTypes, limitPerType }: SampleRequest) {
+function sampledEdgesTemplate({ edgeTypes, limitPerType }: SampleRequest) {
   const limit = fragment.number(limitPerType);
   const branches = edgeTypes.map(
     type => `V().outE(${fragment.identifier(type)}).limit(${limit})`,
   );
-  return `g.V().limit(1).union(${branches.join(", ")})`;
+  const keys = [projectionKeys.sourceType, projectionKeys.targetType].map(
+    fragment.identifier,
+  );
+
+  return query`
+    g.V().limit(1).union(${branches.join(", ")})
+      .group()
+        .by(label())
+        .by(
+          project(${keys.join(", ")})
+            .by(outV().label().fold())
+            .by(inV().label().fold())
+            .groupCount()
+        )
+  `;
 }

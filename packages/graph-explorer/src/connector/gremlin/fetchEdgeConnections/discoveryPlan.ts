@@ -48,6 +48,10 @@ export const LABEL_BUDGET_CHARS = 60_000;
  * took 116s, just under the query timeout, and left the instance refusing even a
  * single-type sample on memory for two minutes afterwards. The worst case is
  * assumed because a type's edge count is not known before it is read.
+ *
+ * It is also the most edges one request holds in memory at once, because the
+ * sampled query groups by edge type and keeps each type's sample until it is
+ * counted.
  */
 export const SAMPLE_EDGE_BUDGET = 100_000;
 
