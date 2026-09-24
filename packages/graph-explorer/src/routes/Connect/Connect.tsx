@@ -123,10 +123,10 @@ export default function Connect() {
                 </DialogDescription>
               </DialogHeader>
               <CreateConnection
-                initialValues={mapToConnectionForm({
-                  displayLabel: intent.name,
-                  connection: intent.connection,
-                })}
+                initialValues={mapToConnectionForm(
+                  intent.name,
+                  intent.connection,
+                )}
                 onClose={leave}
               />
             </DialogSurface>
