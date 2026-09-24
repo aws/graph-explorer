@@ -28,5 +28,10 @@ else
 fi
 
 echo "Starting graph explorer..."
-# Stubbed in tests — update docker-entrypoint.test.ts if changing
-cd /graph-explorer/packages/graph-explorer-proxy-server && NODE_ENV=production node src/node-server.ts
+# The container's NEPTUNE_NOTEBOOK can differ from the one written to .env,
+# which config.json replaces, and dotenv never overrides a variable that is
+# already set. Passing the .env value means the server checks for the conflict
+# exactly when the preset was applied.
+# Stubbed in tests by createEntrypointWorkDir in testing.ts. Keep the
+# assignments before node, which the stub passes through.
+cd /graph-explorer/packages/graph-explorer-proxy-server && NEPTUNE_NOTEBOOK="$NEPTUNE_NOTEBOOK_VALUE" NODE_ENV=production node src/node-server.ts

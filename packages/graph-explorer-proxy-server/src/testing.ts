@@ -52,15 +52,22 @@ const entrypointPath = path.resolve(
   "../../../docker-entrypoint.sh",
 );
 
+/**
+ * The entrypoint's server start. The assignments before `node` stay in the
+ * stub, so tests see the environment the entrypoint gives the server.
+ */
 const serverStartLine =
-  "cd /graph-explorer/packages/graph-explorer-proxy-server && NODE_ENV=production node src/node-server.ts";
+  /^cd \/graph-explorer\/packages\/graph-explorer-proxy-server && (.*)node src\/node-server\.ts$/m;
+
+const serverEnvironmentFile = "server-environment.json";
 
 /**
  * Lays out a temp directory that runs docker-entrypoint.sh as the image does,
- * with the server start replaced by an `echo SERVER_STARTED`. The sibling
- * scripts are stubs: process-environment.sh does nothing, and setup-ssl.sh
- * records the call in `ssl-called` and exits nonzero without HOST, as the
- * real script does when no certificates exist yet.
+ * with the server start replaced by an `echo SERVER_STARTED` and a node
+ * process that records its environment for {@link readServerEnvironment}. The
+ * sibling scripts are stubs: process-environment.sh does nothing, and
+ * setup-ssl.sh records the call in `ssl-called` and exits nonzero without
+ * HOST, as the real script does when no certificates exist yet.
  */
 export function createEntrypointWorkDir() {
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-entrypoint-test-"));
@@ -68,15 +75,20 @@ export function createEntrypointWorkDir() {
   fs.mkdirSync(configDir, { recursive: true });
 
   const script = fs.readFileSync(entrypointPath, "utf-8");
-  if (!script.includes(serverStartLine)) {
+  if (!serverStartLine.test(script)) {
     throw new Error(
       "docker-entrypoint.sh no longer contains the expected server start line. Update the test stub.",
     );
   }
+  const recordEnvironment = `require("fs").writeFileSync("${serverEnvironmentFile}", JSON.stringify(process.env))`;
   const scriptPath = path.join(workDir, "docker-entrypoint.sh");
   fs.writeFileSync(
     scriptPath,
-    script.replace(serverStartLine, 'echo "SERVER_STARTED"'),
+    script.replace(
+      serverStartLine,
+      (_line, assignments: string) =>
+        `echo "SERVER_STARTED" && ${assignments}"${process.execPath}" -e '${recordEnvironment}'`,
+    ),
     { mode: 0o755 },
   );
 
@@ -122,4 +134,11 @@ export function runEntrypoint(
       stderr: e.stderr ?? "",
     };
   }
+}
+
+/** The environment the entrypoint started the server with. */
+export function readServerEnvironment(workDir: string): Record<string, string> {
+  return JSON.parse(
+    fs.readFileSync(path.join(workDir, serverEnvironmentFile), "utf-8"),
+  );
 }

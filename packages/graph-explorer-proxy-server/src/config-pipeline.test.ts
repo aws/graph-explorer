@@ -7,7 +7,11 @@ import path from "path";
 import { type EnvironmentValues, parseEnvironmentValues } from "./env.ts";
 import { proxyServerRoot } from "./paths.ts";
 import { resolveServerConfig, ServerConfigError } from "./server-config.ts";
-import { createEntrypointWorkDir, runEntrypoint } from "./testing.ts";
+import {
+  createEntrypointWorkDir,
+  readServerEnvironment,
+  runEntrypoint,
+} from "./testing.ts";
 
 const expectedKeyPath = path.join(proxyServerRoot, "cert-info/server.key");
 const expectedCertPath = path.join(proxyServerRoot, "cert-info/server.crt");
@@ -48,27 +52,6 @@ function runPipeline(
   // to .env for that key.
   return parseEnvironmentValues({ ...parsedFromFile, ...env });
 }
-
-/** The two ways an operator can set the conflicting pair. */
-const conflictRoutes: {
-  route: string;
-  envVars: Record<string, string>;
-  configJson: Record<string, boolean> | null;
-}[] = [
-  {
-    route: "container environment variables",
-    envVars: {
-      NEPTUNE_NOTEBOOK: "true",
-      PROXY_SERVER_HTTPS_CONNECTION: "true",
-    },
-    configJson: null,
-  },
-  {
-    route: "config.json",
-    envVars: {},
-    configJson: { NEPTUNE_NOTEBOOK: true, PROXY_SERVER_HTTPS_CONNECTION: true },
-  },
-];
 
 describe("config pipeline: shell → dotenv → Zod → server config", () => {
   let workDir: string;
@@ -112,36 +95,28 @@ describe("config pipeline: shell → dotenv → Zod → server config", () => {
     expect(config.useHttps).toBe(false);
   });
 
-  describe.each(conflictRoutes)(
-    "Neptune Notebook conflicting with an explicit HTTPS request via $route",
-    ({ envVars, configJson }) => {
-      it("refuses to start with both variables named", () => {
-        if (configJson) {
-          fs.writeFileSync(
-            path.join(workDir, "config.json"),
-            JSON.stringify(configJson),
-          );
-        }
-        // Certificates present, so the conflict is the only thing that can fail.
-        vi.spyOn(fs, "existsSync").mockReturnValue(true);
+  it("Neptune Notebook conflicting with an explicit HTTPS request refuses to start with both variables named", () => {
+    // Certificates present, so the conflict is the only thing that can fail.
+    vi.spyOn(fs, "existsSync").mockReturnValue(true);
 
-        const env = runPipeline(workDir, envVars);
+    const env = runPipeline(workDir, {
+      NEPTUNE_NOTEBOOK: "true",
+      PROXY_SERVER_HTTPS_CONNECTION: "true",
+    });
 
-        expect(env.NEPTUNE_NOTEBOOK).toBe(true);
-        expect(env.PROXY_SERVER_HTTPS_CONNECTION).toBe(true);
+    expect(env.NEPTUNE_NOTEBOOK).toBe(true);
+    expect(env.PROXY_SERVER_HTTPS_CONNECTION).toBe(true);
 
-        let message = "";
-        expect(() => resolveServerConfig(env)).toThrow(ServerConfigError);
-        try {
-          resolveServerConfig(env);
-        } catch (e) {
-          message = (e as Error).message;
-        }
-        expect(message).toContain("NEPTUNE_NOTEBOOK");
-        expect(message).toContain("PROXY_SERVER_HTTPS_CONNECTION");
-      });
-    },
-  );
+    let message = "";
+    expect(() => resolveServerConfig(env)).toThrow(ServerConfigError);
+    try {
+      resolveServerConfig(env);
+    } catch (e) {
+      message = (e as Error).message;
+    }
+    expect(message).toContain("NEPTUNE_NOTEBOOK");
+    expect(message).toContain("PROXY_SERVER_HTTPS_CONNECTION");
+  });
 
   it("HTTPS enabled but certs missing throws ServerConfigError", () => {
     const env = runPipeline(workDir);
@@ -396,6 +371,42 @@ const deployments: Deployment[] = [
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "" },
     expected: { ...standardTls, server: http },
   },
+  {
+    row: 16,
+    // config.json replaces the image's NEPTUNE_NOTEBOOK, and a missing key
+    // reads as unset, so the preset is off.
+    name: "notebook image with config.json HTTPS true and no NEPTUNE_NOTEBOOK key serves TLS",
+    image: notebookImage,
+    configJson: { PROXY_SERVER_HTTPS_CONNECTION: true },
+    expected: {
+      ...standardTls,
+      server: { ...https, logStyle: "cloudwatch" },
+    },
+  },
+  {
+    row: 17,
+    name: "standard image with config.json NEPTUNE_NOTEBOOK and HTTPS true refuses with the conflict",
+    image: standardImage,
+    configJson: { NEPTUNE_NOTEBOOK: true, PROXY_SERVER_HTTPS_CONNECTION: true },
+    expected: notebookConflict,
+  },
+  {
+    row: 18,
+    name: "notebook image with config.json NEPTUNE_NOTEBOOK false defaults to TLS",
+    image: notebookImage,
+    configJson: { NEPTUNE_NOTEBOOK: false },
+    expected: {
+      ...standardTls,
+      server: { ...https, logStyle: "cloudwatch" },
+    },
+  },
+  {
+    row: 19,
+    name: "standard image with config.json NEPTUNE_NOTEBOOK true applies the preset but keeps port 80",
+    image: standardImage,
+    configJson: { NEPTUNE_NOTEBOOK: true },
+    expected: { ...notebookPreset, server: http },
+  },
 ];
 
 /** What the server does at startup: the listener it opens, or its refusal. */
@@ -461,7 +472,10 @@ describe("deployment scenarios: entrypoint → dotenv → Zod → server config"
       expect(certificatesGenerated).toBe(expected.certificatesGenerated);
 
       // dotenv.config() never overwrites a key already in process.env.
-      const env = parseEnvironmentValues({ ...envFile, ...containerEnv });
+      const env = parseEnvironmentValues({
+        ...envFile,
+        ...readServerEnvironment(workDir),
+      });
       const existsSync = fs.existsSync;
       vi.spyOn(fs, "existsSync").mockImplementation(p =>
         p === expectedKeyPath || p === expectedCertPath
