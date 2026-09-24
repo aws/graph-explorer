@@ -5,6 +5,11 @@ on:
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+      - ".agents/**"
+      - ".claude/**"
 
 permissions:
   contents: read
