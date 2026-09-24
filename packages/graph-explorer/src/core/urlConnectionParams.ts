@@ -20,52 +20,57 @@ import { ConnectionLinkError } from "./connectionLinkError";
  * reads back to the user as the requirement it broke: "graphDbUrl must be a
  * valid http or https URL".
  */
-const UrlConnectionParamsSchema = z.object({
-  // Only http(s) endpoints are meaningful, and constraining the scheme keeps a
-  // crafted link from seeding the form with something like `javascript:`.
-  //
-  // Credentials in the URL are refused by `fetch` itself (the Request
-  // constructor throws on them), so a link carrying them could only build a
-  // connection that fails every query, after persisting the password to
-  // IndexedDB and into any exported connection file. Graph Explorer
-  // authenticates with IAM, never userinfo.
-  graphDbUrl: z
-    .url({
-      protocol: /^https?$/,
-      error: "must be a valid http or https URL",
-    })
-    .refine(value => !hasCredentials(value), {
-      error: "cannot include a username or password",
-    }),
-  // Absent values take a default, but an explicit value we do not support is a
-  // rejection rather than a coercion: silently answering `queryEngine=sql` with
-  // Gremlin would build a connection that queries the database in a language the
-  // caller never asked for.
-  queryEngine: z
-    .enum(queryEngineOptions, { error: mustBeOneOf(queryEngineOptions) })
-    .default("gremlin"),
-  awsRegion: z.string().default(""),
-  serviceType: z
-    .enum(neptuneServiceTypeOptions, {
-      error: mustBeOneOf(neptuneServiceTypeOptions),
-    })
-    .optional(),
-  // An explicit `?name=` is the same as omitting it: `URLSearchParams.get`
-  // returns "" rather than null, which would otherwise survive as an empty
-  // display label instead of falling back to the hostname.
-  name: z
-    .string()
-    .optional()
-    .transform(name => name || undefined),
-});
+const UrlConnectionParamsSchema = z
+  .object({
+    // Only http(s) endpoints are meaningful, and constraining the scheme keeps a
+    // crafted link from seeding the form with something like `javascript:`.
+    //
+    // Credentials in the URL are refused by `fetch` itself (the Request
+    // constructor throws on them), so a link carrying them could only build a
+    // connection that fails every query, after persisting the password to
+    // IndexedDB and into any exported connection file. Graph Explorer
+    // authenticates with IAM, never userinfo.
+    graphDbUrl: z
+      .url({
+        protocol: /^https?$/,
+        error: "must be a valid http or https URL",
+      })
+      .refine(value => !hasCredentials(value), {
+        error: "cannot include a username or password",
+      }),
+    // Absent values take a default, but an explicit value we do not support is a
+    // rejection rather than a coercion: silently answering `queryEngine=sql` with
+    // Gremlin would build a connection that queries the database in a language the
+    // caller never asked for.
+    queryEngine: z
+      .enum(queryEngineOptions, { error: mustBeOneOf(queryEngineOptions) })
+      .default("gremlin"),
+    awsRegion: z.string().default(""),
+    serviceType: z
+      .enum(neptuneServiceTypeOptions, {
+        error: mustBeOneOf(neptuneServiceTypeOptions),
+      })
+      .optional(),
+    // An explicit `?name=` is the same as omitting it: `URLSearchParams.get`
+    // returns "" rather than null, which would otherwise survive as an empty
+    // display label instead of falling back to the hostname.
+    name: z
+      .string()
+      .optional()
+      .transform(name => name || undefined),
+  })
+  // A nameless link takes the hostname `deriveNameFromUrl` would have produced,
+  // so `name` is always a usable display label after parsing.
+  .transform(data => ({
+    ...data,
+    name: data.name ?? deriveNameFromUrl(data.graphDbUrl),
+  }));
 
 function mustBeOneOf(options: readonly string[]): string {
   return `must be one of ${options.map(option => `"${option}"`).join(", ")}`;
 }
 
-export type UrlConnectionParams = z.infer<typeof UrlConnectionParamsSchema> & {
-  name: string;
-};
+export type UrlConnectionParams = z.infer<typeof UrlConnectionParamsSchema>;
 
 /**
  * Whether a URL carries userinfo. Zod runs every check on a field even after an
@@ -124,13 +129,7 @@ export function readConnectionLink(search: string): ConnectionLink {
     };
   }
 
-  return {
-    kind: "valid",
-    params: {
-      ...parsed.data,
-      name: parsed.data.name ?? deriveNameFromUrl(graphDbUrl),
-    },
-  };
+  return { kind: "valid", params: parsed.data };
 }
 
 /**
