@@ -27,7 +27,7 @@ jobs:
       - name: Review dependencies for vulnerabilities
         uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
 
-  install-and-test:
+  checks:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -50,5 +50,25 @@ jobs:
       - name: Run type, lint, and format checks
         run: pnpm checks
 
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: ".nvmrc"
+
+      - name: Install package and dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Run package tests
-        run: pnpm test
+        run: pnpm test --shard ${{ matrix.shard }}/${{ strategy.job-total }}
