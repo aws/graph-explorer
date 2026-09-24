@@ -10,7 +10,9 @@ import { createStore } from "jotai";
 import localforage from "localforage";
 import { afterEach, vi } from "vitest";
 
-import { iconRegistry } from "@/core/icons";
+// Deep import: this file loads before every test file, and the barrels here
+// pull in hundreds of modules.
+import { iconRegistry } from "@/core/icons/iconRegistry";
 
 // Mock getAppStore to return a specific test store
 let store = createStore();
