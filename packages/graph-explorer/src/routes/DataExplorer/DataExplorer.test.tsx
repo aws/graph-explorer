@@ -1,8 +1,7 @@
 // @vitest-environment happy-dom
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { Provider } from "jotai";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router";
+import { Route, Routes, useLocation } from "react-router";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
@@ -11,6 +10,7 @@ import {
   createTestableVertex,
   DbState,
   mockVirtualizedLayout,
+  TestProvider,
 } from "@/utils/testing";
 
 import DataExplorer from "./DataExplorer";
@@ -35,22 +35,19 @@ function renderDataExplorer(initialPath: string, state: DbState) {
   });
 
   return render(
-    <QueryClientProvider client={queryClient}>
-      <Provider store={store}>
-        <TooltipProvider>
-          <MemoryRouter initialEntries={[initialPath]}>
-            <Routes>
-              <Route path="/data-explorer" element={<DataExplorer />} />
-              <Route
-                path="/data-explorer/:vertexType"
-                element={<DataExplorer />}
-              />
-            </Routes>
-            <LocationDisplay />
-          </MemoryRouter>
-        </TooltipProvider>
-      </Provider>
-    </QueryClientProvider>,
+    <TestProvider
+      client={queryClient}
+      store={store}
+      initialEntries={[initialPath]}
+    >
+      <TooltipProvider>
+        <Routes>
+          <Route path="/data-explorer" element={<DataExplorer />} />
+          <Route path="/data-explorer/:vertexType" element={<DataExplorer />} />
+        </Routes>
+        <LocationDisplay />
+      </TooltipProvider>
+    </TestProvider>,
   );
 }
 
