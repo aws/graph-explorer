@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { Response } from "express";
 
 import {
   createLogger,
@@ -6,22 +6,7 @@ import {
   logRequestAndResponse,
   requestLoggingMiddleware,
 } from "./logging.ts";
-import { createTestEnvironment } from "./testing.ts";
-
-const sharedLogger = createLogger(createTestEnvironment());
-
-function createMockRequest(overrides: Partial<Request> = {}) {
-  return {
-    method: "GET",
-    path: "/test",
-    app: {
-      locals: {
-        logger: sharedLogger,
-      },
-    },
-    ...overrides,
-  } as unknown as Request;
-}
+import { createMockRequest, createTestEnvironment } from "./testing.ts";
 
 function createMockResponse(statusCode: number) {
   return {
