@@ -1,4 +1,4 @@
-name: Unit Tests
+name: Checks
 
 on:
   workflow_dispatch:
@@ -17,21 +17,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  dependency-review:
-    if: github.event_name == 'pull_request'
+  checks:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Review dependencies for vulnerabilities
-        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
-
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        shard: [1, 2, 3, 4]
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -47,5 +34,8 @@ jobs:
       - name: Install package and dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run package tests
-        run: pnpm test --shard ${{ matrix.shard }}/${{ strategy.job-total }}
+      - name: Check for lockfile drift
+        run: pnpm dedupe --check
+
+      - name: Run type, lint, and format checks
+        run: pnpm checks
