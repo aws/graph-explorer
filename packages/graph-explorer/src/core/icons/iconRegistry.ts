@@ -1,6 +1,6 @@
 import DOMPurify from "dompurify";
 
-import { logger } from "@/utils";
+import logger from "@/utils/logger";
 import { getLucideSvgString } from "@/utils/lucideIcons";
 
 import { type IconSource, type IconSourceId, iconSourceId } from "./iconSource";
