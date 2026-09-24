@@ -8,11 +8,23 @@ const BooleanStringSchema = z
   })
   .transform(s => s.toLowerCase() === "true");
 
+/**
+ * A {@link BooleanStringSchema} that falls back to `defaultValue` when the
+ * variable is unset or empty. Docker's `ENV NAME=$ARG` sets an empty value
+ * whenever the build argument was not passed.
+ */
+function booleanStringWithDefault(defaultValue: boolean) {
+  return z.preprocess(
+    value => (value === "" ? undefined : value),
+    BooleanStringSchema.default(defaultValue),
+  );
+}
+
 /** Schema for the environment values we expect along with their defaults. */
 export const EnvironmentValuesSchema = z.object({
   HOST: z.string().default("localhost"),
-  NEPTUNE_NOTEBOOK: BooleanStringSchema.default(false),
-  PROXY_SERVER_HTTPS_CONNECTION: BooleanStringSchema.default(false),
+  NEPTUNE_NOTEBOOK: booleanStringWithDefault(false),
+  PROXY_SERVER_HTTPS_CONNECTION: booleanStringWithDefault(false),
   PROXY_SERVER_HTTPS_PORT: z.coerce.number().default(443),
   PROXY_SERVER_HTTP_PORT: z.coerce.number().default(80),
   LOG_LEVEL: z

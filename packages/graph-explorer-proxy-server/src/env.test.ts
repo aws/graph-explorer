@@ -23,6 +23,21 @@ describe("parseEnvironmentValues", () => {
     ).toBe(false);
   });
 
+  // The standard Docker image declares `ENV NEPTUNE_NOTEBOOK=$NEPTUNE_NOTEBOOK`
+  // with no build argument, so the variable arrives set but empty.
+  it("treats an empty NEPTUNE_NOTEBOOK as unset", () => {
+    expect(
+      parseEnvironmentValues({ NEPTUNE_NOTEBOOK: "" }).NEPTUNE_NOTEBOOK,
+    ).toBe(false);
+  });
+
+  it("treats an empty PROXY_SERVER_HTTPS_CONNECTION as unset", () => {
+    expect(
+      parseEnvironmentValues({ PROXY_SERVER_HTTPS_CONNECTION: "" })
+        .PROXY_SERVER_HTTPS_CONNECTION,
+    ).toBe(false);
+  });
+
   it("parses provided values", () => {
     const result = parseEnvironmentValues({
       HOST: "my-server",
