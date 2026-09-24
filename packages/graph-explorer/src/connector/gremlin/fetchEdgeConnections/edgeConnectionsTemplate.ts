@@ -31,6 +31,11 @@ export const projectionKeys = {
  * native but does not guarantee order, and Neptune's DFE engine permuted it,
  * silently reporting edges in the wrong direction. See the ADR.
  *
+ * The endpoint labels are folded because engines disagree on what `label()`
+ * emits for a multi-label vertex. Neptune 1.4 emits one `::` composite, but
+ * 1.3.5 emits each label separately, and a bare `by(outV().label())` keeps only
+ * the first, silently dropping the vertex's other types.
+ *
  * @param edgeTypes Restricts the scan. Omit to scan every edge, which is
  *   cheaper than naming every type when the whole graph fits one request.
  * @param limit Caps the edges scanned. Omit for the complete answer.
@@ -52,8 +57,8 @@ export default function edgeConnectionsTemplate({
         .by(
           project(${keys.join(", ")})
             .by(label())
-            .by(outV().label())
-            .by(inV().label())
+            .by(outV().label().fold())
+            .by(inV().label().fold())
         )
   `;
 }

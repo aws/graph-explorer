@@ -33,8 +33,11 @@ import edgeConnectionsTemplate, {
   projectionKeys,
 } from "./edgeConnectionsTemplate";
 
+/** Every label of one endpoint vertex, folded by the template. */
+type EndpointLabels = { "@type": "g:List"; "@value": string[] };
+
 /** The projected triple that keys one `groupCount()` entry. */
-type ProjectedTriple = GMapWithValue<string, string>;
+type ProjectedTriple = GMapWithValue<string, string | EndpointLabels>;
 
 type RawEdgeConnectionsResponse = {
   result: {
@@ -202,22 +205,21 @@ function parseEdgeConnections(
   for (const response of responses) {
     for (const counts of response.result.data["@value"]) {
       for (const triple of parseGMap(counts).keys()) {
-        const labels = parseGMap<string, string>(triple);
+        const labels = parseGMap(triple);
         const edgeType = labels.get(projectionKeys.edgeType);
-        const sourceLabel = labels.get(projectionKeys.sourceType);
-        const targetLabel = labels.get(projectionKeys.targetType);
+        const sourceTypes = endpointTypes(
+          labels.get(projectionKeys.sourceType),
+        );
+        const targetTypes = endpointTypes(
+          labels.get(projectionKeys.targetType),
+        );
 
-        if (
-          !edgeType ||
-          !sourceLabel ||
-          !targetLabel ||
-          !knownEdgeTypes.has(edgeType)
-        ) {
+        if (typeof edgeType !== "string" || !knownEdgeTypes.has(edgeType)) {
           continue;
         }
 
-        for (const sourceType of splitLabel(sourceLabel)) {
-          for (const targetType of splitLabel(targetLabel)) {
+        for (const sourceType of sourceTypes) {
+          for (const targetType of targetTypes) {
             const connection: EdgeConnection = {
               sourceVertexType: createVertexType(sourceType),
               edgeType: createEdgeType(edgeType),
@@ -239,4 +241,16 @@ function parseEdgeConnections(
   }
 
   return edgeConnections;
+}
+
+/**
+ * Expands one endpoint's folded labels into vertex types. Neptune 1.4 folds a
+ * multi-label vertex into one `::` composite, 1.3.5 into one entry per label, so
+ * every entry is split.
+ */
+function endpointTypes(labels: string | EndpointLabels | undefined): string[] {
+  if (labels === undefined || typeof labels === "string") {
+    return [];
+  }
+  return labels["@value"].flatMap(label => splitLabel(label));
 }

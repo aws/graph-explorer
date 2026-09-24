@@ -4,6 +4,7 @@ import { createEdgeType, createVertexType, type EdgeType } from "@/core";
 import { logger, NetworkError } from "@/utils";
 import {
   createGInt64,
+  createGList,
   createGMap,
   createGremlinResponse,
 } from "@/utils/testing";
@@ -14,12 +15,17 @@ import { EdgeConnectionDiscoveryError } from "./discoveryError";
 /** One distinct `(edge type, source label, target label)` combination. */
 type Triple = [edgeType: string, sourceType: string, targetType: string];
 
+/** One projected key, with each endpoint's labels folded into a list as the template asks. */
+function tripleKey(e: string, s: string[], t: string[]) {
+  return createGMap({ e, s: createGList(s), t: createGList(t) });
+}
+
 /** Builds the flat `groupCount().by(project(...))` response: one g:Map of triple to count. */
 function countResponse(...triples: Triple[]) {
   return createGremlinResponse(
     createGMap(
       new Map(
-        triples.map(([e, s, t]) => [createGMap({ e, s, t }), createGInt64(1)]),
+        triples.map(([e, s, t]) => [tripleKey(e, [s], [t]), createGInt64(1)]),
       ),
     ),
   );
@@ -213,6 +219,45 @@ describe("Gremlin > fetchEdgeConnections", () => {
     });
   });
 
+  it("should expand multi-label endpoints that arrive as one entry per label", async () => {
+    // Neptune 1.3.5 emits each label of a multi-label vertex separately rather
+    // than as one `::` composite. Keeping only the first would silently drop the
+    // vertex's other types from the schema.
+    const gremlinFetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        createGremlinResponse(
+          createGMap(
+            new Map([
+              [
+                tripleKey("worksAt", ["Person", "Employee"], ["Company"]),
+                createGInt64(1),
+              ],
+            ]),
+          ),
+        ),
+      );
+
+    const result = await fetchEdgeConnections(
+      gremlinFetch,
+      { edgeTypes: [createEdgeType("worksAt")], totalEdges: 10 },
+      "auto",
+    );
+
+    expect(result.edgeConnections).toStrictEqual([
+      {
+        sourceVertexType: createVertexType("Person"),
+        edgeType: createEdgeType("worksAt"),
+        targetVertexType: createVertexType("Company"),
+      },
+      {
+        sourceVertexType: createVertexType("Employee"),
+        edgeType: createEdgeType("worksAt"),
+        targetVertexType: createVertexType("Company"),
+      },
+    ]);
+  });
+
   it("should ignore edge types that are not in the schema", async () => {
     // An unfiltered scan sees every edge type in the graph, including ones the
     // schema does not know about and the app therefore cannot render.
@@ -244,20 +289,22 @@ describe("Gremlin > fetchEdgeConnections", () => {
     // The whole reason the key is a named project() rather than a union() is that
     // Neptune's DFE engine permutes an unnamed key and silently inverts the edge
     // direction. Reading by name is what makes the shape safe, so pin it.
-    const gremlinFetch = vi
-      .fn()
-      .mockResolvedValueOnce(
-        createGremlinResponse(
-          createGMap(
-            new Map([
-              [
-                createGMap({ t: "airport", e: "contains", s: "country" }),
-                createGInt64(1),
-              ],
-            ]),
-          ),
+    const gremlinFetch = vi.fn().mockResolvedValueOnce(
+      createGremlinResponse(
+        createGMap(
+          new Map([
+            [
+              createGMap({
+                t: createGList(["airport"]),
+                e: "contains",
+                s: createGList(["country"]),
+              }),
+              createGInt64(1),
+            ],
+          ]),
         ),
-      );
+      ),
+    );
 
     const result = await fetchEdgeConnections(
       gremlinFetch,
@@ -282,11 +329,11 @@ describe("Gremlin > fetchEdgeConnections", () => {
             ReturnType<typeof createGMap>,
             ReturnType<typeof createGInt64>
           >([
-            [createGMap({ e: "route", s: "airport" }), createGInt64(1)],
             [
-              createGMap({ e: "route", s: "airport", t: "airport" }),
+              createGMap({ e: "route", s: createGList(["airport"]) }),
               createGInt64(1),
             ],
+            [tripleKey("route", ["airport"], ["airport"]), createGInt64(1)],
           ]),
         ),
       ),

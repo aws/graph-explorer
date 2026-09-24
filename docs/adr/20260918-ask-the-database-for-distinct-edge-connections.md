@@ -34,8 +34,10 @@ Three facts, all measured live, shaped the decision:
 ```gremlin
 g.E()[.hasLabel(...)][.limit(10000)]
   .groupCount().by(project('e','s','t')
-    .by(label()).by(outV().label()).by(inV().label()))
+    .by(label()).by(outV().label().fold()).by(inV().label().fold()))
 ```
+
+The endpoint labels are folded because engines disagree on what `label()` emits for a multi-label vertex. Neptune 1.2 and 1.4 emit one `::` composite; 1.3.5 emits each label as its own value, so an unfolded `by(outV().label())` kept only the first and silently dropped the vertex's other types. Measured on a fixture of `a::b` and `d::e::f` vertices on all four versions. The parser splits every folded entry on `::`.
 
 1. **Complete strategy.** No `limit`. Returns every edge connection plus exact edge counts. Split across requests when the graph exceeds the scan budget; chunking is this strategy issued N times, not a third strategy.
 2. **Sampled strategy.** `hasLabel(X).limit(10000)`, one request per edge type. Matches today's sampling semantics. `DiscoveryStrategy` carries a third value, `none`, for a schema with no edge types; that is a guard clause rather than a strategy choice.
@@ -57,7 +59,8 @@ Giving up produces an `EdgeConnectionDiscoveryError` rather than the database's 
 
 ## Considered options
 
-- **`groupCount().by(project(...))` (chosen).** Native on every engine tested, one item returned, correct direction, `::` composite labels preserved.
+- **`groupCount().by(project(...))` (chosen).** Native on every engine tested, one item returned, correct direction, and every label of a multi-label vertex preserved once the endpoint labels are folded.
+- **The same shape with unfolded endpoint labels.** Rejected as silently wrong on 1.3.5.0, where it returned `b` for an `a::b` vertex in both the complete and sampled strategies. The shape it replaced, `group().by(label()).by(project(...).dedup().fold())`, returned both labels there, so this was a regression.
 - **Keep `group().by(label()).by(limit(...))`.** Rejected: the shape that fails. Not native, and holds one item per edge.
 - **`dedup()` on a projected map.** Rejected as silently wrong. Returned 5 of 13 expected combinations on Neptune 1.2.1.0, because `dedup()` does not compare projected maps by content. Same defect in `g.V().outE().project(...).dedup()` and `path().by(label())`.
 - **`groupCount()` keyed by `union(label(), outV().label(), inV().label()).fold()`.** Rejected as silently wrong, and the most dangerous of the three: it is native and looks correct, but `union()` does not guarantee order and DFE permuted the key on 1.3.5.0, reporting `contains` as `airport -> continent` when the truth is `continent -> airport`. A named `project()` key is what makes the chosen shape safe.

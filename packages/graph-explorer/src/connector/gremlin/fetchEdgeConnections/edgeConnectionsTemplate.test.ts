@@ -14,8 +14,8 @@ describe("Gremlin > edgeConnectionsTemplate", () => {
             .by(
               project('e', 's', 't')
                 .by(label())
-                .by(outV().label())
-                .by(inV().label())
+                .by(outV().label().fold())
+                .by(inV().label().fold())
             )
       `),
     );
