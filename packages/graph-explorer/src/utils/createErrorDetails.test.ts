@@ -7,6 +7,8 @@ import {
 } from "@/connector/queryValueError";
 
 import { createErrorDetails } from "./createErrorDetails";
+import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
+import { FetchTimeoutError } from "./FetchTimeoutError";
 import { NetworkError } from "./NetworkError";
 import { ServerConnectionError } from "./ServerConnectionError";
 
@@ -258,6 +260,39 @@ describe("createErrorDetails", () => {
         name: "500 Internal Server Error",
         message: "failed",
         data: '"raw text"',
+      });
+    });
+  });
+
+  describe("DatabaseTimeoutError", () => {
+    it("uses the NetworkError branch, including the status name and data", () => {
+      const data = {
+        requestId: "abc-123",
+        code: "TimeLimitExceededException",
+        detailedMessage: "A timeout occurred during the request.",
+      };
+      const error = new DatabaseTimeoutError(
+        "A timeout occurred during the request.",
+        500,
+        data,
+        "TimeLimitExceededException",
+      );
+      expect(createErrorDetails(error)).toStrictEqual({
+        name: "500 Internal Server Error",
+        message: "A timeout occurred during the request.",
+        data: JSON.stringify(data, null, 2),
+      });
+    });
+  });
+
+  describe("FetchTimeoutError", () => {
+    it("uses the generic Error branch, including the cause as data", () => {
+      const cause = new DOMException("The signal timed out", "TimeoutError");
+      const error = new FetchTimeoutError(5000, cause);
+      expect(createErrorDetails(error)).toStrictEqual({
+        name: "FetchTimeoutError",
+        message: "The request exceeded the fetch timeout of 5000 ms",
+        data: JSON.stringify({ name: "TimeoutError" }, null, 2),
       });
     });
   });

@@ -1,5 +1,7 @@
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
+import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
+
 import { createSparqlExplorer } from "./sparqlExplorer";
 
 function createConnection(
@@ -95,6 +97,63 @@ describe("createSparqlExplorer", () => {
       expect(schema).toBeDefined();
       expect(schema).toHaveProperty("vertices");
       expect(schema).toHaveProperty("edges");
+    });
+  });
+
+  describe("rawQuery", () => {
+    it("throws DatabaseTimeoutError for a Neptune query timeout", async () => {
+      mockFetch.mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            requestId: "abc-123",
+            code: "TimeLimitExceededException",
+            detailedMessage: "A timeout occurred during the request.",
+          }),
+          { status: 500, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+
+      const explorer = createSparqlExplorer(
+        createConnection(),
+        createFeatureFlags(),
+        new Map(),
+      );
+
+      const error = await explorer
+        .rawQuery({ query: "SELECT * WHERE { ?s ?p ?o } LIMIT 10" })
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(DatabaseTimeoutError);
+      expect(error.databaseCode).toBe("TimeLimitExceededException");
+    });
+
+    it("throws FetchTimeoutError when the connection's fetch timeout is exceeded", async () => {
+      mockFetch.mockImplementation((_uri, init: RequestInit) => {
+        return new Promise((_resolve, reject) => {
+          const signal = init.signal;
+          if (!signal) return;
+          if (signal.aborted) {
+            reject(signal.reason as Error);
+            return;
+          }
+          signal.addEventListener("abort", () =>
+            reject(signal.reason as Error),
+          );
+        });
+      });
+
+      const explorer = createSparqlExplorer(
+        createConnection({ fetchTimeoutMs: 1 }),
+        createFeatureFlags(),
+        new Map(),
+      );
+
+      const error = await explorer
+        .rawQuery({ query: "SELECT * WHERE { ?s ?p ?o } LIMIT 10" })
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(FetchTimeoutError);
+      expect(error.timeoutMs).toBe(1);
     });
   });
 });

@@ -1,5 +1,7 @@
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
+import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
+
 import { createGremlinExplorer } from "./gremlinExplorer";
 
 function createConnection(
@@ -98,6 +100,65 @@ describe("createGremlinExplorer", () => {
       expect(schema).toBeDefined();
       expect(schema).toHaveProperty("vertices");
       expect(schema).toHaveProperty("edges");
+    });
+  });
+
+  describe("rawQuery", () => {
+    it("throws DatabaseTimeoutError for a Gremlin Server evaluation timeout", async () => {
+      // Captured from a local `tinkerpop/gremlin-server:3.8` container after
+      // a query exceeded the server's `evaluationTimeout`.
+      mockFetch.mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            message:
+              "Evaluation exceeded the configured 'evaluationTimeout' threshold of 30000 ms or evaluation was otherwise cancelled directly for request [...]",
+            "Exception-Class": "java.util.concurrent.TimeoutException",
+            exceptions: ["java.util.concurrent.TimeoutException"],
+            requestId: "65a196b9-48a3-48c0-911a-b73ae7903f04",
+          }),
+          { status: 500, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+
+      const explorer = createGremlinExplorer(
+        createConnection(),
+        createFeatureFlags(),
+      );
+
+      const error = await explorer
+        .rawQuery({ query: "g.V().limit(10)" })
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(DatabaseTimeoutError);
+      expect(error.databaseCode).toBe("java.util.concurrent.TimeoutException");
+    });
+
+    it("throws FetchTimeoutError when the connection's fetch timeout is exceeded", async () => {
+      mockFetch.mockImplementation((_uri, init: RequestInit) => {
+        return new Promise((_resolve, reject) => {
+          const signal = init.signal;
+          if (!signal) return;
+          if (signal.aborted) {
+            reject(signal.reason as Error);
+            return;
+          }
+          signal.addEventListener("abort", () =>
+            reject(signal.reason as Error),
+          );
+        });
+      });
+
+      const explorer = createGremlinExplorer(
+        createConnection({ fetchTimeoutMs: 1 }),
+        createFeatureFlags(),
+      );
+
+      const error = await explorer
+        .rawQuery({ query: "g.V().limit(10)" })
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(FetchTimeoutError);
+      expect(error.timeoutMs).toBe(1);
     });
   });
 });

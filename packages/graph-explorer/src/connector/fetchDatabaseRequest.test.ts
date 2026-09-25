@@ -1,6 +1,12 @@
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
-import { logger, NetworkError, ServerConnectionError } from "@/utils";
+import {
+  DatabaseTimeoutError,
+  FetchTimeoutError,
+  logger,
+  NetworkError,
+  ServerConnectionError,
+} from "@/utils";
 
 import { fetchDatabaseRequest } from "./fetchDatabaseRequest";
 
@@ -490,6 +496,173 @@ describe("fetchDatabaseRequest", () => {
 
       expect(caught).toBeInstanceOf(ServerConnectionError);
       expect(caught.url).toBe("http://localhost:8182/sparql");
+    });
+  });
+
+  describe("timeout classification", () => {
+    // Mimics real `fetch`: rejects with the signal's abort reason once the
+    // combined signal aborts, whichever underlying signal caused it.
+    function abortableFetch(_uri: unknown, init: RequestInit) {
+      return new Promise((_resolve, reject) => {
+        const signal = init.signal;
+        if (!signal) return;
+        if (signal.aborted) {
+          reject(signal.reason as Error);
+          return;
+        }
+        signal.addEventListener("abort", () => reject(signal.reason as Error));
+      });
+    }
+
+    // Mimics a response that arrived successfully but whose body never
+    // finishes streaming until the signal fires, so a timeout mid-parse is
+    // still classified rather than escaping unclassified.
+    function hangingJsonResponse(init: RequestInit) {
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () =>
+          new Promise((_resolve, reject) => {
+            const signal = init.signal;
+            if (!signal) return;
+            signal.addEventListener("abort", () =>
+              reject(signal.reason as Error),
+            );
+          }),
+      } as unknown as Response);
+    }
+
+    it("throws FetchTimeoutError when the fetch timer fires", async () => {
+      mockFetch.mockImplementation(abortableFetch);
+      const conn = createConnection({ fetchTimeoutMs: 1 });
+
+      const error = await fetchDatabaseRequest(conn, featureFlags, "/query", {
+        method: "POST",
+      }).catch(e => e);
+
+      expect(error).toBeInstanceOf(FetchTimeoutError);
+      expect(error.timeoutMs).toBe(1);
+      expect(error.cause).toBeInstanceOf(DOMException);
+      expect(error.cause.name).toBe("TimeoutError");
+    });
+
+    it("throws exactly the caller's AbortError when the caller aborts first", async () => {
+      mockFetch.mockImplementation(abortableFetch);
+      const conn = createConnection({ fetchTimeoutMs: 1 });
+      const controller = new AbortController();
+      controller.abort();
+
+      const error = await fetchDatabaseRequest(conn, featureFlags, "/query", {
+        method: "POST",
+        signal: controller.signal,
+      }).catch(e => e);
+
+      expect(error).toBe(controller.signal.reason);
+      expect(error).not.toBeInstanceOf(FetchTimeoutError);
+    });
+
+    it("throws the caller's AbortError when both signals end up aborted", async () => {
+      mockFetch.mockImplementation(abortableFetch);
+      const conn = createConnection({ fetchTimeoutMs: 1 });
+      const controller = new AbortController();
+      controller.abort();
+
+      const promise = fetchDatabaseRequest(conn, featureFlags, "/query", {
+        method: "POST",
+        signal: controller.signal,
+      }).catch(e => e);
+
+      // Let the independent fetch-timeout signal fire on its own timer too,
+      // so both signals are aborted by the time the assertion runs.
+      await new Promise(resolve => setTimeout(resolve, 5));
+
+      const error = await promise;
+
+      expect(error).toBe(controller.signal.reason);
+      expect(error).not.toBeInstanceOf(FetchTimeoutError);
+    });
+
+    it("throws FetchTimeoutError when the timeout fires while reading the response body", async () => {
+      mockFetch.mockImplementation((_uri, init) => hangingJsonResponse(init));
+      const conn = createConnection({ fetchTimeoutMs: 1 });
+
+      const error = await fetchDatabaseRequest(conn, featureFlags, "/query", {
+        method: "POST",
+      }).catch(e => e);
+
+      expect(error).toBeInstanceOf(FetchTimeoutError);
+      expect(error.timeoutMs).toBe(1);
+    });
+
+    it("throws DatabaseTimeoutError for a Neptune query timeout body", async () => {
+      const errorBody = {
+        requestId: "abc-123",
+        code: "TimeLimitExceededException",
+        detailedMessage: "A timeout occurred during the request.",
+      };
+      mockFetch.mockResolvedValue(jsonResponse(errorBody, 500));
+
+      const error = await fetchDatabaseRequest(
+        connection,
+        featureFlags,
+        "/query",
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(error).toBeInstanceOf(DatabaseTimeoutError);
+      expect(error.databaseCode).toBe("TimeLimitExceededException");
+      expect(error.statusCode).toBe(500);
+      expect(error.data).toStrictEqual(errorBody);
+    });
+
+    it("throws DatabaseTimeoutError for a Neptune query timeout body wrapped in an error object", async () => {
+      const innerError = {
+        requestId: "abc-123",
+        code: "TimeLimitExceededException",
+        detailedMessage: "A timeout occurred during the request.",
+      };
+      mockFetch.mockResolvedValue(jsonResponse({ error: innerError }, 500));
+
+      const error = await fetchDatabaseRequest(
+        connection,
+        featureFlags,
+        "/query",
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(error).toBeInstanceOf(DatabaseTimeoutError);
+      expect(error.databaseCode).toBe("TimeLimitExceededException");
+      expect(error.data).toStrictEqual(innerError);
+    });
+
+    it("throws a plain NetworkError for a memory limit error, not DatabaseTimeoutError", async () => {
+      mockFetch.mockResolvedValue(
+        jsonResponse({ code: "MemoryLimitExceededException" }, 500),
+      );
+
+      const error = await fetchDatabaseRequest(
+        connection,
+        featureFlags,
+        "/query",
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(error).toBeInstanceOf(NetworkError);
+      expect(error).not.toBeInstanceOf(DatabaseTimeoutError);
+    });
+
+    it("throws a plain NetworkError for ETIMEDOUT, not DatabaseTimeoutError", async () => {
+      mockFetch.mockResolvedValue(jsonResponse({ code: "ETIMEDOUT" }, 500));
+
+      const error = await fetchDatabaseRequest(
+        connection,
+        featureFlags,
+        "/query",
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(error).toBeInstanceOf(NetworkError);
+      expect(error).not.toBeInstanceOf(DatabaseTimeoutError);
     });
   });
 });

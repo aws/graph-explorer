@@ -1,5 +1,7 @@
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
+import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
+
 import { createOpenCypherExplorer } from "./openCypherExplorer";
 
 function createConnection(
@@ -119,6 +121,61 @@ describe("createOpenCypherExplorer", () => {
       expect(schema).toBeDefined();
       expect(schema).toHaveProperty("vertices");
       expect(schema).toHaveProperty("edges");
+    });
+  });
+
+  describe("rawQuery", () => {
+    it("throws DatabaseTimeoutError for a Neptune query timeout", async () => {
+      mockFetch.mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            requestId: "abc-123",
+            code: "TimeLimitExceededException",
+            detailedMessage: "A timeout occurred during the request.",
+          }),
+          { status: 500, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+
+      const explorer = createOpenCypherExplorer(
+        createConnection(),
+        createFeatureFlags(),
+      );
+
+      const error = await explorer
+        .rawQuery({ query: "MATCH (n) RETURN n LIMIT 10" })
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(DatabaseTimeoutError);
+      expect(error.databaseCode).toBe("TimeLimitExceededException");
+    });
+
+    it("throws FetchTimeoutError when the connection's fetch timeout is exceeded", async () => {
+      mockFetch.mockImplementation((_uri, init: RequestInit) => {
+        return new Promise((_resolve, reject) => {
+          const signal = init.signal;
+          if (!signal) return;
+          if (signal.aborted) {
+            reject(signal.reason as Error);
+            return;
+          }
+          signal.addEventListener("abort", () =>
+            reject(signal.reason as Error),
+          );
+        });
+      });
+
+      const explorer = createOpenCypherExplorer(
+        createConnection({ fetchTimeoutMs: 1 }),
+        createFeatureFlags(),
+      );
+
+      const error = await explorer
+        .rawQuery({ query: "MATCH (n) RETURN n LIMIT 10" })
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(FetchTimeoutError);
+      expect(error.timeoutMs).toBe(1);
     });
   });
 });

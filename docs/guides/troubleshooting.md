@@ -93,7 +93,13 @@ There are multiple sources of timeouts.
 - Browser
 - Graph Explorer connection configuration
 
-The error you receive in Graph Explorer can interpret Neptune timeout errors and timeouts from Graph Explorer's configuration.
+Graph Explorer distinguishes two kinds of timeout and shows a different message for each.
+
+**Fetch timeout exceeded** means the request didn't finish within the connection's own Fetch Timeout setting. This is a client-side limit you configure yourself in the connection's settings, under "Enable Fetch Timeout". Increase the Fetch Timeout value, or retry the request.
+
+**Database query timed out** means the database itself stopped the query because it ran longer than the database's configured query timeout. For Neptune, this is controlled by the DB cluster parameter group. Increase the query timeout there, or retry the request.
+
+If a request is cancelled instead, for example by navigating away or refreshing the page, Graph Explorer shows a plain "Request cancelled" message rather than either timeout message.
 
 ### Out of Memory
 
