@@ -21,18 +21,14 @@ export default function useNeighborsOptions(
     return [];
   }
 
-  return neighbors.byType
-    .entries()
-    .map(([type, neighbors]) => {
-      const vtConfig = getVtConfig(type);
+  return Array.from(neighbors.byType.entries(), ([type, neighbors]) => {
+    const vtConfig = getVtConfig(type);
 
-      return {
-        label: vtConfig.displayLabel,
-        value: vtConfig.type,
-        isDisabled: neighbors.unfetched === 0,
-        config: vtConfig,
-      };
-    })
-    .toArray()
-    .toSorted((a, b) => a.label.localeCompare(b.label));
+    return {
+      label: vtConfig.displayLabel,
+      value: vtConfig.type,
+      isDisabled: neighbors.unfetched === 0,
+      config: vtConfig,
+    };
+  }).toSorted((a, b) => a.label.localeCompare(b.label));
 }

@@ -97,7 +97,7 @@ export function useNeighborByType(vertexId: VertexId, type: VertexType) {
 
 export function useAllNeighbors() {
   const vertices = useAtomValue(nodesAtom);
-  const vertexIds = useMemo(() => vertices.keys().toArray(), [vertices]);
+  const vertexIds = useMemo(() => Array.from(vertices.keys()), [vertices]);
 
   const queryClient = useQueryClient();
   const fetchedNeighbors = useAtomValue(allFetchedNeighborsSelector(vertexIds));
@@ -109,14 +109,13 @@ export function useAllNeighbors() {
     }
 
     return new Map(
-      data
-        .values()
+      Array.from(data.values())
         .filter(d => d != null)
-        .map(data => {
-          const neighbors = fetchedNeighbors.get(data.vertexId) ?? [];
+        .map(d => {
+          const neighbors = fetchedNeighbors.get(d.vertexId) ?? [];
           return [
-            data.vertexId,
-            calculateNeighbors(data.totalCount, data.counts, neighbors),
+            d.vertexId,
+            calculateNeighbors(d.totalCount, d.counts, neighbors),
           ];
         }),
     );
@@ -144,17 +143,18 @@ export function calculateNeighbors(
     unfetched: Math.max(0, total - fetchedTotal),
   };
 
-  const fetchedNeighborsByType = fetchNeighborsMap
-    .values()
-    .reduce((map, neighbor) => {
+  const fetchedNeighborsByType = Array.from(fetchNeighborsMap.values()).reduce(
+    (map, neighbor) => {
       for (const type of neighbor.types) {
         map.set(type, (map.get(type) ?? 0) + 1);
       }
       return map;
-    }, new Map<string, number>());
+    },
+    new Map<string, number>(),
+  );
 
   const byType = new Map(
-    totalByType.entries().map(([type, count]) => {
+    Array.from(totalByType.entries(), ([type, count]) => {
       // Count of unique neighbors that have been fetched
       const fetched = fetchedNeighborsByType.get(type) ?? 0;
 
@@ -202,7 +202,7 @@ const fetchedNeighborsSelector = atomFamily((id: VertexId) =>
       neighbors.set(neighbor.id, neighbor);
     }
 
-    return neighbors.values().toArray();
+    return Array.from(neighbors.values());
   }),
 );
 

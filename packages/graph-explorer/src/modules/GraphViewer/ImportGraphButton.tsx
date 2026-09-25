@@ -46,19 +46,15 @@ function useImportGraphMutation() {
   const addToGraph = useAddToGraph();
   const formatEntityCounts = useEntityCountFormatterCallback();
   const allConfigs = useAtomValue(configurationAtom);
-  const allConnections = allConfigs
-    .values()
-    .map(config =>
-      config.connection
-        ? {
-            ...config.connection,
-            id: config.id,
-            displayLabel: config.displayLabel,
-          }
-        : null,
-    )
-    .filter(c => c != null)
-    .toArray();
+  const allConnections = Array.from(allConfigs.values(), config =>
+    config.connection
+      ? {
+          ...config.connection,
+          id: config.id,
+          displayLabel: config.displayLabel,
+        }
+      : null,
+  ).filter(c => c != null);
 
   const mutation = useMutation({
     mutationFn: async (file: File) => {

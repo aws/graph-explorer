@@ -46,11 +46,11 @@ export class FakeExplorer implements Explorer {
   edgeMap = toEdgeMap([]);
 
   get vertices() {
-    return this.vertexMap.values().toArray();
+    return Array.from(this.vertexMap.values());
   }
 
   get edges() {
-    return this.edgeMap.values().toArray();
+    return Array.from(this.edgeMap.values());
   }
 
   constructor() {
@@ -129,21 +129,17 @@ export class FakeExplorer implements Explorer {
     }
 
     // Apply offset and limit
-    let vertices = neighborVertices.values().toArray();
+    let vertices = Array.from(neighborVertices.values());
     if (limit > 0) {
       vertices = vertices.slice(0, limit);
     }
 
     // Filter edges to only include those connecting to returned vertices
     const returnedVertexIds = new Set(vertices.map(v => v.id));
-    const edges = neighborEdges
-      .values()
-      .filter(
-        e =>
-          returnedVertexIds.has(e.sourceId) ||
-          returnedVertexIds.has(e.targetId),
-      )
-      .toArray();
+    const edges = Array.from(neighborEdges.values()).filter(
+      e =>
+        returnedVertexIds.has(e.sourceId) || returnedVertexIds.has(e.targetId),
+    );
 
     return { vertices, edges };
   }
@@ -253,6 +249,6 @@ export class FakeExplorer implements Explorer {
       }
     }
 
-    return neighbors.values().toArray();
+    return Array.from(neighbors.values());
   }
 }

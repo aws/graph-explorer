@@ -21,7 +21,6 @@ minimumReleaseAge: 1440
 # Explicitly allow or deny packages running build scripts
 allowBuilds:
   esbuild: true
-  core-js: false
 
 # Prevent transitive dependencies from using git or tarball URLs
 blockExoticSubdeps: true

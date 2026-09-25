@@ -242,9 +242,6 @@ importers:
       color:
         specifier: ^5.0.3
         version: 5.0.3
-      core-js:
-        specifier: ^3.50.0
-        version: 3.50.0
       cva:
         specifier: 1.0.0-beta.1
         version: 1.0.0-beta.1(typescript@5.9.3)
@@ -2917,9 +2914,6 @@ packages:
 
   cookiejar@2.1.4:
     resolution: {integrity: sha512-LDx6oHrK+PhzLKJU9j5S7/Y3jM/mUHvD/DeI1WQmJn652iPC5Y4TBzC9l+5OMOXlyTTA+SmVUPm0HQUwpD5Jqw==}
-
-  core-js@3.50.0:
-    resolution: {integrity: sha512-BRWgOLKkFeCgRudR6zrs8p9XJZcE14grzKMMssoYrk6krtuEZ7MTKPIY5RzOnqsEKIR9kst7wNzphttraT+Yqw==}
 
   cors@2.8.6:
     resolution: {integrity: sha512-tJtZBBHA6vjIAaF6EnIaq6laBBP9aq/Y3ouVJjEfoHbRBcHBAHYcMh/w8LDrk2PvIMMq8gmopa5D4V8RmbrxGw==}
@@ -6719,8 +6713,6 @@ snapshots:
   cookie@0.7.2: {}
 
   cookiejar@2.1.4: {}
-
-  core-js@3.50.0: {}
 
   cors@2.8.6:
     dependencies:

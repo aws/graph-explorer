@@ -35,7 +35,7 @@ const oneHopTemplate = ({
 }: Omit<NeighborsRequest, "vertexTypes">): string => {
   const formattedExcludedVertices =
     excludedVertices.size > 0
-      ? `NOT ID(tgt) IN [${excludedVertices.values().map(fragment.id).toArray().join(", ")}]`
+      ? `NOT ID(tgt) IN [${Array.from(excludedVertices.values(), fragment.id).join(", ")}]`
       : "";
 
   // List of possible vertex labels when there are multiple (single label is handled elsewhere)

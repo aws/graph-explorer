@@ -27,9 +27,9 @@ const assembledConfigSelector = atom(get => {
   const result: ConfigurationContextProps = {
     ...configuration,
     totalVertices: configuration.schema.totalVertices ?? 0,
-    vertexTypes: vertexTypesMap.keys().toArray(),
+    vertexTypes: Array.from(vertexTypesMap.keys()),
     totalEdges: configuration.schema.totalEdges ?? 0,
-    edgeTypes: edgeTypesMap.keys().toArray(),
+    edgeTypes: Array.from(edgeTypesMap.keys()),
   };
   return result;
 });
@@ -51,7 +51,7 @@ const vertexTypeConfigsSelector = atomFamily((vertexTypes?: VertexType[]) =>
   atom(get => {
     const allConfigs = get(allVertexTypeConfigsSelector);
     if (!vertexTypes) {
-      return allConfigs.values().toArray();
+      return Array.from(allConfigs.values());
     }
     return vertexTypes.map(
       type => allConfigs.get(type) ?? getDefaultVertexTypeConfig(type),
@@ -81,7 +81,7 @@ const edgeTypeConfigsSelector = atomFamily((edgeTypes?: EdgeType[]) =>
   atom(get => {
     const allConfigs = get(allEdgeTypeConfigsSelector);
     if (!edgeTypes) {
-      return allConfigs.values().toArray();
+      return Array.from(allConfigs.values());
     }
     return edgeTypes.map(
       type => allConfigs.get(type) ?? getDefaultEdgeTypeConfig(type),
