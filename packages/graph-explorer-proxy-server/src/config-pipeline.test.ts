@@ -40,8 +40,9 @@ const conflictMessage =
   "NEPTUNE_NOTEBOOK and PROXY_SERVER_HTTPS_CONNECTION are both true. " +
   "The Neptune Notebook preset serves Graph Explorer over HTTP and does " +
   "not generate TLS certificates, so this combination cannot start. " +
-  "Either drop PROXY_SERVER_HTTPS_CONNECTION to run under the notebook " +
-  "preset, or set NEPTUNE_NOTEBOOK to false to run with TLS.";
+  "Either set PROXY_SERVER_HTTPS_CONNECTION to false or remove it " +
+  "(from -e flags or config.json) to run under the notebook preset, " +
+  "or set NEPTUNE_NOTEBOOK to false to run with TLS.";
 
 /** What the server does at startup. */
 type StartupOutcome =
