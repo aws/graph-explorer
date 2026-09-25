@@ -291,7 +291,7 @@ describe("createDisplayError", () => {
   it("Should handle a Connection with no database URL", () => {
     const result = createDisplayError(new MissingDatabaseUrlError());
     expect(result).toStrictEqual({
-      title: "Missing Database URL",
+      title: "Missing database URL",
       message:
         "This Connection has no database URL. Edit the Connection and enter the database endpoint.",
     });
@@ -301,7 +301,7 @@ describe("createDisplayError", () => {
     const error = new ReverseProxyMisconfiguredError("/gx/");
     const result = createDisplayError(error);
     expect(result).toStrictEqual({
-      title: "Reverse Proxy Misconfigured",
+      title: "Reverse proxy misconfigured",
       message: error.message,
     });
   });

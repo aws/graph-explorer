@@ -7,7 +7,7 @@ This page contains workarounds for common issues and information on how to diagn
 - [Docker Container Issues](#docker-container-issues)
 - [Graph Explorer can't start because it can't write .env](#graph-explorer-cant-start-because-it-cant-write-env)
 - [Schema Sync Fails](#schema-sync-fails)
-- [Reverse Proxy Misconfigured](#reverse-proxy-misconfigured)
+- [Reverse proxy misconfigured](#reverse-proxy-misconfigured)
 - [Save & Load Configuration](#save--load-configuration)
 - [Graph Explorer Can't Save Your Changes](#graph-explorer-cant-save-your-changes)
 - [Gathering SageMaker Logs](#gathering-sagemaker-logs)
@@ -146,7 +146,7 @@ For the network setup Neptune needs, see [Network Access](./connecting-to-neptun
 
 The server, not the browser, must have network access to the database. See [System overview](../architecture.md#system-overview) for the network-routing requirements.
 
-## Reverse Proxy Misconfigured
+## Reverse proxy misconfigured
 
 This error appears on the first database request after the app loads, not during schema sync, because the client resolves the API root from its own path as soon as it needs it.
 
@@ -158,7 +158,7 @@ location /gx/ { proxy_pass http://server:9250/; }
 
 That rule forwards the whole `/gx/` prefix, so `/gx/explorer/` reaches the client at `/explorer/` and the API calls at `/gx/sparql`, `/gx/gremlin`, `/gx/summary`, `/gx/logger`, and `/gx/defaultConnection` reach `/sparql`, `/gremlin`, `/summary`, `/logger`, and `/defaultConnection`. A rule scoped to `/gx/explorer/` alone would serve the page but match none of the API paths, so every query would fail.
 
-A proxy that renames the `/explorer` segment away instead, for example mapping an external `/gx/` directly onto the server's `/explorer/`, is not supported. The page will still render, since assets resolve with a relative base path, but the browser has no way to tell where the API root is, and Graph Explorer now fails with a clear "Reverse Proxy Misconfigured" error rather than sending requests to the wrong place.
+A proxy that renames the `/explorer` segment away instead, for example mapping an external `/gx/` directly onto the server's `/explorer/`, is not supported. The page will still render, since assets resolve with a relative base path, but the browser has no way to tell where the API root is, and Graph Explorer now fails with a clear "Reverse proxy misconfigured" error rather than sending requests to the wrong place.
 
 ## Save & Load Configuration
 

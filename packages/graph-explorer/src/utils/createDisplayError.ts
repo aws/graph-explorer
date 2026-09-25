@@ -137,7 +137,7 @@ export function createDisplayError(error: any): DisplayError {
 
   if (error instanceof MissingDatabaseUrlError) {
     return {
-      title: "Missing Database URL",
+      title: "Missing database URL",
       message:
         "This Connection has no database URL. Edit the Connection and enter the database endpoint.",
     };
@@ -146,7 +146,7 @@ export function createDisplayError(error: any): DisplayError {
   if (error instanceof ReverseProxyMisconfiguredError) {
     // The message is already written for the operator who deployed this,
     // naming the missing path segment and the fix.
-    return { title: "Reverse Proxy Misconfigured", message: error.message };
+    return { title: "Reverse proxy misconfigured", message: error.message };
   }
 
   if (error instanceof NetworkError) {
