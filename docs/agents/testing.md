@@ -91,6 +91,12 @@ expect(fetchOptions.headers["User-Agent"]).toBe("graph-explorer/1.2.3");
 
 A test that deliberately abandons a request should await the cancellation before it ends, rather than leaving it in flight for the next test.
 
+## Proxy server: running the Docker entrypoint
+
+`createEntrypointWorkDir()` and `runEntrypoint()` in `packages/graph-explorer-proxy-server/src/testing.ts` run the real `docker-entrypoint.sh` in a temp directory. They stub `setup-ssl.sh`, which records that it ran and fails without `HOST`, and they replace the node start line with a node process that writes its environment to a file. `readServerEnvironment()` returns that environment, including the variables the entrypoint sets on the start line. `process-environment.sh` is a no-op stub unless the test copies the real script in.
+
+`docker-entrypoint.test.ts` covers the entrypoint on its own. `config-pipeline.test.ts` runs each deployment scenario through the entrypoint, dotenv precedence, the Zod schema, and `resolveServerConfig`. Add a row to its table for a new deployment case.
+
 ## Backward compatibility for persisted data
 
 Anything persisted to IndexedDB via localForage/Jotai may be reloaded in an older shape after a type change, silently breaking logic that assumes the new shape. So: **when you change the shape of a persisted type, add tests that exercise the old shape alongside the new** — old shape loads without error, consuming logic produces correct results for both, and old/new can coexist in a collection.

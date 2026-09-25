@@ -21,8 +21,13 @@ fi
 if [ -n "$NEPTUNE_NOTEBOOK" ]; then
     printf '\nNEPTUNE_NOTEBOOK=%s\n' "$NEPTUNE_NOTEBOOK" >> $CONFIGURATION_FOLDER_PATH/.env
     if [ "$NEPTUNE_NOTEBOOK" = "true" ]; then
-      # Override Proxy SSL setting if Neptune notebook
-      PROXY_SERVER_HTTPS_CONNECTION="false"
+      # The notebook preset serves over HTTP. Keep an HTTPS request the server
+      # would read as true, so it can reject the conflict. Anything else,
+      # such as a config.json null or number, falls back to the preset.
+      case "$PROXY_SERVER_HTTPS_CONNECTION" in
+        [Tt][Rr][Uu][Ee]) ;;
+        *) PROXY_SERVER_HTTPS_CONNECTION="false" ;;
+      esac
       GRAPH_EXP_HTTPS_CONNECTION="false"
     fi
 else

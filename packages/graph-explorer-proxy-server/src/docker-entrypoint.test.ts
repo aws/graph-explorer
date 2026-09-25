@@ -1,74 +1,14 @@
-import { execFileSync } from "child_process";
 import fs from "fs";
-import os from "os";
 import path from "path";
 
-const originalScriptPath = path.resolve(
-  import.meta.dirname,
-  "../../../docker-entrypoint.sh",
-);
-
-function setupWorkDir() {
-  const workDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-entrypoint-test-"));
-  const configDir = path.join(workDir, "packages", "graph-explorer");
-  fs.mkdirSync(configDir, { recursive: true });
-
-  // Create modified entrypoint with stubbed last line
-  const script = fs.readFileSync(originalScriptPath, "utf-8");
-  const serverStartLine =
-    "cd /graph-explorer/packages/graph-explorer-proxy-server && NODE_ENV=production node src/node-server.ts";
-  if (!script.includes(serverStartLine)) {
-    throw new Error(
-      "docker-entrypoint.sh no longer contains the expected server start line. Update the test stub.",
-    );
-  }
-  const modifiedScript = script.replace(
-    serverStartLine,
-    'echo "SERVER_STARTED"',
-  );
-  const scriptPath = path.join(workDir, "docker-entrypoint.sh");
-  fs.writeFileSync(scriptPath, modifiedScript, { mode: 0o755 });
-
-  // Default stubs
-  fs.writeFileSync(
-    path.join(workDir, "process-environment.sh"),
-    "#!/bin/sh\nexit 0\n",
-    { mode: 0o755 },
-  );
-  fs.writeFileSync(
-    path.join(workDir, "setup-ssl.sh"),
-    '#!/bin/sh\ntouch ./ssl-called\necho "$HOST" > ./host-value\n',
-    { mode: 0o755 },
-  );
-
-  return { workDir, configDir, scriptPath };
-}
+import {
+  createEntrypointWorkDir,
+  readServerEnvironment,
+  runEntrypoint,
+} from "./testing.ts";
 
 function writeEnv(configDir: string, content: string) {
   fs.writeFileSync(path.join(configDir, ".env"), content);
-}
-
-function runScript(
-  workDir: string,
-  scriptPath: string,
-  env: Record<string, string> = {},
-): { exitCode: number; stdout: string; stderr: string } {
-  try {
-    const stdout = execFileSync("sh", [scriptPath], {
-      cwd: workDir,
-      env: { PATH: process.env.PATH, ...env },
-      encoding: "utf-8",
-      stdio: ["pipe", "pipe", "pipe"],
-    });
-    return { exitCode: 0, stdout, stderr: "" };
-  } catch (error: unknown) {
-    const e = error as { status: number; stdout: string; stderr: string };
-    return {
-      exitCode: e.status,
-      stdout: e.stdout ?? "",
-      stderr: e.stderr ?? "",
-    };
-  }
 }
 
 describe("docker-entrypoint.sh", () => {
@@ -77,7 +17,7 @@ describe("docker-entrypoint.sh", () => {
   let scriptPath: string;
 
   beforeEach(() => {
-    ({ workDir, configDir, scriptPath } = setupWorkDir());
+    ({ workDir, configDir, scriptPath } = createEntrypointWorkDir());
   });
 
   afterEach(() => {
@@ -87,7 +27,7 @@ describe("docker-entrypoint.sh", () => {
   it("fails when .env file is missing", () => {
     // Don't write any .env file
 
-    const { exitCode, stderr } = runScript(workDir, scriptPath);
+    const { exitCode, stderr } = runEntrypoint(workDir, scriptPath);
     expect(exitCode).not.toBe(0);
     expect(stderr).toContain(".env");
   });
@@ -99,7 +39,7 @@ describe("docker-entrypoint.sh", () => {
       { mode: 0o755 },
     );
 
-    const { exitCode } = runScript(workDir, scriptPath);
+    const { exitCode } = runEntrypoint(workDir, scriptPath);
     expect(exitCode).not.toBe(0);
   });
 
@@ -111,7 +51,7 @@ describe("docker-entrypoint.sh", () => {
       { mode: 0o755 },
     );
 
-    const { exitCode, stdout } = runScript(workDir, scriptPath);
+    const { exitCode, stdout } = runEntrypoint(workDir, scriptPath);
     expect(exitCode).not.toBe(0);
     expect(stdout).not.toContain("Starting graph explorer");
   });
@@ -119,7 +59,7 @@ describe("docker-entrypoint.sh", () => {
   it("calls setup-ssl.sh when HTTPS is true", () => {
     writeEnv(configDir, "PROXY_SERVER_HTTPS_CONNECTION=true\n");
 
-    const { exitCode } = runScript(workDir, scriptPath, {
+    const { exitCode } = runEntrypoint(workDir, scriptPath, {
       HOST: "localhost",
     });
 
@@ -130,7 +70,7 @@ describe("docker-entrypoint.sh", () => {
   it("skips setup-ssl.sh when HTTPS is false", () => {
     writeEnv(configDir, "PROXY_SERVER_HTTPS_CONNECTION=false\n");
 
-    const { exitCode, stdout } = runScript(workDir, scriptPath);
+    const { exitCode, stdout } = runEntrypoint(workDir, scriptPath);
 
     expect(exitCode).toBe(0);
     expect(fs.existsSync(path.join(workDir, "ssl-called"))).toBe(false);
@@ -140,17 +80,122 @@ describe("docker-entrypoint.sh", () => {
   it("skips setup-ssl.sh when PROXY_SERVER_HTTPS_CONNECTION is absent", () => {
     writeEnv(configDir, "LOG_LEVEL=info\n");
 
-    const { exitCode, stdout } = runScript(workDir, scriptPath);
+    const { exitCode, stdout } = runEntrypoint(workDir, scriptPath);
 
     expect(exitCode).toBe(0);
     expect(fs.existsSync(path.join(workDir, "ssl-called"))).toBe(false);
     expect(stdout).toContain("SSL disabled");
   });
 
+  // process-environment.sh appends on every start, so a restarted container's
+  // .env repeats each key. dotenv reads the last value, and NEPTUNE_NOTEBOOK
+  // does too. PROXY_SERVER_HTTPS_CONNECTION deliberately doesn't: reading its
+  // first match means a restart's repeated "true" fails the exact-match check
+  // below and setup-ssl.sh is skipped, so the container reuses the
+  // certificate from its first start instead of regenerating one.
+  describe("with keys repeated by a restart", () => {
+    it("does not call setup-ssl.sh when PROXY_SERVER_HTTPS_CONNECTION is repeated", () => {
+      writeEnv(
+        configDir,
+        "PROXY_SERVER_HTTPS_CONNECTION=true\nPROXY_SERVER_HTTPS_CONNECTION=true\n",
+      );
+
+      const { exitCode } = runEntrypoint(workDir, scriptPath, {
+        HOST: "localhost",
+      });
+
+      expect(exitCode).toBe(0);
+      expect(fs.existsSync(path.join(workDir, "ssl-called"))).toBe(false);
+    });
+
+    it("reads the last NEPTUNE_NOTEBOOK and passes it to the server", () => {
+      writeEnv(
+        configDir,
+        [
+          "NEPTUNE_NOTEBOOK=false",
+          "PROXY_SERVER_HTTPS_CONNECTION=true",
+          "NEPTUNE_NOTEBOOK=true",
+          "PROXY_SERVER_HTTPS_CONNECTION=true",
+          "",
+        ].join("\n"),
+      );
+
+      const { exitCode, stdout } = runEntrypoint(workDir, scriptPath);
+
+      expect(exitCode).toBe(0);
+      expect(stdout).toContain("Neptune Notebook preset enabled");
+      expect(readServerEnvironment(workDir).NEPTUNE_NOTEBOOK).toBe("true");
+    });
+  });
+
+  describe("under the notebook preset", () => {
+    // The preset serves HTTP only, so certificates would never be used. With
+    // no HOST, setup-ssl.sh would also exit before the server could name the
+    // real NEPTUNE_NOTEBOOK/HTTPS conflict.
+    it("skips setup-ssl.sh even when HTTPS is requested", () => {
+      writeEnv(
+        configDir,
+        "NEPTUNE_NOTEBOOK=true\nPROXY_SERVER_HTTPS_CONNECTION=true\n",
+      );
+
+      const { exitCode, stdout } = runEntrypoint(workDir, scriptPath, {
+        HOST: "localhost",
+      });
+
+      expect(exitCode).toBe(0);
+      expect(fs.existsSync(path.join(workDir, "ssl-called"))).toBe(false);
+      expect(stdout).toContain(
+        "Neptune Notebook preset enabled. Skipping self-signed certificate generation.",
+      );
+      expect(stdout).toContain("SERVER_STARTED");
+    });
+
+    it("starts the server when HOST is unset", () => {
+      writeEnv(
+        configDir,
+        "NEPTUNE_NOTEBOOK=true\nPROXY_SERVER_HTTPS_CONNECTION=true\n",
+      );
+
+      const { exitCode, stdout } = runEntrypoint(workDir, scriptPath);
+
+      expect(exitCode).toBe(0);
+      expect(fs.existsSync(path.join(workDir, "ssl-called"))).toBe(false);
+      expect(stdout).toContain("SERVER_STARTED");
+    });
+
+    it.each(["TRUE", "True", "1", "yes", "false", ""])(
+      "still calls setup-ssl.sh when NEPTUNE_NOTEBOOK is %j",
+      value => {
+        writeEnv(
+          configDir,
+          `NEPTUNE_NOTEBOOK=${value}\nPROXY_SERVER_HTTPS_CONNECTION=true\n`,
+        );
+
+        const { exitCode } = runEntrypoint(workDir, scriptPath, {
+          HOST: "localhost",
+        });
+
+        expect(exitCode).toBe(0);
+        expect(fs.existsSync(path.join(workDir, "ssl-called"))).toBe(true);
+      },
+    );
+
+    it("ignores similarly-named NEPTUNE_NOTEBOOK variables", () => {
+      writeEnv(
+        configDir,
+        "GRAPH_EXP_NEPTUNE_NOTEBOOK=true\nPROXY_SERVER_HTTPS_CONNECTION=true\n",
+      );
+
+      runEntrypoint(workDir, scriptPath, { HOST: "localhost" });
+
+      expect(fs.existsSync(path.join(workDir, "ssl-called"))).toBe(true);
+    });
+  });
+
   it("grep ignores commented-out lines", () => {
     writeEnv(configDir, "# PROXY_SERVER_HTTPS_CONNECTION=true\n");
 
-    const { exitCode } = runScript(workDir, scriptPath);
+    const { exitCode } = runEntrypoint(workDir, scriptPath);
 
     expect(exitCode).toBe(0);
     expect(fs.existsSync(path.join(workDir, "ssl-called"))).toBe(false);
@@ -159,7 +204,7 @@ describe("docker-entrypoint.sh", () => {
   it("grep ignores similarly-named variables", () => {
     writeEnv(configDir, "GRAPH_EXP_PROXY_SERVER_HTTPS_CONNECTION=true\n");
 
-    const { exitCode } = runScript(workDir, scriptPath);
+    const { exitCode } = runEntrypoint(workDir, scriptPath);
 
     expect(exitCode).toBe(0);
     expect(fs.existsSync(path.join(workDir, "ssl-called"))).toBe(false);
@@ -168,7 +213,7 @@ describe("docker-entrypoint.sh", () => {
   it("passes HOST to setup-ssl.sh", () => {
     writeEnv(configDir, "PROXY_SERVER_HTTPS_CONNECTION=true\n");
 
-    runScript(workDir, scriptPath, { HOST: "my-test-host" });
+    runEntrypoint(workDir, scriptPath, { HOST: "my-test-host" });
 
     const hostValue = fs
       .readFileSync(path.join(workDir, "host-value"), "utf-8")
@@ -184,7 +229,7 @@ describe("docker-entrypoint.sh", () => {
       "PROXY_SERVER_HTTPS_CONNECTION=false\n",
     );
 
-    const { exitCode, stdout } = runScript(workDir, scriptPath, {
+    const { exitCode, stdout } = runEntrypoint(workDir, scriptPath, {
       CONFIGURATION_FOLDER_PATH: customDir,
     });
 
