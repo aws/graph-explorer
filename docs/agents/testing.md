@@ -24,6 +24,7 @@ Each project sets up its own environment. `setupTests.ts` below is registered by
 - `createTestableVertex()` / `createTestableEdge()` — fluent builders: `.with({...})`, `.withSource()`, `.withTarget()`, `.withRdfValues()`, `.asVertex()`, `.asResult()`
 - `createMockExplorer` / `FakeExplorer` — explorer test doubles
 - `mockVirtualizedLayout` — give jsdom/happy-dom elements a measurable size so a virtualizer renders rows; see **jsdom/happy-dom layout** under Special cases
+- `stubDocumentUrl(href?)`: points the happy-dom document at a URL (default `http://localhost/explorer/`) so code that calls `apiUrl()` resolves the production API root. Call it in `beforeEach` in any test that asserts a request URL.
 - SPARQL: `createUriValue`, `createLiteralValue`, `createQuadBindingsForEntities`, `createQuadSparqlResponse` (`sparqlHelpers.ts`)
 - Gremlin/openCypher response builders: `graphsonHelpers.ts`, `ocHelpers.ts`
 - `normalizeWithNoSpace` / `normalize` / `normalizeWithNewlines` — normalize query strings before asserting (`normalize.ts`). They differ in whitespace and comment handling; use whichever the file you're editing already uses.
