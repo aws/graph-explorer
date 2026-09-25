@@ -1,2 +1,7 @@
 # Set the default behavior, in case people don't have core.autocrlf set.
 * text=auto
+
+# Keep Docker shell scripts LF so Windows checkouts can execute them (#198)
+docker-entrypoint.sh text eol=lf
+process-environment.sh text eol=lf
+setup-ssl.sh text eol=lf
