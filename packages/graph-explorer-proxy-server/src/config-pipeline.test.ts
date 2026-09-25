@@ -77,9 +77,17 @@ type Deployment = {
   /**
    * Starts the same container a second time, as `docker restart` does. The
    * work dir, and the `.env` that process-environment.sh appended to, carry
-   * over, and the second start has to behave exactly like the first.
+   * over, and the second start has to behave the same way as the first,
+   * except where `restartCertificatesGenerated` says otherwise.
    */
   restart?: true;
+  /**
+   * Whether certificates are (re)generated on the second start. Defaults to
+   * matching the first start. Set this to `false` for a case where the
+   * second start reuses the certificate files from the first instead of
+   * regenerating them.
+   */
+  restartCertificatesGenerated?: boolean;
   expected: {
     envFile: Record<string, string>;
     certificatesGenerated: boolean;
@@ -393,9 +401,14 @@ const deployments: Deployment[] = [
     expected: notebookPreset,
   },
   {
-    name: "standard image with nothing about HTTPS set still serves TLS after a restart",
+    // The entrypoint reads PROXY_SERVER_HTTPS_CONNECTION by its first match,
+    // not its last, so a restart's repeated "true" line doesn't re-trigger
+    // setup-ssl.sh. The container keeps serving TLS on the certificate
+    // generated at first start.
+    name: "standard image with nothing about HTTPS set reuses its certificate and still serves TLS after a restart",
     image: standardImage,
     restart: true,
+    restartCertificatesGenerated: false,
     expected: standardTls,
   },
 ];
@@ -465,7 +478,18 @@ describe("deployment scenarios: entrypoint → dotenv → Zod → server config"
     deployments.map(deployment => [deployment.name, deployment] as const),
   )(
     "%s",
-    (_name, { image, dockerEnv, configJson, host, restart, expected }) => {
+    (
+      _name,
+      {
+        image,
+        dockerEnv,
+        configJson,
+        host,
+        restart,
+        restartCertificatesGenerated,
+        expected,
+      },
+    ) => {
       if (configJson) {
         fs.writeFileSync(
           path.join(workDir, "config.json"),
@@ -524,7 +548,13 @@ describe("deployment scenarios: entrypoint → dotenv → Zod → server config"
       });
 
       const lastStart = restart ? startContainer() : firstStart;
-      expect(lastStart).toStrictEqual(firstStart);
+      expect(lastStart).toStrictEqual({
+        ...firstStart,
+        certificatesGenerated:
+          restart && restartCertificatesGenerated !== undefined
+            ? restartCertificatesGenerated
+            : firstStart.certificatesGenerated,
+      });
     },
   );
 });

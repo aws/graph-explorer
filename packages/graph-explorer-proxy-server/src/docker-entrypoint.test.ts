@@ -88,12 +88,16 @@ describe("docker-entrypoint.sh", () => {
   });
 
   // process-environment.sh appends on every start, so a restarted container's
-  // .env repeats each key. dotenv reads the last value, and so must the shell.
+  // .env repeats each key. dotenv reads the last value, and NEPTUNE_NOTEBOOK
+  // does too. PROXY_SERVER_HTTPS_CONNECTION deliberately doesn't: reading its
+  // first match means a restart's repeated "true" fails the exact-match check
+  // below and setup-ssl.sh is skipped, so the container reuses the
+  // certificate from its first start instead of regenerating one.
   describe("with keys repeated by a restart", () => {
-    it("reads the last PROXY_SERVER_HTTPS_CONNECTION", () => {
+    it("does not call setup-ssl.sh when PROXY_SERVER_HTTPS_CONNECTION is repeated", () => {
       writeEnv(
         configDir,
-        "PROXY_SERVER_HTTPS_CONNECTION=false\nPROXY_SERVER_HTTPS_CONNECTION=true\n",
+        "PROXY_SERVER_HTTPS_CONNECTION=true\nPROXY_SERVER_HTTPS_CONNECTION=true\n",
       );
 
       const { exitCode } = runEntrypoint(workDir, scriptPath, {
@@ -101,7 +105,7 @@ describe("docker-entrypoint.sh", () => {
       });
 
       expect(exitCode).toBe(0);
-      expect(fs.existsSync(path.join(workDir, "ssl-called"))).toBe(true);
+      expect(fs.existsSync(path.join(workDir, "ssl-called"))).toBe(false);
     });
 
     it("reads the last NEPTUNE_NOTEBOOK and passes it to the server", () => {

@@ -12,8 +12,14 @@ fi
 
 # process-environment.sh appends to .env on every start, so a restarted
 # container has one line per start. Take the last, as dotenv does.
-PROXY_SERVER_HTTPS_CONNECTION_VALUE=$(grep -e '^PROXY_SERVER_HTTPS_CONNECTION=' "$CONFIGURATION_FOLDER_PATH/.env" | tail -n 1 | cut -d "=" -f 2- || true)
 NEPTUNE_NOTEBOOK_VALUE=$(grep -e '^NEPTUNE_NOTEBOOK=' "$CONFIGURATION_FOLDER_PATH/.env" | tail -n 1 | cut -d "=" -f 2- || true)
+
+# Left reading the first match on purpose, unlike NEPTUNE_NOTEBOOK above. On a
+# restart this grep returns "true\ntrue", the "true" != "true\ntrue" check
+# below fails, and setup-ssl.sh is skipped, so the container keeps serving TLS
+# on the certificate generated at first start instead of regenerating one and
+# breaking trust for anyone who accepted the original root CA.
+PROXY_SERVER_HTTPS_CONNECTION_VALUE=$(grep -e '^PROXY_SERVER_HTTPS_CONNECTION=' "$CONFIGURATION_FOLDER_PATH/.env" | cut -d "=" -f 2 || true)
 
 # The notebook preset serves HTTP only, so certificates would go unused. With
 # HTTPS also requested the server refuses to start, and it has to get that far
