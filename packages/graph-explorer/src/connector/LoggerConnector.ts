@@ -45,14 +45,18 @@ export class ServerLoggerConnector implements LoggerConnector {
     return this.#sendLog("trace", message);
   }
 
-  #sendLog(level: LogLevel, message: unknown) {
-    return fetch(apiUrl("logger"), {
-      method: "POST",
-      headers: {
-        level,
-        message: JSON.stringify(message),
-      },
-    }).catch(err => logger.error("Failed to send log to server", err));
+  async #sendLog(level: LogLevel, message: unknown) {
+    try {
+      await fetch(apiUrl("logger"), {
+        method: "POST",
+        headers: {
+          level,
+          message: JSON.stringify(message),
+        },
+      });
+    } catch (err) {
+      logger.error("Failed to send log to server", err);
+    }
   }
 }
 

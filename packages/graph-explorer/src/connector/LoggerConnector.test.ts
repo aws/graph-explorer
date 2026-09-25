@@ -1,4 +1,5 @@
 // @vitest-environment happy-dom
+import { logger, ReverseProxyMisconfiguredError } from "@/utils";
 import { stubDocumentUrl } from "@/utils/testing";
 
 import {
@@ -84,6 +85,46 @@ describe("ServerLoggerConnector", () => {
         href: "https://example.com/proxy/9250/logger",
       }),
       expect.any(Object),
+    );
+  });
+
+  test("does not throw when the message can't be serialized", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({});
+    vi.stubGlobal("fetch", mockFetch);
+    stubDocumentUrl("https://example.com/explorer/");
+    const circular: Record<string, unknown> = {};
+    circular.self = circular;
+
+    const connector = new ServerLoggerConnector();
+
+    let result: Promise<unknown> | undefined;
+    expect(() => {
+      result = connector.error(circular);
+    }).not.toThrow();
+    await expect(result).resolves.toBeUndefined();
+    expect(mockFetch).not.toHaveBeenCalled();
+    expect(vi.mocked(logger.error)).toHaveBeenCalledWith(
+      "Failed to send log to server",
+      expect.any(TypeError),
+    );
+  });
+
+  test("does not throw when the API URL can't be resolved", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({});
+    vi.stubGlobal("fetch", mockFetch);
+    stubDocumentUrl("https://example.com/renamed/");
+
+    const connector = new ServerLoggerConnector();
+
+    let result: Promise<unknown> | undefined;
+    expect(() => {
+      result = connector.error("error msg");
+    }).not.toThrow();
+    await expect(result).resolves.toBeUndefined();
+    expect(mockFetch).not.toHaveBeenCalled();
+    expect(vi.mocked(logger.error)).toHaveBeenCalledWith(
+      "Failed to send log to server",
+      expect.any(ReverseProxyMisconfiguredError),
     );
   });
 });
