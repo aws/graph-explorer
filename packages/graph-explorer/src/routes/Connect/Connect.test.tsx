@@ -69,11 +69,23 @@ function seedInactiveConnection(store: AppStore) {
 }
 
 describe("Connect route", () => {
-  test("redirects to the graph canvas when there are no params", () => {
+  // The `#/connect` route exists only for connection links, so reaching it
+  // with no params at all is a missing graphDbUrl, which warns rather than
+  // silently redirecting.
+  test("warns and redirects to the graph canvas when there are no params", async () => {
     new DbState().applyTo(getAppStore());
 
     renderConnect("");
 
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith(
+        "Invalid connection link",
+        expect.objectContaining({
+          id: "invalid-connection-link",
+          description: expect.stringContaining("graphDbUrl is required"),
+        }),
+      );
+    });
     expect(screen.getByTestId("location")).toHaveTextContent("/graph-explorer");
     expect(screen.getByText("graph canvas")).toBeInTheDocument();
   });

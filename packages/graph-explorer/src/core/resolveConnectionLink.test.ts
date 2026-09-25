@@ -9,10 +9,17 @@ function searchFor(graphDbUrl: string, queryEngine = "gremlin") {
 }
 
 describe("resolveConnectionLink", () => {
-  test("is a no-op when there is no link", () => {
+  // The `#/connect` route exists only for connection links, so no params at
+  // all is a missing graphDbUrl, which is invalid rather than a no-op.
+  test("is invalid when there is no link", () => {
     new DbState().applyTo(getAppStore());
 
-    expect(resolveConnectionLink("")).toEqual({ kind: "none" });
+    expect(resolveConnectionLink("")).toEqual({
+      kind: "invalid",
+      error: expect.objectContaining({
+        problems: [{ param: "graphDbUrl", requirement: "is required" }],
+      }),
+    });
   });
 
   test("is a no-op when the link targets the active connection", () => {

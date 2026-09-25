@@ -31,11 +31,19 @@ const ConnectionLinkParamsSchema = z
     // connection that fails every query, after persisting the password to
     // IndexedDB and into any exported connection file. Graph Explorer
     // authenticates with IAM, never userinfo.
+    // The `#/connect` route exists only for connection links, so reaching it
+    // without a graphDbUrl (missing entirely, or present but empty) is an
+    // invalid link rather than a silent no-op — the caller asked to open a
+    // link and the one param that makes it a link isn't there.
     graphDbUrl: z
-      .url({
-        protocol: /^https?$/,
-        error: "must be a valid http or https URL",
-      })
+      .string()
+      .min(1, { error: "is required" })
+      .pipe(
+        z.url({
+          protocol: /^https?$/,
+          error: "must be a valid http or https URL",
+        }),
+      )
       .refine(value => !hasCredentials(value), {
         error: "cannot include a username or password",
       })
@@ -147,26 +155,20 @@ function withoutTrailingSlash(value: string): string {
 }
 
 /**
- * What a route's search string carries. `absent` and `invalid` are deliberately
- * distinct: a link whose `graphDbUrl` failed validation is a broken link worth
- * telling the user about, while no `graphDbUrl` at all means the user simply is
- * not following a connection link.
+ * What a route's search string carries. There is no "absent" kind: the
+ * `#/connect` route exists only for connection links, so reaching it without
+ * a `graphDbUrl` is an invalid link (missing the one param that makes it a
+ * link) rather than a distinct, silent case.
  */
 export type ConnectionLink =
-  | { kind: "absent" }
   | { kind: "invalid"; error: ConnectionLinkError }
   | { kind: "valid"; params: ConnectionLinkParams };
 
 /** Reads URL search params as a connection link. */
 export function readConnectionLink(search: string): ConnectionLink {
   const params = new URLSearchParams(search);
-  const graphDbUrl = params.get("graphDbUrl");
-  if (!graphDbUrl) {
-    return { kind: "absent" };
-  }
-
   const parsed = ConnectionLinkParamsSchema.safeParse({
-    graphDbUrl,
+    graphDbUrl: params.get("graphDbUrl") ?? "",
     queryEngine: params.get("queryEngine") ?? undefined,
     awsRegion: params.get("awsRegion") ?? undefined,
     serviceType: params.get("serviceType") ?? undefined,
@@ -347,10 +349,11 @@ export type ConnectionLinkIntent =
 
 /**
  * Resolve a connection link into a single intent:
- * - no link, or one matching the active connection → `none` (nothing to do)
+ * - matches the active connection → `none` (nothing to do)
  * - matches an inactive connection → `activate` it
  * - no match → `create` a new connection seeded from the link
- * - the link failed validation → `invalid`, carrying what was wrong with it
+ * - the link failed validation (including a missing `graphDbUrl`) → `invalid`,
+ *   carrying what was wrong with it
  */
 export function resolveConnectionLinkIntent(
   link: ConnectionLink,
@@ -358,9 +361,6 @@ export function resolveConnectionLinkIntent(
   activeId: ConfigurationId | null,
   proxyBaseUrl: string,
 ): ConnectionLinkIntent {
-  if (link.kind === "absent") {
-    return { kind: "none" };
-  }
   if (link.kind === "invalid") {
     return { kind: "invalid", error: link.error };
   }

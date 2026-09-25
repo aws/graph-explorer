@@ -33,11 +33,27 @@ function paramsOf(search: string) {
 }
 
 describe("readConnectionLink", () => {
-  test("is absent when graphDbUrl is missing", () => {
-    expect(readConnectionLink("")).toEqual({ kind: "absent" });
-    expect(readConnectionLink("?queryEngine=openCypher")).toEqual({
-      kind: "absent",
-    });
+  // The `#/connect` route exists only for connection links, so reaching it
+  // without a graphDbUrl is an invalid link worth telling the user about,
+  // rather than a silent no-op.
+  test("is invalid when graphDbUrl is missing", () => {
+    expect(problemsOf("")).toEqual(["graphDbUrl is required"]);
+    expect(problemsOf("?queryEngine=openCypher")).toEqual([
+      "graphDbUrl is required",
+    ]);
+  });
+
+  test("is invalid when graphDbUrl is present but empty", () => {
+    expect(problemsOf("?graphDbUrl=")).toEqual(["graphDbUrl is required"]);
+  });
+
+  // Both the missing param and the other bad param are reported together, so
+  // the user sees everything wrong with the link in one notification.
+  test("reports a missing graphDbUrl alongside other bad params", () => {
+    expect(problemsOf("?queryEngine=sql")).toEqual([
+      "graphDbUrl is required",
+      'queryEngine must be one of "gremlin", "openCypher", "sparql"',
+    ]);
   });
 
   test("parses graphDbUrl with defaults", () => {
@@ -693,16 +709,6 @@ describe("resolveConnectionLinkIntent", () => {
 
   const linkFor = (params: ConnectionLinkParams) =>
     ({ kind: "valid", params }) as const;
-
-  test("is a no-op when there is no link at all", () => {
-    const intent = resolveConnectionLinkIntent(
-      { kind: "absent" },
-      configs,
-      activeId,
-      "https://localhost",
-    );
-    expect(intent).toEqual({ kind: "none" });
-  });
 
   test("passes an invalid link through with its error", () => {
     const error = new ConnectionLinkError([
