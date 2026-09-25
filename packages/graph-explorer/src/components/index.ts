@@ -74,6 +74,7 @@ export * from "./Spinner";
 
 export * from "./Panel";
 export * from "./Popover";
+export * from "./RadioGroup";
 
 export { default as NotInProduction } from "./NotInProduction";
 

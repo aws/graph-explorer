@@ -1,4 +1,8 @@
-import { neptuneServiceTypeOptions, queryEngineOptions } from "@shared/types";
+import {
+  edgeConnectionDiscoveryOptions,
+  neptuneServiceTypeOptions,
+  queryEngineOptions,
+} from "@shared/types";
 import { z } from "zod";
 
 import { DEFAULT_SERVICE_TYPE, logger } from "@/utils";
@@ -24,6 +28,20 @@ export const DefaultConnectionDataSchema = z.object({
   // Connection options
   GRAPH_EXP_FETCH_REQUEST_TIMEOUT: z.number().default(240000),
   GRAPH_EXP_NODE_EXPANSION_LIMIT: z.number().optional(),
+  // An unrecognized value falls back to automatic rather than failing the parse,
+  // which would drop the whole default connection over one typo. Logged, because
+  // silently ignoring it leaves an operator with no way to tell their override
+  // never took effect.
+  GRAPH_EXP_EDGE_CONNECTION_DISCOVERY: z
+    .enum(edgeConnectionDiscoveryOptions)
+    .optional()
+    .catch(ctx => {
+      logger.warn(
+        "Ignoring unrecognized GRAPH_EXP_EDGE_CONNECTION_DISCOVERY value, using automatic",
+        ctx.value,
+      );
+      return undefined;
+    }),
 });
 
 export type DefaultConnectionData = z.infer<typeof DefaultConnectionDataSchema>;
@@ -118,6 +136,7 @@ export function mapToConnection(data: DefaultConnectionData): RawConfiguration {
       serviceType: data.GRAPH_EXP_SERVICE_TYPE,
       fetchTimeoutMs: data.GRAPH_EXP_FETCH_REQUEST_TIMEOUT,
       nodeExpansionLimit: data.GRAPH_EXP_NODE_EXPANSION_LIMIT,
+      edgeConnectionDiscovery: data.GRAPH_EXP_EDGE_CONNECTION_DISCOVERY,
     },
   };
   return config;
