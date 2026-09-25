@@ -44,13 +44,13 @@ External applications can link directly to Graph Explorer with a connection pre-
 
 ### Parameters
 
-| Parameter     | Required | Default                                                        | Description                                                                                                                                                                                                 |
-| ------------- | -------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `graphDbUrl`  | Yes      | None                                                           | The graph database endpoint, URL-encoded. The link is invalid without it.                                                                                                                                   |
-| `queryEngine` | No       | `gremlin` (`openCypher` when `serviceType` is `neptune-graph`) | One of `gremlin`, `openCypher`, or `sparql`. An unsupported value makes the link invalid rather than falling back, and `neptune-graph` only accepts `openCypher` (Neptune Analytics has no other language). |
-| `awsRegion`   | No       | None                                                           | AWS region for the connection, shaped like `us-east-1`. Providing a region enables IAM auth (SigV4 signed requests). An absent or empty value leaves IAM off.                                               |
-| `serviceType` | No       | `neptune-db` (when IAM is on)                                  | One of `neptune-db` or `neptune-graph`. Only affects the connection when `awsRegion` is set. An unsupported value makes the link invalid either way.                                                        |
-| `name`        | No       | The endpoint's hostname                                        | Display label for the connection. Defaults to the full hostname of `graphDbUrl`.                                                                                                                            |
+| Parameter     | Required | Default                                                        | Description                                                                                                                                                                                                                              |
+| ------------- | -------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `graphDbUrl`  | Yes      | None                                                           | The graph database endpoint, URL-encoded. The link is invalid without it.                                                                                                                                                                |
+| `queryEngine` | No       | `gremlin` (`openCypher` when `serviceType` is `neptune-graph`) | One of `gremlin`, `openCypher`, or `sparql`. An unsupported value makes the link invalid rather than falling back, and `neptune-graph` only accepts `openCypher` (Neptune Analytics has no other language).                              |
+| `awsRegion`   | No       | None                                                           | AWS region for the connection, shaped like `us-east-1`. Providing a region enables IAM auth (SigV4 signed requests). An absent or empty value leaves IAM off.                                                                            |
+| `serviceType` | No       | `neptune-db` (when IAM is on)                                  | One of `neptune-db` or `neptune-graph`. Carried into the connection either way, but IAM stays off unless `awsRegion` is set. `neptune-graph` also constrains `queryEngine` to `openCypher`. An unsupported value makes the link invalid. |
+| `name`        | No       | The endpoint's hostname                                        | Display label for the connection. Defaults to the full hostname of `graphDbUrl`.                                                                                                                                                         |
 
 The parameters belong to the `#/connect` route, so they go _after_ the `#` (Graph Explorer uses hash-based routing). `graphDbUrl` must be URL-encoded. Most languages provide this via `encodeURIComponent()` (JavaScript), `urllib.parse.quote()` (Python), or `URLEncoder.encode()` (Java).
 
@@ -64,10 +64,10 @@ https://[GRAPH_EXPLORER_HOST]/#/connect?graphDbUrl=https%3A%2F%2Fmy-cluster.us-e
 
 When you open a connection link, Graph Explorer does one of the following:
 
-- **The link matches your active connection.** Nothing changes.
-- **The link matches a different existing connection.** Graph Explorer switches to it, the same as selecting it in the connections list. No prompt: the connection was already created and validated by you, so there is nothing new to confirm.
+- **The link matches your active connection.** Graph Explorer opens the graph view for it, with your session as you left it.
+- **The link matches a different existing connection.** Graph Explorer switches to it and opens the graph view, the same as selecting it in the connections list. No prompt: the connection was already created and validated by you, so there is nothing new to confirm.
 - **The link matches no existing connection.** The create-connection form opens, pre-filled with the link's details so you can review or edit any setting before creating it. Saving the form creates the connection, activates it, and opens the graph view. Cancelling the form, or pressing Escape, creates nothing and opens the connections list so you can pick a connection yourself.
-- **The link's details are invalid.** The link is ignored and a notification names the parameter at fault and what it requires, for example "graphDbUrl must be a valid http or https URL".
+- **The link's details are invalid.** The link is ignored and a notification names the parameter at fault and what it requires, for example "graphDbUrl must be a valid http or https URL". Graph Explorer opens the graph view with your current connection unchanged.
 
 In every case Graph Explorer replaces the `#/connect` URL once the link is handled, so it does not linger in your history and refreshing behaves normally.
 

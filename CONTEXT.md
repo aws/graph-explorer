@@ -144,11 +144,11 @@ The UI element in the nav bar (after the page title) that renders Persistence St
 _Avoid_: Save-status indicator
 
 **Connection Link**:
-A `#/connect` URL an external application builds to hand Graph Explorer a Connection, carrying the params `graphDbUrl`, `queryEngine`, `awsRegion`, `serviceType`, `name`. Resolved once when the Connect route is entered, because opening a link is a single event rather than a value to re-derive; the route then replaces its own URL so the params do not linger in history.
+A `#/connect` URL an external application builds to hand Graph Explorer a Connection, carrying the params `graphDbUrl`, `queryEngine`, `awsRegion`, `serviceType`, `name`. See `docs/adr/20260612-connection-links.md` for how it is resolved and validated.
 _Avoid_: deep link, auto-connect, URL connection params
 
 **Connection Link Intent**:
-The action a Connection Link resolves to against the current Connections: `none` (the params target the already-active Connection, so do nothing), `activate` (the params match an inactive Connection, so switch to it), `create` (no match, so open the create form pre-filled from the params), or `invalid` (a param fails validation, such as a missing, malformed, credential-bearing, or backslash-containing `graphDbUrl`, an unsupported `queryEngine` or `serviceType`, or a malformed `awsRegion`, so warn naming each bad param and ignore the link). A Connection matches only when its `graphDbUrl`, `queryEngine`, and auth posture (IAM on/off, and when on, `awsRegion` and `serviceType`) all agree. Auth posture is identity-bearing, so a link requesting different auth than any existing Connection resolves to `create` rather than silently reusing one.
+The action a Connection Link resolves to against the current Connections: `none` (it targets the Active Connection), `activate` (it matches an inactive Connection), `create` (no match, so open a pre-filled create form), or `invalid` (a param fails validation). A Connection matches on endpoint, query engine, and auth posture.
 _Avoid_: connection action, deep-link mode
 
 ## Relationships
@@ -167,7 +167,7 @@ _Avoid_: connection action, deep-link mode
 - The **Graph View**, **Data Table View**, and **Schema View** all render from the same **Session** and **Schema**
 - A cancelled request is neither a **Fetch Timeout** nor a **Database Query Timeout**
 - A **Connection Link** resolves to a **Connection Link Intent** against the current **Connections** and active **Connection**
-- Activating a different **Connection** replaces the current **Session** — so an `activate` or `create` **Connection Link Intent** resets the **Session**, while a `none` intent leaves it untouched
+- Activating a different **Connection** swaps which **Session** is displayed and keeps the previous one for when that **Connection** is reactivated. So an `activate` intent, or a `create` intent whose form is saved, switches the displayed **Session**, while `none`, `invalid`, and a cancelled `create` leave it untouched
 
 ## Example dialogue
 

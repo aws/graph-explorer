@@ -10,13 +10,13 @@ Accepted
 
 External applications want to deep-link into Graph Explorer with a connection already configured — for example, a console that lists Neptune clusters and offers an "Open in Graph Explorer" link. The link carries the endpoint and auth details as URL parameters. Graph Explorer stores all connections client-side and has no server, so the link is the only channel for this hand-off.
 
-Three decisions in this design are non-obvious and would otherwise invite "why is it like this?" later.
+Four decisions in this design are non-obvious and would otherwise invite "why is it like this?" later.
 
 ## Decisions
 
 ### A dedicated `#/connect` route, not an interstitial gate
 
-An earlier version mounted a `ConnectionLinkGate` component high in the tree that read `window.location`, froze the resolved intent at mount with `useState`, and stripped the params via `history.replaceState`. That coupled a reactive computation to a one-shot lifecycle and put connection-handling logic in the app shell.
+The alternative considered was an interstitial `ConnectionLinkGate` component mounted high in the tree that reads `window.location`, freezes the resolved intent at mount with `useState`, and strips the params via `history.replaceState`. That couples a reactive computation to a one-shot lifecycle and puts connection-handling logic in the app shell.
 
 Connection links are now a first-class route, `#/connect?graphDbUrl=…`. Because Graph Explorer uses a hash router, the parameters sit **after** the `#` like every other route — third-party integrators build the link the same way they would any in-app link, and `window.location.search` (everything before the `#`) is no longer a trap. The route redirects (router `navigate`, with `replace`) away on completion, leaving no `#/connect` entry in history, so refresh and back behave normally without any manual param stripping.
 
@@ -24,7 +24,7 @@ Connection links are now a first-class route, `#/connect?graphDbUrl=…`. Becaus
 
 The route resolves the link exactly once, in a `useState` initializer, and the resulting intent is the component's initial state. An effect then acts on it.
 
-Deriving the intent on every render was the first attempt, and it inverted the problem rather than solving it: the resolved intent allocated a fresh object each render, so the effect acting on it needed either `useEffectEvent` or a snapshot to avoid re-firing. Resolving inside the effect and calling `setState` for the create case is the same mistake wearing a different hat — it decides during render's aftermath what could have been decided before the first paint, and the lint rule against `setState` in an effect says so.
+Deriving the intent on every render was considered and rejected, because it inverts the problem rather than solving it: the resolved intent allocates a fresh object each render, so the effect acting on it would need either `useEffectEvent` or a snapshot to avoid re-firing. Resolving inside the effect and calling `setState` for the create case is the same mistake wearing a different hat: it decides during render's aftermath what could have been decided before the first paint, and the lint rule against `setState` in an effect says so.
 
 Opening a link is a single event with a single decision. Making that decision the initial state says exactly that, and it means the create form is on screen from the first render instead of appearing one render later.
 
