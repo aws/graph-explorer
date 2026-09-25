@@ -1,0 +1,40 @@
+name: Docker Image Audit
+
+on:
+  workflow_dispatch:
+  # Scan after publishing so the pull gets the image this commit built.
+  workflow_run:
+    workflows: ["Build Docker image and publish to ECR"]
+    types: [completed]
+    branches: [main]
+  schedule:
+    # Every day at 9:00 UTC
+    - cron: "0 9 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  docker-image-audit:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Scan Docker image for vulnerabilities
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: public.ecr.aws/neptune/graph-explorer:latest-SNAPSHOT
+          vuln-type: os
+          format: sarif
+          output: trivy-image-results.sarif
+
+      - name: Upload Trivy image results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@1c5b675653bb5c22dbe9b12b556ec555138e09fd # v4.38.1
+        with:
+          sarif_file: trivy-image-results.sarif
+          category: docker-image-scan
