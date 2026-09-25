@@ -27,6 +27,8 @@ The proxy server reads certificates from the following location inside the conta
 
 If HTTPS is enabled and any of these files are missing, the server will exit with an error listing the missing files.
 
+If `NEPTUNE_NOTEBOOK` is also set to `true`, the server exits earlier, during environment parsing, with an error naming the conflict between `NEPTUNE_NOTEBOOK` and `PROXY_SERVER_HTTPS_CONNECTION`, since the notebook preset never generates certificates.
+
 ### Using your own certificates
 
 To use your own certificates instead of the self-signed ones, mount your certificate files into the `cert-info` directory. All five certificate files must be present (`rootCA.key`, `rootCA.crt`, `server.key`, `server.csr`, `server.crt`).
