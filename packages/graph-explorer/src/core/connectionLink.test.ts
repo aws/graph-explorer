@@ -119,6 +119,45 @@ describe("readConnectionLink", () => {
     ).toEqual(["graphDbUrl cannot include a username or password"]);
   });
 
+  // WHATWG URL parsing treats a backslash as a forward slash for http(s)
+  // URLs, so this parses with an empty username and host `evil.tld` — passing
+  // `url()` and the plain credentials check, while a reader sees a trusted
+  // Neptune host after the `\@`.
+  test("rejects a graphDbUrl that hides credentials behind a backslash", () => {
+    expect(
+      problemsOf(
+        `?graphDbUrl=${encodeURIComponent(
+          "https://evil.tld\\@prod.cluster-abc.us-east-1.neptune.amazonaws.com:8182",
+        )}`,
+      ),
+    ).toEqual(["graphDbUrl must be written exactly as the URL it resolves to"]);
+  });
+
+  test("accepts ordinary URLs that round-trip through href unchanged", () => {
+    expect(
+      paramsOf(
+        `?graphDbUrl=${encodeURIComponent(
+          "https://my-cluster.us-east-1.neptune.amazonaws.com:8182",
+        )}`,
+      ).graphDbUrl,
+    ).toBe("https://my-cluster.us-east-1.neptune.amazonaws.com:8182");
+
+    expect(
+      paramsOf(`?graphDbUrl=${encodeURIComponent("http://localhost:8182")}`)
+        .graphDbUrl,
+    ).toBe("http://localhost:8182");
+
+    expect(
+      paramsOf(`?graphDbUrl=${encodeURIComponent("https://host:8182/sparql")}`)
+        .graphDbUrl,
+    ).toBe("https://host:8182/sparql");
+
+    expect(
+      paramsOf(`?graphDbUrl=${encodeURIComponent("https://host:8182/")}`)
+        .graphDbUrl,
+    ).toBe("https://host:8182/");
+  });
+
   // A link naming a query engine or service type we do not support asked for
   // something we cannot deliver. Coercing it to a default would connect with a
   // different query language than the caller requested, so it is rejected and
