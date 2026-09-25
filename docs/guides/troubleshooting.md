@@ -85,10 +85,6 @@ To fix it:
 
 This can happen for many reasons. Below are a few of the common ones.
 
-### Proxy server cannot reach the database
-
-All database requests now flow through the Graph Explorer server instead of the browser. A "Connection Error" during schema sync usually means the server, not the browser, cannot reach the database endpoint. Check that the server has network access to the database, for example through VPC routing, security groups, or NAT/internet gateways. See [System overview](../architecture.md#system-overview) for the network-routing requirements.
-
 ### Timeout
 
 There are multiple sources of timeouts.
@@ -111,6 +107,8 @@ If a request is cancelled instead, Graph Explorer shows a plain "Request cancell
 This can happen when your database is very large. Graph Explorer does its best to support larger databases and is always improving. Please [file an issue](https://github.com/aws/graph-explorer/issues/new/choose) if you encounter this situation.
 
 ### Proxy Server Cannot Be Reached
+
+A "Connection Error" belongs here. It means the browser could not reach the Graph Explorer server, not that the server could not reach the database.
 
 Communication between the client and proxy server can be configured in different ways. When Graph Explorer proxy server starts up it will print out its best approximation of the correct public proxy server address.
 
@@ -143,6 +141,8 @@ These errors mean the browser reached the proxy server, but the proxy server cou
 This error can take a minute or more to appear, because the proxy server waits for the operating system's connection timeout.
 
 For the network setup Neptune needs, see [Network Access](./connecting-to-neptune.md#network-access).
+
+The server, not the browser, must have network access to the database. See [System overview](../architecture.md#system-overview) for the network-routing requirements.
 
 ## Reverse Proxy Misconfigured
 
