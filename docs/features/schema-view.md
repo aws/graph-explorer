@@ -26,3 +26,7 @@ The Details panel header includes an "Automatically open on selection" toggle. W
 > [!NOTE]
 >
 > The schema and data types shown in the Schema view are inferred from samples of nodes and edges returned by queries. They may not be 100% accurate or complete, especially for large or diverse datasets. As you explore more data, the schema will grow more complete over time.
+
+If discovering relationships fails, or has not run yet, the Schema view still
+shows every node type. A notice appears above the graph explaining what
+happened and offers a button to retry or synchronize.

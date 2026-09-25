@@ -60,7 +60,7 @@ export default function PanelError({
   );
 }
 
-function ErrorDetailsButton({ error }: { error: unknown }) {
+export function ErrorDetailsButton({ error }: { error: unknown }) {
   const {
     name: errorName,
     message: errorMessage,

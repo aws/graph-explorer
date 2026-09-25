@@ -19,6 +19,7 @@ import {
 } from "@/core";
 import { cn, logger } from "@/utils";
 
+import { EdgeConnectionDiscoveryNotice } from "./EdgeConnectionDiscoveryNotice";
 import { SchemaGraphToolbar } from "./SchemaGraphToolbar";
 import { SchemaExplorerSidebar } from "./Sidebar/SchemaExplorerSidebar";
 import { useSchemaViewSidebar } from "./Sidebar/schemaViewLayout";
@@ -96,6 +97,7 @@ export default function SchemaGraph({ className, ...props }: SchemaGraphProps) {
       <PanelGroup>
         <Panel className="min-h-0 min-w-0 flex-1">
           <SchemaGraphToolbar />
+          <EdgeConnectionDiscoveryNotice />
           <PanelContent className="bg-workspace-canvas size-full min-h-0 min-w-0">
             {!hasSchemaData ? (
               <NoNodeTypesEmptyState />
