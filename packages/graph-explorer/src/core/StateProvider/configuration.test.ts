@@ -477,6 +477,15 @@ describe("backward compatibility: legacy url/proxyConnection connection shape", 
     expect(result.graphDbUrl).toBe("https://db.com");
   });
 
+  test("should keep graphDbUrl over the proxy url when proxyConnection is absent and both are set", () => {
+    const result = transformLegacyConnection({
+      url: "https://proxy.example.com",
+      graphDbUrl: "https://db.com",
+      queryEngine: "gremlin",
+    });
+    expect(result.graphDbUrl).toBe("https://db.com");
+  });
+
   test("should use url as graphDbUrl when proxyConnection and graphDbUrl are both absent", () => {
     const result = transformLegacyConnection({
       url: "https://my-neptune:8182",
