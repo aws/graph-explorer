@@ -103,5 +103,5 @@ function describeRecovery({ setting }: FailedDiscovery): string {
     // database refusing, and those have opposite remedies, so name both.
     return "Change Edge Connection Discovery to Automatic or Sampled in this connection's advanced options, because Automatic samples a graph this large instead of scanning it. If the connection sets a fetch timeout, a complete scan may simply need longer than that allows.";
   }
-  return "Raise the query timeout in the DB cluster parameter group, or use an instance with more memory. The Schema view still lists node types and edge types without this.";
+  return "Raise the query timeout in the DB cluster parameter group, or use an instance with more memory. Until then, the Schema view shows node types without the edge connections between them.";
 }

@@ -8,6 +8,7 @@ import {
 } from "@/components";
 import {
   createEdgeConnectionId,
+  useActiveSchema,
   useDisplayVertexTypeConfig,
   useGraphSchema,
   useVertexTypeTotal,
@@ -40,12 +41,14 @@ export function NodeLabelDetails({
   ...props
 }: NodeLabelDetailsProps) {
   const t = useTranslations();
+  const activeSchema = useActiveSchema();
   const graphSchema = useGraphSchema();
   const config = useDisplayVertexTypeConfig(vertexType);
   const total = useVertexTypeTotal(vertexType);
 
   const edgeConnections =
     graphSchema.edgeConnections.byVertexType.get(vertexType);
+  const notDiscovered = activeSchema.edgeConnections == null;
 
   return (
     <Panel {...props}>
@@ -82,7 +85,9 @@ export function NodeLabelDetails({
             )) ?? (
               <li>
                 <DetailsValue>
-                  No {t("edge-connections").toLocaleLowerCase()}
+                  {notDiscovered
+                    ? `${t("edge-connections")} were not discovered`
+                    : `No ${t("edge-connections").toLocaleLowerCase()}`}
                 </DetailsValue>
               </li>
             )}

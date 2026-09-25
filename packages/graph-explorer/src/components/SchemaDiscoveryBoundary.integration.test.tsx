@@ -1,9 +1,9 @@
 // @vitest-environment happy-dom
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { beforeEach, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { getAppStore, schemaAtom } from "@/core";
+import { createEdgeType, getAppStore, schemaAtom } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import {
   DbState,
@@ -33,7 +33,7 @@ describe("SchemaDiscoveryBoundary against the real store", () => {
     return render(
       <TestProvider client={createQueryClient()} store={store}>
         <MemoryRouter>
-          <SchemaDiscoveryBoundary requireEdgeConnections>
+          <SchemaDiscoveryBoundary>
             <div>Children</div>
           </SchemaDiscoveryBoundary>
         </MemoryRouter>
@@ -61,5 +61,26 @@ describe("SchemaDiscoveryBoundary against the real store", () => {
 
     expect(screen.getByText("Children")).toBeInTheDocument();
     expect(screen.queryByText(/Available$/)).not.toBeInTheDocument();
+  });
+
+  test("renders children when edge connection discovery rejects", async () => {
+    vi.spyOn(explorer, "fetchEdgeConnections").mockRejectedValue(
+      new Error("Edge connection discovery failed"),
+    );
+
+    const state = new DbState(explorer);
+    state.activeSchema.edges = [
+      { type: createEdgeType("knows"), attributes: [] },
+    ];
+    state.activeSchema.edgeConnections = undefined;
+
+    renderBoundary(state);
+
+    await waitFor(() => {
+      expect(screen.queryByText("Synchronizing...")).not.toBeInTheDocument();
+    });
+    await flushPendingAtomUpdates();
+
+    expect(screen.getByText("Children")).toBeInTheDocument();
   });
 });

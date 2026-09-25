@@ -21,6 +21,18 @@ The `edgeConnections` property on `SchemaStorageModel` has three meaningful stat
 
 If the edge connection query fails, the error is stored in the schema via the `lastEdgeConnectionSyncFail` flag.
 
+When discovery has failed or never run, the Schema view still renders every
+node type; it does not fall back to a full-page error. `SchemaGraph.tsx`
+renders `EdgeConnectionDiscoveryNotice`, which resolves the situation via the
+pure `edgeConnectionNotice(schema, error)` helper in
+`src/modules/SchemaGraph/edgeConnectionNotice.ts`. That helper keys off
+`lastEdgeConnectionSyncFail` and the live query error, not off
+`edgeConnections == null`, because exploring the graph after a failure can add
+partial connections and the notice must still report the failure. Retrying or
+synchronizing both call `edgeDiscoveryQuery.refetch()`.
+`SchemaDiscoveryBoundary` only gates on the main schema sync now; it no longer
+has an `edgeConnections`-aware mode.
+
 ## Incremental Schema Growth
 
 As users explore the graph, queries may return vertex/edge types or attributes not present in the initial schema sync. These are automatically merged into the stored schema via `updateSchemaFromEntities()`, causing the schema to grow more complete over time.
