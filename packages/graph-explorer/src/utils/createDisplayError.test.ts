@@ -87,7 +87,7 @@ describe("createDisplayError", () => {
     expect(result).toStrictEqual({
       title: "Connection refused",
       message:
-        "The Graph Explorer server could not connect to the database. Verify the database is running and reachable from the host running Graph Explorer.",
+        "The database host answered but refused the connection. Check that the port in the connection is correct and the database is running.",
     });
   });
 
@@ -107,7 +107,7 @@ describe("createDisplayError", () => {
     expect(result).toStrictEqual({
       title: "Connection refused",
       message:
-        "The Graph Explorer server could not connect to the database. Verify the database is running and reachable from the host running Graph Explorer.",
+        "The database host answered but refused the connection. Check that the port in the connection is correct and the database is running.",
     });
   });
 
@@ -201,7 +201,7 @@ describe("createDisplayError", () => {
       expect(createDisplayError(error)).toStrictEqual({
         title: "Connection refused",
         message:
-          "The Graph Explorer server could not connect to the database. Verify the database is running and reachable from the host running Graph Explorer.",
+          "The database host answered but refused the connection. Check that the port in the connection is correct and the database is running.",
       });
     });
   });

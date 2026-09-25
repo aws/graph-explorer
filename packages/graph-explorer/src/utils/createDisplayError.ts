@@ -53,7 +53,7 @@ export function createDisplayError(error: any): DisplayError {
       return {
         title: "Connection refused",
         message:
-          "The Graph Explorer server could not connect to the database. Verify the database is running and reachable from the host running Graph Explorer.",
+          "The database host answered but refused the connection. Check that the port in the connection is correct and the database is running.",
       };
     }
     if (data.code === "ECONNRESET" || data.cause?.code === "ECONNRESET") {
