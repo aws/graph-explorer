@@ -234,6 +234,51 @@ describe("readConnectionLink", () => {
     ).toEqual(['serviceType must be one of "neptune-db", "neptune-graph"']);
   });
 
+  describe("awsRegion format", () => {
+    test.each([
+      "us-east-1",
+      "us-gov-west-1",
+      "ap-southeast-2",
+      "eu-central-1",
+      "cn-north-1",
+    ])("accepts %s", region => {
+      expect(
+        paramsOf(
+          `?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&awsRegion=${region}`,
+        ).awsRegion,
+      ).toBe(region);
+    });
+
+    test("rejects a value that isn't shaped like an AWS region", () => {
+      expect(
+        problemsOf(
+          "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&awsRegion=x",
+        ),
+      ).toEqual(['awsRegion must be an AWS region like "us-east-1"']);
+    });
+
+    test("rejects a region-shaped value with the wrong case", () => {
+      expect(
+        problemsOf(
+          "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&awsRegion=US-EAST-1",
+        ),
+      ).toEqual(['awsRegion must be an AWS region like "us-east-1"']);
+    });
+
+    // An absent or empty awsRegion still means IAM off, not a bad value.
+    test("accepts an absent or empty awsRegion", () => {
+      expect(
+        paramsOf("?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com")
+          .awsRegion,
+      ).toBe("");
+      expect(
+        paramsOf(
+          "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&awsRegion=",
+        ).awsRegion,
+      ).toBe("");
+    });
+  });
+
   test("reports every offending parameter, not just the first", () => {
     expect(
       problemsOf("?graphDbUrl=not-a-url&queryEngine=sql&serviceType=bogus"),

@@ -16,6 +16,9 @@ import type {
 import { ConnectionLinkError } from "./connectionLinkError";
 import { normalizeUrl } from "./StateProvider/configuration";
 
+/** Matches `us-east-1`, `us-gov-west-1`, `ap-southeast-2`, `cn-north-1`, etc. */
+const AWS_REGION_PATTERN = /^[a-z]{2}(-[a-z]+)+-\d+$/;
+
 /**
  * Every message is phrased to follow the parameter's own name, so a failure
  * reads back to the user as the requirement it broke: "graphDbUrl must be a
@@ -59,7 +62,15 @@ const ConnectionLinkParamsSchema = z
     queryEngine: z
       .enum(queryEngineOptions, { error: mustBeOneOf(queryEngineOptions) })
       .optional(),
-    awsRegion: z.string().default(""),
+    // Absent or empty still means IAM off; a non-empty value must actually
+    // look like an AWS region, since anything else can only produce SigV4
+    // requests signed for a region that doesn't exist.
+    awsRegion: z
+      .string()
+      .refine(value => value === "" || AWS_REGION_PATTERN.test(value), {
+        error: 'must be an AWS region like "us-east-1"',
+      })
+      .default(""),
     serviceType: z
       .enum(neptuneServiceTypeOptions, {
         error: mustBeOneOf(neptuneServiceTypeOptions),
