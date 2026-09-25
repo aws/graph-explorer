@@ -3,10 +3,10 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+import { EdgeConnectionDiscoveryError } from "@/connector/gremlin/fetchEdgeConnections/discoveryError";
 import { createEdgeType, getAppStore, schemaAtom } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
-import { DatabaseTimeoutError, NetworkError } from "@/utils";
-import { createDisplayError } from "@/utils/createDisplayError";
+import { NetworkError } from "@/utils";
 import {
   DbState,
   FakeExplorer,
@@ -61,12 +61,17 @@ describe("EdgeConnectionDiscoveryStatusButton", () => {
     return state;
   }
 
-  test("shows a button with the error title, message, Error Details, and Retry in the popover when discovery rejects", async () => {
-    const error = new DatabaseTimeoutError(
-      "Query timed out",
-      500,
-      { code: "TimeLimitExceededException" },
-      "TimeLimitExceededException",
+  test("shows the error title, recovery text, Error Details, and Retry in the popover when discovery rejects", async () => {
+    const cause = new Error("Query timed out");
+    const error = new EdgeConnectionDiscoveryError(
+      {
+        strategy: "sampled",
+        requests: 3,
+        totalEdges: 100,
+        degraded: false,
+        cause: "database-limit",
+      },
+      cause,
     );
     vi.spyOn(explorer, "fetchEdgeConnections").mockRejectedValue(error);
 
@@ -80,11 +85,11 @@ describe("EdgeConnectionDiscoveryStatusButton", () => {
     await user.click(button);
 
     await waitFor(() => {
-      expect(screen.getByText("Database query timed out")).toBeInTheDocument();
+      expect(
+        screen.getByText("Could not discover edge connections"),
+      ).toBeInTheDocument();
     });
-    expect(
-      screen.getByText(createDisplayError(error).message),
-    ).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(error.recovery))).toBeInTheDocument();
     // Both actions share a size so the popover's buttons line up.
     expect(
       screen.getByRole("button", { name: /error details/i }),
@@ -96,7 +101,16 @@ describe("EdgeConnectionDiscoveryStatusButton", () => {
   });
 
   test("hides the button and clears the stored failure flag once retry resolves", async () => {
-    const error = new Error("boom");
+    const error = new EdgeConnectionDiscoveryError(
+      {
+        strategy: "sampled",
+        requests: 1,
+        totalEdges: 10,
+        degraded: false,
+        cause: "database-limit",
+      },
+      new Error("boom"),
+    );
     const spy = vi
       .spyOn(explorer, "fetchEdgeConnections")
       .mockRejectedValueOnce(error)
@@ -112,7 +126,9 @@ describe("EdgeConnectionDiscoveryStatusButton", () => {
     const user = userEvent.setup();
     await user.click(button);
     await waitFor(() => {
-      expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+      expect(
+        screen.getByText("Could not discover edge connections"),
+      ).toBeInTheDocument();
     });
     await user.click(screen.getByRole("button", { name: /retry/i }));
 

@@ -1,5 +1,6 @@
 import { ZodError } from "zod";
 
+import { EdgeConnectionDiscoveryError } from "@/connector/gremlin/fetchEdgeConnections/discoveryError";
 import { QueryValueError } from "@/connector/queryValueError";
 
 import { NetworkError } from "./NetworkError";
@@ -42,11 +43,20 @@ export function createErrorDetails(error: unknown): ErrorDetails {
       data: JSON.stringify(error.issues, null, 2),
     };
   }
-  if (error instanceof QueryValueError) {
+  // Errors that carry their own structured context. The cause is serialized with
+  // it, so the database's own error is still readable under our interpretation.
+  if (
+    error instanceof QueryValueError ||
+    error instanceof EdgeConnectionDiscoveryError
+  ) {
+    const data: Record<string, unknown> = { ...error.details };
+    if (error.cause) {
+      data.cause = serializeCause(error.cause);
+    }
     return {
       name: error.name,
       message: error.message,
-      data: JSON.stringify(error.details, null, 2),
+      data: JSON.stringify(data, null, 2),
     };
   }
   if (error instanceof Error) {

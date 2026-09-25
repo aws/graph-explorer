@@ -1,5 +1,6 @@
 import { ZodError } from "zod";
 
+import { EdgeConnectionDiscoveryError } from "@/connector/gremlin/fetchEdgeConnections/discoveryError";
 import {
   EmptyIdentifierError,
   QueryValueError,
@@ -39,6 +40,15 @@ const UNREACHABLE_HOST_CODES = new Set(["ENOTFOUND", "EAI_AGAIN"]);
  * @returns A `DisplayError` that contains a title and message.
  */
 export function createDisplayError(error: any): DisplayError {
+  // First, because it already knows more about the failure than any code on the
+  // response it wraps: which strategies were tried and what the user can change.
+  if (error instanceof EdgeConnectionDiscoveryError) {
+    return {
+      title: "Could not discover edge connections",
+      message: `${error.message} ${error.recovery}`,
+    };
+  }
+
   const data =
     error instanceof NetworkError
       ? error.data
@@ -88,6 +98,19 @@ export function createDisplayError(error: any): DisplayError {
           "Please check the database URL in the connection and try again.",
       };
     }
+    if (
+      data.code === "MemoryLimitExceededException" ||
+      data.cause?.code === "MemoryLimitExceededException"
+    ) {
+      // The query asked for more memory than the instance had, which is a
+      // property of the query rather than of the connection.
+      return {
+        title: "Not enough memory",
+        message:
+          "The database ran out of memory answering the query. Try a smaller request, or use an instance with more memory.",
+      };
+    }
+
     // Malformed query
     if (
       data.code === "MalformedQueryException" ||

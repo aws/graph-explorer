@@ -1,6 +1,12 @@
-import { vi } from "vitest";
+import { type Mock, vi } from "vitest";
 
 import { createEdgeType, createVertexType, type EdgeType } from "@/core";
+import {
+  DatabaseTimeoutError,
+  FetchTimeoutError,
+  logger,
+  NetworkError,
+} from "@/utils";
 import {
   createGInt64,
   createGList,
@@ -9,33 +15,43 @@ import {
 } from "@/utils/testing";
 
 import fetchEdgeConnections from ".";
+import { EdgeConnectionDiscoveryError } from "./discoveryError";
+import { EDGE_TYPES_PER_SAMPLE } from "./discoveryPlan";
 
-/** One distinct `(edge type, source labels, target labels)` combination. */
-type Combination = [
-  edgeType: string,
-  sourceTypes: string[],
-  targetTypes: string[],
-];
+/** One distinct `(edge type, source label, target label)` combination. */
+type Triple = [edgeType: string, sourceType: string, targetType: string];
 
-/** Builds the `group().by(label())` response: edge type to `(s, t)` counts. */
-function sampleResponse(...combinations: Combination[]) {
-  const byEdgeType = new Map<string, Combination[]>();
-  for (const combination of combinations) {
-    const [edgeType] = combination;
-    byEdgeType.set(edgeType, [
-      ...(byEdgeType.get(edgeType) ?? []),
-      combination,
-    ]);
+/** One projected key, with each endpoint's labels folded into a list as the template asks. */
+function tripleKey(e: string, s: string[], t: string[]) {
+  return createGMap({ e, s: createGList(s), t: createGList(t) });
+}
+
+/** Builds the flat `groupCount().by(project(...))` response: one g:Map of triple to count. */
+function countResponse(...triples: Triple[]) {
+  return createGremlinResponse(
+    createGMap(
+      new Map(
+        triples.map(([e, s, t]) => [tripleKey(e, [s], [t]), createGInt64(1)]),
+      ),
+    ),
+  );
+}
+
+/** Builds the `group().by(label())` response a sampled request returns. */
+function sampleResponse(...triples: Triple[]) {
+  const byEdgeType = new Map<string, Triple[]>();
+  for (const triple of triples) {
+    byEdgeType.set(triple[0], [...(byEdgeType.get(triple[0]) ?? []), triple]);
   }
   return createGremlinResponse(
     createGMap(
       new Map(
-        [...byEdgeType].map(([edgeType, ofType]) => [
-          edgeType,
+        [...byEdgeType].map(([e, ofType]) => [
+          e,
           createGMap(
             new Map(
               ofType.map(([, s, t]) => [
-                createGMap({ s: createGList(s), t: createGList(t) }),
+                createGMap({ s: createGList([s]), t: createGList([t]) }),
                 createGInt64(1),
               ]),
             ),
@@ -46,33 +62,78 @@ function sampleResponse(...combinations: Combination[]) {
   );
 }
 
-/** A `group()` over no edges returns an empty map. */
+/** A `groupCount()` over a graph with no matching edges returns an empty map. */
 const emptyResponse = createGremlinResponse(createGMap({}));
+
+function memoryLimitError() {
+  return new NetworkError("Query cannot be completed", 500, {
+    code: "MemoryLimitExceededException",
+  });
+}
+
+function databaseTimeoutError() {
+  return new DatabaseTimeoutError(
+    "Query cannot be completed",
+    500,
+    {},
+    "TimeLimitExceededException",
+  );
+}
+
+function fetchTimeoutError() {
+  return new FetchTimeoutError(
+    240_000,
+    new DOMException("Aborted", "TimeoutError"),
+  );
+}
 
 function edgeTypes(count: number): EdgeType[] {
   return Array.from({ length: count }, (_, i) => createEdgeType(`edge${i}`));
 }
 
+/** Every request carries its own id and signal, so one can be cancelled alone. */
+const perRequest = {
+  queryId: expect.any(String),
+  signal: expect.any(AbortSignal),
+};
+
+/** Awaits a discovery that is expected to give up, and returns why. */
+async function discoveryErrorFrom(
+  discovery: Promise<unknown>,
+): Promise<EdgeConnectionDiscoveryError> {
+  const error = await discovery.then(
+    () => undefined,
+    (thrown: unknown) => thrown,
+  );
+  expect(error).toBeInstanceOf(EdgeConnectionDiscoveryError);
+  return error as EdgeConnectionDiscoveryError;
+}
+
+/** The signal handed to the nth request, which the caller aborts when it gives up. */
+function signalOfCall(gremlinFetch: Mock, call: number): AbortSignal {
+  return gremlinFetch.mock.calls[call][1].signal;
+}
+
 describe("Gremlin > fetchEdgeConnections", () => {
-  it("should sample several edge types in one request and regroup by edge type", async () => {
+  it("should ask for the distinct combinations in one request when the graph fits the budget", async () => {
     const gremlinFetch = vi
       .fn()
       .mockResolvedValueOnce(
-        sampleResponse(
-          ["route", ["airport"], ["airport"]],
-          ["contains", ["country"], ["airport"]],
+        countResponse(
+          ["route", "airport", "airport"],
+          ["contains", "country", "airport"],
         ),
       );
 
     const result = await fetchEdgeConnections(gremlinFetch, {
       edgeTypes: [createEdgeType("route"), createEdgeType("contains")],
+      totalEdges: 5_000,
     });
 
     expect(gremlinFetch).toHaveBeenCalledTimes(1);
     expect(gremlinFetch).toHaveBeenCalledWith(
-      expect.stringContaining(
-        "V().outE('route').limit(10000), V().outE('contains').limit(10000)",
-      ),
+      expect.stringContaining("g.E()\n  .groupCount()"),
+      perRequest,
     );
     expect(result).toStrictEqual({
       edgeConnections: [
@@ -90,24 +151,32 @@ describe("Gremlin > fetchEdgeConnections", () => {
     });
   });
 
-  it("should send 10 edge types per request", async () => {
-    const gremlinFetch = vi.fn().mockResolvedValue(emptyResponse);
-    const types = edgeTypes(25);
+  it("should sample several edge types in one request when the graph is too large to scan", async () => {
+    const gremlinFetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        sampleResponse(
+          ["route", "airport", "airport"],
+          ["contains", "country", "airport"],
+        ),
+      );
 
-    await fetchEdgeConnections(gremlinFetch, { edgeTypes: types });
+    const result = await fetchEdgeConnections(gremlinFetch, {
+      edgeTypes: [createEdgeType("route"), createEdgeType("contains")],
+      totalEdges: 19_928_805,
+    });
 
-    const queries = gremlinFetch.mock.calls.map(call => call[0] as string);
-    expect(
-      queries.map(q => (q.match(/outE\('edge\d+'\)/g) ?? []).length),
-    ).toStrictEqual([10, 10, 5]);
-    // Every input type is covered across the requests
-    const all = queries.join("\n");
-    for (const type of types) {
-      expect(all).toContain(`outE('${type}')`);
-    }
+    expect(gremlinFetch).toHaveBeenCalledTimes(1);
+    expect(gremlinFetch).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "V().outE('route').limit(10000), V().outE('contains').limit(10000)",
+      ),
+      perRequest,
+    );
+    expect(result.edgeConnections).toHaveLength(2);
   });
 
-  it("should return empty array when no edge types provided", async () => {
+  it("should return nothing without querying when the schema has no edge types", async () => {
     const gremlinFetch = vi.fn();
 
     const result = await fetchEdgeConnections(gremlinFetch, { edgeTypes: [] });
@@ -116,11 +185,12 @@ describe("Gremlin > fetchEdgeConnections", () => {
     expect(result).toStrictEqual({ edgeConnections: [] });
   });
 
-  it("should return empty array when no edge connections exist", async () => {
+  it("should return nothing when the graph has no edge connections", async () => {
     const gremlinFetch = vi.fn().mockResolvedValue(emptyResponse);
 
     const result = await fetchEdgeConnections(gremlinFetch, {
       edgeTypes: [createEdgeType("route")],
+      totalEdges: 0,
     });
 
     expect(result).toStrictEqual({ edgeConnections: [] });
@@ -129,11 +199,12 @@ describe("Gremlin > fetchEdgeConnections", () => {
   it("should deduplicate combinations returned by more than one request", async () => {
     const gremlinFetch = vi
       .fn()
-      .mockResolvedValue(sampleResponse(["route", ["airport"], ["airport"]]));
+      .mockResolvedValue(sampleResponse(["route", "airport", "airport"]));
 
     const result = await fetchEdgeConnections(gremlinFetch, {
-      // One more than a request carries, so it takes two.
-      edgeTypes: [createEdgeType("route"), ...edgeTypes(10)],
+      // One more than a sampled request carries, so the pass takes two.
+      edgeTypes: [createEdgeType("route"), ...edgeTypes(EDGE_TYPES_PER_SAMPLE)],
+      totalEdges: 19_928_805,
     });
 
     expect(gremlinFetch).toHaveBeenCalledTimes(2);
@@ -148,29 +219,16 @@ describe("Gremlin > fetchEdgeConnections", () => {
     });
   });
 
-  it("should propagate errors from fetch", async () => {
-    const gremlinFetch = vi.fn().mockRejectedValue(new Error("Network error"));
-
-    await expect(
-      fetchEdgeConnections(gremlinFetch, {
-        edgeTypes: [createEdgeType("route")],
-      }),
-    ).rejects.toThrow(new Error("Network error"));
-  });
-
-  it("should expand Neptune multi-label composites on both ends", async () => {
+  it("should expand Neptune multi-label endpoints on both ends", async () => {
     const gremlinFetch = vi
       .fn()
       .mockResolvedValueOnce(
-        sampleResponse([
-          "worksAt",
-          ["Person::Employee"],
-          ["Company::Organization"],
-        ]),
+        countResponse(["worksAt", "Person::Employee", "Company::Organization"]),
       );
 
     const result = await fetchEdgeConnections(gremlinFetch, {
       edgeTypes: [createEdgeType("worksAt")],
+      totalEdges: 10,
     });
 
     expect(result).toStrictEqual({
@@ -206,11 +264,21 @@ describe("Gremlin > fetchEdgeConnections", () => {
     const gremlinFetch = vi
       .fn()
       .mockResolvedValueOnce(
-        sampleResponse(["worksAt", ["Person", "Employee"], ["Company"]]),
+        createGremlinResponse(
+          createGMap(
+            new Map([
+              [
+                tripleKey("worksAt", ["Person", "Employee"], ["Company"]),
+                createGInt64(1),
+              ],
+            ]),
+          ),
+        ),
       );
 
     const result = await fetchEdgeConnections(gremlinFetch, {
       edgeTypes: [createEdgeType("worksAt")],
+      totalEdges: 10,
     });
 
     expect(result.edgeConnections).toStrictEqual([
@@ -227,20 +295,19 @@ describe("Gremlin > fetchEdgeConnections", () => {
     ]);
   });
 
-  it("should read the projected labels by key, whatever order the keys arrive in", async () => {
+  it("should keep every label of a multi-label endpoint when sampling", async () => {
     const gremlinFetch = vi.fn().mockResolvedValueOnce(
       createGremlinResponse(
         createGMap(
           new Map([
             [
-              "contains",
+              "worksAt",
               createGMap(
                 new Map([
                   [
-                    // target-then-source key order
                     createGMap({
-                      t: createGList(["airport"]),
-                      s: createGList(["country"]),
+                      s: createGList(["Person", "Employee"]),
+                      t: createGList(["Company"]),
                     }),
                     createGInt64(1),
                   ],
@@ -253,7 +320,66 @@ describe("Gremlin > fetchEdgeConnections", () => {
     );
 
     const result = await fetchEdgeConnections(gremlinFetch, {
+      edgeTypes: [createEdgeType("worksAt")],
+      totalEdges: 19_928_805,
+    });
+
+    expect(result.edgeConnections.map(c => c.sourceVertexType)).toStrictEqual([
+      createVertexType("Person"),
+      createVertexType("Employee"),
+    ]);
+  });
+
+  it("should ignore edge types that are not in the schema", async () => {
+    // An unfiltered scan sees every edge type in the graph, including ones the
+    // schema does not know about and the app therefore cannot render.
+    const gremlinFetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        countResponse(
+          ["route", "airport", "airport"],
+          ["undiscovered", "airport", "airport"],
+        ),
+      );
+
+    const result = await fetchEdgeConnections(gremlinFetch, {
+      edgeTypes: [createEdgeType("route")],
+      totalEdges: 10,
+    });
+
+    expect(result.edgeConnections).toStrictEqual([
+      {
+        sourceVertexType: createVertexType("airport"),
+        edgeType: createEdgeType("route"),
+        targetVertexType: createVertexType("airport"),
+      },
+    ]);
+  });
+
+  it("should read the projected triple by key, whatever order the keys arrive in", async () => {
+    // The whole reason the key is a named project() rather than a union() is that
+    // Neptune's DFE engine permutes an unnamed key and silently inverts the edge
+    // direction. Reading by name is what makes the shape safe, so pin it.
+    const gremlinFetch = vi.fn().mockResolvedValueOnce(
+      createGremlinResponse(
+        createGMap(
+          new Map([
+            [
+              createGMap({
+                t: createGList(["airport"]),
+                e: "contains",
+                s: createGList(["country"]),
+              }),
+              createGInt64(1),
+            ],
+          ]),
+        ),
+      ),
+    );
+
+    const result = await fetchEdgeConnections(gremlinFetch, {
       edgeTypes: [createEdgeType("contains")],
+      totalEdges: 10,
     });
 
     expect(result.edgeConnections).toStrictEqual([
@@ -269,29 +395,15 @@ describe("Gremlin > fetchEdgeConnections", () => {
     const gremlinFetch = vi.fn().mockResolvedValueOnce(
       createGremlinResponse(
         createGMap(
-          new Map([
+          new Map<
+            ReturnType<typeof createGMap>,
+            ReturnType<typeof createGInt64>
+          >([
             [
-              "route",
-              createGMap(
-                new Map([
-                  [
-                    createGMap({ s: createGList(["airport"]) }),
-                    createGInt64(1),
-                  ],
-                  [
-                    createGMap({ t: createGList(["airport"]) }),
-                    createGInt64(1),
-                  ],
-                  [
-                    createGMap({
-                      s: createGList(["airport"]),
-                      t: createGList(["airport"]),
-                    }),
-                    createGInt64(1),
-                  ],
-                ]),
-              ),
+              createGMap({ e: "route", s: createGList(["airport"]) }),
+              createGInt64(1),
             ],
+            [tripleKey("route", ["airport"], ["airport"]), createGInt64(1)],
           ]),
         ),
       ),
@@ -299,6 +411,7 @@ describe("Gremlin > fetchEdgeConnections", () => {
 
     const result = await fetchEdgeConnections(gremlinFetch, {
       edgeTypes: [createEdgeType("route")],
+      totalEdges: 10,
     });
 
     expect(result.edgeConnections).toStrictEqual([
@@ -308,5 +421,214 @@ describe("Gremlin > fetchEdgeConnections", () => {
         targetVertexType: createVertexType("airport"),
       },
     ]);
+  });
+
+  describe("degrading a complete scan that was too large", () => {
+    it.each([
+      ["a memory limit", memoryLimitError],
+      ["a database timeout", databaseTimeoutError],
+      ["our own fetch timeout", fetchTimeoutError],
+    ])(
+      "should redo discovery as sampled after %s",
+      async (_label, makeError) => {
+        const gremlinFetch = vi
+          .fn()
+          .mockRejectedValueOnce(makeError())
+          .mockResolvedValue(sampleResponse(["route", "airport", "airport"]));
+
+        const result = await fetchEdgeConnections(gremlinFetch, {
+          edgeTypes: [createEdgeType("route")],
+          totalEdges: 10,
+        });
+
+        expect(gremlinFetch).toHaveBeenCalledTimes(2);
+        expect(gremlinFetch).toHaveBeenLastCalledWith(
+          expect.stringContaining("V().outE('route').limit(10000)"),
+          perRequest,
+        );
+        expect(result.edgeConnections).toHaveLength(1);
+      },
+    );
+
+    it("should abandon the remaining chunks rather than finish them", async () => {
+      const gremlinFetch = vi
+        .fn()
+        .mockRejectedValueOnce(memoryLimitError())
+        .mockResolvedValue(emptyResponse);
+
+      const types = edgeTypes(500);
+      await fetchEdgeConnections(gremlinFetch, {
+        edgeTypes: types,
+        totalEdges: 5_000_000,
+      });
+
+      // 100 complete chunks were planned. The failure stops the pool, so only the
+      // requests already in flight run before the sampled requests.
+      const sampledRequests = Math.ceil(types.length / EDGE_TYPES_PER_SAMPLE);
+      expect(gremlinFetch.mock.calls.length).toBeLessThan(
+        sampledRequests + 100,
+      );
+      expect(gremlinFetch.mock.calls.length).toBeGreaterThanOrEqual(
+        sampledRequests + 1,
+      );
+    });
+
+    it("should point at the Fetch Timeout, not the parameter group, when a sampled pass exhausts our own fetch timeout", async () => {
+      const gremlinFetch = vi.fn().mockRejectedValue(fetchTimeoutError());
+
+      const error = await discoveryErrorFrom(
+        fetchEdgeConnections(gremlinFetch, {
+          edgeTypes: [createEdgeType("route")],
+          totalEdges: 19_928_805,
+        }),
+      );
+
+      expect(error.recovery).toContain("Fetch Timeout");
+      expect(error.recovery).not.toContain("parameter group");
+      expect(error.details).toMatchObject({ failureCause: "fetch-timeout" });
+    });
+
+    it("should point at the database's own query timeout when a sampled pass exhausts it", async () => {
+      const gremlinFetch = vi.fn().mockRejectedValue(databaseTimeoutError());
+
+      const error = await discoveryErrorFrom(
+        fetchEdgeConnections(gremlinFetch, {
+          edgeTypes: [createEdgeType("route")],
+          totalEdges: 19_928_805,
+        }),
+      );
+
+      expect(error.recovery).toContain("DB cluster parameter group");
+      expect(error.details).toMatchObject({ failureCause: "database-limit" });
+    });
+
+    it("should report an unusable edge total as unrecorded, like the planner does", async () => {
+      const gremlinFetch = vi.fn().mockRejectedValue(memoryLimitError());
+
+      const error = await discoveryErrorFrom(
+        fetchEdgeConnections(gremlinFetch, {
+          edgeTypes: [createEdgeType("route")],
+          totalEdges: "19928805" as unknown as number,
+        }),
+      );
+
+      // Showing the raw value would have the error details disagree with the
+      // plan, which ignored it.
+      expect(error.details.totalEdges).toBeUndefined();
+    });
+
+    it("should take the fast degrade path when the code arrives nested in a cause", async () => {
+      const gremlinFetch = vi
+        .fn()
+        .mockRejectedValueOnce(
+          new NetworkError("Query cannot be completed", 500, {
+            cause: { code: "MemoryLimitExceededException" },
+          }),
+        )
+        .mockResolvedValue(sampleResponse(["route", "airport", "airport"]));
+
+      const result = await fetchEdgeConnections(gremlinFetch, {
+        edgeTypes: [createEdgeType("route")],
+        totalEdges: 10,
+      });
+
+      expect(result.edgeConnections).toHaveLength(1);
+    });
+
+    it("should not degrade a sampled pass, because there is nothing cheaper to try", async () => {
+      const gremlinFetch = vi.fn().mockRejectedValue(memoryLimitError());
+
+      await expect(
+        fetchEdgeConnections(gremlinFetch, {
+          edgeTypes: [createEdgeType("route")],
+          totalEdges: 19_928_805,
+        }),
+      ).rejects.toThrow(/could not sample/);
+      expect(gremlinFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("should say both strategies were tried when sampling fails after degrading", async () => {
+      const gremlinFetch = vi.fn().mockRejectedValue(memoryLimitError());
+
+      const error = await discoveryErrorFrom(
+        fetchEdgeConnections(gremlinFetch, {
+          edgeTypes: [createEdgeType("route")],
+          totalEdges: 10,
+        }),
+      );
+
+      expect(error.details).toMatchObject({
+        strategy: "sampled",
+        completeScanAbandoned: true,
+      });
+      expect(error.message).toContain("sampling each edge type failed as well");
+    });
+
+    it("should record the degrade at warn level, where a user will see it without dev tools", async () => {
+      const gremlinFetch = vi
+        .fn()
+        .mockRejectedValueOnce(memoryLimitError())
+        .mockResolvedValue(sampleResponse(["route", "airport", "airport"]));
+
+      await fetchEdgeConnections(gremlinFetch, {
+        edgeTypes: [createEdgeType("route")],
+        totalEdges: 10,
+      });
+
+      // Discovery succeeded, so nothing else tells the user the schema they are
+      // looking at came from a sample rather than a full scan.
+      expect(logger.warn).toHaveBeenCalledWith(
+        expect.stringContaining("sampling each edge type instead"),
+        expect.anything(),
+      );
+      expect(logger.error).not.toHaveBeenCalled();
+    });
+
+    it("should cancel a request still in flight when it abandons the attempt", async () => {
+      const gremlinFetch: Mock = vi.fn().mockImplementation((query: string) =>
+        query.includes("limit(10000)") || gremlinFetch.mock.calls.length === 1
+          ? Promise.reject(memoryLimitError())
+          : // Never settles, so this chunk is still in flight when the first
+            // one fails and the whole complete attempt is abandoned.
+            new Promise(() => {}),
+      );
+
+      await expect(
+        fetchEdgeConnections(gremlinFetch, {
+          edgeTypes: edgeTypes(500),
+          totalEdges: 5_000_000,
+        }),
+      ).rejects.toThrow(/could not discover edge connections either way/);
+
+      expect(signalOfCall(gremlinFetch, 1).aborted).toBe(true);
+    });
+
+    it("should propagate an error that is not about the query being too large", async () => {
+      const gremlinFetch = vi
+        .fn()
+        .mockRejectedValue(new Error("Network error"));
+
+      await expect(
+        fetchEdgeConnections(gremlinFetch, {
+          edgeTypes: [createEdgeType("route")],
+          totalEdges: 10,
+        }),
+      ).rejects.toThrow("Network error");
+      expect(gremlinFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("should propagate a cancellation rather than treating it as a size problem", async () => {
+      const gremlinFetch = vi
+        .fn()
+        .mockRejectedValue(new DOMException("Aborted", "AbortError"));
+
+      await expect(
+        fetchEdgeConnections(gremlinFetch, {
+          edgeTypes: [createEdgeType("route")],
+          totalEdges: 10,
+        }),
+      ).rejects.toThrow("Aborted");
+      expect(gremlinFetch).toHaveBeenCalledTimes(1);
+    });
   });
 });
