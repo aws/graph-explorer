@@ -237,7 +237,7 @@ describe("createDisplayError", () => {
     expect(result).toStrictEqual({
       title: "Fetch timeout exceeded",
       message:
-        "The request did not finish within this connection's fetch timeout of 240,000 ms. Increase the Fetch Timeout in the connection's settings, or retry the request.",
+        "The request did not finish within this connection's fetch timeout of 240,000 ms. Increase the Fetch Timeout in this connection's advanced options, or retry the request.",
     });
   });
 

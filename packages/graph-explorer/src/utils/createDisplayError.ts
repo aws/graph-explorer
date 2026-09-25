@@ -104,7 +104,7 @@ export function createDisplayError(error: any): DisplayError {
   if (error instanceof FetchTimeoutError) {
     return {
       title: "Fetch timeout exceeded",
-      message: `The request did not finish within this connection's fetch timeout of ${error.timeoutMs.toLocaleString()} ms. Increase the Fetch Timeout in the connection's settings, or retry the request.`,
+      message: `The request did not finish within this connection's fetch timeout of ${error.timeoutMs.toLocaleString()} ms. Increase the Fetch Timeout in this connection's advanced options, or retry the request.`,
     };
   }
 
