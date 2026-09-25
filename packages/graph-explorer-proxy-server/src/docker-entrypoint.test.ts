@@ -180,7 +180,7 @@ describe("docker-entrypoint.sh", () => {
       },
     );
 
-    it("grep ignores similarly-named variables", () => {
+    it("ignores similarly-named NEPTUNE_NOTEBOOK variables", () => {
       writeEnv(
         configDir,
         "GRAPH_EXP_NEPTUNE_NOTEBOOK=true\nPROXY_SERVER_HTTPS_CONNECTION=true\n",
