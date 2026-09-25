@@ -95,27 +95,23 @@ describe("config pipeline: shell → dotenv → Zod → server config", () => {
     expect(config.useHttps).toBe(false);
   });
 
-  it("Neptune Notebook conflicting with an explicit HTTPS request refuses to start with both variables named", () => {
-    // Certificates present, so the conflict is the only thing that can fail.
-    vi.spyOn(fs, "existsSync").mockReturnValue(true);
+  it("Neptune Notebook conflicting with an explicit HTTPS request fails the environment parse with both variables named", () => {
+    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+    const error = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
 
-    const env = runPipeline(workDir, {
+    runPipeline(workDir, {
       NEPTUNE_NOTEBOOK: "true",
       PROXY_SERVER_HTTPS_CONNECTION: "true",
     });
 
-    expect(env.NEPTUNE_NOTEBOOK).toBe(true);
-    expect(env.PROXY_SERVER_HTTPS_CONNECTION).toBe(true);
-
-    let message = "";
-    expect(() => resolveServerConfig(env)).toThrow(ServerConfigError);
-    try {
-      resolveServerConfig(env);
-    } catch (e) {
-      message = (e as Error).message;
-    }
-    expect(message).toContain("NEPTUNE_NOTEBOOK");
-    expect(message).toContain("PROXY_SERVER_HTTPS_CONNECTION");
+    expect(process.exit).toHaveBeenCalledWith(1);
+    expect(error).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "NEPTUNE_NOTEBOOK and PROXY_SERVER_HTTPS_CONNECTION are both true.",
+      ),
+    );
   });
 
   it("HTTPS enabled but certs missing throws ServerConfigError", () => {
@@ -153,14 +149,6 @@ const notebookImage = {
   PROXY_SERVER_HTTP_PORT: "9250",
   LOG_STYLE: "cloudwatch",
 };
-
-const notebookHttpsConflict = new ServerConfigError(
-  "NEPTUNE_NOTEBOOK and PROXY_SERVER_HTTPS_CONNECTION are both true. " +
-    "The Neptune Notebook preset serves Graph Explorer over HTTP and does " +
-    "not generate TLS certificates, so this combination cannot start. " +
-    "Either drop PROXY_SERVER_HTTPS_CONNECTION to run under the notebook " +
-    "preset, or set NEPTUNE_NOTEBOOK to false to run with TLS.",
-);
 
 type Deployment = {
   row: number;
@@ -230,7 +218,7 @@ const notebookConflict = {
     GRAPH_EXP_HTTPS_CONNECTION: "false",
   },
   certificatesGenerated: false,
-  server: notebookHttpsConflict,
+  server: environmentParseFailure,
 };
 
 const deployments: Deployment[] = [

@@ -44,6 +44,75 @@ describe("parseEnvironmentValues", () => {
     );
   });
 
+  describe("NEPTUNE_NOTEBOOK conflicts with an explicit HTTPS request", () => {
+    const conflictMessage =
+      "NEPTUNE_NOTEBOOK and PROXY_SERVER_HTTPS_CONNECTION are both true. " +
+      "The Neptune Notebook preset serves Graph Explorer over HTTP and does " +
+      "not generate TLS certificates, so this combination cannot start. " +
+      "Either drop PROXY_SERVER_HTTPS_CONNECTION to run under the notebook " +
+      "preset, or set NEPTUNE_NOTEBOOK to false to run with TLS.";
+
+    function captureParseFailure(env: Record<string, string>) {
+      const exit = vi
+        .spyOn(process, "exit")
+        .mockImplementation(() => undefined as never);
+      const error = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => undefined);
+
+      parseEnvironmentValues(env);
+
+      return {
+        exited: exit.mock.calls.length > 0,
+        output: error.mock.calls.map(args => args.join(" ")).join("\n"),
+      };
+    }
+
+    // Failing the parse stops the server before it looks for certificates, so
+    // the operator sees the conflict rather than a missing-certificate error.
+    it("fails the parse at PROXY_SERVER_HTTPS_CONNECTION with the conflict", () => {
+      const { exited, output } = captureParseFailure({
+        NEPTUNE_NOTEBOOK: "true",
+        PROXY_SERVER_HTTPS_CONNECTION: "true",
+      });
+
+      expect(exited).toBe(true);
+      expect(output).toContain(
+        `✖ ${conflictMessage}\n  → at PROXY_SERVER_HTTPS_CONNECTION`,
+      );
+    });
+
+    it("fails the parse for HTTPS in any case", () => {
+      const { exited, output } = captureParseFailure({
+        NEPTUNE_NOTEBOOK: "true",
+        PROXY_SERVER_HTTPS_CONNECTION: "TRUE",
+      });
+
+      expect(exited).toBe(true);
+      expect(output).toContain(conflictMessage);
+    });
+
+    it("allows the notebook preset on its own", () => {
+      const result = parseEnvironmentValues({
+        NEPTUNE_NOTEBOOK: "true",
+        PROXY_SERVER_HTTPS_CONNECTION: "false",
+      });
+
+      expect(result.NEPTUNE_NOTEBOOK).toBe(true);
+      expect(result.PROXY_SERVER_HTTPS_CONNECTION).toBe(false);
+    });
+
+    it("allows HTTPS on its own", () => {
+      const result = parseEnvironmentValues({
+        NEPTUNE_NOTEBOOK: "false",
+        PROXY_SERVER_HTTPS_CONNECTION: "true",
+      });
+
+      expect(result.NEPTUNE_NOTEBOOK).toBe(false);
+      expect(result.PROXY_SERVER_HTTPS_CONNECTION).toBe(true);
+    });
+  });
+
   it("parses provided values", () => {
     const result = parseEnvironmentValues({
       HOST: "my-server",

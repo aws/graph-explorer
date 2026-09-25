@@ -24,21 +24,6 @@ export function resolveServerConfig(env: EnvironmentValues) {
 
   const useHttps = env.PROXY_SERVER_HTTPS_CONNECTION;
 
-  // The notebook preset serves over HTTP and never generates certificates, so
-  // this pair can never start. Refusing here names the real cause, where
-  // falling through would blame the missing certificates instead. Refusing
-  // rather than forcing HTTP off keeps an explicit TLS request from being
-  // silently discarded.
-  if (env.NEPTUNE_NOTEBOOK && useHttps) {
-    throw new ServerConfigError(
-      "NEPTUNE_NOTEBOOK and PROXY_SERVER_HTTPS_CONNECTION are both true. " +
-        "The Neptune Notebook preset serves Graph Explorer over HTTP and does " +
-        "not generate TLS certificates, so this combination cannot start. " +
-        "Either drop PROXY_SERVER_HTTPS_CONNECTION to run under the notebook " +
-        "preset, or set NEPTUNE_NOTEBOOK to false to run with TLS.",
-    );
-  }
-
   if (useHttps) {
     const missingFiles = [certificateKeyFilePath, certificateFilePath].filter(
       f => !fs.existsSync(f),
