@@ -71,7 +71,11 @@ type Deployment = {
   image: Record<string, string>;
   /** Values passed with `docker run -e`. */
   dockerEnv?: Record<string, string>;
-  configJson?: Record<string, boolean>;
+  /**
+   * config.json is a hand-edited file, so a boolean field there can hold
+   * null, a number, or an arbitrary string instead of a JSON boolean.
+   */
+  configJson?: Record<string, boolean | string | number | null>;
   /** Every row sets HOST=localhost unless this is false or `-e` sets it. */
   host?: false;
   /**
@@ -284,6 +288,44 @@ const deployments: Deployment[] = [
       PROXY_SERVER_HTTPS_CONNECTION: false,
     },
     expected: notebookPreset,
+  },
+  ...[null, "yes", 0].map((value): Deployment => ({
+    name: `notebook preset with config.json HTTPS ${JSON.stringify(value)} serves HTTP on 9250`,
+    image: notebookImage,
+    configJson: {
+      NEPTUNE_NOTEBOOK: true,
+      PROXY_SERVER_HTTPS_CONNECTION: value,
+    },
+    expected: notebookPreset,
+  })),
+  {
+    // config.json can hold "TRUE" just as easily as the boolean true; both
+    // read as a request for HTTPS under the preset.
+    name: 'notebook preset with config.json HTTPS "TRUE" refuses with the conflict',
+    image: notebookImage,
+    configJson: {
+      NEPTUNE_NOTEBOOK: true,
+      PROXY_SERVER_HTTPS_CONNECTION: "TRUE",
+    },
+    expected: {
+      ...notebookConflict,
+      envFile: {
+        ...notebookConflict.envFile,
+        PROXY_SERVER_HTTPS_CONNECTION: "TRUE",
+      },
+    },
+  },
+  {
+    // -e always wins over .env in the real container, since dotenv never
+    // overrides a variable already in the environment. An invalid -e value
+    // fails the parse the same way under the preset as it does on main.
+    name: "notebook preset with -e PROXY_SERVER_HTTPS_CONNECTION=yes fails the environment parse",
+    image: notebookImage,
+    dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "yes" },
+    expected: {
+      ...notebookPreset,
+      startup: parseFailureAt("PROXY_SERVER_HTTPS_CONNECTION"),
+    },
   },
   {
     name: "notebook preset writes GRAPH_EXP_HTTPS_CONNECTION=false to .env over -e",

@@ -21,12 +21,15 @@ fi
 if [ -n "$NEPTUNE_NOTEBOOK" ]; then
     printf '\nNEPTUNE_NOTEBOOK=%s\n' "$NEPTUNE_NOTEBOOK" >> $CONFIGURATION_FOLDER_PATH/.env
     if [ "$NEPTUNE_NOTEBOOK" = "true" ]; then
-      # The notebook preset serves over HTTP. Apply it only when the operator
-      # asked for nothing, so an explicit setting still reaches .env and the
-      # server can reject the conflict instead of quietly dropping the request.
-      # Without this, a value read out of config.json is overwritten here and
-      # the server never learns it was asked for.
-      PROXY_SERVER_HTTPS_CONNECTION=${PROXY_SERVER_HTTPS_CONNECTION:-false}
+      # The notebook preset serves over HTTP. Keep a request for HTTPS only
+      # when it is an exact case-insensitive "true", so the server can reject
+      # the conflict; any other value, including one config.json wrote as
+      # null, a number, or an unrecognized string, resolves to false as the
+      # preset intends.
+      case "$PROXY_SERVER_HTTPS_CONNECTION" in
+        [Tt][Rr][Uu][Ee]) ;;
+        *) PROXY_SERVER_HTTPS_CONNECTION="false" ;;
+      esac
       GRAPH_EXP_HTTPS_CONNECTION="false"
     fi
 else

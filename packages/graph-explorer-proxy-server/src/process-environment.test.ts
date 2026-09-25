@@ -140,6 +140,38 @@ describe("process-environment.sh", () => {
 
       expect(envFile).toMatch(/^PROXY_SERVER_HTTPS_CONNECTION=false$/m);
     });
+
+    // config.json stores PROXY_SERVER_HTTPS_CONNECTION as a JSON boolean, but
+    // nothing stops it from holding null, a number, or an arbitrary string.
+    // Only an exact case-insensitive "true" should reach the server as a
+    // request for TLS; anything else must fall back to false like main did.
+    it.each(["null", "0", '"yes"'])(
+      "forces a non-boolean config.json value of %s to false",
+      jsonValue => {
+        fs.writeFileSync(
+          path.join(workDir, "config.json"),
+          `{"NEPTUNE_NOTEBOOK":true,"PROXY_SERVER_HTTPS_CONNECTION":${jsonValue}}`,
+        );
+
+        const { envFile } = runScript(workDir);
+
+        expect(envFile).toMatch(/^PROXY_SERVER_HTTPS_CONNECTION=false$/m);
+      },
+    );
+
+    it("keeps a config.json value that matches true case-insensitively", () => {
+      fs.writeFileSync(
+        path.join(workDir, "config.json"),
+        JSON.stringify({
+          NEPTUNE_NOTEBOOK: true,
+          PROXY_SERVER_HTTPS_CONNECTION: "TRUE",
+        }),
+      );
+
+      const { envFile } = runScript(workDir);
+
+      expect(envFile).toMatch(/^PROXY_SERVER_HTTPS_CONNECTION=TRUE$/m);
+    });
   });
 
   describe("NEPTUNE_NOTEBOOK=false does not force SSL off", () => {
