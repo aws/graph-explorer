@@ -5,6 +5,7 @@
 This page contains workarounds for common issues and information on how to diagnose other issues.
 
 - [Docker Container Issues](#docker-container-issues)
+- [Graph Explorer can't start because it can't write .env](#graph-explorer-cant-start-because-it-cant-write-env)
 - [Schema Sync Fails](#schema-sync-fails)
 - [Save & Load Configuration](#save--load-configuration)
 - [Graph Explorer Can't Save Your Changes](#graph-explorer-cant-save-your-changes)
@@ -57,6 +58,27 @@ docker run -p 80:80 \
 If either Graph Explorer or the proxy server are served over an HTTPS connection (which is the default), your browser will show a security warning due to the self-signed certificate.
 
 See [Trusting the self-signed certificate](../references/security.md#trusting-the-self-signed-certificate) for step-by-step instructions, or [Removing the "Not Secure" warning on Chrome](../references/security.md#removing-the-not-secure-warning-on-chrome) for Chrome-specific instructions.
+
+## Graph Explorer can't start because it can't write .env
+
+At startup, the container writes its settings into the configuration folder. If that folder isn't writable, the container exits with this message:
+
+```
+Graph Explorer can't start because it can't write ./packages/graph-explorer/.env. The container writes its settings to the configuration folder at startup, so ./packages/graph-explorer must be writable. Check that it isn't mounted read-only.
+```
+
+Common causes:
+
+- The configuration folder is mounted read-only
+- The container runs as a non-root user (for example `docker run --user`, or on OpenShift)
+- The container runs with a read-only root filesystem (for example Kubernetes `readOnlyRootFilesystem: true`)
+
+Running as a non-root user isn't supported yet. See [Support running the container under a non-root UID](https://github.com/aws/graph-explorer/issues/2187) for progress on that.
+
+To fix it:
+
+- Make the configuration folder writable by the container, or
+- Point [`CONFIGURATION_FOLDER_PATH`](../references/configuration.md#configuration_folder_path) at a writable location instead
 
 ## Schema Sync Fails
 
