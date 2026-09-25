@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { z } from "zod";
 
+import { EdgeConnectionDiscoveryError } from "@/connector/gremlin/fetchEdgeConnections/discoveryError";
 import {
   EmptyIdentifierError,
   QueryValueError,
@@ -219,6 +220,38 @@ describe("createDisplayError", () => {
       title: "Request cancelled",
       message: "The request was cancelled.",
     });
+  });
+
+  it("Should handle the database running out of memory", () => {
+    const result = createDisplayError({ code: "MemoryLimitExceededException" });
+    expect(result).toStrictEqual({
+      title: "Not enough memory",
+      message:
+        "The database ran out of memory answering the query. Try a smaller request, or use an instance with more memory.",
+    });
+  });
+
+  it("Should give edge connection discovery its own recovery instructions", () => {
+    const result = createDisplayError(
+      new EdgeConnectionDiscoveryError(
+        {
+          strategy: "sampled",
+          requests: 1,
+          totalEdges: 19_928_805,
+          degraded: true,
+          cause: "database-limit",
+        },
+        new NetworkError("Query cannot be completed", 500, {
+          code: "MemoryLimitExceededException",
+        }),
+      ),
+    );
+
+    expect(result.title).toBe("Could not discover edge connections");
+    // The generic memory branch would say "try a smaller request", which is not
+    // something the user can do here. The database configuration is.
+    expect(result.message).toContain("DB cluster parameter group");
+    expect(result.message).not.toContain("smaller request");
   });
 
   it("Should handle malformed query", () => {

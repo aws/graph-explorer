@@ -31,9 +31,13 @@ export function edgeConnectionsQuery(
 ) {
   // Sort edge types to keep the order consistent over time to increase the chance of hitting cache
   const sortedEdgeTypes = activeSchema?.edges.map(e => e.type).toSorted() ?? [];
+  // The edge total decides how the Gremlin connector discovers, so a graph that
+  // has grown or shrunk past a threshold must not be served an answer gathered
+  // under the old size.
+  const totalEdges = activeSchema?.totalEdges;
 
   return queryOptions({
-    queryKey: ["schema", "edgeConnections", sortedEdgeTypes],
+    queryKey: ["schema", "edgeConnections", sortedEdgeTypes, totalEdges],
     staleTime: Infinity,
     retryOnMount: false,
     enabled: activeSchema != null && !activeSchema.lastEdgeConnectionSyncFail,
@@ -54,7 +58,7 @@ export function edgeConnectionsQuery(
 
       try {
         const results = await explorer.fetchEdgeConnections(
-          { edgeTypes: sortedEdgeTypes },
+          { edgeTypes: sortedEdgeTypes, totalEdges },
           { signal },
         );
 
