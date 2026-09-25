@@ -3,9 +3,12 @@ export class FetchTimeoutError extends Error {
   readonly timeoutMs: number;
 
   constructor(timeoutMs: number, cause: unknown) {
-    super(`The request exceeded the fetch timeout of ${timeoutMs} ms`, {
-      cause,
-    });
+    super(
+      `The request exceeded the fetch timeout of ${timeoutMs.toLocaleString()} ms.`,
+      {
+        cause,
+      },
+    );
     this.name = "FetchTimeoutError";
     this.timeoutMs = timeoutMs;
     Object.setPrototypeOf(this, FetchTimeoutError.prototype);

@@ -291,7 +291,7 @@ describe("createErrorDetails", () => {
       const error = new FetchTimeoutError(5000, cause);
       expect(createErrorDetails(error)).toStrictEqual({
         name: "FetchTimeoutError",
-        message: "The request exceeded the fetch timeout of 5000 ms",
+        message: "The request exceeded the fetch timeout of 5,000 ms.",
         data: JSON.stringify({ name: "TimeoutError" }, null, 2),
       });
     });

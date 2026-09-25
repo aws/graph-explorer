@@ -20,6 +20,14 @@ _Avoid_: Database (ambiguous — clarify remote graph database vs. local persist
 A saved database profile — the URL, query engine, authentication settings, and proxy routing needed to reach a graph database. Users create and manage these in the UI.
 _Avoid_: Configuration (legacy term being phased out — previously bundled connection + schema + Styles into one object)
 
+**Fetch Timeout**:
+A limit the user sets on a Connection for how long Graph Explorer waits for one request. Enforced in the browser; the Graph Database never sees it. Exceeding it has nothing to do with database configuration.
+_Avoid_: Timeout (unqualified), client timeout, request timeout
+
+**Database Query Timeout**:
+The Graph Database's own limit on how long a query may run, set in its configuration or in the query itself. The database stops the query and reports it in its error response. A memory limit or throttled request is not one even with the same HTTP status.
+_Avoid_: Timeout (unqualified), server timeout, deadline exceeded
+
 **Active Connection**:
 The one Connection a single browser tab is currently exploring — what the entire app reads to decide which Schema, Session, and queries are in play. Held per-tab (sessionStorage): it survives that tab's reload but dies with the tab, and one tab activating a Connection never changes another tab's Active Connection.
 _Avoid_: Active configuration (legacy code term `activeConfigurationAtom`)
@@ -149,6 +157,7 @@ _Avoid_: Save-status indicator
 - **Neighbors** are **Vertices** one hop away from a given **Vertex**
 - **Styles** are scoped per **Vertex Type** (**Vertex Styles**) and **Edge Type** (**Edge Styles**)
 - The **Graph View**, **Data Table View**, and **Schema View** all render from the same **Session** and **Schema**
+- A cancelled request is neither a **Fetch Timeout** nor a **Database Query Timeout**
 
 ## Example dialogue
 

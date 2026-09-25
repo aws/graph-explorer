@@ -25,3 +25,10 @@
 - Match a SPARQL substring with `CONTAINS(LCASE(STR(?var)), LCASE(...))`, never `regex(...)` — a fragment is escaped to be a literal, and inside `regex(...)` that literal's punctuation is read as pattern syntax instead of being matched as typed.
 - Conjoin per-item SPARQL conditions (e.g. attribute filters on neighbor expansion) with a separate `FILTER EXISTS` block each, juxtaposed to AND them — never a shared unbound predicate variable, whose `&&` across items is unsatisfiable and whose scan dominates query cost. See `docs/adr/20260806-sparql-attribute-filters-conjoin-via-filter-exists.md`.
 - Never emit `hint:` triples (e.g. `hint:joinOrder`): they are a Blazegraph/Neptune extension that silently returns zero rows on other SPARQL 1.1 endpoints Graph Explorer supports.
+
+## Database errors
+
+- All three connectors send requests through `fetchDatabaseRequest`, the only place timeouts are classified.
+- Detect a timeout with `instanceof FetchTimeoutError` or `instanceof DatabaseTimeoutError`, never `error.name`, `DOMException`, or a raw database code.
+- To recognize a new database's timeout, add its body code to `DATABASE_TIMEOUT_CODES` with a test built from a captured response body.
+- Never classify by HTTP status: databases reuse the same status for memory limits and throttling.

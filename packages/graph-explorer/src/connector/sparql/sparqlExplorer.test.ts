@@ -1,6 +1,7 @@
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
 import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
+import { abortableFetch } from "@/utils/testing";
 
 import { createSparqlExplorer } from "./sparqlExplorer";
 
@@ -128,19 +129,7 @@ describe("createSparqlExplorer", () => {
     });
 
     it("throws FetchTimeoutError when the connection's fetch timeout is exceeded", async () => {
-      mockFetch.mockImplementation((_uri, init: RequestInit) => {
-        return new Promise((_resolve, reject) => {
-          const signal = init.signal;
-          if (!signal) return;
-          if (signal.aborted) {
-            reject(signal.reason as Error);
-            return;
-          }
-          signal.addEventListener("abort", () =>
-            reject(signal.reason as Error),
-          );
-        });
-      });
+      mockFetch.mockImplementation(abortableFetch);
 
       const explorer = createSparqlExplorer(
         createConnection({ fetchTimeoutMs: 1 }),

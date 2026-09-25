@@ -99,7 +99,7 @@ Graph Explorer distinguishes two kinds of timeout and shows a different message 
 
 **Database query timed out** means the database itself stopped the query because it ran longer than the database's configured query timeout. For Neptune, this is controlled by the DB cluster parameter group. Increase the query timeout there, or retry the request.
 
-If a request is cancelled instead, for example by navigating away or refreshing the page, Graph Explorer shows a plain "Request cancelled" message rather than either timeout message.
+If a request is cancelled instead, Graph Explorer shows a plain "Request cancelled" message rather than either timeout message.
 
 ### Out of Memory
 

@@ -1,6 +1,7 @@
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
 import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
+import { abortableFetch } from "@/utils/testing";
 
 import { createGremlinExplorer } from "./gremlinExplorer";
 
@@ -134,19 +135,7 @@ describe("createGremlinExplorer", () => {
     });
 
     it("throws FetchTimeoutError when the connection's fetch timeout is exceeded", async () => {
-      mockFetch.mockImplementation((_uri, init: RequestInit) => {
-        return new Promise((_resolve, reject) => {
-          const signal = init.signal;
-          if (!signal) return;
-          if (signal.aborted) {
-            reject(signal.reason as Error);
-            return;
-          }
-          signal.addEventListener("abort", () =>
-            reject(signal.reason as Error),
-          );
-        });
-      });
+      mockFetch.mockImplementation(abortableFetch);
 
       const explorer = createGremlinExplorer(
         createConnection({ fetchTimeoutMs: 1 }),

@@ -15,7 +15,7 @@ describe("FetchTimeoutError", () => {
   it("builds a message from the timeout in milliseconds", () => {
     const error = new FetchTimeoutError(5000, new Error("aborted"));
     expect(error.message).toBe(
-      "The request exceeded the fetch timeout of 5000 ms",
+      "The request exceeded the fetch timeout of 5,000 ms.",
     );
   });
 

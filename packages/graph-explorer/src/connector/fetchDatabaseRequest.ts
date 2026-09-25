@@ -129,21 +129,26 @@ export async function fetchDatabaseRequest(
   options: RequestInit,
 ) {
   const fetchTimeout = createFetchTimeout(connection);
+  const signal = anySignal(fetchTimeout?.signal, options.signal);
 
   // Apply connection settings to fetch options
   const fetchOptions: RequestInit = {
     ...options,
     headers: getAuthHeaders(connection, featureFlags, options.headers),
-    signal: anySignal(fetchTimeout?.signal, options.signal),
+    signal,
   };
 
   try {
     return await sendRequest(uri, fetchOptions);
   } catch (error) {
-    // Classify by which signal actually fired, not by the error's name, so
-    // a user cancellation is never mistaken for a fetch timeout even when
-    // both signals happen to be aborted by the time we get here.
-    if (fetchTimeout?.signal.aborted && !options.signal?.aborted) {
+    // anySignal keeps the first reason, so this tells a timeout from a user
+    // cancel that came after it. An error built from a received response
+    // already says what happened, so it is never relabeled.
+    if (
+      fetchTimeout &&
+      !(error instanceof NetworkError) &&
+      signal?.reason === fetchTimeout.signal.reason
+    ) {
       throw new FetchTimeoutError(fetchTimeout.timeoutMs, error);
     }
 
