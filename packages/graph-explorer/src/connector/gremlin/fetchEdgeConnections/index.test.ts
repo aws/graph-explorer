@@ -1,7 +1,8 @@
 import { vi } from "vitest";
 
-import { createEdgeType, createVertexType } from "@/core";
+import { createEdgeType, createVertexType, type EdgeType } from "@/core";
 import {
+  createGInt64,
   createGList,
   createGMap,
   createGremlinResponse,
@@ -9,39 +10,59 @@ import {
 
 import fetchEdgeConnections from ".";
 
-/** A projected connection pair g:Map, source-then-target key order. */
-function pair(sourceType: string, targetType: string) {
-  return createGMap({ sourceType, targetType });
-}
+/** One distinct `(edge type, source labels, target labels)` combination. */
+type Combination = [
+  edgeType: string,
+  sourceTypes: string[],
+  targetTypes: string[],
+];
 
-/**
- * Builds the grouped GraphSON response produced by
- * `group().by(label()).by(project(...).dedup().fold())`: a single g:Map keyed by
- * edge label, each value a g:List of connection-pair g:Maps.
- */
-function groupResponse(groups: Record<string, Array<[string, string]>>) {
+/** Builds the `group().by(label())` response: edge type to `(s, t)` counts. */
+function sampleResponse(...combinations: Combination[]) {
+  const byEdgeType = new Map<string, Combination[]>();
+  for (const combination of combinations) {
+    const [edgeType] = combination;
+    byEdgeType.set(edgeType, [
+      ...(byEdgeType.get(edgeType) ?? []),
+      combination,
+    ]);
+  }
   return createGremlinResponse(
     createGMap(
-      Object.fromEntries(
-        Object.entries(groups).map(([edgeType, pairs]) => [
+      new Map(
+        [...byEdgeType].map(([edgeType, ofType]) => [
           edgeType,
-          createGList(pairs.map(([s, t]) => pair(s, t))),
+          createGMap(
+            new Map(
+              ofType.map(([, s, t]) => [
+                createGMap({ s: createGList(s), t: createGList(t) }),
+                createGInt64(1),
+              ]),
+            ),
+          ),
         ]),
       ),
     ),
   );
 }
 
+/** A `group()` over no edges returns an empty map. */
 const emptyResponse = createGremlinResponse(createGMap({}));
 
+function edgeTypes(count: number): EdgeType[] {
+  return Array.from({ length: count }, (_, i) => createEdgeType(`edge${i}`));
+}
+
 describe("Gremlin > fetchEdgeConnections", () => {
-  it("should batch all edge types into a single request and regroup by edge type", async () => {
-    const gremlinFetch = vi.fn().mockResolvedValueOnce(
-      groupResponse({
-        route: [["airport", "airport"]],
-        contains: [["country", "airport"]],
-      }),
-    );
+  it("should sample several edge types in one request and regroup by edge type", async () => {
+    const gremlinFetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        sampleResponse(
+          ["route", ["airport"], ["airport"]],
+          ["contains", ["country"], ["airport"]],
+        ),
+      );
 
     const result = await fetchEdgeConnections(gremlinFetch, {
       edgeTypes: [createEdgeType("route"), createEdgeType("contains")],
@@ -49,7 +70,9 @@ describe("Gremlin > fetchEdgeConnections", () => {
 
     expect(gremlinFetch).toHaveBeenCalledTimes(1);
     expect(gremlinFetch).toHaveBeenCalledWith(
-      expect.stringContaining("hasLabel('route', 'contains')"),
+      expect.stringContaining(
+        "V().outE('route').limit(10000), V().outE('contains').limit(10000)",
+      ),
     );
     expect(result).toStrictEqual({
       edgeConnections: [
@@ -67,26 +90,20 @@ describe("Gremlin > fetchEdgeConnections", () => {
     });
   });
 
-  it("should split edge types into chunks of the batch size", async () => {
+  it("should send 10 edge types per request", async () => {
     const gremlinFetch = vi.fn().mockResolvedValue(emptyResponse);
-    const edgeTypes = Array.from({ length: 250 }, (_, i) =>
-      createEdgeType(`edge${i}`),
-    );
+    const types = edgeTypes(25);
 
-    await fetchEdgeConnections(gremlinFetch, { edgeTypes });
-
-    // 250 types at a batch size of 100 => 3 requests
-    expect(gremlinFetch).toHaveBeenCalledTimes(3);
+    await fetchEdgeConnections(gremlinFetch, { edgeTypes: types });
 
     const queries = gremlinFetch.mock.calls.map(call => call[0] as string);
-    // No request carries more than the batch size
-    for (const q of queries) {
-      expect((q.match(/'edge\d+'/g) ?? []).length).toBeLessThanOrEqual(100);
-    }
+    expect(
+      queries.map(q => (q.match(/outE\('edge\d+'\)/g) ?? []).length),
+    ).toStrictEqual([10, 10, 5]);
     // Every input type is covered across the requests
     const all = queries.join("\n");
-    for (const type of edgeTypes) {
-      expect(all).toContain(`'${type}'`);
+    for (const type of types) {
+      expect(all).toContain(`outE('${type}')`);
     }
   });
 
@@ -96,9 +113,7 @@ describe("Gremlin > fetchEdgeConnections", () => {
     const result = await fetchEdgeConnections(gremlinFetch, { edgeTypes: [] });
 
     expect(gremlinFetch).not.toHaveBeenCalled();
-    expect(result).toStrictEqual({
-      edgeConnections: [],
-    });
+    expect(result).toStrictEqual({ edgeConnections: [] });
   });
 
   it("should return empty array when no edge connections exist", async () => {
@@ -108,25 +123,20 @@ describe("Gremlin > fetchEdgeConnections", () => {
       edgeTypes: [createEdgeType("route")],
     });
 
-    expect(result).toStrictEqual({
-      edgeConnections: [],
-    });
+    expect(result).toStrictEqual({ edgeConnections: [] });
   });
 
-  it("should deduplicate edge connections within same edge type", async () => {
-    const gremlinFetch = vi.fn().mockResolvedValueOnce(
-      groupResponse({
-        route: [
-          ["airport", "airport"],
-          ["airport", "airport"],
-        ],
-      }),
-    );
+  it("should deduplicate combinations returned by more than one request", async () => {
+    const gremlinFetch = vi
+      .fn()
+      .mockResolvedValue(sampleResponse(["route", ["airport"], ["airport"]]));
 
     const result = await fetchEdgeConnections(gremlinFetch, {
-      edgeTypes: [createEdgeType("route")],
+      // One more than a request carries, so it takes two.
+      edgeTypes: [createEdgeType("route"), ...edgeTypes(10)],
     });
 
+    expect(gremlinFetch).toHaveBeenCalledTimes(2);
     expect(result).toStrictEqual({
       edgeConnections: [
         {
@@ -145,15 +155,19 @@ describe("Gremlin > fetchEdgeConnections", () => {
       fetchEdgeConnections(gremlinFetch, {
         edgeTypes: [createEdgeType("route")],
       }),
-    ).rejects.toThrow("Network error");
+    ).rejects.toThrow(new Error("Network error"));
   });
 
-  it("should handle Neptune multi-label vertices with :: delimiter", async () => {
-    const gremlinFetch = vi.fn().mockResolvedValueOnce(
-      groupResponse({
-        worksAt: [["Person::Employee", "Company::Organization"]],
-      }),
-    );
+  it("should expand Neptune multi-label composites on both ends", async () => {
+    const gremlinFetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        sampleResponse([
+          "worksAt",
+          ["Person::Employee"],
+          ["Company::Organization"],
+        ]),
+      );
 
     const result = await fetchEdgeConnections(gremlinFetch, {
       edgeTypes: [createEdgeType("worksAt")],
@@ -185,43 +199,56 @@ describe("Gremlin > fetchEdgeConnections", () => {
     });
   });
 
-  it("should handle reversed key order in the projected pair map", async () => {
-    const gremlinFetch = vi.fn().mockResolvedValueOnce(
-      createGremlinResponse(
-        createGMap({
-          contains: createGList([
-            // target-then-source key order
-            createGMap({ targetType: "airport", sourceType: "country" }),
-          ]),
-        }),
-      ),
-    );
+  it("should expand multi-label endpoints that arrive as one entry per label", async () => {
+    // Neptune 1.3.5 emits each label of a multi-label vertex separately rather
+    // than as one `::` composite. Keeping only the first would silently drop the
+    // vertex's other types from the schema.
+    const gremlinFetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        sampleResponse(["worksAt", ["Person", "Employee"], ["Company"]]),
+      );
 
     const result = await fetchEdgeConnections(gremlinFetch, {
-      edgeTypes: [createEdgeType("contains")],
+      edgeTypes: [createEdgeType("worksAt")],
     });
 
-    expect(result).toStrictEqual({
-      edgeConnections: [
-        {
-          sourceVertexType: createVertexType("country"),
-          edgeType: createEdgeType("contains"),
-          targetVertexType: createVertexType("airport"),
-        },
-      ],
-    });
+    expect(result.edgeConnections).toStrictEqual([
+      {
+        sourceVertexType: createVertexType("Person"),
+        edgeType: createEdgeType("worksAt"),
+        targetVertexType: createVertexType("Company"),
+      },
+      {
+        sourceVertexType: createVertexType("Employee"),
+        edgeType: createEdgeType("worksAt"),
+        targetVertexType: createVertexType("Company"),
+      },
+    ]);
   });
 
-  it("should skip pairs with missing sourceType or targetType", async () => {
+  it("should read the projected labels by key, whatever order the keys arrive in", async () => {
     const gremlinFetch = vi.fn().mockResolvedValueOnce(
       createGremlinResponse(
-        createGMap({
-          contains: createGList([
-            createGMap({ sourceType: "airport" }),
-            createGMap({ targetType: "airport" }),
-            createGMap({ sourceType: "country", targetType: "airport" }),
+        createGMap(
+          new Map([
+            [
+              "contains",
+              createGMap(
+                new Map([
+                  [
+                    // target-then-source key order
+                    createGMap({
+                      t: createGList(["airport"]),
+                      s: createGList(["country"]),
+                    }),
+                    createGInt64(1),
+                  ],
+                ]),
+              ),
+            ],
           ]),
-        }),
+        ),
       ),
     );
 
@@ -229,14 +256,57 @@ describe("Gremlin > fetchEdgeConnections", () => {
       edgeTypes: [createEdgeType("contains")],
     });
 
-    expect(result).toStrictEqual({
-      edgeConnections: [
-        {
-          sourceVertexType: createVertexType("country"),
-          edgeType: createEdgeType("contains"),
-          targetVertexType: createVertexType("airport"),
-        },
-      ],
+    expect(result.edgeConnections).toStrictEqual([
+      {
+        sourceVertexType: createVertexType("country"),
+        edgeType: createEdgeType("contains"),
+        targetVertexType: createVertexType("airport"),
+      },
+    ]);
+  });
+
+  it("should skip combinations missing a projected label", async () => {
+    const gremlinFetch = vi.fn().mockResolvedValueOnce(
+      createGremlinResponse(
+        createGMap(
+          new Map([
+            [
+              "route",
+              createGMap(
+                new Map([
+                  [
+                    createGMap({ s: createGList(["airport"]) }),
+                    createGInt64(1),
+                  ],
+                  [
+                    createGMap({ t: createGList(["airport"]) }),
+                    createGInt64(1),
+                  ],
+                  [
+                    createGMap({
+                      s: createGList(["airport"]),
+                      t: createGList(["airport"]),
+                    }),
+                    createGInt64(1),
+                  ],
+                ]),
+              ),
+            ],
+          ]),
+        ),
+      ),
+    );
+
+    const result = await fetchEdgeConnections(gremlinFetch, {
+      edgeTypes: [createEdgeType("route")],
     });
+
+    expect(result.edgeConnections).toStrictEqual([
+      {
+        sourceVertexType: createVertexType("airport"),
+        edgeType: createEdgeType("route"),
+        targetVertexType: createVertexType("airport"),
+      },
+    ]);
   });
 });
