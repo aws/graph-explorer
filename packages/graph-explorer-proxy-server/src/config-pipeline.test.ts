@@ -160,6 +160,12 @@ type Deployment = {
   configJson?: Record<string, boolean>;
   /** Every row sets HOST=localhost unless this is false. */
   host?: false;
+  /**
+   * Starts the same container a second time, as `docker restart` does. The
+   * work dir, and the `.env` that process-environment.sh appended to, carry
+   * over, and the second start has to behave exactly like the first.
+   */
+  restart?: true;
   expected: {
     envFile: Record<string, string>;
     certificatesGenerated: boolean;
@@ -331,6 +337,33 @@ const deployments: Deployment[] = [
     configJson: { NEPTUNE_NOTEBOOK: true, GRAPH_EXP_HTTPS_CONNECTION: true },
     expected: notebookPreset,
   },
+  {
+    row: 20,
+    name: "notebook image with -e PROXY_SERVER_HTTPS_CONNECTION=true still refuses with the conflict after a restart",
+    image: notebookImage,
+    dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
+    restart: true,
+    expected: notebookConflict,
+  },
+  {
+    row: 20,
+    name: "notebook image run by the SageMaker lifecycle script still serves HTTP after a restart",
+    image: notebookImage,
+    dockerEnv: {
+      HOST: "127.0.0.1",
+      PROXY_SERVER_HTTPS_CONNECTION: "false",
+      NEPTUNE_NOTEBOOK: "true",
+    },
+    restart: true,
+    expected: notebookPreset,
+  },
+  {
+    row: 20,
+    name: "standard image with nothing about HTTPS set still serves TLS after a restart",
+    image: standardImage,
+    restart: true,
+    expected: standardTls,
+  },
   ...["TRUE", "True", "1", "yes"].flatMap((value): Deployment[] => [
     {
       row: 14,
@@ -451,7 +484,7 @@ describe("deployment scenarios: entrypoint → dotenv → Zod → server config"
 
   it.each(deployments)(
     "row $row: $name",
-    ({ image, dockerEnv, configJson, host, expected }) => {
+    ({ image, dockerEnv, configJson, host, restart, expected }) => {
       if (configJson) {
         fs.writeFileSync(
           path.join(workDir, "config.json"),
@@ -459,42 +492,16 @@ describe("deployment scenarios: entrypoint → dotenv → Zod → server config"
         );
       }
       const containerEnv = {
+        ...(host === false ? {} : { HOST: "localhost" }),
         ...image,
         ...dockerEnv,
-        ...(host === false ? {} : { HOST: "localhost" }),
-      };
-
-      const { exitCode, stdout } = runEntrypoint(
-        workDir,
-        scriptPath,
-        containerEnv,
-      );
-
-      expect({
-        exitCode,
-        serverStarted: stdout.includes("SERVER_STARTED"),
-      }).toStrictEqual({ exitCode: 0, serverStarted: true });
-
-      const envFile = dotenv.parse(
-        fs.readFileSync(path.join(configDir, ".env"), "utf-8"),
-      );
-      expect(envFile).toStrictEqual(expected.envFile);
-
-      const certificatesGenerated = fs.existsSync(
-        path.join(workDir, "ssl-called"),
-      );
-      expect(certificatesGenerated).toBe(expected.certificatesGenerated);
-
-      // dotenv.config() never overwrites a key already in process.env.
-      const serverEnv = {
-        ...envFile,
-        ...readServerEnvironment(workDir),
       };
 
       const existsSync = fs.existsSync;
+      let certificatesExist = false;
       vi.spyOn(fs, "existsSync").mockImplementation(p =>
         p === expectedKeyPath || p === expectedCertPath
-          ? certificatesGenerated
+          ? certificatesExist
           : existsSync(p),
       );
       vi.spyOn(console, "error").mockImplementation(() => undefined);
@@ -502,7 +509,51 @@ describe("deployment scenarios: entrypoint → dotenv → Zod → server config"
         throw new ProcessExitSignal();
       });
 
-      expect(environmentOutcome(serverEnv)).toStrictEqual(expected.server);
+      function startContainer() {
+        const sslCalled = path.join(workDir, "ssl-called");
+        fs.rmSync(sslCalled, { force: true });
+
+        const { exitCode, stdout } = runEntrypoint(
+          workDir,
+          scriptPath,
+          containerEnv,
+        );
+        const envFile = dotenv.parse(
+          fs.readFileSync(path.join(configDir, ".env"), "utf-8"),
+        );
+        const certificatesGenerated = fs.existsSync(sslCalled);
+        // Certificates stay on disk across a restart.
+        certificatesExist ||= certificatesGenerated;
+        const serverEnvironment = readServerEnvironment(workDir);
+
+        return {
+          exitCode,
+          serverStarted: stdout.includes("SERVER_STARTED"),
+          envFile,
+          certificatesGenerated,
+          serverNeptuneNotebook: serverEnvironment.NEPTUNE_NOTEBOOK,
+          // dotenv.config() never overwrites a key already in process.env.
+          server: environmentOutcome({ ...envFile, ...serverEnvironment }),
+        };
+      }
+
+      const firstStart = startContainer();
+      expect({
+        exitCode: firstStart.exitCode,
+        serverStarted: firstStart.serverStarted,
+        envFile: firstStart.envFile,
+        certificatesGenerated: firstStart.certificatesGenerated,
+        server: firstStart.server,
+      }).toStrictEqual({
+        exitCode: 0,
+        serverStarted: true,
+        envFile: expected.envFile,
+        certificatesGenerated: expected.certificatesGenerated,
+        server: expected.server,
+      });
+
+      const lastStart = restart ? startContainer() : firstStart;
+      expect(lastStart).toStrictEqual(firstStart);
     },
   );
 });

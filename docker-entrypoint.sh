@@ -10,8 +10,10 @@ if [ ! -f "$CONFIGURATION_FOLDER_PATH/.env" ]; then
     exit 1
 fi
 
-PROXY_SERVER_HTTPS_CONNECTION_VALUE=$(grep -e '^PROXY_SERVER_HTTPS_CONNECTION=' "$CONFIGURATION_FOLDER_PATH/.env" | cut -d "=" -f 2 || true)
-NEPTUNE_NOTEBOOK_VALUE=$(grep -e '^NEPTUNE_NOTEBOOK=' "$CONFIGURATION_FOLDER_PATH/.env" | cut -d "=" -f 2 || true)
+# process-environment.sh appends to .env on every start, so a restarted
+# container has one line per start. Take the last, as dotenv does.
+PROXY_SERVER_HTTPS_CONNECTION_VALUE=$(grep -e '^PROXY_SERVER_HTTPS_CONNECTION=' "$CONFIGURATION_FOLDER_PATH/.env" | tail -n 1 | cut -d "=" -f 2- || true)
+NEPTUNE_NOTEBOOK_VALUE=$(grep -e '^NEPTUNE_NOTEBOOK=' "$CONFIGURATION_FOLDER_PATH/.env" | tail -n 1 | cut -d "=" -f 2- || true)
 
 # The notebook preset serves HTTP only, so certificates would go unused. With
 # HTTPS also requested the server refuses to start, and it has to get that far

@@ -1,7 +1,11 @@
 import fs from "fs";
 import path from "path";
 
-import { createEntrypointWorkDir, runEntrypoint } from "./testing.ts";
+import {
+  createEntrypointWorkDir,
+  readServerEnvironment,
+  runEntrypoint,
+} from "./testing.ts";
 
 function writeEnv(configDir: string, content: string) {
   fs.writeFileSync(path.join(configDir, ".env"), content);
@@ -81,6 +85,43 @@ describe("docker-entrypoint.sh", () => {
     expect(exitCode).toBe(0);
     expect(fs.existsSync(path.join(workDir, "ssl-called"))).toBe(false);
     expect(stdout).toContain("SSL disabled");
+  });
+
+  // process-environment.sh appends on every start, so a restarted container's
+  // .env repeats each key. dotenv reads the last value, and so must the shell.
+  describe("with keys repeated by a restart", () => {
+    it("reads the last PROXY_SERVER_HTTPS_CONNECTION", () => {
+      writeEnv(
+        configDir,
+        "PROXY_SERVER_HTTPS_CONNECTION=false\nPROXY_SERVER_HTTPS_CONNECTION=true\n",
+      );
+
+      const { exitCode } = runEntrypoint(workDir, scriptPath, {
+        HOST: "localhost",
+      });
+
+      expect(exitCode).toBe(0);
+      expect(fs.existsSync(path.join(workDir, "ssl-called"))).toBe(true);
+    });
+
+    it("reads the last NEPTUNE_NOTEBOOK and passes it to the server", () => {
+      writeEnv(
+        configDir,
+        [
+          "NEPTUNE_NOTEBOOK=false",
+          "PROXY_SERVER_HTTPS_CONNECTION=true",
+          "NEPTUNE_NOTEBOOK=true",
+          "PROXY_SERVER_HTTPS_CONNECTION=true",
+          "",
+        ].join("\n"),
+      );
+
+      const { exitCode, stdout } = runEntrypoint(workDir, scriptPath);
+
+      expect(exitCode).toBe(0);
+      expect(stdout).toContain("Neptune Notebook preset enabled");
+      expect(readServerEnvironment(workDir).NEPTUNE_NOTEBOOK).toBe("true");
+    });
   });
 
   describe("under the notebook preset", () => {
