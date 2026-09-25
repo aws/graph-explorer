@@ -95,12 +95,43 @@ type Deployment = {
    * regenerating them.
    */
   restartCertificatesGenerated?: boolean;
-  expected: {
-    envFile: Record<string, string>;
-    certificatesGenerated: boolean;
-    startup: StartupOutcome;
-  };
+  /**
+   * Makes the configuration folder, or a file in it, read-only before the
+   * start, as a read-only mount does. A missing file is created empty first.
+   */
+  readOnly?: "configFolder" | ".env" | "defaultConnection.json";
+  expected:
+    | {
+        envFile: Record<string, string>;
+        certificatesGenerated: boolean;
+        startup: StartupOutcome;
+      }
+    /**
+     * The entrypoint exits before starting the server, printing this to
+     * stderr and leaving the configuration folder untouched.
+     */
+    | { refusal: string };
 };
+
+/** Expects the refusal process-environment.sh prints when it can't write `file`. */
+function cannotWrite(file: string) {
+  return {
+    refusal:
+      `Graph Explorer can't start because it can't write ./packages/graph-explorer/${file}. ` +
+      "The container writes its settings to the configuration folder at startup, " +
+      "so ./packages/graph-explorer must be writable. " +
+      "Check that it isn't mounted read-only.\n",
+  };
+}
+
+/** Every file in `folder` by name, with its contents. */
+function readFolder(folder: string) {
+  return Object.fromEntries(
+    fs
+      .readdirSync(folder)
+      .map(file => [file, fs.readFileSync(path.join(folder, file), "utf-8")]),
+  );
+}
 
 const https = { useHttps: true, port: 443 };
 const http = { useHttps: false, port: 80 };
@@ -468,6 +499,32 @@ const deployments: Deployment[] = [
     restartCertificatesGenerated: false,
     expected: standardTls,
   },
+  {
+    name: "standard image with a read-only configuration folder refuses to start",
+    image: standardImage,
+    readOnly: "configFolder",
+    expected: cannotWrite(".env"),
+  },
+  {
+    name: "notebook image with a read-only configuration folder refuses to start",
+    image: notebookImage,
+    readOnly: "configFolder",
+    expected: cannotWrite(".env"),
+  },
+  {
+    name: "standard image with a read-only .env refuses to start",
+    image: standardImage,
+    existingEnvFile: { LOG_LEVEL: "debug" },
+    readOnly: ".env",
+    expected: cannotWrite(".env"),
+  },
+  {
+    name: "standard image with -e PUBLIC_OR_PROXY_ENDPOINT and a read-only defaultConnection.json refuses to start before writing .env",
+    image: standardImage,
+    dockerEnv: { PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182" },
+    readOnly: "defaultConnection.json",
+    expected: cannotWrite("defaultConnection.json"),
+  },
 ];
 
 /**
@@ -527,27 +584,33 @@ describe("deployment scenarios: entrypoint → dotenv → Zod → server config"
   });
 
   afterEach(() => {
+    fs.chmodSync(configDir, 0o755);
     fs.rmSync(workDir, { recursive: true, force: true });
   });
 
   // "%s" prints the whole name, where "$name" truncates it at 40 characters.
-  it.each(
-    deployments.map(deployment => [deployment.name, deployment] as const),
-  )(
+  it.for(deployments.map(deployment => [deployment.name, deployment] as const))(
     "%s",
     (
-      _name,
-      {
-        image,
-        dockerEnv,
-        configJson,
-        existingEnvFile,
-        host,
-        restart,
-        restartCertificatesGenerated,
-        expected,
-      },
+      [
+        _name,
+        {
+          image,
+          dockerEnv,
+          configJson,
+          existingEnvFile,
+          host,
+          restart,
+          restartCertificatesGenerated,
+          readOnly,
+          expected,
+        },
+      ],
+      { expect, skip },
     ) => {
+      // Root ignores file permissions, so chmod can't make anything read-only.
+      skip(readOnly !== undefined && process.getuid?.() === 0);
+
       if (configJson) {
         fs.writeFileSync(
           path.join(workDir, "config.json"),
@@ -567,6 +630,36 @@ describe("deployment scenarios: entrypoint → dotenv → Zod → server config"
         ...image,
         ...dockerEnv,
       };
+
+      if (readOnly === "configFolder") {
+        fs.chmodSync(configDir, 0o555);
+      } else if (readOnly) {
+        const readOnlyFile = path.join(configDir, readOnly);
+        fs.appendFileSync(readOnlyFile, "");
+        fs.chmodSync(readOnlyFile, 0o444);
+      }
+
+      if ("refusal" in expected) {
+        const configFolderBefore = readFolder(configDir);
+        const { exitCode, stdout, stderr } = runEntrypoint(
+          workDir,
+          scriptPath,
+          containerEnv,
+        );
+        expect({
+          exitCode,
+          serverStarted: stdout.includes("SERVER_STARTED"),
+          stderr,
+          configFolder: readFolder(configDir),
+        }).toStrictEqual({
+          exitCode: 1,
+          serverStarted: false,
+          stderr: expected.refusal,
+          configFolder: configFolderBefore,
+        });
+        return;
+      }
+
       // Certificates stay on disk across a restart.
       let certificatesExist = false;
 

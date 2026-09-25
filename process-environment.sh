@@ -1,6 +1,16 @@
 #!/bin/sh
 
 CONFIGURATION_FOLDER_PATH=${CONFIGURATION_FOLDER_PATH:-"./packages/graph-explorer/"}
+CONFIGURATION_FOLDER_PATH=${CONFIGURATION_FOLDER_PATH%/}
+
+# Stops startup when the file can't be written. Without this, failed writes
+# are silent and the server starts with settings it never received.
+require_writable() {
+    if ! { true >> "$1"; } 2>/dev/null; then
+        echo "Graph Explorer can't start because it can't write $1. The container writes its settings to the configuration folder at startup, so $CONFIGURATION_FOLDER_PATH must be writable. Check that it isn't mounted read-only." >&2
+        exit 1
+    fi
+}
 
 if [ -f "./config.json" ]; then
 
@@ -17,6 +27,11 @@ if [ -f "./config.json" ]; then
     GRAPH_EXP_HTTPS_CONNECTION=$(echo "$json" | grep -o '"GRAPH_EXP_HTTPS_CONNECTION":[^,}]*' | cut -d ':' -f 2 | tr -d '[:space:]' | sed 's/"//g')
     NEPTUNE_NOTEBOOK=$(echo "$json" | grep -o '"NEPTUNE_NOTEBOOK":[^,}]*' | cut -d ':' -f 2 | tr -d '[:space:]' | sed 's/"//g')
 fi
+
+if [ -n "$PUBLIC_OR_PROXY_ENDPOINT" ]; then
+    require_writable "$CONFIGURATION_FOLDER_PATH/defaultConnection.json"
+fi
+require_writable "$CONFIGURATION_FOLDER_PATH/.env"
 
 if [ -n "$NEPTUNE_NOTEBOOK" ]; then
     printf '\nNEPTUNE_NOTEBOOK=%s\n' "$NEPTUNE_NOTEBOOK" >> $CONFIGURATION_FOLDER_PATH/.env
