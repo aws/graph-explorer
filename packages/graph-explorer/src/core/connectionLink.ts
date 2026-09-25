@@ -2,6 +2,7 @@ import {
   type ConnectionConfig,
   type NeptuneServiceType,
   neptuneServiceTypeOptions,
+  type QueryEngine,
   queryEngineOptions,
 } from "@shared/types";
 import { z } from "zod";
@@ -14,7 +15,7 @@ import type {
 } from "./ConfigurationProvider";
 
 import { ConnectionLinkError } from "./connectionLinkError";
-import { normalizeUrl } from "./StateProvider/configuration";
+import { normalizeConnection } from "./StateProvider/configuration";
 
 /** Matches `us-east-1`, `us-gov-west-1`, `ap-southeast-2`, `cn-north-1`, etc. */
 const AWS_REGION_PATTERN = /^[a-z]{2}(-[a-z]+)+-\d+$/;
@@ -192,49 +193,50 @@ export function readConnectionLink(search: string): ConnectionLink {
  * name still matches the connection that same derivation named.
  */
 function deriveNameFromUrl(graphDbUrl: string): string {
-  const { hostname } = new URL(graphDbUrl);
-  return hostname || graphDbUrl;
+  return new URL(graphDbUrl).hostname;
 }
 
 /**
- * The auth posture a connection link or existing connection carries. This is
- * part of a connection's identity for matching: a link requesting IAM in a
- * given region/service type is a *different* connection from a plaintext one to
- * the same endpoint, so it must not silently reuse it. When IAM is off, region
- * and service type are not meaningful and are normalized away.
+ * What makes two connections the same one for matching: graphDbUrl
+ * (normalized and case-insensitive), queryEngine, and auth posture. Auth
+ * posture is identity-bearing because a link requesting IAM in a given
+ * region/service type is a *different* connection from a plaintext one to the
+ * same endpoint, so it must not silently reuse it. When IAM is off, region and
+ * service type carry no auth meaning and are normalized away.
+ *
+ * Both sides go through `normalizeConnection`, the same defaults the rest of
+ * the app reads a stored connection with, so a stored connection with no
+ * `queryEngine` is a gremlin connection here too.
  */
-type AuthPosture = {
+type ConnectionIdentity = {
+  graphDbUrl: string;
+  queryEngine: QueryEngine;
   awsAuthEnabled: boolean;
   awsRegion: string;
   serviceType: NeptuneServiceType | undefined;
 };
 
-/** The auth posture a connection link's params resolve to. */
-function authPostureFromParams(params: ConnectionLinkParams): AuthPosture {
-  const awsAuthEnabled = Boolean(params.awsRegion);
+function identityOf(connection: ConnectionConfig): ConnectionIdentity {
+  const normalized = normalizeConnection(connection);
+  const { awsAuthEnabled } = normalized;
   return {
+    graphDbUrl: normalized.graphDbUrl.toLowerCase(),
+    queryEngine: normalized.queryEngine,
     awsAuthEnabled,
-    awsRegion: awsAuthEnabled ? params.awsRegion : "",
+    awsRegion: awsAuthEnabled ? (normalized.awsRegion ?? "") : "",
     serviceType: awsAuthEnabled
-      ? (params.serviceType ?? DEFAULT_SERVICE_TYPE)
+      ? (normalized.serviceType ?? DEFAULT_SERVICE_TYPE)
       : undefined,
   };
 }
 
-/** The auth posture an existing connection carries. */
-function authPostureFromConnection(connection: ConnectionConfig): AuthPosture {
-  const awsAuthEnabled = Boolean(connection.awsAuthEnabled);
-  return {
-    awsAuthEnabled,
-    awsRegion: awsAuthEnabled ? (connection.awsRegion ?? "") : "",
-    serviceType: awsAuthEnabled
-      ? (connection.serviceType ?? DEFAULT_SERVICE_TYPE)
-      : undefined,
-  };
-}
-
-function authPosturesMatch(a: AuthPosture, b: AuthPosture): boolean {
+function identitiesMatch(
+  a: ConnectionIdentity,
+  b: ConnectionIdentity,
+): boolean {
   return (
+    a.graphDbUrl === b.graphDbUrl &&
+    a.queryEngine === b.queryEngine &&
     a.awsAuthEnabled === b.awsAuthEnabled &&
     a.awsRegion === b.awsRegion &&
     a.serviceType === b.serviceType
@@ -242,37 +244,26 @@ function authPosturesMatch(a: AuthPosture, b: AuthPosture): boolean {
 }
 
 /**
- * Find an existing connection matching the link's identity: graphDbUrl
- * (normalized and case-insensitive) + queryEngine + auth posture (IAM on/off,
- * region, and service type). Both sides run through the same `normalizeUrl`
- * the app already applies to a saved connection, so a stored value that picked
- * up a trailing slash or stray whitespace still matches a link that has
- * neither. Auth posture is identity-bearing so a link requesting IAM never
- * silently reuses a plaintext connection to the same endpoint (or vice versa)
- * — a mismatch falls through to the editable create form instead.
+ * Find an existing connection with the same {@link ConnectionIdentity} as the
+ * one a link proposes. A mismatch falls through to the editable create form.
  *
  * When several connections match, resolve in priority order: the active
  * connection (so a URL targeting it is a no-op), then a connection whose label
- * matches the `name` param, then the first match found.
+ * matches the link's name, then the first match found.
  */
 export function findMatchingConnection(
   configurations: Map<ConfigurationId, RawConfiguration>,
-  params: ConnectionLinkParams,
-  activeId: ConfigurationId | null = null,
+  proposed: ConnectionConfig,
+  name: string,
+  activeId: ConfigurationId | null,
 ): RawConfiguration | null {
-  const linkAuthPosture = authPostureFromParams(params);
-  const linkGraphDbUrl = normalizeUrl(params.graphDbUrl).toLowerCase();
+  const proposedIdentity = identityOf(proposed);
   const matches = configurations
     .values()
     .filter(
       config =>
-        normalizeUrl(config.connection?.graphDbUrl).toLowerCase() ===
-          linkGraphDbUrl &&
-        config.connection?.queryEngine === params.queryEngine &&
-        authPosturesMatch(
-          authPostureFromConnection(config.connection),
-          linkAuthPosture,
-        ),
+        config.connection != null &&
+        identitiesMatch(identityOf(config.connection), proposedIdentity),
     )
     .toArray();
 
@@ -281,7 +272,7 @@ export function findMatchingConnection(
   }
 
   const activeMatch = matches.find(config => config.id === activeId);
-  const nameMatch = matches.find(config => config.displayLabel === params.name);
+  const nameMatch = matches.find(config => config.displayLabel === name);
 
   return activeMatch ?? nameMatch ?? matches[0];
 }
@@ -298,9 +289,11 @@ export function deriveProxyBaseUrl(baseURI: string): string {
 }
 
 /**
- * Build the connection a link proposes. IAM auth is enabled whenever a region is
- * provided, defaulting the service type rather than silently leaving auth off
- * when only a region is given.
+ * Build the connection a link proposes. IAM auth is enabled exactly when a
+ * region is provided, defaulting the service type when only a region is given.
+ * A `serviceType` without a region still carries through, since it also picks
+ * the query engine and the summary API, and seeds the form if the user turns
+ * IAM on.
  *
  * Returns the connection body without an id, because a link only ever proposes a
  * connection. `CreateConnection` mints the id if and when the user saves the
@@ -310,16 +303,16 @@ export function buildConnectionFromParams(
   params: ConnectionLinkParams,
   proxyBaseUrl: string,
 ): ConnectionConfig {
-  const { awsAuthEnabled, awsRegion, serviceType } =
-    authPostureFromParams(params);
+  const awsAuthEnabled = Boolean(params.awsRegion);
   return {
     url: proxyBaseUrl,
     queryEngine: params.queryEngine,
     proxyConnection: true,
     graphDbUrl: params.graphDbUrl,
     awsAuthEnabled,
-    awsRegion,
-    serviceType,
+    awsRegion: params.awsRegion,
+    serviceType:
+      params.serviceType ?? (awsAuthEnabled ? DEFAULT_SERVICE_TYPE : undefined),
   };
 }
 
@@ -356,7 +349,13 @@ export function resolveConnectionLinkIntent(
     return { kind: "invalid", error: link.error };
   }
 
-  const match = findMatchingConnection(configurations, link.params, activeId);
+  const proposed = buildConnectionFromParams(link.params, proxyBaseUrl);
+  const match = findMatchingConnection(
+    configurations,
+    proposed,
+    link.params.name,
+    activeId,
+  );
 
   if (match) {
     return match.id === activeId
@@ -364,9 +363,5 @@ export function resolveConnectionLinkIntent(
       : { kind: "activate", connection: match };
   }
 
-  return {
-    kind: "create",
-    name: link.params.name,
-    connection: buildConnectionFromParams(link.params, proxyBaseUrl),
-  };
+  return { kind: "create", name: link.params.name, connection: proposed };
 }

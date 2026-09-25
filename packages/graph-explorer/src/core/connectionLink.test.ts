@@ -296,6 +296,20 @@ describe("readConnectionLink", () => {
   });
 });
 
+/** Matches the connection a link's params propose, as the resolver does. */
+function matchLink(
+  configurations: Map<ConfigurationId, RawConfiguration>,
+  params: ConnectionLinkParams,
+  activeId: ConfigurationId | null = null,
+) {
+  return findMatchingConnection(
+    configurations,
+    buildConnectionFromParams(params, "https://localhost"),
+    params.name,
+    activeId,
+  );
+}
+
 describe("findMatchingConnection", () => {
   const configs = new Map<ConfigurationId, RawConfiguration>([
     [
@@ -325,7 +339,7 @@ describe("findMatchingConnection", () => {
   ]);
 
   test("finds match by graphDbUrl and queryEngine", () => {
-    const match = findMatchingConnection(configs, {
+    const match = matchLink(configs, {
       graphDbUrl: "https://g-abc.us-west-2.neptune-graph.amazonaws.com",
       queryEngine: "openCypher",
       awsRegion: "",
@@ -336,7 +350,7 @@ describe("findMatchingConnection", () => {
   });
 
   test("matches case-insensitively on graphDbUrl", () => {
-    const match = findMatchingConnection(configs, {
+    const match = matchLink(configs, {
       graphDbUrl: "https://G-ABC.US-WEST-2.NEPTUNE-GRAPH.AMAZONAWS.COM",
       queryEngine: "openCypher",
       awsRegion: "",
@@ -364,7 +378,7 @@ describe("findMatchingConnection", () => {
       ],
     ]);
 
-    const match = findMatchingConnection(withTrailingSlash, {
+    const match = matchLink(withTrailingSlash, {
       graphDbUrl: "https://host:8182",
       queryEngine: "gremlin",
       awsRegion: "",
@@ -390,7 +404,7 @@ describe("findMatchingConnection", () => {
       ],
     ]);
 
-    const match = findMatchingConnection(withWhitespace, {
+    const match = matchLink(withWhitespace, {
       graphDbUrl: "https://host:8182",
       queryEngine: "gremlin",
       awsRegion: "",
@@ -400,8 +414,32 @@ describe("findMatchingConnection", () => {
     expect(match?.id).toBe("conn-ws");
   });
 
+  // The rest of the app reads a stored connection without a queryEngine as
+  // gremlin, so matching must too or the link offers a duplicate.
+  test("matches a stored connection with no queryEngine against a gremlin link", () => {
+    const legacy = new Map<ConfigurationId, RawConfiguration>([
+      [
+        "legacy" as ConfigurationId,
+        {
+          id: "legacy" as ConfigurationId,
+          displayLabel: "Legacy",
+          connection: {
+            url: "https://localhost",
+            graphDbUrl: "https://my-cluster.neptune.amazonaws.com",
+          },
+        },
+      ],
+    ]);
+
+    const match = matchLink(
+      legacy,
+      paramsOf("?graphDbUrl=https://my-cluster.neptune.amazonaws.com"),
+    );
+    expect(match?.id).toBe("legacy");
+  });
+
   test("returns null when queryEngine differs", () => {
-    const match = findMatchingConnection(configs, {
+    const match = matchLink(configs, {
       graphDbUrl: "https://g-abc.us-west-2.neptune-graph.amazonaws.com",
       queryEngine: "gremlin",
       awsRegion: "",
@@ -412,7 +450,7 @@ describe("findMatchingConnection", () => {
   });
 
   test("returns null when no match", () => {
-    const match = findMatchingConnection(configs, {
+    const match = matchLink(configs, {
       graphDbUrl: "https://unknown.neptune.amazonaws.com",
       queryEngine: "gremlin",
       awsRegion: "",
@@ -451,7 +489,7 @@ describe("findMatchingConnection", () => {
       ],
     ]);
 
-    const match = findMatchingConnection(
+    const match = matchLink(
       dupes,
       {
         graphDbUrl: duplicateUrl,
@@ -502,11 +540,17 @@ describe("findMatchingConnection", () => {
 
     test("an IAM link does not match a non-IAM connection", () => {
       const configs = new Map([iamConfig("plain", {})]);
-      const match = findMatchingConnection(
-        configs,
-        paramsWith({ awsRegion: "us-east-1" }),
-      );
+      const match = matchLink(configs, paramsWith({ awsRegion: "us-east-1" }));
       expect(match).toBeNull();
+    });
+
+    test("a service type without a region still matches a non-IAM connection", () => {
+      const configs = new Map([iamConfig("plain", {})]);
+      const match = matchLink(
+        configs,
+        paramsWith({ serviceType: "neptune-db" }),
+      );
+      expect(match?.id).toBe("plain");
     });
 
     test("a non-IAM link does not match an IAM connection", () => {
@@ -517,7 +561,7 @@ describe("findMatchingConnection", () => {
           serviceType: "neptune-db",
         }),
       ]);
-      const match = findMatchingConnection(configs, paramsWith({}));
+      const match = matchLink(configs, paramsWith({}));
       expect(match).toBeNull();
     });
 
@@ -529,10 +573,7 @@ describe("findMatchingConnection", () => {
           serviceType: "neptune-db",
         }),
       ]);
-      const match = findMatchingConnection(
-        configs,
-        paramsWith({ awsRegion: "us-east-1" }),
-      );
+      const match = matchLink(configs, paramsWith({ awsRegion: "us-east-1" }));
       expect(match).toBeNull();
     });
 
@@ -544,7 +585,7 @@ describe("findMatchingConnection", () => {
           serviceType: "neptune-db",
         }),
       ]);
-      const match = findMatchingConnection(
+      const match = matchLink(
         configs,
         paramsWith({ awsRegion: "us-east-1", serviceType: "neptune-graph" }),
       );
@@ -559,7 +600,7 @@ describe("findMatchingConnection", () => {
           serviceType: "neptune-db",
         }),
       ]);
-      const match = findMatchingConnection(
+      const match = matchLink(
         configs,
         paramsWith({ awsRegion: "us-east-1", serviceType: "neptune-db" }),
       );
@@ -574,10 +615,7 @@ describe("findMatchingConnection", () => {
           serviceType: "neptune-db",
         }),
       ]);
-      const match = findMatchingConnection(
-        configs,
-        paramsWith({ awsRegion: "us-east-1" }),
-      );
+      const match = matchLink(configs, paramsWith({ awsRegion: "us-east-1" }));
       expect(match?.id).toBe("default");
     });
   });
@@ -611,7 +649,7 @@ describe("findMatchingConnection", () => {
       ],
     ]);
 
-    const match = findMatchingConnection(dupes, {
+    const match = matchLink(dupes, {
       graphDbUrl: duplicateUrl,
       queryEngine: "gremlin",
       awsRegion: "",
@@ -657,7 +695,7 @@ describe("findMatchingConnection", () => {
 
     // The hand-named connection is first in the map, so falling through to the
     // first match would return it.
-    const match = findMatchingConnection(dupes, params);
+    const match = matchLink(dupes, params);
     expect(match?.id).toBe("from-link");
   });
 });
@@ -700,6 +738,22 @@ describe("buildConnectionFromParams", () => {
 
     expect(connection.awsAuthEnabled).toBe(false);
     expect(connection.serviceType).toBeUndefined();
+  });
+
+  test("carries serviceType without a region but leaves IAM off", () => {
+    const connection = buildConnectionFromParams(
+      {
+        graphDbUrl: "https://g-xxx.neptune-graph.amazonaws.com",
+        queryEngine: "openCypher",
+        awsRegion: "",
+        serviceType: "neptune-graph",
+        name: "Analytics",
+      },
+      "https://localhost",
+    );
+
+    expect(connection.awsAuthEnabled).toBe(false);
+    expect(connection.serviceType).toBe("neptune-graph");
   });
 
   test("enables IAM with a default service type when only region is given", () => {
