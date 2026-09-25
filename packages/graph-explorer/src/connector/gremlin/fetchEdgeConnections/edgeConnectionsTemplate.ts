@@ -1,21 +1,74 @@
-import type { EdgeType } from "@/core";
+import { query } from "@/utils";
 
-import { DEFAULT_SAMPLE_SIZE, query } from "@/utils";
+import type {
+  DiscoveryRequest,
+  SampleRequest,
+  ScanRequest,
+} from "./discoveryPlan";
 
 import { fragment } from "../fragments";
 
 /**
- * Keys of the projected endpoint labels. The template writes them and the
- * response parser reads them, so both derive from this object.
+ * Keys of the projected triple that identifies one edge connection.
+ *
+ * Single letters because they repeat once per distinct combination, and a graph
+ * with ten thousand edge types returns ten thousand of them. The template writes
+ * them and the response parser reads them, so both derive from this object.
  */
 export const projectionKeys = {
+  edgeType: "e",
   sourceType: "s",
   targetType: "t",
 } as const;
 
 /**
- * Returns a Gremlin query that counts the endpoint label combinations of up to
- * `DEFAULT_SAMPLE_SIZE` edges of each given type, grouped by edge type.
+ * Returns a Gremlin query that counts the distinct
+ * `(edge type, source label, target label)` combinations in one request.
+ *
+ * `groupCount()` keyed by a `project()` is native on every Neptune engine we
+ * tested and on reference TinkerPop 3.6.2, and its accumulator is keyed by the
+ * answer rather than the input, so it holds one entry per distinct combination
+ * instead of one per edge. That is what makes it survive a graph the previous
+ * `group().by(label())` shape ran out of memory on.
+ *
+ * The key must be a named `project()`. A `union()` of the three labels is also
+ * native but does not guarantee order, and Neptune's DFE engine permuted it,
+ * silently reporting edges in the wrong direction. See the ADR.
+ *
+ * The endpoint labels are folded because engines disagree on what `label()`
+ * emits for a multi-label vertex. Neptune 1.4 emits one `::` composite, but
+ * 1.3.5 emits each label separately, and a bare `by(outV().label())` keeps only
+ * the first, silently dropping the vertex's other types.
+ *
+ * A sampled request is shaped differently. See {@link sampledEdgesTemplate}.
+ */
+export default function edgeConnectionsTemplate(request: DiscoveryRequest) {
+  return "limitPerType" in request
+    ? sampledEdgesTemplate(request)
+    : scannedEdgesTemplate(request);
+}
+
+function scannedEdgesTemplate({ edgeTypes }: ScanRequest) {
+  const edges = edgeTypes?.length
+    ? `g.E().hasLabel(${edgeTypes.map(fragment.identifier).join(", ")})`
+    : "g.E()";
+  const keys = Object.values(projectionKeys).map(fragment.identifier);
+
+  return query`
+    ${edges}
+      .groupCount()
+        .by(
+          project(${keys.join(", ")})
+            .by(label())
+            .by(outV().label().fold())
+            .by(inV().label().fold())
+        )
+  `;
+}
+
+/**
+ * Counts the endpoint label combinations of up to `limitPerType` edges of each
+ * named type, grouped by edge type.
  *
  * One limit after `hasLabel(A, B, ...)` would be shared, so a dominant type fills
  * it and the rest come back empty. Each type gets its own `union()` branch
@@ -23,29 +76,20 @@ export const projectionKeys = {
  * Mid-traversal `V()` rather than `E()`, which needs TinkerPop 3.7, and anchored
  * on `V().limit(1)` because anchoring on `inject()` is not native on Neptune.
  *
- * Grouped by edge type before counting because Neptune's DFE engine cannot count
- * one `project()` key across several full branches: two took 54s and five timed
- * out, where grouping first handled ten in 9s.
- *
- * Callers send 10 types per request, so one request reads at most 100,000
- * edges. On a db.t3.medium, 100 types in one request took 116s and left the
- * instance refusing even a single-type sample for two minutes afterwards.
- *
- * The endpoint labels are folded because engines disagree on what `label()`
- * emits for a multi-label vertex. Neptune 1.4 emits one `::` composite, but
- * 1.3.5 emits each label separately, and a bare `by(outV().label())` keeps only
- * the first, silently dropping the vertex's other types.
+ * Grouped by edge type first, unlike the scan, because Neptune's DFE engine
+ * cannot count one `project()` key across several full branches: two took 54s
+ * and five timed out, where grouping first handled ten in 9s. Grouping holds
+ * each type's sample until it is counted, which the per-type limit bounds, and
+ * is why the scan, which has no limit, cannot use it.
  */
-export default function edgeConnectionsTemplate({
-  types,
-}: {
-  types: EdgeType[];
-}) {
-  const limit = fragment.number(DEFAULT_SAMPLE_SIZE);
-  const branches = types.map(
+function sampledEdgesTemplate({ edgeTypes, limitPerType }: SampleRequest) {
+  const limit = fragment.number(limitPerType);
+  const branches = edgeTypes.map(
     type => `V().outE(${fragment.identifier(type)}).limit(${limit})`,
   );
-  const keys = Object.values(projectionKeys).map(fragment.identifier);
+  const keys = [projectionKeys.sourceType, projectionKeys.targetType].map(
+    fragment.identifier,
+  );
 
   return query`
     g.V().limit(1).union(${branches.join(", ")})
