@@ -1,10 +1,15 @@
-// @vitest-environment happy-dom
+// @vitest-environment jsdom
+
+// DEV NOTE: happy-dom's DOMParser/DOMPurify interop drops the `<svg>` root
+// element during sanitize, so SVG icon resolution can never complete there.
+// jsdom matches browser behavior (see also useBackgroundImageMap.test.ts).
 import { waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import type { GraphProps } from "@/components/Graph";
 
 import { createEdgeType, createVertexType } from "@/core";
+import { LABELS } from "@/utils";
 import {
   createRandomEdgeTypeConfig,
   createRandomVertexTypeConfig,
@@ -68,6 +73,35 @@ describe("useGraphStyles", () => {
         height: 24,
       });
     });
+  });
+
+  it("should generate a default style for vertices without a schema type (#1779)", async () => {
+    // Blank nodes carry the synthetic LABELS.MISSING_TYPE, which never
+    // appears in the schema. The canvas must still style them with the
+    // default icon — the same fallback the details panel uses.
+    dbState.activeSchema.vertices = [];
+
+    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+
+    await waitFor(
+      () => {
+        const vertexStyle = getStyles(result)[
+          `node[type="${LABELS.MISSING_TYPE}"]`
+        ] as any;
+        expect(vertexStyle).toBeDefined();
+        expect(
+          vertexStyle["background-image"].startsWith("data:image/svg+xml"),
+        ).toBe(true);
+        expect(vertexStyle).toMatchObject({
+          "background-color": "#128EE5",
+          "background-opacity": 0.4,
+          shape: "ellipse",
+          width: 24,
+          height: 24,
+        });
+      },
+      { timeout: 10000 },
+    );
   });
 
   it("should generate edge styles correctly", () => {
