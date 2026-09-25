@@ -1,1 +1,5 @@
-export { default, mapToConnectionForm } from "./CreateConnection";
+export {
+  type CreateConnectionOutcome,
+  default,
+  mapToConnectionForm,
+} from "./CreateConnection";

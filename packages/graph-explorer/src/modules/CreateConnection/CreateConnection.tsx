@@ -71,8 +71,11 @@ export type CreateConnectionProps = {
    * meaningful-change reset logic.
    */
   initialValues?: Partial<ConnectionForm>;
-  onClose(): void;
+  onClose(outcome: CreateConnectionOutcome): void;
 };
+
+/** Whether the form closed by saving the connection or by the user backing out. */
+export type CreateConnectionOutcome = "saved" | "cancelled";
 
 function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
   return {
@@ -279,7 +282,7 @@ const CreateConnection = ({
 
     onSave(normalizedForm as Required<ConnectionForm>);
     reset();
-    onClose();
+    onClose("saved");
   };
 
   return (
@@ -457,7 +460,7 @@ const CreateConnection = ({
         )}
       </DialogBody>
       <DialogFooter>
-        <Button variant="outline" onClick={onClose}>
+        <Button variant="outline" onClick={() => onClose("cancelled")}>
           Cancel
         </Button>
         <Button variant="primary" onClick={onSubmit}>

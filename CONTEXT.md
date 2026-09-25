@@ -143,6 +143,14 @@ _Avoid_: Save state (ambiguous with Session)
 The UI element in the nav bar (after the page title) that renders Persistence Status. It surfaces only on `failed` — a standing danger "Changes not saved" button — and stays absent at `idle` and `saving`. Clicking it opens a dialog showing the raw failure records (key, reason, attempt count, last attempt, and the underlying error's name/message/cause) in a read-only JSON editor. The dialog offers to save the configuration to a file via `saveLocalForageToFile` (`core/StateProvider/localDb.ts`) when storage is full (quota) — IndexedDB is still readable then — but not when storage is inaccessible (private mode, blocked), since the database never opened and there is nothing to read. Recovery scope is retry (transient failures) plus that backup (terminal-quota failures) — it does not guarantee the write eventually lands.
 _Avoid_: Save-status indicator
 
+**Connection Link**:
+A `#/connect` URL an external application builds to hand Graph Explorer a Connection, carrying the params `graphDbUrl`, `queryEngine`, `awsRegion`, `serviceType`, `name`. See `docs/adr/20260612-connection-links.md` for how it is resolved and validated.
+_Avoid_: deep link, auto-connect, URL connection params
+
+**Connection Link Intent**:
+The action a Connection Link resolves to against the current Connections: `none` (it targets the Active Connection), `activate` (it matches an inactive Connection), `create` (no match, so open a pre-filled create form), or `invalid` (a param fails validation). A Connection matches on endpoint, query engine, and auth posture.
+_Avoid_: connection action, deep-link mode
+
 ## Relationships
 
 - Each browser tab has at most one **Active Connection**; different tabs may have different ones
@@ -158,6 +166,8 @@ _Avoid_: Save-status indicator
 - **Styles** are scoped per **Vertex Type** (**Vertex Styles**) and **Edge Type** (**Edge Styles**)
 - The **Graph View**, **Data Table View**, and **Schema View** all render from the same **Session** and **Schema**
 - A cancelled request is neither a **Fetch Timeout** nor a **Database Query Timeout**
+- A **Connection Link** resolves to a **Connection Link Intent** against the current **Connections** and active **Connection**
+- Activating a different **Connection** swaps which **Session** is displayed and keeps the previous one for when that **Connection** is reactivated. So an `activate` intent, or a `create` intent whose form is saved, switches the displayed **Session**, while `none`, `invalid`, and a cancelled `create` leave it untouched
 
 ## Example dialogue
 

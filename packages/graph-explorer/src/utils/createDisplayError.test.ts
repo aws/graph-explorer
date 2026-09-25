@@ -7,6 +7,7 @@ import {
   UnescapableValueError,
   UnsupportedValueTypeError,
 } from "@/connector/queryValueError";
+import { ConnectionLinkError } from "@/core/connectionLinkError";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 
 import { createDisplayError } from "./createDisplayError";
@@ -376,6 +377,26 @@ describe("createDisplayError", () => {
     expect(result).toStrictEqual({
       title: "Unrecognized Result Format",
       message: "The data returned did not match the expected format.",
+    });
+  });
+
+  it("Should name the offending parameters of an invalid connection link", () => {
+    const result = createDisplayError(
+      new ConnectionLinkError([
+        {
+          param: "graphDbUrl",
+          requirement: "must be a valid http or https URL",
+        },
+        {
+          param: "queryEngine",
+          requirement: 'must be one of "gremlin", "openCypher", "sparql"',
+        },
+      ]),
+    );
+    expect(result).toStrictEqual({
+      title: "Invalid connection link",
+      message:
+        'graphDbUrl must be a valid http or https URL; queryEngine must be one of "gremlin", "openCypher", "sparql". The link was ignored, so nothing changed.',
     });
   });
 });
