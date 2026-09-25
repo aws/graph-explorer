@@ -368,6 +368,7 @@ describe("createErrorDetails", () => {
           requests: 3,
           totalEdges: 19_928_805,
           degraded: true,
+          cause: "database-limit",
         },
         new NetworkError("Query cannot be completed", 500, {
           code: "MemoryLimitExceededException",
@@ -381,6 +382,7 @@ describe("createErrorDetails", () => {
       expect(JSON.parse(details.data!)).toMatchObject({
         strategy: "sampled",
         completeScanAbandoned: true,
+        failureCause: "database-limit",
         cause: { name: "NetworkError", statusCode: 500 },
       });
     });

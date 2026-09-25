@@ -1,7 +1,12 @@
 import { type Mock, vi } from "vitest";
 
 import { createEdgeType, createVertexType, type EdgeType } from "@/core";
-import { logger, NetworkError } from "@/utils";
+import {
+  DatabaseTimeoutError,
+  FetchTimeoutError,
+  logger,
+  NetworkError,
+} from "@/utils";
 import {
   createGInt64,
   createGList,
@@ -60,8 +65,26 @@ function sampleResponse(...triples: Triple[]) {
 /** A `groupCount()` over a graph with no matching edges returns an empty map. */
 const emptyResponse = createGremlinResponse(createGMap({}));
 
-function tooBigError(code: string) {
-  return new NetworkError("Query cannot be completed", 500, { code });
+function memoryLimitError() {
+  return new NetworkError("Query cannot be completed", 500, {
+    code: "MemoryLimitExceededException",
+  });
+}
+
+function databaseTimeoutError() {
+  return new DatabaseTimeoutError(
+    "Query cannot be completed",
+    500,
+    {},
+    "TimeLimitExceededException",
+  );
+}
+
+function fetchTimeoutError() {
+  return new FetchTimeoutError(
+    240_000,
+    new DOMException("Aborted", "TimeoutError"),
+  );
 }
 
 function edgeTypes(count: number): EdgeType[] {
@@ -427,12 +450,16 @@ describe("Gremlin > fetchEdgeConnections", () => {
   });
 
   describe("degrading a complete scan that was too large", () => {
-    it.each(["MemoryLimitExceededException", "TimeLimitExceededException"])(
+    it.each([
+      ["a memory limit", memoryLimitError],
+      ["a database timeout", databaseTimeoutError],
+      ["our own fetch timeout", fetchTimeoutError],
+    ])(
       "should redo discovery as sampled after %s",
-      async code => {
+      async (_label, makeError) => {
         const gremlinFetch = vi
           .fn()
-          .mockRejectedValueOnce(tooBigError(code))
+          .mockRejectedValueOnce(makeError())
           .mockResolvedValue(sampleResponse(["route", "airport", "airport"]));
 
         const result = await fetchEdgeConnections(
@@ -450,27 +477,10 @@ describe("Gremlin > fetchEdgeConnections", () => {
       },
     );
 
-    it("should degrade when our own fetch timeout fires, which is all a non-Neptune engine gives us", async () => {
-      const gremlinFetch = vi
-        .fn()
-        .mockRejectedValueOnce(
-          new DOMException("The operation timed out", "TimeoutError"),
-        )
-        .mockResolvedValue(sampleResponse(["route", "airport", "airport"]));
-
-      const result = await fetchEdgeConnections(
-        gremlinFetch,
-        { edgeTypes: [createEdgeType("route")], totalEdges: 10 },
-        "auto",
-      );
-
-      expect(result.edgeConnections).toHaveLength(1);
-    });
-
     it("should abandon the remaining chunks rather than finish them", async () => {
       const gremlinFetch = vi
         .fn()
-        .mockRejectedValueOnce(tooBigError("MemoryLimitExceededException"))
+        .mockRejectedValueOnce(memoryLimitError())
         .mockResolvedValue(emptyResponse);
 
       const types = edgeTypes(500);
@@ -491,33 +501,70 @@ describe("Gremlin > fetchEdgeConnections", () => {
       );
     });
 
-    it("should tell a user who forced complete which setting to change", async () => {
-      const cause = tooBigError("MemoryLimitExceededException");
-      const gremlinFetch = vi.fn().mockRejectedValue(cause);
+    it.each([
+      ["a memory limit", memoryLimitError, "database-limit"],
+      ["a database timeout", databaseTimeoutError, "database-limit"],
+      ["our own fetch timeout", fetchTimeoutError, "fetch-timeout"],
+    ])(
+      "should tell a user who forced complete which setting to change after %s",
+      async (_label, makeError, failureCause) => {
+        const cause = makeError();
+        const gremlinFetch = vi.fn().mockRejectedValue(cause);
+
+        const error = await discoveryErrorFrom(
+          fetchEdgeConnections(
+            gremlinFetch,
+            { edgeTypes: [createEdgeType("route")], totalEdges: 10 },
+            "complete",
+          ),
+        );
+
+        expect(error.recovery).toContain("Automatic or Sampled");
+        // The database's own error stays reachable for the error details dialog.
+        expect(error.cause).toBe(cause);
+        expect(error.details).toMatchObject({
+          strategy: "complete",
+          setting: "complete",
+          totalEdges: 10,
+          completeScanAbandoned: false,
+          failureCause,
+        });
+      },
+    );
+
+    it("should point at the Fetch Timeout, not the parameter group, when a sampled pass exhausts our own fetch timeout", async () => {
+      const gremlinFetch = vi.fn().mockRejectedValue(fetchTimeoutError());
 
       const error = await discoveryErrorFrom(
         fetchEdgeConnections(
           gremlinFetch,
-          { edgeTypes: [createEdgeType("route")], totalEdges: 10 },
-          "complete",
+          { edgeTypes: [createEdgeType("route")], totalEdges: 19_928_805 },
+          "auto",
         ),
       );
 
-      expect(error.recovery).toContain("Automatic or Sampled");
-      // The database's own error stays reachable for the error details dialog.
-      expect(error.cause).toBe(cause);
-      expect(error.details).toMatchObject({
-        strategy: "complete",
-        setting: "complete",
-        totalEdges: 10,
-        completeScanAbandoned: false,
-      });
+      expect(error.recovery).toContain("Fetch Timeout");
+      expect(error.recovery).not.toContain("parameter group");
+      expect(error.details).toMatchObject({ failureCause: "fetch-timeout" });
+    });
+
+    it("should point at the database's own query timeout when a sampled pass exhausts it", async () => {
+      const gremlinFetch = vi.fn().mockRejectedValue(databaseTimeoutError());
+
+      const error = await discoveryErrorFrom(
+        fetchEdgeConnections(
+          gremlinFetch,
+          { edgeTypes: [createEdgeType("route")], totalEdges: 19_928_805 },
+          "auto",
+        ),
+      );
+
+      expect(error.recovery).toContain("DB cluster parameter group");
+      expect(error.details).toMatchObject({ failureCause: "database-limit" });
     });
 
     it("should report an unusable edge total as unrecorded, like the planner does", async () => {
-      const gremlinFetch = vi
-        .fn()
-        .mockRejectedValue(tooBigError("MemoryLimitExceededException"));
+      const gremlinFetch = vi.fn().mockRejectedValue(memoryLimitError());
 
       const error = await discoveryErrorFrom(
         fetchEdgeConnections(
@@ -555,9 +602,7 @@ describe("Gremlin > fetchEdgeConnections", () => {
     });
 
     it("should not degrade a sampled pass, because there is nothing cheaper to try", async () => {
-      const gremlinFetch = vi
-        .fn()
-        .mockRejectedValue(tooBigError("MemoryLimitExceededException"));
+      const gremlinFetch = vi.fn().mockRejectedValue(memoryLimitError());
 
       await expect(
         fetchEdgeConnections(
@@ -570,9 +615,7 @@ describe("Gremlin > fetchEdgeConnections", () => {
     });
 
     it("should say both strategies were tried when sampling fails after degrading", async () => {
-      const gremlinFetch = vi
-        .fn()
-        .mockRejectedValue(tooBigError("MemoryLimitExceededException"));
+      const gremlinFetch = vi.fn().mockRejectedValue(memoryLimitError());
 
       const error = await discoveryErrorFrom(
         fetchEdgeConnections(
@@ -593,7 +636,7 @@ describe("Gremlin > fetchEdgeConnections", () => {
     it("should record the degrade at warn level, where a user will see it without dev tools", async () => {
       const gremlinFetch = vi
         .fn()
-        .mockRejectedValueOnce(tooBigError("MemoryLimitExceededException"))
+        .mockRejectedValueOnce(memoryLimitError())
         .mockResolvedValue(sampleResponse(["route", "airport", "airport"]));
 
       await fetchEdgeConnections(
@@ -614,7 +657,7 @@ describe("Gremlin > fetchEdgeConnections", () => {
     it("should cancel a request still in flight when it abandons the attempt", async () => {
       const gremlinFetch: Mock = vi.fn().mockImplementation((query: string) =>
         query.includes("limit(10000)") || gremlinFetch.mock.calls.length === 1
-          ? Promise.reject(tooBigError("MemoryLimitExceededException"))
+          ? Promise.reject(memoryLimitError())
           : // Never settles, so this chunk is still in flight when the first
             // one fails and the whole complete attempt is abandoned.
             new Promise(() => {}),

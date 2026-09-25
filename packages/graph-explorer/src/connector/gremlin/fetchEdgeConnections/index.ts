@@ -27,7 +27,11 @@ import type { DiscoveryPlan } from "./discoveryPlan";
 import { anySignal } from "../../utils/anySignal";
 import { parseGMap } from "../mappers/parseGMap";
 import { splitLabel } from "../splitLabel";
-import { EdgeConnectionDiscoveryError, isTooBig } from "./discoveryError";
+import {
+  causeOf,
+  EdgeConnectionDiscoveryError,
+  isTooBig,
+} from "./discoveryError";
 import { planDiscovery, toEdgeTotal } from "./discoveryPlan";
 import edgeConnectionsTemplate, {
   projectionKeys,
@@ -129,7 +133,7 @@ export default async function fetchEdgeConnections(
 /** Reports a size failure with the recovery path that is still open. */
 function giveUp(
   plan: DiscoveryPlan,
-  attempt: Omit<FailedDiscovery, "strategy" | "requests">,
+  attempt: Omit<FailedDiscovery, "strategy" | "requests" | "cause">,
   cause: unknown,
 ): EdgeConnectionDiscoveryError {
   const error = new EdgeConnectionDiscoveryError(
@@ -137,6 +141,7 @@ function giveUp(
       ...attempt,
       strategy: plan.strategy,
       requests: plan.requests.length,
+      cause: causeOf(cause),
       // Through the same guard the planner used, so the error reports the total
       // the plan was actually made from. The raw value is cast out of a response
       // and may not be a number at all.

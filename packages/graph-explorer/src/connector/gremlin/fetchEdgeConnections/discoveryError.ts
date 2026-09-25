@@ -1,40 +1,44 @@
 import type { EdgeConnectionDiscovery } from "@shared/types";
 
-import { NetworkError } from "@/utils";
+import { DatabaseTimeoutError, FetchTimeoutError, NetworkError } from "@/utils";
 
 import type { DiscoveryStrategy } from "./discoveryPlan";
 
-/**
- * Neptune's codes for a query that needed more of the instance than it could
- * have. No other engine reports an equivalent, which is why a request timeout is
- * the primary trigger and these are only a fast path.
- */
-const TOO_BIG_ERROR_CODES = [
-  "MemoryLimitExceededException",
-  "TimeLimitExceededException",
-];
+/** Neptune's code for a query that asked for more memory than the instance had. */
+const MEMORY_LIMIT_ERROR_CODE = "MemoryLimitExceededException";
 
 /** Whether the database gave up because one request asked for too much at once. */
 export function isTooBig(error: unknown): boolean {
-  const code = errorCode(error);
-  if (code !== undefined) {
-    return TOO_BIG_ERROR_CODES.includes(code);
-  }
-  // A request timeout, which is the only size signal a non-Neptune engine gives
-  // us. A user-initiated cancellation raises `AbortError` and must not look like
-  // a size problem.
-  return error instanceof DOMException && error.name === "TimeoutError";
+  return (
+    error instanceof FetchTimeoutError ||
+    error instanceof DatabaseTimeoutError ||
+    memoryLimitCode(error) !== undefined
+  );
 }
 
 /**
- * The database's own error code, from either shape the body arrives in. Reading
- * only the top level would miss a nested code and cost the degrade path its fast
- * exit, leaving the user to wait out the request bound instead.
+ * The database's own memory-limit code, from either shape the body arrives in.
+ * Reading only the top level would miss a nested code and cost the degrade path
+ * its fast exit, leaving the user to wait out the request bound instead.
  */
-function errorCode(error: unknown): string | undefined {
+function memoryLimitCode(error: unknown): string | undefined {
   const data = error instanceof NetworkError ? error.data : undefined;
   const code = data?.code ?? data?.cause?.code;
-  return typeof code === "string" ? code : undefined;
+  return code === MEMORY_LIMIT_ERROR_CODE ? code : undefined;
+}
+
+/**
+ * Which side gave up. A fetch timeout is the connection's own bound running out,
+ * fixed in the connection's settings; a database limit is the database itself
+ * refusing the request, fixed in the database's configuration.
+ */
+export type FailureCause = "fetch-timeout" | "database-limit";
+
+/** Classifies a size failure that `isTooBig` already confirmed. */
+export function causeOf(error: unknown): FailureCause {
+  return error instanceof FetchTimeoutError
+    ? "fetch-timeout"
+    : "database-limit";
 }
 
 /** What edge connection discovery had already tried when it gave up. */
@@ -46,6 +50,8 @@ export type FailedDiscovery = {
   totalEdges: number | undefined;
   /** A complete scan was already abandoned as too large before this attempt. */
   degraded: boolean;
+  /** Which side gave up: the connection's fetch timeout, or the database itself. */
+  cause: FailureCause;
 };
 
 /**
@@ -78,6 +84,9 @@ export class EdgeConnectionDiscoveryError extends Error {
       requests: this.attempt.requests,
       totalEdges: this.attempt.totalEdges,
       completeScanAbandoned: this.attempt.degraded,
+      // Named apart from `cause`, which `createErrorDetails` reserves for the
+      // serialized JS `Error.cause` and would otherwise overwrite this.
+      failureCause: this.attempt.cause,
     };
   }
 }
@@ -97,11 +106,15 @@ function describeFailure({ setting, degraded }: FailedDiscovery): string {
   return "The database could not sample the edges of each edge type to discover edge connections.";
 }
 
-function describeRecovery({ setting }: FailedDiscovery): string {
-  if (setting === "complete") {
-    // The failure may be the connection's own fetch timeout rather than the
-    // database refusing, and those have opposite remedies, so name both.
-    return "Change Edge Connection Discovery to Automatic or Sampled in this connection's advanced options, because Automatic samples a graph this large instead of scanning it. If the connection sets a fetch timeout, a complete scan may simply need longer than that allows.";
+function describeRecovery({ setting, cause }: FailedDiscovery): string {
+  if (cause === "fetch-timeout") {
+    if (setting === "complete") {
+      return "Switch Edge Connection Discovery to Automatic or Sampled in this connection's advanced options, because Automatic samples a graph this large instead of scanning it. Or raise the Fetch Timeout there, or clear it, since a complete scan may simply need longer than that allows.";
+    }
+    return "Raise the Fetch Timeout in this connection's advanced options, or clear it, since this request may simply need longer than that allows. Until then, the Schema view shows node types without the edge connections between them.";
   }
-  return "Raise the query timeout in the DB cluster parameter group, or use an instance with more memory. Until then, the Schema view shows node types without the edge connections between them.";
+  if (setting === "complete") {
+    return "Switch Edge Connection Discovery to Automatic or Sampled in this connection's advanced options, because Automatic samples a graph this large instead of scanning it.";
+  }
+  return "Raise the query timeout in the database configuration, such as the DB cluster parameter group for Neptune, or use an instance with more memory. Until then, the Schema view shows node types without the edge connections between them.";
 }

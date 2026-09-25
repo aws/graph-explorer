@@ -70,6 +70,7 @@ describe("EdgeConnectionDiscoveryNotice", () => {
         requests: 3,
         totalEdges: 100,
         degraded: false,
+        cause: "database-limit",
       },
       cause,
     );
@@ -97,6 +98,7 @@ describe("EdgeConnectionDiscoveryNotice", () => {
         requests: 1,
         totalEdges: 10,
         degraded: false,
+        cause: "database-limit",
       },
       new Error("boom"),
     );
