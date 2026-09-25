@@ -1,10 +1,8 @@
-import { execFileSync } from "child_process";
 import dotenv from "dotenv";
 import fs from "fs";
-import os from "os";
 import path from "path";
 
-import { type EnvironmentValues, parseEnvironmentValues } from "./env.ts";
+import { parseEnvironmentValues } from "./env.ts";
 import { proxyServerRoot } from "./paths.ts";
 import { resolveServerConfig, ServerConfigError } from "./server-config.ts";
 import {
@@ -20,118 +18,6 @@ const processEnvScriptPath = path.resolve(
   import.meta.dirname,
   "../../../process-environment.sh",
 );
-
-function runPipeline(
-  workDir: string,
-  env: Record<string, string> = {},
-  presetEnvVars: Record<string, string> = {},
-) {
-  const configFolder =
-    env.CONFIGURATION_FOLDER_PATH ?? "./packages/graph-explorer/";
-  const resolvedConfigFolder = path.resolve(workDir, configFolder);
-  fs.mkdirSync(resolvedConfigFolder, { recursive: true });
-
-  // Pre-seed .env with vars the shell script doesn't write
-  if (Object.keys(presetEnvVars).length > 0) {
-    const lines = Object.entries(presetEnvVars)
-      .map(([k, v]) => `${k}=${v}`)
-      .join("\n");
-    fs.writeFileSync(path.join(resolvedConfigFolder, ".env"), lines + "\n");
-  }
-
-  execFileSync("sh", [processEnvScriptPath], {
-    cwd: workDir,
-    env: { ...env, PATH: process.env.PATH },
-  });
-
-  const envFilePath = path.join(resolvedConfigFolder, ".env");
-  const envFileContent = fs.readFileSync(envFilePath, "utf-8");
-  const parsedFromFile = dotenv.parse(envFileContent);
-  // dotenv.config() never overwrites a key already in process.env, so a
-  // variable passed to the container wins over whatever the shell script wrote
-  // to .env for that key.
-  return parseEnvironmentValues({ ...parsedFromFile, ...env });
-}
-
-describe("config pipeline: shell → dotenv → Zod → server config", () => {
-  let workDir: string;
-
-  beforeEach(() => {
-    workDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-pipeline-test-"));
-  });
-
-  afterEach(() => {
-    fs.rmSync(workDir, { recursive: true, force: true });
-    vi.restoreAllMocks();
-  });
-
-  it("HTTPS enabled by default flows through to server config", () => {
-    const env = runPipeline(workDir);
-    expect(env.PROXY_SERVER_HTTPS_CONNECTION).toBe(true);
-
-    vi.spyOn(fs, "existsSync").mockImplementation(
-      p => p === expectedKeyPath || p === expectedCertPath,
-    );
-    const config = resolveServerConfig(env);
-    expect(config.useHttps).toBe(true);
-    expect(config.port).toBe(443);
-  });
-
-  it("HTTPS disabled flows through to HTTP config", () => {
-    const env = runPipeline(workDir, {
-      PROXY_SERVER_HTTPS_CONNECTION: "false",
-    });
-
-    const config = resolveServerConfig(env);
-    expect(config.useHttps).toBe(false);
-    expect(config.port).toBe(80);
-  });
-
-  it("Neptune Notebook forces HTTPS off", () => {
-    const env = runPipeline(workDir, { NEPTUNE_NOTEBOOK: "true" });
-
-    expect(env.NEPTUNE_NOTEBOOK).toBe(true);
-    const config = resolveServerConfig(env);
-    expect(config.useHttps).toBe(false);
-  });
-
-  it("Neptune Notebook conflicting with an explicit HTTPS request fails the environment parse with both variables named", () => {
-    vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-    const error = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => undefined);
-
-    runPipeline(workDir, {
-      NEPTUNE_NOTEBOOK: "true",
-      PROXY_SERVER_HTTPS_CONNECTION: "true",
-    });
-
-    expect(process.exit).toHaveBeenCalledWith(1);
-    expect(error).toHaveBeenCalledWith(
-      expect.stringContaining(
-        "NEPTUNE_NOTEBOOK and PROXY_SERVER_HTTPS_CONNECTION are both true.",
-      ),
-    );
-  });
-
-  it("HTTPS enabled but certs missing throws ServerConfigError", () => {
-    const env = runPipeline(workDir);
-    expect(env.PROXY_SERVER_HTTPS_CONNECTION).toBe(true);
-
-    expect(() => resolveServerConfig(env)).toThrow(ServerConfigError);
-  });
-
-  it("custom HTTP port flows through", () => {
-    const env = runPipeline(
-      workDir,
-      { PROXY_SERVER_HTTPS_CONNECTION: "false" },
-      { PROXY_SERVER_HTTP_PORT: "8080" },
-    );
-
-    const config = resolveServerConfig(env);
-    expect(config.port).toBe(8080);
-  });
-});
 
 /**
  * The environment each image bakes in through the Dockerfile's `ENV` lines.
@@ -150,15 +36,43 @@ const notebookImage = {
   LOG_STYLE: "cloudwatch",
 };
 
+const conflictMessage =
+  "NEPTUNE_NOTEBOOK and PROXY_SERVER_HTTPS_CONNECTION are both true. " +
+  "The Neptune Notebook preset serves Graph Explorer over HTTP and does " +
+  "not generate TLS certificates, so this combination cannot start. " +
+  "Either drop PROXY_SERVER_HTTPS_CONNECTION to run under the notebook " +
+  "preset, or set NEPTUNE_NOTEBOOK to false to run with TLS.";
+
+/** What the server does at startup. */
+type StartupOutcome =
+  | { useHttps: boolean; port: number }
+  /** The environment failed to parse. Holds the text logged to stderr. */
+  | { parseError: string }
+  | { serverConfigError: string };
+
+/** Expects a parse failure at `key`, logging `message` when it is given. */
+function parseFailureAt(key: string, message?: string): StartupOutcome {
+  return {
+    parseError: expect.stringContaining(
+      message === undefined ? `→ at ${key}` : `✖ ${message}\n  → at ${key}`,
+    ),
+  };
+}
+
+const missingCertificates: StartupOutcome = {
+  serverConfigError: expect.stringContaining(
+    "PROXY_SERVER_HTTPS_CONNECTION is true but certificate files are missing",
+  ),
+};
+
 type Deployment = {
-  row: number;
   name: string;
   /** The container's environment before `-e`, from the image's `ENV` lines. */
   image: Record<string, string>;
   /** Values passed with `docker run -e`. */
   dockerEnv?: Record<string, string>;
   configJson?: Record<string, boolean>;
-  /** Every row sets HOST=localhost unless this is false. */
+  /** Every row sets HOST=localhost unless this is false or `-e` sets it. */
   host?: false;
   /**
    * Starts the same container a second time, as `docker restart` does. The
@@ -169,26 +83,12 @@ type Deployment = {
   expected: {
     envFile: Record<string, string>;
     certificatesGenerated: boolean;
-    server:
-      | { useHttps: boolean; port: number; logStyle: "default" | "cloudwatch" }
-      | ServerConfigError
-      | typeof environmentParseFailure;
+    startup: StartupOutcome;
   };
 };
 
-const https = { useHttps: true, port: 443, logStyle: "default" } as const;
-const http = { useHttps: false, port: 80, logStyle: "default" } as const;
-const notebookHttp = {
-  useHttps: false,
-  port: 9250,
-  logStyle: "cloudwatch",
-} as const;
-
-/**
- * Sentinel for rows where the server never reaches {@link resolveServerConfig}
- * because {@link parseEnvironmentValues} itself exits(1) on an invalid value.
- */
-const environmentParseFailure = "ENVIRONMENT_PARSE_FAILURE" as const;
+const https = { useHttps: true, port: 443 };
+const http = { useHttps: false, port: 80 };
 
 const standardTls = {
   envFile: {
@@ -197,7 +97,7 @@ const standardTls = {
     GRAPH_EXP_HTTPS_CONNECTION: "true",
   },
   certificatesGenerated: true,
-  server: https,
+  startup: https,
 };
 const standardHttp = {
   envFile: {
@@ -206,7 +106,7 @@ const standardHttp = {
     GRAPH_EXP_HTTPS_CONNECTION: "true",
   },
   certificatesGenerated: false,
-  server: http,
+  startup: http,
 };
 const notebookPreset = {
   envFile: {
@@ -215,7 +115,7 @@ const notebookPreset = {
     GRAPH_EXP_HTTPS_CONNECTION: "false",
   },
   certificatesGenerated: false,
-  server: notebookHttp,
+  startup: { useHttps: false, port: 9250 },
 };
 const notebookConflict = {
   envFile: {
@@ -224,65 +124,105 @@ const notebookConflict = {
     GRAPH_EXP_HTTPS_CONNECTION: "false",
   },
   certificatesGenerated: false,
-  server: environmentParseFailure,
+  startup: parseFailureAt("PROXY_SERVER_HTTPS_CONNECTION", conflictMessage),
 };
 
 const deployments: Deployment[] = [
   {
-    row: 1,
     name: "standard image with nothing about HTTPS set defaults to TLS",
     image: standardImage,
     expected: standardTls,
   },
   {
-    row: 2,
     name: "standard image with -e PROXY_SERVER_HTTPS_CONNECTION=false serves HTTP",
     image: standardImage,
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
     expected: standardHttp,
   },
   {
-    row: 3,
+    name: "standard image with -e PROXY_SERVER_HTTP_PORT=8080 and HTTPS off serves HTTP on 8080",
+    image: standardImage,
+    dockerEnv: {
+      PROXY_SERVER_HTTPS_CONNECTION: "false",
+      PROXY_SERVER_HTTP_PORT: "8080",
+    },
+    expected: { ...standardHttp, startup: { useHttps: false, port: 8080 } },
+  },
+  {
     name: "standard image with -e PROXY_SERVER_HTTPS_CONNECTION=true serves TLS",
     image: standardImage,
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
     expected: standardTls,
   },
   {
-    row: 4,
+    // The entrypoint generates certificates only for an exact "true", but the
+    // server reads HTTPS case-insensitively.
+    name: "standard image with -e PROXY_SERVER_HTTPS_CONNECTION=TRUE skips certificates and fails on the missing certificates",
+    image: standardImage,
+    dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "TRUE" },
+    expected: {
+      envFile: {
+        ...standardTls.envFile,
+        PROXY_SERVER_HTTPS_CONNECTION: "TRUE",
+      },
+      certificatesGenerated: false,
+      startup: missingCertificates,
+    },
+  },
+  {
     name: "standard image with config.json HTTPS true serves TLS",
     image: standardImage,
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: true },
     expected: standardTls,
   },
   {
-    row: 5,
     name: "standard image with config.json HTTPS false serves HTTP",
     image: standardImage,
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: false },
     expected: standardHttp,
   },
   {
-    row: 6,
+    // Known issue: config.json decides what the shell writes and whether
+    // certificates are generated, while the -e value wins in the server.
+    name: "standard image with config.json HTTPS true and -e HTTPS false generates certificates but serves HTTP",
+    image: standardImage,
+    dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
+    configJson: { PROXY_SERVER_HTTPS_CONNECTION: true },
+    expected: { ...standardTls, startup: http },
+  },
+  {
+    name: "standard image with config.json HTTPS false and -e HTTPS true skips certificates and fails on the missing certificates",
+    image: standardImage,
+    dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
+    configJson: { PROXY_SERVER_HTTPS_CONNECTION: false },
+    expected: { ...standardHttp, startup: missingCertificates },
+  },
+  {
     name: "NEPTUNE_NOTEBOOK entirely unset defaults to TLS",
     image: { PROXY_SERVER_HTTP_PORT: "80", LOG_STYLE: "default" },
     expected: standardTls,
   },
   {
-    row: 7,
     name: "notebook image with nothing about HTTPS set serves HTTP on 9250",
     image: notebookImage,
     expected: notebookPreset,
   },
   {
-    row: 7,
     name: "standard image with -e NEPTUNE_NOTEBOOK=true applies the preset but keeps port 80",
     image: standardImage,
     dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
-    expected: { ...notebookPreset, server: http },
+    expected: { ...notebookPreset, startup: http },
   },
   {
-    row: 8,
+    name: "standard image with -e NEPTUNE_NOTEBOOK=true and -e PROXY_SERVER_HTTPS_CONNECTION=true refuses with the conflict",
+    image: standardImage,
+    dockerEnv: {
+      NEPTUNE_NOTEBOOK: "true",
+      PROXY_SERVER_HTTPS_CONNECTION: "true",
+    },
+    expected: notebookConflict,
+  },
+  {
     name: "notebook image with -e PROXY_SERVER_HTTPS_CONNECTION=false, as the SageMaker lifecycle script runs it",
     image: notebookImage,
     dockerEnv: {
@@ -292,14 +232,30 @@ const deployments: Deployment[] = [
     expected: notebookPreset,
   },
   {
-    row: 9,
+    name: "notebook image with -e NEPTUNE_NOTEBOOK=false drops the preset and defaults to TLS",
+    image: notebookImage,
+    dockerEnv: { NEPTUNE_NOTEBOOK: "false" },
+    expected: standardTls,
+  },
+  {
     name: "notebook image with -e PROXY_SERVER_HTTPS_CONNECTION=true refuses with the conflict",
     image: notebookImage,
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
     expected: notebookConflict,
   },
   {
-    row: 10,
+    name: "notebook image with -e PROXY_SERVER_HTTPS_CONNECTION=TRUE refuses with the conflict",
+    image: notebookImage,
+    dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "TRUE" },
+    expected: {
+      ...notebookConflict,
+      envFile: {
+        ...notebookConflict.envFile,
+        PROXY_SERVER_HTTPS_CONNECTION: "TRUE",
+      },
+    },
+  },
+  {
     name: "notebook image with -e PROXY_SERVER_HTTPS_CONNECTION=true and no HOST still reaches the conflict",
     image: notebookImage,
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
@@ -307,14 +263,12 @@ const deployments: Deployment[] = [
     expected: notebookConflict,
   },
   {
-    row: 11,
     name: "notebook preset with config.json HTTPS true refuses with the conflict",
     image: notebookImage,
     configJson: { NEPTUNE_NOTEBOOK: true, PROXY_SERVER_HTTPS_CONNECTION: true },
     expected: notebookConflict,
   },
   {
-    row: 12,
     name: "notebook preset with config.json HTTPS false serves HTTP on 9250",
     image: notebookImage,
     configJson: {
@@ -324,49 +278,19 @@ const deployments: Deployment[] = [
     expected: notebookPreset,
   },
   {
-    row: 13,
-    name: "notebook preset forces GRAPH_EXP_HTTPS_CONNECTION=false over -e",
+    name: "notebook preset writes GRAPH_EXP_HTTPS_CONNECTION=false to .env over -e",
     image: notebookImage,
     dockerEnv: { GRAPH_EXP_HTTPS_CONNECTION: "true" },
     expected: notebookPreset,
   },
   {
-    row: 13,
-    name: "notebook preset forces GRAPH_EXP_HTTPS_CONNECTION=false over config.json",
+    name: "notebook preset writes GRAPH_EXP_HTTPS_CONNECTION=false to .env over config.json",
     image: notebookImage,
     configJson: { NEPTUNE_NOTEBOOK: true, GRAPH_EXP_HTTPS_CONNECTION: true },
     expected: notebookPreset,
   },
-  {
-    row: 20,
-    name: "notebook image with -e PROXY_SERVER_HTTPS_CONNECTION=true still refuses with the conflict after a restart",
-    image: notebookImage,
-    dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
-    restart: true,
-    expected: notebookConflict,
-  },
-  {
-    row: 20,
-    name: "notebook image run by the SageMaker lifecycle script still serves HTTP after a restart",
-    image: notebookImage,
-    dockerEnv: {
-      HOST: "127.0.0.1",
-      PROXY_SERVER_HTTPS_CONNECTION: "false",
-      NEPTUNE_NOTEBOOK: "true",
-    },
-    restart: true,
-    expected: notebookPreset,
-  },
-  {
-    row: 20,
-    name: "standard image with nothing about HTTPS set still serves TLS after a restart",
-    image: standardImage,
-    restart: true,
-    expected: standardTls,
-  },
   ...["TRUE", "True", "1", "yes"].flatMap((value): Deployment[] => [
     {
-      row: 14,
       name: `-e NEPTUNE_NOTEBOOK=${value} is not the preset and defaults to TLS`,
       image: standardImage,
       dockerEnv: { NEPTUNE_NOTEBOOK: value },
@@ -376,7 +300,6 @@ const deployments: Deployment[] = [
       },
     },
     {
-      row: 14,
       name: `-e NEPTUNE_NOTEBOOK=${value} with HTTPS off serves HTTP`,
       image: standardImage,
       dockerEnv: {
@@ -390,79 +313,134 @@ const deployments: Deployment[] = [
     },
   ]),
   {
-    row: 15,
     // The shell treats the empty value as unset and writes the TLS default,
     // but dotenv never overrides a variable already in the environment, so
     // the server reads the empty value directly and its schema rejects it.
     name: "standard image with -e PROXY_SERVER_HTTPS_CONNECTION= generates certificates but fails the environment parse",
     image: standardImage,
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "" },
-    expected: { ...standardTls, server: environmentParseFailure },
+    expected: {
+      ...standardTls,
+      startup: parseFailureAt("PROXY_SERVER_HTTPS_CONNECTION"),
+    },
   },
   {
-    row: 16,
     // config.json replaces the image's NEPTUNE_NOTEBOOK, and a missing key
     // reads as unset, so the preset is off.
     name: "notebook image with config.json HTTPS true and no NEPTUNE_NOTEBOOK key serves TLS",
     image: notebookImage,
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: true },
-    expected: {
-      ...standardTls,
-      server: { ...https, logStyle: "cloudwatch" },
-    },
+    expected: standardTls,
   },
+  ...[
+    { image: standardImage, imageName: "standard" },
+    { image: notebookImage, imageName: "notebook" },
+  ].flatMap(({ image, imageName }): Deployment[] => [
+    {
+      // config.json replaces -e NEPTUNE_NOTEBOOK too, even when it lacks the
+      // key.
+      name: `${imageName} image with -e NEPTUNE_NOTEBOOK=true and a config.json without the key drops the preset and defaults to TLS`,
+      image,
+      dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
+      configJson: {},
+      expected: standardTls,
+    },
+    {
+      name: `${imageName} image with config.json NEPTUNE_NOTEBOOK and HTTPS true and no HOST refuses with the conflict`,
+      image,
+      configJson: {
+        NEPTUNE_NOTEBOOK: true,
+        PROXY_SERVER_HTTPS_CONNECTION: true,
+      },
+      host: false,
+      expected: notebookConflict,
+    },
+  ]),
   {
-    row: 17,
     name: "standard image with config.json NEPTUNE_NOTEBOOK and HTTPS true refuses with the conflict",
     image: standardImage,
     configJson: { NEPTUNE_NOTEBOOK: true, PROXY_SERVER_HTTPS_CONNECTION: true },
     expected: notebookConflict,
   },
   {
-    row: 18,
     name: "notebook image with config.json NEPTUNE_NOTEBOOK false defaults to TLS",
     image: notebookImage,
     configJson: { NEPTUNE_NOTEBOOK: false },
-    expected: {
-      ...standardTls,
-      server: { ...https, logStyle: "cloudwatch" },
-    },
+    expected: standardTls,
   },
   {
-    row: 19,
     name: "standard image with config.json NEPTUNE_NOTEBOOK true applies the preset but keeps port 80",
     image: standardImage,
     configJson: { NEPTUNE_NOTEBOOK: true },
-    expected: { ...notebookPreset, server: http },
+    expected: { ...notebookPreset, startup: http },
+  },
+  {
+    name: "notebook image with -e PROXY_SERVER_HTTPS_CONNECTION=true still refuses with the conflict after a restart",
+    image: notebookImage,
+    dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
+    restart: true,
+    expected: notebookConflict,
+  },
+  {
+    name: "notebook image run by the SageMaker lifecycle script still serves HTTP after a restart",
+    image: notebookImage,
+    dockerEnv: {
+      HOST: "127.0.0.1",
+      PROXY_SERVER_HTTPS_CONNECTION: "false",
+      NEPTUNE_NOTEBOOK: "true",
+    },
+    restart: true,
+    expected: notebookPreset,
+  },
+  {
+    name: "standard image with nothing about HTTPS set still serves TLS after a restart",
+    image: standardImage,
+    restart: true,
+    expected: standardTls,
   },
 ];
 
-/** What the server does at startup: the listener it opens, or its refusal. */
-function serverOutcome(env: EnvironmentValues) {
-  try {
-    const { useHttps, port } = resolveServerConfig(env);
-    return { useHttps, port, logStyle: env.LOG_STYLE };
-  } catch (error) {
-    return error;
-  }
-}
-
-/** Thrown by the mocked `process.exit` so a parse failure can be caught. */
-class ProcessExitSignal extends Error {}
-
 /**
- * What the server does at startup, including a failure to parse the
- * environment at all. Callers must mock `process.exit` to throw
- * {@link ProcessExitSignal} before calling this.
+ * Parses `serverEnv` and resolves the server config, as the server does at
+ * startup, with the certificate files present only if `certificatesExist`.
  */
-function environmentOutcome(serverEnv: Record<string, string | undefined>) {
+function startupOutcome(
+  serverEnv: Record<string, string | undefined>,
+  certificatesExist: boolean,
+): StartupOutcome {
+  const existsSync = fs.existsSync;
+  const existsSpy = vi
+    .spyOn(fs, "existsSync")
+    .mockImplementation(p =>
+      p === expectedKeyPath || p === expectedCertPath
+        ? certificatesExist
+        : existsSync(p),
+    );
+  const errorSpy = vi
+    .spyOn(console, "error")
+    .mockImplementation(() => undefined);
+  const exitSignal = new Error("process.exit");
+  const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {
+    throw exitSignal;
+  });
+
   try {
-    return serverOutcome(parseEnvironmentValues(serverEnv));
+    const { useHttps, port } = resolveServerConfig(
+      parseEnvironmentValues(serverEnv),
+    );
+    return { useHttps, port };
   } catch (error) {
-    if (error instanceof ProcessExitSignal) {
-      return environmentParseFailure;
+    if (error === exitSignal) {
+      return { parseError: errorSpy.mock.calls.join("\n") };
+    }
+    if (error instanceof ServerConfigError) {
+      return { serverConfigError: error.message };
     }
     throw error;
+  } finally {
+    existsSpy.mockRestore();
+    errorSpy.mockRestore();
+    exitSpy.mockRestore();
   }
 }
 
@@ -482,9 +460,12 @@ describe("deployment scenarios: entrypoint → dotenv → Zod → server config"
     fs.rmSync(workDir, { recursive: true, force: true });
   });
 
-  it.each(deployments)(
-    "row $row: $name",
-    ({ image, dockerEnv, configJson, host, restart, expected }) => {
+  // "%s" prints the whole name, where "$name" truncates it at 40 characters.
+  it.each(
+    deployments.map(deployment => [deployment.name, deployment] as const),
+  )(
+    "%s",
+    (_name, { image, dockerEnv, configJson, host, restart, expected }) => {
       if (configJson) {
         fs.writeFileSync(
           path.join(workDir, "config.json"),
@@ -496,18 +477,8 @@ describe("deployment scenarios: entrypoint → dotenv → Zod → server config"
         ...image,
         ...dockerEnv,
       };
-
-      const existsSync = fs.existsSync;
+      // Certificates stay on disk across a restart.
       let certificatesExist = false;
-      vi.spyOn(fs, "existsSync").mockImplementation(p =>
-        p === expectedKeyPath || p === expectedCertPath
-          ? certificatesExist
-          : existsSync(p),
-      );
-      vi.spyOn(console, "error").mockImplementation(() => undefined);
-      vi.spyOn(process, "exit").mockImplementation(() => {
-        throw new ProcessExitSignal();
-      });
 
       function startContainer() {
         const sslCalled = path.join(workDir, "ssl-called");
@@ -522,7 +493,6 @@ describe("deployment scenarios: entrypoint → dotenv → Zod → server config"
           fs.readFileSync(path.join(configDir, ".env"), "utf-8"),
         );
         const certificatesGenerated = fs.existsSync(sslCalled);
-        // Certificates stay on disk across a restart.
         certificatesExist ||= certificatesGenerated;
         const serverEnvironment = readServerEnvironment(workDir);
 
@@ -533,7 +503,10 @@ describe("deployment scenarios: entrypoint → dotenv → Zod → server config"
           certificatesGenerated,
           serverNeptuneNotebook: serverEnvironment.NEPTUNE_NOTEBOOK,
           // dotenv.config() never overwrites a key already in process.env.
-          server: environmentOutcome({ ...envFile, ...serverEnvironment }),
+          startup: startupOutcome(
+            { ...envFile, ...serverEnvironment },
+            certificatesExist,
+          ),
         };
       }
 
@@ -543,13 +516,11 @@ describe("deployment scenarios: entrypoint → dotenv → Zod → server config"
         serverStarted: firstStart.serverStarted,
         envFile: firstStart.envFile,
         certificatesGenerated: firstStart.certificatesGenerated,
-        server: firstStart.server,
+        startup: firstStart.startup,
       }).toStrictEqual({
         exitCode: 0,
         serverStarted: true,
-        envFile: expected.envFile,
-        certificatesGenerated: expected.certificatesGenerated,
-        server: expected.server,
+        ...expected,
       });
 
       const lastStart = restart ? startContainer() : firstStart;
