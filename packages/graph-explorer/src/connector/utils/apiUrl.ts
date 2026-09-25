@@ -13,10 +13,16 @@ import { ReverseProxyMisconfiguredError } from "@/utils";
  * trailing slash.
  */
 export function apiUrl(endpoint: string): URL {
-  return new URL(
+  const url = new URL(
     `${resolveApiRoot(location.pathname)}${endpoint}`,
     location.origin,
   );
+  // A path starting with "//" resolves as a network-path reference to
+  // another host.
+  if (url.origin !== location.origin) {
+    throw new ReverseProxyMisconfiguredError(location.pathname);
+  }
+  return url;
 }
 
 /**

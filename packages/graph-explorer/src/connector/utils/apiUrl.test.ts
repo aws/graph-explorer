@@ -74,6 +74,14 @@ describe("apiUrl", () => {
     );
   });
 
+  test("throws when the document path would resolve the API root to another origin", () => {
+    stubDocumentUrl("http://localhost//evil.com/explorer/");
+
+    expect(() => apiUrl("gremlin")).toThrow(
+      new ReverseProxyMisconfiguredError("//evil.com/explorer/"),
+    );
+  });
+
   test("preserves the query string on the endpoint", () => {
     stubDocumentUrl("http://localhost/explorer/");
 
