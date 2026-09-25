@@ -59,6 +59,21 @@ describe("CreateConnection", () => {
     });
   });
 
+  test("labels the override field Neighbor Expansion Limit", async () => {
+    const user = userEvent.setup();
+    renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: /Override Default Neighbor Expansion Limit/,
+      }),
+    );
+
+    expect(
+      screen.getByRole("spinbutton", { name: "Neighbor Expansion Limit" }),
+    ).toBeInTheDocument();
+  });
+
   test("rejects a URL that is empty after normalization", async () => {
     const user = userEvent.setup();
     const store = renderCreateConnection(

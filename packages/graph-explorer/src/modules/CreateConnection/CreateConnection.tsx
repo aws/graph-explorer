@@ -445,9 +445,9 @@ const CreateConnection = ({
         </FormItem>
         {form.nodeExpansionLimitEnabled && (
           <FormItem>
-            <Label>Node Expansion Limit</Label>
+            <Label>Neighbor Expansion Limit</Label>
             <InputField
-              aria-label="Node Expansion Limit"
+              aria-label="Neighbor Expansion Limit"
               type="number"
               value={form.nodeExpansionLimit}
               onChange={onFormChange("nodeExpansionLimit")}
