@@ -3,7 +3,9 @@ import { z } from "zod";
 /** Coerces a string to a boolean value in a case insensitive way. */
 const BooleanStringSchema = z
   .string()
-  .refine(s => s.toLowerCase() === "true" || s.toLowerCase() === "false")
+  .refine(s => s.toLowerCase() === "true" || s.toLowerCase() === "false", {
+    message: 'Must be "true" or "false" (case-insensitive)',
+  })
   .transform(s => s.toLowerCase() === "true");
 
 /** Schema for the environment values we expect along with their defaults. */
