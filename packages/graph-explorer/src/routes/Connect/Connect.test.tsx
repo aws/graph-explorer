@@ -132,6 +132,24 @@ describe("Connect route", () => {
     ).toBeChecked();
   });
 
+  // Neptune Analytics only speaks openCypher; the create form normally forces
+  // this by disabling the picker when the service type is selected, but a
+  // link never goes through that handler, so the schema must resolve the same
+  // default the form would have forced.
+  test("opens the create form with openCypher when the link targets neptune-graph", () => {
+    new DbState().applyTo(getAppStore());
+
+    renderConnect(
+      `?graphDbUrl=${encodeURIComponent(
+        "https://g-xxx.us-west-2.neptune-graph.amazonaws.com",
+      )}&awsRegion=us-west-2&serviceType=neptune-graph`,
+    );
+
+    expect(
+      screen.getByText("OpenCypher - PG (Property Graph)"),
+    ).toBeInTheDocument();
+  });
+
   // The form is the page, not a layer over it, so it renders in place and
   // leaves the rest of the page usable.
   test("renders the create form in the page rather than as a modal", () => {

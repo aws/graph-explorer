@@ -45,10 +45,12 @@ const ConnectionLinkParamsSchema = z
     // Absent values take a default, but an explicit value we do not support is a
     // rejection rather than a coercion: silently answering `queryEngine=sql` with
     // Gremlin would build a connection that queries the database in a language the
-    // caller never asked for.
+    // caller never asked for. The default itself depends on `serviceType`
+    // (Neptune Analytics only speaks openCypher), so it is resolved below
+    // rather than here.
     queryEngine: z
       .enum(queryEngineOptions, { error: mustBeOneOf(queryEngineOptions) })
-      .default("gremlin"),
+      .optional(),
     awsRegion: z.string().default(""),
     serviceType: z
       .enum(neptuneServiceTypeOptions, {
@@ -63,10 +65,30 @@ const ConnectionLinkParamsSchema = z
       .optional()
       .transform(name => name || undefined),
   })
+  // Neptune Analytics (`neptune-graph`) only speaks openCypher. An explicit
+  // `queryEngine` naming anything else is a rejection, same as any other
+  // unsupported explicit value; an absent one defaults to openCypher instead
+  // of the general gremlin default.
+  .superRefine((data, ctx) => {
+    if (
+      data.serviceType === "neptune-graph" &&
+      data.queryEngine !== undefined &&
+      data.queryEngine !== "openCypher"
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message: 'must be "openCypher" when serviceType is "neptune-graph"',
+        path: ["queryEngine"],
+      });
+    }
+  })
   // A nameless link takes the hostname `deriveNameFromUrl` would have produced,
   // so `name` is always a usable display label after parsing.
   .transform(data => ({
     ...data,
+    queryEngine:
+      data.queryEngine ??
+      (data.serviceType === "neptune-graph" ? "openCypher" : "gremlin"),
     name: data.name ?? deriveNameFromUrl(data.graphDbUrl),
   }));
 

@@ -170,6 +170,46 @@ describe("readConnectionLink", () => {
     ).toEqual(['queryEngine must be one of "gremlin", "openCypher", "sparql"']);
   });
 
+  // Neptune Analytics only speaks openCypher, so the create form always
+  // forces it and disables the picker. A link omitting queryEngine must
+  // resolve to the same value the form would have forced, rather than the
+  // general gremlin default.
+  describe("queryEngine default depends on serviceType", () => {
+    test("defaults to openCypher for neptune-graph when queryEngine is omitted", () => {
+      expect(
+        paramsOf(
+          "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&serviceType=neptune-graph",
+        ).queryEngine,
+      ).toBe("openCypher");
+    });
+
+    test("rejects gremlin for neptune-graph rather than silently switching engines", () => {
+      expect(
+        problemsOf(
+          "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&serviceType=neptune-graph&queryEngine=gremlin",
+        ),
+      ).toEqual([
+        'queryEngine must be "openCypher" when serviceType is "neptune-graph"',
+      ]);
+    });
+
+    test("accepts openCypher for neptune-graph", () => {
+      expect(
+        paramsOf(
+          "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&serviceType=neptune-graph&queryEngine=openCypher",
+        ).queryEngine,
+      ).toBe("openCypher");
+    });
+
+    test("defaults to gremlin for neptune-db when queryEngine is omitted", () => {
+      expect(
+        paramsOf(
+          "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune.amazonaws.com&serviceType=neptune-db",
+        ).queryEngine,
+      ).toBe("gremlin");
+    });
+  });
+
   test("rejects an unsupported serviceType instead of dropping it", () => {
     expect(
       problemsOf(
