@@ -77,6 +77,8 @@ type Deployment = {
    * null, a number, or an arbitrary string instead of a JSON boolean.
    */
   configJson?: Record<string, boolean | string | number | null>;
+  /** Lines already in `.env` before the first start, as an operator might mount. */
+  existingEnvFile?: Record<string, string>;
   /** Every row sets HOST=localhost unless this is false or `-e` sets it. */
   host?: false;
   /**
@@ -160,6 +162,18 @@ const deployments: Deployment[] = [
       PROXY_SERVER_HTTP_PORT: "8080",
     },
     expected: { ...standardHttp, startup: { useHttps: false, port: 8080 } },
+  },
+  {
+    // The image's ENV already sets the port, and dotenv never overrides a
+    // variable that's already set.
+    name: "standard image with PROXY_SERVER_HTTP_PORT=8080 already in .env keeps the image's port 80",
+    image: standardImage,
+    existingEnvFile: { PROXY_SERVER_HTTP_PORT: "8080" },
+    dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
+    expected: {
+      ...standardHttp,
+      envFile: { PROXY_SERVER_HTTP_PORT: "8080", ...standardHttp.envFile },
+    },
   },
   {
     name: "standard image with -e PROXY_SERVER_HTTPS_CONNECTION=true serves TLS",
@@ -527,6 +541,7 @@ describe("deployment scenarios: entrypoint → dotenv → Zod → server config"
         image,
         dockerEnv,
         configJson,
+        existingEnvFile,
         host,
         restart,
         restartCertificatesGenerated,
@@ -537,6 +552,14 @@ describe("deployment scenarios: entrypoint → dotenv → Zod → server config"
         fs.writeFileSync(
           path.join(workDir, "config.json"),
           JSON.stringify(configJson),
+        );
+      }
+      if (existingEnvFile) {
+        fs.writeFileSync(
+          path.join(configDir, ".env"),
+          Object.entries(existingEnvFile)
+            .map(([key, value]) => `${key}=${value}\n`)
+            .join(""),
         );
       }
       const containerEnv = {
