@@ -14,6 +14,7 @@ import {
   edgesTypesFilteredAtom,
   type EdgeType,
   explorerForTestingAtom,
+  type GraphSessionStorageModel,
   type GraphViewLayout,
   graphViewLayoutAtom,
   mapEdgeToTypeConfig,
@@ -34,6 +35,7 @@ import {
   userVertexStylesAtom,
   type VertexType,
 } from "@/core";
+import { DEFAULT_GRAPH_LAYOUT } from "@/core/graphLayout";
 
 import { createMockExplorer } from "./createMockExplorer";
 import {
@@ -59,6 +61,7 @@ export class DbState {
   edgeStyles: Map<EdgeType, EdgeStyleStorage>;
   graphViewLayout: GraphViewLayout;
   schemaViewLayout: SchemaViewLayout;
+  graphSession?: GraphSessionStorageModel;
 
   explorer: Explorer;
 
@@ -215,6 +218,11 @@ export class DbState {
     return this;
   }
 
+  withGraphSession(session: GraphSessionStorageModel) {
+    this.graphSession = session;
+    return this;
+  }
+
   /** Applies the state to the given Jotai store. */
   applyTo(store: AppStore) {
     // Config
@@ -256,9 +264,10 @@ export class DbState {
       new Map([
         [
           this.activeConfig.id,
-          {
+          this.graphSession ?? {
             vertices: new Set(this.vertices.map(v => v.id)),
             edges: new Set(this.edges.map(e => e.id)),
+            layout: DEFAULT_GRAPH_LAYOUT,
           },
         ],
       ]),

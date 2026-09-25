@@ -1,19 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
-import { useSetAtom } from "jotai";
-import { useAtomCallback } from "jotai/utils";
-import { useCallback } from "react";
 import { toast } from "sonner";
 
 import {
-  activeSchemaSelector,
-  createVertexTypeLookup,
   type Edge,
-  edgesAtom,
   type Entities,
-  nodesAtom,
-  toEdgeMap,
-  toNodeMap,
-  updateSchemaFromEntities,
+  usePopulateGraph,
   useUpdateGraphSession,
   type Vertex,
 } from "@/core";
@@ -22,61 +13,13 @@ import { createDisplayError } from "@/utils/createDisplayError";
 
 /** Returns a callback that adds an array of nodes and edges to the graph. */
 export function useAddToGraph() {
-  const setVertices = useSetAtom(nodesAtom);
-  const setEdges = useSetAtom(edgesAtom);
-  const setActiveSchema = useSetAtom(activeSchemaSelector);
+  const populateGraph = usePopulateGraph();
   const updateGraphStorage = useUpdateGraphSession();
 
-  const getCanvasVertices = useAtomCallback(
-    useCallback(get => get(nodesAtom), []),
-  );
-
-  // async is required because useMutation expects a Promise return type
-  // oxlint-disable-next-line @typescript-eslint/require-await
-  return async (entities: Partial<Entities>) => {
-    const newVerticesMap = toNodeMap(entities.vertices ?? []);
-    const newEdgesMap = toEdgeMap(entities.edges ?? []);
-
-    // Ensure there is something to add
-    if (newVerticesMap.size === 0 && newEdgesMap.size === 0) {
-      return;
-    }
-
-    // Build vertex lookup from batch + canvas before modifying state
-    // Batch vertices take priority over canvas vertices
-    const vertexLookup = createVertexTypeLookup(
-      newVerticesMap,
-      getCanvasVertices(),
-    );
-
-    // Add new vertices to the graph
-    if (newVerticesMap.size > 0) {
-      logger.debug("Adding vertices to graph", newVerticesMap);
-      setVertices(prev => new Map([...prev, ...newVerticesMap]));
-    }
-
-    // Add new edges to the graph
-    if (newEdgesMap.size > 0) {
-      logger.debug("Adding edges to graph", newEdgesMap);
-      setEdges(prev => new Map([...prev, ...newEdgesMap]));
-    }
-
-    // Update the schema with any new vertex or edge types or attributes
-    setActiveSchema(prev => {
-      if (!prev) {
-        return prev;
-      }
-      return updateSchemaFromEntities(
-        {
-          vertices: newVerticesMap.values().toArray(),
-          edges: newEdgesMap.values().toArray(),
-        },
-        prev,
-        vertexLookup,
-      );
-    });
-
+  return (entities: Partial<Entities>) => {
+    populateGraph(entities);
     updateGraphStorage();
+    return Promise.resolve();
   };
 }
 

@@ -291,6 +291,7 @@ test("should update graph storage when adding a node", async () => {
   const expectedGraph: GraphSessionStorageModel = {
     vertices: new Set([vertex.id]),
     edges: new Set(),
+    layout: "F_COSE",
   };
 
   expect(result.current.graph).toStrictEqual(expectedGraph);
@@ -317,6 +318,7 @@ test("should update graph storage when adding an edge", async () => {
   const expectedGraph: GraphSessionStorageModel = {
     vertices: new Set([node1.id, node2.id]),
     edges: new Set([edge.id]),
+    layout: "F_COSE",
   };
 
   expect(result.current.graph).toStrictEqual(expectedGraph);
@@ -439,7 +441,25 @@ test("should ignore blank nodes when updating graph storage", async () => {
   const expectedGraph: GraphSessionStorageModel = {
     vertices: new Set([vertex.id]),
     edges: new Set(),
+    layout: "F_COSE",
   };
 
   expect(result.current.graph).toStrictEqual(expectedGraph);
+});
+
+test("does not create an empty session when adding only blank nodes", async () => {
+  const dbState = new DbState();
+
+  const blankNode = createRandomVertexForRdf();
+  blankNode.isBlankNode = true;
+
+  const { result } = renderHookWithState(() => {
+    const callback = useAddToGraph();
+    const graph = useAtomValue(activeGraphSessionAtom);
+    return { callback, graph };
+  }, dbState);
+
+  await act(() => result.current.callback({ vertices: [blankNode] }));
+
+  expect(result.current.graph).toBeNull();
 });
