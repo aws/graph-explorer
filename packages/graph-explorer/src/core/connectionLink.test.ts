@@ -146,10 +146,20 @@ describe("readConnectionLink", () => {
           "https://evil.tld\\@prod.cluster-abc.us-east-1.neptune.amazonaws.com:8182",
         )}`,
       ),
-    ).toEqual(["graphDbUrl must be written exactly as the URL it resolves to"]);
+    ).toEqual(["graphDbUrl cannot contain a backslash"]);
   });
 
-  test("accepts ordinary URLs that round-trip through href unchanged", () => {
+  test("accepts an explicit default port", () => {
+    expect(
+      paramsOf(
+        `?graphDbUrl=${encodeURIComponent(
+          "https://g-abc.us-east-1.neptune-graph.amazonaws.com:443",
+        )}`,
+      ).graphDbUrl,
+    ).toBe("https://g-abc.us-east-1.neptune-graph.amazonaws.com:443");
+  });
+
+  test("accepts ordinary URLs", () => {
     expect(
       paramsOf(
         `?graphDbUrl=${encodeURIComponent(

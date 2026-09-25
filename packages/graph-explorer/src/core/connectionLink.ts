@@ -50,8 +50,8 @@ const ConnectionLinkParamsSchema = z
       .refine(value => !hasCredentials(value), {
         error: "cannot include a username or password",
       })
-      .refine(readsBackAsWritten, {
-        error: "must be written exactly as the URL it resolves to",
+      .refine(hasNoBackslash, {
+        error: "cannot contain a backslash",
       }),
     // Absent values take a default, but an explicit value we do not support is a
     // rejection rather than a coercion: silently answering `queryEngine=sql` with
@@ -136,33 +136,13 @@ function safeParseUrl(value: string): URL | null {
 }
 
 /**
- * Whether a graphDbUrl reads back as the same URL a person looking at it would
- * expect. WHATWG URL parsing treats a backslash as a forward slash for
- * http(s) URLs, so `https://evil.tld\@prod.neptune.amazonaws.com` parses with
- * an empty username and host `evil.tld` — passing both `url()` and the
- * credentials check while displaying as if it targets `prod.neptune...`.
- * Rejecting a literal backslash, and any URL whose re-serialized `href`
- * doesn't match the input (a trailing slash and casing aside), closes that gap
- * without rejecting ordinary URLs, which already round-trip through `href`
- * unchanged.
+ * WHATWG URL parsing reads a backslash as `/` in http(s) URLs, so
+ * `https://evil.tld\@prod.neptune.amazonaws.com` resolves to `evil.tld` while
+ * reading as a Neptune host. The create form shows the raw string, so it has
+ * to name the host that is actually contacted.
  */
-function readsBackAsWritten(graphDbUrl: string): boolean {
-  if (graphDbUrl.includes("\\")) {
-    return false;
-  }
-  const parsed = safeParseUrl(graphDbUrl);
-  if (!parsed) {
-    // Not a URL at all; the `url()` check already reports this.
-    return true;
-  }
-  return (
-    withoutTrailingSlash(parsed.href).toLowerCase() ===
-    withoutTrailingSlash(graphDbUrl).toLowerCase()
-  );
-}
-
-function withoutTrailingSlash(value: string): string {
-  return value.replace(/\/$/, "");
+function hasNoBackslash(graphDbUrl: string): boolean {
+  return !graphDbUrl.includes("\\");
 }
 
 /**

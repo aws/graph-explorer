@@ -76,7 +76,7 @@ In every case Graph Explorer replaces the `#/connect` URL once the link is handl
 - `graphDbUrl` is missing or empty. The `#/connect` route exists only for connection links, so a link with nothing to connect to is invalid rather than a silent no-op.
 - `graphDbUrl` is not a valid URL, or does not use `http`/`https`.
 - `graphDbUrl` includes a username or password. Graph Explorer authenticates with AWS IAM, and browsers refuse to send a request to a URL that carries credentials.
-- `graphDbUrl` doesn't read back as the URL it parses to (for example, a backslash before an `@`, which browsers treat as a slash). A URL a person can't read at face value is rejected even if it would otherwise parse.
+- `graphDbUrl` contains a backslash. Browsers read a backslash as a slash, so a link could otherwise show one host and connect to another.
 - `queryEngine` names something other than `gremlin`, `openCypher`, or `sparql`, or names anything other than `openCypher` while `serviceType` is `neptune-graph`.
 - `serviceType` names something other than `neptune-db` or `neptune-graph`.
 - `awsRegion` is present but not shaped like an AWS region (for example `us-east-1`).
