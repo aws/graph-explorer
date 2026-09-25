@@ -13,7 +13,7 @@ A directed relationship between two vertices (source → target), with a type an
 _Avoid_: Relationship, link
 
 **Graph Database**:
-The external graph database a user connects to and explores — the source of all vertices and edges, reached over HTTP via a Connection. It is the user's own data, brought along and queried live; distinct from the local persisted app state (connections, schema cache, styles, sessions, layout) that Graph Explorer keeps in the browser's IndexedDB.
+The external graph database a user connects to and explores — the source of all vertices and edges, reached over HTTP via a Connection. It is the user's own data, brought along and queried live; distinct from the local app state (connections, schema cache, styles, sessions) that Graph Explorer keeps in the browser's IndexedDB, plus per-tab layout in sessionStorage.
 _Avoid_: Database (ambiguous — clarify remote graph database vs. local persisted state)
 
 **Connection**:
@@ -74,7 +74,7 @@ The set of vertices and edges a user has loaded through exploration for a given 
 _Avoid_: State, workspace
 
 **Graph View**:
-The interactive canvas where vertices and edges are visualized using Cytoscape.js. Users explore the graph here by expanding neighbors and applying layouts. Nav label: "Graph".
+The interactive canvas where vertices and edges are visualized using Cytoscape.js. Users explore the graph here by expanding neighbors and applying a Layout. Nav label: "Graph".
 _Avoid_: Graph Explorer (ambiguous with the product name)
 
 **Data Table View**:
@@ -84,6 +84,26 @@ _Avoid_: Data Explorer (legacy route name)
 **Schema View**:
 Visual representation of the Schema — shows vertex types and their edge connections as a graph.
 _Avoid_: Schema Explorer (legacy route name)
+
+**Layout**:
+The algorithm that positions vertices on the Graph View canvas, chosen from the layout picker and run by Cytoscape (`LayoutName`). The unqualified word always means this.
+_Avoid_: View Layout (a different concept, below), graph arrangement
+
+**View Layout**:
+The per-tab UI state of a view: which sidebar panel is active, how wide the sidebar is, and which content is toggled on. A per-tab Storage Scope concept, so it survives a tab's reload but not its close, and a fresh tab starts from the View Layout most recently used. The two are Graph View Layout and Schema View Layout. Never shortened to Layout, which is the positioning algorithm.
+_Avoid_: Layout (means the algorithm), preferences, settings
+
+**Graph View Layout**:
+The View Layout for the Graph View — active sidebar panel, sidebar width, active content toggles, table-view height, and the details-auto-open preference.
+_Avoid_: Graph preferences, graph settings
+
+**Schema View Layout**:
+The View Layout for the Schema View — active sidebar panel, sidebar width, and the details-auto-open preference.
+_Avoid_: Schema preferences, schema settings
+
+**Storage Scope**:
+The cross-tab behavior a persisted atom picks at creation, so scope is a visible decision rather than a side effect of which factory was reached for. Three named scopes: **per-tab**, where tabs diverge and a fresh tab starts from the value most recently used; **shared-reconciled**, where a Map-keyed collection is merged per key across tabs; and **shared-blind-write**, where each write is the whole value. See the `per-tab-session-scoped-storage-primitive` ADR for which atoms use which, and `per-key-diff-merge-cross-tab-reconciliation` for the merge rule.
+_Avoid_: Persistence mode, storage strategy
 
 **Edge Connection**:
 A schema-level pattern describing how two vertex types can be related via an edge type: sourceVertexType --[edgeType]--> targetVertexType. What the Schema View visualizes. Not an actual edge instance.
@@ -149,6 +169,9 @@ _Avoid_: Save-status indicator
 - **Neighbors** are **Vertices** one hop away from a given **Vertex**
 - **Styles** are scoped per **Vertex Type** (**Vertex Styles**) and **Edge Type** (**Edge Styles**)
 - The **Graph View**, **Data Table View**, and **Schema View** all render from the same **Session** and **Schema**
+- Each browser tab has its own **View Layout** per view, the same divergence as **Active Connection**
+- A **Layout** positions **Vertices** on the **Graph View** canvas and is not part of any **View Layout**
+- Every persisted atom picks one of the three **Storage Scopes** at creation
 
 ## Example dialogue
 

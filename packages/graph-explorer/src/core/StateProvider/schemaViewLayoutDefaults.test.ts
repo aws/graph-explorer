@@ -1,4 +1,8 @@
+import { z } from "zod";
+
 import {
+  defaultSchemaViewLayout,
+  schemaViewLayoutCodec,
   transformSchemaViewLayout,
   type SchemaViewLayout,
 } from "./schemaViewLayoutDefaults";
@@ -51,5 +55,43 @@ describe("transformSchemaViewLayout backward compatibility", () => {
     };
 
     expect(transformSchemaViewLayout(layout)).toBe(layout);
+  });
+});
+
+describe("schemaViewLayoutCodec", () => {
+  test("round-trips a layout through serialize/deserialize", () => {
+    const layout: SchemaViewLayout = {
+      activeSidebarItem: "styles",
+      sidebar: { width: 321 },
+      detailsAutoOpenOnSelection: false,
+    };
+
+    expect(
+      schemaViewLayoutCodec.deserialize(
+        schemaViewLayoutCodec.serialize(layout),
+      ),
+    ).toStrictEqual(layout);
+  });
+
+  test("round-trips the default layout", () => {
+    expect(
+      schemaViewLayoutCodec.deserialize(
+        schemaViewLayoutCodec.serialize(defaultSchemaViewLayout),
+      ),
+    ).toStrictEqual(defaultSchemaViewLayout);
+  });
+
+  test("treats an absent value as a miss", () => {
+    expect(schemaViewLayoutCodec.deserialize(null)).toBeNull();
+    expect(schemaViewLayoutCodec.deserialize("")).toBeNull();
+  });
+
+  test("throws on a corrupt value so the seam can discard it", () => {
+    // Asserted by type, not instance: these errors come from JSON.parse and
+    // zod, whose messages shift between engine and library versions.
+    expect(() => schemaViewLayoutCodec.deserialize("{ not json")).toThrow(
+      SyntaxError,
+    );
+    expect(() => schemaViewLayoutCodec.deserialize("{}")).toThrow(z.ZodError);
   });
 });

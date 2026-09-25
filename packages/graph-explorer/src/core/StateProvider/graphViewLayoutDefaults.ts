@@ -1,17 +1,28 @@
+import { z } from "zod";
+
+import {
+  parseSessionJson,
+  type SessionValueCodec,
+} from "./sessionScopedStorage";
+
 /** The two main content views that can be toggled on or off. */
-export const toggleableViews = ["graph-viewer", "table-view"] as const;
-export type ToggleableView = (typeof toggleableViews)[number];
+export const toggleableViewSchema = z.enum(["graph-viewer", "table-view"]);
+export type ToggleableView = z.infer<typeof toggleableViewSchema>;
+/** The toggleable views as a readonly tuple, e.g. for random test selection. */
+export const toggleableViews = toggleableViewSchema.options;
 
 /** Identifiers for the graph view sidebar panels. */
-export const graphViewSidebarItems = [
+export const graphViewSidebarItemSchema = z.enum([
   "search",
   "details",
   "filters",
   "expand",
   "styles",
   "namespaces",
-] as const;
-export type GraphViewSidebarItem = (typeof graphViewSidebarItems)[number];
+]);
+export type GraphViewSidebarItem = z.infer<typeof graphViewSidebarItemSchema>;
+/** The sidebar panels as a readonly tuple, e.g. for random test selection. */
+export const graphViewSidebarItems = graphViewSidebarItemSchema.options;
 
 /**
  * Legacy `activeSidebarItem` values, from when node and edge styling were two
@@ -35,14 +46,24 @@ export function transformLegacySidebarItem<
     : item;
 }
 
-/** Persisted layout preferences for the graph view. */
-export type GraphViewLayout = {
-  activeSidebarItem: GraphViewSidebarItem | null;
-  sidebar: { width: number };
-  activeToggles: Set<ToggleableView>;
-  tableView?: { height: number };
-  detailsAutoOpenOnSelection?: boolean;
-};
+/**
+ * Persisted layout preferences for the graph view, and the single declaration of
+ * that shape so the runtime type and the parser cannot drift apart. The schema's
+ * *input* is the JSON the per-tab value holds, where `activeToggles` is an array
+ * because a `Set` does not survive `JSON.stringify`; its *output* is the runtime
+ * {@link GraphViewLayout} with the `Set` rebuilt. A stale or hand-edited per-tab
+ * value with the wrong shape is rejected rather than seeding bad state.
+ */
+const graphViewLayoutSchema = z.object({
+  activeSidebarItem: graphViewSidebarItemSchema.nullable(),
+  sidebar: z.object({ width: z.number() }),
+  activeToggles: z
+    .array(toggleableViewSchema)
+    .transform(toggles => new Set(toggles)),
+  tableView: z.object({ height: z.number() }).optional(),
+  detailsAutoOpenOnSelection: z.boolean().optional(),
+});
+export type GraphViewLayout = z.infer<typeof graphViewLayoutSchema>;
 
 /** Default height for the table view panel in pixels. */
 export const DEFAULT_TABLE_VIEW_HEIGHT = 300;
@@ -70,3 +91,13 @@ export function transformGraphViewLayout(
     ? layout
     : { ...layout, activeSidebarItem };
 }
+
+/** Per-tab session codec; serializes the toggles Set as an array for JSON. */
+export const graphViewLayoutCodec: SessionValueCodec<GraphViewLayout> = {
+  serialize: layout =>
+    JSON.stringify({
+      ...layout,
+      activeToggles: [...layout.activeToggles],
+    }),
+  deserialize: raw => parseSessionJson(raw, graphViewLayoutSchema),
+};
