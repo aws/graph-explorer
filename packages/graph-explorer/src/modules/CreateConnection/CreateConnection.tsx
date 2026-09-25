@@ -6,11 +6,15 @@ import type {
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useAtomCallback } from "jotai/utils";
+import { ChevronRightIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import {
   Button,
   Checkbox,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
   FormItem,
   InfoTooltip,
   InputField,
@@ -88,6 +92,15 @@ function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
       ? data.nodeExpansionLimit
       : undefined,
   };
+}
+
+/**
+ * Whether the advanced disclosure should start open. A connection that already
+ * overrides one of these settings would otherwise hide that fact behind a
+ * collapsed section, so editing it looks like the defaults are in force.
+ */
+function hasAdvancedOverrides(form: ConnectionForm): boolean {
+  return form.fetchTimeoutEnabled || form.nodeExpansionLimitEnabled;
 }
 
 /**
@@ -395,66 +408,79 @@ const CreateConnection = ({
             </FormItem>
           </>
         )}
-        <FormItem>
-          <Label className="cursor-pointer">
-            <Checkbox
-              value="fetchTimeoutEnabled"
-              checked={form.fetchTimeoutEnabled}
-              onCheckedChange={checked => {
-                onFormChange("fetchTimeoutEnabled")(checked);
-              }}
-            />
-            <span className="flex items-center gap-2">
-              Enable Fetch Timeout
-              <InfoTooltip>
-                Large datasets may require a large amount of time to fetch. If
-                the timeout is exceeded, the request will be cancelled.
-              </InfoTooltip>
-            </span>
-          </Label>
-        </FormItem>
-        {form.fetchTimeoutEnabled && (
-          <FormItem>
-            <Label>Fetch Timeout (ms)</Label>
-            <InputField
-              aria-label="Fetch Timeout (ms)"
-              type="number"
-              value={form.fetchTimeoutMs}
-              onChange={onFormChange("fetchTimeoutMs")}
-              min={0}
-            />
-          </FormItem>
-        )}
-        <FormItem>
-          <Label className="cursor-pointer">
-            <Checkbox
-              value="nodeExpansionLimitEnabled"
-              checked={form.nodeExpansionLimitEnabled}
-              onCheckedChange={checked => {
-                onFormChange("nodeExpansionLimitEnabled")(checked);
-              }}
-            />
-            <span className="flex items-center gap-2">
-              Override Default Neighbor Expansion Limit
-              <InfoTooltip>
-                Large datasets may require a default limit to the amount of
-                neighbors that are returned during any single expansion.
-              </InfoTooltip>
-            </span>
-          </Label>
-        </FormItem>
-        {form.nodeExpansionLimitEnabled && (
-          <FormItem>
-            <Label>Neighbor Expansion Limit</Label>
-            <InputField
-              aria-label="Neighbor Expansion Limit"
-              type="number"
-              value={form.nodeExpansionLimit}
-              onChange={onFormChange("nodeExpansionLimit")}
-              min={0}
-            />
-          </FormItem>
-        )}
+        <Collapsible
+          defaultOpen={hasAdvancedOverrides(form)}
+          className="group flex flex-col gap-6"
+        >
+          {/* Renders its own button rather than `asChild` onto a div, so the
+              disclosure stays keyboard operable and announces its expanded state. */}
+          <CollapsibleTrigger className="group/advanced-trigger focus-visible:ring-primary/50 text-foreground flex w-fit cursor-pointer flex-row items-center gap-2 rounded-md text-sm leading-tight font-medium focus-visible:ring-[3px] focus-visible:outline-hidden">
+            <ChevronRightIcon className="text-muted-foreground size-5 shrink-0 transition-transform duration-200 ease-in-out group-data-open/advanced-trigger:rotate-90" />
+            Advanced options
+          </CollapsibleTrigger>
+          <CollapsibleContent className="flex flex-col gap-6">
+            <FormItem>
+              <Label className="cursor-pointer">
+                <Checkbox
+                  value="fetchTimeoutEnabled"
+                  checked={form.fetchTimeoutEnabled}
+                  onCheckedChange={checked => {
+                    onFormChange("fetchTimeoutEnabled")(checked);
+                  }}
+                />
+                <span className="flex items-center gap-2">
+                  Enable Fetch Timeout
+                  <InfoTooltip>
+                    Large datasets may require a large amount of time to fetch.
+                    If the timeout is exceeded, the request will be cancelled.
+                  </InfoTooltip>
+                </span>
+              </Label>
+            </FormItem>
+            {form.fetchTimeoutEnabled && (
+              <FormItem>
+                <Label>Fetch Timeout (ms)</Label>
+                <InputField
+                  aria-label="Fetch Timeout (ms)"
+                  type="number"
+                  value={form.fetchTimeoutMs}
+                  onChange={onFormChange("fetchTimeoutMs")}
+                  min={0}
+                />
+              </FormItem>
+            )}
+            <FormItem>
+              <Label className="cursor-pointer">
+                <Checkbox
+                  value="nodeExpansionLimitEnabled"
+                  checked={form.nodeExpansionLimitEnabled}
+                  onCheckedChange={checked => {
+                    onFormChange("nodeExpansionLimitEnabled")(checked);
+                  }}
+                />
+                <span className="flex items-center gap-2">
+                  Override Default Neighbor Expansion Limit
+                  <InfoTooltip>
+                    Large datasets may require a default limit to the amount of
+                    neighbors that are returned during any single expansion.
+                  </InfoTooltip>
+                </span>
+              </Label>
+            </FormItem>
+            {form.nodeExpansionLimitEnabled && (
+              <FormItem>
+                <Label>Neighbor Expansion Limit</Label>
+                <InputField
+                  aria-label="Neighbor Expansion Limit"
+                  type="number"
+                  value={form.nodeExpansionLimit}
+                  onChange={onFormChange("nodeExpansionLimit")}
+                  min={0}
+                />
+              </FormItem>
+            )}
+          </CollapsibleContent>
+        </Collapsible>
       </DialogBody>
       <DialogFooter>
         <Button variant="outline" onClick={onClose}>
