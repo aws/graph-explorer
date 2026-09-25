@@ -14,21 +14,21 @@ import {
   TestProvider,
 } from "@/utils/testing";
 
-import { EdgeConnectionDiscoveryNotice } from "./EdgeConnectionDiscoveryNotice";
+import { EdgeConnectionDiscoveryStatusButton } from "./EdgeConnectionDiscoveryStatusButton";
 
 /**
  * Renders against the real store and query client, like
- * SchemaDiscoveryBoundary.integration.test.tsx, so it observes the notice
+ * SchemaDiscoveryBoundary.integration.test.tsx, so it observes the button
  * react to the flag/error the edge discovery query actually writes.
  */
-describe("EdgeConnectionDiscoveryNotice", () => {
+describe("EdgeConnectionDiscoveryStatusButton", () => {
   let explorer: FakeExplorer;
 
   beforeEach(() => {
     explorer = new FakeExplorer();
   });
 
-  function renderNotice(state: DbState) {
+  function renderButton(state: DbState) {
     const store = getAppStore();
     state.applyTo(store);
 
@@ -41,7 +41,7 @@ describe("EdgeConnectionDiscoveryNotice", () => {
 
     return render(
       <TestProvider client={queryClient} store={store}>
-        <EdgeConnectionDiscoveryNotice />
+        <EdgeConnectionDiscoveryStatusButton />
       </TestProvider>,
     );
   }
@@ -61,7 +61,7 @@ describe("EdgeConnectionDiscoveryNotice", () => {
     return state;
   }
 
-  test("shows the error title, message, Error Details, and Retry when discovery rejects", async () => {
+  test("shows a button with the error title, message, Error Details, and Retry in the popover when discovery rejects", async () => {
     const error = new DatabaseTimeoutError(
       "Query timed out",
       500,
@@ -70,7 +70,14 @@ describe("EdgeConnectionDiscoveryNotice", () => {
     );
     vi.spyOn(explorer, "fetchEdgeConnections").mockRejectedValue(error);
 
-    renderNotice(stateWithEdgeType());
+    renderButton(stateWithEdgeType());
+
+    const button = await screen.findByRole("button", {
+      name: /discovery failed/i,
+    });
+
+    const user = userEvent.setup();
+    await user.click(button);
 
     await waitFor(() => {
       expect(screen.getByText("Database query timed out")).toBeInTheDocument();
@@ -84,7 +91,7 @@ describe("EdgeConnectionDiscoveryNotice", () => {
     expect(screen.getByRole("button", { name: /retry/i })).toBeInTheDocument();
   });
 
-  test("hides the notice and clears the stored failure flag once retry resolves", async () => {
+  test("hides the button and clears the stored failure flag once retry resolves", async () => {
     const error = new Error("boom");
     const spy = vi
       .spyOn(explorer, "fetchEdgeConnections")
@@ -92,18 +99,22 @@ describe("EdgeConnectionDiscoveryNotice", () => {
       .mockResolvedValueOnce({ edgeConnections: [] });
 
     const state = stateWithEdgeType();
-    renderNotice(state);
+    renderButton(state);
 
-    await waitFor(() => {
-      expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+    const button = await screen.findByRole("button", {
+      name: /discovery failed/i,
     });
 
     const user = userEvent.setup();
+    await user.click(button);
+    await waitFor(() => {
+      expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+    });
     await user.click(screen.getByRole("button", { name: /retry/i }));
 
     await waitFor(() => {
       expect(
-        screen.queryByText("Something went wrong"),
+        screen.queryByRole("button", { name: /discovery failed/i }),
       ).not.toBeInTheDocument();
     });
     expect(spy).toHaveBeenCalledTimes(2);
@@ -119,8 +130,13 @@ describe("EdgeConnectionDiscoveryNotice", () => {
     const state = stateWithEdgeType();
     state.activeSchema.lastEdgeConnectionSyncFail = true;
 
-    renderNotice(state);
+    renderButton(state);
     await flushPendingAtomUpdates();
+
+    const button = screen.getByRole("button", { name: /discovery failed/i });
+
+    const user = userEvent.setup();
+    await user.click(button);
 
     expect(
       screen.getByText("Could not discover Relationships"),
@@ -143,26 +159,47 @@ describe("EdgeConnectionDiscoveryNotice", () => {
     state.activeSchema.edgeConnections = [];
     state.activeSchema.lastEdgeConnectionSyncFail = false;
 
-    renderNotice(state);
+    renderButton(state);
     await flushPendingAtomUpdates();
 
-    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
-  test("shows the connection-refused display inline when discovery rejects with that error code", async () => {
+  test("renders nothing once discovery has succeeded", async () => {
+    const state = new DbState(explorer);
+    state.activeSchema.edges = [
+      { type: createEdgeType("knows"), attributes: [] },
+    ];
+    state.activeSchema.edgeConnections = [];
+    state.activeSchema.lastEdgeConnectionSyncFail = false;
+
+    renderButton(state);
+    await flushPendingAtomUpdates();
+
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+  });
+
+  test("shows the connection-refused display in the popover when discovery rejects with that error code", async () => {
     const error = new NetworkError("Failed to fetch", 500, {
       code: "ECONNREFUSED",
     });
     vi.spyOn(explorer, "fetchEdgeConnections").mockRejectedValue(error);
 
-    renderNotice(stateWithEdgeType());
+    renderButton(stateWithEdgeType());
+
+    const button = await screen.findByRole("button", {
+      name: /discovery failed/i,
+    });
+
+    const user = userEvent.setup();
+    await user.click(button);
 
     await waitFor(() => {
       expect(screen.getByText("Connection refused")).toBeInTheDocument();
     });
   });
 
-  test("shows the not-discovered notice with a Synchronize action before discovery has ever completed", async () => {
+  test("shows the not-discovered button with a Synchronize action in the popover before discovery has ever completed", async () => {
     // Hangs the fetch so the component renders the moment edgeConnections is
     // still undefined with no error or failure flag, rather than racing the
     // FakeExplorer's near-instant resolution.
@@ -170,8 +207,13 @@ describe("EdgeConnectionDiscoveryNotice", () => {
       () => new Promise(() => {}),
     );
 
-    renderNotice(stateWithEdgeType());
+    renderButton(stateWithEdgeType());
     await flushPendingAtomUpdates();
+
+    const button = screen.getByRole("button", { name: /not discovered/i });
+
+    const user = userEvent.setup();
+    await user.click(button);
 
     expect(
       screen.getByText("Relationships not discovered"),
