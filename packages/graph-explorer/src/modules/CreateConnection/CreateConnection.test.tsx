@@ -1,10 +1,18 @@
 // @vitest-environment happy-dom
+
+import type { ConnectionConfig } from "@shared/types";
+
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
-import { configurationAtom, getAppStore } from "@/core";
+import {
+  type ConfigurationContextProps,
+  configurationAtom,
+  createNewConfigurationId,
+  getAppStore,
+} from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import { mergeConfiguration } from "@/core/StateProvider/configuration";
 import { createRandomRawConfiguration, TestProvider } from "@/utils/testing";
@@ -24,6 +32,14 @@ function renderCreateConnection(ui: React.ReactElement) {
   });
 
   return store;
+}
+
+/** The advanced settings are behind a disclosure, so their content is unmounted until it opens. */
+async function openAdvancedOptions(user: ReturnType<typeof userEvent.setup>) {
+  const trigger = screen.getByRole("button", { name: "Advanced options" });
+  expect(trigger).toHaveAttribute("aria-expanded", "false");
+  await user.click(trigger);
+  expect(trigger).toHaveAttribute("aria-expanded", "true");
 }
 
 describe("CreateConnection", () => {
@@ -62,6 +78,7 @@ describe("CreateConnection", () => {
   test("labels the override field Neighbor Expansion Limit", async () => {
     const user = userEvent.setup();
     renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+    await openAdvancedOptions(user);
 
     await user.click(
       screen.getByRole("checkbox", {
@@ -72,6 +89,61 @@ describe("CreateConnection", () => {
     expect(
       screen.getByRole("spinbutton", { name: "Neighbor Expansion Limit" }),
     ).toBeInTheDocument();
+  });
+
+  test("keeps the advanced options collapsed until the user expands them", async () => {
+    const user = userEvent.setup();
+    renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+
+    expect(
+      screen.queryByRole("checkbox", { name: /Enable Fetch Timeout/ }),
+    ).not.toBeInTheDocument();
+
+    await openAdvancedOptions(user);
+
+    expect(
+      screen.getByRole("checkbox", { name: /Enable Fetch Timeout/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("checkbox", {
+        name: /Override Default Neighbor Expansion Limit/,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  test("opens the advanced options when the connection already overrides one", () => {
+    const configId = createNewConfigurationId();
+    const store = getAppStore();
+    const connection: ConnectionConfig = {
+      url: "https://proxy.example.com",
+      graphDbUrl: "",
+      queryEngine: "gremlin",
+      fetchTimeoutMs: 30000,
+    };
+    store.set(
+      configurationAtom,
+      new Map([[configId, { id: configId, connection }]]),
+    );
+
+    render(
+      <TestProvider client={createQueryClient()} store={store}>
+        <TooltipProvider>
+          <CreateConnection
+            existingConfig={
+              { id: configId, connection } as ConfigurationContextProps
+            }
+            onClose={vi.fn()}
+          />
+        </TooltipProvider>
+      </TestProvider>,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Advanced options" }),
+    ).toHaveAttribute("aria-expanded", "true");
+    expect(
+      screen.getByRole("checkbox", { name: /Enable Fetch Timeout/ }),
+    ).toBeChecked();
   });
 
   test("rejects a URL that is empty after normalization", async () => {
