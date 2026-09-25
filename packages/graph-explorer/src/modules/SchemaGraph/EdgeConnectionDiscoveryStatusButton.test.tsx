@@ -85,10 +85,14 @@ describe("EdgeConnectionDiscoveryStatusButton", () => {
     expect(
       screen.getByText(createDisplayError(error).message),
     ).toBeInTheDocument();
+    // Both actions share a size so the popover's buttons line up.
     expect(
       screen.getByRole("button", { name: /error details/i }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /retry/i })).toBeInTheDocument();
+    ).toHaveAttribute("data-size", "small");
+    expect(screen.getByRole("button", { name: /retry/i })).toHaveAttribute(
+      "data-size",
+      "small",
+    );
   });
 
   test("hides the button and clears the stored failure flag once retry resolves", async () => {
