@@ -1,18 +1,19 @@
 // @vitest-environment happy-dom
 import { queryEngineOptions } from "@shared/types";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { act, render } from "@testing-library/react";
 import { Provider } from "jotai";
 import { vi } from "vitest";
 
 import { type AppStore, getAppStore } from "@/core";
 import { logger } from "@/utils";
-import { createRandomRawConfiguration } from "@/utils/testing";
+import { createRandomRawConfiguration, stubDocumentUrl } from "@/utils/testing";
 
 import type { RawConfiguration } from "./ConfigurationProvider";
 
 import AppStatusLoader from "./AppStatusLoader";
 import * as defaultConnection from "./defaultConnection";
+import { createQueryClient } from "./queryClient";
 import { configurationAtom } from "./StateProvider";
 
 function mockDefaultConnection(configs: RawConfiguration[]) {
@@ -22,7 +23,7 @@ function mockDefaultConnection(configs: RawConfiguration[]) {
 }
 
 function renderAppStatusLoader(store: AppStore) {
-  const client = new QueryClient();
+  const client = createQueryClient();
   return render(
     <QueryClientProvider client={client}>
       <Provider store={store}>
@@ -118,4 +119,20 @@ test("renders the app when no default connection is configured", async () => {
 
   await findByText("ready");
   expect(store.get(configurationAtom).size).toBe(0);
+});
+
+test("shows a renamed reverse proxy mount without retrying", async () => {
+  stubDocumentUrl("http://localhost/renamed/");
+  const fetchSpy = vi.spyOn(defaultConnection, "fetchDefaultConnection");
+
+  const store = getAppStore();
+  const { findByText, queryByText } = renderAppStatusLoader(store);
+
+  // The default findBy timeout is shorter than the first retry delay, so
+  // this only passes when the error is shown on the first failure.
+  await findByText("Reverse proxy misconfigured");
+  expect(queryByText("ready")).toBeNull();
+  expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+  stubDocumentUrl();
 });

@@ -7,6 +7,7 @@ import {
   createRandomUrlString,
 } from "@shared/utils/testing";
 
+import { ReverseProxyMisconfiguredError } from "@/utils";
 import {
   createRandomAwsRegion,
   createRandomQueryEngine,
@@ -115,6 +116,15 @@ describe("fetchDefaultConnection", () => {
     expect(configs).toHaveLength(1);
     expect(configs[0].connection?.queryEngine).toBe("gremlin");
     expect(configs[0].id).toBe("Default Connection");
+  });
+
+  test("rejects when a reverse proxy renamed the mount path", async () => {
+    stubDocumentUrl("https://example.com/renamed/");
+
+    await expect(fetchDefaultConnection()).rejects.toBeInstanceOf(
+      ReverseProxyMisconfiguredError,
+    );
+    expect(mockFetch).not.toHaveBeenCalled();
   });
 });
 

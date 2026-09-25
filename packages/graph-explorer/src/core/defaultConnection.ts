@@ -27,10 +27,14 @@ export const DefaultConnectionDataSchema = z.object({
 
 export type DefaultConnectionData = z.infer<typeof DefaultConnectionDataSchema>;
 
-/** Fetches the default connection from the server and returns an empty array on failure. */
+/**
+ * Fetches the default connection from the server and returns an empty array
+ * on failure. Throws `ReverseProxyMisconfiguredError` when the API URL can't
+ * be resolved from the page's path.
+ */
 export async function fetchDefaultConnection() {
+  const url = apiUrl("defaultConnection");
   try {
-    const url = apiUrl("defaultConnection");
     const defaultConnection = await fetchDefaultConnectionFor(url);
 
     if (!defaultConnection) {
