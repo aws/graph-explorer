@@ -11,7 +11,7 @@ export type ConnectionLinkProblem = {
  * per offending parameter so the user is told which part of their link was
  * wrong, rather than that "something" was.
  *
- * Kept in its own module, free of app imports, so the error display paths can
+ * Kept in its own module, free of app imports, so the error display path can
  * recognize it without depending on link parsing.
  */
 export class ConnectionLinkError extends Error {
@@ -22,11 +22,6 @@ export class ConnectionLinkError extends Error {
     // A literal, because the production build minifies class names.
     this.name = "ConnectionLinkError";
     this.problems = problems;
-  }
-
-  /** Structured context for the error details dialog. */
-  get details() {
-    return { problems: this.problems };
   }
 }
 

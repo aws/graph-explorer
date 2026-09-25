@@ -1,7 +1,6 @@
 import { ZodError } from "zod";
 
 import { QueryValueError } from "@/connector/queryValueError";
-import { ConnectionLinkError } from "@/core/connectionLinkError";
 
 import { NetworkError } from "./NetworkError";
 import { ServerConnectionError } from "./ServerConnectionError";
@@ -43,10 +42,7 @@ export function createErrorDetails(error: unknown): ErrorDetails {
       data: JSON.stringify(error.issues, null, 2),
     };
   }
-  if (
-    error instanceof QueryValueError ||
-    error instanceof ConnectionLinkError
-  ) {
+  if (error instanceof QueryValueError) {
     return {
       name: error.name,
       message: error.message,
