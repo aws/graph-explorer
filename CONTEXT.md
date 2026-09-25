@@ -120,7 +120,7 @@ The process that finds which Edge Connections exist. Runs after Schema Sync comp
 _Avoid_: Relationship Discovery (follows the Edge Connection entry), edge discovery
 
 **Complete** / **Sampled**:
-The two strategies Edge Connection Discovery can take. **Complete** reads every edge, so it finds every Edge Connection. **Sampled** caps the edges it reads per Edge Type, so it is bounded on a large graph but will miss an Edge Connection that occurs rarely. The strategy is chosen up front by comparing predicted cost, and a Complete scan is abandoned for Sampled if it proves too large for the database. Both strategies may split their work across several requests; neither split is a third strategy.
+The two strategies Edge Connection Discovery can take. **Complete** reads every edge, so it finds every Edge Connection. **Sampled** caps the edges it reads per Edge Type, so it is bounded on a large graph but will miss an Edge Connection that occurs rarely. A user can force either per Connection; left alone, the strategy is chosen up front by comparing predicted cost, and a Complete scan chosen that way is abandoned for Sampled if it proves too large for the database. Both strategies may split their work across several requests; neither split is a third strategy.
 _Avoid_: Full, exhaustive, partial, approximate, mode (for the pair)
 
 **Schema**:

@@ -127,7 +127,7 @@ If a request is cancelled instead, Graph Explorer shows a plain "Request cancell
 
 This can happen when your database is very large. Graph Explorer does its best to support larger databases and is always improving.
 
-For a Gremlin connection, this is often the database running out of memory while discovering edge connections for the Schema view. Graph Explorer samples each edge type instead of scanning every edge when a graph is too large, and if that still fails you can raise the query timeout in the database configuration, such as the DB cluster parameter group for Neptune, or use an instance with more memory.
+For a Gremlin connection, this is often the database running out of memory while discovering edge connections for the Schema view. See [Edge connection discovery](../references/configuration.md#edge-connection-discovery) and try switching it to Sampled. You can also raise the query timeout in the database configuration, such as the DB cluster parameter group for Neptune, or use an instance with more memory.
 
 Otherwise, please [file an issue](https://github.com/aws/graph-explorer/issues/new/choose) if you encounter this situation.
 

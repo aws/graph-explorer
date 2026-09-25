@@ -1,9 +1,14 @@
-import { queryEngineOptions } from "@shared/types";
+import {
+  edgeConnectionDiscoveryOptions,
+  queryEngineOptions,
+} from "@shared/types";
 import { z } from "zod";
 
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { type ConfigurationId, createEdgeType, createVertexType } from "@/core";
+
+import logger from "./logger";
 
 const attributesSchema = z
   .array(z.looseObject({ name: z.string().min(1) }))
@@ -40,6 +45,21 @@ const exportedConnectionFileSchema = z.looseObject({
     // `graphDbUrl` is forwarded verbatim as the proxy's request target, so an
     // imported file must not be able to point it at a non-http(s) scheme.
     graphDbUrl: z.url({ protocol: /^https?$/ }).optional(),
+    // An unrecognized value would select the complete strategy with the sampled
+    // fallback switched off, the one combination that reproduces the failure the
+    // setting exists to avoid. Dropped rather than rejected so one bad field does
+    // not cost the user the whole file, and logged for the same reason the env
+    // var is: silence leaves nobody able to tell the value never took effect.
+    edgeConnectionDiscovery: z
+      .enum(edgeConnectionDiscoveryOptions)
+      .optional()
+      .catch(ctx => {
+        logger.warn(
+          "Ignoring unrecognized edgeConnectionDiscovery value in the imported connection, using automatic",
+          ctx.value,
+        );
+        return undefined;
+      }),
   }),
   schema: z.looseObject({
     vertices: z.array(

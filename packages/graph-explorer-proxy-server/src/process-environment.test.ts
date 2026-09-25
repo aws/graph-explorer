@@ -275,6 +275,26 @@ describe("process-environment.sh", () => {
       expect(defaultConnection).toBeNull();
     });
 
+    it("passes EDGE_CONNECTION_DISCOVERY through", () => {
+      const { defaultConnection } = runScript(workDir, {
+        PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
+        EDGE_CONNECTION_DISCOVERY: "sampled",
+      });
+      expect(defaultConnection).toHaveProperty(
+        "GRAPH_EXP_EDGE_CONNECTION_DISCOVERY",
+        "sampled",
+      );
+    });
+
+    it("omits EDGE_CONNECTION_DISCOVERY when unset, leaving the app on automatic", () => {
+      const { defaultConnection } = runScript(workDir, {
+        PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
+      });
+      expect(defaultConnection).not.toHaveProperty(
+        "GRAPH_EXP_EDGE_CONNECTION_DISCOVERY",
+      );
+    });
+
     it("defaults SERVICE_TYPE to neptune-db", () => {
       const { defaultConnection } = runScript(workDir, {
         PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",

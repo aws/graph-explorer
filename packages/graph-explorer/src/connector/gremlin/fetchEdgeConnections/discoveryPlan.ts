@@ -1,3 +1,5 @@
+import type { EdgeConnectionDiscovery } from "@shared/types";
+
 import type { EdgeType } from "@/core";
 
 import { DEFAULT_SAMPLE_SIZE } from "@/utils";
@@ -143,9 +145,11 @@ export type DiscoveryPlan = {
 export function planDiscovery({
   edgeTypes,
   totalEdges,
+  discovery,
 }: {
   edgeTypes: EdgeType[];
   totalEdges: number | undefined;
+  discovery: EdgeConnectionDiscovery;
 }): DiscoveryPlan {
   if (edgeTypes.length === 0) {
     return { strategy: "none", requests: [] };
@@ -153,29 +157,34 @@ export function planDiscovery({
 
   const edgeTotal = toEdgeTotal(totalEdges);
 
-  if (shouldSample(edgeTypes.length, edgeTotal)) {
-    return planSampling(edgeTypes);
+  const sample =
+    discovery === "sampled" ||
+    (discovery === "auto" && shouldSample(edgeTypes.length, edgeTotal));
+
+  if (sample) {
+    return {
+      strategy: "sampled",
+      requests: chunkEdgeTypes(edgeTypes, EDGE_TYPES_PER_SAMPLE).map(chunk => ({
+        edgeTypes: chunk,
+        limitPerType: DEFAULT_SAMPLE_SIZE,
+      })),
+    };
   }
 
-  return {
-    strategy: "complete",
-    requests: chunkForCompleteScan(edgeTypes, edgeTotal),
-    requestTimeoutMs: COMPLETE_ATTEMPT_TIMEOUT_MS,
-  };
-}
+  const requests = chunkForCompleteScan(edgeTypes, edgeTotal);
 
-/**
- * Lays out a sampled pass over every edge type, whatever the graph's size. The
- * degrade path uses it directly once a complete scan proved too large.
- */
-export function planSampling(edgeTypes: EdgeType[]): DiscoveryPlan {
-  return {
-    strategy: "sampled",
-    requests: chunkEdgeTypes(edgeTypes, EDGE_TYPES_PER_SAMPLE).map(chunk => ({
-      edgeTypes: chunk,
-      limitPerType: DEFAULT_SAMPLE_SIZE,
-    })),
-  };
+  // Bounded only on the automatic path, where abandoning the attempt leads
+  // somewhere. A forced complete has nothing to degrade to, so cutting it short
+  // would just deny the user the scan they asked for.
+  if (discovery === "auto") {
+    return {
+      strategy: "complete",
+      requests,
+      requestTimeoutMs: COMPLETE_ATTEMPT_TIMEOUT_MS,
+    };
+  }
+
+  return { strategy: "complete", requests };
 }
 
 /**
@@ -194,7 +203,7 @@ export function toEdgeTotal(value: number | undefined): number | undefined {
     : undefined;
 }
 
-/** Whether sampling is the cheaper way to cover this graph. */
+/** Whether sampling is the cheaper way to cover this graph. Only consulted on the automatic path. */
 function shouldSample(
   edgeTypeCount: number,
   totalEdges: number | undefined,
@@ -222,7 +231,7 @@ function shouldSample(
  * the edge total says how much a request reads, the character budget says how
  * much it carries. Chunking cannot go finer than one edge type per request, so a
  * graph far above the scan budget with few edge types still gets chunks larger
- * than the budget asks for, which is the case the degrade path exists for.
+ * than the budget asks for, which is the case a forced complete may fail on.
  */
 function chunkForCompleteScan(
   edgeTypes: EdgeType[],

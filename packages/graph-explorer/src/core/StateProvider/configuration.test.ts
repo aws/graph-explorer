@@ -59,6 +59,7 @@ const defaultEmptyConnection: NormalizedConnection = {
   queryEngine: "gremlin",
   proxyConnection: false,
   awsAuthEnabled: false,
+  edgeConnectionDiscovery: "auto",
 };
 
 describe("mergedConfiguration", () => {
@@ -404,6 +405,33 @@ describe("normalizeConnection", () => {
     const result = normalizeConnection({ url: "https://example.com" });
     expect(result.awsAuthEnabled).toBe(false);
   });
+
+  test("should default edgeConnectionDiscovery to auto", () => {
+    const result = normalizeConnection({ url: "https://example.com" });
+    expect(result.edgeConnectionDiscovery).toBe("auto");
+  });
+
+  test("should keep an explicit edgeConnectionDiscovery choice", () => {
+    const result = normalizeConnection({
+      url: "https://example.com",
+      edgeConnectionDiscovery: "sampled",
+    });
+    expect(result.edgeConnectionDiscovery).toBe("sampled");
+  });
+
+  test.each(["COMPLETE", "complete ", "nonsense", ""])(
+    "should resolve the unrecognized edgeConnectionDiscovery value %o to auto",
+    value => {
+      // Persisted configs are not schema-validated on read, and an unrecognized
+      // value would otherwise select the complete strategy with the sampled
+      // fallback switched off.
+      const result = normalizeConnection({
+        url: "https://example.com",
+        edgeConnectionDiscovery: value as never,
+      });
+      expect(result.edgeConnectionDiscovery).toBe("auto");
+    },
+  );
 
   test("should preserve path in url", () => {
     const result = normalizeConnection({

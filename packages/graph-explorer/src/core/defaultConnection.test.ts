@@ -6,6 +6,7 @@ import {
   createRandomUrlString,
 } from "@shared/utils/testing";
 
+import { logger } from "@/utils";
 import {
   createRandomAwsRegion,
   createRandomQueryEngine,
@@ -36,6 +37,8 @@ describe("mapToConnection", () => {
         fetchTimeoutMs: defaultConnectionData.GRAPH_EXP_FETCH_REQUEST_TIMEOUT,
         nodeExpansionLimit:
           defaultConnectionData.GRAPH_EXP_NODE_EXPANSION_LIMIT,
+        edgeConnectionDiscovery:
+          defaultConnectionData.GRAPH_EXP_EDGE_CONNECTION_DISCOVERY,
       },
     });
   });
@@ -68,6 +71,25 @@ describe("DefaultConnectionDataSchema", () => {
     // Make the enum less strict
     const actual = DefaultConnectionDataSchema.parse(data);
     expect(actual).toEqual({ ...data, GRAPH_EXP_SERVICE_TYPE: "neptune-db" });
+  });
+
+  test("should fall back to automatic for an unrecognized edge connection discovery value, and say so", () => {
+    const data: any = createRandomDefaultConnectionData();
+    const badValue = createRandomName("discovery");
+    data.GRAPH_EXP_EDGE_CONNECTION_DISCOVERY = badValue;
+
+    const actual = DefaultConnectionDataSchema.parse(data);
+
+    expect(actual).toEqual({
+      ...data,
+      GRAPH_EXP_EDGE_CONNECTION_DISCOVERY: undefined,
+    });
+    // Silently ignoring it would leave an operator with no way to tell their
+    // override never took effect.
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining("GRAPH_EXP_EDGE_CONNECTION_DISCOVERY"),
+      badValue,
+    );
   });
 
   test("should handle invalid URLs", () => {
@@ -166,5 +188,6 @@ function createRandomDefaultConnectionData() {
     GRAPH_EXP_SERVICE_TYPE: createRandomServiceType(),
     GRAPH_EXP_FETCH_REQUEST_TIMEOUT: createRandomInteger(),
     GRAPH_EXP_NODE_EXPANSION_LIMIT: createRandomInteger(),
+    GRAPH_EXP_EDGE_CONNECTION_DISCOVERY: "sampled" as const,
   };
 }

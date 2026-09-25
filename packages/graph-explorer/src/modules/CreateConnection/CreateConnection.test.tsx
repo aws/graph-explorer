@@ -10,8 +10,10 @@ import { TooltipProvider } from "@/components";
 import {
   type ConfigurationContextProps,
   configurationAtom,
+  createEdgeConnection,
   createNewConfigurationId,
   getAppStore,
+  schemaAtom,
 } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import { mergeConfiguration } from "@/core/StateProvider/configuration";
@@ -91,24 +93,144 @@ describe("CreateConnection", () => {
     ).toBeInTheDocument();
   });
 
-  test("keeps the advanced options collapsed until the user expands them", async () => {
+  test("saves the edge connection discovery choice, writing auto rather than leaving it absent", async () => {
+    const user = userEvent.setup();
+    const store = renderCreateConnection(
+      <CreateConnection onClose={vi.fn()} />,
+    );
+
+    await user.type(
+      screen.getByRole("textbox", { name: "Public or Proxy Endpoint" }),
+      "https://proxy.example.com",
+    );
+    await user.click(screen.getByRole("button", { name: "Add Connection" }));
+
+    await waitFor(() => {
+      expect(store.get(configurationAtom)).toHaveLength(1);
+    });
+
+    const [savedConnection] = store.get(configurationAtom).values();
+    expect(savedConnection.connection?.edgeConnectionDiscovery).toBe("auto");
+  });
+
+  test("lets the user force sampled edge connection discovery", async () => {
+    const user = userEvent.setup();
+    const store = renderCreateConnection(
+      <CreateConnection onClose={vi.fn()} />,
+    );
+
+    await user.type(
+      screen.getByRole("textbox", { name: "Public or Proxy Endpoint" }),
+      "https://proxy.example.com",
+    );
+    await openAdvancedOptions(user);
+    await user.click(screen.getByRole("radio", { name: "Sampled" }));
+    await user.click(screen.getByRole("button", { name: "Add Connection" }));
+
+    await waitFor(() => {
+      expect(store.get(configurationAtom)).toHaveLength(1);
+    });
+
+    const [savedConnection] = store.get(configurationAtom).values();
+    expect(savedConnection.connection?.edgeConnectionDiscovery).toBe("sampled");
+  });
+
+  test("names each discovery option by its title and exposes the rest as a description", async () => {
     const user = userEvent.setup();
     renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+    await openAdvancedOptions(user);
 
-    expect(
-      screen.queryByRole("checkbox", { name: /Enable Fetch Timeout/ }),
-    ).not.toBeInTheDocument();
+    // The whole card is a label so any part of it is clickable, which would
+    // otherwise fold the description into each option's accessible name and
+    // re-read the full sentence on every arrow key.
+    for (const name of ["Automatic", "Complete", "Sampled"]) {
+      const option = screen.getByRole("radio", { name });
+      expect(option).toHaveAccessibleName(name);
+      expect(option).toHaveAccessibleDescription(/edge/);
+    }
+  });
 
+  test("hides edge connection discovery for query languages that do not use it", async () => {
+    const user = userEvent.setup();
+    renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
     await openAdvancedOptions(user);
 
     expect(
-      screen.getByRole("checkbox", { name: /Enable Fetch Timeout/ }),
+      screen.getByRole("radiogroup", { name: "Edge Connection Discovery" }),
     ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("combobox"));
+    await user.click(screen.getByRole("option", { name: /SPARQL/ }));
+
     expect(
-      screen.getByRole("checkbox", {
-        name: /Override Default Neighbor Expansion Limit/,
-      }),
-    ).toBeInTheDocument();
+      screen.queryByRole("radiogroup", { name: "Edge Connection Discovery" }),
+    ).not.toBeInTheDocument();
+  });
+
+  test("discards the discovered edge connections when the discovery setting changes", async () => {
+    const user = userEvent.setup();
+    const configId = createNewConfigurationId();
+    const store = getAppStore();
+    const connection: ConnectionConfig = {
+      url: "https://proxy.example.com",
+      // Spelled out so saving does not look like a connection change, which
+      // would wipe the whole schema and hide what this test is checking.
+      graphDbUrl: "",
+      queryEngine: "gremlin",
+      edgeConnectionDiscovery: "auto",
+    };
+    store.set(
+      configurationAtom,
+      new Map([[configId, { id: configId, connection }]]),
+    );
+    store.set(
+      schemaAtom,
+      new Map([
+        [
+          configId,
+          {
+            vertices: [],
+            edges: [],
+            edgeConnections: [
+              createEdgeConnection({
+                source: "airport",
+                edge: "route",
+                target: "airport",
+              }),
+            ],
+            lastEdgeConnectionSyncFail: true,
+          },
+        ],
+      ]),
+    );
+
+    render(
+      <TestProvider client={createQueryClient()} store={store}>
+        <TooltipProvider>
+          <CreateConnection
+            existingConfig={
+              { id: configId, connection } as ConfigurationContextProps
+            }
+            onClose={vi.fn()}
+          />
+        </TooltipProvider>
+      </TestProvider>,
+    );
+
+    await openAdvancedOptions(user);
+    await user.click(screen.getByRole("radio", { name: "Sampled" }));
+    await user.click(screen.getByRole("button", { name: "Update Connection" }));
+
+    await waitFor(() => {
+      expect(
+        store.get(schemaAtom).get(configId)?.edgeConnections,
+      ).toBeUndefined();
+    });
+    // The failure flag suppresses the automatic retry, so it has to clear too or
+    // the rediscovery would never start.
+    expect(
+      store.get(schemaAtom).get(configId)?.lastEdgeConnectionSyncFail,
+    ).toBe(false);
   });
 
   test("opens the advanced options when the connection already overrides one", () => {
@@ -118,7 +240,7 @@ describe("CreateConnection", () => {
       url: "https://proxy.example.com",
       graphDbUrl: "",
       queryEngine: "gremlin",
-      fetchTimeoutMs: 30000,
+      edgeConnectionDiscovery: "sampled",
     };
     store.set(
       configurationAtom,
@@ -141,9 +263,7 @@ describe("CreateConnection", () => {
     expect(
       screen.getByRole("button", { name: "Advanced options" }),
     ).toHaveAttribute("aria-expanded", "true");
-    expect(
-      screen.getByRole("checkbox", { name: /Enable Fetch Timeout/ }),
-    ).toBeChecked();
+    expect(screen.getByRole("radio", { name: "Sampled" })).toBeChecked();
   });
 
   test("rejects a URL that is empty after normalization", async () => {
