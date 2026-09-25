@@ -432,7 +432,7 @@ export const useTabular = <T extends object>(options: TabularOptions<T>) => {
       autoResetSortBy: !skipPageResetRef.current,
       autoResetFilters: !skipPageResetRef.current,
       autoResetRowState: !skipPageResetRef.current,
-      /* eslint-enable react-hooks/refs */
+      /* oxlint-enable react-compiler/refs */
     },
     useColumnOrder,
     useResizeColumns,
