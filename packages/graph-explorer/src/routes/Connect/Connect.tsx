@@ -53,8 +53,14 @@ const CONNECTIONS_ROUTE = "/connections";
  * endpoint details a link can carry.
  */
 export default function Connect() {
-  const navigate = useNavigate();
   const { search } = useLocation();
+  // Keyed on the link so a second link opened in this tab, while the create
+  // form for the first is still showing, is resolved rather than ignored.
+  return <ConnectFromLink key={search} search={search} />;
+}
+
+function ConnectFromLink({ search }: { search: string }) {
+  const navigate = useNavigate();
   const activateConnection = useActivateConnection();
 
   const [intent] = useState(() => resolveConnectionLink(search));

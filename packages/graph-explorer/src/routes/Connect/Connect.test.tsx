@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Route, Routes, useLocation } from "react-router";
+import { Route, Routes, useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
 
 import { TooltipProvider } from "@/components";
@@ -22,11 +22,21 @@ function LocationDisplay() {
   );
 }
 
+/** Opens another link in the same tab, the way a hash change would. */
+function OpenLink({ search }: { search: string }) {
+  const navigate = useNavigate();
+  return (
+    <button type="button" onClick={() => navigate(`/connect${search}`)}>
+      open next link
+    </button>
+  );
+}
+
 function searchFor(graphDbUrl: string, queryEngine = "gremlin") {
   return `?graphDbUrl=${encodeURIComponent(graphDbUrl)}&queryEngine=${queryEngine}`;
 }
 
-function renderConnect(search: string) {
+function renderConnect(search: string, nextSearch?: string) {
   const store = getAppStore();
   const queryClient = createQueryClient();
   render(
@@ -42,6 +52,7 @@ function renderConnect(search: string) {
           <Route path="/connections" element={<div>connections list</div>} />
         </Routes>
         <LocationDisplay />
+        {nextSearch != null && <OpenLink search={nextSearch} />}
       </TooltipProvider>
     </TestProvider>,
   );
@@ -132,6 +143,9 @@ describe("Connect route", () => {
       screen.getByRole("button", { name: "Add Connection" }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Name")).toHaveValue("Brand New");
+    expect(screen.getByLabelText("Graph Connection URL")).toHaveValue(
+      "https://brand-new.neptune.amazonaws.com",
+    );
     // The dialog explains the connection details came from the user's link
     expect(screen.getByText(/details from your link/i)).toBeInTheDocument();
     expect(
@@ -142,6 +156,25 @@ describe("Connect route", () => {
     expect(
       screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
     ).toBeChecked();
+  });
+
+  test("a second link opened over the create form prefills from that link", async () => {
+    new DbState().applyTo(getAppStore());
+
+    renderConnect(
+      `${searchFor("https://first.neptune.amazonaws.com")}&name=First`,
+      `${searchFor("https://second.neptune.amazonaws.com")}&name=Second`,
+    );
+    expect(screen.getByLabelText("Name")).toHaveValue("First");
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "open next link" }),
+    );
+
+    expect(screen.getByLabelText("Name")).toHaveValue("Second");
+    expect(screen.getByLabelText("Graph Connection URL")).toHaveValue(
+      "https://second.neptune.amazonaws.com",
+    );
   });
 
   // Neptune Analytics only speaks openCypher; the create form normally forces
