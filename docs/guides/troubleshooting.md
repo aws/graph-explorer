@@ -112,7 +112,7 @@ A "Connection Error" belongs here. It means the browser could not reach the Grap
 
 Communication between the client and proxy server can be configured in different ways. When Graph Explorer proxy server starts up it will print out its best approximation of the correct public proxy server address.
 
-This can manifest as different types of errors depending on the root cause. You may receive 404 not found responses or get connection refused errors.
+This can manifest as different types of errors depending on the root cause. You may receive 404 not found responses or see a "Connection Error".
 
 - The proxy server can be hosting HTTP or HTTPS
 - The port of the proxy server could be the default (i.e. 80 or 443 with SSL) or a specific port provided through environment values
@@ -128,7 +128,7 @@ This can manifest as different types of errors depending on the root cause. You 
 
 ### Database Cannot Be Reached
 
-These errors mean the browser reached the proxy server, but the proxy server could not reach the database. Graph Explorer names the failure with one of two titles, and each one points at a different fix.
+These errors mean the browser reached the proxy server, but the proxy server could not reach the database. Graph Explorer names the failure with one of three titles, and each one points at a different fix.
 
 **Database unreachable** means the database hostname could not be resolved. Check the hostname in the connection's Graph Connection URL for a typo, and check that the proxy server's host can resolve that name. A private endpoint, such as a Neptune cluster endpoint inside a VPC, only resolves from inside that VPC.
 
@@ -139,6 +139,8 @@ These errors mean the browser reached the proxy server, but the proxy server cou
 - The port in the connection must match the port the database listens on, for example `8182` for Neptune
 
 This error can take a minute or more to appear, because the proxy server waits for the operating system's connection timeout.
+
+**Connection refused** means the hostname resolved and the host answered, but nothing is listening on that port. Check the port in the connection, and check that the database is running.
 
 For the network setup Neptune needs, see [Network Access](./connecting-to-neptune.md#network-access).
 
