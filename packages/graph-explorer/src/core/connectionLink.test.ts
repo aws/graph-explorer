@@ -235,6 +235,60 @@ describe("findMatchingConnection", () => {
     expect(match?.id).toBe("conn-1");
   });
 
+  // Both sides run through `normalizeUrl`, so a stored connection that picked
+  // up a trailing slash or stray whitespace still matches a tidy link.
+  test("matches a stored graphDbUrl with a trailing slash against a link without one", () => {
+    const withTrailingSlash = new Map<ConfigurationId, RawConfiguration>([
+      [
+        "conn-slash" as ConfigurationId,
+        {
+          id: "conn-slash" as ConfigurationId,
+          displayLabel: "Test",
+          connection: {
+            url: "https://localhost",
+            queryEngine: "gremlin",
+            graphDbUrl: "https://host:8182/",
+          },
+        },
+      ],
+    ]);
+
+    const match = findMatchingConnection(withTrailingSlash, {
+      graphDbUrl: "https://host:8182",
+      queryEngine: "gremlin",
+      awsRegion: "",
+      serviceType: undefined,
+      name: "",
+    });
+    expect(match?.id).toBe("conn-slash");
+  });
+
+  test("matches a stored graphDbUrl with surrounding whitespace and newlines", () => {
+    const withWhitespace = new Map<ConfigurationId, RawConfiguration>([
+      [
+        "conn-ws" as ConfigurationId,
+        {
+          id: "conn-ws" as ConfigurationId,
+          displayLabel: "Test",
+          connection: {
+            url: "https://localhost",
+            queryEngine: "gremlin",
+            graphDbUrl: "  https://host:8182\n",
+          },
+        },
+      ],
+    ]);
+
+    const match = findMatchingConnection(withWhitespace, {
+      graphDbUrl: "https://host:8182",
+      queryEngine: "gremlin",
+      awsRegion: "",
+      serviceType: undefined,
+      name: "",
+    });
+    expect(match?.id).toBe("conn-ws");
+  });
+
   test("returns null when queryEngine differs", () => {
     const match = findMatchingConnection(configs, {
       graphDbUrl: "https://g-abc.us-west-2.neptune-graph.amazonaws.com",

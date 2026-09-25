@@ -14,6 +14,7 @@ import type {
 } from "./ConfigurationProvider";
 
 import { ConnectionLinkError } from "./connectionLinkError";
+import { normalizeUrl } from "./StateProvider/configuration";
 
 /**
  * Every message is phrased to follow the parameter's own name, so a failure
@@ -227,10 +228,13 @@ function authPosturesMatch(a: AuthPosture, b: AuthPosture): boolean {
 
 /**
  * Find an existing connection matching the link's identity: graphDbUrl
- * (case-insensitive) + queryEngine + auth posture (IAM on/off, region, and
- * service type). Auth posture is identity-bearing so a link requesting IAM
- * never silently reuses a plaintext connection to the same endpoint (or vice
- * versa) — a mismatch falls through to the editable create form instead.
+ * (normalized and case-insensitive) + queryEngine + auth posture (IAM on/off,
+ * region, and service type). Both sides run through the same `normalizeUrl`
+ * the app already applies to a saved connection, so a stored value that picked
+ * up a trailing slash or stray whitespace still matches a link that has
+ * neither. Auth posture is identity-bearing so a link requesting IAM never
+ * silently reuses a plaintext connection to the same endpoint (or vice versa)
+ * — a mismatch falls through to the editable create form instead.
  *
  * When several connections match, resolve in priority order: the active
  * connection (so a URL targeting it is a no-op), then a connection whose label
@@ -242,12 +246,13 @@ export function findMatchingConnection(
   activeId: ConfigurationId | null = null,
 ): RawConfiguration | null {
   const linkAuthPosture = authPostureFromParams(params);
+  const linkGraphDbUrl = normalizeUrl(params.graphDbUrl).toLowerCase();
   const matches = configurations
     .values()
     .filter(
       config =>
-        config.connection?.graphDbUrl?.toLowerCase() ===
-          params.graphDbUrl.toLowerCase() &&
+        normalizeUrl(config.connection?.graphDbUrl).toLowerCase() ===
+          linkGraphDbUrl &&
         config.connection?.queryEngine === params.queryEngine &&
         authPosturesMatch(
           authPostureFromConnection(config.connection),
