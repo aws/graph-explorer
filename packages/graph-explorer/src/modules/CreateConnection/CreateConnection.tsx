@@ -290,7 +290,7 @@ const CreateConnection = ({
         </FormItem>
         <FormItem>
           <Label>
-            Graph Connection URL
+            Database URL
             <InfoTooltip>
               Provide the endpoint URL for your graph database, e.g., an Amazon
               Neptune cluster endpoint, a Gremlin Server URL, or a SPARQL
@@ -300,7 +300,7 @@ const CreateConnection = ({
             </InfoTooltip>
           </Label>
           <TextAreaField
-            aria-label="Graph Connection URL"
+            aria-label="Database URL"
             data-autofocus={true}
             value={form.graphDbUrl}
             onChange={onFormChange("graphDbUrl")}

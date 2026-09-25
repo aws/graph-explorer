@@ -139,7 +139,7 @@ export function createDisplayError(error: any): DisplayError {
     return {
       title: "Missing database URL",
       message:
-        "This Connection has no database URL. Edit the Connection and enter the database endpoint.",
+        "This connection has no database URL. Edit the connection and enter the Database URL.",
     };
   }
 

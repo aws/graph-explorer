@@ -15,7 +15,7 @@ Then open Graph Explorer and add a new connection with the following settings:
 
 - Name: `Gremlin Server`
 - Query Language: `Gremlin`
-- Graph Connection URL: `http://localhost:8182`
+- Database URL: `http://localhost:8182`
 
 ## Enable REST
 

@@ -32,7 +32,7 @@ describe("CreateConnection", () => {
 
     // Proves the queries below fail on absence rather than a wrong name
     expect(
-      screen.getByRole("textbox", { name: "Graph Connection URL" }),
+      screen.getByRole("textbox", { name: "Database URL" }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
@@ -41,7 +41,7 @@ describe("CreateConnection", () => {
     // The placeholder must include the port so copying its shape doesn't
     // produce a connection that silently fails against the default HTTPS port
     expect(
-      screen.getByRole("textbox", { name: "Graph Connection URL" }),
+      screen.getByRole("textbox", { name: "Database URL" }),
     ).toHaveAttribute(
       "placeholder",
       "https://neptune-cluster.amazonaws.com:8182",
@@ -63,7 +63,7 @@ describe("CreateConnection", () => {
     ).toBeInTheDocument();
   });
 
-  test("removes newlines and surrounding whitespace from the graph connection URL", async () => {
+  test("removes newlines and surrounding whitespace from the database URL", async () => {
     const user = userEvent.setup();
     const store = renderCreateConnection(
       <CreateConnection onClose={vi.fn()} />,
@@ -74,7 +74,7 @@ describe("CreateConnection", () => {
       "My Connection",
     );
     await user.type(
-      screen.getByRole("textbox", { name: "Graph Connection URL" }),
+      screen.getByRole("textbox", { name: "Database URL" }),
       "  https://database.example.com/{Enter}graph  ",
     );
     await user.click(screen.getByRole("button", { name: "Add Connection" }));
@@ -119,7 +119,7 @@ describe("CreateConnection", () => {
       "My Connection",
     );
     await user.type(
-      screen.getByRole("textbox", { name: "Graph Connection URL" }),
+      screen.getByRole("textbox", { name: "Database URL" }),
       "  {Enter}  ",
     );
     await user.click(screen.getByRole("button", { name: "Add Connection" }));
@@ -140,9 +140,9 @@ describe("CreateConnection", () => {
     );
 
     expect(screen.getByLabelText("Name")).toHaveValue("Seeded Graph");
-    expect(
-      screen.getByRole("textbox", { name: "Graph Connection URL" }),
-    ).toHaveValue("https://seed.neptune.amazonaws.com");
+    expect(screen.getByRole("textbox", { name: "Database URL" })).toHaveValue(
+      "https://seed.neptune.amazonaws.com",
+    );
     // Still in "add" mode, not "update"
     expect(
       screen.getByRole("button", { name: "Add Connection" }),

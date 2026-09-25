@@ -10,7 +10,7 @@ For guides on connecting to specific databases, see [Connecting to databases](..
 
 - **Name:** Enter a name for your connection (e.g., `MyNeptuneCluster`).
 - **Query Language:** Choose a query language that corresponds to your graph database.
-- **Graph Connection URL:** Provide the endpoint URL for your graph database (e.g., `https://[NEPTUNE_ENDPOINT]:8182`). Ensure that the URL does not end with `/`.
+- **Database URL:** Provide the endpoint URL for your graph database (e.g., `https://[NEPTUNE_ENDPOINT]:8182`). Ensure that the URL does not end with `/`.
 - **AWS IAM Auth Enabled:** Check this box if connecting to Amazon Neptune using IAM Auth and SigV4 signed requests.
 - **Service Type:** Choose the service type (`neptune-db` or `neptune-graph`).
 - **AWS Region:** Specify the AWS region where the Neptune cluster is hosted (e.g., us-east-1).

@@ -130,7 +130,7 @@ This can manifest as different types of errors depending on the root cause. You 
 
 These errors mean the browser reached the proxy server, but the proxy server could not reach the database. Graph Explorer names the failure with one of three titles, and each one points at a different fix.
 
-**Database unreachable** means the database hostname could not be resolved. Check the hostname in the connection's Graph Connection URL for a typo, and check that the proxy server's host can resolve that name. A private endpoint, such as a Neptune cluster endpoint inside a VPC, only resolves from inside that VPC.
+**Database unreachable** means the database hostname could not be resolved. Check the hostname in the connection's Database URL for a typo, and check that the proxy server's host can resolve that name. A private endpoint, such as a Neptune cluster endpoint inside a VPC, only resolves from inside that VPC.
 
 **Database connection timed out** means the hostname resolved, but nothing answered at that address. The hostname is correct, so look at the network path instead:
 

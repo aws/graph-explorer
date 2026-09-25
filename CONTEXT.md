@@ -17,8 +17,12 @@ The external graph database a user connects to and explores — the source of al
 _Avoid_: Database (ambiguous — clarify remote graph database vs. local persisted state)
 
 **Connection**:
-A saved database profile — the graph database endpoint URL (`graphDbUrl`), query language, and optional IAM authentication settings. The client always reaches the database through the same-origin **Proxy Server**, so no proxy endpoint is configured. Users create and manage these in the UI.
+A saved database profile — the **Database URL**, query language, and optional IAM authentication settings. The client always reaches the database through the same-origin **Proxy Server**, so no proxy endpoint is configured. Users create and manage these in the UI.
 _Avoid_: Configuration (legacy term being phased out — previously bundled connection + schema + Styles into one object); proxy endpoint / `proxyConnection` (removed — see ADR `unify-docker-image-remove-sagemaker-variant`)
+
+**Database URL**:
+The endpoint of a Connection's Graph Database, stored as `graphDbUrl`. The **Proxy Server** sends database requests here, so it must be reachable from the host running Graph Explorer, not from the browser.
+_Avoid_: Graph Connection URL, graph DB URL
 
 **Fetch Timeout**:
 A limit the user sets on a Connection for how long Graph Explorer waits for one request. Enforced in the browser; the Graph Database never sees it. Exceeding it has nothing to do with database configuration.
