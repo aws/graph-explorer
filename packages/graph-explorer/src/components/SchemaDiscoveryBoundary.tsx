@@ -19,42 +19,23 @@ import {
   PanelTitle,
   SyncIcon,
 } from "@/components";
-import {
-  useConfiguration,
-  useHasActiveSchema,
-  useMaybeActiveSchema,
-} from "@/core";
-import { useTranslations } from "@/hooks";
+import { useConfiguration, useHasActiveSchema } from "@/core";
 import { useCancelSchemaSync, useSchemaSync } from "@/hooks/useSchemaSync";
-
-interface SchemaDiscoveryBoundaryProps extends PropsWithChildren {
-  /** When true, also waits for edge connections to be discovered. */
-  requireEdgeConnections?: boolean;
-}
 
 /**
  * Renders loading, error, or no-schema states for schema discovery.
- * Renders children when a schema has been successfully synced.
- * When requireEdgeConnections is true, also gates on edge connection discovery.
+ * Renders children once a schema has been successfully synced. Edge connection
+ * discovery does not gate them, because the Schema view reports its failure
+ * inline rather than hiding node types.
  */
-export function SchemaDiscoveryBoundary({
-  children,
-  requireEdgeConnections = false,
-}: SchemaDiscoveryBoundaryProps) {
+export function SchemaDiscoveryBoundary({ children }: PropsWithChildren) {
   const config = useConfiguration();
   // Must precede useSchemaSync(): its mount fetch can write the schema
   // synchronously, and these readers only observe writes that land after they
   // subscribe, which React does in hook declaration order.
   const hasSchema = useHasActiveSchema();
-  const schema = useMaybeActiveSchema();
-  const {
-    schemaDiscoveryQuery,
-    edgeDiscoveryQuery,
-    refreshSchema,
-    isFetching,
-  } = useSchemaSync();
+  const { schemaDiscoveryQuery, refreshSchema, isFetching } = useSchemaSync();
   const cancel = useCancelSchemaSync();
-  const t = useTranslations();
 
   // 0. If no connection is configured, show no-connection state
   if (!config) {
@@ -97,12 +78,8 @@ export function SchemaDiscoveryBoundary({
     );
   }
 
-  // 2. If data exists, render children
-  const hasRequiredData = requireEdgeConnections
-    ? hasSchema && schema?.edgeConnections != null
-    : hasSchema;
-
-  if (hasRequiredData) {
+  // 2. If schema exists, render children
+  if (hasSchema) {
     return children;
   }
 
@@ -118,35 +95,7 @@ export function SchemaDiscoveryBoundary({
     );
   }
 
-  if (requireEdgeConnections && edgeDiscoveryQuery.error) {
-    return (
-      <Layout>
-        <PanelError
-          error={edgeDiscoveryQuery.error}
-          onRetry={edgeDiscoveryQuery.refetch}
-        />
-      </Layout>
-    );
-  }
-
-  // 4. Edge connections not yet discovered
-  if (requireEdgeConnections && hasSchema) {
-    return (
-      <Layout>
-        <PanelEmptyState
-          variant="info"
-          icon={<SyncIcon />}
-          title={`No ${t("edge-connections")} Available`}
-          subtitle={`Synchronize ${t("edge-connections").toLocaleLowerCase()} to explore the schema.`}
-          onAction={refreshSchema}
-          actionLabel="Synchronize"
-          className="p-6"
-        />
-      </Layout>
-    );
-  }
-
-  // 5. No schema available
+  // 4. No schema available
   return (
     <Layout>
       <PanelEmptyState
