@@ -54,6 +54,7 @@ import {
  */
 export class DbState {
   #activeSchema: SchemaStorageModel | null;
+  #hasActiveConnection = true;
   activeConfig: RawConfiguration;
   vertexStyles: Map<VertexType, VertexStyleStorage>;
   edgeStyles: Map<EdgeType, EdgeStyleStorage>;
@@ -107,6 +108,12 @@ export class DbState {
   /** Removes the active schema from the state. */
   withNoActiveSchema() {
     this.#activeSchema = null;
+    return this;
+  }
+
+  /** Simulates a fresh deployment with no connection configured as active. */
+  withNoActiveConnection() {
+    this.#hasActiveConnection = false;
     return this;
   }
 
@@ -230,7 +237,10 @@ export class DbState {
     } else {
       store.set(schemaAtom, new Map());
     }
-    store.set(activeConfigurationAtom, this.activeConfig.id);
+    store.set(
+      activeConfigurationAtom,
+      this.#hasActiveConnection ? this.activeConfig.id : null,
+    );
 
     // Styling
     store.set(userVertexStylesAtom, this.vertexStyles);

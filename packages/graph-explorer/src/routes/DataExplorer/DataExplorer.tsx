@@ -220,7 +220,7 @@ function Layout({ children }: { children: React.ReactNode }) {
         <NavBarContent>
           <NavBarTitle
             title="Data Explorer"
-            subtitle={`Connection: ${config?.displayLabel || config?.id}`}
+            subtitle={`Connection: ${config?.displayLabel || config?.id || "none"}`}
           />
           <PersistenceStatusIndicator />
         </NavBarContent>
