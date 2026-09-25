@@ -1,21 +1,20 @@
 import { useId } from "react";
 
 import { useVertexStyle, type VertexStyle, type VertexType } from "@/core";
+import { ICON_BOX, ICON_RATIO } from "@/core/icons/iconGeometry";
 import { cn } from "@/utils";
 
 import { resolveShapeGeometry } from "./nodeShapes";
 import { VertexSymbolIcon } from "./VertexSymbolIcon";
 
-const VIEWBOX = 96;
-const ICON_RATIO = 0.6;
 const CANVAS_NODE_SIZE = 24;
 /**
  * How much larger the preview draws things than the graph canvas: the ratio of
- * the SVG viewBox (96) to a canvas node's size in cytoscape units (24). Applied
- * to any canvas-unit length (border width, label font/padding) to render it at
- * preview size.
+ * the SVG viewBox ({@link ICON_BOX}) to a canvas node's size in cytoscape units
+ * (24). Applied to any canvas-unit length (border width, label font/padding)
+ * to render it at preview size.
  */
-export const PREVIEW_SCALE = VIEWBOX / CANVAS_NODE_SIZE;
+export const PREVIEW_SCALE = ICON_BOX / CANVAS_NODE_SIZE;
 
 interface Props {
   vertexStyle: VertexStyle;
@@ -26,11 +25,11 @@ export function VertexSymbol({ vertexStyle, className }: Props) {
   // SVG url(#...) references reject the colons in React's raw useId format.
   const clipId = `vs-${useId().replace(/:/g, "")}`;
   const strokeWidth = vertexStyle.borderWidth * PREVIEW_SCALE;
-  const insetSize = Math.max(1, VIEWBOX - strokeWidth * 2);
+  const insetSize = Math.max(1, ICON_BOX - strokeWidth * 2);
   const geometry = resolveShapeGeometry(vertexStyle.shape, insetSize);
 
-  const iconSize = VIEWBOX * ICON_RATIO;
-  const iconOffset = (VIEWBOX - iconSize) / 2;
+  const iconSize = ICON_BOX * ICON_RATIO;
+  const iconOffset = (ICON_BOX - iconSize) / 2;
 
   // The shape is rendered twice: once filled/stroked, once as the icon's
   // clipPath. clipPath children must be shape elements directly — a wrapping
@@ -41,7 +40,7 @@ export function VertexSymbol({ vertexStyle, className }: Props) {
 
   return (
     <svg
-      viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`}
+      viewBox={`0 0 ${ICON_BOX} ${ICON_BOX}`}
       className={cn("size-9 shrink-0", className)}
       // An inline SVG is required for the clipPath and nested icon.
       // eslint-disable-next-line jsx-a11y/prefer-tag-over-role

@@ -29,11 +29,14 @@ describe("toIconImageUrl", () => {
     expect(decode(result)).toContain("<path");
   });
 
-  it("sizes the svg to the cytoscape node size", () => {
+  // Sizing belongs to the consumer, which fits the icon by `preserveAspectRatio`
+  // against its own `viewBox`. Overriding the intrinsic size here would fight
+  // that, and forcing a square would reintroduce issue #2108.
+  it("leaves the svg's own size and viewBox alone", () => {
     const result = toIconImageUrl({ kind: "svg", svg: SVG }, "#FF0000");
 
-    expect(decode(result)).toContain('width="24"');
-    expect(decode(result)).toContain('height="24"');
+    expect(decode(result)).toContain('viewBox="0 0 24 24"');
+    expect(decode(result)).not.toContain('width="24"');
   });
 
   // The color reaches a currentColor-authored icon through CSS inheritance, so
@@ -102,5 +105,23 @@ describe("toIconImageUrl", () => {
     const blue = toIconImageUrl({ kind: "svg", svg: SVG }, "#0000FF");
 
     expect(red).not.toBe(blue);
+  });
+
+  // Issue #2108: sizing is the consumer's job. Both consumers place the icon
+  // with `preserveAspectRatio`, which fits the icon against its own `viewBox`,
+  // so overriding its intrinsic size here would only fight that — and forcing
+  // a square would bake in the very distortion the issue is about.
+  describe("non-square icons (issue #2108)", () => {
+    const WIDE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100"><rect width="400" height="100"/></svg>`;
+
+    it("leaves the icon's own geometry untouched", () => {
+      const result = decode(
+        toIconImageUrl({ kind: "svg", svg: WIDE_SVG }, "#FF0000"),
+      );
+
+      expect(result).toContain('viewBox="0 0 400 100"');
+      expect(result).not.toContain('width="24"');
+      expect(result).not.toContain('height="24"');
+    });
   });
 });

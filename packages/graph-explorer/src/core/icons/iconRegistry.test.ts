@@ -291,6 +291,31 @@ describe("sanitizes a user-supplied svg before storing it", () => {
     return (resolved as { kind: "svg"; svg: string }).svg;
   }
 
+  // The svg profile already allowlists these, so no ALLOWED_ATTR override is
+  // needed to keep aspect ratio. An explicit list would also be a trap: it
+  // cannot take effect alongside USE_PROFILES (DOMPurify rebuilds ALLOWED_ATTR
+  // from the profile sets), so it reads as load-bearing while doing nothing,
+  // and any attribute it omitted would silently vanish if the profiles were
+  // ever dropped.
+  it("preserves the geometry and path attributes an icon needs to scale", async () => {
+    const svg = await resolveCustomSvg(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="401" height="102" viewBox="0 0 403 104" preserveAspectRatio="xMidYMid meet"><path d="M0 0h405v106H0z" stroke-width="7" transform="translate(9 9)"/><polyline points="1,1 11,11"/></svg>`,
+    );
+
+    // Distinct numbers per attribute, so a check can only pass if that
+    // specific attribute-value pair survived — unlike `toContain(name)`,
+    // which a substring of an unrelated attribute (`preserveAspectRatio`
+    // contains "d"; `stroke-width` contains "width") can satisfy for free.
+    expect(svg).toContain('width="401"');
+    expect(svg).toContain('height="102"');
+    expect(svg).toContain('viewBox="0 0 403 104"');
+    expect(svg).toContain('preserveAspectRatio="xMidYMid meet"');
+    expect(svg).toContain('d="M0 0h405v106H0z"');
+    expect(svg).toContain('stroke-width="7"');
+    expect(svg).toContain('transform="translate(9 9)"');
+    expect(svg).toContain('points="1,1 11,11"');
+  });
+
   it("strips a <script> element but keeps the rest of the drawing", async () => {
     const svg = await resolveCustomSvg(
       `<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script><rect width="5" height="5"/></svg>`,

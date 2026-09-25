@@ -4,9 +4,15 @@ const defaultNodeStyle: RenderedNodeStyle = {
   background: "#128EE5",
   backgroundOpacity: 0.4,
   borderColor: "#128EE5",
-  backgroundFit: "none",
-  backgroundWidth: "60%",
-  backgroundHeight: "60%",
+  // The icon image is a square wrapper that already insets the artwork
+  // (issue #2108), so the node only has to fit that square without
+  // distorting it: `contain` is what does that — `auto`/`auto` are
+  // cytoscape's own defaults, restated for intent. `contain` alone, without
+  // the wrapper, is not enough: it fits the whole square node box, and the
+  // node is an ellipse, so a square-ish icon's corners spill past the shape.
+  backgroundFit: "contain",
+  backgroundWidth: "auto",
+  backgroundHeight: "auto",
   borderWidth: 1,
   borderStyle: "solid",
   borderOpacity: 0,
