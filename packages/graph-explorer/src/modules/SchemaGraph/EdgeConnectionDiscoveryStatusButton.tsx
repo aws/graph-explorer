@@ -101,9 +101,7 @@ export function EdgeConnectionDiscoveryStatusButton() {
           <p className="text-muted-foreground text-sm">{message}</p>
           <div className="flex gap-2">
             {notice.error ? (
-              <div className="shrink-0">
-                <ErrorDetailsButton error={notice.error} />
-              </div>
+              <ErrorDetailsButton error={notice.error} size="small" />
             ) : null}
             <Button
               size="small"

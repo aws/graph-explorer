@@ -3,7 +3,7 @@ import { InfoIcon, RotateCcwIcon } from "lucide-react";
 import { createDisplayError } from "@/utils/createDisplayError";
 import { createErrorDetails } from "@/utils/createErrorDetails";
 
-import { Button } from "./Button";
+import { Button, type ButtonProps } from "./Button";
 import { CodeEditor } from "./CodeEditor";
 import {
   Dialog,
@@ -60,7 +60,13 @@ export default function PanelError({
   );
 }
 
-export function ErrorDetailsButton({ error }: { error: unknown }) {
+export function ErrorDetailsButton({
+  error,
+  size,
+}: {
+  error: unknown;
+  size?: ButtonProps["size"];
+}) {
   const {
     name: errorName,
     message: errorMessage,
@@ -69,7 +75,7 @@ export function ErrorDetailsButton({ error }: { error: unknown }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>
+        <Button size={size}>
           <InfoIcon />
           Error Details
         </Button>
