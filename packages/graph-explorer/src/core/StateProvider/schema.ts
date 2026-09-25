@@ -279,6 +279,32 @@ export const activeSchemaSelector = atom(
   },
 );
 
+/**
+ * Setter-only atom that discards the discovered edge connections for a
+ * connection, so the next sync rediscovers them.
+ *
+ * Also clears the failure flag, which otherwise suppresses the automatic retry
+ * and would leave the rediscovery waiting on a manual refresh.
+ */
+export const discardEdgeConnectionsAtom = atom(
+  null,
+  (_get, set, id: ConfigurationId) => {
+    set(schemaAtom, prev => {
+      const existing = prev.get(id);
+      if (!existing) {
+        return prev;
+      }
+      const updated = new Map(prev);
+      updated.set(id, {
+        ...existing,
+        edgeConnections: undefined,
+        lastEdgeConnectionSyncFail: false,
+      });
+      return updated;
+    });
+  },
+);
+
 /** Updates the schema based on the given nodes and edges. Preserves referential equality at every level when nothing changes. */
 export function updateSchemaFromEntities(
   entities: Partial<Entities>,

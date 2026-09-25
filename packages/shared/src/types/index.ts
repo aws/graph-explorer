@@ -7,6 +7,14 @@ export const neptuneServiceTypeOptions = [
 ] as const;
 export type NeptuneServiceType = (typeof neptuneServiceTypeOptions)[number];
 
+export const edgeConnectionDiscoveryOptions = [
+  "auto",
+  "complete",
+  "sampled",
+] as const;
+export type EdgeConnectionDiscovery =
+  (typeof edgeConnectionDiscoveryOptions)[number];
+
 export type ConnectionConfig = {
   /**
    * Base URL to access to the database through HTTPs endpoints
@@ -51,4 +59,11 @@ export type ConnectionConfig = {
    * This value overrides the app wide default limit.
    */
   nodeExpansionLimit?: number;
+  /**
+   * How much of the graph edge connection discovery is allowed to read.
+   * Absent means `auto`, which picks based on the size and shape of the graph.
+   *
+   * Gremlin only. openCypher and SPARQL already bound their work per edge type.
+   */
+  edgeConnectionDiscovery?: EdgeConnectionDiscovery;
 };

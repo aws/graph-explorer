@@ -26,6 +26,7 @@ export * from "./DropdownMenu";
 export { PanelEmptyState } from "./PanelEmptyState";
 export * from "./PanelEmptyState";
 export { default as PanelError } from "./PanelError";
+export * from "./PanelError";
 
 export * from "./Dialog";
 export { default as Divider } from "./Divider";
@@ -73,6 +74,7 @@ export * from "./Spinner";
 
 export * from "./Panel";
 export * from "./Popover";
+export * from "./RadioGroup";
 
 export { default as NotInProduction } from "./NotInProduction";
 

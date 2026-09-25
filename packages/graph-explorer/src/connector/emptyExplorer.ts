@@ -5,12 +5,15 @@ import type { Explorer } from "./useGEFetchTypes";
  * Empty explorer for when there is no connection.
  */
 export const emptyExplorer: Explorer = {
+  // Spelled out rather than built with `normalizeConnection`, which would import
+  // `@/core` and close a cycle back through the real explorers.
   connection: {
     url: "",
     graphDbUrl: "",
     queryEngine: "gremlin",
     proxyConnection: false,
     awsAuthEnabled: false,
+    edgeConnectionDiscovery: "auto",
   },
   fetchSchema: async () => {
     return {

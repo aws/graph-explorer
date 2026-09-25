@@ -16,6 +16,7 @@ if [ -f "./config.json" ]; then
     PROXY_SERVER_HTTPS_CONNECTION=$(echo "$json" | grep -o '"PROXY_SERVER_HTTPS_CONNECTION":[^,}]*' | cut -d ':' -f 2 | tr -d '[:space:]' | sed 's/"//g')
     GRAPH_EXP_HTTPS_CONNECTION=$(echo "$json" | grep -o '"GRAPH_EXP_HTTPS_CONNECTION":[^,}]*' | cut -d ':' -f 2 | tr -d '[:space:]' | sed 's/"//g')
     NEPTUNE_NOTEBOOK=$(echo "$json" | grep -o '"NEPTUNE_NOTEBOOK":[^,}]*' | cut -d ':' -f 2 | tr -d '[:space:]' | sed 's/"//g')
+    EDGE_CONNECTION_DISCOVERY=$(echo "$json" | grep -o '"EDGE_CONNECTION_DISCOVERY":[^,}]*' | cut -d '"' -f 4)
 fi
 
 if [ -n "$NEPTUNE_NOTEBOOK" ]; then
@@ -72,6 +73,11 @@ if [ -n "$PUBLIC_OR_PROXY_ENDPOINT" ]; then
         echo "\"GRAPH_EXP_IAM\":${IAM}," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
     else 
         echo "\"GRAPH_EXP_IAM\":false," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
+    fi
+
+    # Omitted when unset, which leaves edge connection discovery on automatic.
+    if [ -n "$EDGE_CONNECTION_DISCOVERY" ]; then
+        echo "\"GRAPH_EXP_EDGE_CONNECTION_DISCOVERY\":\"${EDGE_CONNECTION_DISCOVERY}\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
     fi
 
     echo "\"GRAPH_EXP_CONNECTION_URL\":\"${GRAPH_CONNECTION_URL}\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json

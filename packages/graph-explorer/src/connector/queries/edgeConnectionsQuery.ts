@@ -13,6 +13,9 @@ import { logger } from "@/utils";
 import { getExplorer, getStore } from "./helpers";
 import { schemaSyncQueryKey } from "./schemaSyncQuery";
 
+/** Shared by every edge connection discovery query, so callers can invalidate them all. */
+export const edgeConnectionsQueryKeyPrefix = ["schema", "edgeConnections"];
+
 /**
  * Fetches edge connections for the edge types in the active schema and persists
  * them to the local cache on success.
@@ -31,9 +34,13 @@ export function edgeConnectionsQuery(
 ) {
   // Sort edge types to keep the order consistent over time to increase the chance of hitting cache
   const sortedEdgeTypes = activeSchema?.edges.map(e => e.type).toSorted() ?? [];
+  // The edge total decides how the Gremlin connector discovers, so a graph that
+  // has grown or shrunk past a threshold must not be served an answer gathered
+  // under the old size.
+  const totalEdges = activeSchema?.totalEdges;
 
   return queryOptions({
-    queryKey: ["schema", "edgeConnections", sortedEdgeTypes],
+    queryKey: [...edgeConnectionsQueryKeyPrefix, sortedEdgeTypes, totalEdges],
     staleTime: Infinity,
     retryOnMount: false,
     enabled: activeSchema != null && !activeSchema.lastEdgeConnectionSyncFail,
@@ -54,7 +61,7 @@ export function edgeConnectionsQuery(
 
       try {
         const results = await explorer.fetchEdgeConnections(
-          { edgeTypes: sortedEdgeTypes },
+          { edgeTypes: sortedEdgeTypes, totalEdges },
           { signal },
         );
 

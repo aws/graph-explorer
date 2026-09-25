@@ -17,8 +17,12 @@ For guides on connecting to specific databases, see [Connecting to databases](..
 - **AWS IAM Auth Enabled:** Check this box if connecting to Amazon Neptune using IAM Auth and SigV4 signed requests
 - **Service Type:** Choose the service type
 - **AWS Region:** Specify the AWS region where the Neptune cluster is hosted (e.g., us-east-1)
+
+The next three settings are grouped under an **Advanced options** section that you expand to reach. It starts expanded when the connection you are editing already overrides one of them, so an existing override is never hidden from you.
+
 - **Fetch Timeout:** Specify the timeout for the fetch request
 - **Neighbor Expansion Limit:** Specify the default limit for neighbor expansion. This will override the app setting for neighbor expansion.
+- **Edge Connection Discovery:** Gremlin only. Choose how much of the graph is read to work out which node types each edge type connects, either Automatic (recommended), Complete, or Sampled. See [Edge connection discovery](../references/configuration.md#edge-connection-discovery).
 
 ## Available Connections
 

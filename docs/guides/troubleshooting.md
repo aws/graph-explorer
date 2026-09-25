@@ -95,7 +95,7 @@ There are multiple sources of timeouts.
 
 Graph Explorer distinguishes two kinds of timeout and shows a different message for each.
 
-**Fetch timeout exceeded** means the request didn't finish within the connection's own Fetch Timeout setting. This is a client-side limit you configure yourself in the connection's settings, under "Enable Fetch Timeout". Increase the Fetch Timeout value, or retry the request.
+**Fetch timeout exceeded** means the request didn't finish within the connection's own Fetch Timeout setting. This is a client-side limit you configure yourself in this connection's advanced options, under "Enable Fetch Timeout". Increase the Fetch Timeout value, or retry the request.
 
 **Database query timed out** means the database itself stopped the query because it ran longer than the database's configured query timeout. For Neptune, this is controlled by the DB cluster parameter group. Increase the query timeout there, or retry the request.
 
@@ -103,7 +103,11 @@ If a request is cancelled instead, Graph Explorer shows a plain "Request cancell
 
 ### Out of Memory
 
-This can happen when your database is very large. Graph Explorer does its best to support larger databases and is always improving. Please [file an issue](https://github.com/aws/graph-explorer/issues/new/choose) if you encounter this situation.
+This can happen when your database is very large. Graph Explorer does its best to support larger databases and is always improving.
+
+For a Gremlin connection, this is often the database running out of memory while discovering edge connections for the Schema view. See [Edge connection discovery](../references/configuration.md#edge-connection-discovery) and try switching it to Sampled. You can also raise the query timeout in the database configuration, such as the DB cluster parameter group for Neptune, or use an instance with more memory.
+
+Otherwise, please [file an issue](https://github.com/aws/graph-explorer/issues/new/choose) if you encounter this situation.
 
 ### Proxy Server Cannot Be Reached
 
