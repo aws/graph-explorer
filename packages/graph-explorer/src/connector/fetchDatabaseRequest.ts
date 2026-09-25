@@ -1,6 +1,13 @@
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
-import { logger, NetworkError, ServerConnectionError } from "@/utils";
+import {
+  databaseTimeoutCode,
+  DatabaseTimeoutError,
+  FetchTimeoutError,
+  logger,
+  NetworkError,
+  ServerConnectionError,
+} from "@/utils";
 import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 import { extractErrorMessage } from "@/utils/extractErrorMessage";
 
@@ -71,43 +78,30 @@ function getAuthHeaders(
   return headers;
 }
 
-// Construct an AbortSignal for the fetch timeout if configured
-function getFetchTimeoutSignal(connection: NormalizedConnection) {
-  if (!connection.fetchTimeoutMs) {
+type FetchTimeout = {
+  timeoutMs: number;
+  signal: AbortSignal;
+};
+
+// Construct the fetch timeout, if configured, keeping both its signal and
+// its duration so a caught abort can be classified and reported.
+function createFetchTimeout(
+  connection: NormalizedConnection,
+): FetchTimeout | null {
+  const timeoutMs = connection.fetchTimeoutMs;
+  if (!timeoutMs || timeoutMs <= 0) {
     return null;
   }
 
-  if (connection.fetchTimeoutMs <= 0) {
-    return null;
-  }
-
-  return AbortSignal.timeout(connection.fetchTimeoutMs);
+  return { timeoutMs, signal: AbortSignal.timeout(timeoutMs) };
 }
 
-export async function fetchDatabaseRequest(
-  connection: NormalizedConnection,
-  featureFlags: FeatureFlags,
-  uri: URL | RequestInfo,
-  options: RequestInit,
-) {
-  // Apply connection settings to fetch options
-  const fetchOptions: RequestInit = {
-    ...options,
-    headers: getAuthHeaders(connection, featureFlags, options.headers),
-    signal: anySignal(getFetchTimeoutSignal(connection), options.signal),
-  };
-
-  let response: Response;
-  try {
-    response = await fetch(uri, fetchOptions);
-  } catch (error) {
-    if (error instanceof TypeError) {
-      const url =
-        typeof uri === "string" ? uri : uri instanceof URL ? uri.href : uri.url;
-      throw new ServerConnectionError(url, error);
-    }
-    throw error;
-  }
+// Sends the request and reads the response body, throwing NetworkError (or
+// DatabaseTimeoutError) for a non-OK response. Kept separate from
+// fetchDatabaseRequest so a timeout that fires while streaming the body,
+// not just while waiting on `fetch`, is still classified by the caller.
+async function sendRequest(uri: URL | RequestInfo, fetchOptions: RequestInit) {
+  const response = await fetch(uri, fetchOptions);
 
   if (!response.ok) {
     const defaultMessage = "Network response was not OK";
@@ -118,10 +112,51 @@ export async function fetchDatabaseRequest(
 
     // Extract a message from the error body
     const message = extractErrorMessage(error) ?? defaultMessage;
-    throw new NetworkError(message, response.status, error);
+    const timeoutCode = databaseTimeoutCode(error);
+    throw timeoutCode
+      ? new DatabaseTimeoutError(message, response.status, error, timeoutCode)
+      : new NetworkError(message, response.status, error);
   }
 
   // A successful response is assumed to be JSON
-  const data = await response.json();
-  return data;
+  return await response.json();
+}
+
+export async function fetchDatabaseRequest(
+  connection: NormalizedConnection,
+  featureFlags: FeatureFlags,
+  uri: URL | RequestInfo,
+  options: RequestInit,
+) {
+  const fetchTimeout = createFetchTimeout(connection);
+  const signal = anySignal(fetchTimeout?.signal, options.signal);
+
+  // Apply connection settings to fetch options
+  const fetchOptions: RequestInit = {
+    ...options,
+    headers: getAuthHeaders(connection, featureFlags, options.headers),
+    signal,
+  };
+
+  try {
+    return await sendRequest(uri, fetchOptions);
+  } catch (error) {
+    // anySignal keeps the first reason, so this tells a timeout from a user
+    // cancel that came after it. An error built from a received response
+    // already says what happened, so it is never relabeled.
+    if (
+      fetchTimeout &&
+      !(error instanceof NetworkError) &&
+      signal?.reason === fetchTimeout.signal.reason
+    ) {
+      throw new FetchTimeoutError(fetchTimeout.timeoutMs, error);
+    }
+
+    if (error instanceof TypeError) {
+      const url =
+        typeof uri === "string" ? uri : uri instanceof URL ? uri.href : uri.url;
+      throw new ServerConnectionError(url, error);
+    }
+    throw error;
+  }
 }

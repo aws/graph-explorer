@@ -12,6 +12,8 @@ export * from "./cn";
 export * from "./env";
 export * from "./constants";
 export * from "./NetworkError";
+export * from "./DatabaseTimeoutError";
+export * from "./FetchTimeoutError";
 export * from "./ServerConnectionError";
 export * from "./formatEntityCounts";
 export * from "./formatRelativeDate";
