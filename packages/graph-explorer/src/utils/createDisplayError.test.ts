@@ -235,10 +235,11 @@ describe("createDisplayError", () => {
     const result = createDisplayError(
       new EdgeConnectionDiscoveryError(
         {
-          strategy: "sampled",
+          strategy: "complete",
+          setting: "complete",
           requests: 1,
           totalEdges: 19_928_805,
-          degraded: true,
+          degraded: false,
           cause: "database-limit",
         },
         new NetworkError("Query cannot be completed", 500, {
@@ -249,9 +250,8 @@ describe("createDisplayError", () => {
 
     expect(result.title).toBe("Could not discover edge connections");
     // The generic memory branch would say "try a smaller request", which is not
-    // something the user can do here. The database configuration is.
-    expect(result.message).toContain("DB cluster parameter group");
-    expect(result.message).not.toContain("smaller request");
+    // something the user can do here. The setting is.
+    expect(result.message).toContain("Automatic or Sampled");
   });
 
   it("Should handle malformed query", () => {

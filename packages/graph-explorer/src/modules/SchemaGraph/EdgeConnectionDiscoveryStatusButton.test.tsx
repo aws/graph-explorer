@@ -69,6 +69,7 @@ describe("EdgeConnectionDiscoveryStatusButton", () => {
     const error = new EdgeConnectionDiscoveryError(
       {
         strategy: "sampled",
+        setting: "auto",
         requests: 3,
         totalEdges: 100,
         degraded: false,
@@ -115,6 +116,7 @@ describe("EdgeConnectionDiscoveryStatusButton", () => {
     const error = new EdgeConnectionDiscoveryError(
       {
         strategy: "sampled",
+        setting: "auto",
         requests: 1,
         totalEdges: 10,
         degraded: false,

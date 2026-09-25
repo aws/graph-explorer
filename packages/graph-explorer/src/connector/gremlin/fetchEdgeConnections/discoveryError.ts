@@ -1,3 +1,5 @@
+import type { EdgeConnectionDiscovery } from "@shared/types";
+
 import { DatabaseTimeoutError, FetchTimeoutError, NetworkError } from "@/utils";
 
 import type { DiscoveryStrategy } from "./discoveryPlan";
@@ -42,6 +44,8 @@ export function causeOf(error: unknown): FailureCause {
 /** What edge connection discovery had already tried when it gave up. */
 export type FailedDiscovery = {
   strategy: DiscoveryStrategy;
+  /** The connection's setting, which decides whether anything cheaper was allowed. */
+  setting: EdgeConnectionDiscovery;
   requests: number;
   totalEdges: number | undefined;
   /** A complete scan was already abandoned as too large before this attempt. */
@@ -76,6 +80,7 @@ export class EdgeConnectionDiscoveryError extends Error {
   get details() {
     return {
       strategy: this.attempt.strategy,
+      setting: this.attempt.setting,
       requests: this.attempt.requests,
       totalEdges: this.attempt.totalEdges,
       completeScanAbandoned: this.attempt.degraded,
@@ -87,19 +92,29 @@ export class EdgeConnectionDiscoveryError extends Error {
 }
 
 /**
- * Keyed on whether a complete scan was already abandoned, never on the
- * strategy: either way discovery has run out of cheaper options.
+ * Keyed on the setting and whether a complete scan was already abandoned, never
+ * on the strategy: a forced complete is the only case with a setting to change,
+ * and everything else has run out of cheaper options.
  */
-function describeFailure({ degraded }: FailedDiscovery): string {
+function describeFailure({ setting, degraded }: FailedDiscovery): string {
+  if (setting === "complete") {
+    return "The database could not read every edge in the graph, which is what complete edge connection discovery asks of it.";
+  }
   if (degraded) {
     return "The database could not discover edge connections either way. Scanning every edge was too large, and sampling each edge type failed as well.";
   }
   return "The database could not sample the edges of each edge type to discover edge connections.";
 }
 
-function describeRecovery({ cause }: FailedDiscovery): string {
+function describeRecovery({ setting, cause }: FailedDiscovery): string {
   if (cause === "fetch-timeout") {
+    if (setting === "complete") {
+      return "Switch Edge Connection Discovery to Automatic or Sampled in this connection's advanced options, because Automatic samples a graph this large instead of scanning it. Or raise the Fetch Timeout there, or clear it, since a complete scan may simply need longer than that allows.";
+    }
     return "Raise the Fetch Timeout in this connection's advanced options, or clear it, since this request may simply need longer than that allows. Until then, the Schema view shows node types without the edge connections between them.";
+  }
+  if (setting === "complete") {
+    return "Switch Edge Connection Discovery to Automatic or Sampled in this connection's advanced options, because Automatic samples a graph this large instead of scanning it.";
   }
   return "Raise the query timeout in the database configuration, such as the DB cluster parameter group for Neptune, or use an instance with more memory. Until then, the Schema view shows node types without the edge connections between them.";
 }

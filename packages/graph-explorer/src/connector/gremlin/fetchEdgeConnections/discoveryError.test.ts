@@ -9,6 +9,7 @@ import {
 function attempt(overrides: Partial<FailedDiscovery> = {}): FailedDiscovery {
   return {
     strategy: "sampled",
+    setting: "auto",
     requests: 1,
     totalEdges: 10,
     degraded: false,
@@ -77,9 +78,20 @@ describe("isTooBig", () => {
 });
 
 describe("EdgeConnectionDiscoveryError recovery text", () => {
+  it("points at Automatic or Sampled and the Fetch Timeout when complete was forced and our own fetch timeout gave up", () => {
+    const error = new EdgeConnectionDiscoveryError(
+      attempt({ setting: "complete", cause: "fetch-timeout" }),
+      new Error("cause"),
+    );
+    expect(error.recovery).toContain("Automatic or Sampled");
+    expect(error.recovery).toContain("advanced options");
+    expect(error.recovery).toContain("Fetch Timeout");
+    expect(error.recovery).not.toContain("parameter group");
+  });
+
   it("points only at the Fetch Timeout, not the parameter group, when a cheaper pass exhausted our own fetch timeout", () => {
     const error = new EdgeConnectionDiscoveryError(
-      attempt({ cause: "fetch-timeout" }),
+      attempt({ setting: "auto", cause: "fetch-timeout" }),
       new Error("cause"),
     );
     expect(error.recovery).toContain("Fetch Timeout");
@@ -90,9 +102,18 @@ describe("EdgeConnectionDiscoveryError recovery text", () => {
     );
   });
 
+  it("points at Automatic or Sampled when complete was forced and the database itself gave up", () => {
+    const error = new EdgeConnectionDiscoveryError(
+      attempt({ setting: "complete", cause: "database-limit" }),
+      new Error("cause"),
+    );
+    expect(error.recovery).toContain("Automatic or Sampled");
+    expect(error.recovery).toContain("advanced options");
+  });
+
   it("points at the database's own query timeout and the parameter group when a cheaper pass exhausted it", () => {
     const error = new EdgeConnectionDiscoveryError(
-      attempt({ cause: "database-limit" }),
+      attempt({ setting: "auto", cause: "database-limit" }),
       new Error("cause"),
     );
     expect(error.recovery).toContain("DB cluster parameter group");

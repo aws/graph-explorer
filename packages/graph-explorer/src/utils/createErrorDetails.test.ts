@@ -364,6 +364,7 @@ describe("createErrorDetails", () => {
       const error = new EdgeConnectionDiscoveryError(
         {
           strategy: "sampled",
+          setting: "auto",
           requests: 3,
           totalEdges: 19_928_805,
           degraded: true,

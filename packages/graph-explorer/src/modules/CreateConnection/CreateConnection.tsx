@@ -1,5 +1,6 @@
 import type {
   ConnectionConfig,
+  EdgeConnectionDiscovery,
   NeptuneServiceType,
   QueryEngine,
 } from "@shared/types";
@@ -15,20 +16,31 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldLegend,
+  FieldLabel,
+  FieldSet,
+  FieldTitle,
   FormItem,
   InfoTooltip,
   InputField,
   Label,
+  RadioGroup,
+  RadioGroupItem,
   SelectField,
   TextAreaField,
 } from "@/components";
 import { DialogBody, DialogFooter } from "@/components/Dialog";
+import { edgeConnectionsQueryKeyPrefix } from "@/connector";
 import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
   configurationAtom,
   type ConfigurationContextProps,
   createNewConfigurationId,
+  discardEdgeConnectionsAtom,
   type RawConfiguration,
   schemaAtom,
 } from "@/core";
@@ -36,6 +48,7 @@ import useResetState from "@/core/StateProvider/useResetState";
 import { formatDate, logger } from "@/utils";
 import {
   DEFAULT_FETCH_TIMEOUT,
+  DEFAULT_SAMPLE_SIZE,
   DEFAULT_NODE_EXPAND_LIMIT,
 } from "@/utils/constants";
 
@@ -52,7 +65,39 @@ type ConnectionForm = {
   fetchTimeoutMs?: number;
   nodeExpansionLimitEnabled: boolean;
   nodeExpansionLimit?: number;
+  edgeConnectionDiscovery: EdgeConnectionDiscovery;
 };
+
+const DISCOVERY_LEGEND_ID = "edge-connection-discovery-legend";
+
+/**
+ * The discovery choices, with the consequence of each spelled out. A label alone
+ * does not tell anyone that sampled can miss a connection, or that complete can
+ * fail on a large graph, which is the whole basis for choosing.
+ */
+const EDGE_CONNECTION_DISCOVERY_OPTIONS: {
+  value: EdgeConnectionDiscovery;
+  label: string;
+  description: string;
+}[] = [
+  {
+    value: "auto",
+    label: "Automatic",
+    description:
+      "Chooses based on how many edge types the graph has and how large it is. Recommended.",
+  },
+  {
+    value: "complete",
+    label: "Complete",
+    description:
+      "Scans every edge to find all edge connections. Can be slow, or fail, on very large graphs.",
+  },
+  {
+    value: "sampled",
+    label: "Sampled",
+    description: `Checks up to ${DEFAULT_SAMPLE_SIZE.toLocaleString()} edges per edge type. Fast and predictable on very large graphs. Will miss edge connections that occur rarely.`,
+  },
+];
 
 function normalizeUrlField(value: string | undefined) {
   return value?.replace(/[\r\n]/g, "").trim();
@@ -91,6 +136,9 @@ function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
     nodeExpansionLimit: data.nodeExpansionLimitEnabled
       ? data.nodeExpansionLimit
       : undefined,
+    // Always written, `auto` included, so a missing value only ever means the
+    // connection was saved before this setting existed.
+    edgeConnectionDiscovery: data.edgeConnectionDiscovery,
   };
 }
 
@@ -100,7 +148,11 @@ function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
  * collapsed section, so editing it looks like the defaults are in force.
  */
 function hasAdvancedOverrides(form: ConnectionForm): boolean {
-  return form.fetchTimeoutEnabled || form.nodeExpansionLimitEnabled;
+  return (
+    form.fetchTimeoutEnabled ||
+    form.nodeExpansionLimitEnabled ||
+    form.edgeConnectionDiscovery !== "auto"
+  );
 }
 
 /**
@@ -117,6 +169,7 @@ export function mapToConnectionForm(
     name,
     fetchTimeoutEnabled: Boolean(connection?.fetchTimeoutMs),
     nodeExpansionLimitEnabled: Boolean(connection?.nodeExpansionLimit),
+    edgeConnectionDiscovery: connection?.edgeConnectionDiscovery ?? "auto",
   };
 }
 
@@ -176,6 +229,8 @@ const CreateConnection = ({
         const urlChange = initialData?.url !== data.url;
         const dbUrlChange = initialData?.graphDbUrl !== data.graphDbUrl;
         const typeChange = initialData?.queryEngine !== data.queryEngine;
+        const discoveryChange =
+          initialData?.edgeConnectionDiscovery !== data.edgeConnectionDiscovery;
 
         if (urlChange || dbUrlChange || typeChange) {
           logger.log(
@@ -201,6 +256,18 @@ const CreateConnection = ({
           // Reseting all query state. Using `removeQueries()` to ensure initial data is recalculated.
           // This ensures dependent queries execute in the right order
           queryClient.removeQueries();
+        } else if (discoveryChange) {
+          logger.log(
+            "Discarding discovered edge connections because the discovery setting changed",
+            { original: initialData, updated: data },
+          );
+
+          // The stored edge connections are the real cache: they seed the query
+          // as initial data, so the query only reruns once they are gone.
+          set(discardEdgeConnectionsAtom, configId);
+          queryClient.removeQueries({
+            queryKey: edgeConnectionsQueryKeyPrefix,
+          });
         }
       },
       [configId, initialData, queryClient],
@@ -222,6 +289,7 @@ const CreateConnection = ({
     fetchTimeoutMs: initialData?.fetchTimeoutMs,
     nodeExpansionLimitEnabled: initialData?.nodeExpansionLimitEnabled || false,
     nodeExpansionLimit: initialData?.nodeExpansionLimit,
+    edgeConnectionDiscovery: initialData?.edgeConnectionDiscovery ?? "auto",
   });
 
   const [hasError, setError] = useState(false);
@@ -478,6 +546,51 @@ const CreateConnection = ({
                   min={0}
                 />
               </FormItem>
+            )}
+            {form.queryEngine === "gremlin" && (
+              <FieldSet>
+                <FieldLegend variant="label" id={DISCOVERY_LEGEND_ID}>
+                  Edge Connection Discovery
+                </FieldLegend>
+                <FieldDescription>
+                  How much of the graph is read to work out which node types
+                  each edge type connects. Only the Schema view uses this.
+                </FieldDescription>
+                <RadioGroup
+                  aria-labelledby={DISCOVERY_LEGEND_ID}
+                  value={form.edgeConnectionDiscovery}
+                  onValueChange={onFormChange("edgeConnectionDiscovery")}
+                >
+                  {EDGE_CONNECTION_DISCOVERY_OPTIONS.map(option => {
+                    const id = `edge-connection-discovery-${option.value}`;
+                    return (
+                      <FieldLabel key={option.value} htmlFor={id}>
+                        <Field orientation="horizontal">
+                          {/* The label wraps the whole card so any part of it is
+                          clickable. `aria-labelledby` then names the radio from
+                          its title alone, because the label's full text content
+                          would otherwise make the description part of the name
+                          and re-read it on every arrow key. */}
+                          <RadioGroupItem
+                            id={id}
+                            value={option.value}
+                            aria-labelledby={`${id}-title`}
+                            aria-describedby={`${id}-description`}
+                          />
+                          <FieldContent>
+                            <FieldTitle id={`${id}-title`}>
+                              {option.label}
+                            </FieldTitle>
+                            <FieldDescription id={`${id}-description`}>
+                              {option.description}
+                            </FieldDescription>
+                          </FieldContent>
+                        </Field>
+                      </FieldLabel>
+                    );
+                  })}
+                </RadioGroup>
+              </FieldSet>
             )}
           </CollapsibleContent>
         </Collapsible>

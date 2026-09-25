@@ -9,7 +9,6 @@ import {
   LABEL_BUDGET_CHARS,
   COMPLETE_ATTEMPT_TIMEOUT_MS,
   planDiscovery,
-  planSampling,
   SCAN_BUDGET,
 } from "./discoveryPlan";
 
@@ -27,6 +26,7 @@ describe("Gremlin > planDiscovery", () => {
     const plan = planDiscovery({
       edgeTypes: [],
       totalEdges: 1_000_000,
+      discovery: "auto",
     });
 
     expect(plan).toStrictEqual({ strategy: "none", requests: [] });
@@ -37,6 +37,7 @@ describe("Gremlin > planDiscovery", () => {
       const plan = planDiscovery({
         edgeTypes: edgeTypes(12),
         totalEdges: 40_000,
+        discovery: "auto",
       });
 
       expect(plan).toStrictEqual({
@@ -50,6 +51,7 @@ describe("Gremlin > planDiscovery", () => {
       const plan = planDiscovery({
         edgeTypes: edgeTypes(3),
         totalEdges: SCAN_BUDGET,
+        discovery: "auto",
       });
 
       expect(plan.strategy).toBe("complete");
@@ -61,6 +63,7 @@ describe("Gremlin > planDiscovery", () => {
       const plan = planDiscovery({
         edgeTypes: types,
         totalEdges: 19_928_805,
+        discovery: "auto",
       });
 
       expect(plan).toStrictEqual({
@@ -74,6 +77,7 @@ describe("Gremlin > planDiscovery", () => {
       const plan = planDiscovery({
         edgeTypes: types,
         totalEdges: 68_582,
+        discovery: "auto",
       });
 
       expect(plan.strategy).toBe("complete");
@@ -89,6 +93,7 @@ describe("Gremlin > planDiscovery", () => {
       const plan = planDiscovery({
         edgeTypes: types,
         totalEdges: 1_015_639,
+        discovery: "auto",
       });
 
       expect(plan.strategy).toBe("complete");
@@ -103,6 +108,7 @@ describe("Gremlin > planDiscovery", () => {
       const plan = planDiscovery({
         edgeTypes: types,
         totalEdges: undefined,
+        discovery: "auto",
       });
 
       expect(plan).toStrictEqual({
@@ -116,6 +122,7 @@ describe("Gremlin > planDiscovery", () => {
       const plan = planDiscovery({
         edgeTypes: types,
         totalEdges: undefined,
+        discovery: "auto",
       });
 
       expect(plan.strategy).toBe("complete");
@@ -126,15 +133,52 @@ describe("Gremlin > planDiscovery", () => {
     });
   });
 
-  describe("sampling after a complete scan was abandoned", () => {
-    it("should sample every edge type whatever the graph's size", () => {
+  describe("forced by the connection", () => {
+    it("should sample every edge type when forced to sampled", () => {
       const types = edgeTypes(4);
-      const plan = planSampling(types);
+      const plan = planDiscovery({
+        edgeTypes: types,
+        totalEdges: 20,
+        discovery: "sampled",
+      });
 
       expect(plan).toStrictEqual({
         strategy: "sampled",
         requests: [{ edgeTypes: types, limitPerType: DEFAULT_SAMPLE_SIZE }],
       });
+    });
+
+    it("should scan completely when forced to complete on a graph auto would sample", () => {
+      const plan = planDiscovery({
+        edgeTypes: edgeTypes(3),
+        totalEdges: 19_928_805,
+        discovery: "complete",
+      });
+
+      expect(plan.strategy).toBe("complete");
+      expect(plan.requests.every(r => !("limitPerType" in r))).toBe(true);
+    });
+
+    it("should never plan more chunks than there are edge types", () => {
+      const types = edgeTypes(3);
+      const plan = planDiscovery({
+        edgeTypes: types,
+        totalEdges: 19_928_805,
+        discovery: "complete",
+      });
+
+      expect(plan.requests).toHaveLength(3);
+      expect(coveredTypes(plan.requests)).toStrictEqual(types);
+    });
+
+    it("should still use one unfiltered request when forced complete fits the budget", () => {
+      const plan = planDiscovery({
+        edgeTypes: edgeTypes(3),
+        totalEdges: 20,
+        discovery: "complete",
+      });
+
+      expect(plan.requests).toStrictEqual([{}]);
     });
   });
 
@@ -156,6 +200,7 @@ describe("Gremlin > planDiscovery", () => {
         const plan = planDiscovery({
           edgeTypes: edgeTypes(3),
           totalEdges: total,
+          discovery: "auto",
         });
 
         for (const request of plan.requests) {
@@ -169,10 +214,12 @@ describe("Gremlin > planDiscovery", () => {
       const unusable = planDiscovery({
         edgeTypes: types,
         totalEdges: NaN,
+        discovery: "auto",
       });
       const unrecorded = planDiscovery({
         edgeTypes: types,
         totalEdges: undefined,
+        discovery: "auto",
       });
 
       expect(unusable).toStrictEqual(unrecorded);
@@ -182,7 +229,11 @@ describe("Gremlin > planDiscovery", () => {
   describe("batching a sampled pass", () => {
     it("should name several edge types per request, each with its own limit", () => {
       const types = edgeTypes(25);
-      const plan = planSampling(types);
+      const plan = planDiscovery({
+        edgeTypes: types,
+        totalEdges: 19_928_805,
+        discovery: "sampled",
+      });
 
       expect(plan.requests).toHaveLength(
         Math.ceil(types.length / EDGE_TYPES_PER_SAMPLE),
@@ -193,7 +244,11 @@ describe("Gremlin > planDiscovery", () => {
     it("should keep the worst case of every branch reaching its limit inside the sample budget", () => {
       // A type's edge count is unknown until it is read, so every branch is
       // assumed full. On a small instance 100 full branches ran for 116s.
-      const plan = planSampling(edgeTypes(1_000));
+      const plan = planDiscovery({
+        edgeTypes: edgeTypes(1_000),
+        totalEdges: 19_928_805,
+        discovery: "sampled",
+      });
 
       for (const request of plan.requests) {
         expect(
@@ -205,7 +260,11 @@ describe("Gremlin > planDiscovery", () => {
     it("should never name more union branches than Gremlin Server can compile", () => {
       // Gremlin Server compiles the script as Groovy, where one call takes at
       // most about 250 arguments, so a wider union() fails outright.
-      const plan = planSampling(edgeTypes(1_000));
+      const plan = planDiscovery({
+        edgeTypes: edgeTypes(1_000),
+        totalEdges: 19_928_805,
+        discovery: "sampled",
+      });
 
       for (const request of plan.requests) {
         expect((request.edgeTypes ?? []).length).toBeLessThanOrEqual(
@@ -218,7 +277,11 @@ describe("Gremlin > planDiscovery", () => {
       const types = Array.from({ length: EDGE_TYPES_PER_SAMPLE }, (_, i) =>
         createEdgeType(String(i).padStart(LABEL_BUDGET_CHARS / 2, "t")),
       );
-      const plan = planSampling(types);
+      const plan = planDiscovery({
+        edgeTypes: types,
+        totalEdges: 19_928_805,
+        discovery: "sampled",
+      });
 
       expect(plan.requests.length).toBeGreaterThan(1);
       expect(coveredTypes(plan.requests)).toStrictEqual(types);
@@ -233,20 +296,33 @@ describe("Gremlin > planDiscovery", () => {
       const whole = planDiscovery({
         edgeTypes: edgeTypes(3),
         totalEdges: 40_000,
+        discovery: "auto",
       });
       const chunked = planDiscovery({
         edgeTypes: edgeTypes(2_010),
         totalEdges: 1_015_639,
+        discovery: "auto",
       });
 
       expect(whole.requestTimeoutMs).toBe(COMPLETE_ATTEMPT_TIMEOUT_MS);
       expect(chunked.requestTimeoutMs).toBe(COMPLETE_ATTEMPT_TIMEOUT_MS);
     });
 
+    it("should not bound a scan the user asked for, which has nothing to degrade to", () => {
+      const plan = planDiscovery({
+        edgeTypes: edgeTypes(3),
+        totalEdges: 1_000_000,
+        discovery: "complete",
+      });
+
+      expect(plan.requestTimeoutMs).toBeUndefined();
+    });
+
     it("should not bound a sampled plan, whose work is already capped per request", () => {
       const plan = planDiscovery({
         edgeTypes: edgeTypes(3),
         totalEdges: 19_928_805,
+        discovery: "auto",
       });
 
       expect(plan.requestTimeoutMs).toBeUndefined();
@@ -256,6 +332,7 @@ describe("Gremlin > planDiscovery", () => {
       const plan = planDiscovery({
         edgeTypes: edgeTypes(10_015),
         totalEdges: undefined,
+        discovery: "auto",
       });
 
       expect(plan.strategy).toBe("complete");
@@ -275,6 +352,7 @@ describe("Gremlin > planDiscovery", () => {
       const plan = planDiscovery({
         edgeTypes: types,
         totalEdges: 68_582,
+        discovery: "auto",
       });
 
       // 3.2.2 issued 101 requests for this graph. The point of the change is
@@ -287,10 +365,12 @@ describe("Gremlin > planDiscovery", () => {
       const short = planDiscovery({
         edgeTypes: longEdgeTypes(10_000, 8),
         totalEdges: 200_000,
+        discovery: "auto",
       });
       const long = planDiscovery({
         edgeTypes: longEdgeTypes(10_000, 400),
         totalEdges: 200_000,
+        discovery: "auto",
       });
 
       // Same edge count and same edge type count, so the volume plan is
@@ -303,6 +383,7 @@ describe("Gremlin > planDiscovery", () => {
       const plan = planDiscovery({
         edgeTypes: types,
         totalEdges: 500_000,
+        discovery: "auto",
       });
 
       for (const request of plan.requests) {

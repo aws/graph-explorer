@@ -1,3 +1,5 @@
+import type { EdgeConnectionDiscovery } from "@shared/types";
+
 import { v4 } from "uuid";
 
 import type {
@@ -30,7 +32,7 @@ import {
   EdgeConnectionDiscoveryError,
   isTooBig,
 } from "./discoveryError";
-import { planDiscovery, planSampling, toEdgeTotal } from "./discoveryPlan";
+import { planDiscovery, toEdgeTotal } from "./discoveryPlan";
 import edgeConnectionsTemplate, {
   projectionKeys,
 } from "./edgeConnectionsTemplate";
@@ -67,10 +69,12 @@ type Combination = {
 export default async function fetchEdgeConnections(
   gremlinFetch: GremlinFetch,
   req: EdgeConnectionsRequest,
+  discovery: EdgeConnectionDiscovery,
 ): Promise<EdgeConnectionsResponse> {
   const plan = planDiscovery({
     edgeTypes: req.edgeTypes,
     totalEdges: req.totalEdges,
+    discovery,
   });
 
   logger.log("[Edge connection discovery] Planned", {
@@ -79,6 +83,7 @@ export default async function fetchEdgeConnections(
     requestTimeoutMs: plan.requestTimeoutMs,
     edgeTypes: req.edgeTypes.length,
     totalEdges: req.totalEdges,
+    setting: discovery,
   });
 
   try {
@@ -88,11 +93,13 @@ export default async function fetchEdgeConnections(
       throw error;
     }
 
-    // A sampled pass has nothing cheaper to fall back to.
-    if (plan.strategy !== "complete") {
+    // A user who asked for complete gets the failure reported, because silently
+    // sampling would contradict the setting. A sampled pass has nothing cheaper
+    // to fall back to.
+    if (plan.strategy !== "complete" || discovery !== "auto") {
       throw giveUp(
         plan,
-        { totalEdges: req.totalEdges, degraded: false },
+        { setting: discovery, totalEdges: req.totalEdges, degraded: false },
         error,
       );
     }
@@ -102,7 +109,11 @@ export default async function fetchEdgeConnections(
       error,
     );
 
-    const sampled = planSampling(req.edgeTypes);
+    const sampled = planDiscovery({
+      edgeTypes: req.edgeTypes,
+      totalEdges: req.totalEdges,
+      discovery: "sampled",
+    });
 
     try {
       return await runPlan(gremlinFetch, sampled, req.edgeTypes);
@@ -112,7 +123,7 @@ export default async function fetchEdgeConnections(
       }
       throw giveUp(
         sampled,
-        { totalEdges: req.totalEdges, degraded: true },
+        { setting: discovery, totalEdges: req.totalEdges, degraded: true },
         sampledError,
       );
     }
