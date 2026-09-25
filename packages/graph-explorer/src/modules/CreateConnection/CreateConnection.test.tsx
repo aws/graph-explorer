@@ -34,18 +34,6 @@ describe("CreateConnection", () => {
     expect(
       screen.getByRole("textbox", { name: "Database URL" }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
-    ).toBeInTheDocument();
-
-    // The placeholder must include the port so copying its shape doesn't
-    // produce a connection that silently fails against the default HTTPS port
-    expect(
-      screen.getByRole("textbox", { name: "Database URL" }),
-    ).toHaveAttribute(
-      "placeholder",
-      "https://neptune-cluster.amazonaws.com:8182",
-    );
 
     expect(
       screen.queryByRole("textbox", { name: "Public or Proxy Endpoint" }),
@@ -53,6 +41,19 @@ describe("CreateConnection", () => {
     expect(
       screen.queryByRole("checkbox", { name: "Using Proxy-Server" }),
     ).toBeNull();
+  });
+
+  test("suggests a database URL that includes the port", () => {
+    renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+
+    // Copying a placeholder without the port produces a connection that
+    // fails against the default HTTPS port
+    expect(
+      screen.getByRole("textbox", { name: "Database URL" }),
+    ).toHaveAttribute(
+      "placeholder",
+      "https://neptune-cluster.amazonaws.com:8182",
+    );
   });
 
   test("offers AWS IAM auth without requiring a proxy server first", () => {
