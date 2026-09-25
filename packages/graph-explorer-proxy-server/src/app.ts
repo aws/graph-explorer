@@ -10,7 +10,7 @@ import cors from "cors";
 import express, { type NextFunction, type Response } from "express";
 import fetch, { type RequestInit } from "node-fetch";
 import path from "path";
-import { pipeline } from "stream";
+import { pipeline } from "stream/promises";
 import { z } from "zod";
 
 import { assertAllowedDbOrigin } from "./allowed-db-origins.ts";
@@ -102,6 +102,30 @@ function parseDbQueryHeaders(headers: IncomingHttpHeaders) {
     shouldLogDbQuery: parsed["db-query-logging-enabled"],
     ...authOptions,
   };
+}
+
+/**
+ * Cancels the upstream query when the client disappears before the exchange
+ * completes, either by abandoning the request body or by dropping the socket
+ * before the response is fully written.
+ */
+function cancelQueryOnClientDisconnect(
+  req: express.Request,
+  res: Response,
+  cancelQuery: () => Promise<void>,
+) {
+  req.on("close", () => {
+    if (req.complete) {
+      return;
+    }
+    void cancelQuery();
+  });
+  res.on("close", () => {
+    if (res.writableFinished) {
+      return;
+    }
+    void cancelQuery();
+  });
 }
 
 interface LoggerIncomingHttpHeaders extends IncomingHttpHeaders {
@@ -238,10 +262,19 @@ export function createApp({
     refetchMaxRetries = 1,
   ) => {
     const logger = getLogger();
+    // Applied here so every outbound request identifies the proxy, including
+    // the query cancellation requests that bypass fetchData.
+    const optionsWithUserAgent = {
+      ...options,
+      headers: {
+        "User-Agent": userAgent,
+        ...Object.fromEntries(new Headers(options.headers as HeadersInit)),
+      },
+    };
     for (let i = 0; i < refetchMaxRetries; i++) {
       const fetchOptions = await buildFetchOptions(
         url,
-        options,
+        optionsWithUserAgent,
         isIamEnabled,
         region,
         serviceType,
@@ -284,13 +317,7 @@ export function createApp({
     try {
       const response = await retryFetch(
         new URL(url),
-        {
-          ...options,
-          headers: {
-            "User-Agent": userAgent,
-            ...Object.fromEntries(new Headers(options.headers as HeadersInit)),
-          },
-        },
+        options,
         isIamEnabled,
         region,
         serviceType,
@@ -307,14 +334,17 @@ export function createApp({
         }
       }
 
-      // Pipe the raw fetch response body directly to the client response
+      // Pipe the raw fetch response body directly to the client response.
+      // Awaited so the handler does not return while bytes are still in
+      // flight, which would let `res.writableFinished` read false and fire a
+      // spurious query cancellation.
       if (response.body) {
-        pipeline(response.body, res, err => {
-          if (err) {
-            // Log the error as a warning, but otherwise ignore it
-            logger.warn("Pipeline error %o", err);
-          }
-        });
+        try {
+          await pipeline(response.body, res);
+        } catch (err) {
+          // Log the error as a warning, but otherwise ignore it
+          logger.warn(err, "Pipeline error");
+        }
       } else {
         res.end();
       }
@@ -367,20 +397,7 @@ export function createApp({
       }
     }
 
-    // Watch for a cancelled or aborted connection
-    req.on("close", async () => {
-      if (req.complete) {
-        return;
-      }
-
-      await cancelQuery();
-    });
-    res.on("close", async () => {
-      if (res.writableFinished) {
-        return;
-      }
-      await cancelQuery();
-    });
+    cancelQueryOnClientDisconnect(req, res, cancelQuery);
 
     // Validate the input before making any external calls.
     const queryString = req.body.query;
@@ -468,19 +485,7 @@ export function createApp({
       }
     }
 
-    // Watch for a cancelled or aborted connection
-    req.on("close", async () => {
-      if (req.complete) {
-        return;
-      }
-      await cancelQuery();
-    });
-    res.on("close", async () => {
-      if (res.writableFinished) {
-        return;
-      }
-      await cancelQuery();
-    });
+    cancelQueryOnClientDisconnect(req, res, cancelQuery);
 
     const body = { gremlin: queryString, queryId };
     const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, "gremlin").href;

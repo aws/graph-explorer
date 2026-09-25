@@ -957,6 +957,74 @@ describe("createApp", () => {
     });
   });
 
+  // ── Query cancellation ──────────────────────────────────────────
+
+  describe("query cancellation", () => {
+    /** Upstream response whose body keeps streaming and never ends. */
+    function mockUnendingUpstream() {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Map([["content-type", "application/json"]]),
+        body: new Readable({
+          read() {
+            this.push("partial");
+          },
+        }),
+      } as any);
+    }
+
+    /**
+     * Sends a query, abandons it mid-response, and resolves once the proxy has
+     * issued the cancellation. Awaiting the cancellation is what keeps it from
+     * being recorded against the next test's mock (#2190).
+     */
+    async function abandonQuery(
+      route: "sparql" | "gremlin",
+      statusPath: string,
+    ) {
+      mockUnendingUpstream();
+      mockFetchOnce();
+
+      const app = createTestApp();
+      const pending = request(serve(app))
+        .post(`/${route}`)
+        .set(dbHeaders({ queryid: "q-abort" }))
+        .send({ query: "SELECT 1" });
+
+      setTimeout(() => pending.abort(), 30);
+      await pending.catch(() => {});
+
+      await vi.waitFor(() =>
+        expect(mockFetch).toHaveBeenCalledWith(
+          expect.stringContaining(statusPath),
+          expect.anything(),
+        ),
+      );
+      return fetchOptionsFor(statusPath);
+    }
+
+    it("cancels an abandoned SPARQL query", async () => {
+      const cancelOptions = await abandonQuery("sparql", "sparql/status");
+
+      expect(cancelOptions.body).toContain("queryId=q-abort");
+      expect(cancelOptions.headers["User-Agent"]).toBe(
+        `graph-explorer/${testVersion}`,
+      );
+      // The query itself is still selectable despite the extra cancel call
+      expect(fetchOptionsFor("sparql").body).toContain("queryId=q-abort");
+    });
+
+    it("cancels an abandoned Gremlin query", async () => {
+      const cancelOptions = await abandonQuery("gremlin", "gremlin/status");
+
+      expect(cancelOptions.headers["User-Agent"]).toBe(
+        `graph-explorer/${testVersion}`,
+      );
+      expect(fetchOptionsFor("gremlin")).toBeDefined();
+    });
+  });
+
   // ── User-Agent header ───────────────────────────────────────────
 
   describe("User-Agent header", () => {
