@@ -134,10 +134,9 @@ export function transformLegacyConnection(
     : url || connection.graphDbUrl;
 
   if (!isProxyConnection) {
-    // The IAM controls only ever rendered for a proxy connection, so these
-    // fields are meaningless on a direct connection — and dangerous if stale
-    // or imported, since the Proxy Server signs the outbound request with
-    // its own IAM credentials whenever `awsAuthEnabled` is set.
+    // The IAM controls only rendered for a proxy connection, so drop these
+    // fields on a direct connection rather than let the Proxy Server sign its
+    // request.
     delete rest.awsAuthEnabled;
     delete rest.awsRegion;
     delete rest.serviceType;
