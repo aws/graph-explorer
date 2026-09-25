@@ -28,7 +28,31 @@ if [ -f "./config.json" ]; then
     NEPTUNE_NOTEBOOK=$(echo "$json" | grep -o '"NEPTUNE_NOTEBOOK":[^,}]*' | cut -d ':' -f 2 | tr -d '[:space:]' | sed 's/"//g')
 fi
 
-if [ -n "$PUBLIC_OR_PROXY_ENDPOINT" ]; then
+# Resolve the legacy PUBLIC_OR_PROXY_ENDPOINT/USING_PROXY_SERVER variables into
+# GRAPH_CONNECTION_URL. The URL rule below matches transformLegacyConnection()
+# in configuration.ts, but the auth fields deliberately diverge: that transform
+# drops IAM/region/service type from a never-proxied connection because a stored
+# one can be stale or imported and never showed IAM controls, whereas an
+# operator who set IAM here asked for signing, which now works because every
+# request routes through the proxy.
+USING_PROXY_SERVER_LOWER=$(printf '%s' "$USING_PROXY_SERVER" | tr '[:upper:]' '[:lower:]')
+IS_PROXY_CONNECTION=false
+if [ "$USING_PROXY_SERVER_LOWER" = "true" ]; then
+    IS_PROXY_CONNECTION=true
+elif [ -z "$USING_PROXY_SERVER" ] && [ -n "$GRAPH_CONNECTION_URL" ]; then
+    IS_PROXY_CONNECTION=true
+fi
+
+if [ "$IS_PROXY_CONNECTION" = "true" ]; then
+    RESOLVED_CONNECTION_URL="$GRAPH_CONNECTION_URL"
+elif [ -n "$PUBLIC_OR_PROXY_ENDPOINT" ]; then
+    RESOLVED_CONNECTION_URL="$PUBLIC_OR_PROXY_ENDPOINT"
+else
+    RESOLVED_CONNECTION_URL="$GRAPH_CONNECTION_URL"
+fi
+
+# Check both files before writing either, so a refusal leaves the folder as it was.
+if [ -n "$RESOLVED_CONNECTION_URL" ]; then
     require_writable "$CONFIGURATION_FOLDER_PATH/defaultConnection.json"
 fi
 require_writable "$CONFIGURATION_FOLDER_PATH/.env"
@@ -44,6 +68,13 @@ if [ -n "$NEPTUNE_NOTEBOOK" ]; then
         *) PROXY_SERVER_HTTPS_CONNECTION="false" ;;
       esac
       GRAPH_EXP_HTTPS_CONNECTION="false"
+      # Set port and log style unless explicitly overridden
+      if [ -z "$PROXY_SERVER_HTTP_PORT" ]; then
+          printf '\nPROXY_SERVER_HTTP_PORT=9250\n' >> $CONFIGURATION_FOLDER_PATH/.env
+      fi
+      if [ -z "$LOG_STYLE" ]; then
+          printf '\nLOG_STYLE=cloudwatch\n' >> $CONFIGURATION_FOLDER_PATH/.env
+      fi
     fi
 else
     printf '\nNEPTUNE_NOTEBOOK=false\n' >> $CONFIGURATION_FOLDER_PATH/.env
@@ -62,11 +93,11 @@ else
 fi
 
 # Update the default connection file with the configuration values
-if [ -n "$PUBLIC_OR_PROXY_ENDPOINT" ]; then 
+if [ -n "$RESOLVED_CONNECTION_URL" ]; then
     # Overwrite existing file with an empty string
     echo "" > $CONFIGURATION_FOLDER_PATH/defaultConnection.json
-    
-    printf '{\n"GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT":"%s",\n' "$PUBLIC_OR_PROXY_ENDPOINT" >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
+
+    printf '{\n"GRAPH_EXP_CONNECTION_URL":"%s",\n' "$RESOLVED_CONNECTION_URL" >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
 
     if [ -n "$SERVICE_TYPE" ]; then
         echo "\"GRAPH_EXP_SERVICE_TYPE\":\"${SERVICE_TYPE}\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
@@ -74,26 +105,19 @@ if [ -n "$PUBLIC_OR_PROXY_ENDPOINT" ]; then
         echo "\"GRAPH_EXP_SERVICE_TYPE\":\"neptune-db\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
     fi
 
-    if [ -n "$GRAPH_TYPE" ]; then 
+    if [ -n "$GRAPH_TYPE" ]; then
         echo "\"GRAPH_EXP_GRAPH_TYPE\":\"${GRAPH_TYPE}\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
     else
       if [ "$SERVICE_TYPE" = "neptune-graph" ]; then
         echo "\"GRAPH_EXP_GRAPH_TYPE\":\"openCypher\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
       fi
     fi
-    
-    if [ -n "$USING_PROXY_SERVER" ]; then 
-        echo "\"GRAPH_EXP_USING_PROXY_SERVER\":${USING_PROXY_SERVER}," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
-    else 
-        echo "\"GRAPH_EXP_USING_PROXY_SERVER\":false," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
-    fi 
 
-    if [ -n "$IAM" ]; then 
+    if [ -n "$IAM" ]; then
         echo "\"GRAPH_EXP_IAM\":${IAM}," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
-    else 
+    else
         echo "\"GRAPH_EXP_IAM\":false," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
     fi
 
-    echo "\"GRAPH_EXP_CONNECTION_URL\":\"${GRAPH_CONNECTION_URL}\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
     printf '"GRAPH_EXP_AWS_REGION":"%s"\n}\n' "$AWS_REGION" >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
 fi

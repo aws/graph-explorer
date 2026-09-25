@@ -24,6 +24,7 @@ Each project sets up its own environment. `setupTests.ts` below is registered by
 - `createTestableVertex()` / `createTestableEdge()` — fluent builders: `.with({...})`, `.withSource()`, `.withTarget()`, `.withRdfValues()`, `.asVertex()`, `.asResult()`
 - `createMockExplorer` / `FakeExplorer` — explorer test doubles
 - `mockVirtualizedLayout` — give jsdom/happy-dom elements a measurable size so a virtualizer renders rows; see **jsdom/happy-dom layout** under Special cases
+- `stubDocumentUrl(href?)`: points the happy-dom document at a URL (default `http://localhost/explorer/`) so code that calls `apiUrl()` resolves the production API root. Call it in `beforeEach` in any test that asserts a request URL.
 - SPARQL: `createUriValue`, `createLiteralValue`, `createQuadBindingsForEntities`, `createQuadSparqlResponse` (`sparqlHelpers.ts`)
 - Gremlin/openCypher response builders: `graphsonHelpers.ts`, `ocHelpers.ts`
 - `normalizeWithNoSpace` / `normalize` / `normalizeWithNewlines` — normalize query strings before asserting (`normalize.ts`). They differ in whitespace and comment handling; use whichever the file you're editing already uses.
@@ -104,3 +105,5 @@ Anything persisted to IndexedDB via localForage/Jotai may be reloaded in an olde
 Group them in a dedicated `describe("backward compatibility: ...")` with a comment block stating the old shape, why the tests exist, and a "do not delete without confirming migration" warning. See `src/utils/parseConnectionFile.test.ts` or `src/core/StateProvider/graphViewLayout.test.ts` for worked examples.
 
 Applies to any object type persisted via `atomWithLocalForage`. Triggers: removing/renaming a property, changing a property's type, adding a required property, or changing a property's semantics.
+
+The same pinning applies outside IndexedDB: legacy environment variables that older deployments still set, and legacy on-disk configuration files that older exports or lifecycle scripts still produce, deserve the same dedicated `describe("backward compatibility: ...")` treatment. See `packages/graph-explorer-proxy-server/src/process-environment.test.ts` for the environment-variable case.

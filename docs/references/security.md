@@ -2,7 +2,7 @@
 
 # Security
 
-You can use Graph Explorer to connect to a publicly accessible graph database endpoint, or connect to a proxy endpoint that redirects to a private graph database endpoint.
+The browser always talks to the same-origin proxy server, and the proxy server is what reaches the graph database. That means the proxy server must have network access to the target database, as described in the [architecture overview](../architecture.md#system-overview).
 
 Graph Explorer supports the HTTPS protocol by default and provides a self-signed certificate as part of the Docker image. You can choose to use HTTP instead by changing the [environment variable default settings](./configuration.md#application-configuration).
 
@@ -75,9 +75,9 @@ For browsers like Safari and Firefox, trusting the certificate from the browser 
 
 ## CORS
 
-By default, the proxy server does not allow cross-origin requests. Since the proxy server serves both the API and the UI from the same origin, CORS is not needed in standard deployments. In development mode, the Vite dev server proxies API requests to the Express server to maintain same-origin behavior.
+By default, the proxy server does not allow cross-origin requests. The browser always reaches the proxy server's API from the same origin it served the UI from, so CORS is not needed for the UI itself. In development mode, the Vite dev server proxies API requests to the Express server to maintain same-origin behavior.
 
-If you serve the UI from a different origin than the proxy server, set the `PROXY_SERVER_CORS_ORIGIN` environment variable to the origin you want to allow.
+`PROXY_SERVER_CORS_ORIGIN` is for a different case: some other web application, running at its own origin, calling the proxy server's API directly (not through the Graph Explorer UI). Set it to the origin you want to allow.
 
 ```bash
 PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com
@@ -101,7 +101,7 @@ By default, the proxy server forwards requests to any database URL specified by 
 
 > [!NOTE]
 >
-> This check only applies to requests routed through the proxy server. Connections configured to contact the database directly (bypassing the proxy) are not subject to the allowlist.
+> This check applies to every database request, since the client always reaches the database through the Proxy Server.
 
 ## HTTP Redirects
 

@@ -5,6 +5,7 @@ import {
   DatabaseTimeoutError,
   FetchTimeoutError,
   logger,
+  MissingDatabaseUrlError,
   NetworkError,
   ServerConnectionError,
 } from "@/utils";
@@ -60,12 +61,10 @@ function getAuthHeaders(
   typeHeaders: HeadersInit | undefined,
 ) {
   const headers: Record<string, string> = {};
-  if (connection.proxyConnection) {
-    headers["graph-db-connection-url"] = connection.graphDbUrl || "";
-    headers["db-query-logging-enabled"] = String(
-      featureFlags.allowLoggingDbQuery,
-    );
-  }
+  headers["graph-db-connection-url"] = connection.graphDbUrl;
+  headers["db-query-logging-enabled"] = String(
+    featureFlags.allowLoggingDbQuery,
+  );
   if (connection.awsAuthEnabled) {
     headers["aws-neptune-region"] = connection.awsRegion || "";
     headers["service-type"] = connection.serviceType || DEFAULT_SERVICE_TYPE;
@@ -125,9 +124,13 @@ async function sendRequest(uri: URL | RequestInfo, fetchOptions: RequestInit) {
 export async function fetchDatabaseRequest(
   connection: NormalizedConnection,
   featureFlags: FeatureFlags,
-  uri: URL | RequestInfo,
+  uri: URL,
   options: RequestInit,
 ) {
+  if (!connection.graphDbUrl) {
+    throw new MissingDatabaseUrlError();
+  }
+
   const fetchTimeout = createFetchTimeout(connection);
   const signal = anySignal(fetchTimeout?.signal, options.signal);
 
@@ -153,9 +156,7 @@ export async function fetchDatabaseRequest(
     }
 
     if (error instanceof TypeError) {
-      const url =
-        typeof uri === "string" ? uri : uri instanceof URL ? uri.href : uri.url;
-      throw new ServerConnectionError(url, error);
+      throw new ServerConnectionError(uri.href, error);
     }
     throw error;
   }

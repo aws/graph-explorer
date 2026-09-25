@@ -17,8 +17,12 @@ The external graph database a user connects to and explores — the source of al
 _Avoid_: Database (ambiguous — clarify remote graph database vs. local persisted state)
 
 **Connection**:
-A saved database profile — the URL, query engine, authentication settings, and proxy routing needed to reach a graph database. Users create and manage these in the UI.
-_Avoid_: Configuration (legacy term being phased out — previously bundled connection + schema + Styles into one object)
+A saved database profile — the **Database URL**, query language, and optional IAM authentication settings. The client always reaches the database through the same-origin **Proxy Server**, so no proxy endpoint is configured. Users create and manage these in the UI.
+_Avoid_: Configuration (legacy term being phased out — previously bundled connection + schema + Styles into one object); proxy endpoint / `proxyConnection` (removed — see ADR `unify-docker-image-remove-sagemaker-variant`)
+
+**Database URL**:
+The endpoint of a Connection's Graph Database, stored as `graphDbUrl`. The **Proxy Server** sends database requests here, so it must be reachable from the host running Graph Explorer, not from the browser.
+_Avoid_: Graph Connection URL, graph DB URL
 
 **Fetch Timeout**:
 A limit the user sets on a Connection for how long Graph Explorer waits for one request. Enforced in the browser; the Graph Database never sees it. Exceeding it has nothing to do with database configuration.
@@ -36,7 +40,7 @@ _Avoid_: Active configuration (legacy code term `activeConfigurationAtom`)
 A persisted, shared breadcrumb recording the most recently activated Connection across all tabs. Last-writer-wins; used only as the cold-start seed for a fresh tab's Active Connection, never read live by the app.
 
 **Default Connection**:
-A Connection injected automatically into an empty store from environment-provided config — a `defaultConnection.json` file (local/self-hosted) or the SageMaker proxy endpoint (notebook). Seeded only when no Connections exist, and re-seeded if the last Connection is deleted. When the config names no Query Language, one Default Connection is produced per Query Language. Distinct from the Last Active Connection, which is a persisted breadcrumb rather than a connection.
+A Connection injected automatically into an empty store from a `defaultConnection.json` file the Proxy Server serves, fetched over the same relative path in every deployment mode. Seeded only when no Connections exist, and re-seeded if the last Connection is deleted. When the config names no Query Language, one Default Connection is produced per Query Language. Distinct from the Last Active Connection, which is a persisted breadcrumb rather than a connection.
 _Avoid_: Seed connection
 
 **Query Language**:
@@ -142,6 +146,14 @@ _Avoid_: Save state (ambiguous with Session)
 **Persistence Status Indicator**:
 The UI element in the nav bar (after the page title) that renders Persistence Status. It surfaces only on `failed` — a standing danger "Changes not saved" button — and stays absent at `idle` and `saving`. Clicking it opens a dialog showing the raw failure records (key, reason, attempt count, last attempt, and the underlying error's name/message/cause) in a read-only JSON editor. The dialog offers to save the configuration to a file via `saveLocalForageToFile` (`core/StateProvider/localDb.ts`) when storage is full (quota) — IndexedDB is still readable then — but not when storage is inaccessible (private mode, blocked), since the database never opened and there is nothing to read. Recovery scope is retry (transient failures) plus that backup (terminal-quota failures) — it does not guarantee the write eventually lands.
 _Avoid_: Save-status indicator
+
+**Proxy Server**:
+The Node.js server that serves the frontend under the **Static Mount Path** and proxies all database requests from the root. The client finds the API root from its own path, so the frontend and proxy are same-origin behind any external prefix, as long as a reverse proxy in front of them forwards the **Static Mount Path** segment unchanged. A proxy that renames that segment away is a misconfiguration, and Graph Explorer reports it as one. Every database request routes through the Proxy Server, which has network access to the database and handles SigV4 signing. See ADR `unify-docker-image-remove-sagemaker-variant`.
+_Avoid_: proxy endpoint URL (no longer user-configured)
+
+**Static Mount Path**:
+The path segment, currently `/explorer`, under which the **Proxy Server** serves the client's static files. A reverse proxy may put any prefix in front of it but must forward the segment itself intact. The API root is always the path with this segment removed.
+_Avoid_: `/explorer` as a bare literal (the constant is the source of truth); base path (ambiguous with Vite's `base` and the HTML `<base href>`)
 
 ## Relationships
 

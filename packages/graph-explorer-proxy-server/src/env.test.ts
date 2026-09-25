@@ -27,8 +27,7 @@ describe("parseEnvironmentValues", () => {
       expect(parseEnvironmentValues({}).NEPTUNE_NOTEBOOK).toBe(false);
     });
 
-    // The standard Docker image declares `ENV NEPTUNE_NOTEBOOK=$NEPTUNE_NOTEBOOK`
-    // with no build argument, so the variable arrives set but empty.
+    // `-e NEPTUNE_NOTEBOOK=` arrives set but empty.
     it.each(["", "false", "TRUE", "True", "1", "yes", "on", " true"])(
       "is false for %j without failing the parse",
       value => {

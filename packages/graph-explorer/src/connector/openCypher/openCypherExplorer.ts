@@ -1,6 +1,6 @@
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
-import { createLoggerFromConnection } from "@/core/connector";
+import { serverLogger } from "@/core/connector";
 import { env, logger } from "@/utils";
 import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 
@@ -8,6 +8,7 @@ import type { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
 import type { GraphSummary } from "./types";
 
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
+import { apiUrl } from "../utils/apiUrl";
 import { edgeDetails } from "./edgeDetails";
 import fetchEdgeConnections from "./fetchEdgeConnections";
 import fetchNeighbors from "./fetchNeighbors";
@@ -28,7 +29,7 @@ function _openCypherFetch(
     return fetchDatabaseRequest(
       connection,
       featureFlags,
-      `${connection.url}/openCypher`,
+      apiUrl("openCypher"),
       {
         method: "POST",
         headers: {
@@ -45,7 +46,7 @@ export function createOpenCypherExplorer(
   connection: NormalizedConnection,
   featureFlags: FeatureFlags,
 ): Explorer {
-  const remoteLogger = createLoggerFromConnection(connection);
+  const remoteLogger = serverLogger;
   const serviceType = connection.serviceType || DEFAULT_SERVICE_TYPE;
   return {
     connection,
@@ -130,8 +131,8 @@ async function fetchSummary(
   try {
     const endpoint =
       serviceType === DEFAULT_SERVICE_TYPE
-        ? `${connection.url}/pg/statistics/summary?mode=basic`
-        : `${connection.url}/summary?mode=basic`;
+        ? apiUrl("pg/statistics/summary?mode=basic")
+        : apiUrl("summary?mode=basic");
     const response = await fetchDatabaseRequest(
       connection,
       featureFlags,

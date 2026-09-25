@@ -20,7 +20,7 @@ import {
   type Vertex,
   type VertexId,
 } from "@/core";
-import { loggerSelector } from "@/core/connector";
+import { serverLogger } from "@/core/connector";
 import { createDisplayError } from "@/utils/createDisplayError";
 
 import { useAddToGraph } from "./useAddToGraph";
@@ -60,7 +60,7 @@ export function useDefaultNeighborExpansionLimit() {
 export default function useExpandNode() {
   const addToGraph = useAddToGraph();
   const getFetchedNeighbors = useFetchedNeighborsCallback();
-  const remoteLogger = useAtomValue(loggerSelector);
+  const remoteLogger = serverLogger;
   const neighborCallback = useNeighborsCallback();
 
   // Expand single node

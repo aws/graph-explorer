@@ -12,7 +12,9 @@ import { FileEnvelopeError } from "@/core/fileEnvelope";
 import { createDisplayError } from "./createDisplayError";
 import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
 import { FetchTimeoutError } from "./FetchTimeoutError";
+import { MissingDatabaseUrlError } from "./MissingDatabaseUrlError";
 import { NetworkError } from "./NetworkError";
+import { ReverseProxyMisconfiguredError } from "./ReverseProxyMisconfiguredError";
 import { ServerConnectionError } from "./ServerConnectionError";
 import { createCancelledError } from "./testing";
 
@@ -84,7 +86,8 @@ describe("createDisplayError", () => {
     const result = createDisplayError({ code: "ECONNREFUSED" });
     expect(result).toStrictEqual({
       title: "Connection refused",
-      message: "Please check your connection and try again.",
+      message:
+        "The database host answered but refused the connection. Check that the port in the connection is correct and the database is running.",
     });
   });
 
@@ -103,7 +106,8 @@ describe("createDisplayError", () => {
     const result = createDisplayError(error);
     expect(result).toStrictEqual({
       title: "Connection refused",
-      message: "Please check your connection and try again.",
+      message:
+        "The database host answered but refused the connection. Check that the port in the connection is correct and the database is running.",
     });
   });
 
@@ -196,7 +200,8 @@ describe("createDisplayError", () => {
 
       expect(createDisplayError(error)).toStrictEqual({
         title: "Connection refused",
-        message: "Please check your connection and try again.",
+        message:
+          "The database host answered but refused the connection. Check that the port in the connection is correct and the database is running.",
       });
     });
   });
@@ -279,49 +284,25 @@ describe("createDisplayError", () => {
     expect(result).toStrictEqual({
       title: "Connection Error",
       message:
-        "Unable to reach the proxy server. This is typically caused by the proxy server not running, an incorrect connection URL, or a CORS configuration issue.",
+        "The Graph Explorer server is not reachable from this page. It has usually stopped running, or this tab is stale. Reload the page and try again.",
     });
   });
 
-  it("Should handle server connection error with origin mismatch", () => {
-    const result = createDisplayError(
-      new ServerConnectionError(
-        "https://other-host:8182/query",
-        new TypeError("Failed to fetch"),
-      ),
-    );
+  it("Should handle a Connection with no database URL", () => {
+    const result = createDisplayError(new MissingDatabaseUrlError());
     expect(result).toStrictEqual({
-      title: "Cross-Origin Request Blocked",
+      title: "Missing database URL",
       message:
-        "The proxy server URL does not match the browser's origin, which can cause CORS errors. Update the connection URL to match the browser's origin.",
+        "This connection has no database URL. Edit the connection and enter the Database URL.",
     });
   });
 
-  it.each([
-    "http://localhost:9999/query",
-    "http://127.0.0.1:9999/query",
-    "http://[::1]:9999/query",
-    "http://0.0.0.0:9999/query",
-    "http://127.0.0.1:8182/query",
-  ])("Should not report origin mismatch for loopback URL %s", (url: string) => {
-    const result = createDisplayError(
-      new ServerConnectionError(url, new TypeError("Failed to fetch")),
-    );
+  it("Should handle a reverse proxy that renamed away the /explorer mount segment", () => {
+    const error = new ReverseProxyMisconfiguredError("/gx/");
+    const result = createDisplayError(error);
     expect(result).toStrictEqual({
-      title: "Connection Error",
-      message:
-        "Unable to reach the proxy server. This is typically caused by the proxy server not running, an incorrect connection URL, or a CORS configuration issue.",
-    });
-  });
-
-  it("Should handle server connection error with unparseable URL", () => {
-    const result = createDisplayError(
-      new ServerConnectionError("not-a-url", new TypeError("Failed to fetch")),
-    );
-    expect(result).toStrictEqual({
-      title: "Connection Error",
-      message:
-        "Unable to reach the proxy server. This is typically caused by the proxy server not running, an incorrect connection URL, or a CORS configuration issue.",
+      title: "Reverse proxy misconfigured",
+      message: error.message,
     });
   });
 

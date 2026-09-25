@@ -5,20 +5,13 @@ import type { Explorer } from "@/connector/useGEFetchTypes";
 
 import { emptyExplorer } from "@/connector/emptyExplorer";
 import { createGremlinExplorer } from "@/connector/gremlin/gremlinExplorer";
-import {
-  ClientLoggerConnector,
-  type LoggerConnector,
-  ServerLoggerConnector,
-} from "@/connector/LoggerConnector";
+import { ServerLoggerConnector } from "@/connector/LoggerConnector";
 import { createOpenCypherExplorer } from "@/connector/openCypher/openCypherExplorer";
 import { createSparqlExplorer } from "@/connector/sparql/sparqlExplorer";
 import { logger } from "@/utils";
 
 import { featureFlagsSelector } from "./StateProvider";
-import {
-  activeConnectionAtom,
-  type NormalizedConnection,
-} from "./StateProvider/configuration";
+import { activeConnectionAtom } from "./StateProvider/configuration";
 
 export const explorerAtom = atom(get => {
   const explorerForTesting = get(explorerForTestingAtom);
@@ -66,30 +59,5 @@ export function useQueryEngine() {
   return useAtomValue(queryEngineSelector);
 }
 
-/**
- * Logger based on the active connection proxy URL.
- */
-export const loggerSelector = atom(get =>
-  createLoggerFromConnection(get(activeConnectionAtom)),
-);
-
-/** Creates a logger instance that will be remote if the connection is using the
- * proxy server. Otherwise it will be a client only logger. */
-export function createLoggerFromConnection(
-  connection: NormalizedConnection | null,
-): LoggerConnector {
-  // Check for a url and that we are using the proxy server
-  if (!connection || !connection.url || connection.proxyConnection !== true) {
-    logger.debug(
-      "Connection did not contain enough information to create a remote logger, so using a client logger instead",
-      connection,
-    );
-    return new ClientLoggerConnector();
-  }
-
-  logger.debug(
-    "Creating a remote server logger using proxy server URL",
-    connection.url,
-  );
-  return new ServerLoggerConnector(connection.url);
-}
+/** Sends log entries to the server's same-origin `/logger` endpoint. */
+export const serverLogger = new ServerLoggerConnector();

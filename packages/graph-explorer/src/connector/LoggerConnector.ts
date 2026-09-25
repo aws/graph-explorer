@@ -1,5 +1,7 @@
 import { logger } from "@/utils";
 
+import { apiUrl } from "./utils/apiUrl";
+
 export type LogLevel = "error" | "warn" | "info" | "debug" | "trace";
 
 export interface LoggerConnector {
@@ -10,14 +12,11 @@ export interface LoggerConnector {
   trace(message: unknown): void;
 }
 
-/** Sends log messages to the server in the connection configuration. */
+/** Sends log messages to the server via relative URL. */
 export class ServerLoggerConnector implements LoggerConnector {
-  #baseUrl: string;
   #clientLogger: ClientLoggerConnector;
 
-  constructor(connectionUrl: string) {
-    const url = connectionUrl.replace(/\/$/, "");
-    this.#baseUrl = `${url}/logger`;
+  constructor() {
     this.#clientLogger = new ClientLoggerConnector();
   }
 
@@ -46,14 +45,18 @@ export class ServerLoggerConnector implements LoggerConnector {
     return this.#sendLog("trace", message);
   }
 
-  #sendLog(level: LogLevel, message: unknown) {
-    return fetch(this.#baseUrl, {
-      method: "POST",
-      headers: {
-        level,
-        message: JSON.stringify(message),
-      },
-    }).catch(err => logger.error("Failed to send log to server", err));
+  async #sendLog(level: LogLevel, message: unknown) {
+    try {
+      await fetch(apiUrl("logger"), {
+        method: "POST",
+        headers: {
+          level,
+          message: JSON.stringify(message),
+        },
+      });
+    } catch (err) {
+      logger.error("Failed to send log to server", err);
+    }
   }
 }
 
