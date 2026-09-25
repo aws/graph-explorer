@@ -114,6 +114,12 @@ const CONNECTIONS_OP: {
 
 export type CreateConnectionProps = {
   existingConfig?: ConfigurationContextProps;
+  /**
+   * Seeds a new connection form with prefilled, fully editable values. Unlike
+   * `existingConfig`, this stays in "add" mode and does not run the
+   * meaningful-change reset logic.
+   */
+  initialValues?: Partial<ConnectionForm>;
   onClose(): void;
 };
 
@@ -149,34 +155,38 @@ function hasAdvancedOverrides(form: ConnectionForm): boolean {
   );
 }
 
-function mapToConnectionForm(
-  existingConfig: ConfigurationContextProps | undefined,
-) {
-  if (!existingConfig) {
-    return;
-  }
-
-  const result: ConnectionForm = {
-    ...existingConfig.connection,
-    name: existingConfig.displayLabel ?? existingConfig.id,
-    fetchTimeoutEnabled: Boolean(existingConfig.connection?.fetchTimeoutMs),
-    nodeExpansionLimitEnabled: Boolean(
-      existingConfig.connection?.nodeExpansionLimit,
-    ),
-    edgeConnectionDiscovery:
-      existingConfig.connection?.edgeConnectionDiscovery ?? "auto",
+/**
+ * Maps a connection into form values under the given name. The caller picks the
+ * name because only it knows the fallback: a stored connection falls back to
+ * its id, and a connection that hasn't been saved has no id.
+ */
+export function mapToConnectionForm(
+  name: string,
+  connection: ConnectionConfig | undefined,
+): ConnectionForm {
+  return {
+    ...connection,
+    name,
+    fetchTimeoutEnabled: Boolean(connection?.fetchTimeoutMs),
+    nodeExpansionLimitEnabled: Boolean(connection?.nodeExpansionLimit),
+    edgeConnectionDiscovery: connection?.edgeConnectionDiscovery ?? "auto",
   };
-  return result;
 }
 
 const CreateConnection = ({
   existingConfig,
+  initialValues,
   onClose,
 }: CreateConnectionProps) => {
   const queryClient = useQueryClient();
 
   const configId = existingConfig?.id;
-  const initialData = mapToConnectionForm(existingConfig);
+  const initialData = existingConfig
+    ? mapToConnectionForm(
+        existingConfig.displayLabel || existingConfig.id,
+        existingConfig.connection,
+      )
+    : initialValues;
 
   const onSave = useAtomCallback(
     useCallback(

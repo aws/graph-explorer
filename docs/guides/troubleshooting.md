@@ -93,7 +93,13 @@ There are multiple sources of timeouts.
 - Browser
 - Graph Explorer connection configuration
 
-The error you receive in Graph Explorer can interpret Neptune timeout errors and timeouts from Graph Explorer's configuration.
+Graph Explorer distinguishes two kinds of timeout and shows a different message for each.
+
+**Fetch timeout exceeded** means the request didn't finish within the connection's own Fetch Timeout setting. This is a client-side limit you configure yourself in the connection's settings, under "Enable Fetch Timeout". Increase the Fetch Timeout value, or retry the request.
+
+**Database query timed out** means the database itself stopped the query because it ran longer than the database's configured query timeout. For Neptune, this is controlled by the DB cluster parameter group. Increase the query timeout there, or retry the request.
+
+If a request is cancelled instead, Graph Explorer shows a plain "Request cancelled" message rather than either timeout message.
 
 ### Out of Memory
 
@@ -116,6 +122,22 @@ This can manifest as different types of errors depending on the root cause. You 
 
 > [!IMPORTANT]  
 > The paths listed here could always change in the future. If they do change, we will note that in the release notes.
+
+### Database Cannot Be Reached
+
+These errors mean the browser reached the proxy server, but the proxy server could not reach the database. Graph Explorer names the failure with one of two titles, and each one points at a different fix.
+
+**Database unreachable** means the database hostname could not be resolved. Check the hostname in the connection's Graph Connection URL for a typo, and check that the proxy server's host can resolve that name. A private endpoint, such as a Neptune cluster endpoint inside a VPC, only resolves from inside that VPC.
+
+**Database connection timed out** means the hostname resolved, but nothing answered at that address. The hostname is correct, so look at the network path instead:
+
+- The database's security group must allow inbound traffic on the database port from the proxy server, not from your browser
+- A firewall or network ACL between the proxy server and the database can drop the connection
+- The port in the connection must match the port the database listens on, for example `8182` for Neptune
+
+This error can take a minute or more to appear, because the proxy server waits for the operating system's connection timeout.
+
+For the network setup Neptune needs, see [Network Access](./connecting-to-neptune.md#network-access).
 
 ## Save & Load Configuration
 

@@ -1,6 +1,5 @@
 // @vitest-environment happy-dom
 import { render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { createEdgeType, getAppStore, schemaAtom } from "@/core";
@@ -32,11 +31,9 @@ describe("SchemaDiscoveryBoundary against the real store", () => {
 
     return render(
       <TestProvider client={createQueryClient()} store={store}>
-        <MemoryRouter>
-          <SchemaDiscoveryBoundary>
-            <div>Children</div>
-          </SchemaDiscoveryBoundary>
-        </MemoryRouter>
+        <SchemaDiscoveryBoundary>
+          <div>Children</div>
+        </SchemaDiscoveryBoundary>
       </TestProvider>,
     );
   }

@@ -1,7 +1,6 @@
 // @vitest-environment happy-dom
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { EdgeConnectionDiscoveryError } from "@/connector/gremlin/fetchEdgeConnections/discoveryError";
@@ -42,9 +41,7 @@ describe("EdgeConnectionDiscoveryNotice", () => {
 
     return render(
       <TestProvider client={queryClient} store={store}>
-        <MemoryRouter>
-          <EdgeConnectionDiscoveryNotice />
-        </MemoryRouter>
+        <EdgeConnectionDiscoveryNotice />
       </TestProvider>,
     );
   }

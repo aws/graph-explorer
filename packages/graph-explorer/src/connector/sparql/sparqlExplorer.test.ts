@@ -3,6 +3,8 @@ import type { ConnectionConfig } from "@shared/types";
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
 import { normalizeConnection } from "@/core";
+import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
+import { abortableFetch } from "@/utils/testing";
 
 import { createSparqlExplorer } from "./sparqlExplorer";
 
@@ -96,6 +98,51 @@ describe("createSparqlExplorer", () => {
       expect(schema).toBeDefined();
       expect(schema).toHaveProperty("vertices");
       expect(schema).toHaveProperty("edges");
+    });
+  });
+
+  describe("rawQuery", () => {
+    it("throws DatabaseTimeoutError for a Neptune query timeout", async () => {
+      mockFetch.mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            requestId: "abc-123",
+            code: "TimeLimitExceededException",
+            detailedMessage: "A timeout occurred during the request.",
+          }),
+          { status: 500, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+
+      const explorer = createSparqlExplorer(
+        createConnection(),
+        createFeatureFlags(),
+        new Map(),
+      );
+
+      const error = await explorer
+        .rawQuery({ query: "SELECT * WHERE { ?s ?p ?o } LIMIT 10" })
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(DatabaseTimeoutError);
+      expect(error.databaseCode).toBe("TimeLimitExceededException");
+    });
+
+    it("throws FetchTimeoutError when the connection's fetch timeout is exceeded", async () => {
+      mockFetch.mockImplementation(abortableFetch);
+
+      const explorer = createSparqlExplorer(
+        createConnection({ fetchTimeoutMs: 1 }),
+        createFeatureFlags(),
+        new Map(),
+      );
+
+      const error = await explorer
+        .rawQuery({ query: "SELECT * WHERE { ?s ?p ?o } LIMIT 10" })
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(FetchTimeoutError);
+      expect(error.timeoutMs).toBe(1);
     });
   });
 });

@@ -73,6 +73,9 @@ describe("parseEnvironmentValues", () => {
     it("exits process on invalid PROXY_SERVER_HTTPS_CONNECTION", () => {
       parseEnvironmentValues({ PROXY_SERVER_HTTPS_CONNECTION: "yes" });
       expect(process.exit).toHaveBeenCalledWith(1);
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining('Must be "true" or "false"'),
+      );
     });
 
     it("exits process on invalid LOG_LEVEL", () => {

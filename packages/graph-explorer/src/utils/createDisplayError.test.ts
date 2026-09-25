@@ -11,6 +11,8 @@ import {
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 
 import { createDisplayError } from "./createDisplayError";
+import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
+import { FetchTimeoutError } from "./FetchTimeoutError";
 import { NetworkError } from "./NetworkError";
 import { ServerConnectionError } from "./ServerConnectionError";
 import { createCancelledError } from "./testing";
@@ -117,13 +119,95 @@ describe("createDisplayError", () => {
     });
   });
 
+  // The proxy server's error handler used to send only { status, message }, so
+  // an errno could never reach the browser and every network failure fell
+  // through to a generic "Network Response 500". These use the exact payload
+  // extractErrorInfo now sends
+  // (packages/graph-explorer-proxy-server/src/error-handler.ts).
+  describe("errno codes from the proxy server's error payload", () => {
+    const unreachable = {
+      title: "Database unreachable",
+      message:
+        "The database hostname could not be resolved. Check the hostname in the connection and try again.",
+    };
+    const timedOut = {
+      title: "Database connection timed out",
+      message:
+        "The database hostname resolved, but nothing answered at that address. Check that a security group or firewall permits the Graph Explorer server, and that the port in the connection is correct.",
+    };
+
+    it("Should handle an unresolvable host", () => {
+      const error = new NetworkError("getaddrinfo ENOTFOUND bad-host", 500, {
+        status: 500,
+        message: "getaddrinfo ENOTFOUND bad-host",
+        code: "ENOTFOUND",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual(unreachable);
+    });
+
+    it("Should handle a connection that timed out", () => {
+      const error = new NetworkError("connect ETIMEDOUT 10.0.0.4:8182", 500, {
+        status: 500,
+        message: "connect ETIMEDOUT 10.0.0.4:8182",
+        code: "ETIMEDOUT",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual(timedOut);
+    });
+
+    it("Should handle a connection that timed out reported under cause", () => {
+      const error = new NetworkError("fetch failed", 500, {
+        status: 500,
+        message: "fetch failed",
+        cause: { code: "ETIMEDOUT" },
+      });
+
+      expect(createDisplayError(error)).toStrictEqual(timedOut);
+    });
+
+    it("Should handle a temporary DNS failure", () => {
+      const error = new NetworkError("getaddrinfo EAI_AGAIN db", 500, {
+        status: 500,
+        message: "getaddrinfo EAI_AGAIN db",
+        code: "EAI_AGAIN",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual(unreachable);
+    });
+
+    it("Should handle an unresolvable host reported under cause", () => {
+      const error = new NetworkError("fetch failed", 500, {
+        status: 500,
+        message: "fetch failed",
+        cause: { code: "ENOTFOUND" },
+      });
+
+      expect(createDisplayError(error)).toStrictEqual(unreachable);
+    });
+
+    it("Should handle a refused port", () => {
+      const message =
+        "request to http://localhost:9999/gremlin failed, reason: connect ECONNREFUSED 127.0.0.1:9999";
+      const error = new NetworkError(message, 500, {
+        status: 500,
+        message,
+        code: "ECONNREFUSED",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual({
+        title: "Connection refused",
+        message: "Please check your connection and try again.",
+      });
+    });
+  });
+
   it("should handle cancelled error", async () => {
     const error = await createCancelledError();
     const result = createDisplayError(error);
     expect(result).toStrictEqual({
       title: "Request cancelled",
-      message:
-        "The request exceeded the configured timeout length or was cancelled by the user.",
+      message: "The request was cancelled.",
     });
   });
 
@@ -134,8 +218,7 @@ describe("createDisplayError", () => {
     const result = createDisplayError(error);
     expect(result).toStrictEqual({
       title: "Request cancelled",
-      message:
-        "The request exceeded the configured timeout length or was cancelled by the user.",
+      message: "The request was cancelled.",
     });
   });
 
@@ -170,15 +253,6 @@ describe("createDisplayError", () => {
     expect(result.message).toContain("Automatic or Sampled");
   });
 
-  it("Should handle deadline exceeded", () => {
-    const result = createDisplayError({ code: "TimeLimitExceededException" });
-    expect(result).toStrictEqual({
-      title: "Deadline exceeded",
-      message:
-        "Increase the query timeout in the DB cluster parameter group, or retry the request.",
-    });
-  });
-
   it("Should handle malformed query", () => {
     const result = createDisplayError({ code: "MalformedQueryException" });
     expect(result).toStrictEqual({
@@ -188,13 +262,42 @@ describe("createDisplayError", () => {
     });
   });
 
-  it("Should handle TimeoutError", () => {
+  it("Should handle FetchTimeoutError", () => {
     const result = createDisplayError(
-      new FakeError("TimeoutError", "Timed out"),
+      new FetchTimeoutError(240000, new Error("aborted")),
     );
     expect(result).toStrictEqual({
-      title: "Fetch Timeout Exceeded",
-      message: "The request exceeded the configured fetch timeout.",
+      title: "Fetch timeout exceeded",
+      message:
+        "The request did not finish within this connection's fetch timeout of 240,000 ms. Increase the Fetch Timeout in the connection's settings, or retry the request.",
+    });
+  });
+
+  it("Should handle DatabaseTimeoutError", () => {
+    const result = createDisplayError(
+      new DatabaseTimeoutError(
+        "A timeout occurred",
+        500,
+        { code: "TimeLimitExceededException" },
+        "TimeLimitExceededException",
+      ),
+    );
+    expect(result).toStrictEqual({
+      title: "Database query timed out",
+      message:
+        "The database stopped the query because it ran longer than its query timeout. Increase the query timeout in the database configuration, such as the DB cluster parameter group for Neptune, or retry the request.",
+    });
+  });
+
+  it("Should fall back to the generic network message for a plain NetworkError with a TimeLimitExceededException data code", () => {
+    const error = new NetworkError("A timeout occurred", 500, {
+      code: "TimeLimitExceededException",
+      message: "A timeout occurred",
+    });
+    const result = createDisplayError(error);
+    expect(result).toStrictEqual({
+      title: "Network Response 500",
+      message: "A timeout occurred",
     });
   });
 
@@ -315,13 +418,5 @@ class UnrecognizedQueryValueError extends QueryValueError {
 
   constructor() {
     super("UnrecognizedQueryValueError", "unrecognized");
-  }
-}
-
-/** Used to create errors for test code. */
-class FakeError extends Error {
-  constructor(name: string, message: string) {
-    super(message);
-    this.name = name;
   }
 }

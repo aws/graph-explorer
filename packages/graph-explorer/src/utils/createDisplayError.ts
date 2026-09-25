@@ -8,7 +8,9 @@ import {
 } from "@/connector/queryValueError";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 
+import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
 import { extractErrorMessage } from "./extractErrorMessage";
+import { FetchTimeoutError } from "./FetchTimeoutError";
 import { isCancellationError } from "./isCancellationError";
 import { NetworkError } from "./NetworkError";
 import { ServerConnectionError } from "./ServerConnectionError";
@@ -22,6 +24,13 @@ const defaultDisplayError: DisplayError = {
   title: "Something went wrong",
   message: "An error occurred. Please try again.",
 };
+
+/**
+ * Errno codes that mean DNS never produced an address: no such host, or a
+ * temporary resolver failure. They share one message because both point at the
+ * hostname.
+ */
+const UNREACHABLE_HOST_CODES = new Set(["ENOTFOUND", "EAI_AGAIN"]);
 
 /**
  * Attempts to convert the technicality of errors in to humane
@@ -61,6 +70,25 @@ export function createDisplayError(error: any): DisplayError {
       };
     }
     if (
+      UNREACHABLE_HOST_CODES.has(data.code) ||
+      UNREACHABLE_HOST_CODES.has(data.cause?.code)
+    ) {
+      return {
+        title: "Database unreachable",
+        message:
+          "The database hostname could not be resolved. Check the hostname in the connection and try again.",
+      };
+    }
+    // The hostname is the one thing already proven correct, so this cannot
+    // reuse the message above.
+    if (data.code === "ETIMEDOUT" || data.cause?.code === "ETIMEDOUT") {
+      return {
+        title: "Database connection timed out",
+        message:
+          "The database hostname resolved, but nothing answered at that address. Check that a security group or firewall permits the Graph Explorer server, and that the port in the connection is correct.",
+      };
+    }
+    if (
       data.code === "ERR_INVALID_URL" ||
       data.cause?.code === "ERR_INVALID_URL"
     ) {
@@ -82,17 +110,6 @@ export function createDisplayError(error: any): DisplayError {
           "The database ran out of memory answering the query. Try a smaller request, or use an instance with more memory.",
       };
     }
-    if (
-      data.code === "TimeLimitExceededException" ||
-      data.cause?.code === "TimeLimitExceededException"
-    ) {
-      // Server timeout
-      return {
-        title: "Deadline exceeded",
-        message:
-          "Increase the query timeout in the DB cluster parameter group, or retry the request.",
-      };
-    }
 
     // Malformed query
     if (
@@ -107,12 +124,26 @@ export function createDisplayError(error: any): DisplayError {
     }
   }
 
+  if (error instanceof FetchTimeoutError) {
+    return {
+      title: "Fetch timeout exceeded",
+      message: `The request did not finish within this connection's fetch timeout of ${error.timeoutMs.toLocaleString()} ms. Increase the Fetch Timeout in the connection's settings, or retry the request.`,
+    };
+  }
+
+  if (error instanceof DatabaseTimeoutError) {
+    return {
+      title: "Database query timed out",
+      message:
+        "The database stopped the query because it ran longer than its query timeout. Increase the query timeout in the database configuration, such as the DB cluster parameter group for Neptune, or retry the request.",
+    };
+  }
+
   // Cancellation errors
   if (isCancellationError(error)) {
     return {
       title: "Request cancelled",
-      message:
-        "The request exceeded the configured timeout length or was cancelled by the user.",
+      message: "The request was cancelled.",
     };
   }
 
@@ -129,16 +160,6 @@ export function createDisplayError(error: any): DisplayError {
       message:
         "Unable to reach the proxy server. This is typically caused by the proxy server not running, an incorrect connection URL, or a CORS configuration issue.",
     };
-  }
-
-  if (error instanceof Error) {
-    // Fetch timeout
-    if (error.name === "TimeoutError") {
-      return {
-        title: "Fetch Timeout Exceeded",
-        message: "The request exceeded the configured fetch timeout.",
-      };
-    }
   }
 
   if (error instanceof NetworkError) {
