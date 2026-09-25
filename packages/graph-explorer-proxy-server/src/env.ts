@@ -12,7 +12,8 @@ const EnvironmentFieldsSchema = z.object({
   HOST: z.string().default("localhost"),
   // Mirrors process-environment.sh, which applies the notebook preset only on
   // an exact `= "true"` match. Reading it any looser would refuse a server the
-  // shell set up for HTTPS, and a parse error would stop one that runs on main.
+  // shell set up for HTTPS, and a parse error would stop a container that
+  // starts today.
   NEPTUNE_NOTEBOOK: z
     .string()
     .optional()
