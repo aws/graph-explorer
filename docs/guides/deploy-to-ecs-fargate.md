@@ -168,6 +168,10 @@ After the request is processed, the console will return you to your certificate 
      - `SERVICE_TYPE`: Set this as `neptune-db` for Neptune database or `neptune-graph` for Neptune Analytics.
 6. Click **Create**.
 
+> [!IMPORTANT]
+>
+> Don't set `readonlyRootFilesystem: true` or a non-root `user` on this container. Graph Explorer writes its settings into its configuration folder at startup and needs write access to do that. See [Graph Explorer can't start because it can't write .env](./troubleshooting.md#graph-explorer-cant-start-because-it-cant-write-env).
+
 ## Create a Fargate Service
 
 1. Open the ECS console at https://console.aws.amazon.com/ecs/v2.

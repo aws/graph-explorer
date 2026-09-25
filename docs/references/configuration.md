@@ -111,6 +111,10 @@ Controls the log output format.
 
 Override path for the folder containing `.env` and `defaultConnection.json`. When set, replaces the default path entirely.
 
+At startup, the container writes its settings to this folder: always `.env`, and `defaultConnection.json` too when a default connection is configured. The folder must be writable by the container, or it refuses to start. See [Graph Explorer can't start because it can't write .env](../guides/troubleshooting.md#graph-explorer-cant-start-because-it-cant-write-env) if you hit this.
+
+Mounting `config.json` read-only at `/graph-explorer/config.json` (see [JSON Configuration Approach](#json-configuration-approach)) is unaffected, since that file lives outside the configuration folder.
+
 - Optional
 - Default: `<client root>` (`packages/graph-explorer`)
 - Type: `string`
