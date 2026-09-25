@@ -20,7 +20,11 @@ concurrency:
 
 jobs:
   test-build-docker-image:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
 
     steps:
       - name: Checkout

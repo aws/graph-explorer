@@ -24,15 +24,76 @@ concurrency:
 
 jobs:
   build-and-push-image:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ECR }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ECR }}
+          aws-region: us-east-1
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_ECR }}
+          role-duration-seconds: 3600
+          role-session-name: ExplorerImageUpdate
+
+      - name: Login to Amazon ECR
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@376925c9d111252e87ae59691e5a442dd100ef6a # v2.1.3
+        with:
+          registry-type: public
+
+      - name: Build and push images by digest
+        env:
+          IMAGE: ${{ steps.login-ecr-public.outputs.registry }}/neptune/graph-explorer
+          ARCH: ${{ matrix.arch }}
+        run: |
+          docker buildx build --platform "linux/$ARCH" \
+            --output "type=image,name=$IMAGE,push-by-digest=true,name-canonical=true,push=true" \
+            --metadata-file "$RUNNER_TEMP/standard.json" .
+          docker buildx build --platform "linux/$ARCH" --build-arg NEPTUNE_NOTEBOOK=true \
+            --output "type=image,name=$IMAGE,push-by-digest=true,name-canonical=true,push=true" \
+            --metadata-file "$RUNNER_TEMP/sagemaker.json" .
+          mkdir -p "$RUNNER_TEMP/digests"
+          jq -er '."containerimage.digest"' "$RUNNER_TEMP/standard.json" > "$RUNNER_TEMP/digests/standard-$ARCH"
+          jq -er '."containerimage.digest"' "$RUNNER_TEMP/sagemaker.json" > "$RUNNER_TEMP/digests/sagemaker-$ARCH"
+
+      - name: Upload image digests
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: image-digests-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  publish-manifests:
+    needs: build-and-push-image
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+
       - name: Get package version
         id: package-version
-        run: echo "version=$(node -p 'require("./package.json").version')" >> $GITHUB_OUTPUT
+        run: echo "version=$(node -p 'require("./package.json").version')" >> "$GITHUB_OUTPUT"
 
       - name: Get image tag
         id: get-image-tag
@@ -41,9 +102,9 @@ jobs:
           VERSION: ${{ steps.package-version.outputs.version }}
         run: |
           if [ "$IS_RELEASE" = "true" ]; then
-            echo "image_tag=$VERSION" >> $GITHUB_OUTPUT
+            echo "image_tag=$VERSION" >> "$GITHUB_OUTPUT"
           else
-            echo "image_tag=latest-SNAPSHOT" >> $GITHUB_OUTPUT
+            echo "image_tag=latest-SNAPSHOT" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Configure AWS Credentials
@@ -62,28 +123,31 @@ jobs:
         with:
           registry-type: public
 
-      - name: Build, tag, and push Docker image
+      - name: Download image digests
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: image-digests-*
+          path: ${{ runner.temp }}/digests
+          merge-multiple: true
+
+      - name: Publish multi-architecture images
         env:
-          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-          REGISTRY_ALIAS: neptune
-          REPOSITORY: graph-explorer
+          IMAGE: ${{ steps.login-ecr-public.outputs.registry }}/neptune/graph-explorer
           IMAGE_TAG: ${{ steps.get-image-tag.outputs.image_tag }}
         run: |
-          docker build -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG .
-          docker build --build-arg NEPTUNE_NOTEBOOK=true -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-$IMAGE_TAG .
-          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
-          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-$IMAGE_TAG
+          docker buildx imagetools create -t "$IMAGE:$IMAGE_TAG" \
+            "$IMAGE@$(cat "$RUNNER_TEMP/digests/standard-amd64")" \
+            "$IMAGE@$(cat "$RUNNER_TEMP/digests/standard-arm64")"
+          docker buildx imagetools create -t "$IMAGE:sagemaker-$IMAGE_TAG" \
+            "$IMAGE@$(cat "$RUNNER_TEMP/digests/sagemaker-amd64")" \
+            "$IMAGE@$(cat "$RUNNER_TEMP/digests/sagemaker-arm64")"
 
       - name: Update latest tag for release
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.image_tag ==
           'release' }}
         env:
-          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-          REGISTRY_ALIAS: neptune
-          REPOSITORY: graph-explorer
+          IMAGE: ${{ steps.login-ecr-public.outputs.registry }}/neptune/graph-explorer
           IMAGE_TAG: ${{ steps.get-image-tag.outputs.image_tag }}
         run: |
-          docker tag $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest
-          docker tag $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-$IMAGE_TAG $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-latest
-          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest
-          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-latest
+          docker buildx imagetools create -t "$IMAGE:latest" "$IMAGE:$IMAGE_TAG"
+          docker buildx imagetools create -t "$IMAGE:sagemaker-latest" "$IMAGE:sagemaker-$IMAGE_TAG"
