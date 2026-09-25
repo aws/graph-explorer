@@ -170,7 +170,7 @@ describe("Connect route", () => {
     renderConnect(searchFor("https://brand-new.neptune.amazonaws.com"));
 
     const form = screen.getByRole("dialog", {
-      name: "Create connection from link",
+      name: "Add connection from link",
     });
     expect(form).not.toHaveAttribute("aria-modal", "true");
     expect(screen.getByTestId("location").compareDocumentPosition(form)).toBe(
@@ -186,7 +186,7 @@ describe("Connect route", () => {
     await user.click(screen.getByTestId("location"));
 
     expect(
-      screen.getByRole("dialog", { name: "Create connection from link" }),
+      screen.getByRole("dialog", { name: "Add connection from link" }),
     ).toBeInTheDocument();
     expect(screen.getByTestId("location")).toHaveTextContent("/connect");
   });

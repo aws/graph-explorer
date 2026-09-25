@@ -181,7 +181,7 @@ describe("AppStatusLoader URL params + default connection", () => {
     // The URL targets the connection the default provides, so we must NOT
     // see a create-connection prompt.
     expect(
-      screen.queryByText("Create connection from link"),
+      screen.queryByText("Add connection from link"),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "Add Connection" }),

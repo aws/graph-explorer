@@ -121,9 +121,9 @@ export default function Connect() {
               onInteractOutside={event => event.preventDefault()}
             >
               <DialogHeader>
-                <DialogTitle>Create connection from link</DialogTitle>
+                <DialogTitle>Add connection from link</DialogTitle>
                 <DialogDescription>
-                  Review the connection details from your link and create it to
+                  Review the connection details from your link and add it to
                   continue.
                 </DialogDescription>
               </DialogHeader>
