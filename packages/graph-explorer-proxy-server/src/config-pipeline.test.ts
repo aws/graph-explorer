@@ -19,23 +19,6 @@ const processEnvScriptPath = path.resolve(
   "../../../process-environment.sh",
 );
 
-/**
- * The environment each image bakes in through the Dockerfile's `ENV` lines.
- * The Dockerfile derives the port and log style from the NEPTUNE_NOTEBOOK
- * build argument at build time, so `-e NEPTUNE_NOTEBOOK=true` on the standard
- * image changes neither.
- */
-const standardImage = {
-  NEPTUNE_NOTEBOOK: "",
-  PROXY_SERVER_HTTP_PORT: "80",
-  LOG_STYLE: "default",
-};
-const notebookImage = {
-  NEPTUNE_NOTEBOOK: "true",
-  PROXY_SERVER_HTTP_PORT: "9250",
-  LOG_STYLE: "cloudwatch",
-};
-
 const conflictMessage =
   "NEPTUNE_NOTEBOOK and PROXY_SERVER_HTTPS_CONNECTION are both true. " +
   "The Neptune Notebook preset serves Graph Explorer over HTTP and does " +
@@ -68,8 +51,6 @@ const missingCertificates: StartupOutcome = {
 
 type Deployment = {
   name: string;
-  /** The container's environment before `-e`, from the image's `ENV` lines. */
-  image: Record<string, string>;
   /** Values passed with `docker run -e`. */
   dockerEnv?: Record<string, string>;
   /**
@@ -159,6 +140,8 @@ const notebookPreset = {
     NEPTUNE_NOTEBOOK: "true",
     PROXY_SERVER_HTTPS_CONNECTION: "false",
     GRAPH_EXP_HTTPS_CONNECTION: "false",
+    PROXY_SERVER_HTTP_PORT: "9250",
+    LOG_STYLE: "cloudwatch",
   },
   certificatesGenerated: false,
   startup: { useHttps: false, port: 9250 },
@@ -168,26 +151,31 @@ const notebookConflict = {
     NEPTUNE_NOTEBOOK: "true",
     PROXY_SERVER_HTTPS_CONNECTION: "true",
     GRAPH_EXP_HTTPS_CONNECTION: "false",
+    PROXY_SERVER_HTTP_PORT: "9250",
+    LOG_STYLE: "cloudwatch",
   },
   certificatesGenerated: false,
   startup: parseFailureAt("PROXY_SERVER_HTTPS_CONNECTION", conflictMessage),
 };
 
+/**
+ * Startup scenarios for the one image the Dockerfile builds. Its `ENV` lines
+ * set nothing the entrypoint reads, so the container's environment is `HOST`
+ * plus the `-e` flags, and the notebook preset's port and log style come from
+ * the `.env` lines process-environment.sh writes.
+ */
 const deployments: Deployment[] = [
   {
-    name: "standard image with nothing about HTTPS set defaults to TLS",
-    image: standardImage,
+    name: "nothing about HTTPS set defaults to TLS",
     expected: standardTls,
   },
   {
-    name: "standard image with -e PROXY_SERVER_HTTPS_CONNECTION=false serves HTTP",
-    image: standardImage,
+    name: "-e PROXY_SERVER_HTTPS_CONNECTION=false serves HTTP",
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
     expected: standardHttp,
   },
   {
-    name: "standard image with -e PROXY_SERVER_HTTP_PORT=8080 and HTTPS off serves HTTP on 8080",
-    image: standardImage,
+    name: "-e PROXY_SERVER_HTTP_PORT=8080 and HTTPS off serves HTTP on 8080",
     dockerEnv: {
       PROXY_SERVER_HTTPS_CONNECTION: "false",
       PROXY_SERVER_HTTP_PORT: "8080",
@@ -195,28 +183,24 @@ const deployments: Deployment[] = [
     expected: { ...standardHttp, startup: { useHttps: false, port: 8080 } },
   },
   {
-    // The image's ENV already sets the port, and dotenv never overrides a
-    // variable that's already set.
-    name: "standard image with PROXY_SERVER_HTTP_PORT=8080 already in .env keeps the image's port 80",
-    image: standardImage,
+    name: "PROXY_SERVER_HTTP_PORT=8080 already in .env and HTTPS off serves HTTP on 8080",
     existingEnvFile: { PROXY_SERVER_HTTP_PORT: "8080" },
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
     expected: {
-      ...standardHttp,
       envFile: { PROXY_SERVER_HTTP_PORT: "8080", ...standardHttp.envFile },
+      certificatesGenerated: false,
+      startup: { useHttps: false, port: 8080 },
     },
   },
   {
-    name: "standard image with -e PROXY_SERVER_HTTPS_CONNECTION=true serves TLS",
-    image: standardImage,
+    name: "-e PROXY_SERVER_HTTPS_CONNECTION=true serves TLS",
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
     expected: standardTls,
   },
   {
     // The entrypoint generates certificates only for an exact "true", but the
     // server reads HTTPS case-insensitively.
-    name: "standard image with -e PROXY_SERVER_HTTPS_CONNECTION=TRUE skips certificates and fails on the missing certificates",
-    image: standardImage,
+    name: "-e PROXY_SERVER_HTTPS_CONNECTION=TRUE skips certificates and fails on the missing certificates",
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "TRUE" },
     expected: {
       envFile: {
@@ -228,77 +212,51 @@ const deployments: Deployment[] = [
     },
   },
   {
-    name: "standard image with config.json HTTPS true serves TLS",
-    image: standardImage,
+    name: "config.json HTTPS true serves TLS",
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: true },
     expected: standardTls,
   },
   {
-    name: "standard image with config.json HTTPS false serves HTTP",
-    image: standardImage,
+    name: "config.json HTTPS false serves HTTP",
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: false },
     expected: standardHttp,
   },
   {
     // Known issue: config.json decides what the shell writes and whether
     // certificates are generated, while the -e value wins in the server.
-    name: "standard image with config.json HTTPS true and -e HTTPS false generates certificates but serves HTTP",
-    image: standardImage,
+    name: "config.json HTTPS true and -e HTTPS false generates certificates but serves HTTP",
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: true },
     expected: { ...standardTls, startup: http },
   },
   {
-    name: "standard image with config.json HTTPS false and -e HTTPS true skips certificates and fails on the missing certificates",
-    image: standardImage,
+    name: "config.json HTTPS false and -e HTTPS true skips certificates and fails on the missing certificates",
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: false },
     expected: { ...standardHttp, startup: missingCertificates },
   },
   {
-    name: "NEPTUNE_NOTEBOOK entirely unset defaults to TLS",
-    image: { PROXY_SERVER_HTTP_PORT: "80", LOG_STYLE: "default" },
-    expected: standardTls,
-  },
-  {
-    name: "notebook image with nothing about HTTPS set serves HTTP on 9250",
-    image: notebookImage,
+    name: "-e NEPTUNE_NOTEBOOK=true applies the preset and serves HTTP on 9250 with cloudwatch logs",
+    dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
     expected: notebookPreset,
   },
   {
-    // With no image ENV, the port and log style come from the preset's .env
-    // write, which an explicit -e value still beats.
-    name: "image without ENV defaults and -e NEPTUNE_NOTEBOOK=true serves HTTP on 9250",
-    image: {},
-    dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
-    expected: {
-      ...notebookPreset,
-      envFile: {
-        ...notebookPreset.envFile,
-        PROXY_SERVER_HTTP_PORT: "9250",
-        LOG_STYLE: "cloudwatch",
-      },
-    },
-  },
-  {
-    name: "image without ENV defaults and -e NEPTUNE_NOTEBOOK=true and -e PROXY_SERVER_HTTP_PORT=8080 serves HTTP on 8080",
-    image: {},
+    // An explicit -e value beats the preset's .env write.
+    name: "-e NEPTUNE_NOTEBOOK=true and -e PROXY_SERVER_HTTP_PORT=8080 serves HTTP on 8080",
     dockerEnv: { NEPTUNE_NOTEBOOK: "true", PROXY_SERVER_HTTP_PORT: "8080" },
     expected: {
       ...notebookPreset,
-      envFile: { ...notebookPreset.envFile, LOG_STYLE: "cloudwatch" },
+      envFile: {
+        NEPTUNE_NOTEBOOK: "true",
+        PROXY_SERVER_HTTPS_CONNECTION: "false",
+        GRAPH_EXP_HTTPS_CONNECTION: "false",
+        LOG_STYLE: "cloudwatch",
+      },
       startup: { useHttps: false, port: 8080 },
     },
   },
   {
-    name: "standard image with -e NEPTUNE_NOTEBOOK=true applies the preset but keeps port 80",
-    image: standardImage,
-    dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
-    expected: { ...notebookPreset, startup: http },
-  },
-  {
-    name: "standard image with -e NEPTUNE_NOTEBOOK=true and -e PROXY_SERVER_HTTPS_CONNECTION=true refuses with the conflict",
-    image: standardImage,
+    name: "-e NEPTUNE_NOTEBOOK=true and -e PROXY_SERVER_HTTPS_CONNECTION=true refuses with the conflict",
     dockerEnv: {
       NEPTUNE_NOTEBOOK: "true",
       PROXY_SERVER_HTTPS_CONNECTION: "true",
@@ -306,8 +264,7 @@ const deployments: Deployment[] = [
     expected: notebookConflict,
   },
   {
-    name: "notebook image with -e PROXY_SERVER_HTTPS_CONNECTION=false, as the SageMaker lifecycle script runs it",
-    image: notebookImage,
+    name: "-e NEPTUNE_NOTEBOOK=true and -e PROXY_SERVER_HTTPS_CONNECTION=false, as the SageMaker lifecycle script runs it",
     dockerEnv: {
       NEPTUNE_NOTEBOOK: "true",
       PROXY_SERVER_HTTPS_CONNECTION: "false",
@@ -315,21 +272,16 @@ const deployments: Deployment[] = [
     expected: notebookPreset,
   },
   {
-    name: "notebook image with -e NEPTUNE_NOTEBOOK=false drops the preset and defaults to TLS",
-    image: notebookImage,
+    name: "-e NEPTUNE_NOTEBOOK=false defaults to TLS",
     dockerEnv: { NEPTUNE_NOTEBOOK: "false" },
     expected: standardTls,
   },
   {
-    name: "notebook image with -e PROXY_SERVER_HTTPS_CONNECTION=true refuses with the conflict",
-    image: notebookImage,
-    dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
-    expected: notebookConflict,
-  },
-  {
-    name: "notebook image with -e PROXY_SERVER_HTTPS_CONNECTION=TRUE refuses with the conflict",
-    image: notebookImage,
-    dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "TRUE" },
+    name: "-e NEPTUNE_NOTEBOOK=true and -e PROXY_SERVER_HTTPS_CONNECTION=TRUE refuses with the conflict",
+    dockerEnv: {
+      NEPTUNE_NOTEBOOK: "true",
+      PROXY_SERVER_HTTPS_CONNECTION: "TRUE",
+    },
     expected: {
       ...notebookConflict,
       envFile: {
@@ -339,21 +291,23 @@ const deployments: Deployment[] = [
     },
   },
   {
-    name: "notebook image with -e PROXY_SERVER_HTTPS_CONNECTION=true and no HOST still reaches the conflict",
-    image: notebookImage,
-    dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
+    name: "-e NEPTUNE_NOTEBOOK=true and -e PROXY_SERVER_HTTPS_CONNECTION=true and no HOST still reaches the conflict",
+    dockerEnv: {
+      NEPTUNE_NOTEBOOK: "true",
+      PROXY_SERVER_HTTPS_CONNECTION: "true",
+    },
     host: false,
     expected: notebookConflict,
   },
   {
     name: "notebook preset with config.json HTTPS true refuses with the conflict",
-    image: notebookImage,
+    dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
     configJson: { NEPTUNE_NOTEBOOK: true, PROXY_SERVER_HTTPS_CONNECTION: true },
     expected: notebookConflict,
   },
   {
     name: "notebook preset with config.json HTTPS false serves HTTP on 9250",
-    image: notebookImage,
+    dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
     configJson: {
       NEPTUNE_NOTEBOOK: true,
       PROXY_SERVER_HTTPS_CONNECTION: false,
@@ -362,7 +316,7 @@ const deployments: Deployment[] = [
   },
   ...[null, "yes", 0].map((value): Deployment => ({
     name: `notebook preset with config.json HTTPS ${JSON.stringify(value)} serves HTTP on 9250`,
-    image: notebookImage,
+    dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
     configJson: {
       NEPTUNE_NOTEBOOK: true,
       PROXY_SERVER_HTTPS_CONNECTION: value,
@@ -373,7 +327,7 @@ const deployments: Deployment[] = [
     // config.json can hold "TRUE" just as easily as the boolean true; both
     // read as a request for HTTPS under the preset.
     name: 'notebook preset with config.json HTTPS "TRUE" refuses with the conflict',
-    image: notebookImage,
+    dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
     configJson: {
       NEPTUNE_NOTEBOOK: true,
       PROXY_SERVER_HTTPS_CONNECTION: "TRUE",
@@ -391,8 +345,10 @@ const deployments: Deployment[] = [
     // overrides a variable already in the environment. An invalid -e value
     // fails the parse the same way under the preset as it does on main.
     name: "notebook preset with -e PROXY_SERVER_HTTPS_CONNECTION=yes fails the environment parse",
-    image: notebookImage,
-    dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "yes" },
+    dockerEnv: {
+      NEPTUNE_NOTEBOOK: "true",
+      PROXY_SERVER_HTTPS_CONNECTION: "yes",
+    },
     expected: {
       ...notebookPreset,
       startup: parseFailureAt("PROXY_SERVER_HTTPS_CONNECTION"),
@@ -400,20 +356,18 @@ const deployments: Deployment[] = [
   },
   {
     name: "notebook preset writes GRAPH_EXP_HTTPS_CONNECTION=false to .env over -e",
-    image: notebookImage,
-    dockerEnv: { GRAPH_EXP_HTTPS_CONNECTION: "true" },
+    dockerEnv: { NEPTUNE_NOTEBOOK: "true", GRAPH_EXP_HTTPS_CONNECTION: "true" },
     expected: notebookPreset,
   },
   {
     name: "notebook preset writes GRAPH_EXP_HTTPS_CONNECTION=false to .env over config.json",
-    image: notebookImage,
+    dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
     configJson: { NEPTUNE_NOTEBOOK: true, GRAPH_EXP_HTTPS_CONNECTION: true },
     expected: notebookPreset,
   },
   ...["TRUE", "True", "1", "yes"].flatMap((value): Deployment[] => [
     {
       name: `-e NEPTUNE_NOTEBOOK=${value} is not the preset and defaults to TLS`,
-      image: standardImage,
       dockerEnv: { NEPTUNE_NOTEBOOK: value },
       expected: {
         ...standardTls,
@@ -422,7 +376,6 @@ const deployments: Deployment[] = [
     },
     {
       name: `-e NEPTUNE_NOTEBOOK=${value} with HTTPS off serves HTTP`,
-      image: standardImage,
       dockerEnv: {
         NEPTUNE_NOTEBOOK: value,
         PROXY_SERVER_HTTPS_CONNECTION: "false",
@@ -437,8 +390,7 @@ const deployments: Deployment[] = [
     // The shell treats the empty value as unset and writes the TLS default,
     // but dotenv never overrides a variable already in the environment, so
     // the server reads the empty value directly and its schema rejects it.
-    name: "standard image with -e PROXY_SERVER_HTTPS_CONNECTION= generates certificates but fails the environment parse",
-    image: standardImage,
+    name: "-e PROXY_SERVER_HTTPS_CONNECTION= generates certificates but fails the environment parse",
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "" },
     expected: {
       ...standardTls,
@@ -446,65 +398,61 @@ const deployments: Deployment[] = [
     },
   },
   {
-    // config.json replaces the image's NEPTUNE_NOTEBOOK, and a missing key
-    // reads as unset, so the preset is off.
-    name: "notebook image with config.json HTTPS true and no NEPTUNE_NOTEBOOK key serves TLS",
-    image: notebookImage,
+    // config.json replaces -e NEPTUNE_NOTEBOOK, and a missing key reads as
+    // unset, so the preset is off.
+    name: "-e NEPTUNE_NOTEBOOK=true with config.json HTTPS true and no NEPTUNE_NOTEBOOK key serves TLS",
+    dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: true },
     expected: standardTls,
   },
-  ...[
-    { image: standardImage, imageName: "standard" },
-    { image: notebookImage, imageName: "notebook" },
-  ].flatMap(({ image, imageName }): Deployment[] => [
-    {
-      // config.json replaces -e NEPTUNE_NOTEBOOK too, even when it lacks the
-      // key.
-      name: `${imageName} image with -e NEPTUNE_NOTEBOOK=true and a config.json without the key drops the preset and defaults to TLS`,
-      image,
-      dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
-      configJson: {},
-      expected: standardTls,
-    },
-    {
-      name: `${imageName} image with config.json NEPTUNE_NOTEBOOK and HTTPS true and no HOST refuses with the conflict`,
-      image,
-      configJson: {
-        NEPTUNE_NOTEBOOK: true,
-        PROXY_SERVER_HTTPS_CONNECTION: true,
-      },
-      host: false,
-      expected: notebookConflict,
-    },
-  ]),
   {
-    name: "standard image with config.json NEPTUNE_NOTEBOOK and HTTPS true refuses with the conflict",
-    image: standardImage,
+    // config.json replaces -e NEPTUNE_NOTEBOOK too, even when it lacks the
+    // key.
+    name: "-e NEPTUNE_NOTEBOOK=true and a config.json without the key drops the preset and defaults to TLS",
+    dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
+    configJson: {},
+    expected: standardTls,
+  },
+  {
+    name: "config.json NEPTUNE_NOTEBOOK and HTTPS true and no HOST refuses with the conflict",
+    configJson: { NEPTUNE_NOTEBOOK: true, PROXY_SERVER_HTTPS_CONNECTION: true },
+    host: false,
+    expected: notebookConflict,
+  },
+  {
+    name: "-e NEPTUNE_NOTEBOOK=true with config.json NEPTUNE_NOTEBOOK and HTTPS true and no HOST refuses with the conflict",
+    dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
+    configJson: { NEPTUNE_NOTEBOOK: true, PROXY_SERVER_HTTPS_CONNECTION: true },
+    host: false,
+    expected: notebookConflict,
+  },
+  {
+    name: "config.json NEPTUNE_NOTEBOOK and HTTPS true refuses with the conflict",
     configJson: { NEPTUNE_NOTEBOOK: true, PROXY_SERVER_HTTPS_CONNECTION: true },
     expected: notebookConflict,
   },
   {
-    name: "notebook image with config.json NEPTUNE_NOTEBOOK false defaults to TLS",
-    image: notebookImage,
+    name: "-e NEPTUNE_NOTEBOOK=true with config.json NEPTUNE_NOTEBOOK false defaults to TLS",
+    dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
     configJson: { NEPTUNE_NOTEBOOK: false },
     expected: standardTls,
   },
   {
-    name: "standard image with config.json NEPTUNE_NOTEBOOK true applies the preset but keeps port 80",
-    image: standardImage,
+    name: "config.json NEPTUNE_NOTEBOOK true applies the preset and serves HTTP on 9250 with cloudwatch logs",
     configJson: { NEPTUNE_NOTEBOOK: true },
-    expected: { ...notebookPreset, startup: http },
+    expected: notebookPreset,
   },
   {
-    name: "notebook image with -e PROXY_SERVER_HTTPS_CONNECTION=true still refuses with the conflict after a restart",
-    image: notebookImage,
-    dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
+    name: "-e NEPTUNE_NOTEBOOK=true and -e PROXY_SERVER_HTTPS_CONNECTION=true still refuses with the conflict after a restart",
+    dockerEnv: {
+      NEPTUNE_NOTEBOOK: "true",
+      PROXY_SERVER_HTTPS_CONNECTION: "true",
+    },
     restart: true,
     expected: notebookConflict,
   },
   {
-    name: "notebook image run by the SageMaker lifecycle script still serves HTTP after a restart",
-    image: notebookImage,
+    name: "-e NEPTUNE_NOTEBOOK=true run by the SageMaker lifecycle script still serves HTTP after a restart",
     dockerEnv: {
       HOST: "127.0.0.1",
       PROXY_SERVER_HTTPS_CONNECTION: "false",
@@ -518,34 +466,30 @@ const deployments: Deployment[] = [
     // not its last, so a restart's repeated "true" line doesn't re-trigger
     // setup-ssl.sh. The container keeps serving TLS on the certificate
     // generated at first start.
-    name: "standard image with nothing about HTTPS set reuses its certificate and still serves TLS after a restart",
-    image: standardImage,
+    name: "nothing about HTTPS set reuses its certificate and still serves TLS after a restart",
     restart: true,
     restartCertificatesGenerated: false,
     expected: standardTls,
   },
   {
-    name: "standard image with a read-only configuration folder refuses to start",
-    image: standardImage,
+    name: "a read-only configuration folder refuses to start",
     readOnly: "configFolder",
     expected: cannotWrite(".env"),
   },
   {
-    name: "notebook image with a read-only configuration folder refuses to start",
-    image: notebookImage,
+    name: "-e NEPTUNE_NOTEBOOK=true with a read-only configuration folder refuses to start",
+    dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
     readOnly: "configFolder",
     expected: cannotWrite(".env"),
   },
   {
-    name: "standard image with a read-only .env refuses to start",
-    image: standardImage,
+    name: "a read-only .env refuses to start",
     existingEnvFile: { LOG_LEVEL: "debug" },
     readOnly: ".env",
     expected: cannotWrite(".env"),
   },
   {
-    name: "standard image with -e PUBLIC_OR_PROXY_ENDPOINT and a read-only defaultConnection.json refuses to start before writing .env",
-    image: standardImage,
+    name: "-e PUBLIC_OR_PROXY_ENDPOINT and a read-only defaultConnection.json refuses to start before writing .env",
     dockerEnv: { PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182" },
     readOnly: "defaultConnection.json",
     expected: cannotWrite("defaultConnection.json"),
@@ -620,7 +564,6 @@ describe("deployment scenarios: entrypoint → dotenv → Zod → server config"
       [
         _name,
         {
-          image,
           dockerEnv,
           configJson,
           existingEnvFile,
@@ -652,7 +595,6 @@ describe("deployment scenarios: entrypoint → dotenv → Zod → server config"
       }
       const containerEnv = {
         ...(host === false ? {} : { HOST: "localhost" }),
-        ...image,
         ...dockerEnv,
       };
 

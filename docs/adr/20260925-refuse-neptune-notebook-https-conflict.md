@@ -6,7 +6,7 @@
 
 ## Context
 
-`NEPTUNE_NOTEBOOK=true` is a preset for the SageMaker notebook image. It serves plain HTTP on port 9250, because the notebook proxy in front of it terminates TLS. `PROXY_SERVER_HTTPS_CONNECTION=true` asks the server to serve TLS itself. The two can't both hold.
+`NEPTUNE_NOTEBOOK=true` is a preset for SageMaker notebooks. It serves plain HTTP on port 9250, because the notebook proxy in front of it terminates TLS. `PROXY_SERVER_HTTPS_CONNECTION=true` asks the server to serve TLS itself. The two can't both hold.
 
 Before this decision the conflict resolved differently depending on where the HTTPS request came from:
 
@@ -23,7 +23,7 @@ To make the refusal reachable from every route:
 - `docker-entrypoint.sh` skips `setup-ssl.sh` under the preset, so a notebook container without `HOST` reaches the parse instead of exiting in certificate generation.
 - The entrypoint starts node with the `NEPTUNE_NOTEBOOK` value from `.env`. The container's own value can differ, since `config.json` replaces it and dotenv won't override it. Passing the `.env` value means the server checks for the conflict exactly when the shell applied the preset.
 
-`NEPTUNE_NOTEBOOK` parses with an exact match on `"true"`, the same test the shell uses, and never fails the parse. The standard image sets it to `""`, and `TRUE` or `1` mean "not the preset" in all three places.
+`NEPTUNE_NOTEBOOK` parses with an exact match on `"true"`, the same test the shell uses, and never fails the parse. Before the unified image, the standard image set it to `""`. `TRUE` or `1` mean "not the preset" in all three places.
 
 ## Considered options
 
