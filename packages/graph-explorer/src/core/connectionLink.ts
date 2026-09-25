@@ -20,7 +20,7 @@ import { ConnectionLinkError } from "./connectionLinkError";
  * reads back to the user as the requirement it broke: "graphDbUrl must be a
  * valid http or https URL".
  */
-const UrlConnectionParamsSchema = z
+const ConnectionLinkParamsSchema = z
   .object({
     // Only http(s) endpoints are meaningful, and constraining the scheme keeps a
     // crafted link from seeding the form with something like `javascript:`.
@@ -70,7 +70,7 @@ function mustBeOneOf(options: readonly string[]): string {
   return `must be one of ${options.map(option => `"${option}"`).join(", ")}`;
 }
 
-export type UrlConnectionParams = z.infer<typeof UrlConnectionParamsSchema>;
+export type ConnectionLinkParams = z.infer<typeof ConnectionLinkParamsSchema>;
 
 /**
  * Whether a URL carries userinfo. Zod runs every check on a field even after an
@@ -99,7 +99,7 @@ function safeParseUrl(value: string): URL | null {
 export type ConnectionLink =
   | { kind: "absent" }
   | { kind: "invalid"; error: ConnectionLinkError }
-  | { kind: "valid"; params: UrlConnectionParams };
+  | { kind: "valid"; params: ConnectionLinkParams };
 
 /** Reads URL search params as a connection link. */
 export function readConnectionLink(search: string): ConnectionLink {
@@ -109,7 +109,7 @@ export function readConnectionLink(search: string): ConnectionLink {
     return { kind: "absent" };
   }
 
-  const parsed = UrlConnectionParamsSchema.safeParse({
+  const parsed = ConnectionLinkParamsSchema.safeParse({
     graphDbUrl,
     queryEngine: params.get("queryEngine") ?? undefined,
     awsRegion: params.get("awsRegion") ?? undefined,
@@ -161,7 +161,7 @@ type AuthPosture = {
 };
 
 /** The auth posture a connection link's params resolve to. */
-function authPostureFromParams(params: UrlConnectionParams): AuthPosture {
+function authPostureFromParams(params: ConnectionLinkParams): AuthPosture {
   const awsAuthEnabled = Boolean(params.awsRegion);
   return {
     awsAuthEnabled,
@@ -205,7 +205,7 @@ function authPosturesMatch(a: AuthPosture, b: AuthPosture): boolean {
  */
 export function findMatchingConnection(
   configurations: Map<ConfigurationId, RawConfiguration>,
-  params: UrlConnectionParams,
+  params: ConnectionLinkParams,
   activeId: ConfigurationId | null = null,
 ): RawConfiguration | null {
   const linkAuthPosture = authPostureFromParams(params);
@@ -254,7 +254,7 @@ export function deriveProxyBaseUrl(baseURI: string): string {
  * form, so generating one here would produce a value nothing reads.
  */
 export function buildConnectionFromParams(
-  params: UrlConnectionParams,
+  params: ConnectionLinkParams,
   proxyBaseUrl: string,
 ): ConnectionConfig {
   const { awsAuthEnabled, awsRegion, serviceType } =
@@ -279,7 +279,7 @@ export function buildConnectionFromParams(
  * connection body and the name to seed the form with, and nothing exists yet to
  * have an id.
  */
-export type UrlConnectionIntent =
+export type ConnectionLinkIntent =
   | { kind: "none" }
   | { kind: "invalid"; error: ConnectionLinkError }
   | { kind: "activate"; connection: RawConfiguration }
@@ -292,12 +292,12 @@ export type UrlConnectionIntent =
  * - no match → `create` a new connection seeded from the link
  * - the link failed validation → `invalid`, carrying what was wrong with it
  */
-export function resolveUrlConnectionIntent(
+export function resolveConnectionLinkIntent(
   link: ConnectionLink,
   configurations: Map<ConfigurationId, RawConfiguration>,
   activeId: ConfigurationId | null,
   proxyBaseUrl: string,
-): UrlConnectionIntent {
+): ConnectionLinkIntent {
   if (link.kind === "absent") {
     return { kind: "none" };
   }

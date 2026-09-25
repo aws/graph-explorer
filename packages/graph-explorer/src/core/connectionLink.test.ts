@@ -3,15 +3,15 @@ import type {
   RawConfiguration,
 } from "./ConfigurationProvider";
 
-import { ConnectionLinkError } from "./connectionLinkError";
 import {
   buildConnectionFromParams,
   deriveProxyBaseUrl,
   findMatchingConnection,
   readConnectionLink,
-  resolveUrlConnectionIntent,
-  type UrlConnectionParams,
-} from "./urlConnectionParams";
+  resolveConnectionLinkIntent,
+  type ConnectionLinkParams,
+} from "./connectionLink";
+import { ConnectionLinkError } from "./connectionLinkError";
 
 /** The problems of an invalid link, as `param requirement` strings. */
 function problemsOf(search: string) {
@@ -288,7 +288,7 @@ describe("findMatchingConnection", () => {
     const paramsWith = (auth: {
       awsRegion?: string;
       serviceType?: "neptune-db" | "neptune-graph";
-    }): UrlConnectionParams => ({
+    }): ConnectionLinkParams => ({
       graphDbUrl: url,
       queryEngine: "gremlin",
       awsRegion: auth.awsRegion ?? "",
@@ -532,7 +532,7 @@ describe("deriveProxyBaseUrl", () => {
   });
 });
 
-describe("resolveUrlConnectionIntent", () => {
+describe("resolveConnectionLinkIntent", () => {
   const activeUrl = "https://active.neptune.amazonaws.com";
   const activeId = "active-conn" as ConfigurationId;
   const configs = new Map<ConfigurationId, RawConfiguration>([
@@ -550,7 +550,7 @@ describe("resolveUrlConnectionIntent", () => {
     ],
   ]);
 
-  const paramsFor = (graphDbUrl: string): UrlConnectionParams => ({
+  const paramsFor = (graphDbUrl: string): ConnectionLinkParams => ({
     graphDbUrl,
     queryEngine: "gremlin",
     awsRegion: "",
@@ -558,11 +558,11 @@ describe("resolveUrlConnectionIntent", () => {
     name: "Whatever",
   });
 
-  const linkFor = (params: UrlConnectionParams) =>
+  const linkFor = (params: ConnectionLinkParams) =>
     ({ kind: "valid", params }) as const;
 
   test("is a no-op when there is no link at all", () => {
-    const intent = resolveUrlConnectionIntent(
+    const intent = resolveConnectionLinkIntent(
       { kind: "absent" },
       configs,
       activeId,
@@ -575,7 +575,7 @@ describe("resolveUrlConnectionIntent", () => {
     const error = new ConnectionLinkError([
       { param: "graphDbUrl", requirement: "must be a valid http or https URL" },
     ]);
-    const intent = resolveUrlConnectionIntent(
+    const intent = resolveConnectionLinkIntent(
       { kind: "invalid", error },
       configs,
       activeId,
@@ -585,7 +585,7 @@ describe("resolveUrlConnectionIntent", () => {
   });
 
   test("is a no-op when the URL matches the active connection", () => {
-    const intent = resolveUrlConnectionIntent(
+    const intent = resolveConnectionLinkIntent(
       linkFor(paramsFor(activeUrl)),
       configs,
       activeId,
@@ -608,7 +608,7 @@ describe("resolveUrlConnectionIntent", () => {
       },
     });
 
-    const intent = resolveUrlConnectionIntent(
+    const intent = resolveConnectionLinkIntent(
       linkFor(paramsFor(inactiveUrl)),
       withInactive,
       activeId,
@@ -621,7 +621,7 @@ describe("resolveUrlConnectionIntent", () => {
   });
 
   test("creates rather than reusing the active connection when the link requests a different auth posture", () => {
-    const intent = resolveUrlConnectionIntent(
+    const intent = resolveConnectionLinkIntent(
       linkFor({ ...paramsFor(activeUrl), awsRegion: "us-east-1" }),
       configs,
       activeId,
@@ -631,7 +631,7 @@ describe("resolveUrlConnectionIntent", () => {
   });
 
   test("creates a new connection when nothing matches", () => {
-    const intent = resolveUrlConnectionIntent(
+    const intent = resolveConnectionLinkIntent(
       linkFor(paramsFor("https://brand-new.neptune.amazonaws.com")),
       configs,
       activeId,

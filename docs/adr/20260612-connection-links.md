@@ -16,7 +16,7 @@ Three decisions in this design are non-obvious and would otherwise invite "why i
 
 ### A dedicated `#/connect` route, not an interstitial gate
 
-An earlier version mounted a `UrlConnectionGate` component high in the tree that read `window.location`, froze the resolved intent at mount with `useState`, and stripped the params via `history.replaceState`. That coupled a reactive computation to a one-shot lifecycle and put connection-handling logic in the app shell.
+An earlier version mounted a `ConnectionLinkGate` component high in the tree that read `window.location`, froze the resolved intent at mount with `useState`, and stripped the params via `history.replaceState`. That coupled a reactive computation to a one-shot lifecycle and put connection-handling logic in the app shell.
 
 Connection links are now a first-class route, `#/connect?graphDbUrl=…`. Because Graph Explorer uses a hash router, the parameters sit **after** the `#` like every other route — third-party integrators build the link the same way they would any in-app link, and `window.location.search` (everything before the `#`) is no longer a trap. The route redirects (router `navigate`, with `replace`) away on completion, leaving no `#/connect` entry in history, so refresh and back behave normally without any manual param stripping.
 
@@ -28,7 +28,7 @@ Deriving the intent on every render was the first attempt, and it inverted the p
 
 Opening a link is a single event with a single decision. Making that decision the initial state says exactly that, and it means the create form is on screen from the first render instead of appearing one render later.
 
-`resolveUrlConnectionIntent` remains a pure function over a link plus the current connections, so the four-intent contract is unit-tested in isolation; only the wiring lives in the route. Resolving in the initializer is safe because `AppStatusLoader` gates the route behind a spinner until the default connections have loaded — otherwise a one-shot resolution could miss a connection that was still arriving. There is a test pinning that ordering.
+`resolveConnectionLinkIntent` remains a pure function over a link plus the current connections, so the four-intent contract is unit-tested in isolation; only the wiring lives in the route. Resolving in the initializer is safe because `AppStatusLoader` gates the route behind a spinner until the default connections have loaded — otherwise a one-shot resolution could miss a connection that was still arriving. There is a test pinning that ordering.
 
 ### Auth posture is part of connection identity
 
@@ -48,7 +48,7 @@ The form renders in place inside the app shell rather than as a portaled modal. 
 
 ## Consequences
 
-- The contract other code and external integrators depend on is the parameter set (`graphDbUrl`, `queryEngine`, `awsRegion`, `serviceType`, `name`) and the four-intent model, both in `core/urlConnectionParams.ts`. Parameters are validated with zod: an absent optional param takes its default, while an explicit unsupported value rejects the link, so a link never connects with settings it did not ask for.
+- The contract other code and external integrators depend on is the parameter set (`graphDbUrl`, `queryEngine`, `awsRegion`, `serviceType`, `name`) and the four-intent model, both in `core/connectionLink.ts`. Parameters are validated with zod: an absent optional param takes its default, while an explicit unsupported value rejects the link, so a link never connects with settings it did not ask for.
 - A connection from a link always proxies through the same host that serves Graph Explorer. The proxy base URL is derived from `document.baseURI` rather than `window.location.origin`, so it keeps the path prefix of path-hosted deployments (e.g. a Neptune notebook at `/proxy/9250/explorer/` resolves the proxy to `/proxy/9250`). There is no parameter to target a different proxy host or to make a direct, non-proxy connection. (When the connection model drops the explicit proxy `url` in favor of always-relative requests — see PR #1773 — this derivation goes away and links inherit that behavior.)
 - A link can switch to or pre-fill a connection, but it can never create or connect to a new database without the user submitting the form. Connections a link creates always route through the proxy, so `PROXY_SERVER_ALLOWED_DB_ORIGINS` also bounds what a link can reach when that variable is set. It is unset by default, and a link that matches a connection configured to contact the database directly bypasses the proxy as any direct connection does. See [security reference](../references/security.md).
 - Parameters are plaintext, not an encoded token. This was deliberate: links are meant to be human-readable and constructible by any integrator. The trust gate is the create form plus the proxy allowlist, not obscurity.
