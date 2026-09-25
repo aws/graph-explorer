@@ -494,6 +494,23 @@ const deployments: Deployment[] = [
     readOnly: "defaultConnection.json",
     expected: cannotWrite("defaultConnection.json"),
   },
+  {
+    name: "-e GRAPH_CONNECTION_URL and a read-only defaultConnection.json refuses to start before writing .env",
+    dockerEnv: { GRAPH_CONNECTION_URL: "https://endpoint:8182" },
+    readOnly: "defaultConnection.json",
+    expected: cannotWrite("defaultConnection.json"),
+  },
+  {
+    // A proxied legacy connection resolves to GRAPH_CONNECTION_URL, which is
+    // empty here, so there is no defaultConnection.json to write.
+    name: "-e PUBLIC_OR_PROXY_ENDPOINT and -e USING_PROXY_SERVER=true without a GRAPH_CONNECTION_URL starts with a read-only defaultConnection.json",
+    dockerEnv: {
+      PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
+      USING_PROXY_SERVER: "true",
+    },
+    readOnly: "defaultConnection.json",
+    expected: standardTls,
+  },
 ];
 
 /**

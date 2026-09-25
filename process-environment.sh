@@ -28,7 +28,31 @@ if [ -f "./config.json" ]; then
     NEPTUNE_NOTEBOOK=$(echo "$json" | grep -o '"NEPTUNE_NOTEBOOK":[^,}]*' | cut -d ':' -f 2 | tr -d '[:space:]' | sed 's/"//g')
 fi
 
-if [ -n "$PUBLIC_OR_PROXY_ENDPOINT" ]; then
+# Resolve the legacy PUBLIC_OR_PROXY_ENDPOINT/USING_PROXY_SERVER variables into
+# GRAPH_CONNECTION_URL. The URL rule below matches transformLegacyConnection()
+# in configuration.ts, but the auth fields deliberately diverge: that transform
+# drops IAM/region/service type from a never-proxied connection because a stored
+# one can be stale or imported and never showed IAM controls, whereas an
+# operator who set IAM here asked for signing, which now works because every
+# request routes through the proxy.
+USING_PROXY_SERVER_LOWER=$(printf '%s' "$USING_PROXY_SERVER" | tr '[:upper:]' '[:lower:]')
+IS_PROXY_CONNECTION=false
+if [ "$USING_PROXY_SERVER_LOWER" = "true" ]; then
+    IS_PROXY_CONNECTION=true
+elif [ -z "$USING_PROXY_SERVER" ] && [ -n "$GRAPH_CONNECTION_URL" ]; then
+    IS_PROXY_CONNECTION=true
+fi
+
+if [ "$IS_PROXY_CONNECTION" = "true" ]; then
+    RESOLVED_CONNECTION_URL="$GRAPH_CONNECTION_URL"
+elif [ -n "$PUBLIC_OR_PROXY_ENDPOINT" ]; then
+    RESOLVED_CONNECTION_URL="$PUBLIC_OR_PROXY_ENDPOINT"
+else
+    RESOLVED_CONNECTION_URL="$GRAPH_CONNECTION_URL"
+fi
+
+# Check both files before writing either, so a refusal leaves the folder as it was.
+if [ -n "$RESOLVED_CONNECTION_URL" ]; then
     require_writable "$CONFIGURATION_FOLDER_PATH/defaultConnection.json"
 fi
 require_writable "$CONFIGURATION_FOLDER_PATH/.env"
@@ -66,29 +90,6 @@ if [ -n "$GRAPH_EXP_HTTPS_CONNECTION" ]; then
   printf '\nGRAPH_EXP_HTTPS_CONNECTION=%s\n' "$GRAPH_EXP_HTTPS_CONNECTION" >> $CONFIGURATION_FOLDER_PATH/.env
 else
   printf '\nGRAPH_EXP_HTTPS_CONNECTION=true\n' >> $CONFIGURATION_FOLDER_PATH/.env
-fi
-
-# Resolve the legacy PUBLIC_OR_PROXY_ENDPOINT/USING_PROXY_SERVER variables into
-# GRAPH_CONNECTION_URL. The URL rule below matches transformLegacyConnection()
-# in configuration.ts, but the auth fields deliberately diverge: that transform
-# drops IAM/region/service type from a never-proxied connection because a stored
-# one can be stale or imported and never showed IAM controls, whereas an
-# operator who set IAM here asked for signing, which now works because every
-# request routes through the proxy.
-USING_PROXY_SERVER_LOWER=$(printf '%s' "$USING_PROXY_SERVER" | tr '[:upper:]' '[:lower:]')
-IS_PROXY_CONNECTION=false
-if [ "$USING_PROXY_SERVER_LOWER" = "true" ]; then
-    IS_PROXY_CONNECTION=true
-elif [ -z "$USING_PROXY_SERVER" ] && [ -n "$GRAPH_CONNECTION_URL" ]; then
-    IS_PROXY_CONNECTION=true
-fi
-
-if [ "$IS_PROXY_CONNECTION" = "true" ]; then
-    RESOLVED_CONNECTION_URL="$GRAPH_CONNECTION_URL"
-elif [ -n "$PUBLIC_OR_PROXY_ENDPOINT" ]; then
-    RESOLVED_CONNECTION_URL="$PUBLIC_OR_PROXY_ENDPOINT"
-else
-    RESOLVED_CONNECTION_URL="$GRAPH_CONNECTION_URL"
 fi
 
 # Update the default connection file with the configuration values
