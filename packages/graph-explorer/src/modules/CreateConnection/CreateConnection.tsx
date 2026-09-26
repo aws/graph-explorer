@@ -32,6 +32,7 @@ import {
   type RawConfiguration,
   schemaAtom,
 } from "@/core";
+import { isDirectConnection } from "@/core/StateProvider/configuration";
 import useResetState from "@/core/StateProvider/useResetState";
 import { formatDate, logger } from "@/utils";
 import {
@@ -42,6 +43,7 @@ import {
 type ConnectionForm = {
   name?: string;
   graphDbUrl?: string;
+  directConnection: boolean;
   queryEngine?: QueryEngine;
   awsAuthEnabled?: boolean;
   serviceType?: NeptuneServiceType;
@@ -77,12 +79,18 @@ export type CreateConnectionProps = {
 };
 
 function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
+  // A direct request never reaches the Proxy Server that would sign it.
+  const routing = data.directConnection
+    ? { proxyConnection: false }
+    : {
+        awsAuthEnabled: data.awsAuthEnabled,
+        serviceType: data.serviceType,
+        awsRegion: data.awsRegion,
+      };
   return {
     graphDbUrl: data.graphDbUrl,
     queryEngine: data.queryEngine,
-    awsAuthEnabled: data.awsAuthEnabled,
-    serviceType: data.serviceType,
-    awsRegion: data.awsRegion,
+    ...routing,
     fetchTimeoutMs: data.fetchTimeoutEnabled ? data.fetchTimeoutMs : undefined,
     nodeExpansionLimit: data.nodeExpansionLimitEnabled
       ? data.nodeExpansionLimit
@@ -96,7 +104,11 @@ function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
  * collapsed section, so editing it looks like the defaults are in force.
  */
 function hasAdvancedOverrides(form: ConnectionForm): boolean {
-  return form.fetchTimeoutEnabled || form.nodeExpansionLimitEnabled;
+  return (
+    form.fetchTimeoutEnabled ||
+    form.nodeExpansionLimitEnabled ||
+    form.directConnection
+  );
 }
 
 /**
@@ -111,6 +123,7 @@ export function mapToConnectionForm(
   return {
     ...connection,
     name,
+    directConnection: connection != null && isDirectConnection(connection),
     fetchTimeoutEnabled: Boolean(connection?.fetchTimeoutMs),
     nodeExpansionLimitEnabled: Boolean(connection?.nodeExpansionLimit),
   };
@@ -208,6 +221,7 @@ const CreateConnection = ({
       initialData?.name ||
       `Connection (${formatDate(new Date(), "yyyy-MM-dd HH:mm")})`,
     graphDbUrl: initialData?.graphDbUrl || "",
+    directConnection: initialData?.directConnection || false,
     awsAuthEnabled: initialData?.awsAuthEnabled || false,
     serviceType: initialData?.serviceType || "neptune-db",
     awsRegion: initialData?.awsRegion || "",
@@ -269,7 +283,11 @@ const CreateConnection = ({
       return;
     }
 
-    if (normalizedForm.awsAuthEnabled && !normalizedForm.awsRegion) {
+    if (
+      !normalizedForm.directConnection &&
+      normalizedForm.awsAuthEnabled &&
+      !normalizedForm.awsRegion
+    ) {
       setError(true);
       return;
     }
@@ -307,9 +325,9 @@ const CreateConnection = ({
             <InfoTooltip>
               Provide the endpoint URL for your graph database, e.g., an Amazon
               Neptune cluster endpoint, a Gremlin Server URL, or a SPARQL
-              endpoint. The Graph Explorer server, not your browser, connects to
-              this endpoint, so it must be reachable from the host where Graph
-              Explorer runs.
+              endpoint. Unless you connect directly from the browser, the Graph
+              Explorer server connects to this endpoint, so it must be reachable
+              from the host where Graph Explorer runs.
             </InfoTooltip>
           </Label>
           <TextAreaField
@@ -327,17 +345,19 @@ const CreateConnection = ({
           />
         </FormItem>
 
-        <Label className="cursor-pointer">
-          <Checkbox
-            value="awsAuthEnabled"
-            checked={form.awsAuthEnabled}
-            onCheckedChange={checked => {
-              onFormChange("awsAuthEnabled")(checked);
-            }}
-          />
-          AWS IAM Auth Enabled
-        </Label>
-        {form.awsAuthEnabled && (
+        {!form.directConnection && (
+          <Label className="cursor-pointer">
+            <Checkbox
+              value="awsAuthEnabled"
+              checked={form.awsAuthEnabled}
+              onCheckedChange={checked => {
+                onFormChange("awsAuthEnabled")(checked);
+              }}
+            />
+            AWS IAM Auth Enabled
+          </Label>
+        )}
+        {!form.directConnection && form.awsAuthEnabled && (
           <>
             <FormItem>
               <Label>AWS Region</Label>
@@ -437,6 +457,27 @@ const CreateConnection = ({
                 />
               </FormItem>
             )}
+            <FormItem>
+              <Label className="cursor-pointer">
+                <Checkbox
+                  value="directConnection"
+                  checked={form.directConnection}
+                  onCheckedChange={checked => {
+                    onFormChange("directConnection")(checked);
+                  }}
+                />
+                <span className="flex items-center gap-2">
+                  Connect directly from the browser (deprecated)
+                  <InfoTooltip>
+                    The browser sends requests to the database itself instead of
+                    through the Graph Explorer server. The database must allow
+                    cross-origin requests from this page, and IAM authentication
+                    is not available. This option will be removed in a future
+                    release.
+                  </InfoTooltip>
+                </span>
+              </Label>
+            </FormItem>
           </CollapsibleContent>
         </Collapsible>
       </DialogBody>

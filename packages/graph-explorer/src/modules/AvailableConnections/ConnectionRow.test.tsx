@@ -131,4 +131,42 @@ describe("ConnectionRow", () => {
 
     expect(screen.getByText(/my-neptune:8182/)).toBeInTheDocument();
   });
+
+  function renderRow(connection: RawConfiguration) {
+    render(
+      <TestProvider client={createQueryClient()} store={getAppStore()}>
+        <TooltipProvider>
+          <ConnectionRow
+            connection={connection}
+            isSelected={false}
+            isDisabled={false}
+          />
+        </TooltipProvider>
+      </TestProvider>,
+    );
+  }
+
+  test("marks a direct connection as deprecated", () => {
+    renderRow({
+      ...createRandomRawConfiguration(),
+      connection: {
+        graphDbUrl: "https://my-neptune:8182",
+        proxyConnection: false,
+      },
+    });
+
+    expect(
+      screen.getByText(/Direct from browser \(deprecated\)/),
+    ).toBeInTheDocument();
+  });
+
+  test("does not mark a proxy connection as direct", () => {
+    renderRow({
+      ...createRandomRawConfiguration(),
+      connection: { graphDbUrl: "https://my-neptune:8182" },
+    });
+
+    expect(screen.getByText(/my-neptune:8182/)).toBeInTheDocument();
+    expect(screen.queryByText(/Direct from browser/)).toBeNull();
+  });
 });

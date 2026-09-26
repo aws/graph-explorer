@@ -49,6 +49,7 @@ import {
   useHasActiveSchema,
   useMaybeActiveSchema,
 } from "@/core";
+import { isDirectConnection } from "@/core/StateProvider/configuration";
 import {
   debugForcePersistenceFailure,
   debugResetPersistenceStatus,
@@ -87,6 +88,8 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
   const deleteActiveConfig = useDeleteActiveConfiguration();
 
   const dbUrl = config.connection?.graphDbUrl || LABELS.MISSING_VALUE;
+  const isDirect =
+    config.connection != null && isDirectConnection(config.connection);
 
   const connectionName = config.displayLabel || config.id;
 
@@ -144,6 +147,9 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
             <InfoItemContent>
               <InfoItemLabel>Database URL</InfoItemLabel>
               <InfoItemValue>{dbUrl}</InfoItemValue>
+              {isDirect && (
+                <InfoItemLabel>{LABELS.DIRECT_CONNECTION}</InfoItemLabel>
+              )}
             </InfoItemContent>
           </InfoItem>
         </InfoBar>
