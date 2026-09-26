@@ -31,6 +31,6 @@ The Details panel header includes an "Automatically open on selection" toggle. W
 
 If discovering relationships fails, or has not run yet, the Schema view still shows every node type.
 
-When relationships haven't been discovered yet, an amber warning button appears in the toolbar to the left of "Refresh Schema". When discovery failed, it's red instead. Its popover explains what happened and offers Synchronize or Retry, plus Error Details when the error from this session is available.
+When relationships haven't been discovered yet, an amber warning button appears in the toolbar to the left of "Refresh Schema". When discovery failed, it's red instead. Its popover explains what happened and what to try next, and offers Synchronize or Retry, plus Error Details when the error from this session is available.
 
 While relationships are missing, a node type's Details panel says relationships were not discovered, or not fully discovered after a failure.
