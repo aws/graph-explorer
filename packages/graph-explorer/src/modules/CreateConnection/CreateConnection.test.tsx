@@ -245,12 +245,38 @@ describe("CreateConnection", () => {
       expect(screen.getByRole("checkbox", directOption)).toBeChecked();
     });
 
-    test("leaves the option unchecked for a proxy connection", async () => {
+    test("leaves the option unchecked for an existing proxy connection", async () => {
       const user = userEvent.setup();
-      renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
-      await openAdvancedOptions(user);
+      const config = {
+        ...createRandomRawConfiguration(),
+        connection: { graphDbUrl: "https://database.example.com:8182" },
+      };
+      const store = renderCreateConnection(
+        <CreateConnection
+          existingConfig={{
+            ...mergeConfiguration(null, config, new Map(), new Map()),
+            totalVertices: 0,
+            vertexTypes: [],
+            totalEdges: 0,
+            edgeTypes: [],
+          }}
+          onClose={vi.fn()}
+        />,
+      );
+      store.set(configurationAtom, new Map([[config.id, config]]));
 
+      await openAdvancedOptions(user);
       expect(screen.getByRole("checkbox", directOption)).not.toBeChecked();
+
+      await user.click(
+        screen.getByRole("button", { name: "Update Connection" }),
+      );
+
+      const savedConnection = store.get(configurationAtom).get(config.id);
+      expect(savedConnection?.connection).toMatchObject({
+        graphDbUrl: "https://database.example.com:8182",
+      });
+      expect(savedConnection?.connection).not.toHaveProperty("proxyConnection");
     });
   });
 
