@@ -202,11 +202,11 @@ docker run -p 80:80 -p 443:443 \
 
 The Schema view draws which node types each edge type connects. Working that out means reading edges, and on a large graph reading all of them can be slow or exceed what the database allows. `EDGE_CONNECTION_DISCOVERY`, also available per connection in the connection dialog, controls how much gets read. Gremlin connections only.
 
-| Value      | Behavior                                                                                                                          |
-| ---------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `auto`     | Chooses based on how many edge types the graph has and how large it is. The default, and the right answer for almost everyone.    |
-| `complete` | Scans every edge to find all edge connections. Can be slow, or fail, on very large graphs.                                        |
-| `sampled`  | Checks up to 10,000 edges per edge type. Fast and predictable on very large graphs. Will miss edge connections that occur rarely. |
+| Value | Behavior |
+| --- | --- |
+| `auto` | Chooses based on how many edge types the graph has and how large it is. The default, and the right answer for almost everyone. |
+| `complete` | Scans every edge to find all edge connections. Can be slow, or fail, on very large graphs. |
+| `sampled` | Checks up to 10,000 edges per edge type. Fast and predictable on very large graphs. Will miss edge connections that occur rarely. |
 
 `auto` picks one of the other two up front, from the number of edge types and the size of the graph. It does not always try a complete scan first: on a graph with a few very large edge types it goes straight to sampling. When it does choose a complete scan and the database rejects that as too large, or takes more than 20 seconds over a single request, it falls back to sampling on its own. So reach for the other two values only when you need to pin the behavior, and `sampled` is the one to try if the Schema view is slow or erroring on a large graph.
 
