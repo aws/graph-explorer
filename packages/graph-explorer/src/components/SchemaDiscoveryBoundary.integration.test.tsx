@@ -106,6 +106,9 @@ describe("SchemaDiscoveryBoundary against the real store", () => {
     state.activeSchema.edges = [];
     state.addTestableEdgeToGraph(edge);
     state.activeSchema.edgeConnections = [];
+    // Match the total the refresh reports, so the edge connection query keeps
+    // its key and only a loop could fetch it more than once.
+    state.activeSchema.totalEdges = 1;
 
     const store = getAppStore();
     state.applyTo(store);
