@@ -29,12 +29,10 @@ if [ -f "./config.json" ]; then
 fi
 
 # Resolve the legacy PUBLIC_OR_PROXY_ENDPOINT/USING_PROXY_SERVER variables into
-# GRAPH_CONNECTION_URL. The URL rule below matches transformLegacyConnection()
-# in configuration.ts, but the auth fields deliberately diverge: that transform
-# drops IAM/region/service type from a never-proxied connection because a stored
-# one can be stale or imported and never showed IAM controls, whereas an
-# operator who set IAM here asked for signing, which now works because every
-# request routes through the proxy.
+# GRAPH_CONNECTION_URL and whether the Default Connection goes through the
+# proxy. This matches transformLegacyConnection() in configuration.ts: a direct
+# connection, which is deprecated, drops IAM, region, and service type because
+# the browser sends its requests and nothing would sign them.
 USING_PROXY_SERVER_LOWER=$(printf '%s' "$USING_PROXY_SERVER" | tr '[:upper:]' '[:lower:]')
 IS_PROXY_CONNECTION=false
 if [ "$USING_PROXY_SERVER_LOWER" = "true" ]; then
@@ -99,12 +97,6 @@ if [ -n "$RESOLVED_CONNECTION_URL" ]; then
 
     printf '{\n"GRAPH_EXP_CONNECTION_URL":"%s",\n' "$RESOLVED_CONNECTION_URL" >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
 
-    if [ -n "$SERVICE_TYPE" ]; then
-        echo "\"GRAPH_EXP_SERVICE_TYPE\":\"${SERVICE_TYPE}\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
-    else
-        echo "\"GRAPH_EXP_SERVICE_TYPE\":\"neptune-db\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
-    fi
-
     if [ -n "$GRAPH_TYPE" ]; then
         echo "\"GRAPH_EXP_GRAPH_TYPE\":\"${GRAPH_TYPE}\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
     else
@@ -113,11 +105,21 @@ if [ -n "$RESOLVED_CONNECTION_URL" ]; then
       fi
     fi
 
-    if [ -n "$IAM" ]; then
-        echo "\"GRAPH_EXP_IAM\":${IAM}," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
-    else
-        echo "\"GRAPH_EXP_IAM\":false," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
+    if [ "$IS_PROXY_CONNECTION" = "true" ]; then
+        if [ -n "$SERVICE_TYPE" ]; then
+            echo "\"GRAPH_EXP_SERVICE_TYPE\":\"${SERVICE_TYPE}\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
+        else
+            echo "\"GRAPH_EXP_SERVICE_TYPE\":\"neptune-db\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
+        fi
+
+        if [ -n "$IAM" ]; then
+            echo "\"GRAPH_EXP_IAM\":${IAM}," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
+        else
+            echo "\"GRAPH_EXP_IAM\":false," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
+        fi
+
+        printf '"GRAPH_EXP_AWS_REGION":"%s",\n' "$AWS_REGION" >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
     fi
 
-    printf '"GRAPH_EXP_AWS_REGION":"%s"\n}\n' "$AWS_REGION" >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
+    printf '"GRAPH_EXP_USING_PROXY_SERVER":%s\n}\n' "$IS_PROXY_CONNECTION" >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
 fi

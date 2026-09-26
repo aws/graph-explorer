@@ -61,6 +61,27 @@ describe("fetchDefaultConnection", () => {
     );
   });
 
+  test("returns a direct connection when the server is not the proxy for it", async () => {
+    mockFetch.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          GRAPH_EXP_CONNECTION_URL: "https://db.example.com:8182",
+          GRAPH_EXP_GRAPH_TYPE: "gremlin",
+          GRAPH_EXP_USING_PROXY_SERVER: false,
+        }),
+        { status: 200 },
+      ),
+    );
+
+    const result = await fetchDefaultConnection();
+
+    expect(result).toHaveLength(1);
+    expect(result[0].connection).toMatchObject({
+      graphDbUrl: "https://db.example.com:8182",
+      proxyConnection: false,
+    });
+  });
+
   test("should not fall back to sagemaker path", async () => {
     mockFetch.mockResolvedValue(new Response("", { status: 404 }));
 
@@ -132,7 +153,7 @@ describe("mapToConnection", () => {
   test("should map default connection data to connection config", () => {
     const defaultConnectionData = createRandomDefaultConnectionData();
     const actual = mapToConnection(defaultConnectionData);
-    expect(actual).toEqual({
+    expect(actual).toStrictEqual({
       id: "Default Connection",
       displayLabel: "Default Connection",
       connection: {
@@ -147,6 +168,15 @@ describe("mapToConnection", () => {
       },
     });
   });
+
+  test("should mark a connection the server doesn't proxy as direct", () => {
+    const defaultConnectionData = {
+      ...createRandomDefaultConnectionData(),
+      GRAPH_EXP_USING_PROXY_SERVER: false,
+    };
+    const actual = mapToConnection(defaultConnectionData);
+    expect(actual.connection?.proxyConnection).toBe(false);
+  });
 });
 
 describe("DefaultConnectionDataSchema", () => {
@@ -160,6 +190,7 @@ describe("DefaultConnectionDataSchema", () => {
     const data = {};
     const actual = DefaultConnectionDataSchema.parse(data);
     expect(actual).toEqual({
+      GRAPH_EXP_USING_PROXY_SERVER: true,
       GRAPH_EXP_CONNECTION_URL: "",
       GRAPH_EXP_IAM: false,
       GRAPH_EXP_AWS_REGION: "",
@@ -212,6 +243,7 @@ function stubDefaultConnectionResponse(data: unknown) {
 
 function createRandomDefaultConnectionData() {
   return {
+    GRAPH_EXP_USING_PROXY_SERVER: true,
     GRAPH_EXP_CONNECTION_URL: createRandomUrlString(),
     GRAPH_EXP_GRAPH_TYPE: createRandomQueryEngine(),
     GRAPH_EXP_IAM: createRandomBoolean(),

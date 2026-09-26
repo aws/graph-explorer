@@ -339,7 +339,18 @@ describe("process-environment.sh", () => {
         "GRAPH_EXP_GRAPH_TYPE",
         "GRAPH_EXP_IAM",
         "GRAPH_EXP_SERVICE_TYPE",
+        "GRAPH_EXP_USING_PROXY_SERVER",
       ]);
+    });
+
+    it("marks a GRAPH_CONNECTION_URL connection as proxied", () => {
+      const { defaultConnection } = runScript(workDir, {
+        GRAPH_CONNECTION_URL: "https://db:8182",
+      });
+      expect(defaultConnection).toHaveProperty(
+        "GRAPH_EXP_USING_PROXY_SERVER",
+        true,
+      );
     });
   });
 
@@ -350,9 +361,11 @@ describe("process-environment.sh", () => {
    * set `PUBLIC_OR_PROXY_ENDPOINT` and `USING_PROXY_SERVER` instead of the
    * current `GRAPH_CONNECTION_URL`. process-environment.sh must keep
    * resolving those variables into the Default Connection's
-   * `GRAPH_EXP_CONNECTION_URL`, whether they arrive alone, together with the
-   * current variable, or via `config.json`, and must never leak the legacy
-   * names themselves into `defaultConnection.json`.
+   * `GRAPH_EXP_CONNECTION_URL` and `GRAPH_EXP_USING_PROXY_SERVER`, whether
+   * they arrive alone, together with the current variable, or via
+   * `config.json`, and must never leak `PUBLIC_OR_PROXY_ENDPOINT` into
+   * `defaultConnection.json`. A connection that resolves to direct stays a
+   * deprecated direct connection.
    *
    * DO NOT delete or weaken these tests without confirming that no deployment
    * still in the wild sets these legacy environment variables instead of
@@ -365,10 +378,10 @@ describe("process-environment.sh", () => {
         GRAPH_CONNECTION_URL: "https://proxied:8182",
         PUBLIC_OR_PROXY_ENDPOINT: "https://ignored:9250",
       });
-      expect(defaultConnection).toHaveProperty(
-        "GRAPH_EXP_CONNECTION_URL",
-        "https://proxied:8182",
-      );
+      expect(defaultConnection).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: "https://proxied:8182",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      });
     });
 
     it("resolves to GRAPH_CONNECTION_URL when all three legacy variables are set together, matching the SageMaker notebook's real environment", () => {
@@ -384,36 +397,47 @@ describe("process-environment.sh", () => {
       );
     });
 
-    it("resolves to PUBLIC_OR_PROXY_ENDPOINT when USING_PROXY_SERVER=false and GRAPH_CONNECTION_URL is unset", () => {
+    it("resolves to a direct PUBLIC_OR_PROXY_ENDPOINT when USING_PROXY_SERVER=false and GRAPH_CONNECTION_URL is unset", () => {
       const { defaultConnection } = runScript(workDir, {
         USING_PROXY_SERVER: "false",
         PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
       });
-      expect(defaultConnection).toHaveProperty(
-        "GRAPH_EXP_CONNECTION_URL",
-        "https://public:9250",
-      );
+      expect(defaultConnection).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+      });
     });
 
-    it("resolves to GRAPH_CONNECTION_URL when USING_PROXY_SERVER is unset and GRAPH_CONNECTION_URL is set", () => {
+    it("resolves to a direct GRAPH_CONNECTION_URL when USING_PROXY_SERVER=false and PUBLIC_OR_PROXY_ENDPOINT is unset", () => {
       const { defaultConnection } = runScript(workDir, {
-        GRAPH_CONNECTION_URL: "https://direct:8182",
+        USING_PROXY_SERVER: "false",
+        GRAPH_CONNECTION_URL: "https://db:8182",
+      });
+      expect(defaultConnection).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: "https://db:8182",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+      });
+    });
+
+    it("resolves to a proxied GRAPH_CONNECTION_URL when USING_PROXY_SERVER is unset and GRAPH_CONNECTION_URL is set", () => {
+      const { defaultConnection } = runScript(workDir, {
+        GRAPH_CONNECTION_URL: "https://db:8182",
         PUBLIC_OR_PROXY_ENDPOINT: "https://ignored:9250",
       });
-      expect(defaultConnection).toHaveProperty(
-        "GRAPH_EXP_CONNECTION_URL",
-        "https://direct:8182",
-      );
+      expect(defaultConnection).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: "https://db:8182",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      });
     });
 
-    it("resolves to PUBLIC_OR_PROXY_ENDPOINT when both USING_PROXY_SERVER and GRAPH_CONNECTION_URL are unset", () => {
+    it("resolves to a direct PUBLIC_OR_PROXY_ENDPOINT when both USING_PROXY_SERVER and GRAPH_CONNECTION_URL are unset", () => {
       const { defaultConnection } = runScript(workDir, {
         PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
       });
-      expect(defaultConnection).toHaveProperty(
-        "GRAPH_EXP_CONNECTION_URL",
-        "https://public:9250",
-      );
+      expect(defaultConnection).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+      });
     });
 
     it("writes no defaultConnection.json when USING_PROXY_SERVER=true and GRAPH_CONNECTION_URL is unset", () => {
@@ -448,20 +472,15 @@ describe("process-environment.sh", () => {
 
       const { defaultConnection } = runScript(workDir);
 
-      expect(defaultConnection).toHaveProperty(
-        "GRAPH_EXP_CONNECTION_URL",
-        "https://from-config:9250",
-      );
+      expect(defaultConnection).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: "https://from-config:9250",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+      });
     });
 
-    /**
-     * The client's `transformLegacyConnection` drops the auth fields from a
-     * connection that was never proxied. The shell deliberately keeps them: an
-     * operator who set `IAM=true` in the container environment asked for
-     * signing, and signing works now that every request routes through the
-     * proxy. Same URL rule, different auth answer, on purpose.
-     */
-    it("keeps IAM, region, and service type when USING_PROXY_SERVER=false", () => {
+    // Matches the client's `transformLegacyConnection`: the browser sends a
+    // direct connection's requests, so nothing would sign them.
+    it("drops IAM, region, and service type when USING_PROXY_SERVER=false", () => {
       const { defaultConnection } = runScript(workDir, {
         USING_PROXY_SERVER: "false",
         PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
@@ -469,11 +488,9 @@ describe("process-environment.sh", () => {
         AWS_REGION: "us-east-1",
         SERVICE_TYPE: "neptune-db",
       });
-      expect(defaultConnection).toMatchObject({
+      expect(defaultConnection).toStrictEqual({
         GRAPH_EXP_CONNECTION_URL: "https://public:9250",
-        GRAPH_EXP_IAM: true,
-        GRAPH_EXP_AWS_REGION: "us-east-1",
-        GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
       });
     });
 
@@ -485,9 +502,6 @@ describe("process-environment.sh", () => {
       });
       expect(defaultConnection).not.toHaveProperty(
         "GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT",
-      );
-      expect(defaultConnection).not.toHaveProperty(
-        "GRAPH_EXP_USING_PROXY_SERVER",
       );
     });
   });

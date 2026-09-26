@@ -489,6 +489,8 @@ const deployments: Deployment[] = [
     expected: cannotWrite(".env"),
   },
   {
+    // A legacy direct connection resolves to PUBLIC_OR_PROXY_ENDPOINT and
+    // stays direct, so there is a defaultConnection.json to write.
     name: "-e PUBLIC_OR_PROXY_ENDPOINT and a read-only defaultConnection.json refuses to start before writing .env",
     dockerEnv: { PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182" },
     readOnly: "defaultConnection.json",

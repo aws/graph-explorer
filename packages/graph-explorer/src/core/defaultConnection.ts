@@ -11,6 +11,7 @@ import type {
 
 export const DefaultConnectionDataSchema = z.object({
   // Connection info
+  GRAPH_EXP_USING_PROXY_SERVER: z.boolean().default(true),
   GRAPH_EXP_CONNECTION_URL: z.string().url().catch(""),
   GRAPH_EXP_GRAPH_TYPE: z.enum(queryEngineOptions).optional(),
   // IAM auth info
@@ -107,6 +108,7 @@ export function mapToConnection(data: DefaultConnectionData): RawConfiguration {
     displayLabel: "Default Connection",
     connection: {
       graphDbUrl: data.GRAPH_EXP_CONNECTION_URL,
+      ...(!data.GRAPH_EXP_USING_PROXY_SERVER && { proxyConnection: false }),
       queryEngine: data.GRAPH_EXP_GRAPH_TYPE,
       awsAuthEnabled: data.GRAPH_EXP_IAM,
       awsRegion: data.GRAPH_EXP_AWS_REGION,
