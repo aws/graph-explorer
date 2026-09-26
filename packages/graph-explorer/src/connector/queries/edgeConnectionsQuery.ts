@@ -36,6 +36,9 @@ export function edgeConnectionsQuery(
     queryKey: ["schema", "edgeConnections", sortedEdgeTypes],
     staleTime: Infinity,
     retryOnMount: false,
+    // A failed fetch marks the query stale, so remounting observers (the
+    // Schema view remounts under the sync boundary) would refetch in a loop.
+    refetchOnMount: false,
     enabled: activeSchema != null && !activeSchema.lastEdgeConnectionSyncFail,
     initialData: activeSchema?.edgeConnections,
     queryFn: async ({ signal, meta, client }) => {
