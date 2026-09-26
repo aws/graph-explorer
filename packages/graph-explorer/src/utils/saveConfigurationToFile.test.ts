@@ -346,6 +346,27 @@ describe("saveConfigurationToFile", () => {
     expect(result?.schema.lastUpdate).toEqual(new Date("2024-01-01T00:00:00Z"));
   });
 
+  it("should export a direct connection as direct", async () => {
+    const config = makeConfig({
+      connection: {
+        graphDbUrl: "https://neptune.example.com:8182",
+        proxyConnection: false,
+        queryEngine: "sparql",
+      },
+    });
+
+    saveConfigurationToFile(config);
+
+    const [blob] = saveAsMock.mock.calls[0];
+    const parsed = JSON.parse(await (blob as Blob).text());
+
+    expect(parseConnectionFile(parsed)?.connection).toStrictEqual({
+      graphDbUrl: "https://neptune.example.com:8182",
+      proxyConnection: false,
+      queryEngine: "sparql",
+    });
+  });
+
   it("should export edgeConnections when present", async () => {
     const config = makeConfig({
       schema: {

@@ -353,6 +353,27 @@ describe("parseConnectionFile", () => {
     );
   });
 
+  test("keeps proxyConnection false on a direct connection", () => {
+    const graphDbUrl = createRandomUrlString();
+    const config = {
+      id: createNewConfigurationId(),
+      connection: {
+        graphDbUrl,
+        proxyConnection: false,
+        queryEngine: "gremlin" as const,
+      },
+      schema: { vertices: [], edges: [] },
+    };
+
+    const result = parseConnectionFile(config);
+
+    expect(result?.connection).toStrictEqual({
+      graphDbUrl,
+      proxyConnection: false,
+      queryEngine: "gremlin",
+    });
+  });
+
   test("parses valid AWS auth fields", () => {
     const config = {
       id: createNewConfigurationId(),

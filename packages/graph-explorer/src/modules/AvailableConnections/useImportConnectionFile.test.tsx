@@ -91,6 +91,41 @@ describe("useImportConnectionFile", () => {
     expect(mockResetState).toHaveBeenCalledOnce();
   });
 
+  test("should import a direct connection as direct", async () => {
+    const state = new DbState();
+    const { result } = renderHookWithState(
+      () => useImportConnectionFile(),
+      state,
+    );
+
+    const graphDbUrl = createRandomUrlString();
+    const directConfig = {
+      id: createNewConfigurationId(),
+      displayLabel: createRandomName("Config"),
+      connection: {
+        graphDbUrl,
+        proxyConnection: false,
+        queryEngine: "sparql" as const,
+      },
+      schema: { vertices: [], edges: [] },
+    };
+
+    const file = new File([JSON.stringify(directConfig)], "connection.json", {
+      type: "application/json",
+    });
+
+    await act(async () => {
+      await result.current(file);
+    });
+
+    const { config } = getImportedConnection();
+    expect(config.connection).toStrictEqual({
+      graphDbUrl,
+      proxyConnection: false,
+      queryEngine: "sparql",
+    });
+  });
+
   test("should reject invalid configuration file", async () => {
     const state = new DbState();
     const { result } = renderHookWithState(

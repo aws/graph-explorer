@@ -41,11 +41,14 @@ const exportedConnectionFileSchema = z.looseObject({
       // verbatim as the proxy's request target, so an imported file must not be
       // able to point it at a non-http(s) scheme.
       graphDbUrl: z.url({ protocol: /^https?$/ }).optional(),
-      // Legacy fields from files exported before the unified-proxy model.
-      // Direct connections stored the endpoint in `url`; `transformLegacyConnection`
-      // folds these into `graphDbUrl` on import. Validated to the same scheme so
-      // a legacy file cannot smuggle in a non-http(s) target either.
+      // Legacy field from files exported before the unified-proxy model, where
+      // direct connections stored the endpoint in `url`;
+      // `transformLegacyConnection` folds it into `graphDbUrl` on import.
+      // Validated to the same scheme so a legacy file cannot smuggle in a
+      // non-http(s) target either.
       url: z.url({ protocol: /^https?$/ }).optional(),
+      // `false` marks a deprecated direct connection, in both legacy and
+      // current files.
       proxyConnection: z.boolean().optional(),
       // Best-effort: an unparseable value degrades to absent rather than
       // rejecting the whole file. `awsAuthEnabled` must fail safe to falsy —
