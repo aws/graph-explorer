@@ -4,23 +4,26 @@ import { normalizeWithNoSpace as normalize } from "@/utils/testing";
 import edgeConnectionsTemplate from "./edgeConnectionsTemplate";
 
 describe("Gremlin > edgeConnectionsTemplate", () => {
-  it("should scan a batch of edge types and group the endpoint labels by edge type", () => {
+  it("should give each sampled edge type its own limited branch", () => {
     const template = edgeConnectionsTemplate({
       types: [createEdgeType("route"), createEdgeType("contains")],
     });
 
+    // A single limit after hasLabel() would be shared, and a dominant type would
+    // fill it before the rest were read at all.
     expect(normalize(template)).toBe(
       normalize(`
-        g.E().hasLabel('route', 'contains')
+        g.V().limit(1).union(
+          V().outE('route').limit(10000),
+          V().outE('contains').limit(10000)
+        )
           .group()
             .by(label())
             .by(
-              limit(10000)
-                .project('sourceType', 'targetType')
-                .by(outV().label())
-                .by(inV().label())
-                .dedup()
-                .fold()
+              project('s', 't')
+                .by(outV().label().fold())
+                .by(inV().label().fold())
+                .groupCount()
             )
       `),
     );
@@ -31,6 +34,6 @@ describe("Gremlin > edgeConnectionsTemplate", () => {
       types: [createEdgeType("edge'with'quotes")],
     });
 
-    expect(template).toContain("hasLabel('edge\\'with\\'quotes')");
+    expect(template).toContain("V().outE('edge\\'with\\'quotes')");
   });
 });
