@@ -19,7 +19,16 @@ export function useCancelSchemaSync() {
   const queryClient = useQueryClient();
   return () => {
     logger.log("Cancelling schema sync");
-    return queryClient.cancelQueries({ queryKey: ["schema"] });
+    return Promise.all([
+      queryClient.cancelQueries({ queryKey: ["schema", "discovery"] }),
+      // Reverting would restore "never fetched", which every observer that
+      // remounts under the sync boundary loads again. Settling as a cancelled
+      // error lets `retryOnMount: false` keep it stopped.
+      queryClient.cancelQueries(
+        { queryKey: ["schema", "edgeConnections"] },
+        { revert: false },
+      ),
+    ]);
   };
 }
 

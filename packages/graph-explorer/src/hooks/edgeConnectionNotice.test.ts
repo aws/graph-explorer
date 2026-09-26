@@ -1,3 +1,4 @@
+import { CancelledError } from "@tanstack/react-query";
 import { describe, expect, test } from "vitest";
 
 import type { SchemaStorageModel } from "@/core";
@@ -58,6 +59,29 @@ describe("edgeConnectionNotice", () => {
 
     expect(edgeConnectionNotice(schema, null)).toStrictEqual({
       kind: "not-discovered",
+    });
+  });
+
+  test("is not-discovered when the user cancelled discovery", () => {
+    const schema = schemaWith({
+      edgeConnections: undefined,
+      lastEdgeConnectionSyncFail: false,
+    });
+
+    expect(edgeConnectionNotice(schema, new CancelledError())).toStrictEqual({
+      kind: "not-discovered",
+    });
+  });
+
+  test("is failed with a null error when the user cancelled a retry of a failed discovery", () => {
+    const schema = schemaWith({
+      edgeConnections: undefined,
+      lastEdgeConnectionSyncFail: true,
+    });
+
+    expect(edgeConnectionNotice(schema, new CancelledError())).toStrictEqual({
+      kind: "failed",
+      error: null,
     });
   });
 

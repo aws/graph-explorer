@@ -1,5 +1,7 @@
 import type { SchemaStorageModel } from "@/core";
 
+import { isCancellationError } from "@/utils";
+
 /**
  * What, if anything, the Schema view should tell the user about edge
  * connection discovery for the active schema.
@@ -19,8 +21,10 @@ export function edgeConnectionNotice(
   schema: SchemaStorageModel,
   error: Error | null,
 ): EdgeConnectionNotice {
-  if (error != null || schema.lastEdgeConnectionSyncFail) {
-    return { kind: "failed", error };
+  // A cancelled discovery is the user's choice, not a failure to report.
+  const failure = isCancellationError(error) ? null : error;
+  if (failure != null || schema.lastEdgeConnectionSyncFail) {
+    return { kind: "failed", error: failure };
   }
   if (schema.edgeConnections == null) {
     return { kind: "not-discovered" };

@@ -135,6 +135,49 @@ describe("SchemaDiscoveryBoundary against the real store", () => {
     expect(fetchEdgeConnections).toHaveBeenCalledTimes(1);
     expect(screen.getByText("Refresh Schema")).toBeInTheDocument();
   });
+
+  test("starts no new edge connection fetch when a refresh after a failed discovery is cancelled", async () => {
+    const fetchEdgeConnections = vi
+      .spyOn(explorer, "fetchEdgeConnections")
+      .mockImplementation(async () => {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        throw new Error("Edge connection discovery failed");
+      });
+
+    const edge = createTestableEdge();
+    explorer.addTestableEdge(edge);
+    const state = new DbState(explorer);
+    state.activeSchema.edges = [];
+    state.addTestableEdgeToGraph(edge);
+    // As persisted after a failed discovery and a browser reload
+    state.activeSchema.edgeConnections = undefined;
+    state.activeSchema.lastEdgeConnectionSyncFail = true;
+
+    const store = getAppStore();
+    state.applyTo(store);
+    const client = createQueryClient();
+    client.setDefaultOptions({
+      queries: { ...client.getDefaultOptions().queries, retry: false },
+    });
+
+    render(
+      <TestProvider client={client} store={store}>
+        <SchemaDiscoveryBoundary>
+          <RefreshSchemaButton />
+        </SchemaDiscoveryBoundary>
+      </TestProvider>,
+    );
+
+    await userEvent.click(await screen.findByText("Refresh Schema"));
+    await waitFor(() => expect(fetchEdgeConnections).toHaveBeenCalled());
+    await userEvent.click(screen.getByText("Cancel Sync"));
+    // Outlast the mock so a restarted fetch would show up
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    expect(fetchEdgeConnections).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText("Synchronizing...")).not.toBeInTheDocument();
+    expect(screen.getByText("Refresh Schema")).toBeInTheDocument();
+  });
 });
 
 /** Stands in for the Schema view toolbar, which observes the sync queries. */

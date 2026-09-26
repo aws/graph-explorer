@@ -37,6 +37,8 @@ If the edge connection query fails, the schema records only that it failed, via 
 
 `edgeConnectionNotice(schema, error)` (in `src/hooks/edgeConnectionNotice.ts`, next to `useSchemaSync`) checks failure first (the live query error or `lastEdgeConnectionSyncFail`) and only then `edgeConnections == null`, because partial connections added by exploration after a failure must still report the failure. `useEdgeConnectionNotice()` wraps it with `useMaybeActiveSchema()` and `useSchemaSync().edgeDiscoveryQuery` so the toolbar button, the sidebar details, and the connection detail panel share one resolution of the notice.
 
+`useCancelSchemaSync` cancels the edge query with `revert: false`. Reverting would restore its never-fetched state, and every observer that remounts under `SchemaDiscoveryBoundary` loads a query without data on mount (TanStack ignores `refetchOnMount` then), so the fetch would restart. Settled as a `CancelledError`, `retryOnMount: false` holds it, and `edgeConnectionNotice` reads the cancellation as not discovered rather than failed.
+
 ## Incremental Schema Growth
 
 As users explore the graph, queries may return vertex/edge types or attributes not present in the initial schema sync. These are automatically merged into the stored schema via `updateSchemaFromEntities()`, causing the schema to grow more complete over time.
