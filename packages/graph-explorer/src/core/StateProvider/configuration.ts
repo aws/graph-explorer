@@ -118,8 +118,11 @@ export function normalizeUrl(url: string | undefined): string {
   );
 }
 
-/** Transforms a legacy connection (with `url` and `proxyConnection`) to the new
- * format where only `graphDbUrl` exists. */
+/**
+ * Transforms a legacy connection (with `url` and `proxyConnection`) to the
+ * canonical shape, where `graphDbUrl` is the only endpoint and a direct
+ * connection is marked with `proxyConnection: false`.
+ */
 export function transformLegacyConnection(
   connection: LegacyConnectionConfig,
 ): ConnectionConfig {
@@ -129,22 +132,21 @@ export function transformLegacyConnection(
   const isProxyConnection =
     proxyConnection === true ||
     (proxyConnection === undefined && connection.graphDbUrl != null);
-  const graphDbUrl = isProxyConnection
-    ? connection.graphDbUrl
-    : url || connection.graphDbUrl;
 
-  if (!isProxyConnection) {
-    // The IAM controls only rendered for a proxy connection, so drop these
-    // fields on a direct connection rather than let the Proxy Server sign its
-    // request.
-    delete rest.awsAuthEnabled;
-    delete rest.awsRegion;
-    delete rest.serviceType;
+  if (isProxyConnection) {
+    return { ...rest, graphDbUrl: connection.graphDbUrl || "" };
   }
+
+  // The IAM controls only render for a proxy connection, and a direct request
+  // never reaches the Proxy Server that would sign it.
+  delete rest.awsAuthEnabled;
+  delete rest.awsRegion;
+  delete rest.serviceType;
 
   return {
     ...rest,
-    graphDbUrl: graphDbUrl || "",
+    graphDbUrl: url || connection.graphDbUrl || "",
+    proxyConnection: false,
   };
 }
 

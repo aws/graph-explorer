@@ -405,6 +405,14 @@ describe("normalizeConnection", () => {
     );
   });
 
+  test("should preserve proxyConnection false on a direct connection", () => {
+    const result = normalizeConnection({
+      graphDbUrl: "https://example.com",
+      proxyConnection: false,
+    });
+    expect(result.proxyConnection).toBe(false);
+  });
+
   test("should strip newlines and surrounding whitespace from graphDbUrl", () => {
     const result = normalizeConnection({
       graphDbUrl: "  https://db.com/\r\ngraph  ",
@@ -420,9 +428,10 @@ describe("normalizeConnection", () => {
  * `url`/`proxyConnection` pair instead of the canonical `graphDbUrl`.
  * `transformLegacyConnection` folds every combination of that legacy shape
  * (both fields, either alone, `proxyConnection` true/false/absent) into
- * `graphDbUrl`, drops `url`/`proxyConnection` from the result, and decides
- * whether AWS auth settings survive based on whether the connection resolves
- * to a proxy or direct connection.
+ * `graphDbUrl` and drops `url`. A direct connection keeps
+ * `proxyConnection: false`, which is also the canonical shape of a deprecated
+ * direct connection, and loses its AWS auth settings. A proxy connection
+ * omits the flag.
  *
  * DO NOT delete or weaken these tests without confirming no stored connection
  * can still carry the legacy `url`/`proxyConnection` shape.
@@ -434,15 +443,30 @@ describe("backward compatibility: legacy url/proxyConnection connection shape", 
       proxyConnection: true,
       graphDbUrl: "https://my-neptune:8182",
     });
-    expect(result.graphDbUrl).toBe("https://my-neptune:8182");
+    expect(result).toStrictEqual({ graphDbUrl: "https://my-neptune:8182" });
   });
 
-  test("should use url as graphDbUrl when proxyConnection is false", () => {
+  test("should use url as graphDbUrl and keep the direct flag when proxyConnection is false", () => {
     const result = transformLegacyConnection({
       url: "https://my-neptune:8182",
       proxyConnection: false,
     });
-    expect(result.graphDbUrl).toBe("https://my-neptune:8182");
+    expect(result).toStrictEqual({
+      graphDbUrl: "https://my-neptune:8182",
+      proxyConnection: false,
+    });
+  });
+
+  test("should prefer url over graphDbUrl on a direct connection", () => {
+    const result = transformLegacyConnection({
+      url: "https://my-neptune:8182",
+      graphDbUrl: "https://stale.example.com",
+      proxyConnection: false,
+    });
+    expect(result).toStrictEqual({
+      graphDbUrl: "https://my-neptune:8182",
+      proxyConnection: false,
+    });
   });
 
   test("should infer a proxy connection and use graphDbUrl when proxyConnection is absent but graphDbUrl is present", () => {
@@ -451,6 +475,7 @@ describe("backward compatibility: legacy url/proxyConnection connection shape", 
       queryEngine: "gremlin",
     });
     expect(result.graphDbUrl).toBe("https://db.com");
+    expect(result).not.toHaveProperty("proxyConnection");
   });
 
   test("should keep graphDbUrl over the proxy url when proxyConnection is absent and both are set", () => {
@@ -459,14 +484,20 @@ describe("backward compatibility: legacy url/proxyConnection connection shape", 
       graphDbUrl: "https://db.com",
       queryEngine: "gremlin",
     });
-    expect(result.graphDbUrl).toBe("https://db.com");
+    expect(result).toStrictEqual({
+      graphDbUrl: "https://db.com",
+      queryEngine: "gremlin",
+    });
   });
 
-  test("should use url as graphDbUrl when proxyConnection and graphDbUrl are both absent", () => {
+  test("should treat a connection with only url as direct", () => {
     const result = transformLegacyConnection({
       url: "https://my-neptune:8182",
     });
-    expect(result.graphDbUrl).toBe("https://my-neptune:8182");
+    expect(result).toStrictEqual({
+      graphDbUrl: "https://my-neptune:8182",
+      proxyConnection: false,
+    });
   });
 
   // Out of scope: a `proxyConnection: true` connection with only `url` set
@@ -476,10 +507,10 @@ describe("backward compatibility: legacy url/proxyConnection connection shape", 
       url: "https://proxy.example.com",
       proxyConnection: true,
     });
-    expect(result.graphDbUrl).toBe("");
+    expect(result).toStrictEqual({ graphDbUrl: "" });
   });
 
-  test("should not include proxyConnection in result", () => {
+  test("should omit proxyConnection from a proxy connection", () => {
     const result = transformLegacyConnection({
       url: "https://proxy.com",
       proxyConnection: true,
@@ -490,9 +521,8 @@ describe("backward compatibility: legacy url/proxyConnection connection shape", 
 
   test("should not include url in result", () => {
     const result = transformLegacyConnection({
-      url: "https://proxy.com",
-      proxyConnection: true,
-      graphDbUrl: "https://db.com",
+      url: "https://my-neptune:8182",
+      proxyConnection: false,
     });
     expect(result).not.toHaveProperty("url");
   });
@@ -509,12 +539,15 @@ describe("backward compatibility: legacy url/proxyConnection connection shape", 
       fetchTimeoutMs: 30000,
       nodeExpansionLimit: 100,
     });
-    expect(result.queryEngine).toBe("sparql");
-    expect(result.awsAuthEnabled).toBe(true);
-    expect(result.awsRegion).toBe("us-east-1");
-    expect(result.serviceType).toBe("neptune-graph");
-    expect(result.fetchTimeoutMs).toBe(30000);
-    expect(result.nodeExpansionLimit).toBe(100);
+    expect(result).toStrictEqual({
+      graphDbUrl: "https://db.com",
+      queryEngine: "sparql",
+      awsAuthEnabled: true,
+      awsRegion: "us-east-1",
+      serviceType: "neptune-graph",
+      fetchTimeoutMs: 30000,
+      nodeExpansionLimit: 100,
+    });
   });
 
   test("should pass through a connection that already has graphDbUrl and no url unchanged", () => {
@@ -528,12 +561,45 @@ describe("backward compatibility: legacy url/proxyConnection connection shape", 
     });
   });
 
+  test("should pass through a canonical direct connection unchanged", () => {
+    const result = transformLegacyConnection({
+      graphDbUrl: "https://my-neptune:8182",
+      proxyConnection: false,
+      queryEngine: "sparql",
+    });
+    expect(result).toStrictEqual({
+      graphDbUrl: "https://my-neptune:8182",
+      proxyConnection: false,
+      queryEngine: "sparql",
+    });
+  });
+
+  test.each([
+    {
+      url: "https://proxy.com",
+      proxyConnection: true,
+      graphDbUrl: "https://db.com",
+    },
+    { url: "https://my-neptune:8182", proxyConnection: false },
+    { url: "https://my-neptune:8182" },
+    { graphDbUrl: "https://db.com" },
+    { graphDbUrl: "https://my-neptune:8182", proxyConnection: false },
+    { proxyConnection: false },
+  ])("should be idempotent for %o", connection => {
+    const once = transformLegacyConnection(connection);
+    expect(transformLegacyConnection(once)).toStrictEqual(once);
+  });
+
   test("should fall back to empty string when no url is present", () => {
     const result = transformLegacyConnection({
       proxyConnection: false,
       queryEngine: "gremlin",
     });
-    expect(result.graphDbUrl).toBe("");
+    expect(result).toStrictEqual({
+      graphDbUrl: "",
+      proxyConnection: false,
+      queryEngine: "gremlin",
+    });
   });
 
   test("should clear AWS auth settings on a legacy direct connection", () => {
@@ -544,12 +610,24 @@ describe("backward compatibility: legacy url/proxyConnection connection shape", 
       awsRegion: "us-east-1",
       serviceType: "neptune-db",
     });
-    expect(result.awsAuthEnabled).toBeUndefined();
-    expect(result.awsRegion).toBeUndefined();
-    expect(result.serviceType).toBeUndefined();
-    expect(result).not.toHaveProperty("awsAuthEnabled");
-    expect(result).not.toHaveProperty("awsRegion");
-    expect(result).not.toHaveProperty("serviceType");
+    expect(result).toStrictEqual({
+      graphDbUrl: "https://my-neptune:8182",
+      proxyConnection: false,
+    });
+  });
+
+  test("should clear AWS auth settings on a canonical direct connection", () => {
+    const result = transformLegacyConnection({
+      graphDbUrl: "https://my-neptune:8182",
+      proxyConnection: false,
+      awsAuthEnabled: true,
+      awsRegion: "us-east-1",
+      serviceType: "neptune-db",
+    });
+    expect(result).toStrictEqual({
+      graphDbUrl: "https://my-neptune:8182",
+      proxyConnection: false,
+    });
   });
 
   test("should keep AWS auth settings on a legacy proxy connection", () => {

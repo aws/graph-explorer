@@ -409,10 +409,10 @@ describe("useImportConnectionFile", () => {
  * Connection files exported before the unified-proxy model stored the
  * database endpoint in `url` plus a `proxyConnection` flag, instead of the
  * canonical `graphDbUrl`. Import must fold every combination of those legacy
- * fields into `graphDbUrl` and drop `url`/`proxyConnection` from the stored
- * connection, whether `proxyConnection` is true, false, or altogether absent
- * (in which case presence of `graphDbUrl` or `url` alone decides the
- * fallback).
+ * fields into `graphDbUrl` and drop `url` from the stored connection, whether
+ * `proxyConnection` is true, false, or altogether absent (in which case
+ * presence of `graphDbUrl` or `url` alone decides the fallback). A direct
+ * connection keeps `proxyConnection: false`; a proxy connection omits it.
  *
  * DO NOT delete or weaken these tests without confirming that no exported
  * file in the wild can still carry the legacy `url`/`proxyConnection` shape.
@@ -453,10 +453,12 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
     });
 
     const { config } = getImportedConnection();
-    expect(config.connection?.graphDbUrl).toBe(url);
-    // The legacy fields are folded away during migration.
-    expect(config.connection).not.toHaveProperty("url");
-    expect(config.connection).not.toHaveProperty("proxyConnection");
+    // The legacy `url` is folded away and the direct flag survives.
+    expect(config.connection).toStrictEqual({
+      graphDbUrl: url,
+      proxyConnection: false,
+      queryEngine: "gremlin",
+    });
     expect(mockResetState).toHaveBeenCalledOnce();
   });
 
@@ -579,9 +581,11 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
     });
 
     const { config } = getImportedConnection();
-    expect(config.connection?.graphDbUrl).toBe(url);
-    expect(config.connection).not.toHaveProperty("url");
-    expect(config.connection).not.toHaveProperty("proxyConnection");
+    expect(config.connection).toStrictEqual({
+      graphDbUrl: url,
+      proxyConnection: false,
+      queryEngine: "gremlin",
+    });
     expect(mockResetState).toHaveBeenCalledOnce();
   });
 });

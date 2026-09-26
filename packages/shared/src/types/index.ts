@@ -13,6 +13,12 @@ export type ConnectionConfig = {
    */
   graphDbUrl: string;
   /**
+   * Absent or `true` sends requests through the Graph Explorer server. `false`
+   * is a deprecated direct connection, where the browser calls `graphDbUrl`
+   * itself.
+   */
+  proxyConnection?: boolean;
+  /**
    * Choose between gremlin or sparQL engines.
    * By default, it uses gremlin
    */
@@ -48,5 +54,4 @@ export type ConnectionConfig = {
 export type LegacyConnectionConfig = Omit<ConnectionConfig, "graphDbUrl"> & {
   graphDbUrl?: string;
   url?: string;
-  proxyConnection?: boolean;
 };

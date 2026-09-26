@@ -7,8 +7,7 @@ import { transformLegacyConnection } from "./configuration";
 
 /**
  * ReadTransform for the configuration map: transforms each entry's connection
- * from the legacy `url`/`proxyConnection` shape to the canonical `graphDbUrl`
- * field, so every consumer of `configurationAtom` — not just the active
+ * from the legacy `url`/`proxyConnection` shape to the canonical shape, so every consumer of `configurationAtom` — not just the active
  * connection — sees an already-migrated connection. An entry without a
  * connection passes through untouched.
  */

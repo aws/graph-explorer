@@ -45,7 +45,7 @@ describe("transformConfiguration", () => {
     );
   });
 
-  test("uses url when proxyConnection is false", () => {
+  test("uses url and keeps the direct flag when proxyConnection is false", () => {
     const config = configWithLegacyConnection({
       url: "https://my-neptune:8182",
       proxyConnection: false,
@@ -53,9 +53,25 @@ describe("transformConfiguration", () => {
 
     const result = transformConfiguration(configMap(config));
 
-    expect(result.get(config.id)?.connection?.graphDbUrl).toBe(
-      "https://my-neptune:8182",
-    );
+    expect(result.get(config.id)?.connection).toStrictEqual({
+      graphDbUrl: "https://my-neptune:8182",
+      proxyConnection: false,
+    });
+  });
+
+  test("passes a canonical direct connection through unchanged", () => {
+    const config: RawConfiguration = {
+      ...createRandomRawConfiguration(),
+      connection: {
+        graphDbUrl: "https://my-neptune:8182",
+        proxyConnection: false,
+        queryEngine: "gremlin",
+      },
+    };
+
+    const result = transformConfiguration(configMap(config));
+
+    expect(result.get(config.id)).toStrictEqual(config);
   });
 
   test("infers a proxy connection and uses graphDbUrl when proxyConnection is absent but graphDbUrl is present", () => {
@@ -70,16 +86,17 @@ describe("transformConfiguration", () => {
     );
   });
 
-  test("uses url when both proxyConnection and graphDbUrl are absent", () => {
+  test("treats a connection with only url as direct", () => {
     const config = configWithLegacyConnection({
       url: "https://my-neptune:8182",
     });
 
     const result = transformConfiguration(configMap(config));
 
-    expect(result.get(config.id)?.connection?.graphDbUrl).toBe(
-      "https://my-neptune:8182",
-    );
+    expect(result.get(config.id)?.connection).toStrictEqual({
+      graphDbUrl: "https://my-neptune:8182",
+      proxyConnection: false,
+    });
   });
 
   test("passes an already-migrated connection through unchanged", () => {
@@ -116,7 +133,7 @@ describe("transformConfiguration", () => {
  * legacy shape is folded into the canonical shape at read time via this
  * ReadTransform, so every consumer of the atom — not only the active
  * connection, which separately normalizes on its own — sees a migrated
- * `graphDbUrl`.
+ * `graphDbUrl`, with `proxyConnection: false` kept on a direct connection.
  *
  * DO NOT delete or weaken this test without confirming no stored connection
  * can still carry the legacy `url`/`proxyConnection` shape.
@@ -145,8 +162,9 @@ describe("backward compatibility: legacy connection shape in storage", () => {
     const store = createStore();
     const value = store.get(atom);
 
-    expect(value.get(config.id)?.connection?.graphDbUrl).toBe(
-      "https://my-neptune:8182",
-    );
+    expect(value.get(config.id)?.connection).toStrictEqual({
+      graphDbUrl: "https://my-neptune:8182",
+      proxyConnection: false,
+    });
   });
 });
