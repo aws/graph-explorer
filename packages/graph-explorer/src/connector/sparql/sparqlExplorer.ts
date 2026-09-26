@@ -3,6 +3,7 @@ import { v4 } from "uuid";
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
 import { serverLogger } from "@/core/connector";
+import { isDirectConnection } from "@/core/StateProvider/configuration";
 import { env, logger } from "@/utils";
 
 import type { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
@@ -14,7 +15,7 @@ import type {
 } from "./types";
 
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
-import { apiUrl } from "../utils/apiUrl";
+import { databaseEndpoint } from "../utils/databaseEndpoint";
 import { edgeDetails } from "./edgeDetails";
 import fetchEdgeConnections from "./fetchEdgeConnections";
 import fetchNeighbors from "./fetchNeighbors";
@@ -40,14 +41,19 @@ function _sparqlFetch(
     const headers: Record<string, string> = {
       accept: "application/sparql-results+json",
       "Content-Type": "application/x-www-form-urlencoded",
-      ...(queryId && { queryId }),
+      ...(queryId && !isDirectConnection(connection) && { queryId }),
     };
-    return fetchDatabaseRequest(connection, featureFlags, apiUrl("sparql"), {
-      method: "POST",
-      headers,
-      body,
-      ...options,
-    });
+    return fetchDatabaseRequest(
+      connection,
+      featureFlags,
+      databaseEndpoint(connection, "sparql"),
+      {
+        method: "POST",
+        headers,
+        body,
+        ...options,
+      },
+    );
   };
 }
 
@@ -60,7 +66,7 @@ async function fetchSummary(
     const response = await fetchDatabaseRequest(
       connection,
       featureFlags,
-      apiUrl("rdf/statistics/summary?mode=basic"),
+      databaseEndpoint(connection, "rdf/statistics/summary?mode=basic"),
       {
         method: "GET",
         ...options,

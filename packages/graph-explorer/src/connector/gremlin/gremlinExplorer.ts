@@ -3,13 +3,14 @@ import { v4 } from "uuid";
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
 import { serverLogger } from "@/core/connector";
+import { isDirectConnection } from "@/core/StateProvider/configuration";
 import { logger } from "@/utils";
 
 import type { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
 import type { GraphSummary, GremlinFetch } from "./types";
 
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
-import { apiUrl } from "../utils/apiUrl";
+import { databaseEndpoint } from "../utils/databaseEndpoint";
 import { edgeDetails } from "./edgeDetails";
 import fetchEdgeConnections from "./fetchEdgeConnections";
 import fetchNeighbors from "./fetchNeighbors";
@@ -32,16 +33,21 @@ function _gremlinFetch(
       "Content-Type": "application/json",
       Accept: "application/vnd.gremlin-v3.0+json",
     };
-    if (options?.queryId) {
+    if (options?.queryId && !isDirectConnection(connection)) {
       headers.queryId = options.queryId;
     }
 
-    return fetchDatabaseRequest(connection, featureFlags, apiUrl("gremlin"), {
-      method: "POST",
-      headers,
-      body,
-      ...options,
-    });
+    return fetchDatabaseRequest(
+      connection,
+      featureFlags,
+      databaseEndpoint(connection, "gremlin"),
+      {
+        method: "POST",
+        headers,
+        body,
+        ...options,
+      },
+    );
   };
 }
 
@@ -54,7 +60,7 @@ async function fetchSummary(
     const response = await fetchDatabaseRequest(
       connection,
       featureFlags,
-      apiUrl("pg/statistics/summary?mode=basic"),
+      databaseEndpoint(connection, "pg/statistics/summary?mode=basic"),
       {
         method: "GET",
         ...options,

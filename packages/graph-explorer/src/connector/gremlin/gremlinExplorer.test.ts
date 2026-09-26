@@ -150,4 +150,66 @@ describe("createGremlinExplorer", () => {
       expect(error.timeoutMs).toBe(1);
     });
   });
+  describe("request routing", () => {
+    it("sends a proxy connection's query to the Graph Explorer server with a queryId", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse(emptyGremlinList)),
+      );
+
+      const explorer = createGremlinExplorer(
+        createConnection(),
+        createFeatureFlags(),
+      );
+      await explorer.rawQuery({ query: "g.V().limit(10)" });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("http://localhost/gremlin"),
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            "graph-db-connection-url": "https://my-neptune:8182",
+            queryId: expect.any(String),
+          }),
+        }),
+      );
+    });
+
+    it("sends a direct connection's query to the database without proxy headers", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse(emptyGremlinList)),
+      );
+
+      const explorer = createGremlinExplorer(
+        createConnection({ proxyConnection: false }),
+        createFeatureFlags(),
+      );
+      await explorer.rawQuery({ query: "g.V().limit(10)" });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("https://my-neptune:8182/gremlin"),
+        expect.objectContaining({
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/vnd.gremlin-v3.0+json",
+          },
+        }),
+      );
+    });
+
+    it("requests a direct connection's summary from the database", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse(emptyGremlinList)),
+      );
+
+      const explorer = createGremlinExplorer(
+        createConnection({ proxyConnection: false }),
+        createFeatureFlags(),
+      );
+      await explorer.fetchSchema();
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("https://my-neptune:8182/pg/statistics/summary?mode=basic"),
+        expect.objectContaining({ method: "GET" }),
+      );
+    });
+  });
 });

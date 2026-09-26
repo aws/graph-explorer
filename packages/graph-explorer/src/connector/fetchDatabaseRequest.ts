@@ -1,5 +1,6 @@
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
+import { isDirectConnection } from "@/core/StateProvider/configuration";
 import {
   databaseTimeoutCode,
   DatabaseTimeoutError,
@@ -61,13 +62,17 @@ function getAuthHeaders(
   typeHeaders: HeadersInit | undefined,
 ) {
   const headers: Record<string, string> = {};
-  headers["graph-db-connection-url"] = connection.graphDbUrl;
-  headers["db-query-logging-enabled"] = String(
-    featureFlags.allowLoggingDbQuery,
-  );
-  if (connection.awsAuthEnabled) {
-    headers["aws-neptune-region"] = connection.awsRegion || "";
-    headers["service-type"] = connection.serviceType || DEFAULT_SERVICE_TYPE;
+  // The database never reads these, and custom headers on a cross-origin
+  // request would trigger a CORS preflight it may reject.
+  if (!isDirectConnection(connection)) {
+    headers["graph-db-connection-url"] = connection.graphDbUrl;
+    headers["db-query-logging-enabled"] = String(
+      featureFlags.allowLoggingDbQuery,
+    );
+    if (connection.awsAuthEnabled) {
+      headers["aws-neptune-region"] = connection.awsRegion || "";
+      headers["service-type"] = connection.serviceType || DEFAULT_SERVICE_TYPE;
+    }
   }
 
   if (typeHeaders) {

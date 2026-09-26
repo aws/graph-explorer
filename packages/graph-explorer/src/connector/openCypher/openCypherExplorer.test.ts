@@ -167,4 +167,41 @@ describe("createOpenCypherExplorer", () => {
       expect(error.timeoutMs).toBe(1);
     });
   });
+  describe("request routing", () => {
+    it("sends a direct connection's query to the database without proxy headers", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse({ results: [] })),
+      );
+
+      const explorer = createOpenCypherExplorer(
+        createConnection({ proxyConnection: false }),
+        createFeatureFlags(),
+      );
+      await explorer.rawQuery({ query: "MATCH (n) RETURN n LIMIT 10" });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("https://my-neptune:8182/openCypher"),
+        expect.objectContaining({
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+    });
+
+    it("requests a direct connection's summary from the database", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse({ results: [] })),
+      );
+
+      const explorer = createOpenCypherExplorer(
+        createConnection({ proxyConnection: false }),
+        createFeatureFlags(),
+      );
+      await explorer.fetchSchema();
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("https://my-neptune:8182/pg/statistics/summary?mode=basic"),
+        expect.objectContaining({ method: "GET" }),
+      );
+    });
+  });
 });

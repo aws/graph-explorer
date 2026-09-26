@@ -236,7 +236,7 @@ describe("fetchDatabaseRequest", () => {
       expect(headers["service-type"]).toBe("neptune-db");
     });
 
-    it("always sends graph-db-connection-url header", async () => {
+    it("sends graph-db-connection-url header when proxyConnection is absent", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
       const conn = createConnection({
         graphDbUrl: "https://my-db:8182",
@@ -271,6 +271,34 @@ describe("fetchDatabaseRequest", () => {
       const headers = mockFetch.mock.calls[0][1].headers;
       expect(headers).not.toHaveProperty("aws-neptune-region");
       expect(headers).not.toHaveProperty("service-type");
+    });
+
+    it("sends only caller-provided headers for a direct connection", async () => {
+      mockFetch.mockResolvedValue(jsonResponse({}));
+      // IAM fields can't be set on a direct connection through the UI, but a
+      // stray value must still not produce proxy headers that trigger a CORS
+      // preflight against the database.
+      const conn = createConnection({
+        proxyConnection: false,
+        awsAuthEnabled: true,
+        awsRegion: "us-west-2",
+      });
+      const flags = createFeatureFlags({ allowLoggingDbQuery: true });
+
+      await fetchDatabaseRequest(
+        conn,
+        flags,
+        new URL("https://db.example.com:8182/sparql"),
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        },
+      );
+
+      const headers = mockFetch.mock.calls[0][1].headers;
+      expect(headers).toStrictEqual({
+        "content-type": "application/x-www-form-urlencoded",
+      });
     });
 
     it("merges caller-provided headers with auth headers", async () => {

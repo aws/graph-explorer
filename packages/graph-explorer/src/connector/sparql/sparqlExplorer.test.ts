@@ -145,4 +145,75 @@ describe("createSparqlExplorer", () => {
       expect(error.timeoutMs).toBe(1);
     });
   });
+  describe("request routing", () => {
+    it("sends a proxy connection's keyword search to the Graph Explorer server with a queryId", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(
+          jsonResponse({ head: { vars: [] }, results: { bindings: [] } }),
+        ),
+      );
+
+      const explorer = createSparqlExplorer(
+        createConnection(),
+        createFeatureFlags(),
+        new Map(),
+      );
+      await explorer.keywordSearch({ searchTerm: "person" });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("http://localhost/sparql"),
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            "graph-db-connection-url": "https://my-neptune:8182",
+            queryId: expect.any(String),
+          }),
+        }),
+      );
+    });
+
+    it("sends a direct connection's keyword search to the database without proxy headers", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(
+          jsonResponse({ head: { vars: [] }, results: { bindings: [] } }),
+        ),
+      );
+
+      const explorer = createSparqlExplorer(
+        createConnection({ proxyConnection: false }),
+        createFeatureFlags(),
+        new Map(),
+      );
+      await explorer.keywordSearch({ searchTerm: "person" });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("https://my-neptune:8182/sparql"),
+        expect.objectContaining({
+          headers: {
+            accept: "application/sparql-results+json",
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }),
+      );
+    });
+
+    it("requests a direct connection's summary from the database", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(
+          jsonResponse({ head: { vars: [] }, results: { bindings: [] } }),
+        ),
+      );
+
+      const explorer = createSparqlExplorer(
+        createConnection({ proxyConnection: false }),
+        createFeatureFlags(),
+        new Map(),
+      );
+      await explorer.fetchSchema();
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("https://my-neptune:8182/rdf/statistics/summary?mode=basic"),
+        expect.objectContaining({ method: "GET" }),
+      );
+    });
+  });
 });
