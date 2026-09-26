@@ -14,7 +14,10 @@ import {
 import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 import { extractErrorMessage } from "@/utils/extractErrorMessage";
 
+import type { ExplorerRequestOptions } from "./useGEFetchTypes";
+
 import { anySignal } from "./utils/anySignal";
+import { apiUrl } from "./utils/apiUrl";
 
 /**
  * Attempts to decode the error response into a JSON object.
@@ -56,11 +59,21 @@ async function decodeErrorSafely(response: Response): Promise<any> {
   return rawText;
 }
 
+// The Graph Explorer server's route for a proxy connection, or the database
+// itself for a deprecated direct connection.
+function resolveEndpoint(connection: NormalizedConnection, path: string): URL {
+  if (!isDirectConnection(connection)) {
+    return apiUrl(path);
+  }
+  return new URL(`${connection.graphDbUrl}/${path}`);
+}
+
 // Construct the request headers based on the connection settings
 function getAuthHeaders(
   connection: NormalizedConnection,
   featureFlags: FeatureFlags,
   typeHeaders: HeadersInit | undefined,
+  queryId: string | undefined,
 ) {
   const headers: Record<string, string> = {};
   // The database never reads these, and custom headers on a cross-origin
@@ -73,6 +86,9 @@ function getAuthHeaders(
     if (connection.awsAuthEnabled) {
       headers["aws-neptune-region"] = connection.awsRegion || "";
       headers["service-type"] = connection.serviceType || DEFAULT_SERVICE_TYPE;
+    }
+    if (queryId) {
+      headers.queryId = queryId;
     }
   }
 
@@ -127,23 +143,30 @@ async function sendRequest(uri: URL, fetchOptions: RequestInit) {
   return await response.json();
 }
 
+/**
+ * Sends a request to the database endpoint `path` (e.g. `gremlin` or
+ * `pg/statistics/summary?mode=basic`) for the connection, routed through the
+ * Graph Explorer server unless the connection is direct.
+ */
 export async function fetchDatabaseRequest(
   connection: NormalizedConnection,
   featureFlags: FeatureFlags,
-  uri: URL,
-  options: RequestInit,
+  path: string,
+  options: ExplorerRequestOptions,
 ) {
   if (!connection.graphDbUrl) {
     throw new MissingDatabaseUrlError();
   }
 
+  const uri = resolveEndpoint(connection, path);
+  const { queryId, ...init } = options;
   const fetchTimeout = createFetchTimeout(connection);
-  const signal = anySignal(fetchTimeout?.signal, options.signal);
+  const signal = anySignal(fetchTimeout?.signal, init.signal);
 
   // Apply connection settings to fetch options
   const fetchOptions: RequestInit = {
-    ...options,
-    headers: getAuthHeaders(connection, featureFlags, options.headers),
+    ...init,
+    headers: getAuthHeaders(connection, featureFlags, init.headers, queryId),
     signal,
   };
 

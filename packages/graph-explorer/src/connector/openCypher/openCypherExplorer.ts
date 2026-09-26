@@ -8,7 +8,6 @@ import type { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
 import type { GraphSummary } from "./types";
 
 import { fetchDatabaseRequest } from "../fetchDatabaseRequest";
-import { databaseEndpoint } from "../utils/databaseEndpoint";
 import { edgeDetails } from "./edgeDetails";
 import fetchEdgeConnections from "./fetchEdgeConnections";
 import fetchNeighbors from "./fetchNeighbors";
@@ -26,19 +25,14 @@ function _openCypherFetch(
 ) {
   return async (queryTemplate: string) => {
     logger.debug(queryTemplate);
-    return fetchDatabaseRequest(
-      connection,
-      featureFlags,
-      databaseEndpoint(connection, "openCypher"),
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ query: queryTemplate }),
-        ...options,
+    return fetchDatabaseRequest(connection, featureFlags, "openCypher", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({ query: queryTemplate }),
+      ...options,
+    });
   };
 }
 
@@ -130,8 +124,8 @@ async function fetchSummary(
   try {
     const endpoint =
       serviceType === DEFAULT_SERVICE_TYPE
-        ? databaseEndpoint(connection, "pg/statistics/summary?mode=basic")
-        : databaseEndpoint(connection, "summary?mode=basic");
+        ? "pg/statistics/summary?mode=basic"
+        : "summary?mode=basic";
     const response = await fetchDatabaseRequest(
       connection,
       featureFlags,
