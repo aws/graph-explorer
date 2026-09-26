@@ -56,9 +56,7 @@ Graph Explorer fetches up to 10 neighbors and adds them to the graph. The number
 
 > [!TIP]
 >
-> You can also right-click a node and select **Expand node** from the context
-> menu, or use the **Expand** sidebar panel for more control over which neighbor
-> types to fetch.
+> You can also right-click a node and select **Expand node** from the context menu, or use the **Expand** sidebar panel for more control over which neighbor types to fetch.
 
 ## Filter the Graph
 

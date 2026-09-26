@@ -29,8 +29,7 @@ Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server w
 
 > [!TIP]
 >
-> If you receive an error relating to the docker service not running, run
-> `service docker start`.
+> If you receive an error relating to the docker service not running, run `service docker start`.
 
 4. Run the container substituting the `{hostname-or-ip-address}` with the hostname or IP address of the EC2 instance
    ```

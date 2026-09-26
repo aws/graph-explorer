@@ -142,7 +142,8 @@ This can manifest as different types of errors depending on the root cause. You 
   - Logging is handled by `/logger`
   - Default connection is handled by `/defaultConnection`
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
+>
 > The paths listed here could always change in the future. If they do change, we will note that in the release notes.
 
 ### Database Cannot Be Reached

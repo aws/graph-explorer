@@ -32,12 +32,12 @@ The repository uses pnpm workspaces with two main packages:
 
 ## Key Libraries
 
-| Library                                                   | Role                | Why                                                                           |
-| --------------------------------------------------------- | ------------------- | ----------------------------------------------------------------------------- |
-| [Cytoscape.js](https://js.cytoscape.org/)                 | Graph rendering     | Mature canvas-based graph library with layout plugins and interaction support |
-| [Jotai](https://jotai.org/)                               | Client state        | Atom-based model that avoids unnecessary re-renders in a component-heavy UI   |
-| [TanStack Query](https://tanstack.com/query)              | Remote data caching | Handles caching, deduplication, and background refresh for database queries   |
-| [localforage](https://localforage.github.io/localForage/) | Persistence         | Provides an async IndexedDB API for storing user data client-side             |
+| Library | Role | Why |
+| --- | --- | --- |
+| [Cytoscape.js](https://js.cytoscape.org/) | Graph rendering | Mature canvas-based graph library with layout plugins and interaction support |
+| [Jotai](https://jotai.org/) | Client state | Atom-based model that avoids unnecessary re-renders in a component-heavy UI |
+| [TanStack Query](https://tanstack.com/query) | Remote data caching | Handles caching, deduplication, and background refresh for database queries |
+| [localforage](https://localforage.github.io/localForage/) | Persistence | Provides an async IndexedDB API for storing user data client-side |
 
 ## Connector & Explorer Pattern
 

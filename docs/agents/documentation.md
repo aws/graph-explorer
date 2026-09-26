@@ -18,10 +18,11 @@ How to write user-facing docs (READMEs, guides, the docs site). For agent-facing
 
 ## GitHub alerts
 
-Use for notices and warnings. The marker goes on its own line, followed by the message on the next blockquote line:
+Use for notices and warnings. The marker goes on its own line, followed by an empty blockquote line, then the message. The empty line is required because the formatter joins prose onto one line (`proseWrap: never`), which breaks the alert:
 
 ```
 > [!CAUTION]
+>
 > Message goes here
 ```
 
