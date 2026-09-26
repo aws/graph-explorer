@@ -151,7 +151,7 @@ For a proxied connection, the server, not the browser, must have network access 
 
 "Database not reachable from the browser" appears only for a connection with **Connect directly from the browser (deprecated)** checked. The browser sends that connection's requests to the database itself, and the request failed before any response arrived. Common causes:
 
-- The database doesn't allow cross-origin requests (CORS) from the Graph Explorer page's origin. Amazon Neptune never does, so a direct connection can't reach it.
+- The database doesn't allow cross-origin requests (CORS) from the Graph Explorer page's origin.
 - The database isn't running, or the Database URL has the wrong host or port.
 - The browser's network can't reach the database.
 
