@@ -83,6 +83,10 @@ PROXY_SERVER_ALLOWED_DB_ORIGINS=https://my-neptune-cluster:8182/sparql
 - Default: all origins allowed
 - Type: `string` (comma-separated for multiple origins)
 
+> [!NOTE]
+>
+> This check applies only to requests routed through the proxy server. It doesn't apply to deprecated direct connections, because the browser sends their requests to the database itself.
+
 ### `LOG_STYLE`
 
 Controls the log output format.
@@ -111,7 +115,7 @@ To provide a default connection such that initial loads of Graph Explorer always
 
 > [!NOTE]
 >
-> `PUBLIC_OR_PROXY_ENDPOINT` and `USING_PROXY_SERVER` are still honored for backward compatibility and are resolved into `GRAPH_CONNECTION_URL`. An existing deployment that sets these needs no change.
+> `PUBLIC_OR_PROXY_ENDPOINT` and `USING_PROXY_SERVER` are still honored for backward compatibility and are resolved into `GRAPH_CONNECTION_URL`. An existing deployment that sets these needs no change. With `USING_PROXY_SERVER=false`, the default connection is a deprecated direct connection to `PUBLIC_OR_PROXY_ENDPOINT` (or `GRAPH_CONNECTION_URL` when that is unset): the browser sends its requests to the database itself, and `IAM`, `AWS_REGION`, and `SERVICE_TYPE` are ignored. Direct connections will be removed in a future release, so switch to `GRAPH_CONNECTION_URL` without `USING_PROXY_SERVER=false` when you can.
 
 ### Environment Variables
 

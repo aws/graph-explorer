@@ -145,7 +145,17 @@ This error can take a minute or more to appear, because the proxy server waits f
 
 For the network setup Neptune needs, see [Network Access](./connecting-to-neptune.md#network-access).
 
-The server, not the browser, must have network access to the database. See [System overview](../architecture.md#system-overview) for the network-routing requirements.
+For a proxied connection, the server, not the browser, must have network access to the database. See [System overview](../architecture.md#system-overview) for the network-routing requirements.
+
+### Database Not Reachable From the Browser
+
+"Database not reachable from the browser" appears only for a connection with **Connect directly from the browser (deprecated)** checked. The browser sends that connection's requests to the database itself, and the request failed before any response arrived. Common causes:
+
+- The database doesn't allow cross-origin requests (CORS) from the Graph Explorer page's origin. Amazon Neptune never does, so a direct connection can't reach it.
+- The database isn't running, or the Database URL has the wrong host or port.
+- The browser's network can't reach the database.
+
+To fix it, either configure the database to allow cross-origin requests from the Graph Explorer page, or edit the connection and uncheck **Connect directly from the browser (deprecated)** so the Graph Explorer server connects to the database instead. The direct option will be removed in a future release, so unchecking it is the lasting fix.
 
 ## Reverse proxy misconfigured
 

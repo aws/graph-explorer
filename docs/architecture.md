@@ -16,13 +16,13 @@ graph LR
     Browser -- persistence --> IDB["IndexedDB\n(localforage)"]
 ```
 
-The React client constructs queries and sends them through the proxy server using relative URLs, which forwards requests to the graph database. When connecting to Amazon Neptune, the proxy signs requests with AWS SigV4 credentials.
+The React client constructs queries and sends them through the proxy server using relative URLs, which forwards requests to the graph database. When connecting to Amazon Neptune, the proxy signs requests with AWS SigV4 credentials. A deprecated direct connection skips the proxy, and the browser sends its requests to the database itself. That path offers no IAM authentication and will be removed in a future release.
 
 The proxy does not store any user data — all preferences, connections, and query history live in the browser's IndexedDB.
 
 This architecture allows the app to work behind a reverse proxy at any prefix (SageMaker, custom paths) without build-time configuration, since the client resolves API endpoints from its own location. That leaves one contract the reverse proxy must honor: it has to forward the client's `/explorer` segment intact. The client finds the API root by cutting that segment out of its own path, so a proxy that renames the segment away leaves nothing to cut and Graph Explorer fails with a "Reverse proxy misconfigured" error. See [Reverse proxy misconfigured](./guides/troubleshooting.md#reverse-proxy-misconfigured) for working and broken examples. The proxy can run inside a VPC alongside the database while the browser runs outside it.
 
-Because all requests flow through the proxy, the server must have network access to the target database. If the server is in a restricted network (e.g., a private subnet with no NAT gateway), it will not be able to reach databases outside that network even if the user's browser could reach them directly.
+Because requests flow through the proxy, the server must have network access to the target database. If the server is in a restricted network (e.g., a private subnet with no NAT gateway), it will not be able to reach databases outside that network even if the user's browser could reach them directly.
 
 ## Monorepo Structure
 

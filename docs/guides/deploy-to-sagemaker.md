@@ -16,7 +16,7 @@ https://graph-explorer-notebook-name.notebook.us-west-2.sagemaker.aws/proxy/9250
 
 ## Network Requirements
 
-All database requests from Graph Explorer are routed through the proxy server running on the SageMaker notebook instance. This means the instance must have network access to any database you want to explore.
+Graph Explorer routes database requests through the proxy server running on the SageMaker notebook instance. This means the instance must have network access to any database you want to explore.
 
 If your notebook instance is in a private subnet without a NAT gateway or internet gateway, it will not be able to reach databases outside the VPC. To connect to external databases, ensure the instance has the appropriate network routing (VPC peering, NAT gateway, transit gateway, etc.).
 

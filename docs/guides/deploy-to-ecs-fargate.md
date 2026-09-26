@@ -6,7 +6,7 @@ The following steps will allow you to set up Graph Explorer on AWS Fargate in Am
 
 > [!IMPORTANT]
 >
-> The Graph Explorer server, not your browser, connects to the database, so it needs network access to the database endpoint. See [System overview](../architecture.md#system-overview) for details.
+> The Graph Explorer server, not your browser, connects to the database for proxied connections, so it needs network access to the database endpoint. See [System overview](../architecture.md#system-overview) for details.
 
 ## Create a new IAM role and permission policies
 

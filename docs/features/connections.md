@@ -19,6 +19,7 @@ The next two settings are grouped under an **Advanced options** section that you
 
 - **Fetch Timeout:** Specify the timeout for the fetch request.
 - **Neighbor Expansion Limit:** Check **Override Default Neighbor Expansion Limit** to reveal this field, then specify the default limit for neighbor expansion. This will override the app setting for neighbor expansion.
+- **Connect directly from the browser (deprecated):** Check this box to have your browser send requests to the database itself instead of through the Graph Explorer server. The database must allow cross-origin requests (CORS) from the Graph Explorer page, and IAM authentication isn't available, so the IAM fields are hidden. This option will be removed in a future release. Leave it unchecked unless you depend on it. A direct connection shows "Direct from browser (deprecated)" next to its URL.
 
 ## Available Connections
 

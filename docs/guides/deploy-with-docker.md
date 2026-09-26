@@ -12,7 +12,7 @@ You can find the latest version of the image on [Amazon's ECR Public Registry](h
 
 > [!IMPORTANT]
 >
-> The Graph Explorer server, not your browser, connects to the database, so it needs network access to the database endpoint. See [System overview](../architecture.md#system-overview) for details.
+> The Graph Explorer server, not your browser, connects to the database for proxied connections, so it needs network access to the database endpoint. See [System overview](../architecture.md#system-overview) for details.
 
 ## Prerequisites
 
