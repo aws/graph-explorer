@@ -16,6 +16,7 @@ import {
   EdgeIcon,
   EditIcon,
   GraphIcon,
+  InfoTooltip,
   NotInProduction,
   Panel,
   PanelContent,
@@ -148,7 +149,16 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
               <InfoItemLabel>Database URL</InfoItemLabel>
               <InfoItemValue>{dbUrl}</InfoItemValue>
               {isDirect && (
-                <InfoItemLabel>{LABELS.DIRECT_CONNECTION}</InfoItemLabel>
+                <InfoItemLabel className="flex items-center gap-1">
+                  {LABELS.DIRECT_CONNECTION}
+                  <InfoTooltip>
+                    Requests for this connection go from your browser to the
+                    database instead of through the Graph Explorer server. This
+                    option will be removed in a future release. To switch, edit
+                    the connection and uncheck Connect directly from the browser
+                    (deprecated) under Advanced options.
+                  </InfoTooltip>
+                </InfoItemLabel>
               )}
             </InfoItemContent>
           </InfoItem>
