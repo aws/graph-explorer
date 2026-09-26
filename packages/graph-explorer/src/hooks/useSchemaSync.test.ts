@@ -1,3 +1,4 @@
+import { createRandomInteger } from "@shared/utils/testing";
 // @vitest-environment happy-dom
 import { act, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -16,6 +17,7 @@ import {
   createRandomEdgeTypeConfig,
   createRandomRawConfiguration,
   createRandomVertexTypeConfig,
+  createTestableEdge,
   DbState,
   FakeExplorer,
   flushPendingAtomUpdates,
@@ -325,8 +327,15 @@ describe("useSchemaSync", () => {
     });
 
     it("should refetch edge discovery query", async () => {
-      const edgeType = createEdgeType("worksAt");
-      const state = createStateWithSchema([], [edgeType]);
+      // The refresh must report the same edge types and total, so the edge
+      // query keeps its key and refetches rather than moving to a new one.
+      const edge = createTestableEdge();
+      explorer.addTestableEdge(edge);
+      const state = new DbState(explorer);
+      state.activeSchema.edges = [];
+      state.addTestableEdgeToGraph(edge);
+      state.activeSchema.edgeConnections = undefined;
+      state.activeSchema.totalEdges = 1;
       const fetchEdgeConnectionsSpy = vi.spyOn(
         explorer,
         "fetchEdgeConnections",
@@ -343,6 +352,34 @@ describe("useSchemaSync", () => {
       });
 
       expect(fetchEdgeConnectionsSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it("fetches edge connections once, with the refreshed edge total, when the total changes", async () => {
+      const edge = createTestableEdge();
+      explorer.addTestableEdge(edge);
+      const state = new DbState(explorer);
+      state.activeSchema.edges = [];
+      state.addTestableEdgeToGraph(edge);
+      state.activeSchema.edgeConnections = [];
+      // The refresh reports the explorer's single edge
+      state.activeSchema.totalEdges = 1 + createRandomInteger();
+      const fetchEdgeConnectionsSpy = vi.spyOn(
+        explorer,
+        "fetchEdgeConnections",
+      );
+
+      const { result } = renderHookWithState(() => useSchemaSync(), state);
+
+      await act(async () => {
+        await result.current.refreshSchema();
+      });
+      await waitFor(() => {
+        expect(result.current.isFetching).toBe(false);
+      });
+
+      expect(fetchEdgeConnectionsSpy.mock.calls).toStrictEqual([
+        [{ edgeTypes: [edge.type], totalEdges: 1 }, expect.anything()],
+      ]);
     });
   });
 

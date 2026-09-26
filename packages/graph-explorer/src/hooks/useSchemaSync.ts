@@ -50,6 +50,7 @@ export function useSchemaSync() {
   // The schema and connectionId must update in the same render so the query
   // options stay consistent when switching connections.
   const activeSchema = useAtomValue(maybeActiveSchemaAtom);
+  const queryClient = useQueryClient();
   const connectionId = useAtomValue(activeConfigurationAtom);
 
   const schemaDiscoveryQuery = useQuery(
@@ -68,8 +69,16 @@ export function useSchemaSync() {
 
   const refreshSchema = async () => {
     logger.log("Refreshing schema");
-    await schemaDiscoveryQuery.refetch();
-    await edgeDiscoveryQuery.refetch();
+    const { data: refreshedSchema } = await schemaDiscoveryQuery.refetch();
+    // The edge query's key derives from the schema, so refetching through the
+    // observer would fetch under the pre-refresh key, and the next render would
+    // fetch again under the new one. Fetch the new key directly instead; the
+    // observer finds it settled or in flight when it switches.
+    await queryClient.prefetchQuery({
+      ...edgeConnectionsQuery(refreshedSchema),
+      // An explicit refresh fetches even when cached data exists.
+      staleTime: 0,
+    });
   };
 
   return {
