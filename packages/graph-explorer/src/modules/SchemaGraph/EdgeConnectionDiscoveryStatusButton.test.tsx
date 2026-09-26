@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+import { TooltipProvider } from "@/components";
 import { createEdgeType, getAppStore, schemaAtom } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import { DatabaseTimeoutError, NetworkError } from "@/utils";
@@ -41,7 +42,9 @@ describe("EdgeConnectionDiscoveryStatusButton", () => {
 
     return render(
       <TestProvider client={queryClient} store={store}>
-        <EdgeConnectionDiscoveryStatusButton />
+        <TooltipProvider>
+          <EdgeConnectionDiscoveryStatusButton />
+        </TooltipProvider>
       </TestProvider>,
     );
   }
@@ -146,10 +149,9 @@ describe("EdgeConnectionDiscoveryStatusButton", () => {
       screen.getByText("Could not discover Relationships"),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "The last attempt failed. Retry to try again and see why.",
-      ),
+      screen.getByText("The last attempt failed. Retry to see the error."),
     ).toBeInTheDocument();
+    expect(screen.getByText("Node types are still shown.")).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /error details/i }),
     ).not.toBeInTheDocument();
@@ -225,5 +227,32 @@ describe("EdgeConnectionDiscoveryStatusButton", () => {
     expect(
       screen.getByRole("button", { name: /synchronize/i }),
     ).toBeInTheDocument();
+  });
+
+  test("shows a tooltip on hover and opens the popover on click, closing the tooltip", async () => {
+    vi.spyOn(explorer, "fetchEdgeConnections").mockImplementation(
+      () => new Promise(() => {}),
+    );
+
+    renderButton(stateWithEdgeType());
+
+    const button = await screen.findByRole("button", {
+      name: /not discovered/i,
+    });
+
+    const user = userEvent.setup();
+    await user.hover(button);
+    expect(await screen.findByRole("tooltip")).toHaveTextContent(
+      "Relationships not discovered",
+    );
+
+    await user.click(button);
+
+    expect(
+      await screen.findByRole("button", { name: /synchronize/i }),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    });
   });
 });

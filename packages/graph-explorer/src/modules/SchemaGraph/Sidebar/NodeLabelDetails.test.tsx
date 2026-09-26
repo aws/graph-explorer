@@ -1,45 +1,53 @@
 // @vitest-environment happy-dom
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
-import { Provider } from "jotai";
-import { MemoryRouter } from "react-router";
-import { describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
 import { createVertexType, getAppStore } from "@/core";
-import { DbState } from "@/utils/testing";
+import { createQueryClient } from "@/core/queryClient";
+import {
+  createRandomEdgeConnection,
+  DbState,
+  FakeExplorer,
+  TestProvider,
+} from "@/utils/testing";
 
 import { NodeLabelDetails } from "./NodeLabelDetails";
 
-function renderDetails(
-  state: DbState,
-  vertexType = createVertexType("Person"),
-) {
-  const store = getAppStore();
-  state.applyTo(store);
+describe("NodeLabelDetails", () => {
+  let explorer: FakeExplorer;
 
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
+  beforeEach(() => {
+    explorer = new FakeExplorer();
   });
 
-  return render(
-    <MemoryRouter>
-      <QueryClientProvider client={queryClient}>
-        <Provider store={store}>
-          <TooltipProvider>
-            <NodeLabelDetails vertexType={vertexType} />
-          </TooltipProvider>
-        </Provider>
-      </QueryClientProvider>
-    </MemoryRouter>,
-  );
-}
+  function renderDetails(
+    state: DbState,
+    vertexType = createVertexType("Person"),
+  ) {
+    const store = getAppStore();
+    state.applyTo(store);
 
-describe("NodeLabelDetails", () => {
+    const queryClient = createQueryClient();
+    const defaultOptions = queryClient.getDefaultOptions();
+    queryClient.setDefaultOptions({
+      ...defaultOptions,
+      queries: { ...defaultOptions.queries, retry: false },
+    });
+
+    return render(
+      <TestProvider client={queryClient} store={store}>
+        <TooltipProvider>
+          <NodeLabelDetails vertexType={vertexType} />
+        </TooltipProvider>
+      </TestProvider>,
+    );
+  }
+
   // Pinned so the translated "edge-connections" label ("Relationships") is
   // deterministic; DbState otherwise picks a random query engine.
   function stateWithGremlinConnection() {
-    const state = new DbState();
+    const state = new DbState(explorer);
     if (state.activeConfig.connection) {
       state.activeConfig.connection.queryEngine = "gremlin";
     }
@@ -47,8 +55,15 @@ describe("NodeLabelDetails", () => {
   }
 
   test("shows edge connections were not discovered when the schema has never discovered them", () => {
+    // Hangs the fetch so the query stays pending, matching the never-run state
+    // rather than racing FakeExplorer's near-instant resolution.
+    vi.spyOn(explorer, "fetchEdgeConnections").mockImplementation(
+      () => new Promise(() => {}),
+    );
+
     const state = stateWithGremlinConnection();
     state.activeSchema.edgeConnections = undefined;
+    state.activeSchema.lastEdgeConnectionSyncFail = false;
 
     renderDetails(state);
 
@@ -64,5 +79,18 @@ describe("NodeLabelDetails", () => {
     renderDetails(state);
 
     expect(screen.getByText("No relationships")).toBeInTheDocument();
+  });
+
+  test("shows edge connections were not fully discovered when the failure flag is set even with partial connections excluding this vertex type", () => {
+    const state = stateWithGremlinConnection();
+    // Random connections use random vertex types, so they exclude "Person".
+    state.activeSchema.edgeConnections = [createRandomEdgeConnection()];
+    state.activeSchema.lastEdgeConnectionSyncFail = true;
+
+    renderDetails(state);
+
+    expect(
+      screen.getByText("Relationships were not fully discovered"),
+    ).toBeInTheDocument();
   });
 });

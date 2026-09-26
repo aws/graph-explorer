@@ -35,7 +35,7 @@ If the edge connection query fails, the schema records only that it failed, via 
 
 `SchemaGraphToolbar` renders `EdgeConnectionDiscoveryStatusButton`, a triangle icon button next to "Refresh Schema": warning color when discovery has not run, danger color when it failed. It opens a popover with Retry or Synchronize, plus Error Details when the current session has the error.
 
-`edgeConnectionNotice(schema, error)` checks failure first (the live query error or `lastEdgeConnectionSyncFail`) and only then `edgeConnections == null`, because partial connections added by exploration after a failure must still report the failure.
+`edgeConnectionNotice(schema, error)` (in `src/hooks/edgeConnectionNotice.ts`, next to `useSchemaSync`) checks failure first (the live query error or `lastEdgeConnectionSyncFail`) and only then `edgeConnections == null`, because partial connections added by exploration after a failure must still report the failure. `useEdgeConnectionNotice()` wraps it with `useMaybeActiveSchema()` and `useSchemaSync().edgeDiscoveryQuery` so the toolbar button, the sidebar details, and the connection detail panel share one resolution of the notice.
 
 ## Incremental Schema Growth
 

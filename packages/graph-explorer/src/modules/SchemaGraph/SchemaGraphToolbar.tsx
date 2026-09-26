@@ -46,8 +46,8 @@ export function SchemaGraphToolbar() {
 
         <PanelHeaderDivider />
 
-        <SchemaRefreshButton />
         <EdgeConnectionDiscoveryStatusButton />
+        <SchemaRefreshButton />
       </PanelHeaderActions>
     </PanelHeader>
   );

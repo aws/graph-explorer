@@ -1,5 +1,9 @@
+import type { ComponentType, ReactNode } from "react";
+
 import { RotateCcwIcon, TriangleAlertIcon } from "lucide-react";
 import { useState } from "react";
+
+import type { EdgeConnectionNotice } from "@/hooks/edgeConnectionNotice";
 
 import {
   Button,
@@ -12,12 +16,69 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components";
-import { useMaybeActiveSchema } from "@/core";
-import { useTranslations } from "@/hooks";
-import { useSchemaSync } from "@/hooks/useSchemaSync";
+import { useEdgeConnectionNotice } from "@/hooks/useEdgeConnectionNotice";
+import useTranslations from "@/hooks/useTranslations";
 import { createDisplayError } from "@/utils/createDisplayError";
 
-import { edgeConnectionNotice } from "./edgeConnectionNotice";
+/** What the popover shows for a resolved, non-null edge connection notice. */
+type NoticeView = {
+  variant: "warning-ghost" | "danger-ghost";
+  /** Accessible name for the trigger, reused as its tooltip text. */
+  triggerLabel: string;
+  title: string;
+  description: ReactNode;
+  error: Error | null;
+  actionLabel: string;
+  actionIcon: ComponentType | null;
+};
+
+function toNoticeView(
+  notice: Exclude<EdgeConnectionNotice, null>,
+  t: ReturnType<typeof useTranslations>,
+): NoticeView {
+  const edgeConnections = t("edge-connections");
+
+  if (notice.kind === "not-discovered") {
+    return {
+      variant: "warning-ghost",
+      triggerLabel: `${edgeConnections} not discovered`,
+      title: `${edgeConnections} not discovered`,
+      description: (
+        <span>Node types are shown without the connections between them.</span>
+      ),
+      error: null,
+      actionLabel: "Synchronize",
+      actionIcon: null,
+    };
+  }
+
+  const displayError = notice.error ? createDisplayError(notice.error) : null;
+
+  return {
+    variant: "danger-ghost",
+    triggerLabel: `${edgeConnections} discovery failed`,
+    title: `Could not discover ${edgeConnections}`,
+    description: displayError ? (
+      <>
+        <span className="text-foreground block font-medium">
+          {displayError.title}
+        </span>
+        <span className="block">{displayError.message}</span>
+        <span className="mt-1 block">Node types are still shown.</span>
+      </>
+    ) : (
+      <>
+        <span className="block">
+          The last attempt failed. Retry to see the error.
+        </span>
+        <span className="mt-1 block">Node types are still shown.</span>
+      </>
+    ),
+    error: notice.error,
+    actionLabel: "Retry",
+    actionIcon: RotateCcwIcon,
+  };
+}
 
 /**
  * Toolbar button that surfaces edge connection discovery failures, or an
@@ -25,94 +86,49 @@ import { edgeConnectionNotice } from "./edgeConnectionNotice";
  * view: node types still render. Renders nothing once discovery has data.
  */
 export function EdgeConnectionDiscoveryStatusButton() {
-  const schema = useMaybeActiveSchema();
-  const { edgeDiscoveryQuery } = useSchemaSync();
+  const { notice, edgeDiscoveryQuery } = useEdgeConnectionNotice();
   const t = useTranslations();
   const [open, setOpen] = useState(false);
 
-  if (!schema) {
-    return null;
-  }
-
-  const notice = edgeConnectionNotice(schema, edgeDiscoveryQuery.error);
   if (notice === null) {
     return null;
   }
 
-  const retry = () => {
+  const view = toNoticeView(notice, t);
+  const ActionIcon = view.actionIcon;
+
+  const runAction = () => {
     edgeDiscoveryQuery.refetch();
     setOpen(false);
   };
-
-  if (notice.kind === "not-discovered") {
-    return (
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon-small"
-            className="text-warning-foreground hover:bg-warning-subtle data-open:bg-warning-subtle"
-            aria-label={`${t("edge-connections")} not discovered`}
-          >
-            <TriangleAlertIcon />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent side="bottom" align="end" className="w-80">
-          <PopoverHeader>
-            <PopoverTitle>{t("edge-connections")} not discovered</PopoverTitle>
-            <PopoverDescription>
-              Node types are shown without the connections between them.
-            </PopoverDescription>
-          </PopoverHeader>
-          <PopoverFooter>
-            <Button
-              size="small"
-              onClick={retry}
-              className="shrink-0 whitespace-nowrap"
-            >
-              Synchronize
-            </Button>
-          </PopoverFooter>
-        </PopoverContent>
-      </Popover>
-    );
-  }
-
-  const displayError = notice.error ? createDisplayError(notice.error) : null;
-  const title = displayError
-    ? displayError.title
-    : `Could not discover ${t("edge-connections")}`;
-  const message = displayError
-    ? displayError.message
-    : "The last attempt failed. Retry to try again and see why.";
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant="danger-ghost"
+          variant={view.variant}
           size="icon-small"
-          aria-label={`${t("edge-connections")} discovery failed`}
+          tooltip={view.triggerLabel}
         >
           <TriangleAlertIcon />
         </Button>
       </PopoverTrigger>
       <PopoverContent side="bottom" align="end" className="w-80">
         <PopoverHeader>
-          <PopoverTitle>{title}</PopoverTitle>
-          <PopoverDescription>{message}</PopoverDescription>
+          <PopoverTitle>{view.title}</PopoverTitle>
+          <PopoverDescription>{view.description}</PopoverDescription>
         </PopoverHeader>
         <PopoverFooter>
-          {notice.error ? (
-            <ErrorDetailsButton error={notice.error} size="small" />
+          {view.error ? (
+            <ErrorDetailsButton error={view.error} size="small" />
           ) : null}
           <Button
             size="small"
-            onClick={retry}
+            onClick={runAction}
             className="shrink-0 whitespace-nowrap"
           >
-            <RotateCcwIcon />
-            Retry
+            {ActionIcon ? <ActionIcon /> : null}
+            {view.actionLabel}
           </Button>
         </PopoverFooter>
       </PopoverContent>
