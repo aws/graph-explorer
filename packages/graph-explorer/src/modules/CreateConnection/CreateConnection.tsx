@@ -328,7 +328,9 @@ const CreateConnection = ({
             options={CONNECTIONS_OP}
             value={form.queryEngine}
             onValueChange={onFormChange("queryEngine")}
-            disabled={form.serviceType === "neptune-graph"}
+            disabled={
+              !form.directConnection && form.serviceType === "neptune-graph"
+            }
           />
         </FormItem>
         <FormItem>
