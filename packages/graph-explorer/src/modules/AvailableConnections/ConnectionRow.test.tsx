@@ -1,4 +1,6 @@
 // @vitest-environment happy-dom
+import type { LegacyConnectionConfig } from "@shared/types";
+
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, test } from "vitest";
@@ -9,9 +11,11 @@ import {
   configurationAtom,
   getAppStore,
   nodesAtom,
+  type RawConfiguration,
   toNodeMap,
 } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
+import { transformConfiguration } from "@/core/StateProvider/configurationTransform";
 import {
   createRandomRawConfiguration,
   createRandomVertex,
@@ -91,5 +95,40 @@ describe("ConnectionRow", () => {
 
     const nodesAfterClick = store.get(nodesAtom);
     expect(nodesAfterClick.size).toBe(0);
+  });
+
+  // Regression: `configurationAtom`'s read-time transform migrates a legacy
+  // `url`/`proxyConnection` connection to `graphDbUrl` before any consumer
+  // sees it, so a row for a pre-upgrade connection still shows its endpoint.
+  test("renders the endpoint for a legacy stored connection", () => {
+    const store = getAppStore();
+    const legacyConfig = {
+      ...createRandomRawConfiguration(),
+      // Stored data is not schema-validated on read, so an entry can carry a
+      // legacy connection despite the compile-time `ConnectionConfig` shape.
+      connection: {
+        url: "https://my-neptune:8182",
+        proxyConnection: false,
+      } as LegacyConnectionConfig as RawConfiguration["connection"],
+    };
+    const [connection] = transformConfiguration(
+      new Map([[legacyConfig.id, legacyConfig]]),
+    ).values();
+
+    const queryClient = createQueryClient();
+
+    render(
+      <TestProvider client={queryClient} store={store}>
+        <TooltipProvider>
+          <ConnectionRow
+            connection={connection}
+            isSelected={false}
+            isDisabled={false}
+          />
+        </TooltipProvider>
+      </TestProvider>,
+    );
+
+    expect(screen.getByText(/my-neptune:8182/)).toBeInTheDocument();
   });
 });

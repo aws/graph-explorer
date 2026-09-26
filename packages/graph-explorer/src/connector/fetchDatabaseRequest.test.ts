@@ -4,6 +4,7 @@ import {
   DatabaseTimeoutError,
   FetchTimeoutError,
   logger,
+  MissingDatabaseUrlError,
   NetworkError,
   ServerConnectionError,
 } from "@/utils";
@@ -15,10 +16,8 @@ function createConnection(
   overrides?: Partial<NormalizedConnection>,
 ): NormalizedConnection {
   return {
-    url: "http://localhost:8182",
     queryEngine: "gremlin",
-    graphDbUrl: "",
-    proxyConnection: false,
+    graphDbUrl: "https://db.example.com:8182",
     awsAuthEnabled: false,
     ...overrides,
   };
@@ -72,7 +71,7 @@ describe("fetchDatabaseRequest", () => {
       const data = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "http://localhost:8182/query",
+        new URL("http://localhost:8182/query"),
         { method: "POST" },
       );
 
@@ -85,12 +84,12 @@ describe("fetchDatabaseRequest", () => {
       await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "http://localhost:8182/sparql",
+        new URL("http://localhost:8182/sparql"),
         { method: "GET" },
       );
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "http://localhost:8182/sparql",
+        new URL("http://localhost:8182/sparql"),
         expect.objectContaining({ method: "GET" }),
       );
     });
@@ -98,29 +97,82 @@ describe("fetchDatabaseRequest", () => {
     it("passes the request body through to fetch", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
 
-      await fetchDatabaseRequest(connection, featureFlags, "/query", {
-        method: "POST",
-        body: "g.V().limit(10)",
-      });
+      await fetchDatabaseRequest(
+        connection,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+          body: "g.V().limit(10)",
+        },
+      );
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "/query",
+        new URL("http://localhost:8182/query"),
         expect.objectContaining({ body: "g.V().limit(10)" }),
       );
     });
   });
 
-  describe("header construction", () => {
-    it("sets proxy headers when proxyConnection is true", async () => {
+  describe("missing database url", () => {
+    it("throws MissingDatabaseUrlError before fetching when graphDbUrl is empty", async () => {
+      const conn = createConnection({ graphDbUrl: "" });
+
+      await expect(
+        fetchDatabaseRequest(
+          conn,
+          featureFlags,
+          new URL("http://localhost:8182/query"),
+          {
+            method: "POST",
+          },
+        ),
+      ).rejects.toThrow(new MissingDatabaseUrlError());
+
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    it("sends the request when graphDbUrl is populated", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
       const conn = createConnection({
-        proxyConnection: true,
         graphDbUrl: "https://my-neptune:8182",
       });
 
-      await fetchDatabaseRequest(conn, featureFlags, "/query", {
-        method: "POST",
+      await fetchDatabaseRequest(
+        conn,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+        },
+      );
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("http://localhost:8182/query"),
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            "graph-db-connection-url": "https://my-neptune:8182",
+          }),
+        }),
+      );
+    });
+  });
+
+  describe("header construction", () => {
+    it("sets graph-db-connection-url header", async () => {
+      mockFetch.mockResolvedValue(jsonResponse({}));
+      const conn = createConnection({
+        graphDbUrl: "https://my-neptune:8182",
       });
+
+      await fetchDatabaseRequest(
+        conn,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+        },
+      );
 
       const headers = mockFetch.mock.calls[0][1].headers;
       expect(headers["graph-db-connection-url"]).toBe(
@@ -131,10 +183,15 @@ describe("fetchDatabaseRequest", () => {
 
     it("sets db-query-logging-enabled based on allowLoggingDbQuery", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
-      const conn = createConnection({ proxyConnection: true });
+      const conn = createConnection({ graphDbUrl: "https://db:8182" });
       const flags = createFeatureFlags({ allowLoggingDbQuery: true });
 
-      await fetchDatabaseRequest(conn, flags, "/query", { method: "POST" });
+      await fetchDatabaseRequest(
+        conn,
+        flags,
+        new URL("http://localhost:8182/query"),
+        { method: "POST" },
+      );
 
       const headers = mockFetch.mock.calls[0][1].headers;
       expect(headers["db-query-logging-enabled"]).toBe("true");
@@ -148,9 +205,14 @@ describe("fetchDatabaseRequest", () => {
         serviceType: "neptune-graph",
       });
 
-      await fetchDatabaseRequest(conn, featureFlags, "/query", {
-        method: "POST",
-      });
+      await fetchDatabaseRequest(
+        conn,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+        },
+      );
 
       const headers = mockFetch.mock.calls[0][1].headers;
       expect(headers["aws-neptune-region"]).toBe("us-west-2");
@@ -161,35 +223,69 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
       const conn = createConnection({ awsAuthEnabled: true });
 
-      await fetchDatabaseRequest(conn, featureFlags, "/query", {
-        method: "POST",
-      });
+      await fetchDatabaseRequest(
+        conn,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+        },
+      );
 
       const headers = mockFetch.mock.calls[0][1].headers;
       expect(headers["service-type"]).toBe("neptune-db");
     });
 
-    it("does not set proxy or AWS headers when both are disabled", async () => {
+    it("always sends graph-db-connection-url header", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
-
-      await fetchDatabaseRequest(connection, featureFlags, "/query", {
-        method: "POST",
+      const conn = createConnection({
+        graphDbUrl: "https://my-db:8182",
       });
 
+      await fetchDatabaseRequest(
+        conn,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+        },
+      );
+
       const headers = mockFetch.mock.calls[0][1].headers;
-      expect(headers).not.toHaveProperty("graph-db-connection-url");
+      expect(headers["graph-db-connection-url"]).toBe("https://my-db:8182");
+      expect(headers["db-query-logging-enabled"]).toBe("false");
+    });
+
+    it("does not set AWS headers when awsAuthEnabled is disabled", async () => {
+      mockFetch.mockResolvedValue(jsonResponse({}));
+
+      await fetchDatabaseRequest(
+        connection,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+        },
+      );
+
+      const headers = mockFetch.mock.calls[0][1].headers;
       expect(headers).not.toHaveProperty("aws-neptune-region");
       expect(headers).not.toHaveProperty("service-type");
     });
 
     it("merges caller-provided headers with auth headers", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
-      const conn = createConnection({ proxyConnection: true });
+      const conn = createConnection({ graphDbUrl: "https://db:8182" });
 
-      await fetchDatabaseRequest(conn, featureFlags, "/query", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      });
+      await fetchDatabaseRequest(
+        conn,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        },
+      );
 
       const headers = mockFetch.mock.calls[0][1].headers;
       expect(headers["content-type"]).toBe("application/x-www-form-urlencoded");
@@ -201,9 +297,14 @@ describe("fetchDatabaseRequest", () => {
     it("does not set a signal when no timeout or abort signal is provided", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
 
-      await fetchDatabaseRequest(connection, featureFlags, "/query", {
-        method: "POST",
-      });
+      await fetchDatabaseRequest(
+        connection,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+        },
+      );
 
       const signal = mockFetch.mock.calls[0][1].signal;
       expect(signal).toBeUndefined();
@@ -213,10 +314,15 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
       const controller = new AbortController();
 
-      await fetchDatabaseRequest(connection, featureFlags, "/query", {
-        method: "POST",
-        signal: controller.signal,
-      });
+      await fetchDatabaseRequest(
+        connection,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+          signal: controller.signal,
+        },
+      );
 
       const signal = mockFetch.mock.calls[0][1].signal;
       expect(signal).toBeDefined();
@@ -227,9 +333,14 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
       const conn = createConnection({ fetchTimeoutMs: 5000 });
 
-      await fetchDatabaseRequest(conn, featureFlags, "/query", {
-        method: "POST",
-      });
+      await fetchDatabaseRequest(
+        conn,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+        },
+      );
 
       const signal = mockFetch.mock.calls[0][1].signal;
       expect(signal).toBeDefined();
@@ -239,9 +350,14 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
       const conn = createConnection({ fetchTimeoutMs: 0 });
 
-      await fetchDatabaseRequest(conn, featureFlags, "/query", {
-        method: "POST",
-      });
+      await fetchDatabaseRequest(
+        conn,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+        },
+      );
 
       const signal = mockFetch.mock.calls[0][1].signal;
       expect(signal).toBeUndefined();
@@ -251,9 +367,14 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
       const conn = createConnection({ fetchTimeoutMs: -1 });
 
-      await fetchDatabaseRequest(conn, featureFlags, "/query", {
-        method: "POST",
-      });
+      await fetchDatabaseRequest(
+        conn,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+        },
+      );
 
       const signal = mockFetch.mock.calls[0][1].signal;
       expect(signal).toBeUndefined();
@@ -267,9 +388,14 @@ describe("fetchDatabaseRequest", () => {
       );
 
       await expect(
-        fetchDatabaseRequest(connection, featureFlags, "/query", {
-          method: "POST",
-        }),
+        fetchDatabaseRequest(
+          connection,
+          featureFlags,
+          new URL("http://localhost:8182/query"),
+          {
+            method: "POST",
+          },
+        ),
       ).rejects.toThrow(
         expect.objectContaining({
           message: "Query timed out",
@@ -291,9 +417,14 @@ describe("fetchDatabaseRequest", () => {
       );
 
       await expect(
-        fetchDatabaseRequest(connection, featureFlags, "/query", {
-          method: "POST",
-        }),
+        fetchDatabaseRequest(
+          connection,
+          featureFlags,
+          new URL("http://localhost:8182/query"),
+          {
+            method: "POST",
+          },
+        ),
       ).rejects.toThrow(
         expect.objectContaining({
           message: "Syntax error at line 1",
@@ -305,9 +436,14 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockResolvedValue(jsonResponse({ code: "ERR_UNKNOWN" }, 500));
 
       await expect(
-        fetchDatabaseRequest(connection, featureFlags, "/query", {
-          method: "POST",
-        }),
+        fetchDatabaseRequest(
+          connection,
+          featureFlags,
+          new URL("http://localhost:8182/query"),
+          {
+            method: "POST",
+          },
+        ),
       ).rejects.toThrow(
         expect.objectContaining({
           message: "Network response was not OK",
@@ -326,7 +462,7 @@ describe("fetchDatabaseRequest", () => {
       const error = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "/query",
+        new URL("http://localhost:8182/query"),
         { method: "POST" },
       ).catch(e => e);
 
@@ -340,7 +476,7 @@ describe("fetchDatabaseRequest", () => {
       const error = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "/query",
+        new URL("http://localhost:8182/query"),
         { method: "POST" },
       ).catch(e => e);
 
@@ -352,9 +488,14 @@ describe("fetchDatabaseRequest", () => {
         jsonResponse({ message: "server error" }, 500),
       );
 
-      await fetchDatabaseRequest(connection, featureFlags, "/query", {
-        method: "POST",
-      }).catch(() => {});
+      await fetchDatabaseRequest(
+        connection,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+        },
+      ).catch(() => {});
 
       expect(logger.error).toHaveBeenCalledWith(
         "Response status 500 received:",
@@ -371,7 +512,7 @@ describe("fetchDatabaseRequest", () => {
       const error = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "/query",
+        new URL("http://localhost:8182/query"),
         { method: "POST" },
       ).catch(e => e);
 
@@ -389,7 +530,7 @@ describe("fetchDatabaseRequest", () => {
       const error = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "/query",
+        new URL("http://localhost:8182/query"),
         { method: "POST" },
       ).catch(e => e);
 
@@ -402,7 +543,7 @@ describe("fetchDatabaseRequest", () => {
       const error = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "/query",
+        new URL("http://localhost:8182/query"),
         { method: "POST" },
       ).catch(e => e);
 
@@ -413,9 +554,14 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockResolvedValue(emptyResponse(500));
 
       await expect(
-        fetchDatabaseRequest(connection, featureFlags, "/query", {
-          method: "POST",
-        }),
+        fetchDatabaseRequest(
+          connection,
+          featureFlags,
+          new URL("http://localhost:8182/query"),
+          {
+            method: "POST",
+          },
+        ),
       ).rejects.toThrow(
         expect.objectContaining({
           message: "Network response was not OK",
@@ -432,7 +578,7 @@ describe("fetchDatabaseRequest", () => {
       const error = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "/query",
+        new URL("http://localhost:8182/query"),
         { method: "POST" },
       ).catch(e => e);
 
@@ -447,7 +593,7 @@ describe("fetchDatabaseRequest", () => {
       const error = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "http://localhost:8182/query",
+        new URL("http://localhost:8182/query"),
         { method: "POST" },
       ).catch(e => e);
 
@@ -463,10 +609,15 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockRejectedValue(controller.signal.reason);
 
       await expect(
-        fetchDatabaseRequest(connection, featureFlags, "/query", {
-          method: "POST",
-          signal: controller.signal,
-        }),
+        fetchDatabaseRequest(
+          connection,
+          featureFlags,
+          new URL("http://localhost:8182/query"),
+          {
+            method: "POST",
+            signal: controller.signal,
+          },
+        ),
       ).rejects.toBe(controller.signal.reason);
     });
 
@@ -477,7 +628,7 @@ describe("fetchDatabaseRequest", () => {
       const caught = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "http://localhost:8182/query",
+        new URL("http://localhost:8182/query"),
         { method: "POST" },
       ).catch(e => e);
 
@@ -558,9 +709,14 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockImplementation(abortableFetch);
       const conn = createConnection({ fetchTimeoutMs: 1 });
 
-      const error = await fetchDatabaseRequest(conn, featureFlags, "/query", {
-        method: "POST",
-      }).catch(e => e);
+      const error = await fetchDatabaseRequest(
+        conn,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+        },
+      ).catch(e => e);
 
       expect(error).toBeInstanceOf(FetchTimeoutError);
       expect(error.timeoutMs).toBe(1);
@@ -574,10 +730,15 @@ describe("fetchDatabaseRequest", () => {
       const controller = new AbortController();
       controller.abort();
 
-      const error = await fetchDatabaseRequest(conn, featureFlags, "/query", {
-        method: "POST",
-        signal: controller.signal,
-      }).catch(e => e);
+      const error = await fetchDatabaseRequest(
+        conn,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+          signal: controller.signal,
+        },
+      ).catch(e => e);
 
       expect(error).toBe(controller.signal.reason);
       expect(error).not.toBeInstanceOf(FetchTimeoutError);
@@ -588,10 +749,15 @@ describe("fetchDatabaseRequest", () => {
       const conn = createConnection({ fetchTimeoutMs: 5 });
       const controller = new AbortController();
 
-      const promise = fetchDatabaseRequest(conn, featureFlags, "/query", {
-        method: "POST",
-        signal: controller.signal,
-      }).catch(e => e);
+      const promise = fetchDatabaseRequest(
+        conn,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+          signal: controller.signal,
+        },
+      ).catch(e => e);
 
       // Abort before the fetch timeout's 5ms elapses. `delayedAbortableFetch`
       // won't reject for another 20ms, so by the time this module's catch
@@ -609,10 +775,15 @@ describe("fetchDatabaseRequest", () => {
       const conn = createConnection({ fetchTimeoutMs: 5 });
       const controller = new AbortController();
 
-      const promise = fetchDatabaseRequest(conn, featureFlags, "/query", {
-        method: "POST",
-        signal: controller.signal,
-      }).catch(e => e);
+      const promise = fetchDatabaseRequest(
+        conn,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+          signal: controller.signal,
+        },
+      ).catch(e => e);
 
       // Wait for the fetch timeout to fire first, then abort the caller's
       // signal before `delayedAbortableFetch`'s 20ms delay rejects, so both
@@ -637,9 +808,14 @@ describe("fetchDatabaseRequest", () => {
       );
       const conn = createConnection({ fetchTimeoutMs: 5 });
 
-      const error = await fetchDatabaseRequest(conn, featureFlags, "/query", {
-        method: "POST",
-      }).catch(e => e);
+      const error = await fetchDatabaseRequest(
+        conn,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+        },
+      ).catch(e => e);
 
       expect(error).toBeInstanceOf(DatabaseTimeoutError);
       expect(error).not.toBeInstanceOf(FetchTimeoutError);
@@ -650,9 +826,14 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockImplementation((_uri, init) => hangingJsonResponse(init));
       const conn = createConnection({ fetchTimeoutMs: 1 });
 
-      const error = await fetchDatabaseRequest(conn, featureFlags, "/query", {
-        method: "POST",
-      }).catch(e => e);
+      const error = await fetchDatabaseRequest(
+        conn,
+        featureFlags,
+        new URL("http://localhost:8182/query"),
+        {
+          method: "POST",
+        },
+      ).catch(e => e);
 
       expect(error).toBeInstanceOf(FetchTimeoutError);
       expect(error.timeoutMs).toBe(1);
@@ -669,7 +850,7 @@ describe("fetchDatabaseRequest", () => {
       const error = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "/query",
+        new URL("http://localhost:8182/query"),
         { method: "POST" },
       ).catch(e => e);
 
@@ -690,7 +871,7 @@ describe("fetchDatabaseRequest", () => {
       const error = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "/query",
+        new URL("http://localhost:8182/query"),
         { method: "POST" },
       ).catch(e => e);
 
@@ -707,7 +888,7 @@ describe("fetchDatabaseRequest", () => {
       const error = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "/query",
+        new URL("http://localhost:8182/query"),
         { method: "POST" },
       ).catch(e => e);
 
@@ -721,7 +902,7 @@ describe("fetchDatabaseRequest", () => {
       const error = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "/query",
+        new URL("http://localhost:8182/query"),
         { method: "POST" },
       ).catch(e => e);
 

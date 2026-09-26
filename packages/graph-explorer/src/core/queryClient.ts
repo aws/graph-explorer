@@ -4,7 +4,7 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 
-import { logger, NetworkError } from "@/utils";
+import { logger, NetworkError, ReverseProxyMisconfiguredError } from "@/utils";
 
 import { getAppStore, type AppStore } from "./StateProvider/appStore";
 
@@ -56,6 +56,9 @@ function createDefaultOptions(store: AppStore): DefaultOptions<Error> {
       meta,
       retry: (failureCount, error) => {
         if (failureCount >= MAX_RETRIES) {
+          return false;
+        }
+        if (error instanceof ReverseProxyMisconfiguredError) {
           return false;
         }
         if (

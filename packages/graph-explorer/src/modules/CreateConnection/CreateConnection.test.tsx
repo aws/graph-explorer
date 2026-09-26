@@ -43,21 +43,55 @@ async function openAdvancedOptions(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe("CreateConnection", () => {
-  test("removes newlines and surrounding whitespace from URL fields", async () => {
+  test("does not render the removed proxy server controls", () => {
+    renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+
+    // Proves the queries below fail on absence rather than a wrong name
+    expect(
+      screen.getByRole("textbox", { name: "Database URL" }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByRole("textbox", { name: "Public or Proxy Endpoint" }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole("checkbox", { name: "Using Proxy-Server" }),
+    ).toBeNull();
+  });
+
+  test("suggests a database URL that includes the port", () => {
+    renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+
+    // Copying a placeholder without the port produces a connection that
+    // fails against the default HTTPS port
+    expect(
+      screen.getByRole("textbox", { name: "Database URL" }),
+    ).toHaveAttribute(
+      "placeholder",
+      "https://neptune-cluster.amazonaws.com:8182",
+    );
+  });
+
+  test("offers AWS IAM auth without requiring a proxy server first", () => {
+    renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+
+    expect(
+      screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
+    ).toBeInTheDocument();
+  });
+
+  test("removes newlines and surrounding whitespace from the database URL", async () => {
     const user = userEvent.setup();
     const store = renderCreateConnection(
       <CreateConnection onClose={vi.fn()} />,
     );
 
     await user.type(
-      screen.getByRole("textbox", { name: "Public or Proxy Endpoint" }),
-      "  https://proxy.example.com/{Enter}path  ",
-    );
-    await user.click(
-      screen.getByRole("checkbox", { name: "Using Proxy-Server" }),
+      screen.getByRole("textbox", { name: "Name" }),
+      "My Connection",
     );
     await user.type(
-      screen.getByRole("textbox", { name: "Graph Connection URL" }),
+      screen.getByRole("textbox", { name: "Database URL" }),
       "  https://database.example.com/{Enter}graph  ",
     );
     await user.click(screen.getByRole("button", { name: "Add Connection" }));
@@ -69,10 +103,11 @@ describe("CreateConnection", () => {
     const [savedConnection] = store.get(configurationAtom).values();
     expect(savedConnection).toMatchObject({
       connection: {
-        url: "https://proxy.example.com/path",
         graphDbUrl: "https://database.example.com/graph",
       },
     });
+    expect(savedConnection.connection).not.toHaveProperty("url");
+    expect(savedConnection.connection).not.toHaveProperty("proxyConnection");
   });
 
   test("labels the override field Neighbor Expansion Limit", async () => {
@@ -115,8 +150,7 @@ describe("CreateConnection", () => {
     const configId = createNewConfigurationId();
     const store = getAppStore();
     const connection: ConnectionConfig = {
-      url: "https://proxy.example.com",
-      graphDbUrl: "",
+      graphDbUrl: "https://db.example.com",
       queryEngine: "gremlin",
       fetchTimeoutMs: 30000,
     };
@@ -153,7 +187,11 @@ describe("CreateConnection", () => {
     );
 
     await user.type(
-      screen.getByRole("textbox", { name: "Public or Proxy Endpoint" }),
+      screen.getByRole("textbox", { name: "Name" }),
+      "My Connection",
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: "Database URL" }),
       "  {Enter}  ",
     );
     await user.click(screen.getByRole("button", { name: "Add Connection" }));
@@ -167,7 +205,6 @@ describe("CreateConnection", () => {
       <CreateConnection
         initialValues={{
           name: "Seeded Graph",
-          proxyConnection: true,
           graphDbUrl: "https://seed.neptune.amazonaws.com",
         }}
         onClose={() => {}}
@@ -175,7 +212,7 @@ describe("CreateConnection", () => {
     );
 
     expect(screen.getByLabelText("Name")).toHaveValue("Seeded Graph");
-    expect(screen.getByLabelText("Graph Connection URL")).toHaveValue(
+    expect(screen.getByRole("textbox", { name: "Database URL" })).toHaveValue(
       "https://seed.neptune.amazonaws.com",
     );
     // Still in "add" mode, not "update"
@@ -212,9 +249,7 @@ describe("CreateConnection", () => {
 describe("mapToConnectionForm", () => {
   test("maps a connection's IAM auth into form values", () => {
     const form = mapToConnectionForm("My Graph", {
-      url: "https://localhost",
       queryEngine: "openCypher",
-      proxyConnection: true,
       graphDbUrl: "https://g.example.com",
       awsAuthEnabled: true,
       awsRegion: "us-west-2",
@@ -224,7 +259,6 @@ describe("mapToConnectionForm", () => {
     expect(form).toMatchObject({
       name: "My Graph",
       queryEngine: "openCypher",
-      proxyConnection: true,
       graphDbUrl: "https://g.example.com",
       awsAuthEnabled: true,
       awsRegion: "us-west-2",

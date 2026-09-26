@@ -14,10 +14,8 @@ const saveConfigurationToFile = (config: ConfigurationContextProps) => {
     displayLabel: config.displayLabel || config.id,
     connection: {
       ...connection,
-      url: normalizeUrl(config.connection?.url),
       queryEngine: config.connection?.queryEngine || "gremlin",
-      // Omit an empty graphDbUrl entirely; a present "" fails import validation.
-      // Normalized non-proxy configs carry "", so guard on the cleaned value.
+      // A config with no URL must omit the key entirely; a present "" fails the z.url() check on import.
       ...(normalizedGraphDbUrl && { graphDbUrl: normalizedGraphDbUrl }),
     },
     schema: {

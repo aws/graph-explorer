@@ -8,6 +8,10 @@ Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server w
 >
 > This documentation is not an official recommendation on network setups as there are many ways to connect to Amazon Neptune from outside of the VPC, such as setting up a load balancer or VPC peering.
 
+> [!IMPORTANT]
+>
+> The Graph Explorer server, not your browser, connects to the database, so it needs network access to the database endpoint. See [System overview](../architecture.md#system-overview) for details.
+
 ## Prerequisites
 
 - Provision an Amazon EC2 instance that will be used to host the application and connect to Neptune as a proxy server. For more details, see instructions [here](https://github.com/aws/graph-notebook/tree/main/additional-databases/neptune).

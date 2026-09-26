@@ -151,41 +151,27 @@ describe("createExportedGraph", () => {
 });
 
 describe("createExportedConnection", () => {
-  it("should map graphDbUrl when using proxy server", () => {
+  it("should lowercase graphDbUrl", () => {
     const connection = createRandomConnectionWithId();
-    connection.proxyConnection = true;
-    connection.graphDbUrl = createRandomUrlString();
+    connection.graphDbUrl = "https://My-Neptune.Example.com:8182";
 
     const exportedConnection = createExportedConnection(connection);
 
     expect(exportedConnection).toEqual({
-      dbUrl: connection.graphDbUrl,
-      queryEngine: connection.queryEngine!,
-    } satisfies ExportedGraphConnection);
-  });
-
-  it("should map url when not using proxy server", () => {
-    const connection = createRandomConnectionWithId();
-    connection.proxyConnection = false;
-
-    const exportedConnection = createExportedConnection(connection);
-
-    expect(exportedConnection).toEqual({
-      dbUrl: connection.url,
+      dbUrl: "https://my-neptune.example.com:8182",
       queryEngine: connection.queryEngine!,
     } satisfies ExportedGraphConnection);
   });
 
   it("should default to gremlin when no query engine is provided", () => {
     const connection = createRandomConnectionWithId();
-    connection.proxyConnection = true;
-    connection.graphDbUrl = createRandomUrlString();
+    connection.graphDbUrl = "https://My-Neptune.Example.com:8182";
     delete connection.queryEngine;
 
     const exportedConnection = createExportedConnection(connection);
 
     expect(exportedConnection).toEqual({
-      dbUrl: connection.graphDbUrl,
+      dbUrl: "https://my-neptune.example.com:8182",
       queryEngine: "gremlin",
     } satisfies ExportedGraphConnection);
   });
@@ -435,18 +421,6 @@ describe("isMatchingConnection", () => {
 
   it("should return false when graph db url is different", () => {
     const connection = createRandomConnectionWithId();
-    connection.proxyConnection = true;
-    connection.graphDbUrl = createRandomUrlString();
-    const exportedConnection = createRandomExportedGraphConnection();
-    exportedConnection.dbUrl = connection.url;
-    exportedConnection.queryEngine = connection.queryEngine!;
-
-    expect(isMatchingConnection(connection, exportedConnection)).toBeFalsy();
-  });
-
-  it("should return false when url is different", () => {
-    const connection = createRandomConnectionWithId();
-    connection.proxyConnection = false;
     const exportedConnection = createRandomExportedGraphConnection();
     exportedConnection.dbUrl = createRandomUrlString();
     exportedConnection.queryEngine = connection.queryEngine!;
