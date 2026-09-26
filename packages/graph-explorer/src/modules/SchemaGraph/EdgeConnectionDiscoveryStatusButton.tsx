@@ -52,31 +52,55 @@ function toNoticeView(
     };
   }
 
-  const displayError = notice.error ? createDisplayError(notice.error) : null;
+  const failure = describeFailure(notice.error);
 
   return {
     variant: "danger-ghost",
     triggerLabel: `${edgeConnections} discovery failed`,
     title: `Could not discover ${edgeConnections}`,
-    description: displayError ? (
+    description: (
       <>
-        <span className="text-foreground block font-medium">
-          {displayError.title}
-        </span>
-        <span className="block">{displayError.message}</span>
-        <span className="mt-1 block">Node types are still shown.</span>
-      </>
-    ) : (
-      <>
-        <span className="block">
-          The last attempt failed. Retry to see the error.
-        </span>
-        <span className="mt-1 block">Node types are still shown.</span>
+        {failure.lead ? (
+          <span className="text-foreground block font-medium">
+            {failure.lead}
+          </span>
+        ) : null}
+        <span className="block">{failure.message}</span>
+        {failure.nextStep ? (
+          <span className="mt-1 block">{failure.nextStep}</span>
+        ) : null}
       </>
     ),
     error: notice.error,
     actionLabel: "Retry",
     actionIcon: RotateCcwIcon,
+  };
+}
+
+/** The failed popover's description: what happened, then what to do next. */
+type FailureDescription = {
+  /** A short name for the error, shown only when the title doesn't say it. */
+  lead: string | null;
+  message: string;
+  nextStep: string | null;
+};
+
+function describeFailure(error: Error | null): FailureDescription {
+  // After a reload only the persisted flag survives, not the error.
+  if (error == null) {
+    return {
+      lead: null,
+      message: "The last attempt failed.",
+      nextStep: "Node types are still shown. Retry to see why.",
+    };
+  }
+
+  const displayError = createDisplayError(error);
+  return {
+    lead: displayError.title,
+    message: displayError.message,
+    nextStep:
+      "Node types are still shown. Retry, or open Error Details to see the full error.",
   };
 }
 

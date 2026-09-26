@@ -88,6 +88,11 @@ describe("EdgeConnectionDiscoveryStatusButton", () => {
     expect(
       screen.getByText(createDisplayError(error).message),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Node types are still shown. Retry, or open Error Details to see the full error.",
+      ),
+    ).toBeInTheDocument();
     // Both actions share a size so the popover's buttons line up.
     expect(
       screen.getByRole("button", { name: /error details/i }),
@@ -148,10 +153,10 @@ describe("EdgeConnectionDiscoveryStatusButton", () => {
     expect(
       screen.getByText("Could not discover Relationships"),
     ).toBeInTheDocument();
+    expect(screen.getByText("The last attempt failed.")).toBeInTheDocument();
     expect(
-      screen.getByText("The last attempt failed. Retry to see the error."),
+      screen.getByText("Node types are still shown. Retry to see why."),
     ).toBeInTheDocument();
-    expect(screen.getByText("Node types are still shown.")).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /error details/i }),
     ).not.toBeInTheDocument();
