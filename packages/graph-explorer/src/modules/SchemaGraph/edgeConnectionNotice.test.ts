@@ -40,6 +40,7 @@ describe("edgeConnectionNotice", () => {
 
   test("is failed even when partial connections exist from exploring after a failure", () => {
     const schema = schemaWith({
+      edgeConnections: [createRandomEdgeConnection()],
       lastEdgeConnectionSyncFail: true,
     });
 

@@ -61,9 +61,9 @@ describe("SchemaDiscoveryBoundary against the real store", () => {
   });
 
   test("renders children when edge connection discovery rejects", async () => {
-    vi.spyOn(explorer, "fetchEdgeConnections").mockRejectedValue(
-      new Error("Edge connection discovery failed"),
-    );
+    const fetchEdgeConnections = vi
+      .spyOn(explorer, "fetchEdgeConnections")
+      .mockRejectedValue(new Error("Edge connection discovery failed"));
 
     const state = new DbState(explorer);
     state.activeSchema.edges = [
@@ -78,6 +78,12 @@ describe("SchemaDiscoveryBoundary against the real store", () => {
     });
     await flushPendingAtomUpdates();
 
+    expect(fetchEdgeConnections).toHaveBeenCalled();
+    const store = getAppStore();
+    expect(
+      store.get(schemaAtom).get(state.activeConfig.id)
+        ?.lastEdgeConnectionSyncFail,
+    ).toBe(true);
     expect(screen.getByText("Children")).toBeInTheDocument();
   });
 });
