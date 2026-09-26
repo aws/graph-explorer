@@ -5,11 +5,15 @@ import * as React from "react";
 
 import { cn } from "@/utils";
 
-const Popover = PopoverPrimitive.Root;
+function Popover(props: React.ComponentProps<typeof PopoverPrimitive.Root>) {
+  return <PopoverPrimitive.Root data-slot="popover" {...props} />;
+}
 
-const PopoverTrigger = PopoverPrimitive.Trigger;
-
-const PopoverAnchor = PopoverPrimitive.Anchor;
+function PopoverTrigger(
+  props: React.ComponentProps<typeof PopoverPrimitive.Trigger>,
+) {
+  return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />;
+}
 
 function PopoverContent({
   className,
@@ -20,6 +24,7 @@ function PopoverContent({
   return (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Content
+        data-slot="popover-content"
         align={align}
         sideOffset={sideOffset}
         className={cn(
@@ -33,4 +38,65 @@ function PopoverContent({
 }
 PopoverContent.displayName = PopoverPrimitive.Content.displayName;
 
-export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor };
+function PopoverAnchor(
+  props: React.ComponentProps<typeof PopoverPrimitive.Anchor>,
+) {
+  return <PopoverPrimitive.Anchor data-slot="popover-anchor" {...props} />;
+}
+
+function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="popover-header"
+      className={cn("flex flex-col gap-0.5 text-sm", className)}
+      {...props}
+    />
+  );
+}
+
+function PopoverFooter({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="popover-footer"
+      className={cn(
+        "flex flex-row justify-end gap-3 pt-4 max-sm:flex-col-reverse",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function PopoverTitle({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="popover-title"
+      className={cn("font-medium", className)}
+      {...props}
+    />
+  );
+}
+
+function PopoverDescription({
+  className,
+  ...props
+}: React.ComponentProps<"p">) {
+  return (
+    <p
+      data-slot="popover-description"
+      className={cn("text-muted-foreground", className)}
+      {...props}
+    />
+  );
+}
+
+export {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverFooter,
+  PopoverTitle,
+  PopoverAnchor,
+};

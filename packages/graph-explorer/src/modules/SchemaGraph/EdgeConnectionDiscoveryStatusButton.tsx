@@ -6,6 +6,10 @@ import {
   ErrorDetailsButton,
   Popover,
   PopoverContent,
+  PopoverDescription,
+  PopoverFooter,
+  PopoverHeader,
+  PopoverTitle,
   PopoverTrigger,
 } from "@/components";
 import { useMaybeActiveSchema } from "@/core";
@@ -46,7 +50,7 @@ export function EdgeConnectionDiscoveryStatusButton() {
         <PopoverTrigger asChild>
           <Button
             variant="ghost"
-            size="icon"
+            size="icon-small"
             className="text-warning hover:bg-warning-subtle data-open:bg-warning-subtle"
             aria-label={`${t("edge-connections")} not discovered`}
           >
@@ -54,23 +58,21 @@ export function EdgeConnectionDiscoveryStatusButton() {
           </Button>
         </PopoverTrigger>
         <PopoverContent side="bottom" align="end" className="w-80">
-          <div className="flex flex-col gap-2">
-            <p className="font-medium">
-              {t("edge-connections")} not discovered
-            </p>
-            <p className="text-muted-foreground text-sm">
+          <PopoverHeader>
+            <PopoverTitle>{t("edge-connections")} not discovered</PopoverTitle>
+            <PopoverDescription>
               Node types are shown without the connections between them.
-            </p>
-            <div className="flex gap-2">
-              <Button
-                size="small"
-                onClick={retry}
-                className="shrink-0 whitespace-nowrap"
-              >
-                Synchronize
-              </Button>
-            </div>
-          </div>
+            </PopoverDescription>
+          </PopoverHeader>
+          <PopoverFooter>
+            <Button
+              size="small"
+              onClick={retry}
+              className="shrink-0 whitespace-nowrap"
+            >
+              Synchronize
+            </Button>
+          </PopoverFooter>
         </PopoverContent>
       </Popover>
     );
@@ -89,30 +91,30 @@ export function EdgeConnectionDiscoveryStatusButton() {
       <PopoverTrigger asChild>
         <Button
           variant="danger-ghost"
-          size="icon"
+          size="icon-small"
           aria-label={`${t("edge-connections")} discovery failed`}
         >
           <TriangleAlertIcon />
         </Button>
       </PopoverTrigger>
       <PopoverContent side="bottom" align="end" className="w-80">
-        <div className="flex flex-col gap-2">
-          <p className="font-medium">{title}</p>
-          <p className="text-muted-foreground text-sm">{message}</p>
-          <div className="flex gap-2">
-            {notice.error ? (
-              <ErrorDetailsButton error={notice.error} size="small" />
-            ) : null}
-            <Button
-              size="small"
-              onClick={retry}
-              className="shrink-0 whitespace-nowrap"
-            >
-              <RotateCcwIcon />
-              Retry
-            </Button>
-          </div>
-        </div>
+        <PopoverHeader>
+          <PopoverTitle>{title}</PopoverTitle>
+          <PopoverDescription>{message}</PopoverDescription>
+        </PopoverHeader>
+        <PopoverFooter>
+          {notice.error ? (
+            <ErrorDetailsButton error={notice.error} size="small" />
+          ) : null}
+          <Button
+            size="small"
+            onClick={retry}
+            className="shrink-0 whitespace-nowrap"
+          >
+            <RotateCcwIcon />
+            Retry
+          </Button>
+        </PopoverFooter>
       </PopoverContent>
     </Popover>
   );
