@@ -4,6 +4,7 @@ import { useQueryEngine } from "../connector";
 import {
   DEFAULT_SIDEBAR_WIDTH,
   DEFAULT_TABLE_VIEW_HEIGHT,
+  MIN_SIDEBAR_WIDTH,
   type GraphViewSidebarItem,
   type ToggleableView,
 } from "./graphViewLayoutDefaults";
@@ -96,7 +97,10 @@ export function useGraphViewSidebar() {
       ...prev,
       sidebar: {
         ...prev.sidebar,
-        width: (prev.sidebar?.width ?? DEFAULT_SIDEBAR_WIDTH) + deltaWidth,
+        width: Math.max(
+          MIN_SIDEBAR_WIDTH,
+          (prev.sidebar?.width ?? DEFAULT_SIDEBAR_WIDTH) + deltaWidth,
+        ),
       },
     }));
   }

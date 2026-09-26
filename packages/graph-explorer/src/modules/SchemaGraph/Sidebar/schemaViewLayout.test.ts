@@ -3,7 +3,10 @@ import { act } from "react";
 
 import type { SchemaViewLayout } from "@/core/StateProvider/schemaViewLayoutDefaults";
 
-import { DEFAULT_SIDEBAR_WIDTH } from "@/core/StateProvider/graphViewLayoutDefaults";
+import {
+  DEFAULT_SIDEBAR_WIDTH,
+  MIN_SIDEBAR_WIDTH,
+} from "@/core/StateProvider/graphViewLayoutDefaults";
 import { DbState, renderHookWithState } from "@/utils/testing";
 
 import { useSchemaViewSidebar } from "./schemaViewLayout";
@@ -89,6 +92,17 @@ describe("useSchemaViewSidebar", () => {
 
     act(() => result.current.setSidebarWidth(-100));
     expect(result.current.sidebarWidth).toBe(DEFAULT_SIDEBAR_WIDTH - 50);
+  });
+
+  it("should clamp sidebar width to the minimum on a large negative delta", () => {
+    const { result } = renderHookWithState(
+      () => useSchemaViewSidebar(),
+      stateWithLayout(),
+    );
+
+    act(() => result.current.setSidebarWidth(-10000));
+
+    expect(result.current.sidebarWidth).toBe(MIN_SIDEBAR_WIDTH);
   });
 
   it("should auto-open details tab when enabled and selection changes", () => {

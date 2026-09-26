@@ -13,6 +13,7 @@ import {
 import {
   DEFAULT_SIDEBAR_WIDTH,
   DEFAULT_TABLE_VIEW_HEIGHT,
+  MIN_SIDEBAR_WIDTH,
 } from "./graphViewLayoutDefaults";
 
 const baseLayout: GraphViewLayout = {
@@ -163,6 +164,17 @@ describe("useGraphViewSidebar", () => {
 
     act(() => result.current.setSidebarWidth(-200));
     expect(result.current.sidebarWidth).toBe(DEFAULT_SIDEBAR_WIDTH - 100);
+  });
+
+  it("should clamp sidebar width to the minimum on a large negative delta", () => {
+    const { result } = renderHookWithState(
+      () => useGraphViewSidebar(),
+      stateWithLayout(),
+    );
+
+    act(() => result.current.setSidebarWidth(-10000));
+
+    expect(result.current.sidebarWidth).toBe(MIN_SIDEBAR_WIDTH);
   });
 
   it("should auto-open details when detailsAutoOpenOnSelection is true", () => {

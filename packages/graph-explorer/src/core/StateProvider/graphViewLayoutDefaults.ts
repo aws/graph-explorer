@@ -50,6 +50,9 @@ export const DEFAULT_TABLE_VIEW_HEIGHT = 300;
 /** Default width for the graph view sidebar in pixels. */
 export const DEFAULT_SIDEBAR_WIDTH = 400;
 
+/** Floor for the sidebar width in pixels, so resizing cannot persist a non-positive width. */
+export const MIN_SIDEBAR_WIDTH = 200;
+
 /** Initial layout state used when no persisted layout exists. */
 export const defaultGraphViewLayout: GraphViewLayout = {
   activeToggles: new Set(["graph-viewer", "table-view"]),
