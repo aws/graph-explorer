@@ -26,7 +26,7 @@ import { useCancelSchemaSync, useSchemaSync } from "@/hooks/useSchemaSync";
  * Renders loading, error, or no-schema states for schema discovery.
  * Renders children once a schema has been successfully synced. Edge connection
  * discovery does not gate them, because the Schema view reports its failure
- * inline rather than hiding node types.
+ * separately rather than hiding node types.
  */
 export function SchemaDiscoveryBoundary({ children }: PropsWithChildren) {
   const config = useConfiguration();

@@ -29,9 +29,13 @@ The `edgeConnections` property on `SchemaStorageModel` has three meaningful stat
 - `[]` (empty array) — query succeeded but no edge connections exist
 - populated array — query succeeded with results
 
-If the edge connection query fails, the error is stored in the schema via the `lastEdgeConnectionSyncFail` flag.
+If the edge connection query fails, the schema records only that it failed, via the boolean `lastEdgeConnectionSyncFail`. The error itself is not persisted, so after a reload the popover can offer Retry but cannot say why it failed.
 
-When discovery has failed or never run, the Schema view still renders every node type; it does not fall back to a full-page error. `SchemaGraphToolbar` renders `EdgeConnectionDiscoveryStatusButton`, a warning icon button next to "Refresh Schema" that opens a popover with the details on click. It resolves the situation via the pure `edgeConnectionNotice(schema, error)` helper in `src/modules/SchemaGraph/edgeConnectionNotice.ts`. That helper keys off `lastEdgeConnectionSyncFail` and the live query error, not off `edgeConnections == null`, because exploring the graph after a failure can add partial connections and the notice must still report the failure. Retrying or synchronizing both call `edgeDiscoveryQuery.refetch()` and close the popover. `SchemaDiscoveryBoundary` only gates on the main schema sync now; it no longer has an `edgeConnections`-aware mode.
+`SchemaDiscoveryBoundary` gates only on the main schema sync, so the Schema View renders node types whether or not edge connections were discovered.
+
+`SchemaGraphToolbar` renders `EdgeConnectionDiscoveryStatusButton`, a triangle icon button next to "Refresh Schema": warning color when discovery has not run, danger color when it failed. It opens a popover with Retry or Synchronize, plus Error Details when the current session has the error.
+
+`edgeConnectionNotice(schema, error)` checks failure first (the live query error or `lastEdgeConnectionSyncFail`) and only then `edgeConnections == null`, because partial connections added by exploration after a failure must still report the failure.
 
 ## Incremental Schema Growth
 

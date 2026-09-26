@@ -51,7 +51,7 @@ export function EdgeConnectionDiscoveryStatusButton() {
           <Button
             variant="ghost"
             size="icon-small"
-            className="text-warning hover:bg-warning-subtle data-open:bg-warning-subtle"
+            className="text-warning-foreground hover:bg-warning-subtle data-open:bg-warning-subtle"
             aria-label={`${t("edge-connections")} not discovered`}
           >
             <TriangleAlertIcon />
