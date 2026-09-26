@@ -42,8 +42,9 @@ function ConnectionRow({
         </ListRowTitle>
         <ListRowSubtitle>
           <span className="">{graphType}</span>
-          {dbUrl ? <span> &bull; {dbUrl}</span> : null}
+          {/* Ahead of the URL so a long URL can't clamp it away */}
           {isDirect ? <span> &bull; {LABELS.DIRECT_CONNECTION}</span> : null}
+          {dbUrl ? <span> &bull; {dbUrl}</span> : null}
         </ListRowSubtitle>
       </ListRowContent>
       <input
