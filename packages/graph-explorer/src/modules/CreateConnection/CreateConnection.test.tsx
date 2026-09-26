@@ -122,6 +122,7 @@ describe("CreateConnection", () => {
       await user.click(
         screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
       );
+      await openAdvancedOptions(user);
       await user.click(screen.getByRole("checkbox", directOption));
 
       expect(
@@ -149,6 +150,7 @@ describe("CreateConnection", () => {
       await user.click(
         screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
       );
+      await openAdvancedOptions(user);
       await user.click(screen.getByRole("checkbox", directOption));
       await user.click(screen.getByRole("button", { name: "Add Connection" }));
 
@@ -191,8 +193,10 @@ describe("CreateConnection", () => {
       expect(screen.getByRole("checkbox", directOption)).toBeChecked();
     });
 
-    test("leaves the option unchecked for a proxy connection", () => {
+    test("leaves the option unchecked for a proxy connection", async () => {
+      const user = userEvent.setup();
       renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+      await openAdvancedOptions(user);
 
       expect(screen.getByRole("checkbox", directOption)).not.toBeChecked();
     });
