@@ -38,10 +38,7 @@ Multi-context repo (presence of `CONTEXT-MAP.md` at the root):
         └── docs/adr/
 ```
 
-ADR files are named `YYYYMMDD-kebab-title.md`, where the date is when the
-decision was accepted. The date prefix keeps them sortable chronologically and
-avoids the renumbering churn that sequential IDs cause when two branches add an
-ADR at once. Refer to an ADR by its slug, e.g. ADR `event-sourced-orders`.
+ADR files are named `YYYYMMDD-kebab-title.md`, where the date is when the decision was accepted. The date prefix keeps them sortable chronologically and avoids the renumbering churn that sequential IDs cause when two branches add an ADR at once. Refer to an ADR by its slug, e.g. ADR `event-sourced-orders`.
 
 ## Use the glossary's vocabulary
 

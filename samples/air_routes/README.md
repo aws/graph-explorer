@@ -11,8 +11,8 @@
 This sample uses Gremlin Server 3.8 as the database pre-loaded with the [air routes dataset](https://tinkerpop.apache.org/docs/3.8.1/upgrade/#air-routes-dataset) and shows how to configure Graph Explorer to connect to it automatically with a default connection.
 
 > [!WARNING]
-> **This sample is for local development and evaluation only.** Do not use it
-> as a template for a production deployment.
+>
+> **This sample is for local development and evaluation only.** Do not use it as a template for a production deployment.
 >
 > - **No authentication** — anyone who can reach it has full access.
 > - **Not hardened** — it is configured for convenience, not security.
@@ -48,6 +48,7 @@ This sample uses Gremlin Server 3.8 as the database pre-loaded with the [air rou
 7. Return to the **Graph** or **Schema** view. Airports, countries, and continents now render with distinct shapes, colors, and icons; routes and contains edges also have distinct line styles.
 
 > [!NOTE]
+>
 > The browser file picker reads from your host filesystem, not the Docker container. No volume mount is needed — just ensure `styles.json` is available on your machine before loading it.
 
 Once it is running, the [Getting Started tutorial](../../docs/getting-started/README.md) walks you through exploring the air routes data step by step.
