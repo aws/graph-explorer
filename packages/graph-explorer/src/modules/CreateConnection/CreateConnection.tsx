@@ -134,7 +134,7 @@ export function mapToConnectionForm(
   return {
     ...connection,
     name,
-    directConnection: connection != null && isDirectConnection(connection),
+    directConnection: isDirectConnection(connection),
     fetchTimeoutEnabled: Boolean(connection?.fetchTimeoutMs),
     nodeExpansionLimitEnabled: Boolean(connection?.nodeExpansionLimit),
   };

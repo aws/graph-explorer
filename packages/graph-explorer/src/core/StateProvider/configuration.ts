@@ -151,8 +151,10 @@ export function transformLegacyConnection(
 }
 
 /** Whether the browser sends requests to the database itself. Deprecated. */
-export function isDirectConnection(connection: ConnectionConfig): boolean {
-  return connection.proxyConnection === false;
+export function isDirectConnection(
+  connection: ConnectionConfig | undefined,
+): boolean {
+  return connection?.proxyConnection === false;
 }
 
 export function normalizeConnection(connection: ConnectionConfig) {

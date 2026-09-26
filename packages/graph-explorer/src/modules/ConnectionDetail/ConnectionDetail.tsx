@@ -89,8 +89,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
   const deleteActiveConfig = useDeleteActiveConfiguration();
 
   const dbUrl = config.connection?.graphDbUrl || LABELS.MISSING_VALUE;
-  const isDirect =
-    config.connection != null && isDirectConnection(config.connection);
+  const isDirect = isDirectConnection(config.connection);
 
   const connectionName = config.displayLabel || config.id;
 

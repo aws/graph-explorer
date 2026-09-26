@@ -22,8 +22,7 @@ function ConnectionRow({
   const setActiveConfig = () => activateConnection(connection.id);
 
   const dbUrl = connection.connection?.graphDbUrl || null;
-  const isDirect =
-    connection.connection != null && isDirectConnection(connection.connection);
+  const isDirect = isDirectConnection(connection.connection);
 
   const graphType = t(
     "query-language",

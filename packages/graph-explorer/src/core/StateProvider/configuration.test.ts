@@ -32,6 +32,7 @@ import {
   defaultVertexTypeConfig,
   getDefaultEdgeTypeConfig,
   getDefaultVertexTypeConfig,
+  isDirectConnection,
   mergeConfiguration,
   normalizeConnection,
   type NormalizedConnection,
@@ -368,6 +369,25 @@ describe("patchToRemoveDisplayLabel", () => {
     config.attributes.forEach((a, i) => {
       expect((a as any).displayLabel).toBe(originalAttrDisplayLabels[i]);
     });
+  });
+});
+
+describe("isDirectConnection", () => {
+  test("is true when proxyConnection is false", () => {
+    expect(
+      isDirectConnection({
+        graphDbUrl: "https://db:8182",
+        proxyConnection: false,
+      }),
+    ).toBe(true);
+  });
+
+  test("is false when proxyConnection is absent", () => {
+    expect(isDirectConnection({ graphDbUrl: "https://db:8182" })).toBe(false);
+  });
+
+  test("is false when there is no connection", () => {
+    expect(isDirectConnection(undefined)).toBe(false);
   });
 });
 
