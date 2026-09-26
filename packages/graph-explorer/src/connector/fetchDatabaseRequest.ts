@@ -6,6 +6,8 @@ import {
   DatabaseTimeoutError,
   DatabaseUnreachableError,
   FetchTimeoutError,
+  InvalidDatabaseUrlError,
+  isAbsoluteHttpUrl,
   logger,
   MissingDatabaseUrlError,
   NetworkError,
@@ -64,6 +66,9 @@ async function decodeErrorSafely(response: Response): Promise<any> {
 function resolveEndpoint(connection: NormalizedConnection, path: string): URL {
   if (!isDirectConnection(connection)) {
     return apiUrl(path);
+  }
+  if (!isAbsoluteHttpUrl(connection.graphDbUrl)) {
+    throw new InvalidDatabaseUrlError(connection.graphDbUrl);
   }
   return new URL(`${connection.graphDbUrl}/${path}`);
 }

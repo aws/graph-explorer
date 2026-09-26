@@ -34,7 +34,7 @@ import {
 } from "@/core";
 import { isDirectConnection } from "@/core/StateProvider/configuration";
 import useResetState from "@/core/StateProvider/useResetState";
-import { formatDate, logger } from "@/utils";
+import { formatDate, isAbsoluteHttpUrl, logger } from "@/utils";
 import {
   DEFAULT_FETCH_TIMEOUT,
   DEFAULT_NODE_EXPAND_LIMIT,
@@ -56,6 +56,17 @@ type ConnectionForm = {
 
 function normalizeUrlField(value: string | undefined) {
   return value?.replace(/[\r\n]/g, "").trim();
+}
+
+function graphDbUrlError(form: ConnectionForm): string | undefined {
+  const graphDbUrl = normalizeUrlField(form.graphDbUrl);
+  if (!graphDbUrl) {
+    return "URL is required";
+  }
+  // The browser resolves anything else against this page or as a scheme.
+  if (form.directConnection && !isAbsoluteHttpUrl(graphDbUrl)) {
+    return "A direct connection needs a full URL starting with http:// or https://";
+  }
 }
 
 const CONNECTIONS_OP: {
@@ -267,6 +278,7 @@ const CreateConnection = ({
       }
     };
 
+  const urlError = graphDbUrlError(form);
   const reset = useResetState();
   const onSubmit = () => {
     const normalizedForm: ConnectionForm = {
@@ -276,7 +288,7 @@ const CreateConnection = ({
 
     if (
       !normalizedForm.name ||
-      !normalizedForm.graphDbUrl ||
+      graphDbUrlError(normalizedForm) ||
       !normalizedForm.queryEngine
     ) {
       setError(true);
@@ -335,13 +347,9 @@ const CreateConnection = ({
             data-autofocus={true}
             value={form.graphDbUrl}
             onChange={onFormChange("graphDbUrl")}
-            errorMessage="URL is required"
+            errorMessage={urlError}
             placeholder="https://neptune-cluster.amazonaws.com:8182"
-            validationState={
-              hasError && !normalizeUrlField(form.graphDbUrl)
-                ? "invalid"
-                : "valid"
-            }
+            validationState={hasError && urlError ? "invalid" : "valid"}
           />
         </FormItem>
 

@@ -168,6 +168,58 @@ describe("CreateConnection", () => {
       });
     });
 
+    test.each(["localhost:8182", "/neptune", "ftp://database.example.com"])(
+      "rejects the non-absolute http(s) URL %s for a direct connection",
+      async graphDbUrl => {
+        const user = userEvent.setup();
+        const store = renderCreateConnection(
+          <CreateConnection onClose={vi.fn()} />,
+        );
+
+        await user.type(
+          screen.getByRole("textbox", { name: "Name" }),
+          "My Connection",
+        );
+        await user.type(
+          screen.getByRole("textbox", { name: "Database URL" }),
+          graphDbUrl,
+        );
+        await openAdvancedOptions(user);
+        await user.click(screen.getByRole("checkbox", directOption));
+        await user.click(
+          screen.getByRole("button", { name: "Add Connection" }),
+        );
+
+        expect(store.get(configurationAtom)).toHaveLength(0);
+        expect(
+          screen.getByText(
+            "A direct connection needs a full URL starting with http:// or https://",
+          ),
+        ).toBeInTheDocument();
+      },
+    );
+
+    test("saves a proxy connection whose URL has no protocol", async () => {
+      const user = userEvent.setup();
+      const store = renderCreateConnection(
+        <CreateConnection onClose={vi.fn()} />,
+      );
+
+      await user.type(
+        screen.getByRole("textbox", { name: "Name" }),
+        "My Connection",
+      );
+      await user.type(
+        screen.getByRole("textbox", { name: "Database URL" }),
+        "localhost:8182",
+      );
+      await user.click(screen.getByRole("button", { name: "Add Connection" }));
+
+      await waitFor(() => {
+        expect(store.get(configurationAtom)).toHaveLength(1);
+      });
+    });
+
     test("shows an existing direct connection as direct", () => {
       const config = {
         ...createRandomRawConfiguration(),

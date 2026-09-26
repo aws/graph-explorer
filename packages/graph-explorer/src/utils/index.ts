@@ -17,6 +17,7 @@ export * from "./FetchTimeoutError";
 export * from "./ServerConnectionError";
 export * from "./DatabaseUnreachableError";
 export * from "./MissingDatabaseUrlError";
+export * from "./InvalidDatabaseUrlError";
 export * from "./ReverseProxyMisconfiguredError";
 export * from "./formatEntityCounts";
 export * from "./formatRelativeDate";

@@ -4,6 +4,7 @@ import type { FeatureFlags, NormalizedConnection } from "@/core";
 import {
   DatabaseTimeoutError,
   FetchTimeoutError,
+  InvalidDatabaseUrlError,
   logger,
   MissingDatabaseUrlError,
   NetworkError,
@@ -210,6 +211,60 @@ describe("fetchDatabaseRequest", () => {
 
       const headers = mockFetch.mock.calls[0][1].headers;
       expect(headers).toStrictEqual({ "Content-Type": "application/json" });
+    });
+  });
+
+  describe("invalid direct database url", () => {
+    it.each([
+      "/neptune",
+      "10.0.0.1:8182",
+      "localhost:8182",
+      "my-db",
+      "ftp://x",
+    ])(
+      "throws InvalidDatabaseUrlError before fetching for %s",
+      async graphDbUrl => {
+        const conn = createConnection({ graphDbUrl, proxyConnection: false });
+
+        await expect(
+          fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+            method: "POST",
+          }),
+        ).rejects.toThrow(new InvalidDatabaseUrlError(graphDbUrl));
+
+        expect(mockFetch).not.toHaveBeenCalled();
+      },
+    );
+
+    it("resolves an absolute https URL with a port and path", async () => {
+      mockFetch.mockResolvedValue(jsonResponse({}));
+      const conn = createConnection({
+        graphDbUrl: "https://db.example.com:8182/path",
+        proxyConnection: false,
+      });
+
+      await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+      });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("https://db.example.com:8182/path/gremlin"),
+        expect.anything(),
+      );
+    });
+
+    it("leaves a proxy connection's URL to the Graph Explorer server", async () => {
+      mockFetch.mockResolvedValue(jsonResponse({}));
+      const conn = createConnection({ graphDbUrl: "localhost:8182" });
+
+      await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+      });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("http://localhost/gremlin"),
+        expect.anything(),
+      );
     });
   });
 

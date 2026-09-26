@@ -11,6 +11,7 @@ import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
 import { DatabaseUnreachableError } from "./DatabaseUnreachableError";
 import { extractErrorMessage } from "./extractErrorMessage";
 import { FetchTimeoutError } from "./FetchTimeoutError";
+import { InvalidDatabaseUrlError } from "./InvalidDatabaseUrlError";
 import { isCancellationError } from "./isCancellationError";
 import { MissingDatabaseUrlError } from "./MissingDatabaseUrlError";
 import { NetworkError } from "./NetworkError";
@@ -20,6 +21,11 @@ import { ServerConnectionError } from "./ServerConnectionError";
 export type DisplayError = {
   title: string;
   message: string;
+};
+
+const invalidUrlDisplayError: DisplayError = {
+  title: "Invalid URL",
+  message: "Please check the database URL in the connection and try again.",
 };
 
 const defaultDisplayError: DisplayError = {
@@ -86,11 +92,7 @@ export function createDisplayError(error: any): DisplayError {
       data.code === "ERR_INVALID_URL" ||
       data.cause?.code === "ERR_INVALID_URL"
     ) {
-      return {
-        title: "Invalid URL",
-        message:
-          "Please check the database URL in the connection and try again.",
-      };
+      return invalidUrlDisplayError;
     }
     // Malformed query
     if (
@@ -150,6 +152,10 @@ export function createDisplayError(error: any): DisplayError {
       message:
         "This connection has no database URL. Edit the connection and enter the Database URL.",
     };
+  }
+
+  if (error instanceof InvalidDatabaseUrlError) {
+    return invalidUrlDisplayError;
   }
 
   if (error instanceof ReverseProxyMisconfiguredError) {

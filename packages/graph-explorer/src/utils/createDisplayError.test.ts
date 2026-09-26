@@ -13,6 +13,7 @@ import { createDisplayError } from "./createDisplayError";
 import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
 import { DatabaseUnreachableError } from "./DatabaseUnreachableError";
 import { FetchTimeoutError } from "./FetchTimeoutError";
+import { InvalidDatabaseUrlError } from "./InvalidDatabaseUrlError";
 import { MissingDatabaseUrlError } from "./MissingDatabaseUrlError";
 import { NetworkError } from "./NetworkError";
 import { ReverseProxyMisconfiguredError } from "./ReverseProxyMisconfiguredError";
@@ -300,6 +301,16 @@ describe("createDisplayError", () => {
       title: "Database not reachable from the browser",
       message:
         "This direct connection sends requests from the browser, so the database must be running and allow cross-origin requests from this page. Check the database's CORS settings, or edit the connection and turn off connecting directly from the browser.",
+    });
+  });
+
+  it("Should handle a direct connection whose database URL is not absolute", () => {
+    const result = createDisplayError(
+      new InvalidDatabaseUrlError("localhost:8182"),
+    );
+    expect(result).toStrictEqual({
+      title: "Invalid URL",
+      message: "Please check the database URL in the connection and try again.",
     });
   });
 
