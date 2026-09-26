@@ -55,8 +55,8 @@ describe("SchemaGraphToolbar", () => {
 
     expect(refreshButton.parentElement).toBe(statusButton.parentElement);
     const siblings = Array.from(refreshButton.parentElement?.children ?? []);
-    expect(siblings.indexOf(refreshButton)).toBe(
-      siblings.indexOf(statusButton) - 1,
+    expect(siblings.indexOf(statusButton)).toBe(
+      siblings.indexOf(refreshButton) - 1,
     );
   });
 

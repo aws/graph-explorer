@@ -54,6 +54,7 @@ import {
   debugResetPersistenceStatus,
 } from "@/core/StateProvider/persistence";
 import { useDeleteActiveConfiguration } from "@/hooks/useDeleteConfig";
+import { useEdgeConnectionNotice } from "@/hooks/useEdgeConnectionNotice";
 import useEntitiesCounts from "@/hooks/useEntitiesCounts";
 import { useCancelSchemaSync, useSchemaSync } from "@/hooks/useSchemaSync";
 import useTranslations from "@/hooks/useTranslations";
@@ -244,12 +245,8 @@ function MainContentLayout(_props: { config: RawConfiguration }) {
 
 function LastSyncInfo() {
   const t = useTranslations();
-  const {
-    schemaDiscoveryQuery,
-    edgeDiscoveryQuery,
-    refreshSchema,
-    isFetching,
-  } = useSchemaSync();
+  const { schemaDiscoveryQuery, refreshSchema, isFetching } = useSchemaSync();
+  const { notice } = useEdgeConnectionNotice();
   const schema = useMaybeActiveSchema();
 
   if (isFetching) {
@@ -265,7 +262,7 @@ function LastSyncInfo() {
     );
   }
 
-  if (edgeDiscoveryQuery.error || schema?.lastEdgeConnectionSyncFail) {
+  if (notice?.kind === "failed") {
     return (
       <InfoItemValue className="inline">
         <span>{t("edge-connection")} Discovery Failed </span>

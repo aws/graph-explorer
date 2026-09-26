@@ -25,6 +25,8 @@ const buttonStyles = cva({
         "bg-danger-subtle text-danger-foreground hover:bg-danger-subtle-hover data-open:bg-danger-subtle-hover",
       "danger-ghost":
         "text-danger-foreground hover:bg-danger-subtle data-open:bg-danger-subtle",
+      "warning-ghost":
+        "text-warning-foreground hover:bg-warning-subtle data-open:bg-warning-subtle",
     },
     size: {
       small: "h-8 rounded-md px-3 text-sm [&_svg]:size-4",
