@@ -8,6 +8,7 @@ import {
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 
 import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
+import { DatabaseUnreachableError } from "./DatabaseUnreachableError";
 import { extractErrorMessage } from "./extractErrorMessage";
 import { FetchTimeoutError } from "./FetchTimeoutError";
 import { isCancellationError } from "./isCancellationError";
@@ -132,6 +133,14 @@ export function createDisplayError(error: any): DisplayError {
       title: "Connection Error",
       message:
         "The Graph Explorer server is not reachable from this page. It has usually stopped running, or this tab is stale. Reload the page and try again.",
+    };
+  }
+
+  if (error instanceof DatabaseUnreachableError) {
+    return {
+      title: "Database not reachable from the browser",
+      message:
+        "This direct connection sends requests from the browser, so the database must be running and allow cross-origin requests from this page. Check the database's CORS settings, or edit the connection and turn off connecting directly from the browser.",
     };
   }
 

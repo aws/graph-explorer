@@ -8,6 +8,7 @@ import {
 
 import { createErrorDetails } from "./createErrorDetails";
 import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
+import { DatabaseUnreachableError } from "./DatabaseUnreachableError";
 import { FetchTimeoutError } from "./FetchTimeoutError";
 import { NetworkError } from "./NetworkError";
 import { ServerConnectionError } from "./ServerConnectionError";
@@ -118,6 +119,28 @@ describe("createErrorDetails", () => {
           2,
         ),
       );
+    });
+  });
+
+  describe("DatabaseUnreachableError", () => {
+    it("includes the URL and cause in the data", () => {
+      const cause = new TypeError("Failed to fetch");
+      const error = new DatabaseUnreachableError(
+        "https://db.example.com:8182/gremlin",
+        cause,
+      );
+      expect(createErrorDetails(error)).toStrictEqual({
+        name: "DatabaseUnreachableError",
+        message: "Unable to reach the database from the browser",
+        data: JSON.stringify(
+          {
+            url: "https://db.example.com:8182/gremlin",
+            cause: { name: "TypeError", message: "Failed to fetch" },
+          },
+          null,
+          2,
+        ),
+      });
     });
   });
 

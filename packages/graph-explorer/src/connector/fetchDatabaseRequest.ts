@@ -4,6 +4,7 @@ import { isDirectConnection } from "@/core/StateProvider/configuration";
 import {
   databaseTimeoutCode,
   DatabaseTimeoutError,
+  DatabaseUnreachableError,
   FetchTimeoutError,
   logger,
   MissingDatabaseUrlError,
@@ -161,7 +162,9 @@ export async function fetchDatabaseRequest(
     }
 
     if (error instanceof TypeError) {
-      throw new ServerConnectionError(uri.href, error);
+      throw isDirectConnection(connection)
+        ? new DatabaseUnreachableError(uri.href, error)
+        : new ServerConnectionError(uri.href, error);
     }
     throw error;
   }

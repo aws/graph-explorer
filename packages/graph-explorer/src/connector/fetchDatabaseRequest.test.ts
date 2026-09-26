@@ -6,6 +6,7 @@ import {
   logger,
   MissingDatabaseUrlError,
   NetworkError,
+  DatabaseUnreachableError,
   ServerConnectionError,
 } from "@/utils";
 import { abortableFetch } from "@/utils/testing";
@@ -628,6 +629,26 @@ describe("fetchDatabaseRequest", () => {
       expect(error).toBeInstanceOf(ServerConnectionError);
       expect(error.url).toBe("http://localhost:8182/query");
       expect(error.cause).toBeInstanceOf(TypeError);
+    });
+
+    it("wraps failed to fetch on a direct connection in DatabaseUnreachableError", async () => {
+      const cause = new TypeError("Failed to fetch");
+      mockFetch.mockRejectedValue(cause);
+
+      const error = await fetchDatabaseRequest(
+        createConnection({ proxyConnection: false }),
+        featureFlags,
+        new URL("https://db.example.com:8182/gremlin"),
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(error).toStrictEqual(
+        new DatabaseUnreachableError(
+          "https://db.example.com:8182/gremlin",
+          cause,
+        ),
+      );
+      expect(error.cause).toBe(cause);
     });
 
     it("propagates abort errors", async () => {

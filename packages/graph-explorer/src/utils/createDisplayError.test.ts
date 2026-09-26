@@ -11,6 +11,7 @@ import { FileEnvelopeError } from "@/core/fileEnvelope";
 
 import { createDisplayError } from "./createDisplayError";
 import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
+import { DatabaseUnreachableError } from "./DatabaseUnreachableError";
 import { FetchTimeoutError } from "./FetchTimeoutError";
 import { MissingDatabaseUrlError } from "./MissingDatabaseUrlError";
 import { NetworkError } from "./NetworkError";
@@ -285,6 +286,20 @@ describe("createDisplayError", () => {
       title: "Connection Error",
       message:
         "The Graph Explorer server is not reachable from this page. It has usually stopped running, or this tab is stale. Reload the page and try again.",
+    });
+  });
+
+  it("Should explain a direct connection the browser couldn't reach", () => {
+    const result = createDisplayError(
+      new DatabaseUnreachableError(
+        "https://db.example.com:8182/gremlin",
+        new TypeError("Failed to fetch"),
+      ),
+    );
+    expect(result).toStrictEqual({
+      title: "Database not reachable from the browser",
+      message:
+        "This direct connection sends requests from the browser, so the database must be running and allow cross-origin requests from this page. Check the database's CORS settings, or edit the connection and turn off connecting directly from the browser.",
     });
   });
 
