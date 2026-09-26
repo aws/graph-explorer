@@ -142,7 +142,7 @@ export function createDisplayError(error: any): DisplayError {
     return {
       title: "Database not reachable from the browser",
       message:
-        "This direct connection sends requests from the browser, so the database must be running and allow cross-origin requests from this page. Check the database's CORS settings, or edit the connection and turn off connecting directly from the browser.",
+        "This direct connection sends requests from the browser, so the database must be running at the Database URL and allow cross-origin requests from this page. Check the URL and the database's CORS settings, or edit the connection and turn off connecting directly from the browser.",
     };
   }
 
