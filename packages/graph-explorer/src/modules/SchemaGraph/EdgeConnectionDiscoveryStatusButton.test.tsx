@@ -64,7 +64,7 @@ describe("EdgeConnectionDiscoveryStatusButton", () => {
     return state;
   }
 
-  test("shows the error title, recovery text, Error Details, and Retry in the popover when discovery rejects", async () => {
+  test("shows the failure and its recovery text, without a repeated title or generic next step, plus Error Details and Retry", async () => {
     const cause = new Error("Query timed out");
     const error = new EdgeConnectionDiscoveryError(
       {
@@ -89,10 +89,18 @@ describe("EdgeConnectionDiscoveryStatusButton", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("Could not discover edge connections"),
+        screen.getByText("Could not discover Relationships"),
       ).toBeInTheDocument();
     });
-    expect(screen.getByText(new RegExp(error.recovery))).toBeInTheDocument();
+    expect(
+      screen.getByText(`${error.message} ${error.recovery}`),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("Could not discover edge connections"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Node types are still shown/),
+    ).not.toBeInTheDocument();
     // Both actions share a size so the popover's buttons line up.
     expect(
       screen.getByRole("button", { name: /error details/i }),
@@ -130,7 +138,7 @@ describe("EdgeConnectionDiscoveryStatusButton", () => {
     await user.click(button);
     await waitFor(() => {
       expect(
-        screen.getByText("Could not discover edge connections"),
+        screen.getByText("Could not discover Relationships"),
       ).toBeInTheDocument();
     });
     await user.click(screen.getByRole("button", { name: /retry/i }));
@@ -219,6 +227,11 @@ describe("EdgeConnectionDiscoveryStatusButton", () => {
     await waitFor(() => {
       expect(screen.getByText("Connection refused")).toBeInTheDocument();
     });
+    expect(
+      screen.getByText(
+        "Node types are still shown. Retry, or open Error Details to see the full error.",
+      ),
+    ).toBeInTheDocument();
   });
 
   test("shows the not-discovered button with a Synchronize action in the popover before discovery has ever completed", async () => {

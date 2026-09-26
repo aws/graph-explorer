@@ -16,6 +16,7 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components";
+import { EdgeConnectionDiscoveryError } from "@/connector/gremlin/fetchEdgeConnections/discoveryError";
 import { useEdgeConnectionNotice } from "@/hooks/useEdgeConnectionNotice";
 import useTranslations from "@/hooks/useTranslations";
 import { createDisplayError } from "@/utils/createDisplayError";
@@ -96,6 +97,13 @@ function describeFailure(error: Error | null): FailureDescription {
   }
 
   const displayError = createDisplayError(error);
+
+  // Its title restates the popover's, and its message already ends with what
+  // to change and that node types are still shown.
+  if (error instanceof EdgeConnectionDiscoveryError) {
+    return { lead: null, message: displayError.message, nextStep: null };
+  }
+
   return {
     lead: displayError.title,
     message: displayError.message,
