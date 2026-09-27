@@ -5,6 +5,7 @@ import {
 } from "@tanstack/react-query";
 
 import {
+  InvalidDatabaseUrlError,
   logger,
   MissingDatabaseUrlError,
   NetworkError,
@@ -55,7 +56,8 @@ export function shouldRetryQuery(failureCount: number, error: Error): boolean {
   }
   if (
     error instanceof ReverseProxyMisconfiguredError ||
-    error instanceof MissingDatabaseUrlError
+    error instanceof MissingDatabaseUrlError ||
+    error instanceof InvalidDatabaseUrlError
   ) {
     return false;
   }

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { MissingDatabaseUrlError } from "@/utils";
+import { InvalidDatabaseUrlError, MissingDatabaseUrlError } from "@/utils";
 
 import { createQueryClient, shouldRetryQuery } from "./queryClient";
 import { getAppStore } from "./StateProvider/appStore";
@@ -36,5 +36,11 @@ describe("createQueryClient", () => {
   // Thrown before any request, so a retry can only fail the same way
   test("should not retry a connection with no database URL", () => {
     expect(shouldRetryQuery(0, new MissingDatabaseUrlError())).toBe(false);
+  });
+
+  test("should not retry a direct connection with an invalid database URL", () => {
+    expect(shouldRetryQuery(0, new InvalidDatabaseUrlError("/neptune"))).toBe(
+      false,
+    );
   });
 });
