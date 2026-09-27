@@ -419,14 +419,26 @@ describe("process-environment.sh", () => {
       });
     });
 
-    it("resolves to a proxied GRAPH_CONNECTION_URL when USING_PROXY_SERVER is unset and GRAPH_CONNECTION_URL is set", () => {
+    it("resolves to a proxied GRAPH_CONNECTION_URL when USING_PROXY_SERVER is unset and only GRAPH_CONNECTION_URL is set", () => {
       const { defaultConnection } = runScript(workDir, {
         GRAPH_CONNECTION_URL: "https://db:8182",
-        PUBLIC_OR_PROXY_ENDPOINT: "https://ignored:9250",
       });
       expect(defaultConnection).toMatchObject({
         GRAPH_EXP_CONNECTION_URL: "https://db:8182",
         GRAPH_EXP_USING_PROXY_SERVER: true,
+      });
+    });
+
+    // Earlier versions treated an unset USING_PROXY_SERVER as false, so a
+    // deployment that sets both URLs keeps its direct Default Connection.
+    it("resolves to a direct PUBLIC_OR_PROXY_ENDPOINT when USING_PROXY_SERVER is unset and both URLs are set", () => {
+      const { defaultConnection } = runScript(workDir, {
+        GRAPH_CONNECTION_URL: "https://db:8182",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+      });
+      expect(defaultConnection).toStrictEqual({
+        GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
       });
     });
 
