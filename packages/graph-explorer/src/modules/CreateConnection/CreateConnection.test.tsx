@@ -278,6 +278,48 @@ describe("CreateConnection", () => {
       });
       expect(savedConnection?.connection).not.toHaveProperty("proxyConnection");
     });
+
+    test("saves an existing direct connection back to a proxy connection when unchecked", async () => {
+      const user = userEvent.setup();
+      const config = {
+        ...createRandomRawConfiguration(),
+        connection: {
+          graphDbUrl: "https://database.example.com:8182",
+          proxyConnection: false,
+        },
+      };
+      const store = renderCreateConnection(
+        <CreateConnection
+          existingConfig={{
+            ...mergeConfiguration(null, config, new Map(), new Map()),
+            totalVertices: 0,
+            vertexTypes: [],
+            totalEdges: 0,
+            edgeTypes: [],
+          }}
+          onClose={vi.fn()}
+        />,
+      );
+      store.set(configurationAtom, new Map([[config.id, config]]));
+
+      expect(
+        screen.getByRole("button", { name: "Advanced options" }),
+      ).toHaveAttribute("aria-expanded", "true");
+      expect(screen.getByRole("checkbox", directOption)).toBeChecked();
+
+      await user.click(screen.getByRole("checkbox", directOption));
+
+      expect(
+        screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
+      ).toBeInTheDocument();
+
+      await user.click(
+        screen.getByRole("button", { name: "Update Connection" }),
+      );
+
+      const savedConnection = store.get(configurationAtom).get(config.id);
+      expect(savedConnection?.connection).not.toHaveProperty("proxyConnection");
+    });
   });
 
   test("labels the override field Neighbor Expansion Limit", async () => {
