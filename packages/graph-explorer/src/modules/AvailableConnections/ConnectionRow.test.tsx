@@ -155,7 +155,9 @@ describe("ConnectionRow", () => {
       },
     });
 
-    expect(screen.getByText(/• Direct$/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/ • Direct • https:\/\/my-neptune:8182$/),
+    ).toBeInTheDocument();
   });
 
   test("does not mark a proxy connection as direct", () => {
@@ -165,6 +167,6 @@ describe("ConnectionRow", () => {
     });
 
     expect(screen.getByText(/my-neptune:8182/)).toBeInTheDocument();
-    expect(screen.queryByText(/• Direct$/)).toBeNull();
+    expect(screen.queryByText(/• Direct •/)).toBeNull();
   });
 });
