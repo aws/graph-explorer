@@ -146,7 +146,7 @@ describe("ConnectionRow", () => {
     );
   }
 
-  test("marks a direct connection as deprecated", () => {
+  test("shows Direct ahead of the URL for a direct connection", () => {
     renderRow({
       ...createRandomRawConfiguration(),
       connection: {
@@ -166,7 +166,9 @@ describe("ConnectionRow", () => {
       connection: { graphDbUrl: "https://my-neptune:8182" },
     });
 
-    expect(screen.getByText(/my-neptune:8182/)).toBeInTheDocument();
-    expect(screen.queryByText(/• Direct •/)).toBeNull();
+    expect(
+      screen.getByText(/^PG-Gremlin • https:\/\/my-neptune:8182$/),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Direct/)).toBeNull();
   });
 });
