@@ -159,7 +159,7 @@ To fix it, either configure the database to allow cross-origin requests from the
 
 ## Reverse proxy misconfigured
 
-This error appears on the first database request after the app loads, not during schema sync, because the client resolves the API root from its own path as soon as it needs it.
+This error appears as soon as the app first calls the Graph Explorer server: on page load when there are no saved connections, otherwise on the first schema sync or query. The client resolves the API root from its own path as soon as it needs it.
 
 Graph Explorer works behind a reverse proxy at any prefix depth, and the prefix can even contain the word "explorer" without conflict, as long as the proxy strips the prefix and forwards the rest of the path unchanged, including the client's own `/explorer` segment. For example, an nginx rule mapping `/gx/` onto the server looks like:
 
