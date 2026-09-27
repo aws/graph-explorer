@@ -226,7 +226,10 @@ describe("createGremlinExplorer", () => {
       );
       await explorer.rawQuery({ query: "g.V().limit(10)" });
 
-      expect(headersSentTo("https://my-neptune:8182/gremlin")).toStrictEqual({
+      const [, options] = mockFetch.mock.calls.find(
+        ([url]) => url.toString() === "https://my-neptune:8182/gremlin",
+      )!;
+      expect(normalizeHeaders(options.headers)).toStrictEqual({
         "content-type": "application/json",
         accept: "application/vnd.gremlin-v3.0+json",
       });
