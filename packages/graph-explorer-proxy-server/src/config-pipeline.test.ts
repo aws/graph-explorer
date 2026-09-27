@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 
-import { parseEnvironmentValues } from "./env.ts";
+import { type EnvironmentValues, parseEnvironmentValues } from "./env.ts";
 import { proxyServerRoot } from "./paths.ts";
 import { resolveServerConfig, ServerConfigError } from "./server-config.ts";
 import {
@@ -27,9 +27,11 @@ const conflictMessage =
   "(from -e flags or config.json) to run under the notebook preset, " +
   "or set NEPTUNE_NOTEBOOK to false to run with TLS.";
 
+type LogStyle = EnvironmentValues["LOG_STYLE"];
+
 /** What the server does at startup. */
 type StartupOutcome =
-  | { useHttps: boolean; port: number }
+  | { useHttps: boolean; port: number; logStyle: LogStyle }
   /** The environment failed to parse. Holds the text logged to stderr. */
   | { parseError: string }
   | { serverConfigError: string };
@@ -114,8 +116,8 @@ function readFolder(folder: string) {
   );
 }
 
-const https = { useHttps: true, port: 443 };
-const http = { useHttps: false, port: 80 };
+const https = { useHttps: true, port: 443, logStyle: "default" } as const;
+const http = { useHttps: false, port: 80, logStyle: "default" } as const;
 
 const standardTls = {
   envFile: {
@@ -144,7 +146,7 @@ const notebookPreset = {
     LOG_STYLE: "cloudwatch",
   },
   certificatesGenerated: false,
-  startup: { useHttps: false, port: 9250 },
+  startup: { useHttps: false, port: 9250, logStyle: "cloudwatch" },
 };
 const notebookConflict = {
   envFile: {
@@ -180,7 +182,7 @@ const deployments: Deployment[] = [
       PROXY_SERVER_HTTPS_CONNECTION: "false",
       PROXY_SERVER_HTTP_PORT: "8080",
     },
-    expected: { ...standardHttp, startup: { useHttps: false, port: 8080 } },
+    expected: { ...standardHttp, startup: { ...http, port: 8080 } },
   },
   {
     name: "PROXY_SERVER_HTTP_PORT=8080 already in .env and HTTPS off serves HTTP on 8080",
@@ -189,7 +191,7 @@ const deployments: Deployment[] = [
     expected: {
       envFile: { PROXY_SERVER_HTTP_PORT: "8080", ...standardHttp.envFile },
       certificatesGenerated: false,
-      startup: { useHttps: false, port: 8080 },
+      startup: { ...http, port: 8080 },
     },
   },
   {
@@ -252,7 +254,7 @@ const deployments: Deployment[] = [
         GRAPH_EXP_HTTPS_CONNECTION: "false",
         LOG_STYLE: "cloudwatch",
       },
-      startup: { useHttps: false, port: 8080 },
+      startup: { ...notebookPreset.startup, port: 8080 },
     },
   },
   {
@@ -270,6 +272,12 @@ const deployments: Deployment[] = [
       PROXY_SERVER_HTTPS_CONNECTION: "false",
     },
     expected: notebookPreset,
+  },
+  {
+    // The sagemaker-* tags are aliases of the standard image, which bakes no
+    // preset, so the notebook defaults need NEPTUNE_NOTEBOOK=true.
+    name: "a sagemaker-* tag run without NEPTUNE_NOTEBOOK starts like the standard image with TLS on 443 and default logs",
+    expected: standardTls,
   },
   {
     name: "-e NEPTUNE_NOTEBOOK=false defaults to TLS",
@@ -540,10 +548,9 @@ function startupOutcome(
   });
 
   try {
-    const { useHttps, port } = resolveServerConfig(
-      parseEnvironmentValues(serverEnv),
-    );
-    return { useHttps, port };
+    const environment = parseEnvironmentValues(serverEnv);
+    const { useHttps, port } = resolveServerConfig(environment);
+    return { useHttps, port, logStyle: environment.LOG_STYLE };
   } catch (error) {
     if (error === exitSignal) {
       return { parseError: errorSpy.mock.calls.join("\n") };
