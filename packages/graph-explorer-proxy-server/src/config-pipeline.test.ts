@@ -195,6 +195,24 @@ const deployments: Deployment[] = [
     },
   },
   {
+    // Earlier images set LOG_STYLE in their ENV, which beat a mounted .env.
+    name: "LOG_STYLE=cloudwatch already in .env logs in the cloudwatch style",
+    existingEnvFile: { LOG_STYLE: "cloudwatch" },
+    expected: {
+      envFile: { LOG_STYLE: "cloudwatch", ...standardTls.envFile },
+      certificatesGenerated: true,
+      startup: { ...https, logStyle: "cloudwatch" },
+    },
+  },
+  {
+    // The preset's appended line comes after the mounted one, and the last
+    // line in .env wins.
+    name: "notebook preset with PROXY_SERVER_HTTP_PORT=8080 already in .env serves HTTP on 9250",
+    existingEnvFile: { PROXY_SERVER_HTTP_PORT: "8080" },
+    dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
+    expected: notebookPreset,
+  },
+  {
     name: "-e PROXY_SERVER_HTTPS_CONNECTION=true serves TLS",
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
     expected: standardTls,

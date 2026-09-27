@@ -324,7 +324,7 @@ describe("process-environment.sh", () => {
       expect(defaultConnection).toHaveProperty("GRAPH_EXP_IAM", false);
     });
 
-    it("contains exactly the expected keys when all values provided", () => {
+    it("contains exactly the expected values when all values provided", () => {
       const { defaultConnection } = runScript(workDir, {
         GRAPH_CONNECTION_URL: "https://db:8182",
         SERVICE_TYPE: "neptune-db",
@@ -333,14 +333,14 @@ describe("process-environment.sh", () => {
         AWS_REGION: "us-east-1",
       });
 
-      expect(Object.keys(defaultConnection!).sort()).toEqual([
-        "GRAPH_EXP_AWS_REGION",
-        "GRAPH_EXP_CONNECTION_URL",
-        "GRAPH_EXP_GRAPH_TYPE",
-        "GRAPH_EXP_IAM",
-        "GRAPH_EXP_SERVICE_TYPE",
-        "GRAPH_EXP_USING_PROXY_SERVER",
-      ]);
+      expect(defaultConnection).toStrictEqual({
+        GRAPH_EXP_CONNECTION_URL: "https://db:8182",
+        GRAPH_EXP_GRAPH_TYPE: "gremlin",
+        GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+        GRAPH_EXP_IAM: true,
+        GRAPH_EXP_AWS_REGION: "us-east-1",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      });
     });
 
     it("marks a GRAPH_CONNECTION_URL connection as proxied", () => {
@@ -384,17 +384,38 @@ describe("process-environment.sh", () => {
       });
     });
 
-    it("resolves to GRAPH_CONNECTION_URL when all three legacy variables are set together, matching the SageMaker notebook's real environment", () => {
+    // The variables install-graph-explorer-lc.sh passes to `docker run`.
+    it("resolves to a proxied IAM GRAPH_CONNECTION_URL for the SageMaker lifecycle script's environment", () => {
       const { defaultConnection } = runScript(workDir, {
-        USING_PROXY_SERVER: "true",
-        PROXY_SERVER_HTTPS_CONNECTION: "false",
+        LOG_LEVEL: "debug",
+        HOST: "127.0.0.1",
         PUBLIC_OR_PROXY_ENDPOINT: "https://notebook.sagemaker.aws/proxy/9250",
         GRAPH_CONNECTION_URL: "https://neptune-cluster:8182",
+        USING_PROXY_SERVER: "true",
+        IAM: "true",
+        AWS_REGION: "us-west-2",
+        SERVICE_TYPE: "neptune-db",
+        PROXY_SERVER_HTTPS_CONNECTION: "false",
+        NEPTUNE_NOTEBOOK: "true",
       });
-      expect(defaultConnection).toHaveProperty(
-        "GRAPH_EXP_CONNECTION_URL",
-        "https://neptune-cluster:8182",
-      );
+      expect(defaultConnection).toStrictEqual({
+        GRAPH_EXP_CONNECTION_URL: "https://neptune-cluster:8182",
+        GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+        GRAPH_EXP_IAM: true,
+        GRAPH_EXP_AWS_REGION: "us-west-2",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      });
+    });
+
+    it("resolves to a proxied GRAPH_CONNECTION_URL when USING_PROXY_SERVER=true and PUBLIC_OR_PROXY_ENDPOINT is unset", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "true",
+        GRAPH_CONNECTION_URL: "https://db:8182",
+      });
+      expect(defaultConnection).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: "https://db:8182",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      });
     });
 
     it("resolves to a direct PUBLIC_OR_PROXY_ENDPOINT when USING_PROXY_SERVER=false and GRAPH_CONNECTION_URL is unset", () => {
@@ -471,6 +492,18 @@ describe("process-environment.sh", () => {
         PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
       });
       expect(defaultConnection).toBeNull();
+    });
+
+    it("resolves a mixed-case USING_PROXY_SERVER=True to a proxied GRAPH_CONNECTION_URL", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "True",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+        GRAPH_CONNECTION_URL: "https://db:8182",
+      });
+      expect(defaultConnection).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: "https://db:8182",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      });
     });
 
     it("resolves through config.json as well as through environment variables", () => {
