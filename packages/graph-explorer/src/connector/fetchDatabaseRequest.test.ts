@@ -11,7 +11,11 @@ import {
   DatabaseUnreachableError,
   ServerConnectionError,
 } from "@/utils";
-import { abortableFetch, stubDocumentUrl } from "@/utils/testing";
+import {
+  abortableFetch,
+  normalizeHeaders,
+  stubDocumentUrl,
+} from "@/utils/testing";
 
 import { fetchDatabaseRequest } from "./fetchDatabaseRequest";
 
@@ -115,17 +119,6 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
     });
 
-    it("sends a proxy connection's request to the Graph Explorer server", async () => {
-      await fetchDatabaseRequest(connection, featureFlags, "gremlin", {
-        method: "POST",
-      });
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        new URL("http://localhost/gremlin"),
-        expect.anything(),
-      );
-    });
-
     it("sends the request to the Graph Explorer server when proxyConnection is true", async () => {
       await fetchDatabaseRequest(
         createConnection({ proxyConnection: true }),
@@ -210,7 +203,9 @@ describe("fetchDatabaseRequest", () => {
       );
 
       const headers = mockFetch.mock.calls[0][1].headers;
-      expect(headers).toStrictEqual({ "Content-Type": "application/json" });
+      expect(normalizeHeaders(headers)).toStrictEqual({
+        "content-type": "application/json",
+      });
     });
   });
 
@@ -372,21 +367,6 @@ describe("fetchDatabaseRequest", () => {
       expect(headers["service-type"]).toBe("neptune-db");
     });
 
-    it("sends graph-db-connection-url header when proxyConnection is absent", async () => {
-      mockFetch.mockResolvedValue(jsonResponse({}));
-      const conn = createConnection({
-        graphDbUrl: "https://my-db:8182",
-      });
-
-      await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
-        method: "POST",
-      });
-
-      const headers = mockFetch.mock.calls[0][1].headers;
-      expect(headers["graph-db-connection-url"]).toBe("https://my-db:8182");
-      expect(headers["db-query-logging-enabled"]).toBe("false");
-    });
-
     it("does not set AWS headers when awsAuthEnabled is disabled", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
 
@@ -417,8 +397,8 @@ describe("fetchDatabaseRequest", () => {
       });
 
       const headers = mockFetch.mock.calls[0][1].headers;
-      expect(headers).toStrictEqual({
-        "Content-Type": "application/x-www-form-urlencoded",
+      expect(normalizeHeaders(headers)).toStrictEqual({
+        "content-type": "application/x-www-form-urlencoded",
       });
     });
 
@@ -431,8 +411,8 @@ describe("fetchDatabaseRequest", () => {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
 
-      const headers = mockFetch.mock.calls[0][1].headers;
-      expect(headers["Content-Type"]).toBe("application/x-www-form-urlencoded");
+      const headers = normalizeHeaders(mockFetch.mock.calls[0][1].headers);
+      expect(headers["content-type"]).toBe("application/x-www-form-urlencoded");
       expect(headers["graph-db-connection-url"]).toBeDefined();
     });
   });

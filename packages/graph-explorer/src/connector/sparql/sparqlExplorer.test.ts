@@ -2,7 +2,11 @@
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
 import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
-import { abortableFetch, stubDocumentUrl } from "@/utils/testing";
+import {
+  abortableFetch,
+  normalizeHeaders,
+  stubDocumentUrl,
+} from "@/utils/testing";
 
 import { createSparqlExplorer } from "./sparqlExplorer";
 
@@ -185,15 +189,13 @@ describe("createSparqlExplorer", () => {
       );
       await explorer.keywordSearch({ searchTerm: "person" });
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        new URL("https://my-neptune:8182/sparql"),
-        expect.objectContaining({
-          headers: {
-            accept: "application/sparql-results+json",
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        }),
-      );
+      const [, options] = mockFetch.mock.calls.find(
+        ([url]) => url.toString() === "https://my-neptune:8182/sparql",
+      )!;
+      expect(normalizeHeaders(options.headers)).toStrictEqual({
+        accept: "application/sparql-results+json",
+        "content-type": "application/x-www-form-urlencoded",
+      });
     });
 
     it("requests a direct connection's summary from the database", async () => {

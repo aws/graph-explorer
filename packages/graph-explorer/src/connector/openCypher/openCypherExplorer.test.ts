@@ -2,7 +2,11 @@
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
 import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
-import { abortableFetch, stubDocumentUrl } from "@/utils/testing";
+import {
+  abortableFetch,
+  normalizeHeaders,
+  stubDocumentUrl,
+} from "@/utils/testing";
 
 import { createOpenCypherExplorer } from "./openCypherExplorer";
 
@@ -179,12 +183,12 @@ describe("createOpenCypherExplorer", () => {
       );
       await explorer.rawQuery({ query: "MATCH (n) RETURN n LIMIT 10" });
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        new URL("https://my-neptune:8182/openCypher"),
-        expect.objectContaining({
-          headers: { "Content-Type": "application/json" },
-        }),
-      );
+      const [, options] = mockFetch.mock.calls.find(
+        ([url]) => url.toString() === "https://my-neptune:8182/openCypher",
+      )!;
+      expect(normalizeHeaders(options.headers)).toStrictEqual({
+        "content-type": "application/json",
+      });
     });
 
     it("requests a direct connection's summary from the database", async () => {

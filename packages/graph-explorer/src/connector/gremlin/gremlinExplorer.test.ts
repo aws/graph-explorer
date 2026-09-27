@@ -2,7 +2,11 @@
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
 import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
-import { abortableFetch, stubDocumentUrl } from "@/utils/testing";
+import {
+  abortableFetch,
+  normalizeHeaders,
+  stubDocumentUrl,
+} from "@/utils/testing";
 
 import { createGremlinExplorer } from "./gremlinExplorer";
 
@@ -184,15 +188,13 @@ describe("createGremlinExplorer", () => {
       );
       await explorer.rawQuery({ query: "g.V().limit(10)" });
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        new URL("https://my-neptune:8182/gremlin"),
-        expect.objectContaining({
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/vnd.gremlin-v3.0+json",
-          },
-        }),
-      );
+      const [, options] = mockFetch.mock.calls.find(
+        ([url]) => url.toString() === "https://my-neptune:8182/gremlin",
+      )!;
+      expect(normalizeHeaders(options.headers)).toStrictEqual({
+        "content-type": "application/json",
+        accept: "application/vnd.gremlin-v3.0+json",
+      });
     });
 
     it("requests a direct connection's summary from the database", async () => {
