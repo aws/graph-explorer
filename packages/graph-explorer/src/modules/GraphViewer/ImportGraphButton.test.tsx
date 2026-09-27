@@ -6,11 +6,11 @@ import { ZodError } from "zod";
 
 import type { RawConfiguration } from "@/core";
 
-import { transformConfiguration } from "@/core/StateProvider/configurationTransform";
 import {
   createRandomExportedGraphConnection,
   createRandomFile,
   createRandomRawConfiguration,
+  preloadStoredConfiguration,
 } from "@/utils/testing";
 
 import {
@@ -105,7 +105,7 @@ describe("createErrorNotification", () => {
   // `url`/`proxyConnection` connection to `graphDbUrl` before
   // `useImportGraphMutation` reads it, so matching against a pre-upgrade
   // connection still finds it instead of reporting no match.
-  it("should show the connection name when a match is found via a legacy stored connection", () => {
+  it("should show the connection name when a match is found via a legacy stored connection", async () => {
     const legacyConfig: RawConfiguration = {
       ...createRandomRawConfiguration(),
       // Stored data is not schema-validated on read, so an entry can carry a
@@ -115,9 +115,8 @@ describe("createErrorNotification", () => {
         proxyConnection: false,
       } as LegacyConnectionConfig as RawConfiguration["connection"],
     };
-    const [migratedConfig] = transformConfiguration(
-      new Map([[legacyConfig.id, legacyConfig]]),
-    ).values();
+    const migratedConfig = await preloadStoredConfiguration(legacyConfig);
+    expect.assert(migratedConfig);
 
     const allConnections = createRandomAllConnections();
     allConnections[0] = {

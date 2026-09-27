@@ -1,16 +1,15 @@
 import type { LegacyConnectionConfig } from "@shared/types";
 
-import { createStore } from "jotai";
-import localforage from "localforage";
-
-import { createRandomRawConfiguration } from "@/utils/testing";
+import {
+  createRandomRawConfiguration,
+  preloadStoredConfiguration,
+} from "@/utils/testing";
 
 import type {
   ConfigurationId,
   RawConfiguration,
 } from "../ConfigurationProvider";
 
-import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
 import { transformConfiguration } from "./configurationTransform";
 
 function configWithLegacyConnection(
@@ -139,32 +138,29 @@ describe("transformConfiguration", () => {
  * can still carry the legacy `url`/`proxyConnection` shape.
  */
 describe("backward compatibility: legacy connection shape in storage", () => {
-  beforeEach(async () => {
-    await localforage.clear();
-  });
-
-  test("migrates a stored legacy connection through the full atomWithLocalForage pipeline", async () => {
-    const key = "test-configuration-legacy-compat";
+  test("migrates a direct connection saved by an earlier version's form when the real configuration atom preloads", async () => {
+    // An earlier version's form always saved the flag and the IAM fields,
+    // even for a direct connection.
     const config = configWithLegacyConnection({
       url: "https://my-neptune:8182",
       proxyConnection: false,
+      graphDbUrl: "",
+      awsAuthEnabled: false,
+      awsRegion: "",
+      serviceType: "neptune-db",
+      queryEngine: "gremlin",
+      fetchTimeoutMs: 30000,
+      nodeExpansionLimit: 25,
     });
 
-    await localforage.setItem(key, configMap(config));
+    const stored = await preloadStoredConfiguration(config);
 
-    const atom = await atomWithLocalForage<
-      Map<ConfigurationId, RawConfiguration>
-    >(key, new Map(), {
-      reconcile: reconcileMapByKey,
-      transform: transformConfiguration,
-    });
-
-    const store = createStore();
-    const value = store.get(atom);
-
-    expect(value.get(config.id)?.connection).toStrictEqual({
+    expect(stored?.connection).toStrictEqual({
       graphDbUrl: "https://my-neptune:8182",
       proxyConnection: false,
+      queryEngine: "gremlin",
+      fetchTimeoutMs: 30000,
+      nodeExpansionLimit: 25,
     });
   });
 });

@@ -11,6 +11,7 @@ export * from "./normalize";
 export * from "./normalizeHeaders";
 export * from "./ocHelpers";
 export * from "./persistence";
+export * from "./preloadStoredConfiguration";
 export * from "./randomData";
 export * from "./randomSchemaResponse";
 export * from "./renderHookWithJotai";

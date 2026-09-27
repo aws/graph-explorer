@@ -15,10 +15,10 @@ import {
   toNodeMap,
 } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
-import { transformConfiguration } from "@/core/StateProvider/configurationTransform";
 import {
   createRandomRawConfiguration,
   createRandomVertex,
+  preloadStoredConfiguration,
 } from "@/utils/testing";
 import { TestProvider } from "@/utils/testing";
 
@@ -100,7 +100,7 @@ describe("ConnectionRow", () => {
   // Regression: `configurationAtom`'s read-time transform migrates a legacy
   // `url`/`proxyConnection` connection to `graphDbUrl` before any consumer
   // sees it, so a row for a pre-upgrade connection still shows its endpoint.
-  test("renders the endpoint for a legacy stored connection", () => {
+  test("renders the endpoint for a legacy stored connection", async () => {
     const store = getAppStore();
     const legacyConfig = {
       ...createRandomRawConfiguration(),
@@ -111,9 +111,8 @@ describe("ConnectionRow", () => {
         proxyConnection: false,
       } as LegacyConnectionConfig as RawConfiguration["connection"],
     };
-    const [connection] = transformConfiguration(
-      new Map([[legacyConfig.id, legacyConfig]]),
-    ).values();
+    const connection = await preloadStoredConfiguration(legacyConfig);
+    expect.assert(connection);
 
     const queryClient = createQueryClient();
 
