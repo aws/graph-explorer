@@ -497,7 +497,7 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
     expect(mockResetState).toHaveBeenCalledOnce();
   });
 
-  test("should migrate a legacy connection file with proxyConnection true, preferring graphDbUrl over url", async () => {
+  test("should migrate a legacy connection file with proxyConnection true, preferring graphDbUrl over url and keeping IAM", async () => {
     const state = new DbState();
     const { result } = renderHookWithState(
       () => useImportConnectionFile(),
@@ -516,6 +516,9 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
         graphDbUrl,
         proxyConnection: true,
         queryEngine: "gremlin" as const,
+        awsAuthEnabled: true,
+        awsRegion: "us-east-1",
+        serviceType: "neptune-db" as const,
       },
       schema: {
         totalVertices: 0,
@@ -534,9 +537,13 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
     });
 
     const { config } = getImportedConnection();
-    expect(config.connection?.graphDbUrl).toBe(graphDbUrl);
-    expect(config.connection).not.toHaveProperty("url");
-    expect(config.connection).not.toHaveProperty("proxyConnection");
+    expect(config.connection).toStrictEqual({
+      graphDbUrl,
+      queryEngine: "gremlin",
+      awsAuthEnabled: true,
+      awsRegion: "us-east-1",
+      serviceType: "neptune-db",
+    });
     expect(mockResetState).toHaveBeenCalledOnce();
   });
 
@@ -575,9 +582,10 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
     });
 
     const { config } = getImportedConnection();
-    expect(config.connection?.graphDbUrl).toBe(graphDbUrl);
-    expect(config.connection).not.toHaveProperty("url");
-    expect(config.connection).not.toHaveProperty("proxyConnection");
+    expect(config.connection).toStrictEqual({
+      graphDbUrl,
+      queryEngine: "gremlin",
+    });
     expect(mockResetState).toHaveBeenCalledOnce();
   });
 

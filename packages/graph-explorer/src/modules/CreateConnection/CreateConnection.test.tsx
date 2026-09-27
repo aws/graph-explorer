@@ -8,14 +8,26 @@ import { describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
 import {
+  allGraphSessionsAtom,
   type ConfigurationContextProps,
   configurationAtom,
   createNewConfigurationId,
   getAppStore,
+  type RawConfiguration,
+  schemaAtom,
 } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
-import { mergeConfiguration } from "@/core/StateProvider/configuration";
-import { createRandomRawConfiguration, TestProvider } from "@/utils/testing";
+import {
+  mergeConfiguration,
+  transformLegacyConnection,
+} from "@/core/StateProvider/configuration";
+import {
+  createRandomEdgeId,
+  createRandomRawConfiguration,
+  createRandomSchema,
+  createRandomVertexId,
+  TestProvider,
+} from "@/utils/testing";
 
 import CreateConnection, { mapToConnectionForm } from "./CreateConnection";
 
@@ -319,6 +331,76 @@ describe("CreateConnection", () => {
 
       const savedConnection = store.get(configurationAtom).get(config.id);
       expect(savedConnection?.connection).not.toHaveProperty("proxyConnection");
+    });
+  });
+
+  /**
+   * BACKWARD COMPATIBILITY — EDITING A CONNECTION STORED BY AN EARLIER VERSION
+   *
+   * An earlier version stored a proxied connection with `url` holding the
+   * proxy and `graphDbUrl` the database. The edit dialog sees it after the
+   * read transform, so saving it unchanged must not look like a new database
+   * and throw away its schema and graph session.
+   */
+  describe("saving a proxied connection stored by an earlier version", () => {
+    function renderUpgradedConnection() {
+      const config: RawConfiguration = {
+        ...createRandomRawConfiguration(),
+        connection: transformLegacyConnection({
+          url: "https://proxy.example.com",
+          proxyConnection: true,
+          graphDbUrl: "https://database.example.com:8182",
+          queryEngine: "gremlin",
+        }),
+      };
+      const store = renderCreateConnection(
+        <CreateConnection
+          existingConfig={{
+            ...mergeConfiguration(null, config, new Map(), new Map()),
+            totalVertices: 0,
+            vertexTypes: [],
+            totalEdges: 0,
+            edgeTypes: [],
+          }}
+          onClose={vi.fn()}
+        />,
+      );
+      const schema = createRandomSchema();
+      const session = {
+        vertices: new Set([createRandomVertexId()]),
+        edges: new Set([createRandomEdgeId()]),
+      };
+      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(schemaAtom, new Map([[config.id, schema]]));
+      store.set(allGraphSessionsAtom, new Map([[config.id, session]]));
+      return { store, config, schema, session };
+    }
+
+    test("keeps the schema and graph session when saved unchanged", async () => {
+      const user = userEvent.setup();
+      const { store, config, schema, session } = renderUpgradedConnection();
+
+      await user.click(
+        screen.getByRole("button", { name: "Update Connection" }),
+      );
+
+      expect(store.get(schemaAtom).get(config.id)).toBe(schema);
+      expect(store.get(allGraphSessionsAtom).get(config.id)).toBe(session);
+    });
+
+    test("clears the schema and graph session when the Database URL changes", async () => {
+      const user = userEvent.setup();
+      const { store, config } = renderUpgradedConnection();
+
+      const databaseUrl = screen.getByRole("textbox", { name: "Database URL" });
+      await user.clear(databaseUrl);
+      await user.type(databaseUrl, "https://other-database.example.com:8182");
+      await user.click(
+        screen.getByRole("button", { name: "Update Connection" }),
+      );
+
+      expect(store.get(schemaAtom).has(config.id)).toBe(false);
+      expect(store.get(allGraphSessionsAtom).has(config.id)).toBe(false);
     });
   });
 
