@@ -134,6 +134,19 @@ describe("fetchDatabaseRequest", () => {
       );
     });
 
+    it("sends the request to the API root under the SageMaker reverse-proxy prefix", async () => {
+      stubDocumentUrl("https://nb.sagemaker.aws/proxy/9250/explorer/");
+
+      await fetchDatabaseRequest(connection, featureFlags, "gremlin", {
+        method: "POST",
+      });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("https://nb.sagemaker.aws/proxy/9250/gremlin"),
+        expect.anything(),
+      );
+    });
+
     it("sends a direct connection's request to graphDbUrl", async () => {
       await fetchDatabaseRequest(
         createConnection({ proxyConnection: false }),
@@ -482,7 +495,7 @@ describe("fetchDatabaseRequest", () => {
       });
     });
 
-    it("merges caller-provided headers with auth headers", async () => {
+    it("merges caller-provided headers with the proxy headers", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
       const conn = createConnection({ graphDbUrl: "https://db:8182" });
 
@@ -491,9 +504,39 @@ describe("fetchDatabaseRequest", () => {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
 
-      const headers = normalizeHeaders(mockFetch.mock.calls[0][1].headers);
-      expect(headers["content-type"]).toBe("application/x-www-form-urlencoded");
-      expect(headers["graph-db-connection-url"]).toBeDefined();
+      const headers = mockFetch.mock.calls[0][1].headers;
+      expect(normalizeHeaders(headers)).toStrictEqual({
+        "content-type": "application/x-www-form-urlencoded",
+        "graph-db-connection-url": "https://db:8182",
+        "db-query-logging-enabled": "false",
+      });
+    });
+
+    it("sends exactly the proxy headers for an IAM connection", async () => {
+      mockFetch.mockResolvedValue(jsonResponse({}));
+      const conn = createConnection({
+        graphDbUrl: "https://neptune:8182",
+        awsAuthEnabled: true,
+        awsRegion: "us-west-2",
+        serviceType: "neptune-graph",
+      });
+      const flags = createFeatureFlags({ allowLoggingDbQuery: true });
+
+      await fetchDatabaseRequest(conn, flags, "gremlin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        queryId: "query-123",
+      });
+
+      const headers = mockFetch.mock.calls[0][1].headers;
+      expect(normalizeHeaders(headers)).toStrictEqual({
+        "content-type": "application/json",
+        "graph-db-connection-url": "https://neptune:8182",
+        "db-query-logging-enabled": "true",
+        "aws-neptune-region": "us-west-2",
+        "service-type": "neptune-graph",
+        queryid: "query-123",
+      });
     });
   });
 

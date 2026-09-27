@@ -1,6 +1,10 @@
 // @vitest-environment happy-dom
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
+import {
+  normalizeConnection,
+  transformLegacyConnection,
+} from "@/core/StateProvider/configuration";
 import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
 import {
   abortableFetch,
@@ -53,6 +57,13 @@ describe("createGremlinExplorer", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
+
+  /** The headers of the request to `url`, which fails when none was sent. */
+  function headersSentTo(url: string) {
+    const call = mockFetch.mock.calls.find(([input]) => String(input) === url);
+    expect(call, `no request to ${url}`).toBeDefined();
+    return normalizeHeaders(call?.[1].headers);
+  }
 
   describe("fetchSchema", () => {
     it("requests the summary API with mode=basic", async () => {
@@ -166,15 +177,42 @@ describe("createGremlinExplorer", () => {
       );
       await explorer.rawQuery({ query: "g.V().limit(10)" });
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        new URL("http://localhost/gremlin"),
-        expect.objectContaining({
-          headers: expect.objectContaining({
-            "graph-db-connection-url": "https://my-neptune:8182",
-            queryId: expect.any(String),
-          }),
+      expect(headersSentTo("http://localhost/gremlin")).toStrictEqual({
+        "content-type": "application/json",
+        accept: "application/vnd.gremlin-v3.0+json",
+        "graph-db-connection-url": "https://my-neptune:8182",
+        "db-query-logging-enabled": "false",
+        queryid: expect.any(String),
+      });
+    });
+
+    it("sends a proxied IAM connection stored by an earlier version through the Graph Explorer server", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse(emptyGremlinList)),
+      );
+      const connection = normalizeConnection(
+        transformLegacyConnection({
+          url: "http://proxy.example.com",
+          proxyConnection: true,
+          graphDbUrl: "https://neptune:8182/",
+          awsAuthEnabled: true,
+          awsRegion: "us-east-1",
+          serviceType: "neptune-db",
         }),
       );
+
+      const explorer = createGremlinExplorer(connection, createFeatureFlags());
+      await explorer.rawQuery({ query: "g.V().limit(10)" });
+
+      expect(headersSentTo("http://localhost/gremlin")).toStrictEqual({
+        "content-type": "application/json",
+        accept: "application/vnd.gremlin-v3.0+json",
+        "graph-db-connection-url": "https://neptune:8182",
+        "db-query-logging-enabled": "false",
+        "aws-neptune-region": "us-east-1",
+        "service-type": "neptune-db",
+        queryid: expect.any(String),
+      });
     });
 
     it("sends a direct connection's query to the database without proxy headers", async () => {
@@ -188,10 +226,7 @@ describe("createGremlinExplorer", () => {
       );
       await explorer.rawQuery({ query: "g.V().limit(10)" });
 
-      const [, options] = mockFetch.mock.calls.find(
-        ([url]) => url.toString() === "https://my-neptune:8182/gremlin",
-      )!;
-      expect(normalizeHeaders(options.headers)).toStrictEqual({
+      expect(headersSentTo("https://my-neptune:8182/gremlin")).toStrictEqual({
         "content-type": "application/json",
         accept: "application/vnd.gremlin-v3.0+json",
       });

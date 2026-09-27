@@ -82,6 +82,19 @@ describe("fetchDefaultConnection", () => {
     });
   });
 
+  test("fetches the default connection from the API root under the SageMaker reverse-proxy prefix", async () => {
+    stubDocumentUrl("https://nb.sagemaker.aws/proxy/9250/explorer/");
+    mockFetch.mockResolvedValue(new Response("", { status: 404 }));
+
+    await fetchDefaultConnection();
+
+    expect(mockFetch).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        href: "https://nb.sagemaker.aws/proxy/9250/defaultConnection",
+      }),
+    );
+  });
+
   test("should not fall back to sagemaker path", async () => {
     mockFetch.mockResolvedValue(new Response("", { status: 404 }));
 
