@@ -1,6 +1,10 @@
 import { describe, expect, test } from "vitest";
 
-import { InvalidDatabaseUrlError, MissingDatabaseUrlError } from "@/utils";
+import {
+  InsecureDatabaseUrlError,
+  InvalidDatabaseUrlError,
+  MissingDatabaseUrlError,
+} from "@/utils";
 
 import { createQueryClient, shouldRetryQuery } from "./queryClient";
 import { getAppStore } from "./StateProvider/appStore";
@@ -42,5 +46,11 @@ describe("createQueryClient", () => {
     expect(shouldRetryQuery(0, new InvalidDatabaseUrlError("/neptune"))).toBe(
       false,
     );
+  });
+
+  test("should not retry a direct connection with an insecure database URL", () => {
+    expect(
+      shouldRetryQuery(0, new InsecureDatabaseUrlError("http://db:8182")),
+    ).toBe(false);
   });
 });

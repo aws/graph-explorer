@@ -6,6 +6,7 @@ import {
   DatabaseTimeoutError,
   DatabaseUnreachableError,
   FetchTimeoutError,
+  InsecureDatabaseUrlError,
   InvalidDatabaseUrlError,
   isAbsoluteHttpUrl,
   logger,
@@ -61,6 +62,26 @@ async function decodeErrorSafely(response: Response): Promise<any> {
   return rawText;
 }
 
+// Browsers treat these hosts as trustworthy, so an https page may still
+// request them over http.
+function isLoopbackHost(hostname: string): boolean {
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "[::1]" ||
+    hostname.endsWith(".localhost")
+  );
+}
+
+// The browser blocks an http request from an https page as mixed content.
+function isMixedContent(url: URL): boolean {
+  return (
+    location.protocol === "https:" &&
+    url.protocol === "http:" &&
+    !isLoopbackHost(url.hostname)
+  );
+}
+
 // The Graph Explorer server's route for a proxy connection, or the database
 // itself for a deprecated direct connection.
 function resolveEndpoint(connection: NormalizedConnection, path: string): URL {
@@ -70,7 +91,11 @@ function resolveEndpoint(connection: NormalizedConnection, path: string): URL {
   if (!isAbsoluteHttpUrl(connection.graphDbUrl)) {
     throw new InvalidDatabaseUrlError(connection.graphDbUrl);
   }
-  return new URL(`${connection.graphDbUrl}/${path}`);
+  const url = new URL(`${connection.graphDbUrl}/${path}`);
+  if (isMixedContent(url)) {
+    throw new InsecureDatabaseUrlError(connection.graphDbUrl);
+  }
+  return url;
 }
 
 // Construct the request headers based on the connection settings

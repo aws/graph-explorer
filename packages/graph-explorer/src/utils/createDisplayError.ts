@@ -11,6 +11,7 @@ import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
 import { DatabaseUnreachableError } from "./DatabaseUnreachableError";
 import { extractErrorMessage } from "./extractErrorMessage";
 import { FetchTimeoutError } from "./FetchTimeoutError";
+import { InsecureDatabaseUrlError } from "./InsecureDatabaseUrlError";
 import { InvalidDatabaseUrlError } from "./InvalidDatabaseUrlError";
 import { isCancellationError } from "./isCancellationError";
 import { MissingDatabaseUrlError } from "./MissingDatabaseUrlError";
@@ -156,6 +157,14 @@ export function createDisplayError(error: any): DisplayError {
 
   if (error instanceof InvalidDatabaseUrlError) {
     return invalidUrlDisplayError;
+  }
+
+  if (error instanceof InsecureDatabaseUrlError) {
+    return {
+      title: "Insecure database URL",
+      message:
+        "This page is served over HTTPS, so the browser blocks requests to an http:// database. Use an https:// Database URL, or edit the connection and uncheck Connect directly from the browser (deprecated) under Advanced options.",
+    };
   }
 
   if (error instanceof ReverseProxyMisconfiguredError) {

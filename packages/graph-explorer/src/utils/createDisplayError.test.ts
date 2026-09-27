@@ -13,6 +13,7 @@ import { createDisplayError } from "./createDisplayError";
 import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
 import { DatabaseUnreachableError } from "./DatabaseUnreachableError";
 import { FetchTimeoutError } from "./FetchTimeoutError";
+import { InsecureDatabaseUrlError } from "./InsecureDatabaseUrlError";
 import { InvalidDatabaseUrlError } from "./InvalidDatabaseUrlError";
 import { MissingDatabaseUrlError } from "./MissingDatabaseUrlError";
 import { NetworkError } from "./NetworkError";
@@ -311,6 +312,17 @@ describe("createDisplayError", () => {
     expect(result).toStrictEqual({
       title: "Invalid URL",
       message: "Please check the database URL in the connection and try again.",
+    });
+  });
+
+  it("Should handle a direct connection whose http database URL the https page would block", () => {
+    const result = createDisplayError(
+      new InsecureDatabaseUrlError("http://db.example.com:8182"),
+    );
+    expect(result).toStrictEqual({
+      title: "Insecure database URL",
+      message:
+        "This page is served over HTTPS, so the browser blocks requests to an http:// database. Use an https:// Database URL, or edit the connection and uncheck Connect directly from the browser (deprecated) under Advanced options.",
     });
   });
 

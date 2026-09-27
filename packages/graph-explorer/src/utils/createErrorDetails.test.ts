@@ -10,6 +10,7 @@ import { createErrorDetails } from "./createErrorDetails";
 import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
 import { DatabaseUnreachableError } from "./DatabaseUnreachableError";
 import { FetchTimeoutError } from "./FetchTimeoutError";
+import { InsecureDatabaseUrlError } from "./InsecureDatabaseUrlError";
 import { NetworkError } from "./NetworkError";
 import { ServerConnectionError } from "./ServerConnectionError";
 
@@ -119,6 +120,18 @@ describe("createErrorDetails", () => {
           2,
         ),
       );
+    });
+  });
+
+  describe("InsecureDatabaseUrlError", () => {
+    it("includes the URL in the data", () => {
+      const error = new InsecureDatabaseUrlError("http://db.example.com:8182");
+      expect(createErrorDetails(error)).toStrictEqual({
+        name: "InsecureDatabaseUrlError",
+        message:
+          "This direct Connection's database URL is http, which the browser blocks on an https page",
+        data: JSON.stringify({ url: "http://db.example.com:8182" }, null, 2),
+      });
     });
   });
 

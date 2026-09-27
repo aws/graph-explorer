@@ -4,6 +4,7 @@ import type { FeatureFlags, NormalizedConnection } from "@/core";
 import {
   DatabaseTimeoutError,
   FetchTimeoutError,
+  InsecureDatabaseUrlError,
   InvalidDatabaseUrlError,
   logger,
   MissingDatabaseUrlError,
@@ -258,6 +259,85 @@ describe("fetchDatabaseRequest", () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         new URL("http://localhost/gremlin"),
+        expect.anything(),
+      );
+    });
+  });
+
+  describe("insecure direct database url", () => {
+    it("throws InsecureDatabaseUrlError before fetching for an http database on an https page", async () => {
+      stubDocumentUrl("https://graph-explorer.example.com/explorer/");
+      const conn = createConnection({
+        graphDbUrl: "http://db.example.com:8182",
+        proxyConnection: false,
+      });
+
+      await expect(
+        fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+          method: "POST",
+        }),
+      ).rejects.toThrow(
+        new InsecureDatabaseUrlError("http://db.example.com:8182"),
+      );
+
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    // Browsers treat loopback hosts as trustworthy, so they don't block them.
+    it.each([
+      "http://localhost:8182",
+      "http://127.0.0.1:8182",
+      "http://[::1]:8182",
+      "http://db.localhost:8182",
+    ])(
+      "sends the request to the loopback database %s on an https page",
+      async graphDbUrl => {
+        stubDocumentUrl("https://graph-explorer.example.com/explorer/");
+        mockFetch.mockResolvedValue(jsonResponse({}));
+        const conn = createConnection({ graphDbUrl, proxyConnection: false });
+
+        await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+          method: "POST",
+        });
+
+        expect(mockFetch).toHaveBeenCalledWith(
+          new URL(`${graphDbUrl}/gremlin`),
+          expect.anything(),
+        );
+      },
+    );
+
+    it("sends the request to an http database on an http page", async () => {
+      stubDocumentUrl("http://graph-explorer.example.com/explorer/");
+      mockFetch.mockResolvedValue(jsonResponse({}));
+      const conn = createConnection({
+        graphDbUrl: "http://db.example.com:8182",
+        proxyConnection: false,
+      });
+
+      await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+      });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("http://db.example.com:8182/gremlin"),
+        expect.anything(),
+      );
+    });
+
+    it("sends a proxy connection's request for an http database through the Graph Explorer server on an https page", async () => {
+      stubDocumentUrl("https://graph-explorer.example.com/explorer/");
+      mockFetch.mockResolvedValue(jsonResponse({}));
+      const conn = createConnection({
+        graphDbUrl: "http://db.example.com:8182",
+      });
+
+      await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+      });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("https://graph-explorer.example.com/gremlin"),
         expect.anything(),
       );
     });

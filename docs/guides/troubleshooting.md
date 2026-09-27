@@ -157,6 +157,12 @@ For a proxied connection, the server, not the browser, must have network access 
 
 To fix it, either configure the database to allow cross-origin requests from the Graph Explorer page, or edit the connection and uncheck **Connect directly from the browser (deprecated)** so the Graph Explorer server connects to the database instead. The direct option will be removed in a future release, so unchecking it is the lasting fix.
 
+### Insecure Database URL
+
+"Insecure database URL" appears only for a connection with **Connect directly from the browser (deprecated)** checked, when the Graph Explorer page is served over HTTPS and the Database URL starts with `http://`. The browser blocks requests from an HTTPS page to an HTTP address as mixed content, so Graph Explorer doesn't send the request. A Database URL on `localhost`, a `.localhost` subdomain, `127.0.0.1`, or `[::1]` is exempt, because browsers allow those over HTTP.
+
+To fix it, either use an `https://` Database URL, or edit the connection and uncheck **Connect directly from the browser (deprecated)** under **Advanced options** so the Graph Explorer server connects to the database instead.
+
 ## Reverse proxy misconfigured
 
 This error appears as soon as the app first calls the Graph Explorer server: on page load when there are no saved connections, otherwise on the first schema sync or query. The client resolves the API root from its own path as soon as it needs it.
