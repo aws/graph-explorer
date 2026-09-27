@@ -453,7 +453,7 @@ describe("useImportConnectionFile", () => {
  * file in the wild can still carry the legacy `url`/`proxyConnection` shape.
  */
 describe("backward compatibility: legacy url/proxyConnection connection file", () => {
-  test("should migrate a legacy connection file with url and proxyConnection", async () => {
+  test("should migrate a legacy connection file with url and proxyConnection, dropping IAM", async () => {
     const state = new DbState();
     const { result } = renderHookWithState(
       () => useImportConnectionFile(),
@@ -470,6 +470,10 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
         url,
         proxyConnection: false,
         queryEngine: "gremlin" as const,
+        // An earlier version's form kept these on a direct connection.
+        awsAuthEnabled: true,
+        awsRegion: "us-east-1",
+        serviceType: "neptune-db" as const,
       },
       schema: {
         totalVertices: 0,

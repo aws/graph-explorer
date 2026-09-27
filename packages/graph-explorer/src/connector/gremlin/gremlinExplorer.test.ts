@@ -235,6 +235,34 @@ describe("createGremlinExplorer", () => {
       });
     });
 
+    it("sends a direct connection stored by an earlier version to its url without proxy or IAM headers", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse(emptyGremlinList)),
+      );
+      // An earlier version's form kept the IAM fields when the proxy box was
+      // unchecked, and sent the AWS headers straight to the database.
+      const connection = normalizeConnection(
+        transformLegacyConnection({
+          url: "https://db.example.com:8182/",
+          proxyConnection: false,
+          graphDbUrl: "",
+          awsAuthEnabled: true,
+          awsRegion: "us-east-1",
+          serviceType: "neptune-db",
+        }),
+      );
+
+      const explorer = createGremlinExplorer(connection, createFeatureFlags());
+      await explorer.rawQuery({ query: "g.V().limit(10)" });
+
+      expect(
+        headersSentTo("https://db.example.com:8182/gremlin"),
+      ).toStrictEqual({
+        "content-type": "application/json",
+        accept: "application/vnd.gremlin-v3.0+json",
+      });
+    });
+
     it("requests a direct connection's summary from the database", async () => {
       mockFetch.mockImplementation(() =>
         Promise.resolve(jsonResponse(emptyGremlinList)),
