@@ -335,7 +335,7 @@ describe("CreateConnection", () => {
   });
 
   /**
-   * BACKWARD COMPATIBILITY — EDITING A CONNECTION STORED BY AN EARLIER VERSION
+   * BACKWARD COMPATIBILITY: EDITING A CONNECTION STORED BY AN EARLIER VERSION
    *
    * An earlier version stored a proxied connection with `url` holding the
    * proxy and `graphDbUrl` the database. The edit dialog sees it after the

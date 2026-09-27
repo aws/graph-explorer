@@ -82,7 +82,7 @@ describe("storageAtoms", () => {
 });
 
 /**
- * BACKWARD COMPATIBILITY — CONNECTIONS STORED BY EARLIER VERSIONS
+ * BACKWARD COMPATIBILITY: CONNECTIONS STORED BY EARLIER VERSIONS
  *
  * Earlier versions stored a connection with a `url`/`proxyConnection` pair.
  * The real `configurationAtom` must fold that shape into the canonical one
