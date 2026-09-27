@@ -146,7 +146,7 @@ const notebookPreset = {
     LOG_STYLE: "cloudwatch",
   },
   certificatesGenerated: false,
-  startup: { useHttps: false, port: 9250, logStyle: "cloudwatch" },
+  startup: { useHttps: false, port: 9250, logStyle: "cloudwatch" } as const,
 };
 const notebookConflict = {
   envFile: {
