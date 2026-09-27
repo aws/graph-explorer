@@ -39,8 +39,10 @@ export const LABELS = {
   MISSING_TYPE: `${ASCII.LAQUO}No Type${ASCII.RAQUO}`,
   /** Shown when a value is missing */
   MISSING_VALUE: `${ASCII.LAQUO}No Value${ASCII.RAQUO}`,
-  /** Marks a deprecated direct connection wherever its URL is shown */
+  /** Marks a deprecated direct connection in its details */
   DIRECT_CONNECTION: "Direct from browser (deprecated)",
+  /** Marks a deprecated direct connection in the connection list */
+  DIRECT_CONNECTION_SHORT: "Direct",
   /** Shown when a value is empty (like empty string) */
   EMPTY_VALUE: `${ASCII.LAQUO}Empty Value${ASCII.RAQUO}`,
 
