@@ -139,14 +139,16 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
               <InfoItemValue>{t("query-language")}</InfoItemValue>
             </InfoItemContent>
           </InfoItem>
-          <InfoItem>
+          <InfoItem className="min-w-0">
             <InfoItemIcon>
               <LinkIcon />
             </InfoItemIcon>
 
-            <InfoItemContent>
+            <InfoItemContent className="min-w-0">
               <InfoItemLabel>Database URL</InfoItemLabel>
-              <InfoItemValue>{dbUrl}</InfoItemValue>
+              <InfoItemValue className="line-clamp-2 break-all" title={dbUrl}>
+                {dbUrl}
+              </InfoItemValue>
               {isDirect && (
                 <InfoItemLabel className="flex items-center gap-1">
                   {LABELS.DIRECT_CONNECTION}

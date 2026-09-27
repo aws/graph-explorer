@@ -58,4 +58,14 @@ describe("ConnectionDetail", () => {
     expect(screen.getByText("https://my-neptune:8182")).toBeInTheDocument();
     expect(screen.queryByText(/Direct from browser/)).toBeNull();
   });
+
+  // The value is clamped to two lines, so the full URL has to stay reachable
+  test("offers the full database URL on hover", () => {
+    const graphDbUrl = `https://my-neptune:8182/${"segment/".repeat(20)}`;
+    renderDetail({ graphDbUrl });
+
+    expect(
+      screen.getByTitle(graphDbUrl.replace(/\/$/, "")),
+    ).toBeInTheDocument();
+  });
 });
