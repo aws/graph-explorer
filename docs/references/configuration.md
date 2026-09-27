@@ -115,7 +115,13 @@ To provide a default connection such that initial loads of Graph Explorer always
 
 > [!NOTE]
 >
-> `PUBLIC_OR_PROXY_ENDPOINT` and `USING_PROXY_SERVER` are still honored for backward compatibility and are resolved into `GRAPH_CONNECTION_URL`. An existing deployment that sets these needs no change. The default connection is a deprecated direct connection when `USING_PROXY_SERVER` is set to any value other than `true` (case-insensitive), or when `USING_PROXY_SERVER` is unset and `PUBLIC_OR_PROXY_ENDPOINT` is provided, whether or not `GRAPH_CONNECTION_URL` is also set, because earlier versions treated an unset `USING_PROXY_SERVER` as false. It connects to `PUBLIC_OR_PROXY_ENDPOINT` (or `GRAPH_CONNECTION_URL` when that is unset): the browser sends its requests to the database itself, and `IAM`, `AWS_REGION`, and `SERVICE_TYPE` are ignored. Direct connections will be removed in a future release, so switch to `GRAPH_CONNECTION_URL` and drop `PUBLIC_OR_PROXY_ENDPOINT` and `USING_PROXY_SERVER` when you can.
+> The legacy `PUBLIC_OR_PROXY_ENDPOINT` and `USING_PROXY_SERVER` variables are still honored, so an existing deployment needs no change:
+>
+> - `USING_PROXY_SERVER=true` (case-insensitive): the default connection goes through the proxy server to `GRAPH_CONNECTION_URL`, and `PUBLIC_OR_PROXY_ENDPOINT` is ignored.
+> - `USING_PROXY_SERVER` set to any other value, or unset with `PUBLIC_OR_PROXY_ENDPOINT` provided: the default connection is a deprecated direct connection to `PUBLIC_OR_PROXY_ENDPOINT`, or to `GRAPH_CONNECTION_URL` when `PUBLIC_OR_PROXY_ENDPOINT` is unset. The browser sends its requests to the database itself, and `IAM`, `AWS_REGION`, and `SERVICE_TYPE` are ignored.
+> - `USING_PROXY_SERVER` and `PUBLIC_OR_PROXY_ENDPOINT` both unset: the default connection goes through the proxy server to `GRAPH_CONNECTION_URL`.
+>
+> Direct connections will be removed in a future release, so switch to `GRAPH_CONNECTION_URL` and drop `PUBLIC_OR_PROXY_ENDPOINT` and `USING_PROXY_SERVER` when you can.
 
 ### Environment Variables
 
