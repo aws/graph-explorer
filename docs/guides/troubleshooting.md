@@ -108,7 +108,7 @@ This can happen when your database is very large. Graph Explorer does its best t
 
 ### Proxy Server Cannot Be Reached
 
-A "Connection Error" belongs here. It means the browser could not reach the Graph Explorer server, not that the server could not reach the database.
+A "Connection Error" means the browser couldn't reach the Graph Explorer server. The database itself may be fine.
 
 Communication between the client and proxy server can be configured in different ways. When Graph Explorer proxy server starts up it will print out its best approximation of the correct public proxy server address.
 
