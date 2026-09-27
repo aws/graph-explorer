@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 /**
  * Thrown when a direct connection's database URL is not an absolute `http:`
  * or `https:` URL, so no request was sent. The browser would otherwise
@@ -19,13 +21,5 @@ export class InvalidDatabaseUrlError extends Error {
 
 /** Whether the value parses as an absolute URL with an `http:` or `https:` protocol. */
 export function isAbsoluteHttpUrl(value: string): boolean {
-  // `URL.parse` and `URL.canParse` are newer than the default Vite build
-  // target, so a thrown TypeError is the parse failure signal.
-  let protocol: string;
-  try {
-    protocol = new URL(value).protocol;
-  } catch {
-    return false;
-  }
-  return protocol === "http:" || protocol === "https:";
+  return z.url({ protocol: /^https?$/ }).safeParse(value).success;
 }
