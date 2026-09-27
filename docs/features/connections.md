@@ -23,7 +23,7 @@ The next three settings are grouped under an **Advanced options** section that y
 
 ## Available Connections
 
-Once a connection is created, this section will appear as a left-hand pane. When you create more than one connection to a graph database, you can only connect to and visualize from one graph database endpoint at a time. To select the active database, toggle the "Active" switch.
+Once a connection is created, this section will appear as a left-hand pane. When you create more than one connection to a graph database, you can only connect to and visualize from one graph database endpoint at a time. To select the active database, click its row in the list.
 
 The active connection is per browser tab: switching connections in one tab does not change what another open tab is viewing, so you can explore different connections side by side. When you reopen Graph Explorer after closing all tabs, it resumes the connection you most recently used.
 
