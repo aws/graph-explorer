@@ -11,13 +11,13 @@ For guides on connecting to specific databases, see [Connecting to databases](..
 - **Name:** Enter a name for your connection (e.g., `MyNeptuneCluster`).
 - **Query Language:** Choose a query language that corresponds to your graph database.
 - **Database URL:** Provide the endpoint URL for your graph database (e.g., `https://[NEPTUNE_ENDPOINT]:8182`). Ensure that the URL does not end with `/`.
-- **AWS IAM Auth Enabled:** Check this box if connecting to Amazon Neptune using IAM Auth and SigV4 signed requests.
-- **Service Type:** Choose the service type (`neptune-db` or `neptune-graph`).
+- **AWS IAM Auth Enabled:** Check this box if connecting to Amazon Neptune using IAM Auth and SigV4 signed requests. Checking it reveals the **AWS Region** and **Service Type** fields.
 - **AWS Region:** Specify the AWS region where the Neptune cluster is hosted (e.g., us-east-1).
+- **Service Type:** Choose the service type: **Neptune DB** or **Neptune Analytics**.
 
 The next three settings are grouped under an **Advanced options** section that you expand to reach. It starts expanded when the connection you are editing already overrides one of them, so an existing override is never hidden from you.
 
-- **Fetch Timeout:** Specify the timeout for the fetch request.
+- **Fetch Timeout:** Check **Enable Fetch Timeout** to reveal **Fetch Timeout (ms)**, then specify the timeout for the fetch request.
 - **Neighbor Expansion Limit:** Check **Override Default Neighbor Expansion Limit** to reveal this field, then specify the default limit for neighbor expansion. This will override the app setting for neighbor expansion.
 - **Connect directly from the browser (deprecated):** Check this box to have your browser send requests to the database itself instead of through the Graph Explorer server. The database must allow cross-origin requests (CORS) from the Graph Explorer page, and IAM authentication isn't available, so the IAM fields are hidden. This option will be removed in a future release. Leave it unchecked unless you depend on it. A direct connection shows "Direct" in the connection list and "Direct from browser (deprecated)" in its details.
 
