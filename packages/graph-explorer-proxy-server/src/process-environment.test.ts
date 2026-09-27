@@ -440,6 +440,34 @@ describe("process-environment.sh", () => {
       });
     });
 
+    it("resolves to a direct PUBLIC_OR_PROXY_ENDPOINT when USING_PROXY_SERVER=false and both URLs are set", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "false",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+        GRAPH_CONNECTION_URL: "https://db:8182",
+        IAM: "true",
+        AWS_REGION: "us-east-1",
+        SERVICE_TYPE: "neptune-db",
+      });
+      expect(defaultConnection).toStrictEqual({
+        GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+      });
+    });
+
+    it("keeps the openCypher query language on a direct neptune-graph connection", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "false",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+        SERVICE_TYPE: "neptune-graph",
+      });
+      expect(defaultConnection).toStrictEqual({
+        GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+        GRAPH_EXP_GRAPH_TYPE: "openCypher",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+      });
+    });
+
     it("resolves to a proxied GRAPH_CONNECTION_URL when USING_PROXY_SERVER is unset and only GRAPH_CONNECTION_URL is set", () => {
       const { defaultConnection } = runScript(workDir, {
         GRAPH_CONNECTION_URL: "https://db:8182",
