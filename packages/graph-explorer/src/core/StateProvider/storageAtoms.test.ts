@@ -147,7 +147,7 @@ describe("backward compatibility: connections stored by earlier versions", () =>
       await preloadStoredConfigurations(storedByThisTab);
 
     // Another tab writes its own legacy entry alongside this tab's, directly
-    // to storage, bypassing this tab's in-memory atoms entirely.
+    // to storage, skipping this tab's in-memory atoms entirely.
     const storedByOtherTab = storedConfig({
       url: "https://proxy.example.com",
       proxyConnection: true,
