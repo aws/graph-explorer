@@ -283,6 +283,29 @@ describe("backward compatibility: main-era defaultConnection.json", () => {
     });
   });
 
+  // Earlier versions wrote an empty GRAPH_EXP_CONNECTION_URL when
+  // GRAPH_CONNECTION_URL was unset
+  test.each([
+    ["empty", ""],
+    ["invalid", "not a url"],
+  ])(
+    "connects directly to the public endpoint when the flag is absent and the connection URL is %s",
+    (_, value) => {
+      const connection = readFile({
+        ...createMainEraFile(),
+        GRAPH_EXP_CONNECTION_URL: value,
+      });
+
+      expect(connection).toStrictEqual({
+        graphDbUrl: publicEndpoint,
+        proxyConnection: false,
+        queryEngine: "gremlin",
+        fetchTimeoutMs: 240000,
+        nodeExpansionLimit: undefined,
+      });
+    },
+  );
+
   test("maps a proxied file the current shell writes", () => {
     const connection = readFile({
       GRAPH_EXP_CONNECTION_URL: connectionUrl,
@@ -352,7 +375,7 @@ describe("DefaultConnectionDataSchema", () => {
     const actual = DefaultConnectionDataSchema.parse(data);
     expect(actual).toEqual({
       ...data,
-      GRAPH_EXP_CONNECTION_URL: "",
+      GRAPH_EXP_CONNECTION_URL: undefined,
     });
   });
 
