@@ -155,7 +155,7 @@ For a proxied connection, the server, not the browser, must have network access 
 - The database isn't running, or the Database URL has the wrong host or port.
 - The browser's network can't reach the database.
 
-To fix it, either configure the database to allow cross-origin requests from the Graph Explorer page, or edit the connection and uncheck **Connect directly from the browser (deprecated)** so the Graph Explorer server connects to the database instead. The direct option will be removed in a future release, so unchecking it is the lasting fix.
+To fix it, either configure the database to allow cross-origin requests from the Graph Explorer page, or edit the connection and uncheck **Connect directly from the browser (deprecated)** under **Advanced options** so the Graph Explorer server connects to the database instead. The direct option will be removed in a future release, so unchecking it is the lasting fix.
 
 ### Insecure Database URL
 
