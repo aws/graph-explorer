@@ -172,6 +172,23 @@ describe("createOpenCypherExplorer", () => {
     });
   });
   describe("request routing", () => {
+    it("sends a proxied connection's query to the same-origin openCypher endpoint", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse({ results: [] })),
+      );
+
+      const explorer = createOpenCypherExplorer(
+        createConnection(),
+        createFeatureFlags(),
+      );
+      await explorer.rawQuery({ query: "MATCH (n) RETURN n LIMIT 10" });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("http://localhost/openCypher"),
+        expect.objectContaining({ method: "POST" }),
+      );
+    });
+
     it("sends a direct connection's query to the database without proxy headers", async () => {
       mockFetch.mockImplementation(() =>
         Promise.resolve(jsonResponse({ results: [] })),
