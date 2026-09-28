@@ -9,6 +9,16 @@ Key files:
 - `src/hooks/useSchemaSync.ts` — schema sync orchestration
 - `src/connector/queries/edgeConnectionsQuery.ts` — edge connection discovery
 
+## Sync States
+
+`SchemaStorageModel` has three sync states, driven by `lastUpdate` and `lastSyncFail`:
+
+- never synced — `lastUpdate` unset
+- synced — `lastUpdate` set, no `lastSyncFail`
+- failed since the last success — `lastSyncFail: true` (`lastUpdate` may be unset, if the first sync ever failed, or set from an earlier success)
+
+`isSyncedSchema` in `src/core/StateProvider/schema.ts` is the one place that distinguishes a populated schema from one that only recorded a failure. A failed sync never re-syncs automatically — `schemaSyncQuery` sets `enabled: !lastSyncFail` — so the user must retry manually.
+
 ## Edge Connections
 
 Edge connections (`EdgeConnection[]`) describe relationships between vertex types and are used by the Schema View feature. Because the edge connection query can be expensive and unreliable, it runs separately from the main schema sync so that a failure only affects the Schema View — all other features work without edge connections.
