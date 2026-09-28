@@ -192,6 +192,135 @@ describe("mapToConnection", () => {
   });
 });
 
+/**
+ * Earlier versions wrote `defaultConnection.json` with both endpoints and the
+ * proxy flag:
+ *
+ *   { GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT, GRAPH_EXP_USING_PROXY_SERVER,
+ *     GRAPH_EXP_CONNECTION_URL, GRAPH_EXP_IAM, ... }
+ *
+ * A stale file from an older container, or one written by hand, can still be
+ * served. It must resolve exactly like a legacy stored connection does through
+ * `transformLegacyConnection`. Do not delete without confirming no deployment
+ * serves the old shape.
+ */
+describe("backward compatibility: main-era defaultConnection.json", () => {
+  const publicEndpoint = "https://public.example.com:8182";
+  const connectionUrl = "https://db.example.com:8182";
+
+  function readFile(file: Record<string, unknown>) {
+    return mapToConnection(DefaultConnectionDataSchema.parse(file)).connection;
+  }
+
+  function createMainEraFile() {
+    return {
+      GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT: publicEndpoint,
+      GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+      GRAPH_EXP_GRAPH_TYPE: "gremlin",
+      GRAPH_EXP_IAM: true,
+      GRAPH_EXP_CONNECTION_URL: connectionUrl,
+      GRAPH_EXP_AWS_REGION: "us-west-2",
+    };
+  }
+
+  test("proxies to the connection URL and keeps IAM when the flag is true", () => {
+    const connection = readFile({
+      ...createMainEraFile(),
+      GRAPH_EXP_USING_PROXY_SERVER: true,
+    });
+
+    expect(connection).toStrictEqual({
+      graphDbUrl: connectionUrl,
+      queryEngine: "gremlin",
+      awsAuthEnabled: true,
+      awsRegion: "us-west-2",
+      serviceType: "neptune-db",
+      fetchTimeoutMs: 240000,
+      nodeExpansionLimit: undefined,
+    });
+  });
+
+  test("connects directly to the public endpoint and drops IAM when the flag is false", () => {
+    const connection = readFile({
+      ...createMainEraFile(),
+      GRAPH_EXP_USING_PROXY_SERVER: false,
+    });
+
+    expect(connection).toStrictEqual({
+      graphDbUrl: publicEndpoint,
+      proxyConnection: false,
+      queryEngine: "gremlin",
+      fetchTimeoutMs: 240000,
+      nodeExpansionLimit: undefined,
+    });
+  });
+
+  test("proxies to the connection URL when the flag is absent and both URLs are set", () => {
+    const connection = readFile(createMainEraFile());
+
+    expect(connection).toStrictEqual({
+      graphDbUrl: connectionUrl,
+      queryEngine: "gremlin",
+      awsAuthEnabled: true,
+      awsRegion: "us-west-2",
+      serviceType: "neptune-db",
+      fetchTimeoutMs: 240000,
+      nodeExpansionLimit: undefined,
+    });
+  });
+
+  test("connects directly to the public endpoint when the flag is absent and it's the only URL", () => {
+    const { GRAPH_EXP_CONNECTION_URL: _, ...file } = createMainEraFile();
+
+    const connection = readFile(file);
+
+    expect(connection).toStrictEqual({
+      graphDbUrl: publicEndpoint,
+      proxyConnection: false,
+      queryEngine: "gremlin",
+      fetchTimeoutMs: 240000,
+      nodeExpansionLimit: undefined,
+    });
+  });
+
+  test("maps a proxied file the current shell writes", () => {
+    const connection = readFile({
+      GRAPH_EXP_CONNECTION_URL: connectionUrl,
+      GRAPH_EXP_GRAPH_TYPE: "openCypher",
+      GRAPH_EXP_SERVICE_TYPE: "neptune-graph",
+      GRAPH_EXP_IAM: true,
+      GRAPH_EXP_AWS_REGION: "us-west-2",
+      GRAPH_EXP_USING_PROXY_SERVER: true,
+    });
+
+    expect(connection).toStrictEqual({
+      graphDbUrl: connectionUrl,
+      queryEngine: "openCypher",
+      awsAuthEnabled: true,
+      awsRegion: "us-west-2",
+      serviceType: "neptune-graph",
+      fetchTimeoutMs: 240000,
+      nodeExpansionLimit: undefined,
+    });
+  });
+
+  test("maps a direct file the current shell writes", () => {
+    const connection = readFile({
+      GRAPH_EXP_CONNECTION_URL: publicEndpoint,
+      GRAPH_EXP_GRAPH_TYPE: "gremlin",
+      GRAPH_EXP_USING_PROXY_SERVER: false,
+    });
+
+    expect(connection).toStrictEqual({
+      graphDbUrl: publicEndpoint,
+      proxyConnection: false,
+      queryEngine: "gremlin",
+      fetchTimeoutMs: 240000,
+      nodeExpansionLimit: undefined,
+    });
+  });
+});
+
 describe("DefaultConnectionDataSchema", () => {
   test("should parse default connection data", () => {
     const data = createRandomDefaultConnectionData();
@@ -203,8 +332,6 @@ describe("DefaultConnectionDataSchema", () => {
     const data = {};
     const actual = DefaultConnectionDataSchema.parse(data);
     expect(actual).toEqual({
-      GRAPH_EXP_USING_PROXY_SERVER: true,
-      GRAPH_EXP_CONNECTION_URL: "",
       GRAPH_EXP_IAM: false,
       GRAPH_EXP_AWS_REGION: "",
       GRAPH_EXP_SERVICE_TYPE: "neptune-db",

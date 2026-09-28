@@ -9,10 +9,14 @@ import type {
   RawConfiguration,
 } from "./ConfigurationProvider";
 
+import { transformLegacyConnection } from "./StateProvider/configuration";
+
 export const DefaultConnectionDataSchema = z.object({
   // Connection info
-  GRAPH_EXP_USING_PROXY_SERVER: z.boolean().default(true),
-  GRAPH_EXP_CONNECTION_URL: z.string().url().catch(""),
+  GRAPH_EXP_USING_PROXY_SERVER: z.boolean().optional(),
+  GRAPH_EXP_CONNECTION_URL: z.string().url().optional().catch(""),
+  // Written by earlier versions, and read the way a legacy stored connection is
+  GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT: z.string().url().optional().catch(""),
   GRAPH_EXP_GRAPH_TYPE: z.enum(queryEngineOptions).optional(),
   // IAM auth info
   GRAPH_EXP_IAM: z.boolean().default(false),
@@ -103,19 +107,19 @@ export async function fetchDefaultConnectionFor(
 }
 
 export function mapToConnection(data: DefaultConnectionData): RawConfiguration {
-  const config: RawConfiguration = {
+  return {
     id: "Default Connection" as ConfigurationId,
     displayLabel: "Default Connection",
-    connection: {
+    connection: transformLegacyConnection({
+      url: data.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT,
       graphDbUrl: data.GRAPH_EXP_CONNECTION_URL,
-      ...(!data.GRAPH_EXP_USING_PROXY_SERVER && { proxyConnection: false }),
+      proxyConnection: data.GRAPH_EXP_USING_PROXY_SERVER,
       queryEngine: data.GRAPH_EXP_GRAPH_TYPE,
       awsAuthEnabled: data.GRAPH_EXP_IAM,
       awsRegion: data.GRAPH_EXP_AWS_REGION,
       serviceType: data.GRAPH_EXP_SERVICE_TYPE,
       fetchTimeoutMs: data.GRAPH_EXP_FETCH_REQUEST_TIMEOUT,
       nodeExpansionLimit: data.GRAPH_EXP_NODE_EXPANSION_LIMIT,
-    },
+    }),
   };
-  return config;
 }
