@@ -26,6 +26,7 @@ import {
   createRandomRawConfiguration,
   createRandomSchema,
   createRandomVertexId,
+  stubDocumentUrl,
   TestProvider,
 } from "@/utils/testing";
 
@@ -331,6 +332,106 @@ describe("CreateConnection", () => {
 
       const savedConnection = store.get(configurationAtom).get(config.id);
       expect(savedConnection?.connection).not.toHaveProperty("proxyConnection");
+    });
+
+    describe("mixed content warning", () => {
+      const httpsPage = "https://graph-explorer.example.com/explorer/";
+      const mixedContentWarning =
+        "This page uses HTTPS, so your browser will likely block requests to an http:// database. Use an https:// URL, or uncheck Connect directly from the browser (deprecated).";
+
+      async function fillConnection(
+        user: ReturnType<typeof userEvent.setup>,
+        graphDbUrl: string,
+        { direct }: { direct: boolean },
+      ) {
+        await user.type(
+          screen.getByRole("textbox", { name: "Name" }),
+          "My Connection",
+        );
+        await user.type(
+          screen.getByRole("textbox", { name: "Database URL" }),
+          graphDbUrl,
+        );
+        if (direct) {
+          await openAdvancedOptions(user);
+          await user.click(screen.getByRole("checkbox", directOption));
+        }
+      }
+
+      test("warns that the browser will likely block an http database from an https page", async () => {
+        stubDocumentUrl(httpsPage);
+        const user = userEvent.setup();
+        renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+
+        await fillConnection(user, "http://database.example.com:8182", {
+          direct: true,
+        });
+
+        expect(
+          screen.getByRole("textbox", { name: "Database URL" }),
+        ).toHaveAccessibleDescription(mixedContentWarning);
+      });
+
+      test("saves the connection while the warning shows", async () => {
+        stubDocumentUrl(httpsPage);
+        const user = userEvent.setup();
+        const store = renderCreateConnection(
+          <CreateConnection onClose={vi.fn()} />,
+        );
+
+        await fillConnection(user, "http://database.example.com:8182", {
+          direct: true,
+        });
+        expect(screen.getByText(mixedContentWarning)).toBeInTheDocument();
+        await user.click(
+          screen.getByRole("button", { name: "Add Connection" }),
+        );
+
+        await waitFor(() => {
+          expect(store.get(configurationAtom)).toHaveLength(1);
+        });
+        const [savedConnection] = store.get(configurationAtom).values();
+        expect(savedConnection.connection).toMatchObject({
+          graphDbUrl: "http://database.example.com:8182",
+          proxyConnection: false,
+        });
+      });
+
+      test.each([
+        {
+          scenario: "a loopback database from an https page",
+          page: httpsPage,
+          graphDbUrl: "http://localhost:8182",
+          direct: true,
+        },
+        {
+          scenario: "a proxy connection from an https page",
+          page: httpsPage,
+          graphDbUrl: "http://database.example.com:8182",
+          direct: false,
+        },
+        {
+          scenario: "an http database from an http page",
+          page: "http://graph-explorer.example.com/explorer/",
+          graphDbUrl: "http://database.example.com:8182",
+          direct: true,
+        },
+      ])(
+        "does not warn for $scenario",
+        async ({ page, graphDbUrl, direct }) => {
+          stubDocumentUrl(page);
+          const user = userEvent.setup();
+          renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+
+          await fillConnection(user, graphDbUrl, { direct });
+
+          // Proves the absence below is not a missing field
+          expect(
+            screen.getByRole("textbox", { name: "Database URL" }),
+          ).toHaveValue(graphDbUrl);
+          expect(screen.queryByText(mixedContentWarning)).toBeNull();
+        },
+      );
     });
   });
 
