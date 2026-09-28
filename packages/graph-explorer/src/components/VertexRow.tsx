@@ -1,6 +1,6 @@
 import type { ComponentPropsWithoutRef } from "react";
 
-import { type DisplayVertex, useVertexStyle } from "@/core";
+import { type DisplayVertex, useVertexStyleForTypes } from "@/core";
 import { ASCII, cn, LABELS } from "@/utils";
 
 import { SearchResultSubtitle, SearchResultTitle, VertexSymbol } from ".";
@@ -14,7 +14,7 @@ export function VertexRow({
   vertex: DisplayVertex;
   name?: string;
 } & ComponentPropsWithoutRef<"div">) {
-  const vertexStyle = useVertexStyle(vertex.primaryType);
+  const vertexStyle = useVertexStyleForTypes(vertex.types);
   const resultName = name ? `${name}: ` : "";
   const nameIsSameAsTypes = vertex.displayTypes === vertex.displayName;
   const isDefaultType = vertex.displayTypes === LABELS.MISSING_TYPE;
