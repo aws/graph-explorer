@@ -12,6 +12,7 @@ import {
   schemaAtom,
 } from "@/core";
 import { getAppStore } from "@/core/StateProvider/appStore";
+import { NetworkError } from "@/utils";
 import {
   createRandomEdgeTypeConfig,
   createRandomRawConfiguration,
@@ -129,6 +130,26 @@ describe("useSchemaSync", () => {
         expect(result.current.schemaDiscoveryQuery.data).toBeDefined();
       });
       expect(fetchSchemaSpy).toHaveBeenCalled();
+    });
+
+    // The failure is persisted as a schema with no vertices or edges, which
+    // must not replace the error once the query already holds it.
+    it("should keep the error of a failed first sync after a re-render", async () => {
+      const state = new DbState(explorer).withNoActiveSchema();
+      const error = new NetworkError("Bad query", 400, undefined);
+      vi.spyOn(explorer, "fetchSchema").mockRejectedValue(error);
+
+      const { result, rerender } = renderHookWithState(
+        () => useSchemaSync(),
+        state,
+      );
+      await waitFor(() => {
+        expect(result.current.schemaDiscoveryQuery.error).toBe(error);
+      });
+      rerender();
+
+      expect(result.current.schemaDiscoveryQuery.error).toBe(error);
+      expect(result.current.schemaDiscoveryQuery.data).toBeUndefined();
     });
   });
 
@@ -390,6 +411,19 @@ describe("useSchemaSync", () => {
       await flushPendingAtomUpdates();
 
       expect(result.current.schemaDiscoveryQuery.data).toBeDefined();
+      expect(fetchSchemaSpy).not.toHaveBeenCalled();
+    });
+
+    it("should not auto-fetch when the first sync failed before a refresh", async () => {
+      const state = new DbState(explorer);
+      state.activeSchema = { vertices: [], edges: [], lastSyncFail: true };
+
+      const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
+
+      const { result } = renderHookWithState(() => useSchemaSync(), state);
+      await flushPendingAtomUpdates();
+
+      expect(result.current.schemaDiscoveryQuery.data).toBeUndefined();
       expect(fetchSchemaSpy).not.toHaveBeenCalled();
     });
 

@@ -96,14 +96,18 @@ export const activeSchemaAtom = atom(get => {
 });
 
 /**
- * Hook to check if the active schema has been synchronized from the database.
- *
- * @returns True if the active schema has a lastUpdate timestamp, indicating
- * it has been populated from a database schema query at least once.
+ * Whether the schema has been populated from a database schema query at least
+ * once, as opposed to only recording a failed sync.
  */
+export function isSyncedSchema(
+  schema: SchemaStorageModel | undefined,
+): schema is SchemaStorageModel {
+  return !!schema?.lastUpdate;
+}
+
+/** Hook to check if the active schema has been synchronized from the database. */
 export function useHasActiveSchema() {
-  const activeSchema = useAtomValue(maybeActiveSchemaAtom);
-  return !!activeSchema?.lastUpdate;
+  return isSyncedSchema(useAtomValue(maybeActiveSchemaAtom));
 }
 
 /** Gets the stored active schema or a default empty schema */

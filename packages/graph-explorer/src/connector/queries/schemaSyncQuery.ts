@@ -11,6 +11,7 @@ import {
   activeSchemaAtom,
   generateSchemaPrefixes,
   getSchemaUris,
+  isSyncedSchema,
   type SchemaStorageModel,
 } from "@/core/StateProvider/schema";
 import { logger } from "@/utils";
@@ -46,7 +47,9 @@ export function schemaSyncQuery({
     queryKey: schemaSyncQueryKey(connectionId),
     staleTime: Infinity,
     retryOnMount: false,
-    initialData: activeSchema,
+    // A failed first sync persists a schema that was never synced. Seeding
+    // from it would replace the error the query already holds.
+    initialData: isSyncedSchema(activeSchema) ? activeSchema : undefined,
     enabled: hasConnection && !activeSchema?.lastSyncFail,
     queryFn: async ({ signal, meta }) => {
       const explorer = getExplorer(meta);
