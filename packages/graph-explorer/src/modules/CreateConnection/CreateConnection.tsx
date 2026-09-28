@@ -7,7 +7,7 @@ import type {
 import { useQueryClient } from "@tanstack/react-query";
 import { useAtomCallback } from "jotai/utils";
 import { ChevronRightIcon } from "lucide-react";
-import { useCallback, useId, useState } from "react";
+import { useCallback, useState } from "react";
 
 import {
   Button,
@@ -34,7 +34,7 @@ import {
 } from "@/core";
 import { isDirectConnection } from "@/core/StateProvider/configuration";
 import useResetState from "@/core/StateProvider/useResetState";
-import { formatDate, isAbsoluteHttpUrl, isMixedContent, logger } from "@/utils";
+import { formatDate, isAbsoluteHttpUrl, logger } from "@/utils";
 import {
   DEFAULT_FETCH_TIMEOUT,
   DEFAULT_NODE_EXPAND_LIMIT,
@@ -66,19 +66,6 @@ function graphDbUrlError(form: ConnectionForm): string | undefined {
   // The browser resolves anything else against this page or as a scheme.
   if (form.directConnection && !isAbsoluteHttpUrl(graphDbUrl)) {
     return "A direct connection needs a full URL starting with http:// or https://";
-  }
-}
-
-// Only a warning, since the browser may still allow the request.
-function graphDbUrlWarning(form: ConnectionForm): string | undefined {
-  const graphDbUrl = normalizeUrlField(form.graphDbUrl);
-  if (
-    form.directConnection &&
-    graphDbUrl &&
-    isAbsoluteHttpUrl(graphDbUrl) &&
-    isMixedContent(new URL(graphDbUrl))
-  ) {
-    return "This page uses HTTPS, so your browser will likely block requests to an http:// database. Use an https:// URL, or uncheck Connect directly from the browser (deprecated).";
   }
 }
 
@@ -292,8 +279,6 @@ const CreateConnection = ({
     };
 
   const urlError = graphDbUrlError(form);
-  const urlWarning = graphDbUrlWarning(form);
-  const urlWarningId = useId();
   const reset = useResetState();
   const onSubmit = () => {
     const normalizedForm: ConnectionForm = {
@@ -359,23 +344,15 @@ const CreateConnection = ({
               from the host where Graph Explorer runs.
             </InfoTooltip>
           </Label>
-          <div className="space-y-1">
-            <TextAreaField
-              aria-label="Database URL"
-              aria-describedby={urlWarning ? urlWarningId : undefined}
-              data-autofocus={true}
-              value={form.graphDbUrl}
-              onChange={onFormChange("graphDbUrl")}
-              errorMessage={urlError}
-              placeholder="https://neptune-cluster.amazonaws.com:8182"
-              validationState={hasError && urlError ? "invalid" : "valid"}
-            />
-            {urlWarning && (
-              <p id={urlWarningId} className="text-warning-foreground text-sm">
-                {urlWarning}
-              </p>
-            )}
-          </div>
+          <TextAreaField
+            aria-label="Database URL"
+            data-autofocus={true}
+            value={form.graphDbUrl}
+            onChange={onFormChange("graphDbUrl")}
+            errorMessage={urlError}
+            placeholder="https://neptune-cluster.amazonaws.com:8182"
+            validationState={hasError && urlError ? "invalid" : "valid"}
+          />
         </FormItem>
 
         {!form.directConnection && (
