@@ -498,6 +498,17 @@ describe("backward compatibility: legacy url/proxyConnection connection shape", 
     expect(result).not.toHaveProperty("proxyConnection");
   });
 
+  // graphDbUrl is present (even empty), so proxyConnection is still inferred
+  // per the rule above, and the url is discarded rather than used as a
+  // fallback. Pinning today's behavior, not endorsing it.
+  test("should infer a proxy connection and discard the url when graphDbUrl is present but empty and proxyConnection is absent", () => {
+    const result = transformLegacyConnection({
+      url: "https://x",
+      graphDbUrl: "",
+    });
+    expect(result).toStrictEqual({ graphDbUrl: "" });
+  });
+
   test("should keep graphDbUrl over the proxy url when proxyConnection is absent and both are set", () => {
     const result = transformLegacyConnection({
       url: "https://proxy.example.com",
