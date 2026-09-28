@@ -4,7 +4,7 @@ import type { FeatureFlags, NormalizedConnection } from "@/core";
 import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
 import {
   abortableFetch,
-  normalizeHeaders,
+  headersSentTo,
   stubDocumentUrl,
 } from "@/utils/testing";
 
@@ -183,10 +183,9 @@ describe("createOpenCypherExplorer", () => {
       );
       await explorer.rawQuery({ query: "MATCH (n) RETURN n LIMIT 10" });
 
-      const [, options] = mockFetch.mock.calls.find(
-        ([url]) => url.toString() === "https://my-neptune:8182/openCypher",
-      )!;
-      expect(normalizeHeaders(options.headers)).toStrictEqual({
+      expect(
+        headersSentTo(mockFetch, "https://my-neptune:8182/openCypher"),
+      ).toStrictEqual({
         "content-type": "application/json",
       });
     });

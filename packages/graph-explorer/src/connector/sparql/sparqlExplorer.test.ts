@@ -4,7 +4,7 @@ import type { FeatureFlags, NormalizedConnection } from "@/core";
 import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
 import {
   abortableFetch,
-  normalizeHeaders,
+  headersSentTo,
   stubDocumentUrl,
 } from "@/utils/testing";
 
@@ -189,10 +189,9 @@ describe("createSparqlExplorer", () => {
       );
       await explorer.keywordSearch({ searchTerm: "person" });
 
-      const [, options] = mockFetch.mock.calls.find(
-        ([url]) => url.toString() === "https://my-neptune:8182/sparql",
-      )!;
-      expect(normalizeHeaders(options.headers)).toStrictEqual({
+      expect(
+        headersSentTo(mockFetch, "https://my-neptune:8182/sparql"),
+      ).toStrictEqual({
         accept: "application/sparql-results+json",
         "content-type": "application/x-www-form-urlencoded",
       });

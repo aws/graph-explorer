@@ -8,7 +8,7 @@ import {
 import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
 import {
   abortableFetch,
-  normalizeHeaders,
+  headersSentTo,
   stubDocumentUrl,
 } from "@/utils/testing";
 
@@ -57,13 +57,6 @@ describe("createGremlinExplorer", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
-
-  /** The headers of the request to `url`, which fails when none was sent. */
-  function headersSentTo(url: string) {
-    const call = mockFetch.mock.calls.find(([input]) => String(input) === url);
-    expect(call, `no request to ${url}`).toBeDefined();
-    return normalizeHeaders(call?.[1].headers);
-  }
 
   describe("fetchSchema", () => {
     it("requests the summary API with mode=basic", async () => {
@@ -177,7 +170,9 @@ describe("createGremlinExplorer", () => {
       );
       await explorer.rawQuery({ query: "g.V().limit(10)" });
 
-      expect(headersSentTo("http://localhost/gremlin")).toStrictEqual({
+      expect(
+        headersSentTo(mockFetch, "http://localhost/gremlin"),
+      ).toStrictEqual({
         "content-type": "application/json",
         accept: "application/vnd.gremlin-v3.0+json",
         "graph-db-connection-url": "https://my-neptune:8182",
@@ -204,7 +199,9 @@ describe("createGremlinExplorer", () => {
       const explorer = createGremlinExplorer(connection, createFeatureFlags());
       await explorer.rawQuery({ query: "g.V().limit(10)" });
 
-      expect(headersSentTo("http://localhost/gremlin")).toStrictEqual({
+      expect(
+        headersSentTo(mockFetch, "http://localhost/gremlin"),
+      ).toStrictEqual({
         "content-type": "application/json",
         accept: "application/vnd.gremlin-v3.0+json",
         "graph-db-connection-url": "https://neptune:8182",
@@ -226,10 +223,9 @@ describe("createGremlinExplorer", () => {
       );
       await explorer.rawQuery({ query: "g.V().limit(10)" });
 
-      const [, options] = mockFetch.mock.calls.find(
-        ([url]) => url.toString() === "https://my-neptune:8182/gremlin",
-      )!;
-      expect(normalizeHeaders(options.headers)).toStrictEqual({
+      expect(
+        headersSentTo(mockFetch, "https://my-neptune:8182/gremlin"),
+      ).toStrictEqual({
         "content-type": "application/json",
         accept: "application/vnd.gremlin-v3.0+json",
       });
@@ -256,7 +252,7 @@ describe("createGremlinExplorer", () => {
       await explorer.rawQuery({ query: "g.V().limit(10)" });
 
       expect(
-        headersSentTo("https://db.example.com:8182/gremlin"),
+        headersSentTo(mockFetch, "https://db.example.com:8182/gremlin"),
       ).toStrictEqual({
         "content-type": "application/json",
         accept: "application/vnd.gremlin-v3.0+json",
