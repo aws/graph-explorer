@@ -115,7 +115,11 @@ export function mapToConnection(data: DefaultConnectionData): RawConfiguration {
     connection: transformLegacyConnection({
       url: data.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT,
       graphDbUrl: data.GRAPH_EXP_CONNECTION_URL,
-      proxyConnection: data.GRAPH_EXP_USING_PROXY_SERVER,
+      // Earlier versions read a missing flag in this file as false, so a file
+      // with a public endpoint and no flag stays direct
+      proxyConnection:
+        data.GRAPH_EXP_USING_PROXY_SERVER ??
+        (data.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT ? false : undefined),
       queryEngine: data.GRAPH_EXP_GRAPH_TYPE,
       awsAuthEnabled: data.GRAPH_EXP_IAM,
       awsRegion: data.GRAPH_EXP_AWS_REGION,

@@ -255,15 +255,14 @@ describe("backward compatibility: main-era defaultConnection.json", () => {
     });
   });
 
-  test("proxies to the connection URL when the flag is absent and both URLs are set", () => {
+  // Earlier versions defaulted a missing flag to false for this file
+  test("connects directly to the public endpoint when the flag is absent and both URLs are set", () => {
     const connection = readFile(createMainEraFile());
 
     expect(connection).toStrictEqual({
-      graphDbUrl: connectionUrl,
+      graphDbUrl: publicEndpoint,
+      proxyConnection: false,
       queryEngine: "gremlin",
-      awsAuthEnabled: true,
-      awsRegion: "us-west-2",
-      serviceType: "neptune-db",
       fetchTimeoutMs: 240000,
       nodeExpansionLimit: undefined,
     });
