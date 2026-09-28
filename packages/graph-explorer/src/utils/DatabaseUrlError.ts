@@ -1,6 +1,6 @@
 /**
  * Base for errors caused by a direct connection's database URL itself, so a
- * retry can only fail the same way. Records the URL for diagnostics.
+ * retry would most likely fail the same way. Records the URL for diagnostics.
  */
 export class DatabaseUrlError extends Error {
   /** The database URL at fault. */
