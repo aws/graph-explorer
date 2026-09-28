@@ -22,7 +22,7 @@ describe("resolveConnectionLink", () => {
     });
   });
 
-  test("is a no-op when the link targets the active connection", () => {
+  test("activates the active connection when the link targets it", () => {
     const state = new DbState();
     const activeUrl = "https://active.neptune.amazonaws.com";
     state.activeConfig.connection = {
@@ -31,8 +31,9 @@ describe("resolveConnectionLink", () => {
     };
     state.applyTo(getAppStore());
 
-    expect(resolveConnectionLink(searchFor(activeUrl))).toEqual({
-      kind: "none",
+    expect(resolveConnectionLink(searchFor(activeUrl))).toMatchObject({
+      kind: "activate",
+      connection: { id: state.activeConfig.id },
     });
   });
 
@@ -84,8 +85,9 @@ describe("resolveConnectionLink", () => {
     };
     state.applyTo(getAppStore());
 
-    expect(resolveConnectionLink(searchFor(laterUrl))).toEqual({
-      kind: "none",
+    expect(resolveConnectionLink(searchFor(laterUrl))).toMatchObject({
+      kind: "activate",
+      connection: { id: state.activeConfig.id },
     });
   });
 });

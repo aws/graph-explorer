@@ -321,20 +321,20 @@ export function buildConnectionFromParams(
  * Callers dispatch on `kind` rather than juggling match/pending booleans.
  *
  * `activate` names a connection the user already has, so it carries the stored
- * configuration, id and all. `create` only proposes one, so it carries the
+ * configuration, id and all. It covers the active connection too, since
+ * activating that one is a no-op that keeps its session. `create` only proposes one, so it carries the
  * connection body and the name to seed the form with, and nothing exists yet to
  * have an id.
  */
 export type ConnectionLinkIntent =
-  | { kind: "none" }
   | { kind: "invalid"; error: ConnectionLinkError }
   | { kind: "activate"; connection: RawConfiguration }
   | { kind: "create"; name: string; connection: ConnectionConfig };
 
 /**
  * Resolve a connection link into a single intent:
- * - matches the active connection → `none` (nothing to do)
- * - matches an inactive connection → `activate` it
+ * - matches an existing connection → `activate` it (a no-op when it is the
+ *   active one)
  * - no match → `create` a new connection seeded from the link
  * - the link failed validation (including a missing `graphDbUrl`) → `invalid`,
  *   carrying what was wrong with it
@@ -357,9 +357,7 @@ export function resolveConnectionLinkIntent(
   );
 
   if (match) {
-    return match.id === activeId
-      ? { kind: "none" }
-      : { kind: "activate", connection: match };
+    return { kind: "activate", connection: match };
   }
 
   return { kind: "create", name: link.params.name, connection: proposed };

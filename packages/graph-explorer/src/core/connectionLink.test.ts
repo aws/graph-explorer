@@ -821,13 +821,18 @@ describe("resolveConnectionLinkIntent", () => {
     expect(intent).toEqual({ kind: "invalid", error });
   });
 
-  test("is a no-op when the URL matches the active connection", () => {
+  // Activating the active connection is a no-op, so the route needs no
+  // separate intent to keep the session.
+  test("activates the active connection when the URL matches it", () => {
     const intent = resolveConnectionLinkIntent(
       linkFor(paramsFor(activeUrl)),
       configs,
       activeId,
     );
-    expect(intent).toEqual({ kind: "none" });
+    expect(intent).toEqual({
+      kind: "activate",
+      connection: configs.get(activeId),
+    });
   });
 
   test("activates a matching connection that is not active", () => {
