@@ -32,8 +32,9 @@ import {
   type RawConfiguration,
   schemaAtom,
 } from "@/core";
+import { isDirectConnection } from "@/core/StateProvider/configuration";
 import useResetState from "@/core/StateProvider/useResetState";
-import { formatDate, logger } from "@/utils";
+import { formatDate, isAbsoluteHttpUrl, logger } from "@/utils";
 import {
   DEFAULT_FETCH_TIMEOUT,
   DEFAULT_NODE_EXPAND_LIMIT,
@@ -41,10 +42,9 @@ import {
 
 type ConnectionForm = {
   name?: string;
-  url?: string;
-  queryEngine?: QueryEngine;
-  proxyConnection?: boolean;
   graphDbUrl?: string;
+  directConnection: boolean;
+  queryEngine?: QueryEngine;
   awsAuthEnabled?: boolean;
   serviceType?: NeptuneServiceType;
   awsRegion?: string;
@@ -56,6 +56,17 @@ type ConnectionForm = {
 
 function normalizeUrlField(value: string | undefined) {
   return value?.replace(/[\r\n]/g, "").trim();
+}
+
+function graphDbUrlError(form: ConnectionForm): string | undefined {
+  const graphDbUrl = normalizeUrlField(form.graphDbUrl);
+  if (!graphDbUrl) {
+    return "URL is required";
+  }
+  // The browser resolves anything else against this page or as a scheme.
+  if (form.directConnection && !isAbsoluteHttpUrl(graphDbUrl)) {
+    return "A direct connection needs a full URL starting with http:// or https://";
+  }
 }
 
 const CONNECTIONS_OP: {
@@ -79,14 +90,18 @@ export type CreateConnectionProps = {
 };
 
 function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
+  // A direct request never reaches the Proxy Server that would sign it.
+  const routing = data.directConnection
+    ? { proxyConnection: false }
+    : {
+        awsAuthEnabled: data.awsAuthEnabled,
+        serviceType: data.serviceType,
+        awsRegion: data.awsRegion,
+      };
   return {
-    url: data.url,
-    queryEngine: data.queryEngine,
-    proxyConnection: data.proxyConnection,
     graphDbUrl: data.graphDbUrl,
-    awsAuthEnabled: data.awsAuthEnabled,
-    serviceType: data.serviceType,
-    awsRegion: data.awsRegion,
+    queryEngine: data.queryEngine,
+    ...routing,
     fetchTimeoutMs: data.fetchTimeoutEnabled ? data.fetchTimeoutMs : undefined,
     nodeExpansionLimit: data.nodeExpansionLimitEnabled
       ? data.nodeExpansionLimit
@@ -100,7 +115,11 @@ function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
  * collapsed section, so editing it looks like the defaults are in force.
  */
 function hasAdvancedOverrides(form: ConnectionForm): boolean {
-  return form.fetchTimeoutEnabled || form.nodeExpansionLimitEnabled;
+  return (
+    form.fetchTimeoutEnabled ||
+    form.nodeExpansionLimitEnabled ||
+    form.directConnection
+  );
 }
 
 /**
@@ -115,6 +134,7 @@ export function mapToConnectionForm(
   return {
     ...connection,
     name,
+    directConnection: isDirectConnection(connection),
     fetchTimeoutEnabled: Boolean(connection?.fetchTimeoutMs),
     nodeExpansionLimitEnabled: Boolean(connection?.nodeExpansionLimit),
   };
@@ -173,11 +193,10 @@ const CreateConnection = ({
           return updated;
         });
 
-        const urlChange = initialData?.url !== data.url;
         const dbUrlChange = initialData?.graphDbUrl !== data.graphDbUrl;
         const typeChange = initialData?.queryEngine !== data.queryEngine;
 
-        if (urlChange || dbUrlChange || typeChange) {
+        if (dbUrlChange || typeChange) {
           logger.log(
             "Clearing cached schema and previous graph session because connection to database meaningfully changed",
             { original: initialData, updated: data },
@@ -212,9 +231,8 @@ const CreateConnection = ({
     name:
       initialData?.name ||
       `Connection (${formatDate(new Date(), "yyyy-MM-dd HH:mm")})`,
-    url: initialData?.url || "",
-    proxyConnection: initialData?.proxyConnection || false,
     graphDbUrl: initialData?.graphDbUrl || "",
+    directConnection: initialData?.directConnection || false,
     awsAuthEnabled: initialData?.awsAuthEnabled || false,
     serviceType: initialData?.serviceType || "neptune-db",
     awsRegion: initialData?.awsRegion || "",
@@ -260,31 +278,27 @@ const CreateConnection = ({
       }
     };
 
+  const urlError = graphDbUrlError(form);
   const reset = useResetState();
   const onSubmit = () => {
     const normalizedForm: ConnectionForm = {
       ...form,
-      url: normalizeUrlField(form.url),
       graphDbUrl: normalizeUrlField(form.graphDbUrl),
     };
 
     if (
       !normalizedForm.name ||
-      !normalizedForm.url ||
+      graphDbUrlError(normalizedForm) ||
       !normalizedForm.queryEngine
     ) {
       setError(true);
       return;
     }
 
-    if (normalizedForm.proxyConnection && !normalizedForm.graphDbUrl) {
-      setError(true);
-      return;
-    }
-
     if (
+      !normalizedForm.directConnection &&
       normalizedForm.awsAuthEnabled &&
-      (!normalizedForm.awsRegion || !normalizedForm.serviceType)
+      !normalizedForm.awsRegion
     ) {
       setError(true);
       return;
@@ -314,60 +328,34 @@ const CreateConnection = ({
             options={CONNECTIONS_OP}
             value={form.queryEngine}
             onValueChange={onFormChange("queryEngine")}
-            disabled={form.serviceType === "neptune-graph"}
+            disabled={
+              !form.directConnection && form.serviceType === "neptune-graph"
+            }
           />
         </FormItem>
         <FormItem>
           <Label>
-            Public or Proxy Endpoint
+            Database URL
             <InfoTooltip>
-              Provide the endpoint URL for an open graph database, e.g., Gremlin
-              Server. If connecting to Amazon Neptune, then provide a proxy
-              endpoint URL that is accessible from outside the VPC, e.g., EC2.
+              Provide the endpoint URL for your graph database, e.g., an Amazon
+              Neptune cluster endpoint, a Gremlin Server URL, or a SPARQL
+              endpoint. Unless you connect directly from the browser, the Graph
+              Explorer server connects to this endpoint, so it must be reachable
+              from the host where Graph Explorer runs.
             </InfoTooltip>
           </Label>
           <TextAreaField
-            aria-label="Public or Proxy Endpoint"
+            aria-label="Database URL"
             data-autofocus={true}
-            value={form.url}
-            onChange={onFormChange("url")}
-            errorMessage="URL is required"
-            placeholder="https://example.com"
-            validationState={
-              hasError && !normalizeUrlField(form.url) ? "invalid" : "valid"
-            }
+            value={form.graphDbUrl}
+            onChange={onFormChange("graphDbUrl")}
+            errorMessage={urlError}
+            placeholder="https://neptune-cluster.amazonaws.com:8182"
+            validationState={hasError && urlError ? "invalid" : "valid"}
           />
         </FormItem>
 
-        <Label className="cursor-pointer">
-          <Checkbox
-            value="proxyConnection"
-            checked={form.proxyConnection}
-            onCheckedChange={checked => {
-              onFormChange("proxyConnection")(checked);
-            }}
-          />
-          Using Proxy-Server
-        </Label>
-        {form.proxyConnection && (
-          <FormItem>
-            <Label>Graph Connection URL</Label>
-            <TextAreaField
-              aria-label="Graph Connection URL"
-              data-autofocus={true}
-              value={form.graphDbUrl}
-              onChange={onFormChange("graphDbUrl")}
-              errorMessage="URL is required"
-              placeholder="https://neptune-cluster.amazonaws.com"
-              validationState={
-                hasError && !normalizeUrlField(form.graphDbUrl)
-                  ? "invalid"
-                  : "valid"
-              }
-            />
-          </FormItem>
-        )}
-        {form.proxyConnection && (
+        {!form.directConnection && (
           <Label className="cursor-pointer">
             <Checkbox
               value="awsAuthEnabled"
@@ -379,7 +367,7 @@ const CreateConnection = ({
             AWS IAM Auth Enabled
           </Label>
         )}
-        {form.proxyConnection && form.awsAuthEnabled && (
+        {!form.directConnection && form.awsAuthEnabled && (
           <>
             <FormItem>
               <Label>AWS Region</Label>
@@ -479,6 +467,27 @@ const CreateConnection = ({
                 />
               </FormItem>
             )}
+            <FormItem>
+              <Label className="cursor-pointer">
+                <Checkbox
+                  value="directConnection"
+                  checked={form.directConnection}
+                  onCheckedChange={checked => {
+                    onFormChange("directConnection")(checked);
+                  }}
+                />
+                <span className="flex items-center gap-2">
+                  Connect directly from the browser (deprecated)
+                  <InfoTooltip>
+                    The browser sends requests to the database itself instead of
+                    through the Graph Explorer server. The database must allow
+                    cross-origin requests from this page, and IAM authentication
+                    is not available. This option will be removed in a future
+                    release.
+                  </InfoTooltip>
+                </span>
+              </Label>
+            </FormItem>
           </CollapsibleContent>
         </Collapsible>
       </DialogBody>

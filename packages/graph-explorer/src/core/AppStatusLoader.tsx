@@ -7,7 +7,7 @@ import {
   useEffect,
 } from "react";
 
-import { PanelEmptyState, Spinner } from "@/components";
+import { PanelEmptyState, PanelError, Spinner } from "@/components";
 import { logger } from "@/utils";
 
 import { fetchDefaultConnection } from "./defaultConnection";
@@ -32,7 +32,7 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
 
   const defaultConfigQuery = useQuery({
     queryKey: ["default-connection"],
-    queryFn: fetchDefaultConnection,
+    queryFn: () => fetchDefaultConnection(),
     staleTime: Infinity,
     enabled: storeIsEmpty,
   });
@@ -84,6 +84,10 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
         icon={<Spinner />}
       />
     );
+  }
+
+  if (storeIsEmpty && defaultConfigQuery.isError) {
+    return <PanelError error={defaultConfigQuery.error} />;
   }
 
   if (storeIsEmpty && hasDefaultConnection) {

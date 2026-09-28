@@ -9,23 +9,20 @@ export type NeptuneServiceType = (typeof neptuneServiceTypeOptions)[number];
 
 export type ConnectionConfig = {
   /**
-   * Base URL to access to the database through HTTPs endpoints
+   * The URL of the graph database endpoint.
    */
-  url: string;
+  graphDbUrl: string;
+  /**
+   * Absent or `true` sends requests through the Graph Explorer server. `false`
+   * is a deprecated direct connection, where the browser calls `graphDbUrl`
+   * itself.
+   */
+  proxyConnection?: boolean;
   /**
    * Choose between gremlin or sparQL engines.
    * By default, it uses gremlin
    */
   queryEngine?: QueryEngine;
-  /**
-   * If the service is Neptune,
-   * all requests should be sent through the nodejs proxy-server.
-   */
-  proxyConnection?: boolean;
-  /**
-   * If it is Neptune, the URL of the database.
-   */
-  graphDbUrl?: string;
   /**
    * If it is Neptune, it could need authentication.
    */
@@ -51,4 +48,10 @@ export type ConnectionConfig = {
    * This value overrides the app wide default limit.
    */
   nodeExpansionLimit?: number;
+};
+
+/** Legacy connection config that may still exist in stored data. */
+export type LegacyConnectionConfig = Omit<ConnectionConfig, "graphDbUrl"> & {
+  graphDbUrl?: string;
+  url?: string;
 };

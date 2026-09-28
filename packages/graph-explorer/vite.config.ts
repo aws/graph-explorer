@@ -1,7 +1,7 @@
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
-import { loadEnv, type PluginOption } from "vite";
+import { loadEnv } from "vite";
 import { coverageConfigDefaults, defineConfig } from "vitest/config";
 
 export default defineConfig(({ mode }) => {
@@ -14,20 +14,6 @@ export default defineConfig(({ mode }) => {
     const baseUrl = `http://localhost${port}`;
     return baseUrl;
   })();
-
-  const htmlPlugin = (): PluginOption => {
-    return {
-      name: "html-transform",
-      transformIndexHtml: {
-        order: "pre",
-        handler: (html: string) => {
-          return html.replace(/%(.*?)%/g, function (_match, p1) {
-            return env[p1] ? env[p1] : "";
-          });
-        },
-      },
-    };
-  };
 
   return {
     server: {
@@ -47,13 +33,12 @@ export default defineConfig(({ mode }) => {
           },
       },
     },
-    base: env.GRAPH_EXP_ENV_ROOT_FOLDER,
+    base: "./",
     envPrefix: "GRAPH_EXP",
     define: {
       __GRAPH_EXP_VERSION__: JSON.stringify(process.env.npm_package_version),
     },
     plugins: [
-      htmlPlugin(),
       tailwindcss(),
       react(),
       babel({

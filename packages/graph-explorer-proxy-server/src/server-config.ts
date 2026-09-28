@@ -1,3 +1,4 @@
+import { STATIC_MOUNT_PATH } from "@graph-explorer/shared/constants";
 import fs from "fs";
 import path from "path";
 
@@ -46,7 +47,7 @@ export function resolveServerConfig(env: EnvironmentValues) {
     baseUrl: buildBaseUrl(useHttps, env.HOST, port),
     certificateKeyFilePath,
     certificateFilePath,
-    staticFilesVirtualPath: "/explorer",
+    staticFilesVirtualPath: STATIC_MOUNT_PATH,
     staticFilesPath: path.join(clientRoot, "dist"),
   };
 }

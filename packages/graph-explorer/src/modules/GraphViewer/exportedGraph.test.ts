@@ -11,6 +11,10 @@ import type { EdgeId, VertexId } from "@/core";
 
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 import {
+  normalizeConnection,
+  transformLegacyConnection,
+} from "@/core/StateProvider/configuration";
+import {
   createRandomConnectionWithId,
   createRandomEdgeId,
   createRandomExportedGraph,
@@ -151,41 +155,27 @@ describe("createExportedGraph", () => {
 });
 
 describe("createExportedConnection", () => {
-  it("should map graphDbUrl when using proxy server", () => {
+  it("should lowercase graphDbUrl", () => {
     const connection = createRandomConnectionWithId();
-    connection.proxyConnection = true;
-    connection.graphDbUrl = createRandomUrlString();
+    connection.graphDbUrl = "https://My-Neptune.Example.com:8182";
 
     const exportedConnection = createExportedConnection(connection);
 
     expect(exportedConnection).toEqual({
-      dbUrl: connection.graphDbUrl,
-      queryEngine: connection.queryEngine!,
-    } satisfies ExportedGraphConnection);
-  });
-
-  it("should map url when not using proxy server", () => {
-    const connection = createRandomConnectionWithId();
-    connection.proxyConnection = false;
-
-    const exportedConnection = createExportedConnection(connection);
-
-    expect(exportedConnection).toEqual({
-      dbUrl: connection.url,
+      dbUrl: "https://my-neptune.example.com:8182",
       queryEngine: connection.queryEngine!,
     } satisfies ExportedGraphConnection);
   });
 
   it("should default to gremlin when no query engine is provided", () => {
     const connection = createRandomConnectionWithId();
-    connection.proxyConnection = true;
-    connection.graphDbUrl = createRandomUrlString();
+    connection.graphDbUrl = "https://My-Neptune.Example.com:8182";
     delete connection.queryEngine;
 
     const exportedConnection = createExportedConnection(connection);
 
     expect(exportedConnection).toEqual({
-      dbUrl: connection.graphDbUrl,
+      dbUrl: "https://my-neptune.example.com:8182",
       queryEngine: "gremlin",
     } satisfies ExportedGraphConnection);
   });
@@ -435,23 +425,60 @@ describe("isMatchingConnection", () => {
 
   it("should return false when graph db url is different", () => {
     const connection = createRandomConnectionWithId();
-    connection.proxyConnection = true;
-    connection.graphDbUrl = createRandomUrlString();
-    const exportedConnection = createRandomExportedGraphConnection();
-    exportedConnection.dbUrl = connection.url;
-    exportedConnection.queryEngine = connection.queryEngine!;
-
-    expect(isMatchingConnection(connection, exportedConnection)).toBeFalsy();
-  });
-
-  it("should return false when url is different", () => {
-    const connection = createRandomConnectionWithId();
-    connection.proxyConnection = false;
     const exportedConnection = createRandomExportedGraphConnection();
     exportedConnection.dbUrl = createRandomUrlString();
     exportedConnection.queryEngine = connection.queryEngine!;
 
     expect(isMatchingConnection(connection, exportedConnection)).toBeFalsy();
+  });
+});
+
+/**
+ * Earlier versions exported `dbUrl` as the lowercased `graphDbUrl` for a
+ * proxied connection and the lowercased `url` otherwise. A stored connection
+ * from then is upgraded through `transformLegacyConnection`, so a graph file
+ * exported before the upgrade must still match the upgraded connection. Do not
+ * delete without confirming no such files remain in use.
+ */
+describe("backward compatibility: graph files exported by earlier versions", () => {
+  it("matches an upgraded proxied connection", () => {
+    const legacyConnection = {
+      url: "http://localhost:80",
+      proxyConnection: true,
+      graphDbUrl: "https://Neptune.Example.com:8182",
+      queryEngine: "openCypher" as const,
+      awsAuthEnabled: true,
+      awsRegion: "us-west-2",
+      serviceType: "neptune-db" as const,
+    };
+    const exportedByMain: ExportedGraphConnection = {
+      dbUrl: "https://neptune.example.com:8182",
+      queryEngine: "openCypher",
+    };
+
+    const upgraded = normalizeConnection(
+      transformLegacyConnection(legacyConnection),
+    );
+
+    expect(isMatchingConnection(upgraded, exportedByMain)).toBe(true);
+  });
+
+  it("matches an upgraded direct connection", () => {
+    const legacyConnection = {
+      url: "https://DB.Example.com:8182",
+      proxyConnection: false,
+      queryEngine: "gremlin" as const,
+    };
+    const exportedByMain: ExportedGraphConnection = {
+      dbUrl: "https://db.example.com:8182",
+      queryEngine: "gremlin",
+    };
+
+    const upgraded = normalizeConnection(
+      transformLegacyConnection(legacyConnection),
+    );
+
+    expect(isMatchingConnection(upgraded, exportedByMain)).toBe(true);
   });
 });
 

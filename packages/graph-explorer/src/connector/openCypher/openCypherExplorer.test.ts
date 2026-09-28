@@ -1,7 +1,12 @@
+// @vitest-environment happy-dom
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
 import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
-import { abortableFetch } from "@/utils/testing";
+import {
+  abortableFetch,
+  headersSentTo,
+  stubDocumentUrl,
+} from "@/utils/testing";
 
 import { createOpenCypherExplorer } from "./openCypherExplorer";
 
@@ -9,10 +14,8 @@ function createConnection(
   overrides?: Partial<NormalizedConnection>,
 ): NormalizedConnection {
   return {
-    url: "http://localhost:8182",
     queryEngine: "openCypher",
-    graphDbUrl: "",
-    proxyConnection: false,
+    graphDbUrl: "https://my-neptune:8182",
     awsAuthEnabled: false,
     ...overrides,
   };
@@ -38,6 +41,7 @@ describe("createOpenCypherExplorer", () => {
   beforeEach(() => {
     mockFetch = vi.fn();
     vi.stubGlobal("fetch", mockFetch);
+    stubDocumentUrl();
   });
 
   afterEach(() => {
@@ -69,7 +73,7 @@ describe("createOpenCypherExplorer", () => {
       await explorer.fetchSchema();
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "http://localhost:8182/pg/statistics/summary?mode=basic",
+        new URL("http://localhost/pg/statistics/summary?mode=basic"),
         expect.objectContaining({ method: "GET" }),
       );
     });
@@ -96,7 +100,7 @@ describe("createOpenCypherExplorer", () => {
       await explorer.fetchSchema();
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "http://localhost:8182/summary?mode=basic",
+        new URL("http://localhost/summary?mode=basic"),
         expect.objectContaining({ method: "GET" }),
       );
     });
@@ -165,6 +169,59 @@ describe("createOpenCypherExplorer", () => {
 
       expect(error).toBeInstanceOf(FetchTimeoutError);
       expect(error.timeoutMs).toBe(1);
+    });
+  });
+  describe("request routing", () => {
+    it("sends a proxied connection's query to the same-origin openCypher endpoint", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse({ results: [] })),
+      );
+
+      const explorer = createOpenCypherExplorer(
+        createConnection(),
+        createFeatureFlags(),
+      );
+      await explorer.rawQuery({ query: "MATCH (n) RETURN n LIMIT 10" });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("http://localhost/openCypher"),
+        expect.objectContaining({ method: "POST" }),
+      );
+    });
+
+    it("sends a direct connection's query to the database without proxy headers", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse({ results: [] })),
+      );
+
+      const explorer = createOpenCypherExplorer(
+        createConnection({ proxyConnection: false }),
+        createFeatureFlags(),
+      );
+      await explorer.rawQuery({ query: "MATCH (n) RETURN n LIMIT 10" });
+
+      expect(
+        headersSentTo(mockFetch, "https://my-neptune:8182/openCypher"),
+      ).toStrictEqual({
+        "content-type": "application/json",
+      });
+    });
+
+    it("requests a direct connection's summary from the database", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse({ results: [] })),
+      );
+
+      const explorer = createOpenCypherExplorer(
+        createConnection({ proxyConnection: false }),
+        createFeatureFlags(),
+      );
+      await explorer.fetchSchema();
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("https://my-neptune:8182/pg/statistics/summary?mode=basic"),
+        expect.objectContaining({ method: "GET" }),
+      );
     });
   });
 });

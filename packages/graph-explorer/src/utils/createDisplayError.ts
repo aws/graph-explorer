@@ -8,15 +8,25 @@ import {
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 
 import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
+import { DatabaseUnreachableError } from "./DatabaseUnreachableError";
 import { extractErrorMessage } from "./extractErrorMessage";
 import { FetchTimeoutError } from "./FetchTimeoutError";
+import { InsecureDatabaseUrlError } from "./InsecureDatabaseUrlError";
+import { InvalidDatabaseUrlError } from "./InvalidDatabaseUrlError";
 import { isCancellationError } from "./isCancellationError";
+import { MissingDatabaseUrlError } from "./MissingDatabaseUrlError";
 import { NetworkError } from "./NetworkError";
+import { ReverseProxyMisconfiguredError } from "./ReverseProxyMisconfiguredError";
 import { ServerConnectionError } from "./ServerConnectionError";
 
 export type DisplayError = {
   title: string;
   message: string;
+};
+
+const invalidUrlDisplayError: DisplayError = {
+  title: "Invalid URL",
+  message: "Please check the database URL in the connection and try again.",
 };
 
 const defaultDisplayError: DisplayError = {
@@ -50,7 +60,8 @@ export function createDisplayError(error: any): DisplayError {
     if (data.code === "ECONNREFUSED" || data.cause?.code === "ECONNREFUSED") {
       return {
         title: "Connection refused",
-        message: "Please check your connection and try again.",
+        message:
+          "The database host answered but refused the connection. Check that the port in the connection is correct and the database is running.",
       };
     }
     if (data.code === "ECONNRESET" || data.cause?.code === "ECONNRESET") {
@@ -82,11 +93,7 @@ export function createDisplayError(error: any): DisplayError {
       data.code === "ERR_INVALID_URL" ||
       data.cause?.code === "ERR_INVALID_URL"
     ) {
-      return {
-        title: "Invalid URL",
-        message:
-          "Please check the database URL in the connection and try again.",
-      };
+      return invalidUrlDisplayError;
     }
     // Malformed query
     if (
@@ -125,18 +132,45 @@ export function createDisplayError(error: any): DisplayError {
   }
 
   if (error instanceof ServerConnectionError) {
-    if (hasOriginMismatch(error.url)) {
-      return {
-        title: "Cross-Origin Request Blocked",
-        message:
-          "The proxy server URL does not match the browser's origin, which can cause CORS errors. Update the connection URL to match the browser's origin.",
-      };
-    }
     return {
       title: "Connection Error",
       message:
-        "Unable to reach the proxy server. This is typically caused by the proxy server not running, an incorrect connection URL, or a CORS configuration issue.",
+        "The Graph Explorer server is not reachable from this page. It has usually stopped running, or this tab is stale. Reload the page and try again.",
     };
+  }
+
+  if (error instanceof DatabaseUnreachableError) {
+    return {
+      title: "Database not reachable from the browser",
+      message:
+        "This direct connection sends requests from the browser, so the database must be running at the Database URL and allow cross-origin requests from this page. Check the URL and the database's CORS settings, or edit the connection and uncheck Connect directly from the browser (deprecated) under Advanced options.",
+    };
+  }
+
+  if (error instanceof MissingDatabaseUrlError) {
+    return {
+      title: "Missing database URL",
+      message:
+        "This connection has no database URL. Edit the connection and enter the Database URL.",
+    };
+  }
+
+  if (error instanceof InvalidDatabaseUrlError) {
+    return invalidUrlDisplayError;
+  }
+
+  if (error instanceof InsecureDatabaseUrlError) {
+    return {
+      title: "Insecure database URL",
+      message:
+        "This page uses HTTPS, so the browser likely blocked the request to this http:// database. Use an https:// Database URL, or edit the connection and uncheck Connect directly from the browser (deprecated) under Advanced options. If your browser allows insecure content for this site, also check that the database is running and allows cross-origin requests from this page.",
+    };
+  }
+
+  if (error instanceof ReverseProxyMisconfiguredError) {
+    // The message is already written for the operator who deployed this,
+    // naming the missing path segment and the fix.
+    return { title: "Reverse proxy misconfigured", message: error.message };
   }
 
   if (error instanceof NetworkError) {
@@ -199,28 +233,4 @@ export function createDisplayError(error: any): DisplayError {
   }
 
   return defaultDisplayError;
-}
-
-function hasOriginMismatch(url: string): boolean {
-  try {
-    const parsed = new URL(url);
-
-    // Browsers don't enforce CORS between localhost ports
-    if (isLoopback(parsed.hostname) && isLoopback(window.location.hostname)) {
-      return false;
-    }
-
-    return parsed.origin !== window.location.origin;
-  } catch {
-    return false;
-  }
-}
-
-function isLoopback(hostname: string): boolean {
-  return (
-    hostname === "localhost" ||
-    hostname === "127.0.0.1" ||
-    hostname === "[::1]" ||
-    hostname === "0.0.0.0"
-  );
 }

@@ -3,8 +3,10 @@ import { DatabaseIcon } from "lucide-react";
 import type { RawConfiguration } from "@/core";
 
 import { ListRowContent, ListRowSubtitle, ListRowTitle } from "@/components";
+import { isDirectConnection } from "@/core/StateProvider/configuration";
 import useActivateConnection from "@/core/StateProvider/useActivateConnection";
 import { useTranslations } from "@/hooks";
+import { LABELS } from "@/utils/constants";
 
 function ConnectionRow({
   connection,
@@ -19,11 +21,8 @@ function ConnectionRow({
   const activateConnection = useActivateConnection();
   const setActiveConfig = () => activateConnection(connection.id);
 
-  const dbUrl = connection.connection
-    ? connection.connection.proxyConnection
-      ? connection.connection.graphDbUrl
-      : connection.connection.url
-    : null;
+  const dbUrl = connection.connection?.graphDbUrl || null;
+  const isDirect = isDirectConnection(connection.connection);
 
   const graphType = t(
     "query-language",
@@ -41,8 +40,9 @@ function ConnectionRow({
           {connection.displayLabel || connection.id}
         </ListRowTitle>
         <ListRowSubtitle>
-          <span className="">{graphType}</span>
-          {dbUrl ? <span> &bull; {dbUrl}</span> : null}
+          {graphType}
+          {isDirect ? <> &bull; {LABELS.DIRECT_CONNECTION_SHORT}</> : null}
+          {dbUrl ? <> &bull; {dbUrl}</> : null}
         </ListRowSubtitle>
       </ListRowContent>
       <input

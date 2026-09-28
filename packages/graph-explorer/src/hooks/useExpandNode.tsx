@@ -20,7 +20,7 @@ import {
   type Vertex,
   type VertexId,
 } from "@/core";
-import { loggerSelector } from "@/core/connector";
+import { serverLogger } from "@/core/connector";
 import { createDisplayError } from "@/utils/createDisplayError";
 
 import { useAddToGraph } from "./useAddToGraph";
@@ -60,7 +60,6 @@ export function useDefaultNeighborExpansionLimit() {
 export default function useExpandNode() {
   const addToGraph = useAddToGraph();
   const getFetchedNeighbors = useFetchedNeighborsCallback();
-  const remoteLogger = useAtomValue(loggerSelector);
   const neighborCallback = useNeighborsCallback();
 
   // Expand single node
@@ -82,7 +81,7 @@ export default function useExpandNode() {
       toast.promise(expandPromise, {
         loading: "Expanding neighbors",
         error: err => {
-          remoteLogger.error(
+          serverLogger.error(
             `Failed to expand node: ${(err as Error)?.message ?? "Unknown error"}`,
           );
           const displayError = createDisplayError(err);
@@ -155,7 +154,7 @@ export default function useExpandNode() {
       toast.promise(expandPromise, {
         loading: `Expanding neighbors`,
         error: err => {
-          remoteLogger.error(
+          serverLogger.error(
             `Failed to expand nodes: ${(err as Error)?.message ?? "Unknown error"}`,
           );
           const displayError = createDisplayError(err);

@@ -16,6 +16,7 @@ import {
   EdgeIcon,
   EditIcon,
   GraphIcon,
+  InfoTooltip,
   NotInProduction,
   Panel,
   PanelContent,
@@ -49,6 +50,7 @@ import {
   useHasActiveSchema,
   useMaybeActiveSchema,
 } from "@/core";
+import { isDirectConnection } from "@/core/StateProvider/configuration";
 import {
   debugForcePersistenceFailure,
   debugResetPersistenceStatus,
@@ -86,11 +88,8 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
 
   const deleteActiveConfig = useDeleteActiveConfiguration();
 
-  const dbUrl = config.connection
-    ? config.connection.proxyConnection
-      ? config.connection.graphDbUrl
-      : config.connection.url
-    : LABELS.MISSING_VALUE;
+  const dbUrl = config.connection?.graphDbUrl || LABELS.MISSING_VALUE;
+  const isDirect = isDirectConnection(config.connection);
 
   const connectionName = config.displayLabel || config.id;
 
@@ -140,14 +139,28 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
               <InfoItemValue>{t("query-language")}</InfoItemValue>
             </InfoItemContent>
           </InfoItem>
-          <InfoItem>
+          <InfoItem className="min-w-0">
             <InfoItemIcon>
               <LinkIcon />
             </InfoItemIcon>
 
-            <InfoItemContent>
+            <InfoItemContent className="min-w-0">
               <InfoItemLabel>Database URL</InfoItemLabel>
-              <InfoItemValue>{dbUrl}</InfoItemValue>
+              <InfoItemValue className="line-clamp-2 break-all" title={dbUrl}>
+                {dbUrl}
+              </InfoItemValue>
+              {isDirect && (
+                <InfoItemLabel className="flex items-center gap-1">
+                  {LABELS.DIRECT_CONNECTION}
+                  <InfoTooltip>
+                    Requests for this connection go from your browser to the
+                    database instead of through the Graph Explorer server. This
+                    option will be removed in a future release. To switch, edit
+                    the connection and uncheck Connect directly from the browser
+                    (deprecated) under Advanced options.
+                  </InfoTooltip>
+                </InfoItemLabel>
+              )}
             </InfoItemContent>
           </InfoItem>
         </InfoBar>

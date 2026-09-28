@@ -1,4 +1,14 @@
+import type { LegacyConnectionConfig } from "@shared/types";
+
 import { createStore } from "jotai";
+import localforage from "localforage";
+
+import {
+  createRandomRawConfiguration,
+  preloadStoredConfigurations,
+} from "@/utils/testing";
+
+import type { RawConfiguration } from "../ConfigurationProvider";
 
 import { defaultGraphViewLayout } from "./graphViewLayoutDefaults";
 import { defaultSchemaViewLayout } from "./schemaViewLayoutDefaults";
@@ -71,5 +81,95 @@ describe("storageAtoms", () => {
 
     store.set(showDebugActionsAtom, false);
     expect(store.get(showDebugActionsAtom)).toBe(false);
+  });
+});
+
+/**
+ * BACKWARD COMPATIBILITY: CONNECTIONS STORED BY EARLIER VERSIONS
+ *
+ * Earlier versions stored a connection with a `url`/`proxyConnection` pair.
+ * The real `configurationAtom` must fold that shape into the canonical one
+ * as it preloads, so these tests seed IndexedDB and then load a fresh copy
+ * of storageAtoms.ts. Removing `transform: transformConfiguration` from its
+ * `configuration` atom must fail them.
+ *
+ * DO NOT delete or weaken these tests without confirming no stored
+ * connection can still carry the legacy shape.
+ */
+describe("backward compatibility: connections stored by earlier versions", () => {
+  function storedConfig(connection: LegacyConnectionConfig): RawConfiguration {
+    return {
+      ...createRandomRawConfiguration(),
+      // Stored data is not schema-validated on read.
+      connection: connection as RawConfiguration["connection"],
+    };
+  }
+
+  it("transforms a stored proxied IAM connection when the atoms preload", async () => {
+    const config = storedConfig({
+      url: "https://proxy.example.com",
+      proxyConnection: true,
+      graphDbUrl: "https://neptune:8182",
+      awsAuthEnabled: true,
+      awsRegion: "us-east-1",
+      serviceType: "neptune-db",
+      queryEngine: "gremlin",
+      fetchTimeoutMs: 30000,
+      nodeExpansionLimit: 25,
+    });
+
+    const { store, configurationAtom } =
+      await preloadStoredConfigurations(config);
+
+    expect(
+      store.get(configurationAtom).get(config.id)?.connection,
+    ).toStrictEqual({
+      graphDbUrl: "https://neptune:8182",
+      awsAuthEnabled: true,
+      awsRegion: "us-east-1",
+      serviceType: "neptune-db",
+      queryEngine: "gremlin",
+      fetchTimeoutMs: 30000,
+      nodeExpansionLimit: 25,
+    });
+  });
+
+  // A tab still running an earlier version keeps writing the legacy shape.
+  // This tab's write upserts only the entry it changed, so the other entries
+  // stay as stored and are transformed again on the next load.
+  it("leaves stored legacy entries as they are when this tab adds a connection", async () => {
+    const storedByThisTab = storedConfig({
+      url: "https://proxy.example.com",
+      proxyConnection: true,
+      graphDbUrl: "https://neptune-a:8182",
+    });
+    const { store, configurationAtom, persistenceStatusStore } =
+      await preloadStoredConfigurations(storedByThisTab);
+
+    // Another tab writes its own legacy entry alongside this tab's, directly
+    // to storage, skipping this tab's in-memory atoms entirely.
+    const storedByOtherTab = storedConfig({
+      url: "https://proxy.example.com",
+      proxyConnection: true,
+      graphDbUrl: "https://neptune-b:8182",
+    });
+    await localforage.setItem(
+      "configuration",
+      new Map([
+        [storedByThisTab.id, storedByThisTab],
+        [storedByOtherTab.id, storedByOtherTab],
+      ]),
+    );
+    const added = createRandomRawConfiguration();
+    store.set(configurationAtom, prev => new Map(prev).set(added.id, added));
+    await persistenceStatusStore.waitForIdle();
+
+    expect(await localforage.getItem("configuration")).toStrictEqual(
+      new Map([
+        [storedByThisTab.id, storedByThisTab],
+        [storedByOtherTab.id, storedByOtherTab],
+        [added.id, added],
+      ]),
+    );
   });
 });

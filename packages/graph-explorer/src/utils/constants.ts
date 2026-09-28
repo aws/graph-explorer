@@ -27,10 +27,7 @@ export const RESERVED_ID_PROPERTY = "~id";
 export const RESERVED_TYPES_PROPERTY = "types";
 
 /** The root URL for the app used for reloading fresh. */
-export const RELOAD_URL =
-  import.meta.env.BASE_URL.substring(-1) !== "/"
-    ? import.meta.env.BASE_URL + "/"
-    : import.meta.env.BASE_URL;
+export const RELOAD_URL = ".";
 
 /** Labels used in the UI */
 export const LABELS = {
@@ -42,6 +39,10 @@ export const LABELS = {
   MISSING_TYPE: `${ASCII.LAQUO}No Type${ASCII.RAQUO}`,
   /** Shown when a value is missing */
   MISSING_VALUE: `${ASCII.LAQUO}No Value${ASCII.RAQUO}`,
+  /** Marks a deprecated direct connection in its details */
+  DIRECT_CONNECTION: "Direct from browser (deprecated)",
+  /** Marks a deprecated direct connection in the connection list */
+  DIRECT_CONNECTION_SHORT: "Direct",
   /** Shown when a value is empty (like empty string) */
   EMPTY_VALUE: `${ASCII.LAQUO}Empty Value${ASCII.RAQUO}`,
 

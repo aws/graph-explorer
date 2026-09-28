@@ -8,6 +8,7 @@
   "author": "amazon",
   "type": "module",
   "exports": {
+    "./constants": "./src/constants.ts",
     "./types": "./src/types/index.ts",
     "./utils/testing": "./src/utils/testing/index.ts"
   },

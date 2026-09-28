@@ -7,6 +7,7 @@ This page contains workarounds for common issues and information on how to diagn
 - [Docker Container Issues](#docker-container-issues)
 - [Graph Explorer can't start because it can't write .env](#graph-explorer-cant-start-because-it-cant-write-env)
 - [Schema Sync Fails](#schema-sync-fails)
+- [Reverse proxy misconfigured](#reverse-proxy-misconfigured)
 - [Save & Load Configuration](#save--load-configuration)
 - [Graph Explorer Can't Save Your Changes](#graph-explorer-cant-save-your-changes)
 - [Gathering SageMaker Logs](#gathering-sagemaker-logs)
@@ -84,28 +85,6 @@ To fix it:
 
 This can happen for many reasons. Below are a few of the common ones.
 
-### Mismatched Proxy Server URL
-
-When running a schema sync, a common cause of failures is a mismatch between the proxy server URL in your connection settings and the URL currently loaded in your browser. This mismatch can trigger a "Connection Error" message in Graph Explorer.
-
-Modern browsers enforce a security policy called [Same-Origin Policy](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy), which requires API requests to be sent to the same domain as the page you're viewing. If your connection settings specify a different domain than your current browser URL, the request will be blocked.
-
-To resolve this issue:
-
-1. Check your connection settings
-2. Ensure the proxy server URL matches the domain portion of your current browser URL
-3. Update the connection if necessary
-
-For example:
-
-```
-# if the current browser page URL is
-https://graph-explorer.mydomain.com/explorer/#/connections
-
-# the connection setting's proxy server URL should be
-https://graph-explorer.mydomain.com
-```
-
 ### Timeout
 
 There are multiple sources of timeouts.
@@ -129,14 +108,16 @@ This can happen when your database is very large. Graph Explorer does its best t
 
 ### Proxy Server Cannot Be Reached
 
+A "Connection Error" means the browser couldn't reach the Graph Explorer server. The database itself may be fine.
+
 Communication between the client and proxy server can be configured in different ways. When Graph Explorer proxy server starts up it will print out its best approximation of the correct public proxy server address.
 
-This can manifest as different types of errors depending on the root cause. You may receive 404 not found responses or get connection refused errors.
+This can manifest as different types of errors depending on the root cause. You may receive 404 not found responses or see a "Connection Error".
 
 - The proxy server can be hosting HTTP or HTTPS
 - The port of the proxy server could be the default (i.e. 80 or 443 with SSL) or a specific port provided through environment values
 - The proxy server paths are not exposed by the networking layer (load balancer, proxy, firewall, etc)
-  - The client is hosted at `/explorer` by default, which is configurable
+  - The client is hosted at `/explorer`
   - Queries are handled via `/gremlin`, `/opencypher`, `/sparql`
   - Summary APIs are handled via `/summary`, `/pg/statistics/summary`, `/rdf/statistics/summary`
   - Logging is handled by `/logger`
@@ -148,9 +129,9 @@ This can manifest as different types of errors depending on the root cause. You 
 
 ### Database Cannot Be Reached
 
-These errors mean the browser reached the proxy server, but the proxy server could not reach the database. Graph Explorer names the failure with one of two titles, and each one points at a different fix.
+These errors mean the browser reached the proxy server, but the proxy server could not reach the database. Graph Explorer names the failure with one of three titles, and each one points at a different fix.
 
-**Database unreachable** means the database hostname could not be resolved. Check the hostname in the connection's Graph Connection URL for a typo, and check that the proxy server's host can resolve that name. A private endpoint, such as a Neptune cluster endpoint inside a VPC, only resolves from inside that VPC.
+**Database unreachable** means the database hostname could not be resolved. Check the hostname in the connection's Database URL for a typo, and check that the proxy server's host can resolve that name. A private endpoint, such as a Neptune cluster endpoint inside a VPC, only resolves from inside that VPC.
 
 **Database connection timed out** means the hostname resolved, but nothing answered at that address. The hostname is correct, so look at the network path instead:
 
@@ -160,7 +141,43 @@ These errors mean the browser reached the proxy server, but the proxy server cou
 
 This error can take a minute or more to appear, because the proxy server waits for the operating system's connection timeout.
 
+**Connection refused** means the hostname resolved and the host answered, but nothing is listening on that port. Check the port in the connection, and check that the database is running.
+
 For the network setup Neptune needs, see [Network Access](./connecting-to-neptune.md#network-access).
+
+For a proxied connection, the server, not the browser, must have network access to the database. See [System overview](../architecture.md#system-overview) for the network-routing requirements.
+
+### Database Not Reachable From the Browser
+
+"Database not reachable from the browser" appears only for a connection with **Connect directly from the browser (deprecated)** checked. The browser sends that connection's requests to the database itself, and the request failed before any response arrived. Common causes:
+
+- The database doesn't allow cross-origin requests (CORS) from the Graph Explorer page's origin.
+- The database isn't running, or the Database URL has the wrong host or port.
+- The browser's network can't reach the database.
+
+To fix it, either configure the database to allow cross-origin requests from the Graph Explorer page, or edit the connection and uncheck **Connect directly from the browser (deprecated)** under **Advanced options** so the Graph Explorer server connects to the database instead. The direct option will be removed in a future release, so unchecking it is the lasting fix.
+
+### Insecure Database URL
+
+"Insecure database URL" appears only for a connection with **Connect directly from the browser (deprecated)** checked, when the Graph Explorer page is served over HTTPS, the Database URL starts with `http://`, and the request failed. Browsers block requests from an HTTPS page to an HTTP address as mixed content, so the browser most likely blocked this one. A loopback Database URL is exempt, because browsers allow it over HTTP: `localhost`, any `.localhost` subdomain, any `127.x.x.x` address, or `[::1]`.
+
+To fix it, either use an `https://` Database URL, or edit the connection and uncheck **Connect directly from the browser (deprecated)** under **Advanced options** so the Graph Explorer server connects to the database instead.
+
+If your browser allows insecure content for this site, the request wasn't blocked and failed for another reason. Check that the database is running at the Database URL and allows cross-origin requests (CORS) from the Graph Explorer page, as described in [Database Not Reachable From the Browser](#database-not-reachable-from-the-browser).
+
+## Reverse proxy misconfigured
+
+This error appears as soon as the app first calls the Graph Explorer server: on page load when there are no saved connections, otherwise on the first schema sync or query. The client resolves the API root from its own path as soon as it needs it.
+
+Graph Explorer works behind a reverse proxy at any prefix depth, and the prefix can even contain the word "explorer" without conflict, as long as the proxy strips the prefix and forwards the rest of the path unchanged, including the client's own `/explorer` segment. For example, an nginx rule mapping `/gx/` onto the server looks like:
+
+```
+location /gx/ { proxy_pass http://server:9250/; }
+```
+
+That rule forwards the whole `/gx/` prefix, so `/gx/explorer/` reaches the client at `/explorer/` and the API calls at `/gx/sparql`, `/gx/gremlin`, `/gx/summary`, `/gx/logger`, and `/gx/defaultConnection` reach `/sparql`, `/gremlin`, `/summary`, `/logger`, and `/defaultConnection`. A rule scoped to `/gx/explorer/` alone would serve the page but match none of the API paths, so every query would fail.
+
+A proxy that renames the `/explorer` segment away instead, for example mapping an external `/gx/` directly onto the server's `/explorer/`, is not supported. The page will still render, since assets resolve with a relative base path, but the browser has no way to tell where the API root is, and Graph Explorer now fails with a clear "Reverse proxy misconfigured" error rather than sending requests to the wrong place.
 
 ## Save & Load Configuration
 

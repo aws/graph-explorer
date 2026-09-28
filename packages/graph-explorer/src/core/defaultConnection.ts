@@ -1,6 +1,7 @@
 import { neptuneServiceTypeOptions, queryEngineOptions } from "@shared/types";
 import { z } from "zod";
 
+import { apiUrl } from "@/connector/utils/apiUrl";
 import { DEFAULT_SERVICE_TYPE, logger } from "@/utils";
 
 import type {
@@ -8,11 +9,16 @@ import type {
   RawConfiguration,
 } from "./ConfigurationProvider";
 
+import { transformLegacyConnection } from "./StateProvider/configuration";
+
 export const DefaultConnectionDataSchema = z.object({
   // Connection info
-  GRAPH_EXP_USING_PROXY_SERVER: z.boolean().default(false),
-  GRAPH_EXP_CONNECTION_URL: z.string().url().catch(""),
-  GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT: z.string().url().catch(""),
+  GRAPH_EXP_USING_PROXY_SERVER: z.boolean().optional(),
+  // An empty or invalid value counts as absent, so legacy inference falls
+  // through to the public endpoint
+  GRAPH_EXP_CONNECTION_URL: z.string().url().optional().catch(undefined),
+  // Written by earlier versions, and read the way a legacy stored connection is
+  GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT: z.string().url().optional().catch(""),
   GRAPH_EXP_GRAPH_TYPE: z.enum(queryEngineOptions).optional(),
   // IAM auth info
   GRAPH_EXP_IAM: z.boolean().default(false),
@@ -28,15 +34,15 @@ export const DefaultConnectionDataSchema = z.object({
 
 export type DefaultConnectionData = z.infer<typeof DefaultConnectionDataSchema>;
 
-/** Fetches the default connections from multiple possible locations and returns an empty array on failure. */
+/**
+ * Fetches the default connection from the server and returns an empty array
+ * on failure. Throws `ReverseProxyMisconfiguredError` when the API URL can't
+ * be resolved from the page's path.
+ */
 export async function fetchDefaultConnection() {
-  const defaultConnectionPath = `${location.origin}/defaultConnection`;
-  const sagemakerConnectionPath = `${location.origin}/proxy/9250/defaultConnection`;
-
+  const url = apiUrl("defaultConnection");
   try {
-    const defaultConnection =
-      (await fetchDefaultConnectionFor(defaultConnectionPath)) ??
-      (await fetchDefaultConnectionFor(sagemakerConnectionPath));
+    const defaultConnection = await fetchDefaultConnectionFor(url);
 
     if (!defaultConnection) {
       return [];
@@ -44,12 +50,10 @@ export async function fetchDefaultConnection() {
 
     const config = mapToConnection(defaultConnection);
 
-    // A specific query engine was specified, so just return that
     if (config.connection?.queryEngine) {
       return [config];
     }
 
-    // No query engine was specified, so return all the possible ones
     const configs = queryEngineOptions.map(queryEngine => {
       return {
         ...config,
@@ -72,7 +76,7 @@ export async function fetchDefaultConnection() {
 
 /** Attempts to fetch a default connection from the given URL and returns null on a failure. */
 export async function fetchDefaultConnectionFor(
-  url: string,
+  url: URL,
 ): Promise<DefaultConnectionData | null> {
   try {
     logger.debug("Fetching default connection from", url);
@@ -105,20 +109,23 @@ export async function fetchDefaultConnectionFor(
 }
 
 export function mapToConnection(data: DefaultConnectionData): RawConfiguration {
-  const config: RawConfiguration = {
+  return {
     id: "Default Connection" as ConfigurationId,
     displayLabel: "Default Connection",
-    connection: {
+    connection: transformLegacyConnection({
       url: data.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT,
-      queryEngine: data.GRAPH_EXP_GRAPH_TYPE,
-      proxyConnection: data.GRAPH_EXP_USING_PROXY_SERVER,
       graphDbUrl: data.GRAPH_EXP_CONNECTION_URL,
+      // Earlier versions read a missing flag in this file as false, so a file
+      // with a public endpoint and no flag stays direct
+      proxyConnection:
+        data.GRAPH_EXP_USING_PROXY_SERVER ??
+        (data.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT ? false : undefined),
+      queryEngine: data.GRAPH_EXP_GRAPH_TYPE,
       awsAuthEnabled: data.GRAPH_EXP_IAM,
       awsRegion: data.GRAPH_EXP_AWS_REGION,
       serviceType: data.GRAPH_EXP_SERVICE_TYPE,
       fetchTimeoutMs: data.GRAPH_EXP_FETCH_REQUEST_TIMEOUT,
       nodeExpansionLimit: data.GRAPH_EXP_NODE_EXPANSION_LIMIT,
-    },
+    }),
   };
-  return config;
 }

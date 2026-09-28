@@ -9,6 +9,7 @@ import type { SchemaStorageModel } from "./schema";
 
 import { createActiveConfigurationAtom } from "./activeConnectionStorage";
 import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
+import { transformConfiguration } from "./configurationTransform";
 import {
   defaultGraphViewLayout,
   transformGraphViewLayout,
@@ -81,7 +82,7 @@ const [
   atomWithLocalForage<Map<ConfigurationId, RawConfiguration>>(
     "configuration",
     new Map(),
-    { reconcile: reconcileMapByKey },
+    { reconcile: reconcileMapByKey, transform: transformConfiguration },
   ),
   /** All the stored schemas */
   atomWithLocalForage("schema", new Map<string, SchemaStorageModel>(), {
