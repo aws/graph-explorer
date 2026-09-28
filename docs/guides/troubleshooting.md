@@ -159,7 +159,7 @@ To fix it, either configure the database to allow cross-origin requests from the
 
 ### Insecure Database URL
 
-"Insecure database URL" appears only for a connection with **Connect directly from the browser (deprecated)** checked, when the Graph Explorer page is served over HTTPS and the Database URL starts with `http://`. The browser blocks requests from an HTTPS page to an HTTP address as mixed content, so Graph Explorer doesn't send the request. A Database URL on `localhost`, a `.localhost` subdomain, `127.0.0.1`, or `[::1]` is exempt, because browsers allow those over HTTP.
+"Insecure database URL" appears only for a connection with **Connect directly from the browser (deprecated)** checked, when the Graph Explorer page is served over HTTPS, the Database URL starts with `http://`, and the request failed. Browsers block requests from an HTTPS page to an HTTP address as mixed content, and Graph Explorer recognized that the browser blocked this one. A loopback Database URL is exempt, because browsers allow it over HTTP: `localhost`, any `.localhost` subdomain, any `127.x.x.x` address, or `[::1]`.
 
 To fix it, either use an `https://` Database URL, or edit the connection and uncheck **Connect directly from the browser (deprecated)** under **Advanced options** so the Graph Explorer server connects to the database instead.
 

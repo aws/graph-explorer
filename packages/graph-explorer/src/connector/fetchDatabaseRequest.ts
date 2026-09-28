@@ -9,6 +9,7 @@ import {
   InsecureDatabaseUrlError,
   InvalidDatabaseUrlError,
   isAbsoluteHttpUrl,
+  isMixedContent,
   logger,
   MissingDatabaseUrlError,
   NetworkError,
@@ -62,26 +63,6 @@ async function decodeErrorSafely(response: Response): Promise<any> {
   return rawText;
 }
 
-// Browsers treat these hosts as trustworthy, so an https page may still
-// request them over http.
-function isLoopbackHost(hostname: string): boolean {
-  return (
-    hostname === "localhost" ||
-    hostname === "127.0.0.1" ||
-    hostname === "[::1]" ||
-    hostname.endsWith(".localhost")
-  );
-}
-
-// The browser blocks an http request from an https page as mixed content.
-function isMixedContent(url: URL): boolean {
-  return (
-    location.protocol === "https:" &&
-    url.protocol === "http:" &&
-    !isLoopbackHost(url.hostname)
-  );
-}
-
 // The Graph Explorer server's route for a proxy connection, or the database
 // itself for a deprecated direct connection.
 function resolveEndpoint(connection: NormalizedConnection, path: string): URL {
@@ -91,11 +72,22 @@ function resolveEndpoint(connection: NormalizedConnection, path: string): URL {
   if (!isAbsoluteHttpUrl(connection.graphDbUrl)) {
     throw new InvalidDatabaseUrlError(connection.graphDbUrl);
   }
-  const url = new URL(`${connection.graphDbUrl}/${path}`);
-  if (isMixedContent(url)) {
-    throw new InsecureDatabaseUrlError(connection.graphDbUrl);
+  return new URL(`${connection.graphDbUrl}/${path}`);
+}
+
+// The browser's TypeError doesn't say why the request failed, so an http URL
+// from an https page is taken to mean the browser blocked it as mixed content.
+function unreachableError(
+  connection: NormalizedConnection,
+  uri: URL,
+  cause: TypeError,
+): Error {
+  if (!isDirectConnection(connection)) {
+    return new ServerConnectionError(uri.href, cause);
   }
-  return url;
+  return isMixedContent(uri)
+    ? new InsecureDatabaseUrlError(uri.href, cause)
+    : new DatabaseUnreachableError(uri.href, cause);
 }
 
 // Construct the request headers based on the connection settings
@@ -215,9 +207,7 @@ export async function fetchDatabaseRequest(
     }
 
     if (error instanceof TypeError) {
-      throw isDirectConnection(connection)
-        ? new DatabaseUnreachableError(uri.href, error)
-        : new ServerConnectionError(uri.href, error);
+      throw unreachableError(connection, uri, error);
     }
     throw error;
   }

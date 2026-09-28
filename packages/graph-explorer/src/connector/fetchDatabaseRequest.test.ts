@@ -278,80 +278,116 @@ describe("fetchDatabaseRequest", () => {
   });
 
   describe("insecure direct database url", () => {
-    it("throws InsecureDatabaseUrlError before fetching for an http database on an https page", async () => {
-      stubDocumentUrl("https://graph-explorer.example.com/explorer/");
-      const conn = createConnection({
-        graphDbUrl: "http://db.example.com:8182",
-        proxyConnection: false,
-      });
+    const httpsPage = "https://graph-explorer.example.com/explorer/";
 
-      await expect(
-        fetchDatabaseRequest(conn, featureFlags, "gremlin", {
-          method: "POST",
-        }),
-      ).rejects.toThrow(
-        new InsecureDatabaseUrlError("http://db.example.com:8182"),
+    function directConnection(graphDbUrl: string) {
+      return createConnection({ graphDbUrl, proxyConnection: false });
+    }
+
+    it("classifies a failed request to an http database from an https page as InsecureDatabaseUrlError", async () => {
+      stubDocumentUrl(httpsPage);
+      const cause = new TypeError("Failed to fetch");
+      mockFetch.mockRejectedValue(cause);
+
+      const error = await fetchDatabaseRequest(
+        directConnection("http://db.example.com:8182"),
+        featureFlags,
+        "gremlin",
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(error).toStrictEqual(
+        new InsecureDatabaseUrlError(
+          "http://db.example.com:8182/gremlin",
+          cause,
+        ),
       );
-
-      expect(mockFetch).not.toHaveBeenCalled();
-    });
-
-    // Browsers treat loopback hosts as trustworthy, so they don't block them.
-    it.each([
-      "http://localhost:8182",
-      "http://127.0.0.1:8182",
-      "http://[::1]:8182",
-      "http://db.localhost:8182",
-    ])(
-      "sends the request to the loopback database %s on an https page",
-      async graphDbUrl => {
-        stubDocumentUrl("https://graph-explorer.example.com/explorer/");
-        mockFetch.mockResolvedValue(jsonResponse({}));
-        const conn = createConnection({ graphDbUrl, proxyConnection: false });
-
-        await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
-          method: "POST",
-        });
-
-        expect(mockFetch).toHaveBeenCalledWith(
-          new URL(`${graphDbUrl}/gremlin`),
-          expect.anything(),
-        );
-      },
-    );
-
-    it("sends the request to an http database on an http page", async () => {
-      stubDocumentUrl("http://graph-explorer.example.com/explorer/");
-      mockFetch.mockResolvedValue(jsonResponse({}));
-      const conn = createConnection({
-        graphDbUrl: "http://db.example.com:8182",
-        proxyConnection: false,
-      });
-
-      await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
-        method: "POST",
-      });
-
+      expect(error.cause).toBe(cause);
       expect(mockFetch).toHaveBeenCalledWith(
         new URL("http://db.example.com:8182/gremlin"),
         expect.anything(),
       );
     });
 
-    it("sends a proxy connection's request for an http database through the Graph Explorer server on an https page", async () => {
-      stubDocumentUrl("https://graph-explorer.example.com/explorer/");
-      mockFetch.mockResolvedValue(jsonResponse({}));
-      const conn = createConnection({
-        graphDbUrl: "http://db.example.com:8182",
-      });
+    it("returns the response when the browser allows an http database from an https page", async () => {
+      stubDocumentUrl(httpsPage);
+      mockFetch.mockResolvedValue(jsonResponse({ result: "ok" }));
 
-      await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
-        method: "POST",
-      });
+      const data = await fetchDatabaseRequest(
+        directConnection("http://db.example.com:8182"),
+        featureFlags,
+        "gremlin",
+        { method: "POST" },
+      );
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        new URL("https://graph-explorer.example.com/gremlin"),
-        expect.anything(),
+      expect(data).toStrictEqual({ result: "ok" });
+    });
+
+    // Browsers treat loopback hosts as trustworthy, so they don't block them.
+    it.each([
+      "http://localhost:8182",
+      "http://localhost.:8182",
+      "http://db.localhost:8182",
+      "http://127.0.0.1:8182",
+      "http://127.0.0.2:8182",
+      "http://[::1]:8182",
+    ])(
+      "classifies a failed request to the loopback database %s from an https page as DatabaseUnreachableError",
+      async graphDbUrl => {
+        stubDocumentUrl(httpsPage);
+        const cause = new TypeError("Failed to fetch");
+        mockFetch.mockRejectedValue(cause);
+
+        const error = await fetchDatabaseRequest(
+          directConnection(graphDbUrl),
+          featureFlags,
+          "gremlin",
+          { method: "POST" },
+        ).catch(e => e);
+
+        expect(error).toStrictEqual(
+          new DatabaseUnreachableError(`${graphDbUrl}/gremlin`, cause),
+        );
+      },
+    );
+
+    it("classifies a failed request to an http database from an http page as DatabaseUnreachableError", async () => {
+      stubDocumentUrl("http://graph-explorer.example.com/explorer/");
+      const cause = new TypeError("Failed to fetch");
+      mockFetch.mockRejectedValue(cause);
+
+      const error = await fetchDatabaseRequest(
+        directConnection("http://db.example.com:8182"),
+        featureFlags,
+        "gremlin",
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(error).toStrictEqual(
+        new DatabaseUnreachableError(
+          "http://db.example.com:8182/gremlin",
+          cause,
+        ),
+      );
+    });
+
+    it("classifies a failed proxy request for an http database from an https page as ServerConnectionError", async () => {
+      stubDocumentUrl(httpsPage);
+      const cause = new TypeError("Failed to fetch");
+      mockFetch.mockRejectedValue(cause);
+
+      const error = await fetchDatabaseRequest(
+        createConnection({ graphDbUrl: "http://db.example.com:8182" }),
+        featureFlags,
+        "gremlin",
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(error).toStrictEqual(
+        new ServerConnectionError(
+          "https://graph-explorer.example.com/gremlin",
+          cause,
+        ),
       );
     });
   });

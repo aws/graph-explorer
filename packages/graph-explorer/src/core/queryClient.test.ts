@@ -37,7 +37,7 @@ describe("createQueryClient", () => {
     expect(shouldRetryQuery(0, new Error("Something failed"))).toBe(true);
   });
 
-  // Thrown before any request, so a retry can only fail the same way
+  // The database URL itself is the problem, so a retry can only fail the same way
   test("should not retry a connection with no database URL", () => {
     expect(shouldRetryQuery(0, new MissingDatabaseUrlError())).toBe(false);
   });
@@ -50,7 +50,13 @@ describe("createQueryClient", () => {
 
   test("should not retry a direct connection with an insecure database URL", () => {
     expect(
-      shouldRetryQuery(0, new InsecureDatabaseUrlError("http://db:8182")),
+      shouldRetryQuery(
+        0,
+        new InsecureDatabaseUrlError(
+          "http://db:8182/gremlin",
+          new TypeError("Failed to fetch"),
+        ),
+      ),
     ).toBe(false);
   });
 });
