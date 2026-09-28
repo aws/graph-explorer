@@ -66,6 +66,47 @@ describe("useGraphStyles", () => {
         shape: "ellipse",
         width: 24,
         height: 24,
+        color: "#FFFFFF",
+        "text-background-color": "#1d2531",
+        "text-background-opacity": 0.7,
+        "text-border-color": "#1d2531",
+        "text-border-style": "solid",
+        "text-border-width": 0,
+      });
+    });
+  });
+
+  it("should apply a vertex type's own label-badge style, not just the app default", async () => {
+    const vertexConfig = {
+      ...createRandomVertexTypeConfig(),
+      ...RASTER_ICON,
+      type: createVertexType("Person"),
+      color: "#128EE5",
+      backgroundOpacity: 0.8,
+      borderColor: "#000000",
+      borderWidth: 2,
+      borderStyle: "solid" as const,
+      shape: "ellipse" as const,
+      labelColor: "#f8fafc",
+      labelBackgroundOpacity: 0.94,
+      labelBorderColor: "#cbd5e1",
+      labelBorderWidth: 1,
+      labelBorderStyle: "solid" as const,
+    };
+    dbState.activeSchema.vertices = [vertexConfig];
+    dbState.addVertexStyle(vertexConfig.type, vertexConfig);
+
+    const { result } = renderHookWithState(() => useGraphStyles(), dbState);
+
+    await waitFor(() => {
+      const vertexStyle = getStyles(result)[`node[type="Person"]`] as any;
+      expect(vertexStyle).toMatchObject({
+        color: "#000000", // Black text for a light background
+        "text-background-color": "#f8fafc",
+        "text-background-opacity": 0.94,
+        "text-border-color": "#cbd5e1",
+        "text-border-width": 1,
+        "text-border-style": "solid",
       });
     });
   });
