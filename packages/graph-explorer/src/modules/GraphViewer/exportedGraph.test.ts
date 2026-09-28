@@ -11,6 +11,10 @@ import type { EdgeId, VertexId } from "@/core";
 
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 import {
+  normalizeConnection,
+  transformLegacyConnection,
+} from "@/core/StateProvider/configuration";
+import {
   createRandomConnectionWithId,
   createRandomEdgeId,
   createRandomExportedGraph,
@@ -426,6 +430,37 @@ describe("isMatchingConnection", () => {
     exportedConnection.queryEngine = connection.queryEngine!;
 
     expect(isMatchingConnection(connection, exportedConnection)).toBeFalsy();
+  });
+});
+
+/**
+ * Earlier versions exported `dbUrl` as the lowercased `graphDbUrl` for a
+ * proxied connection and the lowercased `url` otherwise. A stored connection
+ * from then is upgraded through `transformLegacyConnection`, so a graph file
+ * exported before the upgrade must still match the upgraded connection. Do not
+ * delete without confirming no such files remain in use.
+ */
+describe("backward compatibility: graph files exported by earlier versions", () => {
+  it("matches an upgraded proxied connection", () => {
+    const legacyConnection = {
+      url: "http://localhost:80",
+      proxyConnection: true,
+      graphDbUrl: "https://Neptune.Example.com:8182",
+      queryEngine: "openCypher" as const,
+      awsAuthEnabled: true,
+      awsRegion: "us-west-2",
+      serviceType: "neptune-db" as const,
+    };
+    const exportedByMain: ExportedGraphConnection = {
+      dbUrl: "https://neptune.example.com:8182",
+      queryEngine: "openCypher",
+    };
+
+    const upgraded = normalizeConnection(
+      transformLegacyConnection(legacyConnection),
+    );
+
+    expect(isMatchingConnection(upgraded, exportedByMain)).toBe(true);
   });
 });
 
