@@ -534,6 +534,46 @@ describe("process-environment.sh", () => {
       });
     });
 
+    // Only a case-insensitive "true" means proxied. Any other value is set, so
+    // it doesn't fall back to inferring from the URLs, and resolves as direct.
+    it.each(["yes", "1", "on"])(
+      "resolves USING_PROXY_SERVER=%s to a direct PUBLIC_OR_PROXY_ENDPOINT",
+      value => {
+        const { defaultConnection } = runScript(workDir, {
+          USING_PROXY_SERVER: value,
+          PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+          GRAPH_CONNECTION_URL: "https://db:8182",
+          IAM: "true",
+          AWS_REGION: "us-east-1",
+          SERVICE_TYPE: "neptune-db",
+        });
+        expect(defaultConnection).toStrictEqual({
+          GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+          GRAPH_EXP_USING_PROXY_SERVER: false,
+        });
+      },
+    );
+
+    it("resolves a config.json USING_PROXY_SERVER of null to a direct PUBLIC_OR_PROXY_ENDPOINT", () => {
+      fs.writeFileSync(
+        path.join(workDir, "config.json"),
+        JSON.stringify({
+          USING_PROXY_SERVER: null,
+          PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+          GRAPH_CONNECTION_URL: "https://db:8182",
+          IAM: true,
+          AWS_REGION: "us-east-1",
+        }),
+      );
+
+      const { defaultConnection } = runScript(workDir);
+
+      expect(defaultConnection).toStrictEqual({
+        GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+      });
+    });
+
     it("resolves through config.json as well as through environment variables", () => {
       fs.writeFileSync(
         path.join(workDir, "config.json"),
