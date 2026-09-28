@@ -65,9 +65,7 @@ function seedInactiveConnection(store: AppStore) {
     id: "inactive-conn" as ConfigurationId,
     displayLabel: "Inactive",
     connection: {
-      url: "https://localhost",
       queryEngine: "gremlin" as const,
-      proxyConnection: true,
       graphDbUrl: inactiveUrl,
     },
   };
@@ -105,9 +103,7 @@ describe("Connect route", () => {
     const state = new DbState();
     const activeUrl = "https://active.neptune.amazonaws.com";
     state.activeConfig.connection = {
-      url: "https://localhost",
       queryEngine: "gremlin",
-      proxyConnection: true,
       graphDbUrl: activeUrl,
     };
     state.applyTo(getAppStore());
@@ -143,7 +139,7 @@ describe("Connect route", () => {
       screen.getByRole("button", { name: "Add Connection" }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Name")).toHaveValue("Brand New");
-    expect(screen.getByLabelText("Graph Connection URL")).toHaveValue(
+    expect(screen.getByRole("textbox", { name: "Database URL" })).toHaveValue(
       "https://brand-new.neptune.amazonaws.com",
     );
     // The dialog explains the connection details came from the user's link
@@ -172,7 +168,7 @@ describe("Connect route", () => {
     );
 
     expect(screen.getByLabelText("Name")).toHaveValue("Second");
-    expect(screen.getByLabelText("Graph Connection URL")).toHaveValue(
+    expect(screen.getByRole("textbox", { name: "Database URL" })).toHaveValue(
       "https://second.neptune.amazonaws.com",
     );
   });

@@ -278,17 +278,6 @@ export function findMatchingConnection(
 }
 
 /**
- * The base URL of the proxy server that connection links target, derived from
- * the document base URI. The UI is served one level below the proxy API (static
- * files at `<base>/explorer/`, API routes at `<base>/`), so climbing one level
- * recovers the proxy root for every deployment: `https://host` for a root-hosted
- * app and `https://host/proxy/9250` for a path-hosted Neptune notebook.
- */
-export function deriveProxyBaseUrl(baseURI: string): string {
-  return new URL("..", baseURI).href.replace(/\/$/, "");
-}
-
-/**
  * Build the connection a link proposes. IAM auth is enabled exactly when a
  * region is provided, defaulting the service type when only a region is given.
  * A `serviceType` without a region still carries through, since it also picks
@@ -301,13 +290,10 @@ export function deriveProxyBaseUrl(baseURI: string): string {
  */
 export function buildConnectionFromParams(
   params: ConnectionLinkParams,
-  proxyBaseUrl: string,
 ): ConnectionConfig {
   const awsAuthEnabled = Boolean(params.awsRegion);
   return {
-    url: proxyBaseUrl,
     queryEngine: params.queryEngine,
-    proxyConnection: true,
     graphDbUrl: params.graphDbUrl,
     awsAuthEnabled,
     awsRegion: params.awsRegion,
@@ -343,13 +329,12 @@ export function resolveConnectionLinkIntent(
   link: ConnectionLink,
   configurations: Map<ConfigurationId, RawConfiguration>,
   activeId: ConfigurationId | null,
-  proxyBaseUrl: string,
 ): ConnectionLinkIntent {
   if (link.kind === "invalid") {
     return { kind: "invalid", error: link.error };
   }
 
-  const proposed = buildConnectionFromParams(link.params, proxyBaseUrl);
+  const proposed = buildConnectionFromParams(link.params);
   const match = findMatchingConnection(
     configurations,
     proposed,

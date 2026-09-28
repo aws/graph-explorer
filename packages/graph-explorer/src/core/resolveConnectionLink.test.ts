@@ -26,9 +26,7 @@ describe("resolveConnectionLink", () => {
     const state = new DbState();
     const activeUrl = "https://active.neptune.amazonaws.com";
     state.activeConfig.connection = {
-      url: "https://localhost",
       queryEngine: "gremlin",
-      proxyConnection: true,
       graphDbUrl: activeUrl,
     };
     state.applyTo(getAppStore());
@@ -51,7 +49,6 @@ describe("resolveConnectionLink", () => {
       connection: {
         graphDbUrl: "https://brand-new.neptune.amazonaws.com",
         queryEngine: "gremlin",
-        proxyConnection: true,
       },
     });
   });
@@ -82,9 +79,7 @@ describe("resolveConnectionLink", () => {
     expect(resolveConnectionLink(searchFor(laterUrl)).kind).toBe("create");
 
     state.activeConfig.connection = {
-      url: "https://localhost",
       queryEngine: "gremlin",
-      proxyConnection: true,
       graphDbUrl: laterUrl,
     };
     state.applyTo(getAppStore());

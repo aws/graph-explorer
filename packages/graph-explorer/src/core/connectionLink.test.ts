@@ -5,7 +5,6 @@ import type {
 
 import {
   buildConnectionFromParams,
-  deriveProxyBaseUrl,
   findMatchingConnection,
   readConnectionLink,
   resolveConnectionLinkIntent,
@@ -304,7 +303,7 @@ function matchLink(
 ) {
   return findMatchingConnection(
     configurations,
-    buildConnectionFromParams(params, "https://localhost"),
+    buildConnectionFromParams(params),
     params.name,
     activeId,
   );
@@ -318,7 +317,6 @@ describe("findMatchingConnection", () => {
         id: "conn-1" as ConfigurationId,
         displayLabel: "Test",
         connection: {
-          url: "https://localhost",
           queryEngine: "openCypher",
           graphDbUrl: "https://g-abc.us-west-2.neptune-graph.amazonaws.com",
         },
@@ -330,7 +328,6 @@ describe("findMatchingConnection", () => {
         id: "conn-2" as ConfigurationId,
         displayLabel: "Gremlin DB",
         connection: {
-          url: "https://localhost",
           queryEngine: "gremlin",
           graphDbUrl: "https://my-cluster.neptune.amazonaws.com",
         },
@@ -370,7 +367,6 @@ describe("findMatchingConnection", () => {
           id: "conn-slash" as ConfigurationId,
           displayLabel: "Test",
           connection: {
-            url: "https://localhost",
             queryEngine: "gremlin",
             graphDbUrl: "https://host:8182/",
           },
@@ -396,7 +392,6 @@ describe("findMatchingConnection", () => {
           id: "conn-ws" as ConfigurationId,
           displayLabel: "Test",
           connection: {
-            url: "https://localhost",
             queryEngine: "gremlin",
             graphDbUrl: "  https://host:8182\n",
           },
@@ -424,7 +419,6 @@ describe("findMatchingConnection", () => {
           id: "legacy" as ConfigurationId,
           displayLabel: "Legacy",
           connection: {
-            url: "https://localhost",
             graphDbUrl: "https://my-cluster.neptune.amazonaws.com",
           },
         },
@@ -469,7 +463,6 @@ describe("findMatchingConnection", () => {
           id: "dupe-1" as ConfigurationId,
           displayLabel: "First",
           connection: {
-            url: "https://localhost",
             queryEngine: "gremlin",
             graphDbUrl: duplicateUrl,
           },
@@ -481,7 +474,6 @@ describe("findMatchingConnection", () => {
           id: "dupe-2" as ConfigurationId,
           displayLabel: "Second",
           connection: {
-            url: "https://localhost",
             queryEngine: "gremlin",
             graphDbUrl: duplicateUrl,
           },
@@ -519,7 +511,6 @@ describe("findMatchingConnection", () => {
         id: id as ConfigurationId,
         displayLabel: id,
         connection: {
-          url: "https://localhost",
           queryEngine: "gremlin",
           graphDbUrl: url,
           ...auth,
@@ -629,7 +620,6 @@ describe("findMatchingConnection", () => {
           id: "dupe-1" as ConfigurationId,
           displayLabel: "First",
           connection: {
-            url: "https://localhost",
             queryEngine: "gremlin",
             graphDbUrl: duplicateUrl,
           },
@@ -641,7 +631,6 @@ describe("findMatchingConnection", () => {
           id: "dupe-2" as ConfigurationId,
           displayLabel: "Production",
           connection: {
-            url: "https://localhost",
             queryEngine: "gremlin",
             graphDbUrl: duplicateUrl,
           },
@@ -673,7 +662,6 @@ describe("findMatchingConnection", () => {
           id: "hand-named" as ConfigurationId,
           displayLabel: "My Cluster",
           connection: {
-            url: "https://localhost",
             queryEngine: "gremlin",
             graphDbUrl: duplicateUrl,
           },
@@ -685,7 +673,6 @@ describe("findMatchingConnection", () => {
           id: "from-link" as ConfigurationId,
           displayLabel: "dupe.neptune.amazonaws.com",
           connection: {
-            url: "https://localhost",
             queryEngine: "gremlin",
             graphDbUrl: duplicateUrl,
           },
@@ -702,21 +689,16 @@ describe("findMatchingConnection", () => {
 
 describe("buildConnectionFromParams", () => {
   test("builds connection with IAM enabled", () => {
-    const connection = buildConnectionFromParams(
-      {
-        graphDbUrl: "https://g-xxx.neptune-graph.amazonaws.com",
-        queryEngine: "openCypher",
-        awsRegion: "us-west-2",
-        serviceType: "neptune-graph",
-        name: "My Graph",
-      },
-      "https://localhost",
-    );
+    const connection = buildConnectionFromParams({
+      graphDbUrl: "https://g-xxx.neptune-graph.amazonaws.com",
+      queryEngine: "openCypher",
+      awsRegion: "us-west-2",
+      serviceType: "neptune-graph",
+      name: "My Graph",
+    });
 
     expect(connection).toEqual({
-      url: "https://localhost",
       queryEngine: "openCypher",
-      proxyConnection: true,
       graphDbUrl: "https://g-xxx.neptune-graph.amazonaws.com",
       awsAuthEnabled: true,
       awsRegion: "us-west-2",
@@ -725,68 +707,43 @@ describe("buildConnectionFromParams", () => {
   });
 
   test("builds connection with IAM disabled when no region is given", () => {
-    const connection = buildConnectionFromParams(
-      {
-        graphDbUrl: "https://g-xxx.neptune-graph.amazonaws.com",
-        queryEngine: "gremlin",
-        awsRegion: "",
-        serviceType: undefined,
-        name: "No IAM",
-      },
-      "https://localhost",
-    );
+    const connection = buildConnectionFromParams({
+      graphDbUrl: "https://g-xxx.neptune-graph.amazonaws.com",
+      queryEngine: "gremlin",
+      awsRegion: "",
+      serviceType: undefined,
+      name: "No IAM",
+    });
 
     expect(connection.awsAuthEnabled).toBe(false);
     expect(connection.serviceType).toBeUndefined();
   });
 
   test("carries serviceType without a region but leaves IAM off", () => {
-    const connection = buildConnectionFromParams(
-      {
-        graphDbUrl: "https://g-xxx.neptune-graph.amazonaws.com",
-        queryEngine: "openCypher",
-        awsRegion: "",
-        serviceType: "neptune-graph",
-        name: "Analytics",
-      },
-      "https://localhost",
-    );
+    const connection = buildConnectionFromParams({
+      graphDbUrl: "https://g-xxx.neptune-graph.amazonaws.com",
+      queryEngine: "openCypher",
+      awsRegion: "",
+      serviceType: "neptune-graph",
+      name: "Analytics",
+    });
 
     expect(connection.awsAuthEnabled).toBe(false);
     expect(connection.serviceType).toBe("neptune-graph");
   });
 
   test("enables IAM with a default service type when only region is given", () => {
-    const connection = buildConnectionFromParams(
-      {
-        graphDbUrl: "https://g-xxx.neptune-graph.amazonaws.com",
-        queryEngine: "gremlin",
-        awsRegion: "us-west-2",
-        serviceType: undefined,
-        name: "Region Only",
-      },
-      "https://localhost",
-    );
+    const connection = buildConnectionFromParams({
+      graphDbUrl: "https://g-xxx.neptune-graph.amazonaws.com",
+      queryEngine: "gremlin",
+      awsRegion: "us-west-2",
+      serviceType: undefined,
+      name: "Region Only",
+    });
 
     expect(connection.awsAuthEnabled).toBe(true);
     expect(connection.awsRegion).toBe("us-west-2");
     expect(connection.serviceType).toBe("neptune-db");
-  });
-});
-
-describe("deriveProxyBaseUrl", () => {
-  test("climbs one level from a path-hosted notebook deployment", () => {
-    expect(
-      deriveProxyBaseUrl(
-        "https://my-notebook.notebook.us-west-2.sagemaker.aws/proxy/9250/explorer/",
-      ),
-    ).toBe("https://my-notebook.notebook.us-west-2.sagemaker.aws/proxy/9250");
-  });
-
-  test("resolves to the origin for a root-hosted deployment", () => {
-    expect(deriveProxyBaseUrl("https://localhost:5173/explorer/")).toBe(
-      "https://localhost:5173",
-    );
   });
 });
 
@@ -800,7 +757,6 @@ describe("resolveConnectionLinkIntent", () => {
         id: activeId,
         displayLabel: "Active",
         connection: {
-          url: "https://localhost",
           queryEngine: "gremlin",
           graphDbUrl: activeUrl,
         },
@@ -827,7 +783,6 @@ describe("resolveConnectionLinkIntent", () => {
       { kind: "invalid", error },
       configs,
       activeId,
-      "https://localhost",
     );
     expect(intent).toEqual({ kind: "invalid", error });
   });
@@ -837,7 +792,6 @@ describe("resolveConnectionLinkIntent", () => {
       linkFor(paramsFor(activeUrl)),
       configs,
       activeId,
-      "https://localhost",
     );
     expect(intent).toEqual({ kind: "none" });
   });
@@ -850,7 +804,6 @@ describe("resolveConnectionLinkIntent", () => {
       id: inactiveId,
       displayLabel: "Inactive",
       connection: {
-        url: "https://localhost",
         queryEngine: "gremlin",
         graphDbUrl: inactiveUrl,
       },
@@ -860,7 +813,6 @@ describe("resolveConnectionLinkIntent", () => {
       linkFor(paramsFor(inactiveUrl)),
       withInactive,
       activeId,
-      "https://localhost",
     );
     expect(intent).toEqual({
       kind: "activate",
@@ -873,7 +825,6 @@ describe("resolveConnectionLinkIntent", () => {
       linkFor({ ...paramsFor(activeUrl), awsRegion: "us-east-1" }),
       configs,
       activeId,
-      "https://localhost",
     );
     expect(intent.kind).toBe("create");
   });
@@ -883,7 +834,6 @@ describe("resolveConnectionLinkIntent", () => {
       linkFor(paramsFor("https://brand-new.neptune.amazonaws.com")),
       configs,
       activeId,
-      "https://localhost",
     );
     expect(intent.kind).toBe("create");
   });
