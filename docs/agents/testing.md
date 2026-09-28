@@ -25,10 +25,13 @@ Each project sets up its own environment. `setupTests.ts` below is registered by
 - `createMockExplorer` / `FakeExplorer` — explorer test doubles
 - `mockVirtualizedLayout` — give jsdom/happy-dom elements a measurable size so a virtualizer renders rows; see **jsdom/happy-dom layout** under Special cases
 - `stubDocumentUrl(href?)`: points the happy-dom document at a URL (default `http://localhost/explorer/`) so code that calls `apiUrl()` resolves the production API root. Call it in `beforeEach` in any test that asserts a request URL.
+- `normalizeHeaders(headers)` — lowercases header names before asserting on a captured fetch, because happy-dom's `Headers` keeps caller casing unlike a browser.
+- `headersSentTo(mockFetch, url)` — the normalized headers of the call to `url`, failing with a readable message when no call matches.
 - SPARQL: `createUriValue`, `createLiteralValue`, `createQuadBindingsForEntities`, `createQuadSparqlResponse` (`sparqlHelpers.ts`)
 - Gremlin/openCypher response builders: `graphsonHelpers.ts`, `ocHelpers.ts`
 - `normalizeWithNoSpace` / `normalize` / `normalizeWithNewlines` — normalize query strings before asserting (`normalize.ts`). They differ in whitespace and comment handling; use whichever the file you're editing already uses.
 - Persistence: `PersistenceTab`, `readPersistedValue` (`persistence.ts`)
+- `preloadStoredConfiguration(config)` — seeds the stored configuration in IndexedDB and loads it through a fresh, real `configurationAtom`, as the app does on load.
 - `@shared/utils/testing` — primitives: `createRandomName`, `createRandomInteger`, `createRandomColor`, `createRandomUrlString`, …
 
 ## Patterns — copy from the real test, don't reinvent
