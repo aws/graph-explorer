@@ -931,6 +931,23 @@ describe("fetchDatabaseRequest", () => {
       expect(error.cause.name).toBe("TimeoutError");
     });
 
+    it("throws FetchTimeoutError when the fetch timer fires on a direct connection", async () => {
+      mockFetch.mockImplementation(abortableFetch);
+      const conn = createConnection({
+        fetchTimeoutMs: 1,
+        proxyConnection: false,
+      });
+
+      const error = await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+      }).catch(e => e);
+
+      expect(error).toBeInstanceOf(FetchTimeoutError);
+      expect(error.timeoutMs).toBe(1);
+      expect(error.cause).toBeInstanceOf(DOMException);
+      expect(error.cause.name).toBe("TimeoutError");
+    });
+
     it("throws exactly the caller's AbortError when the caller aborts first", async () => {
       mockFetch.mockImplementation(abortableFetch);
       const conn = createConnection({ fetchTimeoutMs: 1 });
