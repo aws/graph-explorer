@@ -6,9 +6,11 @@ Date: 2026-06-12
 
 Accepted
 
+Related: ADR `unify-docker-image-remove-sagemaker-variant` (every connection except a deprecated **Direct Connection** routes through the **Proxy Server**).
+
 ## Context
 
-External applications want to deep-link into Graph Explorer with a connection already configured — for example, a console that lists Neptune clusters and offers an "Open in Graph Explorer" link. The link carries the endpoint and auth details as URL parameters. Graph Explorer stores all connections client-side and has no server, so the link is the only channel for this hand-off.
+External applications want to link into Graph Explorer with a connection already configured — for example, a console that lists Neptune clusters and offers an "Open in Graph Explorer" link. The link carries the **Database URL** and IAM settings as URL parameters. Graph Explorer stores all connections client-side, with no server-side connection store, so the link is the only channel for this hand-off.
 
 Four decisions in this design are non-obvious and would otherwise invite "why is it like this?" later.
 
@@ -49,8 +51,8 @@ The form renders in place inside the app shell rather than as a portaled modal. 
 ## Consequences
 
 - The contract other code and external integrators depend on is the parameter set (`graphDbUrl`, `queryEngine`, `awsRegion`, `serviceType`, `name`) and the four-intent model, both in `core/connectionLink.ts`. Parameters are validated with zod: an absent optional param takes its default, while an explicit unsupported value rejects the link, so a link never connects with settings it did not ask for. `queryEngine`'s default is not fixed: it resolves to `openCypher` when `serviceType` is `neptune-graph` (Neptune Analytics has no other query language) and to `gremlin` otherwise, and an explicit `queryEngine` other than `openCypher` alongside `neptune-graph` is rejected the same way an unsupported value is. `graphDbUrl` also cannot contain a backslash. URL parsing reads one as a slash, so `https://evil.tld\@prod.neptune.amazonaws.com` would resolve to `evil.tld` while the create form shows what looks like a Neptune host.
-- A connection from a link routes through the **Proxy Server** like any connection created in the form. There is no parameter to make a **Direct Connection**.
-- A link can switch to or pre-fill a connection, but it can never create or connect to a new database without the user submitting the form. Connections a link creates always route through the proxy, so `PROXY_SERVER_ALLOWED_DB_ORIGINS` also bounds what a link can reach when that variable is set. It is unset by default, and a link that matches a connection configured to contact the database directly bypasses the proxy as any direct connection does. See [security reference](../references/security.md).
+- A link never proposes a **Direct Connection**; there is no parameter for one. The user can still opt into one through the deprecated checkbox in the pre-filled form, as in any create form.
+- A link can switch to or pre-fill a connection, but it can never create or connect to a new database without the user submitting the form. Unless the user opts into a Direct Connection there, connections a link creates route through the **Proxy Server**, so `PROXY_SERVER_ALLOWED_DB_ORIGINS` also bounds what a link can reach when that variable is set. It is unset by default, and a link that matches a connection configured to contact the database directly bypasses the proxy as any direct connection does. See [security reference](../references/security.md).
 - Parameters are plaintext, not an encoded token. This was deliberate: links are meant to be human-readable and constructible by any integrator. The trust gate is the create form plus the proxy allowlist, not obscurity.
 - The active connection is scoped per tab (see [Per-tab Active Connection ADR](20260618-per-tab-active-connection.md)): it lives in that tab's `sessionStorage`, seeded at cold start from a shared, last-writer-wins breadcrumb. A link resolves and activates against the tab it opens in, so it never changes what another open tab is viewing.
 

@@ -84,9 +84,9 @@ A React-based web application that lets users visually explore graph databases w
 
 **Static Mount Path**: The path segment, currently `/explorer`, under which the **Proxy Server** serves the client's static files. A reverse proxy may put any prefix in front of it but must forward the segment itself intact. The API root is always the path with this segment removed. _Avoid_: `/explorer` as a bare literal (the constant is the source of truth); base path (ambiguous with Vite's `base` and the HTML `<base href>`)
 
-**Connection Link**: A `#/connect` URL an external application builds to hand Graph Explorer a Connection, carrying the params `graphDbUrl`, `queryEngine`, `awsRegion`, `serviceType`, `name`. See `docs/adr/20260612-connection-links.md` for how it is resolved and validated. _Avoid_: deep link, auto-connect, URL connection params
+**Connection Link**: A `#/connect` route on the Graph Explorer page, under the **Static Mount Path**, that an external application builds to hand Graph Explorer a Connection, carrying the params `graphDbUrl`, `queryEngine`, `awsRegion`, `serviceType`, `name`. See ADR `connection-links` for how it is resolved and validated. _Avoid_: deep link, auto-connect, URL connection params
 
-**Connection Link Intent**: The action a Connection Link resolves to against the current Connections: `none` (it targets the Active Connection), `activate` (it matches an inactive Connection), `create` (no match, so open a pre-filled create form), or `invalid` (a param fails validation). A Connection matches on endpoint, query engine, and auth posture. _Avoid_: connection action, deep-link mode
+**Connection Link Intent**: The action a Connection Link resolves to against the current Connections: `none` (it targets the Active Connection), `activate` (it matches an inactive Connection), `create` (no match, so open a pre-filled create form), or `invalid` (a param fails validation). A Connection matches on **Database URL**, **Query Language**, and IAM settings (whether IAM is on and, when on, its region and service type). _Avoid_: connection action, deep-link mode
 
 ## Relationships
 
@@ -103,7 +103,7 @@ A React-based web application that lets users visually explore graph databases w
 - **Styles** are scoped per **Vertex Type** (**Vertex Styles**) and **Edge Type** (**Edge Styles**)
 - The **Graph View**, **Data Table View**, and **Schema View** all render from the same **Session** and **Schema**
 - A cancelled request is neither a **Fetch Timeout** nor a **Database Query Timeout**
-- A **Connection Link** resolves to a **Connection Link Intent** against the current **Connections** and active **Connection**
+- A **Connection Link** resolves to a **Connection Link Intent** against the current **Connections** and the **Active Connection**
 - Activating a different **Connection** swaps which **Session** is displayed and keeps the previous one for when that **Connection** is reactivated. So an `activate` intent, or a `create` intent whose form is saved, switches the displayed **Session**, while `none`, `invalid`, and a cancelled `create` leave it untouched
 
 ## Example dialogue

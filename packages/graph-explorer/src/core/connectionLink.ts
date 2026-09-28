@@ -30,9 +30,8 @@ const ConnectionLinkParamsSchema = z
     // Only http(s) endpoints are meaningful, and constraining the scheme keeps a
     // crafted link from seeding the form with something like `javascript:`.
     //
-    // Credentials in the URL are refused by `fetch` itself (the Request
-    // constructor throws on them), so a link carrying them could only build a
-    // connection that fails every query, after persisting the password to
+    // The Proxy Server rejects a Database URL carrying userinfo, so a link
+    // carrying credentials could only build a connection that fails every query, after persisting the password to
     // IndexedDB and into any exported connection file. Graph Explorer
     // authenticates with IAM, never userinfo.
     // The `#/connect` route exists only for connection links, so reaching it

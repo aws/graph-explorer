@@ -51,19 +51,21 @@ External applications can link directly to Graph Explorer with a connection pre-
 
 | Parameter | Required | Default | Description |
 | --- | --- | --- | --- |
-| `graphDbUrl` | Yes | None | The graph database endpoint, URL-encoded. The link is invalid without it. |
+| `graphDbUrl` | Yes | None | The Database URL, URL-encoded. The link is invalid without it. |
 | `queryEngine` | No | `gremlin` (`openCypher` when `serviceType` is `neptune-graph`) | One of `gremlin`, `openCypher`, or `sparql`. An unsupported value makes the link invalid rather than falling back, and `neptune-graph` only accepts `openCypher` (Neptune Analytics has no other language). |
 | `awsRegion` | No | None | AWS region for the connection, shaped like `us-east-1`. Providing a region enables IAM auth (SigV4 signed requests). An absent or empty value leaves IAM off. |
 | `serviceType` | No | `neptune-db` (when IAM is on) | One of `neptune-db` or `neptune-graph`. Carried into the connection either way, but IAM stays off unless `awsRegion` is set. `neptune-graph` also constrains `queryEngine` to `openCypher`. An unsupported value makes the link invalid. |
-| `name` | No | The endpoint's hostname | Display label for the connection. Defaults to the full hostname of `graphDbUrl`. |
+| `name` | No | The Database URL's hostname | Display label for the connection. Defaults to the full hostname of `graphDbUrl`. |
 
 The parameters belong to the `#/connect` route, so they go _after_ the `#` (Graph Explorer uses hash-based routing). `graphDbUrl` must be URL-encoded. Most languages provide this via `encodeURIComponent()` (JavaScript), `urllib.parse.quote()` (Python), or `URLEncoder.encode()` (Java).
 
 ### Example
 
 ```
-https://[GRAPH_EXPLORER_HOST]/#/connect?graphDbUrl=https%3A%2F%2Fmy-cluster.us-east-1.neptune.amazonaws.com%3A8182&queryEngine=gremlin&awsRegion=us-east-1&serviceType=neptune-db&name=My%20Database
+https://[GRAPH_EXPLORER_HOST]/explorer/#/connect?graphDbUrl=https%3A%2F%2Fmy-cluster.us-east-1.neptune.amazonaws.com%3A8182&queryEngine=gremlin&awsRegion=us-east-1&serviceType=neptune-db&name=My%20Database
 ```
+
+Start the link from the Graph Explorer page URL, which ends in `/explorer/`. If Graph Explorer sits behind a reverse proxy with a path prefix, such as a Neptune notebook's `/proxy/9250`, the prefix goes in front: `https://[NOTEBOOK_HOST]/proxy/9250/explorer/#/connect?...`.
 
 ### Behavior
 
@@ -80,7 +82,7 @@ In every case Graph Explorer replaces the `#/connect` URL once the link is handl
 
 - `graphDbUrl` is missing or empty. The `#/connect` route exists only for connection links, so a link with nothing to connect to is invalid rather than a silent no-op.
 - `graphDbUrl` is not a valid URL, or does not use `http`/`https`.
-- `graphDbUrl` includes a username or password. Graph Explorer authenticates with AWS IAM, and browsers refuse to send a request to a URL that carries credentials.
+- `graphDbUrl` includes a username or password. Graph Explorer authenticates with AWS IAM, and the Graph Explorer server refuses a Database URL that carries credentials.
 - `graphDbUrl` contains a backslash. Browsers read a backslash as a slash, so a link could otherwise show one host and connect to another.
 - `queryEngine` names something other than `gremlin`, `openCypher`, or `sparql`, or names anything other than `openCypher` while `serviceType` is `neptune-graph`.
 - `serviceType` names something other than `neptune-db` or `neptune-graph`.
@@ -90,11 +92,11 @@ An unsupported value is rejected rather than replaced with a default, so a link 
 
 #### What counts as a match
 
-A link matches an existing connection only when its endpoint, query engine, **and authentication posture** all agree:
+A link matches an existing connection only when its Database URL, query language, **and authentication posture** all agree:
 
 - the same `graphDbUrl` (normalized and compared case-insensitively, so a trailing slash or stray whitespace on either side doesn't prevent a match) and the same `queryEngine`, and
 - the same auth posture: whether IAM is on (a link enables it by providing `awsRegion`), and when it is on, the same `awsRegion` and `serviceType`.
 
-Authentication is part of a connection's identity: a link requesting IAM in a region is a _different_ connection from a plaintext one to the same endpoint, and vice versa. A link whose auth posture differs from every existing connection never silently reuses one. It opens the pre-filled create form instead, where you can review the authentication settings before connecting.
+Authentication is part of a connection's identity: a link requesting IAM in a region is a _different_ connection from a plaintext one to the same Database URL, and vice versa. A link whose auth posture differs from every existing connection never silently reuses one. It opens the pre-filled create form instead, where you can review the authentication settings before connecting.
 
-When several connections match, Graph Explorer picks one in priority order: your active connection first (so a link targeting it is a no-op), then the connection whose name equals the link's `name` parameter (the endpoint's hostname when `name` is omitted), then the first match found. `name` never prevents a match on its own, so a connection you have since renamed still matches a link that was built with its old name.
+When several connections match, Graph Explorer picks one in priority order: your active connection first (so a link targeting it is a no-op), then the connection whose name equals the link's `name` parameter (the Database URL's hostname when `name` is omitted), then the first match found. `name` never prevents a match on its own, so a connection you have since renamed still matches a link that was built with its old name.
