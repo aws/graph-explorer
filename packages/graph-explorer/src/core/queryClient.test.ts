@@ -53,7 +53,7 @@ describe("createQueryClient", () => {
       shouldRetryQuery(
         0,
         new InsecureDatabaseUrlError(
-          "http://db:8182/gremlin",
+          "http://db:8182",
           new TypeError("Failed to fetch"),
         ),
       ),

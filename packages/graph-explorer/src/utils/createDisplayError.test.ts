@@ -318,7 +318,7 @@ describe("createDisplayError", () => {
   it("Should handle a direct connection whose http database URL the https page would block", () => {
     const result = createDisplayError(
       new InsecureDatabaseUrlError(
-        "http://db.example.com:8182/gremlin",
+        "http://db.example.com:8182",
         new TypeError("Failed to fetch"),
       ),
     );

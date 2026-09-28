@@ -9,7 +9,7 @@ import { DatabaseUrlError } from "./DatabaseUrlError";
 export class InsecureDatabaseUrlError extends DatabaseUrlError {
   constructor(url: string, cause: Error) {
     super(
-      "This direct Connection's database URL is http, which the browser blocks on an https page",
+      "This direct Connection's database URL is http, which the browser likely blocked on an https page",
       url,
       { cause },
     );

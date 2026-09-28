@@ -284,6 +284,8 @@ describe("fetchDatabaseRequest", () => {
       return createConnection({ graphDbUrl, proxyConnection: false });
     }
 
+    // Names the connection's database URL, since the error blames that URL
+    // rather than the endpoint path.
     it("classifies a failed request to an http database from an https page as InsecureDatabaseUrlError", async () => {
       stubDocumentUrl(httpsPage);
       const cause = new TypeError("Failed to fetch");
@@ -297,10 +299,7 @@ describe("fetchDatabaseRequest", () => {
       ).catch(e => e);
 
       expect(error).toStrictEqual(
-        new InsecureDatabaseUrlError(
-          "http://db.example.com:8182/gremlin",
-          cause,
-        ),
+        new InsecureDatabaseUrlError("http://db.example.com:8182", cause),
       );
       expect(error.cause).toBe(cause);
       expect(mockFetch).toHaveBeenCalledWith(

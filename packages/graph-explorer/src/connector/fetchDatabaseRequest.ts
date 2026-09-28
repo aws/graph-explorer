@@ -86,7 +86,7 @@ function unreachableError(
     return new ServerConnectionError(uri.href, cause);
   }
   return isMixedContent(uri)
-    ? new InsecureDatabaseUrlError(uri.href, cause)
+    ? new InsecureDatabaseUrlError(connection.graphDbUrl, cause)
     : new DatabaseUnreachableError(uri.href, cause);
 }
 

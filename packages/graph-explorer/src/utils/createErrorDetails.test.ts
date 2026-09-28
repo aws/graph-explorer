@@ -140,16 +140,16 @@ describe("createErrorDetails", () => {
     it("includes the URL and cause in the data", () => {
       const cause = new TypeError("Failed to fetch");
       const error = new InsecureDatabaseUrlError(
-        "http://db.example.com:8182/gremlin",
+        "http://db.example.com:8182",
         cause,
       );
       expect(createErrorDetails(error)).toStrictEqual({
         name: "InsecureDatabaseUrlError",
         message:
-          "This direct Connection's database URL is http, which the browser blocks on an https page",
+          "This direct Connection's database URL is http, which the browser likely blocked on an https page",
         data: JSON.stringify(
           {
-            url: "http://db.example.com:8182/gremlin",
+            url: "http://db.example.com:8182",
             cause: { name: "TypeError", message: "Failed to fetch" },
           },
           null,
