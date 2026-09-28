@@ -87,20 +87,27 @@ const ConnectionLinkParamsSchema = z
       .optional()
       .transform(name => name || undefined),
   })
-  // Neptune Analytics (`neptune-graph`) only speaks openCypher. An explicit
-  // `queryEngine` naming anything else is a rejection, same as any other
-  // unsupported explicit value; an absent one defaults to openCypher instead
-  // of the general gremlin default.
+  // Neptune Analytics (`neptune-graph`) only speaks openCypher and only
+  // accepts IAM-signed requests. An explicit `queryEngine` naming anything else
+  // is a rejection, same as any other unsupported explicit value, and an absent
+  // one defaults to openCypher instead of the general gremlin default. Without
+  // a region there is no IAM, so the connection could never query.
   .superRefine((data, ctx) => {
-    if (
-      data.serviceType === "neptune-graph" &&
-      data.queryEngine !== undefined &&
-      data.queryEngine !== "openCypher"
-    ) {
+    if (data.serviceType !== "neptune-graph") {
+      return;
+    }
+    if (data.queryEngine !== undefined && data.queryEngine !== "openCypher") {
       ctx.addIssue({
         code: "custom",
         message: 'must be "openCypher" when serviceType is "neptune-graph"',
         path: ["queryEngine"],
+      });
+    }
+    if (!data.awsRegion) {
+      ctx.addIssue({
+        code: "custom",
+        message: 'is required when serviceType is "neptune-graph"',
+        path: ["awsRegion"],
       });
     }
   })
@@ -288,9 +295,8 @@ export function findMatchingConnection(
 /**
  * Build the connection a link proposes. IAM auth is enabled exactly when a
  * region is provided, defaulting the service type when only a region is given.
- * A `serviceType` without a region still carries through, since it also picks
- * the query engine and the summary API, and seeds the form if the user turns
- * IAM on.
+ * A `serviceType` without a region still carries through and seeds the form if
+ * the user turns IAM on.
  *
  * Returns the connection body without an id, because a link only ever proposes a
  * connection. `CreateConnection` mints the id if and when the user saves the

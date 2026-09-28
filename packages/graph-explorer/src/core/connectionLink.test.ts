@@ -203,7 +203,7 @@ describe("readConnectionLink", () => {
     test("defaults to openCypher for neptune-graph when queryEngine is omitted", () => {
       expect(
         paramsOf(
-          "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&serviceType=neptune-graph",
+          "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&awsRegion=us-west-2&serviceType=neptune-graph",
         ).queryEngine,
       ).toBe("openCypher");
     });
@@ -211,7 +211,7 @@ describe("readConnectionLink", () => {
     test("rejects gremlin for neptune-graph rather than silently switching engines", () => {
       expect(
         problemsOf(
-          "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&serviceType=neptune-graph&queryEngine=gremlin",
+          "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&awsRegion=us-west-2&serviceType=neptune-graph&queryEngine=gremlin",
         ),
       ).toEqual([
         'queryEngine must be "openCypher" when serviceType is "neptune-graph"',
@@ -221,9 +221,19 @@ describe("readConnectionLink", () => {
     test("accepts openCypher for neptune-graph", () => {
       expect(
         paramsOf(
-          "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&serviceType=neptune-graph&queryEngine=openCypher",
+          "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&awsRegion=us-west-2&serviceType=neptune-graph&queryEngine=openCypher",
         ).queryEngine,
       ).toBe("openCypher");
+    });
+
+    // Neptune Analytics only accepts IAM-signed requests, so a link to it
+    // without a region could only build a connection that fails every query.
+    test("rejects neptune-graph without an awsRegion", () => {
+      expect(
+        problemsOf(
+          "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&serviceType=neptune-graph",
+        ),
+      ).toEqual(['awsRegion is required when serviceType is "neptune-graph"']);
     });
 
     test("defaults to gremlin for neptune-db when queryEngine is omitted", () => {
@@ -746,14 +756,14 @@ describe("buildConnectionFromParams", () => {
   test("carries serviceType without a region but leaves IAM off", () => {
     const connection = buildConnectionFromParams({
       graphDbUrl: "https://g-xxx.neptune-graph.amazonaws.com",
-      queryEngine: "openCypher",
+      queryEngine: "gremlin",
       awsRegion: "",
-      serviceType: "neptune-graph",
-      name: "Analytics",
+      serviceType: "neptune-db",
+      name: "Database",
     });
 
     expect(connection.awsAuthEnabled).toBe(false);
-    expect(connection.serviceType).toBe("neptune-graph");
+    expect(connection.serviceType).toBe("neptune-db");
   });
 
   test("enables IAM with a default service type when only region is given", () => {
