@@ -33,9 +33,9 @@ fi
 # proxy. It's proxied when USING_PROXY_SERVER is true, or when it's unset and
 # only GRAPH_CONNECTION_URL is set. Earlier versions treated an unset
 # USING_PROXY_SERVER as false, so an unset value with PUBLIC_OR_PROXY_ENDPOINT
-# stays direct. This matches transformLegacyConnection() in configuration.ts: a
-# direct connection, which is deprecated, drops IAM, region, and service type
-# because the browser sends its requests and nothing would sign them.
+# stays direct. Like transformLegacyConnection() in configuration.ts, a direct
+# connection, which is deprecated, drops IAM, region, and service type because
+# the browser sends its requests and nothing would sign them.
 USING_PROXY_SERVER_LOWER=$(printf '%s' "$USING_PROXY_SERVER" | tr '[:upper:]' '[:lower:]')
 IS_PROXY_CONNECTION=false
 if [ "$USING_PROXY_SERVER_LOWER" = "true" ]; then
