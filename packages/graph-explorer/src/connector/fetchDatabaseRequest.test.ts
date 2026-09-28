@@ -740,6 +740,30 @@ describe("fetchDatabaseRequest", () => {
         expect.anything(),
       );
     });
+
+    it("throws NetworkError from a direct connection's error response", async () => {
+      const errorBody = {
+        code: "MalformedQueryException",
+        detailedMessage: "Syntax error at line 1",
+        message: "Bad request",
+      };
+      mockFetch.mockResolvedValue(jsonResponse(errorBody, 400));
+
+      await expect(
+        fetchDatabaseRequest(
+          createConnection({ proxyConnection: false }),
+          featureFlags,
+          "gremlin",
+          { method: "POST" },
+        ),
+      ).rejects.toThrow(
+        new NetworkError("Syntax error at line 1", 400, errorBody),
+      );
+      expect(mockFetch).toHaveBeenCalledExactlyOnceWith(
+        new URL("https://db.example.com:8182/gremlin"),
+        expect.anything(),
+      );
+    });
   });
 
   describe("error body decoding", () => {
