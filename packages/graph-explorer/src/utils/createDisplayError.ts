@@ -163,7 +163,7 @@ export function createDisplayError(error: any): DisplayError {
     return {
       title: "Insecure database URL",
       message:
-        "This page is served over HTTPS, so the browser blocks requests to an http:// database. Use an https:// Database URL, or edit the connection and uncheck Connect directly from the browser (deprecated) under Advanced options.",
+        "This page uses HTTPS, so the browser likely blocked the request to this http:// database. Use an https:// Database URL, or edit the connection and uncheck Connect directly from the browser (deprecated) under Advanced options. If your browser allows insecure content for this site, also check that the database is running and allows cross-origin requests from this page.",
     };
   }
 
