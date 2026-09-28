@@ -462,6 +462,24 @@ describe("backward compatibility: graph files exported by earlier versions", () 
 
     expect(isMatchingConnection(upgraded, exportedByMain)).toBe(true);
   });
+
+  it("matches an upgraded direct connection", () => {
+    const legacyConnection = {
+      url: "https://DB.Example.com:8182",
+      proxyConnection: false,
+      queryEngine: "gremlin" as const,
+    };
+    const exportedByMain: ExportedGraphConnection = {
+      dbUrl: "https://db.example.com:8182",
+      queryEngine: "gremlin",
+    };
+
+    const upgraded = normalizeConnection(
+      transformLegacyConnection(legacyConnection),
+    );
+
+    expect(isMatchingConnection(upgraded, exportedByMain)).toBe(true);
+  });
 });
 
 describe("getSafeTimestamp", () => {
