@@ -380,6 +380,12 @@ describe("CreateConnection", () => {
       const user = userEvent.setup();
       const { store, config, schema, session } = renderUpgradedConnection();
 
+      // The dialog must show the database URL, not the legacy proxy url that
+      // the stored shape also carried.
+      expect(screen.getByRole("textbox", { name: "Database URL" })).toHaveValue(
+        "https://database.example.com:8182",
+      );
+
       await user.click(
         screen.getByRole("button", { name: "Update Connection" }),
       );
