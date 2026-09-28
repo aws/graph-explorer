@@ -15,7 +15,10 @@ import type {
 } from "./ConfigurationProvider";
 
 import { ConnectionLinkError } from "./connectionLinkError";
-import { normalizeConnection } from "./StateProvider/configuration";
+import {
+  isDirectConnection,
+  normalizeConnection,
+} from "./StateProvider/configuration";
 
 /** Matches `us-east-1`, `us-gov-west-1`, `ap-southeast-2`, `cn-north-1`, etc. */
 const AWS_REGION_PATTERN = /^[a-z]{2}(-[a-z]+)+-\d+$/;
@@ -201,7 +204,10 @@ function deriveNameFromUrl(graphDbUrl: string): string {
  * posture is identity-bearing because a link requesting IAM in a given
  * region/service type is a *different* connection from a plaintext one to the
  * same endpoint, so it must not silently reuse it. When IAM is off, region and
- * service type carry no auth meaning and are normalized away.
+ * service type carry no auth meaning and are normalized away. How a
+ * connection is routed is not identity: a link without IAM may reuse a
+ * deprecated Direct Connection to the same URL, but one requesting IAM never
+ * does, since a Direct Connection cannot sign.
  *
  * Both sides go through `normalizeConnection`, the same defaults the rest of
  * the app reads a stored connection with, so a stored connection with no
@@ -217,7 +223,10 @@ type ConnectionIdentity = {
 
 function identityOf(connection: ConnectionConfig): ConnectionIdentity {
   const normalized = normalizeConnection(connection);
-  const { awsAuthEnabled } = normalized;
+  // The browser sends a Direct Connection's requests unsigned, so it is never
+  // an IAM connection, whatever IAM fields it carries.
+  const awsAuthEnabled =
+    normalized.awsAuthEnabled && !isDirectConnection(connection);
   return {
     graphDbUrl: normalized.graphDbUrl.toLowerCase(),
     queryEngine: normalized.queryEngine,

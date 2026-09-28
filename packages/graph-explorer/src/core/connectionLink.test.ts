@@ -501,6 +501,7 @@ describe("findMatchingConnection", () => {
     const iamConfig = (
       id: string,
       auth: {
+        proxyConnection?: boolean;
         awsAuthEnabled?: boolean;
         awsRegion?: string;
         serviceType?: "neptune-db" | "neptune-graph";
@@ -527,6 +528,29 @@ describe("findMatchingConnection", () => {
       awsRegion: auth.awsRegion ?? "",
       serviceType: auth.serviceType,
       name: "",
+    });
+
+    // A Direct Connection is sent from the browser, which cannot sign, so it
+    // never authenticates with IAM, whatever IAM fields it still carries.
+    test("an IAM link does not match a Direct Connection", () => {
+      const configs = new Map([
+        iamConfig("direct", {
+          proxyConnection: false,
+          awsAuthEnabled: true,
+          awsRegion: "us-east-1",
+          serviceType: "neptune-db",
+        }),
+      ]);
+      const match = matchLink(configs, paramsWith({ awsRegion: "us-east-1" }));
+      expect(match).toBeNull();
+    });
+
+    test("a link without IAM matches a Direct Connection", () => {
+      const configs = new Map([
+        iamConfig("direct", { proxyConnection: false }),
+      ]);
+      const match = matchLink(configs, paramsWith({}));
+      expect(match?.id).toBe("direct");
     });
 
     test("an IAM link does not match a non-IAM connection", () => {

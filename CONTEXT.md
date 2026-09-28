@@ -86,7 +86,7 @@ A React-based web application that lets users visually explore graph databases w
 
 **Connection Link**: A `#/connect` route on the Graph Explorer page, under the **Static Mount Path**, that an external application builds to hand Graph Explorer a Connection, carrying the params `graphDbUrl`, `queryEngine`, `awsRegion`, `serviceType`, `name`. See ADR `connection-links` for how it is resolved and validated. _Avoid_: deep link, auto-connect, URL connection params
 
-**Connection Link Intent**: The action a Connection Link resolves to against the current Connections: `none` (it targets the Active Connection), `activate` (it matches an inactive Connection), `create` (no match, so open a pre-filled create form), or `invalid` (a param fails validation). A Connection matches on **Database URL**, **Query Language**, and IAM settings (whether IAM is on and, when on, its region and service type). _Avoid_: connection action, deep-link mode
+**Connection Link Intent**: The action a Connection Link resolves to against the current Connections: `none` (it targets the Active Connection), `activate` (it matches an inactive Connection), `create` (no match, so open a pre-filled create form), or `invalid` (a param fails validation). A Connection matches on **Database URL**, **Query Language**, and IAM settings (whether IAM is on and, when on, its region and service type). A **Direct Connection** never has IAM on, so only a link without IAM can match one. _Avoid_: connection action, deep-link mode
 
 ## Relationships
 
