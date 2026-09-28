@@ -3,7 +3,7 @@ import { ZodError } from "zod";
 import { QueryValueError } from "@/connector/queryValueError";
 
 import { DatabaseUnreachableError } from "./DatabaseUnreachableError";
-import { InsecureDatabaseUrlError } from "./InsecureDatabaseUrlError";
+import { DatabaseUrlError } from "./DatabaseUrlError";
 import { NetworkError } from "./NetworkError";
 import { ServerConnectionError } from "./ServerConnectionError";
 
@@ -19,7 +19,7 @@ export function createErrorDetails(error: unknown): ErrorDetails {
   if (
     error instanceof ServerConnectionError ||
     error instanceof DatabaseUnreachableError ||
-    error instanceof InsecureDatabaseUrlError
+    error instanceof DatabaseUrlError
   ) {
     const data: Record<string, unknown> = { url: error.url };
     if (error.cause) {

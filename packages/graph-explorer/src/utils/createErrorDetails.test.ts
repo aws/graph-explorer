@@ -11,6 +11,7 @@ import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
 import { DatabaseUnreachableError } from "./DatabaseUnreachableError";
 import { FetchTimeoutError } from "./FetchTimeoutError";
 import { InsecureDatabaseUrlError } from "./InsecureDatabaseUrlError";
+import { InvalidDatabaseUrlError } from "./InvalidDatabaseUrlError";
 import { NetworkError } from "./NetworkError";
 import { ServerConnectionError } from "./ServerConnectionError";
 
@@ -120,6 +121,18 @@ describe("createErrorDetails", () => {
           2,
         ),
       );
+    });
+  });
+
+  describe("InvalidDatabaseUrlError", () => {
+    it("includes the URL in the data", () => {
+      const error = new InvalidDatabaseUrlError("localhost:8182");
+      expect(createErrorDetails(error)).toStrictEqual({
+        name: "InvalidDatabaseUrlError",
+        message:
+          "This direct Connection's database URL is not an absolute http or https URL",
+        data: JSON.stringify({ url: "localhost:8182" }, null, 2),
+      });
     });
   });
 

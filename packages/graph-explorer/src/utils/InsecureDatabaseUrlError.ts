@@ -1,20 +1,19 @@
+import { DatabaseUrlError } from "./DatabaseUrlError";
+
 /**
  * Thrown when a direct connection's request failed and its URL is `http:` on
  * a host that isn't loopback while this page is served over `https:`, so the
  * browser most likely blocked it as mixed content. Wraps the original browser
  * `TypeError` as the `cause`.
  */
-export class InsecureDatabaseUrlError extends Error {
-  /** The URL the browser blocked. */
-  url: string;
-
+export class InsecureDatabaseUrlError extends DatabaseUrlError {
   constructor(url: string, cause: Error) {
     super(
       "This direct Connection's database URL is http, which the browser blocks on an https page",
+      url,
       { cause },
     );
     this.name = "InsecureDatabaseUrlError";
-    this.url = url;
     Object.setPrototypeOf(this, InsecureDatabaseUrlError.prototype);
   }
 }
