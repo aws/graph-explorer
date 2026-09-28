@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router";
 
 import Redirect from "./components/Redirect";
+import Connect from "./routes/Connect";
 import Connections from "./routes/Connections";
 import DataExplorer from "./routes/DataExplorer";
 import DefaultLayout from "./routes/DefaultLayout";
@@ -17,6 +18,7 @@ export default function App() {
   return (
     <Routes>
       <Route element={<DefaultLayout />}>
+        <Route path="/connect" element={<Connect />} />
         <Route path="/connections" element={<Connections />} />
         <Route path="/data-explorer" element={<DataExplorer />} />
         <Route path="/data-explorer/:vertexType" element={<DataExplorer />} />

@@ -1,15 +1,25 @@
 // @vitest-environment happy-dom
 import { queryEngineOptions } from "@shared/types";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { act, render } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { Provider } from "jotai";
+import { Route, Routes } from "react-router";
 import { onTestFinished, vi } from "vitest";
 
+import { TooltipProvider } from "@/components";
 import { type AppStore, getAppStore } from "@/core";
+import Connect from "@/routes/Connect";
 import { logger } from "@/utils";
-import { createRandomRawConfiguration, stubDocumentUrl } from "@/utils/testing";
+import {
+  createRandomRawConfiguration,
+  stubDocumentUrl,
+  TestProvider,
+} from "@/utils/testing";
 
-import type { RawConfiguration } from "./ConfigurationProvider";
+import type {
+  ConfigurationId,
+  RawConfiguration,
+} from "./ConfigurationProvider";
 
 import AppStatusLoader from "./AppStatusLoader";
 import * as defaultConnection from "./defaultConnection";
@@ -134,4 +144,64 @@ test("shows a renamed reverse proxy mount without retrying", async () => {
   await findByText("Reverse proxy misconfigured");
   expect(queryByText("ready")).toBeNull();
   expect(fetchSpy).toHaveBeenCalledTimes(1);
+});
+
+describe("AppStatusLoader URL params + default connection", () => {
+  const matchingUrl = "https://default-match.neptune.amazonaws.com";
+
+  const matchingDefaultConnection: RawConfiguration = {
+    id: "Default Connection" as ConfigurationId,
+    displayLabel: "Default Connection",
+    connection: {
+      queryEngine: "gremlin",
+      graphDbUrl: matchingUrl,
+    },
+  };
+
+  function searchFor(graphDbUrl: string, queryEngine = "gremlin") {
+    return `?graphDbUrl=${encodeURIComponent(graphDbUrl)}&queryEngine=${queryEngine}`;
+  }
+
+  test("does not prompt to create when a loading default connection matches the connect URL", async () => {
+    mockDefaultConnection([matchingDefaultConnection]);
+
+    const store = getAppStore();
+    const queryClient = createQueryClient();
+
+    // Enter the connect route before the default connection has loaded. The
+    // loader gates the route behind a spinner until the default arrives, so the
+    // route must resolve against the loaded default (a no-op) rather than
+    // prompting to create a duplicate.
+    render(
+      <TestProvider
+        client={queryClient}
+        store={store}
+        initialEntries={[`/connect${searchFor(matchingUrl)}`]}
+      >
+        <TooltipProvider>
+          <AppStatusLoader>
+            <Routes>
+              <Route path="/connect" element={<Connect />} />
+              <Route path="/graph-explorer" element={<div>graph canvas</div>} />
+            </Routes>
+          </AppStatusLoader>
+        </TooltipProvider>
+      </TestProvider>,
+    );
+
+    // Once the default connection loads, the route is a no-op and redirects to
+    // the graph canvas.
+    await waitFor(() => {
+      expect(screen.getByText("graph canvas")).toBeInTheDocument();
+    });
+
+    // The URL targets the connection the default provides, so we must NOT
+    // see a create-connection prompt.
+    expect(
+      screen.queryByText("Add connection from link"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Add Connection" }),
+    ).not.toBeInTheDocument();
+  });
 });
