@@ -31,4 +31,5 @@
 - All three connectors send requests through `fetchDatabaseRequest`, passing only the endpoint path (e.g. `gremlin`, `pg/statistics/summary?mode=basic`). It is the only place that decides proxy versus direct routing, request headers, and timeout classification — never build a database URL or set proxy headers at a call site.
 - Detect a timeout with `instanceof FetchTimeoutError` or `instanceof DatabaseTimeoutError`, never `error.name`, `DOMException`, or a raw database code.
 - To recognize a new database's timeout, add its body code to `DATABASE_TIMEOUT_CODES` with a test built from a captured response body.
+- `fetchDatabaseRequest` classifies a caught fetch `TypeError` after the request (never before sending) via `unreachableError`, into `ServerConnectionError` (proxied), `InsecureDatabaseUrlError` (direct, mixed content from an https page), or `DatabaseUnreachableError` (other direct failures), because the browser's TypeError doesn't say why it failed.
 - Never classify by HTTP status: databases reuse the same status for memory limits and throttling.
