@@ -3,7 +3,10 @@ import type { LegacyConnectionConfig } from "@shared/types";
 import { createStore } from "jotai";
 import localforage from "localforage";
 
-import { createRandomRawConfiguration } from "@/utils/testing";
+import {
+  createRandomRawConfiguration,
+  preloadStoredConfigurations,
+} from "@/utils/testing";
 
 import type { RawConfiguration } from "../ConfigurationProvider";
 
@@ -94,32 +97,12 @@ describe("storageAtoms", () => {
  * connection can still carry the legacy shape.
  */
 describe("backward compatibility: connections stored by earlier versions", () => {
-  beforeEach(() => {
-    vi.resetModules();
-  });
-
   function storedConfig(connection: LegacyConnectionConfig): RawConfiguration {
     return {
       ...createRandomRawConfiguration(),
       // Stored data is not schema-validated on read.
       connection: connection as RawConfiguration["connection"],
     };
-  }
-
-  function storeConfigs(...configs: RawConfiguration[]) {
-    return localforage.setItem(
-      "configuration",
-      new Map(configs.map(config => [config.id, config])),
-    );
-  }
-
-  /** A fresh copy of storageAtoms.ts, preloading what is stored now. */
-  async function preloadAtoms() {
-    const [atoms, persistence] = await Promise.all([
-      import("./storageAtoms"),
-      import("./persistence"),
-    ]);
-    return { ...atoms, ...persistence, store: createStore() };
   }
 
   it("transforms a stored proxied IAM connection when the atoms preload", async () => {
@@ -134,9 +117,9 @@ describe("backward compatibility: connections stored by earlier versions", () =>
       fetchTimeoutMs: 30000,
       nodeExpansionLimit: 25,
     });
-    await storeConfigs(config);
 
-    const { store, configurationAtom } = await preloadAtoms();
+    const { store, configurationAtom } =
+      await preloadStoredConfigurations(config);
 
     expect(
       store.get(configurationAtom).get(config.id)?.connection,
@@ -160,16 +143,23 @@ describe("backward compatibility: connections stored by earlier versions", () =>
       proxyConnection: true,
       graphDbUrl: "https://neptune-a:8182",
     });
-    await storeConfigs(storedByThisTab);
     const { store, configurationAtom, persistenceStatusStore } =
-      await preloadAtoms();
+      await preloadStoredConfigurations(storedByThisTab);
 
+    // Another tab writes its own legacy entry alongside this tab's, directly
+    // to storage, bypassing this tab's in-memory atoms entirely.
     const storedByOtherTab = storedConfig({
       url: "https://proxy.example.com",
       proxyConnection: true,
       graphDbUrl: "https://neptune-b:8182",
     });
-    await storeConfigs(storedByThisTab, storedByOtherTab);
+    await localforage.setItem(
+      "configuration",
+      new Map([
+        [storedByThisTab.id, storedByThisTab],
+        [storedByOtherTab.id, storedByOtherTab],
+      ]),
+    );
     const added = createRandomRawConfiguration();
     store.set(configurationAtom, prev => new Map(prev).set(added.id, added));
     await persistenceStatusStore.waitForIdle();
