@@ -531,6 +531,29 @@ describe("backward compatibility: legacy url/proxyConnection connection shape", 
     });
   });
 
+  test("should keep a relative url unchanged for a direct connection", () => {
+    const result = transformLegacyConnection({
+      url: "/neptune",
+      proxyConnection: false,
+    });
+    expect(result).toStrictEqual({
+      graphDbUrl: "/neptune",
+      proxyConnection: false,
+    });
+  });
+
+  test("should fall back to graphDbUrl for a direct connection when url is empty", () => {
+    const result = transformLegacyConnection({
+      url: "",
+      proxyConnection: false,
+      graphDbUrl: "https://db",
+    });
+    expect(result).toStrictEqual({
+      graphDbUrl: "https://db",
+      proxyConnection: false,
+    });
+  });
+
   // Out of scope: a `proxyConnection: true` connection with only `url` set
   // (no `graphDbUrl`) yields an empty `graphDbUrl`, matching base behavior.
   test("should yield an empty graphDbUrl when proxyConnection is true and only url is set", () => {
