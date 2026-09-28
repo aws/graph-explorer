@@ -32,6 +32,7 @@ Each project sets up its own environment. `setupTests.ts` below is registered by
 - `normalizeWithNoSpace` / `normalize` / `normalizeWithNewlines` — normalize query strings before asserting (`normalize.ts`). They differ in whitespace and comment handling; use whichever the file you're editing already uses.
 - Persistence: `PersistenceTab`, `readPersistedValue` (`persistence.ts`)
 - `preloadStoredConfiguration(config)` — seeds the stored configuration in IndexedDB and loads it through a fresh, real `configurationAtom`, as the app does on load.
+- `preloadStoredConfigurations(...configs)` — the same, seeding several configs at once; returns `{ store, configurationAtom, persistenceStatusStore }` instead of a single transformed configuration.
 - `@shared/utils/testing` — primitives: `createRandomName`, `createRandomInteger`, `createRandomColor`, `createRandomUrlString`, …
 
 ## Patterns — copy from the real test, don't reinvent
