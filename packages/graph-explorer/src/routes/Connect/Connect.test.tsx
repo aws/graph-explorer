@@ -10,8 +10,9 @@ import { createQueryClient } from "@/core/queryClient";
 import {
   activeConfigurationAtom,
   configurationAtom,
+  nodesAtom,
 } from "@/core/StateProvider";
-import { DbState, TestProvider } from "@/utils/testing";
+import { createTestableVertex, DbState, TestProvider } from "@/utils/testing";
 
 import Connect from "./Connect";
 
@@ -111,6 +112,27 @@ describe("Connect route", () => {
     renderConnect(searchFor(activeUrl));
 
     expect(screen.getByTestId("location")).toHaveTextContent("/graph-explorer");
+  });
+
+  test("keeps the session when the params target the active connection", () => {
+    const state = new DbState();
+    const activeUrl = "https://active.neptune.amazonaws.com";
+    state.activeConfig.connection = {
+      queryEngine: "gremlin",
+      graphDbUrl: activeUrl,
+    };
+    state.addTestableVertexToGraph(createTestableVertex());
+    const store = getAppStore();
+    state.applyTo(store);
+    const activeId = store.get(activeConfigurationAtom);
+    const nodeCount = store.get(nodesAtom).size;
+    expect(nodeCount).toBeGreaterThan(0);
+
+    renderConnect(searchFor(activeUrl));
+
+    expect(screen.getByTestId("location")).toHaveTextContent("/graph-explorer");
+    expect(store.get(activeConfigurationAtom)).toBe(activeId);
+    expect(store.get(nodesAtom).size).toBe(nodeCount);
   });
 
   test("activates an inactive matching connection and redirects without a prompt", async () => {
