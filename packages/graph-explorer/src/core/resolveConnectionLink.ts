@@ -15,7 +15,8 @@ import {
  *
  * A plain function rather than a hook, because opening a link is a one-shot
  * event: the caller resolves once on entry and acts on the result. It reads the
- * store directly, which keeps `connectionLink` free of app state so its contract stays unit-testable in isolation.
+ * store directly, which keeps `connectionLink` free of app state so its
+ * contract stays unit-testable in isolation.
  */
 export function resolveConnectionLink(search: string): ConnectionLinkIntent {
   const store = getAppStore();

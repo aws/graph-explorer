@@ -34,9 +34,9 @@ const ConnectionLinkParamsSchema = z
     // crafted link from seeding the form with something like `javascript:`.
     //
     // The Proxy Server rejects a Database URL carrying userinfo, so a link
-    // carrying credentials could only build a connection that fails every query, after persisting the password to
-    // IndexedDB and into any exported connection file. Graph Explorer
-    // authenticates with IAM, never userinfo.
+    // carrying credentials could only build a connection that fails every
+    // query, after persisting the password to IndexedDB and into any exported
+    // connection file. Graph Explorer authenticates with IAM, never userinfo.
     // The `#/connect` route exists only for connection links, so reaching it
     // without a graphDbUrl (missing entirely, or present but empty) is an
     // invalid link rather than a silent no-op — the caller asked to open a
@@ -295,8 +295,8 @@ export function findMatchingConnection(
 /**
  * Build the connection a link proposes. IAM auth is enabled exactly when a
  * region is provided, defaulting the service type when only a region is given.
- * A `serviceType` without a region still carries through and seeds the form if
- * the user turns IAM on.
+ * A `neptune-db` service type without a region still carries through and seeds
+ * the form if the user turns IAM on.
  *
  * Returns the connection body without an id, because a link only ever proposes a
  * connection. `CreateConnection` mints the id if and when the user saves the
@@ -322,9 +322,9 @@ export function buildConnectionFromParams(
  *
  * `activate` names a connection the user already has, so it carries the stored
  * configuration, id and all. It covers the active connection too, since
- * activating that one is a no-op that keeps its session. `create` only proposes one, so it carries the
- * connection body and the name to seed the form with, and nothing exists yet to
- * have an id.
+ * activating that one is a no-op that keeps its session. `create` only
+ * proposes one, so it carries the connection body and the name to seed the
+ * form with, and nothing exists yet to have an id.
  */
 export type ConnectionLinkIntent =
   | { kind: "invalid"; error: ConnectionLinkError }
