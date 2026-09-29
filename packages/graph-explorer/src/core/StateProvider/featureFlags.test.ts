@@ -1,4 +1,7 @@
 // @vitest-environment happy-dom
+
+import { describe, expect, test } from "vitest";
+
 import { renderHookWithState } from "@/utils/testing";
 
 import { useFeatureFlags } from "./featureFlags";

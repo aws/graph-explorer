@@ -5,6 +5,7 @@ import {
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
+import { expect, test } from "vitest";
 
 import { createResultVertex } from "@/connector/entities";
 

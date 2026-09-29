@@ -49,7 +49,6 @@ export default defineConfig(({ mode }) => {
       tsconfigPaths: true,
     },
     test: {
-      globals: true,
       pool: "threads",
 
       // Setup

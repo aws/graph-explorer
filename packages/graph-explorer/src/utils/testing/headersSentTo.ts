@@ -1,3 +1,5 @@
+import { expect, type vi } from "vitest";
+
 import { normalizeHeaders } from "./normalizeHeaders";
 
 /**

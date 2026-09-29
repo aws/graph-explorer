@@ -1,10 +1,11 @@
 // @vitest-environment happy-dom
+
 import { queryEngineOptions } from "@shared/types";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { Provider } from "jotai";
 import { Route, Routes } from "react-router";
-import { onTestFinished, vi } from "vitest";
+import { describe, expect, onTestFinished, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
 import { type AppStore, getAppStore } from "@/core";

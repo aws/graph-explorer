@@ -1,5 +1,8 @@
 // @vitest-environment happy-dom
+
 import type { ConnectionConfig } from "@shared/types";
+
+import { describe, expect, test } from "vitest";
 
 import { DbState } from "@/utils/testing";
 

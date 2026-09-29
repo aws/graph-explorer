@@ -14,12 +14,7 @@
 
     /* Type Resolution */
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "types": [
-      "vite/client",
-      "vitest/globals",
-      "@testing-library/jest-dom/vitest",
-      "@types/wicg-file-system-access"
-    ],
+    "types": ["vite/client", "@types/wicg-file-system-access"],
     "paths": {
       "@/*": ["./src/*"],
       "@/types/*": ["./src/@types/*"],

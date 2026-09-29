@@ -1,5 +1,6 @@
 import { createRandomName } from "@shared/utils/testing";
 import { createStore } from "jotai";
+import { describe, expect, it, test } from "vitest";
 
 import { activeConfigurationAtom, configurationAtom } from "@/core";
 import {

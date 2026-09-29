@@ -1,4 +1,5 @@
 import { waitFor } from "@testing-library/react";
+import { expect } from "vitest";
 
 // NOTE:
 // Replaces functionality that was previously available through testing-library/react-hooks

@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { normalizeWithNoSpace as normalize } from "@/utils/testing";
 
 import edgesSchemaTemplate from "./edgesSchemaTemplate";

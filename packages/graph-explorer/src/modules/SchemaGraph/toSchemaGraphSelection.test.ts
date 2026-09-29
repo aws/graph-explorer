@@ -1,3 +1,5 @@
+import { describe, expect, test } from "vitest";
+
 import { createEdgeType, createVertexType } from "@/core";
 import { createEdgeConnectionId } from "@/core/StateProvider/edgeConnectionId";
 

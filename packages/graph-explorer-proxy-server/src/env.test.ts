@@ -1,3 +1,5 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { parseEnvironmentValues } from "./env.ts";
 
 describe("parseEnvironmentValues", () => {

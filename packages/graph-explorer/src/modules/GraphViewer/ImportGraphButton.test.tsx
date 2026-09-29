@@ -1,7 +1,9 @@
 // @vitest-environment happy-dom
+
 import type { LegacyConnectionConfig } from "@shared/types";
 
 import { createArray } from "@shared/utils/testing";
+import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 
 import type { RawConfiguration } from "@/core";

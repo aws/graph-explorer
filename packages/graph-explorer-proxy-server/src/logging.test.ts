@@ -1,5 +1,7 @@
 import type { Response } from "express";
 
+import { describe, expect, it, vi } from "vitest";
+
 import {
   createLogger,
   getRequestLoggerPrefix,

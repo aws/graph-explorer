@@ -4,6 +4,7 @@ import {
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
+import { describe, expect, test } from "vitest";
 
 import { deserializeData, serializeData } from "./serializeData";
 

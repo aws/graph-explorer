@@ -1,4 +1,7 @@
 // @vitest-environment happy-dom
+
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
 import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";

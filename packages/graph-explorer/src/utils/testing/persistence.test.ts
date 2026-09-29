@@ -1,4 +1,5 @@
 import { createRandomName } from "@shared/utils/testing";
+import { describe, expect, test } from "vitest";
 
 import type {
   ConfigurationId,

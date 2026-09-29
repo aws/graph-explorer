@@ -1,4 +1,5 @@
 import fc from "fast-check";
+import { describe, expect, it } from "vitest";
 
 import { createEdgeId, createVertexId } from "@/core";
 

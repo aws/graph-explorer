@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { assertAllowedDbOrigin } from "./allowed-db-origins.ts";
 import { HttpError } from "./errors.ts";
 

@@ -1,9 +1,10 @@
 // @vitest-environment happy-dom
+
 import type { QueryEngine } from "@shared/types";
 
 import { act } from "@testing-library/react";
 import { useState } from "react";
-import { vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   activeConfigurationAtom,

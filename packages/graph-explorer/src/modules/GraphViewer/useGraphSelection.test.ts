@@ -1,5 +1,7 @@
 // @vitest-environment happy-dom
+
 import { act } from "react";
+import { describe, expect, test } from "vitest";
 
 import { useGraphViewSidebar } from "@/core";
 import { DbState, renderHookWithState } from "@/utils/testing";

@@ -1,5 +1,5 @@
 import localForage from "localforage";
-import { afterEach, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { createEdgeType, createVertexType } from "@/core/entities";
 import { logger } from "@/utils";

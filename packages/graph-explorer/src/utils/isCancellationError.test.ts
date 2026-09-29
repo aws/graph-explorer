@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
 import { FetchTimeoutError } from "./FetchTimeoutError";
 import { isCancellationError } from "./isCancellationError";

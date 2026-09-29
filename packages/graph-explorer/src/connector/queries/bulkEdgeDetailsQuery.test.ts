@@ -1,4 +1,5 @@
 import { createArray } from "@shared/utils/testing";
+import { describe, expect, it, vi } from "vitest";
 
 import { edgesAtom, explorerForTestingAtom, getAppStore } from "@/core";
 import { createQueryClient } from "@/core/queryClient";

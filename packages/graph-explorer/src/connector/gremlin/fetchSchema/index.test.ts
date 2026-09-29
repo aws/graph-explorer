@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { ClientLoggerConnector } from "@/connector/LoggerConnector";
 import { globalMockFetch } from "@/connector/testUtils/globalMockFetch";
 import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";

@@ -1,5 +1,7 @@
 import type { LegacyConnectionConfig } from "@shared/types";
 
+import { describe, expect, test } from "vitest";
+
 import {
   createRandomRawConfiguration,
   preloadStoredConfiguration,
