@@ -28,6 +28,7 @@ import type { SchemaStorageModel } from "./schema";
 
 import {
   activeConfigSelector,
+  activeConnectionAtom,
   defaultEdgeTypeConfig,
   defaultVertexTypeConfig,
   getDefaultEdgeTypeConfig,
@@ -753,5 +754,41 @@ describe("activeConfigSelector", () => {
     store.set(activeConfigurationAtom, deletedConfig.id);
 
     expect(store.get(activeConfigSelector)).toBeNull();
+  });
+});
+
+describe("activeConnectionAtom", () => {
+  test("resolves to null when there is no active connection", () => {
+    const store = createStore();
+
+    expect(store.get(activeConnectionAtom)).toBeNull();
+  });
+
+  test("resolves to null when the active connection has no connection details", () => {
+    const config: RawConfiguration = {
+      ...createRandomRawConfiguration(),
+      connection: undefined,
+    };
+    const store = createStore();
+    store.set(configurationAtom, new Map([[config.id, config]]));
+    store.set(activeConfigurationAtom, config.id);
+
+    expect(store.get(activeConnectionAtom)).toBeNull();
+  });
+
+  test("normalizes the active connection's URL and applies defaults", () => {
+    const config: RawConfiguration = {
+      ...createRandomRawConfiguration(),
+      connection: { graphDbUrl: "https://neptune.example.com:8182/\n" },
+    };
+    const store = createStore();
+    store.set(configurationAtom, new Map([[config.id, config]]));
+    store.set(activeConfigurationAtom, config.id);
+
+    expect(store.get(activeConnectionAtom)).toStrictEqual({
+      graphDbUrl: "https://neptune.example.com:8182",
+      queryEngine: "gremlin",
+      awsAuthEnabled: false,
+    });
   });
 });
