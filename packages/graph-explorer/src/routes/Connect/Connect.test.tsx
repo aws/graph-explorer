@@ -5,14 +5,19 @@ import { Route, Routes, useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
 
 import { TooltipProvider } from "@/components";
-import { type AppStore, type ConfigurationId, getAppStore } from "@/core";
+import { getAppStore } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import {
   activeConfigurationAtom,
   configurationAtom,
   nodesAtom,
 } from "@/core/StateProvider";
-import { createTestableVertex, DbState, TestProvider } from "@/utils/testing";
+import {
+  createRandomRawConfiguration,
+  createTestableVertex,
+  DbState,
+  TestProvider,
+} from "@/utils/testing";
 
 import Connect from "./Connect";
 
@@ -58,24 +63,6 @@ function renderConnect(search: string, nextSearch?: string) {
     </TestProvider>,
   );
   return store;
-}
-
-function seedInactiveConnection(store: AppStore) {
-  const inactiveUrl = "https://inactive.neptune.amazonaws.com";
-  const inactiveConfig = {
-    id: "inactive-conn" as ConfigurationId,
-    displayLabel: "Inactive",
-    connection: {
-      queryEngine: "gremlin" as const,
-      graphDbUrl: inactiveUrl,
-    },
-  };
-  store.set(configurationAtom, prev => {
-    const updated = new Map(prev);
-    updated.set(inactiveConfig.id, inactiveConfig);
-    return updated;
-  });
-  return { inactiveUrl, inactiveConfig };
 }
 
 describe("Connect route", () => {
@@ -136,9 +123,14 @@ describe("Connect route", () => {
   });
 
   test("activates an inactive matching connection and redirects without a prompt", async () => {
-    new DbState().applyTo(getAppStore());
+    const inactiveUrl = "https://inactive.neptune.amazonaws.com";
+    const inactiveConfig = createRandomRawConfiguration();
+    inactiveConfig.connection = {
+      queryEngine: "gremlin",
+      graphDbUrl: inactiveUrl,
+    };
     const store = getAppStore();
-    const { inactiveUrl, inactiveConfig } = seedInactiveConnection(store);
+    new DbState().addInactiveConnection(inactiveConfig).applyTo(store);
 
     renderConnect(searchFor(inactiveUrl));
 
