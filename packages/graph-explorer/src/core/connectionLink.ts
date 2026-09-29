@@ -30,17 +30,9 @@ const AWS_REGION_PATTERN = /^[a-z]{2}(-[a-z]+)+-\d+$/;
  */
 const ConnectionLinkParamsSchema = z
   .object({
-    // Only http(s) endpoints are meaningful, and constraining the scheme keeps a
-    // crafted link from seeding the form with something like `javascript:`.
-    //
-    // The Proxy Server rejects a Database URL carrying userinfo, so a link
-    // carrying credentials could only build a connection that fails every
-    // query, after persisting the password to IndexedDB and into any exported
-    // connection file. Graph Explorer authenticates with IAM, never userinfo.
-    // The `#/connect` route exists only for connection links, so reaching it
-    // without a graphDbUrl (missing entirely, or present but empty) is an
-    // invalid link rather than a silent no-op — the caller asked to open a
-    // link and the one param that makes it a link isn't there.
+    // http(s) only, so a crafted link can't seed the form with `javascript:`.
+    // The Proxy Server refuses userinfo, so credentials in a link would only
+    // leak a password into IndexedDB and exported connection files.
     graphDbUrl: z
       .string()
       .min(1, { error: "is required" })
@@ -56,12 +48,9 @@ const ConnectionLinkParamsSchema = z
       .refine(hasNoBackslash, {
         error: "cannot contain a backslash",
       }),
-    // Absent values take a default, but an explicit value we do not support is a
-    // rejection rather than a coercion: silently answering `queryEngine=sql` with
-    // Gremlin would build a connection that queries the database in a language the
-    // caller never asked for. The default itself depends on `serviceType`
-    // (Neptune Analytics only speaks openCypher), so it is resolved below
-    // rather than here.
+    // An unsupported value is rejected, not coerced, so a link never queries in
+    // a language it didn't ask for. The default depends on `serviceType`, so
+    // it's resolved below.
     queryEngine: z
       .enum(queryEngineOptions, { error: mustBeOneOf(queryEngineOptions) })
       .optional(),

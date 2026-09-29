@@ -30,27 +30,14 @@ const CONNECTIONS_ROUTE = "/connections";
 
 /**
  * Route that opens a connection from link params (`#/connect?graphDbUrl=…`).
- * Opening a link is a one-shot event, so the route resolves it once on entry and
- * acts: it switches to a matching existing connection, warns when the link's
- * data is invalid, or opens the create-connection form prefilled from the
- * params. Every outcome replaces the connect URL, so it never lingers in history.
+ * It resolves the link once on entry, then activates a matching connection,
+ * warns about an invalid link, or opens the prefilled create form. Every
+ * outcome replaces the URL, so `#/connect` never lingers in history.
  *
- * The intent is resolved once, on entry, and held as this component's initial
- * state. Deriving it on every render would re-decide a question the link already
- * answered, and resolving it in the effect would decide after the first paint
- * what could be known before it. The create form is the only outcome that
- * outlives that moment, so it is the only thing rendered.
- *
- * Resolving on entry is correct because `AppStatusLoader` gates this route
- * behind a loading state until the default connections have arrived. The test
- * "does not prompt to create when a loading default connection matches the
- * connect URL" in `core/AppStatusLoader.test.tsx` pins that ordering.
- *
- * Switching to an existing connection needs no confirmation: it is the same
- * no-prompt operation as clicking that connection in the connections list, and
- * it only ever targets a connection the user already created and validated. The
- * create form keeps its friction — that is the trust gate for the untrusted
- * endpoint details a link can carry.
+ * Resolving on entry is safe because `AppStatusLoader` holds this route until
+ * the default connections load. Activating needs no confirmation because it
+ * only targets a connection the user already created; the create form is the
+ * trust gate for a link's untrusted endpoint details.
  */
 export default function Connect() {
   const { search } = useLocation();
