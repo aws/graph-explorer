@@ -55,6 +55,20 @@ describe("exportConnectionWithFeedback", () => {
     expect(toastErrorMock).toHaveBeenCalledTimes(1);
   });
 
+  it("reports failure and does not export when the proxy server URL cannot be resolved", () => {
+    stubDocumentUrl("http://localhost/renamed/");
+
+    const exported = exportConnectionWithFeedback(
+      makeConfig({ graphDbUrl: "https://example.com", queryEngine: "gremlin" }),
+    );
+
+    expect(exported).toBe(false);
+    expect(saveAsMock).not.toHaveBeenCalled();
+    expect(toastErrorMock).toHaveBeenCalledWith("Cannot Export Connection", {
+      description: expect.stringContaining("/explorer"),
+    });
+  });
+
   it("reports failure and does not export when there is no connection", () => {
     const exported = exportConnectionWithFeedback(makeConfig(undefined));
 
