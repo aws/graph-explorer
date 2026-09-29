@@ -1,3 +1,5 @@
+import { vi } from "vitest";
+
 import type { Explorer } from "@/connector";
 
 import { normalizeConnection } from "@/core/StateProvider/configuration";

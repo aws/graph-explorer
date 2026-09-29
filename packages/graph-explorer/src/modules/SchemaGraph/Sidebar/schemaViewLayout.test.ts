@@ -1,5 +1,7 @@
 // @vitest-environment happy-dom
+
 import { act } from "react";
+import { describe, expect, it } from "vitest";
 
 import type { SchemaViewLayout } from "@/core/StateProvider/schemaViewLayoutDefaults";
 

@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { createVertexId } from "@/core";
 import { LABELS, query } from "@/utils";
 import {

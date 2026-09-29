@@ -1,3 +1,5 @@
+import { describe, expect, it, vi } from "vitest";
+
 import { createTestableEdge, mapToOcEdge } from "@/utils/testing";
 
 import type { ResultEdge } from "../entities";

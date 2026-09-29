@@ -5,6 +5,7 @@ import {
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
+import { describe, expect, it } from "vitest";
 
 import { createResultEdge } from "@/connector/entities";
 import { createTestableEdge, mapToOcEdge } from "@/utils/testing";

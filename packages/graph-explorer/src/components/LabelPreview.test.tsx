@@ -1,5 +1,7 @@
 // @vitest-environment happy-dom
+
 import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 
 import { appDefaultNodeLabelStyle, type LabelVisualStyle } from "@/core";
 

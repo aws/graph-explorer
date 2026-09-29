@@ -1,4 +1,5 @@
 // @vitest-environment happy-dom
+
 import { queryEngineOptions } from "@shared/types";
 import {
   createRandomBoolean,
@@ -6,6 +7,7 @@ import {
   createRandomName,
   createRandomUrlString,
 } from "@shared/utils/testing";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { ReverseProxyMisconfiguredError } from "@/utils";
 import {

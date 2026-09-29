@@ -1,7 +1,9 @@
 // @vitest-environment happy-dom
+
 import type { QueryEngine } from "@shared/types";
 
 import { createRandomDate, createRandomName } from "@shared/utils/testing";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 

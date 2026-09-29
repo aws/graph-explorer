@@ -5,6 +5,7 @@ import {
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
+import { describe, expect, it } from "vitest";
 
 import { createVertexType } from "@/core";
 import {

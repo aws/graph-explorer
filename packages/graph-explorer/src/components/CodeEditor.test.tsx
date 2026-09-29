@@ -3,6 +3,7 @@
 import type { EditorProps, Monaco } from "@monaco-editor/react";
 
 import { render } from "@testing-library/react";
+import { describe, expect, test, vi } from "vitest";
 
 import { CodeEditor } from "./CodeEditor";
 

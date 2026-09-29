@@ -1,3 +1,4 @@
+import { assert, describe, expect, it } from "vitest";
 import { z } from "zod";
 
 import { HttpError, RequestValidationError } from "./errors.ts";

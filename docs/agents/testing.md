@@ -10,6 +10,7 @@ Each project sets up its own environment. `setupTests.ts` below is registered by
 
 ## Rules
 
+- Import test APIs (`describe`, `it`, `expect`, `vi`, …) from `vitest`. Globals are off, so a missing import is a type error
 - Use `renderHookWithState` for hooks, not `renderHook`
 - Set up state with `DbState`, not manual atom wiring or `renderHookWithJotai`. When `DbState` can't express what a test needs, extend `DbState` — growing it is the intended path, not working around it.
 - Mock only external systems (network, etc.); don't mock internal modules

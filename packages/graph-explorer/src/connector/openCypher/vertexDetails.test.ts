@@ -1,3 +1,5 @@
+import { describe, expect, it, vi } from "vitest";
+
 import { createTestableVertex, mapToOcVertex } from "@/utils/testing";
 
 import type { ResultVertex } from "../entities";

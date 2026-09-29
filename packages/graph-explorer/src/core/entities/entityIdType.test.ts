@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import type { VertexId } from "./vertex";
 
 import { createEdgeId, createVertexId, getRawId } from "./entityIdType";

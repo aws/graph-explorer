@@ -1,5 +1,7 @@
 // @vitest-environment happy-dom
+
 import { act } from "@testing-library/react";
+import { describe, expect, test } from "vitest";
 
 import { configurationAtom } from "@/core";
 import { getAppStore } from "@/core/StateProvider/appStore";

@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
-import { vi } from "vitest";
+
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 

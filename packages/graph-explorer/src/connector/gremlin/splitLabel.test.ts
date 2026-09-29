@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { splitLabel } from "./splitLabel";
 
 describe("splitLabel", () => {

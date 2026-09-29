@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { type EnvironmentValues, parseEnvironmentValues } from "./env.ts";
 import { proxyServerRoot } from "./paths.ts";

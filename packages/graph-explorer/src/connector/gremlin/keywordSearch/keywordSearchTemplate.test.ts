@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { SEARCH_TOKENS } from "@/utils";
 import { normalizeWithNoSpace as normalize } from "@/utils/testing";
 

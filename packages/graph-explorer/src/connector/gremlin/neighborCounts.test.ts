@@ -1,3 +1,5 @@
+import { describe, expect, it, vi } from "vitest";
+
 import { createVertexId, createVertexType, type EntityRawId } from "@/core";
 import { query } from "@/utils";
 import {

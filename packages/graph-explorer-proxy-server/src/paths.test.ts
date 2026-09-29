@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { clientRoot, isDirectory, proxyServerRoot } from "./paths.ts";
 

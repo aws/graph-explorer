@@ -1,6 +1,8 @@
 // @vitest-environment happy-dom
+
 import { fireEvent, render, screen } from "@testing-library/react";
 import { useDeferredValue, useState } from "react";
+import { describe, expect, it, vi } from "vitest";
 
 import { NumberInput } from "./NumberInput";
 

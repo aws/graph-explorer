@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { query } from "@/utils";
 import { normalizeWithNewlines as normalize } from "@/utils/testing";
 

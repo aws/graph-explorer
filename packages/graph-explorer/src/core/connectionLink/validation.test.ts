@@ -1,4 +1,7 @@
 // @vitest-environment happy-dom
+
+import { describe, expect, test } from "vitest";
+
 import { resolveConnectionLink } from "./connectionLink";
 
 /** The problems of an invalid link, as `param requirement` strings. */

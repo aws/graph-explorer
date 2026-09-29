@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { globalMockFetch } from "@/connector/testUtils/globalMockFetch";
 import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";
 import { createVertex, createVertexId } from "@/core";

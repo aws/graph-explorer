@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { describe, expect, it, vi } from "vitest";
 
 import { clientRoot, proxyServerRoot } from "./paths.ts";
 import { buildBaseUrl, resolveServerConfig } from "./server-config.ts";

@@ -1,5 +1,7 @@
 // @vitest-environment happy-dom
+
 import { waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { NeighborCount } from "@/connector";
 
