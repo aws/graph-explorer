@@ -125,7 +125,7 @@ function mustBeOneOf(options: readonly string[]): string {
   return `must be one of ${options.map(option => `"${option}"`).join(", ")}`;
 }
 
-export type ConnectionLinkParams = z.infer<typeof ConnectionLinkParamsSchema>;
+type ConnectionLinkParams = z.infer<typeof ConnectionLinkParamsSchema>;
 
 /**
  * Whether a URL carries userinfo. Zod runs every check on a field even after an
@@ -266,7 +266,7 @@ function identitiesMatch(
  * connection (so a URL targeting it is a no-op), then a connection whose label
  * matches the link's name, then the first match found.
  */
-export function findMatchingConnection(
+function findMatchingConnection(
   configurations: Map<ConfigurationId, RawConfiguration>,
   proposed: ConnectionConfig,
   name: string,
@@ -302,7 +302,7 @@ export function findMatchingConnection(
  * connection. `CreateConnection` mints the id if and when the user saves the
  * form, so generating one here would produce a value nothing reads.
  */
-export function buildConnectionFromParams(
+function buildConnectionFromParams(
   params: ConnectionLinkParams,
 ): ConnectionConfig {
   const awsAuthEnabled = Boolean(params.awsRegion);

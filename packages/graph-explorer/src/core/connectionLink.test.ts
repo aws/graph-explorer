@@ -1,14 +1,13 @@
-import type {
-  ConfigurationId,
-  RawConfiguration,
-} from "./ConfigurationProvider";
+import type { ConnectionConfig } from "@shared/types";
 
 import {
-  buildConnectionFromParams,
-  findMatchingConnection,
+  type ConfigurationId,
+  createNewConfigurationId,
+  type RawConfiguration,
+} from "./ConfigurationProvider";
+import {
   readConnectionLink,
   resolveConnectionLinkIntent,
-  type ConnectionLinkParams,
 } from "./connectionLink";
 import { ConnectionLinkError } from "./connectionLinkError";
 
@@ -305,575 +304,375 @@ describe("readConnectionLink", () => {
   });
 });
 
-/** Matches the connection a link's params propose, as the resolver does. */
-function matchLink(
-  configurations: Map<ConfigurationId, RawConfiguration>,
-  params: ConnectionLinkParams,
+function storedConnection(
+  displayLabel: string,
+  connection: ConnectionConfig,
+): RawConfiguration {
+  return { id: createNewConfigurationId(), displayLabel, connection };
+}
+
+function linkTo(graphDbUrl: string, otherParams = "") {
+  return `?graphDbUrl=${encodeURIComponent(graphDbUrl)}${otherParams}`;
+}
+
+function resolve(
+  search: string,
+  connections: RawConfiguration[],
   activeId: ConfigurationId | null = null,
 ) {
-  return findMatchingConnection(
-    configurations,
-    buildConnectionFromParams(params),
-    params.name,
+  return resolveConnectionLinkIntent(
+    readConnectionLink(search),
+    new Map(connections.map(config => [config.id, config])),
     activeId,
   );
 }
 
-describe("findMatchingConnection", () => {
-  const configs = new Map<ConfigurationId, RawConfiguration>([
-    [
-      "conn-1" as ConfigurationId,
-      {
-        id: "conn-1" as ConfigurationId,
-        displayLabel: "Test",
-        connection: {
-          queryEngine: "openCypher",
-          graphDbUrl: "https://g-abc.us-west-2.neptune-graph.amazonaws.com",
-        },
-      },
-    ],
-    [
-      "conn-2" as ConfigurationId,
-      {
-        id: "conn-2" as ConfigurationId,
-        displayLabel: "Gremlin DB",
-        connection: {
-          queryEngine: "gremlin",
-          graphDbUrl: "https://my-cluster.neptune.amazonaws.com",
-        },
-      },
-    ],
-  ]);
+/** The stored connection a valid link activates, or null when it creates one. */
+function activatedBy(
+  search: string,
+  connections: RawConfiguration[],
+  activeId: ConfigurationId | null = null,
+) {
+  const intent = resolve(search, connections, activeId);
+  if (intent.kind === "invalid") {
+    throw new Error(`Expected a valid link, got "${intent.error.message}"`);
+  }
+  return intent.kind === "activate" ? intent.connection : null;
+}
+
+/** The connection a link proposes when nothing matches it. */
+function proposedBy(search: string) {
+  const intent = resolve(search, []);
+  if (intent.kind !== "create") {
+    throw new Error(`Expected a create intent, got "${intent.kind}"`);
+  }
+  return intent.connection;
+}
+
+describe("resolveConnectionLinkIntent", () => {
+  const activeUrl = "https://active.neptune.amazonaws.com";
+  const active = storedConnection("Active", {
+    queryEngine: "gremlin",
+    graphDbUrl: activeUrl,
+  });
+
+  test("passes an invalid link through with its error", () => {
+    const intent = resolve("?graphDbUrl=not-a-url", [active], active.id);
+
+    expect(intent).toEqual({
+      kind: "invalid",
+      error: expect.any(ConnectionLinkError),
+    });
+    expect(intent.kind === "invalid" && intent.error.problems).toEqual([
+      { param: "graphDbUrl", requirement: "must be a valid http or https URL" },
+    ]);
+  });
+
+  // Activating the active connection is a no-op, so the route needs no
+  // separate intent to keep the session.
+  test("activates the active connection when the URL matches it", () => {
+    expect(resolve(linkTo(activeUrl), [active], active.id)).toEqual({
+      kind: "activate",
+      connection: active,
+    });
+  });
+
+  test("activates a matching connection that is not active", () => {
+    const inactiveUrl = "https://inactive.neptune.amazonaws.com";
+    const inactive = storedConnection("Inactive", {
+      queryEngine: "gremlin",
+      graphDbUrl: inactiveUrl,
+    });
+
+    expect(resolve(linkTo(inactiveUrl), [active, inactive], active.id)).toEqual(
+      { kind: "activate", connection: inactive },
+    );
+  });
+
+  test("creates rather than reusing the active connection when the link requests a different auth posture", () => {
+    const intent = resolve(
+      linkTo(activeUrl, "&awsRegion=us-east-1"),
+      [active],
+      active.id,
+    );
+    expect(intent.kind).toBe("create");
+  });
+
+  test("creates a new connection named from the link when nothing matches", () => {
+    const intent = resolve(
+      linkTo("https://brand-new.neptune.amazonaws.com", "&name=Brand+New"),
+      [active],
+      active.id,
+    );
+    expect(intent).toEqual({
+      kind: "create",
+      name: "Brand New",
+      connection: expect.objectContaining({
+        graphDbUrl: "https://brand-new.neptune.amazonaws.com",
+      }),
+    });
+  });
+});
+
+describe("matching a link to a stored connection", () => {
+  const graphUrl = "https://g-abc.us-west-2.neptune-graph.amazonaws.com";
+  const openCypherGraph = storedConnection("Test", {
+    queryEngine: "openCypher",
+    graphDbUrl: graphUrl,
+  });
+  const gremlinCluster = storedConnection("Gremlin DB", {
+    queryEngine: "gremlin",
+    graphDbUrl: "https://my-cluster.neptune.amazonaws.com",
+  });
+  const connections = [openCypherGraph, gremlinCluster];
 
   test("finds match by graphDbUrl and queryEngine", () => {
-    const match = matchLink(configs, {
-      graphDbUrl: "https://g-abc.us-west-2.neptune-graph.amazonaws.com",
-      queryEngine: "openCypher",
-      awsRegion: "",
-      serviceType: undefined,
-      name: "",
-    });
-    expect(match?.id).toBe("conn-1");
+    expect(
+      activatedBy(linkTo(graphUrl, "&queryEngine=openCypher"), connections),
+    ).toBe(openCypherGraph);
   });
 
   test("matches case-insensitively on graphDbUrl", () => {
-    const match = matchLink(configs, {
-      graphDbUrl: "https://G-ABC.US-WEST-2.NEPTUNE-GRAPH.AMAZONAWS.COM",
-      queryEngine: "openCypher",
-      awsRegion: "",
-      serviceType: undefined,
-      name: "",
-    });
-    expect(match?.id).toBe("conn-1");
+    expect(
+      activatedBy(
+        linkTo(graphUrl.toUpperCase(), "&queryEngine=openCypher"),
+        connections,
+      ),
+    ).toBe(openCypherGraph);
   });
 
-  // Both sides run through `normalizeUrl`, so a stored connection that picked
-  // up a trailing slash or stray whitespace still matches a tidy link.
-  test("matches a stored graphDbUrl with a trailing slash against a link without one", () => {
-    const withTrailingSlash = new Map<ConfigurationId, RawConfiguration>([
-      [
-        "conn-slash" as ConfigurationId,
-        {
-          id: "conn-slash" as ConfigurationId,
-          displayLabel: "Test",
-          connection: {
-            queryEngine: "gremlin",
-            graphDbUrl: "https://host:8182/",
-          },
-        },
-      ],
-    ]);
-
-    const match = matchLink(withTrailingSlash, {
-      graphDbUrl: "https://host:8182",
-      queryEngine: "gremlin",
-      awsRegion: "",
-      serviceType: undefined,
-      name: "",
+  // Both sides are normalized, so a trailing slash or stray whitespace on
+  // either the stored connection or the link still matches.
+  describe("ignores a trailing slash and surrounding whitespace", () => {
+    test.each([
+      { stored: "https://host:8182/", link: "https://host:8182" },
+      { stored: "https://host:8182", link: "https://host:8182/" },
+      { stored: "  https://host:8182\n", link: "https://host:8182" },
+      { stored: "https://host:8182", link: "  https://host:8182\n" },
+    ])("stored $stored matches link $link", ({ stored, link }) => {
+      const connection = storedConnection("Test", {
+        queryEngine: "gremlin",
+        graphDbUrl: stored,
+      });
+      expect(activatedBy(linkTo(link), [connection])).toBe(connection);
     });
-    expect(match?.id).toBe("conn-slash");
-  });
-
-  test("matches a stored graphDbUrl with surrounding whitespace and newlines", () => {
-    const withWhitespace = new Map<ConfigurationId, RawConfiguration>([
-      [
-        "conn-ws" as ConfigurationId,
-        {
-          id: "conn-ws" as ConfigurationId,
-          displayLabel: "Test",
-          connection: {
-            queryEngine: "gremlin",
-            graphDbUrl: "  https://host:8182\n",
-          },
-        },
-      ],
-    ]);
-
-    const match = matchLink(withWhitespace, {
-      graphDbUrl: "https://host:8182",
-      queryEngine: "gremlin",
-      awsRegion: "",
-      serviceType: undefined,
-      name: "",
-    });
-    expect(match?.id).toBe("conn-ws");
   });
 
   // The rest of the app reads a stored connection without a queryEngine as
   // gremlin, so matching must too or the link offers a duplicate.
   test("matches a stored connection with no queryEngine against a gremlin link", () => {
-    const legacy = new Map<ConfigurationId, RawConfiguration>([
-      [
-        "legacy" as ConfigurationId,
-        {
-          id: "legacy" as ConfigurationId,
-          displayLabel: "Legacy",
-          connection: {
-            graphDbUrl: "https://my-cluster.neptune.amazonaws.com",
-          },
-        },
-      ],
-    ]);
-
-    const match = matchLink(
-      legacy,
-      paramsOf("?graphDbUrl=https://my-cluster.neptune.amazonaws.com"),
-    );
-    expect(match?.id).toBe("legacy");
-  });
-
-  test("returns null when queryEngine differs", () => {
-    const match = matchLink(configs, {
-      graphDbUrl: "https://g-abc.us-west-2.neptune-graph.amazonaws.com",
-      queryEngine: "gremlin",
-      awsRegion: "",
-      serviceType: undefined,
-      name: "",
+    const legacy = storedConnection("Legacy", {
+      graphDbUrl: "https://my-cluster.neptune.amazonaws.com",
     });
-    expect(match).toBeNull();
+    expect(
+      activatedBy(linkTo("https://my-cluster.neptune.amazonaws.com"), [legacy]),
+    ).toBe(legacy);
   });
 
-  test("returns null when no match", () => {
-    const match = matchLink(configs, {
-      graphDbUrl: "https://unknown.neptune.amazonaws.com",
-      queryEngine: "gremlin",
-      awsRegion: "",
-      serviceType: undefined,
-      name: "",
-    });
-    expect(match).toBeNull();
+  test("does not match when queryEngine differs", () => {
+    expect(
+      activatedBy(linkTo(graphUrl, "&queryEngine=gremlin"), connections),
+    ).toBeNull();
   });
 
-  test("prefers the active connection when multiple match", () => {
+  test("does not match an unknown graphDbUrl", () => {
+    expect(
+      activatedBy(linkTo("https://unknown.neptune.amazonaws.com"), connections),
+    ).toBeNull();
+  });
+
+  describe("when several connections match", () => {
     const duplicateUrl = "https://dupe.neptune.amazonaws.com";
-    const dupes = new Map<ConfigurationId, RawConfiguration>([
-      [
-        "dupe-1" as ConfigurationId,
-        {
-          id: "dupe-1" as ConfigurationId,
-          displayLabel: "First",
-          connection: {
-            queryEngine: "gremlin",
-            graphDbUrl: duplicateUrl,
-          },
-        },
-      ],
-      [
-        "dupe-2" as ConfigurationId,
-        {
-          id: "dupe-2" as ConfigurationId,
-          displayLabel: "Second",
-          connection: {
-            queryEngine: "gremlin",
-            graphDbUrl: duplicateUrl,
-          },
-        },
-      ],
-    ]);
+    const first = storedConnection("First", {
+      queryEngine: "gremlin",
+      graphDbUrl: duplicateUrl,
+    });
+    const production = storedConnection("Production", {
+      queryEngine: "gremlin",
+      graphDbUrl: duplicateUrl,
+    });
+    const duplicates = [first, production];
 
-    const match = matchLink(
-      dupes,
-      {
-        graphDbUrl: duplicateUrl,
+    test("prefers the active connection", () => {
+      expect(
+        activatedBy(
+          linkTo(duplicateUrl, "&name=First"),
+          duplicates,
+          production.id,
+        ),
+      ).toBe(production);
+    });
+
+    test("tiebreaks by name when none is active", () => {
+      expect(
+        activatedBy(linkTo(duplicateUrl, "&name=Production"), duplicates),
+      ).toBe(production);
+    });
+
+    test("falls back to the first match when none is active and no name matches", () => {
+      expect(
+        activatedBy(linkTo(duplicateUrl, "&name=Neither"), duplicates),
+      ).toBe(first);
+    });
+
+    // A nameless link takes the hostname as its name, so reopening it returns
+    // to the connection it created even after the user adds a hand-named one
+    // to the same endpoint.
+    test("a nameless link prefers the connection its own derived name created", () => {
+      const fromLink = storedConnection("dupe.neptune.amazonaws.com", {
         queryEngine: "gremlin",
-        awsRegion: "",
-        serviceType: undefined,
-        name: "",
-      },
-      "dupe-2" as ConfigurationId,
-    );
-    expect(match?.id).toBe("dupe-2");
+        graphDbUrl: duplicateUrl,
+      });
+      expect(activatedBy(linkTo(duplicateUrl), [first, fromLink])).toBe(
+        fromLink,
+      );
+    });
   });
 
   describe("auth posture is part of connection identity", () => {
     const url = "https://iam.neptune.amazonaws.com";
 
-    const iamConfig = (
-      id: string,
-      auth: {
-        proxyConnection?: boolean;
-        awsAuthEnabled?: boolean;
-        awsRegion?: string;
-        serviceType?: "neptune-db" | "neptune-graph";
-      },
-    ): [ConfigurationId, RawConfiguration] => [
-      id as ConfigurationId,
-      {
-        id: id as ConfigurationId,
-        displayLabel: id,
-        connection: {
-          queryEngine: "gremlin",
-          graphDbUrl: url,
-          ...auth,
-        },
-      },
-    ];
+    function connectionWithAuth(
+      auth: Pick<
+        ConnectionConfig,
+        "proxyConnection" | "awsAuthEnabled" | "awsRegion" | "serviceType"
+      >,
+    ) {
+      return storedConnection("Auth", {
+        queryEngine: "gremlin",
+        graphDbUrl: url,
+        ...auth,
+      });
+    }
 
-    const paramsWith = (auth: {
-      awsRegion?: string;
-      serviceType?: "neptune-db" | "neptune-graph";
-    }): ConnectionLinkParams => ({
-      graphDbUrl: url,
-      queryEngine: "gremlin",
-      awsRegion: auth.awsRegion ?? "",
-      serviceType: auth.serviceType,
-      name: "",
-    });
+    const iamInUsEast1 = {
+      awsAuthEnabled: true,
+      awsRegion: "us-east-1",
+      serviceType: "neptune-db",
+    } as const;
 
     // A Direct Connection is sent from the browser, which cannot sign, so it
     // never authenticates with IAM, whatever IAM fields it still carries.
     test("an IAM link does not match a Direct Connection", () => {
-      const configs = new Map([
-        iamConfig("direct", {
-          proxyConnection: false,
-          awsAuthEnabled: true,
-          awsRegion: "us-east-1",
-          serviceType: "neptune-db",
-        }),
-      ]);
-      const match = matchLink(configs, paramsWith({ awsRegion: "us-east-1" }));
-      expect(match).toBeNull();
+      const direct = connectionWithAuth({
+        proxyConnection: false,
+        ...iamInUsEast1,
+      });
+      expect(
+        activatedBy(linkTo(url, "&awsRegion=us-east-1"), [direct]),
+      ).toBeNull();
     });
 
     test("a link without IAM matches a Direct Connection", () => {
-      const configs = new Map([
-        iamConfig("direct", { proxyConnection: false }),
-      ]);
-      const match = matchLink(configs, paramsWith({}));
-      expect(match?.id).toBe("direct");
+      const direct = connectionWithAuth({ proxyConnection: false });
+      expect(activatedBy(linkTo(url), [direct])).toBe(direct);
     });
 
     test("an IAM link does not match a non-IAM connection", () => {
-      const configs = new Map([iamConfig("plain", {})]);
-      const match = matchLink(configs, paramsWith({ awsRegion: "us-east-1" }));
-      expect(match).toBeNull();
+      const plain = connectionWithAuth({});
+      expect(
+        activatedBy(linkTo(url, "&awsRegion=us-east-1"), [plain]),
+      ).toBeNull();
     });
 
     test("a service type without a region still matches a non-IAM connection", () => {
-      const configs = new Map([iamConfig("plain", {})]);
-      const match = matchLink(
-        configs,
-        paramsWith({ serviceType: "neptune-db" }),
+      const plain = connectionWithAuth({});
+      expect(activatedBy(linkTo(url, "&serviceType=neptune-db"), [plain])).toBe(
+        plain,
       );
-      expect(match?.id).toBe("plain");
     });
 
     test("a non-IAM link does not match an IAM connection", () => {
-      const configs = new Map([
-        iamConfig("iam", {
-          awsAuthEnabled: true,
-          awsRegion: "us-east-1",
-          serviceType: "neptune-db",
-        }),
-      ]);
-      const match = matchLink(configs, paramsWith({}));
-      expect(match).toBeNull();
+      const iam = connectionWithAuth(iamInUsEast1);
+      expect(activatedBy(linkTo(url), [iam])).toBeNull();
     });
 
     test("IAM links with different regions do not match", () => {
-      const configs = new Map([
-        iamConfig("west", {
-          awsAuthEnabled: true,
-          awsRegion: "us-west-2",
-          serviceType: "neptune-db",
-        }),
-      ]);
-      const match = matchLink(configs, paramsWith({ awsRegion: "us-east-1" }));
-      expect(match).toBeNull();
+      const west = connectionWithAuth({
+        ...iamInUsEast1,
+        awsRegion: "us-west-2",
+      });
+      expect(
+        activatedBy(linkTo(url, "&awsRegion=us-east-1"), [west]),
+      ).toBeNull();
     });
 
+    // Neptune Analytics only accepts openCypher, so both sides use it to
+    // leave service type as the only difference.
     test("IAM links with different service types do not match", () => {
-      const configs = new Map([
-        iamConfig("db", {
-          awsAuthEnabled: true,
-          awsRegion: "us-east-1",
-          serviceType: "neptune-db",
-        }),
-      ]);
-      const match = matchLink(
-        configs,
-        paramsWith({ awsRegion: "us-east-1", serviceType: "neptune-graph" }),
-      );
-      expect(match).toBeNull();
+      const analytics = storedConnection("Analytics", {
+        queryEngine: "openCypher",
+        graphDbUrl: url,
+        ...iamInUsEast1,
+        serviceType: "neptune-graph",
+      });
+      expect(
+        activatedBy(
+          linkTo(
+            url,
+            "&queryEngine=openCypher&awsRegion=us-east-1&serviceType=neptune-db",
+          ),
+          [analytics],
+        ),
+      ).toBeNull();
     });
 
     test("matches an IAM connection with the same region and service type", () => {
-      const configs = new Map([
-        iamConfig("match", {
-          awsAuthEnabled: true,
-          awsRegion: "us-east-1",
-          serviceType: "neptune-db",
-        }),
-      ]);
-      const match = matchLink(
-        configs,
-        paramsWith({ awsRegion: "us-east-1", serviceType: "neptune-db" }),
-      );
-      expect(match?.id).toBe("match");
+      const iam = connectionWithAuth(iamInUsEast1);
+      expect(
+        activatedBy(
+          linkTo(url, "&awsRegion=us-east-1&serviceType=neptune-db"),
+          [iam],
+        ),
+      ).toBe(iam);
     });
 
     test("a link without a service type matches an IAM connection on the default service type", () => {
-      const configs = new Map([
-        iamConfig("default", {
-          awsAuthEnabled: true,
-          awsRegion: "us-east-1",
-          serviceType: "neptune-db",
-        }),
-      ]);
-      const match = matchLink(configs, paramsWith({ awsRegion: "us-east-1" }));
-      expect(match?.id).toBe("default");
+      const iam = connectionWithAuth(iamInUsEast1);
+      expect(activatedBy(linkTo(url, "&awsRegion=us-east-1"), [iam])).toBe(iam);
     });
-  });
-
-  test("tiebreaks by name when multiple match and none is active", () => {
-    const duplicateUrl = "https://dupe.neptune.amazonaws.com";
-    const dupes = new Map<ConfigurationId, RawConfiguration>([
-      [
-        "dupe-1" as ConfigurationId,
-        {
-          id: "dupe-1" as ConfigurationId,
-          displayLabel: "First",
-          connection: {
-            queryEngine: "gremlin",
-            graphDbUrl: duplicateUrl,
-          },
-        },
-      ],
-      [
-        "dupe-2" as ConfigurationId,
-        {
-          id: "dupe-2" as ConfigurationId,
-          displayLabel: "Production",
-          connection: {
-            queryEngine: "gremlin",
-            graphDbUrl: duplicateUrl,
-          },
-        },
-      ],
-    ]);
-
-    const match = matchLink(dupes, {
-      graphDbUrl: duplicateUrl,
-      queryEngine: "gremlin",
-      awsRegion: "",
-      serviceType: undefined,
-      name: "Production",
-    });
-    expect(match?.id).toBe("dupe-2");
-  });
-
-  // A nameless link identifies the connection it would have created, and the
-  // name it would have created is the hostname. So when the user later adds a
-  // second connection to the same endpoint under a name of their own, reopening
-  // the original link returns to the original connection.
-  test("a nameless link prefers the connection its own derived name created", () => {
-    const duplicateUrl = "https://dupe.neptune.amazonaws.com";
-    const params = paramsOf(`?graphDbUrl=${encodeURIComponent(duplicateUrl)}`);
-    const dupes = new Map<ConfigurationId, RawConfiguration>([
-      [
-        "hand-named" as ConfigurationId,
-        {
-          id: "hand-named" as ConfigurationId,
-          displayLabel: "My Cluster",
-          connection: {
-            queryEngine: "gremlin",
-            graphDbUrl: duplicateUrl,
-          },
-        },
-      ],
-      [
-        "from-link" as ConfigurationId,
-        {
-          id: "from-link" as ConfigurationId,
-          displayLabel: "dupe.neptune.amazonaws.com",
-          connection: {
-            queryEngine: "gremlin",
-            graphDbUrl: duplicateUrl,
-          },
-        },
-      ],
-    ]);
-
-    // The hand-named connection is first in the map, so falling through to the
-    // first match would return it.
-    const match = matchLink(dupes, params);
-    expect(match?.id).toBe("from-link");
   });
 });
 
-describe("buildConnectionFromParams", () => {
-  test("builds connection with IAM enabled", () => {
-    const connection = buildConnectionFromParams({
-      graphDbUrl: "https://g-xxx.neptune-graph.amazonaws.com",
-      queryEngine: "openCypher",
-      awsRegion: "us-west-2",
-      serviceType: "neptune-graph",
-      name: "My Graph",
-    });
+describe("the connection a link proposes", () => {
+  const url = "https://g-xxx.neptune-graph.amazonaws.com";
 
-    expect(connection).toEqual({
+  test("enables IAM when a region is given", () => {
+    expect(
+      proposedBy(
+        linkTo(
+          url,
+          "&queryEngine=openCypher&awsRegion=us-west-2&serviceType=neptune-graph",
+        ),
+      ),
+    ).toEqual({
       queryEngine: "openCypher",
-      graphDbUrl: "https://g-xxx.neptune-graph.amazonaws.com",
+      graphDbUrl: url,
       awsAuthEnabled: true,
       awsRegion: "us-west-2",
       serviceType: "neptune-graph",
     });
   });
 
-  test("builds connection with IAM disabled when no region is given", () => {
-    const connection = buildConnectionFromParams({
-      graphDbUrl: "https://g-xxx.neptune-graph.amazonaws.com",
-      queryEngine: "gremlin",
-      awsRegion: "",
-      serviceType: undefined,
-      name: "No IAM",
-    });
+  test("leaves IAM off when no region is given", () => {
+    const connection = proposedBy(linkTo(url));
 
     expect(connection.awsAuthEnabled).toBe(false);
     expect(connection.serviceType).toBeUndefined();
   });
 
   test("carries serviceType without a region but leaves IAM off", () => {
-    const connection = buildConnectionFromParams({
-      graphDbUrl: "https://g-xxx.neptune-graph.amazonaws.com",
-      queryEngine: "gremlin",
-      awsRegion: "",
-      serviceType: "neptune-db",
-      name: "Database",
-    });
+    const connection = proposedBy(linkTo(url, "&serviceType=neptune-db"));
 
     expect(connection.awsAuthEnabled).toBe(false);
     expect(connection.serviceType).toBe("neptune-db");
   });
 
-  test("enables IAM with a default service type when only region is given", () => {
-    const connection = buildConnectionFromParams({
-      graphDbUrl: "https://g-xxx.neptune-graph.amazonaws.com",
-      queryEngine: "gremlin",
-      awsRegion: "us-west-2",
-      serviceType: undefined,
-      name: "Region Only",
-    });
+  test("enables IAM with a default service type when only a region is given", () => {
+    const connection = proposedBy(linkTo(url, "&awsRegion=us-west-2"));
 
     expect(connection.awsAuthEnabled).toBe(true);
     expect(connection.awsRegion).toBe("us-west-2");
     expect(connection.serviceType).toBe("neptune-db");
-  });
-});
-
-describe("resolveConnectionLinkIntent", () => {
-  const activeUrl = "https://active.neptune.amazonaws.com";
-  const activeId = "active-conn" as ConfigurationId;
-  const configs = new Map<ConfigurationId, RawConfiguration>([
-    [
-      activeId,
-      {
-        id: activeId,
-        displayLabel: "Active",
-        connection: {
-          queryEngine: "gremlin",
-          graphDbUrl: activeUrl,
-        },
-      },
-    ],
-  ]);
-
-  const paramsFor = (graphDbUrl: string): ConnectionLinkParams => ({
-    graphDbUrl,
-    queryEngine: "gremlin",
-    awsRegion: "",
-    serviceType: undefined,
-    name: "Whatever",
-  });
-
-  const linkFor = (params: ConnectionLinkParams) =>
-    ({ kind: "valid", params }) as const;
-
-  test("passes an invalid link through with its error", () => {
-    const error = new ConnectionLinkError([
-      { param: "graphDbUrl", requirement: "must be a valid http or https URL" },
-    ]);
-    const intent = resolveConnectionLinkIntent(
-      { kind: "invalid", error },
-      configs,
-      activeId,
-    );
-    expect(intent).toEqual({ kind: "invalid", error });
-  });
-
-  // Activating the active connection is a no-op, so the route needs no
-  // separate intent to keep the session.
-  test("activates the active connection when the URL matches it", () => {
-    const intent = resolveConnectionLinkIntent(
-      linkFor(paramsFor(activeUrl)),
-      configs,
-      activeId,
-    );
-    expect(intent).toEqual({
-      kind: "activate",
-      connection: configs.get(activeId),
-    });
-  });
-
-  test("activates a matching connection that is not active", () => {
-    const inactiveId = "inactive-conn" as ConfigurationId;
-    const inactiveUrl = "https://inactive.neptune.amazonaws.com";
-    const withInactive = new Map(configs);
-    withInactive.set(inactiveId, {
-      id: inactiveId,
-      displayLabel: "Inactive",
-      connection: {
-        queryEngine: "gremlin",
-        graphDbUrl: inactiveUrl,
-      },
-    });
-
-    const intent = resolveConnectionLinkIntent(
-      linkFor(paramsFor(inactiveUrl)),
-      withInactive,
-      activeId,
-    );
-    expect(intent).toEqual({
-      kind: "activate",
-      connection: withInactive.get(inactiveId),
-    });
-  });
-
-  test("creates rather than reusing the active connection when the link requests a different auth posture", () => {
-    const intent = resolveConnectionLinkIntent(
-      linkFor({ ...paramsFor(activeUrl), awsRegion: "us-east-1" }),
-      configs,
-      activeId,
-    );
-    expect(intent.kind).toBe("create");
-  });
-
-  test("creates a new connection when nothing matches", () => {
-    const intent = resolveConnectionLinkIntent(
-      linkFor(paramsFor("https://brand-new.neptune.amazonaws.com")),
-      configs,
-      activeId,
-    );
-    expect(intent.kind).toBe("create");
   });
 });
