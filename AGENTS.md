@@ -74,7 +74,7 @@ Pass `REVIEW.md` by path to every reviewer sub-agent, not only the standards one
 
 ## Commands
 
-Run from project root with `pnpm`. Use only these scripts — never invoke `tsc`, `vitest`, `oxlint`, or `oxfmt` directly or via `pnpx`. The scripts pin tool versions and configs and cover every workspace package; bare tools use the wrong version and miss project context.
+Run from project root. Prefer these `pnpm` scripts. `vp` subcommands (`vp test`, `vp lint`, `vp fmt`, `vp check`) are fine to run directly, since `vp` resolves the project's pinned Vite+ and its config; use `pnpm exec vp` if the global CLI isn't installed. Never invoke `tsc`, `vitest`, `oxlint`, or `oxfmt` directly or via `pnpx`, because bare tools use the wrong version and miss project context.
 
 - `pnpm check:types` — typecheck all packages (no per-file/per-package option; this is the granularity)
 - `pnpm checks` — all static checks (types + lint + format); default validation for small changes

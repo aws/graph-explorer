@@ -5,7 +5,7 @@ node_modules
 # Ignore development related files
 .git
 .github
-.husky
+.vite-hooks
 .vscode
 .scratch
 .agents

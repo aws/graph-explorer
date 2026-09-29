@@ -1,8 +1,7 @@
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
-import { loadEnv, lazyPlugins } from "vite-plus";
-import { defineConfig } from "vite-plus";
+import { defineConfig, lazyPlugins, loadEnv } from "vite-plus";
 
 import { browserslistBuildTarget } from "./buildTarget.ts";
 
