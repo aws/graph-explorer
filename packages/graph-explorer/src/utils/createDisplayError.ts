@@ -8,7 +8,7 @@ import {
 import {
   ConnectionLinkError,
   describeLinkProblems,
-} from "@/core/connectionLinkError";
+} from "@/core/connectionLink";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 
 import { DatabaseTimeoutError } from "./DatabaseTimeoutError";

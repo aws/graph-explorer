@@ -12,13 +12,18 @@ import { DEFAULT_SERVICE_TYPE } from "@/utils";
 import type {
   ConfigurationId,
   RawConfiguration,
-} from "./ConfigurationProvider";
+} from "../ConfigurationProvider";
 
-import { ConnectionLinkError } from "./connectionLinkError";
+import { getAppStore } from "../StateProvider/appStore";
 import {
   isDirectConnection,
   normalizeConnection,
-} from "./StateProvider/configuration";
+} from "../StateProvider/configuration";
+import {
+  activeConfigurationAtom,
+  configurationAtom,
+} from "../StateProvider/storageAtoms";
+import { ConnectionLinkError } from "./connectionLinkError";
 
 /** Matches `us-east-1`, `us-gov-west-1`, `ap-southeast-2`, `cn-north-1`, etc. */
 const AWS_REGION_PATTERN = /^[a-z]{2}(-[a-z]+)+-\d+$/;
@@ -150,12 +155,12 @@ function hasNoBackslash(graphDbUrl: string): boolean {
  * a `graphDbUrl` is an invalid link (missing the one param that makes it a
  * link) rather than a distinct, silent case.
  */
-export type ConnectionLink =
+type ConnectionLink =
   | { kind: "invalid"; error: ConnectionLinkError }
   | { kind: "valid"; params: ConnectionLinkParams };
 
 /** Reads URL search params as a connection link. */
-export function readConnectionLink(search: string): ConnectionLink {
+function readConnectionLink(search: string): ConnectionLink {
   const params = new URLSearchParams(search);
   const parsed = ConnectionLinkParamsSchema.safeParse({
     graphDbUrl: params.get("graphDbUrl") ?? "",
@@ -328,7 +333,7 @@ export type ConnectionLinkIntent =
  * - the link failed validation (including a missing `graphDbUrl`) → `invalid`,
  *   carrying what was wrong with it
  */
-export function resolveConnectionLinkIntent(
+function resolveConnectionLinkIntent(
   link: ConnectionLink,
   configurations: Map<ConfigurationId, RawConfiguration>,
   activeId: ConfigurationId | null,
@@ -350,4 +355,18 @@ export function resolveConnectionLinkIntent(
   }
 
   return { kind: "create", name: link.params.name, connection: proposed };
+}
+
+/**
+ * Resolves a route's search string into an intent against the connections in
+ * the store right now. Opening a link is a one-shot event, so this is a plain
+ * function the caller runs once on entry rather than a hook.
+ */
+export function resolveConnectionLink(search: string): ConnectionLinkIntent {
+  const store = getAppStore();
+  return resolveConnectionLinkIntent(
+    readConnectionLink(search),
+    store.get(configurationAtom),
+    store.get(activeConfigurationAtom),
+  );
 }

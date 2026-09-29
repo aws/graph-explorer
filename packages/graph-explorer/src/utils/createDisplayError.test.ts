@@ -7,7 +7,7 @@ import {
   UnescapableValueError,
   UnsupportedValueTypeError,
 } from "@/connector/queryValueError";
-import { ConnectionLinkError } from "@/core/connectionLinkError";
+import { ConnectionLinkError } from "@/core/connectionLink";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 
 import { createDisplayError } from "./createDisplayError";

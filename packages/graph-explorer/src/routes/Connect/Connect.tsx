@@ -15,7 +15,7 @@ import {
   Workspace,
   WorkspaceContent,
 } from "@/components";
-import { resolveConnectionLink } from "@/core/resolveConnectionLink";
+import { resolveConnectionLink } from "@/core/connectionLink";
 import useActivateConnection from "@/core/StateProvider/useActivateConnection";
 import CreateConnection, {
   type CreateConnectionOutcome,
