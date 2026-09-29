@@ -2,7 +2,7 @@ import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { loadEnv } from "vite";
-import { coverageConfigDefaults, defineConfig } from "vitest/config";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -61,20 +61,6 @@ export default defineConfig(({ mode }) => {
       restoreMocks: true,
       unstubEnvs: true,
       unstubGlobals: true,
-
-      coverage: {
-        exclude: [
-          "src/components/icons",
-          "src/@types",
-          "src/index.tsx",
-          "src/App.ts",
-          "src/setupTests.ts",
-          "src/**/*.style.ts",
-          "src/**/*.styles.ts",
-          "src/**/*.styles.css.ts",
-          ...coverageConfigDefaults.exclude,
-        ],
-      },
     },
   };
 });

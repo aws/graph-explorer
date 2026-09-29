@@ -14,7 +14,6 @@
     "check:format": "oxfmt --check",
     "test": "vitest run",
     "test:watch": "vitest",
-    "coverage": "vitest run --coverage",
     "check:types": "pnpm -r --include-workspace-root --parallel --stream run typecheck",
     "typecheck": "tsc --noEmit",
     "checks": "pnpm run check:lint && pnpm run check:format && pnpm run check:types",
@@ -27,7 +26,6 @@
   "dependencies": {},
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "5.103.1",
-    "@vitest/coverage-v8": "5.0.1",
     "eslint-plugin-react-hooks": "7.1.1",
     "fast-check": "^4.10.2",
     "husky": "^9.1.7",
