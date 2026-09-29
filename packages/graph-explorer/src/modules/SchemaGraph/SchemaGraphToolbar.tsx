@@ -19,7 +19,7 @@ import {
 import { useSchemaSync } from "@/hooks/useSchemaSync";
 import { ASCII, logger } from "@/utils";
 
-import { schemaGraphLayoutAtom } from "./SchemaGraph";
+import { schemaViewLayoutAlgorithmAtom } from "./schemaGraphLayout";
 
 /** Toolbar for schema graph with layout controls and schema refresh */
 export function SchemaGraphToolbar() {
@@ -29,7 +29,7 @@ export function SchemaGraphToolbar() {
       <PanelHeaderActions className="gap-1.5">
         <SelectLayout
           className="max-w-64 min-w-auto"
-          layoutAtom={schemaGraphLayoutAtom}
+          layoutAtom={schemaViewLayoutAlgorithmAtom}
         />
         <RerunLayoutButton />
         <ZoomToFitButton />

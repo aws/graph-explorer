@@ -12,6 +12,7 @@ import {
   useState,
 } from "react";
 
+import { DEFAULT_GRAPH_LAYOUT } from "@/core/graphLayout";
 import { cn } from "@/utils";
 
 import type {
@@ -163,7 +164,7 @@ export const Graph = ({
   onNodeRightClick,
   onGraphClick,
   onGraphRightClick,
-  layout = "F_COSE",
+  layout = DEFAULT_GRAPH_LAYOUT,
   badgesEnabled = false,
   useAnimation = true,
   pan,

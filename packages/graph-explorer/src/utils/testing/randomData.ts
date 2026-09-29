@@ -50,6 +50,7 @@ import {
   type EntityRawId,
   type FeatureFlags,
   type GraphViewLayout,
+  layoutNames,
   type LineStyle,
   type PrefixTypeConfig,
   type RawConfiguration,
@@ -838,5 +839,6 @@ export function createRandomSchemaViewLayout(): SchemaViewLayout {
       }),
     },
     detailsAutoOpenOnSelection: randomlyUndefined(createRandomBoolean()),
+    layoutAlgorithm: pickRandomElement([...layoutNames]),
   };
 }

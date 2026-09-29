@@ -1,6 +1,6 @@
 import type { ComponentPropsWithRef } from "react";
 
-import { type PrimitiveAtom, useAtom } from "jotai";
+import { useAtom, type WritableAtom } from "jotai";
 
 import type { LayoutName } from "@/components/Graph/helpers/layoutConfig";
 
@@ -19,7 +19,7 @@ export function SelectLayout({
   layoutAtom,
   ...props
 }: ComponentPropsWithRef<typeof SelectTrigger> & {
-  layoutAtom: PrimitiveAtom<LayoutName>;
+  layoutAtom: WritableAtom<LayoutName, [LayoutName], unknown>;
 }) {
   const [value, setValue] = useAtom(layoutAtom);
 
