@@ -9,14 +9,12 @@ Build instructions and development setup for contributing to Graph Explorer. For
 
 ### Node Version
 
-Graph Explorer targets the active Node.js LTS release. `.node-version` pins the version used for development and CI, and most version managers read it:
+`.node-version` pins the Node.js version used for development and CI. Use [Vite+](https://viteplus.dev), [fnm](https://github.com/Schniz/fnm), or [nvm](https://github.com/nvm-sh/nvm) to switch to it:
 
 ```bash
 vp env use                    # Vite+
 fnm use                       # fnm
-n auto                        # n
 nvm use $(cat .node-version)  # nvm only reads .nvmrc, so pass the version
-mise settings add idiomatic_version_file_enable_tools node && mise install  # mise
 ```
 
 Otherwise, install the version in `.node-version` from [nodejs.org](https://nodejs.org/en/download).
