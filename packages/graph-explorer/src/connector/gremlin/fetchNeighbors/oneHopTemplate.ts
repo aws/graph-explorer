@@ -3,11 +3,15 @@ import type {
   NeighborsRequest,
 } from "@/connector/useGEFetchTypes";
 
-import { query } from "@/utils";
+import { createVertexId } from "@/core";
+import { query, SEARCH_TOKENS } from "@/utils";
 
 import { fragment } from "../fragments";
 
 function attributeFilterTemplate({ name, value }: AttributeFilter): string {
+  if (name === SEARCH_TOKENS.NODE_ID) {
+    return `hasId(${fragment.id(createVertexId(value))})`;
+  }
   return `has(${fragment.identifier(name)},containing(${fragment.string(value)}))`;
 }
 

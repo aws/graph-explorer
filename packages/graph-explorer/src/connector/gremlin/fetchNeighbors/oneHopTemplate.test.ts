@@ -1,6 +1,7 @@
 import type { AttributeFilter } from "@/connector/useGEFetchTypes";
 
 import { createVertexId } from "@/core";
+import { SEARCH_TOKENS } from "@/utils";
 import { normalizeWithNoSpace as normalize } from "@/utils/testing";
 
 import { UnrepresentableNumberError } from "../../queryValueError";
@@ -240,6 +241,12 @@ describe("Gremlin > oneHopTemplate", () => {
       expect(fragmentFor([{ name: "country", value: "ES" }])).toContain(
         normalize("and(has('country',containing('ES')))"),
       );
+    });
+
+    it("matches a neighbor ID exactly", () => {
+      expect(
+        fragmentFor([{ name: SEARCH_TOKENS.NODE_ID, value: "airport'1" }]),
+      ).toContain(normalize("and(hasId('airport\\'1'))"));
     });
 
     it("requires every filter to match", () => {

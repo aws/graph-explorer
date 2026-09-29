@@ -64,7 +64,8 @@ export type SchemaResponse = {
 /**
  * Narrows neighbors to those whose attribute contains the given value.
  *
- * Only string attributes are filterable, so the value needs no type of its own.
+ * The node ID search token matches the ID exactly. Only string attributes are
+ * otherwise filterable, so the value needs no type of its own.
  */
 export type AttributeFilter = {
   /** Attribute name. */
