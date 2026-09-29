@@ -6,10 +6,11 @@ import type { ConfigurationContextProps } from "@/core";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { createEdgeType, createVertexType } from "@/core";
+import { transformLegacyConnection } from "@/core/StateProvider/configuration";
 
 import { parseConnectionFile } from "./parseConnectionFile";
 import saveConfigurationToFile from "./saveConfigurationToFile";
-import { createRandomRawConfiguration } from "./testing";
+import { createRandomRawConfiguration, stubDocumentUrl } from "./testing";
 
 vi.mock("file-saver", () => ({
   saveAs: vi.fn(),
@@ -35,7 +36,19 @@ function makeConfig(
   };
 }
 
+/** Exports the config and returns the JSON written to the file. */
+async function exportToJson(config: ConfigurationContextProps) {
+  saveConfigurationToFile(config);
+  const [blob] = saveAsMock.mock.calls[0];
+  return JSON.parse(await (blob as Blob).text());
+}
+
 describe("saveConfigurationToFile", () => {
+  beforeEach(() => {
+    saveAsMock.mockClear();
+    stubDocumentUrl();
+  });
+
   it("should save a minimal configuration to file", () => {
     const config = makeConfig();
 
@@ -361,9 +374,81 @@ describe("saveConfigurationToFile", () => {
     const parsed = JSON.parse(await (blob as Blob).text());
 
     expect(parseConnectionFile(parsed)?.connection).toStrictEqual({
+      url: "https://neptune.example.com:8182",
       graphDbUrl: "https://neptune.example.com:8182",
       proxyConnection: false,
       queryEngine: "sparql",
+    });
+  });
+
+  // Older versions require `url` and read a missing `proxyConnection` as a
+  // direct connection, so the file carries both in the legacy shape.
+  describe("compatibility with older versions", () => {
+    it("should export the proxy server URL for a proxy connection", async () => {
+      const parsed = await exportToJson(
+        makeConfig({
+          connection: {
+            graphDbUrl: "https://neptune.example.com:8182",
+            queryEngine: "gremlin",
+          },
+        }),
+      );
+
+      expect(parsed.connection).toStrictEqual({
+        url: "http://localhost",
+        proxyConnection: true,
+        graphDbUrl: "https://neptune.example.com:8182",
+        queryEngine: "gremlin",
+      });
+    });
+
+    it("should export the proxy server URL behind a reverse proxy prefix", async () => {
+      stubDocumentUrl("https://nb.sagemaker.aws/proxy/9250/explorer/");
+
+      const parsed = await exportToJson(
+        makeConfig({
+          connection: {
+            graphDbUrl: "https://neptune.example.com:8182",
+            proxyConnection: true,
+          },
+        }),
+      );
+
+      expect(parsed.connection.url).toBe("https://nb.sagemaker.aws/proxy/9250");
+      expect(parsed.connection.proxyConnection).toBe(true);
+    });
+
+    it("should export the database URL as url for a direct connection", async () => {
+      const parsed = await exportToJson(
+        makeConfig({
+          connection: {
+            graphDbUrl: "https://neptune.example.com:8182/",
+            proxyConnection: false,
+          },
+        }),
+      );
+
+      expect(parsed.connection.url).toBe("https://neptune.example.com:8182");
+      expect(parsed.connection.proxyConnection).toBe(false);
+    });
+
+    it.each([
+      { graphDbUrl: "https://neptune.example.com:8182" },
+      {
+        graphDbUrl: "https://neptune.example.com:8182",
+        proxyConnection: false,
+      },
+    ])("should import back to the same connection for %o", async connection => {
+      const parsed = await exportToJson(
+        makeConfig({ connection: { ...connection, queryEngine: "gremlin" } }),
+      );
+
+      const file = parseConnectionFile(parsed);
+      expect(file).not.toBeNull();
+      expect(transformLegacyConnection(file!.connection)).toStrictEqual({
+        ...connection,
+        queryEngine: "gremlin",
+      });
     });
   });
 
