@@ -55,6 +55,7 @@ import {
 export class DbState {
   #activeSchema: SchemaStorageModel | null;
   #hasActiveConnection = true;
+  #inactiveConfigs: RawConfiguration[] = [];
   activeConfig: RawConfiguration;
   vertexStyles: Map<VertexType, VertexStyleStorage>;
   edgeStyles: Map<EdgeType, EdgeStyleStorage>;
@@ -114,6 +115,12 @@ export class DbState {
   /** Simulates a fresh deployment with no connection configured as active. */
   withNoActiveConnection() {
     this.#hasActiveConnection = false;
+    return this;
+  }
+
+  /** Stores a connection alongside the active one without activating it. */
+  addInactiveConnection(config: RawConfiguration) {
+    this.#inactiveConfigs.push(config);
     return this;
   }
 
@@ -227,7 +234,12 @@ export class DbState {
     // Config
     store.set(
       configurationAtom,
-      new Map([[this.activeConfig.id, this.activeConfig]]),
+      new Map(
+        [this.activeConfig, ...this.#inactiveConfigs].map(config => [
+          config.id,
+          config,
+        ]),
+      ),
     );
     if (this.#activeSchema) {
       store.set(
