@@ -66,6 +66,11 @@ updates:
       # carries no update-types filter: it has to catch majors, which arrive
       # ungrouped otherwise. Listed before minor-and-patch because a dependency
       # joins the first group it matches.
+      #
+      # The catalog aliases vite to @voidzero-dev/vite-plus-core at the vite-plus
+      # version, so every release splits them, not just majors.
+      vite-plus:
+        patterns: ["vite-plus", "@voidzero-dev/*", "vite"]
       react:
         patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
       minor-and-patch:

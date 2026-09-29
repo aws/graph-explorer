@@ -7,7 +7,7 @@
   "author": "amazon",
   "type": "module",
   "scripts": {
-    "prepare": "husky",
+    "prepare": "(git config --unset core.hooksPath husky || cd .) && vp config --no-agent",
     "lint": "vp lint --fix",
     "check:lint": "vp lint",
     "format": "vp fmt",
@@ -28,17 +28,8 @@
     "@tanstack/eslint-plugin-query": "5.104.0",
     "eslint-plugin-react-hooks": "7.1.1",
     "fast-check": "^4.10.2",
-    "husky": "^9.1.7",
-    "lint-staged": "^17.6.0",
     "typescript": "^7.0.2",
     "vite-plus": "catalog:"
-  },
-  "lint-staged": {
-    "!(**/*.{js,ts,tsx})": "oxfmt --no-error-on-unmatched-pattern",
-    "**/*.{js,ts,tsx}": [
-      "oxlint --fix --no-error-on-unmatched-pattern",
-      "oxfmt"
-    ]
   },
   "devEngines": {
     "runtime": {
