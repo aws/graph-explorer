@@ -9,13 +9,15 @@ Build instructions and development setup for contributing to Graph Explorer. For
 
 ### Node Version
 
-Ensure you are running the correct Node version. If you are using [NVM](https://github.com/nvm-sh/nvm), you can simply do:
+`.node-version` pins the Node.js version used for development and CI. Use [Vite+](https://viteplus.dev), [fnm](https://github.com/Schniz/fnm), or [nvm](https://github.com/nvm-sh/nvm) to switch to it:
 
 ```bash
-nvm use
+vp env use                    # Vite+
+fnm use                       # fnm
+nvm use $(cat .node-version)  # nvm only reads .nvmrc, so pass the version
 ```
 
-Otherwise, use whatever method you use to install [Node v24.21.0](https://nodejs.org/en/download).
+Otherwise, install the version in `.node-version` from [nodejs.org](https://nodejs.org/en/download).
 
 ### pnpm version
 
