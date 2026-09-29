@@ -381,77 +381,6 @@ describe("saveConfigurationToFile", () => {
     });
   });
 
-  // Older versions require `url` and read a missing `proxyConnection` as a
-  // direct connection, so the file carries both in the legacy shape.
-  describe("compatibility with older versions", () => {
-    it("should export the proxy server URL for a proxy connection", async () => {
-      const parsed = await exportToJson(
-        makeConfig({
-          connection: {
-            graphDbUrl: "https://neptune.example.com:8182",
-            queryEngine: "gremlin",
-          },
-        }),
-      );
-
-      expect(parsed.connection).toStrictEqual({
-        url: "http://localhost",
-        proxyConnection: true,
-        graphDbUrl: "https://neptune.example.com:8182",
-        queryEngine: "gremlin",
-      });
-    });
-
-    it("should export the proxy server URL behind a reverse proxy prefix", async () => {
-      stubDocumentUrl("https://nb.sagemaker.aws/proxy/9250/explorer/");
-
-      const parsed = await exportToJson(
-        makeConfig({
-          connection: {
-            graphDbUrl: "https://neptune.example.com:8182",
-            proxyConnection: true,
-          },
-        }),
-      );
-
-      expect(parsed.connection.url).toBe("https://nb.sagemaker.aws/proxy/9250");
-      expect(parsed.connection.proxyConnection).toBe(true);
-    });
-
-    it("should export the database URL as url for a direct connection", async () => {
-      const parsed = await exportToJson(
-        makeConfig({
-          connection: {
-            graphDbUrl: "https://neptune.example.com:8182/",
-            proxyConnection: false,
-          },
-        }),
-      );
-
-      expect(parsed.connection.url).toBe("https://neptune.example.com:8182");
-      expect(parsed.connection.proxyConnection).toBe(false);
-    });
-
-    it.each([
-      { graphDbUrl: "https://neptune.example.com:8182" },
-      {
-        graphDbUrl: "https://neptune.example.com:8182",
-        proxyConnection: false,
-      },
-    ])("should import back to the same connection for %o", async connection => {
-      const parsed = await exportToJson(
-        makeConfig({ connection: { ...connection, queryEngine: "gremlin" } }),
-      );
-
-      const file = parseConnectionFile(parsed);
-      expect(file).not.toBeNull();
-      expect(transformLegacyConnection(file!.connection)).toStrictEqual({
-        ...connection,
-        queryEngine: "gremlin",
-      });
-    });
-  });
-
   it("should export edgeConnections when present", async () => {
     const config = makeConfig({
       schema: {
@@ -520,5 +449,98 @@ describe("saveConfigurationToFile", () => {
     const parsed = JSON.parse(text);
 
     expect(parsed.schema.edgeConnections).toBeUndefined();
+  });
+});
+
+/**
+ * BACKWARD COMPATIBILITY — EXPORTED FILES READ BY OLDER VERSIONS
+ *
+ * Versions before the unified-proxy model (#1773) import an Exported
+ * Connection File only if `connection.url` is present and an http(s) URL.
+ * They read a missing `proxyConnection` as a direct connection. For a proxy
+ * connection `url` is the proxy server root, and requests are built as
+ * `${url}/gremlin`, `${url}/openCypher`, etc., so it must have no trailing
+ * slash. For a direct connection `url` is the database itself. The current
+ * connection model has no `url`, so the writer derives it (the proxy root from
+ * `apiUrl`, or the Database URL) and always writes `proxyConnection`. These
+ * tests pin that legacy shape and check that the current importer still reads
+ * it back as the same connection.
+ *
+ * DO NOT delete or weaken these tests without confirming that no supported
+ * older version still imports exported connection files.
+ */
+describe("backward compatibility: legacy url/proxyConnection written to exported files", () => {
+  beforeEach(() => {
+    saveAsMock.mockClear();
+    stubDocumentUrl();
+  });
+
+  it("should export the proxy server URL for a proxy connection", async () => {
+    const parsed = await exportToJson(
+      makeConfig({
+        connection: {
+          graphDbUrl: "https://neptune.example.com:8182",
+          queryEngine: "gremlin",
+        },
+      }),
+    );
+
+    expect(parsed.connection).toStrictEqual({
+      url: "http://localhost",
+      proxyConnection: true,
+      graphDbUrl: "https://neptune.example.com:8182",
+      queryEngine: "gremlin",
+    });
+  });
+
+  it("should export the proxy server URL behind a reverse proxy prefix", async () => {
+    stubDocumentUrl("https://nb.sagemaker.aws/proxy/9250/explorer/");
+
+    const parsed = await exportToJson(
+      makeConfig({
+        connection: {
+          graphDbUrl: "https://neptune.example.com:8182",
+          proxyConnection: true,
+        },
+      }),
+    );
+
+    expect(parsed.connection.url).toBe("https://nb.sagemaker.aws/proxy/9250");
+    expect(parsed.connection.proxyConnection).toBe(true);
+  });
+
+  it("should export the database URL as url for a direct connection", async () => {
+    const parsed = await exportToJson(
+      makeConfig({
+        connection: {
+          graphDbUrl: "https://neptune.example.com:8182/",
+          proxyConnection: false,
+        },
+      }),
+    );
+
+    expect(parsed.connection.url).toBe("https://neptune.example.com:8182");
+    expect(parsed.connection.proxyConnection).toBe(false);
+  });
+
+  it.each([
+    { graphDbUrl: "https://neptune.example.com:8182" },
+    {
+      graphDbUrl: "https://neptune.example.com:8182",
+      proxyConnection: false,
+    },
+  ])("should import back to the same connection for %o", async connection => {
+    const parsed = await exportToJson(
+      makeConfig({ connection: { ...connection, queryEngine: "gremlin" } }),
+    );
+
+    const file = parseConnectionFile(parsed);
+    if (!file) {
+      throw new Error("exported file failed import validation");
+    }
+    expect(transformLegacyConnection(file.connection)).toStrictEqual({
+      ...connection,
+      queryEngine: "gremlin",
+    });
   });
 });
