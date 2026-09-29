@@ -88,7 +88,7 @@ In every case Graph Explorer replaces the `#/connect` URL once the link is handl
 - `serviceType` names something other than `neptune-db` or `neptune-graph`, or is `neptune-graph` without an `awsRegion`.
 - `awsRegion` is present but not shaped like an AWS region (for example `us-east-1`).
 
-An unsupported value is rejected rather than replaced with a default, so a link never quietly connects you with settings you did not ask for. Every offending parameter is reported together, not just the first one found.
+An unsupported value is rejected rather than replaced with a default, so a link never quietly connects you with settings you did not ask for. The notification lists each offending parameter it can check, not just the first one found. An unsupported `queryEngine` or `serviceType` is reported on its own, and any rule that depends on it, such as `neptune-graph` requiring `awsRegion`, is reported once that value is fixed.
 
 #### What counts as a match
 
