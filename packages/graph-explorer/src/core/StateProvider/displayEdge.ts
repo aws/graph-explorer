@@ -47,9 +47,9 @@ export function useDisplayEdgesInCanvas() {
 const selectedDisplayEdgesSelector = atom(get => {
   const selectedIds = get(edgesSelectedIdsAtom);
   return Array.from(selectedIds.values(), id => get(edgeSelector(id)))
-    .filter((e): e is Edge => e != null)
+    .filter(e => e != null)
     .map(e => get(displayEdgeSelector(e)))
-    .filter((n): n is DisplayEdge => n != null);
+    .filter(n => n != null);
 });
 
 /** Maps all `Edge` instances which are selected in the graph canvas to `DisplayEdge` instances. */

@@ -1,31 +1,37 @@
+import { describe, it, expect, vi } from "vitest";
+
+import { createEdgeId, createVertexId } from "@/core";
+import { logger } from "@/utils";
+
 import { warnMissingIds } from "./warnMissingIds";
 
-const logger = vi.hoisted(() => ({ warn: vi.fn() }));
-
-vi.mock("@/utils", async importOriginal => {
-  const actual = await importOriginal<Record<string, unknown>>();
-  return { ...actual, logger };
-});
-
 describe("warnMissingIds", () => {
+  const warnSpy = vi.spyOn(logger, "warn").mockImplementation(() => {});
+
   beforeEach(() => {
-    logger.warn.mockClear();
+    warnSpy.mockClear();
+  });
+
+  afterAll(() => {
+    warnSpy.mockRestore();
   });
 
   it("does not warn when every requested id was found", () => {
-    warnMissingIds("vertices", ["a", "b"], ["a", "b"], { data: 1 });
-    expect(logger.warn).not.toHaveBeenCalled();
+    const a = createVertexId("a");
+    const b = createVertexId("b");
+    warnMissingIds("vertices", [a, b], [a, b], { data: 1 });
+    expect(warnSpy).not.toHaveBeenCalled();
   });
 
   it("warns with the requested ids and the missing ones", () => {
-    warnMissingIds("edges", ["a", "b", "c"], ["a"], { data: 1 });
-    expect(logger.warn).toHaveBeenCalledWith(
-      "Did not find all requested edges",
-      {
-        requested: ["a", "b", "c"],
-        missing: ["b", "c"],
-        data: 1,
-      },
-    );
+    const a = createEdgeId("a");
+    const b = createEdgeId("b");
+    const c = createEdgeId("c");
+    warnMissingIds("edges", [a, b, c], [a], { data: 1 });
+    expect(warnSpy).toHaveBeenCalledWith("Did not find all requested edges", {
+      requested: [a, b, c],
+      missing: [b, c],
+      data: 1,
+    });
   });
 });

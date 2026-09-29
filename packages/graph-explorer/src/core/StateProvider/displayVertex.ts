@@ -57,9 +57,9 @@ export function useDisplayVerticesFromVertices(vertices: Vertex[]) {
 const selectedDisplayVerticesSelector = atom(get => {
   const selectedIds = get(nodesSelectedIdsAtom);
   return Array.from(selectedIds.values(), id => get(nodeSelector(id)))
-    .filter((n): n is Vertex => n != null)
+    .filter(n => n != null)
     .map(n => get(displayVertexSelector(n)))
-    .filter((n): n is DisplayVertex => n != null);
+    .filter(n => n != null);
 });
 
 /** Maps all `Vertex` instances which are selected in the graph canvas to `DisplayVertex` instances. */

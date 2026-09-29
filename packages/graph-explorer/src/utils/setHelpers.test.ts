@@ -4,21 +4,21 @@ describe("setDifference", () => {
   it("returns elements in the first set but not the second", () => {
     const a = new Set([1, 2, 3]);
     const b = new Set([2, 4]);
-    expect(setDifference(a, b)).toEqual(new Set([1, 3]));
+    expect(setDifference(a, b)).toStrictEqual(new Set([1, 3]));
   });
 
   it("returns an empty set when every element is present in the second set", () => {
     const a = new Set([1, 2]);
     const b = new Set([1, 2, 3]);
-    expect(setDifference(a, b)).toEqual(new Set());
+    expect(setDifference(a, b)).toStrictEqual(new Set());
   });
 
   it("does not mutate the input sets", () => {
     const a = new Set([1, 2]);
     const b = new Set([2]);
     setDifference(a, b);
-    expect(a).toEqual(new Set([1, 2]));
-    expect(b).toEqual(new Set([2]));
+    expect(a).toStrictEqual(new Set([1, 2]));
+    expect(b).toStrictEqual(new Set([2]));
   });
 });
 
@@ -26,15 +26,15 @@ describe("setUnion", () => {
   it("returns all elements from both sets", () => {
     const a = new Set([1, 2]);
     const b = new Set([2, 3]);
-    expect(setUnion(a, b)).toEqual(new Set([1, 2, 3]));
+    expect(setUnion(a, b)).toStrictEqual(new Set([1, 2, 3]));
   });
 
   it("does not mutate the input sets", () => {
     const a = new Set([1, 2]);
     const b = new Set([2, 3]);
     setUnion(a, b);
-    expect(a).toEqual(new Set([1, 2]));
-    expect(b).toEqual(new Set([2, 3]));
+    expect(a).toStrictEqual(new Set([1, 2]));
+    expect(b).toStrictEqual(new Set([2, 3]));
   });
 });
 
