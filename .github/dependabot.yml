@@ -15,8 +15,8 @@ updates:
       timezone: America/Chicago
     open-pull-requests-limit: 2
 
-  # actions/checkout is pinned in all four workflows, so an ungrouped bump would
-  # open four pull requests for one version.
+  # actions/checkout is pinned in every workflow, so an ungrouped bump would
+  # open one pull request per workflow for one version.
   - package-ecosystem: github-actions
     directory: /
     schedule:
