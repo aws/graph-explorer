@@ -16,6 +16,10 @@ You can find the latest version of the image on [Amazon's ECR Public Registry](h
 >
 > The Graph Explorer server, not your browser, connects to the database for proxied connections, so it needs network access to the database endpoint. See [System overview](../architecture.md#system-overview) for details.
 
+> [!IMPORTANT]
+>
+> Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../references/security.md#access-control).
+
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) installed on your machine

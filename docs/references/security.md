@@ -6,6 +6,59 @@ The browser talks to the same-origin proxy server, and the proxy server is what 
 
 Graph Explorer supports the HTTPS protocol by default and provides a self-signed certificate as part of the Docker image. You can choose to use HTTP instead by changing the [environment variable default settings](./configuration.md#application-configuration).
 
+## Access Control
+
+Graph Explorer performs no authentication and no authorization. Any request that reaches the proxy server is served.
+
+Anyone who can reach Graph Explorer can read and modify any data in the connected graph database, using whatever credentials the deployment holds. Never expose Graph Explorer publicly without an access control layer in front of it.
+
+You own who can reach the deployment and what authenticates in front of it. Graph Explorer owns behaving correctly once a request arrives.
+
+Access control for this application can live in one of two places. You can control who can reach the proxy server at all, through network placement and firewall or security group rules. You can also put something in front of it that authenticates callers.
+
+Of the four documented deployment paths, one runs on a platform that already provides an authentication layer.
+
+| Deployment | Platform provides an authentication layer |
+| --- | --- |
+| [Docker](../guides/deploy-with-docker.md) | No |
+| [Amazon EC2](../guides/deploy-to-ec2.md) | No |
+| [ECS Fargate](../guides/deploy-to-ecs-fargate.md) | No |
+| [Amazon SageMaker](../guides/deploy-to-sagemaker.md) | Yes |
+
+SageMaker is the exception because the notebook's Jupyter proxy requires a signed-in AWS principal, and it reaches the Graph Explorer container over loopback.
+
+### Reference for access control layers
+
+How Graph Explorer behaves on the wire, for anyone adding an access control layer in front of it.
+
+**Request headers.** The proxy server reads `graph-db-connection-url`, `aws-neptune-region`, `service-type`, `db-query-logging-enabled`, and `queryid`. `POST /logger` also reads `level` and `message`. Without `graph-db-connection-url`, every query fails with a validation error, and nothing in the response says a header was removed. The proxy server never reads a client `Authorization` header or cookie, and never forwards either one to the database.
+
+**Paths.** The UI lives under `/explorer`. It calls the API on its own origin, under the same prefix it was loaded from, with the `/explorer` segment cut out. A layer that renames that segment breaks the UI, see [Reverse proxy misconfigured](../guides/troubleshooting.md#reverse-proxy-misconfigured). The API paths sit next to `/explorer`, not under it, so a layer that forwards only `/explorer/*` serves a UI that loads and then fails every query.
+
+| Path                      | Method |
+| ------------------------- | ------ |
+| `/defaultConnection`      | GET    |
+| `/sparql`                 | POST   |
+| `/gremlin`                | POST   |
+| `/openCypher`             | POST   |
+| `/summary`                | GET    |
+| `/pg/statistics/summary`  | GET    |
+| `/rdf/statistics/summary` | GET    |
+| `/logger`                 | POST   |
+| `/status`                 | GET    |
+
+**Path matching.** The proxy server matches paths case-insensitively, so `/gremlin` and `/GREMLIN` reach the same handler. A path rule in a layer that matches case-sensitively covers only the casing it names.
+
+**Health check.** `GET /status` is the [health check](./health-check.md) endpoint. It returns a fixed string and does not contact the database. `GET /defaultConnection` returns the default connection configuration, including the database endpoint, region, service type, and whether IAM signing is enabled.
+
+**Timeouts.** Schema sync against a large graph can run for minutes. The client request timeout, [`GRAPH_EXP_FETCH_REQUEST_TIMEOUT`](./configuration.md#environment-variables), defaults to 240000 ms. A layer with a shorter read timeout ends those requests first.
+
+**Request bodies.** The proxy server accepts request bodies up to 50 MB.
+
+**Protocols.** All traffic is plain HTTP request and response. Graph Explorer uses no WebSocket or SSE connections.
+
+**Origins.** The UI calls the API on the origin it was served from. [`PROXY_SERVER_CORS_ORIGIN`](./configuration.md#proxy_server_cors_origin) only matters for a different web application calling the API from its own origin, see [CORS](#cors).
+
 ## HTTPS Connections
 
 Graph Explorer serves over HTTPS by default using a self-signed certificate. The `HOST` environment variable controls the hostname used in the certificate's Subject Alternative Name (SAN). When `HOST` is set, the entrypoint script generates a fresh self-signed certificate on container startup. When `HOST` is not set, the server expects to find existing certificate files.

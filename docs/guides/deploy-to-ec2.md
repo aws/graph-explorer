@@ -12,6 +12,10 @@ Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server w
 >
 > The Graph Explorer server, not your browser, connects to the database for proxied connections, so it needs network access to the database endpoint. See [System overview](../architecture.md#system-overview) for details.
 
+> [!IMPORTANT]
+>
+> Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../references/security.md#access-control).
+
 ## Prerequisites
 
 - Provision an Amazon EC2 instance that will be used to host the application and connect to Neptune as a proxy server. For more details, see instructions [here](https://github.com/aws/graph-notebook/tree/main/additional-databases/neptune).
@@ -52,6 +56,10 @@ Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server w
 ```
 https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com/explorer
 ```
+
+> [!IMPORTANT]
+>
+> Never expose this URL publicly without an access control layer in front of it. See [Access Control](../references/security.md#access-control).
 
 6. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See [HTTPS Connections](./troubleshooting.md#https-connections) section.
 7. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI.
