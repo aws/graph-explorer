@@ -63,6 +63,15 @@ Read the relevant doc before working in that area:
 - `docs/agents/product.md` — product overview, supported databases, architecture
 - `docs/development.md` — toolchain setup, the pinned pnpm and node versions, and the pnpm upgrade procedure
 
+## Reviews
+
+Every code review, including `/code-review`, uses these standards sources:
+
+- `REVIEW.md` — severity, what not to report, and the verification bar. Wins where it conflicts with the others.
+- This file, plus the `docs/agents/*.md` doc for each area the diff touches.
+
+Pass `REVIEW.md` by path to every reviewer sub-agent, not only the standards one. Sub-agents don't always load this file.
+
 ## Commands
 
 Run from project root with `pnpm`. Use only these scripts — never invoke `tsc`, `vitest`, `oxlint`, or `oxfmt` directly or via `pnpx`. The scripts pin tool versions and configs and cover every workspace package; bare tools use the wrong version and miss project context.
