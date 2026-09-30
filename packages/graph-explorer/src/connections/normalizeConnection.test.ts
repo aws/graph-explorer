@@ -1,6 +1,31 @@
 import { describe, expect, test } from "vitest";
 
-import { isDirectConnection, normalizeConnection } from "./normalizeConnection";
+import {
+  isDirectConnection,
+  normalizeConnection,
+  resolveQueryEngine,
+} from "./normalizeConnection";
+
+describe("resolveQueryEngine", () => {
+  test("is the query language the connection stores", () => {
+    expect(
+      resolveQueryEngine({
+        graphDbUrl: "https://example.com",
+        queryEngine: "sparql",
+      }),
+    ).toBe("sparql");
+  });
+
+  test("is gremlin when the connection stores none", () => {
+    expect(resolveQueryEngine({ graphDbUrl: "https://example.com" })).toBe(
+      "gremlin",
+    );
+  });
+
+  test("is gremlin when there is no connection", () => {
+    expect(resolveQueryEngine(undefined)).toBe("gremlin");
+  });
+});
 
 describe("isDirectConnection", () => {
   test("is true when proxyConnection is false", () => {

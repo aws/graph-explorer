@@ -3,6 +3,7 @@ import type { ConnectionConfig } from "@shared/types";
 import { createRandomName, createRandomUrlString } from "@shared/utils/testing";
 import { describe, expect, test } from "vitest";
 
+import { createNewConfigurationId } from "@/connections";
 import {
   DEFAULT_FETCH_TIMEOUT,
   DEFAULT_NODE_EXPAND_LIMIT,
@@ -14,6 +15,7 @@ import {
   createNewConnectionForm,
   hasAdvancedOverrides,
   mapConfigurationToConnectionForm,
+  mapToConfiguration,
   mapToConnection,
   mapToConnectionForm,
   updateConnectionForm,
@@ -291,6 +293,19 @@ describe("mapToConnection", () => {
       awsRegion: "",
       fetchTimeoutMs: 30000,
       nodeExpansionLimit: 50,
+    });
+  });
+});
+
+describe("mapToConfiguration", () => {
+  test("stores the connection under the id, labeled with the name", () => {
+    const id = createNewConfigurationId();
+    const form = createValidForm();
+
+    expect(mapToConfiguration(id, form)).toStrictEqual({
+      id,
+      displayLabel: form.name,
+      connection: mapToConnection(form),
     });
   });
 });
