@@ -1,5 +1,4 @@
 import type {
-  ConfigurationContextProps,
   Edge,
   EdgeConnection,
   EdgeId,
@@ -169,12 +168,6 @@ export type ErrorResponse = {
   code: string;
   detailedMessage: string;
 };
-
-export type ConfigurationWithConnection = Omit<
-  ConfigurationContextProps,
-  "connection"
-> &
-  Required<Pick<ConfigurationContextProps, "connection">>;
 
 export type ExplorerRequestOptions = RequestInit & {
   queryId?: string;
