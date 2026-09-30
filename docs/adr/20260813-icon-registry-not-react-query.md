@@ -35,7 +35,7 @@ Separately, the DOM surface paid for a workaround it did not need. `VertexSymbol
 | --- | --- | --- |
 | Lucide | baked data uri, wrapped for aspect fit | `<DynamicIcon>`, live DOM, color inherited |
 | user SVG | baked data uri, wrapped for aspect fit | `<image href="data:…">`, color baked |
-| raster | data uri, wrapped for aspect fit (a non-`data:` url is returned unwrapped) | `<image href>` |
+| raster | data uri, wrapped for aspect fit | `<image href>` |
 
 Lucide markup is trusted bundled geometry with no ids, defs, or script, so inlining it costs nothing and recoloring becomes synchronous.
 
@@ -43,7 +43,7 @@ Untrusted SVG is deliberately **not** inlined on these surfaces. `<image href="d
 
 This is not codebase-wide: `components/VertexIcon.tsx` inlines sanitized user SVG into the live DOM via `react-inlinesvg`, with no sandbox. It predates this decision and is the outlier, not the pattern to copy.
 
-**Canvas sizing (issue #2108, PR #2142).** Cytoscape cannot both preserve an icon's aspect ratio and inset it to 60% of the node: `background-fit: contain` keeps the ratio but fills the whole node, and the node is an ellipse, so a square-ish icon's corners spill past the shape. The canvas wraps a `data:`-uri icon url in its own padded square SVG and lets a nested `<image preserveAspectRatio>` do the fitting — the same mechanism `VertexSymbolIcon` already uses directly. That wrapper is itself a `data:` uri, so it stays within the image-document sandbox above: nesting one `data:`-uri image inside another issues no external request either. A non-`data:` url is returned unwrapped instead of nested: the icon value allowlist (`stylingParser.ts`) means every stored icon is already `lucide:<name>` or `data:image/*;base64,`, so this is not known to be reachable today, but nesting an external reference would put it in the same sandbox with nothing to fetch — a blank icon rather than a distorted one.
+**Canvas sizing (issue #2108, PR #2142).** Cytoscape cannot both preserve an icon's aspect ratio and inset it to 60% of the node: `background-fit: contain` keeps the ratio but fills the whole node, and the node is an ellipse, so a square-ish icon's corners spill past the shape. The canvas wraps the icon's `data:` uri in its own padded square SVG and lets a nested `<image preserveAspectRatio>` do the fitting — the same mechanism `VertexSymbolIcon` already uses directly. That wrapper is itself a `data:` uri, so it stays within the image-document sandbox above: nesting one `data:`-uri image inside another issues no external request either. An external reference nested there would fetch nothing, so the registry inlines any raster that is not already a `data:` url, accepting only an `image/*` response.
 
 **3. `clip-path` goes on an ancestor `<g>`, never on the nested `<svg>`.**
 

@@ -4,7 +4,10 @@ import { getLucideSvgString } from "@/utils/lucideIcons";
 import { type IconSource, type IconSourceId, iconSourceId } from "./iconSource";
 import { ensureSvgViewBox, sanitizeSvg } from "./svgViewBox";
 
-/** An icon resolved to a renderable form, with no color applied yet. */
+/**
+ * An icon resolved to a renderable form, with no color applied yet. A raster
+ * url is always a `data:` url.
+ */
 export type ResolvedIcon =
   | { kind: "raster"; url: string }
   | { kind: "svg"; svg: string };
@@ -54,8 +57,8 @@ class IconRegistry {
       if (id === null || this.#resolved.has(id) || this.#inFlight.has(id)) {
         continue;
       }
-      if (source.kind === "raster") {
-        // A url needs no work, so resolve it now rather than a render later.
+      if (source.kind === "raster" && source.url.startsWith("data:")) {
+        // Already inline, so resolve it now rather than a render later.
         next ??= new Map(this.#resolved);
         next.set(id, { kind: "raster", url: source.url });
         continue;
@@ -138,8 +141,10 @@ async function resolveIconSource(
   switch (source.kind) {
     case "none":
       return null;
-    case "raster":
-      return { kind: "raster", url: source.url };
+    case "raster": {
+      const url = await fetchRasterAsDataUrl(source.url);
+      return url === null ? null : { kind: "raster", url };
+    }
     case "lucide": {
       const raw = await getLucideSvgString(source.name);
       if (raw === null) {
@@ -171,4 +176,31 @@ function isParseableSvg(svg: string): boolean {
     doc.querySelector("parsererror") === null &&
     doc.documentElement.localName === "svg"
   );
+}
+
+const IMAGE_MIME_TYPE = /^image\/[a-z0-9.+-]+$/i;
+
+/**
+ * Inlines a remote raster, because the canvas nests icons inside a `data:`
+ * svg, whose image sandbox fetches nothing external. `null` unless the
+ * response is an image.
+ */
+async function fetchRasterAsDataUrl(url: string): Promise<string | null> {
+  const response = await fetch(url);
+  const mimeType = response.headers.get("content-type")?.split(";")[0].trim();
+  if (!response.ok || !mimeType || !IMAGE_MIME_TYPE.test(mimeType)) {
+    return null;
+  }
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  return `data:${mimeType};base64,${toBase64(bytes)}`;
+}
+
+/** Chunked, since spreading a whole image into one call overflows the stack. */
+function toBase64(bytes: Uint8Array): string {
+  const chunkSize = 0x8000;
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
 }

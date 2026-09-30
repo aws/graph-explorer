@@ -166,8 +166,9 @@ export function createRandomVertexTypeConfig(): VertexTypeConfig {
     total: createRandomInteger(),
     // style
     color: createRandomColor(),
-    iconImageType: createRandomName("iconImageType"),
-    iconUrl: createRandomUrlString(),
+    iconImageType: "image/png",
+    // Inline, like every stored icon, so rendering one never hits the network.
+    iconUrl: `data:image/png;base64,${btoa(createRandomName("icon"))}`,
   };
 }
 
