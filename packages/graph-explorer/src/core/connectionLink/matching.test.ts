@@ -4,12 +4,9 @@ import type { ConnectionConfig } from "@shared/types";
 
 import { describe, expect, test } from "vitest";
 
+import { createNewConfigurationId, type RawConfiguration } from "@/connections";
 import { DbState } from "@/utils/testing";
 
-import {
-  createNewConfigurationId,
-  type RawConfiguration,
-} from "../ConfigurationProvider";
 import { getAppStore } from "../StateProvider/appStore";
 import { resolveConnectionLink } from "./connectionLink";
 

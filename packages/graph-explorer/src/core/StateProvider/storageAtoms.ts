@@ -1,7 +1,5 @@
-import type {
-  ConfigurationId,
-  RawConfiguration,
-} from "../ConfigurationProvider";
+import type { ConfigurationId, RawConfiguration } from "@/connections";
+
 import type { EdgeType, VertexType } from "../entities";
 import type { GraphSessionStorageModel } from "./graphSession/storage";
 import type { EdgeStyleStorage, VertexStyleStorage } from "./graphStyles";

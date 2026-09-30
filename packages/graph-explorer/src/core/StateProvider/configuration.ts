@@ -4,6 +4,8 @@ import { atom } from "jotai";
 import { selectAtom } from "jotai/utils";
 import { isEqual } from "lodash";
 
+import type { RawConfiguration } from "@/connections";
+
 import {
   activeConfigurationAtom,
   type AttributeConfig,
@@ -12,7 +14,6 @@ import {
   type EdgeType,
   type EdgeTypeConfig,
   type MergedConfiguration,
-  type RawConfiguration,
   type VertexType,
   type VertexTypeConfig,
   userVertexStylesAtom,

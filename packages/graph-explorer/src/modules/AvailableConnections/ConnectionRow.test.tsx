@@ -5,13 +5,14 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, test } from "vitest";
 
+import type { RawConfiguration } from "@/connections";
+
 import { TooltipProvider } from "@/components";
 import {
   activeConfigurationAtom,
   configurationAtom,
   getAppStore,
   nodesAtom,
-  type RawConfiguration,
   toNodeMap,
 } from "@/core";
 import { createQueryClient } from "@/core/queryClient";

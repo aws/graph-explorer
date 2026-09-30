@@ -1,6 +1,6 @@
 import { DatabaseIcon } from "lucide-react";
 
-import type { RawConfiguration } from "@/core";
+import type { RawConfiguration } from "@/connections";
 
 import { ListRowContent, ListRowSubtitle, ListRowTitle } from "@/components";
 import { isDirectConnection } from "@/core/StateProvider/configuration";

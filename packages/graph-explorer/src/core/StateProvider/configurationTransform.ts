@@ -1,7 +1,4 @@
-import type {
-  ConfigurationId,
-  RawConfiguration,
-} from "../ConfigurationProvider";
+import type { ConfigurationId, RawConfiguration } from "@/connections";
 
 import { transformLegacyConnection } from "./configuration";
 

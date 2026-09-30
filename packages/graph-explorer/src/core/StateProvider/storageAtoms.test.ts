@@ -4,12 +4,12 @@ import { createStore } from "jotai";
 import localforage from "localforage";
 import { describe, expect, it } from "vitest";
 
+import type { RawConfiguration } from "@/connections";
+
 import {
   createRandomRawConfiguration,
   preloadStoredConfigurations,
 } from "@/utils/testing";
-
-import type { RawConfiguration } from "../ConfigurationProvider";
 
 import { defaultGraphViewLayout } from "./graphViewLayoutDefaults";
 import { defaultSchemaViewLayout } from "./schemaViewLayoutDefaults";

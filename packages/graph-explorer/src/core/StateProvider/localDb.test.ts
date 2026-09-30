@@ -8,7 +8,7 @@ import {
 import { afterEach, beforeEach, describe, expect, it, test, vi } from "vitest";
 import { z } from "zod";
 
-import type { RawConfiguration } from "@/core";
+import type { RawConfiguration } from "@/connections";
 
 import { toJsonFileData } from "@/utils/fileData";
 import {

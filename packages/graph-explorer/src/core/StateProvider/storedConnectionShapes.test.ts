@@ -2,7 +2,7 @@
 import localforage from "localforage";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { createNewConfigurationId, type RawConfiguration } from "@/core";
+import { createNewConfigurationId, type RawConfiguration } from "@/connections";
 import {
   createRandomRawConfiguration,
   createRandomSchema,

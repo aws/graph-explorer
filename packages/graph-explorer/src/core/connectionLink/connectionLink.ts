@@ -7,12 +7,9 @@ import {
 } from "@shared/types";
 import { z } from "zod";
 
-import { DEFAULT_SERVICE_TYPE } from "@/utils";
+import type { ConfigurationId, RawConfiguration } from "@/connections";
 
-import type {
-  ConfigurationId,
-  RawConfiguration,
-} from "../ConfigurationProvider";
+import { DEFAULT_SERVICE_TYPE } from "@/utils";
 
 import { getAppStore } from "../StateProvider/appStore";
 import {

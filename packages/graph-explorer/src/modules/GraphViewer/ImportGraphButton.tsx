@@ -4,9 +4,11 @@ import { FolderOpenIcon } from "lucide-react";
 import { toast } from "sonner";
 import { ZodError } from "zod";
 
+import type { ConnectionWithId } from "@/connections";
+
 import { Button, FileButton, Spinner } from "@/components";
 import { fetchEntityDetails, notifyOnIncompleteRestoration } from "@/connector";
-import { configurationAtom, type ConnectionWithId, useExplorer } from "@/core";
+import { configurationAtom, useExplorer } from "@/core";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 import { useAddToGraph } from "@/hooks";
 import { useEntityCountFormatterCallback } from "@/hooks/useEntityCountFormatter";

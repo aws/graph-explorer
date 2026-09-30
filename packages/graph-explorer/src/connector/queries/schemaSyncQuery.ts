@@ -1,9 +1,10 @@
 import { queryOptions } from "@tanstack/react-query";
 import { atom } from "jotai";
 
+import type { ConfigurationId } from "@/connections";
+
 import {
   activeConfigurationAtom,
-  type ConfigurationId,
   type PrefixTypeConfig,
   schemaAtom,
 } from "@/core";

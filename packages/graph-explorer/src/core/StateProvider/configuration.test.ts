@@ -2,6 +2,8 @@ import { createRandomName } from "@shared/utils/testing";
 import { createStore } from "jotai";
 import { describe, expect, it, test } from "vitest";
 
+import type { RawConfiguration } from "@/connections";
+
 import { activeConfigurationAtom, configurationAtom } from "@/core";
 import {
   createEdgeType,
@@ -21,7 +23,6 @@ import {
 
 import type {
   MergedConfiguration,
-  RawConfiguration,
   VertexTypeConfig,
 } from "../ConfigurationProvider";
 import type { EdgeStyleStorage, VertexStyleStorage } from "./graphStyles";

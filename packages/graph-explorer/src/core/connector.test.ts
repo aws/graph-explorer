@@ -3,10 +3,10 @@ import type { QueryEngine } from "@shared/types";
 import { createStore } from "jotai";
 import { describe, expect, test } from "vitest";
 
+import type { RawConfiguration } from "@/connections";
+
 import { emptyExplorer } from "@/connector/emptyExplorer";
 import { createRandomRawConfiguration } from "@/utils/testing";
-
-import type { RawConfiguration } from "./ConfigurationProvider";
 
 import {
   explorerAtom,

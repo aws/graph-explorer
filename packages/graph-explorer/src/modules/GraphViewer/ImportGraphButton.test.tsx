@@ -6,7 +6,7 @@ import { createArray } from "@shared/utils/testing";
 import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 
-import type { RawConfiguration } from "@/core";
+import type { RawConfiguration } from "@/connections";
 
 import {
   createRandomExportedGraphConnection,

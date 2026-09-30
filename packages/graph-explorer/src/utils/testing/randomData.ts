@@ -20,6 +20,12 @@ import {
 } from "@shared/utils/testing";
 
 import {
+  type ConfigurationId,
+  type ConnectionWithId,
+  createNewConfigurationId,
+  type RawConfiguration,
+} from "@/connections";
+import {
   createPatchedResultEdge,
   createPatchedResultVertex,
   createResultEdge,
@@ -30,12 +36,9 @@ import { createRdfEdgeId } from "@/connector/sparql/createRdfEdgeId";
 import {
   type ArrowStyle,
   type AttributeConfig,
-  type ConfigurationId,
-  type ConnectionWithId,
   createEdge,
   createEdgeId,
   createEdgeType,
-  createNewConfigurationId,
   createVertex,
   createVertexId,
   createVertexType,
@@ -52,7 +55,6 @@ import {
   type GraphViewLayout,
   type LineStyle,
   type PrefixTypeConfig,
-  type RawConfiguration,
   resolveEdgeStyle,
   resolveVertexStyle,
   type SchemaStorageModel,

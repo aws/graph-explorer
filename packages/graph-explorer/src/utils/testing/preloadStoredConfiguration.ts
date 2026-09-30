@@ -2,7 +2,8 @@ import { createStore } from "jotai";
 import localforage from "localforage";
 import { vi } from "vitest";
 
-import type { AppStore, RawConfiguration } from "@/core";
+import type { RawConfiguration } from "@/connections";
+import type { AppStore } from "@/core";
 import type { PersistenceStatusStore } from "@/core/StateProvider/persistence/persistenceStatusStore";
 import type {
   activeConfigurationAtom,
