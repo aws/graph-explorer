@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import * as fileSaver from "file-saver";
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import type { ConfigurationContextProps } from "@/core";
 import type { ConfigurationId } from "@/core/ConfigurationProvider";
@@ -8,11 +8,14 @@ import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { createEdgeType, createVertexType } from "@/core";
 
-import exportGolden from "./__fixtures__/connection-file-export-golden.txt?raw";
+import exportGoldenLegacyUrlDirect from "./__fixtures__/connection-file-export-golden-legacy-url-direct.txt?raw";
+import exportGoldenLegacyUrlProxy from "./__fixtures__/connection-file-export-golden-legacy-url-proxy.txt?raw";
+import exportGoldenWithoutUrl from "./__fixtures__/connection-file-export-golden.txt?raw";
 import legacyUrlDirect from "./__fixtures__/connection-file-legacy-url-direct.json?raw";
 import legacyUrlProxy from "./__fixtures__/connection-file-legacy-url-proxy.json?raw";
 import { parseConnectionFile } from "./parseConnectionFile";
 import saveConfigurationToFile from "./saveConfigurationToFile";
+import { stubDocumentUrl } from "./testing";
 
 /**
  * GOLDEN FILES — EXPORTED CONNECTION FILE
@@ -23,11 +26,15 @@ import saveConfigurationToFile from "./saveConfigurationToFile";
  *
  * The import cases prove a current build still parses every historical shape,
  * including the pre-unified-proxy `url`/`proxyConnection` form and legacy
- * pass-through keys (`__inferred`, `dataType`). The export case compares the
- * writer's output byte-for-byte against `connection-file-export-golden.txt`,
- * so any change to the wire format — values, field order, or whitespace — is
- * caught here rather than shipping silently. That fixture is a `.txt` so the
- * formatter cannot reflow it and mask a real serialization change.
+ * pass-through keys (`__inferred`, `dataType`), and the file `main` wrote
+ * between #1773 and #2315 with no `url` (`connection-file-export-golden.txt`).
+ * The export cases compare the writer's output byte-for-byte against the
+ * `connection-file-export-golden-legacy-url-*.txt` fixtures, so any change to
+ * the wire format — values, field order, or whitespace — is caught here rather
+ * than shipping silently. Those fixtures also pin the legacy `url` and explicit
+ * `proxyConnection` that versions before #1773 require to import the file.
+ * They are `.txt` so the formatter cannot reflow them and mask a real
+ * serialization change.
  *
  * DO NOT edit a fixture to make a test pass. A fixture is a historical
  * artifact; if a current build can no longer read one, that is a
@@ -72,6 +79,16 @@ describe("golden Exported Connection Files import on the current build", () => {
     );
   });
 
+  test("file written without the legacy url between #1773 and #2315", () => {
+    const parsed = parseConnectionFile(JSON.parse(exportGoldenWithoutUrl));
+
+    expect(parsed).not.toBeNull();
+    const connection = parsed?.connection as Record<string, unknown>;
+    expect(connection.url).toBeUndefined();
+    expect(connection.graphDbUrl).toBe("https://neptune.example.com:8182");
+    expect(connection.proxyConnection).toBe(true);
+  });
+
   test("legacy direct connection with only url and no graphDbUrl", () => {
     const parsed = parseConnectionFile(JSON.parse(legacyUrlDirect));
 
@@ -85,18 +102,42 @@ describe("golden Exported Connection Files import on the current build", () => {
 });
 
 describe("golden Exported Connection File export is stable", () => {
-  test("saveConfigurationToFile writes the pinned shape for a fixed input", async () => {
-    saveConfigurationToFile(fixedExportInput());
+  beforeEach(() => {
+    // The proxied `url` is derived from the page's own path, so pin one
+    // behind a reverse-proxy prefix.
+    stubDocumentUrl("https://graph-explorer.example.com/proxy/9250/explorer/");
+  });
 
-    const [blob] = saveAsMock.mock.calls[0];
-    const text = await (blob as Blob).text();
-
+  test("saveConfigurationToFile writes the pinned shape for a proxy connection", async () => {
     // A byte-for-byte compare against the captured bytes. The fixture is a
     // `.txt` so the formatter leaves it alone, letting this pin the writer's
     // exact serialization — values, field order, and whitespace.
-    expect(text).toBe(exportGolden);
+    expect(await exportToText(fixedExportInput())).toBe(
+      exportGoldenLegacyUrlProxy,
+    );
+  });
+
+  test("saveConfigurationToFile writes the pinned shape for a direct connection", async () => {
+    const input: ConfigurationContextProps = {
+      ...fixedExportInput(),
+      id: "44444444-4444-4444-8444-444444444444" as ConfigurationId,
+      displayLabel: "Golden Neptune (direct)",
+      connection: {
+        graphDbUrl: "https://neptune.example.com:8182",
+        queryEngine: "sparql",
+        proxyConnection: false,
+      },
+    };
+
+    expect(await exportToText(input)).toBe(exportGoldenLegacyUrlDirect);
   });
 });
+
+async function exportToText(config: ConfigurationContextProps) {
+  saveConfigurationToFile(config);
+  const [blob] = saveAsMock.mock.calls[0];
+  return (blob as Blob).text();
+}
 
 /**
  * A fully specified, deterministic input for the export golden. Every field is
