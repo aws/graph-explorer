@@ -1,9 +1,9 @@
 import type { QueryEngine } from "@shared/types";
 
-import { useQueryClient } from "@tanstack/react-query";
-import { useAtomCallback } from "jotai/utils";
 import { ChevronRightIcon } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useState } from "react";
+
+import type { ConfigurationContextProps } from "@/core";
 
 import {
   Button,
@@ -19,28 +19,19 @@ import {
   TextAreaField,
 } from "@/components";
 import { DialogBody, DialogFooter } from "@/components/Dialog";
-import { createNewConfigurationId, type RawConfiguration } from "@/connections";
-import {
-  activeConfigurationAtom,
-  allGraphSessionsAtom,
-  configurationAtom,
-  type ConfigurationContextProps,
-  schemaAtom,
-} from "@/core";
-import useResetState from "@/core/StateProvider/useResetState";
-import { logger } from "@/utils";
 
 import {
   type ConnectionFormValues,
   createEmptyConnectionForm,
   hasAdvancedOverrides,
-  mapToConnection,
   mapConfigurationToConnectionForm,
   queryEngineSchema,
   serviceTypeSchema,
   updateConnectionForm,
   validateConnectionForm,
 } from "./connectionFormModel";
+import { useCreateConnection } from "./useCreateConnection";
+import { useUpdateConnection } from "./useUpdateConnection";
 
 const CONNECTIONS_OP: {
   label: string;
@@ -70,81 +61,8 @@ const CreateConnection = ({
   initialValues,
   onClose,
 }: CreateConnectionProps) => {
-  const queryClient = useQueryClient();
-
-  const configId = existingConfig?.id;
-
-  const onSave = useAtomCallback(
-    useCallback(
-      (_get, set, data: ConnectionFormValues) => {
-        if (!configId) {
-          const newConfigId = createNewConfigurationId();
-          const newConfig: RawConfiguration = {
-            id: newConfigId,
-            displayLabel: data.name,
-            connection: mapToConnection(data),
-          };
-          logger.log("Saving new connection", { newConfigId, newConfig });
-          set(configurationAtom, prevConfigMap => {
-            const updatedConfig = new Map(prevConfigMap);
-            updatedConfig.set(newConfigId, newConfig);
-            return updatedConfig;
-          });
-          set(activeConfigurationAtom, newConfigId);
-          return;
-        }
-
-        set(configurationAtom, prev => {
-          const updated = new Map(prev);
-          const currentConfig = updated.get(configId);
-          const updatedConfig: RawConfiguration = {
-            ...currentConfig,
-            id: configId,
-            displayLabel: data.name,
-            connection: mapToConnection(data),
-          };
-          logger.log("Updating existing connection", {
-            configId,
-            currentConfig,
-            updatedConfig,
-          });
-          updated.set(configId, updatedConfig);
-          return updated;
-        });
-
-        const original = existingConfig?.connection;
-        const dbUrlChange = original?.graphDbUrl !== data.graphDbUrl;
-        const typeChange = original?.queryEngine !== data.queryEngine;
-
-        if (dbUrlChange || typeChange) {
-          logger.log(
-            "Clearing cached schema and previous graph session because connection to database meaningfully changed",
-            { original, updated: data },
-          );
-
-          // Force a sync of the schema by deleting the existing schema cache, which is now invalid
-          set(schemaAtom, prevSchemaMap => {
-            const updatedSchema = new Map(prevSchemaMap);
-            updatedSchema.delete(configId);
-            return updatedSchema;
-          });
-
-          // Delete previous session data
-          set(allGraphSessionsAtom, prev => {
-            const updatedGraphs = new Map(prev);
-            logger.log("Deleting previous graph session");
-            updatedGraphs.delete(configId);
-            return updatedGraphs;
-          });
-
-          // Reseting all query state. Using `removeQueries()` to ensure initial data is recalculated.
-          // This ensures dependent queries execute in the right order
-          queryClient.removeQueries();
-        }
-      },
-      [configId, existingConfig, queryClient],
-    ),
-  );
+  const createConnection = useCreateConnection();
+  const updateConnection = useUpdateConnection();
 
   const [form, setForm] = useState<ConnectionFormValues>(() =>
     existingConfig
@@ -176,15 +94,17 @@ const CreateConnection = ({
   const validation = validateConnectionForm(form);
   const errors = showErrors && !validation.valid ? validation.errors : null;
 
-  const reset = useResetState();
   const onSubmit = () => {
     if (!validation.valid) {
       setShowErrors(true);
       return;
     }
 
-    onSave(validation.values);
-    reset();
+    if (existingConfig) {
+      updateConnection(existingConfig, validation.values);
+    } else {
+      createConnection(validation.values);
+    }
     onClose("saved");
   };
 
@@ -371,7 +291,7 @@ const CreateConnection = ({
           Cancel
         </Button>
         <Button variant="primary" onClick={onSubmit}>
-          {!configId ? "Add Connection" : "Update Connection"}
+          {existingConfig ? "Update Connection" : "Add Connection"}
         </Button>
       </DialogFooter>
     </>

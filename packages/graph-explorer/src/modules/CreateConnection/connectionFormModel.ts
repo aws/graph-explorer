@@ -7,7 +7,12 @@ import {
 } from "@shared/types";
 import { z } from "zod";
 
-import { isDirectConnection, type RawConfiguration } from "@/connections";
+import {
+  type ConfigurationId,
+  isDirectConnection,
+  type RawConfiguration,
+  resolveQueryEngine,
+} from "@/connections";
 import { formatDate, isAbsoluteHttpUrl } from "@/utils";
 import {
   DEFAULT_FETCH_TIMEOUT,
@@ -67,7 +72,7 @@ export function mapToConnectionForm(
   return {
     name,
     graphDbUrl: connection?.graphDbUrl || "",
-    queryEngine: connection?.queryEngine || "gremlin",
+    queryEngine: resolveQueryEngine(connection),
     directConnection: isDirectConnection(connection),
     awsAuthEnabled: connection?.awsAuthEnabled || false,
     serviceType: connection?.serviceType || "neptune-db",
@@ -114,6 +119,18 @@ export function mapToConnection(
     nodeExpansionLimit: values.nodeExpansionLimitEnabled
       ? values.nodeExpansionLimit
       : undefined,
+  };
+}
+
+/** Maps form values into the stored configuration they describe under an id. */
+export function mapToConfiguration(
+  id: ConfigurationId,
+  values: ConnectionFormValues,
+): RawConfiguration & { connection: ConnectionConfig } {
+  return {
+    id,
+    displayLabel: values.name,
+    connection: mapToConnection(values),
   };
 }
 

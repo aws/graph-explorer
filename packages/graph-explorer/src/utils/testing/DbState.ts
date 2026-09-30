@@ -1,3 +1,5 @@
+import type { ConnectionConfig } from "@shared/types";
+
 import type { RawConfiguration } from "@/connections";
 import type { Explorer } from "@/connector";
 import type { SchemaViewLayout } from "@/core/StateProvider/schemaViewLayoutDefaults";
@@ -115,6 +117,12 @@ export class DbState {
   /** Simulates a fresh deployment with no connection configured as active. */
   withNoActiveConnection() {
     this.#hasActiveConnection = false;
+    return this;
+  }
+
+  /** Sets the connection of the active config. */
+  withActiveConnection(connection: ConnectionConfig) {
+    this.activeConfig = { ...this.activeConfig, connection };
     return this;
   }
 

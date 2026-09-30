@@ -1,6 +1,7 @@
 import { createRandomName, createRandomUrlString } from "@shared/utils/testing";
 import { describe, expect, test } from "vitest";
 
+import { createNewConfigurationId } from "@/connections";
 import {
   DEFAULT_FETCH_TIMEOUT,
   DEFAULT_NODE_EXPAND_LIMIT,
@@ -12,6 +13,7 @@ import {
   createEmptyConnectionForm,
   hasAdvancedOverrides,
   mapConfigurationToConnectionForm,
+  mapToConfiguration,
   mapToConnection,
   mapToConnectionForm,
   queryEngineSchema,
@@ -228,6 +230,19 @@ describe("mapToConnection", () => {
       awsRegion: "",
       fetchTimeoutMs: 30000,
       nodeExpansionLimit: 50,
+    });
+  });
+});
+
+describe("mapToConfiguration", () => {
+  test("stores the connection under the id, labeled with the name", () => {
+    const id = createNewConfigurationId();
+    const form = createValidForm();
+
+    expect(mapToConfiguration(id, form)).toStrictEqual({
+      id,
+      displayLabel: form.name,
+      connection: mapToConnection(form),
     });
   });
 });
