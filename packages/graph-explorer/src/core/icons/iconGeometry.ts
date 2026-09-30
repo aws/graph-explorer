@@ -14,6 +14,14 @@ export const ICON_BOX = 96;
 /** Fraction of {@link ICON_BOX} the icon occupies, leaving room for the shape's curve. */
 export const ICON_RATIO = 0.6;
 
-export function encodeSvg(svgContent: string): string {
-  return "data:image/svg+xml;utf8," + encodeURIComponent(svgContent);
+/**
+ * The centered square an icon is drawn into: `size` at `ICON_RATIO` of `box`,
+ * offset equally on both axes so it sits in the middle.
+ */
+export function insetBox(
+  box: number,
+  ratio: number,
+): { size: number; offset: number } {
+  const size = box * ratio;
+  return { size, offset: (box - size) / 2 };
 }

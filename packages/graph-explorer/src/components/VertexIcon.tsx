@@ -1,18 +1,10 @@
-import DOMPurify from "dompurify";
 import { DynamicIcon } from "lucide-react/dynamic";
 import SVG from "react-inlinesvg";
 
 import { useVertexStyle, type VertexStyle, type VertexType } from "@/core";
-import { ensureSvgViewBox } from "@/core/icons";
+import { sanitizeSvg } from "@/core/icons";
 import { cn } from "@/utils";
 import { getLucideName, isValidLucideIconName } from "@/utils/lucideIcons";
-
-function sanitizeSvg(svg: string): string {
-  const sanitized = DOMPurify.sanitize(svg, {
-    USE_PROFILES: { svg: true, svgFilters: true },
-  });
-  return ensureSvgViewBox(sanitized);
-}
 
 interface Props {
   vertexStyle: VertexStyle;

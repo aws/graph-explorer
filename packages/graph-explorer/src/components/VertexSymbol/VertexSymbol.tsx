@@ -1,7 +1,7 @@
 import { useId } from "react";
 
 import { useVertexStyle, type VertexStyle, type VertexType } from "@/core";
-import { ICON_BOX, ICON_RATIO } from "@/core/icons/iconGeometry";
+import { ICON_BOX, ICON_RATIO, insetBox } from "@/core/icons";
 import { cn } from "@/utils";
 
 import { resolveShapeGeometry } from "./nodeShapes";
@@ -28,8 +28,7 @@ export function VertexSymbol({ vertexStyle, className }: Props) {
   const insetSize = Math.max(1, ICON_BOX - strokeWidth * 2);
   const geometry = resolveShapeGeometry(vertexStyle.shape, insetSize);
 
-  const iconSize = ICON_BOX * ICON_RATIO;
-  const iconOffset = (ICON_BOX - iconSize) / 2;
+  const { size: iconSize, offset: iconOffset } = insetBox(ICON_BOX, ICON_RATIO);
 
   // The shape is rendered twice: once filled/stroked, once as the icon's
   // clipPath. clipPath children must be shape elements directly — a wrapping
