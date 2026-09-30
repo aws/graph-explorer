@@ -14,11 +14,8 @@ import {
 
 import useGraphStyles from "./useGraphStyles";
 
-// A raster icon resolves synchronously to its url, so this test can exercise
-// the real icon pipeline and still pin the expected background image. Uses a
-// data: url because that's the only raster shape the wrapper actually wraps —
-// an external http(s) url is returned unwrapped (see
-// useBackgroundImageMap.test.ts's "skips the wrapper" case).
+// A data: raster resolves synchronously to its url, so this test can exercise
+// the real icon pipeline and still pin the expected background image.
 const RASTER_ICON = {
   iconUrl: "data:image/png;base64,QUJD",
   iconImageType: "image/png",

@@ -9,6 +9,17 @@ describe("classifyIconSource", () => {
     ).toStrictEqual({ kind: "none" });
   });
 
+  // `encodeURIComponent` throws on a lone surrogate during style computation,
+  // which would take down the whole app.
+  it("classifies a url that is not well-formed UTF-16 as none", () => {
+    expect(
+      classifyIconSource({
+        iconUrl: "data:image/png;base64,AAA\uD800BBB",
+        iconImageType: "image/png",
+      }),
+    ).toStrictEqual({ kind: "none" });
+  });
+
   it("classifies a lucide reference by prefix", () => {
     expect(
       classifyIconSource({

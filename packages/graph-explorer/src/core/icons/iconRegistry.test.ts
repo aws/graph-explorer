@@ -13,6 +13,10 @@ function svgSource(url: string) {
   return classifyIconSource({ iconUrl: url, iconImageType: "image/svg+xml" });
 }
 
+function rasterSource(url: string) {
+  return classifyIconSource({ iconUrl: url, iconImageType: "image/png" });
+}
+
 function lucideSource(name: string) {
   return classifyIconSource({
     iconUrl: `lucide:${name}`,
@@ -41,35 +45,89 @@ describe("iconRegistry", () => {
     expect(iconRegistry.getSnapshot().size).toBe(0);
   });
 
-  it("resolves a raster icon to its url without fetching", async () => {
-    const source = classifyIconSource({
-      iconUrl: "https://example.test/a.png",
-      iconImageType: "image/png",
-    });
+  it("resolves a data: raster to its url without fetching", async () => {
+    const source = rasterSource("data:image/png;base64,QUJD");
     iconRegistry.request([source]);
     await settle();
 
     expect(iconRegistry.getSnapshot().get(iconSourceId(source)!)).toStrictEqual(
-      {
-        kind: "raster",
-        url: "https://example.test/a.png",
-      },
+      { kind: "raster", url: "data:image/png;base64,QUJD" },
     );
     expect(fetch).not.toBeCalled();
   });
 
-  // A url needs no resolution, so making the consumer wait a render for it
-  // would be a pointless async round trip.
-  it("resolves a raster icon synchronously", () => {
-    const source = classifyIconSource({
-      iconUrl: "https://example.test/a.png",
-      iconImageType: "image/png",
-    });
+  // Already inline, so making the consumer wait a render for it would be a
+  // pointless async round trip.
+  it("resolves a data: raster synchronously", () => {
+    const source = rasterSource("data:image/png;base64,QUJD");
 
     iconRegistry.request([source]);
 
     expect(iconRegistry.getSnapshot().has(iconSourceId(source)!)).toBe(true);
     expect(iconRegistry.pendingCount).toBe(0);
+  });
+
+  // The canvas nests every icon inside a `data:` svg, whose image sandbox
+  // fetches nothing external, so a remote raster has to arrive inline.
+  it("inlines a remote raster as a data: url", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve(
+          new Response(new Uint8Array([65, 66, 67]), {
+            headers: { "content-type": "image/png; charset=binary" },
+          }),
+        ),
+      ),
+    );
+    const source = rasterSource("https://example.test/a.png");
+
+    iconRegistry.request([source]);
+    await settle();
+
+    expect(iconRegistry.getSnapshot().get(iconSourceId(source)!)).toStrictEqual(
+      { kind: "raster", url: "data:image/png;base64,QUJD" },
+    );
+    expect(fetch).toBeCalledWith("https://example.test/a.png");
+  });
+
+  it("rejects a remote raster whose response is not an image", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve(
+          new Response("<script>alert(1)</script>", {
+            headers: { "content-type": "text/html" },
+          }),
+        ),
+      ),
+    );
+    const source = rasterSource("https://example.test/a.png");
+
+    iconRegistry.request([source]);
+    await settle();
+
+    expect(iconRegistry.getSnapshot().has(iconSourceId(source)!)).toBe(false);
+  });
+
+  it("rejects a remote raster that fails to load", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve(
+          new Response("Not Found", {
+            status: 404,
+            headers: { "content-type": "image/png" },
+          }),
+        ),
+      ),
+    );
+    const source = rasterSource("https://example.test/missing.png");
+
+    iconRegistry.request([source]);
+    await settle();
+
+    expect(iconRegistry.getSnapshot().has(iconSourceId(source)!)).toBe(false);
   });
 
   it("fetches and sanitizes a remote svg", async () => {

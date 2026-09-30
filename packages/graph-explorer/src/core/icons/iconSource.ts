@@ -20,7 +20,9 @@ export function classifyIconSource(input: {
   iconImageType: string;
 }): IconSource {
   const { iconUrl, iconImageType } = input;
-  if (!iconUrl) {
+  // A lone surrogate makes `encodeURIComponent` throw during style
+  // computation, which takes down the whole app, so it renders as no icon.
+  if (!iconUrl || !iconUrl.isWellFormed()) {
     return { kind: "none" };
   }
   const lucideName = getLucideName(iconUrl);
