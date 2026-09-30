@@ -137,6 +137,28 @@ describe("useBackgroundImageMap", () => {
     expect(icon).not.toContain("https://example.test/a.png");
   });
 
+  // A remote raster the registry could not inline (no CORS, say) would render
+  // blank inside the wrapper's image sandbox, so it is left unwrapped.
+  it("leaves a raster that could not be inlined unwrapped", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => Promise.reject(new TypeError("CORS"))),
+    );
+    const config = makeConfig({
+      type: createVertexType("CorsBlocked"),
+      iconUrl: "https://example.test/a.png",
+      iconImageType: "image/png",
+    });
+
+    const { result } = renderMap([config]);
+
+    await waitFor(() =>
+      expect(result.current.get(createVertexType("CorsBlocked"))).toBe(
+        "https://example.test/a.png",
+      ),
+    );
+  });
+
   // The wrapper nests the raster url as an XML attribute value, so a raw `<`
   // in it would produce malformed XML that fails to parse — a blank icon,
   // not a distorted one. Values are always inline data uris today (they
