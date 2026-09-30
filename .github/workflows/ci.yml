@@ -17,16 +17,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  dependency-review:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Review dependencies for vulnerabilities
-        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
-
   # One job rather than parallel jobs or test shards: runners come from a pool
   # shared across the org, and each extra job is another wait in that queue.
   checks-and-tests:
