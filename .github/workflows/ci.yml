@@ -1,23 +1,13 @@
-name: Unit Tests
+name: CI
 
 on:
   workflow_dispatch:
   push:
     branches:
       - main
-    paths-ignore:
-      - "docs/**"
-      - "**/*.md"
-      - ".agents/**"
-      - ".claude/**"
   pull_request:
     branches:
       - main
-    paths-ignore:
-      - "docs/**"
-      - "**/*.md"
-      - ".agents/**"
-      - ".claude/**"
 
 permissions:
   contents: read
@@ -37,11 +27,10 @@ jobs:
       - name: Review dependencies for vulnerabilities
         uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
 
-  test:
+  # One job rather than parallel jobs or test shards: runners come from a pool
+  # shared across the org, and each extra job is another wait in that queue.
+  checks-and-tests:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        shard: [1, 2, 3, 4]
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -55,7 +44,19 @@ jobs:
           node-version-file: ".node-version"
 
       - name: Install package and dependencies
+        id: install
         run: pnpm install --frozen-lockfile
 
+      # The steps below run even when an earlier one fails, so a single push
+      # reports every failure instead of stopping at the first.
+      - name: Check for lockfile drift
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: pnpm dedupe --check
+
+      - name: Run type, lint, and format checks
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: pnpm checks
+
       - name: Run package tests
-        run: pnpm test --shard ${{ matrix.shard }}/${{ strategy.job-total }}
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: pnpm test
