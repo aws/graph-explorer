@@ -1,7 +1,5 @@
 import type { ResolvedIcon } from "./iconRegistry";
 
-import { encodeSvg } from "./iconGeometry";
-
 /**
  * Pure transform to an image url.
  *
@@ -43,4 +41,8 @@ function applyColor(svgContent: string, color: string): string {
     existing ? `${existing};color:${color}` : `color:${color}`,
   );
   return new XMLSerializer().serializeToString(root);
+}
+
+export function encodeSvg(svgContent: string): string {
+  return "data:image/svg+xml;utf8," + encodeURIComponent(svgContent);
 }

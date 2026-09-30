@@ -4,7 +4,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { ensureSvgViewBox } from "./svgViewBox";
+import { ensureSvgViewBox, sanitizeSvg } from "./svgViewBox";
 
 describe("ensureSvgViewBox", () => {
   // Issue #2108: without a viewBox, an SVG has no coordinate system to scale
@@ -59,5 +59,28 @@ describe("ensureSvgViewBox", () => {
     const svg = `<svg width="400px" height="100px" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>`;
 
     expect(ensureSvgViewBox(svg)).toContain('viewBox="0 0 400 100"');
+  });
+});
+
+// `VertexIcon.tsx` and `iconRegistry.ts` both sanitized untrusted svg with
+// this exact DOMPurify config before synthesizing a viewBox; shared here so
+// the two call sites cannot drift.
+describe("sanitizeSvg", () => {
+  it("strips a <script> element and still synthesizes a viewBox", () => {
+    const svg = `<svg width="400" height="100" xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script><rect width="400" height="100"/></svg>`;
+
+    const result = sanitizeSvg(svg);
+
+    expect(result).not.toContain("<script");
+    expect(result).toContain("<rect");
+    expect(result).toContain('viewBox="0 0 400 100"');
+  });
+
+  // The svg profile already allowlists width/height/viewBox, so sanitizing
+  // does not strip the very attributes ensureSvgViewBox needs to read.
+  it("preserves an existing viewBox through sanitization", () => {
+    const svg = `<svg viewBox="0 0 300 75" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="75"/></svg>`;
+
+    expect(sanitizeSvg(svg)).toContain('viewBox="0 0 300 75"');
   });
 });

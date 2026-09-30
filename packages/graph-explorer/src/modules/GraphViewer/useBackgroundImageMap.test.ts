@@ -10,6 +10,7 @@ import type { VertexStyle } from "@/core";
 import { createVertexType } from "@/core/entities/vertex";
 import { iconRegistry } from "@/core/icons";
 import { ICON_BOX, ICON_RATIO } from "@/core/icons/iconGeometry";
+import { logger } from "@/utils";
 import { createRandomVertexStyle, renderHookWithState } from "@/utils/testing";
 
 import { useBackgroundImageMap } from "./useBackgroundImageMap";
@@ -72,6 +73,30 @@ describe("useBackgroundImageMap", () => {
     await waitFor(() => expect(result!.current.size).toBe(0));
   });
 
+  // The hook runs on every render of useGraphStyles — any style edit, any
+  // vertex added — so a within-render cache alone is not enough: it is
+  // rebuilt fresh each call and would let the same malformed url warn again
+  // on every one of those renders for as long as it stays stored.
+  it("warns about a malformed icon url only once across repeated renders", async () => {
+    const config = makeConfig({
+      type: createVertexType("MalformedRepeated"),
+      iconUrl: "data:image/png;base64,AAA\uD801BBB",
+      iconImageType: "image/png",
+    });
+
+    const { result, rerender } = renderMap([config]);
+    await waitFor(() => expect(result.current.size).toBe(0));
+    const warnCountAfterFirstRender = vi.mocked(logger.warn).mock.calls.length;
+    expect(warnCountAfterFirstRender).toBeGreaterThan(0);
+
+    rerender();
+    rerender();
+
+    expect(vi.mocked(logger.warn).mock.calls.length).toBe(
+      warnCountAfterFirstRender,
+    );
+  });
+
   // Issue #2108: cytoscape cannot both preserve an image's aspect ratio and
   // inset it, so the inset is baked into a square svg wrapper and the nested
   // `preserveAspectRatio` does the fitting. That works for every icon kind
@@ -79,7 +104,7 @@ describe("useBackgroundImageMap", () => {
   it("wraps a raster icon in a padded square svg", async () => {
     const config = makeConfig({
       type: createVertexType("Raster"),
-      iconUrl: "https://example.test/a.png",
+      iconUrl: "data:image/png;base64,QUJD",
       iconImageType: "image/png",
     });
 
@@ -102,8 +127,59 @@ describe("useBackgroundImageMap", () => {
     expect(wrapper).toContain(`y="${offset}"`);
     expect(wrapper).toContain(`width="${size}"`);
     expect(wrapper).toContain(`height="${size}"`);
-    expect(decodeIcon(url)).toContain("https://example.test/a.png");
+    expect(decodeIcon(url)).toContain("data:image/png;base64,QUJD");
     expect(fetch).not.toBeCalled();
+  });
+
+  // The wrapper nests the raster url as an XML attribute value, so a raw `<`
+  // in it would produce malformed XML that fails to parse — a blank icon,
+  // not a distorted one. Values are always inline data uris today (they
+  // can't contain a literal `<`, only its percent-encoded form), but the
+  // escape has to hold if that ever changes.
+  it("escapes a literal < in the wrapped url", async () => {
+    const config = makeConfig({
+      type: createVertexType("AngleBracket"),
+      iconUrl: "data:image/png;base64,<notreallybase64>",
+      iconImageType: "image/png",
+    });
+
+    const { result } = renderMap([config]);
+
+    await waitFor(() =>
+      expect(result.current.has(createVertexType("AngleBracket"))).toBe(true),
+    );
+    const url = result.current.get(createVertexType("AngleBracket"))!;
+    const wrapper = decodeURIComponent(url);
+    expect(wrapper).not.toContain("<notreallybase64>");
+    // Only `<` breaks XML attribute well-formedness; a bare `>` is legal.
+    expect(wrapper).toContain("&lt;notreallybase64>");
+    // Still well-formed XML: strip the data: uri prefix before parsing, or
+    // the leading "data:image/svg+xml;utf8," is itself invalid XML.
+    const svgMarkup = wrapper.replace("data:image/svg+xml;utf8,", "");
+    const doc = new DOMParser().parseFromString(svgMarkup, "application/xml");
+    expect(doc.querySelector("parsererror")).toBeNull();
+  });
+
+  // A raster loaded as `<image href>` inside a `data:` svg sits in the
+  // SVG-as-image sandbox (W3C SVG Integration §3.4/§3.6), which fetches
+  // nothing external — the icon would render blank rather than distorted.
+  // Every reachable iconUrl is `lucide:` or `data:image/*;base64,`
+  // (ICON_VALUE_PATTERN), so this only guards a future raster source.
+  it("skips the wrapper for a raster url that is not a data: uri", async () => {
+    const config = makeConfig({
+      type: createVertexType("ExternalRaster"),
+      iconUrl: "https://example.test/a.png",
+      iconImageType: "image/png",
+    });
+
+    const { result } = renderMap([config]);
+
+    await waitFor(() =>
+      expect(result.current.has(createVertexType("ExternalRaster"))).toBe(true),
+    );
+    expect(result.current.get(createVertexType("ExternalRaster"))).toBe(
+      "https://example.test/a.png",
+    );
   });
 
   // Issue #2108, the case the wrapper alone does not solve: without a viewBox

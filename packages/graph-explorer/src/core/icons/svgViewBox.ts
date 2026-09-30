@@ -1,3 +1,5 @@
+import DOMPurify from "dompurify";
+
 /**
  * Ensures an SVG has a `viewBox`, synthesizing one from `width`/`height` when
  * absent.
@@ -26,6 +28,23 @@ export function ensureSvgViewBox(svg: string): string {
 }
 
 /**
+ * Sanitizes untrusted SVG markup and ensures the result carries a `viewBox`.
+ * Every caller that renders a non-lucide SVG runs this same sequence, so it
+ * lives once here rather than as a copy at each call site.
+ *
+ * `USE_PROFILES` (not an explicit `ALLOWED_ATTR`) is what keeps `width`,
+ * `height`, and `viewBox` through sanitization — DOMPurify rebuilds
+ * `ALLOWED_ATTR` from the profile sets whenever `USE_PROFILES` is set, so an
+ * explicit allowlist alongside it would silently never take effect.
+ */
+export function sanitizeSvg(svg: string): string {
+  const sanitized = DOMPurify.sanitize(svg, {
+    USE_PROFILES: { svg: true, svgFilters: true },
+  });
+  return ensureSvgViewBox(sanitized);
+}
+
+/**
  * Parses an SVG `width`/`height` attribute as a positive, finite number of
  * user units, or `null` if it is not one.
  *
@@ -37,6 +56,13 @@ export function ensureSvgViewBox(svg: string): string {
  * resolve against). A plain unit suffix like `"400px"` is legitimate SVG and
  * must still parse, so only a trailing `%` is rejected, not every non-digit
  * suffix.
+ *
+ * Rejecting `%` trades one bug for a smaller one: an svg with no other size
+ * hint (`width="100%" height="100%"`, no `viewBox`) still gets no `viewBox`
+ * synthesized, so `ensureSvgViewBox` returns it unchanged and it still fills
+ * its box as a square — issue #2108, for this one input. There is no fix
+ * available at this layer: the percentage carries no aspect ratio to recover,
+ * and guessing one would be worse than the known, tested gap this leaves.
  */
 function parseFiniteLength(value: string | null): number | null {
   if (value === null || value.trimEnd().endsWith("%")) {
