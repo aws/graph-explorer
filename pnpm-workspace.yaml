@@ -23,6 +23,11 @@ allowBuilds:
   esbuild: true
   core-js: false
 
+# Collapse compatible duplicate versions whenever the lockfile is written, so
+# `pnpm dedupe --check` in CI rarely fails. Frozen installs skip it, which is
+# why CI keeps that check.
+autoDedupe: true
+
 # Prevent transitive dependencies from using git or tarball URLs
 blockExoticSubdeps: true
 
