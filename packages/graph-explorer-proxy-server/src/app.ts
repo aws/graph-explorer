@@ -505,7 +505,7 @@ export function createApp({
   });
 
   // POST endpoint for openCypher queries.
-  app.post("/openCypher", async (req, res, next) => {
+  app.post("/opencypher", async (req, res, next) => {
     const logger = getLogger();
     const {
       graphDbConnectionUrl,

@@ -1,6 +1,7 @@
 import type { FeatureFlags, NormalizedConnection } from "@/core";
 
 import { serverLogger } from "@/core/connector";
+import { isDirectConnection } from "@/core/StateProvider/configuration";
 import { env, logger } from "@/utils";
 import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 
@@ -23,9 +24,12 @@ function _openCypherFetch(
   featureFlags: FeatureFlags,
   options?: ExplorerRequestOptions,
 ) {
+  // The Graph Explorer server's routes are lowercase, but a direct connection
+  // reaches the database, which serves the query at /openCypher.
+  const path = isDirectConnection(connection) ? "openCypher" : "opencypher";
   return async (queryTemplate: string) => {
     logger.debug(queryTemplate);
-    return fetchDatabaseRequest(connection, featureFlags, "openCypher", {
+    return fetchDatabaseRequest(connection, featureFlags, path, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

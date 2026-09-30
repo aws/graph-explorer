@@ -405,7 +405,7 @@ describe("createApp", () => {
 
   // ── Query validation (400 cases) ──────────────────────────────────
 
-  describe.each(["sparql", "gremlin", "openCypher"])(
+  describe.each(["sparql", "gremlin", "opencypher"])(
     "POST /%s input validation",
     route => {
       it("returns 400 when query is missing but headers are present", async () => {
@@ -452,7 +452,7 @@ describe("createApp", () => {
     it.each([
       { method: "post", route: "/sparql", body: { query: "test" } },
       { method: "post", route: "/gremlin", body: { query: "test" } },
-      { method: "post", route: "/openCypher", body: { query: "test" } },
+      { method: "post", route: "/opencypher", body: { query: "test" } },
       { method: "get", route: "/summary", body: undefined },
       { method: "get", route: "/pg/statistics/summary", body: undefined },
       { method: "get", route: "/rdf/statistics/summary", body: undefined },
@@ -655,8 +655,26 @@ describe("createApp", () => {
 
   // ── openCypher happy path ─────────────────────────────────────────
 
-  describe("POST /openCypher", () => {
+  describe("POST /opencypher", () => {
     it("proxies query to the graph database", async () => {
+      mockFetchOnce(JSON.stringify({ results: [] }), 200, {
+        "content-type": "application/json",
+      });
+
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/opencypher")
+        .set(dbHeaders())
+        .send({ query: "MATCH (n) RETURN n LIMIT 1" });
+
+      expect(response.status).toBe(200);
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${graphDbUrl}/openCypher`,
+        expect.objectContaining({ method: "POST" }),
+      );
+    });
+
+    it("still serves the legacy /openCypher casing", async () => {
       mockFetchOnce(JSON.stringify({ results: [] }), 200, {
         "content-type": "application/json",
       });
@@ -668,10 +686,6 @@ describe("createApp", () => {
         .send({ query: "MATCH (n) RETURN n LIMIT 1" });
 
       expect(response.status).toBe(200);
-      expect(mockFetch).toHaveBeenCalledWith(
-        `${graphDbUrl}/openCypher`,
-        expect.objectContaining({ method: "POST" }),
-      );
     });
 
     it("sends query as url-encoded form body", async () => {
@@ -679,7 +693,7 @@ describe("createApp", () => {
 
       const app = createTestApp();
       const query = "MATCH (n) RETURN n";
-      await request(app).post("/openCypher").set(dbHeaders()).send({ query });
+      await request(app).post("/opencypher").set(dbHeaders()).send({ query });
 
       const fetchOptions = fetchOptionsFor("openCypher");
       expect(fetchOptions.headers["content-type"]).toBe(
@@ -693,7 +707,7 @@ describe("createApp", () => {
 
       const app = createTestApp();
       const response = await request(app)
-        .post("/openCypher")
+        .post("/opencypher")
         .set(dbHeaders())
         .send({ query: "MATCH (n) RETURN n" });
 
@@ -825,7 +839,7 @@ describe("createApp", () => {
   // ── Query logging header ───────────────────────────────────────────
 
   describe("db-query-logging-enabled header", () => {
-    it.each(["sparql", "gremlin", "openCypher"])(
+    it.each(["sparql", "gremlin", "opencypher"])(
       "POST /%s logs the query when db-query-logging-enabled is true",
       async route => {
         mockFetchOnce();
@@ -846,7 +860,7 @@ describe("createApp", () => {
       },
     );
 
-    it.each(["sparql", "gremlin", "openCypher"])(
+    it.each(["sparql", "gremlin", "opencypher"])(
       "POST /%s does not log the query when db-query-logging-enabled is absent",
       async route => {
         mockFetchOnce();
@@ -1041,7 +1055,7 @@ describe("createApp", () => {
 
       const app = createTestApp();
       await request(app)
-        .post("/openCypher")
+        .post("/opencypher")
         .set(blazegraphHeaders())
         .send({ query: "MATCH (n) RETURN n" });
 
@@ -1153,7 +1167,7 @@ describe("createApp", () => {
     it.each([
       { method: "post", route: "/sparql", body: { query: "test" } },
       { method: "post", route: "/gremlin", body: { query: "test" } },
-      { method: "post", route: "/openCypher", body: { query: "test" } },
+      { method: "post", route: "/opencypher", body: { query: "test" } },
       { method: "get", route: "/summary", body: undefined },
       { method: "get", route: "/pg/statistics/summary", body: undefined },
       { method: "get", route: "/rdf/statistics/summary", body: undefined },

@@ -175,7 +175,7 @@ describe("createOpenCypherExplorer", () => {
     });
   });
   describe("request routing", () => {
-    it("sends a proxied connection's query to the same-origin openCypher endpoint", async () => {
+    it("sends a proxied connection's query to the same-origin lowercase opencypher endpoint", async () => {
       mockFetch.mockImplementation(() =>
         Promise.resolve(jsonResponse({ results: [] })),
       );
@@ -187,7 +187,7 @@ describe("createOpenCypherExplorer", () => {
       await explorer.rawQuery({ query: "MATCH (n) RETURN n LIMIT 10" });
 
       expect(mockFetch).toHaveBeenCalledWith(
-        new URL("http://localhost/openCypher"),
+        new URL("http://localhost/opencypher"),
         expect.objectContaining({ method: "POST" }),
       );
     });
