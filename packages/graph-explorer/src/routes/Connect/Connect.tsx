@@ -1,10 +1,13 @@
 import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 
 import {
+  Button,
   Dialog,
+  DialogBody,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogSurface,
   DialogTitle,
@@ -12,10 +15,11 @@ import {
 import { useActivateConnection } from "@/connections";
 import { resolveConnectionLink } from "@/core/connectionLink";
 import { configurationAtom } from "@/core/StateProvider";
-import CreateConnection, {
-  type CreateConnectionOutcome,
+import {
+  ConnectionForm,
   mapToConnectionForm,
-} from "@/modules/CreateConnection";
+  useCreateConnection,
+} from "@/modules/ConnectionForm";
 import { logger } from "@/utils";
 
 import { ConnectPageLayout } from "./ConnectPageLayout";
@@ -49,13 +53,12 @@ function ConnectFromLink({ search }: { search: string }) {
 
   const [intent] = useState(() => resolveConnectionLink(search));
   const connectionCount = useAtomValue(configurationAtom).size;
+  const createConnection = useCreateConnection();
+  const formId = useId();
 
   // Declining the link lands on the connections list, where the user can pick
-  // a connection themselves; saving activated the new one, so show its graph.
-  const leave = (outcome: CreateConnectionOutcome) =>
-    navigate(outcome === "saved" ? GRAPH_CANVAS_ROUTE : CONNECTIONS_ROUTE, {
-      replace: true,
-    });
+  // a connection themselves.
+  const cancel = () => navigate(CONNECTIONS_ROUTE, { replace: true });
 
   useEffect(() => {
     if (intent.kind === "invalid") {
@@ -95,11 +98,7 @@ function ConnectFromLink({ search }: { search: string }) {
   // renders in place inside the app shell instead of in a portal.
   return (
     <ConnectPageLayout>
-      <Dialog
-        open
-        modal={false}
-        onOpenChange={open => !open && leave("cancelled")}
-      >
+      <Dialog open modal={false} onOpenChange={open => !open && cancel()}>
         <DialogSurface
           // Outside is the rest of this page, so an outside click would
           // silently discard the form.
@@ -112,10 +111,28 @@ function ConnectFromLink({ search }: { search: string }) {
               continue.
             </DialogDescription>
           </DialogHeader>
-          <CreateConnection
-            initialValues={mapToConnectionForm(intent.name, intent.connection)}
-            onClose={leave}
-          />
+          <DialogBody>
+            <ConnectionForm
+              id={formId}
+              initialValues={mapToConnectionForm(
+                intent.name,
+                intent.connection,
+              )}
+              onSubmit={values => {
+                createConnection(values);
+                // Saving activated the new connection, so show its graph.
+                navigate(GRAPH_CANVAS_ROUTE, { replace: true });
+              }}
+            />
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={cancel}>
+              Cancel
+            </Button>
+            <Button variant="primary" type="submit" form={formId}>
+              Add Connection
+            </Button>
+          </DialogFooter>
         </DialogSurface>
       </Dialog>
     </ConnectPageLayout>
