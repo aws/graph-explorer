@@ -12,15 +12,15 @@
   },
   "dependencies": {
     "@aws-crypto/sha256-js": "^5.2.0",
-    "@aws-sdk/credential-providers": "^3.1136.0",
+    "@aws-sdk/credential-providers": "^3.1142.0",
     "@graph-explorer/shared": "workspace:*",
     "@smithy/protocol-http": "^5.6.2",
-    "@smithy/signature-v4": "^5.7.3",
+    "@smithy/signature-v4": "^5.7.4",
     "body-parser": "^2.3.0",
     "compression": "^1.8.2",
     "cors": "^2.8.6",
     "date-fns": "^4.4.0",
-    "dotenv": "^18.0.1",
+    "dotenv": "^18.0.4",
     "express": "^5.2.1",
     "node-fetch": "^3.3.2",
     "pino": "^10.3.1",
@@ -32,9 +32,9 @@
     "@types/compression": "^1.8.1",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
-    "@types/node": "^24.13.6",
+    "@types/node": "^24.19.0",
     "@types/supertest": "^7.2.1",
-    "supertest": "^7.2.2",
+    "supertest": "^7.3.0",
     "vitest": "5.0.1"
   }
 }
