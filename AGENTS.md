@@ -89,4 +89,6 @@ Default label vocabulary (needs-triage, needs-info, ready-for-agent, ready-for-h
 
 ### Domain docs
 
-Single-context layout — one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+Single-context layout — one `GLOSSARY.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
+`CONTEXT.md` was renamed to `GLOSSARY.md`. When a skill or doc asks for `CONTEXT.md` or `CONTEXT-MAP.md`, use `GLOSSARY.md` or `GLOSSARY-MAP.md` instead.
