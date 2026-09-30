@@ -153,7 +153,7 @@ start_graph_explorer_with_cw_logs() {
       --log-opt awslogs-group=/aws/sagemaker/NotebookInstances \
       --log-opt awslogs-stream=${GRAPH_NOTEBOOK_NAME}/graph-explorer.log \
       --log-opt awslogs-multiline-pattern='^(INFO|DEBUG|ERROR|WARN|TRACE|FATAL)' \
-      --env LOG_LEVEL=debug \
+      --env LOG_LEVEL=info \
       --env HOST=127.0.0.1 \
       --env PUBLIC_OR_PROXY_ENDPOINT=${EXPLORER_URI} \
       --env GRAPH_CONNECTION_URL=${NEPTUNE_URI} \
@@ -168,7 +168,7 @@ start_graph_explorer_with_cw_logs() {
 start_graph_explorer_with_default_logs() {
     docker run -d -p 9250:9250 \
       --restart always \
-      --env LOG_LEVEL=debug \
+      --env LOG_LEVEL=info \
       --env HOST=127.0.0.1 \
       --env PUBLIC_OR_PROXY_ENDPOINT=${EXPLORER_URI} \
       --env GRAPH_CONNECTION_URL=${NEPTUNE_URI} \

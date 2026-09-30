@@ -29,6 +29,27 @@ If HTTPS is enabled and any of these files are missing, the server will exit wit
 
 If `NEPTUNE_NOTEBOOK` is also set to `true`, the server exits earlier, during environment parsing, with an error naming the conflict between `NEPTUNE_NOTEBOOK` and `PROXY_SERVER_HTTPS_CONNECTION`, since the notebook preset never generates certificates.
 
+### Keeping the certificate across container replacements
+
+When `HOST` is set, every new container generates its own self-signed certificate. Replacing the container, for example on an image upgrade, invalidates the certificate you trusted by hand. Restarting the same container keeps its certificate.
+
+To keep one certificate across replacements, mount `cert-info` as a named volume and set `HOST` only on the first run:
+
+```bash
+# First run generates the certificate into the volume
+docker run -p 443:443 \
+  --env HOST=localhost \
+  -v graph-explorer-certs:/graph-explorer/packages/graph-explorer-proxy-server/cert-info \
+  public.ecr.aws/neptune/graph-explorer
+
+# Later containers reuse it because HOST is unset
+docker run -p 443:443 \
+  -v graph-explorer-certs:/graph-explorer/packages/graph-explorer-proxy-server/cert-info \
+  public.ecr.aws/neptune/graph-explorer
+```
+
+The certificate is valid for the `HOST` value and dates from the first run. Delete the volume to generate a new one.
+
 ### Using your own certificates
 
 To use your own certificates instead of the self-signed ones, mount your certificate files into the `cert-info` directory. All five certificate files must be present (`rootCA.key`, `rootCA.crt`, `server.key`, `server.csr`, `server.crt`).

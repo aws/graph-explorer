@@ -37,20 +37,12 @@ Which will result in the following URLs:
 
 ### HTTP Only
 
-If you do not want to use SSL and HTTPS, you can disable it by setting the following [environment variables](../references/configuration.md#application-configuration):
-
-```
-PROXY_SERVER_HTTPS_CONNECTION=false
-GRAPH_EXP_HTTPS_CONNECTION=false
-```
-
-These can be passed when creating the Docker container like so:
+If you do not want to use SSL and HTTPS, you can disable it by setting [`PROXY_SERVER_HTTPS_CONNECTION`](../references/configuration.md#proxy_server_https_connection) to `false`. Pass it when creating the Docker container like so:
 
 ```
 docker run -p 80:80 \
   --name graph-explorer \
   --env PROXY_SERVER_HTTPS_CONNECTION=false \
-  --env GRAPH_EXP_HTTPS_CONNECTION=false \
   public.ecr.aws/neptune/graph-explorer
 ```
 
