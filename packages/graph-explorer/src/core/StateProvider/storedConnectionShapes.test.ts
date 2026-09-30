@@ -1,36 +1,32 @@
 // @vitest-environment happy-dom
-import { describe, expect, test } from "vitest";
+import localforage from "localforage";
+import { beforeEach, describe, expect, test } from "vitest";
 
-import type { RawConfiguration } from "@/core";
-
-import { toJsonFileData } from "@/utils/fileData";
+import { createNewConfigurationId, type RawConfiguration } from "@/core";
 import {
   createRandomRawConfiguration,
   createRandomSchema,
+  loadStorageAtoms,
   preloadStoredConfigurations,
 } from "@/utils/testing";
 
 import type { SchemaStorageModel } from "./schema";
 
-import { ACTIVE_CONNECTION_STORAGE_KEY } from "./activeConnectionStorage";
-import {
-  createBackupData,
-  type LocalDb,
-  readBackupDataFromFile,
-  restoreBackup,
-} from "./localDb";
-import { serializeData } from "./serializeData";
+import legacyUrlBackup from "./__fixtures__/backup-v1-legacy-url-connections.json?raw";
+import { readBackupDataFromFile, restoreBackup } from "./localDb";
 
 /**
  * BACKWARD COMPATIBILITY — STORED CONNECTION SHAPES
  *
  * These tests preload the "configuration" and "active-configuration" storage
- * as older builds left them, through the real `configurationAtom` load path,
- * before the Connections refactor moves that code. The transform is covered on
- * its own in `configurationTransform.test.ts`; here we pin the shapes that
- * reach the atom untouched — an entry with no connection, a missing
- * `displayLabel`, and several connections preloading together — plus a
- * full backup restore bringing the connections and Active Connection back.
+ * as older builds left them, through the real storage atoms, before the
+ * Connections refactor moves that code. The transform is covered on its own in
+ * `configurationTransform.test.ts`; here we pin the shapes that reach the atom
+ * untouched, the storage keys the Active Connection is read from, and a backup
+ * file from an older build restoring into what the app loads.
+ *
+ * Storage keys are string literals on purpose: they are the on-disk contract,
+ * so renaming the constant that holds one must fail here.
  *
  * DO NOT delete or weaken these without confirming that no stored connection
  * in the wild can still be in these shapes.
@@ -97,65 +93,90 @@ describe("backward compatibility: stored connection shapes preload through the c
   });
 });
 
-describe("backward compatibility: a backup from an older build restores", () => {
-  test("brings the connections and Active Connection back", async () => {
-    const source = createFakeLocalDb();
-    const first = createRandomRawConfiguration();
-    const second = createRandomRawConfiguration();
-    const configMap = new Map([
-      [first.id, first],
-      [second.id, second],
-    ]);
+describe("backward compatibility: the Active Connection is read from its stored keys", () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
 
-    source.setItem("configuration", configMap);
-    source.setItem(ACTIVE_CONNECTION_STORAGE_KEY, first.id);
+  test("seeds a new tab from the breadcrumb stored under active-configuration", async () => {
+    const id = createNewConfigurationId();
+    await localforage.setItem("active-configuration", id);
 
-    // Snapshot -> serialize -> file -> parse, exactly as an export/import does.
-    const backup = await createBackupData(source);
-    const parsed = await readBackupDataFromFile(
-      toJsonFileData(serializeData(backup)),
+    const { store, activeConfigurationAtom } = await loadStorageAtoms();
+
+    expect(store.get(activeConfigurationAtom)).toBe(id);
+  });
+
+  test("keeps a reloaded tab on the value it stored under active-configuration", async () => {
+    const tabValue = createNewConfigurationId();
+    await localforage.setItem(
+      "active-configuration",
+      createNewConfigurationId(),
     );
+    sessionStorage.setItem("active-configuration", tabValue);
 
-    // Restore into a fresh, empty database, as importing into a clean install.
-    const target = createFakeLocalDb();
-    await restoreBackup(parsed, target);
+    const { store, activeConfigurationAtom } = await loadStorageAtoms();
 
-    const restoredConfigs =
-      await target.getItem<typeof configMap>("configuration");
-    expect(restoredConfigs?.get(first.id)?.connection).toStrictEqual(
-      first.connection,
-    );
-    expect(restoredConfigs?.get(second.id)?.connection).toStrictEqual(
-      second.connection,
-    );
-    expect(await target.getItem(ACTIVE_CONNECTION_STORAGE_KEY)).toBe(first.id);
+    expect(store.get(activeConfigurationAtom)).toBe(tabValue);
   });
 });
 
-/** Fake database backed by a Map, mirroring the one in `localDb.test.ts`. */
-function createFakeLocalDb(): LocalDb {
-  const map = new Map<string, unknown>();
-  return {
-    // oxlint-disable-next-line @typescript-eslint/require-await
-    async getItem<T>(key: string) {
-      return map.get(key) as T;
-    },
-    // oxlint-disable-next-line @typescript-eslint/require-await
-    async setItem<T>(key: string, value: T) {
-      map.set(key, value);
-      return value;
-    },
-    // oxlint-disable-next-line @typescript-eslint/require-await
-    async removeItem(key: string) {
-      map.delete(key);
-    },
-    // oxlint-disable-next-line @typescript-eslint/require-await
-    async keys() {
-      return [...map.keys()];
-    },
-    // oxlint-disable-next-line @typescript-eslint/require-await
-    async clear() {
-      map.clear();
-    },
-  };
-}
+/**
+ * GOLDEN FILE — `__fixtures__/backup-v1-legacy-url-connections.json` is a
+ * backup in the shape a 2.x build wrote: the `serializeData` Map and Date
+ * wrappers, and connections in the legacy `url`/`proxyConnection` shape. It is
+ * loaded with `?raw` so the exact bytes are parsed, not a re-serialized object.
+ *
+ * DO NOT edit the fixture to make a test pass; fix the reader instead.
+ */
+describe("backward compatibility: a backup file from an older build restores", () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+
+  test("brings the connections and Active Connection back into what the app loads", async () => {
+    const backup = await readBackupDataFromFile(
+      new Blob([legacyUrlBackup], { type: "application/json" }),
+    );
+    await restoreBackup(backup, localforage);
+
+    const { store, configurationAtom, activeConfigurationAtom } =
+      await loadStorageAtoms();
+
+    expect(store.get(activeConfigurationAtom)).toBe(
+      "22222222-2222-4222-8222-222222222222",
+    );
+    expect(store.get(configurationAtom)).toStrictEqual(
+      new Map([
+        [
+          "11111111-1111-4111-8111-111111111111",
+          {
+            id: "11111111-1111-4111-8111-111111111111",
+            displayLabel: "Legacy Neptune (proxy)",
+            connection: {
+              queryEngine: "gremlin",
+              graphDbUrl: "https://neptune.example.com:8182",
+              awsAuthEnabled: true,
+              serviceType: "neptune-db",
+              awsRegion: "us-west-2",
+              fetchTimeoutMs: 30000,
+              nodeExpansionLimit: 25,
+            },
+          },
+        ],
+        [
+          "22222222-2222-4222-8222-222222222222",
+          {
+            id: "22222222-2222-4222-8222-222222222222",
+            displayLabel: "Legacy Gremlin Server (direct)",
+            connection: {
+              queryEngine: "openCypher",
+              graphDbUrl: "http://localhost:8182",
+              proxyConnection: false,
+            },
+          },
+        ],
+      ]),
+    );
+  });
+});
