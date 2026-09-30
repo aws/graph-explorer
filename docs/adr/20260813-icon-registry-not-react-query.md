@@ -13,7 +13,7 @@ Resolution used TanStack Query because it was the project's async-state tool. Th
 The cache was a poor fit rather than mis-tuned:
 
 - Every icon query set `staleTime: Infinity`. Icons are immutable, identity-addressable, bounded (dozens of unique icons even at 10k types), and never invalidate. Nothing in the requirement refetches, mutates, paginates, or refreshes.
-- Only one of the three kinds does real I/O. A raster url goes straight to the browser, and a Lucide reference is an `import()` that the ES module map already caches and in-flight dedupes. Only remote SVG needs fetch, dedup, and caching.
+- Only one of the three kinds does real I/O. A raster url went straight to the browser, and a Lucide reference is an `import()` that the ES module map already caches and in-flight dedupes. Only remote SVG needed fetch, dedup, and caching. (Remote rasters now fetch too, for canvas sizing below.)
 
 So the machinery went unused while its per-hook subscription model — the one part that did apply — scaled with vertex types and broke.
 
@@ -43,7 +43,7 @@ Untrusted SVG is deliberately **not** inlined on these surfaces. `<image href="d
 
 This is not codebase-wide: `components/VertexIcon.tsx` inlines sanitized user SVG into the live DOM via `react-inlinesvg`, with no sandbox. It predates this decision and is the outlier, not the pattern to copy.
 
-**Canvas sizing (issue #2108, PR #2142).** Cytoscape cannot both preserve an icon's aspect ratio and inset it to 60% of the node: `background-fit: contain` keeps the ratio but fills the whole node, and the node is an ellipse, so a square-ish icon's corners spill past the shape. The canvas wraps the icon's `data:` uri in its own padded square SVG and lets a nested `<image preserveAspectRatio>` do the fitting — the same mechanism `VertexSymbolIcon` already uses directly. That wrapper is itself a `data:` uri, so it stays within the image-document sandbox above: nesting one `data:`-uri image inside another issues no external request either. An external reference nested there would fetch nothing, so the registry inlines any raster that is not already a `data:` url, accepting only an `image/*` response.
+**Canvas sizing (issue #2108, PR #2142).** Cytoscape cannot both preserve an icon's aspect ratio and inset it to 60% of the node: `background-fit: contain` keeps the ratio but fills the whole node, and the node is an ellipse, so a square-ish icon's corners spill past the shape. The canvas wraps the icon's `data:` uri in its own padded square SVG and lets a nested `<image preserveAspectRatio>` do the fitting — the same mechanism `VertexSymbolIcon` already uses directly. That wrapper is itself a `data:` uri, so it stays within the image-document sandbox above: nesting one `data:`-uri image inside another issues no external request either. An external reference nested there would fetch nothing, so the registry inlines any raster that is not already a `data:` url, accepting only a non-svg `image/*` response under 1 MiB. `fetch` needs CORS where `<img>` does not, so when inlining fails the registry keeps the plain url and the canvas leaves it unwrapped — no aspect fit, but never worse than before. The icon value allowlist means only legacy or config-supplied values reach this path.
 
 **3. `clip-path` goes on an ancestor `<g>`, never on the nested `<svg>`.**
 

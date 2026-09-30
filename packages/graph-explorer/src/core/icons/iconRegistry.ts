@@ -6,7 +6,7 @@ import { ensureSvgViewBox, sanitizeSvg } from "./svgViewBox";
 
 /**
  * An icon resolved to a renderable form, with no color applied yet. A raster
- * url is always a `data:` url.
+ * url is a `data:` url unless the remote image could not be inlined.
  */
 export type ResolvedIcon =
   | { kind: "raster"; url: string }
@@ -141,10 +141,11 @@ async function resolveIconSource(
   switch (source.kind) {
     case "none":
       return null;
-    case "raster": {
-      const url = await fetchRasterAsDataUrl(source.url);
-      return url === null ? null : { kind: "raster", url };
-    }
+    case "raster":
+      return {
+        kind: "raster",
+        url: (await inlineRemoteRaster(source.url)) ?? source.url,
+      };
     case "lucide": {
       const raw = await getLucideSvgString(source.name);
       if (raw === null) {
@@ -178,20 +179,33 @@ function isParseableSvg(svg: string): boolean {
   );
 }
 
-const IMAGE_MIME_TYPE = /^image\/[a-z0-9.+-]+$/i;
+/** Svg is excluded: it belongs on the sanitized svg path, which adds a `viewBox`. */
+const RASTER_MIME_TYPE = /^image\/(?!svg\+xml$)[a-z0-9.+-]+$/i;
+
+/** Bounds the copy embedded in every vertex type's style. */
+const MAX_INLINE_BYTES = 1024 * 1024;
 
 /**
  * Inlines a remote raster, because the canvas nests icons inside a `data:`
- * svg, whose image sandbox fetches nothing external. `null` unless the
- * response is an image.
+ * svg, whose image sandbox fetches nothing external. `null` when it cannot be
+ * inlined, so the caller falls back to the plain url: unlike `<img>`, `fetch`
+ * needs CORS, and that fallback still renders everywhere but the canvas wrapper.
  */
-async function fetchRasterAsDataUrl(url: string): Promise<string | null> {
-  const response = await fetch(url);
+async function inlineRemoteRaster(url: string): Promise<string | null> {
+  let response: Response;
+  try {
+    response = await fetch(url);
+  } catch {
+    return null;
+  }
   const mimeType = response.headers.get("content-type")?.split(";")[0].trim();
-  if (!response.ok || !mimeType || !IMAGE_MIME_TYPE.test(mimeType)) {
+  if (!response.ok || !mimeType || !RASTER_MIME_TYPE.test(mimeType)) {
     return null;
   }
   const bytes = new Uint8Array(await response.arrayBuffer());
+  if (bytes.byteLength > MAX_INLINE_BYTES) {
+    return null;
+  }
   return `data:${mimeType};base64,${toBase64(bytes)}`;
 }
 

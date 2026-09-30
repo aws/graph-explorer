@@ -669,7 +669,9 @@ export function createRandomAwsRegion(): string {
 export function createRandomVertexStyleStorage(): VertexStyleStorage {
   const color = randomlyUndefined(createRandomColor());
   const borderColor = randomlyUndefined(createRandomColor());
-  const iconUrl = randomlyUndefined(createRandomUrlString());
+  const iconUrl = randomlyUndefined(
+    `data:image/png;base64,${btoa(createRandomName("icon"))}`,
+  );
   const longDisplayNameAttribute = randomlyUndefined(
     createRandomName("LongDisplayNameAttribute"),
   );

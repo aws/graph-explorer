@@ -24,6 +24,23 @@ function lucideSource(name: string) {
   });
 }
 
+function respondWith(response: Response) {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() => Promise.resolve(response)),
+  );
+}
+
+function imageResponse(
+  body: BodyInit,
+  contentType: string,
+  status = 200,
+): Promise<Response> {
+  return Promise.resolve(
+    new Response(body, { status, headers: { "content-type": contentType } }),
+  );
+}
+
 /** Waits for the registry to settle every requested source. */
 async function settle() {
   await vi.waitFor(() => expect(iconRegistry.pendingCount).toBe(0));
@@ -70,15 +87,10 @@ describe("iconRegistry", () => {
   // The canvas nests every icon inside a `data:` svg, whose image sandbox
   // fetches nothing external, so a remote raster has to arrive inline.
   it("inlines a remote raster as a data: url", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() =>
-        Promise.resolve(
-          new Response(new Uint8Array([65, 66, 67]), {
-            headers: { "content-type": "image/png; charset=binary" },
-          }),
-        ),
-      ),
+    respondWith(
+      new Response(new Uint8Array([65, 66, 67]), {
+        headers: { "content-type": "image/png; charset=binary" },
+      }),
     );
     const source = rasterSource("https://example.test/a.png");
 
@@ -91,43 +103,31 @@ describe("iconRegistry", () => {
     expect(fetch).toBeCalledWith("https://example.test/a.png");
   });
 
-  it("rejects a remote raster whose response is not an image", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() =>
-        Promise.resolve(
-          new Response("<script>alert(1)</script>", {
-            headers: { "content-type": "text/html" },
-          }),
-        ),
-      ),
-    );
+  // Falling back keeps the icon rendering wherever the browser loads the url
+  // itself, as it did before inlining existed. Rejection stands in for CORS.
+  it.each([
+    ["a fetch that rejects", () => Promise.reject(new TypeError("CORS"))],
+    ["a 404", () => imageResponse(new Uint8Array([1]), "image/png", 404)],
+    ["a non-image response", () => imageResponse("<html/>", "text/html")],
+    ["a missing content type", () => Promise.resolve(new Response("x"))],
+    [
+      "an svg, which belongs on the sanitized svg path",
+      () => imageResponse(REMOTE_SVG, "image/svg+xml"),
+    ],
+    [
+      "an image too large to embed in every style",
+      () => imageResponse(new Uint8Array(1024 * 1024 + 1), "image/png"),
+    ],
+  ])("falls back to the plain url for %s", async (_, respond) => {
+    vi.stubGlobal("fetch", vi.fn(respond));
     const source = rasterSource("https://example.test/a.png");
 
     iconRegistry.request([source]);
     await settle();
 
-    expect(iconRegistry.getSnapshot().has(iconSourceId(source)!)).toBe(false);
-  });
-
-  it("rejects a remote raster that fails to load", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() =>
-        Promise.resolve(
-          new Response("Not Found", {
-            status: 404,
-            headers: { "content-type": "image/png" },
-          }),
-        ),
-      ),
+    expect(iconRegistry.getSnapshot().get(iconSourceId(source)!)).toStrictEqual(
+      { kind: "raster", url: "https://example.test/a.png" },
     );
-    const source = rasterSource("https://example.test/missing.png");
-
-    iconRegistry.request([source]);
-    await settle();
-
-    expect(iconRegistry.getSnapshot().has(iconSourceId(source)!)).toBe(false);
   });
 
   it("fetches and sanitizes a remote svg", async () => {
