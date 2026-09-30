@@ -1,8 +1,4 @@
-import type {
-  ConnectionConfig,
-  NeptuneServiceType,
-  QueryEngine,
-} from "@shared/types";
+import type { QueryEngine } from "@shared/types";
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useAtomCallback } from "jotai/utils";
@@ -23,11 +19,7 @@ import {
   TextAreaField,
 } from "@/components";
 import { DialogBody, DialogFooter } from "@/components/Dialog";
-import {
-  createNewConfigurationId,
-  isDirectConnection,
-  type RawConfiguration,
-} from "@/connections";
+import { createNewConfigurationId, type RawConfiguration } from "@/connections";
 import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
@@ -36,40 +28,19 @@ import {
   schemaAtom,
 } from "@/core";
 import useResetState from "@/core/StateProvider/useResetState";
-import { formatDate, isAbsoluteHttpUrl, logger } from "@/utils";
+import { logger } from "@/utils";
+
 import {
-  DEFAULT_FETCH_TIMEOUT,
-  DEFAULT_NODE_EXPAND_LIMIT,
-} from "@/utils/constants";
-
-type ConnectionForm = {
-  name?: string;
-  graphDbUrl?: string;
-  directConnection: boolean;
-  queryEngine?: QueryEngine;
-  awsAuthEnabled?: boolean;
-  serviceType?: NeptuneServiceType;
-  awsRegion?: string;
-  fetchTimeoutEnabled: boolean;
-  fetchTimeoutMs?: number;
-  nodeExpansionLimitEnabled: boolean;
-  nodeExpansionLimit?: number;
-};
-
-function normalizeUrlField(value: string | undefined) {
-  return value?.replace(/[\r\n]/g, "").trim();
-}
-
-function graphDbUrlError(form: ConnectionForm): string | undefined {
-  const graphDbUrl = normalizeUrlField(form.graphDbUrl);
-  if (!graphDbUrl) {
-    return "URL is required";
-  }
-  // The browser resolves anything else against this page or as a scheme.
-  if (form.directConnection && !isAbsoluteHttpUrl(graphDbUrl)) {
-    return "A direct connection needs a full URL starting with http:// or https://";
-  }
-}
+  type ConnectionFormValues,
+  createEmptyConnectionForm,
+  hasAdvancedOverrides,
+  mapToConnection,
+  mapConfigurationToConnectionForm,
+  queryEngineSchema,
+  serviceTypeSchema,
+  updateConnectionForm,
+  validateConnectionForm,
+} from "./connectionFormModel";
 
 const CONNECTIONS_OP: {
   label: string;
@@ -87,63 +58,12 @@ export type CreateConnectionProps = {
    * `existingConfig`, this stays in "add" mode and does not run the
    * meaningful-change reset logic.
    */
-  initialValues?: Partial<ConnectionForm>;
+  initialValues?: ConnectionFormValues;
   onClose(outcome: CreateConnectionOutcome): void;
 };
 
 /** Whether the form closed by saving the connection or by the user backing out. */
 export type CreateConnectionOutcome = "saved" | "cancelled";
-
-function mapToConnection(data: Required<ConnectionForm>): ConnectionConfig {
-  // A direct request never reaches the Proxy Server that would sign it.
-  const routing = data.directConnection
-    ? { proxyConnection: false }
-    : {
-        awsAuthEnabled: data.awsAuthEnabled,
-        serviceType: data.serviceType,
-        awsRegion: data.awsRegion,
-      };
-  return {
-    graphDbUrl: data.graphDbUrl,
-    queryEngine: data.queryEngine,
-    ...routing,
-    fetchTimeoutMs: data.fetchTimeoutEnabled ? data.fetchTimeoutMs : undefined,
-    nodeExpansionLimit: data.nodeExpansionLimitEnabled
-      ? data.nodeExpansionLimit
-      : undefined,
-  };
-}
-
-/**
- * Whether the advanced disclosure should start open. A connection that already
- * overrides one of these settings would otherwise hide that fact behind a
- * collapsed section, so editing it looks like the defaults are in force.
- */
-function hasAdvancedOverrides(form: ConnectionForm): boolean {
-  return (
-    form.fetchTimeoutEnabled ||
-    form.nodeExpansionLimitEnabled ||
-    form.directConnection
-  );
-}
-
-/**
- * Maps a connection into form values under the given name. The caller picks the
- * name because only it knows the fallback: a stored connection falls back to
- * its id, and a connection that hasn't been saved has no id.
- */
-export function mapToConnectionForm(
-  name: string,
-  connection: ConnectionConfig | undefined,
-): ConnectionForm {
-  return {
-    ...connection,
-    name,
-    directConnection: isDirectConnection(connection),
-    fetchTimeoutEnabled: Boolean(connection?.fetchTimeoutMs),
-    nodeExpansionLimitEnabled: Boolean(connection?.nodeExpansionLimit),
-  };
-}
 
 const CreateConnection = ({
   existingConfig,
@@ -153,16 +73,10 @@ const CreateConnection = ({
   const queryClient = useQueryClient();
 
   const configId = existingConfig?.id;
-  const initialData = existingConfig
-    ? mapToConnectionForm(
-        existingConfig.displayLabel || existingConfig.id,
-        existingConfig.connection,
-      )
-    : initialValues;
 
   const onSave = useAtomCallback(
     useCallback(
-      (_get, set, data: Required<ConnectionForm>) => {
+      (_get, set, data: ConnectionFormValues) => {
         if (!configId) {
           const newConfigId = createNewConfigurationId();
           const newConfig: RawConfiguration = {
@@ -198,13 +112,14 @@ const CreateConnection = ({
           return updated;
         });
 
-        const dbUrlChange = initialData?.graphDbUrl !== data.graphDbUrl;
-        const typeChange = initialData?.queryEngine !== data.queryEngine;
+        const original = existingConfig?.connection;
+        const dbUrlChange = original?.graphDbUrl !== data.graphDbUrl;
+        const typeChange = original?.queryEngine !== data.queryEngine;
 
         if (dbUrlChange || typeChange) {
           logger.log(
             "Clearing cached schema and previous graph session because connection to database meaningfully changed",
-            { original: initialData, updated: data },
+            { original, updated: data },
           );
 
           // Force a sync of the schema by deleting the existing schema cache, which is now invalid
@@ -227,89 +142,48 @@ const CreateConnection = ({
           queryClient.removeQueries();
         }
       },
-      [configId, initialData, queryClient],
+      [configId, existingConfig, queryClient],
     ),
   );
 
-  const [form, setForm] = useState<ConnectionForm>(() => ({
-    queryEngine: initialData?.queryEngine || "gremlin",
-    name:
-      initialData?.name ||
-      `Connection (${formatDate(new Date(), "yyyy-MM-dd HH:mm")})`,
-    graphDbUrl: initialData?.graphDbUrl || "",
-    directConnection: initialData?.directConnection || false,
-    awsAuthEnabled: initialData?.awsAuthEnabled || false,
-    serviceType: initialData?.serviceType || "neptune-db",
-    awsRegion: initialData?.awsRegion || "",
-    fetchTimeoutEnabled: initialData?.fetchTimeoutEnabled || false,
-    fetchTimeoutMs: initialData?.fetchTimeoutMs,
-    nodeExpansionLimitEnabled: initialData?.nodeExpansionLimitEnabled || false,
-    nodeExpansionLimit: initialData?.nodeExpansionLimit,
-  }));
+  const [form, setForm] = useState<ConnectionFormValues>(() =>
+    existingConfig
+      ? mapConfigurationToConnectionForm(existingConfig)
+      : (initialValues ?? createEmptyConnectionForm(new Date())),
+  );
+  const [showErrors, setShowErrors] = useState(false);
 
-  const [hasError, setError] = useState(false);
-  const onFormChange =
-    (attribute: keyof ConnectionForm) =>
-    (value: number | string | string[] | boolean) => {
-      if (attribute === "serviceType" && value === "neptune-graph") {
-        setForm(prev => ({
-          ...prev,
-          [attribute]: value,
-          ["queryEngine"]: "openCypher",
-        }));
-      } else if (
-        attribute === "fetchTimeoutEnabled" &&
-        typeof value === "boolean"
-      ) {
-        setForm(prev => ({
-          ...prev,
-          [attribute]: value,
-          ["fetchTimeoutMs"]: value ? DEFAULT_FETCH_TIMEOUT : undefined,
-        }));
-      } else if (
-        attribute === "nodeExpansionLimitEnabled" &&
-        typeof value === "boolean"
-      ) {
-        setForm(prev => ({
-          ...prev,
-          [attribute]: value,
-          ["nodeExpansionLimit"]: value ? DEFAULT_NODE_EXPAND_LIMIT : undefined,
-        }));
-      } else {
-        setForm(prev => ({
-          ...prev,
-          [attribute]: value,
-        }));
-      }
-    };
+  const setField =
+    <Field extends keyof ConnectionFormValues>(field: Field) =>
+    (value: ConnectionFormValues[Field]) =>
+      setForm(prev => updateConnectionForm(prev, field, value));
+  // A number field reports `null` once it is cleared, despite its typing.
+  const setNumberField =
+    (field: "fetchTimeoutMs" | "nodeExpansionLimit") =>
+    (value: number | null) =>
+      setField(field)(value ?? undefined);
+  const setCheckedField =
+    (
+      field:
+        | "awsAuthEnabled"
+        | "fetchTimeoutEnabled"
+        | "nodeExpansionLimitEnabled"
+        | "directConnection",
+    ) =>
+    (checked: boolean | "indeterminate") =>
+      setField(field)(checked === true);
 
-  const urlError = graphDbUrlError(form);
+  const validation = validateConnectionForm(form);
+  const errors = showErrors && !validation.valid ? validation.errors : null;
+
   const reset = useResetState();
   const onSubmit = () => {
-    const normalizedForm: ConnectionForm = {
-      ...form,
-      graphDbUrl: normalizeUrlField(form.graphDbUrl),
-    };
-
-    if (
-      !normalizedForm.name ||
-      graphDbUrlError(normalizedForm) ||
-      !normalizedForm.queryEngine
-    ) {
-      setError(true);
+    if (!validation.valid) {
+      setShowErrors(true);
       return;
     }
 
-    if (
-      !normalizedForm.directConnection &&
-      normalizedForm.awsAuthEnabled &&
-      !normalizedForm.awsRegion
-    ) {
-      setError(true);
-      return;
-    }
-
-    onSave(normalizedForm as Required<ConnectionForm>);
+    onSave(validation.values);
     reset();
     onClose("saved");
   };
@@ -322,9 +196,9 @@ const CreateConnection = ({
           <InputField
             aria-label="Name"
             value={form.name}
-            onChange={onFormChange("name")}
-            errorMessage="Name is required"
-            validationState={hasError && !form.name ? "invalid" : "valid"}
+            onChange={setField("name")}
+            errorMessage={errors?.name}
+            validationState={errors?.name ? "invalid" : "valid"}
           />
         </FormItem>
         <FormItem>
@@ -333,7 +207,9 @@ const CreateConnection = ({
             aria-label="Query Language"
             options={CONNECTIONS_OP}
             value={form.queryEngine}
-            onValueChange={onFormChange("queryEngine")}
+            onValueChange={value =>
+              setField("queryEngine")(queryEngineSchema.parse(value))
+            }
             disabled={
               !form.directConnection && form.serviceType === "neptune-graph"
             }
@@ -354,10 +230,10 @@ const CreateConnection = ({
             aria-label="Database URL"
             data-autofocus={true}
             value={form.graphDbUrl}
-            onChange={onFormChange("graphDbUrl")}
-            errorMessage={urlError}
+            onChange={setField("graphDbUrl")}
+            errorMessage={errors?.graphDbUrl}
             placeholder="https://neptune-cluster.amazonaws.com:8182"
-            validationState={hasError && urlError ? "invalid" : "valid"}
+            validationState={errors?.graphDbUrl ? "invalid" : "valid"}
           />
         </FormItem>
 
@@ -366,9 +242,7 @@ const CreateConnection = ({
             <Checkbox
               value="awsAuthEnabled"
               checked={form.awsAuthEnabled}
-              onCheckedChange={checked => {
-                onFormChange("awsAuthEnabled")(checked);
-              }}
+              onCheckedChange={setCheckedField("awsAuthEnabled")}
             />
             AWS IAM Auth Enabled
           </Label>
@@ -381,12 +255,10 @@ const CreateConnection = ({
                 aria-label="AWS Region"
                 data-autofocus={true}
                 value={form.awsRegion}
-                onChange={onFormChange("awsRegion")}
-                errorMessage="Region is required"
+                onChange={setField("awsRegion")}
+                errorMessage={errors?.awsRegion}
                 placeholder="us-east-1"
-                validationState={
-                  hasError && !form.awsRegion ? "invalid" : "valid"
-                }
+                validationState={errors?.awsRegion ? "invalid" : "valid"}
               />
             </FormItem>
             <FormItem>
@@ -398,7 +270,9 @@ const CreateConnection = ({
                   { label: "Neptune Analytics", value: "neptune-graph" },
                 ]}
                 value={form.serviceType}
-                onValueChange={onFormChange("serviceType")}
+                onValueChange={value =>
+                  setField("serviceType")(serviceTypeSchema.parse(value))
+                }
               />
             </FormItem>
           </>
@@ -419,9 +293,7 @@ const CreateConnection = ({
                 <Checkbox
                   value="fetchTimeoutEnabled"
                   checked={form.fetchTimeoutEnabled}
-                  onCheckedChange={checked => {
-                    onFormChange("fetchTimeoutEnabled")(checked);
-                  }}
+                  onCheckedChange={setCheckedField("fetchTimeoutEnabled")}
                 />
                 <span className="flex items-center gap-2">
                   Enable Fetch Timeout
@@ -439,7 +311,7 @@ const CreateConnection = ({
                   aria-label="Fetch Timeout (ms)"
                   type="number"
                   value={form.fetchTimeoutMs}
-                  onChange={onFormChange("fetchTimeoutMs")}
+                  onChange={setNumberField("fetchTimeoutMs")}
                   min={0}
                 />
               </FormItem>
@@ -449,9 +321,7 @@ const CreateConnection = ({
                 <Checkbox
                   value="nodeExpansionLimitEnabled"
                   checked={form.nodeExpansionLimitEnabled}
-                  onCheckedChange={checked => {
-                    onFormChange("nodeExpansionLimitEnabled")(checked);
-                  }}
+                  onCheckedChange={setCheckedField("nodeExpansionLimitEnabled")}
                 />
                 <span className="flex items-center gap-2">
                   Override Default Neighbor Expansion Limit
@@ -469,7 +339,7 @@ const CreateConnection = ({
                   aria-label="Neighbor Expansion Limit"
                   type="number"
                   value={form.nodeExpansionLimit}
-                  onChange={onFormChange("nodeExpansionLimit")}
+                  onChange={setNumberField("nodeExpansionLimit")}
                   min={0}
                 />
               </FormItem>
@@ -479,9 +349,7 @@ const CreateConnection = ({
                 <Checkbox
                   value="directConnection"
                   checked={form.directConnection}
-                  onCheckedChange={checked => {
-                    onFormChange("directConnection")(checked);
-                  }}
+                  onCheckedChange={setCheckedField("directConnection")}
                 />
                 <span className="flex items-center gap-2">
                   Connect directly from the browser (deprecated)
