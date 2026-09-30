@@ -29,7 +29,8 @@ import {
   TestProvider,
 } from "@/utils/testing";
 
-import CreateConnection, { mapToConnectionForm } from "./CreateConnection";
+import { mapToConnectionForm } from "./connectionFormModel";
+import CreateConnection from "./CreateConnection";
 
 function renderCreateConnection(ui: React.ReactElement) {
   const store = getAppStore();
@@ -503,10 +504,9 @@ describe("CreateConnection", () => {
   test("prefills the form from initialValues without entering edit mode", () => {
     renderCreateConnection(
       <CreateConnection
-        initialValues={{
-          name: "Seeded Graph",
+        initialValues={mapToConnectionForm("Seeded Graph", {
           graphDbUrl: "https://seed.neptune.amazonaws.com",
-        }}
+        })}
         onClose={() => {}}
       />,
     );
@@ -525,13 +525,13 @@ describe("CreateConnection", () => {
   test("locks the Query Language to openCypher for Neptune Analytics", () => {
     renderCreateConnection(
       <CreateConnection
-        initialValues={{
+        initialValues={mapToConnectionForm("My Connection", {
           graphDbUrl: "https://g.example.com",
           queryEngine: "openCypher",
           awsAuthEnabled: true,
           awsRegion: "us-east-1",
           serviceType: "neptune-graph",
-        }}
+        })}
         onClose={vi.fn()}
       />,
     );
@@ -541,6 +541,78 @@ describe("CreateConnection", () => {
     });
     expect(queryLanguage).toHaveTextContent("OpenCypher - PG (Property Graph)");
     expect(queryLanguage).toBeDisabled();
+  });
+
+  test("saves openCypher after choosing Neptune Analytics", async () => {
+    const user = userEvent.setup();
+    const store = renderCreateConnection(
+      <CreateConnection onClose={vi.fn()} />,
+    );
+
+    await user.type(
+      screen.getByRole("textbox", { name: "Database URL" }),
+      "https://g.example.com",
+    );
+    await user.click(
+      screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: "AWS Region" }),
+      "us-east-1",
+    );
+    await user.click(screen.getByRole("combobox", { name: "Service Type" }));
+    await user.click(screen.getByRole("option", { name: "Neptune Analytics" }));
+    await user.click(screen.getByRole("button", { name: "Add Connection" }));
+
+    await waitFor(() => {
+      expect(store.get(configurationAtom)).toHaveLength(1);
+    });
+
+    const [savedConnection] = store.get(configurationAtom).values();
+    expect(savedConnection.connection).toStrictEqual({
+      graphDbUrl: "https://g.example.com",
+      queryEngine: "openCypher",
+      awsAuthEnabled: true,
+      serviceType: "neptune-graph",
+      awsRegion: "us-east-1",
+      fetchTimeoutMs: undefined,
+      nodeExpansionLimit: undefined,
+    });
+  });
+
+  test("saves no fetch timeout when its field is cleared", async () => {
+    const user = userEvent.setup();
+    const store = renderCreateConnection(
+      <CreateConnection onClose={vi.fn()} />,
+    );
+
+    await user.type(
+      screen.getByRole("textbox", { name: "Database URL" }),
+      "https://g.example.com",
+    );
+    await openAdvancedOptions(user);
+    await user.click(
+      screen.getByRole("checkbox", { name: /Enable Fetch Timeout/ }),
+    );
+    await user.clear(
+      screen.getByRole("spinbutton", { name: "Fetch Timeout (ms)" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Add Connection" }));
+
+    await waitFor(() => {
+      expect(store.get(configurationAtom)).toHaveLength(1);
+    });
+
+    const [savedConnection] = store.get(configurationAtom).values();
+    expect(savedConnection.connection).toStrictEqual({
+      graphDbUrl: "https://g.example.com",
+      queryEngine: "gremlin",
+      awsAuthEnabled: false,
+      serviceType: "neptune-db",
+      awsRegion: "",
+      fetchTimeoutMs: undefined,
+      nodeExpansionLimit: undefined,
+    });
   });
 
   // The rest of the app shows an unlabeled connection by its id, so the form
@@ -565,43 +637,5 @@ describe("CreateConnection", () => {
     );
 
     expect(screen.getByLabelText("Name")).toHaveValue(config.id);
-  });
-});
-
-describe("mapToConnectionForm", () => {
-  test("maps a connection's IAM auth into form values", () => {
-    const form = mapToConnectionForm("My Graph", {
-      queryEngine: "openCypher",
-      graphDbUrl: "https://g.example.com",
-      awsAuthEnabled: true,
-      awsRegion: "us-west-2",
-      serviceType: "neptune-graph",
-    });
-
-    expect(form).toMatchObject({
-      name: "My Graph",
-      queryEngine: "openCypher",
-      graphDbUrl: "https://g.example.com",
-      awsAuthEnabled: true,
-      awsRegion: "us-west-2",
-      serviceType: "neptune-graph",
-    });
-  });
-
-  test("maps a direct connection to the direct option", () => {
-    const form = mapToConnectionForm("My Graph", {
-      graphDbUrl: "https://g.example.com",
-      proxyConnection: false,
-    });
-
-    expect(form.directConnection).toBe(true);
-  });
-
-  test("maps a connection without the flag to a proxy connection", () => {
-    const form = mapToConnectionForm("My Graph", {
-      graphDbUrl: "https://g.example.com",
-    });
-
-    expect(form.directConnection).toBe(false);
   });
 });
