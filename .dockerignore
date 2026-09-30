@@ -7,7 +7,6 @@ node_modules
 .github
 .husky
 .vscode
-coverage
 .scratch
 .agents
 .claude

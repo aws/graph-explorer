@@ -74,7 +74,6 @@ Run from project root with `pnpm`. Use only these scripts — never invoke `tsc`
 - `pnpm test` — run all tests
 - `pnpm test <path>` — test files matching a path substring (file, dir, or partial)
 - `pnpm test -t "suite > name"` — test by name, with segments joined by a spaced `>` exactly as the reporter prints them; a single segment such as `-t "renders empty state"` also works (no `--` separator; pnpm forwards args verbatim, unlike npm)
-- `pnpm coverage` — tests with coverage
 
 `pnpm check:types` runs in parallel across packages in under a minute; just run it.
 
