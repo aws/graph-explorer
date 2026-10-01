@@ -1,0 +1,49 @@
+name: CodeQL (GitHub Actions)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    # Only workflow files are GitHub Actions code, so other pull requests have
+    # nothing new for this analysis to find.
+    paths:
+      - ".github/workflows/**"
+  schedule:
+    # Every Monday at 9:00 UTC, so new CodeQL queries run against unchanged code
+    - cron: "0 9 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  # Pull request scans replace each other. Every other scan is grouped by
+  # commit, so each commit on main keeps its own finished scan.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze (actions)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          languages: actions
+          build-mode: none
+
+      - name: Analyze with CodeQL
+        uses: github/codeql-action/analyze@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          # Matches the category default setup used, so existing alerts carry over
+          category: /language:actions
