@@ -13,6 +13,6 @@
     "./utils/testing": "./src/utils/testing/index.ts"
   },
   "devDependencies": {
-    "vitest": "5.0.1"
+    "vitest": "5.0.2"
   }
 }

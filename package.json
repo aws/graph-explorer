@@ -25,16 +25,16 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@tanstack/eslint-plugin-query": "5.103.1",
+    "@tanstack/eslint-plugin-query": "5.104.0",
     "eslint-plugin-react-hooks": "7.1.1",
     "fast-check": "^4.10.2",
     "husky": "^9.1.7",
-    "lint-staged": "^17.5.1",
-    "oxfmt": "0.68.0",
-    "oxlint": "1.83.0",
-    "oxlint-tsgolint": "7.0.2002",
+    "lint-staged": "^17.6.0",
+    "oxfmt": "0.71.0",
+    "oxlint": "1.86.0",
+    "oxlint-tsgolint": "7.0.2003",
     "typescript": "^7.0.2",
-    "vitest": "5.0.1"
+    "vitest": "5.0.2"
   },
   "lint-staged": {
     "!(**/*.{js,ts,tsx})": "oxfmt --no-error-on-unmatched-pattern",
