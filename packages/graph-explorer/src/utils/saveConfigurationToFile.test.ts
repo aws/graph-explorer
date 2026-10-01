@@ -11,6 +11,7 @@ import { transformLegacyConnection } from "@/core/StateProvider/configuration";
 import { parseConnectionFile } from "./parseConnectionFile";
 import saveConfigurationToFile from "./saveConfigurationToFile";
 import { createRandomRawConfiguration, stubDocumentUrl } from "./testing";
+import { exportConnectionFileText } from "./testing/exportConnectionFileText";
 
 vi.mock("file-saver", () => ({
   saveAs: vi.fn(),
@@ -34,13 +35,6 @@ function makeConfig(
     edgeTypes: [],
     ...overrides,
   };
-}
-
-/** Exports the config and returns the JSON written to the file. */
-async function exportToJson(config: ConfigurationContextProps) {
-  saveConfigurationToFile(config);
-  const [blob] = saveAsMock.mock.calls[0];
-  return JSON.parse(await (blob as Blob).text());
 }
 
 describe("saveConfigurationToFile", () => {
@@ -77,11 +71,7 @@ describe("saveConfigurationToFile", () => {
       },
     });
 
-    saveConfigurationToFile(config);
-
-    const [blob] = saveAsMock.mock.calls[0];
-    const text = await (blob as Blob).text();
-    const parsed = JSON.parse(text);
+    const parsed = JSON.parse(await exportConnectionFileText(config));
 
     expect(parsed.connection.queryEngine).toBe("gremlin");
     expect(parsed.connection.graphDbUrl).toBe("https://example.com");
@@ -95,11 +85,7 @@ describe("saveConfigurationToFile", () => {
       },
     });
 
-    saveConfigurationToFile(config);
-
-    const [blob] = saveAsMock.mock.calls[0];
-    const text = await (blob as Blob).text();
-    const parsed = JSON.parse(text);
+    const parsed = JSON.parse(await exportConnectionFileText(config));
 
     expect(parsed.connection.queryEngine).toBe("sparql");
   });
@@ -138,11 +124,7 @@ describe("saveConfigurationToFile", () => {
       edgeTypes: [createEdgeType("worksAt")],
     });
 
-    saveConfigurationToFile(config);
-
-    const [blob] = saveAsMock.mock.calls[0];
-    const text = await (blob as Blob).text();
-    const parsed = JSON.parse(text);
+    const parsed = JSON.parse(await exportConnectionFileText(config));
 
     expect(parsed.schema.vertices).toHaveLength(2);
     expect(parsed.schema.edges).toHaveLength(1);
@@ -167,11 +149,7 @@ describe("saveConfigurationToFile", () => {
       },
     });
 
-    saveConfigurationToFile(config);
-
-    const [blob] = saveAsMock.mock.calls[0];
-    const text = await (blob as Blob).text();
-    const parsed = JSON.parse(text);
+    const parsed = JSON.parse(await exportConnectionFileText(config));
 
     expect(parsed.schema.lastUpdate).toBe("2024-01-01T12:30:00.000Z");
   });
@@ -198,11 +176,7 @@ describe("saveConfigurationToFile", () => {
       },
     });
 
-    saveConfigurationToFile(config);
-
-    const [blob] = saveAsMock.mock.calls[0];
-    const text = await (blob as Blob).text();
-    const parsed = JSON.parse(text);
+    const parsed = JSON.parse(await exportConnectionFileText(config));
 
     expect(parsed.schema.prefixes).toStrictEqual([
       {
@@ -219,11 +193,7 @@ describe("saveConfigurationToFile", () => {
   it("should handle empty schema", async () => {
     const config = makeConfig();
 
-    saveConfigurationToFile(config);
-
-    const [blob] = saveAsMock.mock.calls[0];
-    const text = await (blob as Blob).text();
-    const parsed = JSON.parse(text);
+    const parsed = JSON.parse(await exportConnectionFileText(config));
 
     expect(parsed.schema.vertices).toEqual([]);
     expect(parsed.schema.edges).toEqual([]);
@@ -234,11 +204,7 @@ describe("saveConfigurationToFile", () => {
   it("should handle missing connection", async () => {
     const config = makeConfig({ connection: undefined });
 
-    saveConfigurationToFile(config);
-
-    const [blob] = saveAsMock.mock.calls[0];
-    const text = await (blob as Blob).text();
-    const parsed = JSON.parse(text);
+    const parsed = JSON.parse(await exportConnectionFileText(config));
 
     expect(parsed.connection.queryEngine).toBe("gremlin");
 
@@ -260,10 +226,7 @@ describe("saveConfigurationToFile", () => {
       },
     });
 
-    saveConfigurationToFile(config);
-
-    const [blob] = saveAsMock.mock.calls[0];
-    const parsed = JSON.parse(await (blob as Blob).text());
+    const parsed = JSON.parse(await exportConnectionFileText(config));
 
     expect(parsed.connection.graphDbUrl).toBe(
       "https://neptune.example.com:8182",
@@ -282,11 +245,7 @@ describe("saveConfigurationToFile", () => {
       edgeTypes: [createEdgeType("knows")],
     });
 
-    saveConfigurationToFile(config);
-
-    const [blob] = saveAsMock.mock.calls[0];
-    const text = await (blob as Blob).text();
-    const parsed = JSON.parse(text);
+    const parsed = JSON.parse(await exportConnectionFileText(config));
 
     // Should not include runtime-only fields
     expect(parsed.totalVertices).toBeUndefined();
@@ -334,11 +293,7 @@ describe("saveConfigurationToFile", () => {
       edgeTypes: [createEdgeType("knows")],
     });
 
-    saveConfigurationToFile(config);
-
-    const [blob] = saveAsMock.mock.calls[0];
-    const text = await (blob as Blob).text();
-    const parsed = JSON.parse(text);
+    const parsed = JSON.parse(await exportConnectionFileText(config));
 
     // The round trip must preserve values, not merely produce a parseable file.
     const result = parseConnectionFile(parsed);
@@ -367,10 +322,7 @@ describe("saveConfigurationToFile", () => {
       },
     });
 
-    saveConfigurationToFile(config);
-
-    const [blob] = saveAsMock.mock.calls[0];
-    const parsed = JSON.parse(await (blob as Blob).text());
+    const parsed = JSON.parse(await exportConnectionFileText(config));
 
     expect(parseConnectionFile(parsed)?.connection).toStrictEqual({
       url: "https://neptune.example.com:8182",
@@ -406,11 +358,7 @@ describe("saveConfigurationToFile", () => {
       },
     });
 
-    saveConfigurationToFile(config);
-
-    const [blob] = saveAsMock.mock.calls[0];
-    const text = await (blob as Blob).text();
-    const parsed = JSON.parse(text);
+    const parsed = JSON.parse(await exportConnectionFileText(config));
 
     expect(parsed.schema.edgeConnections).toStrictEqual([
       {
@@ -441,11 +389,7 @@ describe("saveConfigurationToFile", () => {
       },
     });
 
-    saveConfigurationToFile(config);
-
-    const [blob] = saveAsMock.mock.calls[0];
-    const text = await (blob as Blob).text();
-    const parsed = JSON.parse(text);
+    const parsed = JSON.parse(await exportConnectionFileText(config));
 
     expect(parsed.schema.edgeConnections).toBeUndefined();
   });
@@ -469,13 +413,15 @@ describe("backward compatibility: legacy url/proxyConnection written to exported
   });
 
   it("should export the proxy server URL for a proxy connection", async () => {
-    const parsed = await exportToJson(
-      makeConfig({
-        connection: {
-          graphDbUrl: "https://neptune.example.com:8182",
-          queryEngine: "gremlin",
-        },
-      }),
+    const parsed = JSON.parse(
+      await exportConnectionFileText(
+        makeConfig({
+          connection: {
+            graphDbUrl: "https://neptune.example.com:8182",
+            queryEngine: "gremlin",
+          },
+        }),
+      ),
     );
 
     expect(parsed.connection).toStrictEqual({
@@ -489,13 +435,15 @@ describe("backward compatibility: legacy url/proxyConnection written to exported
   it("should export the proxy server URL behind a reverse proxy prefix", async () => {
     stubDocumentUrl("https://nb.sagemaker.aws/proxy/9250/explorer/");
 
-    const parsed = await exportToJson(
-      makeConfig({
-        connection: {
-          graphDbUrl: "https://neptune.example.com:8182",
-          proxyConnection: true,
-        },
-      }),
+    const parsed = JSON.parse(
+      await exportConnectionFileText(
+        makeConfig({
+          connection: {
+            graphDbUrl: "https://neptune.example.com:8182",
+            proxyConnection: true,
+          },
+        }),
+      ),
     );
 
     expect(parsed.connection.url).toBe("https://nb.sagemaker.aws/proxy/9250");
@@ -503,13 +451,15 @@ describe("backward compatibility: legacy url/proxyConnection written to exported
   });
 
   it("should export the database URL as url for a direct connection", async () => {
-    const parsed = await exportToJson(
-      makeConfig({
-        connection: {
-          graphDbUrl: "https://neptune.example.com:8182/",
-          proxyConnection: false,
-        },
-      }),
+    const parsed = JSON.parse(
+      await exportConnectionFileText(
+        makeConfig({
+          connection: {
+            graphDbUrl: "https://neptune.example.com:8182/",
+            proxyConnection: false,
+          },
+        }),
+      ),
     );
 
     expect(parsed.connection.url).toBe("https://neptune.example.com:8182");
@@ -523,8 +473,10 @@ describe("backward compatibility: legacy url/proxyConnection written to exported
       proxyConnection: false,
     },
   ])("should import back to the same connection for %o", async connection => {
-    const parsed = await exportToJson(
-      makeConfig({ connection: { ...connection, queryEngine: "gremlin" } }),
+    const parsed = JSON.parse(
+      await exportConnectionFileText(
+        makeConfig({ connection: { ...connection, queryEngine: "gremlin" } }),
+      ),
     );
 
     const file = parseConnectionFile(parsed);

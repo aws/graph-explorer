@@ -1,5 +1,4 @@
 // @vitest-environment happy-dom
-import * as fileSaver from "file-saver";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import type { ConfigurationId } from "@/connections";
@@ -14,8 +13,8 @@ import exportGoldenWithoutUrl from "./__fixtures__/connection-file-export-golden
 import legacyUrlDirect from "./__fixtures__/connection-file-legacy-url-direct.json?raw";
 import legacyUrlProxy from "./__fixtures__/connection-file-legacy-url-proxy.json?raw";
 import { parseConnectionFile } from "./parseConnectionFile";
-import saveConfigurationToFile from "./saveConfigurationToFile";
 import { stubDocumentUrl } from "./testing";
+import { exportConnectionFileText } from "./testing/exportConnectionFileText";
 
 /**
  * GOLDEN FILES — EXPORTED CONNECTION FILE
@@ -43,7 +42,6 @@ import { stubDocumentUrl } from "./testing";
  */
 
 vi.mock("file-saver", () => ({ saveAs: vi.fn() }));
-const saveAsMock = vi.mocked(fileSaver.saveAs);
 
 describe("golden Exported Connection Files import on the current build", () => {
   test("legacy url + proxyConnection shape with legacy pass-through keys", () => {
@@ -111,7 +109,7 @@ describe("golden Exported Connection File export is stable", () => {
     // A byte-for-byte compare against the captured bytes. The fixture is a
     // `.txt` so the formatter leaves it alone, letting this pin the writer's
     // exact serialization — values, field order, and whitespace.
-    expect(await exportToText(fixedExportInput())).toBe(
+    expect(await exportConnectionFileText(fixedExportInput())).toBe(
       exportGoldenLegacyUrlProxy,
     );
   });
@@ -128,15 +126,11 @@ describe("golden Exported Connection File export is stable", () => {
       },
     };
 
-    expect(await exportToText(input)).toBe(exportGoldenLegacyUrlDirect);
+    expect(await exportConnectionFileText(input)).toBe(
+      exportGoldenLegacyUrlDirect,
+    );
   });
 });
-
-async function exportToText(config: ConfigurationContextProps) {
-  saveConfigurationToFile(config);
-  const [blob] = saveAsMock.mock.calls[0];
-  return (blob as Blob).text();
-}
 
 /**
  * A fully specified, deterministic input for the export golden. Every field is
