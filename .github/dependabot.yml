@@ -68,7 +68,10 @@ updates:
       # joins the first group it matches.
       #
       # The catalog aliases vite to @voidzero-dev/vite-plus-core at the vite-plus
-      # version, so every release splits them, not just majors.
+      # version, so every release splits them, not just majors. Vite, Vitest,
+      # oxlint, and oxfmt fixes only arrive through vite-plus releases, and
+      # advisories filed against vite no longer match the lockfile, so treat
+      # these bumps as security updates.
       vite-plus:
         patterns: ["vite-plus", "@voidzero-dev/*", "vite"]
       react:

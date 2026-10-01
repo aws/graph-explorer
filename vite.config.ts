@@ -1,6 +1,9 @@
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
+  test: {
+    projects: ["packages/*"],
+  },
   staged: {
     "!(**/*.{js,ts,tsx})": "vp fmt --no-error-on-unmatched-pattern",
     "**/*.{js,ts,tsx}": [
@@ -49,7 +52,6 @@ export default defineConfig({
     ],
     options: {
       typeAware: true,
-      typeCheck: true,
     },
     categories: {
       correctness: "error",

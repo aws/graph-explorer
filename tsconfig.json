@@ -3,5 +3,5 @@
   "compilerOptions": {
     "allowJs": true
   },
-  "files": ["vite.config.ts", "vitest.config.ts"]
+  "files": ["vite.config.ts"]
 }
