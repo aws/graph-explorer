@@ -8,7 +8,7 @@ Graph Explorer supports the HTTPS protocol by default and provides a self-signed
 
 ## Access Control
 
-Graph Explorer performs no authentication and no authorization. Any request that reaches the proxy server is served.
+Graph Explorer performs no authentication and no authorization. The proxy server never checks who the caller is.
 
 Anyone who can reach Graph Explorer can read and modify any data in the connected graph database, using whatever credentials the deployment holds. Never expose Graph Explorer publicly without an access control layer in front of it.
 
@@ -31,7 +31,7 @@ SageMaker is the exception because the notebook's Jupyter proxy requires a signe
 
 How Graph Explorer behaves on the wire, for anyone adding an access control layer in front of it.
 
-**Request headers.** The proxy server reads `graph-db-connection-url`, `aws-neptune-region`, `service-type`, `db-query-logging-enabled`, and `queryid`. `POST /logger` also reads `level` and `message`. Without `graph-db-connection-url`, every query fails with a validation error, and nothing in the response says a header was removed. The proxy server never reads a client `Authorization` header or cookie, and never forwards either one to the database.
+**Request headers.** The proxy server reads `graph-db-connection-url`, `aws-neptune-region`, `service-type`, `db-query-logging-enabled`, and `queryid`. `POST /logger` also reads `level` and `message`. Without `graph-db-connection-url`, every query fails with a 400 whose body names the missing header. The proxy server never reads a client `Authorization` header or cookie, and never forwards either one to the database.
 
 **Paths.** The UI lives under `/explorer`. It calls the API on its own origin, under the same prefix it was loaded from, with the `/explorer` segment cut out. A layer that renames that segment breaks the UI, see [Reverse proxy misconfigured](../guides/troubleshooting.md#reverse-proxy-misconfigured). The API paths sit next to `/explorer`, not under it, so a layer that forwards only `/explorer/*` serves a UI that loads and then fails every query.
 
@@ -47,7 +47,7 @@ How Graph Explorer behaves on the wire, for anyone adding an access control laye
 | `/logger`                 | POST   |
 | `/status`                 | GET    |
 
-**Path matching.** The proxy server matches paths case-insensitively, so `/gremlin` and `/GREMLIN` reach the same handler. A path rule in a layer that matches case-sensitively covers only the casing it names.
+**Path matching.** The proxy server matches paths case-insensitively, so `/gremlin` and `/GREMLIN` reach the same handler. A path rule in a layer that matches case-sensitively covers only the casing it names. The `/explorer` segment is the exception. The UI finds it in its own URL with a case-sensitive match, so a layer that changes its casing breaks the UI the same way renaming it does.
 
 **Health check.** `GET /status` is the [health check](./health-check.md) endpoint. It returns a fixed string and does not contact the database. `GET /defaultConnection` returns the default connection configuration, including the database endpoint, region, service type, and whether IAM signing is enabled.
 

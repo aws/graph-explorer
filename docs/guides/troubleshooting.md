@@ -114,7 +114,7 @@ This can manifest as different types of errors depending on the root cause. You 
 
 > [!IMPORTANT]
 >
-> The paths listed here could always change in the future. If they do change, we will note that in the release notes.
+> The API paths could change in a future release. Any change will be noted in the release notes.
 
 ### Database Cannot Be Reached
 

@@ -19,7 +19,7 @@ Reserve Important for the cases below. Everything else is Nit at most. That incl
   - Tests that lock in a bug.
   - Tests deleted without a stated reason.
 - **Untrusted input read without a Zod parse,** or a Zod `.catch()` that quietly turns bad input into a different valid value.
-- **Docs, ADRs, or `CONTEXT.md` that contradict the code** after this change.
+- **Docs that contradict the code, or each other,** after this change. A documented route, header, environment variable default, or limit that no longer matches the source is Important, and so is a page that tells the reader to do something another page says the platform already does.
 - **Public text that discloses.** The PR adds reproduction steps for a security-relevant issue, advisory IDs, or customer data to code, docs, or the PR description.
 
 ## Verification bar
@@ -45,6 +45,8 @@ Reserve Important for the cases below. Everything else is Nit at most. That incl
 - In `pnpm-lock.yaml`, report only churn that's unrelated to the PR.
 
 ## Writing comments
+
+These rules govern the comments you write. They are not a standard for the prose you are reviewing.
 
 This repo is public. Describe a security-relevant issue by its fix, never by how to trigger it. Don't include CVE or advisory IDs, customer details, or employer-internal links, tool names, or ticket IDs.
 
