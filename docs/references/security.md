@@ -183,9 +183,16 @@ The proxy server does not follow HTTP redirects from the database. If the databa
 
 ## Permissions
 
-Graph Explorer does not provide any mechanisms for controlling user permissions. If you are using Graph Explorer with AWS, Neptune permissions can be controlled through IAM roles.
+Graph Explorer enforces no permissions. It sends every query to the database as written, including queries that modify data. Permissions belong to whoever runs the deployment, at two separate layers:
 
-For information about what permissions Graph Explorer requires check out the documentation on [SageMaker configuration](../guides/deploy-to-sagemaker.md#minimum-database-permissions).
+- **Who may use Graph Explorer** is controlled by the [access control](#access-control) layer in front of it.
+- **What the database allows** is configured in the database by its provider or administrator.
+
+Neither layer substitutes for the other. A read-only database policy does not stop an unauthenticated visitor from reading the graph. An access control layer does not stop a signed-in user from running mutations.
+
+Amazon Neptune IAM database authentication is one way to control the database layer. The proxy server signs a request when it carries the `aws-neptune-region` header, using the AWS credentials of the proxy server's host, such as an EC2 instance profile or ECS task role. That role is the identity Neptune checks, and every user of the deployment shares it. A request without the header goes out unsigned, and the policy does not apply to it.
+
+For the minimum Neptune permissions Graph Explorer needs, see [Minimum Database Permissions](../guides/deploy-to-sagemaker.md#minimum-database-permissions).
 
 > [!CAUTION]
 >
