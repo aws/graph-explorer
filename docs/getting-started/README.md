@@ -10,6 +10,10 @@ A hands-on tutorial that walks you through Graph Explorer using the air routes s
 
 The fastest way to try Graph Explorer is with the [Air Routes sample](../../samples/air_routes/README.md). It launches Graph Explorer and a Gremlin Server pre-loaded with sample data using Docker Compose — no database setup or AWS account required.
 
+> [!NOTE]
+>
+> This tutorial is meant for your own machine. The sample Compose file has no access control and serves Graph Explorer over plain HTTP on every network interface, so anyone on the same network can reach it. Never expose it publicly without an access control layer in front of it. See [Access Control](../references/security.md#access-control).
+
 1. Clone the repository
    ```
    git clone https://github.com/aws/graph-explorer.git

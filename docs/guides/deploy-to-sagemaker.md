@@ -14,6 +14,10 @@ When the notebook has been started and is in "Ready" state, you can access Graph
 https://graph-explorer-notebook-name.notebook.us-west-2.sagemaker.aws/proxy/9250/explorer/
 ```
 
+> [!IMPORTANT]
+>
+> Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../references/security.md#access-control).
+
 ## Network Requirements
 
 Graph Explorer routes database requests through the proxy server running on the SageMaker notebook instance. This means the instance must have network access to any database you want to explore.
