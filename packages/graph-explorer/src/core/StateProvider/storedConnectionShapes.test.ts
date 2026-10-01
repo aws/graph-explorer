@@ -19,9 +19,9 @@ import { readBackupDataFromFile, restoreBackup } from "./localDb";
  * BACKWARD COMPATIBILITY — STORED CONNECTION SHAPES
  *
  * These tests preload the "configuration" and "active-configuration" storage
- * as older builds left them, through the real storage atoms, before the
- * Connections refactor moves that code. The transform is covered on its own in
- * `configurationTransform.test.ts`; here we pin the shapes that reach the atom
+ * as older builds left them, through the real storage atoms. The transform is
+ * covered on its own in `@/connections/legacyConnection.test.ts`; here we pin
+ * the shapes that reach the atom
  * untouched, the storage keys the Active Connection is read from, and a backup
  * file from an older build restoring into what the app loads.
  *

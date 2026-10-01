@@ -1,6 +1,7 @@
 import { v4 } from "uuid";
 
-import type { FeatureFlags, NormalizedConnection } from "@/core";
+import type { NormalizedConnection } from "@/connections";
+import type { FeatureFlags } from "@/core";
 
 import { serverLogger } from "@/core/connector";
 import { logger } from "@/utils";

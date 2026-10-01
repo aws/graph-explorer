@@ -2,12 +2,10 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { FeatureFlags, NormalizedConnection } from "@/core";
+import type { NormalizedConnection } from "@/connections";
+import type { FeatureFlags } from "@/core";
 
-import {
-  normalizeConnection,
-  transformLegacyConnection,
-} from "@/core/StateProvider/configuration";
+import { normalizeConnection, transformLegacyConnection } from "@/connections";
 import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
 import {
   abortableFetch,

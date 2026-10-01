@@ -5,8 +5,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ConfigurationContextProps } from "@/core";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
+import { transformLegacyConnection } from "@/connections";
 import { createEdgeType, createVertexType } from "@/core";
-import { transformLegacyConnection } from "@/core/StateProvider/configuration";
 
 import { parseConnectionFile } from "./parseConnectionFile";
 import saveConfigurationToFile from "./saveConfigurationToFile";

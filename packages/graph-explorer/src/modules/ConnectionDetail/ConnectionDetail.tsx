@@ -44,6 +44,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/Dialog";
+import { isDirectConnection } from "@/connections";
 import {
   activeSchemaSelector,
   type ConfigurationContextProps,
@@ -51,7 +52,6 @@ import {
   useHasActiveSchema,
   useMaybeActiveSchema,
 } from "@/core";
-import { isDirectConnection } from "@/core/StateProvider/configuration";
 import {
   debugForcePersistenceFailure,
   debugResetPersistenceStatus,

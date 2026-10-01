@@ -3,7 +3,7 @@ import { DatabaseIcon } from "lucide-react";
 import type { RawConfiguration } from "@/connections";
 
 import { ListRowContent, ListRowSubtitle, ListRowTitle } from "@/components";
-import { isDirectConnection } from "@/core/StateProvider/configuration";
+import { isDirectConnection } from "@/connections";
 import useActivateConnection from "@/core/StateProvider/useActivateConnection";
 import { useTranslations } from "@/hooks";
 import { LABELS } from "@/utils/constants";

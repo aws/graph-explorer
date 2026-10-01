@@ -1,5 +1,13 @@
 import type { ConfigurationId, RawConfiguration } from "@/connections";
 
+// Import the transform from its file, not the `@/connections` index. This
+// module's top-level await creates the atoms below, so its import graph must
+// stay free of code that reads them. The index will later also export the
+// active-connection selectors (which read these atoms); importing through it
+// would pull those into that graph. The transform file imports only types, so
+// the deep import keeps atom creation independent of any atom reader.
+import { transformConfiguration } from "@/connections/legacyConnection";
+
 import type { EdgeType, VertexType } from "../entities";
 import type { GraphSessionStorageModel } from "./graphSession/storage";
 import type { EdgeStyleStorage, VertexStyleStorage } from "./graphStyles";
@@ -7,7 +15,6 @@ import type { SchemaStorageModel } from "./schema";
 
 import { createActiveConfigurationAtom } from "./activeConnectionStorage";
 import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
-import { transformConfiguration } from "./configurationTransform";
 import {
   defaultGraphViewLayout,
   transformGraphViewLayout,

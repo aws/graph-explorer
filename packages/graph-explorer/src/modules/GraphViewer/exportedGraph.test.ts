@@ -10,11 +10,8 @@ import { z } from "zod";
 
 import type { EdgeId, VertexId } from "@/core";
 
+import { normalizeConnection, transformLegacyConnection } from "@/connections";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
-import {
-  normalizeConnection,
-  transformLegacyConnection,
-} from "@/core/StateProvider/configuration";
 import {
   createRandomConnectionWithId,
   createRandomEdgeId,
