@@ -2,11 +2,7 @@
 
 # Deploy to Amazon EC2
 
-Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server with SSH tunneling to connect to Amazon Neptune.
-
-> [!NOTE]
->
-> This documentation is not an official recommendation on network setups as there are many ways to connect to Amazon Neptune from outside of the VPC, such as setting up a load balancer or VPC peering.
+Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server with SSH tunneling to connect to Amazon Neptune. This is one network setup among many, not an official recommendation. Other ways to connect to Amazon Neptune from outside the VPC include a load balancer or VPC peering.
 
 > [!IMPORTANT]
 >
