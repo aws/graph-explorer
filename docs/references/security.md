@@ -183,15 +183,16 @@ The proxy server does not follow HTTP redirects from the database. If the databa
 
 ## Permissions
 
-Two separate questions are easy to conflate.
+Graph Explorer enforces no permissions. It sends every query to the database as written, including queries that modify data. Permissions belong to whoever runs the deployment, at two separate layers:
 
-Neptune IAM limits what the proxy server may do to the database. When a request carries the `aws-neptune-region` header, the proxy server signs it with the host's AWS credentials, and the IAM role behind those credentials determines which database actions the request can perform. A read-only policy limits every request the proxy server signs against that cluster. The client decides whether a request is signed, so a request without that header goes out unsigned and the policy does not apply to it.
+- **Who may use Graph Explorer** is controlled by the [access control](#access-control) layer in front of it.
+- **What the database allows** is configured in the database by its provider or administrator.
 
-An access control layer limits who may use the application. See [Access Control](#access-control). Graph Explorer itself provides no mechanism for this.
+Neither layer substitutes for the other. A read-only database policy does not stop an unauthenticated visitor from reading the graph. An access control layer does not stop a signed-in user from running mutations.
 
-Both matter, and neither substitutes for the other. A read-only IAM policy does not stop an unauthenticated visitor from reading the whole graph, and an access control layer does not stop a signed-in user from running mutations.
+Amazon Neptune IAM database authentication is one way to control the database layer. The proxy server signs a request when it carries the `aws-neptune-region` header, using the AWS credentials of the proxy server's host, such as an EC2 instance profile or ECS task role. That role is the identity Neptune checks, and every user of the deployment shares it. A request without the header goes out unsigned, and the policy does not apply to it.
 
-For information about what permissions Graph Explorer requires check out the documentation on [SageMaker configuration](../guides/deploy-to-sagemaker.md#minimum-database-permissions).
+For the minimum Neptune permissions Graph Explorer needs, see [Minimum Database Permissions](../guides/deploy-to-sagemaker.md#minimum-database-permissions).
 
 > [!CAUTION]
 >
