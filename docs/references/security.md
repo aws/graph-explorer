@@ -183,7 +183,13 @@ The proxy server does not follow HTTP redirects from the database. If the databa
 
 ## Permissions
 
-Graph Explorer does not provide any mechanisms for controlling user permissions. If you are using Graph Explorer with AWS, Neptune permissions can be controlled through IAM roles.
+Two separate questions are easy to conflate.
+
+Neptune IAM limits what the proxy server may do to the database. When a request carries the `aws-neptune-region` header, the proxy server signs it with the host's AWS credentials, and the IAM role behind those credentials determines which database actions the request can perform. A read-only policy limits every request the proxy server signs against that cluster. The client decides whether a request is signed, so a request without that header goes out unsigned and the policy does not apply to it.
+
+An access control layer limits who may use the application. See [Access Control](#access-control). Graph Explorer itself provides no mechanism for this.
+
+Both matter, and neither substitutes for the other. A read-only IAM policy does not stop an unauthenticated visitor from reading the whole graph, and an access control layer does not stop a signed-in user from running mutations.
 
 For information about what permissions Graph Explorer requires check out the documentation on [SageMaker configuration](../guides/deploy-to-sagemaker.md#minimum-database-permissions).
 
