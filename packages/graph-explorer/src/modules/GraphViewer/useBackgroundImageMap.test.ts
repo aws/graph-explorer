@@ -161,9 +161,8 @@ describe("useBackgroundImageMap", () => {
 
   // The wrapper nests the raster url as an XML attribute value, so a raw `<`
   // in it would produce malformed XML that fails to parse — a blank icon,
-  // not a distorted one. Values are always inline data uris today (they
-  // can't contain a literal `<`, only its percent-encoded form), but the
-  // escape has to hold if that ever changes.
+  // not a distorted one. Stored data uris are base64 and contain no `<`, but
+  // nothing upstream enforces that.
   it("escapes a literal < in the wrapped url", async () => {
     const config = makeConfig({
       type: createVertexType("AngleBracket"),
