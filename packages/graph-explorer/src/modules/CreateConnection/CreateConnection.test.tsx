@@ -520,6 +520,28 @@ describe("CreateConnection", () => {
     ).toBeInTheDocument();
   });
 
+  // Neptune Analytics only runs openCypher.
+  test("locks the Query Language to openCypher for Neptune Analytics", () => {
+    renderCreateConnection(
+      <CreateConnection
+        initialValues={{
+          graphDbUrl: "https://g.example.com",
+          queryEngine: "openCypher",
+          awsAuthEnabled: true,
+          awsRegion: "us-east-1",
+          serviceType: "neptune-graph",
+        }}
+        onClose={vi.fn()}
+      />,
+    );
+
+    const queryLanguage = screen.getByRole("combobox", {
+      name: "Query Language",
+    });
+    expect(queryLanguage).toHaveTextContent("OpenCypher - PG (Property Graph)");
+    expect(queryLanguage).toBeDisabled();
+  });
+
   // The rest of the app shows an unlabeled connection by its id, so the form
   // should too rather than presenting it as nameless.
   test("names an unlabeled connection by its id when editing it", () => {

@@ -327,6 +327,7 @@ const CreateConnection = ({
         <FormItem>
           <Label>Query Language</Label>
           <SelectField
+            aria-label="Query Language"
             options={CONNECTIONS_OP}
             value={form.queryEngine}
             onValueChange={onFormChange("queryEngine")}
@@ -388,6 +389,7 @@ const CreateConnection = ({
             <FormItem>
               <Label>Service Type</Label>
               <SelectField
+                aria-label="Service Type"
                 options={[
                   { label: "Neptune DB", value: "neptune-db" },
                   { label: "Neptune Analytics", value: "neptune-graph" },
