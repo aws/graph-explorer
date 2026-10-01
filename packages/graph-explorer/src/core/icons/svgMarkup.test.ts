@@ -45,9 +45,7 @@ describe("ensureSvgViewBox", () => {
     expect(ensureSvgViewBox(svg)).toBe(svg);
   });
 
-  // A percentage has no meaning without a viewport to resolve against, so
-  // parseFloat's unitless "100" from "100%" would produce a bogus viewBox
-  // that crops the artwork instead of scaling it.
+  // A percentage has no meaning without a viewport to resolve against.
   it("leaves the svg untouched when width/height are percentages", () => {
     const svg = `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="50"/></svg>`;
 
@@ -56,14 +54,25 @@ describe("ensureSvgViewBox", () => {
 
   // Child geometry is in user units (px); a viewBox built from em or pt
   // numbers would zoom into a corner instead of fitting.
-  it.each(["2em", "72pt", "10mm", "1in"])(
-    "leaves the svg untouched when width is in %s",
+  it.each(["2em", "72pt", "10mm", "1in", "400 px", "-5", "0"])(
+    "leaves the svg untouched when width is %s",
     width => {
-      const svg = `<svg width="${width}" height="1em" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>`;
+      const svg = `<svg width="${width}" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>`;
 
       expect(ensureSvgViewBox(svg)).toBe(svg);
     },
   );
+
+  it.each([
+    [" 400 ", "400"],
+    ["0.5", "0.5"],
+    ["4e2", "400"],
+    ["400PX", "400"],
+  ])("synthesizes a viewBox from a width of %j", (width, expected) => {
+    const svg = `<svg width="${width}" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>`;
+
+    expect(ensureSvgViewBox(svg)).toContain(`viewBox="0 0 ${expected} 100"`);
+  });
 
   it("synthesizes a viewBox when width/height carry a px suffix", () => {
     const svg = `<svg width="400px" height="100px" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>`;
