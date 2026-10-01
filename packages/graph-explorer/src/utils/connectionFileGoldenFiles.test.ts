@@ -31,10 +31,9 @@ import { stubDocumentUrl } from "./testing";
  * The export cases compare the writer's output byte-for-byte against the
  * `connection-file-export-golden-legacy-url-*.txt` fixtures, so any change to
  * the wire format — values, field order, or whitespace — is caught here rather
- * than shipping silently. Those fixtures also pin the legacy `url` and explicit
- * `proxyConnection` that versions before #1773 require to import the file.
- * They are `.txt` so the formatter cannot reflow them and mask a real
- * serialization change.
+ * than shipping silently, including the legacy `url` and `proxyConnection`
+ * older versions need. They are `.txt` so the formatter cannot reflow them and
+ * mask a real serialization change.
  *
  * DO NOT edit a fixture to make a test pass. A fixture is a historical
  * artifact; if a current build can no longer read one, that is a

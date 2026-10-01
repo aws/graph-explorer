@@ -45,7 +45,6 @@ async function exportToJson(config: ConfigurationContextProps) {
 
 describe("saveConfigurationToFile", () => {
   beforeEach(() => {
-    saveAsMock.mockClear();
     stubDocumentUrl();
   });
 
@@ -455,23 +454,17 @@ describe("saveConfigurationToFile", () => {
 /**
  * BACKWARD COMPATIBILITY — EXPORTED FILES READ BY OLDER VERSIONS
  *
- * Versions before the unified-proxy model (#1773) import an Exported
- * Connection File only if `connection.url` is present and an http(s) URL.
- * They read a missing `proxyConnection` as a direct connection. For a proxy
- * connection `url` is the proxy server root, and requests are built as
- * `${url}/gremlin`, `${url}/openCypher`, etc., so it must have no trailing
- * slash. For a direct connection `url` is the database itself. The current
- * connection model has no `url`, so the writer derives it (the proxy root from
- * `apiUrl`, or the Database URL) and always writes `proxyConnection`. These
- * tests pin that legacy shape and check that the current importer still reads
- * it back as the same connection.
+ * Versions before the unified-proxy model (#1773) import a file only if
+ * `connection.url` is an http(s) URL, and read a missing `proxyConnection` as
+ * direct. `url` is the proxy root with no trailing slash, since they build
+ * `${url}/gremlin`, or the database for a direct connection. The rationale
+ * lives in ADR `unify-docker-image-remove-sagemaker-variant`.
  *
  * DO NOT delete or weaken these tests without confirming that no supported
  * older version still imports exported connection files.
  */
 describe("backward compatibility: legacy url/proxyConnection written to exported files", () => {
   beforeEach(() => {
-    saveAsMock.mockClear();
     stubDocumentUrl();
   });
 
