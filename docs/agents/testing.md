@@ -4,13 +4,13 @@ Vitest. Tests co-locate with source as `*.test.ts` (or `*.test.tsx` for componen
 
 ## Where tests live
 
-Vitest collects only the projects listed in the root `vitest.config.ts`, currently just `packages/*`. A test file outside those is never collected, and `pnpm test` still reports green, so adding a new top-level test directory means giving it a `vitest.config.ts` and adding it to that list.
+Vitest collects only the projects listed in `test.projects` of the root `vite.config.ts`, currently just `packages/*`. A test file outside those is never collected, and `pnpm test` still reports green, so adding a new top-level test directory means giving it a `vite.config.ts` and adding it to that list.
 
 Each project sets up its own environment. `setupTests.ts` below is registered by `packages/graph-explorer` only. `packages/graph-explorer-proxy-server` has its own setup file, and `packages/shared` has none, so its tests reset their own mocks.
 
 ## Rules
 
-- Import test APIs (`describe`, `it`, `expect`, `vi`, …) from `vitest`. Globals are off, so a missing import is a type error
+- Import test APIs (`describe`, `it`, `expect`, `vi`, …) from `vite-plus/test`, never `vitest`. Globals are off, so a missing import is a type error, and lint rejects a `vitest` import
 - Use `renderHookWithState` for hooks, not `renderHook`
 - Set up state with `DbState`, not manual atom wiring or `renderHookWithJotai`. When `DbState` can't express what a test needs, extend `DbState` — growing it is the intended path, not working around it.
 - Mock only external systems (network, etc.); don't mock internal modules
