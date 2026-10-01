@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { atom, useAtomValue } from "jotai";
 import { toast } from "sonner";
 
+import { activeConnectionAtom } from "@/connections";
 import {
   type Explorer,
   type NeighborsRequest,
@@ -10,7 +11,6 @@ import {
 } from "@/connector";
 import { getExplorer } from "@/connector/queries/helpers";
 import {
-  activeConnectionAtom,
   defaultNeighborExpansionLimitAtom,
   defaultNeighborExpansionLimitEnabledAtom,
   type Edge,

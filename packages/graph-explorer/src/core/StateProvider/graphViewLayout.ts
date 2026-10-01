@@ -1,6 +1,7 @@
 import { useAtom } from "jotai";
 
-import { useQueryEngine } from "../connector";
+import { useQueryEngine } from "@/connections";
+
 import {
   DEFAULT_SIDEBAR_WIDTH,
   DEFAULT_TABLE_VIEW_HEIGHT,

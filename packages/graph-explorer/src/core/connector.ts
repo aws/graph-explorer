@@ -1,8 +1,8 @@
 import { atom, useAtomValue } from "jotai";
-import { selectAtom } from "jotai/utils";
 
 import type { Explorer } from "@/connector/useGEFetchTypes";
 
+import { activeConnectionAtom } from "@/connections";
 import { emptyExplorer } from "@/connector/emptyExplorer";
 import { createGremlinExplorer } from "@/connector/gremlin/gremlinExplorer";
 import { ServerLoggerConnector } from "@/connector/LoggerConnector";
@@ -11,7 +11,6 @@ import { createSparqlExplorer } from "@/connector/sparql/sparqlExplorer";
 import { logger } from "@/utils";
 
 import { featureFlagsSelector } from "./StateProvider";
-import { activeConnectionAtom } from "./StateProvider/configuration";
 
 export const explorerAtom = atom(get => {
   const explorerForTesting = get(explorerForTestingAtom);
@@ -46,18 +45,6 @@ export function useExplorer() {
 
 /** CAUTION: This atom is only for testing purposes. */
 export const explorerForTestingAtom = atom<Explorer | null>(null);
-
-export const queryEngineSelector = atom(get =>
-  get(
-    selectAtom(activeConnectionAtom, c =>
-      c && c.queryEngine ? c.queryEngine : "gremlin",
-    ),
-  ),
-);
-
-export function useQueryEngine() {
-  return useAtomValue(queryEngineSelector);
-}
 
 /** Sends log entries to the server's same-origin `/logger` endpoint. */
 export const serverLogger = new ServerLoggerConnector();

@@ -3,8 +3,8 @@ import { atomWithReset } from "jotai/utils";
 
 import type { ComboboxOption } from "@/components";
 
+import { useQueryEngine } from "@/connections";
 import { useDisplayVertexTypeConfigs, useSearchableAttributes } from "@/core";
-import { useQueryEngine } from "@/core/connector";
 import { useTranslations } from "@/hooks";
 import useDebounceValue from "@/hooks/useDebounceValue";
 import { SEARCH_TOKENS } from "@/utils";

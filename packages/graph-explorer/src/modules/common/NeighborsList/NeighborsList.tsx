@@ -9,6 +9,7 @@ import {
   TooltipTrigger,
   VertexIcon,
 } from "@/components";
+import { useQueryEngine } from "@/connections";
 import {
   createVertexType,
   useNeighbors,
@@ -16,7 +17,6 @@ import {
   useVertexStyle,
   type VertexId,
 } from "@/core";
-import { useQueryEngine } from "@/core/connector";
 import useNeighborsOptions, {
   type NeighborOption,
 } from "@/hooks/useNeighborsOptions";

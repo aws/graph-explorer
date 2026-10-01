@@ -23,8 +23,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components";
+import { useQueryEngine } from "@/connections";
 import { executeUserQuery } from "@/connector";
-import { useQueryEngine, useUpdateSchemaFromEntities } from "@/core";
+import { useUpdateSchemaFromEntities } from "@/core";
 import { cn, isCancellationError, logger } from "@/utils";
 
 import { SearchResultsList } from "./SearchResultsList";

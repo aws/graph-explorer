@@ -1,6 +1,7 @@
 import { atom, useAtomValue } from "jotai";
 import { atomFamily } from "jotai-family";
 
+import { queryEngineSelector } from "@/connections";
 import {
   type DisplayAttribute,
   getRawId,
@@ -8,7 +9,6 @@ import {
   nodesAtom,
   nodeSelector,
   nodesSelectedIdsAtom,
-  queryEngineSelector,
   useVertex,
   type Vertex,
   type VertexId,
