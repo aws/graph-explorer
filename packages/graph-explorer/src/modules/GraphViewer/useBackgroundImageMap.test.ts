@@ -177,7 +177,7 @@ describe("useBackgroundImageMap", () => {
   });
 
   // The (icon, color) render cache is keyed by concatenation, so the separator
-  // must be a character that cannot occur in either half. An IconSourceId
+  // must be one no usable url or color contains. An IconSourceId
   // embeds the user-supplied icon url verbatim, and the color is an
   // unvalidated string, so a printable separator like "|" lets two distinct
   // pairs produce one key and swap icons between vertex types.

@@ -42,7 +42,7 @@ export function sanitizeSvg(svg: string): string {
 }
 
 /** A unitless or `px` length, the only units that match the content's user units. */
-const USER_UNIT_LENGTH = /^\s*(\d*\.?\d+(?:e[+-]?\d+)?)\s*(?:px)?\s*$/i;
+const USER_UNIT_LENGTH = /^\s*(\d*\.?\d+(?:e[+-]?\d+)?)(?:px)?\s*$/i;
 
 /**
  * Parses an SVG `width`/`height` as a positive, finite number of user units,

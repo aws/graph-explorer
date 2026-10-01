@@ -15,8 +15,8 @@ export type IconSource =
 /**
  * Icons must be either a Lucide reference or a base64-encoded `image/*` data
  * URI. Remote URLs (and any other scheme) are rejected so the icon url itself
- * is never an external reference; references inside an SVG are left to
- * `sanitizeSvg`. The image subtype is left open — any
+ * is never an external reference. This does not cover references inside an
+ * SVG's markup, which `sanitizeSvg` keeps. The image subtype is left open — any
  * RFC-6838-shaped subtype — rather than a fixed list, because the uploader
  * stores whatever `image/*` the browser reports (`accept="image/*"`), so a
  * closed list would reject the app's own exports on re-import. This is not a

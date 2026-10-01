@@ -90,6 +90,8 @@ describe("iconRegistry", () => {
 
     const resolved = iconRegistry.getSnapshot().get(iconSourceId(source)!);
     expect(resolved?.kind).toBe("svg");
+    // The registry relies on lucide markup carrying its own viewBox.
+    expect(resolved?.kind === "svg" && resolved.svg).toContain("viewBox=");
     expect(fetch).not.toBeCalled();
   });
 
