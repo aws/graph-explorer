@@ -72,7 +72,7 @@ function dropDisallowedIcon(
     return null;
   }
   logger.warn(
-    `[vertex-styles] Unsupported icon for type "${type}", using the default icon`,
+    `[vertex-styles] Unsupported icon "${entry.iconUrl.slice(0, 100)}" for type "${type}", using the default icon`,
   );
   const { iconUrl: _iconUrl, iconImageType: _iconImageType, ...rest } = entry;
   return rest;
