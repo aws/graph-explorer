@@ -4,10 +4,10 @@ import { act } from "@testing-library/react";
 import { toast } from "sonner";
 import { describe, expect, test, vi } from "vitest";
 
+import { createNewConfigurationId } from "@/connections";
 import {
   activeConfigurationAtom,
   configurationAtom,
-  createNewConfigurationId,
   getAppStore,
   schemaAtom,
 } from "@/core";

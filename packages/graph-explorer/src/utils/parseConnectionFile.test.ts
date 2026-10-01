@@ -1,7 +1,7 @@
 import { createRandomName, createRandomUrlString } from "@shared/utils/testing";
 import { describe, expect, test } from "vitest";
 
-import { createNewConfigurationId } from "@/core/ConfigurationProvider/types";
+import { createNewConfigurationId } from "@/connections";
 
 import { parseConnectionFile } from "./parseConnectionFile";
 

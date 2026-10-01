@@ -1,3 +1,4 @@
+import type { RawConfiguration } from "@/connections";
 import type { Explorer } from "@/connector";
 import type { SchemaViewLayout } from "@/core/StateProvider/schemaViewLayoutDefaults";
 
@@ -21,7 +22,6 @@ import {
   nodesAtom,
   nodesFilteredIdsAtom,
   nodesTypesFilteredAtom,
-  type RawConfiguration,
   schemaAtom,
   type SchemaStorageModel,
   schemaViewLayoutAtom,

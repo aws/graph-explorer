@@ -2,11 +2,12 @@ import { useAtomValue } from "jotai";
 import { useAtomCallback } from "jotai/utils";
 import { useCallback } from "react";
 
+import type { ConfigurationId } from "@/connections";
+
 import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
   configurationAtom,
-  type ConfigurationId,
   schemaAtom,
 } from "@/core";
 import { logger } from "@/utils";

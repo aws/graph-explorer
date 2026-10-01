@@ -1,10 +1,7 @@
 import { createRandomName } from "@shared/utils/testing";
 import { describe, expect, test } from "vitest";
 
-import type {
-  ConfigurationId,
-  RawConfiguration,
-} from "@/core/ConfigurationProvider";
+import type { ConfigurationId, RawConfiguration } from "@/connections";
 import type { EdgeType, VertexType } from "@/core/entities";
 import type { GraphSessionStorageModel } from "@/core/StateProvider/graphSession/storage";
 import type {

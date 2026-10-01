@@ -1,7 +1,7 @@
 import { useAtomCallback } from "jotai/utils";
 import { useCallback } from "react";
 
-import type { ConfigurationId } from "@/core";
+import type { ConfigurationId } from "@/connections";
 
 import { logger } from "@/utils";
 

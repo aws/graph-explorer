@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+import type { RawConfiguration } from "@/connections";
+
 import {
   Button,
   Chip,
@@ -45,7 +47,6 @@ import {
 import {
   activeSchemaSelector,
   type ConfigurationContextProps,
-  type RawConfiguration,
   showDebugActionsAtom,
   useHasActiveSchema,
   useMaybeActiveSchema,

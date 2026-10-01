@@ -1,12 +1,8 @@
-import type { ConnectionConfig } from "@shared/types";
-
-import { v4 } from "uuid";
-
+import type { RawConfiguration } from "@/connections";
 import type {
   EdgeStyleStorage,
   VertexStyleStorage,
 } from "@/core/StateProvider/graphStyles";
-import type { Branded } from "@/utils";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import type { SchemaStorageModel } from "../StateProvider";
@@ -17,12 +13,6 @@ import {
   type EdgeType,
   type VertexType,
 } from "../entities";
-
-export type ConfigurationId = Branded<string, "ConfigurationId">;
-
-export function createNewConfigurationId() {
-  return v4() as ConfigurationId;
-}
 
 export type AttributeConfig = {
   /**
@@ -156,23 +146,6 @@ export function createEdgeConnection(options: {
 }
 
 /**
- * The persisted shape of a connection configuration, as stored in
- * `configurationAtom` and IndexedDB. The schema is kept separately in
- * `schemaAtom`, never embedded here.
- */
-export type RawConfiguration = {
-  /**
-   * Unique identifier for this config
-   */
-  id: ConfigurationId;
-  displayLabel?: string;
-  /**
-   * Connection configuration
-   */
-  connection?: ConnectionConfig;
-};
-
-/**
  * A configuration assembled in memory by merging the stored
  * {@link RawConfiguration} with its active schema and user styling. Unlike the
  * persisted {@link RawConfiguration}, this carries the schema inline for the UI
@@ -193,17 +166,4 @@ export type ConfigurationContextProps = MergedConfiguration & {
   vertexTypes: Array<VertexType>;
   totalEdges: number;
   edgeTypes: Array<EdgeType>;
-};
-
-/**
- * Represents a connection config with the ID and display label integrated in to
- * the type.
- *
- * This makes it a bit easier to deal with compared to the connection inside the
- * `RawConfiguration` type since that one has a bunch of other properties and
- * the connection is optional.
- */
-export type ConnectionWithId = ConnectionConfig & {
-  id: ConfigurationId;
-  displayLabel?: string;
 };

@@ -7,13 +7,12 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
+import { createNewConfigurationId, type RawConfiguration } from "@/connections";
 import {
   allGraphSessionsAtom,
   type ConfigurationContextProps,
   configurationAtom,
-  createNewConfigurationId,
   getAppStore,
-  type RawConfiguration,
   schemaAtom,
 } from "@/core";
 import { createQueryClient } from "@/core/queryClient";

@@ -23,13 +23,12 @@ import {
   TextAreaField,
 } from "@/components";
 import { DialogBody, DialogFooter } from "@/components/Dialog";
+import { createNewConfigurationId, type RawConfiguration } from "@/connections";
 import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
   configurationAtom,
   type ConfigurationContextProps,
-  createNewConfigurationId,
-  type RawConfiguration,
   schemaAtom,
 } from "@/core";
 import { isDirectConnection } from "@/core/StateProvider/configuration";

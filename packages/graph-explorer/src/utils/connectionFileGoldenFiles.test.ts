@@ -2,8 +2,8 @@
 import * as fileSaver from "file-saver";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+import type { ConfigurationId } from "@/connections";
 import type { ConfigurationContextProps } from "@/core";
-import type { ConfigurationId } from "@/core/ConfigurationProvider";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { createEdgeType, createVertexType } from "@/core";

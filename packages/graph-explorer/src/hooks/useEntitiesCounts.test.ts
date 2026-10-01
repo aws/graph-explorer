@@ -3,7 +3,8 @@
 import { createRandomInteger } from "@shared/utils/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { RawConfiguration, SchemaStorageModel } from "@/core";
+import type { RawConfiguration } from "@/connections";
+import type { SchemaStorageModel } from "@/core";
 
 import {
   createRandomEdgeTypeConfig,

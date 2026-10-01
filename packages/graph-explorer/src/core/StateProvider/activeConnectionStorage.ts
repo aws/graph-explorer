@@ -1,6 +1,6 @@
 import localForage from "localforage";
 
-import type { ConfigurationId } from "../ConfigurationProvider";
+import type { ConfigurationId } from "@/connections";
 
 import { persistThroughQueue } from "./persistence";
 import { resolveSessionStorage } from "./safeSessionStorage";

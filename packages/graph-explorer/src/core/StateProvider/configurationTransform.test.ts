@@ -2,15 +2,12 @@ import type { LegacyConnectionConfig } from "@shared/types";
 
 import { describe, expect, test } from "vitest";
 
+import type { ConfigurationId, RawConfiguration } from "@/connections";
+
 import {
   createRandomRawConfiguration,
   preloadStoredConfiguration,
 } from "@/utils/testing";
-
-import type {
-  ConfigurationId,
-  RawConfiguration,
-} from "../ConfigurationProvider";
 
 import { transformConfiguration } from "./configurationTransform";
 

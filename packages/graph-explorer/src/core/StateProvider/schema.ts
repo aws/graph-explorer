@@ -5,9 +5,9 @@ import { atomFamily } from "jotai-family";
 import { RESET, useAtomCallback } from "jotai/utils";
 import { useCallback, useDeferredValue } from "react";
 
+import type { ConfigurationId } from "@/connections";
 import type {
   AttributeConfig,
-  ConfigurationId,
   EdgeConnection,
   EdgeTypeConfig,
   PrefixTypeConfig,

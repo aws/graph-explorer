@@ -2,7 +2,7 @@ import { createStore } from "jotai";
 import localForage from "localforage";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { createNewConfigurationId } from "@/core";
+import { createNewConfigurationId } from "@/connections";
 import { readPersistedValue } from "@/utils/testing";
 
 import {
