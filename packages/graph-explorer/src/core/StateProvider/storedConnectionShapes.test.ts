@@ -21,9 +21,9 @@ import { readBackupDataFromFile, restoreBackup } from "./localDb";
  * These tests preload the "configuration" and "active-configuration" storage
  * as older builds left them, through the real storage atoms. The transform is
  * covered on its own in `@/connections/legacyConnection.test.ts`; here we pin
- * the shapes that reach the atom
- * untouched, the storage keys the Active Connection is read from, and a backup
- * file from an older build restoring into what the app loads.
+ * the shapes that reach the atom untouched, the storage keys the Active
+ * Connection is read from, and a backup file from an older build restoring
+ * into what the app loads.
  *
  * Storage keys are string literals on purpose: they are the on-disk contract,
  * so renaming the constant that holds one must fail here.

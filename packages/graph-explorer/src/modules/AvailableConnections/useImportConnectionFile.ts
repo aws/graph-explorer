@@ -2,8 +2,10 @@ import { useAtomCallback } from "jotai/utils";
 import { useCallback } from "react";
 import { toast } from "sonner";
 
-import { createNewConfigurationId } from "@/connections";
-import { transformLegacyConnection } from "@/connections";
+import {
+  createNewConfigurationId,
+  transformLegacyConnection,
+} from "@/connections";
 import { activeConfigurationAtom, configurationAtom, schemaAtom } from "@/core";
 import useResetState from "@/core/StateProvider/useResetState";
 import { fromFileToJson } from "@/utils/fileData";

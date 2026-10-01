@@ -7,8 +7,11 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
-import { createNewConfigurationId, type RawConfiguration } from "@/connections";
-import { transformLegacyConnection } from "@/connections";
+import {
+  createNewConfigurationId,
+  transformLegacyConnection,
+  type RawConfiguration,
+} from "@/connections";
 import {
   allGraphSessionsAtom,
   type ConfigurationContextProps,

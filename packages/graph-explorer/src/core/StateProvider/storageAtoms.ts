@@ -1,11 +1,7 @@
 import type { ConfigurationId, RawConfiguration } from "@/connections";
 
-// Import the transform from its file, not the `@/connections` index. This
-// module's top-level await creates the atoms below, so its import graph must
-// stay free of code that reads them. The index will later also export the
-// active-connection selectors (which read these atoms); importing through it
-// would pull those into that graph. The transform file imports only types, so
-// the deep import keeps atom creation independent of any atom reader.
+// Deep import: this module's top-level await creates the atoms, so its import
+// graph must not include atom readers the index may export.
 import { transformConfiguration } from "@/connections/legacyConnection";
 
 import type { EdgeType, VertexType } from "../entities";
