@@ -4,10 +4,7 @@ import { getLucideSvgString } from "@/utils/lucideIcons";
 import { type IconSource, type IconSourceId, iconSourceId } from "./iconSource";
 import { ensureSvgViewBox, sanitizeSvg } from "./svgViewBox";
 
-/**
- * An icon resolved to a renderable form, with no color applied yet. A raster
- * url is a `data:` url unless the remote image could not be inlined.
- */
+/** An icon resolved to a renderable form, with no color applied yet. */
 export type ResolvedIcon =
   | { kind: "raster"; url: string }
   | { kind: "svg"; svg: string };
@@ -57,8 +54,8 @@ class IconRegistry {
       if (id === null || this.#resolved.has(id) || this.#inFlight.has(id)) {
         continue;
       }
-      if (source.kind === "raster" && source.url.startsWith("data:")) {
-        // Already inline, so resolve it now rather than a render later.
+      if (source.kind === "raster") {
+        // A url needs no work, so resolve it now rather than a render later.
         next ??= new Map(this.#resolved);
         next.set(id, { kind: "raster", url: source.url });
         continue;
@@ -142,10 +139,7 @@ async function resolveIconSource(
     case "none":
       return null;
     case "raster":
-      return {
-        kind: "raster",
-        url: (await inlineRemoteRaster(source.url)) ?? source.url,
-      };
+      return { kind: "raster", url: source.url };
     case "lucide": {
       const raw = await getLucideSvgString(source.name);
       if (raw === null) {
@@ -177,53 +171,4 @@ function isParseableSvg(svg: string): boolean {
     doc.querySelector("parsererror") === null &&
     doc.documentElement.localName === "svg"
   );
-}
-
-/** Svg is excluded: it belongs on the sanitized svg path, which adds a `viewBox`. */
-const RASTER_MIME_TYPE = /^image\/(?!svg\+xml$)[a-z0-9.+-]+$/i;
-
-/** Until it settles the icon renders nowhere, so a hung host must not hold it. */
-const INLINE_TIMEOUT_MS = 5000;
-
-/** Bounds the copy embedded in every vertex type's style. */
-const MAX_INLINE_BYTES = 1024 * 1024;
-
-/**
- * Inlines a remote raster, because the canvas nests icons inside a `data:`
- * svg, whose image sandbox fetches nothing external. `null` when it cannot be
- * inlined, so the caller falls back to the plain url: unlike `<img>`, `fetch`
- * needs CORS, and that fallback still renders everywhere but the canvas wrapper.
- */
-async function inlineRemoteRaster(url: string): Promise<string | null> {
-  try {
-    const response = await fetch(url, {
-      signal: AbortSignal.timeout(INLINE_TIMEOUT_MS),
-    });
-    const mimeType = response.headers.get("content-type")?.split(";")[0].trim();
-    if (!response.ok || !mimeType || !RASTER_MIME_TYPE.test(mimeType)) {
-      return null;
-    }
-    if (Number(response.headers.get("content-length")) > MAX_INLINE_BYTES) {
-      return null;
-    }
-    const bytes = new Uint8Array(await response.arrayBuffer());
-    if (bytes.byteLength > MAX_INLINE_BYTES) {
-      return null;
-    }
-    return `data:${mimeType};base64,${toBase64(bytes)}`;
-  } catch {
-    // Any failure (CORS, a timeout, a body cut off mid-download) keeps the
-    // plain url.
-    return null;
-  }
-}
-
-/** Chunked, since spreading a whole image into one call overflows the stack. */
-function toBase64(bytes: Uint8Array): string {
-  const chunkSize = 0x8000;
-  let binary = "";
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
-  }
-  return btoa(binary);
 }

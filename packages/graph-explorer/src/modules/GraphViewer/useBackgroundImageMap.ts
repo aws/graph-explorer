@@ -80,14 +80,10 @@ export function useBackgroundImageMap(
  * The nested icon must carry a `viewBox`, or it has no intrinsic ratio to fit
  * and fills the padded box — square again. The icon registry guarantees one.
  *
- * A url that is not `data:` is a remote raster the registry could not inline.
- * It is returned unwrapped, because this `data:` svg's image sandbox fetches
- * nothing external and would render it blank.
+ * The icon url is always a `data:` uri (`isAllowedIconValue`). An external
+ * reference would fetch nothing inside this `data:` svg's image sandbox.
  */
 function insetIconImage(iconUrl: string): string {
-  if (!iconUrl.startsWith("data:")) {
-    return iconUrl;
-  }
   const { size, offset } = insetBox(ICON_BOX, ICON_RATIO);
   return encodeSvg(
     `<svg xmlns="http://www.w3.org/2000/svg" width="${ICON_BOX}" height="${ICON_BOX}" viewBox="0 0 ${ICON_BOX} ${ICON_BOX}">` +

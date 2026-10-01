@@ -13,25 +13,11 @@ function svgSource(url: string) {
   return classifyIconSource({ iconUrl: url, iconImageType: "image/svg+xml" });
 }
 
-function rasterSource(url: string) {
-  return classifyIconSource({ iconUrl: url, iconImageType: "image/png" });
-}
-
 function lucideSource(name: string) {
   return classifyIconSource({
     iconUrl: `lucide:${name}`,
     iconImageType: "image/svg+xml",
   });
-}
-
-function imageResponse(
-  body: BodyInit,
-  contentType: string,
-  status = 200,
-): Promise<Response> {
-  return Promise.resolve(
-    new Response(body, { status, headers: { "content-type": contentType } }),
-  );
 }
 
 /** Waits for the registry to settle every requested source. */
@@ -55,99 +41,35 @@ describe("iconRegistry", () => {
     expect(iconRegistry.getSnapshot().size).toBe(0);
   });
 
-  it("resolves a data: raster to its url without fetching", async () => {
-    const source = rasterSource("data:image/png;base64,QUJD");
+  it("resolves a raster icon to its url without fetching", async () => {
+    const source = classifyIconSource({
+      iconUrl: "data:image/png;base64,QUJD",
+      iconImageType: "image/png",
+    });
     iconRegistry.request([source]);
     await settle();
 
     expect(iconRegistry.getSnapshot().get(iconSourceId(source)!)).toStrictEqual(
-      { kind: "raster", url: "data:image/png;base64,QUJD" },
+      {
+        kind: "raster",
+        url: "data:image/png;base64,QUJD",
+      },
     );
     expect(fetch).not.toBeCalled();
   });
 
-  // Already inline, so making the consumer wait a render for it would be a
-  // pointless async round trip.
-  it("resolves a data: raster synchronously", () => {
-    const source = rasterSource("data:image/png;base64,QUJD");
+  // A url needs no resolution, so making the consumer wait a render for it
+  // would be a pointless async round trip.
+  it("resolves a raster icon synchronously", () => {
+    const source = classifyIconSource({
+      iconUrl: "data:image/png;base64,QUJD",
+      iconImageType: "image/png",
+    });
 
     iconRegistry.request([source]);
 
     expect(iconRegistry.getSnapshot().has(iconSourceId(source)!)).toBe(true);
     expect(iconRegistry.pendingCount).toBe(0);
-  });
-
-  // The canvas nests every icon inside a `data:` svg, whose image sandbox
-  // fetches nothing external, so a remote raster has to arrive inline.
-  it("inlines a remote raster as a data: url", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() =>
-        imageResponse(
-          new Uint8Array([65, 66, 67]),
-          "image/png; charset=binary",
-        ),
-      ),
-    );
-    const source = rasterSource("https://example.test/a.png");
-
-    iconRegistry.request([source]);
-    await settle();
-
-    expect(iconRegistry.getSnapshot().get(iconSourceId(source)!)).toStrictEqual(
-      { kind: "raster", url: "data:image/png;base64,QUJD" },
-    );
-    expect(fetch).toBeCalledWith("https://example.test/a.png", {
-      signal: expect.any(AbortSignal),
-    });
-  });
-
-  // Falling back keeps the icon rendering wherever the browser loads the url
-  // itself, as it did before inlining existed. Rejection stands in for CORS.
-  it.each([
-    ["a fetch that rejects", () => Promise.reject(new TypeError("CORS"))],
-    ["a 404", () => imageResponse(new Uint8Array([1]), "image/png", 404)],
-    ["a non-image response", () => imageResponse("<html/>", "text/html")],
-    // An untyped Blob body leaves the content-type header unset.
-    ["a missing content type", () => Promise.resolve(new Response(new Blob()))],
-    [
-      "a body cut off mid-download",
-      () =>
-        imageResponse(
-          new ReadableStream({ start: c => c.error(new Error("aborted")) }),
-          "image/png",
-        ),
-    ],
-    [
-      "an svg, which belongs on the sanitized svg path",
-      () => imageResponse(REMOTE_SVG, "image/svg+xml"),
-    ],
-    [
-      "an image too large to embed in every style",
-      () => imageResponse(new Uint8Array(1024 * 1024 + 1), "image/png"),
-    ],
-    [
-      "a declared length too large to download",
-      () =>
-        Promise.resolve(
-          new Response(new Uint8Array([1]), {
-            headers: {
-              "content-type": "image/png",
-              "content-length": String(1024 * 1024 + 1),
-            },
-          }),
-        ),
-    ],
-  ])("falls back to the plain url for %s", async (_, respond) => {
-    vi.stubGlobal("fetch", vi.fn(respond));
-    const source = rasterSource("https://example.test/a.png");
-
-    iconRegistry.request([source]);
-    await settle();
-
-    expect(iconRegistry.getSnapshot().get(iconSourceId(source)!)).toStrictEqual(
-      { kind: "raster", url: "https://example.test/a.png" },
-    );
   });
 
   it("fetches and sanitizes a remote svg", async () => {

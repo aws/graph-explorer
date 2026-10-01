@@ -6,6 +6,7 @@ import type { EdgeType, VertexType } from "@/core/entities";
 
 import { createEdgeType, createVertexType } from "@/core/entities";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
+import { isAllowedIconValue } from "@/core/icons";
 import {
   ARROW_STYLES,
   type EdgeStyleStorage,
@@ -83,33 +84,10 @@ export class StylingParseError extends Error {
 
 // --- Per-entry zod schemas ---
 
-/**
- * Icons must be either a Lucide reference or a base64-encoded `image/*` data
- * URI. Remote URLs (and any other scheme) are rejected so importing never
- * triggers outbound requests. The image subtype is left open — any
- * RFC-6838-shaped subtype — rather than a fixed list, because the uploader
- * stores whatever `image/*` the browser reports (`accept="image/*"`), so a
- * closed list would reject the app's own exports on re-import. This is not a
- * weakening: SVG (the only script-capable type) is DOMPurify-sanitized at the
- * render sink regardless of the declared subtype, and every other type renders
- * as an inert raster `<img>`.
- */
-const ICON_VALUE_PATTERN =
-  /^(lucide:[a-z0-9-]+$|data:image\/[a-z0-9.+-]+;base64,)/;
-
-const safeIconValue = z.string().regex(ICON_VALUE_PATTERN, {
+const safeIconValue = z.string().refine(isAllowedIconValue, {
   error:
     "value does not match the allowlist (lucide:<name> or data:image/*;base64,)",
 });
-
-/**
- * Whether a value passes the icon allowlist — the single gate shared by the
- * import parser (above) and the upload seam, so the accepted set has one source
- * of truth instead of drifting between the two.
- */
-export function isAllowedIconValue(value: string): boolean {
-  return ICON_VALUE_PATTERN.test(value);
-}
 
 /**
  * One vertex entry. Unknown fields are stripped (Zod's default), so a file with
