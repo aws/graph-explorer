@@ -61,8 +61,7 @@ function dropBlankColors(entry: VertexStyleStorage): VertexStyleStorage | null {
 /**
  * Drops an icon outside the allowlist, with its image type, so the default
  * icon applies. The app only ever writes allowlisted icons, so this catches
- * hand-edited values, such as a remote url that would make rendering issue
- * network requests. An empty url means "no icon" and is kept.
+ * hand-edited values, such as a remote url. An empty url means "no icon" and is kept.
  */
 function dropDisallowedIcon(
   type: VertexType,

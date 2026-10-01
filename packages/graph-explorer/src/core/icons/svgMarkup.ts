@@ -29,13 +29,10 @@ export function ensureSvgViewBox(svg: string): string {
 
 /**
  * Sanitizes untrusted SVG markup and ensures the result carries a `viewBox`.
- * Every caller that renders a non-lucide SVG runs this same sequence, so it
- * lives once here rather than as a copy at each call site.
  *
- * `USE_PROFILES` (not an explicit `ALLOWED_ATTR`) is what keeps `width`,
- * `height`, and `viewBox` through sanitization — DOMPurify rebuilds
- * `ALLOWED_ATTR` from the profile sets whenever `USE_PROFILES` is set, so an
- * explicit allowlist alongside it would silently never take effect.
+ * `USE_PROFILES` is what keeps `width`, `height`, and `viewBox`: DOMPurify
+ * rebuilds `ALLOWED_ATTR` from the profiles, so an explicit list would be
+ * silently ignored.
  */
 export function sanitizeSvg(svg: string): string {
   const sanitized = DOMPurify.sanitize(svg, {
@@ -44,30 +41,19 @@ export function sanitizeSvg(svg: string): string {
   return ensureSvgViewBox(sanitized);
 }
 
+/** A unitless or `px` length, the only units that match the content's user units. */
+const USER_UNIT_LENGTH = /^\s*(\d*\.?\d+(?:e[+-]?\d+)?)\s*(?:px)?\s*$/i;
+
 /**
- * Parses an SVG `width`/`height` attribute as a positive, finite number of
- * user units, or `null` if it is not one.
- *
- * `parseFloat` alone lets three malformed inputs through: `NaN`/`-5`/`0` are
- * already guarded, but `"1e400"` parses to `Infinity` (a `viewBox="0 0
- * Infinity Infinity"` that blanks the icon) and `"100%"` parses to the
- * unitless number `100` (a bogus viewBox that crops the artwork instead of
- * scaling it, since a percentage has no meaning without a viewport to
- * resolve against). A plain unit suffix like `"400px"` is legitimate SVG and
- * must still parse, so only a trailing `%` is rejected, not every non-digit
- * suffix.
- *
- * Rejecting `%` trades one bug for a smaller one: an svg with no other size
- * hint (`width="100%" height="100%"`, no `viewBox`) still gets no `viewBox`
- * synthesized, so `ensureSvgViewBox` returns it unchanged and it still fills
- * its box as a square — issue #2108, for this one input. There is no fix
- * available at this layer: the percentage carries no aspect ratio to recover,
- * and guessing one would be worse than the known, tested gap this leaves.
+ * Parses an SVG `width`/`height` as a positive, finite number of user units,
+ * or `null`. Percentages and other units carry no recoverable ratio in user
+ * units, so such an SVG keeps filling its box; guessing would be worse.
  */
 function parseFiniteLength(value: string | null): number | null {
-  if (value === null || value.trimEnd().endsWith("%")) {
+  const match = value === null ? null : USER_UNIT_LENGTH.exec(value);
+  if (!match) {
     return null;
   }
-  const parsed = parseFloat(value);
+  const parsed = Number(match[1]);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }

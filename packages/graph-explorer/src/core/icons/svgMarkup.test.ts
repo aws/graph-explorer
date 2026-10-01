@@ -4,7 +4,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { ensureSvgViewBox, sanitizeSvg } from "./svgViewBox";
+import { ensureSvgViewBox, sanitizeSvg } from "./svgMarkup";
 
 describe("ensureSvgViewBox", () => {
   // Issue #2108: without a viewBox, an SVG has no coordinate system to scale
@@ -54,7 +54,17 @@ describe("ensureSvgViewBox", () => {
     expect(ensureSvgViewBox(svg)).toBe(svg);
   });
 
-  // A plain unit suffix is legitimate SVG and must still synthesize a viewBox.
+  // Child geometry is in user units (px); a viewBox built from em or pt
+  // numbers would zoom into a corner instead of fitting.
+  it.each(["2em", "72pt", "10mm", "1in"])(
+    "leaves the svg untouched when width is in %s",
+    width => {
+      const svg = `<svg width="${width}" height="1em" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>`;
+
+      expect(ensureSvgViewBox(svg)).toBe(svg);
+    },
+  );
+
   it("synthesizes a viewBox when width/height carry a px suffix", () => {
     const svg = `<svg width="400px" height="100px" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>`;
 
@@ -62,9 +72,6 @@ describe("ensureSvgViewBox", () => {
   });
 });
 
-// `VertexIcon.tsx` and `iconRegistry.ts` both sanitized untrusted svg with
-// this exact DOMPurify config before synthesizing a viewBox; shared here so
-// the two call sites cannot drift.
 describe("sanitizeSvg", () => {
   it("strips a <script> element and still synthesizes a viewBox", () => {
     const svg = `<svg width="400" height="100" xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script><rect width="400" height="100"/></svg>`;

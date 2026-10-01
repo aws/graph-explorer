@@ -151,6 +151,11 @@ export function createRandomEdgeTypeConfigForRdf(): EdgeTypeConfig {
   };
 }
 
+/** An uploaded-style icon, so rendering one never hits the network. */
+export function createRandomIconDataUrl(): string {
+  return `data:image/png;base64,${btoa(createRandomName("icon"))}`;
+}
+
 /**
  * Creates a random VertexTypeConfig object.
  * @returns A random VertexTypeConfig object.
@@ -167,8 +172,7 @@ export function createRandomVertexTypeConfig(): VertexTypeConfig {
     // style
     color: createRandomColor(),
     iconImageType: "image/png",
-    // Inline, like every stored icon, so rendering one never hits the network.
-    iconUrl: `data:image/png;base64,${btoa(createRandomName("icon"))}`,
+    iconUrl: createRandomIconDataUrl(),
   };
 }
 
@@ -669,9 +673,7 @@ export function createRandomAwsRegion(): string {
 export function createRandomVertexStyleStorage(): VertexStyleStorage {
   const color = randomlyUndefined(createRandomColor());
   const borderColor = randomlyUndefined(createRandomColor());
-  const iconUrl = randomlyUndefined(
-    `data:image/png;base64,${btoa(createRandomName("icon"))}`,
-  );
+  const iconUrl = randomlyUndefined(createRandomIconDataUrl());
   const longDisplayNameAttribute = randomlyUndefined(
     createRandomName("LongDisplayNameAttribute"),
   );
