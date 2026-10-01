@@ -1,15 +1,16 @@
 // @vitest-environment happy-dom
 import * as fileSaver from "file-saver";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ConfigurationContextProps } from "@/core";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { createEdgeType, createVertexType } from "@/core";
+import { transformLegacyConnection } from "@/core/StateProvider/configuration";
 
 import { parseConnectionFile } from "./parseConnectionFile";
 import saveConfigurationToFile from "./saveConfigurationToFile";
-import { createRandomRawConfiguration } from "./testing";
+import { createRandomRawConfiguration, stubDocumentUrl } from "./testing";
 
 vi.mock("file-saver", () => ({
   saveAs: vi.fn(),
@@ -35,7 +36,18 @@ function makeConfig(
   };
 }
 
+/** Exports the config and returns the JSON written to the file. */
+async function exportToJson(config: ConfigurationContextProps) {
+  saveConfigurationToFile(config);
+  const [blob] = saveAsMock.mock.calls[0];
+  return JSON.parse(await (blob as Blob).text());
+}
+
 describe("saveConfigurationToFile", () => {
+  beforeEach(() => {
+    stubDocumentUrl();
+  });
+
   it("should save a minimal configuration to file", () => {
     const config = makeConfig();
 
@@ -361,6 +373,7 @@ describe("saveConfigurationToFile", () => {
     const parsed = JSON.parse(await (blob as Blob).text());
 
     expect(parseConnectionFile(parsed)?.connection).toStrictEqual({
+      url: "https://neptune.example.com:8182",
       graphDbUrl: "https://neptune.example.com:8182",
       proxyConnection: false,
       queryEngine: "sparql",
@@ -435,5 +448,92 @@ describe("saveConfigurationToFile", () => {
     const parsed = JSON.parse(text);
 
     expect(parsed.schema.edgeConnections).toBeUndefined();
+  });
+});
+
+/**
+ * BACKWARD COMPATIBILITY — EXPORTED FILES READ BY OLDER VERSIONS
+ *
+ * Versions before the unified-proxy model (#1773) import a file only if
+ * `connection.url` is an http(s) URL, and read a missing `proxyConnection` as
+ * direct. `url` is the proxy root with no trailing slash, since they build
+ * `${url}/gremlin`, or the database for a direct connection. The rationale
+ * lives in ADR `unify-docker-image-remove-sagemaker-variant`.
+ *
+ * DO NOT delete or weaken these tests without confirming that no supported
+ * older version still imports exported connection files.
+ */
+describe("backward compatibility: legacy url/proxyConnection written to exported files", () => {
+  beforeEach(() => {
+    stubDocumentUrl();
+  });
+
+  it("should export the proxy server URL for a proxy connection", async () => {
+    const parsed = await exportToJson(
+      makeConfig({
+        connection: {
+          graphDbUrl: "https://neptune.example.com:8182",
+          queryEngine: "gremlin",
+        },
+      }),
+    );
+
+    expect(parsed.connection).toStrictEqual({
+      url: "http://localhost",
+      proxyConnection: true,
+      graphDbUrl: "https://neptune.example.com:8182",
+      queryEngine: "gremlin",
+    });
+  });
+
+  it("should export the proxy server URL behind a reverse proxy prefix", async () => {
+    stubDocumentUrl("https://nb.sagemaker.aws/proxy/9250/explorer/");
+
+    const parsed = await exportToJson(
+      makeConfig({
+        connection: {
+          graphDbUrl: "https://neptune.example.com:8182",
+          proxyConnection: true,
+        },
+      }),
+    );
+
+    expect(parsed.connection.url).toBe("https://nb.sagemaker.aws/proxy/9250");
+    expect(parsed.connection.proxyConnection).toBe(true);
+  });
+
+  it("should export the database URL as url for a direct connection", async () => {
+    const parsed = await exportToJson(
+      makeConfig({
+        connection: {
+          graphDbUrl: "https://neptune.example.com:8182/",
+          proxyConnection: false,
+        },
+      }),
+    );
+
+    expect(parsed.connection.url).toBe("https://neptune.example.com:8182");
+    expect(parsed.connection.proxyConnection).toBe(false);
+  });
+
+  it.each([
+    { graphDbUrl: "https://neptune.example.com:8182" },
+    {
+      graphDbUrl: "https://neptune.example.com:8182",
+      proxyConnection: false,
+    },
+  ])("should import back to the same connection for %o", async connection => {
+    const parsed = await exportToJson(
+      makeConfig({ connection: { ...connection, queryEngine: "gremlin" } }),
+    );
+
+    const file = parseConnectionFile(parsed);
+    if (!file) {
+      throw new Error("exported file failed import validation");
+    }
+    expect(transformLegacyConnection(file.connection)).toStrictEqual({
+      ...connection,
+      queryEngine: "gremlin",
+    });
   });
 });

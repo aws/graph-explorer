@@ -1,6 +1,10 @@
+import type { ConnectionConfig } from "@shared/types";
+
 import { saveAs } from "file-saver";
 
+import { apiUrl } from "@/connector/utils/apiUrl";
 import { type ConfigurationContextProps, normalizeUrl } from "@/core";
+import { isDirectConnection } from "@/core/StateProvider/configuration";
 
 import type { ExportedConnectionFile } from "./parseConnectionFile";
 
@@ -17,6 +21,7 @@ const saveConfigurationToFile = (config: ConfigurationContextProps) => {
       queryEngine: config.connection?.queryEngine || "gremlin",
       // A config with no URL must omit the key entirely; a present "" fails the z.url() check on import.
       ...(normalizedGraphDbUrl && { graphDbUrl: normalizedGraphDbUrl }),
+      ...legacyConnectionFields(config.connection, normalizedGraphDbUrl),
     },
     schema: {
       vertices: config.schema.vertices,
@@ -30,5 +35,24 @@ const saveConfigurationToFile = (config: ConfigurationContextProps) => {
   const fileToSave = toJsonFileData(exportableConfig);
   saveAs(fileToSave, `${exportableConfig.displayLabel}.connection.json`);
 };
+
+/**
+ * The fields versions before the unified-proxy model need to import the file:
+ * `url` and an explicit `proxyConnection`. See ADR
+ * `unify-docker-image-remove-sagemaker-variant`.
+ */
+function legacyConnectionFields(
+  connection: ConnectionConfig | undefined,
+  normalizedGraphDbUrl: string,
+) {
+  const isDirect = isDirectConnection(connection);
+  return {
+    proxyConnection: !isDirect,
+    // Omitted with `graphDbUrl`, so a URL-less file still fails import.
+    ...(normalizedGraphDbUrl && {
+      url: isDirect ? normalizedGraphDbUrl : normalizeUrl(apiUrl("").href),
+    }),
+  };
+}
 
 export default saveConfigurationToFile;

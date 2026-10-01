@@ -1,9 +1,11 @@
+// @vitest-environment happy-dom
 import * as fileSaver from "file-saver";
 import { toast } from "sonner";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ConfigurationContextProps } from "@/core";
 
+import { stubDocumentUrl } from "@/utils/testing";
 import { createRandomRawConfiguration } from "@/utils/testing/randomData";
 
 import { exportConnectionWithFeedback } from "./exportConnection";
@@ -29,6 +31,10 @@ function makeConfig(
 }
 
 describe("exportConnectionWithFeedback", () => {
+  beforeEach(() => {
+    stubDocumentUrl();
+  });
+
   it("exports a connection that has a url and reports success", () => {
     const exported = exportConnectionWithFeedback(
       makeConfig({ graphDbUrl: "https://example.com", queryEngine: "gremlin" }),
@@ -47,6 +53,20 @@ describe("exportConnectionWithFeedback", () => {
     expect(exported).toBe(false);
     expect(saveAsMock).not.toHaveBeenCalled();
     expect(toastErrorMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("reports failure and does not export when the proxy server URL cannot be resolved", () => {
+    stubDocumentUrl("http://localhost/renamed/");
+
+    const exported = exportConnectionWithFeedback(
+      makeConfig({ graphDbUrl: "https://example.com", queryEngine: "gremlin" }),
+    );
+
+    expect(exported).toBe(false);
+    expect(saveAsMock).not.toHaveBeenCalled();
+    expect(toastErrorMock).toHaveBeenCalledWith("Cannot Export Connection", {
+      description: expect.stringContaining("/explorer"),
+    });
   });
 
   it("reports failure and does not export when there is no connection", () => {
