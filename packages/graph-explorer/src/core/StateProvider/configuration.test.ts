@@ -480,6 +480,9 @@ describe("backward compatibility: legacy url/proxyConnection connection shape", 
     });
   });
 
+  // Versions before the unified-proxy model saved the form's hidden
+  // `graphDbUrl` on direct connections too, so it can be stale there while
+  // `url` is the database the user actually queried.
   test("should prefer url over graphDbUrl on a direct connection", () => {
     const result = transformLegacyConnection({
       url: "https://my-neptune:8182",
