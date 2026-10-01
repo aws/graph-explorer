@@ -3,6 +3,7 @@ import localforage from "localforage";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { createVertexType, type VertexType } from "@/core/entities";
+import { logger } from "@/utils";
 
 import type { ShapeStyle, VertexStyleStorage } from "./graphStyles";
 
@@ -102,6 +103,52 @@ describe("backward compatibility: blank colors in storage", () => {
   it("passes usable colors through by reference", () => {
     const styles = vertexMap([
       ["Person", { color: "#FF0000", borderColor: "#00FF00" }],
+    ]);
+
+    expect(transformVertexStyles(styles)).toBe(styles);
+  });
+});
+
+/**
+ * BACKWARD COMPATIBILITY — PERSISTED DATA
+ *
+ * Remote icon urls were never writable through the app (uploads are always
+ * `data:` urls, imports are allowlisted), but a hand-edited file could have
+ * stored one. Rendering them would make style config issue network requests,
+ * so they are dropped at load and the default icon applies instead.
+ */
+describe("backward compatibility: icon values outside the allowlist", () => {
+  it.each([
+    ["a remote raster url", "https://example.test/a.png", "image/png"],
+    ["a remote svg url", "https://example.test/a.svg", "image/svg+xml"],
+    ["a relative url", "/icons/a.png", "image/png"],
+    ["a lone surrogate", "data:image/png;base64,AAA\uD800BBB", "image/png"],
+  ])("drops %s so the default icon applies", (_, iconUrl, iconImageType) => {
+    const styles = vertexMap([
+      ["Person", { iconUrl, iconImageType, color: "#FF0000" }],
+    ]);
+
+    const stored = transformVertexStyles(styles).get(
+      createVertexType("Person"),
+    );
+
+    expect(stored).toStrictEqual({
+      type: createVertexType("Person"),
+      color: "#FF0000",
+    });
+    expect(
+      resolveVertexStyle(createVertexType("Person"), stored),
+    ).toMatchObject({
+      iconUrl: appDefaultVertexStyle.iconUrl,
+      iconImageType: appDefaultVertexStyle.iconImageType,
+    });
+    expect(logger.warn).toHaveBeenCalled();
+  });
+
+  it("passes allowlisted icons through by reference", () => {
+    const styles = vertexMap([
+      ["Lucide", { iconUrl: "lucide:user" }],
+      ["Upload", { iconUrl: "data:image/png;base64,QUJD" }],
     ]);
 
     expect(transformVertexStyles(styles)).toBe(styles);

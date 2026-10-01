@@ -51,27 +51,6 @@ describe("useBackgroundImageMap", () => {
     await waitFor(() => expect(result.current.size).toBe(0));
   });
 
-  // A stored icon url is not guaranteed to be well-formed UTF-16 (a lone
-  // surrogate, say). `encodeURIComponent` throws `URIError` on one, and this
-  // hook runs during style computation, so an uncaught throw here takes down
-  // the whole app through the route-level error boundary with no in-app way
-  // back to fix the value. The vertex must render with no background image
-  // instead.
-  it("omits an icon whose url is not well-formed UTF-16 instead of throwing", async () => {
-    const config = makeConfig({
-      type: createVertexType("Malformed"),
-      iconUrl: "data:image/png;base64,AAA\uD800BBB",
-      iconImageType: "image/png",
-    });
-
-    let result: ReturnType<typeof renderMap>["result"];
-    expect(() => {
-      ({ result } = renderMap([config]));
-    }).not.toThrow();
-
-    await waitFor(() => expect(result!.current.size).toBe(0));
-  });
-
   // Issue #2108: cytoscape cannot both preserve an image's aspect ratio and
   // inset it, so the inset is baked into a square svg wrapper and the nested
   // `preserveAspectRatio` does the fitting. That works for every icon kind
@@ -104,59 +83,6 @@ describe("useBackgroundImageMap", () => {
     expect(wrapper).toContain(`height="${size}"`);
     expect(decodeIcon(url)).toContain("data:image/png;base64,QUJD");
     expect(fetch).not.toBeCalled();
-  });
-
-  // The wrapper's image sandbox fetches nothing external, so a remote raster
-  // nested as-is would render blank.
-  it("wraps a remote raster as an inlined data: url", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() =>
-        Promise.resolve(
-          new Response(new Uint8Array([65, 66, 67]), {
-            headers: { "content-type": "image/png" },
-          }),
-        ),
-      ),
-    );
-    const config = makeConfig({
-      type: createVertexType("RemoteRaster"),
-      iconUrl: "https://example.test/a.png",
-      iconImageType: "image/png",
-    });
-
-    const { result } = renderMap([config]);
-
-    await waitFor(() =>
-      expect(result.current.has(createVertexType("RemoteRaster"))).toBe(true),
-    );
-    const icon = decodeIcon(
-      result.current.get(createVertexType("RemoteRaster"))!,
-    );
-    expect(icon).toContain('href="data:image/png;base64,QUJD"');
-    expect(icon).not.toContain("https://example.test/a.png");
-  });
-
-  // A remote raster the registry could not inline (no CORS, say) would render
-  // blank inside the wrapper's image sandbox, so it is left unwrapped.
-  it("leaves a raster that could not be inlined unwrapped", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() => Promise.reject(new TypeError("CORS"))),
-    );
-    const config = makeConfig({
-      type: createVertexType("CorsBlocked"),
-      iconUrl: "https://example.test/a.png",
-      iconImageType: "image/png",
-    });
-
-    const { result } = renderMap([config]);
-
-    await waitFor(() =>
-      expect(result.current.get(createVertexType("CorsBlocked"))).toBe(
-        "https://example.test/a.png",
-      ),
-    );
   });
 
   // The wrapper nests the raster url as an XML attribute value, so a raw `<`
