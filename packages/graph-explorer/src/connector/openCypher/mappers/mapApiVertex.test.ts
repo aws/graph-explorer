@@ -5,7 +5,7 @@ import {
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
-import { expect, test } from "vitest";
+import { expect, test } from "vite-plus/test";
 
 import { createResultVertex } from "@/connector/entities";
 

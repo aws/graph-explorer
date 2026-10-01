@@ -3,7 +3,14 @@ import os from "os";
 import path from "path";
 import { Readable } from "stream";
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 
 import { createApp, resolveEndpointUrl } from "./app.ts";
 import { createLogger } from "./logging.ts";

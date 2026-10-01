@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import { assertAllowedDbOrigin } from "./allowed-db-origins.ts";
 import { HttpError } from "./errors.ts";

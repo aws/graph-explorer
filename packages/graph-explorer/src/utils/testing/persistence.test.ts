@@ -1,5 +1,5 @@
 import { createRandomName } from "@shared/utils/testing";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 import type { ConfigurationId, RawConfiguration } from "@/connections";
 import type { EdgeType, VertexType } from "@/core/entities";

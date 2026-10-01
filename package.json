@@ -8,12 +8,12 @@
   "type": "module",
   "scripts": {
     "prepare": "husky",
-    "lint": "oxlint --fix",
-    "check:lint": "oxlint",
-    "format": "oxfmt",
-    "check:format": "oxfmt --check",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "lint": "vp lint --fix",
+    "check:lint": "vp lint",
+    "format": "vp fmt",
+    "check:format": "vp fmt --check",
+    "test": "vp test run",
+    "test:watch": "vp test",
     "check:types": "pnpm -r --include-workspace-root --parallel --stream run typecheck",
     "typecheck": "tsc --noEmit",
     "checks": "pnpm run check:lint && pnpm run check:format && pnpm run check:types",
@@ -30,11 +30,8 @@
     "fast-check": "^4.10.2",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
-    "oxfmt": "0.71.0",
-    "oxlint": "1.86.0",
-    "oxlint-tsgolint": "7.0.2003",
     "typescript": "^7.0.2",
-    "vitest": "5.0.2"
+    "vite-plus": "catalog:"
   },
   "lint-staged": {
     "!(**/*.{js,ts,tsx})": "oxfmt --no-error-on-unmatched-pattern",

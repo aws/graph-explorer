@@ -1,6 +1,6 @@
 import type { LegacyConnectionConfig } from "@shared/types";
 
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 import type { ConfigurationId, RawConfiguration } from "@/connections";
 

@@ -3,7 +3,14 @@
 // DEV NOTE: happy-dom's DOMParser is not reliable for the svg render path.
 
 import { waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 
 import type { VertexStyle } from "@/core";
 

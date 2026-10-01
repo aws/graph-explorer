@@ -3,7 +3,7 @@
 import type { LegacyConnectionConfig } from "@shared/types";
 
 import { createArray } from "@shared/utils/testing";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { ZodError } from "zod";
 
 import type { RawConfiguration } from "@/connections";

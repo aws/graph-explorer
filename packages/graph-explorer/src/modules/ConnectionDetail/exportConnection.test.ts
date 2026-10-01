@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import * as fileSaver from "file-saver";
 import { toast } from "sonner";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 import type { ConfigurationContextProps } from "@/core";
 

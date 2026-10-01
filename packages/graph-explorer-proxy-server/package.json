@@ -35,6 +35,6 @@
     "@types/node": "^24.19.0",
     "@types/supertest": "^7.2.1",
     "supertest": "^7.3.0",
-    "vitest": "5.0.2"
+    "vite-plus": "catalog:"
   }
 }

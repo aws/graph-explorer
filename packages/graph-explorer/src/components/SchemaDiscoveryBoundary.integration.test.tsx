@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test } from "vite-plus/test";
 
 import { getAppStore, schemaAtom } from "@/core";
 import { createQueryClient } from "@/core/queryClient";

@@ -10,7 +10,7 @@
  *
  * DO NOT remove these mocks without understanding the security implications.
  */
-import { vi } from "vitest";
+import { vi } from "vite-plus/test";
 
 vi.mock("@aws-sdk/credential-providers", () => ({
   fromNodeProviderChain: () => () =>

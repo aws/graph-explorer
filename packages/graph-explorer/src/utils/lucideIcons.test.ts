@@ -1,6 +1,6 @@
 import type dynamicIconImports from "lucide-react/dynamicIconImports";
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 import {
   allIconNamesSorted,
