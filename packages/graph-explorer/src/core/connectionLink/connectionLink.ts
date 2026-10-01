@@ -9,13 +9,10 @@ import { z } from "zod";
 
 import type { ConfigurationId, RawConfiguration } from "@/connections";
 
+import { isDirectConnection, normalizeConnection } from "@/connections";
 import { DEFAULT_SERVICE_TYPE } from "@/utils";
 
 import { getAppStore } from "../StateProvider/appStore";
-import {
-  isDirectConnection,
-  normalizeConnection,
-} from "../StateProvider/configuration";
 import {
   activeConfigurationAtom,
   configurationAtom,

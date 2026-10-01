@@ -2,9 +2,10 @@ import type { ConnectionConfig } from "@shared/types";
 
 import { saveAs } from "file-saver";
 
+import type { ConfigurationContextProps } from "@/core";
+
+import { isDirectConnection, normalizeUrl } from "@/connections";
 import { apiUrl } from "@/connector/utils/apiUrl";
-import { type ConfigurationContextProps, normalizeUrl } from "@/core";
-import { isDirectConnection } from "@/core/StateProvider/configuration";
 
 import type { ExportedConnectionFile } from "./parseConnectionFile";
 

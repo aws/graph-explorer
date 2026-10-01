@@ -7,7 +7,11 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
-import { createNewConfigurationId, type RawConfiguration } from "@/connections";
+import {
+  createNewConfigurationId,
+  transformLegacyConnection,
+  type RawConfiguration,
+} from "@/connections";
 import {
   allGraphSessionsAtom,
   type ConfigurationContextProps,
@@ -16,10 +20,7 @@ import {
   schemaAtom,
 } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
-import {
-  mergeConfiguration,
-  transformLegacyConnection,
-} from "@/core/StateProvider/configuration";
+import { mergeConfiguration } from "@/core/StateProvider/configuration";
 import {
   createRandomEdgeId,
   createRandomRawConfiguration,

@@ -1,11 +1,10 @@
-import type { ConnectionConfig, LegacyConnectionConfig } from "@shared/types";
-
 import { atom } from "jotai";
 import { selectAtom } from "jotai/utils";
 import { isEqual } from "lodash";
 
 import type { RawConfiguration } from "@/connections";
 
+import { normalizeConnection } from "@/connections";
 import {
   activeConfigurationAtom,
   type AttributeConfig,
@@ -102,71 +101,6 @@ export function mergeConfiguration(
     },
   };
 }
-
-/**
- * Cleans a URL for storage and request use: strips newlines and surrounding
- * whitespace (pasted from docs/chat), then the trailing slash. Tolerates a
- * missing value because persisted configs are not schema-validated on read, so
- * a stored connection can lack `graphDbUrl` despite the compile-time required
- * type.
- */
-export function normalizeUrl(url: string | undefined): string {
-  return (
-    url
-      ?.replace(/[\r\n]/g, "")
-      .trim()
-      .replace(/\/$/, "") ?? ""
-  );
-}
-
-/**
- * Transforms a legacy connection (with `url` and `proxyConnection`) to the
- * canonical shape, where `graphDbUrl` is the only endpoint and a direct
- * connection is marked with `proxyConnection: false`.
- */
-export function transformLegacyConnection(
-  connection: LegacyConnectionConfig,
-): ConnectionConfig {
-  const { url, proxyConnection, ...rest } = connection;
-  // A missing `proxyConnection` flag is treated as a proxy connection when
-  // `graphDbUrl` — proxy-only in the legacy shape — is already present.
-  const isProxyConnection =
-    proxyConnection === true ||
-    (proxyConnection === undefined && connection.graphDbUrl != null);
-
-  if (isProxyConnection) {
-    return { ...rest, graphDbUrl: connection.graphDbUrl || "" };
-  }
-
-  // The IAM controls only render for a proxy connection, and a direct request
-  // never reaches the Proxy Server that would sign it.
-  delete rest.awsAuthEnabled;
-  delete rest.awsRegion;
-  delete rest.serviceType;
-
-  return {
-    ...rest,
-    graphDbUrl: url || connection.graphDbUrl || "",
-    proxyConnection: false,
-  };
-}
-
-/** Whether the browser sends requests to the database itself. Deprecated. */
-export function isDirectConnection(
-  connection: ConnectionConfig | undefined,
-): boolean {
-  return connection?.proxyConnection === false;
-}
-
-export function normalizeConnection(connection: ConnectionConfig) {
-  return {
-    ...connection,
-    graphDbUrl: normalizeUrl(connection.graphDbUrl),
-    queryEngine: connection.queryEngine || "gremlin",
-    awsAuthEnabled: connection.awsAuthEnabled ?? false,
-  };
-}
-export type NormalizedConnection = ReturnType<typeof normalizeConnection>;
 
 const mergeVertex = (
   schemaVertex: VertexTypeConfig,

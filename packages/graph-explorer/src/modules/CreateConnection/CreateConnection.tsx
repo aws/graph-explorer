@@ -23,7 +23,11 @@ import {
   TextAreaField,
 } from "@/components";
 import { DialogBody, DialogFooter } from "@/components/Dialog";
-import { createNewConfigurationId, type RawConfiguration } from "@/connections";
+import {
+  createNewConfigurationId,
+  isDirectConnection,
+  type RawConfiguration,
+} from "@/connections";
 import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
@@ -31,7 +35,6 @@ import {
   type ConfigurationContextProps,
   schemaAtom,
 } from "@/core";
-import { isDirectConnection } from "@/core/StateProvider/configuration";
 import useResetState from "@/core/StateProvider/useResetState";
 import { formatDate, isAbsoluteHttpUrl, logger } from "@/utils";
 import {

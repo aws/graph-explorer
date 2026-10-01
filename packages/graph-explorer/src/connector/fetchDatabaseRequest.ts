@@ -1,6 +1,7 @@
-import type { FeatureFlags, NormalizedConnection } from "@/core";
+import type { NormalizedConnection } from "@/connections";
+import type { FeatureFlags } from "@/core";
 
-import { isDirectConnection } from "@/core/StateProvider/configuration";
+import { isDirectConnection } from "@/connections";
 import {
   databaseTimeoutCode,
   DatabaseTimeoutError,

@@ -1,6 +1,8 @@
 import { toast } from "sonner";
 
-import { type ConfigurationContextProps, normalizeUrl } from "@/core";
+import type { ConfigurationContextProps } from "@/core";
+
+import { normalizeUrl } from "@/connections";
 import { logger } from "@/utils";
 import { createDisplayError } from "@/utils/createDisplayError";
 import saveConfigurationToFile from "@/utils/saveConfigurationToFile";

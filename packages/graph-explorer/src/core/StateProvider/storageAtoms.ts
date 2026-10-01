@@ -1,5 +1,9 @@
 import type { ConfigurationId, RawConfiguration } from "@/connections";
 
+// Deep import: this module's top-level await creates the atoms, so its import
+// graph must not include atom readers the index may export.
+import { transformConfiguration } from "@/connections/legacyConnection";
+
 import type { EdgeType, VertexType } from "../entities";
 import type { GraphSessionStorageModel } from "./graphSession/storage";
 import type { EdgeStyleStorage, VertexStyleStorage } from "./graphStyles";
@@ -7,7 +11,6 @@ import type { SchemaStorageModel } from "./schema";
 
 import { createActiveConfigurationAtom } from "./activeConnectionStorage";
 import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
-import { transformConfiguration } from "./configurationTransform";
 import {
   defaultGraphViewLayout,
   transformGraphViewLayout,

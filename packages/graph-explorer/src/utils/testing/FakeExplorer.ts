@@ -14,13 +14,12 @@ import type {
   VertexDetailsRequest,
 } from "@/connector";
 
+import { normalizeConnection, type NormalizedConnection } from "@/connections";
 import {
   createVertexTypeLookup,
   type Edge,
   type EdgeConnection,
   type Entities,
-  normalizeConnection,
-  type NormalizedConnection,
   toEdgeMap,
   toNodeMap,
   updateSchemaFromEntities,

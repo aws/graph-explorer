@@ -1,3 +1,4 @@
+import type { NormalizedConnection } from "@/connections";
 import type {
   Edge,
   EdgeConnection,
@@ -5,7 +6,6 @@ import type {
   EdgeType,
   EdgeTypeConfig,
   Entities,
-  NormalizedConnection,
   Vertex,
   VertexId,
   VertexType,
