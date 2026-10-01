@@ -33,3 +33,10 @@ Available markers:
 - `[!IMPORTANT]` — key to the reader's goal
 - `[!WARNING]` — urgent; avoids a problem
 - `[!CAUTION]` — risk of a bad outcome
+
+The same claim gets the same marker everywhere it appears. A page carrying three alerts in a row has an ordering problem, not an emphasis problem.
+
+## Docs that mirror code
+
+- `docs/references/security.md#reference-for-access-control-layers` copies the proxy server's routes, methods, request headers, body limit, and the client fetch timeout default. A change to any of them updates that section.
+- A new deployment guide gets the access control `[!IMPORTANT]` block, worded identically to the existing guides, and a row in the deployment table in `docs/references/security.md#access-control`.
