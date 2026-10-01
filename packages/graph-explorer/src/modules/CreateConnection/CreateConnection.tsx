@@ -229,7 +229,7 @@ const CreateConnection = ({
     ),
   );
 
-  const [form, setForm] = useState<ConnectionForm>({
+  const [form, setForm] = useState<ConnectionForm>(() => ({
     queryEngine: initialData?.queryEngine || "gremlin",
     name:
       initialData?.name ||
@@ -243,7 +243,7 @@ const CreateConnection = ({
     fetchTimeoutMs: initialData?.fetchTimeoutMs,
     nodeExpansionLimitEnabled: initialData?.nodeExpansionLimitEnabled || false,
     nodeExpansionLimit: initialData?.nodeExpansionLimit,
-  });
+  }));
 
   const [hasError, setError] = useState(false);
   const onFormChange =
