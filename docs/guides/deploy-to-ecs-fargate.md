@@ -104,10 +104,6 @@ After the request is processed, the console will return you to your certificate 
              "value": "gremlin"
            },
            {
-             "name": "GRAPH_EXP_HTTPS_CONNECTION",
-             "value": "true"
-           },
-           {
              "name": "IAM",
              "value": "false"
            },

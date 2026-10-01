@@ -122,7 +122,6 @@ Run the container with HTTPS disabled for local use:
 docker run -p 80:80 \
   --name graph-explorer \
   --env PROXY_SERVER_HTTPS_CONNECTION=false \
-  --env GRAPH_EXP_HTTPS_CONNECTION=false \
   graph-explorer
 ```
 

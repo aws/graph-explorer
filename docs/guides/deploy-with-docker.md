@@ -54,4 +54,9 @@ You can find the latest version of the image on [Amazon's ECR Public Registry](h
    ```
 
 5. You will receive a warning as the SSL certificate used is self-signed. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See the [HTTPS Connections](./troubleshooting.md#https-connections) section.
+
+   > [!NOTE]
+   >
+   > A new container generates a new certificate, so replacing the container undoes this trust step. To keep the certificate, see [Keeping the certificate across container replacements](../references/security.md#keeping-the-certificate-across-container-replacements).
+
 6. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See [Connections](../features/connections.md) for details on configuring your first connection.

@@ -10,21 +10,15 @@ These variables control server behavior, networking, and security.
 
 ### `HOST`
 
-The public hostname of the server. This is used to generate the self-signed SSL certificate at container startup.
+The public hostname of the server. It feeds the Subject Alternative Name of the self-signed SSL certificate and the URL the server prints at startup. It does not control which network interfaces the proxy server listens on.
+
+When `HOST` is set, a new container generates a fresh self-signed certificate, which invalidates any trust you granted to the previous one. See [Keeping the certificate across container replacements](./security.md#keeping-the-certificate-across-container-replacements).
 
 Example: `localhost`
 
-- Required when using HTTPS connections
+- Required when using HTTPS connections, unless you provide existing certificates
 - Default is `localhost`
 - Type: `string`
-
-### `GRAPH_EXP_HTTPS_CONNECTION`
-
-Uses the self-signed certificate to serve Graph Explorer over https if true. Only used in Docker via the entrypoint script.
-
-- Optional
-- Default `true` in Docker, not set otherwise
-- Type: `boolean`
 
 ### `PROXY_SERVER_HTTPS_PORT`
 
@@ -97,6 +91,18 @@ Controls the log output format.
 - `cloudwatch` omits timestamps and hostname/pid (these are provided by CloudWatch)
 - `default` uses the standard log format
 
+### `LOG_LEVEL`
+
+Sets the minimum severity the proxy server logs. Values from highest to lowest are `fatal`, `error`, `warn`, `info`, `debug`, `trace`, and `silent`, which disables logging. See [Logging](./logging.md).
+
+- Optional
+- Default: `info`
+- Type: `"fatal" | "error" | "warn" | "info" | "debug" | "trace" | "silent"`
+
+> [!WARNING]
+>
+> At `debug` and `trace`, the query text sent to your database is written to the logs. Queries can contain sensitive data, so keep those levels for troubleshooting and restrict access to wherever the logs end up.
+
 ### `CONFIGURATION_FOLDER_PATH`
 
 Override path for the folder containing `.env` and `defaultConnection.json`. When set, replaces the default path entirely.
@@ -132,7 +138,6 @@ These are the valid environment variables used for the default connection, their
 - Optional
   - `GRAPH_TYPE` - `None` - If not specified, multiple connections will be created for every available query language.
   - `IAM` - `False`
-  - `GRAPH_EXP_HTTPS_CONNECTION` - `True` - Controls whether Graph Explorer uses SSL or not
   - `PROXY_SERVER_HTTPS_CONNECTION` - `True` - Controls whether the server uses SSL or not
   - `GRAPH_EXP_FETCH_REQUEST_TIMEOUT` - `240000` - Controls the timeout for the fetch request. Measured in milliseconds (i.e. 240000 is 240 seconds or 4 minutes).
   - `GRAPH_EXP_NODE_EXPANSION_LIMIT` - `None` - Controls the limit for node counts and expansion queries.
@@ -152,7 +157,6 @@ First, create a `config.json` file containing values for the connection attribut
   "SERVICE_TYPE": "neptune-db",
   "AWS_REGION": "us-west-2",
   "GRAPH_TYPE": "gremlin",
-  "GRAPH_EXP_HTTPS_CONNECTION": true,
   "PROXY_SERVER_HTTPS_CONNECTION": true,
   "GRAPH_EXP_FETCH_REQUEST_TIMEOUT": 240000,
   "GRAPH_EXP_NODE_EXPANSION_LIMIT": 500

@@ -20,6 +20,22 @@ Graph Explorer routes database requests through the proxy server running on the 
 
 If your notebook instance is in a private subnet without a NAT gateway or internet gateway, it will not be able to reach databases outside the VPC. To connect to external databases, ensure the instance has the appropriate network routing (VPC peering, NAT gateway, transit gateway, etc.).
 
+## Security model
+
+The notebook environment provides the protections that let the sample lifecycle script serve Graph Explorer over plain HTTP:
+
+- Jupyter terminates TLS, so browser traffic to the notebook is encrypted.
+- Jupyter requires a signed-in AWS principal, so only authenticated users reach the proxy.
+- The container listens on port `9250` and the Jupyter proxy reaches it over loopback.
+
+The Jupyter proxy at `/proxy/9250/explorer/` is the only intended access path. Do not expose port `9250` any other way.
+
+None of these properties travel with the settings. `PROXY_SERVER_HTTPS_CONNECTION=false` is safe here because of what surrounds the container. Copying it to another environment serves unauthenticated, unencrypted traffic.
+
+## Logging and privacy
+
+The sample lifecycle script sets `LOG_LEVEL=info`, which keeps database query text out of the logs. If you raise it to `debug`, query text is written to the CloudWatch log group `/aws/sagemaker/NotebookInstances`, which is shared with the notebook. Anyone who can read that log group can read the queries.
+
 ## Minimum Database Permissions
 
 By default, the permission policy for the IAM role of the SageMaker instance will have full access to the Neptune Database or Neptune Analytics instance. This means queries executed within Graph Explorer could contain mutations.

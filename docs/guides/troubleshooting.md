@@ -37,20 +37,12 @@ Which will result in the following URLs:
 
 ### HTTP Only
 
-If you do not want to use SSL and HTTPS, you can disable it by setting the following [environment variables](../references/configuration.md#application-configuration):
-
-```
-PROXY_SERVER_HTTPS_CONNECTION=false
-GRAPH_EXP_HTTPS_CONNECTION=false
-```
-
-These can be passed when creating the Docker container like so:
+If you do not want to use SSL and HTTPS, you can disable it by setting [`PROXY_SERVER_HTTPS_CONNECTION`](../references/configuration.md#proxy_server_https_connection) to `false`. Pass it when creating the Docker container like so:
 
 ```
 docker run -p 80:80 \
   --name graph-explorer \
   --env PROXY_SERVER_HTTPS_CONNECTION=false \
-  --env GRAPH_EXP_HTTPS_CONNECTION=false \
   public.ecr.aws/neptune/graph-explorer
 ```
 
@@ -118,7 +110,7 @@ This can manifest as different types of errors depending on the root cause. You 
 - The port of the proxy server could be the default (i.e. 80 or 443 with SSL) or a specific port provided through environment values
 - The proxy server paths are not exposed by the networking layer (load balancer, proxy, firewall, etc)
   - The client is hosted at `/explorer`
-  - Queries are handled via `/gremlin`, `/opencypher`, `/sparql`
+  - Queries are handled via `/gremlin`, `/openCypher`, `/sparql`
   - Summary APIs are handled via `/summary`, `/pg/statistics/summary`, `/rdf/statistics/summary`
   - Logging is handled by `/logger`
   - Default connection is handled by `/defaultConnection`
