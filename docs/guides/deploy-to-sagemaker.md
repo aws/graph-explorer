@@ -18,6 +18,8 @@ https://graph-explorer-notebook-name.notebook.us-west-2.sagemaker.aws/proxy/9250
 >
 > Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../references/security.md#access-control).
 
+On SageMaker, the notebook's Jupyter proxy is that access control layer. See [Security model](#security-model).
+
 ## Network Requirements
 
 Graph Explorer routes database requests through the proxy server running on the SageMaker notebook instance. This means the instance must have network access to any database you want to explore.

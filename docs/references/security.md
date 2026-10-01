@@ -31,7 +31,7 @@ SageMaker is the exception because the notebook's Jupyter proxy requires a signe
 
 How Graph Explorer behaves on the wire, for anyone adding an access control layer in front of it.
 
-**Request headers.** The proxy server reads `graph-db-connection-url`, `aws-neptune-region`, `service-type`, `db-query-logging-enabled`, and `queryid`. `POST /logger` also reads `level` and `message`. Without `graph-db-connection-url`, every query fails with a validation error, and nothing in the response says a header was removed. The proxy server never reads a client `Authorization` header or cookie, and never forwards either one to the database.
+**Request headers.** The proxy server reads `graph-db-connection-url`, `aws-neptune-region`, `service-type`, `db-query-logging-enabled`, and `queryid`. `POST /logger` also reads `level` and `message`. Without `graph-db-connection-url`, every query fails with a 400 whose body names the missing header. The proxy server never reads a client `Authorization` header or cookie, and never forwards either one to the database.
 
 **Paths.** The UI lives under `/explorer`. It calls the API on its own origin, under the same prefix it was loaded from, with the `/explorer` segment cut out. A layer that renames that segment breaks the UI, see [Reverse proxy misconfigured](../guides/troubleshooting.md#reverse-proxy-misconfigured). The API paths sit next to `/explorer`, not under it, so a layer that forwards only `/explorer/*` serves a UI that loads and then fails every query.
 
