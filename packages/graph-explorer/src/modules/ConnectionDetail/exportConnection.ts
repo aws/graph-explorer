@@ -2,10 +2,9 @@ import { toast } from "sonner";
 
 import type { ConfigurationContextProps } from "@/core";
 
-import { normalizeUrl } from "@/connections";
+import { normalizeUrl, saveConfigurationToFile } from "@/connections";
 import { logger } from "@/utils";
 import { createDisplayError } from "@/utils/createDisplayError";
-import saveConfigurationToFile from "@/utils/saveConfigurationToFile";
 
 /**
  * Exports a connection to a file, surfacing a toast when the connection has no

@@ -4,19 +4,19 @@ import { act } from "@testing-library/react";
 import { toast } from "sonner";
 import { describe, expect, test, vi } from "vitest";
 
-import { createNewConfigurationId } from "@/connections";
+import { getAppStore } from "@/core/StateProvider/appStore";
 import {
   activeConfigurationAtom,
   configurationAtom,
-  getAppStore,
   schemaAtom,
-} from "@/core";
+} from "@/core/StateProvider/storageAtoms";
 import {
   DbState,
   legacyExportedConnectionFile,
   renderHookWithState,
 } from "@/utils/testing";
 
+import { createNewConfigurationId } from "./types";
 import { useImportConnectionFile } from "./useImportConnectionFile";
 
 const mockResetState = vi.fn();

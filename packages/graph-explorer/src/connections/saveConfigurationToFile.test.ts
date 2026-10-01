@@ -2,16 +2,16 @@
 import * as fileSaver from "file-saver";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { ConfigurationContextProps } from "@/core";
+import type { ConfigurationContextProps } from "@/core/ConfigurationProvider";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
-import { transformLegacyConnection } from "@/connections";
-import { createEdgeType, createVertexType } from "@/core";
+import { createEdgeType, createVertexType } from "@/core/entities";
+import { createRandomRawConfiguration, stubDocumentUrl } from "@/utils/testing";
+import { exportConnectionFileText } from "@/utils/testing/exportConnectionFileText";
 
+import { transformLegacyConnection } from "./legacyConnection";
 import { parseConnectionFile } from "./parseConnectionFile";
 import saveConfigurationToFile from "./saveConfigurationToFile";
-import { createRandomRawConfiguration, stubDocumentUrl } from "./testing";
-import { exportConnectionFileText } from "./testing/exportConnectionFileText";
 
 vi.mock("file-saver", () => ({
   saveAs: vi.fn(),
