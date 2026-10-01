@@ -92,10 +92,10 @@ function GraphViewerContent({
 
   // Map the ids to rendered IDs for compatibility with Cytoscape
   const nodesOutRenderedIds = new Set(
-    Array.from(nodesOutIds.values(), createRenderedVertexId),
+    Array.from(nodesOutIds.values()).map(createRenderedVertexId),
   );
   const edgesOutRenderedIds = new Set(
-    Array.from(edgesOutIds.values(), createRenderedEdgeId),
+    Array.from(edgesOutIds.values()).map(createRenderedEdgeId),
   );
 
   const onSelectedElementIdsChange = ({
@@ -104,12 +104,10 @@ function GraphViewerContent({
   }: SelectedElements) => {
     // Map the rendered ids to the original ids and change selection
     replaceGraphSelection({
-      vertices: Array.from(
-        (nodeIds as Set<RenderedVertexId>).values(),
+      vertices: Array.from((nodeIds as Set<RenderedVertexId>).values()).map(
         getVertexIdFromRenderedVertexId,
       ),
-      edges: Array.from(
-        (edgeIds as Set<RenderedEdgeId>).values(),
+      edges: Array.from((edgeIds as Set<RenderedEdgeId>).values()).map(
         getEdgeIdFromRenderedEdgeId,
       ),
       disableSideEffects: false,

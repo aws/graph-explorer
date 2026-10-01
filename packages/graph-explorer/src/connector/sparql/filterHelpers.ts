@@ -59,8 +59,7 @@ export function getSubjectClasses(subjectClasses?: string[]) {
 export function getNeighborsFilter(excludedVertices?: Set<VertexId>) {
   const excludedVerticesTemplates = Array.from(
     (excludedVertices || new Set<VertexId>()).values(),
-    fragment.iri,
-  );
+  ).map(fragment.iri);
 
   return excludedVerticesTemplates.length > 0
     ? query`

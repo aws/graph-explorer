@@ -46,7 +46,8 @@ export function useDisplayEdgesInCanvas() {
 
 const selectedDisplayEdgesSelector = atom(get => {
   const selectedIds = get(edgesSelectedIdsAtom);
-  return Array.from(selectedIds.values(), id => get(edgeSelector(id)))
+  return Array.from(selectedIds.values())
+    .map(id => get(edgeSelector(id)))
     .filter(e => e != null)
     .map(e => get(displayEdgeSelector(e)))
     .filter(n => n != null);
@@ -121,7 +122,7 @@ const displayEdgeSelector = atomFamily((edge: Edge) =>
 
 const displayEdgesInCanvasSelector = atom(get => {
   return new Map(
-    Array.from(get(edgesAtom).entries(), ([id, edge]) => [
+    Array.from(get(edgesAtom).entries()).map(([id, edge]) => [
       id,
       get(displayEdgeSelector(edge)),
     ]),

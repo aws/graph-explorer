@@ -1,36 +1,15 @@
-const HIGH_SURROGATE_START = 0xd800;
-const HIGH_SURROGATE_END = 0xdbff;
-const LOW_SURROGATE_START = 0xdc00;
-const LOW_SURROGATE_END = 0xdfff;
-
-function isHighSurrogate(code: number): boolean {
-  return code >= HIGH_SURROGATE_START && code <= HIGH_SURROGATE_END;
-}
-
-function isLowSurrogate(code: number): boolean {
-  return code >= LOW_SURROGATE_START && code <= LOW_SURROGATE_END;
-}
+/**
+ * With the `u` flag, paired surrogates match as one astral code point, so only
+ * unpaired surrogates have the Surrogate (`Cs`) general category.
+ */
+const UNPAIRED_SURROGATE = /\p{Cs}/u;
 
 /**
  * Returns `true` if the string contains no unpaired UTF-16 surrogates.
  *
- * This is a browser-floor-safe replacement for `String.prototype.isWellFormed()`,
- * which is not available in Firefox 114.
+ * Equivalent to `String.prototype.isWellFormed()`, which is not available in
+ * Firefox 114.
  */
 export function isWellFormedString(value: string): boolean {
-  for (let i = 0; i < value.length; i++) {
-    const code = value.charCodeAt(i);
-
-    if (isHighSurrogate(code)) {
-      const nextCode = value.charCodeAt(i + 1);
-      if (!isLowSurrogate(nextCode)) {
-        return false;
-      }
-      i++;
-    } else if (isLowSurrogate(code)) {
-      return false;
-    }
-  }
-
-  return true;
+  return !UNPAIRED_SURROGATE.test(value);
 }

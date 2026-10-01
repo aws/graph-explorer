@@ -261,14 +261,11 @@ function findMatchingConnection(
   activeId: ConfigurationId | null,
 ): RawConfiguration | null {
   const proposedIdentity = identityOf(proposed);
-  const matches = configurations
-    .values()
-    .filter(
-      config =>
-        config.connection != null &&
-        identitiesMatch(identityOf(config.connection), proposedIdentity),
-    )
-    .toArray();
+  const matches = Array.from(configurations.values()).filter(
+    config =>
+      config.connection != null &&
+      identitiesMatch(identityOf(config.connection), proposedIdentity),
+  );
 
   if (matches.length === 0) {
     return null;

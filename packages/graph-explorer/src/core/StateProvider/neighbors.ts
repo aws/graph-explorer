@@ -155,7 +155,7 @@ export function calculateNeighbors(
   }
 
   const byType = new Map(
-    Array.from(totalByType.entries(), ([type, count]) => {
+    Array.from(totalByType.entries()).map(([type, count]) => {
       // Count of unique neighbors that have been fetched
       const fetched = fetchedNeighborsByType.get(type) ?? 0;
 

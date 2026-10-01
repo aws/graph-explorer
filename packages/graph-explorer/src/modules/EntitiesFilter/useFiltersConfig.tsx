@@ -94,16 +94,17 @@ const useFiltersConfig = () => {
     setEdgesTypesFiltered(isSelected ? new Set() : new Set(etConfigs.keys()));
   };
 
-  const vertexTypesCheckboxes = Array.from(vtConfigs.values(), vertexConfig => {
-    return {
-      id: vertexConfig.type,
-      text: vertexConfig.displayLabel,
-      endAdornment: <VertexIconByType vertexType={vertexConfig.type} />,
-    };
-  });
+  const vertexTypesCheckboxes = Array.from(vtConfigs.values()).map(
+    vertexConfig => {
+      return {
+        id: vertexConfig.type,
+        text: vertexConfig.displayLabel,
+        endAdornment: <VertexIconByType vertexType={vertexConfig.type} />,
+      };
+    },
+  );
 
-  const connectionTypesCheckboxes = Array.from(
-    etConfigs.values(),
+  const connectionTypesCheckboxes = Array.from(etConfigs.values()).map(
     edgeConfig => {
       return {
         id: edgeConfig.type,

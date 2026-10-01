@@ -36,7 +36,7 @@ export default async function fetchNeighbors(
 
   // Seed the vertex map with the ResultVertex instances in the response
   const verticesMap = new Map(
-    Array.from(results.vertices.values(), v => [v.id, createVertex(v)]),
+    Array.from(results.vertices.values()).map(v => [v.id, createVertex(v)]),
   );
 
   // Find any missing vertices from the edges and add them to the vertex array

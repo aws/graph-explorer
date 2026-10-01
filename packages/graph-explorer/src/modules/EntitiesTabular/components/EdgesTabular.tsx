@@ -117,7 +117,7 @@ function EdgesTabular({ ref }: EdgesTabularProps) {
   ];
 
   const data: ToggleEdge[] = useDeepMemo(() => {
-    return Array.from(edges.values(), edge => ({
+    return Array.from(edges.values()).map(edge => ({
       ...createEdgeForTable(
         edge,
         nodes.get(edge.sourceId),

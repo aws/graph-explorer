@@ -113,7 +113,7 @@ function NodesTabular({ ref }: NodesTabularProps) {
   ] satisfies ColumnDefinition<ToggleVertex>[];
 
   const data: ToggleVertex[] = useDeepMemo(() => {
-    return Array.from(displayNodes.values(), node => ({
+    return Array.from(displayNodes.values()).map(node => ({
       ...node,
       __is_visible: !filteredNodes.has(node.id),
       neighborCounts: neighborCounts.get(node.id)?.all ?? 0,
