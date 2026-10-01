@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import { query } from "@/utils";
 import { normalizeWithNewlines as normalize } from "@/utils/testing";

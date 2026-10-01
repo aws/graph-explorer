@@ -71,6 +71,13 @@ No check compares the `+sha512` hash against anything, because the two tools tha
 
 A major bump is also where `pnpm-workspace.yaml` deserves a read. Since pnpm 12, a key that pnpm does not recognize fails the install with `ERR_PNPM_UNRECOGNIZED_WORKSPACE_SETTINGS` instead of being ignored. So a setting removed or renamed upstream stops the install rather than quietly doing nothing. `pnpm config list` prints the `pnpm-workspace.yaml` settings pnpm resolved, which is the quickest way to check, though it lists neither pnpm's defaults nor anything from `.npmrc`.
 
+### Tooling
+
+[Vite+](https://viteplus.dev) runs linting, formatting, tests, and the pre-commit hook. It's a dev dependency, so `pnpm install` is all the setup it needs, and the `pnpm` scripts below call it for you. A global `vp` CLI is optional; without one, `pnpm exec vp` works.
+
+- Run `pnpm install` after pulling the switch to Vite+. It moves your pre-commit hook from Husky to `vp staged`.
+- In VS Code, install the recommended Vite+ extension pack. In Zed, install `oxc-zed`.
+
 ## Run in development mode
 
 Install any missing or updated dependencies.
@@ -136,7 +143,7 @@ If you need to add, remove, or update a dependency you can easily do so from the
 pnpm add react --filter graph-explorer
 
 # Adding a dev only dependency for the server app
-pnpm add -D vitest --filter graph-explorer-proxy-server
+pnpm add -D supertest --filter graph-explorer-proxy-server
 ```
 
 ### Preparation of a release

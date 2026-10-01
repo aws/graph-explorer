@@ -2,7 +2,14 @@
 
 // DEV NOTE: happy-dom's DOMParser is not reliable for the svg render path.
 
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 
 import { iconRegistry } from "./iconRegistry";
 import { classifyIconSource, iconSourceId } from "./iconSource";

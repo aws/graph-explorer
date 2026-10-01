@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import { waitFor } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import {
   createEdgeId,

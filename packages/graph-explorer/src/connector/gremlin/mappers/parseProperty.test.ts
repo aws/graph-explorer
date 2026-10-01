@@ -4,7 +4,7 @@ import {
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import {
   createGDate,

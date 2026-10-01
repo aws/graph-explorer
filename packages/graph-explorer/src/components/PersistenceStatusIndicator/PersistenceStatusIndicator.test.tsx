@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test } from "vite-plus/test";
 
 import { TooltipProvider } from "@/components";
 import { persistenceStatusStore } from "@/core/StateProvider/persistence";

@@ -1,5 +1,5 @@
 import { createArray } from "@shared/utils/testing";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 import type { SchemaStorageModel } from "@/core/StateProvider";
 

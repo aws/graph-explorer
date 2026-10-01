@@ -3,7 +3,7 @@ import {
   createRandomName,
   createRandomUrlString,
 } from "@shared/utils/testing";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 import { ValidationError } from "zod-validation-error";
 
 import { createVertexId, createVertexType, type VertexType } from "@/core";

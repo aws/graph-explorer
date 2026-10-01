@@ -2,7 +2,7 @@
 import { QueryClient } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Route, Routes, useLocation } from "react-router";
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 
 import { TooltipProvider } from "@/components";
 import { getAppStore } from "@/core";

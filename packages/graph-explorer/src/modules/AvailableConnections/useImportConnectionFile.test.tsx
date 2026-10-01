@@ -2,7 +2,7 @@
 import { createRandomName, createRandomUrlString } from "@shared/utils/testing";
 import { act } from "@testing-library/react";
 import { toast } from "sonner";
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vite-plus/test";
 
 import { createNewConfigurationId } from "@/connections";
 import {

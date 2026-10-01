@@ -3,7 +3,7 @@ import type { LegacyConnectionConfig } from "@shared/types";
 
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 import type { RawConfiguration } from "@/connections";
 

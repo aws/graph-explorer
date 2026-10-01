@@ -31,7 +31,7 @@ Reserve Important for the cases below. Everything else is Nit at most. That incl
 
 ## Do not report
 
-- Anything CI enforces: oxlint (including the React Compiler rules), oxfmt, `tsc`, lockfile checks, Trivy and dependency advisories.
+- Anything CI enforces: `vp lint` (oxlint, including the React Compiler rules), `vp fmt` (oxfmt), `tsc`, lockfile checks, Trivy and dependency advisories.
 - Pre-existing issues, unless this PR makes them newly reachable.
 - The Git rules in `AGENTS.md`. PRs are squash merged, so commit messages, branch names, and how the commits are split never reach `main`.
 - `Changelog.md`. It's updated at release time.

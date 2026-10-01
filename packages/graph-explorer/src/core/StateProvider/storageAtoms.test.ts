@@ -2,7 +2,7 @@ import type { LegacyConnectionConfig } from "@shared/types";
 
 import { createStore } from "jotai";
 import localforage from "localforage";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import type { RawConfiguration } from "@/connections";
 

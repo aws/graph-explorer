@@ -1,4 +1,4 @@
-import { vi } from "vitest";
+import { vi } from "vite-plus/test";
 
 /**
  * jsdom/happy-dom report offsetWidth/offsetHeight as 0, so TanStack Virtual

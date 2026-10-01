@@ -4,7 +4,7 @@ import type { ConnectionConfig } from "@shared/types";
 
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vite-plus/test";
 
 import { TooltipProvider } from "@/components";
 import { createNewConfigurationId, type RawConfiguration } from "@/connections";

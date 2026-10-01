@@ -5,7 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { Provider } from "jotai";
 import { Route, Routes } from "react-router";
-import { describe, expect, onTestFinished, test, vi } from "vitest";
+import { describe, expect, onTestFinished, test, vi } from "vite-plus/test";
 
 import type { ConfigurationId, RawConfiguration } from "@/connections";
 

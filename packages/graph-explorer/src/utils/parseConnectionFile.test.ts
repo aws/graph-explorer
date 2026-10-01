@@ -1,5 +1,5 @@
 import { createRandomName, createRandomUrlString } from "@shared/utils/testing";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 import { createNewConfigurationId } from "@/connections";
 

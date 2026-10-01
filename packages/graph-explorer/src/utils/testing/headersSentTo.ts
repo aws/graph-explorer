@@ -1,4 +1,4 @@
-import { expect, type vi } from "vitest";
+import { expect, type vi } from "vite-plus/test";
 
 import { normalizeHeaders } from "./normalizeHeaders";
 

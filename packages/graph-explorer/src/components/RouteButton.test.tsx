@@ -4,7 +4,7 @@ import type { PropsWithChildren } from "react";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, useLocation } from "react-router";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 import { RouteButtonGroup } from "./RouteButton";
 import { TooltipProvider } from "./Tooltip";

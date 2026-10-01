@@ -7,13 +7,13 @@
   "author": "amazon",
   "type": "module",
   "scripts": {
-    "prepare": "husky",
-    "lint": "oxlint --fix",
-    "check:lint": "oxlint",
-    "format": "oxfmt",
-    "check:format": "oxfmt --check",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "prepare": "(git config --unset core.hooksPath husky || cd .) && vp config --no-agent",
+    "lint": "vp lint --fix",
+    "check:lint": "vp lint",
+    "format": "vp fmt",
+    "check:format": "vp fmt --check",
+    "test": "vp test run",
+    "test:watch": "vp test",
     "check:types": "pnpm -r --include-workspace-root --parallel --stream run typecheck",
     "typecheck": "tsc --noEmit",
     "checks": "pnpm run check:lint && pnpm run check:format && pnpm run check:types",
@@ -28,20 +28,8 @@
     "@tanstack/eslint-plugin-query": "5.104.0",
     "eslint-plugin-react-hooks": "7.1.1",
     "fast-check": "^4.10.2",
-    "husky": "^9.1.7",
-    "lint-staged": "^17.6.0",
-    "oxfmt": "0.71.0",
-    "oxlint": "1.86.0",
-    "oxlint-tsgolint": "7.0.2003",
     "typescript": "^7.0.2",
-    "vitest": "5.0.2"
-  },
-  "lint-staged": {
-    "!(**/*.{js,ts,tsx})": "oxfmt --no-error-on-unmatched-pattern",
-    "**/*.{js,ts,tsx}": [
-      "oxlint --fix --no-error-on-unmatched-pattern",
-      "oxfmt"
-    ]
+    "vite-plus": "catalog:"
   },
   "devEngines": {
     "runtime": {

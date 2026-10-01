@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import { createRandomInteger } from "@shared/utils/testing";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 import type { RawConfiguration } from "@/connections";
 import type { SchemaStorageModel } from "@/core";

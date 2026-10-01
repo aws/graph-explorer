@@ -1,8 +1,7 @@
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
-import { loadEnv } from "vite";
-import { defineConfig } from "vitest/config";
+import { defineConfig, lazyPlugins, loadEnv } from "vite-plus";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -38,13 +37,13 @@ export default defineConfig(({ mode }) => {
     define: {
       __GRAPH_EXP_VERSION__: JSON.stringify(process.env.npm_package_version),
     },
-    plugins: [
+    plugins: lazyPlugins(() => [
       tailwindcss(),
       react(),
       babel({
         presets: [reactCompilerPreset()],
       }),
-    ],
+    ]),
     resolve: {
       tsconfigPaths: true,
     },

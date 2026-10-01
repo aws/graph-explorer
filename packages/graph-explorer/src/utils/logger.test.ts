@@ -1,5 +1,5 @@
 /* oxlint-disable no-console */
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 
 // Unmock logger so we test the real implementation
 vi.unmock("@/utils/logger");

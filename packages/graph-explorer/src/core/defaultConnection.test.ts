@@ -7,7 +7,14 @@ import {
   createRandomName,
   createRandomUrlString,
 } from "@shared/utils/testing";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 
 import { ReverseProxyMisconfiguredError } from "@/utils";
 import {

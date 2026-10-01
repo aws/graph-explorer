@@ -3,7 +3,7 @@
 import { waitFor } from "@testing-library/react";
 import { useAtomValue } from "jotai";
 import { act } from "react";
-import { expect, test } from "vitest";
+import { expect, test } from "vite-plus/test";
 
 import {
   activeConfigurationAtom,

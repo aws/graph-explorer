@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { render, screen } from "@testing-library/react";
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vite-plus/test";
 
 import { TooltipProvider } from "@/components";
 import { configurationAtom, getAppStore } from "@/core";

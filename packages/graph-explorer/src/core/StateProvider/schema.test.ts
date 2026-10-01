@@ -3,7 +3,7 @@
 import { createArray, createRandomName } from "@shared/utils/testing";
 import { act } from "@testing-library/react";
 import { useAtomValue } from "jotai";
-import { describe, expect, it, test } from "vitest";
+import { describe, expect, it, test } from "vite-plus/test";
 
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 

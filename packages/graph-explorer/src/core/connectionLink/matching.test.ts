@@ -2,7 +2,7 @@
 
 import type { ConnectionConfig } from "@shared/types";
 
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 import { createNewConfigurationId, type RawConfiguration } from "@/connections";
 import { DbState } from "@/utils/testing";

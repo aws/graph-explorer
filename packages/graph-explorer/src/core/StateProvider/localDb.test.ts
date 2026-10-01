@@ -5,7 +5,15 @@ import {
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
-import { afterEach, beforeEach, describe, expect, it, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  test,
+  vi,
+} from "vite-plus/test";
 import { z } from "zod";
 
 import type { RawConfiguration } from "@/connections";

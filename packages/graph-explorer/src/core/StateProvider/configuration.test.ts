@@ -1,6 +1,6 @@
 import { createRandomName } from "@shared/utils/testing";
 import { createStore } from "jotai";
-import { describe, expect, it, test } from "vitest";
+import { describe, expect, it, test } from "vite-plus/test";
 
 import type { RawConfiguration } from "@/connections";
 

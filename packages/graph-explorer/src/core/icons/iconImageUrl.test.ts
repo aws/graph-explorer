@@ -2,7 +2,7 @@
 
 // DEV NOTE: happy-dom's DOMParser is not reliable for the svg render path.
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import { toIconImageUrl } from "./iconImageUrl";
 

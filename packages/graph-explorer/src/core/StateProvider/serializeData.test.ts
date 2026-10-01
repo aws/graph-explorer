@@ -4,7 +4,7 @@ import {
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 import { deserializeData, serializeData } from "./serializeData";
 

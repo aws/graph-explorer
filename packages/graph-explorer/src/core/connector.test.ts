@@ -1,7 +1,7 @@
 import type { QueryEngine } from "@shared/types";
 
 import { createStore } from "jotai";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 import type { RawConfiguration } from "@/connections";
 

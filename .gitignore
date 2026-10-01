@@ -25,3 +25,4 @@ plans/
 
 # Local dev default-connection fixture, generated per-environment at runtime
 **/defaultConnection.json
+.vitest/

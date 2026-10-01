@@ -1,6 +1,6 @@
 import { createStore } from "jotai";
 import localforage from "localforage";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 
 import { createVertexType, type VertexType } from "@/core/entities";
 
