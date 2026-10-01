@@ -24,13 +24,6 @@ function lucideSource(name: string) {
   });
 }
 
-function respondWith(response: Response) {
-  vi.stubGlobal(
-    "fetch",
-    vi.fn(() => Promise.resolve(response)),
-  );
-}
-
 function imageResponse(
   body: BodyInit,
   contentType: string,
@@ -87,10 +80,14 @@ describe("iconRegistry", () => {
   // The canvas nests every icon inside a `data:` svg, whose image sandbox
   // fetches nothing external, so a remote raster has to arrive inline.
   it("inlines a remote raster as a data: url", async () => {
-    respondWith(
-      new Response(new Uint8Array([65, 66, 67]), {
-        headers: { "content-type": "image/png; charset=binary" },
-      }),
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        imageResponse(
+          new Uint8Array([65, 66, 67]),
+          "image/png; charset=binary",
+        ),
+      ),
     );
     const source = rasterSource("https://example.test/a.png");
 
@@ -100,7 +97,9 @@ describe("iconRegistry", () => {
     expect(iconRegistry.getSnapshot().get(iconSourceId(source)!)).toStrictEqual(
       { kind: "raster", url: "data:image/png;base64,QUJD" },
     );
-    expect(fetch).toBeCalledWith("https://example.test/a.png");
+    expect(fetch).toBeCalledWith("https://example.test/a.png", {
+      signal: expect.any(AbortSignal),
+    });
   });
 
   // Falling back keeps the icon rendering wherever the browser loads the url
@@ -109,7 +108,16 @@ describe("iconRegistry", () => {
     ["a fetch that rejects", () => Promise.reject(new TypeError("CORS"))],
     ["a 404", () => imageResponse(new Uint8Array([1]), "image/png", 404)],
     ["a non-image response", () => imageResponse("<html/>", "text/html")],
-    ["a missing content type", () => Promise.resolve(new Response("x"))],
+    // An untyped Blob body leaves the content-type header unset.
+    ["a missing content type", () => Promise.resolve(new Response(new Blob()))],
+    [
+      "a body cut off mid-download",
+      () =>
+        imageResponse(
+          new ReadableStream({ start: c => c.error(new Error("aborted")) }),
+          "image/png",
+        ),
+    ],
     [
       "an svg, which belongs on the sanitized svg path",
       () => imageResponse(REMOTE_SVG, "image/svg+xml"),
@@ -117,6 +125,18 @@ describe("iconRegistry", () => {
     [
       "an image too large to embed in every style",
       () => imageResponse(new Uint8Array(1024 * 1024 + 1), "image/png"),
+    ],
+    [
+      "a declared length too large to download",
+      () =>
+        Promise.resolve(
+          new Response(new Uint8Array([1]), {
+            headers: {
+              "content-type": "image/png",
+              "content-length": String(1024 * 1024 + 1),
+            },
+          }),
+        ),
     ],
   ])("falls back to the plain url for %s", async (_, respond) => {
     vi.stubGlobal("fetch", vi.fn(respond));

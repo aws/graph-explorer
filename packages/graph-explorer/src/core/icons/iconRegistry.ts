@@ -182,6 +182,9 @@ function isParseableSvg(svg: string): boolean {
 /** Svg is excluded: it belongs on the sanitized svg path, which adds a `viewBox`. */
 const RASTER_MIME_TYPE = /^image\/(?!svg\+xml$)[a-z0-9.+-]+$/i;
 
+/** Until it settles the icon renders nowhere, so a hung host must not hold it. */
+const INLINE_TIMEOUT_MS = 5000;
+
 /** Bounds the copy embedded in every vertex type's style. */
 const MAX_INLINE_BYTES = 1024 * 1024;
 
@@ -192,21 +195,27 @@ const MAX_INLINE_BYTES = 1024 * 1024;
  * needs CORS, and that fallback still renders everywhere but the canvas wrapper.
  */
 async function inlineRemoteRaster(url: string): Promise<string | null> {
-  let response: Response;
   try {
-    response = await fetch(url);
+    const response = await fetch(url, {
+      signal: AbortSignal.timeout(INLINE_TIMEOUT_MS),
+    });
+    const mimeType = response.headers.get("content-type")?.split(";")[0].trim();
+    if (!response.ok || !mimeType || !RASTER_MIME_TYPE.test(mimeType)) {
+      return null;
+    }
+    if (Number(response.headers.get("content-length")) > MAX_INLINE_BYTES) {
+      return null;
+    }
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    if (bytes.byteLength > MAX_INLINE_BYTES) {
+      return null;
+    }
+    return `data:${mimeType};base64,${toBase64(bytes)}`;
   } catch {
+    // Any failure (CORS, a timeout, a body cut off mid-download) keeps the
+    // plain url.
     return null;
   }
-  const mimeType = response.headers.get("content-type")?.split(";")[0].trim();
-  if (!response.ok || !mimeType || !RASTER_MIME_TYPE.test(mimeType)) {
-    return null;
-  }
-  const bytes = new Uint8Array(await response.arrayBuffer());
-  if (bytes.byteLength > MAX_INLINE_BYTES) {
-    return null;
-  }
-  return `data:${mimeType};base64,${toBase64(bytes)}`;
 }
 
 /** Chunked, since spreading a whole image into one call overflows the stack. */
