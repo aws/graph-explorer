@@ -116,6 +116,9 @@ describe("backward compatibility: blank colors in storage", () => {
  * `data:` urls, imports are allowlisted), but a hand-edited file could have
  * stored one. Rendering them would make style config issue network requests,
  * so they are dropped at load and the default icon applies instead.
+ *
+ * DO NOT delete or weaken these tests without confirming that no stored style
+ * can hold an icon outside the allowlist.
  */
 describe("backward compatibility: icon values outside the allowlist", () => {
   it.each([

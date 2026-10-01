@@ -13,7 +13,7 @@ Resolution used TanStack Query because it was the project's async-state tool. Th
 The cache was a poor fit rather than mis-tuned:
 
 - Every icon query set `staleTime: Infinity`. Icons are immutable, identity-addressable, bounded (dozens of unique icons even at 10k types), and never invalidate. Nothing in the requirement refetches, mutates, paginates, or refreshes.
-- Only one of the three kinds does real I/O. A raster url goes straight to the browser, and a Lucide reference is an `import()` that the ES module map already caches and in-flight dedupes. Only remote SVG needs fetch, dedup, and caching.
+- Only one of the three kinds does real I/O. A raster url goes straight to the browser, and a Lucide reference is an `import()` that the ES module map already caches and in-flight dedupes. Only user SVG needs fetch (of its `data:` url, which sanitizing requires as text), dedup, and caching.
 
 So the machinery went unused while its per-hook subscription model — the one part that did apply — scaled with vertex types and broke.
 

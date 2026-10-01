@@ -27,9 +27,9 @@ const ICON_VALUE_PATTERN =
   /^(lucide:[a-z0-9-]+$|data:image\/[a-z0-9.+-]+;base64,)/;
 
 /**
- * Whether a value passes the icon allowlist — the single gate shared by the
- * styling import, the upload, and the storage load transform. A lone surrogate
- * is rejected too: `encodeURIComponent` throws on one during style computation.
+ * Whether a value passes the icon allowlist. Every write and load path shares
+ * this one gate so the accepted set cannot drift. A lone surrogate is rejected
+ * too: `encodeURIComponent` throws on one during style computation.
  */
 export function isAllowedIconValue(value: string): boolean {
   return ICON_VALUE_PATTERN.test(value) && value.isWellFormed();
