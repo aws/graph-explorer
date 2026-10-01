@@ -52,8 +52,8 @@ export function useBackgroundImageMap(
     if (!icon) {
       continue;
     }
-    // NUL cannot occur in an icon url or a color, so it is the only safe
-    // separator: an IconSourceId embeds the user-supplied url verbatim.
+    // An IconSourceId embeds the stored url verbatim, so the separator is NUL,
+    // which no usable url or color contains.
     const renderKey = `${id}\u0000${color}`;
     let backgroundImage = rendered.get(renderKey);
     if (backgroundImage === undefined) {
@@ -78,7 +78,8 @@ export function useBackgroundImageMap(
  * `preserveAspectRatio`.
  *
  * The nested icon must carry a `viewBox`, or it has no intrinsic ratio to fit
- * and fills the padded box — square again. The icon registry guarantees one.
+ * and fills the padded box — square again. The icon registry supplies one
+ * whenever the source's size allows it.
  *
  * The icon url is always a `data:` uri (`isAllowedIconValue`). An external
  * reference would fetch nothing inside this `data:` svg's image sandbox.

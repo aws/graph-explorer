@@ -96,7 +96,7 @@ describe("icon resolution across surfaces", () => {
       useBackgroundImageMap([
         style({
           type: createVertexType("Wide"),
-          iconUrl: "https://example.test/wide-logo.svg",
+          iconUrl: "data:image/svg+xml;base64,d2lkZS1sb2dv",
         }),
       ]),
     );

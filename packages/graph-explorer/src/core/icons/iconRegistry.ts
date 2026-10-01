@@ -2,7 +2,7 @@ import logger from "@/utils/logger";
 import { getLucideSvgString } from "@/utils/lucideIcons";
 
 import { type IconSource, type IconSourceId, iconSourceId } from "./iconSource";
-import { ensureSvgViewBox, sanitizeSvg } from "./svgViewBox";
+import { sanitizeSvg } from "./svgMarkup";
 
 /** An icon resolved to a renderable form, with no color applied yet. */
 export type ResolvedIcon =
@@ -146,17 +146,15 @@ async function resolveIconSource(
         logger.warn("Unknown lucide icon", source.name);
         return null;
       }
-      return { kind: "svg", svg: ensureSvgViewBox(raw) };
+      // Lucide markup always carries a viewBox.
+      return { kind: "svg", svg: raw };
     }
     case "svg": {
       // Untrusted: a user-supplied SVG, sanitized before it is used anywhere.
       const response = await fetch(source.url);
       const svg = sanitizeSvg(await response.text());
       // A 404 body sanitizes to something that is not SVG. Reject it here so
-      // consumers can treat `ResolvedIcon` as renderable. Checked after
-      // `sanitizeSvg`, not between sanitizing and synthesizing a viewBox:
-      // `ensureSvgViewBox` no-ops on non-svg content, so the check gives the
-      // same answer either way, and this way there is one call, not two.
+      // consumers can treat `ResolvedIcon` as renderable.
       if (!isParseableSvg(svg)) {
         return null;
       }

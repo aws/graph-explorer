@@ -132,7 +132,7 @@ describe("useBackgroundImageMap", () => {
 
     const config = makeConfig({
       type: createVertexType("NoViewBox"),
-      iconUrl: "https://example.test/wide.svg",
+      iconUrl: "data:image/svg+xml;base64,d2lkZQ==",
       iconImageType: "image/svg+xml",
     });
 
@@ -162,7 +162,7 @@ describe("useBackgroundImageMap", () => {
 
     const config = makeConfig({
       type: createVertexType("TallNoViewBox"),
-      iconUrl: "https://example.test/tall.svg",
+      iconUrl: "data:image/svg+xml;base64,dGFsbA==",
       iconImageType: "image/svg+xml",
     });
 
