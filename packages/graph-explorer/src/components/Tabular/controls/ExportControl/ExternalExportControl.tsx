@@ -64,6 +64,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
   const { rows, data, page, columns, columnOrder, visibleColumns } = instance;
   const [format, setFormat] = useState("csv");
   const [name, setName] = useState<string>("");
+  const [defaultName] = useState(() => `export-${Date.now()}`);
   const [options, setOptions] = useState<Record<string, boolean>>(
     forceOnlyPage ? { "only-page": true } : {},
   );
@@ -102,7 +103,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
       return data;
     })();
 
-    const exportName = name || `export-${new Date().getTime()}`;
+    const exportName = name || defaultName;
 
     if (format === "csv") {
       const csvData = transformToCsv(dataToExport, columnsToExport);
@@ -198,7 +199,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
           name="exportName"
           aria-label="Export name"
           value={name}
-          placeholder={`export-${new Date().getTime()}.${format}`}
+          placeholder={`${defaultName}.${format}`}
           onChange={setName}
         />
       </div>
