@@ -1,6 +1,7 @@
 import { atom, useAtomValue } from "jotai";
 import { atomFamily } from "jotai-family";
 
+import { queryEngineSelector } from "@/connections";
 import {
   type DisplayAttribute,
   displayEdgeTypeConfigSelector,
@@ -13,7 +14,6 @@ import {
   type EdgeType,
   getRawId,
   getSortedDisplayAttributes,
-  queryEngineSelector,
   useEdgeInCanvas,
   type VertexId,
 } from "@/core";

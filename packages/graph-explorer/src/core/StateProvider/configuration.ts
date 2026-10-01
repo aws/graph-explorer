@@ -1,14 +1,10 @@
 import { atom } from "jotai";
-import { selectAtom } from "jotai/utils";
-import { isEqual } from "lodash";
 
 import type { RawConfiguration } from "@/connections";
 
-import { normalizeConnection } from "@/connections";
+import { activeConfigSelector, normalizeConnection } from "@/connections";
 import {
-  activeConfigurationAtom,
   type AttributeConfig,
-  configurationAtom,
   userEdgeStylesAtom,
   type EdgeType,
   type EdgeTypeConfig,
@@ -26,25 +22,6 @@ import {
   type VertexStyleStorage,
 } from "./graphStyles";
 import { activeSchemaSelector, type SchemaStorageModel } from "./schema";
-
-/** Gets the currently active config. */
-export const activeConfigSelector = atom(get => {
-  const configMap = get(configurationAtom);
-  const id = get(activeConfigurationAtom);
-  // The id may point at a connection deleted in another tab, so a map miss
-  // resolves to null (no active connection) rather than a dangling pointer.
-  return (id && configMap.get(id)) ?? null;
-});
-
-export const activeConnectionAtom = atom(get => {
-  const connection = get(
-    selectAtom(activeConfigSelector, c => c?.connection, isEqual),
-  );
-  if (!connection) {
-    return null;
-  }
-  return normalizeConnection(connection);
-});
 
 export const mergedConfigurationSelector = atom(get => {
   const currentConfig = get(activeConfigSelector);

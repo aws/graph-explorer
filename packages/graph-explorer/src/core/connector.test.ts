@@ -8,11 +8,7 @@ import type { RawConfiguration } from "@/connections";
 import { emptyExplorer } from "@/connector/emptyExplorer";
 import { createRandomRawConfiguration } from "@/utils/testing";
 
-import {
-  explorerAtom,
-  explorerForTestingAtom,
-  queryEngineSelector,
-} from "./connector";
+import { explorerAtom, explorerForTestingAtom } from "./connector";
 import { activeConfigurationAtom, configurationAtom } from "./StateProvider";
 
 function connectionWithEngine(queryEngine: QueryEngine): RawConfiguration {
@@ -29,25 +25,6 @@ function storeWithActiveConnection(config: RawConfiguration) {
   store.set(activeConfigurationAtom, config.id);
   return store;
 }
-
-describe("queryEngineSelector", () => {
-  test("falls back to gremlin when there is no active connection", () => {
-    const store = createStore();
-
-    expect(store.get(queryEngineSelector)).toBe("gremlin");
-  });
-
-  test.each(["gremlin", "openCypher", "sparql"] as const)(
-    "reports the active connection's %s engine",
-    queryEngine => {
-      const store = storeWithActiveConnection(
-        connectionWithEngine(queryEngine),
-      );
-
-      expect(store.get(queryEngineSelector)).toBe(queryEngine);
-    },
-  );
-});
 
 describe("explorerAtom", () => {
   test("returns the empty explorer when there is no active connection", () => {
