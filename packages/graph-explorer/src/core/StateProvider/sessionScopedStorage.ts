@@ -32,9 +32,7 @@ export type SessionValueCodec<T> = {
  * Parses a sessionStorage JSON string against `schema`. Returns `null` only for
  * an absent value (`null` or empty string) — a legitimate miss. A present but
  * unparseable or schema-invalid value is corrupt and **throws** (`SyntaxError`
- * from `JSON.parse` or `ZodError` from the schema); the seam that owns seeding
- * (`createSessionScopedAtom`) catches it, so detecting corruption stays separate
- * from deciding what to do about it.
+ * from `JSON.parse` or `ZodError` from the schema), per {@link SessionValueCodec}.
  */
 export function parseSessionJson<T>(
   raw: string | null,
@@ -45,6 +43,15 @@ export function parseSessionJson<T>(
   }
   return schema.parse(JSON.parse(raw));
 }
+
+/** Options for {@link createSessionScopedAtom}. */
+export type SessionScopedAtomOptions<T> = {
+  key: string;
+  defaultValue: T;
+  codec: SessionValueCodec<T>;
+  transform?: ReadTransform<T>;
+  sessionStorage?: Storage;
+};
 
 /**
  * Creates an atom whose value is scoped to this browser tab.
@@ -77,13 +84,7 @@ export async function createSessionScopedAtom<T>({
   codec,
   transform,
   sessionStorage = resolveSessionStorage(),
-}: {
-  key: string;
-  defaultValue: T;
-  codec: SessionValueCodec<T>;
-  transform?: ReadTransform<T>;
-  sessionStorage?: Storage;
-}) {
+}: SessionScopedAtomOptions<T>) {
   let seedValue = readSessionSeed(sessionStorage, key, codec);
   if (seedValue === null) {
     // Cold start: seed from the shared breadcrumb and claim it into this tab's

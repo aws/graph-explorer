@@ -24,6 +24,7 @@ import {
 import {
   createSessionScopedAtom,
   parseSessionJson,
+  type SessionScopedAtomOptions,
   type SessionValueCodec,
 } from "./sessionScopedStorage";
 
@@ -50,10 +51,7 @@ const KEY = "test-counter";
  * exercised through the same multi-tab sequences rather than only a toy codec.
  */
 function tabOpener<T>(
-  options: Omit<
-    Parameters<typeof createSessionScopedAtom<T>>[0],
-    "sessionStorage"
-  >,
+  options: Omit<SessionScopedAtomOptions<T>, "sessionStorage">,
 ) {
   return async function openTab() {
     const sessionStorage = createInMemorySessionStorage();
@@ -430,7 +428,9 @@ describe("backward compatibility: graph view layout breadcrumb", () => {
     await tabB.write(createRandomGraphViewLayout());
 
     await tabA.reload();
-    expect(tabA.read()).toStrictEqual(claimed);
+    // toEqual, not toStrictEqual: the JSON round-trip drops keys the random
+    // breadcrumb holds as undefined.
+    expect(tabA.read()).toEqual(claimed);
     expect(vi.mocked(logger.warn)).not.toHaveBeenCalled();
   });
 });

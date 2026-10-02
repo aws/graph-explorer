@@ -47,8 +47,8 @@ export function transformLegacySidebarItem<
 }
 
 /**
- * The Graph View Layout, and the single declaration of
- * that shape so the runtime type and the parser cannot drift apart. The schema's
+ * The Graph View Layout, declared once so the runtime type and the parser
+ * cannot drift apart. The schema's
  * *input* is the JSON the per-tab value holds, where `activeToggles` is an array
  * because a `Set` does not survive `JSON.stringify`; its *output* is the runtime
  * {@link GraphViewLayout} with the `Set` rebuilt. A stale or hand-edited per-tab
