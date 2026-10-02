@@ -12,7 +12,7 @@ import {
   createVertexType,
   type VertexType,
 } from "@/core";
-import { defaultVertexTypeConfig } from "@/core/StateProvider/configuration";
+import { defaultVertexTypeConfig } from "@/core/StateProvider/typeConfigs";
 import {
   DEFAULT_BATCH_REQUEST_SIZE,
   DEFAULT_CONCURRENT_REQUESTS_LIMIT,

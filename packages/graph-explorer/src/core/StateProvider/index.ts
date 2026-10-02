@@ -1,5 +1,4 @@
 export * from "./appStore";
-export * from "./configuration";
 export * from "./displayAttribute";
 export * from "./displayEdge";
 export * from "./displayTypeConfigs";
@@ -15,3 +14,7 @@ export * from "./schema";
 export * from "./storageAtoms";
 export * from "./graphSession";
 export * from "./graphViewLayout";
+export * from "./typeConfigs";
+export * from "./typeConfigTypes";
+export { default as useConfiguration } from "./useConfiguration";
+export * from "./useConfiguration";

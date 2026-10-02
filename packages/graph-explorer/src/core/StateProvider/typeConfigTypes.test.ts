@@ -3,9 +3,9 @@ import { describe, expect, test } from "vitest";
 
 import { createRandomSchema } from "@/utils/testing";
 
-import type { SchemaStorageModel } from "../StateProvider";
+import type { SchemaStorageModel } from "./schema";
 
-import { deserializeData, serializeData } from "../StateProvider/serializeData";
+import { deserializeData, serializeData } from "./serializeData";
 
 describe("Schema", () => {
   test("serialization round-trip preserves schema data", () => {

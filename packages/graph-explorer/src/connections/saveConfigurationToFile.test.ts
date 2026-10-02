@@ -2,7 +2,7 @@
 import * as fileSaver from "file-saver";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { ConfigurationContextProps } from "@/core/ConfigurationProvider";
+import type { ConfigurationContextProps } from "@/core/StateProvider/typeConfigTypes";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { createEdgeType, createVertexType } from "@/core/entities";

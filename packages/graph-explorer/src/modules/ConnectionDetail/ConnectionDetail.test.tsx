@@ -8,7 +8,7 @@ import { describe, expect, test } from "vitest";
 import { TooltipProvider } from "@/components";
 import { getAppStore } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
-import { mergeConfiguration } from "@/core/StateProvider/configuration";
+import { mergeConfiguration } from "@/core/StateProvider/typeConfigs";
 import { DbState, TestProvider } from "@/utils/testing";
 
 import ConnectionDetail from "./ConnectionDetail";
