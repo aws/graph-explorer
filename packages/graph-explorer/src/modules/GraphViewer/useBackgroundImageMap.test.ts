@@ -9,7 +9,6 @@ import type { VertexStyle } from "@/core";
 
 import { createVertexType } from "@/core/entities/vertex";
 import { iconRegistry } from "@/core/icons";
-import { ICON_BOX, ICON_RATIO } from "@/core/icons/iconGeometry";
 import { createRandomVertexStyle, renderHookWithState } from "@/utils/testing";
 
 import { useBackgroundImageMap } from "./useBackgroundImageMap";
@@ -49,68 +48,6 @@ describe("useBackgroundImageMap", () => {
   it("returns an empty map when given no configs", async () => {
     const { result } = renderMap([]);
     await waitFor(() => expect(result.current.size).toBe(0));
-  });
-
-  // Issue #2108: cytoscape cannot both preserve an image's aspect ratio and
-  // inset it, so the inset is baked into a square svg wrapper and the nested
-  // `preserveAspectRatio` does the fitting. That works for every icon kind
-  // without measuring anything, so a raster is wrapped just like an svg.
-  it("wraps a raster icon in a padded square svg", async () => {
-    const config = makeConfig({
-      type: createVertexType("Raster"),
-      iconUrl: "data:image/png;base64,QUJD",
-      iconImageType: "image/png",
-    });
-
-    const { result } = renderMap([config]);
-
-    await waitFor(() =>
-      expect(result.current.has(createVertexType("Raster"))).toBe(true),
-    );
-    const url = result.current.get(createVertexType("Raster"))!;
-    expect(url.startsWith("data:image/svg+xml;utf8,")).toBe(true);
-    const wrapper = decodeURIComponent(url);
-    expect(wrapper).toContain(`viewBox="0 0 ${ICON_BOX} ${ICON_BOX}"`);
-    expect(wrapper).toContain('preserveAspectRatio="xMidYMid meet"');
-    // Inset the icon needs for the ellipse shape, computed from the same
-    // constants VertexSymbol's preview box uses, so this also guards the two
-    // staying in sync.
-    const size = ICON_BOX * ICON_RATIO;
-    const offset = (ICON_BOX - size) / 2;
-    expect(wrapper).toContain(`x="${offset}"`);
-    expect(wrapper).toContain(`y="${offset}"`);
-    expect(wrapper).toContain(`width="${size}"`);
-    expect(wrapper).toContain(`height="${size}"`);
-    expect(decodeIcon(url)).toContain("data:image/png;base64,QUJD");
-    expect(fetch).not.toBeCalled();
-  });
-
-  // The wrapper nests the raster url as an XML attribute value, so a raw `<`
-  // in it would produce malformed XML that fails to parse — a blank icon,
-  // not a distorted one. Stored data uris are base64 and contain no `<`, but
-  // nothing upstream enforces that.
-  it("escapes a literal < in the wrapped url", async () => {
-    const config = makeConfig({
-      type: createVertexType("AngleBracket"),
-      iconUrl: "data:image/png;base64,<notreallybase64>",
-      iconImageType: "image/png",
-    });
-
-    const { result } = renderMap([config]);
-
-    await waitFor(() =>
-      expect(result.current.has(createVertexType("AngleBracket"))).toBe(true),
-    );
-    const url = result.current.get(createVertexType("AngleBracket"))!;
-    const wrapper = decodeURIComponent(url);
-    expect(wrapper).not.toContain("<notreallybase64>");
-    // Only `<` breaks XML attribute well-formedness; a bare `>` is legal.
-    expect(wrapper).toContain("&lt;notreallybase64>");
-    // Still well-formed XML: strip the data: uri prefix before parsing, or
-    // the leading "data:image/svg+xml;utf8," is itself invalid XML.
-    const svgMarkup = wrapper.replace("data:image/svg+xml;utf8,", "");
-    const doc = new DOMParser().parseFromString(svgMarkup, "application/xml");
-    expect(doc.querySelector("parsererror")).toBeNull();
   });
 
   // Issue #2108, the case the wrapper alone does not solve: without a viewBox

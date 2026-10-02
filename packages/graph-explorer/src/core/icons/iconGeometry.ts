@@ -12,16 +12,10 @@
 export const ICON_BOX = 96;
 
 /** Fraction of {@link ICON_BOX} the icon occupies, leaving room for the shape's curve. */
-export const ICON_RATIO = 0.6;
+const ICON_RATIO = 0.6;
 
-/**
- * The centered square an icon is drawn into: `size` at `ICON_RATIO` of `box`,
- * offset equally on both axes so it sits in the middle.
- */
-export function insetBox(
-  box: number,
-  ratio: number,
-): { size: number; offset: number } {
-  const size = box * ratio;
-  return { size, offset: (box - size) / 2 };
-}
+/** The centered square within {@link ICON_BOX} that an icon is drawn into. */
+export const ICON_INSET = {
+  size: ICON_BOX * ICON_RATIO,
+  offset: (ICON_BOX - ICON_BOX * ICON_RATIO) / 2,
+} as const;
