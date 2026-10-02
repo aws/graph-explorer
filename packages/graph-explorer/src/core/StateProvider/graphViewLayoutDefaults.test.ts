@@ -2,6 +2,7 @@ import { describe, expect, it, test } from "vitest";
 import { z } from "zod";
 
 import {
+  DEFAULT_SIDEBAR_WIDTH,
   defaultGraphViewLayout,
   graphViewLayoutCodec,
   transformGraphViewLayout,
@@ -15,13 +16,15 @@ import {
  * stored the styling sidebar as two separate panels, so `activeSidebarItem`
  * could be "nodes-styling" or "edges-styling". Those were merged into a single
  * "styles" panel, but previously persisted layouts may still hold the old
- * values. transformGraphViewLayout normalizes them on read so the sidebar isn't
- * stuck pointing at a panel that no longer exists.
+ * values. Older versions also left `sidebar` unset until the user first resized
+ * it, while the per-tab codec now requires it. transformGraphViewLayout
+ * normalizes both on read so the sidebar isn't stuck pointing at a panel that
+ * no longer exists, and the claimed per-tab value passes the codec on reload.
  *
  * DO NOT delete or weaken these tests without confirming that all persisted
  * data has been transformed or that the old values are no longer in the wild.
  */
-describe("transformGraphViewLayout backward compatibility", () => {
+describe("backward compatibility: transformGraphViewLayout", () => {
   it("maps legacy nodes-styling to styles", () => {
     const legacy = {
       activeSidebarItem: "nodes-styling",
@@ -40,6 +43,19 @@ describe("transformGraphViewLayout backward compatibility", () => {
     } as unknown as GraphViewLayout;
 
     expect(transformGraphViewLayout(legacy).activeSidebarItem).toBe("styles");
+  });
+
+  it("fills a missing sidebar with the default width", () => {
+    const legacy = {
+      activeSidebarItem: "search",
+      activeToggles: new Set(["graph-viewer"]),
+    } as unknown as GraphViewLayout;
+
+    expect(transformGraphViewLayout(legacy)).toStrictEqual({
+      activeSidebarItem: "search",
+      activeToggles: new Set(["graph-viewer"]),
+      sidebar: { width: DEFAULT_SIDEBAR_WIDTH },
+    });
   });
 
   it("leaves a current sidebar item untouched", () => {
@@ -95,7 +111,7 @@ describe("graphViewLayoutCodec", () => {
   });
 
   test("throws on a corrupt value so the seam can discard it", () => {
-    // Asserted by type, not instance: these errors come from JSON.parse and
+    // Asserted by type, not by message: these errors come from JSON.parse and
     // zod, whose messages shift between engine and library versions.
     expect(() => graphViewLayoutCodec.deserialize("{ not json")).toThrow(
       SyntaxError,

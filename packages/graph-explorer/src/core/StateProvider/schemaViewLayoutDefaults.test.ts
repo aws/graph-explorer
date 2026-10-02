@@ -21,7 +21,7 @@ import {
  * DO NOT delete or weaken these tests without confirming that all persisted
  * data has been transformed or that the old values are no longer in the wild.
  */
-describe("transformSchemaViewLayout backward compatibility", () => {
+describe("backward compatibility: transformSchemaViewLayout", () => {
   it("maps legacy nodes-styling to styles", () => {
     const legacy = {
       activeSidebarItem: "nodes-styling",
@@ -88,7 +88,7 @@ describe("schemaViewLayoutCodec", () => {
   });
 
   test("throws on a corrupt value so the seam can discard it", () => {
-    // Asserted by type, not instance: these errors come from JSON.parse and
+    // Asserted by type, not by message: these errors come from JSON.parse and
     // zod, whose messages shift between engine and library versions.
     expect(() => schemaViewLayoutCodec.deserialize("{ not json")).toThrow(
       SyntaxError,

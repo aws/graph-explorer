@@ -4,8 +4,10 @@ import { describe, expect, test, vi } from "vitest";
 import { z } from "zod";
 
 import { logger } from "@/utils";
+import { createRandomGraphViewLayout } from "@/utils/testing";
 
 import {
+  DEFAULT_SIDEBAR_WIDTH,
   defaultGraphViewLayout,
   type GraphViewLayout,
   graphViewLayoutCodec,
@@ -17,6 +19,7 @@ import {
   defaultSchemaViewLayout,
   type SchemaViewLayout,
   schemaViewLayoutCodec,
+  transformSchemaViewLayout,
 } from "./schemaViewLayoutDefaults";
 import {
   createSessionScopedAtom,
@@ -47,19 +50,15 @@ const KEY = "test-counter";
  * exercised through the same multi-tab sequences rather than only a toy codec.
  */
 function tabOpener<T>(
-  key: string,
-  defaultValue: T,
-  codec: SessionValueCodec<T>,
+  options: Omit<
+    Parameters<typeof createSessionScopedAtom<T>>[0],
+    "sessionStorage"
+  >,
 ) {
   return async function openTab() {
     const sessionStorage = createInMemorySessionStorage();
     let store = createStore();
-    let atom = await createSessionScopedAtom<T>({
-      key,
-      defaultValue,
-      codec,
-      sessionStorage,
-    });
+    let atom = await createSessionScopedAtom<T>({ ...options, sessionStorage });
     return {
       read: () => store.get(atom),
       write: (value: T) => {
@@ -68,18 +67,17 @@ function tabOpener<T>(
       },
       reload: async () => {
         store = createStore();
-        atom = await createSessionScopedAtom<T>({
-          key,
-          defaultValue,
-          codec,
-          sessionStorage,
-        });
+        atom = await createSessionScopedAtom<T>({ ...options, sessionStorage });
       },
     };
   };
 }
 
-const openTab = tabOpener<Counter>(KEY, { count: 0 }, counterCodec);
+const openTab = tabOpener<Counter>({
+  key: KEY,
+  defaultValue: { count: 0 },
+  codec: counterCodec,
+});
 
 describe("createSessionScopedAtom", () => {
   test("cold start seeds from the persisted breadcrumb and claims it into this tab", async () => {
@@ -223,7 +221,9 @@ describe("createSessionScopedAtom", () => {
     });
     const store = createStore();
 
-    expect(() => store.set(atom, { count: 5 })).toThrow(TypeError);
+    expect(() => store.set(atom, { count: 5 })).toThrow(
+      new TypeError("activeToggles is not iterable"),
+    );
     expect(vi.mocked(logger.warn)).not.toHaveBeenCalled();
   });
 
@@ -332,14 +332,21 @@ describe("createSessionScopedAtom across tabs", () => {
   });
 });
 
+const GRAPH_VIEW_LAYOUT_KEY = "graph-view-layout";
+
+const openGraphViewTab = tabOpener<GraphViewLayout>({
+  key: GRAPH_VIEW_LAYOUT_KEY,
+  defaultValue: defaultGraphViewLayout,
+  codec: graphViewLayoutCodec,
+  transform: transformGraphViewLayout,
+});
+
 // The breadcrumb keeps the native value (structured clone preserves the
 // activeToggles Set), but the per-tab sessionStorage claim must go through the
 // codec, which serializes that Set as an array. This exercises the helper and
 // graphViewLayoutCodec together over that exact path — the reason the branch
 // exists — rather than each in isolation.
 describe("createSessionScopedAtom with the graph view layout codec", () => {
-  const LAYOUT_KEY = "graph-view-layout";
-
   test("cold start claims a Set-bearing breadcrumb into sessionStorage as its array form", async () => {
     const breadcrumb: GraphViewLayout = {
       activeSidebarItem: "filters",
@@ -348,11 +355,14 @@ describe("createSessionScopedAtom with the graph view layout codec", () => {
       tableView: { height: 250 },
       detailsAutoOpenOnSelection: false,
     };
-    await localForage.setItem<GraphViewLayout>(LAYOUT_KEY, breadcrumb);
+    await localForage.setItem<GraphViewLayout>(
+      GRAPH_VIEW_LAYOUT_KEY,
+      breadcrumb,
+    );
     const sessionStorage = createInMemorySessionStorage();
 
     const atom = await createSessionScopedAtom<GraphViewLayout>({
-      key: LAYOUT_KEY,
+      key: GRAPH_VIEW_LAYOUT_KEY,
       defaultValue: defaultGraphViewLayout,
       codec: graphViewLayoutCodec,
       sessionStorage,
@@ -365,7 +375,7 @@ describe("createSessionScopedAtom with the graph view layout codec", () => {
 
     // The claimed per-tab value is the array-serialized form, pinned literally
     // so a serialize that dropped a field could not satisfy both sides at once.
-    expect(sessionStorage.getItem(LAYOUT_KEY)).toBe(
+    expect(sessionStorage.getItem(GRAPH_VIEW_LAYOUT_KEY)).toBe(
       JSON.stringify({
         activeSidebarItem: "filters",
         activeToggles: ["graph-viewer", "table-view"],
@@ -376,29 +386,52 @@ describe("createSessionScopedAtom with the graph view layout codec", () => {
     );
     // A warm reload off that value rebuilds the Set rather than re-seeding.
     expect(
-      graphViewLayoutCodec.deserialize(sessionStorage.getItem(LAYOUT_KEY)),
+      graphViewLayoutCodec.deserialize(
+        sessionStorage.getItem(GRAPH_VIEW_LAYOUT_KEY),
+      ),
     ).toStrictEqual(breadcrumb);
   });
+});
 
-  test("remaps a retired sidebar item in the breadcrumb on cold start", async () => {
-    // A layout stored before node and edge styling merged into one panel. The
-    // breadcrumb is the only path a retired shape can arrive by, so without the
-    // transform the codec would reject the claimed value on every reload and the
-    // sidebar would point at a panel that no longer exists.
-    await localForage.setItem(LAYOUT_KEY, {
+/**
+ * BACKWARD COMPATIBILITY — PERSISTED DATA
+ *
+ * The graph view layout breadcrumb keeps the shape older versions wrote to
+ * IndexedDB: `activeSidebarItem` may be the retired "nodes-styling" or
+ * "edges-styling", and `sidebar` may be unset because older versions only
+ * wrote it on the first resize. The breadcrumb is the only path an old shape
+ * can arrive by, and the per-tab codec rejects both, so without the transform
+ * every reload would discard this tab's claimed value and re-seed from the
+ * shared breadcrumb, losing per-tab divergence.
+ *
+ * DO NOT delete or weaken these tests without confirming that all persisted
+ * data has been transformed or that the old values are no longer in the wild.
+ */
+describe("backward compatibility: graph view layout breadcrumb", () => {
+  test("remaps a retired sidebar item on cold start", async () => {
+    await localForage.setItem(GRAPH_VIEW_LAYOUT_KEY, {
       ...defaultGraphViewLayout,
       activeSidebarItem: "nodes-styling",
     } as unknown as GraphViewLayout);
 
-    const atom = await createSessionScopedAtom<GraphViewLayout>({
-      key: LAYOUT_KEY,
-      defaultValue: defaultGraphViewLayout,
-      codec: graphViewLayoutCodec,
-      transform: transformGraphViewLayout,
-      sessionStorage: createInMemorySessionStorage(),
-    });
+    const tab = await openGraphViewTab();
 
-    expect(createStore().get(atom).activeSidebarItem).toBe("styles");
+    expect(tab.read().activeSidebarItem).toBe("styles");
+  });
+
+  test("a breadcrumb without a sidebar keeps this tab's value across reload", async () => {
+    const { sidebar: _, ...withoutSidebar } = createRandomGraphViewLayout();
+    await localForage.setItem(GRAPH_VIEW_LAYOUT_KEY, withoutSidebar);
+    const tabA = await openGraphViewTab();
+    const claimed = tabA.read();
+    expect(claimed.sidebar).toStrictEqual({ width: DEFAULT_SIDEBAR_WIDTH });
+
+    const tabB = await openGraphViewTab();
+    await tabB.write(createRandomGraphViewLayout());
+
+    await tabA.reload();
+    expect(tabA.read()).toStrictEqual(claimed);
+    expect(vi.mocked(logger.warn)).not.toHaveBeenCalled();
   });
 });
 
@@ -406,13 +439,7 @@ describe("createSessionScopedAtom with the graph view layout codec", () => {
 // the array serialization across a write-in-one-tab / cold-start-in-another
 // sequence, which the toy counter codec above cannot reach.
 describe("graph view layout across tabs", () => {
-  const openGraphViewTab = tabOpener<GraphViewLayout>(
-    "graph-view-layout",
-    defaultGraphViewLayout,
-    graphViewLayoutCodec,
-  );
-
-  test("changing layout in one tab does not change an already-open tab", async () => {
+  test("changing the view layout in one tab does not change an already-open tab", async () => {
     const tabB = await openGraphViewTab();
     const tabBLayout: GraphViewLayout = {
       ...defaultGraphViewLayout,
@@ -430,7 +457,7 @@ describe("graph view layout across tabs", () => {
     expect(tabB.read()).toStrictEqual(tabBLayout);
   });
 
-  test("a later tab cold-starts to the layout an earlier tab wrote, with toggles rebuilt as a Set", async () => {
+  test("a later tab cold-starts to the view layout an earlier tab wrote, with toggles rebuilt as a Set", async () => {
     const earlierTab = await openGraphViewTab();
     const written: GraphViewLayout = {
       ...defaultGraphViewLayout,
@@ -449,17 +476,17 @@ describe("graph view layout across tabs", () => {
 });
 
 // Schema view's codec is structurally the same as the counter codec above, so
-// these cover the storageAtoms wiring rather than codec risk: that the atom is
-// really built with this codec under the schema-view-layout key. The codec
-// itself is covered in schemaViewLayoutDefaults.test.ts.
+// these only confirm the real codec composes with the per-tab primitive. The
+// codec itself is covered in schemaViewLayoutDefaults.test.ts.
 describe("schema view layout across tabs", () => {
-  const openSchemaViewTab = tabOpener<SchemaViewLayout>(
-    "schema-view-layout",
-    defaultSchemaViewLayout,
-    schemaViewLayoutCodec,
-  );
+  const openSchemaViewTab = tabOpener<SchemaViewLayout>({
+    key: "schema-view-layout",
+    defaultValue: defaultSchemaViewLayout,
+    codec: schemaViewLayoutCodec,
+    transform: transformSchemaViewLayout,
+  });
 
-  test("changing layout in one tab does not change an already-open tab", async () => {
+  test("changing the view layout in one tab does not change an already-open tab", async () => {
     const tabB = await openSchemaViewTab();
     const tabBLayout: SchemaViewLayout = {
       ...defaultSchemaViewLayout,
@@ -476,7 +503,7 @@ describe("schema view layout across tabs", () => {
     expect(tabB.read()).toStrictEqual(tabBLayout);
   });
 
-  test("a later tab cold-starts to the layout an earlier tab wrote", async () => {
+  test("a later tab cold-starts to the view layout an earlier tab wrote", async () => {
     const earlierTab = await openSchemaViewTab();
     const written: SchemaViewLayout = {
       ...defaultSchemaViewLayout,

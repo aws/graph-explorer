@@ -47,7 +47,7 @@ export function transformLegacySidebarItem<
 }
 
 /**
- * Persisted layout preferences for the graph view, and the single declaration of
+ * The Graph View Layout, and the single declaration of
  * that shape so the runtime type and the parser cannot drift apart. The schema's
  * *input* is the JSON the per-tab value holds, where `activeToggles` is an array
  * because a `Set` does not survive `JSON.stringify`; its *output* is the runtime
@@ -87,9 +87,16 @@ export function transformGraphViewLayout(
   const activeSidebarItem = transformLegacySidebarItem(
     layout.activeSidebarItem,
   );
-  return activeSidebarItem === layout.activeSidebarItem
-    ? layout
-    : { ...layout, activeSidebarItem };
+  // Older versions left `sidebar` unset until the user first resized it.
+  const storedSidebar: GraphViewLayout["sidebar"] | undefined = layout.sidebar;
+  if (activeSidebarItem === layout.activeSidebarItem && storedSidebar) {
+    return layout;
+  }
+  return {
+    ...layout,
+    activeSidebarItem,
+    sidebar: storedSidebar ?? { width: DEFAULT_SIDEBAR_WIDTH },
+  };
 }
 
 /** Per-tab session codec; serializes the toggles Set as an array for JSON. */
