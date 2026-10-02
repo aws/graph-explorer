@@ -1,16 +1,10 @@
-import DOMPurify from "dompurify";
 import { DynamicIcon } from "lucide-react/dynamic";
 import SVG from "react-inlinesvg";
 
 import { useVertexStyle, type VertexStyle, type VertexType } from "@/core";
+import { sanitizeSvg } from "@/core/icons";
 import { cn } from "@/utils";
 import { getLucideName, isValidLucideIconName } from "@/utils/lucideIcons";
-
-function sanitizeSvg(svg: string): string {
-  return DOMPurify.sanitize(svg, {
-    USE_PROFILES: { svg: true, svgFilters: true },
-  });
-}
 
 interface Props {
   vertexStyle: VertexStyle;
@@ -45,7 +39,11 @@ function VertexIcon({ vertexStyle, className, alt }: Props) {
         preProcessor={sanitizeSvg}
         className={cn("size-6 shrink-0", className)}
         style={{ color: vertexStyle.color }}
-        title={altText}
+        // Not `title`: react-inlinesvg writes it as markup, and the label is
+        // database or file text. The rule misreads <SVG>, which renders <svg>.
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
+        role="img"
+        aria-label={altText}
       />
     );
   }
@@ -54,7 +52,7 @@ function VertexIcon({ vertexStyle, className, alt }: Props) {
     <img
       src={vertexStyle.iconUrl}
       alt={altText}
-      className={cn("size-6 shrink-0", className)}
+      className={cn("size-6 shrink-0 object-contain", className)}
       style={{ color: vertexStyle.color }}
     />
   );

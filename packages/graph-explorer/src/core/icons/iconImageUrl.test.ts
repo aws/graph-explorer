@@ -4,7 +4,8 @@
 
 import { describe, expect, it } from "vitest";
 
-import { toIconImageUrl } from "./iconImageUrl";
+import { ICON_BOX, ICON_INSET } from "./iconGeometry";
+import { toCanvasBackgroundImage, toIconImageUrl } from "./iconImageUrl";
 
 const SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16v16H4z"/></svg>`;
 
@@ -27,13 +28,6 @@ describe("toIconImageUrl", () => {
 
     expect(result.startsWith("data:image/svg+xml;utf8,")).toBe(true);
     expect(decode(result)).toContain("<path");
-  });
-
-  it("sizes the svg to the cytoscape node size", () => {
-    const result = toIconImageUrl({ kind: "svg", svg: SVG }, "#FF0000");
-
-    expect(decode(result)).toContain('width="24"');
-    expect(decode(result)).toContain('height="24"');
   });
 
   // The color reaches a currentColor-authored icon through CSS inheritance, so
@@ -102,5 +96,63 @@ describe("toIconImageUrl", () => {
     const blue = toIconImageUrl({ kind: "svg", svg: SVG }, "#0000FF");
 
     expect(red).not.toBe(blue);
+  });
+
+  // Issue #2108: sizing is the consumer's job. Both consumers fit the icon by
+  // `preserveAspectRatio` against its own `viewBox`; forcing a square here
+  // would bake in the distortion.
+  describe("non-square icons (issue #2108)", () => {
+    const WIDE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100"><rect width="400" height="100"/></svg>`;
+
+    it("leaves the icon's own geometry untouched", () => {
+      const result = decode(
+        toIconImageUrl({ kind: "svg", svg: WIDE_SVG }, "#FF0000"),
+      );
+
+      expect(result).toContain('viewBox="0 0 400 100"');
+      expect(result).not.toContain('width="24"');
+      expect(result).not.toContain('height="24"');
+    });
+  });
+});
+
+describe("toCanvasBackgroundImage", () => {
+  // Issue #2108: cytoscape cannot both preserve an image's aspect ratio and
+  // inset it, so the inset is baked into a square svg and the nested
+  // `preserveAspectRatio` does the fitting — for every icon kind, with no
+  // measuring, so a raster is wrapped just like an svg.
+  it("centers the icon in a padded square svg", () => {
+    const url = toCanvasBackgroundImage(
+      { kind: "raster", url: "data:image/png;base64,QUJD" },
+      "#FF0000",
+    );
+
+    expect(url.startsWith("data:image/svg+xml;utf8,")).toBe(true);
+    const wrapper = decode(url);
+    expect(wrapper).toContain(`viewBox="0 0 ${ICON_BOX} ${ICON_BOX}"`);
+    expect(wrapper).toContain('preserveAspectRatio="xMidYMid meet"');
+    expect(wrapper).toContain(`x="${ICON_INSET.offset}"`);
+    expect(wrapper).toContain(`y="${ICON_INSET.offset}"`);
+    expect(wrapper).toContain(`width="${ICON_INSET.size}"`);
+    expect(wrapper).toContain(`height="${ICON_INSET.size}"`);
+    expect(decodeURIComponent(wrapper)).toContain("data:image/png;base64,QUJD");
+  });
+
+  // A raw `<` in the nested url would produce malformed XML that fails to
+  // parse — a blank icon, not a distorted one. Stored data uris are base64,
+  // but nothing upstream enforces that.
+  it("escapes a literal < in the nested url", () => {
+    const wrapper = decode(
+      toCanvasBackgroundImage(
+        { kind: "raster", url: "data:image/png;base64,<notreallybase64>" },
+        "#FF0000",
+      ),
+    );
+
+    expect(wrapper).not.toContain("<notreallybase64>");
+    // Only `<` breaks XML attribute well-formedness; a bare `>` is legal.
+    expect(wrapper).toContain("&lt;notreallybase64>");
+    const doc = new DOMParser().parseFromString(wrapper, "application/xml");
+    expect(doc.querySelector("parsererror")).toBeNull();
   });
 });

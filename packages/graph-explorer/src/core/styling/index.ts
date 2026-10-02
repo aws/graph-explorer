@@ -1,5 +1,4 @@
 export {
-  isAllowedIconValue,
   parseStylingPayload,
   parseStylingPayloadForVersion,
   STYLING_EXPORT_KIND,

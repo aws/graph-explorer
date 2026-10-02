@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-08-13
+- **Updated:** 2026-10-02 — the canvas wraps every icon in a padded square `data:` SVG for aspect fit (issue #2108, PR #2142). See Canvas sizing below. The icon allowlist is owned by ADR `styling-file-format`.
 - **Related:** PR #2102; issues #2091, #2103, #2105, #2107. Supersedes the icon-resolution decisions in PR #1777. Affects `core/icons/`, `modules/GraphViewer/useBackgroundImageMap.ts`, `components/VertexSymbol/`.
 
 ## Context
@@ -13,7 +14,7 @@ Resolution used TanStack Query because it was the project's async-state tool. Th
 The cache was a poor fit rather than mis-tuned:
 
 - Every icon query set `staleTime: Infinity`. Icons are immutable, identity-addressable, bounded (dozens of unique icons even at 10k types), and never invalidate. Nothing in the requirement refetches, mutates, paginates, or refreshes.
-- Only one of the three kinds does real I/O. A raster url goes straight to the browser, and a Lucide reference is an `import()` that the ES module map already caches and in-flight dedupes. Only remote SVG needs fetch, dedup, and caching.
+- Only one of the three kinds does real I/O. A raster url goes straight to the browser, and a Lucide reference is an `import()` that the ES module map already caches and in-flight dedupes. Only user SVG needs fetch (of its `data:` url, which sanitizing requires as text), dedup, and caching.
 
 So the machinery went unused while its per-hook subscription model — the one part that did apply — scaled with vertex types and broke.
 
@@ -31,17 +32,21 @@ Separately, the DOM surface paid for a workaround it did not need. `VertexSymbol
 
 **2. Icons render per kind, on the surface's own terms.**
 
-| kind     | canvas         | DOM                                        |
-| -------- | -------------- | ------------------------------------------ |
-| Lucide   | baked data uri | `<DynamicIcon>`, live DOM, color inherited |
-| user SVG | baked data uri | `<image href="data:…">`, color baked       |
-| raster   | url            | `<image href>`                             |
+| kind | canvas | DOM |
+| --- | --- | --- |
+| Lucide | baked data uri, wrapped for aspect fit | `<DynamicIcon>`, live DOM, color inherited |
+| user SVG | baked data uri, wrapped for aspect fit | `<image href="data:…">`, color baked |
+| raster | data uri, wrapped for aspect fit | `<image href>` |
 
 Lucide markup is trusted bundled geometry with no ids, defs, or script, so inlining it costs nothing and recoloring becomes synchronous.
 
-Untrusted SVG is deliberately **not** inlined on these surfaces. `<image href="data:…">` renders it as a script-disabled image document (W3C SVG Integration §3.4/§3.6 — an image context disables both script execution and external references). Inlining would trade that browser-enforced boundary for DOMPurify alone, and add id collisions with the `useId()`-generated `clipPath` ids and unsanitized `<style>` blocks. DOMPurify stays; the sandbox stays with it. The cost is that hardcoded fills in custom SVG still do not follow the vertex color (#2105, pre-existing).
+Untrusted SVG is deliberately **not** inlined on these surfaces. `<image href="data:…">` renders it as a script-disabled image document (W3C SVG Integration §3.4/§3.6 — an image context disables both script execution and external references not embedded in the `data:` uri itself). Inlining would trade that browser-enforced boundary for DOMPurify alone, and add id collisions with the `useId()`-generated `clipPath` ids and unsanitized `<style>` blocks. DOMPurify stays; the sandbox stays with it. The cost is that hardcoded fills in custom SVG still do not follow the vertex color (#2105, pre-existing).
 
 This is not codebase-wide: `components/VertexIcon.tsx` inlines sanitized user SVG into the live DOM via `react-inlinesvg`, with no sandbox. It predates this decision and is the outlier, not the pattern to copy.
+
+**Canvas sizing (issue #2108, PR #2142).** Cytoscape cannot both preserve an icon's aspect ratio and inset it to 60% of the node: `background-fit: contain` keeps the ratio but fills the whole node, and the node is an ellipse, so a square-ish icon's corners spill past the shape. `toCanvasBackgroundImage` wraps the icon's `data:` uri in a padded square SVG and lets a nested `<image preserveAspectRatio>` do the fitting — the same mechanism `VertexSymbolIcon` already uses directly, sharing `ICON_BOX`/`ICON_INSET` so the two cannot desync. The wrapper is itself a `data:` uri, so it stays within the image-document sandbox above, and nesting one `data:` image inside another issues no external request.
+
+**Considered and rejected: cytoscape's own `padding` + `background-width-relative-to: inner`.** That fits an unwrapped icon into the node's inner box natively, deleting the wrapper and its XML escaping for about 30 fewer lines. A prototype measured it as pixel-identical for ellipses, borderless nodes, and Lucide icons, but cytoscape 3.34.3 derives a polygon's border corners from the inner width rather than the padded size, so a bordered polygon shrinks: a diamond with a 3px border moves its label and badge by ~2px, and at 10px its corners are visibly cut flat. Border width is unbounded in the style dialog, so that is a real regression, and the wrapper keeps node geometry untouched.
 
 **3. `clip-path` goes on an ancestor `<g>`, never on the nested `<svg>`.**
 

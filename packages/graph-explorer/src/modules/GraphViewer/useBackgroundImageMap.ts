@@ -5,7 +5,7 @@ import {
   type IconSource,
   type IconSourceId,
   iconSourceId,
-  toIconImageUrl,
+  toCanvasBackgroundImage,
   useResolvedIcons,
 } from "@/core/icons";
 
@@ -48,10 +48,12 @@ export function useBackgroundImageMap(
     if (!icon) {
       continue;
     }
+    // An IconSourceId embeds the stored url verbatim, so the separator is NUL,
+    // which no usable url or color contains.
     const renderKey = `${id}\u0000${color}`;
     let backgroundImage = rendered.get(renderKey);
     if (backgroundImage === undefined) {
-      backgroundImage = toIconImageUrl(icon, color);
+      backgroundImage = toCanvasBackgroundImage(icon, color);
       rendered.set(renderKey, backgroundImage);
     }
     result.set(type, backgroundImage);
