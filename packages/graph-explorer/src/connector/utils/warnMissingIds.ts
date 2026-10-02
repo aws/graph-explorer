@@ -11,7 +11,7 @@ export function warnMissingIds<T extends VertexId | EdgeId>(
   entityLabel: "edges" | "vertices",
   requested: readonly T[],
   found: readonly T[],
-  context: WarnMissingIdsContext = {},
+  context: WarnMissingIdsContext,
 ): void {
   const missing = setDifference(new Set(requested), new Set(found));
   if (missing.size > 0) {
