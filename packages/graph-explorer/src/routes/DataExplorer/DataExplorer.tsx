@@ -54,8 +54,8 @@ import {
   type Vertex,
   type VertexType,
 } from "@/core";
-import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import { useVertexStyling } from "@/core/StateProvider/graphStyles";
+import { useVertexTypeConfig } from "@/core/StateProvider/useConfiguration";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import {

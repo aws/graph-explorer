@@ -3,17 +3,15 @@ import { atom } from "jotai";
 import type { RawConfiguration } from "@/connections";
 
 import { activeConfigSelector, normalizeConnection } from "@/connections";
-import {
-  type AttributeConfig,
-  userEdgeStylesAtom,
-  type EdgeType,
-  type EdgeTypeConfig,
-  type MergedConfiguration,
-  type VertexType,
-  type VertexTypeConfig,
-  userVertexStylesAtom,
-} from "@/core";
 import { RESERVED_TYPES_PROPERTY } from "@/utils/constants";
+
+import type { EdgeType, VertexType } from "../entities";
+import type {
+  AttributeConfig,
+  EdgeTypeConfig,
+  MergedConfiguration,
+  VertexTypeConfig,
+} from "./typeConfigTypes";
 
 import {
   appDefaultEdgeStyle,
@@ -22,6 +20,7 @@ import {
   type VertexStyleStorage,
 } from "./graphStyles";
 import { activeSchemaSelector, type SchemaStorageModel } from "./schema";
+import { userEdgeStylesAtom, userVertexStylesAtom } from "./storageAtoms";
 
 export const mergedConfigurationSelector = atom(get => {
   const currentConfig = get(activeConfigSelector);

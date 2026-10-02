@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import type { ConfigurationContextProps } from "@/core/ConfigurationProvider";
+import type { ConfigurationContextProps } from "@/core/StateProvider/typeConfigTypes";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { createEdgeType, createVertexType } from "@/core/entities";

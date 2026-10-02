@@ -5,7 +5,7 @@ Schema discovery is expensive in both time and database compute, so the discover
 Key files:
 
 - `src/core/StateProvider/schema.ts` — `SchemaStorageModel` type, Jotai atoms, and incremental update logic
-- `src/core/ConfigurationProvider/types.ts` — `EdgeConnection`, `VertexTypeConfig`, `EdgeTypeConfig`, and related types
+- `src/core/StateProvider/typeConfigTypes.ts` — `EdgeConnection`, `VertexTypeConfig`, `EdgeTypeConfig`, and related types
 - `src/hooks/useSchemaSync.ts` — schema sync orchestration
 - `src/connector/queries/edgeConnectionsQuery.ts` — edge connection discovery
 
