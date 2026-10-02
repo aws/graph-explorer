@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-08-13
+- **Updated:** 2026-10-02 — the canvas wraps every icon in a padded square `data:` SVG for aspect fit (issue #2108, PR #2142). See Canvas sizing below. The icon allowlist is owned by ADR `styling-file-format`.
 - **Related:** PR #2102; issues #2091, #2103, #2105, #2107. Supersedes the icon-resolution decisions in PR #1777. Affects `core/icons/`, `modules/GraphViewer/useBackgroundImageMap.ts`, `components/VertexSymbol/`.
 
 ## Context
@@ -43,7 +44,9 @@ Untrusted SVG is deliberately **not** inlined on these surfaces. `<image href="d
 
 This is not codebase-wide: `components/VertexIcon.tsx` inlines sanitized user SVG into the live DOM via `react-inlinesvg`, with no sandbox. It predates this decision and is the outlier, not the pattern to copy.
 
-**Canvas sizing (issue #2108, PR #2142).** Cytoscape cannot both preserve an icon's aspect ratio and inset it to 60% of the node: `background-fit: contain` keeps the ratio but fills the whole node, and the node is an ellipse, so a square-ish icon's corners spill past the shape. The canvas wraps the icon's `data:` uri in its own padded square SVG and lets a nested `<image preserveAspectRatio>` do the fitting — the same mechanism `VertexSymbolIcon` already uses directly. That wrapper is itself a `data:` uri, so it stays within the image-document sandbox above: nesting one `data:`-uri image inside another issues no external request either. An external reference nested there would fetch nothing and render blank, which is one reason icons are restricted to `lucide:<name>` or `data:image/*;base64,` (`isAllowedIconValue`). The allowlist is enforced on upload, on import, and when styles load from storage, where any other value (only reachable by hand-editing) is dropped with a warning so the default icon applies. No icon configuration can make the app issue a network request.
+**Canvas sizing (issue #2108, PR #2142).** Cytoscape cannot both preserve an icon's aspect ratio and inset it to 60% of the node: `background-fit: contain` keeps the ratio but fills the whole node, and the node is an ellipse, so a square-ish icon's corners spill past the shape. `toCanvasBackgroundImage` wraps the icon's `data:` uri in a padded square SVG and lets a nested `<image preserveAspectRatio>` do the fitting — the same mechanism `VertexSymbolIcon` already uses directly, sharing `ICON_BOX`/`ICON_INSET` so the two cannot desync. The wrapper is itself a `data:` uri, so it stays within the image-document sandbox above, and nesting one `data:` image inside another issues no external request.
+
+**Considered and rejected: cytoscape's own `padding` + `background-width-relative-to: inner`.** That fits an unwrapped icon into the node's inner box natively, deleting the wrapper and its XML escaping for about 30 fewer lines. A prototype measured it as pixel-identical for ellipses, borderless nodes, and Lucide icons, but cytoscape 3.34.3 derives a polygon's border corners from the inner width rather than the padded size, so a bordered polygon shrinks: a diamond with a 3px border moves its label and badge by ~2px, and at 10px its corners are visibly cut flat. Border width is unbounded in the style dialog, so that is a real regression, and the wrapper keeps node geometry untouched.
 
 **3. `clip-path` goes on an ancestor `<g>`, never on the nested `<svg>`.**
 
