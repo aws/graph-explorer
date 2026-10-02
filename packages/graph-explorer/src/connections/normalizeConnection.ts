@@ -1,4 +1,4 @@
-import type { ConnectionConfig } from "@shared/types";
+import type { ConnectionConfig, QueryEngine } from "@shared/types";
 
 /**
  * Cleans a URL for storage and request use: strips newlines and surrounding
@@ -23,11 +23,21 @@ export function isDirectConnection(
   return connection?.proxyConnection === false;
 }
 
+/**
+ * The query language a connection runs. A connection stored without one has
+ * always run Gremlin.
+ */
+export function resolveQueryEngine(
+  connection: ConnectionConfig | undefined,
+): QueryEngine {
+  return connection?.queryEngine || "gremlin";
+}
+
 export function normalizeConnection(connection: ConnectionConfig) {
   return {
     ...connection,
     graphDbUrl: normalizeUrl(connection.graphDbUrl),
-    queryEngine: connection.queryEngine || "gremlin",
+    queryEngine: resolveQueryEngine(connection),
     awsAuthEnabled: connection.awsAuthEnabled ?? false,
   };
 }
