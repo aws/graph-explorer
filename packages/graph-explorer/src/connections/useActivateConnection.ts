@@ -1,12 +1,11 @@
 import { useAtomCallback } from "jotai/utils";
 import { useCallback } from "react";
 
-import type { ConfigurationId } from "@/connections";
-
+import { activeConfigurationAtom } from "@/core/StateProvider/storageAtoms";
+import useResetState from "@/core/StateProvider/useResetState";
 import { logger } from "@/utils";
 
-import { activeConfigurationAtom } from "./storageAtoms";
-import useResetState from "./useResetState";
+import type { ConfigurationId } from "./types";
 
 /**
  * Returns a callback that activates a connection and resets the graph session,

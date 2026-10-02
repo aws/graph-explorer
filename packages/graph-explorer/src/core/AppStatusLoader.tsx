@@ -8,9 +8,9 @@ import {
 } from "react";
 
 import { PanelEmptyState, PanelError, Spinner } from "@/components";
+import { fetchDefaultConnection } from "@/connections";
 import { logger } from "@/utils";
 
-import { fetchDefaultConnection } from "./defaultConnection";
 import { activeConfigurationAtom, configurationAtom } from "./StateProvider";
 
 function AppStatusLoader({ children }: PropsWithChildren) {

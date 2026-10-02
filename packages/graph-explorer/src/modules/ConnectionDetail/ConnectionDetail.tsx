@@ -44,7 +44,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/Dialog";
-import { isDirectConnection } from "@/connections";
+import {
+  isDirectConnection,
+  useDeleteActiveConfiguration,
+} from "@/connections";
 import {
   activeSchemaSelector,
   type ConfigurationContextProps,
@@ -56,7 +59,6 @@ import {
   debugForcePersistenceFailure,
   debugResetPersistenceStatus,
 } from "@/core/StateProvider/persistence";
-import { useDeleteActiveConfiguration } from "@/hooks/useDeleteConfig";
 import useEntitiesCounts from "@/hooks/useEntitiesCounts";
 import { useCancelSchemaSync, useSchemaSync } from "@/hooks/useSchemaSync";
 import useTranslations from "@/hooks/useTranslations";

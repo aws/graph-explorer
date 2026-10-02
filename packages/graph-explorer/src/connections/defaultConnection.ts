@@ -1,11 +1,12 @@
 import { neptuneServiceTypeOptions, queryEngineOptions } from "@shared/types";
 import { z } from "zod";
 
-import type { ConfigurationId, RawConfiguration } from "@/connections";
-
-import { transformLegacyConnection } from "@/connections";
 import { apiUrl } from "@/connector/utils/apiUrl";
 import { DEFAULT_SERVICE_TYPE, logger } from "@/utils";
+
+import type { ConfigurationId, RawConfiguration } from "./types";
+
+import { transformLegacyConnection } from "./legacyConnection";
 
 export const DefaultConnectionDataSchema = z.object({
   // Connection info
