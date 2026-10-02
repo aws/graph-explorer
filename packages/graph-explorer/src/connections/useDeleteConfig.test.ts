@@ -10,7 +10,7 @@ import {
   allGraphSessionsAtom,
   configurationAtom,
   schemaAtom,
-} from "@/core";
+} from "@/core/StateProvider/storageAtoms";
 import {
   createRandomRawConfiguration,
   createRandomSchema,

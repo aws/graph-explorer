@@ -3,8 +3,12 @@
 import { act } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { configurationAtom } from "@/core";
 import { getAppStore } from "@/core/StateProvider/appStore";
+import { nodesAtom } from "@/core/StateProvider/nodes";
+import {
+  activeConfigurationAtom,
+  configurationAtom,
+} from "@/core/StateProvider/storageAtoms";
 import {
   createTestableVertex,
   DbState,
@@ -12,8 +16,6 @@ import {
 } from "@/utils/testing";
 import { createRandomRawConfiguration } from "@/utils/testing/randomData";
 
-import { nodesAtom } from "./nodes";
-import { activeConfigurationAtom } from "./storageAtoms";
 import useActivateConnection from "./useActivateConnection";
 
 describe("useActivateConnection", () => {

@@ -10,6 +10,7 @@ import { describe, expect, onTestFinished, test, vi } from "vitest";
 import type { ConfigurationId, RawConfiguration } from "@/connections";
 
 import { TooltipProvider } from "@/components";
+import * as defaultConnection from "@/connections/defaultConnection";
 import { type AppStore, getAppStore } from "@/core";
 import Connect from "@/routes/Connect";
 import { logger } from "@/utils";
@@ -20,7 +21,6 @@ import {
 } from "@/utils/testing";
 
 import AppStatusLoader from "./AppStatusLoader";
-import * as defaultConnection from "./defaultConnection";
 import { createQueryClient } from "./queryClient";
 import { configurationAtom } from "./StateProvider";
 

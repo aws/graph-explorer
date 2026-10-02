@@ -1,7 +1,10 @@
 export * from "./activeConnection";
+export * from "./defaultConnection";
 export * from "./legacyConnection";
 export * from "./normalizeConnection";
 export * from "./parseConnectionFile";
 export { default as saveConfigurationToFile } from "./saveConfigurationToFile";
 export * from "./types";
+export { default as useActivateConnection } from "./useActivateConnection";
+export * from "./useDeleteConfig";
 export * from "./useImportConnectionFile";
