@@ -135,21 +135,27 @@ const fetchPredicatesByClass = async (
       type: createVertexType(resourceClass),
       total: countsByClass[resourceClass],
       displayNameAttribute:
-        displayNameCandidates
-          .values()
-          .map(c => attributes.get(c)?.name)
-          .filter(n => n != null)
-          .next().value ?? defaultVertexTypeConfig.displayNameAttribute,
+        firstAttributeName(displayNameCandidates, attributes) ??
+        defaultVertexTypeConfig.displayNameAttribute,
       longDisplayNameAttribute:
-        displayDescCandidates
-          .values()
-          .map(c => attributes.get(c)?.name)
-          .filter(n => n != null)
-          .next().value ?? defaultVertexTypeConfig.longDisplayNameAttribute,
-      attributes: attributes.values().toArray(),
+        firstAttributeName(displayDescCandidates, attributes) ??
+        defaultVertexTypeConfig.longDisplayNameAttribute,
+      attributes: Array.from(attributes.values()),
     };
   });
 };
+
+function firstAttributeName(
+  candidates: Iterable<string>,
+  attributes: Map<string, AttributeConfig>,
+): string | undefined {
+  for (const candidate of candidates) {
+    const name = attributes.get(candidate)?.name;
+    if (name != null) {
+      return name;
+    }
+  }
+}
 
 const fetchClassesSchema = async (
   sparqlFetch: SparqlFetch,

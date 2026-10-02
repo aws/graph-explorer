@@ -68,8 +68,8 @@ export function useAddToGraph() {
       }
       return updateSchemaFromEntities(
         {
-          vertices: newVerticesMap.values().toArray(),
-          edges: newEdgesMap.values().toArray(),
+          vertices: Array.from(newVerticesMap.values()),
+          edges: Array.from(newEdgesMap.values()),
         },
         prev,
         vertexLookup,

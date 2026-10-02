@@ -21,7 +21,6 @@ minimumReleaseAge: 1440
 # Explicitly allow or deny packages running build scripts
 allowBuilds:
   esbuild: true
-  core-js: false
 
 # Collapse compatible duplicate versions whenever the lockfile is written, so
 # `pnpm dedupe --check` in CI rarely fails. Frozen installs skip it, which is

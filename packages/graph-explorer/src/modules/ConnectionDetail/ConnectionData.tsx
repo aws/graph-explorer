@@ -23,7 +23,7 @@ import useTranslations from "@/hooks/useTranslations";
 import { cn } from "@/utils";
 
 export default function ConnectionData() {
-  const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
+  const vtConfigs = Array.from(useDisplayVertexTypeConfigs().values());
 
   const { filteredItems, search, setSearch } = useSearchItems(
     vtConfigs,

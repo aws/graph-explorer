@@ -126,11 +126,10 @@ function DataExplorerContent({ vertexType }: { vertexType: VertexType }) {
   const columns = useColumnDefinitions(vertexType);
 
   const query = useDataExplorerQuery(vertexType, pageSize, pageIndex);
-  const displayVertices = useDisplayVerticesFromVertices(
+  const displayVerticesMap = useDisplayVerticesFromVertices(
     query.data?.vertices ?? [],
-  )
-    .values()
-    .toArray();
+  );
+  const displayVertices = Array.from(displayVerticesMap.values());
 
   const vtConfigs = useDisplayVertexTypeConfigs();
   const vertexTypeOptions = [...vtConfigs.values()].map(config => ({

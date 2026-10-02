@@ -3,6 +3,8 @@ import type cytoscape from "cytoscape";
 import cloneDeep from "lodash/cloneDeep";
 import { useEffect, useState } from "react";
 
+import { setIsSubsetOf } from "@/utils";
+
 import type { CytoscapeType, GraphEdge, GraphNode } from "../Graph.model";
 
 export interface UseUpdateGraphElementsProps {
@@ -22,7 +24,7 @@ function wereElementsAddedOrRemoved(
 
   return (
     cyElementsIds.size !== elementsIds.size ||
-    !cyElementsIds.isSubsetOf(elementsIds)
+    !setIsSubsetOf(cyElementsIds, elementsIds)
   );
 }
 

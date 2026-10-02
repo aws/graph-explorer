@@ -38,6 +38,9 @@ export default defineConfig(({ mode }) => {
     define: {
       __GRAPH_EXP_VERSION__: JSON.stringify(process.env.npm_package_version),
     },
+    build: {
+      target: "baseline-widely-available",
+    },
     plugins: [
       tailwindcss(),
       react(),
