@@ -19,12 +19,9 @@ import {
   createRandomVertexTypeConfig,
 } from "@/utils/testing";
 
-import type {
-  MergedConfiguration,
-  VertexTypeConfig,
-} from "../ConfigurationProvider";
 import type { EdgeStyleStorage, VertexStyleStorage } from "./graphStyles";
 import type { SchemaStorageModel } from "./schema";
+import type { MergedConfiguration, VertexTypeConfig } from "./typeConfigTypes";
 
 import {
   defaultEdgeTypeConfig,
@@ -33,7 +30,7 @@ import {
   getDefaultVertexTypeConfig,
   mergeConfiguration,
   patchToRemoveDisplayLabel,
-} from "./configuration";
+} from "./typeConfigs";
 
 function toVertexStyles(
   styles: VertexStyleStorage[] = [],

@@ -27,13 +27,6 @@ import {
 } from "@/utils/testing";
 
 import {
-  createEdgeConnection,
-  createPrefixTypeConfig,
-  type EdgeTypeConfig,
-  type PrefixTypeConfig,
-  type VertexTypeConfig,
-} from "../ConfigurationProvider";
-import {
   createEdge,
   createEdgeType,
   createVertex,
@@ -56,6 +49,13 @@ import {
   useMaybeActiveSchema,
   useUpdateSchemaFromEntities,
 } from "./schema";
+import {
+  createEdgeConnection,
+  createPrefixTypeConfig,
+  type EdgeTypeConfig,
+  type PrefixTypeConfig,
+  type VertexTypeConfig,
+} from "./typeConfigTypes";
 
 const EMPTY_VERTEX_TYPE_LOOKUP = createVertexTypeLookup();
 
