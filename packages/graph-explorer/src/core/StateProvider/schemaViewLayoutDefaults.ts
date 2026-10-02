@@ -15,7 +15,7 @@ export type SchemaViewSidebarItem = z.infer<typeof schemaViewSidebarItemSchema>;
 /** The sidebar panels as a readonly tuple, e.g. for random test selection. */
 export const schemaViewSidebarItems = schemaViewSidebarItemSchema.options;
 
-/** Persisted layout preferences for the schema view. */
+/** The Schema View Layout. */
 const schemaViewLayoutSchema = z.object({
   activeSidebarItem: schemaViewSidebarItemSchema.nullable(),
   sidebar: z.object({ width: z.number() }),

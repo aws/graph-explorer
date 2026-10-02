@@ -106,7 +106,7 @@ const [
     new Map<EdgeType, EdgeStyleStorage>(),
     { reconcile: reconcileMapByKey },
   ),
-  // Layout is per-tab: each tab keeps its own sidebar/toggle state in
+  // View Layout is per-tab: each tab keeps its own sidebar/toggle state in
   // sessionStorage, with a shared localForage breadcrumb seeding a fresh tab.
   createSessionScopedAtom({
     key: "graph-view-layout",
