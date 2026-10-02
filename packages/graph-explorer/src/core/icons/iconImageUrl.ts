@@ -1,5 +1,7 @@
 import type { ResolvedIcon } from "./iconRegistry";
 
+import { ICON_BOX, ICON_INSET } from "./iconGeometry";
+
 /**
  * Pure transform to an image url.
  *
@@ -12,11 +14,8 @@ import type { ResolvedIcon } from "./iconRegistry";
  * `preserveAspectRatio`, which needs the icon's own `viewBox` to fit against;
  * overriding its intrinsic size here would only fight that.
  *
- * Do not wrap the result in another inset SVG here: `VertexSymbolIcon` already
- * insets to 60% in its own SVG coordinates, so this stays a single fit for
- * every caller. Only the canvas path (`useBackgroundImageMap`) needs its own
- * wrapper, because cytoscape — unlike an inline SVG — cannot fit an image by
- * `preserveAspectRatio` itself.
+ * Carries no inset: `VertexSymbolIcon` applies its own in its SVG coordinates.
+ * The canvas needs {@link toCanvasBackgroundImage} instead.
  */
 export function toIconImageUrl(icon: ResolvedIcon, color: string): string {
   switch (icon.kind) {
@@ -43,6 +42,42 @@ function applyColor(svgContent: string, color: string): string {
   return new XMLSerializer().serializeToString(root);
 }
 
-export function encodeSvg(svgContent: string): string {
+/**
+ * The cytoscape `background-image` for an icon: {@link toIconImageUrl} centered
+ * at {@link ICON_INSET} of a square SVG, preserving its aspect ratio.
+ *
+ * Cytoscape cannot do both parts itself: `background-fit: contain` keeps the
+ * ratio but fills the whole node box, and the node is an ellipse, so a
+ * square-ish icon's corners spill outside the shape. Explicit percentages inset
+ * the icon but force both axes, which is what squashed non-square icons
+ * (issue #2108). Baking the inset into a square SVG leaves cytoscape a square
+ * to fit and delegates the ratio to the nested image's `preserveAspectRatio`.
+ *
+ * The nested icon must carry a `viewBox`, or it has no intrinsic ratio to fit
+ * and fills the padded box — square again. The icon registry supplies one
+ * whenever the source's size allows it.
+ */
+export function toCanvasBackgroundImage(
+  icon: ResolvedIcon,
+  color: string,
+): string {
+  const { size, offset } = ICON_INSET;
+  const href = escapeXmlAttribute(toIconImageUrl(icon, color));
+  return encodeSvg(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${ICON_BOX}" height="${ICON_BOX}" viewBox="0 0 ${ICON_BOX} ${ICON_BOX}">` +
+      `<image href="${href}" x="${offset}" y="${offset}" width="${size}" height="${size}" preserveAspectRatio="xMidYMid meet"/>` +
+      `</svg>`,
+  );
+}
+
+/** The url becomes an XML attribute value, so `&`, `"`, and `<` must not break it. */
+function escapeXmlAttribute(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;");
+}
+
+function encodeSvg(svgContent: string): string {
   return "data:image/svg+xml;utf8," + encodeURIComponent(svgContent);
 }

@@ -2,14 +2,10 @@ import type { VertexStyle, VertexType } from "@/core";
 
 import {
   classifyIconSource,
-  encodeSvg,
-  ICON_BOX,
-  ICON_RATIO,
   type IconSource,
   type IconSourceId,
   iconSourceId,
-  insetBox,
-  toIconImageUrl,
+  toCanvasBackgroundImage,
   useResolvedIcons,
 } from "@/core/icons";
 
@@ -57,46 +53,10 @@ export function useBackgroundImageMap(
     const renderKey = `${id}\u0000${color}`;
     let backgroundImage = rendered.get(renderKey);
     if (backgroundImage === undefined) {
-      backgroundImage = insetIconImage(toIconImageUrl(icon, color));
+      backgroundImage = toCanvasBackgroundImage(icon, color);
       rendered.set(renderKey, backgroundImage);
     }
     result.set(type, backgroundImage);
   }
   return result;
-}
-
-/**
- * Centers an icon at {@link ICON_RATIO} of a square canvas, preserving its
- * aspect ratio.
- *
- * Cytoscape cannot do both parts itself: `background-fit: contain` keeps the
- * ratio but fills the whole node box, and the node is an ellipse, so a
- * square-ish icon's corners spill outside the shape. Setting explicit
- * percentages insets the icon but forces both axes, which is what squashed
- * non-square icons (issue #2108). Baking the inset into a square svg leaves
- * cytoscape a square to fit, and delegates the ratio to the nested image's
- * `preserveAspectRatio`.
- *
- * The nested icon must carry a `viewBox`, or it has no intrinsic ratio to fit
- * and fills the padded box — square again. The icon registry supplies one
- * whenever the source's size allows it.
- *
- * The icon url is always a `data:` uri (`isAllowedIconValue`). An external
- * reference would fetch nothing inside this `data:` svg's image sandbox.
- */
-function insetIconImage(iconUrl: string): string {
-  const { size, offset } = insetBox(ICON_BOX, ICON_RATIO);
-  return encodeSvg(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${ICON_BOX}" height="${ICON_BOX}" viewBox="0 0 ${ICON_BOX} ${ICON_BOX}">` +
-      `<image href="${escapeXmlAttribute(iconUrl)}" x="${offset}" y="${offset}" width="${size}" height="${size}" preserveAspectRatio="xMidYMid meet"/>` +
-      `</svg>`,
-  );
-}
-
-/** The url becomes an XML attribute value, so `&`, `"`, and `<` must not break it. */
-function escapeXmlAttribute(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("<", "&lt;");
 }
