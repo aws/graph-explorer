@@ -39,7 +39,11 @@ function VertexIcon({ vertexStyle, className, alt }: Props) {
         preProcessor={sanitizeSvg}
         className={cn("size-6 shrink-0", className)}
         style={{ color: vertexStyle.color }}
-        title={altText}
+        // Not `title`: react-inlinesvg writes it as markup, and the label is
+        // database or file text. The rule misreads <SVG>, which renders <svg>.
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
+        role="img"
+        aria-label={altText}
       />
     );
   }

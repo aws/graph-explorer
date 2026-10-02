@@ -50,6 +50,27 @@ describe("VertexIcon", () => {
     expect(container.querySelector("img")).toBeNull();
   });
 
+  // The label comes from the database or an imported file, so it must reach
+  // the DOM as text, never as markup.
+  it("labels an inline svg icon with its type as plain text", async () => {
+    const label = '<img src="x" alt="injected">';
+    const { container } = render(
+      <VertexIcon
+        vertexStyle={{
+          ...appDefaultVertexStyle,
+          type: createVertexType(label),
+        }}
+      />,
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole("img", { name: `${label} icon` }),
+      ).toBeInTheDocument(),
+    );
+    expect(container.querySelector("img")).toBeNull();
+  });
+
   it("renders nothing for an unknown lucide reference", () => {
     const container = renderIcon({
       iconUrl: "lucide:not-a-real-icon-name-xyz",
