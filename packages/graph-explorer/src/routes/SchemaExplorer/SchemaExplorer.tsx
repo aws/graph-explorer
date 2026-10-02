@@ -31,7 +31,7 @@ export default function SchemaExplorer() {
         <RouteButtonGroup active="schema-explorer" />
       </NavBar>
       <WorkspaceContent>
-        <SchemaDiscoveryBoundary requireEdgeConnections>
+        <SchemaDiscoveryBoundary>
           <GraphProvider>
             <SchemaGraph />
           </GraphProvider>

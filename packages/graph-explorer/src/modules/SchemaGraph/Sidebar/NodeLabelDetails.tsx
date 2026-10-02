@@ -14,6 +14,7 @@ import {
   type VertexType,
 } from "@/core";
 import { useTranslations } from "@/hooks";
+import { useEdgeConnectionNotice } from "@/hooks/useEdgeConnectionNotice";
 
 import type { SchemaGraphSelectionItem } from "../SchemaGraph";
 
@@ -40,12 +41,19 @@ export function NodeLabelDetails({
   ...props
 }: NodeLabelDetailsProps) {
   const t = useTranslations();
+  const { notice } = useEdgeConnectionNotice();
   const graphSchema = useGraphSchema();
   const config = useDisplayVertexTypeConfig(vertexType);
   const total = useVertexTypeTotal(vertexType);
 
   const edgeConnections =
     graphSchema.edgeConnections.byVertexType.get(vertexType);
+  const missingConnectionsText =
+    notice?.kind === "failed"
+      ? `${t("edge-connections")} were not fully discovered`
+      : notice?.kind === "not-discovered"
+        ? `${t("edge-connections")} were not discovered`
+        : `No ${t("edge-connections").toLocaleLowerCase()}`;
 
   return (
     <Panel {...props}>
@@ -81,9 +89,7 @@ export function NodeLabelDetails({
               </li>
             )) ?? (
               <li>
-                <DetailsValue>
-                  No {t("edge-connections").toLocaleLowerCase()}
-                </DetailsValue>
+                <DetailsValue>{missingConnectionsText}</DetailsValue>
               </li>
             )}
           </ul>

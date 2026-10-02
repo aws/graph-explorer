@@ -26,3 +26,11 @@ The Details panel header includes an "Automatically open on selection" toggle. W
 > [!NOTE]
 >
 > The schema and data types shown in the Schema view are inferred from samples of nodes and edges returned by queries. They may not be 100% accurate or complete, especially for large or diverse datasets. As you explore more data, the schema will grow more complete over time.
+
+## Missing relationships
+
+If discovering relationships fails, or has not run yet, the Schema view still shows every node type.
+
+When relationships haven't been discovered yet, an amber warning button appears in the toolbar to the left of "Refresh Schema". When discovery failed, it's red instead. Its popover explains what happened and what to try next, and offers Synchronize or Retry, plus Error Details when the error from this session is available.
+
+While relationships are missing, a node type's Details panel says relationships were not discovered, or not fully discovered after a failure.

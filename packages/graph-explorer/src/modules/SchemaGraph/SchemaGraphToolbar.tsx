@@ -19,6 +19,7 @@ import {
 import { useSchemaSync } from "@/hooks/useSchemaSync";
 import { ASCII, logger } from "@/utils";
 
+import { EdgeConnectionDiscoveryStatusButton } from "./EdgeConnectionDiscoveryStatusButton";
 import { schemaGraphLayoutAtom } from "./SchemaGraph";
 
 /** Toolbar for schema graph with layout controls and schema refresh */
@@ -45,6 +46,7 @@ export function SchemaGraphToolbar() {
 
         <PanelHeaderDivider />
 
+        <EdgeConnectionDiscoveryStatusButton />
         <SchemaRefreshButton />
       </PanelHeaderActions>
     </PanelHeader>
