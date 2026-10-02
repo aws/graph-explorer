@@ -3,13 +3,16 @@ import { useCallback } from "react";
 import { toast } from "sonner";
 
 import {
-  createNewConfigurationId,
-  transformLegacyConnection,
-} from "@/connections";
-import { activeConfigurationAtom, configurationAtom, schemaAtom } from "@/core";
+  activeConfigurationAtom,
+  configurationAtom,
+  schemaAtom,
+} from "@/core/StateProvider/storageAtoms";
 import useResetState from "@/core/StateProvider/useResetState";
 import { fromFileToJson } from "@/utils/fileData";
-import { parseConnectionFile } from "@/utils/parseConnectionFile";
+
+import { transformLegacyConnection } from "./legacyConnection";
+import { parseConnectionFile } from "./parseConnectionFile";
+import { createNewConfigurationId } from "./types";
 
 export function useImportConnectionFile() {
   const resetState = useResetState();

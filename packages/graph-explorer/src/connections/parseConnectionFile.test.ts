@@ -1,9 +1,8 @@
 import { createRandomName, createRandomUrlString } from "@shared/utils/testing";
 import { describe, expect, test } from "vitest";
 
-import { createNewConfigurationId } from "@/connections";
-
 import { parseConnectionFile } from "./parseConnectionFile";
+import { createNewConfigurationId } from "./types";
 
 describe("parseConnectionFile", () => {
   test("parses a valid configuration into a typed object", () => {

@@ -1,11 +1,14 @@
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import type { ConfigurationId } from "@/connections";
-import type { ConfigurationContextProps } from "@/core";
+import type { ConfigurationContextProps } from "@/core/ConfigurationProvider";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
-import { createEdgeType, createVertexType } from "@/core";
+import { createEdgeType, createVertexType } from "@/core/entities";
+import { stubDocumentUrl } from "@/utils/testing";
+import { exportConnectionFileText } from "@/utils/testing/exportConnectionFileText";
+
+import type { ConfigurationId } from "./types";
 
 import exportGoldenLegacyUrlDirect from "./__fixtures__/connection-file-export-golden-legacy-url-direct.txt?raw";
 import exportGoldenLegacyUrlProxy from "./__fixtures__/connection-file-export-golden-legacy-url-proxy.txt?raw";
@@ -13,8 +16,6 @@ import exportGoldenWithoutUrl from "./__fixtures__/connection-file-export-golden
 import legacyUrlDirect from "./__fixtures__/connection-file-legacy-url-direct.json?raw";
 import legacyUrlProxy from "./__fixtures__/connection-file-legacy-url-proxy.json?raw";
 import { parseConnectionFile } from "./parseConnectionFile";
-import { stubDocumentUrl } from "./testing";
-import { exportConnectionFileText } from "./testing/exportConnectionFileText";
 
 /**
  * GOLDEN FILES — EXPORTED CONNECTION FILE

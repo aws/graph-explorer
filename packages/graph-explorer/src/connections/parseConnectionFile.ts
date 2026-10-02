@@ -1,10 +1,11 @@
 import { neptuneServiceTypeOptions, queryEngineOptions } from "@shared/types";
 import { z } from "zod";
 
-import type { ConfigurationId } from "@/connections";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
-import { createEdgeType, createVertexType } from "@/core";
+import { createEdgeType, createVertexType } from "@/core/entities";
+
+import type { ConfigurationId } from "./types";
 
 const attributesSchema = z
   .array(z.looseObject({ name: z.string().min(1) }))

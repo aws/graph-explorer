@@ -2,14 +2,14 @@ import type { ConnectionConfig } from "@shared/types";
 
 import { saveAs } from "file-saver";
 
-import type { ConfigurationContextProps } from "@/core";
+import type { ConfigurationContextProps } from "@/core/ConfigurationProvider";
 
-import { isDirectConnection, normalizeUrl } from "@/connections";
 import { apiUrl } from "@/connector/utils/apiUrl";
+import { toJsonFileData } from "@/utils/fileData";
 
 import type { ExportedConnectionFile } from "./parseConnectionFile";
 
-import { toJsonFileData } from "./fileData";
+import { isDirectConnection, normalizeUrl } from "./normalizeConnection";
 
 const saveConfigurationToFile = (config: ConfigurationContextProps) => {
   const { graphDbUrl, ...connection } = config.connection ?? {};

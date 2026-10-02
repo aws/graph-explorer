@@ -3,7 +3,7 @@ import { vi } from "vitest";
 
 import type { ConfigurationContextProps } from "@/core";
 
-import saveConfigurationToFile from "@/utils/saveConfigurationToFile";
+import { saveConfigurationToFile } from "@/connections";
 
 /**
  * Exports the config and returns the text of the file it saved. The calling

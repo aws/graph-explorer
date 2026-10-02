@@ -29,12 +29,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/Dialog";
+import { useImportConnectionFile } from "@/connections";
 import { activeConfigurationAtom, configurationAtom } from "@/core";
 import CreateConnection from "@/modules/CreateConnection";
 import { cn } from "@/utils";
 
 import { ConnectionRow } from "./ConnectionRow";
-import { useImportConnectionFile } from "./useImportConnectionFile";
 
 export type AvailableConnectionsProps = {
   isSync: boolean;

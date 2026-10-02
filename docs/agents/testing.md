@@ -44,7 +44,7 @@ These files are the canonical, always-current examples. Open the closest one and
 - Query-string generation (Gremlin): `src/connector/gremlin/fetchNeighbors/oneHopTemplate.test.ts`; SPARQL: `src/connector/sparql/fetchNeighbors/oneHopNeighborsTemplate.test.ts`
 - SPARQL response parsing: `src/connector/sparql/parseAndMapQuads.test.ts`
 - Cross-tab persistence: `src/utils/testing/persistence.test.ts`
-- Legacy persisted-shape handling: `src/utils/parseConnectionFile.test.ts`
+- Legacy persisted-shape handling: `src/connections/parseConnectionFile.test.ts`
 
 Canonical hook test shape:
 
@@ -107,7 +107,7 @@ A test that deliberately abandons a request should await the cancellation before
 
 Anything persisted to IndexedDB via localForage/Jotai may be reloaded in an older shape after a type change, silently breaking logic that assumes the new shape. So: **when you change the shape of a persisted type, add tests that exercise the old shape alongside the new** — old shape loads without error, consuming logic produces correct results for both, and old/new can coexist in a collection.
 
-Group them in a dedicated `describe("backward compatibility: ...")` with a comment block stating the old shape, why the tests exist, and a "do not delete without confirming migration" warning. See `src/utils/parseConnectionFile.test.ts` or `src/core/StateProvider/graphViewLayout.test.ts` for worked examples.
+Group them in a dedicated `describe("backward compatibility: ...")` with a comment block stating the old shape, why the tests exist, and a "do not delete without confirming migration" warning. See `src/connections/parseConnectionFile.test.ts` or `src/core/StateProvider/graphViewLayout.test.ts` for worked examples.
 
 Applies to any object type persisted via `atomWithLocalForage`. Triggers: removing/renaming a property, changing a property's type, adding a required property, or changing a property's semantics.
 
