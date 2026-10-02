@@ -161,10 +161,12 @@ describe("Connect route", () => {
     // The dialog explains the connection details came from the user's link
     expect(screen.getByText(/details from your link/i)).toBeInTheDocument();
     expect(
-      screen.getByText("OpenCypher - PG (Property Graph)"),
-    ).toBeInTheDocument();
+      screen.getByRole("combobox", { name: "Query Language" }),
+    ).toHaveTextContent("OpenCypher - PG (Property Graph)");
     expect(screen.getByLabelText("AWS Region")).toHaveValue("us-west-2");
-    expect(screen.getByText("Neptune DB")).toBeInTheDocument();
+    expect(
+      screen.getByRole("combobox", { name: "Service Type" }),
+    ).toHaveTextContent("Neptune DB");
     expect(
       screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
     ).toBeChecked();
@@ -203,8 +205,8 @@ describe("Connect route", () => {
     );
 
     expect(
-      screen.getByText("OpenCypher - PG (Property Graph)"),
-    ).toBeInTheDocument();
+      screen.getByRole("combobox", { name: "Query Language" }),
+    ).toHaveTextContent("OpenCypher - PG (Property Graph)");
   });
 
   // The form is the page, not a layer over it, so it renders in place and

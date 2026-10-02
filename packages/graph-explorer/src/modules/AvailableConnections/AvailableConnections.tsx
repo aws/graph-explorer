@@ -1,6 +1,6 @@
 import { useAtomValue } from "jotai";
 import { DatabaseIcon } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Virtuoso } from "react-virtuoso";
 
 import {
@@ -23,15 +23,21 @@ import {
 } from "@/components";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/Dialog";
 import { useImportConnectionFile } from "@/connections";
 import { activeConfigurationAtom, configurationAtom } from "@/core";
-import CreateConnection from "@/modules/CreateConnection";
+import {
+  ConnectionForm,
+  createEmptyConnectionForm,
+  useCreateConnection,
+} from "@/modules/ConnectionForm";
 import { cn } from "@/utils";
 
 import { ConnectionRow } from "./ConnectionRow";
@@ -137,11 +143,40 @@ const AvailableConnections = ({ isSync }: AvailableConnectionsProps) => {
             Enter the details of the new connection.
           </DialogDescription>
         </DialogHeader>
-        <CreateConnection onClose={() => setDialogOpen(false)} />
+        <AddConnectionDialogBody onClose={() => setDialogOpen(false)} />
       </DialogContent>
     </Dialog>
   );
 };
+
+function AddConnectionDialogBody({ onClose }: { onClose: () => void }) {
+  const formId = useId();
+  const createConnection = useCreateConnection();
+  const [initialValues] = useState(() => createEmptyConnectionForm(new Date()));
+
+  return (
+    <>
+      <DialogBody>
+        <ConnectionForm
+          id={formId}
+          initialValues={initialValues}
+          onSubmit={values => {
+            createConnection(values);
+            onClose();
+          }}
+        />
+      </DialogBody>
+      <DialogFooter>
+        <Button variant="outline" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button variant="primary" type="submit" form={formId}>
+          Add Connection
+        </Button>
+      </DialogFooter>
+    </>
+  );
+}
 
 function useAllConnections() {
   const connectionMap = useAtomValue(configurationAtom);
