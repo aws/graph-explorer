@@ -1,44 +1,45 @@
 import DOMPurify from "dompurify";
 
-/**
- * Ensures an SVG has a `viewBox`, synthesizing one from `width`/`height` when
- * absent.
- *
- * Without a `viewBox`, an SVG has no internal coordinate system to scale from:
- * forcing a different CSS or attribute size on the root just clips the content
- * to the new box instead of scaling it (`preserveAspectRatio` has nothing to
- * map). A synthesized `viewBox="0 0 <width> <height>"` gives the renderer that
- * mapping, so resizing scales instead of crops.
- */
-export function ensureSvgViewBox(svg: string): string {
-  const doc = new DOMParser().parseFromString(svg, "application/xml");
-  const root = doc.documentElement;
-  if (root.localName !== "svg" || root.hasAttribute("viewBox")) {
-    return svg;
-  }
-
-  const width = parseFiniteLength(root.getAttribute("width"));
-  const height = parseFiniteLength(root.getAttribute("height"));
-  if (width === null || height === null) {
-    return svg;
-  }
-
-  root.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  return new XMLSerializer().serializeToString(root);
-}
+const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
 /**
- * Sanitizes untrusted SVG markup and ensures the result carries a `viewBox`.
+ * Sanitizes untrusted SVG markup in one parse, ensuring it carries a `viewBox`,
+ * or `null` when it is not a single `<svg>` (e.g. a 404 page).
  *
  * `USE_PROFILES` is what keeps `width`, `height`, and `viewBox`: DOMPurify
  * rebuilds `ALLOWED_ATTR` from the profiles, so an explicit list would be
  * silently ignored.
  */
-export function sanitizeSvg(svg: string): string {
-  const sanitized = DOMPurify.sanitize(svg, {
+export function sanitizeSvg(svg: string): string | null {
+  const fragment = DOMPurify.sanitize(svg, {
     USE_PROFILES: { svg: true, svgFilters: true },
+    RETURN_DOM_FRAGMENT: true,
   });
-  return ensureSvgViewBox(sanitized);
+  const root = fragment.firstElementChild;
+  if (
+    fragment.childElementCount !== 1 ||
+    root?.localName !== "svg" ||
+    root.namespaceURI !== SVG_NAMESPACE
+  ) {
+    return null;
+  }
+  synthesizeViewBox(root);
+  return new XMLSerializer().serializeToString(root);
+}
+
+/**
+ * Gives a `viewBox`-less SVG one from its `width`/`height`. Without it there is
+ * no coordinate system to scale from, so `preserveAspectRatio` crops instead.
+ */
+function synthesizeViewBox(root: Element): void {
+  if (root.hasAttribute("viewBox")) {
+    return;
+  }
+  const width = parseFiniteLength(root.getAttribute("width"));
+  const height = parseFiniteLength(root.getAttribute("height"));
+  if (width !== null && height !== null) {
+    root.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  }
 }
 
 /** A unitless or `px` length, the only units that match the content's user units. */

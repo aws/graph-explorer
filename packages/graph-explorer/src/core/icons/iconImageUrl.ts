@@ -61,21 +61,34 @@ export function toCanvasBackgroundImage(
   icon: ResolvedIcon,
   color: string,
 ): string {
-  const { size, offset } = ICON_INSET;
-  const href = escapeXmlAttribute(toIconImageUrl(icon, color));
-  return encodeSvg(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${ICON_BOX}" height="${ICON_BOX}" viewBox="0 0 ${ICON_BOX} ${ICON_BOX}">` +
-      `<image href="${href}" x="${offset}" y="${offset}" width="${size}" height="${size}" preserveAspectRatio="xMidYMid meet"/>` +
-      `</svg>`,
-  );
+  const svg = document.createElementNS(SVG_NAMESPACE, "svg");
+  setAttributes(svg, {
+    width: ICON_BOX,
+    height: ICON_BOX,
+    viewBox: `0 0 ${ICON_BOX} ${ICON_BOX}`,
+  });
+  const image = document.createElementNS(SVG_NAMESPACE, "image");
+  setAttributes(image, {
+    href: toIconImageUrl(icon, color),
+    x: ICON_INSET.offset,
+    y: ICON_INSET.offset,
+    width: ICON_INSET.size,
+    height: ICON_INSET.size,
+    preserveAspectRatio: "xMidYMid meet",
+  });
+  svg.append(image);
+  return encodeSvg(new XMLSerializer().serializeToString(svg));
 }
 
-/** The url becomes an XML attribute value, so `&`, `"`, and `<` must not break it. */
-function escapeXmlAttribute(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("<", "&lt;");
+const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+
+function setAttributes(
+  element: Element,
+  attributes: Record<string, string | number>,
+): void {
+  for (const [name, value] of Object.entries(attributes)) {
+    element.setAttribute(name, String(value));
+  }
 }
 
 function encodeSvg(svgContent: string): string {

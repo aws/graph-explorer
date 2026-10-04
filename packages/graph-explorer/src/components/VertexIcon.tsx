@@ -36,7 +36,8 @@ function VertexIcon({ vertexStyle, className, alt }: Props) {
     return (
       <SVG
         src={vertexStyle.iconUrl}
-        preProcessor={sanitizeSvg}
+        // An empty string makes react-inlinesvg render nothing.
+        preProcessor={svg => sanitizeSvg(svg) ?? ""}
         className={cn("size-6 shrink-0", className)}
         style={{ color: vertexStyle.color }}
         // Not `title`: react-inlinesvg writes it as markup, and the label is

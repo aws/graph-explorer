@@ -4,37 +4,44 @@
 
 import { describe, expect, it } from "vitest";
 
-import { ensureSvgViewBox, sanitizeSvg } from "./svgMarkup";
+import { sanitizeSvg } from "./svgMarkup";
 
-describe("ensureSvgViewBox", () => {
+function viewBoxOf(svg: string): string | null {
+  return new DOMParser()
+    .parseFromString(svg, "image/svg+xml")
+    .documentElement.getAttribute("viewBox");
+}
+
+describe("sanitizeSvg viewBox synthesis", () => {
   // Issue #2108: without a viewBox, an SVG has no coordinate system to scale
   // from — forcing a different width/height on the root just clips the
   // content instead of scaling it.
   it("synthesizes a viewBox from width/height when one is missing", () => {
     const svg = `<svg width="400" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="100"/></svg>`;
 
-    expect(ensureSvgViewBox(svg)).toContain('viewBox="0 0 400 100"');
+    expect(viewBoxOf(sanitizeSvg(svg)!)).toBe("0 0 400 100");
   });
 
   it("leaves an existing viewBox untouched", () => {
-    const svg = `<svg viewBox="0 0 300 75" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="75"/></svg>`;
+    const svg = `<svg viewBox="0 0 300 75" width="1" height="1" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="75"/></svg>`;
 
-    expect(ensureSvgViewBox(svg)).toBe(svg);
+    expect(viewBoxOf(sanitizeSvg(svg)!)).toBe("0 0 300 75");
   });
 
   it("leaves the svg untouched when width/height are also missing", () => {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>`;
 
-    expect(ensureSvgViewBox(svg)).toBe(svg);
+    expect(viewBoxOf(sanitizeSvg(svg)!)).toBeNull();
   });
 
-  // Not a try/catch case: DOMParser with "application/xml" never throws, it
-  // returns a document whose root is <html> (wrapping a <parsererror>) or
-  // whatever mismatched tag the input actually closed. Either way the root's
-  // localName is not "svg", so the ordinary guard above rejects it.
-  it("leaves non-svg or unparseable input untouched", () => {
-    expect(ensureSvgViewBox("not xml at all <<<")).toBe("not xml at all <<<");
-    expect(ensureSvgViewBox("<a><b></a>")).toBe("<a><b></a>");
+  // A 404 body sanitizes to something that is not SVG; consumers rely on a
+  // non-null result being renderable.
+  it.each([
+    ["plain text", "not xml at all <<<"],
+    ["an html page", "<html><body>Not Found</body></html>"],
+    ["two roots", "<svg></svg><svg></svg>"],
+  ])("rejects %s", (_, input) => {
+    expect(sanitizeSvg(input)).toBeNull();
   });
 
   // A non-finite width/height would synthesize viewBox="0 0 Infinity
@@ -42,14 +49,14 @@ describe("ensureSvgViewBox", () => {
   it("leaves the svg untouched when width overflows to Infinity", () => {
     const svg = `<svg width="1e400" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>`;
 
-    expect(ensureSvgViewBox(svg)).toBe(svg);
+    expect(viewBoxOf(sanitizeSvg(svg)!)).toBeNull();
   });
 
   // A percentage has no meaning without a viewport to resolve against.
   it("leaves the svg untouched when width/height are percentages", () => {
     const svg = `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="50"/></svg>`;
 
-    expect(ensureSvgViewBox(svg)).toBe(svg);
+    expect(viewBoxOf(sanitizeSvg(svg)!)).toBeNull();
   });
 
   // Child geometry is in user units (px); a viewBox built from em or pt
@@ -59,7 +66,7 @@ describe("ensureSvgViewBox", () => {
     width => {
       const svg = `<svg width="${width}" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>`;
 
-      expect(ensureSvgViewBox(svg)).toBe(svg);
+      expect(viewBoxOf(sanitizeSvg(svg)!)).toBeNull();
     },
   );
 
@@ -71,13 +78,13 @@ describe("ensureSvgViewBox", () => {
   ])("synthesizes a viewBox from a width of %j", (width, expected) => {
     const svg = `<svg width="${width}" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>`;
 
-    expect(ensureSvgViewBox(svg)).toContain(`viewBox="0 0 ${expected} 100"`);
+    expect(viewBoxOf(sanitizeSvg(svg)!)).toBe(`0 0 ${expected} 100`);
   });
 
   it("synthesizes a viewBox when width/height carry a px suffix", () => {
     const svg = `<svg width="400px" height="100px" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>`;
 
-    expect(ensureSvgViewBox(svg)).toContain('viewBox="0 0 400 100"');
+    expect(viewBoxOf(sanitizeSvg(svg)!)).toBe("0 0 400 100");
   });
 });
 
@@ -92,11 +99,15 @@ describe("sanitizeSvg", () => {
     expect(result).toContain('viewBox="0 0 400 100"');
   });
 
-  // The svg profile already allowlists width/height/viewBox, so sanitizing
-  // does not strip the very attributes ensureSvgViewBox needs to read.
-  it("preserves an existing viewBox through sanitization", () => {
-    const svg = `<svg viewBox="0 0 300 75" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="75"/></svg>`;
+  // The canvas renders this inside an XML image document, so the output must
+  // parse as XML even when the input was HTML-ish.
+  it("returns well-formed xml", () => {
+    const result = sanitizeSvg(
+      `<svg width="10" height="10"><rect width="10" height="10"></svg>`,
+    )!;
 
-    expect(sanitizeSvg(svg)).toContain('viewBox="0 0 300 75"');
+    const doc = new DOMParser().parseFromString(result, "image/svg+xml");
+    expect(doc.querySelector("parsererror")).toBeNull();
+    expect(doc.documentElement.localName).toBe("svg");
   });
 });

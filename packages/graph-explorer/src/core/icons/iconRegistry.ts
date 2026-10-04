@@ -153,20 +153,7 @@ async function resolveIconSource(
       // Untrusted: a user-supplied SVG, sanitized before it is used anywhere.
       const response = await fetch(source.url);
       const svg = sanitizeSvg(await response.text());
-      // A 404 body sanitizes to something that is not SVG. Reject it here so
-      // consumers can treat `ResolvedIcon` as renderable.
-      if (!isParseableSvg(svg)) {
-        return null;
-      }
-      return { kind: "svg", svg };
+      return svg === null ? null : { kind: "svg", svg };
     }
   }
-}
-
-function isParseableSvg(svg: string): boolean {
-  const doc = new DOMParser().parseFromString(svg, "application/xml");
-  return (
-    doc.querySelector("parsererror") === null &&
-    doc.documentElement.localName === "svg"
-  );
 }

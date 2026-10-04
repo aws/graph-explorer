@@ -138,21 +138,17 @@ describe("toCanvasBackgroundImage", () => {
     expect(decodeURIComponent(wrapper)).toContain("data:image/png;base64,QUJD");
   });
 
-  // A raw `<` in the nested url would produce malformed XML that fails to
-  // parse — a blank icon, not a distorted one. Stored data uris are base64,
-  // but nothing upstream enforces that.
-  it("escapes a literal < in the nested url", () => {
+  // The nested url is an XML attribute value, so markup characters in it must
+  // not break the document or leak into it.
+  it("round-trips a url containing markup characters", () => {
+    const url = 'data:image/png;base64,<a href="x">&</a>';
     const wrapper = decode(
-      toCanvasBackgroundImage(
-        { kind: "raster", url: "data:image/png;base64,<notreallybase64>" },
-        "#FF0000",
-      ),
+      toCanvasBackgroundImage({ kind: "raster", url }, "#FF0000"),
     );
 
-    expect(wrapper).not.toContain("<notreallybase64>");
-    // Only `<` breaks XML attribute well-formedness; a bare `>` is legal.
-    expect(wrapper).toContain("&lt;notreallybase64>");
-    const doc = new DOMParser().parseFromString(wrapper, "application/xml");
+    const doc = new DOMParser().parseFromString(wrapper, "image/svg+xml");
     expect(doc.querySelector("parsererror")).toBeNull();
+    expect(doc.querySelectorAll("a")).toHaveLength(0);
+    expect(doc.querySelector("image")!.getAttribute("href")).toBe(url);
   });
 });
