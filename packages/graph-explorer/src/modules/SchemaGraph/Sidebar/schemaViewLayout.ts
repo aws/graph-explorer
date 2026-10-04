@@ -2,7 +2,10 @@ import { useAtom } from "jotai";
 
 import type { SchemaViewSidebarItem } from "@/core/StateProvider/schemaViewLayoutDefaults";
 
-import { DEFAULT_SIDEBAR_WIDTH } from "@/core/StateProvider/graphViewLayoutDefaults";
+import {
+  DEFAULT_SIDEBAR_WIDTH,
+  MIN_SIDEBAR_WIDTH,
+} from "@/core/StateProvider/graphViewLayoutDefaults";
 import { schemaViewLayoutAtom } from "@/core/StateProvider/storageAtoms";
 
 export type { SchemaViewSidebarItem } from "@/core/StateProvider/schemaViewLayoutDefaults";
@@ -30,7 +33,10 @@ export function useSchemaViewSidebar() {
       ...prev,
       sidebar: {
         ...prev.sidebar,
-        width: (prev.sidebar?.width ?? DEFAULT_SIDEBAR_WIDTH) + deltaWidth,
+        width: Math.max(
+          MIN_SIDEBAR_WIDTH,
+          (prev.sidebar?.width ?? DEFAULT_SIDEBAR_WIDTH) + deltaWidth,
+        ),
       },
     }));
   }
