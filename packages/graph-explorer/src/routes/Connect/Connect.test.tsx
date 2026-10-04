@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Route, Routes, useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
@@ -30,6 +30,16 @@ function LocationDisplay() {
   );
 }
 
+/** Goes back one history entry, the way the browser back button would. */
+function GoBack() {
+  const navigate = useNavigate();
+  return (
+    <button type="button" onClick={() => navigate(-1)}>
+      go back
+    </button>
+  );
+}
+
 /** Opens another link in the same tab, the way a hash change would. */
 function OpenLink({ search }: { search: string }) {
   const navigate = useNavigate();
@@ -38,6 +48,13 @@ function OpenLink({ search }: { search: string }) {
       open next link
     </button>
   );
+}
+
+/** The problems the invalid link card lists, one per row. */
+function problemsShown() {
+  return within(screen.getByRole("list"))
+    .getAllByRole("listitem")
+    .map(item => item.textContent);
 }
 
 function searchFor(graphDbUrl: string, queryEngine = "gremlin") {
@@ -60,6 +77,7 @@ function renderConnect(search: string, nextSearch?: string) {
           <Route path="/connections" element={<div>connections list</div>} />
         </Routes>
         <LocationDisplay />
+        <GoBack />
         {nextSearch != null && <OpenLink search={nextSearch} />}
       </TooltipProvider>
     </TestProvider>,
@@ -69,24 +87,16 @@ function renderConnect(search: string, nextSearch?: string) {
 
 describe("Connect route", () => {
   // The `#/connect` route exists only for connection links, so reaching it
-  // with no params at all is a missing graphDbUrl, which warns rather than
+  // with no params at all is a missing graphDbUrl, which is shown rather than
   // silently redirecting.
-  test("warns and redirects to the graph canvas when there are no params", async () => {
+  test("shows the invalid link card when there are no params", () => {
     new DbState().applyTo(getAppStore());
 
     renderConnect("");
 
-    await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith(
-        "Invalid connection link",
-        expect.objectContaining({
-          id: "invalid-connection-link",
-          description: expect.stringContaining("graphDbUrl is required"),
-        }),
-      );
-    });
-    expect(screen.getByTestId("location")).toHaveTextContent("/graph-explorer");
-    expect(screen.getByText("graph canvas")).toBeInTheDocument();
+    expect(screen.getByText("Invalid connection link")).toBeInTheDocument();
+    expect(problemsShown()).toStrictEqual(["graphDbUrl is required"]);
+    expect(screen.getByTestId("location")).toHaveTextContent("/connect");
   });
 
   test("redirects to the graph canvas when the params target the active connection", () => {
@@ -280,27 +290,107 @@ describe("Connect route", () => {
     expect(active?.connection?.graphDbUrl).toBe(newUrl);
   });
 
-  test("warns and redirects when the link's data is invalid", async () => {
+  test("lists each bad param of an invalid link on its own row", () => {
+    new DbState().applyTo(getAppStore());
+
+    renderConnect("?graphDbUrl=not-a-url&queryEngine=cypher");
+
+    expect(problemsShown()).toStrictEqual([
+      "graphDbUrl must be a valid http or https URL",
+      'queryEngine must be one of "gremlin", "openCypher", "sparql"',
+    ]);
+    expect(
+      screen.queryByRole("button", { name: "Add Connection" }),
+    ).not.toBeInTheDocument();
+  });
+
+  test("does not raise a toast for an invalid link", () => {
     new DbState().applyTo(getAppStore());
 
     renderConnect("?graphDbUrl=not-a-url");
 
-    // The warning names the offending parameter rather than saying the link was
-    // generically bad.
-    await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith(
-        "Invalid connection link",
-        expect.objectContaining({
-          id: "invalid-connection-link",
-          description: expect.stringContaining(
-            "graphDbUrl must be a valid http or https URL",
-          ),
-        }),
-      );
-    });
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  test("stays on the invalid link card until the user continues", async () => {
+    const state = new DbState();
+    state.applyTo(getAppStore());
+    const user = userEvent.setup();
+
+    renderConnect("?graphDbUrl=not-a-url");
+
+    expect(screen.getByTestId("location")).toHaveTextContent(
+      "/connect?graphDbUrl=not-a-url",
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "Continue to Graph Explorer" }),
+    );
+
     expect(screen.getByTestId("location")).toHaveTextContent("/graph-explorer");
+    expect(screen.getByText("graph canvas")).toBeInTheDocument();
+    expect(getAppStore().get(activeConfigurationAtom)).toBe(
+      state.activeConfig.id,
+    );
+  });
+
+  // With one connection the graph view is the obvious next stop; otherwise the
+  // user has a connection to choose.
+  test("continuing with several connections lands on the connections list", async () => {
+    new DbState()
+      .addInactiveConnection(createRandomRawConfiguration())
+      .applyTo(getAppStore());
+    const user = userEvent.setup();
+
+    renderConnect("?graphDbUrl=not-a-url");
+    await user.click(
+      screen.getByRole("button", { name: "Continue to Graph Explorer" }),
+    );
+
+    expect(screen.getByTestId("location")).toHaveTextContent("/connections");
+  });
+
+  test("continuing with no connections lands on the connections list", async () => {
+    new DbState().applyTo(getAppStore());
+    getAppStore().set(configurationAtom, new Map());
+    const user = userEvent.setup();
+
+    renderConnect("?graphDbUrl=not-a-url");
+    await user.click(
+      screen.getByRole("button", { name: "Continue to Graph Explorer" }),
+    );
+
+    expect(screen.getByTestId("location")).toHaveTextContent("/connections");
+  });
+
+  // Continuing replaces the link, so going back can't reopen the card.
+  test("continuing from an invalid link leaves no way back to it", async () => {
+    new DbState().applyTo(getAppStore());
+    const user = userEvent.setup();
+
+    renderConnect("?graphDbUrl=not-a-url");
+    await user.click(
+      screen.getByRole("button", { name: "Continue to Graph Explorer" }),
+    );
+    await user.click(screen.getByRole("button", { name: "go back" }));
+
+    expect(screen.getByTestId("location")).toHaveTextContent("/graph-explorer");
+  });
+
+  test("a link opened over the invalid link card is resolved", async () => {
+    new DbState().applyTo(getAppStore());
+    const user = userEvent.setup();
+
+    renderConnect(
+      "?graphDbUrl=not-a-url",
+      searchFor("https://next.neptune.amazonaws.com"),
+    );
+    expect(screen.getByText("Invalid connection link")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "open next link" }));
+
+    expect(screen.queryByText("Invalid connection link")).toBeNull();
     expect(
-      screen.queryByRole("button", { name: "Add Connection" }),
-    ).not.toBeInTheDocument();
+      screen.getByRole("button", { name: "Add Connection" }),
+    ).toBeInTheDocument();
   });
 });

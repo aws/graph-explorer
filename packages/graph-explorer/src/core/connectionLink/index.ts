@@ -1,8 +1,6 @@
 export {
+  ConnectionLinkError,
   type ConnectionLinkIntent,
+  type ConnectionLinkProblem,
   resolveConnectionLink,
 } from "./connectionLink";
-export {
-  ConnectionLinkError,
-  describeLinkProblems,
-} from "./connectionLinkError";
