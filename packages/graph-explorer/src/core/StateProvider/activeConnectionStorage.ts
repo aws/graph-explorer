@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 import type { ConfigurationId } from "@/connections";
 
 import {
@@ -20,6 +22,7 @@ export const ACTIVE_CONNECTION_STORAGE_KEY = "active-configuration";
 const activeConnectionCodec: SessionValueCodec<ConfigurationId | null> = {
   serialize: value => value,
   deserialize: raw => (raw ? (raw as ConfigurationId) : null),
+  parseStored: stored => z.string().parse(stored) as ConfigurationId,
 };
 
 /**

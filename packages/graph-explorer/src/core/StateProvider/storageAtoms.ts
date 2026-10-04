@@ -16,14 +16,12 @@ import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
 import {
   defaultGraphViewLayout,
   graphViewLayoutCodec,
-  transformGraphViewLayout,
 } from "./graphViewLayoutDefaults";
 import { runUserLayoutMigration } from "./migrateUserLayout";
 import { runUserStylingMigration } from "./migrateUserStyling";
 import {
   defaultSchemaViewLayout,
   schemaViewLayoutCodec,
-  transformSchemaViewLayout,
 } from "./schemaViewLayoutDefaults";
 import { createSessionScopedAtom } from "./sessionScopedStorage";
 import { transformVertexStyles } from "./vertexStylesTransform";
@@ -112,13 +110,11 @@ const [
     key: "graph-view-layout",
     defaultValue: defaultGraphViewLayout,
     codec: graphViewLayoutCodec,
-    transform: transformGraphViewLayout,
   }),
   createSessionScopedAtom({
     key: "schema-view-layout",
     defaultValue: defaultSchemaViewLayout,
     codec: schemaViewLayoutCodec,
-    transform: transformSchemaViewLayout,
   }),
   /** Stores the graph session data for each connection. */
   atomWithLocalForage<Map<ConfigurationId, GraphSessionStorageModel>>(

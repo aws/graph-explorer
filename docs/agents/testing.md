@@ -110,6 +110,6 @@ Anything persisted to IndexedDB via localForage/Jotai may be reloaded in an olde
 
 Group them in a dedicated `describe("backward compatibility: ...")` with a comment block stating the old shape, why the tests exist, and a "do not delete without confirming migration" warning. See `src/connections/parseConnectionFile.test.ts` or `src/core/StateProvider/graphViewLayout.test.ts` for worked examples.
 
-Applies to any object type persisted via `atomWithLocalForage` or `createSessionScopedAtom`. Triggers: removing/renaming a property, changing a property's type, adding a required property, or changing a property's semantics. For a per-tab atom the old shape arrives on the shared localForage breadcrumb, which is the leg its `transform` runs on.
+Applies to any object type persisted via `atomWithLocalForage` or `createSessionScopedAtom`. Triggers: removing/renaming a property, changing a property's type, adding a required property, or changing a property's semantics. For a per-tab atom the old shape arrives on the shared localForage breadcrumb, which its codec's `parseStored` must accept.
 
 The same pinning applies outside IndexedDB: legacy environment variables that older deployments still set, and legacy on-disk configuration files that older exports or lifecycle scripts still produce, deserve the same dedicated `describe("backward compatibility: ...")` treatment. See `packages/graph-explorer-proxy-server/src/process-environment.test.ts` for the environment-variable case.

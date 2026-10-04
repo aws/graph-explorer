@@ -62,7 +62,7 @@ A React-based web application that lets users visually explore graph databases w
 
 **Schema View Layout**: The View Layout for the Schema View — active sidebar panel, sidebar width, and the details-auto-open preference. _Avoid_: Schema preferences, schema settings
 
-**Storage Scope**: The cross-tab behavior a persisted atom picks at creation, so scope is a visible decision rather than a side effect of which factory was reached for. Three named scopes: **per-tab**, where tabs diverge and a fresh tab starts from the value most recently used; **shared-reconciled**, where a Map-keyed collection is merged per key across tabs; and **shared-blind-write**, where each write is the whole value. See the `per-tab-session-scoped-storage-primitive` ADR for which atoms use which, and `per-key-diff-merge-cross-tab-reconciliation` for the merge rule. _Avoid_: Persistence mode, storage strategy
+**Storage Scope**: The cross-tab behavior a persisted atom picks at creation: per-tab (tabs diverge), shared-reconciled (merged per key), or shared-blind-write. See the `per-tab-session-scoped-storage-primitive` ADR for which atoms use which. _Avoid_: Persistence mode, storage strategy
 
 **Edge Connection**: A schema-level pattern describing how two vertex types can be related via an edge type: sourceVertexType --[edgeType]--> targetVertexType. What the Schema View visualizes. Not an actual edge instance. _Avoid_: Relationship (Gremlin UI term), Object Property (SPARQL UI term)
 

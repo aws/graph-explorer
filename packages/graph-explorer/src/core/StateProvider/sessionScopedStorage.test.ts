@@ -11,7 +11,6 @@ import {
   defaultGraphViewLayout,
   type GraphViewLayout,
   graphViewLayoutCodec,
-  transformGraphViewLayout,
 } from "./graphViewLayoutDefaults";
 import { persistenceStatusStore } from "./persistence";
 import { createInMemorySessionStorage } from "./safeSessionStorage";
@@ -19,7 +18,6 @@ import {
   defaultSchemaViewLayout,
   type SchemaViewLayout,
   schemaViewLayoutCodec,
-  transformSchemaViewLayout,
 } from "./schemaViewLayoutDefaults";
 import {
   createSessionScopedAtom,
@@ -39,6 +37,7 @@ const counterSchema = z.object({ count: z.number() });
 const counterCodec: SessionValueCodec<Counter> = {
   serialize: value => JSON.stringify(value),
   deserialize: raw => parseSessionJson(raw, counterSchema),
+  parseStored: stored => counterSchema.parse(stored),
 };
 
 const KEY = "test-counter";
@@ -206,10 +205,10 @@ describe("createSessionScopedAtom", () => {
     // A codec that throws is a defect, not a storage condition, so it must not
     // be laundered into the warning that QuotaExceededError gets.
     const brokenCodec: SessionValueCodec<Counter> = {
+      ...counterCodec,
       serialize: () => {
         throw new TypeError("activeToggles is not iterable");
       },
-      deserialize: raw => parseSessionJson(raw, counterSchema),
     };
     const atom = await createSessionScopedAtom<Counter>({
       key: KEY,
@@ -229,8 +228,8 @@ describe("createSessionScopedAtom", () => {
     // A codec that refuses to persist the empty state to the per-tab layer, so
     // a later reload of this tab does not re-seed from it.
     const clearingCodec: SessionValueCodec<Counter> = {
+      ...counterCodec,
       serialize: value => (value.count === 0 ? null : JSON.stringify(value)),
-      deserialize: raw => parseSessionJson(raw, counterSchema),
     };
     const sessionStorage = createInMemorySessionStorage();
     sessionStorage.setItem(KEY, JSON.stringify({ count: 5 }));
@@ -249,15 +248,19 @@ describe("createSessionScopedAtom", () => {
     expect(await localForage.getItem<Counter>(KEY)).toStrictEqual({ count: 0 });
   });
 
-  test("normalizes the breadcrumb through transform and claims the normalized value", async () => {
+  test("normalizes the breadcrumb through parseStored and claims the normalized value", async () => {
     await localForage.setItem<Counter>(KEY, { count: 7 });
     const sessionStorage = createInMemorySessionStorage();
 
     const atom = await createSessionScopedAtom<Counter>({
       key: KEY,
       defaultValue: { count: 0 },
-      codec: counterCodec,
-      transform: loaded => ({ count: loaded.count * 10 }),
+      codec: {
+        ...counterCodec,
+        parseStored: stored => ({
+          count: counterSchema.parse(stored).count * 10,
+        }),
+      },
       sessionStorage,
     });
 
@@ -268,32 +271,48 @@ describe("createSessionScopedAtom", () => {
     expect(sessionStorage.getItem(KEY)).toBe(JSON.stringify({ count: 70 }));
   });
 
-  test("leaves this tab's own session value and the default untransformed", async () => {
-    const transform = vi.fn((loaded: Counter) => ({
-      count: loaded.count * 10,
-    }));
+  test("parses only the breadcrumb, not this tab's own session value or the default", async () => {
+    const parseStored = vi.fn((stored: unknown) => counterSchema.parse(stored));
+    const codec = { ...counterCodec, parseStored };
     const warmStorage = createInMemorySessionStorage();
     warmStorage.setItem(KEY, JSON.stringify({ count: 42 }));
 
     const warmAtom = await createSessionScopedAtom<Counter>({
       key: KEY,
       defaultValue: { count: 0 },
-      codec: counterCodec,
-      transform,
+      codec,
       sessionStorage: warmStorage,
     });
     const coldAtom = await createSessionScopedAtom<Counter>({
       key: KEY,
       defaultValue: { count: 0 },
-      codec: counterCodec,
-      transform,
+      codec,
       sessionStorage: createInMemorySessionStorage(),
     });
 
     const store = createStore();
     expect(store.get(warmAtom)).toStrictEqual({ count: 42 });
     expect(store.get(coldAtom)).toStrictEqual({ count: 0 });
-    expect(transform).not.toHaveBeenCalled();
+    expect(parseStored).not.toHaveBeenCalled();
+  });
+
+  test("discards a corrupt breadcrumb with a warning and falls back to the default", async () => {
+    // A hand-edited value, or one a rolled-back app version wrote, must not
+    // reject the factory: storageAtoms awaits it at top level, so a throw here
+    // would blank the app instead of losing one view preference.
+    await localForage.setItem(KEY, { count: "seven" });
+    const sessionStorage = createInMemorySessionStorage();
+
+    const atom = await createSessionScopedAtom<Counter>({
+      key: KEY,
+      defaultValue: { count: 0 },
+      codec: counterCodec,
+      sessionStorage,
+    });
+
+    expect(createStore().get(atom)).toStrictEqual({ count: 0 });
+    expect(sessionStorage.getItem(KEY)).toBeNull();
+    expect(vi.mocked(logger.warn)).toHaveBeenCalledOnce();
   });
 });
 
@@ -336,7 +355,6 @@ const openGraphViewTab = tabOpener<GraphViewLayout>({
   key: GRAPH_VIEW_LAYOUT_KEY,
   defaultValue: defaultGraphViewLayout,
   codec: graphViewLayoutCodec,
-  transform: transformGraphViewLayout,
 });
 
 // The breadcrumb keeps the native value (structured clone preserves the
@@ -373,21 +391,33 @@ describe("createSessionScopedAtom with the graph view layout codec", () => {
 
     // The claimed per-tab value is the array-serialized form, pinned literally
     // so a serialize that dropped a field could not satisfy both sides at once.
-    expect(sessionStorage.getItem(GRAPH_VIEW_LAYOUT_KEY)).toBe(
-      JSON.stringify({
-        activeSidebarItem: "filters",
-        activeToggles: ["graph-viewer", "table-view"],
-        sidebar: { width: 321 },
-        tableView: { height: 250 },
-        detailsAutoOpenOnSelection: false,
-      }),
-    );
+    expect(
+      JSON.parse(sessionStorage.getItem(GRAPH_VIEW_LAYOUT_KEY) ?? "null"),
+    ).toStrictEqual({
+      activeSidebarItem: "filters",
+      activeToggles: ["graph-viewer", "table-view"],
+      sidebar: { width: 321 },
+      tableView: { height: 250 },
+      detailsAutoOpenOnSelection: false,
+    });
     // A warm reload off that value rebuilds the Set rather than re-seeding.
     expect(
       graphViewLayoutCodec.deserialize(
         sessionStorage.getItem(GRAPH_VIEW_LAYOUT_KEY),
       ),
     ).toStrictEqual(breadcrumb);
+  });
+
+  test("a breadcrumb missing its toggles falls back to the default instead of crashing boot", async () => {
+    await localForage.setItem(GRAPH_VIEW_LAYOUT_KEY, {
+      activeSidebarItem: "filters",
+      sidebar: { width: 400 },
+    });
+
+    const tab = await openGraphViewTab();
+
+    expect(tab.read()).toStrictEqual(defaultGraphViewLayout);
+    expect(vi.mocked(logger.warn)).toHaveBeenCalledOnce();
   });
 });
 
@@ -398,9 +428,9 @@ describe("createSessionScopedAtom with the graph view layout codec", () => {
  * IndexedDB: `activeSidebarItem` may be the retired "nodes-styling" or
  * "edges-styling", and `sidebar` may be unset because older versions only
  * wrote it on the first resize. The breadcrumb is the only path an old shape
- * can arrive by, and the per-tab codec rejects both, so without the transform
- * every reload would discard this tab's claimed value and re-seed from the
- * shared breadcrumb, losing per-tab divergence.
+ * can arrive by. `parseStored` normalizes both; without that, either the
+ * breadcrumb would be discarded as corrupt or the per-tab codec would reject the
+ * claimed value on every reload, losing the user's View Layout.
  *
  * DO NOT delete or weaken these tests without confirming that all persisted
  * data has been transformed or that the old values are no longer in the wild.
@@ -483,7 +513,6 @@ describe("schema view layout across tabs", () => {
     key: "schema-view-layout",
     defaultValue: defaultSchemaViewLayout,
     codec: schemaViewLayoutCodec,
-    transform: transformSchemaViewLayout,
   });
 
   test("changing the view layout in one tab does not change an already-open tab", async () => {

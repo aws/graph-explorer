@@ -4,28 +4,28 @@ import localForage from "localforage";
 
 import { logger } from "@/utils";
 
-import type { ReadTransform } from "./atomWithLocalForage";
-
 import { persistThroughQueue } from "./persistence";
 import { resolveSessionStorage } from "./safeSessionStorage";
 import { createWriteThroughAtom } from "./writeThroughAtom";
 
 /**
- * Converts a per-tab value to and from the string sessionStorage holds. The
- * shared localForage breadcrumb keeps the native value (structured clone, so a
- * `Set` survives), so only the per-tab layer needs this string round-trip.
+ * Validates a per-tab value on both of its backings. sessionStorage holds a
+ * string, so `serialize`/`deserialize` round-trip it; the shared localForage
+ * breadcrumb holds the native value (structured clone, so a `Set` survives),
+ * which `parseStored` validates and normalizes from shapes older versions wrote.
  *
  * `serialize` returns `null` to mean "remove the per-tab key" — used when the
  * value is the kind of empty/cleared state that should not seed a later reload.
- * `deserialize` returns `null` for an absent value (a legitimate miss); a
- * present-but-invalid value is corrupt and **throws** — the seam
- * (`createSessionScopedAtom`) catches it and treats it as a miss, so detecting
- * corruption stays separate from deciding what to do about it. Do not swallow
- * errors here.
+ * `deserialize` returns `null` for an absent value (a legitimate miss). A
+ * present-but-invalid value on either backing is corrupt and **throws** — the
+ * seam (`createSessionScopedAtom`) catches it and treats it as a miss, so
+ * detecting corruption stays separate from deciding what to do about it. Do not
+ * swallow errors here.
  */
 export type SessionValueCodec<T> = {
   serialize: (value: T) => string | null;
   deserialize: (raw: string | null) => T | null;
+  parseStored: (stored: unknown) => T;
 };
 
 /**
@@ -49,7 +49,6 @@ export type SessionScopedAtomOptions<T> = {
   key: string;
   defaultValue: T;
   codec: SessionValueCodec<T>;
-  transform?: ReadTransform<T>;
   sessionStorage?: Storage;
 };
 
@@ -71,10 +70,8 @@ export type SessionScopedAtomOptions<T> = {
  * and the persisted localForage breadcrumb.
  * @param defaultValue Seed when neither the session value nor the breadcrumb is
  * present.
- * @param codec Converts the value to and from the string sessionStorage holds.
- * @param transform Normalizes a breadcrumb written by an older app version. Only
- * the breadcrumb needs it: the per-tab value is validated by `codec` on read, so
- * it cannot carry a retired shape, and `defaultValue` is already current.
+ * @param codec Validates the value on both backings, including breadcrumbs an
+ * older app version wrote.
  * @param sessionStorage The per-tab storage backing. Injectable so multi-tab
  * isolation can be tested with separate storages.
  */
@@ -82,7 +79,6 @@ export async function createSessionScopedAtom<T>({
   key,
   defaultValue,
   codec,
-  transform,
   sessionStorage = resolveSessionStorage(),
 }: SessionScopedAtomOptions<T>) {
   let seedValue = readSessionSeed(sessionStorage, key, codec);
@@ -90,9 +86,8 @@ export async function createSessionScopedAtom<T>({
     // Cold start: seed from the shared breadcrumb and claim it into this tab's
     // sessionStorage, so a later reload reads this value back rather than
     // re-seeding from a breadcrumb another tab may have since moved.
-    const breadcrumb = await localForage.getItem<T>(key);
-    if (breadcrumb !== null) {
-      seedValue = transform ? transform(breadcrumb) : breadcrumb;
+    seedValue = await readBreadcrumbSeed(key, codec);
+    if (seedValue !== null) {
       writeSession(sessionStorage, key, codec, seedValue);
     }
   }
@@ -131,6 +126,32 @@ function readSessionSeed<T>(
   } catch (error) {
     logger.warn(
       `Discarding corrupt per-tab value for "${key}"; falling back to the persisted breadcrumb.`,
+      error,
+    );
+    return null;
+  }
+}
+
+/**
+ * Reads and validates the shared breadcrumb, recovering from a corrupt value.
+ *
+ * A hand-edited value, or one a rolled-back app version wrote, is logged and
+ * treated as absent so the caller falls through to the default rather than
+ * rejecting app startup.
+ */
+async function readBreadcrumbSeed<T>(
+  key: string,
+  codec: SessionValueCodec<T>,
+): Promise<T | null> {
+  const stored = await localForage.getItem(key);
+  if (stored === null) {
+    return null;
+  }
+  try {
+    return codec.parseStored(stored);
+  } catch (error) {
+    logger.warn(
+      `Discarding corrupt persisted breadcrumb for "${key}"; using the default.`,
       error,
     );
     return null;
