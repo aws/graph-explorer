@@ -12,7 +12,7 @@ Reserve Important for the cases below. Everything else is Nit at most. That incl
   - Values that reach a query outside a Query Fragment, or any other break of the rules in `docs/agents/connectors.md`.
   - A limit that doesn't bound the scan.
   - A change to one connector, or to shared query code, that changes behavior in the other query languages without saying why.
-- **Runtime APIs newer than Baseline Widely available,** such as `Error.isError` or Iterator helpers. `tsc` uses `lib: ESNext`, so it won't catch these. Also flag production code that imports a `devDependency`.
+- **Runtime APIs newer than Baseline Widely available,** such as `Error.isError` or Iterator helpers. The browser packages set `lib: ES2023`, so `tsc` catches ES2024 and later APIs, but not ES2023 APIs that shipped after the floor, such as `Array.prototype.toSorted`. Also flag production code that imports a `devDependency`.
 - **Work that grows with graph or schema size:** one query or subscription per item, quadratic loops, or copying passes over large collections.
 - **Tests that can't fail.** Ask whether the test would fail if the change were reverted. Flag these:
   - Assertions on plumbing the test set up itself.

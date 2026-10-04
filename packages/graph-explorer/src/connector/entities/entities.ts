@@ -124,7 +124,7 @@ export function getAllGraphableEntities(
   }
 
   return {
-    vertices: vertices.values().toArray(),
-    edges: edges.values().toArray(),
+    vertices: Array.from(vertices.values()),
+    edges: Array.from(edges.values()),
   };
 }

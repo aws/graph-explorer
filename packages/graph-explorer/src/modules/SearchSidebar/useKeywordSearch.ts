@@ -76,8 +76,7 @@ export default function useKeywordSearch() {
   const vtConfigs = useDisplayVertexTypeConfigs();
   const vertexOptions = [
     { label: "All", value: SEARCH_TOKENS.ALL_VERTEX_TYPES },
-    ...vtConfigs
-      .values()
+    ...Array.from(vtConfigs.values())
       // Filtering out empty types because the queries need to be updated to support them
       .filter(vtConfig => vtConfig.type !== "")
       .map(vtConfig => ({

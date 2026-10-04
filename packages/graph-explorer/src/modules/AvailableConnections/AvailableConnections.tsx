@@ -145,7 +145,7 @@ const AvailableConnections = ({ isSync }: AvailableConnectionsProps) => {
 
 function useAllConnections() {
   const connectionMap = useAtomValue(configurationAtom);
-  return connectionMap.values().toArray();
+  return Array.from(connectionMap.values());
 }
 
 export default AvailableConnections;
