@@ -125,6 +125,10 @@ docker run -p 443:443 \
 
 To serve over HTTP instead, set `PROXY_SERVER_HTTPS_CONNECTION=false` in your environment or `.env` file.
 
+> [!WARNING]
+>
+> Do not disable HTTPS unless something in front of Graph Explorer terminates TLS. Over HTTP, database connection URLs and query text travel in plain text between the browser and the proxy server.
+
 ### Trusting the self-signed certificate
 
 When using the default self-signed certificate, your browser will show a security warning. You can bypass this by trusting the certificate:
@@ -163,8 +167,6 @@ To allow multiple origins, separate them with commas:
 PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com,https://other-app.example.com
 ```
 
-When set, browsers will block cross-origin requests from any other origin. This prevents malicious pages from making requests to the proxy server using a visitor's browser session.
-
 > [!NOTE]
 >
 > CORS headers only affect browser-initiated requests — direct API calls from scripts or other servers are not restricted by CORS. CORS is a defense-in-depth layer, not a substitute for authentication or network-level access controls. Ensure the proxy server is not exposed to untrusted networks.
@@ -172,6 +174,8 @@ When set, browsers will block cross-origin requests from any other origin. This 
 ## Database Origin Allowlist
 
 By default, the proxy server forwards requests to any database URL specified by the client. You can restrict which database origins the proxy will contact by setting [`PROXY_SERVER_ALLOWED_DB_ORIGINS`](./configuration.md#proxy_server_allowed_db_origins). Requests targeting an unlisted origin receive a 403 response.
+
+Leaving the allowlist unset matters more on a host with AWS credentials, such as an EC2 instance profile or ECS task role. The proxy server signs any request that carries the `aws-neptune-region` header, whatever the `IAM` setting, so an unset allowlist lets a client get requests signed for any origin it names. Set `PROXY_SERVER_ALLOWED_DB_ORIGINS` in any deployment where the host has AWS credentials.
 
 > [!NOTE]
 >
