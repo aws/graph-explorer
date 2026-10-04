@@ -15,7 +15,7 @@ Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server w
 ## Prerequisites
 
 - Provision an Amazon EC2 instance that will be used to host the application and connect to Neptune as a proxy server. For more details, see instructions [here](https://github.com/aws/graph-notebook/tree/main/additional-databases/neptune).
-- Ensure the Amazon EC2 instance can send and receive on ports `22` (SSH), `8182` (Neptune), and `443` or `80` depending on protocol used (graph-explorer).
+- Inbound access to the Amazon EC2 instance limited to a known CIDR range, on port `443` or `80` (Graph Explorer, depending on the protocol used) and port `22` (SSH). The instance needs no inbound rule on port `8182` (Neptune). It only reaches Neptune on that port inside the VPC, so Neptune's security group must allow `8182` from the instance.
 - [Docker](https://docs.docker.com/get-docker/) installed on the EC2 instance
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) installed on the EC2 instance
 
@@ -36,12 +36,15 @@ Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server w
 > If you receive an error relating to the docker service not running, run `service docker start`.
 
 4. Run the container substituting the `{hostname-or-ip-address}` with the hostname or IP address of the EC2 instance
+
    ```
    docker run -p 80:80 -p 443:443 \
     --restart unless-stopped \
     --env HOST={hostname-or-ip-address} \
     public.ecr.aws/neptune/graph-explorer
    ```
+
+   `HOST` only sets the hostname in the generated self-signed certificate. It does not limit which networks or clients can reach the container.
 
 > [!TIP]
 >
