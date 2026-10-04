@@ -40,6 +40,8 @@ The port to use for the HTTP server.
 
 Uses the self-signed certificate to serve the proxy-server over https if true.
 
+Before turning HTTPS off, read [Disabling HTTPS](./security.md#disabling-https).
+
 - Optional
 - Default `false` in code, `true` in Docker via the entrypoint script
 - Type: `boolean`

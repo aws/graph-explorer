@@ -44,7 +44,7 @@ Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server w
     public.ecr.aws/neptune/graph-explorer
    ```
 
-   `HOST` only sets the hostname in the generated self-signed certificate. It does not limit which networks or clients can reach the container.
+   `HOST` does not limit which networks or clients can reach the container. See [`HOST`](../references/configuration.md#host).
 
 > [!TIP]
 >

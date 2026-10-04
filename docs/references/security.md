@@ -127,7 +127,7 @@ To serve over HTTP instead, set `PROXY_SERVER_HTTPS_CONNECTION=false` in your en
 
 > [!WARNING]
 >
-> Do not disable HTTPS unless something in front of Graph Explorer terminates TLS. Over HTTP, database connection URLs and query text travel in plain text between the browser and the proxy server.
+> Do not disable HTTPS unless something in front of Graph Explorer terminates TLS. Over HTTP, database connection URLs, query text, and query results travel in plain text between the browser and the proxy server.
 
 ### Trusting the self-signed certificate
 
@@ -175,7 +175,7 @@ PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com,https://other-app.example.co
 
 By default, the proxy server forwards requests to any database URL specified by the client. You can restrict which database origins the proxy will contact by setting [`PROXY_SERVER_ALLOWED_DB_ORIGINS`](./configuration.md#proxy_server_allowed_db_origins). Requests targeting an unlisted origin receive a 403 response.
 
-Leaving the allowlist unset matters more on a host with AWS credentials, such as an EC2 instance profile or ECS task role. The proxy server signs any request that carries the `aws-neptune-region` header, whatever the `IAM` setting, so an unset allowlist lets a client get requests signed for any origin it names. Set `PROXY_SERVER_ALLOWED_DB_ORIGINS` in any deployment where the host has AWS credentials.
+Leaving the allowlist unset matters more on a host with AWS credentials, such as an EC2 instance profile or ECS task role. The proxy server signs requests with those credentials whatever the `IAM` setting, as described in [Permissions](#permissions), so without an allowlist it signs them for any origin a client names. Set `PROXY_SERVER_ALLOWED_DB_ORIGINS` in any deployment where the host has AWS credentials.
 
 > [!NOTE]
 >
