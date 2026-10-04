@@ -124,6 +124,10 @@ After the request is processed, the console will return you to your certificate 
              "value": "https://{NEPTUNE_ENDPOINT}:8182"
            },
            {
+             "name": "PROXY_SERVER_ALLOWED_DB_ORIGINS",
+             "value": "https://{NEPTUNE_ENDPOINT}:8182"
+           },
+           {
              "name": "PROXY_SERVER_HTTPS_CONNECTION",
              "value": "true"
            }
@@ -160,6 +164,7 @@ After the request is processed, the console will return you to your certificate 
      - `GRAPH_TYPE`: The query language for your initial connection.
      - `IAM`: Set this to `true` to use SigV4 signed requests, if your Neptune cluster has IAM db authentication enabled.
      - `GRAPH_CONNECTION_URL`: Set this as `https://{NEPTUNE_ENDPOINT}:8182`.
+     - `PROXY_SERVER_ALLOWED_DB_ORIGINS`: Set this to the same origin as `GRAPH_CONNECTION_URL`, `https://{NEPTUNE_ENDPOINT}:8182`, so the proxy server only signs requests for your Neptune cluster. See [Database Origin Allowlist](../references/security.md#database-origin-allowlist).
      - `SERVICE_TYPE`: Set this as `neptune-db` for Neptune database or `neptune-graph` for Neptune Analytics.
 6. Click **Create**.
 

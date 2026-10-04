@@ -18,7 +18,7 @@ This sample uses Gremlin Server 3.8 as the database pre-loaded with the [air rou
 > - **Not hardened** — it is configured for convenience, not security.
 > - **No persistence** — data is lost when the container restarts.
 >
-> Run it only on a trusted local network.
+> Run it only on your own machine.
 
 ## Prerequisites
 
