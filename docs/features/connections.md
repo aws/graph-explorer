@@ -74,9 +74,9 @@ When you open a connection link, Graph Explorer does one of the following:
 - **The link matches your active connection.** Graph Explorer opens the graph view for it, with your session as you left it.
 - **The link matches a different existing connection.** Graph Explorer switches to it and opens the graph view, the same as selecting it in the connections list. No prompt: the connection was already created and validated by you, so there is nothing new to confirm.
 - **The link matches no existing connection.** The create-connection form opens, pre-filled with the link's details so you can review or edit any setting before creating it. Saving the form creates the connection, activates it, and opens the graph view. Cancelling the form, or pressing Escape, creates nothing and opens the connections list so you can pick a connection yourself.
-- **The link's details are invalid.** The link is ignored and a notification names the parameter at fault and what it requires, for example "graphDbUrl must be a valid http or https URL". Graph Explorer opens the graph view with your current connection unchanged.
+- **The link's details are invalid.** The link is ignored and the page shows a card listing each parameter at fault and what it requires, for example "graphDbUrl must be a valid http or https URL". Your current connection is unchanged. Choose **Continue to Graph Explorer** to open the graph view.
 
-In every case Graph Explorer replaces the `#/connect` URL once the link is handled, so it does not linger in your history and refreshing behaves normally.
+Whenever Graph Explorer leaves the `#/connect` page, it replaces that URL, so it does not linger in your history. The invalid link card stays until you continue, so refreshing the page shows it again.
 
 #### What makes a link invalid
 
@@ -88,7 +88,7 @@ In every case Graph Explorer replaces the `#/connect` URL once the link is handl
 - `serviceType` names something other than `neptune-db` or `neptune-graph`, or is `neptune-graph` without an `awsRegion`.
 - `awsRegion` is present but not shaped like an AWS region (for example `us-east-1`).
 
-An unsupported value is rejected rather than replaced with a default, so a link never quietly connects you with settings you did not ask for. The notification lists each offending parameter it can check, not just the first one found. An unsupported `queryEngine` or `serviceType` is reported on its own, and any rule that depends on it, such as `neptune-graph` requiring `awsRegion`, is reported once that value is fixed.
+An unsupported value is rejected rather than replaced with a default, so a link never quietly connects you with settings you did not ask for. The card lists each offending parameter it can check, not just the first one found. An unsupported `queryEngine` or `serviceType` is reported on its own, and any rule that depends on it, such as `neptune-graph` requiring `awsRegion`, is reported once that value is fixed.
 
 #### What counts as a match
 

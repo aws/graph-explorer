@@ -10,9 +10,6 @@ export type ConnectionLinkProblem = {
  * A connection link carried values Graph Explorer cannot honor. Holds a problem
  * per offending parameter so the user is told which part of their link was
  * wrong, rather than that "something" was.
- *
- * Kept in its own module, free of app imports, so the error display path can
- * recognize it without depending on link parsing.
  */
 export class ConnectionLinkError extends Error {
   readonly problems: readonly ConnectionLinkProblem[];
@@ -26,7 +23,7 @@ export class ConnectionLinkError extends Error {
 }
 
 /** Renders problems as a sentence: "graphDbUrl must be a valid http or https URL". */
-export function describeLinkProblems(
+function describeLinkProblems(
   problems: readonly ConnectionLinkProblem[],
 ): string {
   return problems
