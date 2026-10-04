@@ -1,3 +1,4 @@
+import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 
@@ -10,6 +11,7 @@ import {
 } from "@/components";
 import { useActivateConnection } from "@/connections";
 import { resolveConnectionLink } from "@/core/connectionLink";
+import { configurationAtom } from "@/core/StateProvider";
 import CreateConnection, {
   type CreateConnectionOutcome,
   mapToConnectionForm,
@@ -46,6 +48,7 @@ function ConnectFromLink({ search }: { search: string }) {
   const activateConnection = useActivateConnection();
 
   const [intent] = useState(() => resolveConnectionLink(search));
+  const connectionCount = useAtomValue(configurationAtom).size;
 
   // Declining the link lands on the connections list, where the user can pick
   // a connection themselves; saving activated the new one, so show its graph.
@@ -57,10 +60,9 @@ function ConnectFromLink({ search }: { search: string }) {
   useEffect(() => {
     if (intent.kind === "invalid") {
       logger.warn("Ignoring invalid connection link", intent.error);
-      return;
     }
-    // The create form waits on the user, so it renders instead of redirecting.
-    if (intent.kind === "create") {
+    // The other outcomes wait on the user, so they render instead.
+    if (intent.kind !== "activate") {
       return;
     }
 
@@ -80,8 +82,10 @@ function ConnectFromLink({ search }: { search: string }) {
     return (
       <ConnectPageLayout>
         <InvalidConnectionLinkCard
-          error={intent.error}
-          onContinue={() => navigate(GRAPH_CANVAS_ROUTE, { replace: true })}
+          problems={intent.error.problems}
+          onContinue={() =>
+            navigate(routeAfterInvalidLink(connectionCount), { replace: true })
+          }
         />
       </ConnectPageLayout>
     );
@@ -116,4 +120,12 @@ function ConnectFromLink({ search }: { search: string }) {
       </Dialog>
     </ConnectPageLayout>
   );
+}
+
+/**
+ * Where to go after an ignored link. With a single connection the graph view is
+ * the obvious next stop; otherwise the user has a connection to pick or create.
+ */
+function routeAfterInvalidLink(connectionCount: number) {
+  return connectionCount === 1 ? GRAPH_CANVAS_ROUTE : CONNECTIONS_ROUTE;
 }

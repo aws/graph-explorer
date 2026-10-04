@@ -1,6 +1,6 @@
 import { ArrowRightIcon, TriangleAlertIcon } from "lucide-react";
 
-import type { ConnectionLinkError } from "@/core/connectionLink";
+import type { ConnectionLinkProblem } from "@/core/connectionLink";
 
 import {
   Button,
@@ -11,16 +11,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components";
+import { LABELS } from "@/utils/constants";
 
 /**
  * Explains why a connection link was ignored, naming each parameter at fault
  * so the user can correct the link or report it to whoever sent it.
  */
 export function InvalidConnectionLinkCard({
-  error,
+  problems,
   onContinue,
 }: {
-  error: ConnectionLinkError;
+  problems: readonly ConnectionLinkProblem[];
   onContinue: () => void;
 }) {
   return (
@@ -41,7 +42,7 @@ export function InvalidConnectionLinkCard({
       </CardHeader>
       <CardContent>
         <ul className="flex list-disc flex-col gap-1 pl-5">
-          {error.problems.map(problem => (
+          {problems.map(problem => (
             <li key={`${problem.param} ${problem.requirement}`}>
               <code>{problem.param}</code> {problem.requirement}
             </li>
@@ -50,7 +51,7 @@ export function InvalidConnectionLinkCard({
       </CardContent>
       <CardFooter className="justify-end">
         <Button variant="primary" onClick={onContinue}>
-          Continue to Graph Explorer
+          Continue to {LABELS.APP_NAME}
           <ArrowRightIcon />
         </Button>
       </CardFooter>

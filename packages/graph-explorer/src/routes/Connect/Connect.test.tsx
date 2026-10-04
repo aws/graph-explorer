@@ -334,6 +334,35 @@ describe("Connect route", () => {
     );
   });
 
+  // With one connection the graph view is the obvious next stop; otherwise the
+  // user has a connection to choose.
+  test("continuing with several connections lands on the connections list", async () => {
+    new DbState()
+      .addInactiveConnection(createRandomRawConfiguration())
+      .applyTo(getAppStore());
+    const user = userEvent.setup();
+
+    renderConnect("?graphDbUrl=not-a-url");
+    await user.click(
+      screen.getByRole("button", { name: "Continue to Graph Explorer" }),
+    );
+
+    expect(screen.getByTestId("location")).toHaveTextContent("/connections");
+  });
+
+  test("continuing with no connections lands on the connections list", async () => {
+    new DbState().applyTo(getAppStore());
+    getAppStore().set(configurationAtom, new Map());
+    const user = userEvent.setup();
+
+    renderConnect("?graphDbUrl=not-a-url");
+    await user.click(
+      screen.getByRole("button", { name: "Continue to Graph Explorer" }),
+    );
+
+    expect(screen.getByTestId("location")).toHaveTextContent("/connections");
+  });
+
   // Continuing replaces the link, so going back can't reopen the card.
   test("continuing from an invalid link leaves no way back to it", async () => {
     new DbState().applyTo(getAppStore());
@@ -356,6 +385,7 @@ describe("Connect route", () => {
       "?graphDbUrl=not-a-url",
       searchFor("https://next.neptune.amazonaws.com"),
     );
+    expect(screen.getByText("Invalid connection link")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "open next link" }));
 
     expect(screen.queryByText("Invalid connection link")).toBeNull();

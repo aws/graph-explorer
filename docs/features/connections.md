@@ -74,7 +74,7 @@ When you open a connection link, Graph Explorer does one of the following:
 - **The link matches your active connection.** Graph Explorer opens the graph view for it, with your session as you left it.
 - **The link matches a different existing connection.** Graph Explorer switches to it and opens the graph view, the same as selecting it in the connections list. No prompt: the connection was already created and validated by you, so there is nothing new to confirm.
 - **The link matches no existing connection.** The create-connection form opens, pre-filled with the link's details so you can review or edit any setting before creating it. Saving the form creates the connection, activates it, and opens the graph view. Cancelling the form, or pressing Escape, creates nothing and opens the connections list so you can pick a connection yourself.
-- **The link's details are invalid.** The link is ignored and the page shows a card listing each parameter at fault and what it requires, for example "graphDbUrl must be a valid http or https URL". Your current connection is unchanged. Choose **Continue to Graph Explorer** to open the graph view.
+- **The link's details are invalid.** The link is ignored and the page shows a card listing each parameter at fault and what it requires, for example "graphDbUrl must be a valid http or https URL". Your current connection is unchanged. **Continue to Graph Explorer** opens the graph view when you have exactly one connection, and the connections list otherwise, so you can pick or create one.
 
 Whenever Graph Explorer leaves the `#/connect` page, it replaces that URL, so it does not linger in your history. The invalid link card stays until you continue, so refreshing the page shows it again.
 
