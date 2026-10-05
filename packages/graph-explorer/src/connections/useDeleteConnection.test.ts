@@ -6,9 +6,9 @@ import { act } from "react";
 import { expect, test } from "vitest";
 
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   allGraphSessionsAtom,
-  configurationAtom,
+  savedConnectionsAtom,
   schemaAtom,
 } from "@/core/StateProvider/storageAtoms";
 import {
@@ -27,14 +27,14 @@ test("should delete the active configuration", async () => {
   const { result } = renderHookWithJotai(
     () => {
       const callback = useDeleteActiveConnection();
-      const allConfigs = useAtomValue(configurationAtom);
-      const activeConfig = useAtomValue(activeConfigurationAtom);
+      const allConfigs = useAtomValue(savedConnectionsAtom);
+      const activeConfig = useAtomValue(activeConnectionIdAtom);
 
       return { callback, allConfigs, activeConfig };
     },
     store => {
-      store.set(activeConfigurationAtom, config1.id);
-      store.set(configurationAtom, new Map([[config1.id, config1]]));
+      store.set(activeConnectionIdAtom, config1.id);
+      store.set(savedConnectionsAtom, new Map([[config1.id, config1]]));
     },
   );
 
@@ -58,8 +58,8 @@ test("should delete the active schema", async () => {
       return { callback, allSchemas };
     },
     store => {
-      store.set(activeConfigurationAtom, config1.id);
-      store.set(configurationAtom, new Map([[config1.id, config1]]));
+      store.set(activeConnectionIdAtom, config1.id);
+      store.set(savedConnectionsAtom, new Map([[config1.id, config1]]));
       store.set(schemaAtom, new Map([[config1.id, schema1]]));
     },
   );

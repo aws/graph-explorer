@@ -22,7 +22,7 @@ import {
 
 import AppStatusLoader from "./AppStatusLoader";
 import { createQueryClient } from "./queryClient";
-import { configurationAtom } from "./StateProvider";
+import { savedConnectionsAtom } from "./StateProvider";
 
 function mockDefaultConnection(configs: SavedConnection[]) {
   vi.spyOn(defaultConnection, "fetchDefaultConnection").mockResolvedValue(
@@ -48,14 +48,14 @@ test("adding the default connection settles instead of looping", async () => {
 
   const store = getAppStore();
   const writeCounts = vi.fn();
-  const unsub = store.sub(configurationAtom, () => {
-    writeCounts(store.get(configurationAtom).size);
+  const unsub = store.sub(savedConnectionsAtom, () => {
+    writeCounts(store.get(savedConnectionsAtom).size);
   });
 
   const { findByText } = renderAppStatusLoader(store);
 
   await findByText("ready");
-  expect(store.get(configurationAtom).size).toBe(1);
+  expect(store.get(savedConnectionsAtom).size).toBe(1);
 
   unsub();
 
@@ -70,14 +70,14 @@ test("seeds one connection per query engine with a single write", async () => {
 
   const store = getAppStore();
   const writeCounts = vi.fn();
-  const unsub = store.sub(configurationAtom, () => {
-    writeCounts(store.get(configurationAtom).size);
+  const unsub = store.sub(savedConnectionsAtom, () => {
+    writeCounts(store.get(savedConnectionsAtom).size);
   });
 
   const { findByText } = renderAppStatusLoader(store);
 
   await findByText("ready");
-  expect(store.get(configurationAtom).size).toBe(configs.length);
+  expect(store.get(savedConnectionsAtom).size).toBe(configs.length);
 
   unsub();
 
@@ -93,17 +93,17 @@ test("re-adds the default connection after the last connection is deleted", asyn
 
   // Initial load adds the default connection.
   await findByText("ready");
-  expect(store.get(configurationAtom).size).toBe(1);
+  expect(store.get(savedConnectionsAtom).size).toBe(1);
 
   // Deleting the last connection empties the store.
   act(() => {
-    store.set(configurationAtom, new Map());
+    store.set(savedConnectionsAtom, new Map());
   });
 
   // The default connection is re-added and the app becomes ready again
   // instead of stalling on the "Reading configuration..." boundary.
   await findByText("ready");
-  expect(store.get(configurationAtom).size).toBe(1);
+  expect(store.get(savedConnectionsAtom).size).toBe(1);
 });
 
 test("renders the app when no default connection is configured", async () => {
@@ -115,18 +115,18 @@ test("renders the app when no default connection is configured", async () => {
   // With no default to seed, the app falls through to its children rather
   // than stalling on a loading state, and logs that none were found.
   await findByText("ready");
-  expect(store.get(configurationAtom).size).toBe(0);
+  expect(store.get(savedConnectionsAtom).size).toBe(0);
   expect(vi.mocked(logger.debug)).toHaveBeenCalledWith(
     "No default connections found",
   );
 
   // Emptying the store keeps the app rendered rather than showing a spinner.
   act(() => {
-    store.set(configurationAtom, new Map());
+    store.set(savedConnectionsAtom, new Map());
   });
 
   await findByText("ready");
-  expect(store.get(configurationAtom).size).toBe(0);
+  expect(store.get(savedConnectionsAtom).size).toBe(0);
 });
 
 test("shows a renamed reverse proxy mount without retrying", async () => {

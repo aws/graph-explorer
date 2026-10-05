@@ -2,9 +2,9 @@ import { createRandomName } from "@shared/utils/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   type AppStore,
-  configurationAtom,
+  savedConnectionsAtom,
   createVertexType,
   explorerForTestingAtom,
   getAppStore,
@@ -37,8 +37,8 @@ describe("schemaSyncQuery", () => {
 
     // Set up a configuration so the schema can be stored
     const config = createRandomSavedConnection();
-    store.set(configurationAtom, new Map([[config.id, config]]));
-    store.set(activeConfigurationAtom, config.id);
+    store.set(savedConnectionsAtom, new Map([[config.id, config]]));
+    store.set(activeConnectionIdAtom, config.id);
     store.set(schemaAtom, new Map());
     store.set(explorerForTestingAtom, explorer);
   });
@@ -47,7 +47,7 @@ describe("schemaSyncQuery", () => {
     overrides?: Partial<Parameters<typeof schemaSyncQuery>[0]>,
   ) {
     return schemaSyncQuery({
-      connectionId: store.get(activeConfigurationAtom),
+      connectionId: store.get(activeConnectionIdAtom),
       activeSchema: undefined,
       hasConnection: true,
       ...overrides,
@@ -68,7 +68,7 @@ describe("schemaSyncQuery", () => {
     expect(result.vertices[0].type).toBe("Person");
 
     // Verify schema was stored
-    const activeConfigId = store.get(activeConfigurationAtom);
+    const activeConfigId = store.get(activeConnectionIdAtom);
     const storedSchema = store.get(schemaAtom).get(activeConfigId!);
     expect(storedSchema?.lastSyncFail).toBe(false);
     expect(storedSchema?.vertices).toHaveLength(1);
@@ -83,7 +83,7 @@ describe("schemaSyncQuery", () => {
 
     await queryClient.fetchQuery(defaultOptions());
 
-    const activeConfigId = store.get(activeConfigurationAtom);
+    const activeConfigId = store.get(activeConnectionIdAtom);
     const storedSchema = store.get(schemaAtom).get(activeConfigId!);
     expect(storedSchema?.lastUpdate).toStrictEqual(fakeNow);
 
@@ -92,7 +92,7 @@ describe("schemaSyncQuery", () => {
 
   it("should replace existing schema for active config", async () => {
     // Set up initial schema with different data
-    const activeConfigId = store.get(activeConfigurationAtom)!;
+    const activeConfigId = store.get(activeConnectionIdAtom)!;
     const oldVertexType = createVertexType("OldType");
     store.set(schemaAtom, prev => {
       const updated = new Map(prev);
@@ -155,13 +155,13 @@ describe("schemaSyncQuery", () => {
       new Error("Network error"),
     );
 
-    const activeConfigId = store.get(activeConfigurationAtom);
+    const activeConfigId = store.get(activeConnectionIdAtom);
     const storedSchema = store.get(schemaAtom).get(activeConfigId!);
     expect(storedSchema?.lastSyncFail).toBe(true);
   });
 
   it("should clear edgeConnections on success", async () => {
-    const activeConfigId = store.get(activeConfigurationAtom)!;
+    const activeConfigId = store.get(activeConnectionIdAtom)!;
     const existingEdgeConnections = [createRandomEdgeConnection()];
     store.set(schemaAtom, prev => {
       const updated = new Map(prev);
@@ -182,7 +182,7 @@ describe("schemaSyncQuery", () => {
 
   it("should clear lastSyncFail on success", async () => {
     // Set up a schema with lastSyncFail
-    const activeConfigId = store.get(activeConfigurationAtom)!;
+    const activeConfigId = store.get(activeConnectionIdAtom)!;
     store.set(schemaAtom, prev => {
       const updated = new Map(prev);
       updated.set(activeConfigId, {
@@ -202,7 +202,7 @@ describe("schemaSyncQuery", () => {
 
   it("should preserve existing schema in store on failure", async () => {
     // Set up initial schema
-    const activeConfigId = store.get(activeConfigurationAtom)!;
+    const activeConfigId = store.get(activeConnectionIdAtom)!;
     const initialVertexType = createVertexType(createRandomName("VertexType"));
     store.set(schemaAtom, prev => {
       const updated = new Map(prev);
@@ -248,7 +248,7 @@ describe("schemaSyncQuery", () => {
 
     await queryClient.fetchQuery(defaultOptions());
 
-    const activeConfigId = store.get(activeConfigurationAtom);
+    const activeConfigId = store.get(activeConnectionIdAtom);
     const storedSchema = store.get(schemaAtom).get(activeConfigId!);
 
     // Verify prefixes were generated for the URI
@@ -330,7 +330,7 @@ describe("schemaSyncQuery", () => {
   });
 
   it("should preserve existing edgeConnections on failure", async () => {
-    const activeConfigId = store.get(activeConfigurationAtom)!;
+    const activeConfigId = store.get(activeConnectionIdAtom)!;
     const existingEdgeConnections = [createRandomEdgeConnection()];
     store.set(schemaAtom, prev => {
       const updated = new Map(prev);

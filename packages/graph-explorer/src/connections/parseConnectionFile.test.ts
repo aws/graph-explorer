@@ -31,7 +31,7 @@ describe("parseConnectionFile", () => {
   });
 
   test("returns null when id is missing", () => {
-    const config = {
+    const connection = {
       connection: {
         url: createRandomUrlString(),
         queryEngine: "gremlin" as const,
@@ -39,20 +39,20 @@ describe("parseConnectionFile", () => {
       schema: { vertices: [], edges: [] },
     };
 
-    expect(parseConnectionFile(config)).toBeNull();
+    expect(parseConnectionFile(connection)).toBeNull();
   });
 
   test("returns null when connection is missing", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       schema: { vertices: [], edges: [] },
     };
 
-    expect(parseConnectionFile(config)).toBeNull();
+    expect(parseConnectionFile(connection)).toBeNull();
   });
 
   test("returns null when schema is missing", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
@@ -60,41 +60,41 @@ describe("parseConnectionFile", () => {
       },
     };
 
-    expect(parseConnectionFile(config)).toBeNull();
+    expect(parseConnectionFile(connection)).toBeNull();
   });
 
   test("returns null when connection.queryEngine is missing", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: { url: createRandomUrlString() },
       schema: { vertices: [], edges: [] },
     };
 
-    expect(parseConnectionFile(config)).toBeNull();
+    expect(parseConnectionFile(connection)).toBeNull();
   });
 
   test("returns null for an invalid URL", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: { url: "not-a-valid-url", queryEngine: "gremlin" as const },
       schema: { vertices: [], edges: [] },
     };
 
-    expect(parseConnectionFile(config)).toBeNull();
+    expect(parseConnectionFile(connection)).toBeNull();
   });
 
   test("returns null for a non-http(s) URL", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: { url: "ftp://example.com", queryEngine: "gremlin" as const },
       schema: { vertices: [], edges: [] },
     };
 
-    expect(parseConnectionFile(config)).toBeNull();
+    expect(parseConnectionFile(connection)).toBeNull();
   });
 
   test("returns null for a non-http(s) graphDbUrl", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
@@ -104,12 +104,12 @@ describe("parseConnectionFile", () => {
       schema: { vertices: [], edges: [] },
     };
 
-    expect(parseConnectionFile(config)).toBeNull();
+    expect(parseConnectionFile(connection)).toBeNull();
   });
 
   test("accepts an http(s) graphDbUrl", () => {
     const graphDbUrl = "https://neptune.example.com:8182";
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
@@ -119,13 +119,13 @@ describe("parseConnectionFile", () => {
       schema: { vertices: [], edges: [] },
     };
 
-    const result = parseConnectionFile(config);
+    const result = parseConnectionFile(connection);
 
     expect(result?.connection.graphDbUrl).toBe(graphDbUrl);
   });
 
   test("accepts an http URL", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: "http://example.com",
@@ -134,11 +134,11 @@ describe("parseConnectionFile", () => {
       schema: { vertices: [], edges: [] },
     };
 
-    expect(parseConnectionFile(config)).not.toBeNull();
+    expect(parseConnectionFile(connection)).not.toBeNull();
   });
 
   test("trims surrounding whitespace from the connection URL", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: "  https://example.com  ",
@@ -147,13 +147,13 @@ describe("parseConnectionFile", () => {
       schema: { vertices: [], edges: [] },
     };
 
-    const result = parseConnectionFile(config);
+    const result = parseConnectionFile(connection);
 
     expect(result?.connection.url).toBe("https://example.com");
   });
 
   test("accepts an https URL", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: "https://example.com",
@@ -162,34 +162,34 @@ describe("parseConnectionFile", () => {
       schema: { vertices: [], edges: [] },
     };
 
-    expect(parseConnectionFile(config)).not.toBeNull();
+    expect(parseConnectionFile(connection)).not.toBeNull();
   });
 
   test("returns null for an invalid queryEngine", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: { url: createRandomUrlString(), queryEngine: "invalid" },
       schema: { vertices: [], edges: [] },
     };
 
-    expect(parseConnectionFile(config)).toBeNull();
+    expect(parseConnectionFile(connection)).toBeNull();
   });
 
   test.each(["gremlin", "openCypher", "sparql"] as const)(
     "accepts the %s queryEngine",
     queryEngine => {
-      const config = {
+      const connection = {
         id: createConnectionId(),
         connection: { url: createRandomUrlString(), queryEngine },
         schema: { vertices: [], edges: [] },
       };
 
-      expect(parseConnectionFile(config)).not.toBeNull();
+      expect(parseConnectionFile(connection)).not.toBeNull();
     },
   );
 
   test("accepts a valid vertex config", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
@@ -201,11 +201,11 @@ describe("parseConnectionFile", () => {
       },
     };
 
-    expect(parseConnectionFile(config)).not.toBeNull();
+    expect(parseConnectionFile(connection)).not.toBeNull();
   });
 
   test("returns null when a vertex is missing its type", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
@@ -217,11 +217,11 @@ describe("parseConnectionFile", () => {
       },
     };
 
-    expect(parseConnectionFile(config)).toBeNull();
+    expect(parseConnectionFile(connection)).toBeNull();
   });
 
   test("returns null when a vertex attribute is missing its name", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
@@ -233,11 +233,11 @@ describe("parseConnectionFile", () => {
       },
     };
 
-    expect(parseConnectionFile(config)).toBeNull();
+    expect(parseConnectionFile(connection)).toBeNull();
   });
 
   test("defaults attributes to an empty array when a vertex omits them", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
@@ -249,13 +249,13 @@ describe("parseConnectionFile", () => {
       },
     };
 
-    const result = parseConnectionFile(config);
+    const result = parseConnectionFile(connection);
 
     expect(result?.schema.vertices[0].attributes).toStrictEqual([]);
   });
 
   test("defaults attributes to an empty array when an edge omits them", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
@@ -267,13 +267,13 @@ describe("parseConnectionFile", () => {
       },
     };
 
-    const result = parseConnectionFile(config);
+    const result = parseConnectionFile(connection);
 
     expect(result?.schema.edges[0].attributes).toStrictEqual([]);
   });
 
   test("accepts a valid edge config", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
@@ -285,11 +285,11 @@ describe("parseConnectionFile", () => {
       },
     };
 
-    expect(parseConnectionFile(config)).not.toBeNull();
+    expect(parseConnectionFile(connection)).not.toBeNull();
   });
 
   test("returns null when an edge is missing its type", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
@@ -301,11 +301,11 @@ describe("parseConnectionFile", () => {
       },
     };
 
-    expect(parseConnectionFile(config)).toBeNull();
+    expect(parseConnectionFile(connection)).toBeNull();
   });
 
   test("returns null when schema.vertices is missing", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
@@ -314,11 +314,11 @@ describe("parseConnectionFile", () => {
       schema: { edges: [] },
     };
 
-    expect(parseConnectionFile(config)).toBeNull();
+    expect(parseConnectionFile(connection)).toBeNull();
   });
 
   test("returns null when schema.edges is missing", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
@@ -327,11 +327,11 @@ describe("parseConnectionFile", () => {
       schema: { vertices: [] },
     };
 
-    expect(parseConnectionFile(config)).toBeNull();
+    expect(parseConnectionFile(connection)).toBeNull();
   });
 
   test("coerces an ISO lastUpdate string into a Date", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
@@ -344,7 +344,7 @@ describe("parseConnectionFile", () => {
       },
     };
 
-    const result = parseConnectionFile(config);
+    const result = parseConnectionFile(connection);
 
     expect(result?.schema.lastUpdate).toBeInstanceOf(Date);
     expect(result?.schema.lastUpdate?.toISOString()).toBe(
@@ -354,7 +354,7 @@ describe("parseConnectionFile", () => {
 
   test("keeps proxyConnection false on a direct connection", () => {
     const graphDbUrl = createRandomUrlString();
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         graphDbUrl,
@@ -364,7 +364,7 @@ describe("parseConnectionFile", () => {
       schema: { vertices: [], edges: [] },
     };
 
-    const result = parseConnectionFile(config);
+    const result = parseConnectionFile(connection);
 
     expect(result?.connection).toStrictEqual({
       graphDbUrl,
@@ -374,7 +374,7 @@ describe("parseConnectionFile", () => {
   });
 
   test("parses valid AWS auth fields", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
@@ -386,7 +386,7 @@ describe("parseConnectionFile", () => {
       schema: { vertices: [], edges: [] },
     };
 
-    const result = parseConnectionFile(config);
+    const result = parseConnectionFile(connection);
 
     expect(result?.connection.awsAuthEnabled).toBe(true);
     expect(result?.connection.awsRegion).toBe("us-west-2");
@@ -394,7 +394,7 @@ describe("parseConnectionFile", () => {
   });
 
   test("degrades an invalid awsAuthEnabled to absent, and it must never become true", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
@@ -404,14 +404,14 @@ describe("parseConnectionFile", () => {
       schema: { vertices: [], edges: [] },
     };
 
-    const result = parseConnectionFile(config);
+    const result = parseConnectionFile(connection);
 
     expect(result).not.toBeNull();
     expect(result?.connection.awsAuthEnabled).toBeUndefined();
   });
 
   test("degrades an invalid awsRegion to absent while parsing the rest of the file", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
@@ -421,14 +421,14 @@ describe("parseConnectionFile", () => {
       schema: { vertices: [], edges: [] },
     };
 
-    const result = parseConnectionFile(config);
+    const result = parseConnectionFile(connection);
 
     expect(result).not.toBeNull();
     expect(result?.connection.awsRegion).toBeUndefined();
   });
 
   test("degrades an invalid serviceType to absent while parsing the rest of the file", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
@@ -438,7 +438,7 @@ describe("parseConnectionFile", () => {
       schema: { vertices: [], edges: [] },
     };
 
-    const result = parseConnectionFile(config);
+    const result = parseConnectionFile(connection);
 
     expect(result).not.toBeNull();
     expect(result?.connection.serviceType).toBeUndefined();
@@ -465,18 +465,18 @@ describe("parseConnectionFile", () => {
  */
 describe("backward compatibility: legacy url/proxyConnection shape in exported files", () => {
   test("returns null when neither graphDbUrl nor url is present", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: { queryEngine: "gremlin" as const },
       schema: { vertices: [], edges: [] },
     };
 
-    expect(parseConnectionFile(config)).toBeNull();
+    expect(parseConnectionFile(connection)).toBeNull();
   });
 
   test("accepts a connection with only graphDbUrl and no legacy url", () => {
     const graphDbUrl = "https://neptune.example.com:8182";
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         graphDbUrl,
@@ -485,13 +485,13 @@ describe("backward compatibility: legacy url/proxyConnection shape in exported f
       schema: { vertices: [], edges: [] },
     };
 
-    const result = parseConnectionFile(config);
+    const result = parseConnectionFile(connection);
 
     expect(result?.connection.graphDbUrl).toBe(graphDbUrl);
   });
 
   test("keeps unknown styling and legacy keys in the parsed output", () => {
-    const config = {
+    const connection = {
       id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
@@ -520,7 +520,7 @@ describe("backward compatibility: legacy url/proxyConnection shape in exported f
       },
     };
 
-    const result = parseConnectionFile(config);
+    const result = parseConnectionFile(connection);
     const parsedConnection = result?.connection as Record<string, unknown>;
     const parsedVertex = result?.schema.vertices[0] as Record<string, unknown>;
     const parsedPrefix = result?.schema.prefixes?.[0] as Record<

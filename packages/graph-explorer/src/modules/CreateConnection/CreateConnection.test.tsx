@@ -15,7 +15,7 @@ import {
 import {
   allGraphSessionsAtom,
   type ConfigurationContextProps,
-  configurationAtom,
+  savedConnectionsAtom,
   getAppStore,
   schemaAtom,
 } from "@/core";
@@ -34,7 +34,7 @@ import CreateConnection from "./CreateConnection";
 
 function renderCreateConnection(ui: React.ReactElement) {
   const store = getAppStore();
-  store.set(configurationAtom, new Map());
+  store.set(savedConnectionsAtom, new Map());
 
   render(ui, {
     wrapper: ({ children }) => (
@@ -110,10 +110,10 @@ describe("CreateConnection", () => {
     await user.click(screen.getByRole("button", { name: "Add Connection" }));
 
     await waitFor(() => {
-      expect(store.get(configurationAtom)).toHaveLength(1);
+      expect(store.get(savedConnectionsAtom)).toHaveLength(1);
     });
 
-    const [savedConnection] = store.get(configurationAtom).values();
+    const [savedConnection] = store.get(savedConnectionsAtom).values();
     expect(savedConnection).toMatchObject({
       connection: {
         graphDbUrl: "https://database.example.com/graph",
@@ -129,11 +129,19 @@ describe("CreateConnection", () => {
     const iamOption = { name: "Use AWS IAM authentication" };
 
     function renderEditing(connection: ConnectionConfig) {
-      const config = { ...createRandomSavedConnection(), connection };
+      const existingConnection = {
+        ...createRandomSavedConnection(),
+        connection,
+      };
       const store = renderCreateConnection(
         <CreateConnection
           existingConfig={{
-            ...mergeConfiguration(null, config, new Map(), new Map()),
+            ...mergeConfiguration(
+              null,
+              existingConnection,
+              new Map(),
+              new Map(),
+            ),
             totalVertices: 0,
             vertexTypes: [],
             totalEdges: 0,
@@ -142,8 +150,11 @@ describe("CreateConnection", () => {
           onClose={vi.fn()}
         />,
       );
-      store.set(configurationAtom, new Map([[config.id, config]]));
-      return { store, config };
+      store.set(
+        savedConnectionsAtom,
+        new Map([[existingConnection.id, existingConnection]]),
+      );
+      return { store, existingConnection };
     }
 
     test("connects through the proxy server by default", () => {
@@ -242,10 +253,10 @@ describe("CreateConnection", () => {
       await user.click(screen.getByRole("button", { name: "Add Connection" }));
 
       await waitFor(() => {
-        expect(store.get(configurationAtom)).toHaveLength(1);
+        expect(store.get(savedConnectionsAtom)).toHaveLength(1);
       });
 
-      const [savedConnection] = store.get(configurationAtom).values();
+      const [savedConnection] = store.get(savedConnectionsAtom).values();
       expect(savedConnection.connection).toStrictEqual({
         graphDbUrl: "https://database.example.com:8182",
         proxyConnection: false,
@@ -276,7 +287,7 @@ describe("CreateConnection", () => {
           screen.getByRole("button", { name: "Add Connection" }),
         );
 
-        expect(store.get(configurationAtom)).toHaveLength(0);
+        expect(store.get(savedConnectionsAtom)).toHaveLength(0);
         expect(
           screen.getByText(
             "Directly via browser needs a full URL starting with http:// or https://",
@@ -302,7 +313,7 @@ describe("CreateConnection", () => {
       await user.click(screen.getByRole("button", { name: "Add Connection" }));
 
       await waitFor(() => {
-        expect(store.get(configurationAtom)).toHaveLength(1);
+        expect(store.get(savedConnectionsAtom)).toHaveLength(1);
       });
     });
 
@@ -320,7 +331,7 @@ describe("CreateConnection", () => {
 
     test("keeps an existing proxy connection on the proxy server", async () => {
       const user = userEvent.setup();
-      const { store, config } = renderEditing({
+      const { store, existingConnection } = renderEditing({
         graphDbUrl: "https://database.example.com:8182",
       });
 
@@ -330,7 +341,9 @@ describe("CreateConnection", () => {
         screen.getByRole("button", { name: "Update Connection" }),
       );
 
-      const savedConnection = store.get(configurationAtom).get(config.id);
+      const savedConnection = store
+        .get(savedConnectionsAtom)
+        .get(existingConnection.id);
       expect(savedConnection?.connection).toMatchObject({
         graphDbUrl: "https://database.example.com:8182",
       });
@@ -339,7 +352,7 @@ describe("CreateConnection", () => {
 
     test("saves an existing direct connection back to a proxy connection", async () => {
       const user = userEvent.setup();
-      const { store, config } = renderEditing({
+      const { store, existingConnection } = renderEditing({
         graphDbUrl: "https://database.example.com:8182",
         proxyConnection: false,
       });
@@ -352,7 +365,9 @@ describe("CreateConnection", () => {
         screen.getByRole("button", { name: "Update Connection" }),
       );
 
-      const savedConnection = store.get(configurationAtom).get(config.id);
+      const savedConnection = store
+        .get(savedConnectionsAtom)
+        .get(existingConnection.id);
       expect(savedConnection?.connection).not.toHaveProperty("proxyConnection");
     });
   });
@@ -367,7 +382,7 @@ describe("CreateConnection", () => {
    */
   describe("saving a proxied connection stored by an earlier version", () => {
     function renderUpgradedConnection() {
-      const config: SavedConnection = {
+      const connection: SavedConnection = {
         ...createRandomSavedConnection(),
         connection: transformLegacyConnection({
           url: "https://proxy.example.com",
@@ -379,7 +394,7 @@ describe("CreateConnection", () => {
       const store = renderCreateConnection(
         <CreateConnection
           existingConfig={{
-            ...mergeConfiguration(null, config, new Map(), new Map()),
+            ...mergeConfiguration(null, connection, new Map(), new Map()),
             totalVertices: 0,
             vertexTypes: [],
             totalEdges: 0,
@@ -393,15 +408,15 @@ describe("CreateConnection", () => {
         vertices: new Set([createRandomVertexId()]),
         edges: new Set([createRandomEdgeId()]),
       };
-      store.set(configurationAtom, new Map([[config.id, config]]));
-      store.set(schemaAtom, new Map([[config.id, schema]]));
-      store.set(allGraphSessionsAtom, new Map([[config.id, session]]));
-      return { store, config, schema, session };
+      store.set(savedConnectionsAtom, new Map([[connection.id, connection]]));
+      store.set(schemaAtom, new Map([[connection.id, schema]]));
+      store.set(allGraphSessionsAtom, new Map([[connection.id, session]]));
+      return { store, connection, schema, session };
     }
 
     test("keeps the schema and graph session when saved unchanged", async () => {
       const user = userEvent.setup();
-      const { store, config, schema, session } = renderUpgradedConnection();
+      const { store, connection, schema, session } = renderUpgradedConnection();
 
       // The dialog must show the database URL, not the legacy proxy url that
       // the stored shape also carried.
@@ -413,13 +428,13 @@ describe("CreateConnection", () => {
         screen.getByRole("button", { name: "Update Connection" }),
       );
 
-      expect(store.get(schemaAtom).get(config.id)).toBe(schema);
-      expect(store.get(allGraphSessionsAtom).get(config.id)).toBe(session);
+      expect(store.get(schemaAtom).get(connection.id)).toBe(schema);
+      expect(store.get(allGraphSessionsAtom).get(connection.id)).toBe(session);
     });
 
     test("clears the schema and graph session when the Database URL changes", async () => {
       const user = userEvent.setup();
-      const { store, config } = renderUpgradedConnection();
+      const { store, connection } = renderUpgradedConnection();
 
       const databaseUrl = screen.getByRole("textbox", { name: "Database URL" });
       await user.clear(databaseUrl);
@@ -428,8 +443,8 @@ describe("CreateConnection", () => {
         screen.getByRole("button", { name: "Update Connection" }),
       );
 
-      expect(store.get(schemaAtom).has(config.id)).toBe(false);
-      expect(store.get(allGraphSessionsAtom).has(config.id)).toBe(false);
+      expect(store.get(schemaAtom).has(connection.id)).toBe(false);
+      expect(store.get(allGraphSessionsAtom).has(connection.id)).toBe(false);
     });
   });
 
@@ -478,7 +493,7 @@ describe("CreateConnection", () => {
       fetchTimeoutMs: 30000,
     };
     store.set(
-      configurationAtom,
+      savedConnectionsAtom,
       new Map([[configId, { id: configId, connection }]]),
     );
 
@@ -519,7 +534,7 @@ describe("CreateConnection", () => {
     );
     await user.click(screen.getByRole("button", { name: "Add Connection" }));
 
-    expect(store.get(configurationAtom)).toHaveLength(0);
+    expect(store.get(savedConnectionsAtom)).toHaveLength(0);
     expect(screen.getByText("URL is required")).toBeInTheDocument();
   });
 
@@ -586,10 +601,10 @@ describe("CreateConnection", () => {
     await user.click(screen.getByRole("button", { name: "Add Connection" }));
 
     await waitFor(() => {
-      expect(store.get(configurationAtom)).toHaveLength(1);
+      expect(store.get(savedConnectionsAtom)).toHaveLength(1);
     });
 
-    const [savedConnection] = store.get(configurationAtom).values();
+    const [savedConnection] = store.get(savedConnectionsAtom).values();
     expect(savedConnection.connection).toStrictEqual({
       graphDbUrl: "https://g.example.com",
       queryEngine: "gremlin",
@@ -621,10 +636,10 @@ describe("CreateConnection", () => {
     await user.click(screen.getByRole("button", { name: "Add Connection" }));
 
     await waitFor(() => {
-      expect(store.get(configurationAtom)).toHaveLength(1);
+      expect(store.get(savedConnectionsAtom)).toHaveLength(1);
     });
 
-    const [savedConnection] = store.get(configurationAtom).values();
+    const [savedConnection] = store.get(savedConnectionsAtom).values();
     expect(savedConnection.connection).toStrictEqual({
       graphDbUrl: "https://g.example.com",
       queryEngine: "gremlin",
@@ -639,7 +654,7 @@ describe("CreateConnection", () => {
   // The rest of the app shows an unlabeled connection by its id, so the form
   // should too rather than presenting it as nameless.
   test("names an unlabeled connection by its id when editing it", () => {
-    const config = {
+    const connection = {
       ...createRandomSavedConnection(),
       displayLabel: undefined,
     };
@@ -647,7 +662,7 @@ describe("CreateConnection", () => {
     renderCreateConnection(
       <CreateConnection
         existingConfig={{
-          ...mergeConfiguration(null, config, new Map(), new Map()),
+          ...mergeConfiguration(null, connection, new Map(), new Map()),
           totalVertices: 0,
           vertexTypes: [],
           totalEdges: 0,
@@ -657,6 +672,6 @@ describe("CreateConnection", () => {
       />,
     );
 
-    expect(screen.getByLabelText("Name")).toHaveValue(config.id);
+    expect(screen.getByLabelText("Name")).toHaveValue(connection.id);
   });
 });

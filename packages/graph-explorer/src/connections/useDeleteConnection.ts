@@ -3,9 +3,9 @@ import { useAtomCallback } from "jotai/utils";
 import { useCallback } from "react";
 
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   allGraphSessionsAtom,
-  configurationAtom,
+  savedConnectionsAtom,
   schemaAtom,
 } from "@/core/StateProvider/storageAtoms";
 import { logger } from "@/utils";
@@ -16,17 +16,17 @@ export function useDeleteConnection() {
   return useAtomCallback(
     useCallback((_get, set, id: ConnectionId) => {
       logger.log("Deleting connection:", id);
-      set(activeConfigurationAtom, prev => {
+      set(activeConnectionIdAtom, prev => {
         if (prev === id) {
           return null;
         }
         return prev;
       });
 
-      set(configurationAtom, prevConfigs => {
-        const updatedConfigs = new Map(prevConfigs);
-        updatedConfigs.delete(id);
-        return updatedConfigs;
+      set(savedConnectionsAtom, prevConnections => {
+        const updatedConnections = new Map(prevConnections);
+        updatedConnections.delete(id);
+        return updatedConnections;
       });
 
       set(schemaAtom, prevSchemas => {
@@ -45,14 +45,14 @@ export function useDeleteConnection() {
 }
 
 export function useDeleteActiveConnection() {
-  const activeConfigId = useAtomValue(activeConfigurationAtom);
-  const deleteConfig = useDeleteConnection();
+  const activeConnectionId = useAtomValue(activeConnectionIdAtom);
+  const deleteConnection = useDeleteConnection();
 
   return () => {
-    if (!activeConfigId) {
+    if (!activeConnectionId) {
       return;
     }
 
-    deleteConfig(activeConfigId);
+    deleteConnection(activeConnectionId);
   };
 }

@@ -35,24 +35,24 @@ export function transformLegacyConnection(
 }
 
 /**
- * ReadTransform for the configuration map: transforms each entry's connection
- * from the legacy `url`/`proxyConnection` shape to the canonical shape, so
- * every consumer of `configurationAtom` — not just the active connection —
- * sees an already-migrated connection. An entry without a connection passes
- * through untouched.
+ * ReadTransform for the saved connections map: transforms each entry's
+ * connection from the legacy `url`/`proxyConnection` shape to the canonical
+ * shape, so every consumer of `savedConnectionsAtom` — not just the active
+ * connection — sees an already-migrated connection. An entry without a
+ * connection passes through untouched.
  */
 export function transformSavedConnections(
-  configs: Map<ConnectionId, SavedConnection>,
+  connections: Map<ConnectionId, SavedConnection>,
 ): Map<ConnectionId, SavedConnection> {
   return new Map(
-    [...configs].map(([id, config]) => [
+    [...connections].map(([id, connection]) => [
       id,
-      config.connection
+      connection.connection
         ? {
-            ...config,
-            connection: transformLegacyConnection(config.connection),
+            ...connection,
+            connection: transformLegacyConnection(connection.connection),
           }
-        : config,
+        : connection,
     ]),
   );
 }

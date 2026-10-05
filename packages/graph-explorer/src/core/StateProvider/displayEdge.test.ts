@@ -9,9 +9,9 @@ import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { getDisplayValueForScalar } from "@/connector/entities";
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   type AppStore,
-  configurationAtom,
+  savedConnectionsAtom,
   createEdgeType,
   type Edge,
   getRawId,
@@ -241,9 +241,9 @@ describe("useDisplayEdgeFromEdge", () => {
   function withSchema(schema: SchemaStorageModel) {
     const config = createRandomSavedConnection();
     return (store: AppStore) => {
-      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(savedConnectionsAtom, new Map([[config.id, config]]));
       store.set(schemaAtom, new Map([[config.id, schema]]));
-      store.set(activeConfigurationAtom, config.id);
+      store.set(activeConnectionIdAtom, config.id);
     };
   }
 
@@ -254,9 +254,9 @@ describe("useDisplayEdgeFromEdge", () => {
     const config = createRandomSavedConnection();
     config.connection!.queryEngine = queryEngine;
     return (store: AppStore) => {
-      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(savedConnectionsAtom, new Map([[config.id, config]]));
       store.set(schemaAtom, new Map([[config.id, schema]]));
-      store.set(activeConfigurationAtom, config.id);
+      store.set(activeConnectionIdAtom, config.id);
     };
   }
 });

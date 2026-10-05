@@ -10,7 +10,7 @@ import type { SetStateActionWithReset } from "@/utils/jotai";
 
 import { createTypedValue, type ScalarValue } from "@/connector/entities";
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   createEdgeConnectionId,
   type Edge,
   type EdgeConnectionId,
@@ -83,7 +83,7 @@ const emptySchema: SchemaStorageModel = {
 
 /** Gets the active schema from storage, or undefined if one doesn't exist. */
 export const maybeActiveSchemaAtom = atom(get => {
-  const id = get(activeConfigurationAtom);
+  const id = get(activeConnectionIdAtom);
   if (!id) {
     return undefined;
   }
@@ -92,7 +92,7 @@ export const maybeActiveSchemaAtom = atom(get => {
 });
 
 export const activeSchemaAtom = atom(get => {
-  const id = get(activeConfigurationAtom);
+  const id = get(activeConnectionIdAtom);
   return get(schemaByIdAtom(id));
 });
 
@@ -246,7 +246,7 @@ export function useEdgeTypeTotal(type: EdgeType) {
 export const activeSchemaSelector = atom(
   get => {
     const schemaMap = get(schemaAtom);
-    const id = get(activeConfigurationAtom);
+    const id = get(activeConnectionIdAtom);
     const activeSchema = id ? schemaMap.get(id) : null;
     return activeSchema;
   },
@@ -255,7 +255,7 @@ export const activeSchemaSelector = atom(
     set,
     update: SetStateActionWithReset<SchemaStorageModel | undefined>,
   ) => {
-    const schemaId = get(activeConfigurationAtom);
+    const schemaId = get(activeConnectionIdAtom);
     if (!schemaId) {
       return;
     }

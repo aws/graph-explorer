@@ -1,7 +1,7 @@
 import { atom } from "jotai";
 import { atomWithReset, RESET } from "jotai/utils";
 
-import { activeConfigurationAtom, allGraphSessionsAtom } from "@/core";
+import { activeConnectionIdAtom, allGraphSessionsAtom } from "@/core";
 
 import type { EdgeId, VertexId } from "../../entities";
 
@@ -16,7 +16,7 @@ export const isRestorePreviousSessionAvailableAtom = atomWithReset(true);
 /** Gets or sets the active connection's graph session data. */
 export const activeGraphSessionAtom = atom(
   get => {
-    const connectionId = get(activeConfigurationAtom);
+    const connectionId = get(activeConnectionIdAtom);
 
     if (!connectionId) {
       return null;
@@ -27,7 +27,7 @@ export const activeGraphSessionAtom = atom(
   },
   (get, set, newValue: GraphSessionStorageModel | typeof RESET) => {
     const graphs = get(allGraphSessionsAtom);
-    const connectionId = get(activeConfigurationAtom);
+    const connectionId = get(activeConnectionIdAtom);
 
     // Do nothing if there is no active connection
     if (!connectionId) {

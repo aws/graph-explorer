@@ -11,7 +11,7 @@ import { PanelEmptyState, PanelError, Spinner } from "@/components";
 import { fetchDefaultConnection } from "@/connections";
 import { logger } from "@/utils";
 
-import { activeConfigurationAtom, configurationAtom } from "./StateProvider";
+import { activeConnectionIdAtom, savedConnectionsAtom } from "./StateProvider";
 
 function AppStatusLoader({ children }: PropsWithChildren) {
   return (
@@ -22,8 +22,8 @@ function AppStatusLoader({ children }: PropsWithChildren) {
 }
 
 function LoadDefaultConfig({ children }: PropsWithChildren) {
-  const setActiveConfig = useSetAtom(activeConfigurationAtom);
-  const [configuration, setConfiguration] = useAtom(configurationAtom);
+  const setActiveConfig = useSetAtom(activeConnectionIdAtom);
+  const [configuration, setConfiguration] = useAtom(savedConnectionsAtom);
 
   // An empty store is what drives the whole default-connection flow: the query
   // fetches, the effect seeds, and the loading states show only while it holds.

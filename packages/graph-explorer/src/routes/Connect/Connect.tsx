@@ -11,7 +11,7 @@ import {
 } from "@/components";
 import { useActivateConnection } from "@/connections";
 import { resolveConnectionLink } from "@/core/connectionLink";
-import { configurationAtom } from "@/core/StateProvider";
+import { savedConnectionsAtom } from "@/core/StateProvider";
 import CreateConnection, {
   type CreateConnectionOutcome,
   mapToConnectionForm,
@@ -48,7 +48,7 @@ function ConnectFromLink({ search }: { search: string }) {
   const activateConnection = useActivateConnection();
 
   const [intent] = useState(() => resolveConnectionLink(search));
-  const connectionCount = useAtomValue(configurationAtom).size;
+  const connectionCount = useAtomValue(savedConnectionsAtom).size;
 
   // Declining the link lands on the connections list, where the user can pick
   // a connection themselves; saving activated the new one, so show its graph.

@@ -8,8 +8,8 @@ import { describe, expect, it, test } from "vitest";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import {
-  activeConfigurationAtom,
-  configurationAtom,
+  activeConnectionIdAtom,
+  savedConnectionsAtom,
   createEdgeConnectionId,
   schemaAtom,
 } from "@/core";
@@ -1322,8 +1322,8 @@ describe("maybeActiveSchemaAtom", () => {
     const { result } = renderHookWithJotai(
       () => useAtomValue(maybeActiveSchemaAtom),
       store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
+        store.set(savedConnectionsAtom, new Map([[config.id, config]]));
+        store.set(activeConnectionIdAtom, config.id);
         store.set(schemaAtom, new Map());
       },
     );
@@ -1338,8 +1338,8 @@ describe("maybeActiveSchemaAtom", () => {
     const { result } = renderHookWithJotai(
       () => useAtomValue(maybeActiveSchemaAtom),
       store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
+        store.set(savedConnectionsAtom, new Map([[config.id, config]]));
+        store.set(activeConnectionIdAtom, config.id);
         store.set(schemaAtom, new Map([[config.id, schema]]));
       },
     );
@@ -1361,8 +1361,8 @@ describe("useMaybeActiveSchema", () => {
     const { result } = renderHookWithJotai(
       () => useMaybeActiveSchema(),
       store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
+        store.set(savedConnectionsAtom, new Map([[config.id, config]]));
+        store.set(activeConnectionIdAtom, config.id);
         store.set(schemaAtom, new Map());
       },
     );
@@ -1377,8 +1377,8 @@ describe("useMaybeActiveSchema", () => {
     const { result } = renderHookWithJotai(
       () => useMaybeActiveSchema(),
       store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
+        store.set(savedConnectionsAtom, new Map([[config.id, config]]));
+        store.set(activeConnectionIdAtom, config.id);
         store.set(schemaAtom, new Map([[config.id, schema]]));
       },
     );
@@ -1404,8 +1404,8 @@ describe("useActiveSchema", () => {
     const { result } = renderHookWithJotai(
       () => useActiveSchema(),
       store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
+        store.set(savedConnectionsAtom, new Map([[config.id, config]]));
+        store.set(activeConnectionIdAtom, config.id);
         store.set(schemaAtom, new Map());
       },
     );
@@ -1424,8 +1424,8 @@ describe("useActiveSchema", () => {
     const { result } = renderHookWithJotai(
       () => useActiveSchema(),
       store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
+        store.set(savedConnectionsAtom, new Map([[config.id, config]]));
+        store.set(activeConnectionIdAtom, config.id);
         store.set(schemaAtom, new Map([[config.id, schema]]));
       },
     );

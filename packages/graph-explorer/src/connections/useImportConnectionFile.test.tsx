@@ -6,8 +6,8 @@ import { describe, expect, test, vi } from "vitest";
 
 import { getAppStore } from "@/core/StateProvider/appStore";
 import {
-  activeConfigurationAtom,
-  configurationAtom,
+  activeConnectionIdAtom,
+  savedConnectionsAtom,
   schemaAtom,
 } from "@/core/StateProvider/storageAtoms";
 import {
@@ -26,18 +26,18 @@ vi.mock("@/core/StateProvider/useResetState", () => ({
 
 /**
  * Reads the connection that import just activated. Import assigns a fresh id,
- * makes it active, and keys both the config and schema maps by that id, so the
+ * makes it active, and keys both the connection and schema maps by that id, so the
  * active id is the single handle for everything that was imported.
  */
 function getImportedConnection() {
   const store = getAppStore();
-  const importedId = store.get(activeConfigurationAtom);
+  const importedId = store.get(activeConnectionIdAtom);
   expect.assert(importedId);
-  const config = store.get(configurationAtom).get(importedId);
+  const connection = store.get(savedConnectionsAtom).get(importedId);
   const schema = store.get(schemaAtom).get(importedId);
-  expect.assert(config);
+  expect.assert(connection);
   expect.assert(schema);
-  return { importedId, config, schema };
+  return { importedId, connection, schema };
 }
 
 describe("useImportConnectionFile", () => {
@@ -73,15 +73,15 @@ describe("useImportConnectionFile", () => {
       await result.current(file);
     });
 
-    expect(getAppStore().get(configurationAtom).size).toBe(2);
+    expect(getAppStore().get(savedConnectionsAtom).size).toBe(2);
     expect(getAppStore().get(schemaAtom).size).toBe(2);
 
-    const { importedId, config, schema } = getImportedConnection();
+    const { importedId, connection, schema } = getImportedConnection();
     expect(importedId).not.toBe(state.activeConfig.id);
 
-    expect(config.displayLabel).toBe(displayLabel);
-    expect(config.connection?.graphDbUrl).toBe(graphDbUrl);
-    expect(config.connection?.queryEngine).toBe("gremlin");
+    expect(connection.displayLabel).toBe(displayLabel);
+    expect(connection.connection?.graphDbUrl).toBe(graphDbUrl);
+    expect(connection.connection?.queryEngine).toBe("gremlin");
 
     expect(schema.vertices).toHaveLength(1);
     expect(schema.vertices[0].type).toBe("Person");
@@ -118,8 +118,8 @@ describe("useImportConnectionFile", () => {
       await result.current(file);
     });
 
-    const { config } = getImportedConnection();
-    expect(config.connection).toStrictEqual({
+    const { connection } = getImportedConnection();
+    expect(connection.connection).toStrictEqual({
       graphDbUrl,
       proxyConnection: false,
       queryEngine: "sparql",
@@ -145,8 +145,8 @@ describe("useImportConnectionFile", () => {
       await result.current(file);
     });
 
-    const configs = getAppStore().get(configurationAtom);
-    expect(configs.size).toBe(1);
+    const connections = getAppStore().get(savedConnectionsAtom);
+    expect(connections.size).toBe(1);
 
     expect(toast.error).toHaveBeenCalledWith("Invalid File", {
       description: "The connection file is not valid",
@@ -184,7 +184,7 @@ describe("useImportConnectionFile", () => {
       await result.current(file);
     });
 
-    expect(getAppStore().get(configurationAtom).size).toBe(2);
+    expect(getAppStore().get(savedConnectionsAtom).size).toBe(2);
 
     const { importedId } = getImportedConnection();
     expect(importedId).not.toBe(state.activeConfig.id);
@@ -491,9 +491,9 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
       await result.current(file);
     });
 
-    const { config } = getImportedConnection();
+    const { connection } = getImportedConnection();
     // The legacy `url` is folded away and the direct flag survives.
-    expect(config.connection).toStrictEqual({
+    expect(connection.connection).toStrictEqual({
       graphDbUrl: url,
       proxyConnection: false,
       queryEngine: "gremlin",
@@ -540,8 +540,8 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
       await result.current(file);
     });
 
-    const { config } = getImportedConnection();
-    expect(config.connection).toStrictEqual({
+    const { connection } = getImportedConnection();
+    expect(connection.connection).toStrictEqual({
       graphDbUrl,
       queryEngine: "gremlin",
       awsAuthEnabled: true,
@@ -585,8 +585,8 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
       await result.current(file);
     });
 
-    const { config } = getImportedConnection();
-    expect(config.connection).toStrictEqual({
+    const { connection } = getImportedConnection();
+    expect(connection.connection).toStrictEqual({
       graphDbUrl,
       queryEngine: "gremlin",
     });
@@ -627,8 +627,8 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
       await result.current(file);
     });
 
-    const { config } = getImportedConnection();
-    expect(config.connection).toStrictEqual({
+    const { connection } = getImportedConnection();
+    expect(connection.connection).toStrictEqual({
       graphDbUrl: url,
       proxyConnection: false,
       queryEngine: "gremlin",
@@ -725,20 +725,20 @@ describe("backward compatibility: legacy __matches in exported files", () => {
  * Exported connection files have, across every released version, bundled the
  * full schema inside the top-level envelope: `{ id, displayLabel, connection,
  * schema }`. Import must split this envelope — routing `connection` into
- * `configurationAtom` and `schema` into `schemaAtom` — and must never write the
- * schema into the config entry (`SavedConnection.schema`).
+ * `savedConnectionsAtom` and `schema` into `schemaAtom` — and must never write the
+ * schema into the connection entry (`SavedConnection.schema`).
  *
  * This pins that split for a faithful, real-world-shaped export (styled vertex
- * and edge type configs, both `lucide:` and base64 data-URI icons, an ISO
+ * and edge type connections, both `lucide:` and base64 data-URI icons, an ISO
  * `lastUpdate`, and `edgeConnections`). It guards against a refactor that
  * decouples the file envelope type from `SavedConnection` accidentally
- * dropping schema data or leaking it back into the config entry.
+ * dropping schema data or leaking it back into the connection entry.
  *
  * DO NOT delete or weaken this test without confirming that exported files in
  * the wild are no longer a concern.
  */
 describe("backward compatibility: legacy exported connection file with embedded schema", () => {
-  test("splits the bundled schema into schemaAtom and keeps it out of the config entry", async () => {
+  test("splits the bundled schema into schemaAtom and keeps it out of the connection entry", async () => {
     const state = new DbState();
     const { result } = renderHookWithState(
       () => useImportConnectionFile(),
@@ -755,10 +755,10 @@ describe("backward compatibility: legacy exported connection file with embedded 
       await result.current(file);
     });
 
-    const { config: importedConfig, schema: importedSchema } =
+    const { connection: importedConfig, schema: importedSchema } =
       getImportedConnection();
 
-    // The connection lands in the config entry. Legacy proxy fields (`url`,
+    // The connection lands in the connection entry. Legacy proxy fields (`url`,
     // `proxyConnection`) are folded into the canonical `graphDbUrl` on import;
     // the remaining fields are preserved.
     expect(importedConfig.displayLabel).toBe(
@@ -774,7 +774,7 @@ describe("backward compatibility: legacy exported connection file with embedded 
     expect(importedConfig.connection).not.toHaveProperty("url");
     expect(importedConfig.connection).not.toHaveProperty("proxyConnection");
 
-    // The schema must NOT be stored on the config entry — it belongs in
+    // The schema must NOT be stored on the connection entry — it belongs in
     // schemaAtom. `SavedConnection` no longer declares a `schema` field, so we
     // probe for a stray one to prove import never writes it back.
     expect((importedConfig as { schema?: unknown }).schema).toBeUndefined();

@@ -3,7 +3,7 @@ import { useAtomValue } from "jotai";
 
 import { edgeConnectionsQuery, schemaSyncQuery } from "@/connector";
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   maybeActiveSchemaAtom,
   useConfiguration,
 } from "@/core";
@@ -42,7 +42,7 @@ export function useSchemaSync() {
   // The schema and connectionId must update in the same render so the query
   // options stay consistent when switching connections.
   const activeSchema = useAtomValue(maybeActiveSchemaAtom);
-  const connectionId = useAtomValue(activeConfigurationAtom);
+  const connectionId = useAtomValue(activeConnectionIdAtom);
 
   const schemaDiscoveryQuery = useQuery(
     schemaSyncQuery({

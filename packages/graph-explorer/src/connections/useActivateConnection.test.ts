@@ -6,8 +6,8 @@ import { describe, expect, test } from "vitest";
 import { getAppStore } from "@/core/StateProvider/appStore";
 import { nodesAtom } from "@/core/StateProvider/nodes";
 import {
-  activeConfigurationAtom,
-  configurationAtom,
+  activeConnectionIdAtom,
+  savedConnectionsAtom,
 } from "@/core/StateProvider/storageAtoms";
 import {
   createTestableVertex,
@@ -31,7 +31,7 @@ describe("useActivateConnection", () => {
       state,
     );
     const store = getAppStore();
-    store.set(configurationAtom, prev => {
+    store.set(savedConnectionsAtom, prev => {
       const updated = new Map(prev);
       updated.set(other.id, other);
       return updated;
@@ -41,7 +41,7 @@ describe("useActivateConnection", () => {
 
     act(() => result.current(other.id));
 
-    expect(store.get(activeConfigurationAtom)).toBe(other.id);
+    expect(store.get(activeConnectionIdAtom)).toBe(other.id);
     expect(store.get(nodesAtom).size).toBe(0);
   });
 
@@ -55,7 +55,7 @@ describe("useActivateConnection", () => {
       state,
     );
     const store = getAppStore();
-    const activeId = store.get(activeConfigurationAtom);
+    const activeId = store.get(activeConnectionIdAtom);
     expect(activeId).toBeDefined();
 
     const nodeCountBefore = store.get(nodesAtom).size;
@@ -63,7 +63,7 @@ describe("useActivateConnection", () => {
 
     act(() => result.current(activeId!));
 
-    expect(store.get(activeConfigurationAtom)).toBe(activeId);
+    expect(store.get(activeConnectionIdAtom)).toBe(activeId);
     expect(store.get(nodesAtom).size).toBe(nodeCountBefore);
   });
 });

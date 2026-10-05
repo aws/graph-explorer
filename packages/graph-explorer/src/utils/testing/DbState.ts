@@ -3,10 +3,10 @@ import type { Explorer } from "@/connector";
 import type { SchemaViewLayout } from "@/core/StateProvider/schemaViewLayoutDefaults";
 
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   allGraphSessionsAtom,
   type AppStore,
-  configurationAtom,
+  savedConnectionsAtom,
   type Edge,
   type EdgeId,
   type EdgeStyleStorage,
@@ -55,7 +55,7 @@ import {
 export class DbState {
   #activeSchema: SchemaStorageModel | null;
   #hasActiveConnection = true;
-  #inactiveConfigs: SavedConnection[] = [];
+  #inactiveConnections: SavedConnection[] = [];
   activeConfig: SavedConnection;
   vertexStyles: Map<VertexType, VertexStyleStorage>;
   edgeStyles: Map<EdgeType, EdgeStyleStorage>;
@@ -119,8 +119,8 @@ export class DbState {
   }
 
   /** Stores a connection alongside the active one without activating it. */
-  addInactiveConnection(config: SavedConnection) {
-    this.#inactiveConfigs.push(config);
+  addInactiveConnection(connection: SavedConnection) {
+    this.#inactiveConnections.push(connection);
     return this;
   }
 
@@ -231,13 +231,13 @@ export class DbState {
 
   /** Applies the state to the given Jotai store. */
   applyTo(store: AppStore) {
-    // Config
+    // Connections
     store.set(
-      configurationAtom,
+      savedConnectionsAtom,
       new Map(
-        [this.activeConfig, ...this.#inactiveConfigs].map(config => [
-          config.id,
-          config,
+        [this.activeConfig, ...this.#inactiveConnections].map(connection => [
+          connection.id,
+          connection,
         ]),
       ),
     );
@@ -250,7 +250,7 @@ export class DbState {
       store.set(schemaAtom, new Map());
     }
     store.set(
-      activeConfigurationAtom,
+      activeConnectionIdAtom,
       this.#hasActiveConnection ? this.activeConfig.id : null,
     );
 

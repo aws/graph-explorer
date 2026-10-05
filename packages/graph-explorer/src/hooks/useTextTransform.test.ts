@@ -5,9 +5,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   type AppStore,
-  configurationAtom,
+  savedConnectionsAtom,
   schemaAtom,
 } from "@/core";
 import {
@@ -29,11 +29,11 @@ function initializeConfigWithPrefix(store: AppStore) {
       uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#" as IriNamespace,
     },
   ];
-  store.set(configurationAtom, new Map([[config.id, config]]));
+  store.set(savedConnectionsAtom, new Map([[config.id, config]]));
   store.set(schemaAtom, new Map([[config.id, schema]]));
 
   // Make config active
-  store.set(activeConfigurationAtom, config.id);
+  store.set(activeConnectionIdAtom, config.id);
 }
 
 describe("useTextTransform", () => {

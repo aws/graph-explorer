@@ -3,8 +3,8 @@ import { act, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
-  activeConfigurationAtom,
-  configurationAtom,
+  activeConnectionIdAtom,
+  savedConnectionsAtom,
   createEdgeType,
   createVertexType,
   type EdgeConnection,
@@ -61,8 +61,8 @@ describe("useSchemaSync", () => {
       return renderHookWithJotai(
         () => useSchemaSync(),
         store => {
-          store.set(activeConfigurationAtom, null);
-          store.set(configurationAtom, new Map());
+          store.set(activeConnectionIdAtom, null);
+          store.set(savedConnectionsAtom, new Map());
           store.set(schemaAtom, new Map());
           store.set(explorerForTestingAtom, explorer);
         },
@@ -499,12 +499,12 @@ describe("useSchemaSync", () => {
       const store = getAppStore();
       const newConfig = createRandomSavedConnection();
       act(() => {
-        store.set(configurationAtom, prev => {
+        store.set(savedConnectionsAtom, prev => {
           const updated = new Map(prev);
           updated.set(newConfig.id, newConfig);
           return updated;
         });
-        store.set(activeConfigurationAtom, newConfig.id);
+        store.set(activeConnectionIdAtom, newConfig.id);
         rerender();
       });
 

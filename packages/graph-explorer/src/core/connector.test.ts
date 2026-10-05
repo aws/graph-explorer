@@ -9,7 +9,7 @@ import { emptyExplorer } from "@/connector/emptyExplorer";
 import { createRandomSavedConnection } from "@/utils/testing";
 
 import { explorerAtom, explorerForTestingAtom } from "./connector";
-import { activeConfigurationAtom, configurationAtom } from "./StateProvider";
+import { activeConnectionIdAtom, savedConnectionsAtom } from "./StateProvider";
 
 function connectionWithEngine(queryEngine: QueryEngine): SavedConnection {
   const config = createRandomSavedConnection();
@@ -21,8 +21,8 @@ function connectionWithEngine(queryEngine: QueryEngine): SavedConnection {
 
 function storeWithActiveConnection(config: SavedConnection) {
   const store = createStore();
-  store.set(configurationAtom, new Map([[config.id, config]]));
-  store.set(activeConfigurationAtom, config.id);
+  store.set(savedConnectionsAtom, new Map([[config.id, config]]));
+  store.set(activeConnectionIdAtom, config.id);
   return store;
 }
 

@@ -104,11 +104,11 @@ export function mapToConnectionForm(
  * shows it: by its label, or by its id when it has none.
  */
 export function mapSavedConnectionToConnectionForm(
-  config: SavedConnection,
+  connection: SavedConnection,
 ): ConnectionFormValues {
   return mapToConnectionForm(
-    config.displayLabel || config.id,
-    config.connection,
+    connection.displayLabel || connection.id,
+    connection.connection,
   );
 }
 

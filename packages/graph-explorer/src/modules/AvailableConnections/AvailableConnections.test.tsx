@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
-import { configurationAtom, getAppStore } from "@/core";
+import { savedConnectionsAtom, getAppStore } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import { TestProvider } from "@/utils/testing";
 
@@ -16,7 +16,7 @@ vi.mock("@/modules/CreateConnection", () => ({
 describe("AvailableConnections", () => {
   test("renders empty state when there are no connections", () => {
     const store = getAppStore();
-    store.set(configurationAtom, new Map());
+    store.set(savedConnectionsAtom, new Map());
     const queryClient = createQueryClient();
 
     render(

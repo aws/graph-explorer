@@ -30,7 +30,7 @@ import {
   DialogTrigger,
 } from "@/components/Dialog";
 import { useImportConnectionFile } from "@/connections";
-import { activeConfigurationAtom, configurationAtom } from "@/core";
+import { activeConnectionIdAtom, savedConnectionsAtom } from "@/core";
 import CreateConnection from "@/modules/CreateConnection";
 import { cn } from "@/utils";
 
@@ -41,7 +41,7 @@ export type AvailableConnectionsProps = {
 };
 
 const AvailableConnections = ({ isSync }: AvailableConnectionsProps) => {
-  const activeConnectionId = useAtomValue(activeConfigurationAtom);
+  const activeConnectionId = useAtomValue(activeConnectionIdAtom);
   const allConnections = useAllConnections();
   const importConnectionFile = useImportConnectionFile();
   const [isDialogOpen, setDialogOpen] = useState(false);
@@ -144,7 +144,7 @@ const AvailableConnections = ({ isSync }: AvailableConnectionsProps) => {
 };
 
 function useAllConnections() {
-  const connectionMap = useAtomValue(configurationAtom);
+  const connectionMap = useAtomValue(savedConnectionsAtom);
   return Array.from(connectionMap.values());
 }
 

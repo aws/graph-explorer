@@ -11,7 +11,7 @@ import type { GraphSessionStorageModel } from "./graphSession/storage";
 import type { EdgeStyleStorage, VertexStyleStorage } from "./graphStyles";
 import type { SchemaStorageModel } from "./schema";
 
-import { createActiveConfigurationAtom } from "./activeConnectionStorage";
+import { createActiveConnectionIdAtom } from "./activeConnectionStorage";
 import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
 import {
   defaultGraphViewLayout,
@@ -68,8 +68,8 @@ await Promise.all([runUserStylingMigration(), runUserLayoutMigration()]);
  */
 
 const [
-  activeConfigurationAtom,
-  configurationAtom,
+  activeConnectionIdAtom,
+  savedConnectionsAtom,
   schemaAtom,
   userVertexStylesAtom,
   userEdgeStylesAtom,
@@ -82,7 +82,7 @@ const [
   defaultNeighborExpansionLimitAtom,
   diagnosticLoggingAtom,
 ] = await Promise.all([
-  createActiveConfigurationAtom(),
+  createActiveConnectionIdAtom(),
   atomWithLocalForage<Map<ConnectionId, SavedConnection>>(
     "configuration",
     new Map(),
@@ -138,8 +138,8 @@ const [
 ]);
 
 export {
-  activeConfigurationAtom,
-  configurationAtom,
+  activeConnectionIdAtom,
+  savedConnectionsAtom,
   schemaAtom,
   userVertexStylesAtom,
   userEdgeStylesAtom,
