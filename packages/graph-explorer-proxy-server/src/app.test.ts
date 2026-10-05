@@ -1266,7 +1266,9 @@ describe("createApp", () => {
         const response = body ? await req.send(body) : await req;
 
         expect(response.status).toBe(403);
-        expect(response.body.error.message).toContain("allowed origins list");
+        expect(response.body.error.message).toContain(
+          "PROXY_SERVER_ALLOWED_DB_ORIGINS",
+        );
         expect(mockFetch).not.toHaveBeenCalledWith(
           expect.stringContaining("https://blocked:8182"),
           expect.anything(),

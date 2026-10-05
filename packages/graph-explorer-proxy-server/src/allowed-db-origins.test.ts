@@ -53,7 +53,7 @@ describe("assertAllowedDbOrigin", () => {
     ).toThrow(
       new HttpError(
         403,
-        `Database origin "https://neptune:8183" is not in the allowed origins list. Contact your administrator.`,
+        `Database origin "https://neptune:8183" is not in the Database Origin Allowlist (PROXY_SERVER_ALLOWED_DB_ORIGINS). Contact your administrator.`,
       ),
     );
   });
@@ -63,7 +63,7 @@ describe("assertAllowedDbOrigin", () => {
     expect(() => assertAllowedDbOrigin("http://neptune:8182", allowed)).toThrow(
       new HttpError(
         403,
-        `Database origin "http://neptune:8182" is not in the allowed origins list. Contact your administrator.`,
+        `Database origin "http://neptune:8182" is not in the Database Origin Allowlist (PROXY_SERVER_ALLOWED_DB_ORIGINS). Contact your administrator.`,
       ),
     );
   });
@@ -75,7 +75,7 @@ describe("assertAllowedDbOrigin", () => {
     ).toThrow(
       new HttpError(
         403,
-        `Database origin "https://neptune:8182" is not in the allowed origins list. Contact your administrator.`,
+        `Database origin "https://neptune:8182" is not in the Database Origin Allowlist (PROXY_SERVER_ALLOWED_DB_ORIGINS). Contact your administrator.`,
       ),
     );
   });

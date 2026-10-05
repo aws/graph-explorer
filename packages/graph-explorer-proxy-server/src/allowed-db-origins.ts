@@ -11,7 +11,7 @@ export function assertAllowedDbOrigin(
   if (!allowedOrigins.has(origin)) {
     throw new HttpError(
       403,
-      `Database origin "${origin}" is not in the allowed origins list. Contact your administrator.`,
+      `Database origin "${origin}" is not in the Database Origin Allowlist (PROXY_SERVER_ALLOWED_DB_ORIGINS). Contact your administrator.`,
     );
   }
 }
