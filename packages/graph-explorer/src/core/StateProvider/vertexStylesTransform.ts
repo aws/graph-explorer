@@ -1,3 +1,4 @@
+import { isAllowedIconValue } from "@/core/icons";
 import { logger } from "@/utils";
 
 import type { VertexType } from "../entities";
@@ -58,9 +59,28 @@ function dropBlankColors(entry: VertexStyleStorage): VertexStyleStorage | null {
 }
 
 /**
+ * Drops an icon outside the allowlist, with its image type, so the default
+ * icon applies. The app only ever writes allowlisted icons, so this catches
+ * hand-edited values, such as a remote url. An empty url means "no icon" and is kept.
+ */
+function dropDisallowedIcon(
+  type: VertexType,
+  entry: VertexStyleStorage,
+): VertexStyleStorage | null {
+  if (!entry.iconUrl || isAllowedIconValue(entry.iconUrl)) {
+    return null;
+  }
+  logger.warn(
+    `[vertex-styles] Unsupported icon "${entry.iconUrl.slice(0, 100)}" for type "${type}", using the default icon`,
+  );
+  const { iconUrl: _iconUrl, iconImageType: _iconImageType, ...rest } = entry;
+  return rest;
+}
+
+/**
  * ReadTransform for vertex style maps: coerces broken round-polygon shapes to
- * their non-round counterpart and drops unusable colors at load time. Returns
- * the same reference when nothing needed changing.
+ * their non-round counterpart and drops unusable colors and icons at load time.
+ * Returns the same reference when nothing needed changing.
  */
 export function transformVertexStyles(
   styles: Map<VertexType, VertexStyleStorage>,
@@ -69,6 +89,7 @@ export function transformVertexStyles(
 
   for (const [type, entry] of styles) {
     let updated = dropBlankColors(entry);
+    updated = dropDisallowedIcon(type, updated ?? entry) ?? updated;
 
     if (entry.shape !== undefined) {
       const coerced = coerceBrokenShape(entry.shape);

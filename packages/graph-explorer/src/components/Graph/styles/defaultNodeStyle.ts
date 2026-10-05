@@ -4,9 +4,11 @@ const defaultNodeStyle: RenderedNodeStyle = {
   background: "#128EE5",
   backgroundOpacity: 0.4,
   borderColor: "#128EE5",
-  backgroundFit: "none",
-  backgroundWidth: "60%",
-  backgroundHeight: "60%",
+  // The icon already insets itself in a square (`toCanvasBackgroundImage`), so
+  // the node only has to fit that square without distorting it (issue #2108).
+  backgroundFit: "contain",
+  backgroundWidth: "auto",
+  backgroundHeight: "auto",
   borderWidth: 1,
   borderStyle: "solid",
   borderOpacity: 0,

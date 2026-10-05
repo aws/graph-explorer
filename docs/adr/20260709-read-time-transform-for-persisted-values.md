@@ -15,6 +15,8 @@ Reshape the value **on read**, via a `transform` option on `atomWithLocalForage`
 - **Updated 2026-10-04:** `transformGraphViewLayout`, `transformSchemaViewLayout` and `transformLegacySidebarItem` are gone. Both layouts moved to per-tab scope (see ADR `per-tab-session-scoped-storage-primitive`), whose codec zod-parses the stored breadcrumb, so the same legacy normalization now lives in that parse schema. The decision here is unchanged for `atomWithLocalForage` atoms.
 - **Updated 2026-07-10:** `transformVertexStyles` (in `vertexStylesTransform.ts`) is a second consumer, applied to `user-vertex-styles`. It coerces retired round-polygon shapes to their non-round counterpart (see ADR `coerce-retired-round-polygon-shapes`). Values arriving through file import are stored verbatim — the same ReadTransform coerces them on the next load, so both entry points (persisted storage and imported files) converge on the same coercion without the import path needing its own transform.
 
+- **Updated 2026-10-02:** `transformVertexStyles` also drops an `iconUrl` outside the icon allowlist, with its `iconImageType`, so the app default icon applies (#2142). See ADR `styling-file-format`.
+
 Two decisions here are not obvious from the code:
 
 1. **No write-back.** The corrected value lives in memory; the stale value stays in storage until an unrelated write rewrites the key. This is fine because the transform is pure and total, so re-running it every load is free — convergence buys nothing. It is also why the transform must never throw or do I/O: it seeds atom init with no failure channel.

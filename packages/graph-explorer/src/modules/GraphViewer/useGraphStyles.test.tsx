@@ -14,10 +14,10 @@ import {
 
 import useGraphStyles from "./useGraphStyles";
 
-// A raster icon resolves synchronously to its url, so this test can exercise
+// A data: raster resolves synchronously to its url, so this test can exercise
 // the real icon pipeline and still pin the expected background image.
 const RASTER_ICON = {
-  iconUrl: "https://example.test/icon.png",
+  iconUrl: "data:image/png;base64,QUJD",
   iconImageType: "image/png",
 } as const;
 
@@ -55,8 +55,18 @@ describe("useGraphStyles", () => {
 
     await waitFor(() => {
       const vertexStyle = getStyles(result)[`node[type="Person"]`] as any;
+      // The raster is wrapped in a padded square svg so the canvas can fit it
+      // without measuring (issue #2108); sizing now comes from the node
+      // defaults, not per type. Decode and check the wrapper actually nests
+      // the icon's real url — a bare data-uri prefix check would also pass if
+      // the wrapper had lost the url or wrapped the wrong one.
+      const backgroundImage = vertexStyle["background-image"] as string;
+      expect(backgroundImage.startsWith("data:image/svg+xml;utf8,")).toBe(true);
+      expect(decodeURIComponent(backgroundImage)).toContain(
+        RASTER_ICON.iconUrl,
+      );
       expect(vertexStyle).toEqual({
-        "background-image": RASTER_ICON.iconUrl,
+        "background-image": backgroundImage,
         "background-color": "#128EE5",
         "background-opacity": 0.8,
         "border-color": "#000000",
