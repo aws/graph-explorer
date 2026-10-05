@@ -2,19 +2,16 @@
 
 // DEV NOTE: happy-dom's DOMParser is not reliable for the svg render path.
 
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vite-plus/test";
+import dynamicIconImports from "lucide-react/dynamicIconImports";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+
+import logger from "@/utils/logger";
+import { createSvgIconDataUrl } from "@/utils/testing";
 
 import { iconRegistry } from "./iconRegistry";
 import { classifyIconSource, iconSourceId } from "./iconSource";
 
-const REMOTE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16v16H4z"/></svg>`;
+const SQUARE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16v16H4z"/></svg>`;
 
 function svgSource(url: string) {
   return classifyIconSource({ iconUrl: url, iconImageType: "image/svg+xml" });
@@ -35,39 +32,15 @@ async function settle() {
 describe("iconRegistry", () => {
   beforeEach(() => {
     iconRegistry.reset();
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() => Promise.resolve(new Response(REMOTE_SVG))),
-    );
-  });
-  afterEach(() => {
-    vi.unstubAllGlobals();
   });
 
   it("starts with an empty snapshot", () => {
     expect(iconRegistry.getSnapshot().size).toBe(0);
   });
 
-  it("resolves a raster icon to its url without fetching", async () => {
-    const source = classifyIconSource({
-      iconUrl: "data:image/png;base64,QUJD",
-      iconImageType: "image/png",
-    });
-    iconRegistry.request([source]);
-    await settle();
-
-    expect(iconRegistry.getSnapshot().get(iconSourceId(source)!)).toStrictEqual(
-      {
-        kind: "raster",
-        url: "data:image/png;base64,QUJD",
-      },
-    );
-    expect(fetch).not.toBeCalled();
-  });
-
   // A url needs no resolution, so making the consumer wait a render for it
   // would be a pointless async round trip.
-  it("resolves a raster icon synchronously", () => {
+  it("resolves a raster icon to its url synchronously", () => {
     const source = classifyIconSource({
       iconUrl: "data:image/png;base64,QUJD",
       iconImageType: "image/png",
@@ -75,22 +48,43 @@ describe("iconRegistry", () => {
 
     iconRegistry.request([source]);
 
-    expect(iconRegistry.getSnapshot().has(iconSourceId(source)!)).toBe(true);
+    expect(iconRegistry.getSnapshot().get(iconSourceId(source)!)).toStrictEqual(
+      { kind: "raster", url: "data:image/png;base64,QUJD" },
+    );
     expect(iconRegistry.pendingCount).toBe(0);
   });
 
-  it("fetches and sanitizes a remote svg", async () => {
-    const source = svgSource("https://example.test/a.svg");
+  // The markup is already in the data url, so there is nothing to wait for.
+  it("decodes and sanitizes an svg data url synchronously", () => {
+    const source = svgSource(createSvgIconDataUrl(SQUARE_SVG));
+
     iconRegistry.request([source]);
-    await settle();
 
     const resolved = iconRegistry.getSnapshot().get(iconSourceId(source)!);
-    expect(resolved?.kind).toBe("svg");
-    expect(resolved).toMatchObject({ svg: expect.stringContaining("<path") });
-    expect(fetch).toBeCalledTimes(1);
+    expect(resolved).toMatchObject({
+      kind: "svg",
+      svg: expect.stringContaining('d="M4 4h16v16H4z"'),
+    });
+    expect(iconRegistry.pendingCount).toBe(0);
   });
 
-  it("resolves a lucide icon to svg markup without fetching", async () => {
+  // The uploader base64-encodes the file's bytes, so text must be decoded as
+  // UTF-8 rather than one character per byte.
+  it("decodes non-ascii svg text as utf-8", () => {
+    const source = svgSource(
+      createSvgIconDataUrl(
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><text>Café ☕</text></svg>`,
+      ),
+    );
+
+    iconRegistry.request([source]);
+
+    expect(iconRegistry.getSnapshot().get(iconSourceId(source)!)).toMatchObject(
+      { svg: expect.stringContaining("Café ☕") },
+    );
+  });
+
+  it("resolves a lucide icon to svg markup", async () => {
     const source = lucideSource("plane");
     iconRegistry.request([source]);
     await settle();
@@ -99,12 +93,10 @@ describe("iconRegistry", () => {
     expect(resolved?.kind).toBe("svg");
     // The registry relies on lucide markup carrying its own viewBox.
     expect(resolved?.kind === "svg" && resolved.svg).toContain("viewBox=");
-    expect(fetch).not.toBeCalled();
   });
 
-  it("ignores sources with no icon", async () => {
+  it("ignores sources with no icon", () => {
     iconRegistry.request([{ kind: "none" }]);
-    await settle();
 
     expect(iconRegistry.getSnapshot().size).toBe(0);
   });
@@ -117,156 +109,105 @@ describe("iconRegistry", () => {
     expect(iconRegistry.getSnapshot().has(iconSourceId(source)!)).toBe(false);
   });
 
+  // A non-svg payload sanitizes to markup that is not an svg; rendering it
+  // would show a broken image rather than no icon.
+  it("omits an svg data url whose payload is not an svg", () => {
+    const source = svgSource(createSvgIconDataUrl("<html>Not an svg</html>"));
+
+    iconRegistry.request([source]);
+
+    expect(iconRegistry.getSnapshot().has(iconSourceId(source)!)).toBe(false);
+  });
+
+  // The allowlist checks only the prefix, so the payload can still be corrupt.
+  it("omits an svg data url whose payload is not valid base64", () => {
+    const source = svgSource("data:image/svg+xml;base64,not*base64");
+
+    iconRegistry.request([source]);
+
+    expect(iconRegistry.getSnapshot().has(iconSourceId(source)!)).toBe(false);
+  });
+
+  // The canvas requests on every render, and every failure left is
+  // deterministic, so retrying one only repeats the work and the warning.
+  it("does not retry an svg that failed to resolve", () => {
+    const warn = vi.spyOn(logger, "warn").mockImplementation(() => {});
+    const source = svgSource(createSvgIconDataUrl("<html>Not an svg</html>"));
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      iconRegistry.request([source]);
+    }
+
+    expect(warn).toBeCalledTimes(1);
+  });
+
+  it("does not retry an unknown lucide name", async () => {
+    const warn = vi.spyOn(logger, "warn").mockImplementation(() => {});
+    const source = lucideSource("not-a-real-icon-name-xyz");
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      iconRegistry.request([source]);
+      await settle();
+    }
+
+    expect(warn).toBeCalledTimes(1);
+  });
+
   // The whole point of the registry: identity-keyed, so N vertex types sharing
   // one icon do the work once, across every surface that asks for it.
-  it("resolves each unique icon exactly once no matter how often it is requested", async () => {
-    const source = svgSource("https://example.test/a.svg");
+  it("keeps one entry per unique icon no matter how often it is requested", () => {
+    const url = createSvgIconDataUrl(SQUARE_SVG);
 
-    iconRegistry.request([source, source, source]);
-    iconRegistry.request([svgSource("https://example.test/a.svg")]);
-    await settle();
-    iconRegistry.request([source]);
-    await settle();
+    iconRegistry.request([svgSource(url), svgSource(url)]);
+    const first = iconRegistry.getSnapshot();
+    iconRegistry.request([svgSource(url)]);
 
-    expect(fetch).toBeCalledTimes(1);
+    expect(first.size).toBe(1);
+    expect(iconRegistry.getSnapshot()).toBe(first);
   });
 
   it("dedupes in flight requests for the same icon", async () => {
-    let release!: (value: Response) => void;
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() => new Promise<Response>(resolve => (release = resolve))),
-    );
+    iconRegistry.request([lucideSource("plane")]);
+    iconRegistry.request([lucideSource("plane")]);
 
-    iconRegistry.request([svgSource("https://example.test/slow.svg")]);
-    iconRegistry.request([svgSource("https://example.test/slow.svg")]);
-
-    expect(fetch).toBeCalledTimes(1);
-    release(new Response(REMOTE_SVG));
+    expect(iconRegistry.pendingCount).toBe(1);
     await settle();
-  });
-
-  // A failed fetch must NOT be cached, or a transient network blip would
-  // permanently blank an icon for the life of the page.
-  it("retries a failed icon on the next request", async () => {
-    const failing = vi.fn(() => Promise.reject(new Error("network down")));
-    vi.stubGlobal("fetch", failing);
-
-    const source = svgSource("https://example.test/flaky.svg");
-    iconRegistry.request([source]);
-    await settle();
-
-    expect(iconRegistry.getSnapshot().has(iconSourceId(source)!)).toBe(false);
-
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() => Promise.resolve(new Response(REMOTE_SVG))),
-    );
-    iconRegistry.request([source]);
-    await settle();
-
-    expect(iconRegistry.getSnapshot().has(iconSourceId(source)!)).toBe(true);
-  });
-
-  // Bounded, so a permanently broken icon stops re-fetching on every render.
-  it("stops retrying a failed icon after three attempts", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() => Promise.reject(new Error("network down"))),
-    );
-    const source = svgSource("https://example.test/broken.svg");
-
-    for (let attempt = 0; attempt < 5; attempt++) {
-      iconRegistry.request([source]);
-      await settle();
-    }
-
-    expect(fetch).toBeCalledTimes(3);
-  });
-
-  // A 404 body sanitizes to markup that is not an svg; rendering it would show
-  // a broken image rather than no icon.
-  it("rejects a response that is not svg", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() => Promise.resolve(new Response("<html>Not Found</html>"))),
-    );
-    const source = svgSource("https://example.test/missing.svg");
-
-    iconRegistry.request([source]);
-    await settle();
-
-    expect(iconRegistry.getSnapshot().has(iconSourceId(source)!)).toBe(false);
-  });
-
-  // `fetch` does not reject on 404, so this failure never throws. It still has
-  // to be counted, or the icon re-fetches on every render forever.
-  it("stops retrying a 404 after three attempts", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() => Promise.resolve(new Response("<html>Not Found</html>"))),
-    );
-    const source = svgSource("https://example.test/missing.svg");
-
-    for (let attempt = 0; attempt < 5; attempt++) {
-      iconRegistry.request([source]);
-      await settle();
-    }
-
-    expect(fetch).toBeCalledTimes(3);
-  });
-
-  it("stops retrying an unknown lucide name after three attempts", async () => {
-    const source = lucideSource("not-a-real-icon-name-xyz");
-
-    for (let attempt = 0; attempt < 5; attempt++) {
-      iconRegistry.request([source]);
-      await settle();
-    }
-
-    expect(iconRegistry.getSnapshot().has(iconSourceId(source)!)).toBe(false);
   });
 
   // Without this, a resolution started by one test lands in the next one.
   it("discards a resolution that lands after a reset", async () => {
-    let release!: (value: Response) => void;
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() => new Promise<Response>(resolve => (release = resolve))),
-    );
-    const source = svgSource("https://example.test/slow.svg");
-
-    iconRegistry.request([source]);
+    iconRegistry.request([lucideSource("plane")]);
     iconRegistry.reset();
-    release(new Response(REMOTE_SVG));
-    await vi.waitFor(() => expect(fetch).toBeCalledTimes(1));
+    // Same module record as the registry's import, so once this settles the
+    // registry's resolution has run too.
+    await dynamicIconImports.plane();
+    await new Promise(resolve => setTimeout(resolve, 0));
 
     expect(iconRegistry.getSnapshot().size).toBe(0);
   });
 
-  it("notifies subscribers when an icon resolves and stops after unsubscribe", async () => {
+  it("notifies subscribers when an icon resolves and stops after unsubscribe", () => {
     const listener = vi.fn();
     const unsubscribe = iconRegistry.subscribe(listener);
 
-    iconRegistry.request([svgSource("https://example.test/a.svg")]);
-    await settle();
+    iconRegistry.request([svgSource(createSvgIconDataUrl(SQUARE_SVG))]);
     expect(listener).toBeCalled();
 
     unsubscribe();
     listener.mockClear();
-    iconRegistry.request([svgSource("https://example.test/b.svg")]);
-    await settle();
+    iconRegistry.request([
+      svgSource(createSvgIconDataUrl(`${SQUARE_SVG}<!-- b -->`)),
+    ]);
     expect(listener).not.toBeCalled();
   });
 
   // useSyncExternalStore bails out on reference equality, so the snapshot must
   // be a NEW map when something resolved and the SAME map when nothing did.
-  it("returns a stable snapshot reference until something changes", async () => {
+  it("returns a stable snapshot reference until something changes", () => {
     const before = iconRegistry.getSnapshot();
     expect(iconRegistry.getSnapshot()).toBe(before);
 
-    iconRegistry.request([svgSource("https://example.test/a.svg")]);
-    await settle();
+    iconRegistry.request([svgSource(createSvgIconDataUrl(SQUARE_SVG))]);
 
     const after = iconRegistry.getSnapshot();
     expect(after).not.toBe(before);
@@ -283,18 +224,10 @@ describe("sanitizes a user-supplied svg before storing it", () => {
   beforeEach(() => {
     iconRegistry.reset();
   });
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
 
-  async function resolveCustomSvg(svgContent: string) {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() => Promise.resolve(new Response(svgContent))),
-    );
-    const source = svgSource("https://example.test/custom.svg");
+  function resolveCustomSvg(svgContent: string) {
+    const source = svgSource(createSvgIconDataUrl(svgContent));
     iconRegistry.request([source]);
-    await vi.waitFor(() => expect(iconRegistry.pendingCount).toBe(0));
     const resolved = iconRegistry.getSnapshot().get(iconSourceId(source)!);
     expect(resolved?.kind).toBe("svg");
     return (resolved as { kind: "svg"; svg: string }).svg;
@@ -306,8 +239,8 @@ describe("sanitizes a user-supplied svg before storing it", () => {
   // from the profile sets), so it reads as load-bearing while doing nothing,
   // and any attribute it omitted would silently vanish if the profiles were
   // ever dropped.
-  it("preserves the geometry and path attributes an icon needs to scale", async () => {
-    const svg = await resolveCustomSvg(
+  it("preserves the geometry and path attributes an icon needs to scale", () => {
+    const svg = resolveCustomSvg(
       `<svg xmlns="http://www.w3.org/2000/svg" width="401" height="102" viewBox="0 0 403 104" preserveAspectRatio="xMidYMid meet"><path d="M0 0h405v106H0z" stroke-width="7" transform="translate(9 9)"/><polyline points="1,1 11,11"/></svg>`,
     );
 
@@ -325,8 +258,8 @@ describe("sanitizes a user-supplied svg before storing it", () => {
     expect(svg).toContain('points="1,1 11,11"');
   });
 
-  it("strips a <script> element but keeps the rest of the drawing", async () => {
-    const svg = await resolveCustomSvg(
+  it("strips a <script> element but keeps the rest of the drawing", () => {
+    const svg = resolveCustomSvg(
       `<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script><rect width="5" height="5"/></svg>`,
     );
 
@@ -334,8 +267,8 @@ describe("sanitizes a user-supplied svg before storing it", () => {
     expect(svg).toContain("<rect");
   });
 
-  it("strips an event-handler attribute but keeps the element", async () => {
-    const svg = await resolveCustomSvg(
+  it("strips an event-handler attribute but keeps the element", () => {
+    const svg = resolveCustomSvg(
       `<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"><rect width="5" height="5"/></svg>`,
     );
 
@@ -343,8 +276,8 @@ describe("sanitizes a user-supplied svg before storing it", () => {
     expect(svg).toContain("<rect");
   });
 
-  it("strips a <foreignObject> but keeps the rest of the drawing", async () => {
-    const svg = await resolveCustomSvg(
+  it("strips a <foreignObject> but keeps the rest of the drawing", () => {
+    const svg = resolveCustomSvg(
       `<svg xmlns="http://www.w3.org/2000/svg"><foreignObject width="10" height="10"><span xmlns="http://www.w3.org/1999/xhtml">hi</span></foreignObject><rect width="5" height="5"/></svg>`,
     );
 
@@ -352,8 +285,8 @@ describe("sanitizes a user-supplied svg before storing it", () => {
     expect(svg).toContain("<rect");
   });
 
-  it("preserves an inline <style> element", async () => {
-    const svg = await resolveCustomSvg(
+  it("preserves an inline <style> element", () => {
+    const svg = resolveCustomSvg(
       `<svg xmlns="http://www.w3.org/2000/svg"><style>.x{fill:red}</style><rect width="5" height="5"/></svg>`,
     );
 
@@ -361,16 +294,13 @@ describe("sanitizes a user-supplied svg before storing it", () => {
     expect(svg).toContain("<rect");
   });
 
-  it("preserves an external <image href> without fetching it", async () => {
+  // The sandboxed image document is what stops the browser loading it.
+  it("preserves an external <image href>", () => {
     const externalHref = "http://external.example/icon.png";
-    const svg = await resolveCustomSvg(
+    const svg = resolveCustomSvg(
       `<svg xmlns="http://www.w3.org/2000/svg"><image href="${externalHref}"/><rect width="5" height="5"/></svg>`,
     );
 
     expect(svg).toContain(externalHref);
-    // Only the icon itself is fetched; the sandbox is what stops the browser
-    // loading the nested reference.
-    expect(fetch).toBeCalledTimes(1);
-    expect(fetch).not.toBeCalledWith(externalHref);
   });
 });

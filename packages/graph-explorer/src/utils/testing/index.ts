@@ -18,4 +18,5 @@ export * from "./randomSchemaResponse";
 export * from "./renderHookWithJotai";
 export * from "./sparqlHelpers";
 export * from "./stubDocumentUrl";
+export * from "./svgIconDataUrl";
 export * from "./waitForValueToChange";

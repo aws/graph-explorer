@@ -10,14 +10,6 @@ export type ResolvedIcon =
   | { kind: "svg"; svg: string };
 
 /**
- * Bounded so a permanently broken icon stops re-fetching, but not one-shot: a
- * single transient failure must not blank an icon for the life of the page.
- * Attempts run back to back with no backoff, so this is a cap on wasted work
- * rather than a recovery strategy for a flaky endpoint.
- */
-const MAX_ATTEMPTS = 3;
-
-/**
  * Identity-keyed store of resolved icons, shared by every surface that draws a
  * vertex icon.
  *
@@ -28,7 +20,8 @@ const MAX_ATTEMPTS = 3;
 class IconRegistry {
   #resolved: ReadonlyMap<IconSourceId, ResolvedIcon> = new Map();
   #inFlight = new Set<IconSourceId>();
-  #failures = new Map<IconSourceId, number>();
+  /** Every icon value is a lucide name or a data url, so a failure is final. */
+  #unresolvable = new Set<IconSourceId>();
   #listeners = new Set<() => void>();
   #epoch = 0;
 
@@ -40,31 +33,41 @@ class IconRegistry {
     return () => this.#listeners.delete(listener);
   };
 
-  /** Resolutions still running. Tests only. */
+  /** Lucide resolutions still running. Tests only. */
   get pendingCount(): number {
     return this.#inFlight.size;
   }
 
-  /** Idempotent: starts only what is neither resolved, running, nor exhausted. */
+  /**
+   * Idempotent: starts only what is neither resolved, running, nor known to
+   * fail. Everything but a lucide icon resolves before this returns, so the
+   * consumer does not wait a render for markup it already has.
+   */
   request(sources: Iterable<IconSource>): void {
     let next: Map<IconSourceId, ResolvedIcon> | undefined;
 
     for (const source of sources) {
       const id = iconSourceId(source);
-      if (id === null || this.#resolved.has(id) || this.#inFlight.has(id)) {
+      if (
+        id === null ||
+        this.#resolved.has(id) ||
+        this.#inFlight.has(id) ||
+        this.#unresolvable.has(id)
+      ) {
         continue;
       }
-      if (source.kind === "raster") {
-        // A url needs no work, so resolve it now rather than a render later.
-        next ??= new Map(this.#resolved);
-        next.set(id, { kind: "raster", url: source.url });
+      if (source.kind === "lucide") {
+        this.#inFlight.add(id);
+        void this.#resolveLucide(id, source.name, this.#epoch);
         continue;
       }
-      if ((this.#failures.get(id) ?? 0) >= MAX_ATTEMPTS) {
+      const resolved = resolveDataSource(source);
+      if (resolved === null) {
+        this.#unresolvable.add(id);
         continue;
       }
-      this.#inFlight.add(id);
-      void this.#resolve(id, source, this.#epoch);
+      next ??= new Map(this.#resolved);
+      next.set(id, resolved);
     }
 
     if (next) {
@@ -85,37 +88,27 @@ class IconRegistry {
     this.#epoch++;
     this.#resolved = new Map();
     this.#inFlight.clear();
-    this.#failures.clear();
+    this.#unresolvable.clear();
   }
 
-  async #resolve(
+  async #resolveLucide(
     id: IconSourceId,
-    source: IconSource,
+    name: string,
     epoch: number,
   ): Promise<void> {
-    try {
-      const resolved = await resolveIconSource(source);
-      if (epoch !== this.#epoch) {
-        return;
-      }
-      if (resolved) {
-        this.#resolved = new Map(this.#resolved).set(id, resolved);
-        this.#failures.delete(id);
-      } else {
-        this.#countFailure(id);
-      }
-    } catch (e) {
-      if (epoch !== this.#epoch) {
-        return;
-      }
-      this.#countFailure(id);
-      logger.error("Failed to resolve icon", e, id);
-    } finally {
-      if (epoch === this.#epoch) {
-        this.#inFlight.delete(id);
-        this.#notify();
-      }
+    const svg = await getLucideSvgString(name);
+    if (epoch !== this.#epoch) {
+      return;
     }
+    this.#inFlight.delete(id);
+    if (svg === null) {
+      logger.warn("Unknown lucide icon", name);
+      this.#unresolvable.add(id);
+      return;
+    }
+    // Lucide markup always carries a viewBox.
+    this.#resolved = new Map(this.#resolved).set(id, { kind: "svg", svg });
+    this.#notify();
   }
 
   #notify(): void {
@@ -123,37 +116,49 @@ class IconRegistry {
       listener();
     }
   }
-
-  /** A failure is never stored as a result, so the count is what bounds retries. */
-  #countFailure(id: IconSourceId): void {
-    this.#failures.set(id, (this.#failures.get(id) ?? 0) + 1);
-  }
 }
 
 export const iconRegistry = new IconRegistry();
 
-async function resolveIconSource(
-  source: IconSource,
-): Promise<ResolvedIcon | null> {
+function resolveDataSource(
+  source: Exclude<IconSource, { kind: "lucide" }>,
+): ResolvedIcon | null {
   switch (source.kind) {
     case "none":
       return null;
     case "raster":
       return { kind: "raster", url: source.url };
-    case "lucide": {
-      const raw = await getLucideSvgString(source.name);
-      if (raw === null) {
-        logger.warn("Unknown lucide icon", source.name);
-        return null;
-      }
-      // Lucide markup always carries a viewBox.
-      return { kind: "svg", svg: raw };
-    }
     case "svg": {
       // Untrusted: a user-supplied SVG, sanitized before it is used anywhere.
-      const response = await fetch(source.url);
-      const svg = sanitizeSvg(await response.text());
-      return svg === null ? null : { kind: "svg", svg };
+      const markup = decodeBase64DataUrl(source.url);
+      const svg = markup === null ? null : sanitizeSvg(markup);
+      if (svg === null) {
+        logger.warn("Unusable svg icon");
+        return null;
+      }
+      return { kind: "svg", svg };
     }
   }
+}
+
+const BASE64_MARKER = ";base64,";
+
+/**
+ * The UTF-8 text of a base64 `data:` url, or `null` when it does not decode.
+ * The icon allowlist checks only the prefix, so the payload is unvalidated.
+ */
+function decodeBase64DataUrl(url: string): string | null {
+  const markerAt = url.indexOf(BASE64_MARKER);
+  if (!url.startsWith("data:") || markerAt === -1) {
+    return null;
+  }
+  let binary: string;
+  try {
+    binary = atob(url.slice(markerAt + BASE64_MARKER.length));
+  } catch {
+    return null;
+  }
+  return new TextDecoder().decode(
+    Uint8Array.from(binary, char => char.charCodeAt(0)),
+  );
 }

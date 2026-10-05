@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import { QueryClient } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vite-plus/test";
 
 import type { TextTransformer } from "@/hooks";
@@ -12,7 +12,6 @@ import {
   getAppStore,
   type VertexStyle,
 } from "@/core";
-import { iconRegistry } from "@/core/icons";
 import { TestProvider } from "@/utils/testing/renderHookWithJotai";
 
 import { VertexPreview } from "./VertexPreview";
@@ -33,24 +32,15 @@ function renderPreview(style: VertexStyle, transform?: TextTransformer) {
   );
 }
 
-/**
- * The symbol resolves its icon asynchronously, so let that settle before
- * asserting — otherwise the update lands outside `act`.
- */
-async function settleIcon() {
-  await waitFor(() => expect(iconRegistry.pendingCount).toBe(0));
-}
-
 describe("VertexPreview", () => {
-  it("labels the type and a placeholder for the id-derived name", async () => {
+  it("labels the type and a placeholder for the id-derived name", () => {
     renderPreview(vertexStyle({ displayNameAttribute: "~id" }));
-    await settleIcon();
 
     expect(screen.getByText("Person")).toBeInTheDocument();
     expect(screen.getByText("<id>")).toBeInTheDocument();
   });
 
-  it("uses the display type override and names a data attribute as a placeholder", async () => {
+  it("uses the display type override and names a data attribute as a placeholder", () => {
     renderPreview(
       vertexStyle({
         type: createVertexType("http://x/Person"),
@@ -58,7 +48,6 @@ describe("VertexPreview", () => {
         displayNameAttribute: "name",
       }),
     );
-    await settleIcon();
 
     expect(screen.getByText("Human")).toBeInTheDocument();
     expect(screen.getByText("<name>")).toBeInTheDocument();
@@ -68,14 +57,13 @@ describe("VertexPreview", () => {
     ).toBeInTheDocument();
   });
 
-  it("leaves the type untransformed by default", async () => {
+  it("leaves the type untransformed by default", () => {
     renderPreview(vertexStyle({ type: createVertexType("http://x/Person") }));
-    await settleIcon();
 
     expect(screen.getByText("http://x/Person")).toBeInTheDocument();
   });
 
-  it("applies a provided transform to the type and placeholder", async () => {
+  it("applies a provided transform to the type and placeholder", () => {
     renderPreview(
       vertexStyle({
         type: createVertexType("http://x/Person"),
@@ -83,7 +71,6 @@ describe("VertexPreview", () => {
       }),
       text => text.replace("http://x/", "x:"),
     );
-    await settleIcon();
 
     expect(screen.getByText("x:Person")).toBeInTheDocument();
     expect(screen.getByText("<x:name>")).toBeInTheDocument();

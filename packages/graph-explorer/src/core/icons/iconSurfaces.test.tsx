@@ -1,14 +1,7 @@
 // @vitest-environment jsdom
 
 import { render, renderHook, waitFor } from "@testing-library/react";
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vite-plus/test";
+import { describe, expect, it } from "vite-plus/test";
 
 import { VertexSymbol } from "@/components/VertexSymbol/VertexSymbol";
 import {
@@ -17,11 +10,16 @@ import {
   type VertexStyle,
 } from "@/core";
 import { useBackgroundImageMap } from "@/modules/GraphViewer/useBackgroundImageMap";
+import { createSvgIconDataUrl } from "@/utils/testing";
 
 import { iconRegistry } from "./iconRegistry";
 
-const REMOTE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16v16H4z"/></svg>`;
-const SHARED_ICON = "https://example.test/shared.svg";
+const SHARED_ICON = createSvgIconDataUrl(
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16v16H4z"/></svg>`,
+);
+const OTHER_ICON = createSvgIconDataUrl(
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>`,
+);
 
 function style(overrides: Partial<VertexStyle>): VertexStyle {
   return {
@@ -34,28 +32,19 @@ function style(overrides: Partial<VertexStyle>): VertexStyle {
 }
 
 describe("icon resolution across surfaces", () => {
-  beforeEach(() => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() => Promise.resolve(new Response(REMOTE_SVG))),
-    );
-  });
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
   // The DOM surface and the canvas are keyed by icon identity in one registry,
-  // so the same icon is fetched once no matter how many surfaces want it.
-  it("fetches a shared icon once for both the canvas and a vertex symbol", async () => {
+  // so the same icon is resolved once no matter how many surfaces want it.
+  it("resolves a shared icon once for both the canvas and a vertex symbol", async () => {
     const canvas = renderHook(() =>
       useBackgroundImageMap([style({ type: createVertexType("A") })]),
     );
     await waitFor(() => expect(canvas.result.current.size).toBe(1));
+    const resolved = iconRegistry.getSnapshot();
 
     render(<VertexSymbol vertexStyle={style({})} />);
     await waitFor(() => expect(iconRegistry.pendingCount).toBe(0));
 
-    expect(fetch).toBeCalledTimes(1);
+    expect(iconRegistry.getSnapshot()).toBe(resolved);
   });
 
   // A set-shaped cache key made adding one vertex type re-resolve every icon.
@@ -66,19 +55,16 @@ describe("icon resolution across surfaces", () => {
       { initialProps: first },
     );
     await waitFor(() => expect(result.current.size).toBe(1));
-    expect(fetch).toBeCalledTimes(1);
+    const [sharedEntry] = iconRegistry.getSnapshot().values();
 
     rerender([
       ...first,
-      style({
-        type: createVertexType("B"),
-        iconUrl: "https://example.test/other.svg",
-      }),
+      style({ type: createVertexType("B"), iconUrl: OTHER_ICON }),
     ]);
     await waitFor(() => expect(result.current.size).toBe(2));
 
-    // One additional fetch for the new icon, not two for the whole set.
-    expect(fetch).toBeCalledTimes(2);
+    // The new icon is added alongside the existing entry, not in place of it.
+    expect([...iconRegistry.getSnapshot().values()]).toContain(sharedEntry);
   });
 
   // Issue #2108: a non-square custom icon (a wide logo, say) must keep its
@@ -88,22 +74,13 @@ describe("icon resolution across surfaces", () => {
   // `preserveAspectRatio` has no ratio to fit and the icon fills the padded box
   // square. So this covers viewBox synthesis end to end.
   it("carries a synthesized viewBox through to the canvas image for a wide custom icon", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() =>
-        Promise.resolve(
-          new Response(
-            `<svg width="400" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="100"/></svg>`,
-          ),
-        ),
-      ),
-    );
-
     const canvas = renderHook(() =>
       useBackgroundImageMap([
         style({
           type: createVertexType("Wide"),
-          iconUrl: "data:image/svg+xml;base64,d2lkZS1sb2dv",
+          iconUrl: createSvgIconDataUrl(
+            `<svg width="400" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="100"/></svg>`,
+          ),
         }),
       ]),
     );
