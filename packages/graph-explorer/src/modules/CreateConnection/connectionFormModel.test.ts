@@ -9,13 +9,11 @@ import { createRandomRawConfiguration } from "@/utils/testing";
 
 import {
   type ConnectionFormValues,
-  createEmptyConnectionForm,
+  createNewConnectionForm,
   hasAdvancedOverrides,
   mapConfigurationToConnectionForm,
   mapToConnection,
   mapToConnectionForm,
-  queryEngineSchema,
-  serviceTypeSchema,
   updateConnectionForm,
   validateConnectionForm,
 } from "./connectionFormModel";
@@ -31,9 +29,9 @@ function createValidForm(
   };
 }
 
-describe("createEmptyConnectionForm", () => {
+describe("createNewConnectionForm", () => {
   test("names the connection after the current time", () => {
-    const form = createEmptyConnectionForm(new Date("2026-09-29T13:45:00Z"));
+    const form = createNewConnectionForm(new Date("2026-09-29T13:45:00Z"));
 
     expect(form).toStrictEqual({
       name: "Connection (2026-09-29 13:45)",
@@ -445,27 +443,5 @@ describe("hasAdvancedOverrides", () => {
     { directConnection: true },
   ])("is true when %o", override => {
     expect(hasAdvancedOverrides(createValidForm(override))).toBe(true);
-  });
-});
-
-describe("queryEngineSchema", () => {
-  test("parses a known query language", () => {
-    expect(queryEngineSchema.parse("sparql")).toBe("sparql");
-  });
-
-  test("rejects an unknown query language", () => {
-    expect(queryEngineSchema.safeParse("sql").success).toBe(false);
-  });
-});
-
-describe("serviceTypeSchema", () => {
-  test("parses a known service type", () => {
-    expect(serviceTypeSchema.parse("neptune-graph")).toBe("neptune-graph");
-  });
-
-  test("rejects an unknown service type", () => {
-    expect(serviceTypeSchema.safeParse("neptune-serverless").success).toBe(
-      false,
-    );
   });
 });

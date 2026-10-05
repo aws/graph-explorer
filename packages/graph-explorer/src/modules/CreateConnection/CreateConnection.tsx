@@ -32,7 +32,7 @@ import { logger } from "@/utils";
 
 import {
   type ConnectionFormValues,
-  createEmptyConnectionForm,
+  createNewConnectionForm,
   hasAdvancedOverrides,
   mapToConnection,
   mapConfigurationToConnectionForm,
@@ -149,7 +149,7 @@ const CreateConnection = ({
   const [form, setForm] = useState<ConnectionFormValues>(() =>
     existingConfig
       ? mapConfigurationToConnectionForm(existingConfig)
-      : (initialValues ?? createEmptyConnectionForm(new Date())),
+      : (initialValues ?? createNewConnectionForm(new Date())),
   );
   const [showErrors, setShowErrors] = useState(false);
 

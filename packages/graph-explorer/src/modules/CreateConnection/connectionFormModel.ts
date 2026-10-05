@@ -48,7 +48,7 @@ export type ConnectionFormValidation =
   | { valid: false; errors: ConnectionFormErrors };
 
 /** Form values for a new connection, named after when it was started. */
-export function createEmptyConnectionForm(now: Date): ConnectionFormValues {
+export function createNewConnectionForm(now: Date): ConnectionFormValues {
   return mapToConnectionForm(
     `Connection (${formatDate(now, "yyyy-MM-dd HH:mm")})`,
     undefined,
