@@ -67,6 +67,7 @@ export * from "./PersistenceStatusIndicator/PersistenceStatusIndicator";
 
 export * from "./Toaster";
 
+export * from "./RadioGroup";
 export * from "./RouteButton";
 export * from "./SchemaDiscoveryBoundary";
 export * from "./Spinner";

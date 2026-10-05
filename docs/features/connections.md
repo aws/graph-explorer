@@ -11,15 +11,17 @@ For guides on connecting to specific databases, see [Connecting to databases](..
 - **Name:** Enter a name for your connection (e.g., `MyNeptuneCluster`).
 - **Database URL:** Provide the endpoint URL for your graph database (e.g., `https://[NEPTUNE_ENDPOINT]:8182`). Ensure that the URL does not end with `/`.
 - **Query Language:** Choose a query language that corresponds to your graph database.
-- **Use AWS IAM authentication:** Check this box if connecting to Amazon Neptune using IAM Auth and SigV4 signed requests. Checking it reveals the **AWS Region** and **Service Type** fields.
+- **Connection method:** Choose how requests reach the database.
+  - **Via proxy server** (default): the Graph Explorer server sends requests to your database. This works with Amazon Neptune, supports IAM authentication, query cancellation, and server-side logging, and needs no CORS setup on the database.
+  - **Directly via browser:** your browser sends requests to the database itself. The database must allow cross-origin requests (CORS) from the Graph Explorer page, and IAM authentication, query cancellation, and server-side logging aren't available. When Graph Explorer is served over HTTPS, the browser usually blocks an `http://` Database URL unless it points at a loopback host such as `localhost`; see [Insecure Database URL](../guides/troubleshooting.md#insecure-database-url). Use it for databases that only your browser can reach, or that already allow CORS.
+- **Use AWS IAM authentication:** Available with **Via proxy server**. Check this box if connecting to Amazon Neptune using IAM Auth and SigV4 signed requests. The Graph Explorer server signs requests with its own AWS credentials, not yours. Checking it reveals the **AWS Region** and **Service Type** fields.
 - **AWS Region:** Specify the AWS region where the Neptune cluster is hosted (e.g., us-east-1).
 - **Service Type:** Choose the service type: **Neptune DB** or **Neptune Analytics**.
 
-The next three settings are grouped under an **Advanced options** section that you expand to reach. It starts expanded when the connection you are editing already overrides one of them, so an existing override is never hidden from you.
+The next two settings are grouped under an **Advanced options** section that you expand to reach. It starts expanded when the connection you are editing already overrides one of them, so an existing override is never hidden from you.
 
 - **Fetch Timeout:** Check **Enable Fetch Timeout** to reveal **Fetch Timeout (ms)**, then specify the timeout for the fetch request.
 - **Neighbor Expansion Limit:** Check **Override Default Neighbor Expansion Limit** to reveal this field, then specify the default limit for neighbor expansion. This will override the app setting for neighbor expansion.
-- **Connect directly from the browser:** Check this box to have your browser send requests to the database itself instead of through the Graph Explorer server. The database must allow cross-origin requests (CORS) from the Graph Explorer page, and IAM authentication isn't available, so the IAM fields are hidden. When Graph Explorer is served over HTTPS, the browser usually blocks an `http://` Database URL unless it points at a loopback host such as `localhost`. See [Insecure Database URL](../guides/troubleshooting.md#insecure-database-url).
 
 ## Available Connections
 
@@ -93,7 +95,7 @@ A link matches an existing connection only when its Database URL, query language
 - the same `graphDbUrl` (normalized and compared case-insensitively, so a trailing slash or stray whitespace on either side doesn't prevent a match) and the same `queryEngine`, and
 - the same auth posture: whether IAM is on (a link enables it by providing `awsRegion`), and when it is on, the same `awsRegion` and `serviceType`.
 
-A direct connection (**Connect directly from the browser**) never uses IAM, so a link with `awsRegion` never matches one, while a link without it can. Its requests then go from your browser to the database as they always do, not through the Graph Explorer server.
+A connection that connects **Directly via browser** never uses IAM, so a link with `awsRegion` never matches one, while a link without it can. Its requests then go from your browser to the database as they always do, not through the Graph Explorer server.
 
 Authentication is part of a connection's identity: a link requesting IAM in a region is a _different_ connection from a plaintext one to the same Database URL, and vice versa. A link whose auth posture differs from every existing connection never silently reuses one. It opens the pre-filled create form instead, where you can review the authentication settings before connecting.
 

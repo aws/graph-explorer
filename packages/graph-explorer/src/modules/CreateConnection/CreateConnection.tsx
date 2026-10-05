@@ -37,10 +37,10 @@ import {
   mapToConnection,
   mapSavedConnectionToConnectionForm,
   queryEngineSchema,
-  serviceTypeSchema,
   updateConnectionForm,
   validateConnectionForm,
 } from "./connectionFormModel";
+import { ConnectionMethodField } from "./ConnectionMethodField";
 
 const CONNECTIONS_OP: {
   label: string;
@@ -163,13 +163,7 @@ const CreateConnection = ({
     (value: number | null) =>
       setField(field)(value ?? undefined);
   const setCheckedField =
-    (
-      field:
-        | "awsAuthEnabled"
-        | "fetchTimeoutEnabled"
-        | "nodeExpansionLimitEnabled"
-        | "directConnection",
-    ) =>
+    (field: "fetchTimeoutEnabled" | "nodeExpansionLimitEnabled") =>
     (checked: boolean | "indeterminate") =>
       setField(field)(checked === true);
 
@@ -207,9 +201,9 @@ const CreateConnection = ({
             <InfoTooltip>
               Provide the endpoint URL for your graph database, e.g., an Amazon
               Neptune cluster endpoint, a Gremlin Server URL, or a SPARQL
-              endpoint. Unless you connect directly from the browser, the Graph
-              Explorer server connects to this endpoint, so it must be reachable
-              from the host where Graph Explorer runs.
+              endpoint. Unless the connection method is Directly via browser,
+              the Graph Explorer server connects to this endpoint, so it must be
+              reachable from the host where Graph Explorer runs.
             </InfoTooltip>
           </Label>
           <TextAreaField
@@ -234,46 +228,14 @@ const CreateConnection = ({
           />
         </FormItem>
 
-        {!form.directConnection && (
-          <Label className="cursor-pointer">
-            <Checkbox
-              value="awsAuthEnabled"
-              checked={form.awsAuthEnabled}
-              onCheckedChange={setCheckedField("awsAuthEnabled")}
-            />
-            Use AWS IAM authentication
-          </Label>
-        )}
-        {!form.directConnection && form.awsAuthEnabled && (
-          <>
-            <FormItem>
-              <Label>AWS Region</Label>
-              <InputField
-                aria-label="AWS Region"
-                data-autofocus={true}
-                value={form.awsRegion}
-                onChange={setField("awsRegion")}
-                errorMessage={errors?.awsRegion}
-                placeholder="us-east-1"
-                validationState={errors?.awsRegion ? "invalid" : "valid"}
-              />
-            </FormItem>
-            <FormItem>
-              <Label>Service Type</Label>
-              <SelectField
-                aria-label="Service Type"
-                options={[
-                  { label: "Neptune DB", value: "neptune-db" },
-                  { label: "Neptune Analytics", value: "neptune-graph" },
-                ]}
-                value={form.serviceType}
-                onValueChange={value =>
-                  setField("serviceType")(serviceTypeSchema.parse(value))
-                }
-              />
-            </FormItem>
-          </>
-        )}
+        <ConnectionMethodField
+          directConnection={form.directConnection}
+          awsAuthEnabled={form.awsAuthEnabled}
+          awsRegion={form.awsRegion}
+          serviceType={form.serviceType}
+          regionError={errors?.awsRegion}
+          setField={setField}
+        />
         <Collapsible
           defaultOpen={hasAdvancedOverrides(form)}
           className="group flex flex-col gap-6"
@@ -341,24 +303,6 @@ const CreateConnection = ({
                 />
               </FormItem>
             )}
-            <FormItem>
-              <Label className="cursor-pointer">
-                <Checkbox
-                  value="directConnection"
-                  checked={form.directConnection}
-                  onCheckedChange={setCheckedField("directConnection")}
-                />
-                <span className="flex items-center gap-2">
-                  Connect directly from the browser
-                  <InfoTooltip>
-                    The browser sends requests to the database itself instead of
-                    through the Graph Explorer server. The database must allow
-                    cross-origin requests from this page, and IAM authentication
-                    is not available.
-                  </InfoTooltip>
-                </span>
-              </Label>
-            </FormItem>
           </CollapsibleContent>
         </Collapsible>
       </DialogBody>

@@ -356,7 +356,7 @@ describe("validateConnectionForm", () => {
         valid: false,
         errors: {
           graphDbUrl:
-            "A direct connection needs a full URL starting with http:// or https://",
+            "Directly via browser needs a full URL starting with http:// or https://",
         },
       });
     },
@@ -500,8 +500,13 @@ describe("hasAdvancedOverrides", () => {
   test.each([
     { fetchTimeoutEnabled: true },
     { nodeExpansionLimitEnabled: true },
-    { directConnection: true },
   ])("is true when %o", override => {
     expect(hasAdvancedOverrides(createValidForm(override))).toBe(true);
+  });
+
+  test("is false for a direct connection, which is not an advanced option", () => {
+    expect(
+      hasAdvancedOverrides(createValidForm({ directConnection: true })),
+    ).toBe(false);
   });
 });

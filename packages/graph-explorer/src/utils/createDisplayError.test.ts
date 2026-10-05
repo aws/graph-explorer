@@ -303,7 +303,7 @@ describe("createDisplayError", () => {
     expect(result).toStrictEqual({
       title: "Database not reachable from the browser",
       message:
-        "This direct connection sends requests from the browser, so the database must be running at the Database URL and allow cross-origin requests from this page. Check the URL and the database's CORS settings, or edit the connection and uncheck Connect directly from the browser under Advanced options.",
+        "This connection sends requests directly from the browser, so the database must be running at the Database URL and allow cross-origin requests from this page. Check the URL and the database's CORS settings, or edit the connection and set Connection method to Via proxy server.",
     });
   });
 
@@ -327,7 +327,7 @@ describe("createDisplayError", () => {
     expect(result).toStrictEqual({
       title: "Insecure database URL",
       message:
-        "This page uses HTTPS, so the browser likely blocked the request to this http:// database. Use an https:// Database URL, or edit the connection and uncheck Connect directly from the browser under Advanced options. If your browser allows insecure content for this site, also check that the database is running and allows cross-origin requests from this page.",
+        "This page uses HTTPS, so the browser likely blocked the request to this http:// database. Use an https:// Database URL, or edit the connection and set Connection method to Via proxy server. If your browser allows insecure content for this site, also check that the database is running and allows cross-origin requests from this page.",
     });
   });
 
