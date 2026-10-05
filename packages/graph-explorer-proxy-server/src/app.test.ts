@@ -1,9 +1,20 @@
+import type { Express } from "express";
+import type { Server } from "http";
+
 import fs from "fs";
 import os from "os";
 import path from "path";
 import { Readable } from "stream";
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 
 import { createApp, resolveEndpointUrl } from "./app.ts";
 import { createLogger } from "./logging.ts";
@@ -31,6 +42,36 @@ function createTestApp(
   app.locals.logger = createLogger(createTestEnvironment());
   return app;
 }
+
+const servers = new WeakMap<Express, Server>();
+const openServers: Server[] = [];
+
+/**
+ * Starts the app on an ephemeral port and keeps that port bound until the file
+ * finishes.
+ *
+ * Handed to supertest instead of the app because supertest opens its own server
+ * per request and closes it the moment the response ends. Binding a fresh
+ * ephemeral port that fast means the kernel can hand a port back while the
+ * previous client socket is still closing, which surfaces as ECONNRESET or an
+ * HTTP parse error once CI runs suites in parallel (#2109).
+ */
+function serve(app: Express): Server {
+  const existing = servers.get(app);
+  if (existing) {
+    return existing;
+  }
+  const server = app.listen(0);
+  servers.set(app, server);
+  openServers.push(server);
+  return server;
+}
+
+afterAll(() => {
+  for (const server of openServers) {
+    server.close();
+  }
+});
 
 const graphDbUrl = "https://my-graph-db.example.com:8182";
 
@@ -100,7 +141,7 @@ describe("createApp", () => {
   describe("CORS", () => {
     it("does not allow cross-origin requests by default", async () => {
       const app = createTestApp();
-      const response = await request(app)
+      const response = await request(serve(app))
         .get("/status")
         .set("Origin", "http://example.com");
 
@@ -109,7 +150,7 @@ describe("createApp", () => {
 
     it("does not set CORS headers on preflight by default", async () => {
       const app = createTestApp();
-      const response = await request(app)
+      const response = await request(serve(app))
         .options("/status")
         .set("Origin", "http://example.com")
         .set("Access-Control-Request-Method", "POST");
@@ -119,14 +160,14 @@ describe("createApp", () => {
 
     it("does not set origin header when request has no Origin", async () => {
       const app = createTestApp();
-      const response = await request(app).get("/status");
+      const response = await request(serve(app)).get("/status");
 
       expect(response.headers["access-control-allow-origin"]).toBeUndefined();
     });
 
     it("sets the configured corsOrigin when provided", async () => {
       const app = createTestApp(".", ["https://my-app.example.com"]);
-      const response = await request(app)
+      const response = await request(serve(app))
         .get("/status")
         .set("Origin", "https://my-app.example.com");
 
@@ -137,7 +178,7 @@ describe("createApp", () => {
 
     it("sets the configured origin as a fixed header for single-origin config", async () => {
       const app = createTestApp(".", ["https://my-app.example.com"]);
-      const response = await request(app)
+      const response = await request(serve(app))
         .get("/status")
         .set("Origin", "https://evil.example.com");
 
@@ -151,7 +192,7 @@ describe("createApp", () => {
 
     it("returns the configured origin on preflight regardless of the requesting origin", async () => {
       const app = createTestApp(".", ["https://my-app.example.com"]);
-      const response = await request(app)
+      const response = await request(serve(app))
         .options("/status")
         .set("Origin", "https://evil.example.com")
         .set("Access-Control-Request-Method", "POST");
@@ -166,7 +207,7 @@ describe("createApp", () => {
         "https://app-a.example.com",
         "https://app-b.example.com",
       ]);
-      const response = await request(app)
+      const response = await request(serve(app))
         .get("/status")
         .set("Origin", "https://app-b.example.com");
 
@@ -180,7 +221,7 @@ describe("createApp", () => {
         "https://app-a.example.com",
         "https://app-b.example.com",
       ]);
-      const response = await request(app)
+      const response = await request(serve(app))
         .get("/status")
         .set("Origin", "https://evil.example.com");
 
@@ -189,7 +230,7 @@ describe("createApp", () => {
 
     it("only allows GET and POST methods when corsOrigin is configured", async () => {
       const app = createTestApp(".", ["http://example.com"]);
-      const response = await request(app)
+      const response = await request(serve(app))
         .options("/status")
         .set("Origin", "http://example.com")
         .set("Access-Control-Request-Method", "DELETE");
@@ -199,7 +240,7 @@ describe("createApp", () => {
 
     it("sets preflight max-age cache header when corsOrigin is configured", async () => {
       const app = createTestApp(".", ["http://example.com"]);
-      const response = await request(app)
+      const response = await request(serve(app))
         .options("/status")
         .set("Origin", "http://example.com")
         .set("Access-Control-Request-Method", "POST");
@@ -217,7 +258,7 @@ describe("createApp", () => {
       });
 
       const app = createTestApp();
-      const response = await request(app)
+      const response = await request(serve(app))
         .post("/sparql")
         .set(dbHeaders())
         .send({ query: "SELECT 1" });
@@ -233,14 +274,14 @@ describe("createApp", () => {
 
   it("GET /status returns 200 OK", async () => {
     const app = createTestApp();
-    const response = await request(app).get("/status");
+    const response = await request(serve(app)).get("/status");
     expect(response.status).toBe(200);
     expect(response.text).toBe("OK");
   });
 
   it("unknown routes return 404", async () => {
     const app = createTestApp();
-    const response = await request(app).get("/nonexistent");
+    const response = await request(serve(app)).get("/nonexistent");
     expect(response.status).toBe(404);
   });
 
@@ -253,7 +294,7 @@ describe("createApp", () => {
         JSON.stringify(connectionData),
       );
       const app = createTestApp(tmpDir);
-      const response = await request(app).get("/defaultConnection");
+      const response = await request(serve(app)).get("/defaultConnection");
       expect(response.status).toBe(200);
       expect(response.body).toEqual(connectionData);
     } finally {
@@ -348,7 +389,7 @@ describe("createApp", () => {
 
   it("POST /logger returns error when level header is missing", async () => {
     const app = createTestApp();
-    const response = await request(app)
+    const response = await request(serve(app))
       .post("/logger")
       .set("message", JSON.stringify("test message"));
     expect(response.status).toBe(500);
@@ -356,13 +397,15 @@ describe("createApp", () => {
 
   it("POST /logger returns error when message header is missing", async () => {
     const app = createTestApp();
-    const response = await request(app).post("/logger").set("level", "info");
+    const response = await request(serve(app))
+      .post("/logger")
+      .set("level", "info");
     expect(response.status).toBe(500);
   });
 
   it("POST /logger succeeds with valid level and message", async () => {
     const app = createTestApp();
-    const response = await request(app)
+    const response = await request(serve(app))
       .post("/logger")
       .set("level", "info")
       .set("message", JSON.stringify("test message"));
@@ -374,7 +417,7 @@ describe("createApp", () => {
     "POST /logger accepts %s level",
     async level => {
       const app = createTestApp();
-      const response = await request(app)
+      const response = await request(serve(app))
         .post("/logger")
         .set("level", level)
         .set("message", JSON.stringify("msg"));
@@ -384,7 +427,7 @@ describe("createApp", () => {
 
   it("POST /logger returns error for unknown log level", async () => {
     const app = createTestApp();
-    const response = await request(app)
+    const response = await request(serve(app))
       .post("/logger")
       .set("level", "verbose")
       .set("message", JSON.stringify("msg"));
@@ -395,7 +438,7 @@ describe("createApp", () => {
 
   it("error handling middleware sends structured error response", async () => {
     const app = createTestApp();
-    const response = await request(app)
+    const response = await request(serve(app))
       .post("/logger")
       .set("level", "info")
       .set("message", "not valid json");
@@ -410,7 +453,7 @@ describe("createApp", () => {
     route => {
       it("returns 400 when query is missing but headers are present", async () => {
         const app = createTestApp();
-        const response = await request(app)
+        const response = await request(serve(app))
           .post(`/${route}`)
           .set(dbHeaders())
           .send({});
@@ -419,7 +462,7 @@ describe("createApp", () => {
 
       it("returns 400 when neither query nor db headers are present", async () => {
         const app = createTestApp();
-        const response = await request(app).post(`/${route}`).send({});
+        const response = await request(serve(app)).post(`/${route}`).send({});
         expect(response.status).toBe(400);
       });
 
@@ -427,7 +470,7 @@ describe("createApp", () => {
         mockFetchOnce();
 
         const app = createTestApp();
-        const response = await request(app)
+        const response = await request(serve(app))
           .post(`/${route}`)
           .send({ query: "test query" });
         expect(response.status).toBe(400);
@@ -435,7 +478,7 @@ describe("createApp", () => {
 
       it("returns 400 when graph-db-connection-url is not a valid HTTP URL", async () => {
         const app = createTestApp();
-        const response = await request(app)
+        const response = await request(serve(app))
           .post(`/${route}`)
           .set({ "graph-db-connection-url": "ftp://not-http.example.com" })
           .send({ query: "test query" });
@@ -460,7 +503,7 @@ describe("createApp", () => {
       "$method $route returns 400 without fetching",
       async ({ method, route, body }) => {
         const app = createTestApp();
-        const req = request(app)
+        const req = request(serve(app))
           [method](route)
           .set(dbHeaders({ "graph-db-connection-url": credentialedUrl }));
         const response = body ? await req.send(body) : await req;
@@ -478,7 +521,7 @@ describe("createApp", () => {
 
     it("rejects a URL carrying only a username", async () => {
       const app = createTestApp();
-      const response = await request(app)
+      const response = await request(serve(app))
         .post("/gremlin")
         .set({
           "graph-db-connection-url": "https://someone@my-graph-db.example.com",
@@ -490,7 +533,7 @@ describe("createApp", () => {
 
     it("does not echo the rejected value back to the client", async () => {
       const app = createTestApp();
-      const response = await request(app)
+      const response = await request(serve(app))
         .post("/gremlin")
         .set(dbHeaders({ "graph-db-connection-url": credentialedUrl }))
         .send({ query: "test" });
@@ -502,7 +545,7 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      const response = await request(app)
+      const response = await request(serve(app))
         .post("/gremlin")
         .set(dbHeaders())
         .send({ query: "test" });
@@ -521,7 +564,7 @@ describe("createApp", () => {
       });
 
       const app = createTestApp();
-      const response = await request(app)
+      const response = await request(serve(app))
         .post("/sparql")
         .set(dbHeaders())
         .send({ query: "SELECT * WHERE { ?s ?p ?o }" });
@@ -538,7 +581,10 @@ describe("createApp", () => {
 
       const app = createTestApp();
       const query = "SELECT * WHERE { ?s ?p ?o }";
-      await request(app).post("/sparql").set(dbHeaders()).send({ query });
+      await request(serve(app))
+        .post("/sparql")
+        .set(dbHeaders())
+        .send({ query });
 
       const fetchOptions = fetchOptionsFor("sparql");
       expect(fetchOptions.headers["content-type"]).toBe(
@@ -551,7 +597,7 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      await request(app)
+      await request(serve(app))
         .post("/sparql")
         .set(dbHeaders({ queryid: "q-123" }))
         .send({ query: "SELECT 1" });
@@ -571,7 +617,7 @@ describe("createApp", () => {
       });
 
       const app = createTestApp();
-      const response = await request(app)
+      const response = await request(serve(app))
         .post("/sparql")
         .set(dbHeaders())
         .send({ query: "SELECT 1" });
@@ -584,7 +630,7 @@ describe("createApp", () => {
       mockFetchOnce("Bad Request", 400);
 
       const app = createTestApp();
-      const response = await request(app)
+      const response = await request(serve(app))
         .post("/sparql")
         .set(dbHeaders())
         .send({ query: "INVALID" });
@@ -602,7 +648,7 @@ describe("createApp", () => {
       });
 
       const app = createTestApp();
-      const response = await request(app)
+      const response = await request(serve(app))
         .post("/gremlin")
         .set(dbHeaders())
         .send({ query: "g.V().limit(1)" });
@@ -619,7 +665,10 @@ describe("createApp", () => {
 
       const app = createTestApp();
       const query = "g.V().limit(1)";
-      await request(app).post("/gremlin").set(dbHeaders()).send({ query });
+      await request(serve(app))
+        .post("/gremlin")
+        .set(dbHeaders())
+        .send({ query });
 
       const fetchOptions = fetchOptionsFor("gremlin");
       const body = JSON.parse(fetchOptions.body);
@@ -630,7 +679,7 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      await request(app)
+      await request(serve(app))
         .post("/gremlin")
         .set(dbHeaders({ queryid: "q-456" }))
         .send({ query: "g.V()" });
@@ -644,7 +693,7 @@ describe("createApp", () => {
       mockFetchOnce("Server Error", 500);
 
       const app = createTestApp();
-      const response = await request(app)
+      const response = await request(serve(app))
         .post("/gremlin")
         .set(dbHeaders())
         .send({ query: "g.V()" });
@@ -662,7 +711,7 @@ describe("createApp", () => {
       });
 
       const app = createTestApp();
-      const response = await request(app)
+      const response = await request(serve(app))
         .post("/openCypher")
         .set(dbHeaders())
         .send({ query: "MATCH (n) RETURN n LIMIT 1" });
@@ -679,7 +728,10 @@ describe("createApp", () => {
 
       const app = createTestApp();
       const query = "MATCH (n) RETURN n";
-      await request(app).post("/openCypher").set(dbHeaders()).send({ query });
+      await request(serve(app))
+        .post("/openCypher")
+        .set(dbHeaders())
+        .send({ query });
 
       const fetchOptions = fetchOptionsFor("openCypher");
       expect(fetchOptions.headers["content-type"]).toBe(
@@ -692,7 +744,7 @@ describe("createApp", () => {
       mockFetchOnce("Not Found", 404);
 
       const app = createTestApp();
-      const response = await request(app)
+      const response = await request(serve(app))
         .post("/openCypher")
         .set(dbHeaders())
         .send({ query: "MATCH (n) RETURN n" });
@@ -710,7 +762,9 @@ describe("createApp", () => {
       });
 
       const app = createTestApp();
-      const response = await request(app).get("/summary").set(dbHeaders());
+      const response = await request(serve(app))
+        .get("/summary")
+        .set(dbHeaders());
 
       expect(response.status).toBe(200);
       expect(mockFetch).toHaveBeenCalledWith(
@@ -727,7 +781,7 @@ describe("createApp", () => {
       });
 
       const app = createTestApp();
-      const response = await request(app)
+      const response = await request(serve(app))
         .get("/pg/statistics/summary")
         .set(dbHeaders());
 
@@ -746,7 +800,7 @@ describe("createApp", () => {
       });
 
       const app = createTestApp();
-      const response = await request(app)
+      const response = await request(serve(app))
         .get("/rdf/statistics/summary")
         .set(dbHeaders());
 
@@ -765,7 +819,7 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      await request(app)
+      await request(serve(app))
         .post("/sparql")
         .set(
           dbHeaders({
@@ -784,7 +838,7 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      await request(app)
+      await request(serve(app))
         .post("/sparql")
         .set(
           dbHeaders({
@@ -812,7 +866,7 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      await request(app)
+      await request(serve(app))
         .post("/sparql")
         .set(dbHeaders())
         .send({ query: "SELECT 1" });
@@ -834,7 +888,7 @@ describe("createApp", () => {
         const logger = app.locals.logger;
         const debugSpy = vi.spyOn(logger, "debug");
 
-        await request(app)
+        await request(serve(app))
           .post(`/${route}`)
           .set(dbHeaders({ "db-query-logging-enabled": "true" }))
           .send({ query: "test query" });
@@ -855,7 +909,7 @@ describe("createApp", () => {
         const logger = app.locals.logger;
         const debugSpy = vi.spyOn(logger, "debug");
 
-        await request(app)
+        await request(serve(app))
           .post(`/${route}`)
           .set(dbHeaders())
           .send({ query: "test query" });
@@ -875,7 +929,7 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      await request(app)
+      await request(serve(app))
         .post("/sparql")
         .set(
           dbHeaders({
@@ -895,7 +949,7 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      await request(app)
+      await request(serve(app))
         .post("/sparql")
         .set(
           dbHeaders({
@@ -919,7 +973,7 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      await request(app)
+      await request(serve(app))
         .post("/sparql")
         .set(dbHeaders())
         .send({ query: "SELECT 1" });
@@ -940,7 +994,7 @@ describe("createApp", () => {
       });
       app.locals.logger = createLogger(createTestEnvironment());
 
-      await request(app)
+      await request(serve(app))
         .post("/sparql")
         .set(dbHeaders())
         .send({ query: "SELECT 1" });
@@ -953,7 +1007,7 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      await request(app)
+      await request(serve(app))
         .post("/sparql")
         .set(
           dbHeaders({
@@ -973,7 +1027,7 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      await request(app)
+      await request(serve(app))
         .post("/sparql")
         .set(
           dbHeaders({
@@ -1010,7 +1064,7 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      await request(app)
+      await request(serve(app))
         .post("/sparql")
         .set(blazegraphHeaders())
         .send({ query: "SELECT 1" });
@@ -1025,7 +1079,7 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      await request(app)
+      await request(serve(app))
         .post("/gremlin")
         .set(blazegraphHeaders())
         .send({ query: "g.V()" });
@@ -1040,7 +1094,7 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      await request(app)
+      await request(serve(app))
         .post("/openCypher")
         .set(blazegraphHeaders())
         .send({ query: "MATCH (n) RETURN n" });
@@ -1055,7 +1109,7 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      await request(app).get("/summary").set(blazegraphHeaders());
+      await request(serve(app)).get("/summary").set(blazegraphHeaders());
 
       expect(mockFetch).toHaveBeenCalledWith(
         `${blazegraphUrl}/summary?mode=basic`,
@@ -1067,7 +1121,9 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      await request(app).get("/pg/statistics/summary").set(blazegraphHeaders());
+      await request(serve(app))
+        .get("/pg/statistics/summary")
+        .set(blazegraphHeaders());
 
       expect(mockFetch).toHaveBeenCalledWith(
         `${blazegraphUrl}/pg/statistics/summary?mode=basic`,
@@ -1079,7 +1135,7 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      await request(app)
+      await request(serve(app))
         .get("/rdf/statistics/summary")
         .set(blazegraphHeaders());
 
@@ -1097,7 +1153,7 @@ describe("createApp", () => {
       mockFetch.mockRejectedValueOnce(new Error("Connection refused"));
 
       const app = createTestApp();
-      const response = await request(app)
+      const response = await request(serve(app))
         .post("/sparql")
         .set(dbHeaders())
         .send({ query: "SELECT 1" });
@@ -1109,7 +1165,7 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      await request(app)
+      await request(serve(app))
         .post("/sparql")
         .set(dbHeaders())
         .send({ query: "SELECT 1" });
@@ -1130,7 +1186,7 @@ describe("createApp", () => {
       });
 
       const app = createTestApp(".", undefined, allowedOrigins);
-      const response = await request(app)
+      const response = await request(serve(app))
         .post("/sparql")
         .set(dbHeaders())
         .send({ query: "SELECT 1" });
@@ -1142,7 +1198,7 @@ describe("createApp", () => {
       mockFetchOnce();
 
       const app = createTestApp();
-      const response = await request(app)
+      const response = await request(serve(app))
         .post("/sparql")
         .set(dbHeaders())
         .send({ query: "SELECT 1" });
@@ -1161,7 +1217,7 @@ describe("createApp", () => {
       "$method $route returns 403 without fetching the disallowed origin",
       async ({ method, route, body }) => {
         const app = createTestApp(".", undefined, allowedOrigins);
-        const req = request(app)
+        const req = request(serve(app))
           [method](route)
           .set(
             dbHeaders({ "graph-db-connection-url": "https://blocked:8182" }),
