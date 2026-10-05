@@ -146,29 +146,20 @@ describe("ConnectionRow", () => {
     );
   }
 
-  test("shows Direct ahead of the URL for a direct connection", () => {
-    renderRow({
-      ...createRandomSavedConnection(),
-      connection: {
-        graphDbUrl: "https://my-neptune:8182",
-        proxyConnection: false,
-      },
-    });
+  test.each([
+    { name: "direct", route: { proxyConnection: false } },
+    { name: "proxy", route: {} },
+  ])(
+    "shows the language and URL without a route mark on a $name connection",
+    ({ route }) => {
+      renderRow({
+        ...createRandomSavedConnection(),
+        connection: { graphDbUrl: "https://my-neptune:8182", ...route },
+      });
 
-    expect(
-      screen.getByText(/ • Direct • https:\/\/my-neptune:8182$/),
-    ).toBeInTheDocument();
-  });
-
-  test("does not mark a proxy connection as direct", () => {
-    renderRow({
-      ...createRandomSavedConnection(),
-      connection: { graphDbUrl: "https://my-neptune:8182" },
-    });
-
-    expect(
-      screen.getByText(/^PG-Gremlin • https:\/\/my-neptune:8182$/),
-    ).toBeInTheDocument();
-    expect(screen.queryByText(/Direct/)).toBeNull();
-  });
+      expect(
+        screen.getByText(/^PG-Gremlin • https:\/\/my-neptune:8182$/),
+      ).toBeInTheDocument();
+    },
+  );
 });
