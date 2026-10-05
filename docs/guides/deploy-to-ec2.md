@@ -48,7 +48,7 @@ Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server w
 
    `HOST` does not limit which networks or clients can reach the container. See [`HOST`](../references/configuration.md#host).
 
-   `PROXY_SERVER_ALLOWED_DB_ORIGINS` limits the proxy server to your Neptune cluster. To let users reach another database later, add its origin to the comma-separated list, such as `https://{NEPTUNE_ENDPOINT}:8182,https://{OTHER_ENDPOINT}:8182`. See [Database Origin Allowlist](../references/security.md#database-origin-allowlist).
+   `PROXY_SERVER_ALLOWED_DB_ORIGINS` limits the proxy server to your Neptune cluster. The origin must match the URL users enter in their Connection exactly, including the scheme and port. A "not in the Database Origin Allowlist" error means the two differ. To let users reach another database later, add its origin to the comma-separated list, such as `https://{NEPTUNE_ENDPOINT}:8182,https://{OTHER_ENDPOINT}:8182`. See [Database Origin Allowlist](../references/security.md#database-origin-allowlist).
 
 > [!TIP]
 >
