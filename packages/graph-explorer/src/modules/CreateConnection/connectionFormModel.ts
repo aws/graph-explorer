@@ -20,6 +20,17 @@ export const queryEngineSchema = z.enum(queryEngineOptions);
 /** Parses the Neptune service type a select reports as a plain string. */
 export const serviceTypeSchema = z.enum(neptuneServiceTypeOptions);
 
+// Stored connections aren't validated on read. A value outside its type falls
+// back to what a new connection starts with, so the form shows the fallback and
+// saving replaces the bad value instead of writing it back.
+const storedQueryEngineSchema = queryEngineSchema.catch("gremlin");
+const storedServiceTypeSchema = serviceTypeSchema.catch("neptune-db");
+const storedOverrideSchema = z.coerce
+  .number()
+  .positive()
+  .optional()
+  .catch(undefined);
+
 /** The values the connection form edits, one per control. */
 export type ConnectionFormValues = {
   name: string;
@@ -64,18 +75,22 @@ export function mapToConnectionForm(
   name: string,
   connection: ConnectionConfig | undefined,
 ): ConnectionFormValues {
+  const fetchTimeoutMs = storedOverrideSchema.parse(connection?.fetchTimeoutMs);
+  const nodeExpansionLimit = storedOverrideSchema.parse(
+    connection?.nodeExpansionLimit,
+  );
   return {
     name,
     graphDbUrl: connection?.graphDbUrl || "",
-    queryEngine: connection?.queryEngine || "gremlin",
+    queryEngine: storedQueryEngineSchema.parse(connection?.queryEngine),
     directConnection: isDirectConnection(connection),
     awsAuthEnabled: connection?.awsAuthEnabled || false,
-    serviceType: connection?.serviceType || "neptune-db",
+    serviceType: storedServiceTypeSchema.parse(connection?.serviceType),
     awsRegion: connection?.awsRegion || "",
-    fetchTimeoutEnabled: Boolean(connection?.fetchTimeoutMs),
-    fetchTimeoutMs: connection?.fetchTimeoutMs,
-    nodeExpansionLimitEnabled: Boolean(connection?.nodeExpansionLimit),
-    nodeExpansionLimit: connection?.nodeExpansionLimit,
+    fetchTimeoutEnabled: fetchTimeoutMs !== undefined,
+    fetchTimeoutMs,
+    nodeExpansionLimitEnabled: nodeExpansionLimit !== undefined,
+    nodeExpansionLimit,
   };
 }
 

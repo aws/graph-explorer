@@ -1,3 +1,5 @@
+import type { ConnectionConfig } from "@shared/types";
+
 import { createRandomName, createRandomUrlString } from "@shared/utils/testing";
 import { describe, expect, test } from "vitest";
 
@@ -128,6 +130,69 @@ describe("mapToConnectionForm", () => {
       nodeExpansionLimitEnabled: true,
       nodeExpansionLimit: 50,
     });
+  });
+
+  // Stored connections aren't validated on read, so an older or hand-edited
+  // entry can hold values outside its type. The casts simulate one.
+  describe("a stored connection with values outside its type", () => {
+    test("maps an unknown query language to Gremlin", () => {
+      const name = createRandomName("Connection");
+      const graphDbUrl = createRandomUrlString();
+
+      const form = mapToConnectionForm(name, {
+        graphDbUrl,
+        queryEngine: "cypher",
+      } as unknown as ConnectionConfig);
+
+      expect(form).toStrictEqual(mapToConnectionForm(name, { graphDbUrl }));
+    });
+
+    test("maps an unknown service type to Neptune DB", () => {
+      const name = createRandomName("Connection");
+      const graphDbUrl = createRandomUrlString();
+
+      const form = mapToConnectionForm(name, {
+        graphDbUrl,
+        serviceType: "neptune-serverless",
+      } as unknown as ConnectionConfig);
+
+      expect(form).toStrictEqual(mapToConnectionForm(name, { graphDbUrl }));
+    });
+
+    test("reads overrides stored as numeric strings as numbers", () => {
+      const name = createRandomName("Connection");
+      const graphDbUrl = createRandomUrlString();
+
+      const form = mapToConnectionForm(name, {
+        graphDbUrl,
+        fetchTimeoutMs: "30000",
+        nodeExpansionLimit: "50",
+      } as unknown as ConnectionConfig);
+
+      expect(form).toStrictEqual(
+        mapToConnectionForm(name, {
+          graphDbUrl,
+          fetchTimeoutMs: 30000,
+          nodeExpansionLimit: 50,
+        }),
+      );
+    });
+
+    test.each([null, "abc", 0, -5])(
+      "turns off an override stored as %o",
+      value => {
+        const name = createRandomName("Connection");
+        const graphDbUrl = createRandomUrlString();
+
+        const form = mapToConnectionForm(name, {
+          graphDbUrl,
+          fetchTimeoutMs: value,
+          nodeExpansionLimit: value,
+        } as unknown as ConnectionConfig);
+
+        expect(form).toStrictEqual(mapToConnectionForm(name, { graphDbUrl }));
+      },
+    );
   });
 });
 
