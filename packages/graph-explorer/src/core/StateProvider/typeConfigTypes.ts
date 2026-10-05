@@ -1,4 +1,4 @@
-import type { RawConfiguration } from "@/connections";
+import type { SavedConnection } from "@/connections";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import type { EdgeStyleStorage, VertexStyleStorage } from "./graphStyles";
@@ -144,11 +144,11 @@ export function createEdgeConnection(options: {
 
 /**
  * A configuration assembled in memory by merging the stored
- * {@link RawConfiguration} with its active schema and user styling. Unlike the
- * persisted {@link RawConfiguration}, this carries the schema inline for the UI
+ * {@link SavedConnection} with its active schema and user styling. Unlike the
+ * persisted {@link SavedConnection}, this carries the schema inline for the UI
  * to consume.
  */
-export type MergedConfiguration = RawConfiguration & {
+export type MergedConfiguration = SavedConnection & {
   /**
    * Database schema: types, names, labels, icons, ...
    *

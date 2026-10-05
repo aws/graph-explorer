@@ -1,6 +1,6 @@
 /**
  * A realistic exported connection file, mirroring the structure produced by
- * `saveConfigurationToFile` across many released versions of Graph Explorer.
+ * `saveConnectionToFile` across many released versions of Graph Explorer.
  *
  * The shape intentionally matches a real-world export: a top-level
  * `{ id, displayLabel, connection, schema }` envelope where the full schema

@@ -3,13 +3,13 @@ import type { QueryEngine } from "@shared/types";
 import { createStore } from "jotai";
 import { describe, expect, test } from "vitest";
 
-import type { RawConfiguration } from "@/connections";
+import type { SavedConnection } from "@/connections";
 
 import {
   activeConfigurationAtom,
   configurationAtom,
 } from "@/core/StateProvider/storageAtoms";
-import { createRandomRawConfiguration } from "@/utils/testing";
+import { createRandomSavedConnection } from "@/utils/testing";
 
 import {
   activeConfigSelector,
@@ -17,15 +17,15 @@ import {
   queryEngineSelector,
 } from "./activeConnection";
 
-function connectionWithEngine(queryEngine: QueryEngine): RawConfiguration {
-  const config = createRandomRawConfiguration();
+function connectionWithEngine(queryEngine: QueryEngine): SavedConnection {
+  const config = createRandomSavedConnection();
   return {
     ...config,
     connection: { ...config.connection!, queryEngine },
   };
 }
 
-function storeWithActiveConnection(config: RawConfiguration) {
+function storeWithActiveConnection(config: SavedConnection) {
   const store = createStore();
   store.set(configurationAtom, new Map([[config.id, config]]));
   store.set(activeConfigurationAtom, config.id);
@@ -34,7 +34,7 @@ function storeWithActiveConnection(config: RawConfiguration) {
 
 describe("activeConfigSelector", () => {
   test("resolves the active connection's config", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     const store = storeWithActiveConnection(config);
 
     expect(store.get(activeConfigSelector)).toBe(config);
@@ -46,7 +46,7 @@ describe("activeConfigSelector", () => {
   // selector must degrade to null (the connection screen) rather than expose a
   // dangling pointer.
   test("resolves to null when the active connection was deleted in another tab", () => {
-    const deletedConfig = createRandomRawConfiguration();
+    const deletedConfig = createRandomSavedConnection();
     const store = createStore();
     store.set(configurationAtom, new Map());
     store.set(activeConfigurationAtom, deletedConfig.id);
@@ -63,8 +63,8 @@ describe("activeConnectionAtom", () => {
   });
 
   test("resolves to null when the active connection has no connection details", () => {
-    const config: RawConfiguration = {
-      ...createRandomRawConfiguration(),
+    const config: SavedConnection = {
+      ...createRandomSavedConnection(),
       connection: undefined,
     };
     const store = storeWithActiveConnection(config);
@@ -73,8 +73,8 @@ describe("activeConnectionAtom", () => {
   });
 
   test("normalizes the active connection's URL and applies defaults", () => {
-    const config: RawConfiguration = {
-      ...createRandomRawConfiguration(),
+    const config: SavedConnection = {
+      ...createRandomSavedConnection(),
       connection: { graphDbUrl: "https://neptune.example.com:8182/\n" },
     };
     const store = storeWithActiveConnection(config);

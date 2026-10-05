@@ -15,7 +15,7 @@ import {
   nodesAtom,
 } from "@/core/StateProvider";
 import {
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createTestableVertex,
   DbState,
   TestProvider,
@@ -136,7 +136,7 @@ describe("Connect route", () => {
 
   test("activates an inactive matching connection and redirects without a prompt", async () => {
     const inactiveUrl = "https://inactive.neptune.amazonaws.com";
-    const inactiveConfig = createRandomRawConfiguration();
+    const inactiveConfig = createRandomSavedConnection();
     inactiveConfig.connection = {
       queryEngine: "gremlin",
       graphDbUrl: inactiveUrl,
@@ -338,7 +338,7 @@ describe("Connect route", () => {
   // user has a connection to choose.
   test("continuing with several connections lands on the connections list", async () => {
     new DbState()
-      .addInactiveConnection(createRandomRawConfiguration())
+      .addInactiveConnection(createRandomSavedConnection())
       .applyTo(getAppStore());
     const user = userEvent.setup();
 

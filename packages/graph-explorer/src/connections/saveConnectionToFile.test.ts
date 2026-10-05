@@ -6,12 +6,12 @@ import type { ConfigurationContextProps } from "@/core/StateProvider/typeConfigT
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { createEdgeType, createVertexType } from "@/core/entities";
-import { createRandomRawConfiguration, stubDocumentUrl } from "@/utils/testing";
+import { createRandomSavedConnection, stubDocumentUrl } from "@/utils/testing";
 import { exportConnectionFileText } from "@/utils/testing/exportConnectionFileText";
 
 import { transformLegacyConnection } from "./legacyConnection";
 import { parseConnectionFile } from "./parseConnectionFile";
-import saveConfigurationToFile from "./saveConfigurationToFile";
+import saveConnectionToFile from "./saveConnectionToFile";
 
 vi.mock("file-saver", () => ({
   saveAs: vi.fn(),
@@ -27,7 +27,7 @@ function makeConfig(
   overrides: Partial<ConfigurationContextProps> = {},
 ): ConfigurationContextProps {
   return {
-    ...createRandomRawConfiguration(),
+    ...createRandomSavedConnection(),
     schema: { vertices: [], edges: [] },
     totalVertices: 0,
     vertexTypes: [],
@@ -37,7 +37,7 @@ function makeConfig(
   };
 }
 
-describe("saveConfigurationToFile", () => {
+describe("saveConnectionToFile", () => {
   beforeEach(() => {
     stubDocumentUrl();
   });
@@ -45,7 +45,7 @@ describe("saveConfigurationToFile", () => {
   it("should save a minimal configuration to file", () => {
     const config = makeConfig();
 
-    saveConfigurationToFile(config);
+    saveConnectionToFile(config);
 
     expect(saveAsMock).toHaveBeenCalledTimes(1);
     const [blob, filename] = saveAsMock.mock.calls[0];
@@ -58,7 +58,7 @@ describe("saveConfigurationToFile", () => {
   it("should use id as displayLabel if displayLabel is not provided", () => {
     const config = makeConfig({ displayLabel: undefined });
 
-    saveConfigurationToFile(config);
+    saveConnectionToFile(config);
 
     const [, filename] = saveAsMock.mock.calls[0];
     expect(filename).toBe(`${config.id}.connection.json`);

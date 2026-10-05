@@ -14,7 +14,7 @@ import {
   DbState,
   renderHookWithState,
 } from "@/utils/testing";
-import { createRandomRawConfiguration } from "@/utils/testing/randomData";
+import { createRandomSavedConnection } from "@/utils/testing/randomData";
 
 import useActivateConnection from "./useActivateConnection";
 
@@ -24,7 +24,7 @@ describe("useActivateConnection", () => {
     const vertex = createTestableVertex();
     state.addTestableVertexToGraph(vertex);
 
-    const other = createRandomRawConfiguration();
+    const other = createRandomSavedConnection();
 
     const { result } = renderHookWithState(
       () => useActivateConnection(),

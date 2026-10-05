@@ -1,6 +1,6 @@
 import { DatabaseIcon } from "lucide-react";
 
-import type { RawConfiguration } from "@/connections";
+import type { SavedConnection } from "@/connections";
 
 import { ListRowContent, ListRowSubtitle, ListRowTitle } from "@/components";
 import { isDirectConnection, useActivateConnection } from "@/connections";
@@ -12,7 +12,7 @@ function ConnectionRow({
   isSelected,
   isDisabled,
 }: {
-  connection: RawConfiguration;
+  connection: SavedConnection;
   isSelected: boolean;
   isDisabled: boolean;
 }) {

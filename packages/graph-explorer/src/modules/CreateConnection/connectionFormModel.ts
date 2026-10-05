@@ -7,7 +7,7 @@ import {
 } from "@shared/types";
 import { z } from "zod";
 
-import { isDirectConnection, type RawConfiguration } from "@/connections";
+import { isDirectConnection, type SavedConnection } from "@/connections";
 import { formatDate, isAbsoluteHttpUrl } from "@/utils";
 import {
   DEFAULT_FETCH_TIMEOUT,
@@ -95,11 +95,11 @@ export function mapToConnectionForm(
 }
 
 /**
- * Maps a stored connection into form values, named the way the rest of the app
+ * Maps a saved connection into form values, named the way the rest of the app
  * shows it: by its label, or by its id when it has none.
  */
-export function mapConfigurationToConnectionForm(
-  config: RawConfiguration,
+export function mapSavedConnectionToConnectionForm(
+  config: SavedConnection,
 ): ConnectionFormValues {
   return mapToConnectionForm(
     config.displayLabel || config.id,

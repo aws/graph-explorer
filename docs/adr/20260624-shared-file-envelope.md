@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-06-24
-- **Related:** ADR `styling-file-format` (first consumer beyond connection export). `saveConfigurationToFile` in `connections/saveConfigurationToFile.ts` (predecessor pattern that predates this envelope).
+- **Related:** ADR `styling-file-format` (first consumer beyond connection export). `saveConnectionToFile` in `connections/saveConnectionToFile.ts` (predecessor pattern that predates this envelope).
 
 ## Context
 
@@ -10,7 +10,7 @@ Graph Explorer already exports several kinds of data to JSON files, and the same
 
 - **Graph export** (`modules/GraphViewer/exportedGraph.ts`) had this exact envelope inline: `meta: { kind, version, timestamp, source, sourceVersion }` wrapping a `data` payload. It was the prior art the shared module generalizes, and now **consumes** the module — `createExportedGraph` calls `createFileEnvelope("graph-export", "1.0", …)` and `parseExportedGraph(blob)` runs through `parseFileEnvelope`'s kind + version guard before validating its payload and sanitizing entity ids.
 - **Backup** (`SerializedBackupSchema` in `localDb.ts`) uses the same five concepts with renamed fields (`backupSource`, `backupSourceVersion`, `backupVersion`, `backupTimestamp`, `data`).
-- **Connection export** (`saveConfigurationToFile`) is the outlier — a flat `{ id, displayLabel, connection, schema }` with no envelope at all.
+- **Connection export** (`saveConnectionToFile`) is the outlier — a flat `{ id, displayLabel, connection, schema }` with no envelope at all.
 
 A new styling import/export feature needs the same structural concerns: identifying what the file contains, which version of the format was used, and when it was created. Rather than reinvent the metadata shape a fourth time, the styling feature adopts a shared envelope, and the module documents the canonical shape so the next consumer reuses it instead of hand-rolling another copy.
 

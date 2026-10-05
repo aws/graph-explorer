@@ -7,7 +7,7 @@ import {
 } from "@shared/types";
 import { z } from "zod";
 
-import type { ConfigurationId, RawConfiguration } from "@/connections";
+import type { ConnectionId, SavedConnection } from "@/connections";
 
 import { isDirectConnection, normalizeConnection } from "@/connections";
 import { DEFAULT_SERVICE_TYPE } from "@/utils";
@@ -287,11 +287,11 @@ function identitiesMatch(
  * matches the link's name, then the first match found.
  */
 function findMatchingConnection(
-  configurations: Map<ConfigurationId, RawConfiguration>,
+  configurations: Map<ConnectionId, SavedConnection>,
   proposed: ConnectionConfig,
   name: string,
-  activeId: ConfigurationId | null,
-): RawConfiguration | null {
+  activeId: ConnectionId | null,
+): SavedConnection | null {
   const proposedIdentity = identityOf(proposed);
   const matches = Array.from(configurations.values()).filter(
     config =>
@@ -345,7 +345,7 @@ function buildConnectionFromParams(
  */
 export type ConnectionLinkIntent =
   | { kind: "invalid"; error: ConnectionLinkError }
-  | { kind: "activate"; connection: RawConfiguration }
+  | { kind: "activate"; connection: SavedConnection }
   | { kind: "create"; name: string; connection: ConnectionConfig };
 
 /**
@@ -358,8 +358,8 @@ export type ConnectionLinkIntent =
  */
 function resolveConnectionLinkIntent(
   link: ConnectionLink,
-  configurations: Map<ConfigurationId, RawConfiguration>,
-  activeId: ConfigurationId | null,
+  configurations: Map<ConnectionId, SavedConnection>,
+  activeId: ConnectionId | null,
 ): ConnectionLinkIntent {
   if (link.kind === "invalid") {
     return { kind: "invalid", error: link.error };

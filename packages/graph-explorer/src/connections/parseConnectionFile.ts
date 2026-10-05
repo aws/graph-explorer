@@ -5,7 +5,7 @@ import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { createEdgeType, createVertexType } from "@/core/entities";
 
-import type { ConfigurationId } from "./types";
+import type { ConnectionId } from "./types";
 
 const attributesSchema = z
   .array(z.looseObject({ name: z.string().min(1) }))
@@ -14,7 +14,7 @@ const attributesSchema = z
 
 /**
  * Schema for the exported connection file format, as produced by
- * `saveConfigurationToFile` and consumed on import.
+ * `saveConnectionToFile` and consumed on import.
  *
  * This Zod schema is the single source of truth: the
  * {@link ExportedConnectionFile} type is inferred from it, so the runtime check
@@ -34,7 +34,7 @@ const exportedConnectionFileSchema = z.looseObject({
   id: z
     .string()
     .min(1)
-    .transform(value => value as ConfigurationId),
+    .transform(value => value as ConnectionId),
   displayLabel: z.string().optional(),
   connection: z
     .looseObject({

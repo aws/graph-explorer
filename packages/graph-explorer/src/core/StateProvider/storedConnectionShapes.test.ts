@@ -2,12 +2,12 @@
 import localforage from "localforage";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { createNewConfigurationId, type RawConfiguration } from "@/connections";
+import { createConnectionId, type SavedConnection } from "@/connections";
 import {
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   loadStorageAtoms,
-  preloadStoredConfigurations,
+  preloadSavedConnections,
 } from "@/utils/testing";
 
 import type { SchemaStorageModel } from "./schema";
@@ -33,42 +33,40 @@ import { readBackupDataFromFile, restoreBackup } from "./localDb";
  */
 describe("backward compatibility: stored connection shapes preload through the configuration atom", () => {
   // A "nested" entry: before schema was stored separately in `schemaAtom`, an
-  // older build embedded the whole schema inside the stored `RawConfiguration`.
+  // older build embedded the whole schema inside the stored `SavedConnection`.
   // The current type no longer declares `schema`, so we cast to attach it,
   // simulating a stale IndexedDB blob. The preload must carry it through
   // untouched rather than choke on the unexpected nesting.
   test("preserves an entry carrying a legacy embedded schema", async () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     const nestedConfig = {
       ...config,
       schema: createRandomSchema(),
-    } as RawConfiguration & { schema: SchemaStorageModel };
+    } as SavedConnection & { schema: SchemaStorageModel };
 
     const { store, configurationAtom } =
-      await preloadStoredConfigurations(nestedConfig);
+      await preloadSavedConnections(nestedConfig);
     const loaded = store.get(configurationAtom).get(config.id);
 
     expect(loaded).toStrictEqual(nestedConfig);
   });
 
   test("preserves an entry that has no connection", async () => {
-    const config: RawConfiguration = {
-      ...createRandomRawConfiguration(),
+    const config: SavedConnection = {
+      ...createRandomSavedConnection(),
       connection: undefined,
     };
 
-    const { store, configurationAtom } =
-      await preloadStoredConfigurations(config);
+    const { store, configurationAtom } = await preloadSavedConnections(config);
     const loaded = store.get(configurationAtom).get(config.id);
 
     expect(loaded).toStrictEqual(config);
   });
 
   test("preserves an entry with no displayLabel", async () => {
-    const { displayLabel: _omit, ...config } = createRandomRawConfiguration();
+    const { displayLabel: _omit, ...config } = createRandomSavedConnection();
 
-    const { store, configurationAtom } =
-      await preloadStoredConfigurations(config);
+    const { store, configurationAtom } = await preloadSavedConnections(config);
     const loaded = store.get(configurationAtom).get(config.id);
 
     // The destructured `config` already omits `displayLabel`, so a full-value
@@ -77,11 +75,11 @@ describe("backward compatibility: stored connection shapes preload through the c
   });
 
   test("preloads several stored connections together", async () => {
-    const first = createRandomRawConfiguration();
-    const second = createRandomRawConfiguration();
-    const third = createRandomRawConfiguration();
+    const first = createRandomSavedConnection();
+    const second = createRandomSavedConnection();
+    const third = createRandomSavedConnection();
 
-    const { store, configurationAtom } = await preloadStoredConfigurations(
+    const { store, configurationAtom } = await preloadSavedConnections(
       first,
       second,
       third,
@@ -99,7 +97,7 @@ describe("backward compatibility: the Active Connection is read from its stored 
   });
 
   test("seeds a new tab from the breadcrumb stored under active-configuration", async () => {
-    const id = createNewConfigurationId();
+    const id = createConnectionId();
     await localforage.setItem("active-configuration", id);
 
     const { store, activeConfigurationAtom } = await loadStorageAtoms();
@@ -108,11 +106,8 @@ describe("backward compatibility: the Active Connection is read from its stored 
   });
 
   test("keeps a reloaded tab on the value it stored under active-configuration", async () => {
-    const tabValue = createNewConfigurationId();
-    await localforage.setItem(
-      "active-configuration",
-      createNewConfigurationId(),
-    );
+    const tabValue = createConnectionId();
+    await localforage.setItem("active-configuration", createConnectionId());
     sessionStorage.setItem("active-configuration", tabValue);
 
     const { store, activeConfigurationAtom } = await loadStorageAtoms();

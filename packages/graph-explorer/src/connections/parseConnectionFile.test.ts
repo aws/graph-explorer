@@ -2,12 +2,12 @@ import { createRandomName, createRandomUrlString } from "@shared/utils/testing";
 import { describe, expect, test } from "vitest";
 
 import { parseConnectionFile } from "./parseConnectionFile";
-import { createNewConfigurationId } from "./types";
+import { createConnectionId } from "./types";
 
 describe("parseConnectionFile", () => {
   test("parses a valid configuration into a typed object", () => {
     const validConfig = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         url: createRandomUrlString(),
@@ -44,7 +44,7 @@ describe("parseConnectionFile", () => {
 
   test("returns null when connection is missing", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       schema: { vertices: [], edges: [] },
     };
 
@@ -53,7 +53,7 @@ describe("parseConnectionFile", () => {
 
   test("returns null when schema is missing", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
         queryEngine: "gremlin" as const,
@@ -65,7 +65,7 @@ describe("parseConnectionFile", () => {
 
   test("returns null when connection.queryEngine is missing", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: { url: createRandomUrlString() },
       schema: { vertices: [], edges: [] },
     };
@@ -75,7 +75,7 @@ describe("parseConnectionFile", () => {
 
   test("returns null for an invalid URL", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: { url: "not-a-valid-url", queryEngine: "gremlin" as const },
       schema: { vertices: [], edges: [] },
     };
@@ -85,7 +85,7 @@ describe("parseConnectionFile", () => {
 
   test("returns null for a non-http(s) URL", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: { url: "ftp://example.com", queryEngine: "gremlin" as const },
       schema: { vertices: [], edges: [] },
     };
@@ -95,7 +95,7 @@ describe("parseConnectionFile", () => {
 
   test("returns null for a non-http(s) graphDbUrl", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
         queryEngine: "gremlin" as const,
@@ -110,7 +110,7 @@ describe("parseConnectionFile", () => {
   test("accepts an http(s) graphDbUrl", () => {
     const graphDbUrl = "https://neptune.example.com:8182";
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
         queryEngine: "gremlin" as const,
@@ -126,7 +126,7 @@ describe("parseConnectionFile", () => {
 
   test("accepts an http URL", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: "http://example.com",
         queryEngine: "gremlin" as const,
@@ -139,7 +139,7 @@ describe("parseConnectionFile", () => {
 
   test("trims surrounding whitespace from the connection URL", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: "  https://example.com  ",
         queryEngine: "gremlin" as const,
@@ -154,7 +154,7 @@ describe("parseConnectionFile", () => {
 
   test("accepts an https URL", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: "https://example.com",
         queryEngine: "gremlin" as const,
@@ -167,7 +167,7 @@ describe("parseConnectionFile", () => {
 
   test("returns null for an invalid queryEngine", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: { url: createRandomUrlString(), queryEngine: "invalid" },
       schema: { vertices: [], edges: [] },
     };
@@ -179,7 +179,7 @@ describe("parseConnectionFile", () => {
     "accepts the %s queryEngine",
     queryEngine => {
       const config = {
-        id: createNewConfigurationId(),
+        id: createConnectionId(),
         connection: { url: createRandomUrlString(), queryEngine },
         schema: { vertices: [], edges: [] },
       };
@@ -190,7 +190,7 @@ describe("parseConnectionFile", () => {
 
   test("accepts a valid vertex config", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
         queryEngine: "gremlin" as const,
@@ -206,7 +206,7 @@ describe("parseConnectionFile", () => {
 
   test("returns null when a vertex is missing its type", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
         queryEngine: "gremlin" as const,
@@ -222,7 +222,7 @@ describe("parseConnectionFile", () => {
 
   test("returns null when a vertex attribute is missing its name", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
         queryEngine: "gremlin" as const,
@@ -238,7 +238,7 @@ describe("parseConnectionFile", () => {
 
   test("defaults attributes to an empty array when a vertex omits them", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
         queryEngine: "gremlin" as const,
@@ -256,7 +256,7 @@ describe("parseConnectionFile", () => {
 
   test("defaults attributes to an empty array when an edge omits them", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
         queryEngine: "gremlin" as const,
@@ -274,7 +274,7 @@ describe("parseConnectionFile", () => {
 
   test("accepts a valid edge config", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
         queryEngine: "gremlin" as const,
@@ -290,7 +290,7 @@ describe("parseConnectionFile", () => {
 
   test("returns null when an edge is missing its type", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
         queryEngine: "gremlin" as const,
@@ -306,7 +306,7 @@ describe("parseConnectionFile", () => {
 
   test("returns null when schema.vertices is missing", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
         queryEngine: "gremlin" as const,
@@ -319,7 +319,7 @@ describe("parseConnectionFile", () => {
 
   test("returns null when schema.edges is missing", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
         queryEngine: "gremlin" as const,
@@ -332,7 +332,7 @@ describe("parseConnectionFile", () => {
 
   test("coerces an ISO lastUpdate string into a Date", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
         queryEngine: "gremlin" as const,
@@ -355,7 +355,7 @@ describe("parseConnectionFile", () => {
   test("keeps proxyConnection false on a direct connection", () => {
     const graphDbUrl = createRandomUrlString();
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         graphDbUrl,
         proxyConnection: false,
@@ -375,7 +375,7 @@ describe("parseConnectionFile", () => {
 
   test("parses valid AWS auth fields", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
         queryEngine: "gremlin" as const,
@@ -395,7 +395,7 @@ describe("parseConnectionFile", () => {
 
   test("degrades an invalid awsAuthEnabled to absent, and it must never become true", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
         queryEngine: "gremlin" as const,
@@ -412,7 +412,7 @@ describe("parseConnectionFile", () => {
 
   test("degrades an invalid awsRegion to absent while parsing the rest of the file", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
         queryEngine: "gremlin" as const,
@@ -429,7 +429,7 @@ describe("parseConnectionFile", () => {
 
   test("degrades an invalid serviceType to absent while parsing the rest of the file", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
         queryEngine: "gremlin" as const,
@@ -466,7 +466,7 @@ describe("parseConnectionFile", () => {
 describe("backward compatibility: legacy url/proxyConnection shape in exported files", () => {
   test("returns null when neither graphDbUrl nor url is present", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: { queryEngine: "gremlin" as const },
       schema: { vertices: [], edges: [] },
     };
@@ -477,7 +477,7 @@ describe("backward compatibility: legacy url/proxyConnection shape in exported f
   test("accepts a connection with only graphDbUrl and no legacy url", () => {
     const graphDbUrl = "https://neptune.example.com:8182";
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         graphDbUrl,
         queryEngine: "gremlin" as const,
@@ -492,7 +492,7 @@ describe("backward compatibility: legacy url/proxyConnection shape in exported f
 
   test("keeps unknown styling and legacy keys in the parsed output", () => {
     const config = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       connection: {
         url: createRandomUrlString(),
         queryEngine: "sparql" as const,

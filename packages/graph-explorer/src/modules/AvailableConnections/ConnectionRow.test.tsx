@@ -5,7 +5,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, test } from "vitest";
 
-import type { RawConfiguration } from "@/connections";
+import type { SavedConnection } from "@/connections";
 
 import { TooltipProvider } from "@/components";
 import {
@@ -17,9 +17,9 @@ import {
 } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import {
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomVertex,
-  preloadStoredConfiguration,
+  preloadSavedConnection,
 } from "@/utils/testing";
 import { TestProvider } from "@/utils/testing";
 
@@ -29,7 +29,7 @@ describe("ConnectionRow", () => {
   test("clicking the already-active connection does not reset session state", async () => {
     const user = userEvent.setup();
     const store = getAppStore();
-    const connection = createRandomRawConfiguration();
+    const connection = createRandomSavedConnection();
     const vertex = createRandomVertex();
 
     store.set(configurationAtom, new Map([[connection.id, connection]]));
@@ -61,8 +61,8 @@ describe("ConnectionRow", () => {
   test("clicking a different connection resets session state", async () => {
     const user = userEvent.setup();
     const store = getAppStore();
-    const activeConnection = createRandomRawConfiguration();
-    const otherConnection = createRandomRawConfiguration();
+    const activeConnection = createRandomSavedConnection();
+    const otherConnection = createRandomSavedConnection();
     const vertex = createRandomVertex();
 
     store.set(
@@ -104,15 +104,15 @@ describe("ConnectionRow", () => {
   test("renders the endpoint for a legacy stored connection", async () => {
     const store = getAppStore();
     const legacyConfig = {
-      ...createRandomRawConfiguration(),
+      ...createRandomSavedConnection(),
       // Stored data is not schema-validated on read, so an entry can carry a
       // legacy connection despite the compile-time `ConnectionConfig` shape.
       connection: {
         url: "https://my-neptune:8182",
         proxyConnection: false,
-      } as LegacyConnectionConfig as RawConfiguration["connection"],
+      } as LegacyConnectionConfig as SavedConnection["connection"],
     };
-    const connection = await preloadStoredConfiguration(legacyConfig);
+    const connection = await preloadSavedConnection(legacyConfig);
     expect.assert(connection);
 
     const queryClient = createQueryClient();
@@ -132,7 +132,7 @@ describe("ConnectionRow", () => {
     expect(screen.getByText(/my-neptune:8182/)).toBeInTheDocument();
   });
 
-  function renderRow(connection: RawConfiguration) {
+  function renderRow(connection: SavedConnection) {
     render(
       <TestProvider client={createQueryClient()} store={getAppStore()}>
         <TooltipProvider>
@@ -148,7 +148,7 @@ describe("ConnectionRow", () => {
 
   test("shows Direct ahead of the URL for a direct connection", () => {
     renderRow({
-      ...createRandomRawConfiguration(),
+      ...createRandomSavedConnection(),
       connection: {
         graphDbUrl: "https://my-neptune:8182",
         proxyConnection: false,
@@ -162,7 +162,7 @@ describe("ConnectionRow", () => {
 
   test("does not mark a proxy connection as direct", () => {
     renderRow({
-      ...createRandomRawConfiguration(),
+      ...createRandomSavedConnection(),
       connection: { graphDbUrl: "https://my-neptune:8182" },
     });
 

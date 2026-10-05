@@ -4,10 +4,10 @@ import { v4 } from "uuid";
 
 import type { Branded } from "@/utils";
 
-export type ConfigurationId = Branded<string, "ConfigurationId">;
+export type ConnectionId = Branded<string, "ConnectionId">;
 
-export function createNewConfigurationId() {
-  return v4() as ConfigurationId;
+export function createConnectionId() {
+  return v4() as ConnectionId;
 }
 
 /**
@@ -15,11 +15,11 @@ export function createNewConfigurationId() {
  * `configurationAtom` and IndexedDB. The schema is kept separately in
  * `schemaAtom`, never embedded here.
  */
-export type RawConfiguration = {
+export type SavedConnection = {
   /**
    * Unique identifier for this config
    */
-  id: ConfigurationId;
+  id: ConnectionId;
   displayLabel?: string;
   /**
    * Connection configuration
@@ -32,10 +32,10 @@ export type RawConfiguration = {
  * the type.
  *
  * This makes it a bit easier to deal with compared to the connection inside the
- * `RawConfiguration` type since that one has a bunch of other properties and
+ * `SavedConnection` type since that one has a bunch of other properties and
  * the connection is optional.
  */
 export type ConnectionWithId = ConnectionConfig & {
-  id: ConfigurationId;
+  id: ConnectionId;
   displayLabel?: string;
 };

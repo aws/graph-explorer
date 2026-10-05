@@ -19,7 +19,7 @@ import {
   TextAreaField,
 } from "@/components";
 import { DialogBody, DialogFooter } from "@/components/Dialog";
-import { createNewConfigurationId, type RawConfiguration } from "@/connections";
+import { createConnectionId, type SavedConnection } from "@/connections";
 import {
   activeConfigurationAtom,
   allGraphSessionsAtom,
@@ -35,7 +35,7 @@ import {
   createNewConnectionForm,
   hasAdvancedOverrides,
   mapToConnection,
-  mapConfigurationToConnectionForm,
+  mapSavedConnectionToConnectionForm,
   queryEngineSchema,
   serviceTypeSchema,
   updateConnectionForm,
@@ -78,8 +78,8 @@ const CreateConnection = ({
     useCallback(
       (_get, set, data: ConnectionFormValues) => {
         if (!configId) {
-          const newConfigId = createNewConfigurationId();
-          const newConfig: RawConfiguration = {
+          const newConfigId = createConnectionId();
+          const newConfig: SavedConnection = {
             id: newConfigId,
             displayLabel: data.name,
             connection: mapToConnection(data),
@@ -97,7 +97,7 @@ const CreateConnection = ({
         set(configurationAtom, prev => {
           const updated = new Map(prev);
           const currentConfig = updated.get(configId);
-          const updatedConfig: RawConfiguration = {
+          const updatedConfig: SavedConnection = {
             ...currentConfig,
             id: configId,
             displayLabel: data.name,
@@ -148,7 +148,7 @@ const CreateConnection = ({
 
   const [form, setForm] = useState<ConnectionFormValues>(() =>
     existingConfig
-      ? mapConfigurationToConnectionForm(existingConfig)
+      ? mapSavedConnectionToConnectionForm(existingConfig)
       : (initialValues ?? createNewConnectionForm(new Date())),
   );
   const [showErrors, setShowErrors] = useState(false);

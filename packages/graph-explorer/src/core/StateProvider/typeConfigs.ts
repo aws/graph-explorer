@@ -1,6 +1,6 @@
 import { atom } from "jotai";
 
-import type { RawConfiguration } from "@/connections";
+import type { SavedConnection } from "@/connections";
 
 import { activeConfigSelector, normalizeConnection } from "@/connections";
 import { RESERVED_TYPES_PROPERTY } from "@/utils/constants";
@@ -42,7 +42,7 @@ export const mergedConfigurationSelector = atom(get => {
 
 export function mergeConfiguration(
   currentSchema: SchemaStorageModel | null | undefined,
-  currentConfig: RawConfiguration,
+  currentConfig: SavedConnection,
   vertexStyles: ReadonlyMap<VertexType, VertexStyleStorage>,
   edgeStyles: ReadonlyMap<EdgeType, EdgeStyleStorage>,
 ): MergedConfiguration {

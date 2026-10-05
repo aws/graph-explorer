@@ -1,7 +1,7 @@
 import { createRandomName } from "@shared/utils/testing";
 import { describe, expect, test } from "vitest";
 
-import type { ConfigurationId, RawConfiguration } from "@/connections";
+import type { ConnectionId, SavedConnection } from "@/connections";
 import type { EdgeType, VertexType } from "@/core/entities";
 import type { GraphSessionStorageModel } from "@/core/StateProvider/graphSession/storage";
 import type {
@@ -14,10 +14,10 @@ import { reconcileMapByKey } from "@/core/StateProvider/atomWithLocalForage";
 
 import { openPersistenceTab, readPersistedValue } from "./persistence";
 import {
-  createRandomConfigurationId,
+  createRandomConnectionId,
   createRandomEdgeId,
   createRandomEdgeType,
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   createRandomVertexId,
   createRandomVertexType,
@@ -201,7 +201,7 @@ describe("cross-tab user styling reconciliation", () => {
 /**
  * REGRESSION — #1820 cross-tab schema clobber
  *
- * The schema atom stores `Map<ConfigurationId, SchemaStorageModel>` — one entry
+ * The schema atom stores `Map<ConnectionId, SchemaStorageModel>` — one entry
  * per connection. Two tabs each hold their own in-memory copy of that map, so a
  * tab that syncs one connection's schema would, on a blind whole-map write,
  * silently drop a schema another tab discovered for a different connection. The
@@ -247,7 +247,7 @@ describe("cross-tab schema reconciliation", () => {
 /**
  * REGRESSION — #1820 cross-tab connection clobber
  *
- * The configuration atom stores `Map<ConfigurationId, RawConfiguration>` — one
+ * The configuration atom stores `Map<ConnectionId, SavedConnection>` — one
  * entry per connection. Creating a connection in one tab while another tab
  * holds a stale copy would, on a blind whole-map write, silently drop the
  * connection the other tab created. The same per-key map merge protects it.
@@ -255,10 +255,10 @@ describe("cross-tab schema reconciliation", () => {
 describe("cross-tab connection reconciliation", () => {
   test("preserves connections when one tab writes against a stale memory copy", async () => {
     const key = createRandomName("configuration");
-    const connectionX = createRandomRawConfiguration();
-    const connectionY = createRandomRawConfiguration();
+    const connectionX = createRandomSavedConnection();
+    const connectionY = createRandomSavedConnection();
 
-    type ConfigMap = Map<ConfigurationId, RawConfiguration>;
+    type ConfigMap = Map<ConnectionId, SavedConnection>;
 
     const tabA = await openPersistenceTab<ConfigMap>(
       key,
@@ -287,11 +287,11 @@ describe("cross-tab connection reconciliation", () => {
 
   test("drops a connection one tab removed while preserving a sibling another added", async () => {
     const key = createRandomName("configuration");
-    const connectionX = createRandomRawConfiguration();
-    const connectionY = createRandomRawConfiguration();
-    const connectionZ = createRandomRawConfiguration();
+    const connectionX = createRandomSavedConnection();
+    const connectionY = createRandomSavedConnection();
+    const connectionZ = createRandomSavedConnection();
 
-    type ConfigMap = Map<ConfigurationId, RawConfiguration>;
+    type ConfigMap = Map<ConnectionId, SavedConnection>;
 
     // Tab A creates connections X and Y, then a later tab preloads both.
     const tabA = await openPersistenceTab<ConfigMap>(
@@ -339,7 +339,7 @@ describe("cross-tab connection reconciliation", () => {
 /**
  * REGRESSION — #1820 cross-tab session clobber
  *
- * The graph-sessions atom stores `Map<ConfigurationId, GraphSessionStorageModel>`
+ * The graph-sessions atom stores `Map<ConnectionId, GraphSessionStorageModel>`
  * — one session per connection. Concurrent session changes for different
  * connections must not clobber each other; the per-key map merge keeps each
  * connection's session intact.
@@ -347,8 +347,8 @@ describe("cross-tab connection reconciliation", () => {
 describe("cross-tab session reconciliation", () => {
   test("preserves sessions when one tab writes against a stale memory copy", async () => {
     const key = createRandomName("graph-sessions");
-    const connectionA = createRandomConfigurationId();
-    const connectionB = createRandomConfigurationId();
+    const connectionA = createRandomConnectionId();
+    const connectionB = createRandomConnectionId();
     const sessionA: GraphSessionStorageModel = {
       vertices: new Set([createRandomVertexId()]),
       edges: new Set([createRandomEdgeId()]),
@@ -358,7 +358,7 @@ describe("cross-tab session reconciliation", () => {
       edges: new Set([createRandomEdgeId()]),
     };
 
-    type SessionMap = Map<ConfigurationId, GraphSessionStorageModel>;
+    type SessionMap = Map<ConnectionId, GraphSessionStorageModel>;
 
     const tabA = await openPersistenceTab<SessionMap>(
       key,
@@ -396,12 +396,12 @@ describe("cross-tab session reconciliation", () => {
 describe("cross-tab reconciliation under in-flight writes", () => {
   test("coalesces rapid same-tab writes while merging onto another tab's concurrent sibling", async () => {
     const key = createRandomName("configuration");
-    const siblingConnection = createRandomRawConfiguration();
-    const connectionX = createRandomRawConfiguration();
-    const connectionY = createRandomRawConfiguration();
-    const connectionZ = createRandomRawConfiguration();
+    const siblingConnection = createRandomSavedConnection();
+    const connectionX = createRandomSavedConnection();
+    const connectionY = createRandomSavedConnection();
+    const connectionZ = createRandomSavedConnection();
 
-    type ConfigMap = Map<ConfigurationId, RawConfiguration>;
+    type ConfigMap = Map<ConnectionId, SavedConnection>;
 
     // A sibling tab persists its connection first, so it is already in storage
     // when this tab — which opened stale against an empty map — writes.
@@ -438,10 +438,10 @@ describe("cross-tab reconciliation under in-flight writes", () => {
 
   test("two tabs whose writes are still in flight both land without clobber", async () => {
     const key = createRandomName("configuration");
-    const connectionA = createRandomRawConfiguration();
-    const connectionB = createRandomRawConfiguration();
+    const connectionA = createRandomSavedConnection();
+    const connectionB = createRandomSavedConnection();
 
-    type ConfigMap = Map<ConfigurationId, RawConfiguration>;
+    type ConfigMap = Map<ConnectionId, SavedConnection>;
 
     const tabA = await openPersistenceTab<ConfigMap>(
       key,

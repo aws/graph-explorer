@@ -4,7 +4,7 @@ import type { ConnectionConfig } from "@shared/types";
 
 import { describe, expect, test } from "vitest";
 
-import { createNewConfigurationId, type RawConfiguration } from "@/connections";
+import { createConnectionId, type SavedConnection } from "@/connections";
 import { DbState } from "@/utils/testing";
 
 import { getAppStore } from "../StateProvider/appStore";
@@ -13,8 +13,8 @@ import { resolveConnectionLink } from "./connectionLink";
 function storedConnection(
   displayLabel: string,
   connection: ConnectionConfig,
-): RawConfiguration {
-  return { id: createNewConfigurationId(), displayLabel, connection };
+): SavedConnection {
+  return { id: createConnectionId(), displayLabel, connection };
 }
 
 function linkTo(graphDbUrl: string, otherParams = "") {
@@ -24,8 +24,8 @@ function linkTo(graphDbUrl: string, otherParams = "") {
 /** Resolves a link with only the given connections stored. */
 function resolve(
   search: string,
-  connections: RawConfiguration[],
-  active?: RawConfiguration,
+  connections: SavedConnection[],
+  active?: SavedConnection,
 ) {
   const state = new DbState();
   if (active) {
@@ -45,8 +45,8 @@ function resolve(
 /** The stored connection a valid link activates, or null when it creates one. */
 function activatedBy(
   search: string,
-  connections: RawConfiguration[],
-  active?: RawConfiguration,
+  connections: SavedConnection[],
+  active?: SavedConnection,
 ) {
   const intent = resolve(search, connections, active);
   if (intent.kind === "invalid") {

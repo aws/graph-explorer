@@ -1,4 +1,4 @@
-import type { RawConfiguration } from "@/connections";
+import type { SavedConnection } from "@/connections";
 import type { Explorer } from "@/connector";
 import type { SchemaViewLayout } from "@/core/StateProvider/schemaViewLayoutDefaults";
 
@@ -39,7 +39,7 @@ import { createMockExplorer } from "./createMockExplorer";
 import {
   createRandomEdge,
   createRandomGraphViewLayout,
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   createRandomSchemaViewLayout,
   createRandomVertex,
@@ -55,8 +55,8 @@ import {
 export class DbState {
   #activeSchema: SchemaStorageModel | null;
   #hasActiveConnection = true;
-  #inactiveConfigs: RawConfiguration[] = [];
-  activeConfig: RawConfiguration;
+  #inactiveConfigs: SavedConnection[] = [];
+  activeConfig: SavedConnection;
   vertexStyles: Map<VertexType, VertexStyleStorage>;
   edgeStyles: Map<EdgeType, EdgeStyleStorage>;
   graphViewLayout: GraphViewLayout;
@@ -75,7 +75,7 @@ export class DbState {
   constructor(explorer: Explorer = createMockExplorer()) {
     this.#activeSchema = createRandomSchema();
 
-    this.activeConfig = createRandomRawConfiguration();
+    this.activeConfig = createRandomSavedConnection();
 
     this.vertexStyles = createRandomVertexStyles();
     this.edgeStyles = createRandomEdgeStyles();
@@ -119,7 +119,7 @@ export class DbState {
   }
 
   /** Stores a connection alongside the active one without activating it. */
-  addInactiveConnection(config: RawConfiguration) {
+  addInactiveConnection(config: SavedConnection) {
     this.#inactiveConfigs.push(config);
     return this;
   }

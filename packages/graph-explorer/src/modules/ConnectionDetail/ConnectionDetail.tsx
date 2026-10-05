@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-import type { RawConfiguration } from "@/connections";
+import type { SavedConnection } from "@/connections";
 
 import {
   Button,
@@ -44,10 +44,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/Dialog";
-import {
-  isDirectConnection,
-  useDeleteActiveConfiguration,
-} from "@/connections";
+import { isDirectConnection, useDeleteActiveConnection } from "@/connections";
 import {
   activeSchemaSelector,
   type ConfigurationContextProps,
@@ -89,7 +86,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
 
   const onConfigExport = () => exportConnectionWithFeedback(config);
 
-  const deleteActiveConfig = useDeleteActiveConfiguration();
+  const deleteActiveConfig = useDeleteActiveConnection();
 
   const dbUrl = config.connection?.graphDbUrl || LABELS.MISSING_VALUE;
   const isDirect = isDirectConnection(config.connection);
@@ -211,7 +208,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
  */
 
 /** Shows the vertex list, loading, or error state. */
-function MainContentLayout(_props: { config: RawConfiguration }) {
+function MainContentLayout(_props: { config: SavedConnection }) {
   const { isFetching, schemaDiscoveryQuery, refreshSchema } = useSchemaSync();
   const hasSchema = useHasActiveSchema();
   const cancel = useCancelSchemaSync();

@@ -15,7 +15,7 @@ import {
 } from "@/core";
 import { SEARCH_TOKENS } from "@/utils";
 import {
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   createRandomVertexTypeConfig,
   renderHookWithJotai,
@@ -34,7 +34,7 @@ vi.mock("./useKeywordSearchQuery", () => ({
 function initializeConfigWithQueryEngine(queryEngine: QueryEngine) {
   return (store: AppStore) => {
     // Create config and setup schema
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     config.connection!.queryEngine = queryEngine;
 
     store.set(configurationAtom, new Map([[config.id, config]]));
@@ -134,7 +134,7 @@ describe("useKeywordSearch", () => {
   describe("SPARQL", () => {
     function initializeConfigWithRdfLabel(store: AppStore) {
       // Create config and setup schema
-      const config = createRandomRawConfiguration();
+      const config = createRandomSavedConnection();
       const schema = createRandomSchema();
       config.connection!.queryEngine = "sparql";
       schema.vertices[0].attributes.push({
@@ -248,7 +248,7 @@ describe("useKeywordSearch", () => {
   describe("all attributes token expansion", () => {
     function initializeConfigWithStringAttributes(queryEngine: QueryEngine) {
       return (store: AppStore) => {
-        const config = createRandomRawConfiguration();
+        const config = createRandomSavedConnection();
         const schema = createRandomSchema();
         config.connection!.queryEngine = queryEngine;
         schema.vertices[0].attributes = [
@@ -319,7 +319,7 @@ describe("useKeywordSearch", () => {
     }
 
     function initializeConfigWithTwoVertexTypes(store: AppStore) {
-      const config = createRandomRawConfiguration();
+      const config = createRandomSavedConnection();
       const schema = createRandomSchema();
       config.connection!.queryEngine = "gremlin";
       schema.vertices[0].attributes = [
@@ -339,7 +339,7 @@ describe("useKeywordSearch", () => {
     }
 
     function initializeConfigWithManyVertexTypes(store: AppStore) {
-      const config = createRandomRawConfiguration();
+      const config = createRandomSavedConnection();
       const schema = createRandomSchema();
       config.connection!.queryEngine = "gremlin";
 

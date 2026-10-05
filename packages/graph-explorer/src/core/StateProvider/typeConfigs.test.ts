@@ -1,7 +1,7 @@
 import { createRandomName } from "@shared/utils/testing";
 import { describe, expect, it, test } from "vitest";
 
-import type { NormalizedConnection, RawConfiguration } from "@/connections";
+import type { NormalizedConnection, SavedConnection } from "@/connections";
 
 import {
   createEdgeType,
@@ -13,7 +13,7 @@ import { RESERVED_TYPES_PROPERTY } from "@/utils";
 import {
   createRandomEdgeStyleStorage,
   createRandomEdgeTypeConfig,
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   createRandomVertexStyleStorage,
   createRandomVertexTypeConfig,
@@ -53,7 +53,7 @@ const defaultEmptyConnection: NormalizedConnection = {
 
 describe("mergedConfiguration", () => {
   it("should produce empty defaults when empty object is passed", () => {
-    const config = {} as RawConfiguration;
+    const config = {} as SavedConnection;
     const result = mergeConfiguration(null, config, new Map(), new Map());
 
     expect(result).toEqual({
@@ -68,7 +68,7 @@ describe("mergedConfiguration", () => {
   });
 
   it("should produce empty schema when no schema provided", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     const result = mergeConfiguration(null, config, new Map(), new Map());
 
     expect(result).toEqual({
@@ -87,7 +87,7 @@ describe("mergedConfiguration", () => {
   });
 
   it("should use schema when provided", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     const schema = createRandomSchema();
     const result = mergeConfiguration(schema, config, new Map(), new Map());
 
@@ -127,7 +127,7 @@ describe("mergedConfiguration", () => {
   });
 
   it("should use styling when provided", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     const schema = createRandomSchema();
     const vertexStyles = toVertexStyles(
       schema.vertices.map(v => ({
@@ -185,7 +185,7 @@ describe("mergedConfiguration", () => {
   });
 
   it("should have undefined vertex display label when not provided", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     const schema = createRandomSchema();
 
     const vtConfig = createRandomVertexTypeConfig();
@@ -202,7 +202,7 @@ describe("mergedConfiguration", () => {
   });
 
   it("should have undefined edge display label when not provided", () => {
-    const config: RawConfiguration = createRandomRawConfiguration();
+    const config: SavedConnection = createRandomSavedConnection();
     const schema = createRandomSchema();
 
     const etConfig = createRandomEdgeTypeConfig();
@@ -224,7 +224,7 @@ describe("mergedConfiguration", () => {
 
     const customDisplayLabel = createRandomName("Display Label");
 
-    const config: RawConfiguration = createRandomRawConfiguration();
+    const config: SavedConnection = createRandomSavedConnection();
     const vertexStyles = toVertexStyles([
       {
         type: vtConfig.type,
@@ -249,7 +249,7 @@ describe("mergedConfiguration", () => {
 
     const customDisplayLabel = createRandomName("Display Label");
 
-    const config: RawConfiguration = createRandomRawConfiguration();
+    const config: SavedConnection = createRandomSavedConnection();
     const edgeStyles = toEdgeStyles([
       {
         type: etConfig.type,
@@ -271,7 +271,7 @@ describe("mergedConfiguration", () => {
   it("should patch displayNameAttribute to be 'types' when it was 'type'", () => {
     const etConfig = createRandomEdgeTypeConfig();
 
-    const config: RawConfiguration = createRandomRawConfiguration();
+    const config: SavedConnection = createRandomSavedConnection();
     const edgeStyles = toEdgeStyles([
       {
         type: etConfig.type,
@@ -294,7 +294,7 @@ describe("mergedConfiguration", () => {
 
   it("should ignore a schema embedded on the stored config and use the active schema", () => {
     // A legacy stored config may carry an embedded schema (the field that was
-    // removed from RawConfiguration). The merge must source its schema solely
+    // removed from SavedConnection). The merge must source its schema solely
     // from the active schema argument, never from the stored config.
     const staleVertex = createRandomVertexTypeConfig();
     staleVertex.type = createVertexType("StaleType");
@@ -302,9 +302,9 @@ describe("mergedConfiguration", () => {
     staleSchema.vertices = [staleVertex];
 
     const config = {
-      ...createRandomRawConfiguration(),
+      ...createRandomSavedConnection(),
       schema: staleSchema,
-    } as RawConfiguration & { schema: SchemaStorageModel };
+    } as SavedConnection & { schema: SchemaStorageModel };
 
     const activeVertex = createRandomVertexTypeConfig();
     activeVertex.type = createVertexType("ActiveType");

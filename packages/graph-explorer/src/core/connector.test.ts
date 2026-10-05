@@ -3,23 +3,23 @@ import type { QueryEngine } from "@shared/types";
 import { createStore } from "jotai";
 import { describe, expect, test } from "vitest";
 
-import type { RawConfiguration } from "@/connections";
+import type { SavedConnection } from "@/connections";
 
 import { emptyExplorer } from "@/connector/emptyExplorer";
-import { createRandomRawConfiguration } from "@/utils/testing";
+import { createRandomSavedConnection } from "@/utils/testing";
 
 import { explorerAtom, explorerForTestingAtom } from "./connector";
 import { activeConfigurationAtom, configurationAtom } from "./StateProvider";
 
-function connectionWithEngine(queryEngine: QueryEngine): RawConfiguration {
-  const config = createRandomRawConfiguration();
+function connectionWithEngine(queryEngine: QueryEngine): SavedConnection {
+  const config = createRandomSavedConnection();
   return {
     ...config,
     connection: { ...config.connection!, queryEngine },
   };
 }
 
-function storeWithActiveConnection(config: RawConfiguration) {
+function storeWithActiveConnection(config: SavedConnection) {
   const store = createStore();
   store.set(configurationAtom, new Map([[config.id, config]]));
   store.set(activeConfigurationAtom, config.id);

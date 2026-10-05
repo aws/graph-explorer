@@ -3,14 +3,14 @@ import type { LegacyConnectionConfig } from "@shared/types";
 import { describe, expect, test } from "vitest";
 
 import {
-  createRandomRawConfiguration,
-  preloadStoredConfiguration,
+  createRandomSavedConnection,
+  preloadSavedConnection,
 } from "@/utils/testing";
 
-import type { ConfigurationId, RawConfiguration } from "./types";
+import type { ConnectionId, SavedConnection } from "./types";
 
 import {
-  transformConfiguration,
+  transformSavedConnections,
   transformLegacyConnection,
 } from "./legacyConnection";
 
@@ -289,22 +289,22 @@ describe("backward compatibility: legacy url/proxyConnection connection shape", 
 
 function configWithLegacyConnection(
   connection: LegacyConnectionConfig,
-): RawConfiguration {
+): SavedConnection {
   return {
-    ...createRandomRawConfiguration(),
+    ...createRandomSavedConnection(),
     // Stored data is not schema-validated on read, so an entry can carry a
     // legacy connection despite the compile-time `ConnectionConfig` shape.
-    connection: connection as RawConfiguration["connection"],
+    connection: connection as SavedConnection["connection"],
   };
 }
 
 function configMap(
-  ...configs: RawConfiguration[]
-): Map<ConfigurationId, RawConfiguration> {
+  ...configs: SavedConnection[]
+): Map<ConnectionId, SavedConnection> {
   return new Map(configs.map(config => [config.id, config]));
 }
 
-describe("transformConfiguration", () => {
+describe("transformSavedConnections", () => {
   test("uses graphDbUrl when proxyConnection is true", () => {
     const config = configWithLegacyConnection({
       url: "https://proxy.example.com",
@@ -312,7 +312,7 @@ describe("transformConfiguration", () => {
       graphDbUrl: "https://my-neptune:8182",
     });
 
-    const result = transformConfiguration(configMap(config));
+    const result = transformSavedConnections(configMap(config));
 
     expect(result.get(config.id)?.connection?.graphDbUrl).toBe(
       "https://my-neptune:8182",
@@ -325,7 +325,7 @@ describe("transformConfiguration", () => {
       proxyConnection: false,
     });
 
-    const result = transformConfiguration(configMap(config));
+    const result = transformSavedConnections(configMap(config));
 
     expect(result.get(config.id)?.connection).toStrictEqual({
       graphDbUrl: "https://my-neptune:8182",
@@ -334,8 +334,8 @@ describe("transformConfiguration", () => {
   });
 
   test("passes a canonical direct connection through unchanged", () => {
-    const config: RawConfiguration = {
-      ...createRandomRawConfiguration(),
+    const config: SavedConnection = {
+      ...createRandomSavedConnection(),
       connection: {
         graphDbUrl: "https://my-neptune:8182",
         proxyConnection: false,
@@ -343,7 +343,7 @@ describe("transformConfiguration", () => {
       },
     };
 
-    const result = transformConfiguration(configMap(config));
+    const result = transformSavedConnections(configMap(config));
 
     expect(result.get(config.id)).toStrictEqual(config);
   });
@@ -353,7 +353,7 @@ describe("transformConfiguration", () => {
       graphDbUrl: "https://my-neptune:8182",
     });
 
-    const result = transformConfiguration(configMap(config));
+    const result = transformSavedConnections(configMap(config));
 
     expect(result.get(config.id)?.connection?.graphDbUrl).toBe(
       "https://my-neptune:8182",
@@ -365,7 +365,7 @@ describe("transformConfiguration", () => {
       url: "https://my-neptune:8182",
     });
 
-    const result = transformConfiguration(configMap(config));
+    const result = transformSavedConnections(configMap(config));
 
     expect(result.get(config.id)?.connection).toStrictEqual({
       graphDbUrl: "https://my-neptune:8182",
@@ -374,26 +374,26 @@ describe("transformConfiguration", () => {
   });
 
   test("passes an already-migrated connection through unchanged", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
 
-    const result = transformConfiguration(configMap(config));
+    const result = transformSavedConnections(configMap(config));
 
     expect(result.get(config.id)).toStrictEqual(config);
   });
 
   test("handles an empty map", () => {
-    const result = transformConfiguration(new Map());
+    const result = transformSavedConnections(new Map());
 
     expect(result.size).toBe(0);
   });
 
   test("passes an entry with no connection through unchanged", () => {
-    const config: RawConfiguration = {
-      ...createRandomRawConfiguration(),
+    const config: SavedConnection = {
+      ...createRandomSavedConnection(),
       connection: undefined,
     };
 
-    const result = transformConfiguration(configMap(config));
+    const result = transformSavedConnections(configMap(config));
 
     expect(result.get(config.id)).toStrictEqual(config);
   });
@@ -428,7 +428,7 @@ describe("backward compatibility: legacy connection shape in storage", () => {
       nodeExpansionLimit: 25,
     });
 
-    const stored = await preloadStoredConfiguration(config);
+    const stored = await preloadSavedConnection(config);
 
     expect(stored?.connection).toStrictEqual({
       graphDbUrl: "https://my-neptune:8182",

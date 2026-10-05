@@ -7,13 +7,13 @@ import {
   DEFAULT_FETCH_TIMEOUT,
   DEFAULT_NODE_EXPAND_LIMIT,
 } from "@/utils/constants";
-import { createRandomRawConfiguration } from "@/utils/testing";
+import { createRandomSavedConnection } from "@/utils/testing";
 
 import {
   type ConnectionFormValues,
   createNewConnectionForm,
   hasAdvancedOverrides,
-  mapConfigurationToConnectionForm,
+  mapSavedConnectionToConnectionForm,
   mapToConnection,
   mapToConnectionForm,
   updateConnectionForm,
@@ -196,12 +196,12 @@ describe("mapToConnectionForm", () => {
   });
 });
 
-describe("mapConfigurationToConnectionForm", () => {
+describe("mapSavedConnectionToConnectionForm", () => {
   test("names a labeled connection by its label", () => {
     const displayLabel = createRandomName("Label");
-    const config = { ...createRandomRawConfiguration(), displayLabel };
+    const config = { ...createRandomSavedConnection(), displayLabel };
 
-    expect(mapConfigurationToConnectionForm(config)).toStrictEqual(
+    expect(mapSavedConnectionToConnectionForm(config)).toStrictEqual(
       mapToConnectionForm(displayLabel, config.connection),
     );
   });
@@ -210,11 +210,11 @@ describe("mapConfigurationToConnectionForm", () => {
   // should too rather than presenting it as nameless.
   test("names an unlabeled connection by its id", () => {
     const config = {
-      ...createRandomRawConfiguration(),
+      ...createRandomSavedConnection(),
       displayLabel: undefined,
     };
 
-    expect(mapConfigurationToConnectionForm(config)).toStrictEqual(
+    expect(mapSavedConnectionToConnectionForm(config)).toStrictEqual(
       mapToConnectionForm(config.id, config.connection),
     );
   });

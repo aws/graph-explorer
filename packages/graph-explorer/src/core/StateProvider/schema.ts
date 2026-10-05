@@ -5,7 +5,7 @@ import { atomFamily } from "jotai-family";
 import { RESET, useAtomCallback } from "jotai/utils";
 import { useCallback, useDeferredValue } from "react";
 
-import type { ConfigurationId } from "@/connections";
+import type { ConnectionId } from "@/connections";
 import type { SetStateActionWithReset } from "@/utils/jotai";
 
 import { createTypedValue, type ScalarValue } from "@/connector/entities";
@@ -64,7 +64,7 @@ export type SchemaStorageModel = {
 };
 
 /** Grabs a specific schema out of the map, or returns the empty schema */
-const schemaByIdAtom = atomFamily((id: ConfigurationId | null) => {
+const schemaByIdAtom = atomFamily((id: ConnectionId | null) => {
   if (!id) {
     return atom(emptySchema);
   }

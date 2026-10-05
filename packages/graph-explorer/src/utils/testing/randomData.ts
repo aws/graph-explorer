@@ -20,10 +20,10 @@ import {
 } from "@shared/utils/testing";
 
 import {
-  type ConfigurationId,
+  type ConnectionId,
   type ConnectionWithId,
-  createNewConfigurationId,
-  type RawConfiguration,
+  createConnectionId,
+  type SavedConnection,
 } from "@/connections";
 import {
   createPatchedResultEdge,
@@ -280,8 +280,8 @@ export function createRandomEdgeId(): EdgeId {
 }
 
 /** Creates a random configuration (connection) ID. */
-export function createRandomConfigurationId(): ConfigurationId {
-  return createNewConfigurationId();
+export function createRandomConnectionId(): ConnectionId {
+  return createConnectionId();
 }
 
 export function createRandomVertexType(): VertexType {
@@ -617,7 +617,7 @@ export function createRandomConnectionWithId(): ConnectionWithId {
   const queryEngine = createRandomQueryEngine();
 
   return {
-    id: createNewConfigurationId(),
+    id: createConnectionId(),
     displayLabel: createRandomName("displayLabel"),
     graphDbUrl: createRandomUrlString(),
     queryEngine,
@@ -632,10 +632,10 @@ export function createRandomConnectionWithId(): ConnectionWithId {
 }
 
 /**
- * Creates a random RawConfiguration object.
- * @returns A random RawConfiguration object.
+ * Creates a random SavedConnection object.
+ * @returns A random SavedConnection object.
  */
-export function createRandomRawConfiguration(): RawConfiguration {
+export function createRandomSavedConnection(): SavedConnection {
   const { id, displayLabel, ...connection } = createRandomConnectionWithId();
 
   return {

@@ -15,7 +15,7 @@ import { getAppStore } from "@/core/StateProvider/appStore";
 import { NetworkError } from "@/utils";
 import {
   createRandomEdgeTypeConfig,
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomVertexTypeConfig,
   DbState,
   FakeExplorer,
@@ -497,7 +497,7 @@ describe("useSchemaSync", () => {
       // render cycle, so they (not `rerender`, which RTL already wraps) are
       // what need the `act()` wrapper here.
       const store = getAppStore();
-      const newConfig = createRandomRawConfiguration();
+      const newConfig = createRandomSavedConnection();
       act(() => {
         store.set(configurationAtom, prev => {
           const updated = new Map(prev);

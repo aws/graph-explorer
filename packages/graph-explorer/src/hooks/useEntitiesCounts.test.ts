@@ -3,12 +3,12 @@
 import { createRandomInteger } from "@shared/utils/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { RawConfiguration } from "@/connections";
+import type { SavedConnection } from "@/connections";
 import type { SchemaStorageModel } from "@/core";
 
 import {
   createRandomEdgeTypeConfig,
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   createRandomVertexTypeConfig,
   DbState,
@@ -18,7 +18,7 @@ import {
 import useEntitiesCounts from "./useEntitiesCounts";
 
 function renderUseEntitiesHook(
-  config: RawConfiguration,
+  config: SavedConnection,
   schema: SchemaStorageModel,
 ) {
   const dbState = new DbState();
@@ -28,11 +28,11 @@ function renderUseEntitiesHook(
 }
 
 describe("useEntitiesCounts", () => {
-  let config: RawConfiguration;
+  let config: SavedConnection;
   let schema: SchemaStorageModel;
 
   beforeEach(() => {
-    config = createRandomRawConfiguration();
+    config = createRandomSavedConnection();
     schema = createRandomSchema();
     vi.resetAllMocks();
   });

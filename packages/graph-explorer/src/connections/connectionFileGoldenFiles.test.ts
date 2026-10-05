@@ -8,7 +8,7 @@ import { createEdgeType, createVertexType } from "@/core/entities";
 import { stubDocumentUrl } from "@/utils/testing";
 import { exportConnectionFileText } from "@/utils/testing/exportConnectionFileText";
 
-import type { ConfigurationId } from "./types";
+import type { ConnectionId } from "./types";
 
 import exportGoldenLegacyUrlDirect from "./__fixtures__/connection-file-export-golden-legacy-url-direct.txt?raw";
 import exportGoldenLegacyUrlProxy from "./__fixtures__/connection-file-export-golden-legacy-url-proxy.txt?raw";
@@ -106,7 +106,7 @@ describe("golden Exported Connection File export is stable", () => {
     stubDocumentUrl("https://graph-explorer.example.com/proxy/9250/explorer/");
   });
 
-  test("saveConfigurationToFile writes the pinned shape for a proxy connection", async () => {
+  test("saveConnectionToFile writes the pinned shape for a proxy connection", async () => {
     // A byte-for-byte compare against the captured bytes. The fixture is a
     // `.txt` so the formatter leaves it alone, letting this pin the writer's
     // exact serialization — values, field order, and whitespace.
@@ -115,10 +115,10 @@ describe("golden Exported Connection File export is stable", () => {
     );
   });
 
-  test("saveConfigurationToFile writes the pinned shape for a direct connection", async () => {
+  test("saveConnectionToFile writes the pinned shape for a direct connection", async () => {
     const input: ConfigurationContextProps = {
       ...fixedExportInput(),
-      id: "44444444-4444-4444-8444-444444444444" as ConfigurationId,
+      id: "44444444-4444-4444-8444-444444444444" as ConnectionId,
       displayLabel: "Golden Neptune (direct)",
       connection: {
         graphDbUrl: "https://neptune.example.com:8182",
@@ -139,7 +139,7 @@ describe("golden Exported Connection File export is stable", () => {
  */
 function fixedExportInput(): ConfigurationContextProps {
   return {
-    id: "33333333-3333-4333-8333-333333333333" as ConfigurationId,
+    id: "33333333-3333-4333-8333-333333333333" as ConnectionId,
     displayLabel: "Golden Neptune",
     connection: {
       graphDbUrl: "https://neptune.example.com:8182",

@@ -4,11 +4,11 @@ import { createStore } from "jotai";
 import localforage from "localforage";
 import { describe, expect, it } from "vitest";
 
-import type { RawConfiguration } from "@/connections";
+import type { SavedConnection } from "@/connections";
 
 import {
-  createRandomRawConfiguration,
-  preloadStoredConfigurations,
+  createRandomSavedConnection,
+  preloadSavedConnections,
 } from "@/utils/testing";
 
 import { defaultGraphViewLayout } from "./graphViewLayoutDefaults";
@@ -91,18 +91,18 @@ describe("storageAtoms", () => {
  * Earlier versions stored a connection with a `url`/`proxyConnection` pair.
  * The real `configurationAtom` must fold that shape into the canonical one
  * as it preloads, so these tests seed IndexedDB and then load a fresh copy
- * of storageAtoms.ts. Removing `transform: transformConfiguration` from its
+ * of storageAtoms.ts. Removing `transform: transformSavedConnections` from its
  * `configuration` atom must fail them.
  *
  * DO NOT delete or weaken these tests without confirming no stored
  * connection can still carry the legacy shape.
  */
 describe("backward compatibility: connections stored by earlier versions", () => {
-  function storedConfig(connection: LegacyConnectionConfig): RawConfiguration {
+  function storedConfig(connection: LegacyConnectionConfig): SavedConnection {
     return {
-      ...createRandomRawConfiguration(),
+      ...createRandomSavedConnection(),
       // Stored data is not schema-validated on read.
-      connection: connection as RawConfiguration["connection"],
+      connection: connection as SavedConnection["connection"],
     };
   }
 
@@ -119,8 +119,7 @@ describe("backward compatibility: connections stored by earlier versions", () =>
       nodeExpansionLimit: 25,
     });
 
-    const { store, configurationAtom } =
-      await preloadStoredConfigurations(config);
+    const { store, configurationAtom } = await preloadSavedConnections(config);
 
     expect(
       store.get(configurationAtom).get(config.id)?.connection,
@@ -145,7 +144,7 @@ describe("backward compatibility: connections stored by earlier versions", () =>
       graphDbUrl: "https://neptune-a:8182",
     });
     const { store, configurationAtom, persistenceStatusStore } =
-      await preloadStoredConfigurations(storedByThisTab);
+      await preloadSavedConnections(storedByThisTab);
 
     // Another tab writes its own legacy entry alongside this tab's, directly
     // to storage, skipping this tab's in-memory atoms entirely.
@@ -161,7 +160,7 @@ describe("backward compatibility: connections stored by earlier versions", () =>
         [storedByOtherTab.id, storedByOtherTab],
       ]),
     );
-    const added = createRandomRawConfiguration();
+    const added = createRandomSavedConnection();
     store.set(configurationAtom, prev => new Map(prev).set(added.id, added));
     await persistenceStatusStore.waitForIdle();
 

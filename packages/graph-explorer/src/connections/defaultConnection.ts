@@ -4,7 +4,7 @@ import { z } from "zod";
 import { apiUrl } from "@/connector/utils/apiUrl";
 import { DEFAULT_SERVICE_TYPE, logger } from "@/utils";
 
-import type { ConfigurationId, RawConfiguration } from "./types";
+import type { ConnectionId, SavedConnection } from "./types";
 
 import { transformLegacyConnection } from "./legacyConnection";
 
@@ -54,12 +54,12 @@ export async function fetchDefaultConnection() {
     const configs = queryEngineOptions.map(queryEngine => {
       return {
         ...config,
-        id: `${config.id}-${queryEngine}` as ConfigurationId,
+        id: `${config.id}-${queryEngine}` as ConnectionId,
         connection: {
           ...config.connection,
           queryEngine: queryEngine,
         },
-      } as RawConfiguration;
+      } as SavedConnection;
     });
 
     return configs;
@@ -105,9 +105,9 @@ export async function fetchDefaultConnectionFor(
   }
 }
 
-export function mapToConnection(data: DefaultConnectionData): RawConfiguration {
+export function mapToConnection(data: DefaultConnectionData): SavedConnection {
   return {
-    id: "Default Connection" as ConfigurationId,
+    id: "Default Connection" as ConnectionId,
     displayLabel: "Default Connection",
     connection: transformLegacyConnection({
       url: data.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT,
