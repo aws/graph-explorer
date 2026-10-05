@@ -65,7 +65,7 @@ async function decodeErrorSafely(response: Response): Promise<any> {
 }
 
 // The Graph Explorer server's route for a proxy connection, or the database
-// itself for a deprecated direct connection.
+// itself for a direct connection.
 function resolveEndpoint(connection: NormalizedConnection, path: string): URL {
   if (!isDirectConnection(connection)) {
     return apiUrl(path);

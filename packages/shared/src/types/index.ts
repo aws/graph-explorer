@@ -14,7 +14,7 @@ export type ConnectionConfig = {
   graphDbUrl: string;
   /**
    * Absent or `true` sends requests through the Graph Explorer server. `false`
-   * is a deprecated direct connection, where the browser calls `graphDbUrl`
+   * is a direct connection, where the browser calls `graphDbUrl`
    * itself.
    */
   proxyConnection?: boolean;

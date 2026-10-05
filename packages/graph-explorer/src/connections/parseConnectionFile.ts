@@ -49,7 +49,7 @@ const exportedConnectionFileSchema = z.looseObject({
       // Validated to the same scheme so a legacy file cannot smuggle in a
       // non-http(s) target either.
       url: z.url({ protocol: /^https?$/ }).optional(),
-      // `false` marks a deprecated direct connection, in both legacy and
+      // `false` marks a direct connection, in both legacy and
       // current files.
       proxyConnection: z.boolean().optional(),
       // Best-effort: an unparseable value degrades to absent rather than

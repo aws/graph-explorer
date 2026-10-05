@@ -19,11 +19,7 @@ The next three settings are grouped under an **Advanced options** section that y
 
 - **Fetch Timeout:** Check **Enable Fetch Timeout** to reveal **Fetch Timeout (ms)**, then specify the timeout for the fetch request.
 - **Neighbor Expansion Limit:** Check **Override Default Neighbor Expansion Limit** to reveal this field, then specify the default limit for neighbor expansion. This will override the app setting for neighbor expansion.
-- **Connect directly from the browser (deprecated):** Check this box to have your browser send requests to the database itself instead of through the Graph Explorer server. The database must allow cross-origin requests (CORS) from the Graph Explorer page, and IAM authentication isn't available, so the IAM fields are hidden. When Graph Explorer is served over HTTPS, the browser usually blocks an `http://` Database URL unless it points at a loopback host such as `localhost`; see [Insecure Database URL](../guides/troubleshooting.md#insecure-database-url).
-
-> [!WARNING]
->
-> Direct connections are deprecated and will be removed in a future release. Leave **Connect directly from the browser (deprecated)** unchecked unless you depend on it.
+- **Connect directly from the browser:** Check this box to have your browser send requests to the database itself instead of through the Graph Explorer server. The database must allow cross-origin requests (CORS) from the Graph Explorer page, and IAM authentication isn't available, so the IAM fields are hidden. When Graph Explorer is served over HTTPS, the browser usually blocks an `http://` Database URL unless it points at a loopback host such as `localhost`. See [Insecure Database URL](../guides/troubleshooting.md#insecure-database-url).
 
 ## Available Connections
 

@@ -2,7 +2,7 @@
 
 # Security
 
-The browser talks to the same-origin proxy server, and the proxy server is what reaches the graph database. That means the proxy server must have network access to the target database, as described in the [architecture overview](../architecture.md#system-overview). The one exception is a deprecated direct connection, where the browser sends requests to the database itself.
+The browser talks to the same-origin proxy server, and the proxy server is what reaches the graph database. That means the proxy server must have network access to the target database, as described in the [architecture overview](../architecture.md#system-overview). The one exception is a direct connection, where the browser sends requests to the database itself.
 
 Graph Explorer supports the HTTPS protocol by default and provides a self-signed certificate as part of the Docker image. You can choose to use HTTP instead by changing the [environment variable default settings](./configuration.md#application-configuration).
 
@@ -153,7 +153,7 @@ For browsers like Safari and Firefox, trusting the certificate from the browser 
 
 ## CORS
 
-By default, the proxy server does not allow cross-origin requests. The browser reaches the proxy server's API from the same origin it served the UI from, so CORS is not needed for the UI itself. A deprecated direct connection is different: the browser calls the database from the Graph Explorer page's origin, so the database must allow cross-origin requests from it. In development mode, the Vite dev server proxies API requests to the Express server to maintain same-origin behavior.
+By default, the proxy server does not allow cross-origin requests. The browser reaches the proxy server's API from the same origin it served the UI from, so CORS is not needed for the UI itself. A direct connection is different: the browser calls the database from the Graph Explorer page's origin, so the database must allow cross-origin requests from it. In development mode, the Vite dev server proxies API requests to the Express server to maintain same-origin behavior.
 
 `PROXY_SERVER_CORS_ORIGIN` is for a different case: some other web application, running at its own origin, calling the proxy server's API directly (not through the Graph Explorer UI). Set it to the origin you want to allow.
 
@@ -181,7 +181,7 @@ The first time the proxy server signs a request with no allowlist set, it logs a
 
 > [!NOTE]
 >
-> This check applies only to requests routed through the proxy server. It doesn't apply to deprecated direct connections, because the browser sends their requests to the database itself.
+> This check applies only to requests routed through the proxy server. It doesn't apply to direct connections, because the browser sends their requests to the database itself.
 
 ## HTTP Redirects
 

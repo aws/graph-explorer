@@ -123,9 +123,9 @@ describe("CreateConnection", () => {
     expect(savedConnection.connection).not.toHaveProperty("proxyConnection");
   });
 
-  describe("deprecated direct connection", () => {
+  describe("direct connection", () => {
     const directOption = {
-      name: /Connect directly from the browser \(deprecated\)/,
+      name: /Connect directly from the browser/,
     };
 
     test("hides the IAM controls when connecting directly", async () => {
