@@ -35,7 +35,7 @@ import {
   createNewConnectionForm,
   hasAdvancedOverrides,
   mapToConnection,
-  mapConfigurationToConnectionForm,
+  mapSavedConnectionToConnectionForm,
   queryEngineSchema,
   serviceTypeSchema,
   updateConnectionForm,
@@ -148,7 +148,7 @@ const CreateConnection = ({
 
   const [form, setForm] = useState<ConnectionFormValues>(() =>
     existingConfig
-      ? mapConfigurationToConnectionForm(existingConfig)
+      ? mapSavedConnectionToConnectionForm(existingConfig)
       : (initialValues ?? createNewConnectionForm(new Date())),
   );
   const [showErrors, setShowErrors] = useState(false);

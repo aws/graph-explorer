@@ -23,7 +23,9 @@ export function isDirectConnection(
   return connection?.proxyConnection === false;
 }
 
-export function normalizeConnection(connection: ConnectionConfig) {
+export function normalizeConnection(
+  connection: ConnectionConfig,
+): NormalizedConnection {
   return {
     ...connection,
     graphDbUrl: normalizeUrl(connection.graphDbUrl),
@@ -31,11 +33,7 @@ export function normalizeConnection(connection: ConnectionConfig) {
     awsAuthEnabled: connection.awsAuthEnabled ?? false,
   };
 }
-export type NormalizedConnection = Omit<
-  ConnectionConfig,
-  "graphDbUrl" | "queryEngine" | "awsAuthEnabled"
-> & {
-  graphDbUrl: string;
+export type NormalizedConnection = ConnectionConfig & {
   queryEngine: QueryEngine;
   awsAuthEnabled: boolean;
 };
