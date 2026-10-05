@@ -17,7 +17,7 @@ import { LABELS } from "@/utils";
 import {
   createRandomEdge,
   createRandomEdgeConnection,
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   createRandomVertex,
   createRandomVertexType,
@@ -1317,7 +1317,7 @@ describe("maybeActiveSchemaAtom", () => {
   });
 
   it("returns undefined when active config has no schema", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
 
     const { result } = renderHookWithJotai(
       () => useAtomValue(maybeActiveSchemaAtom),
@@ -1332,7 +1332,7 @@ describe("maybeActiveSchemaAtom", () => {
   });
 
   it("returns the schema when one exists", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     const schema = createRandomSchema();
 
     const { result } = renderHookWithJotai(
@@ -1356,7 +1356,7 @@ describe("useMaybeActiveSchema", () => {
   });
 
   it("returns undefined when active config has no schema", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
 
     const { result } = renderHookWithJotai(
       () => useMaybeActiveSchema(),
@@ -1371,7 +1371,7 @@ describe("useMaybeActiveSchema", () => {
   });
 
   it("returns the schema when one exists", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     const schema = createRandomSchema();
 
     const { result } = renderHookWithJotai(
@@ -1399,7 +1399,7 @@ describe("useActiveSchema", () => {
   });
 
   it("returns empty schema when active config has no schema", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
 
     const { result } = renderHookWithJotai(
       () => useActiveSchema(),
@@ -1418,7 +1418,7 @@ describe("useActiveSchema", () => {
   });
 
   it("returns the schema when one exists", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     const schema = createRandomSchema();
 
     const { result } = renderHookWithJotai(

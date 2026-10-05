@@ -24,7 +24,7 @@ import {
 } from "@/core";
 import { formatDate, LABELS } from "@/utils";
 import {
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   createRandomVertex,
   createRandomVertexId,
@@ -219,7 +219,7 @@ describe("useDisplayVertexFromVertex", () => {
   }
 
   function withSchema(schema: SchemaStorageModel) {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     return (store: AppStore) => {
       store.set(configurationAtom, new Map([[config.id, config]]));
       store.set(schemaAtom, new Map([[config.id, schema]]));
@@ -231,7 +231,7 @@ describe("useDisplayVertexFromVertex", () => {
     schema: SchemaStorageModel,
     queryEngine: QueryEngine,
   ) {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     config.connection!.queryEngine = queryEngine;
     return (store: AppStore) => {
       store.set(configurationAtom, new Map([[config.id, config]]));

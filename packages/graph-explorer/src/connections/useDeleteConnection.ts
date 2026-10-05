@@ -10,11 +10,11 @@ import {
 } from "@/core/StateProvider/storageAtoms";
 import { logger } from "@/utils";
 
-import type { ConfigurationId } from "./types";
+import type { ConnectionId } from "./types";
 
-export function useDeleteConfig() {
+export function useDeleteConnection() {
   return useAtomCallback(
-    useCallback((_get, set, id: ConfigurationId) => {
+    useCallback((_get, set, id: ConnectionId) => {
       logger.log("Deleting connection:", id);
       set(activeConfigurationAtom, prev => {
         if (prev === id) {
@@ -44,9 +44,9 @@ export function useDeleteConfig() {
   );
 }
 
-export function useDeleteActiveConfiguration() {
+export function useDeleteActiveConnection() {
   const activeConfigId = useAtomValue(activeConfigurationAtom);
-  const deleteConfig = useDeleteConfig();
+  const deleteConfig = useDeleteConnection();
 
   return () => {
     if (!activeConfigId) {

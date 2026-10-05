@@ -12,21 +12,21 @@ import {
   schemaAtom,
 } from "@/core/StateProvider/storageAtoms";
 import {
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   createRandomVertex,
   DbState,
   renderHookWithJotai,
 } from "@/utils/testing";
 
-import { useDeleteActiveConfiguration } from "./useDeleteConfig";
+import { useDeleteActiveConnection } from "./useDeleteConnection";
 
 test("should delete the active configuration", async () => {
-  const config1 = createRandomRawConfiguration();
+  const config1 = createRandomSavedConnection();
 
   const { result } = renderHookWithJotai(
     () => {
-      const callback = useDeleteActiveConfiguration();
+      const callback = useDeleteActiveConnection();
       const allConfigs = useAtomValue(configurationAtom);
       const activeConfig = useAtomValue(activeConfigurationAtom);
 
@@ -47,12 +47,12 @@ test("should delete the active configuration", async () => {
 });
 
 test("should delete the active schema", async () => {
-  const config1 = createRandomRawConfiguration();
+  const config1 = createRandomSavedConnection();
   const schema1 = createRandomSchema();
 
   const { result } = renderHookWithJotai(
     () => {
-      const callback = useDeleteActiveConfiguration();
+      const callback = useDeleteActiveConnection();
       const allSchemas = useAtomValue(schemaAtom);
 
       return { callback, allSchemas };
@@ -77,7 +77,7 @@ test("should delete the graph session for the active connection", async () => {
 
   const { result } = renderHookWithJotai(
     () => {
-      const callback = useDeleteActiveConfiguration();
+      const callback = useDeleteActiveConnection();
       const allGraphs = useAtomValue(allGraphSessionsAtom);
 
       return { callback, allGraphs };

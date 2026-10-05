@@ -16,7 +16,7 @@ import {
   renderHookWithState,
 } from "@/utils/testing";
 
-import { createNewConfigurationId } from "./types";
+import { createConnectionId } from "./types";
 import { useImportConnectionFile } from "./useImportConnectionFile";
 
 const mockResetState = vi.fn();
@@ -51,7 +51,7 @@ describe("useImportConnectionFile", () => {
     const displayLabel = createRandomName("Config");
     const graphDbUrl = createRandomUrlString();
     const validConfig = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       displayLabel,
       connection: {
         graphDbUrl,
@@ -100,7 +100,7 @@ describe("useImportConnectionFile", () => {
 
     const graphDbUrl = createRandomUrlString();
     const directConfig = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         graphDbUrl,
@@ -198,7 +198,7 @@ describe("useImportConnectionFile", () => {
     );
 
     const validConfig = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         url: createRandomUrlString(),
@@ -245,7 +245,7 @@ describe("useImportConnectionFile", () => {
 
     const lastUpdate = new Date("2024-01-01T00:00:00Z");
     const validConfig = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         url: createRandomUrlString(),
@@ -282,7 +282,7 @@ describe("useImportConnectionFile", () => {
     );
 
     const validConfig = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         url: createRandomUrlString(),
@@ -318,7 +318,7 @@ describe("useImportConnectionFile", () => {
     );
 
     const validConfig = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       displayLabel: "Production Database",
       connection: {
         url: "https://neptune.example.com:8182",
@@ -385,7 +385,7 @@ describe("useImportConnectionFile", () => {
     );
 
     const validConfig = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         url: createRandomUrlString(),
@@ -464,7 +464,7 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
     // stored the database endpoint in `url`, not `graphDbUrl`.
     const url = createRandomUrlString();
     const legacyConfig = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         url,
@@ -513,7 +513,7 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
     const graphDbUrl = createRandomUrlString();
     const url = createRandomUrlString();
     const legacyConfig = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         url,
@@ -563,7 +563,7 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
     // the legacy shape.
     const graphDbUrl = createRandomUrlString();
     const legacyConfig = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         graphDbUrl,
@@ -605,7 +605,7 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
     // so `url` becomes the endpoint.
     const url = createRandomUrlString();
     const legacyConfig = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         url,
@@ -661,7 +661,7 @@ describe("backward compatibility: legacy __matches in exported files", () => {
     // This mirrors the shape of a file exported by an older version that
     // serialized __matches as an array.
     const legacyConfig = {
-      id: createNewConfigurationId(),
+      id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         url: createRandomUrlString(),
@@ -726,12 +726,12 @@ describe("backward compatibility: legacy __matches in exported files", () => {
  * full schema inside the top-level envelope: `{ id, displayLabel, connection,
  * schema }`. Import must split this envelope — routing `connection` into
  * `configurationAtom` and `schema` into `schemaAtom` — and must never write the
- * schema into the config entry (`RawConfiguration.schema`).
+ * schema into the config entry (`SavedConnection.schema`).
  *
  * This pins that split for a faithful, real-world-shaped export (styled vertex
  * and edge type configs, both `lucide:` and base64 data-URI icons, an ISO
  * `lastUpdate`, and `edgeConnections`). It guards against a refactor that
- * decouples the file envelope type from `RawConfiguration` accidentally
+ * decouples the file envelope type from `SavedConnection` accidentally
  * dropping schema data or leaking it back into the config entry.
  *
  * DO NOT delete or weaken this test without confirming that exported files in
@@ -775,7 +775,7 @@ describe("backward compatibility: legacy exported connection file with embedded 
     expect(importedConfig.connection).not.toHaveProperty("proxyConnection");
 
     // The schema must NOT be stored on the config entry — it belongs in
-    // schemaAtom. `RawConfiguration` no longer declares a `schema` field, so we
+    // schemaAtom. `SavedConnection` no longer declares a `schema` field, so we
     // probe for a stray one to prove import never writes it back.
     expect((importedConfig as { schema?: unknown }).schema).toBeUndefined();
 

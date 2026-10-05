@@ -8,27 +8,27 @@ import {
   serializeData,
 } from "@/core/StateProvider/serializeData";
 import {
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
 } from "@/utils/testing";
 
-import type { RawConfiguration } from "./types";
+import type { SavedConnection } from "./types";
 
-describe("RawConfiguration", () => {
+describe("SavedConnection", () => {
   test("serialization round-trip preserves configuration data", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
 
     const serialized = serializeData(config);
-    const deserialized = deserializeData(serialized) as RawConfiguration;
+    const deserialized = deserializeData(serialized) as SavedConnection;
 
     expect(deserialized).toStrictEqual(config);
   });
 
   test("serialization round-trip preserves array of configurations", () => {
-    const configs = createArray(5, createRandomRawConfiguration);
+    const configs = createArray(5, createRandomSavedConnection);
 
     const serialized = serializeData(configs);
-    const deserialized = deserializeData(serialized) as RawConfiguration[];
+    const deserialized = deserializeData(serialized) as SavedConnection[];
 
     expect(deserialized).toStrictEqual(configs);
   });
@@ -37,8 +37,8 @@ describe("RawConfiguration", () => {
 /**
  * BACKWARD COMPATIBILITY — PERSISTED DATA
  *
- * `RawConfiguration` is persisted to IndexedDB via localforage. Older versions
- * embedded the schema directly on the stored config (`RawConfiguration.schema`).
+ * `SavedConnection` is persisted to IndexedDB via localforage. Older versions
+ * embedded the schema directly on the stored config (`SavedConnection.schema`).
  * That field has been removed — the schema now lives only in `schemaAtom` — but
  * previously persisted configs may still carry it. This verifies that
  * serialization round-trips such a legacy config losslessly, including reviving
@@ -51,9 +51,9 @@ describe("backward compatibility: legacy embedded schema on stored configuration
   test("serialization round-trip preserves a configuration carrying a legacy schema", () => {
     // Use `as` to simulate the legacy shape that TypeScript no longer allows.
     const legacyConfig = {
-      ...createRandomRawConfiguration(),
+      ...createRandomSavedConnection(),
       schema: createRandomSchema(),
-    } as RawConfiguration & { schema: SchemaStorageModel };
+    } as SavedConnection & { schema: SchemaStorageModel };
 
     const serialized = serializeData(legacyConfig);
     const deserialized = deserializeData(serialized) as typeof legacyConfig;

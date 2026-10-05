@@ -12,7 +12,7 @@ import { fromFileToJson } from "@/utils/fileData";
 
 import { transformLegacyConnection } from "./legacyConnection";
 import { parseConnectionFile } from "./parseConnectionFile";
-import { createNewConfigurationId } from "./types";
+import { createConnectionId } from "./types";
 
 export function useImportConnectionFile() {
   const resetState = useResetState();
@@ -36,7 +36,7 @@ export function useImportConnectionFile() {
         const connection = transformLegacyConnection(parsedFile.connection);
 
         // Create new id to avoid collisions
-        const newId = createNewConfigurationId();
+        const newId = createConnectionId();
         set(configurationAtom, prevConfig => {
           const updatedConfig = new Map(prevConfig);
           updatedConfig.set(newId, {

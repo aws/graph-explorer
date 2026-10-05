@@ -4,7 +4,7 @@ import type { Explorer } from "@/connector";
 
 import { normalizeConnection } from "@/connections";
 
-import { createRandomRawConfiguration } from "./randomData";
+import { createRandomSavedConnection } from "./randomData";
 
 export function createMockExplorer(): Explorer {
   return {
@@ -12,7 +12,7 @@ export function createMockExplorer(): Explorer {
     keywordSearch: vi.fn(),
     fetchNeighbors: vi.fn(),
     fetchVertexCountsByType: vi.fn(),
-    connection: normalizeConnection(createRandomRawConfiguration().connection!),
+    connection: normalizeConnection(createRandomSavedConnection().connection!),
     fetchSchema: vi.fn(),
     edgeDetails: vi.fn(),
     vertexDetails: vi.fn(),

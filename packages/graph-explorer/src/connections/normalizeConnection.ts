@@ -1,4 +1,4 @@
-import type { ConnectionConfig } from "@shared/types";
+import type { ConnectionConfig, QueryEngine } from "@shared/types";
 
 /**
  * Cleans a URL for storage and request use: strips newlines and surrounding
@@ -31,4 +31,11 @@ export function normalizeConnection(connection: ConnectionConfig) {
     awsAuthEnabled: connection.awsAuthEnabled ?? false,
   };
 }
-export type NormalizedConnection = ReturnType<typeof normalizeConnection>;
+export type NormalizedConnection = Omit<
+  ConnectionConfig,
+  "graphDbUrl" | "queryEngine" | "awsAuthEnabled"
+> & {
+  graphDbUrl: string;
+  queryEngine: QueryEngine;
+  awsAuthEnabled: boolean;
+};

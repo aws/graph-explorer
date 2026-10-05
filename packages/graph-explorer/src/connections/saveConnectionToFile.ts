@@ -11,7 +11,7 @@ import type { ExportedConnectionFile } from "./parseConnectionFile";
 
 import { isDirectConnection, normalizeUrl } from "./normalizeConnection";
 
-const saveConfigurationToFile = (config: ConfigurationContextProps) => {
+const saveConnectionToFile = (config: ConfigurationContextProps) => {
   const { graphDbUrl, ...connection } = config.connection ?? {};
   const normalizedGraphDbUrl = normalizeUrl(graphDbUrl);
   const exportableConfig: ExportedConnectionFile = {
@@ -56,4 +56,4 @@ function legacyConnectionFields(
   };
 }
 
-export default saveConfigurationToFile;
+export default saveConnectionToFile;

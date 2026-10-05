@@ -1,10 +1,10 @@
-import type { ConfigurationId, RawConfiguration } from "@/connections";
+import type { ConnectionId, SavedConnection } from "@/connections";
 
 // Deep import: this module's top-level await creates the atoms, so its import
 // graph must not include atom readers. The `@/connections` index exports the
 // active-connection selectors, which read these atoms, so the transform is
 // imported from its own file instead.
-import { transformConfiguration } from "@/connections/legacyConnection";
+import { transformSavedConnections } from "@/connections/legacyConnection";
 
 import type { EdgeType, VertexType } from "../entities";
 import type { GraphSessionStorageModel } from "./graphSession/storage";
@@ -83,10 +83,10 @@ const [
   diagnosticLoggingAtom,
 ] = await Promise.all([
   createActiveConfigurationAtom(),
-  atomWithLocalForage<Map<ConfigurationId, RawConfiguration>>(
+  atomWithLocalForage<Map<ConnectionId, SavedConnection>>(
     "configuration",
     new Map(),
-    { reconcile: reconcileMapByKey, transform: transformConfiguration },
+    { reconcile: reconcileMapByKey, transform: transformSavedConnections },
   ),
   /** All the stored schemas */
   atomWithLocalForage("schema", new Map<string, SchemaStorageModel>(), {
@@ -117,7 +117,7 @@ const [
     codec: schemaViewLayoutCodec,
   }),
   /** Stores the graph session data for each connection. */
-  atomWithLocalForage<Map<ConfigurationId, GraphSessionStorageModel>>(
+  atomWithLocalForage<Map<ConnectionId, GraphSessionStorageModel>>(
     "graph-sessions",
     new Map(),
     { reconcile: reconcileMapByKey },

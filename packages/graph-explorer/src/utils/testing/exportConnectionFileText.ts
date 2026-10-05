@@ -3,7 +3,7 @@ import { vi } from "vitest";
 
 import type { ConfigurationContextProps } from "@/core";
 
-import { saveConfigurationToFile } from "@/connections";
+import { saveConnectionToFile } from "@/connections";
 
 /**
  * Exports the config and returns the text of the file it saved. The calling
@@ -12,7 +12,7 @@ import { saveConfigurationToFile } from "@/connections";
 export async function exportConnectionFileText(
   config: ConfigurationContextProps,
 ): Promise<string> {
-  saveConfigurationToFile(config);
+  saveConnectionToFile(config);
   const [file] = vi.mocked(fileSaver.saveAs).mock.calls[0];
   if (!(file instanceof Blob)) {
     throw new Error("saveAs was not called with a Blob");

@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { atom } from "jotai";
 
-import type { ConfigurationId } from "@/connections";
+import type { ConnectionId } from "@/connections";
 
 import {
   activeConfigurationAtom,
@@ -22,7 +22,7 @@ import type { SchemaResponse } from "../useGEFetchTypes";
 import { getExplorer, getStore } from "./helpers";
 
 /** Returns the query key for the schema sync query for the given connection. */
-export function schemaSyncQueryKey(connectionId: ConfigurationId | null) {
+export function schemaSyncQueryKey(connectionId: ConnectionId | null) {
   return ["schema", "discovery", connectionId] as const;
 }
 
@@ -40,7 +40,7 @@ export function schemaSyncQuery({
   activeSchema,
   hasConnection,
 }: {
-  connectionId: ConfigurationId | null;
+  connectionId: ConnectionId | null;
   activeSchema: SchemaStorageModel | undefined;
   hasConnection: boolean;
 }) {

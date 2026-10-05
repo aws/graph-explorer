@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ConfigurationContextProps } from "@/core";
 
 import { stubDocumentUrl } from "@/utils/testing";
-import { createRandomRawConfiguration } from "@/utils/testing/randomData";
+import { createRandomSavedConnection } from "@/utils/testing/randomData";
 
 import { exportConnectionWithFeedback } from "./exportConnection";
 
@@ -20,7 +20,7 @@ function makeConfig(
   connection: ConfigurationContextProps["connection"],
 ): ConfigurationContextProps {
   return {
-    ...createRandomRawConfiguration(),
+    ...createRandomSavedConnection(),
     connection,
     schema: { vertices: [], edges: [] },
     totalVertices: 0,

@@ -8,9 +8,9 @@ import { describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
 import {
-  createNewConfigurationId,
+  createConnectionId,
   transformLegacyConnection,
-  type RawConfiguration,
+  type SavedConnection,
 } from "@/connections";
 import {
   allGraphSessionsAtom,
@@ -23,7 +23,7 @@ import { createQueryClient } from "@/core/queryClient";
 import { mergeConfiguration } from "@/core/StateProvider/typeConfigs";
 import {
   createRandomEdgeId,
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   createRandomVertexId,
   TestProvider,
@@ -235,7 +235,7 @@ describe("CreateConnection", () => {
 
     test("shows an existing direct connection as direct", () => {
       const config = {
-        ...createRandomRawConfiguration(),
+        ...createRandomSavedConnection(),
         connection: {
           graphDbUrl: "https://database.example.com:8182",
           proxyConnection: false,
@@ -261,7 +261,7 @@ describe("CreateConnection", () => {
     test("leaves the option unchecked for an existing proxy connection", async () => {
       const user = userEvent.setup();
       const config = {
-        ...createRandomRawConfiguration(),
+        ...createRandomSavedConnection(),
         connection: { graphDbUrl: "https://database.example.com:8182" },
       };
       const store = renderCreateConnection(
@@ -295,7 +295,7 @@ describe("CreateConnection", () => {
     test("saves an existing direct connection back to a proxy connection when unchecked", async () => {
       const user = userEvent.setup();
       const config = {
-        ...createRandomRawConfiguration(),
+        ...createRandomSavedConnection(),
         connection: {
           graphDbUrl: "https://database.example.com:8182",
           proxyConnection: false,
@@ -345,8 +345,8 @@ describe("CreateConnection", () => {
    */
   describe("saving a proxied connection stored by an earlier version", () => {
     function renderUpgradedConnection() {
-      const config: RawConfiguration = {
-        ...createRandomRawConfiguration(),
+      const config: SavedConnection = {
+        ...createRandomSavedConnection(),
         connection: transformLegacyConnection({
           url: "https://proxy.example.com",
           proxyConnection: true,
@@ -448,7 +448,7 @@ describe("CreateConnection", () => {
   });
 
   test("opens the advanced options when the connection already overrides one", () => {
-    const configId = createNewConfigurationId();
+    const configId = createConnectionId();
     const store = getAppStore();
     const connection: ConnectionConfig = {
       graphDbUrl: "https://db.example.com",
@@ -619,7 +619,7 @@ describe("CreateConnection", () => {
   // should too rather than presenting it as nameless.
   test("names an unlabeled connection by its id when editing it", () => {
     const config = {
-      ...createRandomRawConfiguration(),
+      ...createRandomSavedConnection(),
       displayLabel: undefined,
     };
 

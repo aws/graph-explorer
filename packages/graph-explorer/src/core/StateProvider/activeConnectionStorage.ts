@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { ConfigurationId } from "@/connections";
+import type { ConnectionId } from "@/connections";
 
 import {
   createSessionScopedAtom,
@@ -19,10 +19,10 @@ export const ACTIVE_CONNECTION_STORAGE_KEY = "active-configuration";
  * than through JSON. An empty/cleared value reads back as a miss so seeding
  * falls through to the breadcrumb instead of an invalid connection id.
  */
-const activeConnectionCodec: SessionValueCodec<ConfigurationId | null> = {
+const activeConnectionCodec: SessionValueCodec<ConnectionId | null> = {
   serialize: value => value,
-  deserialize: raw => (raw ? (raw as ConfigurationId) : null),
-  parseStored: stored => z.string().parse(stored) as ConfigurationId,
+  deserialize: raw => (raw ? (raw as ConnectionId) : null),
+  parseStored: stored => z.string().parse(stored) as ConnectionId,
 };
 
 /**
@@ -39,7 +39,7 @@ const activeConnectionCodec: SessionValueCodec<ConfigurationId | null> = {
 export async function createActiveConfigurationAtom({
   sessionStorage,
 }: { sessionStorage?: Storage } = {}) {
-  return createSessionScopedAtom<ConfigurationId | null>({
+  return createSessionScopedAtom<ConnectionId | null>({
     key: ACTIVE_CONNECTION_STORAGE_KEY,
     defaultValue: null,
     codec: activeConnectionCodec,

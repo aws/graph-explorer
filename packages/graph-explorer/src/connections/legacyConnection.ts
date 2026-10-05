@@ -1,6 +1,6 @@
 import type { ConnectionConfig, LegacyConnectionConfig } from "@shared/types";
 
-import type { ConfigurationId, RawConfiguration } from "./types";
+import type { ConnectionId, SavedConnection } from "./types";
 
 /**
  * Transforms a legacy connection (with `url` and `proxyConnection`) to the
@@ -41,9 +41,9 @@ export function transformLegacyConnection(
  * sees an already-migrated connection. An entry without a connection passes
  * through untouched.
  */
-export function transformConfiguration(
-  configs: Map<ConfigurationId, RawConfiguration>,
-): Map<ConfigurationId, RawConfiguration> {
+export function transformSavedConnections(
+  configs: Map<ConnectionId, SavedConnection>,
+): Map<ConnectionId, SavedConnection> {
   return new Map(
     [...configs].map(([id, config]) => [
       id,

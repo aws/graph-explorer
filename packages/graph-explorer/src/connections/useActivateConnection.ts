@@ -5,7 +5,7 @@ import { activeConfigurationAtom } from "@/core/StateProvider/storageAtoms";
 import useResetState from "@/core/StateProvider/useResetState";
 import { logger } from "@/utils";
 
-import type { ConfigurationId } from "./types";
+import type { ConnectionId } from "./types";
 
 /**
  * Returns a callback that activates a connection and resets the graph session,
@@ -16,7 +16,7 @@ export default function useActivateConnection() {
   const resetState = useResetState();
   return useAtomCallback(
     useCallback(
-      (get, set, configId: ConfigurationId) => {
+      (get, set, configId: ConnectionId) => {
         if (get(activeConfigurationAtom) === configId) {
           return;
         }

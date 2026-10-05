@@ -11,7 +11,7 @@ import {
   schemaAtom,
 } from "@/core";
 import {
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   renderHookWithJotai,
 } from "@/utils/testing";
@@ -20,7 +20,7 @@ import useTextTransform from "./useTextTransform";
 
 function initializeConfigWithPrefix(store: AppStore) {
   // Create config and setup schema
-  const config = createRandomRawConfiguration();
+  const config = createRandomSavedConnection();
   const schema = createRandomSchema();
   config.connection!.queryEngine = "sparql";
   schema.prefixes = [

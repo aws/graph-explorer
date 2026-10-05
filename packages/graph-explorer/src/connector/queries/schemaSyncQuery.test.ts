@@ -14,7 +14,7 @@ import { createQueryClient } from "@/core/queryClient";
 import {
   createCancelledError,
   createRandomEdgeConnection,
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createTestableVertex,
   FakeExplorer,
 } from "@/utils/testing";
@@ -36,7 +36,7 @@ describe("schemaSyncQuery", () => {
     store = getAppStore();
 
     // Set up a configuration so the schema can be stored
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     store.set(configurationAtom, new Map([[config.id, config]]));
     store.set(activeConfigurationAtom, config.id);
     store.set(schemaAtom, new Map());

@@ -6,13 +6,13 @@ import { createArray } from "@shared/utils/testing";
 import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 
-import type { RawConfiguration } from "@/connections";
+import type { SavedConnection } from "@/connections";
 
 import {
   createRandomExportedGraphConnection,
   createRandomFile,
-  createRandomRawConfiguration,
-  preloadStoredConfiguration,
+  createRandomSavedConnection,
+  preloadSavedConnection,
 } from "@/utils/testing";
 
 import {
@@ -108,16 +108,16 @@ describe("createErrorNotification", () => {
   // `useImportGraphMutation` reads it, so matching against a pre-upgrade
   // connection still finds it instead of reporting no match.
   it("should show the connection name when a match is found via a legacy stored connection", async () => {
-    const legacyConfig: RawConfiguration = {
-      ...createRandomRawConfiguration(),
+    const legacyConfig: SavedConnection = {
+      ...createRandomSavedConnection(),
       // Stored data is not schema-validated on read, so an entry can carry a
       // legacy connection despite the compile-time `ConnectionConfig` shape.
       connection: {
         url: "https://my-neptune:8182",
         proxyConnection: false,
-      } as LegacyConnectionConfig as RawConfiguration["connection"],
+      } as LegacyConnectionConfig as SavedConnection["connection"],
     };
-    const migratedConfig = await preloadStoredConfiguration(legacyConfig);
+    const migratedConfig = await preloadSavedConnection(legacyConfig);
     expect.assert(migratedConfig);
 
     const allConnections = createRandomAllConnections();
@@ -145,7 +145,7 @@ describe("createErrorNotification", () => {
 
 function createRandomAllConnections() {
   return createArray(3, () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     return {
       ...config.connection!,
       id: config.id,

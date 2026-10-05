@@ -8,11 +8,11 @@ import {
 import { afterEach, beforeEach, describe, expect, it, test, vi } from "vitest";
 import { z } from "zod";
 
-import type { RawConfiguration } from "@/connections";
+import type { SavedConnection } from "@/connections";
 
 import { toJsonFileData } from "@/utils/fileData";
 import {
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
 } from "@/utils/testing";
 
@@ -70,7 +70,7 @@ describe("exportFromLocalForage", () => {
     const localDb = createFakeLocalDb();
 
     // set up data
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     const schema = createRandomSchema();
     const configMap = new Map([[config.id, config]]);
     const schemaMap = new Map([[config.id, schema]]);
@@ -100,7 +100,7 @@ describe("exportFromLocalForage", () => {
     const localDb = createFakeLocalDb();
 
     // set up data
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     const schema = createRandomSchema();
     const configMap = new Map([[config.id, config]]);
     const schemaMap = new Map([[config.id, schema]]);
@@ -128,7 +128,7 @@ describe("exportFromLocalForage", () => {
     const localDb = createFakeLocalDb();
 
     // set up data
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     const schema = createRandomSchema();
     const configMap = new Map([[config.id, config]]);
     const schemaMap = new Map([[config.id, schema]]);
@@ -163,7 +163,7 @@ describe("exportFromLocalForage", () => {
 
   it("should fail restore when not backup data", async () => {
     // set up data
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     const schema = createRandomSchema();
     const configMap = new Map([[config.id, config]]);
     const schemaMap = new Map([[config.id, schema]]);
@@ -199,13 +199,13 @@ describe("exportFromLocalForage", () => {
  *
  * The full backup/restore flow snapshots every localforage key verbatim and
  * restores it without merging or reshaping. A backup taken from an older
- * install may contain a `configuration` entry whose `RawConfiguration` carries
+ * install may contain a `configuration` entry whose `SavedConnection` carries
  * a stray `schema` field (the legacy in-memory schema leg that no released
  * writer populates but that may exist in stale IndexedDB blobs).
  *
  * This pins that such a backup round-trips losslessly: the extra field is
  * carried through untouched and restore succeeds. It guards against a refactor
- * that drops `RawConfiguration.schema` introducing strict parsing that would
+ * that drops `SavedConnection.schema` introducing strict parsing that would
  * reject or mangle a legacy backup.
  *
  * DO NOT delete or weaken this test without confirming that legacy backups are
@@ -229,12 +229,12 @@ describe("backward compatibility: legacy schema field on stored configuration", 
     const localDb = createFakeLocalDb();
 
     // A stored config in the legacy shape: the schema is duplicated onto the
-    // RawConfiguration itself. The current type no longer declares `schema`, so
+    // SavedConnection itself. The current type no longer declares `schema`, so
     // we cast to attach it — simulating a stale IndexedDB blob written by an
     // older version.
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     const schema = createRandomSchema();
-    const legacyConfig = { ...config, schema } as RawConfiguration & {
+    const legacyConfig = { ...config, schema } as SavedConnection & {
       schema: SchemaStorageModel;
     };
 

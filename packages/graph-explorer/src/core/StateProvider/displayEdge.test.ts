@@ -23,7 +23,7 @@ import {
   createRandomEdge,
   createRandomEdgeStyleStorage,
   createRandomEdgeTypeConfig,
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   DbState,
   renderHookWithJotai,
@@ -239,7 +239,7 @@ describe("useDisplayEdgeFromEdge", () => {
   }
 
   function withSchema(schema: SchemaStorageModel) {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     return (store: AppStore) => {
       store.set(configurationAtom, new Map([[config.id, config]]));
       store.set(schemaAtom, new Map([[config.id, schema]]));
@@ -251,7 +251,7 @@ describe("useDisplayEdgeFromEdge", () => {
     schema: SchemaStorageModel,
     queryEngine: QueryEngine,
   ) {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     config.connection!.queryEngine = queryEngine;
     return (store: AppStore) => {
       store.set(configurationAtom, new Map([[config.id, config]]));

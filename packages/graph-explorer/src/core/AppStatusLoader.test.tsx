@@ -7,7 +7,7 @@ import { Provider } from "jotai";
 import { Route, Routes } from "react-router";
 import { describe, expect, onTestFinished, test, vi } from "vitest";
 
-import type { ConfigurationId, RawConfiguration } from "@/connections";
+import type { ConnectionId, SavedConnection } from "@/connections";
 
 import { TooltipProvider } from "@/components";
 import * as defaultConnection from "@/connections/defaultConnection";
@@ -15,7 +15,7 @@ import { type AppStore, getAppStore } from "@/core";
 import Connect from "@/routes/Connect";
 import { logger } from "@/utils";
 import {
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   stubDocumentUrl,
   TestProvider,
 } from "@/utils/testing";
@@ -24,7 +24,7 @@ import AppStatusLoader from "./AppStatusLoader";
 import { createQueryClient } from "./queryClient";
 import { configurationAtom } from "./StateProvider";
 
-function mockDefaultConnection(configs: RawConfiguration[]) {
+function mockDefaultConnection(configs: SavedConnection[]) {
   vi.spyOn(defaultConnection, "fetchDefaultConnection").mockResolvedValue(
     configs,
   );
@@ -44,7 +44,7 @@ function renderAppStatusLoader(store: AppStore) {
 }
 
 test("adding the default connection settles instead of looping", async () => {
-  mockDefaultConnection([createRandomRawConfiguration()]);
+  mockDefaultConnection([createRandomSavedConnection()]);
 
   const store = getAppStore();
   const writeCounts = vi.fn();
@@ -65,7 +65,7 @@ test("adding the default connection settles instead of looping", async () => {
 });
 
 test("seeds one connection per query engine with a single write", async () => {
-  const configs = queryEngineOptions.map(() => createRandomRawConfiguration());
+  const configs = queryEngineOptions.map(() => createRandomSavedConnection());
   mockDefaultConnection(configs);
 
   const store = getAppStore();
@@ -86,7 +86,7 @@ test("seeds one connection per query engine with a single write", async () => {
 });
 
 test("re-adds the default connection after the last connection is deleted", async () => {
-  mockDefaultConnection([createRandomRawConfiguration()]);
+  mockDefaultConnection([createRandomSavedConnection()]);
 
   const store = getAppStore();
   const { findByText } = renderAppStatusLoader(store);
@@ -147,8 +147,8 @@ test("shows a renamed reverse proxy mount without retrying", async () => {
 describe("AppStatusLoader URL params + default connection", () => {
   const matchingUrl = "https://default-match.neptune.amazonaws.com";
 
-  const matchingDefaultConnection: RawConfiguration = {
-    id: "Default Connection" as ConfigurationId,
+  const matchingDefaultConnection: SavedConnection = {
+    id: "Default Connection" as ConnectionId,
     displayLabel: "Default Connection",
     connection: {
       queryEngine: "gremlin",

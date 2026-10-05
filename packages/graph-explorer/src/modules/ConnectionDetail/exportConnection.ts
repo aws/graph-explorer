@@ -2,7 +2,7 @@ import { toast } from "sonner";
 
 import type { ConfigurationContextProps } from "@/core";
 
-import { normalizeUrl, saveConfigurationToFile } from "@/connections";
+import { normalizeUrl, saveConnectionToFile } from "@/connections";
 import { logger } from "@/utils";
 import { createDisplayError } from "@/utils/createDisplayError";
 
@@ -26,7 +26,7 @@ export function exportConnectionWithFeedback(
   }
 
   try {
-    saveConfigurationToFile(config);
+    saveConnectionToFile(config);
   } catch (error) {
     logger.error("Export connection failed", error);
     toast.error("Cannot Export Connection", {

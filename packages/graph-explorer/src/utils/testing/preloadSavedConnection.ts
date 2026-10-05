@@ -2,7 +2,7 @@ import { createStore } from "jotai";
 import localforage from "localforage";
 import { vi } from "vitest";
 
-import type { RawConfiguration } from "@/connections";
+import type { SavedConnection } from "@/connections";
 import type { AppStore } from "@/core";
 import type { PersistenceStatusStore } from "@/core/StateProvider/persistence/persistenceStatusStore";
 import type {
@@ -45,8 +45,8 @@ export async function loadStorageAtoms(): Promise<PreloadedConfigurationAtoms> {
  * Stores `configs` in IndexedDB, as an earlier version would have left them,
  * then loads the real storage atoms via {@link loadStorageAtoms}.
  */
-export async function preloadStoredConfigurations(
-  ...configs: RawConfiguration[]
+export async function preloadSavedConnections(
+  ...configs: SavedConnection[]
 ): Promise<PreloadedConfigurationAtoms> {
   await localforage.setItem(
     "configuration",
@@ -56,14 +56,13 @@ export async function preloadStoredConfigurations(
 }
 
 /**
- * Thin wrapper over {@link preloadStoredConfigurations} for the common case
+ * Thin wrapper over {@link preloadSavedConnections} for the common case
  * of preloading a single stored configuration and reading back its
  * transformed shape.
  */
-export async function preloadStoredConfiguration(
-  config: RawConfiguration,
-): Promise<RawConfiguration | undefined> {
-  const { store, configurationAtom } =
-    await preloadStoredConfigurations(config);
+export async function preloadSavedConnection(
+  config: SavedConnection,
+): Promise<SavedConnection | undefined> {
+  const { store, configurationAtom } = await preloadSavedConnections(config);
   return store.get(configurationAtom).get(config.id);
 }
