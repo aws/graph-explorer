@@ -865,6 +865,7 @@ describe("createApp", () => {
         expect(message).toContain(new URL(graphDbUrl).origin);
         expect(message).toContain("security documentation");
         expect(message).not.toContain("?secret");
+        expect(message).not.toContain("/sparql");
       });
 
       it("does not warn again for later signed requests to any origin", async () => {
