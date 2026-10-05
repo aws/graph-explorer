@@ -316,7 +316,7 @@ function findMatchingConnection(
  * the form if the user turns IAM on.
  *
  * Returns the connection body without an id, because a link only ever proposes a
- * connection. `CreateConnection` mints the id if and when the user saves the
+ * connection. `useCreateConnection` mints the id if and when the user saves the
  * form, so generating one here would produce a value nothing reads.
  */
 function buildConnectionFromParams(

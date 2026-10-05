@@ -8,7 +8,7 @@ import {
   HammerIcon,
   LinkIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 import type { RawConfiguration } from "@/connections";
 
@@ -39,8 +39,10 @@ import {
 import { LinkButton } from "@/components/Button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/Dialog";
@@ -62,7 +64,11 @@ import {
 import useEntitiesCounts from "@/hooks/useEntitiesCounts";
 import { useCancelSchemaSync, useSchemaSync } from "@/hooks/useSchemaSync";
 import useTranslations from "@/hooks/useTranslations";
-import CreateConnection from "@/modules/CreateConnection";
+import {
+  ConnectionForm,
+  mapConfigurationToConnectionForm,
+  useUpdateConnection,
+} from "@/modules/ConnectionForm";
 import { formatDate, formatRelativeDate, LABELS, logger } from "@/utils";
 
 import ConnectionData from "./ConnectionData";
@@ -194,14 +200,48 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
                 Update the connection details for {connectionName}.
               </DialogDescription>
             </DialogHeader>
-            <CreateConnection
+            <EditConnectionDialogBody
+              config={config}
               onClose={() => setEdit(false)}
-              existingConfig={config}
             />
           </DialogContent>
         </Dialog>
       </PanelContent>
     </Panel>
+  );
+}
+
+function EditConnectionDialogBody({
+  config,
+  onClose,
+}: {
+  config: ConfigurationContextProps;
+  onClose: () => void;
+}) {
+  const formId = useId();
+  const updateConnection = useUpdateConnection();
+
+  return (
+    <>
+      <DialogBody>
+        <ConnectionForm
+          id={formId}
+          initialValues={mapConfigurationToConnectionForm(config)}
+          onSubmit={values => {
+            updateConnection(config, values);
+            onClose();
+          }}
+        />
+      </DialogBody>
+      <DialogFooter>
+        <Button variant="outline" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button variant="primary" type="submit" form={formId}>
+          Update Connection
+        </Button>
+      </DialogFooter>
+    </>
   );
 }
 

@@ -6,7 +6,7 @@ import { InfoIcon } from "@/components/icons";
 export default function InfoTooltip({ children }: PropsWithChildren) {
   return (
     <Tooltip>
-      <TooltipTrigger>
+      <TooltipTrigger type="button">
         <InfoIcon className="text-muted-foreground size-6" />
       </TooltipTrigger>
       <TooltipContent>{children}</TooltipContent>

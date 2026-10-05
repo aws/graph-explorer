@@ -6,7 +6,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, test } from "vitest";
 
 import { TooltipProvider } from "@/components";
-import { getAppStore } from "@/core";
+import { configurationAtom, getAppStore } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import { mergeConfiguration } from "@/core/StateProvider/configuration";
 import { DbState, TestProvider } from "@/utils/testing";
@@ -33,6 +33,8 @@ function renderDetail(connection: ConnectionConfig) {
       </TooltipProvider>
     </TestProvider>,
   );
+
+  return { state, store, user: userEvent.setup() };
 }
 
 describe("ConnectionDetail", () => {
@@ -67,5 +69,59 @@ describe("ConnectionDetail", () => {
     expect(
       screen.getByTitle(graphDbUrl.replace(/\/$/, "")),
     ).toBeInTheDocument();
+  });
+
+  test("updates the connection in place from the edit dialog and closes it", async () => {
+    const { state, store, user } = renderDetail({
+      graphDbUrl: "https://my-neptune:8182",
+    });
+
+    await user.click(screen.getByRole("button", { name: "Edit connection" }));
+    const dialog = screen.getByRole("dialog");
+    const url = within(dialog).getByRole("textbox", { name: "Database URL" });
+    await user.clear(url);
+    await user.type(url, "https://other-neptune:8182");
+    await user.click(
+      within(dialog).getByRole("button", { name: "Update Connection" }),
+    );
+
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(store.get(configurationAtom)).toStrictEqual(
+      new Map([
+        [
+          state.activeConfig.id,
+          {
+            ...state.activeConfig,
+            connection: {
+              graphDbUrl: "https://other-neptune:8182",
+              queryEngine: "gremlin",
+              awsAuthEnabled: false,
+              serviceType: "neptune-db",
+              awsRegion: "",
+              fetchTimeoutMs: undefined,
+              nodeExpansionLimit: undefined,
+            },
+          },
+        ],
+      ]),
+    );
+  });
+
+  test("changes nothing when the edit dialog is cancelled", async () => {
+    const { state, store, user } = renderDetail({
+      graphDbUrl: "https://my-neptune:8182",
+    });
+
+    await user.click(screen.getByRole("button", { name: "Edit connection" }));
+    const dialog = screen.getByRole("dialog");
+    const url = within(dialog).getByRole("textbox", { name: "Database URL" });
+    await user.clear(url);
+    await user.type(url, "https://other-neptune:8182");
+    await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(store.get(configurationAtom)).toStrictEqual(
+      new Map([[state.activeConfig.id, state.activeConfig]]),
+    );
   });
 });
