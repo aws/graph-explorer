@@ -20,7 +20,7 @@ import {
   schemaAtom,
 } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
-import { mergeConfiguration } from "@/core/StateProvider/configuration";
+import { mergeConfiguration } from "@/core/StateProvider/typeConfigs";
 import {
   createRandomEdgeId,
   createRandomRawConfiguration,

@@ -1,4 +1,4 @@
-import type { PrefixTypeConfig } from "@/core/ConfigurationProvider/types";
+import type { PrefixTypeConfig } from "@/core/StateProvider/typeConfigTypes";
 
 import type { IriNamespace, NormalizedIriNamespace, RdfPrefix } from "./types";
 

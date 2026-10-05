@@ -2,7 +2,7 @@ import type { ConnectionConfig } from "@shared/types";
 
 import { saveAs } from "file-saver";
 
-import type { ConfigurationContextProps } from "@/core/ConfigurationProvider";
+import type { ConfigurationContextProps } from "@/core/StateProvider/typeConfigTypes";
 
 import { apiUrl } from "@/connector/utils/apiUrl";
 import { toJsonFileData } from "@/utils/fileData";

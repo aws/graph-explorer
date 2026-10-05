@@ -6,13 +6,6 @@ import { RESET, useAtomCallback } from "jotai/utils";
 import { useCallback, useDeferredValue } from "react";
 
 import type { ConfigurationId } from "@/connections";
-import type {
-  AttributeConfig,
-  EdgeConnection,
-  EdgeTypeConfig,
-  PrefixTypeConfig,
-  VertexTypeConfig,
-} from "@/core/ConfigurationProvider";
 import type { SetStateActionWithReset } from "@/utils/jotai";
 
 import { createTypedValue, type ScalarValue } from "@/connector/entities";
@@ -31,6 +24,14 @@ import {
 } from "@/core";
 import { logger } from "@/utils";
 import { generatePrefixes, PrefixLookup } from "@/utils/rdf";
+
+import type {
+  AttributeConfig,
+  EdgeConnection,
+  EdgeTypeConfig,
+  PrefixTypeConfig,
+  VertexTypeConfig,
+} from "./typeConfigTypes";
 
 import { nodesAtom, toNodeMap } from "./nodes";
 

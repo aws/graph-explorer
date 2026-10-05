@@ -1,11 +1,8 @@
 import type { RawConfiguration } from "@/connections";
-import type {
-  EdgeStyleStorage,
-  VertexStyleStorage,
-} from "@/core/StateProvider/graphStyles";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
-import type { SchemaStorageModel } from "../StateProvider";
+import type { EdgeStyleStorage, VertexStyleStorage } from "./graphStyles";
+import type { SchemaStorageModel } from "./schema";
 
 import {
   createEdgeType,
