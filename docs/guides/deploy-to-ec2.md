@@ -36,16 +36,19 @@ Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server w
 >
 > If you receive an error relating to the docker service not running, run `service docker start`.
 
-4. Run the container substituting the `{hostname-or-ip-address}` with the hostname or IP address of the EC2 instance
+4. Run the container substituting the `{hostname-or-ip-address}` with the hostname or IP address of the EC2 instance, and `{NEPTUNE_ENDPOINT}` with your Neptune endpoint
 
    ```
    docker run -p 80:80 -p 443:443 \
     --restart unless-stopped \
     --env HOST={hostname-or-ip-address} \
+    --env PROXY_SERVER_ALLOWED_DB_ORIGINS=https://{NEPTUNE_ENDPOINT}:8182 \
     public.ecr.aws/neptune/graph-explorer
    ```
 
    `HOST` does not limit which networks or clients can reach the container. See [`HOST`](../references/configuration.md#host).
+
+   `PROXY_SERVER_ALLOWED_DB_ORIGINS` limits the proxy server to your Neptune cluster. To let users reach another database later, add its origin to the comma-separated list, such as `https://{NEPTUNE_ENDPOINT}:8182,https://{OTHER_ENDPOINT}:8182`. See [Database Origin Allowlist](../references/security.md#database-origin-allowlist).
 
 > [!TIP]
 >
