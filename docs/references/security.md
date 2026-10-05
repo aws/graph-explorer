@@ -200,7 +200,7 @@ Amazon Neptune IAM database authentication is one way to control the database la
 
 Because the identity is shared, any user can reach any database its policy allows, not only the one the deployment was set up for. Two controls limit that, and you can use either or both:
 
-- **The identity's database policy** decides which databases and actions a signed request may use. Scope its `Resource` to the databases you intend, and its actions to the ones Graph Explorer needs.
+- **The identity's database policy** decides which databases and actions a signed request may use. Scope its `Resource` to the databases you intend, and its actions to the ones Graph Explorer uses: read, write, and delete data via query, cancel query, and get graph summary. Leave out write and delete to make the deployment read-only, at the cost of mutations in the query editor.
 - **The [Database Origin Allowlist](#database-origin-allowlist)** decides which database origins the proxy server contacts at all, for signed and unsigned requests alike.
 
 The policy is the stronger control, because Neptune enforces it no matter what sends the request. The allowlist adds a second boundary in the proxy server, and covers databases that don't use IAM authentication. The proxy server also [doesn't follow redirects](#http-redirects), so a database response can't send it on to another destination.
