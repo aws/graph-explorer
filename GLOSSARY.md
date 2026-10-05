@@ -54,13 +54,13 @@ A React-based web application that lets users visually explore graph databases w
 
 **Schema View**: Visual representation of the Schema — shows vertex types and their edge connections as a graph. _Avoid_: Schema Explorer (legacy route name)
 
-**Layout**: The algorithm that positions vertices on the Graph View canvas, chosen from the layout picker and run by Cytoscape (`LayoutName`). The unqualified word always means this. _Avoid_: View Layout (a different concept, below), graph arrangement
+**Layout**: The algorithm that positions vertices on a graph canvas, chosen from the layout picker and run by Cytoscape (`LayoutName`). The unqualified word always means the algorithm; which Layout the user picked is saved in the view's View Layout. _Avoid_: View Layout (the saved view state, below), graph arrangement
 
-**View Layout**: The per-tab UI state of a view: which sidebar panel is active, how wide the sidebar is, and which content is toggled on. A per-tab Storage Scope concept, so it survives a tab's reload but not its close, and a fresh tab starts from the View Layout most recently used. The two are Graph View Layout and Schema View Layout. Never shortened to Layout, which is the positioning algorithm. _Avoid_: Layout (means the algorithm), preferences, settings
+**View Layout**: The per-tab state of a view that saves and restores the user's selections for convenience, such as which sidebar panel is active, how wide the sidebar is, which content is toggled on, and which Layout is chosen. A per-tab Storage Scope concept, so it survives a tab's reload but not its close, and a fresh tab starts from the View Layout most recently used. The two are Graph View Layout and Schema View Layout. Never shortened to Layout, which is the positioning algorithm. _Avoid_: Layout (means the algorithm), preferences, settings
 
-**Graph View Layout**: The View Layout for the Graph View — active sidebar panel, sidebar width, active content toggles, table-view height, and the details-auto-open preference. _Avoid_: Graph preferences, graph settings
+**Graph View Layout**: The View Layout for the Graph View, such as the active sidebar panel, sidebar width, active content toggles, table-view height, and the details-auto-open preference. _Avoid_: Graph preferences, graph settings
 
-**Schema View Layout**: The View Layout for the Schema View — active sidebar panel, sidebar width, and the details-auto-open preference. _Avoid_: Schema preferences, schema settings
+**Schema View Layout**: The View Layout for the Schema View, such as the active sidebar panel, sidebar width, and the details-auto-open preference. _Avoid_: Schema preferences, schema settings
 
 **Storage Scope**: The cross-tab behavior a persisted atom picks at creation: per-tab (tabs diverge), shared-reconciled (merged per key), or shared-blind-write. See the `per-tab-session-scoped-storage-primitive` ADR for which atoms use which. _Avoid_: Persistence mode, storage strategy
 
@@ -113,7 +113,7 @@ A React-based web application that lets users visually explore graph databases w
 - **Styles** are scoped per **Vertex Type** (**Vertex Styles**) and **Edge Type** (**Edge Styles**)
 - The **Graph View**, **Data Table View**, and **Schema View** all render from the same **Session** and **Schema**
 - Each browser tab has its own **View Layout** per view, the same divergence as **Active Connection**
-- A **Layout** positions **Vertices** on the **Graph View** canvas and is not part of any **View Layout**
+- A **Layout** positions **Vertices** on a canvas, and the **Layout** a user picks for a view is saved in that view's **View Layout**
 - Every persisted atom picks one of the three **Storage Scopes** at creation
 - A cancelled request is neither a **Fetch Timeout** nor a **Database Query Timeout**
 - A **Connection Link** resolves to a **Connection Link Intent** against the current **Connections** and the **Active Connection**
