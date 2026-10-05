@@ -51,6 +51,10 @@ You can find the latest version of the image on [Amazon's ECR Public Registry](h
 
    The `HOST` environment variable is used for SSL certificates generation since HTTPS is the default. If you are hosting this on a public domain, you should replace `HOST=localhost` with your domain name.
 
+   > [!IMPORTANT]
+   >
+   > `-p 80:80 -p 443:443` publishes the container on every network interface of the host, not only `localhost`. `-p 127.0.0.1:443:443`, and `-p 127.0.0.1:80:80` for HTTP, publish it on the loopback interface only, so only the host itself can reach it. Restricting ports `80` and `443` at the host firewall or security group is the other way to limit who can reach it.
+
 4. Open a browser and type in the URL of the Graph Explorer server instance
 
    ```

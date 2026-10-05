@@ -37,7 +37,7 @@ Which will result in the following URLs:
 
 ### HTTP Only
 
-If you do not want to use SSL and HTTPS, you can disable it by setting [`PROXY_SERVER_HTTPS_CONNECTION`](../references/configuration.md#proxy_server_https_connection) to `false`. Pass it when creating the Docker container like so:
+If you do not want to use SSL and HTTPS, you can disable it by setting [`PROXY_SERVER_HTTPS_CONNECTION`](../references/configuration.md#proxy_server_https_connection) to `false`. Before turning HTTPS off, read [Disabling HTTPS](../references/security.md#disabling-https). Pass it when creating the Docker container like so:
 
 ```
 docker run -p 80:80 \
