@@ -29,7 +29,7 @@ function resolve(
 ) {
   const state = new DbState();
   if (active) {
-    state.activeConfig = active;
+    state.activeConnection = active;
   } else {
     state.withNoActiveConnection();
   }

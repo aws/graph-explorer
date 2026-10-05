@@ -48,7 +48,7 @@ describe("useEdgeAttributesAsScalars", () => {
 
   describe("Gremlin", () => {
     beforeEach(() => {
-      dbState.activeConfig.connection!.queryEngine = "gremlin";
+      dbState.activeConnection.connection!.queryEngine = "gremlin";
     });
 
     it("should return ID, Edge Label, and attributes for edge with unique ID", () => {
@@ -114,7 +114,7 @@ describe("useEdgeAttributesAsScalars", () => {
 
   describe("openCypher", () => {
     beforeEach(() => {
-      dbState.activeConfig.connection!.queryEngine = "openCypher";
+      dbState.activeConnection.connection!.queryEngine = "openCypher";
     });
 
     it("should return ID, Relationship Type, and attributes for edge with unique ID", () => {
@@ -180,7 +180,7 @@ describe("useEdgeAttributesAsScalars", () => {
 
   describe("SPARQL", () => {
     beforeEach(() => {
-      dbState.activeConfig.connection!.queryEngine = "sparql";
+      dbState.activeConnection.connection!.queryEngine = "sparql";
     });
     it("should return ID, Predicate and attributes for edge with unique ID", () => {
       const { result } = renderHookWithState(

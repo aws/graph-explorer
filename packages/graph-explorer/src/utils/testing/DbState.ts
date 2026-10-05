@@ -56,7 +56,7 @@ export class DbState {
   #activeSchema: SchemaStorageModel | null;
   #hasActiveConnection = true;
   #inactiveConnections: SavedConnection[] = [];
-  activeConfig: SavedConnection;
+  activeConnection: SavedConnection;
   vertexStyles: Map<VertexType, VertexStyleStorage>;
   edgeStyles: Map<EdgeType, EdgeStyleStorage>;
   graphViewLayout: GraphViewLayout;
@@ -75,7 +75,7 @@ export class DbState {
   constructor(explorer: Explorer = createMockExplorer()) {
     this.#activeSchema = createRandomSchema();
 
-    this.activeConfig = createRandomSavedConnection();
+    this.activeConnection = createRandomSavedConnection();
 
     this.vertexStyles = createRandomVertexStyles();
     this.edgeStyles = createRandomEdgeStyles();
@@ -235,23 +235,22 @@ export class DbState {
     store.set(
       savedConnectionsAtom,
       new Map(
-        [this.activeConfig, ...this.#inactiveConnections].map(connection => [
-          connection.id,
-          connection,
-        ]),
+        [this.activeConnection, ...this.#inactiveConnections].map(
+          connection => [connection.id, connection],
+        ),
       ),
     );
     if (this.#activeSchema) {
       store.set(
         schemaAtom,
-        new Map([[this.activeConfig.id, this.#activeSchema]]),
+        new Map([[this.activeConnection.id, this.#activeSchema]]),
       );
     } else {
       store.set(schemaAtom, new Map());
     }
     store.set(
       activeConnectionIdAtom,
-      this.#hasActiveConnection ? this.activeConfig.id : null,
+      this.#hasActiveConnection ? this.activeConnection.id : null,
     );
 
     // Styling
@@ -277,7 +276,7 @@ export class DbState {
       allGraphSessionsAtom,
       new Map([
         [
-          this.activeConfig.id,
+          this.activeConnection.id,
           {
             vertices: new Set(this.vertices.map(v => v.id)),
             edges: new Set(this.edges.map(e => e.id)),

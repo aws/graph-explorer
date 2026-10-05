@@ -185,7 +185,9 @@ describe("useSchemaSync", () => {
       const store = getAppStore();
 
       await waitFor(() => {
-        const activeSchema = store.get(schemaAtom).get(state.activeConfig.id);
+        const activeSchema = store
+          .get(schemaAtom)
+          .get(state.activeConnection.id);
         expect(activeSchema?.edgeConnections).toStrictEqual([]);
       });
 

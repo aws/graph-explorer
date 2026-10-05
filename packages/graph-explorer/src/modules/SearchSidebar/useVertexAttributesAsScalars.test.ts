@@ -54,7 +54,7 @@ describe("useVertexAttributesAsScalars", () => {
 
   describe("in Gremlin/OpenCypher", () => {
     beforeEach(() => {
-      dbState.activeConfig.connection!.queryEngine =
+      dbState.activeConnection.connection!.queryEngine =
         createRandomQueryEngine("pg");
     });
 
@@ -99,7 +99,7 @@ describe("useVertexAttributesAsScalars", () => {
 
   describe("SPARQL", () => {
     beforeEach(() => {
-      dbState.activeConfig.connection!.queryEngine = "sparql";
+      dbState.activeConnection.connection!.queryEngine = "sparql";
     });
 
     it("should return URI, Class, and attributes for vertex", () => {
@@ -169,7 +169,7 @@ describe("useVertexAttributesAsScalars", () => {
   });
 
   it("should handle empty displayTypes", () => {
-    dbState.activeConfig.connection!.queryEngine = "openCypher";
+    dbState.activeConnection.connection!.queryEngine = "openCypher";
 
     const vertexWithEmptyTypes: DisplayVertex = {
       entityType: "vertex",

@@ -49,7 +49,7 @@ describe("edgeConnectionsQuery", () => {
     expect(fetchEdgeConnectionsSpy).not.toHaveBeenCalled();
 
     const schemaMap = store.get(schemaAtom);
-    const activeSchema = schemaMap.get(state.activeConfig.id);
+    const activeSchema = schemaMap.get(state.activeConnection.id);
     expect(activeSchema?.edgeConnections).toStrictEqual([]);
   });
 
@@ -182,7 +182,7 @@ describe("edgeConnectionsQuery", () => {
     );
 
     const schemaMap = store.get(schemaAtom);
-    const activeSchema = schemaMap.get(state.activeConfig.id);
+    const activeSchema = schemaMap.get(state.activeConnection.id);
 
     expect(activeSchema?.edgeConnections).toStrictEqual([
       {
@@ -222,7 +222,7 @@ describe("edgeConnectionsQuery", () => {
 
     // Verify initial state
     let schemaMap = store.get(schemaAtom);
-    let activeSchema = schemaMap.get(state.activeConfig.id);
+    let activeSchema = schemaMap.get(state.activeConnection.id);
     expect(activeSchema?.edgeConnections).toStrictEqual([
       {
         sourceVertexType: initialSourceType,
@@ -248,7 +248,7 @@ describe("edgeConnectionsQuery", () => {
 
     // Verify edge connections were overwritten, not merged
     schemaMap = store.get(schemaAtom);
-    activeSchema = schemaMap.get(state.activeConfig.id);
+    activeSchema = schemaMap.get(state.activeConnection.id);
     expect(activeSchema?.edgeConnections).toStrictEqual([
       {
         sourceVertexType: newSourceType,
@@ -281,7 +281,7 @@ describe("edgeConnectionsQuery", () => {
 
     // Verify initial state has edge connections
     let schemaMap = store.get(schemaAtom);
-    let activeSchema = schemaMap.get(state.activeConfig.id);
+    let activeSchema = schemaMap.get(state.activeConnection.id);
     expect(activeSchema?.edgeConnections).toHaveLength(1);
 
     // Query with empty edge types persists [] to store
@@ -292,7 +292,7 @@ describe("edgeConnectionsQuery", () => {
     expect(result).toStrictEqual([]);
 
     schemaMap = store.get(schemaAtom);
-    activeSchema = schemaMap.get(state.activeConfig.id);
+    activeSchema = schemaMap.get(state.activeConnection.id);
     expect(activeSchema?.edgeConnections).toStrictEqual([]);
   });
 
@@ -325,7 +325,7 @@ describe("edgeConnectionsQuery", () => {
     ).rejects.toBe(abortController.signal.reason);
 
     const schemaMap = store.get(schemaAtom);
-    const activeSchema = schemaMap.get(state.activeConfig.id);
+    const activeSchema = schemaMap.get(state.activeConnection.id);
     expect(activeSchema?.lastEdgeConnectionSyncFail).not.toBe(true);
   });
 
@@ -352,7 +352,7 @@ describe("edgeConnectionsQuery", () => {
     ).rejects.toThrow(new Error("Connection failed"));
 
     const schemaMap = store.get(schemaAtom);
-    const activeSchema = schemaMap.get(state.activeConfig.id);
+    const activeSchema = schemaMap.get(state.activeConnection.id);
     expect(activeSchema?.lastEdgeConnectionSyncFail).toBe(true);
     // Edge connections remain undefined since the query failed
     expect(activeSchema?.edgeConnections).toBeUndefined();
@@ -380,7 +380,7 @@ describe("edgeConnectionsQuery", () => {
     );
 
     const schemaMap = store.get(schemaAtom);
-    const activeSchema = schemaMap.get(state.activeConfig.id);
+    const activeSchema = schemaMap.get(state.activeConnection.id);
     expect(activeSchema?.lastEdgeConnectionSyncFail).toBe(false);
     expect(activeSchema?.edgeConnections).toHaveLength(1);
   });
@@ -409,7 +409,7 @@ describe("edgeConnectionsQuery", () => {
     ).rejects.toThrow(new Error("Network error"));
 
     const schemaMap = store.get(schemaAtom);
-    const activeSchema = schemaMap.get(state.activeConfig.id);
+    const activeSchema = schemaMap.get(state.activeConnection.id);
     expect(activeSchema?.lastEdgeConnectionSyncFail).toBe(true);
     expect(activeSchema?.edgeConnections).toStrictEqual(
       existingEdgeConnections,

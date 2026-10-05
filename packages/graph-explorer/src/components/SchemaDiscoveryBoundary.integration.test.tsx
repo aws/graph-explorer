@@ -48,7 +48,7 @@ describe("SchemaDiscoveryBoundary against the real store", () => {
     const store = getAppStore();
     await waitFor(() => {
       expect(
-        store.get(schemaAtom).get(state.activeConfig.id)?.edgeConnections,
+        store.get(schemaAtom).get(state.activeConnection.id)?.edgeConnections,
       ).toStrictEqual([]);
     });
     await waitFor(() => {

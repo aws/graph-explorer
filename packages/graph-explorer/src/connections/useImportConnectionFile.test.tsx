@@ -77,7 +77,7 @@ describe("useImportConnectionFile", () => {
     expect(getAppStore().get(schemaAtom).size).toBe(2);
 
     const { importedId, connection, schema } = getImportedConnection();
-    expect(importedId).not.toBe(state.activeConfig.id);
+    expect(importedId).not.toBe(state.activeConnection.id);
 
     expect(connection.displayLabel).toBe(displayLabel);
     expect(connection.connection?.graphDbUrl).toBe(graphDbUrl);
@@ -162,7 +162,7 @@ describe("useImportConnectionFile", () => {
     );
 
     const validConfig = {
-      id: state.activeConfig.id,
+      id: state.activeConnection.id,
       displayLabel: createRandomName("Config"),
       connection: {
         url: createRandomUrlString(),
@@ -187,7 +187,7 @@ describe("useImportConnectionFile", () => {
     expect(getAppStore().get(savedConnectionsAtom).size).toBe(2);
 
     const { importedId } = getImportedConnection();
-    expect(importedId).not.toBe(state.activeConfig.id);
+    expect(importedId).not.toBe(state.activeConnection.id);
   });
 
   test("should handle schema with prefixes", async () => {

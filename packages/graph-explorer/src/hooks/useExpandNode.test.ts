@@ -24,8 +24,8 @@ import useExpandNode, {
 describe("useDefaultNeighborExpansionLimit", () => {
   it("should return the app limit when defined", () => {
     const dbState = new DbState();
-    if (dbState.activeConfig.connection) {
-      delete dbState.activeConfig.connection.nodeExpansionLimit;
+    if (dbState.activeConnection.connection) {
+      delete dbState.activeConnection.connection.nodeExpansionLimit;
     }
     const { result } = renderHookWithJotai(
       () => useDefaultNeighborExpansionLimit(),
@@ -41,8 +41,8 @@ describe("useDefaultNeighborExpansionLimit", () => {
 
   it("should return the connection limit when defined", () => {
     const dbState = new DbState();
-    if (dbState.activeConfig.connection) {
-      dbState.activeConfig.connection.nodeExpansionLimit = 20;
+    if (dbState.activeConnection.connection) {
+      dbState.activeConnection.connection.nodeExpansionLimit = 20;
     }
     const { result } = renderHookWithJotai(
       () => useDefaultNeighborExpansionLimit(),
@@ -56,8 +56,8 @@ describe("useDefaultNeighborExpansionLimit", () => {
 
   it("should return the connection limit when both app and connection limits are defined", () => {
     const dbState = new DbState();
-    if (dbState.activeConfig.connection) {
-      dbState.activeConfig.connection.nodeExpansionLimit = 20;
+    if (dbState.activeConnection.connection) {
+      dbState.activeConnection.connection.nodeExpansionLimit = 20;
     }
     const { result } = renderHookWithJotai(
       () => useDefaultNeighborExpansionLimit(),
@@ -73,8 +73,8 @@ describe("useDefaultNeighborExpansionLimit", () => {
 
   it("should return null when neither app nor connection limits are defined", () => {
     const dbState = new DbState();
-    if (dbState.activeConfig.connection) {
-      delete dbState.activeConfig.connection.nodeExpansionLimit;
+    if (dbState.activeConnection.connection) {
+      delete dbState.activeConnection.connection.nodeExpansionLimit;
     }
     const { result } = renderHookWithJotai(
       () => useDefaultNeighborExpansionLimit(),

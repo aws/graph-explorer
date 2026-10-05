@@ -23,7 +23,7 @@ function renderUseEntitiesHook(
 ) {
   const dbState = new DbState();
   dbState.activeSchema = schema;
-  dbState.activeConfig = config;
+  dbState.activeConnection = config;
   return renderHookWithState(() => useEntitiesCounts(), dbState);
 }
 

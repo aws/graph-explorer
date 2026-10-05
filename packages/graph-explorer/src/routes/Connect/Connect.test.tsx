@@ -102,7 +102,7 @@ describe("Connect route", () => {
   test("redirects to the graph canvas when the params target the active connection", () => {
     const state = new DbState();
     const activeUrl = "https://active.neptune.amazonaws.com";
-    state.activeConfig.connection = {
+    state.activeConnection.connection = {
       queryEngine: "gremlin",
       graphDbUrl: activeUrl,
     };
@@ -116,7 +116,7 @@ describe("Connect route", () => {
   test("keeps the session when the params target the active connection", () => {
     const state = new DbState();
     const activeUrl = "https://active.neptune.amazonaws.com";
-    state.activeConfig.connection = {
+    state.activeConnection.connection = {
       queryEngine: "gremlin",
       graphDbUrl: activeUrl,
     };
@@ -328,7 +328,7 @@ describe("Connect route", () => {
     expect(screen.getByTestId("location")).toHaveTextContent("/graph-explorer");
     expect(screen.getByText("graph canvas")).toBeInTheDocument();
     expect(getAppStore().get(activeConnectionIdAtom)).toBe(
-      state.activeConfig.id,
+      state.activeConnection.id,
     );
   });
 
