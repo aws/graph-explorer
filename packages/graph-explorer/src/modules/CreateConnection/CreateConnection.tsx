@@ -210,9 +210,6 @@ const CreateConnection = ({
             onValueChange={value =>
               setField("queryEngine")(queryEngineSchema.parse(value))
             }
-            disabled={
-              !form.directConnection && form.serviceType === "neptune-graph"
-            }
           />
         </FormItem>
         <FormItem>

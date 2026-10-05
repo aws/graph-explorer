@@ -199,10 +199,8 @@ describe("Connect route", () => {
     );
   });
 
-  // Neptune Analytics only speaks openCypher; the create form normally forces
-  // this by disabling the picker when the service type is selected, but a
-  // link never goes through that handler, so the schema must resolve the same
-  // default the form would have forced.
+  // The link schema, not the form, supplies openCypher as the default query
+  // language for neptune-graph links that omit it.
   test("opens the create form with openCypher when the link targets neptune-graph", () => {
     new DbState().applyTo(getAppStore());
 
