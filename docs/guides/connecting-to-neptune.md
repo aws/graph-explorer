@@ -7,9 +7,9 @@ Graph Explorer connects to Amazon Neptune through its proxy server, which forwar
 ## Connection Settings
 
 - Name: `My Neptune Cluster`
-- Query Language: Choose the query language for your graph
 - Database URL: `https://{your-cluster-endpoint}:8182`
-- AWS IAM Auth Enabled: `true` if IAM authentication is enabled on your cluster. Checking it reveals the AWS Region and Service Type fields.
+- Query Language: Choose the query language for your graph
+- Use AWS IAM authentication: checked if IAM authentication is enabled on your cluster. Checking it reveals the AWS Region and Service Type fields.
 - AWS Region: your cluster's region (e.g., `us-east-1`)
 - Service Type: **Neptune DB** (or **Neptune Analytics**)
 

@@ -14,8 +14,8 @@ docker run -p 8182:8182 \
 Then open Graph Explorer and add a new connection with the following settings:
 
 - Name: `Gremlin Server`
-- Query Language: `Gremlin`
 - Database URL: `http://localhost:8182`
+- Query Language: `Gremlin`
 
 ## Enable REST
 

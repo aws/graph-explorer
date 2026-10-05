@@ -176,7 +176,7 @@ describe("Connect route", () => {
     expect(screen.getByLabelText("AWS Region")).toHaveValue("us-west-2");
     expect(screen.getByText("Neptune DB")).toBeInTheDocument();
     expect(
-      screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
+      screen.getByRole("checkbox", { name: "Use AWS IAM authentication" }),
     ).toBeChecked();
   });
 
