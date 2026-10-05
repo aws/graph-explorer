@@ -15,14 +15,15 @@ import { createActiveConfigurationAtom } from "./activeConnectionStorage";
 import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
 import {
   defaultGraphViewLayout,
-  transformGraphViewLayout,
+  graphViewLayoutCodec,
 } from "./graphViewLayoutDefaults";
 import { runUserLayoutMigration } from "./migrateUserLayout";
 import { runUserStylingMigration } from "./migrateUserStyling";
 import {
   defaultSchemaViewLayout,
-  transformSchemaViewLayout,
+  schemaViewLayoutCodec,
 } from "./schemaViewLayoutDefaults";
+import { createSessionScopedAtom } from "./sessionScopedStorage";
 import { transformVertexStyles } from "./vertexStylesTransform";
 
 // Run migrations before the atoms preload so they read the migrated data.
@@ -103,11 +104,17 @@ const [
     new Map<EdgeType, EdgeStyleStorage>(),
     { reconcile: reconcileMapByKey },
   ),
-  atomWithLocalForage("graph-view-layout", defaultGraphViewLayout, {
-    transform: transformGraphViewLayout,
+  // View Layout is per-tab: each tab keeps its own sidebar/toggle state in
+  // sessionStorage, with a shared localForage breadcrumb seeding a fresh tab.
+  createSessionScopedAtom({
+    key: "graph-view-layout",
+    defaultValue: defaultGraphViewLayout,
+    codec: graphViewLayoutCodec,
   }),
-  atomWithLocalForage("schema-view-layout", defaultSchemaViewLayout, {
-    transform: transformSchemaViewLayout,
+  createSessionScopedAtom({
+    key: "schema-view-layout",
+    defaultValue: defaultSchemaViewLayout,
+    codec: schemaViewLayoutCodec,
   }),
   /** Stores the graph session data for each connection. */
   atomWithLocalForage<Map<ConfigurationId, GraphSessionStorageModel>>(

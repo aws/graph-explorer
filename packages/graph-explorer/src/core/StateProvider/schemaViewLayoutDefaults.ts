@@ -1,18 +1,32 @@
+import { z } from "zod";
+
 import {
   DEFAULT_SIDEBAR_WIDTH,
-  transformLegacySidebarItem,
+  legacyStylingSidebarItemSchema,
 } from "./graphViewLayoutDefaults";
+import {
+  parseSessionJson,
+  type SessionValueCodec,
+} from "./sessionScopedStorage";
 
 /** Identifiers for the schema view sidebar panels. */
-export const schemaViewSidebarItems = ["details", "styles"] as const;
-export type SchemaViewSidebarItem = (typeof schemaViewSidebarItems)[number];
+export const schemaViewSidebarItemSchema = z.enum(["details", "styles"]);
+export type SchemaViewSidebarItem = z.infer<typeof schemaViewSidebarItemSchema>;
+/** The sidebar panels as a readonly tuple, e.g. for random test selection. */
+export const schemaViewSidebarItems = schemaViewSidebarItemSchema.options;
 
-/** Persisted layout preferences for the schema view. */
-export type SchemaViewLayout = {
-  activeSidebarItem: SchemaViewSidebarItem | null;
-  sidebar: { width: number };
-  detailsAutoOpenOnSelection?: boolean;
-};
+/**
+ * The Schema View Layout. Plain JSON, so one schema serves both backings; it
+ * also accepts a retired styling sidebar item an older version stored.
+ */
+const schemaViewLayoutSchema = z.object({
+  activeSidebarItem: z
+    .union([schemaViewSidebarItemSchema, legacyStylingSidebarItemSchema])
+    .nullable(),
+  sidebar: z.object({ width: z.number() }),
+  detailsAutoOpenOnSelection: z.boolean().optional(),
+});
+export type SchemaViewLayout = z.infer<typeof schemaViewLayoutSchema>;
 
 /** Initial layout state used when no persisted layout exists. */
 export const defaultSchemaViewLayout: SchemaViewLayout = {
@@ -21,14 +35,9 @@ export const defaultSchemaViewLayout: SchemaViewLayout = {
   detailsAutoOpenOnSelection: true,
 };
 
-/** Normalizes a persisted schema view layout from an older app version. */
-export function transformSchemaViewLayout(
-  layout: SchemaViewLayout,
-): SchemaViewLayout {
-  const activeSidebarItem = transformLegacySidebarItem(
-    layout.activeSidebarItem,
-  );
-  return activeSidebarItem === layout.activeSidebarItem
-    ? layout
-    : { ...layout, activeSidebarItem };
-}
+/** Per-tab codec; the schema view layout is plain JSON. */
+export const schemaViewLayoutCodec: SessionValueCodec<SchemaViewLayout> = {
+  serialize: layout => JSON.stringify(layout),
+  deserialize: raw => parseSessionJson(raw, schemaViewLayoutSchema),
+  parseStored: stored => schemaViewLayoutSchema.parse(stored),
+};
