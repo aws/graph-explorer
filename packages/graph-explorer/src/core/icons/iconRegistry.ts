@@ -40,8 +40,8 @@ class IconRegistry {
 
   /**
    * Idempotent: starts only what is neither resolved, running, nor known to
-   * fail. Everything but a lucide icon resolves before this returns, so the
-   * consumer does not wait a render for markup it already has.
+   * fail. Everything but a lucide icon resolves before this returns, because
+   * its data url already holds the markup.
    */
   request(sources: Iterable<IconSource>): void {
     let next: Map<IconSourceId, ResolvedIcon> | undefined;
@@ -61,7 +61,7 @@ class IconRegistry {
         void this.#resolveLucide(id, source.name, this.#epoch);
         continue;
       }
-      const resolved = resolveDataSource(source);
+      const resolved = resolveDataUrlIcon(source);
       if (resolved === null) {
         this.#unresolvable.add(id);
         continue;
@@ -102,7 +102,7 @@ class IconRegistry {
     }
     this.#inFlight.delete(id);
     if (svg === null) {
-      logger.warn("Unknown lucide icon", name);
+      logger.warn("Failed to resolve lucide icon", name);
       this.#unresolvable.add(id);
       return;
     }
@@ -120,7 +120,7 @@ class IconRegistry {
 
 export const iconRegistry = new IconRegistry();
 
-function resolveDataSource(
+function resolveDataUrlIcon(
   source: Exclude<IconSource, { kind: "lucide" }>,
 ): ResolvedIcon | null {
   switch (source.kind) {
@@ -149,7 +149,7 @@ const BASE64_MARKER = ";base64,";
  */
 function decodeBase64DataUrl(url: string): string | null {
   const markerAt = url.indexOf(BASE64_MARKER);
-  if (!url.startsWith("data:") || markerAt === -1) {
+  if (markerAt === -1) {
     return null;
   }
   let binary: string;
