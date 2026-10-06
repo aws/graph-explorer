@@ -3,6 +3,7 @@ import { useCallback } from "react";
 
 import type { EdgeId, VertexId } from "@/core";
 
+import { graphViewLayoutAlgorithmAtom } from "@/modules/GraphViewer/graphViewLayoutAlgorithm";
 import { logger } from "@/utils";
 
 import { edgesAtom } from "../edges";
@@ -44,6 +45,7 @@ export function useUpdateGraphSession() {
       const graphSession: GraphSessionStorageModel = {
         vertices,
         edges,
+        layout: get(graphViewLayoutAlgorithmAtom),
       };
 
       // Update the session

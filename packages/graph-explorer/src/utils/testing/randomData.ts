@@ -586,7 +586,12 @@ export function createRandomExportedGraph() {
   connection.queryEngine = pickRandomElement(
     queryEngineOptions.filter(e => e !== "sparql"),
   );
-  const result = createExportedGraph(vertexIds, edgeIds, connection);
+  const result = createExportedGraph(
+    vertexIds,
+    edgeIds,
+    connection,
+    pickRandomElement(layoutNames),
+  );
   result.meta.sourceVersion = createRandomVersion();
   return result;
 }
@@ -597,7 +602,12 @@ export function createRandomExportedGraphForRdf() {
   const edgeIds = entities.edges.map(e => e.id);
   const connection = createRandomConnectionWithId();
   connection.queryEngine = "sparql";
-  const result = createExportedGraph(vertexIds, edgeIds, connection);
+  const result = createExportedGraph(
+    vertexIds,
+    edgeIds,
+    connection,
+    pickRandomElement(layoutNames),
+  );
   result.meta.sourceVersion = createRandomVersion();
   return result;
 }
@@ -828,6 +838,7 @@ export function createRandomGraphViewLayout(): GraphViewLayout {
       }),
     }),
     detailsAutoOpenOnSelection: randomlyUndefined(createRandomBoolean()),
+    layoutAlgorithm: pickRandomElement(layoutNames),
   };
 }
 
