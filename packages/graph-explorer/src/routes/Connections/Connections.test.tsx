@@ -34,11 +34,8 @@ async function addConnection(graphDbUrl: string, { direct = false } = {}) {
     graphDbUrl,
   );
   if (direct) {
-    await user.click(screen.getByRole("button", { name: "Advanced options" }));
     await user.click(
-      screen.getByRole("checkbox", {
-        name: /Connect directly from the browser/,
-      }),
+      screen.getByRole("radio", { name: "Directly via browser" }),
     );
   }
   await user.click(screen.getByRole("button", { name: "Add Connection" }));

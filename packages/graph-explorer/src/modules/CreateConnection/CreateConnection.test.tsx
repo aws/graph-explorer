@@ -123,25 +123,102 @@ describe("CreateConnection", () => {
     expect(savedConnection.connection).not.toHaveProperty("proxyConnection");
   });
 
-  describe("direct connection", () => {
-    const directOption = {
-      name: /Connect directly from the browser/,
-    };
+  describe("connection method", () => {
+    const proxyOption = { name: "Via proxy server" };
+    const browserOption = { name: "Directly via browser" };
+    const iamOption = { name: "Use AWS IAM authentication" };
 
-    test("hides the IAM controls when connecting directly", async () => {
+    function renderEditing(connection: ConnectionConfig) {
+      const config = { ...createRandomSavedConnection(), connection };
+      const store = renderCreateConnection(
+        <CreateConnection
+          existingConfig={{
+            ...mergeConfiguration(null, config, new Map(), new Map()),
+            totalVertices: 0,
+            vertexTypes: [],
+            totalEdges: 0,
+            edgeTypes: [],
+          }}
+          onClose={vi.fn()}
+        />,
+      );
+      store.set(configurationAtom, new Map([[config.id, config]]));
+      return { store, config };
+    }
+
+    test("connects through the proxy server by default", () => {
+      renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+
+      expect(screen.getByRole("radio", proxyOption)).toBeChecked();
+      expect(screen.getByRole("radio", browserOption)).not.toBeChecked();
+    });
+
+    test("moves between the methods with the arrow keys", async () => {
+      const user = userEvent.setup();
+      renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+
+      await user.click(screen.getByRole("radio", proxyOption));
+      // Radix moves focus on a timer, so the key is held until the focus lands
+      await user.keyboard("{ArrowDown>}");
+      await waitFor(() => {
+        expect(screen.getByRole("radio", browserOption)).toBeChecked();
+      });
+      await user.keyboard("{/ArrowDown}");
+    });
+
+    test("says the server signs requests with its own credentials", async () => {
+      const user = userEvent.setup();
+      renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+
+      expect(screen.queryByText(/with its own AWS credentials/)).toBeNull();
+
+      await user.click(screen.getByRole("checkbox", iamOption));
+
+      expect(
+        screen.getByText(/signs requests with its own AWS credentials/),
+      ).toBeInTheDocument();
+    });
+
+    test("hides the IAM controls when connecting directly via the browser", async () => {
+      const user = userEvent.setup();
+      renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+
+      await user.click(screen.getByRole("checkbox", iamOption));
+      await user.click(screen.getByRole("radio", browserOption));
+
+      expect(screen.queryByRole("checkbox", iamOption)).toBeNull();
+      expect(screen.queryByRole("textbox", { name: "AWS Region" })).toBeNull();
+    });
+
+    test("restores the IAM settings when switching back to the proxy server", async () => {
+      const user = userEvent.setup();
+      renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+
+      await user.click(screen.getByRole("checkbox", iamOption));
+      await user.type(
+        screen.getByRole("textbox", { name: "AWS Region" }),
+        "us-west-2",
+      );
+      await user.click(screen.getByRole("radio", browserOption));
+      await user.click(screen.getByRole("radio", proxyOption));
+
+      expect(screen.getByRole("checkbox", iamOption)).toBeChecked();
+      expect(screen.getByRole("textbox", { name: "AWS Region" })).toHaveValue(
+        "us-west-2",
+      );
+    });
+
+    test("selects a method by clicking its description", async () => {
       const user = userEvent.setup();
       renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
 
       await user.click(
-        screen.getByRole("checkbox", { name: "Use AWS IAM authentication" }),
+        screen.getByText(
+          "Your browser reaches the database itself, so the database must allow CORS from this page. No AWS IAM authentication, query cancellation or server-side logging.",
+        ),
       );
-      await openAdvancedOptions(user);
-      await user.click(screen.getByRole("checkbox", directOption));
 
-      expect(
-        screen.queryByRole("checkbox", { name: "Use AWS IAM authentication" }),
-      ).toBeNull();
-      expect(screen.queryByRole("textbox", { name: "AWS Region" })).toBeNull();
+      expect(screen.getByRole("radio", browserOption)).toBeChecked();
     });
 
     test("saves a direct connection without IAM settings", async () => {
@@ -158,13 +235,10 @@ describe("CreateConnection", () => {
         screen.getByRole("textbox", { name: "Database URL" }),
         "https://database.example.com:8182",
       );
-      // IAM set up before switching to direct must not be saved, since the
-      // region it requires is hidden and a direct request is never signed.
-      await user.click(
-        screen.getByRole("checkbox", { name: "Use AWS IAM authentication" }),
-      );
-      await openAdvancedOptions(user);
-      await user.click(screen.getByRole("checkbox", directOption));
+      // IAM set up before switching to the browser must not be saved, since
+      // the region it requires is hidden and a direct request is never signed.
+      await user.click(screen.getByRole("checkbox", iamOption));
+      await user.click(screen.getByRole("radio", browserOption));
       await user.click(screen.getByRole("button", { name: "Add Connection" }));
 
       await waitFor(() => {
@@ -197,8 +271,7 @@ describe("CreateConnection", () => {
           screen.getByRole("textbox", { name: "Database URL" }),
           graphDbUrl,
         );
-        await openAdvancedOptions(user);
-        await user.click(screen.getByRole("checkbox", directOption));
+        await user.click(screen.getByRole("radio", browserOption));
         await user.click(
           screen.getByRole("button", { name: "Add Connection" }),
         );
@@ -206,7 +279,7 @@ describe("CreateConnection", () => {
         expect(store.get(configurationAtom)).toHaveLength(0);
         expect(
           screen.getByText(
-            "A direct connection needs a full URL starting with http:// or https://",
+            "Directly via browser needs a full URL starting with http:// or https://",
           ),
         ).toBeInTheDocument();
       },
@@ -233,53 +306,25 @@ describe("CreateConnection", () => {
       });
     });
 
-    test("shows an existing direct connection as direct", () => {
-      const config = {
-        ...createRandomSavedConnection(),
-        connection: {
-          graphDbUrl: "https://database.example.com:8182",
-          proxyConnection: false,
-        },
-      };
+    test("shows an existing direct connection as Directly via browser", () => {
+      renderEditing({
+        graphDbUrl: "https://database.example.com:8182",
+        proxyConnection: false,
+      });
 
-      renderCreateConnection(
-        <CreateConnection
-          existingConfig={{
-            ...mergeConfiguration(null, config, new Map(), new Map()),
-            totalVertices: 0,
-            vertexTypes: [],
-            totalEdges: 0,
-            edgeTypes: [],
-          }}
-          onClose={vi.fn()}
-        />,
-      );
-
-      expect(screen.getByRole("checkbox", directOption)).toBeChecked();
+      expect(screen.getByRole("radio", browserOption)).toBeChecked();
+      expect(
+        screen.getByRole("button", { name: "Advanced options" }),
+      ).toHaveAttribute("aria-expanded", "false");
     });
 
-    test("leaves the option unchecked for an existing proxy connection", async () => {
+    test("keeps an existing proxy connection on the proxy server", async () => {
       const user = userEvent.setup();
-      const config = {
-        ...createRandomSavedConnection(),
-        connection: { graphDbUrl: "https://database.example.com:8182" },
-      };
-      const store = renderCreateConnection(
-        <CreateConnection
-          existingConfig={{
-            ...mergeConfiguration(null, config, new Map(), new Map()),
-            totalVertices: 0,
-            vertexTypes: [],
-            totalEdges: 0,
-            edgeTypes: [],
-          }}
-          onClose={vi.fn()}
-        />,
-      );
-      store.set(configurationAtom, new Map([[config.id, config]]));
+      const { store, config } = renderEditing({
+        graphDbUrl: "https://database.example.com:8182",
+      });
 
-      await openAdvancedOptions(user);
-      expect(screen.getByRole("checkbox", directOption)).not.toBeChecked();
+      expect(screen.getByRole("radio", proxyOption)).toBeChecked();
 
       await user.click(
         screen.getByRole("button", { name: "Update Connection" }),
@@ -292,39 +337,16 @@ describe("CreateConnection", () => {
       expect(savedConnection?.connection).not.toHaveProperty("proxyConnection");
     });
 
-    test("saves an existing direct connection back to a proxy connection when unchecked", async () => {
+    test("saves an existing direct connection back to a proxy connection", async () => {
       const user = userEvent.setup();
-      const config = {
-        ...createRandomSavedConnection(),
-        connection: {
-          graphDbUrl: "https://database.example.com:8182",
-          proxyConnection: false,
-        },
-      };
-      const store = renderCreateConnection(
-        <CreateConnection
-          existingConfig={{
-            ...mergeConfiguration(null, config, new Map(), new Map()),
-            totalVertices: 0,
-            vertexTypes: [],
-            totalEdges: 0,
-            edgeTypes: [],
-          }}
-          onClose={vi.fn()}
-        />,
-      );
-      store.set(configurationAtom, new Map([[config.id, config]]));
+      const { store, config } = renderEditing({
+        graphDbUrl: "https://database.example.com:8182",
+        proxyConnection: false,
+      });
 
-      expect(
-        screen.getByRole("button", { name: "Advanced options" }),
-      ).toHaveAttribute("aria-expanded", "true");
-      expect(screen.getByRole("checkbox", directOption)).toBeChecked();
+      await user.click(screen.getByRole("radio", proxyOption));
 
-      await user.click(screen.getByRole("checkbox", directOption));
-
-      expect(
-        screen.getByRole("checkbox", { name: "Use AWS IAM authentication" }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("checkbox", iamOption)).toBeInTheDocument();
 
       await user.click(
         screen.getByRole("button", { name: "Update Connection" }),

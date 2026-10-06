@@ -46,6 +46,11 @@ export type ConnectionFormValues = {
   nodeExpansionLimit: number | undefined;
 };
 
+/** Curried setter for one field of the form. */
+export type SetConnectionFormField = <Field extends keyof ConnectionFormValues>(
+  field: Field,
+) => (value: ConnectionFormValues[Field]) => void;
+
 /** The message to show beside each field that failed validation. */
 export type ConnectionFormErrors = {
   name?: string;
@@ -180,11 +185,7 @@ export function updateConnectionForm<Field extends keyof ConnectionFormValues>(
  * collapsed section, so editing it looks like the defaults are in force.
  */
 export function hasAdvancedOverrides(form: ConnectionFormValues): boolean {
-  return (
-    form.fetchTimeoutEnabled ||
-    form.nodeExpansionLimitEnabled ||
-    form.directConnection
-  );
+  return form.fetchTimeoutEnabled || form.nodeExpansionLimitEnabled;
 }
 
 function normalizeUrlField(value: string) {
@@ -197,6 +198,6 @@ function validateGraphDbUrl(values: ConnectionFormValues): string | undefined {
   }
   // The browser resolves anything else against this page or as a scheme.
   if (values.directConnection && !isAbsoluteHttpUrl(values.graphDbUrl)) {
-    return "A direct connection needs a full URL starting with http:// or https://";
+    return "Directly via browser needs a full URL starting with http:// or https://";
   }
 }
