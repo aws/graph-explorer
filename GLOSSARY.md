@@ -60,7 +60,7 @@ A React-based web application that lets users visually explore graph databases w
 
 **Graph View Layout**: The View Layout for the Graph View, such as the active sidebar panel, sidebar width, active content toggles, table-view height, and the details-auto-open preference. _Avoid_: Graph preferences, graph settings
 
-**Schema View Layout**: The View Layout for the Schema View, such as the active sidebar panel, sidebar width, and the details-auto-open preference. _Avoid_: Schema preferences, schema settings
+**Schema View Layout**: The View Layout for the Schema View, such as the active sidebar panel, sidebar width, the details-auto-open preference, and the chosen Layout. _Avoid_: Schema preferences, schema settings
 
 **Storage Scope**: The cross-tab behavior a persisted atom picks at creation: per-tab (tabs diverge), shared-reconciled (merged per key), or shared-blind-write. See the `per-tab-session-scoped-storage-primitive` ADR for which atoms use which. _Avoid_: Persistence mode, storage strategy
 

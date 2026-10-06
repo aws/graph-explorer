@@ -53,6 +53,7 @@ import {
   type EntityRawId,
   type FeatureFlags,
   type GraphViewLayout,
+  layoutNames,
   type LineStyle,
   type PrefixTypeConfig,
   resolveEdgeStyle,
@@ -560,7 +561,7 @@ export function createRandomEntityAttributeForRdf() {
   };
 }
 
-function pickRandomElement<T>(array: T[]): T {
+function pickRandomElement<T>(array: readonly T[]): T {
   return array[Math.floor(Math.random() * array.length)];
 }
 
@@ -845,5 +846,6 @@ export function createRandomSchemaViewLayout(): SchemaViewLayout {
       }),
     },
     detailsAutoOpenOnSelection: randomlyUndefined(createRandomBoolean()),
+    layoutAlgorithm: pickRandomElement(layoutNames),
   };
 }
