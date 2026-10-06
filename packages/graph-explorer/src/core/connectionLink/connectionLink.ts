@@ -295,9 +295,11 @@ function findMatchingConnection(
     return null;
   }
 
-  const activeMatch = matches.find(connection => connection.id === activeId);
+  const activeMatch = matches.find(
+    savedConnection => savedConnection.id === activeId,
+  );
   const nameMatch = matches.find(
-    connection => connection.displayLabel === name,
+    savedConnection => savedConnection.displayLabel === name,
   );
 
   return activeMatch ?? nameMatch ?? matches[0];
