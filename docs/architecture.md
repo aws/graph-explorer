@@ -16,7 +16,7 @@ graph LR
     Browser -- persistence --> IDB["IndexedDB\n(localforage)"]
 ```
 
-The React client constructs queries and sends them through the proxy server using relative URLs, which forwards requests to the graph database. When connecting to Amazon Neptune, the proxy signs requests with AWS SigV4 credentials. A deprecated direct connection skips the proxy, and the browser sends its requests to the database itself. That path offers no IAM authentication and will be removed in a future release.
+The React client constructs queries and sends them through the proxy server using relative URLs, which forwards requests to the graph database. When connecting to Amazon Neptune, the proxy signs requests with AWS SigV4 credentials. A direct connection skips the proxy, and the browser sends its requests to the database itself. That path offers no IAM authentication, query cancellation, or server-side logging, and needs the database to allow CORS.
 
 The proxy does not store any user data — all preferences, connections, and query history live in the browser's IndexedDB.
 

@@ -16,7 +16,7 @@ export function normalizeUrl(url: string | undefined): string {
   );
 }
 
-/** Whether the browser sends requests to the database itself. Deprecated. */
+/** Whether the browser sends requests to the database itself. */
 export function isDirectConnection(
   connection: ConnectionConfig | undefined,
 ): boolean {

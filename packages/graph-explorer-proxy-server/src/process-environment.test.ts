@@ -366,7 +366,7 @@ describe("process-environment.sh", () => {
    * they arrive alone, together with the current variable, or via
    * `config.json`, and must never leak `PUBLIC_OR_PROXY_ENDPOINT` into
    * `defaultConnection.json`. A connection that resolves to direct stays a
-   * deprecated direct connection.
+   * direct connection.
    *
    * DO NOT delete or weaken these tests without confirming that no deployment
    * still in the wild sets these legacy environment variables instead of

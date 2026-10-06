@@ -22,8 +22,8 @@ import {
  * `transformLegacyConnection` folds every combination of that legacy shape
  * (both fields, either alone, `proxyConnection` true/false/absent) into
  * `graphDbUrl` and drops `url`. A direct connection keeps
- * `proxyConnection: false`, which is also the canonical shape of a deprecated
- * direct connection, and loses its AWS auth settings. A proxy connection
+ * `proxyConnection: false`, which is also the canonical shape of a direct
+ * connection, and loses its AWS auth settings. A proxy connection
  * omits the flag.
  *
  * DO NOT delete or weaken these tests without confirming no stored connection

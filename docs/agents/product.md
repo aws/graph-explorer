@@ -45,4 +45,4 @@ Graph Explorer is a React-based web application that enables users to visualize 
 - IndexedDB via localforage is the primary storage mechanism
 - Persisted: user styles and settings, connection configurations, query history, visualization settings
 - Per-tab state lives in sessionStorage instead, so tabs diverge: the active connection and the graph-view and schema-view layouts. Each keeps its localForage key as a cold-start breadcrumb that seeds a freshly-opened tab
-- Graph data is queried live through the Proxy Server (or, for a deprecated direct connection, from the browser) and is not owned or persisted by Graph Explorer
+- Graph data is queried live through the Proxy Server (or, for a direct connection, from the browser) and is not owned or persisted by Graph Explorer

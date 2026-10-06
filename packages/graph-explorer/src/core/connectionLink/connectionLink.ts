@@ -225,7 +225,7 @@ function deriveNameFromUrl(graphDbUrl: string): string {
  * same endpoint, so it must not silently reuse it. When IAM is off, region and
  * service type carry no auth meaning and are normalized away. How a
  * connection is routed is not identity: a link without IAM may reuse a
- * deprecated Direct Connection to the same URL, but one requesting IAM never
+ * Direct Connection to the same URL, but one requesting IAM never
  * does, since a Direct Connection cannot sign.
  *
  * Both sides go through `normalizeConnection`, the same defaults the rest of

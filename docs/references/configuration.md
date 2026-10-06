@@ -81,7 +81,7 @@ PROXY_SERVER_ALLOWED_DB_ORIGINS=https://my-neptune-cluster:8182/sparql
 
 > [!NOTE]
 >
-> This check applies only to requests routed through the proxy server. It doesn't apply to deprecated direct connections, because the browser sends their requests to the database itself.
+> This check applies only to requests routed through the proxy server. It doesn't apply to direct connections, because the browser sends their requests to the database itself.
 
 ### `LOG_STYLE`
 
@@ -126,10 +126,10 @@ To provide a default connection such that initial loads of Graph Explorer always
 > The legacy `PUBLIC_OR_PROXY_ENDPOINT` and `USING_PROXY_SERVER` variables are still honored, so an existing deployment needs no change:
 >
 > - `USING_PROXY_SERVER=true` (case-insensitive): the default connection goes through the proxy server to `GRAPH_CONNECTION_URL`, and `PUBLIC_OR_PROXY_ENDPOINT` is ignored.
-> - `USING_PROXY_SERVER` set to any other value, or unset with `PUBLIC_OR_PROXY_ENDPOINT` provided: the default connection is a deprecated direct connection to `PUBLIC_OR_PROXY_ENDPOINT`, or to `GRAPH_CONNECTION_URL` when `PUBLIC_OR_PROXY_ENDPOINT` is unset. The browser sends its requests to the database itself, and `IAM`, `AWS_REGION`, and `SERVICE_TYPE` are ignored.
+> - `USING_PROXY_SERVER` set to any other value, or unset with `PUBLIC_OR_PROXY_ENDPOINT` provided: the default connection is a direct connection to `PUBLIC_OR_PROXY_ENDPOINT`, or to `GRAPH_CONNECTION_URL` when `PUBLIC_OR_PROXY_ENDPOINT` is unset. The browser sends its requests to the database itself, and `IAM`, `AWS_REGION`, and `SERVICE_TYPE` are ignored.
 > - `USING_PROXY_SERVER` and `PUBLIC_OR_PROXY_ENDPOINT` both unset: the default connection goes through the proxy server to `GRAPH_CONNECTION_URL`.
 >
-> Direct connections will be removed in a future release, so switch to `GRAPH_CONNECTION_URL` and drop `PUBLIC_OR_PROXY_ENDPOINT` and `USING_PROXY_SERVER` when you can.
+> `PUBLIC_OR_PROXY_ENDPOINT` is a legacy alias for the database URL of a direct default connection. Prefer `GRAPH_CONNECTION_URL`, and set `USING_PROXY_SERVER=false` only when the default connection should connect from the browser.
 
 ### Environment Variables
 

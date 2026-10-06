@@ -349,13 +349,12 @@ const CreateConnection = ({
                   onCheckedChange={setCheckedField("directConnection")}
                 />
                 <span className="flex items-center gap-2">
-                  Connect directly from the browser (deprecated)
+                  Connect directly from the browser
                   <InfoTooltip>
                     The browser sends requests to the database itself instead of
                     through the Graph Explorer server. The database must allow
                     cross-origin requests from this page, and IAM authentication
-                    is not available. This option will be removed in a future
-                    release.
+                    is not available.
                   </InfoTooltip>
                 </span>
               </Label>
