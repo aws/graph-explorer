@@ -73,11 +73,15 @@
       "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
       "computedHash": "ac2c94885f34ff8492dc12aa4543182f661f32ea1722b8d6b6c2c7045af33ae3"
     },
+    "issue": {
+      "source": "../../../../Developer/skills/public",
+      "sourceType": "local",
+      "computedHash": "e59fcc3b78219dfe3c3948061c53274109888bfbc1eef15b382a2771f9e9e2e4"
+    },
     "pr": {
-      "source": "mattpocock/skills",
-      "sourceType": "github",
-      "skillPath": "skills/engineering/pr/SKILL.md",
-      "computedHash": "22a15d4d469344b38e03eb0e95772478393975836289393b1bad3c0febcdc679"
+      "source": "../../../../Developer/skills/public",
+      "sourceType": "local",
+      "computedHash": "c95347e5d92574c80c51e20e44f33f1f60eea03e2c26f1aefb9d447062348632"
     },
     "prototype": {
       "source": "mattpocock/skills",
