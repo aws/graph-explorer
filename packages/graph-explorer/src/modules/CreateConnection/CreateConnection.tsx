@@ -37,6 +37,7 @@ import {
   mapToConnection,
   mapSavedConnectionToConnectionForm,
   queryEngineSchema,
+  type SetConnectionFormField,
   updateConnectionForm,
   validateConnectionForm,
 } from "./connectionFormModel";
@@ -153,10 +154,8 @@ const CreateConnection = ({
   );
   const [showErrors, setShowErrors] = useState(false);
 
-  const setField =
-    <Field extends keyof ConnectionFormValues>(field: Field) =>
-    (value: ConnectionFormValues[Field]) =>
-      setForm(prev => updateConnectionForm(prev, field, value));
+  const setField: SetConnectionFormField = field => value =>
+    setForm(prev => updateConnectionForm(prev, field, value));
   // A number field reports `null` once it is cleared, despite its typing.
   const setNumberField =
     (field: "fetchTimeoutMs" | "nodeExpansionLimit") =>

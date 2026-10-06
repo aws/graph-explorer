@@ -31,6 +31,7 @@ type ConnectionMethodFieldProps = IamSettingsProps &
  */
 export function ConnectionMethodField({
   directConnection,
+  setField,
   ...iamSettings
 }: ConnectionMethodFieldProps) {
   const labelId = useId();
@@ -43,7 +44,7 @@ export function ConnectionMethodField({
         aria-labelledby={labelId}
         value={method}
         onValueChange={value =>
-          iamSettings.setField("directConnection")(
+          setField("directConnection")(
             connectionMethodSchema.parse(value) === "browser",
           )
         }
@@ -54,7 +55,7 @@ export function ConnectionMethodField({
           selected={method === "proxy"}
           title="Via proxy server"
           description="Works with Amazon Neptune, supports IAM authentication and query cancellation, and needs no CORS setup."
-          footer={<IamSettings {...iamSettings} />}
+          footer={<IamSettings {...iamSettings} setField={setField} />}
         />
         <MethodCard
           value="browser"
