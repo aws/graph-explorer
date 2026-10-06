@@ -200,15 +200,16 @@ describe("reading a connection link", () => {
       ).toBe("openCypher");
     });
 
-    test("rejects gremlin for neptune-graph rather than silently switching engines", () => {
-      expect(
-        problemsOf(
-          "?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&awsRegion=us-west-2&serviceType=neptune-graph&queryEngine=gremlin",
-        ),
-      ).toEqual([
-        'queryEngine must be "openCypher" when serviceType is "neptune-graph"',
-      ]);
-    });
+    test.each(["gremlin", "sparql"])(
+      "keeps an explicit %s query language for neptune-graph",
+      queryEngine => {
+        expect(
+          paramsOf(
+            `?graphDbUrl=https%3A%2F%2Fg-xxx.neptune-graph.amazonaws.com&awsRegion=us-west-2&serviceType=neptune-graph&queryEngine=${queryEngine}`,
+          ).queryEngine,
+        ).toBe(queryEngine);
+      },
+    );
 
     test("accepts openCypher for neptune-graph", () => {
       expect(
