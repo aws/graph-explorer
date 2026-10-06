@@ -21,12 +21,12 @@ Graph Explorer is a React-based web application that enables users to visualize 
 - **Tabular View**: Show/hide nodes and edges, export to CSV/JSON
 - **Data Table View**: List all nodes and properties for a specific node type and send to graph view
 - **Schema View**: View node types and their relationships as a graph
-- **Authentication**: AWS IAM authentication via SigV4 signing protocol
+- **IAM request signing**: the proxy server signs outbound database requests with SigV4 for Neptune IAM. Graph Explorer authenticates no user or caller; see `docs/references/security.md#access-control`
 
 ## Architecture
 
 - **Frontend**: TypeScript React application served via Vite
-- **Backend**: Express.js proxy server for authentication and request routing
+- **Backend**: Express.js proxy server that routes and SigV4-signs database requests
 - **Deployment**: Docker containers, supports local and cloud deployment (EC2, ECS)
 
 ## Key Architectural Patterns
