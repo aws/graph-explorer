@@ -214,7 +214,7 @@ describe("CreateConnection", () => {
 
       await user.click(
         screen.getByText(
-          "Reaches databases only your browser can. The database must allow CORS, and IAM, cancellation and logging are unavailable.",
+          "Your browser reaches the database itself, so the database must allow CORS from this page. No AWS IAM authentication, query cancellation or server-side logging.",
         ),
       );
 
