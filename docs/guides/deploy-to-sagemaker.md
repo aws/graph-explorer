@@ -46,6 +46,8 @@ The sample lifecycle script sets `LOG_LEVEL=info`, which keeps database query te
 
 By default, the permission policy for the IAM role of the SageMaker instance will have full access to the Neptune Database or Neptune Analytics instance. This means queries executed within Graph Explorer could contain mutations.
 
+The sample policies grant every database action (`neptune-db:*` or `neptune-graph:*`) because the role is shared by everything on the notebook instance, including the Jupyter graph notebooks, which use more actions than Graph Explorer, such as bulk loading and engine status. If you don't need those notebook features, narrow the role as described below.
+
 To restrict Graph Explorer access for its most basic functionality you can use these minimum permissions.
 
 - Read data via queries

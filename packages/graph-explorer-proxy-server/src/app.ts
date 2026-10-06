@@ -188,6 +188,24 @@ export function createApp({
 
   const userAgent = version ? `graph-explorer/${version}` : "graph-explorer";
 
+  // Once per app rather than per origin: the client picks the origin, so
+  // per-origin state would grow without bound.
+  let hasWarnedSigningWithoutAllowlist = false;
+
+  function warnOnceIfSigningWithoutAllowlist(url: URL) {
+    if (allowedDbOrigins || hasWarnedSigningWithoutAllowlist) {
+      return;
+    }
+    hasWarnedSigningWithoutAllowlist = true;
+    getLogger().warn(
+      `Signed a request to ${url.origin} with no Database Origin Allowlist set. ` +
+        "The Proxy Server signs with its own AWS identity, which every user of this deployment shares, " +
+        "so any user can reach any database that identity's policy allows. " +
+        "Set PROXY_SERVER_ALLOWED_DB_ORIGINS or scope the identity's database policy. " +
+        "See the Graph Explorer security documentation for details.",
+    );
+  }
+
   // node-fetch derives the request line from the URL, so only request-init
   // fields are returned; the fields fed to the signer are signing inputs only.
   async function buildFetchOptions(
@@ -217,6 +235,7 @@ export function createApp({
         { signingRegion: region, signingService: serviceType },
       );
       headers = signed.headers;
+      warnOnceIfSigningWithoutAllowlist(url);
     }
     return {
       method: options.method,

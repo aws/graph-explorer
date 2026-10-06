@@ -3,7 +3,15 @@ import os from "os";
 import path from "path";
 import { Readable } from "stream";
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  type MockInstance,
+  vi,
+} from "vitest";
 
 import { createApp, resolveEndpointUrl } from "./app.ts";
 import { createLogger } from "./logging.ts";
@@ -820,6 +828,95 @@ describe("createApp", () => {
       const fetchOptions = fetchOptionsFor("sparql");
       expect(fetchOptions.headers).not.toHaveProperty("authorization");
     });
+
+    describe("without a Database Origin Allowlist", () => {
+      const signedHeaders = {
+        "aws-neptune-region": "us-east-1",
+        "service-type": "neptune-db",
+      };
+
+      function allowlistWarnings(warnSpy: MockInstance) {
+        return warnSpy.mock.calls.filter(args =>
+          args.some(
+            arg =>
+              typeof arg === "string" &&
+              arg.includes("PROXY_SERVER_ALLOWED_DB_ORIGINS"),
+          ),
+        );
+      }
+
+      it("warns once on the first signed request, naming the origin", async () => {
+        mockFetchOnce();
+
+        const app = createTestApp();
+        const warnSpy = vi.spyOn(app.locals.logger, "warn");
+        const response = await request(app)
+          .post("/sparql")
+          .set(dbHeaders(signedHeaders))
+          .send({ query: "SELECT ?secret WHERE {}" });
+
+        expect(response.status).toBe(200);
+        expect(fetchOptionsFor("sparql").headers).toHaveProperty(
+          "authorization",
+        );
+        const warnings = allowlistWarnings(warnSpy);
+        expect(warnings).toHaveLength(1);
+        const message = warnings[0].join(" ");
+        expect(message).toContain(new URL(graphDbUrl).origin);
+        expect(message).toContain("security documentation");
+        expect(message).not.toContain("?secret");
+        expect(message).not.toContain("/sparql");
+      });
+
+      it("does not warn again for later signed requests to any origin", async () => {
+        const app = createTestApp();
+        const warnSpy = vi.spyOn(app.locals.logger, "warn");
+
+        for (const url of [graphDbUrl, "https://other-db.example.com:8182"]) {
+          mockFetchOnce();
+          await request(app)
+            .post("/sparql")
+            .set(
+              dbHeaders({ ...signedHeaders, "graph-db-connection-url": url }),
+            )
+            .send({ query: "SELECT 1" });
+        }
+        mockFetchOnce();
+        await request(app).get("/summary").set(dbHeaders(signedHeaders));
+
+        expect(allowlistWarnings(warnSpy)).toHaveLength(1);
+      });
+
+      it("does not warn for unsigned requests", async () => {
+        mockFetchOnce();
+
+        const app = createTestApp();
+        const warnSpy = vi.spyOn(app.locals.logger, "warn");
+        await request(app)
+          .post("/sparql")
+          .set(dbHeaders())
+          .send({ query: "SELECT 1" });
+
+        expect(allowlistWarnings(warnSpy)).toHaveLength(0);
+      });
+
+      it("does not warn when an allowlist is set", async () => {
+        mockFetchOnce();
+
+        const app = createTestApp(
+          ".",
+          undefined,
+          new Set([new URL(graphDbUrl).origin]),
+        );
+        const warnSpy = vi.spyOn(app.locals.logger, "warn");
+        await request(app)
+          .post("/sparql")
+          .set(dbHeaders(signedHeaders))
+          .send({ query: "SELECT 1" });
+
+        expect(allowlistWarnings(warnSpy)).toHaveLength(0);
+      });
+    });
   });
 
   // ── Query logging header ───────────────────────────────────────────
@@ -1169,7 +1266,9 @@ describe("createApp", () => {
         const response = body ? await req.send(body) : await req;
 
         expect(response.status).toBe(403);
-        expect(response.body.error.message).toContain("allowed origins list");
+        expect(response.body.error.message).toContain(
+          "PROXY_SERVER_ALLOWED_DB_ORIGINS",
+        );
         expect(mockFetch).not.toHaveBeenCalledWith(
           expect.stringContaining("https://blocked:8182"),
           expect.anything(),
