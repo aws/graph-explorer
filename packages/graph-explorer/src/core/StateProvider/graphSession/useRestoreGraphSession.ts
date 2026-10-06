@@ -1,9 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSetAtom } from "jotai";
 import { toast } from "sonner";
 
 import { fetchEntityDetails, notifyOnIncompleteRestoration } from "@/connector";
 import { useAddToGraph } from "@/hooks";
 import { useEntityCountFormatterCallback } from "@/hooks/useEntityCountFormatter";
+import { graphViewLayoutAlgorithmAtom } from "@/modules/GraphViewer/graphViewLayoutAlgorithm";
 import { logger } from "@/utils";
 import { createDisplayError } from "@/utils/createDisplayError";
 
@@ -16,10 +18,13 @@ export function useRestoreGraphSession() {
   const queryClient = useQueryClient();
   const addToGraph = useAddToGraph();
   const formatEntityCounts = useEntityCountFormatterCallback();
+  const setLayoutAlgorithm = useSetAtom(graphViewLayoutAlgorithmAtom);
 
   const mutation = useMutation({
     mutationFn: async (graph: GraphSessionStorageModel) => {
       logger.debug("Restoring graph session", graph);
+
+      setLayoutAlgorithm(graph.layout);
 
       const entityCountMessage = formatEntityCounts(
         graph.vertices.size,

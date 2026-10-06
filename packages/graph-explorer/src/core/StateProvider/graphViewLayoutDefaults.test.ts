@@ -1,6 +1,8 @@
 import { describe, expect, it, test } from "vitest";
 import { z } from "zod";
 
+import { logger } from "@/utils";
+
 import {
   DEFAULT_SIDEBAR_WIDTH,
   defaultGraphViewLayout,
@@ -48,6 +50,7 @@ describe("backward compatibility: graphViewLayoutCodec.parseStored", () => {
       activeSidebarItem: "search",
       activeToggles: new Set(["graph-viewer"]),
       sidebar: { width: DEFAULT_SIDEBAR_WIDTH },
+      layoutAlgorithm: "F_COSE",
     });
   });
 
@@ -58,9 +61,59 @@ describe("backward compatibility: graphViewLayoutCodec.parseStored", () => {
       activeToggles: new Set(["table-view"]),
       tableView: { height: 250 },
       detailsAutoOpenOnSelection: false,
+      layoutAlgorithm: "DAGRE_LR",
     };
 
     expect(graphViewLayoutCodec.parseStored(layout)).toStrictEqual(layout);
+  });
+});
+
+/**
+ * BACKWARD COMPATIBILITY — PERSISTED DATA
+ *
+ * Older versions did not store `layoutAlgorithm` at all, and a later version may
+ * remove a layout a stored value still names. Either way the layout algorithm
+ * falls back to F_COSE on its own, so the rest of the stored layout survives
+ * instead of the whole value being discarded as corrupt. Only an unknown value
+ * is worth a warning; a missing one is just pre-feature data.
+ *
+ * DO NOT delete or weaken these tests without confirming that all persisted
+ * data has been transformed or that the old values are no longer in the wild.
+ */
+describe("backward compatibility: graphViewLayout layoutAlgorithm", () => {
+  const storedWithout = {
+    activeSidebarItem: "filters",
+    sidebar: { width: 420 },
+    activeToggles: new Set(["graph-viewer"]),
+    detailsAutoOpenOnSelection: false,
+  };
+  const storedWith = (layoutAlgorithm: unknown) => ({
+    ...storedWithout,
+    layoutAlgorithm,
+  });
+
+  it("fills a missing layout algorithm with F_COSE without warning", () => {
+    expect(graphViewLayoutCodec.parseStored(storedWithout)).toStrictEqual(
+      storedWith("F_COSE"),
+    );
+    expect(logger.warn).not.toHaveBeenCalled();
+  });
+
+  it("replaces an unknown layout algorithm with F_COSE and warns, keeping the other fields", () => {
+    expect(
+      graphViewLayoutCodec.parseStored(storedWith("REMOVED_LAYOUT")),
+    ).toStrictEqual(storedWith("F_COSE"));
+    expect(logger.warn).toHaveBeenCalledWith(
+      '[graph-layout] Unrecognized layout name; using "F_COSE"',
+      "REMOVED_LAYOUT",
+    );
+  });
+
+  it("keeps a known layout algorithm", () => {
+    expect(
+      graphViewLayoutCodec.parseStored(storedWith("SUBWAY_RL")),
+    ).toStrictEqual(storedWith("SUBWAY_RL"));
+    expect(logger.warn).not.toHaveBeenCalled();
   });
 });
 
@@ -72,6 +125,7 @@ describe("graphViewLayoutCodec", () => {
       sidebar: { width: 321 },
       tableView: { height: 250 },
       detailsAutoOpenOnSelection: false,
+      layoutAlgorithm: "KLAY_TB",
     };
 
     const restored = graphViewLayoutCodec.deserialize(

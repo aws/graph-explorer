@@ -4,6 +4,7 @@ import { act } from "react";
 import { describe, expect, test } from "vitest";
 
 import { useGraphViewSidebar } from "@/core";
+import { DEFAULT_LAYOUT_NAME } from "@/core/graphLayout";
 import { DbState, renderHookWithState } from "@/utils/testing";
 import { createRandomEdgeId, createRandomVertexId } from "@/utils/testing";
 
@@ -20,6 +21,7 @@ function stateWithSearchTabAndAutoOpen() {
     activeToggles: new Set(),
     sidebar: { width: 400 },
     detailsAutoOpenOnSelection: true,
+    layoutAlgorithm: DEFAULT_LAYOUT_NAME,
   });
 }
 

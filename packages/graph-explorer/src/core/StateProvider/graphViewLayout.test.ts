@@ -3,6 +3,7 @@
 import { act } from "react";
 import { describe, expect, it } from "vitest";
 
+import { DEFAULT_LAYOUT_NAME } from "@/core/graphLayout";
 import { DbState, renderHookWithState } from "@/utils/testing";
 
 import type { GraphViewLayout } from "./graphViewLayout";
@@ -22,6 +23,7 @@ const baseLayout: GraphViewLayout = {
   activeToggles: new Set(["graph-viewer", "table-view"]),
   sidebar: { width: DEFAULT_SIDEBAR_WIDTH },
   tableView: { height: DEFAULT_TABLE_VIEW_HEIGHT },
+  layoutAlgorithm: DEFAULT_LAYOUT_NAME,
 };
 
 /** Seeds a graph view layout, overriding only the fields a test pins. */

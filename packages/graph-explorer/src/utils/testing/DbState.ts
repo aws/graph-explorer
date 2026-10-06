@@ -281,6 +281,7 @@ export class DbState {
           {
             vertices: new Set(this.vertices.map(v => v.id)),
             edges: new Set(this.edges.map(e => e.id)),
+            layout: this.graphViewLayout.layoutAlgorithm,
           },
         ],
       ]),

@@ -370,6 +370,7 @@ describe("CreateConnection", () => {
       const session = {
         vertices: new Set([createRandomVertexId()]),
         edges: new Set([createRandomEdgeId()]),
+        layout: "F_COSE" as const,
       };
       store.set(configurationAtom, new Map([[config.id, config]]));
       store.set(schemaAtom, new Map([[config.id, schema]]));

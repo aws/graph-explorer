@@ -1,6 +1,11 @@
 import { z } from "zod";
 
 import {
+  DEFAULT_LAYOUT_NAME,
+  storedLayoutNameSchema,
+} from "@/core/graphLayout";
+
+import {
   parseSessionJson,
   type SessionValueCodec,
 } from "./sessionScopedStorage";
@@ -52,6 +57,7 @@ const storedGraphViewLayoutSchema = z.object({
   activeToggles: z.set(toggleableViewSchema),
   tableView: z.object({ height: z.number() }).optional(),
   detailsAutoOpenOnSelection: z.boolean().optional(),
+  layoutAlgorithm: storedLayoutNameSchema,
 });
 export type GraphViewLayout = z.infer<typeof storedGraphViewLayoutSchema>;
 
@@ -75,6 +81,7 @@ export const defaultGraphViewLayout: GraphViewLayout = {
   detailsAutoOpenOnSelection: true,
   sidebar: { width: DEFAULT_SIDEBAR_WIDTH },
   tableView: { height: DEFAULT_TABLE_VIEW_HEIGHT },
+  layoutAlgorithm: DEFAULT_LAYOUT_NAME,
 };
 
 /** Per-tab codec; serializes the toggles Set as an array for JSON. */
