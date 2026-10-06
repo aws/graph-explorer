@@ -52,9 +52,9 @@ External applications can link directly to Graph Explorer with a connection pre-
 | Parameter | Required | Default | Description |
 | --- | --- | --- | --- |
 | `graphDbUrl` | Yes | None | The Database URL, URL-encoded. The link is invalid without it. |
-| `queryEngine` | No | `gremlin` (`openCypher` when `serviceType` is `neptune-graph`) | One of `gremlin`, `openCypher`, or `sparql`. An unsupported value makes the link invalid rather than falling back, and `neptune-graph` only accepts `openCypher` (Neptune Analytics has no other language). |
+| `queryEngine` | No | `gremlin` (`openCypher` when `serviceType` is `neptune-graph`) | One of `gremlin`, `openCypher`, or `sparql`. An unsupported value makes the link invalid rather than falling back. An explicit value is kept for any `serviceType`. |
 | `awsRegion` | No | None | AWS region for the connection, shaped like `us-east-1`. Providing a region enables IAM auth (SigV4 signed requests). An absent or empty value leaves IAM off. |
-| `serviceType` | No | `neptune-db` (when IAM is on) | One of `neptune-db` or `neptune-graph`. `neptune-db` is carried into the connection even without `awsRegion`, but IAM stays off unless `awsRegion` is set. `neptune-graph` requires `awsRegion`, since Neptune Analytics only accepts IAM-signed requests, and constrains `queryEngine` to `openCypher`. An unsupported value makes the link invalid. |
+| `serviceType` | No | `neptune-db` (when IAM is on) | One of `neptune-db` or `neptune-graph`. `neptune-db` is carried into the connection even without `awsRegion`, but IAM stays off unless `awsRegion` is set. `neptune-graph` requires `awsRegion`, since Neptune Analytics only accepts IAM-signed requests. An unsupported value makes the link invalid. |
 | `name` | No | The Database URL's hostname | Display label for the connection. Defaults to the full hostname of `graphDbUrl`. |
 
 The parameters belong to the `#/connect` route, so they go _after_ the `#` (Graph Explorer uses hash-based routing). `graphDbUrl` must be URL-encoded. Most languages provide this via `encodeURIComponent()` (JavaScript), `urllib.parse.quote()` (Python), or `URLEncoder.encode()` (Java).
@@ -84,7 +84,7 @@ Whenever Graph Explorer leaves the `#/connect` page, it replaces that URL, so it
 - `graphDbUrl` is not a valid URL, or does not use `http`/`https`.
 - `graphDbUrl` includes a username or password. Graph Explorer authenticates with AWS IAM, and the Graph Explorer server refuses a Database URL that carries credentials.
 - `graphDbUrl` contains a backslash. Browsers read a backslash as a slash, so a link could otherwise show one host and connect to another.
-- `queryEngine` names something other than `gremlin`, `openCypher`, or `sparql`, or names anything other than `openCypher` while `serviceType` is `neptune-graph`.
+- `queryEngine` names something other than `gremlin`, `openCypher`, or `sparql`.
 - `serviceType` names something other than `neptune-db` or `neptune-graph`, or is `neptune-graph` without an `awsRegion`.
 - `awsRegion` is present but not shaped like an AWS region (for example `us-east-1`).
 

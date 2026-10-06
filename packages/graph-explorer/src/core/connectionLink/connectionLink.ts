@@ -107,21 +107,13 @@ const ConnectionLinkParamsSchema = z
       .optional()
       .transform(name => name || undefined),
   })
-  // Neptune Analytics (`neptune-graph`) only speaks openCypher and only
-  // accepts IAM-signed requests. An explicit `queryEngine` naming anything else
-  // is a rejection, same as any other unsupported explicit value, and an absent
-  // one defaults to openCypher instead of the general gremlin default. Without
-  // a region there is no IAM, so the connection could never query.
+  // Neptune Analytics (`neptune-graph`) only accepts IAM-signed requests.
+  // Without a region there is no IAM, so the connection could never query. An
+  // absent `queryEngine` defaults to openCypher instead of the general gremlin
+  // default, but an explicit one is kept.
   .superRefine((data, ctx) => {
     if (data.serviceType !== "neptune-graph") {
       return;
-    }
-    if (data.queryEngine !== undefined && data.queryEngine !== "openCypher") {
-      ctx.addIssue({
-        code: "custom",
-        message: 'must be "openCypher" when serviceType is "neptune-graph"',
-        path: ["queryEngine"],
-      });
     }
     if (!data.awsRegion) {
       ctx.addIssue({

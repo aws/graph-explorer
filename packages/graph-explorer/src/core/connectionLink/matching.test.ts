@@ -319,8 +319,8 @@ describe("matching a link to a stored connection", () => {
       ).toBeNull();
     });
 
-    // Link validation rejects neptune-graph with other query languages, so
-    // both sides use openCypher to leave service type as the only difference.
+    // Both sides use the same query language to leave service type as the only
+    // difference.
     test("IAM links with different service types do not match", () => {
       const analytics = storedConnection("Analytics", {
         queryEngine: "openCypher",
