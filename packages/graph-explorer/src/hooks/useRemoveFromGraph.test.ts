@@ -250,6 +250,7 @@ test("should update graph session", async () => {
   const expected: GraphSessionStorageModel = {
     vertices: new Set([node2.id]),
     edges: new Set(),
+    layout: dbState.graphViewLayout.layoutAlgorithm,
   };
 
   await waitFor(() => {

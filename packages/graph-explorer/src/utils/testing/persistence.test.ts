@@ -352,10 +352,12 @@ describe("cross-tab session reconciliation", () => {
     const sessionA: GraphSessionStorageModel = {
       vertices: new Set([createRandomVertexId()]),
       edges: new Set([createRandomEdgeId()]),
+      layout: "F_COSE",
     };
     const sessionB: GraphSessionStorageModel = {
       vertices: new Set([createRandomVertexId()]),
       edges: new Set([createRandomEdgeId()]),
+      layout: "DAGRE_LR",
     };
 
     type SessionMap = Map<ConnectionId, GraphSessionStorageModel>;
