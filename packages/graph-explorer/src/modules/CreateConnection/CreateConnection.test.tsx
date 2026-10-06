@@ -485,7 +485,7 @@ describe("CreateConnection", () => {
   });
 
   test("opens the advanced options when the connection already overrides one", () => {
-    const configId = createConnectionId();
+    const connectionId = createConnectionId();
     const store = getAppStore();
     const connection: ConnectionConfig = {
       graphDbUrl: "https://db.example.com",
@@ -494,7 +494,7 @@ describe("CreateConnection", () => {
     };
     store.set(
       savedConnectionsAtom,
-      new Map([[configId, { id: configId, connection }]]),
+      new Map([[connectionId, { id: connectionId, connection }]]),
     );
 
     render(
@@ -502,7 +502,7 @@ describe("CreateConnection", () => {
         <TooltipProvider>
           <CreateConnection
             existingConfig={
-              { id: configId, connection } as ConfigurationContextProps
+              { id: connectionId, connection } as ConfigurationContextProps
             }
             onClose={vi.fn()}
           />

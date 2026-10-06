@@ -86,17 +86,17 @@ export function edgeConnectionsQuery(
 const setEdgeConnectionsAtom = atom(
   null,
   (get, set, edgeConnections: EdgeConnection[]) => {
-    const activeConfigId = get(activeConnectionIdAtom);
-    if (!activeConfigId) {
+    const activeConnectionId = get(activeConnectionIdAtom);
+    if (!activeConnectionId) {
       return;
     }
     set(schemaAtom, prev => {
-      const activeSchema = prev.get(activeConfigId);
+      const activeSchema = prev.get(activeConnectionId);
       if (!activeSchema) {
         return prev;
       }
       const updated = new Map(prev);
-      updated.set(activeConfigId, {
+      updated.set(activeConnectionId, {
         ...activeSchema,
         edgeConnections,
         lastEdgeConnectionSyncFail: false,

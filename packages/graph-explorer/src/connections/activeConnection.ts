@@ -9,7 +9,7 @@ import {
 
 import { normalizeConnection } from "./normalizeConnection";
 
-/** Gets the currently active config. */
+/** Gets the active saved connection, or null. */
 export const activeSavedConnectionSelector = atom(get => {
   const connectionMap = get(savedConnectionsAtom);
   const id = get(activeConnectionIdAtom);

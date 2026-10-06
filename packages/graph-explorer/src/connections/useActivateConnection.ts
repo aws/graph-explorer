@@ -16,12 +16,12 @@ export default function useActivateConnection() {
   const resetState = useResetState();
   return useAtomCallback(
     useCallback(
-      (get, set, configId: ConnectionId) => {
-        if (get(activeConnectionIdAtom) === configId) {
+      (get, set, connectionId: ConnectionId) => {
+        if (get(activeConnectionIdAtom) === connectionId) {
           return;
         }
-        logger.debug("Setting active connection to", configId);
-        set(activeConnectionIdAtom, configId);
+        logger.debug("Setting active connection to", connectionId);
+        set(activeConnectionIdAtom, connectionId);
         resetState();
       },
       [resetState],

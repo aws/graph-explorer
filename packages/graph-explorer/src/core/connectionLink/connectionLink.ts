@@ -286,9 +286,9 @@ function findMatchingConnection(
 ): SavedConnection | null {
   const proposedIdentity = identityOf(proposed);
   const matches = Array.from(connections.values()).filter(
-    connection =>
-      connection.connection != null &&
-      identitiesMatch(identityOf(connection.connection), proposedIdentity),
+    savedConnection =>
+      savedConnection.connection != null &&
+      identitiesMatch(identityOf(savedConnection.connection), proposedIdentity),
   );
 
   if (matches.length === 0) {

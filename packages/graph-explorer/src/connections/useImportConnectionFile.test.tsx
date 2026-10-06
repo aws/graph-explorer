@@ -50,7 +50,7 @@ describe("useImportConnectionFile", () => {
 
     const displayLabel = createRandomName("Config");
     const graphDbUrl = createRandomUrlString();
-    const validConfig = {
+    const validConnectionFile = {
       id: createConnectionId(),
       displayLabel,
       connection: {
@@ -65,9 +65,13 @@ describe("useImportConnectionFile", () => {
       },
     };
 
-    const file = new File([JSON.stringify(validConfig)], "connection.json", {
-      type: "application/json",
-    });
+    const file = new File(
+      [JSON.stringify(validConnectionFile)],
+      "connection.json",
+      {
+        type: "application/json",
+      },
+    );
 
     await act(async () => {
       await result.current(file);
@@ -99,7 +103,7 @@ describe("useImportConnectionFile", () => {
     );
 
     const graphDbUrl = createRandomUrlString();
-    const directConfig = {
+    const directConnectionFile = {
       id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
@@ -110,9 +114,13 @@ describe("useImportConnectionFile", () => {
       schema: { vertices: [], edges: [] },
     };
 
-    const file = new File([JSON.stringify(directConfig)], "connection.json", {
-      type: "application/json",
-    });
+    const file = new File(
+      [JSON.stringify(directConnectionFile)],
+      "connection.json",
+      {
+        type: "application/json",
+      },
+    );
 
     await act(async () => {
       await result.current(file);
@@ -133,13 +141,17 @@ describe("useImportConnectionFile", () => {
       state,
     );
 
-    const invalidConfig = {
+    const invalidConnectionFile = {
       displayLabel: createRandomName("Config"),
     };
 
-    const file = new File([JSON.stringify(invalidConfig)], "connection.json", {
-      type: "application/json",
-    });
+    const file = new File(
+      [JSON.stringify(invalidConnectionFile)],
+      "connection.json",
+      {
+        type: "application/json",
+      },
+    );
 
     await act(async () => {
       await result.current(file);
@@ -161,7 +173,7 @@ describe("useImportConnectionFile", () => {
       state,
     );
 
-    const validConfig = {
+    const validConnectionFile = {
       id: state.activeConnection.id,
       displayLabel: createRandomName("Config"),
       connection: {
@@ -176,9 +188,13 @@ describe("useImportConnectionFile", () => {
       },
     };
 
-    const file = new File([JSON.stringify(validConfig)], "connection.json", {
-      type: "application/json",
-    });
+    const file = new File(
+      [JSON.stringify(validConnectionFile)],
+      "connection.json",
+      {
+        type: "application/json",
+      },
+    );
 
     await act(async () => {
       await result.current(file);
@@ -197,7 +213,7 @@ describe("useImportConnectionFile", () => {
       state,
     );
 
-    const validConfig = {
+    const validConnectionFile = {
       id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
@@ -218,9 +234,13 @@ describe("useImportConnectionFile", () => {
       },
     };
 
-    const file = new File([JSON.stringify(validConfig)], "connection.json", {
-      type: "application/json",
-    });
+    const file = new File(
+      [JSON.stringify(validConnectionFile)],
+      "connection.json",
+      {
+        type: "application/json",
+      },
+    );
 
     await act(async () => {
       await result.current(file);
@@ -244,7 +264,7 @@ describe("useImportConnectionFile", () => {
     );
 
     const lastUpdate = new Date("2024-01-01T00:00:00Z");
-    const validConfig = {
+    const validConnectionFile = {
       id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
@@ -260,9 +280,13 @@ describe("useImportConnectionFile", () => {
       },
     };
 
-    const file = new File([JSON.stringify(validConfig)], "connection.json", {
-      type: "application/json",
-    });
+    const file = new File(
+      [JSON.stringify(validConnectionFile)],
+      "connection.json",
+      {
+        type: "application/json",
+      },
+    );
 
     await act(async () => {
       await result.current(file);
@@ -281,7 +305,7 @@ describe("useImportConnectionFile", () => {
       state,
     );
 
-    const validConfig = {
+    const validConnectionFile = {
       id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
@@ -296,9 +320,13 @@ describe("useImportConnectionFile", () => {
       },
     };
 
-    const file = new File([JSON.stringify(validConfig)], "connection.json", {
-      type: "application/json",
-    });
+    const file = new File(
+      [JSON.stringify(validConnectionFile)],
+      "connection.json",
+      {
+        type: "application/json",
+      },
+    );
 
     await act(async () => {
       await result.current(file);
@@ -317,7 +345,7 @@ describe("useImportConnectionFile", () => {
       state,
     );
 
-    const validConfig = {
+    const validConnectionFile = {
       id: createConnectionId(),
       displayLabel: "Production Database",
       connection: {
@@ -357,9 +385,13 @@ describe("useImportConnectionFile", () => {
       },
     };
 
-    const file = new File([JSON.stringify(validConfig)], "connection.json", {
-      type: "application/json",
-    });
+    const file = new File(
+      [JSON.stringify(validConnectionFile)],
+      "connection.json",
+      {
+        type: "application/json",
+      },
+    );
 
     await act(async () => {
       await result.current(file);
@@ -384,7 +416,7 @@ describe("useImportConnectionFile", () => {
       state,
     );
 
-    const validConfig = {
+    const validConnectionFile = {
       id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
@@ -412,9 +444,13 @@ describe("useImportConnectionFile", () => {
       },
     };
 
-    const file = new File([JSON.stringify(validConfig)], "connection.json", {
-      type: "application/json",
-    });
+    const file = new File(
+      [JSON.stringify(validConnectionFile)],
+      "connection.json",
+      {
+        type: "application/json",
+      },
+    );
 
     await act(async () => {
       await result.current(file);
@@ -463,7 +499,7 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
     // A direct (non-proxy) connection exported before the unified-proxy model
     // stored the database endpoint in `url`, not `graphDbUrl`.
     const url = createRandomUrlString();
-    const legacyConfig = {
+    const legacyConnectionFile = {
       id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
@@ -483,9 +519,13 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
       },
     };
 
-    const file = new File([JSON.stringify(legacyConfig)], "connection.json", {
-      type: "application/json",
-    });
+    const file = new File(
+      [JSON.stringify(legacyConnectionFile)],
+      "connection.json",
+      {
+        type: "application/json",
+      },
+    );
 
     await act(async () => {
       await result.current(file);
@@ -512,7 +552,7 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
     // `url` (the proxy endpoint itself) is legacy and must not survive.
     const graphDbUrl = createRandomUrlString();
     const url = createRandomUrlString();
-    const legacyConfig = {
+    const legacyConnectionFile = {
       id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
@@ -532,9 +572,13 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
       },
     };
 
-    const file = new File([JSON.stringify(legacyConfig)], "connection.json", {
-      type: "application/json",
-    });
+    const file = new File(
+      [JSON.stringify(legacyConnectionFile)],
+      "connection.json",
+      {
+        type: "application/json",
+      },
+    );
 
     await act(async () => {
       await result.current(file);
@@ -562,7 +606,7 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
     // `graphDbUrl` is already present, since `graphDbUrl` was proxy-only in
     // the legacy shape.
     const graphDbUrl = createRandomUrlString();
-    const legacyConfig = {
+    const legacyConnectionFile = {
       id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
@@ -577,9 +621,13 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
       },
     };
 
-    const file = new File([JSON.stringify(legacyConfig)], "connection.json", {
-      type: "application/json",
-    });
+    const file = new File(
+      [JSON.stringify(legacyConnectionFile)],
+      "connection.json",
+      {
+        type: "application/json",
+      },
+    );
 
     await act(async () => {
       await result.current(file);
@@ -604,7 +652,7 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
     // `proxyConnection` falls back to treating this as a direct connection,
     // so `url` becomes the endpoint.
     const url = createRandomUrlString();
-    const legacyConfig = {
+    const legacyConnectionFile = {
       id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
@@ -619,9 +667,13 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
       },
     };
 
-    const file = new File([JSON.stringify(legacyConfig)], "connection.json", {
-      type: "application/json",
-    });
+    const file = new File(
+      [JSON.stringify(legacyConnectionFile)],
+      "connection.json",
+      {
+        type: "application/json",
+      },
+    );
 
     await act(async () => {
       await result.current(file);
@@ -660,7 +712,7 @@ describe("backward compatibility: legacy __matches in exported files", () => {
 
     // This mirrors the shape of a file exported by an older version that
     // serialized __matches as an array.
-    const legacyConfig = {
+    const legacyConnectionFile = {
       id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
@@ -690,9 +742,13 @@ describe("backward compatibility: legacy __matches in exported files", () => {
       },
     };
 
-    const file = new File([JSON.stringify(legacyConfig)], "connection.json", {
-      type: "application/json",
-    });
+    const file = new File(
+      [JSON.stringify(legacyConnectionFile)],
+      "connection.json",
+      {
+        type: "application/json",
+      },
+    );
 
     await act(async () => {
       await result.current(file);
@@ -755,29 +811,29 @@ describe("backward compatibility: legacy exported connection file with embedded 
       await result.current(file);
     });
 
-    const { connection: importedConfig, schema: importedSchema } =
+    const { connection: importedConnection, schema: importedSchema } =
       getImportedConnection();
 
     // The connection lands in the connection entry. Legacy proxy fields (`url`,
     // `proxyConnection`) are folded into the canonical `graphDbUrl` on import;
     // the remaining fields are preserved.
-    expect(importedConfig.displayLabel).toBe(
+    expect(importedConnection.displayLabel).toBe(
       legacyExportedConnectionFile.displayLabel,
     );
-    expect(importedConfig.connection).toMatchObject({
+    expect(importedConnection.connection).toMatchObject({
       graphDbUrl: legacyExportedConnectionFile.connection.graphDbUrl,
       queryEngine: legacyExportedConnectionFile.connection.queryEngine,
       awsAuthEnabled: legacyExportedConnectionFile.connection.awsAuthEnabled,
       serviceType: legacyExportedConnectionFile.connection.serviceType,
       awsRegion: legacyExportedConnectionFile.connection.awsRegion,
     });
-    expect(importedConfig.connection).not.toHaveProperty("url");
-    expect(importedConfig.connection).not.toHaveProperty("proxyConnection");
+    expect(importedConnection.connection).not.toHaveProperty("url");
+    expect(importedConnection.connection).not.toHaveProperty("proxyConnection");
 
     // The schema must NOT be stored on the connection entry — it belongs in
     // schemaAtom. `SavedConnection` no longer declares a `schema` field, so we
     // probe for a stray one to prove import never writes it back.
-    expect((importedConfig as { schema?: unknown }).schema).toBeUndefined();
+    expect((importedConnection as { schema?: unknown }).schema).toBeUndefined();
 
     // The full schema is split out into schemaAtom, styling and all.
     expect(importedSchema.vertices.map(v => v.type)).toStrictEqual([

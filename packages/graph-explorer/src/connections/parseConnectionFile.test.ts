@@ -6,7 +6,7 @@ import { createConnectionId } from "./types";
 
 describe("parseConnectionFile", () => {
   test("parses a valid configuration into a typed object", () => {
-    const validConfig = {
+    const validConnectionFile = {
       id: createConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
@@ -21,12 +21,12 @@ describe("parseConnectionFile", () => {
       },
     };
 
-    const result = parseConnectionFile(validConfig);
+    const result = parseConnectionFile(validConnectionFile);
 
     expect(result).not.toBeNull();
-    expect(result?.id).toBe(validConfig.id);
-    expect(result?.displayLabel).toBe(validConfig.displayLabel);
-    expect(result?.connection.url).toBe(validConfig.connection.url);
+    expect(result?.id).toBe(validConnectionFile.id);
+    expect(result?.displayLabel).toBe(validConnectionFile.displayLabel);
+    expect(result?.connection.url).toBe(validConnectionFile.connection.url);
     expect(result?.connection.queryEngine).toBe("gremlin");
   });
 

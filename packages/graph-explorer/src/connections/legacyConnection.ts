@@ -45,14 +45,14 @@ export function transformSavedConnections(
   connections: Map<ConnectionId, SavedConnection>,
 ): Map<ConnectionId, SavedConnection> {
   return new Map(
-    [...connections].map(([id, connection]) => [
+    [...connections].map(([id, savedConnection]) => [
       id,
-      connection.connection
+      savedConnection.connection
         ? {
-            ...connection,
-            connection: transformLegacyConnection(connection.connection),
+            ...savedConnection,
+            connection: transformLegacyConnection(savedConnection.connection),
           }
-        : connection,
+        : savedConnection,
     ]),
   );
 }

@@ -37,14 +37,14 @@ export function useImportConnectionFile() {
 
         // Create new id to avoid collisions
         const newId = createConnectionId();
-        set(savedConnectionsAtom, prevConfig => {
-          const updatedConfig = new Map(prevConfig);
-          updatedConfig.set(newId, {
+        set(savedConnectionsAtom, prevConnections => {
+          const updatedConnections = new Map(prevConnections);
+          updatedConnections.set(newId, {
             id: newId,
             displayLabel: parsedFile.displayLabel,
             connection,
           });
-          return updatedConfig;
+          return updatedConnections;
         });
         set(schemaAtom, prevSchema => {
           const updatedSchema = new Map(prevSchema);
