@@ -189,10 +189,8 @@ describe("reading a connection link", () => {
     ).toEqual(['queryEngine must be one of "gremlin", "openCypher", "sparql"']);
   });
 
-  // Neptune Analytics only speaks openCypher, so the create form always
-  // forces it and disables the picker. A link omitting queryEngine must
-  // resolve to the same value the form would have forced, rather than the
-  // general gremlin default.
+  // A neptune-graph link that omits queryEngine defaults to openCypher
+  // rather than the general gremlin default.
   describe("queryEngine default depends on serviceType", () => {
     test("defaults to openCypher for neptune-graph when queryEngine is omitted", () => {
       expect(

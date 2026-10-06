@@ -418,17 +418,12 @@ describe("updateConnectionForm", () => {
     });
   });
 
-  // Neptune Analytics only runs openCypher.
-  test("switches to openCypher when Neptune Analytics is chosen", () => {
+  test("keeps the query language when Neptune Analytics is chosen", () => {
     const form = createValidForm({ queryEngine: "sparql" });
 
     expect(
       updateConnectionForm(form, "serviceType", "neptune-graph"),
-    ).toStrictEqual({
-      ...form,
-      serviceType: "neptune-graph",
-      queryEngine: "openCypher",
-    });
+    ).toStrictEqual({ ...form, serviceType: "neptune-graph" });
   });
 
   test("keeps the query language when Neptune DB is chosen", () => {

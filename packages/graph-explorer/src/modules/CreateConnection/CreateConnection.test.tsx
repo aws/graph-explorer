@@ -521,8 +521,7 @@ describe("CreateConnection", () => {
     ).toBeInTheDocument();
   });
 
-  // Neptune Analytics only runs openCypher.
-  test("locks the Query Language to openCypher for Neptune Analytics", () => {
+  test("lets the Query Language be changed for Neptune Analytics", () => {
     renderCreateConnection(
       <CreateConnection
         initialValues={mapToConnectionForm("My Connection", {
@@ -540,10 +539,10 @@ describe("CreateConnection", () => {
       name: "Query Language",
     });
     expect(queryLanguage).toHaveTextContent("OpenCypher - PG (Property Graph)");
-    expect(queryLanguage).toBeDisabled();
+    expect(queryLanguage).toBeEnabled();
   });
 
-  test("saves openCypher after choosing Neptune Analytics", async () => {
+  test("keeps the chosen Query Language after choosing Neptune Analytics", async () => {
     const user = userEvent.setup();
     const store = renderCreateConnection(
       <CreateConnection onClose={vi.fn()} />,
@@ -571,7 +570,7 @@ describe("CreateConnection", () => {
     const [savedConnection] = store.get(configurationAtom).values();
     expect(savedConnection.connection).toStrictEqual({
       graphDbUrl: "https://g.example.com",
-      queryEngine: "openCypher",
+      queryEngine: "gremlin",
       awsAuthEnabled: true,
       serviceType: "neptune-graph",
       awsRegion: "us-east-1",

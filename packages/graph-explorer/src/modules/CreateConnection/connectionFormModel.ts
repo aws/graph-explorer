@@ -156,8 +156,8 @@ export function validateConnectionForm(
 }
 
 /**
- * Sets one field, along with the fields that depend on it: Neptune Analytics
- * only runs openCypher, and enabling an override fills in its default.
+ * Sets one field, along with the fields that depend on it: enabling an
+ * override fills in its default.
  */
 export function updateConnectionForm<Field extends keyof ConnectionFormValues>(
   form: ConnectionFormValues,
@@ -165,9 +165,6 @@ export function updateConnectionForm<Field extends keyof ConnectionFormValues>(
   value: ConnectionFormValues[Field],
 ): ConnectionFormValues {
   const updated: ConnectionFormValues = { ...form, [field]: value };
-  if (field === "serviceType" && value === "neptune-graph") {
-    updated.queryEngine = "openCypher";
-  }
   if (field === "fetchTimeoutEnabled") {
     updated.fetchTimeoutMs = value ? DEFAULT_FETCH_TIMEOUT : undefined;
   }
