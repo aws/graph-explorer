@@ -18,7 +18,6 @@ import {
   EdgeIcon,
   EditIcon,
   GraphIcon,
-  InfoTooltip,
   NotInProduction,
   Panel,
   PanelContent,
@@ -44,7 +43,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/Dialog";
-import { isDirectConnection, useDeleteActiveConnection } from "@/connections";
+import { useDeleteActiveConnection } from "@/connections";
 import {
   activeSchemaSelector,
   type ConfigurationContextProps,
@@ -89,7 +88,6 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
   const deleteActiveConfig = useDeleteActiveConnection();
 
   const dbUrl = config.connection?.graphDbUrl || LABELS.MISSING_VALUE;
-  const isDirect = isDirectConnection(config.connection);
 
   const connectionName = config.displayLabel || config.id;
 
@@ -149,18 +147,6 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
               <InfoItemValue className="line-clamp-2 break-all" title={dbUrl}>
                 {dbUrl}
               </InfoItemValue>
-              {isDirect && (
-                <InfoItemLabel className="flex items-center gap-1">
-                  {LABELS.DIRECT_CONNECTION}
-                  <InfoTooltip>
-                    Requests for this connection go from your browser to the
-                    database instead of through the Graph Explorer server. This
-                    option will be removed in a future release. To switch, edit
-                    the connection and uncheck Connect directly from the browser
-                    (deprecated) under Advanced options.
-                  </InfoTooltip>
-                </InfoItemLabel>
-              )}
             </InfoItemContent>
           </InfoItem>
         </InfoBar>

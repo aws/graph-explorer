@@ -1,8 +1,7 @@
 // @vitest-environment happy-dom
 import type { ConnectionConfig } from "@shared/types";
 
-import { render, screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { TooltipProvider } from "@/components";
@@ -36,23 +35,11 @@ function renderDetail(connection: ConnectionConfig) {
 }
 
 describe("ConnectionDetail", () => {
-  test("marks a direct connection as deprecated and explains how to switch", async () => {
-    const user = userEvent.setup();
-    renderDetail({
-      graphDbUrl: "https://my-neptune:8182",
-      proxyConnection: false,
-    });
-
-    const marker = screen.getByText("Direct from browser (deprecated)");
-    await user.hover(within(marker).getByRole("button"));
-
-    expect(await screen.findByRole("tooltip")).toHaveTextContent(
-      "Requests for this connection go from your browser to the database instead of through the Graph Explorer server. This option will be removed in a future release. To switch, edit the connection and uncheck Connect directly from the browser (deprecated) under Advanced options.",
-    );
-  });
-
-  test("does not mark a proxy connection as direct", () => {
-    renderDetail({ graphDbUrl: "https://my-neptune:8182" });
+  test.each([
+    { name: "direct", route: { proxyConnection: false } },
+    { name: "proxy", route: {} },
+  ])("shows no route mark on a $name connection", ({ route }) => {
+    renderDetail({ graphDbUrl: "https://my-neptune:8182", ...route });
 
     // Proves the query below fails on absence rather than an unrendered panel
     expect(screen.getByText("https://my-neptune:8182")).toBeInTheDocument();

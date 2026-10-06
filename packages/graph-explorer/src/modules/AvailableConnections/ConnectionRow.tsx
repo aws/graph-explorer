@@ -3,9 +3,8 @@ import { DatabaseIcon } from "lucide-react";
 import type { SavedConnection } from "@/connections";
 
 import { ListRowContent, ListRowSubtitle, ListRowTitle } from "@/components";
-import { isDirectConnection, useActivateConnection } from "@/connections";
+import { useActivateConnection } from "@/connections";
 import { useTranslations } from "@/hooks";
-import { LABELS } from "@/utils/constants";
 
 function ConnectionRow({
   connection,
@@ -21,7 +20,6 @@ function ConnectionRow({
   const setActiveConfig = () => activateConnection(connection.id);
 
   const dbUrl = connection.connection?.graphDbUrl || null;
-  const isDirect = isDirectConnection(connection.connection);
 
   const graphType = t(
     "query-language",
@@ -40,7 +38,6 @@ function ConnectionRow({
         </ListRowTitle>
         <ListRowSubtitle>
           {graphType}
-          {isDirect ? <> &bull; {LABELS.DIRECT_CONNECTION_SHORT}</> : null}
           {dbUrl ? <> &bull; {dbUrl}</> : null}
         </ListRowSubtitle>
       </ListRowContent>
