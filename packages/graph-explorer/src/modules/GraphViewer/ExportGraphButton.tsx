@@ -6,6 +6,7 @@ import { edgesAtom, nodesAtom, useConfiguration, useExplorer } from "@/core";
 import { saveFile, toJsonFileData } from "@/utils/fileData";
 
 import { createDefaultFileName, createExportedGraph } from "./exportedGraph";
+import { graphViewLayoutAlgorithmAtom } from "./graphViewLayoutAlgorithm";
 
 export function ExportGraphButton() {
   const exportGraph = useExportGraph();
@@ -27,12 +28,18 @@ export function useExportGraph() {
   const edgeIds = Array.from(useAtomValue(edgesAtom).keys());
   const connection = useExplorer().connection;
   const config = useConfiguration();
+  const layout = useAtomValue(graphViewLayoutAlgorithmAtom);
 
   const exportGraph = async () => {
     const fileName = createDefaultFileName(
       config?.displayLabel ?? "Connection",
     );
-    const exportData = createExportedGraph(vertexIds, edgeIds, connection);
+    const exportData = createExportedGraph(
+      vertexIds,
+      edgeIds,
+      connection,
+      layout,
+    );
     const fileToSave = toJsonFileData(exportData);
     await saveFile(fileToSave, fileName);
   };

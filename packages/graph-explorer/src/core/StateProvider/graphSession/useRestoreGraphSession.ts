@@ -11,6 +11,13 @@ import type { GraphSessionStorageModel } from "./storage";
 
 /**
  * Provides a mutation that restores the graph session from storage.
+ *
+ * Restoring brings back the session's entities only; it deliberately does not
+ * touch the Graph View layout. The per-tab View Layout is the single source of
+ * truth for the chosen layout algorithm (it already persists across reloads),
+ * so writing the session's stored layout back here would overwrite the user's
+ * current, persisted choice with a snapshot that goes stale the moment they
+ * change the layout without adding or removing a node.
  */
 export function useRestoreGraphSession() {
   const queryClient = useQueryClient();
