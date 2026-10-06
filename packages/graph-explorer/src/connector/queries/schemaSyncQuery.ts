@@ -4,7 +4,7 @@ import { atom } from "jotai";
 import type { ConnectionId } from "@/connections";
 
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   type PrefixTypeConfig,
   schemaAtom,
 } from "@/core";
@@ -82,7 +82,7 @@ export function schemaSyncQuery({
 const replaceSchemaAtom = atom(
   null,
   (get, set, schema: SchemaResponse, prefixes: PrefixTypeConfig[]) => {
-    const id = get(activeConfigurationAtom);
+    const id = get(activeConnectionIdAtom);
     if (!id) {
       logger.warn("Cannot update schema: no active configuration");
       return;
@@ -109,7 +109,7 @@ const replaceSchemaAtom = atom(
 
 /** Setter-only atom that marks the last schema sync as failed while preserving existing data. */
 const setSyncFailedAtom = atom(null, (get, set) => {
-  const id = get(activeConfigurationAtom);
+  const id = get(activeConnectionIdAtom);
   if (!id) {
     logger.warn("Cannot update schema: no active configuration");
     return;

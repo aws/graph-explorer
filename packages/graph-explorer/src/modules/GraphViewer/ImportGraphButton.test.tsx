@@ -103,7 +103,7 @@ describe("createErrorNotification", () => {
     );
   });
 
-  // Regression: `configurationAtom`'s read-time transform migrates a legacy
+  // Regression: `savedConnectionsAtom`'s read-time transform migrates a legacy
   // `url`/`proxyConnection` connection to `graphDbUrl` before
   // `useImportGraphMutation` reads it, so matching against a pre-upgrade
   // connection still finds it instead of reporting no match.

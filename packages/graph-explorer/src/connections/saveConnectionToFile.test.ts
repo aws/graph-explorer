@@ -43,55 +43,55 @@ describe("saveConnectionToFile", () => {
   });
 
   it("should save a minimal configuration to file", () => {
-    const config = makeConfig();
+    const connection = makeConfig();
 
-    saveConnectionToFile(config);
+    saveConnectionToFile(connection);
 
     expect(saveAsMock).toHaveBeenCalledTimes(1);
     const [blob, filename] = saveAsMock.mock.calls[0];
 
-    expect(filename).toBe(`${config.displayLabel}.connection.json`);
+    expect(filename).toBe(`${connection.displayLabel}.connection.json`);
     expect(blob).toBeInstanceOf(Blob);
     expect((blob as Blob).type).toBe("application/json");
   });
 
   it("should use id as displayLabel if displayLabel is not provided", () => {
-    const config = makeConfig({ displayLabel: undefined });
+    const connection = makeConfig({ displayLabel: undefined });
 
-    saveConnectionToFile(config);
+    saveConnectionToFile(connection);
 
     const [, filename] = saveAsMock.mock.calls[0];
-    expect(filename).toBe(`${config.id}.connection.json`);
+    expect(filename).toBe(`${connection.id}.connection.json`);
   });
 
   it("should include connection with default queryEngine if not provided", async () => {
-    const config = makeConfig({
+    const connection = makeConfig({
       connection: {
         graphDbUrl: "https://example.com",
       },
     });
 
-    const parsed = JSON.parse(await exportConnectionFileText(config));
+    const parsed = JSON.parse(await exportConnectionFileText(connection));
 
     expect(parsed.connection.queryEngine).toBe("gremlin");
     expect(parsed.connection.graphDbUrl).toBe("https://example.com");
   });
 
   it("should preserve existing queryEngine", async () => {
-    const config = makeConfig({
+    const connection = makeConfig({
       connection: {
         graphDbUrl: "https://example.com",
         queryEngine: "sparql",
       },
     });
 
-    const parsed = JSON.parse(await exportConnectionFileText(config));
+    const parsed = JSON.parse(await exportConnectionFileText(connection));
 
     expect(parsed.connection.queryEngine).toBe("sparql");
   });
 
   it("should export schema with vertices and edges", async () => {
-    const config = makeConfig({
+    const connection = makeConfig({
       schema: {
         vertices: [
           {
@@ -124,7 +124,7 @@ describe("saveConnectionToFile", () => {
       edgeTypes: [createEdgeType("worksAt")],
     });
 
-    const parsed = JSON.parse(await exportConnectionFileText(config));
+    const parsed = JSON.parse(await exportConnectionFileText(connection));
 
     expect(parsed.schema.vertices).toHaveLength(2);
     expect(parsed.schema.edges).toHaveLength(1);
@@ -137,7 +137,7 @@ describe("saveConnectionToFile", () => {
     // it (an explicit toISOString or a Date flushed by JSON.stringify), so the
     // writer's lastUpdate type can change without altering the file.
     const lastUpdate = new Date("2024-01-01T12:30:00Z");
-    const config = makeConfig({
+    const connection = makeConfig({
       schema: {
         vertices: [],
         edges: [],
@@ -149,13 +149,13 @@ describe("saveConnectionToFile", () => {
       },
     });
 
-    const parsed = JSON.parse(await exportConnectionFileText(config));
+    const parsed = JSON.parse(await exportConnectionFileText(connection));
 
     expect(parsed.schema.lastUpdate).toBe("2024-01-01T12:30:00.000Z");
   });
 
   it("should export prefixes without internal properties", async () => {
-    const config = makeConfig({
+    const connection = makeConfig({
       schema: {
         vertices: [],
         edges: [],
@@ -176,7 +176,7 @@ describe("saveConnectionToFile", () => {
       },
     });
 
-    const parsed = JSON.parse(await exportConnectionFileText(config));
+    const parsed = JSON.parse(await exportConnectionFileText(connection));
 
     expect(parsed.schema.prefixes).toStrictEqual([
       {
@@ -191,9 +191,9 @@ describe("saveConnectionToFile", () => {
   });
 
   it("should handle empty schema", async () => {
-    const config = makeConfig();
+    const connection = makeConfig();
 
-    const parsed = JSON.parse(await exportConnectionFileText(config));
+    const parsed = JSON.parse(await exportConnectionFileText(connection));
 
     expect(parsed.schema.vertices).toEqual([]);
     expect(parsed.schema.edges).toEqual([]);
@@ -202,31 +202,31 @@ describe("saveConnectionToFile", () => {
   });
 
   it("should handle missing connection", async () => {
-    const config = makeConfig({ connection: undefined });
+    const connection = makeConfig({ connection: undefined });
 
-    const parsed = JSON.parse(await exportConnectionFileText(config));
+    const parsed = JSON.parse(await exportConnectionFileText(connection));
 
     expect(parsed.connection.queryEngine).toBe("gremlin");
 
-    // A connection-less config is not a real, reachable state — every config
+    // A connection-less connection is not a real, reachable state — every connection
     // the app produces has a connection. With no URL to emit, the writer omits
     // graphDbUrl entirely, and the parser then rejects the file (a connection
     // must have a URL). This pins that accepted asymmetry; it should disappear
-    // in a later slice that makes a connection non-optional on the config
+    // in a later slice that makes a connection non-optional on the connection
     // rather than defaulting here.
     expect(parsed.connection.graphDbUrl).toBeUndefined();
     expect(parseConnectionFile(parsed)).toBeNull();
   });
 
   it("should strip whitespace and newlines from the exported graphDbUrl", async () => {
-    const config = makeConfig({
+    const connection = makeConfig({
       connection: {
         graphDbUrl: "  https://neptune.example.com:8182/\r\n  ",
         queryEngine: "gremlin",
       },
     });
 
-    const parsed = JSON.parse(await exportConnectionFileText(config));
+    const parsed = JSON.parse(await exportConnectionFileText(connection));
 
     expect(parsed.connection.graphDbUrl).toBe(
       "https://neptune.example.com:8182",
@@ -238,14 +238,14 @@ describe("saveConnectionToFile", () => {
   });
 
   it("should only export necessary fields", async () => {
-    const config = makeConfig({
+    const connection = makeConfig({
       totalVertices: 100,
       vertexTypes: [createVertexType("Person")],
       totalEdges: 50,
       edgeTypes: [createEdgeType("knows")],
     });
 
-    const parsed = JSON.parse(await exportConnectionFileText(config));
+    const parsed = JSON.parse(await exportConnectionFileText(connection));
 
     // Should not include runtime-only fields
     expect(parsed.totalVertices).toBeUndefined();
@@ -261,7 +261,7 @@ describe("saveConnectionToFile", () => {
   });
 
   it("should produce a file that passes import validation", async () => {
-    const config = makeConfig({
+    const connection = makeConfig({
       connection: {
         graphDbUrl: "https://neptune.example.com:8182",
         queryEngine: "gremlin",
@@ -293,12 +293,12 @@ describe("saveConnectionToFile", () => {
       edgeTypes: [createEdgeType("knows")],
     });
 
-    const parsed = JSON.parse(await exportConnectionFileText(config));
+    const parsed = JSON.parse(await exportConnectionFileText(connection));
 
     // The round trip must preserve values, not merely produce a parseable file.
     const result = parseConnectionFile(parsed);
-    expect(result?.id).toBe(config.id);
-    expect(result?.displayLabel).toBe(config.displayLabel);
+    expect(result?.id).toBe(connection.id);
+    expect(result?.displayLabel).toBe(connection.displayLabel);
     expect(result?.connection.graphDbUrl).toBe(
       "https://neptune.example.com:8182",
     );
@@ -314,7 +314,7 @@ describe("saveConnectionToFile", () => {
   });
 
   it("should export a direct connection as direct", async () => {
-    const config = makeConfig({
+    const connection = makeConfig({
       connection: {
         graphDbUrl: "https://neptune.example.com:8182",
         proxyConnection: false,
@@ -322,7 +322,7 @@ describe("saveConnectionToFile", () => {
       },
     });
 
-    const parsed = JSON.parse(await exportConnectionFileText(config));
+    const parsed = JSON.parse(await exportConnectionFileText(connection));
 
     expect(parseConnectionFile(parsed)?.connection).toStrictEqual({
       url: "https://neptune.example.com:8182",
@@ -333,7 +333,7 @@ describe("saveConnectionToFile", () => {
   });
 
   it("should export edgeConnections when present", async () => {
-    const config = makeConfig({
+    const connection = makeConfig({
       schema: {
         vertices: [],
         edges: [],
@@ -358,7 +358,7 @@ describe("saveConnectionToFile", () => {
       },
     });
 
-    const parsed = JSON.parse(await exportConnectionFileText(config));
+    const parsed = JSON.parse(await exportConnectionFileText(connection));
 
     expect(parsed.schema.edgeConnections).toStrictEqual([
       {
@@ -376,7 +376,7 @@ describe("saveConnectionToFile", () => {
   });
 
   it("should handle undefined edgeConnections", async () => {
-    const config = makeConfig({
+    const connection = makeConfig({
       schema: {
         vertices: [],
         edges: [],
@@ -389,7 +389,7 @@ describe("saveConnectionToFile", () => {
       },
     });
 
-    const parsed = JSON.parse(await exportConnectionFileText(config));
+    const parsed = JSON.parse(await exportConnectionFileText(connection));
 
     expect(parsed.schema.edgeConnections).toBeUndefined();
   });

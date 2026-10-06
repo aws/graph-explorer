@@ -14,10 +14,10 @@ import {
 import { defaultGraphViewLayout } from "./graphViewLayoutDefaults";
 import { defaultSchemaViewLayout } from "./schemaViewLayoutDefaults";
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   allGraphSessionsAtom,
   allowLoggingDbQueryAtom,
-  configurationAtom,
+  savedConnectionsAtom,
   defaultNeighborExpansionLimitAtom,
   defaultNeighborExpansionLimitEnabledAtom,
   diagnosticLoggingAtom,
@@ -37,8 +37,8 @@ import {
  */
 describe("storageAtoms", () => {
   it("should initialize all atoms as defined values", () => {
-    expect(activeConfigurationAtom).toBeDefined();
-    expect(configurationAtom).toBeDefined();
+    expect(activeConnectionIdAtom).toBeDefined();
+    expect(savedConnectionsAtom).toBeDefined();
     expect(schemaAtom).toBeDefined();
     expect(userVertexStylesAtom).toBeDefined();
     expect(userEdgeStylesAtom).toBeDefined();
@@ -55,8 +55,8 @@ describe("storageAtoms", () => {
   it("should provide correct default values from a fresh store", () => {
     const store = createStore();
 
-    expect(store.get(activeConfigurationAtom)).toBeNull();
-    expect(store.get(configurationAtom)).toStrictEqual(new Map());
+    expect(store.get(activeConnectionIdAtom)).toBeNull();
+    expect(store.get(savedConnectionsAtom)).toStrictEqual(new Map());
     expect(store.get(schemaAtom)).toStrictEqual(new Map());
     expect(store.get(userVertexStylesAtom)).toStrictEqual(new Map());
     expect(store.get(userEdgeStylesAtom)).toStrictEqual(new Map());
@@ -89,7 +89,7 @@ describe("storageAtoms", () => {
  * BACKWARD COMPATIBILITY: CONNECTIONS STORED BY EARLIER VERSIONS
  *
  * Earlier versions stored a connection with a `url`/`proxyConnection` pair.
- * The real `configurationAtom` must fold that shape into the canonical one
+ * The real `savedConnectionsAtom` must fold that shape into the canonical one
  * as it preloads, so these tests seed IndexedDB and then load a fresh copy
  * of storageAtoms.ts. Removing `transform: transformSavedConnections` from its
  * `configuration` atom must fail them.
@@ -119,10 +119,11 @@ describe("backward compatibility: connections stored by earlier versions", () =>
       nodeExpansionLimit: 25,
     });
 
-    const { store, configurationAtom } = await preloadSavedConnections(config);
+    const { store, savedConnectionsAtom } =
+      await preloadSavedConnections(config);
 
     expect(
-      store.get(configurationAtom).get(config.id)?.connection,
+      store.get(savedConnectionsAtom).get(config.id)?.connection,
     ).toStrictEqual({
       graphDbUrl: "https://neptune:8182",
       awsAuthEnabled: true,
@@ -143,7 +144,7 @@ describe("backward compatibility: connections stored by earlier versions", () =>
       proxyConnection: true,
       graphDbUrl: "https://neptune-a:8182",
     });
-    const { store, configurationAtom, persistenceStatusStore } =
+    const { store, savedConnectionsAtom, persistenceStatusStore } =
       await preloadSavedConnections(storedByThisTab);
 
     // Another tab writes its own legacy entry alongside this tab's, directly
@@ -161,7 +162,7 @@ describe("backward compatibility: connections stored by earlier versions", () =>
       ]),
     );
     const added = createRandomSavedConnection();
-    store.set(configurationAtom, prev => new Map(prev).set(added.id, added));
+    store.set(savedConnectionsAtom, prev => new Map(prev).set(added.id, added));
     await persistenceStatusStore.waitForIdle();
 
     expect(await localforage.getItem("configuration")).toStrictEqual(

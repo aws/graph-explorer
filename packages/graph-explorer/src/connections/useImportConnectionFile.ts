@@ -3,8 +3,8 @@ import { useCallback } from "react";
 import { toast } from "sonner";
 
 import {
-  activeConfigurationAtom,
-  configurationAtom,
+  activeConnectionIdAtom,
+  savedConnectionsAtom,
   schemaAtom,
 } from "@/core/StateProvider/storageAtoms";
 import useResetState from "@/core/StateProvider/useResetState";
@@ -31,27 +31,27 @@ export function useImportConnectionFile() {
 
         // Fold any legacy `url`/`proxyConnection` from files exported before the
         // unified-proxy model into the canonical `graphDbUrl` shape. Imported
-        // data enters `configurationAtom` after preload, so it misses the
+        // data enters `savedConnectionsAtom` after preload, so it misses the
         // atom's read-time transform and needs this call.
         const connection = transformLegacyConnection(parsedFile.connection);
 
         // Create new id to avoid collisions
         const newId = createConnectionId();
-        set(configurationAtom, prevConfig => {
-          const updatedConfig = new Map(prevConfig);
-          updatedConfig.set(newId, {
+        set(savedConnectionsAtom, prevConnections => {
+          const updatedConnections = new Map(prevConnections);
+          updatedConnections.set(newId, {
             id: newId,
             displayLabel: parsedFile.displayLabel,
             connection,
           });
-          return updatedConfig;
+          return updatedConnections;
         });
         set(schemaAtom, prevSchema => {
           const updatedSchema = new Map(prevSchema);
           updatedSchema.set(newId, parsedFile.schema);
           return updatedSchema;
         });
-        set(activeConfigurationAtom, newId);
+        set(activeConnectionIdAtom, newId);
 
         resetState();
       },

@@ -14,11 +14,11 @@ import ConnectionDetail from "./ConnectionDetail";
 
 function renderDetail(connection: ConnectionConfig) {
   const state = new DbState();
-  state.activeConfig = { ...state.activeConfig, connection };
+  state.activeConnection = { ...state.activeConnection, connection };
   const store = getAppStore();
   state.applyTo(store);
   const config = {
-    ...mergeConfiguration(null, state.activeConfig, new Map(), new Map()),
+    ...mergeConfiguration(null, state.activeConnection, new Map(), new Map()),
     totalVertices: 0,
     vertexTypes: [],
     totalEdges: 0,

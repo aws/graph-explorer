@@ -11,16 +11,18 @@ import type { ExportedConnectionFile } from "./parseConnectionFile";
 
 import { isDirectConnection, normalizeUrl } from "./normalizeConnection";
 
-const saveConnectionToFile = (config: ConfigurationContextProps) => {
+export default function saveConnectionToFile(
+  config: ConfigurationContextProps,
+) {
   const { graphDbUrl, ...connection } = config.connection ?? {};
   const normalizedGraphDbUrl = normalizeUrl(graphDbUrl);
-  const exportableConfig: ExportedConnectionFile = {
+  const exportableConnection: ExportedConnectionFile = {
     id: config.id,
     displayLabel: config.displayLabel || config.id,
     connection: {
       ...connection,
       queryEngine: config.connection?.queryEngine || "gremlin",
-      // A config with no URL must omit the key entirely; a present "" fails the z.url() check on import.
+      // A connection with no URL must omit the key entirely; a present "" fails the z.url() check on import.
       ...(normalizedGraphDbUrl && { graphDbUrl: normalizedGraphDbUrl }),
       ...legacyConnectionFields(config.connection, normalizedGraphDbUrl),
     },
@@ -33,9 +35,9 @@ const saveConnectionToFile = (config: ConfigurationContextProps) => {
     },
   };
 
-  const fileToSave = toJsonFileData(exportableConfig);
-  saveAs(fileToSave, `${exportableConfig.displayLabel}.connection.json`);
-};
+  const fileToSave = toJsonFileData(exportableConnection);
+  saveAs(fileToSave, `${exportableConnection.displayLabel}.connection.json`);
+}
 
 /**
  * The fields versions before the unified-proxy model need to import the file:
@@ -55,5 +57,3 @@ function legacyConnectionFields(
     }),
   };
 }
-
-export default saveConnectionToFile;

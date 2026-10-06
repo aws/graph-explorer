@@ -3,10 +3,10 @@ import type { Explorer } from "@/connector";
 import type { SchemaViewLayout } from "@/core/StateProvider/schemaViewLayoutDefaults";
 
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   allGraphSessionsAtom,
   type AppStore,
-  configurationAtom,
+  savedConnectionsAtom,
   type Edge,
   type EdgeId,
   type EdgeStyleStorage,
@@ -55,8 +55,8 @@ import {
 export class DbState {
   #activeSchema: SchemaStorageModel | null;
   #hasActiveConnection = true;
-  #inactiveConfigs: SavedConnection[] = [];
-  activeConfig: SavedConnection;
+  #inactiveConnections: SavedConnection[] = [];
+  activeConnection: SavedConnection;
   vertexStyles: Map<VertexType, VertexStyleStorage>;
   edgeStyles: Map<EdgeType, EdgeStyleStorage>;
   graphViewLayout: GraphViewLayout;
@@ -75,7 +75,7 @@ export class DbState {
   constructor(explorer: Explorer = createMockExplorer()) {
     this.#activeSchema = createRandomSchema();
 
-    this.activeConfig = createRandomSavedConnection();
+    this.activeConnection = createRandomSavedConnection();
 
     this.vertexStyles = createRandomVertexStyles();
     this.edgeStyles = createRandomEdgeStyles();
@@ -119,8 +119,8 @@ export class DbState {
   }
 
   /** Stores a connection alongside the active one without activating it. */
-  addInactiveConnection(config: SavedConnection) {
-    this.#inactiveConfigs.push(config);
+  addInactiveConnection(connection: SavedConnection) {
+    this.#inactiveConnections.push(connection);
     return this;
   }
 
@@ -231,27 +231,26 @@ export class DbState {
 
   /** Applies the state to the given Jotai store. */
   applyTo(store: AppStore) {
-    // Config
+    // Connections
     store.set(
-      configurationAtom,
+      savedConnectionsAtom,
       new Map(
-        [this.activeConfig, ...this.#inactiveConfigs].map(config => [
-          config.id,
-          config,
-        ]),
+        [this.activeConnection, ...this.#inactiveConnections].map(
+          connection => [connection.id, connection],
+        ),
       ),
     );
     if (this.#activeSchema) {
       store.set(
         schemaAtom,
-        new Map([[this.activeConfig.id, this.#activeSchema]]),
+        new Map([[this.activeConnection.id, this.#activeSchema]]),
       );
     } else {
       store.set(schemaAtom, new Map());
     }
     store.set(
-      activeConfigurationAtom,
-      this.#hasActiveConnection ? this.activeConfig.id : null,
+      activeConnectionIdAtom,
+      this.#hasActiveConnection ? this.activeConnection.id : null,
     );
 
     // Styling
@@ -277,7 +276,7 @@ export class DbState {
       allGraphSessionsAtom,
       new Map([
         [
-          this.activeConfig.id,
+          this.activeConnection.id,
           {
             vertices: new Set(this.vertices.map(v => v.id)),
             edges: new Set(this.edges.map(e => e.id)),

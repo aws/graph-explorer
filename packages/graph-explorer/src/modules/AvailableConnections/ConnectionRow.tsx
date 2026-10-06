@@ -17,7 +17,7 @@ function ConnectionRow({
 }) {
   const t = useTranslations();
   const activateConnection = useActivateConnection();
-  const setActiveConfig = () => activateConnection(connection.id);
+  const setActiveConnection = () => activateConnection(connection.id);
 
   const dbUrl = connection.connection?.graphDbUrl || null;
 
@@ -28,7 +28,7 @@ function ConnectionRow({
 
   return (
     <div
-      onClick={setActiveConfig}
+      onClick={setActiveConnection}
       className="@container flex flex-row items-center gap-4 px-6 py-4 hover:cursor-pointer"
     >
       <DatabaseIcon className="text-primary hidden size-8 shrink-0 @md:block" />
@@ -44,7 +44,7 @@ function ConnectionRow({
       <input
         type="radio"
         checked={isSelected}
-        onChange={setActiveConfig}
+        onChange={setActiveConnection}
         disabled={isDisabled}
         className="hidden"
       />

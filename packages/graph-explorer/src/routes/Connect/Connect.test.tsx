@@ -10,8 +10,8 @@ import { TooltipProvider } from "@/components";
 import { getAppStore } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import {
-  activeConfigurationAtom,
-  configurationAtom,
+  activeConnectionIdAtom,
+  savedConnectionsAtom,
   nodesAtom,
 } from "@/core/StateProvider";
 import {
@@ -102,7 +102,7 @@ describe("Connect route", () => {
   test("redirects to the graph canvas when the params target the active connection", () => {
     const state = new DbState();
     const activeUrl = "https://active.neptune.amazonaws.com";
-    state.activeConfig.connection = {
+    state.activeConnection.connection = {
       queryEngine: "gremlin",
       graphDbUrl: activeUrl,
     };
@@ -116,21 +116,21 @@ describe("Connect route", () => {
   test("keeps the session when the params target the active connection", () => {
     const state = new DbState();
     const activeUrl = "https://active.neptune.amazonaws.com";
-    state.activeConfig.connection = {
+    state.activeConnection.connection = {
       queryEngine: "gremlin",
       graphDbUrl: activeUrl,
     };
     state.addTestableVertexToGraph(createTestableVertex());
     const store = getAppStore();
     state.applyTo(store);
-    const activeId = store.get(activeConfigurationAtom);
+    const activeId = store.get(activeConnectionIdAtom);
     const nodeCount = store.get(nodesAtom).size;
     expect(nodeCount).toBeGreaterThan(0);
 
     renderConnect(searchFor(activeUrl));
 
     expect(screen.getByTestId("location")).toHaveTextContent("/graph-explorer");
-    expect(store.get(activeConfigurationAtom)).toBe(activeId);
+    expect(store.get(activeConnectionIdAtom)).toBe(activeId);
     expect(store.get(nodesAtom).size).toBe(nodeCount);
   });
 
@@ -149,7 +149,7 @@ describe("Connect route", () => {
     // Switching to an already-created connection is the same no-confirm
     // operation as clicking it in the connections list, so there is no dialog.
     await waitFor(() => {
-      expect(store.get(activeConfigurationAtom)).toBe(inactiveConfig.id);
+      expect(store.get(activeConnectionIdAtom)).toBe(inactiveConfig.id);
     });
     expect(screen.getByTestId("location")).toHaveTextContent("/graph-explorer");
   });
@@ -250,26 +250,26 @@ describe("Connect route", () => {
     const user = userEvent.setup();
     new DbState().applyTo(getAppStore());
     const store = getAppStore();
-    const connectionsBefore = store.get(configurationAtom).size;
+    const connectionsBefore = store.get(savedConnectionsAtom).size;
 
     renderConnect(searchFor("https://brand-new.neptune.amazonaws.com"));
     await user.keyboard("{Escape}");
 
     expect(await screen.findByText("connections list")).toBeInTheDocument();
-    expect(store.get(configurationAtom).size).toBe(connectionsBefore);
+    expect(store.get(savedConnectionsAtom).size).toBe(connectionsBefore);
   });
 
   test("clicking Cancel lands on the connections list without creating", async () => {
     const user = userEvent.setup();
     new DbState().applyTo(getAppStore());
     const store = getAppStore();
-    const connectionsBefore = store.get(configurationAtom).size;
+    const connectionsBefore = store.get(savedConnectionsAtom).size;
 
     renderConnect(searchFor("https://brand-new.neptune.amazonaws.com"));
     await user.click(screen.getByRole("button", { name: "Cancel" }));
 
     expect(await screen.findByText("connections list")).toBeInTheDocument();
-    expect(store.get(configurationAtom).size).toBe(connectionsBefore);
+    expect(store.get(savedConnectionsAtom).size).toBe(connectionsBefore);
   });
 
   test("adding the connection activates it and lands on the graph canvas", async () => {
@@ -283,8 +283,8 @@ describe("Connect route", () => {
 
     expect(await screen.findByText("graph canvas")).toBeInTheDocument();
     const active = store
-      .get(configurationAtom)
-      .get(store.get(activeConfigurationAtom)!);
+      .get(savedConnectionsAtom)
+      .get(store.get(activeConnectionIdAtom)!);
     expect(active?.connection?.graphDbUrl).toBe(newUrl);
   });
 
@@ -327,8 +327,8 @@ describe("Connect route", () => {
 
     expect(screen.getByTestId("location")).toHaveTextContent("/graph-explorer");
     expect(screen.getByText("graph canvas")).toBeInTheDocument();
-    expect(getAppStore().get(activeConfigurationAtom)).toBe(
-      state.activeConfig.id,
+    expect(getAppStore().get(activeConnectionIdAtom)).toBe(
+      state.activeConnection.id,
     );
   });
 
@@ -350,7 +350,7 @@ describe("Connect route", () => {
 
   test("continuing with no connections lands on the connections list", async () => {
     new DbState().applyTo(getAppStore());
-    getAppStore().set(configurationAtom, new Map());
+    getAppStore().set(savedConnectionsAtom, new Map());
     const user = userEvent.setup();
 
     renderConnect("?graphDbUrl=not-a-url");

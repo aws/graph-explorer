@@ -44,9 +44,9 @@ describe("backward compatibility: stored connection shapes preload through the c
       schema: createRandomSchema(),
     } as SavedConnection & { schema: SchemaStorageModel };
 
-    const { store, configurationAtom } =
+    const { store, savedConnectionsAtom } =
       await preloadSavedConnections(nestedConfig);
-    const loaded = store.get(configurationAtom).get(config.id);
+    const loaded = store.get(savedConnectionsAtom).get(config.id);
 
     expect(loaded).toStrictEqual(nestedConfig);
   });
@@ -57,8 +57,9 @@ describe("backward compatibility: stored connection shapes preload through the c
       connection: undefined,
     };
 
-    const { store, configurationAtom } = await preloadSavedConnections(config);
-    const loaded = store.get(configurationAtom).get(config.id);
+    const { store, savedConnectionsAtom } =
+      await preloadSavedConnections(config);
+    const loaded = store.get(savedConnectionsAtom).get(config.id);
 
     expect(loaded).toStrictEqual(config);
   });
@@ -66,8 +67,9 @@ describe("backward compatibility: stored connection shapes preload through the c
   test("preserves an entry with no displayLabel", async () => {
     const { displayLabel: _omit, ...config } = createRandomSavedConnection();
 
-    const { store, configurationAtom } = await preloadSavedConnections(config);
-    const loaded = store.get(configurationAtom).get(config.id);
+    const { store, savedConnectionsAtom } =
+      await preloadSavedConnections(config);
+    const loaded = store.get(savedConnectionsAtom).get(config.id);
 
     // The destructured `config` already omits `displayLabel`, so a full-value
     // compare pins both that it stays absent and that nothing else drifts.
@@ -79,12 +81,12 @@ describe("backward compatibility: stored connection shapes preload through the c
     const second = createRandomSavedConnection();
     const third = createRandomSavedConnection();
 
-    const { store, configurationAtom } = await preloadSavedConnections(
+    const { store, savedConnectionsAtom } = await preloadSavedConnections(
       first,
       second,
       third,
     );
-    const loaded = store.get(configurationAtom);
+    const loaded = store.get(savedConnectionsAtom);
 
     expect([...loaded.keys()]).toStrictEqual([first.id, second.id, third.id]);
     expect(loaded.get(second.id)?.connection).toStrictEqual(second.connection);
@@ -100,9 +102,9 @@ describe("backward compatibility: the Active Connection is read from its stored 
     const id = createConnectionId();
     await localforage.setItem("active-configuration", id);
 
-    const { store, activeConfigurationAtom } = await loadStorageAtoms();
+    const { store, activeConnectionIdAtom } = await loadStorageAtoms();
 
-    expect(store.get(activeConfigurationAtom)).toBe(id);
+    expect(store.get(activeConnectionIdAtom)).toBe(id);
   });
 
   test("keeps a reloaded tab on the value it stored under active-configuration", async () => {
@@ -110,9 +112,9 @@ describe("backward compatibility: the Active Connection is read from its stored 
     await localforage.setItem("active-configuration", createConnectionId());
     sessionStorage.setItem("active-configuration", tabValue);
 
-    const { store, activeConfigurationAtom } = await loadStorageAtoms();
+    const { store, activeConnectionIdAtom } = await loadStorageAtoms();
 
-    expect(store.get(activeConfigurationAtom)).toBe(tabValue);
+    expect(store.get(activeConnectionIdAtom)).toBe(tabValue);
   });
 });
 
@@ -135,13 +137,13 @@ describe("backward compatibility: a backup file from an older build restores", (
     );
     await restoreBackup(backup, localforage);
 
-    const { store, configurationAtom, activeConfigurationAtom } =
+    const { store, savedConnectionsAtom, activeConnectionIdAtom } =
       await loadStorageAtoms();
 
-    expect(store.get(activeConfigurationAtom)).toBe(
+    expect(store.get(activeConnectionIdAtom)).toBe(
       "22222222-2222-4222-8222-222222222222",
     );
-    expect(store.get(configurationAtom)).toStrictEqual(
+    expect(store.get(savedConnectionsAtom)).toStrictEqual(
       new Map([
         [
           "11111111-1111-4111-8111-111111111111",

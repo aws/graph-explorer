@@ -11,24 +11,24 @@ export function createConnectionId() {
 }
 
 /**
- * The persisted shape of a connection configuration, as stored in
- * `configurationAtom` and IndexedDB. The schema is kept separately in
+ * The persisted shape of a saved connection, as stored in
+ * `savedConnectionsAtom` and IndexedDB. The schema is kept separately in
  * `schemaAtom`, never embedded here.
  */
 export type SavedConnection = {
   /**
-   * Unique identifier for this config
+   * Unique identifier for this connection
    */
   id: ConnectionId;
   displayLabel?: string;
   /**
-   * Connection configuration
+   * Connection details
    */
   connection?: ConnectionConfig;
 };
 
 /**
- * Represents a connection config with the ID and display label integrated in to
+ * Represents a connection with the ID and display label integrated in to
  * the type.
  *
  * This makes it a bit easier to deal with compared to the connection inside the

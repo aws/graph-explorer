@@ -287,7 +287,7 @@ describe("backward compatibility: legacy url/proxyConnection connection shape", 
   });
 });
 
-function configWithLegacyConnection(
+function connectionWithLegacyConnection(
   connection: LegacyConnectionConfig,
 ): SavedConnection {
   return {
@@ -298,43 +298,43 @@ function configWithLegacyConnection(
   };
 }
 
-function configMap(
-  ...configs: SavedConnection[]
+function connectionMap(
+  ...connections: SavedConnection[]
 ): Map<ConnectionId, SavedConnection> {
-  return new Map(configs.map(config => [config.id, config]));
+  return new Map(connections.map(connection => [connection.id, connection]));
 }
 
 describe("transformSavedConnections", () => {
   test("uses graphDbUrl when proxyConnection is true", () => {
-    const config = configWithLegacyConnection({
+    const connection = connectionWithLegacyConnection({
       url: "https://proxy.example.com",
       proxyConnection: true,
       graphDbUrl: "https://my-neptune:8182",
     });
 
-    const result = transformSavedConnections(configMap(config));
+    const result = transformSavedConnections(connectionMap(connection));
 
-    expect(result.get(config.id)?.connection?.graphDbUrl).toBe(
+    expect(result.get(connection.id)?.connection?.graphDbUrl).toBe(
       "https://my-neptune:8182",
     );
   });
 
   test("uses url and keeps the direct flag when proxyConnection is false", () => {
-    const config = configWithLegacyConnection({
+    const connection = connectionWithLegacyConnection({
       url: "https://my-neptune:8182",
       proxyConnection: false,
     });
 
-    const result = transformSavedConnections(configMap(config));
+    const result = transformSavedConnections(connectionMap(connection));
 
-    expect(result.get(config.id)?.connection).toStrictEqual({
+    expect(result.get(connection.id)?.connection).toStrictEqual({
       graphDbUrl: "https://my-neptune:8182",
       proxyConnection: false,
     });
   });
 
   test("passes a canonical direct connection through unchanged", () => {
-    const config: SavedConnection = {
+    const connection: SavedConnection = {
       ...createRandomSavedConnection(),
       connection: {
         graphDbUrl: "https://my-neptune:8182",
@@ -343,42 +343,42 @@ describe("transformSavedConnections", () => {
       },
     };
 
-    const result = transformSavedConnections(configMap(config));
+    const result = transformSavedConnections(connectionMap(connection));
 
-    expect(result.get(config.id)).toStrictEqual(config);
+    expect(result.get(connection.id)).toStrictEqual(connection);
   });
 
   test("infers a proxy connection and uses graphDbUrl when proxyConnection is absent but graphDbUrl is present", () => {
-    const config = configWithLegacyConnection({
+    const connection = connectionWithLegacyConnection({
       graphDbUrl: "https://my-neptune:8182",
     });
 
-    const result = transformSavedConnections(configMap(config));
+    const result = transformSavedConnections(connectionMap(connection));
 
-    expect(result.get(config.id)?.connection?.graphDbUrl).toBe(
+    expect(result.get(connection.id)?.connection?.graphDbUrl).toBe(
       "https://my-neptune:8182",
     );
   });
 
   test("treats a connection with only url as direct", () => {
-    const config = configWithLegacyConnection({
+    const connection = connectionWithLegacyConnection({
       url: "https://my-neptune:8182",
     });
 
-    const result = transformSavedConnections(configMap(config));
+    const result = transformSavedConnections(connectionMap(connection));
 
-    expect(result.get(config.id)?.connection).toStrictEqual({
+    expect(result.get(connection.id)?.connection).toStrictEqual({
       graphDbUrl: "https://my-neptune:8182",
       proxyConnection: false,
     });
   });
 
   test("passes an already-migrated connection through unchanged", () => {
-    const config = createRandomSavedConnection();
+    const connection = createRandomSavedConnection();
 
-    const result = transformSavedConnections(configMap(config));
+    const result = transformSavedConnections(connectionMap(connection));
 
-    expect(result.get(config.id)).toStrictEqual(config);
+    expect(result.get(connection.id)).toStrictEqual(connection);
   });
 
   test("handles an empty map", () => {
@@ -388,21 +388,21 @@ describe("transformSavedConnections", () => {
   });
 
   test("passes an entry with no connection through unchanged", () => {
-    const config: SavedConnection = {
+    const connection: SavedConnection = {
       ...createRandomSavedConnection(),
       connection: undefined,
     };
 
-    const result = transformSavedConnections(configMap(config));
+    const result = transformSavedConnections(connectionMap(connection));
 
-    expect(result.get(config.id)).toStrictEqual(config);
+    expect(result.get(connection.id)).toStrictEqual(connection);
   });
 });
 
 /**
  * BACKWARD COMPATIBILITY — PERSISTED DATA
  *
- * `configurationAtom` stores connections that, prior to the unified-proxy
+ * `savedConnectionsAtom` stores connections that, prior to the unified-proxy
  * model, carried a `url`/`proxyConnection` pair instead of `graphDbUrl`. That
  * legacy shape is folded into the canonical shape at read time via this
  * ReadTransform, so every consumer of the atom — not only the active
@@ -416,7 +416,7 @@ describe("backward compatibility: legacy connection shape in storage", () => {
   test("migrates a direct connection saved by an earlier version's form when the real configuration atom preloads", async () => {
     // An earlier version's form always saved the flag and the IAM fields,
     // even for a direct connection.
-    const config = configWithLegacyConnection({
+    const connection = connectionWithLegacyConnection({
       url: "https://my-neptune:8182",
       proxyConnection: false,
       graphDbUrl: "",
@@ -428,7 +428,7 @@ describe("backward compatibility: legacy connection shape in storage", () => {
       nodeExpansionLimit: 25,
     });
 
-    const stored = await preloadSavedConnection(config);
+    const stored = await preloadSavedConnection(connection);
 
     expect(stored?.connection).toStrictEqual({
       graphDbUrl: "https://my-neptune:8182",

@@ -7,9 +7,9 @@ import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   type AppStore,
-  configurationAtom,
+  savedConnectionsAtom,
   schemaAtom,
   useSearchableAttributes,
 } from "@/core";
@@ -37,10 +37,10 @@ function initializeConfigWithQueryEngine(queryEngine: QueryEngine) {
     const config = createRandomSavedConnection();
     config.connection!.queryEngine = queryEngine;
 
-    store.set(configurationAtom, new Map([[config.id, config]]));
+    store.set(savedConnectionsAtom, new Map([[config.id, config]]));
 
     // Make config active
-    store.set(activeConfigurationAtom, config.id);
+    store.set(activeConnectionIdAtom, config.id);
   };
 }
 
@@ -142,11 +142,11 @@ describe("useKeywordSearch", () => {
         dataType: "String",
       });
 
-      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(savedConnectionsAtom, new Map([[config.id, config]]));
       store.set(schemaAtom, new Map([[config.id, schema]]));
 
       // Make config active
-      store.set(activeConfigurationAtom, config.id);
+      store.set(activeConnectionIdAtom, config.id);
     }
 
     it("Should default to precision match exact", () => {
@@ -257,9 +257,9 @@ describe("useKeywordSearch", () => {
           { name: "elevation", dataType: "Number" },
         ];
 
-        store.set(configurationAtom, new Map([[config.id, config]]));
+        store.set(savedConnectionsAtom, new Map([[config.id, config]]));
         store.set(schemaAtom, new Map([[config.id, schema]]));
-        store.set(activeConfigurationAtom, config.id);
+        store.set(activeConnectionIdAtom, config.id);
       };
     }
 
@@ -328,9 +328,9 @@ describe("useKeywordSearch", () => {
       ];
       schema.vertices[1].attributes = [{ name: "airline", dataType: "String" }];
 
-      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(savedConnectionsAtom, new Map([[config.id, config]]));
       store.set(schemaAtom, new Map([[config.id, schema]]));
-      store.set(activeConfigurationAtom, config.id);
+      store.set(activeConnectionIdAtom, config.id);
 
       return {
         vertexType1: schema.vertices[0].type,
@@ -348,9 +348,9 @@ describe("useKeywordSearch", () => {
         attributes: [{ name: `attr-${i}`, dataType: "String" }],
       }));
 
-      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(savedConnectionsAtom, new Map([[config.id, config]]));
       store.set(schemaAtom, new Map([[config.id, schema]]));
-      store.set(activeConfigurationAtom, config.id);
+      store.set(activeConnectionIdAtom, config.id);
     }
 
     it("returns the same array reference across renders when the vertex type is unchanged", () => {

@@ -1,7 +1,7 @@
 import { useAtomCallback } from "jotai/utils";
 import { useCallback } from "react";
 
-import { activeConfigurationAtom } from "@/core/StateProvider/storageAtoms";
+import { activeConnectionIdAtom } from "@/core/StateProvider/storageAtoms";
 import useResetState from "@/core/StateProvider/useResetState";
 import { logger } from "@/utils";
 
@@ -16,12 +16,12 @@ export default function useActivateConnection() {
   const resetState = useResetState();
   return useAtomCallback(
     useCallback(
-      (get, set, configId: ConnectionId) => {
-        if (get(activeConfigurationAtom) === configId) {
+      (get, set, connectionId: ConnectionId) => {
+        if (get(activeConnectionIdAtom) === connectionId) {
           return;
         }
-        logger.debug("Setting active connection to", configId);
-        set(activeConfigurationAtom, configId);
+        logger.debug("Setting active connection to", connectionId);
+        set(activeConnectionIdAtom, connectionId);
         resetState();
       },
       [resetState],

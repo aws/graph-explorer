@@ -14,8 +14,8 @@ import { DEFAULT_SERVICE_TYPE } from "@/utils";
 
 import { getAppStore } from "../StateProvider/appStore";
 import {
-  activeConfigurationAtom,
-  configurationAtom,
+  activeConnectionIdAtom,
+  savedConnectionsAtom,
 } from "../StateProvider/storageAtoms";
 
 /** One link parameter that failed validation, and the requirement it broke. */
@@ -279,24 +279,28 @@ function identitiesMatch(
  * matches the link's name, then the first match found.
  */
 function findMatchingConnection(
-  configurations: Map<ConnectionId, SavedConnection>,
+  connections: Map<ConnectionId, SavedConnection>,
   proposed: ConnectionConfig,
   name: string,
   activeId: ConnectionId | null,
 ): SavedConnection | null {
   const proposedIdentity = identityOf(proposed);
-  const matches = Array.from(configurations.values()).filter(
-    config =>
-      config.connection != null &&
-      identitiesMatch(identityOf(config.connection), proposedIdentity),
+  const matches = Array.from(connections.values()).filter(
+    savedConnection =>
+      savedConnection.connection != null &&
+      identitiesMatch(identityOf(savedConnection.connection), proposedIdentity),
   );
 
   if (matches.length === 0) {
     return null;
   }
 
-  const activeMatch = matches.find(config => config.id === activeId);
-  const nameMatch = matches.find(config => config.displayLabel === name);
+  const activeMatch = matches.find(
+    savedConnection => savedConnection.id === activeId,
+  );
+  const nameMatch = matches.find(
+    savedConnection => savedConnection.displayLabel === name,
+  );
 
   return activeMatch ?? nameMatch ?? matches[0];
 }
@@ -329,8 +333,8 @@ function buildConnectionFromParams(
  * The action a connection link resolves to, given the current connections.
  * Callers dispatch on `kind` rather than juggling match/pending booleans.
  *
- * `activate` names a connection the user already has, so it carries the stored
- * configuration, id and all. It covers the active connection too, since
+ * `activate` names a connection the user already has, so it carries the saved
+ * connection, id and all. It covers the active connection too, since
  * activating that one is a no-op that keeps its session. `create` only
  * proposes one, so it carries the connection body and the name to seed the
  * form with, and nothing exists yet to have an id.
@@ -350,7 +354,7 @@ export type ConnectionLinkIntent =
  */
 function resolveConnectionLinkIntent(
   link: ConnectionLink,
-  configurations: Map<ConnectionId, SavedConnection>,
+  connections: Map<ConnectionId, SavedConnection>,
   activeId: ConnectionId | null,
 ): ConnectionLinkIntent {
   if (link.kind === "invalid") {
@@ -359,7 +363,7 @@ function resolveConnectionLinkIntent(
 
   const proposed = buildConnectionFromParams(link.params);
   const match = findMatchingConnection(
-    configurations,
+    connections,
     proposed,
     link.params.name,
     activeId,
@@ -381,7 +385,7 @@ export function resolveConnectionLink(search: string): ConnectionLinkIntent {
   const store = getAppStore();
   return resolveConnectionLinkIntent(
     readConnectionLink(search),
-    store.get(configurationAtom),
-    store.get(activeConfigurationAtom),
+    store.get(savedConnectionsAtom),
+    store.get(activeConnectionIdAtom),
   );
 }

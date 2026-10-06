@@ -9,8 +9,8 @@ import type { SavedConnection } from "@/connections";
 
 import { TooltipProvider } from "@/components";
 import {
-  activeConfigurationAtom,
-  configurationAtom,
+  activeConnectionIdAtom,
+  savedConnectionsAtom,
   getAppStore,
   nodesAtom,
   toNodeMap,
@@ -32,8 +32,8 @@ describe("ConnectionRow", () => {
     const connection = createRandomSavedConnection();
     const vertex = createRandomVertex();
 
-    store.set(configurationAtom, new Map([[connection.id, connection]]));
-    store.set(activeConfigurationAtom, connection.id);
+    store.set(savedConnectionsAtom, new Map([[connection.id, connection]]));
+    store.set(activeConnectionIdAtom, connection.id);
     store.set(nodesAtom, toNodeMap([vertex]));
 
     const queryClient = createQueryClient();
@@ -66,13 +66,13 @@ describe("ConnectionRow", () => {
     const vertex = createRandomVertex();
 
     store.set(
-      configurationAtom,
+      savedConnectionsAtom,
       new Map([
         [activeConnection.id, activeConnection],
         [otherConnection.id, otherConnection],
       ]),
     );
-    store.set(activeConfigurationAtom, activeConnection.id);
+    store.set(activeConnectionIdAtom, activeConnection.id);
     store.set(nodesAtom, toNodeMap([vertex]));
 
     const queryClient = createQueryClient();
@@ -98,7 +98,7 @@ describe("ConnectionRow", () => {
     expect(nodesAfterClick.size).toBe(0);
   });
 
-  // Regression: `configurationAtom`'s read-time transform migrates a legacy
+  // Regression: `savedConnectionsAtom`'s read-time transform migrates a legacy
   // `url`/`proxyConnection` connection to `graphDbUrl` before any consumer
   // sees it, so a row for a pre-upgrade connection still shows its endpoint.
   test("renders the endpoint for a legacy stored connection", async () => {

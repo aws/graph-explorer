@@ -17,12 +17,12 @@ import {
 export default function ConnectionDeleteButton({
   connectionName,
   isSync,
-  deleteActiveConfig,
+  deleteActiveConnection,
   saveCopy,
 }: {
   connectionName: string;
   isSync: boolean;
-  deleteActiveConfig: () => void;
+  deleteActiveConnection: () => void;
   saveCopy: () => boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,7 +32,7 @@ export default function ConnectionDeleteButton({
     // (e.g. a connection with no URL) already surfaced its own error, and
     // deleting anyway would destroy the connection the copy was meant to save.
     if (saveCopy()) {
-      deleteActiveConfig();
+      deleteActiveConnection();
     }
   };
 
@@ -74,7 +74,7 @@ export default function ConnectionDeleteButton({
             <Button variant="outline" onClick={saveAndDelete}>
               Save a Copy & Delete
             </Button>
-            <Button onClick={deleteActiveConfig} variant="danger">
+            <Button onClick={deleteActiveConnection} variant="danger">
               Delete
             </Button>
           </DialogFooter>

@@ -6,14 +6,14 @@ import type { SavedConnection } from "@/connections";
 import type { AppStore } from "@/core";
 import type { PersistenceStatusStore } from "@/core/StateProvider/persistence/persistenceStatusStore";
 import type {
-  activeConfigurationAtom,
-  configurationAtom,
+  activeConnectionIdAtom,
+  savedConnectionsAtom,
 } from "@/core/StateProvider/storageAtoms";
 
-interface PreloadedConfigurationAtoms {
+interface PreloadedConnectionAtoms {
   store: AppStore;
-  configurationAtom: typeof configurationAtom;
-  activeConfigurationAtom: typeof activeConfigurationAtom;
+  savedConnectionsAtom: typeof savedConnectionsAtom;
+  activeConnectionIdAtom: typeof activeConnectionIdAtom;
   persistenceStatusStore: PersistenceStatusStore;
 }
 
@@ -24,10 +24,10 @@ interface PreloadedConfigurationAtoms {
  * persistence status store since both are only valid alongside that same
  * fresh copy.
  */
-export async function loadStorageAtoms(): Promise<PreloadedConfigurationAtoms> {
+export async function loadStorageAtoms(): Promise<PreloadedConnectionAtoms> {
   vi.resetModules();
   const [
-    { configurationAtom, activeConfigurationAtom },
+    { savedConnectionsAtom, activeConnectionIdAtom },
     { persistenceStatusStore },
   ] = await Promise.all([
     import("@/core/StateProvider/storageAtoms"),
@@ -35,34 +35,35 @@ export async function loadStorageAtoms(): Promise<PreloadedConfigurationAtoms> {
   ]);
   return {
     store: createStore(),
-    configurationAtom,
-    activeConfigurationAtom,
+    savedConnectionsAtom,
+    activeConnectionIdAtom,
     persistenceStatusStore,
   };
 }
 
 /**
- * Stores `configs` in IndexedDB, as an earlier version would have left them,
- * then loads the real storage atoms via {@link loadStorageAtoms}.
+ * Stores `connections` in IndexedDB, as an earlier version would have left
+ * them, then loads the real storage atoms via {@link loadStorageAtoms}.
  */
 export async function preloadSavedConnections(
-  ...configs: SavedConnection[]
-): Promise<PreloadedConfigurationAtoms> {
+  ...connections: SavedConnection[]
+): Promise<PreloadedConnectionAtoms> {
   await localforage.setItem(
     "configuration",
-    new Map(configs.map(config => [config.id, config])),
+    new Map(connections.map(connection => [connection.id, connection])),
   );
   return loadStorageAtoms();
 }
 
 /**
  * Thin wrapper over {@link preloadSavedConnections} for the common case
- * of preloading a single stored configuration and reading back its
- * transformed shape.
+ * of preloading a single saved connection and reading back its transformed
+ * shape.
  */
 export async function preloadSavedConnection(
-  config: SavedConnection,
+  connection: SavedConnection,
 ): Promise<SavedConnection | undefined> {
-  const { store, configurationAtom } = await preloadSavedConnections(config);
-  return store.get(configurationAtom).get(config.id);
+  const { store, savedConnectionsAtom } =
+    await preloadSavedConnections(connection);
+  return store.get(savedConnectionsAtom).get(connection.id);
 }

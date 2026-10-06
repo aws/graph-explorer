@@ -2,7 +2,10 @@ import { atom } from "jotai";
 
 import type { SavedConnection } from "@/connections";
 
-import { activeConfigSelector, normalizeConnection } from "@/connections";
+import {
+  activeSavedConnectionSelector,
+  normalizeConnection,
+} from "@/connections";
 import { RESERVED_TYPES_PROPERTY } from "@/utils/constants";
 
 import type { EdgeType, VertexType } from "../entities";
@@ -23,8 +26,8 @@ import { activeSchemaSelector, type SchemaStorageModel } from "./schema";
 import { userEdgeStylesAtom, userVertexStylesAtom } from "./storageAtoms";
 
 export const mergedConfigurationSelector = atom(get => {
-  const currentConfig = get(activeConfigSelector);
-  if (!currentConfig) {
+  const currentConnection = get(activeSavedConnectionSelector);
+  if (!currentConnection) {
     return null;
   }
 
@@ -34,7 +37,7 @@ export const mergedConfigurationSelector = atom(get => {
 
   return mergeConfiguration(
     currentSchema,
-    currentConfig,
+    currentConnection,
     vertexStyles,
     edgeStyles,
   );
@@ -42,7 +45,7 @@ export const mergedConfigurationSelector = atom(get => {
 
 export function mergeConfiguration(
   currentSchema: SchemaStorageModel | null | undefined,
-  currentConfig: SavedConnection,
+  currentConnection: SavedConnection,
   vertexStyles: ReadonlyMap<VertexType, VertexStyleStorage>,
   edgeStyles: ReadonlyMap<EdgeType, EdgeStyleStorage>,
 ): MergedConfiguration {
@@ -57,17 +60,17 @@ export function mergeConfiguration(
   );
 
   return {
-    id: currentConfig.id,
-    displayLabel: currentConfig.displayLabel,
+    id: currentConnection.id,
+    displayLabel: currentConnection.displayLabel,
     connection: normalizeConnection(
-      currentConfig.connection || { graphDbUrl: "" },
+      currentConnection.connection || { graphDbUrl: "" },
     ),
     schema: {
       vertices: mergedVertices,
       edges: mergedEdges,
       lastUpdate: currentSchema?.lastUpdate,
       prefixes:
-        currentConfig.connection?.queryEngine === "sparql"
+        currentConnection.connection?.queryEngine === "sparql"
           ? currentSchema?.prefixes
           : undefined,
       lastSyncFail: currentSchema?.lastSyncFail,

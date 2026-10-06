@@ -21,9 +21,9 @@ import {
 import { DialogBody, DialogFooter } from "@/components/Dialog";
 import { createConnectionId, type SavedConnection } from "@/connections";
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   allGraphSessionsAtom,
-  configurationAtom,
+  savedConnectionsAtom,
   type ConfigurationContextProps,
   schemaAtom,
 } from "@/core";
@@ -73,43 +73,46 @@ const CreateConnection = ({
 }: CreateConnectionProps) => {
   const queryClient = useQueryClient();
 
-  const configId = existingConfig?.id;
+  const connectionId = existingConfig?.id;
 
   const onSave = useAtomCallback(
     useCallback(
       (_get, set, data: ConnectionFormValues) => {
-        if (!configId) {
-          const newConfigId = createConnectionId();
-          const newConfig: SavedConnection = {
-            id: newConfigId,
+        if (!connectionId) {
+          const newConnectionId = createConnectionId();
+          const newConnection: SavedConnection = {
+            id: newConnectionId,
             displayLabel: data.name,
             connection: mapToConnection(data),
           };
-          logger.log("Saving new connection", { newConfigId, newConfig });
-          set(configurationAtom, prevConfigMap => {
-            const updatedConfig = new Map(prevConfigMap);
-            updatedConfig.set(newConfigId, newConfig);
-            return updatedConfig;
+          logger.log("Saving new connection", {
+            newConnectionId,
+            newConnection,
           });
-          set(activeConfigurationAtom, newConfigId);
+          set(savedConnectionsAtom, prevConnections => {
+            const updatedConnections = new Map(prevConnections);
+            updatedConnections.set(newConnectionId, newConnection);
+            return updatedConnections;
+          });
+          set(activeConnectionIdAtom, newConnectionId);
           return;
         }
 
-        set(configurationAtom, prev => {
+        set(savedConnectionsAtom, prev => {
           const updated = new Map(prev);
-          const currentConfig = updated.get(configId);
-          const updatedConfig: SavedConnection = {
-            ...currentConfig,
-            id: configId,
+          const currentConnection = updated.get(connectionId);
+          const updatedConnection: SavedConnection = {
+            ...currentConnection,
+            id: connectionId,
             displayLabel: data.name,
             connection: mapToConnection(data),
           };
           logger.log("Updating existing connection", {
-            configId,
-            currentConfig,
-            updatedConfig,
+            connectionId,
+            currentConnection,
+            updatedConnection,
           });
-          updated.set(configId, updatedConfig);
+          updated.set(connectionId, updatedConnection);
           return updated;
         });
 
@@ -126,7 +129,7 @@ const CreateConnection = ({
           // Force a sync of the schema by deleting the existing schema cache, which is now invalid
           set(schemaAtom, prevSchemaMap => {
             const updatedSchema = new Map(prevSchemaMap);
-            updatedSchema.delete(configId);
+            updatedSchema.delete(connectionId);
             return updatedSchema;
           });
 
@@ -134,7 +137,7 @@ const CreateConnection = ({
           set(allGraphSessionsAtom, prev => {
             const updatedGraphs = new Map(prev);
             logger.log("Deleting previous graph session");
-            updatedGraphs.delete(configId);
+            updatedGraphs.delete(connectionId);
             return updatedGraphs;
           });
 
@@ -143,7 +146,7 @@ const CreateConnection = ({
           queryClient.removeQueries();
         }
       },
-      [configId, existingConfig, queryClient],
+      [connectionId, existingConfig, queryClient],
     ),
   );
 
@@ -310,7 +313,7 @@ const CreateConnection = ({
           Cancel
         </Button>
         <Button variant="primary" onClick={onSubmit}>
-          {!configId ? "Add Connection" : "Update Connection"}
+          {!connectionId ? "Add Connection" : "Update Connection"}
         </Button>
       </DialogFooter>
     </>

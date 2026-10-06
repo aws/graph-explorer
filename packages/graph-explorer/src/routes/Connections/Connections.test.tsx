@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
-import { configurationAtom, getAppStore } from "@/core";
+import { savedConnectionsAtom, getAppStore } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import { stubDocumentUrl, TestProvider } from "@/utils/testing";
 
@@ -12,7 +12,7 @@ import Connections from "./Connections";
 
 function renderConnections() {
   const store = getAppStore();
-  store.set(configurationAtom, new Map());
+  store.set(savedConnectionsAtom, new Map());
   render(
     <TestProvider client={createQueryClient()} store={store}>
       <TooltipProvider>

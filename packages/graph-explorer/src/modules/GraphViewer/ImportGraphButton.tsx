@@ -8,7 +8,7 @@ import type { ConnectionWithId } from "@/connections";
 
 import { Button, FileButton, Spinner } from "@/components";
 import { fetchEntityDetails, notifyOnIncompleteRestoration } from "@/connector";
-import { configurationAtom, useExplorer } from "@/core";
+import { savedConnectionsAtom, useExplorer } from "@/core";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 import { useAddToGraph } from "@/hooks";
 import { useEntityCountFormatterCallback } from "@/hooks/useEntityCountFormatter";
@@ -47,7 +47,7 @@ function useImportGraphMutation() {
   const explorer = useExplorer();
   const addToGraph = useAddToGraph();
   const formatEntityCounts = useEntityCountFormatterCallback();
-  const allConfigs = useAtomValue(configurationAtom);
+  const allConfigs = useAtomValue(savedConnectionsAtom);
   const allConnections = Array.from(allConfigs.values())
     .map(config =>
       config.connection

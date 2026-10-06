@@ -36,7 +36,7 @@ const activeConnectionCodec: SessionValueCodec<ConnectionId | null> = {
  * @param sessionStorage The per-tab storage backing. Injectable so multi-tab
  * isolation can be tested with separate storages.
  */
-export async function createActiveConfigurationAtom({
+export async function createActiveConnectionIdAtom({
   sessionStorage,
 }: { sessionStorage?: Storage } = {}) {
   return createSessionScopedAtom<ConnectionId | null>({

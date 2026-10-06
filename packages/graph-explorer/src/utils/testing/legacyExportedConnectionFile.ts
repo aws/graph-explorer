@@ -6,7 +6,7 @@
  * `{ id, displayLabel, connection, schema }` envelope where the full schema
  * (styled vertex/edge type configs, ISO `lastUpdate`, `edgeConnections`) is
  * embedded alongside the connection. On import this envelope is split — the
- * connection lands in `configurationAtom` and the schema in `schemaAtom`.
+ * connection lands in `savedConnectionsAtom` and the schema in `schemaAtom`.
  *
  * The data here is synthetic (a fictional "Movies" graph against example.com
  * endpoints) so it carries no private connection details, but the structure is

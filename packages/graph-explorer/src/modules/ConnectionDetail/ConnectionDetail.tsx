@@ -83,9 +83,9 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
 
   const { isFetching } = useSchemaSync();
 
-  const onConfigExport = () => exportConnectionWithFeedback(config);
+  const onConnectionExport = () => exportConnectionWithFeedback(config);
 
-  const deleteActiveConfig = useDeleteActiveConnection();
+  const deleteActiveConnection = useDeleteActiveConnection();
 
   const dbUrl = config.connection?.graphDbUrl || LABELS.MISSING_VALUE;
 
@@ -104,7 +104,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
             variant="ghost"
             size="icon"
             disabled={isFetching}
-            onClick={onConfigExport}
+            onClick={onConnectionExport}
           >
             <TrayArrowIcon />
           </Button>
@@ -121,8 +121,8 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
           <ConnectionDeleteButton
             connectionName={connectionName}
             isSync={isFetching}
-            deleteActiveConfig={deleteActiveConfig}
-            saveCopy={onConfigExport}
+            deleteActiveConnection={deleteActiveConnection}
+            saveCopy={onConnectionExport}
           />
         </PanelHeaderActions>
       </PanelHeader>

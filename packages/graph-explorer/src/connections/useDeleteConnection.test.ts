@@ -6,9 +6,9 @@ import { act } from "react";
 import { expect, test } from "vitest";
 
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   allGraphSessionsAtom,
-  configurationAtom,
+  savedConnectionsAtom,
   schemaAtom,
 } from "@/core/StateProvider/storageAtoms";
 import {
@@ -22,32 +22,32 @@ import {
 import { useDeleteActiveConnection } from "./useDeleteConnection";
 
 test("should delete the active configuration", async () => {
-  const config1 = createRandomSavedConnection();
+  const connection1 = createRandomSavedConnection();
 
   const { result } = renderHookWithJotai(
     () => {
       const callback = useDeleteActiveConnection();
-      const allConfigs = useAtomValue(configurationAtom);
-      const activeConfig = useAtomValue(activeConfigurationAtom);
+      const allConnections = useAtomValue(savedConnectionsAtom);
+      const activeConnectionId = useAtomValue(activeConnectionIdAtom);
 
-      return { callback, allConfigs, activeConfig };
+      return { callback, allConnections, activeConnectionId };
     },
     store => {
-      store.set(activeConfigurationAtom, config1.id);
-      store.set(configurationAtom, new Map([[config1.id, config1]]));
+      store.set(activeConnectionIdAtom, connection1.id);
+      store.set(savedConnectionsAtom, new Map([[connection1.id, connection1]]));
     },
   );
 
   act(() => result.current.callback());
 
   await waitFor(() => {
-    expect(result.current.activeConfig).toBeNull();
-    expect(result.current.allConfigs.size).toBe(0);
+    expect(result.current.activeConnectionId).toBeNull();
+    expect(result.current.allConnections.size).toBe(0);
   });
 });
 
 test("should delete the active schema", async () => {
-  const config1 = createRandomSavedConnection();
+  const connection1 = createRandomSavedConnection();
   const schema1 = createRandomSchema();
 
   const { result } = renderHookWithJotai(
@@ -58,9 +58,9 @@ test("should delete the active schema", async () => {
       return { callback, allSchemas };
     },
     store => {
-      store.set(activeConfigurationAtom, config1.id);
-      store.set(configurationAtom, new Map([[config1.id, config1]]));
-      store.set(schemaAtom, new Map([[config1.id, schema1]]));
+      store.set(activeConnectionIdAtom, connection1.id);
+      store.set(savedConnectionsAtom, new Map([[connection1.id, connection1]]));
+      store.set(schemaAtom, new Map([[connection1.id, schema1]]));
     },
   );
 

@@ -280,7 +280,7 @@ export function createRandomEdgeId(): EdgeId {
   return createEdgeId(createRandomName("EdgeId"));
 }
 
-/** Creates a random configuration (connection) ID. */
+/** Creates a random connection ID. */
 export function createRandomConnectionId(): ConnectionId {
   return createConnectionId();
 }
