@@ -89,7 +89,7 @@ describe("CreateConnection", () => {
     renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
 
     expect(
-      screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
+      screen.getByRole("checkbox", { name: "Use AWS IAM authentication" }),
     ).toBeInTheDocument();
   });
 
@@ -133,13 +133,13 @@ describe("CreateConnection", () => {
       renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
 
       await user.click(
-        screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
+        screen.getByRole("checkbox", { name: "Use AWS IAM authentication" }),
       );
       await openAdvancedOptions(user);
       await user.click(screen.getByRole("checkbox", directOption));
 
       expect(
-        screen.queryByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
+        screen.queryByRole("checkbox", { name: "Use AWS IAM authentication" }),
       ).toBeNull();
       expect(screen.queryByRole("textbox", { name: "AWS Region" })).toBeNull();
     });
@@ -161,7 +161,7 @@ describe("CreateConnection", () => {
       // IAM set up before switching to direct must not be saved, since the
       // region it requires is hidden and a direct request is never signed.
       await user.click(
-        screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
+        screen.getByRole("checkbox", { name: "Use AWS IAM authentication" }),
       );
       await openAdvancedOptions(user);
       await user.click(screen.getByRole("checkbox", directOption));
@@ -323,7 +323,7 @@ describe("CreateConnection", () => {
       await user.click(screen.getByRole("checkbox", directOption));
 
       expect(
-        screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
+        screen.getByRole("checkbox", { name: "Use AWS IAM authentication" }),
       ).toBeInTheDocument();
 
       await user.click(
@@ -553,7 +553,7 @@ describe("CreateConnection", () => {
       "https://g.example.com",
     );
     await user.click(
-      screen.getByRole("checkbox", { name: "AWS IAM Auth Enabled" }),
+      screen.getByRole("checkbox", { name: "Use AWS IAM authentication" }),
     );
     await user.type(
       screen.getByRole("textbox", { name: "AWS Region" }),

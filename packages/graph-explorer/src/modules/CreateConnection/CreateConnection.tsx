@@ -202,17 +202,6 @@ const CreateConnection = ({
           />
         </FormItem>
         <FormItem>
-          <Label>Query Language</Label>
-          <SelectField
-            aria-label="Query Language"
-            options={CONNECTIONS_OP}
-            value={form.queryEngine}
-            onValueChange={value =>
-              setField("queryEngine")(queryEngineSchema.parse(value))
-            }
-          />
-        </FormItem>
-        <FormItem>
           <Label>
             Database URL
             <InfoTooltip>
@@ -233,6 +222,17 @@ const CreateConnection = ({
             validationState={errors?.graphDbUrl ? "invalid" : "valid"}
           />
         </FormItem>
+        <FormItem>
+          <Label>Query Language</Label>
+          <SelectField
+            aria-label="Query Language"
+            options={CONNECTIONS_OP}
+            value={form.queryEngine}
+            onValueChange={value =>
+              setField("queryEngine")(queryEngineSchema.parse(value))
+            }
+          />
+        </FormItem>
 
         {!form.directConnection && (
           <Label className="cursor-pointer">
@@ -241,7 +241,7 @@ const CreateConnection = ({
               checked={form.awsAuthEnabled}
               onCheckedChange={setCheckedField("awsAuthEnabled")}
             />
-            AWS IAM Auth Enabled
+            Use AWS IAM authentication
           </Label>
         )}
         {!form.directConnection && form.awsAuthEnabled && (
