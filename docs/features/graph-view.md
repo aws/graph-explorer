@@ -10,10 +10,10 @@ You can search, browse, expand, customize views of your graph data using the Gra
 
 The graph visualization canvas that you can interact with. Double-click to expand the first-order neighbors of a node.
 
-- **Layout drop-down & reset:** You can display graph data using standard graph layouts in the Graph View. You can use the circular arrow to reset the physics of a layout.
+- **Layout drop-down & reset:** You can display graph data using standard graph layouts in the Graph View. You can use the circular arrow to reset the physics of a layout. The layout algorithm you choose is remembered for the connection and restored when you reopen its previous session.
 - **Screenshot:** Download a picture of the current window in Graph View.
-- **Save Graph:** Save the current rendered graph as a JSON file that can be shared with others having the same connection or reloaded at a later time.
-- **Load Graph:** Load a previously saved graph from a JSON file.
+- **Save Graph:** Save the current rendered graph as a JSON file that can be shared with others having the same connection or reloaded at a later time. The saved file also records the chosen layout algorithm.
+- **Load Graph:** Load a previously saved graph from a JSON file, applying the layout algorithm the file was saved with.
 - **Zoom In/Out & Clear:** To help users quickly zoom in/out or clear the whole canvas in the Graph View.
 - **Legend (i):** This displays an informational list of icons, colors, and display names available.
 

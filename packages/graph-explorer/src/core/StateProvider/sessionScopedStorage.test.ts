@@ -370,6 +370,7 @@ describe("createSessionScopedAtom with the graph view layout codec", () => {
       sidebar: { width: 321 },
       tableView: { height: 250 },
       detailsAutoOpenOnSelection: false,
+      layoutAlgorithm: "DAGRE_LR",
     };
     await localForage.setItem<GraphViewLayout>(
       GRAPH_VIEW_LAYOUT_KEY,
@@ -399,6 +400,7 @@ describe("createSessionScopedAtom with the graph view layout codec", () => {
       sidebar: { width: 321 },
       tableView: { height: 250 },
       detailsAutoOpenOnSelection: false,
+      layoutAlgorithm: "DAGRE_LR",
     });
     // A warm reload off that value rebuilds the Set rather than re-seeding.
     expect(

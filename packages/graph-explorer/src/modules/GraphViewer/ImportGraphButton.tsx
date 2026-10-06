@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { FolderOpenIcon } from "lucide-react";
 import { toast } from "sonner";
 import { ZodError } from "zod";
@@ -20,6 +20,7 @@ import {
   isMatchingConnection,
   parseExportedGraph,
 } from "./exportedGraph";
+import { graphViewLayoutAlgorithmAtom } from "./graphViewLayoutAlgorithm";
 
 export function ImportGraphButton() {
   const importGraph = useImportGraphMutation();
@@ -47,6 +48,7 @@ function useImportGraphMutation() {
   const explorer = useExplorer();
   const addToGraph = useAddToGraph();
   const formatEntityCounts = useEntityCountFormatterCallback();
+  const setLayoutAlgorithm = useSetAtom(graphViewLayoutAlgorithmAtom);
   const allConfigs = useAtomValue(configurationAtom);
   const allConnections = Array.from(allConfigs.values())
     .map(config =>
@@ -72,6 +74,10 @@ function useImportGraphMutation() {
           graph.connection,
         );
       }
+
+      // Apply the imported layout only after the connection check, so a
+      // rejected import never mutates the View Layout.
+      setLayoutAlgorithm(graph.layout);
 
       // 3. Get the vertex and edge details from the database
       const entityCountMessage = formatEntityCounts(
