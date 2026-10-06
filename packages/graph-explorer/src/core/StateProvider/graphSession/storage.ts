@@ -2,6 +2,7 @@ import { atom } from "jotai";
 import { atomWithReset, RESET } from "jotai/utils";
 
 import { activeConfigurationAtom, allGraphSessionsAtom } from "@/core";
+import { type LayoutName, storedLayoutNameSchema } from "@/core/graphLayout";
 
 import type { EdgeId, VertexId } from "../../entities";
 
@@ -9,6 +10,10 @@ import type { EdgeId, VertexId } from "../../entities";
 export type GraphSessionStorageModel = {
   vertices: Set<VertexId>;
   edges: Set<EdgeId>;
+  // Persisted but not the restore mechanism: the per-tab View Layout
+  // (graphViewLayoutAlgorithmAtom) is the source of truth that restores the
+  // layout on reload. Session restore deliberately does not read this field.
+  layout: LayoutName;
 };
 
 export const isRestorePreviousSessionAvailableAtom = atomWithReset(true);
@@ -23,7 +28,15 @@ export const activeGraphSessionAtom = atom(
     }
 
     const graphs = get(allGraphSessionsAtom);
-    return graphs.get(connectionId) ?? null;
+    const stored = graphs.get(connectionId);
+
+    if (!stored) {
+      return null;
+    }
+
+    // A legacy session predates the stored layout, so coerce at the read seam:
+    // a missing value quietly takes the default, an unknown one warns.
+    return { ...stored, layout: storedLayoutNameSchema.parse(stored.layout) };
   },
   (get, set, newValue: GraphSessionStorageModel | typeof RESET) => {
     const graphs = get(allGraphSessionsAtom);

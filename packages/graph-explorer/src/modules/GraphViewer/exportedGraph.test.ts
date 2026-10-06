@@ -12,6 +12,7 @@ import type { EdgeId, VertexId } from "@/core";
 
 import { normalizeConnection, transformLegacyConnection } from "@/connections";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
+import { logger } from "@/utils";
 import {
   createRandomConnectionWithId,
   createRandomEdgeId,
@@ -80,7 +81,7 @@ describe("createExportedGraph", () => {
       sourceVersion: appVersion,
     } satisfies ExportedGraphFile["meta"];
 
-    const graph = createExportedGraph(vertexIds, edgeIds, connection);
+    const graph = createExportedGraph(vertexIds, edgeIds, connection, "F_COSE");
 
     expect(graph.meta).toEqual(expectedMeta);
     expect(graph.data.connection).toEqual(expectedConnection);
@@ -95,7 +96,7 @@ describe("createExportedGraph", () => {
     // stay on the wire as the decimal string.
     const connection = createRandomConnectionWithId();
 
-    const graph = createExportedGraph([], [], connection);
+    const graph = createExportedGraph([], [], connection, "F_COSE");
 
     expect(graph.meta.version).toBe("1.0");
   });
@@ -104,7 +105,7 @@ describe("createExportedGraph", () => {
     const connection = createRandomConnectionWithId();
     const expectedConnection = createExportedConnection(connection);
 
-    const graph = createExportedGraph([], [], connection);
+    const graph = createExportedGraph([], [], connection, "F_COSE");
 
     expect(graph.data.connection).toEqual(expectedConnection);
     expect(graph.data.vertices).toEqual([]);
@@ -116,7 +117,7 @@ describe("createExportedGraph", () => {
     const edgeIds = createArray(2, () => createRandomEdgeId());
     const connection = createRandomConnectionWithId();
 
-    const graph = createExportedGraph(vertexIds, edgeIds, connection);
+    const graph = createExportedGraph(vertexIds, edgeIds, connection, "F_COSE");
 
     expect(graph.meta.timestamp).toEqual(timestamp.toISOString());
   });
@@ -126,7 +127,7 @@ describe("createExportedGraph", () => {
     const edgeIds = createArray(2, () => createRandomEdgeId());
     const connection = createRandomConnectionWithId();
 
-    const graph = createExportedGraph(vertexIds, edgeIds, connection);
+    const graph = createExportedGraph(vertexIds, edgeIds, connection, "F_COSE");
 
     expect(graph.meta.sourceVersion).toBe(appVersion);
   });
@@ -136,7 +137,7 @@ describe("createExportedGraph", () => {
     const edgeIds = createArray(2, () => createRandomEdgeId());
     const connection = createRandomConnectionWithId();
 
-    const graph = createExportedGraph(vertexIds, edgeIds, connection);
+    const graph = createExportedGraph(vertexIds, edgeIds, connection, "F_COSE");
 
     expect(graph.meta.kind).toBe("graph-export");
   });
@@ -146,7 +147,7 @@ describe("createExportedGraph", () => {
     const edgeIds = createArray(2, () => createRandomEdgeId());
     const connection = createRandomConnectionWithId();
 
-    const graph = createExportedGraph(vertexIds, edgeIds, connection);
+    const graph = createExportedGraph(vertexIds, edgeIds, connection, "F_COSE");
 
     expect(graph.meta.source).toBe("Graph Explorer");
   });
@@ -186,6 +187,7 @@ describe("parseExportedGraph", () => {
       connection: exportedGraph.data.connection,
       vertices: new Set(exportedGraph.data.vertices),
       edges: new Set(exportedGraph.data.edges),
+      layout: exportedGraph.data.layout,
     };
     const parsed = await parseExportedGraph(toGraphFileBlob(exportedGraph));
     expect(parsed).toEqual(expected);
@@ -197,6 +199,7 @@ describe("parseExportedGraph", () => {
       connection: exportedGraph.data.connection,
       vertices: new Set(exportedGraph.data.vertices),
       edges: new Set(exportedGraph.data.edges),
+      layout: exportedGraph.data.layout,
     };
     const parsed = await parseExportedGraph(toGraphFileBlob(exportedGraph));
     expect(parsed).toEqual(expected);
@@ -278,6 +281,7 @@ describe("parseExportedGraph", () => {
       connection: exportedGraph.data.connection,
       vertices: new Set(exportedGraph.data.vertices),
       edges: new Set(exportedGraph.data.edges.slice(0, -1)),
+      layout: exportedGraph.data.layout,
     };
     const parsed = await parseExportedGraph(toGraphFileBlob(exportedGraph));
     expect(parsed).toEqual(expected);
@@ -292,6 +296,7 @@ describe("parseExportedGraph", () => {
       connection: exportedGraph.data.connection,
       vertices: new Set(exportedGraph.data.vertices),
       edges: new Set(exportedGraph.data.edges.slice(0, -1)),
+      layout: exportedGraph.data.layout,
     };
     const parsed = await parseExportedGraph(toGraphFileBlob(exportedGraph));
     expect(parsed).toEqual(expected);
@@ -392,6 +397,55 @@ describe("parseExportedGraph", () => {
     await expect(parseExportedGraph(blob)).rejects.toThrow(
       new FileEnvelopeError("File is not valid JSON"),
     );
+  });
+
+  it("returns the layout written into the file", async () => {
+    const exportedGraph = createRandomExportedGraph();
+    exportedGraph.data.layout = "DAGRE_RL";
+
+    const parsed = await parseExportedGraph(toGraphFileBlob(exportedGraph));
+
+    expect(parsed.layout).toBe("DAGRE_RL");
+  });
+});
+
+/**
+ * BACKWARD COMPATIBILITY — EXPORTED FILE
+ *
+ * The exported file's `layout` is validated with the shared per-field fallback
+ * rather than a strict enum, so a file that predates the field, or that names a
+ * layout a later build removed, still imports: the layout quietly or loudly
+ * falls back to F_COSE instead of the whole import failing. Only an unknown
+ * value is worth a warning; a missing one is just an older file.
+ *
+ * DO NOT delete or weaken these tests without confirming that no such files
+ * remain in use.
+ */
+describe("backward compatibility: exported-graph layout", () => {
+  it("imports a file with no layout field as F_COSE without warning", async () => {
+    const exportedGraph = createRandomExportedGraph();
+    const { layout: _dropped, ...dataWithoutLayout } = exportedGraph.data;
+    const withoutLayout = { ...exportedGraph, data: dataWithoutLayout };
+
+    const parsed = await parseExportedGraph(toGraphFileBlob(withoutLayout));
+
+    expect(parsed.layout).toBe("F_COSE");
+    expect(logger.warn).not.toHaveBeenCalled();
+  });
+
+  // The exact warning text is pinned by the shared schema's own test
+  // (graphViewLayoutDefaults.test.ts); here we only prove the import seam
+  // routes an unknown value through that fallback rather than failing.
+  it("imports a file with an unknown layout as F_COSE", async () => {
+    const exportedGraph = createRandomExportedGraph();
+    const withUnknownLayout = {
+      ...exportedGraph,
+      data: { ...exportedGraph.data, layout: "REMOVED_LAYOUT" },
+    };
+
+    const parsed = await parseExportedGraph(toGraphFileBlob(withUnknownLayout));
+
+    expect(parsed.layout).toBe("F_COSE");
   });
 });
 
