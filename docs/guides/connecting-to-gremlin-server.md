@@ -2,6 +2,10 @@
 
 # Connecting to Gremlin-Server
 
+> [!WARNING]
+>
+> This walkthrough runs Gremlin Server with its default Groovy script engine and is meant for local development only. If anyone other than you can reach Graph Explorer or the server, see [Self-hosted Gremlin Server](../references/security.md#self-hosted-gremlin-server).
+
 If you are using the default Gremlin Server docker image, you can get the server running with the following commands:
 
 ```

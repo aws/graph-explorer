@@ -12,7 +12,7 @@ The fastest way to try Graph Explorer is with the [Air Routes sample](../../samp
 
 > [!IMPORTANT]
 >
-> This tutorial is meant for your own machine. The sample Compose file has no access control and serves Graph Explorer over plain HTTP on every network interface, so anyone on the same network can reach it. Never expose it publicly without an access control layer in front of it. See [Access Control](../references/security.md#access-control).
+> This tutorial is meant for your own machine. The sample has no access control, serves Graph Explorer over plain HTTP, and runs Gremlin Server with its default Groovy script engine. Its Compose file publishes Graph Explorer on `127.0.0.1` only, so other machines can't reach it. Keep it that way. See [Access Control](../references/security.md#access-control) and [Self-hosted Gremlin Server](../references/security.md#self-hosted-gremlin-server).
 
 1. Clone the repository
    ```

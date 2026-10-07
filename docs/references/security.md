@@ -27,6 +27,18 @@ Of the four documented deployment paths, one runs on a platform that already pro
 
 SageMaker is the exception because the notebook's Jupyter proxy requires a signed-in AWS principal, and it reaches the Graph Explorer container over loopback.
 
+### Self-hosted Gremlin Server
+
+In Apache TinkerPop 3.x, Gremlin Server uses the `gremlin-groovy` script engine by default. It can run arbitrary code on the server, not only Gremlin traversals. TinkerPop treats this as intended and leaves restricting it to the server operator. Other databases built on Gremlin Server may also enable Groovy by default.
+
+When Graph Explorer connects to a server with Groovy enabled:
+
+- Restrict access to Graph Explorer as strictly as access to the Gremlin Server host.
+- Keep Graph Explorer on an isolated network behind an authenticating layer, and never make it publicly reachable.
+- Let only Graph Explorer's proxy server reach Gremlin Server, for example with firewall or security group rules.
+
+For server-side options, read [Security](https://tinkerpop.apache.org/docs/current/reference/#security) and [Protecting Script Execution](https://tinkerpop.apache.org/docs/current/reference/#script-execution) in the TinkerPop reference documentation. Amazon Neptune doesn't use the Groovy script engine.
+
 ### Reference for access control layers
 
 How Graph Explorer behaves on the wire, for anyone adding an access control layer in front of it.
