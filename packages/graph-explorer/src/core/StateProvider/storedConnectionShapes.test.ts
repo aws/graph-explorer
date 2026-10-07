@@ -2,7 +2,7 @@
 import localforage from "localforage";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { createConnectionId, type SavedConnection } from "@/connections";
+import { createNewConnectionId, type SavedConnection } from "@/connections";
 import {
   createRandomSavedConnection,
   createRandomSchema,
@@ -99,7 +99,7 @@ describe("backward compatibility: the Active Connection is read from its stored 
   });
 
   test("seeds a new tab from the breadcrumb stored under active-configuration", async () => {
-    const id = createConnectionId();
+    const id = createNewConnectionId();
     await localforage.setItem("active-configuration", id);
 
     const { store, activeConnectionIdAtom } = await loadStorageAtoms();
@@ -108,8 +108,8 @@ describe("backward compatibility: the Active Connection is read from its stored 
   });
 
   test("keeps a reloaded tab on the value it stored under active-configuration", async () => {
-    const tabValue = createConnectionId();
-    await localforage.setItem("active-configuration", createConnectionId());
+    const tabValue = createNewConnectionId();
+    await localforage.setItem("active-configuration", createNewConnectionId());
     sessionStorage.setItem("active-configuration", tabValue);
 
     const { store, activeConnectionIdAtom } = await loadStorageAtoms();

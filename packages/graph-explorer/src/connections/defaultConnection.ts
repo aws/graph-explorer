@@ -4,9 +4,8 @@ import { z } from "zod";
 import { apiUrl } from "@/connector/utils/apiUrl";
 import { DEFAULT_SERVICE_TYPE, logger } from "@/utils";
 
-import type { ConnectionId, SavedConnection } from "./types";
-
 import { transformLegacyConnection } from "./legacyConnection";
+import { createConnectionId, type SavedConnection } from "./types";
 
 export const DefaultConnectionDataSchema = z.object({
   // Connection info
@@ -54,7 +53,7 @@ export async function fetchDefaultConnection() {
     const configs = queryEngineOptions.map(queryEngine => {
       return {
         ...config,
-        id: `${config.id}-${queryEngine}` as ConnectionId,
+        id: createConnectionId(`${config.id}-${queryEngine}`),
         connection: {
           ...config.connection,
           queryEngine: queryEngine,
@@ -107,7 +106,7 @@ export async function fetchDefaultConnectionFor(
 
 export function mapToConnection(data: DefaultConnectionData): SavedConnection {
   return {
-    id: "Default Connection" as ConnectionId,
+    id: createConnectionId("Default Connection"),
     displayLabel: "Default Connection",
     connection: transformLegacyConnection({
       url: data.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT,

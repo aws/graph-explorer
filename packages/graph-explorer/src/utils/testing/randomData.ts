@@ -22,7 +22,7 @@ import {
 import {
   type ConnectionId,
   type ConnectionWithId,
-  createConnectionId,
+  createNewConnectionId,
   type SavedConnection,
 } from "@/connections";
 import {
@@ -282,7 +282,7 @@ export function createRandomEdgeId(): EdgeId {
 
 /** Creates a random connection ID. */
 export function createRandomConnectionId(): ConnectionId {
-  return createConnectionId();
+  return createNewConnectionId();
 }
 
 export function createRandomVertexType(): VertexType {
@@ -618,7 +618,7 @@ export function createRandomConnectionWithId(): ConnectionWithId {
   const queryEngine = createRandomQueryEngine();
 
   return {
-    id: createConnectionId(),
+    id: createNewConnectionId(),
     displayLabel: createRandomName("displayLabel"),
     graphDbUrl: createRandomUrlString(),
     queryEngine,

@@ -19,7 +19,7 @@ import {
   TextAreaField,
 } from "@/components";
 import { DialogBody, DialogFooter } from "@/components/Dialog";
-import { createConnectionId, type SavedConnection } from "@/connections";
+import { createNewConnectionId, type SavedConnection } from "@/connections";
 import {
   activeConnectionIdAtom,
   allGraphSessionsAtom,
@@ -79,7 +79,7 @@ const CreateConnection = ({
     useCallback(
       (_get, set, data: ConnectionFormValues) => {
         if (!connectionId) {
-          const newConnectionId = createConnectionId();
+          const newConnectionId = createNewConnectionId();
           const newConnection: SavedConnection = {
             id: newConnectionId,
             displayLabel: data.name,

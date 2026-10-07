@@ -5,7 +5,7 @@ import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { createEdgeType, createVertexType } from "@/core/entities";
 
-import type { ConnectionId } from "./types";
+import { createConnectionId } from "./types";
 
 const attributesSchema = z
   .array(z.looseObject({ name: z.string().min(1) }))
@@ -31,10 +31,7 @@ const attributesSchema = z
  * IndexedDB storage shape so the on-disk format can evolve independently.
  */
 const exportedConnectionFileSchema = z.looseObject({
-  id: z
-    .string()
-    .min(1)
-    .transform(value => value as ConnectionId),
+  id: z.string().min(1).transform(createConnectionId),
   displayLabel: z.string().optional(),
   connection: z
     .looseObject({
