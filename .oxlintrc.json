@@ -153,6 +153,42 @@
       "files": ["packages/graph-explorer-proxy-server/**/*.{ts,js}"],
       "plugins": ["node"],
       "env": { "node": true }
+    },
+    {
+      "files": ["packages/graph-explorer/src/**/*.{ts,tsx}"],
+      "excludeFiles": [
+        "packages/graph-explorer/src/connections/**",
+        "packages/graph-explorer/src/core/StateProvider/storageAtoms.ts"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@/connections/*", "@/connections/**"],
+                "message": "Import from the connections module barrel (@/connections), not its internals. The barrel is the module's interface."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["packages/graph-explorer/src/connections/**/*.{ts,tsx}"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@/core"],
+                "message": "Import a specific core path (e.g. @/core/StateProvider), not the @/core barrel, from inside the connections module."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

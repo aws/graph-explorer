@@ -22,7 +22,7 @@ function AppStatusLoader({ children }: PropsWithChildren) {
 }
 
 function LoadDefaultConfig({ children }: PropsWithChildren) {
-  const setActiveConfig = useSetAtom(activeConnectionIdAtom);
+  const setActiveConnectionId = useSetAtom(activeConnectionIdAtom);
   const [configuration, setConfiguration] = useAtom(savedConnectionsAtom);
 
   // An empty store is what drives the whole default-connection flow: the query
@@ -67,11 +67,11 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
         });
         return updatedConfig;
       });
-      setActiveConfig(defaultConnectionConfigs[0].id);
+      setActiveConnectionId(defaultConnectionConfigs[0].id);
     });
   }, [
     storeIsEmpty,
-    setActiveConfig,
+    setActiveConnectionId,
     setConfiguration,
     defaultConnectionConfigs,
   ]);

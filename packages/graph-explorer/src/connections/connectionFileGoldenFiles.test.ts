@@ -8,14 +8,13 @@ import { createEdgeType, createVertexType } from "@/core/entities";
 import { stubDocumentUrl } from "@/utils/testing";
 import { exportConnectionFileText } from "@/utils/testing/exportConnectionFileText";
 
-import type { ConnectionId } from "./types";
-
 import exportGoldenLegacyUrlDirect from "./__fixtures__/connection-file-export-golden-legacy-url-direct.txt?raw";
 import exportGoldenLegacyUrlProxy from "./__fixtures__/connection-file-export-golden-legacy-url-proxy.txt?raw";
 import exportGoldenWithoutUrl from "./__fixtures__/connection-file-export-golden.txt?raw";
 import legacyUrlDirect from "./__fixtures__/connection-file-legacy-url-direct.json?raw";
 import legacyUrlProxy from "./__fixtures__/connection-file-legacy-url-proxy.json?raw";
 import { parseConnectionFile } from "./parseConnectionFile";
+import { createConnectionId } from "./types";
 
 /**
  * GOLDEN FILES — EXPORTED CONNECTION FILE
@@ -118,7 +117,7 @@ describe("golden Exported Connection File export is stable", () => {
   test("saveConnectionToFile writes the pinned shape for a direct connection", async () => {
     const input: ConfigurationContextProps = {
       ...fixedExportInput(),
-      id: "44444444-4444-4444-8444-444444444444" as ConnectionId,
+      id: createConnectionId("44444444-4444-4444-8444-444444444444"),
       displayLabel: "Golden Neptune (direct)",
       connection: {
         graphDbUrl: "https://neptune.example.com:8182",
@@ -139,7 +138,7 @@ describe("golden Exported Connection File export is stable", () => {
  */
 function fixedExportInput(): ConfigurationContextProps {
   return {
-    id: "33333333-3333-4333-8333-333333333333" as ConnectionId,
+    id: createConnectionId("33333333-3333-4333-8333-333333333333"),
     displayLabel: "Golden Neptune",
     connection: {
       graphDbUrl: "https://neptune.example.com:8182",

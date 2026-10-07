@@ -4,7 +4,7 @@ import type { ConnectionConfig } from "@shared/types";
 
 import { describe, expect, test } from "vitest";
 
-import { createConnectionId, type SavedConnection } from "@/connections";
+import { createNewConnectionId, type SavedConnection } from "@/connections";
 import { DbState } from "@/utils/testing";
 
 import { getAppStore } from "../StateProvider/appStore";
@@ -14,7 +14,7 @@ function storedConnection(
   displayLabel: string,
   connection: ConnectionConfig,
 ): SavedConnection {
-  return { id: createConnectionId(), displayLabel, connection };
+  return { id: createNewConnectionId(), displayLabel, connection };
 }
 
 function linkTo(graphDbUrl: string, otherParams = "") {
