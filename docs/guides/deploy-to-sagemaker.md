@@ -26,6 +26,8 @@ Graph Explorer routes database requests through the proxy server running on the 
 
 If your notebook instance is in a private subnet without a NAT gateway or internet gateway, it will not be able to reach databases outside the VPC. To connect to external databases, ensure the instance has the appropriate network routing (VPC peering, NAT gateway, transit gateway, etc.).
 
+With the sample lifecycle script, routing alone isn't enough. The script sets `PROXY_SERVER_ALLOWED_DB_ORIGINS` so the proxy server connects only to the Neptune endpoint you configured. To reach another database, add its origin to `ALLOWED_DB_ORIGINS` in the script, after a comma and with no spaces, such as `https://{NEPTUNE_ENDPOINT}:8182,https://{OTHER_ENDPOINT}:8182`. The change takes effect the next time the notebook instance starts. A "not in the Database Origin Allowlist" error means the origin is missing from that list or doesn't match the scheme, host, and port of the URL in your Connection. See [Database Origin Allowlist](../references/security.md#database-origin-allowlist).
+
 ## Security model
 
 The notebook environment provides the protections that let the sample lifecycle script serve Graph Explorer over plain HTTP:

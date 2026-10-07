@@ -112,6 +112,7 @@ else
 fi
 
 NEPTUNE_URI="https://${GRAPH_NOTEBOOK_HOST}:${GRAPH_NOTEBOOK_PORT}"
+ALLOWED_DB_ORIGINS="${NEPTUNE_URI}" # The proxy connects only to these origins. To reach another database, add its origin after a comma.
 AWS_REGION=${AWS_REGION}
 echo "AUTH_MODE from Lifecycle: ${GRAPH_NOTEBOOK_AUTH_MODE}"
 if [[ ${GRAPH_NOTEBOOK_AUTH_MODE} == "IAM" ]]; then
@@ -122,6 +123,7 @@ fi
 
 echo "Explorer URI: ${EXPLORER_URI}"
 echo "Neptune URI: ${NEPTUNE_URI}"
+echo "Allowed database origins: ${ALLOWED_DB_ORIGINS}"
 echo "Explorer region: ${AWS_REGION}"
 echo "Explorer IAM auth mode: ${IAM}"
 
@@ -146,7 +148,7 @@ fi
 echo "Using explorer image tag: ${EXPLORER_ECR_TAG}"
 
 start_graph_explorer_with_cw_logs() {
-    docker run -d -p 9250:9250 \
+    docker run -d -p 127.0.0.1:9250:9250 \
       --restart always \
       --log-driver=awslogs \
       --log-opt awslogs-region=${AWS_REGION} \
@@ -157,6 +159,7 @@ start_graph_explorer_with_cw_logs() {
       --env HOST=127.0.0.1 \
       --env PUBLIC_OR_PROXY_ENDPOINT=${EXPLORER_URI} \
       --env GRAPH_CONNECTION_URL=${NEPTUNE_URI} \
+      --env "PROXY_SERVER_ALLOWED_DB_ORIGINS=${ALLOWED_DB_ORIGINS}" \
       --env USING_PROXY_SERVER=true \
       --env IAM=${IAM} \
       --env AWS_REGION=${AWS_REGION} \
@@ -166,12 +169,13 @@ start_graph_explorer_with_cw_logs() {
 }
 
 start_graph_explorer_with_default_logs() {
-    docker run -d -p 9250:9250 \
+    docker run -d -p 127.0.0.1:9250:9250 \
       --restart always \
       --env LOG_LEVEL=info \
       --env HOST=127.0.0.1 \
       --env PUBLIC_OR_PROXY_ENDPOINT=${EXPLORER_URI} \
       --env GRAPH_CONNECTION_URL=${NEPTUNE_URI} \
+      --env "PROXY_SERVER_ALLOWED_DB_ORIGINS=${ALLOWED_DB_ORIGINS}" \
       --env USING_PROXY_SERVER=true \
       --env IAM=${IAM} \
       --env AWS_REGION=${AWS_REGION} \

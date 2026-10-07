@@ -392,6 +392,7 @@ describe("process-environment.sh", () => {
         HOST: "127.0.0.1",
         PUBLIC_OR_PROXY_ENDPOINT: "https://notebook.sagemaker.aws/proxy/9250",
         GRAPH_CONNECTION_URL: "https://neptune-cluster:8182",
+        PROXY_SERVER_ALLOWED_DB_ORIGINS: "https://neptune-cluster:8182",
         USING_PROXY_SERVER: "true",
         IAM: "true",
         AWS_REGION: "us-west-2",
