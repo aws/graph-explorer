@@ -22,6 +22,32 @@ Then open Graph Explorer and add a new connection with the following settings:
 - Query Language: `Gremlin`
 - Connection method: **Through the Graph Explorer server**
 
+These settings work when the Graph Explorer server runs on your machine. If Graph Explorer runs in a Docker container, `localhost` is that container rather than your machine, so the connection is refused. See [Graph Explorer in Docker](#graph-explorer-in-docker).
+
+## Graph Explorer in Docker
+
+Put both containers on a shared Docker network, so Graph Explorer reaches Gremlin Server by its container name and Gremlin Server's port stays unpublished.
+
+```
+docker network create graph-explorer-net
+docker run --network graph-explorer-net --name gremlin-server \
+    tinkerpop/gremlin-server:latest \
+    conf/gremlin-server-rest-modern.yaml
+```
+
+Start Graph Explorer as in [Deploy with Docker](./deploy-with-docker.md) with `--network graph-explorer-net` added to its `docker run` command. To attach a container that's already running, use `docker network connect graph-explorer-net graph-explorer`.
+
+Then add a connection with these settings:
+
+- Name: `Gremlin Server`
+- Database URL: `http://gremlin-server:8182`
+- Query Language: `Gremlin`
+- Connection method: **Via proxy server**
+
+The [Air Routes sample](../../samples/air_routes/README.md) sets up the same arrangement with Docker Compose.
+
+Alternatively, run Gremlin Server with its port published on `127.0.0.1` as above and connect with **Directly via browser** to `http://localhost:8182`. See [Connect directly from the browser](#connect-directly-from-the-browser).
+
 ## Enable REST
 
 Graph Explorer only supports HTTP(S) connections. When connecting to Gremlin-Server, ensure it is configured with a channelizer that supports HTTP(S) (i.e. [Channelizer Documentation](https://tinkerpop.apache.org/javadocs/current/full/org/apache/tinkerpop/gremlin/server/Channelizer.html)).
