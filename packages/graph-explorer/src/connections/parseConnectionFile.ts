@@ -1,11 +1,60 @@
-import { neptuneServiceTypeOptions, queryEngineOptions } from "@shared/types";
+import {
+  type NeptuneServiceType,
+  neptuneServiceTypeOptions,
+  queryEngineOptions,
+} from "@shared/types";
 import { z } from "zod";
 
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { createEdgeType, createVertexType } from "@/core/entities";
+import { logger } from "@/utils";
 
 import type { ConnectionId } from "./types";
+
+const awsRegionSchema = z.string().optional();
+const serviceTypeSchema = z.enum(neptuneServiceTypeOptions).optional();
+
+type WithSigningTarget<T> = Omit<T, "awsRegion" | "serviceType"> & {
+  awsRegion?: string;
+  serviceType?: NeptuneServiceType;
+};
+
+/**
+ * Parses `awsRegion` and `serviceType`, dropping an invalid value. A dropped
+ * value also turns IAM off, since signing would otherwise fall back to a
+ * region or service the file never named.
+ */
+function disableIamForInvalidSigningTarget<
+  T extends { awsRegion?: unknown; serviceType?: unknown },
+>(connection: T): WithSigningTarget<T> {
+  const {
+    awsRegion: rawAwsRegion,
+    serviceType: rawServiceType,
+    ...rest
+  } = connection;
+  const awsRegion = awsRegionSchema.safeParse(rawAwsRegion);
+  const serviceType = serviceTypeSchema.safeParse(rawServiceType);
+
+  // Assigned only when defined so a missing field stays missing.
+  const resolved: WithSigningTarget<T> = rest;
+  if (awsRegion.data !== undefined) {
+    resolved.awsRegion = awsRegion.data;
+  }
+  if (serviceType.data !== undefined) {
+    resolved.serviceType = serviceType.data;
+  }
+
+  if (awsRegion.success && serviceType.success) {
+    return resolved;
+  }
+
+  logger.warn(
+    "[connection-import] Unrecognized awsRegion or serviceType; importing with IAM off",
+    { awsRegion: rawAwsRegion, serviceType: rawServiceType },
+  );
+  return { ...resolved, awsAuthEnabled: false };
+}
 
 const attributesSchema = z
   .array(z.looseObject({ name: z.string().min(1) }))
@@ -58,11 +107,10 @@ const exportedConnectionFileSchema = z.looseObject({
       // connection, and a stray truthy value would make the Proxy Server
       // sign outbound requests with its own IAM credentials.
       awsAuthEnabled: z.boolean().optional().catch(undefined),
-      awsRegion: z.string().optional().catch(undefined),
-      serviceType: z
-        .enum(neptuneServiceTypeOptions)
-        .optional()
-        .catch(undefined),
+      // Resolved by `disableIamForInvalidSigningTarget`, which must see
+      // whether a value was dropped.
+      awsRegion: z.unknown().optional(),
+      serviceType: z.unknown().optional(),
     })
     // Requires at least one of the canonical or legacy endpoint fields to be
     // present. This does not guarantee a non-empty `graphDbUrl` after
@@ -73,7 +121,8 @@ const exportedConnectionFileSchema = z.looseObject({
       {
         error: "connection must have a graphDbUrl or url",
       },
-    ),
+    )
+    .transform(disableIamForInvalidSigningTarget),
   schema: z.looseObject({
     vertices: z.array(
       z.looseObject({

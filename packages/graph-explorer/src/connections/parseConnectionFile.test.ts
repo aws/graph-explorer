@@ -1,6 +1,8 @@
 import { createRandomName, createRandomUrlString } from "@shared/utils/testing";
 import { describe, expect, test } from "vitest";
 
+import { logger } from "@/utils";
+
 import { parseConnectionFile } from "./parseConnectionFile";
 import { createConnectionId } from "./types";
 
@@ -410,13 +412,15 @@ describe("parseConnectionFile", () => {
     expect(result?.connection.awsAuthEnabled).toBeUndefined();
   });
 
-  test("degrades an invalid awsRegion to absent while parsing the rest of the file", () => {
+  test("drops an invalid awsRegion, turns IAM off, and warns while parsing the rest of the file", () => {
     const connection = {
       id: createConnectionId(),
       connection: {
-        url: createRandomUrlString(),
+        graphDbUrl: createRandomUrlString(),
         queryEngine: "gremlin" as const,
+        awsAuthEnabled: true,
         awsRegion: 12345,
+        serviceType: "neptune-db" as const,
       },
       schema: { vertices: [], edges: [] },
     };
@@ -425,14 +429,19 @@ describe("parseConnectionFile", () => {
 
     expect(result).not.toBeNull();
     expect(result?.connection.awsRegion).toBeUndefined();
+    expect(result?.connection.serviceType).toBe("neptune-db");
+    expect(result?.connection.awsAuthEnabled).toBe(false);
+    expect(logger.warn).toHaveBeenCalledOnce();
   });
 
-  test("degrades an invalid serviceType to absent while parsing the rest of the file", () => {
+  test("drops an invalid serviceType, turns IAM off, and warns while parsing the rest of the file", () => {
     const connection = {
       id: createConnectionId(),
       connection: {
-        url: createRandomUrlString(),
+        graphDbUrl: createRandomUrlString(),
         queryEngine: "gremlin" as const,
+        awsAuthEnabled: true,
+        awsRegion: "us-west-2",
         serviceType: "not-a-real-service-type",
       },
       schema: { vertices: [], edges: [] },
@@ -442,6 +451,47 @@ describe("parseConnectionFile", () => {
 
     expect(result).not.toBeNull();
     expect(result?.connection.serviceType).toBeUndefined();
+    expect(result?.connection.awsRegion).toBe("us-west-2");
+    expect(result?.connection.awsAuthEnabled).toBe(false);
+    expect(logger.warn).toHaveBeenCalledOnce();
+  });
+
+  test("keeps IAM on without a warning when awsRegion and serviceType are valid", () => {
+    const connection = {
+      id: createConnectionId(),
+      connection: {
+        graphDbUrl: createRandomUrlString(),
+        queryEngine: "gremlin" as const,
+        awsAuthEnabled: true,
+        awsRegion: "us-west-2",
+        serviceType: "neptune-graph" as const,
+      },
+      schema: { vertices: [], edges: [] },
+    };
+
+    const result = parseConnectionFile(connection);
+
+    expect(result?.connection.awsAuthEnabled).toBe(true);
+    expect(result?.connection.awsRegion).toBe("us-west-2");
+    expect(result?.connection.serviceType).toBe("neptune-graph");
+    expect(logger.warn).not.toHaveBeenCalled();
+  });
+
+  test("keeps IAM on without a warning when awsRegion and serviceType are absent", () => {
+    const connection = {
+      id: createConnectionId(),
+      connection: {
+        graphDbUrl: createRandomUrlString(),
+        queryEngine: "gremlin" as const,
+        awsAuthEnabled: true,
+      },
+      schema: { vertices: [], edges: [] },
+    };
+
+    const result = parseConnectionFile(connection);
+
+    expect(result?.connection.awsAuthEnabled).toBe(true);
+    expect(logger.warn).not.toHaveBeenCalled();
   });
 });
 
