@@ -3,6 +3,7 @@ import { v4 } from "uuid";
 import type { NormalizedConnection } from "@/connections";
 import type { FeatureFlags } from "@/core";
 
+import { isDirectConnection } from "@/connections";
 import { serverLogger } from "@/core/connector";
 import { logger } from "@/utils";
 
@@ -20,6 +21,12 @@ import { neighborCounts } from "./neighborCounts";
 import { rawQuery } from "./rawQuery";
 import { vertexDetails } from "./vertexDetails";
 
+// Gremlin Server rejects the CORS preflight a JSON content type triggers, but
+// parses a text/plain body as JSON. The proxy doesn't parse text/plain bodies.
+function gremlinContentType(connection: NormalizedConnection) {
+  return isDirectConnection(connection) ? "text/plain" : "application/json";
+}
+
 function _gremlinFetch(
   connection: NormalizedConnection,
   featureFlags: FeatureFlags,
@@ -27,11 +34,11 @@ function _gremlinFetch(
 ): GremlinFetch {
   return async (queryTemplate: string) => {
     logger.debug(queryTemplate);
-    const body = JSON.stringify({ query: queryTemplate });
+    const body = JSON.stringify({ gremlin: queryTemplate });
     return fetchDatabaseRequest(connection, featureFlags, "gremlin", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": gremlinContentType(connection),
         Accept: "application/vnd.gremlin-v3.0+json",
       },
       body,
