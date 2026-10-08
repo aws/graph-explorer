@@ -3,6 +3,13 @@ import { z } from "zod";
 
 import {
   CheckboxField,
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+  FieldTitle,
   FormItem,
   InputField,
   Label,
@@ -10,7 +17,6 @@ import {
   RadioGroupItem,
   SelectField,
 } from "@/components";
-import { cn } from "@/utils";
 
 import type {
   ConnectionFormValues,
@@ -34,15 +40,21 @@ export function ConnectionMethodField({
   setField,
   ...iamSettings
 }: ConnectionMethodFieldProps) {
-  const labelId = useId();
+  const legendId = useId();
   const method: ConnectionMethod = directConnection ? "browser" : "proxy";
 
   return (
     <div className="flex flex-col gap-4">
-      <FormItem>
-        <Label id={labelId}>Connection method</Label>
+      <FieldSet>
+        <FieldLegend
+          id={legendId}
+          variant="label"
+          className="text-muted-foreground"
+        >
+          Connection method
+        </FieldLegend>
         <RadioGroup
-          aria-labelledby={labelId}
+          aria-labelledby={legendId}
           value={method}
           onValueChange={value =>
             setField("directConnection")(
@@ -53,18 +65,16 @@ export function ConnectionMethodField({
         >
           <MethodCard
             value="proxy"
-            selected={method === "proxy"}
             title="Through the Graph Explorer server"
             description="Recommended for every database, including Amazon Neptune. Add AWS IAM authentication below."
           />
           <MethodCard
             value="browser"
-            selected={method === "browser"}
             title="Directly from your browser"
             description="For databases that accept queries from web pages, such as a public SPARQL endpoint."
           />
         </RadioGroup>
-      </FormItem>
+      </FieldSet>
       <IamSettings
         {...iamSettings}
         directConnection={directConnection}
@@ -74,15 +84,16 @@ export function ConnectionMethodField({
   );
 }
 
-/** A choice card. Clicking anywhere on it selects the method. */
+/**
+ * A choice card. The whole card is the radio's label, so clicking anywhere on
+ * it selects the method, and it highlights while its radio is checked.
+ */
 function MethodCard({
   value,
-  selected,
   title,
   description,
 }: {
   value: ConnectionMethod;
-  selected: boolean;
   title: string;
   description: string;
 }) {
@@ -91,29 +102,22 @@ function MethodCard({
   const descriptionId = `${id}-description`;
 
   return (
-    <label
-      htmlFor={id}
-      className={cn(
-        "flex cursor-pointer items-start justify-between gap-3 rounded-md border p-4",
-        selected && "border-primary bg-primary/5",
-      )}
-    >
-      <span className="flex flex-col gap-1">
-        <span id={titleId} className="font-medium">
-          {title}
-        </span>
-        <span id={descriptionId} className="text-muted-foreground text-sm">
-          {description}
-        </span>
-      </span>
-      <RadioGroupItem
-        id={id}
-        value={value}
-        aria-labelledby={titleId}
-        aria-describedby={descriptionId}
-        className="mt-0.5"
-      />
-    </label>
+    <FieldLabel htmlFor={id} className="text-foreground cursor-pointer">
+      <Field orientation="horizontal">
+        <FieldContent>
+          <FieldTitle id={titleId}>{title}</FieldTitle>
+          <FieldDescription id={descriptionId}>{description}</FieldDescription>
+        </FieldContent>
+        {/* Named by the title alone; the card's whole text would otherwise
+            become the radio's name. */}
+        <RadioGroupItem
+          id={id}
+          value={value}
+          aria-labelledby={titleId}
+          aria-describedby={descriptionId}
+        />
+      </Field>
+    </FieldLabel>
   );
 }
 
