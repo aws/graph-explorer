@@ -119,7 +119,7 @@ Mounting `config.json` read-only at `/graph-explorer/config.json` (see [JSON Con
 
 ### `NEPTUNE_NOTEBOOK`
 
-Applies the preset for running Graph Explorer in a SageMaker notebook. Only the exact value `true` turns it on. The preset:
+In the Docker image, applies the preset for running Graph Explorer in a SageMaker notebook. Only the exact value `true` turns it on. The preset:
 
 - Sets `PROXY_SERVER_HTTP_PORT` to `9250`, unless you set it
 - Sets `LOG_STYLE` to `cloudwatch`, unless you set it
