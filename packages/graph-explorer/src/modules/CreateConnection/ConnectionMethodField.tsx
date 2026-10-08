@@ -28,18 +28,20 @@ import { serviceTypeSchema } from "./connectionFormModel";
 const connectionMethodSchema = z.enum(["proxy", "browser"]);
 type ConnectionMethod = z.infer<typeof connectionMethodSchema>;
 
-type ConnectionMethodFieldProps = IamSettingsProps &
-  Pick<ConnectionFormValues, "directConnection">;
+type ConnectionMethodFieldProps = Pick<
+  ConnectionFormValues,
+  "directConnection" | "awsAuthEnabled" | "awsRegion" | "serviceType"
+> & {
+  regionError: string | undefined;
+  setField: SetConnectionFormField;
+};
 
 /**
  * Picks how requests reach the database, then offers IAM authentication. IAM is
  * disabled for a direct connection, since the browser can't sign a request.
  */
-export function ConnectionMethodField({
-  directConnection,
-  setField,
-  ...iamSettings
-}: ConnectionMethodFieldProps) {
+export function ConnectionMethodField(props: ConnectionMethodFieldProps) {
+  const { directConnection, setField } = props;
   const legendId = useId();
   const method: ConnectionMethod = directConnection ? "browser" : "proxy";
 
@@ -75,11 +77,7 @@ export function ConnectionMethodField({
           />
         </RadioGroup>
       </FieldSet>
-      <IamSettings
-        {...iamSettings}
-        directConnection={directConnection}
-        setField={setField}
-      />
+      <IamSettings {...props} />
     </div>
   );
 }
@@ -121,14 +119,6 @@ function MethodCard({
   );
 }
 
-type IamSettingsProps = Pick<
-  ConnectionFormValues,
-  "awsAuthEnabled" | "awsRegion" | "serviceType"
-> & {
-  regionError: string | undefined;
-  setField: SetConnectionFormField;
-};
-
 // A direct connection never saves IAM, so while one is chosen the checkbox
 // shows unchecked. The stored value is kept, so switching back restores it.
 function IamSettings({
@@ -138,7 +128,7 @@ function IamSettings({
   serviceType,
   regionError,
   setField,
-}: IamSettingsProps & Pick<ConnectionFormValues, "directConnection">) {
+}: ConnectionMethodFieldProps) {
   const iamInEffect = awsAuthEnabled && !directConnection;
 
   return (
@@ -151,7 +141,7 @@ function IamSettings({
         onCheckedChange={setField("awsAuthEnabled")}
       />
       {iamInEffect && (
-        <div className="flex flex-col gap-4 pl-6">
+        <div className="flex flex-col gap-4 pl-7">
           <FormItem>
             <Label>AWS Region</Label>
             <InputField

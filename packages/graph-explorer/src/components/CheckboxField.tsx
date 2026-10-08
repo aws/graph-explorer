@@ -32,7 +32,10 @@ export function CheckboxField({
         aria-describedby={descriptionId}
       />
       <FieldContent>
-        <FieldLabel htmlFor={id} className="text-foreground cursor-pointer">
+        <FieldLabel
+          htmlFor={id}
+          className="text-foreground cursor-pointer group-data-[disabled=true]/field:cursor-not-allowed"
+        >
           {label}
         </FieldLabel>
         <FieldDescription

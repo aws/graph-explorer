@@ -252,7 +252,7 @@ const CreateConnection = ({
               onCheckedChange={setField("fetchTimeoutEnabled")}
             />
             {form.fetchTimeoutEnabled && (
-              <FormItem className="pl-6">
+              <FormItem className="pl-7">
                 <Label>Fetch Timeout (ms)</Label>
                 <InputField
                   aria-label="Fetch Timeout (ms)"
@@ -270,7 +270,7 @@ const CreateConnection = ({
               onCheckedChange={setField("nodeExpansionLimitEnabled")}
             />
             {form.nodeExpansionLimitEnabled && (
-              <FormItem className="pl-6">
+              <FormItem className="pl-7">
                 <Label>Neighbor Expansion Limit</Label>
                 <InputField
                   aria-label="Neighbor Expansion Limit"
