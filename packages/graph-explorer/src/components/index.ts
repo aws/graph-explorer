@@ -5,6 +5,7 @@ export * from "./Button";
 export * from "./Combobox";
 
 export * from "./Checkbox";
+export * from "./CheckboxField";
 
 export { default as CheckboxList } from "./CheckboxList";
 export * from "./CheckboxList";

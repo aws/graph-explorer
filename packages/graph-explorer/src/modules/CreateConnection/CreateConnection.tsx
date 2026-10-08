@@ -7,7 +7,7 @@ import { useCallback, useState } from "react";
 
 import {
   Button,
-  Checkbox,
+  CheckboxField,
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
@@ -164,10 +164,6 @@ const CreateConnection = ({
     (field: "fetchTimeoutMs" | "nodeExpansionLimit") =>
     (value: number | null) =>
       setField(field)(value ?? undefined);
-  const setCheckedField =
-    (field: "fetchTimeoutEnabled" | "nodeExpansionLimitEnabled") =>
-    (checked: boolean | "indeterminate") =>
-      setField(field)(checked === true);
 
   const validation = validateConnectionForm(form);
   const errors = showErrors && !validation.valid ? validation.errors : null;
@@ -249,24 +245,14 @@ const CreateConnection = ({
             Advanced options
           </CollapsibleTrigger>
           <CollapsibleContent className="flex flex-col gap-6">
-            <FormItem>
-              <Label className="cursor-pointer">
-                <Checkbox
-                  value="fetchTimeoutEnabled"
-                  checked={form.fetchTimeoutEnabled}
-                  onCheckedChange={setCheckedField("fetchTimeoutEnabled")}
-                />
-                <span className="flex items-center gap-2">
-                  Enable Fetch Timeout
-                  <InfoTooltip>
-                    Large datasets may require a large amount of time to fetch.
-                    If the timeout is exceeded, the request will be cancelled.
-                  </InfoTooltip>
-                </span>
-              </Label>
-            </FormItem>
+            <CheckboxField
+              label="Enable Fetch Timeout"
+              description="Large datasets may require a large amount of time to fetch. If the timeout is exceeded, the request will be cancelled."
+              checked={form.fetchTimeoutEnabled}
+              onCheckedChange={setField("fetchTimeoutEnabled")}
+            />
             {form.fetchTimeoutEnabled && (
-              <FormItem>
+              <FormItem className="pl-6">
                 <Label>Fetch Timeout (ms)</Label>
                 <InputField
                   aria-label="Fetch Timeout (ms)"
@@ -277,24 +263,14 @@ const CreateConnection = ({
                 />
               </FormItem>
             )}
-            <FormItem>
-              <Label className="cursor-pointer">
-                <Checkbox
-                  value="nodeExpansionLimitEnabled"
-                  checked={form.nodeExpansionLimitEnabled}
-                  onCheckedChange={setCheckedField("nodeExpansionLimitEnabled")}
-                />
-                <span className="flex items-center gap-2">
-                  Override Default Neighbor Expansion Limit
-                  <InfoTooltip>
-                    Large datasets may require a default limit to the amount of
-                    neighbors that are returned during any single expansion.
-                  </InfoTooltip>
-                </span>
-              </Label>
-            </FormItem>
+            <CheckboxField
+              label="Override Default Neighbor Expansion Limit"
+              description="Large datasets may require a default limit to the amount of neighbors that are returned during any single expansion."
+              checked={form.nodeExpansionLimitEnabled}
+              onCheckedChange={setField("nodeExpansionLimitEnabled")}
+            />
             {form.nodeExpansionLimitEnabled && (
-              <FormItem>
+              <FormItem className="pl-6">
                 <Label>Neighbor Expansion Limit</Label>
                 <InputField
                   aria-label="Neighbor Expansion Limit"
