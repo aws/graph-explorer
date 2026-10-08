@@ -294,6 +294,10 @@ describe("reading a connection link", () => {
   test("reports every offending parameter, not just the first", () => {
     expect(
       problemsOf("?graphDbUrl=not-a-url&queryEngine=sql&serviceType=bogus"),
-    ).toHaveLength(3);
+    ).toStrictEqual([
+      "graphDbUrl must be a valid http or https URL",
+      'queryEngine must be one of "gremlin", "openCypher", "sparql"',
+      'serviceType must be one of "neptune-db", "neptune-graph"',
+    ]);
   });
 });
