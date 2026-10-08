@@ -4,7 +4,7 @@
 
 accepted
 
-**Updated:** 2026-10-06 — identifiers renamed in #2361. The decision below is unchanged. Read it with these substitutions: `activeConfigurationAtom`→`activeConnectionIdAtom`, `activeConfigSelector`→`activeSavedConnectionSelector`. The `useActivateConnection` follow-up it mentions is done (fc31e201).
+**Updated:** 2026-10-06 — identifiers renamed in #2361. The decision below is unchanged. Read it with these substitutions: `activeConfigurationAtom`→`activeConnectionIdAtom`, `activeConfigSelector`→`activeSavedConnectionSelector`. The `useActivateConnection` hook it proposes was extracted in fc31e201 and backs the connection list and the connect route. Importing and creating a connection still pair the set with a reset by hand.
 
 ## Context
 
