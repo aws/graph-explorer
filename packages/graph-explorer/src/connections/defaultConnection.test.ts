@@ -257,6 +257,20 @@ describe("backward compatibility: main-era defaultConnection.json", () => {
     });
   });
 
+  test("keeps the full path of a direct public endpoint", () => {
+    const connection = readFile({
+      GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT:
+        "http://blazegraph:9999/blazegraph/namespace/kb",
+      GRAPH_EXP_USING_PROXY_SERVER: false,
+      GRAPH_EXP_GRAPH_TYPE: "sparql",
+    });
+
+    expect(connection?.graphDbUrl).toBe(
+      "http://blazegraph:9999/blazegraph/namespace/kb",
+    );
+    expect(connection?.proxyConnection).toBe(false);
+  });
+
   // Earlier versions defaulted a missing flag to false for this file
   test("connects directly to the public endpoint when the flag is absent and both URLs are set", () => {
     const connection = readFile(createMainEraFile());
