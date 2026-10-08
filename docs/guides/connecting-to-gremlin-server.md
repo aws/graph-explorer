@@ -33,6 +33,15 @@ Graph Explorer only supports HTTP(S) connections. When connecting to Gremlin-Ser
 > /conf/gremlin-server.yaml
 > ```
 
+## Connect directly from the browser
+
+With **Connection method** set to **Directly via browser**, your browser sends queries to Gremlin Server itself instead of going through the Graph Explorer server. Gremlin Server's HTTP endpoint allows cross-origin requests from any site by default. It leaves the CORS headers off error responses, so a failed query shows as [Database not reachable from the browser](./troubleshooting.md#database-not-reachable-from-the-browser). To see the server's error message, use **Via proxy server**.
+
+- The browser must be able to reach the Database URL. A server in a Docker container on your machine needs its port published to the host.
+- When Graph Explorer is served over HTTPS, the browser usually blocks an `http://` Database URL unless it points at a loopback host such as `localhost`. See [Insecure Database URL](./troubleshooting.md#insecure-database-url).
+
+A direct connection needs your browser to reach Gremlin Server, and every other site open in that browser can then reach it too, even when it listens only on `localhost`. Graph Explorer sends queries as scripts, which Gremlin Server evaluates with its Groovy script engine, so weigh that before choosing this method. See [Self-hosted Gremlin Server](../references/security.md#self-hosted-gremlin-server).
+
 ## Versions Prior to 3.7
 
 If you have a version of Gremlin Server prior to 3.7, you will need to make the following changes:

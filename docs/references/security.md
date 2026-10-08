@@ -35,7 +35,7 @@ When Graph Explorer connects to a server with Groovy enabled:
 
 - Restrict access to Graph Explorer as strictly as access to the Gremlin Server host.
 - Keep Graph Explorer on an isolated network behind an authenticating layer, and never make it publicly reachable.
-- Let only Graph Explorer's proxy server reach Gremlin Server, for example with firewall or security group rules.
+- Let only Graph Explorer's proxy server reach Gremlin Server, for example with firewall or security group rules. A [direct connection](../features/connections.md#add-a-new-connection) needs each user's browser to reach Gremlin Server instead, which also lets every other site open in that browser reach it, even when the server listens only on `localhost`. Prefer a proxy connection, and choose a direct connection only for a server you accept that exposure on.
 
 For server-side options, read [Security](https://tinkerpop.apache.org/docs/current/reference/#security) and [Protecting Script Execution](https://tinkerpop.apache.org/docs/current/reference/#script-execution) in the TinkerPop reference documentation. Amazon Neptune doesn't use the Groovy script engine.
 
