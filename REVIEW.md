@@ -38,7 +38,7 @@ Reserve Important for the cases below. Everything else is Nit at most. That incl
 - Memoization or re-render advice. The React Compiler handles this unless it bails out on that component.
 - Security behavior that's by design:
   - Graph Explorer has no built-in auth.
-  - The proxy forwards to any database URL unless the optional allowlist is set.
+  - The proxy forwards to any database URL that isn't a link-local IP address unless the optional allowlist is set.
   - The proxy passes database error responses through.
 - Missing ADRs, missing glossary entries, or missing tests for components that only render UI.
 - Files under `.agents/skills/`, `.claude/skills/`, and `.kiro/skills/`, plus `skills-lock.json` and `THIRD_PARTY_LICENSES.txt`.

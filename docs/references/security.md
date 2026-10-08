@@ -185,7 +185,7 @@ PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com,https://other-app.example.co
 
 ## Database Origin Allowlist
 
-By default, the proxy server forwards requests to any database URL specified by the client. You can restrict which database origins the proxy will contact by setting [`PROXY_SERVER_ALLOWED_DB_ORIGINS`](./configuration.md#proxy_server_allowed_db_origins). Requests targeting an unlisted origin receive a 403 response.
+By default, the proxy server forwards requests to any database URL specified by the client, except [link-local addresses](#link-local-addresses). You can restrict which database origins the proxy will contact by setting [`PROXY_SERVER_ALLOWED_DB_ORIGINS`](./configuration.md#proxy_server_allowed_db_origins). Requests targeting an unlisted origin receive a 403 response.
 
 Leaving the allowlist unset matters more on a host with AWS credentials, such as an EC2 instance profile or ECS task role. Any user can turn on IAM authentication in their own Connection, whatever the server's `IAM` setting, and the proxy server then signs the request with the host's credentials, as described in [Permissions](#permissions). Without an allowlist it signs for any origin a user names, so users can reach every database that identity's policy allows, in any region. Set `PROXY_SERVER_ALLOWED_DB_ORIGINS` in any deployment where the host has AWS credentials.
 
@@ -194,6 +194,12 @@ The first time the proxy server signs a request with no allowlist set, it logs a
 > [!NOTE]
 >
 > This check applies only to requests routed through the proxy server. It doesn't apply to direct connections, because the browser sends their requests to the database itself.
+
+## Link-Local Addresses
+
+The proxy server refuses any database URL whose host is a link-local IP address, in `169.254.0.0/16` or `fe80::/10`, and returns a 403 response. Link-local addresses are never graph databases. The refusal applies whether or not the [Database Origin Allowlist](#database-origin-allowlist) is set, and an allowlist entry can't override it.
+
+This refusal doesn't replace the allowlist. To limit the proxy server to your databases, set [`PROXY_SERVER_ALLOWED_DB_ORIGINS`](./configuration.md#proxy_server_allowed_db_origins).
 
 ## HTTP Redirects
 

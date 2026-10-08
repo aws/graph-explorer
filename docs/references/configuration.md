@@ -58,7 +58,7 @@ Example: `https://my-app.example.com` or `https://app-a.example.com,https://app-
 
 ### `PROXY_SERVER_ALLOWED_DB_ORIGINS`
 
-Restricts which database origins the proxy server will forward requests to. When set, requests targeting an origin not in the list receive a 403 response. When not set, the proxy forwards to any database URL specified by the client (current default behavior), and logs one warning the first time it signs a request. See [Database Origin Allowlist](./security.md#database-origin-allowlist).
+Restricts which database origins the proxy server will forward requests to. When set, requests targeting an origin not in the list receive a 403 response. When not set, the proxy forwards to any database URL specified by the client (current default behavior), and logs one warning the first time it signs a request. See [Database Origin Allowlist](./security.md#database-origin-allowlist). Link-local addresses are refused either way. See [Link-Local Addresses](./security.md#link-local-addresses).
 
 Values must be origins (scheme + host + optional port). Including a path will cause a startup error.
 

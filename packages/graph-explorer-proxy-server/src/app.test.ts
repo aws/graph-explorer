@@ -49,6 +49,16 @@ function dbHeaders(overrides: Record<string, string> = {}) {
   };
 }
 
+/** Every route that forwards a request to the database named in the headers. */
+const forwardingRoutes = [
+  { method: "post", route: "/sparql", body: { query: "test" } },
+  { method: "post", route: "/gremlin", body: { gremlin: "test" } },
+  { method: "post", route: "/openCypher", body: { query: "test" } },
+  { method: "get", route: "/summary", body: undefined },
+  { method: "get", route: "/pg/statistics/summary", body: undefined },
+  { method: "get", route: "/rdf/statistics/summary", body: undefined },
+] as const;
+
 /** Creates a minimal node-fetch Response-like object that fetchData can pipe. */
 function createMockFetchResponse(
   body: string,
@@ -1265,14 +1275,7 @@ describe("createApp", () => {
       expect(response.status).toBe(200);
     });
 
-    it.each([
-      { method: "post", route: "/sparql", body: { query: "test" } },
-      { method: "post", route: "/gremlin", body: { gremlin: "test" } },
-      { method: "post", route: "/openCypher", body: { query: "test" } },
-      { method: "get", route: "/summary", body: undefined },
-      { method: "get", route: "/pg/statistics/summary", body: undefined },
-      { method: "get", route: "/rdf/statistics/summary", body: undefined },
-    ] as const)(
+    it.each(forwardingRoutes)(
       "$method $route returns 403 without fetching the disallowed origin",
       async ({ method, route, body }) => {
         const app = createTestApp(".", undefined, allowedOrigins);
@@ -1293,6 +1296,38 @@ describe("createApp", () => {
         );
       },
     );
+  });
+
+  describe("link-local database origins", () => {
+    const linkLocalUrl = "http://169.254.1.1:8182";
+
+    it.each(forwardingRoutes)(
+      "$method $route returns 403 without an allowlist and without fetching",
+      async ({ method, route, body }) => {
+        const app = createTestApp();
+        const req = request(app)
+          [method](route)
+          .set(dbHeaders({ "graph-db-connection-url": linkLocalUrl }));
+        const response = body ? await req.send(body) : await req;
+
+        expect(response.status).toBe(403);
+        expect(response.body.error.message).toContain(
+          "not a permitted database host",
+        );
+        expect(mockFetch).not.toHaveBeenCalled();
+      },
+    );
+
+    it("returns 403 when the allowlist names the link-local origin", async () => {
+      const app = createTestApp(".", undefined, new Set([linkLocalUrl]));
+      const response = await request(app)
+        .post("/sparql")
+        .set(dbHeaders({ "graph-db-connection-url": linkLocalUrl }))
+        .send({ query: "SELECT 1" });
+
+      expect(response.status).toBe(403);
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
   });
 });
 
