@@ -17,7 +17,7 @@ When `HOST` is set, a new container generates a fresh self-signed certificate, w
 Example: `localhost`
 
 - Required when using HTTPS connections, unless you provide existing certificates
-- Default is `localhost`
+- Default: `localhost` in code. Unset in Docker, where HTTPS won't start without it unless you provide certificates.
 - Type: `string`
 
 ### `PROXY_SERVER_HTTPS_PORT`
