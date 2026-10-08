@@ -29,11 +29,7 @@ export const activeConnectionAtom = atom(get => {
 });
 
 export const queryEngineSelector = atom(get =>
-  get(
-    selectAtom(activeConnectionAtom, c =>
-      c && c.queryEngine ? c.queryEngine : "gremlin",
-    ),
-  ),
+  get(selectAtom(activeConnectionAtom, c => c?.queryEngine ?? "gremlin")),
 );
 
 export function useQueryEngine() {
