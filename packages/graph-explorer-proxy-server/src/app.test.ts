@@ -498,6 +498,13 @@ describe("createApp", () => {
         .send({ gremlin: "test" });
 
       expect(response.status).toBe(400);
+      expect(response.body.error.message).toContain(
+        "Must not include a username or password",
+      );
+      expect(mockFetch).not.toHaveBeenCalledWith(
+        expect.stringContaining("my-graph-db.example.com"),
+        expect.anything(),
+      );
     });
 
     it("does not echo the rejected value back to the client", async () => {
