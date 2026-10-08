@@ -456,6 +456,25 @@ describe("parseConnectionFile", () => {
     expect(logger.warn).toHaveBeenCalledOnce();
   });
 
+  test("drops an invalid serviceType without a warning when IAM was not on", () => {
+    const connection = {
+      id: createConnectionId(),
+      connection: {
+        graphDbUrl: createRandomUrlString(),
+        queryEngine: "gremlin" as const,
+        serviceType: "not-a-real-service-type",
+      },
+      schema: { vertices: [], edges: [] },
+    };
+
+    const result = parseConnectionFile(connection);
+
+    expect(result).not.toBeNull();
+    expect(result?.connection.serviceType).toBeUndefined();
+    expect(result?.connection.awsAuthEnabled).toBeUndefined();
+    expect(logger.warn).not.toHaveBeenCalled();
+  });
+
   test("keeps IAM on without a warning when awsRegion and serviceType are valid", () => {
     const connection = {
       id: createConnectionId(),

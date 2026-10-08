@@ -22,11 +22,15 @@ type WithSigningTarget<T> = Omit<T, "awsRegion" | "serviceType"> & {
 
 /**
  * Parses `awsRegion` and `serviceType`, dropping an invalid value. A dropped
- * value also turns IAM off, since signing would otherwise fall back to a
- * region or service the file never named.
+ * value also turns IAM off if it was on, since signing would otherwise fall
+ * back to a region or service the file never named.
  */
 function disableIamForInvalidSigningTarget<
-  T extends { awsRegion?: unknown; serviceType?: unknown },
+  T extends {
+    awsAuthEnabled?: boolean;
+    awsRegion?: unknown;
+    serviceType?: unknown;
+  },
 >(connection: T): WithSigningTarget<T> {
   const {
     awsRegion: rawAwsRegion,
@@ -45,7 +49,10 @@ function disableIamForInvalidSigningTarget<
     resolved.serviceType = serviceType.data;
   }
 
-  if (awsRegion.success && serviceType.success) {
+  if (
+    (awsRegion.success && serviceType.success) ||
+    resolved.awsAuthEnabled !== true
+  ) {
     return resolved;
   }
 
