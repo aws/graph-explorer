@@ -42,21 +42,15 @@ type ConnectionMethodFieldProps = Pick<
  */
 export function ConnectionMethodField(props: ConnectionMethodFieldProps) {
   const { directConnection, setField } = props;
-  const legendId = useId();
   const method: ConnectionMethod = directConnection ? "browser" : "proxy";
 
   return (
     <div className="flex flex-col gap-4">
       <FieldSet>
-        <FieldLegend
-          id={legendId}
-          variant="label"
-          className="text-muted-foreground"
-        >
+        <FieldLegend variant="label" className="text-muted-foreground">
           Connection method
         </FieldLegend>
         <RadioGroup
-          aria-labelledby={legendId}
           value={method}
           onValueChange={value =>
             setField("directConnection")(
