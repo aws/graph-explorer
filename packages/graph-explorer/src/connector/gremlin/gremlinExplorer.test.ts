@@ -9,6 +9,7 @@ import { normalizeConnection, transformLegacyConnection } from "@/connections";
 import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
 import {
   abortableFetch,
+  bodySentTo,
   headersSentTo,
   stubDocumentUrl,
 } from "@/utils/testing";
@@ -227,7 +228,7 @@ describe("createGremlinExplorer", () => {
       expect(
         headersSentTo(mockFetch, "https://my-neptune:8182/gremlin"),
       ).toStrictEqual({
-        "content-type": "application/json",
+        "content-type": "text/plain",
         accept: "application/vnd.gremlin-v3.0+json",
       });
     });
@@ -255,9 +256,41 @@ describe("createGremlinExplorer", () => {
       expect(
         headersSentTo(mockFetch, "https://db.example.com:8182/gremlin"),
       ).toStrictEqual({
-        "content-type": "application/json",
+        "content-type": "text/plain",
         accept: "application/vnd.gremlin-v3.0+json",
       });
+    });
+
+    it("sends a proxy connection's query in the gremlin field", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse(emptyGremlinList)),
+      );
+
+      const explorer = createGremlinExplorer(
+        createConnection(),
+        createFeatureFlags(),
+      );
+      await explorer.rawQuery({ query: "g.V().limit(10)" });
+
+      expect(bodySentTo(mockFetch, "http://localhost/gremlin")).toBe(
+        JSON.stringify({ gremlin: "g.V().limit(10)" }),
+      );
+    });
+
+    it("sends a direct connection's query in the gremlin field", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse(emptyGremlinList)),
+      );
+
+      const explorer = createGremlinExplorer(
+        createConnection({ proxyConnection: false }),
+        createFeatureFlags(),
+      );
+      await explorer.rawQuery({ query: "g.V().limit(10)" });
+
+      expect(bodySentTo(mockFetch, "https://my-neptune:8182/gremlin")).toBe(
+        JSON.stringify({ gremlin: "g.V().limit(10)" }),
+      );
     });
 
     it("requests a direct connection's summary from the database", async () => {

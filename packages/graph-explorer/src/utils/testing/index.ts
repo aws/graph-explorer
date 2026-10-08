@@ -5,7 +5,7 @@ export * from "./DbState";
 export * from "./errorInstances";
 export * from "./FakeExplorer";
 export * from "./graphsonHelpers";
-export * from "./headersSentTo";
+export * from "./requestSentTo";
 export * from "./legacyExportedConnectionFile";
 export * from "./mockVirtualizedLayout";
 export * from "./normalize";

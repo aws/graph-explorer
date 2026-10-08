@@ -28,7 +28,8 @@
 
 ## Database errors
 
-- All three connectors send requests through `fetchDatabaseRequest`, passing only the endpoint path (e.g. `gremlin`, `pg/statistics/summary?mode=basic`). It is the only place that decides proxy versus direct routing, request headers, and timeout classification — never build a database URL or set proxy headers at a call site.
+- All three connectors send requests through `fetchDatabaseRequest`, passing only the endpoint path (e.g. `gremlin`, `pg/statistics/summary?mode=basic`). It is the only place that decides proxy versus direct routing, proxy and auth headers, and timeout classification — never build a database URL or set proxy headers at a call site.
+- A Direct Connection request must stay a CORS simple request: no custom headers and only a safelisted `Content-Type`, because a database can reject the preflight anything else triggers, as Gremlin Server does with a 405. So the Gremlin explorer sends `text/plain` on a Direct Connection, which Gremlin Server still parses as JSON, and `application/json` on a Proxy Connection, because the Proxy Server doesn't parse `text/plain`. The Gremlin body is `{ gremlin }` on both.
 - Detect a timeout with `instanceof FetchTimeoutError` or `instanceof DatabaseTimeoutError`, never `error.name`, `DOMException`, or a raw database code.
 - To recognize a new database's timeout, add its body code to `DATABASE_TIMEOUT_CODES` with a test built from a captured response body.
 - `fetchDatabaseRequest` classifies a caught fetch `TypeError` after the request (never before sending) via `unreachableError`, into `ServerConnectionError` (proxied), `InsecureDatabaseUrlError` (direct, mixed content from an https page), or `DatabaseUnreachableError` (other direct failures), because the browser's TypeError doesn't say why it failed.

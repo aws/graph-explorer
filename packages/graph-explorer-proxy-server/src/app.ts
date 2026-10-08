@@ -451,7 +451,7 @@ export function createApp({
     assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
 
     // Validate the input before making any external calls.
-    const queryString = req.body.query;
+    const queryString = req.body.gremlin;
     if (!queryString) {
       res.status(400).send({ error: "[Proxy] Gremlin: query not provided" });
       return;

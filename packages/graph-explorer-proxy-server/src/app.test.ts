@@ -70,6 +70,13 @@ function mockFetchOnce(body = "ok", status = 200, headers = {}) {
   );
 }
 
+const queryRoutes = ["sparql", "gremlin", "openCypher"] as const;
+
+/** The JSON body a query route reads its query from. */
+function queryBody(route: (typeof queryRoutes)[number], query: string) {
+  return route === "gremlin" ? { gremlin: query } : { query };
+}
+
 /**
  * Returns the request options of the single outbound fetch to the given path.
  *
@@ -413,44 +420,41 @@ describe("createApp", () => {
 
   // ── Query validation (400 cases) ──────────────────────────────────
 
-  describe.each(["sparql", "gremlin", "openCypher"])(
-    "POST /%s input validation",
-    route => {
-      it("returns 400 when query is missing but headers are present", async () => {
-        const app = createTestApp();
-        const response = await request(app)
-          .post(`/${route}`)
-          .set(dbHeaders())
-          .send({});
-        expect(response.status).toBe(400);
-      });
+  describe.each(queryRoutes)("POST /%s input validation", route => {
+    it("returns 400 when query is missing but headers are present", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .post(`/${route}`)
+        .set(dbHeaders())
+        .send({});
+      expect(response.status).toBe(400);
+    });
 
-      it("returns 400 when neither query nor db headers are present", async () => {
-        const app = createTestApp();
-        const response = await request(app).post(`/${route}`).send({});
-        expect(response.status).toBe(400);
-      });
+    it("returns 400 when neither query nor db headers are present", async () => {
+      const app = createTestApp();
+      const response = await request(app).post(`/${route}`).send({});
+      expect(response.status).toBe(400);
+    });
 
-      it("returns 400 when query is present but db connection header is missing", async () => {
-        mockFetchOnce();
+    it("returns 400 when query is present but db connection header is missing", async () => {
+      mockFetchOnce();
 
-        const app = createTestApp();
-        const response = await request(app)
-          .post(`/${route}`)
-          .send({ query: "test query" });
-        expect(response.status).toBe(400);
-      });
+      const app = createTestApp();
+      const response = await request(app)
+        .post(`/${route}`)
+        .send(queryBody(route, "test query"));
+      expect(response.status).toBe(400);
+    });
 
-      it("returns 400 when graph-db-connection-url is not a valid HTTP URL", async () => {
-        const app = createTestApp();
-        const response = await request(app)
-          .post(`/${route}`)
-          .set({ "graph-db-connection-url": "ftp://not-http.example.com" })
-          .send({ query: "test query" });
-        expect(response.status).toBe(400);
-      });
-    },
-  );
+    it("returns 400 when graph-db-connection-url is not a valid HTTP URL", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .post(`/${route}`)
+        .set({ "graph-db-connection-url": "ftp://not-http.example.com" })
+        .send(queryBody(route, "test query"));
+      expect(response.status).toBe(400);
+    });
+  });
 
   // ── Database URLs carrying userinfo ───────────────────────────────
 
@@ -459,7 +463,7 @@ describe("createApp", () => {
 
     it.each([
       { method: "post", route: "/sparql", body: { query: "test" } },
-      { method: "post", route: "/gremlin", body: { query: "test" } },
+      { method: "post", route: "/gremlin", body: { gremlin: "test" } },
       { method: "post", route: "/openCypher", body: { query: "test" } },
       { method: "get", route: "/summary", body: undefined },
       { method: "get", route: "/pg/statistics/summary", body: undefined },
@@ -491,7 +495,7 @@ describe("createApp", () => {
         .set({
           "graph-db-connection-url": "https://someone@my-graph-db.example.com",
         })
-        .send({ query: "test" });
+        .send({ gremlin: "test" });
 
       expect(response.status).toBe(400);
     });
@@ -501,7 +505,7 @@ describe("createApp", () => {
       const response = await request(app)
         .post("/gremlin")
         .set(dbHeaders({ "graph-db-connection-url": credentialedUrl }))
-        .send({ query: "test" });
+        .send({ gremlin: "test" });
 
       expect(JSON.stringify(response.body)).not.toContain("hunter2");
     });
@@ -513,7 +517,7 @@ describe("createApp", () => {
       const response = await request(app)
         .post("/gremlin")
         .set(dbHeaders())
-        .send({ query: "test" });
+        .send({ gremlin: "test" });
 
       expect(response.status).toBe(200);
       expect(fetchOptionsFor("gremlin")).toBeDefined();
@@ -613,7 +617,7 @@ describe("createApp", () => {
       const response = await request(app)
         .post("/gremlin")
         .set(dbHeaders())
-        .send({ query: "g.V().limit(1)" });
+        .send({ gremlin: "g.V().limit(1)" });
 
       expect(response.status).toBe(200);
       expect(mockFetch).toHaveBeenCalledWith(
@@ -627,11 +631,25 @@ describe("createApp", () => {
 
       const app = createTestApp();
       const query = "g.V().limit(1)";
-      await request(app).post("/gremlin").set(dbHeaders()).send({ query });
+      await request(app)
+        .post("/gremlin")
+        .set(dbHeaders())
+        .send({ gremlin: query });
 
       const fetchOptions = fetchOptionsFor("gremlin");
       const body = JSON.parse(fetchOptions.body);
       expect(body.gremlin).toBe(query);
+    });
+
+    it("returns 400 when the query is not in the gremlin field", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/gremlin")
+        .set(dbHeaders())
+        .send({ query: "g.V()" });
+
+      expect(response.status).toBe(400);
+      expect(mockFetch).not.toHaveBeenCalled();
     });
 
     it("includes queryId in the JSON body when provided", async () => {
@@ -641,7 +659,7 @@ describe("createApp", () => {
       await request(app)
         .post("/gremlin")
         .set(dbHeaders({ queryid: "q-456" }))
-        .send({ query: "g.V()" });
+        .send({ gremlin: "g.V()" });
 
       const fetchOptions = fetchOptionsFor("gremlin");
       const body = JSON.parse(fetchOptions.body);
@@ -655,7 +673,7 @@ describe("createApp", () => {
       const response = await request(app)
         .post("/gremlin")
         .set(dbHeaders())
-        .send({ query: "g.V()" });
+        .send({ gremlin: "g.V()" });
 
       expect(response.status).toBe(500);
     });
@@ -922,7 +940,7 @@ describe("createApp", () => {
   // ── Query logging header ───────────────────────────────────────────
 
   describe("db-query-logging-enabled header", () => {
-    it.each(["sparql", "gremlin", "openCypher"])(
+    it.each(queryRoutes)(
       "POST /%s logs the query when db-query-logging-enabled is true",
       async route => {
         mockFetchOnce();
@@ -934,7 +952,7 @@ describe("createApp", () => {
         await request(app)
           .post(`/${route}`)
           .set(dbHeaders({ "db-query-logging-enabled": "true" }))
-          .send({ query: "test query" });
+          .send(queryBody(route, "test query"));
 
         expect(debugSpy).toHaveBeenCalledWith(
           expect.stringContaining("Received database query"),
@@ -943,7 +961,7 @@ describe("createApp", () => {
       },
     );
 
-    it.each(["sparql", "gremlin", "openCypher"])(
+    it.each(queryRoutes)(
       "POST /%s does not log the query when db-query-logging-enabled is absent",
       async route => {
         mockFetchOnce();
@@ -955,7 +973,7 @@ describe("createApp", () => {
         await request(app)
           .post(`/${route}`)
           .set(dbHeaders())
-          .send({ query: "test query" });
+          .send(queryBody(route, "test query"));
 
         expect(debugSpy).not.toHaveBeenCalledWith(
           expect.stringContaining("Received database query"),
@@ -1125,7 +1143,7 @@ describe("createApp", () => {
       await request(app)
         .post("/gremlin")
         .set(blazegraphHeaders())
-        .send({ query: "g.V()" });
+        .send({ gremlin: "g.V()" });
 
       expect(mockFetch).toHaveBeenCalledWith(
         `${blazegraphUrl}/gremlin`,
@@ -1249,7 +1267,7 @@ describe("createApp", () => {
 
     it.each([
       { method: "post", route: "/sparql", body: { query: "test" } },
-      { method: "post", route: "/gremlin", body: { query: "test" } },
+      { method: "post", route: "/gremlin", body: { gremlin: "test" } },
       { method: "post", route: "/openCypher", body: { query: "test" } },
       { method: "get", route: "/summary", body: undefined },
       { method: "get", route: "/pg/statistics/summary", body: undefined },
