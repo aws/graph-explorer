@@ -200,7 +200,7 @@ export async function fetchDatabaseRequest(
     // cancel that came after it. An error built from a received response
     // already says what happened, so it is never relabeled.
     if (
-      fetchTimeout &&
+      fetchTimeout?.signal.aborted &&
       !(error instanceof NetworkError) &&
       signal?.reason === fetchTimeout.signal.reason
     ) {
