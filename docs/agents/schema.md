@@ -25,11 +25,11 @@ Edge connections (`EdgeConnection[]`) describe relationships between vertex type
 
 The `edgeConnections` property on `SchemaStorageModel` has three meaningful states:
 
-- `undefined` — edge connections have not been successfully discovered (query not run or errored)
+- `undefined` — edge connections have never been successfully discovered
 - `[]` (empty array) — query succeeded but no edge connections exist
 - populated array — query succeeded with results
 
-If the edge connection query fails, the error is stored in the schema via the `edgeConnectionDiscoveryFailed` flag.
+If the edge connection query fails, the schema records it with the `lastEdgeConnectionSyncFail` flag. The flag stops automatic retry, and any previously discovered `edgeConnections` are kept. A later successful query clears it.
 
 ## Incremental Schema Growth
 

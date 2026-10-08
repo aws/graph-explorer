@@ -35,7 +35,7 @@ Graph Explorer is a React-based web application that enables users to visualize 
 - Data fetching: TanStack Query for remote data
 - Graph rendering: Cytoscape.js with custom layout plugins
 - Query abstraction: Explorers provide unified interfaces for different query languages
-- Configuration: environment variables and configuration providers
+- Configuration: proxy server environment variables, and Jotai atoms in `src/connections/` for saved connections
 - Error handling: error boundaries and consistent error display components
 - State persistence: localforage for client-side persistence using IndexedDB
 
