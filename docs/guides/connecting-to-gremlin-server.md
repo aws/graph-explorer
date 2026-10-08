@@ -10,7 +10,7 @@ If you are using the default Gremlin Server docker image, you can get the server
 
 ```
 docker pull tinkerpop/gremlin-server:latest
-docker run -p 8182:8182 \
+docker run -p 127.0.0.1:8182:8182 \
     tinkerpop/gremlin-server:latest \
     conf/gremlin-server-rest-modern.yaml
 ```
@@ -20,6 +20,7 @@ Then open Graph Explorer and add a new connection with the following settings:
 - Name: `Gremlin Server`
 - Database URL: `http://localhost:8182`
 - Query Language: `Gremlin`
+- Connection method: **Via proxy server**
 
 ## Enable REST
 
