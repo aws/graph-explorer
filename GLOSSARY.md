@@ -14,7 +14,7 @@ A React-based web application that lets users visually explore graph databases w
 
 **Proxy Connection**: A Connection whose requests go through the same-origin **Proxy Server**, which reaches the **Database URL** on the browser's behalf. The default, and the only kind that can use IAM authentication, because only the Proxy Server can sign a request. The connection form labels it **Through the Graph Explorer server**. _Avoid_: server connection
 
-**Direct Connection**: A Connection whose requests the browser sends to the **Database URL** itself instead of through the **Proxy Server**, so the database must allow cross-origin requests from the Graph Explorer page. A supported option for databases that only the browser can reach or that already allow CORS. The connection form labels it **Directly from your browser**. _Avoid_: public endpoint, non-proxy connection, browser connection
+**Direct Connection**: A Connection whose requests the browser sends to the **Database URL** itself instead of through the **Proxy Server**, so the database must allow cross-origin requests from the Graph Explorer page. A supported option for databases that already allow CORS. The connection form labels it **Directly from your browser**. _Avoid_: public endpoint, non-proxy connection, browser connection
 
 **Database URL**: The endpoint of a Connection's Graph Database, stored as `graphDbUrl`. The **Proxy Server** sends database requests here, so it must be reachable from the host running Graph Explorer, not from the browser, except for a **Direct Connection**. _Avoid_: Graph Connection URL, graph DB URL
 
