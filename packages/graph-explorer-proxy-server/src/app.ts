@@ -13,10 +13,10 @@ import path from "path";
 import { pipeline } from "stream";
 import { z } from "zod";
 
-import { assertAllowedDbOrigin } from "./allowed-db-origins.ts";
 import { errorHandlingMiddleware } from "./error-handler.ts";
 import { RequestValidationError } from "./errors.ts";
 import { type AppLogger, requestLoggingMiddleware } from "./logging.ts";
+import { assertPermittedDbOrigin } from "./permitted-db-origins.ts";
 
 const DEFAULT_SERVICE_TYPE = "neptune-db";
 
@@ -76,13 +76,21 @@ const DbQueryHeadersSchema = z.object({
   "db-query-logging-enabled": z.stringbool().optional().default(false),
 });
 
-/** Validates and extracts database query headers. Throws {@link RequestValidationError} on failure. */
-function parseDbQueryHeaders(headers: IncomingHttpHeaders) {
+/**
+ * Validates and extracts database query headers. Throws
+ * {@link RequestValidationError} on malformed headers and `HttpError`
+ * 403 when the database origin is not permitted.
+ */
+function parseDbQueryHeaders(
+  headers: IncomingHttpHeaders,
+  allowedDbOrigins: Set<string> | undefined,
+) {
   const result = DbQueryHeadersSchema.safeParse(headers);
   if (!result.success) {
     throw new RequestValidationError(result.error);
   }
   const parsed = result.data;
+  assertPermittedDbOrigin(parsed["graph-db-connection-url"], allowedDbOrigins);
 
   const authOptions = parsed["aws-neptune-region"]
     ? {
@@ -352,8 +360,7 @@ export function createApp({
       isIamEnabled,
       region,
       serviceType,
-    } = parseDbQueryHeaders(req.headers);
-    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
+    } = parseDbQueryHeaders(req.headers, allowedDbOrigins);
 
     /// Function to cancel long running queries if the client disappears before completion
     async function cancelQuery() {
@@ -447,8 +454,7 @@ export function createApp({
       isIamEnabled,
       region,
       serviceType,
-    } = parseDbQueryHeaders(req.headers);
-    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
+    } = parseDbQueryHeaders(req.headers, allowedDbOrigins);
 
     // Validate the input before making any external calls.
     const queryString = req.body.gremlin;
@@ -532,8 +538,7 @@ export function createApp({
       isIamEnabled,
       region,
       serviceType,
-    } = parseDbQueryHeaders(req.headers);
-    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
+    } = parseDbQueryHeaders(req.headers, allowedDbOrigins);
 
     const queryString = req.body.query;
     // Validate the input before making any external calls.
@@ -573,8 +578,7 @@ export function createApp({
   // GET endpoint to retrieve PropertyGraph statistics summary for Neptune Analytics.
   app.get("/summary", async (req, res, next) => {
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
-      parseDbQueryHeaders(req.headers);
-    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
+      parseDbQueryHeaders(req.headers, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
       "summary?mode=basic",
@@ -594,8 +598,7 @@ export function createApp({
   // GET endpoint to retrieve PropertyGraph statistics summary for Neptune DB.
   app.get("/pg/statistics/summary", async (req, res, next) => {
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
-      parseDbQueryHeaders(req.headers);
-    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
+      parseDbQueryHeaders(req.headers, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
       "pg/statistics/summary?mode=basic",
@@ -615,8 +618,7 @@ export function createApp({
   // GET endpoint to retrieve RDF statistics summary.
   app.get("/rdf/statistics/summary", async (req, res, next) => {
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
-      parseDbQueryHeaders(req.headers);
-    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
+      parseDbQueryHeaders(req.headers, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
       "rdf/statistics/summary?mode=basic",
