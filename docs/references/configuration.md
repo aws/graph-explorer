@@ -117,6 +117,20 @@ Mounting `config.json` read-only at `/graph-explorer/config.json` (see [JSON Con
 - Default: `<client root>` (`packages/graph-explorer`)
 - Type: `string`
 
+### `NEPTUNE_NOTEBOOK`
+
+Applies the preset for running Graph Explorer in a SageMaker notebook. Only the exact value `true` turns it on. The preset:
+
+- Sets `PROXY_SERVER_HTTP_PORT` to `9250`, unless you set it
+- Sets `LOG_STYLE` to `cloudwatch`, unless you set it
+- Turns off HTTPS
+
+Graph Explorer refuses to start when `NEPTUNE_NOTEBOOK` and `PROXY_SERVER_HTTPS_CONNECTION` are both `true`. Set only one of them.
+
+- Optional
+- Default: unset
+- Type: `string`
+
 ## Default Connection
 
 To provide a default connection such that initial loads of Graph Explorer always result with the same starting connection, modify the `docker run ...` command to either take in a JSON configuration or runtime environment variables. If you provide both a JSON configuration and environmental variables, the JSON will be prioritized.
