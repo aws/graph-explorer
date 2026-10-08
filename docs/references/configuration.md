@@ -98,7 +98,7 @@ Controls the log output format.
 Sets the minimum severity the proxy server logs. Values from highest to lowest are `fatal`, `error`, `warn`, `info`, `debug`, `trace`, and `silent`, which disables logging. See [Logging](./logging.md).
 
 - Optional
-- Default: `info`
+- Default: `debug`. The bundled `.env` sets it to `info`, so a default deployment logs at `info`.
 - Type: `"fatal" | "error" | "warn" | "info" | "debug" | "trace" | "silent"`
 
 > [!WARNING]

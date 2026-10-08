@@ -6,7 +6,7 @@ Logs are, by default, sent to the console and will be visible as output to the d
 
 The log level will be set via the `LOG_LEVEL` env variable at `/packages/graph-explorer/.env` where the possible options, from highest to lowest, are `fatal`, `error`, `warn`, `info`, `debug`, `trace`, and `silent` such that `fatal` is the highest level and will only include logs labeled as fatal and `trace` the lowest and will include any type of log. The `silent` level disables all logging.
 
-By default, the log level is set to `info` and the only type of logs generated are those of `error`, `info`, or `debug`. If you need more detailed logs, you can change the log level from `info` in the default .env file to `debug` and the logs will begin printing the error's stack trace.
+When `LOG_LEVEL` is unset, the server logs at `debug`. The bundled `.env` sets it to `info`, so a default deployment logs at `info`. For more detail, change it to `debug` or `trace`.
 
 At `debug` and `trace`, the query text sent to the database is written to the logs. Queries can contain sensitive data, so use those levels for troubleshooting and restrict access to wherever the logs are stored. On SageMaker, the logs go to a CloudWatch log group shared with the notebook. See [Logging and privacy](../guides/deploy-to-sagemaker.md#logging-and-privacy).
 
