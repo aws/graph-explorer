@@ -4,6 +4,8 @@
 
 accepted
 
+**Updated:** 2026-10-06 — identifiers renamed in #2361. The decision below is unchanged. Read it with this substitution: `createActiveConfigurationAtom`→`createActiveConnectionIdAtom`.
+
 ## Context
 
 The per-tab Active Connection decision (`per-tab-active-connection`) solved one concept by hand: hold the live value in `sessionStorage`, keep the existing localForage key as a shared last-writer-wins breadcrumb, and **claim** the breadcrumb into `sessionStorage` on cold start so a reload reads the tab's own value back. That logic lived inline in `activeConnectionStorage.ts`.

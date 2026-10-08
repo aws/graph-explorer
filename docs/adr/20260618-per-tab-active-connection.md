@@ -4,6 +4,8 @@
 
 accepted
 
+**Updated:** 2026-10-06 — identifiers renamed in #2361. The decision below is unchanged. Read it with these substitutions: `activeConfigurationAtom`→`activeConnectionIdAtom`, `activeConfigSelector`→`activeSavedConnectionSelector`. The `useActivateConnection` follow-up it mentions is done (fc31e201).
+
 ## Context
 
 "Active connection" was a single value persisted to shared IndexedDB (the `active-configuration` localForage key, read once at startup with no cross-tab sync), yet the entire app consumed it as if it were per-tab state. Two same-origin tabs therefore could not hold different active connections: whoever wrote last silently changed what the other tab was exploring, and a reload adopted whatever was persisted last. The URL-connect feature (open a connection from a link, in a new tab) made this latent flaw trivially triggerable, but it exists independently on `main`.

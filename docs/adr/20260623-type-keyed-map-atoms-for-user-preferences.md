@@ -4,6 +4,7 @@
 - **Date:** 2026-06-23
 - **Updated:** 2026-07-06 — the styling vocabulary was renamed to the Styles convention (#1866). The decision below is unchanged; only the identifiers drifted. Read it with these substitutions: `VertexPreferencesStorageModel`→`VertexStyleStorage`, `EdgePreferencesStorageModel`→`EdgeStyleStorage`, `vertexPreferencesAtom`→`vertexStyleAtom`, `edgePreferencesAtom`→`edgeStyleAtom`, `LegacyUserStylingStorageModel`→`LegacyUserStylingStorage`, `userPreferences.ts`→`graphStyles.ts`.
 - **Updated:** 2026-07-20 — the multi-layer roadmap was abandoned (#1974). Styles resolve as a single user layer over the app defaults; the never-shipped shared layer was removed. The type-keyed Map decision below is unchanged.
+- **Updated:** 2026-10-06 — Connection identifiers were renamed (#2361, #2351). The decision below is unchanged. Read it with these substitutions: `configurationAtom`→`savedConnectionsAtom`, `StateProvider/configuration.ts`→`typeConfigs.ts`.
 - **Related:** ADR `per-key-diff-merge-cross-tab-reconciliation` — the Map-keyed shape is the prerequisite for per-type merge. ADR `storage-layer-owns-persistence-failure` — the migration's "catch and degrade to defaults on failure" posture follows that ADR's established startup-failure stance. Issue #1864 (this change). Issues #1820 / #1831 (cross-tab merge, separate follow-up).
 
 ## Context
