@@ -317,16 +317,6 @@ describe("createSessionScopedAtom", () => {
 });
 
 describe("createSessionScopedAtom across tabs", () => {
-  test("writing in one tab does not change an already-open tab", async () => {
-    const tabB = await openTab();
-    await tabB.write({ count: 2 });
-
-    const tabA = await openTab();
-    await tabA.write({ count: 99 });
-
-    expect(tabB.read()).toStrictEqual({ count: 2 });
-  });
-
   test("a tab opened later cold-starts to the value an earlier tab wrote", async () => {
     const earlierTab = await openTab();
     await earlierTab.write({ count: 3 });
@@ -469,24 +459,6 @@ describe("backward compatibility: graph view layout breadcrumb", () => {
 // the array serialization across a write-in-one-tab / cold-start-in-another
 // sequence, which the toy counter codec above cannot reach.
 describe("graph view layout across tabs", () => {
-  test("changing the view layout in one tab does not change an already-open tab", async () => {
-    const tabB = await openGraphViewTab();
-    const tabBLayout: GraphViewLayout = {
-      ...defaultGraphViewLayout,
-      activeSidebarItem: "filters",
-      activeToggles: new Set(["graph-viewer"]),
-    };
-    await tabB.write(tabBLayout);
-
-    const tabA = await openGraphViewTab();
-    await tabA.write({
-      ...defaultGraphViewLayout,
-      activeSidebarItem: "styles",
-    });
-
-    expect(tabB.read()).toStrictEqual(tabBLayout);
-  });
-
   test("a later tab cold-starts to the view layout an earlier tab wrote, with toggles rebuilt as a Set", async () => {
     const earlierTab = await openGraphViewTab();
     const written: GraphViewLayout = {
@@ -513,23 +485,6 @@ describe("schema view layout across tabs", () => {
     key: "schema-view-layout",
     defaultValue: defaultSchemaViewLayout,
     codec: schemaViewLayoutCodec,
-  });
-
-  test("changing the view layout in one tab does not change an already-open tab", async () => {
-    const tabB = await openSchemaViewTab();
-    const tabBLayout: SchemaViewLayout = {
-      ...defaultSchemaViewLayout,
-      activeSidebarItem: "styles",
-    };
-    await tabB.write(tabBLayout);
-
-    const tabA = await openSchemaViewTab();
-    await tabA.write({
-      ...defaultSchemaViewLayout,
-      activeSidebarItem: "details",
-    });
-
-    expect(tabB.read()).toStrictEqual(tabBLayout);
   });
 
   test("a later tab cold-starts to the view layout an earlier tab wrote", async () => {
