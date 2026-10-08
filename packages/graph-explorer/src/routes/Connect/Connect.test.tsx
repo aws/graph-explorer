@@ -136,20 +136,20 @@ describe("Connect route", () => {
 
   test("activates an inactive matching connection and redirects without a prompt", async () => {
     const inactiveUrl = "https://inactive.neptune.amazonaws.com";
-    const inactiveConfig = createRandomSavedConnection();
-    inactiveConfig.connection = {
+    const inactiveConnection = createRandomSavedConnection();
+    inactiveConnection.connection = {
       queryEngine: "gremlin",
       graphDbUrl: inactiveUrl,
     };
     const store = getAppStore();
-    new DbState().addInactiveConnection(inactiveConfig).applyTo(store);
+    new DbState().addInactiveConnection(inactiveConnection).applyTo(store);
 
     renderConnect(searchFor(inactiveUrl));
 
     // Switching to an already-created connection is the same no-confirm
     // operation as clicking it in the connections list, so there is no dialog.
     await waitFor(() => {
-      expect(store.get(activeConnectionIdAtom)).toBe(inactiveConfig.id);
+      expect(store.get(activeConnectionIdAtom)).toBe(inactiveConnection.id);
     });
     expect(screen.getByTestId("location")).toHaveTextContent("/graph-explorer");
   });

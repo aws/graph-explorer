@@ -2,7 +2,7 @@ import { createStore } from "jotai";
 import localForage from "localforage";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { createConnectionId } from "@/connections";
+import { type ConnectionId, createNewConnectionId } from "@/connections";
 import { readPersistedValue } from "@/utils/testing";
 
 import {
@@ -27,7 +27,7 @@ async function openTab() {
   return {
     read: () => store.get(atom),
     /** Activates a connection; resolves once the breadcrumb has landed. */
-    activate: (id: ReturnType<typeof createConnectionId> | null) => {
+    activate: (id: ConnectionId | null) => {
       store.set(atom, id);
       return persistenceStatusStore.waitForIdle();
     },
@@ -45,7 +45,7 @@ describe("activeConnectionStorage", () => {
   });
 
   test("cold start seeds the active connection from the persisted breadcrumb", async () => {
-    const breadcrumb = createConnectionId();
+    const breadcrumb = createNewConnectionId();
     await localForage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, breadcrumb);
     const sessionStorage = createInMemorySessionStorage();
 
@@ -56,7 +56,7 @@ describe("activeConnectionStorage", () => {
   });
 
   test("treats an empty sessionStorage value as a miss and falls back to the breadcrumb", async () => {
-    const breadcrumb = createConnectionId();
+    const breadcrumb = createNewConnectionId();
     await localForage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, breadcrumb);
     const sessionStorage = createInMemorySessionStorage();
     sessionStorage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, "");
@@ -68,8 +68,8 @@ describe("activeConnectionStorage", () => {
   });
 
   test("warm reload keeps this tab's sessionStorage value over the breadcrumb", async () => {
-    const breadcrumb = createConnectionId();
-    const tabValue = createConnectionId();
+    const breadcrumb = createNewConnectionId();
+    const tabValue = createNewConnectionId();
     await localForage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, breadcrumb);
     const sessionStorage = createInMemorySessionStorage();
     sessionStorage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, tabValue);
@@ -85,7 +85,7 @@ describe("activeConnectionStorage", () => {
     const atom = await createActiveConnectionIdAtom({ sessionStorage });
     const store = createStore();
 
-    const activated = createConnectionId();
+    const activated = createNewConnectionId();
     // The in-memory value and sessionStorage update synchronously; the
     // breadcrumb lands in the background through the shared write queue.
     store.set(atom, activated);
@@ -101,7 +101,7 @@ describe("activeConnectionStorage", () => {
   });
 
   test("clearing the active connection clears this tab but is reflected in the breadcrumb", async () => {
-    const previous = createConnectionId();
+    const previous = createNewConnectionId();
     await localForage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, previous);
     const sessionStorage = createInMemorySessionStorage();
     sessionStorage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, previous);
@@ -120,14 +120,14 @@ describe("activeConnectionStorage", () => {
   // storage is available (non-DOM contexts, or storage blocked/throwing). It
   // must still seed from the breadcrumb and round-trip writes in memory.
   test("falls back to in-memory storage when no sessionStorage is available", async () => {
-    const breadcrumb = createConnectionId();
+    const breadcrumb = createNewConnectionId();
     await localForage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, breadcrumb);
 
     const atom = await createActiveConnectionIdAtom();
     const store = createStore();
     expect(store.get(atom)).toBe(breadcrumb);
 
-    const activated = createConnectionId();
+    const activated = createNewConnectionId();
     store.set(atom, activated);
     expect(store.get(atom)).toBe(activated);
   });
@@ -144,18 +144,18 @@ describe("activeConnectionStorage across tabs", () => {
 
   test("activating a connection in one tab does not change an already-open tab", async () => {
     const tabB = await openTab();
-    const tabBConnection = createConnectionId();
+    const tabBConnection = createNewConnectionId();
     await tabB.activate(tabBConnection);
 
     const tabA = await openTab();
-    await tabA.activate(createConnectionId());
+    await tabA.activate(createNewConnectionId());
 
     expect(tabB.read()).toBe(tabBConnection);
   });
 
   test("a tab opened later cold-starts to the connection an earlier tab activated", async () => {
     const earlierTab = await openTab();
-    const connection = createConnectionId();
+    const connection = createNewConnectionId();
     await earlierTab.activate(connection);
 
     const freshTab = await openTab();
@@ -166,14 +166,14 @@ describe("activeConnectionStorage across tabs", () => {
   test("a cold-started tab keeps its connection across reload when another tab changes the breadcrumb", async () => {
     // Tab A cold-starts on X (seeded from the breadcrumb), without ever
     // explicitly activating it.
-    const connectionX = createConnectionId();
+    const connectionX = createNewConnectionId();
     await localForage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, connectionX);
     const tabA = await openTab();
     expect(tabA.read()).toBe(connectionX);
 
     // Another tab switches to Y, moving the shared breadcrumb.
     const tabB = await openTab();
-    const connectionY = createConnectionId();
+    const connectionY = createNewConnectionId();
     await tabB.activate(connectionY);
 
     // Tab A reloads. Its connection must remain X, not adopt the breadcrumb's Y.
@@ -185,8 +185,8 @@ describe("activeConnectionStorage across tabs", () => {
     const tabA = await openTab();
     const tabB = await openTab();
 
-    const connectionA = createConnectionId();
-    const connectionB = createConnectionId();
+    const connectionA = createNewConnectionId();
+    const connectionB = createNewConnectionId();
     await tabA.activate(connectionA);
     await tabB.activate(connectionB);
 

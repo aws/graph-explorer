@@ -8,7 +8,7 @@ import { describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
 import {
-  createConnectionId,
+  createNewConnectionId,
   transformLegacyConnection,
   type SavedConnection,
 } from "@/connections";
@@ -485,7 +485,7 @@ describe("CreateConnection", () => {
   });
 
   test("opens the advanced options when the connection already overrides one", () => {
-    const connectionId = createConnectionId();
+    const connectionId = createNewConnectionId();
     const store = getAppStore();
     const connection: ConnectionConfig = {
       graphDbUrl: "https://db.example.com",

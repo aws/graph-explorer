@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { ConnectionId } from "@/connections";
+import { type ConnectionId, createConnectionId } from "@/connections";
 
 import {
   createSessionScopedAtom,
@@ -21,8 +21,8 @@ export const ACTIVE_CONNECTION_STORAGE_KEY = "active-configuration";
  */
 const activeConnectionCodec: SessionValueCodec<ConnectionId | null> = {
   serialize: value => value,
-  deserialize: raw => (raw ? (raw as ConnectionId) : null),
-  parseStored: stored => z.string().parse(stored) as ConnectionId,
+  deserialize: raw => (raw ? createConnectionId(raw) : null),
+  parseStored: stored => createConnectionId(z.string().parse(stored)),
 };
 
 /**
