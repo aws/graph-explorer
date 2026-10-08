@@ -124,8 +124,8 @@ describe("CreateConnection", () => {
   });
 
   describe("connection method", () => {
-    const proxyOption = { name: "Via proxy server" };
-    const browserOption = { name: "Directly via browser" };
+    const proxyOption = { name: "Through the Graph Explorer server" };
+    const browserOption = { name: "Directly from your browser" };
     const iamOption = { name: "Use AWS IAM authentication" };
 
     function renderEditing(connection: ConnectionConfig) {
@@ -225,7 +225,7 @@ describe("CreateConnection", () => {
 
       await user.click(
         screen.getByText(
-          "Your browser reaches the database itself, so the database must allow CORS from this page. No AWS IAM authentication, query cancellation or server-side logging.",
+          "Skips the server, so queries go from this page to your database. Choose this when your database is set up to answer queries from web pages, such as a public SPARQL endpoint.",
         ),
       );
 
@@ -290,7 +290,7 @@ describe("CreateConnection", () => {
         expect(store.get(savedConnectionsAtom)).toHaveLength(0);
         expect(
           screen.getByText(
-            "Directly via browser needs a full URL starting with http:// or https://",
+            "Enter a full URL starting with http:// or https:// to connect directly from your browser",
           ),
         ).toBeInTheDocument();
       },
@@ -317,7 +317,7 @@ describe("CreateConnection", () => {
       });
     });
 
-    test("shows an existing direct connection as Directly via browser", () => {
+    test("shows an existing direct connection as Directly from your browser", () => {
       renderEditing({
         graphDbUrl: "https://database.example.com:8182",
         proxyConnection: false,

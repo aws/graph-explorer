@@ -53,15 +53,15 @@ export function ConnectionMethodField({
         <MethodCard
           value="proxy"
           selected={method === "proxy"}
-          title="Via proxy server"
-          description="The Graph Explorer server reaches the database for you. Works with Amazon Neptune, and supports AWS IAM authentication, query cancellation and server-side logging."
+          title="Through the Graph Explorer server"
+          description="Recommended for every database, including Amazon Neptune. Add AWS IAM authentication below."
           footer={<IamSettings {...iamSettings} setField={setField} />}
         />
         <MethodCard
           value="browser"
           selected={method === "browser"}
-          title="Directly via browser"
-          description="Your browser reaches the database itself, so the database must allow CORS from this page. No AWS IAM authentication, query cancellation or server-side logging."
+          title="Directly from your browser"
+          description="Skips the server, so queries go from this page to your database. Choose this when your database is set up to answer queries from web pages, such as a public SPARQL endpoint."
         />
       </RadioGroup>
     </FormItem>

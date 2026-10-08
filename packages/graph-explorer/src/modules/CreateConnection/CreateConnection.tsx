@@ -203,9 +203,9 @@ const CreateConnection = ({
             <InfoTooltip>
               Provide the endpoint URL for your graph database, e.g., an Amazon
               Neptune cluster endpoint, a Gremlin Server URL, or a SPARQL
-              endpoint. Unless the connection method is Directly via browser,
-              the Graph Explorer server connects to this endpoint, so it must be
-              reachable from the host where Graph Explorer runs.
+              endpoint. Unless the connection method is Directly from your
+              browser, the Graph Explorer server connects to this endpoint, so
+              it must be reachable from the host where Graph Explorer runs.
             </InfoTooltip>
           </Label>
           <TextAreaField
