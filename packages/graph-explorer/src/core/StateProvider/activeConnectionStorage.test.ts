@@ -2,6 +2,8 @@ import { createStore } from "jotai";
 import localForage from "localforage";
 import { beforeEach, describe, expect, test } from "vitest";
 
+import type { ConnectionId } from "@/connections";
+
 import { createConnectionId } from "@/connections";
 import { readPersistedValue } from "@/utils/testing";
 
@@ -32,7 +34,7 @@ async function openTab() {
      */
     subscribe: () => store.sub(atom, () => {}),
     /** Activates a connection; resolves once the breadcrumb has landed. */
-    activate: (id: ReturnType<typeof createConnectionId> | null) => {
+    activate: (id: ConnectionId | null) => {
       store.set(atom, id);
       return persistenceStatusStore.waitForIdle();
     },

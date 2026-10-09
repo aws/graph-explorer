@@ -1,3 +1,5 @@
+import type { ConnectionConfig } from "@shared/types";
+
 import { neptuneServiceTypeOptions, queryEngineOptions } from "@shared/types";
 import { z } from "zod";
 
@@ -36,7 +38,7 @@ export type DefaultConnectionData = z.infer<typeof DefaultConnectionDataSchema>;
  * on failure. Throws `ReverseProxyMisconfiguredError` when the API URL can't
  * be resolved from the page's path.
  */
-export async function fetchDefaultConnection() {
+export async function fetchDefaultConnection(): Promise<SavedConnection[]> {
   const url = apiUrl("defaultConnection");
   try {
     const defaultConnection = await fetchDefaultConnectionFor(url);
@@ -47,7 +49,7 @@ export async function fetchDefaultConnection() {
 
     const config = mapToConnection(defaultConnection);
 
-    if (config.connection?.queryEngine) {
+    if (config.connection.queryEngine) {
       return [config];
     }
 
@@ -59,7 +61,7 @@ export async function fetchDefaultConnection() {
           ...config.connection,
           queryEngine: queryEngine,
         },
-      } as SavedConnection;
+      };
     });
 
     return configs;
@@ -105,7 +107,9 @@ export async function fetchDefaultConnectionFor(
   }
 }
 
-export function mapToConnection(data: DefaultConnectionData): SavedConnection {
+export function mapToConnection(
+  data: DefaultConnectionData,
+): SavedConnection & { connection: ConnectionConfig } {
   return {
     id: "Default Connection" as ConnectionId,
     displayLabel: "Default Connection",

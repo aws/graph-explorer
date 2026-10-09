@@ -1,0 +1,35 @@
+{
+  "id": "55555555-5555-4555-8555-555555555555",
+  "displayLabel": "Neptune with IAM (v1.5)",
+  "connection": {
+    "url": "https://proxy.example.com",
+    "queryEngine": "gremlin",
+    "proxyConnection": true,
+    "graphDbUrl": "https://neptune.example.com:8182",
+    "awsAuthEnabled": true,
+    "awsRegion": "us-west-2"
+  },
+  "schema": {
+    "vertices": [
+      {
+        "type": "airport",
+        "displayLabel": "airport",
+        "total": 3,
+        "attributes": [
+          { "name": "code", "displayLabel": "code", "dataType": "String" }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "type": "route",
+        "displayLabel": "route",
+        "total": 2,
+        "attributes": [
+          { "name": "dist", "displayLabel": "dist", "dataType": "Number" }
+        ]
+      }
+    ],
+    "lastUpdate": "2024-01-01T12:30:00.000Z"
+  }
+}
