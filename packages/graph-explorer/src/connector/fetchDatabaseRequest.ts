@@ -196,11 +196,12 @@ export async function fetchDatabaseRequest(
   try {
     return await sendRequest(uri, fetchOptions);
   } catch (error) {
-    // anySignal keeps the first reason, so this tells a timeout from a user
-    // cancel that came after it. An error built from a received response
-    // already says what happened, so it is never relabeled.
+    // Both reasons are undefined until a signal aborts, so check that the
+    // timeout fired. anySignal keeps the first reason, so this tells a timeout
+    // from a user cancel that came after it. An error built from a received
+    // response already says what happened, so it is never relabeled.
     if (
-      fetchTimeout &&
+      fetchTimeout?.signal.aborted &&
       !(error instanceof NetworkError) &&
       signal?.reason === fetchTimeout.signal.reason
     ) {

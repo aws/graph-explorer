@@ -1101,6 +1101,56 @@ describe("fetchDatabaseRequest", () => {
       expect(error.timeoutMs).toBe(1);
     });
 
+    it("wraps a failed fetch in ServerConnectionError when a fetch timeout is configured but has not fired", async () => {
+      const cause = new TypeError("Failed to fetch");
+      mockFetch.mockRejectedValue(cause);
+      const conn = createConnection({ fetchTimeoutMs: 240000 });
+
+      const error = await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+      }).catch(e => e);
+
+      expect(error).toStrictEqual(
+        new ServerConnectionError("http://localhost/gremlin", cause),
+      );
+    });
+
+    it("wraps a failed fetch on a direct connection in DatabaseUnreachableError when a fetch timeout is configured but has not fired", async () => {
+      const cause = new TypeError("Failed to fetch");
+      mockFetch.mockRejectedValue(cause);
+      const conn = createConnection({
+        fetchTimeoutMs: 240000,
+        proxyConnection: false,
+      });
+
+      const error = await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+      }).catch(e => e);
+
+      expect(error).toStrictEqual(
+        new DatabaseUnreachableError(
+          "https://db.example.com:8182/gremlin",
+          cause,
+        ),
+      );
+    });
+
+    it("propagates a response parsing error when a fetch timeout is configured but has not fired", async () => {
+      mockFetch.mockResolvedValue(
+        new Response("not json", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+      const conn = createConnection({ fetchTimeoutMs: 240000 });
+
+      const error = await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+      }).catch(e => e);
+
+      expect(error).toBeInstanceOf(SyntaxError);
+    });
+
     it("throws DatabaseTimeoutError for a Neptune query timeout body", async () => {
       const errorBody = {
         requestId: "abc-123",
