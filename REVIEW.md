@@ -15,7 +15,7 @@ Reserve Important for the cases below. Everything else is Nit at most. That incl
 - **Runtime APIs newer than the browser floor in `packages/graph-explorer/.browserslistrc`,** such as `Error.isError` or Iterator helpers. The browser packages set `lib: ES2023` (graph-explorer adds `ES2024.String`, which is inside the floor), so `tsc` catches the rest of ES2024 and later APIs, but not ES2023 APIs that shipped after the floor, or DOM APIs, which `lib` doesn't version.
 - **Production code that imports a `devDependency`.**
 - **Work that grows with graph or schema size:** one query or subscription per item, quadratic loops, or copying passes over large collections.
-- **Tests that can't fail.** Ask whether the test would fail if the change were reverted. Flag these:
+- **Tests that can't fail.** Name a plausible regression of the behavior the test's name promises, and prove the verdict with a mutation: inject that regression and run the test. A test that stays green is the finding, and the fix is to tighten it until the mutation turns it red. Recommend deletion only when no regression of that behavior could reach the test. Flag these:
   - Assertions on plumbing the test set up itself.
   - Tests that lock in a bug.
   - Tests deleted without a stated reason.
