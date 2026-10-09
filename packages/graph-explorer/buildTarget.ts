@@ -20,7 +20,7 @@ export function browserslistBuildTarget(): string[] {
 
 /**
  * Converts browserslist results such as `ios_saf 17.6-17.7` into Vite build
- * targets such as `ios17.4`, keeping the oldest version of each browser.
+ * targets such as `ios17.6`, keeping the oldest version of each browser.
  */
 export function toBuildTarget(browsers: string[]): string[] {
   const oldest = new Map<string, string>();
