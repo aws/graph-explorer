@@ -58,6 +58,11 @@ function tabOpener<T>(
     let atom = await createSessionScopedAtom<T>({ ...options, sessionStorage });
     return {
       read: () => store.get(atom),
+      /**
+       * Mounts the atom the way a rendered component does, so a cross-tab sync
+       * wired through `onMount` would reach this tab.
+       */
+      subscribe: () => store.sub(atom, () => {}),
       write: (value: T) => {
         store.set(atom, value);
         return persistenceStatusStore.waitForIdle();
@@ -319,6 +324,7 @@ describe("createSessionScopedAtom", () => {
 describe("createSessionScopedAtom across tabs", () => {
   test("writing in one tab does not change an already-open tab", async () => {
     const tabB = await openTab();
+    tabB.subscribe();
     await tabB.write({ count: 2 });
 
     const tabA = await openTab();
@@ -471,6 +477,7 @@ describe("backward compatibility: graph view layout breadcrumb", () => {
 describe("graph view layout across tabs", () => {
   test("changing the view layout in one tab does not change an already-open tab", async () => {
     const tabB = await openGraphViewTab();
+    tabB.subscribe();
     const tabBLayout: GraphViewLayout = {
       ...defaultGraphViewLayout,
       activeSidebarItem: "filters",
@@ -517,6 +524,7 @@ describe("schema view layout across tabs", () => {
 
   test("changing the view layout in one tab does not change an already-open tab", async () => {
     const tabB = await openSchemaViewTab();
+    tabB.subscribe();
     const tabBLayout: SchemaViewLayout = {
       ...defaultSchemaViewLayout,
       activeSidebarItem: "styles",
