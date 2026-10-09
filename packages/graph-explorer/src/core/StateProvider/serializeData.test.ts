@@ -61,7 +61,7 @@ describe("serializeData", () => {
     const result = serializeData(input);
     expect(result).toEqual({
       __type: "Set",
-      value: Array.from(input.values()),
+      value: Array.from(input),
     });
   });
   test("serialize deep object tree", () => {

@@ -92,10 +92,10 @@ function GraphViewerContent({
 
   // Map the ids to rendered IDs for compatibility with Cytoscape
   const nodesOutRenderedIds = new Set(
-    Array.from(nodesOutIds.values()).map(createRenderedVertexId),
+    Array.from(nodesOutIds).map(createRenderedVertexId),
   );
   const edgesOutRenderedIds = new Set(
-    Array.from(edgesOutIds.values()).map(createRenderedEdgeId),
+    Array.from(edgesOutIds).map(createRenderedEdgeId),
   );
 
   const onSelectedElementIdsChange = ({
