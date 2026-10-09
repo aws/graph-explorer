@@ -6,12 +6,12 @@ Logs are, by default, sent to the console and will be visible as output to the d
 
 The log level will be set via the `LOG_LEVEL` env variable at `/packages/graph-explorer/.env` where the possible options, from highest to lowest, are `fatal`, `error`, `warn`, `info`, `debug`, `trace`, and `silent` such that `fatal` is the highest level and will only include logs labeled as fatal and `trace` the lowest and will include any type of log. The `silent` level disables all logging.
 
-By default, the log level is set to `info` and the only type of logs generated are those of `error`, `info`, or `debug`. If you need more detailed logs, you can change the log level from `info` in the default .env file to `debug` and the logs will begin printing the error's stack trace.
+When `LOG_LEVEL` is unset, the server logs at `debug`. The bundled `.env` sets it to `info`, so a default deployment logs at `info`. For more detail, change it to `debug` or `trace`.
 
 At `debug` and `trace`, the query text sent to the database is written to the logs. Queries can contain sensitive data, so use those levels for troubleshooting and restrict access to wherever the logs are stored. On SageMaker, the logs go to a CloudWatch log group shared with the notebook. See [Logging and privacy](../guides/deploy-to-sagemaker.md#logging-and-privacy).
 
 The proxy server logging is split across a few key modules:
 
 1. `logging.ts` - Contains the `logger` instance (using pino) that is responsible for actually recording the logs.
-2. `error-handler.ts` - Contains `errorHandlingMiddleware` which catches errors thrown within Express routes, logs whitelisted request headers, and sends appropriate error responses. It also contains a `handleError` function used for global error handling.
-3. An endpoint called `/logger` in `node-server.ts` - This is how you would log things from the browser. It needs a log level and message header passed and you can then expect to see the message logged at the provided log level.
+2. `error-handler.ts` - Contains `errorHandlingMiddleware` which catches errors thrown within Express routes, logs allowlisted request headers, and sends appropriate error responses. It also contains a `handleError` function used for global error handling.
+3. An endpoint called `/logger` in `app.ts` - This is how you would log things from the browser. It needs a log level and message header passed and you can then expect to see the message logged at the provided log level.

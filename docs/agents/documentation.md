@@ -38,5 +38,5 @@ The same claim gets the same marker everywhere it appears. A page carrying three
 
 ## Docs that mirror code
 
-- `docs/references/security.md#reference-for-access-control-layers` copies the proxy server's routes, methods, request headers, body limit, and the client fetch timeout default. A change to any of them updates that section.
+- `docs/references/security.md#reference-for-access-control-layers` copies the proxy server's routes, methods, request headers, body limit, and the Default Connection's Fetch Timeout. A change to any of them updates that section.
 - A new deployment guide gets the access control `[!IMPORTANT]` block, worded identically to the existing guides, and a row in the deployment table in `docs/references/security.md#access-control`.

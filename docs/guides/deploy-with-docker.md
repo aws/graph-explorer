@@ -10,7 +10,7 @@ You can find the latest version of the image on [Amazon's ECR Public Registry](h
 >
 > The `sagemaker-*` image tags are now aliases for the same image as the regular tag. They exist only for compatibility with existing SageMaker lifecycle scripts and will stop being published in a future release. Use the regular tag for new deployments.
 >
-> Because of this, running a `sagemaker-*` tag without `NEPTUNE_NOTEBOOK=true` starts with the standard defaults: HTTPS on port 443 with a generated self-signed certificate, instead of HTTP on port 9250 with cloudwatch logs. Pass `NEPTUNE_NOTEBOOK=true` to keep port 9250 and cloudwatch logs.
+> Because of this, running a `sagemaker-*` tag without `NEPTUNE_NOTEBOOK=true` starts with the standard defaults: HTTPS on port 443, which needs `HOST` set to generate its certificate, instead of HTTP on port 9250 with cloudwatch logs. Pass [`NEPTUNE_NOTEBOOK=true`](../references/configuration.md#neptune_notebook) to keep port 9250 and cloudwatch logs.
 
 > [!IMPORTANT]
 >

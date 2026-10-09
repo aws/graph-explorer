@@ -17,7 +17,7 @@ When `HOST` is set, a new container generates a fresh self-signed certificate, w
 Example: `localhost`
 
 - Required when using HTTPS connections, unless you provide existing certificates
-- Default is `localhost`
+- Default: `localhost` in code. Unset in Docker, where HTTPS won't start without it unless you provide certificates.
 - Type: `string`
 
 ### `PROXY_SERVER_HTTPS_PORT`
@@ -98,7 +98,7 @@ Controls the log output format.
 Sets the minimum severity the proxy server logs. Values from highest to lowest are `fatal`, `error`, `warn`, `info`, `debug`, `trace`, and `silent`, which disables logging. See [Logging](./logging.md).
 
 - Optional
-- Default: `info`
+- Default: `debug`. The bundled `.env` sets it to `info`, so a default deployment logs at `info`.
 - Type: `"fatal" | "error" | "warn" | "info" | "debug" | "trace" | "silent"`
 
 > [!WARNING]
@@ -115,6 +115,20 @@ Mounting `config.json` read-only at `/graph-explorer/config.json` (see [JSON Con
 
 - Optional
 - Default: `<client root>` (`packages/graph-explorer`)
+- Type: `string`
+
+### `NEPTUNE_NOTEBOOK`
+
+In the Docker image, applies the preset for running Graph Explorer in a SageMaker notebook. Only the exact value `true` turns it on. The preset:
+
+- Sets `PROXY_SERVER_HTTP_PORT` to `9250`, unless you set it
+- Sets `LOG_STYLE` to `cloudwatch`, unless you set it
+- Turns off HTTPS
+
+Graph Explorer refuses to start when `NEPTUNE_NOTEBOOK` and `PROXY_SERVER_HTTPS_CONNECTION` are both `true`. Set only one of them.
+
+- Optional
+- Default: unset
 - Type: `string`
 
 ## Default Connection
