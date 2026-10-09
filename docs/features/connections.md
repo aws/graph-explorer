@@ -20,8 +20,8 @@ For guides on connecting to specific databases, see [Connecting to databases](..
 
 The next two settings are grouped under an **Advanced options** section that you expand to reach. It starts expanded when the connection you are editing already overrides one of them, so an existing override is never hidden from you.
 
-- **Fetch Timeout:** Check **Enable Fetch Timeout** to reveal **Fetch Timeout (ms)**, then specify the timeout for the fetch request.
-- **Neighbor Expansion Limit:** Check **Override Default Neighbor Expansion Limit** to reveal this field, then specify the default limit for neighbor expansion. This will override the app setting for neighbor expansion.
+- **Fetch Timeout:** Check **Set a fetch timeout** to reveal **Fetch Timeout (ms)**, then specify the timeout for the fetch request.
+- **Neighbor Expansion Limit:** Check **Limit neighbors per expansion** to reveal this field, then specify the default limit for neighbor expansion. This will override the app setting for neighbor expansion.
 
 ## Available Connections
 
