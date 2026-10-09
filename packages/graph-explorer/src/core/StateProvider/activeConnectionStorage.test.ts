@@ -26,6 +26,11 @@ async function openTab() {
   let atom = await createActiveConnectionIdAtom({ sessionStorage });
   return {
     read: () => store.get(atom),
+    /**
+     * Mounts the atom the way a rendered component does, so a cross-tab sync
+     * wired through `onMount` would reach this tab.
+     */
+    subscribe: () => store.sub(atom, () => {}),
     /** Activates a connection; resolves once the breadcrumb has landed. */
     activate: (id: ReturnType<typeof createConnectionId> | null) => {
       store.set(atom, id);
@@ -144,6 +149,7 @@ describe("activeConnectionStorage across tabs", () => {
 
   test("activating a connection in one tab does not change an already-open tab", async () => {
     const tabB = await openTab();
+    tabB.subscribe();
     const tabBConnection = createConnectionId();
     await tabB.activate(tabBConnection);
 
