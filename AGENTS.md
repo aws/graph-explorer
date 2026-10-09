@@ -58,6 +58,7 @@ Read the relevant doc before working in that area:
 - `docs/agents/testing.md` — Vitest patterns, DbState, factories, backward-compat
 - `docs/agents/connectors.md` — Gremlin/openCypher/SPARQL query templates
 - `docs/agents/schema.md` — schema storage, discovery, Jotai atoms
+- `docs/agents/browser-floor.md` — supported browsers and how build, types, and lint enforce them
 - `docs/agents/issue-tracker.md` — GitHub issue and PR conventions
 - `docs/agents/documentation.md` — writing user-facing docs (READMEs, guides, docs site)
 - `docs/agents/product.md` — product overview, supported databases, architecture

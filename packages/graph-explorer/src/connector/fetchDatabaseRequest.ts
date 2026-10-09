@@ -137,6 +137,7 @@ function createFetchTimeout(
     return null;
   }
 
+  // oxlint-disable-next-line baseline-js/use-baseline -- Chrome 124, one above the floor; Widely available on 2026-10-18
   return { timeoutMs, signal: AbortSignal.timeout(timeoutMs) };
 }
 
