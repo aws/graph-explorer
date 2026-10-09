@@ -56,7 +56,7 @@ export function useDisplayVerticesFromVertices(vertices: Vertex[]) {
 
 const selectedDisplayVerticesSelector = atom(get => {
   const selectedIds = get(nodesSelectedIdsAtom);
-  return Array.from(selectedIds.values())
+  return Array.from(selectedIds)
     .map(id => get(nodeSelector(id)))
     .filter(n => n != null)
     .map(n => get(displayVertexSelector(n)))

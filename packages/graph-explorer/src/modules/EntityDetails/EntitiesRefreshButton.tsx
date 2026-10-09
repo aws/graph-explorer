@@ -6,8 +6,8 @@ import { edgesSelectedIdsAtom, nodesSelectedIdsAtom } from "@/core";
 import { useRefreshEntities } from "@/hooks";
 
 export function EntitiesRefreshButton() {
-  const vertexIds = Array.from(useAtomValue(nodesSelectedIdsAtom).values());
-  const edgeIds = Array.from(useAtomValue(edgesSelectedIdsAtom).values());
+  const vertexIds = Array.from(useAtomValue(nodesSelectedIdsAtom));
+  const edgeIds = Array.from(useAtomValue(edgesSelectedIdsAtom));
 
   const { refresh, isPending } = useRefreshEntities();
 

@@ -45,9 +45,7 @@ export async function vertexDetails(
     "vertices",
     request.vertexIds,
     vertices.map(v => v.id),
-    {
-      data,
-    },
+    data,
   );
 
   return { vertices };

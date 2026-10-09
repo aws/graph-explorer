@@ -57,7 +57,7 @@ export async function edgeDetails(
     "edges",
     request.edgeIds,
     edges.map(e => e.id),
-    { data },
+    data,
   );
 
   return { edges };
