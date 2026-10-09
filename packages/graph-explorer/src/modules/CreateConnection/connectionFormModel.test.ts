@@ -356,7 +356,7 @@ describe("validateConnectionForm", () => {
         valid: false,
         errors: {
           graphDbUrl:
-            "Directly via browser needs a full URL starting with http:// or https://",
+            "Enter a full URL starting with http:// or https:// to connect directly from your browser",
         },
       });
     },

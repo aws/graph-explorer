@@ -20,7 +20,7 @@ Then open Graph Explorer and add a new connection with the following settings:
 - Name: `Gremlin Server`
 - Database URL: `http://localhost:8182`
 - Query Language: `Gremlin`
-- Connection method: **Via proxy server**
+- Connection method: **Through the Graph Explorer server**
 
 ## Enable REST
 
@@ -36,7 +36,7 @@ Graph Explorer only supports HTTP(S) connections. When connecting to Gremlin-Ser
 
 ## Connect directly from the browser
 
-With **Connection method** set to **Directly via browser**, your browser sends queries to Gremlin Server itself instead of going through the Graph Explorer server. Gremlin Server's HTTP endpoint allows cross-origin requests from any site by default. It leaves the CORS headers off error responses, so a failed query shows as [Database not reachable from the browser](./troubleshooting.md#database-not-reachable-from-the-browser). To see the server's error message, use **Via proxy server**.
+With **Connection method** set to **Directly from your browser**, your browser sends queries to Gremlin Server itself instead of going through the Graph Explorer server. Gremlin Server's HTTP endpoint allows cross-origin requests from any site by default. It leaves the CORS headers off error responses, so a failed query shows as [Database not reachable from the browser](./troubleshooting.md#database-not-reachable-from-the-browser). To see the server's error message, use **Through the Graph Explorer server**.
 
 - The browser must be able to reach the Database URL. A server in a Docker container on your machine needs its port published to the host.
 - When Graph Explorer is served over HTTPS, the browser usually blocks an `http://` Database URL unless it points at a loopback host such as `localhost`. See [Insecure Database URL](./troubleshooting.md#insecure-database-url).

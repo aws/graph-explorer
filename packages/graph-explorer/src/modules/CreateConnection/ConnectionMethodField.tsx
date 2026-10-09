@@ -2,7 +2,14 @@ import { useId } from "react";
 import { z } from "zod";
 
 import {
-  Checkbox,
+  CheckboxField,
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+  FieldTitle,
   FormItem,
   InputField,
   Label,
@@ -10,7 +17,6 @@ import {
   RadioGroupItem,
   SelectField,
 } from "@/components";
-import { cn } from "@/utils";
 
 import type {
   ConnectionFormValues,
@@ -22,136 +28,114 @@ import { serviceTypeSchema } from "./connectionFormModel";
 const connectionMethodSchema = z.enum(["proxy", "browser"]);
 type ConnectionMethod = z.infer<typeof connectionMethodSchema>;
 
-type ConnectionMethodFieldProps = IamSettingsProps &
-  Pick<ConnectionFormValues, "directConnection">;
+type ConnectionMethodFieldProps = Pick<
+  ConnectionFormValues,
+  "directConnection" | "awsAuthEnabled" | "awsRegion" | "serviceType"
+> & {
+  regionError: string | undefined;
+  setField: SetConnectionFormField;
+};
 
 /**
- * Picks how requests reach the database. IAM authentication is offered only on
- * the proxy method, since the browser can't sign a request.
+ * Picks how requests reach the database, then offers IAM authentication. IAM is
+ * disabled for a direct connection, since the browser can't sign a request.
  */
-export function ConnectionMethodField({
-  directConnection,
-  setField,
-  ...iamSettings
-}: ConnectionMethodFieldProps) {
-  const labelId = useId();
+export function ConnectionMethodField(props: ConnectionMethodFieldProps) {
+  const { directConnection, setField } = props;
   const method: ConnectionMethod = directConnection ? "browser" : "proxy";
 
   return (
-    <FormItem>
-      <Label id={labelId}>Connection method</Label>
-      <RadioGroup
-        aria-labelledby={labelId}
-        value={method}
-        onValueChange={value =>
-          setField("directConnection")(
-            connectionMethodSchema.parse(value) === "browser",
-          )
-        }
-        className="gap-3"
-      >
-        <MethodCard
-          value="proxy"
-          selected={method === "proxy"}
-          title="Via proxy server"
-          description="The Graph Explorer server reaches the database for you. Works with Amazon Neptune, and supports AWS IAM authentication, query cancellation and server-side logging."
-          footer={<IamSettings {...iamSettings} setField={setField} />}
-        />
-        <MethodCard
-          value="browser"
-          selected={method === "browser"}
-          title="Directly via browser"
-          description="Your browser reaches the database itself, so the database must allow CORS from this page. No AWS IAM authentication, query cancellation or server-side logging."
-        />
-      </RadioGroup>
-    </FormItem>
+    <div className="flex flex-col gap-4">
+      <FieldSet>
+        <FieldLegend variant="label" className="text-muted-foreground">
+          Connection method
+        </FieldLegend>
+        <RadioGroup
+          value={method}
+          onValueChange={value =>
+            setField("directConnection")(
+              connectionMethodSchema.parse(value) === "browser",
+            )
+          }
+          className="gap-3"
+        >
+          <MethodCard
+            value="proxy"
+            title="Through the Graph Explorer server"
+            description="Recommended for every database, including Amazon Neptune. Add AWS IAM authentication below."
+          />
+          <MethodCard
+            value="browser"
+            title="Directly from your browser"
+            description="For databases that accept queries from web pages, such as a public SPARQL endpoint."
+          />
+        </RadioGroup>
+      </FieldSet>
+      <IamSettings {...props} />
+    </div>
   );
 }
 
+/**
+ * A choice card. The whole card is the radio's label, so clicking anywhere on
+ * it selects the method, and it highlights while its radio is checked.
+ */
 function MethodCard({
   value,
-  selected,
   title,
   description,
-  footer,
 }: {
   value: ConnectionMethod;
-  selected: boolean;
   title: string;
   description: string;
-  footer?: React.ReactNode;
 }) {
   const id = useId();
   const titleId = `${id}-title`;
   const descriptionId = `${id}-description`;
 
   return (
-    <div
-      className={cn(
-        "relative flex flex-col gap-3 rounded-md border p-4",
-        selected && "border-primary bg-primary/5",
-      )}
-    >
-      {/* The label's pseudo-element stretches over the card so any part of it
-          selects the method, while the footer stays above to remain usable. */}
-      <label
-        htmlFor={id}
-        className="flex cursor-pointer items-start justify-between gap-3 after:absolute after:inset-0 after:rounded-md"
-      >
-        <span className="flex flex-col gap-1">
-          <span id={titleId} className="font-medium">
-            {title}
-          </span>
-          <span id={descriptionId} className="text-muted-foreground text-sm">
-            {description}
-          </span>
-        </span>
+    <FieldLabel htmlFor={id} className="text-foreground cursor-pointer">
+      <Field orientation="horizontal">
+        <FieldContent>
+          <FieldTitle id={titleId}>{title}</FieldTitle>
+          <FieldDescription id={descriptionId}>{description}</FieldDescription>
+        </FieldContent>
+        {/* Named by the title alone; the card's whole text would otherwise
+            become the radio's name. */}
         <RadioGroupItem
           id={id}
           value={value}
           aria-labelledby={titleId}
           aria-describedby={descriptionId}
-          className="mt-0.5"
         />
-      </label>
-      {selected && footer && <div className="relative pt-1">{footer}</div>}
-    </div>
+      </Field>
+    </FieldLabel>
   );
 }
 
-type IamSettingsProps = Pick<
-  ConnectionFormValues,
-  "awsAuthEnabled" | "awsRegion" | "serviceType"
-> & {
-  regionError: string | undefined;
-  setField: SetConnectionFormField;
-};
-
+// A direct connection never saves IAM, so while one is chosen the checkbox
+// shows unchecked. The stored value is kept, so switching back restores it.
 function IamSettings({
+  directConnection,
   awsAuthEnabled,
   awsRegion,
   serviceType,
   regionError,
   setField,
-}: IamSettingsProps) {
+}: ConnectionMethodFieldProps) {
+  const iamInEffect = awsAuthEnabled && !directConnection;
+
   return (
-    <div className="flex flex-col gap-4 border-t pt-4">
-      <Label className="cursor-pointer">
-        <Checkbox
-          value="awsAuthEnabled"
-          checked={awsAuthEnabled}
-          onCheckedChange={checked =>
-            setField("awsAuthEnabled")(checked === true)
-          }
-        />
-        Use AWS IAM authentication
-      </Label>
-      {awsAuthEnabled && (
-        <>
-          <p className="text-muted-foreground text-sm">
-            The Graph Explorer server signs requests with its own AWS
-            credentials, not yours.
-          </p>
+    <div className="flex flex-col gap-4">
+      <CheckboxField
+        label="Use AWS IAM authentication"
+        description="The Graph Explorer server signs requests with its own AWS credentials, not yours."
+        checked={iamInEffect}
+        disabled={directConnection}
+        onCheckedChange={setField("awsAuthEnabled")}
+      />
+      {iamInEffect && (
+        <div className="flex flex-col gap-4 pl-7">
           <FormItem>
             <Label>AWS Region</Label>
             <InputField
@@ -178,7 +162,7 @@ function IamSettings({
               }
             />
           </FormItem>
-        </>
+        </div>
       )}
     </div>
   );

@@ -198,6 +198,6 @@ function validateGraphDbUrl(values: ConnectionFormValues): string | undefined {
   }
   // The browser resolves anything else against this page or as a scheme.
   if (values.directConnection && !isAbsoluteHttpUrl(values.graphDbUrl)) {
-    return "Directly via browser needs a full URL starting with http:// or https://";
+    return "Enter a full URL starting with http:// or https:// to connect directly from your browser";
   }
 }

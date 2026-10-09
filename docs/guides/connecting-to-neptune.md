@@ -9,7 +9,7 @@ Graph Explorer connects to Amazon Neptune through its proxy server, which forwar
 - Name: `My Neptune Cluster`
 - Database URL: `https://{your-cluster-endpoint}:8182`
 - Query Language: Choose the query language for your graph
-- Connection method: **Via proxy server**. Amazon Neptune sends no CORS headers, so a browser can't reach it directly.
+- Connection method: **Through the Graph Explorer server**. Amazon Neptune sends no CORS headers, so a browser can't reach it directly.
 - Use AWS IAM authentication: checked if IAM authentication is enabled on your cluster. Checking it reveals the AWS Region and Service Type fields.
 - AWS Region: your cluster's region (e.g., `us-east-1`)
 - Service Type: **Neptune DB** (or **Neptune Analytics**)

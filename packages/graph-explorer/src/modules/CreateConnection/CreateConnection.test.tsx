@@ -124,8 +124,8 @@ describe("CreateConnection", () => {
   });
 
   describe("connection method", () => {
-    const proxyOption = { name: "Via proxy server" };
-    const browserOption = { name: "Directly via browser" };
+    const proxyOption = { name: "Through the Graph Explorer server" };
+    const browserOption = { name: "Directly from your browser" };
     const iamOption = { name: "Use AWS IAM authentication" };
 
     function renderEditing(connection: ConnectionConfig) {
@@ -177,27 +177,25 @@ describe("CreateConnection", () => {
       await user.keyboard("{/ArrowDown}");
     });
 
-    test("says the server signs requests with its own credentials", async () => {
-      const user = userEvent.setup();
+    test("says the server signs requests with its own credentials", () => {
       renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
 
-      expect(screen.queryByText(/with its own AWS credentials/)).toBeNull();
-
-      await user.click(screen.getByRole("checkbox", iamOption));
-
       expect(
-        screen.getByText(/signs requests with its own AWS credentials/),
-      ).toBeInTheDocument();
+        screen.getByRole("checkbox", iamOption),
+      ).toHaveAccessibleDescription(
+        "The Graph Explorer server signs requests with its own AWS credentials, not yours.",
+      );
     });
 
-    test("hides the IAM controls when connecting directly via the browser", async () => {
+    test("disables IAM when connecting directly from the browser", async () => {
       const user = userEvent.setup();
       renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
 
       await user.click(screen.getByRole("checkbox", iamOption));
       await user.click(screen.getByRole("radio", browserOption));
 
-      expect(screen.queryByRole("checkbox", iamOption)).toBeNull();
+      expect(screen.getByRole("checkbox", iamOption)).toBeDisabled();
+      expect(screen.getByRole("checkbox", iamOption)).not.toBeChecked();
       expect(screen.queryByRole("textbox", { name: "AWS Region" })).toBeNull();
     });
 
@@ -225,7 +223,7 @@ describe("CreateConnection", () => {
 
       await user.click(
         screen.getByText(
-          "Your browser reaches the database itself, so the database must allow CORS from this page. No AWS IAM authentication, query cancellation or server-side logging.",
+          "For databases that accept queries from web pages, such as a public SPARQL endpoint.",
         ),
       );
 
@@ -290,7 +288,7 @@ describe("CreateConnection", () => {
         expect(store.get(savedConnectionsAtom)).toHaveLength(0);
         expect(
           screen.getByText(
-            "Directly via browser needs a full URL starting with http:// or https://",
+            "Enter a full URL starting with http:// or https:// to connect directly from your browser",
           ),
         ).toBeInTheDocument();
       },
@@ -317,7 +315,7 @@ describe("CreateConnection", () => {
       });
     });
 
-    test("shows an existing direct connection as Directly via browser", () => {
+    test("shows an existing direct connection as Directly from your browser", () => {
       renderEditing({
         graphDbUrl: "https://database.example.com:8182",
         proxyConnection: false,
@@ -462,6 +460,26 @@ describe("CreateConnection", () => {
     expect(
       screen.getByRole("spinbutton", { name: "Neighbor Expansion Limit" }),
     ).toBeInTheDocument();
+  });
+
+  test("describes each advanced option beside its checkbox", async () => {
+    const user = userEvent.setup();
+    renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+
+    await user.click(screen.getByRole("button", { name: "Advanced options" }));
+
+    expect(
+      screen.getByRole("checkbox", { name: "Enable Fetch Timeout" }),
+    ).toHaveAccessibleDescription(
+      "Large datasets may require a large amount of time to fetch. If the timeout is exceeded, the request will be cancelled.",
+    );
+    expect(
+      screen.getByRole("checkbox", {
+        name: "Override Default Neighbor Expansion Limit",
+      }),
+    ).toHaveAccessibleDescription(
+      "Large datasets may require a default limit to the amount of neighbors that are returned during any single expansion.",
+    );
   });
 
   test("keeps the advanced options collapsed until the user expands them", async () => {
