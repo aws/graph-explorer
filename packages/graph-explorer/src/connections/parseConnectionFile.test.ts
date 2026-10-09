@@ -526,7 +526,8 @@ describe("parseConnectionFile", () => {
  * accept a file with only `url`, still needs to accept a file with only the
  * canonical `graphDbUrl`, and must pass legacy/unknown keys through
  * untouched rather than stripping or rejecting them, since downstream
- * migration (`transformLegacyConnection`) depends on seeing them.
+ * migration (`transformLegacyConnection`) depends on seeing them. An invalid
+ * `awsRegion` or `serviceType` on these legacy shapes must still turn IAM off.
  *
  * DO NOT delete or weaken these tests without confirming that no exported
  * file in the wild can still be missing `graphDbUrl` or carrying these
@@ -610,4 +611,95 @@ describe("backward compatibility: legacy url/proxyConnection shape in exported f
       "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
     ]);
   });
+
+  const legacyProxyShapes = [
+    {
+      shape: "url only",
+      endpoints: () => ({ url: "https://neptune.example.com:8182" }),
+    },
+    {
+      shape: "url and graphDbUrl",
+      endpoints: () => ({
+        url: "https://proxy.example.com",
+        graphDbUrl: "https://neptune.example.com:8182",
+      }),
+    },
+  ];
+
+  const invalidSigningTargets = [
+    {
+      field: "awsRegion",
+      signingTarget: { awsRegion: 12345, serviceType: "neptune-db" },
+      kept: { serviceType: "neptune-db" },
+    },
+    {
+      field: "serviceType",
+      signingTarget: {
+        awsRegion: "us-west-2",
+        serviceType: "not-a-real-service-type",
+      },
+      kept: { awsRegion: "us-west-2" },
+    },
+  ];
+
+  describe.each(legacyProxyShapes)(
+    "legacy proxy file with $shape",
+    ({ endpoints }) => {
+      test.each(invalidSigningTargets)(
+        "drops an invalid $field, turns IAM off, and warns",
+        ({ signingTarget, kept }) => {
+          const connection = {
+            id: createConnectionId(),
+            connection: {
+              ...endpoints(),
+              proxyConnection: true,
+              queryEngine: "gremlin" as const,
+              awsAuthEnabled: true,
+              ...signingTarget,
+            },
+            schema: { vertices: [], edges: [] },
+          };
+
+          const result = parseConnectionFile(connection);
+
+          expect(result?.connection).toStrictEqual({
+            ...endpoints(),
+            proxyConnection: true,
+            queryEngine: "gremlin",
+            awsAuthEnabled: false,
+            ...kept,
+          });
+          expect(logger.warn).toHaveBeenCalledOnce();
+        },
+      );
+
+      test.each(invalidSigningTargets)(
+        "drops an invalid $field without a warning when IAM was off",
+        ({ signingTarget, kept }) => {
+          const connection = {
+            id: createConnectionId(),
+            connection: {
+              ...endpoints(),
+              proxyConnection: true,
+              queryEngine: "gremlin" as const,
+              awsAuthEnabled: false,
+              ...signingTarget,
+            },
+            schema: { vertices: [], edges: [] },
+          };
+
+          const result = parseConnectionFile(connection);
+
+          expect(result?.connection).toStrictEqual({
+            ...endpoints(),
+            proxyConnection: true,
+            queryEngine: "gremlin",
+            awsAuthEnabled: false,
+            ...kept,
+          });
+          expect(logger.warn).not.toHaveBeenCalled();
+        },
+      );
+    },
+  );
 });
