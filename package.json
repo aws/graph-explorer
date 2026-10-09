@@ -26,6 +26,8 @@
   "dependencies": {},
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "5.104.1",
+    "eslint-plugin-baseline-js": "0.7.4",
+    "eslint-plugin-es-x": "10.0.1",
     "eslint-plugin-react-hooks": "7.1.1",
     "fast-check": "^4.10.2",
     "husky": "^9.1.7",

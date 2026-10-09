@@ -39,10 +39,17 @@
         "caughtErrorsIgnorePattern": "^_"
       }
     ],
-    "no-console": ["error", { "allow": ["warn", "error"] }],
+    "no-console": [
+      "error",
+      {
+        "allow": ["warn", "error"]
+      }
+    ],
     "typescript/consistent-type-imports": [
       "error",
-      { "fixStyle": "inline-type-imports" }
+      {
+        "fixStyle": "inline-type-imports"
+      }
     ],
     "typescript/no-import-type-side-effects": "error",
     "typescript/switch-exhaustiveness-check": "error",
@@ -96,9 +103,14 @@
       "plugins": ["react", "react-perf", "jsx-a11y"],
       "jsPlugins": [
         "@tanstack/eslint-plugin-query",
-        { "name": "react-compiler", "specifier": "eslint-plugin-react-hooks" }
+        {
+          "name": "react-compiler",
+          "specifier": "eslint-plugin-react-hooks"
+        }
       ],
-      "env": { "browser": true },
+      "env": {
+        "browser": true
+      },
       "rules": {
         "react/display-name": "off",
         "react/no-unsafe": "error",
@@ -152,7 +164,39 @@
     {
       "files": ["packages/graph-explorer-proxy-server/**/*.{ts,js}"],
       "plugins": ["node"],
-      "env": { "node": true }
+      "env": {
+        "node": true
+      }
+    },
+    {
+      "files": [
+        "packages/graph-explorer/src/**/*.{ts,tsx}",
+        "packages/shared/src/**/*.ts"
+      ],
+      "jsPlugins": ["eslint-plugin-baseline-js", "eslint-plugin-es-x"],
+      "rules": {
+        "baseline-js/use-baseline": [
+          "error",
+          {
+            "available": "widely",
+            "includeWebApis": {
+              "preset": "auto"
+            },
+            "includeJsBuiltins": {
+              "preset": "auto"
+            },
+            "ignoreFeatures": ["html-wrapper-methods", "top-level-await"]
+          }
+        ],
+        "es-x/no-using-declarations": "error",
+        "es-x/no-regexp-duplicate-named-capturing-groups": "error",
+        "es-x/no-regexp-modifiers": "error",
+        "es-x/no-import-attributes": "error",
+        "es-x/no-json-modules": "error",
+        "es-x/no-dynamic-import-options": "error",
+        "es-x/no-trailing-dynamic-import-commas": "error"
+      },
+      "excludeFiles": ["**/*.test.{ts,tsx}", "**/testing/**", "**/testUtils/**"]
     }
   ]
 }
