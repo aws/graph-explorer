@@ -19,7 +19,7 @@ describe("warnMissingIds", () => {
   it("does not warn when every requested id was found", () => {
     const a = createVertexId("a");
     const b = createVertexId("b");
-    warnMissingIds("vertices", [a, b], [a, b], { data: 1 });
+    warnMissingIds("vertices", [a, b], [a, b], 1);
     expect(warnSpy).not.toHaveBeenCalled();
   });
 
@@ -27,11 +27,21 @@ describe("warnMissingIds", () => {
     const a = createEdgeId("a");
     const b = createEdgeId("b");
     const c = createEdgeId("c");
-    warnMissingIds("edges", [a, b, c], [a], { data: 1 });
+    warnMissingIds("edges", [a, b, c], [a], 1);
     expect(warnSpy).toHaveBeenCalledWith("Did not find all requested edges", {
       requested: [a, b, c],
       missing: [b, c],
-      data: 1,
+      response: 1,
     });
+  });
+
+  it("only accepts ids that match the entity label", () => {
+    const vertexId = createVertexId("a");
+    const edgeId = createEdgeId("a");
+    // @ts-expect-error edge ids can't be reported as vertices
+    warnMissingIds("vertices", [edgeId], [], 1);
+    // @ts-expect-error vertex ids can't be reported as edges
+    warnMissingIds("edges", [vertexId], [], 1);
+    expect(warnSpy).toHaveBeenCalledTimes(2);
   });
 });
