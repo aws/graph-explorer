@@ -1,7 +1,5 @@
 import type { QueryEngine } from "@shared/types";
 
-import { isWellFormedString } from "@/utils";
-
 import type { FragmentPosition } from "./queryFragment";
 
 /**
@@ -85,7 +83,7 @@ export class UnrepresentableStringError extends UnrepresentableValueError {
  * escaped text and always pass.
  */
 export function assertRepresentable(value: string): void {
-  if (!isWellFormedString(value) || value.includes("\0")) {
+  if (!value.isWellFormed() || value.includes("\0")) {
     throw new UnrepresentableStringError(value);
   }
 }

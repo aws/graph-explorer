@@ -26,7 +26,6 @@ export * from "./formatRelativeDate";
 export * from "./numbers";
 export * from "./isCancellationError";
 export * from "./isVisible";
-export * from "./isWellFormedString";
 export * from "./parseNumberSafely";
 export * from "./setHelpers";
 export * from "./typedEntries";

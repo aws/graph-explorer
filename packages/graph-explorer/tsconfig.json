@@ -13,7 +13,7 @@
     "jsx": "react-jsx",
 
     /* Type Resolution */
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "lib": ["ES2023", "ES2024.String", "DOM", "DOM.Iterable"],
     "types": ["vite/client", "@types/wicg-file-system-access"],
     "paths": {
       "@/*": ["./src/*"],

@@ -1,6 +1,5 @@
 import type { Branded } from "@/utils/branded";
 
-import { isWellFormedString } from "@/utils/isWellFormedString";
 import { getLucideName } from "@/utils/lucideIcons";
 
 /**
@@ -34,7 +33,7 @@ const ICON_VALUE_PATTERN =
  * too: `encodeURIComponent` throws on one during style computation.
  */
 export function isAllowedIconValue(value: string): boolean {
-  return ICON_VALUE_PATTERN.test(value) && isWellFormedString(value);
+  return ICON_VALUE_PATTERN.test(value) && value.isWellFormed();
 }
 
 /** Identity of an icon, independent of the color any vertex type renders it in. */
