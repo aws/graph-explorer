@@ -42,11 +42,11 @@ Then add a connection with these settings:
 - Name: `Gremlin Server`
 - Database URL: `http://gremlin-server:8182`
 - Query Language: `Gremlin`
-- Connection method: **Via proxy server**
+- Connection method: **Through the Graph Explorer server**
 
 The [Air Routes sample](../../samples/air_routes/README.md) sets up the same arrangement with Docker Compose.
 
-Alternatively, run Gremlin Server with its port published on `127.0.0.1` as above and connect with **Directly via browser** to `http://localhost:8182`. See [Connect directly from the browser](#connect-directly-from-the-browser).
+Alternatively, run Gremlin Server with its port published on `127.0.0.1` as above and connect with **Directly from your browser** to `http://localhost:8182`. See [Connect directly from the browser](#connect-directly-from-the-browser).
 
 ## Enable REST
 
