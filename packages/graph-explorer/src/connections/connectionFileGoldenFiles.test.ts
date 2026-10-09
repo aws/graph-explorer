@@ -5,6 +5,7 @@ import type { ConfigurationContextProps } from "@/core/StateProvider/typeConfigT
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { createEdgeType, createVertexType } from "@/core/entities";
+import { logger } from "@/utils";
 import { stubDocumentUrl } from "@/utils/testing";
 import { exportConnectionFileText } from "@/utils/testing/exportConnectionFileText";
 
@@ -15,6 +16,9 @@ import exportGoldenLegacyUrlProxy from "./__fixtures__/connection-file-export-go
 import exportGoldenWithoutUrl from "./__fixtures__/connection-file-export-golden.txt?raw";
 import legacyUrlDirect from "./__fixtures__/connection-file-legacy-url-direct.json?raw";
 import legacyUrlProxy from "./__fixtures__/connection-file-legacy-url-proxy.json?raw";
+import v1_5IamWithoutServiceType from "./__fixtures__/connection-file-v1.5-iam-without-service-type.json?raw";
+import v3_2_2IamProxy from "./__fixtures__/connection-file-v3.2.2-iam-proxy.json?raw";
+import v3_2_2ProxyIamOff from "./__fixtures__/connection-file-v3.2.2-proxy-iam-off.json?raw";
 import { parseConnectionFile } from "./parseConnectionFile";
 
 /**
@@ -28,6 +32,10 @@ import { parseConnectionFile } from "./parseConnectionFile";
  * including the pre-unified-proxy `url`/`proxyConnection` form and legacy
  * pass-through keys (`__inferred`, `dataType`), and the file `main` wrote
  * between #1773 and #2315 with no `url` (`connection-file-export-golden.txt`).
+ * The `connection-file-v*` fixtures pin the IAM fields as tagged releases
+ * wrote them: v1.0.0 to v1.5.x wrote `awsAuthEnabled` and `awsRegion` with no
+ * `serviceType`, and v3.2.2 wrote every proxy connection with `serviceType`
+ * and `awsRegion`, even with IAM off.
  * The export cases compare the writer's output byte-for-byte against the
  * `connection-file-export-golden-legacy-url-*.txt` fixtures, so any change to
  * the wire format — values, field order, or whitespace — is caught here rather
@@ -85,6 +93,62 @@ describe("golden Exported Connection Files import on the current build", () => {
     expect(connection.url).toBeUndefined();
     expect(connection.graphDbUrl).toBe("https://neptune.example.com:8182");
     expect(connection.proxyConnection).toBe(true);
+  });
+
+  test("v1.5 IAM connection without serviceType keeps IAM on without a warning", () => {
+    const parsed = parseConnectionFile(JSON.parse(v1_5IamWithoutServiceType));
+
+    expect(parsed?.connection).toStrictEqual({
+      url: "https://proxy.example.com",
+      queryEngine: "gremlin",
+      proxyConnection: true,
+      graphDbUrl: "https://neptune.example.com:8182",
+      awsAuthEnabled: true,
+      awsRegion: "us-west-2",
+    });
+    expect(logger.warn).not.toHaveBeenCalled();
+
+    // v1.5 schema sync wrote displayLabel and total on each type.
+    expect(parsed?.schema.vertices).toStrictEqual([
+      {
+        type: createVertexType("airport"),
+        displayLabel: "airport",
+        total: 3,
+        attributes: [
+          { name: "code", displayLabel: "code", dataType: "String" },
+        ],
+      },
+    ]);
+  });
+
+  test("v3.2.2 IAM proxy connection keeps IAM on without a warning", () => {
+    const parsed = parseConnectionFile(JSON.parse(v3_2_2IamProxy));
+
+    expect(parsed?.connection).toStrictEqual({
+      url: "https://proxy.example.com",
+      queryEngine: "gremlin",
+      proxyConnection: true,
+      awsAuthEnabled: true,
+      serviceType: "neptune-db",
+      awsRegion: "us-west-2",
+      graphDbUrl: "https://neptune.example.com:8182",
+    });
+    expect(logger.warn).not.toHaveBeenCalled();
+  });
+
+  test("v3.2.2 proxy connection with IAM off keeps its empty awsRegion and serviceType", () => {
+    const parsed = parseConnectionFile(JSON.parse(v3_2_2ProxyIamOff));
+
+    expect(parsed?.connection).toStrictEqual({
+      url: "https://proxy.example.com",
+      queryEngine: "gremlin",
+      proxyConnection: true,
+      awsAuthEnabled: false,
+      serviceType: "neptune-db",
+      awsRegion: "",
+      graphDbUrl: "https://neptune.example.com:8182",
+    });
+    expect(logger.warn).not.toHaveBeenCalled();
   });
 
   test("legacy direct connection with only url and no graphDbUrl", () => {

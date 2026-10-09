@@ -1,0 +1,17 @@
+{
+  "id": "77777777-7777-4777-8777-777777777777",
+  "displayLabel": "Neptune without IAM (v3.2.2)",
+  "connection": {
+    "url": "https://proxy.example.com",
+    "queryEngine": "gremlin",
+    "proxyConnection": true,
+    "awsAuthEnabled": false,
+    "serviceType": "neptune-db",
+    "awsRegion": "",
+    "graphDbUrl": "https://neptune.example.com:8182"
+  },
+  "schema": {
+    "vertices": [],
+    "edges": []
+  }
+}
