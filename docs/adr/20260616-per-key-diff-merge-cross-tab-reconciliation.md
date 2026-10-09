@@ -3,6 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-06-16
 - **Related:** ADR `indexeddb-not-localstorage-for-persistence` (IndexedDB constraint) is the storage substrate this reconciliation runs on. Issue #1820 (the clobber bug); inverse of #1788 / per-tab active connection, which wants per-tab _divergence_ rather than reconciliation.
+- **Updated:** 2026-10-06 — identifiers renamed in #2361. The decision below is unchanged. Read it with this substitution: `activeConfiguration`→`activeConnectionIdAtom`.
 
 ## Context
 

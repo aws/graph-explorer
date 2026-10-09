@@ -45,7 +45,7 @@ These files are the canonical, always-current examples. Open the closest one and
 - SPARQL response parsing: `src/connector/sparql/parseAndMapQuads.test.ts`
 - Cross-tab persistence, shared localForage atoms: `src/utils/testing/persistence.test.ts` (`PersistenceTab` is typed to `atomWithLocalForage` and cannot open a per-tab atom)
 - Cross-tab persistence, per-tab atoms: `src/core/StateProvider/sessionScopedStorage.test.ts` — one `createInMemorySessionStorage()` per simulated tab over the single shared fake-indexeddb
-- Legacy persisted-shape handling: `src/connections/parseConnectionFile.test.ts`
+- Legacy stored-shape handling (IndexedDB): `src/connections/legacyConnection.test.ts`; legacy exported-file handling: `src/connections/parseConnectionFile.test.ts`
 
 Canonical hook test shape:
 
@@ -108,8 +108,10 @@ A test that deliberately abandons a request should await the cancellation before
 
 Anything persisted to IndexedDB via localForage/Jotai may be reloaded in an older shape after a type change, silently breaking logic that assumes the new shape. So: **when you change the shape of a persisted type, add tests that exercise the old shape alongside the new** — old shape loads without error, consuming logic produces correct results for both, and old/new can coexist in a collection.
 
-Group them in a dedicated `describe("backward compatibility: ...")` with a comment block stating the old shape, why the tests exist, and a "do not delete without confirming migration" warning. See `src/connections/parseConnectionFile.test.ts` or `src/core/StateProvider/graphViewLayout.test.ts` for worked examples.
+Group them in a dedicated `describe("backward compatibility: ...")` with a comment block stating the old shape, why the tests exist, and a "do not delete without confirming migration" warning. See `src/connections/legacyConnection.test.ts` or `src/core/StateProvider/graphViewLayout.test.ts` for worked examples of stored shapes, and `src/connections/parseConnectionFile.test.ts` for exported files.
 
 Applies to any object type persisted via `atomWithLocalForage` or `createSessionScopedAtom`. Triggers: removing/renaming a property, changing a property's type, adding a required property, or changing a property's semantics. For a per-tab atom the old shape arrives on the shared localForage breadcrumb, which its codec's `parseStored` must accept.
 
 The same pinning applies outside IndexedDB: legacy environment variables that older deployments still set, and legacy on-disk configuration files that older exports or lifecycle scripts still produce, deserve the same dedicated `describe("backward compatibility: ...")` treatment. See `packages/graph-explorer-proxy-server/src/process-environment.test.ts` for the environment-variable case.
+
+Golden files in `__fixtures__` pin the on-disk and stored shapes that older builds wrote or must still read. Never edit one to make a test pass: fix the reader or writer instead, and add a new fixture for a new shape. See `src/connections/connectionFileGoldenFiles.test.ts`, `src/core/StateProvider/storedConnectionShapes.test.ts`, and `src/core/fileEnvelope/goldenFiles.test.ts`.
