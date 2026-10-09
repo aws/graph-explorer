@@ -4,6 +4,8 @@ import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { loadEnv } from "vite";
 import { defineConfig } from "vitest/config";
 
+import { browserslistBuildTarget } from "./buildTarget.ts";
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
@@ -39,7 +41,7 @@ export default defineConfig(({ mode }) => {
       __GRAPH_EXP_VERSION__: JSON.stringify(process.env.npm_package_version),
     },
     build: {
-      target: "baseline-widely-available",
+      target: browserslistBuildTarget(),
     },
     plugins: [
       tailwindcss(),
