@@ -12,7 +12,6 @@ const useNodeBadges = () => {
           text: nodeData.displayName,
           hidden: zoomLevel === "small" || outOfFocusIds.has(nodeData.id),
           title: zoomLevel === "large" ? nodeData.displayTypes : undefined,
-          maxWidth: zoomLevel === "large" ? 80 : 50,
           anchor: "center",
           fontSize: 7,
           borderRadius: 2,
