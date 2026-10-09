@@ -247,8 +247,8 @@ const CreateConnection = ({
           </CollapsibleTrigger>
           <CollapsibleContent className="flex flex-col gap-6">
             <CheckboxField
-              label="Enable Fetch Timeout"
-              description="Large datasets may require a large amount of time to fetch. If the timeout is exceeded, the request will be cancelled."
+              label="Set a fetch timeout"
+              description="Cancels a request that runs longer than the timeout. Useful for large datasets that are slow to fetch."
               checked={form.fetchTimeoutEnabled}
               onCheckedChange={setField("fetchTimeoutEnabled")}
             />
@@ -265,8 +265,8 @@ const CreateConnection = ({
               </FormItem>
             )}
             <CheckboxField
-              label="Override Default Neighbor Expansion Limit"
-              description="Large datasets may require a default limit to the amount of neighbors that are returned during any single expansion."
+              label="Limit neighbors per expansion"
+              description="Caps how many neighbors one expansion returns for this connection, in place of the app-wide default."
               checked={form.nodeExpansionLimitEnabled}
               onCheckedChange={setField("nodeExpansionLimitEnabled")}
             />

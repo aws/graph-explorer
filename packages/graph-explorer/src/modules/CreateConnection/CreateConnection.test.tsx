@@ -453,7 +453,7 @@ describe("CreateConnection", () => {
 
     await user.click(
       screen.getByRole("checkbox", {
-        name: /Override Default Neighbor Expansion Limit/,
+        name: /Limit neighbors per expansion/,
       }),
     );
 
@@ -469,16 +469,16 @@ describe("CreateConnection", () => {
     await user.click(screen.getByRole("button", { name: "Advanced options" }));
 
     expect(
-      screen.getByRole("checkbox", { name: "Enable Fetch Timeout" }),
+      screen.getByRole("checkbox", { name: "Set a fetch timeout" }),
     ).toHaveAccessibleDescription(
-      "Large datasets may require a large amount of time to fetch. If the timeout is exceeded, the request will be cancelled.",
+      "Cancels a request that runs longer than the timeout. Useful for large datasets that are slow to fetch.",
     );
     expect(
       screen.getByRole("checkbox", {
-        name: "Override Default Neighbor Expansion Limit",
+        name: "Limit neighbors per expansion",
       }),
     ).toHaveAccessibleDescription(
-      "Large datasets may require a default limit to the amount of neighbors that are returned during any single expansion.",
+      "Caps how many neighbors one expansion returns for this connection, in place of the app-wide default.",
     );
   });
 
@@ -487,17 +487,17 @@ describe("CreateConnection", () => {
     renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
 
     expect(
-      screen.queryByRole("checkbox", { name: /Enable Fetch Timeout/ }),
+      screen.queryByRole("checkbox", { name: /Set a fetch timeout/ }),
     ).not.toBeInTheDocument();
 
     await openAdvancedOptions(user);
 
     expect(
-      screen.getByRole("checkbox", { name: /Enable Fetch Timeout/ }),
+      screen.getByRole("checkbox", { name: /Set a fetch timeout/ }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("checkbox", {
-        name: /Override Default Neighbor Expansion Limit/,
+        name: /Limit neighbors per expansion/,
       }),
     ).toBeInTheDocument();
   });
@@ -532,7 +532,7 @@ describe("CreateConnection", () => {
       screen.getByRole("button", { name: "Advanced options" }),
     ).toHaveAttribute("aria-expanded", "true");
     expect(
-      screen.getByRole("checkbox", { name: /Enable Fetch Timeout/ }),
+      screen.getByRole("checkbox", { name: /Set a fetch timeout/ }),
     ).toBeChecked();
   });
 
@@ -646,7 +646,7 @@ describe("CreateConnection", () => {
     );
     await openAdvancedOptions(user);
     await user.click(
-      screen.getByRole("checkbox", { name: /Enable Fetch Timeout/ }),
+      screen.getByRole("checkbox", { name: /Set a fetch timeout/ }),
     );
     await user.clear(
       screen.getByRole("spinbutton", { name: "Fetch Timeout (ms)" }),
