@@ -41,9 +41,13 @@ const TabularHeader = <T extends object>({
             )}
           >
             <div
-              className="place-self-start overflow-hidden text-left data-[align='right']:text-right data-[overflow='ellipsis']:text-ellipsis"
+              className="w-full min-w-0 self-start truncate text-left data-[align='right']:text-right"
               data-align={column.align}
-              data-overflow={column.overflow}
+              title={
+                typeof column.Header === "string" && column.Header
+                  ? column.Header
+                  : undefined
+              }
             >
               {column.render("Header")}
             </div>
