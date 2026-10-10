@@ -1,15 +1,4 @@
 export { default as AddIcon } from "./AddIcon";
-export { default as ArrowCircle } from "./ArrowCircle";
-export { default as ArrowDiamond } from "./ArrowDiamond";
-export { default as ArrowNone } from "./ArrowNone";
-export { default as ArrowSquare } from "./ArrowSquare";
-export { default as ArrowTee } from "./ArrowTee";
-export { default as ArrowTriangle } from "./ArrowTriangle";
-export { default as ArrowTriangleBackCurve } from "./ArrowTriangleBackCurve";
-export { default as ArrowTriangleCircle } from "./ArrowTriangleCircle";
-export { default as ArrowTriangleCross } from "./ArrowTriangleCross";
-export { default as ArrowTriangleTee } from "./ArrowTriangleTee";
-export { default as ArrowVee } from "./ArrowVee";
 export { default as AutoFitLeftIcon } from "./AutoFitLeftIcon";
 export { default as CenterGraphIcon } from "./CenterGraphIcon";
 export { default as CheckIcon } from "./CheckIcon";

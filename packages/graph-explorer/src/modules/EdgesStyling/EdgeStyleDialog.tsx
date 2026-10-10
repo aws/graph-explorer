@@ -1,6 +1,7 @@
 import { atom, useAtom, useSetAtom } from "jotai";
 
 import {
+  ArrowStyleIcon,
   Button,
   ColorPopover,
   EdgePreview,
@@ -272,8 +273,11 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
                       {ARROW_STYLE_OPTIONS.map(option => (
                         <SelectItem key={option.value} value={option.value}>
                           <div className="flex flex-row items-center gap-3">
+                            <ArrowStyleIcon
+                              arrowStyle={option.value}
+                              className="size-6 rotate-180"
+                            />
                             {option.label}
-                            <option.Icon className="rotate-180" />
                           </div>
                         </SelectItem>
                       ))}
@@ -295,8 +299,11 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
                       {ARROW_STYLE_OPTIONS.map(option => (
                         <SelectItem key={option.value} value={option.value}>
                           <div className="flex flex-row items-center gap-3">
+                            <ArrowStyleIcon
+                              arrowStyle={option.value}
+                              className="size-6"
+                            />
                             {option.label}
-                            <option.Icon />
                           </div>
                         </SelectItem>
                       ))}
