@@ -1,4 +1,5 @@
 import { createRandomName } from "@shared/utils/testing";
+import { describe, expect, it } from "vitest";
 
 import { createGEdge, createTestableEdge } from "@/utils/testing";
 

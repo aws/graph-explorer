@@ -5,6 +5,7 @@ import {
   createRandomInteger,
   createRandomName,
 } from "@shared/utils/testing";
+import { describe, expect, it } from "vitest";
 
 import { mapApiProperties } from "./mapApiProperties";
 

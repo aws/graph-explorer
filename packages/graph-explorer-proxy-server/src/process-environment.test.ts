@@ -2,6 +2,7 @@ import { execFileSync } from "child_process";
 import fs from "fs";
 import os from "os";
 import path from "path";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 const scriptPath = path.resolve(
   import.meta.dirname,
@@ -84,8 +85,8 @@ describe("process-environment.sh", () => {
     });
   });
 
-  describe("NEPTUNE_NOTEBOOK=true forces SSL off", () => {
-    it("overrides both HTTPS vars to false", () => {
+  describe("NEPTUNE_NOTEBOOK=true", () => {
+    it("forces both HTTPS vars to false", () => {
       const { envFile } = runScript(workDir, {
         NEPTUNE_NOTEBOOK: "true",
       });
@@ -93,11 +94,117 @@ describe("process-environment.sh", () => {
       expect(envFile).toContain("GRAPH_EXP_HTTPS_CONNECTION=false");
     });
 
+    it("writes PROXY_SERVER_HTTP_PORT=9250 to .env", () => {
+      const { envFile } = runScript(workDir, {
+        NEPTUNE_NOTEBOOK: "true",
+      });
+      expect(envFile).toContain("PROXY_SERVER_HTTP_PORT=9250");
+    });
+
+    it("writes LOG_STYLE=cloudwatch to .env", () => {
+      const { envFile } = runScript(workDir, {
+        NEPTUNE_NOTEBOOK: "true",
+      });
+      expect(envFile).toContain("LOG_STYLE=cloudwatch");
+    });
+
     it("writes NEPTUNE_NOTEBOOK=true to .env", () => {
       const { envFile } = runScript(workDir, {
         NEPTUNE_NOTEBOOK: "true",
       });
-      expect(envFile).toContain("NEPTUNE_NOTEBOOK=true");
+      expect(envFile).toMatch(/^NEPTUNE_NOTEBOOK=true$/m);
+    });
+
+    it("respects explicit PROXY_SERVER_HTTP_PORT override", () => {
+      const { envFile } = runScript(workDir, {
+        NEPTUNE_NOTEBOOK: "true",
+        PROXY_SERVER_HTTP_PORT: "8080",
+      });
+      // The script only ever writes the 9250 default when the var is unset;
+      // it never writes an explicitly-set override back to .env. No
+      // PROXY_SERVER_HTTP_PORT line at all is what proves the override wins.
+      expect(envFile).not.toMatch(/^PROXY_SERVER_HTTP_PORT=/m);
+    });
+
+    it("respects explicit LOG_STYLE override", () => {
+      const { envFile } = runScript(workDir, {
+        NEPTUNE_NOTEBOOK: "true",
+        LOG_STYLE: "json",
+      });
+      expect(envFile).not.toContain("LOG_STYLE=cloudwatch");
+    });
+  });
+
+  describe("NEPTUNE_NOTEBOOK=true with an explicit HTTPS request", () => {
+    // Node never reads config.json, so .env is the only way it learns what the
+    // operator asked for. Overwriting the requested value here would leave the
+    // server unable to tell this conflict from the ordinary notebook setup.
+    it("keeps a value requested through config.json", () => {
+      fs.writeFileSync(
+        path.join(workDir, "config.json"),
+        JSON.stringify({
+          NEPTUNE_NOTEBOOK: true,
+          PROXY_SERVER_HTTPS_CONNECTION: true,
+        }),
+      );
+
+      const { envFile } = runScript(workDir);
+
+      expect(envFile).toMatch(/^NEPTUNE_NOTEBOOK=true$/m);
+      expect(envFile).toMatch(/^PROXY_SERVER_HTTPS_CONNECTION=true$/m);
+    });
+
+    it("keeps a value requested as an environment variable", () => {
+      const { envFile } = runScript(workDir, {
+        NEPTUNE_NOTEBOOK: "true",
+        PROXY_SERVER_HTTPS_CONNECTION: "true",
+      });
+
+      expect(envFile).toMatch(/^NEPTUNE_NOTEBOOK=true$/m);
+      expect(envFile).toMatch(/^PROXY_SERVER_HTTPS_CONNECTION=true$/m);
+    });
+
+    it("still forces SSL off when nothing was requested", () => {
+      fs.writeFileSync(
+        path.join(workDir, "config.json"),
+        JSON.stringify({ NEPTUNE_NOTEBOOK: true }),
+      );
+
+      const { envFile } = runScript(workDir);
+
+      expect(envFile).toMatch(/^PROXY_SERVER_HTTPS_CONNECTION=false$/m);
+    });
+
+    // config.json stores PROXY_SERVER_HTTPS_CONNECTION as a JSON boolean, but
+    // nothing stops it from holding null, a number, or an arbitrary string.
+    // Only an exact case-insensitive "true" should reach the server as a
+    // request for TLS; anything else must fall back to false like main did.
+    it.each(["null", "0", '"yes"'])(
+      "forces a non-boolean config.json value of %s to false",
+      jsonValue => {
+        fs.writeFileSync(
+          path.join(workDir, "config.json"),
+          `{"NEPTUNE_NOTEBOOK":true,"PROXY_SERVER_HTTPS_CONNECTION":${jsonValue}}`,
+        );
+
+        const { envFile } = runScript(workDir);
+
+        expect(envFile).toMatch(/^PROXY_SERVER_HTTPS_CONNECTION=false$/m);
+      },
+    );
+
+    it("keeps a config.json value that matches true case-insensitively", () => {
+      fs.writeFileSync(
+        path.join(workDir, "config.json"),
+        JSON.stringify({
+          NEPTUNE_NOTEBOOK: true,
+          PROXY_SERVER_HTTPS_CONNECTION: "TRUE",
+        }),
+      );
+
+      const { envFile } = runScript(workDir);
+
+      expect(envFile).toMatch(/^PROXY_SERVER_HTTPS_CONNECTION=TRUE$/m);
     });
   });
 
@@ -109,6 +216,14 @@ describe("process-environment.sh", () => {
       expect(envFile).toContain("NEPTUNE_NOTEBOOK=false");
       expect(envFile).toContain("PROXY_SERVER_HTTPS_CONNECTION=true");
       expect(envFile).toContain("GRAPH_EXP_HTTPS_CONNECTION=true");
+    });
+
+    it("does not write port or log style", () => {
+      const { envFile } = runScript(workDir, {
+        NEPTUNE_NOTEBOOK: "false",
+      });
+      expect(envFile).not.toContain("PROXY_SERVER_HTTP_PORT");
+      expect(envFile).not.toContain("LOG_STYLE");
     });
   });
 
@@ -124,9 +239,7 @@ describe("process-environment.sh", () => {
       fs.writeFileSync(
         path.join(workDir, "config.json"),
         JSON.stringify({
-          PUBLIC_OR_PROXY_ENDPOINT: "https://my-endpoint:8182",
           GRAPH_TYPE: "sparql",
-          USING_PROXY_SERVER: true,
           IAM: true,
           GRAPH_CONNECTION_URL: "https://my-db:8182",
           AWS_REGION: "us-west-2",
@@ -140,62 +253,55 @@ describe("process-environment.sh", () => {
       expect(envFile).toContain("PROXY_SERVER_HTTPS_CONNECTION=false");
       expect(envFile).toContain("GRAPH_EXP_HTTPS_CONNECTION=false");
       expect(defaultConnection).toMatchObject({
-        GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT: "https://my-endpoint:8182",
         GRAPH_EXP_GRAPH_TYPE: "sparql",
-        GRAPH_EXP_USING_PROXY_SERVER: true,
         GRAPH_EXP_IAM: true,
         GRAPH_EXP_CONNECTION_URL: "https://my-db:8182",
         GRAPH_EXP_AWS_REGION: "us-west-2",
       });
     });
 
-    it("config.json overrides conflicting env vars", () => {
+    it("config.json values override conflicting env vars", () => {
       fs.writeFileSync(
         path.join(workDir, "config.json"),
         JSON.stringify({
-          PUBLIC_OR_PROXY_ENDPOINT: "https://from-config:8182",
           GRAPH_TYPE: "sparql",
+          GRAPH_CONNECTION_URL: "https://from-config:8182",
+          AWS_REGION: "us-west-2",
         }),
       );
 
       const { defaultConnection } = runScript(workDir, {
-        PUBLIC_OR_PROXY_ENDPOINT: "https://from-env:8182",
         GRAPH_TYPE: "gremlin",
-      });
-
-      expect(defaultConnection).toHaveProperty(
-        "GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT",
-        "https://from-config:8182",
-      );
-      expect(defaultConnection).toHaveProperty(
-        "GRAPH_EXP_GRAPH_TYPE",
-        "sparql",
-      );
-    });
-  });
-
-  describe("defaultConnection.json generation", () => {
-    it("creates defaultConnection.json with GRAPH_EXP_ prefixed fields", () => {
-      const { defaultConnection } = runScript(workDir, {
-        PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
-        GRAPH_TYPE: "gremlin",
-        USING_PROXY_SERVER: "true",
-        IAM: "false",
-        GRAPH_CONNECTION_URL: "https://db:8182",
+        GRAPH_CONNECTION_URL: "https://from-env:8182",
         AWS_REGION: "eu-west-1",
       });
 
       expect(defaultConnection).toMatchObject({
-        GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
+        GRAPH_EXP_GRAPH_TYPE: "sparql",
+        GRAPH_EXP_CONNECTION_URL: "https://from-config:8182",
+        GRAPH_EXP_AWS_REGION: "us-west-2",
+      });
+    });
+  });
+
+  describe("defaultConnection.json generation", () => {
+    it("creates defaultConnection.json when GRAPH_CONNECTION_URL is set", () => {
+      const { defaultConnection } = runScript(workDir, {
+        GRAPH_CONNECTION_URL: "https://db:8182",
+        GRAPH_TYPE: "gremlin",
+        IAM: "false",
+        AWS_REGION: "eu-west-1",
+      });
+
+      expect(defaultConnection).toMatchObject({
         GRAPH_EXP_GRAPH_TYPE: "gremlin",
-        GRAPH_EXP_USING_PROXY_SERVER: true,
         GRAPH_EXP_IAM: false,
         GRAPH_EXP_CONNECTION_URL: "https://db:8182",
         GRAPH_EXP_AWS_REGION: "eu-west-1",
       });
     });
 
-    it("does not create defaultConnection.json without PUBLIC_OR_PROXY_ENDPOINT", () => {
+    it("does not create defaultConnection.json without GRAPH_CONNECTION_URL", () => {
       const { defaultConnection } = runScript(workDir, {
         GRAPH_TYPE: "gremlin",
       });
@@ -204,7 +310,7 @@ describe("process-environment.sh", () => {
 
     it("defaults SERVICE_TYPE to neptune-db", () => {
       const { defaultConnection } = runScript(workDir, {
-        PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
+        GRAPH_CONNECTION_URL: "https://db:8182",
       });
       expect(defaultConnection).toHaveProperty(
         "GRAPH_EXP_SERVICE_TYPE",
@@ -212,28 +318,313 @@ describe("process-environment.sh", () => {
       );
     });
 
-    it("defaults USING_PROXY_SERVER to false", () => {
+    it("defaults IAM to false", () => {
       const { defaultConnection } = runScript(workDir, {
-        PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
+        GRAPH_CONNECTION_URL: "https://db:8182",
+      });
+      expect(defaultConnection).toHaveProperty("GRAPH_EXP_IAM", false);
+    });
+
+    it("contains exactly the expected values when all values provided", () => {
+      const { defaultConnection } = runScript(workDir, {
+        GRAPH_CONNECTION_URL: "https://db:8182",
+        SERVICE_TYPE: "neptune-db",
+        GRAPH_TYPE: "gremlin",
+        IAM: "true",
+        AWS_REGION: "us-east-1",
+      });
+
+      expect(defaultConnection).toStrictEqual({
+        GRAPH_EXP_CONNECTION_URL: "https://db:8182",
+        GRAPH_EXP_GRAPH_TYPE: "gremlin",
+        GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+        GRAPH_EXP_IAM: true,
+        GRAPH_EXP_AWS_REGION: "us-east-1",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      });
+    });
+
+    it("marks a GRAPH_CONNECTION_URL connection as proxied", () => {
+      const { defaultConnection } = runScript(workDir, {
+        GRAPH_CONNECTION_URL: "https://db:8182",
       });
       expect(defaultConnection).toHaveProperty(
         "GRAPH_EXP_USING_PROXY_SERVER",
-        false,
+        true,
       );
     });
+  });
 
-    it("defaults IAM to false", () => {
+  /**
+   * BACKWARD COMPATIBILITY — LEGACY DEPLOYMENT INPUT
+   *
+   * Older deployments, and the SageMaker lifecycle script still in use today,
+   * set `PUBLIC_OR_PROXY_ENDPOINT` and `USING_PROXY_SERVER` instead of the
+   * current `GRAPH_CONNECTION_URL`. process-environment.sh must keep
+   * resolving those variables into the Default Connection's
+   * `GRAPH_EXP_CONNECTION_URL` and `GRAPH_EXP_USING_PROXY_SERVER`, whether
+   * they arrive alone, together with the current variable, or via
+   * `config.json`, and must never leak `PUBLIC_OR_PROXY_ENDPOINT` into
+   * `defaultConnection.json`. A connection that resolves to direct stays a
+   * direct connection.
+   *
+   * DO NOT delete or weaken these tests without confirming that no deployment
+   * still in the wild sets these legacy environment variables instead of
+   * `GRAPH_CONNECTION_URL`.
+   */
+  describe("backward compatibility: legacy PUBLIC_OR_PROXY_ENDPOINT / USING_PROXY_SERVER resolution", () => {
+    it("resolves to GRAPH_CONNECTION_URL when USING_PROXY_SERVER=true", () => {
       const { defaultConnection } = runScript(workDir, {
-        PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
+        USING_PROXY_SERVER: "true",
+        GRAPH_CONNECTION_URL: "https://proxied:8182",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://ignored:9250",
       });
-      expect(defaultConnection).toHaveProperty("GRAPH_EXP_IAM", false);
+      expect(defaultConnection).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: "https://proxied:8182",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      });
+    });
+
+    // The variables install-graph-explorer-lc.sh passes to `docker run`.
+    it("resolves to a proxied IAM GRAPH_CONNECTION_URL for the SageMaker lifecycle script's environment", () => {
+      const { defaultConnection } = runScript(workDir, {
+        LOG_LEVEL: "debug",
+        HOST: "127.0.0.1",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://notebook.sagemaker.aws/proxy/9250",
+        GRAPH_CONNECTION_URL: "https://neptune-cluster:8182",
+        PROXY_SERVER_ALLOWED_DB_ORIGINS: "https://neptune-cluster:8182",
+        USING_PROXY_SERVER: "true",
+        IAM: "true",
+        AWS_REGION: "us-west-2",
+        SERVICE_TYPE: "neptune-db",
+        PROXY_SERVER_HTTPS_CONNECTION: "false",
+        NEPTUNE_NOTEBOOK: "true",
+      });
+      expect(defaultConnection).toStrictEqual({
+        GRAPH_EXP_CONNECTION_URL: "https://neptune-cluster:8182",
+        GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+        GRAPH_EXP_IAM: true,
+        GRAPH_EXP_AWS_REGION: "us-west-2",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      });
+    });
+
+    it("resolves to a proxied GRAPH_CONNECTION_URL when USING_PROXY_SERVER=true and PUBLIC_OR_PROXY_ENDPOINT is unset", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "true",
+        GRAPH_CONNECTION_URL: "https://db:8182",
+      });
+      expect(defaultConnection).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: "https://db:8182",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      });
+    });
+
+    it("resolves to a direct PUBLIC_OR_PROXY_ENDPOINT when USING_PROXY_SERVER=false and GRAPH_CONNECTION_URL is unset", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "false",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+      });
+      expect(defaultConnection).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+      });
+    });
+
+    it("resolves to a direct GRAPH_CONNECTION_URL when USING_PROXY_SERVER=false and PUBLIC_OR_PROXY_ENDPOINT is unset", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "false",
+        GRAPH_CONNECTION_URL: "https://db:8182",
+      });
+      expect(defaultConnection).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: "https://db:8182",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+      });
+    });
+
+    it("resolves to a direct PUBLIC_OR_PROXY_ENDPOINT when USING_PROXY_SERVER=false and both URLs are set", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "false",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+        GRAPH_CONNECTION_URL: "https://db:8182",
+        IAM: "true",
+        AWS_REGION: "us-east-1",
+        SERVICE_TYPE: "neptune-db",
+      });
+      expect(defaultConnection).toStrictEqual({
+        GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+      });
+    });
+
+    it("keeps the openCypher query language on a direct neptune-graph connection", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "false",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+        SERVICE_TYPE: "neptune-graph",
+      });
+      expect(defaultConnection).toStrictEqual({
+        GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+        GRAPH_EXP_GRAPH_TYPE: "openCypher",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+      });
+    });
+
+    it("resolves to a proxied GRAPH_CONNECTION_URL when USING_PROXY_SERVER is unset and only GRAPH_CONNECTION_URL is set", () => {
+      const { defaultConnection } = runScript(workDir, {
+        GRAPH_CONNECTION_URL: "https://db:8182",
+      });
+      expect(defaultConnection).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: "https://db:8182",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      });
+    });
+
+    // Earlier versions treated an unset USING_PROXY_SERVER as false, so a
+    // deployment that sets both URLs keeps its direct Default Connection.
+    it("resolves to a direct PUBLIC_OR_PROXY_ENDPOINT when USING_PROXY_SERVER is unset and both URLs are set", () => {
+      const { defaultConnection } = runScript(workDir, {
+        GRAPH_CONNECTION_URL: "https://db:8182",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+      });
+      expect(defaultConnection).toStrictEqual({
+        GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+      });
+    });
+
+    it("resolves to a direct PUBLIC_OR_PROXY_ENDPOINT when both USING_PROXY_SERVER and GRAPH_CONNECTION_URL are unset", () => {
+      const { defaultConnection } = runScript(workDir, {
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+      });
+      expect(defaultConnection).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+      });
+    });
+
+    it("writes no defaultConnection.json when USING_PROXY_SERVER=true and GRAPH_CONNECTION_URL is unset", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "true",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+      });
+      expect(defaultConnection).toBeNull();
+    });
+
+    it("resolves USING_PROXY_SERVER case-insensitively", () => {
+      // Mixed case "True" must still be recognized as the proxy case, which
+      // is only observable here because it is the one row where getting the
+      // comparison wrong flips the result: a case-sensitive check would miss
+      // "True", fall through to PUBLIC_OR_PROXY_ENDPOINT, and wrongly produce
+      // a defaultConnection.json instead of none.
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "True",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+      });
+      expect(defaultConnection).toBeNull();
+    });
+
+    it("resolves a mixed-case USING_PROXY_SERVER=True to a proxied GRAPH_CONNECTION_URL", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "True",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+        GRAPH_CONNECTION_URL: "https://db:8182",
+      });
+      expect(defaultConnection).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: "https://db:8182",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      });
+    });
+
+    // Only a case-insensitive "true" means proxied. Any other value is set, so
+    // it doesn't fall back to inferring from the URLs, and resolves as direct.
+    it.each(["yes", "1", "on"])(
+      "resolves USING_PROXY_SERVER=%s to a direct PUBLIC_OR_PROXY_ENDPOINT",
+      value => {
+        const { defaultConnection } = runScript(workDir, {
+          USING_PROXY_SERVER: value,
+          PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+          GRAPH_CONNECTION_URL: "https://db:8182",
+          IAM: "true",
+          AWS_REGION: "us-east-1",
+          SERVICE_TYPE: "neptune-db",
+        });
+        expect(defaultConnection).toStrictEqual({
+          GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+          GRAPH_EXP_USING_PROXY_SERVER: false,
+        });
+      },
+    );
+
+    it("resolves a config.json USING_PROXY_SERVER of null to a direct PUBLIC_OR_PROXY_ENDPOINT", () => {
+      fs.writeFileSync(
+        path.join(workDir, "config.json"),
+        JSON.stringify({
+          USING_PROXY_SERVER: null,
+          PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+          GRAPH_CONNECTION_URL: "https://db:8182",
+          IAM: true,
+          AWS_REGION: "us-east-1",
+        }),
+      );
+
+      const { defaultConnection } = runScript(workDir);
+
+      expect(defaultConnection).toStrictEqual({
+        GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+      });
+    });
+
+    it("resolves through config.json as well as through environment variables", () => {
+      fs.writeFileSync(
+        path.join(workDir, "config.json"),
+        JSON.stringify({
+          USING_PROXY_SERVER: false,
+          PUBLIC_OR_PROXY_ENDPOINT: "https://from-config:9250",
+        }),
+      );
+
+      const { defaultConnection } = runScript(workDir);
+
+      expect(defaultConnection).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: "https://from-config:9250",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+      });
+    });
+
+    // Matches the client's `transformLegacyConnection`: the browser sends a
+    // direct connection's requests, so nothing would sign them.
+    it("drops IAM, region, and service type when USING_PROXY_SERVER=false", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "false",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+        IAM: "true",
+        AWS_REGION: "us-east-1",
+        SERVICE_TYPE: "neptune-db",
+      });
+      expect(defaultConnection).toStrictEqual({
+        GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+      });
+    });
+
+    it("does not write the legacy variable names to defaultConnection.json", () => {
+      const { defaultConnection } = runScript(workDir, {
+        USING_PROXY_SERVER: "true",
+        GRAPH_CONNECTION_URL: "https://proxied:8182",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+      });
+      expect(defaultConnection).not.toHaveProperty(
+        "GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT",
+      );
     });
   });
 
   describe("SERVICE_TYPE=neptune-graph auto-sets openCypher", () => {
     it("sets GRAPH_TYPE to openCypher when SERVICE_TYPE is neptune-graph", () => {
       const { defaultConnection } = runScript(workDir, {
-        PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
+        GRAPH_CONNECTION_URL: "https://db:8182",
         SERVICE_TYPE: "neptune-graph",
       });
       expect(defaultConnection).toHaveProperty(
@@ -244,7 +635,7 @@ describe("process-environment.sh", () => {
 
     it("does not set GRAPH_TYPE when SERVICE_TYPE is neptune-db and no GRAPH_TYPE given", () => {
       const { defaultConnection } = runScript(workDir, {
-        PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
+        GRAPH_CONNECTION_URL: "https://db:8182",
         SERVICE_TYPE: "neptune-db",
       });
       expect(defaultConnection).not.toHaveProperty("GRAPH_EXP_GRAPH_TYPE");
@@ -252,7 +643,7 @@ describe("process-environment.sh", () => {
 
     it("explicit GRAPH_TYPE takes priority over neptune-graph auto-detection", () => {
       const { defaultConnection } = runScript(workDir, {
-        PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
+        GRAPH_CONNECTION_URL: "https://db:8182",
         SERVICE_TYPE: "neptune-graph",
         GRAPH_TYPE: "sparql",
       });
@@ -269,16 +660,14 @@ describe("process-environment.sh", () => {
 
       runScript(workDir, {
         CONFIGURATION_FOLDER_PATH: customFolder,
-        PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
+        GRAPH_CONNECTION_URL: "https://db:8182",
       });
 
-      // Files exist at the custom path
       expect(fs.existsSync(path.join(customFolder, ".env"))).toBe(true);
       expect(
         fs.existsSync(path.join(customFolder, "defaultConnection.json")),
       ).toBe(true);
 
-      // Files do not exist at the default path
       const defaultFolder = path.join(workDir, "packages", "graph-explorer");
       expect(fs.existsSync(path.join(defaultFolder, ".env"))).toBe(false);
       expect(
@@ -288,16 +677,15 @@ describe("process-environment.sh", () => {
   });
 
   describe("default values for optional fields", () => {
-    it("defaults GRAPH_CONNECTION_URL to empty string", () => {
+    it("does not create defaultConnection.json when GRAPH_CONNECTION_URL is empty", () => {
       const { defaultConnection } = runScript(workDir, {
-        PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
+        GRAPH_CONNECTION_URL: "",
       });
-      expect(defaultConnection).toHaveProperty("GRAPH_EXP_CONNECTION_URL", "");
+      expect(defaultConnection).toBeNull();
     });
 
     it("preserves path in GRAPH_CONNECTION_URL", () => {
       const { defaultConnection } = runScript(workDir, {
-        PUBLIC_OR_PROXY_ENDPOINT: "http://localhost:8080",
         GRAPH_CONNECTION_URL: "http://blazegraph:9999/blazegraph/namespace/kb",
       });
       expect(defaultConnection).toHaveProperty(
@@ -308,7 +696,6 @@ describe("process-environment.sh", () => {
 
     it("preserves trailing slash in GRAPH_CONNECTION_URL", () => {
       const { defaultConnection } = runScript(workDir, {
-        PUBLIC_OR_PROXY_ENDPOINT: "http://localhost:8080",
         GRAPH_CONNECTION_URL: "http://blazegraph:9999/blazegraph/namespace/kb/",
       });
       expect(defaultConnection).toHaveProperty(
@@ -319,14 +706,14 @@ describe("process-environment.sh", () => {
 
     it("defaults AWS_REGION to empty string", () => {
       const { defaultConnection } = runScript(workDir, {
-        PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
+        GRAPH_CONNECTION_URL: "https://db:8182",
       });
       expect(defaultConnection).toHaveProperty("GRAPH_EXP_AWS_REGION", "");
     });
 
     it("passes through custom SERVICE_TYPE value", () => {
       const { defaultConnection } = runScript(workDir, {
-        PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
+        GRAPH_CONNECTION_URL: "https://db:8182",
         SERVICE_TYPE: "neptune-graph",
       });
       expect(defaultConnection).toHaveProperty(
@@ -357,53 +744,14 @@ describe("process-environment.sh", () => {
       );
 
       const { defaultConnection } = runScript(workDir, {
-        PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
+        GRAPH_CONNECTION_URL: "https://db:8182",
       });
 
       expect(defaultConnection).not.toHaveProperty("OLD_KEY");
       expect(defaultConnection).toHaveProperty(
-        "GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT",
-        "https://endpoint:8182",
+        "GRAPH_EXP_CONNECTION_URL",
+        "https://db:8182",
       );
-    });
-  });
-
-  describe("defaultConnection.json has all expected keys", () => {
-    it("contains exactly the expected keys when all values provided", () => {
-      const { defaultConnection } = runScript(workDir, {
-        PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
-        SERVICE_TYPE: "neptune-db",
-        GRAPH_TYPE: "gremlin",
-        USING_PROXY_SERVER: "true",
-        IAM: "true",
-        GRAPH_CONNECTION_URL: "https://db:8182",
-        AWS_REGION: "us-east-1",
-      });
-
-      expect(Object.keys(defaultConnection!).sort()).toEqual([
-        "GRAPH_EXP_AWS_REGION",
-        "GRAPH_EXP_CONNECTION_URL",
-        "GRAPH_EXP_GRAPH_TYPE",
-        "GRAPH_EXP_IAM",
-        "GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT",
-        "GRAPH_EXP_SERVICE_TYPE",
-        "GRAPH_EXP_USING_PROXY_SERVER",
-      ]);
-    });
-
-    it("omits GRAPH_EXP_GRAPH_TYPE when neither GRAPH_TYPE nor neptune-graph", () => {
-      const { defaultConnection } = runScript(workDir, {
-        PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182",
-      });
-
-      expect(Object.keys(defaultConnection!).sort()).toEqual([
-        "GRAPH_EXP_AWS_REGION",
-        "GRAPH_EXP_CONNECTION_URL",
-        "GRAPH_EXP_IAM",
-        "GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT",
-        "GRAPH_EXP_SERVICE_TYPE",
-        "GRAPH_EXP_USING_PROXY_SERVER",
-      ]);
     });
   });
 

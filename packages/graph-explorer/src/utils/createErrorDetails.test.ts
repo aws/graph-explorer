@@ -1,3 +1,4 @@
+import { assert, describe, expect, it } from "vitest";
 import { z } from "zod";
 
 import {
@@ -7,6 +8,11 @@ import {
 } from "@/connector/queryValueError";
 
 import { createErrorDetails } from "./createErrorDetails";
+import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
+import { DatabaseUnreachableError } from "./DatabaseUnreachableError";
+import { FetchTimeoutError } from "./FetchTimeoutError";
+import { InsecureDatabaseUrlError } from "./InsecureDatabaseUrlError";
+import { InvalidDatabaseUrlError } from "./InvalidDatabaseUrlError";
 import { NetworkError } from "./NetworkError";
 import { ServerConnectionError } from "./ServerConnectionError";
 
@@ -116,6 +122,63 @@ describe("createErrorDetails", () => {
           2,
         ),
       );
+    });
+  });
+
+  describe("InvalidDatabaseUrlError", () => {
+    it("includes the URL in the data", () => {
+      const error = new InvalidDatabaseUrlError("localhost:8182");
+      expect(createErrorDetails(error)).toStrictEqual({
+        name: "InvalidDatabaseUrlError",
+        message:
+          "This direct Connection's database URL is not an absolute http or https URL",
+        data: JSON.stringify({ url: "localhost:8182" }, null, 2),
+      });
+    });
+  });
+
+  describe("InsecureDatabaseUrlError", () => {
+    it("includes the URL and cause in the data", () => {
+      const cause = new TypeError("Failed to fetch");
+      const error = new InsecureDatabaseUrlError(
+        "http://db.example.com:8182",
+        cause,
+      );
+      expect(createErrorDetails(error)).toStrictEqual({
+        name: "InsecureDatabaseUrlError",
+        message:
+          "This direct Connection's database URL is http, which the browser likely blocked on an https page",
+        data: JSON.stringify(
+          {
+            url: "http://db.example.com:8182",
+            cause: { name: "TypeError", message: "Failed to fetch" },
+          },
+          null,
+          2,
+        ),
+      });
+    });
+  });
+
+  describe("DatabaseUnreachableError", () => {
+    it("includes the URL and cause in the data", () => {
+      const cause = new TypeError("Failed to fetch");
+      const error = new DatabaseUnreachableError(
+        "https://db.example.com:8182/gremlin",
+        cause,
+      );
+      expect(createErrorDetails(error)).toStrictEqual({
+        name: "DatabaseUnreachableError",
+        message: "Unable to reach the database from the browser",
+        data: JSON.stringify(
+          {
+            url: "https://db.example.com:8182/gremlin",
+            cause: { name: "TypeError", message: "Failed to fetch" },
+          },
+          null,
+          2,
+        ),
+      });
     });
   });
 
@@ -262,6 +325,39 @@ describe("createErrorDetails", () => {
     });
   });
 
+  describe("DatabaseTimeoutError", () => {
+    it("uses the NetworkError branch, including the status name and data", () => {
+      const data = {
+        requestId: "abc-123",
+        code: "TimeLimitExceededException",
+        detailedMessage: "A timeout occurred during the request.",
+      };
+      const error = new DatabaseTimeoutError(
+        "A timeout occurred during the request.",
+        500,
+        data,
+        "TimeLimitExceededException",
+      );
+      expect(createErrorDetails(error)).toStrictEqual({
+        name: "500 Internal Server Error",
+        message: "A timeout occurred during the request.",
+        data: JSON.stringify(data, null, 2),
+      });
+    });
+  });
+
+  describe("FetchTimeoutError", () => {
+    it("uses the generic Error branch, including the cause as data", () => {
+      const cause = new DOMException("The signal timed out", "TimeoutError");
+      const error = new FetchTimeoutError(5000, cause);
+      expect(createErrorDetails(error)).toStrictEqual({
+        name: "FetchTimeoutError",
+        message: "The request exceeded the fetch timeout of 5,000 ms.",
+        data: JSON.stringify({ name: "TimeoutError" }, null, 2),
+      });
+    });
+  });
+
   describe("ZodError", () => {
     it("shows issues as formatted JSON in data", () => {
       const schema = z.object({ name: z.string() });
@@ -341,6 +437,37 @@ describe("createErrorDetails", () => {
     });
   });
 
+  describe("browsers without Error.isError", () => {
+    it("returns name and message from a standard Error", () => {
+      const error = new Error("something broke");
+      expect(
+        withoutErrorIsError(() => createErrorDetails(error)),
+      ).toStrictEqual({
+        name: "Error",
+        message: "something broke",
+      });
+    });
+
+    it("includes the nested cause chain as data", () => {
+      const root = new Error("ECONNREFUSED");
+      const error = new Error("request failed", { cause: root });
+      const details = withoutErrorIsError(() => createErrorDetails(error));
+      expect(details.data).toBe(
+        JSON.stringify({ name: root.name, message: root.message }, null, 2),
+      );
+    });
+
+    it("returns name and message from a DOMException", () => {
+      const error = new DOMException("The operation was aborted", "AbortError");
+      expect(
+        withoutErrorIsError(() => createErrorDetails(error)),
+      ).toStrictEqual({
+        name: "AbortError",
+        message: "The operation was aborted",
+      });
+    });
+  });
+
   describe("non-Error values", () => {
     it("returns 'Unknown Error' with JSON for a plain object", () => {
       const error = { code: "ECONNREFUSED" };
@@ -394,6 +521,25 @@ describe("createErrorDetails", () => {
     });
   });
 });
+
+/**
+ * Runs `fn` with `Error.isError` absent, as on browsers that do not implement
+ * it.
+ *
+ * Reflection keeps the property name out of the type system, so this stays
+ * compilable under a `lib` that predates `Error.isError`.
+ */
+function withoutErrorIsError<T>(fn: () => T): T {
+  const descriptor = Object.getOwnPropertyDescriptor(Error, "isError");
+  Reflect.deleteProperty(Error, "isError");
+  try {
+    return fn();
+  } finally {
+    if (descriptor) {
+      Object.defineProperty(Error, "isError", descriptor);
+    }
+  }
+}
 
 /** Stands in for a query value failure type that `createErrorDetails` has no specific branch for. */
 class DetailedQueryValueError extends QueryValueError {

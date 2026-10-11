@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { classifyIconSource, iconSourceId } from "./iconSource";
+import {
+  classifyIconSource,
+  iconSourceId,
+  isAllowedIconValue,
+} from "./iconSource";
 
 describe("classifyIconSource", () => {
   it("classifies a missing icon url as none", () => {
@@ -70,5 +74,21 @@ describe("iconSourceId", () => {
     });
 
     expect(iconSourceId(a)).toBe(iconSourceId(b));
+  });
+});
+
+describe("isAllowedIconValue", () => {
+  it.each(["lucide:user", "data:image/png;base64,QUJD"])("allows %s", value => {
+    expect(isAllowedIconValue(value)).toBe(true);
+  });
+
+  it.each([
+    ["a remote url", "https://example.test/a.png"],
+    ["a relative url", "/icons/a.png"],
+    ["a non-image data url", "data:text/html;base64,QUJD"],
+    // `encodeURIComponent` throws on one during style computation.
+    ["a lone surrogate", "data:image/png;base64,AAA\uD800BBB"],
+  ])("rejects %s", (_, value) => {
+    expect(isAllowedIconValue(value)).toBe(false);
   });
 });

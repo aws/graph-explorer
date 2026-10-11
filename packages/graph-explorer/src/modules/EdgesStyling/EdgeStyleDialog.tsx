@@ -27,11 +27,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/Dialog";
-import {
-  type EdgeType,
-  useDisplayEdgeTypeConfig,
-  useQueryEngine,
-} from "@/core";
+import { useQueryEngine } from "@/connections";
+import { type EdgeType, useDisplayEdgeTypeConfig } from "@/core";
 import {
   type ArrowStyle,
   type LineStyle,

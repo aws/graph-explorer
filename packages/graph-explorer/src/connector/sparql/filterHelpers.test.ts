@@ -1,4 +1,5 @@
 import { createRandomUrlString } from "@shared/utils/testing";
+import { describe, expect, it } from "vitest";
 
 import { createVertexId } from "@/core";
 import { query } from "@/utils";

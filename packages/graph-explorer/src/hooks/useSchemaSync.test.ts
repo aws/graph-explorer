@@ -3,8 +3,8 @@ import { act, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
-  activeConfigurationAtom,
-  configurationAtom,
+  activeConnectionIdAtom,
+  savedConnectionsAtom,
   createEdgeType,
   createVertexType,
   type EdgeConnection,
@@ -12,9 +12,10 @@ import {
   schemaAtom,
 } from "@/core";
 import { getAppStore } from "@/core/StateProvider/appStore";
+import { NetworkError } from "@/utils";
 import {
   createRandomEdgeTypeConfig,
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomVertexTypeConfig,
   DbState,
   FakeExplorer,
@@ -60,8 +61,8 @@ describe("useSchemaSync", () => {
       return renderHookWithJotai(
         () => useSchemaSync(),
         store => {
-          store.set(activeConfigurationAtom, null);
-          store.set(configurationAtom, new Map());
+          store.set(activeConnectionIdAtom, null);
+          store.set(savedConnectionsAtom, new Map());
           store.set(schemaAtom, new Map());
           store.set(explorerForTestingAtom, explorer);
         },
@@ -130,6 +131,26 @@ describe("useSchemaSync", () => {
       });
       expect(fetchSchemaSpy).toHaveBeenCalled();
     });
+
+    // The failure is persisted as a schema with no vertices or edges, which
+    // must not replace the error once the query already holds it.
+    it("should keep the error of a failed first sync after a re-render", async () => {
+      const state = new DbState(explorer).withNoActiveSchema();
+      const error = new NetworkError("Bad query", 400, undefined);
+      vi.spyOn(explorer, "fetchSchema").mockRejectedValue(error);
+
+      const { result, rerender } = renderHookWithState(
+        () => useSchemaSync(),
+        state,
+      );
+      await waitFor(() => {
+        expect(result.current.schemaDiscoveryQuery.error).toBe(error);
+      });
+      rerender();
+
+      expect(result.current.schemaDiscoveryQuery.error).toBe(error);
+      expect(result.current.schemaDiscoveryQuery.data).toBeUndefined();
+    });
   });
 
   describe("edgeDiscoveryQuery", () => {
@@ -164,7 +185,9 @@ describe("useSchemaSync", () => {
       const store = getAppStore();
 
       await waitFor(() => {
-        const activeSchema = store.get(schemaAtom).get(state.activeConfig.id);
+        const activeSchema = store
+          .get(schemaAtom)
+          .get(state.activeConnection.id);
         expect(activeSchema?.edgeConnections).toStrictEqual([]);
       });
 
@@ -393,6 +416,19 @@ describe("useSchemaSync", () => {
       expect(fetchSchemaSpy).not.toHaveBeenCalled();
     });
 
+    it("should not auto-fetch when the first sync failed before a refresh", async () => {
+      const state = new DbState(explorer);
+      state.activeSchema = { vertices: [], edges: [], lastSyncFail: true };
+
+      const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
+
+      const { result } = renderHookWithState(() => useSchemaSync(), state);
+      await flushPendingAtomUpdates();
+
+      expect(result.current.schemaDiscoveryQuery.data).toBeUndefined();
+      expect(fetchSchemaSpy).not.toHaveBeenCalled();
+    });
+
     it("should allow manual refresh when lastSyncFail is true", async () => {
       const state = new DbState(explorer);
       state.activeSchema.lastSyncFail = true;
@@ -463,14 +499,14 @@ describe("useSchemaSync", () => {
       // render cycle, so they (not `rerender`, which RTL already wraps) are
       // what need the `act()` wrapper here.
       const store = getAppStore();
-      const newConfig = createRandomRawConfiguration();
+      const newConfig = createRandomSavedConnection();
       act(() => {
-        store.set(configurationAtom, prev => {
+        store.set(savedConnectionsAtom, prev => {
           const updated = new Map(prev);
           updated.set(newConfig.id, newConfig);
           return updated;
         });
-        store.set(activeConfigurationAtom, newConfig.id);
+        store.set(activeConnectionIdAtom, newConfig.id);
         rerender();
       });
 

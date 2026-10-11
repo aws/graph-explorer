@@ -1,7 +1,9 @@
 // @vitest-environment happy-dom
+
 import { waitFor } from "@testing-library/react";
 import { useAtomValue } from "jotai";
 import { act } from "react";
+import { expect, test } from "vitest";
 
 import {
   activeGraphSessionAtom,
@@ -92,12 +94,12 @@ test("should add multiple nodes and edges", async () => {
 
   await act(() => result.current.callback(randomEntities));
 
-  const actualNodes = result.current.vertices.values().toArray();
+  const actualNodes = Array.from(result.current.vertices.values());
   const expectedNodes = randomEntities.vertices;
   expect(actualNodes).toStrictEqual(expectedNodes);
 
-  const actualEdges = result.current.edges.values().toArray();
-  const expectedEdges = randomEntities.edges.values().toArray();
+  const actualEdges = Array.from(result.current.edges.values());
+  const expectedEdges = Array.from(randomEntities.edges.values());
   expect(actualEdges).toStrictEqual(expectedEdges);
 });
 
@@ -121,12 +123,12 @@ test("should add multiple nodes and edges ignoring duplicates", async () => {
     }),
   );
 
-  const actualNodes = result.current.vertices.values().toArray();
+  const actualNodes = Array.from(result.current.vertices.values());
   const expectedNodes = randomEntities.vertices;
   expect(actualNodes).toStrictEqual(expectedNodes);
 
-  const actualEdges = result.current.edges.values().toArray();
-  const expectedEdges = randomEntities.edges.values().toArray();
+  const actualEdges = Array.from(result.current.edges.values());
+  const expectedEdges = Array.from(randomEntities.edges.values());
   expect(actualEdges).toStrictEqual(expectedEdges);
 });
 

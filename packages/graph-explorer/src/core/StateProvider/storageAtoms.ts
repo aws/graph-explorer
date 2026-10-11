@@ -1,24 +1,29 @@
-import type {
-  ConfigurationId,
-  RawConfiguration,
-} from "../ConfigurationProvider";
+import type { ConnectionId, SavedConnection } from "@/connections";
+
+// Deep import: this module's top-level await creates the atoms, so its import
+// graph must not include atom readers. The `@/connections` index exports the
+// active-connection selectors, which read these atoms, so the transform is
+// imported from its own file instead.
+import { transformSavedConnections } from "@/connections/legacyConnection";
+
 import type { EdgeType, VertexType } from "../entities";
 import type { GraphSessionStorageModel } from "./graphSession/storage";
 import type { EdgeStyleStorage, VertexStyleStorage } from "./graphStyles";
 import type { SchemaStorageModel } from "./schema";
 
-import { createActiveConfigurationAtom } from "./activeConnectionStorage";
+import { createActiveConnectionIdAtom } from "./activeConnectionStorage";
 import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
 import {
   defaultGraphViewLayout,
-  transformGraphViewLayout,
+  graphViewLayoutCodec,
 } from "./graphViewLayoutDefaults";
 import { runUserLayoutMigration } from "./migrateUserLayout";
 import { runUserStylingMigration } from "./migrateUserStyling";
 import {
   defaultSchemaViewLayout,
-  transformSchemaViewLayout,
+  schemaViewLayoutCodec,
 } from "./schemaViewLayoutDefaults";
+import { createSessionScopedAtom } from "./sessionScopedStorage";
 import { transformVertexStyles } from "./vertexStylesTransform";
 
 // Run migrations before the atoms preload so they read the migrated data.
@@ -63,8 +68,8 @@ await Promise.all([runUserStylingMigration(), runUserLayoutMigration()]);
  */
 
 const [
-  activeConfigurationAtom,
-  configurationAtom,
+  activeConnectionIdAtom,
+  savedConnectionsAtom,
   schemaAtom,
   userVertexStylesAtom,
   userEdgeStylesAtom,
@@ -77,11 +82,11 @@ const [
   defaultNeighborExpansionLimitAtom,
   diagnosticLoggingAtom,
 ] = await Promise.all([
-  createActiveConfigurationAtom(),
-  atomWithLocalForage<Map<ConfigurationId, RawConfiguration>>(
+  createActiveConnectionIdAtom(),
+  atomWithLocalForage<Map<ConnectionId, SavedConnection>>(
     "configuration",
     new Map(),
-    { reconcile: reconcileMapByKey },
+    { reconcile: reconcileMapByKey, transform: transformSavedConnections },
   ),
   /** All the stored schemas */
   atomWithLocalForage("schema", new Map<string, SchemaStorageModel>(), {
@@ -99,14 +104,20 @@ const [
     new Map<EdgeType, EdgeStyleStorage>(),
     { reconcile: reconcileMapByKey },
   ),
-  atomWithLocalForage("graph-view-layout", defaultGraphViewLayout, {
-    transform: transformGraphViewLayout,
+  // View Layout is per-tab: each tab keeps its own sidebar/toggle state in
+  // sessionStorage, with a shared localForage breadcrumb seeding a fresh tab.
+  createSessionScopedAtom({
+    key: "graph-view-layout",
+    defaultValue: defaultGraphViewLayout,
+    codec: graphViewLayoutCodec,
   }),
-  atomWithLocalForage("schema-view-layout", defaultSchemaViewLayout, {
-    transform: transformSchemaViewLayout,
+  createSessionScopedAtom({
+    key: "schema-view-layout",
+    defaultValue: defaultSchemaViewLayout,
+    codec: schemaViewLayoutCodec,
   }),
   /** Stores the graph session data for each connection. */
-  atomWithLocalForage<Map<ConfigurationId, GraphSessionStorageModel>>(
+  atomWithLocalForage<Map<ConnectionId, GraphSessionStorageModel>>(
     "graph-sessions",
     new Map(),
     { reconcile: reconcileMapByKey },
@@ -127,8 +138,8 @@ const [
 ]);
 
 export {
-  activeConfigurationAtom,
-  configurationAtom,
+  activeConnectionIdAtom,
+  savedConnectionsAtom,
   schemaAtom,
   userVertexStylesAtom,
   userEdgeStylesAtom,

@@ -2,16 +2,21 @@
 
 # Deploy to Amazon EC2
 
-Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server with SSH tunneling to connect to Amazon Neptune.
+Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server with SSH tunneling to connect to Amazon Neptune. This is one network setup among many, not an official recommendation. Other ways to connect to Amazon Neptune from outside the VPC include a load balancer or VPC peering.
 
-> [!NOTE]
+> [!IMPORTANT]
 >
-> This documentation is not an official recommendation on network setups as there are many ways to connect to Amazon Neptune from outside of the VPC, such as setting up a load balancer or VPC peering.
+> The Graph Explorer server, not your browser, connects to the database for proxied connections, so it needs network access to the database endpoint. See [System overview](../architecture.md#system-overview) for details.
+
+> [!IMPORTANT]
+>
+> Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../references/security.md#access-control).
 
 ## Prerequisites
 
 - Provision an Amazon EC2 instance that will be used to host the application and connect to Neptune as a proxy server. For more details, see instructions [here](https://github.com/aws/graph-notebook/tree/main/additional-databases/neptune).
-- Ensure the Amazon EC2 instance can send and receive on ports `22` (SSH), `8182` (Neptune), and `443` or `80` depending on protocol used (graph-explorer).
+- Inbound access to the Amazon EC2 instance limited to a known CIDR range, on port `443` or `80` (Graph Explorer, depending on the protocol used) and port `22` (SSH). The instance needs no inbound rule on port `8182` (Neptune).
+- Neptune's security group allows port `8182` from the instance, which reaches Neptune on that port inside the VPC.
 - [Docker](https://docs.docker.com/get-docker/) installed on the EC2 instance
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) installed on the EC2 instance
 
@@ -29,16 +34,21 @@ Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server w
 
 > [!TIP]
 >
-> If you receive an error relating to the docker service not running, run
-> `service docker start`.
+> If you receive an error relating to the docker service not running, run `service docker start`.
 
-4. Run the container substituting the `{hostname-or-ip-address}` with the hostname or IP address of the EC2 instance
+4. Run the container substituting the `{hostname-or-ip-address}` with the hostname or IP address of the EC2 instance, and `{NEPTUNE_ENDPOINT}` with your Neptune endpoint
+
    ```
    docker run -p 80:80 -p 443:443 \
     --restart unless-stopped \
     --env HOST={hostname-or-ip-address} \
+    --env PROXY_SERVER_ALLOWED_DB_ORIGINS=https://{NEPTUNE_ENDPOINT}:8182 \
     public.ecr.aws/neptune/graph-explorer
    ```
+
+   `HOST` does not limit which networks or clients can reach the container. See [`HOST`](../references/configuration.md#host).
+
+   `PROXY_SERVER_ALLOWED_DB_ORIGINS` limits the proxy server to your Neptune cluster. The origin must match the URL users enter in their Connection exactly, including the scheme and port. A "not in the Database Origin Allowlist" error means the two differ. To let users reach another database later, add its origin to the comma-separated list, such as `https://{NEPTUNE_ENDPOINT}:8182,https://{OTHER_ENDPOINT}:8182`. See [Database Origin Allowlist](../references/security.md#database-origin-allowlist).
 
 > [!TIP]
 >
@@ -49,6 +59,10 @@ Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server w
 ```
 https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com/explorer
 ```
+
+> [!IMPORTANT]
+>
+> Never expose this URL publicly without an access control layer in front of it. See [Access Control](../references/security.md#access-control).
 
 6. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See [HTTPS Connections](./troubleshooting.md#https-connections) section.
 7. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI.

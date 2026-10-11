@@ -54,8 +54,8 @@ import {
   type Vertex,
   type VertexType,
 } from "@/core";
-import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import { useVertexStyling } from "@/core/StateProvider/graphStyles";
+import { useVertexTypeConfig } from "@/core/StateProvider/useConfiguration";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import {
@@ -126,11 +126,10 @@ function DataExplorerContent({ vertexType }: { vertexType: VertexType }) {
   const columns = useColumnDefinitions(vertexType);
 
   const query = useDataExplorerQuery(vertexType, pageSize, pageIndex);
-  const displayVertices = useDisplayVerticesFromVertices(
+  const displayVerticesMap = useDisplayVerticesFromVertices(
     query.data?.vertices ?? [],
-  )
-    .values()
-    .toArray();
+  );
+  const displayVertices = Array.from(displayVerticesMap.values());
 
   const vtConfigs = useDisplayVertexTypeConfigs();
   const vertexTypeOptions = [...vtConfigs.values()].map(config => ({
@@ -220,7 +219,7 @@ function Layout({ children }: { children: React.ReactNode }) {
         <NavBarContent>
           <NavBarTitle
             title="Data Explorer"
-            subtitle={`Connection: ${config?.displayLabel || config?.id}`}
+            subtitle={`Connection: ${config?.displayLabel || config?.id || "none"}`}
           />
           <PersistenceStatusIndicator />
         </NavBarContent>

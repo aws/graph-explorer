@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { LABELS, SEARCH_TOKENS } from "@/utils";
 import { normalize } from "@/utils/testing";
 

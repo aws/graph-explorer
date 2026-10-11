@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { createEdgeType } from "@/core";
 import { query } from "@/utils";
 

@@ -8,42 +8,42 @@ import { TooltipProvider } from "@/components";
 import ConnectionDeleteButton from "./ConnectionDeleteButton";
 
 function renderButton(saveCopy: () => boolean) {
-  const deleteActiveConfig = vi.fn();
+  const deleteActiveConnection = vi.fn();
   render(
     <TooltipProvider>
       <ConnectionDeleteButton
         connectionName="Test Connection"
         isSync={false}
-        deleteActiveConfig={deleteActiveConfig}
+        deleteActiveConnection={deleteActiveConnection}
         saveCopy={saveCopy}
       />
     </TooltipProvider>,
   );
-  return deleteActiveConfig;
+  return deleteActiveConnection;
 }
 
 describe("ConnectionDeleteButton", () => {
   it("deletes after saving a copy when the export succeeds", async () => {
     const user = userEvent.setup();
-    const deleteActiveConfig = renderButton(() => true);
+    const deleteActiveConnection = renderButton(() => true);
 
     await user.click(screen.getByRole("button", { name: "Delete connection" }));
     await user.click(
       screen.getByRole("button", { name: "Save a Copy & Delete" }),
     );
 
-    expect(deleteActiveConfig).toHaveBeenCalledTimes(1);
+    expect(deleteActiveConnection).toHaveBeenCalledTimes(1);
   });
 
   it("does not delete when the copy export is refused", async () => {
     const user = userEvent.setup();
-    const deleteActiveConfig = renderButton(() => false);
+    const deleteActiveConnection = renderButton(() => false);
 
     await user.click(screen.getByRole("button", { name: "Delete connection" }));
     await user.click(
       screen.getByRole("button", { name: "Save a Copy & Delete" }),
     );
 
-    expect(deleteActiveConfig).not.toHaveBeenCalled();
+    expect(deleteActiveConnection).not.toHaveBeenCalled();
   });
 });

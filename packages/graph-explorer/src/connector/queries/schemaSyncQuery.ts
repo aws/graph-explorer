@@ -1,9 +1,10 @@
 import { queryOptions } from "@tanstack/react-query";
 import { atom } from "jotai";
 
+import type { ConnectionId } from "@/connections";
+
 import {
-  activeConfigurationAtom,
-  type ConfigurationId,
+  activeConnectionIdAtom,
   type PrefixTypeConfig,
   schemaAtom,
 } from "@/core";
@@ -11,6 +12,7 @@ import {
   activeSchemaAtom,
   generateSchemaPrefixes,
   getSchemaUris,
+  isSyncedSchema,
   type SchemaStorageModel,
 } from "@/core/StateProvider/schema";
 import { logger } from "@/utils";
@@ -20,7 +22,7 @@ import type { SchemaResponse } from "../useGEFetchTypes";
 import { getExplorer, getStore } from "./helpers";
 
 /** Returns the query key for the schema sync query for the given connection. */
-export function schemaSyncQueryKey(connectionId: ConfigurationId | null) {
+export function schemaSyncQueryKey(connectionId: ConnectionId | null) {
   return ["schema", "discovery", connectionId] as const;
 }
 
@@ -38,7 +40,7 @@ export function schemaSyncQuery({
   activeSchema,
   hasConnection,
 }: {
-  connectionId: ConfigurationId | null;
+  connectionId: ConnectionId | null;
   activeSchema: SchemaStorageModel | undefined;
   hasConnection: boolean;
 }) {
@@ -46,7 +48,9 @@ export function schemaSyncQuery({
     queryKey: schemaSyncQueryKey(connectionId),
     staleTime: Infinity,
     retryOnMount: false,
-    initialData: activeSchema,
+    // A failed first sync persists a schema that was never synced. Seeding
+    // from it would replace the error the query already holds.
+    initialData: isSyncedSchema(activeSchema) ? activeSchema : undefined,
     enabled: hasConnection && !activeSchema?.lastSyncFail,
     queryFn: async ({ signal, meta }) => {
       const explorer = getExplorer(meta);
@@ -78,7 +82,7 @@ export function schemaSyncQuery({
 const replaceSchemaAtom = atom(
   null,
   (get, set, schema: SchemaResponse, prefixes: PrefixTypeConfig[]) => {
-    const id = get(activeConfigurationAtom);
+    const id = get(activeConnectionIdAtom);
     if (!id) {
       logger.warn("Cannot update schema: no active configuration");
       return;
@@ -105,7 +109,7 @@ const replaceSchemaAtom = atom(
 
 /** Setter-only atom that marks the last schema sync as failed while preserving existing data. */
 const setSyncFailedAtom = atom(null, (get, set) => {
-  const id = get(activeConfigurationAtom);
+  const id = get(activeConnectionIdAtom);
   if (!id) {
     logger.warn("Cannot update schema: no active configuration");
     return;

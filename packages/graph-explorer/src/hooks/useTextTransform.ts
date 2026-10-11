@@ -1,6 +1,7 @@
 import { atom, useAtomValue } from "jotai";
 
-import { prefixesAtom, queryEngineSelector } from "@/core";
+import { queryEngineSelector } from "@/connections";
+import { prefixesAtom } from "@/core";
 import { logger } from "@/utils";
 import { replacePrefixes } from "@/utils/rdf";
 

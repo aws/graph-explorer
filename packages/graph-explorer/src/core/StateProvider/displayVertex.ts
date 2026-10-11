@@ -1,6 +1,7 @@
 import { atom, useAtomValue } from "jotai";
 import { atomFamily } from "jotai-family";
 
+import { queryEngineSelector } from "@/connections";
 import {
   type DisplayAttribute,
   getRawId,
@@ -8,7 +9,6 @@ import {
   nodesAtom,
   nodeSelector,
   nodesSelectedIdsAtom,
-  queryEngineSelector,
   useVertex,
   type Vertex,
   type VertexId,
@@ -56,13 +56,11 @@ export function useDisplayVerticesFromVertices(vertices: Vertex[]) {
 
 const selectedDisplayVerticesSelector = atom(get => {
   const selectedIds = get(nodesSelectedIdsAtom);
-  return selectedIds
-    .values()
+  return Array.from(selectedIds)
     .map(id => get(nodeSelector(id)))
     .filter(n => n != null)
     .map(n => get(displayVertexSelector(n)))
-    .filter(n => n != null)
-    .toArray();
+    .filter(n => n != null);
 });
 
 /** Maps all `Vertex` instances which are selected in the graph canvas to `DisplayVertex` instances. */
@@ -142,5 +140,5 @@ const displayVerticesSelector = atomFamily((vertices: Vertex[]) =>
 );
 
 const displayVerticesInCanvasSelector = atom(get => {
-  return get(displayVerticesSelector(get(nodesAtom).values().toArray()));
+  return get(displayVerticesSelector(Array.from(get(nodesAtom).values())));
 });

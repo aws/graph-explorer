@@ -1,13 +1,15 @@
 // @vitest-environment happy-dom
+
 import { createArray, createRandomName } from "@shared/utils/testing";
 import { act } from "@testing-library/react";
 import { useAtomValue } from "jotai";
+import { describe, expect, it, test } from "vitest";
 
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import {
-  activeConfigurationAtom,
-  configurationAtom,
+  activeConnectionIdAtom,
+  savedConnectionsAtom,
   createEdgeConnectionId,
   schemaAtom,
 } from "@/core";
@@ -15,7 +17,7 @@ import { LABELS } from "@/utils";
 import {
   createRandomEdge,
   createRandomEdgeConnection,
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   createRandomVertex,
   createRandomVertexType,
@@ -24,13 +26,6 @@ import {
   renderHookWithState,
 } from "@/utils/testing";
 
-import {
-  createEdgeConnection,
-  createPrefixTypeConfig,
-  type EdgeTypeConfig,
-  type PrefixTypeConfig,
-  type VertexTypeConfig,
-} from "../ConfigurationProvider";
 import {
   createEdge,
   createEdgeType,
@@ -54,6 +49,13 @@ import {
   useMaybeActiveSchema,
   useUpdateSchemaFromEntities,
 } from "./schema";
+import {
+  createEdgeConnection,
+  createPrefixTypeConfig,
+  type EdgeTypeConfig,
+  type PrefixTypeConfig,
+  type VertexTypeConfig,
+} from "./typeConfigTypes";
 
 const EMPTY_VERTEX_TYPE_LOOKUP = createVertexTypeLookup();
 
@@ -1315,13 +1317,13 @@ describe("maybeActiveSchemaAtom", () => {
   });
 
   it("returns undefined when active config has no schema", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
 
     const { result } = renderHookWithJotai(
       () => useAtomValue(maybeActiveSchemaAtom),
       store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
+        store.set(savedConnectionsAtom, new Map([[config.id, config]]));
+        store.set(activeConnectionIdAtom, config.id);
         store.set(schemaAtom, new Map());
       },
     );
@@ -1330,14 +1332,14 @@ describe("maybeActiveSchemaAtom", () => {
   });
 
   it("returns the schema when one exists", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     const schema = createRandomSchema();
 
     const { result } = renderHookWithJotai(
       () => useAtomValue(maybeActiveSchemaAtom),
       store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
+        store.set(savedConnectionsAtom, new Map([[config.id, config]]));
+        store.set(activeConnectionIdAtom, config.id);
         store.set(schemaAtom, new Map([[config.id, schema]]));
       },
     );
@@ -1354,13 +1356,13 @@ describe("useMaybeActiveSchema", () => {
   });
 
   it("returns undefined when active config has no schema", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
 
     const { result } = renderHookWithJotai(
       () => useMaybeActiveSchema(),
       store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
+        store.set(savedConnectionsAtom, new Map([[config.id, config]]));
+        store.set(activeConnectionIdAtom, config.id);
         store.set(schemaAtom, new Map());
       },
     );
@@ -1369,14 +1371,14 @@ describe("useMaybeActiveSchema", () => {
   });
 
   it("returns the schema when one exists", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     const schema = createRandomSchema();
 
     const { result } = renderHookWithJotai(
       () => useMaybeActiveSchema(),
       store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
+        store.set(savedConnectionsAtom, new Map([[config.id, config]]));
+        store.set(activeConnectionIdAtom, config.id);
         store.set(schemaAtom, new Map([[config.id, schema]]));
       },
     );
@@ -1397,13 +1399,13 @@ describe("useActiveSchema", () => {
   });
 
   it("returns empty schema when active config has no schema", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
 
     const { result } = renderHookWithJotai(
       () => useActiveSchema(),
       store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
+        store.set(savedConnectionsAtom, new Map([[config.id, config]]));
+        store.set(activeConnectionIdAtom, config.id);
         store.set(schemaAtom, new Map());
       },
     );
@@ -1416,14 +1418,14 @@ describe("useActiveSchema", () => {
   });
 
   it("returns the schema when one exists", () => {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     const schema = createRandomSchema();
 
     const { result } = renderHookWithJotai(
       () => useActiveSchema(),
       store => {
-        store.set(configurationAtom, new Map([[config.id, config]]));
-        store.set(activeConfigurationAtom, config.id);
+        store.set(savedConnectionsAtom, new Map([[config.id, config]]));
+        store.set(activeConnectionIdAtom, config.id);
         store.set(schemaAtom, new Map([[config.id, schema]]));
       },
     );

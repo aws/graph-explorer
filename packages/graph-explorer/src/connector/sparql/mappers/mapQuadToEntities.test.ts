@@ -1,4 +1,5 @@
 import { createArray } from "@shared/utils/testing";
+import { describe, expect, it } from "vitest";
 
 import {
   createQuadBindingsForEntities,

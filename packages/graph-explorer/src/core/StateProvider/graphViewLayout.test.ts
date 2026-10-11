@@ -1,5 +1,7 @@
 // @vitest-environment happy-dom
+
 import { act } from "react";
+import { describe, expect, it } from "vitest";
 
 import { DbState, renderHookWithState } from "@/utils/testing";
 
@@ -124,7 +126,7 @@ describe("useGraphViewSidebar", () => {
 
   it("should show namespaces when the connection is a SPARQL connection", () => {
     const state = stateWithLayout({ activeSidebarItem: "namespaces" });
-    state.activeConfig.connection!.queryEngine = "sparql";
+    state.activeConnection.connection!.queryEngine = "sparql";
 
     const { result } = renderHookWithState(() => useGraphViewSidebar(), state);
 
@@ -135,7 +137,7 @@ describe("useGraphViewSidebar", () => {
 
   it("should be closed when active item is namespaces but connection is not RDF", () => {
     const state = stateWithLayout({ activeSidebarItem: "namespaces" });
-    state.activeConfig.connection!.queryEngine = "gremlin";
+    state.activeConnection.connection!.queryEngine = "gremlin";
 
     const { result } = renderHookWithState(() => useGraphViewSidebar(), state);
 

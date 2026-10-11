@@ -1,10 +1,28 @@
-import type { FeatureFlags, NormalizedConnection } from "@/core";
+import type { NormalizedConnection } from "@/connections";
+import type { FeatureFlags } from "@/core";
 
-import { logger, NetworkError, ServerConnectionError } from "@/utils";
+import { isDirectConnection } from "@/connections";
+import {
+  databaseTimeoutCode,
+  DatabaseTimeoutError,
+  DatabaseUnreachableError,
+  FetchTimeoutError,
+  InsecureDatabaseUrlError,
+  InvalidDatabaseUrlError,
+  isAbsoluteHttpUrl,
+  isMixedContent,
+  logger,
+  MissingDatabaseUrlError,
+  NetworkError,
+  ServerConnectionError,
+} from "@/utils";
 import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 import { extractErrorMessage } from "@/utils/extractErrorMessage";
 
+import type { ExplorerRequestOptions } from "./useGEFetchTypes";
+
 import { anySignal } from "./utils/anySignal";
+import { apiUrl } from "./utils/apiUrl";
 
 /**
  * Attempts to decode the error response into a JSON object.
@@ -46,22 +64,55 @@ async function decodeErrorSafely(response: Response): Promise<any> {
   return rawText;
 }
 
+// The Graph Explorer server's route for a proxy connection, or the database
+// itself for a direct connection.
+function resolveEndpoint(connection: NormalizedConnection, path: string): URL {
+  if (!isDirectConnection(connection)) {
+    return apiUrl(path);
+  }
+  if (!isAbsoluteHttpUrl(connection.graphDbUrl)) {
+    throw new InvalidDatabaseUrlError(connection.graphDbUrl);
+  }
+  return new URL(`${connection.graphDbUrl}/${path}`);
+}
+
+// The browser's TypeError doesn't say why the request failed, so an http URL
+// from an https page is taken to mean the browser blocked it as mixed content.
+function unreachableError(
+  connection: NormalizedConnection,
+  uri: URL,
+  cause: TypeError,
+): Error {
+  if (!isDirectConnection(connection)) {
+    return new ServerConnectionError(uri.href, cause);
+  }
+  return isMixedContent(uri)
+    ? new InsecureDatabaseUrlError(connection.graphDbUrl, cause)
+    : new DatabaseUnreachableError(uri.href, cause);
+}
+
 // Construct the request headers based on the connection settings
 function getAuthHeaders(
   connection: NormalizedConnection,
   featureFlags: FeatureFlags,
   typeHeaders: HeadersInit | undefined,
+  queryId: string | undefined,
 ) {
   const headers: Record<string, string> = {};
-  if (connection.proxyConnection) {
-    headers["graph-db-connection-url"] = connection.graphDbUrl || "";
+  // The database never reads these, and custom headers on a cross-origin
+  // request would trigger a CORS preflight it may reject.
+  if (!isDirectConnection(connection)) {
+    headers["graph-db-connection-url"] = connection.graphDbUrl;
     headers["db-query-logging-enabled"] = String(
       featureFlags.allowLoggingDbQuery,
     );
-  }
-  if (connection.awsAuthEnabled) {
-    headers["aws-neptune-region"] = connection.awsRegion || "";
-    headers["service-type"] = connection.serviceType || DEFAULT_SERVICE_TYPE;
+    if (connection.awsAuthEnabled) {
+      headers["aws-neptune-region"] = connection.awsRegion || "";
+      headers["service-type"] = connection.serviceType || DEFAULT_SERVICE_TYPE;
+    }
+    if (queryId) {
+      headers.queryId = queryId;
+    }
   }
 
   if (typeHeaders) {
@@ -71,43 +122,30 @@ function getAuthHeaders(
   return headers;
 }
 
-// Construct an AbortSignal for the fetch timeout if configured
-function getFetchTimeoutSignal(connection: NormalizedConnection) {
-  if (!connection.fetchTimeoutMs) {
+type FetchTimeout = {
+  timeoutMs: number;
+  signal: AbortSignal;
+};
+
+// Construct the fetch timeout, if configured, keeping both its signal and
+// its duration so a caught abort can be classified and reported.
+function createFetchTimeout(
+  connection: NormalizedConnection,
+): FetchTimeout | null {
+  const timeoutMs = connection.fetchTimeoutMs;
+  if (!timeoutMs || timeoutMs <= 0) {
     return null;
   }
 
-  if (connection.fetchTimeoutMs <= 0) {
-    return null;
-  }
-
-  return AbortSignal.timeout(connection.fetchTimeoutMs);
+  return { timeoutMs, signal: AbortSignal.timeout(timeoutMs) };
 }
 
-export async function fetchDatabaseRequest(
-  connection: NormalizedConnection,
-  featureFlags: FeatureFlags,
-  uri: URL | RequestInfo,
-  options: RequestInit,
-) {
-  // Apply connection settings to fetch options
-  const fetchOptions: RequestInit = {
-    ...options,
-    headers: getAuthHeaders(connection, featureFlags, options.headers),
-    signal: anySignal(getFetchTimeoutSignal(connection), options.signal),
-  };
-
-  let response: Response;
-  try {
-    response = await fetch(uri, fetchOptions);
-  } catch (error) {
-    if (error instanceof TypeError) {
-      const url =
-        typeof uri === "string" ? uri : uri instanceof URL ? uri.href : uri.url;
-      throw new ServerConnectionError(url, error);
-    }
-    throw error;
-  }
+// Sends the request and reads the response body, throwing NetworkError (or
+// DatabaseTimeoutError) for a non-OK response. Kept separate from
+// fetchDatabaseRequest so a timeout that fires while streaming the body,
+// not just while waiting on `fetch`, is still classified by the caller.
+async function sendRequest(uri: URL, fetchOptions: RequestInit) {
+  const response = await fetch(uri, fetchOptions);
 
   if (!response.ok) {
     const defaultMessage = "Network response was not OK";
@@ -118,10 +156,61 @@ export async function fetchDatabaseRequest(
 
     // Extract a message from the error body
     const message = extractErrorMessage(error) ?? defaultMessage;
-    throw new NetworkError(message, response.status, error);
+    const timeoutCode = databaseTimeoutCode(error);
+    throw timeoutCode
+      ? new DatabaseTimeoutError(message, response.status, error, timeoutCode)
+      : new NetworkError(message, response.status, error);
   }
 
   // A successful response is assumed to be JSON
-  const data = await response.json();
-  return data;
+  return await response.json();
+}
+
+/**
+ * Sends a request to the database endpoint `path` (e.g. `gremlin` or
+ * `pg/statistics/summary?mode=basic`) for the connection, routed through the
+ * Graph Explorer server unless the connection is direct.
+ */
+export async function fetchDatabaseRequest(
+  connection: NormalizedConnection,
+  featureFlags: FeatureFlags,
+  path: string,
+  options: ExplorerRequestOptions,
+) {
+  if (!connection.graphDbUrl) {
+    throw new MissingDatabaseUrlError();
+  }
+
+  const uri = resolveEndpoint(connection, path);
+  const { queryId, ...init } = options;
+  const fetchTimeout = createFetchTimeout(connection);
+  const signal = anySignal(fetchTimeout?.signal, init.signal);
+
+  // Apply connection settings to fetch options
+  const fetchOptions: RequestInit = {
+    ...init,
+    headers: getAuthHeaders(connection, featureFlags, init.headers, queryId),
+    signal,
+  };
+
+  try {
+    return await sendRequest(uri, fetchOptions);
+  } catch (error) {
+    // Both reasons are undefined until a signal aborts, so check that the
+    // timeout fired. anySignal keeps the first reason, so this tells a timeout
+    // from a user cancel that came after it. An error built from a received
+    // response already says what happened, so it is never relabeled.
+    if (
+      fetchTimeout?.signal.aborted &&
+      !(error instanceof NetworkError) &&
+      signal?.reason === fetchTimeout.signal.reason
+    ) {
+      throw new FetchTimeoutError(fetchTimeout.timeoutMs, error);
+    }
+
+    if (error instanceof TypeError) {
+      throw unreachableError(connection, uri, error);
+    }
+    throw error;
+  }
 }

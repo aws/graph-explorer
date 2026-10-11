@@ -41,16 +41,11 @@ To change these on an existing issue, use `gh issue edit <number>` — note the 
 
 Terms for the pre-build planning hierarchy on the project board. All map onto the native GitHub issue types above.
 
-**Initiative**:
-A body of work too big for one release, expressing a vision (e.g. overhauling the style system). Always typed **Epic**. It is a never-tracked container — the board tracks its children, not the initiative itself — and it parents the features and epics that eventually deliver the vision. Sits below a Roadmap Item in scope and _may_ be flagged as one, but never requires it.
-_Avoid_: Roadmap item (higher-level), theme
+**Initiative**: A body of work too big for one release, expressing a vision (e.g. overhauling the style system). Always typed **Epic**. It is a never-tracked container — the board tracks its children, not the initiative itself — and it parents the features and epics that eventually deliver the vision. Sits below a Roadmap Item in scope and _may_ be flagged as one, but never requires it. _Avoid_: Roadmap item (higher-level), theme
 
-**Kickoff**:
-An _optional_ child issue under an Initiative that captures the raw, unscoped brain-dump for it — hypotheses, references to libraries or prior art, suspected blockers and open questions, all still speculative. Always typed **Spike**, parented to its Initiative, and labelled `wayfinder:kickoff`. It holds everything about the initiative _except_ the chart: a later [Wayfinder](#wayfinder) session reads this dump as its seed input, grills from there, and produces the map. Created only when you can't grill immediately and want to park the notes in writing; skip it and those same thoughts go straight into a live Wayfinder session instead. Closes once Wayfinder has spun up the map.
-_Avoid_: Spark, prospect, stub, discovery, thin trigger
+**Kickoff**: An _optional_ child issue under an Initiative that captures the raw, unscoped brain-dump for it — hypotheses, references to libraries or prior art, suspected blockers and open questions, all still speculative. Always typed **Spike**, parented to its Initiative, and labelled `wayfinder:kickoff`. It holds everything about the initiative _except_ the chart: a later [Wayfinder](#wayfinder) session reads this dump as its seed input, grills from there, and produces the map. Created only when you can't grill immediately and want to park the notes in writing; skip it and those same thoughts go straight into a live Wayfinder session instead. Closes once Wayfinder has spun up the map. _Avoid_: Spark, prospect, stub, discovery, thin trigger
 
-**Wayfinder**:
-The exercise (invoked with `/wayfinder`) that plans a chunk of work too big for one agent session as a shared map of investigation tickets on the issue tracker, resolved one at a time until the route to the destination is clear. Run against an Initiative — either directly, or seeded by a Kickoff's brain-dump — it creates a `wayfinder:map` issue as a sibling child under the Initiative, which then owns the scoping route until features and epics can be landed under the Initiative.
+**Wayfinder**: The exercise (invoked with `/wayfinder`) that plans a chunk of work too big for one agent session as a shared map of investigation tickets on the issue tracker, resolved one at a time until the route to the destination is clear. Run against an Initiative — either directly, or seeded by a Kickoff's brain-dump — it creates a `wayfinder:map` issue as a sibling child under the Initiative, which then owns the scoping route until features and epics can be landed under the Initiative.
 
 ## Pull requests
 

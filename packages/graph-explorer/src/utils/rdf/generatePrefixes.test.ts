@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import type { PrefixTypeConfig } from "@/core";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 

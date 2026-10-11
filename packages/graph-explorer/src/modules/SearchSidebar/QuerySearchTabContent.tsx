@@ -23,8 +23,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components";
+import { useQueryEngine } from "@/connections";
 import { executeUserQuery } from "@/connector";
-import { useQueryEngine, useUpdateSchemaFromEntities } from "@/core";
+import { useUpdateSchemaFromEntities } from "@/core";
 import { cn, isCancellationError, logger } from "@/utils";
 
 import { SearchResultsList } from "./SearchResultsList";
@@ -254,8 +255,9 @@ function useExecuteQuery() {
     // Get the query key from the query options (parameters are not important)
     const { queryKey } = executeUserQuery("", () => {});
 
+    // Reverting would restore the previous query's error as if it were current.
     queryClient
-      .cancelQueries({ queryKey })
+      .cancelQueries({ queryKey }, { revert: false })
       .catch(err => logger.error("Failed to cancel query", err));
   };
 

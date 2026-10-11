@@ -1,6 +1,8 @@
 // @vitest-environment happy-dom
+
 import { QueryClient } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 
 import type { TextTransformer } from "@/hooks";
 

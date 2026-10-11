@@ -30,8 +30,27 @@ function DialogOverlay({
 }
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
-function DialogContent({
+/**
+ * The dialog's visible panel, without positioning, overlay, or close button.
+ * {@link DialogContent} portals it over the viewport; a page whose whole purpose
+ * is the dialog can render it in place under a `Dialog` with `modal={false}`.
+ */
+function DialogSurface({
   className,
+  ...props
+}: React.ComponentPropsWithRef<typeof DialogPrimitive.Content>) {
+  return (
+    <DialogPrimitive.Content
+      className={cn(
+        "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 relative flex max-h-full w-[500px] flex-col overflow-hidden rounded-lg shadow-2xl duration-200",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function DialogContent({
   children,
   ...props
 }: React.ComponentPropsWithRef<typeof DialogPrimitive.Content>) {
@@ -39,20 +58,14 @@ function DialogContent({
     <DialogPortal>
       <DialogOverlay />
       <div className="fixed inset-0 z-50 flex h-full w-full items-center justify-center p-20">
-        <DialogPrimitive.Content
-          className={cn(
-            "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 relative flex max-h-full w-[500px] flex-col overflow-hidden rounded-lg shadow-2xl duration-200",
-            className,
-          )}
-          {...props}
-        >
+        <DialogSurface {...props}>
           {children}
           <DialogPrimitive.Close asChild className="absolute top-5 right-5">
             <Button variant="ghost" size="icon-small" tooltip="Close">
               <XIcon />
             </Button>
           </DialogPrimitive.Close>
-        </DialogPrimitive.Content>
+        </DialogSurface>
       </div>
     </DialogPortal>
   );
@@ -174,6 +187,7 @@ export {
   DialogTrigger,
   DialogClose,
   DialogContent,
+  DialogSurface,
   DialogBody,
   DialogHeader,
   DialogMedia,

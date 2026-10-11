@@ -2,12 +2,12 @@ import { createStore } from "jotai";
 import localForage from "localforage";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { createNewConfigurationId } from "@/core";
+import { createConnectionId } from "@/connections";
 import { readPersistedValue } from "@/utils/testing";
 
 import {
   ACTIVE_CONNECTION_STORAGE_KEY,
-  createActiveConfigurationAtom,
+  createActiveConnectionIdAtom,
 } from "./activeConnectionStorage";
 import { persistenceStatusStore } from "./persistence";
 import { createInMemorySessionStorage } from "./safeSessionStorage";
@@ -23,18 +23,23 @@ async function openTab() {
   // store/atom rebuild that reload() models.
   const sessionStorage = createInMemorySessionStorage();
   let store = createStore();
-  let atom = await createActiveConfigurationAtom({ sessionStorage });
+  let atom = await createActiveConnectionIdAtom({ sessionStorage });
   return {
     read: () => store.get(atom),
+    /**
+     * Mounts the atom the way a rendered component does, so a cross-tab sync
+     * wired through `onMount` would reach this tab.
+     */
+    subscribe: () => store.sub(atom, () => {}),
     /** Activates a connection; resolves once the breadcrumb has landed. */
-    activate: (id: ReturnType<typeof createNewConfigurationId> | null) => {
+    activate: (id: ReturnType<typeof createConnectionId> | null) => {
       store.set(atom, id);
       return persistenceStatusStore.waitForIdle();
     },
     /** Reloads this tab: a fresh store and atom over the same sessionStorage. */
     reload: async () => {
       store = createStore();
-      atom = await createActiveConfigurationAtom({ sessionStorage });
+      atom = await createActiveConnectionIdAtom({ sessionStorage });
     },
   };
 }
@@ -45,36 +50,36 @@ describe("activeConnectionStorage", () => {
   });
 
   test("cold start seeds the active connection from the persisted breadcrumb", async () => {
-    const breadcrumb = createNewConfigurationId();
+    const breadcrumb = createConnectionId();
     await localForage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, breadcrumb);
     const sessionStorage = createInMemorySessionStorage();
 
-    const atom = await createActiveConfigurationAtom({ sessionStorage });
+    const atom = await createActiveConnectionIdAtom({ sessionStorage });
 
     const store = createStore();
     expect(store.get(atom)).toBe(breadcrumb);
   });
 
   test("treats an empty sessionStorage value as a miss and falls back to the breadcrumb", async () => {
-    const breadcrumb = createNewConfigurationId();
+    const breadcrumb = createConnectionId();
     await localForage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, breadcrumb);
     const sessionStorage = createInMemorySessionStorage();
     sessionStorage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, "");
 
-    const atom = await createActiveConfigurationAtom({ sessionStorage });
+    const atom = await createActiveConnectionIdAtom({ sessionStorage });
 
     const store = createStore();
     expect(store.get(atom)).toBe(breadcrumb);
   });
 
   test("warm reload keeps this tab's sessionStorage value over the breadcrumb", async () => {
-    const breadcrumb = createNewConfigurationId();
-    const tabValue = createNewConfigurationId();
+    const breadcrumb = createConnectionId();
+    const tabValue = createConnectionId();
     await localForage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, breadcrumb);
     const sessionStorage = createInMemorySessionStorage();
     sessionStorage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, tabValue);
 
-    const atom = await createActiveConfigurationAtom({ sessionStorage });
+    const atom = await createActiveConnectionIdAtom({ sessionStorage });
 
     const store = createStore();
     expect(store.get(atom)).toBe(tabValue);
@@ -82,10 +87,10 @@ describe("activeConnectionStorage", () => {
 
   test("activating a connection writes both this tab and the breadcrumb", async () => {
     const sessionStorage = createInMemorySessionStorage();
-    const atom = await createActiveConfigurationAtom({ sessionStorage });
+    const atom = await createActiveConnectionIdAtom({ sessionStorage });
     const store = createStore();
 
-    const activated = createNewConfigurationId();
+    const activated = createConnectionId();
     // The in-memory value and sessionStorage update synchronously; the
     // breadcrumb lands in the background through the shared write queue.
     store.set(atom, activated);
@@ -101,12 +106,12 @@ describe("activeConnectionStorage", () => {
   });
 
   test("clearing the active connection clears this tab but is reflected in the breadcrumb", async () => {
-    const previous = createNewConfigurationId();
+    const previous = createConnectionId();
     await localForage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, previous);
     const sessionStorage = createInMemorySessionStorage();
     sessionStorage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, previous);
 
-    const atom = await createActiveConfigurationAtom({ sessionStorage });
+    const atom = await createActiveConnectionIdAtom({ sessionStorage });
     const store = createStore();
     store.set(atom, null);
 
@@ -120,14 +125,14 @@ describe("activeConnectionStorage", () => {
   // storage is available (non-DOM contexts, or storage blocked/throwing). It
   // must still seed from the breadcrumb and round-trip writes in memory.
   test("falls back to in-memory storage when no sessionStorage is available", async () => {
-    const breadcrumb = createNewConfigurationId();
+    const breadcrumb = createConnectionId();
     await localForage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, breadcrumb);
 
-    const atom = await createActiveConfigurationAtom();
+    const atom = await createActiveConnectionIdAtom();
     const store = createStore();
     expect(store.get(atom)).toBe(breadcrumb);
 
-    const activated = createNewConfigurationId();
+    const activated = createConnectionId();
     store.set(atom, activated);
     expect(store.get(atom)).toBe(activated);
   });
@@ -144,18 +149,19 @@ describe("activeConnectionStorage across tabs", () => {
 
   test("activating a connection in one tab does not change an already-open tab", async () => {
     const tabB = await openTab();
-    const tabBConnection = createNewConfigurationId();
+    tabB.subscribe();
+    const tabBConnection = createConnectionId();
     await tabB.activate(tabBConnection);
 
     const tabA = await openTab();
-    await tabA.activate(createNewConfigurationId());
+    await tabA.activate(createConnectionId());
 
     expect(tabB.read()).toBe(tabBConnection);
   });
 
   test("a tab opened later cold-starts to the connection an earlier tab activated", async () => {
     const earlierTab = await openTab();
-    const connection = createNewConfigurationId();
+    const connection = createConnectionId();
     await earlierTab.activate(connection);
 
     const freshTab = await openTab();
@@ -166,14 +172,14 @@ describe("activeConnectionStorage across tabs", () => {
   test("a cold-started tab keeps its connection across reload when another tab changes the breadcrumb", async () => {
     // Tab A cold-starts on X (seeded from the breadcrumb), without ever
     // explicitly activating it.
-    const connectionX = createNewConfigurationId();
+    const connectionX = createConnectionId();
     await localForage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, connectionX);
     const tabA = await openTab();
     expect(tabA.read()).toBe(connectionX);
 
     // Another tab switches to Y, moving the shared breadcrumb.
     const tabB = await openTab();
-    const connectionY = createNewConfigurationId();
+    const connectionY = createConnectionId();
     await tabB.activate(connectionY);
 
     // Tab A reloads. Its connection must remain X, not adopt the breadcrumb's Y.
@@ -185,8 +191,8 @@ describe("activeConnectionStorage across tabs", () => {
     const tabA = await openTab();
     const tabB = await openTab();
 
-    const connectionA = createNewConfigurationId();
-    const connectionB = createNewConfigurationId();
+    const connectionA = createConnectionId();
+    const connectionB = createConnectionId();
     await tabA.activate(connectionA);
     await tabB.activate(connectionB);
 

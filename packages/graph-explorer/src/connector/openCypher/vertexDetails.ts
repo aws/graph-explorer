@@ -1,5 +1,6 @@
+import { warnMissingIds } from "@/connector/utils/warnMissingIds";
 import { createVertex } from "@/core";
-import { logger, query } from "@/utils";
+import { query } from "@/utils";
 
 import type {
   VertexDetailsRequest,
@@ -40,16 +41,12 @@ export async function vertexDetails(
     .map(v => createVertex(v));
 
   // Log a warning if some nodes are missing
-  const missing = new Set(request.vertexIds).difference(
-    new Set(vertices.map(v => v.id)),
+  warnMissingIds(
+    "vertices",
+    request.vertexIds,
+    vertices.map(v => v.id),
+    data,
   );
-  if (missing.size) {
-    logger.warn("Did not find all requested vertices", {
-      requested: request.vertexIds,
-      missing: missing.values().toArray(),
-      data,
-    });
-  }
 
   return { vertices };
 }

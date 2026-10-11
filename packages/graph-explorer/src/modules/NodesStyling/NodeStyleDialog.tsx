@@ -31,12 +31,12 @@ import {
   DialogTitle,
 } from "@/components/Dialog";
 import { useDisplayVertexTypeConfig, type VertexType } from "@/core";
+import { isAllowedIconValue } from "@/core/icons";
 import {
   type LineStyle,
   type ShapeStyle,
   useVertexStyling,
 } from "@/core/StateProvider/graphStyles";
-import { isAllowedIconValue } from "@/core/styling";
 import { useTextTransform } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import {

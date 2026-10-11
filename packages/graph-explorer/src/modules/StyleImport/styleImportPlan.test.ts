@@ -1,3 +1,5 @@
+import { describe, expect, test } from "vitest";
+
 import type { EdgeType, VertexType } from "@/core/entities";
 import type {
   EdgeStyleStorage,

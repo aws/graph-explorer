@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { normalize } from "@/utils/testing";
 
 import { UnescapableValueError } from "../../queryValueError";

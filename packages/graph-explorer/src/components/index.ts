@@ -5,6 +5,7 @@ export * from "./Button";
 export * from "./Combobox";
 
 export * from "./Checkbox";
+export * from "./CheckboxField";
 
 export { default as CheckboxList } from "./CheckboxList";
 export * from "./CheckboxList";
@@ -67,6 +68,7 @@ export * from "./PersistenceStatusIndicator/PersistenceStatusIndicator";
 
 export * from "./Toaster";
 
+export * from "./RadioGroup";
 export * from "./RouteButton";
 export * from "./SchemaDiscoveryBoundary";
 export * from "./Spinner";

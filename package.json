@@ -1,6 +1,6 @@
 {
   "name": "graph-explorer",
-  "version": "3.2.2",
+  "version": "3.3.0",
   "private": true,
   "description": "Graph Explorer",
   "license": "Apache-2.0",
@@ -14,7 +14,6 @@
     "check:format": "oxfmt --check",
     "test": "vitest run",
     "test:watch": "vitest",
-    "coverage": "vitest run --coverage",
     "check:types": "pnpm -r --include-workspace-root --parallel --stream run typecheck",
     "typecheck": "tsc --noEmit",
     "checks": "pnpm run check:lint && pnpm run check:format && pnpm run check:types",
@@ -26,17 +25,16 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@tanstack/eslint-plugin-query": "5.102.8",
-    "@vitest/coverage-v8": "5.0.0",
+    "@tanstack/eslint-plugin-query": "5.104.1",
     "eslint-plugin-react-hooks": "7.1.1",
-    "fast-check": "^4.9.0",
+    "fast-check": "^4.10.2",
     "husky": "^9.1.7",
-    "lint-staged": "^17.5.0",
-    "oxfmt": "0.67.0",
-    "oxlint": "1.82.0",
-    "oxlint-tsgolint": "7.0.2001",
+    "lint-staged": "^17.6.0",
+    "oxfmt": "0.71.0",
+    "oxlint": "1.86.0",
+    "oxlint-tsgolint": "7.0.2003",
     "typescript": "^7.0.2",
-    "vitest": "5.0.1"
+    "vitest": "5.0.3"
   },
   "lint-staged": {
     "!(**/*.{js,ts,tsx})": "oxfmt --no-error-on-unmatched-pattern",
@@ -55,5 +53,5 @@
   "engines": {
     "node": ">=24.21.0"
   },
-  "packageManager": "pnpm@12.4.2+sha512.08adc6613180275c7c9edada39dcf08c9c61ad4e7eaf330a4f3461f102b0f907423454d117f98e72d47fef0616070644d7bffc973a6a57f5090a6d7c368b07c9"
+  "packageManager": "pnpm@12.8.1+sha512.f64ba907507f5ceafe06c8d38e6052d0179444580ec1279ddd5bfc11cb48aa8a2644b66598e07e761da84872a9fc57d5f902b87fa49d024198d558612aabbe45"
 }

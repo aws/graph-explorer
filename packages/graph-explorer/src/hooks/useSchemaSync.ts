@@ -3,7 +3,7 @@ import { useAtomValue } from "jotai";
 
 import { edgeConnectionsQuery, schemaSyncQuery } from "@/connector";
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   maybeActiveSchemaAtom,
   useConfiguration,
 } from "@/core";
@@ -28,9 +28,10 @@ export function useCancelSchemaSync() {
  *
  * Both queries use `staleTime: Infinity` and `initialData` from the Jotai
  * store. This means:
- * - If cached data exists in localforage, it seeds the query cache and no
+ * - If a synced schema exists in localforage, it seeds the query cache and no
  *   fetch occurs.
- * - If no cached data exists, TanStack Query fetches automatically.
+ * - If none exists, TanStack Query fetches automatically unless the last sync
+ *   failed.
  * - Manual refetch is available via `refreshSchema()`.
  * - On refetch failure, TanStack Query preserves the previous successful data.
  */
@@ -41,7 +42,7 @@ export function useSchemaSync() {
   // The schema and connectionId must update in the same render so the query
   // options stay consistent when switching connections.
   const activeSchema = useAtomValue(maybeActiveSchemaAtom);
-  const connectionId = useAtomValue(activeConfigurationAtom);
+  const connectionId = useAtomValue(activeConnectionIdAtom);
 
   const schemaDiscoveryQuery = useQuery(
     schemaSyncQuery({

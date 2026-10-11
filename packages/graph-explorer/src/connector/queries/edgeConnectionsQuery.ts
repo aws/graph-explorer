@@ -2,7 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { atom } from "jotai";
 
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   activeSchemaAtom,
   type EdgeConnection,
   schemaAtom,
@@ -66,7 +66,7 @@ export function edgeConnectionsQuery(
 
         // Update the cached schema for the schema sync query
         const newSchema = store.get(activeSchemaAtom);
-        const connectionId = store.get(activeConfigurationAtom);
+        const connectionId = store.get(activeConnectionIdAtom);
         client.setQueryData(schemaSyncQueryKey(connectionId), newSchema);
 
         return results.edgeConnections;
@@ -86,17 +86,17 @@ export function edgeConnectionsQuery(
 const setEdgeConnectionsAtom = atom(
   null,
   (get, set, edgeConnections: EdgeConnection[]) => {
-    const activeConfigId = get(activeConfigurationAtom);
-    if (!activeConfigId) {
+    const activeConnectionId = get(activeConnectionIdAtom);
+    if (!activeConnectionId) {
       return;
     }
     set(schemaAtom, prev => {
-      const activeSchema = prev.get(activeConfigId);
+      const activeSchema = prev.get(activeConnectionId);
       if (!activeSchema) {
         return prev;
       }
       const updated = new Map(prev);
-      updated.set(activeConfigId, {
+      updated.set(activeConnectionId, {
         ...activeSchema,
         edgeConnections,
         lastEdgeConnectionSyncFail: false,
@@ -108,7 +108,7 @@ const setEdgeConnectionsAtom = atom(
 
 /** Setter-only atom that marks edge connection sync as failed while preserving existing data. */
 const setEdgeConnectionSyncFailedAtom = atom(null, (get, set) => {
-  const id = get(activeConfigurationAtom);
+  const id = get(activeConnectionIdAtom);
   if (!id) {
     logger.warn("Cannot update schema: no active configuration");
     return;

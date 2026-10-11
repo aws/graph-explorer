@@ -3,9 +3,19 @@ import os from "os";
 import path from "path";
 import { Readable } from "stream";
 import request from "supertest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  type MockInstance,
+  vi,
+} from "vitest";
 
 import { createApp, resolveEndpointUrl } from "./app.ts";
 import { createLogger } from "./logging.ts";
+import { createTestEnvironment } from "./testing.ts";
 
 // node-fetch is globally mocked in test-setup.ts
 const { default: fetch } = await import("node-fetch");
@@ -26,14 +36,7 @@ function createTestApp(
     corsOrigin,
     allowedDbOrigins,
   });
-  app.locals.logger = createLogger({
-    HOST: "localhost",
-    PROXY_SERVER_HTTPS_CONNECTION: false,
-    PROXY_SERVER_HTTPS_PORT: 443,
-    PROXY_SERVER_HTTP_PORT: 80,
-    LOG_LEVEL: "silent",
-    LOG_STYLE: "default",
-  });
+  app.locals.logger = createLogger(createTestEnvironment());
   return app;
 }
 
@@ -45,6 +48,16 @@ function dbHeaders(overrides: Record<string, string> = {}) {
     ...overrides,
   };
 }
+
+/** Every route that forwards a request to the database named in the headers. */
+const forwardingRoutes = [
+  { method: "post", route: "/sparql", body: { query: "test" } },
+  { method: "post", route: "/gremlin", body: { gremlin: "test" } },
+  { method: "post", route: "/openCypher", body: { query: "test" } },
+  { method: "get", route: "/summary", body: undefined },
+  { method: "get", route: "/pg/statistics/summary", body: undefined },
+  { method: "get", route: "/rdf/statistics/summary", body: undefined },
+] as const;
 
 /** Creates a minimal node-fetch Response-like object that fetchData can pipe. */
 function createMockFetchResponse(
@@ -65,6 +78,13 @@ function mockFetchOnce(body = "ok", status = 200, headers = {}) {
   mockFetch.mockResolvedValueOnce(
     createMockFetchResponse(body, status, headers) as any,
   );
+}
+
+const queryRoutes = ["sparql", "gremlin", "openCypher"] as const;
+
+/** The JSON body a query route reads its query from. */
+function queryBody(route: (typeof queryRoutes)[number], query: string) {
+  return route === "gremlin" ? { gremlin: query } : { query };
 }
 
 /**
@@ -266,6 +286,89 @@ describe("createApp", () => {
     }
   });
 
+  // ── Static mount redirect ─────────────────────────────────────────
+
+  describe("static mount redirect", () => {
+    let tmpDir: string;
+
+    beforeEach(() => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-static-test-"));
+      fs.writeFileSync(
+        path.join(tmpDir, "index.html"),
+        "<html>explorer</html>",
+      );
+      fs.mkdirSync(path.join(tmpDir, "assets"));
+      fs.writeFileSync(
+        path.join(tmpDir, "assets", "app.js"),
+        "console.log('ok');",
+      );
+    });
+
+    afterEach(() => {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    function createStaticTestApp(staticFilesVirtualPath = "/explorer") {
+      const app = createApp({
+        configPath: ".",
+        staticFilesVirtualPath,
+        staticFilesPath: tmpDir,
+        version: testVersion,
+      });
+      app.locals.logger = createLogger(createTestEnvironment());
+      return app;
+    }
+
+    it("redirects the bare mount path with a relative Location", async () => {
+      const response = await request(createStaticTestApp()).get("/explorer");
+
+      expect(response.status).toBe(301);
+      expect(response.headers["location"]).toBe("explorer/");
+    });
+
+    it("uses the last segment of a multi-segment mount path", async () => {
+      const response = await request(createStaticTestApp("/ui/graph")).get(
+        "/ui/graph",
+      );
+
+      expect(response.status).toBe(301);
+      // Resolved against "/ui/graph" this gives "/ui/graph/".
+      expect(response.headers["location"]).toBe("graph/");
+    });
+
+    it("serves index.html for a multi-segment mount path", async () => {
+      const response = await request(createStaticTestApp("/ui/graph")).get(
+        "/ui/graph/",
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.text).toContain("explorer");
+    });
+
+    it("serves index.html for the trailing-slash form without redirecting", async () => {
+      const response = await request(createStaticTestApp()).get("/explorer/");
+
+      expect(response.status).toBe(200);
+      expect(response.text).toContain("explorer");
+    });
+
+    it("serves an asset beneath the mount path", async () => {
+      const response = await request(createStaticTestApp()).get(
+        "/explorer/assets/app.js",
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.text).toContain("console.log");
+    });
+
+    it("does not shadow an API route mounted at root", async () => {
+      const response = await request(createStaticTestApp()).get("/status");
+
+      expect(response.status).toBe(200);
+      expect(response.text).toBe("OK");
+    });
+  });
+
   // ── Logger route ───────────────────────────────────────────────────
 
   it("POST /logger returns error when level header is missing", async () => {
@@ -327,44 +430,116 @@ describe("createApp", () => {
 
   // ── Query validation (400 cases) ──────────────────────────────────
 
-  describe.each(["sparql", "gremlin", "openCypher"])(
-    "POST /%s input validation",
-    route => {
-      it("returns 400 when query is missing but headers are present", async () => {
-        const app = createTestApp();
-        const response = await request(app)
-          .post(`/${route}`)
-          .set(dbHeaders())
-          .send({});
-        expect(response.status).toBe(400);
-      });
+  describe.each(queryRoutes)("POST /%s input validation", route => {
+    it("returns 400 when query is missing but headers are present", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .post(`/${route}`)
+        .set(dbHeaders())
+        .send({});
+      expect(response.status).toBe(400);
+    });
 
-      it("returns 400 when neither query nor db headers are present", async () => {
-        const app = createTestApp();
-        const response = await request(app).post(`/${route}`).send({});
-        expect(response.status).toBe(400);
-      });
+    it("returns 400 when neither query nor db headers are present", async () => {
+      const app = createTestApp();
+      const response = await request(app).post(`/${route}`).send({});
+      expect(response.status).toBe(400);
+    });
 
-      it("returns 400 when query is present but db connection header is missing", async () => {
-        mockFetchOnce();
+    it("returns 400 when query is present but db connection header is missing", async () => {
+      mockFetchOnce();
 
-        const app = createTestApp();
-        const response = await request(app)
-          .post(`/${route}`)
-          .send({ query: "test query" });
-        expect(response.status).toBe(400);
-      });
+      const app = createTestApp();
+      const response = await request(app)
+        .post(`/${route}`)
+        .send(queryBody(route, "test query"));
+      expect(response.status).toBe(400);
+    });
 
-      it("returns 400 when graph-db-connection-url is not a valid HTTP URL", async () => {
+    it("returns 400 when graph-db-connection-url is not a valid HTTP URL", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .post(`/${route}`)
+        .set({ "graph-db-connection-url": "ftp://not-http.example.com" })
+        .send(queryBody(route, "test query"));
+      expect(response.status).toBe(400);
+    });
+  });
+
+  // ── Database URLs carrying userinfo ───────────────────────────────
+
+  describe("graph-db-connection-url with embedded credentials", () => {
+    const credentialedUrl = `https://someone:hunter2@my-graph-db.example.com:8182`;
+
+    it.each([
+      { method: "post", route: "/sparql", body: { query: "test" } },
+      { method: "post", route: "/gremlin", body: { gremlin: "test" } },
+      { method: "post", route: "/openCypher", body: { query: "test" } },
+      { method: "get", route: "/summary", body: undefined },
+      { method: "get", route: "/pg/statistics/summary", body: undefined },
+      { method: "get", route: "/rdf/statistics/summary", body: undefined },
+    ] as const)(
+      "$method $route returns 400 without fetching",
+      async ({ method, route, body }) => {
         const app = createTestApp();
-        const response = await request(app)
-          .post(`/${route}`)
-          .set({ "graph-db-connection-url": "ftp://not-http.example.com" })
-          .send({ query: "test query" });
+        const req = request(app)
+          [method](route)
+          .set(dbHeaders({ "graph-db-connection-url": credentialedUrl }));
+        const response = body ? await req.send(body) : await req;
+
         expect(response.status).toBe(400);
-      });
-    },
-  );
+        expect(response.body.error.message).toContain(
+          "Must not include a username or password",
+        );
+        expect(mockFetch).not.toHaveBeenCalledWith(
+          expect.stringContaining("my-graph-db.example.com"),
+          expect.anything(),
+        );
+      },
+    );
+
+    it("rejects a URL carrying only a username", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/gremlin")
+        .set({
+          "graph-db-connection-url": "https://someone@my-graph-db.example.com",
+        })
+        .send({ gremlin: "test" });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.message).toContain(
+        "Must not include a username or password",
+      );
+      expect(mockFetch).not.toHaveBeenCalledWith(
+        expect.stringContaining("my-graph-db.example.com"),
+        expect.anything(),
+      );
+    });
+
+    it("does not echo the rejected value back to the client", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/gremlin")
+        .set(dbHeaders({ "graph-db-connection-url": credentialedUrl }))
+        .send({ gremlin: "test" });
+
+      expect(JSON.stringify(response.body)).not.toContain("hunter2");
+    });
+
+    it("still accepts a URL without userinfo", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/gremlin")
+        .set(dbHeaders())
+        .send({ gremlin: "test" });
+
+      expect(response.status).toBe(200);
+      expect(fetchOptionsFor("gremlin")).toBeDefined();
+    });
+  });
 
   // ── SPARQL happy path ─────────────────────────────────────────────
 
@@ -459,7 +634,7 @@ describe("createApp", () => {
       const response = await request(app)
         .post("/gremlin")
         .set(dbHeaders())
-        .send({ query: "g.V().limit(1)" });
+        .send({ gremlin: "g.V().limit(1)" });
 
       expect(response.status).toBe(200);
       expect(mockFetch).toHaveBeenCalledWith(
@@ -473,11 +648,25 @@ describe("createApp", () => {
 
       const app = createTestApp();
       const query = "g.V().limit(1)";
-      await request(app).post("/gremlin").set(dbHeaders()).send({ query });
+      await request(app)
+        .post("/gremlin")
+        .set(dbHeaders())
+        .send({ gremlin: query });
 
       const fetchOptions = fetchOptionsFor("gremlin");
       const body = JSON.parse(fetchOptions.body);
       expect(body.gremlin).toBe(query);
+    });
+
+    it("returns 400 when the query is not in the gremlin field", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/gremlin")
+        .set(dbHeaders())
+        .send({ query: "g.V()" });
+
+      expect(response.status).toBe(400);
+      expect(mockFetch).not.toHaveBeenCalled();
     });
 
     it("includes queryId in the JSON body when provided", async () => {
@@ -487,7 +676,7 @@ describe("createApp", () => {
       await request(app)
         .post("/gremlin")
         .set(dbHeaders({ queryid: "q-456" }))
-        .send({ query: "g.V()" });
+        .send({ gremlin: "g.V()" });
 
       const fetchOptions = fetchOptionsFor("gremlin");
       const body = JSON.parse(fetchOptions.body);
@@ -501,7 +690,7 @@ describe("createApp", () => {
       const response = await request(app)
         .post("/gremlin")
         .set(dbHeaders())
-        .send({ query: "g.V()" });
+        .send({ gremlin: "g.V()" });
 
       expect(response.status).toBe(500);
     });
@@ -674,12 +863,101 @@ describe("createApp", () => {
       const fetchOptions = fetchOptionsFor("sparql");
       expect(fetchOptions.headers).not.toHaveProperty("authorization");
     });
+
+    describe("without a Database Origin Allowlist", () => {
+      const signedHeaders = {
+        "aws-neptune-region": "us-east-1",
+        "service-type": "neptune-db",
+      };
+
+      function allowlistWarnings(warnSpy: MockInstance) {
+        return warnSpy.mock.calls.filter(args =>
+          args.some(
+            arg =>
+              typeof arg === "string" &&
+              arg.includes("PROXY_SERVER_ALLOWED_DB_ORIGINS"),
+          ),
+        );
+      }
+
+      it("warns once on the first signed request, naming the origin", async () => {
+        mockFetchOnce();
+
+        const app = createTestApp();
+        const warnSpy = vi.spyOn(app.locals.logger, "warn");
+        const response = await request(app)
+          .post("/sparql")
+          .set(dbHeaders(signedHeaders))
+          .send({ query: "SELECT ?secret WHERE {}" });
+
+        expect(response.status).toBe(200);
+        expect(fetchOptionsFor("sparql").headers).toHaveProperty(
+          "authorization",
+        );
+        const warnings = allowlistWarnings(warnSpy);
+        expect(warnings).toHaveLength(1);
+        const message = warnings[0].join(" ");
+        expect(message).toContain(new URL(graphDbUrl).origin);
+        expect(message).toContain("security documentation");
+        expect(message).not.toContain("?secret");
+        expect(message).not.toContain("/sparql");
+      });
+
+      it("does not warn again for later signed requests to any origin", async () => {
+        const app = createTestApp();
+        const warnSpy = vi.spyOn(app.locals.logger, "warn");
+
+        for (const url of [graphDbUrl, "https://other-db.example.com:8182"]) {
+          mockFetchOnce();
+          await request(app)
+            .post("/sparql")
+            .set(
+              dbHeaders({ ...signedHeaders, "graph-db-connection-url": url }),
+            )
+            .send({ query: "SELECT 1" });
+        }
+        mockFetchOnce();
+        await request(app).get("/summary").set(dbHeaders(signedHeaders));
+
+        expect(allowlistWarnings(warnSpy)).toHaveLength(1);
+      });
+
+      it("does not warn for unsigned requests", async () => {
+        mockFetchOnce();
+
+        const app = createTestApp();
+        const warnSpy = vi.spyOn(app.locals.logger, "warn");
+        await request(app)
+          .post("/sparql")
+          .set(dbHeaders())
+          .send({ query: "SELECT 1" });
+
+        expect(allowlistWarnings(warnSpy)).toHaveLength(0);
+      });
+
+      it("does not warn when an allowlist is set", async () => {
+        mockFetchOnce();
+
+        const app = createTestApp(
+          ".",
+          undefined,
+          new Set([new URL(graphDbUrl).origin]),
+        );
+        const warnSpy = vi.spyOn(app.locals.logger, "warn");
+        await request(app)
+          .post("/sparql")
+          .set(dbHeaders(signedHeaders))
+          .send({ query: "SELECT 1" });
+
+        expect(allowlistWarnings(warnSpy)).toHaveLength(0);
+      });
+    });
   });
 
   // ── Query logging header ───────────────────────────────────────────
 
   describe("db-query-logging-enabled header", () => {
-    it.each(["sparql", "gremlin", "openCypher"])(
+    it.each(queryRoutes)(
       "POST /%s logs the query when db-query-logging-enabled is true",
       async route => {
         mockFetchOnce();
@@ -691,7 +969,7 @@ describe("createApp", () => {
         await request(app)
           .post(`/${route}`)
           .set(dbHeaders({ "db-query-logging-enabled": "true" }))
-          .send({ query: "test query" });
+          .send(queryBody(route, "test query"));
 
         expect(debugSpy).toHaveBeenCalledWith(
           expect.stringContaining("Received database query"),
@@ -700,7 +978,7 @@ describe("createApp", () => {
       },
     );
 
-    it.each(["sparql", "gremlin", "openCypher"])(
+    it.each(queryRoutes)(
       "POST /%s does not log the query when db-query-logging-enabled is absent",
       async route => {
         mockFetchOnce();
@@ -712,7 +990,7 @@ describe("createApp", () => {
         await request(app)
           .post(`/${route}`)
           .set(dbHeaders())
-          .send({ query: "test query" });
+          .send(queryBody(route, "test query"));
 
         expect(debugSpy).not.toHaveBeenCalledWith(
           expect.stringContaining("Received database query"),
@@ -792,14 +1070,7 @@ describe("createApp", () => {
         staticFilesVirtualPath: "/explorer",
         staticFilesPath: ".",
       });
-      app.locals.logger = createLogger({
-        HOST: "localhost",
-        PROXY_SERVER_HTTPS_CONNECTION: false,
-        PROXY_SERVER_HTTPS_PORT: 443,
-        PROXY_SERVER_HTTP_PORT: 80,
-        LOG_LEVEL: "silent",
-        LOG_STYLE: "default",
-      });
+      app.locals.logger = createLogger(createTestEnvironment());
 
       await request(app)
         .post("/sparql")
@@ -889,7 +1160,7 @@ describe("createApp", () => {
       await request(app)
         .post("/gremlin")
         .set(blazegraphHeaders())
-        .send({ query: "g.V()" });
+        .send({ gremlin: "g.V()" });
 
       expect(mockFetch).toHaveBeenCalledWith(
         `${blazegraphUrl}/gremlin`,
@@ -1011,14 +1282,7 @@ describe("createApp", () => {
       expect(response.status).toBe(200);
     });
 
-    it.each([
-      { method: "post", route: "/sparql", body: { query: "test" } },
-      { method: "post", route: "/gremlin", body: { query: "test" } },
-      { method: "post", route: "/openCypher", body: { query: "test" } },
-      { method: "get", route: "/summary", body: undefined },
-      { method: "get", route: "/pg/statistics/summary", body: undefined },
-      { method: "get", route: "/rdf/statistics/summary", body: undefined },
-    ] as const)(
+    it.each(forwardingRoutes)(
       "$method $route returns 403 without fetching the disallowed origin",
       async ({ method, route, body }) => {
         const app = createTestApp(".", undefined, allowedOrigins);
@@ -1030,13 +1294,47 @@ describe("createApp", () => {
         const response = body ? await req.send(body) : await req;
 
         expect(response.status).toBe(403);
-        expect(response.body.error.message).toContain("allowed origins list");
+        expect(response.body.error.message).toContain(
+          "PROXY_SERVER_ALLOWED_DB_ORIGINS",
+        );
         expect(mockFetch).not.toHaveBeenCalledWith(
           expect.stringContaining("https://blocked:8182"),
           expect.anything(),
         );
       },
     );
+  });
+
+  describe("link-local database origins", () => {
+    const linkLocalUrl = "http://169.254.1.1:8182";
+
+    it.each(forwardingRoutes)(
+      "$method $route returns 403 without an allowlist and without fetching",
+      async ({ method, route, body }) => {
+        const app = createTestApp();
+        const req = request(app)
+          [method](route)
+          .set(dbHeaders({ "graph-db-connection-url": linkLocalUrl }));
+        const response = body ? await req.send(body) : await req;
+
+        expect(response.status).toBe(403);
+        expect(response.body.error.message).toContain(
+          "not a permitted database host",
+        );
+        expect(mockFetch).not.toHaveBeenCalled();
+      },
+    );
+
+    it("returns 403 when the allowlist names the link-local origin", async () => {
+      const app = createTestApp(".", undefined, new Set([linkLocalUrl]));
+      const response = await request(app)
+        .post("/sparql")
+        .set(dbHeaders({ "graph-db-connection-url": linkLocalUrl }))
+        .send({ query: "SELECT 1" });
+
+      expect(response.status).toBe(403);
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
   });
 });
 

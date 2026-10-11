@@ -1,20 +1,21 @@
 // @vitest-environment happy-dom
+
 import type { QueryEngine } from "@shared/types";
 
 import { act } from "@testing-library/react";
 import { useState } from "react";
-import { vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   type AppStore,
-  configurationAtom,
+  savedConnectionsAtom,
   schemaAtom,
   useSearchableAttributes,
 } from "@/core";
 import { SEARCH_TOKENS } from "@/utils";
 import {
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   createRandomVertexTypeConfig,
   renderHookWithJotai,
@@ -33,13 +34,13 @@ vi.mock("./useKeywordSearchQuery", () => ({
 function initializeConfigWithQueryEngine(queryEngine: QueryEngine) {
   return (store: AppStore) => {
     // Create config and setup schema
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     config.connection!.queryEngine = queryEngine;
 
-    store.set(configurationAtom, new Map([[config.id, config]]));
+    store.set(savedConnectionsAtom, new Map([[config.id, config]]));
 
     // Make config active
-    store.set(activeConfigurationAtom, config.id);
+    store.set(activeConnectionIdAtom, config.id);
   };
 }
 
@@ -133,7 +134,7 @@ describe("useKeywordSearch", () => {
   describe("SPARQL", () => {
     function initializeConfigWithRdfLabel(store: AppStore) {
       // Create config and setup schema
-      const config = createRandomRawConfiguration();
+      const config = createRandomSavedConnection();
       const schema = createRandomSchema();
       config.connection!.queryEngine = "sparql";
       schema.vertices[0].attributes.push({
@@ -141,11 +142,11 @@ describe("useKeywordSearch", () => {
         dataType: "String",
       });
 
-      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(savedConnectionsAtom, new Map([[config.id, config]]));
       store.set(schemaAtom, new Map([[config.id, schema]]));
 
       // Make config active
-      store.set(activeConfigurationAtom, config.id);
+      store.set(activeConnectionIdAtom, config.id);
     }
 
     it("Should default to precision match exact", () => {
@@ -247,7 +248,7 @@ describe("useKeywordSearch", () => {
   describe("all attributes token expansion", () => {
     function initializeConfigWithStringAttributes(queryEngine: QueryEngine) {
       return (store: AppStore) => {
-        const config = createRandomRawConfiguration();
+        const config = createRandomSavedConnection();
         const schema = createRandomSchema();
         config.connection!.queryEngine = queryEngine;
         schema.vertices[0].attributes = [
@@ -256,9 +257,9 @@ describe("useKeywordSearch", () => {
           { name: "elevation", dataType: "Number" },
         ];
 
-        store.set(configurationAtom, new Map([[config.id, config]]));
+        store.set(savedConnectionsAtom, new Map([[config.id, config]]));
         store.set(schemaAtom, new Map([[config.id, schema]]));
-        store.set(activeConfigurationAtom, config.id);
+        store.set(activeConnectionIdAtom, config.id);
       };
     }
 
@@ -318,7 +319,7 @@ describe("useKeywordSearch", () => {
     }
 
     function initializeConfigWithTwoVertexTypes(store: AppStore) {
-      const config = createRandomRawConfiguration();
+      const config = createRandomSavedConnection();
       const schema = createRandomSchema();
       config.connection!.queryEngine = "gremlin";
       schema.vertices[0].attributes = [
@@ -327,9 +328,9 @@ describe("useKeywordSearch", () => {
       ];
       schema.vertices[1].attributes = [{ name: "airline", dataType: "String" }];
 
-      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(savedConnectionsAtom, new Map([[config.id, config]]));
       store.set(schemaAtom, new Map([[config.id, schema]]));
-      store.set(activeConfigurationAtom, config.id);
+      store.set(activeConnectionIdAtom, config.id);
 
       return {
         vertexType1: schema.vertices[0].type,
@@ -338,7 +339,7 @@ describe("useKeywordSearch", () => {
     }
 
     function initializeConfigWithManyVertexTypes(store: AppStore) {
-      const config = createRandomRawConfiguration();
+      const config = createRandomSavedConnection();
       const schema = createRandomSchema();
       config.connection!.queryEngine = "gremlin";
 
@@ -347,9 +348,9 @@ describe("useKeywordSearch", () => {
         attributes: [{ name: `attr-${i}`, dataType: "String" }],
       }));
 
-      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(savedConnectionsAtom, new Map([[config.id, config]]));
       store.set(schemaAtom, new Map([[config.id, schema]]));
-      store.set(activeConfigurationAtom, config.id);
+      store.set(activeConnectionIdAtom, config.id);
     }
 
     it("returns the same array reference across renders when the vertex type is unchanged", () => {

@@ -15,8 +15,8 @@ updates:
       timezone: America/Chicago
     open-pull-requests-limit: 2
 
-  # actions/checkout is pinned in all four workflows, so an ungrouped bump would
-  # open four pull requests for one version.
+  # actions/checkout is pinned in every workflow, so an ungrouped bump would
+  # open one pull request per workflow for one version.
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -46,6 +46,16 @@ updates:
     ignore:
       - dependency-name: "@babel/core"
         update-types: ["version-update:semver-major"]
+      # @types/node tracks the Node major it describes, and we target Node LTS
+      # (24, pinned in Dockerfile, .node-version, and the engines fields). A major bump
+      # here would type against APIs the runtime does not have. Raise it by hand
+      # when we move to the next LTS.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # cva is pinned to an exact 1.0.0 beta. Later betas change the API, so no
+      # update-types filter here: every bump needs the call sites adjusted and
+      # has to be done by hand.
+      - dependency-name: "cva"
     # Covers minimumReleaseAge: 1440 in pnpm-workspace.yaml, which refuses to
     # resolve a release under 24h old and would fail the lockfile step. Do not
     # remove as redundant with Dependabot's 3 day default — the margin is the point.
@@ -56,11 +66,6 @@ updates:
       # carries no update-types filter: it has to catch majors, which arrive
       # ungrouped otherwise. Listed before minor-and-patch because a dependency
       # joins the first group it matches.
-      #
-      # @vitest/coverage-v8 peers vitest at an exact version rather than a range,
-      # so every release splits them, not just majors.
-      vitest:
-        patterns: ["vitest", "@vitest/*"]
       react:
         patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
       minor-and-patch:

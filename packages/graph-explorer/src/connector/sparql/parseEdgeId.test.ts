@@ -1,3 +1,5 @@
+import { expect, test } from "vitest";
+
 import { createEdgeId, createVertexId } from "@/core/entities";
 
 import { parseEdgeId } from "./parseEdgeId";

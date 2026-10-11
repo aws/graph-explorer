@@ -1,5 +1,7 @@
 // @vitest-environment happy-dom
+
 import { act } from "react";
+import { describe, expect, it } from "vitest";
 
 import type { SchemaViewLayout } from "@/core/StateProvider/schemaViewLayoutDefaults";
 
@@ -14,6 +16,7 @@ import { useSchemaViewSidebar } from "./schemaViewLayout";
 const baseLayout: SchemaViewLayout = {
   activeSidebarItem: "details",
   sidebar: { width: DEFAULT_SIDEBAR_WIDTH },
+  layoutAlgorithm: "F_COSE",
 };
 
 /** Seeds a schema view layout, overriding only the fields a test pins. */

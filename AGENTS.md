@@ -63,6 +63,15 @@ Read the relevant doc before working in that area:
 - `docs/agents/product.md` — product overview, supported databases, architecture
 - `docs/development.md` — toolchain setup, the pinned pnpm and node versions, and the pnpm upgrade procedure
 
+## Reviews
+
+Every code review, including `/code-review`, uses these standards sources:
+
+- `REVIEW.md` — severity, what not to report, and the verification bar. Wins where it conflicts with the others.
+- This file, plus the `docs/agents/*.md` doc for each area the diff touches.
+
+Pass `REVIEW.md` by path to every reviewer sub-agent, not only the standards one. Sub-agents don't always load this file.
+
 ## Commands
 
 Run from project root with `pnpm`. Use only these scripts — never invoke `tsc`, `vitest`, `oxlint`, or `oxfmt` directly or via `pnpx`. The scripts pin tool versions and configs and cover every workspace package; bare tools use the wrong version and miss project context.
@@ -74,7 +83,6 @@ Run from project root with `pnpm`. Use only these scripts — never invoke `tsc`
 - `pnpm test` — run all tests
 - `pnpm test <path>` — test files matching a path substring (file, dir, or partial)
 - `pnpm test -t "suite > name"` — test by name, with segments joined by a spaced `>` exactly as the reporter prints them; a single segment such as `-t "renders empty state"` also works (no `--` separator; pnpm forwards args verbatim, unlike npm)
-- `pnpm coverage` — tests with coverage
 
 `pnpm check:types` runs in parallel across packages in under a minute; just run it.
 
@@ -90,4 +98,6 @@ Default label vocabulary (needs-triage, needs-info, ready-for-agent, ready-for-h
 
 ### Domain docs
 
-Single-context layout — one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+Single-context layout — one `GLOSSARY.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
+`CONTEXT.md` was renamed to `GLOSSARY.md`. When a skill or doc asks for `CONTEXT.md` or `CONTEXT-MAP.md`, use `GLOSSARY.md` or `GLOSSARY-MAP.md` instead.

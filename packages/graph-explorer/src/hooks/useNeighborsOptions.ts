@@ -21,8 +21,7 @@ export default function useNeighborsOptions(
     return [];
   }
 
-  return neighbors.byType
-    .entries()
+  return Array.from(neighbors.byType.entries())
     .map(([type, neighbors]) => {
       const vtConfig = getVtConfig(type);
 
@@ -33,6 +32,5 @@ export default function useNeighborsOptions(
         config: vtConfig,
       };
     })
-    .toArray()
     .toSorted((a, b) => a.label.localeCompare(b.label));
 }

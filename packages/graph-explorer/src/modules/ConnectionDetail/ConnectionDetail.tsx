@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+import type { SavedConnection } from "@/connections";
+
 import {
   Button,
   Chip,
@@ -41,10 +43,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/Dialog";
+import { useDeleteActiveConnection } from "@/connections";
 import {
   activeSchemaSelector,
   type ConfigurationContextProps,
-  type RawConfiguration,
   showDebugActionsAtom,
   useHasActiveSchema,
   useMaybeActiveSchema,
@@ -53,7 +55,6 @@ import {
   debugForcePersistenceFailure,
   debugResetPersistenceStatus,
 } from "@/core/StateProvider/persistence";
-import { useDeleteActiveConfiguration } from "@/hooks/useDeleteConfig";
 import useEntitiesCounts from "@/hooks/useEntitiesCounts";
 import { useCancelSchemaSync, useSchemaSync } from "@/hooks/useSchemaSync";
 import useTranslations from "@/hooks/useTranslations";
@@ -82,15 +83,11 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
 
   const { isFetching } = useSchemaSync();
 
-  const onConfigExport = () => exportConnectionWithFeedback(config);
+  const onConnectionExport = () => exportConnectionWithFeedback(config);
 
-  const deleteActiveConfig = useDeleteActiveConfiguration();
+  const deleteActiveConnection = useDeleteActiveConnection();
 
-  const dbUrl = config.connection
-    ? config.connection.proxyConnection
-      ? config.connection.graphDbUrl
-      : config.connection.url
-    : LABELS.MISSING_VALUE;
+  const dbUrl = config.connection?.graphDbUrl || LABELS.MISSING_VALUE;
 
   const connectionName = config.displayLabel || config.id;
 
@@ -107,7 +104,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
             variant="ghost"
             size="icon"
             disabled={isFetching}
-            onClick={onConfigExport}
+            onClick={onConnectionExport}
           >
             <TrayArrowIcon />
           </Button>
@@ -124,8 +121,8 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
           <ConnectionDeleteButton
             connectionName={connectionName}
             isSync={isFetching}
-            deleteActiveConfig={deleteActiveConfig}
-            saveCopy={onConfigExport}
+            deleteActiveConnection={deleteActiveConnection}
+            saveCopy={onConnectionExport}
           />
         </PanelHeaderActions>
       </PanelHeader>
@@ -140,14 +137,16 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
               <InfoItemValue>{t("query-language")}</InfoItemValue>
             </InfoItemContent>
           </InfoItem>
-          <InfoItem>
+          <InfoItem className="min-w-0">
             <InfoItemIcon>
               <LinkIcon />
             </InfoItemIcon>
 
-            <InfoItemContent>
+            <InfoItemContent className="min-w-0">
               <InfoItemLabel>Database URL</InfoItemLabel>
-              <InfoItemValue>{dbUrl}</InfoItemValue>
+              <InfoItemValue className="line-clamp-2 break-all" title={dbUrl}>
+                {dbUrl}
+              </InfoItemValue>
             </InfoItemContent>
           </InfoItem>
         </InfoBar>
@@ -195,7 +194,7 @@ function ConnectionDetail({ config }: ConnectionDetailProps) {
  */
 
 /** Shows the vertex list, loading, or error state. */
-function MainContentLayout(_props: { config: RawConfiguration }) {
+function MainContentLayout(_props: { config: SavedConnection }) {
   const { isFetching, schemaDiscoveryQuery, refreshSchema } = useSchemaSync();
   const hasSchema = useHasActiveSchema();
   const cancel = useCancelSchemaSync();

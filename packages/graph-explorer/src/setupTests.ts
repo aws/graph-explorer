@@ -8,9 +8,9 @@ import { cleanup } from "@testing-library/react";
 import { IDBFactory } from "fake-indexeddb";
 import { createStore } from "jotai";
 import localforage from "localforage";
-import { afterEach, vi } from "vitest";
+import { afterEach, beforeEach, vi } from "vitest";
 
-import { iconRegistry } from "@/core/icons";
+import { iconRegistry } from "@/core/icons/iconRegistry";
 
 // Mock getAppStore to return a specific test store
 let store = createStore();

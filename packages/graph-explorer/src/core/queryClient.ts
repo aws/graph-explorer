@@ -4,7 +4,13 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 
-import { logger, NetworkError } from "@/utils";
+import {
+  DatabaseUrlError,
+  logger,
+  MissingDatabaseUrlError,
+  NetworkError,
+  ReverseProxyMisconfiguredError,
+} from "@/utils";
 
 import { getAppStore, type AppStore } from "./StateProvider/appStore";
 
@@ -43,6 +49,28 @@ export function createQueryClient() {
   });
 }
 
+/** Decides whether a failed query is worth another attempt. */
+export function shouldRetryQuery(failureCount: number, error: Error): boolean {
+  if (failureCount >= MAX_RETRIES) {
+    return false;
+  }
+  if (
+    error instanceof ReverseProxyMisconfiguredError ||
+    error instanceof MissingDatabaseUrlError ||
+    error instanceof DatabaseUrlError
+  ) {
+    return false;
+  }
+  if (
+    error instanceof NetworkError &&
+    HTTP_STATUS_TO_NOT_RETRY.includes(error.statusCode)
+  ) {
+    logger.debug("Aborting retry due to HTTP status code:", error.statusCode);
+    return false;
+  }
+  return true;
+}
+
 /**
  * Creates the query client's default options with the Jotai store
  * injected in to the `meta` object.
@@ -54,22 +82,7 @@ function createDefaultOptions(store: AppStore): DefaultOptions<Error> {
   return {
     queries: {
       meta,
-      retry: (failureCount, error) => {
-        if (failureCount >= MAX_RETRIES) {
-          return false;
-        }
-        if (
-          error instanceof NetworkError &&
-          HTTP_STATUS_TO_NOT_RETRY.includes(error.statusCode)
-        ) {
-          logger.debug(
-            "Aborting retry due to HTTP status code:",
-            error.statusCode,
-          );
-          return false;
-        }
-        return true;
-      },
+      retry: shouldRetryQuery,
       retryDelay: exponentialBackoff,
       staleTime: 1000 * 60 * 5, // 5 minute cache
       refetchOnWindowFocus: false,

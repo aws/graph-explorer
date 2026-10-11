@@ -1,0 +1,13 @@
+{
+  "id": "22222222-2222-4222-8222-222222222222",
+  "displayLabel": "Legacy Neptune (direct)",
+  "connection": {
+    "url": "https://neptune.example.com:8182",
+    "proxyConnection": false,
+    "queryEngine": "sparql"
+  },
+  "schema": {
+    "vertices": [],
+    "edges": []
+  }
+}

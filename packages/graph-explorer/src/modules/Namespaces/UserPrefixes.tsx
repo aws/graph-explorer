@@ -29,7 +29,7 @@ import {
   DialogTitle,
 } from "@/components/Dialog";
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   type PrefixTypeConfig,
   schemaAtom,
   useConfiguration,
@@ -164,7 +164,7 @@ function useDeletePrefixCallback(prefix: string) {
   return useAtomCallback(
     useCallback(
       (get, set) => {
-        const activeConfigId = get(activeConfigurationAtom);
+        const activeConfigId = get(activeConnectionIdAtom);
 
         if (!activeConfigId) {
           return;

@@ -7,11 +7,11 @@ import {
   useEffect,
 } from "react";
 
-import { PanelEmptyState, Spinner } from "@/components";
+import { PanelEmptyState, PanelError, Spinner } from "@/components";
+import { fetchDefaultConnection } from "@/connections";
 import { logger } from "@/utils";
 
-import { fetchDefaultConnection } from "./defaultConnection";
-import { activeConfigurationAtom, configurationAtom } from "./StateProvider";
+import { activeConnectionIdAtom, savedConnectionsAtom } from "./StateProvider";
 
 function AppStatusLoader({ children }: PropsWithChildren) {
   return (
@@ -22,8 +22,8 @@ function AppStatusLoader({ children }: PropsWithChildren) {
 }
 
 function LoadDefaultConfig({ children }: PropsWithChildren) {
-  const setActiveConfig = useSetAtom(activeConfigurationAtom);
-  const [configuration, setConfiguration] = useAtom(configurationAtom);
+  const setActiveConfig = useSetAtom(activeConnectionIdAtom);
+  const [configuration, setConfiguration] = useAtom(savedConnectionsAtom);
 
   // An empty store is what drives the whole default-connection flow: the query
   // fetches, the effect seeds, and the loading states show only while it holds.
@@ -32,7 +32,7 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
 
   const defaultConfigQuery = useQuery({
     queryKey: ["default-connection"],
-    queryFn: fetchDefaultConnection,
+    queryFn: () => fetchDefaultConnection(),
     staleTime: Infinity,
     enabled: storeIsEmpty,
   });
@@ -84,6 +84,10 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
         icon={<Spinner />}
       />
     );
+  }
+
+  if (storeIsEmpty && defaultConfigQuery.isError) {
+    return <PanelError error={defaultConfigQuery.error} />;
   }
 
   if (storeIsEmpty && hasDefaultConnection) {

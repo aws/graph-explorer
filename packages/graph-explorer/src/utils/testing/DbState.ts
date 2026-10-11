@@ -1,11 +1,12 @@
+import type { SavedConnection } from "@/connections";
 import type { Explorer } from "@/connector";
 import type { SchemaViewLayout } from "@/core/StateProvider/schemaViewLayoutDefaults";
 
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   allGraphSessionsAtom,
   type AppStore,
-  configurationAtom,
+  savedConnectionsAtom,
   type Edge,
   type EdgeId,
   type EdgeStyleStorage,
@@ -21,7 +22,6 @@ import {
   nodesAtom,
   nodesFilteredIdsAtom,
   nodesTypesFilteredAtom,
-  type RawConfiguration,
   schemaAtom,
   type SchemaStorageModel,
   schemaViewLayoutAtom,
@@ -39,7 +39,7 @@ import { createMockExplorer } from "./createMockExplorer";
 import {
   createRandomEdge,
   createRandomGraphViewLayout,
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   createRandomSchemaViewLayout,
   createRandomVertex,
@@ -54,7 +54,9 @@ import {
  */
 export class DbState {
   #activeSchema: SchemaStorageModel | null;
-  activeConfig: RawConfiguration;
+  #hasActiveConnection = true;
+  #inactiveConnections: SavedConnection[] = [];
+  activeConnection: SavedConnection;
   vertexStyles: Map<VertexType, VertexStyleStorage>;
   edgeStyles: Map<EdgeType, EdgeStyleStorage>;
   graphViewLayout: GraphViewLayout;
@@ -73,7 +75,7 @@ export class DbState {
   constructor(explorer: Explorer = createMockExplorer()) {
     this.#activeSchema = createRandomSchema();
 
-    this.activeConfig = createRandomRawConfiguration();
+    this.activeConnection = createRandomSavedConnection();
 
     this.vertexStyles = createRandomVertexStyles();
     this.edgeStyles = createRandomEdgeStyles();
@@ -107,6 +109,18 @@ export class DbState {
   /** Removes the active schema from the state. */
   withNoActiveSchema() {
     this.#activeSchema = null;
+    return this;
+  }
+
+  /** Simulates a fresh deployment with no connection configured as active. */
+  withNoActiveConnection() {
+    this.#hasActiveConnection = false;
+    return this;
+  }
+
+  /** Stores a connection alongside the active one without activating it. */
+  addInactiveConnection(connection: SavedConnection) {
+    this.#inactiveConnections.push(connection);
     return this;
   }
 
@@ -217,20 +231,27 @@ export class DbState {
 
   /** Applies the state to the given Jotai store. */
   applyTo(store: AppStore) {
-    // Config
+    // Connections
     store.set(
-      configurationAtom,
-      new Map([[this.activeConfig.id, this.activeConfig]]),
+      savedConnectionsAtom,
+      new Map(
+        [this.activeConnection, ...this.#inactiveConnections].map(
+          connection => [connection.id, connection],
+        ),
+      ),
     );
     if (this.#activeSchema) {
       store.set(
         schemaAtom,
-        new Map([[this.activeConfig.id, this.#activeSchema]]),
+        new Map([[this.activeConnection.id, this.#activeSchema]]),
       );
     } else {
       store.set(schemaAtom, new Map());
     }
-    store.set(activeConfigurationAtom, this.activeConfig.id);
+    store.set(
+      activeConnectionIdAtom,
+      this.#hasActiveConnection ? this.activeConnection.id : null,
+    );
 
     // Styling
     store.set(userVertexStylesAtom, this.vertexStyles);
@@ -255,7 +276,7 @@ export class DbState {
       allGraphSessionsAtom,
       new Map([
         [
-          this.activeConfig.id,
+          this.activeConnection.id,
           {
             vertices: new Set(this.vertices.map(v => v.id)),
             edges: new Set(this.edges.map(e => e.id)),

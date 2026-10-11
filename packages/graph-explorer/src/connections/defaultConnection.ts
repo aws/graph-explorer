@@ -1,0 +1,128 @@
+import { neptuneServiceTypeOptions, queryEngineOptions } from "@shared/types";
+import { z } from "zod";
+
+import { apiUrl } from "@/connector/utils/apiUrl";
+import { DEFAULT_SERVICE_TYPE, logger } from "@/utils";
+
+import type { ConnectionId, SavedConnection } from "./types";
+
+import { transformLegacyConnection } from "./legacyConnection";
+
+export const DefaultConnectionDataSchema = z.object({
+  // Connection info
+  GRAPH_EXP_USING_PROXY_SERVER: z.boolean().optional(),
+  // An empty or invalid value counts as absent, so legacy inference falls
+  // through to the public endpoint
+  GRAPH_EXP_CONNECTION_URL: z.string().url().optional().catch(undefined),
+  // Written by earlier versions, and read the way a legacy stored connection is
+  GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT: z.string().url().optional().catch(""),
+  GRAPH_EXP_GRAPH_TYPE: z.enum(queryEngineOptions).optional(),
+  // IAM auth info
+  GRAPH_EXP_IAM: z.boolean().default(false),
+  GRAPH_EXP_AWS_REGION: z.string().optional().default(""),
+  GRAPH_EXP_SERVICE_TYPE: z
+    .enum(neptuneServiceTypeOptions)
+    .default(DEFAULT_SERVICE_TYPE)
+    .catch(DEFAULT_SERVICE_TYPE),
+  // Connection options
+  GRAPH_EXP_FETCH_REQUEST_TIMEOUT: z.number().default(240000),
+  GRAPH_EXP_NODE_EXPANSION_LIMIT: z.number().optional(),
+});
+
+export type DefaultConnectionData = z.infer<typeof DefaultConnectionDataSchema>;
+
+/**
+ * Fetches the default connection from the server and returns an empty array
+ * on failure. Throws `ReverseProxyMisconfiguredError` when the API URL can't
+ * be resolved from the page's path.
+ */
+export async function fetchDefaultConnection() {
+  const url = apiUrl("defaultConnection");
+  try {
+    const defaultConnection = await fetchDefaultConnectionFor(url);
+
+    if (!defaultConnection) {
+      return [];
+    }
+
+    const config = mapToConnection(defaultConnection);
+
+    if (config.connection?.queryEngine) {
+      return [config];
+    }
+
+    const configs = queryEngineOptions.map(queryEngine => {
+      return {
+        ...config,
+        id: `${config.id}-${queryEngine}` as ConnectionId,
+        connection: {
+          ...config.connection,
+          queryEngine: queryEngine,
+        },
+      } as SavedConnection;
+    });
+
+    return configs;
+  } catch (error) {
+    logger.error(
+      `Error when trying to create connection: ${error instanceof Error ? error.message : "Unexpected error"}`,
+    );
+    return [];
+  }
+}
+
+/** Attempts to fetch a default connection from the given URL and returns null on a failure. */
+export async function fetchDefaultConnectionFor(
+  url: URL,
+): Promise<DefaultConnectionData | null> {
+  try {
+    logger.debug("Fetching default connection from", url);
+    const response = await fetch(url);
+    if (!response.ok) {
+      const responseText = await response.text();
+      logger.warn(
+        `Response status ${response.status} for default connection url`,
+        url,
+        responseText,
+      );
+      return null;
+    }
+    const data = await response.json();
+    logger.debug("Default connection data for url", url, data);
+    const result = DefaultConnectionDataSchema.safeParse(data);
+    if (result.success) {
+      return result.data;
+    } else {
+      logger.warn(
+        "Failed to parse default connection data",
+        result.error.flatten(),
+      );
+      return null;
+    }
+  } catch (error) {
+    logger.warn("Failed to fetch default connection for path", url, error);
+    return null;
+  }
+}
+
+export function mapToConnection(data: DefaultConnectionData): SavedConnection {
+  return {
+    id: "Default Connection" as ConnectionId,
+    displayLabel: "Default Connection",
+    connection: transformLegacyConnection({
+      url: data.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT,
+      graphDbUrl: data.GRAPH_EXP_CONNECTION_URL,
+      // Earlier versions read a missing flag in this file as false, so a file
+      // with a public endpoint and no flag stays direct
+      proxyConnection:
+        data.GRAPH_EXP_USING_PROXY_SERVER ??
+        (data.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT ? false : undefined),
+      queryEngine: data.GRAPH_EXP_GRAPH_TYPE,
+      awsAuthEnabled: data.GRAPH_EXP_IAM,
+      awsRegion: data.GRAPH_EXP_AWS_REGION,
+      serviceType: data.GRAPH_EXP_SERVICE_TYPE,
+      fetchTimeoutMs: data.GRAPH_EXP_FETCH_REQUEST_TIMEOUT,
+      nodeExpansionLimit: data.GRAPH_EXP_NODE_EXPANSION_LIMIT,
+    }),
+  };
+}

@@ -4,6 +4,14 @@
 
 The following steps will allow you to set up Graph Explorer on AWS Fargate in Amazon ECS, and connect to a running Neptune database.
 
+> [!IMPORTANT]
+>
+> The Graph Explorer server, not your browser, connects to the database for proxied connections, so it needs network access to the database endpoint. See [System overview](../architecture.md#system-overview) for details.
+
+> [!IMPORTANT]
+>
+> Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../references/security.md#access-control).
+
 ## Create a new IAM role and permission policies
 
 1. Open the IAM console at https://console.aws.amazon.com/iam/.
@@ -75,13 +83,6 @@ After the request is processed, the console will return you to your certificate 
          "cpu": 0,
          "portMappings": [
            {
-             "name": "graph-explorer-80-tcp",
-             "containerPort": 80,
-             "hostPort": 80,
-             "protocol": "tcp",
-             "appProtocol": "http"
-           },
-           {
              "name": "graph-explorer-443-tcp",
              "containerPort": 443,
              "hostPort": 443,
@@ -100,20 +101,8 @@ After the request is processed, the console will return you to your certificate 
              "value": "gremlin"
            },
            {
-             "name": "GRAPH_EXP_HTTPS_CONNECTION",
-             "value": "true"
-           },
-           {
              "name": "IAM",
              "value": "false"
-           },
-           {
-             "name": "USING_PROXY_SERVER",
-             "value": "true"
-           },
-           {
-             "name": "PUBLIC_OR_PROXY_ENDPOINT",
-             "value": "https://{FQDN_from_step3}"
            },
            {
              "name": "HOST",
@@ -125,6 +114,10 @@ After the request is processed, the console will return you to your certificate 
            },
            {
              "name": "GRAPH_CONNECTION_URL",
+             "value": "https://{NEPTUNE_ENDPOINT}:8182"
+           },
+           {
+             "name": "PROXY_SERVER_ALLOWED_DB_ORIGINS",
              "value": "https://{NEPTUNE_ENDPOINT}:8182"
            },
            {
@@ -164,9 +157,30 @@ After the request is processed, the console will return you to your certificate 
      - `GRAPH_TYPE`: The query language for your initial connection.
      - `IAM`: Set this to `true` to use SigV4 signed requests, if your Neptune cluster has IAM db authentication enabled.
      - `GRAPH_CONNECTION_URL`: Set this as `https://{NEPTUNE_ENDPOINT}:8182`.
-     - `PUBLIC_OR_PROXY_ENDPOINT`: Set this as `https://{Domain name set in Step 5 of "Request an ACM Public Certificate"}`.
+     - `PROXY_SERVER_ALLOWED_DB_ORIGINS`: Set this to the same origin as `GRAPH_CONNECTION_URL`, `https://{NEPTUNE_ENDPOINT}:8182`, so the proxy server only contacts your Neptune cluster. To let users reach another database later, add its origin to the comma-separated list, such as `https://{NEPTUNE_ENDPOINT}:8182,https://{OTHER_ENDPOINT}:8182`. See [Database Origin Allowlist](../references/security.md#database-origin-allowlist).
      - `SERVICE_TYPE`: Set this as `neptune-db` for Neptune database or `neptune-graph` for Neptune Analytics.
 6. Click **Create**.
+
+> [!IMPORTANT]
+>
+> Don't set `readonlyRootFilesystem: true` or a non-root `user` on this container. Graph Explorer writes its settings into its configuration folder at startup and needs write access to do that. See [Graph Explorer can't start because it can't write .env](./troubleshooting.md#graph-explorer-cant-start-because-it-cant-write-env).
+
+## Create a Security Group
+
+> [!CAUTION]
+>
+> The Fargate service below places Graph Explorer in public subnets behind an internet-facing load balancer, so this security group is what limits who can reach it. Restrict its source to the public address range your users' traffic comes from. The tasks also get public IPs and carry the same rule, so an authentication rule or web application firewall you add at the load balancer doesn't cover traffic sent straight to a task. See [Access Control](../references/security.md#access-control).
+
+1. Open the EC2 console at https://console.aws.amazon.com/ec2/.
+2. In the left hand navigation pane, choose **Security Groups**, then click **Create security group**.
+3. Set the following:
+   - **Security group name**: `graphexplorer-demo`
+   - **Description**: `Security group for access to graph-explorer`
+   - **VPC**: Select the VPC where your Neptune database is located.
+   - **Inbound rules**: Add one rule with type `HTTPS` and source `{YOUR_CIDR}`, the public address range your users' traffic comes from, such as your office or VPN egress addresses. Don't use `0.0.0.0/0` or a private range. Graph Explorer listens only on port `443`, so no port `80` rule is needed.
+4. Click **Create security group**.
+5. On the page for the new group, click **Edit inbound rules**, then **Add rule** with type `HTTPS` and the source set to `graphexplorer-demo` itself. Click **Save rules**. The load balancer the ECS console creates later gets this group too, which you confirm after creating the service, and a security group doesn't let its own members reach each other without a rule like this, so without it the load balancer's health checks fail.
+6. Open the security group attached to your Neptune database, click **Edit inbound rules**, and add a rule with type `Custom TCP`, port range `8182`, and source `graphexplorer-demo`. Click **Save rules**. Without this rule, Graph Explorer starts and passes its health check but can't reach the database, so every query times out.
 
 ## Create a Fargate Service
 
@@ -187,10 +201,8 @@ After the request is processed, the console will return you to your certificate 
 7. Expand the **Networking** section, and set the following:
    - **VPC**: Select the VPC where your Neptune database is located.
    - **Subnets**: Select all of the public subnets for that VPC, and remove any unassociated subnets.
-   - **Security group**: Select **Create a new security group**, and set the fields as:
-     - **Security group name**: `graphexplorer-demo`
-     - **Security group description**: `Security group for access to graph-explorer`
-     - **Inbound rules**: Add two rules, one with type `HTTPS` and port range `443`, and the second with type `HTTP` and port range `80`. Preferably, authorize only a specific IP address range to access your instances.
+   - **Security group**: Select **Use an existing security group**, choose `graphexplorer-demo` from step "Create a Security Group", and remove any other group.
+   - **Public IP**: Turned on. Tasks in a public subnet reach the internet through its internet gateway, which needs a public IP, to pull the image and send logs.
 8. Expand the **Load balancing** section.
 9. Select **Application load balancer**, and create a new load balancer with the configuration:
    - **Load balancer name**: `lb-graph-explorer-demo`
@@ -207,6 +219,7 @@ After the request is processed, the console will return you to your certificate 
 11. (Optional) To help identify your service and tasks, expand the **Tags** section, then configure your desired tags.
     - **Tip**: To have Amazon ECS automatically tag all newly launched tasks with the cluster name and the task definition tags, select **Turn on Amazon ECS managed tags**, and then select **Task definitions**.
 12. Click **Create**.
+13. Once the service is created, open the EC2 console, choose **Load Balancers**, select `lb-graph-explorer-demo`, and open the **Security** tab. Confirm `graphexplorer-demo` is the only security group listed. If another group is listed, click **Edit**, select only `graphexplorer-demo`, and save. This group is what limits the load balancer to `{YOUR_CIDR}`. If you changed the group, in the cluster's **Services** list select the service, choose **Update**, select **Force new deployment**, and choose **Update**, because the first deployment stops retrying once its health checks fail.
 
 After few minutes, the Fargate service will be created and ready.
 

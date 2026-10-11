@@ -9,6 +9,7 @@
 - **Load Configuration:** This action replaces all the Graph Explorer configuration data you currently have with the data in the provided configuration file.
 
 > [!CAUTION]
+>
 > Loading a configuration cannot be undone. Run **Save Configuration** first to preserve your existing configuration data.
 
 ## Styles
@@ -36,6 +37,7 @@ For larger files, filter the preview by **All**, **Nodes**, **Edges**, **New** (
 Clears all your node and edge styles, returning every type to the defaults.
 
 > [!CAUTION]
+>
 > Resetting cannot be undone. Run **Save styles** first if you might want your current look back.
 
 ## About

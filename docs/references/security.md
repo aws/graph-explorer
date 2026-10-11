@@ -2,9 +2,74 @@
 
 # Security
 
-You can use Graph Explorer to connect to a publicly accessible graph database endpoint, or connect to a proxy endpoint that redirects to a private graph database endpoint.
+The browser talks to the same-origin proxy server, and the proxy server is what reaches the graph database. That means the proxy server must have network access to the target database, as described in the [architecture overview](../architecture.md#system-overview). The one exception is a direct connection, where the browser sends requests to the database itself.
 
 Graph Explorer supports the HTTPS protocol by default and provides a self-signed certificate as part of the Docker image. You can choose to use HTTP instead by changing the [environment variable default settings](./configuration.md#application-configuration).
+
+## Access Control
+
+Graph Explorer performs no authentication and no authorization. The proxy server never checks who the caller is.
+
+Anyone who can reach Graph Explorer can read and modify any data in the connected graph database, using whatever credentials the deployment holds. Never expose Graph Explorer publicly without an access control layer in front of it.
+
+You own who can reach the deployment and what authenticates in front of it. Graph Explorer owns behaving correctly once a request arrives.
+
+Access control for this application can live in one of two places. You can control who can reach the proxy server at all, through network placement and firewall or security group rules. You can also put something in front of it that authenticates callers.
+
+Of the four documented deployment paths, one runs on a platform that already provides an authentication layer.
+
+| Deployment | Platform provides an authentication layer |
+| --- | --- |
+| [Docker](../guides/deploy-with-docker.md) | No |
+| [Amazon EC2](../guides/deploy-to-ec2.md) | No |
+| [ECS Fargate](../guides/deploy-to-ecs-fargate.md) | No |
+| [Amazon SageMaker](../guides/deploy-to-sagemaker.md) | Yes |
+
+SageMaker is the exception because the notebook's Jupyter proxy requires a signed-in AWS principal, and it reaches the Graph Explorer container over loopback.
+
+### Self-hosted Gremlin Server
+
+In Apache TinkerPop 3.x, Gremlin Server uses the `gremlin-groovy` script engine by default. It can run arbitrary code on the server, not only Gremlin traversals. TinkerPop treats this as intended and leaves restricting it to the server operator. Other databases built on Gremlin Server may also enable Groovy by default.
+
+When Graph Explorer connects to a server with Groovy enabled:
+
+- Restrict access to Graph Explorer as strictly as access to the Gremlin Server host.
+- Keep Graph Explorer on an isolated network behind an authenticating layer, and never make it publicly reachable.
+- Let only Graph Explorer's proxy server reach Gremlin Server, for example with firewall or security group rules. A [direct connection](../features/connections.md#add-a-new-connection) needs each user's browser to reach Gremlin Server instead, which also lets every other site open in that browser reach it, even when the server listens only on `localhost`. Prefer a proxy connection, and choose a direct connection only for a server you accept that exposure on.
+
+For server-side options, read [Security](https://tinkerpop.apache.org/docs/current/reference/#security) and [Protecting Script Execution](https://tinkerpop.apache.org/docs/current/reference/#script-execution) in the TinkerPop reference documentation. Amazon Neptune doesn't use the Groovy script engine.
+
+### Reference for access control layers
+
+How Graph Explorer behaves on the wire, for anyone adding an access control layer in front of it.
+
+**Request headers.** The proxy server reads `graph-db-connection-url`, `aws-neptune-region`, `service-type`, `db-query-logging-enabled`, and `queryid`. `POST /logger` also reads `level` and `message`. Without `graph-db-connection-url`, every query fails with a 400 whose body names the missing header. The proxy server never reads a client `Authorization` header or cookie, and never forwards either one to the database.
+
+**Paths.** The UI lives under `/explorer`. It calls the API on its own origin, under the same prefix it was loaded from, with the `/explorer` segment cut out. A layer that renames that segment breaks the UI, see [Reverse proxy misconfigured](../guides/troubleshooting.md#reverse-proxy-misconfigured). The API paths sit next to `/explorer`, not under it, so a layer that forwards only `/explorer/*` serves a UI that loads and then fails every query.
+
+| Path                      | Method |
+| ------------------------- | ------ |
+| `/defaultConnection`      | GET    |
+| `/sparql`                 | POST   |
+| `/gremlin`                | POST   |
+| `/openCypher`             | POST   |
+| `/summary`                | GET    |
+| `/pg/statistics/summary`  | GET    |
+| `/rdf/statistics/summary` | GET    |
+| `/logger`                 | POST   |
+| `/status`                 | GET    |
+
+**Path matching.** The proxy server matches paths case-insensitively, so `/gremlin` and `/GREMLIN` reach the same handler. A path rule in a layer that matches case-sensitively covers only the casing it names. The `/explorer` segment is the exception. The UI finds it in its own URL with a case-sensitive match, so a layer that changes its casing breaks the UI the same way renaming it does.
+
+**Health check.** `GET /status` is the [health check](./health-check.md) endpoint. It returns a fixed string and does not contact the database. `GET /defaultConnection` returns the default connection configuration, including the database endpoint, region, service type, and whether IAM signing is enabled.
+
+**Timeouts.** Schema sync against a large graph can run for minutes. The client request timeout, [`GRAPH_EXP_FETCH_REQUEST_TIMEOUT`](./configuration.md#environment-variables), defaults to 240000 ms. A layer with a shorter read timeout ends those requests first.
+
+**Request bodies.** The proxy server accepts request bodies up to 50 MB.
+
+**Protocols.** All traffic is plain HTTP request and response. Graph Explorer uses no WebSocket or SSE connections.
+
+**Origins.** The UI calls the API on the origin it was served from. [`PROXY_SERVER_CORS_ORIGIN`](./configuration.md#proxy_server_cors_origin) only matters for a different web application calling the API from its own origin, see [CORS](#cors).
 
 ## HTTPS Connections
 
@@ -27,6 +92,29 @@ The proxy server reads certificates from the following location inside the conta
 
 If HTTPS is enabled and any of these files are missing, the server will exit with an error listing the missing files.
 
+If `NEPTUNE_NOTEBOOK` is also set to `true`, the server exits earlier, during environment parsing, with an error naming the conflict between `NEPTUNE_NOTEBOOK` and `PROXY_SERVER_HTTPS_CONNECTION`, since the notebook preset never generates certificates.
+
+### Keeping the certificate across container replacements
+
+When `HOST` is set, every new container generates its own self-signed certificate. Replacing the container, for example on an image upgrade, invalidates the certificate you trusted by hand. Restarting the same container keeps its certificate.
+
+To keep one certificate across replacements, mount `cert-info` as a named volume and set `HOST` only on the first run:
+
+```bash
+# First run generates the certificate into the volume
+docker run -p 443:443 \
+  --env HOST=localhost \
+  -v graph-explorer-certs:/graph-explorer/packages/graph-explorer-proxy-server/cert-info \
+  public.ecr.aws/neptune/graph-explorer
+
+# Later containers reuse it because HOST is unset
+docker run -p 443:443 \
+  -v graph-explorer-certs:/graph-explorer/packages/graph-explorer-proxy-server/cert-info \
+  public.ecr.aws/neptune/graph-explorer
+```
+
+The certificate is valid for the `HOST` value and dates from the first run. Delete the volume to generate a new one.
+
 ### Using your own certificates
 
 To use your own certificates instead of the self-signed ones, mount your certificate files into the `cert-info` directory. All five certificate files must be present (`rootCA.key`, `rootCA.crt`, `server.key`, `server.csr`, `server.crt`).
@@ -48,6 +136,10 @@ docker run -p 443:443 \
 ### Disabling HTTPS
 
 To serve over HTTP instead, set `PROXY_SERVER_HTTPS_CONNECTION=false` in your environment or `.env` file.
+
+> [!WARNING]
+>
+> Do not disable HTTPS unless something in front of Graph Explorer terminates TLS. Over HTTP, database connection URLs, query text, and query results travel in plain text between the browser and the proxy server.
 
 ### Trusting the self-signed certificate
 
@@ -73,9 +165,9 @@ For browsers like Safari and Firefox, trusting the certificate from the browser 
 
 ## CORS
 
-By default, the proxy server does not allow cross-origin requests. Since the proxy server serves both the API and the UI from the same origin, CORS is not needed in standard deployments. In development mode, the Vite dev server proxies API requests to the Express server to maintain same-origin behavior.
+By default, the proxy server does not allow cross-origin requests. The browser reaches the proxy server's API from the same origin it served the UI from, so CORS is not needed for the UI itself. A direct connection is different: the browser calls the database from the Graph Explorer page's origin, so the database must allow cross-origin requests from it. In development mode, the Vite dev server proxies API requests to the Express server to maintain same-origin behavior.
 
-If you serve the UI from a different origin than the proxy server, set the `PROXY_SERVER_CORS_ORIGIN` environment variable to the origin you want to allow.
+`PROXY_SERVER_CORS_ORIGIN` is for a different case: some other web application, running at its own origin, calling the proxy server's API directly (not through the Graph Explorer UI). Set it to the origin you want to allow.
 
 ```bash
 PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com
@@ -87,19 +179,27 @@ To allow multiple origins, separate them with commas:
 PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com,https://other-app.example.com
 ```
 
-When set, browsers will block cross-origin requests from any other origin. This prevents malicious pages from making requests to the proxy server using a visitor's browser session.
-
 > [!NOTE]
 >
 > CORS headers only affect browser-initiated requests — direct API calls from scripts or other servers are not restricted by CORS. CORS is a defense-in-depth layer, not a substitute for authentication or network-level access controls. Ensure the proxy server is not exposed to untrusted networks.
 
 ## Database Origin Allowlist
 
-By default, the proxy server forwards requests to any database URL specified by the client. You can restrict which database origins the proxy will contact by setting [`PROXY_SERVER_ALLOWED_DB_ORIGINS`](./configuration.md#proxy_server_allowed_db_origins). Requests targeting an unlisted origin receive a 403 response.
+By default, the proxy server forwards requests to any database URL specified by the client, except [link-local addresses](#link-local-addresses). You can restrict which database origins the proxy will contact by setting [`PROXY_SERVER_ALLOWED_DB_ORIGINS`](./configuration.md#proxy_server_allowed_db_origins). Requests targeting an unlisted origin receive a 403 response.
+
+Leaving the allowlist unset matters more on a host with AWS credentials, such as an EC2 instance profile or ECS task role. Any user can turn on IAM authentication in their own Connection, whatever the server's `IAM` setting, and the proxy server then signs the request with the host's credentials, as described in [Permissions](#permissions). Without an allowlist it signs for any origin a user names, so users can reach every database that identity's policy allows, in any region. Set `PROXY_SERVER_ALLOWED_DB_ORIGINS` in any deployment where the host has AWS credentials.
+
+The first time the proxy server signs a request with no allowlist set, it logs a warning naming the origin and `PROXY_SERVER_ALLOWED_DB_ORIGINS`. It logs this once per process and never for unsigned requests.
 
 > [!NOTE]
 >
-> This check only applies to requests routed through the proxy server. Connections configured to contact the database directly (bypassing the proxy) are not subject to the allowlist.
+> This check applies only to requests routed through the proxy server. It doesn't apply to direct connections, because the browser sends their requests to the database itself.
+
+## Link-Local Addresses
+
+The proxy server refuses any database URL whose host is a link-local IP address, in `169.254.0.0/16` or `fe80::/10`, and returns a 403 response. Link-local addresses are never graph databases. The refusal applies whether or not the [Database Origin Allowlist](#database-origin-allowlist) is set, and an allowlist entry can't override it.
+
+This refusal doesn't replace the allowlist. To limit the proxy server to your databases, set [`PROXY_SERVER_ALLOWED_DB_ORIGINS`](./configuration.md#proxy_server_allowed_db_origins).
 
 ## HTTP Redirects
 
@@ -107,9 +207,25 @@ The proxy server does not follow HTTP redirects from the database. If the databa
 
 ## Permissions
 
-Graph Explorer does not provide any mechanisms for controlling user permissions. If you are using Graph Explorer with AWS, Neptune permissions can be controlled through IAM roles.
+Graph Explorer enforces no permissions. It sends every query to the database as written, including queries that modify data. Permissions belong to whoever runs the deployment, at two separate layers:
 
-For information about what permissions Graph Explorer requires check out the documentation on [SageMaker configuration](../guides/deploy-to-sagemaker.md#minimum-database-permissions).
+- **Who may use Graph Explorer** is controlled by the [access control](#access-control) layer in front of it.
+- **What the database allows** is configured in the database by its provider or administrator.
+
+Neither layer substitutes for the other. A read-only database policy does not stop an unauthenticated visitor from reading the graph. An access control layer does not stop a signed-in user from running mutations.
+
+Amazon Neptune IAM database authentication is one way to control the database layer. The proxy server signs a request when it carries the `aws-neptune-region` header, using the AWS credentials of the proxy server's host, such as an EC2 instance profile or ECS task role. That role is the identity Neptune checks, and every user of the deployment shares it. A request without the header goes out unsigned, and the policy does not apply to it.
+
+Because the identity is shared, any user can reach any database its policy allows, not only the one the deployment was set up for. Two controls limit that, and you can use either or both:
+
+- **The identity's database policy** decides which databases and actions a signed request may use. Scope its `Resource` to the databases you intend, and its actions to the ones Graph Explorer uses: read, write, and delete data via query, cancel query, and get graph summary. Leave out write and delete to make the deployment read-only, at the cost of mutations in the query editor.
+- **The [Database Origin Allowlist](#database-origin-allowlist)** decides which database origins the proxy server contacts at all, for signed and unsigned requests alike.
+
+The policy is the stronger control, because Neptune enforces it no matter what sends the request. The allowlist adds a second boundary in the proxy server, and covers databases that don't use IAM authentication. The proxy server also [doesn't follow redirects](#http-redirects), so a database response can't send it on to another destination.
+
+Graph Explorer doesn't refuse to sign by default. Many deployments serve one person who chooses their own databases, and refusing would break them for a risk the identity's policy already controls. Whoever runs a shared deployment decides how far to limit it.
+
+For the minimum Neptune permissions Graph Explorer needs, see [Minimum Database Permissions](../guides/deploy-to-sagemaker.md#minimum-database-permissions).
 
 > [!CAUTION]
 >

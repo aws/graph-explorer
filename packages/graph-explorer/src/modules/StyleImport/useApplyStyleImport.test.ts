@@ -1,4 +1,7 @@
 // @vitest-environment happy-dom
+
+import { describe, expect, test } from "vitest";
+
 import type { VertexType } from "@/core/entities";
 import type {
   EdgeStyleStorage,

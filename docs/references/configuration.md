@@ -8,33 +8,17 @@ All environment variables for configuring Graph Explorer, organized by concern.
 
 These variables control server behavior, networking, and security.
 
-### `GRAPH_EXP_ENV_ROOT_FOLDER`
-
-Base path used to serve the `graph-explorer` front end application.
-
-Example: `/explorer`
-
-- Optional
-- Default: `/`
-- Type: `string`
-
 ### `HOST`
 
-The public hostname of the server. This is used to generate the self-signed SSL certificate at container startup.
+The public hostname of the server. It feeds the Subject Alternative Name of the self-signed SSL certificate and the URL the server prints at startup. It does not control which network interfaces the proxy server listens on.
+
+When `HOST` is set, a new container generates a fresh self-signed certificate, which invalidates any trust you granted to the previous one. See [Keeping the certificate across container replacements](./security.md#keeping-the-certificate-across-container-replacements).
 
 Example: `localhost`
 
-- Required when using HTTPS connections
+- Required when using HTTPS connections, unless you provide existing certificates
 - Default is `localhost`
 - Type: `string`
-
-### `GRAPH_EXP_HTTPS_CONNECTION`
-
-Uses the self-signed certificate to serve Graph Explorer over https if true. Only used in Docker via the entrypoint script.
-
-- Optional
-- Default `true` in Docker, not set otherwise
-- Type: `boolean`
 
 ### `PROXY_SERVER_HTTPS_PORT`
 
@@ -56,6 +40,8 @@ The port to use for the HTTP server.
 
 Uses the self-signed certificate to serve the proxy-server over https if true.
 
+Before turning HTTPS off, read [Disabling HTTPS](./security.md#disabling-https).
+
 - Optional
 - Default `false` in code, `true` in Docker via the entrypoint script
 - Type: `boolean`
@@ -72,7 +58,7 @@ Example: `https://my-app.example.com` or `https://app-a.example.com,https://app-
 
 ### `PROXY_SERVER_ALLOWED_DB_ORIGINS`
 
-Restricts which database origins the proxy server will forward requests to. When set, requests targeting an origin not in the list receive a 403 response. When not set, the proxy forwards to any database URL specified by the client (current default behavior).
+Restricts which database origins the proxy server will forward requests to. When set, requests targeting an origin not in the list receive a 403 response. When not set, the proxy forwards to any database URL specified by the client (current default behavior), and logs one warning the first time it signs a request. See [Database Origin Allowlist](./security.md#database-origin-allowlist). Link-local addresses are refused either way. See [Link-Local Addresses](./security.md#link-local-addresses).
 
 Values must be origins (scheme + host + optional port). Including a path will cause a startup error.
 
@@ -95,7 +81,7 @@ PROXY_SERVER_ALLOWED_DB_ORIGINS=https://my-neptune-cluster:8182/sparql
 
 > [!NOTE]
 >
-> This check only applies to requests routed through the proxy server. Connections configured to contact the database directly (bypassing the proxy) are not subject to the allowlist.
+> This check applies only to requests routed through the proxy server. It doesn't apply to direct connections, because the browser sends their requests to the database itself.
 
 ### `LOG_STYLE`
 
@@ -107,9 +93,25 @@ Controls the log output format.
 - `cloudwatch` omits timestamps and hostname/pid (these are provided by CloudWatch)
 - `default` uses the standard log format
 
+### `LOG_LEVEL`
+
+Sets the minimum severity the proxy server logs. Values from highest to lowest are `fatal`, `error`, `warn`, `info`, `debug`, `trace`, and `silent`, which disables logging. See [Logging](./logging.md).
+
+- Optional
+- Default: `info`
+- Type: `"fatal" | "error" | "warn" | "info" | "debug" | "trace" | "silent"`
+
+> [!WARNING]
+>
+> At `debug` and `trace`, the query text sent to your database is written to the logs. Queries can contain sensitive data, so keep those levels for troubleshooting and restrict access to wherever the logs end up.
+
 ### `CONFIGURATION_FOLDER_PATH`
 
 Override path for the folder containing `.env` and `defaultConnection.json`. When set, replaces the default path entirely.
+
+At startup, the container writes its settings to this folder: always `.env`, and `defaultConnection.json` too when a default connection is configured. The folder must be writable by the container, or it refuses to start. See [Graph Explorer can't start because it can't write .env](../guides/troubleshooting.md#graph-explorer-cant-start-because-it-cant-write-env) if you hit this.
+
+Mounting `config.json` read-only at `/graph-explorer/config.json` (see [JSON Configuration Approach](#json-configuration-approach)) is unaffected, since that file lives outside the configuration folder.
 
 - Optional
 - Default: `<client root>` (`packages/graph-explorer`)
@@ -119,24 +121,30 @@ Override path for the folder containing `.env` and `defaultConnection.json`. Whe
 
 To provide a default connection such that initial loads of Graph Explorer always result with the same starting connection, modify the `docker run ...` command to either take in a JSON configuration or runtime environment variables. If you provide both a JSON configuration and environmental variables, the JSON will be prioritized.
 
+> [!NOTE]
+>
+> The legacy `PUBLIC_OR_PROXY_ENDPOINT` and `USING_PROXY_SERVER` variables are still honored, so an existing deployment needs no change:
+>
+> - `USING_PROXY_SERVER=true` (case-insensitive): the default connection goes through the proxy server to `GRAPH_CONNECTION_URL`, and `PUBLIC_OR_PROXY_ENDPOINT` is ignored.
+> - `USING_PROXY_SERVER` set to any other value, or unset with `PUBLIC_OR_PROXY_ENDPOINT` provided: the default connection is a direct connection to `PUBLIC_OR_PROXY_ENDPOINT`, or to `GRAPH_CONNECTION_URL` when `PUBLIC_OR_PROXY_ENDPOINT` is unset. The browser sends its requests to the database itself, and `IAM`, `AWS_REGION`, and `SERVICE_TYPE` are ignored.
+> - `USING_PROXY_SERVER` and `PUBLIC_OR_PROXY_ENDPOINT` both unset: the default connection goes through the proxy server to `GRAPH_CONNECTION_URL`.
+>
+> `PUBLIC_OR_PROXY_ENDPOINT` is a legacy alias for the database URL of a direct default connection. Prefer `GRAPH_CONNECTION_URL`, and set `USING_PROXY_SERVER=false` only when the default connection should connect from the browser.
+
 ### Environment Variables
 
 These are the valid environment variables used for the default connection, their defaults, and their descriptions.
 
 - Required:
-  - `PUBLIC_OR_PROXY_ENDPOINT` - `None`
+  - `GRAPH_CONNECTION_URL` - `None` - The URL of the graph database endpoint.
 - Optional
   - `GRAPH_TYPE` - `None` - If not specified, multiple connections will be created for every available query language.
-  - `USING_PROXY_SERVER` - `False`
   - `IAM` - `False`
-  - `GRAPH_EXP_HTTPS_CONNECTION` - `True` - Controls whether Graph Explorer uses SSL or not
   - `PROXY_SERVER_HTTPS_CONNECTION` - `True` - Controls whether the server uses SSL or not
   - `GRAPH_EXP_FETCH_REQUEST_TIMEOUT` - `240000` - Controls the timeout for the fetch request. Measured in milliseconds (i.e. 240000 is 240 seconds or 4 minutes).
   - `GRAPH_EXP_NODE_EXPANSION_LIMIT` - `None` - Controls the limit for node counts and expansion queries.
 - Conditionally Required:
-  - Required if `USING_PROXY_SERVER=True`
-    - `GRAPH_CONNECTION_URL` - `None`
-  - Required if `USING_PROXY_SERVER=True` and `IAM=True`
+  - Required if `IAM=True`
     - `AWS_REGION` - `None`
     - `SERVICE_TYPE` - `neptune-db`, Set this as `neptune-db` for Neptune database or `neptune-graph` for Neptune Analytics.
 
@@ -146,14 +154,11 @@ First, create a `config.json` file containing values for the connection attribut
 
 ```json
 {
-  "PUBLIC_OR_PROXY_ENDPOINT": "https://public-endpoint",
   "GRAPH_CONNECTION_URL": "https://{your-cluster-id}.us-west-2.neptune.amazonaws.com:8182",
-  "USING_PROXY_SERVER": true,
   "IAM": true,
   "SERVICE_TYPE": "neptune-db",
   "AWS_REGION": "us-west-2",
   "GRAPH_TYPE": "gremlin",
-  "GRAPH_EXP_HTTPS_CONNECTION": true,
   "PROXY_SERVER_HTTPS_CONNECTION": true,
   "GRAPH_EXP_FETCH_REQUEST_TIMEOUT": 240000,
   "GRAPH_EXP_NODE_EXPANSION_LIMIT": 500
@@ -178,11 +183,9 @@ Provide the desired connection variables directly to the `docker run` command, a
 ```bash
 docker run -p 80:80 -p 443:443 \
  --env HOST={hostname-or-ip-address} \
- --env PUBLIC_OR_PROXY_ENDPOINT=https://public-endpoint \
- --env GRAPH_TYPE=gremlin \
- --env USING_PROXY_SERVER=true \
- --env IAM=false \
  --env GRAPH_CONNECTION_URL=https://{your-cluster-id}.us-west-2.neptune.amazonaws.com:8182 \
+ --env GRAPH_TYPE=gremlin \
+ --env IAM=true \
  --env AWS_REGION=us-west-2 \
  --env SERVICE_TYPE=neptune-db \
  --env PROXY_SERVER_HTTPS_CONNECTION=true \

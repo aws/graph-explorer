@@ -1,8 +1,6 @@
 import type { ComponentPropsWithRef } from "react";
 
-import { type PrimitiveAtom, useAtom } from "jotai";
-
-import type { LayoutName } from "@/components/Graph/helpers/layoutConfig";
+import { useAtom, type WritableAtom } from "jotai";
 
 import {
   Select,
@@ -14,19 +12,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components";
+import { type LayoutName, layoutNameSchema } from "@/core/graphLayout";
 
 export function SelectLayout({
   layoutAtom,
   ...props
 }: ComponentPropsWithRef<typeof SelectTrigger> & {
-  layoutAtom: PrimitiveAtom<LayoutName>;
+  layoutAtom: WritableAtom<LayoutName, [LayoutName], unknown>;
 }) {
   const [value, setValue] = useAtom(layoutAtom);
 
   return (
     <Select
       value={value}
-      onValueChange={value => setValue(value as LayoutName)}
+      onValueChange={value => setValue(layoutNameSchema.parse(value))}
     >
       <SelectTrigger {...props}>
         <div className="flex flex-col items-start justify-center gap-0">

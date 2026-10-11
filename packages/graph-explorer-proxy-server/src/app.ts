@@ -13,10 +13,10 @@ import path from "path";
 import { pipeline } from "stream";
 import { z } from "zod";
 
-import { assertAllowedDbOrigin } from "./allowed-db-origins.ts";
 import { errorHandlingMiddleware } from "./error-handler.ts";
 import { RequestValidationError } from "./errors.ts";
 import { type AppLogger, requestLoggingMiddleware } from "./logging.ts";
+import { assertPermittedDbOrigin } from "./permitted-db-origins.ts";
 
 const DEFAULT_SERVICE_TYPE = "neptune-db";
 
@@ -42,10 +42,32 @@ export function resolveEndpointUrl<T extends string>(
   return resolved;
 }
 
+/**
+ * True when the database URL carries no userinfo.
+ *
+ * node-fetch refuses to build a request from a URL with an embedded username
+ * or password, so such a connection has never been able to run a query.
+ * Failing the request while it is still a header means the value is never
+ * turned into a `URL` and never reaches a request.
+ */
+function hasNoEmbeddedCredentials(value: string) {
+  try {
+    const url = new URL(value);
+    return !url.username && !url.password;
+  } catch {
+    // Not a URL at all; the format check reports that on its own.
+    return true;
+  }
+}
+
 /** Zod schema for the custom headers expected on database query requests. */
 const DbQueryHeadersSchema = z.object({
   queryid: z.string().optional(),
-  "graph-db-connection-url": z.url({ protocol: /^https?$/ }),
+  "graph-db-connection-url": z
+    .url({ protocol: /^https?$/ })
+    .refine(hasNoEmbeddedCredentials, {
+      message: "Must not include a username or password",
+    }),
   "aws-neptune-region": z.string().optional(),
   "service-type": z
     .enum(["neptune-db", "neptune-graph"])
@@ -54,13 +76,21 @@ const DbQueryHeadersSchema = z.object({
   "db-query-logging-enabled": z.stringbool().optional().default(false),
 });
 
-/** Validates and extracts database query headers. Throws {@link RequestValidationError} on failure. */
-function parseDbQueryHeaders(headers: IncomingHttpHeaders) {
+/**
+ * Validates and extracts database query headers. Throws
+ * {@link RequestValidationError} on malformed headers and `HttpError`
+ * 403 when the database origin is not permitted.
+ */
+function parseDbQueryHeaders(
+  headers: IncomingHttpHeaders,
+  allowedDbOrigins: Set<string> | undefined,
+) {
   const result = DbQueryHeadersSchema.safeParse(headers);
   if (!result.success) {
     throw new RequestValidationError(result.error);
   }
   const parsed = result.data;
+  assertPermittedDbOrigin(parsed["graph-db-connection-url"], allowedDbOrigins);
 
   const authOptions = parsed["aws-neptune-region"]
     ? {
@@ -124,8 +154,30 @@ export function createApp({
     express.static(path.join(configPath, "defaultConnection.json")),
   );
 
-  // Host the Graph Explorer UI static files
-  app.use(staticFilesVirtualPath, express.static(staticFilesPath));
+  // Host the Graph Explorer UI static files. express.static's built-in
+  // redirect sends an absolute Location, e.g. "/explorer/", for a request to
+  // the bare mount path, which throws the browser out of any reverse-proxy
+  // prefix unless the proxy rewrites the header. Issue a relative Location
+  // instead so the browser resolves it against its own URL and keeps the
+  // prefix. Express matches a route path and its trailing-slash form as the
+  // same route, so the already-correct form falls through to the static
+  // middleware rather than redirecting again.
+  // The target is the last segment of the mount path, so a multi-segment
+  // mount resolves correctly too: from "/a/b", "b/" resolves to "/a/b/".
+  const mountSegment = staticFilesVirtualPath.slice(
+    staticFilesVirtualPath.lastIndexOf("/") + 1,
+  );
+  app.get(staticFilesVirtualPath, (req, res, next) => {
+    if (req.path.endsWith("/")) {
+      next();
+      return;
+    }
+    res.redirect(301, `${mountSegment}/`);
+  });
+  app.use(
+    staticFilesVirtualPath,
+    express.static(staticFilesPath, { redirect: false }),
+  );
 
   function getLogger(): AppLogger {
     return app.locals.logger;
@@ -143,6 +195,24 @@ export function createApp({
   });
 
   const userAgent = version ? `graph-explorer/${version}` : "graph-explorer";
+
+  // Once per app rather than per origin: the client picks the origin, so
+  // per-origin state would grow without bound.
+  let hasWarnedSigningWithoutAllowlist = false;
+
+  function warnOnceIfSigningWithoutAllowlist(url: URL) {
+    if (allowedDbOrigins || hasWarnedSigningWithoutAllowlist) {
+      return;
+    }
+    hasWarnedSigningWithoutAllowlist = true;
+    getLogger().warn(
+      `Signed a request to ${url.origin} with no Database Origin Allowlist set. ` +
+        "The Proxy Server signs with its own AWS identity, which every user of this deployment shares, " +
+        "so any user can reach any database that identity's policy allows. " +
+        "Set PROXY_SERVER_ALLOWED_DB_ORIGINS or scope the identity's database policy. " +
+        "See the Graph Explorer security documentation for details.",
+    );
+  }
 
   // node-fetch derives the request line from the URL, so only request-init
   // fields are returned; the fields fed to the signer are signing inputs only.
@@ -173,6 +243,7 @@ export function createApp({
         { signingRegion: region, signingService: serviceType },
       );
       headers = signed.headers;
+      warnOnceIfSigningWithoutAllowlist(url);
     }
     return {
       method: options.method,
@@ -289,8 +360,7 @@ export function createApp({
       isIamEnabled,
       region,
       serviceType,
-    } = parseDbQueryHeaders(req.headers);
-    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
+    } = parseDbQueryHeaders(req.headers, allowedDbOrigins);
 
     /// Function to cancel long running queries if the client disappears before completion
     async function cancelQuery() {
@@ -384,11 +454,10 @@ export function createApp({
       isIamEnabled,
       region,
       serviceType,
-    } = parseDbQueryHeaders(req.headers);
-    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
+    } = parseDbQueryHeaders(req.headers, allowedDbOrigins);
 
     // Validate the input before making any external calls.
-    const queryString = req.body.query;
+    const queryString = req.body.gremlin;
     if (!queryString) {
       res.status(400).send({ error: "[Proxy] Gremlin: query not provided" });
       return;
@@ -469,8 +538,7 @@ export function createApp({
       isIamEnabled,
       region,
       serviceType,
-    } = parseDbQueryHeaders(req.headers);
-    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
+    } = parseDbQueryHeaders(req.headers, allowedDbOrigins);
 
     const queryString = req.body.query;
     // Validate the input before making any external calls.
@@ -510,8 +578,7 @@ export function createApp({
   // GET endpoint to retrieve PropertyGraph statistics summary for Neptune Analytics.
   app.get("/summary", async (req, res, next) => {
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
-      parseDbQueryHeaders(req.headers);
-    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
+      parseDbQueryHeaders(req.headers, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
       "summary?mode=basic",
@@ -531,8 +598,7 @@ export function createApp({
   // GET endpoint to retrieve PropertyGraph statistics summary for Neptune DB.
   app.get("/pg/statistics/summary", async (req, res, next) => {
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
-      parseDbQueryHeaders(req.headers);
-    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
+      parseDbQueryHeaders(req.headers, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
       "pg/statistics/summary?mode=basic",
@@ -552,8 +618,7 @@ export function createApp({
   // GET endpoint to retrieve RDF statistics summary.
   app.get("/rdf/statistics/summary", async (req, res, next) => {
     const { graphDbConnectionUrl, isIamEnabled, region, serviceType } =
-      parseDbQueryHeaders(req.headers);
-    assertAllowedDbOrigin(graphDbConnectionUrl, allowedDbOrigins);
+      parseDbQueryHeaders(req.headers, allowedDbOrigins);
     const rawUrl = resolveEndpointUrl(
       graphDbConnectionUrl,
       "rdf/statistics/summary?mode=basic",

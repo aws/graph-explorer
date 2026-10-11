@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import type { TabularColumnInstance } from "@/components/Tabular/helpers/tableInstanceToTabularInstance";
 
 import { LABELS } from "@/utils/constants";

@@ -1,3 +1,5 @@
+import { describe, expect, it, vi } from "vitest";
+
 import mapWithConcurrency from "./mapWithConcurrency";
 
 describe("mapWithConcurrency", () => {
@@ -60,5 +62,29 @@ describe("mapWithConcurrency", () => {
         n === 2 ? Promise.reject(new Error("boom")) : Promise.resolve(n),
       ),
     ).rejects.toThrow("boom");
+  });
+
+  it("stops pulling work once a callback rejects", async () => {
+    const started: number[] = [];
+    const items = [...Array(50).keys()];
+
+    await expect(
+      mapWithConcurrency(items, 4, async n => {
+        started.push(n);
+        await new Promise(r => setTimeout(r, 5));
+        if (n === 0) {
+          throw new Error("boom");
+        }
+        return n;
+      }),
+    ).rejects.toThrow("boom");
+
+    // Wait out anything still in flight so a lane that kept looping would show up.
+    await new Promise(r => setTimeout(r, 50));
+
+    // The three lanes that were already running finish their current item, but
+    // nothing new starts. Without this, the pool would drain all 50 items in the
+    // background long after the caller gave up.
+    expect(started.length).toBeLessThanOrEqual(8);
   });
 });

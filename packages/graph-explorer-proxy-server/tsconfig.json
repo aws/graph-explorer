@@ -3,6 +3,6 @@
   "include": ["src"],
   "compilerOptions": {
     "allowImportingTsExtensions": true,
-    "types": ["node", "vitest/globals"]
+    "types": ["node"]
   }
 }

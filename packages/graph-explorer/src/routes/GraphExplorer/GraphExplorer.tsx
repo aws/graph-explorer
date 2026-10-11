@@ -68,7 +68,7 @@ const GraphExplorer = () => {
         <NavBarContent>
           <NavBarTitle
             title={LABELS.APP_NAME}
-            subtitle={`Connection: ${config?.displayLabel || config?.id}`}
+            subtitle={`Connection: ${config?.displayLabel || config?.id || "none"}`}
           />
           <PersistenceStatusIndicator />
         </NavBarContent>

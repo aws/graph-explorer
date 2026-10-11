@@ -4,9 +4,11 @@ import { FolderOpenIcon } from "lucide-react";
 import { toast } from "sonner";
 import { ZodError } from "zod";
 
+import type { ConnectionWithId } from "@/connections";
+
 import { Button, FileButton, Spinner } from "@/components";
 import { fetchEntityDetails, notifyOnIncompleteRestoration } from "@/connector";
-import { configurationAtom, type ConnectionWithId, useExplorer } from "@/core";
+import { savedConnectionsAtom, useExplorer } from "@/core";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 import { useAddToGraph } from "@/hooks";
 import { useEntityCountFormatterCallback } from "@/hooks/useEntityCountFormatter";
@@ -45,9 +47,8 @@ function useImportGraphMutation() {
   const explorer = useExplorer();
   const addToGraph = useAddToGraph();
   const formatEntityCounts = useEntityCountFormatterCallback();
-  const allConfigs = useAtomValue(configurationAtom);
-  const allConnections = allConfigs
-    .values()
+  const allConfigs = useAtomValue(savedConnectionsAtom);
+  const allConnections = Array.from(allConfigs.values())
     .map(config =>
       config.connection
         ? {
@@ -57,8 +58,7 @@ function useImportGraphMutation() {
           }
         : null,
     )
-    .filter(c => c != null)
-    .toArray();
+    .filter(c => c != null);
 
   const mutation = useMutation({
     mutationFn: async (file: File) => {

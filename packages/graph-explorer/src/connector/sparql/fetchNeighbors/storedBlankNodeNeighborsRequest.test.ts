@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { createVertexId, type Vertex } from "@/core";
 import { createTestableVertex } from "@/utils/testing";
 

@@ -6,6 +6,7 @@ import {
   createRandomName,
   createRandomUrlString,
 } from "@shared/utils/testing";
+import { describe, expect, it } from "vitest";
 
 import { createResultBundle, createResultScalar } from "@/connector/entities";
 import {

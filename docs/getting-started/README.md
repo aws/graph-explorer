@@ -10,6 +10,10 @@ A hands-on tutorial that walks you through Graph Explorer using the air routes s
 
 The fastest way to try Graph Explorer is with the [Air Routes sample](../../samples/air_routes/README.md). It launches Graph Explorer and a Gremlin Server pre-loaded with sample data using Docker Compose — no database setup or AWS account required.
 
+> [!IMPORTANT]
+>
+> This tutorial is meant for your own machine. The sample has no access control, serves Graph Explorer over plain HTTP, and runs Gremlin Server with its default Groovy script engine. Its Compose file publishes Graph Explorer on `127.0.0.1` only, so other machines can't reach it. Keep it that way. See [Access Control](../references/security.md#access-control) and [Self-hosted Gremlin Server](../references/security.md#self-hosted-gremlin-server).
+
 1. Clone the repository
    ```
    git clone https://github.com/aws/graph-explorer.git
@@ -56,9 +60,7 @@ Graph Explorer fetches up to 10 neighbors and adds them to the graph. The number
 
 > [!TIP]
 >
-> You can also right-click a node and select **Expand node** from the context
-> menu, or use the **Expand** sidebar panel for more control over which neighbor
-> types to fetch.
+> You can also right-click a node and select **Expand node** from the context menu, or use the **Expand** sidebar panel for more control over which neighbor types to fetch.
 
 ## Filter the Graph
 

@@ -42,68 +42,58 @@ function SelectField({
   onValueChange,
   label,
   labelPlacement,
+  placeholder = "Select a value",
   className,
   ...props
 }: SelectFieldProps) {
   const selectedOption = options.find(option => option.value === value);
+  const isInner = labelPlacement === "inner";
 
-  if (labelPlacement === "inner") {
-    return (
-      <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger className={cn("h-11 py-1", className)} {...props}>
+  const selectedValue = (
+    <SelectValue>
+      {selectedOption ? <RenderItem item={selectedOption} /> : placeholder}
+    </SelectValue>
+  );
+
+  const select = (
+    <Select value={value} onValueChange={onValueChange}>
+      <SelectTrigger
+        className={isInner ? cn("h-11 py-1", className) : className}
+        {...props}
+      >
+        {isInner ? (
           <div className="flex flex-col items-start justify-center gap-0">
             <div className="text-muted-foreground text-xs leading-none">
               {label}
             </div>
-            <SelectValue>
-              {selectedOption ? (
-                <RenderItem item={selectedOption} />
-              ) : (
-                (props.placeholder ?? "Select a value")
-              )}
-            </SelectValue>
+            {selectedValue}
           </div>
-        </SelectTrigger>
-        <SelectContent>
-          {options.map(option => (
-            <SelectItem
-              value={option.value}
-              key={option.value}
-              disabled={option.isDisabled}
-            >
-              <RenderItem item={option} />
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    );
+        ) : (
+          selectedValue
+        )}
+      </SelectTrigger>
+      <SelectContent>
+        {options.map(option => (
+          <SelectItem
+            value={option.value}
+            key={option.value}
+            disabled={option.isDisabled}
+          >
+            <RenderItem item={option} />
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+
+  if (isInner) {
+    return select;
   }
 
   return (
     <FormItem>
       {label ? <Label>{label}</Label> : null}
-      <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger className={className}>
-          <SelectValue>
-            {selectedOption ? (
-              <RenderItem item={selectedOption} />
-            ) : (
-              (props.placeholder ?? "Select a value")
-            )}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          {options.map(option => (
-            <SelectItem
-              value={option.value}
-              key={option.value}
-              disabled={option.isDisabled}
-            >
-              <RenderItem item={option} />
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {select}
     </FormItem>
   );
 }

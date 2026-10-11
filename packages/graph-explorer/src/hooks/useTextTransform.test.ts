@@ -1,16 +1,17 @@
 // @vitest-environment happy-dom
-import { vi } from "vitest";
+
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   type AppStore,
-  configurationAtom,
+  savedConnectionsAtom,
   schemaAtom,
 } from "@/core";
 import {
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   renderHookWithJotai,
 } from "@/utils/testing";
@@ -19,7 +20,7 @@ import useTextTransform from "./useTextTransform";
 
 function initializeConfigWithPrefix(store: AppStore) {
   // Create config and setup schema
-  const config = createRandomRawConfiguration();
+  const config = createRandomSavedConnection();
   const schema = createRandomSchema();
   config.connection!.queryEngine = "sparql";
   schema.prefixes = [
@@ -28,11 +29,11 @@ function initializeConfigWithPrefix(store: AppStore) {
       uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#" as IriNamespace,
     },
   ];
-  store.set(configurationAtom, new Map([[config.id, config]]));
+  store.set(savedConnectionsAtom, new Map([[config.id, config]]));
   store.set(schemaAtom, new Map([[config.id, schema]]));
 
   // Make config active
-  store.set(activeConfigurationAtom, config.id);
+  store.set(activeConnectionIdAtom, config.id);
 }
 
 describe("useTextTransform", () => {

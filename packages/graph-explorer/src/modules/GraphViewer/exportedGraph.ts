@@ -75,9 +75,7 @@ export function createExportedGraph(
 export function createExportedConnection(
   connection: ConnectionConfig,
 ): ExportedGraphConnection {
-  const dbUrl = (
-    (connection.proxyConnection ? connection.graphDbUrl : connection.url) ?? ""
-  ).toLowerCase();
+  const dbUrl = (connection.graphDbUrl ?? "").toLowerCase();
   const queryEngine = connection.queryEngine ?? "gremlin";
 
   return {
@@ -128,26 +126,28 @@ export async function parseExportedGraph(blob: Blob) {
   const connection = payload.connection;
 
   // Do some basic validation and skip any invalid IDs
-  const vertices = new Set(
-    payload.vertices
-      .values()
-      .map(trimIfString)
-      .filter(isNotEmptyIfString)
-      .filter(isNotMaliciousIfSparql(connection.queryEngine))
-      .map(escapeIfPropertyGraphAndString(connection.queryEngine))
-      .map(createVertexId),
-  );
+  const vertices = new Set<VertexId>();
+  const isValidVertexId = isNotMaliciousIfSparql(connection.queryEngine);
+  const escapeVertexId = escapeIfPropertyGraphAndString(connection.queryEngine);
+  for (const rawId of payload.vertices) {
+    const id = trimIfString(rawId);
+    if (!isNotEmptyIfString(id) || !isValidVertexId(id)) {
+      continue;
+    }
+    vertices.add(createVertexId(escapeVertexId(id)));
+  }
 
   // Do some basic validation and skip any invalid IDs
-  const edges = new Set(
-    payload.edges
-      .values()
-      .map(trimIfString)
-      .filter(isNotEmptyIfString)
-      .filter(isValidRdfEdgeIdIfSparql(connection.queryEngine))
-      .map(escapeIfPropertyGraphAndString(connection.queryEngine))
-      .map(createEdgeId),
-  );
+  const edges = new Set<EdgeId>();
+  const isValidEdgeId = isValidRdfEdgeIdIfSparql(connection.queryEngine);
+  const escapeEdgeId = escapeIfPropertyGraphAndString(connection.queryEngine);
+  for (const rawId of payload.edges) {
+    const id = trimIfString(rawId);
+    if (!isNotEmptyIfString(id) || !isValidEdgeId(id)) {
+      continue;
+    }
+    edges.add(createEdgeId(escapeEdgeId(id)));
+  }
 
   return { connection, vertices, edges };
 }

@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { stripCommonIndent } from "@/utils";
 import { LABELS } from "@/utils/constants";
 

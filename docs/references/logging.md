@@ -8,6 +8,8 @@ The log level will be set via the `LOG_LEVEL` env variable at `/packages/graph-e
 
 By default, the log level is set to `info` and the only type of logs generated are those of `error`, `info`, or `debug`. If you need more detailed logs, you can change the log level from `info` in the default .env file to `debug` and the logs will begin printing the error's stack trace.
 
+At `debug` and `trace`, the query text sent to the database is written to the logs. Queries can contain sensitive data, so use those levels for troubleshooting and restrict access to wherever the logs are stored. On SageMaker, the logs go to a CloudWatch log group shared with the notebook. See [Logging and privacy](../guides/deploy-to-sagemaker.md#logging-and-privacy).
+
 The proxy server logging is split across a few key modules:
 
 1. `logging.ts` - Contains the `logger` instance (using pino) that is responsible for actually recording the logs.

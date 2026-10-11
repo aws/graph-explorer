@@ -1,3 +1,7 @@
+import { describe, expect, it } from "vitest";
+
+import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
+import { FetchTimeoutError } from "./FetchTimeoutError";
 import { isCancellationError } from "./isCancellationError";
 import { NetworkError } from "./NetworkError";
 import { createCancelledError } from "./testing";
@@ -48,5 +52,18 @@ describe("isCancellationError", () => {
     expect(isCancellationError(new NetworkError("Test", 500, null))).toBe(
       false,
     );
+    expect(
+      isCancellationError(new FetchTimeoutError(5000, new Error("aborted"))),
+    ).toBe(false);
+    expect(
+      isCancellationError(
+        new DatabaseTimeoutError(
+          "Test",
+          500,
+          { code: "TimeLimitExceededException" },
+          "TimeLimitExceededException",
+        ),
+      ),
+    ).toBe(false);
   });
 });

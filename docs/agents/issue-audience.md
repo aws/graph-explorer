@@ -8,6 +8,7 @@ How issues in this repo are marked for internal team use vs. open community cont
 - **Footer:**
 
   > [!IMPORTANT]
+  >
   > Internal only — this issue is maintained by the core team and is not accepting external contributions.
 
 ## Community
@@ -16,7 +17,9 @@ How issues in this repo are marked for internal team use vs. open community cont
 - **Footer:**
 
   > [!IMPORTANT]
+  >
   > If you are interested in working on this issue, please leave a comment.
   >
   > [!TIP]
+  >
   > Please use a 👍 reaction to provide a +1/vote. This helps the community and maintainers prioritize this request.

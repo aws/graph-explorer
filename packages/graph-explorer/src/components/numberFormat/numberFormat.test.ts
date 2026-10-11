@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { toHumanString } from "./numberFormat";
 
 describe("numberFormat", () => {

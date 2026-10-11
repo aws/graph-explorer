@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { createVertexType } from "@/core";
 import { query } from "@/utils";
 
