@@ -1,4 +1,5 @@
 import { createRandomInteger } from "@shared/utils/testing";
+import { describe, expect, it, vi } from "vitest";
 
 import { createVertexId } from "@/core";
 import { query } from "@/utils";
@@ -9,6 +10,7 @@ import {
   type TestableVertex,
 } from "@/utils/testing";
 
+import { UnsupportedValueTypeError } from "../queryValueError";
 import { rdfTypeUri } from "./types";
 import { vertexDetails } from "./vertexDetails";
 
@@ -114,7 +116,9 @@ describe("vertexDetails", () => {
 
     await expect(
       vertexDetails(mockFetch, { vertexIds: [vertex.id] }),
-    ).rejects.toThrow("ID must be a URI");
+    ).rejects.toThrow(
+      new UnsupportedValueTypeError("sparql", "IRI", vertex.id),
+    );
   });
 });
 

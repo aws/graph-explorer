@@ -1,12 +1,14 @@
 import type { GVertex } from "../types";
 
 import { createResultVertex } from "../../entities";
+import { splitLabel } from "../splitLabel";
 import { extractRawId } from "./extractRawId";
 import parsePropertiesValues from "./parsePropertiesValues";
 
 export default function mapApiVertex(apiVertex: GVertex, name?: string) {
-  // Split multi-label from Neptune and filter out empty strings
-  const types = apiVertex["@value"].label.split("::").filter(Boolean);
+  // An empty label means the vertex has no labels, not a label to split.
+  const label = apiVertex["@value"].label;
+  const types = label === "" ? [] : splitLabel(label);
 
   // If the properties are null then the vertex is a fragment
   const attributes = apiVertex["@value"].properties

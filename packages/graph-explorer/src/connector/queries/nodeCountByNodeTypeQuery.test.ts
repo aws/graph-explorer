@@ -1,4 +1,5 @@
 import { createRandomInteger } from "@shared/utils/testing";
+import { describe, expect, it, vi } from "vitest";
 
 import { explorerForTestingAtom, getAppStore, schemaAtom } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
@@ -52,7 +53,7 @@ describe("nodeCountByNodeTypeQuery", () => {
     await queryClient.fetchQuery(nodeCountByNodeTypeQuery(vertexType));
 
     // Verify the schema was updated with the new total
-    const schema = store.get(schemaAtom).get(state.activeConfig.id);
+    const schema = store.get(schemaAtom).get(state.activeConnection.id);
     const vertexConfig = schema?.vertices.find(v => v.type === vertexType);
     expect(vertexConfig?.total).toBe(expectedTotal);
   });
@@ -134,7 +135,7 @@ describe("nodeCountByNodeTypeQuery", () => {
     expect(result).toStrictEqual({ total: expectedTotal });
 
     // Verify the different vertex type was not modified
-    const schema = getAppStore().get(schemaAtom).get(state.activeConfig.id);
+    const schema = getAppStore().get(schemaAtom).get(state.activeConnection.id);
     const vertexConfig = schema?.vertices.find(
       v => v.type === differentVertexType,
     );

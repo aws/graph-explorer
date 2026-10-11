@@ -18,7 +18,7 @@ import type {
 import isErrorResponse from "../utils/isErrorResponse";
 import fetchBlankNodeNeighbors from "./fetchBlankNodeNeighbors";
 import { getNeighborsFilter } from "./filterHelpers";
-import { idParam } from "./idParam";
+import { fragment } from "./fragments";
 import {
   type BlankNodeItem,
   type BlankNodesMap,
@@ -100,7 +100,7 @@ async function fetchUniqueNeighborCount(
     SELECT ?resource (COUNT(DISTINCT ?neighbor) AS ?totalCount)
     WHERE {
       VALUES ?resource { 
-        ${resources.map(idParam).join("\n")}
+        ${resources.map(fragment.iri).join("\n")}
       }
       {
         ?resource ?predicate ?neighbor .
@@ -170,7 +170,7 @@ async function fetchCountsByType(
     SELECT ?resource ?type (COUNT(DISTINCT ?neighbor) AS ?typeCount)
     WHERE {
       VALUES ?resource { 
-        ${resources.map(idParam).join("\n")}
+        ${resources.map(fragment.iri).join("\n")}
       }
       {
         ?resource ?predicate ?neighbor .
@@ -265,7 +265,7 @@ async function fetchBlankNodeNeighborCounts(
 
   // Fetch any missing blank node neighbor counts
   const blankNodeResponses = await Promise.all(
-    missing.entries().map(async ([vertexId, bNode]) => {
+    Array.from(missing.entries()).map(async ([vertexId, bNode]) => {
       const response = await fetchBlankNodeNeighbors(sparqlFetch, {
         resourceURI: bNode.vertex.id,
         resourceClasses: bNode.vertex.types,

@@ -1,22 +1,37 @@
 import type { PropsWithChildren } from "react";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import { Provider } from "jotai";
+import { MemoryRouter } from "react-router";
 
 import { type AppStore, getAppStore } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 
 import { DbState } from "./DbState";
 
+/**
+ * The router entries a test starts at. Anything reading the location (a routed
+ * hook, a `Link`, a `useNavigate` call) works without the test wiring its own
+ * router, so nesting a second `MemoryRouter` inside this provider is a mistake.
+ */
+export type TestRouterOptions = {
+  initialEntries?: string[];
+};
+
 export function TestProvider({
   store,
   client,
+  initialEntries,
   children,
-}: PropsWithChildren<{ store: AppStore; client: QueryClient }>) {
+}: PropsWithChildren<
+  { store: AppStore; client: QueryClient } & TestRouterOptions
+>) {
   return (
     <QueryClientProvider client={client}>
-      <Provider store={store}>{children}</Provider>
+      <Provider store={store}>
+        <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter>
+      </Provider>
     </QueryClientProvider>
   );
 }
@@ -24,6 +39,7 @@ export function TestProvider({
 export function renderHookWithState<TResult>(
   callback: () => TResult,
   state?: DbState,
+  { initialEntries }: TestRouterOptions = {},
 ) {
   // Create default DbState if none passed
   state ??= new DbState();
@@ -43,7 +59,12 @@ export function renderHookWithState<TResult>(
   // Call the standard testing hook with TanStack Query and Jotai setup
   return renderHook(callback, {
     wrapper: props => (
-      <TestProvider client={queryClient} store={store} {...props} />
+      <TestProvider
+        client={queryClient}
+        store={store}
+        initialEntries={initialEntries}
+        {...props}
+      />
     ),
   });
 }
@@ -66,4 +87,17 @@ export function renderHookWithJotai<TResult>(
       <TestProvider client={queryClient} store={store} {...props} />
     ),
   });
+}
+
+/**
+ * Settles pending React work under `act()`.
+ *
+ * Jotai v2 always re-rendered once right after mount, which absorbed store
+ * writes that landed before `useAtomValue` subscribed. v3 drops that extra
+ * render and only re-renders on an actual change, so such a write now arrives
+ * as its own render after `renderHook` or `store.set` returns. Await this
+ * before asserting to keep that render inside `act()`.
+ */
+export async function flushPendingAtomUpdates() {
+  await act(async () => {});
 }

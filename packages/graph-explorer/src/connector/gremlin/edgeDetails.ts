@@ -1,3 +1,4 @@
+import { warnMissingIds } from "@/connector/utils/warnMissingIds";
 import { createEdge } from "@/core";
 import { logger, query } from "@/utils";
 
@@ -9,7 +10,7 @@ import type {
 import type { GEdge, GremlinFetch } from "./types";
 
 import isErrorResponse from "../utils/isErrorResponse";
-import { idParam } from "./idParam";
+import { fragment } from "./fragments";
 import { mapResults } from "./mappers/mapResults";
 
 type Response = {
@@ -35,7 +36,7 @@ export async function edgeDetails(
     return { edges: [] };
   }
 
-  const ids = request.edgeIds.map(idParam).join(",");
+  const ids = request.edgeIds.map(fragment.id).join(",");
   const template = query`
     g.E(${ids})
   `;
@@ -52,16 +53,12 @@ export async function edgeDetails(
   const edges = entities.filter(e => e.entityType === "edge").map(createEdge);
 
   // Log a warning if some edges are missing
-  const missing = new Set(request.edgeIds).difference(
-    new Set(edges.map(e => e.id)),
+  warnMissingIds(
+    "edges",
+    request.edgeIds,
+    edges.map(e => e.id),
+    data,
   );
-  if (missing.size) {
-    logger.warn("Did not find all requested edges", {
-      requested: request.edgeIds,
-      missing: missing.values().toArray(),
-      data,
-    });
-  }
 
   return { edges };
 }

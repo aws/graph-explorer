@@ -1,9 +1,67 @@
-import { SEARCH_TOKENS } from "@/utils";
+import { describe, expect, it } from "vitest";
+
+import { LABELS } from "@/utils";
 import { normalize } from "@/utils/testing";
 
 import keywordSearchTemplate from "./keywordSearchTemplate";
 
 describe("SPARQL > keywordSearchTemplate", () => {
+  it("Should filter to subjects with no type when the missing-type class is requested", () => {
+    const template = keywordSearchTemplate({
+      subjectClasses: [LABELS.MISSING_TYPE],
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
+              FILTER NOT EXISTS { ?subject a ?class }
+            }
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
+        }
+      `),
+    );
+  });
+
+  it("Should return a template with an offset but no limit", () => {
+    const template = keywordSearchTemplate({
+      offset: 20,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
+            }
+            OFFSET 20
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
+        }
+      `),
+    );
+  });
+
   it("Should return a template for an empty request", () => {
     const template = keywordSearchTemplate({});
 
@@ -161,7 +219,40 @@ describe("SPARQL > keywordSearchTemplate", () => {
               OPTIONAL { ?subject a ?class } .
               FILTER (?pValue IN (<air:city>, <air:code>))
               FILTER (?class IN (<air:airport>))
-              FILTER (regex(str(?value), "JFK", "i"))
+              FILTER (CONTAINS(LCASE(STR(?value)), LCASE("JFK")))
+            }
+          }
+          {
+            # Values and types
+            ?subject ?predicate ?object
+            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
+        }
+      `),
+    );
+  });
+
+  it("Should treat regex metacharacters in the search term as literal text", () => {
+    const template = keywordSearchTemplate({
+      subjectClasses: ["air:airport"],
+      searchTerm: "a.(b",
+      predicates: ["air:city"],
+      exactMatch: false,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            # This sub-query will find any matching instances to the given filters and limit the results
+            SELECT DISTINCT ?subject
+            WHERE {
+              ?subject ?pValue ?value .
+              OPTIONAL { ?subject a ?class } .
+              FILTER (?pValue IN (<air:city>))
+              FILTER (?class IN (<air:airport>))
+              FILTER (CONTAINS(LCASE(STR(?value)), LCASE("a.(b")))
             }
           }
           {
@@ -179,39 +270,6 @@ describe("SPARQL > keywordSearchTemplate", () => {
       subjectClasses: ["air:airport"],
       searchTerm: "JFK",
       predicates: ["air:city", "air:code"],
-      exactMatch: true,
-    });
-
-    expect(normalize(template)).toBe(
-      normalize(`
-        SELECT DISTINCT ?subject ?predicate ?object
-        WHERE {
-          {
-            # This sub-query will find any matching instances to the given filters and limit the results
-            SELECT DISTINCT ?subject
-            WHERE {
-              ?subject ?pValue ?value .
-              OPTIONAL { ?subject a ?class } .
-              FILTER (?pValue IN (<air:city>, <air:code>))
-              FILTER (?class IN (<air:airport>))
-              FILTER (?value = "JFK")
-            }
-          }
-          {
-            # Values and types
-            ?subject ?predicate ?object
-            FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
-          }
-        }
-      `),
-    );
-  });
-
-  it("Should return a template for searched attributes without the all attributes token predicate", () => {
-    const template = keywordSearchTemplate({
-      subjectClasses: ["air:airport"],
-      searchTerm: "JFK",
-      predicates: ["air:city", "air:code", SEARCH_TOKENS.ALL_ATTRIBUTES],
       exactMatch: true,
     });
 
@@ -293,7 +351,7 @@ describe("SPARQL > keywordSearchTemplate", () => {
               OPTIONAL { ?subject a ?class } .
               FILTER (?pValue IN (<rdfs:label>))
               FILTER (?class IN (<air:airport>))
-              FILTER (regex(str(?value), "JFK", "i"))
+              FILTER (CONTAINS(LCASE(STR(?value)), LCASE("JFK")))
             }
           }
           {

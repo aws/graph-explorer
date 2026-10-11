@@ -94,6 +94,8 @@ const useInitCytoscape = ({
       }, 100);
       cy.on("pan", debouncedPan);
 
+      // Cytoscape initialization is an external system; setCy synchronizes it.
+      // eslint-disable-next-line react/set-state-in-effect
       setCy(cy);
 
       return () => {

@@ -1,3 +1,7 @@
+import { describe, expect, it } from "vitest";
+
+import type { AttributeFilter } from "@/connector/useGEFetchTypes";
+
 import { createVertexId } from "@/core";
 import { query } from "@/utils";
 
@@ -67,15 +71,15 @@ describe("OpenCypher > oneHopTemplate", () => {
 
     expect(template).toBe(
       query`
-        MATCH (v)-[e]-(tgt:country) 
-        WHERE ID(v) = "12" 
-        WITH DISTINCT v, tgt 
-        ORDER BY toInteger(ID(tgt)) 
+        MATCH (v)-[e]-(tgt:\`country\`)
+        WHERE ID(v) = "12"
+        WITH DISTINCT v, tgt
+        ORDER BY toInteger(ID(tgt))
         LIMIT 10
         MATCH (v)-[e]-(tgt)
-        RETURN 
-          collect(DISTINCT tgt) AS vObjects, 
-          collect(e) AS eObjects 
+        RETURN
+          collect(DISTINCT tgt) AS vObjects,
+          collect(e) AS eObjects
       `,
     );
   });
@@ -89,7 +93,7 @@ describe("OpenCypher > oneHopTemplate", () => {
     expect(template).toBe(
       query`
         MATCH (v)-[e]-(tgt)
-        WHERE ID(v) = "12" AND (v:country OR v:continent OR v:airport OR v:person)
+        WHERE ID(v) = "12" AND (v:\`country\` OR v:\`continent\` OR v:\`airport\` OR v:\`person\`)
         RETURN
           collect(DISTINCT tgt) AS vObjects,
           collect(e) AS eObjects
@@ -97,22 +101,22 @@ describe("OpenCypher > oneHopTemplate", () => {
     );
   });
 
-  it("Should return a template with specific filter criteria", () => {
+  it("Should return a template with specific attribute filters", () => {
     const template = oneHopTemplate({
       vertexId: createVertexId("12"),
       filterByVertexTypes: ["country"],
-      filterCriteria: [
-        { name: "longest", value: 10000, operator: "gte", dataType: "Number" },
-        { name: "country", value: "ES", operator: "like" },
+      attributeFilters: [
+        { name: "city", value: "Sea" },
+        { name: "country", value: "ES" },
       ],
       limit: 10,
     });
 
     expect(template).toBe(
       query`
-        MATCH (v)-[e]-(tgt:country) 
-        WHERE ID(v) = "12" AND tgt.longest >= 10000 AND tgt.country CONTAINS "ES" 
-        WITH DISTINCT v, tgt 
+        MATCH (v)-[e]-(tgt:\`country\`)
+        WHERE ID(v) = "12" AND tgt.\`city\` CONTAINS "Sea" AND tgt.\`country\` CONTAINS "ES"
+        WITH DISTINCT v, tgt
         ORDER BY toInteger(ID(tgt)) 
         LIMIT 10
         MATCH (v)-[e]-(tgt)
@@ -132,16 +136,63 @@ describe("OpenCypher > oneHopTemplate", () => {
 
     expect(template).toBe(
       query`
-        MATCH (v)-[e]-(tgt:airport) 
+        MATCH (v)-[e]-(tgt:\`airport\`)
         WHERE ID(v) = "124"
-        WITH DISTINCT v, tgt 
-        ORDER BY toInteger(ID(tgt)) 
+        WITH DISTINCT v, tgt
+        ORDER BY toInteger(ID(tgt))
         LIMIT 10
         MATCH (v)-[e]-(tgt)
-        RETURN 
-          collect(DISTINCT tgt) AS vObjects, 
-          collect(e) AS eObjects 
+        RETURN
+          collect(DISTINCT tgt) AS vObjects,
+          collect(e) AS eObjects
       `,
     );
+  });
+
+  // filterByVertexTypes carries VertexType ids that were already split apart at
+  // ingestion, so a value bearing :: must be used verbatim, not re-split.
+  it("uses each vertex type verbatim without splitting on '::'", () => {
+    const template = oneHopTemplate({
+      vertexId: createVertexId("12"),
+      filterByVertexTypes: ["country::capital", "city::town"],
+    });
+
+    expect(template).toContain("(v:`country::capital` OR v:`city::town`)");
+  });
+
+  describe("attribute filters", () => {
+    function templateFor(attributeFilters: AttributeFilter[]) {
+      return oneHopTemplate({
+        vertexId: createVertexId("12"),
+        attributeFilters,
+      });
+    }
+
+    it("matches an attribute containing the value", () => {
+      expect(templateFor([{ name: "country", value: "ES" }])).toContain(
+        'tgt.`country` CONTAINS "ES"',
+      );
+    });
+
+    it("requires every filter to match", () => {
+      expect(
+        templateFor([
+          { name: "city", value: "Sea" },
+          { name: "country", value: "US" },
+        ]),
+      ).toContain('tgt.`city` CONTAINS "Sea" AND tgt.`country` CONTAINS "US"');
+    });
+
+    it("omits the filter condition when there are no filters", () => {
+      expect(templateFor([])).toBe(
+        query`
+          MATCH (v)-[e]-(tgt)
+          WHERE ID(v) = "12"
+          RETURN
+            collect(DISTINCT tgt) AS vObjects,
+            collect(e) AS eObjects
+        `,
+      );
+    });
   });
 });

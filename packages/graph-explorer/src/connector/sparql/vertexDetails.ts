@@ -1,12 +1,13 @@
+import { warnMissingIds } from "@/connector/utils/warnMissingIds";
 import { createVertex } from "@/core";
-import { logger, query } from "@/utils";
+import { query } from "@/utils";
 
 import type {
   VertexDetailsRequest,
   VertexDetailsResponse,
 } from "../useGEFetchTypes";
 
-import { idParam } from "./idParam";
+import { fragment } from "./fragments";
 import { parseAndMapQuads } from "./parseAndMapQuads";
 import { rdfTypeUri, type SparqlFetch } from "./types";
 
@@ -24,11 +25,11 @@ export async function vertexDetails(
     SELECT ?subject ?predicate ?object
     WHERE {
       VALUES ?subject {
-        ${request.vertexIds.map(idParam).join("\n")}
+        ${request.vertexIds.map(fragment.iri).join("\n")}
       }
 
       ?subject ?predicate ?object .
-      FILTER(isLiteral(?object) || ?predicate = ${idParam(rdfTypeUri)})
+      FILTER(isLiteral(?object) || ?predicate = ${fragment.iri(rdfTypeUri)})
     }
   `;
 
@@ -40,16 +41,12 @@ export async function vertexDetails(
   const vertices = results.vertices.map(v => createVertex(v));
 
   // Log a warning if some nodes are missing
-  const missing = new Set(request.vertexIds).difference(
-    new Set(vertices.map(v => v.id)),
+  warnMissingIds(
+    "vertices",
+    request.vertexIds,
+    vertices.map(v => v.id),
+    response,
   );
-  if (missing.size) {
-    logger.warn("Did not find all requested vertices", {
-      requested: request.vertexIds,
-      missing: missing.values().toArray(),
-      response,
-    });
-  }
 
   return { vertices };
 }

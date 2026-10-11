@@ -23,8 +23,8 @@ export function ExportGraphButton() {
 }
 
 export function useExportGraph() {
-  const vertexIds = useAtomValue(nodesAtom).keys().toArray();
-  const edgeIds = useAtomValue(edgesAtom).keys().toArray();
+  const vertexIds = Array.from(useAtomValue(nodesAtom).keys());
+  const edgeIds = Array.from(useAtomValue(edgesAtom).keys());
   const connection = useExplorer().connection;
   const config = useConfiguration();
 

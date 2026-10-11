@@ -1,15 +1,17 @@
 // @vitest-environment happy-dom
+
 import type { QueryEngine } from "@shared/types";
 
 import { createRandomDate, createRandomName } from "@shared/utils/testing";
+import { describe, expect, it } from "vitest";
 
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 
 import { getDisplayValueForScalar } from "@/connector/entities";
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   type AppStore,
-  configurationAtom,
+  savedConnectionsAtom,
   createVertex,
   createVertexId,
   createVertexType,
@@ -22,7 +24,7 @@ import {
 } from "@/core";
 import { formatDate, LABELS } from "@/utils";
 import {
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   createRandomVertex,
   createRandomVertexId,
@@ -217,11 +219,11 @@ describe("useDisplayVertexFromVertex", () => {
   }
 
   function withSchema(schema: SchemaStorageModel) {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     return (store: AppStore) => {
-      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(savedConnectionsAtom, new Map([[config.id, config]]));
       store.set(schemaAtom, new Map([[config.id, schema]]));
-      store.set(activeConfigurationAtom, config.id);
+      store.set(activeConnectionIdAtom, config.id);
     };
   }
 
@@ -229,12 +231,12 @@ describe("useDisplayVertexFromVertex", () => {
     schema: SchemaStorageModel,
     queryEngine: QueryEngine,
   ) {
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     config.connection!.queryEngine = queryEngine;
     return (store: AppStore) => {
-      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(savedConnectionsAtom, new Map([[config.id, config]]));
       store.set(schemaAtom, new Map([[config.id, schema]]));
-      store.set(activeConfigurationAtom, config.id);
+      store.set(activeConnectionIdAtom, config.id);
     };
   }
 });

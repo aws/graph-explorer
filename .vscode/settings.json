@@ -5,7 +5,6 @@
     "source.fixAll.eslint": "explicit"
   },
   "typescript.tsdk": "node_modules/typescript/lib",
-  "vitest.workspaceConfig": "vitest.workspace.ts",
   "editor.quickSuggestions": {
     "strings": "on"
   },

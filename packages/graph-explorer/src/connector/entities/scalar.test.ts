@@ -3,6 +3,7 @@ import {
   createRandomDouble,
   createRandomInteger,
 } from "@shared/utils/testing";
+import { describe, expect, it } from "vitest";
 
 import { LABELS } from "@/utils";
 

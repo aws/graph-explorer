@@ -37,10 +37,10 @@ export default function SettingsAbout() {
             <NavBarLogo />
           </div>
           <div>
-            <p className="text-foreground text-xl font-bold">
+            <p className="text-foreground text-xl font-semibold">
               {LABELS.APP_NAME}
             </p>
-            <p className="text-muted-foreground font-base text-base">
+            <p className="text-muted-foreground text-base font-normal">
               App version:{" "}
               <span className="text-foreground font-medium">
                 {__GRAPH_EXP_VERSION__}

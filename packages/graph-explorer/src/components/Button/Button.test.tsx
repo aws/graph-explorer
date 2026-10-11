@@ -1,8 +1,10 @@
 // @vitest-environment happy-dom
+
 import type { PropsWithChildren } from "react";
 
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "../Tooltip";
 import { Button, stopPropagation } from "./Button";

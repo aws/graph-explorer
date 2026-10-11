@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { act } from "react";
+import { describe, expect, it } from "vitest";
 
 import { createEdgeType, createVertexType, useHiddenSchemaTypes } from "@/core";
 import {

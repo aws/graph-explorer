@@ -4,12 +4,21 @@
 
 Deploy Graph Explorer locally using the official Docker image from Amazon's ECR Public Registry.
 
-You can find the latest version of the image on
-[Amazon's ECR Public Registry](https://gallery.ecr.aws/neptune/graph-explorer).
+You can find the latest version of the image on [Amazon's ECR Public Registry](https://gallery.ecr.aws/neptune/graph-explorer).
 
 > [!NOTE]
 >
-> Make sure to use the version of the image that does not include `sagemaker` in the tag.
+> The `sagemaker-*` image tags are now aliases for the same image as the regular tag. They exist only for compatibility with existing SageMaker lifecycle scripts and will stop being published in a future release. Use the regular tag for new deployments.
+>
+> Because of this, running a `sagemaker-*` tag without `NEPTUNE_NOTEBOOK=true` starts with the standard defaults: HTTPS on port 443 with a generated self-signed certificate, instead of HTTP on port 9250 with cloudwatch logs. Pass `NEPTUNE_NOTEBOOK=true` to keep port 9250 and cloudwatch logs.
+
+> [!IMPORTANT]
+>
+> The Graph Explorer server, not your browser, connects to the database for proxied connections, so it needs network access to the database endpoint. See [System overview](../architecture.md#system-overview) for details.
+
+> [!IMPORTANT]
+>
+> Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../references/security.md#access-control).
 
 ## Prerequisites
 
@@ -42,6 +51,10 @@ You can find the latest version of the image on
 
    The `HOST` environment variable is used for SSL certificates generation since HTTPS is the default. If you are hosting this on a public domain, you should replace `HOST=localhost` with your domain name.
 
+   > [!IMPORTANT]
+   >
+   > `-p 80:80 -p 443:443` publishes the container on every network interface of the host, not only `localhost`. `-p 127.0.0.1:443:443`, and `-p 127.0.0.1:80:80` for HTTP, publish it on the loopback interface only, so only the host itself can reach it. Restricting ports `80` and `443` at the host firewall or security group is the other way to limit who can reach it.
+
 4. Open a browser and type in the URL of the Graph Explorer server instance
 
    ```
@@ -49,4 +62,9 @@ You can find the latest version of the image on
    ```
 
 5. You will receive a warning as the SSL certificate used is self-signed. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See the [HTTPS Connections](./troubleshooting.md#https-connections) section.
+
+   > [!NOTE]
+   >
+   > A new container generates a new certificate, so replacing the container undoes this trust step. To keep the certificate, see [Keeping the certificate across container replacements](../references/security.md#keeping-the-certificate-across-container-replacements).
+
 6. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See [Connections](../features/connections.md) for details on configuring your first connection.

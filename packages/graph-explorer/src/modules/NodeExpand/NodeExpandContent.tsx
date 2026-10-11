@@ -133,9 +133,8 @@ function ExpansionOptions({
           vertexId={vertexId}
           filters={{
             filterByVertexTypes: [selectedType],
-            filterCriteria: filters.map(filter => ({
+            attributeFilters: filters.map(filter => ({
               name: filter.name,
-              operator: "LIKE",
               value: filter.value,
             })),
             limit: limitEnabled && limit ? limit : undefined,

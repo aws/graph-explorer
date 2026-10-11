@@ -1,13 +1,17 @@
 // @vitest-environment happy-dom
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
-import { Provider } from "jotai";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router";
-import { describe, expect, test, vi } from "vitest";
+import { QueryClient } from "@tanstack/react-query";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { Route, Routes, useLocation } from "react-router";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
 import { getAppStore } from "@/core";
-import { createTestableVertex, DbState } from "@/utils/testing";
+import {
+  createTestableVertex,
+  DbState,
+  mockVirtualizedLayout,
+  TestProvider,
+} from "@/utils/testing";
 
 import DataExplorer from "./DataExplorer";
 
@@ -31,24 +35,23 @@ function renderDataExplorer(initialPath: string, state: DbState) {
   });
 
   return render(
-    <QueryClientProvider client={queryClient}>
-      <Provider store={store}>
-        <TooltipProvider>
-          <MemoryRouter initialEntries={[initialPath]}>
-            <Routes>
-              <Route path="/data-explorer" element={<DataExplorer />} />
-              <Route
-                path="/data-explorer/:vertexType"
-                element={<DataExplorer />}
-              />
-            </Routes>
-            <LocationDisplay />
-          </MemoryRouter>
-        </TooltipProvider>
-      </Provider>
-    </QueryClientProvider>,
+    <TestProvider
+      client={queryClient}
+      store={store}
+      initialEntries={[initialPath]}
+    >
+      <TooltipProvider>
+        <Routes>
+          <Route path="/data-explorer" element={<DataExplorer />} />
+          <Route path="/data-explorer/:vertexType" element={<DataExplorer />} />
+        </Routes>
+        <LocationDisplay />
+      </TooltipProvider>
+    </TestProvider>,
   );
 }
+
+beforeEach(mockVirtualizedLayout);
 
 describe("DataExplorer", () => {
   test("redirects to first vertex type when no vertexType param", async () => {
@@ -99,6 +102,14 @@ describe("DataExplorer", () => {
     expect(screen.queryByText(/no .* available/i)).not.toBeInTheDocument();
   });
 
+  test("shows subtitle as 'Connection: none' when no connection is active", () => {
+    const state = new DbState().withNoActiveConnection();
+
+    renderDataExplorer("/data-explorer", state);
+
+    expect(screen.getByText("Connection: none")).toBeInTheDocument();
+  });
+
   test("encodes vertex type in redirect URL", async () => {
     const state = new DbState();
     const vertex = createTestableVertex().with({
@@ -111,6 +122,31 @@ describe("DataExplorer", () => {
     await waitFor(() => {
       expect(screen.getByTestId("location")).toHaveTextContent(
         "/data-explorer/Has%20Space",
+      );
+    });
+  });
+
+  test("filters the node type combobox and navigates to the selected type", async () => {
+    const state = new DbState();
+    const vertex = createTestableVertex().with({
+      types: ["Airport", "Country", "Continent"],
+    });
+    state.addTestableVertexToGraph(vertex);
+
+    const { container } = renderDataExplorer("/data-explorer/Airport", state);
+
+    const input = container.querySelector("input") as HTMLInputElement;
+    expect(input.value).toBe("Airport");
+
+    fireEvent.click(input);
+    fireEvent.change(input, { target: { value: "Cou" } });
+
+    const option = await waitFor(() => screen.getByText("Country"));
+    fireEvent.click(option);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("location")).toHaveTextContent(
+        "/data-explorer/Country",
       );
     });
   });

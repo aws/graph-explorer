@@ -5,19 +5,12 @@ import { atomFamily } from "jotai-family";
 import { RESET, useAtomCallback } from "jotai/utils";
 import { useCallback, useDeferredValue } from "react";
 
-import type {
-  AttributeConfig,
-  ConfigurationId,
-  EdgeConnection,
-  EdgeTypeConfig,
-  PrefixTypeConfig,
-  VertexTypeConfig,
-} from "@/core/ConfigurationProvider";
+import type { ConnectionId } from "@/connections";
 import type { SetStateActionWithReset } from "@/utils/jotai";
 
 import { createTypedValue, type ScalarValue } from "@/connector/entities";
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   createEdgeConnectionId,
   type Edge,
   type EdgeConnectionId,
@@ -31,6 +24,14 @@ import {
 } from "@/core";
 import { logger } from "@/utils";
 import { generatePrefixes, PrefixLookup } from "@/utils/rdf";
+
+import type {
+  AttributeConfig,
+  EdgeConnection,
+  EdgeTypeConfig,
+  PrefixTypeConfig,
+  VertexTypeConfig,
+} from "./typeConfigTypes";
 
 import { nodesAtom, toNodeMap } from "./nodes";
 
@@ -63,7 +64,7 @@ export type SchemaStorageModel = {
 };
 
 /** Grabs a specific schema out of the map, or returns the empty schema */
-const schemaByIdAtom = atomFamily((id: ConfigurationId | null) => {
+const schemaByIdAtom = atomFamily((id: ConnectionId | null) => {
   if (!id) {
     return atom(emptySchema);
   }
@@ -82,7 +83,7 @@ const emptySchema: SchemaStorageModel = {
 
 /** Gets the active schema from storage, or undefined if one doesn't exist. */
 export const maybeActiveSchemaAtom = atom(get => {
-  const id = get(activeConfigurationAtom);
+  const id = get(activeConnectionIdAtom);
   if (!id) {
     return undefined;
   }
@@ -91,19 +92,23 @@ export const maybeActiveSchemaAtom = atom(get => {
 });
 
 export const activeSchemaAtom = atom(get => {
-  const id = get(activeConfigurationAtom);
+  const id = get(activeConnectionIdAtom);
   return get(schemaByIdAtom(id));
 });
 
 /**
- * Hook to check if the active schema has been synchronized from the database.
- *
- * @returns True if the active schema has a lastUpdate timestamp, indicating
- * it has been populated from a database schema query at least once.
+ * Whether the schema has been populated from a database schema query at least
+ * once, as opposed to only recording a failed sync.
  */
+export function isSyncedSchema(
+  schema: SchemaStorageModel | undefined,
+): schema is SchemaStorageModel {
+  return !!schema?.lastUpdate;
+}
+
+/** Hook to check if the active schema has been synchronized from the database. */
 export function useHasActiveSchema() {
-  const activeSchema = useAtomValue(maybeActiveSchemaAtom);
-  return !!activeSchema?.lastUpdate;
+  return isSyncedSchema(useAtomValue(maybeActiveSchemaAtom));
 }
 
 /** Gets the stored active schema or a default empty schema */
@@ -241,7 +246,7 @@ export function useEdgeTypeTotal(type: EdgeType) {
 export const activeSchemaSelector = atom(
   get => {
     const schemaMap = get(schemaAtom);
-    const id = get(activeConfigurationAtom);
+    const id = get(activeConnectionIdAtom);
     const activeSchema = id ? schemaMap.get(id) : null;
     return activeSchema;
   },
@@ -250,7 +255,7 @@ export const activeSchemaSelector = atom(
     set,
     update: SetStateActionWithReset<SchemaStorageModel | undefined>,
   ) => {
-    const schemaId = get(activeConfigurationAtom);
+    const schemaId = get(activeConnectionIdAtom);
     if (!schemaId) {
       return;
     }

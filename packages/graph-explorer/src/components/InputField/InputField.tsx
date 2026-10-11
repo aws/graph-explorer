@@ -77,7 +77,7 @@ export function InputField({
             disabled={isDisabled}
             {...inputProps}
           />
-          <div className="text-text-secondary absolute top-1.5 left-3 text-xs leading-none">
+          <div className="text-muted-foreground absolute top-1.5 left-3 text-xs leading-none">
             {label}
           </div>
         </div>

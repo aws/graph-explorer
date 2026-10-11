@@ -1,8 +1,10 @@
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
-import { loadEnv, type PluginOption } from "vite";
-import { coverageConfigDefaults, defineConfig } from "vitest/config";
+import { loadEnv } from "vite";
+import { defineConfig } from "vitest/config";
+
+import { browserslistBuildTarget } from "./buildTarget.ts";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -14,20 +16,6 @@ export default defineConfig(({ mode }) => {
     const baseUrl = `http://localhost${port}`;
     return baseUrl;
   })();
-
-  const htmlPlugin = (): PluginOption => {
-    return {
-      name: "html-transform",
-      transformIndexHtml: {
-        order: "pre",
-        handler: (html: string) => {
-          return html.replace(/%(.*?)%/g, function (_match, p1) {
-            return env[p1] ? env[p1] : "";
-          });
-        },
-      },
-    };
-  };
 
   return {
     server: {
@@ -47,13 +35,15 @@ export default defineConfig(({ mode }) => {
           },
       },
     },
-    base: env.GRAPH_EXP_ENV_ROOT_FOLDER,
+    base: "./",
     envPrefix: "GRAPH_EXP",
     define: {
       __GRAPH_EXP_VERSION__: JSON.stringify(process.env.npm_package_version),
     },
+    build: {
+      target: browserslistBuildTarget(),
+    },
     plugins: [
-      htmlPlugin(),
       tailwindcss(),
       react(),
       babel({
@@ -64,7 +54,6 @@ export default defineConfig(({ mode }) => {
       tsconfigPaths: true,
     },
     test: {
-      globals: true,
       pool: "threads",
 
       // Setup
@@ -77,21 +66,6 @@ export default defineConfig(({ mode }) => {
       restoreMocks: true,
       unstubEnvs: true,
       unstubGlobals: true,
-
-      coverage: {
-        exclude: [
-          "src/components/icons",
-          "src/@types",
-          "src/index.tsx",
-          "src/App.ts",
-          "src/setupTests.ts",
-          "src/**/*.style.ts",
-          "src/**/*.styles.ts",
-          "src/**/*.styles.css.ts",
-          "tailwind.config.ts",
-          ...coverageConfigDefaults.exclude,
-        ],
-      },
     },
   };
 });

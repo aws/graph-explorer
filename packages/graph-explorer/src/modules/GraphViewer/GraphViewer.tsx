@@ -25,7 +25,6 @@ import {
   DownloadScreenshotButton,
   Graph,
   GraphProvider,
-  type LayoutName,
   RerunLayoutButton,
   type SelectedElements,
   SelectLayout,
@@ -34,6 +33,7 @@ import {
   ZoomToFitButton,
 } from "@/components/Graph";
 import {
+  DEFAULT_LAYOUT_NAME,
   createRenderedEdgeId,
   createRenderedVertexId,
   getEdgeIdFromRenderedEdgeId,
@@ -60,7 +60,7 @@ import { useGraphSelection } from "./useGraphSelection";
 import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
 
-const graphLayoutSelectionAtom = atom<LayoutName>("F_COSE");
+const graphLayoutSelectionAtom = atom(DEFAULT_LAYOUT_NAME);
 
 // Prevent open context menu on Windows
 function onContextMenu(e: MouseEvent<HTMLDivElement>) {
@@ -92,10 +92,10 @@ function GraphViewerContent({
 
   // Map the ids to rendered IDs for compatibility with Cytoscape
   const nodesOutRenderedIds = new Set(
-    nodesOutIds.values().map(createRenderedVertexId),
+    Array.from(nodesOutIds).map(createRenderedVertexId),
   );
   const edgesOutRenderedIds = new Set(
-    edgesOutIds.values().map(createRenderedEdgeId),
+    Array.from(edgesOutIds).map(createRenderedEdgeId),
   );
 
   const onSelectedElementIdsChange = ({
@@ -104,12 +104,12 @@ function GraphViewerContent({
   }: SelectedElements) => {
     // Map the rendered ids to the original ids and change selection
     replaceGraphSelection({
-      vertices: (nodeIds as Set<RenderedVertexId>)
-        .values()
-        .map(getVertexIdFromRenderedVertexId),
-      edges: (edgeIds as Set<RenderedEdgeId>)
-        .values()
-        .map(getEdgeIdFromRenderedEdgeId),
+      vertices: Array.from((nodeIds as Set<RenderedVertexId>).values()).map(
+        getVertexIdFromRenderedVertexId,
+      ),
+      edges: Array.from((edgeIds as Set<RenderedEdgeId>).values()).map(
+        getEdgeIdFromRenderedEdgeId,
+      ),
       disableSideEffects: false,
     });
   };
@@ -184,7 +184,7 @@ function GraphViewerContent({
             </Button>
           </PanelHeaderActions>
         </PanelHeader>
-        <PanelContent className="bg-background-secondary grid" ref={parentRef}>
+        <PanelContent className="bg-workspace-canvas grid" ref={parentRef}>
           <Graph
             nodes={nodes}
             edges={edges}
@@ -238,7 +238,7 @@ function Legend({
   className,
   ...props
 }: { onClose: () => void } & ComponentPropsWithRef<typeof Panel>) {
-  const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
+  const vtConfigs = Array.from(useDisplayVertexTypeConfigs().values());
 
   return (
     <Panel className={cn("max-w-md shadow-md", className)} {...props}>

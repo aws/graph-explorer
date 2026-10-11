@@ -59,7 +59,7 @@ export default function generatePrefixes(
     });
   }
 
-  return newPrefixes.values().toArray();
+  return Array.from(newPrefixes.values());
 }
 
 /**

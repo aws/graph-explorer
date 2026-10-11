@@ -3,12 +3,14 @@ import { atom, useAtom, useSetAtom } from "jotai";
 import {
   Button,
   ColorPopover,
+  EdgePreview,
   Field,
   FieldGroup,
   FieldLabel,
   FieldLegend,
   FieldSet,
   NumberInput,
+  PreviewSurface,
   Select,
   SelectContent,
   SelectItem,
@@ -25,16 +27,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/Dialog";
-import {
-  type EdgeType,
-  useDisplayEdgeTypeConfig,
-  useQueryEngine,
-} from "@/core";
+import { useQueryEngine } from "@/connections";
+import { type EdgeType, useDisplayEdgeTypeConfig } from "@/core";
 import {
   type ArrowStyle,
   type LineStyle,
   useEdgeStyling,
 } from "@/core/StateProvider/graphStyles";
+import { useTextTransform } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import { RESERVED_TYPES_PROPERTY } from "@/utils";
 
@@ -73,6 +73,7 @@ export function EdgeStyleDialog() {
 function Content({ edgeType }: { edgeType: EdgeType }) {
   const displayConfig = useDisplayEdgeTypeConfig(edgeType);
   const t = useTranslations();
+  const textTransform = useTextTransform();
   const queryEngine = useQueryEngine();
 
   const { edgeStyle, setEdgeStyle, resetEdgeStyle } = useEdgeStyling(edgeType);
@@ -99,11 +100,22 @@ function Content({ edgeType }: { edgeType: EdgeType }) {
         <DialogHeader>
           <DialogTitle>Customize Your {t("edge")} Style</DialogTitle>
           <DialogDescription>
-            Changes here become your custom style and override shared styles.
+            Changes here override the default style for this {t("edge-type")}.
           </DialogDescription>
         </DialogHeader>
         <DialogBody>
           <FieldSet>
+            <Field>
+              <FieldLabel className="sr-only">Preview</FieldLabel>
+              <PreviewSurface>
+                <EdgePreview
+                  edgeStyle={edgeStyle}
+                  transform={textTransform}
+                  className="zoom-90 px-4 py-3"
+                />
+              </PreviewSurface>
+            </Field>
+
             {hideDisplayNameAttribute ? null : (
               <FieldGroup>
                 <Field>

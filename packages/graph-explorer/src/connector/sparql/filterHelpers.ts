@@ -2,7 +2,7 @@ import type { VertexId } from "@/core";
 
 import { LABELS, query } from "@/utils";
 
-import { idParam } from "./idParam";
+import { fragment } from "./fragments";
 import { rdfTypeUri } from "./types";
 
 /**
@@ -28,7 +28,7 @@ export function getSubjectClasses(subjectClasses?: string[]) {
     return "FILTER NOT EXISTS { ?subject a ?class }";
   }
 
-  return `FILTER (?class IN (${subjectClasses.map(idParam).join(", ")}))`;
+  return `FILTER (?class IN (${subjectClasses.map(fragment.iri).join(", ")}))`;
 }
 
 /**
@@ -57,22 +57,21 @@ export function getSubjectClasses(subjectClasses?: string[]) {
  * getNeighborsFilter()
  */
 export function getNeighborsFilter(excludedVertices?: Set<VertexId>) {
-  const excludedVerticesTemplates = (excludedVertices || new Set<VertexId>())
-    .values()
-    .map(idParam)
-    .toArray();
+  const excludedVerticesTemplates = Array.from(excludedVertices ?? []).map(
+    fragment.iri,
+  );
 
   return excludedVerticesTemplates.length > 0
     ? query`
         FILTER(
           !isLiteral(?neighbor) &&
-          ?predicate != ${idParam(rdfTypeUri)} &&
+          ?predicate != ${fragment.iri(rdfTypeUri)} &&
           ?neighbor NOT IN (
-            ${excludedVerticesTemplates.join(", \n")}
+            ${excludedVerticesTemplates.join(",\n")}
           )
         )
       `
-    : `FILTER(!isLiteral(?neighbor) && ?predicate != ${idParam(rdfTypeUri)})`;
+    : `FILTER(!isLiteral(?neighbor) && ?predicate != ${fragment.iri(rdfTypeUri)})`;
 }
 
 /**

@@ -1,7 +1,7 @@
 import { query } from "@/utils";
 
 import { getNeighborsFilter } from "../filterHelpers";
-import { idParam } from "../idParam";
+import { fragment } from "../fragments";
 import { rdfTypeUri } from "../types";
 
 /**
@@ -11,7 +11,7 @@ import { rdfTypeUri } from "../types";
  * @see oneHopNeighborsTemplate
  */
 export default function blankNodeOneHopNeighborsTemplate(subQuery: string) {
-  const rdfTypeUriTemplate = idParam(rdfTypeUri);
+  const rdfTypeUriTemplate = fragment.iri(rdfTypeUri);
 
   return query`
     # Fetch all neighbors and their predicates, values, and classes for blank node

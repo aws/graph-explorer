@@ -1,5 +1,6 @@
-import dedent from "dedent";
+import { describe, expect, it } from "vitest";
 
+import { stripCommonIndent } from "@/utils";
 import { LABELS } from "@/utils/constants";
 
 import type { TabularColumnInstance } from "../../helpers/tableInstanceToTabularInstance";
@@ -477,7 +478,7 @@ function createColumnWithAccessor<T extends object>(
 
 /** Removes leading space evenly across all lines, removes empty lines, and normalizes line endings. */
 function csv(value: string) {
-  return dedent(value)
+  return stripCommonIndent(value)
     .replace(/^\s*\n/gm, "")
     .replace(/\r\n|\r|\n/g, "\n");
 }

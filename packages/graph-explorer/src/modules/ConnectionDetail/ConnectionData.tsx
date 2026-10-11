@@ -23,7 +23,7 @@ import useTranslations from "@/hooks/useTranslations";
 import { cn } from "@/utils";
 
 export default function ConnectionData() {
-  const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
+  const vtConfigs = Array.from(useDisplayVertexTypeConfigs().values());
 
   const { filteredItems, search, setSearch } = useSearchItems(
     vtConfigs,
@@ -118,7 +118,7 @@ function Row({ config }: { config: DisplayVertexTypeConfig }) {
             {config.attributes.length} {unit}
           </ListRowSubtitle>
         </ListRowContent>
-        <ChevronRightIcon className="text-text-secondary size-5" />
+        <ChevronRightIcon className="text-muted-foreground size-5" />
       </div>
     </Link>
   );

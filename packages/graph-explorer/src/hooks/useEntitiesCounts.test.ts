@@ -1,12 +1,14 @@
 // @vitest-environment happy-dom
-import { createRandomInteger } from "@shared/utils/testing";
-import { vi } from "vitest";
 
-import type { RawConfiguration, SchemaStorageModel } from "@/core";
+import { createRandomInteger } from "@shared/utils/testing";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import type { SavedConnection } from "@/connections";
+import type { SchemaStorageModel } from "@/core";
 
 import {
   createRandomEdgeTypeConfig,
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   createRandomVertexTypeConfig,
   DbState,
@@ -16,21 +18,21 @@ import {
 import useEntitiesCounts from "./useEntitiesCounts";
 
 function renderUseEntitiesHook(
-  config: RawConfiguration,
+  config: SavedConnection,
   schema: SchemaStorageModel,
 ) {
   const dbState = new DbState();
   dbState.activeSchema = schema;
-  dbState.activeConfig = config;
+  dbState.activeConnection = config;
   return renderHookWithState(() => useEntitiesCounts(), dbState);
 }
 
 describe("useEntitiesCounts", () => {
-  let config: RawConfiguration;
+  let config: SavedConnection;
   let schema: SchemaStorageModel;
 
   beforeEach(() => {
-    config = createRandomRawConfiguration();
+    config = createRandomSavedConnection();
     schema = createRandomSchema();
     vi.resetAllMocks();
   });

@@ -1,5 +1,9 @@
 import { ZodError } from "zod";
 
+import { QueryValueError } from "@/connector/queryValueError";
+
+import { DatabaseUnreachableError } from "./DatabaseUnreachableError";
+import { DatabaseUrlError } from "./DatabaseUrlError";
 import { NetworkError } from "./NetworkError";
 import { ServerConnectionError } from "./ServerConnectionError";
 
@@ -12,7 +16,11 @@ export type ErrorDetails = {
 
 /** Extracts a name and message from an unknown error for display in error detail dialogs. */
 export function createErrorDetails(error: unknown): ErrorDetails {
-  if (error instanceof ServerConnectionError) {
+  if (
+    error instanceof ServerConnectionError ||
+    error instanceof DatabaseUnreachableError ||
+    error instanceof DatabaseUrlError
+  ) {
     const data: Record<string, unknown> = { url: error.url };
     if (error.cause) {
       data.cause = serializeCause(error.cause);
@@ -40,7 +48,14 @@ export function createErrorDetails(error: unknown): ErrorDetails {
       data: JSON.stringify(error.issues, null, 2),
     };
   }
-  if (Error.isError(error)) {
+  if (error instanceof QueryValueError) {
+    return {
+      name: error.name,
+      message: error.message,
+      data: JSON.stringify(error.details, null, 2),
+    };
+  }
+  if (error instanceof Error) {
     const data = error.cause
       ? JSON.stringify(serializeCause(error.cause), null, 2)
       : undefined;
@@ -54,7 +69,7 @@ export function createErrorDetails(error: unknown): ErrorDetails {
 const EXCLUDED_ERROR_PROPERTIES = new Set(["stack", "cause"]);
 
 function serializeCause(cause: unknown): unknown {
-  if (Error.isError(cause)) {
+  if (cause instanceof Error) {
     // `name` is on the prototype, not an own property, so we include it explicitly
     const result: Record<string, unknown> = { name: cause.name };
     for (const key of Object.getOwnPropertyNames(cause)) {

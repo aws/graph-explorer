@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 
 import {
   Button,
   CheckIcon,
+  Combobox,
   EmptyState,
   EmptyStateContent,
   EmptyStateDescription,
@@ -53,8 +54,8 @@ import {
   type Vertex,
   type VertexType,
 } from "@/core";
-import { useVertexTypeConfig } from "@/core/ConfigurationProvider/useConfiguration";
 import { useVertexStyling } from "@/core/StateProvider/graphStyles";
+import { useVertexTypeConfig } from "@/core/StateProvider/useConfiguration";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
 import {
@@ -71,15 +72,21 @@ const DEFAULT_COLUMN = {
 export default function DataExplorer() {
   const { vertexType } = useParams();
   const navigate = useNavigate();
-  const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
+  const vtConfigs = useDisplayVertexTypeConfigs();
 
-  if (!vertexType && vtConfigs.length > 0) {
-    navigate(`/data-explorer/${encodeURIComponent(vtConfigs[0].type)}`, {
-      replace: true,
-    });
-  }
+  useEffect(() => {
+    if (vertexType) {
+      return;
+    }
+    const firstConfig = [...vtConfigs.values()][0];
+    if (firstConfig) {
+      navigate(`/data-explorer/${encodeURIComponent(firstConfig.type)}`, {
+        replace: true,
+      });
+    }
+  }, [navigate, vertexType, vtConfigs]);
 
-  if (vtConfigs.length === 0 || !vertexType) {
+  if (vtConfigs.size === 0 || !vertexType) {
     return (
       <Layout>
         <PanelGroup className="grid">
@@ -119,20 +126,18 @@ function DataExplorerContent({ vertexType }: { vertexType: VertexType }) {
   const columns = useColumnDefinitions(vertexType);
 
   const query = useDataExplorerQuery(vertexType, pageSize, pageIndex);
-  const displayVertices = useDisplayVerticesFromVertices(
+  const displayVerticesMap = useDisplayVerticesFromVertices(
     query.data?.vertices ?? [],
-  )
-    .values()
-    .toArray();
+  );
+  const displayVertices = Array.from(displayVerticesMap.values());
 
-  const vtConfigs = useDisplayVertexTypeConfigs().values().toArray();
-  const vertexTypeOptions = vtConfigs.map(config => ({
+  const vtConfigs = useDisplayVertexTypeConfigs();
+  const vertexTypeOptions = [...vtConfigs.values()].map(config => ({
     value: config.type,
     label: config.displayLabel,
   }));
 
-  const onVertexTypeChange = (value: string | string[]) => {
-    const newType = Array.isArray(value) ? value[0] : value;
+  const onVertexTypeChange = (newType: string) => {
     navigate(`/data-explorer/${encodeURIComponent(newType)}`, {
       replace: true,
     });
@@ -141,13 +146,12 @@ function DataExplorerContent({ vertexType }: { vertexType: VertexType }) {
   return (
     <Panel>
       <PanelHeader className="justify-between py-3">
-        <SelectField
+        <Combobox
           className="w-64"
           value={vertexType}
           onValueChange={onVertexTypeChange}
           options={vertexTypeOptions}
           label={t("node-type")}
-          labelPlacement="inner"
         />
         <div className="flex items-center gap-2">
           <DisplayNameAndDescriptionOptions vertexType={vertexType} />
@@ -215,7 +219,7 @@ function Layout({ children }: { children: React.ReactNode }) {
         <NavBarContent>
           <NavBarTitle
             title="Data Explorer"
-            subtitle={`Connection: ${config?.displayLabel || config?.id}`}
+            subtitle={`Connection: ${config?.displayLabel || config?.id || "none"}`}
           />
           <PersistenceStatusIndicator />
         </NavBarContent>

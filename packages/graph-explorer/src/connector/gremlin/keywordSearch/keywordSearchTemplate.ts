@@ -2,7 +2,9 @@ import uniq from "lodash/uniq";
 
 import type { KeywordSearchRequest } from "@/connector";
 
-import { escapeString, SEARCH_TOKENS } from "@/utils";
+import { SEARCH_TOKENS } from "@/utils";
+
+import { fragment } from "../fragments";
 
 /**
  * @example
@@ -14,12 +16,12 @@ import { escapeString, SEARCH_TOKENS } from "@/utils";
  * exactMatch = false
  *
  * g.V()
- *  .hasLabel("airport")
+ *  .hasLabel('airport')
  *  .or(
- *    has("city", containing("JFK"),
- *    has("code", containing("JFK")
+ *    has('city',containing('JFK')),
+ *    has('code',containing('JFK'))
  *  )
- *  .range(0, 100)
+ *  .range(0,100)
  */
 export default function keywordSearchTemplate({
   searchTerm,
@@ -32,33 +34,26 @@ export default function keywordSearchTemplate({
   let template = "g.V()";
 
   if (vertexTypes.length !== 0) {
-    const hasLabelContent = vertexTypes
-      .flatMap(type => type.split("::"))
-      .map(type => `"${type}"`)
-      .join(",");
+    const hasLabelContent = vertexTypes.map(fragment.identifier).join(",");
     template += `.hasLabel(${hasLabelContent})`;
   }
 
   if (searchTerm) {
-    const escapedSearchTerm = escapeString(searchTerm);
+    const searchLiteral = fragment.string(searchTerm);
 
-    const orContent = uniq(
-      searchByAttributes.includes(SEARCH_TOKENS.ALL_ATTRIBUTES)
-        ? [SEARCH_TOKENS.NODE_ID, ...searchByAttributes]
-        : searchByAttributes,
-    )
-      .filter(attr => attr !== SEARCH_TOKENS.ALL_ATTRIBUTES)
+    const orContent = uniq(searchByAttributes)
       .map(attr => {
         if (attr === SEARCH_TOKENS.NODE_ID) {
           if (exactMatch === true) {
-            return `has(id,"${escapedSearchTerm}")`;
+            return `has(id,${searchLiteral})`;
           }
-          return `has(id,containing("${escapedSearchTerm}"))`;
+          return `has(id,containing(${searchLiteral}))`;
         }
+        const key = fragment.identifier(attr);
         if (exactMatch === true) {
-          return `has("${attr}","${escapedSearchTerm}")`;
+          return `has(${key},${searchLiteral})`;
         }
-        return `has("${attr}",containing("${escapedSearchTerm}"))`;
+        return `has(${key},containing(${searchLiteral}))`;
       })
       .join(",");
 
@@ -66,7 +61,7 @@ export default function keywordSearchTemplate({
   }
 
   if (limit) {
-    template += `.range(${offset},${offset + limit})`;
+    template += `.range(${fragment.number(offset)},${fragment.number(offset + limit)})`;
   }
   return template;
 }

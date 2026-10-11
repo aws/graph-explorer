@@ -1,11 +1,12 @@
+import type { SavedConnection } from "@/connections";
 import type { Explorer } from "@/connector";
 import type { SchemaViewLayout } from "@/core/StateProvider/schemaViewLayoutDefaults";
 
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   allGraphSessionsAtom,
   type AppStore,
-  configurationAtom,
+  savedConnectionsAtom,
   type Edge,
   type EdgeId,
   type EdgeStyleStorage,
@@ -21,12 +22,9 @@ import {
   nodesAtom,
   nodesFilteredIdsAtom,
   nodesTypesFilteredAtom,
-  type RawConfiguration,
   schemaAtom,
   type SchemaStorageModel,
   schemaViewLayoutAtom,
-  sharedEdgeStylesAtom,
-  sharedVertexStylesAtom,
   toEdgeMap,
   toNodeMap,
   type Vertex,
@@ -41,7 +39,7 @@ import { createMockExplorer } from "./createMockExplorer";
 import {
   createRandomEdge,
   createRandomGraphViewLayout,
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
   createRandomSchemaViewLayout,
   createRandomVertex,
@@ -56,11 +54,11 @@ import {
  */
 export class DbState {
   #activeSchema: SchemaStorageModel | null;
-  activeConfig: RawConfiguration;
+  #hasActiveConnection = true;
+  #inactiveConnections: SavedConnection[] = [];
+  activeConnection: SavedConnection;
   vertexStyles: Map<VertexType, VertexStyleStorage>;
   edgeStyles: Map<EdgeType, EdgeStyleStorage>;
-  sharedVertexStyles: Map<VertexType, VertexStyleStorage>;
-  sharedEdgeStyles: Map<EdgeType, EdgeStyleStorage>;
   graphViewLayout: GraphViewLayout;
   schemaViewLayout: SchemaViewLayout;
 
@@ -77,12 +75,10 @@ export class DbState {
   constructor(explorer: Explorer = createMockExplorer()) {
     this.#activeSchema = createRandomSchema();
 
-    this.activeConfig = createRandomRawConfiguration();
+    this.activeConnection = createRandomSavedConnection();
 
     this.vertexStyles = createRandomVertexStyles();
     this.edgeStyles = createRandomEdgeStyles();
-    this.sharedVertexStyles = createRandomVertexStyles();
-    this.sharedEdgeStyles = createRandomEdgeStyles();
 
     this.graphViewLayout = createRandomGraphViewLayout();
     this.schemaViewLayout = createRandomSchemaViewLayout();
@@ -113,6 +109,18 @@ export class DbState {
   /** Removes the active schema from the state. */
   withNoActiveSchema() {
     this.#activeSchema = null;
+    return this;
+  }
+
+  /** Simulates a fresh deployment with no connection configured as active. */
+  withNoActiveConnection() {
+    this.#hasActiveConnection = false;
+    return this;
+  }
+
+  /** Stores a connection alongside the active one without activating it. */
+  addInactiveConnection(connection: SavedConnection) {
+    this.#inactiveConnections.push(connection);
     return this;
   }
 
@@ -199,38 +207,6 @@ export class DbState {
     return composedStyle;
   }
 
-  /* Shared Styles Helpers */
-
-  /**
-   * Adds a style configuration for the vertex type to the shared styles.
-   * @param vertexType The type of the vertex to add the style to.
-   * @param style The style configuration to add.
-   * @returns The fully composed style configuration.
-   */
-  addSharedVertexStyle(
-    vertexType: VertexType,
-    style: Omit<VertexStyleStorage, "type">,
-  ): VertexStyleStorage {
-    const composedStyle = { ...style, type: vertexType };
-    this.sharedVertexStyles.set(vertexType, composedStyle);
-    return composedStyle;
-  }
-
-  /**
-   * Adds a style configuration for the edge type to the shared styles.
-   * @param edgeType The type of the edge to add the style to.
-   * @param style The style configuration to add.
-   * @returns The fully composed style configuration.
-   */
-  addSharedEdgeStyle(
-    edgeType: EdgeType,
-    style: Omit<EdgeStyleStorage, "type">,
-  ): EdgeStyleStorage {
-    const composedStyle = { ...style, type: edgeType };
-    this.sharedEdgeStyles.set(edgeType, composedStyle);
-    return composedStyle;
-  }
-
   /* View Layout Helpers */
 
   /**
@@ -255,26 +231,31 @@ export class DbState {
 
   /** Applies the state to the given Jotai store. */
   applyTo(store: AppStore) {
-    // Config
+    // Connections
     store.set(
-      configurationAtom,
-      new Map([[this.activeConfig.id, this.activeConfig]]),
+      savedConnectionsAtom,
+      new Map(
+        [this.activeConnection, ...this.#inactiveConnections].map(
+          connection => [connection.id, connection],
+        ),
+      ),
     );
     if (this.#activeSchema) {
       store.set(
         schemaAtom,
-        new Map([[this.activeConfig.id, this.#activeSchema]]),
+        new Map([[this.activeConnection.id, this.#activeSchema]]),
       );
     } else {
       store.set(schemaAtom, new Map());
     }
-    store.set(activeConfigurationAtom, this.activeConfig.id);
+    store.set(
+      activeConnectionIdAtom,
+      this.#hasActiveConnection ? this.activeConnection.id : null,
+    );
 
     // Styling
     store.set(userVertexStylesAtom, this.vertexStyles);
     store.set(userEdgeStylesAtom, this.edgeStyles);
-    store.set(sharedVertexStylesAtom, this.sharedVertexStyles);
-    store.set(sharedEdgeStylesAtom, this.sharedEdgeStyles);
 
     // View Layout
     store.set(graphViewLayoutAtom, this.graphViewLayout);
@@ -295,7 +276,7 @@ export class DbState {
       allGraphSessionsAtom,
       new Map([
         [
-          this.activeConfig.id,
+          this.activeConnection.id,
           {
             vertices: new Set(this.vertices.map(v => v.id)),
             edges: new Set(this.edges.map(e => e.id)),

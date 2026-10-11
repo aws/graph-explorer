@@ -2,22 +2,11 @@ import { z } from "zod";
 
 import type { Edge, Vertex, VertexId, VertexType } from "@/core";
 
-import type { NeighborCount } from "../useGEFetchTypes";
+import type { AttributeFilter, NeighborCount } from "../useGEFetchTypes";
 
 export type SparqlFetch = <TResult = any>(
   queryTemplate: string,
 ) => Promise<TResult>;
-
-export type SPARQLCriterion = {
-  /**
-   * Predicate URI.
-   */
-  predicate: string;
-  /**
-   * Object value.
-   */
-  object: string;
-};
 
 export type SPARQLNeighborsRequest = {
   /**
@@ -29,9 +18,9 @@ export type SPARQLNeighborsRequest = {
    */
   subjectClasses?: Array<string>;
   /**
-   * Filter by predicates and objects matching values.
+   * Filter by predicates whose values contain the given values.
    */
-  filterCriteria?: Array<SPARQLCriterion>;
+  attributeFilters?: Array<AttributeFilter>;
   /**
    * Exclude vertices from the results.
    */

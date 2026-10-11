@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { globalMockFetch } from "@/connector/testUtils/globalMockFetch";
 import mockGremlinFetch from "@/connector/testUtils/mockGremlinFetch";
 import { createEdge, createVertex, createVertexId } from "@/core";
@@ -183,7 +185,7 @@ describe("Gremlin > fetchNeighbors", () => {
     const response = await fetchNeighbors(mockGremlinFetch(), {
       vertexId: createVertexId("2018"),
       filterByVertexTypes: ["airport"],
-      filterCriteria: [{ name: "code", value: "TF", operator: "LIKE" }],
+      attributeFilters: [{ name: "code", value: "TF" }],
     });
 
     expect(response).toStrictEqual({

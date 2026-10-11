@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "kind": "styling-export",
+    "version": 1,
+    "timestamp": "2026-08-17T00:00:00.000Z",
+    "source": "Graph Explorer",
+    "sourceVersion": "3.2.2"
+  },
+  "data": {
+    "vertices": {
+      "airport": {
+        "displayNameAttribute": "code",
+        "longDisplayNameAttribute": "desc",
+        "icon": "lucide:plane",
+        "iconImageType": "image/svg+xml",
+        "color": "#e66412",
+        "shape": "round-rectangle"
+      },
+      "country": {
+        "displayNameAttribute": "code",
+        "longDisplayNameAttribute": "desc",
+        "icon": "lucide:flag",
+        "iconImageType": "image/svg+xml",
+        "color": "#e612b8",
+        "shape": "hexagon"
+      },
+      "continent": {
+        "displayNameAttribute": "code",
+        "longDisplayNameAttribute": "desc",
+        "icon": "lucide:globe",
+        "iconImageType": "image/svg+xml",
+        "color": "#128EE5",
+        "shape": "diamond"
+      }
+    },
+    "edges": {
+      "route": {
+        "displayNameAttribute": "dist",
+        "lineColor": "#0c4a6e",
+        "lineThickness": 2,
+        "lineStyle": "solid",
+        "targetArrowStyle": "triangle"
+      },
+      "contains": {
+        "lineColor": "#b3b3b3",
+        "lineThickness": 1,
+        "lineStyle": "dotted",
+        "targetArrowStyle": "triangle"
+      }
+    }
+  }
+}

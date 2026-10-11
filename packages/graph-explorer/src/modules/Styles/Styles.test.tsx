@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Provider } from "jotai";
+import { MemoryRouter } from "react-router";
 import { describe, expect, test, vi } from "vitest";
 
 import { TooltipProvider } from "@/components";
@@ -34,13 +35,15 @@ function renderStyles(state: DbState) {
   });
 
   return render(
-    <QueryClientProvider client={queryClient}>
-      <Provider store={store}>
-        <TooltipProvider>
-          <Styles onClose={() => {}} tabAtom={graphViewStylesTabAtom} />
-        </TooltipProvider>
-      </Provider>
-    </QueryClientProvider>,
+    <MemoryRouter>
+      <QueryClientProvider client={queryClient}>
+        <Provider store={store}>
+          <TooltipProvider>
+            <Styles onClose={() => {}} tabAtom={graphViewStylesTabAtom} />
+          </TooltipProvider>
+        </Provider>
+      </QueryClientProvider>
+    </MemoryRouter>,
   );
 }
 
@@ -53,6 +56,14 @@ describe("Styles", () => {
     renderStyles(state);
 
     expect(screen.getByText("Airport")).toBeInTheDocument();
+  });
+
+  test("has a link to the styles settings page", () => {
+    const state = new DbState();
+    renderStyles(state);
+
+    const link = screen.getByRole("link", { name: "Style settings" });
+    expect(link).toHaveAttribute("href", "/settings/styles");
   });
 
   test("shows edge styling after switching to the edges tab", async () => {

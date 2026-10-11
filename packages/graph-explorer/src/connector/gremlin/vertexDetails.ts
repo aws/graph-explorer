@@ -1,5 +1,6 @@
+import { warnMissingIds } from "@/connector/utils/warnMissingIds";
 import { createVertex } from "@/core";
-import { logger, query } from "@/utils";
+import { query } from "@/utils";
 
 import type {
   ErrorResponse,
@@ -9,7 +10,7 @@ import type {
 import type { GremlinFetch, GVertex } from "./types";
 
 import isErrorResponse from "../utils/isErrorResponse";
-import { idParam } from "./idParam";
+import { fragment } from "./fragments";
 import { mapResults } from "./mappers/mapResults";
 
 type Response = {
@@ -35,7 +36,7 @@ export async function vertexDetails(
     return { vertices: [] };
   }
 
-  const ids = request.vertexIds.map(idParam).join(",");
+  const ids = request.vertexIds.map(fragment.id).join(",");
   const template = query`
     g.V(${ids})
   `;
@@ -53,16 +54,12 @@ export async function vertexDetails(
     .map(v => createVertex(v));
 
   // Log a warning if some nodes are missing
-  const missing = new Set(request.vertexIds).difference(
-    new Set(vertices.map(v => v.id)),
+  warnMissingIds(
+    "vertices",
+    request.vertexIds,
+    vertices.map(v => v.id),
+    data,
   );
-  if (missing.size) {
-    logger.warn("Did not find all requested vertices", {
-      requested: request.vertexIds,
-      missing: missing.values().toArray(),
-      data,
-    });
-  }
 
   return { vertices };
 }

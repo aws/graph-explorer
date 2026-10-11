@@ -32,7 +32,7 @@ function renderButton() {
 }
 
 function saveButton() {
-  return screen.getByRole("button", { name: "Save to File" });
+  return screen.getByRole("button", { name: "Save" });
 }
 
 describe("SaveStylesButton", () => {

@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { LABELS, SEARCH_TOKENS } from "@/utils";
 import { normalize } from "@/utils/testing";
 
@@ -98,8 +100,8 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         MATCH (v)
-        WHERE (v:\`airport\` OR v:\`country\`) 
-          AND (v.city CONTAINS "JFK" OR v.code CONTAINS "JFK")
+        WHERE (v:\`airport\` OR v:\`country\`)
+          AND (v.\`city\` CONTAINS "JFK" OR v.\`code\` CONTAINS "JFK")
         RETURN v AS object
       `),
     );
@@ -116,7 +118,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         MATCH (v:\`airport\`)
-        WHERE (v.city CONTAINS "JFK" OR v.code CONTAINS "JFK")
+        WHERE (v.\`city\` CONTAINS "JFK" OR v.\`code\` CONTAINS "JFK")
         RETURN v AS object
       `),
     );
@@ -133,7 +135,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     expect(normalize(template)).toBe(
       normalize(`
         MATCH (v:\`airport\`)
-        WHERE (v.city = "JFK" OR v.code = "JFK")
+        WHERE (v.\`city\` = "JFK" OR v.\`code\` = "JFK")
         RETURN v AS object
       `),
     );
@@ -177,13 +179,13 @@ describe("OpenCypher > keywordSearchTemplate", () => {
     const template = keywordSearchTemplate({
       vertexTypes: ["airport"],
       searchTerm: "JFK",
-      searchByAttributes: ["city", "code", SEARCH_TOKENS.ALL_ATTRIBUTES],
+      searchByAttributes: [SEARCH_TOKENS.NODE_ID, "city", "code"],
     });
 
     expect(normalize(template)).toBe(
       normalize(`
         MATCH (v:\`airport\`)
-        WHERE (toString(id(v)) CONTAINS "JFK" OR v.city CONTAINS "JFK" OR v.code CONTAINS "JFK")
+        WHERE (toString(id(v)) CONTAINS "JFK" OR v.\`city\` CONTAINS "JFK" OR v.\`code\` CONTAINS "JFK")
         RETURN v AS object
       `),
     );
@@ -194,7 +196,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
       vertexTypes: ["airport", "country"],
       searchTerm: "JFK",
       exactMatch: false,
-      searchByAttributes: ["city", "code", SEARCH_TOKENS.ALL_ATTRIBUTES],
+      searchByAttributes: [SEARCH_TOKENS.NODE_ID, "city", "code"],
       limit: 50,
       offset: 25,
     });
@@ -203,7 +205,7 @@ describe("OpenCypher > keywordSearchTemplate", () => {
       normalize(`
         MATCH (v)
         WHERE (v:\`airport\` OR v:\`country\`)
-          AND (toString(id(v)) CONTAINS "JFK" OR v.city CONTAINS "JFK" OR v.code CONTAINS "JFK")
+          AND (toString(id(v)) CONTAINS "JFK" OR v.\`city\` CONTAINS "JFK" OR v.\`code\` CONTAINS "JFK")
         RETURN v AS object
         SKIP 25 LIMIT 50
       `),
@@ -236,7 +238,41 @@ describe("OpenCypher > keywordSearchTemplate", () => {
       normalize(`
         MATCH (v)
         WHERE (labels(v) = [])
-          AND (v.name CONTAINS "test" OR v.value CONTAINS "test")
+          AND (v.\`name\` CONTAINS "test" OR v.\`value\` CONTAINS "test")
+        RETURN v AS object
+      `),
+    );
+  });
+
+  it("Should escape a double quote in the search term", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport"],
+      searchTerm: 'JF"K',
+      searchByAttributes: ["code"],
+      exactMatch: false,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        MATCH (v:\`airport\`)
+        WHERE (v.\`code\` CONTAINS "JF\\"K")
+        RETURN v AS object
+      `),
+    );
+  });
+
+  it("Should escape a double quote in the search term for the ID token", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport"],
+      searchTerm: 'JF"K',
+      exactMatch: true,
+      searchByAttributes: [SEARCH_TOKENS.NODE_ID],
+    });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        MATCH (v:\`airport\`)
+        WHERE (id(v) = "JF\\"K")
         RETURN v AS object
       `),
     );

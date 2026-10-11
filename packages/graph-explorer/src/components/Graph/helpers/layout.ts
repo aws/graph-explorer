@@ -1,8 +1,9 @@
 import type { EntityRawId } from "@/core";
+import type { LayoutName } from "@/core/graphLayout";
 
 import type { CytoscapeType } from "../Graph.model";
 
-import { availableLayoutsConfig, type LayoutName } from "./layoutConfig";
+import { availableLayoutsConfig } from "./layoutConfig";
 
 type ExpandedCytoscapeLayoutOptions = {
   fixedNodeConstraint?: {

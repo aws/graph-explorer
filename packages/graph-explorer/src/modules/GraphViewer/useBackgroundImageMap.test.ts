@@ -1,258 +1,266 @@
-// @vitest-environment happy-dom
+// @vitest-environment jsdom
+
+// DEV NOTE: happy-dom's DOMParser is not reliable for the svg render path.
+
 import { waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { appDefaultVertexStyle } from "@/core";
-import {
-  createRandomVertexStyle,
-  DbState,
-  renderHookWithState,
-} from "@/utils/testing";
+import type { VertexStyle } from "@/core";
 
-import { renderNode } from "./renderNode";
+import { createVertexType } from "@/core/entities/vertex";
+import { iconRegistry } from "@/core/icons";
+import { createRandomVertexStyle, renderHookWithState } from "@/utils/testing";
+
 import { useBackgroundImageMap } from "./useBackgroundImageMap";
 
-// Mock the renderNode function
-vi.mock("./renderNode");
-const mockRenderNode = renderNode as Mock;
+const REMOTE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16v16H4z"/></svg>`;
+
+function makeConfig(icon: Partial<VertexStyle>): VertexStyle {
+  const base = createRandomVertexStyle();
+  return { ...base, ...icon };
+}
+
+function renderMap(vtConfigs: VertexStyle[]) {
+  return renderHookWithState(() => useBackgroundImageMap(vtConfigs));
+}
+
+/**
+ * The wrapper nests the icon as its own data uri, so the icon's markup is
+ * encoded twice. Safe for these fixtures: base64 and our test svgs contain no
+ * literal `%`.
+ */
+function decodeIcon(url: string): string {
+  return decodeURIComponent(decodeURIComponent(url));
+}
 
 describe("useBackgroundImageMap", () => {
-  let dbState: DbState;
-
   beforeEach(() => {
-    vi.clearAllMocks();
-    dbState = new DbState();
-    mockRenderNode.mockResolvedValue("data:image/svg+xml;utf8,<svg></svg>");
+    iconRegistry.reset();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => Promise.resolve(new Response(REMOTE_SVG))),
+    );
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
-  it("should return empty map when no vertex configs provided", () => {
-    const { result } = renderHookWithState(
-      () => useBackgroundImageMap([]),
-      dbState,
-    );
-
-    expect(result.current).toEqual(new Map());
+  it("returns an empty map when given no configs", async () => {
+    const { result } = renderMap([]);
+    await waitFor(() => expect(result.current.size).toBe(0));
   });
 
-  it("should generate background image map for single vertex config", async () => {
-    const vertexConfig = createRandomVertexStyle();
-    const expectedImage = "data:image/svg+xml;utf8,<svg>person</svg>";
-    mockRenderNode.mockResolvedValue(expectedImage);
-
-    const { result } = renderHookWithState(
-      () => useBackgroundImageMap([vertexConfig]),
-      dbState,
+  // Issue #2108, the case the wrapper alone does not solve: without a viewBox
+  // the nested image has no intrinsic ratio for `preserveAspectRatio` to fit,
+  // so it fills the padded box and comes out square — the original bug. A
+  // synthesized viewBox is what keeps a plain `<svg width height>` export,
+  // which is exactly what many icon exporters produce, from being squashed.
+  it("carries a synthesized viewBox for an svg that declares only width and height", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve(
+          new Response(
+            `<svg width="400" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="100"/></svg>`,
+          ),
+        ),
+      ),
     );
 
-    await waitFor(() => {
-      expect(result.current.get(vertexConfig.type)).toBe(expectedImage);
+    const config = makeConfig({
+      type: createVertexType("NoViewBox"),
+      iconUrl: "data:image/svg+xml;base64,d2lkZQ==",
+      iconImageType: "image/svg+xml",
     });
 
-    expect(mockRenderNode).toHaveBeenCalledWith(
-      expect.any(Object),
-      vertexConfig,
+    const { result } = renderMap([config]);
+
+    await waitFor(() =>
+      expect(result.current.has(createVertexType("NoViewBox"))).toBe(true),
     );
+    expect(
+      decodeIcon(result.current.get(createVertexType("NoViewBox"))!),
+    ).toContain('viewBox="0 0 400 100"');
   });
 
-  it("should generate background image map for multiple vertex configs", async () => {
-    const config1 = createRandomVertexStyle();
-    const config2 = createRandomVertexStyle();
-
-    const image1 = "data:image/svg+xml;utf8,<svg>first</svg>";
-    const image2 = "data:image/svg+xml;utf8,<svg>second</svg>";
-
-    mockRenderNode.mockResolvedValueOnce(image1).mockResolvedValueOnce(image2);
-
-    const { result } = renderHookWithState(
-      () => useBackgroundImageMap([config1, config2]),
-      dbState,
+  // Same fix, the other axis: a tall icon must synthesize a viewBox that
+  // keeps height as the dominant dimension, not just width.
+  it("carries a synthesized viewBox for a tall svg that declares only width and height", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve(
+          new Response(
+            `<svg width="100" height="400" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="400"/></svg>`,
+          ),
+        ),
+      ),
     );
 
-    await waitFor(() => {
-      expect(result.current.get(config1.type)).toBe(image1);
-      expect(result.current.get(config2.type)).toBe(image2);
+    const config = makeConfig({
+      type: createVertexType("TallNoViewBox"),
+      iconUrl: "data:image/svg+xml;base64,dGFsbA==",
+      iconImageType: "image/svg+xml",
     });
 
-    expect(mockRenderNode).toHaveBeenCalledTimes(2);
-    expect(mockRenderNode).toHaveBeenCalledWith(expect.any(Object), config1);
-    expect(mockRenderNode).toHaveBeenCalledWith(expect.any(Object), config2);
+    const { result } = renderMap([config]);
+
+    await waitFor(() =>
+      expect(result.current.has(createVertexType("TallNoViewBox"))).toBe(true),
+    );
+    expect(
+      decodeIcon(result.current.get(createVertexType("TallNoViewBox"))!),
+    ).toContain('viewBox="0 0 100 400"');
   });
 
-  it("should filter out failed renders from the map", async () => {
-    const config1 = createRandomVertexStyle();
-    const config2 = createRandomVertexStyle();
-
-    const successImage = "data:image/svg+xml;utf8,<svg>success</svg>";
-
-    mockRenderNode
-      .mockResolvedValueOnce(successImage)
-      .mockResolvedValueOnce(null); // Failed render
-
-    const { result } = renderHookWithState(
-      () => useBackgroundImageMap([config1, config2]),
-      dbState,
-    );
-
-    await waitFor(() => {
-      expect(result.current.get(config1.type)).toBe(successImage);
-      expect(result.current.has(config2.type)).toBe(false);
-      expect(result.current.size).toBe(1);
+  // The (icon, color) render cache is keyed by concatenation, so the separator
+  // must be one no usable url or color contains. An IconSourceId
+  // embeds the user-supplied icon url verbatim, and the color is an
+  // unvalidated string, so a printable separator like "|" lets two distinct
+  // pairs produce one key and swap icons between vertex types.
+  it("does not collide when a separator character appears in the icon url and color", async () => {
+    const shared = makeConfig({
+      type: createVertexType("PipeInColor"),
+      iconUrl: "https://example.test/a.svg",
+      iconImageType: "image/svg+xml",
+      color: "x|#FF0000",
     });
+    const shifted = makeConfig({
+      type: createVertexType("PipeInUrl"),
+      iconUrl: "https://example.test/a.svg|x",
+      iconImageType: "image/svg+xml",
+      color: "#FF0000",
+    });
+
+    const { result } = renderMap([shared, shifted]);
+
+    await waitFor(() => expect(result.current.size).toBe(2));
+    const second = decodeIcon(
+      result.current.get(createVertexType("PipeInUrl"))!,
+    );
+    expect(second).toContain("color:#FF0000");
+    expect(second).not.toContain("color:x|#FF0000");
   });
 
-  it("should handle renderNode returning undefined", async () => {
-    const vertexConfig = createRandomVertexStyle();
-    mockRenderNode.mockResolvedValue(undefined);
-
-    const { result } = renderHookWithState(
-      () => useBackgroundImageMap([vertexConfig]),
-      dbState,
-    );
-
-    await waitFor(() => {
-      expect(result.current.has(vertexConfig.type)).toBe(false);
-      expect(result.current.size).toBe(0);
+  it("styles a fetched svg into a data uri", async () => {
+    const config = makeConfig({
+      type: createVertexType("Svg"),
+      iconUrl: "https://example.test/a.svg",
+      iconImageType: "image/svg+xml",
+      color: "#FF0000",
     });
+
+    const { result } = renderMap([config]);
+
+    await waitFor(() =>
+      expect(result.current.has(createVertexType("Svg"))).toBe(true),
+    );
+    const url = result.current.get(createVertexType("Svg"))!;
+    expect(url.startsWith("data:image/svg+xml;utf8,")).toBe(true);
+    expect(decodeIcon(url)).toContain("color:#FF0000");
   });
 
-  it("should handle renderNode throwing an error", async () => {
-    const vertexConfig = createRandomVertexStyle();
-    mockRenderNode.mockRejectedValue(new Error("Render failed"));
-
-    const { result } = renderHookWithState(
-      () => useBackgroundImageMap([vertexConfig]),
-      dbState,
-    );
-
-    await waitFor(() => {
-      expect(result.current.has(vertexConfig.type)).toBe(false);
-      expect(result.current.size).toBe(0);
+  it("styles a lucide icon into a data uri carrying the node color", async () => {
+    const config = makeConfig({
+      type: createVertexType("Lucide"),
+      iconUrl: "lucide:user",
+      iconImageType: "image/svg+xml",
+      color: "#00FF00",
     });
+
+    const { result } = renderMap([config]);
+
+    await waitFor(() =>
+      expect(result.current.has(createVertexType("Lucide"))).toBe(true),
+    );
+    const url = result.current.get(createVertexType("Lucide"))!;
+    expect(url.startsWith("data:image/svg+xml;utf8,")).toBe(true);
+    expect(decodeIcon(url)).toContain("color:#00FF00");
   });
 
-  it("should update map when vertex configs change", async () => {
-    const initialConfig = createRandomVertexStyle();
-    const updatedConfig = createRandomVertexStyle();
-
-    const initialImage = "data:image/svg+xml;utf8,<svg>initial</svg>";
-    const updatedImage = "data:image/svg+xml;utf8,<svg>updated</svg>";
-
-    // Test initial render
-    mockRenderNode.mockResolvedValueOnce(initialImage);
-
-    const { result: initialResult } = renderHookWithState(
-      () => useBackgroundImageMap([initialConfig]),
-      dbState,
-    );
-
-    await waitFor(() => {
-      expect(initialResult.current.get(initialConfig.type)).toBe(initialImage);
+  it("omits configs with no icon and unresolvable icons", async () => {
+    const none = makeConfig({ type: createVertexType("None"), iconUrl: "" });
+    const unknownLucide = makeConfig({
+      type: createVertexType("Unknown"),
+      iconUrl: "lucide:not-a-real-icon-name-xyz",
+      iconImageType: "image/svg+xml",
+    });
+    const raster = makeConfig({
+      type: createVertexType("Raster"),
+      iconUrl: "data:image/png;base64,QUJD",
+      iconImageType: "image/png",
     });
 
-    // Test updated render with different config
-    mockRenderNode.mockResolvedValueOnce(updatedImage);
+    const { result } = renderMap([none, unknownLucide, raster]);
 
-    const { result: updatedResult } = renderHookWithState(
-      () => useBackgroundImageMap([updatedConfig]),
-      dbState,
+    await waitFor(() =>
+      expect(result.current.has(createVertexType("Raster"))).toBe(true),
     );
-
-    await waitFor(() => {
-      expect(updatedResult.current.get(updatedConfig.type)).toBe(updatedImage);
-      expect(updatedResult.current.has(initialConfig.type)).toBe(false);
-    });
+    expect(result.current.has(createVertexType("None"))).toBe(false);
+    expect(result.current.has(createVertexType("Unknown"))).toBe(false);
+    expect(result.current.size).toBe(1);
   });
 
-  it("should handle mixed success and failure renders", async () => {
-    const configs = [
-      createRandomVertexStyle(),
-      createRandomVertexStyle(),
-      createRandomVertexStyle(),
+  it("renders one icon in two colors for two vertex types", async () => {
+    const red = makeConfig({
+      type: createVertexType("Red"),
+      iconUrl: "https://example.test/a.svg",
+      iconImageType: "image/svg+xml",
+      color: "#FF0000",
+    });
+    const blue = makeConfig({
+      type: createVertexType("Blue"),
+      iconUrl: "https://example.test/a.svg",
+      iconImageType: "image/svg+xml",
+      color: "#0000FF",
+    });
+
+    const { result } = renderMap([red, blue]);
+
+    await waitFor(() => expect(result.current.size).toBe(2));
+    expect(decodeIcon(result.current.get(createVertexType("Red"))!)).toContain(
+      "color:#FF0000",
+    );
+    expect(decodeIcon(result.current.get(createVertexType("Blue"))!)).toContain(
+      "color:#0000FF",
+    );
+    // One icon identity, so one fetch — color is applied by a pure transform.
+    expect(fetch).toBeCalledTimes(1);
+  });
+
+  // Fan-out regression guard: many vertex types sharing a small icon pool must
+  // do the async work once per UNIQUE ICON, not once per vertex type. A prior
+  // implementation created one query (and one observer) per vertex type, which
+  // locked up the schema view at ~10k types.
+  it("resolves the whole vertex set with one fetch per unique icon", async () => {
+    const iconPool: Array<Partial<VertexStyle>> = [
+      { iconUrl: "lucide:plane", iconImageType: "image/svg+xml" },
+      { iconUrl: "lucide:user", iconImageType: "image/svg+xml" },
+      { iconUrl: "https://example.test/a.svg", iconImageType: "image/svg+xml" },
+      { iconUrl: "https://example.test/b.svg", iconImageType: "image/svg+xml" },
+      { iconUrl: "data:image/png;base64,QUJD", iconImageType: "image/png" },
+      { iconUrl: "", iconImageType: "image/svg+xml" },
     ];
+    const colorPool = ["#128EE5", "#FF0000", "#00FF00"];
 
-    const image1 = "data:image/svg+xml;utf8,<svg>first</svg>";
-    const image3 = "data:image/svg+xml;utf8,<svg>third</svg>";
-
-    mockRenderNode
-      .mockResolvedValueOnce(image1)
-      .mockResolvedValueOnce(null) // Second fails
-      .mockResolvedValueOnce(image3);
-
-    const { result } = renderHookWithState(
-      () => useBackgroundImageMap(configs),
-      dbState,
-    );
-
-    await waitFor(() => {
-      expect(result.current.get(configs[0].type)).toBe(image1);
-      expect(result.current.has(configs[1].type)).toBe(false);
-      expect(result.current.get(configs[2].type)).toBe(image3);
-      expect(result.current.size).toBe(2);
-    });
-  });
-
-  it("should use correct query key for caching", async () => {
-    const vertexConfig = createRandomVertexStyle();
-    mockRenderNode.mockResolvedValue("data:image/svg+xml;utf8,<svg></svg>");
-
-    renderHookWithState(() => useBackgroundImageMap([vertexConfig]), dbState);
-
-    await waitFor(() => {
-      expect(mockRenderNode).toHaveBeenCalledWith(
-        expect.any(Object),
-        vertexConfig,
+    const configs: VertexStyle[] = [];
+    for (let i = 0; i < 500; i++) {
+      configs.push(
+        makeConfig({
+          type: createVertexType(`Type_${i}`),
+          color: colorPool[i % colorPool.length],
+          ...iconPool[i % iconPool.length],
+        }),
       );
-    });
+    }
+    const expectedResolvable = configs.filter(c => c.iconUrl).length;
 
-    // Verify the query client was passed correctly
-    const queryClient = mockRenderNode.mock.calls[0][0];
-    expect(queryClient).toBeDefined();
-  });
+    const { result } = renderMap(configs);
 
-  it("should handle vertex configs with different image types", async () => {
-    const svgConfig = createRandomVertexStyle();
-    const pngConfig = createRandomVertexStyle();
+    await waitFor(() => expect(result.current.size).toBe(expectedResolvable));
 
-    const svgImage = "data:image/svg+xml;utf8,<svg>svg</svg>";
-    const pngImage = "https://example.com/image.png";
-
-    mockRenderNode
-      .mockResolvedValueOnce(svgImage)
-      .mockResolvedValueOnce(pngImage);
-
-    const { result } = renderHookWithState(
-      () => useBackgroundImageMap([svgConfig, pngConfig]),
-      dbState,
-    );
-
-    await waitFor(() => {
-      expect(result.current.get(svgConfig.type)).toBe(svgImage);
-      expect(result.current.get(pngConfig.type)).toBe(pngImage);
-    });
-  });
-
-  it("should handle vertex configs with no icon URL", async () => {
-    const configWithIcon = createRandomVertexStyle();
-    configWithIcon.iconUrl = "https://example.com/icon.svg";
-
-    const configWithoutIcon = createRandomVertexStyle();
-    configWithoutIcon.iconUrl = appDefaultVertexStyle.iconUrl;
-
-    const successImage = "data:image/svg+xml;utf8,<svg>success</svg>";
-
-    mockRenderNode
-      .mockResolvedValueOnce(successImage)
-      .mockResolvedValueOnce(null); // No icon URL returns null
-
-    const { result } = renderHookWithState(
-      () => useBackgroundImageMap([configWithIcon, configWithoutIcon]),
-      dbState,
-    );
-
-    await waitFor(() => {
-      expect(result.current.get(configWithIcon.type)).toBe(successImage);
-      expect(result.current.has(configWithoutIcon.type)).toBe(false);
-      expect(result.current.size).toBe(1);
-    });
+    // Two distinct remote svgs in the pool; everything else needs no network.
+    expect(fetch).toBeCalledTimes(2);
+    expect(iconRegistry.getSnapshot().size).toBe(5);
   });
 });

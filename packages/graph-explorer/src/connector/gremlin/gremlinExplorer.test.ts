@@ -1,4 +1,18 @@
-import type { FeatureFlags, NormalizedConnection } from "@/core";
+// @vitest-environment happy-dom
+
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import type { NormalizedConnection } from "@/connections";
+import type { FeatureFlags } from "@/core";
+
+import { normalizeConnection, transformLegacyConnection } from "@/connections";
+import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
+import {
+  abortableFetch,
+  bodySentTo,
+  headersSentTo,
+  stubDocumentUrl,
+} from "@/utils/testing";
 
 import { createGremlinExplorer } from "./gremlinExplorer";
 
@@ -6,10 +20,8 @@ function createConnection(
   overrides?: Partial<NormalizedConnection>,
 ): NormalizedConnection {
   return {
-    url: "http://localhost:8182",
     queryEngine: "gremlin",
-    graphDbUrl: "",
-    proxyConnection: false,
+    graphDbUrl: "https://my-neptune:8182",
     awsAuthEnabled: false,
     ...overrides,
   };
@@ -41,6 +53,7 @@ describe("createGremlinExplorer", () => {
   beforeEach(() => {
     mockFetch = vi.fn();
     vi.stubGlobal("fetch", mockFetch);
+    stubDocumentUrl();
   });
 
   afterEach(() => {
@@ -72,7 +85,7 @@ describe("createGremlinExplorer", () => {
       await explorer.fetchSchema();
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "http://localhost:8182/pg/statistics/summary?mode=basic",
+        new URL("http://localhost/pg/statistics/summary?mode=basic"),
         expect.objectContaining({ method: "GET" }),
       );
     });
@@ -98,6 +111,203 @@ describe("createGremlinExplorer", () => {
       expect(schema).toBeDefined();
       expect(schema).toHaveProperty("vertices");
       expect(schema).toHaveProperty("edges");
+    });
+  });
+
+  describe("rawQuery", () => {
+    it("throws DatabaseTimeoutError for a Gremlin Server evaluation timeout", async () => {
+      // Captured from a local `tinkerpop/gremlin-server:3.8` container after
+      // a query exceeded the server's `evaluationTimeout`.
+      mockFetch.mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            message:
+              "Evaluation exceeded the configured 'evaluationTimeout' threshold of 30000 ms or evaluation was otherwise cancelled directly for request [...]",
+            "Exception-Class": "java.util.concurrent.TimeoutException",
+            exceptions: ["java.util.concurrent.TimeoutException"],
+            requestId: "65a196b9-48a3-48c0-911a-b73ae7903f04",
+          }),
+          { status: 500, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+
+      const explorer = createGremlinExplorer(
+        createConnection(),
+        createFeatureFlags(),
+      );
+
+      const error = await explorer
+        .rawQuery({ query: "g.V().limit(10)" })
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(DatabaseTimeoutError);
+      expect(error.databaseCode).toBe("java.util.concurrent.TimeoutException");
+    });
+
+    it("throws FetchTimeoutError when the connection's fetch timeout is exceeded", async () => {
+      mockFetch.mockImplementation(abortableFetch);
+
+      const explorer = createGremlinExplorer(
+        createConnection({ fetchTimeoutMs: 1 }),
+        createFeatureFlags(),
+      );
+
+      const error = await explorer
+        .rawQuery({ query: "g.V().limit(10)" })
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(FetchTimeoutError);
+      expect(error.timeoutMs).toBe(1);
+    });
+  });
+  describe("request routing", () => {
+    it("sends a proxy connection's query to the Graph Explorer server with a queryId", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse(emptyGremlinList)),
+      );
+
+      const explorer = createGremlinExplorer(
+        createConnection(),
+        createFeatureFlags(),
+      );
+      await explorer.rawQuery({ query: "g.V().limit(10)" });
+
+      expect(
+        headersSentTo(mockFetch, "http://localhost/gremlin"),
+      ).toStrictEqual({
+        "content-type": "application/json",
+        accept: "application/vnd.gremlin-v3.0+json",
+        "graph-db-connection-url": "https://my-neptune:8182",
+        "db-query-logging-enabled": "false",
+        queryid: expect.any(String),
+      });
+    });
+
+    it("sends a proxied IAM connection stored by an earlier version through the Graph Explorer server", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse(emptyGremlinList)),
+      );
+      const connection = normalizeConnection(
+        transformLegacyConnection({
+          url: "http://proxy.example.com",
+          proxyConnection: true,
+          graphDbUrl: "https://neptune:8182/",
+          awsAuthEnabled: true,
+          awsRegion: "us-east-1",
+          serviceType: "neptune-db",
+        }),
+      );
+
+      const explorer = createGremlinExplorer(connection, createFeatureFlags());
+      await explorer.rawQuery({ query: "g.V().limit(10)" });
+
+      expect(
+        headersSentTo(mockFetch, "http://localhost/gremlin"),
+      ).toStrictEqual({
+        "content-type": "application/json",
+        accept: "application/vnd.gremlin-v3.0+json",
+        "graph-db-connection-url": "https://neptune:8182",
+        "db-query-logging-enabled": "false",
+        "aws-neptune-region": "us-east-1",
+        "service-type": "neptune-db",
+        queryid: expect.any(String),
+      });
+    });
+
+    it("sends a direct connection's query to the database without proxy headers", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse(emptyGremlinList)),
+      );
+
+      const explorer = createGremlinExplorer(
+        createConnection({ proxyConnection: false }),
+        createFeatureFlags(),
+      );
+      await explorer.rawQuery({ query: "g.V().limit(10)" });
+
+      expect(
+        headersSentTo(mockFetch, "https://my-neptune:8182/gremlin"),
+      ).toStrictEqual({
+        "content-type": "text/plain",
+        accept: "application/vnd.gremlin-v3.0+json",
+      });
+    });
+
+    it("sends a direct connection stored by an earlier version to its url without proxy or IAM headers", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse(emptyGremlinList)),
+      );
+      // An earlier version's form kept the IAM fields when the proxy box was
+      // unchecked, and sent the AWS headers straight to the database.
+      const connection = normalizeConnection(
+        transformLegacyConnection({
+          url: "https://db.example.com:8182/",
+          proxyConnection: false,
+          graphDbUrl: "",
+          awsAuthEnabled: true,
+          awsRegion: "us-east-1",
+          serviceType: "neptune-db",
+        }),
+      );
+
+      const explorer = createGremlinExplorer(connection, createFeatureFlags());
+      await explorer.rawQuery({ query: "g.V().limit(10)" });
+
+      expect(
+        headersSentTo(mockFetch, "https://db.example.com:8182/gremlin"),
+      ).toStrictEqual({
+        "content-type": "text/plain",
+        accept: "application/vnd.gremlin-v3.0+json",
+      });
+    });
+
+    it("sends a proxy connection's query in the gremlin field", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse(emptyGremlinList)),
+      );
+
+      const explorer = createGremlinExplorer(
+        createConnection(),
+        createFeatureFlags(),
+      );
+      await explorer.rawQuery({ query: "g.V().limit(10)" });
+
+      expect(bodySentTo(mockFetch, "http://localhost/gremlin")).toBe(
+        JSON.stringify({ gremlin: "g.V().limit(10)" }),
+      );
+    });
+
+    it("sends a direct connection's query in the gremlin field", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse(emptyGremlinList)),
+      );
+
+      const explorer = createGremlinExplorer(
+        createConnection({ proxyConnection: false }),
+        createFeatureFlags(),
+      );
+      await explorer.rawQuery({ query: "g.V().limit(10)" });
+
+      expect(bodySentTo(mockFetch, "https://my-neptune:8182/gremlin")).toBe(
+        JSON.stringify({ gremlin: "g.V().limit(10)" }),
+      );
+    });
+
+    it("requests a direct connection's summary from the database", async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(jsonResponse(emptyGremlinList)),
+      );
+
+      const explorer = createGremlinExplorer(
+        createConnection({ proxyConnection: false }),
+        createFeatureFlags(),
+      );
+      await explorer.fetchSchema();
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("https://my-neptune:8182/pg/statistics/summary?mode=basic"),
+        expect.objectContaining({ method: "GET" }),
+      );
     });
   });
 });

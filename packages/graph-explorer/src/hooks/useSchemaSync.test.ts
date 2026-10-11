@@ -3,8 +3,8 @@ import { act, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
-  activeConfigurationAtom,
-  configurationAtom,
+  activeConnectionIdAtom,
+  savedConnectionsAtom,
   createEdgeType,
   createVertexType,
   type EdgeConnection,
@@ -12,12 +12,14 @@ import {
   schemaAtom,
 } from "@/core";
 import { getAppStore } from "@/core/StateProvider/appStore";
+import { NetworkError } from "@/utils";
 import {
   createRandomEdgeTypeConfig,
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomVertexTypeConfig,
   DbState,
   FakeExplorer,
+  flushPendingAtomUpdates,
   renderHookWithJotai,
   renderHookWithState,
 } from "@/utils/testing";
@@ -59,8 +61,8 @@ describe("useSchemaSync", () => {
       return renderHookWithJotai(
         () => useSchemaSync(),
         store => {
-          store.set(activeConfigurationAtom, null);
-          store.set(configurationAtom, new Map());
+          store.set(activeConnectionIdAtom, null);
+          store.set(savedConnectionsAtom, new Map());
           store.set(schemaAtom, new Map());
           store.set(explorerForTestingAtom, explorer);
         },
@@ -96,7 +98,7 @@ describe("useSchemaSync", () => {
   });
 
   describe("schemaDiscoveryQuery", () => {
-    it("should use initialData from active schema without fetching", () => {
+    it("should use initialData from active schema without fetching", async () => {
       const vertexType = createVertexType("Person");
       const edgeType = createEdgeType("knows");
       const state = createStateWithSchema([vertexType], [edgeType]);
@@ -104,6 +106,7 @@ describe("useSchemaSync", () => {
       const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
 
       const { result } = renderHookWithState(() => useSchemaSync(), state);
+      await flushPendingAtomUpdates();
 
       expect(result.current.schemaDiscoveryQuery.data?.vertices).toHaveLength(
         1,
@@ -112,20 +115,46 @@ describe("useSchemaSync", () => {
       expect(fetchSchemaSpy).not.toHaveBeenCalled();
     });
 
-    it("should fetch schema when no active schema exists", () => {
+    it("should fetch schema when no active schema exists", async () => {
       const state = new DbState(explorer).withNoActiveSchema();
 
       const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
 
       const { result } = renderHookWithState(() => useSchemaSync(), state);
 
+      // Asserted before settling because there is no initialData to seed the
+      // query. Waiting first would race the fetch, which resolves immediately.
       expect(result.current.schemaDiscoveryQuery.data).toBeUndefined();
+
+      await waitFor(() => {
+        expect(result.current.schemaDiscoveryQuery.data).toBeDefined();
+      });
       expect(fetchSchemaSpy).toHaveBeenCalled();
+    });
+
+    // The failure is persisted as a schema with no vertices or edges, which
+    // must not replace the error once the query already holds it.
+    it("should keep the error of a failed first sync after a re-render", async () => {
+      const state = new DbState(explorer).withNoActiveSchema();
+      const error = new NetworkError("Bad query", 400, undefined);
+      vi.spyOn(explorer, "fetchSchema").mockRejectedValue(error);
+
+      const { result, rerender } = renderHookWithState(
+        () => useSchemaSync(),
+        state,
+      );
+      await waitFor(() => {
+        expect(result.current.schemaDiscoveryQuery.error).toBe(error);
+      });
+      rerender();
+
+      expect(result.current.schemaDiscoveryQuery.error).toBe(error);
+      expect(result.current.schemaDiscoveryQuery.data).toBeUndefined();
     });
   });
 
   describe("edgeDiscoveryQuery", () => {
-    it("should fetch edge connections when schema has edges", () => {
+    it("should fetch edge connections when schema has edges", async () => {
       const edgeType = createEdgeType("knows");
       const state = createStateWithSchema([], [edgeType]);
 
@@ -135,6 +164,7 @@ describe("useSchemaSync", () => {
       );
 
       renderHookWithState(() => useSchemaSync(), state);
+      await flushPendingAtomUpdates();
 
       expect(fetchEdgeConnectionsSpy).toHaveBeenCalledWith(
         expect.objectContaining({ edgeTypes: [edgeType] }),
@@ -155,14 +185,16 @@ describe("useSchemaSync", () => {
       const store = getAppStore();
 
       await waitFor(() => {
-        const activeSchema = store.get(schemaAtom).get(state.activeConfig.id);
+        const activeSchema = store
+          .get(schemaAtom)
+          .get(state.activeConnection.id);
         expect(activeSchema?.edgeConnections).toStrictEqual([]);
       });
 
       expect(fetchEdgeConnectionsSpy).not.toHaveBeenCalled();
     });
 
-    it("should not fetch edge connections when no active schema exists", () => {
+    it("should not fetch edge connections when no active schema exists", async () => {
       const state = new DbState(explorer).withNoActiveSchema();
 
       const fetchEdgeConnectionsSpy = vi.spyOn(
@@ -171,6 +203,7 @@ describe("useSchemaSync", () => {
       );
 
       const { result } = renderHookWithState(() => useSchemaSync(), state);
+      await flushPendingAtomUpdates();
 
       expect(result.current.edgeDiscoveryQuery.fetchStatus).toBe("idle");
       expect(fetchEdgeConnectionsSpy).not.toHaveBeenCalled();
@@ -337,26 +370,17 @@ describe("useSchemaSync", () => {
   });
 
   describe("staleTime behavior", () => {
-    it("should not fetch schema when initialData exists", () => {
+    it("should not fetch schema when initialData exists", async () => {
       const state = new DbState(explorer);
 
       const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
 
       const { result } = renderHookWithState(() => useSchemaSync(), state);
+      await flushPendingAtomUpdates();
 
       // Should use initialData but not fetch
       expect(result.current.schemaDiscoveryQuery.data).toBeDefined();
       expect(fetchSchemaSpy).not.toHaveBeenCalled();
-    });
-
-    it("should fetch schema when no active schema exists", () => {
-      const state = new DbState(explorer).withNoActiveSchema();
-
-      const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
-
-      renderHookWithState(() => useSchemaSync(), state);
-
-      expect(fetchSchemaSpy).toHaveBeenCalled();
     });
 
     it("should allow manual refresh when initialData exists", async () => {
@@ -379,15 +403,29 @@ describe("useSchemaSync", () => {
       expect(fetchSchemaSpy).toHaveBeenCalledTimes(1);
     });
 
-    it("should not auto-fetch when lastSyncFail is true", () => {
+    it("should not auto-fetch when lastSyncFail is true", async () => {
       const state = new DbState(explorer);
       state.activeSchema.lastSyncFail = true;
 
       const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
 
       const { result } = renderHookWithState(() => useSchemaSync(), state);
+      await flushPendingAtomUpdates();
 
       expect(result.current.schemaDiscoveryQuery.data).toBeDefined();
+      expect(fetchSchemaSpy).not.toHaveBeenCalled();
+    });
+
+    it("should not auto-fetch when the first sync failed before a refresh", async () => {
+      const state = new DbState(explorer);
+      state.activeSchema = { vertices: [], edges: [], lastSyncFail: true };
+
+      const fetchSchemaSpy = vi.spyOn(explorer, "fetchSchema");
+
+      const { result } = renderHookWithState(() => useSchemaSync(), state);
+      await flushPendingAtomUpdates();
+
+      expect(result.current.schemaDiscoveryQuery.data).toBeUndefined();
       expect(fetchSchemaSpy).not.toHaveBeenCalled();
     });
 
@@ -412,7 +450,7 @@ describe("useSchemaSync", () => {
   });
 
   describe("remount behavior", () => {
-    it("should not auto-fetch when lastSyncFail is true after remount", () => {
+    it("should not auto-fetch when lastSyncFail is true after remount", async () => {
       // Simulate: sync failed, user navigated away, then came back.
       // Start with lastSyncFail already set (as if a previous sync failed).
       const state = new DbState(explorer);
@@ -424,6 +462,7 @@ describe("useSchemaSync", () => {
 
       // First mount — sync should not fire due to lastSyncFail
       const { unmount } = renderHookWithState(() => useSchemaSync(), state);
+      await flushPendingAtomUpdates();
       expect(fetchSchemaSpy).not.toHaveBeenCalled();
 
       // User navigates away
@@ -431,6 +470,7 @@ describe("useSchemaSync", () => {
 
       // User navigates back — re-render with same state
       renderHookWithState(() => useSchemaSync(), state);
+      await flushPendingAtomUpdates();
 
       // Should still not auto-fetch because lastSyncFail is true
       expect(fetchSchemaSpy).not.toHaveBeenCalled();
@@ -448,22 +488,27 @@ describe("useSchemaSync", () => {
         () => useSchemaSync(),
         state,
       );
+      await flushPendingAtomUpdates();
 
       // Should not fetch because initialData exists
       expect(fetchSchemaSpy).not.toHaveBeenCalled();
       expect(result.current.schemaDiscoveryQuery.data).toBeDefined();
 
-      // Switch to a new connection with no schema
+      // Switch to a new connection with no schema. The store.set calls below
+      // notify the mounted Provider synchronously and outside of React's
+      // render cycle, so they (not `rerender`, which RTL already wraps) are
+      // what need the `act()` wrapper here.
       const store = getAppStore();
-      const newConfig = createRandomRawConfiguration();
-      store.set(configurationAtom, prev => {
-        const updated = new Map(prev);
-        updated.set(newConfig.id, newConfig);
-        return updated;
+      const newConfig = createRandomSavedConnection();
+      act(() => {
+        store.set(savedConnectionsAtom, prev => {
+          const updated = new Map(prev);
+          updated.set(newConfig.id, newConfig);
+          return updated;
+        });
+        store.set(activeConnectionIdAtom, newConfig.id);
+        rerender();
       });
-      store.set(activeConfigurationAtom, newConfig.id);
-
-      rerender();
 
       await waitFor(() => {
         expect(fetchSchemaSpy).toHaveBeenCalled();
@@ -506,7 +551,7 @@ describe("useIsSyncing", () => {
     expect(result.current).toBe(false);
   });
 
-  it("should return true when a schema query is fetching", () => {
+  it("should return true when a schema query is fetching", async () => {
     const state = new DbState(explorer).withNoActiveSchema();
 
     vi.spyOn(explorer, "fetchSchema").mockImplementation(
@@ -519,7 +564,9 @@ describe("useIsSyncing", () => {
       state,
     );
 
-    expect(result.current.syncing).toBe(true);
+    await waitFor(() => {
+      expect(result.current.syncing).toBe(true);
+    });
   });
 });
 

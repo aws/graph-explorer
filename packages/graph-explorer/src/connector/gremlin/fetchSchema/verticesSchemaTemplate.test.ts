@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { normalizeWithNoSpace as normalize } from "@/utils/testing";
 
 import verticesSchemaTemplate from "./verticesSchemaTemplate";
@@ -10,11 +12,11 @@ describe("Gremlin > verticesSchemaTemplate", () => {
       normalize(`
         g.V().limit(1)
           .project(
-            "airport",
-            "country"
+            'airport',
+            'country'
           )
-          .by(V().hasLabel("airport").limit(1))
-          .by(V().hasLabel("country").limit(1))
+          .by(V().hasLabel('airport').limit(1))
+          .by(V().hasLabel('country').limit(1))
       `),
     );
   });
@@ -26,13 +28,27 @@ describe("Gremlin > verticesSchemaTemplate", () => {
       normalize(`
         g.V().limit(1)
           .project(
-            "a",
-            "b",
-            "c"
+            'a',
+            'b',
+            'c'
           )
-          .by(V().hasLabel("a").limit(1))
-          .by(V().hasLabel("b").limit(1))
-          .by(V().hasLabel("c").limit(1))
+          .by(V().hasLabel('a').limit(1))
+          .by(V().hasLabel('b').limit(1))
+          .by(V().hasLabel('c').limit(1))
+      `),
+    );
+  });
+
+  it("Should escape a label containing the delimiter", () => {
+    const template = verticesSchemaTemplate({ types: ["air'port"] });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V().limit(1)
+          .project(
+            'air\\'port'
+          )
+          .by(V().hasLabel('air\\'port').limit(1))
       `),
     );
   });

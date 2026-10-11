@@ -1,23 +1,63 @@
+import { describe, expect, it } from "vitest";
+
 import { createVertexId } from "@/core";
-import { query } from "@/utils";
-import { normalizeWithNewlines as normalize } from "@/utils/testing";
+import { LABELS, query } from "@/utils";
+import {
+  normalize as normalizeCollapsed,
+  normalizeWithNewlines as normalize,
+} from "@/utils/testing";
 
 import { oneHopNeighborsTemplate } from "./oneHopNeighborsTemplate";
 
 describe("oneHopNeighborsTemplate", () => {
+  it("should filter to subjects with no type when the missing-type class is requested", () => {
+    const template = oneHopNeighborsTemplate({
+      resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
+      subjectClasses: [LABELS.MISSING_TYPE],
+    });
+
+    expect(normalize(template)).toEqual(
+      normalize(query`
+        SELECT DISTINCT ?subject ?predicate ?object
+        WHERE {
+          {
+            SELECT DISTINCT ?neighbor
+            WHERE {
+              BIND(<http://www.example.com/soccer/resource#EPL> AS ?resource)
+              {
+                ?neighbor ?predicate ?resource .
+                OPTIONAL { ?neighbor a ?class } .
+                FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+                FILTER NOT EXISTS { ?subject a ?class }
+              }
+              UNION
+              {
+                ?resource ?predicate ?neighbor .
+                OPTIONAL { ?neighbor a ?class } .
+                FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+                FILTER NOT EXISTS { ?subject a ?class }
+              }
+            }
+          }
+          ${commonPartOfQuery("http://www.example.com/soccer/resource#EPL")}
+        }
+      `),
+    );
+  });
+
   it("should produce documentation example", () => {
-    // This represents the filter criteria used in the example documentation
+    // This represents the attribute filters used in the example documentation
     const template = oneHopNeighborsTemplate({
       resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
       subjectClasses: ["http://www.example.com/soccer/ontology/Team"],
-      filterCriteria: [
+      attributeFilters: [
         {
-          predicate: "http://www.example.com/soccer/ontology/teamName",
-          object: "Arsenal",
+          name: "http://www.example.com/soccer/ontology/teamName",
+          value: "Arsenal",
         },
         {
-          predicate: "http://www.example.com/soccer/ontology/nickname",
-          object: "Gunners",
+          name: "http://www.example.com/soccer/ontology/nickname",
+          value: "Gunners",
         },
       ],
       limit: 2,
@@ -44,13 +84,14 @@ describe("oneHopNeighborsTemplate", () => {
                 FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
                 FILTER (?class IN (<http://www.example.com/soccer/ontology/Team>))
               }
-              ?neighbor ?pValue ?object .
-              FILTER(
-                isLiteral(?object) && (
-                  (?pValue=<http://www.example.com/soccer/ontology/teamName> && regex(str(?object), "Arsenal", "i")) ||
-                  (?pValue=<http://www.example.com/soccer/ontology/nickname> && regex(str(?object), "Gunners", "i"))
-                )
-              )
+              FILTER EXISTS {
+                ?neighbor <http://www.example.com/soccer/ontology/teamName> ?filterValue .
+                FILTER(isLiteral(?filterValue) && CONTAINS(LCASE(STR(?filterValue)), LCASE("Arsenal")))
+              }
+              FILTER EXISTS {
+                ?neighbor <http://www.example.com/soccer/ontology/nickname> ?filterValue .
+                FILTER(isLiteral(?filterValue) && CONTAINS(LCASE(STR(?filterValue)), LCASE("Gunners")))
+              }
             }
             LIMIT 2
           }
@@ -246,6 +287,111 @@ describe("oneHopNeighborsTemplate", () => {
         }
       `),
     );
+  });
+
+  it("should conjoin multiple attribute filters as adjacent FILTER EXISTS blocks", () => {
+    const template = oneHopNeighborsTemplate({
+      resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
+      attributeFilters: [
+        {
+          name: "http://www.example.com/soccer/ontology/teamName",
+          value: "Arsenal",
+        },
+        {
+          name: "http://www.example.com/soccer/ontology/nickname",
+          value: "Gunners",
+        },
+      ],
+    });
+
+    // Two adjacent FILTER EXISTS blocks conjoin the filters (AND). Reverting to
+    // any OR form (a shared ?pValue with `||`) must fail this assertion.
+    expect(normalizeCollapsed(template)).toContain(
+      normalizeCollapsed(query`
+        FILTER EXISTS {
+          ?neighbor <http://www.example.com/soccer/ontology/teamName> ?filterValue .
+          FILTER(isLiteral(?filterValue) && CONTAINS(LCASE(STR(?filterValue)), LCASE("Arsenal")))
+        }
+        FILTER EXISTS {
+          ?neighbor <http://www.example.com/soccer/ontology/nickname> ?filterValue .
+          FILTER(isLiteral(?filterValue) && CONTAINS(LCASE(STR(?filterValue)), LCASE("Gunners")))
+        }
+      `),
+    );
+    expect(template).not.toContain("?pValue");
+  });
+
+  it("should produce a single FILTER EXISTS for one attribute filter", () => {
+    const template = oneHopNeighborsTemplate({
+      resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
+      attributeFilters: [
+        {
+          name: "http://www.example.com/soccer/ontology/teamName",
+          value: "Arsenal",
+        },
+      ],
+    });
+
+    expect(normalizeCollapsed(template)).toContain(
+      normalizeCollapsed(query`
+        FILTER EXISTS {
+          ?neighbor <http://www.example.com/soccer/ontology/teamName> ?filterValue .
+          FILTER(isLiteral(?filterValue) && CONTAINS(LCASE(STR(?filterValue)), LCASE("Arsenal")))
+        }
+      `),
+    );
+  });
+
+  it("should produce one existential FILTER EXISTS per filter on the same attribute", () => {
+    const template = oneHopNeighborsTemplate({
+      resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
+      attributeFilters: [
+        {
+          name: "http://www.example.com/soccer/ontology/nickname",
+          value: "Gunners",
+        },
+        {
+          name: "http://www.example.com/soccer/ontology/nickname",
+          value: "Reds",
+        },
+      ],
+    });
+
+    expect(normalizeCollapsed(template)).toContain(
+      normalizeCollapsed(query`
+        FILTER EXISTS {
+          ?neighbor <http://www.example.com/soccer/ontology/nickname> ?filterValue .
+          FILTER(isLiteral(?filterValue) && CONTAINS(LCASE(STR(?filterValue)), LCASE("Gunners")))
+        }
+        FILTER EXISTS {
+          ?neighbor <http://www.example.com/soccer/ontology/nickname> ?filterValue .
+          FILTER(isLiteral(?filterValue) && CONTAINS(LCASE(STR(?filterValue)), LCASE("Reds")))
+        }
+      `),
+    );
+  });
+
+  it("should not emit any FILTER EXISTS when there are no attribute filters", () => {
+    const template = oneHopNeighborsTemplate({
+      resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
+    });
+
+    expect(template).not.toContain("FILTER EXISTS");
+  });
+
+  it("should treat regex metacharacters in an attribute filter value as literal text", () => {
+    const template = oneHopNeighborsTemplate({
+      resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
+      attributeFilters: [
+        {
+          name: "http://www.example.com/soccer/ontology/teamName",
+          value: "a.(b",
+        },
+      ],
+    });
+
+    expect(template).toContain(`LCASE("a.(b")`);
+    expect(template).not.toContain("regex(");
   });
 });
 

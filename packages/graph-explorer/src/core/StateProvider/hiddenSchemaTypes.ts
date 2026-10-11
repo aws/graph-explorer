@@ -2,7 +2,7 @@ import { atom, useAtomValue, useSetAtom } from "jotai";
 
 import type { VertexType } from "../entities";
 
-import { activeConfigurationAtom, hiddenSchemaTypesAtom } from "./storageAtoms";
+import { activeConnectionIdAtom, hiddenSchemaTypesAtom } from "./storageAtoms";
 
 const EMPTY_HIDDEN_TYPES: ReadonlySet<VertexType> = new Set();
 
@@ -13,11 +13,11 @@ const EMPTY_HIDDEN_TYPES: ReadonlySet<VertexType> = new Set();
  */
 export const activeHiddenSchemaTypesAtom = atom(
   get => {
-    const id = get(activeConfigurationAtom);
+    const id = get(activeConnectionIdAtom);
     return (id && get(hiddenSchemaTypesAtom).get(id)) ?? EMPTY_HIDDEN_TYPES;
   },
   (get, set, update: (prev: ReadonlySet<VertexType>) => Set<VertexType>) => {
-    const id = get(activeConfigurationAtom);
+    const id = get(activeConnectionIdAtom);
     if (!id) {
       return;
     }

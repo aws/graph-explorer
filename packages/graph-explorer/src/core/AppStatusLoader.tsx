@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import {
   type PropsWithChildren,
   startTransition,
@@ -7,11 +7,11 @@ import {
   useEffect,
 } from "react";
 
-import { PanelEmptyState, Spinner } from "@/components";
+import { PanelEmptyState, PanelError, Spinner } from "@/components";
+import { fetchDefaultConnection } from "@/connections";
 import { logger } from "@/utils";
 
-import { fetchDefaultConnection } from "./defaultConnection";
-import { activeConfigurationAtom, configurationAtom } from "./StateProvider";
+import { activeConnectionIdAtom, savedConnectionsAtom } from "./StateProvider";
 
 function AppStatusLoader({ children }: PropsWithChildren) {
   return (
@@ -22,20 +22,32 @@ function AppStatusLoader({ children }: PropsWithChildren) {
 }
 
 function LoadDefaultConfig({ children }: PropsWithChildren) {
-  const [activeConfig, setActiveConfig] = useAtom(activeConfigurationAtom);
-  const [configuration, setConfiguration] = useAtom(configurationAtom);
+  const setActiveConfig = useSetAtom(activeConnectionIdAtom);
+  const [configuration, setConfiguration] = useAtom(savedConnectionsAtom);
+
+  // An empty store is what drives the whole default-connection flow: the query
+  // fetches, the effect seeds, and the loading states show only while it holds.
+  // Emptying the store (e.g. deleting the last connection) re-arms all three.
+  const storeIsEmpty = configuration.size === 0;
 
   const defaultConfigQuery = useQuery({
     queryKey: ["default-connection"],
-    queryFn: fetchDefaultConnection,
+    queryFn: () => fetchDefaultConnection(),
     staleTime: Infinity,
-    // Run the query only if the store is loaded and there are no configs
-    enabled: configuration.size === 0,
+    enabled: storeIsEmpty,
   });
 
   const defaultConnectionConfigs = defaultConfigQuery.data;
+  const hasDefaultConnection = Boolean(defaultConnectionConfigs?.length);
 
   useEffect(() => {
+    // Seed the default connection only into an empty store. The size guard lets
+    // the effect settle after the write yet re-fire to re-add the default when
+    // the last connection is deleted, instead of looping.
+    if (!storeIsEmpty) {
+      return;
+    }
+
     if (!defaultConnectionConfigs) {
       // Query hasn't run yet
       return;
@@ -58,14 +70,13 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
       setActiveConfig(defaultConnectionConfigs[0].id);
     });
   }, [
-    activeConfig,
-    configuration,
+    storeIsEmpty,
     setActiveConfig,
     setConfiguration,
     defaultConnectionConfigs,
   ]);
 
-  if (configuration.size === 0 && defaultConfigQuery.isLoading) {
+  if (storeIsEmpty && defaultConfigQuery.isLoading) {
     return (
       <PanelEmptyState
         title="Loading default connection..."
@@ -75,12 +86,11 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
     );
   }
 
-  // Loading from config file if exists
-  if (
-    configuration.size === 0 &&
-    defaultConnectionConfigs &&
-    defaultConnectionConfigs.length > 0
-  ) {
+  if (storeIsEmpty && defaultConfigQuery.isError) {
+    return <PanelError error={defaultConfigQuery.error} />;
+  }
+
+  if (storeIsEmpty && hasDefaultConnection) {
     return (
       <PanelEmptyState
         title="Reading configuration..."

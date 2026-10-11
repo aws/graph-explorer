@@ -48,7 +48,7 @@ export function SettingsPageTitle({
     <h1
       data-slot="settings-page-title"
       className={cn(
-        "text-foreground col-start-2 text-2xl font-bold",
+        "text-foreground col-start-2 text-2xl font-semibold",
         className,
       )}
       {...props}
@@ -66,7 +66,7 @@ export function SettingsPageDescription({
     <p
       data-slot="settings-page-description"
       className={cn(
-        "text-muted-foreground font-base col-start-2 text-base",
+        "text-muted-foreground col-start-2 text-base font-normal",
         className,
       )}
       {...props}

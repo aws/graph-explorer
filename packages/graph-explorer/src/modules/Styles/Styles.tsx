@@ -1,11 +1,15 @@
 import { atom, type PrimitiveAtom, useAtom } from "jotai";
+import { SettingsIcon } from "lucide-react";
+import { Link } from "react-router";
 
 import {
+  Button,
   Panel,
   PanelContent,
   PanelHeader,
   PanelHeaderActions,
   PanelHeaderCloseButton,
+  PanelHeaderDivider,
   PanelTitle,
 } from "@/components";
 import {
@@ -55,6 +59,17 @@ export function Styles({
       <PanelHeader>
         <PanelTitle>{LABELS.SIDEBAR.STYLES}</PanelTitle>
         <PanelHeaderActions>
+          <Button
+            asChild
+            tooltip="Style settings"
+            variant="ghost"
+            size="icon-small"
+          >
+            <Link to="/settings/styles">
+              <SettingsIcon />
+            </Link>
+          </Button>
+          <PanelHeaderDivider />
           <PanelHeaderCloseButton onClose={onClose} />
         </PanelHeaderActions>
       </PanelHeader>

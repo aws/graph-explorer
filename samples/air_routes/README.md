@@ -10,8 +10,16 @@
 
 This sample uses Gremlin Server 3.8 as the database pre-loaded with the [air routes dataset](https://tinkerpop.apache.org/docs/3.8.1/upgrade/#air-routes-dataset) and shows how to configure Graph Explorer to connect to it automatically with a default connection.
 
-> [!NOTE]
-> The data is not persisted between restarts of the Docker container.
+> [!WARNING]
+>
+> **This sample is for local development and evaluation only.** Do not use it as a template for a production deployment.
+>
+> - **No authentication** — anyone who can reach it has full access.
+> - **Not hardened** — it is configured for convenience, not security.
+> - **No persistence** — data is lost when the container restarts.
+> - **Groovy script engine** — Gremlin Server uses its default `gremlin-groovy` script engine, see [Self-hosted Gremlin Server](../../docs/references/security.md#self-hosted-gremlin-server).
+>
+> Run it only on your own machine. The Compose file publishes Graph Explorer on `127.0.0.1` only, so other machines can't reach it.
 
 ## Prerequisites
 
@@ -29,3 +37,19 @@ This sample uses Gremlin Server 3.8 as the database pre-loaded with the [air rou
    docker compose up
    ```
 4. Open the browser and navigate to: [http://localhost:8080/explorer](http://localhost:8080/explorer)
+
+## Loading the sample styles
+
+1. Launch the sample and open [http://localhost:8080/explorer](http://localhost:8080/explorer).
+2. Open **Settings** from the top navigation bar.
+3. Go to the **Styles** page.
+4. Click **Load styles**.
+5. Select the `samples/air_routes/styles.json` file from this repository on your machine.
+6. In the selective import modal, keep all five styles selected (or pick only the ones you want), then click **Load selected**.
+7. Return to the **Graph** or **Schema** view. Airports, countries, and continents now render with distinct shapes, colors, and icons; routes and contains edges also have distinct line styles.
+
+> [!NOTE]
+>
+> The browser file picker reads from your host filesystem, not the Docker container. No volume mount is needed — just ensure `styles.json` is available on your machine before loading it.
+
+Once it is running, the [Getting Started tutorial](../../docs/getting-started/README.md) walks you through exploring the air routes data step by step.

@@ -54,7 +54,7 @@ function FieldGroup({ className, ...props }: ComponentPropsWithRef<"div">) {
 }
 
 const fieldVariants = cva({
-  base: "group/field data-[invalid=true]:text-destructive flex w-full gap-3",
+  base: "group/field data-[invalid=true]:text-danger-foreground flex w-full gap-3",
   variants: {
     orientation: {
       vertical: ["flex-col *:w-full [&>.sr-only]:w-auto"],
@@ -82,6 +82,8 @@ function Field({
 }: ComponentPropsWithRef<"div"> & VariantProps<typeof fieldVariants>) {
   return (
     <div
+      // A fieldset would break the component's layout composition and add default styling.
+      // eslint-disable-next-line jsx-a11y/prefer-tag-over-role
       role="group"
       data-slot="field"
       data-orientation={orientation}
@@ -114,7 +116,7 @@ function FieldLabel({
       className={cn(
         "group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50",
         "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col has-[>[data-slot=field]]:rounded-md has-[>[data-slot=field]]:border *:data-[slot=field]:p-4",
-        "has-data-[state=checked]:bg-primary/5 has-data-[state=checked]:border-primary dark:has-data-[state=checked]:bg-primary/10",
+        "has-data-[state=checked]:bg-primary/5 has-data-[state=checked]:border-primary",
         className,
       )}
       {...props}
@@ -223,7 +225,7 @@ function FieldError({
     <div
       role="alert"
       data-slot="field-error"
-      className={cn("text-destructive text-sm font-normal", className)}
+      className={cn("text-danger-foreground text-sm font-normal", className)}
       {...props}
     >
       {content}

@@ -97,7 +97,7 @@ function RouteButton({
       size="default"
       data-active={active || undefined}
       className={cn(
-        "hover:text-primary-foreground text-muted-foreground font-base data-active:border-b-primary-foreground data-active:text-primary-foreground h-full cursor-pointer rounded-none border-y-2 border-y-transparent px-5 hover:bg-transparent data-active:bg-transparent data-active:font-bold",
+        "hover:text-primary-foreground text-muted-foreground data-active:border-b-primary-foreground data-active:text-primary-foreground h-full cursor-pointer rounded-none border-y-2 border-y-transparent px-5 font-normal hover:bg-transparent data-active:bg-transparent data-active:font-semibold",
         className,
       )}
       {...props}
@@ -106,7 +106,7 @@ function RouteButton({
       <span className="grid place-items-center">
         <span className="col-start-1 row-start-1">{children}</span>
         <span
-          className="invisible col-start-1 row-start-1 font-bold"
+          className="invisible col-start-1 row-start-1 font-semibold"
           aria-hidden="true"
         >
           {children}

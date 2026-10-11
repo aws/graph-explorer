@@ -63,7 +63,7 @@ export default function CheckboxList({
             isBottom={false}
             aria-label="checkbox for all"
           >
-            <Label className="font-bold">
+            <Label className="font-semibold">
               <Checkbox
                 checked={
                   numOfSelections > 0 && numOfSelections !== totalCheckboxes

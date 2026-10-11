@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { act } from "react";
+import { describe, expect, it } from "vitest";
 
 import { createVertexType, getAppStore } from "@/core";
 import { DbState, renderHookWithState } from "@/utils/testing";
@@ -44,14 +45,14 @@ describe("useHiddenSchemaTypes", () => {
     );
 
     act(() => result.current.toggleType(type));
-    expect(store.get(hiddenSchemaTypesAtom).has(dbState.activeConfig.id)).toBe(
-      true,
-    );
+    expect(
+      store.get(hiddenSchemaTypesAtom).has(dbState.activeConnection.id),
+    ).toBe(true);
 
     act(() => result.current.toggleType(type));
-    expect(store.get(hiddenSchemaTypesAtom).has(dbState.activeConfig.id)).toBe(
-      false,
-    );
+    expect(
+      store.get(hiddenSchemaTypesAtom).has(dbState.activeConnection.id),
+    ).toBe(false);
   });
 
   it("isolates hidden types per connection", () => {
@@ -67,6 +68,6 @@ describe("useHiddenSchemaTypes", () => {
 
     const map = store.get(hiddenSchemaTypesAtom);
     expect(map.size).toBe(1);
-    expect([...map.keys()]).toStrictEqual([dbState.activeConfig.id]);
+    expect([...map.keys()]).toStrictEqual([dbState.activeConnection.id]);
   });
 });

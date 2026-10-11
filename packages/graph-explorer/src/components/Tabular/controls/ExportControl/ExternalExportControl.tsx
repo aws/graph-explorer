@@ -64,6 +64,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
   const { rows, data, page, columns, columnOrder, visibleColumns } = instance;
   const [format, setFormat] = useState("csv");
   const [name, setName] = useState<string>("");
+  const [defaultName] = useState(() => `export-${Date.now()}`);
   const [options, setOptions] = useState<Record<string, boolean>>(
     forceOnlyPage ? { "only-page": true } : {},
   );
@@ -102,7 +103,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
       return data;
     })();
 
-    const exportName = name || `export-${new Date().getTime()}`;
+    const exportName = name || defaultName;
 
     if (format === "csv") {
       const csvData = transformToCsv(dataToExport, columnsToExport);
@@ -125,7 +126,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
         <div className="flex flex-col gap-2">
           {exportableColumnOrder.map(columnId =>
             !visibleColumns[columnId] ? null : (
-              <Label key={columnId} className="text-text-primary">
+              <Label key={columnId} className="text-foreground">
                 <Checkbox
                   aria-label={`choose ${columnId}`}
                   checked={selectedColumns[columnId]}
@@ -147,7 +148,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
         <div className="space-y-3">
           <div className="text-base font-medium">Options</div>
           <div className="flex flex-col gap-2">
-            <Label className="text-text-primary">
+            <Label className="text-foreground">
               <Checkbox
                 aria-label="Keep filtering and sorting"
                 checked={options["include-filters"]}
@@ -161,7 +162,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
               Keep filtering and sorting
             </Label>
             {forceOnlyPage ? null : (
-              <Label className="text-text-primary">
+              <Label className="text-foreground">
                 <Checkbox
                   aria-label="Only current page"
                   checked={options["only-page"]}
@@ -198,7 +199,7 @@ function ExportOptionsModal<T extends Record<string, unknown>>({
           name="exportName"
           aria-label="Export name"
           value={name}
-          placeholder={`export-${new Date().getTime()}.${format}`}
+          placeholder={`${defaultName}.${format}`}
           onChange={setName}
         />
       </div>

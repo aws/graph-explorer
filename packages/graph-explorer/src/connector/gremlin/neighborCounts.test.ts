@@ -1,3 +1,5 @@
+import { describe, expect, it, vi } from "vitest";
+
 import { createVertexId, createVertexType, type EntityRawId } from "@/core";
 import { query } from "@/utils";
 import {
@@ -102,7 +104,7 @@ describe("neighborCounts", () => {
     }).catch(() => null);
 
     expect(mockFetch).toHaveBeenCalledWith(query`
-      g.V("12")
+      g.V('12')
        .group()
        .by(id)
        .by(

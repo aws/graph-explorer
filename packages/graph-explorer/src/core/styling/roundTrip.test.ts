@@ -11,8 +11,6 @@ import { getAppStore } from "@/core";
 import { createEdgeType, createVertexType } from "@/core/entities";
 import { createFileEnvelope } from "@/core/fileEnvelope";
 import {
-  sharedEdgeStylesAtom,
-  sharedVertexStylesAtom,
   userEdgeStylesAtom,
   userVertexStylesAtom,
 } from "@/core/StateProvider/storageAtoms";
@@ -20,7 +18,6 @@ import { renderHookWithJotai } from "@/utils/testing";
 
 import {
   parseStylingFile,
-  useApplyStylingImport,
   useExportStylingFile,
 } from "./useStylingImportExport";
 
@@ -94,31 +91,25 @@ describe("round-trip: export then import", () => {
 
     const file = envelopeToFile(payload);
 
-    store.set(userVertexStylesAtom, new Map());
-    store.set(userEdgeStylesAtom, new Map());
-
-    const { result: importResult } = renderHookWithJotai(() =>
-      useApplyStylingImport(),
-    );
     const parseOut = await parseStylingFile(file);
 
-    importResult.current(parseOut);
-
-    const sharedVertices = store.get(sharedVertexStylesAtom);
-    expect(sharedVertices.get(createVertexType("airport"))).toStrictEqual({
+    expect(
+      parseOut.vertexStyles.get(createVertexType("airport")),
+    ).toStrictEqual({
       type: createVertexType("airport"),
       displayNameAttribute: "code",
       iconUrl: "lucide:anchor",
       iconImageType: "image/svg+xml",
       color: "#e66412",
     });
-    expect(sharedVertices.get(createVertexType("country"))).toStrictEqual({
+    expect(
+      parseOut.vertexStyles.get(createVertexType("country")),
+    ).toStrictEqual({
       type: createVertexType("country"),
       color: "#e612b8",
     });
 
-    const sharedEdges = store.get(sharedEdgeStylesAtom);
-    expect(sharedEdges.get(createEdgeType("route"))).toStrictEqual({
+    expect(parseOut.edgeStyles.get(createEdgeType("route"))).toStrictEqual({
       type: createEdgeType("route"),
       lineThickness: 1,
       labelColor: "#eef4ff",
@@ -176,18 +167,11 @@ describe("round-trip: export then import", () => {
     const payload = exportResult.current.getExportPayload();
     const file = envelopeToFile(payload);
 
-    store.set(userVertexStylesAtom, new Map());
-
-    const { result: importResult } = renderHookWithJotai(() =>
-      useApplyStylingImport(),
-    );
     const parseOut = await parseStylingFile(file);
+    const imported = parseOut.vertexStyles;
 
-    importResult.current(parseOut);
-
-    const shared = store.get(sharedVertexStylesAtom);
     expect(
-      shared.get(
+      imported.get(
         createVertexType("http://data.nobelprize.org/terms/LaureateAward"),
       ),
     ).toStrictEqual({
@@ -197,7 +181,9 @@ describe("round-trip: export then import", () => {
       color: "#1229e6",
     });
     expect(
-      shared.get(createVertexType("http://data.nobelprize.org/terms/Laureate")),
+      imported.get(
+        createVertexType("http://data.nobelprize.org/terms/Laureate"),
+      ),
     ).toStrictEqual({
       type: createVertexType("http://data.nobelprize.org/terms/Laureate"),
       iconUrl: "lucide:angry",
@@ -205,14 +191,14 @@ describe("round-trip: export then import", () => {
       color: "#ba12e6",
     });
     expect(
-      shared.get(createVertexType("http://www.w3.org/ns/dcat#Catalog")),
+      imported.get(createVertexType("http://www.w3.org/ns/dcat#Catalog")),
     ).toStrictEqual({
       type: createVertexType("http://www.w3.org/ns/dcat#Catalog"),
       iconUrl: "lucide:alert-octagon",
       iconImageType: "image/svg+xml",
     });
     expect(
-      shared.get(createVertexType("http://dbpedia.org/ontology/Award")),
+      imported.get(createVertexType("http://dbpedia.org/ontology/Award")),
     ).toStrictEqual({
       type: createVertexType("http://dbpedia.org/ontology/Award"),
       displayNameAttribute: "http://www.w3.org/2000/01/rdf-schema#label",
@@ -247,17 +233,11 @@ describe("round-trip: export then import", () => {
     expect(payload.vertices["CustomNode"].icon).toBe(svgDataUri);
 
     const file = envelopeToFile(payload);
-    store.set(userVertexStylesAtom, new Map());
 
-    const { result: importResult } = renderHookWithJotai(() =>
-      useApplyStylingImport(),
-    );
     const parseOut = await parseStylingFile(file);
 
-    importResult.current(parseOut);
-
-    const shared = store.get(sharedVertexStylesAtom);
-    expect(shared.get(createVertexType("CustomNode"))!.iconUrl).toBe(
+    const imported = parseOut.vertexStyles;
+    expect(imported.get(createVertexType("CustomNode"))!.iconUrl).toBe(
       svgDataUri,
     );
   });
@@ -297,23 +277,16 @@ describe("round-trip: export then import", () => {
     const payload = exportResult.current.getExportPayload();
     const file = envelopeToFile(payload);
 
-    store.set(userVertexStylesAtom, new Map());
-
-    const { result: importResult } = renderHookWithJotai(() =>
-      useApplyStylingImport(),
-    );
     const parseOut = await parseStylingFile(file);
 
-    importResult.current(parseOut);
-
-    const shared = store.get(sharedVertexStylesAtom);
-    expect(shared.get(createVertexType("PngNode"))).toStrictEqual({
+    const imported = parseOut.vertexStyles;
+    expect(imported.get(createVertexType("PngNode"))).toStrictEqual({
       type: createVertexType("PngNode"),
       iconUrl: pngDataUri,
       iconImageType: "image/png",
       color: "#111",
     });
-    expect(shared.get(createVertexType("JpegNode"))).toStrictEqual({
+    expect(imported.get(createVertexType("JpegNode"))).toStrictEqual({
       type: createVertexType("JpegNode"),
       iconUrl: jpegDataUri,
       iconImageType: "image/jpeg",
@@ -353,17 +326,11 @@ describe("round-trip: export then import", () => {
     expect(payload.vertices["BmpNode"].icon).toBe(bmpDataUri);
 
     const file = envelopeToFile(payload);
-    store.set(userVertexStylesAtom, new Map());
 
-    const { result: importResult } = renderHookWithJotai(() =>
-      useApplyStylingImport(),
-    );
     const parseOut = await parseStylingFile(file);
 
-    importResult.current(parseOut);
-
-    const shared = store.get(sharedVertexStylesAtom);
-    expect(shared.get(createVertexType("BmpNode"))).toStrictEqual({
+    const imported = parseOut.vertexStyles;
+    expect(imported.get(createVertexType("BmpNode"))).toStrictEqual({
       type: createVertexType("BmpNode"),
       iconUrl: bmpDataUri,
       iconImageType: "image/bmp",
@@ -404,21 +371,15 @@ describe("round-trip: export then import", () => {
     const payload = exportResult.current.getExportPayload();
     const file = envelopeToFile(payload);
 
-    store.set(userVertexStylesAtom, new Map());
-
     // Both icons fail the allowlist. Import is atomic, so the whole file is
-    // rejected and both icon issues are reported; nothing is persisted, so no
-    // outbound request can be triggered.
+    // rejected and both icon issues are reported; parsing never yields a value
+    // to persist, so no outbound request can be triggered.
     await expect(parseStylingFile(file)).rejects.toMatchObject({
       issues: expect.arrayContaining([
         expect.objectContaining({ field: "icon", typeName: "HttpsNode" }),
         expect.objectContaining({ field: "icon", typeName: "HttpNode" }),
       ]),
     });
-
-    const shared = store.get(sharedVertexStylesAtom);
-    expect(shared.has(createVertexType("HttpsNode"))).toBe(false);
-    expect(shared.has(createVertexType("HttpNode"))).toBe(false);
   });
 
   test("mixed icon types in a single export all survive round-trip", async () => {
@@ -467,26 +428,19 @@ describe("round-trip: export then import", () => {
     const payload = exportResult.current.getExportPayload();
     const file = envelopeToFile(payload);
 
-    store.set(userVertexStylesAtom, new Map());
-
-    const { result: importResult } = renderHookWithJotai(() =>
-      useApplyStylingImport(),
-    );
     const parseOut = await parseStylingFile(file);
 
-    importResult.current(parseOut);
-
-    const shared = store.get(sharedVertexStylesAtom);
-    expect(shared.get(createVertexType("LucideType"))!.iconUrl).toBe(
+    const imported = parseOut.vertexStyles;
+    expect(imported.get(createVertexType("LucideType"))!.iconUrl).toBe(
       "lucide:user",
     );
-    expect(shared.get(createVertexType("SvgDataType"))!.iconUrl).toBe(
+    expect(imported.get(createVertexType("SvgDataType"))!.iconUrl).toBe(
       "data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=",
     );
-    expect(shared.get(createVertexType("PngDataType"))!.iconUrl).toBe(
+    expect(imported.get(createVertexType("PngDataType"))!.iconUrl).toBe(
       "data:image/png;base64,iVBORw0KGgo=",
     );
-    expect(shared.get(createVertexType("NoIconType"))).toStrictEqual({
+    expect(imported.get(createVertexType("NoIconType"))).toStrictEqual({
       type: createVertexType("NoIconType"),
       color: "#abc",
       shape: "diamond",
@@ -544,16 +498,12 @@ describe("round-trip: export then import", () => {
       type: "application/json",
     });
 
-    const { result } = renderHookWithJotai(() => useApplyStylingImport());
     const parseOut = await parseStylingFile(file);
 
-    result.current(parseOut);
-
-    const store = getAppStore();
-    const shared = store.get(sharedVertexStylesAtom);
+    const imported = parseOut.vertexStyles;
 
     expect(
-      shared.get(
+      imported.get(
         createVertexType("http://data.nobelprize.org/terms/LaureateAward"),
       ),
     ).toStrictEqual({
@@ -563,7 +513,7 @@ describe("round-trip: export then import", () => {
       color: "#1229e6",
     });
 
-    expect(shared.get(createVertexType("airport"))).toStrictEqual({
+    expect(imported.get(createVertexType("airport"))).toStrictEqual({
       type: createVertexType("airport"),
       displayNameAttribute: "code",
       iconUrl: "lucide:anchor",
@@ -571,13 +521,13 @@ describe("round-trip: export then import", () => {
       color: "#e66412",
     });
 
-    expect(shared.get(createVertexType("country"))).toStrictEqual({
+    expect(imported.get(createVertexType("country"))).toStrictEqual({
       type: createVertexType("country"),
       color: "#e612b8",
     });
 
-    const sharedEdges = store.get(sharedEdgeStylesAtom);
-    expect(sharedEdges.get(createEdgeType("route"))).toStrictEqual({
+    const importedEdges = parseOut.edgeStyles;
+    expect(importedEdges.get(createEdgeType("route"))).toStrictEqual({
       type: createEdgeType("route"),
       lineThickness: 1,
       labelColor: "#eef4ff",

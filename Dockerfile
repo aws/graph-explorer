@@ -1,17 +1,20 @@
 # syntax=docker/dockerfile:1
-FROM amazonlinux:2023 AS base
-ENV NODE_VERSION=24.16.0
+# Pinned to a dated ECR Public snapshot for reproducible builds; bump to move forward.
+# The tag also pins dnf repo metadata to that date, so the yum update below resolves
+# against that snapshot and cannot reach anything published after it.
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023.12.20260930.0 AS base
+ENV NODE_VERSION=24.21.0
 
 # Install Node.js and openssl, then remove everything not needed at runtime
 # (package managers, python3, build tools) to minimize potential issues.
-RUN yum update -y --releasever 2023.12.20260622 && \
+RUN yum update -y && \
     yum install -y tar xz openssl && \
     ARCH=$(uname -m) && \
     if [ "$ARCH" = "x86_64" ]; then NODE_ARCH="x64"; \
     elif [ "$ARCH" = "aarch64" ]; then NODE_ARCH="arm64"; \
     else echo "Unsupported architecture: $ARCH" && exit 1; fi && \
     curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz | tar -xJ -C /usr/local --strip-components=1 && \
-    npm install --global corepack@latest && \
+    npm install --global corepack@0.36.0 && \
     corepack enable && \
     yum remove -y tar xz && \
     yum clean all && \
@@ -20,31 +23,8 @@ RUN yum update -y --releasever 2023.12.20260622 && \
     rm -rf /var/cache/yum /var/cache/dnf
 
 FROM base
-ARG NEPTUNE_NOTEBOOK
 
-ENV NEPTUNE_NOTEBOOK=$NEPTUNE_NOTEBOOK
 ENV HOME=/graph-explorer
-
-# Conditionally set the following environment values using +/- variable expansion
-# https://docs.docker.com/reference/dockerfile/#environment-replacement
-# 
-# If NEPTUNE_NOTEBOOK value is set then
-#   - GRAPH_EXP_ENV_ROOT_FOLDER = /proxy/9250/explorer
-#   - PROXY_SERVER_HTTP_PORT    = 9250
-#   - LOG_STYLE                 = cloudwatch
-# Else the values are the defaults
-#   - GRAPH_EXP_ENV_ROOT_FOLDER = /explorer
-#   - PROXY_SERVER_HTTP_PORT    = 80
-#   - LOG_STYLE                 = default
-
-ENV GRAPH_EXP_ENV_ROOT_FOLDER=${NEPTUNE_NOTEBOOK:+/proxy/9250/explorer}
-ENV GRAPH_EXP_ENV_ROOT_FOLDER=${GRAPH_EXP_ENV_ROOT_FOLDER:-/explorer}
-
-ENV PROXY_SERVER_HTTP_PORT=${NEPTUNE_NOTEBOOK:+9250}
-ENV PROXY_SERVER_HTTP_PORT=${PROXY_SERVER_HTTP_PORT:-80}
-
-ENV LOG_STYLE=${NEPTUNE_NOTEBOOK:+cloudwatch}
-ENV LOG_STYLE=${LOG_STYLE:-default}
 
 WORKDIR /
 COPY . /graph-explorer/

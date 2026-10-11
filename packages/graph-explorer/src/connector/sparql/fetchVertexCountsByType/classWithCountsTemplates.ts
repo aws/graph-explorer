@@ -1,13 +1,13 @@
 import { query } from "@/utils";
 
-import { idParam } from "../idParam";
+import { fragment } from "../fragments";
 
 // It returns the number of instances of the given class
 export default function classWithCountsTemplates(className: string) {
   return query`
     # Fetch the number of instances of the given class
     SELECT (COUNT(?start) AS ?instancesCount) {
-      ?start a ${idParam(className)}
+      ?start a ${fragment.iri(className)}
     }
   `;
 }

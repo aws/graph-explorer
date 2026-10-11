@@ -3,14 +3,14 @@
  */
 
 import "fake-indexeddb/auto";
-import * as matchers from "@testing-library/jest-dom/matchers";
+import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { IDBFactory } from "fake-indexeddb";
 import { createStore } from "jotai";
 import localforage from "localforage";
-import { afterEach, expect, vi } from "vitest";
+import { afterEach, beforeEach, vi } from "vitest";
 
-expect.extend(matchers);
+import { iconRegistry } from "@/core/icons/iconRegistry";
 
 // Mock getAppStore to return a specific test store
 let store = createStore();
@@ -28,6 +28,10 @@ beforeEach(async () => {
   store = createStore();
   vi.stubEnv("DEV", true);
   vi.stubEnv("PROD", false);
+
+  // The icon registry is a module singleton, so resolved icons would otherwise
+  // bleed between tests.
+  iconRegistry.reset();
 
   // Give each test a fresh IndexedDB so persisted state never bleeds between
   // tests. The vitest thread pool reuses workers, so the database must be

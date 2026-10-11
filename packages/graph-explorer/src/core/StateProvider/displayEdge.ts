@@ -1,6 +1,7 @@
 import { atom, useAtomValue } from "jotai";
 import { atomFamily } from "jotai-family";
 
+import { queryEngineSelector } from "@/connections";
 import {
   type DisplayAttribute,
   displayEdgeTypeConfigSelector,
@@ -13,7 +14,6 @@ import {
   type EdgeType,
   getRawId,
   getSortedDisplayAttributes,
-  queryEngineSelector,
   useEdgeInCanvas,
   type VertexId,
 } from "@/core";
@@ -46,13 +46,11 @@ export function useDisplayEdgesInCanvas() {
 
 const selectedDisplayEdgesSelector = atom(get => {
   const selectedIds = get(edgesSelectedIdsAtom);
-  return selectedIds
-    .values()
+  return Array.from(selectedIds)
     .map(id => get(edgeSelector(id)))
     .filter(e => e != null)
     .map(e => get(displayEdgeSelector(e)))
-    .filter(n => n != null)
-    .toArray();
+    .filter(n => n != null);
 });
 
 /** Maps all `Edge` instances which are selected in the graph canvas to `DisplayEdge` instances. */
@@ -124,8 +122,9 @@ const displayEdgeSelector = atomFamily((edge: Edge) =>
 
 const displayEdgesInCanvasSelector = atom(get => {
   return new Map(
-    get(edgesAtom)
-      .entries()
-      .map(([id, edge]) => [id, get(displayEdgeSelector(edge))]),
+    Array.from(get(edgesAtom).entries()).map(([id, edge]) => [
+      id,
+      get(displayEdgeSelector(edge)),
+    ]),
   );
 });

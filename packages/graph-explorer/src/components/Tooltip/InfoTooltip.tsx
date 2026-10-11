@@ -7,7 +7,7 @@ export default function InfoTooltip({ children }: PropsWithChildren) {
   return (
     <Tooltip>
       <TooltipTrigger>
-        <InfoIcon className="text-text-secondary size-6" />
+        <InfoIcon className="text-muted-foreground size-6" />
       </TooltipTrigger>
       <TooltipContent>{children}</TooltipContent>
     </Tooltip>

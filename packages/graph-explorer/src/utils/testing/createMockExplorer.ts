@@ -1,6 +1,10 @@
+import { vi } from "vitest";
+
 import type { Explorer } from "@/connector";
 
-import { createRandomRawConfiguration } from "./randomData";
+import { normalizeConnection } from "@/connections";
+
+import { createRandomSavedConnection } from "./randomData";
 
 export function createMockExplorer(): Explorer {
   return {
@@ -8,11 +12,11 @@ export function createMockExplorer(): Explorer {
     keywordSearch: vi.fn(),
     fetchNeighbors: vi.fn(),
     fetchVertexCountsByType: vi.fn(),
-    connection: createRandomRawConfiguration().connection!,
+    connection: normalizeConnection(createRandomSavedConnection().connection!),
     fetchSchema: vi.fn(),
     edgeDetails: vi.fn(),
     vertexDetails: vi.fn(),
     rawQuery: vi.fn(),
     fetchEdgeConnections: vi.fn(),
-  } as Explorer;
+  };
 }

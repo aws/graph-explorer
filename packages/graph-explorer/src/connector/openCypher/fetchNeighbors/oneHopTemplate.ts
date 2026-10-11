@@ -1,95 +1,14 @@
-import type { Criterion, NeighborsRequest } from "@/connector/useGEFetchTypes";
+import type {
+  AttributeFilter,
+  NeighborsRequest,
+} from "@/connector/useGEFetchTypes";
 
 import { query } from "@/utils";
 
-import { idParam } from "../idParam";
+import { fragment } from "../fragments";
 
-const criterionNumberTemplate = ({
-  name,
-  operator,
-  value,
-}: Omit<Criterion, "dataType">): string => {
-  switch (operator.toLowerCase()) {
-    case "eq":
-    case "==":
-    default:
-      return `tgt.${name} = ${value}`;
-    case "gt":
-    case ">":
-      return `tgt.${name} > ${value}`;
-    case "gte":
-    case ">=":
-      return `tgt.${name} >= ${value}`;
-    case "lt":
-    case "<":
-      return `tgt.${name} < ${value}`;
-    case "lte":
-    case "<=":
-      return `tgt.${name} <= ${value}`;
-    case "neq":
-    case "!=":
-      return `tgt.${name} <> ${value}`;
-  }
-};
-
-const criterionStringTemplate = ({
-  name,
-  operator,
-  value,
-}: Omit<Criterion, "dataType">): string => {
-  switch (operator.toLowerCase()) {
-    case "eq":
-    case "==":
-    default:
-      return `tgt.${name} = "${value}"`;
-    case "neq":
-    case "!=":
-      return `tgt.${name} <> "${value}"`;
-    case "like":
-      return `tgt.${name} CONTAINS "${value}"`;
-  }
-};
-
-const criterionDateTemplate = ({
-  name,
-  operator,
-  value,
-}: Omit<Criterion, "dataType">): string => {
-  switch (operator.toLowerCase()) {
-    case "eq":
-    case "==":
-    default:
-      return `tgt.${name} = DateTime("${value}")`;
-    case "gt":
-    case ">":
-      return `tgt.${name} > DateTime("${value}")`;
-    case "gte":
-    case ">=":
-      return `tgt.${name} >= DateTime("${value}")`;
-    case "lt":
-    case "<":
-      return `tgt.${name} < DateTime("${value}")`;
-    case "lte":
-    case "<=":
-      return `tgt.${name} <= DateTime("${value}")`;
-    case "neq":
-    case "!=":
-      return `tgt.${name} <> DateTime("${value}")`;
-  }
-};
-
-const criterionTemplate = (criterion: Criterion): string => {
-  switch (criterion.dataType) {
-    case "Number":
-      return criterionNumberTemplate(criterion);
-    case "Date":
-      return criterionDateTemplate(criterion);
-    case "String":
-    case undefined:
-    default:
-      return criterionStringTemplate(criterion);
-  }
-};
+const attributeFilterTemplate = ({ name, value }: AttributeFilter): string =>
+  `tgt.${fragment.identifier(name)} CONTAINS ${fragment.string(value)}`;
 
 /**
  * @example
@@ -110,34 +29,35 @@ const criterionTemplate = (criterion: Criterion): string => {
 const oneHopTemplate = ({
   vertexId,
   filterByVertexTypes = [],
-  filterCriteria = [],
+  attributeFilters = [],
   excludedVertices = new Set(),
   limit = 0,
 }: Omit<NeighborsRequest, "vertexTypes">): string => {
   const formattedExcludedVertices =
     excludedVertices.size > 0
-      ? `NOT ID(tgt) IN [${excludedVertices.values().map(idParam).toArray().join(", ")}]`
+      ? `NOT ID(tgt) IN [${Array.from(excludedVertices).map(fragment.id).join(", ")}]`
       : "";
 
   // List of possible vertex labels when there are multiple (single label is handled elsewhere)
   const formattedVertexTypes =
     filterByVertexTypes.length > 1
       ? `(${filterByVertexTypes
-          .flatMap((type: string) => type.split("::"))
-          .map((type: string) => `v:${type}`)
+          .map(type => `v:${fragment.identifier(type)}`)
           .join(" OR ")})`
       : "";
 
   // Specify node type for target if provided and only one
   const targetMatch =
-    filterByVertexTypes.length == 1 ? `tgt:${filterByVertexTypes[0]}` : `tgt`;
+    filterByVertexTypes.length == 1
+      ? `tgt:${fragment.identifier(filterByVertexTypes[0])}`
+      : `tgt`;
 
   // Combine all the WHERE conditions
   const whereConditions = [
-    `ID(v) = ${idParam(vertexId)}`,
+    `ID(v) = ${fragment.id(vertexId)}`,
     formattedExcludedVertices,
     formattedVertexTypes,
-    ...(filterCriteria?.map(criterionTemplate) ?? []),
+    ...attributeFilters.map(attributeFilterTemplate),
   ]
     .filter(Boolean)
     .join(" AND ");

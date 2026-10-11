@@ -1,10 +1,25 @@
 // @vitest-environment happy-dom
+
+import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
+import {
+  EmptyIdentifierError,
+  QueryValueError,
+  UnescapableValueError,
+  UnsupportedValueTypeError,
+} from "@/connector/queryValueError";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 
 import { createDisplayError } from "./createDisplayError";
+import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
+import { DatabaseUnreachableError } from "./DatabaseUnreachableError";
+import { FetchTimeoutError } from "./FetchTimeoutError";
+import { InsecureDatabaseUrlError } from "./InsecureDatabaseUrlError";
+import { InvalidDatabaseUrlError } from "./InvalidDatabaseUrlError";
+import { MissingDatabaseUrlError } from "./MissingDatabaseUrlError";
 import { NetworkError } from "./NetworkError";
+import { ReverseProxyMisconfiguredError } from "./ReverseProxyMisconfiguredError";
 import { ServerConnectionError } from "./ServerConnectionError";
 import { createCancelledError } from "./testing";
 
@@ -17,6 +32,44 @@ describe("createDisplayError", () => {
   it("Should handle empty object", () => {
     const result = createDisplayError({});
     expect(result).toStrictEqual(defaultResult);
+  });
+
+  it("Should give a specific message for a value that cannot be used in a query", () => {
+    const error = new UnsupportedValueTypeError("openCypher", "id", 124);
+    const result = createDisplayError(error);
+    expect(result).toStrictEqual({
+      title: "This value cannot be used",
+      message:
+        'The value "124" cannot be used in a query against this database.',
+    });
+  });
+
+  it("Should fall back to generic wording for an unrecognized query value failure", () => {
+    const result = createDisplayError(new UnrecognizedQueryValueError());
+    expect(result).toStrictEqual({
+      title: "This value cannot be used",
+      message: "This value cannot be used in a query against this database.",
+    });
+  });
+
+  it.each(["gremlin", "openCypher"] as const)(
+    "Should give the same language-agnostic message for an empty %s identifier",
+    language => {
+      const result = createDisplayError(new EmptyIdentifierError(language));
+      expect(result).toStrictEqual({
+        title: "This identifier cannot be used",
+        message: "An empty identifier cannot be used in a query.",
+      });
+    },
+  );
+
+  it("Should fall back to generic wording for an unescapable value failure", () => {
+    const error = new UnescapableValueError("sparql", "IRI", "a b", [" "]);
+    const result = createDisplayError(error);
+    expect(result).toStrictEqual({
+      title: "This value cannot be used",
+      message: "This value cannot be used in a query against this database.",
+    });
   });
 
   it("Should handle null", () => {
@@ -38,7 +91,8 @@ describe("createDisplayError", () => {
     const result = createDisplayError({ code: "ECONNREFUSED" });
     expect(result).toStrictEqual({
       title: "Connection refused",
-      message: "Please check your connection and try again.",
+      message:
+        "The database host answered but refused the connection. Check that the port in the connection is correct and the database is running.",
     });
   });
 
@@ -57,7 +111,8 @@ describe("createDisplayError", () => {
     const result = createDisplayError(error);
     expect(result).toStrictEqual({
       title: "Connection refused",
-      message: "Please check your connection and try again.",
+      message:
+        "The database host answered but refused the connection. Check that the port in the connection is correct and the database is running.",
     });
   });
 
@@ -72,13 +127,96 @@ describe("createDisplayError", () => {
     });
   });
 
+  // The proxy server's error handler used to send only { status, message }, so
+  // an errno could never reach the browser and every network failure fell
+  // through to a generic "Network Response 500". These use the exact payload
+  // extractErrorInfo now sends
+  // (packages/graph-explorer-proxy-server/src/error-handler.ts).
+  describe("errno codes from the proxy server's error payload", () => {
+    const unreachable = {
+      title: "Database unreachable",
+      message:
+        "The database hostname could not be resolved. Check the hostname in the connection and try again.",
+    };
+    const timedOut = {
+      title: "Database connection timed out",
+      message:
+        "The database hostname resolved, but nothing answered at that address. Check that a security group or firewall permits the Graph Explorer server, and that the port in the connection is correct.",
+    };
+
+    it("Should handle an unresolvable host", () => {
+      const error = new NetworkError("getaddrinfo ENOTFOUND bad-host", 500, {
+        status: 500,
+        message: "getaddrinfo ENOTFOUND bad-host",
+        code: "ENOTFOUND",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual(unreachable);
+    });
+
+    it("Should handle a connection that timed out", () => {
+      const error = new NetworkError("connect ETIMEDOUT 10.0.0.4:8182", 500, {
+        status: 500,
+        message: "connect ETIMEDOUT 10.0.0.4:8182",
+        code: "ETIMEDOUT",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual(timedOut);
+    });
+
+    it("Should handle a connection that timed out reported under cause", () => {
+      const error = new NetworkError("fetch failed", 500, {
+        status: 500,
+        message: "fetch failed",
+        cause: { code: "ETIMEDOUT" },
+      });
+
+      expect(createDisplayError(error)).toStrictEqual(timedOut);
+    });
+
+    it("Should handle a temporary DNS failure", () => {
+      const error = new NetworkError("getaddrinfo EAI_AGAIN db", 500, {
+        status: 500,
+        message: "getaddrinfo EAI_AGAIN db",
+        code: "EAI_AGAIN",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual(unreachable);
+    });
+
+    it("Should handle an unresolvable host reported under cause", () => {
+      const error = new NetworkError("fetch failed", 500, {
+        status: 500,
+        message: "fetch failed",
+        cause: { code: "ENOTFOUND" },
+      });
+
+      expect(createDisplayError(error)).toStrictEqual(unreachable);
+    });
+
+    it("Should handle a refused port", () => {
+      const message =
+        "request to http://localhost:9999/gremlin failed, reason: connect ECONNREFUSED 127.0.0.1:9999";
+      const error = new NetworkError(message, 500, {
+        status: 500,
+        message,
+        code: "ECONNREFUSED",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual({
+        title: "Connection refused",
+        message:
+          "The database host answered but refused the connection. Check that the port in the connection is correct and the database is running.",
+      });
+    });
+  });
+
   it("should handle cancelled error", async () => {
     const error = await createCancelledError();
     const result = createDisplayError(error);
     expect(result).toStrictEqual({
       title: "Request cancelled",
-      message:
-        "The request exceeded the configured timeout length or was cancelled by the user.",
+      message: "The request was cancelled.",
     });
   });
 
@@ -89,17 +227,7 @@ describe("createDisplayError", () => {
     const result = createDisplayError(error);
     expect(result).toStrictEqual({
       title: "Request cancelled",
-      message:
-        "The request exceeded the configured timeout length or was cancelled by the user.",
-    });
-  });
-
-  it("Should handle deadline exceeded", () => {
-    const result = createDisplayError({ code: "TimeLimitExceededException" });
-    expect(result).toStrictEqual({
-      title: "Deadline exceeded",
-      message:
-        "Increase the query timeout in the DB cluster parameter group, or retry the request.",
+      message: "The request was cancelled.",
     });
   });
 
@@ -112,13 +240,42 @@ describe("createDisplayError", () => {
     });
   });
 
-  it("Should handle TimeoutError", () => {
+  it("Should handle FetchTimeoutError", () => {
     const result = createDisplayError(
-      new FakeError("TimeoutError", "Timed out"),
+      new FetchTimeoutError(240000, new Error("aborted")),
     );
     expect(result).toStrictEqual({
-      title: "Fetch Timeout Exceeded",
-      message: "The request exceeded the configured fetch timeout.",
+      title: "Fetch timeout exceeded",
+      message:
+        "The request did not finish within this connection's fetch timeout of 240,000 ms. Increase the Fetch Timeout in this connection's advanced options, or retry the request.",
+    });
+  });
+
+  it("Should handle DatabaseTimeoutError", () => {
+    const result = createDisplayError(
+      new DatabaseTimeoutError(
+        "A timeout occurred",
+        500,
+        { code: "TimeLimitExceededException" },
+        "TimeLimitExceededException",
+      ),
+    );
+    expect(result).toStrictEqual({
+      title: "Database query timed out",
+      message:
+        "The database stopped the query because it ran longer than its query timeout. Increase the query timeout in the database configuration, such as the DB cluster parameter group for Neptune, or retry the request.",
+    });
+  });
+
+  it("Should fall back to the generic network message for a plain NetworkError with a TimeLimitExceededException data code", () => {
+    const error = new NetworkError("A timeout occurred", 500, {
+      code: "TimeLimitExceededException",
+      message: "A timeout occurred",
+    });
+    const result = createDisplayError(error);
+    expect(result).toStrictEqual({
+      title: "Network Response 500",
+      message: "A timeout occurred",
     });
   });
 
@@ -132,49 +289,63 @@ describe("createDisplayError", () => {
     expect(result).toStrictEqual({
       title: "Connection Error",
       message:
-        "Unable to reach the proxy server. This is typically caused by the proxy server not running, an incorrect connection URL, or a CORS configuration issue.",
+        "The Graph Explorer server is not reachable from this page. It has usually stopped running, or this tab is stale. Reload the page and try again.",
     });
   });
 
-  it("Should handle server connection error with origin mismatch", () => {
+  it("Should explain a direct connection the browser couldn't reach", () => {
     const result = createDisplayError(
-      new ServerConnectionError(
-        "https://other-host:8182/query",
+      new DatabaseUnreachableError(
+        "https://db.example.com:8182/gremlin",
         new TypeError("Failed to fetch"),
       ),
     );
     expect(result).toStrictEqual({
-      title: "Cross-Origin Request Blocked",
+      title: "Database not reachable from the browser",
       message:
-        "The proxy server URL does not match the browser's origin, which can cause CORS errors. Update the connection URL to match the browser's origin.",
+        'This connection sends requests directly from the browser, so the database must be running at the Database URL and allow cross-origin requests from this page. Check the URL and the database\'s CORS settings, or edit the connection and set Connection method to "Through the Graph Explorer server".',
     });
   });
 
-  it.each([
-    "http://localhost:9999/query",
-    "http://127.0.0.1:9999/query",
-    "http://[::1]:9999/query",
-    "http://0.0.0.0:9999/query",
-    "http://127.0.0.1:8182/query",
-  ])("Should not report origin mismatch for loopback URL %s", (url: string) => {
+  it("Should handle a direct connection whose database URL is not absolute", () => {
     const result = createDisplayError(
-      new ServerConnectionError(url, new TypeError("Failed to fetch")),
+      new InvalidDatabaseUrlError("localhost:8182"),
     );
     expect(result).toStrictEqual({
-      title: "Connection Error",
-      message:
-        "Unable to reach the proxy server. This is typically caused by the proxy server not running, an incorrect connection URL, or a CORS configuration issue.",
+      title: "Invalid URL",
+      message: "Please check the database URL in the connection and try again.",
     });
   });
 
-  it("Should handle server connection error with unparseable URL", () => {
+  it("Should handle a direct connection whose http database URL the https page would block", () => {
     const result = createDisplayError(
-      new ServerConnectionError("not-a-url", new TypeError("Failed to fetch")),
+      new InsecureDatabaseUrlError(
+        "http://db.example.com:8182",
+        new TypeError("Failed to fetch"),
+      ),
     );
     expect(result).toStrictEqual({
-      title: "Connection Error",
+      title: "Insecure database URL",
       message:
-        "Unable to reach the proxy server. This is typically caused by the proxy server not running, an incorrect connection URL, or a CORS configuration issue.",
+        'This page uses HTTPS, so the browser likely blocked the request to this http:// database. Use an https:// Database URL, or edit the connection and set Connection method to "Through the Graph Explorer server". If your browser allows insecure content for this site, also check that the database is running and allows cross-origin requests from this page.',
+    });
+  });
+
+  it("Should handle a Connection with no database URL", () => {
+    const result = createDisplayError(new MissingDatabaseUrlError());
+    expect(result).toStrictEqual({
+      title: "Missing database URL",
+      message:
+        "This connection has no database URL. Edit the connection and enter the Database URL.",
+    });
+  });
+
+  it("Should handle a reverse proxy that renamed away the /explorer mount segment", () => {
+    const error = new ReverseProxyMisconfiguredError("/gx/");
+    const result = createDisplayError(error);
+    expect(result).toStrictEqual({
+      title: "Reverse proxy misconfigured",
+      message: error.message,
     });
   });
 
@@ -233,10 +404,11 @@ describe("createDisplayError", () => {
   });
 });
 
-/** Used to create errors for test code. */
-class FakeError extends Error {
-  constructor(name: string, message: string) {
-    super(message);
-    this.name = name;
+/** Stands in for a query value failure type that `createDisplayError` has no branch for. */
+class UnrecognizedQueryValueError extends QueryValueError {
+  readonly details = {};
+
+  constructor() {
+    super("UnrecognizedQueryValueError", "unrecognized");
   }
 }

@@ -103,8 +103,8 @@ function toTypeKeyedMap<T extends { type: VertexType | EdgeType }>(
   const map = new Map<T["type"], T>();
   for (const item of items) {
     if (map.has(item.type)) {
-      console.warn(
-        `[graph-explorer] Duplicate ${label} type "${item.type}" found in legacy user-styling data; keeping the last entry.`,
+      logger.warn(
+        `[user-styling-migration] Duplicate ${label} type "${item.type}" found in legacy user-styling data; keeping the last entry.`,
       );
     }
     map.set(item.type, item);

@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["src", "vite.config.ts"],
+  "include": ["src", "*.ts"],
   "compilerOptions": {
     /* Modules */
     "module": "ESNext",
@@ -13,13 +13,8 @@
     "jsx": "react-jsx",
 
     /* Type Resolution */
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "types": [
-      "vite/client",
-      "vitest/globals",
-      "@testing-library/jest-dom",
-      "@types/wicg-file-system-access"
-    ],
+    "lib": ["ES2023", "ES2024.String", "DOM", "DOM.Iterable"],
+    "types": ["vite/client", "@types/wicg-file-system-access"],
     "paths": {
       "@/*": ["./src/*"],
       "@/types/*": ["./src/@types/*"],

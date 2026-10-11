@@ -39,7 +39,7 @@ export function serializeData(data: any): any {
     // Wrap sets in an object describing the type and convert to array of array
     return {
       __type: "Set",
-      value: Array.from(data.values()).map(value => serializeData(value)),
+      value: Array.from(data).map(value => serializeData(value)),
     };
   } else if (Array.isArray(data)) {
     // Recursively serialize array items

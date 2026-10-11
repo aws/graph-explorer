@@ -113,7 +113,7 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
         <VertexRow vertex={targetVertex} />
       </div>
       <div className="space-y-4.5 p-3">
-        <div className="text-lg font-bold">{t("properties")}</div>
+        <div className="text-lg font-semibold">{t("properties")}</div>
         <ul className="space-y-4.5">
           {allAttributes.map(attribute => (
             <EntityAttribute key={attribute.name} attribute={attribute} />

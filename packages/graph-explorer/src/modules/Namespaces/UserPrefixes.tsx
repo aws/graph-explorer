@@ -29,7 +29,7 @@ import {
   DialogTitle,
 } from "@/components/Dialog";
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   type PrefixTypeConfig,
   schemaAtom,
   useConfiguration,
@@ -118,7 +118,7 @@ function Row({ prefix }: { prefix: PrefixTypeConfig }) {
   return (
     <div className="px-3 py-1.5">
       <ListRow className="min-h-12">
-        <NamespaceIcon className="text-primary-main size-5 shrink-0" />
+        <NamespaceIcon className="text-primary size-5 shrink-0" />
         <ListRowContent>
           <ListRowTitle>{prefix.prefix}</ListRowTitle>
           <ListRowSubtitle className="break-all">{prefix.uri}</ListRowSubtitle>
@@ -164,7 +164,7 @@ function useDeletePrefixCallback(prefix: string) {
   return useAtomCallback(
     useCallback(
       (get, set) => {
-        const activeConfigId = get(activeConfigurationAtom);
+        const activeConfigId = get(activeConnectionIdAtom);
 
         if (!activeConfigId) {
           return;

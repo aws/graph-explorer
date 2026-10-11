@@ -1,10 +1,10 @@
 import { useAtom } from "jotai";
 import { atomWithReset } from "jotai/utils";
 
-import type { SelectOption } from "@/components";
+import type { ComboboxOption } from "@/components";
 
+import { useQueryEngine } from "@/connections";
 import { useDisplayVertexTypeConfigs, useSearchableAttributes } from "@/core";
-import { useQueryEngine } from "@/core/connector";
 import { useTranslations } from "@/hooks";
 import useDebounceValue from "@/hooks/useDebounceValue";
 import { SEARCH_TOKENS } from "@/utils";
@@ -26,11 +26,12 @@ export const partialMatchAtom = atomWithReset(false);
 
 /** Gets all the searchable attributes for the selected vertex type */
 function useAttributeOptions(selectedVertexType: string) {
-  const allSearchableAttributes = useSearchableAttributes(selectedVertexType);
   const queryEngine = useQueryEngine();
   const t = useTranslations();
 
-  const options: SelectOption[] = [
+  const allSearchableAttributes = useSearchableAttributes(selectedVertexType);
+
+  const options: ComboboxOption[] = [
     {
       label: `All string ${t("properties").toLocaleLowerCase()}`,
       value: SEARCH_TOKENS.ALL_ATTRIBUTES,
@@ -48,6 +49,7 @@ function useAttributeOptions(selectedVertexType: string) {
       value: attribute.name,
     });
   }
+
   return options;
 }
 
@@ -74,8 +76,7 @@ export default function useKeywordSearch() {
   const vtConfigs = useDisplayVertexTypeConfigs();
   const vertexOptions = [
     { label: "All", value: SEARCH_TOKENS.ALL_VERTEX_TYPES },
-    ...vtConfigs
-      .values()
+    ...Array.from(vtConfigs.values())
       // Filtering out empty types because the queries need to be updated to support them
       .filter(vtConfig => vtConfig.type !== "")
       .map(vtConfig => ({

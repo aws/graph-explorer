@@ -20,6 +20,12 @@ import {
 } from "@shared/utils/testing";
 
 import {
+  type ConnectionId,
+  type ConnectionWithId,
+  createConnectionId,
+  type SavedConnection,
+} from "@/connections";
+import {
   createPatchedResultEdge,
   createPatchedResultVertex,
   createResultEdge,
@@ -30,12 +36,9 @@ import { createRdfEdgeId } from "@/connector/sparql/createRdfEdgeId";
 import {
   type ArrowStyle,
   type AttributeConfig,
-  type ConfigurationId,
-  type ConnectionWithId,
   createEdge,
   createEdgeId,
   createEdgeType,
-  createNewConfigurationId,
   createVertex,
   createVertexId,
   createVertexType,
@@ -50,9 +53,9 @@ import {
   type EntityRawId,
   type FeatureFlags,
   type GraphViewLayout,
+  layoutNames,
   type LineStyle,
   type PrefixTypeConfig,
-  type RawConfiguration,
   resolveEdgeStyle,
   resolveVertexStyle,
   type SchemaStorageModel,
@@ -149,6 +152,11 @@ export function createRandomEdgeTypeConfigForRdf(): EdgeTypeConfig {
   };
 }
 
+/** An uploaded-style icon, so rendering one never hits the network. */
+export function createRandomIconDataUrl(): string {
+  return `data:image/png;base64,${btoa(createRandomName("icon"))}`;
+}
+
 /**
  * Creates a random VertexTypeConfig object.
  * @returns A random VertexTypeConfig object.
@@ -164,8 +172,8 @@ export function createRandomVertexTypeConfig(): VertexTypeConfig {
     total: createRandomInteger(),
     // style
     color: createRandomColor(),
-    iconImageType: createRandomName("iconImageType"),
-    iconUrl: createRandomUrlString(),
+    iconImageType: "image/png",
+    iconUrl: createRandomIconDataUrl(),
   };
 }
 
@@ -272,9 +280,9 @@ export function createRandomEdgeId(): EdgeId {
   return createEdgeId(createRandomName("EdgeId"));
 }
 
-/** Creates a random configuration (connection) ID. */
-export function createRandomConfigurationId(): ConfigurationId {
-  return createNewConfigurationId();
+/** Creates a random connection ID. */
+export function createRandomConnectionId(): ConnectionId {
+  return createConnectionId();
 }
 
 export function createRandomVertexType(): VertexType {
@@ -553,7 +561,7 @@ export function createRandomEntityAttributeForRdf() {
   };
 }
 
-function pickRandomElement<T>(array: T[]): T {
+function pickRandomElement<T>(array: readonly T[]): T {
   return array[Math.floor(Math.random() * array.length)];
 }
 
@@ -603,7 +611,6 @@ export function createRandomFile(): File {
 }
 
 export function createRandomConnectionWithId(): ConnectionWithId {
-  const isProxyConnection = createRandomBoolean();
   const isIamEnabled = createRandomBoolean();
   const fetchTimeoutMs = randomlyUndefined(createRandomInteger());
   const nodeExpansionLimit = randomlyUndefined(createRandomInteger());
@@ -611,12 +618,10 @@ export function createRandomConnectionWithId(): ConnectionWithId {
   const queryEngine = createRandomQueryEngine();
 
   return {
-    id: createNewConfigurationId(),
+    id: createConnectionId(),
     displayLabel: createRandomName("displayLabel"),
-    url: createRandomUrlString(),
-    ...(isProxyConnection && { graphDbUrl: createRandomUrlString() }),
+    graphDbUrl: createRandomUrlString(),
     queryEngine,
-    proxyConnection: isProxyConnection,
     ...(isIamEnabled && { awsAuthEnabled: createRandomBoolean() }),
     ...(isIamEnabled && {
       awsRegion: createRandomAwsRegion(),
@@ -628,10 +633,10 @@ export function createRandomConnectionWithId(): ConnectionWithId {
 }
 
 /**
- * Creates a random RawConfiguration object.
- * @returns A random RawConfiguration object.
+ * Creates a random SavedConnection object.
+ * @returns A random SavedConnection object.
  */
-export function createRandomRawConfiguration(): RawConfiguration {
+export function createRandomSavedConnection(): SavedConnection {
   const { id, displayLabel, ...connection } = createRandomConnectionWithId();
 
   return {
@@ -669,7 +674,7 @@ export function createRandomAwsRegion(): string {
 export function createRandomVertexStyleStorage(): VertexStyleStorage {
   const color = randomlyUndefined(createRandomColor());
   const borderColor = randomlyUndefined(createRandomColor());
-  const iconUrl = randomlyUndefined(createRandomUrlString());
+  const iconUrl = randomlyUndefined(createRandomIconDataUrl());
   const longDisplayNameAttribute = randomlyUndefined(
     createRandomName("LongDisplayNameAttribute"),
   );
@@ -841,5 +846,6 @@ export function createRandomSchemaViewLayout(): SchemaViewLayout {
       }),
     },
     detailsAutoOpenOnSelection: randomlyUndefined(createRandomBoolean()),
+    layoutAlgorithm: pickRandomElement(layoutNames),
   };
 }

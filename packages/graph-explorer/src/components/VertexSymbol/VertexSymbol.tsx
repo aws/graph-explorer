@@ -1,0 +1,118 @@
+import { useId } from "react";
+
+import { useVertexStyle, type VertexStyle, type VertexType } from "@/core";
+import { ICON_BOX, ICON_INSET } from "@/core/icons";
+import { cn } from "@/utils";
+
+import { resolveShapeGeometry } from "./nodeShapes";
+import { VertexSymbolIcon } from "./VertexSymbolIcon";
+
+const CANVAS_NODE_SIZE = 24;
+/**
+ * How much larger the preview draws things than the graph canvas: the ratio of
+ * the SVG viewBox ({@link ICON_BOX}) to a canvas node's size in cytoscape units
+ * (24). Applied to any canvas-unit length (border width, label font/padding)
+ * to render it at preview size.
+ */
+export const PREVIEW_SCALE = ICON_BOX / CANVAS_NODE_SIZE;
+
+interface Props {
+  vertexStyle: VertexStyle;
+  className?: string;
+}
+
+export function VertexSymbol({ vertexStyle, className }: Props) {
+  // SVG url(#...) references reject the colons in React's raw useId format.
+  const clipId = `vs-${useId().replace(/:/g, "")}`;
+  const strokeWidth = vertexStyle.borderWidth * PREVIEW_SCALE;
+  const insetSize = Math.max(1, ICON_BOX - strokeWidth * 2);
+  const geometry = resolveShapeGeometry(vertexStyle.shape, insetSize);
+
+  const { size: iconSize, offset: iconOffset } = ICON_INSET;
+
+  // The shape is rendered twice: once filled/stroked, once as the icon's
+  // clipPath. clipPath children must be shape elements directly — a wrapping
+  // <g> is ignored by the spec and yields an empty clip — so the inset
+  // transform is carried by the shape element itself.
+  const transform = `translate(${strokeWidth} ${strokeWidth})`;
+  const shapeEl = renderShape(geometry, insetSize, transform);
+
+  return (
+    <svg
+      viewBox={`0 0 ${ICON_BOX} ${ICON_BOX}`}
+      className={cn("size-9 shrink-0", className)}
+      // An inline SVG is required for the clipPath and nested icon.
+      // eslint-disable-next-line jsx-a11y/prefer-tag-over-role
+      role="img"
+      aria-label={`${vertexStyle.displayLabel ?? vertexStyle.type} symbol`}
+    >
+      <defs>
+        <clipPath id={clipId}>{shapeEl}</clipPath>
+      </defs>
+      <g
+        fill={vertexStyle.color}
+        fillOpacity={vertexStyle.backgroundOpacity}
+        stroke={strokeWidth > 0 ? vertexStyle.borderColor : "none"}
+        strokeWidth={strokeWidth}
+        strokeDasharray={strokeDash(vertexStyle.borderStyle)}
+      >
+        {shapeEl}
+      </g>
+      <g clipPath={`url(#${clipId})`}>
+        <VertexSymbolIcon
+          vertexStyle={vertexStyle}
+          x={iconOffset}
+          y={iconOffset}
+          size={iconSize}
+        />
+      </g>
+    </svg>
+  );
+}
+
+export function VertexSymbolByType({
+  vertexType,
+  className,
+}: {
+  vertexType: VertexType;
+  className?: string;
+}) {
+  const vertexStyle = useVertexStyle(vertexType);
+  return <VertexSymbol vertexStyle={vertexStyle} className={className} />;
+}
+
+function strokeDash(style: string): string | undefined {
+  if (style === "dashed") return "6 4";
+  if (style === "dotted") return "2 3";
+  return undefined;
+}
+
+function renderShape(
+  geometry: ReturnType<typeof resolveShapeGeometry>,
+  size: number,
+  transform: string,
+) {
+  switch (geometry.type) {
+    case "polygon":
+      return <polygon points={geometry.points} transform={transform} />;
+    case "round-polygon":
+    case "round-rectangle":
+    case "cut-rectangle":
+    case "barrel":
+      return <path d={geometry.path} transform={transform} />;
+    case "ellipse":
+      return (
+        <ellipse
+          cx={size / 2}
+          cy={size / 2}
+          rx={size / 2}
+          ry={size / 2}
+          transform={transform}
+        />
+      );
+    default: {
+      const _exhaustive: never = geometry;
+      return _exhaustive;
+    }
+  }
+}

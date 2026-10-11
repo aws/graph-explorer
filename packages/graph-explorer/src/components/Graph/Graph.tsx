@@ -12,6 +12,7 @@ import {
   useState,
 } from "react";
 
+import { DEFAULT_LAYOUT_NAME, type LayoutName } from "@/core/graphLayout";
 import { cn } from "@/utils";
 
 import type {
@@ -19,7 +20,6 @@ import type {
   CytoscapeType,
   GraphEdge,
   GraphNode,
-  LayoutName,
   Selection,
 } from "./Graph.model";
 import type { UseAddClickEvents } from "./hooks/useAddClickEvents";
@@ -163,7 +163,7 @@ export const Graph = ({
   onNodeRightClick,
   onGraphClick,
   onGraphRightClick,
-  layout = "F_COSE",
+  layout = DEFAULT_LAYOUT_NAME,
   badgesEnabled = false,
   useAnimation = true,
   pan,

@@ -1,5 +1,441 @@
 # Graph Explorer Change Log
 
+## Release 3.3.0
+
+Connecting to your database should be the easy part, and for a long time it wasn't. You had to tell Graph Explorer where its own server lived, tick a "Using Proxy-Server" checkbox that never explained itself, and make sure two different URLs lined up. Release 3.3.0 removes all of that. Graph Explorer now finds its own server, so a new connection is just a name, a database URL, and a query language.
+
+The rest of the release builds on that. Other tools can now send you a link that opens Graph Explorer already pointed at your data. One Docker image serves every deployment, SageMaker notebooks included. Edge discovery finishes on the largest Neptune graphs, and error messages now tell you what went wrong and what to do about it.
+
+### Simpler Connections
+
+- **No more proxy endpoint.** The "Public or Proxy Endpoint" field and the "Using Proxy-Server" checkbox are gone. The "Graph Connection URL" field is now called Database URL, and it's the only address you enter. Your existing connections carry over unchanged.
+- **Choose how you connect.** Two cards make the choice plain. **Through the Graph Explorer server** is recommended for every database, including Amazon Neptune. **Directly from your browser** is for databases that accept queries from web pages, such as a public SPARQL endpoint. AWS IAM authentication sits below the cards and works with the server option.
+- **Advanced options out of the way.** The fetch timeout and neighbor expansion limit now live in a collapsible Advanced options section, with names and descriptions that say what each one does. If a connection already overrides one of them, the section opens on its own so nothing is hidden.
+- **Any query language for Neptune Analytics.** Choosing Neptune Analytics used to force openCypher, and unchecking IAM hid the control that caused it, leaving no way to undo it. The service type and query language are now independent.
+- **Direct connections to Gremlin Server.** These now work. Before, Gremlin Server turned away the browser's preflight check, so the query was never sent and schema sync failed.
+- **Exports that older versions can read.** Connection files you export from 3.3.0 import into older versions of Graph Explorer, so you can share them with teammates who haven't upgraded yet.
+
+### Connection Links
+
+If you build tools around your graph, you can now hand people a link that opens Graph Explorer already pointed at the right database. Nobody has to copy URLs or walk through the connection form.
+
+```
+https://<graph-explorer-host>/explorer/#/connect?graphDbUrl=https%3A%2F%2Fmy-cluster.us-east-1.neptune.amazonaws.com%3A8182&queryEngine=gremlin&awsRegion=us-east-1&serviceType=neptune-db&name=My%20Database
+```
+
+- **It matches what you have.** If the link matches an existing connection, Graph Explorer switches to it.
+- **It asks before adding.** If nothing matches, a prefilled connection form opens. Nothing is saved until you click Add Connection.
+- **It explains what's wrong.** If a parameter is invalid, a card lists each problem and the link is ignored.
+
+See [Connection Links](docs/features/connections.md#connection-links) for the parameters and matching rules.
+
+### One Docker Image
+
+There used to be two Docker images, one for SageMaker notebooks and one for everything else. Now there's one.
+
+- **One image for every deployment.** The same image serves standalone, SageMaker, and reverse proxy deployments at any path prefix, with no build-time configuration. The `sagemaker-*` tags are still published as aliases of the standard image.
+- **A runtime notebook preset.** `NEPTUNE_NOTEBOOK=true` now sets port 9250, CloudWatch logs, and HTTP when the container starts.
+- **Reverse proxies keep you in the app.** Behind a path prefix, visiting `/explorer` without a trailing slash no longer redirects you to the proxy's root.
+
+### Large Graphs
+
+Release 3.2.2 was about scale, and this release keeps going.
+
+- **Edge discovery that finishes.** A Gremlin graph with three edge types and nearly 20 million edges used to run Neptune out of memory in about 30 seconds. Each edge type is now sampled with its own limit, 10 types per request.
+- **No wasted requests.** When one schema sync request fails, Graph Explorer stops sending the rest of the batch.
+- **Pickers that keep up.** The node type and attribute pickers in the Data Explorer and the search sidebar open instantly on schemas with thousands of types, and filter as you type (thanks @mjuarros!).
+
+### Layouts Per Tab
+
+Release 3.2.0 gave each browser tab its own connection. Layouts now follow the same rule.
+
+- **Each tab keeps its own layout.** Graph View and Schema View layouts, such as the active sidebar tab and its width, belong to the tab you set them in, so one tab no longer overwrites another's. A new tab starts from the layout you used most recently.
+- **The Schema View remembers your layout algorithm** (thanks @mjuarros!).
+
+### Proxy Server Safeguards
+
+The proxy server sits between your browser and your database, so it checks where it sends requests and says what it's doing.
+
+- **Link-local addresses are refused.** The proxy server refuses database URLs whose host is a link-local address, whether or not an allowlist is set.
+- **Credentials in URLs are rejected.** Database URLs that contain a username or password never worked. They now fail up front with a clear error.
+- **The allowlist is easier to find.** The first time the proxy server signs a request with IAM and no `PROXY_SERVER_ALLOWED_DB_ORIGINS` is set, it logs a warning. A request to an origin outside the allowlist now gets an error that names the setting.
+- **Startup problems say why.** The container refuses to start, and explains itself, when `NEPTUNE_NOTEBOOK` and `PROXY_SERVER_HTTPS_CONNECTION` are both true, or when it can't write to its configuration folder. Before, these failed with a misleading error.
+- **Invalid settings name the fix.** An invalid boolean environment variable now lists the accepted values.
+
+### Clearer Error Messages
+
+An error message is only useful if it points you toward the fix.
+
+- **Two kinds of timeout.** A fetch timeout and a database query timeout now show different messages, "Fetch timeout exceeded" and "Database query timed out", because you fix one in the connection and the other in the database.
+- **Unreachable databases.** An unresolvable hostname or a timed-out connection through the proxy server now shows "Database unreachable" instead of a generic "Network Response 500".
+- **Direct connection failures.** A direct connection that fails shows "Database not reachable from the browser" or "Insecure database URL", along with what to change.
+- **Cancel means cancel.** Cancelling a query no longer brings back the previous query's error.
+
+### Bug Fixes
+
+- Non-square custom icons now scale to fit instead of being stretched into a square (thanks @mjuarros!).
+- The code viewer no longer appears with a white theme the first time it opens (thanks @mjuarros!).
+- URLs in the error details and raw response viewers are no longer clickable links (thanks @mjuarros!).
+- Error details no longer fail to render in browsers that lack `Error.isError` (thanks @mjuarros!).
+- The Graph View and Data Explorer show "Connection: none" instead of "Connection: undefined" when no connection is active.
+
+### Documentation
+
+Graph Explorer has no sign-in of its own, so the docs now put access control up front.
+
+- **Access control comes first.** The security reference opens with a new [Access Control](docs/references/security.md#access-control) section. Graph Explorer performs no authentication or authorization, so never make it publicly reachable without an access control layer in front of it. Every deployment guide now says so.
+- **Guidance for self-hosted databases.** New sections cover [self-hosted Gremlin Server](docs/references/security.md#self-hosted-gremlin-server) and using the [Database Origin Allowlist](docs/references/security.md#database-origin-allowlist) on hosts with AWS credentials.
+- **Tighter deployment guides.** The EC2, ECS, Docker, and SageMaker guides now restrict who can reach the container. The sample SageMaker lifecycle script binds to loopback and sets the allowlist to the notebook's cluster.
+- **A styled sample.** The air_routes sample now includes a styles file and a styling reference, so you can see styling at work right away (thanks @mjuarros!).
+
+### Upgrade Notes
+
+Existing deployments need no configuration change. `PUBLIC_OR_PROXY_ENDPOINT` and `USING_PROXY_SERVER` are still honored. A few things do behave differently:
+
+- **The Graph Explorer server must serve the UI.** Graph Explorer finds its server at the parent of its own `/explorer` path, so hosting the UI on a different origin from the proxy server no longer works. A reverse proxy must forward the `/explorer` segment intact; renaming it shows "Reverse proxy misconfigured".
+- **The `sagemaker-*` tags no longer bake in notebook defaults.** Pass `NEPTUNE_NOTEBOOK=true` to keep port 9250 and CloudWatch logs. The SageMaker lifecycle script already does. On the standard image, `NEPTUNE_NOTEBOOK=true` now applies the same preset, so set `PROXY_SERVER_HTTP_PORT` if you want a different port.
+- **Downgrading after editing connections isn't supported.** Older versions can't read the new stored connection shape. Exported connection files still import into older versions.
+- **Remote icon URLs are no longer supported.** A stored icon that isn't a built-in icon or an uploaded image falls back to the default icon.
+- **Minimum browser versions** are now Chrome and Edge 123, Firefox 124, and Safari 17.4.
+- **The proxy server's `/gremlin` route reads `gremlin` from the request body instead of `query`.** Reload any browser tab left open across the upgrade. Anything else that posts to this route needs the same change.
+
+### All Changes
+
+- Make safeSessionStorage fallback test independent of Node version by @mjuarros in https://github.com/aws/graph-explorer/pull/2148
+- Update dependencies and base image by @kmcginnes in https://github.com/aws/graph-explorer/pull/2156
+- Add sample styles file and documentation for air_routes sample by @mjuarros in https://github.com/aws/graph-explorer/pull/2132
+- Upgrade the Oxc toolchain and resolve #2150 lint findings by @mjuarros in https://github.com/aws/graph-explorer/pull/2162
+- Move core-js to production dependencies by @mjuarros in https://github.com/aws/graph-explorer/pull/2167
+- Apply the Monaco theme before the editor mounts by @mjuarros in https://github.com/aws/graph-explorer/pull/2133
+- Bump base image and trim the Docker build context by @kmcginnes in https://github.com/aws/graph-explorer/pull/2183
+- Update pnpm to 12.4.2 by @kmcginnes in https://github.com/aws/graph-explorer/pull/2178
+- Update Vitest to version 5 by @mjuarros in https://github.com/aws/graph-explorer/pull/2166
+- Update jotai to 3 by @mjuarros in https://github.com/aws/graph-explorer/pull/2175
+- Disable Monaco link detection in code viewers by @mjuarros in https://github.com/aws/graph-explorer/pull/2189
+- Virtualized Combobox component and keyword-search node-type picker migration by @mjuarros in https://github.com/aws/graph-explorer/pull/2131
+- Dedupe the lockfile and fail CI on drift by @mjuarros in https://github.com/aws/graph-explorer/pull/2205
+- Add Dependabot configuration for docker, GitHub Actions, and npm by @mjuarros in https://github.com/aws/graph-explorer/pull/2206
+- Bump vitest from 5.0.0 to 5.0.1 in the vitest group by @dependabot[bot] in https://github.com/aws/graph-explorer/pull/2208
+- Bump amazonlinux/amazonlinux from 2023.12.20260914.0 to 2023.12.20260918.0 by @dependabot[bot] in https://github.com/aws/graph-explorer/pull/2207
+- Bump the actions group with 7 updates by @dependabot[bot] in https://github.com/aws/graph-explorer/pull/2210
+- Bump dotenv from 17.4.2 to 18.0.1 by @dependabot[bot] in https://github.com/aws/graph-explorer/pull/2215
+- Remove unused https dependency from the proxy server by @danielvanza in https://github.com/aws/graph-explorer/pull/2197
+- Remove unused Babel preset devDependencies by @kmcginnes in https://github.com/aws/graph-explorer/pull/2229
+- Stop flaky assertions in proxy server and schema sync tests by @kmcginnes in https://github.com/aws/graph-explorer/pull/2220
+- Stop Dependabot reopening the @babel/core major bump by @kmcginnes in https://github.com/aws/graph-explorer/pull/2230
+- Remove unused dependencies by @kmcginnes in https://github.com/aws/graph-explorer/pull/2231
+- Move babel-plugin-react-compiler to devDependencies by @kmcginnes in https://github.com/aws/graph-explorer/pull/2232
+- Replace Error.isError with instanceof Error in createErrorDetails by @mjuarros in https://github.com/aws/graph-explorer/pull/2192
+- Ignore @types/node majors and cva bumps in Dependabot by @kmcginnes in https://github.com/aws/graph-explorer/pull/2238
+- Share one test environment factory across the proxy server tests by @kmcginnes in https://github.com/aws/graph-explorer/pull/2248
+- Bump the minor-and-patch group across 1 directory with 24 updates by @dependabot[bot] in https://github.com/aws/graph-explorer/pull/2241
+- Exclude local secrets and build output from Docker build context by @kmcginnes in https://github.com/aws/graph-explorer/pull/2243
+- Reject database URLs carrying embedded credentials at the proxy boundary by @kmcginnes in https://github.com/aws/graph-explorer/pull/2255
+- Carry the errno through the proxy server's error payload by @kmcginnes in https://github.com/aws/graph-explorer/pull/2249
+- Make the static mount's trailing-slash redirect relative by @kmcginnes in https://github.com/aws/graph-explorer/pull/2251
+- Speed up test setup by skipping the utils barrel by @kmcginnes in https://github.com/aws/graph-explorer/pull/2257
+- Drop coverage thresholds and stop collecting coverage in CI by @kmcginnes in https://github.com/aws/graph-explorer/pull/2258
+- Give TestProvider a router by @kmcginnes in https://github.com/aws/graph-explorer/pull/2260
+- Extract connection activation into a shared hook by @kmcginnes in https://github.com/aws/graph-explorer/pull/2261
+- Shard unit tests across four CI jobs by @kmcginnes in https://github.com/aws/graph-explorer/pull/2259
+- Let the create connection form start from prefilled values by @kmcginnes in https://github.com/aws/graph-explorer/pull/2262
+- Move type, lint, and format checks into their own workflow by @kmcginnes in https://github.com/aws/graph-explorer/pull/2263
+- Skip unit tests and the Docker test build for docs-only changes by @kmcginnes in https://github.com/aws/graph-explorer/pull/2264
+- Name the accepted values in the boolean env var validation error by @kmcginnes in https://github.com/aws/graph-explorer/pull/2266
+- Distinguish fetch timeouts from database query timeouts by @kmcginnes in https://github.com/aws/graph-explorer/pull/2268
+- Cache the pnpm store in CI by @kmcginnes in https://github.com/aws/graph-explorer/pull/2271
+- Scan the published Docker image after the publish workflow finishes by @kmcginnes in https://github.com/aws/graph-explorer/pull/2270
+- Revert pnpm store caching in CI by @kmcginnes in https://github.com/aws/graph-explorer/pull/2273
+- Fix the broken safari pinned tab icon path by @kmcginnes in https://github.com/aws/graph-explorer/pull/2276
+- Fall back to "none" for the connection subtitle by @kmcginnes in https://github.com/aws/graph-explorer/pull/2274
+- Name the NEPTUNE_NOTEBOOK/HTTPS conflict instead of blaming missing certs by @kmcginnes in https://github.com/aws/graph-explorer/pull/2252
+- Label the expansion limit field Neighbor Expansion Limit by @kmcginnes in https://github.com/aws/graph-explorer/pull/2275
+- Refuse to start when the container can't write its .env file by @kmcginnes in https://github.com/aws/graph-explorer/pull/2267
+- Stop the request pool pulling new work after a failure by @kmcginnes in https://github.com/aws/graph-explorer/pull/2281
+- Stop hard-wrapping Markdown prose by @kmcginnes in https://github.com/aws/graph-explorer/pull/2288
+- Put the advanced connection settings behind a disclosure by @kmcginnes in https://github.com/aws/graph-explorer/pull/2278
+- Sample each edge type with its own limit, 10 types per request by @kmcginnes in https://github.com/aws/graph-explorer/pull/2279
+- Unify Docker image by removing SageMaker variant by @kmcginnes in https://github.com/aws/graph-explorer/pull/1773
+- Bump amazonlinux/amazonlinux from 2023.12.20260918.0 to 2023.12.20260928.0 by @dependabot[bot] in https://github.com/aws/graph-explorer/pull/2300
+- Bump github/codeql-action/upload-sarif from 4.38.1 to 4.38.2 in the actions group by @dependabot[bot] in https://github.com/aws/graph-explorer/pull/2292
+- Add connection links via a dedicated #/connect route by @kmcginnes in https://github.com/aws/graph-explorer/pull/1828
+- Replace .nvmrc with .node-version by @kmcginnes in https://github.com/aws/graph-explorer/pull/2302
+- Connections refactor, phase A (1/4): pin the active-connection selectors with tests by @mjuarros in https://github.com/aws/graph-explorer/pull/2301
+- Import vitest APIs explicitly instead of using globals by @kmcginnes in https://github.com/aws/graph-explorer/pull/2304
+- Connections refactor, phase A (2/4): golden-file tests for the Exported Connection File by @mjuarros in https://github.com/aws/graph-explorer/pull/2308
+- Connections refactor, phase A (3/4): pin the stored connection shapes by @mjuarros in https://github.com/aws/graph-explorer/pull/2311
+- Remove test coverage tooling by @kmcginnes in https://github.com/aws/graph-explorer/pull/2309
+- Connections refactor, phase A (4/4): delete the unused ConfigurationWithConnection type by @mjuarros in https://github.com/aws/graph-explorer/pull/2316
+- Sync mattpocock skills to latest upstream by @kmcginnes in https://github.com/aws/graph-explorer/pull/2331
+- Upgrade pnpm to 12.8.1 by @kmcginnes in https://github.com/aws/graph-explorer/pull/2327
+- Enable pnpm autoDedupe by @kmcginnes in https://github.com/aws/graph-explorer/pull/2328
+- Combine checks and unit tests into one unsharded CI job by @kmcginnes in https://github.com/aws/graph-explorer/pull/2329
+- Run dependency review only when dependency manifests change by @kmcginnes in https://github.com/aws/graph-explorer/pull/2333
+- Add REVIEW.md and point code reviews at it by @kmcginnes in https://github.com/aws/graph-explorer/pull/2336
+- Bump amazonlinux/amazonlinux from 2023.12.20260928.0 to 2023.12.20260930.0 by @dependabot[bot] in https://github.com/aws/graph-explorer/pull/2337
+- Replace CodeQL default setup with advanced setup by @kmcginnes in https://github.com/aws/graph-explorer/pull/2334
+- Correct documented settings that do not work as described by @kmcginnes in https://github.com/aws/graph-explorer/pull/2324
+- Move render-time Date calls into lazy state initializers by @kmcginnes in https://github.com/aws/graph-explorer/pull/2339
+- Bump the minor-and-patch group across 1 directory with 21 updates by @dependabot[bot] in https://github.com/aws/graph-explorer/pull/2342
+- Keep exported connection files importable by older versions by @kmcginnes in https://github.com/aws/graph-explorer/pull/2317
+- Connections refactor, phase B (5/10): move connection types into src/connections/ by @mjuarros in https://github.com/aws/graph-explorer/pull/2332
+- Share the export-to-text helper across connection file tests by @kmcginnes in https://github.com/aws/graph-explorer/pull/2340
+- Fix SelectField ignoring disabled and aria-label in its default layout by @kmcginnes in https://github.com/aws/graph-explorer/pull/2319
+- Document the deployer's responsibility for access control by @kmcginnes in https://github.com/aws/graph-explorer/pull/2343
+- Explain why url wins over graphDbUrl on legacy direct connections by @kmcginnes in https://github.com/aws/graph-explorer/pull/2345
+- Connections refactor, phase B (6/10): move normalization and legacy migration into src/connections/ by @mjuarros in https://github.com/aws/graph-explorer/pull/2344
+- Correct access control docs and widen the docs review rule by @kmcginnes in https://github.com/aws/graph-explorer/pull/2346
+- Connections refactor, phase B (7/10): move active-connection selectors into src/connections/ by @mjuarros in https://github.com/aws/graph-explorer/pull/2348
+- State that Graph Explorer enforces no permissions by @kmcginnes in https://github.com/aws/graph-explorer/pull/2347
+- Connections refactor, phase B (8/10): move exported connection file code into src/connections/ by @mjuarros in https://github.com/aws/graph-explorer/pull/2349
+- Connections refactor, phase B (9/10): move default connection and lifecycle hooks into src/connections/ by @mjuarros in https://github.com/aws/graph-explorer/pull/2350
+- Stop using Iterator helpers and other above-floor APIs so core-js can be removed by @mjuarros in https://github.com/aws/graph-explorer/pull/2245
+- Show invalid connection links in a card on the connect page by @kmcginnes in https://github.com/aws/graph-explorer/pull/2352
+- Extract the connection form model into a pure module by @kmcginnes in https://github.com/aws/graph-explorer/pull/2320
+- Scope graph-view and schema-view layouts to the browser tab by @kmcginnes in https://github.com/aws/graph-explorer/pull/1894
+- Connections refactor, phase B (10/10): rehome schema leftovers and delete ConfigurationProvider by @mjuarros in https://github.com/aws/graph-explorer/pull/2351
+- Fix non-square icons squashed instead of scaled to fit by @mjuarros in https://github.com/aws/graph-explorer/pull/2142
+- Finish the access control docs by @kmcginnes in https://github.com/aws/graph-explorer/pull/2355
+- Connections refactor, phase C (11/13): rename legacy Configuration symbols to Connection by @mjuarros in https://github.com/aws/graph-explorer/pull/2357
+- Bump the minor-and-patch group with 11 updates by @dependabot[bot] in https://github.com/aws/graph-explorer/pull/2358
+- Bump motion from 13.4.6 to 14.0.0 by @dependabot[bot] in https://github.com/aws/graph-explorer/pull/2359
+- Help operators limit which databases the proxy's AWS identity can reach by @kmcginnes in https://github.com/aws/graph-explorer/pull/2363
+- Persist schema view layout selection by @mjuarros in https://github.com/aws/graph-explorer/pull/2144
+- Stop locking the query language when Neptune Analytics is chosen by @kmcginnes in https://github.com/aws/graph-explorer/pull/2365
+- Keep an explicit query language in Neptune Analytics connection links by @kmcginnes in https://github.com/aws/graph-explorer/pull/2366
+- Move Query Language below Database URL and relabel the IAM checkbox by @kmcginnes in https://github.com/aws/graph-explorer/pull/2367
+- Stop marking direct connections in the connection list and details by @kmcginnes in https://github.com/aws/graph-explorer/pull/2368
+- Stop describing direct connections as deprecated by @kmcginnes in https://github.com/aws/graph-explorer/pull/2369
+- Refresh dependencies by @kmcginnes in https://github.com/aws/graph-explorer/pull/2371
+- Update package versions by @kmcginnes in https://github.com/aws/graph-explorer/pull/2372
+- Choose the connection method with a radio group of choice cards by @kmcginnes in https://github.com/aws/graph-explorer/pull/2364
+- Replace pr skill with local version and add issue skill by @kmcginnes in https://github.com/aws/graph-explorer/pull/2376
+- Connections refactor, phase C (12/13): rename Configuration atoms to Connection by @mjuarros in https://github.com/aws/graph-explorer/pull/2361
+- Add deployment guidance for self-hosted Gremlin Server by @kmcginnes in https://github.com/aws/graph-explorer/pull/2381
+- Bind the notebook sample's container to loopback and restrict its database origins by @kmcginnes in https://github.com/aws/graph-explorer/pull/2382
+- Bump version to 3.3.0 by @kmcginnes in https://github.com/aws/graph-explorer/pull/2384
+- Bind the Gremlin Server walkthrough to loopback and name its connection method by @kmcginnes in https://github.com/aws/graph-explorer/pull/2386
+- Make direct Gremlin connections work with Gremlin Server by @kmcginnes in https://github.com/aws/graph-explorer/pull/2387
+- Reject link-local addresses as database origins by @kmcginnes in https://github.com/aws/graph-explorer/pull/2388
+- Pin the browser floor to Baseline Widely available through browserslist by @kmcginnes in https://github.com/aws/graph-explorer/pull/2394
+- Reword the connection method cards and move IAM below them by @kmcginnes in https://github.com/aws/graph-explorer/pull/2397
+- Tighten warnMissingIds types and drop redundant Set values() calls by @kmcginnes in https://github.com/aws/graph-explorer/pull/2395
+- Fix agent docs that drifted from the connections refactor by @kmcginnes in https://github.com/aws/graph-explorer/pull/2391
+- Warn that the ECS guide deploys publicly and require a source range by @kmcginnes in https://github.com/aws/graph-explorer/pull/2375
+- Typecheck packages/shared on its own by @kmcginnes in https://github.com/aws/graph-explorer/pull/2396
+- Report a fetch timeout only when the timeout fired by @kmcginnes in https://github.com/aws/graph-explorer/pull/2392
+- Use native String.prototype.isWellFormed by @kmcginnes in https://github.com/aws/graph-explorer/pull/2398
+- Shorten the advanced option titles and say what each one does by @kmcginnes in https://github.com/aws/graph-explorer/pull/2400
+- Tighten test fidelity in connection, proxy, and session storage tests by @kmcginnes in https://github.com/aws/graph-explorer/pull/2389
+
+### New Contributors
+
+Welcome and thank you to our first-time contributors!
+
+- @mjuarros made their first contribution in https://github.com/aws/graph-explorer/pull/2148
+- @danielvanza made their first contribution in https://github.com/aws/graph-explorer/pull/2197
+
+**Full Changelog**: https://github.com/aws/graph-explorer/compare/v3.2.2...v3.3.0
+
+## Release 3.2.2
+
+Release 3.2.2 is about scale. Connecting to a graph with thousands of node and edge types took thousands of requests during schema sync. This release batches them, removes one of the stalls that kept the Schema View from rendering, and fixes a proxy failure that surfaced under the same load.
+
+### Large Schemas
+
+- Schema sync now batches attribute and edge connection discovery instead of issuing one request per label or class. On a graph with roughly 10,000 edge types that is about 100 requests instead of 10,000, with the same results. Gremlin, openCypher, and SPARQL all benefit.
+- A single slow request no longer holds up the rest of the sync.
+- Loading icons for thousands of node types no longer stalls the Schema View. More improvements are coming in future releases.
+
+### Proxy Server
+
+- The proxy now caches IAM credentials instead of resolving them on every request. This fixes intermittent "Could not load credentials from any providers" errors under heavy load, such as a schema sync against an IAM authenticated Neptune cluster.
+
+### Bug Fixes
+
+- A styles file with a blank node color or border color now falls back to the default instead of rendering no background or a black icon.
+
+### All Changes
+
+- Replace fixed-batch barrier with an eager concurrency pool by @kmcginnes in https://github.com/aws/graph-explorer/pull/2096
+- Cache proxy IAM credentials and sign with @smithy/signature-v4 by @kmcginnes in https://github.com/aws/graph-explorer/pull/2082
+- Batch openCypher schema-sync attribute sampling into UNION ALL requests by @kmcginnes in https://github.com/aws/graph-explorer/pull/2099
+- Batch edge-connections discovery across all three connectors by @kmcginnes in https://github.com/aws/graph-explorer/pull/2100
+- Batch SPARQL schema-sync class attribute discovery into UNION requests by @kmcginnes in https://github.com/aws/graph-explorer/pull/2106
+- Resolve vertex icons through an icon registry to fix schema-view lockup by @kmcginnes in https://github.com/aws/graph-explorer/pull/2102
+- Bump version to 3.2.2 by @kmcginnes in https://github.com/aws/graph-explorer/pull/2115
+- Update dependencies to latest versions by @kmcginnes in https://github.com/aws/graph-explorer/pull/2117
+
+**Full Changelog**: https://github.com/aws/graph-explorer/compare/v3.2.1...v3.2.2
+
+## Release 3.2.1
+
+Release 3.2.1 hardens how Graph Explorer builds queries, making value handling correct and consistent across Gremlin, openCypher, and SPARQL.
+
+### Query Input Sanitization
+
+- User-supplied values (attribute names, labels, filter text, and IDs) are now escaped completely and consistently across Gremlin, openCypher, and SPARQL.
+- Values that no database can store are rejected up front with a clear error message instead of silently returning incorrect results.
+
+### Gremlin & openCypher Improvements
+
+- Composite labels (Neptune's `::` convention) are now split in a single, consistent location.
+- Empty and invalid identifier names are rejected with a clear error message (Gremlin and openCypher).
+
+### SPARQL Fixes
+
+- Neighbor-attribute filtering now applies multiple filters as a conjunction (all must match).
+- Filter text is matched literally rather than interpreted as a regular expression.
+
+### All Changes
+
+- Use Tailwind IntelliSense for CSS files in Zed by @kmcginnes in https://github.com/aws/graph-explorer/pull/2001
+- Add initiative, kickoff, and wayfinder planning vocabulary by @kmcginnes in https://github.com/aws/graph-explorer/pull/2004
+- Sync mattpocock skills and stop formatting vendored skills by @kmcginnes in https://github.com/aws/graph-explorer/pull/2019
+- Update dependencies and refresh lockfile by @kmcginnes in https://github.com/aws/graph-explorer/pull/2029
+- Add query template characterization tests by @kmcginnes in https://github.com/aws/graph-explorer/pull/2028
+- Route query construction through per-language Query Fragment modules by @kmcginnes in https://github.com/aws/graph-explorer/pull/2035
+- Delete the unused attribute filter operator matrix by @kmcginnes in https://github.com/aws/graph-explorer/pull/2042
+- Refresh lockfile dependencies by @kmcginnes in https://github.com/aws/graph-explorer/pull/2044
+- Escape Gremlin string literals completely and consistently by @kmcginnes in https://github.com/aws/graph-explorer/pull/2043
+- Add 3.2.0 release notes by @kmcginnes in https://github.com/aws/graph-explorer/pull/1997
+- Reframe kickoff as the initiative's brain-dump by @kmcginnes in https://github.com/aws/graph-explorer/pull/2007
+- Give each query-construction failure its own error type by @kmcginnes in https://github.com/aws/graph-explorer/pull/2048
+- Refresh Amazon Linux base image snapshot by @kmcginnes in https://github.com/aws/graph-explorer/pull/2049
+- Build every Gremlin literal through the fragment constructors by @kmcginnes in https://github.com/aws/graph-explorer/pull/2046
+- Delimit Gremlin string literals with single quotes by @kmcginnes in https://github.com/aws/graph-explorer/pull/2047
+- Add UnescapableValueError for values a query position cannot represent by @kmcginnes in https://github.com/aws/graph-explorer/pull/2051
+- Refuse query values no database can carry by @kmcginnes in https://github.com/aws/graph-explorer/pull/2052
+- Escape openCypher string literals for the full character set by @kmcginnes in https://github.com/aws/graph-explorer/pull/2053
+- Escape the full SPARQL literal character set and forbid unrepresentable IRIs by @kmcginnes in https://github.com/aws/graph-explorer/pull/2054
+- Preserve interpolated values when normalizing query whitespace by @kmcginnes in https://github.com/aws/graph-explorer/pull/2055
+- Require full-instance assertions for thrown errors by @kmcginnes in https://github.com/aws/graph-explorer/pull/2056
+- Enforce openCypher identifier rules and route bare template identifiers by @kmcginnes in https://github.com/aws/graph-explorer/pull/2057
+- Sync mattpocock skills to latest upstream by @kmcginnes in https://github.com/aws/graph-explorer/pull/2059
+- Match SPARQL attribute values by substring instead of by regular expression by @kmcginnes in https://github.com/aws/graph-explorer/pull/2058
+- Conjoin SPARQL neighbor attribute filters with AND instead of OR by @kmcginnes in https://github.com/aws/graph-explorer/pull/2061
+- Add local-development-only warning to Gremlin Server sample config by @kmcginnes in https://github.com/aws/graph-explorer/pull/2062
+- Refuse empty Gremlin identifiers and surface a clear message by @kmcginnes in https://github.com/aws/graph-explorer/pull/2064
+- Split composite labels once at the Gremlin ingestion boundary by @kmcginnes in https://github.com/aws/graph-explorer/pull/2063
+- Update dependencies to latest versions by @kmcginnes in https://github.com/aws/graph-explorer/pull/2065
+- Bump version to 3.2.1 by @kmcginnes in https://github.com/aws/graph-explorer/pull/2066
+
+**Full Changelog**: https://github.com/aws/graph-explorer/compare/v3.2.0...v3.2.1
+
+## Release 3.2.0
+
+This release makes styling your graph easier to manage and share. Node and edge styles now live together in one panel, previews everywhere show your nodes and edges exactly as they appear on the canvas, and a new Styles settings page lets you save your styles to a file and selectively load them on another machine or browser. This release also makes Graph Explorer reliable across multiple browser tabs, with connections now scoped per-tab and your data no longer lost between tabs, plus a set of fixes to connections, the proxy server, and the Schema View.
+
+### Styling
+
+- **One Styles panel.** Node and edge styles used to be two separate sidebar tabs. They're now combined into a single **Styles** panel with a Nodes/Edges switch, in both the Graph View and the Schema View. A gear button in the panel header jumps to the Styles settings page.
+- **Canvas-accurate previews everywhere.** Node and edge previews now render the true shape, color, border, icon, and label instead of a generic blue circle. This applies across search results, the legend, the Schema View sidebar, and the style dialogs. The node and edge style dialogs each show a prominent live preview that updates as you customize.
+- **New Styles settings page.** A dedicated page in Settings is the home for saving, loading, and resetting your styles.
+- **Save and share your styles.** Save your styles to a file and load them on another machine or browser to reproduce your look. Loading is selective, so you preview each type's current style beside the incoming one and choose exactly which to apply.
+- **Reset your styles.** A single Reset action on the Styles settings page returns every type to the defaults.
+
+### Reliable Across Multiple Tabs
+
+Graph Explorer stores all your data in your browser. This release makes that dependable when you have more than one tab open.
+
+- **Per-tab connections.** The active connection is now scoped to each tab, so switching connections in one tab no longer changes what every other tab is viewing. When you reopen Graph Explorer after closing all tabs, it resumes the connection you most recently used.
+- **No more cross-tab data loss.** Connections, schemas, styles, and sessions saved in two tabs at once now merge instead of one tab's copy overwriting the other's.
+- **Save-failure recovery.** When a write to browser storage fails, such as when storage is full, a "Changes not saved" indicator now appears in the nav bar with the failure details. When storage is full, it also offers to back up your configuration to a file, rather than losing the change silently on reload.
+
+### Bug Fixes
+
+- Clicking a connection that's already active no longer resets it, so you no longer lose your in-progress graph by re-selecting the connection you're on.
+- Blank nodes now show the default icon on the canvas, matching the details panel (thanks @arnavnagzirkar!).
+- The proxy server now stops with a clear message when its port is already in use, and shuts down cleanly instead of lingering in the background.
+- Removed six rounded node shapes that rendered as rounded diamonds and made connected edges disappear at the size nodes are drawn on the canvas. Any node already using one now falls back to its straight-sided equivalent.
+- Fixed a thin inset gap around dialog footers, so the footer background and divider now reach the dialog edges.
+- Connection URLs with stray whitespace or line breaks are now cleaned up, both when you save a connection (thanks @bakar-dev!) and when an existing connection is used, so a pasted URL with a trailing newline no longer breaks the connection.
+
+### Schema View
+
+- Node types and edge types in the Schema View details panel are now clickable, selecting that type in the graph and keeping the sidebar and canvas highlight in sync (thanks @1wos!).
+- The Schema View sidebar can now collapse and expand, and remembers its width and active tab across sessions, matching the Graph View sidebar.
+- The Schema View can auto-open the Details panel when you select a single type.
+
+### New Contributors
+
+Welcome and thank you to our first-time contributors!
+
+- @1wos made their first contribution in https://github.com/aws/graph-explorer/pull/1731
+- @arnavnagzirkar made their first contribution in https://github.com/aws/graph-explorer/pull/1799
+- @bakar-dev made their first contribution in https://github.com/aws/graph-explorer/pull/1982
+
+### All Changes
+
+- Upgrade dependencies across the workspace by @kmcginnes in https://github.com/aws/graph-explorer/pull/1818
+- Add paging to the icon picker by @kmcginnes in https://github.com/aws/graph-explorer/pull/1819
+- Remove the dead config schema leg from the configuration merge by @kmcginnes in https://github.com/aws/graph-explorer/pull/1821
+- Fully parse the exported connection file with a Zod wire-format schema by @kmcginnes in https://github.com/aws/graph-explorer/pull/1822
+- Remove the schema field from the stored configuration type by @kmcginnes in https://github.com/aws/graph-explorer/pull/1823
+- Make active connection per-tab with a persisted breadcrumb by @kmcginnes in https://github.com/aws/graph-explorer/pull/1826
+- Update dependency versions across the workspace by @kmcginnes in https://github.com/aws/graph-explorer/pull/1827
+- Adopt date-prefixed ADR filenames by @kmcginnes in https://github.com/aws/graph-explorer/pull/1835
+- Add ADRs for cross-tab persistence reconciliation strategy by @kmcginnes in https://github.com/aws/graph-explorer/pull/1836
+- Use fake-indexeddb as the persistence test backend by @kmcginnes in https://github.com/aws/graph-explorer/pull/1844
+- Update dependencies and upgrade react-router to v8 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1851
+- Migrate private members to ECMAScript # private fields by @vishwakt in https://github.com/aws/graph-explorer/pull/1856
+- Add a client-side persistence-status layer with save-failure recovery by @kmcginnes in https://github.com/aws/graph-explorer/pull/1859
+- Add tooltips and refine clickable schema type affordances by @kmcginnes in https://github.com/aws/graph-explorer/pull/1860
+- Refresh Docker base image package snapshot by @kmcginnes in https://github.com/aws/graph-explorer/pull/1861
+- Reorganize agent steering into harness-neutral docs/agents by @kmcginnes in https://github.com/aws/graph-explorer/pull/1863
+- Add Matt Pocock agent skills by @kmcginnes in https://github.com/aws/graph-explorer/pull/1865
+- Migrate user styling to type-keyed map atoms by @kmcginnes in https://github.com/aws/graph-explorer/pull/1867
+- Add Code Quality Standards section to agent rules by @kmcginnes in https://github.com/aws/graph-explorer/pull/1868
+- Reconcile all Map-keyed storage atoms across tabs by @kmcginnes in https://github.com/aws/graph-explorer/pull/1869
+- Update public roadmap for Q3/Q4 2026 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1871
+- Restyle Settings pages and add shared UI components by @kmcginnes in https://github.com/aws/graph-explorer/pull/1872
+- Update pnpm to 11.9.0 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1873
+- Rename graph layout to graph view and flatten sidebar hooks by @kmcginnes in https://github.com/aws/graph-explorer/pull/1874
+- Add collapsible Schema View sidebar with shared sidebar shell by @kmcginnes in https://github.com/aws/graph-explorer/pull/1875
+- Bump version to 3.2.0 by @kmcginnes in https://github.com/aws/graph-explorer/pull/1877
+- Restructure issue-tracker agent doc and fix issue-creation conventions by @kmcginnes in https://github.com/aws/graph-explorer/pull/1878
+- Add styling import/export with a shared file envelope by @kmcginnes in https://github.com/aws/graph-explorer/pull/1879
+- Rename styling vocabulary to Styles and reshape style types by @kmcginnes in https://github.com/aws/graph-explorer/pull/1886
+- Seed view layout through DbState with random defaults by @kmcginnes in https://github.com/aws/graph-explorer/pull/1893
+- Fix AlertDialog footer padding inset by @kmcginnes in https://github.com/aws/graph-explorer/pull/1908
+- Sync mattpocock agent skills to latest upstream by @kmcginnes in https://github.com/aws/graph-explorer/pull/1913
+- Combine node and edge styling into one Styles sidebar by @kmcginnes in https://github.com/aws/graph-explorer/pull/1914
+- Add "Reset all styles" action to the Styles settings screen by @kmcginnes in https://github.com/aws/graph-explorer/pull/1916
+- Add buffered NumberInput for decimal-friendly width editing by @kmcginnes in https://github.com/aws/graph-explorer/pull/1919
+- Polish dialog styles and button variants by @kmcginnes in https://github.com/aws/graph-explorer/pull/1920
+- Remove broken round-polygon shapes from the picker and coerce stored values by @kmcginnes in https://github.com/aws/graph-explorer/pull/1923
+- Skip reset when clicking the already-active connection by @kmcginnes in https://github.com/aws/graph-explorer/pull/1924
+- Align style dialog wording with the Settings screen by @kmcginnes in https://github.com/aws/graph-explorer/pull/1927
+- Fix proxy server lifecycle: fail fast on port conflicts, exit on signals by @kmcginnes in https://github.com/aws/graph-explorer/pull/1928
+- Faithful vertex shape preview matching the canvas by @kmcginnes in https://github.com/aws/graph-explorer/pull/1929
+- Add canvas-style node preview to the style dialog by @kmcginnes in https://github.com/aws/graph-explorer/pull/1935
+- Add settings navigation link to styles sidebar header by @kmcginnes in https://github.com/aws/graph-explorer/pull/1942
+- Add draft design.md for the visual design system by @kmcginnes in https://github.com/aws/graph-explorer/pull/1962
+- Migrate to Tailwind default font weight classes by @kmcginnes in https://github.com/aws/graph-explorer/pull/1963
+- Delete tailwind.config.ts and migrate to CSS-native declarations by @kmcginnes in https://github.com/aws/graph-explorer/pull/1964
+- Strip orphaned dark mode fragments by @kmcginnes in https://github.com/aws/graph-explorer/pull/1965
+- Inline shadcn compatibility tokens by @kmcginnes in https://github.com/aws/graph-explorer/pull/1966
+- Migrate legacy color token aliases to canonical semantic tokens by @kmcginnes in https://github.com/aws/graph-explorer/pull/1967
+- Eliminate direct palette scale references in components by @kmcginnes in https://github.com/aws/graph-explorer/pull/1968
+- Finalize design.md and remove tailwind.md by @kmcginnes in https://github.com/aws/graph-explorer/pull/1969
+- Fix dead token classes from shadcn compat cleanup by @kmcginnes in https://github.com/aws/graph-explorer/pull/1975
+- Ignore Claude worktrees and add agent scratch directory by @kmcginnes in https://github.com/aws/graph-explorer/pull/1976
+- Add clickable links for node types and edge types in schema explorer details panel by @1wos in https://github.com/aws/graph-explorer/pull/1731
+- Show default icon for blank nodes on graph canvas by @arnavnagzirkar in https://github.com/aws/graph-explorer/pull/1799
+- Add edge preview to the edge style dialog by @kmcginnes in https://github.com/aws/graph-explorer/pull/1980
+- Collapse styles cascade to a single user layer by @kmcginnes in https://github.com/aws/graph-explorer/pull/1981
+- Add selective style import modal to Settings by @kmcginnes in https://github.com/aws/graph-explorer/pull/1984
+- Update dependencies and base image snapshot by @kmcginnes in https://github.com/aws/graph-explorer/pull/1988
+- Add filtering, search, and bulk selection to the style import modal by @kmcginnes in https://github.com/aws/graph-explorer/pull/1989
+- Seed default connection only when the store is empty by @kmcginnes in https://github.com/aws/graph-explorer/pull/1991
+- Show incoming non-visual properties on style import cards by @kmcginnes in https://github.com/aws/graph-explorer/pull/1992
+- Derive style-preview labels from the resolved style by @kmcginnes in https://github.com/aws/graph-explorer/pull/1993
+- Normalize connection URL whitespace by @bakar-dev in https://github.com/aws/graph-explorer/pull/1982
+- Clean up release-review nits: logging seam and doc drift by @kmcginnes in https://github.com/aws/graph-explorer/pull/1996
+- Normalize connection URLs on the read path by @kmcginnes in https://github.com/aws/graph-explorer/pull/1998
+
+**Full Changelog**: https://github.com/aws/graph-explorer/compare/v3.1.0...v3.2.0
+
 ## Release 3.1.0
 
 This release adds a built-in icon library, faster schema sync on large graphs, a new proxy security option, and several compatibility fixes.

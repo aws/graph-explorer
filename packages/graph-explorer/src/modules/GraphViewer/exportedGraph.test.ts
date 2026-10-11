@@ -5,10 +5,13 @@ import {
   createRandomName,
   createRandomUrlString,
 } from "@shared/utils/testing";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 
 import type { EdgeId, VertexId } from "@/core";
 
-import { escapeString } from "@/utils";
+import { normalizeConnection, transformLegacyConnection } from "@/connections";
+import { FileEnvelopeError } from "@/core/fileEnvelope";
 import {
   createRandomConnectionWithId,
   createRandomEdgeId,
@@ -150,41 +153,27 @@ describe("createExportedGraph", () => {
 });
 
 describe("createExportedConnection", () => {
-  it("should map graphDbUrl when using proxy server", () => {
+  it("should lowercase graphDbUrl", () => {
     const connection = createRandomConnectionWithId();
-    connection.proxyConnection = true;
-    connection.graphDbUrl = createRandomUrlString();
+    connection.graphDbUrl = "https://My-Neptune.Example.com:8182";
 
     const exportedConnection = createExportedConnection(connection);
 
     expect(exportedConnection).toEqual({
-      dbUrl: connection.graphDbUrl,
-      queryEngine: connection.queryEngine!,
-    } satisfies ExportedGraphConnection);
-  });
-
-  it("should map url when not using proxy server", () => {
-    const connection = createRandomConnectionWithId();
-    connection.proxyConnection = false;
-
-    const exportedConnection = createExportedConnection(connection);
-
-    expect(exportedConnection).toEqual({
-      dbUrl: connection.url,
+      dbUrl: "https://my-neptune.example.com:8182",
       queryEngine: connection.queryEngine!,
     } satisfies ExportedGraphConnection);
   });
 
   it("should default to gremlin when no query engine is provided", () => {
     const connection = createRandomConnectionWithId();
-    connection.proxyConnection = true;
-    connection.graphDbUrl = createRandomUrlString();
+    connection.graphDbUrl = "https://My-Neptune.Example.com:8182";
     delete connection.queryEngine;
 
     const exportedConnection = createExportedConnection(connection);
 
     expect(exportedConnection).toEqual({
-      dbUrl: connection.graphDbUrl,
+      dbUrl: "https://my-neptune.example.com:8182",
       queryEngine: "gremlin",
     } satisfies ExportedGraphConnection);
   });
@@ -239,8 +228,12 @@ describe("parseExportedGraph", () => {
 
   it("should escape strings with double quotes", async () => {
     const exportedGraph = createRandomExportedGraph();
-    const maliciousVertexId = `${createRandomName("VertexId")}").constant("Hello, World!"`;
-    const maliciousEdgeId = `${createRandomName("EdgeId")}").constant("Hello, World!"`;
+    const suffix = `").constant("Hello, World!"`;
+    const escapedSuffix = `\\").constant(\\"Hello, World!\\"`;
+    const vertexName = createRandomName("VertexId");
+    const edgeName = createRandomName("EdgeId");
+    const maliciousVertexId = `${vertexName}${suffix}`;
+    const maliciousEdgeId = `${edgeName}${suffix}`;
     exportedGraph.data.vertices.push(maliciousVertexId);
     exportedGraph.data.edges.push(maliciousEdgeId);
 
@@ -249,10 +242,10 @@ describe("parseExportedGraph", () => {
     expect(parsed.vertices.has(maliciousVertexId as VertexId)).toBeFalsy();
     expect(parsed.edges.has(maliciousEdgeId as EdgeId)).toBeFalsy();
     expect(
-      parsed.vertices.has(escapeString(maliciousVertexId) as VertexId),
+      parsed.vertices.has(`${vertexName}${escapedSuffix}` as VertexId),
     ).toBeTruthy();
     expect(
-      parsed.edges.has(escapeString(maliciousEdgeId) as EdgeId),
+      parsed.edges.has(`${edgeName}${escapedSuffix}` as EdgeId),
     ).toBeTruthy();
   });
 
@@ -313,7 +306,11 @@ describe("parseExportedGraph", () => {
 
     await expect(
       parseExportedGraph(toGraphFileBlob(wrongKind)),
-    ).rejects.toThrow(/Expected a "graph-export" file/);
+    ).rejects.toThrow(
+      new FileEnvelopeError(
+        'Expected a "graph-export" file, but got "styling-export"',
+      ),
+    );
   });
 
   it("should reject a file from a newer generation", async () => {
@@ -324,7 +321,9 @@ describe("parseExportedGraph", () => {
     };
 
     await expect(parseExportedGraph(toGraphFileBlob(tooNew))).rejects.toThrow(
-      /newer version of Graph Explorer/,
+      new FileEnvelopeError(
+        "This file was created by a newer version of Graph Explorer and cannot be imported. Update Graph Explorer and try again.",
+      ),
     );
   });
 
@@ -337,7 +336,10 @@ describe("parseExportedGraph", () => {
 
     await expect(
       parseExportedGraph(toGraphFileBlob(malformed)),
-    ).rejects.toThrow(/expected envelope structure/);
+    ).rejects.toMatchObject({
+      message: "File does not have the expected envelope structure",
+      issues: [{ code: "invalid_union", path: ["meta", "version"] }],
+    });
   });
 
   it("should accept the legacy '1.0' version string", async () => {
@@ -361,7 +363,9 @@ describe("parseExportedGraph", () => {
     const exportedGraph = createRandomExportedGraph();
     expect(() =>
       parseGraphExportPayloadForVersion(2, exportedGraph.data),
-    ).toThrow(/No graph export parser for format generation 2/);
+    ).toThrow(
+      new FileEnvelopeError("No graph export parser for format generation 2"),
+    );
   });
 
   it("should reject a malformed payload", async () => {
@@ -371,15 +375,22 @@ describe("parseExportedGraph", () => {
       data: { ...exportedGraph.data, vertices: [false, true] as any },
     };
 
-    await expect(
-      parseExportedGraph(toGraphFileBlob(malformed)),
-    ).rejects.toThrow();
+    const error = await parseExportedGraph(toGraphFileBlob(malformed)).catch(
+      (e: unknown) => e,
+    );
+    expect(error).toBeInstanceOf(z.ZodError);
+    expect(z.prettifyError(error as z.ZodError)).toMatchInlineSnapshot(`
+      "✖ Invalid input
+        → at vertices[0]
+      ✖ Invalid input
+        → at vertices[1]"
+    `);
   });
 
   it("should reject a file that is not valid JSON", async () => {
     const blob = new Blob(["not json"], { type: "application/json" });
     await expect(parseExportedGraph(blob)).rejects.toThrow(
-      "File is not valid JSON",
+      new FileEnvelopeError("File is not valid JSON"),
     );
   });
 });
@@ -412,23 +423,60 @@ describe("isMatchingConnection", () => {
 
   it("should return false when graph db url is different", () => {
     const connection = createRandomConnectionWithId();
-    connection.proxyConnection = true;
-    connection.graphDbUrl = createRandomUrlString();
-    const exportedConnection = createRandomExportedGraphConnection();
-    exportedConnection.dbUrl = connection.url;
-    exportedConnection.queryEngine = connection.queryEngine!;
-
-    expect(isMatchingConnection(connection, exportedConnection)).toBeFalsy();
-  });
-
-  it("should return false when url is different", () => {
-    const connection = createRandomConnectionWithId();
-    connection.proxyConnection = false;
     const exportedConnection = createRandomExportedGraphConnection();
     exportedConnection.dbUrl = createRandomUrlString();
     exportedConnection.queryEngine = connection.queryEngine!;
 
     expect(isMatchingConnection(connection, exportedConnection)).toBeFalsy();
+  });
+});
+
+/**
+ * Earlier versions exported `dbUrl` as the lowercased `graphDbUrl` for a
+ * proxied connection and the lowercased `url` otherwise. A stored connection
+ * from then is upgraded through `transformLegacyConnection`, so a graph file
+ * exported before the upgrade must still match the upgraded connection. Do not
+ * delete without confirming no such files remain in use.
+ */
+describe("backward compatibility: graph files exported by earlier versions", () => {
+  it("matches an upgraded proxied connection", () => {
+    const legacyConnection = {
+      url: "http://localhost:80",
+      proxyConnection: true,
+      graphDbUrl: "https://Neptune.Example.com:8182",
+      queryEngine: "openCypher" as const,
+      awsAuthEnabled: true,
+      awsRegion: "us-west-2",
+      serviceType: "neptune-db" as const,
+    };
+    const exportedByMain: ExportedGraphConnection = {
+      dbUrl: "https://neptune.example.com:8182",
+      queryEngine: "openCypher",
+    };
+
+    const upgraded = normalizeConnection(
+      transformLegacyConnection(legacyConnection),
+    );
+
+    expect(isMatchingConnection(upgraded, exportedByMain)).toBe(true);
+  });
+
+  it("matches an upgraded direct connection", () => {
+    const legacyConnection = {
+      url: "https://DB.Example.com:8182",
+      proxyConnection: false,
+      queryEngine: "gremlin" as const,
+    };
+    const exportedByMain: ExportedGraphConnection = {
+      dbUrl: "https://db.example.com:8182",
+      queryEngine: "gremlin",
+    };
+
+    const upgraded = normalizeConnection(
+      transformLegacyConnection(legacyConnection),
+    );
+
+    expect(isMatchingConnection(upgraded, exportedByMain)).toBe(true);
   });
 });
 

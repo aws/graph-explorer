@@ -97,7 +97,7 @@ export function useNeighborByType(vertexId: VertexId, type: VertexType) {
 
 export function useAllNeighbors() {
   const vertices = useAtomValue(nodesAtom);
-  const vertexIds = useMemo(() => vertices.keys().toArray(), [vertices]);
+  const vertexIds = useMemo(() => Array.from(vertices.keys()), [vertices]);
 
   const queryClient = useQueryClient();
   const fetchedNeighbors = useAtomValue(allFetchedNeighborsSelector(vertexIds));
@@ -108,18 +108,18 @@ export function useAllNeighbors() {
       return new Map(vertexIds.map(id => [id, defaultNeighborCounts]));
     }
 
-    return new Map(
-      data
-        .values()
-        .filter(d => d != null)
-        .map(data => {
-          const neighbors = fetchedNeighbors.get(data.vertexId) ?? [];
-          return [
-            data.vertexId,
-            calculateNeighbors(data.totalCount, data.counts, neighbors),
-          ];
-        }),
-    );
+    const result = new Map<VertexId, NeighborCounts>();
+    for (const d of data.values()) {
+      if (d == null) {
+        continue;
+      }
+      const neighbors = fetchedNeighbors.get(d.vertexId) ?? [];
+      result.set(
+        d.vertexId,
+        calculateNeighbors(d.totalCount, d.counts, neighbors),
+      );
+    }
+    return result;
   }, [data, fetchedNeighbors, vertexIds]);
 }
 
@@ -144,17 +144,18 @@ export function calculateNeighbors(
     unfetched: Math.max(0, total - fetchedTotal),
   };
 
-  const fetchedNeighborsByType = fetchNeighborsMap
-    .values()
-    .reduce((map, neighbor) => {
-      for (const type of neighbor.types) {
-        map.set(type, (map.get(type) ?? 0) + 1);
-      }
-      return map;
-    }, new Map<string, number>());
+  const fetchedNeighborsByType = new Map<string, number>();
+  for (const neighbor of fetchNeighborsMap.values()) {
+    for (const type of neighbor.types) {
+      fetchedNeighborsByType.set(
+        type,
+        (fetchedNeighborsByType.get(type) ?? 0) + 1,
+      );
+    }
+  }
 
   const byType = new Map(
-    totalByType.entries().map(([type, count]) => {
+    Array.from(totalByType.entries()).map(([type, count]) => {
       // Count of unique neighbors that have been fetched
       const fetched = fetchedNeighborsByType.get(type) ?? 0;
 
@@ -202,7 +203,7 @@ const fetchedNeighborsSelector = atomFamily((id: VertexId) =>
       neighbors.set(neighbor.id, neighbor);
     }
 
-    return neighbors.values().toArray();
+    return Array.from(neighbors.values());
   }),
 );
 

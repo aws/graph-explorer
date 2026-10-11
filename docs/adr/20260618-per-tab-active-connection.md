@@ -4,6 +4,8 @@
 
 accepted
 
+**Updated:** 2026-10-06 — identifiers renamed in #2361. The decision below is unchanged. Read it with these substitutions: `activeConfigurationAtom`→`activeConnectionIdAtom`, `activeConfigSelector`→`activeSavedConnectionSelector`. The `useActivateConnection` hook it proposes was extracted in fc31e201 and backs the connection list and the connect route. Importing and creating a connection still pair the set with a reset by hand.
+
 ## Context
 
 "Active connection" was a single value persisted to shared IndexedDB (the `active-configuration` localForage key, read once at startup with no cross-tab sync), yet the entire app consumed it as if it were per-tab state. Two same-origin tabs therefore could not hold different active connections: whoever wrote last silently changed what the other tab was exploring, and a reload adopted whatever was persisted last. The URL-connect feature (open a connection from a link, in a new tab) made this latent flaw trivially triggerable, but it exists independently on `main`.
@@ -19,7 +21,7 @@ Split the concept into two roles:
 
 A fresh tab's Active Connection is seeded with `sessionStorage value ?? persisted breadcrumb value`, resolved before the atom is created (the breadcrumb read is async, in the factory; the atom itself is then created with an already-resolved seed, so there is no post-mount flash or ordering race). On a cold start — no sessionStorage value — the tab does not merely read the breadcrumb, it **claims** it, writing the seeded value into its own sessionStorage. This is the load-bearing property for per-tab stability: a later reload of that tab reads its own value back rather than re-seeding from a breadcrumb another tab may have since overwritten. (Without the claim, two tabs that both cold-started would each re-seed from the shared breadcrumb on every reload, so one tab switching connections would silently change the other on its next reload.)
 
-Writing the per-tab value and the breadcrumb is funneled through the `activeConfigurationAtom` setter (in `activeConnectionStorage.ts`), so every existing `set(activeConfigurationAtom, …)` call site updates both backings with no change. Session-state reset is not part of this atom; each activation call site still pairs the set with `useResetState()` — a known duplication that a single `useActivateConnection` hook could centralize as a clean additive follow-up.
+Writing the per-tab value and the breadcrumb is funneled through the `activeConfigurationAtom` setter (in `activeConnectionStorage.ts`), so every existing `set(activeConfigurationAtom, …)` call site updates both backings with no change. (**Updated 2026-09-21:** the seed-and-claim logic described here was extracted to the generic `createSessionScopedAtom` in `sessionScopedStorage.ts`, which now backs three concepts; `activeConnectionStorage.ts` is a codec plus one call. See ADR `per-tab-session-scoped-storage-primitive`. Seeding and claiming are unchanged; the extraction also made a throwing sessionStorage read or write recoverable, logged instead of thrown.) Session-state reset is not part of this atom; each activation call site still pairs the set with `useResetState()` — a known duplication that a single `useActivateConnection` hook could centralize as a clean additive follow-up.
 
 ## Considered Options
 

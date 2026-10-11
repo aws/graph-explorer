@@ -10,12 +10,7 @@ import DEFAULT_ICON_URL from "@/utils/defaultIconUrl";
 import type { EdgeType, VertexType } from "../entities";
 
 import { useActiveSchema } from "./schema";
-import {
-  sharedEdgeStylesAtom,
-  sharedVertexStylesAtom,
-  userEdgeStylesAtom,
-  userVertexStylesAtom,
-} from "./storageAtoms";
+import { userEdgeStylesAtom, userVertexStylesAtom } from "./storageAtoms";
 
 export const SHAPE_STYLES = [
   "rectangle",
@@ -96,13 +91,17 @@ export type VertexTypeStyle = {
   longDisplayNameAttribute: string;
 };
 
-/** The visual appearance of an edge, shared by per-type styles and defaults. */
-export type EdgeVisualStyle = {
+/** The visual appearance of a label badge (shared by edge and vertex labels). */
+export type LabelVisualStyle = {
   labelColor: string;
   labelBackgroundOpacity: number;
   labelBorderColor: string;
   labelBorderStyle: LineStyle;
   labelBorderWidth: number;
+};
+
+/** The visual appearance of an edge, shared by per-type styles and defaults. */
+export type EdgeVisualStyle = LabelVisualStyle & {
   lineColor: string;
   lineThickness: number;
   lineStyle: LineStyle;
@@ -150,6 +149,22 @@ export const appDefaultVertexStyle = {
   borderStyle: "solid",
 } as const satisfies Omit<VertexStyle, "type">;
 
+/**
+ * The default appearance of a node's label badge. Nodes have no per-type label
+ * styling (see {@link VertexVisualStyle}), so this is the single source for how
+ * a node label looks. Values mirror the node label config in
+ * `components/Graph/styles/defaultNodeStyle.ts` (`text.background` →
+ * `labelColor`, `text.opacity` → `labelBackgroundOpacity`) — keep in sync if
+ * that canvas style changes.
+ */
+export const appDefaultNodeLabelStyle = {
+  labelColor: "#1d2531",
+  labelBackgroundOpacity: 0.7,
+  labelBorderColor: "#1d2531",
+  labelBorderStyle: "solid",
+  labelBorderWidth: 0,
+} as const satisfies LabelVisualStyle;
+
 /** The default values to use when no user provided value is given. */
 export const appDefaultEdgeStyle = {
   displayNameAttribute: RESERVED_TYPES_PROPERTY,
@@ -177,80 +192,53 @@ export type LegacyUserStylingStorage = {
 };
 
 /**
- * The styles cascade — the single place vertex/edge appearance is assembled.
- *
- * Three layers, lowest precedence first:
- * 1. App defaults — {@link appDefaultVertexStyle} / {@link appDefaultEdgeStyle}.
- * 2. Shared styles — `sharedVertexStylesAtom` / `sharedEdgeStylesAtom`
- *    (storage keys `shared-vertex-styles` / `shared-edge-styles`), loaded
- *    from a styling file on the Settings → Styles page.
- * 3. User customizations — `userVertexStylesAtom` / `userEdgeStylesAtom`
- *    (storage keys `user-vertex-styles` / `user-edge-styles`), edits made in the
- *    style dialogs.
- *
- * Higher layers override lower ones per field (see {@link resolveVertexStyle}
- * / {@link resolveEdgeStyle}). Related modules: `core/styling` (the styling
- * import parser and import/export hooks) and `core/fileEnvelope` (the file
- * wrapper). The `icon`↔`iconUrl` rename happens at the file-format seam in the
- * styling parser, not here.
+ * The single place vertex/edge appearance is assembled: a type's stored user
+ * style overrides the app defaults per field, falling back to the defaults for
+ * anything unset. User styles come from the style dialogs and from loading a
+ * file (`core/styling`); the `icon`↔`iconUrl` rename happens at the file-format
+ * seam in that parser, not here.
  */
 
-/** Vertex styles indexed by type for O(1) lookup with cascade fallback.
- * Cascade: user > shared > app defaults. */
+/** Vertex styles indexed by type for O(1) lookup, resolved against defaults. */
 export const vertexStyleAtom = atom(get => {
   const userStyles = get(userVertexStylesAtom);
-  const sharedStyles = get(sharedVertexStylesAtom);
   return {
     get(type: VertexType) {
-      return resolveVertexStyle(
-        type,
-        sharedStyles.get(type),
-        userStyles.get(type),
-      );
+      return resolveVertexStyle(type, userStyles.get(type));
     },
   };
 });
 
-/** Edge styles indexed by type for O(1) lookup with cascade fallback.
- * Cascade: user > shared > app defaults. */
+/** Edge styles indexed by type for O(1) lookup, resolved against defaults. */
 export const edgeStyleAtom = atom(get => {
   const userStyles = get(userEdgeStylesAtom);
-  const sharedStyles = get(sharedEdgeStylesAtom);
   return {
     get(type: EdgeType) {
-      return resolveEdgeStyle(
-        type,
-        sharedStyles.get(type),
-        userStyles.get(type),
-      );
+      return resolveEdgeStyle(type, userStyles.get(type));
     },
   };
 });
 
-/** Combines the cascade layers: app defaults < shared < user. */
+/** The user's vertex style overlaid on the app defaults. */
 export function resolveVertexStyle(
   type: VertexType,
-  shared?: VertexStyleStorage,
   user?: VertexStyleStorage,
 ): VertexStyle {
   return {
     type,
     ...appDefaultVertexStyle,
-    ...shared,
     ...user,
   } as const;
 }
 
-/** Combines the cascade layers: app defaults < shared < user. */
+/** The user's edge style overlaid on the app defaults. */
 export function resolveEdgeStyle(
   type: EdgeType,
-  shared?: EdgeStyleStorage,
   user?: EdgeStyleStorage,
 ): EdgeStyle {
   return {
     type,
     ...appDefaultEdgeStyle,
-    ...shared,
     ...user,
   } as const;
 }

@@ -5,9 +5,19 @@ Schema discovery is expensive in both time and database compute, so the discover
 Key files:
 
 - `src/core/StateProvider/schema.ts` — `SchemaStorageModel` type, Jotai atoms, and incremental update logic
-- `src/core/ConfigurationProvider/types.ts` — `EdgeConnection`, `VertexTypeConfig`, `EdgeTypeConfig`, and related types
+- `src/core/StateProvider/typeConfigTypes.ts` — `EdgeConnection`, `VertexTypeConfig`, `EdgeTypeConfig`, and related types
 - `src/hooks/useSchemaSync.ts` — schema sync orchestration
 - `src/connector/queries/edgeConnectionsQuery.ts` — edge connection discovery
+
+## Sync States
+
+`SchemaStorageModel` has three sync states, driven by `lastUpdate` and `lastSyncFail`:
+
+- never synced — `lastUpdate` unset
+- synced — `lastUpdate` set, no `lastSyncFail`
+- failed since the last success — `lastSyncFail: true` (`lastUpdate` may be unset, if the first sync ever failed, or set from an earlier success)
+
+`isSyncedSchema` in `src/core/StateProvider/schema.ts` is the one place that distinguishes a populated schema from one that only recorded a failure. A failed sync never re-syncs automatically — `schemaSyncQuery` sets `enabled: !lastSyncFail` — so the user must retry manually.
 
 ## Edge Connections
 
@@ -15,11 +25,11 @@ Edge connections (`EdgeConnection[]`) describe relationships between vertex type
 
 The `edgeConnections` property on `SchemaStorageModel` has three meaningful states:
 
-- `undefined` — edge connections have not been successfully discovered (query not run or errored)
+- `undefined` — edge connections have not been discovered since the last schema sync
 - `[]` (empty array) — query succeeded but no edge connections exist
 - populated array — query succeeded with results
 
-If the edge connection query fails, the error is stored in the schema via the `edgeConnectionDiscoveryFailed` flag.
+If the edge connection query fails, the schema records it with the `lastEdgeConnectionSyncFail` flag. The flag stops automatic retry, and any previously discovered `edgeConnections` are kept. A later successful query clears it.
 
 ## Incremental Schema Growth
 

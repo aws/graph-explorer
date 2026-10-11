@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { createTestableEdge, createTestableVertex } from "@/utils/testing";
 
 import { createPatchedResultBundle, createResultBundle } from "./bundle";

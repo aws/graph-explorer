@@ -1,8 +1,10 @@
 // @vitest-environment happy-dom
+
 import type { ComponentProps } from "react";
 
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
 
 import { IconPicker } from "./IconPicker";
 import { TooltipProvider } from "./Tooltip";
@@ -10,9 +12,13 @@ import { TooltipProvider } from "./Tooltip";
 // The icon tooltips require a TooltipProvider ancestor, which the app supplies
 // globally in DefaultLayout.
 function renderPicker(props: Partial<ComponentProps<typeof IconPicker>> = {}) {
-  return render(<IconPicker onSelect={vi.fn()} {...props} />, {
-    wrapper: TooltipProvider,
-  });
+  const { children = <button>Browse</button>, ...rest } = props;
+  return render(
+    <IconPicker onSelect={vi.fn()} {...rest}>
+      {children}
+    </IconPicker>,
+    { wrapper: TooltipProvider },
+  );
 }
 
 // Icon buttons are the only buttons in the picker with `aria-pressed`, and

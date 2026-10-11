@@ -3,11 +3,20 @@ import type { ComponentProps } from "react";
 import { Editor, type Monaco } from "@monaco-editor/react";
 
 export function CodeEditor({
+  beforeMount,
   options,
   ...props
 }: ComponentProps<typeof Editor>) {
+  // Monaco applies `theme` when it creates the editor, so the theme must be
+  // defined before mount. Using `loader.init()` would lose lazy loading.
+  function handleBeforeMount(monaco: Monaco) {
+    monaco.editor.defineTheme("graph-explorer-light", lightTheme);
+    beforeMount?.(monaco);
+  }
+
   return (
     <Editor
+      beforeMount={handleBeforeMount}
       theme="graph-explorer-light"
       options={{
         // Match Tailwind style as much as possible
@@ -28,6 +37,9 @@ export function CodeEditor({
         stickyScroll: {
           enabled: false,
         },
+        // URLs here are content, not endpoints. A caller that wants a
+        // clickable endpoint passes `links: true`.
+        links: false,
         lineDecorationsWidth: 0,
         overviewRulerLanes: 0,
         renderWhitespace: "none",
@@ -46,9 +58,6 @@ export function CodeEditor({
 
         ...options,
       }}
-      onMount={(_editor, monaco) => {
-        monaco.editor.defineTheme("graph-explorer-light", lightTheme);
-      }}
       {...props}
     />
   );
@@ -58,9 +67,11 @@ type MonacoThemeData = Parameters<Monaco["editor"]["defineTheme"]>[1];
 
 const lightTheme = createMonacoTheme({
   // DEV NOTE: This is currently limited to the colors needed for JSON syntax highlighting.
-  foreground: "#1f2937",
-  background: "#f9fafb",
-  mutedForeground: "#9ca3af",
+  // Monaco requires hex values, so these mirror the design system tokens
+  // (see docs/agents/design.md) rather than referencing the CSS variables.
+  foreground: "#18181b", // --color-foreground (gray-900)
+  background: "#fafafa", // --color-background-alt (gray-50)
+  mutedForeground: "#a1a1aa", // gray-400
   keys: "#3730a3",
   strings: "#9f1239",
   numbers: "#065f46",

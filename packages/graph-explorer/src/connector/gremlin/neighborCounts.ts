@@ -9,9 +9,10 @@ import type {
 import type { GInt64, GremlinFetch } from "./types";
 
 import isErrorResponse from "../utils/isErrorResponse";
-import { idParam } from "./idParam";
+import { fragment } from "./fragments";
 import { extractRawId } from "./mappers/extractRawId";
 import { parseGMap } from "./mappers/parseGMap";
+import { splitLabel } from "./splitLabel";
 
 type GIdentifier = string | GInt64;
 
@@ -46,7 +47,7 @@ export async function neighborCounts(
     return { counts: [] };
   }
 
-  const ids = request.vertexIds.map(idParam).join(",");
+  const ids = request.vertexIds.map(fragment.id).join(",");
   const template = query`
     g.V(${ids})
      .group()
@@ -70,36 +71,33 @@ export async function neighborCounts(
 
   const map = parseGMap<GIdentifier, GNeighborCountsByType>(valueMap);
 
-  const counts = map
-    .entries()
-    .map(([key, value]) => {
-      // Parse the g:Map in to a Map instance
-      const countsByTypeMap = parseGMap<string, GInt64>(value);
+  const counts = Array.from(map.entries()).map(([key, value]) => {
+    // Parse the g:Map in to a Map instance
+    const countsByTypeMap = parseGMap<string, GInt64>(value);
 
-      // Parse the Map entries in to a Map with vertex type as the key and the count as the value
-      const countsByType = new Map<VertexType, number>();
-      let totalCount = 0;
+    // Parse the Map entries in to a Map with vertex type as the key and the count as the value
+    const countsByType = new Map<VertexType, number>();
+    let totalCount = 0;
 
-      for (const [rawType, gValue] of countsByTypeMap.entries()) {
-        const count = gValue["@value"];
-        totalCount += count;
-        const types = rawType.split("::");
-        for (const type of types) {
-          const vertexType = createVertexType(type);
-          countsByType.set(
-            vertexType,
-            (countsByType.get(vertexType) ?? 0) + count,
-          );
-        }
+    for (const [rawType, gValue] of countsByTypeMap.entries()) {
+      const count = gValue["@value"];
+      totalCount += count;
+      const types = splitLabel(rawType);
+      for (const type of types) {
+        const vertexType = createVertexType(type);
+        countsByType.set(
+          vertexType,
+          (countsByType.get(vertexType) ?? 0) + count,
+        );
       }
+    }
 
-      return {
-        vertexId: createVertexId(extractRawId(key)),
-        counts: countsByType,
-        totalCount,
-      };
-    })
-    .toArray();
+    return {
+      vertexId: createVertexId(extractRawId(key)),
+      counts: countsByType,
+      totalCount,
+    };
+  });
 
   return { counts };
 }

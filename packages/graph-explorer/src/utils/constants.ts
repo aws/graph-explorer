@@ -15,7 +15,8 @@ export const ASCII = {
 export const DEFAULT_SERVICE_TYPE = "neptune-db";
 export const DEFAULT_FETCH_TIMEOUT = 240000;
 export const DEFAULT_NODE_EXPAND_LIMIT = 500;
-export const DEFAULT_CONCURRENT_REQUESTS_LIMIT = 10;
+/** Max requests in flight when fanning out batched queries; kept low to bound concurrent load on the database. */
+export const DEFAULT_CONCURRENT_REQUESTS_LIMIT = 4;
 export const DEFAULT_BATCH_REQUEST_SIZE = 100;
 export const DEFAULT_SAMPLE_SIZE = 10000;
 
@@ -26,10 +27,7 @@ export const RESERVED_ID_PROPERTY = "~id";
 export const RESERVED_TYPES_PROPERTY = "types";
 
 /** The root URL for the app used for reloading fresh. */
-export const RELOAD_URL =
-  import.meta.env.BASE_URL.substring(-1) !== "/"
-    ? import.meta.env.BASE_URL + "/"
-    : import.meta.env.BASE_URL;
+export const RELOAD_URL = ".";
 
 /** Labels used in the UI */
 export const LABELS = {

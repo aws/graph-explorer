@@ -1,22 +1,28 @@
 // @vitest-environment happy-dom
+
 import type { QueryEngine } from "@shared/types";
 
-import { vi } from "vitest";
+import { act } from "@testing-library/react";
+import { useState } from "react";
+import { describe, expect, it, vi } from "vitest";
 
 import {
-  activeConfigurationAtom,
+  activeConnectionIdAtom,
   type AppStore,
-  configurationAtom,
+  savedConnectionsAtom,
   schemaAtom,
+  useSearchableAttributes,
 } from "@/core";
 import { SEARCH_TOKENS } from "@/utils";
 import {
-  createRandomRawConfiguration,
+  createRandomSavedConnection,
   createRandomSchema,
+  createRandomVertexTypeConfig,
   renderHookWithJotai,
 } from "@/utils/testing";
 
 import useKeywordSearch from "./useKeywordSearch";
+import { useKeywordSearchQuery } from "./useKeywordSearchQuery";
 
 vi.mock("./useKeywordSearchQuery", () => ({
   useKeywordSearchQuery: vi.fn().mockReturnValue({
@@ -28,13 +34,13 @@ vi.mock("./useKeywordSearchQuery", () => ({
 function initializeConfigWithQueryEngine(queryEngine: QueryEngine) {
   return (store: AppStore) => {
     // Create config and setup schema
-    const config = createRandomRawConfiguration();
+    const config = createRandomSavedConnection();
     config.connection!.queryEngine = queryEngine;
 
-    store.set(configurationAtom, new Map([[config.id, config]]));
+    store.set(savedConnectionsAtom, new Map([[config.id, config]]));
 
     // Make config active
-    store.set(activeConfigurationAtom, config.id);
+    store.set(activeConnectionIdAtom, config.id);
   };
 }
 
@@ -128,7 +134,7 @@ describe("useKeywordSearch", () => {
   describe("SPARQL", () => {
     function initializeConfigWithRdfLabel(store: AppStore) {
       // Create config and setup schema
-      const config = createRandomRawConfiguration();
+      const config = createRandomSavedConnection();
       const schema = createRandomSchema();
       config.connection!.queryEngine = "sparql";
       schema.vertices[0].attributes.push({
@@ -136,11 +142,11 @@ describe("useKeywordSearch", () => {
         dataType: "String",
       });
 
-      store.set(configurationAtom, new Map([[config.id, config]]));
+      store.set(savedConnectionsAtom, new Map([[config.id, config]]));
       store.set(schemaAtom, new Map([[config.id, schema]]));
 
       // Make config active
-      store.set(activeConfigurationAtom, config.id);
+      store.set(activeConnectionIdAtom, config.id);
     }
 
     it("Should default to precision match exact", () => {
@@ -232,6 +238,167 @@ describe("useKeywordSearch", () => {
           label: "All string datatype properties",
         },
       ]);
+    });
+  });
+
+  /*
+   * The all-attributes token is expanded here and never reaches a query
+   * template, so these tests pin the only place the fan-out happens.
+   */
+  describe("all attributes token expansion", () => {
+    function initializeConfigWithStringAttributes(queryEngine: QueryEngine) {
+      return (store: AppStore) => {
+        const config = createRandomSavedConnection();
+        const schema = createRandomSchema();
+        config.connection!.queryEngine = queryEngine;
+        schema.vertices[0].attributes = [
+          { name: "city", dataType: "String" },
+          { name: "code", dataType: "String" },
+          { name: "elevation", dataType: "Number" },
+        ];
+
+        store.set(savedConnectionsAtom, new Map([[config.id, config]]));
+        store.set(schemaAtom, new Map([[config.id, schema]]));
+        store.set(activeConnectionIdAtom, config.id);
+      };
+    }
+
+    it("Should search the ID and every string attribute when all attributes is selected", () => {
+      const { result } = renderHookWithJotai(
+        () => useKeywordSearch(),
+        initializeConfigWithStringAttributes("gremlin"),
+      );
+
+      act(() =>
+        result.current.onAttributeOptionChange(SEARCH_TOKENS.ALL_ATTRIBUTES),
+      );
+
+      expect(vi.mocked(useKeywordSearchQuery)).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          searchByAttributes: [SEARCH_TOKENS.NODE_ID, "city", "code"],
+        }),
+      );
+    });
+
+    it("Should omit the ID for SPARQL, which cannot search by it", () => {
+      const { result } = renderHookWithJotai(
+        () => useKeywordSearch(),
+        initializeConfigWithStringAttributes("sparql"),
+      );
+
+      act(() =>
+        result.current.onAttributeOptionChange(SEARCH_TOKENS.ALL_ATTRIBUTES),
+      );
+
+      expect(vi.mocked(useKeywordSearchQuery)).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          searchByAttributes: ["city", "code"],
+        }),
+      );
+    });
+
+    it("Should send just the chosen attribute when one is selected", () => {
+      const { result } = renderHookWithJotai(
+        () => useKeywordSearch(),
+        initializeConfigWithStringAttributes("gremlin"),
+      );
+
+      act(() => result.current.onAttributeOptionChange("city"));
+
+      expect(vi.mocked(useKeywordSearchQuery)).toHaveBeenLastCalledWith(
+        expect.objectContaining({ searchByAttributes: ["city"] }),
+      );
+    });
+  });
+
+  describe("useSearchableAttributes referential stability", () => {
+    function useSearchableAttributesHarness(initialType: string) {
+      const [type, setType] = useState(initialType);
+      const attributes = useSearchableAttributes(type);
+      return { attributes, setType };
+    }
+
+    function initializeConfigWithTwoVertexTypes(store: AppStore) {
+      const config = createRandomSavedConnection();
+      const schema = createRandomSchema();
+      config.connection!.queryEngine = "gremlin";
+      schema.vertices[0].attributes = [
+        { name: "city", dataType: "String" },
+        { name: "code", dataType: "String" },
+      ];
+      schema.vertices[1].attributes = [{ name: "airline", dataType: "String" }];
+
+      store.set(savedConnectionsAtom, new Map([[config.id, config]]));
+      store.set(schemaAtom, new Map([[config.id, schema]]));
+      store.set(activeConnectionIdAtom, config.id);
+
+      return {
+        vertexType1: schema.vertices[0].type,
+        vertexType2: schema.vertices[1].type,
+      };
+    }
+
+    function initializeConfigWithManyVertexTypes(store: AppStore) {
+      const config = createRandomSavedConnection();
+      const schema = createRandomSchema();
+      config.connection!.queryEngine = "gremlin";
+
+      schema.vertices = Array.from({ length: 1000 }, (_, i) => ({
+        ...createRandomVertexTypeConfig(),
+        attributes: [{ name: `attr-${i}`, dataType: "String" }],
+      }));
+
+      store.set(savedConnectionsAtom, new Map([[config.id, config]]));
+      store.set(schemaAtom, new Map([[config.id, schema]]));
+      store.set(activeConnectionIdAtom, config.id);
+    }
+
+    it("returns the same array reference across renders when the vertex type is unchanged", () => {
+      let vertexType1 = "";
+      const { result, rerender } = renderHookWithJotai(
+        () => useSearchableAttributesHarness(vertexType1),
+        store => {
+          vertexType1 = initializeConfigWithTwoVertexTypes(store).vertexType1;
+        },
+      );
+
+      const firstAttributes = result.current.attributes;
+      rerender();
+
+      expect(result.current.attributes).toBe(firstAttributes);
+    });
+
+    it("returns a new array reference when the vertex type changes", () => {
+      let vertexType1 = "";
+      let vertexType2 = "";
+      const { result } = renderHookWithJotai(
+        () => useSearchableAttributesHarness(vertexType1),
+        store => {
+          ({ vertexType1, vertexType2 } =
+            initializeConfigWithTwoVertexTypes(store));
+        },
+      );
+
+      const firstAttributes = result.current.attributes;
+      act(() => result.current.setType(vertexType2));
+
+      expect(result.current.attributes).not.toBe(firstAttributes);
+      expect(result.current.attributes.map(attr => attr.name)).toStrictEqual([
+        "airline",
+      ]);
+    });
+
+    it("returns the same array reference across renders for a 1000-type schema", () => {
+      const { result, rerender } = renderHookWithJotai(
+        () => useSearchableAttributesHarness(SEARCH_TOKENS.ALL_VERTEX_TYPES),
+        initializeConfigWithManyVertexTypes,
+      );
+
+      const firstAttributes = result.current.attributes;
+      expect(firstAttributes.length).toBe(1000);
+      rerender();
+
+      expect(result.current.attributes).toBe(firstAttributes);
     });
   });
 });

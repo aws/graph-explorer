@@ -1,3 +1,5 @@
+import type { AttributeFilter } from "@/connector/useGEFetchTypes";
+
 import { query } from "@/utils";
 
 import {
@@ -5,12 +7,8 @@ import {
   getNeighborsFilter,
   getSubjectClasses,
 } from "../filterHelpers";
-import { idParam } from "../idParam";
-import {
-  rdfTypeUri,
-  type SPARQLCriterion,
-  type SPARQLNeighborsRequest,
-} from "../types";
+import { fragment } from "../fragments";
+import { rdfTypeUri, type SPARQLNeighborsRequest } from "../types";
 
 /**
  * Creates a SPARQL query that will find all neighbors for the given resource URI and search filters.
@@ -27,9 +25,9 @@ import {
  * subjectClasses = [
  *   "http://www.example.com/soccer/ontology/Team",
  * ]
- * filterCriteria = [
- *   { predicate: "http://www.example.com/soccer/ontology/teamName", object: "Arsenal" },
- *   { predicate: "http://www.example.com/soccer/ontology/nickname", object: "Gunners" },
+ * attributeFilters = [
+ *   { name: "http://www.example.com/soccer/ontology/teamName", value: "Arsenal" },
+ *   { name: "http://www.example.com/soccer/ontology/nickname", value: "Gunners" },
  * ]
  * limit = 2
  *
@@ -64,13 +62,14 @@ import {
  *           <http://www.example.com/soccer/ontology/Team>
  *         ))
  *       }
- *       ?neighbor ?pValue ?object .
- *       FILTER(
- *         isLiteral(?object) && (
- *           (?pValue=<http://www.example.com/soccer/ontology/teamName> && regex(str(?object), "Arsenal", "i")) ||
- *           (?pValue=<http://www.example.com/soccer/ontology/nickname> && regex(str(?object), "Gunners", "i"))
- *         )
- *       )
+ *       FILTER EXISTS {
+ *         ?neighbor <http://www.example.com/soccer/ontology/teamName> ?filterValue .
+ *         FILTER(isLiteral(?filterValue) && CONTAINS(LCASE(STR(?filterValue)), LCASE("Arsenal")))
+ *       }
+ *       FILTER EXISTS {
+ *         ?neighbor <http://www.example.com/soccer/ontology/nickname> ?filterValue .
+ *         FILTER(isLiteral(?filterValue) && CONTAINS(LCASE(STR(?filterValue)), LCASE("Gunners")))
+ *       }
  *     }
  *     LIMIT 2
  *   }
@@ -107,8 +106,8 @@ import {
 export function oneHopNeighborsTemplate(
   request: SPARQLNeighborsRequest,
 ): string {
-  const resourceTemplate = idParam(request.resourceURI);
-  const rdfTypeUriTemplate = idParam(rdfTypeUri);
+  const resourceTemplate = fragment.iri(request.resourceURI);
+  const rdfTypeUriTemplate = fragment.iri(rdfTypeUri);
 
   return query`
     # Fetch all neighbors and their predicates, values, and classes
@@ -172,11 +171,11 @@ export function oneHopNeighborsTemplate(
 export function findNeighborsUsingFilters({
   resourceURI,
   subjectClasses = [],
-  filterCriteria = [],
+  attributeFilters = [],
   excludedVertices = new Set(),
   limit = 0,
 }: SPARQLNeighborsRequest): string {
-  const resourceTemplate = idParam(resourceURI);
+  const resourceTemplate = fragment.iri(resourceURI);
 
   return query`
     # This sub-query will give us all unique neighbors within the given limit
@@ -198,31 +197,29 @@ export function findNeighborsUsingFilters({
         ${getNeighborsFilter(excludedVertices)}
         ${getSubjectClasses(subjectClasses)}
       }
-      ${getFilterTemplate(filterCriteria)}
+      ${getFilterTemplate(attributeFilters)}
     }
     ${getLimit(limit)}
   `;
 }
 
 /**
- * Creates a filter template for the given filter criteria.
+ * Creates a filter template for the given attribute filters.
  *
- * The ?pValue must equal the given criteria predicate and the ?object must match the given criteria object with a partial match.
+ * Each filter becomes its own `FILTER EXISTS` block; juxtaposing them conjoins
+ * the filters (AND) — every filter must match. A single filter matches when any
+ * value of that attribute contains the value (existential, since RDF may repeat
+ * a predicate). A shared unbound predicate variable is deliberately avoided: it
+ * makes `&&` across filters unsatisfiable and dominates query cost.
  */
-function getFilterTemplate(filterCriteria: SPARQLCriterion[]) {
-  const hasFilters = filterCriteria.length > 0;
+function getFilterTemplate(attributeFilters: AttributeFilter[]) {
+  const createFilterTemplate = (filter: AttributeFilter) =>
+    query`
+      FILTER EXISTS {
+        ?neighbor ${fragment.iri(filter.name)} ?filterValue .
+        FILTER(isLiteral(?filterValue) && CONTAINS(LCASE(STR(?filterValue)), LCASE(${fragment.string(filter.value)})))
+      }
+    `;
 
-  const createFilterTemplate = (c: SPARQLCriterion) =>
-    `(?pValue=${idParam(c.predicate)} && regex(str(?object), "${c.object}", "i"))`;
-
-  return hasFilters
-    ? query`
-        ?neighbor ?pValue ?object .
-        FILTER(
-          isLiteral(?object) && (
-            ${filterCriteria.map(createFilterTemplate).join(" ||\n")}
-          )
-        )
-      `
-    : "";
+  return attributeFilters.map(createFilterTemplate).join("\n");
 }

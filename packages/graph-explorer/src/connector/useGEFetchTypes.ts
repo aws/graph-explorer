@@ -1,12 +1,11 @@
+import type { NormalizedConnection } from "@/connections";
 import type {
-  ConfigurationContextProps,
   Edge,
   EdgeConnection,
   EdgeId,
   EdgeType,
   EdgeTypeConfig,
   Entities,
-  NormalizedConnection,
   Vertex,
   VertexId,
   VertexType,
@@ -61,24 +60,16 @@ export type SchemaResponse = {
   edgeConnections?: EdgeConnection[];
 };
 
-export type Criterion = {
-  /**
-   * Attribute name.
-   */
+/**
+ * Narrows neighbors to those whose attribute contains the given value.
+ *
+ * Only string attributes are filterable, so the value needs no type of its own.
+ */
+export type AttributeFilter = {
+  /** Attribute name. */
   name: string;
-  /**
-   * Operator value =, >=, LIKE, ...
-   */
-  operator: string;
-  /**
-   * Filter value.
-   */
-  value: any;
-  /**
-   * Attribute data type.
-   * By default, String.
-   */
-  dataType?: "String" | "Number" | "Date";
+  /** Value the attribute must contain. */
+  value: string;
 };
 
 /**
@@ -105,7 +96,7 @@ export type NeighborsRequest = {
   /**
    * Filter by vertex attributes.
    */
-  filterCriteria?: Array<Criterion>;
+  attributeFilters?: Array<AttributeFilter>;
   /**
    * Limit the number of results.
    * 0 = No limit.
@@ -177,12 +168,6 @@ export type ErrorResponse = {
   code: string;
   detailedMessage: string;
 };
-
-export type ConfigurationWithConnection = Omit<
-  ConfigurationContextProps,
-  "connection"
-> &
-  Required<Pick<ConfigurationContextProps, "connection">>;
 
 export type ExplorerRequestOptions = RequestInit & {
   queryId?: string;

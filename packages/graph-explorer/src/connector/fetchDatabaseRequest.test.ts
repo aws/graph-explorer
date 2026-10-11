@@ -1,6 +1,26 @@
-import type { FeatureFlags, NormalizedConnection } from "@/core";
+// @vitest-environment happy-dom
 
-import { logger, NetworkError, ServerConnectionError } from "@/utils";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import type { NormalizedConnection } from "@/connections";
+import type { FeatureFlags } from "@/core";
+
+import {
+  DatabaseTimeoutError,
+  FetchTimeoutError,
+  InsecureDatabaseUrlError,
+  InvalidDatabaseUrlError,
+  logger,
+  MissingDatabaseUrlError,
+  NetworkError,
+  DatabaseUnreachableError,
+  ServerConnectionError,
+} from "@/utils";
+import {
+  abortableFetch,
+  normalizeHeaders,
+  stubDocumentUrl,
+} from "@/utils/testing";
 
 import { fetchDatabaseRequest } from "./fetchDatabaseRequest";
 
@@ -8,10 +28,8 @@ function createConnection(
   overrides?: Partial<NormalizedConnection>,
 ): NormalizedConnection {
   return {
-    url: "http://localhost:8182",
     queryEngine: "gremlin",
-    graphDbUrl: "",
-    proxyConnection: false,
+    graphDbUrl: "https://db.example.com:8182",
     awsAuthEnabled: false,
     ...overrides,
   };
@@ -49,6 +67,7 @@ describe("fetchDatabaseRequest", () => {
   beforeEach(() => {
     mockFetch = vi.fn();
     vi.stubGlobal("fetch", mockFetch);
+    stubDocumentUrl();
   });
 
   afterEach(() => {
@@ -65,7 +84,7 @@ describe("fetchDatabaseRequest", () => {
       const data = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "http://localhost:8182/query",
+        "gremlin",
         { method: "POST" },
       );
 
@@ -75,15 +94,12 @@ describe("fetchDatabaseRequest", () => {
     it("passes the URI and method through to fetch", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
 
-      await fetchDatabaseRequest(
-        connection,
-        featureFlags,
-        "http://localhost:8182/sparql",
-        { method: "GET" },
-      );
+      await fetchDatabaseRequest(connection, featureFlags, "sparql", {
+        method: "GET",
+      });
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "http://localhost:8182/sparql",
+        new URL("http://localhost/sparql"),
         expect.objectContaining({ method: "GET" }),
       );
     });
@@ -91,27 +107,348 @@ describe("fetchDatabaseRequest", () => {
     it("passes the request body through to fetch", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
 
-      await fetchDatabaseRequest(connection, featureFlags, "/query", {
+      await fetchDatabaseRequest(connection, featureFlags, "gremlin", {
         method: "POST",
         body: "g.V().limit(10)",
       });
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "/query",
+        new URL("http://localhost/gremlin"),
         expect.objectContaining({ body: "g.V().limit(10)" }),
       );
     });
   });
 
-  describe("header construction", () => {
-    it("sets proxy headers when proxyConnection is true", async () => {
+  describe("request routing", () => {
+    beforeEach(() => {
+      mockFetch.mockResolvedValue(jsonResponse({}));
+    });
+
+    it("sends the request to the Graph Explorer server when proxyConnection is true", async () => {
+      await fetchDatabaseRequest(
+        createConnection({ proxyConnection: true }),
+        featureFlags,
+        "sparql",
+        { method: "POST" },
+      );
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("http://localhost/sparql"),
+        expect.anything(),
+      );
+    });
+
+    it("sends the request to the API root under the SageMaker reverse-proxy prefix", async () => {
+      stubDocumentUrl("https://nb.sagemaker.aws/proxy/9250/explorer/");
+
+      await fetchDatabaseRequest(connection, featureFlags, "gremlin", {
+        method: "POST",
+      });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("https://nb.sagemaker.aws/proxy/9250/gremlin"),
+        expect.anything(),
+      );
+    });
+
+    it("sends a direct connection's request to graphDbUrl", async () => {
+      await fetchDatabaseRequest(
+        createConnection({ proxyConnection: false }),
+        featureFlags,
+        "openCypher",
+        { method: "POST" },
+      );
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("https://db.example.com:8182/openCypher"),
+        expect.anything(),
+      );
+    });
+
+    it("keeps the path of graphDbUrl for a direct connection", async () => {
+      await fetchDatabaseRequest(
+        createConnection({
+          graphDbUrl: "http://blazegraph:9999/blazegraph/namespace/kb",
+          proxyConnection: false,
+        }),
+        featureFlags,
+        "sparql",
+        { method: "POST" },
+      );
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("http://blazegraph:9999/blazegraph/namespace/kb/sparql"),
+        expect.anything(),
+      );
+    });
+
+    it("keeps the query string for a direct connection", async () => {
+      await fetchDatabaseRequest(
+        createConnection({ proxyConnection: false }),
+        featureFlags,
+        "rdf/statistics/summary?mode=basic",
+        { method: "GET" },
+      );
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL(
+          "https://db.example.com:8182/rdf/statistics/summary?mode=basic",
+        ),
+        expect.anything(),
+      );
+    });
+
+    it("sends the queryId header for a proxy connection", async () => {
+      await fetchDatabaseRequest(connection, featureFlags, "gremlin", {
+        method: "POST",
+        queryId: "query-123",
+      });
+
+      const headers = mockFetch.mock.calls[0][1].headers;
+      expect(headers.queryId).toBe("query-123");
+    });
+
+    it("does not send the queryId header for a direct connection", async () => {
+      await fetchDatabaseRequest(
+        createConnection({ proxyConnection: false }),
+        featureFlags,
+        "gremlin",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          queryId: "query-123",
+        },
+      );
+
+      const headers = mockFetch.mock.calls[0][1].headers;
+      expect(normalizeHeaders(headers)).toStrictEqual({
+        "content-type": "application/json",
+      });
+    });
+  });
+
+  describe("invalid direct database url", () => {
+    it.each([
+      "/neptune",
+      "10.0.0.1:8182",
+      "localhost:8182",
+      "my-db",
+      "ftp://x",
+    ])(
+      "throws InvalidDatabaseUrlError before fetching for %s",
+      async graphDbUrl => {
+        const conn = createConnection({ graphDbUrl, proxyConnection: false });
+
+        await expect(
+          fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+            method: "POST",
+          }),
+        ).rejects.toThrow(new InvalidDatabaseUrlError(graphDbUrl));
+
+        expect(mockFetch).not.toHaveBeenCalled();
+      },
+    );
+
+    it("resolves an absolute https URL with a port and path", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
       const conn = createConnection({
-        proxyConnection: true,
+        graphDbUrl: "https://db.example.com:8182/path",
+        proxyConnection: false,
+      });
+
+      await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+      });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("https://db.example.com:8182/path/gremlin"),
+        expect.anything(),
+      );
+    });
+
+    it("leaves a proxy connection's URL to the Graph Explorer server", async () => {
+      mockFetch.mockResolvedValue(jsonResponse({}));
+      const conn = createConnection({ graphDbUrl: "localhost:8182" });
+
+      await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+      });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("http://localhost/gremlin"),
+        expect.anything(),
+      );
+    });
+  });
+
+  describe("insecure direct database url", () => {
+    const httpsPage = "https://graph-explorer.example.com/explorer/";
+
+    function directConnection(graphDbUrl: string) {
+      return createConnection({ graphDbUrl, proxyConnection: false });
+    }
+
+    // Names the connection's database URL, since the error blames that URL
+    // rather than the endpoint path.
+    it("classifies a failed request to an http database from an https page as InsecureDatabaseUrlError", async () => {
+      stubDocumentUrl(httpsPage);
+      const cause = new TypeError("Failed to fetch");
+      mockFetch.mockRejectedValue(cause);
+
+      const error = await fetchDatabaseRequest(
+        directConnection("http://db.example.com:8182"),
+        featureFlags,
+        "gremlin",
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(error).toStrictEqual(
+        new InsecureDatabaseUrlError("http://db.example.com:8182", cause),
+      );
+      expect(error.cause).toBe(cause);
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("http://db.example.com:8182/gremlin"),
+        expect.anything(),
+      );
+    });
+
+    it("returns the response when the browser allows an http database from an https page", async () => {
+      stubDocumentUrl(httpsPage);
+      mockFetch.mockResolvedValue(jsonResponse({ result: "ok" }));
+
+      const data = await fetchDatabaseRequest(
+        directConnection("http://db.example.com:8182"),
+        featureFlags,
+        "gremlin",
+        { method: "POST" },
+      );
+
+      expect(data).toStrictEqual({ result: "ok" });
+    });
+
+    // Browsers treat loopback hosts as trustworthy, so they don't block them.
+    it.each([
+      "http://localhost:8182",
+      "http://localhost.:8182",
+      "http://db.localhost:8182",
+      "http://127.0.0.1:8182",
+      "http://127.0.0.2:8182",
+      "http://[::1]:8182",
+    ])(
+      "classifies a failed request to the loopback database %s from an https page as DatabaseUnreachableError",
+      async graphDbUrl => {
+        stubDocumentUrl(httpsPage);
+        const cause = new TypeError("Failed to fetch");
+        mockFetch.mockRejectedValue(cause);
+
+        const error = await fetchDatabaseRequest(
+          directConnection(graphDbUrl),
+          featureFlags,
+          "gremlin",
+          { method: "POST" },
+        ).catch(e => e);
+
+        expect(error).toStrictEqual(
+          new DatabaseUnreachableError(`${graphDbUrl}/gremlin`, cause),
+        );
+      },
+    );
+
+    it("classifies a failed request to an http database from an http page as DatabaseUnreachableError", async () => {
+      stubDocumentUrl("http://graph-explorer.example.com/explorer/");
+      const cause = new TypeError("Failed to fetch");
+      mockFetch.mockRejectedValue(cause);
+
+      const error = await fetchDatabaseRequest(
+        directConnection("http://db.example.com:8182"),
+        featureFlags,
+        "gremlin",
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(error).toStrictEqual(
+        new DatabaseUnreachableError(
+          "http://db.example.com:8182/gremlin",
+          cause,
+        ),
+      );
+    });
+
+    it("classifies a failed proxy request for an http database from an https page as ServerConnectionError", async () => {
+      stubDocumentUrl(httpsPage);
+      const cause = new TypeError("Failed to fetch");
+      mockFetch.mockRejectedValue(cause);
+
+      const error = await fetchDatabaseRequest(
+        createConnection({ graphDbUrl: "http://db.example.com:8182" }),
+        featureFlags,
+        "gremlin",
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(error).toStrictEqual(
+        new ServerConnectionError(
+          "https://graph-explorer.example.com/gremlin",
+          cause,
+        ),
+      );
+    });
+  });
+
+  describe("missing database url", () => {
+    it("throws MissingDatabaseUrlError before fetching when graphDbUrl is empty", async () => {
+      const conn = createConnection({ graphDbUrl: "" });
+
+      await expect(
+        fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+          method: "POST",
+        }),
+      ).rejects.toThrow(new MissingDatabaseUrlError());
+
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    it("throws MissingDatabaseUrlError before fetching for a direct connection without a URL", async () => {
+      const conn = createConnection({ graphDbUrl: "", proxyConnection: false });
+
+      await expect(
+        fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+          method: "POST",
+        }),
+      ).rejects.toThrow(new MissingDatabaseUrlError());
+
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    it("sends the request when graphDbUrl is populated", async () => {
+      mockFetch.mockResolvedValue(jsonResponse({}));
+      const conn = createConnection({
         graphDbUrl: "https://my-neptune:8182",
       });
 
-      await fetchDatabaseRequest(conn, featureFlags, "/query", {
+      await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+      });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL("http://localhost/gremlin"),
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            "graph-db-connection-url": "https://my-neptune:8182",
+          }),
+        }),
+      );
+    });
+  });
+
+  describe("header construction", () => {
+    it("sets graph-db-connection-url header", async () => {
+      mockFetch.mockResolvedValue(jsonResponse({}));
+      const conn = createConnection({
+        graphDbUrl: "https://my-neptune:8182",
+      });
+
+      await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
         method: "POST",
       });
 
@@ -124,10 +461,10 @@ describe("fetchDatabaseRequest", () => {
 
     it("sets db-query-logging-enabled based on allowLoggingDbQuery", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
-      const conn = createConnection({ proxyConnection: true });
+      const conn = createConnection({ graphDbUrl: "https://db:8182" });
       const flags = createFeatureFlags({ allowLoggingDbQuery: true });
 
-      await fetchDatabaseRequest(conn, flags, "/query", { method: "POST" });
+      await fetchDatabaseRequest(conn, flags, "gremlin", { method: "POST" });
 
       const headers = mockFetch.mock.calls[0][1].headers;
       expect(headers["db-query-logging-enabled"]).toBe("true");
@@ -141,7 +478,7 @@ describe("fetchDatabaseRequest", () => {
         serviceType: "neptune-graph",
       });
 
-      await fetchDatabaseRequest(conn, featureFlags, "/query", {
+      await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
         method: "POST",
       });
 
@@ -154,7 +491,7 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
       const conn = createConnection({ awsAuthEnabled: true });
 
-      await fetchDatabaseRequest(conn, featureFlags, "/query", {
+      await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
         method: "POST",
       });
 
@@ -162,31 +499,83 @@ describe("fetchDatabaseRequest", () => {
       expect(headers["service-type"]).toBe("neptune-db");
     });
 
-    it("does not set proxy or AWS headers when both are disabled", async () => {
+    it("does not set AWS headers when awsAuthEnabled is disabled", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
 
-      await fetchDatabaseRequest(connection, featureFlags, "/query", {
+      await fetchDatabaseRequest(connection, featureFlags, "gremlin", {
         method: "POST",
       });
 
       const headers = mockFetch.mock.calls[0][1].headers;
-      expect(headers).not.toHaveProperty("graph-db-connection-url");
       expect(headers).not.toHaveProperty("aws-neptune-region");
       expect(headers).not.toHaveProperty("service-type");
     });
 
-    it("merges caller-provided headers with auth headers", async () => {
+    it("sends only caller-provided headers for a direct connection", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
-      const conn = createConnection({ proxyConnection: true });
+      // IAM fields can't be set on a direct connection through the UI, but a
+      // stray value must still not produce proxy headers that trigger a CORS
+      // preflight against the database.
+      const conn = createConnection({
+        proxyConnection: false,
+        awsAuthEnabled: true,
+        awsRegion: "us-west-2",
+      });
+      const flags = createFeatureFlags({ allowLoggingDbQuery: true });
 
-      await fetchDatabaseRequest(conn, featureFlags, "/query", {
+      await fetchDatabaseRequest(conn, flags, "sparql", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
 
       const headers = mockFetch.mock.calls[0][1].headers;
-      expect(headers["content-type"]).toBe("application/x-www-form-urlencoded");
-      expect(headers["graph-db-connection-url"]).toBeDefined();
+      expect(normalizeHeaders(headers)).toStrictEqual({
+        "content-type": "application/x-www-form-urlencoded",
+      });
+    });
+
+    it("merges caller-provided headers with the proxy headers", async () => {
+      mockFetch.mockResolvedValue(jsonResponse({}));
+      const conn = createConnection({ graphDbUrl: "https://db:8182" });
+
+      await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      });
+
+      const headers = mockFetch.mock.calls[0][1].headers;
+      expect(normalizeHeaders(headers)).toStrictEqual({
+        "content-type": "application/x-www-form-urlencoded",
+        "graph-db-connection-url": "https://db:8182",
+        "db-query-logging-enabled": "false",
+      });
+    });
+
+    it("sends exactly the proxy headers for an IAM connection", async () => {
+      mockFetch.mockResolvedValue(jsonResponse({}));
+      const conn = createConnection({
+        graphDbUrl: "https://neptune:8182",
+        awsAuthEnabled: true,
+        awsRegion: "us-west-2",
+        serviceType: "neptune-graph",
+      });
+      const flags = createFeatureFlags({ allowLoggingDbQuery: true });
+
+      await fetchDatabaseRequest(conn, flags, "gremlin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        queryId: "query-123",
+      });
+
+      const headers = mockFetch.mock.calls[0][1].headers;
+      expect(normalizeHeaders(headers)).toStrictEqual({
+        "content-type": "application/json",
+        "graph-db-connection-url": "https://neptune:8182",
+        "db-query-logging-enabled": "true",
+        "aws-neptune-region": "us-west-2",
+        "service-type": "neptune-graph",
+        queryid: "query-123",
+      });
     });
   });
 
@@ -194,7 +583,7 @@ describe("fetchDatabaseRequest", () => {
     it("does not set a signal when no timeout or abort signal is provided", async () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
 
-      await fetchDatabaseRequest(connection, featureFlags, "/query", {
+      await fetchDatabaseRequest(connection, featureFlags, "gremlin", {
         method: "POST",
       });
 
@@ -206,7 +595,7 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
       const controller = new AbortController();
 
-      await fetchDatabaseRequest(connection, featureFlags, "/query", {
+      await fetchDatabaseRequest(connection, featureFlags, "gremlin", {
         method: "POST",
         signal: controller.signal,
       });
@@ -220,7 +609,7 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
       const conn = createConnection({ fetchTimeoutMs: 5000 });
 
-      await fetchDatabaseRequest(conn, featureFlags, "/query", {
+      await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
         method: "POST",
       });
 
@@ -232,7 +621,7 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
       const conn = createConnection({ fetchTimeoutMs: 0 });
 
-      await fetchDatabaseRequest(conn, featureFlags, "/query", {
+      await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
         method: "POST",
       });
 
@@ -244,7 +633,7 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockResolvedValue(jsonResponse({}));
       const conn = createConnection({ fetchTimeoutMs: -1 });
 
-      await fetchDatabaseRequest(conn, featureFlags, "/query", {
+      await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
         method: "POST",
       });
 
@@ -260,7 +649,7 @@ describe("fetchDatabaseRequest", () => {
       );
 
       await expect(
-        fetchDatabaseRequest(connection, featureFlags, "/query", {
+        fetchDatabaseRequest(connection, featureFlags, "gremlin", {
           method: "POST",
         }),
       ).rejects.toThrow(
@@ -284,7 +673,7 @@ describe("fetchDatabaseRequest", () => {
       );
 
       await expect(
-        fetchDatabaseRequest(connection, featureFlags, "/query", {
+        fetchDatabaseRequest(connection, featureFlags, "gremlin", {
           method: "POST",
         }),
       ).rejects.toThrow(
@@ -298,7 +687,7 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockResolvedValue(jsonResponse({ code: "ERR_UNKNOWN" }, 500));
 
       await expect(
-        fetchDatabaseRequest(connection, featureFlags, "/query", {
+        fetchDatabaseRequest(connection, featureFlags, "gremlin", {
           method: "POST",
         }),
       ).rejects.toThrow(
@@ -319,7 +708,7 @@ describe("fetchDatabaseRequest", () => {
       const error = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "/query",
+        "gremlin",
         { method: "POST" },
       ).catch(e => e);
 
@@ -333,7 +722,7 @@ describe("fetchDatabaseRequest", () => {
       const error = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "/query",
+        "gremlin",
         { method: "POST" },
       ).catch(e => e);
 
@@ -345,12 +734,36 @@ describe("fetchDatabaseRequest", () => {
         jsonResponse({ message: "server error" }, 500),
       );
 
-      await fetchDatabaseRequest(connection, featureFlags, "/query", {
+      await fetchDatabaseRequest(connection, featureFlags, "gremlin", {
         method: "POST",
       }).catch(() => {});
 
       expect(logger.error).toHaveBeenCalledWith(
         "Response status 500 received:",
+        expect.anything(),
+      );
+    });
+
+    it("throws NetworkError from a direct connection's error response", async () => {
+      const errorBody = {
+        code: "MalformedQueryException",
+        detailedMessage: "Syntax error at line 1",
+        message: "Bad request",
+      };
+      mockFetch.mockResolvedValue(jsonResponse(errorBody, 400));
+
+      await expect(
+        fetchDatabaseRequest(
+          createConnection({ proxyConnection: false }),
+          featureFlags,
+          "gremlin",
+          { method: "POST" },
+        ),
+      ).rejects.toThrow(
+        new NetworkError("Syntax error at line 1", 400, errorBody),
+      );
+      expect(mockFetch).toHaveBeenCalledExactlyOnceWith(
+        new URL("https://db.example.com:8182/gremlin"),
         expect.anything(),
       );
     });
@@ -364,7 +777,7 @@ describe("fetchDatabaseRequest", () => {
       const error = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "/query",
+        "gremlin",
         { method: "POST" },
       ).catch(e => e);
 
@@ -382,7 +795,7 @@ describe("fetchDatabaseRequest", () => {
       const error = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "/query",
+        "gremlin",
         { method: "POST" },
       ).catch(e => e);
 
@@ -395,7 +808,7 @@ describe("fetchDatabaseRequest", () => {
       const error = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "/query",
+        "gremlin",
         { method: "POST" },
       ).catch(e => e);
 
@@ -406,7 +819,7 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockResolvedValue(emptyResponse(500));
 
       await expect(
-        fetchDatabaseRequest(connection, featureFlags, "/query", {
+        fetchDatabaseRequest(connection, featureFlags, "gremlin", {
           method: "POST",
         }),
       ).rejects.toThrow(
@@ -425,7 +838,7 @@ describe("fetchDatabaseRequest", () => {
       const error = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "/query",
+        "gremlin",
         { method: "POST" },
       ).catch(e => e);
 
@@ -440,13 +853,33 @@ describe("fetchDatabaseRequest", () => {
       const error = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "http://localhost:8182/query",
+        "gremlin",
         { method: "POST" },
       ).catch(e => e);
 
       expect(error).toBeInstanceOf(ServerConnectionError);
-      expect(error.url).toBe("http://localhost:8182/query");
+      expect(error.url).toBe("http://localhost/gremlin");
       expect(error.cause).toBeInstanceOf(TypeError);
+    });
+
+    it("wraps failed to fetch on a direct connection in DatabaseUnreachableError", async () => {
+      const cause = new TypeError("Failed to fetch");
+      mockFetch.mockRejectedValue(cause);
+
+      const error = await fetchDatabaseRequest(
+        createConnection({ proxyConnection: false }),
+        featureFlags,
+        "gremlin",
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(error).toStrictEqual(
+        new DatabaseUnreachableError(
+          "https://db.example.com:8182/gremlin",
+          cause,
+        ),
+      );
+      expect(error.cause).toBe(cause);
     });
 
     it("propagates abort errors", async () => {
@@ -456,11 +889,11 @@ describe("fetchDatabaseRequest", () => {
       mockFetch.mockRejectedValue(controller.signal.reason);
 
       await expect(
-        fetchDatabaseRequest(connection, featureFlags, "/query", {
+        fetchDatabaseRequest(connection, featureFlags, "gremlin", {
           method: "POST",
           signal: controller.signal,
         }),
-      ).rejects.toThrow();
+      ).rejects.toBe(controller.signal.reason);
     });
 
     it("wraps other TypeErrors as ServerConnectionError", async () => {
@@ -470,7 +903,7 @@ describe("fetchDatabaseRequest", () => {
       const caught = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        "http://localhost:8182/query",
+        "gremlin",
         { method: "POST" },
       ).catch(e => e);
 
@@ -478,18 +911,315 @@ describe("fetchDatabaseRequest", () => {
       expect(caught.cause).toBe(error);
     });
 
-    it("extracts URL from a URL object", async () => {
+    it("reports the resolved URL of the endpoint path", async () => {
       mockFetch.mockRejectedValue(new TypeError("Failed to fetch"));
 
       const caught = await fetchDatabaseRequest(
         connection,
         featureFlags,
-        new URL("http://localhost:8182/sparql"),
+        "sparql",
         { method: "POST" },
       ).catch(e => e);
 
       expect(caught).toBeInstanceOf(ServerConnectionError);
-      expect(caught.url).toBe("http://localhost:8182/sparql");
+      expect(caught.url).toBe("http://localhost/sparql");
+    });
+  });
+
+  describe("timeout classification", () => {
+    // Like `abortableFetch`, but delays the rejection well past the fetch
+    // timeout window so a real, independent fetch-timeout timer has a
+    // chance to fire on its own before the rejection (and this module's
+    // catch block) runs. Proves classification is decided by which signal's
+    // reason the combined signal actually captured, not by re-checking
+    // `aborted` flags after the fact, once both signals are aborted.
+    function delayedAbortableFetch(_uri: unknown, init: RequestInit) {
+      return new Promise((_resolve, reject) => {
+        const signal = init.signal;
+        if (!signal) return;
+        const rejectAfterDelay = () =>
+          setTimeout(() => reject(signal.reason as Error), 20);
+        if (signal.aborted) {
+          rejectAfterDelay();
+          return;
+        }
+        signal.addEventListener("abort", rejectAfterDelay);
+      });
+    }
+
+    // Mimics a non-OK response whose error body takes a while to read, so a
+    // fetch timeout that fires during that read must not override the
+    // NetworkError/DatabaseTimeoutError `sendRequest` builds from the body.
+    function slowErrorResponse(body: string, status: number, delayMs: number) {
+      return {
+        ok: false,
+        status,
+        headers: new Headers({ "Content-Type": "application/json" }),
+        text: () =>
+          new Promise<string>(resolve =>
+            setTimeout(() => resolve(body), delayMs),
+          ),
+      } as unknown as Response;
+    }
+
+    // Mimics a response that arrived successfully but whose body never
+    // finishes streaming until the signal fires, so a timeout mid-parse is
+    // still classified rather than escaping unclassified.
+    function hangingJsonResponse(init: RequestInit) {
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () =>
+          new Promise((_resolve, reject) => {
+            const signal = init.signal;
+            if (!signal) return;
+            signal.addEventListener("abort", () =>
+              reject(signal.reason as Error),
+            );
+          }),
+      } as unknown as Response);
+    }
+
+    it("throws FetchTimeoutError when the fetch timer fires", async () => {
+      mockFetch.mockImplementation(abortableFetch);
+      const conn = createConnection({ fetchTimeoutMs: 1 });
+
+      const error = await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+      }).catch(e => e);
+
+      expect(error).toBeInstanceOf(FetchTimeoutError);
+      expect(error.timeoutMs).toBe(1);
+      expect(error.cause).toBeInstanceOf(DOMException);
+      expect(error.cause.name).toBe("TimeoutError");
+    });
+
+    it("throws FetchTimeoutError when the fetch timer fires on a direct connection", async () => {
+      mockFetch.mockImplementation(abortableFetch);
+      const conn = createConnection({
+        fetchTimeoutMs: 1,
+        proxyConnection: false,
+      });
+
+      const error = await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+      }).catch(e => e);
+
+      expect(error).toBeInstanceOf(FetchTimeoutError);
+      expect(error.timeoutMs).toBe(1);
+      expect(error.cause).toBeInstanceOf(DOMException);
+      expect(error.cause.name).toBe("TimeoutError");
+    });
+
+    it("throws exactly the caller's AbortError when the caller aborts first", async () => {
+      mockFetch.mockImplementation(abortableFetch);
+      const conn = createConnection({ fetchTimeoutMs: 1 });
+      const controller = new AbortController();
+      controller.abort();
+
+      const error = await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+        signal: controller.signal,
+      }).catch(e => e);
+
+      expect(error).toBe(controller.signal.reason);
+      expect(error).not.toBeInstanceOf(FetchTimeoutError);
+    });
+
+    it("throws the caller's AbortError when the caller aborts first, even once the fetch timeout also fires before the catch runs", async () => {
+      mockFetch.mockImplementation(delayedAbortableFetch);
+      const conn = createConnection({ fetchTimeoutMs: 5 });
+      const controller = new AbortController();
+
+      const promise = fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+        signal: controller.signal,
+      }).catch(e => e);
+
+      // Abort before the fetch timeout's 5ms elapses. `delayedAbortableFetch`
+      // won't reject for another 20ms, so by the time this module's catch
+      // block runs, the independent fetch-timeout signal has also fired.
+      controller.abort();
+
+      const error = await promise;
+
+      expect(error).toBe(controller.signal.reason);
+      expect(error).not.toBeInstanceOf(FetchTimeoutError);
+    });
+
+    it("throws FetchTimeoutError when the fetch timeout fires first, even once the caller also aborts before the catch runs", async () => {
+      mockFetch.mockImplementation(delayedAbortableFetch);
+      const conn = createConnection({ fetchTimeoutMs: 5 });
+      const controller = new AbortController();
+
+      const promise = fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+        signal: controller.signal,
+      }).catch(e => e);
+
+      // Wait for the fetch timeout to fire first, then abort the caller's
+      // signal before `delayedAbortableFetch`'s 20ms delay rejects, so both
+      // signals are aborted by the time this module's catch block runs.
+      await new Promise(resolve => setTimeout(resolve, 10));
+      controller.abort();
+
+      const error = await promise;
+
+      expect(error).toBeInstanceOf(FetchTimeoutError);
+      expect(error.timeoutMs).toBe(5);
+    });
+
+    it("preserves a DatabaseTimeoutError read from the response body even if the fetch timeout fires while reading it", async () => {
+      const errorBody = {
+        requestId: "abc-123",
+        code: "TimeLimitExceededException",
+        detailedMessage: "A timeout occurred during the request.",
+      };
+      mockFetch.mockResolvedValue(
+        slowErrorResponse(JSON.stringify(errorBody), 500, 20),
+      );
+      const conn = createConnection({ fetchTimeoutMs: 5 });
+
+      const error = await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+      }).catch(e => e);
+
+      expect(error).toBeInstanceOf(DatabaseTimeoutError);
+      expect(error).not.toBeInstanceOf(FetchTimeoutError);
+      expect(error.databaseCode).toBe("TimeLimitExceededException");
+    });
+
+    it("throws FetchTimeoutError when the timeout fires while reading the response body", async () => {
+      mockFetch.mockImplementation((_uri, init) => hangingJsonResponse(init));
+      const conn = createConnection({ fetchTimeoutMs: 1 });
+
+      const error = await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+      }).catch(e => e);
+
+      expect(error).toBeInstanceOf(FetchTimeoutError);
+      expect(error.timeoutMs).toBe(1);
+    });
+
+    it("wraps a failed fetch in ServerConnectionError when a fetch timeout is configured but has not fired", async () => {
+      const cause = new TypeError("Failed to fetch");
+      mockFetch.mockRejectedValue(cause);
+      const conn = createConnection({ fetchTimeoutMs: 240000 });
+
+      const error = await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+      }).catch(e => e);
+
+      expect(error).toStrictEqual(
+        new ServerConnectionError("http://localhost/gremlin", cause),
+      );
+    });
+
+    it("wraps a failed fetch on a direct connection in DatabaseUnreachableError when a fetch timeout is configured but has not fired", async () => {
+      const cause = new TypeError("Failed to fetch");
+      mockFetch.mockRejectedValue(cause);
+      const conn = createConnection({
+        fetchTimeoutMs: 240000,
+        proxyConnection: false,
+      });
+
+      const error = await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+      }).catch(e => e);
+
+      expect(error).toStrictEqual(
+        new DatabaseUnreachableError(
+          "https://db.example.com:8182/gremlin",
+          cause,
+        ),
+      );
+    });
+
+    it("propagates a response parsing error when a fetch timeout is configured but has not fired", async () => {
+      mockFetch.mockResolvedValue(
+        new Response("not json", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+      const conn = createConnection({ fetchTimeoutMs: 240000 });
+
+      const error = await fetchDatabaseRequest(conn, featureFlags, "gremlin", {
+        method: "POST",
+      }).catch(e => e);
+
+      expect(error).toBeInstanceOf(SyntaxError);
+    });
+
+    it("throws DatabaseTimeoutError for a Neptune query timeout body", async () => {
+      const errorBody = {
+        requestId: "abc-123",
+        code: "TimeLimitExceededException",
+        detailedMessage: "A timeout occurred during the request.",
+      };
+      mockFetch.mockResolvedValue(jsonResponse(errorBody, 500));
+
+      const error = await fetchDatabaseRequest(
+        connection,
+        featureFlags,
+        "gremlin",
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(error).toBeInstanceOf(DatabaseTimeoutError);
+      expect(error.databaseCode).toBe("TimeLimitExceededException");
+      expect(error.statusCode).toBe(500);
+      expect(error.data).toStrictEqual(errorBody);
+    });
+
+    it("throws DatabaseTimeoutError for a Neptune query timeout body wrapped in an error object", async () => {
+      const innerError = {
+        requestId: "abc-123",
+        code: "TimeLimitExceededException",
+        detailedMessage: "A timeout occurred during the request.",
+      };
+      mockFetch.mockResolvedValue(jsonResponse({ error: innerError }, 500));
+
+      const error = await fetchDatabaseRequest(
+        connection,
+        featureFlags,
+        "gremlin",
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(error).toBeInstanceOf(DatabaseTimeoutError);
+      expect(error.databaseCode).toBe("TimeLimitExceededException");
+      expect(error.data).toStrictEqual(innerError);
+    });
+
+    it("throws a plain NetworkError for a memory limit error, not DatabaseTimeoutError", async () => {
+      mockFetch.mockResolvedValue(
+        jsonResponse({ code: "MemoryLimitExceededException" }, 500),
+      );
+
+      const error = await fetchDatabaseRequest(
+        connection,
+        featureFlags,
+        "gremlin",
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(error).toBeInstanceOf(NetworkError);
+      expect(error).not.toBeInstanceOf(DatabaseTimeoutError);
+    });
+
+    it("throws a plain NetworkError for ETIMEDOUT, not DatabaseTimeoutError", async () => {
+      mockFetch.mockResolvedValue(jsonResponse({ code: "ETIMEDOUT" }, 500));
+
+      const error = await fetchDatabaseRequest(
+        connection,
+        featureFlags,
+        "gremlin",
+        { method: "POST" },
+      ).catch(e => e);
+
+      expect(error).toBeInstanceOf(NetworkError);
+      expect(error).not.toBeInstanceOf(DatabaseTimeoutError);
     });
   });
 });

@@ -1,7 +1,9 @@
 // @vitest-environment happy-dom
+
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, useLocation } from "react-router";
+import { describe, expect, test } from "vitest";
 
 import { NavButton } from "./NavButton";
 

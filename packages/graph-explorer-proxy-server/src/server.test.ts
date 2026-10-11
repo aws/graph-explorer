@@ -4,6 +4,7 @@ import fs from "fs";
 import https from "https";
 import os from "os";
 import path from "path";
+import { describe, expect, it } from "vitest";
 
 import { createServer } from "./server.ts";
 
@@ -71,6 +72,6 @@ describe("createServer", () => {
         certKeyPath: "/nonexistent/server.key",
         certPath: "/nonexistent/server.crt",
       }),
-    ).toThrow();
+    ).toThrow(/ENOENT.*no such file or directory/);
   });
 });

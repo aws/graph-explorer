@@ -1,6 +1,16 @@
 #!/bin/sh
 
 CONFIGURATION_FOLDER_PATH=${CONFIGURATION_FOLDER_PATH:-"./packages/graph-explorer/"}
+CONFIGURATION_FOLDER_PATH=${CONFIGURATION_FOLDER_PATH%/}
+
+# Stops startup when the file can't be written. Without this, failed writes
+# are silent and the server starts with settings it never received.
+require_writable() {
+    if ! { true >> "$1"; } 2>/dev/null; then
+        echo "Graph Explorer can't start because it can't write $1. The container writes its settings to the configuration folder at startup, so $CONFIGURATION_FOLDER_PATH must be writable. Check that it isn't mounted read-only." >&2
+        exit 1
+    fi
+}
 
 if [ -f "./config.json" ]; then
 
@@ -18,12 +28,54 @@ if [ -f "./config.json" ]; then
     NEPTUNE_NOTEBOOK=$(echo "$json" | grep -o '"NEPTUNE_NOTEBOOK":[^,}]*' | cut -d ':' -f 2 | tr -d '[:space:]' | sed 's/"//g')
 fi
 
+# Resolve the legacy PUBLIC_OR_PROXY_ENDPOINT/USING_PROXY_SERVER variables into
+# GRAPH_CONNECTION_URL and whether the Default Connection goes through the
+# proxy. It's proxied when USING_PROXY_SERVER is true, or when it's unset and
+# only GRAPH_CONNECTION_URL is set. Earlier versions treated an unset
+# USING_PROXY_SERVER as false, so an unset value with PUBLIC_OR_PROXY_ENDPOINT
+# stays direct. Like transformLegacyConnection() in configuration.ts, a direct
+# connection drops IAM, region, and service type because the browser sends its
+# requests and nothing would sign them.
+USING_PROXY_SERVER_LOWER=$(printf '%s' "$USING_PROXY_SERVER" | tr '[:upper:]' '[:lower:]')
+IS_PROXY_CONNECTION=false
+if [ "$USING_PROXY_SERVER_LOWER" = "true" ]; then
+    IS_PROXY_CONNECTION=true
+elif [ -z "$USING_PROXY_SERVER" ] && [ -n "$GRAPH_CONNECTION_URL" ] && [ -z "$PUBLIC_OR_PROXY_ENDPOINT" ]; then
+    IS_PROXY_CONNECTION=true
+fi
+
+if [ "$IS_PROXY_CONNECTION" = "true" ]; then
+    RESOLVED_CONNECTION_URL="$GRAPH_CONNECTION_URL"
+elif [ -n "$PUBLIC_OR_PROXY_ENDPOINT" ]; then
+    RESOLVED_CONNECTION_URL="$PUBLIC_OR_PROXY_ENDPOINT"
+else
+    RESOLVED_CONNECTION_URL="$GRAPH_CONNECTION_URL"
+fi
+
+# Check both files before writing either, so a refusal leaves the folder as it was.
+if [ -n "$RESOLVED_CONNECTION_URL" ]; then
+    require_writable "$CONFIGURATION_FOLDER_PATH/defaultConnection.json"
+fi
+require_writable "$CONFIGURATION_FOLDER_PATH/.env"
+
 if [ -n "$NEPTUNE_NOTEBOOK" ]; then
     printf '\nNEPTUNE_NOTEBOOK=%s\n' "$NEPTUNE_NOTEBOOK" >> $CONFIGURATION_FOLDER_PATH/.env
     if [ "$NEPTUNE_NOTEBOOK" = "true" ]; then
-      # Override Proxy SSL setting if Neptune notebook
-      PROXY_SERVER_HTTPS_CONNECTION="false"
+      # The notebook preset serves over HTTP. Keep an HTTPS request the server
+      # would read as true, so it can reject the conflict. Anything else,
+      # such as a config.json null or number, falls back to the preset.
+      case "$PROXY_SERVER_HTTPS_CONNECTION" in
+        [Tt][Rr][Uu][Ee]) ;;
+        *) PROXY_SERVER_HTTPS_CONNECTION="false" ;;
+      esac
       GRAPH_EXP_HTTPS_CONNECTION="false"
+      # Set port and log style unless explicitly overridden
+      if [ -z "$PROXY_SERVER_HTTP_PORT" ]; then
+          printf '\nPROXY_SERVER_HTTP_PORT=9250\n' >> $CONFIGURATION_FOLDER_PATH/.env
+      fi
+      if [ -z "$LOG_STYLE" ]; then
+          printf '\nLOG_STYLE=cloudwatch\n' >> $CONFIGURATION_FOLDER_PATH/.env
+      fi
     fi
 else
     printf '\nNEPTUNE_NOTEBOOK=false\n' >> $CONFIGURATION_FOLDER_PATH/.env
@@ -42,38 +94,35 @@ else
 fi
 
 # Update the default connection file with the configuration values
-if [ -n "$PUBLIC_OR_PROXY_ENDPOINT" ]; then 
+if [ -n "$RESOLVED_CONNECTION_URL" ]; then
     # Overwrite existing file with an empty string
     echo "" > $CONFIGURATION_FOLDER_PATH/defaultConnection.json
-    
-    printf '{\n"GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT":"%s",\n' "$PUBLIC_OR_PROXY_ENDPOINT" >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
 
-    if [ -n "$SERVICE_TYPE" ]; then
-        echo "\"GRAPH_EXP_SERVICE_TYPE\":\"${SERVICE_TYPE}\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
-    else
-        echo "\"GRAPH_EXP_SERVICE_TYPE\":\"neptune-db\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
-    fi
+    printf '{\n"GRAPH_EXP_CONNECTION_URL":"%s",\n' "$RESOLVED_CONNECTION_URL" >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
 
-    if [ -n "$GRAPH_TYPE" ]; then 
+    if [ -n "$GRAPH_TYPE" ]; then
         echo "\"GRAPH_EXP_GRAPH_TYPE\":\"${GRAPH_TYPE}\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
     else
       if [ "$SERVICE_TYPE" = "neptune-graph" ]; then
         echo "\"GRAPH_EXP_GRAPH_TYPE\":\"openCypher\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
       fi
     fi
-    
-    if [ -n "$USING_PROXY_SERVER" ]; then 
-        echo "\"GRAPH_EXP_USING_PROXY_SERVER\":${USING_PROXY_SERVER}," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
-    else 
-        echo "\"GRAPH_EXP_USING_PROXY_SERVER\":false," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
-    fi 
 
-    if [ -n "$IAM" ]; then 
-        echo "\"GRAPH_EXP_IAM\":${IAM}," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
-    else 
-        echo "\"GRAPH_EXP_IAM\":false," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
+    if [ "$IS_PROXY_CONNECTION" = "true" ]; then
+        if [ -n "$SERVICE_TYPE" ]; then
+            echo "\"GRAPH_EXP_SERVICE_TYPE\":\"${SERVICE_TYPE}\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
+        else
+            echo "\"GRAPH_EXP_SERVICE_TYPE\":\"neptune-db\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
+        fi
+
+        if [ -n "$IAM" ]; then
+            echo "\"GRAPH_EXP_IAM\":${IAM}," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
+        else
+            echo "\"GRAPH_EXP_IAM\":false," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
+        fi
+
+        printf '"GRAPH_EXP_AWS_REGION":"%s",\n' "$AWS_REGION" >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
     fi
 
-    echo "\"GRAPH_EXP_CONNECTION_URL\":\"${GRAPH_CONNECTION_URL}\"," >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
-    printf '"GRAPH_EXP_AWS_REGION":"%s"\n}\n' "$AWS_REGION" >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
+    printf '"GRAPH_EXP_USING_PROXY_SERVER":%s\n}\n' "$IS_PROXY_CONNECTION" >> $CONFIGURATION_FOLDER_PATH/defaultConnection.json
 fi

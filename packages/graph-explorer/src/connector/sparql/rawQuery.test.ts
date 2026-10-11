@@ -6,6 +6,7 @@ import {
   createRandomUrlString,
 } from "@shared/utils/testing";
 import { describe, expect, it, vi } from "vitest";
+import { ValidationError } from "zod-validation-error";
 
 import {
   createResultBundle,
@@ -153,7 +154,7 @@ describe("rawQuery", () => {
 
     await expect(
       rawQuery(mockFetch, { query: "SELECT ?name WHERE { ?s ?p ?name }" }),
-    ).rejects.toThrow();
+    ).rejects.toBeInstanceOf(ValidationError);
   });
 
   it("should throw error when fetch returns error response", async () => {
@@ -165,7 +166,7 @@ describe("rawQuery", () => {
 
     await expect(
       rawQuery(mockFetch, { query: "INVALID QUERY" }),
-    ).rejects.toThrow("Invalid query syntax");
+    ).rejects.toThrow(new Error("Invalid query syntax"));
   });
 
   describe("CONSTRUCT/DESCRIBE queries", () => {

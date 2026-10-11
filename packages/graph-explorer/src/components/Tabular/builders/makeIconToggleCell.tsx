@@ -26,7 +26,7 @@ export default function makeIconActionCell<T extends object>({
         variant="ghost"
         tooltip={title}
         onClick={() => onPress?.(props)}
-        className="active:bg-brand-100 text-brand-600 hover:text-brand-800 w-full cursor-pointer hover:bg-transparent"
+        className="active:bg-primary-subtle-hover text-primary hover:text-primary-foreground w-full cursor-pointer hover:bg-transparent"
       >
         {getValue(props) ? on : off}
       </Button>

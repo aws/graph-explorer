@@ -20,9 +20,9 @@ describe("createInMemorySessionStorage", () => {
 });
 
 describe("resolveSessionStorage", () => {
-  // The default test environment is non-DOM, so globalThis.sessionStorage is
-  // undefined and resolveSessionStorage exercises the in-memory fallback.
   test("warns and falls back to in-memory storage when sessionStorage is unavailable", () => {
+    vi.stubGlobal("sessionStorage", undefined);
+
     const storage = resolveSessionStorage();
 
     expect(vi.mocked(logger.warn)).toHaveBeenCalledOnce();

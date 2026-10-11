@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { normalizeWithNoSpace as normalize } from "@/utils/testing";
 
 import edgesSchemaTemplate from "./edgesSchemaTemplate";
@@ -10,11 +12,11 @@ describe("Gremlin > edgesSchemaTemplate", () => {
       normalize(`
         g.V().limit(1)
           .project(
-            "route",
-            "contain"
+            'route',
+            'contain'
           )
-          .by(V().bothE("route").limit(1))
-          .by(V().bothE("contain").limit(1))
+          .by(V().bothE('route').limit(1))
+          .by(V().bothE('contain').limit(1))
       `),
     );
   });
@@ -26,13 +28,27 @@ describe("Gremlin > edgesSchemaTemplate", () => {
       normalize(`
         g.V().limit(1)
           .project(
-            "a",
-            "b",
-            "c"
+            'a',
+            'b',
+            'c'
           )
-          .by(V().bothE("a").limit(1))
-          .by(V().bothE("b").limit(1))
-          .by(V().bothE("c").limit(1))
+          .by(V().bothE('a').limit(1))
+          .by(V().bothE('b').limit(1))
+          .by(V().bothE('c').limit(1))
+      `),
+    );
+  });
+
+  it("Should escape a label containing the delimiter", () => {
+    const template = edgesSchemaTemplate({ types: ["ro'ute"] });
+
+    expect(normalize(template)).toBe(
+      normalize(`
+        g.V().limit(1)
+          .project(
+            'ro\\'ute'
+          )
+          .by(V().bothE('ro\\'ute').limit(1))
       `),
     );
   });

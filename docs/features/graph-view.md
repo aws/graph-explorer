@@ -28,6 +28,8 @@ The panel on the right of the graph provides various actions, configuration, and
 - [**Styles panel**](#styles-panel) of node and edge display options (e.g., color, icon, the property to use for the displayed name), split across a Nodes tab and an Edges tab.
 - [**Namespaces panel (RDF only)**](#namespace-panel) allows you to shorten the display of Resource URIs within the app based on auto-generated prefixes, commonly-used prefix libraries, or custom prefixes set by the user. Order of priority is set to Custom > Common > Auto-generated.
 
+The active panel, the sidebar width, and which views are toggled on are remembered per browser tab, so two tabs can keep different sidebar and view setups side by side. When you reopen Graph Explorer after closing all tabs, it resumes the setup you most recently used.
+
 ### Search Panel
 
 The Search UI provides two powerful ways to search and interact with your graph database:
@@ -37,7 +39,8 @@ The Search UI provides two powerful ways to search and interact with your graph 
 - Enables faceted filtering of nodes based on:
   - Node labels (or rdf:type for RDF databases)
   - Node attribute values
-- Supports partial text matching
+- The **Node Label** and **Property** pickers support type-to-filter, so you can find one by typing part of its name instead of scrolling
+- Supports partial text matching on the search term
 - Search results can be added to the graph individually or all at once
 - Supports cancellation of long-running queries
 
@@ -74,14 +77,14 @@ Provides the ability to filter nodes or edges from the visualization by label (o
 
 ### Styles Panel
 
-The Styles panel holds node and edge styling behind two tabs: **Nodes** and **Edges**.
+The Styles panel holds node and edge styling behind two tabs: **Nodes** and **Edges**. As you edit a node or edge type, a live preview shows it exactly as it will appear on the canvas.
 
 On the **Nodes** tab, each node type can be customized in a variety of ways.
 
 - **Display label** allows you to change how the node label (or rdf:type) is represented
 - **Display name attribute** allows you to choose the attribute on the node that is used to uniquely label the node in the graph visualization and search
 - **Display description attribute** allows you to choose the attribute on the node that is used to describe the node in search
-- **Icon** can be picked from the built-in Lucide library via the **Browse** button, or uploaded as a custom SVG/raster image.
+- **Icon** can be searched or paged through in the built-in Lucide library via the **Browse** button, or uploaded as a custom SVG/raster image.
 - **Colors and borders** can be customized to visually distinguish from other node types
 
 On the **Edges** tab, each edge type can be customized in a variety of ways.

@@ -1,5 +1,6 @@
 import { createRandomInteger } from "@shared/utils/testing";
 import { toast } from "sonner";
+import { describe, expect, it } from "vitest";
 
 import { createRandomEntities } from "@/utils/testing";
 

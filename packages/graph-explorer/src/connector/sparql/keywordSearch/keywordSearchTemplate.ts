@@ -1,7 +1,7 @@
-import { escapeString, query, SEARCH_TOKENS } from "@/utils";
+import { query } from "@/utils";
 
 import { getLimit, getSubjectClasses } from "../filterHelpers";
-import { idParam } from "../idParam";
+import { fragment } from "../fragments";
 import { rdfTypeUri, type SPARQLKeywordSearchRequest } from "../types";
 
 /**
@@ -32,7 +32,7 @@ import { rdfTypeUri, type SPARQLKeywordSearchRequest } from "../types";
  *       FILTER (?class IN (
  *         <http://www.example.com/soccer/ontology/Team>
  *       ))
- *       FILTER (regex(str(?value), "Ch", "i"))
+ *       FILTER (CONTAINS(LCASE(STR(?value)), LCASE("Ch")))
  *     }
  *     LIMIT 10
  *     OFFSET 0
@@ -58,7 +58,7 @@ export default function keywordSearchTemplate(
       {
         # Values and types
         ?subject ?predicate ?object
-        FILTER(isLiteral(?object) || ?predicate = ${idParam(rdfTypeUri)})
+        FILTER(isLiteral(?object) || ?predicate = ${fragment.iri(rdfTypeUri)})
       }
     }
   `;
@@ -80,7 +80,7 @@ export default function keywordSearchTemplate(
  * //   OPTIONAL { ?subject a ?class } .
  * //   FILTER (?pValue IN (<http://example.org/name>, <http://example.org/title>))
  * //   FILTER (?class IN (<http://example.org/Person>))
- * //   FILTER (regex(str(?value), "John", "i"))
+ * //   FILTER (CONTAINS(LCASE(STR(?value)), LCASE("John")))
  * // }
  * // LIMIT 10 OFFSET 0"
  * findSubjectsMatchingFilters({
@@ -116,13 +116,11 @@ export function findSubjectsMatchingFilters(
 }
 
 function getFilterPredicates(predicates?: string[]) {
-  const filteredPredicates =
-    predicates?.filter(p => p !== SEARCH_TOKENS.ALL_ATTRIBUTES) || [];
-  if (!filteredPredicates.length) {
+  if (!predicates?.length) {
     return "";
   }
 
-  return `FILTER (?pValue IN (${filteredPredicates.map(idParam).join(", ")}))`;
+  return `FILTER (?pValue IN (${predicates.map(fragment.iri).join(", ")}))`;
 }
 
 function getFilterObject(exactMatch?: boolean, searchTerm?: string) {
@@ -130,9 +128,9 @@ function getFilterObject(exactMatch?: boolean, searchTerm?: string) {
     return "";
   }
 
-  const escapedSearchTerm = escapeString(searchTerm);
+  const searchLiteral = fragment.string(searchTerm);
 
   return exactMatch === true
-    ? `FILTER (?value = "${escapedSearchTerm}")`
-    : `FILTER (regex(str(?value), "${escapedSearchTerm}", "i"))`;
+    ? `FILTER (?value = ${searchLiteral})`
+    : `FILTER (CONTAINS(LCASE(STR(?value)), LCASE(${searchLiteral})))`;
 }

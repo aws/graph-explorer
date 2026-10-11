@@ -1,6 +1,9 @@
+import { describe, expect, it } from "vitest";
+
 import { SEARCH_TOKENS } from "@/utils";
 import { normalizeWithNoSpace as normalize } from "@/utils/testing";
 
+import { UnrepresentableNumberError } from "../../queryValueError";
 import keywordSearchTemplate from "./keywordSearchTemplate";
 
 describe("Gremlin > keywordSearchTemplate", () => {
@@ -15,7 +18,29 @@ describe("Gremlin > keywordSearchTemplate", () => {
       vertexTypes: ["airport"],
     });
 
-    expect(normalize(template)).toBe(normalize('g.V().hasLabel("airport")'));
+    expect(normalize(template)).toBe(normalize("g.V().hasLabel('airport')"));
+  });
+
+  it("Should return a template for multiple vertex types", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport", "country"],
+    });
+
+    expect(normalize(template)).toBe(
+      normalize("g.V().hasLabel('airport','country')"),
+    );
+  });
+
+  // vertexTypes carries VertexType ids that were already split apart at
+  // ingestion, so a value bearing :: must be used verbatim, not re-split.
+  it("uses each vertex type verbatim without splitting on '::'", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["country::capital"],
+    });
+
+    expect(normalize(template)).toBe(
+      normalize("g.V().hasLabel('country::capital')"),
+    );
   });
 
   it("Should return a template for searched attributes containing the search term", () => {
@@ -26,7 +51,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(
-        'g.V().or(has("city",containing("JFK")),has("code",containing("JFK")))',
+        "g.V().or(has('city',containing('JFK')),has('code',containing('JFK')))",
       ),
     );
   });
@@ -39,19 +64,50 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().or(has("city","JFK"),has("code","JFK"))'),
+      normalize("g.V().or(has('city','JFK'),has('code','JFK'))"),
     );
   });
 
   it("Should escape the search term", () => {
     const template = keywordSearchTemplate({
-      searchTerm: '"JFK"',
+      searchTerm: "'JFK'",
       searchByAttributes: ["code"],
       exactMatch: true,
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().or(has("code","\\"JFK\\""))'),
+      normalize("g.V().or(has('code','\\'JFK\\''))"),
+    );
+  });
+
+  it("Should escape a vertex type containing the delimiter", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["air'port"],
+    });
+
+    expect(normalize(template)).toBe(normalize("g.V().hasLabel('air\\'port')"));
+  });
+
+  it("Should escape an attribute name containing the delimiter", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: "JFK",
+      searchByAttributes: ["ci'ty"],
+    });
+
+    expect(normalize(template)).toBe(
+      normalize("g.V().or(has('ci\\'ty',containing('JFK')))"),
+    );
+  });
+
+  it("Should escape an attribute name when matching exactly", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: "JFK",
+      searchByAttributes: ["ci'ty"],
+      exactMatch: true,
+    });
+
+    expect(normalize(template)).toBe(
+      normalize("g.V().or(has('ci\\'ty','JFK'))"),
     );
   });
 
@@ -64,7 +120,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().hasLabel("airport").or(has(id,"JFK"))'),
+      normalize("g.V().hasLabel('airport').or(has(id,'JFK'))"),
     );
   });
 
@@ -77,23 +133,23 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().hasLabel("airport").or(has(id,containing("JFK")))'),
+      normalize("g.V().hasLabel('airport').or(has(id,containing('JFK')))"),
     );
   });
 
   it("Should return a template for searched attributes matching with the search terms, and the ID token attribute", () => {
     const template = keywordSearchTemplate({
       searchTerm: "JFK",
-      searchByAttributes: ["city", "code", SEARCH_TOKENS.ALL_ATTRIBUTES],
+      searchByAttributes: [SEARCH_TOKENS.NODE_ID, "city", "code"],
     });
 
     expect(normalize(template)).toBe(
       normalize(`
         g.V()
           .or(
-            has(id, containing("JFK")), 
-            has("city", containing("JFK")), 
-            has("code", containing("JFK"))
+            has(id, containing('JFK')), 
+            has('city', containing('JFK')), 
+            has('code', containing('JFK'))
           )
       `),
     );
@@ -107,7 +163,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().hasLabel("airport").range(25,50)'),
+      normalize("g.V().hasLabel('airport').range(25,50)"),
     );
   });
 
@@ -120,7 +176,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().or(has("code",containing("JFK"))).range(2,12)'),
+      normalize("g.V().or(has('code',containing('JFK'))).range(2,12)"),
     );
   });
 
@@ -132,7 +188,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().or(has("code",containing("JFK"))).range(0,10)'),
+      normalize("g.V().or(has('code',containing('JFK'))).range(0,10)"),
     );
   });
 
@@ -144,8 +200,18 @@ describe("Gremlin > keywordSearchTemplate", () => {
     });
 
     expect(normalize(template)).toBe(
-      normalize('g.V().or(has("code",containing("JFK")))'),
+      normalize("g.V().or(has('code',containing('JFK')))"),
     );
+  });
+
+  it("Should reject a limit with no plain decimal form", () => {
+    expect(() =>
+      keywordSearchTemplate({
+        searchTerm: "JFK",
+        searchByAttributes: ["code"],
+        limit: Infinity,
+      }),
+    ).toThrow(new UnrepresentableNumberError(Infinity));
   });
 
   it("Should return a template for a specific vertex type", () => {
@@ -159,7 +225,7 @@ describe("Gremlin > keywordSearchTemplate", () => {
 
     expect(normalize(template)).toBe(
       normalize(
-        'g.V().hasLabel("airport").or(has("code",containing("JFK"))).range(1,26)',
+        "g.V().hasLabel('airport').or(has('code',containing('JFK'))).range(1,26)",
       ),
     );
   });

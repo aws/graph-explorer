@@ -21,7 +21,7 @@ function InfoItemIcon({
   return (
     <div
       className={cn(
-        "bg-secondary-subtle text-primary-main hidden aspect-square h-12 items-center justify-center rounded-lg @lg:flex [&_svg]:size-6",
+        "bg-primary-subtle text-primary hidden aspect-square h-12 items-center justify-center rounded-lg @lg:flex [&_svg]:size-6",
         className,
       )}
       {...props}
@@ -52,7 +52,7 @@ function InfoItemLabel({
   return (
     <div
       className={cn(
-        "text-text-secondary text-sm text-balance break-words",
+        "text-muted-foreground text-sm text-balance break-words",
         className,
       )}
       {...props}
@@ -67,7 +67,7 @@ function InfoItemValue({
   return (
     <div
       className={cn(
-        "text-text-primary inline-flex items-center gap-1 text-base font-medium text-balance break-words",
+        "text-foreground inline-flex items-center gap-1 text-base font-medium text-balance break-words",
         className,
       )}
       {...props}
