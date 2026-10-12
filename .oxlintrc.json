@@ -156,10 +156,7 @@
     },
     {
       "files": ["packages/graph-explorer/src/**/*.{ts,tsx}"],
-      "excludeFiles": [
-        "packages/graph-explorer/src/connections/**",
-        "packages/graph-explorer/src/core/StateProvider/storageAtoms.ts"
-      ],
+      "excludeFiles": ["packages/graph-explorer/src/connections/**"],
       "rules": {
         "no-restricted-imports": [
           "error",
