@@ -44,24 +44,24 @@ export async function fetchDefaultConnection() {
       return [];
     }
 
-    const config = mapToConnection(defaultConnection);
+    const savedConnection = mapToConnection(defaultConnection);
 
-    if (config.connection?.queryEngine) {
-      return [config];
+    if (savedConnection.connection?.queryEngine) {
+      return [savedConnection];
     }
 
-    const configs = queryEngineOptions.map(queryEngine => {
+    const savedConnections = queryEngineOptions.map(queryEngine => {
       return {
-        ...config,
-        id: createConnectionId(`${config.id}-${queryEngine}`),
+        ...savedConnection,
+        id: createConnectionId(`${savedConnection.id}-${queryEngine}`),
         connection: {
-          ...config.connection,
+          ...savedConnection.connection,
           queryEngine: queryEngine,
         },
       } as SavedConnection;
     });
 
-    return configs;
+    return savedConnections;
   } catch (error) {
     logger.error(
       `Error when trying to create connection: ${error instanceof Error ? error.message : "Unexpected error"}`,
