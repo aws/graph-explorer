@@ -3,20 +3,33 @@
 import type { LegacyConnectionConfig } from "@shared/types";
 
 import { createArray } from "@shared/utils/testing";
-import { describe, expect, it } from "vite-plus/test";
+import { render, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vite-plus/test";
 import { ZodError } from "zod";
 
 import type { SavedConnection } from "@/connections";
+import type { LayoutName } from "@/core/graphLayout";
 
+import { TooltipProvider } from "@/components";
+import * as Connector from "@/connector";
+import { getAppStore, graphViewLayoutAlgorithmAtom } from "@/core";
+import { createQueryClient } from "@/core/queryClient";
+import { logger } from "@/utils";
 import {
   createRandomExportedGraphConnection,
   createRandomFile,
+  createRandomGraphViewLayout,
   createRandomSavedConnection,
+  DbState,
   preloadSavedConnection,
+  TestProvider,
 } from "@/utils/testing";
 
+import { createExportedGraph } from "./exportedGraph";
 import {
   createErrorNotification,
+  ImportGraphButton,
   InvalidConnectionError,
 } from "./ImportGraphButton";
 
@@ -153,3 +166,62 @@ function createRandomAllConnections() {
     };
   });
 }
+
+function renderButton() {
+  const state = new DbState().withGraphViewLayout({
+    ...createRandomGraphViewLayout(),
+    layoutAlgorithm: "DAGRE_LR",
+  });
+  const store = getAppStore();
+  state.applyTo(store);
+  render(
+    <TestProvider client={createQueryClient()} store={store}>
+      <TooltipProvider>
+        <ImportGraphButton />
+      </TooltipProvider>
+    </TestProvider>,
+  );
+  return { state, store };
+}
+
+function graphFile(state: DbState, layout: LayoutName) {
+  const graph = createExportedGraph([], [], state.explorer.connection, layout);
+  return new File([JSON.stringify(graph)], "graph.json", {
+    type: "application/json",
+  });
+}
+
+function fileInput() {
+  // eslint-disable-next-line testing-library/no-node-access
+  return document.querySelector<HTMLInputElement>('input[type="file"]')!;
+}
+
+describe("ImportGraphButton", () => {
+  it("applies the file's layout once its entities load", async () => {
+    vi.spyOn(Connector, "fetchEntityDetails").mockResolvedValue({
+      entities: { vertices: [], edges: [] },
+      counts: { notFound: { vertices: 0, edges: 0, total: 0 } },
+    });
+    const user = userEvent.setup();
+    const { state, store } = renderButton();
+
+    await user.upload(fileInput(), graphFile(state, "CONCENTRIC"));
+
+    await waitFor(() =>
+      expect(store.get(graphViewLayoutAlgorithmAtom)).toBe("CONCENTRIC"),
+    );
+  });
+
+  it("leaves the layout unchanged when the file's entities fail to load", async () => {
+    vi.spyOn(Connector, "fetchEntityDetails").mockRejectedValue(
+      new Error("fetch failed"),
+    );
+    const user = userEvent.setup();
+    const { state, store } = renderButton();
+
+    await user.upload(fileInput(), graphFile(state, "CONCENTRIC"));
+
+    await waitFor(() => expect(logger.error).toHaveBeenCalled());
+    expect(store.get(graphViewLayoutAlgorithmAtom)).toBe("DAGRE_LR");
+  });
+});
