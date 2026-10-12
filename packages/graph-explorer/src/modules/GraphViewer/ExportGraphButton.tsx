@@ -2,11 +2,16 @@ import { useAtomValue } from "jotai";
 import { SaveIcon } from "lucide-react";
 
 import { Button } from "@/components";
-import { edgesAtom, nodesAtom, useConfiguration, useExplorer } from "@/core";
+import {
+  edgesAtom,
+  graphViewLayoutAlgorithmAtom,
+  nodesAtom,
+  useConfiguration,
+  useExplorer,
+} from "@/core";
 import { saveFile, toJsonFileData } from "@/utils/fileData";
 
 import { createDefaultFileName, createExportedGraph } from "./exportedGraph";
-import { graphViewLayoutAlgorithmAtom } from "./graphViewLayoutAlgorithm";
 
 export function ExportGraphButton() {
   const exportGraph = useExportGraph();

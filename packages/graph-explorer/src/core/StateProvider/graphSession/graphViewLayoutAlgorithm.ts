@@ -2,7 +2,7 @@ import { atom } from "jotai";
 
 import type { LayoutName } from "@/core/graphLayout";
 
-import { graphViewLayoutAtom } from "@/core/StateProvider/storageAtoms";
+import { graphViewLayoutAtom } from "../storageAtoms";
 
 export const graphViewLayoutAlgorithmAtom = atom(
   get => get(graphViewLayoutAtom).layoutAlgorithm,

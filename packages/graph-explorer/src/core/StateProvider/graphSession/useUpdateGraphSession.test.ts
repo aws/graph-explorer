@@ -9,12 +9,12 @@ import {
   allGraphSessionsAtom,
   getAppStore,
 } from "@/core";
-import { graphViewLayoutAlgorithmAtom } from "@/modules/GraphViewer/graphViewLayoutAlgorithm";
 import { createRandomGraphViewLayout, DbState } from "@/utils/testing";
 import { renderHookWithState } from "@/utils/testing/renderHookWithJotai";
 
 import type { GraphSessionStorageModel } from "./storage";
 
+import { graphViewLayoutAlgorithmAtom } from "./graphViewLayoutAlgorithm";
 import { activeGraphSessionAtom } from "./storage";
 import { useUpdateGraphSession } from "./useUpdateGraphSession";
 

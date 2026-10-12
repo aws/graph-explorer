@@ -5,7 +5,6 @@ import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import * as Connector from "@/connector";
 import { getAppStore } from "@/core";
-import { graphViewLayoutAlgorithmAtom } from "@/modules/GraphViewer/graphViewLayoutAlgorithm";
 import {
   createRandomEntities,
   createRandomGraphViewLayout,
@@ -15,6 +14,7 @@ import { renderHookWithState } from "@/utils/testing/renderHookWithJotai";
 
 import type { GraphSessionStorageModel } from "./storage";
 
+import { graphViewLayoutAlgorithmAtom } from "./graphViewLayoutAlgorithm";
 import { useRestoreGraphSession } from "./useRestoreGraphSession";
 
 function fetchResultWith(
