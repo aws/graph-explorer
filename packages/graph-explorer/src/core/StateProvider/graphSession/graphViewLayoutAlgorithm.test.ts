@@ -4,15 +4,15 @@ import { useAtom, useAtomValue } from "jotai";
 import { act } from "react";
 import { describe, expect, it } from "vite-plus/test";
 
-import type { GraphViewLayout } from "@/core/StateProvider/graphViewLayoutDefaults";
-
-import { graphViewLayoutAtom } from "@/core/StateProvider/storageAtoms";
 import {
   createRandomGraphViewLayout,
   DbState,
   renderHookWithState,
 } from "@/utils/testing";
 
+import type { GraphViewLayout } from "../graphViewLayoutDefaults";
+
+import { graphViewLayoutAtom } from "../storageAtoms";
 import { graphViewLayoutAlgorithmAtom } from "./graphViewLayoutAlgorithm";
 
 const storedLayout: GraphViewLayout = {
