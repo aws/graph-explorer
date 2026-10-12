@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSetAtom } from "jotai";
 import { toast } from "sonner";
 
 import { fetchEntityDetails, notifyOnIncompleteRestoration } from "@/connector";
@@ -9,18 +10,15 @@ import { createDisplayError } from "@/utils/createDisplayError";
 
 import type { GraphSessionStorageModel } from "./storage";
 
+import { graphViewLayoutAlgorithmAtom } from "./graphViewLayoutAlgorithm";
+
 /**
- * Provides a mutation that restores the graph session from storage.
- *
- * Restoring brings back the session's entities only; it deliberately does not
- * touch the Graph View layout. The per-tab View Layout is the single source of
- * truth for the chosen layout algorithm (it already persists across reloads),
- * so writing the session's stored layout back here would overwrite the user's
- * current, persisted choice with a snapshot that goes stale the moment they
- * change the layout without adding or removing a node.
+ * Provides a mutation that restores the graph session from storage, bringing
+ * back its entities and its layout.
  */
 export function useRestoreGraphSession() {
   const queryClient = useQueryClient();
+  const setLayoutAlgorithm = useSetAtom(graphViewLayoutAlgorithmAtom);
   const addToGraph = useAddToGraph();
   const formatEntityCounts = useEntityCountFormatterCallback();
 
@@ -42,6 +40,7 @@ export function useRestoreGraphSession() {
         );
 
         // Update Graph Explorer state
+        setLayoutAlgorithm(graph.layout);
         await addToGraph(result.entities);
 
         return result;

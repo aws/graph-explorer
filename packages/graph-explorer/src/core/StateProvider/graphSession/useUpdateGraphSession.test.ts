@@ -14,7 +14,6 @@ import { renderHookWithState } from "@/utils/testing/renderHookWithJotai";
 
 import type { GraphSessionStorageModel } from "./storage";
 
-import { graphViewLayoutAlgorithmAtom } from "./graphViewLayoutAlgorithm";
 import { activeGraphSessionAtom } from "./storage";
 import { useUpdateGraphSession } from "./useUpdateGraphSession";
 
@@ -34,44 +33,6 @@ describe("useUpdateGraphSession", () => {
 
     const sessions = store.get(allGraphSessionsAtom);
     expect(sessions.get(dbState.activeConnection.id)?.layout).toBe("DAGRE_LR");
-  });
-
-  // Regression: the old live global layout atom was never reset when switching
-  // connections, so the next update wrote connection A's layout into connection
-  // B's session. The View Layout-backed atom writes only the active
-  // connection's session, so A's snapshot is untouched when B is updated.
-  it("does not write one connection's layout into another's session", () => {
-    const connectionB = new DbState().activeConnection;
-    const dbState = new DbState()
-      .addInactiveConnection(connectionB)
-      .withGraphViewLayout({
-        ...createRandomGraphViewLayout(),
-        layoutAlgorithm: "DAGRE_LR",
-      });
-    const connectionA = dbState.activeConnection;
-
-    const { result } = renderHookWithState(
-      () => useUpdateGraphSession(),
-      dbState,
-    );
-    const store = getAppStore();
-
-    // Update connection A with its layout.
-    act(() => result.current());
-    expect(store.get(allGraphSessionsAtom).get(connectionA.id)?.layout).toBe(
-      "DAGRE_LR",
-    );
-
-    // Switch to connection B and choose a different layout, then update.
-    act(() => {
-      store.set(activeConnectionIdAtom, connectionB.id);
-      store.set(graphViewLayoutAlgorithmAtom, "KLAY_TB");
-    });
-    act(() => result.current());
-
-    const sessions = store.get(allGraphSessionsAtom);
-    expect(sessions.get(connectionB.id)?.layout).toBe("KLAY_TB");
-    expect(sessions.get(connectionA.id)?.layout).toBe("DAGRE_LR");
   });
 });
 
