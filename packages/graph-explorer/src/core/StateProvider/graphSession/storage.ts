@@ -10,9 +10,6 @@ import type { EdgeId, VertexId } from "../../entities";
 export type GraphSessionStorageModel = {
   vertices: Set<VertexId>;
   edges: Set<EdgeId>;
-  // Persisted but not the restore mechanism: the per-tab View Layout
-  // (graphViewLayoutAlgorithmAtom) is the source of truth that restores the
-  // layout on reload. Session restore deliberately does not read this field.
   layout: LayoutName;
 };
 
