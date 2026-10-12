@@ -48,7 +48,7 @@ A React-based web application that lets users visually explore graph databases w
 
 **Attribute Filter**: A named property paired with a value that a neighbor's property must contain for that neighbor to be expanded. Only string properties are filterable, and every filter must match. Users add these when expanding neighbors to narrow the results. _Avoid_: Criterion (implies a configurable operator, which the product does not offer), filter criteria
 
-**Session**: The set of vertices and edges a user has loaded through exploration for a given Connection. Persisted to IndexedDB so users can close the browser and restore where they left off. _Avoid_: State, workspace
+**Session**: The set of vertices and edges a user has loaded through exploration for a given Connection, along with the Layout the Graph View last showed them in. Persisted to IndexedDB so users can close the browser and restore where they left off. _Avoid_: State, workspace
 
 **Graph View**: The interactive canvas where vertices and edges are visualized using Cytoscape.js. Users explore the graph here by expanding neighbors and applying a Layout. Nav label: "Graph". _Avoid_: Graph Explorer (ambiguous with the product name)
 
@@ -60,7 +60,7 @@ A React-based web application that lets users visually explore graph databases w
 
 **View Layout**: The per-tab state of a view that saves and restores the user's selections for convenience, such as which sidebar panel is active, how wide the sidebar is, which content is toggled on, and which Layout is chosen. A per-tab Storage Scope concept, so it survives a tab's reload but not its close, and a fresh tab starts from the View Layout most recently used. The two are Graph View Layout and Schema View Layout. Never shortened to Layout, which is the positioning algorithm. _Avoid_: Layout (means the algorithm), preferences, settings
 
-**Graph View Layout**: The View Layout for the Graph View, such as the active sidebar panel, sidebar width, active content toggles, table-view height, and the details-auto-open preference. _Avoid_: Graph preferences, graph settings
+**Graph View Layout**: The View Layout for the Graph View, such as the active sidebar panel, sidebar width, active content toggles, table-view height, the details-auto-open preference, and the chosen Layout. _Avoid_: Graph preferences, graph settings
 
 **Schema View Layout**: The View Layout for the Schema View, such as the active sidebar panel, sidebar width, the details-auto-open preference, and the chosen Layout. _Avoid_: Schema preferences, schema settings
 
