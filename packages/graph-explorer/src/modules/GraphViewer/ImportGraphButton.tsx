@@ -8,7 +8,11 @@ import type { ConnectionWithId } from "@/connections";
 
 import { Button, FileButton, Spinner } from "@/components";
 import { fetchEntityDetails, notifyOnIncompleteRestoration } from "@/connector";
-import { savedConnectionsAtom, useExplorer } from "@/core";
+import {
+  graphViewLayoutAlgorithmAtom,
+  savedConnectionsAtom,
+  useExplorer,
+} from "@/core";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 import { useAddToGraph } from "@/hooks";
 import { useEntityCountFormatterCallback } from "@/hooks/useEntityCountFormatter";
@@ -20,7 +24,6 @@ import {
   isMatchingConnection,
   parseExportedGraph,
 } from "./exportedGraph";
-import { graphViewLayoutAlgorithmAtom } from "./graphViewLayoutAlgorithm";
 
 export function ImportGraphButton() {
   const importGraph = useImportGraphMutation();

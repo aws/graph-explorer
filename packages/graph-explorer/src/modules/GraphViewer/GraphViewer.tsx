@@ -37,6 +37,7 @@ import {
   createRenderedVertexId,
   getEdgeIdFromRenderedEdgeId,
   getVertexIdFromRenderedVertexId,
+  graphViewLayoutAlgorithmAtom,
   type RenderedEdgeId,
   type RenderedVertex,
   type RenderedVertexId,
@@ -52,7 +53,6 @@ import { cn, isVisible } from "@/utils";
 
 import { ExportGraphButton } from "./ExportGraphButton";
 import { GraphViewerEmptyState } from "./GraphViewerEmptyState";
-import { graphViewLayoutAlgorithmAtom } from "./graphViewLayoutAlgorithm";
 import { ImportGraphButton } from "./ImportGraphButton";
 import ContextMenu from "./internalComponents/ContextMenu";
 import useContextMenu from "./useContextMenu";

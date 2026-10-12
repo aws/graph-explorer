@@ -3,11 +3,11 @@ import { useCallback } from "react";
 
 import type { EdgeId, VertexId } from "@/core";
 
-import { graphViewLayoutAlgorithmAtom } from "@/modules/GraphViewer/graphViewLayoutAlgorithm";
 import { logger } from "@/utils";
 
 import { edgesAtom } from "../edges";
 import { nodesAtom } from "../nodes";
+import { graphViewLayoutAlgorithmAtom } from "./graphViewLayoutAlgorithm";
 import {
   activeGraphSessionAtom,
   type GraphSessionStorageModel,
