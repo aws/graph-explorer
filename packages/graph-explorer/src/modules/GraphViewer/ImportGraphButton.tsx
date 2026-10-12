@@ -78,10 +78,6 @@ function useImportGraphMutation() {
         );
       }
 
-      // Apply the imported layout only after the connection check, so a
-      // rejected import never mutates the View Layout.
-      setLayoutAlgorithm(graph.layout);
-
       // 3. Get the vertex and edge details from the database
       const entityCountMessage = formatEntityCounts(
         graph.vertices.size,
@@ -96,6 +92,7 @@ function useImportGraphMutation() {
         );
 
         // 4. Update Graph Explorer state
+        setLayoutAlgorithm(graph.layout);
         await addToGraph(result.entities);
 
         return result;
