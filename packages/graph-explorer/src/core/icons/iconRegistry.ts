@@ -133,7 +133,7 @@ function resolveDataUrlIcon(
       const markup = decodeBase64DataUrl(source.url);
       const svg = markup === null ? null : sanitizeSvg(markup);
       if (svg === null) {
-        logger.warn("Unusable svg icon");
+        logger.warn(`Unusable svg icon "${source.url.slice(0, 100)}"`);
         return null;
       }
       return { kind: "svg", svg };

@@ -141,6 +141,17 @@ describe("iconRegistry", () => {
     expect(warn).toBeCalledTimes(1);
   });
 
+  // The value is the only clue to which upload broke, and a whole data url
+  // would flood the console.
+  it("names an unusable svg by the start of its url", () => {
+    const warn = vi.spyOn(logger, "warn").mockImplementation(() => {});
+    const url = createSvgIconDataUrl(`<html>${"x".repeat(200)}</html>`);
+
+    iconRegistry.request([svgSource(url)]);
+
+    expect(warn).toBeCalledWith(`Unusable svg icon "${url.slice(0, 100)}"`);
+  });
+
   it("does not retry an unknown lucide name", async () => {
     const warn = vi.spyOn(logger, "warn").mockImplementation(() => {});
     const source = lucideSource("not-a-real-icon-name-xyz");
