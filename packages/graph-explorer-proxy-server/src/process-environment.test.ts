@@ -388,7 +388,7 @@ describe("process-environment.sh", () => {
     // The variables install-graph-explorer-lc.sh passes to `docker run`.
     it("resolves to a proxied IAM GRAPH_CONNECTION_URL for the SageMaker lifecycle script's environment", () => {
       const { defaultConnection } = runScript(workDir, {
-        LOG_LEVEL: "debug",
+        LOG_LEVEL: "info",
         HOST: "127.0.0.1",
         PUBLIC_OR_PROXY_ENDPOINT: "https://notebook.sagemaker.aws/proxy/9250",
         GRAPH_CONNECTION_URL: "https://neptune-cluster:8182",

@@ -23,7 +23,7 @@ const EnvironmentFieldsSchema = z.object({
   PROXY_SERVER_HTTP_PORT: z.coerce.number().default(80),
   LOG_LEVEL: z
     .enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
-    .default("debug"),
+    .default("info"),
   LOG_STYLE: z.enum(["cloudwatch", "default"]).default("default"),
   PROXY_SERVER_CORS_ORIGIN: z
     .string()
