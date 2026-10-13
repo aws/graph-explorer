@@ -52,6 +52,25 @@ If either Graph Explorer or the proxy server are served over an HTTPS connection
 
 See [Trusting the self-signed certificate](../references/security.md#trusting-the-self-signed-certificate) for step-by-step instructions, or [Removing the "Not Secure" warning on Chrome](../references/security.md#removing-the-not-secure-warning-on-chrome) for Chrome-specific instructions.
 
+### Image built on Windows exits with "no such file or directory"
+
+If you build the image from a Windows clone of the repository, the container can exit right away with this message:
+
+```
+exec ./docker-entrypoint.sh: no such file or directory
+```
+
+The file exists. The error means the shell scripts were checked out with Windows (CRLF) line endings, which Linux can't run. The repository now forces Unix (LF) line endings on shell scripts, but clones made before that change keep their old copies.
+
+To fix it, check the scripts out again from the root of your clone, then rebuild the image:
+
+```
+git rm --cached docker-entrypoint.sh process-environment.sh setup-ssl.sh
+git checkout HEAD -- docker-entrypoint.sh process-environment.sh setup-ssl.sh
+```
+
+A fresh clone also works.
+
 ## Graph Explorer can't start because it can't write .env
 
 At startup, the container writes its settings into the configuration folder. If that folder isn't writable, the container exits with this message:
