@@ -54,6 +54,8 @@ function describeLinkProblems(
 /** Matches `us-east-1`, `us-gov-west-1`, `ap-southeast-2`, `cn-north-1`, etc. */
 const AWS_REGION_PATTERN = /^[a-z]{2}(-[a-z]+)+-\d+$/;
 
+const connectionMethodOptions = ["proxy", "direct"] as const;
+
 /**
  * Every message is phrased to follow the parameter's own name, so a failure
  * reads back to the user as the requirement it broke: "graphDbUrl must be a
@@ -85,6 +87,11 @@ const ConnectionLinkParamsSchema = z
     queryEngine: z
       .enum(queryEngineOptions, { error: mustBeOneOf(queryEngineOptions) })
       .optional(),
+    connectionMethod: z
+      .enum(connectionMethodOptions, {
+        error: mustBeOneOf(connectionMethodOptions),
+      })
+      .default("proxy"),
     // Absent or empty still means IAM off; a non-empty value must actually
     // look like an AWS region, since anything else can only produce SigV4
     // requests signed for a region that doesn't exist.
@@ -183,6 +190,7 @@ function readConnectionLink(search: string): ConnectionLink {
   const parsed = ConnectionLinkParamsSchema.safeParse({
     graphDbUrl: params.get("graphDbUrl") ?? "",
     queryEngine: params.get("queryEngine") ?? undefined,
+    connectionMethod: params.get("connectionMethod") ?? undefined,
     awsRegion: params.get("awsRegion") ?? undefined,
     serviceType: params.get("serviceType") ?? undefined,
     name: params.get("name") ?? undefined,
@@ -219,14 +227,14 @@ function deriveNameFromUrl(graphDbUrl: string): string {
 
 /**
  * What makes two connections the same one for matching: graphDbUrl
- * (normalized and case-insensitive), queryEngine, and auth posture. Auth
- * posture is identity-bearing because a link requesting IAM in a given
- * region/service type is a *different* connection from a plaintext one to the
- * same endpoint, so it must not silently reuse it. When IAM is off, region and
- * service type carry no auth meaning and are normalized away. How a
- * connection is routed is not identity: a link without IAM may reuse a
- * Direct Connection to the same URL, but one requesting IAM never
- * does, since a Direct Connection cannot sign.
+ * (normalized and case-insensitive), queryEngine, connection method, and auth
+ * posture. Auth posture is identity-bearing because a link requesting IAM in a
+ * given region/service type is a *different* connection from a plaintext one
+ * to the same endpoint, so it must not silently reuse it. When IAM is off,
+ * region and service type carry no auth meaning and are normalized away. The
+ * connection method is identity because it decides whether IAM can apply at
+ * all: a Direct Connection cannot sign, so a link asking for the proxy must
+ * not reuse one, nor a link asking for the browser reuse a proxied one.
  *
  * Both sides go through `normalizeConnection`, the same defaults the rest of
  * the app reads a stored connection with, so a stored connection with no
@@ -235,6 +243,7 @@ function deriveNameFromUrl(graphDbUrl: string): string {
 type ConnectionIdentity = {
   graphDbUrl: string;
   queryEngine: QueryEngine;
+  direct: boolean;
   awsAuthEnabled: boolean;
   awsRegion: string;
   serviceType: NeptuneServiceType | undefined;
@@ -242,13 +251,14 @@ type ConnectionIdentity = {
 
 function identityOf(connection: ConnectionConfig): ConnectionIdentity {
   const normalized = normalizeConnection(connection);
+  const direct = isDirectConnection(connection);
   // The browser sends a Direct Connection's requests unsigned, so it is never
   // an IAM connection, whatever IAM fields it carries.
-  const awsAuthEnabled =
-    normalized.awsAuthEnabled && !isDirectConnection(connection);
+  const awsAuthEnabled = normalized.awsAuthEnabled && !direct;
   return {
     graphDbUrl: normalized.graphDbUrl.toLowerCase(),
     queryEngine: normalized.queryEngine,
+    direct,
     awsAuthEnabled,
     awsRegion: awsAuthEnabled ? (normalized.awsRegion ?? "") : "",
     serviceType: awsAuthEnabled
@@ -264,6 +274,7 @@ function identitiesMatch(
   return (
     a.graphDbUrl === b.graphDbUrl &&
     a.queryEngine === b.queryEngine &&
+    a.direct === b.direct &&
     a.awsAuthEnabled === b.awsAuthEnabled &&
     a.awsRegion === b.awsRegion &&
     a.serviceType === b.serviceType
@@ -309,7 +320,8 @@ function findMatchingConnection(
  * Build the connection a link proposes. IAM auth is enabled exactly when a
  * region is provided, defaulting the service type when only a region is given.
  * A `neptune-db` service type without a region still carries through and seeds
- * the form if the user turns IAM on.
+ * the form if the user turns IAM on. A Direct Connection keeps its IAM settings
+ * too, so they are already filled in if the user switches it to the proxy.
  *
  * Returns the connection body without an id, because a link only ever proposes a
  * connection. `CreateConnection` mints the id if and when the user saves the
@@ -322,6 +334,7 @@ function buildConnectionFromParams(
   return {
     queryEngine: params.queryEngine,
     graphDbUrl: params.graphDbUrl,
+    proxyConnection: params.connectionMethod === "proxy",
     awsAuthEnabled,
     awsRegion: params.awsRegion,
     serviceType:

@@ -199,6 +199,46 @@ describe("Connect route", () => {
     );
   });
 
+  describe("connection method", () => {
+    const proxyOption = { name: "Through the Graph Explorer server" };
+    const browserOption = { name: "Directly from your browser" };
+
+    test("opens the create form connecting through the proxy server by default", () => {
+      new DbState().applyTo(getAppStore());
+
+      renderConnect(searchFor("https://brand-new.example.com"));
+
+      expect(screen.getByRole("radio", proxyOption)).toBeChecked();
+    });
+
+    test("opens the create form connecting directly when the link asks for it", () => {
+      new DbState().applyTo(getAppStore());
+
+      renderConnect(
+        `${searchFor("https://brand-new.example.com")}&connectionMethod=direct`,
+      );
+
+      expect(screen.getByRole("radio", browserOption)).toBeChecked();
+    });
+
+    // The IAM settings stay in the form while hidden, so switching a direct
+    // link's form to the proxy server finds them already filled in.
+    test("keeps a direct link's IAM settings for switching to the proxy server", async () => {
+      new DbState().applyTo(getAppStore());
+      const user = userEvent.setup();
+
+      renderConnect(
+        `${searchFor("https://brand-new.neptune.amazonaws.com")}&connectionMethod=direct&awsRegion=us-west-2`,
+      );
+      await user.click(screen.getByRole("radio", proxyOption));
+
+      expect(
+        screen.getByRole("checkbox", { name: "Use AWS IAM authentication" }),
+      ).toBeChecked();
+      expect(screen.getByLabelText("AWS Region")).toHaveValue("us-west-2");
+    });
+  });
+
   // The link schema, not the form, supplies openCypher as the default query
   // language for neptune-graph links that omit it.
   test("opens the create form with openCypher when the link targets neptune-graph", () => {

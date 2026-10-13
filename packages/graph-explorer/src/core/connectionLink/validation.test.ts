@@ -246,6 +246,19 @@ describe("reading a connection link", () => {
     ).toEqual(['serviceType must be one of "neptune-db", "neptune-graph"']);
   });
 
+  describe("connectionMethod", () => {
+    test.each(["", "browser", "Direct"])(
+      'rejects "%s" instead of defaulting it',
+      connectionMethod => {
+        expect(
+          problemsOf(
+            `?graphDbUrl=https%3A%2F%2Fdb.example.com&connectionMethod=${connectionMethod}`,
+          ),
+        ).toEqual(['connectionMethod must be one of "proxy", "direct"']);
+      },
+    );
+  });
+
   describe("awsRegion format", () => {
     test.each([
       "us-east-1",
