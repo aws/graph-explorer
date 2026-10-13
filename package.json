@@ -13,7 +13,7 @@
     "format": "vp fmt",
     "check:format": "vp fmt --check",
     "test": "vp test run",
-    "test:watch": "vp test",
+    "test:watch": "vp test watch",
     "check:types": "pnpm -r --include-workspace-root --parallel --stream run typecheck",
     "typecheck": "tsc --noEmit",
     "checks": "pnpm run check:lint && pnpm run check:format && pnpm run check:types",
