@@ -5,11 +5,7 @@ export default defineConfig({
     projects: ["packages/*"],
   },
   staged: {
-    "!(**/*.{js,ts,tsx})": "vp fmt --no-error-on-unmatched-pattern",
-    "**/*.{js,ts,tsx}": [
-      "vp lint --fix --no-error-on-unmatched-pattern",
-      "vp fmt",
-    ],
+    "*": "vp check --fix",
   },
   fmt: {
     printWidth: 80,
