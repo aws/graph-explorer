@@ -167,11 +167,16 @@ describe("iconRegistry", () => {
   });
 
   it("dedupes in flight requests for the same icon", async () => {
-    iconRegistry.request([lucideSource("plane")]);
-    iconRegistry.request([lucideSource("plane")]);
+    const listener = vi.fn();
+    const unsubscribe = iconRegistry.subscribe(listener);
 
-    expect(iconRegistry.pendingCount).toBe(1);
+    iconRegistry.request([lucideSource("plane")]);
+    iconRegistry.request([lucideSource("plane")]);
     await settle();
+
+    // A second resolution would land and notify again.
+    expect(listener).toBeCalledTimes(1);
+    unsubscribe();
   });
 
   // Without this, a resolution started by one test lands in the next one.

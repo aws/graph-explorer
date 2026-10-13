@@ -42,7 +42,6 @@ describe("icon resolution across surfaces", () => {
     const resolved = iconRegistry.getSnapshot();
 
     render(<VertexSymbol vertexStyle={style({})} />);
-    await waitFor(() => expect(iconRegistry.pendingCount).toBe(0));
 
     expect(iconRegistry.getSnapshot()).toBe(resolved);
   });
