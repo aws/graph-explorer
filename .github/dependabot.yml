@@ -40,9 +40,10 @@ updates:
       time: "13:00"
       timezone: America/Chicago
     open-pull-requests-limit: 10
-    # @rolldown/plugin-babel peers `^7.29.0 || ^8.0.0-rc.1`, so Babel 8 stable
-    # cannot resolve. Revisit when that peer range accepts it. 7.x minor and
-    # patch bumps still come through.
+    # Babel 8 builds and passes tests, but babel-plugin-react-compiler still
+    # depends on @babel/types 7 and silently skips some components under it
+    # (fewer memo cache slots in the bundle). Revisit when the compiler supports
+    # Babel 8. 7.x minor and patch bumps still come through.
     ignore:
       - dependency-name: "@babel/core"
         update-types: ["version-update:semver-major"]

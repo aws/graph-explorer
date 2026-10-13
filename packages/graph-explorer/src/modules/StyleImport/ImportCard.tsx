@@ -37,7 +37,7 @@ export function ImportCard({
       >
         <Checkbox
           checked={checked}
-          onCheckedChange={onCheckedChange}
+          onCheckedChange={value => onCheckedChange(value === true)}
           className="pointer-events-none absolute top-(--card-spacing) left-(--card-spacing) z-10"
           aria-label={`Load ${label} style`}
         />
