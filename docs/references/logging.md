@@ -8,7 +8,7 @@ Set the log level with the [`LOG_LEVEL`](./configuration.md#log_level) environme
 
 The default is `info`, which logs startup messages, messages the browser sends, warnings, and errors. For more detail, set it to `debug` to also log each successful request, cancelled queries, and retries. With Docker, pass `--env LOG_LEVEL=debug` to `docker run`. When running from source, add `LOG_LEVEL=debug` to `.env.local` in your configuration folder, which is `packages/graph-explorer` unless you set [`CONFIGURATION_FOLDER_PATH`](./configuration.md#configuration_folder_path).
 
-At `debug` and `trace`, the query text sent to the database is written to the logs. Queries can contain sensitive data, so use those levels for troubleshooting and restrict access to wherever the logs are stored. On SageMaker, the logs go to a CloudWatch log group shared with the notebook. See [Logging and privacy](../guides/deploy-to-sagemaker.md#logging-and-privacy).
+At `debug` and `trace`, when **Enable database query logging on proxy server** is turned on in **Settings** > **General**, the query text sent to the database is written to the logs. The setting is off by default. Queries can contain sensitive data, so use those levels for troubleshooting and restrict access to wherever the logs are stored. On SageMaker, the logs go to a CloudWatch log group shared with the notebook. See [Logging and privacy](../guides/deploy-to-sagemaker.md#logging-and-privacy).
 
 The proxy server logging is split across a few key modules:
 

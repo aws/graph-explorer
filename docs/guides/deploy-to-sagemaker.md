@@ -42,7 +42,7 @@ None of these properties travel with the settings. `PROXY_SERVER_HTTPS_CONNECTIO
 
 ## Logging and privacy
 
-The sample lifecycle script sets `LOG_LEVEL=info`, which keeps database query text out of the logs. If you raise it to `debug`, query text is written to the CloudWatch log group `/aws/sagemaker/NotebookInstances`, which is shared with the notebook. Anyone who can read that log group can read the queries.
+The sample lifecycle script sets `LOG_LEVEL=info`, which keeps database query text out of the logs. If you raise it to `debug` and **Enable database query logging on proxy server** is turned on in **Settings** > **General**, query text is written to the CloudWatch log group `/aws/sagemaker/NotebookInstances`, which is shared with the notebook. Anyone who can read that log group can read the queries.
 
 ## Minimum Database Permissions
 
