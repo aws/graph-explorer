@@ -4,11 +4,11 @@
 
 Logs are, by default, sent to the console and will be visible as output to the docker logs. If you want to access the full set of logs, you can run `docker logs {container name or id}`.
 
-The log level will be set via the `LOG_LEVEL` env variable at `/packages/graph-explorer/.env` where the possible options, from highest to lowest, are `fatal`, `error`, `warn`, `info`, `debug`, `trace`, and `silent` such that `fatal` is the highest level and will only include logs labeled as fatal and `trace` the lowest and will include any type of log. The `silent` level disables all logging.
+Set the log level with the [`LOG_LEVEL`](./configuration.md#log_level) environment variable. The options, from highest to lowest, are `fatal`, `error`, `warn`, `info`, `debug`, `trace`, and `silent`. Each level also logs everything above it, so `fatal` logs the least and `trace` the most. `silent` disables logging.
 
-By default, the log level is set to `info` and the only type of logs generated are those of `error`, `info`, or `debug`. If you need more detailed logs, you can change the log level from `info` in the default .env file to `debug` and the logs will begin printing the error's stack trace.
+The default is `info`, which logs startup messages, messages the browser sends, warnings, and errors. For more detail, set it to `debug` to also log each successful request, cancelled queries, and retries. With Docker, pass `--env LOG_LEVEL=debug` to `docker run`. When running from source, add `LOG_LEVEL=debug` to `.env.local` in your configuration folder, which is `packages/graph-explorer` unless you set [`CONFIGURATION_FOLDER_PATH`](./configuration.md#configuration_folder_path).
 
-At `debug` and `trace`, the query text sent to the database is written to the logs. Queries can contain sensitive data, so use those levels for troubleshooting and restrict access to wherever the logs are stored. On SageMaker, the logs go to a CloudWatch log group shared with the notebook. See [Logging and privacy](../guides/deploy-to-sagemaker.md#logging-and-privacy).
+At `debug` and `trace`, when **Enable database query logging on proxy server** is turned on in **Settings** > **General**, the query text sent to the database is written to the logs. The setting is off by default. Queries can contain sensitive data, so use those levels for troubleshooting and restrict access to wherever the logs are stored. On SageMaker, the logs go to a CloudWatch log group shared with the notebook. See [Logging and privacy](../guides/deploy-to-sagemaker.md#logging-and-privacy).
 
 The proxy server logging is split across a few key modules:
 

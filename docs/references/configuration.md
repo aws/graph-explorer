@@ -103,7 +103,7 @@ Sets the minimum severity the proxy server logs. Values from highest to lowest a
 
 > [!WARNING]
 >
-> At `debug` and `trace`, the query text sent to your database is written to the logs. Queries can contain sensitive data, so keep those levels for troubleshooting and restrict access to wherever the logs end up.
+> At `debug` and `trace`, when **Enable database query logging on proxy server** is turned on in **Settings** > **General**, the query text sent to your database is written to the logs. Queries can contain sensitive data, so keep those levels for troubleshooting and restrict access to wherever the logs end up.
 
 ### `CONFIGURATION_FOLDER_PATH`
 
