@@ -1,5 +1,5 @@
 import { createArray } from "@shared/utils/testing";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 import { explorerForTestingAtom, getAppStore, nodesAtom } from "@/core";
 import { createQueryClient } from "@/core/queryClient";

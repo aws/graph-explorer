@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import { describe, expect, onTestFinished, test } from "vitest";
+import { describe, expect, onTestFinished, test } from "vite-plus/test";
 
 import { env, ReverseProxyMisconfiguredError } from "@/utils";
 import { stubDocumentUrl } from "@/utils/testing";

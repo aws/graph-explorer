@@ -1,6 +1,6 @@
 import { createStore } from "jotai";
 import localforage from "localforage";
-import { beforeEach, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test } from "vite-plus/test";
 
 import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
 import { persistenceStatusStore } from "./persistence";

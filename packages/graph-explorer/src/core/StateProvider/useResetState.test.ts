@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { useQueryClient } from "@tanstack/react-query";
 import { act } from "@testing-library/react";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 import { getAppStore } from "@/core/StateProvider/appStore";
 import { selectedTabAtom } from "@/modules/SearchSidebar";

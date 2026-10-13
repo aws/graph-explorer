@@ -1,4 +1,4 @@
-import { describe, expect, it, test } from "vitest";
+import { describe, expect, it, test } from "vite-plus/test";
 import { z } from "zod";
 
 import {

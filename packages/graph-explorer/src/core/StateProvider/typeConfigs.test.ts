@@ -1,5 +1,5 @@
 import { createRandomName } from "@shared/utils/testing";
-import { describe, expect, it, test } from "vitest";
+import { describe, expect, it, test } from "vite-plus/test";
 
 import type { NormalizedConnection, SavedConnection } from "@/connections";
 

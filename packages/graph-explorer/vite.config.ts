@@ -1,8 +1,8 @@
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
-import { loadEnv } from "vite";
-import { defineConfig } from "vitest/config";
+import { loadEnv, lazyPlugins } from "vite-plus";
+import { defineConfig } from "vite-plus";
 
 import { browserslistBuildTarget } from "./buildTarget.ts";
 
@@ -43,13 +43,13 @@ export default defineConfig(({ mode }) => {
     build: {
       target: browserslistBuildTarget(),
     },
-    plugins: [
+    plugins: lazyPlugins(() => [
       tailwindcss(),
       react(),
       babel({
         presets: [reactCompilerPreset()],
       }),
-    ],
+    ]),
     resolve: {
       tsconfigPaths: true,
     },

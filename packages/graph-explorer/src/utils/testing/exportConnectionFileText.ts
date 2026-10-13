@@ -1,5 +1,5 @@
 import * as fileSaver from "file-saver";
-import { vi } from "vitest";
+import { vi } from "vite-plus/test";
 
 import type { ConfigurationContextProps } from "@/core";
 

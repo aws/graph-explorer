@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import { ClientLoggerConnector } from "@/connector/LoggerConnector";
 import { globalMockFetch } from "@/connector/testUtils/globalMockFetch";

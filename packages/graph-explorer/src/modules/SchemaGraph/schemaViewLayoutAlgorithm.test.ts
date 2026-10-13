@@ -2,7 +2,7 @@
 
 import { useAtom, useAtomValue } from "jotai";
 import { act } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import type { SchemaViewLayout } from "@/core/StateProvider/schemaViewLayoutDefaults";
 

@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 import { createEdgeType, createVertexType } from "@/core/entities";
 import { parseStylingFile } from "@/core/styling";

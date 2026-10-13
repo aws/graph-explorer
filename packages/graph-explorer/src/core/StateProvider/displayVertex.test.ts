@@ -3,7 +3,7 @@
 import type { QueryEngine } from "@shared/types";
 
 import { createRandomDate, createRandomName } from "@shared/utils/testing";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";
 

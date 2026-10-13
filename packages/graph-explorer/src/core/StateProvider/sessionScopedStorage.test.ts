@@ -1,6 +1,6 @@
 import { createStore } from "jotai";
 import localForage from "localforage";
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vite-plus/test";
 import { z } from "zod";
 
 import { logger } from "@/utils";

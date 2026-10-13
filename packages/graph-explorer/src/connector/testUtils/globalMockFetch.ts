@@ -1,4 +1,4 @@
-import { vi } from "vitest";
+import { vi } from "vite-plus/test";
 
 const GREMLIN = "../gremlin/__mock";
 const RESPONSES_FILES_MAP = {

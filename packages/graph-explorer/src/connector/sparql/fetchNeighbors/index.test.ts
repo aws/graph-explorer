@@ -1,5 +1,5 @@
 import { createRandomUrlString } from "@shared/utils/testing";
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vite-plus/test";
 
 import { createVertex } from "@/core";
 import {

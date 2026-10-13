@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vite-plus/test";
 
 import { SchemaDiscoveryBoundary } from "./SchemaDiscoveryBoundary";
 

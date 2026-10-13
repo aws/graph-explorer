@@ -16,6 +16,6 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "vitest": "5.0.4"
+    "vite-plus": "catalog:"
   }
 }
