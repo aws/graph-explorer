@@ -7,10 +7,10 @@ import { Provider } from "jotai";
 import { Route, Routes } from "react-router";
 import { describe, expect, onTestFinished, test, vi } from "vitest";
 
-import type { ConnectionId, SavedConnection } from "@/connections";
+import type { SavedConnection } from "@/connections";
 
 import { TooltipProvider } from "@/components";
-import * as defaultConnection from "@/connections/defaultConnection";
+import * as connections from "@/connections";
 import { type AppStore, getAppStore } from "@/core";
 import Connect from "@/routes/Connect";
 import { logger } from "@/utils";
@@ -25,9 +25,7 @@ import { createQueryClient } from "./queryClient";
 import { savedConnectionsAtom } from "./StateProvider";
 
 function mockDefaultConnection(configs: SavedConnection[]) {
-  vi.spyOn(defaultConnection, "fetchDefaultConnection").mockResolvedValue(
-    configs,
-  );
+  vi.spyOn(connections, "fetchDefaultConnection").mockResolvedValue(configs);
 }
 
 function renderAppStatusLoader(store: AppStore) {
@@ -132,7 +130,7 @@ test("renders the app when no default connection is configured", async () => {
 test("shows a renamed reverse proxy mount without retrying", async () => {
   stubDocumentUrl("http://localhost/renamed/");
   onTestFinished(() => stubDocumentUrl());
-  const fetchSpy = vi.spyOn(defaultConnection, "fetchDefaultConnection");
+  const fetchSpy = vi.spyOn(connections, "fetchDefaultConnection");
 
   const store = getAppStore();
   const { findByText, queryByText } = renderAppStatusLoader(store);
@@ -148,7 +146,7 @@ describe("AppStatusLoader URL params + default connection", () => {
   const matchingUrl = "https://default-match.neptune.amazonaws.com";
 
   const matchingDefaultConnection: SavedConnection = {
-    id: "Default Connection" as ConnectionId,
+    id: connections.createConnectionId("Default Connection"),
     displayLabel: "Default Connection",
     connection: {
       queryEngine: "gremlin",

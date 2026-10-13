@@ -4,6 +4,7 @@ import type { ConnectionId, SavedConnection } from "@/connections";
 // graph must not include atom readers. The `@/connections` index exports the
 // active-connection selectors, which read these atoms, so the transform is
 // imported from its own file instead.
+// oxlint-disable-next-line no-restricted-imports
 import { transformSavedConnections } from "@/connections/legacyConnection";
 
 import type { EdgeType, VertexType } from "../entities";

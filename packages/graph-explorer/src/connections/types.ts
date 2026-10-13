@@ -6,8 +6,17 @@ import type { Branded } from "@/utils";
 
 export type ConnectionId = Branded<string, "ConnectionId">;
 
-export function createConnectionId() {
-  return v4() as ConnectionId;
+/**
+ * Brands an existing string as a {@link ConnectionId}.
+ * @param id The string identifying the connection
+ */
+export function createConnectionId(id: string): ConnectionId {
+  return id as ConnectionId;
+}
+
+/** Generates a fresh, randomly-generated {@link ConnectionId}. */
+export function createNewConnectionId(): ConnectionId {
+  return createConnectionId(v4());
 }
 
 /**

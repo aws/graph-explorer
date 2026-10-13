@@ -4,9 +4,8 @@ import { z } from "zod";
 import { apiUrl } from "@/connector/utils/apiUrl";
 import { DEFAULT_SERVICE_TYPE, logger } from "@/utils";
 
-import type { ConnectionId, SavedConnection } from "./types";
-
 import { transformLegacyConnection } from "./legacyConnection";
+import { createConnectionId, type SavedConnection } from "./types";
 
 export const DefaultConnectionDataSchema = z.object({
   // Connection info
@@ -45,24 +44,24 @@ export async function fetchDefaultConnection() {
       return [];
     }
 
-    const config = mapToConnection(defaultConnection);
+    const savedConnection = mapToConnection(defaultConnection);
 
-    if (config.connection?.queryEngine) {
-      return [config];
+    if (savedConnection.connection?.queryEngine) {
+      return [savedConnection];
     }
 
-    const configs = queryEngineOptions.map(queryEngine => {
+    const savedConnections = queryEngineOptions.map(queryEngine => {
       return {
-        ...config,
-        id: `${config.id}-${queryEngine}` as ConnectionId,
+        ...savedConnection,
+        id: createConnectionId(`${savedConnection.id}-${queryEngine}`),
         connection: {
-          ...config.connection,
+          ...savedConnection.connection,
           queryEngine: queryEngine,
         },
       } as SavedConnection;
     });
 
-    return configs;
+    return savedConnections;
   } catch (error) {
     logger.error(
       `Error when trying to create connection: ${error instanceof Error ? error.message : "Unexpected error"}`,
@@ -107,7 +106,7 @@ export async function fetchDefaultConnectionFor(
 
 export function mapToConnection(data: DefaultConnectionData): SavedConnection {
   return {
-    id: "Default Connection" as ConnectionId,
+    id: createConnectionId("Default Connection"),
     displayLabel: "Default Connection",
     connection: transformLegacyConnection({
       url: data.GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT,

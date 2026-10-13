@@ -16,7 +16,7 @@ import {
   renderHookWithState,
 } from "@/utils/testing";
 
-import { createConnectionId } from "./types";
+import { createNewConnectionId } from "./types";
 import { useImportConnectionFile } from "./useImportConnectionFile";
 
 const mockResetState = vi.fn();
@@ -51,7 +51,7 @@ describe("useImportConnectionFile", () => {
     const displayLabel = createRandomName("Config");
     const graphDbUrl = createRandomUrlString();
     const validConnectionFile = {
-      id: createConnectionId(),
+      id: createNewConnectionId(),
       displayLabel,
       connection: {
         graphDbUrl,
@@ -104,7 +104,7 @@ describe("useImportConnectionFile", () => {
 
     const graphDbUrl = createRandomUrlString();
     const directConnectionFile = {
-      id: createConnectionId(),
+      id: createNewConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         graphDbUrl,
@@ -214,7 +214,7 @@ describe("useImportConnectionFile", () => {
     );
 
     const validConnectionFile = {
-      id: createConnectionId(),
+      id: createNewConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         url: createRandomUrlString(),
@@ -265,7 +265,7 @@ describe("useImportConnectionFile", () => {
 
     const lastUpdate = new Date("2024-01-01T00:00:00Z");
     const validConnectionFile = {
-      id: createConnectionId(),
+      id: createNewConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         url: createRandomUrlString(),
@@ -306,7 +306,7 @@ describe("useImportConnectionFile", () => {
     );
 
     const validConnectionFile = {
-      id: createConnectionId(),
+      id: createNewConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         url: createRandomUrlString(),
@@ -346,7 +346,7 @@ describe("useImportConnectionFile", () => {
     );
 
     const validConnectionFile = {
-      id: createConnectionId(),
+      id: createNewConnectionId(),
       displayLabel: "Production Database",
       connection: {
         url: "https://neptune.example.com:8182",
@@ -417,7 +417,7 @@ describe("useImportConnectionFile", () => {
     );
 
     const validConnectionFile = {
-      id: createConnectionId(),
+      id: createNewConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         url: createRandomUrlString(),
@@ -500,7 +500,7 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
     // stored the database endpoint in `url`, not `graphDbUrl`.
     const url = createRandomUrlString();
     const legacyConnectionFile = {
-      id: createConnectionId(),
+      id: createNewConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         url,
@@ -553,7 +553,7 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
     const graphDbUrl = createRandomUrlString();
     const url = createRandomUrlString();
     const legacyConnectionFile = {
-      id: createConnectionId(),
+      id: createNewConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         url,
@@ -607,7 +607,7 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
     // the legacy shape.
     const graphDbUrl = createRandomUrlString();
     const legacyConnectionFile = {
-      id: createConnectionId(),
+      id: createNewConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         graphDbUrl,
@@ -653,7 +653,7 @@ describe("backward compatibility: legacy url/proxyConnection connection file", (
     // so `url` becomes the endpoint.
     const url = createRandomUrlString();
     const legacyConnectionFile = {
-      id: createConnectionId(),
+      id: createNewConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         url,
@@ -713,7 +713,7 @@ describe("backward compatibility: legacy __matches in exported files", () => {
     // This mirrors the shape of a file exported by an older version that
     // serialized __matches as an array.
     const legacyConnectionFile = {
-      id: createConnectionId(),
+      id: createNewConnectionId(),
       displayLabel: createRandomName("Config"),
       connection: {
         url: createRandomUrlString(),

@@ -16,29 +16,29 @@ import { activeConnectionIdAtom, savedConnectionsAtom } from "./StateProvider";
 function AppStatusLoader({ children }: PropsWithChildren) {
   return (
     <Suspense fallback={<PreparingEnvironment />}>
-      <LoadDefaultConfig>{children}</LoadDefaultConfig>
+      <LoadDefaultConnection>{children}</LoadDefaultConnection>
     </Suspense>
   );
 }
 
-function LoadDefaultConfig({ children }: PropsWithChildren) {
-  const setActiveConfig = useSetAtom(activeConnectionIdAtom);
-  const [configuration, setConfiguration] = useAtom(savedConnectionsAtom);
+function LoadDefaultConnection({ children }: PropsWithChildren) {
+  const setActiveConnectionId = useSetAtom(activeConnectionIdAtom);
+  const [savedConnections, setSavedConnections] = useAtom(savedConnectionsAtom);
 
   // An empty store is what drives the whole default-connection flow: the query
   // fetches, the effect seeds, and the loading states show only while it holds.
   // Emptying the store (e.g. deleting the last connection) re-arms all three.
-  const storeIsEmpty = configuration.size === 0;
+  const storeIsEmpty = savedConnections.size === 0;
 
-  const defaultConfigQuery = useQuery({
+  const defaultConnectionQuery = useQuery({
     queryKey: ["default-connection"],
     queryFn: () => fetchDefaultConnection(),
     staleTime: Infinity,
     enabled: storeIsEmpty,
   });
 
-  const defaultConnectionConfigs = defaultConfigQuery.data;
-  const hasDefaultConnection = Boolean(defaultConnectionConfigs?.length);
+  const defaultConnections = defaultConnectionQuery.data;
+  const hasDefaultConnection = Boolean(defaultConnections?.length);
 
   useEffect(() => {
     // Seed the default connection only into an empty store. The size guard lets
@@ -48,35 +48,35 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
       return;
     }
 
-    if (!defaultConnectionConfigs) {
+    if (!defaultConnections) {
       // Query hasn't run yet
       return;
     }
 
-    if (!defaultConnectionConfigs.length) {
+    if (!defaultConnections.length) {
       logger.debug("No default connections found");
       return;
     }
 
     startTransition(() => {
-      logger.debug("Adding default connections", defaultConnectionConfigs);
-      setConfiguration(prev => {
-        const updatedConfig = new Map(prev);
-        defaultConnectionConfigs.forEach(config => {
-          updatedConfig.set(config.id, config);
+      logger.debug("Adding default connections", defaultConnections);
+      setSavedConnections(prev => {
+        const updatedConnections = new Map(prev);
+        defaultConnections.forEach(connection => {
+          updatedConnections.set(connection.id, connection);
         });
-        return updatedConfig;
+        return updatedConnections;
       });
-      setActiveConfig(defaultConnectionConfigs[0].id);
+      setActiveConnectionId(defaultConnections[0].id);
     });
   }, [
     storeIsEmpty,
-    setActiveConfig,
-    setConfiguration,
-    defaultConnectionConfigs,
+    setActiveConnectionId,
+    setSavedConnections,
+    defaultConnections,
   ]);
 
-  if (storeIsEmpty && defaultConfigQuery.isLoading) {
+  if (storeIsEmpty && defaultConnectionQuery.isLoading) {
     return (
       <PanelEmptyState
         title="Loading default connection..."
@@ -86,8 +86,8 @@ function LoadDefaultConfig({ children }: PropsWithChildren) {
     );
   }
 
-  if (storeIsEmpty && defaultConfigQuery.isError) {
-    return <PanelError error={defaultConfigQuery.error} />;
+  if (storeIsEmpty && defaultConnectionQuery.isError) {
+    return <PanelError error={defaultConnectionQuery.error} />;
   }
 
   if (storeIsEmpty && hasDefaultConnection) {

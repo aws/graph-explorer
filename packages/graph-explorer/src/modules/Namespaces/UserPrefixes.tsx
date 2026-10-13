@@ -164,17 +164,17 @@ function useDeletePrefixCallback(prefix: string) {
   return useAtomCallback(
     useCallback(
       (get, set) => {
-        const activeConfigId = get(activeConnectionIdAtom);
+        const activeConnectionId = get(activeConnectionIdAtom);
 
-        if (!activeConfigId) {
+        if (!activeConnectionId) {
           return;
         }
 
         set(schemaAtom, prevSchemas => {
           const updatedSchemas = new Map(prevSchemas);
-          const activeSchema = updatedSchemas.get(activeConfigId);
+          const activeSchema = updatedSchemas.get(activeConnectionId);
 
-          updatedSchemas.set(activeConfigId, {
+          updatedSchemas.set(activeConnectionId, {
             ...activeSchema,
             vertices: activeSchema?.vertices || [],
             edges: activeSchema?.edges || [],
@@ -213,19 +213,19 @@ function EditPrefixModal({
     }));
   };
 
-  const configId = config?.id;
+  const connectionId = config?.id;
   const onSave = useAtomCallback(
     useCallback(
       (_get, set, prefix: string, uri: string) => {
-        if (!configId) {
+        if (!connectionId) {
           return;
         }
 
         set(schemaAtom, prevSchemas => {
           const updatedSchemas = new Map(prevSchemas);
-          const activeSchema = updatedSchemas.get(configId);
+          const activeSchema = updatedSchemas.get(connectionId);
 
-          updatedSchemas.set(configId, {
+          updatedSchemas.set(connectionId, {
             ...activeSchema,
             vertices: activeSchema?.vertices || [],
             edges: activeSchema?.edges || [],
@@ -238,7 +238,7 @@ function EditPrefixModal({
           return updatedSchemas;
         });
       },
-      [configId],
+      [connectionId],
     ),
   );
 
