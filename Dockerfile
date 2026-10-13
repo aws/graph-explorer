@@ -25,6 +25,8 @@ RUN yum update -y && \
 FROM base
 
 ENV HOME=/graph-explorer
+# The image has no git, so skip installing the Vite+ commit hooks.
+ENV VP_GIT_HOOKS=0
 
 WORKDIR /
 COPY . /graph-explorer/

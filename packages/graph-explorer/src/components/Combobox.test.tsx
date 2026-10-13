@@ -11,7 +11,7 @@
 
 import { render, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vite-plus/test";
 
 import { mockVirtualizedLayout } from "@/utils/testing";
 

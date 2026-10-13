@@ -1,6 +1,6 @@
 import { createStore } from "jotai";
 import localforage from "localforage";
-import { vi } from "vitest";
+import { vi } from "vite-plus/test";
 
 import type { SavedConnection } from "@/connections";
 import type { AppStore } from "@/core";

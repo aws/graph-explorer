@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import type { PrefixTypeConfig } from "@/core";
 import type { IriNamespace, RdfPrefix } from "@/utils/rdf";

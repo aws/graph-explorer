@@ -1,11 +1,13 @@
 {
   "format_on_save": "on",
-  "prettier": { "allowed": false },
+  "prettier": {
+    "allowed": false
+  },
   "formatter": [
     {
       "external": {
         "command": "pnpm",
-        "arguments": ["exec", "oxfmt", "--stdin-filepath", "{buffer_path}"]
+        "arguments": ["exec", "vp", "fmt", "--stdin-filepath", "{buffer_path}"]
       }
     }
   ],

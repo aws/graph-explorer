@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import { LABELS, SEARCH_TOKENS } from "@/utils";
 import { normalize } from "@/utils/testing";

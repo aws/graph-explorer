@@ -5,7 +5,14 @@ import {
   createRandomName,
   createRandomUrlString,
 } from "@shared/utils/testing";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { z } from "zod";
 
 import type { EdgeId, VertexId } from "@/core";

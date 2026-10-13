@@ -1,6 +1,6 @@
 import type { Response } from "express";
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 import { errorHandlingMiddleware, extractErrorInfo } from "./error-handler.ts";
 import { HttpError } from "./errors.ts";

@@ -4,7 +4,7 @@ import fs from "fs";
 import https from "https";
 import os from "os";
 import path from "path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import { createServer } from "./server.ts";
 

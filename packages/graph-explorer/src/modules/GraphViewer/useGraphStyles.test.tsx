@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 
 import type { GraphProps } from "@/components/Graph";
 

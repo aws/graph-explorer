@@ -11,7 +11,7 @@ import {
   it,
   type MockInstance,
   vi,
-} from "vitest";
+} from "vite-plus/test";
 
 import { createApp, resolveEndpointUrl } from "./app.ts";
 import { createLogger } from "./logging.ts";
