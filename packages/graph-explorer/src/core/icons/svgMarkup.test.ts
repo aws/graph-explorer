@@ -34,7 +34,7 @@ describe("sanitizeSvg viewBox synthesis", () => {
     expect(viewBoxOf(sanitizeSvg(svg)!)).toBeNull();
   });
 
-  // A 404 body sanitizes to something that is not SVG; consumers rely on a
+  // A payload that was never svg sanitizes to something that is not SVG; consumers rely on a
   // non-null result being renderable.
   it.each([
     ["plain text", "not xml at all <<<"],

@@ -3,6 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-08-13
 - **Updated:** 2026-10-02 — the canvas wraps every icon in a padded square `data:` SVG for aspect fit (issue #2108, PR #2142). See Canvas sizing below. The icon allowlist is owned by ADR `styling-file-format`.
+- **Updated:** 2026-10-05 — SVG icons decode from their `data:` url in place, and a failed resolution is final rather than retried (issue #2354). See Decision 1.
 - **Related:** PR #2102; issues #2091, #2103, #2105, #2107. Supersedes the icon-resolution decisions in PR #1777. Affects `core/icons/`, `modules/GraphViewer/useBackgroundImageMap.ts`, `components/VertexSymbol/`.
 
 ## Context
@@ -14,7 +15,7 @@ Resolution used TanStack Query because it was the project's async-state tool. Th
 The cache was a poor fit rather than mis-tuned:
 
 - Every icon query set `staleTime: Infinity`. Icons are immutable, identity-addressable, bounded (dozens of unique icons even at 10k types), and never invalidate. Nothing in the requirement refetches, mutates, paginates, or refreshes.
-- Only one of the three kinds does real I/O. A raster url goes straight to the browser, and a Lucide reference is an `import()` that the ES module map already caches and in-flight dedupes. Only user SVG needs fetch (of its `data:` url, which sanitizing requires as text), dedup, and caching.
+- Only one of the three kinds needs work beyond what the browser or module cache already does. A raster url goes straight to the browser, and a Lucide reference is an `import()` that the ES module map already caches and in-flight dedupes. Only user SVG needs work: decoding its `data:` url to text for sanitizing, dedup, and caching.
 
 So the machinery went unused while its per-hook subscription model — the one part that did apply — scaled with vertex types and broke.
 
@@ -26,9 +27,9 @@ Separately, the DOM surface paid for a workaround it did not need. `VertexSymbol
 
 `core/icons/iconRegistry.ts` is a module-level store keyed by `IconSourceId` — an icon's identity, independent of the color any vertex type draws it in. React reads it through `useSyncExternalStore`, so `useResolvedIcons` holds one subscription regardless of how many vertex types it covers: the fan-out is unrepresentable rather than merely tuned down. (`useResolvedIcon`, for a single icon, is one subscription per rendered icon — bounded by the screen, not by schema size.)
 
-`request()` is idempotent, which is where in-flight dedup comes from. Color is never part of the key; applying it is a pure transform (`toIconImageUrl`) that consumers run per render, deduped by `(icon, color)`.
+`request()` is idempotent, which is where in-flight dedup comes from. A raster or SVG resolves before it returns, because its `data:` url already holds the bytes; only Lucide, an `import()`, resolves later. Color is never part of the key; applying it is a pure transform (`toIconImageUrl`) that consumers run per render, deduped by `(icon, color)`.
 
-**A failed resolution is never cached, but retries stop after three attempts.** Caching the failure would reproduce PR #1777's finding R6 — a hand-rolled `iconCache` that permanently retained transient errors — while leaving retries uncapped would re-fetch a permanently broken icon on every render. The cap counts every failure, not just thrown ones: `fetch` does not reject on 404, so that case arrives as a body that is not SVG.
+**A failed resolution is final.** Every icon value is a `lucide:` name or a `data:` url (ADR `styling-file-format`), so no remote fetch remains to fail transiently. A payload that does not decode or sanitize, or an unknown Lucide name, fails the same way every time, and the canvas requests on every render, so retrying would only repeat the work and the warning. PR #1777's finding R6, a hand-rolled `iconCache` that permanently retained transient network errors, therefore no longer applies. The one transient case left is a Lucide chunk that fails to load, which then stays blank on the canvas until the page reloads.
 
 **2. Icons render per kind, on the surface's own terms.**
 
@@ -54,7 +55,7 @@ Chrome renders **nothing** when `clip-path` sits directly on a nested `<svg>`, a
 
 ## Considered Options
 
-- **Icon registry + `useSyncExternalStore` (chosen).** One subscription per component, no cache keys to design, cross-surface sharing as the only possible behavior, and tests need no provider. Costs: hand-written retry with no backoff, no devtools, and a documented deviation from the project's TanStack Query convention.
+- **Icon registry + `useSyncExternalStore` (chosen).** One subscription per component, no cache keys to design, cross-surface sharing as the only possible behavior, and tests need no provider. Costs: no devtools, and a documented deviation from the project's TanStack Query convention.
 - **`useQueries` keyed per unique icon.** Restores sharing and keeps observers to dozens, but is strictly more machinery than a Map for a problem with no server-state semantics. Note PR #1777's base already used `useQueries` — keyed per vertex type, which is how the lockup shipped.
 - **One batched query over the whole icon set.** Fixes the observer count only. A set-shaped key re-resolves every icon when one type changes, and splits the cache namespace from the DOM surface.
 - **Inline untrusted SVG for CSS inheritance.** Loses the image-document sandbox and needs id namespacing, and `dangerouslySetInnerHTML` invites scanner findings, for a cosmetic gain.
@@ -62,7 +63,6 @@ Chrome renders **nothing** when `clip-path` sits directly on a nested `<svg>`, a
 ## Consequences
 
 - **Icons are the documented exception to "async state goes in TanStack Query."** New icon work belongs in the registry; anything with server-state semantics still belongs in TanStack Query. This is not a precedent for replacing it elsewhere.
-- Resolution no longer scales with vertex-type count. Both surfaces share one resolution per unique **fetched** icon; Lucide relies on the ES module cache instead, because the DOM path renders through `DynamicIcon` and never asks the registry.
-- Retry is weaker than the TanStack Query default it replaces — three attempts back to back, versus four with exponential backoff — so the cap limits wasted work rather than riding out a flaky endpoint.
+- Resolution no longer scales with vertex-type count. Both surfaces share one resolution per unique **user** icon; Lucide relies on the ES module cache instead, because the DOM path renders through `DynamicIcon` and never asks the registry.
 - The registry is a **module singleton on purpose**: an icon cache is process-global, and two components resolving the same icon sharing one resolution is the property this change exists to restore. Scoping it per render tree or per Jotai store would serve only test isolation, while making it possible for the app to hold two caches. Isolation instead comes from a central `reset()` in `setupTests.ts`, so no individual test carries that responsibility.
 - `react-dom/server` is still in the client bundle, because `getLucideSvgString` uses `renderToStaticMarkup` for the canvas string. Removing it reverses PR #1777's finding R7 and needs its own review — tracked in #2107.

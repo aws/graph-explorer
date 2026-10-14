@@ -3,24 +3,26 @@
 // DEV NOTE: happy-dom's DOMParser is not reliable for the svg render path.
 
 import { waitFor } from "@testing-library/react";
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vite-plus/test";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 
 import type { VertexStyle } from "@/core";
 
 import { createVertexType } from "@/core/entities/vertex";
 import { iconRegistry } from "@/core/icons";
-import { createRandomVertexStyle, renderHookWithState } from "@/utils/testing";
+import {
+  createRandomVertexStyle,
+  createSvgIconDataUrl,
+  renderHookWithState,
+} from "@/utils/testing";
 
 import { useBackgroundImageMap } from "./useBackgroundImageMap";
 
-const REMOTE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16v16H4z"/></svg>`;
+const SVG_A = createSvgIconDataUrl(
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16v16H4z"/></svg>`,
+);
+const SVG_B = createSvgIconDataUrl(
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>`,
+);
 
 function makeConfig(icon: Partial<VertexStyle>): VertexStyle {
   const base = createRandomVertexStyle();
@@ -43,13 +45,6 @@ function decodeIcon(url: string): string {
 describe("useBackgroundImageMap", () => {
   beforeEach(() => {
     iconRegistry.reset();
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() => Promise.resolve(new Response(REMOTE_SVG))),
-    );
-  });
-  afterEach(() => {
-    vi.unstubAllGlobals();
   });
 
   it("returns an empty map when given no configs", async () => {
@@ -63,20 +58,11 @@ describe("useBackgroundImageMap", () => {
   // synthesized viewBox is what keeps a plain `<svg width height>` export,
   // which is exactly what many icon exporters produce, from being squashed.
   it("carries a synthesized viewBox for an svg that declares only width and height", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() =>
-        Promise.resolve(
-          new Response(
-            `<svg width="400" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="100"/></svg>`,
-          ),
-        ),
-      ),
-    );
-
     const config = makeConfig({
       type: createVertexType("NoViewBox"),
-      iconUrl: "data:image/svg+xml;base64,d2lkZQ==",
+      iconUrl: createSvgIconDataUrl(
+        `<svg width="400" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="100"/></svg>`,
+      ),
       iconImageType: "image/svg+xml",
     });
 
@@ -93,20 +79,11 @@ describe("useBackgroundImageMap", () => {
   // Same fix, the other axis: a tall icon must synthesize a viewBox that
   // keeps height as the dominant dimension, not just width.
   it("carries a synthesized viewBox for a tall svg that declares only width and height", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() =>
-        Promise.resolve(
-          new Response(
-            `<svg width="100" height="400" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="400"/></svg>`,
-          ),
-        ),
-      ),
-    );
-
     const config = makeConfig({
       type: createVertexType("TallNoViewBox"),
-      iconUrl: "data:image/svg+xml;base64,dGFsbA==",
+      iconUrl: createSvgIconDataUrl(
+        `<svg width="100" height="400" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="400"/></svg>`,
+      ),
       iconImageType: "image/svg+xml",
     });
 
@@ -121,38 +98,37 @@ describe("useBackgroundImageMap", () => {
   });
 
   // The (icon, color) render cache is keyed by concatenation, so the separator
-  // must be one no usable url or color contains. An IconSourceId
-  // embeds the user-supplied icon url verbatim, and the color is an
-  // unvalidated string, so a printable separator like "|" lets two distinct
-  // pairs produce one key and swap icons between vertex types.
+  // must be one no usable url or color contains. An IconSourceId embeds the
+  // stored icon url verbatim, and the color is an unvalidated string, so a
+  // printable separator like "|" lets two distinct pairs produce one key and
+  // swap icons between vertex types. Rasters, because a raster url is never
+  // decoded, so it can carry the separator and still resolve.
   it("does not collide when a separator character appears in the icon url and color", async () => {
     const shared = makeConfig({
       type: createVertexType("PipeInColor"),
-      iconUrl: "https://example.test/a.svg",
-      iconImageType: "image/svg+xml",
+      iconUrl: "data:image/png;base64,QUJD",
+      iconImageType: "image/png",
       color: "x|#FF0000",
     });
     const shifted = makeConfig({
       type: createVertexType("PipeInUrl"),
-      iconUrl: "https://example.test/a.svg|x",
-      iconImageType: "image/svg+xml",
+      iconUrl: "data:image/png;base64,QUJD|x",
+      iconImageType: "image/png",
       color: "#FF0000",
     });
 
     const { result } = renderMap([shared, shifted]);
 
     await waitFor(() => expect(result.current.size).toBe(2));
-    const second = decodeIcon(
-      result.current.get(createVertexType("PipeInUrl"))!,
-    );
-    expect(second).toContain("color:#FF0000");
-    expect(second).not.toContain("color:x|#FF0000");
+    expect(
+      decodeIcon(result.current.get(createVertexType("PipeInUrl"))!),
+    ).toContain("QUJD|x");
   });
 
-  it("styles a fetched svg into a data uri", async () => {
+  it("styles an svg into a data uri", async () => {
     const config = makeConfig({
       type: createVertexType("Svg"),
-      iconUrl: "https://example.test/a.svg",
+      iconUrl: SVG_A,
       iconImageType: "image/svg+xml",
       color: "#FF0000",
     });
@@ -211,13 +187,13 @@ describe("useBackgroundImageMap", () => {
   it("renders one icon in two colors for two vertex types", async () => {
     const red = makeConfig({
       type: createVertexType("Red"),
-      iconUrl: "https://example.test/a.svg",
+      iconUrl: SVG_A,
       iconImageType: "image/svg+xml",
       color: "#FF0000",
     });
     const blue = makeConfig({
       type: createVertexType("Blue"),
-      iconUrl: "https://example.test/a.svg",
+      iconUrl: SVG_A,
       iconImageType: "image/svg+xml",
       color: "#0000FF",
     });
@@ -231,20 +207,20 @@ describe("useBackgroundImageMap", () => {
     expect(decodeIcon(result.current.get(createVertexType("Blue"))!)).toContain(
       "color:#0000FF",
     );
-    // One icon identity, so one fetch — color is applied by a pure transform.
-    expect(fetch).toBeCalledTimes(1);
+    // One icon identity, so one entry — color is applied by a pure transform.
+    expect(iconRegistry.getSnapshot().size).toBe(1);
   });
 
   // Fan-out regression guard: many vertex types sharing a small icon pool must
-  // do the async work once per UNIQUE ICON, not once per vertex type. A prior
+  // do the work once per UNIQUE ICON, not once per vertex type. A prior
   // implementation created one query (and one observer) per vertex type, which
   // locked up the schema view at ~10k types.
-  it("resolves the whole vertex set with one fetch per unique icon", async () => {
+  it("resolves the whole vertex set with one entry per unique icon", async () => {
     const iconPool: Array<Partial<VertexStyle>> = [
       { iconUrl: "lucide:plane", iconImageType: "image/svg+xml" },
       { iconUrl: "lucide:user", iconImageType: "image/svg+xml" },
-      { iconUrl: "https://example.test/a.svg", iconImageType: "image/svg+xml" },
-      { iconUrl: "https://example.test/b.svg", iconImageType: "image/svg+xml" },
+      { iconUrl: SVG_A, iconImageType: "image/svg+xml" },
+      { iconUrl: SVG_B, iconImageType: "image/svg+xml" },
       { iconUrl: "data:image/png;base64,QUJD", iconImageType: "image/png" },
       { iconUrl: "", iconImageType: "image/svg+xml" },
     ];
@@ -266,8 +242,6 @@ describe("useBackgroundImageMap", () => {
 
     await waitFor(() => expect(result.current.size).toBe(expectedResolvable));
 
-    // Two distinct remote svgs in the pool; everything else needs no network.
-    expect(fetch).toBeCalledTimes(2);
     expect(iconRegistry.getSnapshot().size).toBe(5);
   });
 });

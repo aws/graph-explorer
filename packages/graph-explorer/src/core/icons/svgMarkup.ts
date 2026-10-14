@@ -4,7 +4,7 @@ const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
 /**
  * Sanitizes untrusted SVG markup in one parse, ensuring it carries a `viewBox`,
- * or `null` when it is not a single `<svg>` (e.g. a 404 page).
+ * or `null` when it is not a single `<svg>` (e.g. a payload that was never svg).
  *
  * `USE_PROFILES` is what keeps `width`, `height`, and `viewBox`: DOMPurify
  * rebuilds `ALLOWED_ATTR` from the profiles, so an explicit list would be

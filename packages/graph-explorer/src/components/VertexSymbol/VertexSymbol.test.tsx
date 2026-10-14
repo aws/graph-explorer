@@ -8,6 +8,7 @@ import {
   createVertexType,
   type VertexStyle,
 } from "@/core";
+import { createSvgIconDataUrl } from "@/utils/testing";
 
 import { VertexSymbol } from "./VertexSymbol";
 
@@ -51,7 +52,7 @@ describe("VertexSymbol", () => {
 
   it("renders an untrusted svg through an image element, keeping it out of the live DOM", async () => {
     const root = renderSymbol({
-      iconUrl: `data:image/svg+xml;utf8,${encodeURIComponent(UNTRUSTED_SVG)}`,
+      iconUrl: createSvgIconDataUrl(UNTRUSTED_SVG),
       iconImageType: "image/svg+xml",
     });
 
