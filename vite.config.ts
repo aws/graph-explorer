@@ -48,6 +48,7 @@ export default defineConfig({
     ],
     options: {
       typeAware: true,
+      typeCheck: true,
     },
     categories: {
       correctness: "error",
