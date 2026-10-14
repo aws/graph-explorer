@@ -46,10 +46,9 @@ Three files carry the pnpm version itself:
 - `pnpm-lock.yaml`, which records the version under `packageManagerDependencies` plus an `integrity` for `pnpm` and for each `@pnpm/exe.*` platform package. `corepack use` regenerates this; never hand-edit it. Editing `packageManager` by hand still runs the version you typed, and rewrites these entries to match it, even under `--frozen-lockfile`. So the lockfile does not go stale, but the change lands in a commit nobody reviewed as a lockfile change.
 - The pnpm requirement at the top of this document.
 
-Two more pin a _different tool_ whose version is tied to the pnpm major, so they stay put on a patch or minor bump and move only when the major changes:
+One more pins a _different tool_ whose version is tied to the pnpm major, so it stays put on a patch or minor bump and moves only when the major changes:
 
 - `corepack@<version>` in the `Dockerfile`. The container gets pnpm only through `corepack enable`, and pnpm 12 ships as a native executable, so a new pnpm major needs a Corepack release that can fetch and verify that binary. A Corepack release's notes name the pnpm majors it handles.
-- `pnpm/action-setup` in `.github/workflows/ci.yml`, covered below.
 
 Run `corepack use pnpm@<version>` from the repo root. It rewrites `packageManager` with a freshly computed integrity hash and then runs `pnpm install`, which updates the lockfile. Do not hand-write the hash. If `corepack` is not on your `PATH`, install it with `npm install -g corepack@<version>`; Node 24 bundles Corepack but only behind `corepack enable`, and later Node lines drop it entirely.
 
@@ -65,9 +64,9 @@ pnpm checks
 pnpm test
 ```
 
-`.github/workflows/ci.yml` reads the version from `packageManager`, so a patch or minor bump needs no workflow edit. A major bump usually does. [`pnpm/action-setup`](https://github.com/pnpm/action-setup) bootstraps pnpm from lockfiles committed inside the action itself, so it needs a release that knows about the new major. v6.1.0 is the release that added pnpm 12. On a major bump, update the pinned commit SHA and its version comment in the workflow.
+`.github/workflows/ci.yml` gets pnpm through Vite+ with [`voidzero-dev/setup-vp`](https://github.com/voidzero-dev/setup-vp), which reads the version from `packageManager`, so a pnpm bump needs no workflow edit. On a major bump, check the "Set up Vite+" step on the pull request: if the pinned Vite+ cannot run the new pnpm major, upgrade Vite+ first.
 
-No check compares the `+sha512` hash against anything, because the two tools that install pnpm already verify the bytes they fetch and both fail closed. Corepack reads the hash and refuses a wrapper that does not match it. pnpm ignores the hash and instead checks each download against the `integrity` in `pnpm-lock.yaml` and against npm's registry signature, so a tampered lockfile stops the install with "its npm registry signature could not be verified" rather than passing quietly.
+No check in this repo compares the `+sha512` hash against anything, because every tool that installs pnpm already verifies the bytes it fetches and fails closed. Corepack and Vite+ both read the hash and refuse a `pnpm` package that does not match it. pnpm ignores the hash and instead checks each download against the `integrity` in `pnpm-lock.yaml` and against npm's registry signature, so a tampered lockfile stops the install with "its npm registry signature could not be verified" rather than passing quietly.
 
 A major bump is also where `pnpm-workspace.yaml` deserves a read. Since pnpm 12, a key that pnpm does not recognize fails the install with `ERR_PNPM_UNRECOGNIZED_WORKSPACE_SETTINGS` instead of being ignored. So a setting removed or renamed upstream stops the install rather than quietly doing nothing. `pnpm config list` prints the `pnpm-workspace.yaml` settings pnpm resolved, which is the quickest way to check, though it lists neither pnpm's defaults nor anything from `.npmrc`.
 
