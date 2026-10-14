@@ -318,9 +318,6 @@ importers:
       react-hook-form:
         specifier: ^7.90.0
         version: 7.90.0(@types/react@19.3.0)(react@19.3.0)
-      react-inlinesvg:
-        specifier: ^4.5.0
-        version: 4.5.0(react@19.3.0)
       react-laag:
         specifier: ^2.0.5
         version: 2.0.5(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -4319,11 +4316,6 @@ packages:
       '@types/react':
         optional: true
 
-  react-from-dom@0.7.5:
-    resolution: {integrity: sha512-CO92PmMKo/23uYPm6OFvh5CtZbMgHs/Xn+o095Lz/TZj9t8DSDhGdSOMLxBxwWI4sr0MF17KUn9yJWc5Q00R/w==}
-    peerDependencies:
-      react: 16.8 - 19
-
   react-hook-form@7.90.0:
     resolution: {integrity: sha512-+NdG0FLzCPhFOp2NNxaUYLF9fyZhNjx9FTBBSYWF71/l6BBlmIc/j6xlp3DbaHWLJbIG7Zd8oznA19xJClU97w==}
     engines: {node: '>=18.0.0'}
@@ -4333,11 +4325,6 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
-
-  react-inlinesvg@4.5.0:
-    resolution: {integrity: sha512-J/ZWLCmYdhOu5a+dWBNKXaQb/YFvTjqTZnoaprOUKD2geu+JcO1sZ2AcrXvzYurgQIuI3Y4+Ji2dUjsO86nhgw==}
-    peerDependencies:
-      react: 16.8 - 19
 
   react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
@@ -8407,20 +8394,11 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  react-from-dom@0.7.5(react@19.3.0):
-    dependencies:
-      react: 19.3.0
-
   react-hook-form@7.90.0(@types/react@19.3.0)(react@19.3.0):
     dependencies:
       react: 19.3.0
     optionalDependencies:
       '@types/react': 19.3.0
-
-  react-inlinesvg@4.5.0(react@19.3.0):
-    dependencies:
-      react: 19.3.0
-      react-from-dom: 0.7.5(react@19.3.0)
 
   react-is@17.0.2: {}
 
