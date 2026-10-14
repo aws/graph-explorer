@@ -102,10 +102,10 @@ const vertexEntrySchema = z
     // Loose `string`, matching storage. The upload seam fills this from the
     // browser's `file.type` (any `image/*` the OS reports), so a fixed enum
     // would reject valid uploads on round-trip. It is not a security boundary:
-    // the icon data is guarded by `safeIconValue`, and the only consumer that
-    // reads this field does an exact match on `"image/svg+xml"` to choose the
-    // inline-SVG render path — which is DOMPurify-sanitized — so any other
-    // value simply takes the safer `<img>`/raster path.
+    // the icon data is guarded by `safeIconValue`, and every icon is drawn as
+    // an image. An exact match on `"image/svg+xml"` additionally routes the
+    // icon through the sanitizing icon registry; any other value is drawn as a
+    // raster image from its data url.
     iconImageType: z.string().optional(),
     color: z.string().optional(),
     displayLabel: z.string().optional(),
