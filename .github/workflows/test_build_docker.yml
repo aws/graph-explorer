@@ -41,19 +41,20 @@ jobs:
         run: |
           docker run --rm --entrypoint="" test-image openssl --version
 
-      - name: Verify unnecessary packages are removed
+      - name: Verify build tooling is absent
         run: |
           docker run --rm --entrypoint="" test-image sh -c '
-            (command -v npm && echo "FAIL: npm found" && exit 1) || echo "✓ npm removed"
-            (command -v pnpm && echo "FAIL: pnpm found" && exit 1) || echo "✓ pnpm removed"
-            (command -v corepack && echo "FAIL: corepack found" && exit 1) || echo "✓ corepack removed"
-            (command -v python3 && echo "FAIL: python3 found" && exit 1) || echo "✓ python3 removed"
-            (command -v yum && echo "FAIL: yum found" && exit 1) || echo "✓ yum removed"
-            (command -v dnf && echo "FAIL: dnf found" && exit 1) || echo "✓ dnf removed"
+            (command -v npm && echo "FAIL: npm found" && exit 1) || echo "✓ npm absent"
+            (command -v pnpm && echo "FAIL: pnpm found" && exit 1) || echo "✓ pnpm absent"
+            (command -v corepack && echo "FAIL: corepack found" && exit 1) || echo "✓ corepack absent"
+            (command -v python3 && echo "FAIL: python3 found" && exit 1) || echo "✓ python3 absent"
+            (command -v yum && echo "FAIL: yum found" && exit 1) || echo "✓ yum absent"
+            (command -v dnf && echo "FAIL: dnf found" && exit 1) || echo "✓ dnf absent"
           '
 
       # One run per way the entrypoint starts the server: plain HTTP on 80,
-      # notebook mode on 9250, and HTTPS on 443 with freshly generated certs.
+      # notebook mode on 9250, and HTTPS on 443, where HOST makes the entrypoint
+      # generate a self-signed certificate.
       - name: Verify server starts and responds
         run: |
           check() {

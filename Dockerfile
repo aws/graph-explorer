@@ -36,8 +36,8 @@ COPY packages/graph-explorer-proxy-server/package.json packages/graph-explorer-p
 COPY packages/shared/package.json packages/shared/
 RUN pnpm install --prod --frozen-lockfile --ignore-scripts
 
-# openssl is for setup-ssl.sh. Package managers and python3 are removed to keep
-# the runtime to what it runs.
+# openssl is for setup-ssl.sh. yum, dnf, and python3 come with the base image
+# and are stripped; npm, pnpm, and corepack never reach this stage.
 FROM os AS runtime
 RUN yum update -y && \
     yum install -y openssl && \
@@ -45,14 +45,14 @@ RUN yum update -y && \
     rpm -qa 'python3*' | while read pkg; do rpm -e --nodeps "$pkg"; done && \
     rpm -qa 'dnf*' 'yum*' 'libdnf*' | while read pkg; do rpm -e --nodeps "$pkg"; done && \
     rm -rf /var/cache/yum /var/cache/dnf
+# LICENSE carries the notices for the third-party code built into node.
 COPY --from=toolchain /usr/local/bin/node /usr/local/bin/node
+COPY --from=toolchain /usr/local/LICENSE /usr/local/LICENSE
 
 ENV HOME=/graph-explorer
 WORKDIR /graph-explorer
+COPY --from=deps /graph-explorer ./
 COPY --from=build /graph-explorer ./
-COPY --from=deps /graph-explorer/node_modules ./node_modules
-COPY --from=deps /graph-explorer/packages/graph-explorer/node_modules ./packages/graph-explorer/node_modules
-COPY --from=deps /graph-explorer/packages/graph-explorer-proxy-server/node_modules ./packages/graph-explorer-proxy-server/node_modules
 
 EXPOSE 443
 EXPOSE 80
