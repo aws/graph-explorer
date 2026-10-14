@@ -153,26 +153,28 @@ describe("per color caching", () => {
   });
 
   // Dragging the color picker visits a new color on every move.
-  it("keeps at most 16 colors per icon, dropping the least recently used", () => {
+  it("keeps at most 256 colors per icon, dropping the least recently used", () => {
     const icon = { kind: "svg", svg: SVG } as const;
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < 256; i++) {
       toIconImageUrl(icon, color(i));
     }
     toIconImageUrl(icon, color(0));
-    toIconImageUrl(icon, color(16));
+    toIconImageUrl(icon, color(256));
     const parse = countParses();
 
     toIconImageUrl(icon, color(0));
+    toIconImageUrl(icon, color(2));
     expect(parse).toBeCalledTimes(0);
 
     toIconImageUrl(icon, color(1));
     expect(parse).toBeCalledTimes(1);
   });
 
-  // A graph recoloring many types that share one icon must not thrash.
-  it("serves every color of one render pass from the cache", () => {
+  // A render pass cycles through every type in order, so a bound below the
+  // number of colors in use would miss on every lookup.
+  it("serves a full cyclic pass over 200 colors from the cache", () => {
     const icon = { kind: "svg", svg: SVG } as const;
-    const colors = Array.from({ length: 16 }, (_, i) => color(i));
+    const colors = Array.from({ length: 200 }, (_, i) => color(i));
     colors.forEach(c => toIconImageUrl(icon, c));
     const parse = countParses();
 
@@ -195,6 +197,19 @@ describe("per color caching", () => {
 });
 
 describe("toCanvasBackgroundImage", () => {
+  // A raster's wrapper never depends on color, so recoloring must not keep a
+  // copy of the whole uploaded data url per color.
+  it("builds one canvas image for a raster whatever the color", () => {
+    const icon = { kind: "raster", url: "data:image/png;base64,QUJD" } as const;
+    const serialize = vi.spyOn(XMLSerializer.prototype, "serializeToString");
+
+    toCanvasBackgroundImage(icon, "#FF0000");
+    toCanvasBackgroundImage(icon, "#0000FF");
+
+    expect(serialize).toBeCalledTimes(1);
+    serialize.mockRestore();
+  });
+
   // Issue #2108: cytoscape cannot both preserve an image's aspect ratio and
   // inset it, so the inset is baked into a square svg and the nested
   // `preserveAspectRatio` does the fitting — for every icon kind, with no

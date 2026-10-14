@@ -24,12 +24,13 @@ const drawImage = (
   boundingBox: BoundingBox,
   options: DrawImageOption = {},
 ) => {
-  context.save();
   const { x, y, width, height } = boundingBox;
   const { src = "", cache = true, opacity = 1 } = options;
   if (!src) {
     return;
   }
+
+  context.save();
 
   const initialGlobalAlpha = context.globalAlpha;
   if (opacity !== context.globalAlpha) {
