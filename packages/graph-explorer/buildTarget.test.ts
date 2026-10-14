@@ -35,8 +35,8 @@ describe("toBuildTarget", () => {
 describe("browserslistBuildTarget", () => {
   it("builds for the browsers in .browserslistrc", () => {
     expect(browserslistBuildTarget()).toStrictEqual([
-      "chrome123",
-      "edge123",
+      "chrome124",
+      "edge124",
       "firefox124",
       "ios17.4",
       "safari17.4",

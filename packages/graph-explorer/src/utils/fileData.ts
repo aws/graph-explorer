@@ -37,6 +37,7 @@ export async function saveFile(
     return;
   }
 
+  // oxlint-disable-next-line baseline-js/use-baseline -- feature-detected above, falls back to saveAs
   const fileHandle = await window.showSaveFilePicker({
     suggestedName: defaultFileName,
     types: [
