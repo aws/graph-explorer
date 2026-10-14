@@ -52,25 +52,28 @@ jobs:
             (command -v dnf && echo "FAIL: dnf found" && exit 1) || echo "✓ dnf removed"
           '
 
+      # One run per way the entrypoint starts the server: plain HTTP on 80,
+      # notebook mode on 9250, and HTTPS on 443 with freshly generated certs.
       - name: Verify server starts and responds
         run: |
-          docker run -d --name test-server \
-            -p 8080:80 \
-            -e PROXY_SERVER_HTTPS_CONNECTION=false \
-            test-image
-          trap 'docker rm -f test-server 2>/dev/null' EXIT
-
-          # Wait for the server to be ready
-          for i in $(seq 1 30); do
-            if curl -sf http://localhost:8080/status; then
-              echo ""
-              echo "✓ Server responded on /status"
-              break
-            fi
-            if [ "$i" -eq 30 ]; then
-              echo "FAIL: Server did not respond within 30 seconds"
-              docker logs test-server
-              exit 1
-            fi
-            sleep 1
-          done
+          check() {
+            name=$1 host_port=$2 container_port=$3 scheme=$4
+            shift 4
+            docker run -d --name "$name" -p "$host_port:$container_port" "$@" test-image
+            for i in $(seq 1 30); do
+              if curl -sfk "$scheme://localhost:$host_port/status"; then
+                echo ""
+                echo "✓ $name responded on /status"
+                docker rm -f "$name" >/dev/null
+                return 0
+              fi
+              sleep 1
+            done
+            echo "FAIL: $name did not respond within 30 seconds"
+            docker logs "$name"
+            docker rm -f "$name" >/dev/null
+            return 1
+          }
+          check http 8080 80 http -e PROXY_SERVER_HTTPS_CONNECTION=false
+          check notebook 9250 9250 http -e NEPTUNE_NOTEBOOK=true
+          check https 8443 443 https -e HOST=localhost
