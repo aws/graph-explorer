@@ -6,7 +6,6 @@
   "author": "amazon",
   "type": "module",
   "scripts": {
-    "typecheck": "tsc --noEmit",
     "dev": "vp dev --force",
     "clean": "rimraf dist",
     "vite-build": "NODE_OPTIONS=--max_old_space_size=6144 vp build",

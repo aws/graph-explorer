@@ -12,7 +12,7 @@ Reserve Important for the cases below. Everything else is Nit at most. That incl
   - Values that reach a query outside a Query Fragment, or any other break of the rules in `docs/agents/connectors.md`.
   - A limit that doesn't bound the scan.
   - A change to one connector, or to shared query code, that changes behavior in the other query languages without saying why.
-- **Runtime APIs newer than the browser floor in `packages/graph-explorer/.browserslistrc`,** such as `Error.isError` or Iterator helpers. `tsc` and oxlint catch most of these. Check by hand for what they miss, listed in `docs/agents/browser-floor.md`: DOM instance members, and built-in features that `lib` allows but the floor doesn't.
+- **Runtime APIs newer than the browser floor in `packages/graph-explorer/.browserslistrc`,** such as `Error.isError` or Iterator helpers. The type check and oxlint catch most of these. Check by hand for what they miss, listed in `docs/agents/browser-floor.md`: DOM instance members, and built-in features that `lib` allows but the floor doesn't.
 - **Production code that imports a `devDependency`.**
 - **Work that grows with graph or schema size:** one query or subscription per item, quadratic loops, or copying passes over large collections.
 - **Tests that can't fail.** Name a plausible regression of the behavior the test's name promises, and prove the verdict with a mutation: inject that regression and run the test. A test that stays green is the finding, and the fix is to tighten it until the mutation turns it red. Recommend deletion only when no regression of that behavior could reach the test. Flag these:
@@ -32,7 +32,7 @@ Reserve Important for the cases below. Everything else is Nit at most. That incl
 
 ## Do not report
 
-- Anything CI enforces: `vp lint` (oxlint, including the React Compiler rules), `vp fmt` (oxfmt), `tsc`, lockfile checks, Trivy and dependency advisories.
+- Anything CI enforces: `vp lint` (oxlint, including the React Compiler rules), `vp fmt` (oxfmt), the type check in `vp check`, lockfile checks, Trivy and dependency advisories.
 - Pre-existing issues, unless this PR makes them newly reachable.
 - The Git rules in `AGENTS.md`. PRs are squash merged, so commit messages, branch names, and how the commits are split never reach `main`.
 - `Changelog.md`. It's updated at release time.
