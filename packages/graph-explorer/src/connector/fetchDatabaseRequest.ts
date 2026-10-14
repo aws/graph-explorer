@@ -137,6 +137,7 @@ function createFetchTimeout(
     return null;
   }
 
+  // oxlint-disable-next-line baseline-js/use-baseline -- inside the floor at Chrome 124; the plugin's bundled data predates its 2026-10-18 Widely date
   return { timeoutMs, signal: AbortSignal.timeout(timeoutMs) };
 }
 

@@ -207,6 +207,36 @@ export default defineConfig({
         },
       },
       {
+        files: [
+          "packages/graph-explorer/src/**/*.{ts,tsx}",
+          "packages/shared/src/**/*.ts",
+        ],
+        excludeFiles: [
+          "**/*.test.{ts,tsx}",
+          "**/testing/**",
+          "**/testUtils/**",
+        ],
+        jsPlugins: ["eslint-plugin-baseline-js", "eslint-plugin-es-x"],
+        rules: {
+          "baseline-js/use-baseline": [
+            "error",
+            {
+              available: "widely",
+              includeWebApis: { preset: "auto" },
+              includeJsBuiltins: { preset: "auto" },
+              ignoreFeatures: ["html-wrapper-methods", "top-level-await"],
+            },
+          ],
+          "es-x/no-using-declarations": "error",
+          "es-x/no-regexp-duplicate-named-capturing-groups": "error",
+          "es-x/no-regexp-modifiers": "error",
+          "es-x/no-import-attributes": "error",
+          "es-x/no-json-modules": "error",
+          "es-x/no-dynamic-import-options": "error",
+          "es-x/no-trailing-dynamic-import-commas": "error",
+        },
+      },
+      {
         files: ["packages/graph-explorer/src/**/*.{ts,tsx}"],
         excludeFiles: ["packages/graph-explorer/src/connections/**"],
         rules: {
