@@ -72,6 +72,7 @@ function CopyToClipboardButton({
 
   const copyToClipboard = async () => {
     try {
+      // oxlint-disable-next-line baseline-js/use-baseline -- writeText is Widely available; the feature also covers Clipboard.write
       await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);

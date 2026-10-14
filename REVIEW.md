@@ -12,7 +12,7 @@ Reserve Important for the cases below. Everything else is Nit at most. That incl
   - Values that reach a query outside a Query Fragment, or any other break of the rules in `docs/agents/connectors.md`.
   - A limit that doesn't bound the scan.
   - A change to one connector, or to shared query code, that changes behavior in the other query languages without saying why.
-- **Runtime APIs newer than the browser floor in `packages/graph-explorer/.browserslistrc`,** such as `Error.isError` or Iterator helpers. The browser packages set `lib: ES2023` (graph-explorer adds `ES2024.String`, which is inside the floor), so `tsc` catches the rest of ES2024 and later APIs, but not ES2023 APIs that shipped after the floor, or DOM APIs, which `lib` doesn't version.
+- **Runtime APIs newer than the browser floor in `packages/graph-explorer/.browserslistrc`,** such as `Error.isError` or Iterator helpers. `tsc` and oxlint catch most of these. Check by hand for what they miss, listed in `docs/agents/browser-floor.md`: DOM instance members, and built-in features that `lib` allows but the floor doesn't.
 - **Production code that imports a `devDependency`.**
 - **Work that grows with graph or schema size:** one query or subscription per item, quadratic loops, or copying passes over large collections.
 - **Tests that can't fail.** Name a plausible regression of the behavior the test's name promises, and prove the verdict with a mutation: inject that regression and run the test. A test that stays green is the finding, and the fix is to tighten it until the mutation turns it red. Recommend deletion only when no regression of that behavior could reach the test. Flag these:
