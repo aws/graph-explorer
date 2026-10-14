@@ -76,7 +76,7 @@ Commands are in AGENTS.md.
 
 - Small change: `pnpm checks`, plus `pnpm test <path>` for the area you touched
 - Before a PR, or after touching shared utilities, core providers, or type definitions: `pnpm test`
-- No associated tests (config or type-only change): `pnpm check:types`
+- No associated tests (config or type-only change): `pnpm checks`
 
 ## Special cases
 

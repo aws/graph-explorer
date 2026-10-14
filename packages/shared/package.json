@@ -12,9 +12,6 @@
     "./types": "./src/types/index.ts",
     "./utils/testing": "./src/utils/testing/index.ts"
   },
-  "scripts": {
-    "typecheck": "tsc --noEmit"
-  },
   "devDependencies": {
     "vite-plus": "catalog:"
   }

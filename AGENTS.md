@@ -75,17 +75,14 @@ Pass `REVIEW.md` by path to every reviewer sub-agent, not only the standards one
 
 ## Commands
 
-Run from project root. Prefer these `pnpm` scripts. `vp` subcommands (`vp test`, `vp lint`, `vp fmt`, `vp check`) are fine to run directly, since `vp` resolves the project's pinned Vite+ and its config; use `pnpm exec vp` if the global CLI isn't installed. `vp check` runs format, lint, and type checks. Never invoke `tsc`, `vitest`, `oxlint`, or `oxfmt` directly or via `pnpx`, because bare tools use the wrong version and miss project context.
+Run from project root. Prefer these `pnpm` scripts. `vp` subcommands (`vp test`, `vp lint`, `vp fmt`, `vp check`) are fine to run directly, since `vp` resolves the project's pinned Vite+ and its config; use `pnpm exec vp` if the global CLI isn't installed. `vp check` runs format, lint, and type checks. Never invoke `tsc`, `tsgo`, `vitest`, `oxlint`, or `oxfmt` directly or via `pnpx`, because bare tools use the wrong version and miss project context.
 
-- `pnpm check:types` — typecheck all packages (no per-file/per-package option; this is the granularity)
 - `pnpm checks` — all static checks (types + lint + format); default validation for small changes
 - `pnpm check:lint` / `pnpm lint` — lint / lint and fix
 - `pnpm check:format` / `pnpm format` — check / fix formatting
 - `pnpm test` — run all tests
 - `pnpm test <path>` — test files matching a path substring (file, dir, or partial)
 - `pnpm test -t "suite > name"` — test by name, with segments joined by a spaced `>` exactly as the reporter prints them; a single segment such as `-t "renders empty state"` also works (no `--` separator; pnpm forwards args verbatim, unlike npm)
-
-`pnpm check:types` runs in parallel across packages in under a minute; just run it.
 
 ## Agent skills
 
