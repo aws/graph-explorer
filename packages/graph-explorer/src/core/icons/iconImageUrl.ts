@@ -22,8 +22,43 @@ export function toIconImageUrl(icon: ResolvedIcon, color: string): string {
     case "raster":
       return icon.url;
     case "svg":
-      return encodeSvg(applyColor(icon.svg, color));
+      return cachedPerColor(imageUrls, icon, color, () =>
+        encodeSvg(applyColor(icon.svg, color)),
+      );
   }
+}
+
+/**
+ * Recoloring re-renders every icon of a type and a list can show thousands, so
+ * each url is built once per resolved icon and color and shared by every use.
+ * Keyed by the registry's resolved object, so an entry leaves with its icon.
+ */
+const imageUrls = new WeakMap<ResolvedIcon, Map<string, string>>();
+const canvasImages = new WeakMap<ResolvedIcon, Map<string, string>>();
+
+/** Dragging a color picker visits a new color on every move. */
+const MAX_COLORS_PER_ICON = 16;
+
+function cachedPerColor(
+  cache: WeakMap<ResolvedIcon, Map<string, string>>,
+  icon: ResolvedIcon,
+  color: string,
+  build: () => string,
+): string {
+  let byColor = cache.get(icon);
+  if (!byColor) {
+    byColor = new Map();
+    cache.set(icon, byColor);
+  }
+  let url = byColor.get(color);
+  if (url === undefined) {
+    url = build();
+    if (byColor.size >= MAX_COLORS_PER_ICON) {
+      byColor.delete(byColor.keys().next().value!);
+    }
+    byColor.set(color, url);
+  }
+  return url;
 }
 
 /**
@@ -61,23 +96,25 @@ export function toCanvasBackgroundImage(
   icon: ResolvedIcon,
   color: string,
 ): string {
-  const svg = document.createElementNS(SVG_NAMESPACE, "svg");
-  setAttributes(svg, {
-    width: ICON_BOX,
-    height: ICON_BOX,
-    viewBox: `0 0 ${ICON_BOX} ${ICON_BOX}`,
+  return cachedPerColor(canvasImages, icon, color, () => {
+    const svg = document.createElementNS(SVG_NAMESPACE, "svg");
+    setAttributes(svg, {
+      width: ICON_BOX,
+      height: ICON_BOX,
+      viewBox: `0 0 ${ICON_BOX} ${ICON_BOX}`,
+    });
+    const image = document.createElementNS(SVG_NAMESPACE, "image");
+    setAttributes(image, {
+      href: toIconImageUrl(icon, color),
+      x: ICON_INSET.offset,
+      y: ICON_INSET.offset,
+      width: ICON_INSET.size,
+      height: ICON_INSET.size,
+      preserveAspectRatio: "xMidYMid meet",
+    });
+    svg.append(image);
+    return encodeSvg(new XMLSerializer().serializeToString(svg));
   });
-  const image = document.createElementNS(SVG_NAMESPACE, "image");
-  setAttributes(image, {
-    href: toIconImageUrl(icon, color),
-    x: ICON_INSET.offset,
-    y: ICON_INSET.offset,
-    width: ICON_INSET.size,
-    height: ICON_INSET.size,
-    preserveAspectRatio: "xMidYMid meet",
-  });
-  svg.append(image);
-  return encodeSvg(new XMLSerializer().serializeToString(svg));
 }
 
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";

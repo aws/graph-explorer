@@ -2,7 +2,7 @@
 
 // DEV NOTE: happy-dom's DOMParser is not reliable for the svg render path.
 
-import { describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { ICON_BOX, ICON_INSET } from "./iconGeometry";
 import { toCanvasBackgroundImage, toIconImageUrl } from "./iconImageUrl";
@@ -113,6 +113,66 @@ describe("toIconImageUrl", () => {
       expect(result).not.toContain('width="24"');
       expect(result).not.toContain('height="24"');
     });
+  });
+});
+
+// Recoloring re-renders every icon of a type, and a list can show thousands, so
+// the work is shared per resolved icon and color rather than repeated per use.
+describe("per color caching", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function countParses() {
+    return vi.spyOn(DOMParser.prototype, "parseFromString");
+  }
+
+  it("parses an icon once however many times it is drawn in one color", () => {
+    const icon = { kind: "svg", svg: SVG } as const;
+    const parse = countParses();
+
+    const urls = Array.from({ length: 1000 }, () =>
+      toIconImageUrl(icon, "#FF0000"),
+    );
+
+    expect(parse).toBeCalledTimes(1);
+    expect(new Set(urls).size).toBe(1);
+  });
+
+  it("parses once per color", () => {
+    const icon = { kind: "svg", svg: SVG } as const;
+    const parse = countParses();
+
+    toIconImageUrl(icon, "#FF0000");
+    toIconImageUrl(icon, "#0000FF");
+    toIconImageUrl(icon, "#FF0000");
+
+    expect(parse).toBeCalledTimes(2);
+  });
+
+  // Dragging the color picker visits a new color on every move.
+  it("stays bounded as colors keep changing", () => {
+    const icon = { kind: "svg", svg: SVG } as const;
+    for (let i = 0; i < 100; i++) {
+      toIconImageUrl(icon, `#${i.toString(16).padStart(6, "0")}`);
+    }
+    const parse = countParses();
+
+    toIconImageUrl(icon, "#000000");
+
+    expect(parse).toBeCalledTimes(1);
+  });
+
+  it("builds the canvas image once per icon and color", () => {
+    const icon = { kind: "svg", svg: SVG } as const;
+    const serialize = vi.spyOn(XMLSerializer.prototype, "serializeToString");
+
+    const first = toCanvasBackgroundImage(icon, "#FF0000");
+    const callsAfterFirst = serialize.mock.calls.length;
+    const second = toCanvasBackgroundImage(icon, "#FF0000");
+
+    expect(second).toBe(first);
+    expect(serialize).toBeCalledTimes(callsAfterFirst);
   });
 });
 
