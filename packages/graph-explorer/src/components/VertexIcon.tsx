@@ -18,6 +18,7 @@ interface Props {
 
 function VertexIcon({ vertexStyle, className, alt }: Props) {
   const source = classifyIconSource(vertexStyle);
+  const altText = alt ?? `${vertexStyle.displayLabel ?? vertexStyle.type} icon`;
 
   switch (source.kind) {
     case "none":
@@ -32,12 +33,13 @@ function VertexIcon({ vertexStyle, className, alt }: Props) {
         />
       ) : null;
     case "raster":
+      return <IconImage src={source.url} alt={altText} className={className} />;
     case "svg":
       return (
-        <ImageIcon
+        <SvgIcon
           source={source}
           color={vertexStyle.color}
-          alt={alt ?? `${vertexStyle.displayLabel ?? vertexStyle.type} icon`}
+          alt={altText}
           className={className}
         />
       );
@@ -49,29 +51,46 @@ function VertexIcon({ vertexStyle, className, alt }: Props) {
  * and nothing outside the icon can be styled or loaded. CSS cannot reach into
  * it either, so the color is baked in.
  */
-function ImageIcon({
+function SvgIcon({
   source,
   color,
   alt,
   className,
 }: {
-  source: Extract<IconSource, { kind: "raster" | "svg" }>;
+  source: Extract<IconSource, { kind: "svg" }>;
   color: string;
   alt: string;
   className?: string;
 }) {
   const resolved = useResolvedIcon(source);
-  const classes = cn("size-6 shrink-0", className);
 
   // Holds the icon's space so a list row does not shift when the icon lands.
   if (!resolved) {
-    return <span className={classes} />;
+    return <span className={cn("size-6 shrink-0", className)} />;
   }
   return (
-    <img
+    <IconImage
       src={toIconImageUrl(resolved, color)}
       alt={alt}
-      className={cn(classes, "object-contain")}
+      className={className}
+    />
+  );
+}
+
+function IconImage({
+  src,
+  alt,
+  className,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+}) {
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={cn("size-6 shrink-0 object-contain", className)}
     />
   );
 }

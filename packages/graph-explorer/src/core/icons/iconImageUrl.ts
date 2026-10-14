@@ -3,7 +3,7 @@ import type { ResolvedIcon } from "./iconRegistry";
 import { ICON_BOX, ICON_INSET } from "./iconGeometry";
 
 /**
- * Pure transform to an image url.
+ * Transform to an image url, cached per resolved icon and color.
  *
  * The color is baked into SVG markup because the callers render the icon as a
  * separate image document — the cytoscape `background-image`, and the `<image>`
@@ -21,44 +21,46 @@ export function toIconImageUrl(icon: ResolvedIcon, color: string): string {
   switch (icon.kind) {
     case "raster":
       return icon.url;
-    case "svg":
-      return cachedPerColor(imageUrls, icon, color, () =>
-        encodeSvg(applyColor(icon.svg, color)),
-      );
+    case "svg": {
+      const urls = urlsFor(icon, color);
+      return (urls.image ??= encodeSvg(applyColor(icon.svg, color)));
+    }
   }
+}
+
+interface ColoredUrls {
+  image?: string;
+  canvas?: string;
 }
 
 /**
  * Recoloring re-renders every icon of a type and a list can show thousands, so
  * each url is built once per resolved icon and color and shared by every use.
- * Keyed by the registry's resolved object, so an entry leaves with its icon.
+ * Keyed by the registry's resolved object identity, so an entry leaves with its
+ * icon and a registry reset can never serve a stale one.
  */
-const imageUrls = new WeakMap<ResolvedIcon, Map<string, string>>();
-const canvasImages = new WeakMap<ResolvedIcon, Map<string, string>>();
+const urlCache = new WeakMap<ResolvedIcon, Map<string, ColoredUrls>>();
 
 /** Dragging a color picker visits a new color on every move. */
 const MAX_COLORS_PER_ICON = 16;
 
-function cachedPerColor(
-  cache: WeakMap<ResolvedIcon, Map<string, string>>,
-  icon: ResolvedIcon,
-  color: string,
-  build: () => string,
-): string {
-  let byColor = cache.get(icon);
+/** Least recently used first, so an in-use color survives a picker drag. */
+function urlsFor(icon: ResolvedIcon, color: string): ColoredUrls {
+  let byColor = urlCache.get(icon);
   if (!byColor) {
     byColor = new Map();
-    cache.set(icon, byColor);
+    urlCache.set(icon, byColor);
   }
-  let url = byColor.get(color);
-  if (url === undefined) {
-    url = build();
-    if (byColor.size >= MAX_COLORS_PER_ICON) {
-      byColor.delete(byColor.keys().next().value!);
+  const urls = byColor.get(color) ?? {};
+  byColor.delete(color);
+  byColor.set(color, urls);
+  if (byColor.size > MAX_COLORS_PER_ICON) {
+    const oldest = byColor.keys().next();
+    if (!oldest.done) {
+      byColor.delete(oldest.value);
     }
-    byColor.set(color, url);
   }
-  return url;
+  return urls;
 }
 
 /**
@@ -96,25 +98,28 @@ export function toCanvasBackgroundImage(
   icon: ResolvedIcon,
   color: string,
 ): string {
-  return cachedPerColor(canvasImages, icon, color, () => {
-    const svg = document.createElementNS(SVG_NAMESPACE, "svg");
-    setAttributes(svg, {
-      width: ICON_BOX,
-      height: ICON_BOX,
-      viewBox: `0 0 ${ICON_BOX} ${ICON_BOX}`,
-    });
-    const image = document.createElementNS(SVG_NAMESPACE, "image");
-    setAttributes(image, {
-      href: toIconImageUrl(icon, color),
-      x: ICON_INSET.offset,
-      y: ICON_INSET.offset,
-      width: ICON_INSET.size,
-      height: ICON_INSET.size,
-      preserveAspectRatio: "xMidYMid meet",
-    });
-    svg.append(image);
-    return encodeSvg(new XMLSerializer().serializeToString(svg));
+  const urls = urlsFor(icon, color);
+  return (urls.canvas ??= buildCanvasBackgroundImage(icon, color));
+}
+
+function buildCanvasBackgroundImage(icon: ResolvedIcon, color: string): string {
+  const svg = document.createElementNS(SVG_NAMESPACE, "svg");
+  setAttributes(svg, {
+    width: ICON_BOX,
+    height: ICON_BOX,
+    viewBox: `0 0 ${ICON_BOX} ${ICON_BOX}`,
   });
+  const image = document.createElementNS(SVG_NAMESPACE, "image");
+  setAttributes(image, {
+    href: toIconImageUrl(icon, color),
+    x: ICON_INSET.offset,
+    y: ICON_INSET.offset,
+    width: ICON_INSET.size,
+    height: ICON_INSET.size,
+    preserveAspectRatio: "xMidYMid meet",
+  });
+  svg.append(image);
+  return encodeSvg(new XMLSerializer().serializeToString(svg));
 }
 
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";

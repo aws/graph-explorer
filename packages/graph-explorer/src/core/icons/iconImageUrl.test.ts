@@ -116,8 +116,6 @@ describe("toIconImageUrl", () => {
   });
 });
 
-// Recoloring re-renders every icon of a type, and a list can show thousands, so
-// the work is shared per resolved icon and color rather than repeated per use.
 describe("per color caching", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -125,6 +123,10 @@ describe("per color caching", () => {
 
   function countParses() {
     return vi.spyOn(DOMParser.prototype, "parseFromString");
+  }
+
+  function color(index: number) {
+    return `#${index.toString(16).padStart(6, "0")}`;
   }
 
   it("parses an icon once however many times it is drawn in one color", () => {
@@ -151,16 +153,32 @@ describe("per color caching", () => {
   });
 
   // Dragging the color picker visits a new color on every move.
-  it("stays bounded as colors keep changing", () => {
+  it("keeps at most 16 colors per icon, dropping the least recently used", () => {
     const icon = { kind: "svg", svg: SVG } as const;
-    for (let i = 0; i < 100; i++) {
-      toIconImageUrl(icon, `#${i.toString(16).padStart(6, "0")}`);
+    for (let i = 0; i < 16; i++) {
+      toIconImageUrl(icon, color(i));
     }
+    toIconImageUrl(icon, color(0));
+    toIconImageUrl(icon, color(16));
     const parse = countParses();
 
-    toIconImageUrl(icon, "#000000");
+    toIconImageUrl(icon, color(0));
+    expect(parse).toBeCalledTimes(0);
 
+    toIconImageUrl(icon, color(1));
     expect(parse).toBeCalledTimes(1);
+  });
+
+  // A graph recoloring many types that share one icon must not thrash.
+  it("serves every color of one render pass from the cache", () => {
+    const icon = { kind: "svg", svg: SVG } as const;
+    const colors = Array.from({ length: 16 }, (_, i) => color(i));
+    colors.forEach(c => toIconImageUrl(icon, c));
+    const parse = countParses();
+
+    colors.forEach(c => toIconImageUrl(icon, c));
+
+    expect(parse).toBeCalledTimes(0);
   });
 
   it("builds the canvas image once per icon and color", () => {

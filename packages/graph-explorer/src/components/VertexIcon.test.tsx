@@ -30,7 +30,8 @@ function renderIcon(overrides: Partial<VertexStyle>) {
 
 describe("VertexIcon", () => {
   // jsdom never lays out elements, so the object-contain fit (issue #2108)
-  // is not observable here; this pins that a raster still renders its source.
+  // is not observable here; this pins that a raster still renders its source,
+  // on the first render, with no wait for the registry.
   it("renders a raster icon as an image carrying its source url", () => {
     renderIcon({
       iconUrl: "data:image/png;base64,QUJD",
@@ -98,12 +99,13 @@ describe("VertexIcon", () => {
     expect(decodedSrc(image)).toContain("color:#FF0000");
   });
 
-  it("renders the default icon", async () => {
+  it("renders the default icon in the default color", async () => {
     renderIcon({});
 
     const image = await screen.findByRole("img", { name: "Person icon" });
 
-    expect(image.getAttribute("src")).toContain("data:image/svg+xml;utf8,");
+    expect(decodedSrc(image)).toContain("<svg");
+    expect(decodedSrc(image)).toContain(`color:${appDefaultVertexStyle.color}`);
   });
 
   // The label comes from the database or an imported file, so it must reach
@@ -119,11 +121,9 @@ describe("VertexIcon", () => {
       />,
     );
 
-    await waitFor(() =>
-      expect(
-        screen.getByRole("img", { name: `${label} icon` }),
-      ).toBeInTheDocument(),
-    );
+    expect(
+      await screen.findByRole("img", { name: `${label} icon` }),
+    ).toBeInTheDocument();
     expect(container.querySelectorAll("img")).toHaveLength(1);
   });
 
