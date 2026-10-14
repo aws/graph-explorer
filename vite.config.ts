@@ -55,7 +55,7 @@ export default defineConfig({
     env: {
       builtin: true,
     },
-    ignorePatterns: ["**/*.config.{js,ts,mjs}", ".claude/"],
+    ignorePatterns: [".claude/"],
     rules: {
       "vitest/require-mock-type-parameters": "off",
       "vitest/expect-expect": [
