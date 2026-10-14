@@ -138,6 +138,19 @@ describe("VertexIcon", () => {
     expect(container.firstElementChild).toHaveClass("size-6");
   });
 
+  // DynamicIcon renders nothing until its chunk loads, which would push a list
+  // row's label right by an icon width when it lands.
+  it("holds the icon's space while a lucide icon loads", async () => {
+    const container = renderIcon({
+      iconUrl: "lucide:plane",
+      iconImageType: "image/svg+xml",
+    });
+
+    expect(container.firstElementChild).toHaveClass("size-6");
+    expect(container.querySelector("svg")).toBeNull();
+    await waitFor(() => expect(container.querySelector("svg")).toBeTruthy());
+  });
+
   it("renders nothing for an unknown lucide reference", () => {
     const container = renderIcon({
       iconUrl: "lucide:not-a-real-icon-name-xyz",
