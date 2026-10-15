@@ -51,9 +51,11 @@ describe("VertexIcon", () => {
       color: "#FF0000",
     });
 
-    await waitFor(() => expect(container.querySelector("svg")).toBeTruthy());
-    const icon = container.querySelector("svg");
-    expect(icon).toBeTruthy();
+    // Not the bare `svg`, which the loading placeholder also matches.
+    await waitFor(() =>
+      expect(container.querySelector("svg.lucide-plane")).toBeTruthy(),
+    );
+    const icon = container.querySelector("svg.lucide-plane");
     expect((icon as SVGElement).style.color).toBe("rgb(255, 0, 0)");
     // Live DOM, not an <img>/<image> — this is the inline-DOM surface.
     expect(container.querySelector("img")).toBeNull();
