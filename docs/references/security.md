@@ -63,7 +63,7 @@ How Graph Explorer behaves on the wire, for anyone adding an access control laye
 
 **Health check.** `GET /status` is the [health check](./health-check.md) endpoint. It returns a fixed string and does not contact the database. `GET /defaultConnection` returns the default connection configuration, including the database endpoint, region, service type, and whether IAM signing is enabled.
 
-**Timeouts.** Schema sync against a large graph can run for minutes. The client request timeout, [`GRAPH_EXP_FETCH_REQUEST_TIMEOUT`](./configuration.md#environment-variables), defaults to 240000 ms. A layer with a shorter read timeout ends those requests first.
+**Timeouts.** Schema sync against a large graph can run for minutes. A connection has no fetch timeout unless **Set a fetch timeout** is checked in its **Advanced options**. The Default Connection uses a fetch timeout of 240000 ms. A layer with a shorter read timeout ends those requests first.
 
 **Request bodies.** The proxy server accepts request bodies up to 50 MB.
 
@@ -91,8 +91,6 @@ The proxy server reads certificates from the following location inside the conta
 ```
 
 If HTTPS is enabled and any of these files are missing, the server will exit with an error listing the missing files.
-
-If `NEPTUNE_NOTEBOOK` is also set to `true`, the server exits earlier, during environment parsing, with an error naming the conflict between `NEPTUNE_NOTEBOOK` and `PROXY_SERVER_HTTPS_CONNECTION`, since the notebook preset never generates certificates.
 
 ### Keeping the certificate across container replacements
 

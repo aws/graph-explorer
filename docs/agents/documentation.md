@@ -38,5 +38,9 @@ The same claim gets the same marker everywhere it appears. A page carrying three
 
 ## Docs that mirror code
 
-- `docs/references/security.md#reference-for-access-control-layers` copies the proxy server's routes, methods, request headers, body limit, and the client fetch timeout default. A change to any of them updates that section.
+- `docs/references/security.md#reference-for-access-control-layers` copies the proxy server's routes, methods, request headers, body limit, and the Default Connection's Fetch Timeout. A change to any of them updates that section.
 - A new deployment guide gets the access control `[!IMPORTANT]` block, worded identically to the existing guides, and a row in the deployment table in `docs/references/security.md#access-control`.
+
+## `NEPTUNE_NOTEBOOK`
+
+Wherever a user doc covers notebook behavior, including the configuration reference, document the individual variables: `PROXY_SERVER_HTTPS_CONNECTION=false`, `PROXY_SERVER_HTTP_PORT=9250`, and `LOG_STYLE=cloudwatch`. `NEPTUNE_NOTEBOOK` is the unsupported legacy preset that sets them, kept only so existing deployments keep working, and it goes away with [#2312](https://github.com/aws/graph-explorer/issues/2312). User docs leave it out. `docs/guides/deploy-to-sagemaker/install-graph-explorer-lc.sh` keeps passing it until then.
