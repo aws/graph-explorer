@@ -135,7 +135,8 @@ describe("VertexIcon", () => {
     });
 
     expect(screen.queryByRole("img")).toBeNull();
-    expect(container.firstElementChild).toHaveClass("size-6");
+    // Inline-block, so it keeps its box in a non-flex parent like the <img>.
+    expect(container.firstElementChild).toHaveClass("inline-block", "size-6");
   });
 
   // DynamicIcon renders nothing until its chunk loads, which would push a list
@@ -146,9 +147,15 @@ describe("VertexIcon", () => {
       iconImageType: "image/svg+xml",
     });
 
-    expect(container.firstElementChild).toHaveClass("size-6");
-    expect(container.querySelector("svg")).toBeNull();
-    await waitFor(() => expect(container.querySelector("svg")).toBeTruthy());
+    // An svg, so a parent's `[&_svg]` sizing applies to it exactly as it will
+    // to the loaded icon; a bare span has no box in a non-flex parent.
+    const placeholder = container.firstElementChild!;
+    expect(placeholder.tagName.toLowerCase()).toBe("svg");
+    expect(placeholder).toHaveAttribute("aria-hidden", "true");
+    expect(placeholder).toHaveClass("size-6");
+    await waitFor(() =>
+      expect(container.querySelector("svg.lucide-plane")).toBeTruthy(),
+    );
   });
 
   it("renders nothing for an unknown lucide reference", () => {
