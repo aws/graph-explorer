@@ -9,7 +9,7 @@ Build instructions and development setup for contributing to Graph Explorer. For
 
 ### Node Version
 
-`.node-version` pins the Node.js version used for development and CI. Use [Vite+](https://viteplus.dev), [fnm](https://github.com/Schniz/fnm), or [nvm](https://github.com/nvm-sh/nvm) to switch to it:
+`.node-version` pins the Node.js version used for development, CI, and the Docker image. Use [Vite+](https://viteplus.dev), [fnm](https://github.com/Schniz/fnm), or [nvm](https://github.com/nvm-sh/nvm) to switch to it:
 
 ```bash
 vp env use                    # Vite+
@@ -46,13 +46,7 @@ Three files carry the pnpm version itself:
 - `pnpm-lock.yaml`, which records the version under `packageManagerDependencies` plus an `integrity` for `pnpm` and for each `@pnpm/exe.*` platform package. `corepack use` regenerates this; never hand-edit it. Editing `packageManager` by hand still runs the version you typed, and rewrites these entries to match it, even under `--frozen-lockfile`. So the lockfile does not go stale, but the change lands in a commit nobody reviewed as a lockfile change.
 - The pnpm requirement at the top of this document.
 
-One more pins a _different tool_ whose version is tied to the pnpm major, so it stays put on a patch or minor bump and moves only when the major changes:
-
-- `corepack@<version>` in the `Dockerfile`. The container gets pnpm only through `corepack enable`, and pnpm 12 ships as a native executable, so a new pnpm major needs a Corepack release that can fetch and verify that binary. A Corepack release's notes name the pnpm majors it handles.
-
 Run `corepack use pnpm@<version>` from the repo root. It rewrites `packageManager` with a freshly computed integrity hash and then runs `pnpm install`, which updates the lockfile. Do not hand-write the hash. If `corepack` is not on your `PATH`, install it with `npm install -g corepack@<version>`; Node 24 bundles Corepack but only behind `corepack enable`, and later Node lines drop it entirely.
-
-On a major bump, raise the `Dockerfile`'s Corepack pin _before_ running `corepack use`, because the Corepack currently pinned is by definition the one that predates the new pnpm major. Nothing in the commands below builds the image, so a Corepack pin too old to fetch the new pnpm surfaces only when `test_build_docker.yml` runs on the pull request. Run `docker build .` locally if you would rather find out sooner.
 
 Do not reach for `pnpm self-update`. It rewrites `packageManager` without the `+sha512` hash, throwing the integrity pin away. `corepack use` is the only command that writes a correct pin.
 
@@ -64,7 +58,7 @@ pnpm checks
 pnpm test
 ```
 
-`.github/workflows/ci.yml` gets pnpm through Vite+ with [`voidzero-dev/setup-vp`](https://github.com/voidzero-dev/setup-vp), which reads the version from `packageManager`, so a pnpm bump needs no workflow edit. On a major bump, check the "Set up Vite+" step on the pull request: if the pinned Vite+ cannot run the new pnpm major, upgrade Vite+ first.
+`.github/workflows/ci.yml` and the `Dockerfile` both get pnpm through Vite+, which reads the version from `packageManager`, so a pnpm bump needs no workflow or `Dockerfile` edit. CI uses [`voidzero-dev/setup-vp`](https://github.com/voidzero-dev/setup-vp), and the image builds in the Vite+ image. On a major bump, check the "Set up Vite+" step and the Docker build on the pull request: if the pinned Vite+ cannot run the new pnpm major, upgrade Vite+ first.
 
 No check in this repo compares the `+sha512` hash against anything, because every tool that installs pnpm already verifies the bytes it fetches and fails closed. Corepack and Vite+ both read the hash and refuse a `pnpm` package that does not match it. pnpm ignores the hash and instead checks each download against the `integrity` in `pnpm-lock.yaml` and against npm's registry signature, so a tampered lockfile stops the install with "its npm registry signature could not be verified" rather than passing quietly.
 
