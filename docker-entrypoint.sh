@@ -40,6 +40,7 @@ echo "Starting graph explorer..."
 # which config.json replaces, and dotenv never overrides a variable that is
 # already set. Passing the .env value means the server checks for the conflict
 # exactly when the preset was applied.
+# exec makes the server PID 1, so it gets the SIGTERM from docker stop.
 # Stubbed in tests by createEntrypointWorkDir in testing.ts. Keep the
 # assignments before node, which the stub passes through.
-cd /graph-explorer/packages/graph-explorer-proxy-server && NEPTUNE_NOTEBOOK="$NEPTUNE_NOTEBOOK_VALUE" NODE_ENV=production node src/node-server.ts
+cd /graph-explorer/packages/graph-explorer-proxy-server && NEPTUNE_NOTEBOOK="$NEPTUNE_NOTEBOOK_VALUE" NODE_ENV=production exec node src/node-server.ts

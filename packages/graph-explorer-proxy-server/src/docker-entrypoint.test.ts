@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import {
   createEntrypointWorkDir,
   readServerEnvironment,
+  readServerParentPid,
   runEntrypoint,
 } from "./testing.ts";
 
@@ -23,6 +24,17 @@ describe("docker-entrypoint.sh", () => {
 
   afterEach(() => {
     fs.rmSync(workDir, { recursive: true, force: true });
+  });
+
+  // Docker sends SIGTERM to PID 1 only. Unless the shell replaces itself with
+  // the server, the server never sees it and is killed at the stop timeout.
+  it("replaces the shell with the server so it receives stop signals", () => {
+    writeEnv(configDir, "PROXY_SERVER_HTTPS_CONNECTION=false\n");
+
+    const { exitCode } = runEntrypoint(workDir, scriptPath);
+
+    expect(exitCode).toBe(0);
+    expect(readServerParentPid(workDir)).toBe(process.pid);
   });
 
   it("fails when .env file is missing", () => {

@@ -101,7 +101,7 @@ A test that deliberately abandons a request should await the cancellation before
 
 ## Proxy server: running the Docker entrypoint
 
-`createEntrypointWorkDir()` and `runEntrypoint()` in `packages/graph-explorer-proxy-server/src/testing.ts` run the real `docker-entrypoint.sh` in a temp directory. They stub `setup-ssl.sh`, which records that it ran and fails without `HOST`, and they replace the node start line with a node process that writes its environment to a file. `readServerEnvironment()` returns that environment, including the variables the entrypoint sets on the start line. `process-environment.sh` is a no-op stub unless the test copies the real script in.
+`createEntrypointWorkDir()` and `runEntrypoint()` in `packages/graph-explorer-proxy-server/src/testing.ts` run the real `docker-entrypoint.sh` in a temp directory. They stub `setup-ssl.sh`, which records that it ran and fails without `HOST`, and they replace the node start line with a node process that writes its environment to a file. `readServerEnvironment()` returns that environment, including the variables the entrypoint sets on the start line. `readServerParentPid()` returns that process's parent id, which equals the test's own `process.pid` when the entrypoint execs the server. `process-environment.sh` is a no-op stub unless the test copies the real script in.
 
 `docker-entrypoint.test.ts` covers the entrypoint on its own. `config-pipeline.test.ts` runs each deployment scenario through the entrypoint, dotenv precedence, the Zod schema, and `resolveServerConfig`. Add a row to its table for a new deployment case. A row can set `readOnly` to mount the configuration folder or a file in it read-only, and expect `cannotWrite(file)`, a refusal that leaves the folder untouched.
 
