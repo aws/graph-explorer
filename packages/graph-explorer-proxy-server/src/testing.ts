@@ -60,6 +60,7 @@ const serverStartLine =
   /^cd \/graph-explorer\/packages\/graph-explorer-proxy-server && (.*)node src\/node-server\.ts$/m;
 
 const serverEnvironmentFile = "server-environment.json";
+const serverParentPidFile = "server-parent-pid";
 
 /**
  * Lays out a temp directory that runs docker-entrypoint.sh as the image does,
@@ -80,7 +81,7 @@ export function createEntrypointWorkDir() {
       "docker-entrypoint.sh no longer contains the expected server start line. Update the test stub.",
     );
   }
-  const recordEnvironment = `require("fs").writeFileSync("${serverEnvironmentFile}", JSON.stringify(process.env))`;
+  const recordEnvironment = `const fs = require("fs"); fs.writeFileSync("${serverEnvironmentFile}", JSON.stringify(process.env)); fs.writeFileSync("${serverParentPidFile}", String(process.ppid))`;
   const scriptPath = path.join(workDir, "docker-entrypoint.sh");
   fs.writeFileSync(
     scriptPath,
@@ -134,6 +135,13 @@ export function runEntrypoint(
       stderr: e.stderr ?? "",
     };
   }
+}
+
+/** The process id of the server's parent, which is the entrypoint's caller when the shell execs the server. */
+export function readServerParentPid(workDir: string): number {
+  return Number(
+    fs.readFileSync(path.join(workDir, serverParentPidFile), "utf-8"),
+  );
 }
 
 /** The environment the entrypoint started the server with. */
