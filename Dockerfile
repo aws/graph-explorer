@@ -2,7 +2,7 @@
 # Pinned to a dated ECR Public snapshot for reproducible builds; bump to move forward.
 # The tag also pins dnf repo metadata to that date, so the yum update below resolves
 # against that snapshot and cannot reach anything published after it.
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023.12.20261013.0 AS os
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023.12.20261014.0 AS os
 ENV NODE_VERSION=24.21.0
 
 # Node.js and pnpm for the build stages. The runtime copies only the node binary.
