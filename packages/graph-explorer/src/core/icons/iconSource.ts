@@ -20,9 +20,8 @@ export type IconSource =
  * RFC-6838-shaped subtype — rather than a fixed list, because the uploader
  * stores whatever `image/*` the browser reports (`accept="image/*"`), so a
  * closed list would reject the app's own exports on re-import. This is not a
- * weakening: SVG (the only script-capable type) is DOMPurify-sanitized at the
- * render sink regardless of the declared subtype, and every other type renders
- * as an inert raster `<img>`.
+ * weakening: every icon is drawn as an image, which runs no script and loads
+ * nothing external, and an icon stored as `image/svg+xml` is also sanitized.
  */
 const ICON_VALUE_PATTERN =
   /^(lucide:[a-z0-9-]+$|data:image\/[a-z0-9.+-]+;base64,)/;

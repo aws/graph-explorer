@@ -2,7 +2,7 @@
 
 // DEV NOTE: happy-dom's DOMParser is not reliable for the svg render path.
 
-import { describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { ICON_BOX, ICON_INSET } from "./iconGeometry";
 import { toCanvasBackgroundImage, toIconImageUrl } from "./iconImageUrl";
@@ -116,7 +116,100 @@ describe("toIconImageUrl", () => {
   });
 });
 
+describe("per color caching", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function countParses() {
+    return vi.spyOn(DOMParser.prototype, "parseFromString");
+  }
+
+  function color(index: number) {
+    return `#${index.toString(16).padStart(6, "0")}`;
+  }
+
+  it("parses an icon once however many times it is drawn in one color", () => {
+    const icon = { kind: "svg", svg: SVG } as const;
+    const parse = countParses();
+
+    const urls = Array.from({ length: 1000 }, () =>
+      toIconImageUrl(icon, "#FF0000"),
+    );
+
+    expect(parse).toBeCalledTimes(1);
+    expect(new Set(urls).size).toBe(1);
+  });
+
+  it("parses once per color", () => {
+    const icon = { kind: "svg", svg: SVG } as const;
+    const parse = countParses();
+
+    toIconImageUrl(icon, "#FF0000");
+    toIconImageUrl(icon, "#0000FF");
+    toIconImageUrl(icon, "#FF0000");
+
+    expect(parse).toBeCalledTimes(2);
+  });
+
+  // Dragging the color picker visits a new color on every move.
+  it("keeps at most 256 colors per icon, dropping the least recently used", () => {
+    const icon = { kind: "svg", svg: SVG } as const;
+    for (let i = 0; i < 256; i++) {
+      toIconImageUrl(icon, color(i));
+    }
+    toIconImageUrl(icon, color(0));
+    toIconImageUrl(icon, color(256));
+    const parse = countParses();
+
+    toIconImageUrl(icon, color(0));
+    toIconImageUrl(icon, color(2));
+    expect(parse).toBeCalledTimes(0);
+
+    toIconImageUrl(icon, color(1));
+    expect(parse).toBeCalledTimes(1);
+  });
+
+  // A render pass cycles through every type in order, so a bound below the
+  // number of colors in use would miss on every lookup.
+  it("serves a full cyclic pass over 200 colors from the cache", () => {
+    const icon = { kind: "svg", svg: SVG } as const;
+    const colors = Array.from({ length: 200 }, (_, i) => color(i));
+    colors.forEach(c => toIconImageUrl(icon, c));
+    const parse = countParses();
+
+    colors.forEach(c => toIconImageUrl(icon, c));
+
+    expect(parse).toBeCalledTimes(0);
+  });
+
+  it("builds the canvas image once per icon and color", () => {
+    const icon = { kind: "svg", svg: SVG } as const;
+    const serialize = vi.spyOn(XMLSerializer.prototype, "serializeToString");
+
+    const first = toCanvasBackgroundImage(icon, "#FF0000");
+    const callsAfterFirst = serialize.mock.calls.length;
+    const second = toCanvasBackgroundImage(icon, "#FF0000");
+
+    expect(second).toBe(first);
+    expect(serialize).toBeCalledTimes(callsAfterFirst);
+  });
+});
+
 describe("toCanvasBackgroundImage", () => {
+  // A raster's wrapper never depends on color, so recoloring must not keep a
+  // copy of the whole uploaded data url per color.
+  it("builds one canvas image for a raster whatever the color", () => {
+    const icon = { kind: "raster", url: "data:image/png;base64,QUJD" } as const;
+    const serialize = vi.spyOn(XMLSerializer.prototype, "serializeToString");
+
+    toCanvasBackgroundImage(icon, "#FF0000");
+    toCanvasBackgroundImage(icon, "#0000FF");
+
+    expect(serialize).toBeCalledTimes(1);
+    serialize.mockRestore();
+  });
+
   // Issue #2108: cytoscape cannot both preserve an image's aspect ratio and
   // inset it, so the inset is baked into a square svg and the nested
   // `preserveAspectRatio` does the fitting — for every icon kind, with no
