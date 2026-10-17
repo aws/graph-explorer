@@ -58,7 +58,7 @@ pnpm checks
 pnpm test
 ```
 
-`.github/workflows/ci.yml` and the `Dockerfile` both get pnpm through Vite+, which reads the version from `packageManager`, so a pnpm bump needs no workflow or `Dockerfile` edit. CI uses [`voidzero-dev/setup-vp`](https://github.com/voidzero-dev/setup-vp), and the image builds in the Vite+ image. On a major bump, check the "Set up Vite+" step and the Docker build on the pull request: if the pinned Vite+ cannot run the new pnpm major, upgrade Vite+ first.
+`.github/workflows/ci.yml` and the `Dockerfile` both get pnpm through Vite+, which reads the version from `packageManager`, so a pnpm bump needs no workflow or `Dockerfile` edit. CI uses [`voidzero-dev/setup-vp`](https://github.com/voidzero-dev/setup-vp), and the image builds in the Vite+ image. On a major bump, check the "Set up Vite+" step and the Docker build on the pull request: if the pinned Vite+ cannot run the new pnpm major, upgrade Vite+ first. A Vite+ upgrade changes two pins in the same pull request: the `vite-plus` entry in `pnpm-workspace.yaml`, and the tag and digest on the `FROM ghcr.io/voidzero-dev/vite-plus` line in the `Dockerfile`.
 
 No check in this repo compares the `+sha512` hash against anything, because every tool that installs pnpm already verifies the bytes it fetches and fails closed. Corepack and Vite+ both read the hash and refuse a `pnpm` package that does not match it. pnpm ignores the hash and instead checks each download against the `integrity` in `pnpm-lock.yaml` and against npm's registry signature, so a tampered lockfile stops the install with "its npm registry signature could not be verified" rather than passing quietly.
 
@@ -116,6 +116,8 @@ You can also build and run Graph Explorer as a Docker image from source.
 ```bash
 docker build -t graph-explorer .
 ```
+
+The build pulls the Vite+ image from `ghcr.io` and the Amazon Linux base from `public.ecr.aws`. Behind a registry allowlist or proxy, allow or mirror both.
 
 Run the container with HTTPS disabled for local use:
 

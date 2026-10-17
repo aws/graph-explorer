@@ -8,6 +8,8 @@ FROM toolchain AS build
 # The image has no repository to hook into, so skip the Vite+ commit hooks.
 ENV VP_GIT_HOOKS=0
 COPY --chown=vp:vp . .
+# The node_modules glob matches packages/* in pnpm-workspace.yaml; change both
+# together. vp run clean:dep would reinstall before running.
 RUN vp install --frozen-lockfile && \
     vp run build && \
     rm -rf node_modules packages/*/node_modules && \
