@@ -1,8 +1,9 @@
 version: 2
 updates:
-  # Only the `FROM` tag in Dockerfile is visible here. ENV NODE_VERSION and the
-  # corepack pin are not, and stay manual. Daily because a new Amazon Linux 2023
-  # snapshot is a single ungrouped dependency, so a run without one is a no-op.
+  # Covers both `FROM` lines in Dockerfile. Daily because a new Amazon Linux
+  # 2023 snapshot is a single ungrouped dependency, so a run without one is a
+  # no-op. A Vite+ image bump should land with the matching vite-plus catalog
+  # bump, since the image's vp and the project's vite-plus are the same release.
   #
   # No `cooldown`: it needs a registry-assigned publication date, and Docker Hub's
   # tag_last_pushed is currently the only accepted source. ECR Public has none, so
@@ -48,7 +49,7 @@ updates:
       - dependency-name: "@babel/core"
         update-types: ["version-update:semver-major"]
       # @types/node tracks the Node major it describes, and we target Node LTS
-      # (24, pinned in Dockerfile, .node-version, and the engines fields). A major bump
+      # (24, pinned in .node-version and the engines fields). A major bump
       # here would type against APIs the runtime does not have. Raise it by hand
       # when we move to the next LTS.
       - dependency-name: "@types/node"

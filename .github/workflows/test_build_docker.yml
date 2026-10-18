@@ -41,6 +41,13 @@ jobs:
         run: |
           docker run --rm --entrypoint="" test-image openssl --version
 
+      - name: Ensure Node.js matches .node-version
+        run: |
+          expected="v$(cat .node-version)"
+          actual=$(docker run --rm --entrypoint="" test-image node --version)
+          [ "$actual" = "$expected" ] || { echo "FAIL: image has $actual, .node-version is $expected"; exit 1; }
+          echo "✓ node $actual"
+
       - name: Verify build tooling is absent
         run: |
           docker run --rm --entrypoint="" test-image sh -c '
