@@ -67,6 +67,15 @@ describe("dropUnusableColors", () => {
     expect(result).toStrictEqual({ borderColor: "#00FF00" });
   });
 
+  it("requires every color field of the entry to be listed", () => {
+    const entry: Entry = { color: "var(--x)", borderColor: "var(--x)" };
+
+    // @ts-expect-error borderColor is a color field and is missing
+    const result = dropUnusableColors(entry, ["color"] as const, "Person");
+
+    expect(result).toStrictEqual({ borderColor: "var(--x)" });
+  });
+
   it("does not mutate the entry it is given", () => {
     const entry: Entry = { color: "var(--x)" };
 
