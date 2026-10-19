@@ -40,7 +40,7 @@ The image **subtype** is deliberately left open (any RFC-6838-shaped subtype: `s
 
 ### Color security
 
-A color is a value, never a reference. `isAllowedColorValue` (`utils/isAllowedColorValue.ts`) is the one gate for every color field (vertex `color` and `borderColor`; edge `lineColor`, `labelColor` and `labelBorderColor`). It accepts only color values (hex, `rgb()`, `hsl()`, `hwb()`, named colors) and rejects the rest, so references such as `url()` are rejected. The value is tested as written, since it is stored as written.
+A color is a value, never a reference. `isAllowedColorValue` (`utils/isAllowedColorValue.ts`) is the one gate for every color field (vertex `color` and `borderColor`; edge `lineColor`, `labelColor` and `labelBorderColor`). It accepts only color values (hex, `rgb()`, `hsl()`, `hwb()`, named colors) and rejects the rest, so references such as `url()` are rejected. Import trims a color before testing it and stores the trimmed value. A stored value is tested as written, since the renderers cannot read padding.
 
 - **Import:** the parser rejects the whole file and reports the field, like the icon allowlist. A blank color still imports, because older files carry one.
 - **Load:** `transformVertexStyles` and `transformEdgeStyles` drop an unusable color with a warning so the app default applies (ADR `read-time-transform-for-persisted-values`). A blank is dropped silently. This covers persisted styles and backup restore.
