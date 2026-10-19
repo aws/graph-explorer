@@ -3,7 +3,6 @@ import type { AutoBoundingBox } from "./types";
 import addPadding, { type AddPaddingOptions } from "./addPadding";
 import adjustAnchor, { type AdjustAnchorOptions } from "./adjustAnchor";
 import applyStyle from "./applyStyle";
-import drawImage, { type DrawImageOption } from "./drawImage";
 import drawRectangle, { type DrawRectangleOptions } from "./drawRectangle";
 
 export type TextStyle = {
@@ -13,8 +12,7 @@ export type TextStyle = {
   fontSize?: number;
 };
 
-export type DrawBoxWithAdornmentOptions = DrawImageOption &
-  DrawRectangleOptions &
+export type DrawBoxWithAdornmentOptions = DrawRectangleOptions &
   AddPaddingOptions &
   AdjustAnchorOptions &
   TextStyle & {
@@ -64,7 +62,7 @@ const drawBoxWithAdornment = (
   options: DrawBoxWithAdornmentOptions = {},
 ) => {
   context.save();
-  const { title, text, src, maxWidth, titleFormat } = options;
+  const { title, text, maxWidth, titleFormat } = options;
   applyTextStyles(context, options);
   const fontHeight = parseInt(context.font);
   let actualText = text;
@@ -111,12 +109,6 @@ const drawBoxWithAdornment = (
     });
   }
 
-  // Book space for icon (default 8px + padding of 2px)
-  const hasIconWithText = Boolean((title || text) && src);
-  if (hasIconWithText) {
-    actualBox.width += 8 + 4;
-  }
-
   // Add padding and anchor adjustment
   actualBox = adjustAnchor(actualBox, options);
   actualBox = addPadding(actualBox, options);
@@ -125,41 +117,13 @@ const drawBoxWithAdornment = (
   drawRectangle(context, actualBox, options);
   applyStyle(context, options);
 
-  // Only icon
-  if (!title && !text && src) {
-    drawImage(
-      context,
-      {
-        ...boundingBox,
-        height:
-          boundingBox.height === "auto"
-            ? actualTitle
-              ? fontHeight * 2
-              : fontHeight
-            : boundingBox.height,
-        width: boundingBox.width === "auto" ? fontHeight : boundingBox.width,
-      },
-      options,
-    );
-  } else if (src) {
-    drawImage(
-      context,
-      {
-        x: actualBox.x + 2,
-        y: actualBox.y + actualBox.height / 2 - 4,
-        width: 8,
-        height: 8,
-      },
-      options,
-    );
-  }
   if (actualText) {
     applyTextStyles(context, options);
     context.textBaseline = actualTitle ? "bottom" : "middle";
     const fontHeight = parseInt(context.font);
     context.fillText(
       actualText,
-      actualBox.x + actualBox.width / 2 + (hasIconWithText ? 5 : 0),
+      actualBox.x + actualBox.width / 2,
       actualTitle
         ? actualBox.y +
             TEXT_GAP +
@@ -180,7 +144,7 @@ const drawBoxWithAdornment = (
     context.textBaseline = "top";
     context.fillText(
       actualTitle,
-      actualBox.x + actualBox.width / 2 + (hasIconWithText ? 5 : 0),
+      actualBox.x + actualBox.width / 2,
       actualBox.y + (options.paddingTop || 0),
     );
   }

@@ -93,7 +93,7 @@ export default function CheckboxList({
               }
             />
             {checkbox.text}
-            <div className="shrink-0 [&_svg]:size-5">
+            <div className="shrink-0 [&_svg]:size-6">
               {checkbox.endAdornment}
             </div>
           </Label>

@@ -97,34 +97,6 @@ describe("useBackgroundImageMap", () => {
     ).toContain('viewBox="0 0 100 400"');
   });
 
-  // The (icon, color) render cache is keyed by concatenation, so the separator
-  // must be one no usable url or color contains. An IconSourceId embeds the
-  // stored icon url verbatim, and the color is an unvalidated string, so a
-  // printable separator like "|" lets two distinct pairs produce one key and
-  // swap icons between vertex types. Rasters, because a raster url is never
-  // decoded, so it can carry the separator and still resolve.
-  it("does not collide when a separator character appears in the icon url and color", async () => {
-    const shared = makeConfig({
-      type: createVertexType("PipeInColor"),
-      iconUrl: "data:image/png;base64,QUJD",
-      iconImageType: "image/png",
-      color: "x|#FF0000",
-    });
-    const shifted = makeConfig({
-      type: createVertexType("PipeInUrl"),
-      iconUrl: "data:image/png;base64,QUJD|x",
-      iconImageType: "image/png",
-      color: "#FF0000",
-    });
-
-    const { result } = renderMap([shared, shifted]);
-
-    await waitFor(() => expect(result.current.size).toBe(2));
-    expect(
-      decodeIcon(result.current.get(createVertexType("PipeInUrl"))!),
-    ).toContain("QUJD|x");
-  });
-
   it("styles an svg into a data uri", async () => {
     const config = makeConfig({
       type: createVertexType("Svg"),

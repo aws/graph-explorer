@@ -1,10 +1,14 @@
 import { DynamicIcon } from "lucide-react/dynamic";
-import SVG from "react-inlinesvg";
 
 import { useVertexStyle, type VertexStyle, type VertexType } from "@/core";
-import { sanitizeSvg } from "@/core/icons";
+import {
+  classifyIconSource,
+  type IconSource,
+  toIconImageUrl,
+  useResolvedIcon,
+} from "@/core/icons";
 import { cn } from "@/utils";
-import { getLucideName, isValidLucideIconName } from "@/utils/lucideIcons";
+import { isValidLucideIconName } from "@/utils/lucideIcons";
 
 interface Props {
   vertexStyle: VertexStyle;
@@ -13,48 +17,88 @@ interface Props {
 }
 
 function VertexIcon({ vertexStyle, className, alt }: Props) {
+  const source = classifyIconSource(vertexStyle);
   const altText = alt ?? `${vertexStyle.displayLabel ?? vertexStyle.type} icon`;
 
-  const lucideIconName = getLucideName(vertexStyle.iconUrl);
-
-  if (lucideIconName) {
-    if (isValidLucideIconName(lucideIconName)) {
-      return (
+  switch (source.kind) {
+    case "none":
+      return null;
+    case "lucide":
+      // An unknown name renders nothing rather than falling through to an image.
+      return isValidLucideIconName(source.name) ? (
         <DynamicIcon
-          name={lucideIconName}
+          name={source.name}
           className={cn("size-6 shrink-0", className)}
           style={{ color: vertexStyle.color }}
+          fallback={() => <IconPlaceholder className={className} />}
+        />
+      ) : null;
+    case "raster":
+      return <IconImage src={source.url} alt={altText} className={className} />;
+    case "svg":
+      return (
+        <SvgIcon
+          source={source}
+          color={vertexStyle.color}
+          alt={altText}
+          className={className}
         />
       );
-    } else {
-      // Unknown lucide ref — don't fall through to img/SVG paths
-      return null;
-    }
   }
+}
 
-  if (vertexStyle.iconImageType === "image/svg+xml") {
-    return (
-      <SVG
-        src={vertexStyle.iconUrl}
-        // An empty string makes react-inlinesvg render nothing.
-        preProcessor={svg => sanitizeSvg(svg) ?? ""}
-        className={cn("size-6 shrink-0", className)}
-        style={{ color: vertexStyle.color }}
-        // Not `title`: react-inlinesvg writes it as markup, and the label is
-        // database or file text. The rule misreads <SVG>, which renders <svg>.
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
-        role="img"
-        aria-label={altText}
-      />
-    );
+/**
+ * Untrusted markup is drawn as an image document, where scripts are disabled
+ * and nothing outside the icon can be styled or loaded. CSS cannot reach into
+ * it either, so the color is baked in.
+ */
+function SvgIcon({
+  source,
+  color,
+  alt,
+  className,
+}: {
+  source: Extract<IconSource, { kind: "svg" }>;
+  color: string;
+  alt: string;
+  className?: string;
+}) {
+  const resolved = useResolvedIcon(source);
+
+  if (!resolved) {
+    return <IconPlaceholder className={className} />;
   }
+  return (
+    <IconImage
+      src={toIconImageUrl(resolved, color)}
+      alt={alt}
+      className={className}
+    />
+  );
+}
 
+/**
+ * Holds an icon's space so a list row does not shift when the icon lands. An
+ * svg, so a parent's `[&_svg]` sizing applies to it as it will to the icon.
+ */
+function IconPlaceholder({ className }: { className?: string }) {
+  return <svg aria-hidden className={cn("size-6 shrink-0", className)} />;
+}
+
+function IconImage({
+  src,
+  alt,
+  className,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+}) {
   return (
     <img
-      src={vertexStyle.iconUrl}
-      alt={altText}
+      src={src}
+      alt={alt}
       className={cn("size-6 shrink-0 object-contain", className)}
-      style={{ color: vertexStyle.color }}
     />
   );
 }

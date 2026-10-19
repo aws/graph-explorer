@@ -14,7 +14,7 @@ import {
  *
  * The set of UNIQUE icons is tiny (dozens) even with thousands of vertex types,
  * so resolution is keyed by icon identity and shared through the icon registry.
- * Applying the vertex color is then a pure transform, deduped by (icon, color).
+ * Applying the vertex color is then a pure transform, cached by (icon, color).
  */
 export function useBackgroundImageMap(
   vtConfigs: VertexStyle[],
@@ -42,21 +42,11 @@ export function useBackgroundImageMap(
   const icons = useResolvedIcons([...uniqueSources.values()]);
 
   const result = new Map<VertexType, string>();
-  const rendered = new Map<string, string>();
   for (const { type, id, color } of identified) {
     const icon = icons.get(id);
-    if (!icon) {
-      continue;
+    if (icon) {
+      result.set(type, toCanvasBackgroundImage(icon, color));
     }
-    // An IconSourceId embeds the stored url verbatim, so the separator is NUL,
-    // which no usable url or color contains.
-    const renderKey = `${id}\u0000${color}`;
-    let backgroundImage = rendered.get(renderKey);
-    if (backgroundImage === undefined) {
-      backgroundImage = toCanvasBackgroundImage(icon, color);
-      rendered.set(renderKey, backgroundImage);
-    }
-    result.set(type, backgroundImage);
   }
   return result;
 }

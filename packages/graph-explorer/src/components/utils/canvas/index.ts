@@ -7,8 +7,6 @@ export { default as drawBoxWithAdornment } from "./drawBoxWithAdornment";
 export * from "./drawBoxWithAdornment";
 export { default as drawCircle } from "./drawCircle";
 export * from "./drawCircle";
-export { default as drawImage } from "./drawImage";
-export * from "./drawImage";
 export { default as drawRectangle } from "./drawRectangle";
 export * from "./drawRectangle";
 export { default as getLineDash } from "./getLineDash";
