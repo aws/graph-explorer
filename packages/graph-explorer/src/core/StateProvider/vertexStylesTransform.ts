@@ -4,6 +4,8 @@ import { logger } from "@/utils";
 import type { VertexType } from "../entities";
 import type { ShapeStyle, VertexStyleStorage } from "./graphStyles";
 
+import { dropUnusableColors } from "./dropUnusableColors";
+
 /**
  * Shapes that cytoscape's round-polygon renderer draws incorrectly at small
  * node size (24px): their corner computation degenerates, rendering as a blob
@@ -29,34 +31,7 @@ export function coerceBrokenShape(shape: ShapeStyle): ShapeStyle {
   return BROKEN_SHAPE_REPLACEMENTS.get(shape) ?? shape;
 }
 
-/**
- * Color fields whose value must be usable or absent. Named explicitly because
- * `iconUrl` is also a string where empty is *meaningful* — it means "no icon".
- */
 const COLOR_FIELDS = ["color", "borderColor"] as const;
-
-/**
- * Drops color fields that hold nothing renderable.
- *
- * Colors are validated as bare optional strings on import, so a styling file
- * can carry `"color": ""`. An empty value still overrides the app default
- * through the spread in `resolveVertexStyle`, leaving every consumer to render
- * a node with no background or an icon that falls back to black. Removing the
- * field instead lets the default apply — and keeps following it if it changes.
- */
-function dropBlankColors(entry: VertexStyleStorage): VertexStyleStorage | null {
-  let cleaned: VertexStyleStorage | null = null;
-
-  for (const field of COLOR_FIELDS) {
-    const value = entry[field];
-    if (value !== undefined && !value.trim()) {
-      cleaned ??= { ...entry };
-      delete cleaned[field];
-    }
-  }
-
-  return cleaned;
-}
 
 /**
  * Drops an icon outside the allowlist, with its image type, so the default
@@ -79,7 +54,8 @@ function dropDisallowedIcon(
 
 /**
  * ReadTransform for vertex style maps: coerces broken round-polygon shapes to
- * their non-round counterpart and drops unusable colors and icons at load time.
+ * their non-round counterpart and drops colors that are not colors and icons
+ * outside the allowlist at load time.
  * Returns the same reference when nothing needed changing.
  */
 export function transformVertexStyles(
@@ -88,7 +64,7 @@ export function transformVertexStyles(
   let result: Map<VertexType, VertexStyleStorage> | null = null;
 
   for (const [type, entry] of styles) {
-    let updated = dropBlankColors(entry);
+    let updated = dropUnusableColors(entry, COLOR_FIELDS, type);
     updated = dropDisallowedIcon(type, updated ?? entry) ?? updated;
 
     if (entry.shape !== undefined) {
