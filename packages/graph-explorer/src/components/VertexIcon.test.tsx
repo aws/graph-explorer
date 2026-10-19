@@ -20,11 +20,11 @@ function decodedSrc(image: HTMLElement): string {
 }
 
 // An svg, so a parent's `[&_svg]` sizing applies to it exactly as it will to
-// the loaded icon; inline-block keeps its box in a non-flex parent.
+// the loaded icon.
 function expectSizedPlaceholder(placeholder: Element) {
   expect(placeholder.tagName.toLowerCase()).toBe("svg");
   expect(placeholder).toHaveAttribute("aria-hidden", "true");
-  expect(placeholder).toHaveClass("inline-block", "size-6");
+  expect(placeholder).toHaveClass("size-6");
 }
 
 function renderIcon(overrides: Partial<VertexStyle>) {

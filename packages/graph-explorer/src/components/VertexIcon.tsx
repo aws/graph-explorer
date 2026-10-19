@@ -82,12 +82,7 @@ function SvgIcon({
  * svg, so a parent's `[&_svg]` sizing applies to it as it will to the icon.
  */
 function IconPlaceholder({ className }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden
-      className={cn("inline-block size-6 shrink-0", className)}
-    />
-  );
+  return <svg aria-hidden className={cn("size-6 shrink-0", className)} />;
 }
 
 function IconImage({
