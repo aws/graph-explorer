@@ -436,8 +436,8 @@ describe("parseStylingPayload", () => {
     });
   });
 
-  // A color is a value, never a reference, so importing a file cannot make the
-  // app contact a host the file's author chose (see the icon allowlist above).
+  // A color is a value, never a reference: non-color values are rejected (see
+  // the icon allowlist above).
   describe("color validation", () => {
     test.each([
       ["vertices", "A", "color"],
@@ -485,14 +485,38 @@ describe("parseStylingPayload", () => {
       },
     );
 
-    // Older files may carry an empty color, which the load transform drops so
-    // the app default applies.
-    test("still accepts a blank color", () => {
-      const result = parseStylingPayload({
-        vertices: { A: { color: "" } },
+    test("names every accepted form in the rejection message", () => {
+      const issues = parseExpectingIssues({
+        vertices: { A: { color: "nope" } },
         edges: {},
       });
-      expect(result.vertexStyles.get(createVertexType("A"))!.color).toBe("");
+      expect(issues[0].message).toBe(
+        "value is not a color (hex, rgb(), hsl(), hwb(), or a color name)",
+      );
+    });
+
+    // The stored value is used as written, and padding makes it unreadable to
+    // the renderers.
+    test("rejects a color with surrounding whitespace", () => {
+      const issues = parseExpectingIssues({
+        vertices: {},
+        edges: { knows: { labelColor: " #fff " } },
+      });
+      expect(issues[0]).toMatchObject({
+        scope: "entry",
+        field: "labelColor",
+        value: " #fff ",
+      });
+    });
+
+    // Older files may carry an empty color, which the load transform drops so
+    // the app default applies.
+    test.each(["", "   "])("still accepts the blank color %j", color => {
+      const result = parseStylingPayload({
+        vertices: { A: { color } },
+        edges: {},
+      });
+      expect(result.vertexStyles.get(createVertexType("A"))!.color).toBe(color);
     });
   });
 

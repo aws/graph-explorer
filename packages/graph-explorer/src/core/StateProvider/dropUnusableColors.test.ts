@@ -50,6 +50,13 @@ describe("dropUnusableColors", () => {
     );
   });
 
+  it("drops a padded color with a warning, since it is stored as written", () => {
+    const result = dropUnusableColors({ color: " #fff " }, FIELDS, "Person");
+
+    expect(result).toStrictEqual({});
+    expect(logger.warn).toHaveBeenCalledTimes(1);
+  });
+
   it("keeps the usable colors beside a dropped one", () => {
     const result = dropUnusableColors(
       { color: "var(--x)", borderColor: "#00FF00" },

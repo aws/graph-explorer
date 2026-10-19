@@ -16,7 +16,6 @@ describe("isAllowedColorValue", () => {
     "red",
     "RED",
     "transparent",
-    "  #128EE5  ",
   ])("accepts %s", value => {
     expect(isAllowedColorValue(value)).toBe(true);
   });
@@ -30,11 +29,11 @@ describe("isAllowedColorValue", () => {
     "not a color",
     "",
     "   ",
+    "  #128EE5  ",
   ])("rejects %j", value => {
     expect(isAllowedColorValue(value)).toBe(false);
   });
 
-  // encodeURIComponent throws on a lone surrogate during style computation.
   it("rejects a lone surrogate", () => {
     expect(isAllowedColorValue("\uD800")).toBe(false);
     expect(isAllowedColorValue("#fff\uD800")).toBe(false);

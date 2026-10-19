@@ -39,55 +39,6 @@ function vertexItem(
 }
 
 describe("useApplyStyleImport", () => {
-  // The read-time transform only runs when the atom is seeded from storage, so
-  // without normalizing here an imported blank color would render as no color
-  // until the page reloaded.
-  test("normalizes an imported style that carries a blank color", () => {
-    const vertexType = createVertexType("Airport");
-    const { result } = renderHookWithJotai(() => useApplyStyleImport());
-
-    result.current([vertexItem(vertexType, { type: vertexType, color: "" })]);
-
-    const store = getAppStore();
-    expect(store.get(userVertexStylesAtom).get(vertexType)).toStrictEqual({
-      type: vertexType,
-    });
-    expect(resolveVertexStyle(vertexType, undefined).color).toBe(
-      resolveVertexStyle(
-        vertexType,
-        store.get(userVertexStylesAtom).get(vertexType),
-      ).color,
-    );
-  });
-
-  // Edges get the same normalization, so an imported value that is not a color
-  // never reaches the stored styles.
-  test("drops an imported edge color that is not a color", () => {
-    const edgeType = createEdgeType("route");
-    const incoming: EdgeStyleStorage = {
-      type: edgeType,
-      lineColor: "var(--x)",
-      lineThickness: 3,
-    };
-    const { result } = renderHookWithJotai(() => useApplyStyleImport());
-
-    result.current([
-      {
-        kind: "edge",
-        type: edgeType,
-        status: "new",
-        incoming,
-        incomingStyle: resolveEdgeStyle(edgeType, incoming),
-        currentStyle: resolveEdgeStyle(edgeType),
-      },
-    ]);
-
-    expect(getAppStore().get(userEdgeStylesAtom).get(edgeType)).toStrictEqual({
-      type: edgeType,
-      lineThickness: 3,
-    });
-  });
-
   test("writes selected vertex and edge styles to the user atoms", () => {
     const vertexType = createVertexType("Airport");
     const edgeType = createEdgeType("route");
