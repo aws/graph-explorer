@@ -495,18 +495,15 @@ describe("parseStylingPayload", () => {
       );
     });
 
-    // The stored value is used as written, and padding makes it unreadable to
-    // the renderers.
-    test("rejects a color with surrounding whitespace", () => {
-      const issues = parseExpectingIssues({
+    // Padding makes a color unreadable to the renderers, so it is stored trimmed.
+    test("trims a color with surrounding whitespace", () => {
+      const result = parseStylingPayload({
         vertices: {},
         edges: { knows: { labelColor: " #fff " } },
       });
-      expect(issues[0]).toMatchObject({
-        scope: "entry",
-        field: "labelColor",
-        value: " #fff ",
-      });
+      expect(result.edgeStyles.get(createEdgeType("knows"))!.labelColor).toBe(
+        "#fff",
+      );
     });
 
     // Older files may carry an empty color, which the load transform drops so
@@ -516,7 +513,7 @@ describe("parseStylingPayload", () => {
         vertices: { A: { color } },
         edges: {},
       });
-      expect(result.vertexStyles.get(createVertexType("A"))!.color).toBe(color);
+      expect(result.vertexStyles.get(createVertexType("A"))!.color).toBe("");
     });
   });
 

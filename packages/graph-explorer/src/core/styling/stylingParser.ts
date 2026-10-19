@@ -91,12 +91,14 @@ const safeIconValue = z.string().refine(isAllowedIconValue, {
 });
 
 /**
- * A blank color is accepted because older files carry one and the load
- * transform drops it, letting the app default apply.
+ * Trimmed, since the renderers cannot read a padded color. A blank color is
+ * accepted because older files carry one and the load transform drops it,
+ * letting the app default apply.
  */
 const safeColorValue = z
   .string()
-  .refine(value => !value.trim() || isAllowedColorValue(value), {
+  .trim()
+  .refine(value => !value || isAllowedColorValue(value), {
     error: "value is not a color (hex, rgb(), hsl(), hwb(), or a color name)",
   });
 
