@@ -97,7 +97,7 @@ const safeIconValue = z.string().refine(isAllowedIconValue, {
 const safeColorValue = z
   .string()
   .refine(value => !value.trim() || isAllowedColorValue(value), {
-    error: "value is not a color (hex, rgb(), hsl(), or a color name)",
+    error: "value is not a color (hex, rgb(), hsl(), hwb(), or a color name)",
   });
 
 /**

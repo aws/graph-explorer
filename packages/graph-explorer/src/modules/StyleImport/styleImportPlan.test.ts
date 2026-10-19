@@ -143,4 +143,45 @@ describe("buildStyleImportPlan", () => {
       },
     ]);
   });
+
+  test("normalizes incoming styles so previews never see unusable colors or retired shapes", () => {
+    const vertexType = createVertexType("Airport");
+    const edgeType = createEdgeType("route");
+
+    const plan = buildStyleImportPlan(
+      parseResult(
+        new Map([
+          [vertexType, { type: vertexType, color: "", shape: "round-hexagon" }],
+        ]),
+        new Map([
+          [
+            edgeType,
+            {
+              type: edgeType,
+              labelColor: "",
+              labelBorderColor: "  ",
+              lineColor: "#def",
+            },
+          ],
+        ]),
+      ),
+      new Map(),
+      new Map(),
+    );
+
+    expect(plan.items).toStrictEqual([
+      expect.objectContaining({
+        kind: "vertex",
+        incoming: { type: vertexType, shape: "hexagon" },
+      }),
+      expect.objectContaining({
+        kind: "edge",
+        incoming: { type: edgeType, lineColor: "#def" },
+        incomingStyle: resolveEdgeStyle(edgeType, {
+          type: edgeType,
+          lineColor: "#def",
+        }),
+      }),
+    ]);
+  });
 });
