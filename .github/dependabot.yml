@@ -2,8 +2,9 @@ version: 2
 updates:
   # Covers both `FROM` lines in Dockerfile. Daily because a new Amazon Linux
   # 2023 snapshot is a single ungrouped dependency, so a run without one is a
-  # no-op. A Vite+ image bump should land with the matching vite-plus catalog
+  # no-op. A Vite+ image bump must land with the matching vite-plus catalog
   # bump, since the image's vp and the project's vite-plus are the same release.
+  # test_build_docker.yml fails while the two differ.
   #
   # No `cooldown`: it needs a registry-assigned publication date, and Docker Hub's
   # tag_last_pushed is currently the only accepted source. ECR Public has none, so

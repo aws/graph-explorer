@@ -26,6 +26,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Ensure the Vite+ image matches the vite-plus catalog version
+        run: |
+          image=$(sed -n 's|^FROM ghcr.io/voidzero-dev/vite-plus:\([^@ ]*\)@.*|\1|p' Dockerfile)
+          catalog=$(sed -n 's|^  vite-plus: *"\{0,1\}\([^"]*\)"\{0,1\}$|\1|p' pnpm-workspace.yaml)
+          [ -n "$image" ] && [ "$image" = "$catalog" ] || { echo "FAIL: Dockerfile has vite-plus:$image, pnpm-workspace.yaml has vite-plus $catalog"; exit 1; }
+          echo "✓ vite-plus $image"
+
       - name: Build Docker image
         run: |
           docker build -t test-image .
