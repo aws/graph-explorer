@@ -436,6 +436,66 @@ describe("parseStylingPayload", () => {
     });
   });
 
+  // A color is a value, never a reference, so importing a file cannot make the
+  // app contact a host the file's author chose (see the icon allowlist above).
+  describe("color validation", () => {
+    test.each([
+      ["vertices", "A", "color"],
+      ["vertices", "A", "borderColor"],
+      ["edges", "knows", "labelColor"],
+      ["edges", "knows", "labelBorderColor"],
+      ["edges", "knows", "lineColor"],
+    ] as const)("rejects a url reference in %s %s %s", (kind, name, field) => {
+      const value = "url(http://other.example/x.svg#p)";
+      const issues = parseExpectingIssues({
+        vertices: kind === "vertices" ? { [name]: { [field]: value } } : {},
+        edges: kind === "edges" ? { [name]: { [field]: value } } : {},
+      });
+      expect(issues[0]).toStrictEqual({
+        scope: "entry",
+        entityType: kind === "vertices" ? "vertex" : "edge",
+        typeName: name,
+        field,
+        value,
+        message: expect.stringContaining("color"),
+      });
+    });
+
+    test("rejects a lone surrogate", () => {
+      const issues = parseExpectingIssues({
+        vertices: { A: { color: "\uD800" } },
+        edges: {},
+      });
+      expect(issues[0]).toMatchObject({ scope: "entry", field: "color" });
+    });
+
+    test.each(["#128EE5", "rgb(1, 2, 3)", "hsl(10, 20%, 30%)", "red"])(
+      "accepts the color %s",
+      color => {
+        const result = parseStylingPayload({
+          vertices: { A: { color, borderColor: color } },
+          edges: { knows: { lineColor: color, labelColor: color } },
+        });
+        expect(result.vertexStyles.get(createVertexType("A"))!.color).toBe(
+          color,
+        );
+        expect(result.edgeStyles.get(createEdgeType("knows"))!.lineColor).toBe(
+          color,
+        );
+      },
+    );
+
+    // Older files may carry an empty color, which the load transform drops so
+    // the app default applies.
+    test("still accepts a blank color", () => {
+      const result = parseStylingPayload({
+        vertices: { A: { color: "" } },
+        edges: {},
+      });
+      expect(result.vertexStyles.get(createVertexType("A"))!.color).toBe("");
+    });
+  });
+
   describe("iconImageType", () => {
     // Mirrors storage's loose `string`: the upload seam fills it from the
     // browser's `file.type`, which can be any `image/*` the OS reports, so any

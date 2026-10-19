@@ -14,6 +14,7 @@ import type { SchemaStorageModel } from "./schema";
 
 import { createActiveConnectionIdAtom } from "./activeConnectionStorage";
 import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
+import { transformEdgeStyles } from "./edgeStylesTransform";
 import {
   defaultGraphViewLayout,
   graphViewLayoutCodec,
@@ -103,7 +104,7 @@ const [
   atomWithLocalForage(
     "user-edge-styles",
     new Map<EdgeType, EdgeStyleStorage>(),
-    { reconcile: reconcileMapByKey },
+    { reconcile: reconcileMapByKey, transform: transformEdgeStyles },
   ),
   // View Layout is per-tab: each tab keeps its own sidebar/toggle state in
   // sessionStorage, with a shared localForage breadcrumb seeding a fresh tab.

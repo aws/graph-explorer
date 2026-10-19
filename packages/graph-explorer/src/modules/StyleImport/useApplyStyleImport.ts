@@ -1,5 +1,6 @@
 import { useSetAtom } from "jotai";
 
+import { transformEdgeStyles } from "@/core/StateProvider/edgeStylesTransform";
 import {
   userEdgeStylesAtom,
   userVertexStylesAtom,
@@ -14,9 +15,9 @@ import type { StyleImportItem } from "./styleImportPlan";
  * types absent from the selection are left untouched. Vertices and edges are
  * split into one write per atom so a mixed selection still lands atomically.
  *
- * Imported vertex entries go through the same normalization as stored ones.
- * Without it they would keep an unusable value — a blank color, a retired
- * shape — until the next page load reseeded the atom from storage.
+ * Imported entries go through the same normalization as stored ones. Without
+ * it they would keep an unusable value — a blank color, a retired shape —
+ * until the next page load reseeded the atom from storage.
  */
 export function useApplyStyleImport() {
   const setUserVertexStyles = useSetAtom(userVertexStylesAtom);
@@ -42,7 +43,7 @@ export function useApplyStyleImport() {
         for (const item of edgeItems) {
           next.set(item.type, item.incoming);
         }
-        return next;
+        return transformEdgeStyles(next);
       });
     }
   };

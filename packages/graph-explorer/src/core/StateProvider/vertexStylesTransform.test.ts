@@ -112,6 +112,35 @@ describe("backward compatibility: blank colors in storage", () => {
 /**
  * BACKWARD COMPATIBILITY — PERSISTED DATA
  *
+ * A hand-edited or restored file could have stored a value that is not a
+ * color; it is dropped at load and the app default applies.
+ *
+ * DO NOT delete or weaken these tests without confirming that no stored style
+ * can hold a value that is not a color.
+ */
+describe("backward compatibility: colors that are not colors in storage", () => {
+  it.each([
+    ["color", "url(http://other.example/x.svg#p)"],
+    ["borderColor", "var(--x)"],
+    ["color", "#fff\uD800"],
+  ] as const)("drops an unusable %s of %j", (field, value) => {
+    const styles = vertexMap([["Person", { [field]: value, shape: "star" }]]);
+
+    const stored = transformVertexStyles(styles).get(
+      createVertexType("Person"),
+    );
+
+    expect(stored).toStrictEqual({
+      type: createVertexType("Person"),
+      shape: "star",
+    });
+    expect(logger.warn).toHaveBeenCalled();
+  });
+});
+
+/**
+ * BACKWARD COMPATIBILITY — PERSISTED DATA
+ *
  * Remote icon urls were never writable through the app (uploads are always
  * `data:` urls, imports are allowlisted), but a hand-edited file could have
  * stored one. Rendering them would make style config issue network requests,

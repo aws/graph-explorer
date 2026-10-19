@@ -60,6 +60,34 @@ describe("useApplyStyleImport", () => {
     );
   });
 
+  // Edges get the same normalization, so an imported value that is not a color
+  // never reaches the stored styles.
+  test("drops an imported edge color that is not a color", () => {
+    const edgeType = createEdgeType("route");
+    const incoming: EdgeStyleStorage = {
+      type: edgeType,
+      lineColor: "var(--x)",
+      lineThickness: 3,
+    };
+    const { result } = renderHookWithJotai(() => useApplyStyleImport());
+
+    result.current([
+      {
+        kind: "edge",
+        type: edgeType,
+        status: "new",
+        incoming,
+        incomingStyle: resolveEdgeStyle(edgeType, incoming),
+        currentStyle: resolveEdgeStyle(edgeType),
+      },
+    ]);
+
+    expect(getAppStore().get(userEdgeStylesAtom).get(edgeType)).toStrictEqual({
+      type: edgeType,
+      lineThickness: 3,
+    });
+  });
+
   test("writes selected vertex and edge styles to the user atoms", () => {
     const vertexType = createVertexType("Airport");
     const edgeType = createEdgeType("route");
@@ -101,17 +129,17 @@ describe("useApplyStyleImport", () => {
     store.set(
       userVertexStylesAtom,
       new Map<VertexType, VertexStyleStorage>([
-        [type, { type, color: "#old", shape: "star" }],
+        [type, { type, color: "#AA0000", shape: "star" }],
       ]),
     );
 
     const { result } = renderHookWithJotai(() => useApplyStyleImport());
-    result.current([vertexItem(type, { type, color: "#new" })]);
+    result.current([vertexItem(type, { type, color: "#00BB00" })]);
 
     // Full-type replacement: the old `shape` is gone, not merged.
     expect(store.get(userVertexStylesAtom).get(type)).toStrictEqual({
       type,
-      color: "#new",
+      color: "#00BB00",
     });
   });
 
@@ -121,16 +149,16 @@ describe("useApplyStyleImport", () => {
     store.set(
       userVertexStylesAtom,
       new Map<VertexType, VertexStyleStorage>([
-        [kept, { type: kept, color: "#keep" }],
+        [kept, { type: kept, color: "#0000CC" }],
       ]),
     );
 
     const added = createVertexType("Airport");
     const { result } = renderHookWithJotai(() => useApplyStyleImport());
-    result.current([vertexItem(added, { type: added, color: "#new" })]);
+    result.current([vertexItem(added, { type: added, color: "#00BB00" })]);
 
     const styles = store.get(userVertexStylesAtom);
-    expect(styles.get(kept)).toStrictEqual({ type: kept, color: "#keep" });
-    expect(styles.get(added)).toStrictEqual({ type: added, color: "#new" });
+    expect(styles.get(kept)).toStrictEqual({ type: kept, color: "#0000CC" });
+    expect(styles.get(added)).toStrictEqual({ type: added, color: "#00BB00" });
   });
 });
