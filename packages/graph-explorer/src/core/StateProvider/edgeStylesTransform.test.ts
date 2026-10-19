@@ -48,12 +48,24 @@ describe("backward compatibility: edge colors in storage", () => {
     });
   });
 
-  it("drops a blank color", () => {
+  it("warns with the start of an unusable color", () => {
+    const value = `url(http://other.example/${"x".repeat(200)})`;
+    const styles = edgeMap([["knows", { lineColor: value }]]);
+
+    transformEdgeStyles(styles);
+
+    expect(logger.warn).toBeCalledWith(
+      `[edge-styles] Unsupported color "${value.slice(0, 100)}" in lineColor for type "knows", using the default`,
+    );
+  });
+
+  it("drops a blank color without a warning", () => {
     const styles = edgeMap([["knows", { lineColor: "" }]]);
 
     expect(
       transformEdgeStyles(styles).get(createEdgeType("knows")),
     ).toStrictEqual({ type: createEdgeType("knows") });
+    expect(logger.warn).not.toHaveBeenCalled();
   });
 
   it("passes usable colors through by reference", () => {
