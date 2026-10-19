@@ -32,3 +32,14 @@ images
 **/cert-info/*.srl
 **/*.local.*
 **/dist
+
+# Tests and their helpers. The build bundles only what the client imports, and
+# the server image ships src as-is, so leaving these out keeps them out of the
+# image and keeps a test-only edit from invalidating the build layer.
+**/*.test.ts
+**/*.test.tsx
+**/setupTests.ts
+**/test-setup.ts
+**/testing.ts
+**/testing
+samples

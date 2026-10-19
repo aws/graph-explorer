@@ -55,9 +55,9 @@ COPY --from=build --chown=0:0 /app/packages/graph-explorer/.env ./packages/graph
 COPY --from=build --chown=0:0 /app/packages/graph-explorer/dist ./packages/graph-explorer/dist
 COPY --from=build --chown=0:0 /app/packages/graph-explorer-proxy-server/package.json ./packages/graph-explorer-proxy-server/
 COPY --from=build --chown=0:0 /app/packages/graph-explorer-proxy-server/cert-info ./packages/graph-explorer-proxy-server/cert-info
-COPY --from=build --chown=0:0 --exclude=*.test.ts --exclude=test-setup.ts --exclude=testing.ts /app/packages/graph-explorer-proxy-server/src ./packages/graph-explorer-proxy-server/src
+COPY --from=build --chown=0:0 /app/packages/graph-explorer-proxy-server/src ./packages/graph-explorer-proxy-server/src
 COPY --from=build --chown=0:0 /app/packages/shared/package.json ./packages/shared/
-COPY --from=build --chown=0:0 --exclude=utils/testing /app/packages/shared/src ./packages/shared/src
+COPY --from=build --chown=0:0 /app/packages/shared/src ./packages/shared/src
 
 EXPOSE 443
 EXPOSE 80
