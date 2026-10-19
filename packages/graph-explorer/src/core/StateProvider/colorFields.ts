@@ -44,3 +44,27 @@ export function findUnusableColors<
 
   return found;
 }
+
+/**
+ * A copy of `entry` with its color fields trimmed, or `entry` itself when none
+ * is padded. Older versions stored imported colors as written, and the
+ * renderers cannot read padding.
+ */
+export function trimColors<
+  Field extends string,
+  Entry extends Partial<Record<Field, string>>,
+>(
+  entry: Entry,
+  fields: readonly Field[] & ListsEveryColorField<Entry, NoInfer<Field>>,
+): Entry {
+  let trimmed = entry;
+
+  for (const field of fields) {
+    const value = entry[field];
+    if (value !== undefined && value.trim() !== value) {
+      trimmed = { ...trimmed, [field]: value.trim() };
+    }
+  }
+
+  return trimmed;
+}

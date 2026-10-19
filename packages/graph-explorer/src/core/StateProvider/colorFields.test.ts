@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { findUnusableColors } from "./findUnusableColors";
+import { findUnusableColors, trimColors } from "./colorFields";
 
 type Entry = { color?: string; borderColor?: string; shape?: string };
 const FIELDS = ["color", "borderColor"] as const;
@@ -26,7 +26,7 @@ describe("findUnusableColors", () => {
     ]);
   });
 
-  it("finds a padded color, since it is stored as written", () => {
+  it("finds a padded color, since the renderers cannot read padding", () => {
     const entry: Entry = { color: " #fff " };
 
     expect(findUnusableColors(entry, FIELDS)).toStrictEqual([
@@ -49,5 +49,50 @@ describe("findUnusableColors", () => {
     const result = findUnusableColors(entry, ["color"] as const);
 
     expect(result).toStrictEqual([{ field: "color", value: "var(--x)" }]);
+  });
+});
+
+describe("trimColors", () => {
+  it("trims each padded color", () => {
+    const entry: Entry = {
+      color: " #fff ",
+      borderColor: "\tred",
+      shape: " x ",
+    };
+
+    expect(trimColors(entry, FIELDS)).toStrictEqual({
+      color: "#fff",
+      borderColor: "red",
+      shape: " x ",
+    });
+  });
+
+  it("trims a blank color to empty", () => {
+    const entry: Entry = { color: "   " };
+
+    expect(trimColors(entry, FIELDS)).toStrictEqual({ color: "" });
+  });
+
+  it("returns the entry itself when nothing is padded", () => {
+    const entry: Entry = { color: "#fff", shape: " x " };
+
+    expect(trimColors(entry, FIELDS)).toBe(entry);
+  });
+
+  it("does not mutate the entry it is given", () => {
+    const entry: Entry = { color: " #fff" };
+
+    trimColors(entry, FIELDS);
+
+    expect(entry).toStrictEqual({ color: " #fff" });
+  });
+
+  it("requires every color field of the entry to be listed", () => {
+    const entry: Entry = { color: " #fff", borderColor: " red" };
+
+    // @ts-expect-error borderColor is a color field and is missing
+    const result = trimColors(entry, ["color"] as const);
+
+    expect(result).toStrictEqual({ color: "#fff", borderColor: " red" });
   });
 });

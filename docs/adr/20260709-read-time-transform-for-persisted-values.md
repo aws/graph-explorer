@@ -16,7 +16,7 @@ Reshape the value **on read**, via a `transform` option on `atomWithLocalForage`
 - **Updated 2026-07-10:** `transformVertexStyles` (in `vertexStylesTransform.ts`) is a second consumer, applied to `user-vertex-styles`. It coerces retired round-polygon shapes to their non-round counterpart (see ADR `coerce-retired-round-polygon-shapes`). A file import is normalized by the same transform when the import plan is built, so the preview and the write see the cleaned styles; the read transform still covers persisted and restored values.
 
 - **Updated 2026-10-02:** `transformVertexStyles` also drops an `iconUrl` outside the icon allowlist, with its `iconImageType`, so the app default icon applies (#2142). See ADR `styling-file-format`.
-- **Updated 2026-10-19:** `transformVertexStyles` also drops a color field that is not a color, and `transformEdgeStyles` (in `edgeStylesTransform.ts`) does the same for edge colors, both applied on read to their atoms and to incoming styles when the import plan is built. The default applies in its place; a blank is dropped silently. See ADR `styling-file-format`.
+- **Updated 2026-10-19:** `transformVertexStyles` also trims padded colors and drops a color field that is not a color, and `transformEdgeStyles` (in `edgeStylesTransform.ts`) does the same for edge colors, both applied on read to their atoms and to incoming styles when the import plan is built. The default applies in its place; a blank is dropped silently. See ADR `styling-file-format`.
 
 Two decisions here are not obvious from the code:
 

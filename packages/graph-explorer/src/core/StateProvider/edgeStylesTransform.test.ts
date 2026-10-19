@@ -48,6 +48,19 @@ describe("backward compatibility: edge colors in storage", () => {
     });
   });
 
+  // Older versions stored imported colors as written, padding included.
+  it("trims a padded color without a warning", () => {
+    const styles = edgeMap([["knows", { labelColor: " #fff " }]]);
+
+    const stored = transformEdgeStyles(styles).get(createEdgeType("knows"));
+
+    expect(stored).toStrictEqual({
+      type: createEdgeType("knows"),
+      labelColor: "#fff",
+    });
+    expect(logger.warn).not.toHaveBeenCalled();
+  });
+
   it("warns with the start of an unusable color", () => {
     const value = `url(http://other.example/${"x".repeat(200)})`;
     const styles = edgeMap([["knows", { lineColor: value }]]);

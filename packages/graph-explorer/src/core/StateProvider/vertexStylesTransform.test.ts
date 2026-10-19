@@ -66,6 +66,22 @@ describe("backward compatibility: blank colors in storage", () => {
     expect(resolved.borderColor).toBe(appDefaultVertexStyle.borderColor);
   });
 
+  // Older versions stored imported colors as written, padding included.
+  it("trims a padded color without a warning", () => {
+    const styles = vertexMap([
+      ["Person", { color: " #fff", borderColor: "red " }],
+    ]);
+
+    const result = transformVertexStyles(styles);
+
+    expect(result.get(createVertexType("Person"))).toStrictEqual({
+      type: createVertexType("Person"),
+      color: "#fff",
+      borderColor: "red",
+    });
+    expect(logger.warn).not.toHaveBeenCalled();
+  });
+
   it("drops a whitespace-only border color", () => {
     const styles = vertexMap([["Person", { borderColor: "   " }]]);
 

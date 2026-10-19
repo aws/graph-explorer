@@ -3,13 +3,13 @@ import { logger, omitFields } from "@/utils";
 import type { EdgeType } from "../entities";
 import type { EdgeStyleStorage } from "./graphStyles";
 
-import { findUnusableColors } from "./findUnusableColors";
+import { findUnusableColors, trimColors } from "./colorFields";
 
 const COLOR_FIELDS = ["labelColor", "labelBorderColor", "lineColor"] as const;
 
 /**
- * ReadTransform for edge style maps: drops colors that are not colors at load
- * time. Returns the same reference when nothing needed changing.
+ * ReadTransform for edge style maps: trims padded colors and drops colors that
+ * are not colors at load time. Returns the same reference when nothing needed changing.
  */
 export function transformEdgeStyles(
   styles: Map<EdgeType, EdgeStyleStorage>,
@@ -17,9 +17,10 @@ export function transformEdgeStyles(
   let result: Map<EdgeType, EdgeStyleStorage> | null = null;
 
   for (const [type, entry] of styles) {
-    const unusableColors = findUnusableColors(entry, COLOR_FIELDS);
+    const trimmed = trimColors(entry, COLOR_FIELDS);
+    const unusableColors = findUnusableColors(trimmed, COLOR_FIELDS);
     for (const { field, value } of unusableColors) {
-      if (value.trim()) {
+      if (value) {
         logger.warn(
           `[edge-styles] Unsupported color "${value.slice(0, 100)}" in ${field} for type "${type}", using the default`,
         );
@@ -27,7 +28,7 @@ export function transformEdgeStyles(
     }
 
     const cleaned = omitFields(
-      entry,
+      trimmed,
       unusableColors.map(c => c.field),
     );
     if (cleaned !== entry) {

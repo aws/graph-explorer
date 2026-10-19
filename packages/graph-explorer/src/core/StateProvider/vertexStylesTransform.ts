@@ -4,7 +4,7 @@ import { logger, omitFields } from "@/utils";
 import type { VertexType } from "../entities";
 import type { ShapeStyle, VertexStyleStorage } from "./graphStyles";
 
-import { findUnusableColors } from "./findUnusableColors";
+import { findUnusableColors, trimColors } from "./colorFields";
 
 /**
  * Shapes that cytoscape's round-polygon renderer draws incorrectly at small
@@ -56,8 +56,8 @@ function findDisallowedIconFields(
 
 /**
  * ReadTransform for vertex style maps: coerces broken round-polygon shapes to
- * their non-round counterpart and drops colors that are not colors and icons
- * outside the allowlist at load time.
+ * their non-round counterpart, trims padded colors, and drops colors that are
+ * not colors and icons outside the allowlist at load time.
  * Returns the same reference when nothing needed changing.
  */
 export function transformVertexStyles(
@@ -66,16 +66,17 @@ export function transformVertexStyles(
   let result: Map<VertexType, VertexStyleStorage> | null = null;
 
   for (const [type, entry] of styles) {
-    const unusableColors = findUnusableColors(entry, COLOR_FIELDS);
+    const trimmed = trimColors(entry, COLOR_FIELDS);
+    const unusableColors = findUnusableColors(trimmed, COLOR_FIELDS);
     for (const { field, value } of unusableColors) {
-      if (value.trim()) {
+      if (value) {
         logger.warn(
           `[vertex-styles] Unsupported color "${value.slice(0, 100)}" in ${field} for type "${type}", using the default`,
         );
       }
     }
 
-    let updated = omitFields(entry, [
+    let updated = omitFields(trimmed, [
       ...unusableColors.map(c => c.field),
       ...findDisallowedIconFields(type, entry),
     ]);
