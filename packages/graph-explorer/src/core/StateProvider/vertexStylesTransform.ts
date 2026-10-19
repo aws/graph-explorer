@@ -1,10 +1,10 @@
 import { isAllowedIconValue } from "@/core/icons";
-import { logger } from "@/utils";
+import { logger, omitFields } from "@/utils";
 
 import type { VertexType } from "../entities";
 import type { ShapeStyle, VertexStyleStorage } from "./graphStyles";
 
-import { dropUnusableColors } from "./dropUnusableColors";
+import { findUnusableColors } from "./findUnusableColors";
 
 /**
  * Shapes that cytoscape's round-polygon renderer draws incorrectly at small
@@ -48,8 +48,7 @@ function dropDisallowedIcon(
   logger.warn(
     `[vertex-styles] Unsupported icon "${entry.iconUrl.slice(0, 100)}" for type "${type}", using the default icon`,
   );
-  const { iconUrl: _iconUrl, iconImageType: _iconImageType, ...rest } = entry;
-  return rest;
+  return omitFields(entry, ["iconUrl", "iconImageType"]);
 }
 
 /**
@@ -64,7 +63,19 @@ export function transformVertexStyles(
   let result: Map<VertexType, VertexStyleStorage> | null = null;
 
   for (const [type, entry] of styles) {
-    let updated = dropUnusableColors(entry, COLOR_FIELDS, type);
+    const unusableColors = findUnusableColors(entry, COLOR_FIELDS);
+    for (const { field, value } of unusableColors) {
+      if (value.trim()) {
+        logger.warn(
+          `[vertex-styles] Unsupported color "${value.slice(0, 100)}" in ${field} for type "${type}", using the default`,
+        );
+      }
+    }
+
+    let updated = omitFields(
+      entry,
+      unusableColors.map(c => c.field),
+    );
     updated = dropDisallowedIcon(type, updated ?? entry) ?? updated;
 
     if (entry.shape !== undefined) {

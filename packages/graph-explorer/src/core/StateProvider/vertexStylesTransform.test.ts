@@ -39,7 +39,7 @@ function vertexMap(
  * can carry a blank color.
  */
 describe("backward compatibility: blank colors in storage", () => {
-  it("drops an empty color", () => {
+  it("drops an empty color without a warning", () => {
     const styles = vertexMap([["Person", { color: "" }]]);
 
     const result = transformVertexStyles(styles);
@@ -47,6 +47,7 @@ describe("backward compatibility: blank colors in storage", () => {
     expect(result.get(createVertexType("Person"))).toStrictEqual({
       type: createVertexType("Person"),
     });
+    expect(logger.warn).not.toHaveBeenCalled();
   });
 
   // Dropping the field rather than substituting a value is what lets the style
@@ -136,6 +137,17 @@ describe("backward compatibility: colors that are not colors in storage", () => 
       shape: "star",
     });
     expect(logger.warn).toHaveBeenCalled();
+  });
+
+  it("warns with the start of an unusable color", () => {
+    const value = `url(http://other.example/${"x".repeat(200)})`;
+    const styles = vertexMap([["Person", { color: value }]]);
+
+    transformVertexStyles(styles);
+
+    expect(logger.warn).toBeCalledWith(
+      `[vertex-styles] Unsupported color "${value.slice(0, 100)}" in color for type "Person", using the default`,
+    );
   });
 
   // The color drop, icon drop, and shape coercion each build on the previous
