@@ -43,8 +43,21 @@ COPY --from=build --chown=0:0 /tmp/node/LICENSE /usr/local/LICENSE
 
 ENV HOME=/graph-explorer
 WORKDIR /graph-explorer
-COPY --from=deps --chown=0:0 /app ./
-COPY --from=build --chown=0:0 /app ./
+# Only what the entrypoint and the server read. The server runs its TypeScript
+# source directly and loads @graph-explorer/shared from source through the
+# workspace symlink, so both keep src and package.json. The pnpm symlinks in
+# each node_modules point into the root one.
+COPY --from=deps --chown=0:0 /app/node_modules ./node_modules
+COPY --from=deps --chown=0:0 /app/packages/graph-explorer/node_modules ./packages/graph-explorer/node_modules
+COPY --from=deps --chown=0:0 /app/packages/graph-explorer-proxy-server/node_modules ./packages/graph-explorer-proxy-server/node_modules
+COPY --from=build --chown=0:0 /app/docker-entrypoint.sh /app/process-environment.sh /app/setup-ssl.sh /app/LICENSE /app/NOTICE /app/THIRD_PARTY_LICENSES.txt ./
+COPY --from=build --chown=0:0 /app/packages/graph-explorer/.env ./packages/graph-explorer/
+COPY --from=build --chown=0:0 /app/packages/graph-explorer/dist ./packages/graph-explorer/dist
+COPY --from=build --chown=0:0 /app/packages/graph-explorer-proxy-server/package.json ./packages/graph-explorer-proxy-server/
+COPY --from=build --chown=0:0 /app/packages/graph-explorer-proxy-server/cert-info ./packages/graph-explorer-proxy-server/cert-info
+COPY --from=build --chown=0:0 --exclude=*.test.ts --exclude=test-setup.ts --exclude=testing.ts /app/packages/graph-explorer-proxy-server/src ./packages/graph-explorer-proxy-server/src
+COPY --from=build --chown=0:0 /app/packages/shared/package.json ./packages/shared/
+COPY --from=build --chown=0:0 --exclude=utils/testing /app/packages/shared/src ./packages/shared/src
 
 EXPOSE 443
 EXPOSE 80
