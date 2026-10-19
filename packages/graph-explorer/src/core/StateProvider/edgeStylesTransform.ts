@@ -30,7 +30,7 @@ export function transformEdgeStyles(
       entry,
       unusableColors.map(c => c.field),
     );
-    if (cleaned) {
+    if (cleaned !== entry) {
       result ??= new Map(styles);
       result.set(type, cleaned);
     }
