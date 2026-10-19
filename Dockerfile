@@ -20,13 +20,14 @@ RUN vp install --frozen-lockfile && \
     cp "$NODE_HOME/bin/node" "$NODE_HOME/LICENSE" /tmp/node/
 
 # Installed from the manifests alone, so the layer is reused until a
-# dependency changes and never holds devDependencies.
+# dependency changes and never holds devDependencies. Only the server and its
+# workspace dependencies are installed: Vite bundles the client's dependencies
+# into dist, so nothing at runtime loads them.
 FROM toolchain AS deps
 COPY --chown=vp:vp package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .node-version ./
-COPY --chown=vp:vp packages/graph-explorer/package.json packages/graph-explorer/
 COPY --chown=vp:vp packages/graph-explorer-proxy-server/package.json packages/graph-explorer-proxy-server/
 COPY --chown=vp:vp packages/shared/package.json packages/shared/
-RUN vp install --prod --frozen-lockfile --ignore-scripts
+RUN vp install --prod --frozen-lockfile --ignore-scripts --filter graph-explorer-proxy-server...
 
 # Pinned to a dated ECR Public snapshot for reproducible builds; bump to move forward.
 # The tag also pins dnf repo metadata to that date, so the yum update below resolves
@@ -51,7 +52,6 @@ WORKDIR /graph-explorer
 # workspace symlink, so both keep src and package.json. The pnpm symlinks in
 # each node_modules point into the root one.
 COPY --from=deps --chown=0:0 /app/node_modules ./node_modules
-COPY --from=deps --chown=0:0 /app/packages/graph-explorer/node_modules ./packages/graph-explorer/node_modules
 COPY --from=deps --chown=0:0 /app/packages/graph-explorer-proxy-server/node_modules ./packages/graph-explorer-proxy-server/node_modules
 COPY --from=build --chown=0:0 /app/docker-entrypoint.sh /app/process-environment.sh /app/setup-ssl.sh /app/LICENSE /app/NOTICE /app/THIRD_PARTY_LICENSES.txt ./
 COPY --from=build --chown=0:0 /app/packages/graph-explorer/.env ./packages/graph-explorer/
