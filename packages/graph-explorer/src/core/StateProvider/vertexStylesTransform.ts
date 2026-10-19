@@ -33,22 +33,25 @@ export function coerceBrokenShape(shape: ShapeStyle): ShapeStyle {
 
 const COLOR_FIELDS = ["color", "borderColor"] as const;
 
+const ICON_FIELDS = ["iconUrl", "iconImageType"] as const;
+
 /**
- * Drops an icon outside the allowlist, with its image type, so the default
- * icon applies. The app only ever writes allowlisted icons, so this catches
- * hand-edited values, such as a remote url. An empty url means "no icon" and is kept.
+ * The icon fields to drop when the icon is outside the allowlist, so the
+ * default icon applies. The app only ever writes allowlisted icons, so this
+ * catches hand-edited values, such as a remote url. An empty url means "no
+ * icon" and is kept.
  */
-function dropDisallowedIcon(
+function findDisallowedIconFields(
   type: VertexType,
   entry: VertexStyleStorage,
-): VertexStyleStorage {
+): readonly (typeof ICON_FIELDS)[number][] {
   if (!entry.iconUrl || isAllowedIconValue(entry.iconUrl)) {
-    return entry;
+    return [];
   }
   logger.warn(
     `[vertex-styles] Unsupported icon "${entry.iconUrl.slice(0, 100)}" for type "${type}", using the default icon`,
   );
-  return omitFields(entry, ["iconUrl", "iconImageType"]);
+  return ICON_FIELDS;
 }
 
 /**
@@ -72,11 +75,10 @@ export function transformVertexStyles(
       }
     }
 
-    let updated = omitFields(
-      entry,
-      unusableColors.map(c => c.field),
-    );
-    updated = dropDisallowedIcon(type, updated);
+    let updated = omitFields(entry, [
+      ...unusableColors.map(c => c.field),
+      ...findDisallowedIconFields(type, entry),
+    ]);
 
     if (entry.shape !== undefined) {
       const coerced = coerceBrokenShape(entry.shape);
