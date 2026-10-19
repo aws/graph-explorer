@@ -30,9 +30,7 @@ function VertexIcon({ vertexStyle, className, alt }: Props) {
           name={source.name}
           className={cn("size-6 shrink-0", className)}
           style={{ color: vertexStyle.color }}
-          fallback={() => (
-            <svg aria-hidden className={cn("size-6 shrink-0", className)} />
-          )}
+          fallback={() => <IconPlaceholder className={className} />}
         />
       ) : null;
     case "raster":
@@ -68,7 +66,7 @@ function SvgIcon({
   const resolved = useResolvedIcon(source);
 
   if (!resolved) {
-    return <ImagePlaceholder className={className} />;
+    return <IconPlaceholder className={className} />;
   }
   return (
     <IconImage
@@ -79,9 +77,17 @@ function SvgIcon({
   );
 }
 
-/** Holds an image's space so a list row does not shift when the icon lands. */
-function ImagePlaceholder({ className }: { className?: string }) {
-  return <span className={cn("inline-block size-6 shrink-0", className)} />;
+/**
+ * Holds an icon's space so a list row does not shift when the icon lands. An
+ * svg, so a parent's `[&_svg]` sizing applies to it as it will to the icon.
+ */
+function IconPlaceholder({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden
+      className={cn("inline-block size-6 shrink-0", className)}
+    />
+  );
 }
 
 function IconImage({

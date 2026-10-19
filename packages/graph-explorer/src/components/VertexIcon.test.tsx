@@ -19,6 +19,14 @@ function decodedSrc(image: HTMLElement): string {
   return decodeURIComponent(image.getAttribute("src")!);
 }
 
+// An svg, so a parent's `[&_svg]` sizing applies to it exactly as it will to
+// the loaded icon; inline-block keeps its box in a non-flex parent.
+function expectSizedPlaceholder(placeholder: Element) {
+  expect(placeholder.tagName.toLowerCase()).toBe("svg");
+  expect(placeholder).toHaveAttribute("aria-hidden", "true");
+  expect(placeholder).toHaveClass("inline-block", "size-6");
+}
+
 function renderIcon(overrides: Partial<VertexStyle>) {
   const vertexStyle: VertexStyle = {
     ...appDefaultVertexStyle,
@@ -137,8 +145,7 @@ describe("VertexIcon", () => {
     });
 
     expect(screen.queryByRole("img")).toBeNull();
-    // Inline-block, so it keeps its box in a non-flex parent like the <img>.
-    expect(container.firstElementChild).toHaveClass("inline-block", "size-6");
+    expectSizedPlaceholder(container.firstElementChild!);
   });
 
   // DynamicIcon renders nothing until its chunk loads, which would push a list
@@ -149,12 +156,7 @@ describe("VertexIcon", () => {
       iconImageType: "image/svg+xml",
     });
 
-    // An svg, so a parent's `[&_svg]` sizing applies to it exactly as it will
-    // to the loaded icon; a bare span has no box in a non-flex parent.
-    const placeholder = container.firstElementChild!;
-    expect(placeholder.tagName.toLowerCase()).toBe("svg");
-    expect(placeholder).toHaveAttribute("aria-hidden", "true");
-    expect(placeholder).toHaveClass("size-6");
+    expectSizedPlaceholder(container.firstElementChild!);
     await waitFor(() =>
       expect(container.querySelector("svg.lucide-plane")).toBeTruthy(),
     );
