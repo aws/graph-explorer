@@ -72,6 +72,14 @@ jobs:
               if curl -sfk "$scheme://localhost:$host_port/status"; then
                 echo ""
                 echo "✓ $name responded on /status"
+                # The client build is the file most likely to go missing from the image.
+                ui_status=$(curl -sk -o /dev/null -w '%{http_code}' "$scheme://localhost:$host_port/explorer/")
+                if [ "$ui_status" != 200 ]; then
+                  echo "FAIL: $name returned $ui_status for the UI at /explorer/"
+                  docker rm -f "$name" >/dev/null
+                  return 1
+                fi
+                echo "✓ $name served the UI at /explorer/"
                 docker rm -f "$name" >/dev/null
                 return 0
               fi
