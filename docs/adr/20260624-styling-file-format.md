@@ -6,6 +6,7 @@
 - **Updated:** 2026-07-20 — the styles cascade collapsed to a single user layer (#1974). Import and export now target the user styles (`userVertexStylesAtom` / `userEdgeStylesAtom`) directly; the never-shipped shared layer was removed with no data migration. The file format itself is unchanged.
 - **Updated:** 2026-07-21 — import is now selective (#1972). The whole-file confirm dialog and `getStylingConflicts` are gone; see the rewritten Import semantics below. The file format and atomic-parser contract are unchanged.
 - **Updated:** 2026-10-02 — the icon allowlist is now an app-wide invariant, not an import rule (#2142). See Icon security below.
+- **Updated:** 2026-10-19 — color fields are validated too, so the icon allowlist is no longer the whole boundary. See Color security below.
 - **Related:** ADR `shared-file-envelope` (the outer envelope this payload lives inside). ADR `type-keyed-map-atoms-for-user-preferences` (the Map storage shape the user styles mirror). Issue #1866 (Preferences → Styles rename).
 
 ## Context
@@ -37,6 +38,14 @@ The image **subtype** is deliberately left open (any RFC-6838-shaped subtype: `s
 
 `iconImageType` is **not** a security boundary and is stored as a loose `string`. The only consumer that reads it exact-matches `"image/svg+xml"` to choose the DOMPurify-sanitized inline-SVG path; any other value takes the safer raster `<img>` path. It is left unconstrained so an icon uploaded with any browser-reported MIME type round-trips through export and re-import instead of rejecting the whole file.
 
+### Color security
+
+A color is a value, never a reference. `isAllowedColorValue` (`utils/isAllowedColorValue.ts`) is the one gate for every color field (vertex `color` and `borderColor`; edge `lineColor`, `labelColor` and `labelBorderColor`). It accepts only color values (hex, `rgb()`, `hsl()`, `hwb()`, named colors) and rejects the rest, so references such as `url()` are rejected. The value is tested as written, since it is stored as written.
+
+- **Import:** the parser rejects the whole file and reports the field, like the icon allowlist. A blank color still imports, because older files carry one.
+- **Load:** `transformVertexStyles` and `transformEdgeStyles` drop an unusable color with a warning so the app default applies (ADR `read-time-transform-for-persisted-values`). A blank is dropped silently. This covers persisted styles and backup restore.
+- **Import preview:** the plan runs incoming entries through the same transforms, so the preview and the write see the cleaned styles.
+
 ### Whole-file (atomic) parser contract
 
 `parseStylingPayload` validates the **entire payload in one `safeParse`** (the entry schemas plugged straight into `z.record`) and throws `StylingParseError` carrying **every** offending location on any failure, or returns the parsed styles. Import is atomic — the file imports in full or not at all, and nothing is persisted on failure.
@@ -58,4 +67,4 @@ Import is **selective** (`modules/StyleImport/`). A plan resolves each incoming 
 
 - **Parse is atomic; load is selective.** A malformed file parses to nothing (reporting every offending location), so the user never lands in a partially-styled state from a bad file. "Not applying every type" is only ever a deliberate per-card choice, never a silent partial parse.
 - **Additive changes never bump the version.** A newer exporter adding an optional field (e.g. `glow`) produces a file older importers consume cleanly by stripping the unknown field (see the shared-envelope ADR).
-- **The `icon` allowlist is the whole XSS boundary.** Only a validated `icon` becomes a stored `iconUrl`; a directly-supplied `iconUrl` is stripped, and SVG is DOMPurify-sanitized at the render sink. No other field constrains security.
+- **The `icon` allowlist and color validation are the whole boundary.** Only a validated `icon` becomes a stored `iconUrl`; a directly-supplied `iconUrl` is stripped, and SVG is DOMPurify-sanitized at the render sink. Only a validated color is stored. No other field constrains security.

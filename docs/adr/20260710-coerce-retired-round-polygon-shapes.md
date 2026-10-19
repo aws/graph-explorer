@@ -7,6 +7,8 @@
 > [!NOTE]
 >
 > **2026-09-10, cytoscape 3.34.0 → 3.34.3.** No upstream fix for the 24px collapse. The only change in `node-shapes.mjs` is that `getOrCreateCorners` now includes width, height, and `cornerRadius` in its memo key rather than keying on center x/y alone, so resizing a node no longer reuses stale corners. The corner formula is unchanged, so the degeneracy this ADR works around should still occur and the coercion stays. The reversal trigger below has not fired, but the caching change is close enough to the affected code that a visual check of one `round-hexagon` at 24px would settle it.
+>
+> **2026-10-19, import normalization.** A styling-file import now runs `transformVertexStyles` when the import plan is built, so imported shapes are stored coerced. Values already in storage are still never written back.
 
 ## Context
 
@@ -27,19 +29,19 @@ Keep the six values in `SHAPE_STYLES` and `ShapeStyle` so older styling files st
 | `round-octagon`  | `octagon`  |
 | `round-tag`      | `tag`      |
 
-Import stores the value verbatim — the ReadTransform coerces it on the next read from storage, so the import path stays pure and the original persisted value is never overwritten.
+A file import is normalized by the same transform when the import plan is built, so the preview and the write see the coerced shape. Values already in storage are never overwritten; the ReadTransform coerces them on each read.
 
 ## Considered Options
 
 - **Coerce at read boundaries, no write-back (chosen).** Non-destructive: stored originals survive, so a future cytoscape fix can restore them by removing the transform. Each broken shape maps to its sharp-cornered sibling, preserving shape semantics.
 - **Reject on import.** Would fail the whole file under the atomic parser contract (`20260624-styling-file-format.md`), punishing users for data the app itself produced. Not acceptable.
 - **Remove from `SHAPE_STYLES` / `ShapeStyle`.** Same as rejection: the Zod enum would fail old files that contain the values.
-- **Coerce at import time (Zod `.transform()`).** Bakes the coerced value into storage permanently and loses the original on re-export. Makes the transform irreversible — a cytoscape fix can no longer restore the user's original choice.
+- **Coerce at import time (Zod `.transform()`).** Coercing inside the parser on every parse bakes the coerced value into storage permanently and loses the original on re-export. Makes the transform irreversible — a cytoscape fix can no longer restore the user's original choice. A styling-file import does write the coerced shape through the import plan, but only for that file's values; everything already in storage stays intact.
 - **Patch cytoscape (fork or monkey-patch).** High maintenance burden for a rendering detail that may be fixed upstream. Deferred unless upstream remains broken long-term.
 - **Coerce to a single flat replacement (`round-rectangle`).** Collapses six visually distinct shapes into one, losing differentiation intent. Per-shape mapping costs one extra `Map` entry per shape and preserves semantics.
 
 ## Consequences
 
 - Users who stored a broken shape see its non-round counterpart after upgrading — a strict improvement over the previous blob-with-no-edges.
-- Styling-file round-trips are lossless in storage (never written back) but lossy in memory (the read value differs from the stored value). This is the read-time-transform ADR's purity contract applied to a new case.
-- If cytoscape fixes the rendering, reversal is: restore the six entries in `NODE_SHAPE`, delete `BROKEN_SHAPE_REPLACEMENTS` and the `transformVertexStyles` ReadTransform. Stored originals reappear intact.
+- Persisted values stay lossless in storage (never written back) but lossy in memory (the read value differs from the stored value). A styling file import writes the coerced shape. This is the read-time-transform ADR's purity contract applied to a new case.
+- If cytoscape fixes the rendering, reversal is: restore the six entries in `NODE_SHAPE`, delete `BROKEN_SHAPE_REPLACEMENTS` and the `transformVertexStyles` ReadTransform. Values already in storage reappear intact; shapes imported from a styling file since then stay coerced.
