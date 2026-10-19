@@ -11,10 +11,10 @@ describe("omitFields", () => {
     expect(omitFields(entry, ["a", "c"])).toStrictEqual({ b: 1 });
   });
 
-  it("returns null when given no fields", () => {
+  it("returns the entry itself when given no fields", () => {
     const entry: Entry = { a: "x" };
 
-    expect(omitFields(entry, [])).toBeNull();
+    expect(omitFields(entry, [])).toBe(entry);
   });
 
   it("does not mutate the entry it is given", () => {

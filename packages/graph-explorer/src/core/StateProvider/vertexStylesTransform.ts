@@ -41,9 +41,9 @@ const COLOR_FIELDS = ["color", "borderColor"] as const;
 function dropDisallowedIcon(
   type: VertexType,
   entry: VertexStyleStorage,
-): VertexStyleStorage | null {
+): VertexStyleStorage {
   if (!entry.iconUrl || isAllowedIconValue(entry.iconUrl)) {
-    return null;
+    return entry;
   }
   logger.warn(
     `[vertex-styles] Unsupported icon "${entry.iconUrl.slice(0, 100)}" for type "${type}", using the default icon`,
@@ -76,7 +76,7 @@ export function transformVertexStyles(
       entry,
       unusableColors.map(c => c.field),
     );
-    updated = dropDisallowedIcon(type, updated ?? entry) ?? updated;
+    updated = dropDisallowedIcon(type, updated);
 
     if (entry.shape !== undefined) {
       const coerced = coerceBrokenShape(entry.shape);
@@ -84,11 +84,11 @@ export function transformVertexStyles(
         logger.debug(
           `[vertex-styles] Coercing broken shape "${entry.shape}" to "${coerced}" for type "${type}"`,
         );
-        updated = { ...(updated ?? entry), shape: coerced };
+        updated = { ...updated, shape: coerced };
       }
     }
 
-    if (updated) {
+    if (updated !== entry) {
       result ??= new Map(styles);
       result.set(type, updated);
     }
