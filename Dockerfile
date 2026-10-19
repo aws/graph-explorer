@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 # The Vite+ image builds with the Node.js in .node-version and the pnpm in
-# packageManager. Pinned by digest; keep the tag on the vite-plus catalog version.
+# packageManager. Pinned by digest. The tag must match the vite-plus catalog
+# version, which test_build_docker.yml checks.
 FROM ghcr.io/voidzero-dev/vite-plus:1.1.0@sha256:15dedad6ab1f100c096aaebac6b0fb40ccf1f3dd0dd0169141e2a56588489b60 AS toolchain
 WORKDIR /app
 
@@ -8,6 +9,8 @@ FROM toolchain AS build
 # The image has no repository to hook into, so skip the Vite+ commit hooks.
 ENV VP_GIT_HOOKS=0
 COPY --chown=vp:vp . .
+# The node_modules glob matches packages/* in pnpm-workspace.yaml; change both
+# together. vp run clean:dep would reinstall before running.
 RUN vp install --frozen-lockfile && \
     vp run build && \
     rm -rf node_modules packages/*/node_modules && \
