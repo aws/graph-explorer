@@ -5,7 +5,7 @@ Build instructions and development setup for contributing to Graph Explorer. For
 ## Requirements
 
 - pnpm 12.8.1, pinned by `packageManager`
-- node >=24.21.0
+- node, pinned by `.node-version`
 
 ### Node Version
 
