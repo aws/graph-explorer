@@ -10,15 +10,10 @@ When a Connection has IAM authentication turned on, the Graph Explorer proxy ser
 
 ## Choose a policy
 
-Each level includes everything in the level before it.
-
-- **Minimal** runs read queries, which covers searching and exploring the graph. Schema sync runs queries instead of using the graph summary, which is slower on large graphs.
-  - [Neptune Database](./neptune-db-minimal.json)
-  - [Neptune Analytics](./neptune-analytics-minimal.json)
-- **Read-only** adds the graph summary, so schema sync is faster. For Neptune Database, it also adds query cancellation, so when Graph Explorer stops waiting for a Gremlin or SPARQL query, such as when you close the tab, the query stops on the database too. Without it, the query runs until it finishes or reaches the database's query timeout.
+- **Read-only** runs read queries and reads the graph summary, which schema sync uses. For Neptune Database, it also allows query cancellation, so when Graph Explorer stops waiting for a Gremlin or SPARQL query, such as when you close the tab, the query stops on the database too.
   - [Neptune Database](./neptune-db-read-only.json)
   - [Neptune Analytics](./neptune-analytics-read-only.json)
-- **Read-write** adds writing and deleting data, so queries in the query editor can change the graph.
+- **Read-write** adds writing and deleting data to the read-only policy, so queries in the query editor can change the graph.
   - [Neptune Database](./neptune-db-read-write.json)
   - [Neptune Analytics](./neptune-analytics-read-write.json)
 
@@ -26,7 +21,7 @@ Graph Explorer has no built-in authentication, and every user of a deployment sh
 
 The Neptune Analytics samples leave out query cancellation because Graph Explorer never cancels a Neptune Analytics query.
 
-For the actions behind each level, see [IAM actions for data access](https://docs.aws.amazon.com/neptune/latest/userguide/iam-dp-actions.html) and the [read-only policy example](https://docs.aws.amazon.com/neptune/latest/userguide/iam-data-access-examples.html#iam-auth-data-policy-example-read-query) in the Neptune User Guide.
+For the actions in each policy, see [IAM actions for data access](https://docs.aws.amazon.com/neptune/latest/userguide/iam-dp-actions.html) and the [read-only policy example](https://docs.aws.amazon.com/neptune/latest/userguide/iam-data-access-examples.html#iam-auth-data-policy-example-read-query) in the Neptune User Guide.
 
 ## Placeholders
 
