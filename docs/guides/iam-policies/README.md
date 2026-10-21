@@ -23,7 +23,7 @@ To let the deployment reach more than one database, add another ARN to `Resource
 
 ## Read-only variant
 
-Remove `WriteDataViaQuery` and `DeleteDataViaQuery` from `Action` to make the deployment read-only. Queries that modify data then fail with an authorization error.
+Remove `WriteDataViaQuery` and `DeleteDataViaQuery` from `Action` to make the deployment read-only. Queries that modify data then fail with an authorization error. For an example of a read-only policy, see [the Neptune user guide](https://docs.aws.amazon.com/neptune/latest/userguide/iam-data-access-examples.html#iam-auth-data-policy-example-read-query).
 
 For how this policy fits with other controls, see [Permissions](../../references/security.md#permissions).
 
