@@ -28,27 +28,27 @@ brew install pnpm            # or any method from https://pnpm.io/installation
 pnpm --version               # prints the pinned version, not the one you installed
 ```
 
-A global [Vite+](https://viteplus.dev/guide/) CLI also works. With its environment management on, its `pnpm` shim downloads the version in `packageManager`.
+A global [Vite+](https://viteplus.dev/guide/) CLI also works. Its `pnpm` shim uses your installed pnpm by default; run `vp env on pnpm` to have it download the version in `packageManager` instead.
 
 ### Upgrading pnpm
 
 Three files carry the pnpm version itself:
 
 - `packageManager` in `package.json`, which is what self-managing pnpm and Vite+ in CI and the Docker build all resolve.
-- `pnpm-lock.yaml`, which records the version under `packageManagerDependencies` plus an `integrity` for `pnpm` and for each `@pnpm/exe.*` platform package. `pnpm install` regenerates these entries; never hand-edit them.
+- `pnpm-lock.yaml`, which records the version under `packageManagerDependencies` plus an `integrity` for `pnpm` and for each `@pnpm/exe.*` platform package. `pnpm install` regenerates these entries; never hand-edit them. A hand-edited `packageManager` makes pnpm run the version you typed and rewrite these entries, even under `--frozen-lockfile`, so review a `packageManager` change as a toolchain change.
 - The pnpm requirement at the top of this document.
 
-Run `pnpm self-update <version>` from the repo root. In a project with `packageManager`, it rewrites only that field and installs nothing globally. Then run `pnpm install` to update the lockfile, update this document to the same version, and confirm nothing shifted:
+Run `pnpm self-update <version>` from the repo root. It rewrites `packageManager`, and may also move that key and drop the empty `dependencies` object in `package.json`. Then run `pnpm install` to update the lockfile, update this document to the same version, commit `package.json` and `pnpm-lock.yaml` together, and confirm nothing shifted:
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 pnpm checks
 pnpm test
 ```
 
 `.github/workflows/ci.yml` and the `Dockerfile` both get pnpm through Vite+, which reads the version from `packageManager`, so a pnpm bump needs no workflow or `Dockerfile` edit. CI uses [`voidzero-dev/setup-vp`](https://github.com/voidzero-dev/setup-vp), and the image builds in the Vite+ image. On a major bump, check the "Set up Vite+" step and the Docker build on the pull request: if the pinned Vite+ cannot run the new pnpm major, upgrade Vite+ first. A Vite+ upgrade changes two pins in the same pull request: the `vite-plus` entry in `pnpm-workspace.yaml`, and the tag and digest on the `FROM ghcr.io/voidzero-dev/vite-plus` line in the `Dockerfile`.
 
-`packageManager` carries no `+sha512` hash, so an upgrade is one command. The lockfile pins pnpm's bytes instead: pnpm checks each download against the `integrity` in `pnpm-lock.yaml` and against npm's registry signature, so a tampered lockfile stops the install with "its npm registry signature could not be verified" rather than passing quietly. Vite+ downloads pnpm from the npm registry and relies on the registry's integrity data.
+`packageManager` carries no `+sha512` hash, so `pnpm self-update` can write the pin. When pnpm switches itself to the pinned version, it checks each download against the `integrity` in `pnpm-lock.yaml` and against npm's registry signature, so a tampered lockfile stops the install with "its npm registry signature could not be verified" rather than passing quietly. CI and the Docker build get pnpm through Vite+ instead, which checks the platform package it runs against the registry's `dist.integrity`, with no value committed in this repo.
 
 A major bump is also where `pnpm-workspace.yaml` deserves a read. Since pnpm 12, a key that pnpm does not recognize fails the install with `ERR_PNPM_UNRECOGNIZED_WORKSPACE_SETTINGS` instead of being ignored. So a setting removed or renamed upstream stops the install rather than quietly doing nothing. `pnpm config list` prints the `pnpm-workspace.yaml` settings pnpm resolved, which is the quickest way to check, though it lists neither pnpm's defaults nor anything from `.npmrc`.
 
