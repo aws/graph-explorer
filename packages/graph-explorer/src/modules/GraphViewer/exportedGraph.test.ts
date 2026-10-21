@@ -419,31 +419,28 @@ describe("parseExportedGraph", () => {
 /**
  * BACKWARD COMPATIBILITY — EXPORTED FILE
  *
- * The exported file's `layout` is validated with the shared per-field fallback
- * rather than a strict enum, so a file that predates the field, or that names a
- * layout a later build removed, still imports: the layout quietly or loudly
- * falls back to F_COSE instead of the whole import failing. Only an unknown
+ * The exported file's `layout` is optional and validated with a per-field
+ * fallback rather than a strict enum, so a file that predates the field, or
+ * that names a layout a later build removed, still imports with no layout and
+ * the current one stays, instead of the whole import failing. Only an unknown
  * value is worth a warning; a missing one is just an older file.
  *
  * DO NOT delete or weaken these tests without confirming that no such files
  * remain in use.
  */
 describe("backward compatibility: exported-graph layout", () => {
-  it("imports a file with no layout field as F_COSE without warning", async () => {
+  it("imports a file with no layout field as no layout, without warning", async () => {
     const exportedGraph = createRandomExportedGraph();
     const { layout: _dropped, ...dataWithoutLayout } = exportedGraph.data;
     const withoutLayout = { ...exportedGraph, data: dataWithoutLayout };
 
     const parsed = await parseExportedGraph(toGraphFileBlob(withoutLayout));
 
-    expect(parsed.layout).toBe("F_COSE");
+    expect(parsed.layout).toBeUndefined();
     expect(logger.warn).not.toHaveBeenCalled();
   });
 
-  // The exact warning text is pinned by the shared schema's own test
-  // (graphViewLayoutDefaults.test.ts); here we only prove the import seam
-  // routes an unknown value through that fallback rather than failing.
-  it("imports a file with an unknown layout as F_COSE", async () => {
+  it("imports a file with an unknown layout as no layout, with a warning", async () => {
     const exportedGraph = createRandomExportedGraph();
     const withUnknownLayout = {
       ...exportedGraph,
@@ -452,7 +449,11 @@ describe("backward compatibility: exported-graph layout", () => {
 
     const parsed = await parseExportedGraph(toGraphFileBlob(withUnknownLayout));
 
-    expect(parsed.layout).toBe("F_COSE");
+    expect(parsed.layout).toBeUndefined();
+    expect(logger.warn).toHaveBeenCalledWith(
+      "[graph-layout] Unrecognized layout name; keeping the current layout",
+      "REMOVED_LAYOUT",
+    );
   });
 });
 

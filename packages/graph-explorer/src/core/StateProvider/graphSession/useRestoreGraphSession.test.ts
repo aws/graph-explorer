@@ -67,6 +67,36 @@ describe("useRestoreGraphSession", () => {
     expect(store.get(activeGraphSessionAtom)?.layout).toBe("CONCENTRIC");
   });
 
+  it("keeps the current layout when the session has none", async () => {
+    vi.spyOn(Connector, "fetchEntityDetails").mockResolvedValue(
+      fetchResultWith({ vertices: [], edges: [] }),
+    );
+    vi.spyOn(Connector, "notifyOnIncompleteRestoration").mockImplementation(
+      () => undefined,
+    );
+
+    const dbState = new DbState().withGraphViewLayout({
+      ...createRandomGraphViewLayout(),
+      layoutAlgorithm: "DAGRE_LR",
+    });
+    const { result } = renderHookWithState(
+      () => useRestoreGraphSession(),
+      dbState,
+    );
+    const store = getAppStore();
+
+    const legacySession: GraphSessionStorageModel = {
+      vertices: new Set(),
+      edges: new Set(),
+    };
+
+    await act(async () => {
+      await result.current.mutateAsync(legacySession);
+    });
+
+    expect(store.get(graphViewLayoutAlgorithmAtom)).toBe("DAGRE_LR");
+  });
+
   it("leaves the layout unchanged when the restore fetch fails", async () => {
     const dbState = new DbState().withGraphViewLayout({
       ...createRandomGraphViewLayout(),

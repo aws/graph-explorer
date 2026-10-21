@@ -40,7 +40,9 @@ export function useRestoreGraphSession() {
         );
 
         // Update Graph Explorer state
-        setLayoutAlgorithm(graph.layout);
+        if (graph.layout) {
+          setLayoutAlgorithm(graph.layout);
+        }
         await addToGraph(result.entities);
 
         return result;

@@ -41,3 +41,18 @@ export const storedLayoutNameSchema = layoutNameSchema
     );
     return DEFAULT_LAYOUT_NAME;
   });
+
+/**
+ * A layout name saved with a graph, as in a Session or a graph file. A missing
+ * value predates the layout being saved, and an unknown one warns; both parse
+ * as no layout, so loading the graph keeps the current one.
+ */
+export const savedGraphLayoutNameSchema = layoutNameSchema
+  .optional()
+  .catch(({ input }) => {
+    logger.warn(
+      "[graph-layout] Unrecognized layout name; keeping the current layout",
+      input,
+    );
+    return undefined;
+  });

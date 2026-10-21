@@ -186,6 +186,21 @@ function renderButton() {
 
 function graphFile(state: DbState, layout: LayoutName) {
   const graph = createExportedGraph([], [], state.explorer.connection, layout);
+  return toFile(graph);
+}
+
+function graphFileWithoutLayout(state: DbState) {
+  const graph = createExportedGraph(
+    [],
+    [],
+    state.explorer.connection,
+    "F_COSE",
+  );
+  const { layout: _dropped, ...dataWithoutLayout } = graph.data;
+  return toFile({ ...graph, data: dataWithoutLayout });
+}
+
+function toFile(graph: object) {
   return new File([JSON.stringify(graph)], "graph.json", {
     type: "application/json",
   });
@@ -210,6 +225,22 @@ describe("ImportGraphButton", () => {
     await waitFor(() =>
       expect(store.get(graphViewLayoutAlgorithmAtom)).toBe("CONCENTRIC"),
     );
+  });
+
+  it("keeps the current layout when the file has none", async () => {
+    vi.spyOn(Connector, "fetchEntityDetails").mockResolvedValue({
+      entities: { vertices: [], edges: [] },
+      counts: { notFound: { vertices: 0, edges: 0, total: 0 } },
+    });
+    const user = userEvent.setup();
+    const { state, store } = renderButton();
+
+    const restored = vi.spyOn(Connector, "notifyOnIncompleteRestoration");
+
+    await user.upload(fileInput(), graphFileWithoutLayout(state));
+
+    await waitFor(() => expect(restored).toHaveBeenCalled());
+    expect(store.get(graphViewLayoutAlgorithmAtom)).toBe("DAGRE_LR");
   });
 
   it("leaves the layout unchanged when the file's entities fail to load", async () => {
