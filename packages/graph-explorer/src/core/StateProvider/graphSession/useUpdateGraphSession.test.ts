@@ -40,15 +40,15 @@ describe("useUpdateGraphSession", () => {
  * BACKWARD COMPATIBILITY — PERSISTED DATA
  *
  * A session stored before the layout field existed carries no `layout`. The
- * `activeGraphSessionAtom` read seam coerces it to F_COSE, so an old session
- * loads without error, a new one keeps its stored layout, and both coexist in
- * the per-connection map.
+ * `activeGraphSessionAtom` read seam leaves it absent, so an old session loads
+ * without error and restoring it keeps the current layout, a new one keeps its
+ * stored layout, and both coexist in the per-connection map.
  *
  * DO NOT delete or weaken these tests without confirming that no such sessions
  * remain in the wild.
  */
 describe("backward compatibility: legacy sessions without a layout", () => {
-  it("reads a missing layout as F_COSE, keeps a stored one, and both coexist", () => {
+  it("reads a missing layout as absent, keeps a stored one, and both coexist", () => {
     const legacyConnection = new DbState().activeConnection;
     const dbState = new DbState()
       .addInactiveConnection(legacyConnection)
@@ -65,17 +65,14 @@ describe("backward compatibility: legacy sessions without a layout", () => {
     const store = getAppStore();
 
     // Seed a legacy session (no layout) alongside the current one.
-    const legacySession: Omit<GraphSessionStorageModel, "layout"> = {
+    const legacySession: GraphSessionStorageModel = {
       vertices: new Set(),
       edges: new Set(),
     };
     act(() => {
       store.set(allGraphSessionsAtom, previous => {
         const next = new Map(previous);
-        next.set(
-          legacyConnection.id,
-          legacySession as GraphSessionStorageModel,
-        );
+        next.set(legacyConnection.id, legacySession);
         return next;
       });
     });
@@ -87,9 +84,10 @@ describe("backward compatibility: legacy sessions without a layout", () => {
     // The current connection's session reads its stored layout.
     expect(result.current?.layout).toBe("DAGRE_LR");
 
-    // Switching to the legacy connection reads a quiet F_COSE fallback.
+    // Switching to the legacy connection reads no layout.
     act(() => store.set(activeConnectionIdAtom, legacyConnection.id));
     const legacyRead = store.get(activeGraphSessionAtom);
-    expect(legacyRead?.layout).toBe("F_COSE");
+    expect(legacyRead).not.toBeNull();
+    expect(legacyRead?.layout).toBeUndefined();
   });
 });
