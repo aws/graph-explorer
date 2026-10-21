@@ -173,6 +173,20 @@ To fix it, either use an `https://` Database URL, or edit the connection and set
 
 If your browser allows insecure content for this site, the request wasn't blocked and failed for another reason. Check that the database is running at the Database URL and allows cross-origin requests (CORS) from the Graph Explorer page, as described in [Database Not Reachable From the Browser](#database-not-reachable-from-the-browser).
 
+### Requests Refused by Neptune
+
+A **403 Forbidden** error on a Neptune connection means Neptune received the request and refused it. The message under the error comes from Neptune and usually names the reason. Common causes:
+
+- The cluster has IAM database authentication enabled, but the connection has **Use AWS IAM authentication** turned off.
+- The connection's **AWS Region** or **Service Type** doesn't match the database, so the signature doesn't match.
+- The proxy server's AWS identity, such as the ECS task role or the EC2 instance profile's role, has no Neptune data-access policy.
+- The policy's `Resource` doesn't name this database. Check the region, the account ID, and the resource ID, and check that no placeholder or square bracket is left. For Neptune Database, the resource ID is the cluster resource ID starting with `cluster-`, not the cluster identifier.
+- The query changes data, but the policy is read-only.
+
+When the proxy server can't find AWS credentials at all, the request fails before it reaches Neptune, and the proxy server log says credentials couldn't be loaded. On EC2, check the instance profile and the metadata hop limit described in the [EC2 prerequisites](./deploy-to-ec2.md#prerequisites).
+
+For policies to start from, see [Sample IAM Policies](./iam-policies/README.md).
+
 ## Reverse proxy misconfigured
 
 This error appears as soon as the app first calls the Graph Explorer server: on page load when there are no saved connections, otherwise on the first schema sync or query. The client resolves the API root from its own path as soon as it needs it.

@@ -50,46 +50,10 @@ By default, the permission policy for the IAM role of the SageMaker instance wil
 
 The sample policies grant every database action (`neptune-db:*` or `neptune-graph:*`) because the role is shared by everything on the notebook instance, including the Jupyter graph notebooks, which use more actions than Graph Explorer, such as bulk loading and engine status. If you don't need those notebook features, narrow the role as described below.
 
-To restrict Graph Explorer access for its most basic functionality you can use these minimum permissions.
-
-- Read data via queries
-- Get the graph summary information (used for schema sync)
-- Cancel query
+To narrow the role, replace the statement with `"Action": "neptune-db:*"` or `"Action": "neptune-graph:*"` in the sample policy with the single entry in the `Statement` array of the matching read-only sample, [Neptune Database](./iam-policies/neptune-db-read-only.json) or [Neptune Analytics](./iam-policies/neptune-analytics-read-only.json). Keep the SageMaker and CloudWatch Logs statements, which the notebook instance needs. The read-only samples grant read queries and the graph summary, plus query cancellation.
 
 > [!CAUTION]
 >
 > If you are using the standard notebook setup, these policies will apply to both the Jupyter graph notebooks as well as Graph Explorer.
 
 If a user attempts to execute a mutation query inside of Graph Explorer, they will be presented with an error that informs them they are not authorized for that request.
-
-**Neptune DB**
-
-```json
-{
-    "Effect": "Allow",
-    "Action": [
-        "neptune-db:CancelQuery",
-        "neptune-db:ReadDataViaQuery",
-        "neptune-db:GetGraphSummary"
-    ],
-    "Resource": [
-        "arn:[AWS_PARTITION]:neptune-db:[AWS_REGION]:[AWS_ACCOUNT_ID]:[NEPTUNE_CLUSTER_RESOURCE_ID]/*"
-    ]
-},
-```
-
-**Neptune Analytics**
-
-```json
-{
-  "Effect": "Allow",
-  "Action": [
-    "neptune-graph:CancelQuery",
-    "neptune-graph:GetGraphSummary",
-    "neptune-graph:ReadDataViaQuery"
-  ],
-  "Resource": [
-    "arn:[AWS_PARTITION]:neptune-graph:[AWS_REGION]:[AWS_ACCOUNT_ID]:graph/[NEPTUNE_GRAPH_RESOURCE_ID]"
-  ]
-}
-```
