@@ -10,7 +10,7 @@ When a Connection has IAM authentication turned on, the Graph Explorer proxy ser
 
 ## Choose a policy
 
-- **Read-only** runs read queries and reads the graph summary, which schema sync uses. For Neptune Database, it also allows query cancellation, so when Graph Explorer stops waiting for a Gremlin or SPARQL query, such as when you close the tab, the query stops on the database too.
+- **Read-only** runs read queries and reads the graph summary, which schema sync uses. It also allows query cancellation. On Neptune Database, when Graph Explorer stops waiting for a Gremlin or SPARQL query, such as when you close the tab, the query stops on the database too.
   - [Neptune Database](./neptune-db-read-only.json)
   - [Neptune Analytics](./neptune-analytics-read-only.json)
 - **Read-write** adds writing and deleting data to the read-only policy, so queries in the query editor can change the graph.
@@ -18,8 +18,6 @@ When a Connection has IAM authentication turned on, the Graph Explorer proxy ser
   - [Neptune Analytics](./neptune-analytics-read-write.json)
 
 Graph Explorer has no built-in authentication, and every user of a deployment shares the proxy server's identity. With the read-write policy, anyone who can reach the deployment can change or delete data in the database. See [Permissions](../../references/security.md#permissions).
-
-The Neptune Analytics samples leave out query cancellation because Graph Explorer never cancels a Neptune Analytics query.
 
 For the actions in each policy, see [IAM actions for data access](https://docs.aws.amazon.com/neptune/latest/userguide/iam-dp-actions.html) and the [read-only policy example](https://docs.aws.amazon.com/neptune/latest/userguide/iam-data-access-examples.html#iam-auth-data-policy-example-read-query) in the Neptune User Guide.
 

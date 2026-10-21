@@ -50,7 +50,7 @@ By default, the permission policy for the IAM role of the SageMaker instance wil
 
 The sample policies grant every database action (`neptune-db:*` or `neptune-graph:*`) because the role is shared by everything on the notebook instance, including the Jupyter graph notebooks, which use more actions than Graph Explorer, such as bulk loading and engine status. If you don't need those notebook features, narrow the role as described below.
 
-To narrow the role, replace the `neptune-db:*` or `neptune-graph:*` statement in the sample policy with the statement from one of the [read-only samples](./iam-policies/README.md#choose-a-policy). Keep the SageMaker and CloudWatch Logs statements, which the notebook instance needs. The read-only samples grant read queries and the graph summary, plus query cancellation on Neptune Database.
+To narrow the role, replace the `neptune-db:*` or `neptune-graph:*` statement in the sample policy with the statement from one of the [read-only samples](./iam-policies/README.md#choose-a-policy). Keep the SageMaker and CloudWatch Logs statements, which the notebook instance needs. The read-only samples grant read queries and the graph summary, plus query cancellation.
 
 > [!CAUTION]
 >

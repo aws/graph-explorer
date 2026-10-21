@@ -5,7 +5,8 @@
       "Effect": "Allow",
       "Action": [
         "neptune-graph:ReadDataViaQuery",
-        "neptune-graph:GetGraphSummary"
+        "neptune-graph:GetGraphSummary",
+        "neptune-graph:CancelQuery"
       ],
       "Resource": [
         "arn:[AWS_PARTITION]:neptune-graph:[AWS_REGION]:[AWS_ACCOUNT_ID]:graph/[NEPTUNE_GRAPH_RESOURCE_ID]"
