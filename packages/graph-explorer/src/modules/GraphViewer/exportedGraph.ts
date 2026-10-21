@@ -64,12 +64,17 @@ export type ExportedGraphFile = FileEnvelope<GraphExportPayload>;
 export type ExportedGraphConnection = GraphExportPayload["connection"];
 
 /** Creates an exported graph suitable for saving to a file. */
-export function createExportedGraph(
-  vertexIds: VertexId[],
-  edgeIds: EdgeId[],
-  connection: ConnectionConfig,
-  layout: LayoutName,
-): ExportedGraphFile {
+export function createExportedGraph({
+  vertexIds,
+  edgeIds,
+  connection,
+  layout,
+}: {
+  vertexIds: VertexId[];
+  edgeIds: EdgeId[];
+  connection: ConnectionConfig;
+  layout: LayoutName;
+}): ExportedGraphFile {
   return createFileEnvelope(GRAPH_EXPORT_KIND, GRAPH_EXPORT_WIRE_VERSION, {
     connection: createExportedConnection(connection),
     vertices: vertexIds,
