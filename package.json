@@ -21,7 +21,6 @@
     "build": "pnpm --stream -r run build",
     "dev": "pnpm --stream -r run dev"
   },
-  "dependencies": {},
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "5.104.2",
     "eslint-plugin-baseline-js": "0.7.4",
@@ -31,5 +30,5 @@
     "typescript": "^7.0.2",
     "vite-plus": "catalog:"
   },
-  "packageManager": "pnpm@12.8.1+sha512.f64ba907507f5ceafe06c8d38e6052d0179444580ec1279ddd5bfc11cb48aa8a2644b66598e07e761da84872a9fc57d5f902b87fa49d024198d558612aabbe45"
+  "packageManager": "pnpm@12.8.1"
 }
