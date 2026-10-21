@@ -1,0 +1,17 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "neptune-graph:ReadDataViaQuery",
+        "neptune-graph:WriteDataViaQuery",
+        "neptune-graph:DeleteDataViaQuery",
+        "neptune-graph:GetGraphSummary"
+      ],
+      "Resource": [
+        "arn:[AWS_PARTITION]:neptune-graph:[AWS_REGION]:[AWS_ACCOUNT_ID]:graph/[NEPTUNE_GRAPH_RESOURCE_ID]"
+      ]
+    }
+  ]
+}

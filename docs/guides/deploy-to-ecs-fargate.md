@@ -25,7 +25,7 @@ The following steps will allow you to set up Graph Explorer on AWS Fargate in Am
 9. Click **Create role** to finish, and keep the role name handy to use in the next steps.
 10. If your Neptune cluster has IAM database authentication enabled, attach a database policy to the role. The proxy server signs requests with the task role, and Neptune refuses them without this policy.
     1. Open the `GraphExplorer_ECS_Role` role, then click **Add permissions** > **Create inline policy**.
-    2. Switch to the **JSON** editor and paste the contents of the [Neptune Database policy](./iam-policies/graph-explorer-neptune-db-policy.json), or the [Neptune Analytics policy](./iam-policies/graph-explorer-neptune-analytics-policy.json) for Neptune Analytics.
+    2. Switch to the **JSON** editor and paste the contents of one of the [Sample IAM Policies](./iam-policies/README.md#choose-a-policy) for your database.
     3. Replace the placeholders as described in [Sample IAM Policies](./iam-policies/README.md#placeholders).
     4. Click **Next**, name the policy, and click **Create policy**.
 

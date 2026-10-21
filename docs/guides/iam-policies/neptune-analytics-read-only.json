@@ -5,9 +5,6 @@
       "Effect": "Allow",
       "Action": [
         "neptune-graph:ReadDataViaQuery",
-        "neptune-graph:WriteDataViaQuery",
-        "neptune-graph:DeleteDataViaQuery",
-        "neptune-graph:CancelQuery",
         "neptune-graph:GetGraphSummary"
       ],
       "Resource": [
