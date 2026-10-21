@@ -223,7 +223,7 @@ The policy is the stronger control, because Neptune enforces it no matter what s
 
 Graph Explorer doesn't refuse to sign by default. Many deployments serve one person who chooses their own databases, and refusing would break them for a risk the identity's policy already controls. Whoever runs a shared deployment decides how far to limit it.
 
-For the minimum Neptune permissions Graph Explorer needs, see [Minimum Database Permissions](../guides/deploy-to-sagemaker.md#minimum-database-permissions).
+For the minimum Neptune permissions Graph Explorer needs, see [Sample IAM Policies](../guides/iam-policies/README.md) or, for SageMaker, [Minimum Database Permissions](../guides/deploy-to-sagemaker.md#minimum-database-permissions).
 
 > [!CAUTION]
 >
