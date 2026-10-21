@@ -14,7 +14,7 @@ Graph Explorer connects to Amazon Neptune through its proxy server, which forwar
 - AWS Region: your cluster's region (e.g., `us-east-1`)
 - Service Type: **Neptune DB** (or **Neptune Analytics**)
 
-When IAM authentication is enabled, AWS credentials must be available where Graph Explorer's proxy server runs (environment variables, credential file, or IAM role). At minimum, the identity needs read query privileges. See [Sample IAM Policies](./iam-policies/README.md#choose-a-policy).
+When IAM authentication is enabled, AWS credentials must be available where Graph Explorer's proxy server runs (environment variables, credential file, or IAM role). At minimum, the identity needs read query privileges. See [Sample IAM Policies](./iam-policies/README.md#choose-a-policy), and replace the [placeholders](./iam-policies/README.md#placeholders) before you attach one.
 
 For details on how credentials are resolved, see the [AWS credential provider chain documentation](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-aws-sdk-credential-providers/).
 
