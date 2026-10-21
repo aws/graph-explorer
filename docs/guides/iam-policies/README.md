@@ -23,9 +23,9 @@ For the actions in each policy, see [IAM actions for data access](https://docs.a
 
 ## Placeholders
 
-Replace each placeholder in square brackets before you attach the policy.
+Replace each placeholder, including its square brackets, before you attach the policy.
 
-- `[AWS_PARTITION]`: `aws` for most regions
+- `[AWS_PARTITION]`: `aws` for most regions, `aws-cn` for China regions, or `aws-us-gov` for AWS GovCloud (US)
 - `[AWS_REGION]`: the region of your database
 - `[AWS_ACCOUNT_ID]`: the account that owns your database
 - `[NEPTUNE_CLUSTER_RESOURCE_ID]`: the cluster resource ID of your Neptune cluster, shown on its **Configuration** tab and starting with `cluster-`. This is not the cluster identifier.
