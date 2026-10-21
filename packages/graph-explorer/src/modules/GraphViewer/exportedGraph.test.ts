@@ -88,12 +88,18 @@ describe("createExportedGraph", () => {
       sourceVersion: appVersion,
     } satisfies ExportedGraphFile["meta"];
 
-    const graph = createExportedGraph(vertexIds, edgeIds, connection, "F_COSE");
+    const graph = createExportedGraph({
+      vertexIds,
+      edgeIds,
+      connection,
+      layout: "F_COSE",
+    });
 
     expect(graph.meta).toEqual(expectedMeta);
     expect(graph.data.connection).toEqual(expectedConnection);
     expect(graph.data.vertices).toEqual(vertexIds);
     expect(graph.data.edges).toEqual(edgeIds);
+    expect(graph.data.layout).toBe("F_COSE");
   });
 
   it("stamps the generation-1 version as the '1.0' decimal string", () => {
@@ -103,7 +109,12 @@ describe("createExportedGraph", () => {
     // stay on the wire as the decimal string.
     const connection = createRandomConnectionWithId();
 
-    const graph = createExportedGraph([], [], connection, "F_COSE");
+    const graph = createExportedGraph({
+      vertexIds: [],
+      edgeIds: [],
+      connection,
+      layout: "F_COSE",
+    });
 
     expect(graph.meta.version).toBe("1.0");
   });
@@ -112,7 +123,12 @@ describe("createExportedGraph", () => {
     const connection = createRandomConnectionWithId();
     const expectedConnection = createExportedConnection(connection);
 
-    const graph = createExportedGraph([], [], connection, "F_COSE");
+    const graph = createExportedGraph({
+      vertexIds: [],
+      edgeIds: [],
+      connection,
+      layout: "F_COSE",
+    });
 
     expect(graph.data.connection).toEqual(expectedConnection);
     expect(graph.data.vertices).toEqual([]);
@@ -124,7 +140,12 @@ describe("createExportedGraph", () => {
     const edgeIds = createArray(2, () => createRandomEdgeId());
     const connection = createRandomConnectionWithId();
 
-    const graph = createExportedGraph(vertexIds, edgeIds, connection, "F_COSE");
+    const graph = createExportedGraph({
+      vertexIds,
+      edgeIds,
+      connection,
+      layout: "F_COSE",
+    });
 
     expect(graph.meta.timestamp).toEqual(timestamp.toISOString());
   });
@@ -134,7 +155,12 @@ describe("createExportedGraph", () => {
     const edgeIds = createArray(2, () => createRandomEdgeId());
     const connection = createRandomConnectionWithId();
 
-    const graph = createExportedGraph(vertexIds, edgeIds, connection, "F_COSE");
+    const graph = createExportedGraph({
+      vertexIds,
+      edgeIds,
+      connection,
+      layout: "F_COSE",
+    });
 
     expect(graph.meta.sourceVersion).toBe(appVersion);
   });
@@ -144,7 +170,12 @@ describe("createExportedGraph", () => {
     const edgeIds = createArray(2, () => createRandomEdgeId());
     const connection = createRandomConnectionWithId();
 
-    const graph = createExportedGraph(vertexIds, edgeIds, connection, "F_COSE");
+    const graph = createExportedGraph({
+      vertexIds,
+      edgeIds,
+      connection,
+      layout: "F_COSE",
+    });
 
     expect(graph.meta.kind).toBe("graph-export");
   });
@@ -154,7 +185,12 @@ describe("createExportedGraph", () => {
     const edgeIds = createArray(2, () => createRandomEdgeId());
     const connection = createRandomConnectionWithId();
 
-    const graph = createExportedGraph(vertexIds, edgeIds, connection, "F_COSE");
+    const graph = createExportedGraph({
+      vertexIds,
+      edgeIds,
+      connection,
+      layout: "F_COSE",
+    });
 
     expect(graph.meta.source).toBe("Graph Explorer");
   });

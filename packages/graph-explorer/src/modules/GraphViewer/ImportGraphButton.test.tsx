@@ -185,17 +185,22 @@ function renderButton() {
 }
 
 function graphFile(state: DbState, layout: LayoutName) {
-  const graph = createExportedGraph([], [], state.explorer.connection, layout);
+  const graph = createExportedGraph({
+    vertexIds: [],
+    edgeIds: [],
+    connection: state.explorer.connection,
+    layout,
+  });
   return toFile(graph);
 }
 
 function graphFileWithoutLayout(state: DbState) {
-  const graph = createExportedGraph(
-    [],
-    [],
-    state.explorer.connection,
-    "F_COSE",
-  );
+  const graph = createExportedGraph({
+    vertexIds: [],
+    edgeIds: [],
+    connection: state.explorer.connection,
+    layout: "F_COSE",
+  });
   const { layout: _dropped, ...dataWithoutLayout } = graph.data;
   return toFile({ ...graph, data: dataWithoutLayout });
 }

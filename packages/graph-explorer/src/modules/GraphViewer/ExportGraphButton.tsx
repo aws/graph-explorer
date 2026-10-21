@@ -39,12 +39,12 @@ export function useExportGraph() {
     const fileName = createDefaultFileName(
       config?.displayLabel ?? "Connection",
     );
-    const exportData = createExportedGraph(
+    const exportData = createExportedGraph({
       vertexIds,
       edgeIds,
       connection,
       layout,
-    );
+    });
     const fileToSave = toJsonFileData(exportData);
     await saveFile(fileToSave, fileName);
   };
