@@ -21,7 +21,6 @@
     "build": "pnpm --stream -r run build",
     "dev": "pnpm --stream -r run dev"
   },
-  "dependencies": {},
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "5.104.2",
     "eslint-plugin-baseline-js": "0.7.4",
