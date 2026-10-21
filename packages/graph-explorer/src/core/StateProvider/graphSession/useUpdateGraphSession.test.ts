@@ -4,11 +4,14 @@ import { useAtomValue } from "jotai";
 import { act } from "react";
 import { describe, expect, it } from "vite-plus/test";
 
+import type { LayoutName } from "@/core/graphLayout";
+
 import {
   activeConnectionIdAtom,
   allGraphSessionsAtom,
   getAppStore,
 } from "@/core";
+import { logger } from "@/utils";
 import { createRandomGraphViewLayout, DbState } from "@/utils/testing";
 import { renderHookWithState } from "@/utils/testing/renderHookWithJotai";
 
@@ -42,7 +45,8 @@ describe("useUpdateGraphSession", () => {
  * A session stored before the layout field existed carries no `layout`. The
  * `activeGraphSessionAtom` read seam leaves it absent, so an old session loads
  * without error and restoring it keeps the current layout, a new one keeps its
- * stored layout, and both coexist in the per-connection map.
+ * stored layout, and both coexist in the per-connection map. An unknown layout,
+ * such as one a later build removed, reads as absent too, with a warning.
  *
  * DO NOT delete or weaken these tests without confirming that no such sessions
  * remain in the wild.
@@ -89,5 +93,28 @@ describe("backward compatibility: legacy sessions without a layout", () => {
     const legacyRead = store.get(activeGraphSessionAtom);
     expect(legacyRead).not.toBeNull();
     expect(legacyRead?.layout).toBeUndefined();
+  });
+
+  it("reads an unknown layout as absent, with a warning", () => {
+    const dbState = new DbState();
+    renderHookWithState(() => useAtomValue(activeGraphSessionAtom), dbState);
+    const store = getAppStore();
+
+    const staleSession: GraphSessionStorageModel = {
+      vertices: new Set(),
+      edges: new Set(),
+      layout: "REMOVED_LAYOUT" as LayoutName,
+    };
+    act(() => {
+      store.set(allGraphSessionsAtom, previous =>
+        new Map(previous).set(dbState.activeConnection.id, staleSession),
+      );
+    });
+
+    expect(store.get(activeGraphSessionAtom)?.layout).toBeUndefined();
+    expect(logger.warn).toHaveBeenCalledWith(
+      "[graph-layout] Unrecognized layout name; keeping the current layout",
+      "REMOVED_LAYOUT",
+    );
   });
 });
