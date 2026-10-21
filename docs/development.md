@@ -24,43 +24,31 @@ Otherwise, install the version in `.node-version` from [nodejs.org](https://node
 `packageManager` in the root `package.json` pins the exact pnpm version, and you do not have to match it yourself. Any pnpm 11 or newer reads that field and hands the command to the pinned version, so install pnpm however you like and let it switch:
 
 ```bash
-brew install pnpm            # or: npm install -g pnpm
+brew install pnpm            # or any method from https://pnpm.io/installation
 pnpm --version               # prints the pinned version, not the one you installed
 ```
 
-[The standalone script](https://pnpm.io/installation) works too. Prefer any of these over Corepack, because letting pnpm switch versions itself brings the pinned version in as a normal package install, whose integrity the lockfile records for every platform.
-
-If you have Node but no pnpm at all, [Corepack](https://nodejs.org/api/corepack.html) ships with Node 24 and can bootstrap it for you:
-
-```bash
-corepack enable
-```
-
-Corepack takes a different path to the same version, in two hops. It downloads the `pnpm` package and checks it against the hash in `packageManager`, the same hash this repo pins. pnpm 12 is a native executable though, and Corepack installs no dependencies, so pnpm then fetches its own platform binary on first use. That second download is checked against npm's registry signature rather than against the pinned hash. Never set `COREPACK_INTEGRITY_KEYS` to `0` or empty to work around a failed download, because that turns the signature check off entirely.
+A global [Vite+](https://viteplus.dev/guide/) CLI also works. With its environment management on, its `pnpm` shim downloads the version in `packageManager`.
 
 ### Upgrading pnpm
 
 Three files carry the pnpm version itself:
 
-- `packageManager` in `package.json`, which is what self-managing pnpm, Corepack, and CI all resolve.
-- `pnpm-lock.yaml`, which records the version under `packageManagerDependencies` plus an `integrity` for `pnpm` and for each `@pnpm/exe.*` platform package. `corepack use` regenerates this; never hand-edit it. Editing `packageManager` by hand still runs the version you typed, and rewrites these entries to match it, even under `--frozen-lockfile`. So the lockfile does not go stale, but the change lands in a commit nobody reviewed as a lockfile change.
+- `packageManager` in `package.json`, which is what self-managing pnpm and Vite+ in CI and the Docker build all resolve.
+- `pnpm-lock.yaml`, which records the version under `packageManagerDependencies` plus an `integrity` for `pnpm` and for each `@pnpm/exe.*` platform package. `pnpm install` regenerates these entries; never hand-edit them.
 - The pnpm requirement at the top of this document.
 
-Run `corepack use pnpm@<version>` from the repo root. It rewrites `packageManager` with a freshly computed integrity hash and then runs `pnpm install`, which updates the lockfile. Do not hand-write the hash. If `corepack` is not on your `PATH`, install it with `npm install -g corepack@<version>`; Node 24 bundles Corepack but only behind `corepack enable`, and later Node lines drop it entirely.
-
-Do not reach for `pnpm self-update`. It rewrites `packageManager` without the `+sha512` hash, throwing the integrity pin away. `corepack use` is the only command that writes a correct pin.
-
-Update this document to the same version, then confirm nothing shifted:
+Run `pnpm self-update <version>` from the repo root. In a project with `packageManager`, it rewrites only that field and installs nothing globally. Then run `pnpm install` to update the lockfile, update this document to the same version, and confirm nothing shifted:
 
 ```bash
-pnpm install --frozen-lockfile
+pnpm install
 pnpm checks
 pnpm test
 ```
 
 `.github/workflows/ci.yml` and the `Dockerfile` both get pnpm through Vite+, which reads the version from `packageManager`, so a pnpm bump needs no workflow or `Dockerfile` edit. CI uses [`voidzero-dev/setup-vp`](https://github.com/voidzero-dev/setup-vp), and the image builds in the Vite+ image. On a major bump, check the "Set up Vite+" step and the Docker build on the pull request: if the pinned Vite+ cannot run the new pnpm major, upgrade Vite+ first. A Vite+ upgrade changes two pins in the same pull request: the `vite-plus` entry in `pnpm-workspace.yaml`, and the tag and digest on the `FROM ghcr.io/voidzero-dev/vite-plus` line in the `Dockerfile`.
 
-No check in this repo compares the `+sha512` hash against anything, because every tool that installs pnpm already verifies the bytes it fetches and fails closed. Corepack and Vite+ both read the hash and refuse a `pnpm` package that does not match it. pnpm ignores the hash and instead checks each download against the `integrity` in `pnpm-lock.yaml` and against npm's registry signature, so a tampered lockfile stops the install with "its npm registry signature could not be verified" rather than passing quietly.
+`packageManager` carries no `+sha512` hash, so an upgrade is one command. The lockfile pins pnpm's bytes instead: pnpm checks each download against the `integrity` in `pnpm-lock.yaml` and against npm's registry signature, so a tampered lockfile stops the install with "its npm registry signature could not be verified" rather than passing quietly. Vite+ downloads pnpm from the npm registry and relies on the registry's integrity data.
 
 A major bump is also where `pnpm-workspace.yaml` deserves a read. Since pnpm 12, a key that pnpm does not recognize fails the install with `ERR_PNPM_UNRECOGNIZED_WORKSPACE_SETTINGS` instead of being ignored. So a setting removed or renamed upstream stops the install rather than quietly doing nothing. `pnpm config list` prints the `pnpm-workspace.yaml` settings pnpm resolved, which is the quickest way to check, though it lists neither pnpm's defaults nor anything from `.npmrc`.
 
