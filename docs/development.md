@@ -34,17 +34,17 @@ A global [Vite+](https://viteplus.dev/guide/) CLI also works. Its `pnpm` shim us
 
 Three files carry the pnpm version itself:
 
-- `packageManager` in `package.json`, which is what self-managing pnpm and Vite+ in CI and the Docker build all resolve.
+- `packageManager` in `package.json`, which self-managing pnpm resolves locally and Vite+ resolves in CI and the Docker build.
 - `pnpm-lock.yaml`, which records the version under `packageManagerDependencies` plus an `integrity` for `pnpm` and for each `@pnpm/exe.*` platform package. `pnpm install` regenerates these entries; never hand-edit them. A hand-edited `packageManager` makes pnpm run the version you typed and rewrite these entries, even under `--frozen-lockfile`, so review a `packageManager` change as a toolchain change.
 - The pnpm requirement at the top of this document.
 
-Run `pnpm self-update <version>` from the repo root, which rewrites `packageManager`. Then update this document to the same version, run the following to update the lockfile and confirm nothing else shifted, and commit `package.json` and `pnpm-lock.yaml` together:
+To upgrade:
 
-```bash
-pnpm install
-pnpm checks
-pnpm test
-```
+1. Run `pnpm self-update <version>` from the repo root, which rewrites `packageManager`.
+2. Update the pnpm requirement at the top of this document to the same version.
+3. Run `pnpm install` to update the lockfile.
+4. Run `pnpm checks` and `pnpm test` to confirm nothing else broke.
+5. Commit `package.json`, `pnpm-lock.yaml`, and this document together.
 
 `.github/workflows/ci.yml` and the `Dockerfile` both get pnpm through Vite+, which reads the version from `packageManager`, so a pnpm bump needs no workflow or `Dockerfile` edit. CI uses [`voidzero-dev/setup-vp`](https://github.com/voidzero-dev/setup-vp), and the image builds in the Vite+ image. On a major bump, check the "Set up Vite+" step and the Docker build on the pull request: if the pinned Vite+ cannot run the new pnpm major, upgrade Vite+ first. A Vite+ upgrade changes two pins in the same pull request: the `vite-plus` entry in `pnpm-workspace.yaml`, and the tag and digest on the `FROM ghcr.io/voidzero-dev/vite-plus` line in the `Dockerfile`.
 
