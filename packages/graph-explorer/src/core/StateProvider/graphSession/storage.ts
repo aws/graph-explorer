@@ -2,7 +2,10 @@ import { atom } from "jotai";
 import { atomWithReset, RESET } from "jotai/utils";
 
 import { activeConnectionIdAtom, allGraphSessionsAtom } from "@/core";
-import { type LayoutName, storedLayoutNameSchema } from "@/core/graphLayout";
+import {
+  type LayoutName,
+  savedGraphLayoutNameSchema,
+} from "@/core/graphLayout";
 
 import type { EdgeId, VertexId } from "../../entities";
 
@@ -10,7 +13,8 @@ import type { EdgeId, VertexId } from "../../entities";
 export type GraphSessionStorageModel = {
   vertices: Set<VertexId>;
   edges: Set<EdgeId>;
-  layout: LayoutName;
+  /** Absent in a Session saved before the layout was. */
+  layout?: LayoutName;
 };
 
 export const isRestorePreviousSessionAvailableAtom = atomWithReset(true);
@@ -31,9 +35,10 @@ export const activeGraphSessionAtom = atom(
       return null;
     }
 
-    // A legacy session predates the stored layout, so coerce at the read seam:
-    // a missing value quietly takes the default, an unknown one warns.
-    return { ...stored, layout: storedLayoutNameSchema.parse(stored.layout) };
+    return {
+      ...stored,
+      layout: savedGraphLayoutNameSchema.parse(stored.layout),
+    };
   },
   (get, set, newValue: GraphSessionStorageModel | typeof RESET) => {
     const graphs = get(allGraphSessionsAtom);
