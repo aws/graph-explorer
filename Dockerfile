@@ -29,12 +29,12 @@ COPY --chown=vp:vp packages/graph-explorer-proxy-server/package.json packages/gr
 COPY --chown=vp:vp packages/shared/package.json packages/shared/
 RUN vp install --prod --frozen-lockfile --ignore-scripts --filter graph-explorer-proxy-server...
 
-# Pinned to a dated ECR Public snapshot for reproducible builds; bump to move forward.
+# Pinned by digest to a dated ECR Public snapshot for reproducible builds.
 # The tag also pins dnf repo metadata to that date, so a yum update would find
 # nothing newer to install.
 # openssl is for setup-ssl.sh. yum, dnf, and python3 come with the base image
 # and are stripped.
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023.12.20261016.0 AS runtime
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023.12.20261016.0@sha256:c07ab0773eddf9449c0994a87d8148300db98bdf8d8dad672a9dc26321c104fc AS runtime
 RUN yum install -y openssl && \
     yum clean all && \
     rpm -qa 'python3*' | while read pkg; do rpm -e --nodeps "$pkg"; done && \
