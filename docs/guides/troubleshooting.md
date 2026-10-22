@@ -187,6 +187,15 @@ When the proxy server can't find AWS credentials at all, the request fails befor
 
 For policies to start from, see [Sample IAM Policies](./iam-policies/README.md).
 
+### IAM authentication needs an https:// Database URL
+
+A **Bad Request** error with the message "IAM authentication needs an `https://` Database URL" means the connection has **Use AWS IAM authentication** turned on, but its Database URL starts with `http://`. Neptune accepts only HTTPS, so the proxy server refuses to sign the request and doesn't send it. To fix it, either:
+
+- Edit the connection and change the Database URL to `https://`
+- Edit the connection and turn off **Use AWS IAM authentication**, if the database doesn't use IAM authentication
+
+For the Default Connection, change `GRAPH_CONNECTION_URL` to an `https://` URL, or set `IAM` to `false`. For more on signing, see [Permissions](../references/security.md#permissions).
+
 ## Reverse proxy misconfigured
 
 This error appears as soon as the app first calls the Graph Explorer server: on page load when there are no saved connections, otherwise on the first schema sync or query. The client resolves the API root from its own path as soon as it needs it.

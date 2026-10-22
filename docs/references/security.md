@@ -214,6 +214,8 @@ Neither layer substitutes for the other. A read-only database policy does not st
 
 Amazon Neptune IAM database authentication is one way to control the database layer. The proxy server signs a request when it carries the `aws-neptune-region` header, using the AWS credentials of the proxy server's host, such as an EC2 instance profile or ECS task role. That role is the identity Neptune checks, and every user of the deployment shares it. A request without the header goes out unsigned, and the policy does not apply to it.
 
+The proxy server signs a request only when its Database URL starts with `https://`, because Neptune accepts only HTTPS connections, as described in [Encrypting connections to your Amazon Neptune database with SSL/HTTPS](https://docs.aws.amazon.com/neptune/latest/userguide/security-ssl.html). A request with the `aws-neptune-region` header and an `http://` Database URL gets a 400 response, and the proxy server neither signs nor sends it. To fix it, change the Database URL to `https://`, or turn off IAM authentication for that Connection. Requests without the header aren't affected, so a database served over `http://`, such as Gremlin Server, still works without IAM authentication.
+
 Because the identity is shared, any user can reach any database its policy allows, not only the one the deployment was set up for. Two controls limit that, and you can use either or both:
 
 - **The identity's database policy** decides which databases and actions a signed request may use. Scope its `Resource` to the databases you intend, and its actions to the ones Graph Explorer uses: read, write, and delete data via query, cancel query, and get graph summary. Leave out write and delete to make the deployment read-only, at the cost of mutations in the query editor. [Sample IAM Policies](../guides/iam-policies/README.md) has read-only and read-write examples.
@@ -221,7 +223,7 @@ Because the identity is shared, any user can reach any database its policy allow
 
 The policy is the stronger control, because Neptune enforces it no matter what sends the request. The allowlist adds a second boundary in the proxy server, and covers databases that don't use IAM authentication. The proxy server also [doesn't follow redirects](#http-redirects), so a database response can't send it on to another destination.
 
-Graph Explorer doesn't refuse to sign by default. Many deployments serve one person who chooses their own databases, and refusing would break them for a risk the identity's policy already controls. Whoever runs a shared deployment decides how far to limit it.
+Graph Explorer doesn't limit which databases it signs for by default. Many deployments serve one person who chooses their own databases, and refusing would break them for a risk the identity's policy already controls. Whoever runs a shared deployment decides how far to limit it.
 
 For the minimum Neptune permissions Graph Explorer needs, see [Sample IAM Policies](../guides/iam-policies/README.md#choose-a-policy). For SageMaker notebooks, see [Minimum Database Permissions](../guides/deploy-to-sagemaker.md#minimum-database-permissions).
 
