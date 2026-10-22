@@ -14,7 +14,7 @@ import { pipeline } from "stream";
 import { z } from "zod";
 
 import { errorHandlingMiddleware } from "./error-handler.ts";
-import { RequestValidationError } from "./errors.ts";
+import { HttpError, RequestValidationError } from "./errors.ts";
 import { type AppLogger, requestLoggingMiddleware } from "./logging.ts";
 import { assertPermittedDbOrigin } from "./permitted-db-origins.ts";
 
@@ -60,6 +60,20 @@ function hasNoEmbeddedCredentials(value: string) {
   }
 }
 
+/**
+ * Throws {@link HttpError} 400 unless the database URL uses HTTPS. Neptune
+ * accepts only HTTPS, so a signed request sent over plain HTTP can never
+ * succeed.
+ */
+function assertHttpsForIamSigning(url: string) {
+  if (new URL(url).protocol !== "https:") {
+    throw new HttpError(
+      400,
+      "IAM authentication needs an https:// Database URL. Change the Database URL to https://, or turn off IAM authentication for this connection.",
+    );
+  }
+}
+
 /** Zod schema for the custom headers expected on database query requests. */
 const DbQueryHeadersSchema = z.object({
   queryid: z.string().optional(),
@@ -78,8 +92,9 @@ const DbQueryHeadersSchema = z.object({
 
 /**
  * Validates and extracts database query headers. Throws
- * {@link RequestValidationError} on malformed headers and `HttpError`
- * 403 when the database origin is not permitted.
+ * {@link RequestValidationError} on malformed headers, `HttpError` 403
+ * when the database origin is not permitted, and `HttpError` 400 when IAM
+ * signing is requested for a database URL that isn't HTTPS.
  */
 function parseDbQueryHeaders(
   headers: IncomingHttpHeaders,
@@ -91,6 +106,9 @@ function parseDbQueryHeaders(
   }
   const parsed = result.data;
   assertPermittedDbOrigin(parsed["graph-db-connection-url"], allowedDbOrigins);
+  if (parsed["aws-neptune-region"]) {
+    assertHttpsForIamSigning(parsed["graph-db-connection-url"]);
+  }
 
   const authOptions = parsed["aws-neptune-region"]
     ? {

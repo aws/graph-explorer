@@ -864,6 +864,53 @@ describe("createApp", () => {
       expect(fetchOptions.headers).not.toHaveProperty("authorization");
     });
 
+    describe("with an http:// Database URL", () => {
+      const httpDbUrl = "http://my-graph-db.example.com:8182";
+
+      it.each(forwardingRoutes)(
+        "$method $route returns 400 without signing or fetching",
+        async ({ method, route, body }) => {
+          const app = createTestApp();
+          const req = request(app)
+            [method](route)
+            .set(
+              dbHeaders({
+                "graph-db-connection-url": httpDbUrl,
+                "aws-neptune-region": "us-east-1",
+                "service-type": "neptune-db",
+              }),
+            );
+          const response = body ? await req.send(body) : await req;
+
+          expect(response.status).toBe(400);
+          expect(response.body.error.message).toContain(
+            "IAM authentication needs an https:// Database URL",
+          );
+          expect(mockFetch).not.toHaveBeenCalled();
+        },
+      );
+
+      it("forwards an unsigned request to an http:// Database URL unchanged", async () => {
+        mockFetchOnce();
+
+        const app = createTestApp();
+        const response = await request(app)
+          .post("/gremlin")
+          .set(dbHeaders({ "graph-db-connection-url": httpDbUrl }))
+          .send({ gremlin: "g.V()" });
+
+        expect(response.status).toBe(200);
+        expect(mockFetch).toHaveBeenCalledWith(
+          `${httpDbUrl}/gremlin`,
+          expect.anything(),
+        );
+        const fetchOptions = mockFetch.mock.calls.find(
+          ([url]) => url === `${httpDbUrl}/gremlin`,
+        )![1];
+        expect(fetchOptions?.headers).not.toHaveProperty("authorization");
+      });
+    });
+
     describe("without a Database Origin Allowlist", () => {
       const signedHeaders = {
         "aws-neptune-region": "us-east-1",
