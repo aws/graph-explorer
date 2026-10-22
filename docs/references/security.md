@@ -4,7 +4,21 @@
 
 The browser talks to the same-origin proxy server, and the proxy server is what reaches the graph database. That means the proxy server must have network access to the target database, as described in the [architecture overview](../architecture.md#system-overview). The one exception is a direct connection, where the browser sends requests to the database itself.
 
-Graph Explorer supports the HTTPS protocol by default and provides a self-signed certificate as part of the Docker image. You can choose to use HTTP instead by changing the [environment variable default settings](./configuration.md#application-configuration).
+The Docker image serves HTTPS by default. It generates a self-signed certificate at startup when `HOST` is set, or uses certificates you provide, as described in [HTTPS Connections](#https-connections). [Supported Hosting](#supported-hosting) lists the setups Graph Explorer supports.
+
+## Supported Hosting
+
+A supported deployment of Graph Explorer has both of these:
+
+- **HTTPS.** Graph Explorer serves it with its own certificate, as described in [HTTPS Connections](#https-connections), or a reverse proxy in front of Graph Explorer terminates TLS.
+- **Access control you provide.** Authentication in front of Graph Explorer, or network rules that limit who can reach it. See [Access Control](#access-control).
+
+Graph Explorer can serve plain HTTP in two cases:
+
+- **Behind a reverse proxy that terminates TLS**, when only the reverse proxy can reach Graph Explorer. See [Serving HTTP Behind a Reverse Proxy](#serving-http-behind-a-reverse-proxy).
+- **To try Graph Explorer on your own machine**, when no other machine can reach it, such as with its port published on `127.0.0.1`.
+
+Plain HTTP that other machines can reach isn't supported, because database connection URLs, query text, and query results cross the network unencrypted.
 
 ## Access Control
 
@@ -14,7 +28,7 @@ Anyone who can reach Graph Explorer can read and modify any data in the connecte
 
 You own who can reach the deployment and what authenticates in front of it. Graph Explorer owns behaving correctly once a request arrives.
 
-Access control for this application can live in one of two places. You can control who can reach the proxy server at all, through network placement and firewall or security group rules. You can also put something in front of it that authenticates callers.
+Access control for this application can live in one of two places. You can control who can reach the proxy server at all, through network placement and network rules you provide. Confirm your rules apply to the port you publish, because container platforms can publish ports in a way host firewalls don't filter. You can also put something in front of it that authenticates callers.
 
 Of the four documented deployment paths, one runs on a platform that already provides an authentication layer.
 
@@ -35,7 +49,7 @@ When Graph Explorer connects to a server with Groovy enabled:
 
 - Restrict access to Graph Explorer as strictly as access to the Gremlin Server host.
 - Keep Graph Explorer on an isolated network behind an authenticating layer, and never make it publicly reachable.
-- Let only Graph Explorer's proxy server reach Gremlin Server, for example with firewall or security group rules. A [direct connection](../features/connections.md#add-a-new-connection) needs each user's browser to reach Gremlin Server instead, which also lets every other site open in that browser reach it, even when the server listens only on `localhost`. Prefer a proxy connection, and choose a direct connection only for a server you accept that exposure on.
+- Let only Graph Explorer's proxy server reach Gremlin Server, with network rules you provide. A [direct connection](../features/connections.md#add-a-new-connection) needs each user's browser to reach Gremlin Server instead, which also lets every other site open in that browser reach it, even when the server listens only on `localhost`. Prefer a proxy connection, and choose a direct connection only for a server where you accept that risk.
 
 For server-side options, read [Security](https://tinkerpop.apache.org/docs/current/reference/#security) and [Protecting Script Execution](https://tinkerpop.apache.org/docs/current/reference/#script-execution) in the TinkerPop reference documentation. Amazon Neptune doesn't use the Groovy script engine.
 
@@ -131,15 +145,28 @@ docker run -p 443:443 \
   public.ecr.aws/neptune/graph-explorer
 ```
 
-### Disabling HTTPS
+<a id="disabling-https"></a>
 
-To serve over HTTP instead, set `PROXY_SERVER_HTTPS_CONNECTION=false` in your environment or `.env` file.
+### Serving HTTP Behind a Reverse Proxy
+
+When a reverse proxy in front of Graph Explorer terminates TLS, Graph Explorer can serve plain HTTP to it. Set `PROXY_SERVER_HTTPS_CONNECTION=false` in your environment or `.env` file. The proxy server then listens on [`PROXY_SERVER_HTTP_PORT`](./configuration.md#proxy_server_http_port), port `80` by default, on every network interface.
+
+Let only the reverse proxy reach that port:
+
+- When the reverse proxy runs on the same host, publish the port on the loopback interface, such as `-p 127.0.0.1:80:80`.
+- When it runs on another host, limit the port to the reverse proxy with network rules you provide.
+
+Confirm your rules apply to the port you publish. Container platforms can publish ports in a way host firewalls don't filter.
 
 > [!WARNING]
 >
-> Do not disable HTTPS unless something in front of Graph Explorer terminates TLS. Over HTTP, database connection URLs, query text, and query results travel in plain text between the browser and the proxy server.
+> Over HTTP, database connection URLs, query text, and query results travel in plain text between the reverse proxy and the proxy server. A client that reaches the port directly also skips any authentication the reverse proxy applies.
+
+To try Graph Explorer on your own machine without a reverse proxy, publish the port on `127.0.0.1` so no other machine can reach it. See [Supported Hosting](#supported-hosting).
 
 ### Trusting the self-signed certificate
+
+Trusting the certificate by hand suits a deployment only you use. Every user would have to repeat these steps on their own machine, and a user who clicks through the browser warning can't confirm they reached your server. For a deployment other people use, serve a certificate their browsers already trust, either [your own certificate](#using-your-own-certificates) or one on a reverse proxy that terminates TLS.
 
 When using the default self-signed certificate, your browser will show a security warning. You can bypass this by trusting the certificate:
 
