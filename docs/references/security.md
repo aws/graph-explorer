@@ -43,7 +43,7 @@ For server-side options, read [Security](https://tinkerpop.apache.org/docs/curre
 
 How Graph Explorer behaves on the wire, for anyone adding an access control layer in front of it.
 
-**Request headers.** The proxy server reads `graph-db-connection-url`, `aws-neptune-region`, `service-type`, `db-query-logging-enabled`, and `queryid`. `POST /logger` also reads `level` and `message`. Without `graph-db-connection-url`, every query fails with a 400 whose body names the missing header. The proxy server never reads a client `Authorization` header or cookie, and never forwards either one to the database.
+**Request headers.** The proxy server reads `graph-db-connection-url`, `aws-neptune-region`, `service-type`, `db-query-logging-enabled`, and `queryid`. Without `graph-db-connection-url`, every query fails with a 400 whose body names the missing header. The proxy server never reads a client `Authorization` header or cookie, and never forwards either one to the database.
 
 **Paths.** The UI lives under `/explorer`. It calls the API on its own origin, under the same prefix it was loaded from, with the `/explorer` segment cut out. A layer that renames that segment breaks the UI, see [Reverse proxy misconfigured](../guides/troubleshooting.md#reverse-proxy-misconfigured). The API paths sit next to `/explorer`, not under it, so a layer that forwards only `/explorer/*` serves a UI that loads and then fails every query.
 
@@ -58,6 +58,8 @@ How Graph Explorer behaves on the wire, for anyone adding an access control laye
 | `/rdf/statistics/summary` | GET    |
 | `/logger`                 | POST   |
 | `/status`                 | GET    |
+
+**Client logs.** `POST /logger` takes a JSON body with `level` and `message`, and logs it on the server. The request must send `Content-Type: application/json`, and any other content type gets a 415. The route no longer reads the `level` and `message` headers, so a request that sends only those headers gets a 400. The message is limited to 10,000 characters.
 
 **Path matching.** The proxy server matches paths case-insensitively, so `/gremlin` and `/GREMLIN` reach the same handler. A path rule in a layer that matches case-sensitively covers only the casing it names. The `/explorer` segment is the exception. The UI finds it in its own URL with a case-sensitive match, so a layer that changes its casing breaks the UI the same way renaming it does.
 
