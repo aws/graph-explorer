@@ -29,53 +29,20 @@ describe("ServerLoggerConnector", () => {
 
     const connector = new ServerLoggerConnector();
 
-    connector.error("error msg");
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.objectContaining({ href: "https://example.com/logger" }),
-      {
-        method: "POST",
-        headers: { level: "error", message: JSON.stringify("error msg") },
-      },
-    );
-
-    connector.warn("warn msg");
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.objectContaining({ href: "https://example.com/logger" }),
-      {
-        method: "POST",
-        headers: { level: "warn", message: JSON.stringify("warn msg") },
-      },
-    );
-
-    connector.info("info msg");
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.objectContaining({ href: "https://example.com/logger" }),
-      {
-        method: "POST",
-        headers: { level: "info", message: JSON.stringify("info msg") },
-      },
-    );
-
-    connector.debug("debug msg");
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.objectContaining({ href: "https://example.com/logger" }),
-      {
-        method: "POST",
-        headers: { level: "debug", message: JSON.stringify("debug msg") },
-      },
-    );
-
-    connector.trace("trace msg");
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.objectContaining({ href: "https://example.com/logger" }),
-      {
-        method: "POST",
-        headers: { level: "trace", message: JSON.stringify("trace msg") },
-      },
-    );
+    for (const level of ["error", "warn", "info", "debug", "trace"] as const) {
+      connector[level](`${level} msg`);
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.objectContaining({ href: "https://example.com/logger" }),
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ level, message: `${level} msg` }),
+        },
+      );
+    }
   });
 
-  test("should resolve logger path relative to baseURI", () => {
+  test("should resolve the logger path relative to baseURI", () => {
     const mockFetch = vi.fn().mockResolvedValue({});
     vi.stubGlobal("fetch", mockFetch);
     stubDocumentUrl("https://example.com/proxy/9250/explorer/");
@@ -91,25 +58,18 @@ describe("ServerLoggerConnector", () => {
     );
   });
 
-  test("does not throw when the message can't be serialized", async () => {
+  test("sends a message with backslashes and newlines unchanged", () => {
     const mockFetch = vi.fn().mockResolvedValue({});
     vi.stubGlobal("fetch", mockFetch);
     stubDocumentUrl("https://example.com/explorer/");
-    const circular: Record<string, unknown> = {};
-    circular.self = circular;
 
     const connector = new ServerLoggerConnector();
+    connector.info("C:\\Users\\kris\nnext");
 
-    let result: Promise<unknown> | undefined;
-    expect(() => {
-      result = connector.error(circular);
-    }).not.toThrow();
-    await expect(result).resolves.toBeUndefined();
-    expect(mockFetch).not.toHaveBeenCalled();
-    expect(vi.mocked(logger.error)).toHaveBeenCalledWith(
-      "Failed to send log to server",
-      expect.any(TypeError),
-    );
+    expect(JSON.parse(mockFetch.mock.calls[0][1].body)).toStrictEqual({
+      level: "info",
+      message: "C:\\Users\\kris\nnext",
+    });
   });
 
   test("does not throw when the API URL can't be resolved", async () => {

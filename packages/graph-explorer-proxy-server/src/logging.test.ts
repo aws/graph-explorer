@@ -133,19 +133,39 @@ describe("requestLoggingMiddleware", () => {
     expect(next).toHaveBeenCalled();
   });
 
-  it("skips logging for /logger endpoint", () => {
-    const middleware = requestLoggingMiddleware();
-    const req = createMockRequest({ method: "POST", path: "/logger" });
-    const logger = req.app.locals.logger;
-    const traceSpy = vi.spyOn(logger, "trace");
-    const res = createMockResponse(200);
-    const next = vi.fn();
+  it.each(["/logger", "/LOGGER", "/logger/"])(
+    "skips logging for the client log endpoint at %s",
+    path => {
+      const middleware = requestLoggingMiddleware();
+      const req = createMockRequest({ method: "POST", path });
+      const logger = req.app.locals.logger;
+      const traceSpy = vi.spyOn(logger, "trace");
+      const res = createMockResponse(200);
+      const next = vi.fn();
 
-    middleware(req, res, next);
+      middleware(req, res, next);
 
-    expect(next).toHaveBeenCalled();
-    expect(traceSpy).not.toHaveBeenCalled();
-  });
+      expect(next).toHaveBeenCalled();
+      expect(traceSpy).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["/loggers", "/v2/logger", "/logger/extra"])(
+    "logs requests to %s",
+    path => {
+      const middleware = requestLoggingMiddleware();
+      const req = createMockRequest({ method: "POST", path });
+      const logger = req.app.locals.logger;
+      const traceSpy = vi.spyOn(logger, "trace");
+      const res = createMockResponse(200);
+      const next = vi.fn();
+
+      middleware(req, res, next);
+
+      expect(next).toHaveBeenCalled();
+      expect(traceSpy).toHaveBeenCalled();
+    },
+  );
 
   it("skips logging for OPTIONS requests", () => {
     const middleware = requestLoggingMiddleware();

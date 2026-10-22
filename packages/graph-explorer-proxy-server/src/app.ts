@@ -2,6 +2,7 @@ import type { IncomingHttpHeaders } from "http";
 
 import { Sha256 } from "@aws-crypto/sha256-js";
 import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
+import { logLevelOptions } from "@graph-explorer/shared/types";
 import { HttpRequest } from "@smithy/protocol-http";
 import { SignatureV4 } from "@smithy/signature-v4";
 import bodyParser from "body-parser";
@@ -15,7 +16,11 @@ import { z } from "zod";
 
 import { errorHandlingMiddleware } from "./error-handler.ts";
 import { RequestValidationError } from "./errors.ts";
-import { type AppLogger, requestLoggingMiddleware } from "./logging.ts";
+import {
+  type AppLogger,
+  CLIENT_LOG_PATH,
+  requestLoggingMiddleware,
+} from "./logging.ts";
 import { assertPermittedDbOrigin } from "./permitted-db-origins.ts";
 
 const DEFAULT_SERVICE_TYPE = "neptune-db";
@@ -76,6 +81,14 @@ const DbQueryHeadersSchema = z.object({
   "db-query-logging-enabled": z.stringbool().optional().default(false),
 });
 
+const CLIENT_LOG_MESSAGE_MAX_LENGTH = 10_000;
+
+/** Zod schema for the JSON body of a log entry sent by the browser. */
+const ClientLogBodySchema = z.object({
+  level: z.enum(logLevelOptions),
+  message: z.string().min(1).max(CLIENT_LOG_MESSAGE_MAX_LENGTH),
+});
+
 /**
  * Validates and extracts database query headers. Throws
  * {@link RequestValidationError} on malformed headers and `HttpError`
@@ -110,11 +123,6 @@ function parseDbQueryHeaders(
     shouldLogDbQuery: parsed["db-query-logging-enabled"],
     ...authOptions,
   };
-}
-
-interface LoggerIncomingHttpHeaders extends IncomingHttpHeaders {
-  level?: string;
-  message?: string;
 }
 
 interface CreateAppOptions {
@@ -639,39 +647,27 @@ export function createApp({
     res.send("OK");
   });
 
-  app.post("/logger", (req, res, next) => {
-    const logger = getLogger();
-    const headers = req.headers as LoggerIncomingHttpHeaders;
-    let message;
-    let level;
-    try {
-      if (headers["level"] === undefined) {
-        throw new Error("No log level passed.");
-      } else {
-        level = headers["level"];
-      }
-      if (headers["message"] === undefined) {
-        throw new Error("No log message passed.");
-      } else {
-        message = JSON.parse(headers["message"]).replaceAll("\\", "");
-      }
-      if (level.toLowerCase() === "error") {
-        logger.error(message);
-      } else if (level.toLowerCase() === "warn") {
-        logger.warn(message);
-      } else if (level.toLowerCase() === "info") {
-        logger.info(message);
-      } else if (level.toLowerCase() === "debug") {
-        logger.debug(message);
-      } else if (level.toLowerCase() === "trace") {
-        logger.trace(message);
-      } else {
-        throw new Error("Tried to log to an unknown level.");
-      }
-      res.send("Log received.");
-    } catch (error) {
-      next(error);
+  app.post(CLIENT_LOG_PATH, (req, res) => {
+    // Responds directly: the error middleware would log every rejected request.
+    if (req.headers["content-type"] && req.is("application/json") === false) {
+      res.status(415).send({
+        error: {
+          status: 415,
+          message: "Content-Type must be application/json.",
+        },
+      });
+      return;
     }
+
+    const result = ClientLogBodySchema.safeParse(req.body);
+    if (!result.success) {
+      throw new RequestValidationError(result.error);
+    }
+    const { level, message } = result.data;
+
+    // A structured field keeps a multi-line message in one log entry.
+    getLogger()[level]({ source: "client", clientLog: message }, "client log");
+    res.send("Log received.");
   });
 
   // Error handler middleware to log errors and send appropriate response.
