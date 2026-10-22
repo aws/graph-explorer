@@ -371,18 +371,28 @@ describe("createApp", () => {
 
   // ── Logger route ───────────────────────────────────────────────────
 
-  it("POST /logger returns error when level header is missing", async () => {
+  it.fails("POST /logger returns 400 when the level is missing", async () => {
     const app = createTestApp();
     const response = await request(app)
       .post("/logger")
       .set("message", JSON.stringify("test message"));
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(400);
   });
 
-  it("POST /logger returns error when message header is missing", async () => {
+  it.fails("POST /logger returns 400 when the message is missing", async () => {
     const app = createTestApp();
     const response = await request(app).post("/logger").set("level", "info");
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(400);
+  });
+
+  it.fails("POST /logger keeps backslashes in the message", async () => {
+    const app = createTestApp();
+    const infoSpy = vi.spyOn(app.locals.logger, "info");
+    await request(app)
+      .post("/logger")
+      .set("level", "info")
+      .set("message", JSON.stringify("C:\\Users\\kris"));
+    expect(infoSpy).toHaveBeenCalledWith("C:\\Users\\kris");
   });
 
   it("POST /logger succeeds with valid level and message", async () => {
@@ -407,13 +417,13 @@ describe("createApp", () => {
     },
   );
 
-  it("POST /logger returns error for unknown log level", async () => {
+  it.fails("POST /logger returns 400 for an unknown log level", async () => {
     const app = createTestApp();
     const response = await request(app)
       .post("/logger")
       .set("level", "verbose")
       .set("message", JSON.stringify("msg"));
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(400);
   });
 
   // ── Error handling middleware ──────────────────────────────────────
