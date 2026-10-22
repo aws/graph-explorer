@@ -108,16 +108,16 @@ This collapsible view shows a row-column display of the data in the Graph View. 
 
 The following columns are available for filtering on property graphs (RDF graphs in parentheses):
 
-- Node ID (Resource URI)
-- Node Type (Class)
-- Edge Type (Predicate)
-- Source ID (Source URI)
-- Source Type (Source Class)
-- Target ID (Target URI)
-- Target Type (Target Class)
-- Display Name - Set in the Styles panel
-- Display Description - Set in the Styles panel
-- Total Neighbors - Enter an integer to be used as the >= limit
+- Node Id (Resource Id)
+- Node Label (Class)
+- Edge Label, or Relationship Type in openCypher (Predicate)
+- Source Id
+- Source Label (Source Class)
+- Target Id
+- Target Label (Target Class)
+- Name - Set in the Styles panel
+- Description - Set in the Styles panel
+- Neighbors - Enter an integer to be used as the >= limit
 
 ### Additional Table View Features
 
