@@ -176,6 +176,8 @@ docker run -p 443:443 \
  public.ecr.aws/neptune/graph-explorer
 ```
 
+This publishes Graph Explorer on every network interface of the host. Limit who can reach it as described in [Access Control](./security.md#access-control).
+
 ### Environment Variable Approach
 
 Provide the desired connection variables directly to the `docker run` command, as follows:
@@ -193,3 +195,5 @@ docker run -p 443:443 \
  --env GRAPH_EXP_NODE_EXPANSION_LIMIT=500 \
  public.ecr.aws/neptune/graph-explorer
 ```
+
+This publishes Graph Explorer on every network interface of the host. Limit who can reach it as described in [Access Control](./security.md#access-control).
