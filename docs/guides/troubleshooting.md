@@ -19,12 +19,12 @@ This page contains workarounds for common issues and information on how to diagn
 
 ### Ports in Use
 
-With HTTPS on, the default, Graph Explorer listens on port 443 only. If port 443 is already in use on the host, use the `-p` flag to publish the container on a different host port. The host port is the first of the two numbers, and you can change it to any free port.
+If port 443 is already in use on the host, use the `-p` flag to publish Graph Explorer on another port. The host port is the first of the two numbers.
 
-For example, to use port 4431, run the following command:
+For example, to use port 4431:
 
 ```
-docker run -p 4431:443 \
+docker run -p 127.0.0.1:4431:443 \
  --name graph-explorer \
  --env HOST=localhost \
  public.ecr.aws/neptune/graph-explorer
@@ -32,7 +32,7 @@ docker run -p 4431:443 \
 
 Graph Explorer is then at `https://localhost:4431/explorer`.
 
-With HTTPS off, Graph Explorer listens on port 80 instead, so remap that port the same way, such as `-p 8080:80`.
+With HTTPS off, Graph Explorer listens on port 80 instead, so remap that port the same way, such as `-p 127.0.0.1:8080:80`.
 
 ### Serving HTTP behind a reverse proxy
 

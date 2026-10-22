@@ -59,7 +59,7 @@ You can find the latest version of the image on [Amazon's ECR Public Registry](h
 
    > [!IMPORTANT]
    >
-   > `-p 443:443` publishes the container on every network interface of the host, not only `localhost`. `-p 127.0.0.1:443:443` publishes it on the loopback interface only, so only the host itself can reach it. Restricting port `443` at the host firewall or security group is the other way to limit who can reach it.
+   > `-p 443:443` publishes the container on every network interface of the host, not only `localhost`. `-p 127.0.0.1:443:443` publishes it on the loopback interface only, so only the host itself can reach it. Network rules you provide for port `443` are the other way to limit who can reach it. Confirm your rules apply to the port you publish, because container platforms can publish ports in a way host firewalls don't filter.
 
 4. Open a browser and type in the URL of the Graph Explorer server instance
 
