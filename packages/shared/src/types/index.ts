@@ -7,6 +7,15 @@ export const neptuneServiceTypeOptions = [
 ] as const;
 export type NeptuneServiceType = (typeof neptuneServiceTypeOptions)[number];
 
+export const logLevelOptions = [
+  "error",
+  "warn",
+  "info",
+  "debug",
+  "trace",
+] as const;
+export type LogLevel = (typeof logLevelOptions)[number];
+
 export type ConnectionConfig = {
   /**
    * The URL of the graph database endpoint.
