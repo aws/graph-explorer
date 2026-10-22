@@ -369,6 +369,50 @@ describe("createApp", () => {
     });
   });
 
+  // ── Framing policy ─────────────────────────────────────────────────
+
+  describe("framing policy", () => {
+    let tmpDir: string;
+
+    beforeEach(() => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-framing-test-"));
+      fs.writeFileSync(
+        path.join(tmpDir, "index.html"),
+        "<html>explorer</html>",
+      );
+    });
+
+    afterEach(() => {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it.each([
+      ["the UI's index.html", "/explorer/", 200],
+      ["the bare mount redirect", "/explorer", 301],
+      ["an API route", "/status", 200],
+      ["an unknown route", "/nonexistent", 404],
+    ])(
+      "allows only same-origin framing for %s",
+      async (_name, route, status) => {
+        const app = createApp({
+          configPath: ".",
+          staticFilesVirtualPath: "/explorer",
+          staticFilesPath: tmpDir,
+          version: testVersion,
+        });
+        app.locals.logger = createLogger(createTestEnvironment());
+
+        const response = await request(app).get(route);
+
+        expect(response.status).toBe(status);
+        expect(response.headers["content-security-policy"]).toBe(
+          "frame-ancestors 'self'",
+        );
+        expect(response.headers["x-frame-options"]).toBe("SAMEORIGIN");
+      },
+    );
+  });
+
   // ── Logger route ───────────────────────────────────────────────────
 
   it("POST /logger returns error when level header is missing", async () => {

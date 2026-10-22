@@ -138,6 +138,13 @@ export function createApp({
 
   app.use(requestLoggingMiddleware());
   app.use(compression());
+  // Graph Explorer has no reason to be embedded by another site, and a
+  // cross-origin frame is how clickjacking reaches it.
+  app.use((_req, res, next) => {
+    res.setHeader("Content-Security-Policy", "frame-ancestors 'self'");
+    res.setHeader("X-Frame-Options", "SAMEORIGIN");
+    next();
+  });
   if (corsOrigin) {
     app.use(
       cors({
