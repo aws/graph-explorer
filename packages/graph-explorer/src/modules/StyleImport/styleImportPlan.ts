@@ -9,10 +9,12 @@ import type {
 } from "@/core/StateProvider/graphStyles";
 import type { StylingParseResult } from "@/core/styling";
 
+import { transformEdgeStyles } from "@/core/StateProvider/edgeStylesTransform";
 import {
   resolveEdgeStyle,
   resolveVertexStyle,
 } from "@/core/StateProvider/graphStyles";
+import { transformVertexStyles } from "@/core/StateProvider/vertexStylesTransform";
 
 /**
  * Whether the type already has a user style the load would replace (`existing`)
@@ -65,6 +67,10 @@ export type StyleImportPlan = {
  * existing. Comparison is at the resolved level so a file that merely sets a
  * field to its existing effective value is skipped, regardless of how the two
  * storage partials happen to differ.
+ *
+ * Incoming entries are normalized first, as stored ones are on load, so the
+ * previews and the write both see styles with no unusable color or retired
+ * shape.
  */
 export function buildStyleImportPlan(
   parsed: StylingParseResult,
@@ -74,7 +80,7 @@ export function buildStyleImportPlan(
   const items: StyleImportItem[] = [];
   let skippedCount = 0;
 
-  for (const [type, incoming] of parsed.vertexStyles) {
+  for (const [type, incoming] of transformVertexStyles(parsed.vertexStyles)) {
     const current = currentVertexStyles.get(type);
     const incomingStyle = resolveVertexStyle(type, incoming);
     const currentStyle = resolveVertexStyle(type, current);
@@ -92,7 +98,7 @@ export function buildStyleImportPlan(
     });
   }
 
-  for (const [type, incoming] of parsed.edgeStyles) {
+  for (const [type, incoming] of transformEdgeStyles(parsed.edgeStyles)) {
     const current = currentEdgeStyles.get(type);
     const incomingStyle = resolveEdgeStyle(type, incoming);
     const currentStyle = resolveEdgeStyle(type, current);

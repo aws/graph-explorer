@@ -24,6 +24,7 @@ export * from "./ReverseProxyMisconfiguredError";
 export * from "./formatEntityCounts";
 export * from "./formatRelativeDate";
 export * from "./numbers";
+export * from "./omitFields";
 export * from "./isCancellationError";
 export * from "./isVisible";
 export * from "./parseNumberSafely";

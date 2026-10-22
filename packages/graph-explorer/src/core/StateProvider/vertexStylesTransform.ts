@@ -1,8 +1,10 @@
 import { isAllowedIconValue } from "@/core/icons";
-import { logger } from "@/utils";
+import { logger, omitFields } from "@/utils";
 
 import type { VertexType } from "../entities";
 import type { ShapeStyle, VertexStyleStorage } from "./graphStyles";
+
+import { findUnusableColors } from "./findUnusableColors";
 
 /**
  * Shapes that cytoscape's round-polygon renderer draws incorrectly at small
@@ -29,57 +31,33 @@ export function coerceBrokenShape(shape: ShapeStyle): ShapeStyle {
   return BROKEN_SHAPE_REPLACEMENTS.get(shape) ?? shape;
 }
 
-/**
- * Color fields whose value must be usable or absent. Named explicitly because
- * `iconUrl` is also a string where empty is *meaningful* — it means "no icon".
- */
 const COLOR_FIELDS = ["color", "borderColor"] as const;
 
-/**
- * Drops color fields that hold nothing renderable.
- *
- * Colors are validated as bare optional strings on import, so a styling file
- * can carry `"color": ""`. An empty value still overrides the app default
- * through the spread in `resolveVertexStyle`, leaving every consumer to render
- * a node with no background or an icon that falls back to black. Removing the
- * field instead lets the default apply — and keeps following it if it changes.
- */
-function dropBlankColors(entry: VertexStyleStorage): VertexStyleStorage | null {
-  let cleaned: VertexStyleStorage | null = null;
-
-  for (const field of COLOR_FIELDS) {
-    const value = entry[field];
-    if (value !== undefined && !value.trim()) {
-      cleaned ??= { ...entry };
-      delete cleaned[field];
-    }
-  }
-
-  return cleaned;
-}
+const ICON_FIELDS = ["iconUrl", "iconImageType"] as const;
 
 /**
- * Drops an icon outside the allowlist, with its image type, so the default
- * icon applies. The app only ever writes allowlisted icons, so this catches
- * hand-edited values, such as a remote url. An empty url means "no icon" and is kept.
+ * The icon fields to drop when the icon is outside the allowlist, so the
+ * default icon applies. The app only ever writes allowlisted icons, so this
+ * catches hand-edited values, such as a remote url. An empty url means "no
+ * icon" and is kept.
  */
-function dropDisallowedIcon(
+function findDisallowedIconFields(
   type: VertexType,
   entry: VertexStyleStorage,
-): VertexStyleStorage | null {
+): readonly (typeof ICON_FIELDS)[number][] {
   if (!entry.iconUrl || isAllowedIconValue(entry.iconUrl)) {
-    return null;
+    return [];
   }
   logger.warn(
     `[vertex-styles] Unsupported icon "${entry.iconUrl.slice(0, 100)}" for type "${type}", using the default icon`,
   );
-  const { iconUrl: _iconUrl, iconImageType: _iconImageType, ...rest } = entry;
-  return rest;
+  return ICON_FIELDS;
 }
 
 /**
  * ReadTransform for vertex style maps: coerces broken round-polygon shapes to
- * their non-round counterpart and drops unusable colors and icons at load time.
+ * their non-round counterpart and drops colors that are not colors and icons
+ * outside the allowlist at load time.
  * Returns the same reference when nothing needed changing.
  */
 export function transformVertexStyles(
@@ -88,8 +66,19 @@ export function transformVertexStyles(
   let result: Map<VertexType, VertexStyleStorage> | null = null;
 
   for (const [type, entry] of styles) {
-    let updated = dropBlankColors(entry);
-    updated = dropDisallowedIcon(type, updated ?? entry) ?? updated;
+    const unusableColors = findUnusableColors(entry, COLOR_FIELDS);
+    for (const { field, value } of unusableColors) {
+      if (value.trim()) {
+        logger.warn(
+          `[vertex-styles] Unsupported color "${value.slice(0, 100)}" in ${field} for type "${type}", using the default`,
+        );
+      }
+    }
+
+    let updated = omitFields(entry, [
+      ...unusableColors.map(c => c.field),
+      ...findDisallowedIconFields(type, entry),
+    ]);
 
     if (entry.shape !== undefined) {
       const coerced = coerceBrokenShape(entry.shape);
@@ -97,11 +86,11 @@ export function transformVertexStyles(
         logger.debug(
           `[vertex-styles] Coercing broken shape "${entry.shape}" to "${coerced}" for type "${type}"`,
         );
-        updated = { ...(updated ?? entry), shape: coerced };
+        updated = { ...updated, shape: coerced };
       }
     }
 
-    if (updated) {
+    if (updated !== entry) {
       result ??= new Map(styles);
       result.set(type, updated);
     }
