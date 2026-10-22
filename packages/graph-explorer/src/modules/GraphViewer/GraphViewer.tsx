@@ -1,4 +1,4 @@
-import { atom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import { BadgeInfoIcon } from "lucide-react";
 import {
   Activity,
@@ -33,11 +33,11 @@ import {
   ZoomToFitButton,
 } from "@/components/Graph";
 import {
-  DEFAULT_LAYOUT_NAME,
   createRenderedEdgeId,
   createRenderedVertexId,
   getEdgeIdFromRenderedEdgeId,
   getVertexIdFromRenderedVertexId,
+  graphViewLayoutAlgorithmAtom,
   type RenderedEdgeId,
   type RenderedVertex,
   type RenderedVertexId,
@@ -59,8 +59,6 @@ import useContextMenu from "./useContextMenu";
 import { useGraphSelection } from "./useGraphSelection";
 import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
-
-const graphLayoutSelectionAtom = atom(DEFAULT_LAYOUT_NAME);
 
 // Prevent open context menu on Windows
 function onContextMenu(e: MouseEvent<HTMLDivElement>) {
@@ -146,7 +144,7 @@ function GraphViewerContent({
     });
   };
 
-  const layout = useAtomValue(graphLayoutSelectionAtom);
+  const layout = useAtomValue(graphViewLayoutAlgorithmAtom);
 
   const nodes = useRenderedVertices();
   const edges = useRenderedEdges();
@@ -161,7 +159,7 @@ function GraphViewerContent({
           <PanelHeaderActions>
             <SelectLayout
               className="max-w-64 min-w-auto"
-              layoutAtom={graphLayoutSelectionAtom}
+              layoutAtom={graphViewLayoutAlgorithmAtom}
             />
             <RerunLayoutButton />
             <ZoomToFitButton />

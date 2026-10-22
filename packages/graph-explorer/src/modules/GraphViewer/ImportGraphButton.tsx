@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { FolderOpenIcon } from "lucide-react";
 import { toast } from "sonner";
 import { ZodError } from "zod";
@@ -8,7 +8,11 @@ import type { ConnectionWithId } from "@/connections";
 
 import { Button, FileButton, Spinner } from "@/components";
 import { fetchEntityDetails, notifyOnIncompleteRestoration } from "@/connector";
-import { savedConnectionsAtom, useExplorer } from "@/core";
+import {
+  graphViewLayoutAlgorithmAtom,
+  savedConnectionsAtom,
+  useExplorer,
+} from "@/core";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
 import { useAddToGraph } from "@/hooks";
 import { useEntityCountFormatterCallback } from "@/hooks/useEntityCountFormatter";
@@ -47,6 +51,7 @@ function useImportGraphMutation() {
   const explorer = useExplorer();
   const addToGraph = useAddToGraph();
   const formatEntityCounts = useEntityCountFormatterCallback();
+  const setLayoutAlgorithm = useSetAtom(graphViewLayoutAlgorithmAtom);
   const allConfigs = useAtomValue(savedConnectionsAtom);
   const allConnections = Array.from(allConfigs.values())
     .map(config =>
@@ -87,6 +92,9 @@ function useImportGraphMutation() {
         );
 
         // 4. Update Graph Explorer state
+        if (graph.layout) {
+          setLayoutAlgorithm(graph.layout);
+        }
         await addToGraph(result.entities);
 
         return result;
