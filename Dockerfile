@@ -30,13 +30,12 @@ COPY --chown=vp:vp packages/shared/package.json packages/shared/
 RUN vp install --prod --frozen-lockfile --ignore-scripts --filter graph-explorer-proxy-server...
 
 # Pinned to a dated ECR Public snapshot for reproducible builds; bump to move forward.
-# The tag also pins dnf repo metadata to that date, so the yum update below resolves
-# against that snapshot and cannot reach anything published after it.
+# The tag also pins dnf repo metadata to that date, so a yum update would find
+# nothing newer to install.
 # openssl is for setup-ssl.sh. yum, dnf, and python3 come with the base image
 # and are stripped.
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023.12.20261016.0 AS runtime
-RUN yum update -y && \
-    yum install -y openssl && \
+RUN yum install -y openssl && \
     yum clean all && \
     rpm -qa 'python3*' | while read pkg; do rpm -e --nodeps "$pkg"; done && \
     rpm -qa 'dnf*' 'yum*' 'libdnf*' | while read pkg; do rpm -e --nodeps "$pkg"; done && \
