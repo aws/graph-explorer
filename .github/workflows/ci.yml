@@ -41,6 +41,12 @@ jobs:
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: pnpm dedupe --check
 
+      # Install rewrites the Vite+ block in AGENTS.md from the installed
+      # vite-plus. Dependabot bumps skip that, so a stale block fails here.
+      - name: Check the Vite+ block in AGENTS.md is current
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: git diff --exit-code AGENTS.md
+
       - name: Run type, lint, and format checks
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: pnpm checks

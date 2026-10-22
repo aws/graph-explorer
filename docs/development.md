@@ -54,8 +54,7 @@ A major bump is also where `pnpm-workspace.yaml` deserves a read. Since pnpm 12,
 
 [Vite+](https://viteplus.dev) runs linting, formatting, type checking, tests, and the pre-commit hook. It's a dev dependency, so `pnpm install` is all the setup it needs. Run `pnpm checks` for lint, format, and type checks, `pnpm test` or `pnpm test:watch` for tests, and `pnpm lint` or `pnpm format` to fix issues. A global `vp` CLI is optional; without one, `pnpm exec vp` works.
 
-- Run `pnpm install` after pulling the switch to Vite+. It moves your pre-commit hook from Husky to `vp staged`.
-- If `pnpm install` prints `core.hooksPath is already set`, your clone or global Git config points hooks somewhere else, and the Vite+ hook isn't installed. Run `git config --unset core.hooksPath` (add `--global` if the value is global), then `pnpm install` again.
+- If the pre-commit hook never runs, or `pnpm install` prints `core.hooksPath is already set`, the Vite+ hook isn't installed, because your clone or global Git config points hooks somewhere else. Clones from before the switch to Vite+ still point at Husky. Run `git config --unset core.hooksPath` (add `--global` if the value is global), then `pnpm run prepare`.
 - In VS Code, install the recommended Vite+ extension pack. In Zed, install `oxc-zed`.
 
 ## Run in development mode

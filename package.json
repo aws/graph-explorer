@@ -7,7 +7,7 @@
   "author": "amazon",
   "type": "module",
   "scripts": {
-    "prepare": "(git config --unset core.hooksPath husky || cd .) && vp config --no-agent",
+    "prepare": "vp config",
     "lint": "vp lint --fix",
     "check:lint": "vp lint",
     "format": "vp fmt",
