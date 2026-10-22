@@ -59,7 +59,7 @@ How Graph Explorer behaves on the wire, for anyone adding an access control laye
 | `/logger`                 | POST   |
 | `/status`                 | GET    |
 
-**Client logs.** `POST /logger` takes a JSON body with `level` and `message`, and logs it on the server. The request must send `Content-Type: application/json`, and any other content type gets a 415. The route no longer reads the `level` and `message` headers, so a request that sends only those headers gets a 400. The message is limited to 10,000 characters.
+**Client logs.** `POST /logger` takes a JSON body with `level` and `message`, and logs it on the server. The request must send `Content-Type: application/json`, and any other content type gets a 415. The route no longer reads the `level` and `message` headers, so a request that sends only those headers gets a 400. The message is limited to 10,000 characters. The server accepts up to 300 requests a minute to `/logger`, across all callers, and answers any past that with a 429.
 
 **Path matching.** The proxy server matches paths case-insensitively, so `/gremlin` and `/GREMLIN` reach the same handler. A path rule in a layer that matches case-sensitively covers only the casing it names. The `/explorer` segment is the exception. The UI finds it in its own URL with a case-sensitive match, so a layer that changes its casing breaks the UI the same way renaming it does.
 

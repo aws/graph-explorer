@@ -22,6 +22,7 @@ import {
   requestLoggingMiddleware,
 } from "./logging.ts";
 import { assertPermittedDbOrigin } from "./permitted-db-origins.ts";
+import { createRateLimiter } from "./rate-limiter.ts";
 
 const DEFAULT_SERVICE_TYPE = "neptune-db";
 
@@ -82,6 +83,9 @@ const DbQueryHeadersSchema = z.object({
 });
 
 const CLIENT_LOG_MESSAGE_MAX_LENGTH = 10_000;
+
+/** Requests to the client log route accepted per minute across all callers. */
+const CLIENT_LOG_RATE_LIMIT = 300;
 
 /** Zod schema for the JSON body of a log entry sent by the browser. */
 const ClientLogBodySchema = z.object({
@@ -647,6 +651,11 @@ export function createApp({
     res.send("OK");
   });
 
+  const clientLogLimiter = createRateLimiter({
+    limit: CLIENT_LOG_RATE_LIMIT,
+    windowMs: 60_000,
+  });
+
   app.post(CLIENT_LOG_PATH, (req, res) => {
     // Responds directly: the error middleware would log every rejected request.
     if (req.headers["content-type"] && req.is("application/json") === false) {
@@ -654,6 +663,16 @@ export function createApp({
         error: {
           status: 415,
           message: "Content-Type must be application/json.",
+        },
+      });
+      return;
+    }
+
+    if (!clientLogLimiter.tryConsume()) {
+      res.status(429).send({
+        error: {
+          status: 429,
+          message: "Too many client log requests. Try again later.",
         },
       });
       return;

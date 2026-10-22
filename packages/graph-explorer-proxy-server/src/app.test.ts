@@ -475,6 +475,86 @@ describe("createApp", () => {
       },
     );
 
+    it("returns 429 and logs nothing once the rate limit is reached", async () => {
+      const app = createTestApp();
+      const levelSpies = (
+        ["error", "warn", "info", "debug", "trace"] as const
+      ).map(level => vi.spyOn(app.locals.logger, level));
+      const body = { level: "info", message: "msg" };
+
+      for (let i = 0; i < 300; i++) {
+        const response = await request(app).post("/logger").send(body);
+        expect(response.status).toBe(200);
+      }
+      levelSpies.forEach(spy => spy.mockClear());
+      const response = await request(app).post("/logger").send(body);
+
+      expect(response.status).toBe(429);
+      expect(response.body.error.status).toBe(429);
+      for (const spy of levelSpies) {
+        expect(spy).not.toHaveBeenCalled();
+      }
+    });
+
+    it("accepts requests again once the one-minute window has passed", async () => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      try {
+        const app = createTestApp();
+        const body = { level: "info", message: "msg" };
+        for (let i = 0; i < 300; i++) {
+          await request(app).post("/logger").send(body);
+        }
+
+        vi.advanceTimersByTime(59_999);
+        const stillLimited = await request(app).post("/logger").send(body);
+        vi.advanceTimersByTime(1);
+        const reopened = await request(app).post("/logger").send(body);
+
+        expect(stillLimited.status).toBe(429);
+        expect(reopened.status).toBe(200);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it("does not spend the rate limit on rejected content types", async () => {
+      const app = createTestApp();
+
+      for (let i = 0; i < 300; i++) {
+        const response = await request(app)
+          .post("/logger")
+          .type("form")
+          .send("level=info&message=msg");
+        expect(response.status).toBe(415);
+      }
+      const response = await request(app)
+        .post("/logger")
+        .send({ level: "info", message: "msg" });
+
+      expect(response.status).toBe(200);
+    });
+
+    it("counts invalid requests toward the rate limit", async () => {
+      const app = createTestApp();
+      const levelSpies = (
+        ["error", "warn", "info", "debug", "trace"] as const
+      ).map(level => vi.spyOn(app.locals.logger, level));
+
+      for (let i = 0; i < 300; i++) {
+        const response = await request(app).post("/logger").send({});
+        expect(response.status).toBe(400);
+      }
+      levelSpies.forEach(spy => spy.mockClear());
+      const response = await request(app)
+        .post("/logger")
+        .send({ level: "info", message: "msg" });
+
+      expect(response.status).toBe(429);
+      for (const spy of levelSpies) {
+        expect(spy).not.toHaveBeenCalled();
+      }
+    });
+
     it("logs a message with backslashes and newlines unchanged", async () => {
       const app = createTestApp();
       const infoSpy = vi.spyOn(app.locals.logger, "info");
