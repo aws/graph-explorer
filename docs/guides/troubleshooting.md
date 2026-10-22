@@ -34,16 +34,20 @@ Graph Explorer is then at `https://localhost:4431/explorer`.
 
 With HTTPS off, Graph Explorer listens on port 80 instead, so remap that port the same way, such as `-p 8080:80`.
 
-### HTTP Only
+<a id="http-only"></a>
 
-If you do not want to use SSL and HTTPS, you can disable it by setting [`PROXY_SERVER_HTTPS_CONNECTION`](../references/configuration.md#proxy_server_https_connection) to `false`. Before turning HTTPS off, read [Disabling HTTPS](../references/security.md#disabling-https). Pass it when creating the Docker container like so:
+### Serving HTTP behind a reverse proxy
+
+When a reverse proxy in front of Graph Explorer terminates TLS, set [`PROXY_SERVER_HTTPS_CONNECTION`](../references/configuration.md#proxy_server_https_connection) to `false` so Graph Explorer serves plain HTTP to it. When the reverse proxy runs on the same host, publish the port on `127.0.0.1` so only that host can reach it:
 
 ```
-docker run -p 80:80 \
+docker run -p 127.0.0.1:80:80 \
   --name graph-explorer \
   --env PROXY_SERVER_HTTPS_CONNECTION=false \
   public.ecr.aws/neptune/graph-explorer
 ```
+
+When the reverse proxy runs on another host, limit port `80` to it with network rules you provide. Plain HTTP that other machines can reach isn't supported. See [Serving HTTP Behind a Reverse Proxy](../references/security.md#serving-http-behind-a-reverse-proxy).
 
 ### HTTPS Connections
 

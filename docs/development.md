@@ -79,6 +79,10 @@ http://localhost:5173
 
 At this point, Graph Explorer should be successfully running and it is asking you for connection details. This part is specific to your personal setup.
 
+> [!IMPORTANT]
+>
+> The development servers serve plain HTTP and listen on every network interface, so other machines on your network can reach them unless your network rules block the ports you set, or `5173` and `80` by default. Keep them to your own machine. See [Supported Hosting](./references/security.md#supported-hosting).
+
 ## Build for production
 
 ```bash
@@ -94,6 +98,10 @@ Start the proxy server, which also serves the built client assets:
 pnpm start
 ```
 
+> [!IMPORTANT]
+>
+> `pnpm start` serves plain HTTP on port `80` by default and listens on every network interface, so other machines on your network can reach it unless your network rules block the port. Keep it to your own machine, or put a reverse proxy that terminates TLS in front of it. See [Supported Hosting](./references/security.md#supported-hosting).
+
 ## Build and run with Docker
 
 You can also build and run Graph Explorer as a Docker image from source.
@@ -104,10 +112,10 @@ docker build -t graph-explorer .
 
 The build pulls the Vite+ image from `ghcr.io` and the Amazon Linux base from `public.ecr.aws`. Behind a registry allowlist or proxy, allow or mirror both.
 
-Run the container with HTTPS disabled for local use:
+Run the container over HTTP for local use, published on `127.0.0.1` so other machines can't reach it:
 
 ```bash
-docker run -p 80:80 \
+docker run -p 127.0.0.1:80:80 \
   --name graph-explorer \
   --env PROXY_SERVER_HTTPS_CONNECTION=false \
   graph-explorer
