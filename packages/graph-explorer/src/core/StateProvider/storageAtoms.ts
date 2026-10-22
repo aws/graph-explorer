@@ -25,6 +25,7 @@ import {
   schemaViewLayoutCodec,
 } from "./schemaViewLayoutDefaults";
 import { createSessionScopedAtom } from "./sessionScopedStorage";
+import { ALLOW_LOGGING_DB_QUERY_STORAGE_KEY } from "./storageKeys";
 import { transformVertexStyles } from "./vertexStylesTransform";
 
 // Run migrations before the atoms preload so they read the migrated data.
@@ -129,7 +130,7 @@ const [
   /** Shows debug actions in various places around the app. */
   atomWithLocalForage<boolean>("showDebugActions", false),
   /** Enables logging of generated database queries on the proxy server. */
-  atomWithLocalForage<boolean>("allowLoggingDbQuery", false),
+  atomWithLocalForage<boolean>(ALLOW_LOGGING_DB_QUERY_STORAGE_KEY, false),
   /** Setting that enables/disables the default limit for neighbor expansion. */
   atomWithLocalForage<boolean>("defaultNeighborExpansionLimitEnabled", true),
   /** Setting that defines the default limit for neighbor expansion. */

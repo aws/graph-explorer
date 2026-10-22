@@ -169,6 +169,41 @@ describe("exportFromLocalForage", () => {
     );
   });
 
+  it("should not restore the query logging setting", async () => {
+    const localDb = createFakeLocalDb();
+    const config = createRandomSavedConnection();
+    const configMap = new Map([[config.id, config]]);
+    localDb.setItem("configuration", configMap);
+    localDb.setItem("allowLoggingDbQuery", true);
+
+    const backup = await createBackupData(localDb);
+    const blob = toJsonFileData(serializeData(backup));
+    const backupData = await readBackupDataFromFile(blob);
+    expect(backupData.data.allowLoggingDbQuery).toBe(true);
+
+    await restoreBackup(backupData, localDb);
+
+    expect(await localDb.getItem("allowLoggingDbQuery")).toBeUndefined();
+    expect(await localDb.keys()).not.toContain("allowLoggingDbQuery");
+    expect(await localDb.getItem("configuration")).toEqual(configMap);
+  });
+
+  it("should turn off query logging when the backup does not contain it", async () => {
+    const sourceDb = createFakeLocalDb();
+    const config = createRandomSavedConnection();
+    sourceDb.setItem("configuration", new Map([[config.id, config]]));
+    const backup = await createBackupData(sourceDb);
+    const blob = toJsonFileData(serializeData(backup));
+    const backupData = await readBackupDataFromFile(blob);
+
+    const localDb = createFakeLocalDb();
+    localDb.setItem("allowLoggingDbQuery", true);
+
+    await restoreBackup(backupData, localDb);
+
+    expect(await localDb.getItem("allowLoggingDbQuery")).toBeUndefined();
+  });
+
   it("should fail restore when not backup data", async () => {
     // set up data
     const config = createRandomSavedConnection();
