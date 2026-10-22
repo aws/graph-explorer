@@ -45,6 +45,8 @@ How Graph Explorer behaves on the wire, for anyone adding an access control laye
 
 **Request headers.** The proxy server reads `graph-db-connection-url`, `aws-neptune-region`, `service-type`, `db-query-logging-enabled`, and `queryid`. `POST /logger` also reads `level` and `message`. Without `graph-db-connection-url`, every query fails with a 400 whose body names the missing header. The proxy server never reads a client `Authorization` header or cookie, and never forwards either one to the database.
 
+**Response headers.** Every response carries `Content-Security-Policy: frame-ancestors 'self'` and `X-Frame-Options: SAMEORIGIN`. A `Content-Security-Policy` header that a layer adds doesn't replace this one. The browser enforces both. See [Framing](#framing).
+
 **Paths.** The UI lives under `/explorer`. It calls the API on its own origin, under the same prefix it was loaded from, with the `/explorer` segment cut out. A layer that renames that segment breaks the UI, see [Reverse proxy misconfigured](../guides/troubleshooting.md#reverse-proxy-misconfigured). The API paths sit next to `/explorer`, not under it, so a layer that forwards only `/explorer/*` serves a UI that loads and then fails every query.
 
 | Path                      | Method |
@@ -180,6 +182,21 @@ PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com,https://other-app.example.co
 > [!NOTE]
 >
 > CORS headers only affect browser-initiated requests — direct API calls from scripts or other servers are not restricted by CORS. CORS is a defense-in-depth layer, not a substitute for authentication or network-level access controls. Ensure the proxy server is not exposed to untrusted networks.
+
+## Framing
+
+The proxy server tells browsers that only pages on Graph Explorer's own origin may show it in a frame. Every response carries these headers:
+
+```
+Content-Security-Policy: frame-ancestors 'self'
+X-Frame-Options: SAMEORIGIN
+```
+
+A page on any other origin that loads Graph Explorer in an `iframe` gets an empty frame instead. This stops another site from layering its own content over Graph Explorer to trick a user into clicking controls they can't see, known as clickjacking.
+
+No documented deployment embeds Graph Explorer from another origin, so no setting changes these headers. On SageMaker, the Jupyter proxy serves Graph Explorer from the notebook's own origin at `/proxy/9250/explorer/`, so the policy doesn't affect it.
+
+To embed Graph Explorer in a page on another origin, have the access control layer in front of it replace the `Content-Security-Policy` header with one that names that origin in `frame-ancestors`, and remove `X-Frame-Options`.
 
 ## Database Origin Allowlist
 
