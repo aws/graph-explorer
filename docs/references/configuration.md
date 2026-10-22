@@ -170,7 +170,7 @@ First, create a `config.json` file containing values for the connection attribut
 Pass the `config.json` file path to the `docker run` command.
 
 ```bash
-docker run -p 80:80 -p 443:443 \
+docker run -p 443:443 \
  --env HOST={hostname-or-ip-address} \
  -v /path/to/config.json:/graph-explorer/config.json \
  public.ecr.aws/neptune/graph-explorer
@@ -181,7 +181,7 @@ docker run -p 80:80 -p 443:443 \
 Provide the desired connection variables directly to the `docker run` command, as follows:
 
 ```bash
-docker run -p 80:80 -p 443:443 \
+docker run -p 443:443 \
  --env HOST={hostname-or-ip-address} \
  --env GRAPH_CONNECTION_URL=https://{your-cluster-id}.us-west-2.neptune.amazonaws.com:8182 \
  --env GRAPH_TYPE=gremlin \
