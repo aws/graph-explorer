@@ -4,6 +4,8 @@
 
 The following steps will allow you to set up Graph Explorer on AWS Fargate in Amazon ECS, and connect to a running Neptune database.
 
+This guide is an example, not a recommended production configuration. Review its network, access control, and IAM choices against your own security requirements before you run it in production. For the hosting setups Graph Explorer supports, see [Supported Hosting](../references/security.md#supported-hosting). For general guidance on securing a production workload, see the [Security Pillar of the AWS Well-Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html).
+
 > [!IMPORTANT]
 >
 > The Graph Explorer server, not your browser, connects to the database for proxied connections, so it needs network access to the database endpoint. See [System overview](../architecture.md#system-overview) for details.

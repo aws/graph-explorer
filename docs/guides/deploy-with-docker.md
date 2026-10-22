@@ -6,6 +6,8 @@ Deploy Graph Explorer locally using the official Docker image from Amazon's ECR 
 
 You can find the latest version of the image on [Amazon's ECR Public Registry](https://gallery.ecr.aws/neptune/graph-explorer).
 
+This guide is an example, not a recommended production configuration. Review its network, access control, and IAM choices against your own security requirements before you run it in production. For the hosting setups Graph Explorer supports, see [Supported Hosting](../references/security.md#supported-hosting). For general guidance on securing a production workload, see the [Security Pillar of the AWS Well-Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html).
+
 > [!NOTE]
 >
 > The `sagemaker-*` image tags are now aliases for the same image as the regular tag. They exist only for compatibility with existing SageMaker lifecycle scripts and will stop being published in a future release. Use the regular tag for new deployments.
