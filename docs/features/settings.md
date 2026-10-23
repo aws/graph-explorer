@@ -6,7 +6,7 @@
 
 - **Default Neighbor Expansion Limit:** This setting will allow you to enable or disable the default limit applied during neighbor expansion. This applies to both double click expansion and the expand sidebar. This setting can be overridden by a similar setting on the connection itself.
 - **Save Configuration:** This action will export all the configuration data within the Graph Explorer local database. This will not store any data from the connected graph databases. However, the export may contain the shape of the schema for your databases and the connection URL.
-- **Load Configuration:** This action replaces all the Graph Explorer configuration data you currently have with the data in the provided configuration file.
+- **Load Configuration:** This action replaces all the Graph Explorer configuration data you currently have with the data in the provided configuration file. **Enable database query logging on proxy server** is always off after a load, even if it was on when the file was saved. Turn it back on in General Settings if you need it.
 
 > [!CAUTION]
 >
