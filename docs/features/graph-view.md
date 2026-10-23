@@ -156,5 +156,3 @@ Select the export button in the table header to download the table as CSV or JSO
 - Keep the current filtering and sorting, or export every row
 - Export only the current page
 - Name the file
-
-The table itself always shows every column. Column choice only applies to exports.
