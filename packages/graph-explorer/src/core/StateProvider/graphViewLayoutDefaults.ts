@@ -36,6 +36,9 @@ export const legacyStylingSidebarItemSchema = z
 /** Default width for the graph view sidebar in pixels. */
 export const DEFAULT_SIDEBAR_WIDTH = 400;
 
+/** Floor for the sidebar width in pixels, so resizing cannot persist a non-positive width. */
+export const MIN_SIDEBAR_WIDTH = 200;
+
 /**
  * The Graph View Layout as the shared breadcrumb stores it, declared once so the
  * runtime type and the parser cannot drift apart. It accepts the shapes older
