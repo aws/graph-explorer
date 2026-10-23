@@ -17,7 +17,7 @@ You can open the Schema view by clicking "Schema" in the navigation bar.
 The sidebar has two panels:
 
 - **Details** — shows properties and connections for the selected node type or edge connection
-- **Styles** — customize colors and icons for node types and edge types, split across a Nodes tab and an Edges tab
+- **Styles** — customize colors and icons for node types and edge types, split across a Nodes tab and an Edges tab. On the Nodes tab, the eye icon next to each node type hides it (and its connections) from the Schema view only — the main Graph view and data discovery are unaffected. Hidden types stay listed, dimmed, so they can be shown again; the hidden set persists per connection.
 
 Click the active tab icon to collapse the sidebar to just the icon strip. Click any tab icon to reopen it. The active tab, sidebar width, and chosen graph layout are remembered per browser tab, so two tabs can keep different setups side by side. When you reopen Graph Explorer after closing all tabs, it resumes the setup you most recently used.
 
