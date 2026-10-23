@@ -54,7 +54,7 @@ Correct behavior is necessary but not sufficient — structural quality is a har
 Read the relevant doc before working in that area:
 
 - `docs/agents/design.md` — visual design system: color tokens, dark mode policy, Tailwind conventions
-- `docs/agents/react.md` — components, hooks, query-language translation
+- `docs/agents/react.md` — components, hooks, state, forms, concurrent rendering, accessibility, query-language translation
 - `docs/agents/testing.md` — Vitest patterns, DbState, factories, backward-compat
 - `docs/agents/connectors.md` — Gremlin/openCypher/SPARQL query templates
 - `docs/agents/schema.md` — schema storage, discovery, Jotai atoms
