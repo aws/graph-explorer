@@ -48,7 +48,7 @@
 ## Forms & validation
 
 - Define a Zod schema and derive the type with `z.infer`. Don't declare the shape twice
-- Default to plain React state. Use `react-hook-form` only when a form needs it. Today only `src/modules/SearchSidebar/QuerySearchTabContent.tsx` calls `useForm`, through the shared `src/components/Form.tsx` wrapper
+- Default to plain React state. Use `react-hook-form` only when a form needs it. Today only `src/modules/SearchSidebar/QuerySearchTabContent.tsx` calls `useForm`, and it renders the form with the shared `Form` components in `src/components/Form.tsx`
 - With `react-hook-form` and Zod 4, use `standardSchemaResolver` from `@hookform/resolvers/standard-schema`. `zodResolver` has compatibility issues with Zod 4
 - When code reads `FormData`, parse it through a Zod schema instead of reading raw string fields
 
