@@ -104,25 +104,55 @@ On the **Edges** tab, each edge type can be customized in a variety of ways.
 
 ## Table View
 
-This collapsible view shows a row-column display of the data in the Graph View. You can use filters in the Table to show/hide elements in the Graph View, and you can export the table view into a CSV or JSON file.
+The Table View lists the nodes or edges in your graph as rows. Use it to scan the data, filter and sort it, decide what shows in the Graph View, and export it to a file. Open it with the grid icon in the toolbar.
 
-The following columns are available for filtering on property graphs (RDF graphs in parentheses):
+### Choose nodes or edges
 
-- Node ID (Resource URI)
-- Node Type (Class)
-- Edge Type (Predicate)
-- Source ID (Source URI)
-- Source Type (Source Class)
-- Target ID (Target URI)
-- Target Type (Target Class)
-- Display Name - Set in the Styles panel
-- Display Description - Set in the Styles panel
-- Total Neighbors - Enter an integer to be used as the >= limit
+The dropdown in the table header switches between nodes and edges. It reads "All Nodes" and "All Edges" for Gremlin, "All Nodes" and "All Relationships" for openCypher, and "All Resources" and "All Predicates" for SPARQL.
 
-### Additional Table View Features
+### Columns
 
-- **Visibility** - manually show or hide nodes or edges
-- **All Nodes / All Edges (or All Resources / All Predicates) dropdown** - allows you to display a list of either nodes or edges and control display/filter on them
-- **Download** - You can download the current Table View as a CSV or JSON file with additional customization options
-- **Default columns** - You can set which columns you want to display
-- Paging of rows
+Column headers use the terms of your connection's query language.
+
+**Nodes**
+
+| Gremlin | openCypher | SPARQL | Shows |
+| --- | --- | --- | --- |
+| Node Id | Node Id | Resource Id | The node's ID |
+| Node Label | Node Label | Class | The node's label |
+| Name | Name | Name | The display name from the Styles panel |
+| Description | Description | Description | The display description from the Styles panel |
+| Neighbors | Neighbors | Neighbors | How many neighbors the node has |
+
+**Edges**
+
+| Gremlin | openCypher | SPARQL | Shows |
+| --- | --- | --- | --- |
+| Edge Label | Relationship Type | Predicate | The edge's label |
+| Source Id | Source Id | Source Id | The ID of the source node |
+| Source Label | Source Label | Source Class | The label of the source node |
+| Target Id | Target Id | Target Id | The ID of the target node |
+| Target Label | Target Label | Target Class | The label of the target node |
+
+Both tables also start with a Visibility column.
+
+### Sort and filter
+
+Select a column header to sort by it. Each column also has a filter box under its header. The Neighbors filter takes an integer and keeps the nodes with at least that many neighbors.
+
+Rows that do not match a filter appear faded in the Graph View, so you can focus on a subset without losing the rest of the graph. A reset button appears in the table header while a sort or filter is active.
+
+Long tables are paged. Use the controls at the bottom of the table to change the page and the page size.
+
+### Show or hide elements
+
+Use the eye icon in the Visibility column to hide a single node or edge from the Graph View, or show it again. This is separate from filtering, and hidden elements disappear instead of fading.
+
+### Export
+
+Select the export button in the table header to download the table as CSV or JSON. The export options let you:
+
+- Choose which columns to include
+- Keep the current filtering and sorting, or export every row
+- Export only the current page
+- Name the file
