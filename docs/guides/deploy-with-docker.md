@@ -48,7 +48,7 @@ You can find the latest version of the image on [Amazon's ECR Public Registry](h
 3. Create and run a docker container using the image
 
    ```
-   docker run -p 80:80 -p 443:443 \
+   docker run -p 443:443 \
     --restart unless-stopped \
     --env HOST=localhost \
     --name graph-explorer \
@@ -59,7 +59,7 @@ You can find the latest version of the image on [Amazon's ECR Public Registry](h
 
    > [!IMPORTANT]
    >
-   > `-p 80:80 -p 443:443` publishes the container on every network interface of the host, not only `localhost`. `-p 127.0.0.1:443:443`, and `-p 127.0.0.1:80:80` for HTTP, publish it on the loopback interface only, so only the host itself can reach it. Restricting ports `80` and `443` at the host firewall or security group is the other way to limit who can reach it.
+   > `-p 443:443` publishes the container on every network interface of the host, not only `localhost`. `-p 127.0.0.1:443:443` publishes it on the loopback interface only, so only the host itself can reach it. Restricting port `443` at the host firewall or security group is the other way to limit who can reach it.
 
 4. Open a browser and type in the URL of the Graph Explorer server instance
 

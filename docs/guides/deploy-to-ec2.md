@@ -15,7 +15,7 @@ Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server w
 ## Prerequisites
 
 - Provision an Amazon EC2 instance that will be used to host the application and connect to Neptune as a proxy server. For more details, see instructions [here](https://github.com/aws/graph-notebook/tree/main/additional-databases/neptune).
-- Inbound access to the Amazon EC2 instance limited to a known CIDR range, on port `443` or `80` (Graph Explorer, depending on the protocol used) and port `22` (SSH). The instance needs no inbound rule on port `8182` (Neptune).
+- Inbound access to the Amazon EC2 instance limited to a known CIDR range, on port `443` (Graph Explorer) and port `22` (SSH). The instance needs no inbound rule on port `8182` (Neptune).
 - Neptune's security group allows port `8182` from the instance, which reaches Neptune on that port inside the VPC.
 - If your Neptune cluster has IAM database authentication enabled, an [instance profile](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html) attached to the instance, with a role that has a Neptune data-access policy. The proxy server signs requests with this role, and Neptune refuses them without the policy. Add one of the [Sample IAM Policies](./iam-policies/README.md#choose-a-policy) to the role as an inline policy, and replace its placeholders as described in [Sample IAM Policies](./iam-policies/README.md#placeholders). Graph Explorer runs in a Docker container, which is one network hop further from the instance metadata service than the instance itself. When the instance requires IMDSv2, set its [metadata response hop limit](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-IMDS-existing-instances.html#modify-PUT-response-hop-limit) to `2` so the container can get the role's credentials.
 - [Docker](https://docs.docker.com/get-docker/) installed on the EC2 instance
@@ -40,7 +40,7 @@ Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server w
 4. Run the container substituting the `{hostname-or-ip-address}` with the hostname or IP address of the EC2 instance, and `{NEPTUNE_ENDPOINT}` with your Neptune endpoint
 
    ```
-   docker run -p 80:80 -p 443:443 \
+   docker run -p 443:443 \
     --restart unless-stopped \
     --env HOST={hostname-or-ip-address} \
     --env PROXY_SERVER_ALLOWED_DB_ORIGINS=https://{NEPTUNE_ENDPOINT}:8182 \
