@@ -10,7 +10,7 @@ These variables control server behavior, networking, and security.
 
 ### `HOST`
 
-The public hostname of the server. It feeds the Subject Alternative Name of the self-signed SSL certificate and the URL the server prints at startup. It does not control which network interfaces the proxy server listens on.
+The public hostname of the server. It feeds the Subject Alternative Name of the self-signed SSL certificate and the URL the server prints at startup. It doesn't limit who can reach the server, which listens on every network interface. See [Supported Hosting](./security.md#supported-hosting).
 
 When `HOST` is set, a new container generates a fresh self-signed certificate, which invalidates any trust you granted to the previous one. See [Keeping the certificate across container replacements](./security.md#keeping-the-certificate-across-container-replacements).
 
@@ -38,9 +38,9 @@ The port to use for the HTTP server.
 
 ### `PROXY_SERVER_HTTPS_CONNECTION`
 
-Uses the self-signed certificate to serve the proxy-server over https if true.
+Serves the proxy server over HTTPS when true, using the certificate files described in [HTTPS Connections](./security.md#https-connections).
 
-Before turning HTTPS off, read [Disabling HTTPS](./security.md#disabling-https).
+Set it to `false` only behind a reverse proxy that terminates TLS, or to try Graph Explorer on your own machine. Plain HTTP that other machines can reach isn't supported. See [Serving HTTP Behind a Reverse Proxy](./security.md#serving-http-behind-a-reverse-proxy).
 
 - Optional
 - Default `false` in code, `true` in Docker via the entrypoint script
@@ -176,6 +176,8 @@ docker run -p 443:443 \
  public.ecr.aws/neptune/graph-explorer
 ```
 
+This publishes Graph Explorer on every network interface of the host. Limit who can reach it as described in [Access Control](./security.md#access-control).
+
 ### Environment Variable Approach
 
 Provide the desired connection variables directly to the `docker run` command, as follows:
@@ -193,3 +195,5 @@ docker run -p 443:443 \
  --env GRAPH_EXP_NODE_EXPANSION_LIMIT=500 \
  public.ecr.aws/neptune/graph-explorer
 ```
+
+This publishes Graph Explorer on every network interface of the host. Limit who can reach it as described in [Access Control](./security.md#access-control).
