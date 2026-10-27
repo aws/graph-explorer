@@ -1,5 +1,6 @@
 import localForage from "localforage";
 
+import { registerPersistedAtom } from "./persistedAtomRegistry";
 import { persistThroughQueue } from "./persistence";
 import {
   createWriteThroughAtom,
@@ -104,28 +105,26 @@ export type AtomWithLocalForageOptions<T> = {
 };
 
 /**
- * Creates an atom that persists its value in localForage.
+ * Defines an app-wide atom that persists its value in localForage.
  *
- * This function is async and preloads the stored value before returning the
- * atom. This ensures the atom is immediately available with the correct value
- * on first read.
- *
- * After initialization, the atom provides synchronous read/write operations
- * while persistence happens asynchronously in the background.
+ * The atom is created synchronously and registered for startup:
+ * `loadPersistedState()` reads the stored value, applies `transform`, and
+ * seeds it before the app renders. Reads and writes are then synchronous, with
+ * persistence happening in the background.
  *
  * @param key The key to use for the stored value in localForage
  * @param initialValue The initial value if none is found in storage
  * @param options Optional {@link AtomWithLocalForageOptions}
- * @returns An atom that persists to localForage
+ * @returns An atom that persists to localForage, tagged with its `storageKey`
  */
-export async function atomWithLocalForage<T>(
+export function atomWithLocalForage<T>(
   key: string,
   initialValue: T,
   options: AtomWithLocalForageOptions<T> = {},
-): Promise<PersistedAtom<T>> {
-  const handle = createLocalForageAtom(key, initialValue, options);
-  await handle.load();
-  return handle.atom;
+): PersistedAtom<T> {
+  return registerPersistedAtom(
+    createLocalForageAtom(key, initialValue, options),
+  );
 }
 
 function createLocalForageAtom<T>(

@@ -4,6 +4,7 @@ import localForage from "localforage";
 
 import { logger } from "@/utils";
 
+import { registerPersistedAtom } from "./persistedAtomRegistry";
 import { persistThroughQueue } from "./persistence";
 import { resolveSessionStorage } from "./safeSessionStorage";
 import {
@@ -58,7 +59,7 @@ export type SessionScopedAtomOptions<T> = {
 };
 
 /**
- * Creates an atom whose value is scoped to this browser tab.
+ * Defines an app-wide atom whose value is scoped to this browser tab.
  *
  * The value lives in sessionStorage so it survives a reload of this tab but
  * never leaks to other tabs. Each write also updates a shared, persisted
@@ -80,12 +81,10 @@ export type SessionScopedAtomOptions<T> = {
  * @param sessionStorage The per-tab storage backing. Injectable so multi-tab
  * isolation can be tested with separate storages.
  */
-export async function createSessionScopedAtom<T>(
+export function createSessionScopedAtom<T>(
   options: SessionScopedAtomOptions<T>,
-): Promise<PersistedAtom<T>> {
-  const handle = createSessionScopedHandle(options);
-  await handle.load();
-  return handle.atom;
+): PersistedAtom<T> {
+  return registerPersistedAtom(createSessionScopedHandle(options));
 }
 
 function createSessionScopedHandle<T>({

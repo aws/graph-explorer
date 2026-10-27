@@ -9,6 +9,7 @@ import type { ShapeStyle, VertexStyleStorage } from "./graphStyles";
 
 import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
 import { appDefaultVertexStyle, resolveVertexStyle } from "./graphStyles";
+import { loadPersistedAtom } from "./persistedAtomRegistry";
 import {
   coerceBrokenShape,
   transformVertexStyles,
@@ -201,10 +202,11 @@ describe("backward compatibility: retired round-polygon shapes in storage", () =
 
     await localforage.setItem(key, legacyData);
 
-    const atom = await atomWithLocalForage(
-      key,
-      new Map<VertexType, VertexStyleStorage>(),
-      { reconcile: reconcileMapByKey, transform: transformVertexStyles },
+    const atom = await loadPersistedAtom(
+      atomWithLocalForage(key, new Map<VertexType, VertexStyleStorage>(), {
+        reconcile: reconcileMapByKey,
+        transform: transformVertexStyles,
+      }),
     );
 
     const value = store.get(atom);
@@ -236,10 +238,12 @@ describe("backward compatibility: retired round-polygon shapes in storage", () =
 
     await localforage.setItem(key, legacyData);
 
-    await atomWithLocalForage(key, new Map<VertexType, VertexStyleStorage>(), {
-      reconcile: reconcileMapByKey,
-      transform: transformVertexStyles,
-    });
+    await loadPersistedAtom(
+      atomWithLocalForage(key, new Map<VertexType, VertexStyleStorage>(), {
+        reconcile: reconcileMapByKey,
+        transform: transformVertexStyles,
+      }),
+    );
 
     const storedAfterLoad =
       await localforage.getItem<Map<VertexType, VertexStyleStorage>>(key);

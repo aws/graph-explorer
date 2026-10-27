@@ -3,6 +3,7 @@ import localforage from "localforage";
 import { beforeEach, describe, expect, test } from "vite-plus/test";
 
 import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
+import { loadPersistedAtom } from "./persistedAtomRegistry";
 import { persistenceStatusStore } from "./persistence";
 
 describe("atomWithLocalForage", () => {
@@ -15,14 +16,16 @@ describe("atomWithLocalForage", () => {
   });
 
   test("should return initial value on first read", async () => {
-    const atom = await atomWithLocalForage("test-key", "initial");
+    const atom = await loadPersistedAtom(
+      atomWithLocalForage("test-key", "initial"),
+    );
     const value = store.get(atom);
     expect(value).toBe("initial");
   });
 
   test("should persist writes to localforage", async () => {
     const key = "test-write";
-    const atom = await atomWithLocalForage(key, "initial");
+    const atom = await loadPersistedAtom(atomWithLocalForage(key, "initial"));
 
     store.set(atom, "new-value");
     await persistenceStatusStore.waitForIdle();
@@ -32,7 +35,9 @@ describe("atomWithLocalForage", () => {
   });
 
   test("should report persistence status while a write lands", async () => {
-    const atom = await atomWithLocalForage("test-status", "initial");
+    const atom = await loadPersistedAtom(
+      atomWithLocalForage("test-status", "initial"),
+    );
 
     store.set(atom, "new-value");
     expect(persistenceStatusStore.getSnapshot().status).toBe("saving");
@@ -42,7 +47,7 @@ describe("atomWithLocalForage", () => {
   });
 
   test("should handle function updates", async () => {
-    const atom = await atomWithLocalForage("test-fn", 10);
+    const atom = await loadPersistedAtom(atomWithLocalForage("test-fn", 10));
 
     store.set(atom, prev => prev + 5);
 
@@ -56,7 +61,7 @@ describe("atomWithLocalForage", () => {
     // Pre-populate localforage
     await localforage.setItem(key, storedValue);
 
-    const atom = await atomWithLocalForage(key, "initial");
+    const atom = await loadPersistedAtom(atomWithLocalForage(key, "initial"));
 
     // Should have loaded the stored value
     expect(store.get(atom)).toBe(storedValue);
@@ -66,7 +71,7 @@ describe("atomWithLocalForage", () => {
     const key = "test-null";
     await localforage.setItem(key, null);
 
-    const atom = await atomWithLocalForage(key, "initial");
+    const atom = await loadPersistedAtom(atomWithLocalForage(key, "initial"));
 
     // Should keep initial value when storage has null
     expect(store.get(atom)).toBe("initial");
@@ -76,7 +81,7 @@ describe("atomWithLocalForage", () => {
     const key = "test-undefined";
     await localforage.removeItem(key);
 
-    const atom = await atomWithLocalForage(key, "initial");
+    const atom = await loadPersistedAtom(atomWithLocalForage(key, "initial"));
 
     // Should keep initial value when storage is empty
     expect(store.get(atom)).toBe("initial");
@@ -90,7 +95,7 @@ describe("atomWithLocalForage", () => {
       map: new Map([["key", "value"]]),
     };
 
-    const atom = await atomWithLocalForage(key, {});
+    const atom = await loadPersistedAtom(atomWithLocalForage(key, {}));
 
     store.set(atom, complexObject);
 
@@ -110,7 +115,9 @@ describe("atomWithLocalForage", () => {
       map: new Map([["key", "value"]]),
     };
 
-    const atom = await atomWithLocalForage(key, complexObject);
+    const atom = await loadPersistedAtom(
+      atomWithLocalForage(key, complexObject),
+    );
 
     // Should be same referential instance
     expect(store.get(atom)).toBe(complexObject);
@@ -120,7 +127,7 @@ describe("atomWithLocalForage", () => {
 
   test("should handle rapid successive writes", async () => {
     const key = "test-rapid-writes";
-    const atom = await atomWithLocalForage(key, 0);
+    const atom = await loadPersistedAtom(atomWithLocalForage(key, 0));
 
     // Rapid writes
     store.set(atom, 1);
@@ -139,9 +146,11 @@ describe("atomWithLocalForage", () => {
     const key = "test-transform";
     await localforage.setItem(key, "legacy");
 
-    const atom = await atomWithLocalForage(key, "initial", {
-      transform: value => (value === "legacy" ? "transformed" : value),
-    });
+    const atom = await loadPersistedAtom(
+      atomWithLocalForage(key, "initial", {
+        transform: value => (value === "legacy" ? "transformed" : value),
+      }),
+    );
 
     expect(store.get(atom)).toBe("transformed");
   });
@@ -150,40 +159,49 @@ describe("atomWithLocalForage", () => {
     const key = "test-transform-empty";
     await localforage.removeItem(key);
 
-    const atom = await atomWithLocalForage(key, "legacy", {
-      transform: value => (value === "legacy" ? "transformed" : value),
-    });
+    const atom = await loadPersistedAtom(
+      atomWithLocalForage(key, "legacy", {
+        transform: value => (value === "legacy" ? "transformed" : value),
+      }),
+    );
 
     expect(store.get(atom)).toBe("transformed");
   });
 
   test("should work with different data types", async () => {
     // String
-    const stringAtom = await atomWithLocalForage("test-string", "hello");
+    const stringAtom = await loadPersistedAtom(
+      atomWithLocalForage("test-string", "hello"),
+    );
     store.set(stringAtom, "world");
     expect(store.get(stringAtom)).toBe("world");
 
     // Number
-    const numberAtom = await atomWithLocalForage("test-number", 42);
+    const numberAtom = await loadPersistedAtom(
+      atomWithLocalForage("test-number", 42),
+    );
     store.set(numberAtom, 100);
     expect(store.get(numberAtom)).toBe(100);
 
     // Boolean
-    const boolAtom = await atomWithLocalForage("test-bool", false);
+    const boolAtom = await loadPersistedAtom(
+      atomWithLocalForage("test-bool", false),
+    );
     store.set(boolAtom, true);
     expect(store.get(boolAtom)).toBe(true);
 
     // Array
-    const arrayAtom = await atomWithLocalForage("test-array", [1, 2]);
+    const arrayAtom = await loadPersistedAtom(
+      atomWithLocalForage("test-array", [1, 2]),
+    );
     store.set(arrayAtom, [3, 4, 5]);
     expect(store.get(arrayAtom)).toEqual([3, 4, 5]);
 
     // Object
-    const objAtom = await atomWithLocalForage<Record<string, number>>(
-      "test-obj",
-      {
+    const objAtom = await loadPersistedAtom(
+      atomWithLocalForage<Record<string, number>>("test-obj", {
         a: 1,
-      },
+      }),
     );
     store.set(objAtom, { b: 2 });
     expect(store.get(objAtom)).toEqual({ b: 2 });

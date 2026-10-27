@@ -6,10 +6,13 @@ import { describe, expect, it } from "vite-plus/test";
 
 import type { SavedConnection } from "@/connections";
 
+import { createEdgeType } from "@/core/entities";
 import {
   createRandomSavedConnection,
   preloadSavedConnections,
 } from "@/utils/testing";
+
+import type { EdgeStyleStorage, LegacyUserStylingStorage } from "./graphStyles";
 
 import { defaultGraphViewLayout } from "./graphViewLayoutDefaults";
 import { defaultSchemaViewLayout } from "./schemaViewLayoutDefaults";
@@ -26,14 +29,15 @@ import {
   schemaViewLayoutAtom,
   showDebugActionsAtom,
   graphViewLayoutAtom,
+  loadPersistedState,
   userVertexStylesAtom,
 } from "./storageAtoms";
 
 /**
- * storageAtoms.ts uses top-level await to preload IndexedDB data into Jotai
- * atoms. These tests verify that all atoms are properly initialized and
- * readable from a fresh store, which guards against circular dependency
- * regressions that would leave atoms as `undefined`.
+ * storageAtoms.ts defines every persisted atom. These tests verify that all
+ * atoms are defined and readable from a fresh store once seeded, which guards
+ * against circular dependency regressions that would leave atoms as
+ * `undefined`.
  */
 describe("storageAtoms", () => {
   it("should initialize all atoms as defined values", () => {
@@ -172,5 +176,31 @@ describe("backward compatibility: connections stored by earlier versions", () =>
         [added.id, added],
       ]),
     );
+  });
+});
+
+describe("loadPersistedState", () => {
+  it("runs the startup migrations before the atoms read storage", async () => {
+    const edgeStyle: EdgeStyleStorage = {
+      type: createEdgeType("knows"),
+      lineColor: "#00ff00",
+    };
+    await localforage.setItem<LegacyUserStylingStorage>("user-styling", {
+      edges: [edgeStyle],
+    });
+
+    await loadPersistedState();
+
+    expect(createStore().get(userEdgeStylesAtom)).toStrictEqual(
+      new Map([[edgeStyle.type, edgeStyle]]),
+    );
+  });
+
+  it("seeds the stored value, not the default", async () => {
+    await localforage.setItem("defaultNeighborExpansionLimit", 42);
+
+    await loadPersistedState();
+
+    expect(createStore().get(defaultNeighborExpansionLimitAtom)).toBe(42);
   });
 });

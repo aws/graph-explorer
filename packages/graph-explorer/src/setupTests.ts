@@ -10,6 +10,7 @@ import localforage from "localforage";
 import { afterEach, beforeEach, vi } from "vite-plus/test";
 
 import { iconRegistry } from "@/core/icons/iconRegistry";
+import { seedPersistedAtomsWithDefaults } from "@/core/StateProvider/persistedAtomRegistry";
 
 // Mock getAppStore to return a specific test store
 let store = createStore();
@@ -37,6 +38,10 @@ beforeEach(async () => {
   // swapping `globalThis.indexedDB` wouldn't help because localForage captures
   // the factory at import.
   await localforage.dropInstance();
+
+  // Every test starts from an empty database, so persisted atoms start at
+  // their defaults. A test that seeds storage calls loadPersistedState().
+  seedPersistedAtomsWithDefaults();
 });
 
 // Mock sonner toast notifications to prevent requestAnimationFrame errors

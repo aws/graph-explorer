@@ -12,6 +12,7 @@ import {
   type GraphViewLayout,
   graphViewLayoutCodec,
 } from "./graphViewLayoutDefaults";
+import { loadPersistedAtom } from "./persistedAtomRegistry";
 import { persistenceStatusStore } from "./persistence";
 import { createInMemorySessionStorage } from "./safeSessionStorage";
 import {
@@ -55,7 +56,9 @@ function tabOpener<T>(
   return async function openTab() {
     const sessionStorage = createInMemorySessionStorage();
     let store = createStore();
-    let atom = await createSessionScopedAtom<T>({ ...options, sessionStorage });
+    let atom = await loadPersistedAtom(
+      createSessionScopedAtom<T>({ ...options, sessionStorage }),
+    );
     return {
       read: () => store.get(atom),
       /**
@@ -69,7 +72,9 @@ function tabOpener<T>(
       },
       reload: async () => {
         store = createStore();
-        atom = await createSessionScopedAtom<T>({ ...options, sessionStorage });
+        atom = await loadPersistedAtom(
+          createSessionScopedAtom<T>({ ...options, sessionStorage }),
+        );
       },
     };
   };
@@ -86,12 +91,14 @@ describe("createSessionScopedAtom", () => {
     await localForage.setItem<Counter>(KEY, { count: 7 });
     const sessionStorage = createInMemorySessionStorage();
 
-    const atom = await createSessionScopedAtom<Counter>({
-      key: KEY,
-      defaultValue: { count: 0 },
-      codec: counterCodec,
-      sessionStorage,
-    });
+    const atom = await loadPersistedAtom(
+      createSessionScopedAtom<Counter>({
+        key: KEY,
+        defaultValue: { count: 0 },
+        codec: counterCodec,
+        sessionStorage,
+      }),
+    );
 
     const store = createStore();
     expect(store.get(atom)).toStrictEqual({ count: 7 });
@@ -99,12 +106,14 @@ describe("createSessionScopedAtom", () => {
   });
 
   test("falls back to the default value when neither session nor breadcrumb is present", async () => {
-    const atom = await createSessionScopedAtom<Counter>({
-      key: KEY,
-      defaultValue: { count: 0 },
-      codec: counterCodec,
-      sessionStorage: createInMemorySessionStorage(),
-    });
+    const atom = await loadPersistedAtom(
+      createSessionScopedAtom<Counter>({
+        key: KEY,
+        defaultValue: { count: 0 },
+        codec: counterCodec,
+        sessionStorage: createInMemorySessionStorage(),
+      }),
+    );
 
     const store = createStore();
     expect(store.get(atom)).toStrictEqual({ count: 0 });
@@ -115,12 +124,14 @@ describe("createSessionScopedAtom", () => {
     const sessionStorage = createInMemorySessionStorage();
     sessionStorage.setItem(KEY, JSON.stringify({ count: 42 }));
 
-    const atom = await createSessionScopedAtom<Counter>({
-      key: KEY,
-      defaultValue: { count: 0 },
-      codec: counterCodec,
-      sessionStorage,
-    });
+    const atom = await loadPersistedAtom(
+      createSessionScopedAtom<Counter>({
+        key: KEY,
+        defaultValue: { count: 0 },
+        codec: counterCodec,
+        sessionStorage,
+      }),
+    );
 
     const store = createStore();
     expect(store.get(atom)).toStrictEqual({ count: 42 });
@@ -131,12 +142,14 @@ describe("createSessionScopedAtom", () => {
     const sessionStorage = createInMemorySessionStorage();
     sessionStorage.setItem(KEY, "{ not valid json");
 
-    const atom = await createSessionScopedAtom<Counter>({
-      key: KEY,
-      defaultValue: { count: 0 },
-      codec: counterCodec,
-      sessionStorage,
-    });
+    const atom = await loadPersistedAtom(
+      createSessionScopedAtom<Counter>({
+        key: KEY,
+        defaultValue: { count: 0 },
+        codec: counterCodec,
+        sessionStorage,
+      }),
+    );
 
     const store = createStore();
     expect(store.get(atom)).toStrictEqual({ count: 7 });
@@ -152,12 +165,14 @@ describe("createSessionScopedAtom", () => {
       throw new DOMException("blocked", "SecurityError");
     });
 
-    const atom = await createSessionScopedAtom<Counter>({
-      key: KEY,
-      defaultValue: { count: 0 },
-      codec: counterCodec,
-      sessionStorage,
-    });
+    const atom = await loadPersistedAtom(
+      createSessionScopedAtom<Counter>({
+        key: KEY,
+        defaultValue: { count: 0 },
+        codec: counterCodec,
+        sessionStorage,
+      }),
+    );
 
     const store = createStore();
     expect(store.get(atom)).toStrictEqual({ count: 7 });
@@ -166,12 +181,14 @@ describe("createSessionScopedAtom", () => {
 
   test("writing updates this tab synchronously and the breadcrumb in the background", async () => {
     const sessionStorage = createInMemorySessionStorage();
-    const atom = await createSessionScopedAtom<Counter>({
-      key: KEY,
-      defaultValue: { count: 0 },
-      codec: counterCodec,
-      sessionStorage,
-    });
+    const atom = await loadPersistedAtom(
+      createSessionScopedAtom<Counter>({
+        key: KEY,
+        defaultValue: { count: 0 },
+        codec: counterCodec,
+        sessionStorage,
+      }),
+    );
     const store = createStore();
 
     store.set(atom, { count: 5 });
@@ -187,12 +204,14 @@ describe("createSessionScopedAtom", () => {
     // after resolveSessionStorage already handed back a working store. The throw
     // must not escape the Jotai setter into the React subtree that set the atom.
     const sessionStorage = createInMemorySessionStorage();
-    const atom = await createSessionScopedAtom<Counter>({
-      key: KEY,
-      defaultValue: { count: 0 },
-      codec: counterCodec,
-      sessionStorage,
-    });
+    const atom = await loadPersistedAtom(
+      createSessionScopedAtom<Counter>({
+        key: KEY,
+        defaultValue: { count: 0 },
+        codec: counterCodec,
+        sessionStorage,
+      }),
+    );
     vi.spyOn(sessionStorage, "setItem").mockImplementation(() => {
       throw new DOMException("full", "QuotaExceededError");
     });
@@ -215,12 +234,14 @@ describe("createSessionScopedAtom", () => {
         throw new TypeError("activeToggles is not iterable");
       },
     };
-    const atom = await createSessionScopedAtom<Counter>({
-      key: KEY,
-      defaultValue: { count: 0 },
-      codec: brokenCodec,
-      sessionStorage: createInMemorySessionStorage(),
-    });
+    const atom = await loadPersistedAtom(
+      createSessionScopedAtom<Counter>({
+        key: KEY,
+        defaultValue: { count: 0 },
+        codec: brokenCodec,
+        sessionStorage: createInMemorySessionStorage(),
+      }),
+    );
     const store = createStore();
 
     expect(() => store.set(atom, { count: 5 })).toThrow(
@@ -239,12 +260,14 @@ describe("createSessionScopedAtom", () => {
     const sessionStorage = createInMemorySessionStorage();
     sessionStorage.setItem(KEY, JSON.stringify({ count: 5 }));
 
-    const atom = await createSessionScopedAtom<Counter>({
-      key: KEY,
-      defaultValue: { count: 0 },
-      codec: clearingCodec,
-      sessionStorage,
-    });
+    const atom = await loadPersistedAtom(
+      createSessionScopedAtom<Counter>({
+        key: KEY,
+        defaultValue: { count: 0 },
+        codec: clearingCodec,
+        sessionStorage,
+      }),
+    );
     const store = createStore();
     store.set(atom, { count: 0 });
 
@@ -257,17 +280,19 @@ describe("createSessionScopedAtom", () => {
     await localForage.setItem<Counter>(KEY, { count: 7 });
     const sessionStorage = createInMemorySessionStorage();
 
-    const atom = await createSessionScopedAtom<Counter>({
-      key: KEY,
-      defaultValue: { count: 0 },
-      codec: {
-        ...counterCodec,
-        parseStored: stored => ({
-          count: counterSchema.parse(stored).count * 10,
-        }),
-      },
-      sessionStorage,
-    });
+    const atom = await loadPersistedAtom(
+      createSessionScopedAtom<Counter>({
+        key: KEY,
+        defaultValue: { count: 0 },
+        codec: {
+          ...counterCodec,
+          parseStored: stored => ({
+            count: counterSchema.parse(stored).count * 10,
+          }),
+        },
+        sessionStorage,
+      }),
+    );
 
     const store = createStore();
     expect(store.get(atom)).toStrictEqual({ count: 70 });
@@ -282,18 +307,22 @@ describe("createSessionScopedAtom", () => {
     const warmStorage = createInMemorySessionStorage();
     warmStorage.setItem(KEY, JSON.stringify({ count: 42 }));
 
-    const warmAtom = await createSessionScopedAtom<Counter>({
-      key: KEY,
-      defaultValue: { count: 0 },
-      codec,
-      sessionStorage: warmStorage,
-    });
-    const coldAtom = await createSessionScopedAtom<Counter>({
-      key: KEY,
-      defaultValue: { count: 0 },
-      codec,
-      sessionStorage: createInMemorySessionStorage(),
-    });
+    const warmAtom = await loadPersistedAtom(
+      createSessionScopedAtom<Counter>({
+        key: KEY,
+        defaultValue: { count: 0 },
+        codec,
+        sessionStorage: warmStorage,
+      }),
+    );
+    const coldAtom = await loadPersistedAtom(
+      createSessionScopedAtom<Counter>({
+        key: KEY,
+        defaultValue: { count: 0 },
+        codec,
+        sessionStorage: createInMemorySessionStorage(),
+      }),
+    );
 
     const store = createStore();
     expect(store.get(warmAtom)).toStrictEqual({ count: 42 });
@@ -308,12 +337,14 @@ describe("createSessionScopedAtom", () => {
     await localForage.setItem(KEY, { count: "seven" });
     const sessionStorage = createInMemorySessionStorage();
 
-    const atom = await createSessionScopedAtom<Counter>({
-      key: KEY,
-      defaultValue: { count: 0 },
-      codec: counterCodec,
-      sessionStorage,
-    });
+    const atom = await loadPersistedAtom(
+      createSessionScopedAtom<Counter>({
+        key: KEY,
+        defaultValue: { count: 0 },
+        codec: counterCodec,
+        sessionStorage,
+      }),
+    );
 
     expect(createStore().get(atom)).toStrictEqual({ count: 0 });
     expect(sessionStorage.getItem(KEY)).toBeNull();
@@ -383,12 +414,14 @@ describe("createSessionScopedAtom with the graph view layout codec", () => {
     );
     const sessionStorage = createInMemorySessionStorage();
 
-    const atom = await createSessionScopedAtom<GraphViewLayout>({
-      key: GRAPH_VIEW_LAYOUT_KEY,
-      defaultValue: defaultGraphViewLayout,
-      codec: graphViewLayoutCodec,
-      sessionStorage,
-    });
+    const atom = await loadPersistedAtom(
+      createSessionScopedAtom<GraphViewLayout>({
+        key: GRAPH_VIEW_LAYOUT_KEY,
+        defaultValue: defaultGraphViewLayout,
+        codec: graphViewLayoutCodec,
+        sessionStorage,
+      }),
+    );
 
     const store = createStore();
     const seeded = store.get(atom);
