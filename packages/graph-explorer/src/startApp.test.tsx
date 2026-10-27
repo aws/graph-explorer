@@ -55,4 +55,22 @@ describe("startApp", () => {
     expect(within(container).getByText("Neighbor limit 42")).toBeVisible();
     expect(renderedLimits).not.toContain(10);
   });
+
+  test.fails("shows the app error page when persisted state fails to load", async () => {
+    vi.spyOn(localforage, "getItem").mockRejectedValue(
+      new DOMException("The database connection was lost.", "UnknownError"),
+    );
+    const container = createContainer();
+
+    await act(() => startApp(container));
+
+    const page = within(container);
+    expect(
+      page.getByRole("heading", { name: "Something went wrong" }),
+    ).toBeVisible();
+    expect(
+      page.getByRole("button", { name: "Reload Graph Explorer" }),
+    ).toBeVisible();
+    expect(page.queryByText(/Neighbor limit/)).toBeNull();
+  });
 });
