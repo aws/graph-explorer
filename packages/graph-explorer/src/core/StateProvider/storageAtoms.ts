@@ -26,7 +26,6 @@ import {
   schemaViewLayoutCodec,
 } from "./schemaViewLayoutDefaults";
 import { createSessionScopedAtom } from "./sessionScopedStorage";
-import { ALLOW_LOGGING_DB_QUERY_STORAGE_KEY } from "./storageKeys";
 import { transformVertexStyles } from "./vertexStylesTransform";
 
 /**
@@ -115,7 +114,7 @@ export const showDebugActionsAtom = atomWithLocalForage<boolean>(
 
 /** Enables logging of generated database queries on the proxy server. */
 export const allowLoggingDbQueryAtom = atomWithLocalForage<boolean>(
-  ALLOW_LOGGING_DB_QUERY_STORAGE_KEY,
+  "allowLoggingDbQuery",
   false,
 );
 

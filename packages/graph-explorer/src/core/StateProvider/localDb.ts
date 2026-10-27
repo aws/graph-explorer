@@ -6,7 +6,7 @@ import { LABELS } from "@/utils/constants";
 import { fromFileToJson, toJsonFileData } from "@/utils/fileData";
 
 import { deserializeData, serializeData } from "./serializeData";
-import { ALLOW_LOGGING_DB_QUERY_STORAGE_KEY } from "./storageKeys";
+import { allowLoggingDbQueryAtom } from "./storageAtoms";
 
 /*
 
@@ -185,7 +185,7 @@ const restoredEntryPrefix = "RESTORED-ENTRY-";
  * Query logging sends query text to the proxy server's logs, so turning it
  * on must always be an explicit choice in Settings.
  */
-const keysSkippedOnRestore = new Set([ALLOW_LOGGING_DB_QUERY_STORAGE_KEY]);
+const keysSkippedOnRestore = new Set([allowLoggingDbQueryAtom.storageKey]);
 
 function applyRestorePrefixToEntries(data: Record<string, unknown>) {
   return Object.entries(data)

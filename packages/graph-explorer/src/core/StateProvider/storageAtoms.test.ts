@@ -78,6 +78,41 @@ describe("storageAtoms", () => {
     expect(store.get(diagnosticLoggingAtom)).toBe(false);
   });
 
+  it("tags each atom with the key it is stored under", () => {
+    expect({
+      activeConnectionIdAtom: activeConnectionIdAtom.storageKey,
+      savedConnectionsAtom: savedConnectionsAtom.storageKey,
+      schemaAtom: schemaAtom.storageKey,
+      userVertexStylesAtom: userVertexStylesAtom.storageKey,
+      userEdgeStylesAtom: userEdgeStylesAtom.storageKey,
+      graphViewLayoutAtom: graphViewLayoutAtom.storageKey,
+      schemaViewLayoutAtom: schemaViewLayoutAtom.storageKey,
+      allGraphSessionsAtom: allGraphSessionsAtom.storageKey,
+      showDebugActionsAtom: showDebugActionsAtom.storageKey,
+      allowLoggingDbQueryAtom: allowLoggingDbQueryAtom.storageKey,
+      defaultNeighborExpansionLimitEnabledAtom:
+        defaultNeighborExpansionLimitEnabledAtom.storageKey,
+      defaultNeighborExpansionLimitAtom:
+        defaultNeighborExpansionLimitAtom.storageKey,
+      diagnosticLoggingAtom: diagnosticLoggingAtom.storageKey,
+    }).toStrictEqual({
+      activeConnectionIdAtom: "active-configuration",
+      savedConnectionsAtom: "configuration",
+      schemaAtom: "schema",
+      userVertexStylesAtom: "user-vertex-styles",
+      userEdgeStylesAtom: "user-edge-styles",
+      graphViewLayoutAtom: "graph-view-layout",
+      schemaViewLayoutAtom: "schema-view-layout",
+      allGraphSessionsAtom: "graph-sessions",
+      showDebugActionsAtom: "showDebugActions",
+      allowLoggingDbQueryAtom: "allowLoggingDbQuery",
+      defaultNeighborExpansionLimitEnabledAtom:
+        "defaultNeighborExpansionLimitEnabled",
+      defaultNeighborExpansionLimitAtom: "defaultNeighborExpansionLimit",
+      diagnosticLoggingAtom: "diagnosticLogging",
+    });
+  });
+
   it("should persist a written value on subsequent reads", () => {
     const store = createStore();
 
