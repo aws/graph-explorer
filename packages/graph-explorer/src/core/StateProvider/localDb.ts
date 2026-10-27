@@ -6,6 +6,7 @@ import { LABELS } from "@/utils/constants";
 import { fromFileToJson, toJsonFileData } from "@/utils/fileData";
 
 import { deserializeData, serializeData } from "./serializeData";
+import { ALLOW_LOGGING_DB_QUERY_STORAGE_KEY } from "./storageKeys";
 
 /*
 
@@ -47,7 +48,8 @@ If there is a failure during the writing of the restore entries then the
 existing database is left in a working state.
 
 1. Clean up any left over restored entries from previous failed restores.
-2. Write all the backup data entries to localForage with "restored" prefix.
+2. Write the backup data entries to localForage with "restored" prefix,
+   skipping keys that are never restored.
 3. Delete all non-restored entries.
 4. Rename all restored entries by removing prefix.
 
@@ -87,7 +89,8 @@ export async function readBackupDataFromFile(blob: Blob) {
 }
 
 /**
- * Applies the given backup data to the localDb, overwriting all contents.
+ * Applies the given backup data to the localDb, overwriting all contents
+ * except keys that are never restored.
  * @param backup The backup data to restore.
  * @param localDb The target localForage instance for the restore.
  */
@@ -177,10 +180,17 @@ export async function removeExistingEntries(localDb: LocalDb) {
 
 const restoredEntryPrefix = "RESTORED-ENTRY-";
 
+/**
+ * Keys a restore never writes, so they come back at their defaults.
+ * Query logging sends query text to the proxy server's logs, so turning it
+ * on must always be an explicit choice in Settings.
+ */
+const keysSkippedOnRestore = new Set([ALLOW_LOGGING_DB_QUERY_STORAGE_KEY]);
+
 function applyRestorePrefixToEntries(data: Record<string, unknown>) {
-  return Object.entries(data).map(
-    ([key, value]) => [addRestoredPrefix(key), value] as const,
-  );
+  return Object.entries(data)
+    .filter(([key]) => !keysSkippedOnRestore.has(key))
+    .map(([key, value]) => [addRestoredPrefix(key), value] as const);
 }
 
 export function addRestoredPrefix(key: string) {
