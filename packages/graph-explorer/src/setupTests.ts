@@ -5,7 +5,6 @@
 import "fake-indexeddb/auto";
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
-import { IDBFactory } from "fake-indexeddb";
 import { createStore } from "jotai";
 import localforage from "localforage";
 import { afterEach, beforeEach, vi } from "vite-plus/test";
@@ -33,18 +32,11 @@ beforeEach(async () => {
   // bleed between tests.
   iconRegistry.reset();
 
-  // Give each test a fresh IndexedDB so persisted state never bleeds between
-  // tests. The vitest thread pool reuses workers, so the database must be
-  // swapped out rather than relying on process isolation.
-  //
-  // The reset has to happen in this exact order: localForage caches its open
-  // database handle keyed by name, so simply swapping `indexedDB` would leave
-  // that stale handle pointing at the previous test's data. `dropInstance()`
-  // deletes the database and clears the cached handle, the new `IDBFactory`
-  // gives a clean backing store, and `ready()` re-opens against it.
+  // Give each test an empty localForage store, since the vitest thread pool
+  // reuses workers. `dropInstance()` drops the configured object store;
+  // swapping `globalThis.indexedDB` wouldn't help because localForage captures
+  // the factory at import.
   await localforage.dropInstance();
-  globalThis.indexedDB = new IDBFactory();
-  await localforage.ready();
 });
 
 // Mock sonner toast notifications to prevent requestAnimationFrame errors
