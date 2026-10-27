@@ -56,7 +56,7 @@ describe("startApp", () => {
     expect(renderedLimits).not.toContain(10);
   });
 
-  test.fails("shows the app error page when persisted state fails to load", async () => {
+  test("shows the app error page when persisted state fails to load", async () => {
     vi.spyOn(localforage, "getItem").mockRejectedValue(
       new DOMException("The database connection was lost.", "UnknownError"),
     );
