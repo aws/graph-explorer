@@ -129,8 +129,8 @@ describe("storageAtoms", () => {
  *
  * Earlier versions stored a connection with a `url`/`proxyConnection` pair.
  * The real `savedConnectionsAtom` must fold that shape into the canonical one
- * as it preloads, so these tests seed IndexedDB and then load a fresh copy
- * of storageAtoms.ts. Removing `transform: transformSavedConnections` from its
+ * as `loadPersistedState()` loads it, so these tests seed IndexedDB and then
+ * call `loadPersistedState()`. Removing `transform: transformSavedConnections` from its
  * `configuration` atom must fail them.
  *
  * DO NOT delete or weaken these tests without confirming no stored

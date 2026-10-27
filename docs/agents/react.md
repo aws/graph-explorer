@@ -57,7 +57,7 @@
 - Feature modules in `src/modules/` contain all related components, hooks, and utilities
 - Each module exports its public API through an index file
 - Modules should be self-contained with minimal dependencies on other modules
-- `src/connections/` follows the same rule: import from `@/connections`, never a deep path. `storageAtoms.ts` is the one exception, and its comment says why. Inside `src/connections/`, import specific `@/core/...` paths, not the `@/core` barrel. Lint enforces both
+- `src/connections/` follows the same rule: import from `@/connections`, never a deep path. `storageAtoms.ts` and `activeConnectionStorage.ts` are the exceptions, to break an import cycle with the storage atoms. Inside `src/connections/`, import specific `@/core/...` paths, not the `@/core` barrel. Lint enforces both
 
 ## Naming conventions
 

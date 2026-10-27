@@ -4,10 +4,11 @@
 - **Date:** 2026-06-16
 - **Related:** ADR `indexeddb-not-localstorage-for-persistence` (IndexedDB constraint) is the storage substrate this reconciliation runs on. Issue #1820 (the clobber bug); inverse of #1788 / per-tab active connection, which wants per-tab _divergence_ rather than reconciliation.
 - **Updated:** 2026-10-06 — identifiers renamed in #2361. The decision below is unchanged. Read it with this substitution: `activeConfiguration`→`activeConnectionIdAtom`.
+- **Updated:** 2026-10-27 — `atomWithLocalForage` now returns its atom synchronously and registers it for `loadPersistedState()`, which loads every stored value before the first render (ADR `explicit-persisted-state-bootstrap`).
 
 ## Context
 
-`atomWithLocalForage` (`core/StateProvider/atomWithLocalForage.ts`) reads each value **once at startup** into an in-memory Jotai atom, then writes the **whole value** back on every change. IndexedDB is shared across same-origin tabs but has no cross-tab synchronization (no BroadcastChannel, no `storage` events, no Web Locks — see ADR `indexeddb-not-localstorage-for-persistence`).
+`atomWithLocalForage` (`core/StateProvider/atomWithLocalForage.ts`) reads each value **once**, in `loadPersistedState()` at startup, into an in-memory Jotai atom, then writes the **whole value** back on every change. IndexedDB is shared across same-origin tabs but has no cross-tab synchronization (no BroadcastChannel, no `storage` events, no Web Locks — see ADR `indexeddb-not-localstorage-for-persistence`).
 
 For collections mutated read-modify-write — e.g. `set(atom, prev => [...prev, x])` — a second tab's in-memory `prev` is stale the moment another tab persists. Writing the whole collection back then **silently drops entries the other tab added**. The clobber is last-writer-wins over the _entire_ collection, not just the field a tab touched.
 
