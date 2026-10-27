@@ -535,6 +535,76 @@ describe("round-trip: export then import", () => {
       lineColor: "#0c4a6e",
     });
   });
+
+  test("font size fields survive round-trip", async () => {
+    const store = getAppStore();
+    store.set(
+      userVertexStylesAtom,
+      new Map<VertexType, VertexStyleStorage>([
+        [
+          createVertexType("airport"),
+          {
+            type: createVertexType("airport"),
+            fontSize: 14,
+            minZoomedFontSize: 8,
+          },
+        ],
+      ]),
+    );
+    store.set(
+      userEdgeStylesAtom,
+      new Map<EdgeType, EdgeStyleStorage>([
+        [
+          createEdgeType("route"),
+          {
+            type: createEdgeType("route"),
+            fontSize: 11,
+            minZoomedFontSize: 5,
+          },
+        ],
+      ]),
+    );
+
+    const { result: exportResult } = renderHookWithJotai(() =>
+      useExportStylingFile(),
+    );
+    const payload = exportResult.current.getExportPayload();
+
+    expect(payload.vertices["airport"]).toStrictEqual({
+      fontSize: 14,
+      minZoomedFontSize: 8,
+    });
+    expect(payload.edges["route"]).toStrictEqual({
+      fontSize: 11,
+      minZoomedFontSize: 5,
+    });
+
+    const file = envelopeToFile(payload);
+
+    store.set(userVertexStylesAtom, new Map());
+    store.set(userEdgeStylesAtom, new Map());
+
+    const { result: importResult } = renderHookWithJotai(() =>
+      useApplyStylingImport(),
+    );
+    const parseOut = await parseStylingFile(file);
+    importResult.current(parseOut);
+
+    expect(
+      store.get(sharedVertexStylesAtom).get(createVertexType("airport")),
+    ).toStrictEqual({
+      type: createVertexType("airport"),
+      fontSize: 14,
+      minZoomedFontSize: 8,
+    });
+    expect(
+      store.get(sharedEdgeStylesAtom).get(createEdgeType("route")),
+    ).toStrictEqual({
+      type: createEdgeType("route"),
+      fontSize: 11,
+      minZoomedFontSize: 5,
+    });
+  });
 });
 
 function envelopeToFile(payload: unknown): File {
