@@ -1,7 +1,12 @@
 import localForage from "localforage";
 
 import { persistThroughQueue } from "./persistence";
-import { createWriteThroughAtom } from "./writeThroughAtom";
+import {
+  createWriteThroughAtom,
+  type Hydration,
+  type PersistedAtom,
+  type PersistedAtomHandle,
+} from "./writeThroughAtom";
 
 localForage.config({
   name: "ge",
@@ -116,21 +121,37 @@ export type AtomWithLocalForageOptions<T> = {
 export async function atomWithLocalForage<T>(
   key: string,
   initialValue: T,
-  { reconcile, transform }: AtomWithLocalForageOptions<T> = {},
-) {
+  options: AtomWithLocalForageOptions<T> = {},
+): Promise<PersistedAtom<T>> {
+  const handle = createLocalForageAtom(key, initialValue, options);
+  await handle.load();
+  return handle.atom;
+}
+
+function createLocalForageAtom<T>(
+  key: string,
+  initialValue: T,
+  { reconcile, transform }: AtomWithLocalForageOptions<T>,
+): PersistedAtomHandle<T> {
   const storage = createLocalForageStorage<T>(key, initialValue);
-  const loadedValue = await storage.getItem();
-  const preloadValue = transform ? transform(loadedValue) : loadedValue;
 
-  const flush = reconcile
-    ? createReconcilingFlush(storage, reconcile, preloadValue)
-    : storage.setItem;
+  function hydrate(loadedValue: T): Hydration<T> {
+    const seed = transform ? transform(loadedValue) : loadedValue;
+    const flush = reconcile
+      ? createReconcilingFlush(storage, reconcile, seed)
+      : storage.setItem;
+    return {
+      seed,
+      persist: nextValue => persistThroughQueue(key, () => flush(nextValue)),
+    };
+  }
 
-  return createWriteThroughAtom<T>(
-    preloadValue,
-    nextValue => persistThroughQueue(key, () => flush(nextValue)),
-    `atomWithLocalForage(${key})`,
-  );
+  return createWriteThroughAtom<T>({
+    key,
+    debugLabel: `atomWithLocalForage(${key})`,
+    load: async () => hydrate(await storage.getItem()),
+    seedDefault: () => hydrate(initialValue),
+  });
 }
 
 /**

@@ -6,7 +6,12 @@ import { logger } from "@/utils";
 
 import { persistThroughQueue } from "./persistence";
 import { resolveSessionStorage } from "./safeSessionStorage";
-import { createWriteThroughAtom } from "./writeThroughAtom";
+import {
+  createWriteThroughAtom,
+  type Hydration,
+  type PersistedAtom,
+  type PersistedAtomHandle,
+} from "./writeThroughAtom";
 
 /**
  * Validates a per-tab value on both of its backings. sessionStorage holds a
@@ -75,36 +80,55 @@ export type SessionScopedAtomOptions<T> = {
  * @param sessionStorage The per-tab storage backing. Injectable so multi-tab
  * isolation can be tested with separate storages.
  */
-export async function createSessionScopedAtom<T>({
+export async function createSessionScopedAtom<T>(
+  options: SessionScopedAtomOptions<T>,
+): Promise<PersistedAtom<T>> {
+  const handle = createSessionScopedHandle(options);
+  await handle.load();
+  return handle.atom;
+}
+
+function createSessionScopedHandle<T>({
   key,
   defaultValue,
   codec,
   sessionStorage = resolveSessionStorage(),
-}: SessionScopedAtomOptions<T>) {
-  let seedValue = readSessionSeed(sessionStorage, key, codec);
-  if (seedValue === null) {
-    // Cold start: seed from the shared breadcrumb and claim it into this tab's
-    // sessionStorage, so a later reload reads this value back rather than
-    // re-seeding from a breadcrumb another tab may have since moved.
-    seedValue = await readBreadcrumbSeed(key, codec);
-    if (seedValue !== null) {
-      writeSession(sessionStorage, key, codec, seedValue);
-    }
+}: SessionScopedAtomOptions<T>): PersistedAtomHandle<T> {
+  function hydrate(seed: T): Hydration<T> {
+    return {
+      seed,
+      // The per-tab sessionStorage value updates synchronously; the shared
+      // localForage breadcrumb is persisted through the queue so its outcome
+      // joins the global persistence status like any other IndexedDB write.
+      persist: nextValue => {
+        writeSession(sessionStorage, key, codec, nextValue);
+        persistThroughQueue(key, async () => {
+          await localForage.setItem(key, nextValue);
+        });
+      },
+    };
   }
 
-  return createWriteThroughAtom<T>(
-    seedValue ?? defaultValue,
-    // The per-tab sessionStorage value updates synchronously; the shared
-    // localForage breadcrumb is persisted through the queue so its outcome
-    // joins the global persistence status like any other IndexedDB write.
-    nextValue => {
-      writeSession(sessionStorage, key, codec, nextValue);
-      persistThroughQueue(key, async () => {
-        await localForage.setItem(key, nextValue);
-      });
-    },
-    `createSessionScopedAtom(${key})`,
-  );
+  async function load() {
+    let seedValue = readSessionSeed(sessionStorage, key, codec);
+    if (seedValue === null) {
+      // Cold start: seed from the shared breadcrumb and claim it into this
+      // tab's sessionStorage, so a later reload reads this value back rather
+      // than re-seeding from a breadcrumb another tab may have since moved.
+      seedValue = await readBreadcrumbSeed(key, codec);
+      if (seedValue !== null) {
+        writeSession(sessionStorage, key, codec, seedValue);
+      }
+    }
+    return hydrate(seedValue ?? defaultValue);
+  }
+
+  return createWriteThroughAtom<T>({
+    key,
+    debugLabel: `createSessionScopedAtom(${key})`,
+    load,
+    seedDefault: () => hydrate(defaultValue),
+  });
 }
 
 /**
