@@ -218,8 +218,6 @@ By default, the proxy server forwards requests to any database URL specified by 
 
 On a host with AWS credentials, such as an EC2 instance profile or ECS task role, the proxy server signs requests with the host's identity, which every user of the deployment shares. Scope that identity's database policy first, because Neptune enforces it no matter what sends the request. Set the allowlist as well to add a second boundary in the proxy server, which also limits requests to databases that don't use IAM authentication. See [Permissions](#permissions).
 
-The first time the proxy server signs a request with no allowlist set, it logs a warning naming the origin and `PROXY_SERVER_ALLOWED_DB_ORIGINS`. It logs this once per process and never for unsigned requests.
-
 > [!NOTE]
 >
 > This check applies only to requests routed through the proxy server. It doesn't apply to direct connections, because the browser sends their requests to the database itself.

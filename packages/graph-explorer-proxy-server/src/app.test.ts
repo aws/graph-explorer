@@ -9,7 +9,6 @@ import {
   describe,
   expect,
   it,
-  type MockInstance,
   vi,
 } from "vite-plus/test";
 
@@ -1032,93 +1031,24 @@ describe("createApp", () => {
       });
     });
 
-    describe("without a Database Origin Allowlist", () => {
-      const signedHeaders = {
-        "aws-neptune-region": "us-east-1",
-        "service-type": "neptune-db",
-      };
+    it("signs a request with no Database Origin Allowlist without warning", async () => {
+      mockFetchOnce();
 
-      function allowlistWarnings(warnSpy: MockInstance) {
-        return warnSpy.mock.calls.filter(args =>
-          args.some(
-            arg =>
-              typeof arg === "string" &&
-              arg.includes("PROXY_SERVER_ALLOWED_DB_ORIGINS"),
-          ),
-        );
-      }
+      const app = createTestApp();
+      const warnSpy = vi.spyOn(app.locals.logger, "warn");
+      const response = await request(app)
+        .post("/sparql")
+        .set(
+          dbHeaders({
+            "aws-neptune-region": "us-east-1",
+            "service-type": "neptune-db",
+          }),
+        )
+        .send({ query: "SELECT 1" });
 
-      it("warns once on the first signed request, naming the origin", async () => {
-        mockFetchOnce();
-
-        const app = createTestApp();
-        const warnSpy = vi.spyOn(app.locals.logger, "warn");
-        const response = await request(app)
-          .post("/sparql")
-          .set(dbHeaders(signedHeaders))
-          .send({ query: "SELECT ?secret WHERE {}" });
-
-        expect(response.status).toBe(200);
-        expect(fetchOptionsFor("sparql").headers).toHaveProperty(
-          "authorization",
-        );
-        const warnings = allowlistWarnings(warnSpy);
-        expect(warnings).toHaveLength(1);
-        const message = warnings[0].join(" ");
-        expect(message).toContain(new URL(graphDbUrl).origin);
-        expect(message).toContain("security documentation");
-        expect(message).not.toContain("?secret");
-        expect(message).not.toContain("/sparql");
-      });
-
-      it("does not warn again for later signed requests to any origin", async () => {
-        const app = createTestApp();
-        const warnSpy = vi.spyOn(app.locals.logger, "warn");
-
-        for (const url of [graphDbUrl, "https://other-db.example.com:8182"]) {
-          mockFetchOnce();
-          await request(app)
-            .post("/sparql")
-            .set(
-              dbHeaders({ ...signedHeaders, "graph-db-connection-url": url }),
-            )
-            .send({ query: "SELECT 1" });
-        }
-        mockFetchOnce();
-        await request(app).get("/summary").set(dbHeaders(signedHeaders));
-
-        expect(allowlistWarnings(warnSpy)).toHaveLength(1);
-      });
-
-      it("does not warn for unsigned requests", async () => {
-        mockFetchOnce();
-
-        const app = createTestApp();
-        const warnSpy = vi.spyOn(app.locals.logger, "warn");
-        await request(app)
-          .post("/sparql")
-          .set(dbHeaders())
-          .send({ query: "SELECT 1" });
-
-        expect(allowlistWarnings(warnSpy)).toHaveLength(0);
-      });
-
-      it("does not warn when an allowlist is set", async () => {
-        mockFetchOnce();
-
-        const app = createTestApp(
-          ".",
-          undefined,
-          new Set([new URL(graphDbUrl).origin]),
-        );
-        const warnSpy = vi.spyOn(app.locals.logger, "warn");
-        await request(app)
-          .post("/sparql")
-          .set(dbHeaders(signedHeaders))
-          .send({ query: "SELECT 1" });
-
-        expect(allowlistWarnings(warnSpy)).toHaveLength(0);
-      });
+      expect(response.status).toBe(200);
+      expect(fetchOptionsFor("sparql").headers).toHaveProperty("authorization");
+      expect(warnSpy).not.toHaveBeenCalled();
     });
   });
 
