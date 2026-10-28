@@ -15,6 +15,7 @@ import {
 import {
   attachGracefulShutdown,
   attachServerErrorHandler,
+  startListening,
 } from "./server-lifecycle.ts";
 import { createServer } from "./server.ts";
 
@@ -50,6 +51,7 @@ try {
 logStartupWarnings(serverConfig.startupWarnings, logger);
 
 const {
+  listenAddress,
   port,
   baseUrl,
   certificateKeyFilePath,
@@ -104,9 +106,12 @@ process.on("unhandledRejection", reason => {
 });
 
 // Start the server
-server.listen(port, () => {
-  logger.info(`Proxy server located at ${baseUrl}`);
-  logger.info(
-    `Graph Explorer UI located at: ${baseUrl}${staticFilesVirtualPath}`,
-  );
+startListening(server, {
+  address: listenAddress,
+  port,
+  logger,
+  onListening: () =>
+    logger.info(
+      `Graph Explorer UI located at: ${baseUrl}${staticFilesVirtualPath}`,
+    ),
 });

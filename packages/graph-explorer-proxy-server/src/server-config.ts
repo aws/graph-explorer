@@ -41,6 +41,7 @@ export function resolveServerConfig(env: EnvironmentValues) {
 
   return {
     host: env.HOST,
+    listenAddress: env.PROXY_SERVER_LISTEN_ADDRESS,
     port,
     startupWarnings: warnings,
     useHttps,

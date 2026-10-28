@@ -1,3 +1,5 @@
+import { type AddressInfo, isIPv6, type ListenOptions } from "net";
+
 interface LifecycleLogger {
   info: (msg: string, ...args: unknown[]) => void;
   error: (msg: string, ...args: unknown[]) => void;
@@ -8,6 +10,55 @@ interface LifecycleLogger {
 export interface LifecycleServer {
   on(event: "error", handler: (error: NodeJS.ErrnoException) => void): unknown;
   close(onClosed?: (error?: Error) => void): unknown;
+}
+
+/** The subset of `http.Server` that {@link startListening} depends on. */
+export interface ListeningServer {
+  listen(options: ListenOptions, onListening: () => void): unknown;
+  address(): AddressInfo | string | null;
+}
+
+export interface StartListeningOptions {
+  address: string;
+  port: number;
+  logger: LifecycleLogger;
+  onListening: () => void;
+}
+
+const allInterfacesAddresses = new Set(["::", "0.0.0.0"]);
+
+/**
+ * Listens on `address` and `port`, then logs the address the server bound.
+ * The all-interfaces addresses listen with no host, which keeps Node's
+ * IPv6-first bind and its IPv4 fallback on hosts without IPv6.
+ */
+export function startListening(
+  server: ListeningServer,
+  { address, port, logger, onListening }: StartListeningOptions,
+) {
+  const options: ListenOptions = allInterfacesAddresses.has(address)
+    ? { port }
+    : { port, host: address };
+  server.listen(options, () => {
+    const bound = server.address();
+    if (bound === null || typeof bound === "string") {
+      throw new Error("The proxy server must listen on a TCP address");
+    }
+    const boundAt = isIPv6(bound.address)
+      ? `[${bound.address}]:${bound.port}`
+      : `${bound.address}:${bound.port}`;
+    logger.info(`Proxy server listening on ${boundAt}`);
+    if (isLoopback(bound.address)) {
+      logger.info(
+        "Only this machine can connect. Set PROXY_SERVER_LISTEN_ADDRESS to listen on other network interfaces.",
+      );
+    }
+    onListening();
+  });
+}
+
+function isLoopback(address: string) {
+  return address === "::1" || address.startsWith("127.");
 }
 
 export interface ServerErrorHandlerOptions {

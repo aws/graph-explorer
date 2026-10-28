@@ -1,9 +1,13 @@
+import type { AddressInfo, ListenOptions } from "net";
+
+import http from "http";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import {
   attachGracefulShutdown,
   attachServerErrorHandler,
   type LifecycleServer,
+  startListening,
 } from "./server-lifecycle.ts";
 
 function createMockServer({
@@ -76,6 +80,147 @@ describe("attachServerErrorHandler", () => {
 
     expect(exit).toHaveBeenCalledWith(1);
     expect(logger.fatal).toHaveBeenCalled();
+  });
+});
+
+function createMockListeningServer(bound: AddressInfo) {
+  const listen = vi.fn((_options: ListenOptions, onListening: () => void) =>
+    onListening(),
+  );
+  return { server: { listen, address: () => bound }, listen };
+}
+
+const loopbackNote =
+  "Only this machine can connect. Set PROXY_SERVER_LISTEN_ADDRESS to listen on other network interfaces.";
+
+describe("startListening", () => {
+  function start(
+    bound: AddressInfo,
+    address: string,
+    onListening: () => void = vi.fn(),
+  ) {
+    const { server, listen } = createMockListeningServer(bound);
+    const logger = createMockLogger();
+    startListening(server, { address, port: 8080, logger, onListening });
+    return { listen, logger };
+  }
+
+  it.each(["::", "0.0.0.0"])(
+    "listens with no host for %s, keeping Node's IPv4 fallback",
+    address => {
+      const { listen } = start(
+        { address: "::", family: "IPv6", port: 8080 },
+        address,
+      );
+
+      expect(listen).toHaveBeenCalledWith({ port: 8080 }, expect.any(Function));
+      expect(listen.mock.calls[0][0]).not.toHaveProperty("host");
+    },
+  );
+
+  it("listens on 127.0.0.1 as the host", () => {
+    const { listen } = start(
+      { address: "127.0.0.1", family: "IPv4", port: 8080 },
+      "127.0.0.1",
+    );
+
+    expect(listen).toHaveBeenCalledWith(
+      { port: 8080, host: "127.0.0.1" },
+      expect.any(Function),
+    );
+  });
+
+  it("logs every interface without the loopback note", () => {
+    const { logger } = start({ address: "::", family: "IPv6", port: 80 }, "::");
+
+    expect(logger.info.mock.calls).toStrictEqual([
+      ["Proxy server listening on [::]:80"],
+    ]);
+  });
+
+  it("logs an IPv4 bind", () => {
+    const { logger } = start(
+      { address: "0.0.0.0", family: "IPv4", port: 80 },
+      "0.0.0.0",
+    );
+
+    expect(logger.info.mock.calls).toStrictEqual([
+      ["Proxy server listening on 0.0.0.0:80"],
+    ]);
+  });
+
+  it("says only this machine can connect on 127.0.0.1", () => {
+    const { logger } = start(
+      { address: "127.0.0.1", family: "IPv4", port: 8080 },
+      "127.0.0.1",
+    );
+
+    expect(logger.info.mock.calls).toStrictEqual([
+      ["Proxy server listening on 127.0.0.1:8080"],
+      [loopbackNote],
+    ]);
+  });
+
+  it("says only this machine can connect on ::1", () => {
+    const { logger } = start(
+      { address: "::1", family: "IPv6", port: 8080 },
+      "::1",
+    );
+
+    expect(logger.info.mock.calls).toStrictEqual([
+      ["Proxy server listening on [::1]:8080"],
+      [loopbackNote],
+    ]);
+  });
+
+  it("calls onListening once listening", () => {
+    const onListening = vi.fn();
+
+    start(
+      { address: "127.0.0.1", family: "IPv4", port: 8080 },
+      "127.0.0.1",
+      onListening,
+    );
+
+    expect(onListening).toHaveBeenCalledOnce();
+  });
+
+  // The Vite dev proxy in packages/graph-explorer/vite.config.ts targets
+  // http://localhost:<port>, which Node resolves and falls back to 127.0.0.1.
+  it("accepts requests to localhost on 127.0.0.1, as the Vite dev proxy sends them", async () => {
+    const server = http.createServer((_request, response) => {
+      response.end("OK");
+    });
+    try {
+      await new Promise<void>(resolve =>
+        startListening(server, {
+          address: "127.0.0.1",
+          port: 0,
+          logger: createMockLogger(),
+          onListening: resolve,
+        }),
+      );
+      const bound = server.address();
+      if (bound === null || typeof bound === "string") {
+        throw new Error("Expected the server to listen on a TCP address");
+      }
+      expect(bound.address).toBe("127.0.0.1");
+
+      const status = await new Promise<number | undefined>(
+        (resolve, reject) => {
+          http
+            .get(`http://localhost:${bound.port}/`, response => {
+              response.resume();
+              resolve(response.statusCode);
+            })
+            .on("error", reject);
+        },
+      );
+
+      expect(status).toBe(200);
+    } finally {
+      server.close();
+    }
   });
 });
 
