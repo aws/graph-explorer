@@ -14,6 +14,11 @@ import path from "path";
 import { pipeline } from "stream";
 import { z } from "zod";
 
+import {
+  blockedResolutionError,
+  dbAgentFor,
+  isBlockedLookupError,
+} from "./blocked-addresses.ts";
 import { errorHandlingMiddleware } from "./error-handler.ts";
 import { HttpError, RequestValidationError } from "./errors.ts";
 import {
@@ -264,6 +269,7 @@ export function createApp({
       headers,
       compress: false,
       redirect: "error",
+      agent: dbAgentFor,
     };
   }
 
@@ -294,6 +300,12 @@ export function createApp({
         }
         return res;
       } catch (err) {
+        if (isBlockedLookupError(err)) {
+          // The response leaves out the resolved address, so log it here.
+          // A retry resolves the host again, so a blocked answer is final.
+          logger.warn(err.message);
+          throw blockedResolutionError(url.origin);
+        }
         if (refetchMaxRetries === 1) {
           // Don't log about retries if retrying is not used
           throw err;

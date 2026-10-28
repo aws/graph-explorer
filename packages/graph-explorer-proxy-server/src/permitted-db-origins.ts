@@ -5,7 +5,7 @@ import { HttpError } from "./errors.ts";
  * Throws {@link HttpError} 403 unless the proxy may forward to the URL's
  * origin. A reserved cloud service IP literal is always refused, and
  * the Database Origin Allowlist applies on top when one is configured. Host
- * names are not resolved here.
+ * names are checked when they resolve, by the database request agent.
  */
 export function assertPermittedDbOrigin(
   url: string,
