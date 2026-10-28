@@ -22,25 +22,36 @@ describe("ClientLoggerConnector", () => {
 });
 
 describe("ServerLoggerConnector", () => {
-  test("should send logs to the server via relative URL", () => {
-    const mockFetch = vi.fn().mockResolvedValue({});
-    vi.stubGlobal("fetch", mockFetch);
-    stubDocumentUrl("https://example.com/explorer/");
+  test.each([
+    { method: "error", consoleMethod: "error" },
+    { method: "warn", consoleMethod: "warn" },
+    { method: "info", consoleMethod: "log" },
+    { method: "debug", consoleMethod: "debug" },
+    { method: "trace", consoleMethod: "log" },
+  ] as const)(
+    "$method writes to console $consoleMethod and sends the $method level",
+    ({ method, consoleMethod }) => {
+      const mockFetch = vi.fn().mockResolvedValue({});
+      vi.stubGlobal("fetch", mockFetch);
+      stubDocumentUrl("https://example.com/explorer/");
 
-    const connector = new ServerLoggerConnector();
+      new ServerLoggerConnector()[method](`${method} msg`);
 
-    for (const level of ["error", "warn", "info", "debug", "trace"] as const) {
-      connector[level](`${level} msg`);
-      expect(mockFetch).toHaveBeenCalledWith(
+      for (const name of ["error", "warn", "log", "debug"] as const) {
+        expect(vi.mocked(logger[name]).mock.calls).toStrictEqual(
+          name === consoleMethod ? [[`${method} msg`]] : [],
+        );
+      }
+      expect(mockFetch).toHaveBeenCalledExactlyOnceWith(
         expect.objectContaining({ href: "https://example.com/logger" }),
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ level, message: `${level} msg` }),
+          body: JSON.stringify({ level: method, message: `${method} msg` }),
         },
       );
-    }
-  });
+    },
+  );
 
   test("should resolve the logger path relative to baseURI", () => {
     const mockFetch = vi.fn().mockResolvedValue({});
