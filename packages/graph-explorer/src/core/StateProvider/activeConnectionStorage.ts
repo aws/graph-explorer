@@ -1,6 +1,9 @@
 import { z } from "zod";
 
-import { type ConnectionId, createConnectionId } from "@/connections";
+// Deep import: the `@/connections` index pulls in most of the app, including
+// `localDb`, which would put `storageAtoms` in an import cycle.
+// oxlint-disable-next-line no-restricted-imports
+import { type ConnectionId, createConnectionId } from "@/connections/types";
 
 import {
   createSessionScopedAtom,
