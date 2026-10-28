@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@aws-crypto/sha256-js": "^5.2.0",
-    "@aws-sdk/credential-providers": "^3.1149.0",
+    "@aws-sdk/credential-providers": "^3.1156.0",
     "@graph-explorer/shared": "workspace:*",
     "@smithy/protocol-http": "^5.6.2",
     "@smithy/signature-v4": "^5.7.4",
@@ -19,7 +19,7 @@
     "compression": "^1.8.2",
     "cors": "^2.8.6",
     "date-fns": "^4.4.0",
-    "dotenv": "^18.0.7",
+    "dotenv": "^18.0.9",
     "express": "^5.3.0",
     "node-fetch": "^3.3.2",
     "pino": "^10.4.0",
