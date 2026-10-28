@@ -70,6 +70,17 @@ export function logRequestAndResponse(req: Request, res: Response) {
   }
 }
 
+/**
+ * Replaces DEL and the C1 control characters with `\uXXXX` escapes. Pino's
+ * JSON serialization already escapes the C0 characters, but not these.
+ */
+export function escapeControlCharacters(text: string) {
+  return text.replace(
+    /[\u007f-\u009f]/g,
+    char => `\\u${char.charCodeAt(0).toString(16).padStart(4, "0")}`,
+  );
+}
+
 /** Path of the route that records log entries sent by the browser. */
 export const CLIENT_LOG_PATH = "/logger";
 

@@ -505,6 +505,48 @@ describe("createApp", () => {
         "client log",
       );
     });
+
+    it.each([
+      ["DEL", "\u007f", "\\u007f"],
+      ["the first C1 control", "\u0080", "\\u0080"],
+      ["NEL", "\u0085", "\\u0085"],
+      ["the last C1 control", "\u009f", "\\u009f"],
+    ])("escapes %s in the logged message", async (_name, char, escaped) => {
+      const app = createTestApp();
+      const infoSpy = vi.spyOn(app.locals.logger, "info");
+      const response = await request(app)
+        .post("/logger")
+        .send({ level: "info", message: `before${char}after` });
+      expect(response.status).toBe(200);
+      expect(infoSpy).toHaveBeenCalledWith(
+        { source: "client", clientLog: `before${escaped}after` },
+        "client log",
+      );
+    });
+
+    it("escapes every control character in a message", async () => {
+      const app = createTestApp();
+      const infoSpy = vi.spyOn(app.locals.logger, "info");
+      await request(app)
+        .post("/logger")
+        .send({ level: "info", message: "a\u007fb\u009fc" });
+      expect(infoSpy).toHaveBeenCalledWith(
+        { source: "client", clientLog: "a\\u007fb\\u009fc" },
+        "client log",
+      );
+    });
+
+    it("leaves characters next to the escaped ranges unchanged", async () => {
+      const app = createTestApp();
+      const infoSpy = vi.spyOn(app.locals.logger, "info");
+      await request(app)
+        .post("/logger")
+        .send({ level: "info", message: "~\u00a0é✓" });
+      expect(infoSpy).toHaveBeenCalledWith(
+        { source: "client", clientLog: "~\u00a0é✓" },
+        "client log",
+      );
+    });
   });
 
   // ── Query validation (400 cases) ──────────────────────────────────
