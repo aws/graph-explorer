@@ -19,6 +19,7 @@ import { HttpError, RequestValidationError } from "./errors.ts";
 import {
   type AppLogger,
   CLIENT_LOG_PATH,
+  escapeControlCharacters,
   requestLoggingMiddleware,
 } from "./logging.ts";
 import { assertPermittedDbOrigin } from "./permitted-db-origins.ts";
@@ -676,8 +677,12 @@ export function createApp({
     }
     const { level, message } = result.data;
 
-    // A structured field keeps a multi-line message in one log entry.
-    getLogger()[level]({ source: "client", clientLog: message }, "client log");
+    // A structured field keeps a multi-line message in one log entry, and
+    // escaping keeps DEL and C1 controls from reaching the terminal.
+    getLogger()[level](
+      { source: "client", clientLog: escapeControlCharacters(message) },
+      "client log",
+    );
     res.send("Log received.");
   });
 
