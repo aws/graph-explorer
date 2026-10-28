@@ -81,7 +81,9 @@ At this point, Graph Explorer should be successfully running and it is asking yo
 
 > [!IMPORTANT]
 >
-> The development servers serve plain HTTP and listen on every network interface, so other machines on your network can reach them unless your network rules block the ports you set, or `5173` and `80` by default. Keep them to your own machine. See [Supported Hosting](./references/security.md#supported-hosting).
+> The proxy server listens on `127.0.0.1`, so only this machine can reach it directly. The Vite dev server serves plain HTTP on every network interface and forwards API requests to the proxy server, so other machines on your network can reach both through it unless your network rules block the port you set, or `5173` by default. Keep it to your own machine. To let other machines reach the proxy server directly too, as earlier releases did, set [`PROXY_SERVER_LISTEN_ADDRESS`](./references/configuration.md#proxy_server_listen_address) to `::`. See [Supported Hosting](./references/security.md#supported-hosting).
+
+On macOS, only root can listen on ports below 1024 on `127.0.0.1`, so the proxy server stops at startup on the default port `80` with a permission error. Add `PROXY_SERVER_PORT=9250` to `packages/graph-explorer/.env.local`, which the dev server reads too. See [`PROXY_SERVER_PORT`](./references/configuration.md#proxy_server_port).
 
 ## Build for production
 
@@ -100,7 +102,9 @@ pnpm start
 
 > [!IMPORTANT]
 >
-> `pnpm start` serves plain HTTP on port `80` by default and listens on every network interface, so other machines on your network can reach it unless your network rules block the port. Keep it to your own machine, or put a reverse proxy that terminates TLS in front of it. See [Supported Hosting](./references/security.md#supported-hosting).
+> `pnpm start` serves plain HTTP on port `80` by default and listens on `127.0.0.1`, so only this machine can reach it. To serve other machines, put a reverse proxy that terminates TLS in front of it. A reverse proxy on the same machine connects to `http://127.0.0.1:<port>`. For one on another machine, set [`PROXY_SERVER_LISTEN_ADDRESS`](./references/configuration.md#proxy_server_listen_address) to the address of the interface it connects to, or to `::` to listen on every network interface as earlier releases did, and limit the port to the reverse proxy with network rules you provide. See [Supported Hosting](./references/security.md#supported-hosting).
+
+On macOS, set [`PROXY_SERVER_PORT`](./references/configuration.md#proxy_server_port) to `1024` or higher in `packages/graph-explorer/.env.local`, as for `pnpm dev`.
 
 ## Build and run with Docker
 
