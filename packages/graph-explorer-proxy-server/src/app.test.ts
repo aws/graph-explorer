@@ -369,63 +369,142 @@ describe("createApp", () => {
     });
   });
 
-  // ── Logger route ───────────────────────────────────────────────────
+  // ── Client log route ───────────────────────────────────────────────
 
-  it("POST /logger returns error when level header is missing", async () => {
-    const app = createTestApp();
-    const response = await request(app)
-      .post("/logger")
-      .set("message", JSON.stringify("test message"));
-    expect(response.status).toBe(500);
-  });
-
-  it("POST /logger returns error when message header is missing", async () => {
-    const app = createTestApp();
-    const response = await request(app).post("/logger").set("level", "info");
-    expect(response.status).toBe(500);
-  });
-
-  it("POST /logger succeeds with valid level and message", async () => {
-    const app = createTestApp();
-    const response = await request(app)
-      .post("/logger")
-      .set("level", "info")
-      .set("message", JSON.stringify("test message"));
-    expect(response.status).toBe(200);
-    expect(response.text).toBe("Log received.");
-  });
-
-  it.each(["error", "warn", "info", "debug", "trace"])(
-    "POST /logger accepts %s level",
-    async level => {
+  describe("POST /logger", () => {
+    it("returns 400 when the level is missing", async () => {
       const app = createTestApp();
       const response = await request(app)
         .post("/logger")
-        .set("level", level)
-        .set("message", JSON.stringify("msg"));
+        .send({ message: "msg" });
+      expect(response.status).toBe(400);
+      expect(response.body.error.message).toContain("level");
+    });
+
+    it("returns 400 when the message is missing", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/logger")
+        .send({ level: "info" });
+      expect(response.status).toBe(400);
+      expect(response.body.error.message).toContain("message");
+    });
+
+    it("returns 400 when the message is empty", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/logger")
+        .send({ level: "info", message: "" });
+      expect(response.status).toBe(400);
+      expect(response.body.error.message).toContain("message");
+    });
+
+    it("returns 400 for an unknown log level", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/logger")
+        .send({ level: "verbose", message: "msg" });
+      expect(response.status).toBe(400);
+      expect(response.body.error.message).toContain("level");
+    });
+
+    it("returns 400 when the message is longer than the limit", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/logger")
+        .send({
+          level: "info",
+          message: "x".repeat(10_001),
+        });
+      expect(response.status).toBe(400);
+      expect(response.body.error.message).toContain("message");
+    });
+
+    it("returns 400 when the message is not a string", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/logger")
+        .send({ level: "info", message: 123 });
+      expect(response.status).toBe(400);
+      expect(response.body.error.message).toContain("message");
+    });
+
+    it("accepts a message of exactly 10,000 characters", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/logger")
+        .send({ level: "info", message: "x".repeat(10_000) });
       expect(response.status).toBe(200);
-    },
-  );
+    });
 
-  it("POST /logger returns error for unknown log level", async () => {
-    const app = createTestApp();
-    const response = await request(app)
-      .post("/logger")
-      .set("level", "verbose")
-      .set("message", JSON.stringify("msg"));
-    expect(response.status).toBe(500);
-  });
+    it.each([
+      ["application/x-www-form-urlencoded", "level=info&message=msg"],
+      ["text/plain", "msg"],
+      ["multipart/form-data; boundary=x", "--x--"],
+    ])(
+      "returns 415 and writes no client entry for a %s body",
+      async (type, body) => {
+        const app = createTestApp();
+        const levelSpies = (
+          ["error", "warn", "info", "debug", "trace"] as const
+        ).map(level => vi.spyOn(app.locals.logger, level));
 
-  // ── Error handling middleware ──────────────────────────────────────
+        const response = await request(app)
+          .post("/logger")
+          .set("Content-Type", type)
+          .send(body);
 
-  it("error handling middleware sends structured error response", async () => {
-    const app = createTestApp();
-    const response = await request(app)
-      .post("/logger")
-      .set("level", "info")
-      .set("message", "not valid json");
-    expect(response.status).toBe(500);
-    expect(response.body.error).toBeDefined();
+        expect(response.status).toBe(415);
+        expect(response.body.error).toStrictEqual({
+          status: 415,
+          message: "Content-Type must be application/json.",
+        });
+        for (const spy of levelSpies) {
+          expect(spy).not.toHaveBeenCalledWith(
+            expect.objectContaining({ source: "client" }),
+            expect.anything(),
+          );
+        }
+      },
+    );
+
+    it("returns 400 for the old header-only request", async () => {
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/logger")
+        .set("level", "info")
+        .set("message", JSON.stringify("msg"));
+      expect(response.status).toBe(400);
+    });
+
+    it.each(["error", "warn", "info", "debug", "trace"] as const)(
+      "logs at the %s level",
+      async level => {
+        const app = createTestApp();
+        const levelSpy = vi.spyOn(app.locals.logger, level);
+        const response = await request(app)
+          .post("/logger")
+          .send({ level, message: "msg" });
+        expect(response.status).toBe(200);
+        expect(response.text).toBe("Log received.");
+        expect(levelSpy).toHaveBeenCalledWith(
+          { source: "client", clientLog: "msg" },
+          "client log",
+        );
+      },
+    );
+
+    it("logs a message with backslashes and newlines unchanged", async () => {
+      const app = createTestApp();
+      const infoSpy = vi.spyOn(app.locals.logger, "info");
+      await request(app)
+        .post("/logger")
+        .send({ level: "info", message: "C:\\Users\\kris\nnext line" });
+      expect(infoSpy).toHaveBeenCalledWith(
+        { source: "client", clientLog: "C:\\Users\\kris\nnext line" },
+        "client log",
+      );
+    });
   });
 
   // ── Query validation (400 cases) ──────────────────────────────────

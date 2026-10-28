@@ -14,4 +14,4 @@ The proxy server logging is split across a few key modules:
 
 1. `logging.ts` - Contains the `logger` instance (using pino) that is responsible for actually recording the logs.
 2. `error-handler.ts` - Contains `errorHandlingMiddleware` which catches errors thrown within Express routes, logs allowlisted request headers, and sends appropriate error responses. It also contains a `handleError` function used for global error handling.
-3. An endpoint called `/logger` in `app.ts` - This is how you would log things from the browser. It needs a log level and message header passed and you can then expect to see the message logged at the provided log level.
+3. The `/logger` endpoint in `app.ts` - This is how the browser logs to the server. It takes a `POST` with a JSON body of `level` (`error`, `warn`, `info`, `debug`, or `trace`) and `message`. The server logs the message at that level with `source: "client"` and responds with a 400 if the body is invalid.

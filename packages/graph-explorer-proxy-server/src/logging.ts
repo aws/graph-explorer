@@ -70,13 +70,21 @@ export function logRequestAndResponse(req: Request, res: Response) {
   }
 }
 
+/** Path of the route that records log entries sent by the browser. */
+export const CLIENT_LOG_PATH = "/logger";
+
+/** True for the client log path in any casing, with or without a trailing slash. */
+function isClientLogPath(path: string) {
+  return path.toLowerCase().replace(/\/$/, "") === CLIENT_LOG_PATH;
+}
+
 /** Creates the pino-http middleware with the given logger and appropriate options. */
 export function requestLoggingMiddleware() {
   return (req: Request, res: Response, next: NextFunction) => {
     const logger = req.app.locals.logger;
 
-    // Ignore requests to logger endpoint
-    if (req.path.includes("/logger")) {
+    // Ignore requests to the client log endpoint
+    if (isClientLogPath(req.path)) {
       next();
       return;
     }
