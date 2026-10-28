@@ -214,7 +214,7 @@ PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com,https://other-app.example.co
 
 ## Database Origin Allowlist
 
-By default, the proxy server forwards requests to any database URL specified by the client, except [link-local addresses](#link-local-addresses). You can restrict which database origins the proxy will contact by setting [`PROXY_SERVER_ALLOWED_DB_ORIGINS`](./configuration.md#proxy_server_allowed_db_origins). Requests targeting an unlisted origin receive a 403 response.
+By default, the proxy server forwards requests to any database URL specified by the client, except a reserved cloud service or IPv6 link-local address (see [Reserved Cloud Service Addresses](#reserved-cloud-service-addresses)). A host name is refused when one of its DNS answers is one of those reserved addresses, or when every answer is IPv6 link-local, unless [an environment proxy](#with-an-environment-proxy) is on. You can restrict which database origins the proxy will contact by setting [`PROXY_SERVER_ALLOWED_DB_ORIGINS`](./configuration.md#proxy_server_allowed_db_origins). Requests targeting an unlisted origin receive a 403 response.
 
 On a host with AWS credentials, such as an EC2 instance profile or ECS task role, the proxy server signs requests with the host's identity, which every user of the deployment shares. Scope that identity's database policy first, because Neptune enforces it no matter what sends the request. Set the allowlist as well to add a second boundary in the proxy server, which also limits requests to databases that don't use IAM authentication. See [Permissions](#permissions).
 
@@ -222,11 +222,25 @@ On a host with AWS credentials, such as an EC2 instance profile or ECS task role
 >
 > This check applies only to requests routed through the proxy server. It doesn't apply to direct connections, because the browser sends their requests to the database itself.
 
-## Link-Local Addresses
+## Reserved Cloud Service Addresses
 
-The proxy server refuses any database URL whose host is a link-local IP address, in `169.254.0.0/16` or `fe80::/10`, and returns a 403 response. Link-local addresses are never graph databases. The refusal applies whether or not the [Database Origin Allowlist](#database-origin-allowlist) is set, and an allowlist entry can't override it.
+The proxy server refuses a database URL whose host is an address that cloud providers reserve for their own services, or an IPv6 link-local address, and returns a 403 response. These addresses are never graph databases. The server log names the refused address, and the 403 message says the address is reserved, where an allowlist refusal names `PROXY_SERVER_ALLOWED_DB_ORIGINS`. To reach a refused database, use its IP address in the Database URL, or fix the host name's DNS records. IPv6 forms that carry a refused IPv4 address are refused too.
+
+Other link-local addresses keep working, such as a database on the host machine reached through rootless Podman's `host.containers.internal`, or one behind a VPC Lattice service.
+
+On networks that use a NAT64 prefix, a few databases can be refused because of how their translated address reads. Using the database's IPv4 address in the URL reaches them when the proxy server's host can reach IPv4 directly.
+
+The proxy server checks the host as written. For a host name it checks every address the name resolves to, unless [an environment proxy](#with-an-environment-proxy) is on. One answer in a reserved range refuses the host, whatever its other answers are. IPv6 link-local answers are skipped and the host's other answers are used, and the host is refused only when no other answer remains. The refusal applies whether or not the [Database Origin Allowlist](#database-origin-allowlist) is set, and an allowlist entry can't override it.
 
 This refusal doesn't replace the allowlist. To limit the proxy server to your databases, set [`PROXY_SERVER_ALLOWED_DB_ORIGINS`](./configuration.md#proxy_server_allowed_db_origins).
+
+### With an environment proxy
+
+When Node's environment proxy is on, with `NODE_USE_ENV_PROXY=1` or the `--use-env-proxy` flag (including through `NODE_OPTIONS`), database requests go through the forward proxy that `HTTP_PROXY` or `HTTPS_PROXY` names. Node also reads the lowercase `http_proxy` and `https_proxy`, which take precedence. The forward proxy resolves host names, so the proxy server checks only IP literals for those requests, and refusing reserved addresses for those host names is up to the forward proxy.
+
+Hosts listed in `no_proxy`, or in `NO_PROXY` when `no_proxy` is unset or empty, connect directly and get the full check.
+
+The proxy server builds its database agents when it starts, so the `.env` and `.env.local` files in the configuration folder can't set `NODE_USE_ENV_PROXY`, the proxy URLs, or `no_proxy`. Set them in the environment the proxy server starts with.
 
 ## HTTP Redirects
 
