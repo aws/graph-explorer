@@ -39,7 +39,7 @@ function vertexMap(
  * can carry a blank color.
  */
 describe("backward compatibility: blank colors in storage", () => {
-  it("drops an empty color", () => {
+  it("drops an empty color without a warning", () => {
     const styles = vertexMap([["Person", { color: "" }]]);
 
     const result = transformVertexStyles(styles);
@@ -47,6 +47,7 @@ describe("backward compatibility: blank colors in storage", () => {
     expect(result.get(createVertexType("Person"))).toStrictEqual({
       type: createVertexType("Person"),
     });
+    expect(logger.warn).not.toHaveBeenCalled();
   });
 
   // Dropping the field rather than substituting a value is what lets the style
@@ -106,6 +107,87 @@ describe("backward compatibility: blank colors in storage", () => {
     ]);
 
     expect(transformVertexStyles(styles)).toBe(styles);
+  });
+});
+
+/**
+ * BACKWARD COMPATIBILITY — PERSISTED DATA
+ *
+ * A hand-edited or restored file could have stored a value that is not a
+ * color; it is dropped at load and the app default applies.
+ *
+ * DO NOT delete or weaken these tests without confirming that no stored style
+ * can hold a value that is not a color.
+ */
+describe("backward compatibility: colors that are not colors in storage", () => {
+  it.each([
+    ["color", "url(http://other.example/x.svg#p)"],
+    ["borderColor", "var(--x)"],
+    ["borderColor", "not a color"],
+    ["color", "#fff\uD800"],
+  ] as const)("drops an unusable %s of %j", (field, value) => {
+    const styles = vertexMap([["Person", { [field]: value, shape: "star" }]]);
+
+    const stored = transformVertexStyles(styles).get(
+      createVertexType("Person"),
+    );
+
+    expect(stored).toStrictEqual({
+      type: createVertexType("Person"),
+      shape: "star",
+    });
+    expect(logger.warn).toHaveBeenCalled();
+  });
+
+  it("warns with the start of an unusable color", () => {
+    const value = `url(http://other.example/${"x".repeat(200)})`;
+    const styles = vertexMap([["Person", { color: value }]]);
+
+    transformVertexStyles(styles);
+
+    expect(logger.warn).toBeCalledWith(
+      `[vertex-styles] Unsupported color "${value.slice(0, 100)}" in color for type "Person", using the default`,
+    );
+  });
+
+  // The color drop, icon drop, and shape coercion each build on the previous
+  // result, so one entry needing all three must keep every fix.
+  it("drops a color and an icon and coerces a shape in one entry", () => {
+    const styles = vertexMap([
+      [
+        "Person",
+        {
+          color: "var(--x)",
+          borderColor: "#00FF00",
+          iconUrl: "https://example.test/a.png",
+          iconImageType: "image/png",
+          shape: "round-hexagon",
+        },
+      ],
+    ]);
+
+    const stored = transformVertexStyles(styles).get(
+      createVertexType("Person"),
+    );
+
+    expect(stored).toStrictEqual({
+      type: createVertexType("Person"),
+      borderColor: "#00FF00",
+      shape: "hexagon",
+    });
+  });
+
+  it("leaves other vertex types alone", () => {
+    const styles = vertexMap([
+      ["Person", { color: "var(--x)" }],
+      ["City", { color: "#FF0000" }],
+    ]);
+
+    const result = transformVertexStyles(styles);
+
+    expect(result.get(createVertexType("City"))).toBe(
+      styles.get(createVertexType("City")),
+    );
   });
 });
 

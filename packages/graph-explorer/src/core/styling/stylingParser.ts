@@ -15,6 +15,7 @@ import {
   type VertexStyleStorage,
 } from "@/core/StateProvider/graphStyles";
 import { typedEntries } from "@/utils";
+import { isAllowedColorValue } from "@/utils/isAllowedColorValue";
 
 // --- Format identity ---
 
@@ -90,6 +91,18 @@ const safeIconValue = z.string().refine(isAllowedIconValue, {
 });
 
 /**
+ * Trimmed, since the renderers cannot read a padded color. A blank color is
+ * accepted because older files carry one and the load transform drops it,
+ * letting the app default apply.
+ */
+const safeColorValue = z
+  .string()
+  .trim()
+  .refine(value => !value || isAllowedColorValue(value), {
+    error: "value is not a color (hex, rgb(), hsl(), hwb(), or a color name)",
+  });
+
+/**
  * One vertex entry. Unknown fields are stripped (Zod's default), so a file with
  * extra keys imports without error and without storing them — in particular an
  * injected `iconUrl` is dropped, never bypassing the `icon` allowlist. The
@@ -107,14 +120,14 @@ const vertexEntrySchema = z
     // icon through the sanitizing icon registry; any other value is drawn as a
     // raster image from its data url.
     iconImageType: z.string().optional(),
-    color: z.string().optional(),
+    color: safeColorValue.optional(),
     displayLabel: z.string().optional(),
     displayNameAttribute: z.string().optional(),
     longDisplayNameAttribute: z.string().optional(),
     shape: z.enum(SHAPE_STYLES).optional(),
     backgroundOpacity: z.number().optional(),
     borderWidth: z.number().optional(),
-    borderColor: z.string().optional(),
+    borderColor: safeColorValue.optional(),
     borderStyle: z.enum(LINE_STYLES).optional(),
   })
   .transform(({ icon, ...rest }): Omit<VertexStyleStorage, "type"> =>
@@ -124,12 +137,12 @@ const vertexEntrySchema = z
 const edgeEntrySchema = z.object({
   displayLabel: z.string().optional(),
   displayNameAttribute: z.string().optional(),
-  labelColor: z.string().optional(),
+  labelColor: safeColorValue.optional(),
   labelBackgroundOpacity: z.number().optional(),
-  labelBorderColor: z.string().optional(),
+  labelBorderColor: safeColorValue.optional(),
   labelBorderStyle: z.enum(LINE_STYLES).optional(),
   labelBorderWidth: z.number().optional(),
-  lineColor: z.string().optional(),
+  lineColor: safeColorValue.optional(),
   lineThickness: z.number().optional(),
   lineStyle: z.enum(LINE_STYLES).optional(),
   sourceArrowStyle: z.enum(ARROW_STYLES).optional(),
