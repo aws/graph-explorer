@@ -43,4 +43,4 @@ The same claim gets the same marker everywhere it appears. A page carrying three
 
 ## `NEPTUNE_NOTEBOOK`
 
-Wherever a user doc covers notebook behavior, including the configuration reference, document the individual variables: `PROXY_SERVER_HTTPS_CONNECTION=false`, `PROXY_SERVER_HTTP_PORT=9250`, and `LOG_STYLE=cloudwatch`. `NEPTUNE_NOTEBOOK` is the unsupported legacy preset that sets them, kept only so existing deployments keep working, and it goes away with [#2312](https://github.com/aws/graph-explorer/issues/2312). User docs leave it out. `docs/guides/deploy-to-sagemaker/install-graph-explorer-lc.sh` keeps passing it until then.
+Wherever a user doc covers notebook behavior, including the configuration reference, document the individual variables: `PROXY_SERVER_HTTPS_CONNECTION=false`, `PROXY_SERVER_PORT=9250`, and `LOG_STYLE=cloudwatch`. `NEPTUNE_NOTEBOOK` is the unsupported legacy preset that sets them, kept only so existing deployments keep working, and it goes away with [#2312](https://github.com/aws/graph-explorer/issues/2312). User docs leave it out. `docs/guides/deploy-to-sagemaker/install-graph-explorer-lc.sh` keeps passing it until then.

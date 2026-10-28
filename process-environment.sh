@@ -70,8 +70,8 @@ if [ -n "$NEPTUNE_NOTEBOOK" ]; then
       esac
       GRAPH_EXP_HTTPS_CONNECTION="false"
       # Set port and log style unless explicitly overridden
-      if [ -z "$PROXY_SERVER_HTTP_PORT" ]; then
-          printf '\nPROXY_SERVER_HTTP_PORT=9250\n' >> $CONFIGURATION_FOLDER_PATH/.env
+      if [ -z "$PROXY_SERVER_PORT" ] && [ -z "$PROXY_SERVER_HTTP_PORT" ]; then
+          printf '\nPROXY_SERVER_PORT=9250\n' >> $CONFIGURATION_FOLDER_PATH/.env
       fi
       if [ -z "$LOG_STYLE" ]; then
           printf '\nLOG_STYLE=cloudwatch\n' >> $CONFIGURATION_FOLDER_PATH/.env

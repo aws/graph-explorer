@@ -9,8 +9,10 @@ describe("parseEnvironmentValues", () => {
     expect(result.HOST).toBe("localhost");
     expect(result.NEPTUNE_NOTEBOOK).toBe(false);
     expect(result.PROXY_SERVER_HTTPS_CONNECTION).toBe(false);
-    expect(result.PROXY_SERVER_HTTPS_PORT).toBe(443);
-    expect(result.PROXY_SERVER_HTTP_PORT).toBe(80);
+    // The port defaults depend on HTTPS, so resolveServerConfig applies them.
+    expect(result.PROXY_SERVER_PORT).toBeUndefined();
+    expect(result.PROXY_SERVER_HTTPS_PORT).toBeUndefined();
+    expect(result.PROXY_SERVER_HTTP_PORT).toBeUndefined();
     expect(result.LOG_LEVEL).toBe("info");
     expect(result.LOG_STYLE).toBe("default");
   });
@@ -167,6 +169,12 @@ describe("parseEnvironmentValues", () => {
     expect(result.PROXY_SERVER_HTTPS_PORT).toBe(3443);
   });
 
+  it("parses PROXY_SERVER_PORT", () => {
+    expect(
+      parseEnvironmentValues({ PROXY_SERVER_PORT: "9250" }).PROXY_SERVER_PORT,
+    ).toBe(9250);
+  });
+
   describe("validation failures", () => {
     beforeEach(() => {
       vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
@@ -185,6 +193,20 @@ describe("parseEnvironmentValues", () => {
       parseEnvironmentValues({ PROXY_SERVER_HTTPS_CONNECTION: "" });
       expect(process.exit).toHaveBeenCalledWith(1);
     });
+
+    it.for(["", "abc", "0", "65536", "80.5", "-1"])(
+      "exits process on PROXY_SERVER_PORT=%j",
+      value => {
+        parseEnvironmentValues({ PROXY_SERVER_PORT: value });
+        expect(process.exit).toHaveBeenCalledWith(1);
+        expect(console.error).toHaveBeenCalledWith(
+          expect.stringContaining("Must be a port number from 1 to 65535"),
+        );
+        expect(console.error).toHaveBeenCalledWith(
+          expect.stringContaining("PROXY_SERVER_PORT"),
+        );
+      },
+    );
 
     it("exits process on invalid LOG_LEVEL", () => {
       parseEnvironmentValues({ LOG_LEVEL: "verbose" });

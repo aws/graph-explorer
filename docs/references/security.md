@@ -153,7 +153,7 @@ docker run -p 443:443 \
 
 ### Serving HTTP Behind a Reverse Proxy
 
-When a reverse proxy in front of Graph Explorer terminates TLS, Graph Explorer can serve plain HTTP to it. Set `PROXY_SERVER_HTTPS_CONNECTION=false` in your environment or `.env` file. The proxy server then listens on [`PROXY_SERVER_HTTP_PORT`](./configuration.md#proxy_server_http_port), port `80` by default, on every network interface.
+When a reverse proxy in front of Graph Explorer terminates TLS, Graph Explorer can serve plain HTTP to it. Set `PROXY_SERVER_HTTPS_CONNECTION=false` in your environment or `.env` file. The proxy server then listens on [`PROXY_SERVER_PORT`](./configuration.md#proxy_server_port), port `80` by default, on every network interface.
 
 Let only the reverse proxy reach that port:
 
