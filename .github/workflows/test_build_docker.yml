@@ -68,25 +68,33 @@ jobs:
 
       # One run per way the entrypoint starts the server: plain HTTP on 80,
       # notebook mode on 9250, and HTTPS on 443, where HOST makes the entrypoint
-      # generate a self-signed certificate.
+      # generate a self-signed certificate. The ports are published on
+      # 127.0.0.1, so the runner's other interfaces can't reach them.
       - name: Verify server starts and responds
         run: |
           check() {
             name=$1 host_port=$2 container_port=$3 scheme=$4
             shift 4
-            docker run -d --name "$name" -p "$host_port:$container_port" "$@" test-image
+            docker run -d --name "$name" -p "127.0.0.1:$host_port:$container_port" "$@" test-image
             for i in $(seq 1 30); do
-              if curl -sfk "$scheme://localhost:$host_port/status"; then
+              if curl -sfk "$scheme://127.0.0.1:$host_port/status"; then
                 echo ""
                 echo "✓ $name responded on /status"
                 # The client build is the file most likely to go missing from the image.
-                ui_status=$(curl -sk -o /dev/null -w '%{http_code}' "$scheme://localhost:$host_port/explorer/")
+                ui_status=$(curl -sk -o /dev/null -w '%{http_code}' "$scheme://127.0.0.1:$host_port/explorer/")
                 if [ "$ui_status" != 200 ]; then
                   echo "FAIL: $name returned $ui_status for the UI at /explorer/"
                   docker rm -f "$name" >/dev/null
                   return 1
                 fi
                 echo "✓ $name served the UI at /explorer/"
+                if ! docker logs "$name" 2>&1 | grep -Eq "Proxy server listening on (\[::\]|0\.0\.0\.0):$container_port([^0-9]|$)"; then
+                  echo "FAIL: $name did not log listening on every interface on port $container_port"
+                  docker logs "$name"
+                  docker rm -f "$name" >/dev/null
+                  return 1
+                fi
+                echo "✓ $name listens on every interface"
                 docker rm -f "$name" >/dev/null
                 return 0
               fi
@@ -100,3 +108,22 @@ jobs:
           check http 8080 80 http -e PROXY_SERVER_HTTPS_CONNECTION=false
           check notebook 9250 9250 http -e NEPTUNE_NOTEBOOK=true
           check https 8443 443 https -e HOST=localhost
+
+      # Starting node directly skips docker-entrypoint.sh, so this proves the
+      # image's PROXY_SERVER_LISTEN_ADDRESS reaches every way the server starts.
+      - name: Verify the server listens on every interface without the entrypoint
+        run: |
+          docker run -d --name no-entrypoint -p 127.0.0.1:8081:80 --entrypoint node -w /graph-explorer/packages/graph-explorer-proxy-server test-image src/node-server.ts
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:8081/status; then
+              echo ""
+              echo "✓ server started without the entrypoint responded on /status"
+              docker rm -f no-entrypoint >/dev/null
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "FAIL: server started without the entrypoint did not respond within 30 seconds"
+          docker logs no-entrypoint
+          docker rm -f no-entrypoint >/dev/null
+          exit 1
