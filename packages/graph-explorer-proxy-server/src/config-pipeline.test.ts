@@ -202,7 +202,9 @@ const notebookConflict = {
  * Startup scenarios for the one image the Dockerfile builds. Its `ENV` lines
  * set nothing the entrypoint reads, so the container's environment is `HOST`
  * plus the `-e` flags, and the notebook preset's port and log style come from
- * the `.env` lines process-environment.sh writes.
+ * the `.env` lines process-environment.sh writes. The image's
+ * `PROXY_SERVER_LISTEN_ADDRESS=::` reaches only the server, so the Docker
+ * build workflow checks it rather than this table.
  */
 const deployments: Deployment[] = [
   {

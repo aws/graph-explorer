@@ -45,6 +45,10 @@ COPY --from=build --chown=0:0 /tmp/node/node /usr/local/bin/node
 COPY --from=build --chown=0:0 /tmp/node/LICENSE /usr/local/LICENSE
 
 ENV HOME=/graph-explorer
+# The server listens on 127.0.0.1 unless told otherwise. A published port
+# needs it on every interface inside the container. An ENV, unlike the
+# entrypoint, reaches every way node starts here and images built FROM this.
+ENV PROXY_SERVER_LISTEN_ADDRESS=::
 WORKDIR /graph-explorer
 # Only what the entrypoint and the server read. The server runs its TypeScript
 # source directly and loads @graph-explorer/shared from source through the

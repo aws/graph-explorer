@@ -7,7 +7,7 @@ describe("parseEnvironmentValues", () => {
     const result = parseEnvironmentValues({});
 
     expect(result.HOST).toBe("localhost");
-    expect(result.PROXY_SERVER_LISTEN_ADDRESS).toBe("::");
+    expect(result.PROXY_SERVER_LISTEN_ADDRESS).toBe("127.0.0.1");
     expect(result.NEPTUNE_NOTEBOOK).toBe(false);
     expect(result.PROXY_SERVER_HTTPS_CONNECTION).toBe(false);
     // The port defaults depend on HTTPS, so resolveServerConfig applies them.

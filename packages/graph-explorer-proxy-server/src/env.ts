@@ -25,7 +25,7 @@ const EnvironmentFieldsSchema = z.object({
       message:
         "Must be an IP address such as 127.0.0.1 or ::. An empty value and a hostname are not accepted. Remove the variable to use the default.",
     })
-    .default("::"),
+    .default("127.0.0.1"),
   // Mirrors process-environment.sh, which applies the notebook preset only on
   // an exact `= "true"` match. Reading it any looser would refuse a server the
   // shell set up for HTTPS, and a parse error would stop a container that
