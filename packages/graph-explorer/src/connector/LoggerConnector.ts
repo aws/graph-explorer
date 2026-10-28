@@ -36,7 +36,7 @@ export class ServerLoggerConnector implements LoggerConnector {
   }
 
   public debug(message: string) {
-    this.#clientLogger.info(message);
+    this.#clientLogger.debug(message);
     return this.#sendLog("debug", message);
   }
 
