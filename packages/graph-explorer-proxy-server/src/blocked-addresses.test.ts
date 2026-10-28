@@ -1,11 +1,19 @@
 import type { AddressInfo } from "net";
 import type * as NodeFetch from "node-fetch";
 
+import { execFileSync } from "child_process";
 import dns, { type LookupAddress } from "dns";
+import fs from "fs";
 import http from "http";
 import https from "https";
+import net from "net";
+import os from "os";
+import path from "path";
+import { pathToFileURL } from "url";
 import {
+  afterAll,
   afterEach,
+  beforeAll,
   beforeEach,
   describe,
   expect,
@@ -409,10 +417,11 @@ describe("guardedLookup", () => {
 
 describe("dbAgentOptions", () => {
   it("keeps the settings of Node's global agents", () => {
-    expect(dbAgentOptions).toStrictEqual({
+    expect(dbAgentOptions(undefined)).toStrictEqual({
       keepAlive: true,
       scheduling: "lifo",
       timeout: 5000,
+      proxyEnv: undefined,
       lookup: guardedLookup,
     });
     expect(https.globalAgent.options).toMatchObject({
@@ -420,6 +429,12 @@ describe("dbAgentOptions", () => {
       scheduling: "lifo",
       timeout: 5000,
     });
+  });
+
+  it("passes an env proxy through", () => {
+    const env = { HTTPS_PROXY: "http://proxy.invalid:3128" };
+
+    expect(dbAgentOptions(env).proxyEnv).toBe(env);
   });
 });
 
@@ -524,5 +539,190 @@ describe("dbAgentFor", () => {
     expect(dbAgentFor(new URL("http://db.example.com"))).not.toBeInstanceOf(
       https.Agent,
     );
+  });
+});
+
+describe("dbAgentFor in a process with the env proxy", () => {
+  const proxyUrl = "http://proxy.invalid:3128";
+  const script = `
+    import { dbAgentFor } from ${JSON.stringify(
+      pathToFileURL(path.join(import.meta.dirname, "blocked-addresses.ts"))
+        .href,
+    )};
+    const proxies = ["http://db.example.com", "https://db.example.com"].map(
+      url => dbAgentFor(new URL(url)).options.proxyEnv?.HTTPS_PROXY ?? null,
+    );
+    console.log(JSON.stringify(proxies));
+  `;
+
+  it.each([
+    ["NODE_USE_ENV_PROXY=1", { NODE_USE_ENV_PROXY: "1" }, proxyUrl],
+    ["--use-env-proxy", { NODE_OPTIONS: "--use-env-proxy" }, proxyUrl],
+    ["neither", {}, null],
+  ])("follows the env proxy with %s", (_, extraEnv, expected) => {
+    const output = execFileSync(
+      process.execPath,
+      ["--no-warnings", "--input-type=module", "--eval", script],
+      {
+        env: { PATH: process.env.PATH, HTTPS_PROXY: proxyUrl, ...extraEnv },
+        encoding: "utf-8",
+      },
+    );
+
+    expect(JSON.parse(output)).toStrictEqual([expected, expected]);
+  });
+});
+
+describe("database requests through an env proxy", () => {
+  let tmpDir: string;
+  let cert: Buffer;
+  let key: Buffer;
+
+  beforeAll(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-env-proxy-test-"));
+    const keyPath = path.join(tmpDir, "key.pem");
+    const certPath = path.join(tmpDir, "cert.pem");
+    execFileSync("openssl", [
+      "req",
+      "-x509",
+      "-newkey",
+      "rsa:2048",
+      "-keyout",
+      keyPath,
+      "-out",
+      certPath,
+      "-days",
+      "1",
+      "-nodes",
+      "-subj",
+      "/CN=graph-db.invalid",
+      "-addext",
+      "subjectAltName=DNS:graph-db.invalid",
+    ]);
+    key = fs.readFileSync(keyPath);
+    cert = fs.readFileSync(certPath);
+  });
+
+  afterAll(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  let httpTarget: http.Server;
+  let httpsTarget: https.Server;
+  let proxy: http.Server;
+  let httpPort: number;
+  let httpsPort: number;
+  let proxyPort: number;
+  let proxied: string[];
+  let httpAgent: http.Agent;
+  let httpsAgent: https.Agent;
+
+  function listen(server: net.Server) {
+    return new Promise<number>(resolve =>
+      server.listen(0, "127.0.0.1", () =>
+        resolve((server.address() as AddressInfo).port),
+      ),
+    );
+  }
+
+  beforeEach(async () => {
+    proxied = [];
+    httpTarget = http.createServer((_req, res) => res.end("http-ok"));
+    httpsTarget = https.createServer({ key, cert }, (_req, res) =>
+      res.end("https-ok"),
+    );
+    // The upstream requests skip the global agent so the stub never loops
+    // through itself when an env proxy is set for the test process.
+    proxy = http.createServer((req, res) => {
+      proxied.push(`${req.method} ${req.url}`);
+      const target = new URL(req.url ?? "");
+      const upstream = http.request(
+        {
+          agent: false,
+          host: "127.0.0.1",
+          port: target.port,
+          path: target.pathname,
+          method: req.method,
+          headers: req.headers,
+        },
+        upstreamRes => {
+          res.writeHead(upstreamRes.statusCode ?? 502, upstreamRes.headers);
+          upstreamRes.pipe(res);
+        },
+      );
+      req.pipe(upstream);
+    });
+    proxy.on("connect", (req, socket, head) => {
+      proxied.push(`CONNECT ${req.url}`);
+      const upstream = net.connect(
+        Number(new URL(`http://${req.url}`).port),
+        "127.0.0.1",
+        () => {
+          socket.write("HTTP/1.1 200 Connection Established\r\n\r\n");
+          upstream.write(head);
+          upstream.pipe(socket);
+          socket.pipe(upstream);
+        },
+      );
+      socket.on("close", () => upstream.destroy());
+    });
+    [httpPort, httpsPort, proxyPort] = await Promise.all([
+      listen(httpTarget),
+      listen(httpsTarget),
+      listen(proxy),
+    ]);
+    const proxyUrl = `http://127.0.0.1:${proxyPort}`;
+    const env = { HTTP_PROXY: proxyUrl, HTTPS_PROXY: proxyUrl };
+    httpAgent = new http.Agent(dbAgentOptions(env));
+    httpsAgent = new https.Agent({ ...dbAgentOptions(env), ca: cert });
+  });
+
+  afterEach(async () => {
+    httpAgent.destroy();
+    httpsAgent.destroy();
+    await Promise.all(
+      [httpTarget, httpsTarget, proxy].map(
+        server =>
+          new Promise(resolve => {
+            server.close(resolve);
+            server.closeAllConnections();
+          }),
+      ),
+    );
+  });
+
+  async function fetchThrough(url: string, agent: http.Agent) {
+    const { default: realFetch } =
+      await vi.importActual<typeof NodeFetch>("node-fetch");
+    const response = await realFetch(url, { agent });
+    return { status: response.status, text: await response.text() };
+  }
+
+  it("sends an http:// request through the proxy", async () => {
+    const lookupSpy = vi.spyOn(dns, "lookup");
+
+    const result = await fetchThrough(
+      `http://graph-db.invalid:${httpPort}/gremlin`,
+      httpAgent,
+    );
+
+    expect(result).toStrictEqual({ status: 200, text: "http-ok" });
+    expect(proxied).toStrictEqual([
+      `GET http://graph-db.invalid:${httpPort}/gremlin`,
+    ]);
+    expect(lookupSpy).not.toHaveBeenCalled();
+  });
+
+  it("tunnels an https:// request through the proxy with CONNECT", async () => {
+    const lookupSpy = vi.spyOn(dns, "lookup");
+
+    const result = await fetchThrough(
+      `https://graph-db.invalid:${httpsPort}/gremlin`,
+      httpsAgent,
+    );
+
+    expect(result).toStrictEqual({ status: 200, text: "https-ok" });
+    expect(proxied).toStrictEqual([`CONNECT graph-db.invalid:${httpsPort}`]);
+    expect(lookupSpy).not.toHaveBeenCalled();
   });
 });

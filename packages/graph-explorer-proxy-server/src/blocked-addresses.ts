@@ -1,3 +1,4 @@
+import type { ProxyEnv } from "http";
 import type { LookupFunction } from "net";
 
 import dns from "dns";
@@ -150,14 +151,23 @@ export function guardedLookup(
  * The options for the database request agents: the settings of Node's
  * global agents, which they replace, plus the guarded lookup.
  */
-export const dbAgentOptions: http.AgentOptions = {
-  keepAlive: true,
-  scheduling: "lifo",
-  timeout: 5000,
-  lookup: guardedLookup,
-};
-const httpAgent = new http.Agent(dbAgentOptions);
-const httpsAgent = new https.Agent(dbAgentOptions);
+export function dbAgentOptions(
+  proxyEnv: ProxyEnv | undefined,
+): http.AgentOptions {
+  return {
+    keepAlive: true,
+    scheduling: "lifo",
+    timeout: 5000,
+    proxyEnv,
+    lookup: guardedLookup,
+  };
+}
+
+// Following Node's global agents keeps database requests on the environment
+// proxy, which resolves host names itself.
+const proxyEnv = https.globalAgent.options.proxyEnv;
+const httpAgent = new http.Agent(dbAgentOptions(proxyEnv));
+const httpsAgent = new https.Agent(dbAgentOptions(proxyEnv));
 
 /** The agent for a database request to the URL. */
 export function dbAgentFor(url: URL): http.Agent {
