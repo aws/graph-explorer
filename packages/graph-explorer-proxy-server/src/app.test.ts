@@ -3,6 +3,7 @@ import os from "os";
 import path from "path";
 import { Readable } from "stream";
 import request from "supertest";
+import { inspect } from "util";
 import {
   afterEach,
   beforeEach,
@@ -14,6 +15,7 @@ import {
 } from "vite-plus/test";
 
 import { createApp, resolveEndpointUrl } from "./app.ts";
+import { RejectedRequestBodyError } from "./errors.ts";
 import { createLogger } from "./logging.ts";
 import { createTestEnvironment } from "./testing.ts";
 
@@ -504,6 +506,127 @@ describe("createApp", () => {
         { source: "client", clientLog: "C:\\Users\\kris\nnext line" },
         "client log",
       );
+    });
+  });
+
+  // ── Request bodies the parser rejects ─────────────────────────────
+
+  describe("request bodies the parser rejects", () => {
+    // Short enough that the JSON parser's error message would quote it whole.
+    const marker = "Xq7marker";
+
+    function spyOnEveryLevel(app: ReturnType<typeof createTestApp>) {
+      return (
+        ["fatal", "error", "warn", "info", "debug", "trace"] as const
+      ).map(level => vi.spyOn(app.locals.logger, level));
+    }
+
+    function postJson(app: ReturnType<typeof createTestApp>, body: string) {
+      return request(app)
+        .post("/gremlin")
+        .set(dbHeaders())
+        .set("Content-Type", "application/json")
+        .send(body);
+    }
+
+    it.each([
+      ["a syntax error after the marker", `{"query": "${marker}", oops}`],
+      ["a body that is not an object or array", marker],
+      [
+        "a syntax error deep in a long body",
+        `{"pad": "${"x".repeat(100)}", "query": ${marker}}`,
+      ],
+    ])(
+      "keeps the body out of the logs and the response for %s",
+      async (_, body) => {
+        const app = createTestApp();
+        const spies = spyOnEveryLevel(app);
+
+        const response = await postJson(app, body);
+
+        expect(response.status).toBe(400);
+        expect(response.body).toStrictEqual({
+          error: {
+            type: "entity.parse.failed",
+            status: 400,
+            message: "Request body could not be parsed",
+          },
+        });
+        const logged = spies
+          .flatMap(spy => spy.mock.calls)
+          .map(args => inspect(args, { depth: null }))
+          .join("\n");
+        expect(logged).not.toContain(marker);
+      },
+    );
+
+    it("logs a RejectedRequestBodyError for a body it cannot parse", async () => {
+      const app = createTestApp();
+      const errorSpy = vi.spyOn(app.locals.logger, "error");
+
+      await postJson(app, `{"query": "${marker}", oops}`);
+
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.any(RejectedRequestBodyError),
+      );
+    });
+
+    it("responds 415 with the parser's message for an unsupported charset", async () => {
+      const app = createTestApp();
+
+      const response = await request(app)
+        .post("/gremlin")
+        .set(dbHeaders())
+        .set("Content-Type", "application/json; charset=bogus")
+        .send("{}");
+
+      expect(response.status).toBe(415);
+      expect(response.body).toStrictEqual({
+        error: {
+          type: "charset.unsupported",
+          status: 415,
+          message: 'unsupported charset "BOGUS"',
+        },
+      });
+    });
+
+    it("responds 413 for a body over the size limit", async () => {
+      const app = createTestApp();
+      const body = JSON.stringify({ pad: "x".repeat(51 * 1024 * 1024) });
+
+      const response = await postJson(app, body);
+
+      expect(response.status).toBe(413);
+      expect(response.body).toStrictEqual({
+        error: {
+          type: "entity.too.large",
+          status: 413,
+          message: "request entity too large",
+        },
+      });
+    });
+
+    it("keeps the body out of the logs when a form body is rejected", async () => {
+      const app = createTestApp();
+      const spies = spyOnEveryLevel(app);
+      const form = Array.from(
+        { length: 1001 },
+        (_, i) => `p${i}=${marker}`,
+      ).join("&");
+
+      const response = await request(app)
+        .post("/gremlin")
+        .set(dbHeaders())
+        .set("Content-Type", "application/x-www-form-urlencoded")
+        .send(form);
+
+      expect(response.status).toBe(413);
+      const logged = spies
+        .flatMap(spy => spy.mock.calls)
+        .map(args => inspect(args, { depth: null }))
+        .join("\n");
+      expect(logged).not.toContain(marker);
+      expect(JSON.stringify(response.body)).not.toContain(marker);
     });
   });
 

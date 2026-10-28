@@ -26,3 +26,14 @@ export class RequestValidationError extends HttpError {
     this.zodError = zodError;
   }
 }
+
+/**
+ * Thrown when the body parser rejects a request body. It carries the parser's
+ * status and `type` but never the raw body, so it is safe to log.
+ */
+export class RejectedRequestBodyError extends HttpError {
+  constructor(status: number, message: string, type?: string) {
+    super(status, message, { type });
+    this.name = "RejectedRequestBodyError";
+  }
+}
