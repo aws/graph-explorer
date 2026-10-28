@@ -181,6 +181,17 @@ export function createDisplayError(error: any): DisplayError {
       };
     }
 
+    if (
+      error.statusCode === 413 &&
+      (error.data as { type?: unknown } | null)?.type === "entity.too.large"
+    ) {
+      return {
+        title: "Request Too Large",
+        message:
+          "The request was larger than the Graph Explorer server accepts. Try a smaller request.",
+      };
+    }
+
     if (error.statusCode === 429) {
       return {
         title: "Too Many Requests",

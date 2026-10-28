@@ -360,6 +360,47 @@ describe("createDisplayError", () => {
     });
   });
 
+  it("Should explain a request the server rejected as too large", () => {
+    const result = createDisplayError(
+      new NetworkError("request entity too large", 413, {
+        type: "entity.too.large",
+        status: 413,
+        message: "request entity too large",
+      }),
+    );
+    expect(result).toStrictEqual({
+      title: "Request Too Large",
+      message:
+        "The request was larger than the Graph Explorer server accepts. Try a smaller request.",
+    });
+  });
+
+  it("Should not blame the server for a 413 from elsewhere", () => {
+    const result = createDisplayError(
+      new NetworkError("Payload Too Large", 413, {
+        message: "Payload Too Large",
+      }),
+    );
+    expect(result).toStrictEqual({
+      title: "Network Response 413",
+      message: "Payload Too Large",
+    });
+  });
+
+  it("Should show the server's message for an unsupported request encoding", () => {
+    const result = createDisplayError(
+      new NetworkError("unsupported charset", 415, {
+        type: "charset.unsupported",
+        status: 415,
+        message: 'unsupported charset "BOGUS"',
+      }),
+    );
+    expect(result).toStrictEqual({
+      title: "Network Response 415",
+      message: 'unsupported charset "BOGUS"',
+    });
+  });
+
   it("Should handle network error", () => {
     const result = createDisplayError(
       new NetworkError("Network error", 500, { message: "Some error" }),
