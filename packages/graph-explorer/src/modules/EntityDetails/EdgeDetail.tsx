@@ -1,24 +1,7 @@
 import type { CSSProperties } from "react";
 
-import type { IconBaseProps } from "@/components/icons/IconBase";
-
+import { ArrowStyleIcon, EdgeRow, VertexRow } from "@/components";
 import {
-  ArrowCircle,
-  ArrowDiamond,
-  ArrowNone,
-  ArrowSquare,
-  ArrowTee,
-  ArrowTriangle,
-  ArrowTriangleBackCurve,
-  ArrowTriangleCircle,
-  ArrowTriangleCross,
-  ArrowTriangleTee,
-  ArrowVee,
-  EdgeRow,
-  VertexRow,
-} from "@/components";
-import {
-  type ArrowStyle,
   type DisplayAttribute,
   type DisplayEdge,
   type LineStyle,
@@ -96,16 +79,16 @@ const EdgeDetail = ({ edge }: EdgeDetailProps) => {
           className="row-span-2 flex flex-col items-center"
           style={{ color: style.lineColor || DEFAULT_LINE_COLOR }}
         >
-          <Arrow
-            kind={style.sourceArrowStyle || "none"}
+          <ArrowStyleIcon
+            arrowStyle={style.sourceArrowStyle || "none"}
             className="-mb-px size-[24px] shrink-0 -rotate-90 transform"
           />
           <div
             className="h-full w-[2px]"
             style={styleForLineStyle(style.lineStyle || "solid")}
           ></div>
-          <Arrow
-            kind={style.targetArrowStyle || "triangle"}
+          <ArrowStyleIcon
+            arrowStyle={style.targetArrowStyle || "triangle"}
             className="-mt-px size-[24px] shrink-0 rotate-90 transform"
           />
         </div>
@@ -155,25 +138,6 @@ function styleForLineStyle(style: LineStyle): CSSProperties {
   }
 
   return {};
-}
-
-/** Renders the right SVG icon for the given arrow style. */
-function Arrow({ kind, ...props }: { kind: ArrowStyle } & IconBaseProps) {
-  return (
-    <>
-      {kind === "triangle" && <ArrowTriangle {...props} />}
-      {kind === "triangle-tee" && <ArrowTriangleTee {...props} />}
-      {kind === "circle-triangle" && <ArrowTriangleCircle {...props} />}
-      {kind === "triangle-cross" && <ArrowTriangleCross {...props} />}
-      {kind === "triangle-backcurve" && <ArrowTriangleBackCurve {...props} />}
-      {kind === "tee" && <ArrowTee {...props} />}
-      {kind === "vee" && <ArrowVee {...props} />}
-      {kind === "square" && <ArrowSquare {...props} />}
-      {kind === "circle" && <ArrowCircle {...props} />}
-      {kind === "diamond" && <ArrowDiamond {...props} />}
-      {kind === "none" && <ArrowNone {...props} />}
-    </>
-  );
 }
 
 export default EdgeDetail;
