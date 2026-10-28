@@ -216,7 +216,7 @@ PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com,https://other-app.example.co
 
 By default, the proxy server forwards requests to any database URL specified by the client, except [link-local addresses](#link-local-addresses). You can restrict which database origins the proxy will contact by setting [`PROXY_SERVER_ALLOWED_DB_ORIGINS`](./configuration.md#proxy_server_allowed_db_origins). Requests targeting an unlisted origin receive a 403 response.
 
-Leaving the allowlist unset matters more on a host with AWS credentials, such as an EC2 instance profile or ECS task role. Any user can turn on IAM authentication in their own Connection, whatever the server's `IAM` setting, and the proxy server then signs the request with the host's credentials, as described in [Permissions](#permissions). Without an allowlist it signs for any origin a user names, so users can reach every database that identity's policy allows, in any region. Set `PROXY_SERVER_ALLOWED_DB_ORIGINS` in any deployment where the host has AWS credentials.
+On a host with AWS credentials, such as an EC2 instance profile or ECS task role, the proxy server signs requests with the host's identity, which every user of the deployment shares. Scope that identity's database policy first, because Neptune enforces it no matter what sends the request. Set the allowlist as well to add a second boundary in the proxy server, which also limits requests to databases that don't use IAM authentication. See [Permissions](#permissions).
 
 The first time the proxy server signs a request with no allowlist set, it logs a warning naming the origin and `PROXY_SERVER_ALLOWED_DB_ORIGINS`. It logs this once per process and never for unsigned requests.
 
