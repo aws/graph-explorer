@@ -23,10 +23,19 @@ Reserve Important for the cases below. Everything else is Nit at most. That incl
 - **Docs that contradict the code, or each other,** after this change. A documented route, header, environment variable default, or limit that no longer matches the source is Important, and so is a page that tells the reader to do something another page says the platform already does.
 - **Hosting examples outside the supported model.** The model is defined in `docs/references/security.md#supported-hosting`. Flag a doc, sample, or script that serves plain HTTP other machines can reach, such as `PROXY_SERVER_HTTPS_CONNECTION=false` with the port published on every interface and no reverse proxy that terminates TLS in front of it. Also flag an example that other machines can reach and that says nothing about the access control limiting who reaches it.
 - **Public text that discloses.** The PR adds reproduction steps for a security-relevant issue, advisory IDs, or customer data to code, docs, or the PR description.
+- **Security changes that widen a documented risk or break a guarantee.** The [Security model](#security-model) section defines both.
+
+## Security model
+
+`docs/references/security.md` defines the threat model: supported deployments, what the deployer owns, and what the proxy server guarantees. Test and judge security findings against it.
+
+- Behavior the doc describes as the deployer's responsibility is by design. Don't report it.
+- Each "never", "does not", or "refuses" statement in the doc is a guarantee. A change that breaks one, or widens a documented risk, is Important.
+- Graph Explorer owns untrusted input: database data, imported files, and connection links.
 
 ## Verification bar
 
-- Every Important finding names the file:line, the input that triggers it, and a real caller that reaches it. If you can't trace all three, post it as a Nit or drop it.
+- Every Important finding names the file:line, the input that triggers it, and a real caller that reaches it. If you can't trace all three, post it as a Nit or drop it. A broken guarantee names the doc statement it breaks in place of the input.
 - Say when a claim comes from reading the code rather than from a test or a run.
 - Treat claims about third-party tools, package versions, or browser behavior as unverified unless you checked their source or docs. Say which it is.
 - Before flagging a design choice, check `docs/adr/`. Don't flag a choice an ADR already made.
@@ -38,10 +47,7 @@ Reserve Important for the cases below. Everything else is Nit at most. That incl
 - The Git rules in `AGENTS.md`. PRs are squash merged, so commit messages, branch names, and how the commits are split never reach `main`.
 - `Changelog.md`. It's updated at release time.
 - Memoization or re-render advice. The React Compiler handles this unless it bails out on that component.
-- Security behavior that's by design:
-  - Graph Explorer has no built-in auth.
-  - The proxy forwards to any database URL that isn't a link-local IP address unless the optional allowlist is set.
-  - The proxy passes database error responses through.
+- Security behavior that's by design, as the [Security model](#security-model) section defines it.
 - Missing ADRs, missing glossary entries, or missing tests for components that only render UI.
 - Files under `.agents/skills/`, `.claude/skills/`, and `.kiro/skills/`, plus `skills-lock.json` and `THIRD_PARTY_LICENSES.txt`.
 - In `pnpm-lock.yaml`, report only churn that's unrelated to the PR.
