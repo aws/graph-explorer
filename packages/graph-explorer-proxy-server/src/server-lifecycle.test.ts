@@ -5,7 +5,6 @@ import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import {
   attachGracefulShutdown,
-  attachServerErrorHandler,
   type LifecycleServer,
   startListening,
 } from "./server-lifecycle.ts";
@@ -14,20 +13,11 @@ function createMockServer({
   hangOnClose = false,
   closeError,
 }: { hangOnClose?: boolean; closeError?: Error } = {}) {
-  const errorHandlers: Array<(error: NodeJS.ErrnoException) => void> = [];
   const close = vi.fn((onClosed?: (error?: Error) => void) => {
     if (!hangOnClose) onClosed?.(closeError);
   });
-  const server: LifecycleServer = {
-    on: (_event, handler) => errorHandlers.push(handler),
-    close,
-  };
-  return {
-    server,
-    close,
-    emitError: (error: NodeJS.ErrnoException) =>
-      errorHandlers.forEach(handler => handler(error)),
-  };
+  const server: LifecycleServer = { close };
+  return { server, close };
 }
 
 function createMockLogger() {
@@ -50,44 +40,22 @@ function createSignalBus() {
   };
 }
 
-describe("attachServerErrorHandler", () => {
-  it("exits with code 1 on EADDRINUSE", () => {
-    const { server, emitError } = createMockServer();
-    const logger = createMockLogger();
-    const exit = vi.fn();
-
-    attachServerErrorHandler(server, { port: 8080, logger, exit });
-
-    emitError(
-      Object.assign(new Error("listen EADDRINUSE"), { code: "EADDRINUSE" }),
-    );
-
-    expect(exit).toHaveBeenCalledWith(1);
-    expect(logger.fatal).toHaveBeenCalled();
-    expect(logger.fatal.mock.calls[0][0]).toContain("8080");
-  });
-
-  it("exits with code 1 on other server errors", () => {
-    const { server, emitError } = createMockServer();
-    const logger = createMockLogger();
-    const exit = vi.fn();
-
-    attachServerErrorHandler(server, { port: 443, logger, exit });
-
-    emitError(
-      Object.assign(new Error("permission denied"), { code: "EACCES" }),
-    );
-
-    expect(exit).toHaveBeenCalledWith(1);
-    expect(logger.fatal).toHaveBeenCalled();
-  });
-});
-
 function createMockListeningServer(bound: AddressInfo) {
+  const errorHandlers: Array<(error: NodeJS.ErrnoException) => void> = [];
   const listen = vi.fn((_options: ListenOptions, onListening: () => void) =>
     onListening(),
   );
-  return { server: { listen, address: () => bound }, listen };
+  return {
+    server: {
+      on: (_event: "error", handler: (error: NodeJS.ErrnoException) => void) =>
+        errorHandlers.push(handler),
+      listen,
+      address: () => bound,
+    },
+    listen,
+    emitError: (error: NodeJS.ErrnoException) =>
+      errorHandlers.forEach(handler => handler(error)),
+  };
 }
 
 const loopbackNote =
@@ -101,9 +69,85 @@ describe("startListening", () => {
   ) {
     const { server, listen } = createMockListeningServer(bound);
     const logger = createMockLogger();
-    startListening(server, { address, port: 8080, logger, onListening });
+    startListening(server, {
+      address,
+      port: 8080,
+      logger,
+      exit: vi.fn(),
+      onListening,
+    });
     return { listen, logger };
   }
+
+  function startAndFail(address: string, port: number, error: Error) {
+    const { server, emitError } = createMockListeningServer({
+      address,
+      family: "IPv4",
+      port,
+    });
+    const logger = createMockLogger();
+    const exit = vi.fn();
+    startListening(server, {
+      address,
+      port,
+      logger,
+      exit,
+      onListening: vi.fn(),
+    });
+    emitError(error);
+    return { logger, exit };
+  }
+
+  it("exits with code 1 on EADDRINUSE", () => {
+    const { logger, exit } = startAndFail(
+      "127.0.0.1",
+      8080,
+      Object.assign(new Error("listen EADDRINUSE"), { code: "EADDRINUSE" }),
+    );
+
+    expect(exit).toHaveBeenCalledWith(1);
+    expect(logger.fatal).toHaveBeenCalled();
+    expect(logger.fatal.mock.calls[0][0]).toContain("8080");
+  });
+
+  it("exits with code 1 on other server errors", () => {
+    const { logger, exit } = startAndFail(
+      "127.0.0.1",
+      443,
+      Object.assign(new Error("invalid argument"), { code: "EINVAL" }),
+    );
+
+    expect(exit).toHaveBeenCalledWith(1);
+    expect(logger.fatal).toHaveBeenCalledWith("Server error: invalid argument");
+  });
+
+  it("explains EACCES with the port settings", () => {
+    const { logger, exit } = startAndFail(
+      "127.0.0.1",
+      80,
+      Object.assign(new Error("permission denied"), { code: "EACCES" }),
+    );
+
+    expect(exit).toHaveBeenCalledWith(1);
+    expect(logger.fatal).toHaveBeenCalledWith(
+      "Permission denied listening on 127.0.0.1 port 80. Ports below 1024 need elevated privileges on most systems, and on macOS that includes 127.0.0.1. Set PROXY_SERVER_PORT to 1024 or higher.",
+    );
+  });
+
+  it("explains EADDRNOTAVAIL with the listen address", () => {
+    const { logger, exit } = startAndFail(
+      "192.0.2.10",
+      8080,
+      Object.assign(new Error("address not available"), {
+        code: "EADDRNOTAVAIL",
+      }),
+    );
+
+    expect(exit).toHaveBeenCalledWith(1);
+    expect(logger.fatal).toHaveBeenCalledWith(
+      "PROXY_SERVER_LISTEN_ADDRESS is 192.0.2.10, which isn't an address of this machine. Set it to the address of one of this machine's network interfaces, such as 127.0.0.1.",
+    );
+  });
 
   it.each(["::", "0.0.0.0"])(
     "listens with no host for %s, keeping Node's IPv4 fallback",
@@ -197,6 +241,7 @@ describe("startListening", () => {
           address: "127.0.0.1",
           port: 0,
           logger: createMockLogger(),
+          exit: vi.fn(),
           onListening: resolve,
         }),
       );

@@ -6,14 +6,14 @@ interface LifecycleLogger {
   fatal: (msg: string, ...args: unknown[]) => void;
 }
 
-/** The subset of `http.Server` the lifecycle handlers depend on. */
+/** The subset of `http.Server` the shutdown handler depends on. */
 export interface LifecycleServer {
-  on(event: "error", handler: (error: NodeJS.ErrnoException) => void): unknown;
   close(onClosed?: (error?: Error) => void): unknown;
 }
 
 /** The subset of `http.Server` that {@link startListening} depends on. */
 export interface ListeningServer {
+  on(event: "error", handler: (error: NodeJS.ErrnoException) => void): unknown;
   listen(options: ListenOptions, onListening: () => void): unknown;
   address(): AddressInfo | string | null;
 }
@@ -22,6 +22,7 @@ export interface StartListeningOptions {
   address: string;
   port: number;
   logger: LifecycleLogger;
+  exit: (code: number) => void;
   onListening: () => void;
 }
 
@@ -30,12 +31,17 @@ const allInterfacesAddresses = new Set(["::", "0.0.0.0"]);
 /**
  * Listens on `address` and `port`, then logs the address the server bound.
  * The all-interfaces addresses listen with no host, which keeps Node's
- * IPv6-first bind and its IPv4 fallback on hosts without IPv6.
+ * IPv6-first bind and its IPv4 fallback on hosts without IPv6. A server error
+ * is logged with the setting to change and exits with code 1.
  */
 export function startListening(
   server: ListeningServer,
-  { address, port, logger, onListening }: StartListeningOptions,
+  { address, port, logger, exit, onListening }: StartListeningOptions,
 ) {
+  server.on("error", (error: NodeJS.ErrnoException) => {
+    logger.fatal(describeServerError(error, address, port));
+    exit(1);
+  });
   const options: ListenOptions = allInterfacesAddresses.has(address)
     ? { port }
     : { port, host: address };
@@ -61,26 +67,21 @@ function isLoopback(address: string) {
   return address === "::1" || address.startsWith("127.");
 }
 
-export interface ServerErrorHandlerOptions {
-  port: number;
-  logger: LifecycleLogger;
-  exit: (code: number) => void;
-}
-
-export function attachServerErrorHandler(
-  server: LifecycleServer,
-  { port, logger, exit }: ServerErrorHandlerOptions,
+function describeServerError(
+  error: NodeJS.ErrnoException,
+  address: string,
+  port: number,
 ) {
-  server.on("error", (error: NodeJS.ErrnoException) => {
-    if (error.code === "EADDRINUSE") {
-      logger.fatal(
-        `Port ${port} is already in use — another proxy server or worktree may already be running. Stop the other process or set a different port.`,
-      );
-    } else {
-      logger.fatal(`Server error: ${error.message}`);
-    }
-    exit(1);
-  });
+  if (error.code === "EADDRINUSE") {
+    return `Port ${port} is already in use — another proxy server or worktree may already be running. Stop the other process or set a different port.`;
+  }
+  if (error.code === "EACCES") {
+    return `Permission denied listening on ${address} port ${port}. Ports below 1024 need elevated privileges on most systems, and on macOS that includes 127.0.0.1. Set PROXY_SERVER_PORT to 1024 or higher.`;
+  }
+  if (error.code === "EADDRNOTAVAIL") {
+    return `PROXY_SERVER_LISTEN_ADDRESS is ${address}, which isn't an address of this machine. Set it to the address of one of this machine's network interfaces, such as 127.0.0.1.`;
+  }
+  return `Server error: ${error.message}`;
 }
 
 export interface GracefulShutdownOptions {

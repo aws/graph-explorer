@@ -12,11 +12,7 @@ import {
   resolveServerConfig,
   ServerConfigError,
 } from "./server-config.ts";
-import {
-  attachGracefulShutdown,
-  attachServerErrorHandler,
-  startListening,
-} from "./server-lifecycle.ts";
+import { attachGracefulShutdown, startListening } from "./server-lifecycle.ts";
 import { createServer } from "./server.ts";
 
 // Load .env files into process.env before parsing
@@ -83,12 +79,6 @@ const server = createServer(app, {
   certPath: certificateFilePath,
 });
 
-attachServerErrorHandler(server, {
-  port,
-  logger,
-  exit: code => process.exit(code),
-});
-
 attachGracefulShutdown(server, {
   logger,
   exit: code => process.exit(code),
@@ -110,6 +100,7 @@ startListening(server, {
   address: listenAddress,
   port,
   logger,
+  exit: code => process.exit(code),
   onListening: () =>
     logger.info(
       `Graph Explorer UI located at: ${baseUrl}${staticFilesVirtualPath}`,
