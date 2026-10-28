@@ -1574,8 +1574,8 @@ describe("createApp", () => {
     );
   });
 
-  describe("link-local database origins", () => {
-    const linkLocalUrl = "http://169.254.1.1:8182";
+  describe("reserved database origins", () => {
+    const reservedUrl = "http://169.254.169.254:8182";
 
     it.each(forwardingRoutes)(
       "$method $route returns 403 without an allowlist and without fetching",
@@ -1583,7 +1583,7 @@ describe("createApp", () => {
         const app = createTestApp();
         const req = request(app)
           [method](route)
-          .set(dbHeaders({ "graph-db-connection-url": linkLocalUrl }));
+          .set(dbHeaders({ "graph-db-connection-url": reservedUrl }));
         const response = body ? await req.send(body) : await req;
 
         expect(response.status).toBe(403);
@@ -1594,16 +1594,37 @@ describe("createApp", () => {
       },
     );
 
-    it("returns 403 when the allowlist names the link-local origin", async () => {
-      const app = createTestApp(".", undefined, new Set([linkLocalUrl]));
+    it("returns 403 when the allowlist names the reserved origin", async () => {
+      const app = createTestApp(".", undefined, new Set([reservedUrl]));
       const response = await request(app)
         .post("/sparql")
-        .set(dbHeaders({ "graph-db-connection-url": linkLocalUrl }))
+        .set(dbHeaders({ "graph-db-connection-url": reservedUrl }))
         .send({ query: "SELECT 1" });
 
       expect(response.status).toBe(403);
       expect(mockFetch).not.toHaveBeenCalled();
     });
+
+    it.each(forwardingRoutes)(
+      "$method $route forwards to a link-local origin outside the reserved ranges",
+      async ({ method, route, body }) => {
+        mockFetchOnce();
+
+        const app = createTestApp();
+        const req = request(app)
+          [method](route)
+          .set(
+            dbHeaders({ "graph-db-connection-url": "http://169.254.1.2:8182" }),
+          );
+        const response = body ? await req.send(body) : await req;
+
+        expect(response.status).toBe(200);
+        expect(mockFetch).toHaveBeenCalledWith(
+          expect.stringMatching(/^http:\/\/169\.254\.1\.2:8182\//),
+          expect.anything(),
+        );
+      },
+    );
   });
 });
 
