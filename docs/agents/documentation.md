@@ -38,7 +38,7 @@ The same claim gets the same marker everywhere it appears. A page carrying three
 
 ## Docs that mirror code
 
-- `docs/references/security.md#reference-for-access-control-layers` copies the proxy server's routes, methods, request headers, body limit, and the Default Connection's Fetch Timeout. A change to any of them updates that section.
+- `docs/references/security.md#reference-for-access-control-layers` copies the proxy server's routes, methods, request headers, forwarded response headers, body limit, and the Default Connection's Fetch Timeout. A change to any of them updates that section.
 - A new deployment guide gets the example paragraph after its opening paragraph and the access control `[!IMPORTANT]` block, both worded identically to the existing guides, and a row in the deployment table in `docs/references/security.md#access-control`.
 
 ## `NEPTUNE_NOTEBOOK`

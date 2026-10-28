@@ -61,6 +61,8 @@ How Graph Explorer behaves on the wire, for anyone adding an access control laye
 
 **Request headers.** The proxy server reads `graph-db-connection-url`, `aws-neptune-region`, `service-type`, `db-query-logging-enabled`, and `queryid`. Without `graph-db-connection-url`, every query fails with a 400 whose body names the missing header. The proxy server never reads a client `Authorization` header or cookie, and never forwards either one to the database.
 
+**Responses.** The proxy server passes the database's response status and body back to the client as they arrive, error responses included. Of the database's response headers, it passes on only `content-type` and `content-encoding`. The proxy server doesn't follow a redirect from the database, see [HTTP Redirects](#http-redirects).
+
 **Paths.** The UI lives under `/explorer`. It calls the API on its own origin, under the same prefix it was loaded from, with the `/explorer` segment cut out. A layer that renames that segment breaks the UI, see [Reverse proxy misconfigured](../guides/troubleshooting.md#reverse-proxy-misconfigured). The API paths sit next to `/explorer`, not under it, so a layer that forwards only `/explorer/*` serves a UI that loads and then fails every query.
 
 | Path                      | Method |
