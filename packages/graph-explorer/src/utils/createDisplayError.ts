@@ -6,7 +6,9 @@ import {
   UnsupportedValueTypeError,
 } from "@/connector/queryValueError";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
+import { PersistedStateLoadError } from "@/core/StateProvider/PersistedStateLoadError";
 
+import { LABELS } from "./constants";
 import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
 import { DatabaseUnreachableError } from "./DatabaseUnreachableError";
 import { extractErrorMessage } from "./extractErrorMessage";
@@ -209,6 +211,13 @@ export function createDisplayError(error: any): DisplayError {
   if (error instanceof FileEnvelopeError) {
     // The message is already written for humans (wrong kind, too new, not JSON).
     return { title: "Invalid file", message: error.message };
+  }
+
+  if (error instanceof PersistedStateLoadError) {
+    return {
+      title: "Unable to load saved data",
+      message: `${LABELS.APP_NAME} can't read the connections and settings it saves in this browser. Private browsing or browser settings that block site storage can cause this. Reload to try again. If the problem continues, clear this site's data in your browser settings. This deletes your saved connections and settings.`,
+    };
   }
 
   if (error instanceof ZodError) {

@@ -10,6 +10,7 @@ import {
   UnsupportedValueTypeError,
 } from "@/connector/queryValueError";
 import { FileEnvelopeError } from "@/core/fileEnvelope";
+import { PersistedStateLoadError } from "@/core/StateProvider/PersistedStateLoadError";
 
 import { createDisplayError } from "./createDisplayError";
 import { DatabaseTimeoutError } from "./DatabaseTimeoutError";
@@ -430,6 +431,17 @@ describe("createDisplayError", () => {
     expect(result).toStrictEqual({
       title: "Invalid file",
       message: 'Expected a "styling-export" file, but got "connection-export"',
+    });
+  });
+
+  it("Should explain a persisted state load failure in terms of the browser's saved data", () => {
+    const result = createDisplayError(
+      new PersistedStateLoadError(new DOMException("Blocked", "SecurityError")),
+    );
+    expect(result).toStrictEqual({
+      title: "Unable to load saved data",
+      message:
+        "Graph Explorer can't read the connections and settings it saves in this browser. Private browsing or browser settings that block site storage can cause this. Reload to try again. If the problem continues, clear this site's data in your browser settings. This deletes your saved connections and settings.",
     });
   });
 

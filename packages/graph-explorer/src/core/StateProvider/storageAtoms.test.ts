@@ -2,7 +2,7 @@ import type { LegacyConnectionConfig } from "@shared/types";
 
 import { createStore } from "jotai";
 import localforage from "localforage";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 import type { SavedConnection } from "@/connections";
 
@@ -15,6 +15,7 @@ import {
 import type { EdgeStyleStorage, LegacyUserStylingStorage } from "./graphStyles";
 
 import { defaultGraphViewLayout } from "./graphViewLayoutDefaults";
+import { PersistedStateLoadError } from "./PersistedStateLoadError";
 import { defaultSchemaViewLayout } from "./schemaViewLayoutDefaults";
 import {
   activeConnectionIdAtom,
@@ -237,5 +238,18 @@ describe("loadPersistedState", () => {
     await loadPersistedState();
 
     expect(createStore().get(defaultNeighborExpansionLimitAtom)).toBe(42);
+  });
+
+  it("rejects with a PersistedStateLoadError that keeps the storage error as its cause", async () => {
+    const storageError = new DOMException(
+      "The database connection was lost.",
+      "UnknownError",
+    );
+    vi.spyOn(localforage, "getItem").mockRejectedValue(storageError);
+
+    const failure = await loadPersistedState().catch((error: unknown) => error);
+
+    expect(failure).toBeInstanceOf(PersistedStateLoadError);
+    expect(failure).toHaveProperty("cause", storageError);
   });
 });
