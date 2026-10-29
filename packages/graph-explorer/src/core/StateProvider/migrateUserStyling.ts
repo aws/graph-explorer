@@ -44,11 +44,11 @@ export async function runUserStylingMigration() {
  * Migrates legacy `"user-styling"` data into the type-keyed `"user-vertex-styles"`
  * and `"user-edge-styles"` maps.
  *
- * Runs once at startup, before the styling atoms are created. It is idempotent
- * and only writes the new keys that are still missing, so a partial write (the
- * two `setItem` calls are not atomic) is recovered on the next load without
- * clobbering a surviving key that the user may have since edited. Fresh users
- * with no stored styling are a no-op.
+ * Runs once at startup in `loadPersistedState()`, before the styling atoms
+ * load. It is idempotent and only writes the new keys that are still missing,
+ * so a partial write (the two `setItem` calls are not atomic) is recovered on
+ * the next load without clobbering a surviving key that the user may have since
+ * edited. Fresh users with no stored styling are a no-op.
  *
  * The old `"user-styling"` key is intentionally left in place as a rollback
  * escape hatch; removing it is a separate follow-up. Because it is never
