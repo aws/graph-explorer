@@ -1524,6 +1524,29 @@ describe("createApp", () => {
         );
       },
     );
+
+    it.each(forwardingRoutes)(
+      "$method $route returns 403 for a signed request without fetching the disallowed origin",
+      async ({ method, route, body }) => {
+        const app = createTestApp(".", undefined, allowedOrigins);
+        const req = request(app)
+          [method](route)
+          .set(
+            dbHeaders({
+              "graph-db-connection-url": "https://blocked:8182",
+              "aws-neptune-region": "us-east-1",
+              "service-type": "neptune-db",
+            }),
+          );
+        const response = body ? await req.send(body) : await req;
+
+        expect(response.status).toBe(403);
+        expect(response.body.error.message).toContain(
+          "PROXY_SERVER_ALLOWED_DB_ORIGINS",
+        );
+        expect(mockFetch).not.toHaveBeenCalled();
+      },
+    );
   });
 
   describe("link-local database origins", () => {
