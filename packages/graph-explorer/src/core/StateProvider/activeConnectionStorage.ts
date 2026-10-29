@@ -7,6 +7,7 @@ import { type ConnectionId, createConnectionId } from "@/connections/types";
 
 import {
   createSessionScopedAtom,
+  type SessionScopedAtomOptions,
   type SessionValueCodec,
 } from "./sessionScopedStorage";
 
@@ -28,8 +29,14 @@ const activeConnectionCodec: SessionValueCodec<ConnectionId | null> = {
   parseStored: stored => createConnectionId(z.string().parse(stored)),
 };
 
+const activeConnectionOptions: SessionScopedAtomOptions<ConnectionId | null> = {
+  key: ACTIVE_CONNECTION_STORAGE_KEY,
+  defaultValue: null,
+  codec: activeConnectionCodec,
+};
+
 /**
- * Creates the atom holding this tab's active connection.
+ * Creates the app-wide atom holding this tab's active connection.
  *
  * The active connection is per-tab: it lives in sessionStorage so it survives a
  * reload of this tab but never leaks to other tabs, while a shared localForage
@@ -39,13 +46,11 @@ const activeConnectionCodec: SessionValueCodec<ConnectionId | null> = {
  * @param sessionStorage The per-tab storage backing. Injectable so multi-tab
  * isolation can be tested with separate storages.
  */
-export async function createActiveConnectionIdAtom({
+export function createActiveConnectionIdAtom({
   sessionStorage,
 }: { sessionStorage?: Storage } = {}) {
-  return createSessionScopedAtom<ConnectionId | null>({
-    key: ACTIVE_CONNECTION_STORAGE_KEY,
-    defaultValue: null,
-    codec: activeConnectionCodec,
+  return createSessionScopedAtom({
+    ...activeConnectionOptions,
     sessionStorage,
   });
 }

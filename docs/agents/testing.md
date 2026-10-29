@@ -17,7 +17,7 @@ Each project sets up its own environment. `setupTests.ts` below is registered by
 - Constrained non-determinism: randomize everything the assertion doesn't depend on, pin only what it does. A flake on random data is an unpinned dependency — pin the field, don't narrow the factory.
 - Assert full expected values with `toStrictEqual([...])`, not length checks plus per-index `toEqual`
 - Test behavior, not implementation. Don't assert on CSS classes, element types, or layout — those break on harmless visual changes. A purely presentational component with no branching needs no test.
-- `setupTests.ts` handles environment (UTC, en-US), mock cleanup, and a real localForage backend on `fake-indexeddb` (fresh per test). Don't re-do this setup; assume it inside `packages/graph-explorer`.
+- `setupTests.ts` handles environment (UTC, en-US), mock cleanup, and a real localForage backend on `fake-indexeddb` (fresh per test). Don't re-do this setup; assume it inside `packages/graph-explorer`. It also seeds every persisted atom with its default before each test. A test that seeds localForage calls `loadPersistedState()` (or a `preloadSavedConnection*` helper) to read the stored values. Without `loadPersistedState()` the atom still holds its default, not the stored value.
 
 ## Key helpers (`@/utils/testing`)
 
@@ -33,7 +33,7 @@ Each project sets up its own environment. `setupTests.ts` below is registered by
 - Gremlin/openCypher response builders: `graphsonHelpers.ts`, `ocHelpers.ts`
 - `normalizeWithNoSpace` / `normalize` / `normalizeWithNewlines` — normalize query strings before asserting (`normalize.ts`). They differ in whitespace and comment handling; use whichever the file you're editing already uses.
 - Persistence: `PersistenceTab`, `readPersistedValue` (`persistence.ts`)
-- `preloadSavedConnection(connection)` — seeds the saved connection in IndexedDB and loads it through a fresh, real `savedConnectionsAtom`, as the app does on load.
+- `preloadSavedConnection(connection)` — seeds the saved connection in IndexedDB and loads it through the real `savedConnectionsAtom` with `loadPersistedState()`, as the app does on load.
 - `preloadSavedConnections(...connections)` — the same, seeding several connections at once; returns `{ store, savedConnectionsAtom, activeConnectionIdAtom, persistenceStatusStore }` instead of a single transformed connection.
 - `@shared/utils/testing` — primitives: `createRandomName`, `createRandomInteger`, `createRandomColor`, `createRandomUrlString`, …
 

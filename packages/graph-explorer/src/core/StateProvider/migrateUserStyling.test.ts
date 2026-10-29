@@ -263,7 +263,7 @@ describe("migrateUserStylingIfNeeded", () => {
 
 /**
  * `runUserStylingMigration` wraps the migration so it never throws into its
- * caller (the top-level `await` in `storageAtoms.ts`). A failure is reported
+ * caller (`loadPersistedState()`). A failure is reported
  * through the shared persistence-status store — the same channel as every other
  * IndexedDB write failure — so the "Changes not saved" indicator surfaces it.
  */

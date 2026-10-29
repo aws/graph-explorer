@@ -3,8 +3,10 @@ import localforage from "localforage";
 
 import type { AppStore } from "@/core";
 import type { ReconcileWrite } from "@/core/StateProvider/atomWithLocalForage";
+import type { PersistedAtom } from "@/core/StateProvider/writeThroughAtom";
 
 import { atomWithLocalForage } from "@/core/StateProvider/atomWithLocalForage";
+import { loadPersistedAtom } from "@/core/StateProvider/persistedAtomRegistry";
 import { persistenceStatusStore } from "@/core/StateProvider/persistence";
 
 type SetStateAction<Value> = Value | ((prev: Value) => Value);
@@ -23,12 +25,9 @@ type SetStateAction<Value> = Value | ((prev: Value) => Value);
  */
 export class PersistenceTab<T> {
   #store: AppStore;
-  #atom: Awaited<ReturnType<typeof atomWithLocalForage<T>>>;
+  #atom: PersistedAtom<T>;
 
-  constructor(
-    store: AppStore,
-    atom: Awaited<ReturnType<typeof atomWithLocalForage<T>>>,
-  ) {
+  constructor(store: AppStore, atom: PersistedAtom<T>) {
     this.#store = store;
     this.#atom = atom;
   }
@@ -69,7 +68,9 @@ export async function openPersistenceTab<T>(
   reconcile?: ReconcileWrite<T>,
 ): Promise<PersistenceTab<T>> {
   const store = createStore();
-  const atom = await atomWithLocalForage<T>(key, initialValue, { reconcile });
+  const atom = await loadPersistedAtom(
+    atomWithLocalForage<T>(key, initialValue, { reconcile }),
+  );
   return new PersistenceTab(store, atom);
 }
 

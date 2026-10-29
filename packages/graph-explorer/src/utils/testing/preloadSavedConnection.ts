@@ -1,12 +1,14 @@
 import { createStore } from "jotai";
 import localforage from "localforage";
-import { vi } from "vite-plus/test";
 
 import type { SavedConnection } from "@/connections";
 import type { AppStore } from "@/core";
 import type { PersistenceStatusStore } from "@/core/StateProvider/persistence/persistenceStatusStore";
-import type {
+
+import { persistenceStatusStore } from "@/core/StateProvider/persistence";
+import {
   activeConnectionIdAtom,
+  loadPersistedState,
   savedConnectionsAtom,
 } from "@/core/StateProvider/storageAtoms";
 
@@ -18,21 +20,12 @@ interface PreloadedConnectionAtoms {
 }
 
 /**
- * Loads a fresh copy of the real storage atoms over whatever IndexedDB and
- * sessionStorage currently hold, as the app does on load. Resets the module
- * registry to get that fresh copy, and returns a matching store and
- * persistence status store since both are only valid alongside that same
- * fresh copy.
+ * Loads the real storage atoms over whatever IndexedDB and sessionStorage
+ * currently hold, as the app does on load, and returns a fresh store to read
+ * them through.
  */
 export async function loadStorageAtoms(): Promise<PreloadedConnectionAtoms> {
-  vi.resetModules();
-  const [
-    { savedConnectionsAtom, activeConnectionIdAtom },
-    { persistenceStatusStore },
-  ] = await Promise.all([
-    import("@/core/StateProvider/storageAtoms"),
-    import("@/core/StateProvider/persistence"),
-  ]);
+  await loadPersistedState();
   return {
     store: createStore(),
     savedConnectionsAtom,

@@ -9,6 +9,7 @@ import {
   ACTIVE_CONNECTION_STORAGE_KEY,
   createActiveConnectionIdAtom,
 } from "./activeConnectionStorage";
+import { loadPersistedAtom } from "./persistedAtomRegistry";
 import { persistenceStatusStore } from "./persistence";
 import { createInMemorySessionStorage } from "./safeSessionStorage";
 
@@ -23,7 +24,9 @@ async function openTab() {
   // store/atom rebuild that reload() models.
   const sessionStorage = createInMemorySessionStorage();
   let store = createStore();
-  let atom = await createActiveConnectionIdAtom({ sessionStorage });
+  let atom = await loadPersistedAtom(
+    createActiveConnectionIdAtom({ sessionStorage }),
+  );
   return {
     read: () => store.get(atom),
     /**
@@ -39,7 +42,9 @@ async function openTab() {
     /** Reloads this tab: a fresh store and atom over the same sessionStorage. */
     reload: async () => {
       store = createStore();
-      atom = await createActiveConnectionIdAtom({ sessionStorage });
+      atom = await loadPersistedAtom(
+        createActiveConnectionIdAtom({ sessionStorage }),
+      );
     },
   };
 }
@@ -54,7 +59,9 @@ describe("activeConnectionStorage", () => {
     await localForage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, breadcrumb);
     const sessionStorage = createInMemorySessionStorage();
 
-    const atom = await createActiveConnectionIdAtom({ sessionStorage });
+    const atom = await loadPersistedAtom(
+      createActiveConnectionIdAtom({ sessionStorage }),
+    );
 
     const store = createStore();
     expect(store.get(atom)).toBe(breadcrumb);
@@ -66,7 +73,9 @@ describe("activeConnectionStorage", () => {
     const sessionStorage = createInMemorySessionStorage();
     sessionStorage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, "");
 
-    const atom = await createActiveConnectionIdAtom({ sessionStorage });
+    const atom = await loadPersistedAtom(
+      createActiveConnectionIdAtom({ sessionStorage }),
+    );
 
     const store = createStore();
     expect(store.get(atom)).toBe(breadcrumb);
@@ -79,7 +88,9 @@ describe("activeConnectionStorage", () => {
     const sessionStorage = createInMemorySessionStorage();
     sessionStorage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, tabValue);
 
-    const atom = await createActiveConnectionIdAtom({ sessionStorage });
+    const atom = await loadPersistedAtom(
+      createActiveConnectionIdAtom({ sessionStorage }),
+    );
 
     const store = createStore();
     expect(store.get(atom)).toBe(tabValue);
@@ -87,7 +98,9 @@ describe("activeConnectionStorage", () => {
 
   test("activating a connection writes both this tab and the breadcrumb", async () => {
     const sessionStorage = createInMemorySessionStorage();
-    const atom = await createActiveConnectionIdAtom({ sessionStorage });
+    const atom = await loadPersistedAtom(
+      createActiveConnectionIdAtom({ sessionStorage }),
+    );
     const store = createStore();
 
     const activated = createNewConnectionId();
@@ -111,7 +124,9 @@ describe("activeConnectionStorage", () => {
     const sessionStorage = createInMemorySessionStorage();
     sessionStorage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, previous);
 
-    const atom = await createActiveConnectionIdAtom({ sessionStorage });
+    const atom = await loadPersistedAtom(
+      createActiveConnectionIdAtom({ sessionStorage }),
+    );
     const store = createStore();
     store.set(atom, null);
 
@@ -128,7 +143,7 @@ describe("activeConnectionStorage", () => {
     const breadcrumb = createNewConnectionId();
     await localForage.setItem(ACTIVE_CONNECTION_STORAGE_KEY, breadcrumb);
 
-    const atom = await createActiveConnectionIdAtom();
+    const atom = await loadPersistedAtom(createActiveConnectionIdAtom());
     const store = createStore();
     expect(store.get(atom)).toBe(breadcrumb);
 

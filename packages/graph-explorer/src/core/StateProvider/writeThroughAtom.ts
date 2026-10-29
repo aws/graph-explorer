@@ -1,30 +1,73 @@
-import { atom } from "jotai";
+import { atom, type WritableAtom } from "jotai";
+import { atomWithDefault } from "jotai/utils";
 
 export type SetStateAction<Value> = Value | ((prev: Value) => Value);
 
+/** A persisted atom: synchronous reads and writes, seeded by a later load. */
+export type PersistedAtom<Value> = WritableAtom<
+  Value,
+  [SetStateAction<Value>],
+  void
+> & {
+  /** The key the value is stored under. */
+  readonly storageKey: string;
+};
+
+/**
+ * The loaded state of a persisted atom: the value read from the backing store
+ * and the write-through that persists later changes. Built together because a
+ * reconciling write needs the loaded value as its merge baseline.
+ */
+export type Hydration<Value> = {
+  seed: Value;
+  persist: (value: Value) => void;
+};
+
+/**
+ * A persisted atom plus the two ways to seed it. `load` reads the backing
+ * store; `seedDefault` seeds the default without I/O, for tests.
+ */
+export type PersistedAtomHandle<Value> = {
+  atom: PersistedAtom<Value>;
+  load: () => Promise<void>;
+  seedDefault: () => void;
+};
+
 /**
  * Creates an atom that caches its value in memory and writes every change
- * through to an external store via the `persist` callback.
+ * through to an external store.
  *
- * The atom is seeded synchronously, reads come from the in-memory cache, and
- * writes resolve a function update, short-circuit when the value is unchanged,
- * update the cache, then persist. Callers supply how seeding and persistence
- * map to their backing store (localForage, sessionStorage, etc.).
+ * The atom is defined synchronously but holds no value until `load` (or
+ * `seedDefault`) runs. Reading it earlier throws, so a read that would show a
+ * default before storage loads fails loudly instead of flashing it.
  *
- * The in-memory value updates synchronously and the setter returns `void`:
- * persistence happens in the background and the caller owns its outcome (the
- * `persist` callback must not let its work float — it handles its own failures).
- *
- * @param seed The initial value, already loaded from the backing store.
- * @param persist Writes a changed value to the backing store in the background.
- * @param debugLabel Label surfaced in Jotai devtools.
+ * Writes resolve a function update, short-circuit when the value is unchanged,
+ * update the cache, then persist in the background. The setter returns `void`;
+ * `persist` owns the outcome of its work.
  */
-export function createWriteThroughAtom<Value>(
-  seed: Value,
-  persist: (value: Value) => void,
-  debugLabel: string,
-) {
-  const baseAtom = atom<Value>(seed);
+export function createWriteThroughAtom<Value>({
+  key,
+  debugLabel,
+  load,
+  seedDefault,
+}: {
+  key: string;
+  debugLabel: string;
+  load: () => Promise<Hydration<Value>>;
+  seedDefault: () => Hydration<Value>;
+}): PersistedAtomHandle<Value> {
+  let hydration: Hydration<Value> | null = null;
+
+  function requireHydration() {
+    if (!hydration) {
+      throw new Error(
+        `Persisted atom "${key}" was read before loadPersistedState() finished.`,
+      );
+    }
+    return hydration;
+  }
+
+  const baseAtom = atomWithDefault<Value>(() => requireHydration().seed);
 
   const derivedAtom = atom(
     get => get(baseAtom),
@@ -40,11 +83,19 @@ export function createWriteThroughAtom<Value>(
       }
 
       set(baseAtom, nextValue);
-      persist(nextValue);
+      requireHydration().persist(nextValue);
     },
   );
 
   derivedAtom.debugLabel = debugLabel;
 
-  return derivedAtom;
+  return {
+    atom: Object.assign(derivedAtom, { storageKey: key }),
+    load: async () => {
+      hydration = await load();
+    },
+    seedDefault: () => {
+      hydration = seedDefault();
+    },
+  };
 }
