@@ -12,12 +12,12 @@ These variables control server behavior, networking, and security.
 
 The public hostname of the server. It feeds the Subject Alternative Name of the self-signed SSL certificate and the URL the server prints at startup. It doesn't limit who can reach the server, which listens on every network interface. See [Supported Hosting](./security.md#supported-hosting).
 
-When `HOST` is set, a new container generates a fresh self-signed certificate, which invalidates any trust you granted to the previous one. See [Keeping the certificate across container replacements](./security.md#keeping-the-certificate-across-container-replacements).
+In Docker with HTTPS on, `HOST` decides where the certificate comes from. When it is set, a new container generates a fresh self-signed certificate for that hostname, which invalidates any trust you granted to the previous one. When it is unset, the container reuses the certificate files already in `cert-info` and stops if any are missing. See [HTTPS Connections](./security.md#https-connections) and [Keeping the certificate across container replacements](./security.md#keeping-the-certificate-across-container-replacements).
 
 Example: `localhost`
 
-- Required when using HTTPS connections, unless you provide existing certificates
-- Default: `localhost` in code. Unset in Docker, where HTTPS won't start without it unless you provide certificates.
+- Required in Docker with HTTPS on, unless `cert-info` already holds the certificate files, such as your own certificates or ones kept in a volume
+- Default: none. When unset, the URL the server prints at startup uses `localhost`.
 - Type: `string`
 
 ### `PROXY_SERVER_HTTPS_PORT`
