@@ -2,7 +2,7 @@
 
 Issues and PRDs for this repo live as GitHub issues. Use the `gh` CLI for all operations. Infer the repo from `git remote -v` — `gh` does this automatically when run inside a clone.
 
-- Never delete an issue or PR, or change its status, unless explicitly requested
+- Never delete an issue or PR, or change its status, unless explicitly requested. One exception: a session that starts implementing an issue may assign it to `@me` and set its project Status to In progress, as in [Starting work on an issue](#starting-work-on-an-issue).
 - Never mention CVEs, security vulnerabilities, or advisories in issues or PRs. Describe the change as a dependency update (e.g. "Update fast-xml-parser to latest version", not "Fix CVE-2026-25896").
 
 ## Issue commands
@@ -13,6 +13,7 @@ Issues and PRDs for this repo live as GitHub issues. Use the `gh` CLI for all op
 - **Label**: `gh issue edit <number> --add-label "..."` / `--remove-label "..."`
 - **Close**: `gh issue close <number> --comment "..."`
 - **Create**: see [Creating issues](#creating-issues) — a real issue needs `--type`, often `--parent`, and sometimes dependency flags
+- **Start work**: see [Starting work on an issue](#starting-work-on-an-issue) — assign it and set its project Status
 
 When a skill says "publish to the issue tracker", create a GitHub issue. When it says "fetch the relevant ticket", run `gh issue view <number> --comments`.
 
@@ -36,6 +37,17 @@ When a skill says "publish to the issue tracker", create a GitHub issue. When it
 - Audience labels (internal vs. community) and their footers: see `docs/agents/issue-audience.md`
 
 To change these on an existing issue, use `gh issue edit <number>` — note the flag names differ from create: `--parent <n>` / `--remove-parent`, `--add-blocked-by <n>` / `--remove-blocked-by <n>`, `--add-blocking <n>` / `--remove-blocking <n>`, and `--add-sub-issue <n>` / `--remove-sub-issue <n>`.
+
+## Starting work on an issue
+
+When a session starts implementing an issue, assign it to `@me` and set its Status to `In progress` on the work board: the "Graph Explorer Development" project, owner `aws`, number `212`. The "Graph Explorer Roadmap" project is not the work board; never use it.
+
+1. Assign it: `gh issue edit <number> --add-assignee @me`
+2. Get its item id: `gh project item-add 212 --owner aws --url "$(gh issue view <number> --json url --jq .url)" --format json --jq .id`. This returns the existing item when the issue is already on the board.
+3. Look up the ids at run time, never hardcode them: the project's with `gh project view 212 --owner aws --format json --jq .id`, and the Status field's and its `In progress` option's with `gh project field-list 212 --owner aws --format json`.
+4. Set it: `gh project item-edit --id <item-id> --project-id <project-id> --field-id <field-id> --single-select-option-id <option-id>`
+
+The Status options are `Backlog`, `In progress`, `In review`, and `Done`. Match `In progress` exactly, with a lowercase "p". When `gh` lacks the `project` scope, skip steps 2 to 4 and tell the user to run `gh auth refresh -s project`.
 
 ## Planning vocabulary
 
