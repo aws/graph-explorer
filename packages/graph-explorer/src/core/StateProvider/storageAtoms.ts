@@ -21,6 +21,7 @@ import {
 import { runUserLayoutMigration } from "./migrateUserLayout";
 import { runUserStylingMigration } from "./migrateUserStyling";
 import { loadPersistedAtoms } from "./persistedAtomRegistry";
+import { PersistedStateLoadError } from "./PersistedStateLoadError";
 import {
   defaultSchemaViewLayout,
   schemaViewLayoutCodec,
@@ -46,11 +47,16 @@ import { transformVertexStyles } from "./vertexStylesTransform";
  *
  * Migrations run first so the atoms read the migrated data. Each migration
  * owns its own failure reporting (surfacing through the persistence-status
- * store), so they never throw.
+ * store), so they never throw. A storage failure rejects with
+ * `PersistedStateLoadError`.
  */
 export async function loadPersistedState(): Promise<void> {
   await Promise.all([runUserStylingMigration(), runUserLayoutMigration()]);
-  await loadPersistedAtoms();
+  try {
+    await loadPersistedAtoms();
+  } catch (error) {
+    throw new PersistedStateLoadError(error);
+  }
 }
 
 export const activeConnectionIdAtom = createActiveConnectionIdAtom();

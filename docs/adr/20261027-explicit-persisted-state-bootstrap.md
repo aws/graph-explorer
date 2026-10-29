@@ -33,4 +33,4 @@ Define the atoms synchronously and load them in one explicit step before the fir
 - A new persisted atom is defined in `storageAtoms.ts` with one of these creators, so it always registers before `loadPersistedState()` runs. An atom in a module imported after the load throws on first read.
 - A read before the load fails loudly instead of returning a default.
 - The entry module (`index.tsx`) is the only top-level await, because nothing imports it.
-- A failed load (IndexedDB unavailable or blocked) renders `AppErrorPage` instead of the app, rather than leaving the page blank.
+- A failed load (IndexedDB unavailable or blocked) renders an error page about the browser's saved data instead of the app, rather than leaving the page blank.

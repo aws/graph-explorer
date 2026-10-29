@@ -56,7 +56,7 @@ describe("startApp", () => {
     expect(renderedLimits).not.toContain(10);
   });
 
-  test("shows the app error page when persisted state fails to load", async () => {
+  test("shows the saved-data error page when persisted state fails to load", async () => {
     vi.spyOn(localforage, "getItem").mockRejectedValue(
       new DOMException("The database connection was lost.", "UnknownError"),
     );
@@ -66,8 +66,16 @@ describe("startApp", () => {
 
     const page = within(container);
     expect(
-      page.getByRole("heading", { name: "Something went wrong" }),
+      page.getByRole("heading", { name: "Unable to load saved data" }),
     ).toBeVisible();
+    expect(
+      page.getByText(
+        /private browsing or browser settings that block site storage/i,
+      ),
+    ).toBeVisible();
+    expect(
+      page.queryByRole("heading", { name: "Something went wrong" }),
+    ).toBeNull();
     expect(
       page.getByRole("button", { name: "Reload Graph Explorer" }),
     ).toBeVisible();
