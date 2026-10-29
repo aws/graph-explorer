@@ -1,7 +1,11 @@
 import type { NextFunction, Request, Response } from "express";
 
 import { HttpError } from "./errors.ts";
-import { type AppLogger, getRequestLoggerPrefix } from "./logging.ts";
+import {
+  type AppLogger,
+  escapeControlCharacters,
+  getRequestLoggerPrefix,
+} from "./logging.ts";
 
 /**
  * Global error handler
@@ -71,13 +75,15 @@ export function errorHandlingMiddleware() {
     // Log the headers of the request
     logger.error(
       `[${getRequestLoggerPrefix(request)}] Request headers: %s`,
-      Object.entries(request.headers)
-        .filter(([key]) => HEADER_WHITE_LIST.includes(key.toLowerCase()))
-        .map(([key, value]) => {
-          const text = Array.isArray(value) ? value.join(", ") : value;
-          return `\n\t- ${key}: ${redactUrlCredentials(text)}`;
-        })
-        .join(""),
+      escapeControlCharacters(
+        Object.entries(request.headers)
+          .filter(([key]) => HEADER_WHITE_LIST.includes(key.toLowerCase()))
+          .map(([key, value]) => {
+            const text = Array.isArray(value) ? value.join(", ") : value;
+            return `\n\t- ${key}: ${redactUrlCredentials(text)}`;
+          })
+          .join(""),
+      ),
     );
 
     handleError(error, logger);

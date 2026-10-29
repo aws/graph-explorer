@@ -186,6 +186,12 @@ describe("errorHandlingMiddleware", () => {
       expect(line).toContain("user-agent: supertest/7.2.2");
     });
 
+    it("escapes DEL and C1 control characters in a header value", () => {
+      const line = logHeaderLine({ "user-agent": "a\u007fb\u0085c" });
+
+      expect(line).toContain("user-agent: a\\u007fb\\u0085c");
+    });
+
     it("omits headers outside the allowed list", () => {
       const line = logHeaderLine({
         "graph-db-connection-url": "https://my-db.example.com:8182",

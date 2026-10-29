@@ -671,6 +671,31 @@ describe("createApp", () => {
     });
   });
 
+  // ── Request header logging ────────────────────────────────────────
+
+  describe("request header logging", () => {
+    it("escapes a C1 control character in a logged header value", async () => {
+      const app = createTestApp();
+      const errorSpy = vi.spyOn(app.locals.logger, "error");
+
+      const response = await request(app)
+        .post("/sparql")
+        .set("user-agent", "before\u0085after")
+        .send({});
+
+      expect(response.status).toBe(400);
+      const headerCall = errorSpy.mock.calls.find(
+        ([first]) =>
+          typeof first === "string" && first.includes("Request headers"),
+      );
+      expect(headerCall).toBeDefined();
+      const line = String(headerCall![1]);
+      expect(line).toContain("user-agent: before");
+      expect(line).toContain("\\u0085");
+      expect(line).not.toMatch(/[\u007f-\u009f]/);
+    });
+  });
+
   // ── Query validation (400 cases) ──────────────────────────────────
 
   describe.each(queryRoutes)("POST /%s input validation", route => {
