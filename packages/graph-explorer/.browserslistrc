@@ -1,8 +1,7 @@
-# Baseline Widely available on 2026-10-04, per baseline-browser-mapping, with
-# Chrome and Edge at 124 for AbortSignal.timeout (Widely available 2026-10-18).
+# Baseline Widely available on 2026-10-27, per baseline-browser-mapping.
 # vite.config.ts derives build.target from this list.
 chrome >= 124
 edge >= 124
-firefox >= 124
+firefox >= 125
 safari >= 17.4
 ios_saf >= 17.4

@@ -37,7 +37,7 @@ describe("browserslistBuildTarget", () => {
     expect(browserslistBuildTarget()).toStrictEqual([
       "chrome124",
       "edge124",
-      "firefox124",
+      "firefox125",
       "ios17.4",
       "safari17.4",
     ]);
