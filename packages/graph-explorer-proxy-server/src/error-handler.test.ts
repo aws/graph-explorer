@@ -2,9 +2,14 @@ import type { Response } from "express";
 
 import { describe, expect, it, vi } from "vite-plus/test";
 
-import { errorHandlingMiddleware, extractErrorInfo } from "./error-handler.ts";
+import {
+  errorHandlingMiddleware,
+  extractErrorInfo,
+  handleError,
+} from "./error-handler.ts";
 import { HttpError } from "./errors.ts";
-import { createMockRequest } from "./testing.ts";
+import { createLogger } from "./logging.ts";
+import { createMockRequest, createTestEnvironment } from "./testing.ts";
 
 function createMockResponse() {
   return {
@@ -12,6 +17,28 @@ function createMockResponse() {
     send: vi.fn(),
   } as unknown as Response;
 }
+
+describe("handleError", () => {
+  it.each([
+    ["a plain Error", new Error("Something broke")],
+    ["an HttpError", new HttpError(400, "Bad request")],
+    [
+      "an error shaped like a body-parser error",
+      Object.assign(new Error("Unexpected token"), {
+        type: "entity.parse.failed",
+        status: 400,
+        body: "payload",
+      }),
+    ],
+  ])("logs %s as the error itself", (_, error) => {
+    const logger = createLogger(createTestEnvironment());
+    const errorSpy = vi.spyOn(logger, "error");
+
+    handleError(error, logger);
+
+    expect(errorSpy).toHaveBeenCalledExactlyOnceWith(error);
+  });
+});
 
 describe("extractErrorInfo", () => {
   it("carries status, message, and details from an HttpError", () => {

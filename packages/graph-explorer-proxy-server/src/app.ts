@@ -23,6 +23,7 @@ import {
   requestLoggingMiddleware,
 } from "./logging.ts";
 import { assertPermittedDbOrigin } from "./permitted-db-origins.ts";
+import { rejectUnreadableBody } from "./request-body.ts";
 
 const DEFAULT_SERVICE_TYPE = "neptune-db";
 
@@ -174,8 +175,12 @@ export function createApp({
       }),
     );
   }
-  app.use(bodyParser.json({ limit: "50mb" }));
-  app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
+  app.use(rejectUnreadableBody(bodyParser.json({ limit: "50mb" })));
+  app.use(
+    rejectUnreadableBody(
+      bodyParser.urlencoded({ extended: true, limit: "50mb" }),
+    ),
+  );
   app.use(
     "/defaultConnection",
     express.static(path.join(configPath, "defaultConnection.json")),
