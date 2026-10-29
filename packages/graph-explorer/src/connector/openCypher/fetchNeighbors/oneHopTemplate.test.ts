@@ -3,7 +3,7 @@ import { describe, expect, it } from "vite-plus/test";
 import type { AttributeFilter } from "@/connector/useGEFetchTypes";
 
 import { createVertexId } from "@/core";
-import { query } from "@/utils";
+import { query, SEARCH_TOKENS } from "@/utils";
 
 import oneHopTemplate from "./oneHopTemplate";
 
@@ -172,6 +172,12 @@ describe("OpenCypher > oneHopTemplate", () => {
       expect(templateFor([{ name: "country", value: "ES" }])).toContain(
         'tgt.`country` CONTAINS "ES"',
       );
+    });
+
+    it("matches a neighbor ID exactly", () => {
+      expect(
+        templateFor([{ name: SEARCH_TOKENS.NODE_ID, value: 'airport"1' }]),
+      ).toContain('ID(tgt) = "airport\\"1"');
     });
 
     it("requires every filter to match", () => {

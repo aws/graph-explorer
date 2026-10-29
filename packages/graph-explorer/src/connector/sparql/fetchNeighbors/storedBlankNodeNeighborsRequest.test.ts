@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import { createVertexId, type Vertex } from "@/core";
+import { SEARCH_TOKENS } from "@/utils";
 import { createTestableVertex } from "@/utils/testing";
 
 import type { BlankNodeItem, BlankNodesMap } from "../types";
@@ -59,6 +60,23 @@ describe("SPARQL > storedBlankNodeNeighborsRequest", () => {
         resourceURI: blankNodeId,
         subjectClasses: ["airport"],
         attributeFilters: [{ name: "city", value: "Seat" }],
+      },
+    );
+
+    expect(response.vertices).toStrictEqual([seattle]);
+  });
+
+  it("should match a stored neighbor ID exactly", async () => {
+    const seattle = airportWith({ city: "Seattle" });
+    const portland = airportWith({ city: "Portland" });
+
+    const response = await storedBlankNodeNeighborsRequest(
+      blankNodesWithNeighbors([seattle, portland]),
+      {
+        resourceURI: blankNodeId,
+        attributeFilters: [
+          { name: SEARCH_TOKENS.NODE_ID, value: String(seattle.id) },
+        ],
       },
     );
 

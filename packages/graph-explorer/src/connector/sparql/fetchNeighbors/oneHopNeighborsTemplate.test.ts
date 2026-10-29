@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import { createVertexId } from "@/core";
-import { LABELS, query } from "@/utils";
+import { LABELS, query, SEARCH_TOKENS } from "@/utils";
 import {
   normalize as normalizeCollapsed,
   normalizeWithNewlines as normalize,
@@ -339,6 +339,22 @@ describe("oneHopNeighborsTemplate", () => {
           FILTER(isLiteral(?filterValue) && CONTAINS(LCASE(STR(?filterValue)), LCASE("Arsenal")))
         }
       `),
+    );
+  });
+
+  it("should match a neighbor ID exactly", () => {
+    const template = oneHopNeighborsTemplate({
+      resourceURI: createVertexId("http://www.example.com/soccer/resource#EPL"),
+      attributeFilters: [
+        {
+          name: SEARCH_TOKENS.NODE_ID,
+          value: "http://www.example.com/soccer/resource#Arsenal",
+        },
+      ],
+    });
+
+    expect(template).toContain(
+      "FILTER(?neighbor = <http://www.example.com/soccer/resource#Arsenal>)",
     );
   });
 

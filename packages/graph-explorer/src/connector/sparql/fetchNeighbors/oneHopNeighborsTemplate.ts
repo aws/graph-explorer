@@ -1,6 +1,6 @@
 import type { AttributeFilter } from "@/connector/useGEFetchTypes";
 
-import { query } from "@/utils";
+import { query, SEARCH_TOKENS } from "@/utils";
 
 import {
   getLimit,
@@ -213,13 +213,18 @@ export function findNeighborsUsingFilters({
  * makes `&&` across filters unsatisfiable and dominates query cost.
  */
 function getFilterTemplate(attributeFilters: AttributeFilter[]) {
-  const createFilterTemplate = (filter: AttributeFilter) =>
-    query`
+  function createFilterTemplate(filter: AttributeFilter) {
+    if (filter.name === SEARCH_TOKENS.NODE_ID) {
+      return `FILTER(?neighbor = ${fragment.iri(filter.value)})`;
+    }
+
+    return query`
       FILTER EXISTS {
         ?neighbor ${fragment.iri(filter.name)} ?filterValue .
         FILTER(isLiteral(?filterValue) && CONTAINS(LCASE(STR(?filterValue)), LCASE(${fragment.string(filter.value)})))
       }
     `;
+  }
 
   return attributeFilters.map(createFilterTemplate).join("\n");
 }
