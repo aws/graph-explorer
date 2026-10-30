@@ -1,46 +1,13 @@
 # Agent Rules
 
+Read `CODING_STANDARDS.md` before writing or reviewing code.
+
 ## Core Rules
 
 - Every commit should have no type errors, lint errors, formatting issues, or failing tests
 - Don't hard-wrap Markdown prose to a fixed column width, let it soft-wrap
-- When possible, create failing tests first then implement the logic to make the tests pass
-- Add or update tests for the code you change, even if nobody asked
 - Write temporary files (scratch notes, intermediate output) to the git-ignored `.scratch/` directory at the repo root, never elsewhere in the tree
-
-## Code Quality Standards
-
-Correct behavior is necessary but not sufficient — structural quality is a hard requirement. Don't accept a messy implementation just because it passes tests.
-
-- Follow YAGNI principles.
-- Prefer deep modules: simple interface, substantial implementation.
-- Prefer single-pass, copy-free processing for collections that can grow large; small fixed lists don't need it.
-- Prefer "code judo": restructurings that delete whole layers, branches, or concepts rather than rearrange them. Don't stop at "a bit cleaner."
-- Don't push a file from under 1000 lines to over without explicit justification — treat the boundary as a decomposition signal and extract instead.
-- Push new conditionals and special cases into a dedicated helper, state machine, or module — don't tangle them into an unrelated flow.
-- Prefer direct, legible code. Flag thin wrappers, identity abstractions, and generic mechanisms that hide simple structure.
-- Avoid unnecessary `any`, `unknown`, casts, or optionality; make invariants explicit at boundaries instead of papering over them with silent fallbacks.
-- Keep feature logic in the feature layer; reuse existing canonical helpers instead of introducing near-duplicates in shared modules.
-- Don't serialize independent work or leave related state half-applied when a more atomic structure is available.
-
-## Comments
-
-- Default to none; justify every one.
-- Capture _rationale_, never _what_ or _how_ the code already says.
-- Prefer descriptive names instead.
-- Doc comments (JSDoc) state _what_ a symbol does — the exception.
-- Be extremely concise.
-
-## TypeScript
-
-- Prefer named function syntax over anonymous arrow functions for module-level declarations (`function handleClick() {}`, not `const handleClick = () => {}`). Arrow functions inside a function body are fine.
-- Use an explicit type alias instead of `ReturnType<typeof ...>` when one exists (e.g. `AppStore`, not `ReturnType<typeof getAppStore>`)
-- Prefer a branded type over a raw `string`/`number` whenever the value is used for a lookup or passed to a function expecting a value that represents a specific concept — an ID, a node/edge label, a type name, etc. Construct them with their creator function (e.g. `createVertexId()`); never cast a bare string. This makes "which kind of string is this" a compile-time guarantee.
-- Prefer Zod at boundaries to enforce contract and strong typing
 - Don't change the VS Code setting `typescript.autoClosingTags`
-- Prefer throwing upward over local error laundering
-- Prefer named domain types over `Record<string, unknown>`
-- Do not encode uncertainty as adapters, defaults, optionals, spreads, or catch blocks. Resolve it into the owned contract.
 
 ## Git
 
@@ -69,9 +36,9 @@ Read the relevant doc before working in that area:
 Every code review, including `/code-review`, uses these standards sources:
 
 - `REVIEW.md` — severity, what not to report, and the verification bar. Wins where it conflicts with the others.
-- This file, plus the `docs/agents/*.md` doc for each area the diff touches.
+- `CODING_STANDARDS.md`, plus the `docs/agents/*.md` doc for each area the diff touches.
 
-Pass `REVIEW.md` by path to every reviewer sub-agent, not only the standards one. Sub-agents don't always load this file.
+Pass `REVIEW.md` and `CODING_STANDARDS.md` by path to every reviewer sub-agent, not only the standards one. Sub-agents don't always load them.
 
 <!-- `vp config` rewrites the Vite+ block below from node_modules/vite-plus on install, so edits inside it are lost. The ignore markers stop the formatter from reflowing it, which would fight that rewrite. -->
 <!-- prettier-ignore-start -->
