@@ -93,7 +93,7 @@ How Graph Explorer behaves on the wire, for anyone adding an access control laye
 
 ## HTTPS Connections
 
-Graph Explorer serves over HTTPS by default using a self-signed certificate. The `HOST` environment variable controls the hostname used in the certificate's Subject Alternative Name (SAN). When `HOST` is set, the entrypoint script generates a fresh self-signed certificate on container startup. When `HOST` is not set, the server expects to find existing certificate files.
+Graph Explorer serves over HTTPS by default using a self-signed certificate. The `HOST` environment variable controls the hostname used in the certificate's Subject Alternative Name (SAN). When `HOST` is set, the entrypoint script generates a fresh self-signed certificate when a new container starts. When `HOST` is not set, the entrypoint reuses the certificate files already in `cert-info` and stops the container if any are missing. `HOST` has no default for certificates. The server falls back to `localhost` only for the URL it prints at startup.
 
 ### Certificate files
 
