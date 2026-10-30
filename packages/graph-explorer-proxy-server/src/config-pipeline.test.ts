@@ -284,6 +284,34 @@ const deployments: Deployment[] = [
     },
   },
   {
+    name: "PROXY_SERVER_PORT=8081 already in .env and HTTPS off serves HTTP on 8081",
+    existingEnvFile: { PROXY_SERVER_PORT: "8081" },
+    dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
+    expected: {
+      envFile: { PROXY_SERVER_PORT: "8081", ...standardHttp.envFile },
+      certificatesGenerated: false,
+      startup: { ...http, port: 8081 },
+    },
+  },
+  {
+    // The old variable loses even though -e beats .env for the same name.
+    name: "PROXY_SERVER_PORT=8081 in .env beats -e PROXY_SERVER_HTTP_PORT=8080 and warns",
+    existingEnvFile: { PROXY_SERVER_PORT: "8081" },
+    dockerEnv: {
+      PROXY_SERVER_HTTPS_CONNECTION: "false",
+      PROXY_SERVER_HTTP_PORT: "8080",
+    },
+    expected: {
+      envFile: { PROXY_SERVER_PORT: "8081", ...standardHttp.envFile },
+      certificatesGenerated: false,
+      startup: {
+        ...http,
+        port: 8081,
+        portWarnings: [ignored("PROXY_SERVER_HTTP_PORT", 8080, 8081)],
+      },
+    },
+  },
+  {
     // Earlier images set LOG_STYLE in their ENV, which beat a mounted .env.
     name: "LOG_STYLE=cloudwatch already in .env logs in the cloudwatch style",
     existingEnvFile: { LOG_STYLE: "cloudwatch" },

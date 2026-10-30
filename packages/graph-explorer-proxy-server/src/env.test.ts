@@ -194,7 +194,8 @@ describe("parseEnvironmentValues", () => {
       expect(process.exit).toHaveBeenCalledWith(1);
     });
 
-    it.for(["", "abc", "0", "65536", "80.5", "-1"])(
+    // "tcp://…" is the value a Kubernetes Service named proxy-server injects.
+    it.for(["", "abc", "0", "65536", "80.5", "-1", "tcp://10.43.0.5:80"])(
       "exits process on PROXY_SERVER_PORT=%j",
       value => {
         parseEnvironmentValues({ PROXY_SERVER_PORT: value });
