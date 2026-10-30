@@ -20,8 +20,6 @@ export function createTestEnvironment(
     HOST: "localhost",
     NEPTUNE_NOTEBOOK: false,
     PROXY_SERVER_HTTPS_CONNECTION: false,
-    PROXY_SERVER_HTTPS_PORT: 443,
-    PROXY_SERVER_HTTP_PORT: 80,
     LOG_LEVEL: "silent",
     LOG_STYLE: "default",
     ...overrides,

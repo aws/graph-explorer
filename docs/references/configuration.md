@@ -20,9 +20,27 @@ Example: `localhost`
 - Default: `localhost` in code. Unset in Docker, where HTTPS won't start without it unless you provide certificates.
 - Type: `string`
 
+### `PROXY_SERVER_PORT`
+
+The port the proxy server listens on. The server runs one listener, HTTPS or HTTP depending on [`PROXY_SERVER_HTTPS_CONNECTION`](#proxy_server_https_connection), and this port applies to whichever one runs.
+
+Example: `9250`
+
+- Optional
+- Default: `443` with HTTPS, `80` with HTTP
+- Type: `number` from `1` to `65535`
+
+> [!NOTE]
+>
+> In Kubernetes, a Service named `proxy-server` in the pod's namespace makes the kubelet set `PROXY_SERVER_PORT=tcp://<ip>:<port>` in the pod, which fails startup. To avoid it, set `PROXY_SERVER_PORT` in the container's `env`, or set `enableServiceLinks: false` in the pod spec.
+
 ### `PROXY_SERVER_HTTPS_PORT`
 
-The port to use for the HTTPS server.
+> [!NOTE]
+>
+> Deprecated. Use [`PROXY_SERVER_PORT`](#proxy_server_port) instead. This variable will be removed in a future release.
+
+The port to use for the HTTPS server. Ignored when `PROXY_SERVER_PORT` is set. The server logs a warning at startup whenever this variable is set.
 
 - Optional
 - Default `443`
@@ -30,7 +48,11 @@ The port to use for the HTTPS server.
 
 ### `PROXY_SERVER_HTTP_PORT`
 
-The port to use for the HTTP server.
+> [!NOTE]
+>
+> Deprecated. Use [`PROXY_SERVER_PORT`](#proxy_server_port) instead. This variable will be removed in a future release.
+
+The port to use for the HTTP server. Ignored when `PROXY_SERVER_PORT` is set. The server logs a warning at startup whenever this variable is set.
 
 - Optional
 - Default `80`

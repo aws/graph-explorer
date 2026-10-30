@@ -8,6 +8,14 @@ const BooleanStringSchema = z
   })
   .transform(s => s.toLowerCase() === "true");
 
+const portMessage = "Must be a port number from 1 to 65535";
+
+const PortSchema = z.coerce
+  .number({ message: portMessage })
+  .int({ message: portMessage })
+  .min(1, { message: portMessage })
+  .max(65535, { message: portMessage });
+
 const EnvironmentFieldsSchema = z.object({
   HOST: z.string().default("localhost"),
   // Mirrors process-environment.sh, which applies the notebook preset only on
@@ -19,8 +27,12 @@ const EnvironmentFieldsSchema = z.object({
     .optional()
     .transform(value => value === "true"),
   PROXY_SERVER_HTTPS_CONNECTION: BooleanStringSchema.default(false),
-  PROXY_SERVER_HTTPS_PORT: z.coerce.number().default(443),
-  PROXY_SERVER_HTTP_PORT: z.coerce.number().default(80),
+  PROXY_SERVER_PORT: PortSchema.optional(),
+  // Deprecated in favor of PROXY_SERVER_PORT. Their defaults depend on
+  // HTTPS, so resolveServerConfig applies them, which lets it tell a set
+  // value from a default one.
+  PROXY_SERVER_HTTPS_PORT: z.coerce.number().optional(),
+  PROXY_SERVER_HTTP_PORT: z.coerce.number().optional(),
   LOG_LEVEL: z
     .enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
     .default("info"),

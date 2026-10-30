@@ -7,7 +7,11 @@ import { parseEnvironmentValues } from "./env.ts";
 import { handleError } from "./error-handler.ts";
 import { createLogger } from "./logging.ts";
 import { clientRoot, isDirectory } from "./paths.ts";
-import { resolveServerConfig, ServerConfigError } from "./server-config.ts";
+import {
+  logStartupWarnings,
+  resolveServerConfig,
+  ServerConfigError,
+} from "./server-config.ts";
 import {
   attachGracefulShutdown,
   attachServerErrorHandler,
@@ -42,6 +46,8 @@ try {
   }
   throw error;
 }
+
+logStartupWarnings(serverConfig.startupWarnings, logger);
 
 const {
   port,

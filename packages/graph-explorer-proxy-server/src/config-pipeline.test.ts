@@ -37,9 +37,16 @@ const conflictMessage =
 
 type LogStyle = EnvironmentValues["LOG_STYLE"];
 
+type ServerStart = {
+  useHttps: boolean;
+  port: number;
+  logStyle: LogStyle;
+  startupWarnings: string[];
+};
+
 /** What the server does at startup. */
 type StartupOutcome =
-  | { useHttps: boolean; port: number; logStyle: LogStyle }
+  | ServerStart
   /** The environment failed to parse. Holds the text logged to stderr. */
   | { parseError: string }
   | { serverConfigError: string };
@@ -124,8 +131,26 @@ function readFolder(folder: string) {
   );
 }
 
-const https = { useHttps: true, port: 443, logStyle: "default" } as const;
-const http = { useHttps: false, port: 80, logStyle: "default" } as const;
+const https: ServerStart = {
+  useHttps: true,
+  port: 443,
+  logStyle: "default",
+  startupWarnings: [],
+};
+const http: ServerStart = {
+  useHttps: false,
+  port: 80,
+  logStyle: "default",
+  startupWarnings: [],
+};
+
+function deprecated(name: string) {
+  return `${name} is deprecated. Use PROXY_SERVER_PORT instead.`;
+}
+
+function ignored(name: string, value: number, port: number) {
+  return `${name} (${value}) is ignored because PROXY_SERVER_PORT (${port}) is set. ${name} is deprecated, remove it.`;
+}
 
 const standardTls = {
   envFile: {
@@ -150,18 +175,23 @@ const notebookPreset = {
     NEPTUNE_NOTEBOOK: "true",
     PROXY_SERVER_HTTPS_CONNECTION: "false",
     GRAPH_EXP_HTTPS_CONNECTION: "false",
-    PROXY_SERVER_HTTP_PORT: "9250",
+    PROXY_SERVER_PORT: "9250",
     LOG_STYLE: "cloudwatch",
   },
   certificatesGenerated: false,
-  startup: { useHttps: false, port: 9250, logStyle: "cloudwatch" } as const,
+  startup: {
+    useHttps: false,
+    port: 9250,
+    logStyle: "cloudwatch",
+    startupWarnings: [],
+  } satisfies ServerStart,
 };
 const notebookConflict = {
   envFile: {
     NEPTUNE_NOTEBOOK: "true",
     PROXY_SERVER_HTTPS_CONNECTION: "true",
     GRAPH_EXP_HTTPS_CONNECTION: "false",
-    PROXY_SERVER_HTTP_PORT: "9250",
+    PROXY_SERVER_PORT: "9250",
     LOG_STYLE: "cloudwatch",
   },
   certificatesGenerated: false,
@@ -190,7 +220,54 @@ const deployments: Deployment[] = [
       PROXY_SERVER_HTTPS_CONNECTION: "false",
       PROXY_SERVER_HTTP_PORT: "8080",
     },
+    expected: {
+      ...standardHttp,
+      startup: {
+        ...http,
+        port: 8080,
+        startupWarnings: [deprecated("PROXY_SERVER_HTTP_PORT")],
+      },
+    },
+  },
+  {
+    name: "-e PROXY_SERVER_HTTPS_PORT=8443 serves TLS on 8443 and warns",
+    dockerEnv: { PROXY_SERVER_HTTPS_PORT: "8443" },
+    expected: {
+      ...standardTls,
+      startup: {
+        ...https,
+        port: 8443,
+        startupWarnings: [deprecated("PROXY_SERVER_HTTPS_PORT")],
+      },
+    },
+  },
+  {
+    name: "-e PROXY_SERVER_PORT=8080 and HTTPS off serves HTTP on 8080",
+    dockerEnv: {
+      PROXY_SERVER_HTTPS_CONNECTION: "false",
+      PROXY_SERVER_PORT: "8080",
+    },
     expected: { ...standardHttp, startup: { ...http, port: 8080 } },
+  },
+  {
+    name: "-e PROXY_SERVER_PORT=8443 serves TLS on 8443",
+    dockerEnv: { PROXY_SERVER_PORT: "8443" },
+    expected: { ...standardTls, startup: { ...https, port: 8443 } },
+  },
+  {
+    name: "-e PROXY_SERVER_PORT=9250 beats -e PROXY_SERVER_HTTPS_PORT=8443 and warns",
+    dockerEnv: {
+      PROXY_SERVER_PORT: "9250",
+      PROXY_SERVER_HTTPS_PORT: "8443",
+    },
+    expected: {
+      ...standardTls,
+      startup: {
+        ...https,
+        port: 9250,
+        startupWarnings: [ignored("PROXY_SERVER_HTTPS_PORT", 8443, 9250)],
+      },
+    },
   },
   {
     name: "PROXY_SERVER_HTTP_PORT=8080 already in .env and HTTPS off serves HTTP on 8080",
@@ -199,7 +276,39 @@ const deployments: Deployment[] = [
     expected: {
       envFile: { PROXY_SERVER_HTTP_PORT: "8080", ...standardHttp.envFile },
       certificatesGenerated: false,
-      startup: { ...http, port: 8080 },
+      startup: {
+        ...http,
+        port: 8080,
+        startupWarnings: [deprecated("PROXY_SERVER_HTTP_PORT")],
+      },
+    },
+  },
+  {
+    name: "PROXY_SERVER_PORT=8081 already in .env and HTTPS off serves HTTP on 8081",
+    existingEnvFile: { PROXY_SERVER_PORT: "8081" },
+    dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
+    expected: {
+      envFile: { PROXY_SERVER_PORT: "8081", ...standardHttp.envFile },
+      certificatesGenerated: false,
+      startup: { ...http, port: 8081 },
+    },
+  },
+  {
+    // The old variable loses even though -e beats .env for the same name.
+    name: "PROXY_SERVER_PORT=8081 in .env beats -e PROXY_SERVER_HTTP_PORT=8080 and warns",
+    existingEnvFile: { PROXY_SERVER_PORT: "8081" },
+    dockerEnv: {
+      PROXY_SERVER_HTTPS_CONNECTION: "false",
+      PROXY_SERVER_HTTP_PORT: "8080",
+    },
+    expected: {
+      envFile: { PROXY_SERVER_PORT: "8081", ...standardHttp.envFile },
+      certificatesGenerated: false,
+      startup: {
+        ...http,
+        port: 8081,
+        startupWarnings: [ignored("PROXY_SERVER_HTTP_PORT", 8080, 8081)],
+      },
     },
   },
   {
@@ -213,12 +322,19 @@ const deployments: Deployment[] = [
     },
   },
   {
-    // The preset's appended line comes after the mounted one, and the last
-    // line in .env wins.
+    // The shell can't see the mounted line, so the preset still writes its
+    // port, and PROXY_SERVER_PORT wins over the old variable.
     name: "notebook preset with PROXY_SERVER_HTTP_PORT=8080 already in .env serves HTTP on 9250",
     existingEnvFile: { PROXY_SERVER_HTTP_PORT: "8080" },
     dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
-    expected: notebookPreset,
+    expected: {
+      ...notebookPreset,
+      envFile: { PROXY_SERVER_HTTP_PORT: "8080", ...notebookPreset.envFile },
+      startup: {
+        ...notebookPreset.startup,
+        startupWarnings: [ignored("PROXY_SERVER_HTTP_PORT", 8080, 9250)],
+      },
+    },
   },
   {
     name: "-e PROXY_SERVER_HTTPS_CONNECTION=true serves TLS",
@@ -280,7 +396,49 @@ const deployments: Deployment[] = [
         GRAPH_EXP_HTTPS_CONNECTION: "false",
         LOG_STYLE: "cloudwatch",
       },
+      startup: {
+        ...notebookPreset.startup,
+        port: 8080,
+        startupWarnings: [deprecated("PROXY_SERVER_HTTP_PORT")],
+      },
+    },
+  },
+  {
+    name: "-e NEPTUNE_NOTEBOOK=true and -e PROXY_SERVER_PORT=8080 serves HTTP on 8080",
+    dockerEnv: { NEPTUNE_NOTEBOOK: "true", PROXY_SERVER_PORT: "8080" },
+    expected: {
+      ...notebookPreset,
+      envFile: {
+        NEPTUNE_NOTEBOOK: "true",
+        PROXY_SERVER_HTTPS_CONNECTION: "false",
+        GRAPH_EXP_HTTPS_CONNECTION: "false",
+        LOG_STYLE: "cloudwatch",
+      },
       startup: { ...notebookPreset.startup, port: 8080 },
+    },
+  },
+  {
+    // Notebook scripts set both port variables while older images ignore
+    // PROXY_SERVER_PORT.
+    name: "-e NEPTUNE_NOTEBOOK=true with both PROXY_SERVER_PORT=9250 and PROXY_SERVER_HTTP_PORT=9250 serves HTTP on 9250 and warns",
+    dockerEnv: {
+      NEPTUNE_NOTEBOOK: "true",
+      PROXY_SERVER_HTTPS_CONNECTION: "false",
+      PROXY_SERVER_PORT: "9250",
+      PROXY_SERVER_HTTP_PORT: "9250",
+    },
+    expected: {
+      ...notebookPreset,
+      envFile: {
+        NEPTUNE_NOTEBOOK: "true",
+        PROXY_SERVER_HTTPS_CONNECTION: "false",
+        GRAPH_EXP_HTTPS_CONNECTION: "false",
+        LOG_STYLE: "cloudwatch",
+      },
+      startup: {
+        ...notebookPreset.startup,
+        startupWarnings: [ignored("PROXY_SERVER_HTTP_PORT", 9250, 9250)],
+      },
     },
   },
   {
@@ -575,8 +733,9 @@ function startupOutcome(
 
   try {
     const environment = parseEnvironmentValues(serverEnv);
-    const { useHttps, port } = resolveServerConfig(environment);
-    return { useHttps, port, logStyle: environment.LOG_STYLE };
+    const { useHttps, port, startupWarnings } =
+      resolveServerConfig(environment);
+    return { useHttps, port, logStyle: environment.LOG_STYLE, startupWarnings };
   } catch (error) {
     if (error === exitSignal) {
       return { parseError: errorSpy.mock.calls.join("\n") };

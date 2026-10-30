@@ -4,17 +4,12 @@ import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { defineConfig, lazyPlugins, loadEnv } from "vite-plus";
 
 import { browserslistBuildTarget } from "./buildTarget.ts";
+import { proxyServerUrl } from "./proxyServerUrl.ts";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
-  // Construct the URL for the express server used by the Vite dev server
-  const expressServerUrl = (() => {
-    const httpPort = env.PROXY_SERVER_HTTP_PORT || 80;
-    const port = httpPort !== 80 ? `:${httpPort}` : "";
-    const baseUrl = `http://localhost${port}`;
-    return baseUrl;
-  })();
+  const expressServerUrl = proxyServerUrl(env);
 
   return {
     server: {

@@ -15,7 +15,7 @@ This guide is an example, not a recommended production configuration. Review its
 > Because of this, a `sagemaker-*` tag starts with the standard defaults: HTTPS on port 443, which needs `HOST` set to generate its certificate. To serve HTTP on port 9250 with logs formatted for CloudWatch instead, set these variables:
 >
 > - [`PROXY_SERVER_HTTPS_CONNECTION=false`](../references/configuration.md#proxy_server_https_connection)
-> - [`PROXY_SERVER_HTTP_PORT=9250`](../references/configuration.md#proxy_server_http_port)
+> - [`PROXY_SERVER_PORT=9250`](../references/configuration.md#proxy_server_port)
 > - [`LOG_STYLE=cloudwatch`](../references/configuration.md#log_style)
 >
 > Publish the port with `-p 127.0.0.1:9250:9250` and open `http://localhost:9250/explorer`. Sending the logs to CloudWatch also takes Docker's `awslogs` log driver.

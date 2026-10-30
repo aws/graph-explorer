@@ -94,11 +94,13 @@ describe("process-environment.sh", () => {
       expect(envFile).toContain("GRAPH_EXP_HTTPS_CONNECTION=false");
     });
 
-    it("writes PROXY_SERVER_HTTP_PORT=9250 to .env", () => {
+    it("writes PROXY_SERVER_PORT=9250 to .env", () => {
       const { envFile } = runScript(workDir, {
         NEPTUNE_NOTEBOOK: "true",
       });
-      expect(envFile).toContain("PROXY_SERVER_HTTP_PORT=9250");
+      expect(envFile).toMatch(/^PROXY_SERVER_PORT=9250$/m);
+      // The old variable would make the server warn on every start.
+      expect(envFile).not.toContain("PROXY_SERVER_HTTP_PORT");
     });
 
     it("writes LOG_STYLE=cloudwatch to .env", () => {
@@ -120,9 +122,19 @@ describe("process-environment.sh", () => {
         NEPTUNE_NOTEBOOK: "true",
         PROXY_SERVER_HTTP_PORT: "8080",
       });
-      // The script only ever writes the 9250 default when the var is unset;
-      // it never writes an explicitly-set override back to .env. No
-      // PROXY_SERVER_HTTP_PORT line at all is what proves the override wins.
+      // The script only ever writes the 9250 default when no port is set;
+      // it never writes an explicitly-set override back to .env. No port
+      // line at all is what proves the override wins.
+      expect(envFile).not.toMatch(/^PROXY_SERVER_HTTP_PORT=/m);
+      expect(envFile).not.toMatch(/^PROXY_SERVER_PORT=/m);
+    });
+
+    it("respects explicit PROXY_SERVER_PORT override", () => {
+      const { envFile } = runScript(workDir, {
+        NEPTUNE_NOTEBOOK: "true",
+        PROXY_SERVER_PORT: "8080",
+      });
+      expect(envFile).not.toMatch(/^PROXY_SERVER_PORT=/m);
       expect(envFile).not.toMatch(/^PROXY_SERVER_HTTP_PORT=/m);
     });
 
@@ -223,6 +235,7 @@ describe("process-environment.sh", () => {
         NEPTUNE_NOTEBOOK: "false",
       });
       expect(envFile).not.toContain("PROXY_SERVER_HTTP_PORT");
+      expect(envFile).not.toContain("PROXY_SERVER_PORT");
       expect(envFile).not.toContain("LOG_STYLE");
     });
   });

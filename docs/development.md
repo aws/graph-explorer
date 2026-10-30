@@ -165,7 +165,7 @@ Example `packages/graph-explorer/.env.local`:
 
 ```
 GRAPH_EXP_DEV_PORT=5174
-PROXY_SERVER_HTTP_PORT=8082
+PROXY_SERVER_PORT=8082
 ```
 
 ## Environment variables
