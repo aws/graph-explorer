@@ -18,6 +18,7 @@ export function createTestEnvironment(
 ): EnvironmentValues {
   return {
     HOST: "localhost",
+    PROXY_SERVER_LISTEN_ADDRESS: "127.0.0.1",
     NEPTUNE_NOTEBOOK: false,
     PROXY_SERVER_HTTPS_CONNECTION: false,
     LOG_LEVEL: "silent",

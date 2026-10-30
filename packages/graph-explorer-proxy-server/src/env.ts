@@ -1,3 +1,4 @@
+import { isIP } from "net";
 import { z } from "zod";
 
 /** Coerces a string to a boolean value in a case insensitive way. */
@@ -18,6 +19,13 @@ const PortSchema = z.coerce
 
 const EnvironmentFieldsSchema = z.object({
   HOST: z.string().default("localhost"),
+  PROXY_SERVER_LISTEN_ADDRESS: z
+    .string()
+    .refine(value => isIP(value) !== 0, {
+      message:
+        "Must be an IP address such as 127.0.0.1 or ::. An empty value and a hostname are not accepted. Remove the variable to use the default.",
+    })
+    .default("127.0.0.1"),
   // Mirrors process-environment.sh, which applies the notebook preset only on
   // an exact `= "true"` match. Reading it any looser would refuse a server the
   // shell set up for HTTPS, and a parse error would stop a container that

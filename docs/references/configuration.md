@@ -10,7 +10,7 @@ These variables control server behavior, networking, and security.
 
 ### `HOST`
 
-The public hostname of the server. It feeds the Subject Alternative Name of the self-signed SSL certificate and the URL the server prints at startup. It doesn't limit who can reach the server, which listens on every network interface. See [Supported Hosting](./security.md#supported-hosting).
+The public hostname of the server. It feeds the Subject Alternative Name of the self-signed SSL certificate and the UI URL the server prints at startup. It doesn't choose where the server listens or limit who can reach it. See [`PROXY_SERVER_LISTEN_ADDRESS`](#proxy_server_listen_address) and [Supported Hosting](./security.md#supported-hosting).
 
 In Docker with HTTPS on, `HOST` decides where the certificate comes from. When it is set, a new container generates a fresh self-signed certificate for that hostname, which invalidates any trust you granted to the previous one. When it is unset, the container reuses the certificate files already in `cert-info` and stops if any are missing. See [HTTPS Connections](./security.md#https-connections) and [Keeping the certificate across container replacements](./security.md#keeping-the-certificate-across-container-replacements).
 
@@ -33,6 +33,22 @@ Example: `9250`
 > [!NOTE]
 >
 > In Kubernetes, a Service named `proxy-server` in the pod's namespace makes the kubelet set `PROXY_SERVER_PORT=tcp://<ip>:<port>` in the pod, which fails startup. To avoid it, set `PROXY_SERVER_PORT` in the container's `env`, or set `enableServiceLinks: false` in the pod spec.
+
+### `PROXY_SERVER_LISTEN_ADDRESS`
+
+The IP address the proxy server listens on. `127.0.0.1` accepts connections from this machine only. `::` or `0.0.0.0` listens on every network interface, over both IPv6 and IPv4 where the host supports them. Any other address listens on the one network interface that has it. Hostnames aren't accepted, and an empty value stops the server at startup.
+
+When running from source, set it in `.env.local` in your configuration folder, which is `packages/graph-explorer` unless you set [`CONFIGURATION_FOLDER_PATH`](#configuration_folder_path). `pnpm dev` reaches the proxy server at `localhost`, so use `127.0.0.1`, `0.0.0.0`, or `::` there. Other machines that can reach the server get plain HTTP unless it serves HTTPS. Graph Explorer has no authentication, so limit who can reach the port. See [Access Control](./security.md#access-control) and [Supported Hosting](./security.md#supported-hosting).
+
+> [!WARNING]
+>
+> Leave it unset in a container that publishes ports. The image listens on every interface inside the container, which a published port needs, and setting `127.0.0.1` makes the container unreachable through any port you publish. To keep it private to its host, publish its port on `127.0.0.1` instead, such as `-p 127.0.0.1:443:443`. A container on host networking (`--network host`) has no published port and shares the host's interfaces, so set `127.0.0.1` there to keep it private.
+
+Example: `0.0.0.0`
+
+- Optional
+- Default `127.0.0.1` in code, every interface (`::`) in Docker via the image
+- Type: `string` (an IP address, not a hostname)
 
 ### `PROXY_SERVER_HTTPS_PORT`
 

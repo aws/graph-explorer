@@ -16,7 +16,7 @@ A supported deployment of Graph Explorer has both of these:
 Graph Explorer can serve plain HTTP in two cases:
 
 - **Behind a reverse proxy that terminates TLS**, when only the reverse proxy can reach Graph Explorer. See [Serving HTTP Behind a Reverse Proxy](#serving-http-behind-a-reverse-proxy).
-- **To try Graph Explorer on your own machine**, when no other machine can reach it, such as with its port published on `127.0.0.1`.
+- **To try Graph Explorer on your own machine**, when no other machine can reach it, such as with its port published on `127.0.0.1`, or with `pnpm start`, which listens on `127.0.0.1` by default. `pnpm dev` is different: its Vite dev server listens on every network interface and forwards API requests to the proxy server, so keep its port to your own machine. See [Development](../development.md#run-in-development-mode).
 
 Plain HTTP that other machines can reach isn't supported, because database connection URLs, query text, and query results cross the network unencrypted.
 
@@ -153,12 +153,12 @@ docker run -p 443:443 \
 
 ### Serving HTTP Behind a Reverse Proxy
 
-When a reverse proxy in front of Graph Explorer terminates TLS, Graph Explorer can serve plain HTTP to it. Set `PROXY_SERVER_HTTPS_CONNECTION=false` in your environment or `.env` file. The proxy server then listens on [`PROXY_SERVER_PORT`](./configuration.md#proxy_server_port), port `80` by default, on every network interface.
+When a reverse proxy in front of Graph Explorer terminates TLS, Graph Explorer can serve plain HTTP to it. Set `PROXY_SERVER_HTTPS_CONNECTION=false` in your environment or `.env` file. The proxy server then listens on [`PROXY_SERVER_PORT`](./configuration.md#proxy_server_port), port `80` by default, on the address set by [`PROXY_SERVER_LISTEN_ADDRESS`](./configuration.md#proxy_server_listen_address): every network interface in the Docker image, and `127.0.0.1` when running from source.
 
 Let only the reverse proxy reach that port:
 
-- When the reverse proxy runs on the same host, publish the port on the loopback interface, such as `-p 127.0.0.1:80:80`.
-- When it runs on another host, limit the port to the reverse proxy with network rules you provide.
+- When the reverse proxy runs on the same host, publish the port on the loopback interface, such as `-p 127.0.0.1:80:80`. Running from source, keep the default `127.0.0.1` and point the reverse proxy at `http://127.0.0.1:<port>`.
+- When it runs on another host, limit the port to the reverse proxy with network rules you provide. Running from source, also set `PROXY_SERVER_LISTEN_ADDRESS` to the address of the interface the reverse proxy connects to.
 
 Confirm your rules apply to the port you publish. Container platforms can publish ports in a way host firewalls don't filter.
 
@@ -166,7 +166,7 @@ Confirm your rules apply to the port you publish. Container platforms can publis
 >
 > Over HTTP, database connection URLs, query text, and query results travel in plain text between the reverse proxy and the proxy server. A client that reaches the port directly also skips any authentication the reverse proxy applies.
 
-To try Graph Explorer on your own machine without a reverse proxy, publish the port on `127.0.0.1` so no other machine can reach it. See [Supported Hosting](#supported-hosting).
+To try Graph Explorer on your own machine without a reverse proxy, publish the port on `127.0.0.1` so no other machine can reach it. With `pnpm start`, the default `127.0.0.1` already does this. `pnpm dev` also serves the Vite dev server on every network interface, which forwards to the proxy server. See [Supported Hosting](#supported-hosting).
 
 ### Trusting the self-signed certificate
 

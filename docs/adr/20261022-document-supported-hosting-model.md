@@ -6,7 +6,7 @@
 
 ## Context
 
-Graph Explorer has no authentication. Whoever reaches the proxy server can run any query with the credentials the deployment holds. The proxy server serves HTTPS or plain HTTP, set by `PROXY_SERVER_HTTPS_CONNECTION`, and listens on every network interface.
+Graph Explorer has no authentication. Whoever reaches the proxy server can run any query with the credentials the deployment holds. The proxy server serves HTTPS or plain HTTP, set by `PROXY_SERVER_HTTPS_CONNECTION`, and listened on every network interface when this was decided.
 
 The docs never said which setups were supported. The security reference said you could switch to HTTP by changing the defaults. The troubleshooting guide offered HTTP as a preference, with a `docker run` that published port 80 on every interface. Over plain HTTP, database connection URLs, query text, and query results cross the network unencrypted.
 
@@ -36,5 +36,5 @@ The model lives in the docs. The server's behavior doesn't change. `REVIEW.md` m
 
 - A deployment that serves plain HTTP to other machines keeps working, but is outside the supported model. The release's upgrade note says so.
 - Examples serve HTTPS, or publish plain HTTP on `127.0.0.1`. The HTTPS examples no longer publish port 80, which nothing listens on while HTTPS is on.
-- `pnpm dev` and `pnpm start` still serve HTTP on every interface. The development guide says so and asks the reader to keep them to their own machine.
+- `pnpm dev` and `pnpm start` served HTTP on every interface when this was decided, and the development guide asked the reader to keep them to their own machine. Since [Listen on loopback when run from source](./20261027-listen-on-loopback-from-source.md), the proxy server listens on `127.0.0.1` from source.
 - The deployment guides can point at "Supported Hosting" as the one statement of the model.

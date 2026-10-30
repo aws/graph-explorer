@@ -36,7 +36,7 @@ The notebook environment provides the protections that let the sample lifecycle 
 
 - Jupyter terminates TLS, so browser traffic to the notebook is encrypted.
 - Jupyter requires a signed-in AWS principal, so only authenticated users reach the proxy.
-- The container listens on port `9250` and the Jupyter proxy reaches it over loopback.
+- The container listens on port `9250`, published on `127.0.0.1` only, and the Jupyter proxy reaches it over loopback. Keep that publish. Under `--network host` the container listens on every interface of the notebook instance, so set `PROXY_SERVER_LISTEN_ADDRESS=127.0.0.1` if you switch to host networking.
 
 The Jupyter proxy at `/proxy/9250/explorer/` is the only intended access path. Do not expose port `9250` any other way.
 

@@ -132,6 +132,14 @@ describe("resolveServerConfig", () => {
     });
   });
 
+  it("passes through the listen address from env", () => {
+    const config = resolveServerConfig(
+      createTestEnvironment({ PROXY_SERVER_LISTEN_ADDRESS: "192.0.2.10" }),
+    );
+
+    expect(config.listenAddress).toBe("192.0.2.10");
+  });
+
   /**
    * PROXY_SERVER_HTTP_PORT and PROXY_SERVER_HTTPS_PORT predate
    * PROXY_SERVER_PORT. Deployments, lifecycle scripts, and mounted `.env`

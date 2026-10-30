@@ -7,6 +7,7 @@ describe("parseEnvironmentValues", () => {
     const result = parseEnvironmentValues({});
 
     expect(result.HOST).toBe("localhost");
+    expect(result.PROXY_SERVER_LISTEN_ADDRESS).toBe("127.0.0.1");
     expect(result.NEPTUNE_NOTEBOOK).toBe(false);
     expect(result.PROXY_SERVER_HTTPS_CONNECTION).toBe(false);
     // The port defaults depend on HTTPS, so resolveServerConfig applies them.
@@ -132,6 +133,7 @@ describe("parseEnvironmentValues", () => {
   it("overrides all defaults", () => {
     const result = parseEnvironmentValues({
       HOST: "my-server.example.com",
+      PROXY_SERVER_LISTEN_ADDRESS: "192.0.2.10",
       PROXY_SERVER_HTTPS_CONNECTION: "true",
       PROXY_SERVER_HTTPS_PORT: "8443",
       PROXY_SERVER_HTTP_PORT: "8080",
@@ -140,6 +142,7 @@ describe("parseEnvironmentValues", () => {
     });
 
     expect(result.HOST).toBe("my-server.example.com");
+    expect(result.PROXY_SERVER_LISTEN_ADDRESS).toBe("192.0.2.10");
     expect(result.PROXY_SERVER_HTTPS_CONNECTION).toBe(true);
     expect(result.PROXY_SERVER_HTTPS_PORT).toBe(8443);
     expect(result.PROXY_SERVER_HTTP_PORT).toBe(8080);
@@ -323,6 +326,49 @@ describe("parseEnvironmentValues", () => {
     expect(result.PROXY_SERVER_CORS_ORIGIN).toStrictEqual([
       "https://my-app.example.com",
     ]);
+  });
+
+  describe("PROXY_SERVER_LISTEN_ADDRESS", () => {
+    it.each([
+      "127.0.0.1",
+      "0.0.0.0",
+      "192.0.2.10",
+      "::",
+      "::1",
+      "2001:db8::10",
+    ])("accepts the IP literal %s", address => {
+      expect(
+        parseEnvironmentValues({ PROXY_SERVER_LISTEN_ADDRESS: address })
+          .PROXY_SERVER_LISTEN_ADDRESS,
+      ).toBe(address);
+    });
+  });
+
+  describe("PROXY_SERVER_LISTEN_ADDRESS validation failures", () => {
+    beforeEach(() => {
+      vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
+      vi.spyOn(console, "error").mockImplementation(() => undefined);
+    });
+
+    it.each([
+      "",
+      "localhost",
+      "graph-explorer.example.com",
+      "[::1]",
+      "127.0.0.1:8080",
+    ])("exits naming the variable for %j", value => {
+      parseEnvironmentValues({ PROXY_SERVER_LISTEN_ADDRESS: value });
+
+      expect(process.exit).toHaveBeenCalledWith(1);
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining("→ at PROXY_SERVER_LISTEN_ADDRESS"),
+      );
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining(
+          "Must be an IP address such as 127.0.0.1 or ::. An empty value and a hostname are not accepted. Remove the variable to use the default.",
+        ),
+      );
+    });
   });
 
   describe("PROXY_SERVER_ALLOWED_DB_ORIGINS", () => {
