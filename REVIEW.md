@@ -29,8 +29,9 @@ Reserve Important for the cases below. Everything else is Nit at most. That incl
 
 `docs/references/security.md` defines the threat model: supported deployments, what the deployer owns, and what the proxy server guarantees. Test and judge security findings against it.
 
-- Behavior the doc describes as the deployer's responsibility is by design. Don't report it.
+- Only what the doc explicitly assigns to the deployer is by design: who can reach the deployment, what authenticates in front of it, and what the database's own permissions allow. Don't report those. Anything else the proxy server does is Graph Explorer's to get right, including the settings Graph Explorer's images and sample scripts choose for a managed platform.
 - Each "never", "does not", or "refuses" statement in the doc is a guarantee. A change that breaks one, or widens a documented risk, is Important.
+- A default the doc accepts is an accepted risk, not a guarantee. Raise one as a Nit, naming the control the doc offers, when the change touches or relies on that default. A change that widens it is Important.
 - Graph Explorer owns untrusted input: database data, imported files, and connection links.
 
 ## Verification bar
@@ -47,7 +48,7 @@ Reserve Important for the cases below. Everything else is Nit at most. That incl
 - The Git rules in `AGENTS.md`. PRs are squash merged, so commit messages, branch names, and how the commits are split never reach `main`.
 - `Changelog.md`. It's updated at release time.
 - Memoization or re-render advice. The React Compiler handles this unless it bails out on that component.
-- Security behavior that's by design, as the [Security model](#security-model) section defines it.
+- Security behavior the [Security model](#security-model) section assigns to the deployer. Accepted defaults aren't covered by this exclusion.
 - Missing ADRs, missing glossary entries, or missing tests for components that only render UI.
 - Files under `.agents/skills/`, `.claude/skills/`, and `.kiro/skills/`, plus `skills-lock.json` and `THIRD_PARTY_LICENSES.txt`.
 - In `pnpm-lock.yaml`, report only churn that's unrelated to the PR.
