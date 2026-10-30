@@ -31,7 +31,7 @@ Reserve Important for the cases below. Everything else is Nit at most. That incl
 
 - Only what the doc explicitly assigns to the deployer is by design: who can reach the deployment, what authenticates in front of it, and what the database's own permissions allow. Don't report those. Anything else the proxy server does is Graph Explorer's to get right, including the settings Graph Explorer's images and sample scripts choose for a managed platform.
 - Each "never", "does not", or "refuses" statement in the doc is a guarantee. A change that breaks one, or widens a documented risk, is Important.
-- A default the doc accepts is an accepted risk, not a guarantee. Raise one as a Nit, naming the control the doc offers, when the change touches or relies on that default. A change that widens it is Important.
+- A default the doc marks as an accepted risk is not a guarantee. Raise one as a Nit, naming the control the doc offers, when the change touches or relies on that default. A change that widens it is Important.
 - Graph Explorer owns untrusted input: database data, imported files, and connection links.
 
 ## Verification bar
