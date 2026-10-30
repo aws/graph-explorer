@@ -409,6 +409,14 @@ describe("buildBaseUrl", () => {
   it("omits port 443 for https", () => {
     expect(buildBaseUrl(true, "localhost", 443)).toBe("https://localhost");
   });
+
+  it("keeps port 443 for http", () => {
+    expect(buildBaseUrl(false, "localhost", 443)).toBe("http://localhost:443");
+  });
+
+  it("keeps port 80 for https", () => {
+    expect(buildBaseUrl(true, "localhost", 80)).toBe("https://localhost:80");
+  });
 });
 
 describe("logStartupWarnings", () => {

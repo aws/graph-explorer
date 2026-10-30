@@ -119,9 +119,14 @@ export function logStartupWarnings(
   }
 }
 
+/** The ports a URL may omit, because browsers assume them for the scheme. */
+const urlDefaultPorts = {
+  http: 80,
+  https: 443,
+} as const satisfies Record<Scheme, number>;
+
 export function buildBaseUrl(useHttps: boolean, host: string, port: number) {
   const scheme = schemeFor(useHttps);
-  const portSuffix =
-    port === listenerPorts[scheme].defaultPort ? "" : `:${port}`;
+  const portSuffix = port === urlDefaultPorts[scheme] ? "" : `:${port}`;
   return `${scheme}://${host}${portSuffix}`;
 }
