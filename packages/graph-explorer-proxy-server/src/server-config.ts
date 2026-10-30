@@ -37,12 +37,12 @@ export function resolveServerConfig(env: EnvironmentValues) {
     }
   }
 
-  const { port, warnings: portWarnings } = resolvePort(env, useHttps);
+  const { port, warnings } = resolvePort(env, useHttps);
 
   return {
     host: env.HOST,
     port,
-    startupWarnings: portWarnings,
+    startupWarnings: warnings,
     useHttps,
     baseUrl: buildBaseUrl(useHttps, env.HOST, port),
     certificateKeyFilePath,
