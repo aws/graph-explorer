@@ -10,10 +10,10 @@ You can search, browse, expand, customize views of your graph data using the Gra
 
 The graph visualization canvas that you can interact with. Double-click to expand the first-order neighbors of a node.
 
-- **Layout drop-down & reset:** You can display graph data using standard graph layouts in the Graph View. You can use the circular arrow to reset the physics of a layout.
+- **Layout drop-down & reset:** You can display graph data using standard graph layouts in the Graph View. You can use the circular arrow to reset the physics of a layout. The layout algorithm you choose is remembered per browser tab and saved with the connection's session, so restoring the previous session brings it back.
 - **Screenshot:** Download a picture of the current window in Graph View.
-- **Save Graph:** Save the current rendered graph as a JSON file that can be shared with others having the same connection or reloaded at a later time.
-- **Load Graph:** Load a previously saved graph from a JSON file.
+- **Save Graph:** Save the current rendered graph as a JSON file that can be shared with others having the same connection or reloaded at a later time. The saved file also records the chosen layout algorithm.
+- **Load Graph:** Load a previously saved graph from a JSON file, applying the layout algorithm the file was saved with. A file saved by an older version has no layout algorithm, so your current one stays.
 - **Zoom In/Out & Clear:** To help users quickly zoom in/out or clear the whole canvas in the Graph View.
 - **Legend (i):** This displays an informational list of icons, colors, and display names available.
 
@@ -28,7 +28,7 @@ The panel on the right of the graph provides various actions, configuration, and
 - [**Styles panel**](#styles-panel) of node and edge display options (e.g., color, icon, the property to use for the displayed name), split across a Nodes tab and an Edges tab.
 - [**Namespaces panel (RDF only)**](#namespace-panel) allows you to shorten the display of Resource URIs within the app based on auto-generated prefixes, commonly-used prefix libraries, or custom prefixes set by the user. Order of priority is set to Custom > Common > Auto-generated.
 
-The active panel, the sidebar width, and which views are toggled on are remembered per browser tab, so two tabs can keep different sidebar and view setups side by side. When you reopen Graph Explorer after closing all tabs, it resumes the setup you most recently used.
+The active panel, the sidebar width, which views are toggled on, and the chosen graph layout are remembered per browser tab, so two tabs can keep different sidebar and view setups side by side. When you reopen Graph Explorer after closing all tabs, it resumes the setup you most recently used.
 
 ### Search Panel
 
