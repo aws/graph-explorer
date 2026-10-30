@@ -6,7 +6,7 @@ import { type EnvironmentValues, parseEnvironmentValues } from "./env.ts";
 import { clientRoot, proxyServerRoot } from "./paths.ts";
 import {
   buildBaseUrl,
-  logPortWarnings,
+  logStartupWarnings,
   resolveServerConfig,
 } from "./server-config.ts";
 import { createTestEnvironment } from "./testing.ts";
@@ -33,26 +33,26 @@ describe("resolveServerConfig", () => {
   describe("port", () => {
     function resolvePort(overrides: Partial<EnvironmentValues>) {
       vi.spyOn(fs, "existsSync").mockReturnValue(true);
-      const { port, portWarnings } = resolveServerConfig(
+      const { port, startupWarnings } = resolveServerConfig(
         createTestEnvironment(overrides),
       );
-      return { port, portWarnings };
+      return { port, startupWarnings };
     }
 
     it("defaults to 80 for HTTP with no warnings", () => {
-      expect(resolvePort({})).toStrictEqual({ port: 80, portWarnings: [] });
+      expect(resolvePort({})).toStrictEqual({ port: 80, startupWarnings: [] });
     });
 
     it("defaults to 443 for HTTPS with no warnings", () => {
       expect(
         resolvePort({ PROXY_SERVER_HTTPS_CONNECTION: true }),
-      ).toStrictEqual({ port: 443, portWarnings: [] });
+      ).toStrictEqual({ port: 443, startupWarnings: [] });
     });
 
     it("uses PROXY_SERVER_PORT for HTTP", () => {
       expect(resolvePort({ PROXY_SERVER_PORT: 9250 })).toStrictEqual({
         port: 9250,
-        portWarnings: [],
+        startupWarnings: [],
       });
     });
 
@@ -62,7 +62,7 @@ describe("resolveServerConfig", () => {
           PROXY_SERVER_HTTPS_CONNECTION: true,
           PROXY_SERVER_PORT: 9250,
         }),
-      ).toStrictEqual({ port: 9250, portWarnings: [] });
+      ).toStrictEqual({ port: 9250, startupWarnings: [] });
     });
 
     it("prefers PROXY_SERVER_PORT and warns the old variable is ignored even when they match", () => {
@@ -70,7 +70,7 @@ describe("resolveServerConfig", () => {
         resolvePort({ PROXY_SERVER_PORT: 9250, PROXY_SERVER_HTTP_PORT: 9250 }),
       ).toStrictEqual({
         port: 9250,
-        portWarnings: [
+        startupWarnings: [
           "PROXY_SERVER_HTTP_PORT (9250) is ignored because PROXY_SERVER_PORT (9250) is set. PROXY_SERVER_HTTP_PORT is deprecated, remove it.",
         ],
       });
@@ -86,7 +86,7 @@ describe("resolveServerConfig", () => {
         }),
       ).toStrictEqual({
         port: 9250,
-        portWarnings: [
+        startupWarnings: [
           "PROXY_SERVER_HTTPS_PORT (8443) is ignored because PROXY_SERVER_PORT (9250) is set. PROXY_SERVER_HTTPS_PORT is deprecated, remove it.",
           "PROXY_SERVER_HTTP_PORT has no effect while HTTPS is on. Remove it.",
         ],
@@ -101,14 +101,14 @@ describe("resolveServerConfig", () => {
           PROXY_SERVER_HTTPS_CONNECTION: true,
           PROXY_SERVER_HTTP_PORT: 8080,
         }),
-      ).toStrictEqual({ port: 443, portWarnings: [warning] });
+      ).toStrictEqual({ port: 443, startupWarnings: [warning] });
       expect(
         resolvePort({
           PROXY_SERVER_HTTPS_CONNECTION: true,
           PROXY_SERVER_PORT: 9250,
           PROXY_SERVER_HTTP_PORT: 8080,
         }),
-      ).toStrictEqual({ port: 9250, portWarnings: [warning] });
+      ).toStrictEqual({ port: 9250, startupWarnings: [warning] });
     });
 
     it("warns the HTTPS variable has no effect while HTTPS is off, with or without PROXY_SERVER_PORT", () => {
@@ -116,11 +116,11 @@ describe("resolveServerConfig", () => {
         "PROXY_SERVER_HTTPS_PORT has no effect while HTTPS is off. Remove it.";
       expect(resolvePort({ PROXY_SERVER_HTTPS_PORT: 8443 })).toStrictEqual({
         port: 80,
-        portWarnings: [warning],
+        startupWarnings: [warning],
       });
       expect(
         resolvePort({ PROXY_SERVER_PORT: 9250, PROXY_SERVER_HTTPS_PORT: 8443 }),
-      ).toStrictEqual({ port: 9250, portWarnings: [warning] });
+      ).toStrictEqual({ port: 9250, startupWarnings: [warning] });
     });
 
     it("builds the base URL from PROXY_SERVER_PORT", () => {
@@ -146,10 +146,10 @@ describe("resolveServerConfig", () => {
   describe("backward compatibility: deprecated PROXY_SERVER_HTTP_PORT / PROXY_SERVER_HTTPS_PORT", () => {
     function startWith(env: Record<string, string>) {
       vi.spyOn(fs, "existsSync").mockReturnValue(true);
-      const { port, portWarnings, baseUrl } = resolveServerConfig(
+      const { port, startupWarnings, baseUrl } = resolveServerConfig(
         parseEnvironmentValues({ HOST: "my-host", ...env }),
       );
-      return { port, portWarnings, baseUrl };
+      return { port, startupWarnings, baseUrl };
     }
 
     const httpDeprecated =
@@ -160,7 +160,7 @@ describe("resolveServerConfig", () => {
     it("PROXY_SERVER_HTTP_PORT sets the HTTP port", () => {
       expect(startWith({ PROXY_SERVER_HTTP_PORT: "8080" })).toStrictEqual({
         port: 8080,
-        portWarnings: [httpDeprecated],
+        startupWarnings: [httpDeprecated],
         baseUrl: "http://my-host:8080",
       });
     });
@@ -173,7 +173,7 @@ describe("resolveServerConfig", () => {
         }),
       ).toStrictEqual({
         port: 8443,
-        portWarnings: [httpsDeprecated],
+        startupWarnings: [httpsDeprecated],
         baseUrl: "https://my-host:8443",
       });
     });
@@ -197,7 +197,7 @@ describe("resolveServerConfig", () => {
     it("the old variable of the listener that isn't running warns it has no effect", () => {
       expect(startWith({ PROXY_SERVER_HTTPS_PORT: "8443" })).toStrictEqual({
         port: 80,
-        portWarnings: [
+        startupWarnings: [
           "PROXY_SERVER_HTTPS_PORT has no effect while HTTPS is off. Remove it.",
         ],
         baseUrl: "http://my-host",
@@ -209,7 +209,7 @@ describe("resolveServerConfig", () => {
         }),
       ).toStrictEqual({
         port: 443,
-        portWarnings: [
+        startupWarnings: [
           "PROXY_SERVER_HTTP_PORT has no effect while HTTPS is on. Remove it.",
         ],
         baseUrl: "https://my-host",
@@ -223,7 +223,7 @@ describe("resolveServerConfig", () => {
       value => {
         expect(startWith({ PROXY_SERVER_HTTP_PORT: value })).toStrictEqual({
           port: 0,
-          portWarnings: [httpDeprecated],
+          startupWarnings: [httpDeprecated],
           baseUrl: "http://my-host:0",
         });
       },
@@ -239,7 +239,7 @@ describe("resolveServerConfig", () => {
           }),
         ).toStrictEqual({
           port: 0,
-          portWarnings: [httpsDeprecated],
+          startupWarnings: [httpsDeprecated],
           baseUrl: "https://my-host:0",
         });
       },
@@ -250,7 +250,7 @@ describe("resolveServerConfig", () => {
       value => {
         expect(startWith({ PROXY_SERVER_HTTPS_PORT: value })).toStrictEqual({
           port: 80,
-          portWarnings: [
+          startupWarnings: [
             "PROXY_SERVER_HTTPS_PORT has no effect while HTTPS is off. Remove it.",
           ],
           baseUrl: "http://my-host",
@@ -411,11 +411,11 @@ describe("buildBaseUrl", () => {
   });
 });
 
-describe("logPortWarnings", () => {
+describe("logStartupWarnings", () => {
   it("logs each warning once, in order", () => {
     const logger = { warn: vi.fn() };
 
-    logPortWarnings(["first", "second"], logger);
+    logStartupWarnings(["first", "second"], logger);
 
     expect(logger.warn.mock.calls).toStrictEqual([["first"], ["second"]]);
   });
@@ -423,7 +423,7 @@ describe("logPortWarnings", () => {
   it("logs nothing without warnings", () => {
     const logger = { warn: vi.fn() };
 
-    logPortWarnings([], logger);
+    logStartupWarnings([], logger);
 
     expect(logger.warn).not.toHaveBeenCalled();
   });

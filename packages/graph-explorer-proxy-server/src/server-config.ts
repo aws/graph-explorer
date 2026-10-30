@@ -37,12 +37,12 @@ export function resolveServerConfig(env: EnvironmentValues) {
     }
   }
 
-  const { port, portWarnings } = resolvePort(env, useHttps);
+  const { port, warnings: portWarnings } = resolvePort(env, useHttps);
 
   return {
     host: env.HOST,
     port,
-    portWarnings,
+    startupWarnings: portWarnings,
     useHttps,
     baseUrl: buildBaseUrl(useHttps, env.HOST, port),
     certificateKeyFilePath,
@@ -90,31 +90,31 @@ function schemeFor(useHttps: boolean): Scheme {
 function resolvePort(env: EnvironmentValues, useHttps: boolean) {
   const { defaultPort, portVariable, otherPortVariable } =
     listenerPorts[schemeFor(useHttps)];
-  const portWarnings: string[] = [];
+  const warnings: string[] = [];
 
   const deprecatedPort = env[portVariable];
   if (deprecatedPort !== undefined) {
-    portWarnings.push(
+    warnings.push(
       env.PROXY_SERVER_PORT === undefined
         ? `${portVariable} is deprecated. Use PROXY_SERVER_PORT instead.`
         : `${portVariable} (${deprecatedPort}) is ignored because PROXY_SERVER_PORT (${env.PROXY_SERVER_PORT}) is set. ${portVariable} is deprecated, remove it.`,
     );
   }
   if (env[otherPortVariable] !== undefined) {
-    portWarnings.push(
+    warnings.push(
       `${otherPortVariable} has no effect while HTTPS is ${useHttps ? "on" : "off"}. Remove it.`,
     );
   }
 
   const port = env.PROXY_SERVER_PORT ?? deprecatedPort ?? defaultPort;
-  return { port, portWarnings };
+  return { port, warnings };
 }
 
-export function logPortWarnings(
-  portWarnings: string[],
+export function logStartupWarnings(
+  startupWarnings: string[],
   logger: Pick<AppLogger, "warn">,
 ) {
-  for (const warning of portWarnings) {
+  for (const warning of startupWarnings) {
     logger.warn(warning);
   }
 }

@@ -8,7 +8,7 @@ import { handleError } from "./error-handler.ts";
 import { createLogger } from "./logging.ts";
 import { clientRoot, isDirectory } from "./paths.ts";
 import {
-  logPortWarnings,
+  logStartupWarnings,
   resolveServerConfig,
   ServerConfigError,
 } from "./server-config.ts";
@@ -47,7 +47,7 @@ try {
   throw error;
 }
 
-logPortWarnings(serverConfig.portWarnings, logger);
+logStartupWarnings(serverConfig.startupWarnings, logger);
 
 const {
   port,

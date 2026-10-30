@@ -41,7 +41,7 @@ type ServerStart = {
   useHttps: boolean;
   port: number;
   logStyle: LogStyle;
-  portWarnings: string[];
+  startupWarnings: string[];
 };
 
 /** What the server does at startup. */
@@ -135,13 +135,13 @@ const https: ServerStart = {
   useHttps: true,
   port: 443,
   logStyle: "default",
-  portWarnings: [],
+  startupWarnings: [],
 };
 const http: ServerStart = {
   useHttps: false,
   port: 80,
   logStyle: "default",
-  portWarnings: [],
+  startupWarnings: [],
 };
 
 function deprecated(name: string) {
@@ -183,7 +183,7 @@ const notebookPreset = {
     useHttps: false,
     port: 9250,
     logStyle: "cloudwatch",
-    portWarnings: [],
+    startupWarnings: [],
   } satisfies ServerStart,
 };
 const notebookConflict = {
@@ -225,7 +225,7 @@ const deployments: Deployment[] = [
       startup: {
         ...http,
         port: 8080,
-        portWarnings: [deprecated("PROXY_SERVER_HTTP_PORT")],
+        startupWarnings: [deprecated("PROXY_SERVER_HTTP_PORT")],
       },
     },
   },
@@ -237,7 +237,7 @@ const deployments: Deployment[] = [
       startup: {
         ...https,
         port: 8443,
-        portWarnings: [deprecated("PROXY_SERVER_HTTPS_PORT")],
+        startupWarnings: [deprecated("PROXY_SERVER_HTTPS_PORT")],
       },
     },
   },
@@ -265,7 +265,7 @@ const deployments: Deployment[] = [
       startup: {
         ...https,
         port: 9250,
-        portWarnings: [ignored("PROXY_SERVER_HTTPS_PORT", 8443, 9250)],
+        startupWarnings: [ignored("PROXY_SERVER_HTTPS_PORT", 8443, 9250)],
       },
     },
   },
@@ -279,7 +279,7 @@ const deployments: Deployment[] = [
       startup: {
         ...http,
         port: 8080,
-        portWarnings: [deprecated("PROXY_SERVER_HTTP_PORT")],
+        startupWarnings: [deprecated("PROXY_SERVER_HTTP_PORT")],
       },
     },
   },
@@ -307,7 +307,7 @@ const deployments: Deployment[] = [
       startup: {
         ...http,
         port: 8081,
-        portWarnings: [ignored("PROXY_SERVER_HTTP_PORT", 8080, 8081)],
+        startupWarnings: [ignored("PROXY_SERVER_HTTP_PORT", 8080, 8081)],
       },
     },
   },
@@ -332,7 +332,7 @@ const deployments: Deployment[] = [
       envFile: { PROXY_SERVER_HTTP_PORT: "8080", ...notebookPreset.envFile },
       startup: {
         ...notebookPreset.startup,
-        portWarnings: [ignored("PROXY_SERVER_HTTP_PORT", 8080, 9250)],
+        startupWarnings: [ignored("PROXY_SERVER_HTTP_PORT", 8080, 9250)],
       },
     },
   },
@@ -399,7 +399,7 @@ const deployments: Deployment[] = [
       startup: {
         ...notebookPreset.startup,
         port: 8080,
-        portWarnings: [deprecated("PROXY_SERVER_HTTP_PORT")],
+        startupWarnings: [deprecated("PROXY_SERVER_HTTP_PORT")],
       },
     },
   },
@@ -437,7 +437,7 @@ const deployments: Deployment[] = [
       },
       startup: {
         ...notebookPreset.startup,
-        portWarnings: [ignored("PROXY_SERVER_HTTP_PORT", 9250, 9250)],
+        startupWarnings: [ignored("PROXY_SERVER_HTTP_PORT", 9250, 9250)],
       },
     },
   },
@@ -733,8 +733,9 @@ function startupOutcome(
 
   try {
     const environment = parseEnvironmentValues(serverEnv);
-    const { useHttps, port, portWarnings } = resolveServerConfig(environment);
-    return { useHttps, port, logStyle: environment.LOG_STYLE, portWarnings };
+    const { useHttps, port, startupWarnings } =
+      resolveServerConfig(environment);
+    return { useHttps, port, logStyle: environment.LOG_STYLE, startupWarnings };
   } catch (error) {
     if (error === exitSignal) {
       return { parseError: errorSpy.mock.calls.join("\n") };
