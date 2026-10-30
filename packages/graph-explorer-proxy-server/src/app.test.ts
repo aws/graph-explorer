@@ -671,6 +671,31 @@ describe("createApp", () => {
     });
   });
 
+  // ── Request header logging ────────────────────────────────────────
+
+  describe("request header logging", () => {
+    it("escapes a C1 control character in a logged header value", async () => {
+      const app = createTestApp();
+      const errorSpy = vi.spyOn(app.locals.logger, "error");
+
+      const response = await request(app)
+        .post("/sparql")
+        .set("user-agent", "before\u0085after")
+        .send({});
+
+      expect(response.status).toBe(400);
+      const headerCall = errorSpy.mock.calls.find(
+        ([first]) =>
+          typeof first === "string" && first.includes("Request headers"),
+      );
+      expect(headerCall).toBeDefined();
+      const line = String(headerCall![1]);
+      expect(line).toContain("user-agent: before");
+      expect(line).toContain("\\u0085");
+      expect(line).not.toMatch(/[\u007f-\u009f]/);
+    });
+  });
+
   // ── Query validation (400 cases) ──────────────────────────────────
 
   describe.each(queryRoutes)("POST /%s input validation", route => {
@@ -1522,6 +1547,29 @@ describe("createApp", () => {
           expect.stringContaining("https://blocked:8182"),
           expect.anything(),
         );
+      },
+    );
+
+    it.each(forwardingRoutes)(
+      "$method $route returns 403 for a signed request without fetching the disallowed origin",
+      async ({ method, route, body }) => {
+        const app = createTestApp(".", undefined, allowedOrigins);
+        const req = request(app)
+          [method](route)
+          .set(
+            dbHeaders({
+              "graph-db-connection-url": "https://blocked:8182",
+              "aws-neptune-region": "us-east-1",
+              "service-type": "neptune-db",
+            }),
+          );
+        const response = body ? await req.send(body) : await req;
+
+        expect(response.status).toBe(403);
+        expect(response.body.error.message).toContain(
+          "PROXY_SERVER_ALLOWED_DB_ORIGINS",
+        );
+        expect(mockFetch).not.toHaveBeenCalled();
       },
     );
   });
