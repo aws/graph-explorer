@@ -14,6 +14,7 @@ import {
 } from "vite-plus/test";
 
 import { createApp, resolveEndpointUrl } from "./app.ts";
+import { blockedLookupErrorCode, dbAgentFor } from "./blocked-addresses.ts";
 import { RejectedRequestBodyError } from "./errors.ts";
 import { createLogger } from "./logging.ts";
 import { createTestEnvironment } from "./testing.ts";
@@ -1574,8 +1575,8 @@ describe("createApp", () => {
     );
   });
 
-  describe("link-local database origins", () => {
-    const linkLocalUrl = "http://169.254.1.1:8182";
+  describe("reserved database origins", () => {
+    const reservedUrl = "http://169.254.169.254:8182";
 
     it.each(forwardingRoutes)(
       "$method $route returns 403 without an allowlist and without fetching",
@@ -1583,7 +1584,7 @@ describe("createApp", () => {
         const app = createTestApp();
         const req = request(app)
           [method](route)
-          .set(dbHeaders({ "graph-db-connection-url": linkLocalUrl }));
+          .set(dbHeaders({ "graph-db-connection-url": reservedUrl }));
         const response = body ? await req.send(body) : await req;
 
         expect(response.status).toBe(403);
@@ -1594,16 +1595,126 @@ describe("createApp", () => {
       },
     );
 
-    it("returns 403 when the allowlist names the link-local origin", async () => {
-      const app = createTestApp(".", undefined, new Set([linkLocalUrl]));
+    it("returns 403 when the allowlist names the reserved origin", async () => {
+      const app = createTestApp(".", undefined, new Set([reservedUrl]));
       const response = await request(app)
         .post("/sparql")
-        .set(dbHeaders({ "graph-db-connection-url": linkLocalUrl }))
+        .set(dbHeaders({ "graph-db-connection-url": reservedUrl }))
         .send({ query: "SELECT 1" });
 
       expect(response.status).toBe(403);
       expect(mockFetch).not.toHaveBeenCalled();
     });
+
+    it.each(forwardingRoutes)(
+      "$method $route forwards to a link-local origin outside the reserved ranges",
+      async ({ method, route, body }) => {
+        mockFetchOnce();
+
+        const app = createTestApp();
+        const req = request(app)
+          [method](route)
+          .set(
+            dbHeaders({ "graph-db-connection-url": "http://169.254.1.2:8182" }),
+          );
+        const response = body ? await req.send(body) : await req;
+
+        expect(response.status).toBe(200);
+        expect(mockFetch).toHaveBeenCalledWith(
+          expect.stringMatching(/^http:\/\/169\.254\.1\.2:8182\//),
+          expect.anything(),
+        );
+      },
+    );
+  });
+
+  describe("database host names that resolve to a blocked address", () => {
+    const lookupFailure =
+      "request to https://my-graph-db.example.com:8182/sparql failed, reason: my-graph-db.example.com resolves to 169.254.169.254, a reserved cloud service or IPv6 link-local address";
+    const expectedMessage = `Database origin "${new URL(graphDbUrl).origin}" resolves to a reserved cloud service or IPv6 link-local address, which is not a permitted database host. The server log names the address. Edit the connection and change the Database URL to your database's address, or fix the host name's DNS records.`;
+
+    function failLookupOnce() {
+      mockFetch.mockRejectedValueOnce(
+        Object.assign(new Error(lookupFailure), {
+          code: blockedLookupErrorCode,
+        }),
+      );
+    }
+
+    it.each(forwardingRoutes)(
+      "$method $route returns 403 without retrying",
+      async ({ method, route, body }) => {
+        failLookupOnce();
+
+        const app = createTestApp();
+        const req = request(app)[method](route).set(dbHeaders());
+        const response = body ? await req.send(body) : await req;
+
+        expect(response.status).toBe(403);
+        expect(response.body.error.message).toBe(expectedMessage);
+        fetchOptionsFor(route.slice(1));
+      },
+    );
+
+    it("returns 403 when the allowlist names the origin", async () => {
+      failLookupOnce();
+
+      const app = createTestApp(".", undefined, new Set([graphDbUrl]));
+      const response = await request(app)
+        .post("/sparql")
+        .set(dbHeaders())
+        .send({ query: "SELECT 1" });
+
+      expect(response.status).toBe(403);
+      expect(response.body.error.message).toBe(expectedMessage);
+    });
+
+    it("uses the same 403 sentence for any blocked lookup error", async () => {
+      mockFetch.mockRejectedValueOnce(
+        Object.assign(
+          new Error(
+            "request to https://my-graph-db.example.com:8182/sparql failed, reason: my-graph-db.example.com resolves to fe80::1, a reserved cloud service or IPv6 link-local address",
+          ),
+          { code: blockedLookupErrorCode },
+        ),
+      );
+
+      const app = createTestApp();
+      const response = await request(app)
+        .post("/sparql")
+        .set(dbHeaders())
+        .send({ query: "SELECT 1" });
+
+      expect(response.status).toBe(403);
+      expect(response.body.error.message).toBe(expectedMessage);
+    });
+
+    it("logs the resolved address and leaves it out of the response", async () => {
+      failLookupOnce();
+
+      const app = createTestApp();
+      const warn = vi.spyOn(app.locals.logger, "warn");
+      const response = await request(app)
+        .post("/sparql")
+        .set(dbHeaders())
+        .send({ query: "SELECT 1" });
+
+      expect(warn).toHaveBeenCalledWith(lookupFailure);
+      expect(response.body.error.message).not.toContain("169.254.169.254");
+    });
+
+    it.each(forwardingRoutes)(
+      "$method $route sends the request through the agent that checks resolved addresses",
+      async ({ method, route, body }) => {
+        mockFetchOnce();
+
+        const app = createTestApp();
+        const req = request(app)[method](route).set(dbHeaders());
+        await (body ? req.send(body) : req);
+
+        expect(fetchOptionsFor(route.slice(1)).agent).toBe(dbAgentFor);
+      },
+    );
   });
 });
 
