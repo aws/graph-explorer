@@ -2,7 +2,8 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-27
-- **Related:** [Document the supported hosting model](./20261022-document-supported-hosting-model.md). Affects `packages/graph-explorer-proxy-server/src/env.ts`, `server-lifecycle.ts`, the `Dockerfile`, and `.github/workflows/test_build_docker.yml`.
+- **Updated:** 2026-11-02: the Vite dev server listens on `localhost` from source too.
+- **Related:** [Document the supported hosting model](./20261022-document-supported-hosting-model.md). Affects `packages/graph-explorer-proxy-server/src/env.ts`, `server-lifecycle.ts`, `packages/graph-explorer/vite.config.ts`, the `Dockerfile`, and `.github/workflows/test_build_docker.yml`.
 
 ## Context
 
@@ -13,6 +14,7 @@ The proxy server listened on every network interface wherever it ran. In a conta
 `PROXY_SERVER_LISTEN_ADDRESS` chooses the address the proxy server listens on. It takes an IP literal.
 
 - The code default is `127.0.0.1`, so `pnpm start`, `pnpm dev`, and `node src/node-server.ts` accept connections from the local machine only.
+- The Vite dev server uses Vite's default host, `localhost`. `pnpm dev --host` listens on every interface, for a contributor who opens the dev server from another device.
 - The image's final stage sets `ENV PROXY_SERVER_LISTEN_ADDRESS=::`, so the container keeps listening on every interface.
 - `::` and `0.0.0.0` call `listen` with no host. Node then binds IPv6 first and falls back to IPv4 on hosts without IPv6.
 - An empty value or a hostname fails the env parse at startup and names the variable.
@@ -27,10 +29,12 @@ The proxy server listened on every network interface wherever it ran. In a conta
 - **`0.0.0.0` as the image value.** Equivalent, since both listen with no host. `::` is used because it states the dual-stack intent and matches the `[::]` the startup log prints.
 - **A literal `listen(port, "::")`.** Rejected because it has no IPv4 fallback on hosts with IPv6 disabled.
 - **Accepting hostnames.** Rejected because a name can resolve to several addresses or change, and the log wouldn't show what was bound.
+- **`127.0.0.1` for the Vite dev server.** Rejected because the dev server would print `http://127.0.0.1:<port>`, a different browser origin from `http://localhost:<port>`, so saved connections wouldn't appear.
 
 ## Consequences
 
-- `pnpm start` and `pnpm dev`'s proxy server listen on `127.0.0.1`. The Vite dev server still listens on every interface.
+- `pnpm start` listens on `127.0.0.1` and `pnpm dev`'s Vite dev server on `localhost`, so both accept connections from the local machine only. A contributor who opens `pnpm dev` from another device runs `pnpm dev --host`.
+- Vite listens on the first address `localhost` resolves to, which can be `::1` alone, so a client that dials `127.0.0.1:<port>` for the dev server can't connect. Use `http://localhost:<port>`.
 - On macOS, running from source needs a port of 1024 or higher, because only root can listen below that on `127.0.0.1`.
 - Images built without our `Dockerfile` need the `ENV`, or their published port stops answering.
 - An empty `-e PROXY_SERVER_LISTEN_ADDRESS=` fails at startup instead of silently listening on loopback.

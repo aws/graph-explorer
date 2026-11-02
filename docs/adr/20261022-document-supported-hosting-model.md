@@ -36,5 +36,5 @@ The model lives in the docs. The server's behavior doesn't change. `REVIEW.md` m
 
 - A deployment that serves plain HTTP to other machines keeps working, but is outside the supported model. The release's upgrade note says so.
 - Examples serve HTTPS, or publish plain HTTP on `127.0.0.1`. The HTTPS examples no longer publish port 80, which nothing listens on while HTTPS is on.
-- `pnpm dev` and `pnpm start` served HTTP on every interface when this was decided, and the development guide asked the reader to keep them to their own machine. Since [Listen on loopback when run from source](./20261027-listen-on-loopback-from-source.md), the proxy server listens on `127.0.0.1` from source.
+- `pnpm dev` and `pnpm start` served HTTP on every interface when this was decided, and the development guide asked the reader to keep them to their own machine. Since [Listen on loopback when run from source](./20261027-listen-on-loopback-from-source.md), the proxy server and the Vite dev server listen only on the local machine from source.
 - The deployment guides can point at "Supported Hosting" as the one statement of the model.
