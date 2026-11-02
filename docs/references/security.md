@@ -16,7 +16,7 @@ A supported deployment of Graph Explorer has both of these:
 Graph Explorer can serve plain HTTP in two cases:
 
 - **Behind a reverse proxy that terminates TLS**, when only the reverse proxy can reach Graph Explorer. See [Serving HTTP Behind a Reverse Proxy](#serving-http-behind-a-reverse-proxy).
-- **To try Graph Explorer on your own machine**, when no other machine can reach it, such as with its port published on `127.0.0.1`, or with `pnpm start`, which listens on `127.0.0.1` by default. `pnpm dev` is different: its Vite dev server listens on every network interface and forwards API requests to the proxy server, so keep its port to your own machine. See [Development](../development.md#run-in-development-mode).
+- **To try Graph Explorer on your own machine**, when no other machine can reach it, such as with its port published on `127.0.0.1`, or with `pnpm start` or `pnpm dev`, which listen only on this machine by default. See [Development](../development.md#run-in-development-mode).
 
 Plain HTTP that other machines can reach isn't supported, because database connection URLs, query text, and query results cross the network unencrypted.
 
@@ -166,7 +166,7 @@ Confirm your rules apply to the port you publish. Container platforms can publis
 >
 > Over HTTP, database connection URLs, query text, and query results travel in plain text between the reverse proxy and the proxy server. A client that reaches the port directly also skips any authentication the reverse proxy applies.
 
-To try Graph Explorer on your own machine without a reverse proxy, publish the port on `127.0.0.1` so no other machine can reach it. With `pnpm start`, the default `127.0.0.1` already does this. `pnpm dev` also serves the Vite dev server on every network interface, which forwards to the proxy server. See [Supported Hosting](#supported-hosting).
+To try Graph Explorer on your own machine without a reverse proxy, publish the port on `127.0.0.1` so no other machine can reach it. With `pnpm start` or `pnpm dev`, the defaults already do this. See [Supported Hosting](#supported-hosting).
 
 ### Trusting the self-signed certificate
 
