@@ -232,8 +232,8 @@ importers:
         specifier: ^5.105.0
         version: 5.105.0(@types/react@19.3.0)(react@19.3.1)
       '@tanstack/react-virtual':
-        specifier: ^3.14.23
-        version: 3.14.23(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: ^3.14.24
+        version: 3.14.24(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -286,14 +286,14 @@ importers:
         specifier: ^4.18.1
         version: 4.18.1
       lucide-react:
-        specifier: ^1.62.0
-        version: 1.62.0(@types/react@19.3.0)(react@19.3.1)
+        specifier: ^1.66.0
+        version: 1.66.0(@types/react@19.3.0)(react@19.3.1)
       monaco-editor:
         specifier: ^0.57.0
         version: 0.57.0
       motion:
-        specifier: ^14.7.1
-        version: 14.7.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: ^14.9.0
+        version: 14.9.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       papaparse:
         specifier: ^5.7.0
         version: 5.7.0
@@ -322,14 +322,14 @@ importers:
         specifier: ^2.0.5
         version: 2.0.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react-router:
-        specifier: ^8.5.0
-        version: 8.5.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: ^8.5.1
+        version: 8.5.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react-table:
         specifier: ^7.8.0
         version: 7.8.0(react@19.3.1)
       react-virtuoso:
-        specifier: ^4.18.19
-        version: 4.18.19(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: ^4.18.20
+        version: 4.18.20(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       sonner:
         specifier: ^2.0.8
         version: 2.0.8(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -356,8 +356,8 @@ importers:
         specifier: ^3.37.0
         version: 3.37.0(react@19.3.1)
       '@rolldown/plugin-babel':
-        specifier: 0.2.4
-        version: 0.2.4(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.19.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.42.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.0))(rolldown@1.2.13)
+        specifier: 0.3.0
+        version: 0.3.0(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.19.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.42.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.0))(rolldown@1.2.13)
       '@tailwindcss/vite':
         specifier: ^4.3.3
         version: 4.3.3(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.19.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.42.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.0))
@@ -402,7 +402,7 @@ importers:
         version: 2023.10.7
       '@vitejs/plugin-react':
         specifier: ^6.1.2
-        version: 6.1.2(@rolldown/plugin-babel@0.2.4(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.19.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.42.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.0))(rolldown@1.2.13))(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.19.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.42.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.0))(babel-plugin-react-compiler@1.0.0)
+        version: 6.1.2(@rolldown/plugin-babel@0.3.0(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.19.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.42.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.0))(rolldown@1.2.13))(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.19.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.42.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.0))(babel-plugin-react-compiler@1.0.0)
       babel-plugin-react-compiler:
         specifier: ^1.0.0
         version: 1.0.0
@@ -410,8 +410,8 @@ importers:
         specifier: ^4.29.5
         version: 4.29.5
       fake-indexeddb:
-        specifier: ^6.2.6
-        version: 6.2.6
+        specifier: ^6.2.7
+        version: 6.2.7
       happy-dom:
         specifier: ^21.0.4
         version: 21.0.4
@@ -2210,8 +2210,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@rolldown/plugin-babel@0.2.4':
-    resolution: {integrity: sha512-ygmm2j/mN+aCvstHo0x3IOu4uc6LqXT9SJ3q4kpfG/+Yhfz0B+E47FITcC0FljZADwUFARP6E2kiE+Lc26D8wg==}
+  '@rolldown/plugin-babel@0.3.0':
+    resolution: {integrity: sha512-cB9Z6aqn7i8Zflv1D4tyIy/wvnWt+QVUPX2e3Jxq/4fvdX+Xk2gQyNN2sfYscfLIZN1LCQbCl4olpf9Ki+U1zw==}
     engines: {node: '>=22.12.0 || ^24.0.0'}
     peerDependencies:
       '@babel/core': '>=7.29.1 <8'
@@ -2394,14 +2394,14 @@ packages:
       '@types/react':
         optional: true
 
-  '@tanstack/react-virtual@3.14.23':
-    resolution: {integrity: sha512-Oyy58qQwdaQieA+A4WUDtnh9D1rv5FZvGdw8og9Xeyh88V6HH94vMSyV5i9ATIbYNe9t5Ix0WXRo9NOTpHDkYw==}
+  '@tanstack/react-virtual@3.14.24':
+    resolution: {integrity: sha512-JoNsByXR68fNlB2NZuT3bSk8uYBxuOWl6YNJ7djTrw7IMwBWuaOtffxj/TcuMa80WmL6byb+80i1NEM/8Qmocw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@tanstack/virtual-core@3.19.8':
-    resolution: {integrity: sha512-Oz/SYBo/aVPyQkwtOw7Q23myITUgFIof2glQqydYJAPL6mH2SkJDkvDKZTklB+7gv5jGLZQhyTcd7SO1A1EODQ==}
+  '@tanstack/virtual-core@3.19.9':
+    resolution: {integrity: sha512-Syiaf3w69dFyYv4o2mqJ1/2VtBJTNq5Hu5cVXfnzOuJKFpUojukQR13ZW+5NvdMJM7GFHeNPmveMNhoIubiFyA==}
 
   '@testing-library/dom@10.4.2':
     resolution: {integrity: sha512-yzr2S9HyAIdhz2/6qHgbs665Q7PKVcDF05vsOlHPxG1mo36gKVesdYVeDLnXgfjJ03CrKRk08knc6+E/9m8v2Q==}
@@ -2979,6 +2979,10 @@ packages:
     resolution: {integrity: sha512-COROpnaoap1E2F000S62r6A60uHZnmlvomhfyT2DlTcrY1OrBKn2UhH7qn5wTC9zMvD0AY7csdPSNwKP+7WiQw==}
     engines: {node: '>= 0.4'}
 
+  artichokie@0.4.5:
+    resolution: {integrity: sha512-ma9643oYgSgA6CeDvKIU0zxL1eKOkbgH8/v83xFpFYB2VOPFoEmmg1iC+ooHFjLIJ3qdtfwPbEKpIW3/YxPovg==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+
   asap@2.0.6:
     resolution: {integrity: sha512-BSHWgDSAiKs50o2Re8ppvp3seVHXSRM44cdSsT9FfNEUUZLOGWVCsiWaRPWM1Znn+mqZ1OfVZ3z3DWEzSp7hRA==}
 
@@ -3419,8 +3423,8 @@ packages:
     resolution: {integrity: sha512-qCqy1xSoaugxOD4IVHb1ZWdkvCF2W3aE2okKouWj8VwJ+ztskSiXoBnCSJqfKT+cVPJhuJqe9YLbY425+Zh00g==}
     engines: {node: '>= 18'}
 
-  fake-indexeddb@6.2.6:
-    resolution: {integrity: sha512-ihhmr0KoET51jT8R4YhbUYuLLvr1qqO6INISygtN16i8loR8kAxtAUr4+EKHTSMjL+lggaAn4OC7DRqzrNgnuQ==}
+  fake-indexeddb@6.2.7:
+    resolution: {integrity: sha512-g0ghQ+BmU3CSZaHup5FigEAAtCmtNyxkrmID7OAeK2qONHghw1aQ2l2T1RxmfhP1H1tEXVRWArUTGVCk5832ww==}
     engines: {node: '>=18'}
 
   fast-check@4.10.2:
@@ -3499,15 +3503,18 @@ packages:
     resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
     engines: {node: '>= 0.6'}
 
-  framer-motion@14.7.1:
-    resolution: {integrity: sha512-mFDYZxyfeZnpvL/zEQEqLZNYVA/ya47c9TBfZb/PEoNBBVSVvCLkMrCv9U38cuw72W161XENZwZB0+4nIBLEJg==}
+  framer-motion@14.9.0:
+    resolution: {integrity: sha512-g1hZu8WoTwgsoVAaqEEcefhvR03cKGtkmrKaRrWpXhnM3LGR8jl1u2qyJ1PMVlO7LKQHE8TTRQYUlMmnrY4L+g==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
+      remix: ^3.1.0
     peerDependenciesMeta:
       react:
         optional: true
       react-dom:
+        optional: true
+      remix:
         optional: true
 
   fresh@2.0.0:
@@ -3877,8 +3884,8 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  lucide-react@1.62.0:
-    resolution: {integrity: sha512-2i8QZZhkgYMA3oJvKYpCltHh54VnT/3rIPkDLHbzr3IJQBaCz8+7j7V2k2rczYd2aCqcBaMmNlWQ2KKeDfcxmw==}
+  lucide-react@1.66.0:
+    resolution: {integrity: sha512-8zjbi/Us+ETXqfBwmXF/FHrWGIqOdE6zT1yUdRJLQVoptomSkB0zdFWVIM667t9K8djWDaXdkBkqi2qVTuDNiw==}
     peerDependencies:
       '@types/react': '*'
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -3959,21 +3966,24 @@ packages:
   monaco-editor@0.57.0:
     resolution: {integrity: sha512-5BkI9KGoqrNvBGUe15/QlZq3OooZ8WLg1AxTpaqHRCP3HNpzPPZKE2EDz8M7c+VRmCeUw1Brp4cx/PWm3kI/5A==}
 
-  motion-dom@14.7.1:
-    resolution: {integrity: sha512-p9q9F7+HoijbQjUG/cSGNmWS2t1OaAKxkd2RG5gQJRoDwoTap/Khb7K1P5rLW90crnSmx0rcRXzh3Jd5UNrpEw==}
+  motion-dom@14.9.0:
+    resolution: {integrity: sha512-wGjKbNDMHd75aLStkxLCKZ+T8/wusZHklmNLK1Ak68UrdBt2X8I4yweYR/0WonxGnBsw6oloDTIV8pN+UTvzzA==}
 
   motion-utils@14.7.0:
     resolution: {integrity: sha512-woO0/Nb7ys75f94fjvQi/6leiHGvZUYkeHUPEZ3vxsV+9OpEVhkxp01x8MlRwX0zt31EqgXsKDAoBoJLC148Tw==}
 
-  motion@14.7.1:
-    resolution: {integrity: sha512-o+q7MExUC0RuCUF62HxF9v+fNVX7pUMYZqlyigQJJFAgAsmnnSlAOYeG41hGYkamxFR0rdBA0KXpaBJ28/GGAw==}
+  motion@14.9.0:
+    resolution: {integrity: sha512-Oc+jjq/AyhwsnEUaAq2xEu/SsfKTphgsXqoxddTSLzgTdXZc6FwHcp9RLGSECccTykN1/p3gWUN4kMJAamm+1g==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
+      remix: ^3.1.0
     peerDependenciesMeta:
       react:
         optional: true
       react-dom:
+        optional: true
+      remix:
         optional: true
 
   mrmime@2.0.1:
@@ -4275,8 +4285,8 @@ packages:
       '@types/react':
         optional: true
 
-  react-router@8.5.0:
-    resolution: {integrity: sha512-9nEd/deifcTJIIcUaNIyQGkyXD0D6QVB9XD2O5GgHpP3xu3U5RXm87YQ8++Wn8JQWgMBM/5+PjWPM/7n7O7WHA==}
+  react-router@8.5.1:
+    resolution: {integrity: sha512-5u1eQ46QjuXjNfEnLwzrnou1Bm5dquO3xjVYkkMYCudtkicD2AQHtx+fvXzPATtPJx8TW6DR1x1TDRqsfHyZBw==}
     engines: {node: '>=22.22.0'}
     peerDependencies:
       '@types/react': '>=19.2.0'
@@ -4311,8 +4321,8 @@ packages:
     peerDependencies:
       react: ^16.8.3 || ^17.0.0-0 || ^18.0.0
 
-  react-virtuoso@4.18.19:
-    resolution: {integrity: sha512-dewyZisA5IiQTldh7eHM5KpI+qxi0nKRVYi2iM01XmPkNa5tjvVUKJKAIc6ted1hAK1/NFlXuhXpVYqGHHdcdQ==}
+  react-virtuoso@4.18.20:
+    resolution: {integrity: sha512-2G/Hdi/QHRtJtzSZOkAwJFdUzBmhNIQCAmw6gLGUZTGbjVL6+TOBIFJOCnpm6xgWGBfrrMiZV5rJNkQ9gEgAdQ==}
     peerDependencies:
       react: '>=16 || >=17 || >= 18 || >= 19'
       react-dom: '>=16 || >=17 || >= 18 || >=19'
@@ -6320,9 +6330,10 @@ snapshots:
   '@rolldown/binding-win32-x64-msvc@1.2.13':
     optional: true
 
-  '@rolldown/plugin-babel@0.2.4(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.19.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.42.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.0))(rolldown@1.2.13)':
+  '@rolldown/plugin-babel@0.3.0(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.19.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.42.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.0))(rolldown@1.2.13)':
     dependencies:
       '@babel/core': 7.29.7
+      artichokie: 0.4.5
       picomatch: 4.0.7
       rolldown: 1.2.13
     optionalDependencies:
@@ -6478,13 +6489,13 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  '@tanstack/react-virtual@3.14.23(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@tanstack/react-virtual@3.14.24(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
-      '@tanstack/virtual-core': 3.19.8
+      '@tanstack/virtual-core': 3.19.9
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
-  '@tanstack/virtual-core@3.19.8': {}
+  '@tanstack/virtual-core@3.19.9': {}
 
   '@testing-library/dom@10.4.2':
     dependencies:
@@ -6756,12 +6767,12 @@ snapshots:
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
 
-  '@vitejs/plugin-react@6.1.2(@rolldown/plugin-babel@0.2.4(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.19.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.42.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.0))(rolldown@1.2.13))(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.19.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.42.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.0))(babel-plugin-react-compiler@1.0.0)':
+  '@vitejs/plugin-react@6.1.2(@rolldown/plugin-babel@0.3.0(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.19.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.42.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.0))(rolldown@1.2.13))(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.19.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.42.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.0))(babel-plugin-react-compiler@1.0.0)':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
       vite: '@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.19.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.42.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.0)'
     optionalDependencies:
-      '@rolldown/plugin-babel': 0.2.4(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.19.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.42.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.0))(rolldown@1.2.13)
+      '@rolldown/plugin-babel': 0.3.0(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.19.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.42.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.0))(rolldown@1.2.13)
       babel-plugin-react-compiler: 1.0.0
 
   '@vitest/browser-preview@5.0.5(@types/node@24.19.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.42.0)(tsx@4.21.0)(typescript@7.0.2)(vitest@5.0.5)(yaml@2.9.0)':
@@ -7011,6 +7022,8 @@ snapshots:
       dequal: 2.0.3
 
   aria-query@5.3.2: {}
+
+  artichokie@0.4.5: {}
 
   asap@2.0.6: {}
 
@@ -7489,7 +7502,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  fake-indexeddb@6.2.6: {}
+  fake-indexeddb@6.2.7: {}
 
   fast-check@4.10.2:
     dependencies:
@@ -7568,9 +7581,9 @@ snapshots:
 
   forwarded@0.2.0: {}
 
-  framer-motion@14.7.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
+  framer-motion@14.9.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     dependencies:
-      motion-dom: 14.7.1
+      motion-dom: 14.9.0
       motion-utils: 14.7.0
       tslib: 2.8.1
     optionalDependencies:
@@ -7885,7 +7898,7 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  lucide-react@1.62.0(@types/react@19.3.0)(react@19.3.1):
+  lucide-react@1.66.0(@types/react@19.3.0)(react@19.3.1):
     dependencies:
       react: 19.3.1
     optionalDependencies:
@@ -7942,15 +7955,15 @@ snapshots:
       dompurify: 3.4.17
       marked: 14.0.0
 
-  motion-dom@14.7.1:
+  motion-dom@14.9.0:
     dependencies:
       motion-utils: 14.7.0
 
   motion-utils@14.7.0: {}
 
-  motion@14.7.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
+  motion@14.9.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     dependencies:
-      framer-motion: 14.7.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      framer-motion: 14.9.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       tslib: 2.8.1
     optionalDependencies:
       react: 19.3.1
@@ -8319,7 +8332,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  react-router@8.5.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
+  react-router@8.5.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     dependencies:
       '@remix-run/route-pattern': 0.22.1
       cookie-es: 3.1.1
@@ -8351,7 +8364,7 @@ snapshots:
     dependencies:
       react: 19.3.1
 
-  react-virtuoso@4.18.19(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
+  react-virtuoso@4.18.20(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     dependencies:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
