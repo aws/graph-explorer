@@ -150,6 +150,19 @@ function parseDbQueryHeaders(
   };
 }
 
+/**
+ * Calls `onDisconnect` when the client leaves before the response is fully
+ * written. The body parsers have already read the request by the time a route
+ * runs, so the response is the only side that can end early.
+ */
+function onClientDisconnect(res: Response, onDisconnect: () => void) {
+  res.on("close", () => {
+    if (!res.writableFinished) {
+      onDisconnect();
+    }
+  });
+}
+
 interface CreateAppOptions {
   configPath: string;
   staticFilesVirtualPath: string;
@@ -284,10 +297,19 @@ export function createApp({
     refetchMaxRetries = 1,
   ) => {
     const logger = getLogger();
+    // Applied here so every outbound request identifies the proxy, including
+    // the query cancellation requests that bypass fetchData.
+    const optionsWithUserAgent = {
+      ...options,
+      headers: {
+        "User-Agent": userAgent,
+        ...Object.fromEntries(new Headers(options.headers)),
+      },
+    };
     for (let i = 0; i < refetchMaxRetries; i++) {
       const fetchOptions = await buildFetchOptions(
         url,
-        options,
+        optionsWithUserAgent,
         isIamEnabled,
         region,
         serviceType,
@@ -336,13 +358,7 @@ export function createApp({
     try {
       const response = await retryFetch(
         new URL(url),
-        {
-          ...options,
-          headers: {
-            "User-Agent": userAgent,
-            ...Object.fromEntries(new Headers(options.headers as HeadersInit)),
-          },
-        },
+        options,
         isIamEnabled,
         region,
         serviceType,
@@ -418,20 +434,7 @@ export function createApp({
       }
     }
 
-    // Watch for a cancelled or aborted connection
-    req.on("close", async () => {
-      if (req.complete) {
-        return;
-      }
-
-      await cancelQuery();
-    });
-    res.on("close", async () => {
-      if (res.writableFinished) {
-        return;
-      }
-      await cancelQuery();
-    });
+    onClientDisconnect(res, () => void cancelQuery());
 
     // Validate the input before making any external calls.
     const queryString = req.body.query;
@@ -518,19 +521,7 @@ export function createApp({
       }
     }
 
-    // Watch for a cancelled or aborted connection
-    req.on("close", async () => {
-      if (req.complete) {
-        return;
-      }
-      await cancelQuery();
-    });
-    res.on("close", async () => {
-      if (res.writableFinished) {
-        return;
-      }
-      await cancelQuery();
-    });
+    onClientDisconnect(res, () => void cancelQuery());
 
     const body = { gremlin: queryString, queryId };
     const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, "gremlin").href;

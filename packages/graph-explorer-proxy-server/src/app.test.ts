@@ -1291,6 +1291,91 @@ describe("createApp", () => {
     });
   });
 
+  // ── Query cancellation ──────────────────────────────────────────
+
+  describe("query cancellation", () => {
+    /** Upstream response whose body keeps streaming and never ends. */
+    function mockUnendingUpstream() {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Map([["content-type", "application/json"]]),
+        body: new Readable({
+          read() {
+            this.push("partial");
+          },
+        }),
+      } as any);
+    }
+
+    const queryBodies = {
+      sparql: { query: "SELECT 1" },
+      gremlin: { gremlin: "g.V()" },
+    };
+
+    /**
+     * Sends a query, abandons it once the upstream request is in flight, and
+     * resolves with the cancellation request's options. Awaiting the
+     * cancellation keeps it from being recorded against the next test's mock.
+     */
+    async function abandonQuery(route: keyof typeof queryBodies) {
+      mockUnendingUpstream();
+      mockFetchOnce();
+
+      const pending = request(createTestApp())
+        .post(`/${route}`)
+        .set(dbHeaders({ queryid: "q-abort" }))
+        .send(queryBodies[route]);
+      const settled = pending.then(
+        () => {},
+        () => {},
+      );
+
+      await vi.waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(1));
+      pending.abort();
+      await settled;
+
+      await vi.waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(2));
+      return fetchOptionsFor(`${route}/status`);
+    }
+
+    it("cancels an abandoned SPARQL query", async () => {
+      const options = await abandonQuery("sparql");
+
+      expect(options.body).toBe("cancelQuery&queryId=q-abort&silent=true");
+      expect(options.headers["User-Agent"]).toBe(
+        `graph-explorer/${testVersion}`,
+      );
+    });
+
+    it("cancels an abandoned Gremlin query", async () => {
+      const options = await abandonQuery("gremlin");
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${graphDbUrl}/gremlin/status?cancelQuery=&queryId=q-abort`,
+        expect.anything(),
+      );
+      expect(options.headers["User-Agent"]).toBe(
+        `graph-explorer/${testVersion}`,
+      );
+    });
+
+    it.each(["sparql", "gremlin"] as const)(
+      "does not cancel a completed %s query",
+      async route => {
+        mockFetchOnce();
+
+        const response = await request(createTestApp())
+          .post(`/${route}`)
+          .set(dbHeaders({ queryid: "q-done" }))
+          .send(queryBodies[route]);
+
+        expect(response.status).toBe(200);
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+      },
+    );
+  });
+
   // ── User-Agent header ───────────────────────────────────────────
 
   describe("User-Agent header", () => {
