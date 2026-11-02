@@ -65,13 +65,29 @@ describe("resolveServerConfig", () => {
       ).toStrictEqual({ port: 9250, startupWarnings: [] });
     });
 
-    it("prefers PROXY_SERVER_PORT and warns the old variable is ignored even when they match", () => {
+    it("stays quiet when PROXY_SERVER_HTTP_PORT matches PROXY_SERVER_PORT with HTTPS off", () => {
       expect(
         resolvePort({ PROXY_SERVER_PORT: 9250, PROXY_SERVER_HTTP_PORT: 9250 }),
+      ).toStrictEqual({ port: 9250, startupWarnings: [] });
+    });
+
+    it("stays quiet when PROXY_SERVER_HTTPS_PORT matches PROXY_SERVER_PORT with HTTPS on", () => {
+      expect(
+        resolvePort({
+          PROXY_SERVER_HTTPS_CONNECTION: true,
+          PROXY_SERVER_PORT: 9250,
+          PROXY_SERVER_HTTPS_PORT: 9250,
+        }),
+      ).toStrictEqual({ port: 9250, startupWarnings: [] });
+    });
+
+    it("prefers PROXY_SERVER_PORT and warns the old variable is ignored when they differ", () => {
+      expect(
+        resolvePort({ PROXY_SERVER_PORT: 9250, PROXY_SERVER_HTTP_PORT: 8080 }),
       ).toStrictEqual({
         port: 9250,
         startupWarnings: [
-          "PROXY_SERVER_HTTP_PORT (9250) is ignored because PROXY_SERVER_PORT (9250) is set. PROXY_SERVER_HTTP_PORT is deprecated, remove it.",
+          "PROXY_SERVER_HTTP_PORT (8080) is ignored because PROXY_SERVER_PORT (9250) is set. PROXY_SERVER_HTTP_PORT is deprecated, remove it.",
         ],
       });
     });
@@ -121,6 +137,29 @@ describe("resolveServerConfig", () => {
       expect(
         resolvePort({ PROXY_SERVER_PORT: 9250, PROXY_SERVER_HTTPS_PORT: 8443 }),
       ).toStrictEqual({ port: 9250, startupWarnings: [warning] });
+    });
+
+    it("still warns the inactive protocol's variable has no effect when it matches PROXY_SERVER_PORT", () => {
+      expect(
+        resolvePort({ PROXY_SERVER_PORT: 9250, PROXY_SERVER_HTTPS_PORT: 9250 }),
+      ).toStrictEqual({
+        port: 9250,
+        startupWarnings: [
+          "PROXY_SERVER_HTTPS_PORT has no effect while HTTPS is off. Remove it.",
+        ],
+      });
+      expect(
+        resolvePort({
+          PROXY_SERVER_HTTPS_CONNECTION: true,
+          PROXY_SERVER_PORT: 9250,
+          PROXY_SERVER_HTTP_PORT: 9250,
+        }),
+      ).toStrictEqual({
+        port: 9250,
+        startupWarnings: [
+          "PROXY_SERVER_HTTP_PORT has no effect while HTTPS is on. Remove it.",
+        ],
+      });
     });
 
     it("builds the base URL from PROXY_SERVER_PORT", () => {

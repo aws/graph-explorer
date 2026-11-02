@@ -86,7 +86,8 @@ function schemeFor(useHttps: boolean): Scheme {
 
 /**
  * Picks the listener's port, preferring PROXY_SERVER_PORT over the deprecated
- * per-protocol variables, with a warning for each deprecated one that is set.
+ * per-protocol variables. Warns for each deprecated variable that is set,
+ * except the listener's own when it matches PROXY_SERVER_PORT.
  */
 function resolvePort(env: EnvironmentValues, useHttps: boolean) {
   const { defaultPort, portVariable, otherPortVariable } =
@@ -94,7 +95,10 @@ function resolvePort(env: EnvironmentValues, useHttps: boolean) {
   const warnings: string[] = [];
 
   const deprecatedPort = env[portVariable];
-  if (deprecatedPort !== undefined) {
+  if (
+    deprecatedPort !== undefined &&
+    deprecatedPort !== env.PROXY_SERVER_PORT
+  ) {
     warnings.push(
       env.PROXY_SERVER_PORT === undefined
         ? `${portVariable} is deprecated. Use PROXY_SERVER_PORT instead.`
