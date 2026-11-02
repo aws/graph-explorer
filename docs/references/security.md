@@ -214,7 +214,7 @@ PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com,https://other-app.example.co
 
 ## Database Origin Allowlist
 
-By default, the proxy server forwards requests to any database URL specified by the client, except a reserved cloud service or IPv6 link-local address (see [Reserved Cloud Service Addresses](#reserved-cloud-service-addresses)). A host name is refused when one of its DNS answers is one of those reserved addresses, or when every answer is IPv6 link-local, unless [an environment proxy](#with-an-environment-proxy) is on. You can restrict which database origins the proxy will contact by setting [`PROXY_SERVER_ALLOWED_DB_ORIGINS`](./configuration.md#proxy_server_allowed_db_origins). Requests targeting an unlisted origin receive a 403 response.
+By default, the proxy server forwards requests to any database URL specified by the client, except a reserved cloud service or IPv6 link-local address (see [Reserved Cloud Service Addresses](#reserved-cloud-service-addresses)). A host name is refused when one of its DNS answers is one of those reserved addresses, or when every answer is IPv6 link-local, unless [an environment proxy](#with-an-environment-proxy) is on. This default is an accepted risk, not a guarantee. You can restrict which database origins the proxy will contact by setting [`PROXY_SERVER_ALLOWED_DB_ORIGINS`](./configuration.md#proxy_server_allowed_db_origins). Requests targeting an unlisted origin receive a 403 response.
 
 On a host with AWS credentials, such as an EC2 instance profile or ECS task role, the proxy server signs requests with the host's identity, which every user of the deployment shares. Scope that identity's database policy first, because Neptune enforces it no matter what sends the request. Set the allowlist as well to add a second boundary in the proxy server, which also limits requests to databases that don't use IAM authentication. See [Permissions](#permissions).
 
@@ -266,9 +266,9 @@ Because the identity is shared, any user can reach any database its policy allow
 
 The policy is the stronger control, because Neptune enforces it no matter what sends the request. The allowlist adds a second boundary in the proxy server, and covers databases that don't use IAM authentication. The proxy server also [doesn't follow redirects](#http-redirects), so a database response can't send it on to another destination.
 
-Graph Explorer doesn't limit which databases it signs for by default. Many deployments serve one person who chooses their own databases, and refusing would break them for a risk the identity's policy already controls. Whoever runs a shared deployment decides how far to limit it.
+Graph Explorer doesn't limit which databases it signs for by default. Many deployments serve one person who chooses their own databases, and refusing would break them for a risk the identity's policy already controls. This default is an accepted risk, not a guarantee. Whoever runs a shared deployment decides how far to limit it.
 
-For the minimum Neptune permissions Graph Explorer needs, see [Sample IAM Policies](../guides/iam-policies/README.md#choose-a-policy). For SageMaker notebooks, see [Minimum Database Permissions](../guides/deploy-to-sagemaker.md#minimum-database-permissions).
+For the minimum Neptune permissions Graph Explorer needs, see [Sample IAM Policies](../guides/iam-policies/README.md#choose-a-policy). The sample SageMaker lifecycle script sets the allowlist to your Neptune endpoint. That doesn't replace the notebook instance's IAM role policy, which Neptune checks on every signed request, so scope it as described in [Minimum Database Permissions](../guides/deploy-to-sagemaker.md#minimum-database-permissions).
 
 > [!CAUTION]
 >
