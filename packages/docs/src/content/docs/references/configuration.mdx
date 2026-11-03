@@ -1,6 +1,6 @@
-[← References](./index.mdx)
-
-# Configuration
+---
+title: "Configuration"
+---
 
 All environment variables for configuring Graph Explorer, organized by concern.
 
@@ -10,9 +10,9 @@ These variables control server behavior, networking, and security.
 
 ### `HOST`
 
-The public hostname of the server. It feeds the Subject Alternative Name of the self-signed SSL certificate and the UI URL the server prints at startup. It doesn't choose where the server listens or limit who can reach it. See [`PROXY_SERVER_LISTEN_ADDRESS`](#proxy_server_listen_address) and [Supported Hosting](./security.mdx#supported-hosting).
+The public hostname of the server. It feeds the Subject Alternative Name of the self-signed SSL certificate and the UI URL the server prints at startup. It doesn't choose where the server listens or limit who can reach it. See [`PROXY_SERVER_LISTEN_ADDRESS`](#proxy_server_listen_address) and [Supported Hosting](../security/#supported-hosting).
 
-In Docker with HTTPS on, `HOST` decides where the certificate comes from. When it is set, a new container generates a fresh self-signed certificate for that hostname, which invalidates any trust you granted to the previous one. When it is unset, the container reuses the certificate files already in `cert-info` and stops if any are missing. See [HTTPS Connections](./security.mdx#https-connections) and [Keeping the certificate across container replacements](./security.mdx#keeping-the-certificate-across-container-replacements).
+In Docker with HTTPS on, `HOST` decides where the certificate comes from. When it is set, a new container generates a fresh self-signed certificate for that hostname, which invalidates any trust you granted to the previous one. When it is unset, the container reuses the certificate files already in `cert-info` and stops if any are missing. See [HTTPS Connections](../security/#https-connections) and [Keeping the certificate across container replacements](../security/#keeping-the-certificate-across-container-replacements).
 
 Example: `localhost`
 
@@ -30,19 +30,23 @@ Example: `9250`
 - Default: `443` with HTTPS, `80` with HTTP
 - Type: `number` from `1` to `65535`
 
-> [!NOTE]
->
-> In Kubernetes, a Service named `proxy-server` in the pod's namespace makes the kubelet set `PROXY_SERVER_PORT=tcp://<ip>:<port>` in the pod, which fails startup. To avoid it, set `PROXY_SERVER_PORT` in the container's `env`, or set `enableServiceLinks: false` in the pod spec.
+:::note
+
+In Kubernetes, a Service named `proxy-server` in the pod's namespace makes the kubelet set `PROXY_SERVER_PORT=tcp://<ip>:<port>` in the pod, which fails startup. To avoid it, set `PROXY_SERVER_PORT` in the container's `env`, or set `enableServiceLinks: false` in the pod spec.
+
+:::
 
 ### `PROXY_SERVER_LISTEN_ADDRESS`
 
 The IP address the proxy server listens on. `127.0.0.1` accepts connections from this machine only. `::` or `0.0.0.0` listens on every network interface, over both IPv6 and IPv4 where the host supports them. Any other address listens on the one network interface that has it. Hostnames aren't accepted, and an empty value stops the server at startup.
 
-When running from source, set it in `.env.local` in your configuration folder, which is `packages/graph-explorer` unless you set [`CONFIGURATION_FOLDER_PATH`](#configuration_folder_path). `pnpm dev` reaches the proxy server at `localhost`, so use `127.0.0.1`, `0.0.0.0`, or `::` there. Other machines that can reach the server get plain HTTP unless it serves HTTPS. Graph Explorer has no authentication, so limit who can reach the port. See [Access Control](./security.mdx#access-control) and [Supported Hosting](./security.mdx#supported-hosting).
+When running from source, set it in `.env.local` in your configuration folder, which is `packages/graph-explorer` unless you set [`CONFIGURATION_FOLDER_PATH`](#configuration_folder_path). `pnpm dev` reaches the proxy server at `localhost`, so use `127.0.0.1`, `0.0.0.0`, or `::` there. Other machines that can reach the server get plain HTTP unless it serves HTTPS. Graph Explorer has no authentication, so limit who can reach the port. See [Access Control](../security/#access-control) and [Supported Hosting](../security/#supported-hosting).
 
-> [!WARNING]
->
-> Leave it unset in a container that publishes ports. The image listens on every interface inside the container, which a published port needs, and setting `127.0.0.1` makes the container unreachable through any port you publish. To keep it private to its host, publish its port on `127.0.0.1` instead, such as `-p 127.0.0.1:443:443`. A container on host networking (`--network host`) has no published port and shares the host's interfaces, so set `127.0.0.1` there to keep it private.
+:::caution
+
+Leave it unset in a container that publishes ports. The image listens on every interface inside the container, which a published port needs, and setting `127.0.0.1` makes the container unreachable through any port you publish. To keep it private to its host, publish its port on `127.0.0.1` instead, such as `-p 127.0.0.1:443:443`. A container on host networking (`--network host`) has no published port and shares the host's interfaces, so set `127.0.0.1` there to keep it private.
+
+:::
 
 Example: `0.0.0.0`
 
@@ -52,9 +56,11 @@ Example: `0.0.0.0`
 
 ### `PROXY_SERVER_HTTPS_PORT`
 
-> [!NOTE]
->
-> Deprecated. Use [`PROXY_SERVER_PORT`](#proxy_server_port) instead. This variable will be removed in a future release.
+:::note
+
+Deprecated. Use [`PROXY_SERVER_PORT`](#proxy_server_port) instead. This variable will be removed in a future release.
+
+:::
 
 The port to use for the HTTPS server. Ignored when `PROXY_SERVER_PORT` is set. The server logs a warning at startup whenever this variable is set, unless HTTPS is on and `PROXY_SERVER_PORT` has the same value.
 
@@ -64,9 +70,11 @@ The port to use for the HTTPS server. Ignored when `PROXY_SERVER_PORT` is set. T
 
 ### `PROXY_SERVER_HTTP_PORT`
 
-> [!NOTE]
->
-> Deprecated. Use [`PROXY_SERVER_PORT`](#proxy_server_port) instead. This variable will be removed in a future release.
+:::note
+
+Deprecated. Use [`PROXY_SERVER_PORT`](#proxy_server_port) instead. This variable will be removed in a future release.
+
+:::
 
 The port to use for the HTTP server. Ignored when `PROXY_SERVER_PORT` is set. The server logs a warning at startup whenever this variable is set, unless HTTPS is off and `PROXY_SERVER_PORT` has the same value.
 
@@ -76,9 +84,9 @@ The port to use for the HTTP server. Ignored when `PROXY_SERVER_PORT` is set. Th
 
 ### `PROXY_SERVER_HTTPS_CONNECTION`
 
-Serves the proxy server over HTTPS when true, using the certificate files described in [HTTPS Connections](./security.mdx#https-connections).
+Serves the proxy server over HTTPS when true, using the certificate files described in [HTTPS Connections](../security/#https-connections).
 
-Set it to `false` only behind a reverse proxy that terminates TLS, or to try Graph Explorer on your own machine. Plain HTTP that other machines can reach isn't supported. See [Serving HTTP Behind a Reverse Proxy](./security.mdx#serving-http-behind-a-reverse-proxy).
+Set it to `false` only behind a reverse proxy that terminates TLS, or to try Graph Explorer on your own machine. Plain HTTP that other machines can reach isn't supported. See [Serving HTTP Behind a Reverse Proxy](../security/#serving-http-behind-a-reverse-proxy).
 
 - Optional
 - Default `false` in code, `true` in Docker via the entrypoint script
@@ -96,7 +104,7 @@ Example: `https://my-app.example.com` or `https://app-a.example.com,https://app-
 
 ### `PROXY_SERVER_ALLOWED_DB_ORIGINS`
 
-Restricts which database origins the proxy server will forward requests to. When set, requests targeting an origin not in the list receive a 403 response. When not set, the proxy forwards to any database URL specified by the client (current default behavior). See [Database Origin Allowlist](./security.mdx#database-origin-allowlist). The [reserved cloud service addresses the proxy server refuses](./security.mdx#reserved-cloud-service-addresses) are refused either way. A host name is refused when one of its DNS answers is one of those reserved addresses, or when every answer is IPv6 link-local, unless [an environment proxy](./security.mdx#with-an-environment-proxy) is on.
+Restricts which database origins the proxy server will forward requests to. When set, requests targeting an origin not in the list receive a 403 response. When not set, the proxy forwards to any database URL specified by the client (current default behavior). See [Database Origin Allowlist](../security/#database-origin-allowlist). The [reserved cloud service addresses the proxy server refuses](../security/#reserved-cloud-service-addresses) are refused either way. A host name is refused when one of its DNS answers is one of those reserved addresses, or when every answer is IPv6 link-local, unless [an environment proxy](../security/#with-an-environment-proxy) is on.
 
 Values must be origins (scheme + host + optional port). Including a path will cause a startup error.
 
@@ -117,9 +125,11 @@ PROXY_SERVER_ALLOWED_DB_ORIGINS=https://my-neptune-cluster:8182/sparql
 - Default: all origins allowed
 - Type: `string` (comma-separated for multiple origins)
 
-> [!NOTE]
->
-> This check applies only to requests routed through the proxy server. It doesn't apply to direct connections, because the browser sends their requests to the database itself.
+:::note
+
+This check applies only to requests routed through the proxy server. It doesn't apply to direct connections, because the browser sends their requests to the database itself.
+
+:::
 
 ### `LOG_STYLE`
 
@@ -133,21 +143,23 @@ Controls the log output format.
 
 ### `LOG_LEVEL`
 
-Sets the minimum severity the proxy server logs. Values from highest to lowest are `fatal`, `error`, `warn`, `info`, `debug`, `trace`, and `silent`, which disables logging. See [Logging](./logging.mdx).
+Sets the minimum severity the proxy server logs. Values from highest to lowest are `fatal`, `error`, `warn`, `info`, `debug`, `trace`, and `silent`, which disables logging. See [Logging](../logging/).
 
 - Optional
 - Default: `info`
 - Type: `"fatal" | "error" | "warn" | "info" | "debug" | "trace" | "silent"`
 
-> [!WARNING]
->
-> At `debug` and `trace`, when **Enable database query logging on proxy server** is turned on in **Settings** > **General**, the query text sent to your database is written to the logs. Queries can contain sensitive data, so keep those levels for troubleshooting and restrict access to wherever the logs end up.
+:::caution
+
+At `debug` and `trace`, when **Enable database query logging on proxy server** is turned on in **Settings** > **General**, the query text sent to your database is written to the logs. Queries can contain sensitive data, so keep those levels for troubleshooting and restrict access to wherever the logs end up.
+
+:::
 
 ### `CONFIGURATION_FOLDER_PATH`
 
 Override path for the folder containing `.env` and `defaultConnection.json`. When set, replaces the default path entirely.
 
-At startup, the container writes its settings to this folder: always `.env`, and `defaultConnection.json` too when a default connection is configured. The folder must be writable by the container, or it refuses to start. See [Graph Explorer can't start because it can't write .env](../guides/troubleshooting.mdx#graph-explorer-cant-start-because-it-cant-write-env) if you hit this.
+At startup, the container writes its settings to this folder: always `.env`, and `defaultConnection.json` too when a default connection is configured. The folder must be writable by the container, or it refuses to start. See [Graph Explorer can't start because it can't write .env](../../guides/troubleshooting/#graph-explorer-cant-start-because-it-cant-write-env) if you hit this.
 
 Mounting `config.json` read-only at `/graph-explorer/config.json` (see [JSON Configuration Approach](#json-configuration-approach)) is unaffected, since that file lives outside the configuration folder.
 
@@ -159,15 +171,17 @@ Mounting `config.json` read-only at `/graph-explorer/config.json` (see [JSON Con
 
 To provide a default connection such that initial loads of Graph Explorer always result with the same starting connection, modify the `docker run ...` command to either take in a JSON configuration or runtime environment variables. If you provide both a JSON configuration and environmental variables, the JSON will be prioritized.
 
-> [!NOTE]
->
-> The legacy `PUBLIC_OR_PROXY_ENDPOINT` and `USING_PROXY_SERVER` variables are still honored, so an existing deployment needs no change:
->
-> - `USING_PROXY_SERVER=true` (case-insensitive): the default connection goes through the proxy server to `GRAPH_CONNECTION_URL`, and `PUBLIC_OR_PROXY_ENDPOINT` is ignored.
-> - `USING_PROXY_SERVER` set to any other value, or unset with `PUBLIC_OR_PROXY_ENDPOINT` provided: the default connection is a direct connection to `PUBLIC_OR_PROXY_ENDPOINT`, or to `GRAPH_CONNECTION_URL` when `PUBLIC_OR_PROXY_ENDPOINT` is unset. The browser sends its requests to the database itself, and `IAM`, `AWS_REGION`, and `SERVICE_TYPE` are ignored.
-> - `USING_PROXY_SERVER` and `PUBLIC_OR_PROXY_ENDPOINT` both unset: the default connection goes through the proxy server to `GRAPH_CONNECTION_URL`.
->
-> `PUBLIC_OR_PROXY_ENDPOINT` is a legacy alias for the database URL of a direct default connection. Prefer `GRAPH_CONNECTION_URL`, and set `USING_PROXY_SERVER=false` only when the default connection should connect from the browser.
+:::note
+
+The legacy `PUBLIC_OR_PROXY_ENDPOINT` and `USING_PROXY_SERVER` variables are still honored, so an existing deployment needs no change:
+
+- `USING_PROXY_SERVER=true` (case-insensitive): the default connection goes through the proxy server to `GRAPH_CONNECTION_URL`, and `PUBLIC_OR_PROXY_ENDPOINT` is ignored.
+- `USING_PROXY_SERVER` set to any other value, or unset with `PUBLIC_OR_PROXY_ENDPOINT` provided: the default connection is a direct connection to `PUBLIC_OR_PROXY_ENDPOINT`, or to `GRAPH_CONNECTION_URL` when `PUBLIC_OR_PROXY_ENDPOINT` is unset. The browser sends its requests to the database itself, and `IAM`, `AWS_REGION`, and `SERVICE_TYPE` are ignored.
+- `USING_PROXY_SERVER` and `PUBLIC_OR_PROXY_ENDPOINT` both unset: the default connection goes through the proxy server to `GRAPH_CONNECTION_URL`.
+
+`PUBLIC_OR_PROXY_ENDPOINT` is a legacy alias for the database URL of a direct default connection. Prefer `GRAPH_CONNECTION_URL`, and set `USING_PROXY_SERVER=false` only when the default connection should connect from the browser.
+
+:::
 
 ### Environment Variables
 
@@ -214,7 +228,7 @@ docker run -p 443:443 \
  public.ecr.aws/neptune/graph-explorer
 ```
 
-This publishes Graph Explorer on every network interface of the host. Limit who can reach it as described in [Access Control](./security.mdx#access-control).
+This publishes Graph Explorer on every network interface of the host. Limit who can reach it as described in [Access Control](../security/#access-control).
 
 ### Environment Variable Approach
 
@@ -234,4 +248,4 @@ docker run -p 443:443 \
  public.ecr.aws/neptune/graph-explorer
 ```
 
-This publishes Graph Explorer on every network interface of the host. Limit who can reach it as described in [Access Control](./security.mdx#access-control).
+This publishes Graph Explorer on every network interface of the host. Limit who can reach it as described in [Access Control](../security/#access-control).

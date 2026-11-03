@@ -1,6 +1,6 @@
-[← Features](./index.mdx)
-
-# Settings
+---
+title: "Settings"
+---
 
 ## General Settings
 
@@ -8,9 +8,11 @@
 - **Save Configuration:** This action will export all the configuration data within the Graph Explorer local database. This will not store any data from the connected graph databases. However, the export may contain the shape of the schema for your databases and the connection URL.
 - **Load Configuration:** This action replaces all the Graph Explorer configuration data you currently have with the data in the provided configuration file. **Enable database query logging on proxy server** is always off after a load, even if it was on when the file was saved. Turn it back on in General Settings if you need it.
 
-> [!CAUTION]
->
-> Loading a configuration cannot be undone. Run **Save Configuration** first to preserve your existing configuration data.
+:::danger
+
+Loading a configuration cannot be undone. Run **Save Configuration** first to preserve your existing configuration data.
+
+:::
 
 ## Styles
 
@@ -36,9 +38,11 @@ For larger files, filter the preview by **All**, **Nodes**, **Edges**, **New** (
 
 Clears all your node and edge styles, returning every type to the defaults.
 
-> [!CAUTION]
->
-> Resetting cannot be undone. Run **Save styles** first if you might want your current look back.
+:::danger
+
+Resetting cannot be undone. Run **Save styles** first if you might want your current look back.
+
+:::
 
 ## About
 

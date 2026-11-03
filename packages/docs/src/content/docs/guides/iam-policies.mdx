@@ -1,25 +1,27 @@
-[← Guides](index.mdx)
-
-# Sample IAM Policies
+---
+title: "Sample IAM Policies"
+---
 
 When a Connection has IAM authentication turned on, the Graph Explorer proxy server signs its requests with the AWS identity of its host, such as an ECS task role or an EC2 instance profile. That identity needs a Neptune data-access policy, or Neptune refuses every signed request. These samples give you a starting point for that policy.
 
-> [!IMPORTANT]
->
-> These policies are examples, not a recommended production configuration. Review them against your own security requirements before you attach one.
+:::caution
+
+These policies are examples, not a recommended production configuration. Review them against your own security requirements before you attach one.
+
+:::
 
 ## Choose a policy
 
 Start with read-only unless users need to change data from the query editor.
 
-Graph Explorer has no built-in authentication, and every user of a deployment shares the proxy server's identity. With the read-write policy, anyone who can reach the deployment can change or delete data in the database. See [Permissions](../references/security.mdx#permissions).
+Graph Explorer has no built-in authentication, and every user of a deployment shares the proxy server's identity. With the read-write policy, anyone who can reach the deployment can change or delete data in the database. See [Permissions](../../references/security/#permissions).
 
 - **Read-only** runs read queries and reads the graph summary, which schema sync uses. It also allows query cancellation. On Neptune Database, when Graph Explorer stops waiting for a Gremlin or SPARQL query, such as when you close the tab, the query stops on the database too.
-  - [Neptune Database](./_assets/neptune-db-read-only.json)
-  - [Neptune Analytics](./_assets/neptune-analytics-read-only.json)
+  - [Neptune Database](https://github.com/aws/graph-explorer/blob/main/packages/docs/src/content/docs/guides/_assets/neptune-db-read-only.json)
+  - [Neptune Analytics](https://github.com/aws/graph-explorer/blob/main/packages/docs/src/content/docs/guides/_assets/neptune-analytics-read-only.json)
 - **Read-write** adds writing and deleting data to the read-only policy, so queries in the query editor can change the graph.
-  - [Neptune Database](./_assets/neptune-db-read-write.json)
-  - [Neptune Analytics](./_assets/neptune-analytics-read-write.json)
+  - [Neptune Database](https://github.com/aws/graph-explorer/blob/main/packages/docs/src/content/docs/guides/_assets/neptune-db-read-write.json)
+  - [Neptune Analytics](https://github.com/aws/graph-explorer/blob/main/packages/docs/src/content/docs/guides/_assets/neptune-analytics-read-write.json)
 
 For the actions in each policy, see [IAM actions for data access](https://docs.aws.amazon.com/neptune/latest/userguide/iam-dp-actions.html) and the [read-only policy example](https://docs.aws.amazon.com/neptune/latest/userguide/iam-data-access-examples.html#iam-auth-data-policy-example-read-query) in the Neptune User Guide.
 
@@ -33,7 +35,7 @@ Replace each placeholder, including its square brackets, before you attach the p
 - `[NEPTUNE_CLUSTER_RESOURCE_ID]`: the cluster resource ID of your Neptune cluster, shown on its **Configuration** tab and starting with `cluster-`. This is not the cluster identifier.
 - `[NEPTUNE_GRAPH_RESOURCE_ID]`: the graph identifier of your Neptune Analytics graph, starting with `g-`
 
-If Neptune still refuses requests after you attach the policy, see [Requests Refused by Neptune](troubleshooting.mdx#requests-refused-by-neptune).
+If Neptune still refuses requests after you attach the policy, see [Requests Refused by Neptune](../troubleshooting/#requests-refused-by-neptune).
 
 ## Resource scope
 
@@ -43,4 +45,4 @@ The `/*` at the end of the Neptune Database ARN is part of the format Neptune re
 
 ## SageMaker notebooks
 
-The sample policies for SageMaker notebooks are separate and grant every database action, because the notebook role is shared with other tools on the instance. See [Minimum Database Permissions](deploy-to-sagemaker.mdx#minimum-database-permissions).
+The sample policies for SageMaker notebooks are separate and grant every database action, because the notebook role is shared with other tools on the instance. See [Minimum Database Permissions](../deploy-to-sagemaker/#minimum-database-permissions).

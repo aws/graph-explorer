@@ -1,10 +1,12 @@
-[← Guides](./index.mdx)
+---
+title: "Connecting to Gremlin-Server"
+---
 
-# Connecting to Gremlin-Server
+:::caution
 
-> [!WARNING]
->
-> This walkthrough runs Gremlin Server with its default Groovy script engine and is meant for local development only. If anyone other than you can reach Graph Explorer or the server, see [Self-hosted Gremlin Server](../references/security.mdx#self-hosted-gremlin-server).
+This walkthrough runs Gremlin Server with its default Groovy script engine and is meant for local development only. If anyone other than you can reach Graph Explorer or the server, see [Self-hosted Gremlin Server](../../references/security/#self-hosted-gremlin-server).
+
+:::
 
 If you are using the default Gremlin Server docker image, you can get the server running with the following commands:
 
@@ -35,7 +37,7 @@ docker run --network graph-explorer-net --name gremlin-server \
     conf/gremlin-server-rest-modern.yaml
 ```
 
-Start Graph Explorer as in [Deploy with Docker](./deploy-with-docker.mdx) with `--network graph-explorer-net` added to its `docker run` command. To attach a container that's already running, use `docker network connect graph-explorer-net graph-explorer`.
+Start Graph Explorer as in [Deploy with Docker](../deploy-with-docker/) with `--network graph-explorer-net` added to its `docker run` command. To attach a container that's already running, use `docker network connect graph-explorer-net graph-explorer`.
 
 Then add a connection with these settings:
 
@@ -44,7 +46,7 @@ Then add a connection with these settings:
 - Query Language: `Gremlin`
 - Connection method: **Through the Graph Explorer server**
 
-The [Air Routes sample](../../../../../../samples/air_routes/README.md) sets up the same arrangement with Docker Compose.
+The [Air Routes sample](https://github.com/aws/graph-explorer/blob/main/samples/air_routes/README.md) sets up the same arrangement with Docker Compose.
 
 Alternatively, run Gremlin Server with its port published on `127.0.0.1` as above and connect with **Directly from your browser** to `http://localhost:8182`. See [Connect directly from the browser](#connect-directly-from-the-browser).
 
@@ -52,22 +54,24 @@ Alternatively, run Gremlin Server with its port published on `127.0.0.1` as abov
 
 Graph Explorer only supports HTTP(S) connections. When connecting to Gremlin-Server, ensure it is configured with a channelizer that supports HTTP(S) (i.e. [Channelizer Documentation](https://tinkerpop.apache.org/javadocs/current/full/org/apache/tinkerpop/gremlin/server/Channelizer.html)).
 
-> [!TIP]
->
-> The Gremlin Server configuration can be usually found at:
->
-> ```
-> /conf/gremlin-server.yaml
-> ```
+:::tip
+
+The Gremlin Server configuration can be usually found at:
+
+```
+/conf/gremlin-server.yaml
+```
+
+:::
 
 ## Connect directly from the browser
 
-With **Connection method** set to **Directly from your browser**, your browser sends queries to Gremlin Server itself instead of going through the Graph Explorer server. Gremlin Server's HTTP endpoint allows cross-origin requests from any site by default. It leaves the CORS headers off error responses, so a failed query shows as [Database not reachable from the browser](./troubleshooting.mdx#database-not-reachable-from-the-browser). To see the server's error message, use **Through the Graph Explorer server**.
+With **Connection method** set to **Directly from your browser**, your browser sends queries to Gremlin Server itself instead of going through the Graph Explorer server. Gremlin Server's HTTP endpoint allows cross-origin requests from any site by default. It leaves the CORS headers off error responses, so a failed query shows as [Database not reachable from the browser](../troubleshooting/#database-not-reachable-from-the-browser). To see the server's error message, use **Through the Graph Explorer server**.
 
 - The browser must be able to reach the Database URL. A server in a Docker container on your machine needs its port published to the host.
-- When Graph Explorer is served over HTTPS, the browser usually blocks an `http://` Database URL unless it points at a loopback host such as `localhost`. See [Insecure Database URL](./troubleshooting.mdx#insecure-database-url).
+- When Graph Explorer is served over HTTPS, the browser usually blocks an `http://` Database URL unless it points at a loopback host such as `localhost`. See [Insecure Database URL](../troubleshooting/#insecure-database-url).
 
-A direct connection needs your browser to reach Gremlin Server, and every other site open in that browser can then reach it too, even when it listens only on `localhost`. Graph Explorer sends queries as scripts, which Gremlin Server evaluates with its Groovy script engine, so weigh that before choosing this method. See [Self-hosted Gremlin Server](../references/security.mdx#self-hosted-gremlin-server).
+A direct connection needs your browser to reach Gremlin Server, and every other site open in that browser can then reach it too, even when it listens only on `localhost`. Graph Explorer sends queries as scripts, which Gremlin Server evaluates with its Groovy script engine, so weigh that before choosing this method. See [Self-hosted Gremlin Server](../../references/security/#self-hosted-gremlin-server).
 
 ## Versions Prior to 3.7
 
