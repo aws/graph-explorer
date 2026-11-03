@@ -28,14 +28,14 @@ Understand your data model at a glance. See node types, their relationships, and
 
 ## Get Started
 
-- [Hands-on tutorial](./packages/docs/src/content/docs/getting-started/index.mdx) — Try Graph Explorer with sample data using Docker Compose
-- [Deployment & connection guides](./packages/docs/src/content/docs/guides/index.mdx) — Run with Docker, EC2, ECS Fargate, or SageMaker and connect to your database
-- [Security](./packages/docs/src/content/docs/references/security.mdx) — Graph Explorer performs no authentication, so controlling who can reach a deployment is the deployer's responsibility
+- [Hands-on tutorial](https://aws.github.io/graph-explorer/getting-started/) — Try Graph Explorer with sample data using Docker Compose
+- [Deployment & connection guides](https://aws.github.io/graph-explorer/guides/) — Run with Docker, EC2, ECS Fargate, or SageMaker and connect to your database
+- [Security](https://aws.github.io/graph-explorer/references/security/) — Graph Explorer performs no authentication, so controlling who can reach a deployment is the deployer's responsibility
 - [Development](./docs/development.md) — Build from source for local development
 
 ## Documentation
 
-See the [full documentation](./docs) for features, guides, references, and more.
+See the [full documentation](https://aws.github.io/graph-explorer/) for features, guides, references, and more.
 
 ## Community
 
