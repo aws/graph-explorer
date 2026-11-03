@@ -8,6 +8,12 @@ const dateFnsRootImport = {
     "Import each date-fns function from its subpath, such as date-fns/format, not from the date-fns root.",
 };
 
+const deepRelativeImports = {
+  group: ["../../../*", "../../../**"],
+  message:
+    "Don't climb more than two directories; in graph-explorer, import through the `@/` or `@shared/` alias.",
+};
+
 export default defineConfig({
   test: {
     projects: ["packages/*"],
@@ -120,6 +126,7 @@ export default defineConfig({
       "typescript/require-await": "error",
       "typescript/restrict-plus-operands": "error",
       "vite-plus/prefer-vite-plus-imports": "error",
+      "no-restricted-imports": ["error", { patterns: [deepRelativeImports] }],
     },
     overrides: [
       {
@@ -254,6 +261,7 @@ export default defineConfig({
             {
               paths: [dateFnsRootImport],
               patterns: [
+                deepRelativeImports,
                 {
                   group: ["@/connections/*", "@/connections/**"],
                   message:
@@ -272,6 +280,7 @@ export default defineConfig({
             {
               paths: [dateFnsRootImport],
               patterns: [
+                deepRelativeImports,
                 {
                   group: ["@/core"],
                   message:
