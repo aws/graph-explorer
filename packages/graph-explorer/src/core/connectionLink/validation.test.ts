@@ -257,6 +257,36 @@ describe("reading a connection link", () => {
         ).toEqual(['connectionMethod must be one of "proxy", "direct"']);
       },
     );
+
+    test("rejects neptune-graph without an awsRegion on a direct link", () => {
+      expect(
+        problemsOf(
+          "?graphDbUrl=https%3A%2F%2Fg-xxx.us-west-2.neptune-graph.amazonaws.com&connectionMethod=direct&serviceType=neptune-graph",
+        ),
+      ).toEqual(['awsRegion is required when serviceType is "neptune-graph"']);
+    });
+
+    test("accepts neptune-graph with an awsRegion on a direct link", () => {
+      expect(
+        paramsOf(
+          "?graphDbUrl=https%3A%2F%2Fg-xxx.us-west-2.neptune-graph.amazonaws.com&connectionMethod=direct&awsRegion=us-west-2&serviceType=neptune-graph",
+        ),
+      ).toEqual({
+        graphDbUrl: "https://g-xxx.us-west-2.neptune-graph.amazonaws.com",
+        queryEngine: "openCypher",
+        awsRegion: "us-west-2",
+        serviceType: "neptune-graph",
+        name: "g-xxx.us-west-2.neptune-graph.amazonaws.com",
+      });
+    });
+
+    test("rejects a malformed awsRegion on a direct link", () => {
+      expect(
+        problemsOf(
+          "?graphDbUrl=https%3A%2F%2Fdb.example.com&connectionMethod=direct&awsRegion=US-EAST-1",
+        ),
+      ).toEqual(['awsRegion must be an AWS region like "us-east-1"']);
+    });
   });
 
   describe("awsRegion format", () => {

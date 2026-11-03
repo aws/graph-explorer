@@ -327,6 +327,32 @@ describe("matching a link to a stored connection", () => {
       ).toBe(direct);
     });
 
+    test("a direct link matches a Direct Connection that stores other IAM settings", () => {
+      const direct = connectionWithAuth({
+        proxyConnection: false,
+        ...iamInUsEast1,
+      });
+      expect(
+        activatedBy(
+          linkTo(
+            url,
+            "&connectionMethod=direct&queryEngine=gremlin&awsRegion=us-west-2&serviceType=neptune-graph",
+          ),
+          [direct],
+        ),
+      ).toBe(direct);
+    });
+
+    test("a direct link does not match a Direct Connection in another query language", () => {
+      const direct = connectionWithAuth({ proxyConnection: false });
+      expect(
+        activatedBy(
+          linkTo(url, "&connectionMethod=direct&queryEngine=sparql"),
+          [direct],
+        ),
+      ).toBeNull();
+    });
+
     test("an IAM link does not match a non-IAM connection", () => {
       const plain = connectionWithAuth({});
       expect(

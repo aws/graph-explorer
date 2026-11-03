@@ -202,6 +202,7 @@ describe("Connect route", () => {
   describe("connection method", () => {
     const proxyOption = { name: "Through the Graph Explorer server" };
     const browserOption = { name: "Directly from your browser" };
+    const iamOption = { name: "Use AWS IAM authentication" };
 
     test("opens the create form connecting through the proxy server by default", () => {
       new DbState().applyTo(getAppStore());
@@ -236,6 +237,55 @@ describe("Connect route", () => {
         screen.getByRole("checkbox", { name: "Use AWS IAM authentication" }),
       ).toBeChecked();
       expect(screen.getByLabelText("AWS Region")).toHaveValue("us-west-2");
+    });
+
+    test("hides a direct link's IAM settings in the create form", () => {
+      new DbState().applyTo(getAppStore());
+
+      renderConnect(
+        `${searchFor("https://brand-new.neptune.amazonaws.com")}&connectionMethod=direct&awsRegion=us-west-2`,
+      );
+
+      expect(screen.getByRole("checkbox", iamOption)).toBeDisabled();
+      expect(screen.getByRole("checkbox", iamOption)).not.toBeChecked();
+      expect(
+        screen.queryByRole("textbox", { name: "AWS Region" }),
+      ).not.toBeInTheDocument();
+    });
+
+    test("saves a direct link's connection without its IAM settings", async () => {
+      const user = userEvent.setup();
+      new DbState().applyTo(getAppStore());
+      const store = getAppStore();
+
+      renderConnect(
+        `${searchFor("https://brand-new.example.com")}&connectionMethod=direct&awsRegion=us-west-2&serviceType=neptune-db`,
+      );
+      await user.click(screen.getByRole("button", { name: "Add Connection" }));
+
+      expect(await screen.findByText("graph canvas")).toBeInTheDocument();
+      const active = store
+        .get(savedConnectionsAtom)
+        .get(store.get(activeConnectionIdAtom)!);
+      expect(active?.connection).toStrictEqual({
+        graphDbUrl: "https://brand-new.example.com",
+        queryEngine: "gremlin",
+        proxyConnection: false,
+        fetchTimeoutMs: undefined,
+        nodeExpansionLimit: undefined,
+      });
+    });
+
+    test("names connectionMethod on the invalid link card", () => {
+      new DbState().applyTo(getAppStore());
+
+      renderConnect(
+        `${searchFor("https://brand-new.example.com")}&connectionMethod=browser`,
+      );
+
+      expect(problemsShown()).toStrictEqual([
+        'connectionMethod must be one of "proxy", "direct"',
+      ]);
     });
   });
 
