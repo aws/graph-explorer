@@ -1,0 +1,25 @@
+{
+  "name": "@graph-explorer/docs",
+  "version": "3.3.0",
+  "private": true,
+  "description": "The Graph Explorer documentation site.",
+  "license": "Apache-2.0",
+  "author": "amazon",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build && pnpm run check:links",
+    "check:links": "node scripts/check-links.ts",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "devDependencies": {
+    "@astrojs/starlight": "0.42.8",
+    "@fontsource/inter": "^5.3.0",
+    "@lucide/astro": "^1.42.0",
+    "astro": "7.4.4",
+    "astro-vtbot": "^3.1.0",
+    "sharp": "0.35.5",
+    "vite-plus": "catalog:"
+  }
+}

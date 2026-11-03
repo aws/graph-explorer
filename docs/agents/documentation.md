@@ -85,6 +85,16 @@ Import them from `@astrojs/starlight/components`:
 
 Images, policies, and scripts a page uses go in its section's `_assets/` directory.
 
+`public/images/` holds only the landing page screenshots.
+
+### Look and feel
+
+The site has its own theme, separate from the app's. Read `packages/docs/DESIGN.md` before changing `packages/docs/src/styles/` or `packages/docs/src/components/`.
+
+### Build and publish
+
+`vp run docs:dev` serves the site locally. `vp run docs:build` builds it and then runs the link checker, which fails on a link to a missing page, file, or anchor. CI runs the build on every pull request. A merge to `main` that changes `packages/docs/**` deploys the site to https://aws.github.io/graph-explorer/.
+
 ## Docs that mirror code
 
 - `packages/docs/src/content/docs/references/security.mdx#reference-for-access-control-layers` copies the proxy server's routes, methods, request headers, forwarded response headers, body limit, and the Default Connection's Fetch Timeout. A change to any of them updates that section.
