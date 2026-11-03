@@ -1,0 +1,200 @@
+---
+import { Check, CircleX, Copy } from '@lucide/astro';
+
+const lines = [
+	['git', 'clone https://github.com/aws/graph-explorer.git'],
+	['cd', 'graph-explorer/samples/air_routes'],
+	['docker', 'compose up'],
+];
+// A trailing backslash continues the command, so every shell runs the pasted lines as one.
+const command = lines.map((line) => line.join(' ')).join(' && \\\n');
+const instructions = 'https://github.com/aws/graph-explorer/blob/main/samples/air_routes/README.md';
+const app = 'http://localhost:8080/explorer';
+
+// Phones can wrap a line only at a space or after a slash, so a path or `&&` never splits mid-word.
+function words(args: string) {
+	return args.split(' ').map((word) => word.split(/(?<=\/)/));
+}
+---
+
+<section class="run-locally dark-surface" aria-labelledby="run-locally-title">
+	<div class="heading">
+		<h2 id="run-locally-title">Run the air routes sample</h2>
+		<button type="button" class="copy" data-copy={command}>
+			<Copy class="icon-copy" aria-hidden="true" />
+			<Check class="icon-done" aria-hidden="true" />
+			<CircleX class="icon-failed" aria-hidden="true" />
+			<span data-copy-label>Copy</span>
+		</button>
+		<span class="sr-only" role="status" data-copy-status></span>
+	</div>
+	<pre tabindex="0" aria-label="Command to run the air routes sample"><code>{lines.map(([program, args], line) => {
+		const parts = words(args);
+		return <span class="line"><span class="program">{program}</span>{parts.map((segments, word) => <>{' '}{segments.map((segment, index) => <><span class="segment">{segment}{line < lines.length - 1 && word === parts.length - 1 && index === segments.length - 1 && <span class="join"> &amp;&amp; \</span>}</span>{index < segments.length - 1 && <wbr />}</>)}</>)}</span>;
+	})}</code></pre>
+	<div class="footer">
+		<span>Then open <a href={app}>localhost:8080/explorer</a></span>
+		<a href={instructions}>Sample details</a>
+	</div>
+</section>
+
+<script>
+	const outcomes = {
+		copied: { label: 'Copied', status: 'Command copied' },
+		failed: { label: 'Failed', status: 'Copy failed. Select the command to copy it.' },
+	};
+
+	function initCopyButtons() {
+		for (const button of document.querySelectorAll<HTMLButtonElement>('.run-locally .copy')) {
+			const status = button.parentElement?.querySelector('[data-copy-status]');
+			const label = button.querySelector('[data-copy-label]');
+			let resetTimer: number | undefined;
+			button.addEventListener('click', async () => {
+				let outcome: keyof typeof outcomes = 'copied';
+				try {
+					await navigator.clipboard.writeText(button.dataset.copy ?? '');
+				} catch {
+					outcome = 'failed';
+				}
+				button.dataset.state = outcome;
+				if (status) status.textContent = outcomes[outcome].status;
+				if (label) label.textContent = outcomes[outcome].label;
+				clearTimeout(resetTimer);
+				resetTimer = setTimeout(() => {
+					delete button.dataset.state;
+					if (status) status.textContent = '';
+					if (label) label.textContent = 'Copy';
+				}, 2000);
+			});
+		}
+	}
+
+	document.addEventListener('astro:page-load', initCopyButtons);
+</script>
+
+<style>
+	.run-locally {
+		width: 100%;
+		overflow: hidden;
+		border: 1px solid var(--sl-color-gray-6);
+		border-radius: 0.5rem;
+		background: var(--sl-color-gray-7);
+	}
+
+	.heading {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 0.5rem 0.75rem 0.5rem 1rem;
+		border-bottom: 1px solid var(--sl-color-gray-6);
+	}
+
+	h2 {
+		margin: 0;
+		font-size: var(--sl-text-sm);
+		font-weight: 600;
+		color: var(--sl-color-gray-2);
+	}
+
+	pre {
+		margin: 0;
+		padding: 0.875rem 1rem;
+		border: 0;
+		background: transparent;
+		font-family: var(--__sl-font-mono);
+		font-size: var(--sl-text-xs);
+		line-height: 1.7;
+		color: var(--sl-color-white);
+		white-space: pre-wrap;
+	}
+
+	/* A wrapped line indents under its program name, so each command still reads as one line. */
+	.line {
+		display: block;
+		padding-left: 2ch;
+		text-indent: -2ch;
+	}
+
+	.segment {
+		white-space: nowrap;
+	}
+
+	.program {
+		font-weight: 600;
+		color: var(--sl-color-accent-high);
+	}
+
+	.join {
+		color: var(--sl-color-gray-3);
+	}
+
+	.copy {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		min-height: 2rem;
+		padding: 0.25rem 0.625rem;
+		border: 1px solid var(--sl-color-gray-5);
+		font: inherit;
+		font-size: var(--sl-text-xs);
+		font-weight: 500;
+		border-radius: 0.375rem;
+		background: transparent;
+		color: var(--sl-color-gray-3);
+		cursor: pointer;
+		transition:
+			color var(--sl-transition),
+			border-color var(--sl-transition);
+	}
+
+	.copy:hover {
+		color: var(--sl-color-accent-high);
+		border-color: var(--sl-color-accent);
+	}
+
+	.copy:focus-visible {
+		outline: 2px solid var(--sl-color-accent);
+		outline-offset: 1px;
+	}
+
+	.copy :global(svg) {
+		width: 0.875rem;
+		height: 0.875rem;
+	}
+
+	.copy :global(.icon-done),
+	.copy :global(.icon-failed),
+	.copy[data-state] :global(.icon-copy) {
+		display: none;
+	}
+
+	.copy[data-state='copied'] :global(.icon-done) {
+		display: block;
+		color: var(--sl-color-green);
+	}
+
+	.copy[data-state='failed'] {
+		color: var(--sl-color-red);
+		border-color: var(--sl-color-red);
+	}
+
+	.copy[data-state='failed'] :global(.icon-failed) {
+		display: block;
+	}
+
+	.footer {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		gap: 0.25rem 1rem;
+		padding: 0.625rem 1rem;
+		border-top: 1px solid var(--sl-color-gray-6);
+		font-size: var(--sl-text-xs);
+		color: var(--sl-color-gray-3);
+	}
+
+	a {
+		color: var(--sl-color-text-accent);
+	}
+</style>

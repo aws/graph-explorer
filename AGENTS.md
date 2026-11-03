@@ -54,6 +54,7 @@ Correct behavior is necessary but not sufficient — structural quality is a har
 Read the relevant doc before working in that area:
 
 - `docs/agents/design.md` — visual design system: color tokens, dark mode policy, Tailwind conventions
+- `packages/docs/DESIGN.md` — the docs site's own theme: palette, type scale, cards, buttons, light and dark themes
 - `docs/agents/react.md` — components, hooks, state, forms, concurrent rendering, accessibility, query-language translation
 - `docs/agents/testing.md` — Vitest patterns, DbState, factories, backward-compat
 - `docs/agents/connectors.md` — Gremlin/openCypher/SPARQL query templates
@@ -117,6 +118,8 @@ Run from the project root. Bare `tsc`, `tsgo`, `vitest`, `oxlint`, and `oxfmt` u
 - `vp test` — run all tests once
 - `vp test <path>` — test files matching a path substring (file, dir, or partial)
 - `vp test -t "suite > name"` — test by name, with segments joined by a spaced `>` exactly as the reporter prints them; a single segment such as `-t "renders empty state"` also works
+- `vp run docs:dev` — serve the docs site locally
+- `vp run docs:build` — build the docs site, then fail on a link to a missing page, file, or anchor, or on an alert that did not render
 - `pnpm dedupe --check` — after a dependency change, confirms the lockfile has no drift; CI runs it
 
 ## Agent skills

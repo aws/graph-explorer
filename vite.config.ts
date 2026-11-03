@@ -223,6 +223,11 @@ export default defineConfig({
         },
       },
       {
+        files: ["packages/docs/scripts/**/*.ts"],
+        env: { node: true },
+        rules: { "no-console": "off" },
+      },
+      {
         files: [
           "packages/graph-explorer/src/**/*.{ts,tsx}",
           "packages/shared/src/**/*.ts",

@@ -87,6 +87,16 @@ Import them from `@astrojs/starlight/components`:
 
 Images, policies, and scripts a page uses go in its section's `_assets/` directory.
 
+`public/images/` holds only the landing page screenshots.
+
+### Look and feel
+
+The site has its own theme, separate from the app's. Read `packages/docs/DESIGN.md` before changing `packages/docs/src/styles/` or `packages/docs/src/components/`.
+
+### Build and publish
+
+Run `vp run docs:build` after editing a page.
+
 ## Docs that mirror code
 
 - `packages/docs/src/content/docs/references/security.mdx#reference-for-access-control-layers` copies the proxy server's routes, methods, request headers, forwarded response headers, body limit, and the Default Connection's Fetch Timeout. A change to any of them updates that section.

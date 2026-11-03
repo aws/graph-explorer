@@ -1,0 +1,157 @@
+/* ==========================================================================
+   Color Tokens — Dark Mode
+   ========================================================================== */
+
+/* `.dark-surface` keeps terminal boxes dark in the light theme too. */
+:root,
+.dark-surface {
+  --sl-content-width: 80ch;
+  --image-outline: oklch(100% 0 0 / 0.1);
+  --sl-color-accent-low: oklch(25% 0.063 247.66);
+  --sl-color-accent: oklch(78.4% 0.108 254.45);
+  --sl-color-accent-high: oklch(85.4% 0.071 258.35);
+  --sl-color-accent-hover: var(--sl-color-accent-high);
+  --sl-color-white: oklch(98.4% 0.003 247.858);
+  --sl-color-gray-1: oklch(96.8% 0.007 247.896);
+  --sl-color-gray-2: oklch(86.9% 0.022 252.894);
+  --sl-color-gray-3: oklch(70.4% 0.04 256.788);
+  --sl-color-gray-4: oklch(55.4% 0.046 257.417);
+  --sl-color-gray-5: oklch(37.2% 0.044 257.287);
+  --sl-color-gray-6: oklch(27.9% 0.041 260.031);
+  --sl-color-gray-7: oklch(20.8% 0.042 265.755);
+  --sl-color-black: oklch(12.9% 0.042 264.695);
+  --sl-color-bg-nav: var(--sl-color-bg);
+  --sl-color-bg-sidebar: var(--sl-color-bg);
+
+  /* Semantic colors */
+  --sl-color-orange-high: oklch(47% 0.157 37.304);
+  --sl-color-orange: oklch(75% 0.183 55.934);
+  --sl-color-orange-low: oklch(95.4% 0.038 75.164);
+  --sl-color-green-high: oklch(44.8% 0.119 151.328);
+  --sl-color-green: oklch(72.3% 0.219 149.579);
+  --sl-color-green-low: oklch(96.2% 0.044 156.743);
+  --sl-color-blue-high: oklch(42.4% 0.199 265.638);
+  --sl-color-blue: oklch(70.7% 0.165 254.624);
+  --sl-color-blue-low: oklch(93.2% 0.032 255.585);
+  --sl-color-purple-high: oklch(43.8% 0.218 303.724);
+  --sl-color-purple: oklch(71.4% 0.203 305.504);
+  --sl-color-purple-low: oklch(94.6% 0.033 307.174);
+  --sl-color-red-high: oklch(45.5% 0.188 13.697);
+  --sl-color-red: oklch(64.5% 0.246 16.439);
+  --sl-color-red-low: oklch(94.1% 0.03 12.58);
+
+  /* Typography — minor third scale (1.2) */
+  --sl-font: "Inter", sans-serif;
+  --sl-line-height: 1.6;
+  --sl-text-h1: calc(var(--sl-text-sm) * pow(1.2, 6 - 1));
+  --sl-text-h2: calc(var(--sl-text-sm) * pow(1.2, 6 - 2));
+  --sl-text-h3: calc(var(--sl-text-sm) * pow(1.2, 6 - 3));
+  --sl-text-h4: calc(var(--sl-text-sm) * pow(1.2, 6 - 4));
+  --sl-text-h5: calc(var(--sl-text-sm) * pow(1.2, 6 - 5));
+  --sl-text-h6: calc(var(--sl-text-sm) * pow(1.2, 6 - 6));
+
+  /* Shadows */
+  --sl-shadow-sm: none;
+  --sl-shadow-md: none;
+
+  /* Transitions */
+  --sl-transition: 0.2s ease-in-out;
+
+  /* GitHub alerts */
+  --ge-alert-note: #4493f8;
+  --ge-alert-tip: #3fb950;
+  --ge-alert-important: #ab7df8;
+  --ge-alert-warning: #d29922;
+  --ge-alert-caution: #f85149;
+
+  /* Badges */
+  --sl-badge-default-bg: oklch(from var(--sl-color-accent-high) l c h / 15%);
+  --sl-badge-default-border: var(--sl-color-accent-high);
+  --sl-badge-default-text: var(--sl-color-accent-high);
+
+  --sl-badge-note-bg: oklch(from var(--sl-color-blue-low) l c h / 15%);
+  --sl-badge-note-border: var(--sl-color-blue-low);
+  --sl-badge-note-text: var(--sl-color-blue-low);
+
+  --sl-badge-danger-bg: oklch(from var(--sl-color-red-low) l c h / 15%);
+  --sl-badge-danger-border: var(--sl-color-red-low);
+  --sl-badge-danger-text: var(--sl-color-red-low);
+
+  --sl-badge-success-bg: oklch(from var(--sl-color-green-low) l c h / 15%);
+  --sl-badge-success-border: var(--sl-color-green-low);
+  --sl-badge-success-text: var(--sl-color-green-low);
+
+  --sl-badge-caution-bg: oklch(from var(--sl-color-orange-low) l c h / 15%);
+  --sl-badge-caution-border: var(--sl-color-orange-low);
+  --sl-badge-caution-text: var(--sl-color-orange-low);
+
+  --sl-badge-tip-bg: oklch(from var(--sl-color-purple-low) l c h / 15%);
+  --sl-badge-tip-border: var(--sl-color-purple-low);
+  --sl-badge-tip-text: var(--sl-color-purple-low);
+}
+
+/* Starlight derives these on :root from the theme's grays, so a dark surface derives them again. */
+.dark-surface {
+  --sl-color-text: var(--sl-color-gray-2);
+  --sl-color-text-accent: var(--sl-color-accent-high);
+  color-scheme: dark;
+}
+
+/* ==========================================================================
+   Color Tokens — Light Mode
+   ========================================================================== */
+
+:root[data-theme="light"] {
+  --image-outline: oklch(20.8% 0.042 265.755 / 0.1);
+  --sl-color-accent-low: oklch(93.1% 0.032 260.03);
+  --sl-color-accent: oklch(46.5% 0.117 247.2);
+  --sl-color-accent-high: oklch(35.4% 0.089 247.01);
+  --sl-color-accent-hover: var(--sl-color-accent-high);
+  --sl-color-white: oklch(12.9% 0.042 264.695);
+  --sl-color-gray-1: oklch(20.8% 0.042 265.755);
+  --sl-color-gray-2: oklch(27.9% 0.041 260.031);
+  --sl-color-gray-3: oklch(44.6% 0.043 257.281);
+  --sl-color-gray-4: oklch(55.4% 0.046 257.417);
+  --sl-color-gray-5: oklch(86.9% 0.022 252.894);
+  --sl-color-gray-6: oklch(96.8% 0.007 247.896);
+  --sl-color-gray-7: oklch(98.4% 0.003 247.858);
+  --sl-color-black: oklch(98.4% 0.003 247.858);
+  --sl-color-bg: oklch(96.8% 0.007 247.896);
+  --sl-color-bg-nav: var(--sl-color-bg);
+  --sl-color-bg-sidebar: var(--sl-color-bg);
+
+  --sl-color-orange-high: oklch(95.4% 0.038 75.164);
+  --sl-color-orange: oklch(64.6% 0.222 41.116);
+  --sl-color-orange-low: oklch(47% 0.157 37.304);
+  --sl-color-green-high: oklch(96.2% 0.044 156.743);
+  --sl-color-green: oklch(62.7% 0.194 149.214);
+  --sl-color-green-low: oklch(44.8% 0.119 151.328);
+  --sl-color-blue-high: oklch(93.2% 0.032 255.585);
+  --sl-color-blue: oklch(54.6% 0.245 262.881);
+  --sl-color-blue-low: oklch(42.4% 0.199 265.638);
+  --sl-color-purple-high: oklch(94.6% 0.033 307.174);
+  --sl-color-purple: oklch(55.8% 0.288 302.321);
+  --sl-color-purple-low: oklch(43.8% 0.218 303.724);
+  --sl-color-red-high: oklch(94.1% 0.03 12.58);
+  --sl-color-red: oklch(58.6% 0.253 17.585);
+  --sl-color-red-low: oklch(45.5% 0.188 13.697);
+
+  --ge-alert-note: #0969da;
+  --ge-alert-tip: #1a7f37;
+  --ge-alert-important: #8250df;
+  --ge-alert-warning: #8a5c00;
+  --ge-alert-caution: #d1242f;
+
+  /* Shadows */
+  --shadow-color: 210deg 12% 77%;
+  --sl-shadow-sm:
+    0.3px 0.5px 0.8px hsl(var(--shadow-color) / 0.07),
+    0.4px 0.8px 1.2px -0.5px hsl(var(--shadow-color) / 0.13),
+    0.8px 1.5px 2.3px -1px hsl(var(--shadow-color) / 0.2);
+  --sl-shadow-md:
+    0.3px 0.5px 0.8px hsl(var(--shadow-color) / 0.06),
+    0.7px 1.4px 2.1px -0.2px hsl(var(--shadow-color) / 0.09),
+    1.2px 2.4px 3.6px -0.5px hsl(var(--shadow-color) / 0.12),
+    2.1px 4.2px 6.3px -0.7px hsl(var(--shadow-color) / 0.16),
+    3.8px 7.5px 11.4px -1px hsl(var(--shadow-color) / 0.19);
+}
