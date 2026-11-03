@@ -4,7 +4,7 @@ In this repo the costliest mistakes are breaking data that users have already sa
 
 ## What Important means here
 
-Reserve Important for the cases below. Everything else is Nit at most. That includes the structure and style rules in `AGENTS.md`, even though it calls structural quality a hard requirement.
+Reserve Important for the cases below. Everything else is Nit at most. That includes the structure and style rules in `CODING_STANDARDS.md`.
 
 - **Saved or exported data breaks.** If a change touches a persisted atom, an export file format (connections, styling, graph), the default connection payload, or an environment variable, the new build must still read old values. Files this build writes must stay readable by older releases. Flag a shape change that lacks the backward-compatibility tests `docs/agents/testing.md` requires. Also flag any edit to a `__fixtures__` golden file or a backward-compatibility test that makes the test pass instead of fixing the code.
 - **Queries the database can't run, or runs badly.**
