@@ -28,9 +28,9 @@ Understand your data model at a glance. See node types, their relationships, and
 
 ## Get Started
 
-- [Hands-on tutorial](./docs/getting-started/README.md) — Try Graph Explorer with sample data using Docker Compose
-- [Deployment & connection guides](./docs/guides) — Run with Docker, EC2, ECS Fargate, or SageMaker and connect to your database
-- [Security](./docs/references/security.md) — Graph Explorer performs no authentication, so controlling who can reach a deployment is the deployer's responsibility
+- [Hands-on tutorial](./packages/docs/src/content/docs/getting-started/index.mdx) — Try Graph Explorer with sample data using Docker Compose
+- [Deployment & connection guides](./packages/docs/src/content/docs/guides/index.mdx) — Run with Docker, EC2, ECS Fargate, or SageMaker and connect to your database
+- [Security](./packages/docs/src/content/docs/references/security.mdx) — Graph Explorer performs no authentication, so controlling who can reach a deployment is the deployer's responsibility
 - [Development](./docs/development.md) — Build from source for local development
 
 ## Documentation

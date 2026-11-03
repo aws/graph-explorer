@@ -1,18 +1,18 @@
-[← Guides](./)
+[← Guides](./index.mdx)
 
 # Running Graph Explorer on AWS Fargate + Amazon ECS
 
 The following steps will allow you to set up Graph Explorer on AWS Fargate in Amazon ECS, and connect to a running Neptune database.
 
-This guide is an example, not a recommended production configuration. Review its network, access control, and IAM choices against your own security requirements before you run it in production. For the hosting setups Graph Explorer supports, see [Supported Hosting](../references/security.md#supported-hosting). For general guidance on securing a production workload, see the [Security Pillar of the AWS Well-Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html).
+This guide is an example, not a recommended production configuration. Review its network, access control, and IAM choices against your own security requirements before you run it in production. For the hosting setups Graph Explorer supports, see [Supported Hosting](../references/security.mdx#supported-hosting). For general guidance on securing a production workload, see the [Security Pillar of the AWS Well-Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html).
 
 > [!IMPORTANT]
 >
-> The Graph Explorer server, not your browser, connects to the database for proxied connections, so it needs network access to the database endpoint. See [System overview](../architecture.md#system-overview) for details.
+> The Graph Explorer server, not your browser, connects to the database for proxied connections, so it needs network access to the database endpoint. See [System overview](../references/architecture.mdx#system-overview) for details.
 
 > [!IMPORTANT]
 >
-> Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../references/security.md#access-control).
+> Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../references/security.mdx#access-control).
 
 ## Create a new IAM role and permission policies
 
@@ -26,12 +26,12 @@ This guide is an example, not a recommended production configuration. Review its
 8. For **Add tags (optional)**, enter any custom tags to associate with the policy.
 9. Click **Create role** to finish, and keep the role name handy to use in the next steps.
 
-   ![image](./deploy-to-ecs-fargate/iam-role.png)
+   ![image](./_assets/iam-role.png)
 
 10. If your Neptune cluster has IAM database authentication enabled, attach a database policy to the role. The proxy server signs requests with the task role, and Neptune refuses them without this policy.
     1. Open the `GraphExplorer_ECS_Role` role, then click **Add permissions** > **Create inline policy**.
-    2. Switch to the **JSON** editor and paste the contents of one of the [Sample IAM Policies](./iam-policies/README.md#choose-a-policy) for your database.
-    3. Replace the placeholders as described in [Sample IAM Policies](./iam-policies/README.md#placeholders).
+    2. Switch to the **JSON** editor and paste the contents of one of the [Sample IAM Policies](./iam-policies.mdx#choose-a-policy) for your database.
+    3. Replace the placeholders as described in [Sample IAM Policies](./iam-policies.mdx#placeholders).
     4. Click **Next**, name the policy, and click **Create policy**.
 
 ## Create an Amazon ECS Cluster
@@ -52,7 +52,7 @@ This guide is an example, not a recommended production configuration. Review its
 
 After the cluster has finished creation, you can create task definitions for your applications, which can then be run as standalone tasks, or as part of a service.
 
-![image](./deploy-to-ecs-fargate/ecs-cluster.png)
+![image](./_assets/ecs-cluster.png)
 
 ## Request an ACM Public Certificate
 
@@ -160,24 +160,24 @@ After the request is processed, the console will return you to your certificate 
    ```
 5. In the JSON template, update the following fields:
    - `taskRoleArn` and `executionRoleArn`: The ARN of the IAM role created in step "Create a new IAM role and permission policies".
-   - `environment` variables section (see [Configuration](../references/configuration.md#default-connection) for more details):
+   - `environment` variables section (see [Configuration](../references/configuration.mdx#default-connection) for more details):
      - `AWS_REGION`: The AWS region in which your Neptune cluster is located.
      - `GRAPH_TYPE`: The query language for your initial connection.
      - `IAM`: Set this to `true` to use SigV4 signed requests, if your Neptune cluster has IAM db authentication enabled.
      - `GRAPH_CONNECTION_URL`: Set this as `https://{NEPTUNE_ENDPOINT}:8182`.
-     - `PROXY_SERVER_ALLOWED_DB_ORIGINS`: Set this to the same origin as `GRAPH_CONNECTION_URL`, `https://{NEPTUNE_ENDPOINT}:8182`, so the proxy server only contacts your Neptune cluster. To let users reach another database later, add its origin to the comma-separated list, such as `https://{NEPTUNE_ENDPOINT}:8182,https://{OTHER_ENDPOINT}:8182`. See [Database Origin Allowlist](../references/security.md#database-origin-allowlist).
+     - `PROXY_SERVER_ALLOWED_DB_ORIGINS`: Set this to the same origin as `GRAPH_CONNECTION_URL`, `https://{NEPTUNE_ENDPOINT}:8182`, so the proxy server only contacts your Neptune cluster. To let users reach another database later, add its origin to the comma-separated list, such as `https://{NEPTUNE_ENDPOINT}:8182,https://{OTHER_ENDPOINT}:8182`. See [Database Origin Allowlist](../references/security.mdx#database-origin-allowlist).
      - `SERVICE_TYPE`: Set this as `neptune-db` for Neptune database or `neptune-graph` for Neptune Analytics.
 6. Click **Create**.
 
 > [!IMPORTANT]
 >
-> Don't set `readonlyRootFilesystem: true` or a non-root `user` on this container. Graph Explorer writes its settings into its configuration folder at startup and needs write access to do that. See [Graph Explorer can't start because it can't write .env](./troubleshooting.md#graph-explorer-cant-start-because-it-cant-write-env).
+> Don't set `readonlyRootFilesystem: true` or a non-root `user` on this container. Graph Explorer writes its settings into its configuration folder at startup and needs write access to do that. See [Graph Explorer can't start because it can't write .env](./troubleshooting.mdx#graph-explorer-cant-start-because-it-cant-write-env).
 
 ## Create a Security Group
 
 > [!CAUTION]
 >
-> The Fargate service below places Graph Explorer in public subnets behind an internet-facing load balancer, so this security group is what limits who can reach it. Restrict its source to the public address range your users' traffic comes from. The tasks also get public IPs and carry the same rule, so an authentication rule or web application firewall you add at the load balancer doesn't cover traffic sent straight to a task. See [Access Control](../references/security.md#access-control).
+> The Fargate service below places Graph Explorer in public subnets behind an internet-facing load balancer, so this security group is what limits who can reach it. Restrict its source to the public address range your users' traffic comes from. The tasks also get public IPs and carry the same rule, so an authentication rule or web application firewall you add at the load balancer doesn't cover traffic sent straight to a task. See [Access Control](../references/security.mdx#access-control).
 
 1. Open the EC2 console at https://console.aws.amazon.com/ec2/.
 2. In the left hand navigation pane, choose **Security Groups**, then click **Create security group**.
@@ -221,7 +221,7 @@ After the request is processed, the console will return you to your certificate 
      - **Target group name**: `tg-graphexplorer-demo` with **Protocol** as `HTTPS`.
      - **Health check path**: `/explorer/` with **Health check protocol** as `HTTPS`.
 
-      <img width="720" alt="image" src="./deploy-to-ecs-fargate/target-group.png">
+      <img width="720" alt="image" src="./_assets/target-group.png">
 
 10. (Optional) Under section **Service auto scaling**, specify the desired scaling configuration.
 11. (Optional) To help identify your service and tasks, expand the **Tags** section, then configure your desired tags.
@@ -231,7 +231,7 @@ After the request is processed, the console will return you to your certificate 
 
 After few minutes, the Fargate service will be created and ready.
 
-<img alt="image" src="./deploy-to-ecs-fargate/fargate-service.png">
+<img alt="image" src="./_assets/fargate-service.png">
 
 ## Create an Amazon Route53 Entry
 

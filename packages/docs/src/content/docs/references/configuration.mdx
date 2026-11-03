@@ -1,4 +1,4 @@
-[← References](./)
+[← References](./index.mdx)
 
 # Configuration
 
@@ -10,9 +10,9 @@ These variables control server behavior, networking, and security.
 
 ### `HOST`
 
-The public hostname of the server. It feeds the Subject Alternative Name of the self-signed SSL certificate and the UI URL the server prints at startup. It doesn't choose where the server listens or limit who can reach it. See [`PROXY_SERVER_LISTEN_ADDRESS`](#proxy_server_listen_address) and [Supported Hosting](./security.md#supported-hosting).
+The public hostname of the server. It feeds the Subject Alternative Name of the self-signed SSL certificate and the UI URL the server prints at startup. It doesn't choose where the server listens or limit who can reach it. See [`PROXY_SERVER_LISTEN_ADDRESS`](#proxy_server_listen_address) and [Supported Hosting](./security.mdx#supported-hosting).
 
-In Docker with HTTPS on, `HOST` decides where the certificate comes from. When it is set, a new container generates a fresh self-signed certificate for that hostname, which invalidates any trust you granted to the previous one. When it is unset, the container reuses the certificate files already in `cert-info` and stops if any are missing. See [HTTPS Connections](./security.md#https-connections) and [Keeping the certificate across container replacements](./security.md#keeping-the-certificate-across-container-replacements).
+In Docker with HTTPS on, `HOST` decides where the certificate comes from. When it is set, a new container generates a fresh self-signed certificate for that hostname, which invalidates any trust you granted to the previous one. When it is unset, the container reuses the certificate files already in `cert-info` and stops if any are missing. See [HTTPS Connections](./security.mdx#https-connections) and [Keeping the certificate across container replacements](./security.mdx#keeping-the-certificate-across-container-replacements).
 
 Example: `localhost`
 
@@ -38,7 +38,7 @@ Example: `9250`
 
 The IP address the proxy server listens on. `127.0.0.1` accepts connections from this machine only. `::` or `0.0.0.0` listens on every network interface, over both IPv6 and IPv4 where the host supports them. Any other address listens on the one network interface that has it. Hostnames aren't accepted, and an empty value stops the server at startup.
 
-When running from source, set it in `.env.local` in your configuration folder, which is `packages/graph-explorer` unless you set [`CONFIGURATION_FOLDER_PATH`](#configuration_folder_path). `pnpm dev` reaches the proxy server at `localhost`, so use `127.0.0.1`, `0.0.0.0`, or `::` there. Other machines that can reach the server get plain HTTP unless it serves HTTPS. Graph Explorer has no authentication, so limit who can reach the port. See [Access Control](./security.md#access-control) and [Supported Hosting](./security.md#supported-hosting).
+When running from source, set it in `.env.local` in your configuration folder, which is `packages/graph-explorer` unless you set [`CONFIGURATION_FOLDER_PATH`](#configuration_folder_path). `pnpm dev` reaches the proxy server at `localhost`, so use `127.0.0.1`, `0.0.0.0`, or `::` there. Other machines that can reach the server get plain HTTP unless it serves HTTPS. Graph Explorer has no authentication, so limit who can reach the port. See [Access Control](./security.mdx#access-control) and [Supported Hosting](./security.mdx#supported-hosting).
 
 > [!WARNING]
 >
@@ -76,9 +76,9 @@ The port to use for the HTTP server. Ignored when `PROXY_SERVER_PORT` is set. Th
 
 ### `PROXY_SERVER_HTTPS_CONNECTION`
 
-Serves the proxy server over HTTPS when true, using the certificate files described in [HTTPS Connections](./security.md#https-connections).
+Serves the proxy server over HTTPS when true, using the certificate files described in [HTTPS Connections](./security.mdx#https-connections).
 
-Set it to `false` only behind a reverse proxy that terminates TLS, or to try Graph Explorer on your own machine. Plain HTTP that other machines can reach isn't supported. See [Serving HTTP Behind a Reverse Proxy](./security.md#serving-http-behind-a-reverse-proxy).
+Set it to `false` only behind a reverse proxy that terminates TLS, or to try Graph Explorer on your own machine. Plain HTTP that other machines can reach isn't supported. See [Serving HTTP Behind a Reverse Proxy](./security.mdx#serving-http-behind-a-reverse-proxy).
 
 - Optional
 - Default `false` in code, `true` in Docker via the entrypoint script
@@ -96,7 +96,7 @@ Example: `https://my-app.example.com` or `https://app-a.example.com,https://app-
 
 ### `PROXY_SERVER_ALLOWED_DB_ORIGINS`
 
-Restricts which database origins the proxy server will forward requests to. When set, requests targeting an origin not in the list receive a 403 response. When not set, the proxy forwards to any database URL specified by the client (current default behavior). See [Database Origin Allowlist](./security.md#database-origin-allowlist). The [reserved cloud service addresses the proxy server refuses](./security.md#reserved-cloud-service-addresses) are refused either way. A host name is refused when one of its DNS answers is one of those reserved addresses, or when every answer is IPv6 link-local, unless [an environment proxy](./security.md#with-an-environment-proxy) is on.
+Restricts which database origins the proxy server will forward requests to. When set, requests targeting an origin not in the list receive a 403 response. When not set, the proxy forwards to any database URL specified by the client (current default behavior). See [Database Origin Allowlist](./security.mdx#database-origin-allowlist). The [reserved cloud service addresses the proxy server refuses](./security.mdx#reserved-cloud-service-addresses) are refused either way. A host name is refused when one of its DNS answers is one of those reserved addresses, or when every answer is IPv6 link-local, unless [an environment proxy](./security.mdx#with-an-environment-proxy) is on.
 
 Values must be origins (scheme + host + optional port). Including a path will cause a startup error.
 
@@ -133,7 +133,7 @@ Controls the log output format.
 
 ### `LOG_LEVEL`
 
-Sets the minimum severity the proxy server logs. Values from highest to lowest are `fatal`, `error`, `warn`, `info`, `debug`, `trace`, and `silent`, which disables logging. See [Logging](./logging.md).
+Sets the minimum severity the proxy server logs. Values from highest to lowest are `fatal`, `error`, `warn`, `info`, `debug`, `trace`, and `silent`, which disables logging. See [Logging](./logging.mdx).
 
 - Optional
 - Default: `info`
@@ -147,7 +147,7 @@ Sets the minimum severity the proxy server logs. Values from highest to lowest a
 
 Override path for the folder containing `.env` and `defaultConnection.json`. When set, replaces the default path entirely.
 
-At startup, the container writes its settings to this folder: always `.env`, and `defaultConnection.json` too when a default connection is configured. The folder must be writable by the container, or it refuses to start. See [Graph Explorer can't start because it can't write .env](../guides/troubleshooting.md#graph-explorer-cant-start-because-it-cant-write-env) if you hit this.
+At startup, the container writes its settings to this folder: always `.env`, and `defaultConnection.json` too when a default connection is configured. The folder must be writable by the container, or it refuses to start. See [Graph Explorer can't start because it can't write .env](../guides/troubleshooting.mdx#graph-explorer-cant-start-because-it-cant-write-env) if you hit this.
 
 Mounting `config.json` read-only at `/graph-explorer/config.json` (see [JSON Configuration Approach](#json-configuration-approach)) is unaffected, since that file lives outside the configuration folder.
 
@@ -214,7 +214,7 @@ docker run -p 443:443 \
  public.ecr.aws/neptune/graph-explorer
 ```
 
-This publishes Graph Explorer on every network interface of the host. Limit who can reach it as described in [Access Control](./security.md#access-control).
+This publishes Graph Explorer on every network interface of the host. Limit who can reach it as described in [Access Control](./security.mdx#access-control).
 
 ### Environment Variable Approach
 
@@ -234,4 +234,4 @@ docker run -p 443:443 \
  public.ecr.aws/neptune/graph-explorer
 ```
 
-This publishes Graph Explorer on every network interface of the host. Limit who can reach it as described in [Access Control](./security.md#access-control).
+This publishes Graph Explorer on every network interface of the host. Limit who can reach it as described in [Access Control](./security.mdx#access-control).
