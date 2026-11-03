@@ -87,7 +87,7 @@ Import them from `@astrojs/starlight/components`:
 
 Images, policies, and scripts a page uses go in its section's `_assets/` directory.
 
-`public/images/` holds only the landing page screenshots.
+`public/images/` holds only the landing page screenshots. Retake them with `docs/agents/docs-screenshots.md`.
 
 ### Look and feel
 

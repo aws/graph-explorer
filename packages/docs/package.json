@@ -20,6 +20,7 @@
     "@lucide/astro": "^1.42.0",
     "astro": "7.4.4",
     "astro-vtbot": "^3.1.0",
+    "playwright-core": "^1.64.1",
     "satteri": "0.10.5",
     "sharp": "0.35.5",
     "vite-plus": "catalog:"
