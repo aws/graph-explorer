@@ -1,4 +1,6 @@
-# Getting Started
+---
+title: Tutorial
+---
 
 A hands-on tutorial that walks you through Graph Explorer using the air routes sample dataset. By the end, you will have searched for airports, explored connections between them, filtered the graph, styled nodes, and viewed data in a table.
 
@@ -8,18 +10,18 @@ A hands-on tutorial that walks you through Graph Explorer using the air routes s
 
 ## Launch Graph Explorer
 
-The fastest way to try Graph Explorer is with the [Air Routes sample](../../../../../../samples/air_routes/README.md). It launches Graph Explorer and a Gremlin Server pre-loaded with sample data using Docker Compose — no database setup or AWS account required.
+The fastest way to try Graph Explorer is with the [Air Routes sample](https://github.com/aws/graph-explorer/blob/main/samples/air_routes/README.md). It launches Graph Explorer and a Gremlin Server pre-loaded with sample data using Docker Compose — no database setup or AWS account required.
 
 > [!IMPORTANT]
 >
-> This tutorial is meant for your own machine. The sample has no access control, serves Graph Explorer over plain HTTP, and runs Gremlin Server with its default Groovy script engine. Its Compose file publishes Graph Explorer on `127.0.0.1` only, so other machines can't reach it. Keep it that way, because plain HTTP that other machines can reach isn't supported. See [Supported Hosting](../references/security.mdx#supported-hosting), [Access Control](../references/security.mdx#access-control), and [Self-hosted Gremlin Server](../references/security.mdx#self-hosted-gremlin-server).
+> This tutorial is meant for your own machine. The sample has no access control, serves Graph Explorer over plain HTTP, and runs Gremlin Server with its default Groovy script engine. Its Compose file publishes Graph Explorer on `127.0.0.1` only, so other machines can't reach it. Keep it that way, because plain HTTP that other machines can reach isn't supported. See [Supported Hosting](../references/security/#supported-hosting), [Access Control](../references/security/#access-control), and [Self-hosted Gremlin Server](../references/security/#self-hosted-gremlin-server).
 
 1. Clone the repository
-   ```
+   ```bash
    git clone https://github.com/aws/graph-explorer.git
    ```
 2. Navigate to the sample directory and start the containers
-   ```
+   ```bash
    cd graph-explorer/samples/air_routes
    docker compose up
    ```
@@ -109,10 +111,10 @@ The Data Table page lets you browse all nodes in the database without adding the
 
 Now that you have explored the basics, here are some directions to go next:
 
-- [Features](../features/index.mdx) — Explore all capabilities in depth
-- [Connecting to databases](../guides/index.mdx#connecting-to-databases) — Connect to Neptune, Gremlin Server, or BlazeGraph
-- [Deployment guides](../guides/index.mdx#deployment) — Deploy with Docker, EC2, ECS Fargate, or SageMaker
-- [Configuration](../references/configuration.mdx) — Environment variables for application settings and default connections
-- [Development](../../../../../../docs/development.md) — Build from source for local development
-- [Troubleshooting](../guides/troubleshooting.mdx) — Common issues and workarounds
-- [Samples](../../../../../../samples) — More Docker Compose examples for different configurations
+- [Features](../features/) — Explore all capabilities in depth
+- [Connecting to databases](../guides/#connecting-to-databases) — Connect to Neptune, Gremlin Server, or BlazeGraph
+- [Deployment guides](../guides/#deployment) — Deploy with Docker, EC2, ECS Fargate, or SageMaker
+- [Configuration](../references/configuration/) — Environment variables for application settings and default connections
+- [Development](https://github.com/aws/graph-explorer/blob/main/docs/development.md) — Build from source for local development
+- [Troubleshooting](../guides/troubleshooting/) — Common issues and workarounds
+- [Samples](https://github.com/aws/graph-explorer/tree/main/samples) — More Docker Compose examples for different configurations
