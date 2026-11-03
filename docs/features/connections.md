@@ -51,8 +51,8 @@ External applications can link directly to Graph Explorer with a connection pre-
 | --- | --- | --- | --- |
 | `graphDbUrl` | Yes | None | The Database URL, URL-encoded. The link is invalid without it. |
 | `queryEngine` | No | `gremlin` (`openCypher` when `serviceType` is `neptune-graph`) | One of `gremlin`, `openCypher`, or `sparql`. An unsupported value makes the link invalid rather than falling back. An explicit value is kept for any `serviceType`. |
-| `connectionMethod` | No | `proxy` | `proxy` connects through the Graph Explorer server, `direct` directly from your browser. A direct connection needs the database to allow requests from the Graph Explorer page, and never uses IAM. An empty or unsupported value makes the link invalid. |
-| `awsRegion` | No | None | AWS region for the connection, shaped like `us-east-1`. Providing a region enables IAM auth (SigV4 signed requests). An absent or empty value leaves IAM off. |
+| `connectionMethod` | No | `proxy` | `proxy` connects through the Graph Explorer server, `direct` directly from your browser. A direct connection needs the database to allow requests from the Graph Explorer page, and never uses IAM. Its requests skip the Graph Explorer server, so the [Database Origin Allowlist](../references/security.md#database-origin-allowlist) doesn't apply to them. An empty or unsupported value makes the link invalid. |
+| `awsRegion` | No | None | AWS region for the connection, shaped like `us-east-1`. Providing a region enables IAM auth (SigV4 signed requests). An absent or empty value leaves IAM off. With `connectionMethod=direct`, a region only fills in the form's IAM settings, since a direct connection never uses IAM. |
 | `serviceType` | No | `neptune-db` (when IAM is on) | One of `neptune-db` or `neptune-graph`. `neptune-db` is carried into the connection even without `awsRegion`, but IAM stays off unless `awsRegion` is set. `neptune-graph` requires `awsRegion`, since Neptune Analytics only accepts IAM-signed requests. An unsupported value makes the link invalid. |
 | `name` | No | The Database URL's hostname | Display label for the connection. Defaults to the full hostname of `graphDbUrl`. |
 
@@ -62,6 +62,12 @@ The parameters belong to the `#/connect` route, so they go _after_ the `#` (Grap
 
 ```
 https://[GRAPH_EXPLORER_HOST]/explorer/#/connect?graphDbUrl=https%3A%2F%2Fmy-cluster.us-east-1.neptune.amazonaws.com%3A8182&queryEngine=gremlin&awsRegion=us-east-1&serviceType=neptune-db&name=My%20Database
+```
+
+A link to a database that accepts queries from web pages, such as a public SPARQL endpoint, can ask to connect directly from your browser:
+
+```
+https://[GRAPH_EXPLORER_HOST]/explorer/#/connect?graphDbUrl=https%3A%2F%2Fsparql.example.com%2Fsparql&queryEngine=sparql&connectionMethod=direct&name=Public%20SPARQL
 ```
 
 Start the link from the Graph Explorer page URL, which ends in `/explorer/`. If Graph Explorer sits behind a reverse proxy with a path prefix, such as a Neptune notebook's `/proxy/9250`, the prefix goes in front: `https://[NOTEBOOK_HOST]/proxy/9250/explorer/#/connect?...`.
