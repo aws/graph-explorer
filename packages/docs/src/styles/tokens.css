@@ -3,6 +3,7 @@
    ========================================================================== */
 
 :root {
+  --sl-content-width: 80ch;
   --sl-color-accent-low: oklch(25% 0.063 247.66);
   --sl-color-accent: oklch(78.4% 0.108 254.45);
   --sl-color-accent-high: oklch(85.4% 0.071 258.35);
