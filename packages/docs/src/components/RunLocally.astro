@@ -1,12 +1,11 @@
 ---
 import { Check, Copy } from '@lucide/astro';
 
-const command = `docker run -p 127.0.0.1:443:443 \\
-  --restart unless-stopped \\
-  --env HOST=localhost \\
-  --name graph-explorer \\
-  public.ecr.aws/neptune/graph-explorer`;
-const dockerGuide = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/guides/deploy-with-docker/`;
+const command = `git clone https://github.com/aws/graph-explorer.git
+cd graph-explorer/samples/air_routes
+docker compose up`;
+const sample = 'https://github.com/aws/graph-explorer/tree/main/samples/air_routes';
+const tutorial = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/getting-started/`;
 ---
 
 <section class="run-locally" aria-labelledby="run-locally-title">
@@ -19,9 +18,9 @@ const dockerGuide = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/guides/deplo
 		</button>
 		<span class="sr-only" role="status" data-copy-status></span>
 	</div>
-	<pre tabindex="0" aria-label="Docker command"><code>{command}</code></pre>
+	<pre tabindex="0" aria-label="Commands to run the air routes sample"><code>{command}</code></pre>
 	<p>
-		Then open <code>https://localhost/explorer</code> and trust its self-signed certificate. See <a href={dockerGuide}>Deploy with Docker</a>.
+		Needs Docker. Starts Graph Explorer and a Gremlin Server loaded with the <a href={sample}>air routes sample</a>. Then open <code>http://localhost:8080/explorer</code> and follow the <a href={tutorial}>tutorial</a>.
 	</p>
 </section>
 
@@ -33,7 +32,7 @@ const dockerGuide = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/guides/deplo
 			button.addEventListener('click', async () => {
 				await navigator.clipboard.writeText(button.dataset.copy ?? '');
 				button.dataset.copied = '';
-				if (status) status.textContent = 'Command copied';
+				if (status) status.textContent = 'Commands copied';
 				if (label) label.textContent = 'Copied';
 				setTimeout(() => {
 					delete button.dataset.copied;
