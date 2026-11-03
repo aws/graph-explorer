@@ -1,0 +1,148 @@
+---
+import { Check, Copy } from '@lucide/astro';
+
+const command = `docker run -p 127.0.0.1:443:443 \\
+  --restart unless-stopped \\
+  --env HOST=localhost \\
+  --name graph-explorer \\
+  public.ecr.aws/neptune/graph-explorer`;
+const dockerGuide = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/guides/deploy-with-docker/`;
+---
+
+<section class="run-locally" aria-labelledby="run-locally-title">
+	<div class="heading">
+		<h2 id="run-locally-title">Run it locally</h2>
+		<button type="button" class="copy" data-copy={command}>
+			<Copy class="icon-copy" aria-hidden="true" />
+			<Check class="icon-done" aria-hidden="true" />
+			<span data-copy-label>Copy</span>
+		</button>
+		<span class="sr-only" role="status" data-copy-status></span>
+	</div>
+	<pre tabindex="0" aria-label="Docker command"><code>{command}</code></pre>
+	<p>
+		Then open <code>https://localhost/explorer</code> and trust its self-signed certificate. See <a href={dockerGuide}>Deploy with Docker</a>.
+	</p>
+</section>
+
+<script>
+	function initCopyButtons() {
+		for (const button of document.querySelectorAll<HTMLButtonElement>('.run-locally .copy')) {
+			const status = button.parentElement?.querySelector('[data-copy-status]');
+			const label = button.querySelector('[data-copy-label]');
+			button.addEventListener('click', async () => {
+				await navigator.clipboard.writeText(button.dataset.copy ?? '');
+				button.dataset.copied = '';
+				if (status) status.textContent = 'Command copied';
+				if (label) label.textContent = 'Copied';
+				setTimeout(() => {
+					delete button.dataset.copied;
+					if (status) status.textContent = '';
+					if (label) label.textContent = 'Copy';
+				}, 2000);
+			});
+		}
+	}
+
+	initCopyButtons();
+	document.addEventListener('astro:after-swap', initCopyButtons);
+</script>
+
+<style>
+	.run-locally {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		width: 100%;
+		padding-top: 1rem;
+		border-top: 1px solid var(--sl-color-gray-5);
+	}
+
+	h2 {
+		margin: 0;
+		font-size: var(--sl-text-xs);
+		font-weight: 700;
+		letter-spacing: 0.065em;
+		text-transform: uppercase;
+		color: var(--sl-color-gray-2);
+	}
+
+	.heading {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+
+	pre {
+		margin: 0;
+		padding: 0.875rem 1rem;
+		overflow-x: auto;
+		border: 1px solid var(--sl-color-gray-6);
+		border-radius: 0.5rem;
+		background: var(--sl-color-gray-7);
+		font-family: var(--__sl-font-mono);
+		font-size: var(--sl-text-xs);
+		line-height: 1.7;
+		color: var(--sl-color-white);
+	}
+
+	.copy {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		min-height: 2rem;
+		padding: 0.25rem 0.625rem;
+		border: 1px solid var(--sl-color-gray-5);
+		font: inherit;
+		font-size: var(--sl-text-xs);
+		font-weight: 500;
+		border-radius: 0.375rem;
+		background: transparent;
+		color: var(--sl-color-gray-3);
+		cursor: pointer;
+		transition:
+			color var(--sl-transition),
+			border-color var(--sl-transition);
+	}
+
+	.copy:hover {
+		color: var(--sl-color-accent-high);
+		border-color: var(--sl-color-accent);
+	}
+
+	.copy:focus-visible {
+		outline: 2px solid var(--sl-color-accent);
+		outline-offset: 1px;
+	}
+
+	.copy :global(svg) {
+		width: 0.875rem;
+		height: 0.875rem;
+	}
+
+	.copy :global(.icon-done),
+	.copy[data-copied] :global(.icon-copy) {
+		display: none;
+	}
+
+	.copy[data-copied] :global(.icon-done) {
+		display: block;
+		color: var(--sl-color-green);
+	}
+
+	p {
+		margin: 0;
+		font-size: var(--sl-text-sm);
+		color: var(--sl-color-gray-3);
+	}
+
+	a {
+		color: var(--sl-color-text-accent);
+	}
+
+	p code {
+		font-size: 0.875em;
+		overflow-wrap: anywhere;
+	}
+</style>

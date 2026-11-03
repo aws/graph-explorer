@@ -1,6 +1,8 @@
 ---
 import { LinkButton } from '@astrojs/starlight/components';
 
+import RunLocally from './RunLocally.astro';
+
 const { data } = Astro.locals.starlightRoute.entry;
 const { title = data.title, tagline, actions = [] } = data.hero || {};
 ---
@@ -22,6 +24,7 @@ const { title = data.title, tagline, actions = [] } = data.hero || {};
 				</div>
 			)
 		}
+		<RunLocally />
 	</div>
 </div>
 
@@ -33,14 +36,28 @@ const { title = data.title, tagline, actions = [] } = data.hero || {};
 	}
 
 	.stack {
-		display: flex;
-		flex-direction: column;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
 		gap: 1.5rem;
 		width: 100%;
 		max-width: 72rem;
 		padding-inline: 2rem;
 		text-align: start;
-		align-items: flex-start;
+		justify-items: start;
+	}
+
+	@media (min-width: 64rem) {
+		.stack {
+			grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+			grid-template-rows: auto 1fr;
+			column-gap: 3rem;
+		}
+
+		.stack > :global(.run-locally) {
+			grid-column: 2;
+			grid-row: 1 / span 2;
+			align-self: start;
+		}
 	}
 
 	.copy {
