@@ -1,10 +1,13 @@
 ---
 import { Check, Copy } from '@lucide/astro';
 
-const command = `git clone https://github.com/aws/graph-explorer.git
-cd graph-explorer/samples/air_routes
-docker compose up`;
-const sample = 'https://github.com/aws/graph-explorer/tree/main/samples/air_routes';
+const lines = [
+	['git', 'clone https://github.com/aws/graph-explorer.git'],
+	['cd', 'graph-explorer/samples/air_routes'],
+	['docker', 'compose up'],
+];
+const command = lines.map((line) => line.join(' ')).join('\n');
+const instructions = 'https://github.com/aws/graph-explorer/blob/main/samples/air_routes/README.md';
 const tutorial = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/getting-started/`;
 ---
 
@@ -18,9 +21,9 @@ const tutorial = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/getting-started
 		</button>
 		<span class="sr-only" role="status" data-copy-status></span>
 	</div>
-	<pre tabindex="0" aria-label="Commands to run the air routes sample"><code>{command}</code></pre>
+	<pre tabindex="0" aria-label="Commands to run the air routes sample"><code>{lines.map(([program, args]) => <span class="line"><span class="program">{program}</span> {args}</span>)}</code></pre>
 	<p>
-		Needs Docker. Starts Graph Explorer and a Gremlin Server loaded with the <a href={sample}>air routes sample</a>. Then open <code>http://localhost:8080/explorer</code> and follow the <a href={tutorial}>tutorial</a>.
+		Needs Docker. Starts Graph Explorer and a Gremlin Server loaded with the air routes data. Then open <code>http://localhost:8080/explorer</code> and follow the <a href={tutorial}>tutorial</a>. The <a href={instructions}>sample instructions</a> cover the details.
 	</p>
 </section>
 
@@ -84,6 +87,15 @@ const tutorial = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/getting-started
 		font-size: var(--sl-text-xs);
 		line-height: 1.7;
 		color: var(--sl-color-white);
+	}
+
+	.line {
+		display: block;
+	}
+
+	.program {
+		font-weight: 600;
+		color: var(--sl-color-accent-high);
 	}
 
 	.copy {
