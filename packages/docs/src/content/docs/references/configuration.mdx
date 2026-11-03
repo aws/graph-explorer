@@ -1,6 +1,9 @@
 ---
 title: "Configuration"
+description: Environment variables for application settings and default connections.
 ---
+
+import { Badge } from "@astrojs/starlight/components";
 
 All environment variables for configuring Graph Explorer, organized by concern.
 
@@ -10,6 +13,8 @@ These variables control server behavior, networking, and security.
 
 ### `HOST`
 
+<Badge text="string" />
+
 The public hostname of the server. It feeds the Subject Alternative Name of the self-signed SSL certificate and the UI URL the server prints at startup. It doesn't choose where the server listens or limit who can reach it. See [`PROXY_SERVER_LISTEN_ADDRESS`](#proxy_server_listen_address) and [Supported Hosting](../security/#supported-hosting).
 
 In Docker with HTTPS on, `HOST` decides where the certificate comes from. When it is set, a new container generates a fresh self-signed certificate for that hostname, which invalidates any trust you granted to the previous one. When it is unset, the container reuses the certificate files already in `cert-info` and stops if any are missing. See [HTTPS Connections](../security/#https-connections) and [Keeping the certificate across container replacements](../security/#keeping-the-certificate-across-container-replacements).
@@ -18,7 +23,6 @@ Example: `localhost`
 
 - Required in Docker with HTTPS on, unless `cert-info` already holds the certificate files, such as your own certificates or ones kept in a volume
 - Default: none. When unset, the URL the server prints at startup uses `localhost`.
-- Type: `string`
 
 ### `PROXY_SERVER_PORT`
 
@@ -56,6 +60,8 @@ Example: `0.0.0.0`
 
 ### `PROXY_SERVER_HTTPS_PORT`
 
+<Badge text="number" /> <Badge text="default: 443" variant="note" />
+
 :::note
 
 Deprecated. Use [`PROXY_SERVER_PORT`](#proxy_server_port) instead. This variable will be removed in a future release.
@@ -65,10 +71,10 @@ Deprecated. Use [`PROXY_SERVER_PORT`](#proxy_server_port) instead. This variable
 The port to use for the HTTPS server. Ignored when `PROXY_SERVER_PORT` is set. The server logs a warning at startup whenever this variable is set, unless HTTPS is on and `PROXY_SERVER_PORT` has the same value.
 
 - Optional
-- Default `443`
-- Type: `number`
 
 ### `PROXY_SERVER_HTTP_PORT`
+
+<Badge text="number" /> <Badge text="default: 80" variant="note" />
 
 :::note
 
@@ -79,10 +85,10 @@ Deprecated. Use [`PROXY_SERVER_PORT`](#proxy_server_port) instead. This variable
 The port to use for the HTTP server. Ignored when `PROXY_SERVER_PORT` is set. The server logs a warning at startup whenever this variable is set, unless HTTPS is off and `PROXY_SERVER_PORT` has the same value.
 
 - Optional
-- Default `80`
-- Type: `number`
 
 ### `PROXY_SERVER_HTTPS_CONNECTION`
+
+<Badge text="boolean" />
 
 Serves the proxy server over HTTPS when true, using the certificate files described in [HTTPS Connections](../security/#https-connections).
 
@@ -90,7 +96,6 @@ Set it to `false` only behind a reverse proxy that terminates TLS, or to try Gra
 
 - Optional
 - Default `false` in code, `true` in Docker via the entrypoint script
-- Type: `boolean`
 
 ### `PROXY_SERVER_CORS_ORIGIN`
 
@@ -133,21 +138,23 @@ This check applies only to requests routed through the proxy server. It doesn't 
 
 ### `LOG_STYLE`
 
+<Badge text='"cloudwatch" | "default"' />
+<Badge text="default: default" variant="note" />
+
 Controls the log output format.
 
 - Optional
-- Default: `default`
-- Type: `"cloudwatch" | "default"`
 - `cloudwatch` omits timestamps and hostname/pid (these are provided by CloudWatch)
 - `default` uses the standard log format
 
 ### `LOG_LEVEL`
 
+<Badge text='"fatal" | "error" | "warn" | "info" | "debug" | "trace" | "silent"' />
+<Badge text="default: info" variant="note" />
+
 Sets the minimum severity the proxy server logs. Values from highest to lowest are `fatal`, `error`, `warn`, `info`, `debug`, `trace`, and `silent`, which disables logging. See [Logging](../logging/).
 
 - Optional
-- Default: `info`
-- Type: `"fatal" | "error" | "warn" | "info" | "debug" | "trace" | "silent"`
 
 :::caution
 
@@ -157,6 +164,8 @@ At `debug` and `trace`, when **Enable database query logging on proxy server** i
 
 ### `CONFIGURATION_FOLDER_PATH`
 
+<Badge text="string" />
+
 Override path for the folder containing `.env` and `defaultConnection.json`. When set, replaces the default path entirely.
 
 At startup, the container writes its settings to this folder: always `.env`, and `defaultConnection.json` too when a default connection is configured. The folder must be writable by the container, or it refuses to start. See [Graph Explorer can't start because it can't write .env](../../guides/troubleshooting/#graph-explorer-cant-start-because-it-cant-write-env) if you hit this.
@@ -165,7 +174,6 @@ Mounting `config.json` read-only at `/graph-explorer/config.json` (see [JSON Con
 
 - Optional
 - Default: `<client root>` (`packages/graph-explorer`)
-- Type: `string`
 
 ## Default Connection
 
