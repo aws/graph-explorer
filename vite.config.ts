@@ -1,5 +1,13 @@
 import { defineConfig } from "vite-plus";
 
+// The date-fns root re-exports every function, so importing from it adds
+// several hundred milliseconds to every cold import of `@/utils` in tests.
+const dateFnsRootImport = {
+  name: "date-fns",
+  message:
+    "Import each date-fns function from its subpath, such as date-fns/format, not from the date-fns root.",
+};
+
 export default defineConfig({
   test: {
     projects: ["packages/*"],
@@ -244,6 +252,7 @@ export default defineConfig({
           "no-restricted-imports": [
             "error",
             {
+              paths: [dateFnsRootImport],
               patterns: [
                 {
                   group: ["@/connections/*", "@/connections/**"],
@@ -261,6 +270,7 @@ export default defineConfig({
           "no-restricted-imports": [
             "error",
             {
+              paths: [dateFnsRootImport],
               patterns: [
                 {
                   group: ["@/core"],
