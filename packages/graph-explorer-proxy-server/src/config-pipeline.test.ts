@@ -421,8 +421,8 @@ const deployments: Deployment[] = [
   },
   {
     // Notebook scripts set both port variables while older images ignore
-    // PROXY_SERVER_PORT.
-    name: "-e NEPTUNE_NOTEBOOK=true with both PROXY_SERVER_PORT=9250 and PROXY_SERVER_HTTP_PORT=9250 serves HTTP on 9250 and warns",
+    // PROXY_SERVER_PORT, so matching values start without a warning.
+    name: "-e NEPTUNE_NOTEBOOK=true with both PROXY_SERVER_PORT=9250 and PROXY_SERVER_HTTP_PORT=9250 serves HTTP on 9250 without warnings",
     dockerEnv: {
       NEPTUNE_NOTEBOOK: "true",
       PROXY_SERVER_HTTPS_CONNECTION: "false",
@@ -437,10 +437,7 @@ const deployments: Deployment[] = [
         GRAPH_EXP_HTTPS_CONNECTION: "false",
         LOG_STYLE: "cloudwatch",
       },
-      startup: {
-        ...notebookPreset.startup,
-        startupWarnings: [ignored("PROXY_SERVER_HTTP_PORT", 9250, 9250)],
-      },
+      startup: notebookPreset.startup,
     },
   },
   {

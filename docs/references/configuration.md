@@ -56,7 +56,7 @@ Example: `0.0.0.0`
 >
 > Deprecated. Use [`PROXY_SERVER_PORT`](#proxy_server_port) instead. This variable will be removed in a future release.
 
-The port to use for the HTTPS server. Ignored when `PROXY_SERVER_PORT` is set. The server logs a warning at startup whenever this variable is set.
+The port to use for the HTTPS server. Ignored when `PROXY_SERVER_PORT` is set. The server logs a warning at startup whenever this variable is set, unless HTTPS is on and `PROXY_SERVER_PORT` has the same value.
 
 - Optional
 - Default `443`
@@ -68,7 +68,7 @@ The port to use for the HTTPS server. Ignored when `PROXY_SERVER_PORT` is set. T
 >
 > Deprecated. Use [`PROXY_SERVER_PORT`](#proxy_server_port) instead. This variable will be removed in a future release.
 
-The port to use for the HTTP server. Ignored when `PROXY_SERVER_PORT` is set. The server logs a warning at startup whenever this variable is set.
+The port to use for the HTTP server. Ignored when `PROXY_SERVER_PORT` is set. The server logs a warning at startup whenever this variable is set, unless HTTPS is off and `PROXY_SERVER_PORT` has the same value.
 
 - Optional
 - Default `80`
