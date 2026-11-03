@@ -2,13 +2,13 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-27
-- **Related:** Affects `packages/graph-explorer-proxy-server/src/blocked-addresses.ts` and `docs/references/security.md`.
+- **Related:** Affects `packages/graph-explorer-proxy-server/src/blocked-addresses.ts` and `packages/docs/src/content/docs/references/security.mdx`.
 
 ## Context
 
 Node 24's global agents send requests through `HTTP_PROXY` and `HTTPS_PROXY` (the lowercase `http_proxy` and `https_proxy` take precedence), honoring `NO_PROXY` (a non-empty `no_proxy` replaces it), when `NODE_USE_ENV_PROXY=1` or `--use-env-proxy` is set. Database requests used those agents.
 
-The proxy server now sends database requests through its own agents, whose lookup checks every address a host name resolves to (see [Reserved Cloud Service Addresses](../references/security.md#reserved-cloud-service-addresses)). A custom agent connects directly unless it is given `proxyEnv`, so a deployment whose only route to the database is a forward proxy would stop working.
+The proxy server now sends database requests through its own agents, whose lookup checks every address a host name resolves to (see [Reserved Cloud Service Addresses](../../packages/docs/src/content/docs/references/security.mdx#reserved-cloud-service-addresses)). A custom agent connects directly unless it is given `proxyEnv`, so a deployment whose only route to the database is a forward proxy would stop working.
 
 ## Decision
 
@@ -25,5 +25,5 @@ Hosts matched by `no_proxy`, or by `NO_PROXY` when `no_proxy` is unset or empty,
 ## Consequences
 
 - Env proxy deployments keep working.
-- `docs/references/security.md` tells operators that refusing reserved addresses for proxied host names is up to the forward proxy.
+- `packages/docs/src/content/docs/references/security.mdx` tells operators that refusing reserved addresses for proxied host names is up to the forward proxy.
 - The forward proxy is the only control that refuses reserved addresses for proxied host names.

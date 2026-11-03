@@ -1,4 +1,4 @@
-[← Guides](./)
+[← Guides](./index.mdx)
 
 # Troubleshooting
 
@@ -36,7 +36,7 @@ With HTTPS off, Graph Explorer listens on port 80 instead, so remap that port th
 
 ### Serving HTTP behind a reverse proxy
 
-When a reverse proxy in front of Graph Explorer terminates TLS, set [`PROXY_SERVER_HTTPS_CONNECTION`](../references/configuration.md#proxy_server_https_connection) to `false` so Graph Explorer serves plain HTTP to it. When the reverse proxy runs on the same host, publish the port on `127.0.0.1` so only that host can reach it:
+When a reverse proxy in front of Graph Explorer terminates TLS, set [`PROXY_SERVER_HTTPS_CONNECTION`](../references/configuration.mdx#proxy_server_https_connection) to `false` so Graph Explorer serves plain HTTP to it. When the reverse proxy runs on the same host, publish the port on `127.0.0.1` so only that host can reach it:
 
 ```
 docker run -p 127.0.0.1:80:80 \
@@ -45,13 +45,13 @@ docker run -p 127.0.0.1:80:80 \
   public.ecr.aws/neptune/graph-explorer
 ```
 
-When the reverse proxy runs on another host, limit port `80` to it with network rules you provide. Plain HTTP that other machines can reach isn't supported. See [Serving HTTP Behind a Reverse Proxy](../references/security.md#serving-http-behind-a-reverse-proxy).
+When the reverse proxy runs on another host, limit port `80` to it with network rules you provide. Plain HTTP that other machines can reach isn't supported. See [Serving HTTP Behind a Reverse Proxy](../references/security.mdx#serving-http-behind-a-reverse-proxy).
 
 ### HTTPS Connections
 
 If either Graph Explorer or the proxy server are served over an HTTPS connection (which is the default), your browser will show a security warning due to the self-signed certificate.
 
-See [Trusting the self-signed certificate](../references/security.md#trusting-the-self-signed-certificate) for step-by-step instructions, or [Removing the "Not Secure" warning on Chrome](../references/security.md#removing-the-not-secure-warning-on-chrome) for Chrome-specific instructions.
+See [Trusting the self-signed certificate](../references/security.mdx#trusting-the-self-signed-certificate) for step-by-step instructions, or [Removing the "Not Secure" warning on Chrome](../references/security.mdx#removing-the-not-secure-warning-on-chrome) for Chrome-specific instructions.
 
 ### Image built on Windows exits with "no such file or directory"
 
@@ -91,7 +91,7 @@ Running as a non-root user isn't supported yet. See [Support running the contain
 To fix it:
 
 - Make the configuration folder writable by the container, or
-- Point [`CONFIGURATION_FOLDER_PATH`](../references/configuration.md#configuration_folder_path) at a writable location instead
+- Point [`CONFIGURATION_FOLDER_PATH`](../references/configuration.mdx#configuration_folder_path) at a writable location instead
 
 ## Schema Sync Fails
 
@@ -130,7 +130,7 @@ This can manifest as different types of errors depending on the root cause. You 
 - The port of the proxy server could be the default (i.e. 80 or 443 with SSL) or a specific port provided through environment values
 - The proxy server paths are not exposed by the networking layer (load balancer, proxy, firewall, etc)
   - The client is hosted at `/explorer`
-  - The API paths live at the root rather than under `/explorer`. See [Reference for access control layers](../references/security.md#reference-for-access-control-layers) for the full list.
+  - The API paths live at the root rather than under `/explorer`. See [Reference for access control layers](../references/security.mdx#reference-for-access-control-layers) for the full list.
 
 > [!IMPORTANT]
 >
@@ -152,9 +152,9 @@ This error can take a minute or more to appear, because the proxy server waits f
 
 **Connection refused** means the hostname resolved and the host answered, but nothing is listening on that port. Check the port in the connection, and check that the database is running.
 
-For the network setup Neptune needs, see [Network Access](./connecting-to-neptune.md#network-access).
+For the network setup Neptune needs, see [Network Access](./connecting-to-neptune.mdx#network-access).
 
-For a proxied connection, the server, not the browser, must have network access to the database. See [System overview](../architecture.md#system-overview) for the network-routing requirements.
+For a proxied connection, the server, not the browser, must have network access to the database. See [System overview](../references/architecture.mdx#system-overview) for the network-routing requirements.
 
 ### Database Not Reachable From the Browser
 
@@ -184,9 +184,9 @@ A **403 Forbidden** error on a Neptune connection means Neptune received the req
 - The policy's `Resource` doesn't name this database. Check the region, the account ID, and the resource ID, and check that no placeholder or square bracket is left. For Neptune Database, the resource ID is the cluster resource ID starting with `cluster-`, not the cluster identifier.
 - The query changes data, but the policy is read-only.
 
-When the proxy server can't find AWS credentials at all, the request fails before it reaches Neptune, and the proxy server log says credentials couldn't be loaded. On EC2, check the instance profile and the metadata hop limit described in the [EC2 prerequisites](./deploy-to-ec2.md#prerequisites).
+When the proxy server can't find AWS credentials at all, the request fails before it reaches Neptune, and the proxy server log says credentials couldn't be loaded. On EC2, check the instance profile and the metadata hop limit described in the [EC2 prerequisites](./deploy-to-ec2.mdx#prerequisites).
 
-For policies to start from, see [Sample IAM Policies](./iam-policies/README.md).
+For policies to start from, see [Sample IAM Policies](./iam-policies.mdx).
 
 ### IAM authentication needs an https:// Database URL
 
@@ -195,7 +195,7 @@ A **Bad Request** error with the message "IAM authentication needs an `https://`
 - Edit the connection and change the Database URL to `https://`
 - Edit the connection and turn off **Use AWS IAM authentication**, if the database doesn't use IAM authentication
 
-For the Default Connection, change `GRAPH_CONNECTION_URL` to an `https://` URL, or set `IAM` to `false`. For more on signing, see [Permissions](../references/security.md#permissions).
+For the Default Connection, change `GRAPH_CONNECTION_URL` to an `https://` URL, or set `IAM` to `false`. For more on signing, see [Permissions](../references/security.mdx#permissions).
 
 ## Reverse proxy misconfigured
 
@@ -261,5 +261,5 @@ New Neptune Notebooks automatically apply the correct IAM permissions to write t
 
 Below are examples of which IAM permissions you need for Graph Explorer.
 
-- [IAM permissions for Neptune DB](./deploy-to-sagemaker/graph-explorer-neptune-db-policy.json)
-- [IAM permissions for Neptune Analytics](./deploy-to-sagemaker/graph-explorer-neptune-analytics-policy.json)
+- [IAM permissions for Neptune DB](./_assets/graph-explorer-neptune-db-policy.json)
+- [IAM permissions for Neptune Analytics](./_assets/graph-explorer-neptune-analytics-policy.json)

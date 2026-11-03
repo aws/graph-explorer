@@ -1,4 +1,4 @@
-[← Guides](./)
+[← Guides](./index.mdx)
 
 # Deploy with Docker
 
@@ -6,7 +6,7 @@ Deploy Graph Explorer locally using the official Docker image from Amazon's ECR 
 
 You can find the latest version of the image on [Amazon's ECR Public Registry](https://gallery.ecr.aws/neptune/graph-explorer).
 
-This guide is an example, not a recommended production configuration. Review its network, access control, and IAM choices against your own security requirements before you run it in production. For the hosting setups Graph Explorer supports, see [Supported Hosting](../references/security.md#supported-hosting). For general guidance on securing a production workload, see the [Security Pillar of the AWS Well-Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html).
+This guide is an example, not a recommended production configuration. Review its network, access control, and IAM choices against your own security requirements before you run it in production. For the hosting setups Graph Explorer supports, see [Supported Hosting](../references/security.mdx#supported-hosting). For general guidance on securing a production workload, see the [Security Pillar of the AWS Well-Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html).
 
 > [!NOTE]
 >
@@ -14,19 +14,19 @@ This guide is an example, not a recommended production configuration. Review its
 >
 > Because of this, a `sagemaker-*` tag starts with the standard defaults: HTTPS on port 443, which needs `HOST` set to generate its certificate. To serve HTTP on port 9250 with logs formatted for CloudWatch instead, set these variables:
 >
-> - [`PROXY_SERVER_HTTPS_CONNECTION=false`](../references/configuration.md#proxy_server_https_connection)
-> - [`PROXY_SERVER_PORT=9250`](../references/configuration.md#proxy_server_port)
-> - [`LOG_STYLE=cloudwatch`](../references/configuration.md#log_style)
+> - [`PROXY_SERVER_HTTPS_CONNECTION=false`](../references/configuration.mdx#proxy_server_https_connection)
+> - [`PROXY_SERVER_PORT=9250`](../references/configuration.mdx#proxy_server_port)
+> - [`LOG_STYLE=cloudwatch`](../references/configuration.mdx#log_style)
 >
 > Publish the port with `-p 127.0.0.1:9250:9250` and open `http://localhost:9250/explorer`. Sending the logs to CloudWatch also takes Docker's `awslogs` log driver.
 
 > [!IMPORTANT]
 >
-> The Graph Explorer server, not your browser, connects to the database for proxied connections, so it needs network access to the database endpoint. See [System overview](../architecture.md#system-overview) for details.
+> The Graph Explorer server, not your browser, connects to the database for proxied connections, so it needs network access to the database endpoint. See [System overview](../references/architecture.mdx#system-overview) for details.
 
 > [!IMPORTANT]
 >
-> Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../references/security.md#access-control).
+> Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../references/security.mdx#access-control).
 
 ## Prerequisites
 
@@ -69,10 +69,10 @@ This guide is an example, not a recommended production configuration. Review its
    https://localhost/explorer
    ```
 
-5. You will receive a warning as the SSL certificate used is self-signed. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See the [HTTPS Connections](./troubleshooting.md#https-connections) section.
+5. You will receive a warning as the SSL certificate used is self-signed. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See the [HTTPS Connections](./troubleshooting.mdx#https-connections) section.
 
    > [!NOTE]
    >
-   > A new container generates a new certificate, so replacing the container undoes this trust step. To keep the certificate, see [Keeping the certificate across container replacements](../references/security.md#keeping-the-certificate-across-container-replacements).
+   > A new container generates a new certificate, so replacing the container undoes this trust step. To keep the certificate, see [Keeping the certificate across container replacements](../references/security.mdx#keeping-the-certificate-across-container-replacements).
 
-6. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See [Connections](../features/connections.md) for details on configuring your first connection.
+6. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See [Connections](../features/connections.mdx) for details on configuring your first connection.

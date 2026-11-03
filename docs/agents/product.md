@@ -21,7 +21,7 @@ Graph Explorer is a React-based web application that enables users to visualize 
 - **Tabular View**: Show/hide nodes and edges, export to CSV/JSON
 - **Data Table View**: List all nodes and properties for a specific node type and send to graph view
 - **Schema View**: View node types and their relationships as a graph
-- **IAM request signing**: the proxy server signs outbound database requests with SigV4 for Neptune IAM. Graph Explorer authenticates no user or caller; see `docs/references/security.md#access-control`
+- **IAM request signing**: the proxy server signs outbound database requests with SigV4 for Neptune IAM. Graph Explorer authenticates no user or caller; see `packages/docs/src/content/docs/references/security.mdx#access-control`
 
 ## Architecture
 
