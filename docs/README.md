@@ -1,8 +1,9 @@
 # Graph Explorer Documentation
 
-- [Getting Started](../packages/docs/src/content/docs/getting-started/index.mdx) — A hands-on tutorial using the air routes sample dataset.
-- [Features](../packages/docs/src/content/docs/features/index.mdx) — Key capabilities and detailed guides for each part of the application.
-- [Guides](../packages/docs/src/content/docs/guides/index.mdx) — Connect to databases, deploy to AWS, and troubleshoot common issues.
-- [References](../packages/docs/src/content/docs/references/index.mdx) — Security, logging, health checks, and configuration details.
+The user documentation is published at [aws.github.io/graph-explorer](https://aws.github.io/graph-explorer/). Its pages live in [`packages/docs/src/content/docs/`](../packages/docs/src/content/docs/).
+
+This folder holds the docs for working on Graph Explorer itself:
+
 - [Development](./development.md) — Build from source and contribute to Graph Explorer.
-- [Architecture](../packages/docs/src/content/docs/references/architecture.mdx) — System design, key libraries, and the connector pattern.
+- [Architecture decision records](./adr/) — The decisions behind the design, one per file.
+- [Agent conventions](./agents/) — Conventions for agents working in this repo.
