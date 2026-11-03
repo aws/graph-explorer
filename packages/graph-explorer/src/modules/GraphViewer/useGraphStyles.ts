@@ -58,6 +58,12 @@ function createGraphStyles(
       shape: vtConfig.shape,
       width: 24,
       height: 24,
+      color: new Color(vtConfig.labelColor).isDark() ? "#FFFFFF" : "#000000",
+      "text-background-opacity": vtConfig.labelBackgroundOpacity,
+      "text-background-color": vtConfig.labelColor,
+      "text-border-width": vtConfig.labelBorderWidth,
+      "text-border-color": vtConfig.labelBorderColor,
+      "text-border-style": vtConfig.labelBorderStyle,
     };
   }
 
