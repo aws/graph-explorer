@@ -4,7 +4,7 @@ In this repo the costliest mistakes are breaking data that users have already sa
 
 ## What Important means here
 
-Reserve Important for the cases below. Everything else is Nit at most. That includes the structure and style rules in `AGENTS.md`, even though it calls structural quality a hard requirement.
+The cases below are Important. The structure and style rules in `AGENTS.md` are Nit at most, even though it calls structural quality a hard requirement.
 
 - **Saved or exported data breaks.** If a change touches a persisted atom, an export file format (connections, styling, graph), the default connection payload, or an environment variable, the new build must still read old values. Files this build writes must stay readable by older releases. Flag a shape change that lacks the backward-compatibility tests `docs/agents/testing.md` requires. Also flag any edit to a `__fixtures__` golden file or a backward-compatibility test that makes the test pass instead of fixing the code.
 - **Queries the database can't run, or runs badly.**
@@ -19,8 +19,10 @@ Reserve Important for the cases below. Everything else is Nit at most. That incl
   - Assertions on plumbing the test set up itself.
   - Tests that lock in a bug.
   - Tests deleted without a stated reason.
+- **Untested behavior.** The diff adds or changes a behavior, and you can name a plausible regression of it that leaves every test green. Prove it with a mutation: inject that regression and run the whole suite, or name the tests that would have to catch it and show by reading that none does, marked read, not run. Missing tests for components that only render UI stay under [Do not report](#do-not-report).
 - **Untrusted input read without a Zod parse,** or a Zod `.catch()` that quietly turns bad input into a different valid value.
-- **Docs that contradict the code, or each other,** after this change. A documented route, header, environment variable default, or limit that no longer matches the source is Important, and so is a page that tells the reader to do something another page says the platform already does.
+- **Docs that contradict the code or each other, or that mislead,** after this change. Agent docs under `docs/agents/` and upgrade notes in the PR body count. A documented route, header, environment variable default, or limit that no longer matches the source is Important. So is a step, or a missing step, that makes a reader who follows the doc as written fail.
+- **What users see breaks.** A broken image, asset, or link on a shipped surface such as the app or a published doc, a raw error or stack trace where a designed message exists, or a WCAG 2.2 AA failure.
 - **Hosting examples outside the supported model.** The model is defined in `docs/references/security.md#supported-hosting`. Flag a doc, sample, or script that serves plain HTTP other machines can reach, such as `PROXY_SERVER_HTTPS_CONNECTION=false` with the port published on every interface and no reverse proxy that terminates TLS in front of it. Also flag an example that other machines can reach and that says nothing about the access control limiting who reaches it.
 - **Public text that discloses.** The PR adds reproduction steps for a security-relevant issue, advisory IDs, or customer data to code, docs, or the PR description.
 - **Security changes that widen a documented risk or break a guarantee.** The [Security model](#security-model) section defines both.
@@ -36,7 +38,7 @@ Reserve Important for the cases below. Everything else is Nit at most. That incl
 
 ## Verification bar
 
-- Every Important finding names the file:line, the input that triggers it, and a real caller that reaches it. If you can't trace all three, post it as a Nit or drop it. A broken guarantee names the doc statement it breaks in place of the input.
+- Every Important finding names the file:line, the input that triggers it, and a real caller that reaches it. If you can't trace all three, post it as a Nit or drop it. A broken guarantee names the doc statement it breaks in place of the input, an untested behavior names the mutation and either the test run that stayed green or the tests read, marked read, not run, a doc that misleads names the statement or step and what the reader gets wrong or what fails when they follow it, and a break users see names the page or screen where it shows.
 - Say when a claim comes from reading the code rather than from a test or a run.
 - Treat claims about third-party tools, package versions, or browser behavior as unverified unless you checked their source or docs. Say which it is.
 - Before flagging a design choice, check `docs/adr/`. Don't flag a choice an ADR already made.
