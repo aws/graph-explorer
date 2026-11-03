@@ -1,5 +1,6 @@
 ---
 title: "Architecture"
+description: System design, key libraries, and the connector pattern.
 ---
 
 Graph Explorer is a client-heavy web application with a thin backend proxy. The browser does most of the work — constructing queries, managing state, and rendering the graph — while the server handles request forwarding and signing.

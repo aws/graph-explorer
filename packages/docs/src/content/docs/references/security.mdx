@@ -1,5 +1,6 @@
 ---
 title: "Security"
+description: Access control responsibilities, HTTPS connections, certificates, and permissions.
 ---
 
 The browser talks to the same-origin proxy server, and the proxy server is what reaches the graph database. That means the proxy server must have network access to the target database, as described in the [architecture overview](../architecture/#system-overview). The one exception is a direct connection, where the browser sends requests to the database itself.
