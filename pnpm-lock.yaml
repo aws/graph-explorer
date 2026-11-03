@@ -231,6 +231,9 @@ importers:
       astro-vtbot:
         specifier: ^3.1.0
         version: 3.1.0
+      playwright-core:
+        specifier: ^1.64.1
+        version: 1.64.1
       satteri:
         specifier: 0.10.5
         version: 0.10.5
@@ -5136,6 +5139,11 @@ packages:
 
   pino@10.4.0:
     resolution: {integrity: sha512-bk1ZMTwG/Vymx+zPoa28MhNzucFvXJWp3csrSuxuHPSMeUettaCoQ5Jvg07mtC4JGNpcfTwz41oVCnNgBK9+vA==}
+    hasBin: true
+
+  playwright-core@1.64.1:
+    resolution: {integrity: sha512-BC4s8y6SEVA6Q1rSxZTto8hI1KUI3xXlHGZgvGqP4IqPdI/a6FX9H29IDNz7vKo9l21b6LfYosScPL6M3xxyDQ==}
+    engines: {node: '>=20'}
     hasBin: true
 
   pngjs@7.0.0:
@@ -10560,6 +10568,8 @@ snapshots:
       safe-stable-stringify: 2.5.0
       sonic-boom: 4.2.0
       thread-stream: 4.0.0
+
+  playwright-core@1.64.1: {}
 
   pngjs@7.0.0: {}
 
