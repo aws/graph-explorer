@@ -114,8 +114,8 @@ Shadows are off in the dark theme (`--sl-shadow-sm` and `-md` are `none`). The l
 Three surface radii:
 
 - `0.375rem` on sidebar links
-- `0.5rem` on link buttons
-- `0.75rem` on cards, link cards, pagination links, the feature card, and the carousel viewport
+- `0.5rem` on link buttons and the carousel viewport
+- `0.75rem` on cards, link cards, pagination links, and the feature card
 
 The carousel's round buttons (`50%`) and dots (`4px`) are component details outside these three. Card borders are 1px at low-alpha gray in the dark theme.
 
