@@ -3,8 +3,6 @@ title: "Getting Started"
 description: A hands-on tutorial using the air routes sample dataset.
 ---
 
-import { Steps } from "@astrojs/starlight/components";
-
 A hands-on tutorial that walks you through Graph Explorer using the air routes sample dataset. By the end, you will have searched for airports, explored connections between them, filtered the graph, styled nodes, and viewed data in a table.
 
 ## Prerequisites
@@ -15,13 +13,9 @@ A hands-on tutorial that walks you through Graph Explorer using the air routes s
 
 The fastest way to try Graph Explorer is with the [Air Routes sample](https://github.com/aws/graph-explorer/blob/main/samples/air_routes/README.md). It launches Graph Explorer and a Gremlin Server pre-loaded with sample data using Docker Compose — no database setup or AWS account required.
 
-:::caution
-
-This tutorial is meant for your own machine. The sample has no access control, serves Graph Explorer over plain HTTP, and runs Gremlin Server with its default Groovy script engine. Its Compose file publishes Graph Explorer on `127.0.0.1` only, so other machines can't reach it. Keep it that way, because plain HTTP that other machines can reach isn't supported. See [Supported Hosting](../references/security/#supported-hosting), [Access Control](../references/security/#access-control), and [Self-hosted Gremlin Server](../references/security/#self-hosted-gremlin-server).
-
-:::
-
-<Steps>
+> [!WARNING]
+>
+> This tutorial is meant for your own machine. The sample has no access control, serves Graph Explorer over plain HTTP, and runs Gremlin Server with its default Groovy script engine. Its Compose file publishes Graph Explorer on `127.0.0.1` only, so other machines can't reach it. Keep it that way, because plain HTTP that other machines can reach isn't supported. See [Supported Hosting](../references/security/#supported-hosting), [Access Control](../references/security/#access-control), and [Self-hosted Gremlin Server](../references/security/#self-hosted-gremlin-server).
 
 1. Clone the repository
    ```
@@ -33,8 +27,6 @@ This tutorial is meant for your own machine. The sample has no access control, s
    docker compose up
    ```
 3. Open your browser and navigate to [http://localhost:8080/explorer](http://localhost:8080/explorer)
-
-</Steps>
 
 Graph Explorer opens to the **Graph** page with a default connection already configured and connected to the Gremlin Server with the air routes data. The canvas is empty because no nodes have been added yet.
 
@@ -53,15 +45,11 @@ On the right side of the graph view, you will see a vertical strip of sidebar ic
 
 ## Search for a Node
 
-<Steps>
-
 1. Click the **Search** icon (magnifying glass) in the right sidebar to open the Search panel.
 2. In the **Node Label** picker, select **airport** (you can type to filter the list).
 3. In the **Property** picker, select **code** (you can type to filter the list).
 4. In the search text field, type `AUS`.
 5. Click the result for Austin to expand it, then click the **⊕** button to add it to the graph canvas.
-
-</Steps>
 
 The node appears on the canvas. Click it to select it — the **Details** panel opens automatically in the right sidebar, showing its properties like city, country, and coordinates. You can zoom with the scroll wheel and pan by clicking and dragging the background.
 
@@ -73,23 +61,17 @@ With the Austin airport node on the canvas, let's discover what it connects to.
 
 Graph Explorer fetches up to 10 neighbors and adds them to the graph. The number on top of a node shows how many unexpanded neighbors remain. Double-click again to fetch the next batch.
 
-:::tip
-
-You can also right-click a node and select **Expand node** from the context menu, or use the **Expand** sidebar panel for more control over which neighbor types to fetch.
-
-:::
+> [!TIP]
+>
+> You can also right-click a node and select **Expand node** from the context menu, or use the **Expand** sidebar panel for more control over which neighbor types to fetch.
 
 ## Filter the Graph
 
 As you expand nodes, the graph can get crowded. The Filters panel lets you focus on specific types.
 
-<Steps>
-
 1. Click the **Filters** icon in the right sidebar to open the Entities Filter panel.
 2. You will see two tabs: **Node Labels** and **Edge Labels**. Each tab lists the types currently in the graph with checkboxes.
 3. Try unchecking a node label to hide those nodes from the canvas. Check it again to bring them back.
-
-</Steps>
 
 This does not remove nodes from the graph — it only controls visibility. You can use this to temporarily focus on a subset of the data.
 
@@ -97,21 +79,15 @@ This does not remove nodes from the graph — it only controls visibility. You c
 
 You can view the nodes and edges currently on the canvas in a table format without leaving the Graph page.
 
-<Steps>
-
 1. Click the grid icon in the navigation bar to toggle the Table View open.
 2. Use the dropdown to switch between **All Nodes** and **All Edges**.
 3. You can sort, filter, and export the table data to CSV or JSON.
-
-</Steps>
 
 This table only shows what is on the canvas — it is a different view of the same data you have been exploring.
 
 ## Style Nodes
 
 You can customize how each node type looks on the canvas.
-
-<Steps>
 
 1. Click the **Styles** icon in the right sidebar, then select the **Nodes** tab (it opens by default).
 2. Find the **airport** type in the list.
@@ -121,22 +97,16 @@ You can customize how each node type looks on the canvas.
 6. Change the **Node Color** to a color of your choice using the color picker.
 7. Click **Done** to apply.
 
-</Steps>
-
 All airport nodes on the canvas update with the new labels and color. You can also change the shape, border, and icon.
 
 ## Switch to the Data Table
 
 The Data Table page lets you browse all nodes in the database without adding them to the graph first.
 
-<Steps>
-
 1. Click **Data Table** in the navigation bar.
 2. The **Node Label** picker at the top left is pre-selected to **airport**. Use it to switch to other types like **country** or **continent** (you can type to filter the list).
 3. Browse the paginated table of all airports in the dataset.
 4. To send a specific airport to the graph view, click the **Send to Explorer** button on its row.
-
-</Steps>
 
 ## Next Steps
 

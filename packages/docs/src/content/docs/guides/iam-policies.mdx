@@ -5,11 +5,9 @@ description: Sample Neptune data-access policies for the proxy server's AWS iden
 
 When a Connection has IAM authentication turned on, the Graph Explorer proxy server signs its requests with the AWS identity of its host, such as an ECS task role or an EC2 instance profile. That identity needs a Neptune data-access policy, or Neptune refuses every signed request. These samples give you a starting point for that policy.
 
-:::caution
-
-These policies are examples, not a recommended production configuration. Review them against your own security requirements before you attach one.
-
-:::
+> [!WARNING]
+>
+> These policies are examples, not a recommended production configuration. Review them against your own security requirements before you attach one.
 
 ## Choose a policy
 

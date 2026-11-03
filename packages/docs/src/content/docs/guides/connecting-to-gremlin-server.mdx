@@ -1,13 +1,11 @@
 ---
-title: "Connecting to Gremlin-Server"
+title: "Connect to Gremlin Server"
 description: Configure Graph Explorer to connect to Apache TinkerPop Gremlin Server.
 ---
 
-:::caution
-
-This walkthrough runs Gremlin Server with its default Groovy script engine and is meant for local development only. If anyone other than you can reach Graph Explorer or the server, see [Self-hosted Gremlin Server](../../references/security/#self-hosted-gremlin-server).
-
-:::
+> [!WARNING]
+>
+> This walkthrough runs Gremlin Server with its default Groovy script engine and is meant for local development only. If anyone other than you can reach Graph Explorer or the server, see [Self-hosted Gremlin Server](../../references/security/#self-hosted-gremlin-server).
 
 If you are using the default Gremlin Server docker image, you can get the server running with the following commands:
 
@@ -55,15 +53,13 @@ Alternatively, run Gremlin Server with its port published on `127.0.0.1` as abov
 
 Graph Explorer only supports HTTP(S) connections. When connecting to Gremlin-Server, ensure it is configured with a channelizer that supports HTTP(S) (i.e. [Channelizer Documentation](https://tinkerpop.apache.org/javadocs/current/full/org/apache/tinkerpop/gremlin/server/Channelizer.html)).
 
-:::tip
-
-The Gremlin Server configuration can be usually found at:
-
-```
-/conf/gremlin-server.yaml
-```
-
-:::
+> [!TIP]
+>
+> The Gremlin Server configuration can be usually found at:
+>
+> ```
+> /conf/gremlin-server.yaml
+> ```
 
 ## Connect directly from the browser
 

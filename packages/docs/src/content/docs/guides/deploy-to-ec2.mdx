@@ -3,23 +3,17 @@ title: "Deploy to Amazon EC2"
 description: Deploy Graph Explorer on an Amazon EC2 instance.
 ---
 
-import { Steps } from "@astrojs/starlight/components";
-
 Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server with SSH tunneling to connect to Amazon Neptune. Other ways to connect to Amazon Neptune from outside the VPC include a load balancer or VPC peering.
 
 This guide is an example, not a recommended production configuration. Review its network, access control, and IAM choices against your own security requirements before you run it in production. For the hosting setups Graph Explorer supports, see [Supported Hosting](../../references/security/#supported-hosting). For general guidance on securing a production workload, see the [Security Pillar of the AWS Well-Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html).
 
-:::caution
+> [!IMPORTANT]
+>
+> The Graph Explorer server, not your browser, connects to the database for proxied connections, so it needs network access to the database endpoint. See [System overview](../../references/architecture/#system-overview) for details.
 
-The Graph Explorer server, not your browser, connects to the database for proxied connections, so it needs network access to the database endpoint. See [System overview](../../references/architecture/#system-overview) for details.
-
-:::
-
-:::caution
-
-Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../../references/security/#access-control).
-
-:::
+> [!WARNING]
+>
+> Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../../references/security/#access-control).
 
 ## Prerequisites
 
@@ -32,8 +26,6 @@ Graph Explorer performs no authentication or authorization, so controlling who c
 
 ## Steps
 
-<Steps>
-
 1. Open an SSH client and connect to the EC2 instance
 2. Authenticate with the [Amazon ECR Public Registry](https://docs.aws.amazon.com/AmazonECR/latest/public/public-registries.html#public-registry-auth)
    ```
@@ -45,11 +37,9 @@ Graph Explorer performs no authentication or authorization, so controlling who c
    docker pull public.ecr.aws/neptune/graph-explorer
    ```
 
-   :::tip
-
-   If you receive an error relating to the docker service not running, run `service docker start`.
-
-   :::
+   > [!TIP]
+   >
+   > If you receive an error relating to the docker service not running, run `service docker start`.
 
 4. Run the container substituting the `{hostname-or-ip-address}` with the hostname or IP address of the EC2 instance, and `{NEPTUNE_ENDPOINT}` with your Neptune endpoint
 
@@ -65,11 +55,9 @@ Graph Explorer performs no authentication or authorization, so controlling who c
 
    `PROXY_SERVER_ALLOWED_DB_ORIGINS` limits the proxy server to your Neptune cluster. The origin must match the URL users enter in their Connection exactly, including the scheme and port. A "not in the Database Origin Allowlist" error means the two differ. To let users reach another database later, add its origin to the comma-separated list, such as `https://{NEPTUNE_ENDPOINT}:8182,https://{OTHER_ENDPOINT}:8182`. See [Database Origin Allowlist](../../references/security/#database-origin-allowlist).
 
-   :::tip
-
-   The `--restart unless-stopped` flag ensures the container automatically restarts after a host reboot or if the container crashes. See Docker's [restart policy documentation](https://docs.docker.com/engine/containers/start-containers-automatically/) for other options.
-
-   :::
+   > [!TIP]
+   >
+   > The `--restart unless-stopped` flag ensures the container automatically restarts after a host reboot or if the container crashes. See Docker's [restart policy documentation](https://docs.docker.com/engine/containers/start-containers-automatically/) for other options.
 
 5. Navigate to the public URL of your EC2 instance accessing the `/explorer` endpoint. You will receive a warning as the SSL certificate used is self-signed. The URL will look like this:
 
@@ -77,13 +65,9 @@ Graph Explorer performs no authentication or authorization, so controlling who c
    https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com/explorer
    ```
 
-   :::caution
-
-   Never expose this URL publicly without an access control layer in front of it. See [Access Control](../../references/security/#access-control).
-
-   :::
+   > [!WARNING]
+   >
+   > Never expose this URL publicly without an access control layer in front of it. See [Access Control](../../references/security/#access-control).
 
 6. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See [HTTPS Connections](../troubleshooting/#https-connections) section.
 7. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI.
-
-</Steps>

@@ -1,13 +1,31 @@
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 
+import { githubAlertsIntegration } from "./src/plugins/github-alerts";
+
+const base = "/graph-explorer";
+
 export default defineConfig({
   site: "https://aws.github.io",
-  base: "/graph-explorer",
+  base,
   integrations: [
+    githubAlertsIntegration(),
     starlight({
       title: "Graph Explorer",
-      favicon: "/favicon.ico",
+      favicon: "/favicon.svg",
+      head: [
+        {
+          tag: "link",
+          attrs: { rel: "icon", href: `${base}/favicon.ico`, sizes: "32x32" },
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "apple-touch-icon",
+            href: `${base}/apple-touch-icon.png`,
+          },
+        },
+      ],
       customCss: [
         "@fontsource/inter/400.css",
         "@fontsource/inter/500.css",

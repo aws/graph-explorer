@@ -3,39 +3,31 @@ title: "Deploy with Docker"
 description: Deploy Graph Explorer locally using the official Docker image.
 ---
 
-import { Steps } from "@astrojs/starlight/components";
-
 Deploy Graph Explorer locally using the official Docker image from Amazon's ECR Public Registry.
 
 You can find the latest version of the image on [Amazon's ECR Public Registry](https://gallery.ecr.aws/neptune/graph-explorer).
 
 This guide is an example, not a recommended production configuration. Review its network, access control, and IAM choices against your own security requirements before you run it in production. For the hosting setups Graph Explorer supports, see [Supported Hosting](../../references/security/#supported-hosting). For general guidance on securing a production workload, see the [Security Pillar of the AWS Well-Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html).
 
-:::note
+> [!NOTE]
+>
+> The `sagemaker-*` image tags are now aliases for the same image as the regular tag. They exist only for compatibility with existing SageMaker lifecycle scripts and will stop being published in a future release. Use the regular tag for new deployments.
+>
+> Because of this, a `sagemaker-*` tag starts with the standard defaults: HTTPS on port 443, which needs `HOST` set to generate its certificate. To serve HTTP on port 9250 with logs formatted for CloudWatch instead, set these variables:
+>
+> - [`PROXY_SERVER_HTTPS_CONNECTION=false`](../../references/configuration/#proxy_server_https_connection)
+> - [`PROXY_SERVER_PORT=9250`](../../references/configuration/#proxy_server_port)
+> - [`LOG_STYLE=cloudwatch`](../../references/configuration/#log_style)
+>
+> Publish the port with `-p 127.0.0.1:9250:9250` and open `http://localhost:9250/explorer`. Sending the logs to CloudWatch also takes Docker's `awslogs` log driver.
 
-The `sagemaker-*` image tags are now aliases for the same image as the regular tag. They exist only for compatibility with existing SageMaker lifecycle scripts and will stop being published in a future release. Use the regular tag for new deployments.
+> [!IMPORTANT]
+>
+> The Graph Explorer server, not your browser, connects to the database for proxied connections, so it needs network access to the database endpoint. See [System overview](../../references/architecture/#system-overview) for details.
 
-Because of this, a `sagemaker-*` tag starts with the standard defaults: HTTPS on port 443, which needs `HOST` set to generate its certificate. To serve HTTP on port 9250 with logs formatted for CloudWatch instead, set these variables:
-
-- [`PROXY_SERVER_HTTPS_CONNECTION=false`](../../references/configuration/#proxy_server_https_connection)
-- [`PROXY_SERVER_PORT=9250`](../../references/configuration/#proxy_server_port)
-- [`LOG_STYLE=cloudwatch`](../../references/configuration/#log_style)
-
-Publish the port with `-p 127.0.0.1:9250:9250` and open `http://localhost:9250/explorer`. Sending the logs to CloudWatch also takes Docker's `awslogs` log driver.
-
-:::
-
-:::caution
-
-The Graph Explorer server, not your browser, connects to the database for proxied connections, so it needs network access to the database endpoint. See [System overview](../../references/architecture/#system-overview) for details.
-
-:::
-
-:::caution
-
-Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../../references/security/#access-control).
-
-:::
+> [!WARNING]
+>
+> Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../../references/security/#access-control).
 
 ## Prerequisites
 
@@ -43,8 +35,6 @@ Graph Explorer performs no authentication or authorization, so controlling who c
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) installed on your machine
 
 ## Steps
-
-<Steps>
 
 1. Authenticate with the [Amazon ECR Public Registry](https://docs.aws.amazon.com/AmazonECR/latest/public/public-registries.html#public-registry-auth)
 
@@ -70,11 +60,9 @@ Graph Explorer performs no authentication or authorization, so controlling who c
 
    The `HOST` environment variable is used for SSL certificates generation since HTTPS is the default. If you are hosting this on a public domain, you should replace `HOST=localhost` with your domain name.
 
-   :::caution
-
-   `-p 127.0.0.1:443:443` publishes the container on the loopback interface only, so only the host itself can reach it. To reach it from other machines, such as on a public domain, use `-p 443:443`, which publishes it on every network interface of the host, and limit who can reach port `443` with network rules you provide. Confirm your rules apply to the port you publish, because container platforms can publish ports in a way host firewalls don't filter.
-
-   :::
+   > [!WARNING]
+   >
+   > `-p 127.0.0.1:443:443` publishes the container on the loopback interface only, so only the host itself can reach it. To reach it from other machines, such as on a public domain, use `-p 443:443`, which publishes it on every network interface of the host, and limit who can reach port `443` with network rules you provide. Confirm your rules apply to the port you publish, because container platforms can publish ports in a way host firewalls don't filter.
 
 4. Open a browser and type in the URL of the Graph Explorer server instance
 
@@ -84,12 +72,8 @@ Graph Explorer performs no authentication or authorization, so controlling who c
 
 5. You will receive a warning as the SSL certificate used is self-signed. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See the [HTTPS Connections](../troubleshooting/#https-connections) section.
 
-   :::note
-
-   A new container generates a new certificate, so replacing the container undoes this trust step. To keep the certificate, see [Keeping the certificate across container replacements](../../references/security/#keeping-the-certificate-across-container-replacements).
-
-   :::
+   > [!NOTE]
+   >
+   > A new container generates a new certificate, so replacing the container undoes this trust step. To keep the certificate, see [Keeping the certificate across container replacements](../../references/security/#keeping-the-certificate-across-container-replacements).
 
 6. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See [Connections](../../features/connections/) for details on configuring your first connection.
-
-</Steps>

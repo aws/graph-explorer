@@ -3,8 +3,6 @@ title: "Security"
 description: Access control responsibilities, HTTPS connections, certificates, and permissions.
 ---
 
-import { Steps } from "@astrojs/starlight/components";
-
 The browser talks to the same-origin proxy server, and the proxy server is what reaches the graph database. That means the proxy server must have network access to the target database, as described in the [architecture overview](../architecture/#system-overview). The one exception is a direct connection, where the browser sends requests to the database itself.
 
 The Docker image serves HTTPS by default. It generates a self-signed certificate at startup when `HOST` is set, or uses certificates you provide, as described in [HTTPS Connections](#https-connections). [Supported Hosting](#supported-hosting) lists the setups Graph Explorer supports.
@@ -140,11 +138,9 @@ The certificate is valid for the `HOST` value and dates from the first run. Dele
 
 To use your own certificates instead of the self-signed ones, mount your certificate files into the `cert-info` directory. All five certificate files must be present (`rootCA.key`, `rootCA.crt`, `server.key`, `server.csr`, `server.crt`).
 
-:::caution
-
-Do not set the `HOST` environment variable, otherwise the entrypoint will overwrite your files with a new self-signed certificate.
-
-:::
+> [!WARNING]
+>
+> Do not set the `HOST` environment variable, otherwise the entrypoint will overwrite your files with a new self-signed certificate.
 
 ```bash
 docker run -p 443:443 \
@@ -167,11 +163,9 @@ Let only the reverse proxy reach that port:
 
 Confirm your rules apply to the port you publish. Container platforms can publish ports in a way host firewalls don't filter.
 
-:::caution
-
-Over HTTP, database connection URLs, query text, and query results travel in plain text between the reverse proxy and the proxy server. A client that reaches the port directly also skips any authentication the reverse proxy applies.
-
-:::
+> [!WARNING]
+>
+> Over HTTP, database connection URLs, query text, and query results travel in plain text between the reverse proxy and the proxy server. A client that reaches the port directly also skips any authentication the reverse proxy applies.
 
 To try Graph Explorer on your own machine without a reverse proxy, publish the port on `127.0.0.1` so no other machine can reach it. With `pnpm start` or `pnpm dev`, the defaults already do this. See [Supported Hosting](#supported-hosting).
 
@@ -181,20 +175,14 @@ Trusting the certificate by hand suits a deployment only you use. Every user wou
 
 When using the default self-signed certificate, your browser will show a security warning. You can bypass this by trusting the certificate:
 
-<Steps>
-
 1. Download the certificate directly from the browser. For example, if using Google Chrome, click the "Not Secure" section on the left of the URL bar and select "Certificate is not valid" to show the certificate. Then click Details tab and click Export at the bottom.
 2. Once you have the certificate, you will need to trust it on your machine. For MacOS, you can open the Keychain Access app. Select System under System Keychains. Then go to File > Import Items... and import the certificate you downloaded in the previous step.
 3. Once imported, select the certificate and right-click to select "Get Info". Expand the Trust section, and change the value of "When using this certificate" to "Always Trust".
 4. You should now refresh the browser and see that you can proceed to open the application. For Chrome, the application will remain "Not Secure" due to the fact that this is a self-signed certificate. If you have trouble accessing Graph Explorer after completing the previous step and reloading the browser, consider running a docker restart command and refreshing the browser again.
 
-</Steps>
-
 ### Removing the "Not Secure" warning on Chrome
 
 For browsers like Safari and Firefox, trusting the certificate from the browser (steps above) is enough to bypass the "Not Secure" warning. However, Chrome treats self-signed certificates differently. To remove the warning on Chrome, you need to trust the **root CA certificate** rather than the server certificate. See the [Chrome Root Store FAQ](https://chromium.googlesource.com/chromium/src/+/main/net/data/ssl/chrome_root_store/faq.md#how-does-the-chrome-certificate-verifier-integrate-with-platform-trust-stores-for-local-trust-decisions) for details on how Chrome integrates with platform trust stores.
-
-<Steps>
 
 1. Copy the root certificate from the running container to your local machine:
    ```
@@ -204,8 +192,6 @@ For browsers like Safari and Firefox, trusting the certificate from the browser 
 2. Trust the root certificate on your machine. For macOS, open the Keychain Access app, select System under System Keychains, then go to File > Import Items... and import `rootCA.crt`.
 3. Once imported, select the certificate and right-click to select "Get Info". Expand the Trust section, and change the value of "When using this certificate" to "Always Trust".
 4. Refresh the browser. The "Not Secure" warning should be gone.
-
-</Steps>
 
 ## CORS
 
@@ -223,11 +209,9 @@ To allow multiple origins, separate them with commas:
 PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com,https://other-app.example.com
 ```
 
-:::note
-
-CORS headers only affect browser-initiated requests — direct API calls from scripts or other servers are not restricted by CORS. CORS is a defense-in-depth layer, not a substitute for authentication or network-level access controls. Ensure the proxy server is not exposed to untrusted networks.
-
-:::
+> [!NOTE]
+>
+> CORS headers only affect browser-initiated requests — direct API calls from scripts or other servers are not restricted by CORS. CORS is a defense-in-depth layer, not a substitute for authentication or network-level access controls. Ensure the proxy server is not exposed to untrusted networks.
 
 ## Database Origin Allowlist
 
@@ -235,11 +219,9 @@ By default, the proxy server forwards requests to any database URL specified by 
 
 On a host with AWS credentials, such as an EC2 instance profile or ECS task role, the proxy server signs requests with the host's identity, which every user of the deployment shares. Scope that identity's database policy first, because Neptune enforces it no matter what sends the request. Set the allowlist as well to add a second boundary in the proxy server, which also limits requests to databases that don't use IAM authentication. See [Permissions](#permissions).
 
-:::note
-
-This check applies only to requests routed through the proxy server. It doesn't apply to direct connections, because the browser sends their requests to the database itself.
-
-:::
+> [!NOTE]
+>
+> This check applies only to requests routed through the proxy server. It doesn't apply to direct connections, because the browser sends their requests to the database itself.
 
 ## Reserved Cloud Service Addresses
 
@@ -289,8 +271,6 @@ Graph Explorer doesn't limit which databases it signs for by default. Many deplo
 
 For the minimum Neptune permissions Graph Explorer needs, see [Sample IAM Policies](../../guides/iam-policies/#choose-a-policy). The sample SageMaker lifecycle script sets the allowlist to your Neptune endpoint. That doesn't replace the notebook instance's IAM role policy, which Neptune checks on every signed request, so scope it as described in [Minimum Database Permissions](../../guides/deploy-to-sagemaker/#minimum-database-permissions).
 
-:::danger
-
-By default, a Neptune Notebook will have full read & write access to Neptune data.
-
-:::
+> [!CAUTION]
+>
+> By default, a Neptune Notebook will have full read & write access to Neptune data.

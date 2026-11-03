@@ -51,13 +51,19 @@ const { slides } = Astro.props;
   .carousel-viewport {
     overflow: hidden;
     border-radius: 0.75rem;
-    border: 1px solid oklch(from var(--sl-color-gray-5) l c h / 0.3);
     background: var(--sl-color-gray-7);
-    box-shadow: 0 8px 40px oklch(0% 0 0 / 0.25);
+    outline: 1px solid oklch(100% 0 0 / 0.14);
+    outline-offset: -1px;
+    box-shadow:
+      0 1px 2px oklch(0% 0 0 / 0.4),
+      0 16px 40px -8px oklch(0% 0 0 / 0.6);
   }
 
   :root[data-theme="light"] .carousel-viewport {
-    box-shadow: 0 8px 40px oklch(0% 0 0 / 0.08);
+    outline-color: oklch(20.8% 0.042 265.755 / 0.12);
+    box-shadow:
+      0 1px 2px oklch(20.8% 0.042 265.755 / 0.06),
+      0 12px 32px -8px oklch(20.8% 0.042 265.755 / 0.18);
   }
 
   .carousel-track {
@@ -164,12 +170,9 @@ const { slides } = Astro.props;
 
 <script>
   (function () {
-    let autoplay: ReturnType<typeof setInterval> | undefined;
     let listeners: AbortController | undefined;
 
     function stop() {
-      clearInterval(autoplay);
-      autoplay = undefined;
       // History navigation can restore the previous DOM nodes, so listeners must
       // be removed or a restored carousel ends up with two sets of handlers.
       listeners?.abort();
@@ -197,6 +200,8 @@ const { slides } = Astro.props;
       function goTo(index: number) {
         current = ((index % total) + total) % total;
         track.style.transform = `translateX(${-current * 100}%)`;
+        // Off-screen slides stay out of the tab order and the accessibility tree.
+        slides.forEach((s, i) => s.toggleAttribute('inert', i !== current));
         dots.forEach((d, i) => {
           d.classList.toggle('active', i === current);
           d.setAttribute('aria-current', String(i === current));
@@ -216,14 +221,6 @@ const { slides } = Astro.props;
       );
 
       goTo(0);
-
-      // Autoplay is motion, so honour a reduced-motion preference.
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      const advance = () => { autoplay = setInterval(() => goTo(current + 1), 6000); };
-      advance();
-      carousel.addEventListener('mouseenter', () => clearInterval(autoplay), { signal });
-      carousel.addEventListener('focusin', () => clearInterval(autoplay), { signal });
-      carousel.addEventListener('mouseleave', advance, { signal });
     }
 
     // Astro fires astro:page-load on first load and after every view transition,

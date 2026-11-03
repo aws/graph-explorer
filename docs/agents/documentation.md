@@ -18,12 +18,12 @@ How to write user-facing docs (READMEs, guides, the docs site). For agent-facing
 
 ## Two surfaces
 
-| Surface | Where | Notices |
-| --- | --- | --- |
-| Docs site | `packages/docs/src/content/docs/**/*.mdx` | Starlight asides (`:::note`) |
-| Repo Markdown | `README.md`, `Changelog.md`, `ROADMAP.md`, `docs/**`, `samples/**`, `.github/**` | GitHub alerts (`> [!NOTE]`) |
+| Surface | Where |
+| --- | --- |
+| Docs site | `packages/docs/src/content/docs/**/*.mdx` |
+| Repo Markdown | `README.md`, `Changelog.md`, `ROADMAP.md`, `docs/**`, `samples/**`, `.github/**` |
 
-They don't mix. Starlight renders a GitHub alert as a plain blockquote with a literal `[!NOTE]`, and GitHub renders an aside as literal `:::note` text. Neither fails a build.
+Both use GitHub alerts (`> [!NOTE]`) for notices. The docs site renders them with `packages/docs/src/plugins/github-alerts.ts`. Don't write Starlight asides (`:::note`).
 
 ## Docs site
 
@@ -42,26 +42,23 @@ A new page in Features, Guides, or References gets a `LinkCard` with its `descri
 
 Starlight generates each page's table of contents, so don't hand-write a list of links to headings on the same page.
 
-### Asides
+### Alerts
 
-Put a blank line after the opening marker and before the closing one. The formatter joins prose onto one line (`proseWrap: never`), and without the blank lines it folds the whole aside into one line that renders as plain text.
+Put the marker on its own line and prefix every line of the body with `>`.
 
 ```mdx
-:::caution
-
-Message goes here
-
-:::
+> [!WARNING] Message goes here
 ```
 
-| Aside | Use for | Replaces |
-| --- | --- | --- |
-| `:::note` | good to know while skimming | `[!NOTE]` |
-| `:::tip` | do it better or more easily | `[!TIP]` |
-| `:::caution` | key to the reader's goal, or urgent | `[!IMPORTANT]`, `[!WARNING]` |
-| `:::danger` | risk of a bad outcome | `[!CAUTION]` |
+| Alert          | Use for                     |
+| -------------- | --------------------------- |
+| `[!NOTE]`      | good to know while skimming |
+| `[!TIP]`       | do it better or more easily |
+| `[!IMPORTANT]` | key to the reader's goal    |
+| `[!WARNING]`   | urgent, needs attention now |
+| `[!CAUTION]`   | risk of a bad outcome       |
 
-The same claim gets the same aside everywhere it appears. A page carrying three asides in a row has an ordering problem, not an emphasis problem.
+The same claim gets the same alert everywhere it appears. A page carrying three alerts in a row has an ordering problem, not an emphasis problem.
 
 ### Links
 
@@ -73,11 +70,14 @@ A link to another page is relative to the page's URL, ends in a slash, and has n
 
 A link to a repo file that isn't a page, such as a sample policy, a script, or `docs/development.md`, uses its GitHub URL, `https://github.com/aws/graph-explorer/blob/main/<path>`. Never write a root-absolute internal link, which would need the `/graph-explorer` base path.
 
+### Procedures
+
+Write a procedure as a plain Markdown ordered list. Indent an alert or code block that belongs to a step under that step so the list stays one list. Don't wrap it in Starlight's `Steps` component.
+
 ### Components
 
 Import them from `@astrojs/starlight/components`:
 
-- `Steps` wraps a numbered procedure, which must be one ordered list, so indent an aside or code block that belongs to a step under that step
 - `Tabs` and `TabItem` for alternatives, such as a JSON file versus environment variables
 - `Card`, `CardGrid`, and `LinkCard` for section hub pages
 - `Badge` for an environment variable's type and default, right under its heading
@@ -100,7 +100,7 @@ The site has its own theme, separate from the app's. Read `packages/docs/DESIGN.
 ## Docs that mirror code
 
 - `packages/docs/src/content/docs/references/security.mdx#reference-for-access-control-layers` copies the proxy server's routes, methods, request headers, forwarded response headers, body limit, and the Default Connection's Fetch Timeout. A change to any of them updates that section.
-- A new deployment guide gets the example paragraph after its opening paragraph and the access control `:::caution` aside, both worded identically to the existing guides, and a row in the deployment table in `packages/docs/src/content/docs/references/security.mdx#access-control`.
+- A new deployment guide gets the example paragraph after its opening paragraph and the access control `[!WARNING]` alert, both worded identically to the existing guides, and a row in the deployment table in `packages/docs/src/content/docs/references/security.mdx#access-control`.
 
 ## `NEPTUNE_NOTEBOOK`
 

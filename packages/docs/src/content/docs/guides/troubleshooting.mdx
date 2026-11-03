@@ -3,8 +3,6 @@ title: "Troubleshooting"
 description: Common issues and workarounds for Graph Explorer.
 ---
 
-import { Steps } from "@astrojs/starlight/components";
-
 This page contains workarounds for common issues and information on how to diagnose other issues.
 
 ## Docker Container Issues
@@ -127,11 +125,9 @@ This can manifest as different types of errors depending on the root cause. You 
   - The client is hosted at `/explorer`
   - The API paths live at the root rather than under `/explorer`. See [Reference for access control layers](../../references/security/#reference-for-access-control-layers) for the full list.
 
-:::caution
-
-The API paths could change in a future release. Any change will be noted in the release notes.
-
-:::
+> [!WARNING]
+>
+> The API paths could change in a future release. Any change will be noted in the release notes.
 
 ### Database Cannot Be Reached
 
@@ -214,16 +210,12 @@ Inside of Graph Explorer there is an option to save all the configuration data t
 
 To save the configuration data:
 
-<Steps>
-
 1. Launch Graph Explorer
 2. Navigate to the connections screen
 3. Press the "Settings" button in the navigation bar
 4. Select the "General" page within settings
 5. Press the "Save Configuration" button
 6. Choose where to save the configuration file
-
-</Steps>
 
 This configuration can be restored using the "Load Configuration" button in the same settings page.
 
@@ -244,8 +236,6 @@ The Graph Explorer proxy server outputs log statements to standard out. By defau
 
 To gather these logs:
 
-<Steps>
-
 1. Open the AWS Console
 2. Navigate to the Neptune page
 3. Select "Notebook" from the sidebar
@@ -257,8 +247,6 @@ To gather these logs:
 9. For each log stream related to Graph Explorer (LifecycleConfigOnStart.log, graph-explorer.log)
    1. Open the log stream
    2. In the "Actions" menu, choose "Download search results (CSV)"
-
-</Steps>
 
 ### Graph Explorer Log Stream Does Not Exist
 

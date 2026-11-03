@@ -3,10 +3,10 @@
    ========================================================================== */
 
 :root {
-  --sl-color-accent-low: oklch(28.3% 0.141 291.089);
-  --sl-color-accent: oklch(70.2% 0.183 293.541);
-  --sl-color-accent-high: oklch(81.1% 0.111 293.571);
-  --sl-color-accent-hover: oklch(81.1% 0.111 293.571);
+  --sl-color-accent-low: oklch(25% 0.063 247.66);
+  --sl-color-accent: oklch(78.4% 0.108 254.45);
+  --sl-color-accent-high: oklch(85.4% 0.071 258.35);
+  --sl-color-accent-hover: var(--sl-color-accent-high);
   --sl-color-white: oklch(98.4% 0.003 247.858);
   --sl-color-gray-1: oklch(96.8% 0.007 247.896);
   --sl-color-gray-2: oklch(86.9% 0.022 252.894);
@@ -53,12 +53,12 @@
   /* Transitions */
   --sl-transition: 0.2s ease-in-out;
 
-  /* Brand gradient */
-  --ge-gradient: linear-gradient(
-    135deg,
-    oklch(58.5% 0.233 277.117),
-    oklch(60.6% 0.25 292.717)
-  );
+  /* GitHub alerts */
+  --ge-alert-note: #4493f8;
+  --ge-alert-tip: #3fb950;
+  --ge-alert-important: #ab7df8;
+  --ge-alert-warning: #d29922;
+  --ge-alert-caution: #f85149;
 
   /* Badges */
   --sl-badge-default-bg: oklch(from var(--sl-color-accent-high) l c h / 15%);
@@ -91,10 +91,10 @@
    ========================================================================== */
 
 :root[data-theme="light"] {
-  --sl-color-accent-low: oklch(94.3% 0.029 294.588);
-  --sl-color-accent: oklch(54.1% 0.281 293.009);
-  --sl-color-accent-high: oklch(43.2% 0.232 292.759);
-  --sl-color-accent-hover: oklch(60.6% 0.25 292.717);
+  --sl-color-accent-low: oklch(93.1% 0.032 260.03);
+  --sl-color-accent: oklch(46.5% 0.117 247.2);
+  --sl-color-accent-high: oklch(35.4% 0.089 247.01);
+  --sl-color-accent-hover: var(--sl-color-accent-high);
   --sl-color-white: oklch(12.9% 0.042 264.695);
   --sl-color-gray-1: oklch(20.8% 0.042 265.755);
   --sl-color-gray-2: oklch(27.9% 0.041 260.031);
@@ -124,11 +124,11 @@
   --sl-color-red: oklch(58.6% 0.253 17.585);
   --sl-color-red-low: oklch(45.5% 0.188 13.697);
 
-  --ge-gradient: linear-gradient(
-    135deg,
-    oklch(51.1% 0.262 276.966),
-    oklch(54.1% 0.281 293.009)
-  );
+  --ge-alert-note: #0969da;
+  --ge-alert-tip: #1a7f37;
+  --ge-alert-important: #8250df;
+  --ge-alert-warning: #8a5c00;
+  --ge-alert-caution: #d1242f;
 
   /* Shadows */
   --shadow-color: 210deg 12% 77%;

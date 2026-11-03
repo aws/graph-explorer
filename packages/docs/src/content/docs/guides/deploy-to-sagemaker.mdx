@@ -1,5 +1,5 @@
 ---
-title: "Launching Graph Explorer using Amazon SageMaker"
+title: "Deploy to Amazon SageMaker"
 description: Deploy Graph Explorer on an Amazon SageMaker notebook instance.
 ---
 
@@ -17,11 +17,9 @@ When the notebook has been started and is in "Ready" state, you can access Graph
 https://graph-explorer-notebook-name.notebook.us-west-2.sagemaker.aws/proxy/9250/explorer/
 ```
 
-:::caution
-
-Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../../references/security/#access-control).
-
-:::
+> [!WARNING]
+>
+> Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../../references/security/#access-control).
 
 On SageMaker, the notebook's Jupyter proxy is that access control layer. See [Security model](#security-model).
 
@@ -57,10 +55,8 @@ The sample policies grant every database action (`neptune-db:*` or `neptune-grap
 
 To narrow the role, replace the statement with `"Action": "neptune-db:*"` or `"Action": "neptune-graph:*"` in the sample policy with the single entry in the `Statement` array of the matching read-only sample, [Neptune Database](https://github.com/aws/graph-explorer/blob/main/packages/docs/src/content/docs/guides/_assets/neptune-db-read-only.json) or [Neptune Analytics](https://github.com/aws/graph-explorer/blob/main/packages/docs/src/content/docs/guides/_assets/neptune-analytics-read-only.json). Keep the SageMaker and CloudWatch Logs statements, which the notebook instance needs. The read-only samples grant read queries and the graph summary, plus query cancellation.
 
-:::danger
-
-If you are using the standard notebook setup, these policies will apply to both the Jupyter graph notebooks as well as Graph Explorer.
-
-:::
+> [!CAUTION]
+>
+> If you are using the standard notebook setup, these policies will apply to both the Jupyter graph notebooks as well as Graph Explorer.
 
 If a user attempts to execute a mutation query inside of Graph Explorer, they will be presented with an error that informs them they are not authorized for that request.

@@ -1,29 +1,21 @@
 ---
-title: "Running Graph Explorer on AWS Fargate + Amazon ECS"
+title: "Deploy to Amazon ECS on Fargate"
 description: Deploy Graph Explorer on Amazon ECS with AWS Fargate.
 ---
-
-import { Steps } from "@astrojs/starlight/components";
 
 The following steps will allow you to set up Graph Explorer on AWS Fargate in Amazon ECS, and connect to a running Neptune database.
 
 This guide is an example, not a recommended production configuration. Review its network, access control, and IAM choices against your own security requirements before you run it in production. For the hosting setups Graph Explorer supports, see [Supported Hosting](../../references/security/#supported-hosting). For general guidance on securing a production workload, see the [Security Pillar of the AWS Well-Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html).
 
-:::caution
+> [!IMPORTANT]
+>
+> The Graph Explorer server, not your browser, connects to the database for proxied connections, so it needs network access to the database endpoint. See [System overview](../../references/architecture/#system-overview) for details.
 
-The Graph Explorer server, not your browser, connects to the database for proxied connections, so it needs network access to the database endpoint. See [System overview](../../references/architecture/#system-overview) for details.
-
-:::
-
-:::caution
-
-Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../../references/security/#access-control).
-
-:::
+> [!WARNING]
+>
+> Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../../references/security/#access-control).
 
 ## Create a new IAM role and permission policies
-
-<Steps>
 
 1. Open the IAM console at https://console.aws.amazon.com/iam/.
 2. In the navigation pane, click **Roles**, and then click **Create role**.
@@ -35,7 +27,7 @@ Graph Explorer performs no authentication or authorization, so controlling who c
 8. For **Add tags (optional)**, enter any custom tags to associate with the policy.
 9. Click **Create role** to finish, and keep the role name handy to use in the next steps.
 
-   ![image](./_assets/iam-role.png)
+   ![IAM role review page for GraphExplorer_ECS_Role, with an ecs-tasks.amazonaws.com trust policy and the CloudWatchFullAccess and AmazonECSTaskExecutionRolePolicy permissions](./_assets/iam-role.png)
 
 10. If your Neptune cluster has IAM database authentication enabled, attach a database policy to the role. The proxy server signs requests with the task role, and Neptune refuses them without this policy.
     1. Open the `GraphExplorer_ECS_Role` role, then click **Add permissions** > **Create inline policy**.
@@ -43,11 +35,7 @@ Graph Explorer performs no authentication or authorization, so controlling who c
     3. Replace the placeholders as described in [Sample IAM Policies](../iam-policies/#placeholders).
     4. Click **Next**, name the policy, and click **Create policy**.
 
-</Steps>
-
 ## Create an Amazon ECS Cluster
-
-<Steps>
 
 1. Open the ECS console at https://console.aws.amazon.com/ecs/v2.
 2. In the left hand navigation pane, click **Clusters**.
@@ -63,15 +51,11 @@ Graph Explorer performs no authentication or authorization, so controlling who c
      - For **Value**, enter the key value.
 8. Click **Create**.
 
-</Steps>
-
 After the cluster has finished creation, you can create task definitions for your applications, which can then be run as standalone tasks, or as part of a service.
 
-![image](./_assets/ecs-cluster.png)
+![Amazon ECS console showing the GraphExplorer_ECS_Demo cluster as Active, with no services yet](./_assets/ecs-cluster.png)
 
 ## Request an ACM Public Certificate
-
-<Steps>
 
 1. Open the ACM console at https://console.aws.amazon.com/acm/home.
 2. In the left hand navigation pane, click **Request certificate**.
@@ -90,13 +74,9 @@ After the cluster has finished creation, you can create task definitions for you
 8. (Optional) Under the **Tags** section, you can add tags for your certificate.
 9. Click **Request**.
 
-</Steps>
-
 After the request is processed, the console will return you to your certificate list, where information about the certificate will be displayed. The newly requested certificate will initially display the status `Pending validation`. Once the verification is successful, ACM will issue the SSL/TLS certificate for the specified domain names.
 
 ## Creating an ECS Task Definition
-
-<Steps>
 
 1. Open the ECS console at https://console.aws.amazon.com/ecs/v2.
 2. In the left hand navigation pane, choose **Task definitions**.
@@ -190,23 +170,15 @@ After the request is processed, the console will return you to your certificate 
      - `SERVICE_TYPE`: Set this as `neptune-db` for Neptune database or `neptune-graph` for Neptune Analytics.
 6. Click **Create**.
 
-</Steps>
-
-:::caution
-
-Don't set `readonlyRootFilesystem: true` or a non-root `user` on this container. Graph Explorer writes its settings into its configuration folder at startup and needs write access to do that. See [Graph Explorer can't start because it can't write .env](../troubleshooting/#graph-explorer-cant-start-because-it-cant-write-env).
-
-:::
+> [!WARNING]
+>
+> Don't set `readonlyRootFilesystem: true` or a non-root `user` on this container. Graph Explorer writes its settings into its configuration folder at startup and needs write access to do that. See [Graph Explorer can't start because it can't write .env](../troubleshooting/#graph-explorer-cant-start-because-it-cant-write-env).
 
 ## Create a Security Group
 
-:::danger
-
-The Fargate service below places Graph Explorer in public subnets behind an internet-facing load balancer, so this security group is what limits who can reach it. Restrict its source to the public address range your users' traffic comes from. The tasks also get public IPs and carry the same rule, so an authentication rule or web application firewall you add at the load balancer doesn't cover traffic sent straight to a task. See [Access Control](../../references/security/#access-control).
-
-:::
-
-<Steps>
+> [!CAUTION]
+>
+> The Fargate service below places Graph Explorer in public subnets behind an internet-facing load balancer, so this security group is what limits who can reach it. Restrict its source to the public address range your users' traffic comes from. The tasks also get public IPs and carry the same rule, so an authentication rule or web application firewall you add at the load balancer doesn't cover traffic sent straight to a task. See [Access Control](../../references/security/#access-control).
 
 1. Open the EC2 console at https://console.aws.amazon.com/ec2/.
 2. In the left hand navigation pane, choose **Security Groups**, then click **Create security group**.
@@ -219,11 +191,7 @@ The Fargate service below places Graph Explorer in public subnets behind an inte
 5. On the page for the new group, click **Edit inbound rules**, then **Add rule** with type `HTTPS` and the source set to `graphexplorer-demo` itself. Click **Save rules**. The load balancer the ECS console creates later gets this group too, which you confirm after creating the service, and a security group doesn't let its own members reach each other without a rule like this, so without it the load balancer's health checks fail.
 6. Open the security group attached to your Neptune database, click **Edit inbound rules**, and add a rule with type `Custom TCP`, port range `8182`, and source `graphexplorer-demo`. Click **Save rules**. Without this rule, Graph Explorer starts and passes its health check but can't reach the database, so every query times out.
 
-</Steps>
-
 ## Create a Fargate Service
-
-<Steps>
 
 1. Open the ECS console at https://console.aws.amazon.com/ecs/v2.
 2. In the left hand navigation pane, choose **Clusters**.
@@ -254,7 +222,7 @@ The Fargate service below places Graph Explorer in public subnets behind an inte
      - **Target group name**: `tg-graphexplorer-demo` with **Protocol** as `HTTPS`.
      - **Health check path**: `/explorer/` with **Health check protocol** as `HTTPS`.
 
-     ![image](./_assets/target-group.png)
+     ![Load balancing settings for a new Application Load Balancer with an HTTPS listener on port 443 and an HTTPS target group whose health check path is /explorer/](./_assets/target-group.png)
 
 10. (Optional) Under section **Service auto scaling**, specify the desired scaling configuration.
 11. (Optional) To help identify your service and tasks, expand the **Tags** section, then configure your desired tags.
@@ -262,15 +230,11 @@ The Fargate service below places Graph Explorer in public subnets behind an inte
 12. Click **Create**.
 13. Once the service is created, open the EC2 console, choose **Load Balancers**, select `lb-graph-explorer-demo`, and open the **Security** tab. Confirm `graphexplorer-demo` is the only security group listed. If another group is listed, click **Edit**, select only `graphexplorer-demo`, and save. This group is what limits the load balancer to `{YOUR_CIDR}`. If you changed the group, in the cluster's **Services** list select the service, choose **Update**, select **Force new deployment**, and choose **Update**, because the first deployment stops retrying once its health checks fail.
 
-</Steps>
-
 After few minutes, the Fargate service will be created and ready.
 
-![image](./_assets/fargate-service.png)
+![Amazon ECS service svc-graphexplorer-demo as Active, with 2 tasks running and 2 healthy load balancer targets](./_assets/fargate-service.png)
 
 ## Create an Amazon Route53 Entry
-
-<Steps>
 
 1. Open the Route 53 console at https://console.aws.amazon.com/route53/.
 2. In the left hand navigation pane, click **Hosted zones**.
@@ -284,8 +248,6 @@ After few minutes, the Fargate service will be created and ready.
      - **Choose region**: Select the AWS region that the endpoint is from.
      - **Choose load balancer**: Choose the name that you assigned to the load balancer when you created the ECS Fargate Service.
 6. Leave everything else default, and click **Create records**.
-
-</Steps>
 
 Changes generally propagate to all Route 53 servers within 60 seconds. When propagation is done, you'll be able to route traffic to your load balancer by using the name of the alias record that you created in the above step.
 
