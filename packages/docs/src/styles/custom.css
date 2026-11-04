@@ -404,3 +404,10 @@ header .social-icons a:hover {
 .tab a[role="tab"][aria-selected="true"] {
   color: var(--sl-color-accent);
 }
+
+/* A faint inset outline keeps screenshots with white or dark edges from bleeding into the page. */
+.sl-markdown-content img {
+  border-radius: 0.5rem;
+  outline: 1px solid var(--image-outline);
+  outline-offset: -1px;
+}

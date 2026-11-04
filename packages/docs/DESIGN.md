@@ -107,14 +107,14 @@ The header is Starlight's stock header with one change: the title is on the left
 
 ## Elevation & Depth
 
-Shadows are off in the dark theme (`--sl-shadow-sm` and `-md` are `none`). The light theme sets layered blue-gray shadows from `--shadow-color`. The header is translucent (80% alpha) with a 12px backdrop blur and a 1px bottom border at 50% alpha. The carousel viewport frames each screenshot with a 1px inset outline and a soft two-layer shadow (1px 2px, then 16px 40px in the dark theme and 12px 32px in the light theme). The screenshots themselves are bare viewport captures with no browser chrome, shadow, or backdrop.
+Shadows are off in the dark theme (`--sl-shadow-sm` and `-md` are `none`). The light theme sets layered blue-gray shadows from `--shadow-color`. The header is translucent (80% alpha) with a 12px backdrop blur and a 1px bottom border at 50% alpha. Images get a 1px inset outline (`outline-offset: -1px`) in `--image-outline`, white at 10% alpha in the dark theme and `--sl-color-gray-1` at 10% in the light theme, so a screenshot's white or dark edge never bleeds into the page. Markdown images (`.sl-markdown-content img`) carry it on the image with 0.5rem corners. The carousel viewport carries it on the frame, with a soft two-layer shadow (1px 2px, then 16px 40px in the dark theme and 12px 32px in the light theme). The screenshots themselves are bare viewport captures with no browser chrome, shadow, or backdrop.
 
 ## Shapes
 
 Three surface radii:
 
 - `0.375rem` on sidebar links
-- `0.5rem` on link buttons and the carousel viewport
+- `0.5rem` on link buttons, the carousel viewport, and Markdown images
 - `0.75rem` on cards, link cards, pagination links, and the feature card
 
 The carousel's round buttons (`50%`) and dots (`4px`) are component details outside these three. Card borders are 1px at low-alpha gray in the dark theme.

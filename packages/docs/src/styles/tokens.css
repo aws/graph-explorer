@@ -4,6 +4,7 @@
 
 :root {
   --sl-content-width: 80ch;
+  --image-outline: oklch(100% 0 0 / 0.1);
   --sl-color-accent-low: oklch(25% 0.063 247.66);
   --sl-color-accent: oklch(78.4% 0.108 254.45);
   --sl-color-accent-high: oklch(85.4% 0.071 258.35);
@@ -92,6 +93,7 @@
    ========================================================================== */
 
 :root[data-theme="light"] {
+  --image-outline: oklch(20.8% 0.042 265.755 / 0.1);
   --sl-color-accent-low: oklch(93.1% 0.032 260.03);
   --sl-color-accent: oklch(46.5% 0.117 247.2);
   --sl-color-accent-high: oklch(35.4% 0.089 247.01);

@@ -52,7 +52,7 @@ const { slides } = Astro.props;
     overflow: hidden;
     border-radius: 0.5rem;
     background: var(--sl-color-gray-7);
-    outline: 1px solid oklch(100% 0 0 / 0.14);
+    outline: 1px solid var(--image-outline);
     outline-offset: -1px;
     box-shadow:
       0 1px 2px oklch(0% 0 0 / 0.4),
@@ -60,7 +60,6 @@ const { slides } = Astro.props;
   }
 
   :root[data-theme="light"] .carousel-viewport {
-    outline-color: oklch(20.8% 0.042 265.755 / 0.12);
     box-shadow:
       0 1px 2px oklch(20.8% 0.042 265.755 / 0.06),
       0 12px 32px -8px oklch(20.8% 0.042 265.755 / 0.18);
