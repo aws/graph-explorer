@@ -80,6 +80,11 @@ h6 {
   padding-inline-start: 2em;
 }
 
+/* A bullet needs less room than a number, so the browser's 2.5em pushes bulleted text too far from the body. */
+.sl-markdown-content ul {
+  padding-inline-start: 1.25em;
+}
+
 .sl-markdown-content ol > li {
   padding-inline-start: 0.25em;
 }

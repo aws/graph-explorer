@@ -103,7 +103,7 @@ Headings use a minor-third scale (ratio 1.2) built from `--sl-text-sm`: `h1` is 
 
 ## Layout
 
-Page content is 80ch wide (`--sl-content-width`, up from Starlight's 45rem). Cards sit in `.card-grid` with a 1rem gap and have 1.5rem padding. Ordered lists are plain Markdown lists with gray tabular-number markers, never circled step numbers. The landing page screenshot carousel is capped at 78rem. Sidebar links have 0.35rem by 0.75rem padding, and nested sidebar items are not indented.
+Page content is 80ch wide (`--sl-content-width`, up from Starlight's 45rem). Cards sit in `.card-grid` with a 1rem gap and have 1.5rem padding. Ordered lists are plain Markdown lists with gray tabular-number markers, never circled step numbers. Bulleted lists indent 1.25em, less than the browser's 2.5em, so their text stays close to the body. The landing page screenshot carousel is capped at 78rem. Sidebar links have 0.35rem by 0.75rem padding, and nested sidebar items are not indented.
 
 The header is Starlight's stock header with one change: the title is on the left, and search (up to 18rem wide) sits at the end of its column, beside a right group (GitHub link, theme select) that is hidden below 50rem. Search stays visible at every width, so phones keep it.
 
