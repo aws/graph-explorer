@@ -197,6 +197,11 @@ describe("useSchemaSync", () => {
     it("should not fetch edge connections when no active schema exists", async () => {
       const state = new DbState(explorer).withNoActiveSchema();
 
+      // Schema discovery would otherwise resolve mid-test and enable the edge query
+      vi.spyOn(explorer, "fetchSchema").mockImplementation(
+        () => new Promise(() => {}),
+      );
+
       const fetchEdgeConnectionsSpy = vi.spyOn(
         explorer,
         "fetchEdgeConnections",
