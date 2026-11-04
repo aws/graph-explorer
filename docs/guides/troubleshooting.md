@@ -200,11 +200,13 @@ For the Default Connection, change `GRAPH_CONNECTION_URL` to an `https://` URL, 
 
 ## Malformed Query
 
-The database couldn't parse the query. The message is the database's own, and usually gives the line and character position where parsing failed. Check the query there for a typo or an unbalanced parenthesis or quote.
+"Malformed Query" means the database couldn't parse the query. The message is the database's own, and usually gives the line and character position where parsing failed. Check the query there for a typo or an unbalanced parenthesis or quote.
 
 ### Gremlin queries that use Groovy
 
-Graph Explorer sends every Gremlin query to the `gremlin-lang` script engine, which accepts Gremlin traversals only. A query that uses Groovy fails to parse, even on a Gremlin Server or JanusGraph that has the Groovy engine. Groovy includes variables (`x = 1; g.V().limit(x)`), closures, and calls on `graph`. So do predicates that aren't part of TinkerPop, such as JanusGraph's `textContains`. Rewrite the query as a single Gremlin traversal, for example with `TextP.containing` in place of `textContains`. Amazon Neptune never ran Groovy, so a query that works on Neptune is unaffected.
+Graph Explorer sends every Gremlin query to the `gremlin-lang` script engine, which accepts Gremlin traversals only. A query that uses Groovy fails to parse, even on a Gremlin Server or JanusGraph that has the Groovy engine. Groovy includes variables (`x = 1; g.V().limit(x)`), closures, and calls on `graph`. Predicates outside the TinkerPop grammar, such as JanusGraph's `textContains`, fail the same way. Rewrite the query as a single Gremlin traversal, for example with `TextP.containing` in place of `textContains`. Amazon Neptune never ran Groovy, so a query that works on Neptune is unaffected.
+
+On a Gremlin Server connection set to **Directly from your browser**, the parse failure shows as [Database not reachable from the browser](#database-not-reachable-from-the-browser) instead, because the server leaves the CORS headers off error responses. To see the database's message, switch the connection to **Through the Graph Explorer server**.
 
 ## Reverse proxy misconfigured
 
