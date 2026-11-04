@@ -45,14 +45,14 @@ rounded:
 spacing:
   card-gap: 1rem
   card-padding: 1.5rem
-  button-padding-block: 0.85rem
-  button-padding-inline: 1.3rem
+  button-padding-block: 0.625rem
+  button-padding-inline: 1rem
 components:
   link-button-primary:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.background}"
     rounded: "{rounded.md}"
-    padding: 0.85rem 1.3rem
+    padding: 0.625rem 1rem
   link-button-secondary:
     textColor: "{colors.text-muted}"
     rounded: "{rounded.md}"
@@ -101,7 +101,7 @@ Headings use a minor-third scale (ratio 1.2) built from `--sl-text-sm`: `h1` is 
 
 ## Layout
 
-Page content is 80ch wide (`--sl-content-width`, up from Starlight's 45rem). Cards sit in `.card-grid` with a 1rem gap and have 1.5rem padding. Ordered lists are plain Markdown lists with gray tabular-number markers, never circled step numbers. The landing page screenshot carousel is capped at 72rem. Sidebar links have 0.35rem by 0.75rem padding, and nested sidebar items are not indented.
+Page content is 80ch wide (`--sl-content-width`, up from Starlight's 45rem). Cards sit in `.card-grid` with a 1rem gap and have 1.5rem padding. Ordered lists are plain Markdown lists with gray tabular-number markers, never circled step numbers. The landing page screenshot carousel is capped at 78rem. Sidebar links have 0.35rem by 0.75rem padding, and nested sidebar items are not indented.
 
 The header is Starlight's stock header with one change: the title is on the left, and search (up to 18rem wide) sits at the end of its column, beside a right group (GitHub link, theme select) that is hidden below 50rem. Search stays visible at every width, so phones keep it.
 
@@ -121,13 +121,13 @@ The carousel's round buttons (`50%`) and dots (`4px`) are component details outs
 
 ## Components
 
-- **Link button**: `.sl-link-button`, padded 0.85rem by 1.3rem. `primary` is a flat accent fill. `secondary` is a 1px gray outline that turns accent on hover. `minimal` is text that turns accent on hover.
+- **Link button**: `.sl-link-button`, padded 0.625rem by 1rem. `primary` is a flat accent fill. `secondary` is a 1px gray outline that turns accent on hover. `minimal` is text that turns accent on hover.
 - **Card** (`Card` in `CardGrid`): surface background, 0.75rem radius, accent-colored icon with no frame, body text in `--sl-color-gray-3`. Used on section hub pages.
 - **Link card** (`LinkCard`): same surface and radius, 1px gray border that turns accent on hover, title at `--sl-text-h5`, description at `--sl-text-sm`, and no link underline.
 - **Feature card** (`FeatureCard.astro`): the landing page's card. Its whole area is clickable through a pseudo-element on the link, the border turns accent on hover, and padding scales with the viewport. It takes an `icon` slot and a title.
 - **Favicon** (`public/favicon.svg`): the app's logo tile, a 225 degree `#4d72f2` to `#3334b9` gradient with 7/32 rounded corners and the white `GraphExplorerIcon`. `favicon.ico` (16 and 32px) and the opaque 180px `apple-touch-icon.png` are rendered from it.
 - **Screenshot carousel** (`ScreenshotCarousel.astro`): landing page only. Slides, previous and next buttons, dots, and a caption that follows the current slide. It never advances on its own, and hidden slides are `inert`. Its script reinitializes after a view transition.
-- **Hero** (`Hero.astro`): overrides Starlight's hero with a left-aligned title, tagline, and action buttons on the 72rem column the screenshot carousel uses, so the first screenshot shows above the fold. From 64rem up, the Run it locally box (`RunLocally.astro`) sits in a 32rem right column; below that it stacks after the buttons. No background art or motion.
+- **Hero** (`Hero.astro`): overrides Starlight's hero with a left-aligned title, tagline, and action buttons on the 78rem column the screenshot carousel uses (the landing page widens `.sl-container` to 78rem; prose pages stay at 80ch), so the first screenshot shows above the fold. From 64rem up, the Run it locally box (`RunLocally.astro`) sits in a 32rem right column; below that it stacks after the buttons. No background art or motion.
 - **Run it locally** (`RunLocally.astro`): a card on `--sl-color-gray-7` at 0.5rem radius with a 1px `--sl-color-gray-6` border. A header row holds the title, "Run the air routes sample", and a Copy button that swaps to a check and announces "Command copied" through a status region. Below it is one command that clones the repo and starts the sample with Docker Compose, joined with `&&` at each line end so a single paste runs it. Each program name (`git`, `cd`, `docker`) is semibold `--sl-color-accent-high`. A footer row links to `localhost:8080/explorer` and the sample's README. On narrow screens a long line wraps with a 2ch hanging indent rather than scrolling.
 - **Tabs**: tab links are gray and turn white on hover. The selected tab is accent colored.
 - **Badges**: `Badge` shows an environment variable's type and default under its heading, using the badge colors above.

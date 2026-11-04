@@ -6,7 +6,8 @@ const lines = [
 	['cd', 'graph-explorer/samples/air_routes'],
 	['docker', 'compose up'],
 ];
-const command = lines.map((line) => line.join(' ')).join(' &&\n');
+// A trailing backslash continues the command, so every shell runs the pasted lines as one.
+const command = lines.map((line) => line.join(' ')).join(' && \\\n');
 const instructions = 'https://github.com/aws/graph-explorer/blob/main/samples/air_routes/README.md';
 const app = 'http://localhost:8080/explorer';
 
@@ -28,7 +29,7 @@ function words(args: string) {
 	</div>
 	<pre tabindex="0" aria-label="Command to run the air routes sample"><code>{lines.map(([program, args], line) => {
 		const parts = words(args);
-		return <span class="line"><span class="program">{program}</span>{parts.map((segments, word) => <>{' '}{segments.map((segment, index) => <><span class="segment">{segment}{line < lines.length - 1 && word === parts.length - 1 && index === segments.length - 1 && <span class="join"> &amp;&amp;</span>}</span>{index < segments.length - 1 && <wbr />}</>)}</>)}</span>;
+		return <span class="line"><span class="program">{program}</span>{parts.map((segments, word) => <>{' '}{segments.map((segment, index) => <><span class="segment">{segment}{line < lines.length - 1 && word === parts.length - 1 && index === segments.length - 1 && <span class="join"> &amp;&amp; \</span>}</span>{index < segments.length - 1 && <wbr />}</>)}</>)}</span>;
 	})}</code></pre>
 	<div class="footer">
 		<span>Then open <a href={app}>localhost:8080/explorer</a></span>

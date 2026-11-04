@@ -300,7 +300,7 @@ header .social-icons a:hover {
    ========================================================================== */
 
 .sl-link-button {
-  padding: 0.85rem 1.3rem;
+  padding: 0.625rem 1rem;
   border-radius: 0.5rem;
 }
 
@@ -410,4 +410,9 @@ header .social-icons a:hover {
   border-radius: 0.5rem;
   outline: 1px solid var(--image-outline);
   outline-offset: -1px;
+}
+
+/* The landing page's two-column hero needs more room than a page of prose. */
+:root[data-has-hero] .sl-container {
+  max-width: 78rem;
 }
