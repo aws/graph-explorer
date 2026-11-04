@@ -7,6 +7,7 @@ This page contains workarounds for common issues and information on how to diagn
 - [Docker Container Issues](#docker-container-issues)
 - [Graph Explorer can't start because it can't write .env](#graph-explorer-cant-start-because-it-cant-write-env)
 - [Schema Sync Fails](#schema-sync-fails)
+- [Malformed Query](#malformed-query)
 - [Reverse proxy misconfigured](#reverse-proxy-misconfigured)
 - [Save & Load Configuration](#save--load-configuration)
 - [Graph Explorer Can't Save Your Changes](#graph-explorer-cant-save-your-changes)
@@ -196,6 +197,14 @@ A **Bad Request** error with the message "IAM authentication needs an `https://`
 - Edit the connection and turn off **Use AWS IAM authentication**, if the database doesn't use IAM authentication
 
 For the Default Connection, change `GRAPH_CONNECTION_URL` to an `https://` URL, or set `IAM` to `false`. For more on signing, see [Permissions](../references/security.md#permissions).
+
+## Malformed Query
+
+The database couldn't parse the query. The message is the database's own, and usually gives the line and character position where parsing failed. Check the query there for a typo or an unbalanced parenthesis or quote.
+
+### Gremlin queries that use Groovy
+
+Graph Explorer sends every Gremlin query to the `gremlin-lang` script engine, which accepts Gremlin traversals only. A query that uses Groovy fails to parse, even on a Gremlin Server or JanusGraph that has the Groovy engine. Groovy includes variables (`x = 1; g.V().limit(x)`), closures, and calls on `graph`. So do predicates that aren't part of TinkerPop, such as JanusGraph's `textContains`. Rewrite the query as a single Gremlin traversal, for example with `TextP.containing` in place of `textContains`. Amazon Neptune never ran Groovy, so a query that works on Neptune is unaffected.
 
 ## Reverse proxy misconfigured
 

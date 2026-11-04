@@ -43,9 +43,16 @@ const defaultDisplayError: DisplayError = {
  */
 const UNREACHABLE_HOST_CODES = new Set(["ENOTFOUND", "EAI_AGAIN"]);
 
-function isGremlinParseFailure(responseBody: unknown): boolean {
+/**
+ * Whether the database rejected the query as malformed. Gremlin Server reports
+ * a parse failure with no code, so its message is the only signal.
+ */
+function isMalformedQuery(error: unknown, data: any): boolean {
   return (
-    extractErrorMessage(responseBody)?.includes("Query parsing failed") ?? false
+    data.code === "MalformedQueryException" ||
+    data.cause?.code === "MalformedQueryException" ||
+    (error instanceof NetworkError &&
+      (extractErrorMessage(data)?.includes("Query parsing failed") ?? false))
   );
 }
 
@@ -103,23 +110,12 @@ export function createDisplayError(error: any): DisplayError {
     ) {
       return invalidUrlDisplayError;
     }
-    // Runs before the Malformed Query check: Neptune reports parse failures
-    // with that same code.
-    if (error instanceof NetworkError && isGremlinParseFailure(data)) {
-      return {
-        title: "Gremlin query could not be parsed",
-        message:
-          "The database couldn't parse this query. Check it for typos and unbalanced parentheses, and open Error Details for the line and position. Graph Explorer sends Gremlin to the gremlin-lang engine, which accepts Gremlin traversals only. It doesn't support Groovy, such as variables, closures, and graph calls, or predicates outside TinkerPop, such as JanusGraph's textContains.",
-      };
-    }
-    // Malformed query
-    if (
-      data.code === "MalformedQueryException" ||
-      data.cause?.code === "MalformedQueryException"
-    ) {
+    if (isMalformedQuery(error, data)) {
       return {
         title: "Malformed Query",
+        // The database's message names the line and position that failed.
         message:
+          extractErrorMessage(data) ??
           "The executed query was rejected by the database. It is possible the query structure is not supported by your database.",
       };
     }
