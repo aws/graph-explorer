@@ -20,11 +20,11 @@ The fastest way to try Graph Explorer is with the [Air Routes sample](https://gi
 > This tutorial is meant for your own machine. The sample has no access control, serves Graph Explorer over plain HTTP, and runs Gremlin Server with its default Groovy script engine. Its Compose file publishes Graph Explorer on `127.0.0.1` only, so other machines can't reach it. Keep it that way, because plain HTTP that other machines can reach isn't supported. See [Supported Hosting](../references/security/#supported-hosting), [Access Control](../references/security/#access-control), and [Self-hosted Gremlin Server](../references/security/#self-hosted-gremlin-server).
 
 1. Clone the repository
-   ```
+   ```bash
    git clone https://github.com/aws/graph-explorer.git
    ```
 2. Navigate to the sample directory and start the containers
-   ```
+   ```bash
    cd graph-explorer/samples/air_routes
    docker compose up
    ```

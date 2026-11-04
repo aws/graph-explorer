@@ -185,7 +185,7 @@ When using the default self-signed certificate, your browser will show a securit
 For browsers like Safari and Firefox, trusting the certificate from the browser (steps above) is enough to bypass the "Not Secure" warning. However, Chrome treats self-signed certificates differently. To remove the warning on Chrome, you need to trust the **root CA certificate** rather than the server certificate. See the [Chrome Root Store FAQ](https://chromium.googlesource.com/chromium/src/+/main/net/data/ssl/chrome_root_store/faq.md#how-does-the-chrome-certificate-verifier-integrate-with-platform-trust-stores-for-local-trust-decisions) for details on how Chrome integrates with platform trust stores.
 
 1. Copy the root certificate from the running container to your local machine:
-   ```
+   ```bash
    docker cp graph-explorer:/graph-explorer/packages/graph-explorer-proxy-server/cert-info/rootCA.crt ./rootCA.crt
    ```
    If Graph Explorer is running on a remote host (e.g., EC2), copy the file to the remote host first, then use `scp` to transfer it to your local machine.
@@ -199,13 +199,13 @@ By default, the proxy server does not allow cross-origin requests. The browser r
 
 `PROXY_SERVER_CORS_ORIGIN` is for a different case: some other web application, running at its own origin, calling the proxy server's API directly (not through the Graph Explorer UI). Set it to the origin you want to allow.
 
-```bash
+```ini
 PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com
 ```
 
 To allow multiple origins, separate them with commas:
 
-```bash
+```ini
 PROXY_SERVER_CORS_ORIGIN=https://my-app.example.com,https://other-app.example.com
 ```
 

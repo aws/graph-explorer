@@ -5,6 +5,31 @@ import { githubAlertsIntegration } from "./src/plugins/github-alerts";
 
 const base = "/graph-explorer";
 
+const shellLanguages = new Set(["bash", "sh", "shell", "zsh"]);
+
+/** Renders shell code blocks in the dark theme in both themes, so they read as a terminal. */
+function darkShellBlocks() {
+  return {
+    name: "dark-shell-blocks",
+    hooks: {
+      postprocessRenderedBlockGroup({ renderedGroupContents, renderData }) {
+        if (
+          !renderedGroupContents.every(({ codeBlock }) =>
+            shellLanguages.has(codeBlock.language),
+          )
+        )
+          return;
+        const { properties } = renderData.groupAst;
+        properties.dataTheme = "dark";
+        properties.className = [
+          ...(properties.className ?? []),
+          "dark-surface",
+        ];
+      },
+    },
+  };
+}
+
 export default defineConfig({
   site: "https://aws.github.io",
   base,
@@ -37,6 +62,7 @@ export default defineConfig({
       ],
       expressiveCode: {
         frames: false,
+        plugins: [darkShellBlocks()],
       },
       components: {
         Head: "./src/components/Head.astro",

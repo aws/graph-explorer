@@ -2,7 +2,9 @@
    Color Tokens — Dark Mode
    ========================================================================== */
 
-:root {
+/* `.dark-surface` keeps terminal boxes dark in the light theme too. */
+:root,
+.dark-surface {
   --sl-content-width: 80ch;
   --image-outline: oklch(100% 0 0 / 0.1);
   --sl-color-accent-low: oklch(25% 0.063 247.66);
@@ -86,6 +88,13 @@
   --sl-badge-tip-bg: oklch(from var(--sl-color-purple-low) l c h / 15%);
   --sl-badge-tip-border: var(--sl-color-purple-low);
   --sl-badge-tip-text: var(--sl-color-purple-low);
+}
+
+/* Starlight derives these on :root from the theme's grays, so a dark surface derives them again. */
+.dark-surface {
+  --sl-color-text: var(--sl-color-gray-2);
+  --sl-color-text-accent: var(--sl-color-accent-high);
+  color-scheme: dark;
 }
 
 /* ==========================================================================

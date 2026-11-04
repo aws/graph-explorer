@@ -16,7 +16,7 @@ If port 443 is already in use on the host, use the `-p` flag to publish Graph Ex
 
 For example, to use port 4431:
 
-```
+```bash
 docker run -p 127.0.0.1:4431:443 \
  --name graph-explorer \
  --env HOST=localhost \
@@ -31,7 +31,7 @@ With HTTPS off, Graph Explorer listens on port 80 instead, so remap that port th
 
 When a reverse proxy in front of Graph Explorer terminates TLS, set [`PROXY_SERVER_HTTPS_CONNECTION`](../../references/configuration/#proxy_server_https_connection) to `false` so Graph Explorer serves plain HTTP to it. When the reverse proxy runs on the same host, publish the port on `127.0.0.1` so only that host can reach it:
 
-```
+```bash
 docker run -p 127.0.0.1:80:80 \
   --name graph-explorer \
   --env PROXY_SERVER_HTTPS_CONNECTION=false \
@@ -58,7 +58,7 @@ The file exists. The error means the shell scripts were checked out with Windows
 
 To fix it, check the scripts out again from the root of your clone, then rebuild the image:
 
-```
+```bash
 git rm --cached docker-entrypoint.sh process-environment.sh setup-ssl.sh
 git checkout HEAD -- docker-entrypoint.sh process-environment.sh setup-ssl.sh
 ```

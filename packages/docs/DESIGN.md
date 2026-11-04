@@ -79,6 +79,8 @@ Dark first. Surfaces are near-black blue-grays, the accent is the app's brand bl
 
 Every color is oklch. Starlight's gray ramp (`--sl-color-gray-1` to `-7`) runs light to dark in the dark theme and is flipped in the light theme, so reference the variable and the flip comes for free.
 
+Terminal boxes stay dark in both themes. Shell code blocks (`bash`, `sh`, `shell`, `zsh`) render in the dark code theme through the `dark-shell-blocks` Expressive Code plugin in `astro.config.mjs`, and the Run it locally box does the same. Both carry `.dark-surface`, which re-declares the dark tokens so Starlight's grays resolve dark inside them. Tag a fence `bash` only when it holds commands a reader runs; environment-variable settings are `ini`.
+
 - **Accent** (`--sl-color-accent`, `-high`, `-low`, `-hover`): the app's brand blue, hue 247 to 258. `-hover` is `-high`. Used for links in page content, the active sidebar link, hovered titles, the icon in a card, and `.sl-link-button.secondary:hover`. The light theme uses a darker accent (`primary-light-theme`) for contrast on a light background.
 - **Primary link button**: Starlight's stock button, a flat accent fill with page-background text. No gradient, no shadow.
 - **Backgrounds**: `--sl-color-bg` is the page (`--sl-color-black` in the dark theme), and the nav and sidebar use `--sl-color-bg-nav` and `--sl-color-bg-sidebar`, both set to the page background. `--sl-color-gray-7` is the surface for cards, link cards, pagination links, and the screenshot carousel.

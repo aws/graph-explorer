@@ -38,19 +38,19 @@ This guide is an example, not a recommended production configuration. Review its
 
 1. Authenticate with the [Amazon ECR Public Registry](https://docs.aws.amazon.com/AmazonECR/latest/public/public-registries.html#public-registry-auth)
 
-   ```
+   ```bash
    aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
    ```
 
 2. Pull down the docker image
 
-   ```
+   ```bash
    docker pull public.ecr.aws/neptune/graph-explorer
    ```
 
 3. Create and run a docker container using the image
 
-   ```
+   ```bash
    docker run -p 127.0.0.1:443:443 \
     --restart unless-stopped \
     --env HOST=localhost \
