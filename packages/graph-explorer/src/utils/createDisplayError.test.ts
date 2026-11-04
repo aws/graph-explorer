@@ -299,6 +299,18 @@ describe("createDisplayError", () => {
       expect(result.title).not.toBe("Malformed Query");
     });
 
+    it("Should handle a malformed query reported under cause", () => {
+      const error = new NetworkError("Network error", 400, {
+        message: "Invalid input 'RETURNN': expected 'RETURN'",
+        cause: { code: "MalformedQueryException" },
+      });
+
+      expect(createDisplayError(error)).toStrictEqual({
+        title: "Malformed Query",
+        message: "Invalid input 'RETURNN': expected 'RETURN'",
+      });
+    });
+
     it("Should show a Neptune openCypher parse failure's detailed message", () => {
       const error = new NetworkError("Network error", 400, {
         code: "MalformedQueryException",

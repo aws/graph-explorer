@@ -47,7 +47,10 @@ const UNREACHABLE_HOST_CODES = new Set(["ENOTFOUND", "EAI_AGAIN"]);
  * Whether the database rejected the query as malformed. Gremlin Server reports
  * a parse failure with no code, so its message is the only signal.
  */
-function isMalformedQuery(error: unknown, data: any): boolean {
+function isMalformedQuery(
+  error: unknown,
+  data: { code?: unknown; cause?: { code?: unknown } },
+): boolean {
   return (
     data.code === "MalformedQueryException" ||
     data.cause?.code === "MalformedQueryException" ||

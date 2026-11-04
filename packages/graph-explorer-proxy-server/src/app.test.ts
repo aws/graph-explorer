@@ -934,12 +934,12 @@ describe("createApp", () => {
       await request(app)
         .post("/gremlin")
         .set(dbHeaders({ queryid: "q-789" }))
-        .send({ gremlin: "g.V().limit(1)", language: "gremlin-groovy" });
+        .send({ gremlin: "g.V().limit(1)", language: "gremlin-lang" });
 
       const fetchOptions = fetchOptionsFor("gremlin");
       expect(JSON.parse(fetchOptions.body)).toStrictEqual({
         gremlin: "g.V().limit(1)",
-        language: "gremlin-groovy",
+        language: "gremlin-lang",
         queryId: "q-789",
       });
     });

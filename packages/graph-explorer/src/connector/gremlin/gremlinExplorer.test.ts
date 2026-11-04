@@ -307,8 +307,28 @@ describe("createGremlinExplorer", () => {
     });
 
     it("asks for gremlin-lang on every query a direct connection's schema sync sends", async () => {
-      mockFetch.mockImplementation(() =>
-        Promise.resolve(jsonResponse(emptyGremlinList)),
+      // One label of each kind, so schema sync also sends its attribute queries.
+      const oneLabel = {
+        result: {
+          data: {
+            "@type": "g:List",
+            "@value": [
+              {
+                "@type": "g:Map",
+                "@value": ["person", { "@type": "g:Int64", "@value": 1 }],
+              },
+            ],
+          },
+        },
+      };
+      mockFetch.mockImplementation((_input, init) =>
+        Promise.resolve(
+          jsonResponse(
+            String(init?.body).includes("groupCount")
+              ? oneLabel
+              : emptyGremlinList,
+          ),
+        ),
       );
 
       await createGremlinExplorer(
@@ -321,7 +341,7 @@ describe("createGremlinExplorer", () => {
           ([input]) => String(input) === "https://my-neptune:8182/gremlin",
         )
         .map(([, init]) => JSON.parse(init.body));
-      expect(bodies.length).toBeGreaterThan(0);
+      expect(bodies.length).toBeGreaterThanOrEqual(4);
       for (const body of bodies) {
         expect(body).toMatchObject({ language: "gremlin-lang" });
       }

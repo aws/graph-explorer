@@ -1,4 +1,3 @@
-import { GREMLIN_SCRIPT_ENGINE } from "@shared/constants";
 import { v4 } from "uuid";
 
 import type { NormalizedConnection } from "@/connections";
@@ -37,7 +36,8 @@ function _gremlinFetch(
     logger.debug(queryTemplate);
     const body = JSON.stringify({
       gremlin: queryTemplate,
-      language: GREMLIN_SCRIPT_ENGINE,
+      // Gremlin Server 3.x runs a request that names no language on Groovy.
+      language: "gremlin-lang",
     });
     return fetchDatabaseRequest(connection, featureFlags, "gremlin", {
       method: "POST",
