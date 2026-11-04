@@ -228,6 +228,7 @@ header.header {
 
 /* Site title */
 .site-title {
+  gap: 0.625rem;
   font-weight: 800;
   color: var(--sl-color-white);
   transition: color var(--sl-transition);

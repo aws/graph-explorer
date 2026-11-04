@@ -37,6 +37,10 @@ export default defineConfig({
     githubAlertsIntegration(),
     starlight({
       title: "Graph Explorer",
+      logo: {
+        light: "./src/assets/logo-light.svg",
+        dark: "./src/assets/logo-dark.svg",
+      },
       favicon: "/favicon.svg",
       head: [
         {
