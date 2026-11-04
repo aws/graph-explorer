@@ -1,3 +1,4 @@
+import { GREMLIN_SCRIPT_ENGINE } from "@shared/constants";
 import { v4 } from "uuid";
 
 import type { NormalizedConnection } from "@/connections";
@@ -34,7 +35,10 @@ function _gremlinFetch(
 ): GremlinFetch {
   return async (queryTemplate: string) => {
     logger.debug(queryTemplate);
-    const body = JSON.stringify({ gremlin: queryTemplate });
+    const body = JSON.stringify({
+      gremlin: queryTemplate,
+      language: GREMLIN_SCRIPT_ENGINE,
+    });
     return fetchDatabaseRequest(connection, featureFlags, "gremlin", {
       method: "POST",
       headers: {

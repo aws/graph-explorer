@@ -67,7 +67,7 @@ With **Connection method** set to **Directly from your browser**, your browser s
 - The browser must be able to reach the Database URL. A server in a Docker container on your machine needs its port published to the host.
 - When Graph Explorer is served over HTTPS, the browser usually blocks an `http://` Database URL unless it points at a loopback host such as `localhost`. See [Insecure Database URL](./troubleshooting.md#insecure-database-url).
 
-A direct connection needs your browser to reach Gremlin Server, and every other site open in that browser can then reach it too, even when it listens only on `localhost`. Graph Explorer sends queries as scripts, which Gremlin Server evaluates with its Groovy script engine, so weigh that before choosing this method. See [Self-hosted Gremlin Server](../references/security.md#self-hosted-gremlin-server).
+A direct connection needs your browser to reach Gremlin Server, and every other site open in that browser can then reach it too, even when it listens only on `localhost`. Gremlin Server's default Groovy script engine evaluates scripts from any of those sites, so weigh that before choosing this method. See [Self-hosted Gremlin Server](../references/security.md#self-hosted-gremlin-server).
 
 ## Versions Prior to 3.7
 
