@@ -2,8 +2,8 @@
 # Pinned to a dated ECR Public snapshot for reproducible builds; bump to move forward.
 # The tag also pins dnf repo metadata to that date, so the yum update below resolves
 # against that snapshot and cannot reach anything published after it.
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023.12.20260930.0 AS base
-ENV NODE_VERSION=24.21.0
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023.12.20261102.0@sha256:381352c430f36d8aa6b8b670de06e7e4e5642fe0cb9dbd463bb8d1e79aefc0c7 AS base
+ENV NODE_VERSION=24.22.2
 
 # Install Node.js and openssl, then remove everything not needed at runtime
 # (package managers, python3, build tools) to minimize potential issues.
