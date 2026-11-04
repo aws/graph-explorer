@@ -82,7 +82,7 @@ h6 {
 
 /* A bullet needs less room than a number, so the browser's 2.5em pushes bulleted text too far from the body. */
 .sl-markdown-content ul {
-  padding-inline-start: 1.25em;
+  padding-inline-start: 1.5rem;
 }
 
 .sl-markdown-content ol > li {
