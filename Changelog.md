@@ -1,5 +1,15 @@
 # Graph Explorer Change Log
 
+## Release 3.3.1
+
+Release 3.3.1 moves the Docker image to Amazon Linux 2023 `2023.12.20261102.0` and Node.js 24.22.2, with no application changes. Both bring updated root certificate stores, used by the operating system and by the proxy server's connections to your database.
+
+### All Changes
+
+- Update base image and Node.js for 3.3.1 by @kmcginnes in https://github.com/aws/graph-explorer/pull/2532
+
+**Full Changelog**: https://github.com/aws/graph-explorer/compare/v3.3.0...v3.3.1
+
 ## Release 3.3.0
 
 Connecting to your database should be the easy part, and for a long time it wasn't. You had to tell Graph Explorer where its own server lived, tick a "Using Proxy-Server" checkbox that never explained itself, and make sure two different URLs lined up. Release 3.3.0 removes all of that. Graph Explorer now finds its own server, so a new connection is just a name, a database URL, and a query language.
