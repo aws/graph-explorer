@@ -1,6 +1,6 @@
 # Samples
 
-These samples show possible configurations of Graph Explorer using open source databases. They are a great way to try Graph Explorer without needing to set up your own database. See the [Getting Started](https://aws.github.io/graph-explorer/getting-started/) guide for more setup options.
+These samples show possible configurations of Graph Explorer using open source databases. They are a great way to try Graph Explorer without needing to set up your own database. The [tutorial](https://aws.github.io/graph-explorer/getting-started/) walks through Graph Explorer with the air routes sample.
 
 ## Air Routes with Gremlin Server
 
