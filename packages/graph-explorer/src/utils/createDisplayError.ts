@@ -43,6 +43,12 @@ const defaultDisplayError: DisplayError = {
  */
 const UNREACHABLE_HOST_CODES = new Set(["ENOTFOUND", "EAI_AGAIN"]);
 
+function isGremlinParseFailure(responseBody: unknown): boolean {
+  return (
+    extractErrorMessage(responseBody)?.includes("Query parsing failed") ?? false
+  );
+}
+
 /**
  * Attempts to convert the technicality of errors in to humane
  * friendly errors that are suitable for display.
@@ -96,6 +102,15 @@ export function createDisplayError(error: any): DisplayError {
       data.cause?.code === "ERR_INVALID_URL"
     ) {
       return invalidUrlDisplayError;
+    }
+    // Runs before the Malformed Query check: Neptune reports parse failures
+    // with that same code.
+    if (error instanceof NetworkError && isGremlinParseFailure(data)) {
+      return {
+        title: "Gremlin query could not be parsed",
+        message:
+          "The database couldn't parse this query. Check it for typos and unbalanced parentheses, and open Error Details for the line and position. Graph Explorer sends Gremlin to the gremlin-lang engine, which accepts Gremlin traversals only. It doesn't support Groovy, such as variables, closures, and graph calls, or predicates outside TinkerPop, such as JanusGraph's textContains.",
+      };
     }
     // Malformed query
     if (

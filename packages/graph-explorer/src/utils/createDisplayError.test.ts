@@ -241,6 +241,65 @@ describe("createDisplayError", () => {
     });
   });
 
+  describe("Gremlin parse failure", () => {
+    const parseFailureDisplayError = {
+      title: "Gremlin query could not be parsed",
+      message:
+        "The database couldn't parse this query. Check it for typos and unbalanced parentheses, and open Error Details for the line and position. Graph Explorer sends Gremlin to the gremlin-lang engine, which accepts Gremlin traversals only. It doesn't support Groovy, such as variables, closures, and graph calls, or predicates outside TinkerPop, such as JanusGraph's textContains.",
+    };
+
+    it("Should explain a Gremlin Server parse failure returned as HTTP 500", () => {
+      const error = new NetworkError("Network error", 500, {
+        message:
+          "Failed to interpret Gremlin query: Query parsing failed at line 1, character position at 0, error message : mismatched input 'x' expecting {EmptyStringLiteral, 'g'}",
+        "Exception-Class":
+          "org.apache.tinkerpop.gremlin.language.grammar.GremlinParserException",
+        exceptions: [
+          "org.apache.tinkerpop.gremlin.language.grammar.GremlinParserException",
+        ],
+        stackTrace:
+          "org.apache.tinkerpop.gremlin.language.grammar.GremlinParserException: Query parsing failed",
+        requestId: "1e77a01f-a610-4205-b1a5-f2c1b16c7a6d",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual(parseFailureDisplayError);
+    });
+
+    it("Should explain a Neptune parse failure returned as HTTP 400", () => {
+      const error = new NetworkError("Network error", 400, {
+        code: "MalformedQueryException",
+        requestId: "55b17b55-e751-4b8d-8f92-8c3cee194955",
+        detailedMessage:
+          "Failed to interpret Gremlin query: Query parsing failed at line 1, character position at 0, error message : mismatched input 'x' expecting {EmptyStringLiteral, 'g'}",
+        message: "Failed to interpret Gremlin query: Query parsing failed …",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual(parseFailureDisplayError);
+    });
+
+    it("Should explain a typo in a plain Gremlin traversal", () => {
+      const error = new NetworkError("Network error", 500, {
+        message:
+          "Failed to interpret Gremlin query: Query parsing failed at line 1, character position at 13, error message : no viable alternative at input 'g.V().limit(1'",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual(parseFailureDisplayError);
+    });
+
+    it("Should keep Malformed Query for a rejected query that is not a Gremlin parse failure", () => {
+      const error = new NetworkError("Network error", 400, {
+        code: "MalformedQueryException",
+        detailedMessage: "Invalid input 'RETURNN': expected 'RETURN'",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual({
+        title: "Malformed Query",
+        message:
+          "The executed query was rejected by the database. It is possible the query structure is not supported by your database.",
+      });
+    });
+  });
+
   it("Should handle FetchTimeoutError", () => {
     const result = createDisplayError(
       new FetchTimeoutError(240000, new Error("aborted")),
