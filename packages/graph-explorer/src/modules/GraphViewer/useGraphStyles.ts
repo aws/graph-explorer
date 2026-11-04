@@ -56,6 +56,8 @@ function createGraphStyles(
       "border-opacity": vtConfig.borderWidth > 0 ? 1 : 0,
       "border-style": vtConfig.borderStyle,
       shape: vtConfig.shape,
+      "font-size": vtConfig.fontSize,
+      "min-zoomed-font-size": vtConfig.minZoomedFontSize,
       width: 24,
       height: 24,
     };
@@ -84,6 +86,8 @@ function createGraphStyles(
       "text-border-width": etConfig?.labelBorderWidth,
       "text-border-color": etConfig?.labelBorderColor,
       "text-border-style": etConfig?.labelBorderStyle,
+      "font-size": etConfig.fontSize,
+      "min-zoomed-font-size": etConfig.minZoomedFontSize,
       width: etConfig.lineThickness,
       "source-distance-from-node": 0,
       "target-distance-from-node": 0,
