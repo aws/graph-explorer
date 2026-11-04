@@ -2,7 +2,6 @@ import type { IncomingHttpHeaders } from "http";
 
 import { Sha256 } from "@aws-crypto/sha256-js";
 import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
-import { GREMLIN_SCRIPT_ENGINE } from "@graph-explorer/shared/constants";
 import { logLevelOptions } from "@graph-explorer/shared/types";
 import { HttpRequest } from "@smithy/protocol-http";
 import { SignatureV4 } from "@smithy/signature-v4";
@@ -524,10 +523,9 @@ export function createApp({
 
     onClientDisconnect(res, () => void cancelQuery());
 
-    // Set here, never taken from the client, so the proxy can't be asked to run another engine such as gremlin-groovy.
     const body = {
       gremlin: queryString,
-      language: GREMLIN_SCRIPT_ENGINE,
+      language: req.body.language,
       queryId,
     };
     const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, "gremlin").href;
