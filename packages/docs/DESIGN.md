@@ -123,7 +123,7 @@ The carousel's round buttons (`50%`) and dots (`4px`) are component details outs
 
 ## Components
 
-- **Link button**: `.sl-link-button`, padded 0.625rem by 1rem. `primary` is a flat accent fill. `secondary` is a 1px gray outline that turns accent on hover. `minimal` is text that turns accent on hover.
+- **Link button**: `.sl-link-button`, padded 0.625rem by 1rem. Its icon is 1.25rem. `primary` is a flat accent fill. `secondary` is a 1px gray outline that turns accent on hover. `minimal` is text that turns accent on hover.
 - **Card** (`Card` in `CardGrid`): surface background, 0.75rem radius, accent-colored icon with no frame, body text in `--sl-color-gray-3`. Used on section hub pages.
 - **Link card** (`LinkCard`): same surface and radius, 1px gray border that turns accent on hover, title at `--sl-text-h5`, description at `--sl-text-sm`, and no link underline.
 - **Feature card** (`FeatureCard.astro`): the landing page's card. Its whole area is clickable through a pseudo-element on the link, the border turns accent on hover, and padding scales with the viewport. It takes an `icon` slot and a title.

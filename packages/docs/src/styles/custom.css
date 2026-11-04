@@ -309,6 +309,11 @@ header .social-icons a:hover {
   border-radius: 0.5rem;
 }
 
+/* LinkButton sets --sl-icon-size to 1.5rem inline, so size the icon directly. */
+.sl-link-button svg {
+  font-size: 1.25rem;
+}
+
 /* Secondary — outline */
 .sl-link-button.secondary {
   border-width: 1px;
