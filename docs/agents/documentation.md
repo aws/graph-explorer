@@ -49,7 +49,7 @@ The same claim gets the same alert everywhere it appears. A page carrying three 
 
 User docs live in `packages/docs/src/content/docs/`. A section is a directory with an `index.mdx` hub page. Other pages are kebab-case `.mdx` files.
 
-Every page starts with frontmatter. `title` is required, and Starlight renders it as the page's H1, so body headings start at `##`.
+Every page starts with frontmatter. `title` and `description` are both required. Starlight renders `title` as the page's H1, so body headings start at `##`.
 
 ```mdx
 ---
@@ -57,6 +57,8 @@ title: "Schema View"
 description: Visualize the schema of your graph database.
 ---
 ```
+
+A new page in Features, Guides, or References gets a `LinkCard` with its `description` in its section's `index.mdx`.
 
 Starlight generates each page's table of contents, so don't hand-write a list of links to headings on the same page.
 

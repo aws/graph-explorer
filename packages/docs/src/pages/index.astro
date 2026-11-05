@@ -29,20 +29,20 @@ const imagesPath = `${base}/images`;
     slides={[
       {
         src: `${imagesPath}/graph-explorer.png`,
-        alt: "Graph Explorer — interactive graph visualization",
-        title: "Graph Explorer",
+        alt: "Graph View — interactive graph visualization",
+        title: "Graph View",
         description: "Visualize and traverse your graph interactively — expand neighbors, filter by type, and discover connections across your data.",
       },
       {
         src: `${imagesPath}/schema-explorer.png`,
-        alt: "Schema Explorer — graph schema diagram",
-        title: "Schema Explorer",
+        alt: "Schema View — graph schema diagram",
+        title: "Schema View",
         description: "See the full shape of your graph at a glance — node types, edge types, and their relationships rendered as an interactive diagram.",
       },
       {
         src: `${imagesPath}/data-explorer.png`,
-        alt: "Data Explorer — tabular data view",
-        title: "Data Explorer",
+        alt: "Data Table — tabular data view",
+        title: "Data Table",
         description: "Browse nodes and edges in a structured table view with filtering, sorting, and direct navigation for quick data inspection.",
       },
     ]}
@@ -60,12 +60,12 @@ const imagesPath = `${base}/images`;
       <FeatureCard title="Query Editor">
         <ChevronsLeftRight slot="icon" />
         Execute raw Gremlin, openCypher, or SPARQL queries and add results directly
-        to the graph canvas. <a href={`${base}/features/graph-view/#search-panel`} aria-label="Learn more about the query editor">Learn&nbsp;more<span aria-hidden="true">&nbsp;→</span></a>
+        to the graph canvas. <a href={`${base}/features/graph-view/#query-search`} aria-label="Learn more about the query editor">Learn&nbsp;more<span aria-hidden="true">&nbsp;→</span></a>
       </FeatureCard>
-      <FeatureCard title="Schema Explorer">
+      <FeatureCard title="Schema View">
         <NotebookTabs slot="icon" />
         Visualize your graph's schema as an interactive diagram showing node types,
-        edge types, and their relationships. <a href={`${base}/features/schema-view/`} aria-label="Learn more about the schema explorer">Learn&nbsp;more<span aria-hidden="true">&nbsp;→</span></a>
+        edge types, and their relationships. <a href={`${base}/features/schema-view/`} aria-label="Learn more about the schema view">Learn&nbsp;more<span aria-hidden="true">&nbsp;→</span></a>
       </FeatureCard>
       <FeatureCard title="Customizable Styles">
         <SwatchBook slot="icon" />
