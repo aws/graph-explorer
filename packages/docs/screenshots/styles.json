@@ -1,0 +1,59 @@
+{
+  "meta": {
+    "kind": "styling-export",
+    "version": 1,
+    "timestamp": "2026-11-03T00:00:00.000Z",
+    "source": "Graph Explorer",
+    "sourceVersion": "3.3.0"
+  },
+  "data": {
+    "vertices": {
+      "airport": {
+        "displayNameAttribute": "city",
+        "longDisplayNameAttribute": "desc",
+        "icon": "lucide:tower-control",
+        "iconImageType": "image/svg+xml",
+        "color": "#4f46e5",
+        "shape": "ellipse"
+      },
+      "country": {
+        "displayNameAttribute": "code",
+        "longDisplayNameAttribute": "desc",
+        "icon": "lucide:flag",
+        "iconImageType": "image/svg+xml",
+        "color": "#e11d48",
+        "shape": "ellipse"
+      },
+      "continent": {
+        "displayNameAttribute": "code",
+        "longDisplayNameAttribute": "desc",
+        "icon": "lucide:earth",
+        "iconImageType": "image/svg+xml",
+        "color": "#059669",
+        "shape": "ellipse"
+      },
+      "version": {
+        "icon": "lucide:package",
+        "iconImageType": "image/svg+xml",
+        "color": "#6b7280",
+        "shape": "ellipse"
+      }
+    },
+    "edges": {
+      "route": {
+        "lineColor": "#0f3b66",
+        "labelColor": "#eef3fd",
+        "labelBackgroundOpacity": 1,
+        "lineThickness": 1,
+        "targetArrowStyle": "triangle"
+      },
+      "contains": {
+        "lineColor": "#0f3b66",
+        "labelColor": "#eef3fd",
+        "labelBackgroundOpacity": 1,
+        "lineThickness": 1,
+        "targetArrowStyle": "triangle"
+      }
+    }
+  }
+}

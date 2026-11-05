@@ -127,6 +127,16 @@ docker run -p 127.0.0.1:80:80 \
 
 Then open [http://localhost/explorer](http://localhost/explorer) in your browser.
 
+## Run the documentation site
+
+The user docs at https://aws.github.io/graph-explorer/ are built from `packages/docs`. To preview them while you edit:
+
+```bash
+pnpm docs:dev
+```
+
+`pnpm docs:build` builds the site into `packages/docs/dist` and checks that every internal link and anchor resolves and that every alert renders. CI runs it on every pull request.
+
 ## Managing dependencies
 
 If you need to add, remove, or update a dependency you can easily do so from the root folder in the CLI:

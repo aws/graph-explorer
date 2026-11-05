@@ -61,3 +61,11 @@ jobs:
       - name: Build packages
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: pnpm build
+
+      # pnpm build leaves out the docs site, so it builds here, and the link
+      # checker fails the step on a link to a missing page or anchor.
+      - name: Build the docs site and check its links
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        env:
+          ASTRO_TELEMETRY_DISABLED: 1
+        run: pnpm docs:build
