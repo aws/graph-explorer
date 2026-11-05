@@ -4,7 +4,11 @@ import type { ConnectionConfig } from "@shared/types";
 
 import { describe, expect, test } from "vite-plus/test";
 
-import { createNewConnectionId, type SavedConnection } from "@/connections";
+import {
+  createNewConnectionId,
+  isDirectConnection,
+  type SavedConnection,
+} from "@/connections";
 import { DbState } from "@/utils/testing";
 
 import { getAppStore } from "../StateProvider/appStore";
@@ -285,9 +289,68 @@ describe("matching a link to a stored connection", () => {
       ).toBeNull();
     });
 
-    test("a link without IAM matches a Direct Connection", () => {
+    test("a link without a connectionMethod does not match a Direct Connection", () => {
       const direct = connectionWithAuth({ proxyConnection: false });
-      expect(activatedBy(linkTo(url), [direct])).toBe(direct);
+      expect(activatedBy(linkTo(url), [direct])).toBeNull();
+    });
+
+    test("a proxy link does not match a Direct Connection", () => {
+      const direct = connectionWithAuth({ proxyConnection: false });
+      expect(
+        activatedBy(linkTo(url, "&connectionMethod=proxy"), [direct]),
+      ).toBeNull();
+    });
+
+    test("a direct link matches a Direct Connection", () => {
+      const direct = connectionWithAuth({ proxyConnection: false });
+      expect(
+        activatedBy(linkTo(url, "&connectionMethod=direct"), [direct]),
+      ).toBe(direct);
+    });
+
+    test("a direct link does not match a proxied connection", () => {
+      const proxied = connectionWithAuth({});
+      expect(
+        activatedBy(linkTo(url, "&connectionMethod=direct"), [proxied]),
+      ).toBeNull();
+    });
+
+    // The IAM settings a direct link carries can never sign a request, so
+    // they don't stop it matching.
+    test("a direct link with IAM settings matches a Direct Connection", () => {
+      const direct = connectionWithAuth({ proxyConnection: false });
+      expect(
+        activatedBy(
+          linkTo(url, "&connectionMethod=direct&awsRegion=us-east-1"),
+          [direct],
+        ),
+      ).toBe(direct);
+    });
+
+    test("a direct link matches a Direct Connection that stores other IAM settings", () => {
+      const direct = connectionWithAuth({
+        proxyConnection: false,
+        ...iamInUsEast1,
+      });
+      expect(
+        activatedBy(
+          linkTo(
+            url,
+            "&connectionMethod=direct&queryEngine=gremlin&awsRegion=us-west-2&serviceType=neptune-graph",
+          ),
+          [direct],
+        ),
+      ).toBe(direct);
+    });
+
+    test("a direct link does not match a Direct Connection in another query language", () => {
+      const direct = connectionWithAuth({ proxyConnection: false });
+      expect(
+        activatedBy(
+          linkTo(url, "&connectionMethod=direct&queryEngine=sparql"),
+          [direct],
+        ),
+      ).toBeNull();
     });
 
     test("an IAM link does not match a non-IAM connection", () => {
@@ -370,6 +433,7 @@ describe("the connection a link proposes", () => {
     ).toEqual({
       queryEngine: "openCypher",
       graphDbUrl: url,
+      proxyConnection: true,
       awsAuthEnabled: true,
       awsRegion: "us-west-2",
       serviceType: "neptune-graph",
@@ -388,6 +452,36 @@ describe("the connection a link proposes", () => {
 
     expect(connection.awsAuthEnabled).toBe(false);
     expect(connection.serviceType).toBe("neptune-db");
+  });
+
+  test("routes through the Proxy Server when no connectionMethod is given", () => {
+    expect(isDirectConnection(proposedBy(linkTo(url)))).toBe(false);
+  });
+
+  test("routes through the Proxy Server when connectionMethod is proxy", () => {
+    expect(
+      isDirectConnection(proposedBy(linkTo(url, "&connectionMethod=proxy"))),
+    ).toBe(false);
+  });
+
+  // The form drops IAM settings when saving a Direct Connection, so carrying
+  // them only spares the user retyping them if they switch to the proxy.
+  test("proposes a Direct Connection that keeps the link's IAM settings", () => {
+    expect(
+      proposedBy(
+        linkTo(
+          url,
+          "&connectionMethod=direct&queryEngine=openCypher&awsRegion=us-west-2&serviceType=neptune-graph",
+        ),
+      ),
+    ).toEqual({
+      queryEngine: "openCypher",
+      graphDbUrl: url,
+      proxyConnection: false,
+      awsAuthEnabled: true,
+      awsRegion: "us-west-2",
+      serviceType: "neptune-graph",
+    });
   });
 
   test("enables IAM with a default service type when only a region is given", () => {

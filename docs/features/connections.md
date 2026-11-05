@@ -51,7 +51,8 @@ External applications can link directly to Graph Explorer with a connection pre-
 | --- | --- | --- | --- |
 | `graphDbUrl` | Yes | None | The Database URL, URL-encoded. The link is invalid without it. |
 | `queryEngine` | No | `gremlin` (`openCypher` when `serviceType` is `neptune-graph`) | One of `gremlin`, `openCypher`, or `sparql`. An unsupported value makes the link invalid rather than falling back. An explicit value is kept for any `serviceType`. |
-| `awsRegion` | No | None | AWS region for the connection, shaped like `us-east-1`. Providing a region enables IAM auth (SigV4 signed requests). An absent or empty value leaves IAM off. |
+| `connectionMethod` | No | `proxy` | `proxy` connects through the Graph Explorer server, `direct` directly from your browser. A direct connection needs the database to allow requests from the Graph Explorer page, and never uses IAM. Its requests skip the Graph Explorer server, so the [Database Origin Allowlist](../references/security.md#database-origin-allowlist) doesn't apply to them. An empty or unsupported value makes the link invalid. |
+| `awsRegion` | No | None | AWS region for the connection, shaped like `us-east-1`. Providing a region enables IAM auth (SigV4 signed requests). An absent or empty value leaves IAM off. With `connectionMethod=direct`, a region only fills in the form's IAM settings, since a direct connection never uses IAM. |
 | `serviceType` | No | `neptune-db` (when IAM is on) | One of `neptune-db` or `neptune-graph`. `neptune-db` is carried into the connection even without `awsRegion`, but IAM stays off unless `awsRegion` is set. `neptune-graph` requires `awsRegion`, since Neptune Analytics only accepts IAM-signed requests. An unsupported value makes the link invalid. |
 | `name` | No | The Database URL's hostname | Display label for the connection. Defaults to the full hostname of `graphDbUrl`. |
 
@@ -61,6 +62,12 @@ The parameters belong to the `#/connect` route, so they go _after_ the `#` (Grap
 
 ```
 https://[GRAPH_EXPLORER_HOST]/explorer/#/connect?graphDbUrl=https%3A%2F%2Fmy-cluster.us-east-1.neptune.amazonaws.com%3A8182&queryEngine=gremlin&awsRegion=us-east-1&serviceType=neptune-db&name=My%20Database
+```
+
+A link to a database that accepts queries from web pages, such as a public SPARQL endpoint, can ask to connect directly from your browser:
+
+```
+https://[GRAPH_EXPLORER_HOST]/explorer/#/connect?graphDbUrl=https%3A%2F%2Fsparql.example.com%2Fsparql&queryEngine=sparql&connectionMethod=direct&name=Public%20SPARQL
 ```
 
 Start the link from the Graph Explorer page URL, which ends in `/explorer/`. If Graph Explorer sits behind a reverse proxy with a path prefix, such as a Neptune notebook's `/proxy/9250`, the prefix goes in front: `https://[NOTEBOOK_HOST]/proxy/9250/explorer/#/connect?...`.
@@ -83,6 +90,7 @@ Whenever Graph Explorer leaves the `#/connect` page, it replaces that URL, so it
 - `graphDbUrl` includes a username or password. Graph Explorer authenticates with AWS IAM, and the Graph Explorer server refuses a Database URL that carries credentials.
 - `graphDbUrl` contains a backslash. Browsers read a backslash as a slash, so a link could otherwise show one host and connect to another.
 - `queryEngine` names something other than `gremlin`, `openCypher`, or `sparql`.
+- `connectionMethod` is empty or names something other than `proxy` or `direct`.
 - `serviceType` names something other than `neptune-db` or `neptune-graph`, or is `neptune-graph` without an `awsRegion`.
 - `awsRegion` is present but not shaped like an AWS region (for example `us-east-1`).
 
@@ -90,12 +98,13 @@ An unsupported value is rejected rather than replaced with a default, so a link 
 
 #### What counts as a match
 
-A link matches an existing connection only when its Database URL, query language, **and authentication posture** all agree:
+A link matches an existing connection only when its Database URL, query language, connection method, **and authentication posture** all agree:
 
-- the same `graphDbUrl` (normalized and compared case-insensitively, so a trailing slash or stray whitespace on either side doesn't prevent a match) and the same `queryEngine`, and
+- the same `graphDbUrl` (normalized and compared case-insensitively, so a trailing slash or stray whitespace on either side doesn't prevent a match) and the same `queryEngine`,
+- the same connection method, where a link without `connectionMethod` asks for `proxy`, and
 - the same auth posture: whether IAM is on (a link enables it by providing `awsRegion`), and when it is on, the same `awsRegion` and `serviceType`.
 
-A connection that connects **Directly from your browser** never uses IAM, so a link with `awsRegion` never matches one, while a link without it can. Its requests then go from your browser to the database as they always do, not through the Graph Explorer server.
+Only a link with `connectionMethod=direct` matches a connection that connects **Directly from your browser**. Such a connection never uses IAM, so a direct link's `awsRegion` and `serviceType` don't affect the match. They fill in the IAM settings of the create form in case you switch it to **Through the Graph Explorer server**, and are not saved with a direct connection.
 
 Authentication is part of a connection's identity: a link requesting IAM in a region is a _different_ connection from a plaintext one to the same Database URL, and vice versa. A link whose auth posture differs from every existing connection never silently reuses one. It opens the pre-filled create form instead, where you can review the authentication settings before connecting.
 

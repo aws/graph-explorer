@@ -220,7 +220,7 @@ On a host with AWS credentials, such as an EC2 instance profile or ECS task role
 
 > [!NOTE]
 >
-> This check applies only to requests routed through the proxy server. It doesn't apply to direct connections, because the browser sends their requests to the database itself.
+> This check applies only to requests routed through the proxy server. It doesn't apply to direct connections, because the browser sends their requests to the database itself. That includes a direct connection created from a [connection link](../features/connections.md#connection-links) with `connectionMethod=direct`, where submitting the pre-filled form is the only check.
 
 ## Reserved Cloud Service Addresses
 
