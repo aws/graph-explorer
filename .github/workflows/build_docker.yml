@@ -27,6 +27,7 @@ concurrency:
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
