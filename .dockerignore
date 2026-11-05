@@ -43,3 +43,6 @@ images
 **/testing.ts
 **/testing
 samples
+
+# The trust store check is bind-mounted at test time, never built into the image.
+packages/graph-explorer-proxy-server/image-checks
