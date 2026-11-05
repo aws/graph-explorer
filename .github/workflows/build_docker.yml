@@ -19,12 +19,15 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # Snapshot builds replace each other. A release gets a group of its own, so
+  # a merge to main can't cancel it, or replace it while it waits.
+  group: ${{ github.workflow }}-${{ github.event_name == 'workflow_dispatch' && inputs.image_tag == 'release' && github.run_id || github.ref }}
   cancel-in-progress: true
 
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
