@@ -1,10 +1,10 @@
-[← Features](./index.mdx)
-
-# Connections
+---
+title: "Connections"
+---
 
 You can create and manage connections to graph databases using this feature. Connections is accessible as the first screen after deploying the application or by clicking `Connections` in the navigation bar. Click `+` on the top-right to add a new connection. You can also edit and delete connections.
 
-For guides on connecting to specific databases, see [Connecting to databases](../guides/index.mdx#connecting-to-databases).
+For guides on connecting to specific databases, see [Connecting to databases](../../guides/#connecting-to-databases).
 
 ## Add a New Connection
 
@@ -13,7 +13,7 @@ For guides on connecting to specific databases, see [Connecting to databases](..
 - **Query Language:** Choose a query language that corresponds to your graph database.
 - **Connection method:** Choose how queries reach the database.
   - **Through the Graph Explorer server** (default): recommended for every database, including Amazon Neptune. The Graph Explorer server sends your queries to the database, which supports IAM authentication, query cancellation, and server-side logging, and needs no CORS setup on the database.
-  - **Directly from your browser:** your browser sends queries to the database itself. Choose this for databases that accept queries from web pages, such as a public SPARQL endpoint. The database must allow cross-origin requests (CORS) from the Graph Explorer page, and IAM authentication, query cancellation, and server-side logging aren't available. When Graph Explorer is served over HTTPS, the browser usually blocks an `http://` Database URL unless it points at a loopback host such as `localhost`; see [Insecure Database URL](../guides/troubleshooting.mdx#insecure-database-url). Gremlin Server allows CORS by default, and Amazon Neptune doesn't. For setup, see [Connect directly from the browser](../guides/connecting-to-gremlin-server.mdx#connect-directly-from-the-browser).
+  - **Directly from your browser:** your browser sends queries to the database itself. Choose this for databases that accept queries from web pages, such as a public SPARQL endpoint. The database must allow cross-origin requests (CORS) from the Graph Explorer page, and IAM authentication, query cancellation, and server-side logging aren't available. When Graph Explorer is served over HTTPS, the browser usually blocks an `http://` Database URL unless it points at a loopback host such as `localhost`; see [Insecure Database URL](../../guides/troubleshooting/#insecure-database-url). Gremlin Server allows CORS by default, and Amazon Neptune doesn't. For setup, see [Connect directly from the browser](../../guides/connecting-to-gremlin-server/#connect-directly-from-the-browser).
 - **Use AWS IAM authentication:** Below the connection method, and disabled while **Directly from your browser** is selected. Check this box if connecting to Amazon Neptune using IAM Auth and SigV4 signed requests. The Graph Explorer server signs requests with its own AWS credentials, not yours. Checking it reveals the **AWS Region** and **Service Type** fields.
 - **AWS Region:** Specify the AWS region where the Neptune cluster is hosted (e.g., us-east-1).
 - **Service Type:** Choose the service type: **Neptune DB** or **Neptune Analytics**.
@@ -39,7 +39,7 @@ When a connection is created, Graph Explorer will perform a scan of the graph to
 
 ### Data Table
 
-Under a listed node type, you can click on the ">" arrow to get to the [Data Table](./data-table.mdx) view. This allows you to see a sample list of nodes under this type and choose one or more nodes to "Send to Explorer" for getting started quickly if you are new to the data. You can also navigate directly to the Data Table view using the "Data Table" link in the navigation bar.
+Under a listed node type, you can click on the ">" arrow to get to the [Data Table](../data-table/) view. This allows you to see a sample list of nodes under this type and choose one or more nodes to "Send to Explorer" for getting started quickly if you are new to the data. You can also navigate directly to the Data Table view using the "Data Table" link in the navigation bar.
 
 ## Connection Links
 
