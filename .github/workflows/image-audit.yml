@@ -38,3 +38,24 @@ jobs:
         with:
           sarif_file: trivy-image-results.sarif
           category: docker-image-scan
+
+  trust-store-audit:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        tag: [latest, latest-SNAPSHOT]
+    env:
+      IMAGE: public.ecr.aws/neptune/graph-explorer:${{ matrix.tag }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Ensure the image trusts no distrusted root certificates
+        run: |
+          docker run --rm --platform linux/amd64 --entrypoint node \
+            -v "$PWD/packages/graph-explorer-proxy-server/image-checks:/image-checks:ro" \
+            "$IMAGE" /image-checks/check-trust-store.ts
