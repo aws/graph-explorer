@@ -37,7 +37,7 @@ https://<graph-explorer-host>/explorer/#/connect?graphDbUrl=https%3A%2F%2Fmy-clu
 - **It asks before adding.** If nothing matches, a prefilled connection form opens. Nothing is saved until you click Add Connection.
 - **It explains what's wrong.** If a parameter is invalid, a card lists each problem and the link is ignored.
 
-See [Connection Links](docs/features/connections.md#connection-links) for the parameters and matching rules.
+See [Connection Links](packages/docs/src/content/docs/features/connections.mdx#connection-links) for the parameters and matching rules.
 
 ### One Docker Image
 
@@ -93,8 +93,8 @@ An error message is only useful if it points you toward the fix.
 
 Graph Explorer has no sign-in of its own, so the docs now put access control up front.
 
-- **Access control comes first.** The security reference opens with a new [Access Control](docs/references/security.md#access-control) section. Graph Explorer performs no authentication or authorization, so never make it publicly reachable without an access control layer in front of it. Every deployment guide now says so.
-- **Guidance for self-hosted databases.** New sections cover [self-hosted Gremlin Server](docs/references/security.md#self-hosted-gremlin-server) and using the [Database Origin Allowlist](docs/references/security.md#database-origin-allowlist) on hosts with AWS credentials.
+- **Access control comes first.** The security reference opens with a new [Access Control](packages/docs/src/content/docs/references/security.mdx#access-control) section. Graph Explorer performs no authentication or authorization, so never make it publicly reachable without an access control layer in front of it. Every deployment guide now says so.
+- **Guidance for self-hosted databases.** New sections cover [self-hosted Gremlin Server](packages/docs/src/content/docs/references/security.mdx#self-hosted-gremlin-server) and using the [Database Origin Allowlist](packages/docs/src/content/docs/references/security.mdx#database-origin-allowlist) on hosts with AWS credentials.
 - **Tighter deployment guides.** The EC2, ECS, Docker, and SageMaker guides now restrict who can reach the container. The sample SageMaker lifecycle script binds to loopback and sets the allowlist to the notebook's cluster.
 - **A styled sample.** The air_routes sample now includes a styles file and a styling reference, so you can see styling at work right away (thanks @mjuarros!).
 

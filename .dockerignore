@@ -15,6 +15,7 @@ node_modules
 
 # Ignore documentation related files
 docs
+packages/docs
 images
 *.md
 
