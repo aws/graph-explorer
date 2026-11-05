@@ -2,7 +2,7 @@
 
 ## Release 3.3.1
 
-Release 3.3.1 moves the Docker image to Amazon Linux 2023 `2023.12.20261102.0` and Node.js 24.22.2, and updates Graph Explorer's and the proxy server's dependencies within their current major versions. The new base image and Node.js bring updated root certificate stores, used by the operating system and by the proxy server's connections to your database. Graph Explorer works the same as in 3.3.0.
+Release 3.3.1 moves the Docker image to Amazon Linux 2023 `2023.12.20261102.0` and Node.js 24.22.2 for their updated root certificates, and updates dependencies. Graph Explorer works the same as in 3.3.0.
 
 ### All Changes
 
