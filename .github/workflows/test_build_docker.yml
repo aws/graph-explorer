@@ -37,6 +37,12 @@ jobs:
         run: |
           docker build -t test-image .
 
+      - name: Ensure the image trusts no distrusted root certificates
+        run: |
+          docker run --rm --entrypoint node \
+            -v "$PWD/packages/graph-explorer-proxy-server/image-checks:/image-checks:ro" \
+            test-image /image-checks/check-trust-store.ts
+
       - name: Scan Docker image for vulnerabilities
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
