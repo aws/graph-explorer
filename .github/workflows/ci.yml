@@ -13,8 +13,10 @@ permissions:
   contents: read
 
 concurrency:
+  # Pull request runs replace each other. A run on main isn't cancelled once
+  # it starts.
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # One job rather than parallel jobs or test shards: runners come from a pool
