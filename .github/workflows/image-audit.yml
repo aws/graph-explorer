@@ -39,3 +39,13 @@ jobs:
         with:
           sarif_file: trivy-image-results.sarif
           category: docker-image-scan
+
+      - name: Fail on fixable OS package findings at MEDIUM or higher
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: public.ecr.aws/neptune/graph-explorer:latest-SNAPSHOT
+          vuln-type: os
+          format: table
+          severity: MEDIUM,HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: 1
