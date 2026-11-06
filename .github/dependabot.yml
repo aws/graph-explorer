@@ -7,8 +7,9 @@ updates:
   # test_build_docker.yml fails while the two differ.
   #
   # No `cooldown`: it needs a registry-assigned publication date, and Docker Hub's
-  # tag_last_pushed is currently the only accepted source. ECR Public has none, so
-  # any cooldown here would be silently skipped.
+  # tag_last_pushed is currently the only accepted source. ECR Public and GHCR,
+  # which hosts the Vite+ image, have none, so any cooldown here would be
+  # silently skipped.
   - package-ecosystem: docker
     directory: /
     schedule:
@@ -58,11 +59,13 @@ updates:
       # update-types filter here: every bump needs the call sites adjusted and
       # has to be done by hand.
       - dependency-name: "cva"
-    # Covers minimumReleaseAge: 1440 in pnpm-workspace.yaml, which refuses to
-    # resolve a release under 24h old and would fail the lockfile step. Do not
-    # remove as redundant with Dependabot's 3 day default — the margin is the point.
+    # A supply-chain delay for version updates: three days, or seven for a major.
+    # Dependabot also never goes below minimumReleaseAge in pnpm-workspace.yaml.
+    # Neither applies to security updates, which open as soon as an alert is
+    # raised.
     cooldown:
-      default-days: 2
+      default-days: 3
+      semver-major-days: 7
     groups:
       # Each group below pairs packages that peer-depend on each other, and so
       # carries no update-types filter: it has to catch majors, which arrive
