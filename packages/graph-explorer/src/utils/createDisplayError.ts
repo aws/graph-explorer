@@ -44,6 +44,22 @@ const defaultDisplayError: DisplayError = {
 const UNREACHABLE_HOST_CODES = new Set(["ENOTFOUND", "EAI_AGAIN"]);
 
 /**
+ * Whether the database rejected the query as malformed. Gremlin Server reports
+ * a parse failure with no code, so its message is the only signal.
+ */
+function isMalformedQuery(
+  error: unknown,
+  data: { code?: unknown; cause?: { code?: unknown } },
+): boolean {
+  return (
+    data.code === "MalformedQueryException" ||
+    data.cause?.code === "MalformedQueryException" ||
+    (error instanceof NetworkError &&
+      (extractErrorMessage(data)?.includes("Query parsing failed") ?? false))
+  );
+}
+
+/**
  * Attempts to convert the technicality of errors in to humane
  * friendly errors that are suitable for display.
  *
@@ -97,14 +113,12 @@ export function createDisplayError(error: any): DisplayError {
     ) {
       return invalidUrlDisplayError;
     }
-    // Malformed query
-    if (
-      data.code === "MalformedQueryException" ||
-      data.cause?.code === "MalformedQueryException"
-    ) {
+    if (isMalformedQuery(error, data)) {
       return {
         title: "Malformed Query",
+        // The database's message names the line and position that failed.
         message:
+          extractErrorMessage(data) ??
           "The executed query was rejected by the database. It is possible the query structure is not supported by your database.",
       };
     }

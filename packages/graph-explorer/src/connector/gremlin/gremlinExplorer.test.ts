@@ -268,7 +268,7 @@ describe("createGremlinExplorer", () => {
       });
     });
 
-    it("sends a proxy connection's query in the gremlin field", async () => {
+    it("sends a proxy connection's query in the gremlin field as gremlin-lang", async () => {
       mockFetch.mockImplementation(() =>
         Promise.resolve(jsonResponse(emptyGremlinList)),
       );
@@ -280,11 +280,14 @@ describe("createGremlinExplorer", () => {
       await explorer.rawQuery({ query: "g.V().limit(10)" });
 
       expect(bodySentTo(mockFetch, "http://localhost/gremlin")).toBe(
-        JSON.stringify({ gremlin: "g.V().limit(10)" }),
+        JSON.stringify({
+          gremlin: "g.V().limit(10)",
+          language: "gremlin-lang",
+        }),
       );
     });
 
-    it("sends a direct connection's query in the gremlin field", async () => {
+    it("sends a direct connection's query in the gremlin field as gremlin-lang", async () => {
       mockFetch.mockImplementation(() =>
         Promise.resolve(jsonResponse(emptyGremlinList)),
       );
@@ -296,8 +299,52 @@ describe("createGremlinExplorer", () => {
       await explorer.rawQuery({ query: "g.V().limit(10)" });
 
       expect(bodySentTo(mockFetch, "https://my-neptune:8182/gremlin")).toBe(
-        JSON.stringify({ gremlin: "g.V().limit(10)" }),
+        JSON.stringify({
+          gremlin: "g.V().limit(10)",
+          language: "gremlin-lang",
+        }),
       );
+    });
+
+    it("asks for gremlin-lang on every query a direct connection's schema sync sends", async () => {
+      // One label of each kind, so schema sync also sends its attribute queries.
+      const oneLabel = {
+        result: {
+          data: {
+            "@type": "g:List",
+            "@value": [
+              {
+                "@type": "g:Map",
+                "@value": ["person", { "@type": "g:Int64", "@value": 1 }],
+              },
+            ],
+          },
+        },
+      };
+      mockFetch.mockImplementation((_input, init) =>
+        Promise.resolve(
+          jsonResponse(
+            String(init?.body).includes("groupCount")
+              ? oneLabel
+              : emptyGremlinList,
+          ),
+        ),
+      );
+
+      await createGremlinExplorer(
+        createConnection({ proxyConnection: false }),
+        createFeatureFlags(),
+      ).fetchSchema();
+
+      const bodies = mockFetch.mock.calls
+        .filter(
+          ([input]) => String(input) === "https://my-neptune:8182/gremlin",
+        )
+        .map(([, init]) => JSON.parse(init.body));
+      expect(bodies.length).toBeGreaterThanOrEqual(4);
+      for (const body of bodies) {
+        expect(body).toMatchObject({ language: "gremlin-lang" });
+      }
     });
 
     it("requests a direct connection's summary from the database", async () => {

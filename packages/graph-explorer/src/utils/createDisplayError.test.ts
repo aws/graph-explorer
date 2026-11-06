@@ -241,6 +241,89 @@ describe("createDisplayError", () => {
     });
   });
 
+  describe("Malformed query from the database", () => {
+    it("Should show a Gremlin Server parse failure returned as HTTP 500", () => {
+      const error = new NetworkError("Network error", 500, {
+        message:
+          "Failed to interpret Gremlin query: Query parsing failed at line 1, character position at 0, error message : mismatched input 'x' expecting {EmptyStringLiteral, 'g'}",
+        "Exception-Class":
+          "org.apache.tinkerpop.gremlin.language.grammar.GremlinParserException",
+        exceptions: [
+          "org.apache.tinkerpop.gremlin.language.grammar.GremlinParserException",
+        ],
+        stackTrace:
+          "org.apache.tinkerpop.gremlin.language.grammar.GremlinParserException: Query parsing failed",
+        requestId: "1e77a01f-a610-4205-b1a5-f2c1b16c7a6d",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual({
+        title: "Malformed Query",
+        message:
+          "Failed to interpret Gremlin query: Query parsing failed at line 1, character position at 0, error message : mismatched input 'x' expecting {EmptyStringLiteral, 'g'}",
+      });
+    });
+
+    it("Should show a Neptune parse failure's detailed message", () => {
+      const error = new NetworkError("Network error", 400, {
+        code: "MalformedQueryException",
+        requestId: "55b17b55-e751-4b8d-8f92-8c3cee194955",
+        detailedMessage:
+          "Failed to interpret Gremlin query: Query parsing failed at line 1, character position at 0, error message : mismatched input 'x' expecting {EmptyStringLiteral, 'g'}",
+        message: "Failed to interpret Gremlin query: Query parsing failed …",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual({
+        title: "Malformed Query",
+        message:
+          "Failed to interpret Gremlin query: Query parsing failed at line 1, character position at 0, error message : mismatched input 'x' expecting {EmptyStringLiteral, 'g'}",
+      });
+    });
+
+    it("Should show where a typo in a plain Gremlin traversal failed", () => {
+      const error = new NetworkError("Network error", 500, {
+        message:
+          "Failed to interpret Gremlin query: Query parsing failed at line 1, character position at 13, error message : no viable alternative at input 'g.V().limit(1'",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual({
+        title: "Malformed Query",
+        message:
+          "Failed to interpret Gremlin query: Query parsing failed at line 1, character position at 13, error message : no viable alternative at input 'g.V().limit(1'",
+      });
+    });
+
+    it("Should not treat a non-network error mentioning a parse failure as malformed", () => {
+      const result = createDisplayError(
+        new Error("Query parsing failed at line 1"),
+      );
+      expect(result.title).not.toBe("Malformed Query");
+    });
+
+    it("Should handle a malformed query reported under cause", () => {
+      const error = new NetworkError("Network error", 400, {
+        message: "Invalid input 'RETURNN': expected 'RETURN'",
+        cause: { code: "MalformedQueryException" },
+      });
+
+      expect(createDisplayError(error)).toStrictEqual({
+        title: "Malformed Query",
+        message: "Invalid input 'RETURNN': expected 'RETURN'",
+      });
+    });
+
+    it("Should show a Neptune openCypher parse failure's detailed message", () => {
+      const error = new NetworkError("Network error", 400, {
+        code: "MalformedQueryException",
+        detailedMessage: "Invalid input 'RETURNN': expected 'RETURN'",
+      });
+
+      expect(createDisplayError(error)).toStrictEqual({
+        title: "Malformed Query",
+        message: "Invalid input 'RETURNN': expected 'RETURN'",
+      });
+    });
+  });
+
   it("Should handle FetchTimeoutError", () => {
     const result = createDisplayError(
       new FetchTimeoutError(240000, new Error("aborted")),

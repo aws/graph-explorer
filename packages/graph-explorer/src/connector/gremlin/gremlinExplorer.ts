@@ -34,7 +34,11 @@ function _gremlinFetch(
 ): GremlinFetch {
   return async (queryTemplate: string) => {
     logger.debug(queryTemplate);
-    const body = JSON.stringify({ gremlin: queryTemplate });
+    const body = JSON.stringify({
+      gremlin: queryTemplate,
+      // Gremlin Server 3.x runs a request that names no language on Groovy.
+      language: "gremlin-lang",
+    });
     return fetchDatabaseRequest(connection, featureFlags, "gremlin", {
       method: "POST",
       headers: {

@@ -927,6 +927,36 @@ describe("createApp", () => {
       expect(body.gremlin).toBe(query);
     });
 
+    it("forwards the client's language to the database", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app)
+        .post("/gremlin")
+        .set(dbHeaders({ queryid: "q-789" }))
+        .send({ gremlin: "g.V().limit(1)", language: "gremlin-lang" });
+
+      const fetchOptions = fetchOptionsFor("gremlin");
+      expect(JSON.parse(fetchOptions.body)).toStrictEqual({
+        gremlin: "g.V().limit(1)",
+        language: "gremlin-lang",
+        queryId: "q-789",
+      });
+    });
+
+    it("sends no language when the client sends none", async () => {
+      mockFetchOnce();
+
+      const app = createTestApp();
+      await request(app)
+        .post("/gremlin")
+        .set(dbHeaders())
+        .send({ gremlin: "g.V()" });
+
+      const fetchOptions = fetchOptionsFor("gremlin");
+      expect(JSON.parse(fetchOptions.body)).toStrictEqual({ gremlin: "g.V()" });
+    });
+
     it("returns 400 when the query is not in the gremlin field", async () => {
       const app = createTestApp();
       const response = await request(app)

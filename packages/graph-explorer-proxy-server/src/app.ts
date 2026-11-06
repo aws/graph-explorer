@@ -523,7 +523,11 @@ export function createApp({
 
     onClientDisconnect(res, () => void cancelQuery());
 
-    const body = { gremlin: queryString, queryId };
+    const body = {
+      gremlin: queryString,
+      language: req.body.language,
+      queryId,
+    };
     const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, "gremlin").href;
     const requestOptions = {
       method: "POST",

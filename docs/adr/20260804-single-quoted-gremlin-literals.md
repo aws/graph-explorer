@@ -10,6 +10,8 @@ Graph Explorer sends Gremlin as script text, and the two front ends it supports 
 
 That split leaves no way to carry a `$` through a **double-quoted** literal. A double-quoted Groovy string is a GString, where `$` introduces an expression to evaluate rather than a character to keep. The obvious remedy — escaping it as `\$` — is a hard parse error on Neptune. So one engine needs the escape and the other rejects it, and `$` is ordinary data: a price column, a template string, an attribute name someone chose.
 
+_Update, 2026-11-04:_ since v3.4, Graph Explorer sends `language: "gremlin-lang"` with every Gremlin request, so Gremlin Server and JanusGraph parse it with `gremlin-lang`, the grammar Neptune's parser follows, rather than Groovy. The escape results below were measured on the Groovy engines and haven't been rerun under `gremlin-lang`. Groovy's rules still apply to earlier Graph Explorer versions and to any server that ignores the field, so the single-quote decision stands.
+
 ## Decision
 
 Delimit every Gremlin string literal with **single quotes**, and escape the single quote rather than the double quote.
