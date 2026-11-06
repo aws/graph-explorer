@@ -23,13 +23,13 @@ The cases below are Important. The structure and style rules in `AGENTS.md` are 
 - **Untrusted input read without a Zod parse,** or a Zod `.catch()` that quietly turns bad input into a different valid value.
 - **Docs that contradict the code or each other, or that mislead,** after this change. Agent docs under `docs/agents/` and upgrade notes in the PR body count. A documented route, header, environment variable default, or limit that no longer matches the source is Important. So is a step, or a missing step, that makes a reader who follows the doc as written fail.
 - **What users see breaks.** A broken image, asset, or link on a shipped surface such as the app or a published doc, a raw error or stack trace where a designed message exists, or a WCAG 2.2 AA failure.
-- **Hosting examples outside the supported model.** The model is defined in `docs/references/security.md#supported-hosting`. Flag a doc, sample, or script that serves plain HTTP other machines can reach, such as `PROXY_SERVER_HTTPS_CONNECTION=false` with the port published on every interface and no reverse proxy that terminates TLS in front of it. Also flag an example that other machines can reach and that says nothing about the access control limiting who reaches it.
+- **Hosting examples outside the supported model.** The model is defined in `packages/docs/src/content/docs/references/security.mdx#supported-hosting`. Flag a doc, sample, or script that serves plain HTTP other machines can reach, such as `PROXY_SERVER_HTTPS_CONNECTION=false` with the port published on every interface and no reverse proxy that terminates TLS in front of it. Also flag an example that other machines can reach and that says nothing about the access control limiting who reaches it.
 - **Public text that discloses.** The PR adds reproduction steps for a security-relevant issue, advisory IDs, or customer data to code, docs, or the PR description.
 - **Security changes that widen a documented risk or break a guarantee.** The [Security model](#security-model) section defines both.
 
 ## Security model
 
-`docs/references/security.md` defines the threat model: supported deployments, what the deployer owns, and what the proxy server guarantees. Test and judge security findings against it.
+`packages/docs/src/content/docs/references/security.mdx` defines the threat model: supported deployments, what the deployer owns, and what the proxy server guarantees. Test and judge security findings against it.
 
 - Only what the doc explicitly assigns to the deployer is by design: who can reach the deployment, what authenticates in front of it, and what the database's own permissions allow. Don't report those. Anything else the proxy server does is Graph Explorer's to get right, including the settings Graph Explorer's images and sample scripts choose for a managed platform.
 - Each "never", "does not", or "refuses" statement in the doc is a guarantee. A change that breaks one, or widens a documented risk, is Important.

@@ -1,6 +1,6 @@
 # Design System
 
-The visual design system for Graph Explorer. Read this before modifying UI styling, adding color tokens, or writing Tailwind classes in components.
+The visual design system for the Graph Explorer app. The docs site has its own theme in `packages/docs/DESIGN.md`. Read this before modifying UI styling, adding color tokens, or writing Tailwind classes in components.
 
 ## Color Architecture
 

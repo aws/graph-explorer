@@ -13,14 +13,17 @@ permissions:
   contents: read
 
 concurrency:
+  # Pull request runs replace each other. A run on main isn't cancelled once
+  # it starts.
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # One job rather than parallel jobs or test shards: runners come from a pool
   # shared across the org, and each extra job is another wait in that queue.
   checks-and-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -58,3 +61,11 @@ jobs:
       - name: Build packages
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: pnpm build
+
+      # pnpm build leaves out the docs site, so it builds here, and the link
+      # checker fails the step on a link to a missing page or anchor.
+      - name: Build the docs site and check its links
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        env:
+          ASTRO_TELEMETRY_DISABLED: 1
+        run: pnpm docs:build

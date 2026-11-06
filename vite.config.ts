@@ -1,5 +1,19 @@
 import { defineConfig } from "vite-plus";
 
+// The date-fns root re-exports every function, so importing from it adds
+// several hundred milliseconds to every cold import of `@/utils` in tests.
+const dateFnsRootImport = {
+  name: "date-fns",
+  message:
+    "Import each date-fns function from its subpath, such as date-fns/format, not from the date-fns root.",
+};
+
+const deepRelativeImports = {
+  group: ["../../../*", "../../../**"],
+  message:
+    "Don't climb more than two directories; in graph-explorer, import through the `@/` or `@shared/` alias.",
+};
+
 export default defineConfig({
   test: {
     projects: ["packages/*"],
@@ -112,6 +126,7 @@ export default defineConfig({
       "typescript/require-await": "error",
       "typescript/restrict-plus-operands": "error",
       "vite-plus/prefer-vite-plus-imports": "error",
+      "no-restricted-imports": ["error", { patterns: [deepRelativeImports] }],
     },
     overrides: [
       {
@@ -208,6 +223,11 @@ export default defineConfig({
         },
       },
       {
+        files: ["packages/docs/scripts/**/*.ts"],
+        env: { node: true },
+        rules: { "no-console": "off" },
+      },
+      {
         files: [
           "packages/graph-explorer/src/**/*.{ts,tsx}",
           "packages/shared/src/**/*.ts",
@@ -244,7 +264,9 @@ export default defineConfig({
           "no-restricted-imports": [
             "error",
             {
+              paths: [dateFnsRootImport],
               patterns: [
+                deepRelativeImports,
                 {
                   group: ["@/connections/*", "@/connections/**"],
                   message:
@@ -261,7 +283,9 @@ export default defineConfig({
           "no-restricted-imports": [
             "error",
             {
+              paths: [dateFnsRootImport],
               patterns: [
+                deepRelativeImports,
                 {
                   group: ["@/core"],
                   message:

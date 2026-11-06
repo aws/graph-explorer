@@ -7,6 +7,7 @@ on:
       - main
     paths-ignore:
       - "docs/**"
+      - "packages/docs/**"
       - "**/*.md"
       - ".agents/**"
       - ".claude/**"
@@ -21,6 +22,7 @@ concurrency:
 jobs:
   test-build-docker-image:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout

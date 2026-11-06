@@ -17,7 +17,7 @@ This sample uses Gremlin Server 3.8 as the database pre-loaded with the [air rou
 > - **No authentication** — anyone who can reach it has full access.
 > - **Not hardened** — it is configured for convenience, not security.
 > - **No persistence** — data is lost when the container restarts.
-> - **Groovy script engine** — Gremlin Server uses its default `gremlin-groovy` script engine, see [Self-hosted Gremlin Server](../../docs/references/security.md#self-hosted-gremlin-server).
+> - **Groovy script engine** — Gremlin Server uses its default `gremlin-groovy` script engine, see [Self-hosted Gremlin Server](https://aws.github.io/graph-explorer/references/security/#self-hosted-gremlin-server).
 >
 > Run it only on your own machine. The Compose file publishes Graph Explorer on `127.0.0.1` only, so other machines can't reach it.
 
@@ -52,4 +52,4 @@ This sample uses Gremlin Server 3.8 as the database pre-loaded with the [air rou
 >
 > The browser file picker reads from your host filesystem, not the Docker container. No volume mount is needed — just ensure `styles.json` is available on your machine before loading it.
 
-Once it is running, the [Getting Started tutorial](../../docs/getting-started/README.md) walks you through exploring the air routes data step by step.
+Once it is running, the [Getting Started tutorial](https://aws.github.io/graph-explorer/getting-started/) walks you through exploring the air routes data step by step.

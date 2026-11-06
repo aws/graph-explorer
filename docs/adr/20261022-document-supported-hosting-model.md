@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-22
-- **Related:** #2459. Affects `docs/references/security.md`, the deployment, troubleshooting, and development docs, and `REVIEW.md`.
+- **Related:** #2459. Affects `packages/docs/src/content/docs/references/security.mdx`, the deployment, troubleshooting, and development docs, and `REVIEW.md`.
 
 ## Context
 

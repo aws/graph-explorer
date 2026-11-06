@@ -1,5 +1,15 @@
 # Graph Explorer Change Log
 
+## Release 3.3.1
+
+Release 3.3.1 moves the Docker image to Amazon Linux 2023 `2023.12.20261102.0` and Node.js 24.22.2, with no application changes. Both bring updated root certificate stores, used by the operating system and by the proxy server's connections to your database.
+
+### All Changes
+
+- Update base image and Node.js for 3.3.1 by @kmcginnes in https://github.com/aws/graph-explorer/pull/2532
+
+**Full Changelog**: https://github.com/aws/graph-explorer/compare/v3.3.0...v3.3.1
+
 ## Release 3.3.0
 
 Connecting to your database should be the easy part, and for a long time it wasn't. You had to tell Graph Explorer where its own server lived, tick a "Using Proxy-Server" checkbox that never explained itself, and make sure two different URLs lined up. Release 3.3.0 removes all of that. Graph Explorer now finds its own server, so a new connection is just a name, a database URL, and a query language.
@@ -27,7 +37,7 @@ https://<graph-explorer-host>/explorer/#/connect?graphDbUrl=https%3A%2F%2Fmy-clu
 - **It asks before adding.** If nothing matches, a prefilled connection form opens. Nothing is saved until you click Add Connection.
 - **It explains what's wrong.** If a parameter is invalid, a card lists each problem and the link is ignored.
 
-See [Connection Links](docs/features/connections.md#connection-links) for the parameters and matching rules.
+See [Connection Links](https://aws.github.io/graph-explorer/features/connections/#connection-links) for the parameters and matching rules.
 
 ### One Docker Image
 
@@ -83,8 +93,8 @@ An error message is only useful if it points you toward the fix.
 
 Graph Explorer has no sign-in of its own, so the docs now put access control up front.
 
-- **Access control comes first.** The security reference opens with a new [Access Control](docs/references/security.md#access-control) section. Graph Explorer performs no authentication or authorization, so never make it publicly reachable without an access control layer in front of it. Every deployment guide now says so.
-- **Guidance for self-hosted databases.** New sections cover [self-hosted Gremlin Server](docs/references/security.md#self-hosted-gremlin-server) and using the [Database Origin Allowlist](docs/references/security.md#database-origin-allowlist) on hosts with AWS credentials.
+- **Access control comes first.** The security reference opens with a new [Access Control](https://aws.github.io/graph-explorer/references/security/#access-control) section. Graph Explorer performs no authentication or authorization, so never make it publicly reachable without an access control layer in front of it. Every deployment guide now says so.
+- **Guidance for self-hosted databases.** New sections cover [self-hosted Gremlin Server](https://aws.github.io/graph-explorer/references/security/#self-hosted-gremlin-server) and using the [Database Origin Allowlist](https://aws.github.io/graph-explorer/references/security/#database-origin-allowlist) on hosts with AWS credentials.
 - **Tighter deployment guides.** The EC2, ECS, Docker, and SageMaker guides now restrict who can reach the container. The sample SageMaker lifecycle script binds to loopback and sets the allowlist to the notebook's cluster.
 - **A styled sample.** The air_routes sample now includes a styles file and a styling reference, so you can see styling at work right away (thanks @mjuarros!).
 

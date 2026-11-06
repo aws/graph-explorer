@@ -1,6 +1,6 @@
 # Development
 
-Build instructions and development setup for contributing to Graph Explorer. For system design and key libraries, see [Architecture](./architecture.md).
+Build instructions and development setup for contributing to Graph Explorer. For system design and key libraries, see [Architecture](https://aws.github.io/graph-explorer/references/architecture/).
 
 ## Requirements
 
@@ -81,9 +81,9 @@ At this point, Graph Explorer should be successfully running and it is asking yo
 
 > [!IMPORTANT]
 >
-> The Vite dev server listens on `localhost` and the proxy server on `127.0.0.1`, so only this machine can reach them. The Vite dev server forwards API requests to the proxy server. To open the dev server from another device, such as a phone or a virtual machine, run `pnpm dev --host`. The dev server then serves plain HTTP on every network interface, which other machines on your network can reach unless your network rules block the port you set, or `5173` by default. That is outside [Supported Hosting](./references/security.md#supported-hosting), so limit who can reach the port. To let other machines reach the proxy server directly too, as earlier releases did, set [`PROXY_SERVER_LISTEN_ADDRESS`](./references/configuration.md#proxy_server_listen_address) to `::`.
+> The Vite dev server listens on `localhost` and the proxy server on `127.0.0.1`, so only this machine can reach them. The Vite dev server forwards API requests to the proxy server. To open the dev server from another device, such as a phone or a virtual machine, run `pnpm dev --host`. The dev server then serves plain HTTP on every network interface, which other machines on your network can reach unless your network rules block the port you set, or `5173` by default. That is outside [Supported Hosting](https://aws.github.io/graph-explorer/references/security/#supported-hosting), so limit who can reach the port. To let other machines reach the proxy server directly too, as earlier releases did, set [`PROXY_SERVER_LISTEN_ADDRESS`](https://aws.github.io/graph-explorer/references/configuration/#proxy_server_listen_address) to `::`.
 
-On macOS, only root can listen on ports below 1024 on `127.0.0.1`, so the proxy server stops at startup on the default port `80` with a permission error. Add `PROXY_SERVER_PORT=9250` to `packages/graph-explorer/.env.local`, which the dev server reads too. See [`PROXY_SERVER_PORT`](./references/configuration.md#proxy_server_port).
+On macOS, only root can listen on ports below 1024 on `127.0.0.1`, so the proxy server stops at startup on the default port `80` with a permission error. Add `PROXY_SERVER_PORT=9250` to `packages/graph-explorer/.env.local`, which the dev server reads too. See [`PROXY_SERVER_PORT`](https://aws.github.io/graph-explorer/references/configuration/#proxy_server_port).
 
 ## Build for production
 
@@ -102,9 +102,9 @@ pnpm start
 
 > [!IMPORTANT]
 >
-> `pnpm start` serves plain HTTP on port `80` by default and listens on `127.0.0.1`, so only this machine can reach it. To serve other machines, put a reverse proxy that terminates TLS in front of it. A reverse proxy on the same machine connects to `http://127.0.0.1:<port>`. For one on another machine, set [`PROXY_SERVER_LISTEN_ADDRESS`](./references/configuration.md#proxy_server_listen_address) to the address of the interface it connects to, or to `::` to listen on every network interface as earlier releases did, and limit the port to the reverse proxy with network rules you provide. See [Supported Hosting](./references/security.md#supported-hosting).
+> `pnpm start` serves plain HTTP on port `80` by default and listens on `127.0.0.1`, so only this machine can reach it. To serve other machines, put a reverse proxy that terminates TLS in front of it. A reverse proxy on the same machine connects to `http://127.0.0.1:<port>`. For one on another machine, set [`PROXY_SERVER_LISTEN_ADDRESS`](https://aws.github.io/graph-explorer/references/configuration/#proxy_server_listen_address) to the address of the interface it connects to, or to `::` to listen on every network interface as earlier releases did, and limit the port to the reverse proxy with network rules you provide. See [Supported Hosting](https://aws.github.io/graph-explorer/references/security/#supported-hosting).
 
-On macOS, set [`PROXY_SERVER_PORT`](./references/configuration.md#proxy_server_port) to `1024` or higher in `packages/graph-explorer/.env.local`, as for `pnpm dev`.
+On macOS, set [`PROXY_SERVER_PORT`](https://aws.github.io/graph-explorer/references/configuration/#proxy_server_port) to `1024` or higher in `packages/graph-explorer/.env.local`, as for `pnpm dev`.
 
 ## Build and run with Docker
 
@@ -126,6 +126,16 @@ docker run -p 127.0.0.1:80:80 \
 ```
 
 Then open [http://localhost/explorer](http://localhost/explorer) in your browser.
+
+## Run the documentation site
+
+The user docs at https://aws.github.io/graph-explorer/ are built from `packages/docs`. To preview them while you edit:
+
+```bash
+pnpm docs:dev
+```
+
+`pnpm docs:build` builds the site into `packages/docs/dist` and checks that every internal link and anchor resolves and that every alert renders. CI runs it on every pull request.
 
 ## Managing dependencies
 
@@ -174,7 +184,7 @@ PROXY_SERVER_PORT=8082
 
 ## Environment variables
 
-See the [Configuration Reference](./references/configuration.md) for all available environment variables including application settings and default connection options.
+See the [Configuration Reference](https://aws.github.io/graph-explorer/references/configuration/) for all available environment variables including application settings and default connection options.
 
 ## Development-only environment variables
 
@@ -199,10 +209,10 @@ Example: `5174`
 
 ## Using self-signed certificates on Chrome
 
-See [Removing the "Not Secure" warning on Chrome](./references/security.md#removing-the-not-secure-warning-on-chrome) in the security reference.
+See [Removing the "Not Secure" warning on Chrome](https://aws.github.io/graph-explorer/references/security/#removing-the-not-secure-warning-on-chrome) in the security reference.
 
 ## Troubleshooting
 
-- For more detailed logs, set `LOG_LEVEL=debug`. See [Logging](./references/logging.md).
+- For more detailed logs, set `LOG_LEVEL=debug`. See [Logging](https://aws.github.io/graph-explorer/references/logging/).
 - If Graph Explorer crashes, you can recreate the container or run `pnpm start`
 - If Graph Explorer fails to start, check that the provided endpoint is properly spelled and that you have access to from the environment you are trying to run in. If you are in a different VPC, consider VPC Peering.

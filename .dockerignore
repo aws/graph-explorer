@@ -15,6 +15,10 @@ node_modules
 
 # Ignore documentation related files
 docs
+# The lockfile lists the docs site, so its manifest stays for vp install
+# --frozen-lockfile. The site itself never goes into the image.
+packages/docs/*
+!packages/docs/package.json
 images
 *.md
 
