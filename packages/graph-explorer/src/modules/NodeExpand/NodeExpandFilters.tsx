@@ -37,8 +37,9 @@ export type NodeExpandFiltersProps = {
   onSelectedTypeChange(type: string): void;
   filters: Array<NodeExpandFilter>;
   onFiltersChange(filters: Array<NodeExpandFilter>): void;
-  limit: number;
-  onLimitChange(limit: number): void;
+  /** The neighbor limit, or null when the input is empty or invalid. */
+  limit: number | null;
+  onLimitChange(limit: number | null): void;
   limitEnabled: boolean;
   onLimitEnabledToggle(enabled: boolean): void;
 };
@@ -192,8 +193,11 @@ const NodeExpandFilters = ({
                 type="number"
                 min={1}
                 step={1}
-                value={limit}
-                onChange={e => onLimitChange(parseInt(e.target.value) ?? 0)}
+                value={limit ?? ""}
+                onChange={e => {
+                  const parsed = parseInt(e.target.value);
+                  onLimitChange(Number.isNaN(parsed) ? null : parsed);
+                }}
               />
             </motion.div>
           )}
