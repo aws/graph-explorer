@@ -75,6 +75,7 @@ function NodesTabular({ ref }: NodesTabularProps) {
       id: "node-type",
       accessor: "displayTypes",
       label: t("node-type"),
+      width: 120,
       filter: (rows, _columnIds, filterValue) =>
         rows.filter(row =>
           row.original.displayTypes
@@ -103,6 +104,7 @@ function NodesTabular({ ref }: NodesTabularProps) {
       label: "Neighbors",
       overflow: "ellipsis",
       oneLine: true,
+      width: 120,
       filterType: {
         name: "number",
         options: {
