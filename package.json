@@ -25,8 +25,8 @@
     "docs:preview": "pnpm --filter @graph-explorer/docs run preview"
   },
   "devDependencies": {
-    "@tanstack/eslint-plugin-query": "5.105.0",
-    "eslint-plugin-baseline-js": "0.7.6",
+    "@tanstack/eslint-plugin-query": "5.105.3",
+    "eslint-plugin-baseline-js": "0.7.7",
     "eslint-plugin-es-x": "10.1.0",
     "eslint-plugin-react-hooks": "7.1.1",
     "fast-check": "^4.10.2",
