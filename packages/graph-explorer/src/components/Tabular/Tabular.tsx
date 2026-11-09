@@ -20,6 +20,7 @@ import {
   TabularFooterControls,
 } from "./controls";
 import tableInstanceToTabularInstance from "./helpers/tableInstanceToTabularInstance";
+import { DEFAULT_PAGE_OPTIONS } from "./pageOptions";
 import TabularControlsProvider, {
   useTabularControl,
 } from "./TabularControlsProvider";
@@ -38,7 +39,7 @@ export const Tabular = <T extends object>({
   className,
   data,
   disablePagination,
-  paginationOptions = [10, 20, 50],
+  paginationOptions = DEFAULT_PAGE_OPTIONS,
   pageIndex = 0,
   pageSize = 10,
   onDataFilteredChange,
