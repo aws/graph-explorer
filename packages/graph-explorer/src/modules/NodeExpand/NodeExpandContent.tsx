@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Suspense, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 
 import type { VertexId } from "@/core";
 
@@ -16,10 +16,7 @@ import {
 import { neighborsCountQuery } from "@/connector";
 import { type DisplayVertex, useNeighbors } from "@/core";
 import { useExpandNode } from "@/hooks";
-import {
-  type ExpandNodeFilters,
-  useDefaultNeighborExpansionLimit,
-} from "@/hooks/useExpandNode";
+import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
 import useNeighborsOptions, {
   type NeighborOption,
 } from "@/hooks/useNeighborsOptions";
@@ -27,6 +24,8 @@ import useTranslations from "@/hooks/useTranslations";
 import NeighborsList from "@/modules/common/NeighborsList/NeighborsList";
 
 import NodeExpandFilters, { type NodeExpandFilter } from "./NodeExpandFilters";
+
+const LIMIT_ERROR_MESSAGE = "Enter a whole number of 1 or more.";
 
 export type NodeExpandContentProps = {
   vertex: DisplayVertex;
@@ -92,19 +91,39 @@ function ExpansionOptions({
   );
   const [filters, setFilters] = useState<Array<NodeExpandFilter>>([]);
   const [limitEnabled, setLimitEnabled] = useState(Boolean(defaultLimit));
-  const [limit, setLimit] = useState<number | null>(defaultLimit ?? 100);
+  const [limit, setLimit] = useState<number | undefined>(defaultLimit ?? 100);
+  const [hasTriedInvalidExpand, setHasTriedInvalidExpand] = useState(false);
+  const limitInputRef = useRef<HTMLInputElement>(null);
+  const { expandNode, isPending } = useExpandNode();
 
   const hasSelectedType = Boolean(selectedType);
   const hasUnfetchedNeighbors = (neighbors?.unfetched ?? 0) > 0;
-  // An empty or invalid limit must block expansion, otherwise the request
-  // would go out unlimited while the toggle still shows a limit is applied
-  const hasValidLimit = !limitEnabled || (limit != null && limit >= 1);
+  const isLimitValid = !limitEnabled || isValidNeighborLimit(limit);
+  const limitError =
+    hasTriedInvalidExpand && !isLimitValid ? LIMIT_ERROR_MESSAGE : undefined;
 
   // Reset filters when selected type changes
   const [prevSelectedType, setPrevSelectedType] = useState(selectedType);
   if (prevSelectedType !== selectedType) {
     setPrevSelectedType(selectedType);
     setFilters([]);
+  }
+
+  function handleExpand() {
+    if (!isLimitValid) {
+      setHasTriedInvalidExpand(true);
+      limitInputRef.current?.focus();
+      return;
+    }
+    expandNode({
+      vertexId,
+      filterByVertexTypes: [selectedType],
+      attributeFilters: filters.map(filter => ({
+        name: filter.name,
+        value: filter.value,
+      })),
+      limit: limitEnabled ? limit : undefined,
+    });
   }
 
   if (!hasUnfetchedNeighbors) {
@@ -127,51 +146,24 @@ function ExpansionOptions({
         onFiltersChange={setFilters}
         limit={limit}
         onLimitChange={setLimit}
+        limitError={limitError}
+        limitInputRef={limitInputRef}
         limitEnabled={limitEnabled}
         onLimitEnabledToggle={setLimitEnabled}
       />
       <PanelFooter className="sticky bottom-0 flex flex-row justify-end">
-        <ExpandButton
-          isDisabled={
-            !hasUnfetchedNeighbors || !hasSelectedType || !hasValidLimit
-          }
-          vertexId={vertexId}
-          filters={{
-            filterByVertexTypes: [selectedType],
-            attributeFilters: filters.map(filter => ({
-              name: filter.name,
-              value: filter.value,
-            })),
-            limit: limitEnabled && limit ? limit : undefined,
-          }}
-        />
+        <Button
+          variant="primary"
+          disabled={isPending || !hasUnfetchedNeighbors || !hasSelectedType}
+          onClick={handleExpand}
+        >
+          <Spinner loading={isPending}>
+            <ExpandGraphIcon />
+          </Spinner>
+          Expand
+        </Button>
       </PanelFooter>
     </>
-  );
-}
-
-function ExpandButton({
-  vertexId,
-  isDisabled,
-  filters,
-}: {
-  vertexId: VertexId;
-  isDisabled: boolean;
-  filters: ExpandNodeFilters;
-}) {
-  const { expandNode, isPending } = useExpandNode();
-
-  return (
-    <Button
-      variant="primary"
-      disabled={isPending || isDisabled}
-      onClick={() => expandNode({ vertexId, ...filters })}
-    >
-      <Spinner loading={isPending}>
-        <ExpandGraphIcon />
-      </Spinner>
-      Expand
-    </Button>
   );
 }
 
@@ -179,4 +171,9 @@ function firstNeighborAvailableForExpansion(
   neighborsOptions: NeighborOption[],
 ) {
   return neighborsOptions.find(x => !x.isDisabled) ?? neighborsOptions[0];
+}
+
+/** Whether the limit is a whole number of 1 or more. */
+function isValidNeighborLimit(limit: number | undefined) {
+  return limit !== undefined && Number.isInteger(limit) && limit >= 1;
 }

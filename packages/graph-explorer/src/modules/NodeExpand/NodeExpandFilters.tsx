@@ -1,16 +1,19 @@
-import type { PropsWithChildren } from "react";
+import type { PropsWithChildren, Ref } from "react";
 
 import { ListFilterPlusIcon, Trash2Icon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { useId } from "react";
 
 import {
   addRemoveAnimationProps,
   Button,
   Field,
   FieldGroup,
+  FieldError,
   FieldLabel,
   Input,
   Label,
+  NumberInput,
   SearchResult,
   Select,
   SelectContent,
@@ -37,9 +40,11 @@ export type NodeExpandFiltersProps = {
   onSelectedTypeChange(type: string): void;
   filters: Array<NodeExpandFilter>;
   onFiltersChange(filters: Array<NodeExpandFilter>): void;
-  /** The neighbor limit, or null when the input is empty or invalid. */
-  limit: number | null;
-  onLimitChange(limit: number | null): void;
+  limit: number | undefined;
+  onLimitChange(limit: number | undefined): void;
+  /** The message to show under the limit field, when the limit is invalid. */
+  limitError: string | undefined;
+  limitInputRef: Ref<HTMLInputElement>;
   limitEnabled: boolean;
   onLimitEnabledToggle(enabled: boolean): void;
 };
@@ -60,10 +65,14 @@ const NodeExpandFilters = ({
   onFiltersChange,
   limit,
   onLimitChange,
+  limitError,
+  limitInputRef,
   limitEnabled,
   onLimitEnabledToggle,
 }: NodeExpandFiltersProps) => {
   const t = useTranslations();
+  const limitErrorId = useId();
+  const isLimitInvalid = limitError !== undefined;
 
   const attributeSelectOptions = useAttributeOptions(selectedType);
   const hasSearchableAttributes = attributeSelectOptions.length > 0;
@@ -187,18 +196,20 @@ const NodeExpandFilters = ({
         <AnimatePresence initial={false}>
           {limitEnabled && (
             <motion.div key="limit" {...addRemoveAnimationProps}>
-              <Input
-                aria-label="limit"
-                className="grow"
-                type="number"
-                min={1}
-                step={1}
-                value={limit ?? ""}
-                onChange={e => {
-                  const parsed = parseInt(e.target.value);
-                  onLimitChange(Number.isNaN(parsed) ? null : parsed);
-                }}
-              />
+              <Field data-invalid={isLimitInvalid}>
+                <NumberInput
+                  ref={limitInputRef}
+                  aria-label="limit"
+                  aria-invalid={isLimitInvalid}
+                  aria-describedby={isLimitInvalid ? limitErrorId : undefined}
+                  className="grow"
+                  min={1}
+                  step={1}
+                  value={limit}
+                  onValueChange={onLimitChange}
+                />
+                <FieldError id={limitErrorId}>{limitError}</FieldError>
+              </Field>
             </motion.div>
           )}
         </AnimatePresence>
