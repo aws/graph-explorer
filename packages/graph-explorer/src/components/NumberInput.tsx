@@ -6,7 +6,7 @@ import { Input, type InputProps } from "./Input";
 
 export interface NumberInputProps extends Omit<
   InputProps,
-  "type" | "value" | "onChange" | "onBlur"
+  "type" | "value" | "onChange"
 > {
   value: number | undefined;
   onValueChange: (value: number | undefined) => void;
@@ -26,6 +26,7 @@ export interface NumberInputProps extends Omit<
 export function NumberInput({
   value,
   onValueChange,
+  onBlur,
   ...props
 }: NumberInputProps) {
   const [draft, setDraft] = useState<string | null>(null);
@@ -38,7 +39,10 @@ export function NumberInput({
         setDraft(e.target.value);
         onValueChange(parseNumberSafely(e.target.value));
       }}
-      onBlur={() => setDraft(null)}
+      onBlur={e => {
+        setDraft(null);
+        onBlur?.(e);
+      }}
       {...props}
     />
   );

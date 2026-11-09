@@ -88,6 +88,17 @@ describe("NumberInput", () => {
     expect(widthInput()).toHaveValue(1);
   });
 
+  it("should call onBlur after reformatting", () => {
+    const onBlur = vi.fn();
+    render(<Harness initialValue={1} onBlur={onBlur} />);
+
+    fireEvent.change(widthInput(), { target: { value: "2." } });
+    fireEvent.blur(widthInput());
+
+    expect(onBlur).toHaveBeenCalledOnce();
+    expect(widthInput()).toHaveValue(2);
+  });
+
   it("should reflect external value changes when not editing", () => {
     function ExternalChange() {
       const [value, setValue] = useState<number | undefined>(1);
