@@ -34,6 +34,20 @@ To send us a pull request, please:
 
 GitHub provides additional documentation on [forking a repository](https://help.github.com/articles/fork-a-repo/) and [creating a pull request](https://help.github.com/articles/creating-a-pull-request/).
 
+## When a maintainer finishes your pull request
+
+Sometimes a maintainer finishes a pull request so it can make the next release. They comment on your pull request to say so, and your commits keep their author and message either way.
+
+### On your branch
+
+When "Allow edits by maintainers" is on, the maintainer comments first, then pushes commits to your branch to finish it. They may also rebase the branch. Their pushes use `--force-with-lease`, so pull before you push anything else to it.
+
+You stay the pull request's author, so you're the author of the squash commit when it merges and the release notes list the change under your name.
+
+### In a new pull request
+
+When the maintainer can't push to your branch, they open a new pull request that includes your commits and comment on yours with a link to it. You're credited as a `Co-authored-by` on the squash commit, and the release notes say "based on #N by @your-username" to link back to your pull request. The maintainer closes your original pull request after the new one merges.
+
 ## Finding contributions to work on
 
 Looking at the existing issues is a great way to find something to contribute on. As our projects, by default, use the default GitHub issue labels (enhancement/bug/duplicate/help wanted/invalid/question/wontfix), looking at any 'help wanted' issues is a great place to start.
