@@ -7,7 +7,11 @@ import {
 } from "@shared/types";
 import { z } from "zod";
 
-import { isDirectConnection, type SavedConnection } from "@/connections";
+import {
+  isDirectConnection,
+  type SavedConnection,
+  storedNumericOverrideSchema,
+} from "@/connections";
 import { formatDate, isAbsoluteHttpUrl } from "@/utils";
 import {
   DEFAULT_FETCH_TIMEOUT,
@@ -25,11 +29,6 @@ export const serviceTypeSchema = z.enum(neptuneServiceTypeOptions);
 // saving replaces the bad value instead of writing it back.
 const storedQueryEngineSchema = queryEngineSchema.catch("gremlin");
 const storedServiceTypeSchema = serviceTypeSchema.catch("neptune-db");
-const storedOverrideSchema = z.coerce
-  .number()
-  .positive()
-  .optional()
-  .catch(undefined);
 
 /** The values the connection form edits, one per control. */
 export type ConnectionFormValues = {
@@ -56,6 +55,8 @@ export type ConnectionFormErrors = {
   name?: string;
   graphDbUrl?: string;
   awsRegion?: string;
+  fetchTimeoutMs?: string;
+  nodeExpansionLimit?: string;
 };
 
 /** Either the normalized values, ready to save, or the errors that block them. */
@@ -80,8 +81,10 @@ export function mapToConnectionForm(
   name: string,
   connection: ConnectionConfig | undefined,
 ): ConnectionFormValues {
-  const fetchTimeoutMs = storedOverrideSchema.parse(connection?.fetchTimeoutMs);
-  const nodeExpansionLimit = storedOverrideSchema.parse(
+  const fetchTimeoutMs = storedNumericOverrideSchema.parse(
+    connection?.fetchTimeoutMs,
+  );
+  const nodeExpansionLimit = storedNumericOverrideSchema.parse(
     connection?.nodeExpansionLimit,
   );
   return {
@@ -154,6 +157,20 @@ export function validateConnectionForm(
   if (!values.directConnection && values.awsAuthEnabled && !values.awsRegion) {
     errors.awsRegion = "Region is required";
   }
+  const fetchTimeoutError = validateOverride(
+    values.fetchTimeoutEnabled,
+    values.fetchTimeoutMs,
+  );
+  if (fetchTimeoutError) {
+    errors.fetchTimeoutMs = fetchTimeoutError;
+  }
+  const nodeExpansionLimitError = validateOverride(
+    values.nodeExpansionLimitEnabled,
+    values.nodeExpansionLimit,
+  );
+  if (nodeExpansionLimitError) {
+    errors.nodeExpansionLimit = nodeExpansionLimitError;
+  }
 
   return Object.keys(errors).length > 0
     ? { valid: false, errors }
@@ -186,6 +203,25 @@ export function updateConnectionForm<Field extends keyof ConnectionFormValues>(
  */
 export function hasAdvancedOverrides(form: ConnectionFormValues): boolean {
   return form.fetchTimeoutEnabled || form.nodeExpansionLimitEnabled;
+}
+
+// Checked against the rule a stored override is read by, so the form cannot save
+// a value the app would then read as no override.
+function validateOverride(
+  enabled: boolean,
+  value: number | undefined,
+): string | undefined {
+  if (enabled && storedNumericOverrideSchema.parse(value) === undefined) {
+    return "Enter a whole number greater than 0";
+  }
+}
+
+/**
+ * Whether an error sits inside the advanced disclosure, which must then open so
+ * the error is not hidden behind it.
+ */
+export function hasAdvancedErrors(errors: ConnectionFormErrors): boolean {
+  return !!errors.fetchTimeoutMs || !!errors.nodeExpansionLimit;
 }
 
 function normalizeUrlField(value: string) {

@@ -6,10 +6,51 @@ import { createEdgeId, createVertexId } from "@/core";
 import {
   EmptyIdentifierError,
   UnescapableValueError,
+  UnrepresentableNumberError,
   UnrepresentableStringError,
   UnsupportedValueTypeError,
 } from "../queryValueError";
 import { fragment } from "./fragments";
+
+describe("fragment.number", () => {
+  // The database, not the fragment, reports a number its position refuses.
+  it.each([
+    [0, "0"],
+    [1, "1"],
+    [25, "25"],
+    [Number.MAX_SAFE_INTEGER, "9007199254740991"],
+    [-5, "-5"],
+    [1.5, "1.5"],
+  ])("should emit %s as %s", (value, text) => {
+    expect(fragment.number(value)).toEqual(text);
+  });
+
+  it.each([
+    [Number.NaN, "not a number"],
+    [Number.POSITIVE_INFINITY, "infinite"],
+    [1e21, "exponential in text form"],
+  ])("should reject %s, which is %s", value => {
+    expect(() => fragment.number(value)).toThrow(
+      new UnrepresentableNumberError(value),
+    );
+  });
+
+  // The value is checked as emitted text, whatever its runtime type.
+  it.each(["0x10", "1e3", " 5 ", "abc", "10 extra", "007"])(
+    "should reject the runtime string %o",
+    value => {
+      expect(() => fragment.number(value as unknown as number)).toThrow(
+        new UnrepresentableNumberError(value as unknown as number),
+      );
+    },
+  );
+
+  // A string of digits carries no syntax, so the emitted-text check accepts it
+  // just as the Gremlin and SPARQL fragments do.
+  it("should emit a digits-only string", () => {
+    expect(fragment.number("10" as unknown as number)).toEqual("10");
+  });
+});
 
 describe("fragment.string", () => {
   it("should wrap the value in double quotes", () => {
