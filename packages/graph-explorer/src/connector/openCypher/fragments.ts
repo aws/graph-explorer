@@ -1,6 +1,10 @@
 import { type EdgeId, getRawId, type VertexId } from "@/core";
 
-import { type QueryFragment, toQueryFragment } from "../queryFragment";
+import {
+  type QueryFragment,
+  toNumberFragment,
+  toQueryFragment,
+} from "../queryFragment";
 import {
   assertRepresentable,
   EmptyIdentifierError,
@@ -16,6 +20,9 @@ import {
  * where two languages currently coincide: the delimiters, escaping, and ID
  * rules diverge (openCypher delimits identifiers with backticks, SPARQL has
  * IRIs and no identifiers, Gremlin suffixes numeric IDs with L).
+ *
+ * `number` is the exception: a plain decimal reads the same in every language,
+ * so it delegates to the shared `toNumberFragment`.
  *
  * Exported as a single object so call sites always read `fragment.string(…)`,
  * `fragment.identifier(…)`, etc. The qualifier keeps the invariant visible: the
@@ -43,6 +50,11 @@ export const fragment = {
   string(value: string): QueryFragment {
     assertRepresentable(value);
     return toQueryFragment(JSON.stringify(value));
+  },
+
+  /** A numeric operand, such as a `SKIP` or `LIMIT` value, emitted as a plain decimal. */
+  number(value: number): QueryFragment {
+    return toNumberFragment(value);
   },
 
   /**

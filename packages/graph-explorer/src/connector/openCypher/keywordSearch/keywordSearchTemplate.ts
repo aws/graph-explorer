@@ -77,9 +77,9 @@ const keywordSearchTemplate = ({
   // Add paging options if needed
   const limitTemplate =
     limit && offset
-      ? `SKIP ${offset} LIMIT ${limit}`
+      ? `SKIP ${fragment.number(offset)} LIMIT ${fragment.number(limit)}`
       : limit
-        ? `LIMIT ${limit}`
+        ? `LIMIT ${fragment.number(limit)}`
         : "";
 
   return query`

@@ -39,6 +39,24 @@ describe("useDefaultNeighborExpansionLimit", () => {
     expect(result.current).toBe(10);
   });
 
+  it("should return the app limit when the connection limit is not a positive integer", () => {
+    const dbState = new DbState();
+    if (dbState.activeConnection.connection) {
+      dbState.activeConnection.connection.nodeExpansionLimit =
+        "abc" as unknown as number;
+    }
+    const { result } = renderHookWithJotai(
+      () => useDefaultNeighborExpansionLimit(),
+      store => {
+        dbState.applyTo(store);
+        store.set(defaultNeighborExpansionLimitAtom, 10);
+        store.set(defaultNeighborExpansionLimitEnabledAtom, true);
+      },
+    );
+
+    expect(result.current).toBe(10);
+  });
+
   it("should return the connection limit when defined", () => {
     const dbState = new DbState();
     if (dbState.activeConnection.connection) {

@@ -1,6 +1,10 @@
 import type { EdgeId, VertexId } from "@/core";
 
-import { type QueryFragment, toQueryFragment } from "../queryFragment";
+import {
+  type QueryFragment,
+  toNumberFragment,
+  toQueryFragment,
+} from "../queryFragment";
 import {
   assertRepresentable,
   UnescapableValueError,
@@ -15,6 +19,9 @@ import {
  * where two languages currently coincide: the delimiters, escaping, and ID
  * rules diverge (openCypher delimits identifiers with backticks, SPARQL has
  * IRIs and no identifiers, Gremlin suffixes numeric IDs with L).
+ *
+ * `number` is the exception: a plain decimal reads the same in every language,
+ * so it delegates to the shared `toNumberFragment`.
  *
  * SPARQL has no `identifier` constructor: RDF has no bare identifiers, so a
  * predicate or class is an IRI. It has no `id` constructor either, because an
@@ -108,6 +115,11 @@ export const fragment = {
   string(value: string): QueryFragment {
     assertRepresentable(value);
     return toQueryFragment(`"${escapeStringLiteralBody(value)}"`);
+  },
+
+  /** A numeric operand, such as a `LIMIT` or `OFFSET` value, emitted as a plain decimal. */
+  number(value: number): QueryFragment {
+    return toNumberFragment(value);
   },
 
   /** An IRI reference, delimited by angle brackets. */

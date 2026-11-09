@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { LABELS, SEARCH_TOKENS } from "@/utils";
 import { normalize } from "@/utils/testing";
 
+import { UnrepresentableNumberError } from "../../queryValueError";
 import keywordSearchTemplate from "./keywordSearchTemplate";
 
 describe("OpenCypher > keywordSearchTemplate", () => {
@@ -41,6 +42,36 @@ describe("OpenCypher > keywordSearchTemplate", () => {
         WHERE (v:\`airport\` OR v:\`country\`) 
         RETURN v AS object 
       `),
+    );
+  });
+
+  // The database, not the template, reports a number its position refuses.
+  it.each([
+    ["a fractional limit", { limit: 1.5 }, "LIMIT 1.5"],
+    ["a negative offset", { limit: 20, offset: -5 }, "SKIP -5 LIMIT 20"],
+  ])("Should emit %s as given", (_label, request, clause) => {
+    expect(normalize(keywordSearchTemplate(request))).toBe(
+      normalize(`
+        MATCH (v)
+        RETURN v AS object
+        ${clause}
+      `),
+    );
+  });
+
+  const nonNumeric = "10 extra" as unknown as number;
+
+  it.each([
+    ["a non-numeric limit", { limit: nonNumeric }, nonNumeric],
+    ["a non-numeric offset", { limit: 20, offset: nonNumeric }, nonNumeric],
+    [
+      "an infinite limit",
+      { limit: Number.POSITIVE_INFINITY },
+      Number.POSITIVE_INFINITY,
+    ],
+  ])("Should refuse %s", (_label, request, value) => {
+    expect(() => keywordSearchTemplate(request)).toThrow(
+      new UnrepresentableNumberError(value),
     );
   });
 

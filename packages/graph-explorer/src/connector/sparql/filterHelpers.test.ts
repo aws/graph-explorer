@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { createVertexId } from "@/core";
 import { query } from "@/utils";
 
+import { UnrepresentableNumberError } from "../queryValueError";
 import {
   getLimit,
   getNeighborsFilter,
@@ -127,5 +128,48 @@ describe("getLimit", () => {
   it("should return offset only when limit is undefined", () => {
     const result = getLimit(undefined, 5);
     expect(result).toEqual("OFFSET 5");
+  });
+
+  // A limit or offset is emitted only as a plain decimal, whatever its runtime
+  // type.
+  it.each([
+    ["query syntax", "1 } { ?s ?p ?o } "],
+    ["a non-numeric string", "abc"],
+    ["a hex literal", "0x10"],
+    ["exponential notation", "1e3"],
+    ["surrounding whitespace", " 5 "],
+    ["a leading-zero spelling", "007"],
+    ["infinite", Number.POSITIVE_INFINITY],
+  ])("should refuse a limit that is %s", (_label, value) => {
+    expect(() => getLimit(value as unknown as number)).toThrow(
+      new UnrepresentableNumberError(value as unknown as number),
+    );
+  });
+
+  // The database, not the helper, reports a number its position refuses.
+  it.each([
+    [-5, "LIMIT -5"],
+    [1.5, "LIMIT 1.5"],
+  ])("should emit the limit %s as given", (value, text) => {
+    expect(getLimit(value)).toEqual(text);
+  });
+
+  it("should treat a NaN limit as no limit", () => {
+    expect(getLimit(Number.NaN)).toEqual("");
+  });
+
+  // A string of digits carries no syntax, so the emitted-text check accepts it
+  // just as the Gremlin fragment does. Its type is the schema boundary's problem.
+  it("should emit a digits-only string limit", () => {
+    expect(getLimit("10" as unknown as number)).toEqual("LIMIT 10");
+  });
+
+  it.each([
+    ["query syntax", "1 } { ?s ?p ?o } "],
+    ["a non-numeric string", "abc"],
+  ])("should refuse an offset that is %s", (_label, value) => {
+    expect(() => getLimit(10, value as unknown as number)).toThrow(
+      new UnrepresentableNumberError(value as unknown as number),
+    );
   });
 });

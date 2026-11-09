@@ -62,14 +62,14 @@ const oneHopTemplate = ({
     .filter(Boolean)
     .join(" AND ");
 
-  if (limit > 0) {
+  if (limit) {
     // When applying a limit, we must apply it to the set of distinct neighbors, which requires some additional steps
     return query`
       MATCH (v)-[e]-(${targetMatch})
       WHERE ${whereConditions}
       WITH DISTINCT v, tgt
       ORDER BY toInteger(ID(tgt))
-      LIMIT ${limit}
+      LIMIT ${fragment.number(limit)}
       MATCH (v)-[e]-(tgt)
       RETURN
         collect(DISTINCT tgt) AS vObjects, 

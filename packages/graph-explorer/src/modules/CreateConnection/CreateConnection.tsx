@@ -33,6 +33,7 @@ import { logger } from "@/utils";
 import {
   type ConnectionFormValues,
   createNewConnectionForm,
+  hasAdvancedErrors,
   hasAdvancedOverrides,
   mapToConnection,
   mapSavedConnectionToConnectionForm,
@@ -156,6 +157,9 @@ const CreateConnection = ({
       : (initialValues ?? createNewConnectionForm(new Date())),
   );
   const [showErrors, setShowErrors] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(() =>
+    hasAdvancedOverrides(form),
+  );
 
   const setField: SetConnectionFormField = field => value =>
     setForm(prev => updateConnectionForm(prev, field, value));
@@ -172,6 +176,9 @@ const CreateConnection = ({
   const onSubmit = () => {
     if (!validation.valid) {
       setShowErrors(true);
+      if (hasAdvancedErrors(validation.errors)) {
+        setAdvancedOpen(true);
+      }
       return;
     }
 
@@ -236,7 +243,8 @@ const CreateConnection = ({
           setField={setField}
         />
         <Collapsible
-          defaultOpen={hasAdvancedOverrides(form)}
+          open={advancedOpen}
+          onOpenChange={setAdvancedOpen}
           className="group flex flex-col gap-6"
         >
           {/* Renders its own button rather than `asChild` onto a div, so the
@@ -260,7 +268,9 @@ const CreateConnection = ({
                   type="number"
                   value={form.fetchTimeoutMs}
                   onChange={setNumberField("fetchTimeoutMs")}
-                  min={0}
+                  min={1}
+                  errorMessage={errors?.fetchTimeoutMs}
+                  validationState={errors?.fetchTimeoutMs ? "invalid" : "valid"}
                 />
               </FormItem>
             )}
@@ -278,7 +288,11 @@ const CreateConnection = ({
                   type="number"
                   value={form.nodeExpansionLimit}
                   onChange={setNumberField("nodeExpansionLimit")}
-                  min={0}
+                  min={1}
+                  errorMessage={errors?.nodeExpansionLimit}
+                  validationState={
+                    errors?.nodeExpansionLimit ? "invalid" : "valid"
+                  }
                 />
               </FormItem>
             )}

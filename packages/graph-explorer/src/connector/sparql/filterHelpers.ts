@@ -98,8 +98,8 @@ export function getNeighborsFilter(excludedVertices?: Set<VertexId>) {
  * getLimit()
  */
 export function getLimit(limit?: number, offset?: number) {
-  const limitTemplate = limit ? `LIMIT ${limit}` : null;
-  const offsetTemplate = offset ? `OFFSET ${offset}` : null;
+  const limitTemplate = limit ? `LIMIT ${fragment.number(limit)}` : null;
+  const offsetTemplate = offset ? `OFFSET ${fragment.number(offset)}` : null;
 
   // Combine the parts that exist with a space
   return [limitTemplate, offsetTemplate].filter(Boolean).join(" ");

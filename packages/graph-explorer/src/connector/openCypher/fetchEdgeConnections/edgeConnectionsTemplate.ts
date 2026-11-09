@@ -20,12 +20,14 @@ export default function edgeConnectionsTemplate({
 }: {
   types: EdgeType[];
 }) {
+  const limit = fragment.number(DEFAULT_SAMPLE_SIZE);
+
   return types
     .map(
       type => query`
         MATCH (s)-[e:${fragment.identifier(type)}]->(t)
         WITH labels(s) AS sourceLabels, labels(t) AS targetLabels
-        LIMIT ${DEFAULT_SAMPLE_SIZE}
+        LIMIT ${limit}
         RETURN DISTINCT ${fragment.string(type)} AS edgeType, sourceLabels, targetLabels
       `,
     )
