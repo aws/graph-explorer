@@ -10,8 +10,10 @@ import { z } from "zod";
 import {
   isDirectConnection,
   type SavedConnection,
+  storedNeighborLimitSchema,
   storedNumericOverrideSchema,
 } from "@/connections";
+import { neighborLimitError } from "@/core";
 import { formatDate, isAbsoluteHttpUrl } from "@/utils";
 import {
   DEFAULT_FETCH_TIMEOUT,
@@ -84,7 +86,7 @@ export function mapToConnectionForm(
   const fetchTimeoutMs = storedNumericOverrideSchema.parse(
     connection?.fetchTimeoutMs,
   );
-  const nodeExpansionLimit = storedNumericOverrideSchema.parse(
+  const nodeExpansionLimit = storedNeighborLimitSchema.parse(
     connection?.nodeExpansionLimit,
   );
   return {
@@ -164,10 +166,9 @@ export function validateConnectionForm(
   if (fetchTimeoutError) {
     errors.fetchTimeoutMs = fetchTimeoutError;
   }
-  const nodeExpansionLimitError = validateOverride(
-    values.nodeExpansionLimitEnabled,
-    values.nodeExpansionLimit,
-  );
+  const nodeExpansionLimitError = values.nodeExpansionLimitEnabled
+    ? neighborLimitError(values.nodeExpansionLimit)
+    : undefined;
   if (nodeExpansionLimitError) {
     errors.nodeExpansionLimit = nodeExpansionLimitError;
   }

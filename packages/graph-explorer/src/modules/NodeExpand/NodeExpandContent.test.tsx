@@ -25,7 +25,7 @@ import {
 
 import NodeExpandContent from "./NodeExpandContent";
 
-const LIMIT_ERROR = "Enter a whole number of 1 or more.";
+const LIMIT_ERROR = "Enter a whole number greater than 0";
 
 // happy-dom rejects the limit field's exit animation when motion cancels it.
 beforeAll(() => {

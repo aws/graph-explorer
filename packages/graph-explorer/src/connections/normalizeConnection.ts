@@ -2,16 +2,32 @@ import type { ConnectionConfig, QueryEngine } from "@shared/types";
 
 import { z } from "zod";
 
+import { neighborLimitSchema } from "@/core/neighborLimit";
+
 /**
  * A stored numeric connection override: a positive integer, or absent when
  * the stored value is missing or is not one. Accepts the digit string an
  * older version may have written.
  */
-export const storedNumericOverrideSchema = z
-  .union([z.number(), z.string().regex(/^\d+$/).transform(Number)])
-  .pipe(z.number().int().positive())
-  .optional()
-  .catch(undefined);
+export const storedNumericOverrideSchema = storedOverrideSchema(
+  z.number().int().positive(),
+);
+
+/**
+ * A stored `nodeExpansionLimit`: a valid neighbor limit, or absent when the
+ * stored value is missing or is not one. Accepts the digit string an older
+ * version may have written.
+ */
+export const storedNeighborLimitSchema =
+  storedOverrideSchema(neighborLimitSchema);
+
+function storedOverrideSchema(schema: z.ZodNumber) {
+  return z
+    .union([z.number(), z.string().regex(/^\d+$/).transform(Number)])
+    .pipe(schema)
+    .optional()
+    .catch(undefined);
+}
 
 /**
  * Cleans a URL for storage and request use: strips newlines and surrounding
@@ -49,7 +65,7 @@ export function normalizeConnection(
   } = connection;
   const fetchTimeoutMs =
     storedNumericOverrideSchema.parse(storedFetchTimeoutMs);
-  const nodeExpansionLimit = storedNumericOverrideSchema.parse(
+  const nodeExpansionLimit = storedNeighborLimitSchema.parse(
     storedNodeExpansionLimit,
   );
   return {

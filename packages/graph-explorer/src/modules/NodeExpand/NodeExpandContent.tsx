@@ -14,7 +14,7 @@ import {
   VertexRow,
 } from "@/components";
 import { neighborsCountQuery } from "@/connector";
-import { type DisplayVertex, useNeighbors } from "@/core";
+import { type DisplayVertex, neighborLimitError, useNeighbors } from "@/core";
 import { useExpandNode } from "@/hooks";
 import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
 import useNeighborsOptions, {
@@ -24,8 +24,6 @@ import useTranslations from "@/hooks/useTranslations";
 import NeighborsList from "@/modules/common/NeighborsList/NeighborsList";
 
 import NodeExpandFilters, { type NodeExpandFilter } from "./NodeExpandFilters";
-
-const LIMIT_ERROR_MESSAGE = "Enter a whole number of 1 or more.";
 
 export type NodeExpandContentProps = {
   vertex: DisplayVertex;
@@ -98,9 +96,8 @@ function ExpansionOptions({
 
   const hasSelectedType = Boolean(selectedType);
   const hasUnfetchedNeighbors = (neighbors?.unfetched ?? 0) > 0;
-  const isLimitValid = !limitEnabled || isValidNeighborLimit(limit);
-  const limitError =
-    hasTriedInvalidExpand && !isLimitValid ? LIMIT_ERROR_MESSAGE : undefined;
+  const limitIssue = limitEnabled ? neighborLimitError(limit) : undefined;
+  const limitError = hasTriedInvalidExpand ? limitIssue : undefined;
 
   // Reset filters when selected type changes
   const [prevSelectedType, setPrevSelectedType] = useState(selectedType);
@@ -110,7 +107,7 @@ function ExpansionOptions({
   }
 
   function handleExpand() {
-    if (!isLimitValid) {
+    if (limitIssue) {
       setHasTriedInvalidExpand(true);
       limitInputRef.current?.focus();
       return;
@@ -171,9 +168,4 @@ function firstNeighborAvailableForExpansion(
   neighborsOptions: NeighborOption[],
 ) {
   return neighborsOptions.find(x => !x.isDisabled) ?? neighborsOptions[0];
-}
-
-/** Whether the limit is a whole number of 1 or more. */
-function isValidNeighborLimit(limit: number | undefined) {
-  return limit !== undefined && Number.isInteger(limit) && limit >= 1;
 }
