@@ -1,11 +1,11 @@
 // @vitest-environment happy-dom
-import { QueryClient } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Route, Routes, useLocation } from "react-router";
 import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 
 import { TooltipProvider } from "@/components";
-import { getAppStore } from "@/core";
+import { createVertexType, getAppStore } from "@/core";
+import { createQueryClient } from "@/core/queryClient";
 import {
   createTestableVertex,
   DbState,
@@ -23,16 +23,19 @@ vi.mock("@/components/SchemaDiscoveryBoundary", () => ({
 
 function LocationDisplay() {
   const location = useLocation();
-  return <div data-testid="location">{location.pathname}</div>;
+  return (
+    <>
+      <div data-testid="location">{location.pathname}</div>
+      <div data-testid="location-search">{location.search}</div>
+    </>
+  );
 }
 
 function renderDataExplorer(initialPath: string, state: DbState) {
   const store = getAppStore();
   state.applyTo(store);
 
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
+  const queryClient = createQueryClient();
 
   return render(
     <TestProvider
@@ -148,6 +151,100 @@ describe("DataExplorer", () => {
       expect(screen.getByTestId("location")).toHaveTextContent(
         "/data-explorer/Country",
       );
+    });
+  });
+
+  describe("paging from the URL", () => {
+    function stateWithAirport() {
+      const state = new DbState();
+      vi.mocked(state.explorer.keywordSearch).mockResolvedValue({
+        vertices: [],
+      });
+      state.addTestableVertexToGraph(
+        createTestableVertex().with({ types: ["Airport"] }),
+      );
+      return state;
+    }
+
+    async function firstSearchRequest(state: DbState) {
+      await waitFor(() => {
+        expect(state.explorer.keywordSearch).toHaveBeenCalled();
+      });
+      return vi.mocked(state.explorer.keywordSearch).mock.calls[0][0];
+    }
+
+    test("searches the page and page size from the link", async () => {
+      const state = stateWithAirport();
+
+      renderDataExplorer("/data-explorer/Airport?page=3&pageSize=50", state);
+
+      expect(await firstSearchRequest(state)).toStrictEqual({
+        vertexTypes: [createVertexType("Airport")],
+        limit: 50,
+        offset: 100,
+      });
+    });
+
+    test("searches the first page of 20 rows when the link has no paging", async () => {
+      const state = stateWithAirport();
+
+      renderDataExplorer("/data-explorer/Airport", state);
+
+      expect(await firstSearchRequest(state)).toStrictEqual({
+        vertexTypes: [createVertexType("Airport")],
+        limit: 20,
+        offset: 0,
+      });
+    });
+
+    test.each(["0", "-5", "2.5", "1000", "abc"])(
+      "searches 20 rows when pageSize is %s",
+      async pageSize => {
+        const state = stateWithAirport();
+
+        renderDataExplorer(
+          `/data-explorer/Airport?page=2&pageSize=${pageSize}`,
+          state,
+        );
+
+        expect(await firstSearchRequest(state)).toStrictEqual({
+          vertexTypes: [createVertexType("Airport")],
+          limit: 20,
+          offset: 20,
+        });
+      },
+    );
+
+    test.each(["0", "-2", "1.5", "abc"])(
+      "searches the first page when page is %s",
+      async page => {
+        const state = stateWithAirport();
+
+        renderDataExplorer(
+          `/data-explorer/Airport?page=${page}&pageSize=10`,
+          state,
+        );
+
+        expect(await firstSearchRequest(state)).toStrictEqual({
+          vertexTypes: [createVertexType("Airport")],
+          limit: 10,
+          offset: 0,
+        });
+      },
+    );
+
+    test("writes a table page size when moving to another page", async () => {
+      const state = stateWithAirport();
+
+      renderDataExplorer("/data-explorer/Airport?page=3&pageSize=abc", state);
+
+      fireEvent.click(await screen.findByRole("button", { name: "1" }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId("location-search")).toHaveTextContent(
+          "?page=1&pageSize=20",
+        );
+      });
     });
   });
 });

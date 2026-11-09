@@ -7,6 +7,7 @@ export {
 } from "./TabularControlsProvider";
 export { numericFilter as tabularNumericFilter } from "./filters";
 export * from "./controls";
+export { DEFAULT_PAGE_OPTIONS } from "./pageOptions";
 export * from "./builders";
 export type { TabularProps } from "./Tabular";
 export type { TabularInstance } from "./helpers/tableInstanceToTabularInstance";

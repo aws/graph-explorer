@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
+import { z } from "zod";
 
 import {
   Button,
@@ -31,6 +32,7 @@ import {
 } from "@/components";
 import {
   type ColumnDefinition,
+  DEFAULT_PAGE_OPTIONS,
   PaginationControl,
   TabularEmptyBodyControls,
   TabularFooterControls,
@@ -346,32 +348,50 @@ function useColumnDefinitions(vertexType: VertexType) {
   return columns;
 }
 
+const DEFAULT_PAGE = 1;
+const DEFAULT_PAGE_SIZE = 20;
+
+const digitStringSchema = z.string().regex(/^\d+$/).transform(Number);
+
+const pagingSearchParamsSchema = z.object({
+  page: digitStringSchema.pipe(z.number().int().positive()).catch(DEFAULT_PAGE),
+  pageSize: digitStringSchema
+    .pipe(z.number().refine(size => DEFAULT_PAGE_OPTIONS.includes(size)))
+    .catch(DEFAULT_PAGE_SIZE),
+});
+
+/**
+ * Reads the page and page size from the URL. A page that is not a whole
+ * number of at least 1, or a page size the table does not offer, reads as
+ * the default.
+ */
+function parsePagingSearchParams(searchParams: URLSearchParams) {
+  return pagingSearchParamsSchema.parse({
+    page: searchParams.get("page"),
+    pageSize: searchParams.get("pageSize"),
+  });
+}
+
 function usePagingOptions() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const pageIndex = Number(searchParams.get("page") || 1) - 1;
-  const pageSize = Number(searchParams.get("pageSize") || 20);
+  const { page, pageSize } = parsePagingSearchParams(searchParams);
+  const pageIndex = page - 1;
   const onPageIndexChange = (pageIndex: number) => {
     setSearchParams(
-      prevState => {
-        const currPageSize = Number(prevState.get("pageSize") || 20);
-        return {
-          page: String(pageIndex + 1),
-          pageSize: String(currPageSize),
-        };
-      },
+      prevState => ({
+        page: String(pageIndex + 1),
+        pageSize: String(parsePagingSearchParams(prevState).pageSize),
+      }),
       { replace: true },
     );
   };
 
   const onPageSizeChange = (pageSize: number) => {
     setSearchParams(
-      prevState => {
-        const currPageIndex = Number(prevState.get("page") || 1);
-        return {
-          page: String(currPageIndex),
-          pageSize: String(pageSize),
-        };
-      },
+      prevState => ({
+        page: String(parsePagingSearchParams(prevState).page),
+        pageSize: String(pageSize),
+      }),
       { replace: true },
     );
   };
