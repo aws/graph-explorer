@@ -2,7 +2,7 @@
 # The Vite+ image builds with the Node.js in .node-version and the pnpm in
 # packageManager. Pinned by digest. The tag must match the vite-plus catalog
 # version, which test_build_docker.yml checks.
-FROM ghcr.io/voidzero-dev/vite-plus:1.4.0@sha256:5dfa2031f7d014b6376407fd99e0747bed329d792c79c184a65ec9a0765bee0e AS toolchain
+FROM ghcr.io/voidzero-dev/vite-plus:1.5.1@sha256:068d824d8d8184c39defc266795d3ade452bfc5266603d25d81aeeedbedf8973 AS toolchain
 WORKDIR /app
 
 FROM toolchain AS build
