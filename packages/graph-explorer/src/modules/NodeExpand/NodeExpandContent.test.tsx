@@ -129,6 +129,40 @@ describe("NodeExpandContent limit", () => {
     );
   });
 
+  test("never sends a negative limit typed into the field", async () => {
+    const { user, fetchNeighbors } = await renderExpandSidebar();
+
+    await user.clear(limitInput());
+    await user.type(limitInput(), "-5");
+    expect(limitInput()).toHaveValue(-5);
+    await user.click(expandButton());
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(LIMIT_ERROR);
+    expect(fetchNeighbors).not.toHaveBeenCalled();
+
+    await user.clear(limitInput());
+    await user.type(limitInput(), "7");
+    await user.click(expandButton());
+
+    await waitFor(() => expect(fetchNeighbors).toHaveBeenCalledTimes(1));
+    expect(fetchNeighbors.mock.calls.map(([request]) => request.limit)).toEqual(
+      [7],
+    );
+  });
+
+  test("drops a valid limit from the request when the limit is turned off", async () => {
+    const { user, fetchNeighbors } = await renderExpandSidebar();
+
+    expect(limitInput()).toHaveValue(10);
+    await user.click(
+      screen.getByRole("switch", { name: /limit returned neighbors/i }),
+    );
+    await user.click(expandButton());
+
+    await waitFor(() => expect(fetchNeighbors).toHaveBeenCalledTimes(1));
+    expect(fetchNeighbors.mock.lastCall?.[0].limit).toBeUndefined();
+  });
+
   test("expands without a limit and shows no error when the limit is turned off", async () => {
     const { user, fetchNeighbors } = await renderExpandSidebar();
 
