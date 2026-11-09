@@ -1,20 +1,6 @@
 import type { ConnectionConfig, QueryEngine } from "@shared/types";
 
-import { z } from "zod";
-
-import { positiveWholeNumberSchema } from "@/core/positiveWholeNumber";
-import { digitStringSchema } from "@/utils";
-
-/**
- * A stored numeric connection override: a positive integer, or absent when
- * the stored value is missing or is not one. Accepts the digit string an
- * older version may have written.
- */
-export const storedNumericOverrideSchema = z
-  .union([z.number(), digitStringSchema])
-  .pipe(positiveWholeNumberSchema)
-  .optional()
-  .catch(undefined);
+import { storedPositiveWholeNumberSchema } from "@/core/positiveWholeNumber";
 
 /**
  * Cleans a URL for storage and request use: strips newlines and surrounding
@@ -52,8 +38,8 @@ export function normalizeConnection(
     ...rest
   } = connection;
   const fetchTimeoutMs =
-    storedNumericOverrideSchema.parse(storedFetchTimeoutMs);
-  const nodeExpansionLimit = storedNumericOverrideSchema.parse(
+    storedPositiveWholeNumberSchema.parse(storedFetchTimeoutMs);
+  const nodeExpansionLimit = storedPositiveWholeNumberSchema.parse(
     storedNodeExpansionLimit,
   );
   return {

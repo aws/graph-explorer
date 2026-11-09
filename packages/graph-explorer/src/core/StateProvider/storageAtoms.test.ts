@@ -215,6 +215,38 @@ describe("backward compatibility: connections stored by earlier versions", () =>
   });
 });
 
+/**
+ * BACKWARD COMPATIBILITY: STORED DEFAULT NEIGHBOR EXPANSION LIMITS
+ *
+ * The real `defaultNeighborExpansionLimitAtom` must read any stored
+ * `defaultNeighborExpansionLimit` that is not a whole number greater than 0 as
+ * 10 as `loadPersistedState()` loads it, so these tests seed IndexedDB and then
+ * call `loadPersistedState()`. Removing the atom's `transform` must fail them.
+ *
+ * DO NOT delete or weaken these tests without confirming no stored limit can
+ * hold such a value.
+ */
+describe("backward compatibility: stored default neighbor expansion limits", () => {
+  it.each([NaN, 0, -5, 1.5, "abc", null])(
+    "reads a stored %s as 10",
+    async value => {
+      await localforage.setItem("defaultNeighborExpansionLimit", value);
+
+      await loadPersistedState();
+
+      expect(createStore().get(defaultNeighborExpansionLimitAtom)).toBe(10);
+    },
+  );
+
+  it("keeps a stored whole number greater than 0", async () => {
+    await localforage.setItem("defaultNeighborExpansionLimit", 42);
+
+    await loadPersistedState();
+
+    expect(createStore().get(defaultNeighborExpansionLimitAtom)).toBe(42);
+  });
+});
+
 describe("loadPersistedState", () => {
   it("runs the startup migrations before the atoms read storage", async () => {
     const edgeStyle: EdgeStyleStorage = {

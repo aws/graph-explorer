@@ -7,12 +7,11 @@ import {
 } from "@shared/types";
 import { z } from "zod";
 
+import { isDirectConnection, type SavedConnection } from "@/connections";
 import {
-  isDirectConnection,
-  type SavedConnection,
-  storedNumericOverrideSchema,
-} from "@/connections";
-import { positiveWholeNumberError } from "@/core";
+  positiveWholeNumberError,
+  storedPositiveWholeNumberSchema,
+} from "@/core";
 import { formatDate, isAbsoluteHttpUrl } from "@/utils";
 import {
   DEFAULT_FETCH_TIMEOUT,
@@ -82,10 +81,10 @@ export function mapToConnectionForm(
   name: string,
   connection: ConnectionConfig | undefined,
 ): ConnectionFormValues {
-  const fetchTimeoutMs = storedNumericOverrideSchema.parse(
+  const fetchTimeoutMs = storedPositiveWholeNumberSchema.parse(
     connection?.fetchTimeoutMs,
   );
-  const nodeExpansionLimit = storedNumericOverrideSchema.parse(
+  const nodeExpansionLimit = storedPositiveWholeNumberSchema.parse(
     connection?.nodeExpansionLimit,
   );
   return {
