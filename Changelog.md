@@ -14,7 +14,7 @@ Connections whose overrides are whole numbers keep working unchanged. Two things
 ### All Changes
 
 - Bump version to 3.3.2 by @kmcginnes in https://github.com/aws/graph-explorer/pull/2554
-- Validate connection overrides and share one numeric query fragment by @kmcginnes in https://github.com/aws/graph-explorer/pull/2555
+- Backport validate connection overrides and share one numeric query fragment by @kmcginnes in https://github.com/aws/graph-explorer/pull/2555
 
 **Full Changelog**: https://github.com/aws/graph-explorer/compare/v3.3.1...v3.3.2
 
