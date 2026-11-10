@@ -8,6 +8,8 @@ import {
 import { Button, Label, SelectField, toHumanString } from "@/components";
 import { cn } from "@/utils";
 
+import { DEFAULT_PAGE_OPTIONS } from "../pageOptions";
+
 export type PaginationControlProps = {
   className?: string;
   totalRows: number;
@@ -18,7 +20,6 @@ export type PaginationControlProps = {
   pageOptions?: number[];
 };
 
-const DEFAULT_PAGE_OPTIONS = [10, 20, 50];
 export function PaginationControl({
   className,
   totalRows,

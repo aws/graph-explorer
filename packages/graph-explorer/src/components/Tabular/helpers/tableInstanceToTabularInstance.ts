@@ -22,6 +22,8 @@ import type {
 import type { TabularProps } from "../Tabular";
 import type { ColumnDefinition } from "../useTabular";
 
+import { DEFAULT_PAGE_OPTIONS } from "../pageOptions";
+
 export type TabularColumnInstance<T extends object> = {
   instance: ColumnInstance<T>;
   definition?: ColumnDefinition<T>;
@@ -175,7 +177,7 @@ const tableInstanceToTabularInstance = <T extends object>(
     disablePagination: tableProps.disablePagination,
     canPreviousPage: tableInstance.canPreviousPage,
     canNextPage: tableInstance.canNextPage,
-    pageOptions: tableProps.paginationOptions || [10, 20, 50],
+    pageOptions: tableProps.paginationOptions || DEFAULT_PAGE_OPTIONS,
     pageCount: tableInstance.pageCount,
     gotoPage: tableInstance.gotoPage,
     previousPage: tableInstance.previousPage,
