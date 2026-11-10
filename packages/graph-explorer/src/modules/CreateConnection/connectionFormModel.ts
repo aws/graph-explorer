@@ -10,10 +10,9 @@ import { z } from "zod";
 import {
   isDirectConnection,
   type SavedConnection,
-  storedNeighborLimitSchema,
   storedNumericOverrideSchema,
 } from "@/connections";
-import { neighborLimitError } from "@/core";
+import { positiveWholeNumberError } from "@/core";
 import { formatDate, isAbsoluteHttpUrl } from "@/utils";
 import {
   DEFAULT_FETCH_TIMEOUT,
@@ -86,7 +85,7 @@ export function mapToConnectionForm(
   const fetchTimeoutMs = storedNumericOverrideSchema.parse(
     connection?.fetchTimeoutMs,
   );
-  const nodeExpansionLimit = storedNeighborLimitSchema.parse(
+  const nodeExpansionLimit = storedNumericOverrideSchema.parse(
     connection?.nodeExpansionLimit,
   );
   return {
@@ -166,9 +165,10 @@ export function validateConnectionForm(
   if (fetchTimeoutError) {
     errors.fetchTimeoutMs = fetchTimeoutError;
   }
-  const nodeExpansionLimitError = values.nodeExpansionLimitEnabled
-    ? neighborLimitError(values.nodeExpansionLimit)
-    : undefined;
+  const nodeExpansionLimitError = validateOverride(
+    values.nodeExpansionLimitEnabled,
+    values.nodeExpansionLimit,
+  );
   if (nodeExpansionLimitError) {
     errors.nodeExpansionLimit = nodeExpansionLimitError;
   }
@@ -206,15 +206,11 @@ export function hasAdvancedOverrides(form: ConnectionFormValues): boolean {
   return form.fetchTimeoutEnabled || form.nodeExpansionLimitEnabled;
 }
 
-// Checked against the rule a stored override is read by, so the form cannot save
-// a value the app would then read as no override.
 function validateOverride(
   enabled: boolean,
   value: number | undefined,
 ): string | undefined {
-  if (enabled && storedNumericOverrideSchema.parse(value) === undefined) {
-    return "Enter a whole number greater than 0";
-  }
+  return enabled ? positiveWholeNumberError(value) : undefined;
 }
 
 /**

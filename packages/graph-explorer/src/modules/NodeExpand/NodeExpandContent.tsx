@@ -14,7 +14,11 @@ import {
   VertexRow,
 } from "@/components";
 import { neighborsCountQuery } from "@/connector";
-import { type DisplayVertex, neighborLimitError, useNeighbors } from "@/core";
+import {
+  type DisplayVertex,
+  positiveWholeNumberError,
+  useNeighbors,
+} from "@/core";
 import { useExpandNode } from "@/hooks";
 import { useDefaultNeighborExpansionLimit } from "@/hooks/useExpandNode";
 import useNeighborsOptions, {
@@ -96,7 +100,7 @@ function ExpansionOptions({
 
   const hasSelectedType = Boolean(selectedType);
   const hasUnfetchedNeighbors = (neighbors?.unfetched ?? 0) > 0;
-  const limitIssue = limitEnabled ? neighborLimitError(limit) : undefined;
+  const limitIssue = limitEnabled ? positiveWholeNumberError(limit) : undefined;
   const limitError = hasTriedInvalidExpand ? limitIssue : undefined;
 
   // Reset filters when selected type changes
