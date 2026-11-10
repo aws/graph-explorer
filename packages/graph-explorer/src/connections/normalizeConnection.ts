@@ -2,6 +2,8 @@ import type { ConnectionConfig, QueryEngine } from "@shared/types";
 
 import { z } from "zod";
 
+import { positiveWholeNumberSchema } from "@/core/positiveWholeNumber";
+
 /**
  * A stored numeric connection override: a positive integer, or absent when
  * the stored value is missing or is not one. Accepts the digit string an
@@ -9,7 +11,7 @@ import { z } from "zod";
  */
 export const storedNumericOverrideSchema = z
   .union([z.number(), z.string().regex(/^\d+$/).transform(Number)])
-  .pipe(z.number().int().positive())
+  .pipe(positiveWholeNumberSchema)
   .optional()
   .catch(undefined);
 

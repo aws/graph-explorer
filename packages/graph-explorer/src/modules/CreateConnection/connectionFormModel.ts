@@ -12,6 +12,7 @@ import {
   type SavedConnection,
   storedNumericOverrideSchema,
 } from "@/connections";
+import { positiveWholeNumberError } from "@/core";
 import { formatDate, isAbsoluteHttpUrl } from "@/utils";
 import {
   DEFAULT_FETCH_TIMEOUT,
@@ -205,15 +206,11 @@ export function hasAdvancedOverrides(form: ConnectionFormValues): boolean {
   return form.fetchTimeoutEnabled || form.nodeExpansionLimitEnabled;
 }
 
-// Checked against the rule a stored override is read by, so the form cannot save
-// a value the app would then read as no override.
 function validateOverride(
   enabled: boolean,
   value: number | undefined,
 ): string | undefined {
-  if (enabled && storedNumericOverrideSchema.parse(value) === undefined) {
-    return "Enter a whole number greater than 0";
-  }
+  return enabled ? positiveWholeNumberError(value) : undefined;
 }
 
 /**
