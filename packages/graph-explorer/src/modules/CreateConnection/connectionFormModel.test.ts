@@ -12,6 +12,7 @@ import { createRandomSavedConnection } from "@/utils/testing";
 import {
   type ConnectionFormValues,
   createNewConnectionForm,
+  hasAdvancedErrors,
   hasAdvancedOverrides,
   mapSavedConnectionToConnectionForm,
   mapToConnection,
@@ -178,7 +179,7 @@ describe("mapToConnectionForm", () => {
       );
     });
 
-    test.each([null, "abc", 0, -5])(
+    test.each([null, "abc", 0, -5, 1.5])(
       "turns off an override stored as %o",
       value => {
         const name = createRandomName("Connection");
@@ -387,6 +388,47 @@ describe("validateConnectionForm", () => {
     });
   });
 
+  describe.each([
+    ["fetchTimeoutMs", "fetchTimeoutEnabled"],
+    ["nodeExpansionLimit", "nodeExpansionLimitEnabled"],
+  ] as const)("the %s override", (field, enabledField) => {
+    test.each([undefined, 0, -1, 1.5])(
+      "refuses %s when it is enabled",
+      value => {
+        const validation = validateConnectionForm(
+          createValidForm({ [enabledField]: true, [field]: value }),
+        );
+
+        expect(validation).toStrictEqual({
+          valid: false,
+          errors: { [field]: "Enter a whole number greater than 0" },
+        });
+      },
+    );
+
+    test("accepts 1 when it is enabled", () => {
+      const form = createValidForm({ [enabledField]: true, [field]: 1 });
+
+      expect(validateConnectionForm(form)).toStrictEqual({
+        valid: true,
+        values: form,
+      });
+    });
+
+    // A disabled override is not saved, so its leftover value cannot block saving.
+    test.each([undefined, 0, -1, 1.5])(
+      "ignores %s when it is disabled",
+      value => {
+        const form = createValidForm({ [enabledField]: false, [field]: value });
+
+        expect(validateConnectionForm(form)).toStrictEqual({
+          valid: true,
+          values: form,
+        });
+      },
+    );
+  });
+
   test("reports every invalid field at once", () => {
     const validation = validateConnectionForm(
       createValidForm({
@@ -509,4 +551,19 @@ describe("hasAdvancedOverrides", () => {
       hasAdvancedOverrides(createValidForm({ directConnection: true })),
     ).toBe(false);
   });
+});
+
+describe("hasAdvancedErrors", () => {
+  test.each([{}, { name: "Name is required" }])("is false for %o", errors => {
+    expect(hasAdvancedErrors(errors)).toBe(false);
+  });
+
+  test.each(["fetchTimeoutMs", "nodeExpansionLimit"] as const)(
+    "is true for a %s error",
+    field => {
+      expect(
+        hasAdvancedErrors({ [field]: "Enter a whole number greater than 0" }),
+      ).toBe(true);
+    },
+  );
 });

@@ -634,7 +634,7 @@ describe("CreateConnection", () => {
     });
   });
 
-  test("saves no fetch timeout when its field is cleared", async () => {
+  test("refuses to save an enabled fetch timeout whose field is cleared", async () => {
     const user = userEvent.setup();
     const store = renderCreateConnection(
       <CreateConnection onClose={vi.fn()} />,
@@ -653,20 +653,62 @@ describe("CreateConnection", () => {
     );
     await user.click(screen.getByRole("button", { name: "Add Connection" }));
 
-    await waitFor(() => {
-      expect(store.get(savedConnectionsAtom)).toHaveLength(1);
-    });
+    expect(store.get(savedConnectionsAtom)).toHaveLength(0);
+    expect(
+      screen.getByText("Enter a whole number greater than 0"),
+    ).toBeInTheDocument();
+  });
 
-    const [savedConnection] = store.get(savedConnectionsAtom).values();
-    expect(savedConnection.connection).toStrictEqual({
-      graphDbUrl: "https://g.example.com",
-      queryEngine: "gremlin",
-      awsAuthEnabled: false,
-      serviceType: "neptune-db",
-      awsRegion: "",
-      fetchTimeoutMs: undefined,
-      nodeExpansionLimit: undefined,
+  test("refuses to save a neighbor expansion limit of 0", async () => {
+    const user = userEvent.setup();
+    const store = renderCreateConnection(
+      <CreateConnection onClose={vi.fn()} />,
+    );
+
+    await user.type(
+      screen.getByRole("textbox", { name: "Database URL" }),
+      "https://g.example.com",
+    );
+    await openAdvancedOptions(user);
+    await user.click(
+      screen.getByRole("checkbox", { name: /Limit neighbors per expansion/ }),
+    );
+    const limitField = screen.getByRole("spinbutton", {
+      name: "Neighbor Expansion Limit",
     });
+    await user.clear(limitField);
+    await user.type(limitField, "0");
+    await user.click(screen.getByRole("button", { name: "Add Connection" }));
+
+    expect(store.get(savedConnectionsAtom)).toHaveLength(0);
+    expect(
+      screen.getByText("Enter a whole number greater than 0"),
+    ).toBeInTheDocument();
+  });
+
+  test("opens the advanced options to show an override's error", async () => {
+    const user = userEvent.setup();
+    renderCreateConnection(<CreateConnection onClose={vi.fn()} />);
+
+    await user.type(
+      screen.getByRole("textbox", { name: "Database URL" }),
+      "https://g.example.com",
+    );
+    await openAdvancedOptions(user);
+    await user.click(
+      screen.getByRole("checkbox", { name: /Set a fetch timeout/ }),
+    );
+    await user.clear(
+      screen.getByRole("spinbutton", { name: "Fetch Timeout (ms)" }),
+    );
+    const trigger = screen.getByRole("button", { name: "Advanced options" });
+    await user.click(trigger);
+    await user.click(screen.getByRole("button", { name: "Add Connection" }));
+
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+    expect(
+      screen.getByText("Enter a whole number greater than 0"),
+    ).toBeInTheDocument();
   });
 
   // The rest of the app shows an unlabeled connection by its id, so the form
