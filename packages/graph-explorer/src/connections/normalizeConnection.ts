@@ -3,6 +3,7 @@ import type { ConnectionConfig, QueryEngine } from "@shared/types";
 import { z } from "zod";
 
 import { positiveWholeNumberSchema } from "@/core/positiveWholeNumber";
+import { digitStringSchema } from "@/utils";
 
 /**
  * A stored numeric connection override: a positive integer, or absent when
@@ -10,7 +11,7 @@ import { positiveWholeNumberSchema } from "@/core/positiveWholeNumber";
  * older version may have written.
  */
 export const storedNumericOverrideSchema = z
-  .union([z.number(), z.string().regex(/^\d+$/).transform(Number)])
+  .union([z.number(), digitStringSchema])
   .pipe(positiveWholeNumberSchema)
   .optional()
   .catch(undefined);

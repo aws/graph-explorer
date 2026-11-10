@@ -47,6 +47,7 @@ import {
 } from "@/connector";
 import {
   createVertexType,
+  positiveWholeNumberSchema,
   type DisplayVertex,
   useConfiguration,
   useDisplayVertexTypeConfig,
@@ -60,6 +61,7 @@ import { useVertexStyling } from "@/core/StateProvider/graphStyles";
 import { useVertexTypeConfig } from "@/core/StateProvider/useConfiguration";
 import { useAddVertexToGraph, useHasVertexBeenAddedToGraph } from "@/hooks";
 import useTranslations from "@/hooks/useTranslations";
+import { digitStringSchema } from "@/utils";
 import {
   LABELS,
   RESERVED_ID_PROPERTY,
@@ -351,10 +353,8 @@ function useColumnDefinitions(vertexType: VertexType) {
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 20;
 
-const digitStringSchema = z.string().regex(/^\d+$/).transform(Number);
-
 const pagingSearchParamsSchema = z.object({
-  page: digitStringSchema.pipe(z.number().int().positive()).catch(DEFAULT_PAGE),
+  page: digitStringSchema.pipe(positiveWholeNumberSchema).catch(DEFAULT_PAGE),
   pageSize: digitStringSchema
     .pipe(z.number().refine(size => DEFAULT_PAGE_OPTIONS.includes(size)))
     .catch(DEFAULT_PAGE_SIZE),
