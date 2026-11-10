@@ -39,7 +39,8 @@ export function isDirectConnection(
 
 /**
  * Reads a stored connection with the app's defaults applied. A numeric
- * override that is not a positive integer reads as absent.
+ * override that is not a positive integer reads as absent, and IAM is on only
+ * when stored as exactly `true`.
  */
 export function normalizeConnection(
   connection: ConnectionConfig,
@@ -58,7 +59,7 @@ export function normalizeConnection(
     ...rest,
     graphDbUrl: normalizeUrl(connection.graphDbUrl),
     queryEngine: connection.queryEngine || "gremlin",
-    awsAuthEnabled: connection.awsAuthEnabled ?? false,
+    awsAuthEnabled: connection.awsAuthEnabled === true,
     ...(fetchTimeoutMs && { fetchTimeoutMs }),
     ...(nodeExpansionLimit && { nodeExpansionLimit }),
   };

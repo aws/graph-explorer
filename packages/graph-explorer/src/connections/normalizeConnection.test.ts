@@ -34,11 +34,6 @@ describe("normalizeConnection", () => {
     expect(result.queryEngine).toBe("gremlin");
   });
 
-  test("should default awsAuthEnabled to false", () => {
-    const result = normalizeConnection({ graphDbUrl: "https://example.com" });
-    expect(result.awsAuthEnabled).toBe(false);
-  });
-
   test("should preserve path in graphDbUrl", () => {
     const result = normalizeConnection({
       graphDbUrl: "http://blazegraph:9999/blazegraph/namespace/kb",
@@ -127,5 +122,57 @@ describe("normalizeConnection", () => {
         awsAuthEnabled: false,
       });
     });
+  });
+});
+
+/**
+ * BACKWARD COMPATIBILITY: A SAVED CONNECTION'S IAM SETTING
+ *
+ * These pin how `awsAuthEnabled` reads for connections already in storage.
+ * Older builds saved `true`, `false`, or left it out.
+ *
+ * DO NOT delete or weaken these without confirming that no stored connection
+ * in the wild can still be in these shapes.
+ */
+describe("backward compatibility: a saved connection's IAM setting", () => {
+  test("reads a stored true as on", () => {
+    const result = normalizeConnection({
+      graphDbUrl: "https://example.com",
+      awsAuthEnabled: true,
+    });
+    expect(result.awsAuthEnabled).toBe(true);
+  });
+
+  test("reads a stored false as off", () => {
+    const result = normalizeConnection({
+      graphDbUrl: "https://example.com",
+      awsAuthEnabled: false,
+    });
+    expect(result.awsAuthEnabled).toBe(false);
+  });
+
+  test("reads a missing value as off", () => {
+    const result = normalizeConnection({ graphDbUrl: "https://example.com" });
+    expect(result.awsAuthEnabled).toBe(false);
+  });
+});
+
+// Stored connections aren't validated on read, so an older or hand-edited
+// entry can hold values outside its type. The casts simulate one.
+describe("a saved connection's IAM setting outside its type", () => {
+  test('reads the string "true" as off', () => {
+    const result = normalizeConnection({
+      graphDbUrl: "https://example.com",
+      awsAuthEnabled: "true",
+    } as unknown as ConnectionConfig);
+    expect(result.awsAuthEnabled).toBe(false);
+  });
+
+  test("reads the number 1 as off", () => {
+    const result = normalizeConnection({
+      graphDbUrl: "https://example.com",
+      awsAuthEnabled: 1,
+    } as unknown as ConnectionConfig);
+    expect(result.awsAuthEnabled).toBe(false);
   });
 });
