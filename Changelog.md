@@ -21,11 +21,12 @@ Connections whose overrides are whole numbers keep working unchanged. Two things
 
 ## Release 3.3.1
 
-Release 3.3.1 moves the Docker image to Amazon Linux 2023 `2023.12.20261102.0` and Node.js 24.22.2, with no application changes. Both bring updated root certificate stores, used by the operating system and by the proxy server's connections to your database.
+Release 3.3.1 moves the Docker image to Amazon Linux 2023 `2023.12.20261102.0` and Node.js 24.22.2 for their updated root certificates, and updates dependencies. Graph Explorer works the same as in 3.3.0.
 
 ### All Changes
 
 - Update base image and Node.js for 3.3.1 by @kmcginnes in https://github.com/aws/graph-explorer/pull/2532
+- Update 3.3.x dependencies within their current major versions by @kmcginnes in https://github.com/aws/graph-explorer/pull/2534
 
 **Full Changelog**: https://github.com/aws/graph-explorer/compare/v3.3.0...v3.3.1
 
