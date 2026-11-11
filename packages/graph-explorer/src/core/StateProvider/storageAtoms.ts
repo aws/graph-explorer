@@ -12,6 +12,7 @@ import type { GraphSessionStorageModel } from "./graphSession/storage";
 import type { EdgeStyleStorage, VertexStyleStorage } from "./graphStyles";
 import type { SchemaStorageModel } from "./schema";
 
+import { storedPositiveWholeNumberSchema } from "../positiveWholeNumber";
 import { createActiveConnectionIdAtom } from "./activeConnectionStorage";
 import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
 import {
@@ -128,10 +129,20 @@ export const allowLoggingDbQueryAtom = atomWithLocalForage<boolean>(
 export const defaultNeighborExpansionLimitEnabledAtom =
   atomWithLocalForage<boolean>("defaultNeighborExpansionLimitEnabled", true);
 
-/** Setting that defines the default limit for neighbor expansion. */
+const DEFAULT_NEIGHBOR_EXPANSION_LIMIT = 10;
+
+/**
+ * Setting that defines the default limit for neighbor expansion. A stored
+ * value that is not a whole number greater than 0 reads as the default.
+ */
 export const defaultNeighborExpansionLimitAtom = atomWithLocalForage<number>(
   "defaultNeighborExpansionLimit",
-  10,
+  DEFAULT_NEIGHBOR_EXPANSION_LIMIT,
+  {
+    transform: limit =>
+      storedPositiveWholeNumberSchema.parse(limit) ??
+      DEFAULT_NEIGHBOR_EXPANSION_LIMIT,
+  },
 );
 
 /** Enables verbose diagnostic logging to the browser console. */

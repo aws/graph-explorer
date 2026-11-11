@@ -2,15 +2,18 @@ import { useAtom } from "jotai";
 import localforage from "localforage";
 import { CogIcon, SaveAllIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { useId, useState } from "react";
 
 import {
   Button,
+  Field,
+  FieldError,
   Group,
   GroupHeader,
   GroupItem,
   GroupTitle,
   ImportantBlock,
-  Input,
+  NumberInput,
   LabelledSetting,
   NotInProduction,
   SettingsPageDescription,
@@ -26,6 +29,7 @@ import {
   defaultNeighborExpansionLimitAtom,
   defaultNeighborExpansionLimitEnabledAtom,
   diagnosticLoggingAtom,
+  positiveWholeNumberError,
   showDebugActionsAtom,
 } from "@/core";
 import { saveLocalForageToFile } from "@/core/StateProvider/localDb";
@@ -43,9 +47,6 @@ export default function SettingsGeneral() {
   const [diagnosticLogging, setDiagnosticLogging] = useAtom(
     diagnosticLoggingAtom,
   );
-
-  const [defaultNeighborExpansionLimit, setDefaultNeighborExpansionLimit] =
-    useAtom(defaultNeighborExpansionLimitAtom);
 
   const [
     defaultNeighborExpansionLimitEnabled,
@@ -93,21 +94,9 @@ export default function SettingsGeneral() {
                 <LabelledSetting
                   htmlFor="defaultNeighborExpansionLimit"
                   label="Neighbor expansion limit"
-                  description="Maximum number of neighbors to expand per expansion."
+                  description="Maximum number of neighbors to expand per expansion, as a whole number greater than 0."
                 >
-                  <Input
-                    id="defaultNeighborExpansionLimit"
-                    aria-label="Default neighbor expansion limit"
-                    className="max-w-64"
-                    type="number"
-                    value={defaultNeighborExpansionLimit}
-                    onChange={e =>
-                      setDefaultNeighborExpansionLimit(
-                        parseInt(e.target.value) ?? 0,
-                      )
-                    }
-                    min={0}
-                  />
+                  <DefaultNeighborExpansionLimitInput />
                 </LabelledSetting>
               </GroupItem>
             </motion.div>
@@ -213,5 +202,49 @@ export default function SettingsGeneral() {
         </NotInProduction>
       </Group>
     </SettingsPage>
+  );
+}
+
+function DefaultNeighborExpansionLimitInput() {
+  const [limit, setLimit] = useAtom(defaultNeighborExpansionLimitAtom);
+  const [draft, setDraft] = useState<number | undefined>(limit);
+  const [error, setError] = useState<string>();
+  const errorId = useId();
+
+  function onValueChange(value: number | undefined) {
+    setDraft(value);
+    if (positiveWholeNumberError(value) === undefined) {
+      setError(undefined);
+    }
+  }
+
+  function commit() {
+    const nextError = positiveWholeNumberError(draft);
+    setError(nextError);
+    if (draft !== undefined && nextError === undefined) {
+      setLimit(draft);
+    }
+  }
+
+  return (
+    <Field data-invalid={error !== undefined} className="max-w-64 gap-2">
+      <NumberInput
+        id="defaultNeighborExpansionLimit"
+        aria-label="Default neighbor expansion limit"
+        aria-invalid={error !== undefined}
+        aria-describedby={error ? errorId : undefined}
+        min={1}
+        step={1}
+        value={draft}
+        onValueChange={onValueChange}
+        onBlur={commit}
+        onKeyDown={e => {
+          if (e.key === "Enter") {
+            commit();
+          }
+        }}
+      />
+      <FieldError id={errorId}>{error}</FieldError>
+    </Field>
   );
 }
