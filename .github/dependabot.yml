@@ -2,9 +2,9 @@ version: 2
 updates:
   # Covers both `FROM` lines in Dockerfile. Daily because a new Amazon Linux
   # 2023 snapshot is a single ungrouped dependency, so a run without one is a
-  # no-op. A Vite+ image bump must land with the matching vite-plus catalog
-  # bump, since the image's vp and the project's vite-plus are the same release.
-  # test_build_docker.yml fails while the two differ.
+  # no-op. The Vite+ image only supplies the global vp, which hands builds to
+  # the project's installed vite-plus, so its tag can differ from the catalog
+  # version and Dependabot bumps each on its own.
   #
   # No `cooldown`: it needs a registry-assigned publication date, and Docker Hub's
   # tag_last_pushed is currently the only accepted source. ECR Public and GHCR,
@@ -17,6 +17,12 @@ updates:
       time: "13:00"
       timezone: America/Chicago
     open-pull-requests-limit: 2
+    # A new Vite+ major is a hand upgrade of the image and the catalog
+    # together, so a global vp from a newer major never lands ahead of the
+    # project's vite-plus.
+    ignore:
+      - dependency-name: "voidzero-dev/vite-plus"
+        update-types: ["version-update:semver-major"]
 
   # actions/checkout is pinned in every workflow, so an ungrouped bump would
   # open one pull request per workflow for one version.
