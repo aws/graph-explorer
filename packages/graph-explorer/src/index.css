@@ -1,9 +1,11 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Radix UI uses data-state="open"/"closed" on interactive elements */
+/* Radix UI marks open/closed and checked/unchecked with data-state */
 @custom-variant data-open (&[data-state="open"]);
 @custom-variant data-closed (&[data-state="closed"]);
+@custom-variant data-checked (&[data-state="checked"]);
+@custom-variant data-unchecked (&[data-state="unchecked"]);
 
 @theme {
   /* Background images */
