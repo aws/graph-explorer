@@ -48,6 +48,7 @@ export * from "./numberFormat";
 export * from "./icons";
 
 export * from "./Input";
+export * from "./InputGroup";
 export * from "./NumberInput";
 export * from "./LabelledSetting";
 export * from "./LabelPreview";
