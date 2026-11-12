@@ -490,6 +490,15 @@ export function createApp({
       res.status(400).send({ error: "[Proxy] Gremlin: query not provided" });
       return;
     }
+    if (
+      req.body.language !== undefined &&
+      req.body.language !== "gremlin-lang"
+    ) {
+      res
+        .status(400)
+        .send({ error: "[Proxy] Gremlin: language must be gremlin-lang" });
+      return;
+    }
 
     if (shouldLogDbQuery) {
       logger.debug("[Gremlin] Received database query:\n%s", queryString);
@@ -525,7 +534,7 @@ export function createApp({
 
     const body = {
       gremlin: queryString,
-      language: req.body.language,
+      language: "gremlin-lang",
       queryId,
     };
     const rawUrl = resolveEndpointUrl(graphDbConnectionUrl, "gremlin").href;
