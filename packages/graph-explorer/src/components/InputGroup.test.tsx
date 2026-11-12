@@ -73,4 +73,20 @@ describe("InputGroup", () => {
       "button",
     );
   });
+
+  test("draws the focus ring on the group, not the control", () => {
+    render(
+      <InputGroup>
+        <InputGroupInput aria-label="Query" />
+      </InputGroup>,
+    );
+
+    expect(screen.getByRole("group")).toHaveClass(
+      "has-[[data-slot=input-group-control]:focus-visible]:focus-ring",
+    );
+    expect(screen.getByRole("textbox", { name: "Query" })).toHaveClass(
+      "focus-visible:ring-0",
+      "focus-visible:outline-none",
+    );
+  });
 });

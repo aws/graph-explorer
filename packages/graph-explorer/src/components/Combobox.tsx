@@ -206,7 +206,7 @@ export function Combobox({
         <div
           ref={triggerRef}
           className={cn(
-            "ring-offset-background border-input-border bg-input-background text-foreground placeholder:text-muted-foreground focus-within:border-primary",
+            "border-input-border bg-input-background text-foreground placeholder:text-muted-foreground focus-within:focus-ring",
             "flex w-full items-center justify-between rounded-md border text-sm whitespace-nowrap shadow-xs transition-colors duration-100",
             label ? "h-11 px-3 py-1" : "h-10 px-3 py-2",
             "focus:outline-hidden has-[input:disabled]:cursor-not-allowed has-[input:disabled]:opacity-50",

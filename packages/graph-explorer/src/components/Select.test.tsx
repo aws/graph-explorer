@@ -27,7 +27,24 @@ describe("Select", () => {
       "aria-invalid:border-danger",
       "aria-invalid:ring-3",
       "aria-invalid:ring-danger/20",
-      "aria-invalid:focus-visible:ring-danger/50",
+      "focus-visible:focus-ring",
+    );
+  });
+
+  test("draws the shared focus ring on the trigger", () => {
+    render(
+      <Select value="a">
+        <SelectTrigger aria-label="Service Type">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="a">A</SelectItem>
+        </SelectContent>
+      </Select>,
+    );
+
+    expect(screen.getByRole("combobox", { name: "Service Type" })).toHaveClass(
+      "focus-visible:focus-ring",
     );
   });
 });
