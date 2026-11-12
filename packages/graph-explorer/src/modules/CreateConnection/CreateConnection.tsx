@@ -249,7 +249,7 @@ const CreateConnection = ({
         >
           {/* Renders its own button rather than `asChild` onto a div, so the
               disclosure stays keyboard operable and announces its expanded state. */}
-          <CollapsibleTrigger className="group/advanced-trigger focus-visible:ring-primary/50 text-foreground flex w-fit cursor-pointer flex-row items-center gap-2 rounded-md text-sm leading-tight font-medium focus-visible:ring-[3px] focus-visible:outline-hidden">
+          <CollapsibleTrigger className="group/advanced-trigger text-foreground focus-visible:focus-ring flex w-fit cursor-pointer flex-row items-center gap-2 rounded-md text-sm leading-tight font-medium">
             <ChevronRightIcon className="text-muted-foreground size-5 shrink-0 transition-transform duration-200 ease-in-out group-data-open/advanced-trigger:rotate-90" />
             Advanced options
           </CollapsibleTrigger>

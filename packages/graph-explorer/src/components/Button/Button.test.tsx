@@ -65,6 +65,26 @@ describe("Button", () => {
     render(<Button disabled>Disabled</Button>);
     expect(screen.getByRole("button")).toBeDisabled();
   });
+
+  test.each(["primary", "secondary", "ghost", "outline"] as const)(
+    "should draw the shared focus ring on the %s variant",
+    variant => {
+      render(<Button variant={variant}>Focus me</Button>);
+      expect(screen.getByRole("button")).toHaveClass(
+        "focus-visible:focus-ring",
+      );
+    },
+  );
+
+  test.each(["primary", "primary-danger"] as const)(
+    "should turn the focus edge white on the filled %s variant",
+    variant => {
+      render(<Button variant={variant}>Focus me</Button>);
+      expect(screen.getByRole("button")).toHaveClass(
+        "focus-visible:outline-background",
+      );
+    },
+  );
 });
 
 describe("stopPropagation", () => {

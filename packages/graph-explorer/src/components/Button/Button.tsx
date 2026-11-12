@@ -6,11 +6,11 @@ import { cn } from "@/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 const buttonStyles = cva({
-  base: "inline-flex items-center justify-center gap-2 font-medium focus-visible:ring-1 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 disabled:saturate-0 aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-disabled:saturate-0 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  base: "focus-visible:focus-ring inline-flex items-center justify-center gap-2 font-medium disabled:pointer-events-none disabled:opacity-50 disabled:saturate-0 aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-disabled:saturate-0 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   variants: {
     variant: {
       primary:
-        "bg-primary hover:bg-primary-hover data-open:bg-primary-hover text-white",
+        "bg-primary hover:bg-primary-hover data-open:bg-primary-hover focus-visible:outline-background text-white",
       secondary:
         "text-foreground bg-neutral-subtle hover:bg-neutral-subtle-hover data-open:bg-neutral-subtle-hover",
       ghost:
@@ -20,7 +20,7 @@ const buttonStyles = cva({
       "outline-danger":
         "text-danger-foreground border-input-border hover:bg-danger-subtle data-open:bg-danger-subtle border bg-transparent font-normal shadow-xs",
       "primary-danger":
-        "bg-danger hover:bg-danger-hover data-open:bg-danger-hover text-white",
+        "bg-danger hover:bg-danger-hover data-open:bg-danger-hover focus-visible:outline-background text-white",
       danger:
         "bg-danger-subtle text-danger-foreground hover:bg-danger-subtle-hover data-open:bg-danger-subtle-hover",
       "danger-ghost":
