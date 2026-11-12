@@ -125,6 +125,7 @@ export default defineConfig({
       "typescript/prefer-promise-reject-errors": "error",
       "typescript/require-await": "error",
       "typescript/restrict-plus-operands": "error",
+      "typescript/no-misused-promises": "error",
       "vite-plus/prefer-vite-plus-imports": "error",
       "no-restricted-imports": ["error", { patterns: [deepRelativeImports] }],
     },

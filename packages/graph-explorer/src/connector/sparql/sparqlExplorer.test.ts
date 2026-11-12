@@ -6,6 +6,7 @@ import {
   describe,
   expect,
   it,
+  type Mock,
   vi,
 } from "vite-plus/test";
 
@@ -47,10 +48,10 @@ function jsonResponse(body: unknown): Response {
 }
 
 describe("createSparqlExplorer", () => {
-  let mockFetch: ReturnType<typeof vi.fn>;
+  let mockFetch: Mock<typeof fetch>;
 
   beforeEach(() => {
-    mockFetch = vi.fn();
+    mockFetch = vi.fn<typeof fetch>();
     vi.stubGlobal("fetch", mockFetch);
     stubDocumentUrl();
   });

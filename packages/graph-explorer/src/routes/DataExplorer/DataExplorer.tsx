@@ -187,7 +187,10 @@ function DataExplorerContent({ vertexType }: { vertexType: VertexType }) {
             <PanelEmptyState title="Loading data..." icon={<Spinner />} />
           ) : null}
           {query.isError ? (
-            <PanelError error={query.error} onRetry={query.refetch} />
+            <PanelError
+              error={query.error}
+              onRetry={() => void query.refetch()}
+            />
           ) : null}
           {query.data?.vertices.length === 0 && (
             <EmptyState>
@@ -305,7 +308,7 @@ function AddToExplorerButton({ vertex }: { vertex: Vertex }) {
       disabled={isInExplorer}
       variant="outline"
       size="small"
-      onClick={addToGraph}
+      onClick={() => void addToGraph()}
       className="text-nowrap"
     >
       {isInExplorer ? <CheckIcon /> : <SendIcon />}

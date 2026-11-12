@@ -115,7 +115,7 @@ export default function SettingsGeneral() {
           >
             <Button
               className="min-w-28"
-              onClick={async () => await saveLocalForageToFile(localforage)}
+              onClick={() => void saveLocalForageToFile(localforage)}
             >
               <SaveAllIcon />
               Save

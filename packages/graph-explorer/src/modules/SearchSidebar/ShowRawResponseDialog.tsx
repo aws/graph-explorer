@@ -82,7 +82,11 @@ function CopyToClipboardButton({
   };
 
   return (
-    <Button onClick={copyToClipboard} className={cn("", className)} {...props}>
+    <Button
+      onClick={() => void copyToClipboard()}
+      className={cn("", className)}
+      {...props}
+    >
       {copied ? <ClipboardCheckIcon /> : <ClipboardIcon />}
       {copied ? "Copied!" : "Copy to Clipboard"}
     </Button>

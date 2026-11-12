@@ -20,29 +20,29 @@ export class ServerLoggerConnector implements LoggerConnector {
     this.#clientLogger = new ClientLoggerConnector();
   }
 
-  public error(message: string) {
+  public error(message: string): void {
     this.#clientLogger.error(message);
-    return this.#sendLog("error", message);
+    void this.#sendLog("error", message);
   }
 
-  public warn(message: string) {
+  public warn(message: string): void {
     this.#clientLogger.warn(message);
-    return this.#sendLog("warn", message);
+    void this.#sendLog("warn", message);
   }
 
-  public info(message: string) {
+  public info(message: string): void {
     this.#clientLogger.info(message);
-    return this.#sendLog("info", message);
+    void this.#sendLog("info", message);
   }
 
-  public debug(message: string) {
+  public debug(message: string): void {
     this.#clientLogger.debug(message);
-    return this.#sendLog("debug", message);
+    void this.#sendLog("debug", message);
   }
 
-  public trace(message: string) {
+  public trace(message: string): void {
     this.#clientLogger.trace(message);
-    return this.#sendLog("trace", message);
+    void this.#sendLog("trace", message);
   }
 
   async #sendLog(level: LogLevel, message: string) {

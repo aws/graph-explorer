@@ -6,6 +6,7 @@ import {
   describe,
   expect,
   it,
+  type Mock,
   vi,
 } from "vite-plus/test";
 
@@ -69,10 +70,10 @@ function emptyResponse(status: number): Response {
 }
 
 describe("fetchDatabaseRequest", () => {
-  let mockFetch: ReturnType<typeof vi.fn>;
+  let mockFetch: Mock<typeof fetch>;
 
   beforeEach(() => {
-    mockFetch = vi.fn();
+    mockFetch = vi.fn<typeof fetch>();
     vi.stubGlobal("fetch", mockFetch);
     stubDocumentUrl();
   });
@@ -80,6 +81,24 @@ describe("fetchDatabaseRequest", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
+
+  /** The request init passed to the first `fetch` call. */
+  function sentInit(): RequestInit {
+    const init = mockFetch.mock.calls[0]?.[1];
+    if (!init) {
+      throw new Error("fetch was not called with a request init");
+    }
+    return init;
+  }
+
+  /** The headers object passed to the first `fetch` call. */
+  function sentHeaders(): Record<string, string> {
+    const { headers } = sentInit();
+    if (!headers || headers instanceof Headers || Array.isArray(headers)) {
+      throw new Error("fetch was not called with a headers object");
+    }
+    return headers;
+  }
 
   const connection = createConnection();
   const featureFlags = createFeatureFlags();
@@ -211,7 +230,7 @@ describe("fetchDatabaseRequest", () => {
         queryId: "query-123",
       });
 
-      const headers = mockFetch.mock.calls[0][1].headers;
+      const headers = sentHeaders();
       expect(headers.queryId).toBe("query-123");
     });
 
@@ -227,7 +246,7 @@ describe("fetchDatabaseRequest", () => {
         },
       );
 
-      const headers = mockFetch.mock.calls[0][1].headers;
+      const headers = sentHeaders();
       expect(normalizeHeaders(headers)).toStrictEqual({
         "content-type": "application/json",
       });
@@ -459,7 +478,7 @@ describe("fetchDatabaseRequest", () => {
         method: "POST",
       });
 
-      const headers = mockFetch.mock.calls[0][1].headers;
+      const headers = sentHeaders();
       expect(headers["graph-db-connection-url"]).toBe(
         "https://my-neptune:8182",
       );
@@ -473,7 +492,7 @@ describe("fetchDatabaseRequest", () => {
 
       await fetchDatabaseRequest(conn, flags, "gremlin", { method: "POST" });
 
-      const headers = mockFetch.mock.calls[0][1].headers;
+      const headers = sentHeaders();
       expect(headers["db-query-logging-enabled"]).toBe("true");
     });
 
@@ -489,7 +508,7 @@ describe("fetchDatabaseRequest", () => {
         method: "POST",
       });
 
-      const headers = mockFetch.mock.calls[0][1].headers;
+      const headers = sentHeaders();
       expect(headers["aws-neptune-region"]).toBe("us-west-2");
       expect(headers["service-type"]).toBe("neptune-graph");
     });
@@ -502,7 +521,7 @@ describe("fetchDatabaseRequest", () => {
         method: "POST",
       });
 
-      const headers = mockFetch.mock.calls[0][1].headers;
+      const headers = sentHeaders();
       expect(headers["service-type"]).toBe("neptune-db");
     });
 
@@ -513,7 +532,7 @@ describe("fetchDatabaseRequest", () => {
         method: "POST",
       });
 
-      const headers = mockFetch.mock.calls[0][1].headers;
+      const headers = sentHeaders();
       expect(headers).not.toHaveProperty("aws-neptune-region");
       expect(headers).not.toHaveProperty("service-type");
     });
@@ -535,7 +554,7 @@ describe("fetchDatabaseRequest", () => {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
 
-      const headers = mockFetch.mock.calls[0][1].headers;
+      const headers = sentHeaders();
       expect(normalizeHeaders(headers)).toStrictEqual({
         "content-type": "application/x-www-form-urlencoded",
       });
@@ -550,7 +569,7 @@ describe("fetchDatabaseRequest", () => {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
 
-      const headers = mockFetch.mock.calls[0][1].headers;
+      const headers = sentHeaders();
       expect(normalizeHeaders(headers)).toStrictEqual({
         "content-type": "application/x-www-form-urlencoded",
         "graph-db-connection-url": "https://db:8182",
@@ -574,7 +593,7 @@ describe("fetchDatabaseRequest", () => {
         queryId: "query-123",
       });
 
-      const headers = mockFetch.mock.calls[0][1].headers;
+      const headers = sentHeaders();
       expect(normalizeHeaders(headers)).toStrictEqual({
         "content-type": "application/json",
         "graph-db-connection-url": "https://neptune:8182",
@@ -594,7 +613,7 @@ describe("fetchDatabaseRequest", () => {
         method: "POST",
       });
 
-      const signal = mockFetch.mock.calls[0][1].signal;
+      const signal = sentInit().signal;
       expect(signal).toBeUndefined();
     });
 
@@ -607,7 +626,7 @@ describe("fetchDatabaseRequest", () => {
         signal: controller.signal,
       });
 
-      const signal = mockFetch.mock.calls[0][1].signal;
+      const signal = sentInit().signal;
       expect(signal).toBeDefined();
       expect(signal!.aborted).toBe(false);
     });
@@ -620,7 +639,7 @@ describe("fetchDatabaseRequest", () => {
         method: "POST",
       });
 
-      const signal = mockFetch.mock.calls[0][1].signal;
+      const signal = sentInit().signal;
       expect(signal).toBeDefined();
     });
 
@@ -632,7 +651,7 @@ describe("fetchDatabaseRequest", () => {
         method: "POST",
       });
 
-      const signal = mockFetch.mock.calls[0][1].signal;
+      const signal = sentInit().signal;
       expect(signal).toBeUndefined();
     });
 
@@ -644,7 +663,7 @@ describe("fetchDatabaseRequest", () => {
         method: "POST",
       });
 
-      const signal = mockFetch.mock.calls[0][1].signal;
+      const signal = sentInit().signal;
       expect(signal).toBeUndefined();
     });
   });
@@ -940,9 +959,12 @@ describe("fetchDatabaseRequest", () => {
     // catch block) runs. Proves classification is decided by which signal's
     // reason the combined signal actually captured, not by re-checking
     // `aborted` flags after the fact, once both signals are aborted.
-    function delayedAbortableFetch(_uri: unknown, init: RequestInit) {
-      return new Promise((_resolve, reject) => {
-        const signal = init.signal;
+    function delayedAbortableFetch(
+      _input: RequestInfo | URL,
+      init?: RequestInit,
+    ) {
+      return new Promise<Response>((_resolve, reject) => {
+        const signal = init?.signal;
         if (!signal) return;
         const rejectAfterDelay = () =>
           setTimeout(() => reject(signal.reason as Error), 20);
@@ -972,13 +994,13 @@ describe("fetchDatabaseRequest", () => {
     // Mimics a response that arrived successfully but whose body never
     // finishes streaming until the signal fires, so a timeout mid-parse is
     // still classified rather than escaping unclassified.
-    function hangingJsonResponse(init: RequestInit) {
+    function hangingJsonResponse(init: RequestInit | undefined) {
       return Promise.resolve({
         ok: true,
         status: 200,
         json: () =>
           new Promise((_resolve, reject) => {
-            const signal = init.signal;
+            const signal = init?.signal;
             if (!signal) return;
             signal.addEventListener("abort", () =>
               reject(signal.reason as Error),
