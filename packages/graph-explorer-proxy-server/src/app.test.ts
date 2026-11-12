@@ -927,14 +927,17 @@ describe("createApp", () => {
       expect(body.gremlin).toBe(query);
     });
 
-    it("forwards the client's language to the database", async () => {
+    it.each([
+      { request: "names no language", language: undefined },
+      { request: "names gremlin-lang", language: "gremlin-lang" },
+    ])("sends gremlin-lang when the request $request", async ({ language }) => {
       mockFetchOnce();
 
       const app = createTestApp();
       await request(app)
         .post("/gremlin")
         .set(dbHeaders({ queryid: "q-789" }))
-        .send({ gremlin: "g.V().limit(1)", language: "gremlin-lang" });
+        .send({ gremlin: "g.V().limit(1)", language });
 
       const fetchOptions = fetchOptionsFor("gremlin");
       expect(JSON.parse(fetchOptions.body)).toStrictEqual({
@@ -944,17 +947,23 @@ describe("createApp", () => {
       });
     });
 
-    it("sends no language when the client sends none", async () => {
-      mockFetchOnce();
-
+    it.each([
+      { request: "names another language", language: "gremlin-groovy" },
+      { request: "names a non-string language", language: 42 },
+      { request: "names a null language", language: null },
+      { request: "names an empty language", language: "" },
+    ])("returns 400 when the request $request", async ({ language }) => {
       const app = createTestApp();
-      await request(app)
+      const response = await request(app)
         .post("/gremlin")
         .set(dbHeaders())
-        .send({ gremlin: "g.V()" });
+        .send({ gremlin: "g.V().limit(1)", language });
 
-      const fetchOptions = fetchOptionsFor("gremlin");
-      expect(JSON.parse(fetchOptions.body)).toStrictEqual({ gremlin: "g.V()" });
+      expect(response.status).toBe(400);
+      expect(response.body).toStrictEqual({
+        error: "[Proxy] Gremlin: language must be gremlin-lang",
+      });
+      expect(mockFetch).not.toHaveBeenCalled();
     });
 
     it("returns 400 when the query is not in the gremlin field", async () => {
