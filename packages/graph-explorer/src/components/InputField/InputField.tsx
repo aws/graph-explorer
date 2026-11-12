@@ -7,9 +7,9 @@ import { useRef } from "react";
 
 import { cn } from "@/utils";
 
-import { FormError, FormItem } from "../Form";
 import { Input } from "../Input";
 import { Label } from "../Label";
+import { FormError, FormItem } from "../ReactHookForm";
 
 export interface BaseInputProps extends Omit<
   AriaTextFieldOptions<"input">,

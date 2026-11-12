@@ -7,7 +7,7 @@ import { useRef } from "react";
 
 import { cn } from "@/utils";
 
-import { FormError } from "./Form";
+import { FormError } from "./ReactHookForm";
 import { TextArea } from "./TextArea";
 
 export interface TextAreaProps

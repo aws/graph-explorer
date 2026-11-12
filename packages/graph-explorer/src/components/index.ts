@@ -38,7 +38,7 @@ export * from "./EmptyState";
 
 export * from "./Field";
 export * from "./FileButton";
-export * from "./Form";
+export * from "./ReactHookForm";
 export * from "./Group";
 
 export * from "./IconPicker";
