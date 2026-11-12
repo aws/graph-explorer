@@ -34,7 +34,12 @@ function LocationDisplay() {
 function GoBack() {
   const navigate = useNavigate();
   return (
-    <button type="button" onClick={() => navigate(-1)}>
+    <button
+      type="button"
+      onClick={() => {
+        navigate(-1);
+      }}
+    >
       go back
     </button>
   );
@@ -44,7 +49,12 @@ function GoBack() {
 function OpenLink({ search }: { search: string }) {
   const navigate = useNavigate();
   return (
-    <button type="button" onClick={() => navigate(`/connect${search}`)}>
+    <button
+      type="button"
+      onClick={() => {
+        navigate(`/connect${search}`);
+      }}
+    >
       open next link
     </button>
   );

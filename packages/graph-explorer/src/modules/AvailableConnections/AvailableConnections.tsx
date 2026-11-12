@@ -53,7 +53,11 @@ const AvailableConnections = ({ isSync }: AvailableConnectionsProps) => {
           <PanelTitle>Available connections</PanelTitle>
           <PanelHeaderActions>
             <FileButton
-              onChange={payload => payload && importConnectionFile(payload)}
+              onChange={payload => {
+                if (payload) {
+                  void importConnectionFile(payload);
+                }
+              }}
               accept="application/json"
               asChild
             >
@@ -91,9 +95,11 @@ const AvailableConnections = ({ isSync }: AvailableConnectionsProps) => {
                     <Button variant="primary">Add New Connection</Button>
                   </DialogTrigger>
                   <FileButton
-                    onChange={payload =>
-                      payload && importConnectionFile(payload)
-                    }
+                    onChange={payload => {
+                      if (payload) {
+                        void importConnectionFile(payload);
+                      }
+                    }}
                     accept="application/json"
                     asChild
                   >

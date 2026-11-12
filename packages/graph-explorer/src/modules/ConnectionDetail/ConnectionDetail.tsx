@@ -207,7 +207,7 @@ function MainContentLayout(_props: { config: SavedConnection }) {
         title="Synchronizing..."
         subtitle="The connection is being synchronized."
         className="p-6"
-        onAction={cancel}
+        onAction={() => void cancel()}
         actionLabel="Cancel Sync"
       />
     );
@@ -218,7 +218,7 @@ function MainContentLayout(_props: { config: SavedConnection }) {
     return (
       <PanelError
         error={schemaDiscoveryQuery.error}
-        onRetry={refreshSchema}
+        onRetry={() => void refreshSchema()}
         className="p-6"
       />
     );
@@ -231,7 +231,7 @@ function MainContentLayout(_props: { config: SavedConnection }) {
         icon={<SyncIcon />}
         title="No Schema Available"
         subtitle="Synchronize the connection to explore the data."
-        onAction={refreshSchema}
+        onAction={() => void refreshSchema()}
         actionLabel="Synchronize"
         className="p-6"
       />
@@ -259,7 +259,7 @@ function LastSyncInfo() {
     return (
       <InfoItemValue className="inline">
         <span>Synchronization Failed </span>
-        <LinkButton onClick={refreshSchema}>Retry</LinkButton>
+        <LinkButton onClick={() => void refreshSchema()}>Retry</LinkButton>
       </InfoItemValue>
     );
   }
@@ -268,7 +268,7 @@ function LastSyncInfo() {
     return (
       <InfoItemValue className="inline">
         <span>{t("edge-connection")} Discovery Failed </span>
-        <LinkButton onClick={refreshSchema}>Retry</LinkButton>
+        <LinkButton onClick={() => void refreshSchema()}>Retry</LinkButton>
       </InfoItemValue>
     );
   }
@@ -278,7 +278,9 @@ function LastSyncInfo() {
     return (
       <InfoItemValue className="inline">
         <Chip variant="warning">Not Synchronized</Chip>{" "}
-        <LinkButton onClick={refreshSchema}>Synchronize</LinkButton>
+        <LinkButton onClick={() => void refreshSchema()}>
+          Synchronize
+        </LinkButton>
       </InfoItemValue>
     );
   }
@@ -288,7 +290,7 @@ function LastSyncInfo() {
       <TooltipTrigger asChild>
         <InfoItemValue className="inline">
           <span>{formatRelativeDate(lastSyncUpdate)} </span>
-          <LinkButton onClick={refreshSchema}>Refresh</LinkButton>
+          <LinkButton onClick={() => void refreshSchema()}>Refresh</LinkButton>
         </InfoItemValue>
       </TooltipTrigger>
       <TooltipContent>{formatDate(lastSyncUpdate)}</TooltipContent>

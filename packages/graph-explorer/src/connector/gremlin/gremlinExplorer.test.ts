@@ -6,6 +6,7 @@ import {
   describe,
   expect,
   it,
+  type Mock,
   vi,
 } from "vite-plus/test";
 
@@ -55,10 +56,10 @@ const emptyGremlinList = {
 };
 
 describe("createGremlinExplorer", () => {
-  let mockFetch: ReturnType<typeof vi.fn>;
+  let mockFetch: Mock<typeof fetch>;
 
   beforeEach(() => {
-    mockFetch = vi.fn();
+    mockFetch = vi.fn<typeof fetch>();
     vi.stubGlobal("fetch", mockFetch);
     stubDocumentUrl();
   });
@@ -324,7 +325,7 @@ describe("createGremlinExplorer", () => {
       mockFetch.mockImplementation((_input, init) =>
         Promise.resolve(
           jsonResponse(
-            String(init?.body).includes("groupCount")
+            typeof init?.body === "string" && init.body.includes("groupCount")
               ? oneLabel
               : emptyGremlinList,
           ),
@@ -338,9 +339,13 @@ describe("createGremlinExplorer", () => {
 
       const bodies = mockFetch.mock.calls
         .filter(
-          ([input]) => String(input) === "https://my-neptune:8182/gremlin",
+          ([input]) =>
+            input instanceof URL &&
+            input.href === "https://my-neptune:8182/gremlin",
         )
-        .map(([, init]) => JSON.parse(init.body));
+        .map(([, init]) => init?.body)
+        .filter(body => typeof body === "string")
+        .map(body => JSON.parse(body));
       expect(bodies.length).toBeGreaterThanOrEqual(4);
       for (const body of bodies) {
         expect(body).toMatchObject({ language: "gremlin-lang" });

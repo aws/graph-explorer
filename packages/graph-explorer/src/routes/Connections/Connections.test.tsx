@@ -7,6 +7,7 @@ import {
   describe,
   expect,
   test,
+  type Mock,
   vi,
 } from "vite-plus/test";
 
@@ -49,10 +50,10 @@ async function addConnection(graphDbUrl: string, { direct = false } = {}) {
 }
 
 describe("Connections", () => {
-  let mockFetch: ReturnType<typeof vi.fn>;
+  let mockFetch: Mock<typeof fetch>;
 
   beforeEach(() => {
-    mockFetch = vi.fn();
+    mockFetch = vi.fn<typeof fetch>();
     vi.stubGlobal("fetch", mockFetch);
   });
 

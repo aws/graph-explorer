@@ -90,7 +90,7 @@ export function SchemaDiscoveryBoundary({
           title="Synchronizing..."
           subtitle="The connection is being synchronized."
           className="p-6"
-          onAction={cancel}
+          onAction={() => void cancel()}
           actionLabel="Cancel Sync"
         />
       </Layout>
@@ -112,7 +112,7 @@ export function SchemaDiscoveryBoundary({
       <Layout>
         <PanelError
           error={schemaDiscoveryQuery.error}
-          onRetry={refreshSchema}
+          onRetry={() => void refreshSchema()}
         />
       </Layout>
     );
@@ -123,7 +123,7 @@ export function SchemaDiscoveryBoundary({
       <Layout>
         <PanelError
           error={edgeDiscoveryQuery.error}
-          onRetry={edgeDiscoveryQuery.refetch}
+          onRetry={() => void edgeDiscoveryQuery.refetch()}
         />
       </Layout>
     );
@@ -138,7 +138,7 @@ export function SchemaDiscoveryBoundary({
           icon={<SyncIcon />}
           title={`No ${t("edge-connections")} Available`}
           subtitle={`Synchronize ${t("edge-connections").toLocaleLowerCase()} to explore the schema.`}
-          onAction={refreshSchema}
+          onAction={() => void refreshSchema()}
           actionLabel="Synchronize"
           className="p-6"
         />
@@ -154,7 +154,7 @@ export function SchemaDiscoveryBoundary({
         icon={<SyncIcon />}
         title="No Schema Available"
         subtitle="Synchronize the connection to explore the data."
-        onAction={refreshSchema}
+        onAction={() => void refreshSchema()}
         actionLabel="Synchronize"
         className="p-6"
       />

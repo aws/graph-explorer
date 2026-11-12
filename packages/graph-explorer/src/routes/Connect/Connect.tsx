@@ -52,10 +52,11 @@ function ConnectFromLink({ search }: { search: string }) {
 
   // Declining the link lands on the connections list, where the user can pick
   // a connection themselves; saving activated the new one, so show its graph.
-  const leave = (outcome: CreateConnectionOutcome) =>
+  const leave = (outcome: CreateConnectionOutcome) => {
     navigate(outcome === "saved" ? GRAPH_CANVAS_ROUTE : CONNECTIONS_ROUTE, {
       replace: true,
     });
+  };
 
   useEffect(() => {
     if (intent.kind === "invalid") {
@@ -83,9 +84,9 @@ function ConnectFromLink({ search }: { search: string }) {
       <ConnectPageLayout>
         <InvalidConnectionLinkCard
           problems={intent.error.problems}
-          onContinue={() =>
-            navigate(routeAfterInvalidLink(connectionCount), { replace: true })
-          }
+          onContinue={() => {
+            navigate(routeAfterInvalidLink(connectionCount), { replace: true });
+          }}
         />
       </ConnectPageLayout>
     );

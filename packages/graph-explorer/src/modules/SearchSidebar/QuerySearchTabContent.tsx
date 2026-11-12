@@ -90,7 +90,7 @@ export function QuerySearchTabContent() {
       <Form {...form}>
         <form
           className="shrink-0 space-y-3 p-3"
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={event => void form.handleSubmit(onSubmit)(event)}
         >
           <FormField
             control={form.control}
@@ -204,7 +204,11 @@ function SearchResultsListContainer({ cancel }: { cancel: () => void }) {
     return isCancellationError(query.error) ? (
       <QueryTabEmptyState />
     ) : (
-      <PanelError error={query.error} onRetry={query.refetch} className="p-8" />
+      <PanelError
+        error={query.error}
+        onRetry={() => void query.refetch()}
+        className="p-8"
+      />
     );
   }
 

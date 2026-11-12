@@ -83,18 +83,14 @@ describe("ServerLoggerConnector", () => {
     });
   });
 
-  test("does not throw when the API URL can't be resolved", async () => {
+  test("does not throw when the API URL can't be resolved", () => {
     const mockFetch = vi.fn().mockResolvedValue({});
     vi.stubGlobal("fetch", mockFetch);
     stubDocumentUrl("https://example.com/renamed/");
 
     const connector = new ServerLoggerConnector();
 
-    let result: Promise<unknown> | undefined;
-    expect(() => {
-      result = connector.error("error msg");
-    }).not.toThrow();
-    await expect(result).resolves.toBeUndefined();
+    expect(() => connector.error("error msg")).not.toThrow();
     expect(mockFetch).not.toHaveBeenCalled();
     expect(vi.mocked(logger.error)).toHaveBeenCalledWith(
       "Failed to send log to server",

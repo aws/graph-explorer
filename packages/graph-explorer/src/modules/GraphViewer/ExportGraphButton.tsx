@@ -15,7 +15,7 @@ export function ExportGraphButton() {
       tooltip="Save graph to file"
       variant="ghost"
       size="icon"
-      onClick={() => exportGraph()}
+      onClick={() => void exportGraph()}
     >
       <SaveIcon />
     </Button>

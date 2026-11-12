@@ -103,7 +103,7 @@ function SearchResultsListContainer({
         title="Searching..."
         subtitle="Looking for matching results"
         actionLabel="Cancel"
-        onAction={() => cancelAll()}
+        onAction={() => void cancelAll()}
         icon={<Spinner />}
         className="p-8"
       />
@@ -112,7 +112,11 @@ function SearchResultsListContainer({
 
   if (query.isError && !query.data) {
     return (
-      <PanelError error={query.error} onRetry={query.refetch} className="p-8" />
+      <PanelError
+        error={query.error}
+        onRetry={() => void query.refetch()}
+        className="p-8"
+      />
     );
   }
 

@@ -95,10 +95,10 @@ Button.displayName = "Button";
  * Wraps an action to stop click event propagation before executing.
  * Useful for buttons inside clickable containers.
  */
-export function stopPropagation(action: () => void | Promise<void>) {
-  return async (event: React.MouseEvent<HTMLButtonElement>) => {
+export function stopPropagation(action: () => void) {
+  return (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    await action();
+    action();
   };
 }
 

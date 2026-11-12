@@ -68,25 +68,13 @@ describe("Button", () => {
 });
 
 describe("stopPropagation", () => {
-  test("should stop event propagation and call action", async () => {
+  test("should stop event propagation and call action", () => {
     const action = vi.fn();
     const event = {
       stopPropagation: vi.fn(),
     } as unknown as React.MouseEvent<HTMLButtonElement>;
 
-    await stopPropagation(action)(event);
-
-    expect(event.stopPropagation).toHaveBeenCalled();
-    expect(action).toHaveBeenCalled();
-  });
-
-  test("should handle async actions", async () => {
-    const action = vi.fn().mockResolvedValue(undefined);
-    const event = {
-      stopPropagation: vi.fn(),
-    } as unknown as React.MouseEvent<HTMLButtonElement>;
-
-    await stopPropagation(action)(event);
+    stopPropagation(action)(event);
 
     expect(event.stopPropagation).toHaveBeenCalled();
     expect(action).toHaveBeenCalled();
