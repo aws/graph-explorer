@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@aws-crypto/sha256-js": "^5.2.0",
-    "@aws-sdk/credential-providers": "^3.1161.0",
+    "@aws-sdk/credential-providers": "^3.1164.0",
     "@graph-explorer/shared": "workspace:*",
     "@smithy/protocol-http": "^5.6.2",
     "@smithy/signature-v4": "^5.7.4",
@@ -19,7 +19,7 @@
     "compression": "^1.8.2",
     "cors": "^2.8.6",
     "date-fns": "^4.4.0",
-    "dotenv": "^18.0.9",
+    "dotenv": "^18.0.10",
     "express": "^5.3.0",
     "node-fetch": "^3.3.2",
     "pino": "^10.4.0",
@@ -33,7 +33,7 @@
     "@types/express": "^5.0.6",
     "@types/node": "^24.19.2",
     "@types/supertest": "^7.2.1",
-    "supertest": "^7.3.1",
+    "supertest": "^7.3.2",
     "vite-plus": "catalog:"
   }
 }
