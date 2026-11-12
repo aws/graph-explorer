@@ -1,7 +1,8 @@
 # syntax=docker/dockerfile:1
-# The Vite+ image builds with the Node.js in .node-version and the pnpm in
-# packageManager. Pinned by digest. The tag must match the vite-plus catalog
-# version, which test_build_docker.yml checks.
+# The Vite+ image supplies the global vp, which installs with the Node.js in
+# .node-version and the pnpm in packageManager, and hands vp run to the
+# project's installed vite-plus. So the tag can differ from the vite-plus
+# catalog version. Pinned by digest.
 FROM ghcr.io/voidzero-dev/vite-plus:1.5.1@sha256:068d824d8d8184c39defc266795d3ade452bfc5266603d25d81aeeedbedf8973 AS toolchain
 WORKDIR /app
 

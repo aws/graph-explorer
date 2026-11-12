@@ -2,9 +2,9 @@ version: 2
 updates:
   # Covers both `FROM` lines in Dockerfile. Daily because a new Amazon Linux
   # 2023 snapshot is a single ungrouped dependency, so a run without one is a
-  # no-op. A Vite+ image bump must land with the matching vite-plus catalog
-  # bump, since the image's vp and the project's vite-plus are the same release.
-  # test_build_docker.yml fails while the two differ.
+  # no-op. The Vite+ image only supplies the global vp, which hands builds to
+  # the project's installed vite-plus, so its tag can differ from the catalog
+  # version and Dependabot bumps each on its own.
   #
   # No `cooldown`: it needs a registry-assigned publication date, and Docker Hub's
   # tag_last_pushed is currently the only accepted source. ECR Public and GHCR,
@@ -17,6 +17,12 @@ updates:
       time: "13:00"
       timezone: America/Chicago
     open-pull-requests-limit: 2
+    # A new Vite+ major is a hand upgrade of the image and the catalog
+    # together, so a global vp from a newer major never lands ahead of the
+    # project's vite-plus.
+    ignore:
+      - dependency-name: "voidzero-dev/vite-plus"
+        update-types: ["version-update:semver-major"]
 
   # actions/checkout is pinned in every workflow, so an ungrouped bump would
   # open one pull request per workflow for one version.
@@ -43,43 +49,36 @@ updates:
       time: "13:00"
       timezone: America/Chicago
     open-pull-requests-limit: 10
-    # Babel 8 builds and passes tests, but babel-plugin-react-compiler still
-    # depends on @babel/types 7 and silently skips some components under it
-    # (fewer memo cache slots in the bundle). Revisit when the compiler supports
-    # Babel 8. 7.x minor and patch bumps still come through.
+    # Majors are upgraded by hand, so Dependabot opens only minor and patch
+    # updates. Some majors also wait on other work: Babel 8 until
+    # babel-plugin-react-compiler supports it (under Babel 8 the compiler
+    # silently skips some components), and @types/node until we move to the
+    # next Node LTS in .node-version.
     ignore:
-      - dependency-name: "@babel/core"
-        update-types: ["version-update:semver-major"]
-      # @types/node tracks the Node major it describes, and we target Node LTS
-      # (24, pinned in .node-version). A major bump here would type against APIs
-      # the runtime does not have. Raise it by hand when we move to the next LTS.
-      - dependency-name: "@types/node"
+      - dependency-name: "*"
         update-types: ["version-update:semver-major"]
       # cva is pinned to an exact 1.0.0 beta. Later betas change the API, so no
       # update-types filter here: every bump needs the call sites adjusted and
       # has to be done by hand.
       - dependency-name: "cva"
-    # A supply-chain delay for version updates: three days, or seven for a major.
-    # Dependabot also never goes below minimumReleaseAge in pnpm-workspace.yaml.
-    # Neither applies to security updates, which open as soon as an alert is
-    # raised.
+    # A supply-chain delay for version updates of three days. Dependabot also
+    # never goes below minimumReleaseAge in pnpm-workspace.yaml. Neither
+    # applies to security updates, which open as soon as an alert is raised.
     cooldown:
       default-days: 3
-      semver-major-days: 7
     groups:
-      # Each group below pairs packages that peer-depend on each other, and so
-      # carries no update-types filter: it has to catch majors, which arrive
-      # ungrouped otherwise. Listed before minor-and-patch because a dependency
-      # joins the first group it matches.
-      #
-      # The catalog aliases vite to @voidzero-dev/vite-plus-core at the vite-plus
-      # version, so every release splits them, not just majors. Vite, Vitest,
-      # oxlint, and oxfmt fixes only arrive through vite-plus releases, and
-      # advisories filed against vite no longer match the lockfile, so treat
-      # these bumps as security updates.
+      # Dependabot bumps vite-plus but not the vite catalog entry beside it
+      # (the alias to @voidzero-dev/vite-plus-core), and never refreshes the
+      # Vite+ block in AGENTS.md, so its pull request is finished by hand: move
+      # the vite entry to the same version and run vp install. Merge it promptly. Vite, Vitest, oxlint, and oxfmt
+      # fixes only arrive through vite-plus releases, and since the catalog
+      # aliases vite to @voidzero-dev/vite-plus-core, fixes filed against vite
+      # never match the lockfile.
       vite-plus:
         patterns: ["vite-plus", "@voidzero-dev/*", "vite"]
-      react:
-        patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
+      # Everything else. A dependency joins every group it matches, and a group
+      # without patterns never yields one to a more specific group, so the
+      # Vite+ names are excluded here to keep them out of this pull request.
       minor-and-patch:
         update-types: [minor, patch]
+        exclude-patterns: ["vite-plus", "@voidzero-dev/*", "vite"]
