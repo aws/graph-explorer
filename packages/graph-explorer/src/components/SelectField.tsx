@@ -6,8 +6,8 @@ import type {
 
 import { cn } from "@/utils";
 
-import { FormItem } from "./Form";
 import { Label } from "./Label";
+import { FormItem } from "./ReactHookForm";
 import {
   Select,
   SelectContent,
