@@ -207,6 +207,16 @@
   content-visibility: visible;
 }
 
+/* The standard keyboard focus ring. Apply it through a variant, such as focus-visible:focus-ring.
+   The inset outline paints over a 1px border, so bordered and borderless controls get the same solid edge. */
+@utility focus-ring {
+  @apply ring-primary/50 outline-primary ring-3 outline-1 -outline-offset-1 outline-solid;
+
+  &[aria-invalid="true"] {
+    @apply ring-danger/50 outline-danger;
+  }
+}
+
 @utility intrinsic-size-* {
   contain-intrinsic-size: --spacing(--value(integer));
   contain-intrinsic-size: --value([length]);
