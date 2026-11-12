@@ -1,40 +1,31 @@
-import type { ComponentPropsWithRef } from "react";
+import type { QueryEngine } from "@shared/types";
+import type { ReactNode } from "react";
 
-import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { revalidateLogic } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { atomWithReset } from "jotai/utils";
 import { SendHorizonalIcon, SendHorizontalIcon } from "lucide-react";
-import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import {
-  Button,
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
   KeyboardKey,
   PanelEmptyState,
   PanelError,
   Spinner,
-  TextArea,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components";
+import { useAppForm } from "@/components/form";
 import { useQueryEngine } from "@/connections";
 import { executeUserQuery } from "@/connector";
 import { useUpdateSchemaFromEntities } from "@/core";
-import { cn, isCancellationError, logger } from "@/utils";
+import { isCancellationError, logger } from "@/utils";
 
 import { SearchResultsList } from "./SearchResultsList";
 
-const formDataSchema = z.object({
-  query: z.string().default(""),
-});
-
-type FormData = z.infer<typeof formDataSchema>;
+const querySchema = z.object({ query: z.string() });
 
 /**
  * Stores the current query text.
@@ -45,90 +36,93 @@ type FormData = z.infer<typeof formDataSchema>;
 export const queryTextAtom = atomWithReset("");
 
 export function QuerySearchTabContent() {
-  const [queryText, setQueryText] = useAtom(queryTextAtom);
+  const queryText = useAtomValue(queryTextAtom);
+  const setQueryText = useSetAtom(queryTextAtom);
+  const queryEngine = useQueryEngine();
   const { submitQuery, cancel } = useExecuteQuery();
 
-  const form = useForm({
-    // Using standardSchemaResolver because Zod 4 implements Standard Schema spec
-    // and zodResolver has compatibility issues with Zod 4.x
-    resolver: standardSchemaResolver(formDataSchema),
-    defaultValues: {
-      query: queryText,
+  const form = useAppForm({
+    defaultValues: { query: queryText },
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: querySchema },
+    onSubmit: async ({ value }) => {
+      const { query } = querySchema.parse(value);
+      logger.debug("Executing query:", query);
+      try {
+        await submitQuery(query);
+      } catch (error) {
+        if (isCancellationError(error)) {
+          logger.debug("Query execution was cancelled, ignoring the error");
+          return;
+        }
+        logger.error("Failed to execute query", { query, error });
+      }
     },
   });
 
-  // Sync form changes to Jotai atom in real-time
-  const handleQueryChange = (value: string) => {
-    setQueryText(value);
-    form.setValue("query", value);
-  };
-
-  // Execute the query when the form is submitted
-  const onSubmit = async (data: FormData) => {
-    logger.debug("Executing query:", data);
-    setQueryText(data.query);
-    try {
-      await submitQuery(data.query);
-    } catch (error) {
-      if (isCancellationError(error)) {
-        logger.debug("Query execution was cancelled, ignoring the error");
-        return;
-      }
-      logger.error("Failed to execute query", { query: data.query, error });
-    }
-  };
-
-  const onKeyboardShortcutSubmit = () => {
-    if (form.formState.isSubmitting) {
+  function submitFromKeyboard() {
+    if (form.state.isSubmitting) {
       return;
     }
-    form.handleSubmit(onSubmit)();
-  };
+    void form.handleSubmit();
+  }
 
   return (
     <div className="bg-background flex h-full flex-col">
-      <Form {...form}>
+      <form.AppForm>
         <form
-          className="shrink-0 space-y-3 p-3"
-          onSubmit={event => void form.handleSubmit(onSubmit)(event)}
+          className="shrink-0 p-3"
+          onSubmit={e => {
+            e.preventDefault();
+            e.stopPropagation();
+            void form.handleSubmit();
+          }}
         >
-          <FormField
-            control={form.control}
-            name="query"
-            render={({ field }) => (
-              <FormItem className="relative space-y-0">
-                <FormControl>
-                  <QueryTextArea
-                    {...field}
-                    onChange={e => handleQueryChange(e.target.value)}
-                    className="pr-14"
-                    onSubmit={onKeyboardShortcutSubmit}
-                  />
-                </FormControl>
-                <QuerySubmitButton
-                  className="absolute right-2 bottom-2"
-                  disabled={form.formState.isSubmitting}
+          <div className="relative">
+            <form.AppField
+              name="query"
+              listeners={{ onChange: ({ value }) => setQueryText(value) }}
+            >
+              {field => (
+                <field.TextAreaFormField
+                  label="Query"
+                  hideLabel
+                  className="h-full min-h-[5lh] w-full pr-14 font-mono text-sm"
+                  placeholder={queryPlaceholder(queryEngine)}
+                  onKeyDown={e => {
+                    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                      e.preventDefault();
+                      submitFromKeyboard();
+                    }
+                  }}
+                  spellCheck={false}
+                  autoComplete="off"
+                  autoCapitalize="off"
                 />
-              </FormItem>
-            )}
-          />
+              )}
+            </form.AppField>
+            <QuerySubmitTooltip>
+              <form.SubmitButton
+                size="icon"
+                className="absolute right-2 bottom-2"
+              >
+                <span className="sr-only">Submit</span>
+                <SendHorizontalIcon />
+              </form.SubmitButton>
+            </QuerySubmitTooltip>
+          </div>
         </form>
-      </Form>
+      </form.AppForm>
 
       <SearchResultsListContainer cancel={cancel} />
     </div>
   );
 }
 
-function QuerySubmitButton({ ...props }: ComponentPropsWithRef<typeof Button>) {
+function QuerySubmitTooltip({ children }: { children: ReactNode }) {
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <Button size="icon" type="submit" {...props}>
-          <span className="sr-only">Submit</span>
-          <SendHorizontalIcon />
-        </Button>
-      </TooltipTrigger>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
       <TooltipContent>
         Submit query (<KeyboardKey>Cmd</KeyboardKey> +{" "}
         <KeyboardKey>Enter</KeyboardKey> or <KeyboardKey>Ctrl</KeyboardKey> +{" "}
@@ -138,44 +132,15 @@ function QuerySubmitButton({ ...props }: ComponentPropsWithRef<typeof Button>) {
   );
 }
 
-function QueryTextArea({
-  className,
-  ...props
-}: ComponentPropsWithRef<typeof TextArea> & { onSubmit: () => void }) {
-  const queryEngine = useQueryEngine();
-
-  // Submit the form when the user presses cmd+enter or ctrl+enter
-  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
-      props.onSubmit();
-    }
-  };
-
-  // Create an appropriate placeholder to use in the query editor
-  const queryPlaceholder = (() => {
-    switch (queryEngine) {
-      case "gremlin":
-        return "e.g. g.V().limit(10)";
-      case "openCypher":
-        return "e.g. MATCH (n) RETURN n LIMIT 10";
-      case "sparql":
-        return "e.g. CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o } LIMIT 10";
-    }
-  })();
-
-  return (
-    <TextArea
-      {...props}
-      aria-label="Query"
-      className={cn("h-full min-h-[5lh] w-full font-mono text-sm", className)}
-      placeholder={queryPlaceholder}
-      onKeyDown={onKeyDown}
-      spellCheck={false}
-      autoComplete="off"
-      autoCapitalize="off"
-    />
-  );
+function queryPlaceholder(queryEngine: QueryEngine): string {
+  switch (queryEngine) {
+    case "gremlin":
+      return "e.g. g.V().limit(10)";
+    case "openCypher":
+      return "e.g. MATCH (n) RETURN n LIMIT 10";
+    case "sparql":
+      return "e.g. CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o } LIMIT 10";
+  }
 }
 
 function SearchResultsListContainer({ cancel }: { cancel: () => void }) {
