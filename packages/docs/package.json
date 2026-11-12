@@ -14,14 +14,14 @@
     "astro": "astro"
   },
   "devDependencies": {
-    "@astrojs/markdown-satteri": "0.4.6",
-    "@astrojs/starlight": "0.42.8",
+    "@astrojs/markdown-satteri": "0.4.7",
+    "@astrojs/starlight": "0.42.10",
     "@fontsource/inter": "^5.3.0",
-    "@lucide/astro": "^1.42.0",
-    "astro": "7.4.4",
+    "@lucide/astro": "^1.70.0",
+    "astro": "7.4.8",
     "astro-vtbot": "^3.1.0",
-    "playwright-core": "^1.64.1",
-    "satteri": "0.10.5",
+    "playwright-core": "^1.65.0",
+    "satteri": "0.11.7",
     "sharp": "0.35.5",
     "vite-plus": "catalog:"
   }
