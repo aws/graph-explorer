@@ -27,3 +27,5 @@ export function isDirectory(path: string) {
     throw error;
   }
 }
+
+export const certificateDir = path.join(proxyServerRoot, "cert-info");
