@@ -28,7 +28,6 @@ Every setting comes from the first of these that sets it:
 - The Default Connection settings don't come from `.env` or `.env.local`, as before.
 - `HOST`, which names the host the self-signed certificate is generated for, comes from the environment only, so a `HOST` in `.env` never replaces certificate files kept in a volume.
 - With `-e NEPTUNE_NOTEBOOK=true`, the preset applies even when `config.json` exists. When `PROXY_SERVER_HTTPS_CONNECTION` is also `true`, startup stops with the conflict the earlier ADR describes.
-- Until #2504 is fixed, a `PROXY_SERVER_HTTPS_CONNECTION` line in `.env` doesn't take effect in the image.
 
 ## Considered options
 

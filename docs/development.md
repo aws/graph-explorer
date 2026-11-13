@@ -186,6 +186,8 @@ PROXY_SERVER_PORT=8082
 
 See the [Configuration Reference](https://aws.github.io/graph-explorer/references/configuration/) for all available environment variables including application settings and default connection options.
 
+A run from source reads its settings the same way as the image, in the [order the reference describes](https://aws.github.io/graph-explorer/references/configuration/#precedence), with a `config.json` at the repository root. The differences are that HTTPS defaults to off, the server listens on `127.0.0.1`, and no certificate is generated.
+
 ## Development-only environment variables
 
 These variables only affect the local development server (`pnpm dev`) and have no effect on production builds or Docker.

@@ -19,6 +19,8 @@ The public hostname of the server. It feeds the Subject Alternative Name of the 
 
 In Docker with HTTPS on, `HOST` decides where the certificate comes from. When it is set, a new container generates a fresh self-signed certificate for that hostname, which invalidates any trust you granted to the previous one. When it is unset, the container reuses the certificate files already in `cert-info` and stops if any are missing. See [HTTPS Connections](../security/#https-connections) and [Keeping the certificate across container replacements](../security/#keeping-the-certificate-across-container-replacements).
 
+Set `HOST` in the container's environment, for example `--env HOST=…`. A `HOST` in `.env` sets the URL the server prints but doesn't generate a certificate.
+
 Example: `localhost`
 
 - Required in Docker with HTTPS on, unless `cert-info` already holds the certificate files, such as your own certificates or ones kept in a volume
@@ -85,6 +87,8 @@ The port to use for the HTTP server. Ignored when `PROXY_SERVER_PORT` is set. Th
 Serves the proxy server over HTTPS when true, using the certificate files described in [HTTPS Connections](../security/#https-connections).
 
 Set it to `false` only behind a reverse proxy that terminates TLS, or to try Graph Explorer on your own machine. Plain HTTP that other machines can reach isn't supported. See [Serving HTTP Behind a Reverse Proxy](../security/#serving-http-behind-a-reverse-proxy).
+
+A value in `.env` takes effect, and `.env.local`, `config.json`, and the environment override it. See [Precedence](#precedence).
 
 - Optional
 - Default `false` in code, `true` in Docker
@@ -163,13 +167,12 @@ At startup, the container reads `.env` and any `defaultConnection.json` from thi
 
 ## Precedence
 
-In the Docker image, the server reads each setting from the first of these that sets it: the environment, such as `-e` flags, then `.env.local`, then `config.json` or the Neptune Notebook preset, then `.env`, then the setting's default.
+The server reads each setting from the first of these that sets it: the environment, such as `-e` flags, then `.env.local`, then `config.json` or the Neptune Notebook preset, then `.env`, then the setting's default.
 
 - `config.json` holds only the Default Connection settings, `PROXY_SERVER_HTTPS_CONNECTION`, and `NEPTUNE_NOTEBOOK`, so other settings such as `PROXY_SERVER_PORT` and `LOG_STYLE` come from the environment, `.env.local`, or `.env`.
 - Under the preset (`NEPTUNE_NOTEBOOK=true`), the preset's port `9250`, `cloudwatch` log style, and HTTPS off take the place of `config.json`, so the environment and `.env.local` override them and `.env` doesn't. A `PROXY_SERVER_HTTPS_CONNECTION` of `true` from the environment, `.env.local`, or `config.json` stops startup.
 - An empty environment value for a setting `config.json` can hold counts as unset.
 - Default Connection settings and `NEPTUNE_NOTEBOOK` come only from the environment and `config.json`.
-- In the Docker image, a `PROXY_SERVER_HTTPS_CONNECTION` line in `.env` doesn't take effect yet. See [#2504](https://github.com/aws/graph-explorer/issues/2504).
 
 ## Default Connection
 
