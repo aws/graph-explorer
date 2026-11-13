@@ -17,7 +17,7 @@ This sample uses Gremlin Server 3.8 as the database pre-loaded with the [air rou
 > - **No authentication** — anyone who can reach it has full access.
 > - **Not hardened** — it is configured for convenience, not security.
 > - **No persistence** — data is lost when the container restarts.
-> - **Groovy script engine** — Gremlin Server uses its default `gremlin-groovy` script engine, see [Self-hosted Gremlin Server](https://aws.github.io/graph-explorer/references/security/#self-hosted-gremlin-server).
+> - **Groovy script engine** — Gremlin Server runs the `gremlin-groovy` script engine, which the sample's startup script needs to load the data. Graph Explorer 3.4 and later send queries to `gremlin-lang` instead, and 3.3 and earlier send them to Groovy, see [Self-hosted Gremlin Server](https://aws.github.io/graph-explorer/references/security/#self-hosted-gremlin-server).
 >
 > Run it only on your own machine. The Compose file publishes Graph Explorer on `127.0.0.1` only, so other machines can't reach it.
 
