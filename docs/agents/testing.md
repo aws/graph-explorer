@@ -4,7 +4,7 @@ Vitest. Tests co-locate with source as `*.test.ts` (or `*.test.tsx` for componen
 
 ## Where tests live
 
-Vitest collects only the projects listed in `test.projects` of the root `vite.config.ts`, currently just `packages/*`. A test file outside those is never collected, and `vp test` still reports green, so adding a new top-level test directory means giving it a `vite.config.ts` and adding it to that list.
+Vitest collects only the projects listed in `test.projects` of the root `vite.config.ts`, currently `packages/*` and `.github/scripts` (the workflow helper scripts). A test file outside those is never collected, and `vp test` still reports green, so adding a new top-level test directory means giving it a `vite.config.ts` and adding it to that list.
 
 Each project sets up its own environment. `setupTests.ts` below is registered by `packages/graph-explorer` only. `packages/graph-explorer-proxy-server` has its own setup file, and `packages/shared` has no setup file, so any tests added there must reset their own mocks.
 
