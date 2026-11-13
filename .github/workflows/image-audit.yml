@@ -49,3 +49,103 @@ jobs:
           severity: MEDIUM,HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: 1
+
+  # Only the newest release is supported, so scan what `latest` and the
+  # notebook lifecycle script resolve to. Snapshot publishes don't move release
+  # tags, so `workflow_run` is skipped and the schedule picks up a new release.
+  release-image-audit:
+    if: github.event_name != 'workflow_run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
+    env:
+      TRIVY_IMAGE_SRC: remote
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Resolve the newest release tag
+        id: release
+        run: |
+          set -euo pipefail
+          repo=https://public.ecr.aws/v2/neptune/graph-explorer
+          token=$(curl -sSf https://public.ecr.aws/token/ | jq -r .token)
+          # Same sort as the SageMaker notebook lifecycle script.
+          version=$(curl -sSf -H "Authorization: Bearer $token" "$repo/tags/list?n=1000" |
+            jq -r '.tags | sort_by(split(".") | try map(tonumber) catch [0,0,0])[-1]')
+
+          digest() {
+            curl -sSfI -H "Authorization: Bearer $token" \
+              -H "Accept: application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json" \
+              "$repo/manifests/$1" | tr -d '\r' | awk 'tolower($1) == "docker-content-digest:" { print $2 }'
+          }
+          latest_digest=$(digest latest)
+          version_digest=$(digest "$version")
+          sagemaker_digest=$(digest "sagemaker-$version")
+          : "${latest_digest:?no digest for latest}" "${version_digest:?no digest for $version}" "${sagemaker_digest:?no digest for sagemaker-$version}"
+          echo "latest: $latest_digest"
+          echo "$version: $version_digest"
+          echo "sagemaker-$version: $sagemaker_digest"
+
+          {
+            echo "version=$version"
+            echo "version_differs=$([ "$version_digest" != "$latest_digest" ] && echo true || echo false)"
+            echo "sagemaker_differs=$([ "$sagemaker_digest" != "$version_digest" ] && echo true || echo false)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Scan the latest image
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: public.ecr.aws/neptune/graph-explorer:latest
+          vuln-type: os
+          format: sarif
+          output: trivy-latest-results.sarif
+
+      - name: Upload the latest image results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          sarif_file: trivy-latest-results.sarif
+          category: docker-image-scan-latest
+
+      - name: Scan the newest version tag
+        if: steps.release.outputs.version_differs == 'true'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: public.ecr.aws/neptune/graph-explorer:${{ steps.release.outputs.version }}
+          vuln-type: os
+          format: sarif
+          output: trivy-version-results.sarif
+
+      - name: Upload the newest version tag results to GitHub Security tab
+        if: steps.release.outputs.version_differs == 'true'
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          sarif_file: trivy-version-results.sarif
+          category: docker-image-scan-newest-version
+
+      - name: Fail on fixable OS package findings at MEDIUM or higher in latest
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: public.ecr.aws/neptune/graph-explorer:latest
+          vuln-type: os
+          format: table
+          severity: MEDIUM,HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: 1
+
+      - name: Fail when release tags point to different images
+        if: ${{ !cancelled() && (steps.release.outputs.version_differs == 'true' || steps.release.outputs.sagemaker_differs == 'true') }}
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+          VERSION_DIFFERS: ${{ steps.release.outputs.version_differs }}
+          SAGEMAKER_DIFFERS: ${{ steps.release.outputs.sagemaker_differs }}
+        run: |
+          if [ "$VERSION_DIFFERS" = "true" ]; then
+            echo "::error::latest and $VERSION point to different images."
+          fi
+          if [ "$SAGEMAKER_DIFFERS" = "true" ]; then
+            echo "::error::$VERSION and sagemaker-$VERSION point to different images."
+          fi
+          exit 1
