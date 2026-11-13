@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 import { expect } from "vite-plus/test";
@@ -15,13 +14,13 @@ export type DefaultConnectionResponse =
   /** The response was served but isn't JSON. Holds its text. */
   | { status: 200; invalidJson: string };
 
-/** What a start leaves behind, whether or not the server runs afterwards. */
+/**
+ * What a start leaves behind, whether or not the server runs afterwards. The
+ * startup writes nothing to the configuration folder, so unlike the shell
+ * startup it leaves no `.env` to expect: the runner asserts the folder is
+ * unchanged instead.
+ */
 export type LeftBehind = {
-  /**
-   * The variables `.env` holds after the start, as dotenv reads them: the last
-   * line of a repeated name wins. A refusal to write leaves it as mounted.
-   */
-  envFile: Record<string, string>;
   /** Whether this start generated the self-signed certificate. */
   certificatesGenerated: boolean;
 };
@@ -42,19 +41,24 @@ export type ServerStart = LeftBehind & {
 };
 
 /**
- * The entrypoint exits with 1 before it starts the server, and prints exactly
- * `refused` to stderr.
+ * The startup stops before the server runs, and logs exactly `refused`. The
+ * shell startup had a separate entrypoint that refused before it started the
+ * server. Here the nearest equivalent is a stop in the files and certificates
+ * the startup reads, which `<work dir>` stands in for in the text.
  */
 export type Refusal = LeftBehind & { refused: string };
 
 /**
- * The entrypoint starts the server, which stops on `serverFailed`: the parse
- * failure it logged, or the server configuration error it threw.
+ * The server stops on `serverFailed`: the parse failure of the environment,
+ * or the server configuration error.
  */
 export type ServerFailure = LeftBehind & { serverFailed: string };
 
 /** What one start of the container does. */
 export type StartupOutcome = { started: ServerStart } | Refusal | ServerFailure;
+
+/** Stands in for the temporary folder a row runs in, in a refusal's text. */
+export const workDirToken = "<work dir>";
 
 type DeploymentInputs = {
   /** Describes the inputs only, so it stays true when the outcome changes. */
@@ -109,39 +113,32 @@ export const conflictMessage =
   "(from -e flags or config.json) to run under the notebook preset, " +
   "or set NEPTUNE_NOTEBOOK to false to run with TLS.";
 
-/** Expects a parse failure at `key`, logging `message` when it is given. */
-export function parseFailureAt(
-  key: string,
-  left: LeftBehind,
-  message?: string,
-): ServerFailure {
+/**
+ * Expects a parse failure at `key`, logging `message` when it is given. The
+ * startup parses the environment before it sets up a certificate, so none is
+ * generated.
+ */
+export function parseFailureAt(key: string, message?: string): ServerFailure {
   return {
     serverFailed: expect.stringContaining(
       message === undefined ? `→ at ${key}` : `✖ ${message}\n  → at ${key}`,
     ),
-    envFile: left.envFile,
-    certificatesGenerated: left.certificatesGenerated,
-  };
-}
-
-/**
- * Expects the refusal process-environment.sh prints when it can't write
- * `file`. It leaves the folder as mounted, so `.env` is `envFile`.
- */
-export function cannotWrite(
-  file: string,
-  envFile: Record<string, string> = {},
-): Refusal {
-  return {
-    refused:
-      `Graph Explorer can't start because it can't write ./packages/graph-explorer/${file}. ` +
-      "The container writes its settings to the configuration folder at startup, " +
-      "so ./packages/graph-explorer must be writable. " +
-      "Check that it isn't mounted read-only.\n",
-    envFile,
     certificatesGenerated: false,
   };
 }
+
+export const missingCertificates: ServerFailure = {
+  serverFailed: expect.stringContaining(
+    "PROXY_SERVER_HTTPS_CONNECTION is true but certificate files are missing",
+  ),
+  certificatesGenerated: false,
+};
+
+/** Expects the refusal for a config.json without settings. */
+const configJsonEmpty: Refusal = {
+  refused: `${workDirToken}/config.json is empty or holds only comments. Add settings to it, or remove the file to start without them.`,
+  certificatesGenerated: false,
+};
 
 export function deprecated(name: string) {
   return `${name} is deprecated. Use PROXY_SERVER_PORT instead.`;
@@ -166,11 +163,6 @@ const httpsOffNotice =
   "SSL disabled. Skipping self-signed certificate generation.";
 
 export const https: ServerStart = {
-  envFile: {
-    NEPTUNE_NOTEBOOK: "false",
-    PROXY_SERVER_HTTPS_CONNECTION: "true",
-    GRAPH_EXP_HTTPS_CONNECTION: "true",
-  },
   environment: {
     HOST: "localhost",
     PROXY_SERVER_LISTEN_ADDRESS: "127.0.0.1",
@@ -186,7 +178,6 @@ export const https: ServerStart = {
   httpsNotice: undefined,
 };
 export const http: ServerStart = {
-  envFile: { ...https.envFile, PROXY_SERVER_HTTPS_CONNECTION: "false" },
   environment: { ...https.environment, PROXY_SERVER_HTTPS_CONNECTION: false },
   listener: { protocol: "http", port: 80 },
   certificatesGenerated: false,
@@ -195,13 +186,6 @@ export const http: ServerStart = {
   httpsNotice: httpsOffNotice,
 };
 export const notebook: ServerStart = {
-  envFile: {
-    ...http.envFile,
-    NEPTUNE_NOTEBOOK: "true",
-    GRAPH_EXP_HTTPS_CONNECTION: "false",
-    PROXY_SERVER_PORT: "9250",
-    LOG_STYLE: "cloudwatch",
-  },
   environment: {
     ...http.environment,
     NEPTUNE_NOTEBOOK: true,
@@ -216,38 +200,16 @@ export const notebook: ServerStart = {
 };
 
 /**
- * Expects the server to stop on the missing certificate files. They are
- * missing because this start didn't generate them.
- */
-export const missingCertificates: ServerFailure = {
-  serverFailed: expect.stringContaining(
-    "PROXY_SERVER_HTTPS_CONNECTION is true but certificate files are missing",
-  ),
-  envFile: https.envFile,
-  certificatesGenerated: false,
-};
-
-/** `variables` without the entries whose value is undefined. */
-function definedEntries(variables: Record<string, string | undefined>) {
-  return Object.fromEntries(
-    Object.entries(variables).filter(([, value]) => value !== undefined),
-  ) as Record<string, string>;
-}
-
-/**
  * A start that serves like `base`, apart from `changes`. Their `environment`
- * and `envFile` merge over the base's, and a field set to undefined is
- * removed.
+ * merges over the base's, and a field set to undefined is removed.
  */
 export function served(
   base: ServerStart,
   {
     environment = {},
-    envFile = {},
     ...changes
-  }: Partial<Omit<ServerStart, "environment" | "envFile">> & {
+  }: Partial<Omit<ServerStart, "environment">> & {
     environment?: Partial<EnvironmentValues>;
-    envFile?: Record<string, string | undefined>;
   } = {},
 ): StartupOutcome {
   return {
@@ -255,7 +217,6 @@ export function served(
       ...base,
       ...changes,
       environment: definedFields({ ...base.environment, ...environment }),
-      envFile: definedEntries({ ...base.envFile, ...envFile }),
     },
   };
 }
@@ -265,11 +226,6 @@ export const standardHttp = served(http);
 export const notebookPreset = served(notebook);
 export const notebookConflict = parseFailureAt(
   "PROXY_SERVER_HTTPS_CONNECTION",
-  {
-    // The preset writes its port and log style, and keeps the HTTPS request.
-    envFile: { ...notebook.envFile, PROXY_SERVER_HTTPS_CONNECTION: "true" },
-    certificatesGenerated: false,
-  },
   conflictMessage,
 );
 
@@ -324,14 +280,6 @@ function proxiedConnection(
   };
 }
 
-/** `base` with `envFile` merged over the variables it leaves in `.env`. */
-function withEnvFile(
-  base: ServerStart,
-  envFile: Record<string, string>,
-): ServerStart {
-  return { ...base, envFile: { ...base.envFile, ...envFile } };
-}
-
 /** A start that serves `body` as the Default Connection, over `base`. */
 function servingConnection(body: unknown, base: ServerStart = https) {
   return served(base, { defaultConnection: { status: 200, body } });
@@ -345,16 +293,14 @@ function servingInvalidConnection(text: string, base: ServerStart = https) {
 }
 
 /**
- * Expects the refusal setup-ssl.sh prints when it can't generate certificates
- * for lack of HOST and `missing` of the files in cert-info are absent. The
- * script wrote .env before it refused.
+ * Expects the refusal for lack of HOST when `missing` of the files in
+ * cert-info are absent.
  */
 function noCertificateFiles(missing: string[]): Refusal {
   return {
     refused:
-      `Missing certificate files in ./cert-info:${missing.map(file => ` ${file}`).join("")}\n` +
-      "Please specify --env HOST=<hostname> during docker run command to create SSL cert.\n",
-    envFile: https.envFile,
+      `Missing certificate files in ${workDirToken}/cert-info: ${missing.join(" ")}\n` +
+      "Please specify --env HOST=<hostname> during docker run command to create SSL cert.",
     certificatesGenerated: false,
   };
 }
@@ -443,7 +389,6 @@ export const deployments: Deployment[] = [
     // The server reads .env, so its deprecated port applies, with a warning.
     expected: served(http, {
       environment: { PROXY_SERVER_HTTP_PORT: 8080 },
-      envFile: { PROXY_SERVER_HTTP_PORT: "8080" },
       listener: { protocol: "http", port: 8080 },
       warnings: [deprecated("PROXY_SERVER_HTTP_PORT")],
     }),
@@ -455,7 +400,6 @@ export const deployments: Deployment[] = [
     // The server reads .env, so its port applies.
     expected: served(http, {
       environment: { PROXY_SERVER_PORT: 8081 },
-      envFile: { PROXY_SERVER_PORT: "8081" },
       listener: { protocol: "http", port: 8081 },
     }),
   },
@@ -470,7 +414,6 @@ export const deployments: Deployment[] = [
     // .env for the same name.
     expected: served(http, {
       environment: { PROXY_SERVER_PORT: 8081, PROXY_SERVER_HTTP_PORT: 8080 },
-      envFile: { PROXY_SERVER_PORT: "8081" },
       listener: { protocol: "http", port: 8081 },
       warnings: [ignored("PROXY_SERVER_HTTP_PORT", 8080, 8081)],
     }),
@@ -480,10 +423,7 @@ export const deployments: Deployment[] = [
     existingEnvFile: { LOG_STYLE: "cloudwatch" },
     // The server reads .env. Earlier images set LOG_STYLE in their ENV, which
     // beat a mounted .env.
-    expected: served(https, {
-      environment: { LOG_STYLE: "cloudwatch" },
-      envFile: { LOG_STYLE: "cloudwatch" },
-    }),
+    expected: served(https, { environment: { LOG_STYLE: "cloudwatch" } }),
   },
   {
     name: "-e NEPTUNE_NOTEBOOK=true with PROXY_SERVER_HTTP_PORT=8080 in .env",
@@ -493,7 +433,6 @@ export const deployments: Deployment[] = [
     // PROXY_SERVER_PORT wins over the deprecated variable.
     expected: served(notebook, {
       environment: { PROXY_SERVER_HTTP_PORT: 8080 },
-      envFile: { PROXY_SERVER_HTTP_PORT: "8080" },
       warnings: [ignored("PROXY_SERVER_HTTP_PORT", 8080, 9250)],
     }),
   },
@@ -506,13 +445,10 @@ export const deployments: Deployment[] = [
   {
     name: "-e PROXY_SERVER_HTTPS_CONNECTION=TRUE",
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "TRUE" },
-    // The entrypoint generates certificates only for an exact "true", but the
+    // As before, a certificate is generated only for an exact "true", but the
     // server reads HTTPS without regard to case, so it fails on the missing
-    // certificates. The script copies the value as written.
-    expected: {
-      ...missingCertificates,
-      envFile: { ...https.envFile, PROXY_SERVER_HTTPS_CONNECTION: "TRUE" },
-    },
+    // certificates.
+    expected: missingCertificates,
   },
   {
     name: "config.json HTTPS true",
@@ -530,10 +466,9 @@ export const deployments: Deployment[] = [
     name: "config.json HTTPS true and -e HTTPS false",
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: true },
-    // config.json decides what the entrypoint reads, so it generates a
-    // certificate, while the -e value wins in the server, which serves HTTP.
+    // As before, config.json decides whether a certificate is generated, so
+    // one is, while the -e value wins in the server, which serves HTTP.
     expected: served(http, {
-      envFile: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
       certificatesGenerated: true,
       httpsNotice: undefined,
     }),
@@ -542,10 +477,10 @@ export const deployments: Deployment[] = [
     name: "config.json HTTPS false and -e HTTPS true",
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: false },
-    // config.json decides what the entrypoint reads, so it skips the
-    // certificate, while the -e value wins in the server, which wants TLS and
+    // As before, config.json decides whether a certificate is generated, so
+    // none is, while the -e value wins in the server, which wants TLS and
     // fails on the missing certificates.
-    expected: { ...missingCertificates, envFile: http.envFile },
+    expected: missingCertificates,
   },
   {
     name: "-e NEPTUNE_NOTEBOOK=true",
@@ -562,7 +497,6 @@ export const deployments: Deployment[] = [
         PROXY_SERVER_PORT: undefined,
         PROXY_SERVER_HTTP_PORT: 8080,
       },
-      envFile: { PROXY_SERVER_PORT: undefined },
       listener: { protocol: "http", port: 8080 },
       warnings: [deprecated("PROXY_SERVER_HTTP_PORT")],
     }),
@@ -573,7 +507,6 @@ export const deployments: Deployment[] = [
     // An explicit port keeps the preset from setting its own.
     expected: served(notebook, {
       environment: { PROXY_SERVER_PORT: 8080 },
-      envFile: { PROXY_SERVER_PORT: undefined },
       listener: { protocol: "http", port: 8080 },
     }),
   },
@@ -585,11 +518,10 @@ export const deployments: Deployment[] = [
       PROXY_SERVER_PORT: "9250",
       PROXY_SERVER_HTTP_PORT: "9250",
     },
-    // Notebook scripts set both port variables while older images ignore
+    // Notebook containers set both port variables while older images ignored
     // PROXY_SERVER_PORT, so matching values start without a warning.
     expected: served(notebook, {
       environment: { PROXY_SERVER_HTTP_PORT: 9250 },
-      envFile: { PROXY_SERVER_PORT: undefined },
     }),
   },
   {
@@ -629,14 +561,8 @@ export const deployments: Deployment[] = [
       PROXY_SERVER_HTTPS_CONNECTION: "TRUE",
     },
     // The server reads HTTPS without regard to case, so TRUE conflicts with
-    // the preset. The script copies the value as written.
-    expected: {
-      ...notebookConflict,
-      envFile: {
-        ...notebookConflict.envFile,
-        PROXY_SERVER_HTTPS_CONNECTION: "TRUE",
-      },
-    },
+    // the preset.
+    expected: notebookConflict,
   },
   {
     name: "-e NEPTUNE_NOTEBOOK=true and -e PROXY_SERVER_HTTPS_CONNECTION=true without HOST",
@@ -685,15 +611,8 @@ export const deployments: Deployment[] = [
       PROXY_SERVER_HTTPS_CONNECTION: "TRUE",
     },
     // config.json can hold "TRUE" just as easily as the boolean true; both
-    // read as a request for HTTPS under the preset, and the script copies the
-    // value as written.
-    expected: {
-      ...notebookConflict,
-      envFile: {
-        ...notebookConflict.envFile,
-        PROXY_SERVER_HTTPS_CONNECTION: "TRUE",
-      },
-    },
+    // read as a request for HTTPS under the preset.
+    expected: notebookConflict,
   },
   {
     name: "-e NEPTUNE_NOTEBOOK=true and -e PROXY_SERVER_HTTPS_CONNECTION=yes",
@@ -702,9 +621,8 @@ export const deployments: Deployment[] = [
       PROXY_SERVER_HTTPS_CONNECTION: "yes",
     },
     // -e always wins over .env, since dotenv never overrides a variable
-    // already in the environment, so the invalid value fails the parse. The
-    // preset writes its own HTTPS value to .env.
-    expected: parseFailureAt("PROXY_SERVER_HTTPS_CONNECTION", notebook),
+    // already in the environment, so the invalid value fails the parse.
+    expected: parseFailureAt("PROXY_SERVER_HTTPS_CONNECTION"),
   },
   {
     name: "-e NEPTUNE_NOTEBOOK=true and -e GRAPH_EXP_HTTPS_CONNECTION=true",
@@ -723,9 +641,8 @@ export const deployments: Deployment[] = [
     {
       name: `-e NEPTUNE_NOTEBOOK=${value}`,
       dockerEnv: { NEPTUNE_NOTEBOOK: value },
-      // Only an exact "true" applies the preset, so HTTPS defaults to on. The
-      // script copies the value as written.
-      expected: served(https, { envFile: { NEPTUNE_NOTEBOOK: value } }),
+      // Only an exact "true" applies the preset, so HTTPS defaults to on.
+      expected: standardTls,
     },
     {
       name: `-e NEPTUNE_NOTEBOOK=${value} and -e PROXY_SERVER_HTTPS_CONNECTION=false`,
@@ -733,18 +650,19 @@ export const deployments: Deployment[] = [
         NEPTUNE_NOTEBOOK: value,
         PROXY_SERVER_HTTPS_CONNECTION: "false",
       },
-      // Only an exact "true" applies the preset, so it serves plain HTTP. The
-      // script copies the value as written.
-      expected: served(http, { envFile: { NEPTUNE_NOTEBOOK: value } }),
+      // Only an exact "true" applies the preset, so it serves plain HTTP.
+      expected: standardHttp,
     },
   ]),
   {
     name: "-e PROXY_SERVER_HTTPS_CONNECTION=",
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "" },
-    // The script treats the empty value as unset and writes the TLS default,
-    // but dotenv never overrides a variable already in the environment, so
-    // the server reads the empty value directly and its schema rejects it.
-    expected: parseFailureAt("PROXY_SERVER_HTTPS_CONNECTION", https),
+    // Earlier versions treated the empty value as unset and wrote the TLS
+    // default, but dotenv never overrides a variable already in the
+    // environment, so the server reads the empty value directly and its schema
+    // rejects it. Earlier versions had generated a certificate by then, and
+    // the startup parses the environment first.
+    expected: parseFailureAt("PROXY_SERVER_HTTPS_CONNECTION"),
   },
   {
     name: "-e NEPTUNE_NOTEBOOK=true with config.json HTTPS true and no NEPTUNE_NOTEBOOK key",
@@ -825,11 +743,10 @@ export const deployments: Deployment[] = [
   {
     name: "nothing about HTTPS set, restarted",
     secondStart: "restart",
-    // The entrypoint reads PROXY_SERVER_HTTPS_CONNECTION by its first match,
-    // not its last, so a restart's repeated "true" line doesn't re-trigger
-    // setup-ssl.sh. The container keeps serving TLS on the certificate
-    // generated at first start, though the entrypoint logs that SSL is
-    // disabled.
+    // Earlier versions read PROXY_SERVER_HTTPS_CONNECTION by its first match,
+    // not its last, so a restart's repeated "true" line didn't regenerate the
+    // certificate. The container keeps serving TLS on the certificate from the
+    // first start, though startup logs that SSL is disabled.
     expected: [
       standardTls,
       served(https, {
@@ -841,40 +758,46 @@ export const deployments: Deployment[] = [
   {
     name: "a read-only configuration folder",
     readOnly: "configFolder",
-    // The script writes .env at every start, so it refuses.
-    expected: cannotWrite(".env"),
+    // The startup writes nothing to the configuration folder, so a read-only
+    // mount starts. Earlier versions wrote .env at every start and refused.
+    expected: standardTls,
   },
   {
     name: "-e NEPTUNE_NOTEBOOK=true with a read-only configuration folder",
     dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
     readOnly: "configFolder",
-    // The script writes .env at every start, so it refuses.
-    expected: cannotWrite(".env"),
+    // The startup writes nothing to the configuration folder, so a read-only
+    // mount starts. Earlier versions wrote .env at every start and refused.
+    expected: notebookPreset,
   },
   {
     name: "LOG_LEVEL=debug in a read-only .env",
     existingEnvFile: { LOG_LEVEL: "debug" },
     readOnly: ".env",
-    // The script writes .env at every start, so it refuses and leaves the
-    // mounted line.
-    expected: cannotWrite(".env", { LOG_LEVEL: "debug" }),
+    // The startup writes nothing to the configuration folder, so a read-only
+    // .env starts. Earlier versions wrote .env at every start and refused.
+    expected: served(https, { environment: { LOG_LEVEL: "debug" } }),
   },
   {
     name: "-e PUBLIC_OR_PROXY_ENDPOINT with a read-only defaultConnection.json",
     dockerEnv: { PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182" },
     readOnly: "defaultConnection.json",
-    // A legacy direct connection resolves to PUBLIC_OR_PROXY_ENDPOINT, so the
-    // script has a defaultConnection.json to write, and refuses before it
-    // writes .env.
-    expected: cannotWrite("defaultConnection.json"),
+    // A legacy direct connection resolves to PUBLIC_OR_PROXY_ENDPOINT. The
+    // startup serves it from memory, so a read-only defaultConnection.json
+    // starts. Earlier versions wrote the file and refused.
+    expected: servingConnection({
+      GRAPH_EXP_CONNECTION_URL: "https://endpoint:8182",
+      GRAPH_EXP_USING_PROXY_SERVER: false,
+    }),
   },
   {
     name: "-e GRAPH_CONNECTION_URL with a read-only defaultConnection.json",
     dockerEnv: { GRAPH_CONNECTION_URL: "https://endpoint:8182" },
     readOnly: "defaultConnection.json",
-    // The script has a defaultConnection.json to write, so it refuses before
-    // it writes .env.
-    expected: cannotWrite("defaultConnection.json"),
+    // The startup serves the Default Connection from memory, so a read-only
+    // defaultConnection.json starts. Earlier versions wrote the file and
+    // refused.
+    expected: servingConnection(proxiedConnection({}, "https://endpoint:8182")),
   },
   {
     name: "-e PUBLIC_OR_PROXY_ENDPOINT and -e USING_PROXY_SERVER=true with a read-only defaultConnection.json",
@@ -893,26 +816,25 @@ export const deployments: Deployment[] = [
   {
     name: "PROXY_SERVER_HTTPS_CONNECTION=false in a mounted .env",
     existingEnvFile: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
-    // The entrypoint reads the first PROXY_SERVER_HTTPS_CONNECTION line and
-    // process-environment.sh appends its own "true" default after the mounted
-    // one, so the entrypoint reads "false" while dotenv reads the last line,
-    // "true". No certificates are generated, yet the server wants TLS. The
-    // script keeps the mounted line.
+    // Earlier versions appended a "true" default after the mounted line and
+    // decided the certificate from the first "false", while dotenv read the
+    // last line, "true". No certificate is generated, yet the server wants
+    // TLS.
     expected: missingCertificates,
   },
   {
     name: "PROXY_SERVER_HTTPS_CONNECTION=true in a mounted .env",
     existingEnvFile: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
     // The mounted "true" and the appended "true" read back as "true\ntrue",
-    // which isn't the exact "true" that triggers setup-ssl.sh.
+    // which isn't the exact "true" that generated a certificate.
     expected: missingCertificates,
   },
   {
     name: "an operator .env with PROXY_SERVER_HTTPS_CONNECTION=false and all five certificate files present",
     existingEnvFile: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
     existingCertificates: "all",
-    // The entrypoint reads the operator's "false" first and skips generation,
-    // while the server reads the "true" the script appends and serves TLS on
+    // Earlier versions read the operator's "false" first and skipped
+    // generation, while the server read the appended "true" and served TLS on
     // the files already in cert-info.
     expected: served(https, {
       certificatesGenerated: false,
@@ -922,8 +844,7 @@ export const deployments: Deployment[] = [
   {
     name: "no HOST and no certificate files",
     host: false,
-    // setup-ssl.sh needs HOST to generate a certificate, and finds none to
-    // reuse, so the entrypoint refuses.
+    // Generating a certificate needs HOST, and there are no files to reuse.
     expected: noCertificateFiles([
       "rootCA.key",
       "rootCA.crt",
@@ -936,23 +857,24 @@ export const deployments: Deployment[] = [
     name: "no HOST with all five certificate files in cert-info",
     host: false,
     existingCertificates: "all",
-    // setup-ssl.sh reuses the files it finds.
+    // Without HOST, the start reuses the files it finds.
     expected: served(https, { certificatesGenerated: false }),
   },
   {
     name: "no HOST with only server.key and server.crt in cert-info",
     host: false,
     existingCertificates: "server-only",
-    // setup-ssl.sh reuses only a complete set of files, so the entrypoint
-    // refuses.
+    // Without HOST, the start reuses only a complete set of files.
     expected: noCertificateFiles(["rootCA.key", "rootCA.crt", "server.csr"]),
   },
   {
     name: "a new container reusing the configuration folder",
     secondStart: "new-container",
-    // The first start leaves a block in .env, so the next container that
-    // mounts the folder reads "true\ntrue" and skips generation.
-    expected: [standardTls, missingCertificates],
+    // The startup writes nothing to the configuration folder, so the first
+    // container leaves no lines for the next, which generates its own
+    // certificate. Earlier versions' first start left a block in .env, so the
+    // next container read "true\ntrue" and skipped generation.
+    expected: [standardTls, standardTls],
   },
   {
     name: "-e GRAPH_CONNECTION_URL",
@@ -1003,7 +925,7 @@ export const deployments: Deployment[] = [
       GRAPH_EXP_FETCH_REQUEST_TIMEOUT: "60000",
       GRAPH_EXP_NODE_EXPANSION_LIMIT: "500",
     },
-    // Shape from #2291: the script never writes these two settings.
+    // Shape from #2291: earlier versions never wrote these two settings.
     expected: servingConnection(proxiedConnection()),
   },
   {
@@ -1013,13 +935,13 @@ export const deployments: Deployment[] = [
       GRAPH_EXP_FETCH_REQUEST_TIMEOUT: 60000,
       GRAPH_EXP_NODE_EXPANSION_LIMIT: 500,
     },
-    // Shape from #2291: the script never writes these two settings.
+    // Shape from #2291: earlier versions never wrote these two settings.
     expected: servingConnection(proxiedConnection()),
   },
   {
     name: "-e IAM=True with GRAPH_CONNECTION_URL",
     dockerEnv: { GRAPH_CONNECTION_URL: clusterUrl, IAM: "True" },
-    // The script writes the IAM value as it is, so anything but a JSON
+    // Earlier versions wrote the IAM value as it was, so anything but a JSON
     // boolean makes the file invalid.
     expected: servingInvalidConnection(
       expect.stringContaining('"GRAPH_EXP_IAM":True,'),
@@ -1044,7 +966,7 @@ export const deployments: Deployment[] = [
       GRAPH_EXP_USING_PROXY_SERVER: true,
     },
     dockerEnv: { GRAPH_CONNECTION_URL: clusterUrl },
-    // The script replaces the mounted file with the -e connection.
+    // The -e connection is served in place of the mounted file.
     expected: servingConnection(proxiedConnection()),
   },
   {
@@ -1061,9 +983,9 @@ export const deployments: Deployment[] = [
   "GRAPH_EXP_NODE_EXPANSION_LIMIT": 500,
 }
 `,
-    // process-environment.sh greps the text rather than parsing it, so a
-    // comment or a trailing comma doesn't matter. It never writes the two
-    // #2291 settings.
+    // Earlier versions grepped the text rather than parsing it, so a comment
+    // or a trailing comma didn't matter. They never wrote the two #2291
+    // settings.
     expected: servingConnection(
       proxiedConnection({
         GRAPH_EXP_GRAPH_TYPE: "gremlin",
@@ -1082,24 +1004,21 @@ export const deployments: Deployment[] = [
       null,
       2,
     ).replaceAll("\n", "\r\n"),
-    // The carriage returns sit outside the values the script reads.
+    // The carriage returns sit outside the values earlier versions read.
     expected: servingConnection(proxiedConnection(), http),
   },
   {
     name: 'config.json HTTPS "True"',
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: "True" },
-    // Like -e PROXY_SERVER_HTTPS_CONNECTION=TRUE, only an exact "true" makes
-    // the entrypoint generate certificates, so the server fails on the
-    // missing certificates. The script copies the value as written.
-    expected: {
-      ...missingCertificates,
-      envFile: { ...https.envFile, PROXY_SERVER_HTTPS_CONNECTION: "True" },
-    },
+    // Like -e PROXY_SERVER_HTTPS_CONNECTION=TRUE, only an exact "true"
+    // generates a certificate, so the server fails on the missing
+    // certificates.
+    expected: missingCertificates,
   },
   {
     name: "config.json IAM null with GRAPH_CONNECTION_URL",
     configJson: { GRAPH_CONNECTION_URL: clusterUrl, IAM: null },
-    // The script writes the IAM value as it is.
+    // Earlier versions wrote the IAM value as it was.
     expected: servingConnection(proxiedConnection({ GRAPH_EXP_IAM: null })),
   },
   {
@@ -1108,15 +1027,17 @@ export const deployments: Deployment[] = [
   // "PROXY_SERVER_HTTPS_CONNECTION": false,
 }
 `,
-    // The script greps the text, comments included, so the key takes effect.
-    expected: standardHttp,
+    // config.json is read as JSON, so a key in a comment is no setting and
+    // HTTPS defaults to on. Earlier versions grepped the text, comments
+    // included.
+    expected: standardTls,
   },
   {
     name: "an .env from an HTTP container after three starts",
     existingEnvFile: legacyStartupBlock(httpContainerBlock).repeat(3),
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
-    // The blocks only restate what the entrypoint reads from the environment,
-    // so they change nothing.
+    // The blocks only restate what startup reads from the environment, so
+    // they change nothing.
     expected: standardHttp,
   },
   {
@@ -1127,11 +1048,9 @@ export const deployments: Deployment[] = [
     }).repeat(2),
     dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
     // The port line is what v3.3.0 wrote. It matches the PROXY_SERVER_PORT
-    // line the script writes now, so the server starts without a warning, and
-    // the script keeps the old line.
+    // the preset sets, so the server starts without a warning.
     expected: served(notebook, {
       environment: { PROXY_SERVER_HTTP_PORT: 9250 },
-      envFile: { PROXY_SERVER_HTTP_PORT: "9250" },
     }),
   },
   {
@@ -1150,19 +1069,10 @@ export const deployments: Deployment[] = [
       ...notebookContainerBlock,
       port: "PROXY_SERVER_PORT",
     }).repeat(2),
-    // The script appends a block without the preset. The entrypoint reads the
-    // blocks' "false" lines first and skips generation, while the server reads
-    // the appended "true" with the blocks' port and fails on the missing
-    // certificates. The blocks' lines stay, and the appended ones win where
-    // they repeat a name.
-    expected: {
-      ...missingCertificates,
-      envFile: {
-        ...https.envFile,
-        PROXY_SERVER_PORT: "9250",
-        LOG_STYLE: "cloudwatch",
-      },
-    },
+    // The blocks have no preset. Earlier versions read the blocks' "false"
+    // lines first and skipped generation, while the server read the appended
+    // "true" with the blocks' port and failed on the missing certificates.
+    expected: missingCertificates,
   },
   {
     name: "a tidied .env from an HTTP container started without -e or HOST",
@@ -1172,9 +1082,9 @@ export const deployments: Deployment[] = [
     host: false,
     existingCertificates: "all",
     // An operator tidied the blocks a container run with
-    // -e PROXY_SERVER_HTTPS_CONNECTION=false left. The script appended a block
-    // with the default, which the server read last, and the entrypoint, seeing
-    // several lines, kept the certificates and logged that SSL is disabled.
+    // -e PROXY_SERVER_HTTPS_CONNECTION=false left. Earlier versions appended a
+    // block with the default, which the server read last, and, seeing several
+    // lines, kept the certificates and logged that SSL is disabled.
     expected: served(https, {
       certificatesGenerated: false,
       httpsNotice: httpsOffNotice,
@@ -1192,15 +1102,14 @@ export const deployments: Deployment[] = [
     // The blocks restate the preset, and the old port line matches its port.
     expected: served(notebook, {
       environment: { PROXY_SERVER_HTTP_PORT: 9250 },
-      envFile: { PROXY_SERVER_HTTP_PORT: "9250" },
     }),
   },
   {
     name: "the #2504 .env: a user's PROXY_SERVER_HTTPS_CONNECTION=false followed by one block",
     existingEnvFile: `PROXY_SERVER_HTTPS_CONNECTION=false\n${legacyStartupBlock(httpsContainerBlock)}`,
-    // The operator's line comes first, and the script appends a "true"
-    // default after it, which the server reads while the entrypoint reads
-    // "false".
+    // The operator's line comes first, and earlier versions appended a "true"
+    // default after it, which the server read while the certificate was
+    // decided from the first "false".
     expected: missingCertificates,
   },
   {
@@ -1208,13 +1117,11 @@ export const deployments: Deployment[] = [
     existingEnvFile: `LOG_STYLE=default\n${legacyStartupBlock(httpContainerBlock)}LOG_LEVEL=debug\n${legacyStartupBlock(httpsContainerBlock).repeat(2)}`,
     host: false,
     existingCertificates: "all",
-    // The script appended the current value after every earlier block, so the
-    // server read the newest "true" while the entrypoint, seeing several
-    // lines, left the existing certificates alone and logged that SSL is
-    // disabled.
+    // Earlier versions appended the current value after every earlier block,
+    // so the server read the newest "true" while several lines left the
+    // existing certificates alone and logged that SSL is disabled.
     expected: served(https, {
       environment: { LOG_LEVEL: "debug" },
-      envFile: { LOG_STYLE: "default", LOG_LEVEL: "debug" },
       certificatesGenerated: false,
       httpsNotice: httpsOffNotice,
     }),
@@ -1224,11 +1131,10 @@ export const deployments: Deployment[] = [
     existingEnvFile: `LOG_STYLE=default\n${legacyStartupBlock(httpContainerBlock)}\n${legacyStartupBlock(httpsContainerBlock).repeat(2)}`,
     host: false,
     existingCertificates: "all",
-    // The server reads the newest "true" while the entrypoint, seeing several
-    // lines, leaves the existing certificates alone and logs that SSL is
-    // disabled.
+    // The server reads the newest "true" while earlier versions, seeing
+    // several lines, left the existing certificates alone, and startup logs
+    // that SSL is disabled.
     expected: served(https, {
-      envFile: { LOG_STYLE: "default" },
       certificatesGenerated: false,
       httpsNotice: httpsOffNotice,
     }),
@@ -1237,15 +1143,15 @@ export const deployments: Deployment[] = [
     name: "an .env from an HTTPS container in a new container",
     existingEnvFile: legacyStartupBlock(httpsContainerBlock),
     // The block's "true" and the appended "true" read back as "true\ntrue",
-    // so the entrypoint skips generation and the server fails on the missing
+    // so no certificate is generated and the server fails on the missing
     // certificates.
     expected: missingCertificates,
   },
   {
     name: "an empty configuration folder in a new container with all five certificate files present",
     existingCertificates: "all",
-    // With HOST set, setup-ssl.sh generates a new certificate over the files
-    // in cert-info, whatever they hold.
+    // With HOST set, the start generates a new certificate over the files in
+    // cert-info, whatever they hold.
     expected: standardTls,
   },
   {
@@ -1253,8 +1159,8 @@ export const deployments: Deployment[] = [
     existingEnvFile: legacyStartupBlock(httpsContainerBlock),
     existingCertificates: "all",
     // The block's "true" and the appended "true" read back as "true\ntrue", so
-    // the entrypoint skips generation and logs that SSL is disabled, while the
-    // server reads "true" and serves TLS on the certificates in cert-info.
+    // no certificate is generated and startup logs that SSL is disabled, while
+    // the server reads "true" and serves TLS on the certificates in cert-info.
     expected: served(https, {
       certificatesGenerated: false,
       httpsNotice: httpsOffNotice,
@@ -1275,19 +1181,18 @@ export const deployments: Deployment[] = [
     name: "config.json HTTPS false with HTTPS true in .env.local",
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: false },
     existingEnvLocalFile: "PROXY_SERVER_HTTPS_CONNECTION=true\n",
-    // The server reads .env.local before the config.json value the script
-    // appends to .env, but the entrypoint decides certificates from .env
+    // The server reads .env.local before the config.json value earlier
+    // versions appended to .env, but the certificate was decided from .env
     // alone, so the server fails on the missing certificates.
-    expected: { ...missingCertificates, envFile: http.envFile },
+    expected: missingCertificates,
   },
   {
     name: "config.json HTTPS true with HTTPS false in .env.local",
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: true },
     existingEnvLocalFile: "PROXY_SERVER_HTTPS_CONNECTION=false\n",
-    // The entrypoint generates a certificate from the .env line and then the
-    // server serves HTTP from the .env.local line.
+    // A certificate is generated from the .env line and then the server
+    // serves HTTP from the .env.local line.
     expected: served(http, {
-      envFile: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
       certificatesGenerated: true,
       httpsNotice: undefined,
     }),
@@ -1296,9 +1201,8 @@ export const deployments: Deployment[] = [
     name: "-e NEPTUNE_NOTEBOOK=true with HTTPS true in .env.local",
     dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
     existingEnvLocalFile: "PROXY_SERVER_HTTPS_CONNECTION=true\n",
-    // The server reads .env.local first and rejects the preset with HTTPS on,
-    // though the script wrote HTTPS off to .env.
-    expected: { ...notebookConflict, envFile: notebook.envFile },
+    // The server reads .env.local first and rejects the preset with HTTPS on.
+    expected: notebookConflict,
   },
   {
     name: "-e NEPTUNE_NOTEBOOK=true with HTTPS false in .env.local",
@@ -1311,10 +1215,7 @@ export const deployments: Deployment[] = [
     name: "a duplicated LOG_STYLE in .env",
     existingEnvFile: "LOG_STYLE=default\nLOG_STYLE=cloudwatch\n",
     // dotenv keeps the last line.
-    expected: served(https, {
-      environment: { LOG_STYLE: "cloudwatch" },
-      envFile: { LOG_STYLE: "cloudwatch" },
-    }),
+    expected: served(https, { environment: { LOG_STYLE: "cloudwatch" } }),
   },
   {
     name: "a wide .env with every server setting",
@@ -1329,18 +1230,9 @@ export const deployments: Deployment[] = [
       PROXY_SERVER_CORS_ORIGIN: "https://app.example.com",
       PROXY_SERVER_ALLOWED_DB_ORIGINS: "https://db.example.com:8182",
     },
-    // The server reads every setting from .env. HOST there doesn't reach
-    // setup-ssl.sh, which reuses the existing certificates.
+    // The server reads every setting from .env. HOST there doesn't decide
+    // the certificate, so the existing files are reused.
     expected: served(https, {
-      envFile: {
-        HOST: "graph.example.com",
-        PROXY_SERVER_LISTEN_ADDRESS: "::",
-        PROXY_SERVER_PORT: "8443",
-        LOG_LEVEL: "debug",
-        LOG_STYLE: "cloudwatch",
-        PROXY_SERVER_CORS_ORIGIN: "https://app.example.com",
-        PROXY_SERVER_ALLOWED_DB_ORIGINS: "https://db.example.com:8182",
-      },
       environment: {
         HOST: "graph.example.com",
         PROXY_SERVER_LISTEN_ADDRESS: "::",
@@ -1359,14 +1251,14 @@ export const deployments: Deployment[] = [
   {
     name: "Default Connection settings in .env",
     existingEnvFile: connectionSettings,
-    // The script reads connection settings from the environment and
-    // config.json only, and keeps the mounted lines.
-    expected: served(https, { envFile: dotenv.parse(connectionSettings) }),
+    // As before, connection settings come from the environment and
+    // config.json only.
+    expected: standardTls,
   },
   {
     name: "Default Connection settings in .env.local",
     existingEnvLocalFile: connectionSettings,
-    // The script reads connection settings from the environment and
+    // As before, connection settings come from the environment and
     // config.json only.
     expected: standardTls,
   },
@@ -1374,18 +1266,16 @@ export const deployments: Deployment[] = [
     name: "GRAPH_CONNECTION_URL in .env and config.json",
     existingEnvFile: { GRAPH_CONNECTION_URL: "https://from-dotenv:8182" },
     configJson: { GRAPH_CONNECTION_URL: "https://from-config:8182" },
-    // The script reads connection settings from config.json, never .env, and
-    // keeps the mounted line.
+    // As before, connection settings come from config.json, never .env.
     expected: servingConnection(
       proxiedConnection({}, "https://from-config:8182"),
-      withEnvFile(https, { GRAPH_CONNECTION_URL: "https://from-dotenv:8182" }),
     ),
   },
   {
     name: "GRAPH_CONNECTION_URL in .env.local and config.json",
     existingEnvLocalFile: "GRAPH_CONNECTION_URL=https://from-local:8182\n",
     configJson: { GRAPH_CONNECTION_URL: "https://from-config:8182" },
-    // The script reads connection settings from config.json, never
+    // As before, connection settings come from config.json, never
     // .env.local.
     expected: servingConnection(
       proxiedConnection({}, "https://from-config:8182"),
@@ -1395,11 +1285,8 @@ export const deployments: Deployment[] = [
     name: "the image's own .env with -e GRAPH_CONNECTION_URL",
     existingEnvFile: imageEnvFile,
     dockerEnv: { GRAPH_CONNECTION_URL: clusterUrl },
-    // The script ignores the connection settings in .env, and keeps its lines.
-    expected: servingConnection(
-      proxiedConnection(),
-      withEnvFile(https, dotenv.parse(imageEnvFile)),
-    ),
+    // As before, connection settings in .env are ignored.
+    expected: servingConnection(proxiedConnection()),
   },
   {
     name: "-e GRAPH_CONNECTION_URL= with config.json GRAPH_CONNECTION_URL",
@@ -1422,14 +1309,14 @@ export const deployments: Deployment[] = [
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: false },
     // dotenv never overrides a variable already in the environment, so the
     // server reads the empty value and its schema rejects it.
-    expected: parseFailureAt("PROXY_SERVER_HTTPS_CONNECTION", http),
+    expected: parseFailureAt("PROXY_SERVER_HTTPS_CONNECTION"),
   },
   {
     name: "-e NEPTUNE_NOTEBOOK=false with config.json NEPTUNE_NOTEBOOK true",
     dockerEnv: { NEPTUNE_NOTEBOOK: "false" },
     configJson: { NEPTUNE_NOTEBOOK: true },
-    // config.json replaces -e NEPTUNE_NOTEBOOK, and the entrypoint passes the
-    // .env value to the server.
+    // config.json replaces -e NEPTUNE_NOTEBOOK, and startup passes the .env
+    // value to the server.
     expected: notebookPreset,
   },
   {
@@ -1446,12 +1333,9 @@ export const deployments: Deployment[] = [
     name: "-e GRAPH_CONNECTION_URL with a .env PUBLIC_OR_PROXY_ENDPOINT",
     dockerEnv: { GRAPH_CONNECTION_URL: clusterUrl },
     existingEnvFile: { PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182" },
-    // The script reads connection settings from the environment and
-    // config.json only, and keeps the mounted line.
-    expected: servingConnection(
-      proxiedConnection(),
-      withEnvFile(https, { PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182" }),
-    ),
+    // As before, connection settings come from the environment and
+    // config.json only.
+    expected: servingConnection(proxiedConnection()),
   },
   {
     name: "-e PUBLIC_OR_PROXY_ENDPOINT and GRAPH_CONNECTION_URL with IAM, region, and service type",
@@ -1536,7 +1420,7 @@ export const deployments: Deployment[] = [
   ...["TRUE", "FALSE", "yes"].map((value): Deployment => ({
     name: `-e IAM=${value} with GRAPH_CONNECTION_URL`,
     dockerEnv: { GRAPH_CONNECTION_URL: clusterUrl, IAM: value },
-    // The script writes the IAM value as it is, so anything but a JSON
+    // Earlier versions wrote the IAM value as it was, so anything but a JSON
     // boolean makes the file invalid.
     expected: servingInvalidConnection(
       expect.stringContaining(`"GRAPH_EXP_IAM":${value},`),
@@ -1545,14 +1429,14 @@ export const deployments: Deployment[] = [
   ...[" true", "true\n"].map((value): Deployment => ({
     name: `-e IAM=${JSON.stringify(value)} with GRAPH_CONNECTION_URL`,
     dockerEnv: { GRAPH_CONNECTION_URL: clusterUrl, IAM: value },
-    // The script writes the IAM value as it is, and JSON reads the space or
-    // line break around it as whitespace.
+    // Earlier versions wrote the IAM value as it was, and JSON reads the
+    // space or line break around it as whitespace.
     expected: servingConnection(proxiedConnection({ GRAPH_EXP_IAM: true })),
   })),
   {
     name: "-e GRAPH_TYPE=Gremlin with GRAPH_CONNECTION_URL",
     dockerEnv: { GRAPH_CONNECTION_URL: clusterUrl, GRAPH_TYPE: "Gremlin" },
-    // The script writes the graph type as it is.
+    // Earlier versions wrote the graph type as it was.
     expected: servingConnection(
       proxiedConnection({ GRAPH_EXP_GRAPH_TYPE: "Gremlin" }),
     ),
@@ -1560,19 +1444,21 @@ export const deployments: Deployment[] = [
   {
     name: "config.json IAM 1 with GRAPH_CONNECTION_URL",
     configJson: { GRAPH_CONNECTION_URL: clusterUrl, IAM: 1 },
-    // The script writes the IAM value as it is.
+    // Earlier versions wrote the IAM value as it was.
     expected: servingConnection(proxiedConnection({ GRAPH_EXP_IAM: 1 })),
   },
   {
     name: 'config.json IAM "true" with GRAPH_CONNECTION_URL',
     configJson: { GRAPH_CONNECTION_URL: clusterUrl, IAM: "true" },
-    // The script drops the quotes, so the string reads as the boolean.
+    // A quoted "true" reads as the boolean, as it did when earlier versions
+    // dropped the quotes.
     expected: servingConnection(proxiedConnection({ GRAPH_EXP_IAM: true })),
   },
   {
     name: "config.json GRAPH_EXP_FETCH_REQUEST_TIMEOUT as the bare number 1e999 with GRAPH_CONNECTION_URL",
     configJson: `{ "GRAPH_CONNECTION_URL": "${clusterUrl}", "GRAPH_EXP_FETCH_REQUEST_TIMEOUT": 1e999 }`,
-    // The script never writes the fetch timeout.
+    // Earlier versions never wrote the fetch timeout. The parser reads the
+    // number as its text, so the rest of the file still applies.
     expected: servingConnection(proxiedConnection()),
   },
   {
@@ -1581,7 +1467,7 @@ export const deployments: Deployment[] = [
       GRAPH_CONNECTION_URL: clusterUrl,
       GRAPH_EXP_NODE_EXPANSION_LIMIT: "-5",
     },
-    // The script never writes the expansion limit.
+    // Earlier versions never wrote the expansion limit.
     expected: servingConnection(proxiedConnection()),
   },
   {
@@ -1596,33 +1482,41 @@ export const deployments: Deployment[] = [
   {
     name: "config.json with a byte-order mark",
     configJson: "﻿" + JSON.stringify({ PROXY_SERVER_HTTPS_CONNECTION: false }),
-    // The script greps the text, so the mark before the brace doesn't matter.
+    // config.json is read as JSON, so the mark before the brace doesn't matter.
     expected: standardHttp,
   },
   {
     name: "config.json with a space before a key's colon",
     configJson: '{ "PROXY_SERVER_HTTPS_CONNECTION" : false }',
-    // The script's grep expects the colon right after the key, so it misses
-    // the key and HTTPS defaults to on.
-    expected: standardTls,
+    // config.json is read as JSON, so the space doesn't hide the key. Earlier
+    // versions grepped for the colon right after the key and missed it.
+    expected: standardHttp,
   },
   {
     name: "an empty config.json",
     configJson: "",
-    // The script finds no keys, so HTTPS defaults to on.
-    expected: standardTls,
+    // config.json is read as JSON, so a file without settings stops startup
+    // naming the file. Earlier versions found no keys and served TLS.
+    expected: configJsonEmpty,
   },
   {
     name: "a config.json holding only a comment",
     configJson: "// nothing yet\n",
-    // The script finds no keys, so HTTPS defaults to on.
-    expected: standardTls,
+    // config.json is read as JSON, so a file without settings stops startup
+    // naming the file. Earlier versions found no keys and served TLS.
+    expected: configJsonEmpty,
   },
   {
     name: "a config.json that isn't JSON",
     configJson: '{ "PROXY_SERVER_HTTPS_CONNECTION": false',
-    // The script greps the text, so the missing brace doesn't matter.
-    expected: standardHttp,
+    // config.json is read as JSON, so text that isn't JSON stops startup
+    // naming the file. Earlier versions grepped the text and served HTTP.
+    expected: {
+      refused: expect.stringContaining(
+        `${workDirToken}/config.json isn't valid JSON, so Graph Explorer can't read its settings: `,
+      ),
+      certificatesGenerated: false,
+    },
   },
   {
     name: "config.json setting PROXY_SERVER_HTTPS_CONNECTION twice",
@@ -1631,15 +1525,13 @@ export const deployments: Deployment[] = [
   "PROXY_SERVER_HTTPS_CONNECTION": true
 }
 `,
-    // The script greps both values and joins them into "falsetrue", which the
-    // server's schema rejects. The entrypoint reads the joined value too, so
-    // it generates nothing.
-    expected: parseFailureAt("PROXY_SERVER_HTTPS_CONNECTION", {
-      envFile: {
-        ...https.envFile,
-        PROXY_SERVER_HTTPS_CONNECTION: "falsetrue",
-      },
-      certificatesGenerated: false,
+    // The parser takes the last value, as JSON.parse does, and warns.
+    expected: served(https, {
+      warnings: [
+        expect.stringMatching(
+          /config\.json sets PROXY_SERVER_HTTPS_CONNECTION more than once, on lines 2 and 3\. The last one wins, so remove the others\.$/,
+        ),
+      ],
     }),
   },
   {
@@ -1647,8 +1539,8 @@ export const deployments: Deployment[] = [
     existingEnvFile:
       "PROXY_SERVER_HTTPS_CONNECTION=false\n" +
       "NEPTUNE_NOTEBOOK=false\n\n\n  \nPROXY_SERVER_HTTPS_CONNECTION=true\n\t\nGRAPH_EXP_HTTPS_CONNECTION=true\n",
-    // The entrypoint reads the operator's "false" first while the server reads
-    // the appended "true", so it fails on the missing certificates.
+    // Earlier versions read the operator's "false" first while the server
+    // read the appended "true", so it fails on the missing certificates.
     expected: missingCertificates,
   },
   {
@@ -1656,8 +1548,8 @@ export const deployments: Deployment[] = [
     existingEnvFile: withoutBlankLines(
       legacyStartupBlock(httpContainerBlock).repeat(2),
     ),
-    // The entrypoint reads the tidied "false" lines first while the server
-    // reads the appended "true", so it fails on the missing certificates.
+    // Earlier versions read the tidied "false" lines first while the server
+    // read the appended "true", so it fails on the missing certificates.
     expected: missingCertificates,
   },
 ];
