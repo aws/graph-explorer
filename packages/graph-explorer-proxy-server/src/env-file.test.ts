@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { stripLegacyStartupBlocks } from "./env-file.ts";
+import {
+  EnvFileError,
+  parseEnvFile,
+  stripLegacyStartupBlocks,
+} from "./env-file.ts";
 import { legacyStartupBlock, withoutBlankLines } from "./testing.ts";
 
 const standardBlock = legacyStartupBlock({
@@ -352,5 +356,60 @@ describe("backward compatibility: lines earlier versions appended to .env", () =
       text: "",
       ignoredLineCount: 0,
     });
+  });
+});
+
+describe("parseEnvFile", () => {
+  const filePath = "/config/.env";
+
+  it("reads the values", () => {
+    expect(parseEnvFile("A=1\nB=two\n", filePath)).toStrictEqual({
+      A: "1",
+      B: "two",
+    });
+  });
+
+  it("throws naming the file, the key, and its lines when a key is set more than once", () => {
+    expect(() =>
+      parseEnvFile(
+        "LOG_STYLE=default\nHOST=x\nLOG_STYLE=cloudwatch\n",
+        filePath,
+      ),
+    ).toThrow(
+      new EnvFileError(
+        "/config/.env sets LOG_STYLE more than once, on lines 1 and 3. Keep one line for each key and remove the others. Earlier versions used the last line.",
+      ),
+    );
+  });
+
+  it("names every key set more than once", () => {
+    expect(() => parseEnvFile("A=1\nB=1\nA=2\nB=2\nA=3\n", filePath)).toThrow(
+      new EnvFileError(
+        "/config/.env sets A more than once, on lines 1, 3, and 5. /config/.env sets B more than once, on lines 2 and 4. Keep one line for each key and remove the others. Earlier versions used the last line.",
+      ),
+    );
+  });
+
+  it.for([
+    ["a colon", "A=1\nA: 2\n", "1 and 2"],
+    ["CRLF line breaks", "A=1\r\nA=2\r\n", "1 and 2"],
+    ["bare CR line breaks", "A=1\rB=2\rA=3\r", "1 and 3"],
+    ["the export prefix", "A=1\nexport A=2\n", "1 and 2"],
+  ])("throws for a key set twice with %s", ([, text, lines]) => {
+    expect(() => parseEnvFile(text, filePath)).toThrow(
+      new EnvFileError(
+        `/config/.env sets A more than once, on lines ${lines}. Keep one line for each key and remove the others. Earlier versions used the last line.`,
+      ),
+    );
+  });
+
+  it("doesn't count a colon without a space after it, as dotenv doesn't", () => {
+    expect(parseEnvFile("A=1\nA:2\n", filePath)).toStrictEqual({ A: "1" });
+  });
+
+  it("accepts different keys, comments, and similar names", () => {
+    expect(
+      parseEnvFile("# A=1\nA=1\nGRAPH_A=2\nexport B=3\n", filePath),
+    ).toStrictEqual({ A: "1", GRAPH_A: "2", B: "3" });
   });
 });
