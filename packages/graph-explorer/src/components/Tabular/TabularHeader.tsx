@@ -24,8 +24,14 @@ const TabularHeader = <T extends object>({
       className="bg-background-alt grow-0 border border-x-transparent border-t-transparent"
     >
       {headerGroup.headers.map(column => {
+        const label =
+          typeof column.Header === "string" && column.Header
+            ? column.Header
+            : undefined;
         const { key, ...headerProps } = column.getHeaderProps(
-          column.getSortByToggleProps(),
+          column.getSortByToggleProps({
+            title: column.canSort && label ? `${label} (click to sort)` : label,
+          }),
         );
 
         // This wrapper avoids collisions between sort and resize events
@@ -41,9 +47,8 @@ const TabularHeader = <T extends object>({
             )}
           >
             <div
-              className="place-self-start overflow-hidden text-left data-[align='right']:text-right data-[overflow='ellipsis']:text-ellipsis"
+              className="w-full min-w-0 self-start truncate text-left data-[align='right']:text-right"
               data-align={column.align}
-              data-overflow={column.overflow}
             >
               {column.render("Header")}
             </div>
