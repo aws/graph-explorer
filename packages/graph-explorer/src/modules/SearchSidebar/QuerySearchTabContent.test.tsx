@@ -121,6 +121,16 @@ describe("QuerySearchTabContent query editor", () => {
     expect(store.get(queryTextAtom)).toBe("g.V()");
   });
 
+  test("lets the user resize the query box vertically", () => {
+    renderWithStore(new FakeExplorer(), getAppStore());
+
+    const textbox = screen.getByRole("textbox", { name: "Query" });
+    expect(textbox).toHaveClass("resize-y");
+    expect(textbox).not.toHaveClass("resize-none");
+    expect(textbox).toHaveClass("flex-auto");
+    expect(textbox).not.toHaveClass("flex-1");
+  });
+
   test("opens with the stored query", () => {
     const store = getAppStore();
     store.set(queryTextAtom, "g.V().limit(1)");
