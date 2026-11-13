@@ -59,6 +59,7 @@ const {
 
 const app = createApp({
   configPath,
+  defaultConnectionJson: undefined,
   staticFilesVirtualPath,
   staticFilesPath,
   version: packageJson.version,

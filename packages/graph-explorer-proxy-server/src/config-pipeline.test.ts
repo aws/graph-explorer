@@ -75,6 +75,7 @@ async function requestDefaultConnection(
 ): Promise<DefaultConnectionResponse> {
   const app = createApp({
     configPath: configDir,
+    defaultConnectionJson: undefined,
     staticFilesVirtualPath: "/explorer",
     staticFilesPath: ".",
     version: "test",
