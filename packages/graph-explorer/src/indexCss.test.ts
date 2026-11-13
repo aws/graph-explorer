@@ -111,3 +111,25 @@ describe("index.css focus-ring utility", () => {
     );
   });
 });
+
+describe("index.css collapsible keyframes", () => {
+  test.each(["expand", "collapse"])(
+    "%s clips overflow only while it runs, so a settled panel never clips a focus ring",
+    async name => {
+      const css = await buildUtilities([`animate-${name}`]);
+      const start = css.indexOf(`@keyframes ${name} {`);
+      expect(start, `no @keyframes ${name}`).toBeGreaterThan(-1);
+      const keyframes = css.slice(start, css.indexOf("\n}\n", start));
+
+      for (const stop of ["from", "to"]) {
+        const stopStart = keyframes.indexOf(`${stop} {`);
+        expect(stopStart, `no ${stop} stop`).toBeGreaterThan(-1);
+        const body = keyframes.slice(
+          stopStart,
+          keyframes.indexOf("}", stopStart),
+        );
+        expect(body, `${name} ${stop}`).toContain("overflow: hidden");
+      }
+    },
+  );
+});

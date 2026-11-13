@@ -34,21 +34,26 @@
   --animate-expand: expand 0.2s cubic-bezier(0.87, 0, 0.13, 1);
   --animate-collapse: collapse 0.2s cubic-bezier(0.87, 0, 0.13, 1);
 
+  /* Clip only while animating, so a settled panel doesn't cut off focus rings. */
   @keyframes expand {
     from {
       height: 0;
+      overflow: hidden;
     }
     to {
       height: auto;
+      overflow: hidden;
     }
   }
 
   @keyframes collapse {
     from {
       height: auto;
+      overflow: hidden;
     }
     to {
       height: 0;
+      overflow: hidden;
     }
   }
 

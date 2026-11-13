@@ -27,7 +27,7 @@ function CollapsibleContent({
     <CollapsiblePrimitive.CollapsibleContent
       data-slot="collapsible-content"
       className={cn(
-        "group-data-open:animate-expand group-data-closed:animate-collapse overflow-hidden",
+        "group-data-open:animate-expand group-data-closed:animate-collapse",
         className,
       )}
       {...props}
