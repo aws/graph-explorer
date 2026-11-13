@@ -32,7 +32,7 @@ function createTestApp(
 ) {
   const app = createApp({
     configPath,
-    defaultConnectionJson: undefined,
+    defaultConnection: undefined,
     staticFilesVirtualPath: "/explorer",
     staticFilesPath: ".",
     version: testVersion,
@@ -273,13 +273,15 @@ describe("createApp", () => {
   });
 
   describe("GET /defaultConnection", () => {
-    const defaultConnectionJson =
-      '\n{\n"GRAPH_EXP_CONNECTION_URL":"https://db:8182",\n"GRAPH_EXP_USING_PROXY_SERVER":false\n}\n';
+    const defaultConnection = {
+      GRAPH_EXP_CONNECTION_URL: "https://db:8182",
+      GRAPH_EXP_USING_PROXY_SERVER: true,
+    };
 
     it("serves the in-memory Default Connection as JSON", async () => {
       const app = createApp({
         configPath: ".",
-        defaultConnectionJson,
+        defaultConnection,
         staticFilesVirtualPath: "/explorer",
         staticFilesPath: ".",
       });
@@ -289,7 +291,7 @@ describe("createApp", () => {
 
       expect(response.status).toBe(200);
       expect(response.type).toBe("application/json");
-      expect(response.text).toBe(defaultConnectionJson);
+      expect(response.body).toStrictEqual(defaultConnection);
     });
 
     it("prefers the in-memory Default Connection over defaultConnection.json", async () => {
@@ -301,7 +303,7 @@ describe("createApp", () => {
         );
         const app = createApp({
           configPath: tmpDir,
-          defaultConnectionJson,
+          defaultConnection,
           staticFilesVirtualPath: "/explorer",
           staticFilesPath: ".",
         });
@@ -309,7 +311,7 @@ describe("createApp", () => {
 
         const response = await request(app).get("/defaultConnection");
 
-        expect(response.text).toBe(defaultConnectionJson);
+        expect(response.body).toStrictEqual(defaultConnection);
       } finally {
         fs.rmSync(tmpDir, { recursive: true, force: true });
       }
@@ -371,7 +373,7 @@ describe("createApp", () => {
     function createStaticTestApp(staticFilesVirtualPath = "/explorer") {
       const app = createApp({
         configPath: ".",
-        defaultConnectionJson: undefined,
+        defaultConnection: undefined,
         staticFilesVirtualPath,
         staticFilesPath: tmpDir,
         version: testVersion,
@@ -1497,7 +1499,7 @@ describe("createApp", () => {
 
       const app = createApp({
         configPath: ".",
-        defaultConnectionJson: undefined,
+        defaultConnection: undefined,
         staticFilesVirtualPath: "/explorer",
         staticFilesPath: ".",
       });

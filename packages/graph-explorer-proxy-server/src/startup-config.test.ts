@@ -280,12 +280,6 @@ describe("resolveStartupConfig", () => {
   });
 
   describe("config.json after the environment", () => {
-    /** The Default Connection the startup serves, parsed. */
-    function defaultConnectionOf(inputs: Inputs) {
-      const text = resolve(inputs).defaultConnectionJson;
-      return text === undefined ? undefined : JSON.parse(text);
-    }
-
     it("reads the values from config.json", () => {
       const startup = resolve({
         configJson: {
@@ -298,7 +292,7 @@ describe("resolveStartupConfig", () => {
       });
 
       expect(startup.serverEnv.PROXY_SERVER_HTTPS_CONNECTION).toBe("false");
-      expect(JSON.parse(startup.defaultConnectionJson ?? "")).toMatchObject({
+      expect(startup.defaultConnection).toMatchObject({
         GRAPH_EXP_GRAPH_TYPE: "sparql",
         GRAPH_EXP_IAM: true,
         GRAPH_EXP_CONNECTION_URL: db,
@@ -308,7 +302,7 @@ describe("resolveStartupConfig", () => {
 
     it("yields to the environment for a key both set", () => {
       expect(
-        defaultConnectionOf({
+        resolve({
           configJson: {
             GRAPH_TYPE: "sparql",
             GRAPH_CONNECTION_URL: "https://from-config:8182",
@@ -319,7 +313,7 @@ describe("resolveStartupConfig", () => {
             GRAPH_CONNECTION_URL: "https://from-env:8182",
             AWS_REGION: "eu-west-1",
           },
-        }),
+        }).defaultConnection,
       ).toMatchObject({
         GRAPH_EXP_GRAPH_TYPE: "gremlin",
         GRAPH_EXP_CONNECTION_URL: "https://from-env:8182",
@@ -329,10 +323,10 @@ describe("resolveStartupConfig", () => {
 
     it("fills the keys the environment leaves unset", () => {
       expect(
-        defaultConnectionOf({
+        resolve({
           configJson: { GRAPH_TYPE: "sparql", AWS_REGION: "us-west-2" },
           processEnv: { GRAPH_CONNECTION_URL: db, AWS_REGION: "eu-west-1" },
-        }),
+        }).defaultConnection,
       ).toMatchObject({
         GRAPH_EXP_CONNECTION_URL: db,
         GRAPH_EXP_GRAPH_TYPE: "sparql",
@@ -353,7 +347,7 @@ describe("resolveStartupConfig", () => {
       });
 
       expect(startup.serverEnv.PROXY_SERVER_HTTPS_CONNECTION).toBe("false");
-      expect(startup.defaultConnectionJson).toContain(db);
+      expect(startup.defaultConnection?.GRAPH_EXP_CONNECTION_URL).toBe(db);
     });
 
     it("leaves an empty environment value of a key config.json can't hold for the server to reject", () => {
@@ -410,8 +404,8 @@ describe("resolveStartupConfig", () => {
     it("come from the environment without a config.json", () => {
       expect(
         resolve({ processEnv: { GRAPH_CONNECTION_URL: db, IAM: "true" } })
-          .defaultConnectionJson,
-      ).toContain('"GRAPH_EXP_IAM":true,');
+          .defaultConnection,
+      ).toMatchObject({ GRAPH_EXP_CONNECTION_URL: db, GRAPH_EXP_IAM: true });
     });
 
     // The shipped packages/graph-explorer/.env sets SERVICE_TYPE, and the
@@ -420,8 +414,17 @@ describe("resolveStartupConfig", () => {
       expect(
         resolve({
           dotEnv: `GRAPH_CONNECTION_URL=${db}\nSERVICE_TYPE=neptune-graph\n`,
-        }).defaultConnectionJson,
+        }).defaultConnection,
       ).toBeUndefined();
+    });
+
+    it("collect the Default Connection's warnings", () => {
+      expect(
+        resolve({ processEnv: { GRAPH_CONNECTION_URL: db, IAM: "yes" } })
+          .warnings,
+      ).toStrictEqual([
+        `IAM is "yes", which isn't true or false, so the Default Connection uses false.`,
+      ]);
     });
   });
 
@@ -727,7 +730,7 @@ describe("loadStartup", () => {
     const { env, startup } = load();
 
     expect(env.PROXY_SERVER_HTTPS_CONNECTION).toBe(false);
-    expect(startup.defaultConnectionJson).toContain(db);
+    expect(startup.defaultConnection?.GRAPH_EXP_CONNECTION_URL).toBe(db);
   });
 
   it("reads config.json from source", () => {

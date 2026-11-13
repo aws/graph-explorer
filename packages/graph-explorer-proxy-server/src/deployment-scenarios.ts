@@ -270,11 +270,9 @@ function servingConnection(body: unknown, base: ServerStart = https) {
   return served(base, { defaultConnection: { status: 200, body } });
 }
 
-/** A start that serves `text`, which isn't JSON, as the Default Connection. */
-function servingInvalidConnection(text: string, base: ServerStart = https) {
-  return served(base, {
-    defaultConnection: { status: 200, invalidJson: text },
-  });
+/** The warning for an IAM value that isn't true or false. */
+function iamWarning(value: string) {
+  return `IAM is "${value}", which isn't true or false, so the Default Connection uses false.`;
 }
 
 const noCertificateFiles: StartupOutcome = {
@@ -898,11 +896,9 @@ export const deployments: Deployment[] = [
   {
     name: "-e IAM=True with GRAPH_CONNECTION_URL",
     dockerEnv: { GRAPH_CONNECTION_URL: clusterUrl, IAM: "True" },
-    // Earlier versions wrote the IAM value as it was, so anything but a JSON
-    // boolean makes the file invalid.
-    expected: servingInvalidConnection(
-      expect.stringContaining('"GRAPH_EXP_IAM":True,'),
-    ),
+    // IAM is read without regard to case, so True is the boolean true. Before,
+    // the value was written as it was, which made the file invalid JSON.
+    expected: servingConnection(proxiedConnection({ GRAPH_EXP_IAM: true })),
   },
   {
     name: "a mounted defaultConnection.json",
@@ -978,8 +974,12 @@ export const deployments: Deployment[] = [
   {
     name: "config.json IAM null with GRAPH_CONNECTION_URL",
     configJson: { GRAPH_CONNECTION_URL: clusterUrl, IAM: null },
-    // Earlier versions wrote the IAM value as it was.
-    expected: servingConnection(proxiedConnection({ GRAPH_EXP_IAM: null })),
+    // An IAM that isn't true or false uses false with a warning. Before, the
+    // value was written as it was.
+    expected: servingConnection(proxiedConnection({ GRAPH_EXP_IAM: false }), {
+      ...https,
+      warnings: [iamWarning("null")],
+    }),
   },
   {
     name: "config.json with PROXY_SERVER_HTTPS_CONNECTION false commented out",
@@ -1348,20 +1348,36 @@ export const deployments: Deployment[] = [
       }),
     ),
   },
-  ...["TRUE", "FALSE", "yes"].map((value): Deployment => ({
+  ...(
+    [
+      // IAM is read without regard to case. Before, the value was written as
+      // it was, which made the file invalid JSON.
+      ["TRUE", servingConnection(proxiedConnection({ GRAPH_EXP_IAM: true }))],
+      ["FALSE", servingConnection(proxiedConnection({ GRAPH_EXP_IAM: false }))],
+      // An IAM that isn't true or false uses false with a warning. Before, the
+      // value was written as it was, which made the file invalid JSON.
+      [
+        "yes",
+        servingConnection(proxiedConnection({ GRAPH_EXP_IAM: false }), {
+          ...https,
+          warnings: [iamWarning("yes")],
+        }),
+      ],
+    ] as const
+  ).map(([value, expected]): Deployment => ({
     name: `-e IAM=${value} with GRAPH_CONNECTION_URL`,
     dockerEnv: { GRAPH_CONNECTION_URL: clusterUrl, IAM: value },
-    // Earlier versions wrote the IAM value as it was, so anything but a JSON
-    // boolean makes the file invalid.
-    expected: servingInvalidConnection(
-      expect.stringContaining(`"GRAPH_EXP_IAM":${value},`),
-    ),
+    expected,
   })),
   {
     name: "config.json IAM 1 with GRAPH_CONNECTION_URL",
     configJson: { GRAPH_CONNECTION_URL: clusterUrl, IAM: 1 },
-    // Earlier versions wrote the IAM value as it was.
-    expected: servingConnection(proxiedConnection({ GRAPH_EXP_IAM: 1 })),
+    // An IAM that isn't true or false uses false with a warning. Before, the
+    // value was written as it was.
+    expected: servingConnection(proxiedConnection({ GRAPH_EXP_IAM: false }), {
+      ...https,
+      warnings: [iamWarning("1")],
+    }),
   },
   {
     name: 'config.json IAM "true" with GRAPH_CONNECTION_URL',

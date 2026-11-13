@@ -7,7 +7,10 @@ import {
   configJsonKeys,
   readConfigJson,
 } from "./config-json.ts";
-import { renderDefaultConnection } from "./default-connection.ts";
+import {
+  type DefaultConnection,
+  resolveDefaultConnection,
+} from "./default-connection.ts";
 import {
   EnvFileError,
   parseEnvFile,
@@ -38,8 +41,7 @@ export type StartupConfig = {
   serverEnv: Record<string, string | undefined>;
   /** The settings `.env` files hold, for libraries that read `process.env`. */
   envFileValues: Record<string, string>;
-  /** The text served at `/defaultConnection`, when a connection is configured. */
-  defaultConnectionJson: string | undefined;
+  defaultConnection: DefaultConnection | undefined;
   /** The host to generate a certificate for, when one is set. */
   certificateHost: string | undefined;
   /**
@@ -158,16 +160,18 @@ export function resolveStartupConfig({
   // A .env line never reaches the server, as before.
   serverEnv.NEPTUNE_NOTEBOOK = settings.NEPTUNE_NOTEBOOK;
 
+  const connection = resolveDefaultConnection(settings);
+
   return {
     serverEnv,
     envFileValues: { ...dotEnvValues, ...dotEnvLocalValues },
-    defaultConnectionJson: renderDefaultConnection(settings),
+    defaultConnection: connection.defaultConnection,
     // The process environment only, so a HOST in .env never replaces
     // certificates kept in a volume.
     certificateHost: environment.HOST || undefined,
     httpsNotice: image ? httpsNoticeFor(notebook, https) : undefined,
     info,
-    warnings: configJson?.warnings ?? [],
+    warnings: [...(configJson?.warnings ?? []), ...connection.warnings],
   };
 }
 
