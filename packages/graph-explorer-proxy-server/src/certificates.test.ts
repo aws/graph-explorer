@@ -16,6 +16,7 @@ import {
   CertificateError,
   generateCertificates,
   prepareCertificates,
+  recordContainerStart,
 } from "./certificates.ts";
 
 const templateDir = path.resolve(import.meta.dirname, "../cert-info");
@@ -247,5 +248,45 @@ describe("prepareCertificates", () => {
   it("treats an empty host as no host", () => {
     expect(() => prepare("")).toThrow(CertificateError);
     expect(generate).not.toHaveBeenCalled();
+  });
+});
+
+describe("recordContainerStart", () => {
+  let workDir: string;
+  const logger = { warn: vi.fn() };
+
+  beforeEach(() => {
+    workDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-container-start-"));
+    vi.resetAllMocks();
+  });
+
+  afterEach(() => {
+    fs.chmodSync(workDir, 0o755);
+    fs.rmSync(workDir, { recursive: true, force: true });
+  });
+
+  it("records the start", () => {
+    const markerPath = path.join(workDir, ".container-started");
+
+    recordContainerStart(markerPath, logger);
+
+    expect(fs.existsSync(markerPath)).toBe(true);
+    expect(logger.warn).not.toHaveBeenCalled();
+  });
+
+  it("warns when it can't record the start", ({ skip }) => {
+    // Root ignores file permissions, so chmod can't make anything read-only.
+    skip(process.getuid?.() === 0);
+    fs.chmodSync(workDir, 0o555);
+    const markerPath = path.join(workDir, ".container-started");
+
+    recordContainerStart(markerPath, logger);
+
+    expect(fs.existsSync(markerPath)).toBe(false);
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining(
+        `Couldn't record this container's start at ${markerPath}, so a restart generates a new certificate`,
+      ),
+    );
   });
 });

@@ -29,3 +29,8 @@ export function isDirectory(path: string) {
 }
 
 export const certificateDir = path.join(proxyServerRoot, "cert-info");
+/** Records that this container has started before. Kept outside `certificateDir`, which may be a volume. */
+export const containerStartMarkerPath = path.join(
+  proxyServerRoot,
+  ".container-started",
+);
