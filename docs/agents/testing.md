@@ -99,21 +99,15 @@ expect(fetchOptions.headers["User-Agent"]).toBe("graph-explorer/1.2.3");
 
 A test that deliberately abandons a request should await the cancellation before it ends, rather than leaving it in flight for the next test.
 
-## Proxy server: running the Docker entrypoint
+## Proxy server: deployment scenarios
 
-`createEntrypointWorkDir()` and `runEntrypoint()` in `packages/graph-explorer-proxy-server/src/testing.ts` run the real `docker-entrypoint.sh` in a temp directory. They stub `setup-ssl.sh`, which records that it ran and fails without `HOST`, they point the certificate folder at `./cert-info`, and they replace the node start line with a node process that writes its environment to a file. `readServerEnvironment()` returns that environment, including the variables the entrypoint sets on the start line. `readServerParentPid()` returns that process's parent id, which equals the test's own `process.pid` when the entrypoint execs the server. `process-environment.sh` is a no-op stub unless the test copies the real script in.
-
-`docker-entrypoint.test.ts` covers the entrypoint on its own.
-
-### The deployment scenario table
-
-The table lives in `packages/graph-explorer-proxy-server/src/deployment-scenarios.ts`. Each row is a way to run the image: `-e` flags, a `config.json`, a mounted `.env`, `.env.local`, or `defaultConnection.json`, certificates already in `cert-info`, a read-only mount, and an optional second start (`restart` or `new-container`). Its `expected` is what the start does: a server that started, with every defined field of the parsed environment, the listener's protocol and port, whether it generated certificates, what `GET /defaultConnection` returned, the warnings it logged, and the line it logged when it skipped certificate generation, or the text of a failed start. A row with a second start expects a pair.
+The deployment scenario table lives in `packages/graph-explorer-proxy-server/src/deployment-scenarios.ts`. Each row is a way to run the image: `-e` flags, a `config.json`, a mounted `.env`, `.env.local`, or `defaultConnection.json`, certificates already in `cert-info`, a read-only mount, and an optional second start (`restart` or `new-container`). Its `expected` is what the start does: a server that started, with every defined field of the parsed environment, the listener's protocol and port, whether it generated certificates, what `GET /defaultConnection` returned, the warnings it logged, and the line it logged when it skipped certificate generation, or the text of a failed start. A row with a second start expects a pair.
 
 - A row's `name` describes its inputs only, never its outcome, so it stays true when the outcome changes.
 - A comment directly above `expected` says why the outcome is what it is.
 - A row's inputs never change once it is added. Its `expected` changes only in the change that changes that behavior, which rewrites the comment to name what changed. So the table's diff shows exactly what a change moved.
 
-`config-pipeline.test.ts` runs every row through the real `docker-entrypoint.sh`, `process-environment.sh`, and `setup-ssl.sh`, with a fake `openssl` that records its calls and writes placeholder files, then through dotenv precedence, the Zod schema, `resolveServerConfig`, and `createApp`. A read-only row that fails expects a refusal that leaves the folder untouched.
+`config-pipeline.test.ts` runs every row through `loadStartup`, `prepareCertificates` with a stub that writes placeholder files, `resolveServerConfig`, and `createApp`, and checks after every start that the configuration folder is unchanged.
 
 ## Backward compatibility for persisted data
 
@@ -123,6 +117,6 @@ Group them in a dedicated `describe("backward compatibility: ...")` with a comme
 
 Applies to any object type persisted via `atomWithLocalForage` or `createSessionScopedAtom`. Triggers: removing/renaming a property, changing a property's type, adding a required property, or changing a property's semantics. For a per-tab atom the old shape arrives on the shared localForage breadcrumb, which its codec's `parseStored` must accept.
 
-The same pinning applies outside IndexedDB: legacy environment variables that older deployments still set, and legacy on-disk configuration files that older exports or lifecycle scripts still produce, deserve the same dedicated `describe("backward compatibility: ...")` treatment. See `packages/graph-explorer-proxy-server/src/process-environment.test.ts` for the environment-variable case.
+The same pinning applies outside IndexedDB: legacy environment variables that older deployments still set, and legacy on-disk configuration files that older exports or lifecycle scripts still produce, deserve the same dedicated `describe("backward compatibility: ...")` treatment. See `packages/graph-explorer-proxy-server/src/default-connection.test.ts` for the environment-variable case.
 
 Golden files in `__fixtures__` pin the on-disk and stored shapes that older builds wrote or must still read. Never edit one to make a test pass: fix the reader or writer instead, and add a new fixture for a new shape. See `src/connections/connectionFileGoldenFiles.test.ts`, `src/core/StateProvider/storedConnectionShapes.test.ts`, and `src/core/fileEnvelope/goldenFiles.test.ts`.

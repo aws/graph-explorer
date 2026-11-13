@@ -46,46 +46,6 @@ If either Graph Explorer or the proxy server are served over an HTTPS connection
 
 See [Trusting the self-signed certificate](../../references/security/#trusting-the-self-signed-certificate) for step-by-step instructions, or [Removing the "Not Secure" warning on Chrome](../../references/security/#removing-the-not-secure-warning-on-chrome) for Chrome-specific instructions.
 
-### Image built on Windows exits with "no such file or directory"
-
-If you build the image from a Windows clone of the repository, the container can exit right away with this message:
-
-```
-exec ./docker-entrypoint.sh: no such file or directory
-```
-
-The file exists. The error means the shell scripts were checked out with Windows (CRLF) line endings, which Linux can't run. The repository now forces Unix (LF) line endings on shell scripts, but clones made before that change keep their old copies.
-
-To fix it, check the scripts out again from the root of your clone, then rebuild the image:
-
-```bash
-git rm --cached docker-entrypoint.sh process-environment.sh setup-ssl.sh
-git checkout HEAD -- docker-entrypoint.sh process-environment.sh setup-ssl.sh
-```
-
-A fresh clone also works.
-
-## Graph Explorer can't start because it can't write .env
-
-At startup, the container writes its settings into the configuration folder. If that folder isn't writable, the container exits with this message:
-
-```
-Graph Explorer can't start because it can't write ./packages/graph-explorer/.env. The container writes its settings to the configuration folder at startup, so ./packages/graph-explorer must be writable. Check that it isn't mounted read-only.
-```
-
-Common causes:
-
-- The configuration folder is mounted read-only
-- The container runs as a non-root user (for example `docker run --user`, or on OpenShift)
-- The container runs with a read-only root filesystem (for example Kubernetes `readOnlyRootFilesystem: true`)
-
-Running as a non-root user isn't supported yet. See [Support running the container under a non-root UID](https://github.com/aws/graph-explorer/issues/2187) for progress on that.
-
-To fix it:
-
-- Make the configuration folder writable by the container, or
-- Point [`CONFIGURATION_FOLDER_PATH`](../../references/configuration/#configuration_folder_path) at a writable location instead
-
 ## Schema Sync Fails
 
 This can happen for many reasons. Below are a few of the common ones.

@@ -77,3 +77,11 @@ This guide is an example, not a recommended production configuration. Review its
    > A new container generates a new certificate, so replacing the container undoes this trust step. To keep the certificate, see [Keeping the certificate across container replacements](../../references/security/#keeping-the-certificate-across-container-replacements).
 
 6. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See [Connections](../../features/connections/) for details on configuring your first connection.
+
+## Upgrading from 3.3 or earlier
+
+The server now reads its startup configuration itself, where earlier versions ran shell scripts that rewrote files in the configuration folder. A deployment that follows this guide needs no change, apart from what is listed here.
+
+- The image starts the server with node, and `docker-entrypoint.sh`, `process-environment.sh`, and `setup-ssl.sh` are removed. If your container's command calls `./docker-entrypoint.sh`, as a Kubernetes `command:` may, remove it.
+- The configuration folder is no longer written, so you can mount it read-only. The container no longer stops with "Graph Explorer can't start because it can't write .env".
+- `config.json` is read as JSON. Comments and trailing commas still work. A key inside a comment no longer takes effect, and a key written with a space before its colon now does, so check your `config.json` for both. A key set more than once takes its last value and logs a warning. A file that is empty, holds only comments, or isn't valid JSON stops startup with an error that names the file, so add settings to it, fix it, or remove it.

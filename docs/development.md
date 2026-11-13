@@ -203,7 +203,7 @@ Example: `5174`
 ## Using self-signed certificates with Docker
 
 - Self-signed certificates will use the hostname provided in the `docker run` command, so unless you have specific requirements, there are no extra steps here besides providing the hostname.
-- If you would like to modify the certificate files, be aware that the Dockerfile will make automatic modifications on run in the [entrypoint script](https://github.com/aws/graph-explorer/blob/main/docker-entrypoint.sh), so you will need to remove these lines.
+- If you would like to modify the certificate files, be aware that the container generates them at startup in [`packages/graph-explorer-proxy-server/src/certificates.ts`](https://github.com/aws/graph-explorer/blob/main/packages/graph-explorer-proxy-server/src/certificates.ts), so leave `HOST` unset and mount your own files.
 - If you only serve one of either the proxy server or Graph Explorer UI over an HTTPS connection and wish to download from the browser, you should navigate to the one served over HTTPS to download the certificate.
 - The other certificate files can also be found at /packages/graph-explorer-proxy-server/cert-info/ on the Docker container that is created.
 

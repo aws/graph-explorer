@@ -87,7 +87,7 @@ Serves the proxy server over HTTPS when true, using the certificate files descri
 Set it to `false` only behind a reverse proxy that terminates TLS, or to try Graph Explorer on your own machine. Plain HTTP that other machines can reach isn't supported. See [Serving HTTP Behind a Reverse Proxy](../security/#serving-http-behind-a-reverse-proxy).
 
 - Optional
-- Default `false` in code, `true` in Docker via the entrypoint script
+- Default `false` in code, `true` in Docker
 
 ### `PROXY_SERVER_CORS_ORIGIN`
 
@@ -156,9 +156,7 @@ Sets the minimum severity the proxy server logs. Values from highest to lowest a
 
 Override path for the folder containing `.env` and `defaultConnection.json`. When set, replaces the default path entirely.
 
-At startup, the container writes its settings to this folder: always `.env`, and `defaultConnection.json` too when a default connection is configured. The folder must be writable by the container, or it refuses to start. See [Graph Explorer can't start because it can't write .env](../../guides/troubleshooting/#graph-explorer-cant-start-because-it-cant-write-env) if you hit this.
-
-Mounting `config.json` read-only at `/graph-explorer/config.json` (see [JSON Configuration Approach](#json-configuration-approach)) is unaffected, since that file lives outside the configuration folder.
+At startup, the container reads `.env` and any `defaultConnection.json` from this folder and writes nothing to it, so the folder can be mounted read-only. `config.json` lives outside the folder, at `/graph-explorer/config.json` (see [JSON Configuration Approach](#json-configuration-approach)), and can be mounted read-only too.
 
 - Optional
 - Default: `<client root>` (`packages/graph-explorer`)
@@ -166,6 +164,8 @@ Mounting `config.json` read-only at `/graph-explorer/config.json` (see [JSON Con
 ## Default Connection
 
 To provide a default connection such that initial loads of Graph Explorer always result with the same starting connection, modify the `docker run ...` command to either take in a JSON configuration or runtime environment variables. If you provide both a JSON configuration and environmental variables, the JSON will be prioritized.
+
+The server builds the default connection when it starts and serves it at `/defaultConnection`. When no connection is configured, it serves a `defaultConnection.json` from the [configuration folder](#configuration_folder_path) if one is there, so you can mount your own.
 
 > [!NOTE]
 >
@@ -212,6 +212,8 @@ First, create a `config.json` file containing values for the connection attribut
 ```
 
 `GRAPH_TYPE` accepts `"gremlin"`, `"sparql"`, or `"openCypher"`. `GRAPH_EXP_FETCH_REQUEST_TIMEOUT` is measured in milliseconds (e.g., 240000 is 4 minutes).
+
+The file can hold `//` and `/* */` comments and trailing commas. A file that is empty or holds only comments, or that still isn't valid JSON, stops startup with an error that names the file. Add settings to an empty or comment-only file, or remove it. A commented-out key is ignored.
 
 Pass the `config.json` file path to the `docker run` command.
 
