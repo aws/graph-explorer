@@ -1,10 +1,11 @@
 version: 2
 updates:
-  # Covers both `FROM` lines in Dockerfile. Daily because a new Amazon Linux
-  # 2023 snapshot is a single ungrouped dependency, so a run without one is a
-  # no-op. The Vite+ image only supplies the global vp, which hands builds to
-  # the project's installed vite-plus, so its tag can differ from the catalog
-  # version and Dependabot bumps each on its own.
+  # Covers every `FROM` line in Dockerfile, including the Vite+ image named in
+  # two of them. Daily because a new Amazon Linux 2023 snapshot is a single
+  # ungrouped dependency, so a run without one is a no-op. The Vite+ image only
+  # supplies the global vp, which hands builds to the project's installed
+  # vite-plus, so its tag can differ from the catalog version and Dependabot
+  # bumps each on its own.
   #
   # No `cooldown`: it needs a registry-assigned publication date, and Docker Hub's
   # tag_last_pushed is currently the only accepted source. ECR Public and GHCR,

@@ -3,10 +3,10 @@
 # .node-version and the pnpm in packageManager, and hands vp run to the
 # project's installed vite-plus. So the tag can differ from the vite-plus
 # catalog version. Pinned by digest.
-FROM ghcr.io/voidzero-dev/vite-plus:1.5.1@sha256:068d824d8d8184c39defc266795d3ade452bfc5266603d25d81aeeedbedf8973 AS toolchain
+# The client bundle and scripts are the same on every platform, so this stage
+# runs once on the build host instead of under emulation.
+FROM --platform=$BUILDPLATFORM ghcr.io/voidzero-dev/vite-plus:1.5.1@sha256:068d824d8d8184c39defc266795d3ade452bfc5266603d25d81aeeedbedf8973 AS build
 WORKDIR /app
-
-FROM toolchain AS build
 # The image has no repository to hook into, so skip the Vite+ commit hooks.
 ENV VP_GIT_HOOKS=0
 COPY --chown=vp:vp . .
@@ -15,20 +15,24 @@ COPY --chown=vp:vp . .
 RUN vp install --frozen-lockfile && \
     vp run build && \
     rm -rf node_modules packages/*/node_modules && \
-    chmod a+x ./process-environment.sh ./setup-ssl.sh ./docker-entrypoint.sh && \
-    NODE_HOME="$(dirname "$(dirname "$(vp env which node | head -1)")")" && \
-    mkdir /tmp/node && \
-    cp "$NODE_HOME/bin/node" "$NODE_HOME/LICENSE" /tmp/node/
+    chmod a+x ./process-environment.sh ./setup-ssl.sh ./docker-entrypoint.sh
 
+# Repeats the image from build because a --platform on a FROM <stage> line has
+# no effect, so each stage names the image itself.
 # Installed from the manifests alone, so the layer is reused until a
 # dependency changes and never holds devDependencies. Only the server and its
 # workspace dependencies are installed: Vite bundles the client's dependencies
-# into dist, so nothing at runtime loads them.
-FROM toolchain AS deps
+# into dist, so nothing at runtime loads them. The Node.js binary comes from
+# this stage because it must match the target platform.
+FROM ghcr.io/voidzero-dev/vite-plus:1.5.1@sha256:068d824d8d8184c39defc266795d3ade452bfc5266603d25d81aeeedbedf8973 AS deps
+WORKDIR /app
 COPY --chown=vp:vp package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc .node-version ./
 COPY --chown=vp:vp packages/graph-explorer-proxy-server/package.json packages/graph-explorer-proxy-server/
 COPY --chown=vp:vp packages/shared/package.json packages/shared/
-RUN vp install --prod --frozen-lockfile --ignore-scripts --filter graph-explorer-proxy-server...
+RUN vp install --prod --frozen-lockfile --ignore-scripts --filter graph-explorer-proxy-server... && \
+    NODE_HOME="$(dirname "$(dirname "$(vp env which node | head -1)")")" && \
+    mkdir /tmp/node && \
+    cp "$NODE_HOME/bin/node" "$NODE_HOME/LICENSE" /tmp/node/
 
 # Pinned by digest to a dated ECR Public snapshot for reproducible builds.
 # The tag also pins dnf repo metadata to that date, so a yum update would find
@@ -42,8 +46,8 @@ RUN yum install -y openssl && \
     rpm -qa 'dnf*' 'yum*' 'libdnf*' | while read pkg; do rpm -e --nodeps "$pkg"; done && \
     rm -rf /var/cache/yum /var/cache/dnf
 # LICENSE carries the notices for the third-party code built into node.
-COPY --from=build --chown=0:0 /tmp/node/node /usr/local/bin/node
-COPY --from=build --chown=0:0 /tmp/node/LICENSE /usr/local/LICENSE
+COPY --from=deps --chown=0:0 /tmp/node/node /usr/local/bin/node
+COPY --from=deps --chown=0:0 /tmp/node/LICENSE /usr/local/LICENSE
 
 ENV HOME=/graph-explorer
 # The server listens on 127.0.0.1 unless told otherwise. A published port
