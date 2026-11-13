@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-11-12
+- **Updated:** 2026-11-13: the Default Connection settings come from `.env` and `.env.local` too, in the same order.
 - **Related:** #1670, [Refuse the Neptune Notebook preset when HTTPS is requested](./20260925-refuse-neptune-notebook-https-conflict.md), [Unify Docker image by removing SageMaker variant](./20260616-unify-docker-image-remove-sagemaker-variant.md). Affects `resolveStartupConfig` in `packages/graph-explorer-proxy-server/src/startup-config.ts`, `packages/graph-explorer-proxy-server/src/env.ts`, and the Precedence section of `packages/docs/src/content/docs/references/configuration.mdx`.
 
 ## Context
@@ -25,7 +26,7 @@ Every setting comes from the first of these that sets it:
 - This reverses "the JSON will be prioritized" for the Default Connection settings and `NEPTUNE_NOTEBOOK`.
 - An empty environment value for a key `config.json` can hold, such as `-e GRAPH_CONNECTION_URL=`, counts as unset, so it doesn't hide the `config.json` value.
 - `NEPTUNE_NOTEBOOK` comes only from the environment or `config.json`, never from `.env` or `.env.local`, as before.
-- The Default Connection settings don't come from `.env` or `.env.local`, as before.
+- The Default Connection settings follow the same order one key at a time, so a connection can take its keys from more than one place before it is set up as proxied or direct.
 - `HOST`, which names the host the self-signed certificate is generated for, comes from the environment only, so a `HOST` in `.env` never replaces certificate files kept in a volume.
 - With `-e NEPTUNE_NOTEBOOK=true`, the preset applies even when `config.json` exists. When `PROXY_SERVER_HTTPS_CONNECTION` is also `true`, startup stops with the conflict the earlier ADR describes.
 

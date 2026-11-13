@@ -5,6 +5,7 @@ import {
   type ConfigJson,
   ConfigJsonError,
   configJsonKeys,
+  defaultConnectionKeys,
   readConfigJson,
 } from "./config-json.ts";
 import {
@@ -60,8 +61,8 @@ export type StartupConfig = {
  * its default. An empty environment value for a setting `config.json` can
  * hold counts as unset. Under the preset, PROXY_SERVER_HTTPS_CONNECTION from
  * `config.json` keeps its value only when it reads as `true`, otherwise
- * `false`. Connection settings and NEPTUNE_NOTEBOOK come only from the
- * process environment and `config.json`, never from `.env` or `.env.local`.
+ * `false`. NEPTUNE_NOTEBOOK comes only from the process environment and
+ * `config.json`, never from `.env` or `.env.local`.
  *
  * The notebook preset applies when NEPTUNE_NOTEBOOK is exactly `true`. HTTPS
  * defaults to on for the image and off otherwise.
@@ -97,7 +98,9 @@ export function resolveStartupConfig({
     : {};
 
   const settings: ConfigJson["values"] = {
+    ...connectionSettingsIn(dotEnvValues),
     ...configJson?.values,
+    ...connectionSettingsIn(dotEnvLocalValues),
     ...Object.fromEntries(
       configJsonKeys.flatMap(key =>
         environment[key] === undefined ? [] : [[key, environment[key]]],
@@ -198,6 +201,15 @@ function httpsNoticeFor(notebook: boolean, https: Setting | undefined) {
     return `HTTPS is off, set by PROXY_SERVER_HTTPS_CONNECTION in ${https.source}`;
   }
   return undefined;
+}
+
+/** The Default Connection settings a `.env` file sets to a value. */
+function connectionSettingsIn(values: Record<string, string>) {
+  return Object.fromEntries(
+    defaultConnectionKeys.flatMap(key =>
+      values[key] ? [[key, values[key]]] : [],
+    ),
+  );
 }
 
 /**
