@@ -160,3 +160,37 @@ export function readServerEnvironment(workDir: string): Record<string, string> {
     fs.readFileSync(path.join(workDir, serverEnvironmentFile), "utf-8"),
   );
 }
+
+/**
+ * The exact bytes earlier versions appended to `.env` at each start, for tests that need an `.env` an upgrading operator has.
+ */
+export function legacyStartupBlock({
+  neptuneNotebook,
+  port,
+  logStyle,
+  https,
+  graphExpHttps,
+}: {
+  neptuneNotebook: string;
+  port?: "PROXY_SERVER_PORT" | "PROXY_SERVER_HTTP_PORT";
+  logStyle?: true;
+  https: string;
+  graphExpHttps: string;
+}) {
+  return [
+    `\nNEPTUNE_NOTEBOOK=${neptuneNotebook}\n`,
+    port ? `\n${port}=9250\n` : "",
+    logStyle ? "\nLOG_STYLE=cloudwatch\n" : "",
+    `\nPROXY_SERVER_HTTPS_CONNECTION=${https}\n`,
+    `\nGRAPH_EXP_HTTPS_CONNECTION=${graphExpHttps}\n`,
+  ].join("");
+}
+
+/** `text` without its blank lines, as an operator who tidied `.env` leaves it. */
+export function withoutBlankLines(text: string) {
+  return text
+    .split("\n")
+    .filter(line => line.trim() !== "")
+    .map(line => `${line}\n`)
+    .join("");
+}
