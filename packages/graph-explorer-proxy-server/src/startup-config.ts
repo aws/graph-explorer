@@ -54,8 +54,9 @@ type StartupInputs = {
 /**
  * Resolves everything the server starts with from its inputs, without
  * touching a file. A run from source reads the environment, then
- * `.env.local`, then `.env`. The image does what its startup scripts did,
- * which {@link resolveImageStart} describes.
+ * `.env.local`, then `.env`. The image reads the environment, then
+ * `.env.local`, then `config.json` or the notebook preset, then `.env`, as
+ * {@link resolveImageStart} describes.
  */
 export function resolveStartupConfig({
   image,
@@ -89,7 +90,8 @@ function resolveSourceRun({
  * settings to `.env` at every start, then read that file twice: the
  * entrypoint for the notebook preset and the certificate, and dotenv for the
  * server. This builds the text `.env` would have held and reads it the same
- * two ways, so every start comes out as it did, without writing the file.
+ * two ways, without writing the file. The block takes each setting
+ * `config.json` can hold from the environment, then `config.json`.
  */
 function resolveImageStart({
   processEnv,
@@ -98,15 +100,17 @@ function resolveImageStart({
   configJson,
   startedBefore,
 }: StartupInputs): StartupConfig {
-  const environment = definedValues(processEnv);
-  // config.json replaced every key it can hold, even the ones it leaves out.
-  const settings: ConfigJson["values"] =
-    configJson?.values ??
-    Object.fromEntries(
-      configJsonKeys
-        .map(key => [key, environment[key]] as const)
-        .filter(([, value]) => value),
-    );
+  const environment = withoutEmptyConfigJsonKeys(definedValues(processEnv));
+  // The environment beats config.json one setting at a time, and config.json
+  // fills what the environment leaves unset.
+  const settings: ConfigJson["values"] = {
+    ...configJson?.values,
+    ...Object.fromEntries(
+      configJsonKeys.flatMap(key =>
+        environment[key] === undefined ? [] : [[key, environment[key]]],
+      ),
+    ),
+  };
 
   const envText =
     (dotEnv?.text ?? "") + appendedSettingsBlock(settings, environment);
@@ -147,6 +151,20 @@ function resolveImageStart({
           : "SSL disabled. Skipping self-signed certificate generation.",
     warnings: configJson?.warnings ?? [],
   };
+}
+
+/**
+ * `environment` without the empty values of the settings config.json can
+ * hold, which count as unset. Other settings keep theirs, so an empty
+ * PROXY_SERVER_LISTEN_ADDRESS still fails with its own message.
+ */
+function withoutEmptyConfigJsonKeys(environment: Record<string, string>) {
+  const keys: ReadonlySet<string> = new Set(configJsonKeys);
+  return Object.fromEntries(
+    Object.entries(environment).filter(
+      ([key, value]) => value !== "" || !keys.has(key),
+    ),
+  );
 }
 
 /**
