@@ -236,7 +236,7 @@ function ClickableTypeText({
         <button
           type="button"
           className={cn(
-            "hover:text-foreground hover:bg-primary-subtle focus-visible:ring-primary cursor-pointer bg-transparent p-0 font-[inherit] focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
+            "hover:text-foreground hover:bg-primary-subtle focus-visible:focus-ring cursor-pointer bg-transparent p-0 font-[inherit] focus-visible:rounded-sm",
             className,
           )}
           style={style}

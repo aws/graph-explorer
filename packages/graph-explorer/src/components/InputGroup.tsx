@@ -17,7 +17,7 @@ function InputGroup({ className, ...props }: ComponentPropsWithRef<"div">) {
       // eslint-disable-next-line jsx-a11y/prefer-tag-over-role
       role="group"
       className={cn(
-        "group/input-group border-input-border bg-input-background has-[[data-slot=input-group-control]:focus-visible]:border-primary has-[[data-slot][aria-invalid=true]]:border-danger relative flex h-10 w-full min-w-0 items-center rounded-md border shadow-xs transition-colors outline-none has-disabled:opacity-50 has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>textarea]:h-auto has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5",
+        "group/input-group border-input-border bg-input-background has-[[data-slot=input-group-control]:focus-visible]:focus-ring has-[[data-slot][aria-invalid=true]]:border-danger has-[[data-slot=input-group-control][aria-invalid=true]:focus-visible]:ring-danger/50 has-[[data-slot=input-group-control][aria-invalid=true]:focus-visible]:outline-danger relative flex h-10 w-full min-w-0 items-center rounded-md border shadow-xs transition-colors outline-none has-disabled:opacity-50 has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>textarea]:h-auto has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5",
         className,
       )}
       {...props}
@@ -132,7 +132,7 @@ function InputGroupInput({
     <Input
       data-slot="input-group-control"
       className={cn(
-        "flex-1 rounded-none border-0 bg-transparent shadow-none disabled:bg-transparent",
+        "flex-1 rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:outline-none disabled:bg-transparent",
         className,
       )}
       {...props}
@@ -148,7 +148,7 @@ function InputGroupTextarea({
     <TextArea
       data-slot="input-group-control"
       className={cn(
-        "flex-1 resize-none rounded-none border-0 bg-transparent py-2 shadow-none disabled:bg-transparent",
+        "flex-1 resize-none rounded-none border-0 bg-transparent py-2 shadow-none focus-visible:ring-0 focus-visible:outline-none disabled:bg-transparent",
         className,
       )}
       {...props}

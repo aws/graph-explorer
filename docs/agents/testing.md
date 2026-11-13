@@ -16,7 +16,7 @@ Each project sets up its own environment. `setupTests.ts` below is registered by
 - Mock only external systems (network, etc.); don't mock internal modules
 - Constrained non-determinism: randomize everything the assertion doesn't depend on, pin only what it does. A flake on random data is an unpinned dependency — pin the field, don't narrow the factory.
 - Assert full expected values with `toStrictEqual([...])`, not length checks plus per-index `toEqual`
-- Test behavior, not implementation. Don't assert on CSS classes, element types, or layout — those break on harmless visual changes. A purely presentational component with no branching needs no test.
+- Test behavior, not appearance. Behavior includes the states a user relies on seeing: keyboard focus, invalid, disabled, checked, open, and the like. Assert that a component turns a state's style on, through the class that carries it (such as `focus-visible:focus-ring` or `aria-invalid:border-danger`), since jsdom can't compute Tailwind styles. Don't assert look or layout, such as colors, spacing, sizes, element types, or arrangement, which break on harmless visual changes. A purely presentational component with no states needs no test.
 - `setupTests.ts` handles environment (UTC, en-US), mock cleanup, and a real localForage backend on `fake-indexeddb` (fresh per test). Don't re-do this setup; assume it inside `packages/graph-explorer`. It also seeds every persisted atom with its default before each test. A test that seeds localForage calls `loadPersistedState()` (or a `preloadSavedConnection*` helper) to read the stored values. Without `loadPersistedState()` the atom still holds its default, not the stored value.
 
 ## Key helpers (`@/utils/testing`)

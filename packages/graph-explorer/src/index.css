@@ -34,21 +34,26 @@
   --animate-expand: expand 0.2s cubic-bezier(0.87, 0, 0.13, 1);
   --animate-collapse: collapse 0.2s cubic-bezier(0.87, 0, 0.13, 1);
 
+  /* Clip only while animating, so a settled panel doesn't cut off focus rings. */
   @keyframes expand {
     from {
       height: 0;
+      overflow: hidden;
     }
     to {
       height: auto;
+      overflow: hidden;
     }
   }
 
   @keyframes collapse {
     from {
       height: auto;
+      overflow: hidden;
     }
     to {
       height: 0;
+      overflow: hidden;
     }
   }
 
@@ -205,6 +210,16 @@
 
 @utility content-visible {
   content-visibility: visible;
+}
+
+/* The standard keyboard focus ring. Apply it through a variant, such as focus-visible:focus-ring.
+   The inset outline paints over a 1px border, so bordered and borderless controls get the same solid edge. */
+@utility focus-ring {
+  @apply ring-primary/50 outline-primary ring-3 outline-1 -outline-offset-1 outline-solid;
+
+  &[aria-invalid="true"] {
+    @apply ring-danger/50 outline-danger;
+  }
 }
 
 @utility intrinsic-size-* {

@@ -99,7 +99,7 @@ export function SidebarTabsTrigger({
               className={cn(
                 "text-primary-foreground active:bg-brand-300 data-[state=active]:bg-primary inline-flex size-10 items-center justify-center rounded-md bg-transparent p-2 ring-0 transition-colors duration-100 focus:shadow-none active:text-white disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-white [&_svg]:size-6",
                 "hover:data-[state=active]:bg-brand-400 hover:bg-primary-subtle-hover",
-                "focus-visible:ring-primary focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-hidden active:ring-0",
+                "focus-visible:focus-ring data-[state=active]:focus-visible:outline-background active:ring-0",
                 className,
               )}
               {...props}
@@ -121,7 +121,10 @@ export function SidebarTabsContent({
 }: React.ComponentProps<typeof TabsPrimitive.Content>) {
   return (
     <TabsPrimitive.Content
-      className={cn("flex-1 overflow-y-auto outline-none", className)}
+      className={cn(
+        "focus-visible:focus-ring flex-1 overflow-y-auto outline-none",
+        className,
+      )}
       {...props}
     />
   );

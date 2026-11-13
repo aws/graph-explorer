@@ -88,6 +88,18 @@ Custom utilities are defined with `@utility` in `index.css`:
 - `gx-wrap-break-word` — safe word-breaking for long content
 - `content-auto` / `content-hidden` / `content-visible` — `content-visibility` for virtualization performance
 - `intrinsic-size-*` — `contain-intrinsic-size` mapped to the spacing scale
+- `focus-ring` — the standard keyboard focus ring; see Focus ring below
+
+### Focus ring
+
+Every focusable component draws keyboard focus with the `focus-ring` utility: a 3px `primary/50` ring with no offset, plus a solid 1px primary edge. The edge is an outline inset by 1px, so it paints over a 1px border without shifting layout: a bordered control looks like a primary border with the pale ring, and a borderless one gets the same solid edge. Use it for new components rather than writing ring, outline, or border classes for focus.
+
+- Apply it through a variant: `focus-visible:focus-ring` on the control, or `has-[:focus-visible]:focus-ring` or `focus-within:focus-ring` on a wrapper that draws the ring for a child, as the choice card in `Field.tsx` and `InputGroup` do.
+- To hide a child's own ring inside a wrapper that draws it, add `focus-visible:ring-0 focus-visible:outline-none` to the child. Tailwind emits these utilities after `focus-ring` in the same variant, so the override wins even though `cn` keeps both classes.
+- An invalid control turns the ring and edge danger on focus by itself: the utility switches to `danger` when the element it sits on has `aria-invalid="true"`. A wrapper that draws the ring for an invalid child needs the danger colors spelled out, as `InputGroup` does with `has-[[data-slot=input-group-control][aria-invalid=true]:focus-visible]:ring-danger/50` and `:outline-danger`.
+- A control filled with primary or danger turns its focus edge white with `outline-background`, scoped to the filled state, since a primary edge can't be seen on a primary or danger fill: `focus-visible:outline-background` on an always-filled variant, such as the primary button, or a variant for each filled state, such as `data-checked:focus-visible:outline-background` on a checked switch or radio, plus `data-[state=indeterminate]:focus-visible:outline-background` on a checkbox, which is filled when indeterminate too. The unfilled state keeps the primary edge.
+
+Menu items in `DropdownMenu`, `Select`, and `Combobox` are the exception: they show focus with `focus:bg-primary-subtle` (`data-highlighted:bg-primary-subtle` in `Combobox`), not a ring.
 
 ### Z-index scale
 

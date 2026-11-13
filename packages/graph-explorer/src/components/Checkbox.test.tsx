@@ -12,7 +12,7 @@ describe("Checkbox", () => {
       "aria-invalid:data-unchecked:border-danger",
       "aria-invalid:ring-3",
       "aria-invalid:ring-danger/20",
-      "aria-invalid:focus-visible:ring-danger/50",
+      "focus-visible:focus-ring",
     );
   });
 
@@ -24,6 +24,32 @@ describe("Checkbox", () => {
     expect(checkbox).toHaveClass("data-unchecked:bg-background");
     expect(checkbox.querySelector("svg.lucide-check")).toHaveClass(
       "group-data-checked:flex",
+    );
+  });
+
+  test("draws the shared focus ring", () => {
+    render(<Checkbox aria-label="Accept" />);
+
+    const checkbox = screen.getByRole("checkbox", { name: "Accept" });
+    expect(checkbox).toHaveClass("focus-visible:focus-ring");
+  });
+
+  test("turns the focus edge white when checked", () => {
+    render(<Checkbox aria-label="Accept" checked />);
+
+    const checkbox = screen.getByRole("checkbox", { name: "Accept" });
+    expect(checkbox).toHaveClass(
+      "data-checked:focus-visible:outline-background",
+    );
+  });
+
+  test("turns the focus edge white when indeterminate", () => {
+    render(<Checkbox aria-label="Accept" checked="indeterminate" />);
+
+    const checkbox = screen.getByRole("checkbox", { name: "Accept" });
+    expect(checkbox).toHaveAttribute("data-state", "indeterminate");
+    expect(checkbox).toHaveClass(
+      "data-[state=indeterminate]:focus-visible:outline-background",
     );
   });
 });

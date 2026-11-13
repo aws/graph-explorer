@@ -5,7 +5,7 @@ import * as React from "react";
 import { cn } from "@/utils";
 
 const toggleVariants = cva({
-  base: "group/toggle hover:bg-muted hover:text-muted-foreground aria-invalid:border-danger aria-invalid:ring-danger/20 aria-pressed:bg-primary-subtle aria-pressed:text-primary-foreground data-[state=on]:bg-primary-subtle data-[state=on]:text-primary-foreground inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all focus-visible:ring-1 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  base: "group/toggle hover:bg-muted hover:text-muted-foreground aria-invalid:border-danger aria-invalid:ring-danger/20 aria-pressed:bg-primary-subtle aria-pressed:text-primary-foreground data-[state=on]:bg-primary-subtle data-[state=on]:text-primary-foreground focus-visible:focus-ring inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   variants: {
     variant: {
       default: "bg-transparent",
