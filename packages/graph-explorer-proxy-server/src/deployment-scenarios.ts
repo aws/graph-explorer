@@ -1196,22 +1196,39 @@ export const deployments: Deployment[] = [
   {
     name: "Default Connection settings in .env",
     existingEnvFile: connectionSettings,
-    // As before, connection settings come from the environment and
-    // config.json only.
-    expected: standardTls,
+    // Connection settings in .env take effect, in the one precedence order.
+    // Before, they were read from the environment and config.json only.
+    expected: servingConnection(
+      proxiedConnection({
+        GRAPH_EXP_GRAPH_TYPE: "gremlin",
+        GRAPH_EXP_IAM: true,
+        GRAPH_EXP_AWS_REGION: "us-west-2",
+        GRAPH_EXP_FETCH_REQUEST_TIMEOUT: 60000,
+        GRAPH_EXP_NODE_EXPANSION_LIMIT: 500,
+      }),
+    ),
   },
   {
     name: "Default Connection settings in .env.local",
     existingEnvLocalFile: connectionSettings,
-    // As before, connection settings come from the environment and
-    // config.json only.
-    expected: standardTls,
+    // Connection settings in .env.local take effect, in the one precedence
+    // order. Before, they were read from the environment and config.json
+    // only.
+    expected: servingConnection(
+      proxiedConnection({
+        GRAPH_EXP_GRAPH_TYPE: "gremlin",
+        GRAPH_EXP_IAM: true,
+        GRAPH_EXP_AWS_REGION: "us-west-2",
+        GRAPH_EXP_FETCH_REQUEST_TIMEOUT: 60000,
+        GRAPH_EXP_NODE_EXPANSION_LIMIT: 500,
+      }),
+    ),
   },
   {
     name: "GRAPH_CONNECTION_URL in .env and config.json",
     existingEnvFile: { GRAPH_CONNECTION_URL: "https://from-dotenv:8182" },
     configJson: { GRAPH_CONNECTION_URL: "https://from-config:8182" },
-    // As before, connection settings come from config.json, never .env.
+    // config.json beats .env in the one precedence order.
     expected: servingConnection(
       proxiedConnection({}, "https://from-config:8182"),
     ),
@@ -1220,18 +1237,23 @@ export const deployments: Deployment[] = [
     name: "GRAPH_CONNECTION_URL in .env.local and config.json",
     existingEnvLocalFile: "GRAPH_CONNECTION_URL=https://from-local:8182\n",
     configJson: { GRAPH_CONNECTION_URL: "https://from-config:8182" },
-    // As before, connection settings come from config.json, never
-    // .env.local.
+    // .env.local beats config.json in the one precedence order. Before,
+    // connection settings never came from .env.local.
     expected: servingConnection(
-      proxiedConnection({}, "https://from-config:8182"),
+      proxiedConnection({}, "https://from-local:8182"),
     ),
   },
   {
     name: "the image's own .env with -e GRAPH_CONNECTION_URL",
     existingEnvFile: imageEnvFile,
     dockerEnv: { GRAPH_CONNECTION_URL: clusterUrl },
-    // As before, connection settings in .env are ignored.
-    expected: servingConnection(proxiedConnection()),
+    // The image's .env sets SERVICE_TYPE and the fetch timeout, which now
+    // take effect: the service type matches the default, and the timeout
+    // reaches the Default Connection. Before, .env's connection settings were
+    // ignored.
+    expected: servingConnection(
+      proxiedConnection({ GRAPH_EXP_FETCH_REQUEST_TIMEOUT: 240000 }),
+    ),
   },
   {
     name: "-e GRAPH_CONNECTION_URL= with config.json GRAPH_CONNECTION_URL",
@@ -1278,9 +1300,13 @@ export const deployments: Deployment[] = [
     name: "-e GRAPH_CONNECTION_URL with a .env PUBLIC_OR_PROXY_ENDPOINT",
     dockerEnv: { GRAPH_CONNECTION_URL: clusterUrl },
     existingEnvFile: { PUBLIC_OR_PROXY_ENDPOINT: "https://endpoint:8182" },
-    // As before, connection settings come from the environment and
-    // config.json only.
-    expected: servingConnection(proxiedConnection()),
+    // The keys merge one at a time, so the .env endpoint joins the -e URL, and
+    // a legacy endpoint without USING_PROXY_SERVER makes a direct connection.
+    // Before, connection settings never came from .env.
+    expected: servingConnection({
+      GRAPH_EXP_CONNECTION_URL: "https://endpoint:8182",
+      GRAPH_EXP_USING_PROXY_SERVER: false,
+    }),
   },
   {
     name: "-e PUBLIC_OR_PROXY_ENDPOINT and GRAPH_CONNECTION_URL with IAM, region, and service type",

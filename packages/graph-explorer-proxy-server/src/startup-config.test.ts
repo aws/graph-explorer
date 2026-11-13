@@ -436,13 +436,61 @@ describe("resolveStartupConfig", () => {
       ).toMatchObject({ GRAPH_EXP_CONNECTION_URL: db, GRAPH_EXP_IAM: true });
     });
 
-    // The shipped packages/graph-explorer/.env sets SERVICE_TYPE, and the
-    // shell never read connection settings from .env.
-    it("never come from .env", () => {
+    it("come from .env", () => {
       expect(
         resolve({
           dotEnv: `GRAPH_CONNECTION_URL=${db}\nSERVICE_TYPE=neptune-graph\n`,
         }).defaultConnection,
+      ).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: db,
+        GRAPH_EXP_SERVICE_TYPE: "neptune-graph",
+      });
+    });
+
+    it("come from .env.local over config.json", () => {
+      expect(
+        resolve({
+          dotEnvLocal: "GRAPH_CONNECTION_URL=https://from-local:8182\n",
+          configJson: { GRAPH_CONNECTION_URL: "https://from-config:8182" },
+        }).defaultConnection?.GRAPH_EXP_CONNECTION_URL,
+      ).toBe("https://from-local:8182");
+    });
+
+    it("keep config.json's value when .env.local sets the key empty", () => {
+      expect(
+        resolve({
+          dotEnvLocal: "GRAPH_CONNECTION_URL=\n",
+          configJson: { GRAPH_CONNECTION_URL: "https://from-config:8182" },
+        }).defaultConnection?.GRAPH_EXP_CONNECTION_URL,
+      ).toBe("https://from-config:8182");
+    });
+
+    it("come from config.json over .env", () => {
+      expect(
+        resolve({
+          dotEnv: "GRAPH_CONNECTION_URL=https://from-dotenv:8182\n",
+          configJson: { GRAPH_CONNECTION_URL: "https://from-config:8182" },
+        }).defaultConnection?.GRAPH_EXP_CONNECTION_URL,
+      ).toBe("https://from-config:8182");
+    });
+
+    it("come from the environment over every file", () => {
+      expect(
+        resolve({
+          processEnv: { GRAPH_CONNECTION_URL: "https://from-env:8182" },
+          dotEnv: "GRAPH_CONNECTION_URL=https://from-dotenv:8182\n",
+          dotEnvLocal: "GRAPH_CONNECTION_URL=https://from-local:8182\n",
+          configJson: { GRAPH_CONNECTION_URL: "https://from-config:8182" },
+        }).defaultConnection?.GRAPH_EXP_CONNECTION_URL,
+      ).toBe("https://from-env:8182");
+    });
+
+    it("leave NEPTUNE_NOTEBOOK in .env and .env.local ignored", () => {
+      expect(
+        resolve({
+          dotEnv: "NEPTUNE_NOTEBOOK=true\n",
+          dotEnvLocal: "NEPTUNE_NOTEBOOK=true\n",
+        }).serverEnv.NEPTUNE_NOTEBOOK,
       ).toBeUndefined();
     });
 

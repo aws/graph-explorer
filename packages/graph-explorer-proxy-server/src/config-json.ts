@@ -29,6 +29,14 @@ export const configJsonKeys = [
 
 export type ConfigJsonKey = (typeof configJsonKeys)[number];
 
+/** The settings that make up the Default Connection, which `.env` files can hold too. */
+export const defaultConnectionKeys = configJsonKeys.filter(
+  key =>
+    key !== "PROXY_SERVER_HTTPS_CONNECTION" &&
+    key !== "GRAPH_EXP_HTTPS_CONNECTION" &&
+    key !== "NEPTUNE_NOTEBOOK",
+);
+
 /**
  * How a setting is read. A scalar takes any JSON scalar as its text, and a
  * text setting only takes a string.
