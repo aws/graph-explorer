@@ -173,7 +173,7 @@ The server reads each setting from the first of these that sets it: the environm
 - `GRAPH_EXP_HTTPS_CONNECTION` is accepted in `config.json` but has no effect. HTTPS follows `PROXY_SERVER_HTTPS_CONNECTION` alone.
 - Under the preset (`NEPTUNE_NOTEBOOK=true`), the preset's port `9250`, `cloudwatch` log style, and HTTPS off take the place of `config.json`. The environment overrides them. `.env.local` overrides the log style and `PROXY_SERVER_PORT`, but the preset sets the port unless the environment sets `PROXY_SERVER_PORT` or `PROXY_SERVER_HTTP_PORT`, so a port set only as `PROXY_SERVER_HTTP_PORT` in `.env.local` loses to the preset's `9250`. `.env` doesn't override the preset. A `PROXY_SERVER_HTTPS_CONNECTION` of `true` from the environment, `.env.local`, or `config.json` stops startup.
 - An empty value for a setting `config.json` can hold counts as unset in every source: an `-e` flag, `.env.local`, or `.env`. The next source in the order applies, so `PROXY_SERVER_HTTPS_CONNECTION=` in `.env.local` falls through to `config.json`, then `.env`, then the default.
-- Default Connection settings and `NEPTUNE_NOTEBOOK` come only from the environment and `config.json`.
+- Default Connection settings follow the same order, one key at a time, so a connection can take its keys from more than one place before it is set up as proxied or direct. `NEPTUNE_NOTEBOOK` comes only from the environment and `config.json`.
 - Duplicate keys: a key set more than once in `config.json`, `.env`, or `.env.local` stops startup with an error that names the file, the key, and its lines. The lines earlier versions appended to `.env` don't count.
 
 ## Default Connection
