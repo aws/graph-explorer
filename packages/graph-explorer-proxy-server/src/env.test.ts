@@ -60,9 +60,12 @@ describe("EnvironmentValuesSchema", () => {
       "NEPTUNE_NOTEBOOK and PROXY_SERVER_HTTPS_CONNECTION are both true. " +
       "The Neptune Notebook preset serves Graph Explorer over HTTP and does " +
       "not generate TLS certificates, so this combination cannot start. " +
-      "Either set PROXY_SERVER_HTTPS_CONNECTION to false or remove it " +
-      "(from -e flags or config.json) to run under the notebook preset, " +
-      "or set NEPTUNE_NOTEBOOK to false to run with TLS.";
+      "To run under the notebook preset, set PROXY_SERVER_HTTPS_CONNECTION to " +
+      "false, or remove it, where it is set to true: an -e flag, .env.local, " +
+      "or config.json. An -e flag overrides the other two. To run with TLS, " +
+      "set NEPTUNE_NOTEBOOK to false, or remove it, where it is set to true: " +
+      "an -e flag or config.json. An -e flag overrides config.json. See " +
+      "https://aws.github.io/graph-explorer/references/configuration/#precedence";
 
     // Failing the parse stops the server before it looks for certificates, so
     // the operator sees the conflict rather than a missing-certificate error.
