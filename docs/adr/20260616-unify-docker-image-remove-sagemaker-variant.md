@@ -1,6 +1,6 @@
 # ADR — Unify Docker image by removing SageMaker variant
 
-- **Status:** Accepted, mechanism superseded in part by the TypeScript startup configuration in `packages/graph-explorer-proxy-server/src/startup-config.ts`, which replaced `process-environment.sh`, `setup-ssl.sh`, and `docker-entrypoint.sh` and does what they did without writing to the configuration folder
+- **Status:** Accepted, mechanism superseded in part by the TypeScript startup configuration in `packages/graph-explorer-proxy-server/src/startup-config.ts`, which replaced `process-environment.sh`, `setup-ssl.sh`, and `docker-entrypoint.sh` and does what they did without writing to the configuration folder, and by [One precedence order for startup settings](./20261112-one-precedence-order-for-startup-settings.md)
 - **Date:** 2026-06-16
 - **Related:** ADR `read-time-transform-for-persisted-values` (legacy stored connections' read-time transform for `graphDbUrl`)
 
