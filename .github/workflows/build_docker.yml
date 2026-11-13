@@ -1,5 +1,13 @@
 name: Build Docker image and publish to ECR
 
+# A push to main publishes latest-SNAPSHOT. To publish a release, dispatch on
+# its tag once the tag exists:
+#
+#   gh workflow run build_docker.yml --ref v<version> -f image_tag=release
+#
+# The release check fails the run unless the tag matches package.json and the
+# version is new, and it moves latest only for the highest version.
+
 on:
   workflow_dispatch:
     inputs:
@@ -28,25 +36,35 @@ jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      IS_RELEASE: ${{ github.event_name == 'workflow_dispatch' && inputs.image_tag == 'release' }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Get package version
-        id: package-version
-        run: echo "version=$(node -p 'require("./package.json").version')" >> $GITHUB_OUTPUT
+      - name: Set up Node.js
+        if: ${{ env.IS_RELEASE == 'true' }}
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
 
-      - name: Get image tag
-        id: get-image-tag
+      # Runs before anything is pushed.
+      - name: Check the release and choose its tags
+        id: release
+        if: ${{ env.IS_RELEASE == 'true' }}
+        run: node .github/scripts/releaseImage.ts plan
+
+      - name: Get image tags
+        id: get-image-tags
         env:
-          IS_RELEASE: ${{ github.event_name == 'workflow_dispatch' && inputs.image_tag == 'release' }}
-          VERSION: ${{ steps.package-version.outputs.version }}
+          RELEASE_TAGS: ${{ steps.release.outputs.tags }}
         run: |
           if [ "$IS_RELEASE" = "true" ]; then
-            echo "image_tag=$VERSION" >> $GITHUB_OUTPUT
+            echo "tags=$RELEASE_TAGS" >> "$GITHUB_OUTPUT"
           else
-            echo "image_tag=latest-SNAPSHOT" >> $GITHUB_OUTPUT
+            echo "tags=latest-SNAPSHOT sagemaker-latest-SNAPSHOT" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Configure AWS Credentials
@@ -67,25 +85,22 @@ jobs:
 
       - name: Build, tag, and push Docker image
         env:
-          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-          REGISTRY_ALIAS: neptune
-          REPOSITORY: graph-explorer
-          IMAGE_TAG: ${{ steps.get-image-tag.outputs.image_tag }}
+          IMAGE: ${{ steps.login-ecr-public.outputs.registry }}/neptune/graph-explorer
+          TAGS: ${{ steps.get-image-tags.outputs.tags }}
+        # TAGS is a space-separated list, split on purpose.
         run: |
-          docker build -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG .
-          docker tag $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-$IMAGE_TAG
-          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
-          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-$IMAGE_TAG
+          # shellcheck disable=SC2086
+          set -- $TAGS
+          docker build -t "$IMAGE:$1" .
+          for tag in "$@"; do
+            docker tag "$IMAGE:$1" "$IMAGE:$tag"
+            docker push "$IMAGE:$tag"
+          done
 
-      - name: Update latest tag for release
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.image_tag == 'release' }}
+      - name: Check every pushed tag points to one image
+        if: ${{ env.IS_RELEASE == 'true' }}
         env:
-          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-          REGISTRY_ALIAS: neptune
-          REPOSITORY: graph-explorer
-          IMAGE_TAG: ${{ steps.get-image-tag.outputs.image_tag }}
+          TAGS: ${{ steps.get-image-tags.outputs.tags }}
         run: |
-          docker tag $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest
-          docker tag $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-$IMAGE_TAG $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-latest
-          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest
-          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:sagemaker-latest
+          # shellcheck disable=SC2086
+          node .github/scripts/releaseImage.ts verify $TAGS
