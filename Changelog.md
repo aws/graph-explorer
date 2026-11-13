@@ -1,12 +1,32 @@
 # Graph Explorer Change Log
 
+## Release 3.3.2
+
+Release 3.3.2 holds a connection's Fetch Timeout and Neighbor Expansion Limit to one rule: each is a whole number greater than 0, or it's off. The connection form checks that rule when you save, and Graph Explorer checks it again whenever it reads a saved connection. Graph Explorer also applies the same check to every number it uses when building queries.
+
+### Upgrade Notes
+
+Connections whose overrides are whole numbers keep working unchanged. Two things behave differently:
+
+- **A saved Fetch Timeout or Neighbor Expansion Limit that isn't a whole number greater than 0 now reads as no override.** This covers a fraction such as `1.5`, zero, a negative number, or any value that isn't a plain whole number. A whole number saved by an older version keeps working. The stored value isn't rewritten, and the connection's edit form shows that override unchecked. To set it again, edit the connection, check **Set a fetch timeout** or **Limit neighbors per expansion**, and enter a whole number greater than 0.
+- **The connection form requires a whole number greater than 0 for an override you turn on.** When **Set a fetch timeout** or **Limit neighbors per expansion** is checked, saving with **Fetch Timeout (ms)** or **Neighbor Expansion Limit** empty, zero, negative, or fractional doesn't save the connection. **Advanced options** opens and the field shows "Enter a whole number greater than 0". To remove an override, uncheck its box instead of clearing the field.
+
+### All Changes
+
+- Bump version to 3.3.2 by @kmcginnes in https://github.com/aws/graph-explorer/pull/2554
+- Backport validate connection overrides and share one numeric query fragment by @kmcginnes in https://github.com/aws/graph-explorer/pull/2555
+- Update the Amazon Linux base image to 2023.12.20261109.0 by @kmcginnes in https://github.com/aws/graph-explorer/pull/2558
+
+**Full Changelog**: https://github.com/aws/graph-explorer/compare/v3.3.1...v3.3.2
+
 ## Release 3.3.1
 
-Release 3.3.1 moves the Docker image to Amazon Linux 2023 `2023.12.20261102.0` and Node.js 24.22.2, with no application changes. Both bring updated root certificate stores, used by the operating system and by the proxy server's connections to your database.
+Release 3.3.1 moves the Docker image to Amazon Linux 2023 `2023.12.20261102.0` and Node.js 24.22.2 for their updated root certificates, and updates dependencies. Graph Explorer works the same as in 3.3.0.
 
 ### All Changes
 
 - Update base image and Node.js for 3.3.1 by @kmcginnes in https://github.com/aws/graph-explorer/pull/2532
+- Update 3.3.x dependencies within their current major versions by @kmcginnes in https://github.com/aws/graph-explorer/pull/2534
 
 **Full Changelog**: https://github.com/aws/graph-explorer/compare/v3.3.0...v3.3.1
 
