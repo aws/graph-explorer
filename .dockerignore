@@ -45,5 +45,6 @@ images
 **/setupTests.ts
 **/test-setup.ts
 **/testing.ts
+**/deployment-scenarios.ts
 **/testing
 samples
