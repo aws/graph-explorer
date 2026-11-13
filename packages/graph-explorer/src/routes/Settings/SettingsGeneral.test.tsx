@@ -1,11 +1,11 @@
 // @vitest-environment happy-dom
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent, { type UserEvent } from "@testing-library/user-event";
-import { describe, expect, test } from "vite-plus/test";
+import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 
 import { defaultNeighborExpansionLimitAtom, getAppStore } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
-import { TestProvider } from "@/utils/testing";
+import { stubStorageManager, TestProvider } from "@/utils/testing";
 
 import SettingsGeneral from "./SettingsGeneral";
 
@@ -107,5 +107,146 @@ describe("SettingsGeneral > default neighbor expansion limit", () => {
 
     expect(screen.queryByText(message)).toBeNull();
     expect(store.get(defaultNeighborExpansionLimitAtom)).toBe(7);
+  });
+});
+
+const storageHint =
+  "Your browser may clear this data when space is low or, in Safari, after a week without use. Save a copy to keep it.";
+
+/**
+ * Loads Settings > General from a fresh module graph, so each test starts with
+ * no persistent storage request made yet in this page load.
+ */
+async function loadFreshPage() {
+  const [
+    { getAppStore },
+    { createQueryClient },
+    { seedPersistedAtomsWithDefaults },
+    { persistThroughQueue, persistenceStatusStore },
+    { TestProvider },
+    { default: FreshSettingsGeneral },
+  ] = await Promise.all([
+    import("@/core"),
+    import("@/core/queryClient"),
+    import("@/core/StateProvider/persistedAtomRegistry"),
+    import("@/core/StateProvider/persistence"),
+    import("@/utils/testing"),
+    import("./SettingsGeneral"),
+  ]);
+  seedPersistedAtomsWithDefaults();
+  const client = createQueryClient();
+
+  function renderSettings() {
+    render(
+      <TestProvider client={client} store={getAppStore()}>
+        <FreshSettingsGeneral />
+      </TestProvider>,
+    );
+  }
+
+  async function waitForPersistenceRequest() {
+    await waitFor(() =>
+      expect(
+        client.getQueryState(["storage", "persistence-request"])?.status,
+      ).toBe("success"),
+    );
+  }
+
+  return {
+    renderSettings,
+    waitForPersistenceRequest,
+    persistThroughQueue,
+    persistenceStatusStore,
+  };
+}
+
+async function renderSettingsInFreshPageLoad() {
+  const page = await loadFreshPage();
+  page.renderSettings();
+  return page;
+}
+
+describe("SettingsGeneral > storage persistence hint", () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  test("shows the hint when the browser denies persistence", async () => {
+    stubStorageManager({
+      persist: vi.fn().mockResolvedValue(false),
+      persisted: vi.fn().mockResolvedValue(false),
+    });
+    await renderSettingsInFreshPageLoad();
+
+    expect(await screen.findByText(storageHint)).toBeInTheDocument();
+  });
+
+  test("shows the hint when the Storage API is unavailable", async () => {
+    stubStorageManager(undefined);
+    await renderSettingsInFreshPageLoad();
+
+    expect(await screen.findByText(storageHint)).toBeInTheDocument();
+  });
+
+  test("shows the hint when the persistence request fails", async () => {
+    stubStorageManager({
+      persist: vi.fn(),
+      persisted: vi
+        .fn()
+        .mockRejectedValue(new DOMException("boom", "UnknownError")),
+    });
+    await renderSettingsInFreshPageLoad();
+
+    expect(await screen.findByText(storageHint)).toBeInTheDocument();
+  });
+
+  test("hides the hint when storage is already persistent", async () => {
+    stubStorageManager({
+      persist: vi.fn(),
+      persisted: vi.fn().mockResolvedValue(true),
+    });
+    const page = await renderSettingsInFreshPageLoad();
+
+    await page.waitForPersistenceRequest();
+
+    expect(screen.queryByText(storageHint)).toBeNull();
+  });
+
+  test("hides the hint until the user answers, then reflects a grant", async () => {
+    let grant: (granted: boolean) => void = () => {};
+    const answer = new Promise<boolean>(resolve => {
+      grant = resolve;
+    });
+    const persist = vi.fn().mockReturnValue(answer);
+    stubStorageManager({
+      persist,
+      persisted: vi.fn().mockResolvedValue(false),
+    });
+    const page = await renderSettingsInFreshPageLoad();
+
+    await vi.waitFor(() => expect(persist).toHaveBeenCalledOnce());
+    expect(screen.queryByText(storageHint)).toBeNull();
+
+    grant(true);
+    await page.waitForPersistenceRequest();
+
+    expect(screen.queryByText(storageHint)).toBeNull();
+  });
+
+  test("shares the request an earlier write made instead of asking again", async () => {
+    const persist = vi.fn().mockResolvedValue(false);
+    stubStorageManager({
+      persist,
+      persisted: vi.fn().mockResolvedValue(false),
+    });
+    const page = await loadFreshPage();
+    page.persistThroughQueue("configuration", () => Promise.resolve());
+    await page.persistenceStatusStore.waitForIdle();
+    expect(persist).toHaveBeenCalledOnce();
+
+    page.renderSettings();
+
+    expect(await screen.findByText(storageHint)).toBeInTheDocument();
+    expect(persist).toHaveBeenCalledOnce();
   });
 });

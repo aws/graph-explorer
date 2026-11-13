@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import localforage from "localforage";
 import { CogIcon, SaveAllIcon } from "lucide-react";
@@ -33,6 +34,7 @@ import {
   showDebugActionsAtom,
 } from "@/core";
 import { saveLocalForageToFile } from "@/core/StateProvider/localDb";
+import { requestPersistentStorageOnce } from "@/core/StateProvider/persistence/persistentStorage";
 
 import LoadConfigButton from "./LoadConfigButton";
 
@@ -121,6 +123,7 @@ export default function SettingsGeneral() {
               Save
             </Button>
           </LabelledSetting>
+          <StoragePersistenceHint />
         </GroupItem>
         <GroupItem>
           <LabelledSetting
@@ -246,5 +249,23 @@ function DefaultNeighborExpansionLimitInput() {
       />
       <FieldError id={errorId}>{error}</FieldError>
     </Field>
+  );
+}
+
+function StoragePersistenceHint() {
+  const persistenceQuery = useQuery({
+    queryKey: ["storage", "persistence-request"],
+    queryFn: requestPersistentStorageOnce,
+  });
+
+  if (persistenceQuery.isPending || persistenceQuery.data === true) {
+    return null;
+  }
+
+  return (
+    <p className="text-muted-foreground text-sm text-pretty">
+      Your browser may clear this data when space is low or, in Safari, after a
+      week without use. Save a copy to keep it.
+    </p>
   );
 }
