@@ -122,7 +122,7 @@ export function SidebarTabsContent({
   return (
     <TabsPrimitive.Content
       className={cn(
-        "focus-visible:focus-ring m-1 flex-1 overflow-y-auto outline-none",
+        "focus-visible:focus-ring flex-1 overflow-y-auto outline-none",
         className,
       )}
       {...props}

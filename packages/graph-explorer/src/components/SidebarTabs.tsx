@@ -23,7 +23,7 @@ function SidebarTabsList({
   return (
     <TabsPrimitive.List
       className={cn(
-        "bg-background text-muted-foreground sticky top-0 flex w-full flex-row items-center border-b px-1 pt-1",
+        "bg-background text-muted-foreground sticky top-0 flex w-full flex-row items-center border-b",
         className,
       )}
       {...props}
@@ -55,7 +55,7 @@ function SidebarTabsContent({
   return (
     <TabsPrimitive.Content
       className={cn(
-        "focus-visible:focus-ring m-1 h-full overflow-y-auto",
+        "focus-visible:focus-ring h-full overflow-y-auto",
         className,
       )}
       {...props}
