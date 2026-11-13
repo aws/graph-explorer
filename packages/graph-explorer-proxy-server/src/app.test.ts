@@ -32,6 +32,7 @@ function createTestApp(
 ) {
   const app = createApp({
     configPath,
+    defaultConnectionJson: undefined,
     staticFilesVirtualPath: "/explorer",
     staticFilesPath: ".",
     version: testVersion,
@@ -271,6 +272,63 @@ describe("createApp", () => {
     expect(response.status).toBe(404);
   });
 
+  describe("GET /defaultConnection", () => {
+    const defaultConnectionJson =
+      '\n{\n"GRAPH_EXP_CONNECTION_URL":"https://db:8182",\n"GRAPH_EXP_USING_PROXY_SERVER":false\n}\n';
+
+    it("serves the in-memory Default Connection as JSON", async () => {
+      const app = createApp({
+        configPath: ".",
+        defaultConnectionJson,
+        staticFilesVirtualPath: "/explorer",
+        staticFilesPath: ".",
+      });
+      app.locals.logger = createLogger(createTestEnvironment());
+
+      const response = await request(app).get("/defaultConnection");
+
+      expect(response.status).toBe(200);
+      expect(response.type).toBe("application/json");
+      expect(response.text).toBe(defaultConnectionJson);
+    });
+
+    it("prefers the in-memory Default Connection over defaultConnection.json", async () => {
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-app-test-"));
+      try {
+        fs.writeFileSync(
+          path.join(tmpDir, "defaultConnection.json"),
+          JSON.stringify({ GRAPH_EXP_CONNECTION_URL: "https://mounted:8182" }),
+        );
+        const app = createApp({
+          configPath: tmpDir,
+          defaultConnectionJson,
+          staticFilesVirtualPath: "/explorer",
+          staticFilesPath: ".",
+        });
+        app.locals.logger = createLogger(createTestEnvironment());
+
+        const response = await request(app).get("/defaultConnection");
+
+        expect(response.text).toBe(defaultConnectionJson);
+      } finally {
+        fs.rmSync(tmpDir, { recursive: true, force: true });
+      }
+    });
+
+    it("returns 404 with neither", async () => {
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-app-test-"));
+      try {
+        const response = await request(createTestApp(tmpDir)).get(
+          "/defaultConnection",
+        );
+
+        expect(response.status).toBe(404);
+      } finally {
+        fs.rmSync(tmpDir, { recursive: true, force: true });
+      }
+    });
+  });
+
   it("GET /defaultConnection serves defaultConnection.json from configPath", async () => {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-app-test-"));
     try {
@@ -313,6 +371,7 @@ describe("createApp", () => {
     function createStaticTestApp(staticFilesVirtualPath = "/explorer") {
       const app = createApp({
         configPath: ".",
+        defaultConnectionJson: undefined,
         staticFilesVirtualPath,
         staticFilesPath: tmpDir,
         version: testVersion,
@@ -1438,6 +1497,7 @@ describe("createApp", () => {
 
       const app = createApp({
         configPath: ".",
+        defaultConnectionJson: undefined,
         staticFilesVirtualPath: "/explorer",
         staticFilesPath: ".",
       });
