@@ -40,6 +40,8 @@ const fixtures: Fixture[] = [
       AWS_REGION: "us-west-2",
       GRAPH_TYPE: "gremlin",
       PROXY_SERVER_HTTPS_CONNECTION: "true",
+      GRAPH_EXP_FETCH_REQUEST_TIMEOUT: "240000",
+      GRAPH_EXP_NODE_EXPANSION_LIMIT: "500",
     },
   },
   {
@@ -137,6 +139,38 @@ const fixtures: Fixture[] = [
     name: "a URL whose slashes look like a comment",
     text: '{"GRAPH_CONNECTION_URL": "https://db:8182//path"}',
     values: { GRAPH_CONNECTION_URL: "https://db:8182//path" },
+  },
+  {
+    name: "the two settings the shell never read, as numbers",
+    text: '{"GRAPH_EXP_FETCH_REQUEST_TIMEOUT": 60000, "GRAPH_EXP_NODE_EXPANSION_LIMIT": 100}',
+    values: {
+      GRAPH_EXP_FETCH_REQUEST_TIMEOUT: "60000",
+      GRAPH_EXP_NODE_EXPANSION_LIMIT: "100",
+    },
+  },
+  {
+    name: "the two settings the shell never read, as strings of digits",
+    text: '{"GRAPH_EXP_FETCH_REQUEST_TIMEOUT": "60000", "GRAPH_EXP_NODE_EXPANSION_LIMIT": "100"}',
+    values: {
+      GRAPH_EXP_FETCH_REQUEST_TIMEOUT: "60000",
+      GRAPH_EXP_NODE_EXPANSION_LIMIT: "100",
+    },
+  },
+  {
+    name: "numbers that aren't positive whole numbers, as the text the Default Connection checks",
+    text: '{"GRAPH_EXP_FETCH_REQUEST_TIMEOUT": 0, "GRAPH_EXP_NODE_EXPANSION_LIMIT": -1}',
+    values: {
+      GRAPH_EXP_FETCH_REQUEST_TIMEOUT: "0",
+      GRAPH_EXP_NODE_EXPANSION_LIMIT: "-1",
+    },
+  },
+  {
+    name: "a fraction and words for the two numeric settings",
+    text: '{"GRAPH_EXP_FETCH_REQUEST_TIMEOUT": 1.5, "GRAPH_EXP_NODE_EXPANSION_LIMIT": "many"}',
+    values: {
+      GRAPH_EXP_FETCH_REQUEST_TIMEOUT: "1.5",
+      GRAPH_EXP_NODE_EXPANSION_LIMIT: "many",
+    },
   },
   {
     name: "an empty object",

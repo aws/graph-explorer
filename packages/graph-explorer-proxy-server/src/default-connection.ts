@@ -8,6 +8,8 @@ export type DefaultConnection = {
   GRAPH_EXP_IAM?: boolean;
   GRAPH_EXP_AWS_REGION?: string;
   GRAPH_EXP_USING_PROXY_SERVER: boolean;
+  GRAPH_EXP_FETCH_REQUEST_TIMEOUT?: number;
+  GRAPH_EXP_NODE_EXPANSION_LIMIT?: number;
 };
 
 /**
@@ -42,6 +44,17 @@ export function resolveDefaultConnection(settings: ConfigJson["values"]): {
     settings.GRAPH_TYPE ||
     (settings.SERVICE_TYPE === "neptune-graph" ? "openCypher" : undefined);
 
+  const fetchRequestTimeout = readPositiveNumber(
+    "GRAPH_EXP_FETCH_REQUEST_TIMEOUT",
+    settings,
+    warnings,
+  );
+  const nodeExpansionLimit = readPositiveNumber(
+    "GRAPH_EXP_NODE_EXPANSION_LIMIT",
+    settings,
+    warnings,
+  );
+
   const defaultConnection: DefaultConnection = {
     GRAPH_EXP_CONNECTION_URL: url,
     ...(graphType && { GRAPH_EXP_GRAPH_TYPE: graphType }),
@@ -51,6 +64,12 @@ export function resolveDefaultConnection(settings: ConfigJson["values"]): {
       GRAPH_EXP_AWS_REGION: settings.AWS_REGION ?? "",
     }),
     GRAPH_EXP_USING_PROXY_SERVER: isProxied,
+    ...(fetchRequestTimeout !== undefined && {
+      GRAPH_EXP_FETCH_REQUEST_TIMEOUT: fetchRequestTimeout,
+    }),
+    ...(nodeExpansionLimit !== undefined && {
+      GRAPH_EXP_NODE_EXPANSION_LIMIT: nodeExpansionLimit,
+    }),
   };
   return { defaultConnection, warnings };
 }
@@ -66,4 +85,23 @@ function readIam(value: string | undefined, warnings: string[]) {
     `IAM is "${value}", which isn't true or false, so the Default Connection uses false.`,
   );
   return false;
+}
+
+/** A positive whole number setting, or `undefined` when unset or invalid. */
+function readPositiveNumber(
+  key: "GRAPH_EXP_FETCH_REQUEST_TIMEOUT" | "GRAPH_EXP_NODE_EXPANSION_LIMIT",
+  settings: ConfigJson["values"],
+  warnings: string[],
+) {
+  const value = settings[key];
+  if (!value) {
+    return undefined;
+  }
+  if (!/^[1-9]\d*$/.test(value)) {
+    warnings.push(
+      `${key} is "${value}", which isn't a positive whole number, so the Default Connection leaves it out.`,
+    );
+    return undefined;
+  }
+  return Number(value);
 }
