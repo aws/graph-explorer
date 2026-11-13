@@ -1,4 +1,6 @@
 // @vitest-environment happy-dom
+import type { ReactNode } from "react";
+
 import { revalidateLogic } from "@tanstack/react-form";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -12,9 +14,11 @@ const nameSchema = z.object({ name: z.string().min(1, "Enter a name") });
 function NameForm({
   hideLabel,
   description,
+  addon,
 }: {
   hideLabel?: boolean;
   description?: string;
+  addon?: ReactNode;
 }) {
   const form = useAppForm({
     defaultValues: { name: "" },
@@ -35,6 +39,7 @@ function NameForm({
             label="Name"
             hideLabel={hideLabel}
             description={description}
+            addon={addon}
           />
         )}
       </form.AppField>
@@ -115,5 +120,23 @@ describe("TextAreaFormField", () => {
     expect(
       screen.getByRole("textbox", { name: "Name" }),
     ).toHaveAccessibleDescription("Shown on your profile");
+  });
+
+  test("renders an addon after the text area", async () => {
+    const user = userEvent.setup();
+    render(<NameForm addon={<button type="button">Go</button>} />);
+
+    expect(screen.getByRole("button", { name: "Go" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByRole("alert");
+
+    const textbox = screen.getByRole("textbox", { name: "Name" });
+    expect(textbox).toHaveAttribute("aria-invalid", "true");
+    expect(textbox).toHaveAccessibleDescription("Enter a name");
+
+    await user.click(textbox);
+    await user.tab();
+    expect(screen.getByRole("button", { name: "Go" })).toHaveFocus();
   });
 });
