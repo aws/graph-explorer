@@ -65,12 +65,14 @@ jobs:
       # One run per way the entrypoint starts the server: plain HTTP on 80,
       # notebook mode on 9250, and HTTPS on 443, where HOST makes the entrypoint
       # generate a self-signed certificate. The ports are published on
-      # 127.0.0.1, so the runner's other interfaces can't reach them.
+      # 127.0.0.1, so the runner's other interfaces can't reach them. Each run
+      # also names the log line about certificate generation that must appear,
+      # or an empty name when none may.
       - name: Verify server starts and responds
         run: |
           check() {
-            name=$1 host_port=$2 container_port=$3 scheme=$4
-            shift 4
+            name=$1 host_port=$2 container_port=$3 scheme=$4 notice=$5
+            shift 5
             docker run -d --name "$name" -p "127.0.0.1:$host_port:$container_port" "$@" test-image
             for i in $(seq 1 30); do
               if curl -sfk "$scheme://127.0.0.1:$host_port/status"; then
@@ -91,6 +93,21 @@ jobs:
                   return 1
                 fi
                 echo "✓ $name listens on every interface"
+                logs=$(docker logs "$name" 2>&1)
+                if [ -n "$notice" ]; then
+                  if ! grep -qF -- "$notice" <<< "$logs"; then
+                    echo "FAIL: $name did not log: $notice"
+                    echo "$logs"
+                    docker rm -f "$name" >/dev/null
+                    return 1
+                  fi
+                  echo "✓ $name logged: $notice"
+                elif grep -q "Skipping self-signed certificate generation" <<< "$logs"; then
+                  echo "FAIL: $name logged a notice that it skipped certificate generation"
+                  echo "$logs"
+                  docker rm -f "$name" >/dev/null
+                  return 1
+                fi
                 docker rm -f "$name" >/dev/null
                 return 0
               fi
@@ -101,9 +118,9 @@ jobs:
             docker rm -f "$name" >/dev/null
             return 1
           }
-          check http 8080 80 http -e PROXY_SERVER_HTTPS_CONNECTION=false
-          check notebook 9250 9250 http -e NEPTUNE_NOTEBOOK=true
-          check https 8443 443 https -e HOST=localhost
+          check http 8080 80 http "SSL disabled. Skipping self-signed certificate generation." -e PROXY_SERVER_HTTPS_CONNECTION=false
+          check notebook 9250 9250 http "Neptune Notebook preset enabled. Skipping self-signed certificate generation." -e NEPTUNE_NOTEBOOK=true
+          check https 8443 443 https "" -e HOST=localhost
 
       # Starting node directly skips docker-entrypoint.sh, so this proves the
       # image's PROXY_SERVER_LISTEN_ADDRESS reaches every way the server starts.
@@ -123,3 +140,81 @@ jobs:
           docker logs no-entrypoint
           docker rm -f no-entrypoint >/dev/null
           exit 1
+
+      # The steps below wait on the container they start with wait_for_status.
+      # It polls /status for up to 30 seconds, and on a timeout prints the
+      # container's logs and removes it.
+      - name: Define the status helper
+        run: |
+          cat > "$RUNNER_TEMP/wait-for-status.sh" <<'EOF'
+          wait_for_status() {
+            name=$1 url=$2
+            for i in $(seq 1 30); do
+              curl -sfk "$url/status" >/dev/null && return 0
+              sleep 1
+            done
+            echo "FAIL: $name did not respond within 30 seconds"
+            docker logs "$name"
+            docker rm -f "$name" >/dev/null
+            return 1
+          }
+          EOF
+
+      # A restart keeps the container's files, so it reuses the certificate it
+      # generated, and anyone who trusted that certificate keeps trusting it.
+      - name: Verify a restart keeps the certificate
+        run: |
+          . "$RUNNER_TEMP/wait-for-status.sh"
+          docker run -d --name restart -p 127.0.0.1:8445:443 -e HOST=localhost test-image
+          wait_for_status restart https://127.0.0.1:8445 || exit 1
+          certificate=/graph-explorer/packages/graph-explorer-proxy-server/cert-info/server.crt
+          before=$(docker exec restart sha256sum "$certificate")
+          docker restart restart >/dev/null
+          wait_for_status restart https://127.0.0.1:8445 || exit 1
+          after=$(docker exec restart sha256sum "$certificate")
+          if [ "$before" != "$after" ]; then
+            echo "FAIL: the restart generated a new certificate"
+            docker rm -f restart >/dev/null
+            exit 1
+          fi
+          echo "✓ the restart kept the certificate"
+          docker rm -f restart >/dev/null
+
+      # node is PID 1, so docker stop's SIGTERM reaches the server instead of
+      # waiting out the timeout.
+      - name: Verify docker stop stops the server promptly
+        run: |
+          . "$RUNNER_TEMP/wait-for-status.sh"
+          docker run -d --name stop -p 127.0.0.1:8085:80 -e PROXY_SERVER_HTTPS_CONNECTION=false test-image
+          wait_for_status stop http://127.0.0.1:8085 || exit 1
+          start=$SECONDS
+          docker stop -t 10 stop >/dev/null
+          elapsed=$((SECONDS - start))
+          if [ "$elapsed" -ge 5 ]; then
+            echo "FAIL: docker stop took $elapsed seconds"
+            docker rm -f stop >/dev/null
+            exit 1
+          fi
+          if ! docker logs stop 2>&1 | grep -q "SIGTERM signal received"; then
+            echo "FAIL: the server did not log receiving SIGTERM"
+            docker logs stop
+            docker rm -f stop >/dev/null
+            exit 1
+          fi
+          echo "✓ docker stop stopped the server in $elapsed seconds"
+          docker rm -f stop >/dev/null
+
+      # Earlier versions appended a block of lines to .env at every start. A
+      # folder that three starts left behind still starts.
+      - name: Verify an .env with lines appended by earlier versions starts
+        run: |
+          . "$RUNNER_TEMP/wait-for-status.sh"
+          mkdir old-env
+          printf 'LOG_LEVEL=info\n' > old-env/.env
+          for i in 1 2 3; do
+            printf '\nNEPTUNE_NOTEBOOK=false\n\nPROXY_SERVER_HTTPS_CONNECTION=false\n\nGRAPH_EXP_HTTPS_CONNECTION=true\n' >> old-env/.env
+          done
+          docker run -d --name old-env -p 127.0.0.1:8083:80 -v "$PWD/old-env:/config" -e CONFIGURATION_FOLDER_PATH=/config -e PROXY_SERVER_HTTPS_CONNECTION=false test-image
+          wait_for_status old-env http://127.0.0.1:8083 || exit 1
+          echo "✓ an .env with appended lines served HTTP"
+          docker rm -f old-env >/dev/null
