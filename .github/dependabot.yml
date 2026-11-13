@@ -24,6 +24,24 @@ updates:
       - dependency-name: "voidzero-dev/vite-plus"
         update-types: ["version-update:semver-major"]
 
+  # The same base image updates for the supported release branch, which patch
+  # releases ship from. Only the newest minor line is supported, so this entry
+  # moves to the new branch at each minor release. The 3.3.x Dockerfile pulls
+  # only the Amazon Linux image, so the Vite+ ignore matches nothing there, but
+  # it stays so the next branch, which has the Vite+ image, needs only a new
+  # `target-branch`. Security updates still target only the default branch.
+  - package-ecosystem: docker
+    directory: /
+    target-branch: "3.3.x"
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: America/Chicago
+    open-pull-requests-limit: 1
+    ignore:
+      - dependency-name: "voidzero-dev/vite-plus"
+        update-types: ["version-update:semver-major"]
+
   # actions/checkout is pinned in every workflow, so an ungrouped bump would
   # open one pull request per workflow for one version.
   - package-ecosystem: github-actions
