@@ -16,7 +16,7 @@ const deepRelativeImports = {
 
 export default defineConfig({
   test: {
-    projects: ["packages/*", "scripts"],
+    projects: ["packages/*", "scripts", ".github/scripts"],
   },
   staged: {
     "*": "vp check --fix",
