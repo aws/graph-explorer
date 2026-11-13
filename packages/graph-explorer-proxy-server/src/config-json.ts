@@ -64,8 +64,8 @@ type JsonValue = z.infer<typeof SettingsSchema>[string];
  * block comments and trailing commas, and throws a {@link ConfigJsonError}
  * naming `filePath` for text that is empty, holds only comments, or isn't JSON
  * even then. A leading byte-order mark is skipped. A setting that only a
- * comment holds is unset, and one set more than once takes its last value,
- * with a warning.
+ * comment holds is unset, and one set more than once throws, since only one
+ * value can take effect.
  */
 export function parseConfigJson(text: string, filePath: string): ConfigJson {
   const lenientText = lenientJsonText(text.replace(/^\uFEFF/, ""));
@@ -94,19 +94,27 @@ export function parseConfigJson(text: string, filePath: string): ConfigJson {
     );
   }
 
+  const keyLines = topLevelKeyLines(lenientText);
+  const duplicates = configJsonKeys.flatMap(key => {
+    const lines = keyLines.get(key) ?? [];
+    return lines.length > 1
+      ? [
+          `${filePath} sets ${key} more than once, on lines ${new Intl.ListFormat("en").format(lines.map(String))}.`,
+        ]
+      : [];
+  });
+  if (duplicates.length > 0) {
+    throw new ConfigJsonError(
+      `${duplicates.join(" ")} Keep one entry for each setting and remove the others.`,
+    );
+  }
+
   const warnings: string[] = [];
   const values: ConfigJson["values"] = {};
-  const keyLines = topLevelKeyLines(lenientText);
   for (const key of configJsonKeys) {
     const value = settings.data[key];
     if (value === undefined) {
       continue;
-    }
-    const lines = keyLines.get(key) ?? [];
-    if (lines.length > 1) {
-      warnings.push(
-        `${filePath} sets ${key} more than once, on lines ${new Intl.ListFormat("en").format(lines.map(String))}. The last one wins, so remove the others.`,
-      );
     }
     const setting = readSetting(settingKinds[key], value);
     if (setting === undefined) {

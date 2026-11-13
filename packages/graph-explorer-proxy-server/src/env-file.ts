@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+
 /** Zero or more blank or whitespace-only lines. */
 const blankLines = String.raw`(?:[ \t]*\n)*`;
 
@@ -54,4 +56,44 @@ export function stripLegacyStartupBlocks(text: string): {
     },
   );
   return { text: blanked, ignoredLineCount };
+}
+
+/** A `.env` file sets a key more than once. The message names the lines. */
+export class EnvFileError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "EnvFileError";
+  }
+}
+
+const assignment = /^\s*(?:export\s+)?([\w.-]+)(?:\s*=|:\s)/;
+
+/**
+ * Parses a `.env` file, and throws an {@link EnvFileError} naming the lines
+ * of any key set on more than one of them, since only one can take effect.
+ */
+export function parseEnvFile(
+  text: string,
+  filePath: string,
+): Record<string, string> {
+  const linesByKey = new Map<string, number[]>();
+  text.split(/\r\n?|\n/).forEach((line, index) => {
+    const key = assignment.exec(line)?.[1];
+    if (key !== undefined) {
+      linesByKey.set(key, [...(linesByKey.get(key) ?? []), index + 1]);
+    }
+  });
+
+  const duplicates = [...linesByKey]
+    .filter(([, lines]) => lines.length > 1)
+    .map(
+      ([key, lines]) =>
+        `${filePath} sets ${key} more than once, on lines ${new Intl.ListFormat("en").format(lines.map(String))}.`,
+    );
+  if (duplicates.length > 0) {
+    throw new EnvFileError(
+      `${duplicates.join(" ")} Keep one line for each key and remove the others. Earlier versions used the last line.`,
+    );
+  }
+  return dotenv.parse(text);
 }

@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 
@@ -9,7 +8,11 @@ import {
   readConfigJson,
 } from "./config-json.ts";
 import { renderDefaultConnection } from "./default-connection.ts";
-import { stripLegacyStartupBlocks } from "./env-file.ts";
+import {
+  EnvFileError,
+  parseEnvFile,
+  stripLegacyStartupBlocks,
+} from "./env-file.ts";
 import {
   type EnvironmentValues,
   EnvironmentValuesSchema,
@@ -83,8 +86,13 @@ export function resolveStartupConfig({
       `Ignored ${ownDotEnv.ignoredLineCount} lines of ${dotEnv.path}, which earlier versions of Graph Explorer appended at each start. Startup now reads those settings directly, so you can delete the lines.`,
     );
   }
-  const dotEnvValues = dotenv.parse(ownDotEnv?.text ?? "");
-  const dotEnvLocalValues = dotenv.parse(dotEnvLocal?.text ?? "");
+  // The appended blocks are blanked first, so their lines never count as a
+  // key the operator set twice.
+  const dotEnvValues =
+    dotEnv && ownDotEnv ? parseEnvFile(ownDotEnv.text, dotEnv.path) : {};
+  const dotEnvLocalValues = dotEnvLocal
+    ? parseEnvFile(dotEnvLocal.text, dotEnvLocal.path)
+    : {};
 
   const settings: ConfigJson["values"] = {
     ...configJson?.values,
@@ -225,13 +233,21 @@ export function loadStartup({
     throw new StartupError(`Configuration folder does not exist: ${source}`);
   }
 
-  const startup = resolveStartupConfig({
-    processEnv,
-    dotEnv: readTextFile(path.join(configPath, ".env")),
-    dotEnvLocal: readTextFile(path.join(configPath, ".env.local")),
-    configJson: loadConfigJson(configJsonPath),
-    image,
-  });
+  let startup;
+  try {
+    startup = resolveStartupConfig({
+      processEnv,
+      dotEnv: readTextFile(path.join(configPath, ".env")),
+      dotEnvLocal: readTextFile(path.join(configPath, ".env.local")),
+      configJson: loadConfigJson(configJsonPath),
+      image,
+    });
+  } catch (error) {
+    if (error instanceof EnvFileError) {
+      throw new StartupError(error.message);
+    }
+    throw error;
+  }
 
   const result = EnvironmentValuesSchema.safeParse(startup.serverEnv);
   if (!result.success) {

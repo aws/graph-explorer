@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
 import { parseConfigJson } from "./config-json.ts";
 import { conflictMessage } from "./deployment-scenarios.ts";
+import { EnvFileError } from "./env-file.ts";
 import {
   loadStartup,
   resolveStartupConfig,
@@ -510,6 +511,58 @@ describe("resolveStartupConfig", () => {
     it("says nothing about a .env without those lines", () => {
       expect(resolve({ dotEnv: "LOG_LEVEL=debug\n" }).info).toStrictEqual([]);
     });
+
+    it("stops on a key set twice in .env or .env.local", () => {
+      expect(() => resolve({ dotEnvLocal: "PORT=1\nPORT=2\n" })).toThrow(
+        new EnvFileError(
+          "/config/.env.local sets PORT more than once, on lines 1 and 2. Keep one line for each key and remove the others. Earlier versions used the last line.",
+        ),
+      );
+    });
+
+    it("doesn't count a key the operator sets once against the lines earlier versions appended", () => {
+      const block = legacyStartupBlock({
+        neptuneNotebook: "false",
+        https: "true",
+        graphExpHttps: "true",
+      });
+
+      expect(
+        resolve({
+          dotEnv: `PROXY_SERVER_HTTPS_CONNECTION=false\n${block}${block}`,
+        }).serverEnv.PROXY_SERVER_HTTPS_CONNECTION,
+      ).toBe("false");
+    });
+  });
+
+  it("doesn't count lines earlier versions appended with CRLF line breaks", () => {
+    const block = legacyStartupBlock({
+      neptuneNotebook: "false",
+      https: "true",
+      graphExpHttps: "true",
+    }).replaceAll("\n", "\r\n");
+
+    expect(
+      resolve({
+        dotEnv: `PROXY_SERVER_HTTPS_CONNECTION=false\r\n${block}`,
+      }).serverEnv.PROXY_SERVER_HTTPS_CONNECTION,
+    ).toBe("false");
+  });
+
+  it("names a duplicate key's lines as they are in the file when a block sits between them", () => {
+    const block = legacyStartupBlock({
+      neptuneNotebook: "false",
+      https: "true",
+      graphExpHttps: "true",
+    });
+
+    expect(() =>
+      resolve({ dotEnv: `LOG_STYLE=default\n${block}LOG_STYLE=cloudwatch\n` }),
+    ).toThrow(
+      new EnvFileError(
+        "/config/.env sets LOG_STYLE more than once, on lines 1 and 8. Keep one line for each key and remove the others. Earlier versions used the last line.",
+      ),
+    );
   });
 
   describe("HTTPS notice", () => {
@@ -698,6 +751,16 @@ describe("loadStartup", () => {
     expect(() => load()).toThrow(StartupError);
     expect(() => load()).toThrow(
       `${configJsonPath} isn't valid JSON, so Graph Explorer can't read its settings`,
+    );
+  });
+
+  it("stops startup for a key set twice in .env, naming the file", () => {
+    fs.writeFileSync(path.join(configPath, ".env"), "A=1\nA=2\n");
+
+    expect(() => load()).toThrow(
+      new StartupError(
+        `${path.join(configPath, ".env")} sets A more than once, on lines 1 and 2. Keep one line for each key and remove the others. Earlier versions used the last line.`,
+      ),
     );
   });
 

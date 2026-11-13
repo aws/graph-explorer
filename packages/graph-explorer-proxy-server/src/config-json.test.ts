@@ -209,8 +209,8 @@ describe("parseConfigJson", () => {
   );
 
   describe("a setting set more than once", () => {
-    it("takes the last value, with a warning naming the setting and its lines", () => {
-      expect(
+    it("throws naming the file, the setting, and its lines", () => {
+      expect(() =>
         parseConfigJson(
           `{
   "PROXY_SERVER_HTTPS_CONNECTION": false,
@@ -219,31 +219,31 @@ describe("parseConfigJson", () => {
 }`,
           filePath,
         ),
-      ).toStrictEqual({
-        values: {
-          PROXY_SERVER_HTTPS_CONNECTION: "true",
-          GRAPH_TYPE: "gremlin",
-        },
-        warnings: [
-          `${filePath} sets PROXY_SERVER_HTTPS_CONNECTION more than once, on lines 2 and 4. The last one wins, so remove the others.`,
-        ],
-      });
+      ).toThrow(
+        new ConfigJsonError(
+          `${filePath} sets PROXY_SERVER_HTTPS_CONNECTION more than once, on lines 2 and 4. Keep one entry for each setting and remove the others.`,
+        ),
+      );
     });
 
-    it("names every line of a setting set three times", () => {
-      expect(
-        parseConfigJson('{"IAM": true,\n"IAM": false,\n"IAM": true}', filePath)
-          .warnings,
-      ).toStrictEqual([
-        `${filePath} sets IAM more than once, on lines 1, 2, and 3. The last one wins, so remove the others.`,
-      ]);
+    it("names every setting set more than once", () => {
+      expect(() =>
+        parseConfigJson(
+          '{"IAM": true,\n"GRAPH_TYPE": "gremlin",\n"IAM": false,\n"GRAPH_TYPE": "sparql",\n"IAM": true}',
+          filePath,
+        ),
+      ).toThrow(
+        new ConfigJsonError(
+          `${filePath} sets GRAPH_TYPE more than once, on lines 2 and 4. ${filePath} sets IAM more than once, on lines 1, 3, and 5. Keep one entry for each setting and remove the others.`,
+        ),
+      );
     });
 
     it("counts a key of a nested object apart from the top-level settings", () => {
       expect(
         parseConfigJson('{"IAM": true, "other": {"IAM": false}}', filePath)
-          .warnings,
-      ).toStrictEqual([]);
+          .values,
+      ).toStrictEqual({ IAM: "true" });
     });
 
     it("counts a setting that only a comment repeats once", () => {
@@ -254,8 +254,8 @@ describe("parseConfigJson", () => {
   "IAM": true
 }`,
           filePath,
-        ).warnings,
-      ).toStrictEqual([]);
+        ).values,
+      ).toStrictEqual({ IAM: "true" });
     });
   });
 
