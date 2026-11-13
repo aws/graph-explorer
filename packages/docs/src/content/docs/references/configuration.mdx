@@ -161,9 +161,19 @@ At startup, the container reads `.env` and any `defaultConnection.json` from thi
 - Optional
 - Default: `<client root>` (`packages/graph-explorer`)
 
+## Precedence
+
+In the Docker image, the server reads each setting from the first of these that sets it: the environment, such as `-e` flags, then `.env.local`, then `config.json` or the Neptune Notebook preset, then `.env`, then the setting's default.
+
+- `config.json` holds only the Default Connection settings, `PROXY_SERVER_HTTPS_CONNECTION`, and `NEPTUNE_NOTEBOOK`, so other settings such as `PROXY_SERVER_PORT` and `LOG_STYLE` come from the environment, `.env.local`, or `.env`.
+- Under the preset (`NEPTUNE_NOTEBOOK=true`), the preset's port `9250`, `cloudwatch` log style, and HTTPS off take the place of `config.json`, so the environment and `.env.local` override them and `.env` doesn't. A `PROXY_SERVER_HTTPS_CONNECTION` of `true` from the environment, `.env.local`, or `config.json` stops startup.
+- An empty environment value for a setting `config.json` can hold counts as unset.
+- Default Connection settings and `NEPTUNE_NOTEBOOK` come only from the environment and `config.json`.
+- In the Docker image, a `PROXY_SERVER_HTTPS_CONNECTION` line in `.env` doesn't take effect yet. See [#2504](https://github.com/aws/graph-explorer/issues/2504).
+
 ## Default Connection
 
-To provide a default connection such that initial loads of Graph Explorer always result with the same starting connection, modify the `docker run ...` command to either take in a JSON configuration or runtime environment variables. If you provide both a JSON configuration and environmental variables, the JSON will be prioritized.
+To provide a default connection such that initial loads of Graph Explorer always result with the same starting connection, modify the `docker run ...` command to either take in a JSON configuration or runtime environment variables. Environment variables override `config.json`, and `config.json` fills any setting the environment leaves unset. See [Precedence](#precedence).
 
 The server builds the default connection when it starts and serves it at `/defaultConnection`. When no connection is configured, it serves a `defaultConnection.json` from the [configuration folder](#configuration_folder_path) if one is there, so you can mount your own.
 

@@ -87,9 +87,12 @@ export const conflictMessage =
   "NEPTUNE_NOTEBOOK and PROXY_SERVER_HTTPS_CONNECTION are both true. " +
   "The Neptune Notebook preset serves Graph Explorer over HTTP and does " +
   "not generate TLS certificates, so this combination cannot start. " +
-  "Either set PROXY_SERVER_HTTPS_CONNECTION to false or remove it " +
-  "(from -e flags or config.json) to run under the notebook preset, " +
-  "or set NEPTUNE_NOTEBOOK to false to run with TLS.";
+  "To run under the notebook preset, set PROXY_SERVER_HTTPS_CONNECTION to " +
+  "false, or remove it, where it is set to true: an -e flag, .env.local, " +
+  "or config.json. An -e flag overrides the other two. To run with TLS, " +
+  "set NEPTUNE_NOTEBOOK to false, or remove it, where it is set to true: " +
+  "an -e flag or config.json. An -e flag overrides config.json. See " +
+  "https://aws.github.io/graph-explorer/references/configuration/#precedence";
 
 /** Expects a parse failure at `key`, logging `message` when it is given. */
 export function parseFailureAt(key: string, message?: string): StartupOutcome {
@@ -430,21 +433,17 @@ export const deployments: Deployment[] = [
     name: "config.json HTTPS true and -e HTTPS false",
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: true },
-    // As before, config.json decides whether a certificate is generated, so
-    // one is, while the -e value wins in the server, which serves HTTP.
-    expected: served(http, {
-      certificatesGenerated: true,
-      httpsNotice: undefined,
-    }),
+    // One precedence order: -e beats config.json for both the server and the
+    // certificate, so it serves HTTP without generating one.
+    expected: standardHttp,
   },
   {
     name: "config.json HTTPS false and -e HTTPS true",
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: false },
-    // As before, config.json decides whether a certificate is generated, so
-    // none is, while the -e value wins in the server, which wants TLS and
-    // fails on the missing certificates.
-    expected: missingCertificates,
+    // One precedence order: -e beats config.json for both the server and the
+    // certificate, so it generates one and serves TLS.
+    expected: standardTls,
   },
   {
     name: "-e NEPTUNE_NOTEBOOK=true",
@@ -621,27 +620,26 @@ export const deployments: Deployment[] = [
   {
     name: "-e PROXY_SERVER_HTTPS_CONNECTION=",
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "" },
-    // Earlier versions treated the empty value as unset and wrote the TLS
-    // default, but dotenv never overrides a variable already in the
-    // environment, so the server reads the empty value directly and its schema
-    // rejects it.
-    expected: parseFailureAt("PROXY_SERVER_HTTPS_CONNECTION"),
+    // An empty -e value for a setting config.json can hold counts as unset,
+    // so HTTPS defaults to on. Before, the server read the empty value and
+    // its schema rejected it.
+    expected: standardTls,
   },
   {
     name: "-e NEPTUNE_NOTEBOOK=true with config.json HTTPS true and no NEPTUNE_NOTEBOOK key",
     dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: true },
-    // config.json replaces -e NEPTUNE_NOTEBOOK, and a missing key reads as
-    // unset, so the preset is off and it serves TLS.
-    expected: standardTls,
+    // One precedence order: config.json fills only what -e leaves unset, so
+    // -e applies the preset, which refuses config.json's HTTPS request.
+    expected: notebookConflict,
   },
   {
     name: "-e NEPTUNE_NOTEBOOK=true and a config.json without the key",
     dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
     configJson: {},
-    // config.json replaces -e NEPTUNE_NOTEBOOK even when it lacks the key, so
-    // the preset is off and it serves TLS.
-    expected: standardTls,
+    // One precedence order: config.json fills only what -e leaves unset, so
+    // -e applies the preset.
+    expected: notebookPreset,
   },
   {
     name: "config.json NEPTUNE_NOTEBOOK and HTTPS true without HOST",
@@ -670,8 +668,8 @@ export const deployments: Deployment[] = [
     name: "-e NEPTUNE_NOTEBOOK=true with config.json NEPTUNE_NOTEBOOK false",
     dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
     configJson: { NEPTUNE_NOTEBOOK: false },
-    // config.json's false replaces -e NEPTUNE_NOTEBOOK, so it serves TLS.
-    expected: standardTls,
+    // One precedence order: -e beats config.json, so it applies the preset.
+    expected: notebookPreset,
   },
   {
     name: "config.json NEPTUNE_NOTEBOOK true",
@@ -851,11 +849,11 @@ export const deployments: Deployment[] = [
       GRAPH_CONNECTION_URL: "https://from-config:8182",
       AWS_REGION: "us-west-2",
     },
-    // config.json replaces the environment for every key it can hold.
+    // One precedence order: -e beats config.json for each setting.
     expected: servingConnection(
       proxiedConnection(
-        { GRAPH_EXP_GRAPH_TYPE: "sparql", GRAPH_EXP_AWS_REGION: "us-west-2" },
-        "https://from-config:8182",
+        { GRAPH_EXP_GRAPH_TYPE: "gremlin", GRAPH_EXP_AWS_REGION: "eu-west-1" },
+        "https://from-env:8182",
       ),
     ),
   },
@@ -863,17 +861,19 @@ export const deployments: Deployment[] = [
     name: "-e GRAPH_CONNECTION_URL with config.json HTTPS true and no GRAPH_CONNECTION_URL",
     dockerEnv: { GRAPH_CONNECTION_URL: clusterUrl },
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: true },
-    // config.json replaces the environment for every key it can hold, even
-    // one it leaves out, so there is no Default Connection.
-    expected: standardTls,
+    // One precedence order: a setting config.json leaves out comes from -e.
+    expected: servingConnection(proxiedConnection()),
   },
   {
     name: "-e USING_PROXY_SERVER=false with config.json GRAPH_CONNECTION_URL",
     dockerEnv: { USING_PROXY_SERVER: "false" },
     configJson: { GRAPH_CONNECTION_URL: clusterUrl },
-    // config.json replaces the environment, so USING_PROXY_SERVER is unset
-    // and GRAPH_CONNECTION_URL alone makes a proxied connection.
-    expected: servingConnection(proxiedConnection()),
+    // One precedence order: the settings merge one at a time, and
+    // USING_PROXY_SERVER=false from -e makes the connection direct.
+    expected: servingConnection({
+      GRAPH_EXP_CONNECTION_URL: clusterUrl,
+      GRAPH_EXP_USING_PROXY_SERVER: false,
+    }),
   },
   {
     name: "-e GRAPH_EXP_FETCH_REQUEST_TIMEOUT and GRAPH_EXP_NODE_EXPANSION_LIMIT with GRAPH_CONNECTION_URL",
@@ -1230,32 +1230,32 @@ export const deployments: Deployment[] = [
     name: "-e GRAPH_CONNECTION_URL= with config.json GRAPH_CONNECTION_URL",
     dockerEnv: { GRAPH_CONNECTION_URL: "" },
     configJson: { GRAPH_CONNECTION_URL: clusterUrl },
-    // config.json replaces the environment.
+    // An empty -e value counts as unset, so config.json's URL applies.
     expected: servingConnection(proxiedConnection()),
   },
   {
     name: "-e GRAPH_CONNECTION_URL with an empty config.json GRAPH_CONNECTION_URL",
     dockerEnv: { GRAPH_CONNECTION_URL: clusterUrl },
     configJson: { GRAPH_CONNECTION_URL: "" },
-    // config.json replaces the environment, and its empty URL makes no
-    // Default Connection.
-    expected: standardTls,
+    // -e beats config.json, so the -e URL applies.
+    expected: servingConnection(proxiedConnection()),
   },
   {
     name: "-e PROXY_SERVER_HTTPS_CONNECTION= with config.json HTTPS false",
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "" },
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: false },
-    // dotenv never overrides a variable already in the environment, so the
-    // server reads the empty value and its schema rejects it.
-    expected: parseFailureAt("PROXY_SERVER_HTTPS_CONNECTION"),
+    // An empty -e value for a setting config.json can hold counts as unset,
+    // so config.json's false applies. Before, the server read the empty value
+    // and its schema rejected it.
+    expected: standardHttp,
   },
   {
     name: "-e NEPTUNE_NOTEBOOK=false with config.json NEPTUNE_NOTEBOOK true",
     dockerEnv: { NEPTUNE_NOTEBOOK: "false" },
     configJson: { NEPTUNE_NOTEBOOK: true },
-    // config.json replaces -e NEPTUNE_NOTEBOOK, and startup passes the .env
-    // value to the server.
-    expected: notebookPreset,
+    // One precedence order: -e beats config.json, so the preset is off and it
+    // serves TLS.
+    expected: standardTls,
   },
   {
     name: "-e PUBLIC_OR_PROXY_ENDPOINT",

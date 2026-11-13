@@ -106,7 +106,7 @@ Run `vp run docs:build` after editing a page.
 
 ## `NEPTUNE_NOTEBOOK`
 
-Wherever a user doc covers notebook behavior, including the configuration reference, document the individual variables: `PROXY_SERVER_HTTPS_CONNECTION=false`, `PROXY_SERVER_PORT=9250`, and `LOG_STYLE=cloudwatch`. `NEPTUNE_NOTEBOOK` is the unsupported legacy preset that sets them, kept only so existing deployments keep working, and it goes away with [#2312](https://github.com/aws/graph-explorer/issues/2312). User docs leave it out. `packages/docs/src/content/docs/guides/_assets/install-graph-explorer-lc.sh` keeps passing it until then.
+Wherever a user doc covers notebook behavior, including the configuration reference, document the individual variables: `PROXY_SERVER_HTTPS_CONNECTION=false`, `PROXY_SERVER_PORT=9250`, and `LOG_STYLE=cloudwatch`. `NEPTUNE_NOTEBOOK` is the unsupported legacy preset that sets them, kept only so existing deployments keep working, and it goes away with [#2312](https://github.com/aws/graph-explorer/issues/2312). User docs leave it out. The configuration reference's Precedence section and upgrade notes may name it, to say how a deployment that already sets it starts. Elsewhere, document the individual variables. `packages/docs/src/content/docs/guides/_assets/install-graph-explorer-lc.sh` keeps passing it until then.
 
 ## Repo Markdown
 
