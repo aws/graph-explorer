@@ -1,4 +1,5 @@
 import { createPersistenceStatusStore } from "./persistenceStatusStore";
+import { requestPersistentStorageOnce } from "./persistentStorage";
 import { createWriteQueue, type Flush } from "./writeQueue";
 
 export type {
@@ -19,9 +20,11 @@ const writeQueue = createWriteQueue({ store: persistenceStatusStore });
 /**
  * Schedules an IndexedDB write for `key` through the shared retry/coalesce queue
  * so its outcome flows into the global persistence status. Returns immediately;
- * the queue owns retries and failure reporting.
+ * the queue owns retries and failure reporting. The first call per page load
+ * also asks the browser to keep storage persistent.
  */
 export function persistThroughQueue(key: string, flush: Flush): void {
+  void requestPersistentStorageOnce();
   writeQueue.enqueue(key, flush);
 }
 
