@@ -208,6 +208,8 @@ These are the valid environment variables used for the default connection, their
     - `AWS_REGION` - `None`
     - `SERVICE_TYPE` - `neptune-db`, Set this as `neptune-db` for Neptune database or `neptune-graph` for Neptune Analytics.
 
+`IAM` is `true` or `false` in any letter case. For any other value, the server logs a warning and the default connection uses `false`.
+
 ### JSON Configuration Approach
 
 First, create a `config.json` file containing values for the connection attributes:
