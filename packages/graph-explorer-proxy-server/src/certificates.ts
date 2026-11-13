@@ -181,3 +181,20 @@ export function prepareCertificates({
   );
   return "reused";
 }
+
+/**
+ * Records that this container has started, so a restart keeps the
+ * certificate this start set up. A start that can't record it still runs.
+ */
+export function recordContainerStart(
+  markerPath: string,
+  logger: Pick<AppLogger, "warn">,
+): void {
+  try {
+    fs.writeFileSync(markerPath, "");
+  } catch (error) {
+    logger.warn(
+      `Couldn't record this container's start at ${markerPath}, so a restart generates a new certificate: ${messageOf(error)}`,
+    );
+  }
+}

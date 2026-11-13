@@ -122,6 +122,11 @@ export const EnvironmentValuesSchema = EnvironmentFieldsSchema.superRefine(
 
 export type EnvironmentValues = z.infer<typeof EnvironmentValuesSchema>;
 
+/** The text logged when the environment fails to parse. */
+export function formatEnvironmentError(error: z.ZodError) {
+  return `Failed to parse environment values\n${z.prettifyError(error)}`;
+}
+
 /** Parses and validates environment values, exiting the process on failure. */
 export function parseEnvironmentValues(
   env: Record<string, string | undefined>,
