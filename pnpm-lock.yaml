@@ -192,6 +192,9 @@ importers:
       '@tanstack/eslint-plugin-query':
         specifier: 5.105.0
         version: 5.105.0(eslint@10.12.0(jiti@2.7.0))(typescript@7.0.2)
+      '@types/node':
+        specifier: ^24.19.2
+        version: 24.19.2
       eslint-plugin-baseline-js:
         specifier: 0.7.6
         version: 0.7.6(eslint@10.12.0(jiti@2.7.0))
