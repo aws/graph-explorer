@@ -35,7 +35,7 @@ RUN vp install --prod --frozen-lockfile --ignore-scripts --filter graph-explorer
 # nothing newer to install.
 # openssl is for setup-ssl.sh. yum, dnf, and python3 come with the base image
 # and are stripped.
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023.12.20261109.0@sha256:3f09d02367148ef8086b8dc7ce098d16b21da58bbfe1e1167da25a17df8f0e51 AS runtime
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023.12.20261112.0@sha256:5c6ed3b38335b2aa424a045f1e564c8c508409ead0ff3f8bf5e62c31b94082cb AS runtime
 RUN yum install -y openssl && \
     yum clean all && \
     rpm -qa 'python3*' | while read pkg; do rpm -e --nodeps "$pkg"; done && \
