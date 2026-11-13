@@ -2,13 +2,18 @@ import { describe, expect, it } from "vite-plus/test";
 
 import type { ConfigJson } from "./config-json.ts";
 
-import { renderDefaultConnection } from "./default-connection.ts";
+import {
+  type DefaultConnection,
+  resolveDefaultConnection,
+} from "./default-connection.ts";
 
 type Row = {
   name: string;
   settings: ConfigJson["values"];
-  /** The Default Connection the text parses to, or `undefined` when no connection is configured. */
-  expected: Record<string, unknown> | undefined;
+  /** The Default Connection, or `undefined` when no connection is configured. */
+  expected: DefaultConnection | undefined;
+  /** The warnings the resolver gives. */
+  warnings?: string[];
 };
 
 const db = "https://db:8182";
@@ -318,82 +323,198 @@ const rowGroups: Record<string, Row[]> = {
   ],
 
   // #2291: the shell never wrote these two settings.
+  // Earlier versions wrote the IAM value as it was given, so anything but a
+  // lowercase true or false made the file invalid JSON.
+  "IAM values": [
+    {
+      name: "reads IAM=True as true",
+      settings: { GRAPH_CONNECTION_URL: db, IAM: "True" },
+      expected: {
+        GRAPH_EXP_CONNECTION_URL: db,
+        GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+        GRAPH_EXP_IAM: true,
+        GRAPH_EXP_AWS_REGION: "",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      },
+    },
+    {
+      name: "uses false for IAM=yes with a warning",
+      settings: { GRAPH_CONNECTION_URL: db, IAM: "yes" },
+      expected: {
+        GRAPH_EXP_CONNECTION_URL: db,
+        GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+        GRAPH_EXP_IAM: false,
+        GRAPH_EXP_AWS_REGION: "",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      },
+      warnings: [
+        `IAM is "yes", which isn't true or false, so the Default Connection uses false.`,
+      ],
+    },
+    {
+      // A config.json null reaches here as the text "null".
+      name: "uses false for IAM=null with a warning",
+      settings: { GRAPH_CONNECTION_URL: db, IAM: "null" },
+      expected: {
+        GRAPH_EXP_CONNECTION_URL: db,
+        GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+        GRAPH_EXP_IAM: false,
+        GRAPH_EXP_AWS_REGION: "",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      },
+      warnings: [
+        `IAM is "null", which isn't true or false, so the Default Connection uses false.`,
+      ],
+    },
+    ...[" true", "true\n", " TRUE "].map((value): Row => ({
+      name: `reads IAM=${JSON.stringify(value)} as true`,
+      settings: { GRAPH_CONNECTION_URL: db, IAM: value },
+      expected: {
+        GRAPH_EXP_CONNECTION_URL: db,
+        GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+        GRAPH_EXP_IAM: true,
+        GRAPH_EXP_AWS_REGION: "",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      },
+    })),
+    {
+      name: "quotes an IAM value with spaces as given in its warning",
+      settings: { GRAPH_CONNECTION_URL: db, IAM: " yes " },
+      expected: {
+        GRAPH_EXP_CONNECTION_URL: db,
+        GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+        GRAPH_EXP_IAM: false,
+        GRAPH_EXP_AWS_REGION: "",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      },
+      warnings: [
+        `IAM is " yes ", which isn't true or false, so the Default Connection uses false.`,
+      ],
+    },
+    {
+      name: "ignores IAM on a direct connection without a warning",
+      settings: {
+        USING_PROXY_SERVER: "false",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+        IAM: "yes",
+      },
+      expected: {
+        GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+      },
+    },
+  ],
+
+  // Earlier versions wrote GRAPH_TYPE as it was given, and the browser drops
+  // a Default Connection whose graph type it can't read.
+  "GRAPH_TYPE values": [
+    ...["Gremlin", "cypher"].map((value): Row => ({
+      name: `leaves out GRAPH_TYPE=${value} with a warning`,
+      settings: { GRAPH_CONNECTION_URL: db, GRAPH_TYPE: value },
+      expected: {
+        GRAPH_EXP_CONNECTION_URL: db,
+        GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+        GRAPH_EXP_IAM: false,
+        GRAPH_EXP_AWS_REGION: "",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      },
+      warnings: [
+        `GRAPH_TYPE is "${value}", which isn't gremlin, openCypher, or sparql, so the Default Connection leaves it out.`,
+      ],
+    })),
+    {
+      name: "uses openCypher for SERVICE_TYPE=neptune-graph in place of a GRAPH_TYPE it leaves out",
+      settings: {
+        GRAPH_CONNECTION_URL: db,
+        SERVICE_TYPE: "neptune-graph",
+        GRAPH_TYPE: "opencypher",
+      },
+      expected: {
+        GRAPH_EXP_CONNECTION_URL: db,
+        GRAPH_EXP_GRAPH_TYPE: "openCypher",
+        GRAPH_EXP_SERVICE_TYPE: "neptune-graph",
+        GRAPH_EXP_IAM: false,
+        GRAPH_EXP_AWS_REGION: "",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      },
+      warnings: [
+        `GRAPH_TYPE is "opencypher", which isn't gremlin, openCypher, or sparql, so the Default Connection leaves it out.`,
+      ],
+    },
+    {
+      name: "reads a GRAPH_TYPE with spaces and a line break around it",
+      settings: { GRAPH_CONNECTION_URL: db, GRAPH_TYPE: " sparql\n" },
+      expected: {
+        GRAPH_EXP_CONNECTION_URL: db,
+        GRAPH_EXP_GRAPH_TYPE: "sparql",
+        GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+        GRAPH_EXP_IAM: false,
+        GRAPH_EXP_AWS_REGION: "",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      },
+    },
+    {
+      name: "checks GRAPH_TYPE on a direct connection too",
+      settings: {
+        USING_PROXY_SERVER: "false",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+        GRAPH_TYPE: "Gremlin",
+      },
+      expected: {
+        GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+      },
+      warnings: [
+        `GRAPH_TYPE is "Gremlin", which isn't gremlin, openCypher, or sparql, so the Default Connection leaves it out.`,
+      ],
+    },
+  ],
 };
 
-/** The rendered Default Connection, parsed. */
-function renderParsed(settings: ConfigJson["values"]): unknown {
-  const text = renderDefaultConnection(settings);
-  return text === undefined ? undefined : JSON.parse(text);
-}
-
-describe("renderDefaultConnection", () => {
+describe("resolveDefaultConnection", () => {
   describe.for(Object.entries(rowGroups))("%s", ([_group, groupRows]) => {
     it.for(groupRows.map(row => [row.name, row] as const))(
       "%s",
-      ([_name, { settings, expected }]) => {
-        expect(renderParsed(settings)).toStrictEqual(expected);
+      ([_name, { settings, expected, warnings = [] }]) => {
+        expect(resolveDefaultConnection(settings)).toStrictEqual({
+          defaultConnection: expected,
+          warnings,
+        });
       },
     );
-  });
-
-  it("renders the text process-environment.sh wrote, line by line", () => {
-    expect(
-      renderDefaultConnection({
-        GRAPH_CONNECTION_URL: db,
-        GRAPH_TYPE: "gremlin",
-        IAM: "true",
-        AWS_REGION: "us-east-1",
-      }),
-    ).toBe(
-      [
-        "",
-        "{",
-        '"GRAPH_EXP_CONNECTION_URL":"https://db:8182",',
-        '"GRAPH_EXP_GRAPH_TYPE":"gremlin",',
-        '"GRAPH_EXP_SERVICE_TYPE":"neptune-db",',
-        '"GRAPH_EXP_IAM":true,',
-        '"GRAPH_EXP_AWS_REGION":"us-east-1",',
-        '"GRAPH_EXP_USING_PROXY_SERVER":true',
-        "}",
-        "",
-      ].join("\n"),
-    );
-  });
-
-  // Earlier versions wrote the IAM value as it was given, so a value that
-  // isn't a JSON literal made a file the browser couldn't read.
-  it("writes an IAM of True as it is", () => {
-    expect(
-      renderDefaultConnection({ GRAPH_CONNECTION_URL: db, IAM: "True" }),
-    ).toContain('"GRAPH_EXP_IAM":True,\n');
   });
 
   // Earlier versions wrote the legacy names to defaultConnection.json for no
   // reason. The browser reads only the GRAPH_EXP_ names.
   it("never includes the legacy variable names", () => {
-    expect(
-      renderParsed({
-        USING_PROXY_SERVER: "true",
-        GRAPH_CONNECTION_URL: "https://proxied:8182",
-        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
-      }),
-    ).not.toHaveProperty("GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT");
+    const { defaultConnection } = resolveDefaultConnection({
+      USING_PROXY_SERVER: "true",
+      GRAPH_CONNECTION_URL: "https://proxied:8182",
+      PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+    });
+
+    expect(defaultConnection).not.toHaveProperty(
+      "GRAPH_EXP_PUBLIC_OR_PROXY_ENDPOINT",
+    );
   });
 
   it("treats an empty setting as unset", () => {
     expect(
-      renderParsed({
+      resolveDefaultConnection({
         GRAPH_CONNECTION_URL: db,
         GRAPH_TYPE: "",
         SERVICE_TYPE: "",
         IAM: "",
       }),
     ).toStrictEqual({
-      GRAPH_EXP_CONNECTION_URL: db,
-      GRAPH_EXP_SERVICE_TYPE: "neptune-db",
-      GRAPH_EXP_IAM: false,
-      GRAPH_EXP_AWS_REGION: "",
-      GRAPH_EXP_USING_PROXY_SERVER: true,
+      defaultConnection: {
+        GRAPH_EXP_CONNECTION_URL: db,
+        GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+        GRAPH_EXP_IAM: false,
+        GRAPH_EXP_AWS_REGION: "",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+      },
+      warnings: [],
     });
   });
 });
