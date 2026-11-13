@@ -23,6 +23,8 @@ export const configJsonKeys = [
   "PROXY_SERVER_HTTPS_CONNECTION",
   "GRAPH_EXP_HTTPS_CONNECTION",
   "NEPTUNE_NOTEBOOK",
+  "GRAPH_EXP_FETCH_REQUEST_TIMEOUT",
+  "GRAPH_EXP_NODE_EXPANSION_LIMIT",
 ] as const;
 
 export type ConfigJsonKey = (typeof configJsonKeys)[number];
@@ -44,6 +46,8 @@ const settingKinds: Record<ConfigJsonKey, SettingKind> = {
   PROXY_SERVER_HTTPS_CONNECTION: "scalar",
   GRAPH_EXP_HTTPS_CONNECTION: "scalar",
   NEPTUNE_NOTEBOOK: "scalar",
+  GRAPH_EXP_FETCH_REQUEST_TIMEOUT: "scalar",
+  GRAPH_EXP_NODE_EXPANSION_LIMIT: "scalar",
 };
 
 /**

@@ -880,8 +880,14 @@ export const deployments: Deployment[] = [
       GRAPH_EXP_FETCH_REQUEST_TIMEOUT: "60000",
       GRAPH_EXP_NODE_EXPANSION_LIMIT: "500",
     },
-    // Shape from #2291: earlier versions never wrote these two settings.
-    expected: servingConnection(proxiedConnection()),
+    // #2291: the Default Connection carries both settings. Before, they were
+    // left out.
+    expected: servingConnection(
+      proxiedConnection({
+        GRAPH_EXP_FETCH_REQUEST_TIMEOUT: 60000,
+        GRAPH_EXP_NODE_EXPANSION_LIMIT: 500,
+      }),
+    ),
   },
   {
     name: "config.json GRAPH_EXP_FETCH_REQUEST_TIMEOUT and GRAPH_EXP_NODE_EXPANSION_LIMIT with GRAPH_CONNECTION_URL",
@@ -890,8 +896,14 @@ export const deployments: Deployment[] = [
       GRAPH_EXP_FETCH_REQUEST_TIMEOUT: 60000,
       GRAPH_EXP_NODE_EXPANSION_LIMIT: 500,
     },
-    // Shape from #2291: earlier versions never wrote these two settings.
-    expected: servingConnection(proxiedConnection()),
+    // #2291: the Default Connection carries both settings. Before, they were
+    // left out.
+    expected: servingConnection(
+      proxiedConnection({
+        GRAPH_EXP_FETCH_REQUEST_TIMEOUT: 60000,
+        GRAPH_EXP_NODE_EXPANSION_LIMIT: 500,
+      }),
+    ),
   },
   {
     name: "-e IAM=True with GRAPH_CONNECTION_URL",
@@ -936,14 +948,16 @@ export const deployments: Deployment[] = [
   "GRAPH_EXP_NODE_EXPANSION_LIMIT": 500,
 }
 `,
-    // Earlier versions grepped the text rather than parsing it, so a comment
-    // or a trailing comma didn't matter. They never wrote the two #2291
-    // settings.
+    // config.json accepts comments and trailing commas. #2291: the Default
+    // Connection carries the fetch timeout and expansion limit too, which it
+    // left out before.
     expected: servingConnection(
       proxiedConnection({
         GRAPH_EXP_GRAPH_TYPE: "gremlin",
         GRAPH_EXP_IAM: true,
         GRAPH_EXP_AWS_REGION: "us-west-2",
+        GRAPH_EXP_FETCH_REQUEST_TIMEOUT: 240000,
+        GRAPH_EXP_NODE_EXPANSION_LIMIT: 500,
       }),
     ),
   },
@@ -1392,8 +1406,14 @@ export const deployments: Deployment[] = [
       GRAPH_CONNECTION_URL: clusterUrl,
       GRAPH_EXP_NODE_EXPANSION_LIMIT: "-5",
     },
-    // Earlier versions never wrote the expansion limit.
-    expected: servingConnection(proxiedConnection()),
+    // #2291: the Default Connection carries the expansion limit only when it
+    // is a positive whole number, so it leaves this one out with a warning.
+    expected: servingConnection(proxiedConnection(), {
+      ...https,
+      warnings: [
+        `GRAPH_EXP_NODE_EXPANSION_LIMIT is "-5", which isn't a positive whole number, so the Default Connection leaves it out.`,
+      ],
+    }),
   },
   {
     name: "a duplicated PROXY_SERVER_PORT in .env.local",

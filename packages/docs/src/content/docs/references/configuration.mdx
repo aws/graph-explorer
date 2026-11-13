@@ -210,6 +210,8 @@ These are the valid environment variables used for the default connection, their
 
 `IAM` is `true` or `false` in any letter case. For any other value, the server logs a warning and the default connection uses `false`.
 
+Both `GRAPH_EXP_FETCH_REQUEST_TIMEOUT` and `GRAPH_EXP_NODE_EXPANSION_LIMIT` must be positive whole numbers. The server logs a warning and leaves out a value that isn't.
+
 ### JSON Configuration Approach
 
 First, create a `config.json` file containing values for the connection attributes:
