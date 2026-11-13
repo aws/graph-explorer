@@ -9,6 +9,7 @@ import { SendHorizonalIcon, SendHorizontalIcon } from "lucide-react";
 import { z } from "zod";
 
 import {
+  InputGroupButton,
   KeyboardKey,
   PanelEmptyState,
   PanelError,
@@ -78,16 +79,16 @@ export function QuerySearchTabContent() {
             void form.handleSubmit();
           }}
         >
-          <div className="relative">
-            <form.AppField
-              name="query"
-              listeners={{ onChange: ({ value }) => setQueryText(value) }}
-            >
-              {field => (
-                <field.Wrapper>
-                  <field.Label className="sr-only">Query</field.Label>
-                  <field.TextArea
-                    className="h-full min-h-[5lh] w-full pr-14 font-mono text-sm"
+          <form.AppField
+            name="query"
+            listeners={{ onChange: ({ value }) => setQueryText(value) }}
+          >
+            {field => (
+              <field.Wrapper>
+                <field.Label className="sr-only">Query</field.Label>
+                <field.InputGroup>
+                  <field.InputGroupTextarea
+                    className="min-h-[5lh] flex-auto resize-y font-mono text-sm"
                     placeholder={queryPlaceholder(queryEngine)}
                     onKeyDown={e => {
                       if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
@@ -99,19 +100,24 @@ export function QuerySearchTabContent() {
                     autoComplete="off"
                     autoCapitalize="off"
                   />
-                </field.Wrapper>
-              )}
-            </form.AppField>
-            <QuerySubmitTooltip>
-              <form.SubmitButton
-                size="icon"
-                className="absolute right-2 bottom-2"
-              >
-                <span className="sr-only">Submit</span>
-                <SendHorizontalIcon />
-              </form.SubmitButton>
-            </QuerySubmitTooltip>
-          </div>
+                  <field.InputGroupAddon align="block-end">
+                    <QuerySubmitTooltip>
+                      <form.SubmitButton asChild>
+                        <InputGroupButton
+                          size="icon-sm"
+                          variant="secondary"
+                          className="ml-auto"
+                        >
+                          <span className="sr-only">Submit</span>
+                          <SendHorizontalIcon />
+                        </InputGroupButton>
+                      </form.SubmitButton>
+                    </QuerySubmitTooltip>
+                  </field.InputGroupAddon>
+                </field.InputGroup>
+              </field.Wrapper>
+            )}
+          </form.AppField>
         </form>
       </form.AppForm>
 

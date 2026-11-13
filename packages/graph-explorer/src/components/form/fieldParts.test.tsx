@@ -12,9 +12,11 @@ const nameSchema = z.object({ name: z.string().min(1, "Enter a name") });
 function NameForm({
   hideLabel,
   description,
+  inInputGroup,
 }: {
   hideLabel?: boolean;
   description?: string;
+  inInputGroup?: boolean;
 }) {
   const form = useAppForm({
     defaultValues: { name: "" },
@@ -35,7 +37,16 @@ function NameForm({
             <field.Label className={hideLabel ? "sr-only" : undefined}>
               Name
             </field.Label>
-            <field.TextArea />
+            {inInputGroup ? (
+              <field.InputGroup>
+                <field.InputGroupTextarea />
+                <field.InputGroupAddon align="block-end">
+                  <field.InputGroupButton>Go</field.InputGroupButton>
+                </field.InputGroupAddon>
+              </field.InputGroup>
+            ) : (
+              <field.TextArea />
+            )}
             {description && (
               <field.Description>{description}</field.Description>
             )}
@@ -147,6 +158,24 @@ describe("field parts", () => {
     expect(
       screen.getByRole("textbox", { name: "Name" }),
     ).toHaveAccessibleDescription("Shown on your profile Enter a name");
+  });
+
+  test("binds a text area inside an input group, ahead of its addon in tab order", async () => {
+    const user = userEvent.setup();
+    render(<NameForm inInputGroup />);
+
+    expect(screen.getByRole("button", { name: "Go" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByRole("alert");
+
+    const textbox = screen.getByRole("textbox", { name: "Name" });
+    expect(textbox).toHaveAttribute("aria-invalid", "true");
+    expect(textbox).toHaveAccessibleDescription("Enter a name");
+
+    await user.click(textbox);
+    await user.tab();
+    expect(screen.getByRole("button", { name: "Go" })).toHaveFocus();
   });
 
   test("throws when a bound control is outside field.Wrapper", () => {

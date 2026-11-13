@@ -13,8 +13,10 @@ type NameFormValue = z.infer<typeof nameSchema>;
 
 function NameForm({
   onSubmit,
+  asChild,
 }: {
   onSubmit: (value: NameFormValue) => Promise<void> | void;
+  asChild?: boolean;
 }) {
   const form = useAppForm({
     defaultValues: { name: "" },
@@ -39,7 +41,13 @@ function NameForm({
         )}
       </form.AppField>
       <form.AppForm>
-        <form.SubmitButton>Save</form.SubmitButton>
+        {asChild ? (
+          <form.SubmitButton asChild>
+            <button className="custom">Save</button>
+          </form.SubmitButton>
+        ) : (
+          <form.SubmitButton>Save</form.SubmitButton>
+        )}
       </form.AppForm>
     </form>
   );
@@ -113,5 +121,20 @@ describe("SubmitButton", () => {
     await user.click(button);
 
     expect(onSubmit).toHaveBeenCalledOnce();
+  });
+
+  test("slots submit behavior onto its child with asChild", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn(() => new Promise<void>(() => {}));
+    render(<NameForm onSubmit={onSubmit} asChild />);
+    await user.type(screen.getByRole("textbox", { name: "Name" }), "Ada");
+
+    const button = screen.getByRole("button", { name: "Save" });
+    expect(button).toHaveAttribute("type", "submit");
+    expect(button).toHaveAttribute("class", "custom");
+
+    await user.click(button);
+    expect(onSubmit).toHaveBeenCalledWith({ name: "Ada" });
+    expect(button).toHaveAttribute("aria-disabled", "true");
   });
 });

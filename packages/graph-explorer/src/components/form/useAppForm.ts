@@ -1,6 +1,12 @@
 import { createFormHook } from "@tanstack/react-form";
 
 import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupText,
+} from "../InputGroup";
+import {
   BoundField,
   BoundFieldDescription,
   BoundFieldError,
@@ -8,7 +14,7 @@ import {
 } from "./fieldParts";
 import { fieldContext, formContext } from "./formContexts";
 import { SubmitButton } from "./SubmitButton";
-import { BoundTextArea } from "./textControls";
+import { BoundInputGroupTextarea, BoundTextArea } from "./textControls";
 
 export const { useAppForm, withForm } = createFormHook({
   fieldContext,
@@ -19,6 +25,11 @@ export const { useAppForm, withForm } = createFormHook({
     Description: BoundFieldDescription,
     Error: BoundFieldError,
     TextArea: BoundTextArea,
+    InputGroupTextarea: BoundInputGroupTextarea,
+    InputGroup,
+    InputGroupAddon,
+    InputGroupButton,
+    InputGroupText,
   },
   formComponents: { SubmitButton },
 });

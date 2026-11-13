@@ -1,5 +1,6 @@
 import type { ChangeEvent, ComponentPropsWithRef } from "react";
 
+import { InputGroupTextarea } from "../InputGroup";
 import { TextArea } from "../TextArea";
 import { useFieldParts, useIsFieldInvalid } from "./fieldParts";
 import { useFieldContext } from "./formContexts";
@@ -38,4 +39,15 @@ export function BoundTextArea(
 ) {
   const bound = useBoundControlProps("field.TextArea");
   return <TextArea {...props} {...bound} />;
+}
+
+/** InputGroupTextarea bound to the surrounding field. */
+export function BoundInputGroupTextarea(
+  props: Omit<
+    ComponentPropsWithRef<typeof InputGroupTextarea>,
+    keyof BoundControlProps
+  >,
+) {
+  const bound = useBoundControlProps("field.InputGroupTextarea");
+  return <InputGroupTextarea {...props} {...bound} />;
 }
