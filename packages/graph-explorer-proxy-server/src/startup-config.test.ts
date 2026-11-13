@@ -148,28 +148,123 @@ describe("resolveStartupConfig in the image", () => {
     ).toContain('"GRAPH_EXP_IAM":true,');
   });
 
-  it("lets config.json replace every key it can hold, even one it leaves out", () => {
-    const startup = resolve({
-      processEnv: {
-        GRAPH_CONNECTION_URL: db,
-        NEPTUNE_NOTEBOOK: "true",
-        PROXY_SERVER_HTTPS_CONNECTION: "false",
-      },
-      configJson: { GRAPH_TYPE: "gremlin" },
+  describe("config.json after the environment", () => {
+    /** The Default Connection the startup serves, parsed. */
+    function defaultConnectionOf(inputs: Inputs) {
+      const text = resolve(inputs).defaultConnectionJson;
+      return text === undefined ? undefined : JSON.parse(text);
+    }
+
+    it("reads the values from config.json", () => {
+      const startup = resolve({
+        configJson: {
+          GRAPH_TYPE: "sparql",
+          IAM: true,
+          GRAPH_CONNECTION_URL: db,
+          AWS_REGION: "us-west-2",
+          PROXY_SERVER_HTTPS_CONNECTION: false,
+        },
+      });
+
+      expect(startup.serverEnv.PROXY_SERVER_HTTPS_CONNECTION).toBe("false");
+      expect(JSON.parse(startup.defaultConnectionJson ?? "")).toMatchObject({
+        GRAPH_EXP_GRAPH_TYPE: "sparql",
+        GRAPH_EXP_IAM: true,
+        GRAPH_EXP_CONNECTION_URL: db,
+        GRAPH_EXP_AWS_REGION: "us-west-2",
+      });
     });
 
-    expect(startup.defaultConnectionJson).toBeUndefined();
-    expect(startup.serverEnv.NEPTUNE_NOTEBOOK).toBe("false");
-    expect(startup.setUpCertificates).toBe(true);
-  });
+    it("yields to the environment for a key both set", () => {
+      expect(
+        defaultConnectionOf({
+          configJson: {
+            GRAPH_TYPE: "sparql",
+            GRAPH_CONNECTION_URL: "https://from-config:8182",
+            AWS_REGION: "us-west-2",
+          },
+          processEnv: {
+            GRAPH_TYPE: "gremlin",
+            GRAPH_CONNECTION_URL: "https://from-env:8182",
+            AWS_REGION: "eu-west-1",
+          },
+        }),
+      ).toMatchObject({
+        GRAPH_EXP_GRAPH_TYPE: "gremlin",
+        GRAPH_EXP_CONNECTION_URL: "https://from-env:8182",
+        GRAPH_EXP_AWS_REGION: "eu-west-1",
+      });
+    });
 
-  it("passes the environment to the server over config.json", () => {
-    expect(
-      resolve({
-        processEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
-        configJson: { PROXY_SERVER_HTTPS_CONNECTION: true },
-      }).serverEnv.PROXY_SERVER_HTTPS_CONNECTION,
-    ).toBe("false");
+    it("fills the keys the environment leaves unset", () => {
+      expect(
+        defaultConnectionOf({
+          configJson: { GRAPH_TYPE: "sparql", AWS_REGION: "us-west-2" },
+          processEnv: { GRAPH_CONNECTION_URL: db, AWS_REGION: "eu-west-1" },
+        }),
+      ).toMatchObject({
+        GRAPH_EXP_CONNECTION_URL: db,
+        GRAPH_EXP_GRAPH_TYPE: "sparql",
+        GRAPH_EXP_AWS_REGION: "eu-west-1",
+      });
+    });
+
+    it("fills a key the environment sets to an empty value", () => {
+      const startup = resolve({
+        configJson: {
+          GRAPH_CONNECTION_URL: db,
+          PROXY_SERVER_HTTPS_CONNECTION: false,
+        },
+        processEnv: {
+          GRAPH_CONNECTION_URL: "",
+          PROXY_SERVER_HTTPS_CONNECTION: "",
+        },
+      });
+
+      expect(startup.serverEnv.PROXY_SERVER_HTTPS_CONNECTION).toBe("false");
+      expect(startup.defaultConnectionJson).toContain(db);
+    });
+
+    it("leaves an empty environment value of a key config.json can't hold for the server to reject", () => {
+      expect(
+        resolve({ processEnv: { PROXY_SERVER_LISTEN_ADDRESS: "" } }).serverEnv
+          .PROXY_SERVER_LISTEN_ADDRESS,
+      ).toBe("");
+    });
+
+    it("yields NEPTUNE_NOTEBOOK to the environment", () => {
+      expect(
+        resolve({
+          configJson: { NEPTUNE_NOTEBOOK: false },
+          processEnv: { NEPTUNE_NOTEBOOK: "true" },
+        }).serverEnv,
+      ).toMatchObject({
+        NEPTUNE_NOTEBOOK: "true",
+        PROXY_SERVER_HTTPS_CONNECTION: "false",
+        PROXY_SERVER_PORT: "9250",
+      });
+    });
+
+    it("applies the preset from config.json", () => {
+      expect(
+        resolve({ configJson: { NEPTUNE_NOTEBOOK: true } }).serverEnv,
+      ).toMatchObject({
+        NEPTUNE_NOTEBOOK: "true",
+        PROXY_SERVER_PORT: "9250",
+      });
+    });
+
+    it("keeps config.json's HTTPS true under the preset from the environment, for the server to reject", () => {
+      expect(
+        resolve({
+          configJson: { PROXY_SERVER_HTTPS_CONNECTION: true },
+          processEnv: { NEPTUNE_NOTEBOOK: "true" },
+        }).serverEnv,
+      ).toMatchObject({
+        NEPTUNE_NOTEBOOK: "true",
+        PROXY_SERVER_HTTPS_CONNECTION: "true",
+      });
+    });
   });
 
   it("collects the config.json parser's warnings", () => {
@@ -248,13 +343,19 @@ describe("resolveStartupConfig in the image", () => {
       expect(resolve({ startedBefore: true }).setUpCertificates).toBe(false);
     });
 
-    it("comes from config.json's HTTPS setting, not the environment's", () => {
+    it("follows the environment's HTTPS setting over config.json's", () => {
+      expect(
+        resolve({
+          processEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
+          configJson: { PROXY_SERVER_HTTPS_CONNECTION: true },
+        }).setUpCertificates,
+      ).toBe(false);
       expect(
         resolve({
           processEnv: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
           configJson: { PROXY_SERVER_HTTPS_CONNECTION: false },
         }).setUpCertificates,
-      ).toBe(false);
+      ).toBe(true);
     });
   });
 
@@ -454,7 +555,7 @@ describe("loadStartup", () => {
     expect(() =>
       load({ NEPTUNE_NOTEBOOK: "true", PROXY_SERVER_HTTPS_CONNECTION: "true" }),
     ).toThrow(conflictMessage);
-    expect(() => load({ PROXY_SERVER_HTTPS_CONNECTION: "" })).toThrow(
+    expect(() => load({ PROXY_SERVER_LISTEN_ADDRESS: "" })).toThrow(
       "Failed to parse environment values",
     );
   });
