@@ -258,6 +258,33 @@ describe("resolveStartupConfig in the image", () => {
     });
   });
 
+  describe("HTTPS notice", () => {
+    it("is unset when the certificate is set up", () => {
+      expect(resolve().httpsNotice).toBeUndefined();
+    });
+
+    it("says SSL is disabled when HTTPS is off", () => {
+      expect(
+        resolve({ processEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" } })
+          .httpsNotice,
+      ).toBe("SSL disabled. Skipping self-signed certificate generation.");
+    });
+
+    it("says SSL is disabled after an earlier start of the same container, as the entrypoint did", () => {
+      expect(resolve({ startedBefore: true }).httpsNotice).toBe(
+        "SSL disabled. Skipping self-signed certificate generation.",
+      );
+    });
+
+    it("names the preset under the preset", () => {
+      expect(
+        resolve({ processEnv: { NEPTUNE_NOTEBOOK: "true" } }).httpsNotice,
+      ).toBe(
+        "Neptune Notebook preset enabled. Skipping self-signed certificate generation.",
+      );
+    });
+  });
+
   describe("certificate host", () => {
     it("never comes from .env", () => {
       expect(
@@ -306,6 +333,7 @@ describe("resolveStartupConfig from source", () => {
       defaultConnectionJson: undefined,
       setUpCertificates: false,
       certificateHost: undefined,
+      httpsNotice: undefined,
       warnings: [],
     });
   });

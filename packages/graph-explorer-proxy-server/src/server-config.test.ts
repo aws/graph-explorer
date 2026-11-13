@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { describe, expect, it, vi } from "vite-plus/test";
 
-import { type EnvironmentValues, parseEnvironmentValues } from "./env.ts";
+import { type EnvironmentValues, EnvironmentValuesSchema } from "./env.ts";
 import { clientRoot, proxyServerRoot } from "./paths.ts";
 import {
   buildBaseUrl,
@@ -194,7 +194,7 @@ describe("resolveServerConfig", () => {
     function startWith(env: Record<string, string>) {
       vi.spyOn(fs, "existsSync").mockReturnValue(true);
       const { port, startupWarnings, baseUrl } = resolveServerConfig(
-        parseEnvironmentValues({ HOST: "my-host", ...env }),
+        EnvironmentValuesSchema.parse({ HOST: "my-host", ...env }),
       );
       return { port, startupWarnings, baseUrl };
     }

@@ -37,6 +37,8 @@ export type StartupConfig = {
   setUpCertificates: boolean;
   /** The host to generate a certificate for, when one is set. */
   certificateHost: string | undefined;
+  /** The line the entrypoint printed when it skipped the certificate. */
+  httpsNotice: string | undefined;
   warnings: string[];
 };
 
@@ -77,6 +79,7 @@ function resolveSourceRun({
     defaultConnectionJson: undefined,
     setUpCertificates: false,
     certificateHost: undefined,
+    httpsNotice: undefined,
     warnings: [],
   };
 }
@@ -136,6 +139,12 @@ function resolveImageStart({
     defaultConnectionJson: renderDefaultConnection(settings),
     setUpCertificates,
     certificateHost: environment.HOST || undefined,
+    httpsNotice:
+      notebook === "true"
+        ? "Neptune Notebook preset enabled. Skipping self-signed certificate generation."
+        : setUpCertificates
+          ? undefined
+          : "SSL disabled. Skipping self-signed certificate generation.",
     warnings: configJson?.warnings ?? [],
   };
 }
