@@ -391,6 +391,34 @@ describe("resolveStartupConfig", () => {
       });
     });
 
+    it("carries the fetch timeout and node expansion limit to the Default Connection", () => {
+      expect(
+        resolve({
+          configJson: {
+            GRAPH_CONNECTION_URL: db,
+            GRAPH_EXP_FETCH_REQUEST_TIMEOUT: 60000,
+            GRAPH_EXP_NODE_EXPANSION_LIMIT: 500,
+          },
+        }).defaultConnection,
+      ).toMatchObject({
+        GRAPH_EXP_FETCH_REQUEST_TIMEOUT: 60000,
+        GRAPH_EXP_NODE_EXPANSION_LIMIT: 500,
+      });
+    });
+
+    it("warns once about a config.json node expansion limit of -1", () => {
+      expect(
+        resolve({
+          configJson: {
+            GRAPH_CONNECTION_URL: db,
+            GRAPH_EXP_NODE_EXPANSION_LIMIT: -1,
+          },
+        }).warnings,
+      ).toStrictEqual([
+        `GRAPH_EXP_NODE_EXPANSION_LIMIT is "-1", which isn't a positive whole number, so the Default Connection leaves it out.`,
+      ]);
+    });
+
     it("collects the parser's warnings", () => {
       expect(
         resolve({ configJson: { IAM: { enabled: true } } }).warnings,
