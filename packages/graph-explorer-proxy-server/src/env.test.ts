@@ -1,10 +1,19 @@
-import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { describe, expect, it } from "vite-plus/test";
 
-import { parseEnvironmentValues } from "./env.ts";
+import { EnvironmentValuesSchema, formatEnvironmentError } from "./env.ts";
 
-describe("parseEnvironmentValues", () => {
+/** The text logged for an environment that fails to parse. */
+function parseFailure(env: Record<string, string>) {
+  const result = EnvironmentValuesSchema.safeParse(env);
+  if (result.success) {
+    throw new Error("Expected the environment to fail to parse");
+  }
+  return formatEnvironmentError(result.error);
+}
+
+describe("EnvironmentValuesSchema", () => {
   it("returns defaults when env is empty", () => {
-    const result = parseEnvironmentValues({});
+    const result = EnvironmentValuesSchema.parse({});
 
     expect(result.HOST).toBe("localhost");
     expect(result.PROXY_SERVER_LISTEN_ADDRESS).toBe("127.0.0.1");
@@ -18,32 +27,30 @@ describe("parseEnvironmentValues", () => {
     expect(result.LOG_STYLE).toBe("default");
   });
 
-  // process-environment.sh applies the notebook preset only on an exact
-  // `= "true"` match. The server has to agree, or it would reject a
-  // configuration the shell set up as an ordinary HTTPS server.
-  describe("NEPTUNE_NOTEBOOK matches the shell's exact-match rule", () => {
+  // The startup configuration applies the notebook preset only on an exact
+  // `true`, as the shell scripts did. The server has to agree, or it would
+  // refuse a server that has always run with HTTPS.
+  describe("NEPTUNE_NOTEBOOK matches the exact-match rule", () => {
     it("is true only for the exact string true", () => {
       expect(
-        parseEnvironmentValues({ NEPTUNE_NOTEBOOK: "true" }).NEPTUNE_NOTEBOOK,
+        EnvironmentValuesSchema.parse({ NEPTUNE_NOTEBOOK: "true" })
+          .NEPTUNE_NOTEBOOK,
       ).toBe(true);
     });
 
     it("is false when unset", () => {
-      expect(parseEnvironmentValues({}).NEPTUNE_NOTEBOOK).toBe(false);
+      expect(EnvironmentValuesSchema.parse({}).NEPTUNE_NOTEBOOK).toBe(false);
     });
 
     // `-e NEPTUNE_NOTEBOOK=` arrives set but empty.
     it.each(["", "false", "TRUE", "True", "1", "yes", "on", " true"])(
       "is false for %j without failing the parse",
       value => {
-        const exit = vi
-          .spyOn(process, "exit")
-          .mockImplementation(() => undefined as never);
+        const result = EnvironmentValuesSchema.safeParse({
+          NEPTUNE_NOTEBOOK: value,
+        });
 
-        const result = parseEnvironmentValues({ NEPTUNE_NOTEBOOK: value });
-
-        expect(result.NEPTUNE_NOTEBOOK).toBe(false);
-        expect(exit).not.toHaveBeenCalled();
+        expect(result.data?.NEPTUNE_NOTEBOOK).toBe(false);
       },
     );
   });
@@ -57,48 +64,30 @@ describe("parseEnvironmentValues", () => {
       "(from -e flags or config.json) to run under the notebook preset, " +
       "or set NEPTUNE_NOTEBOOK to false to run with TLS.";
 
-    function captureParseFailure(env: Record<string, string>) {
-      const exit = vi
-        .spyOn(process, "exit")
-        .mockImplementation(() => undefined as never);
-      const error = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => undefined);
-
-      parseEnvironmentValues(env);
-
-      return {
-        exited: exit.mock.calls.length > 0,
-        output: error.mock.calls.map(args => args.join(" ")).join("\n"),
-      };
-    }
-
     // Failing the parse stops the server before it looks for certificates, so
     // the operator sees the conflict rather than a missing-certificate error.
     it("fails the parse at PROXY_SERVER_HTTPS_CONNECTION with the conflict", () => {
-      const { exited, output } = captureParseFailure({
+      const output = parseFailure({
         NEPTUNE_NOTEBOOK: "true",
         PROXY_SERVER_HTTPS_CONNECTION: "true",
       });
 
-      expect(exited).toBe(true);
       expect(output).toContain(
         `✖ ${conflictMessage}\n  → at PROXY_SERVER_HTTPS_CONNECTION`,
       );
     });
 
     it("fails the parse for HTTPS in any case", () => {
-      const { exited, output } = captureParseFailure({
+      const output = parseFailure({
         NEPTUNE_NOTEBOOK: "true",
         PROXY_SERVER_HTTPS_CONNECTION: "TRUE",
       });
 
-      expect(exited).toBe(true);
       expect(output).toContain(conflictMessage);
     });
 
     it("allows the notebook preset on its own", () => {
-      const result = parseEnvironmentValues({
+      const result = EnvironmentValuesSchema.parse({
         NEPTUNE_NOTEBOOK: "true",
         PROXY_SERVER_HTTPS_CONNECTION: "false",
       });
@@ -108,7 +97,7 @@ describe("parseEnvironmentValues", () => {
     });
 
     it("allows HTTPS on its own", () => {
-      const result = parseEnvironmentValues({
+      const result = EnvironmentValuesSchema.parse({
         NEPTUNE_NOTEBOOK: "false",
         PROXY_SERVER_HTTPS_CONNECTION: "true",
       });
@@ -119,7 +108,7 @@ describe("parseEnvironmentValues", () => {
   });
 
   it("parses provided values", () => {
-    const result = parseEnvironmentValues({
+    const result = EnvironmentValuesSchema.parse({
       HOST: "my-server",
       PROXY_SERVER_HTTP_PORT: "8080",
       LOG_LEVEL: "error",
@@ -131,7 +120,7 @@ describe("parseEnvironmentValues", () => {
   });
 
   it("overrides all defaults", () => {
-    const result = parseEnvironmentValues({
+    const result = EnvironmentValuesSchema.parse({
       HOST: "my-server.example.com",
       PROXY_SERVER_LISTEN_ADDRESS: "192.0.2.10",
       PROXY_SERVER_HTTPS_CONNECTION: "true",
@@ -152,18 +141,18 @@ describe("parseEnvironmentValues", () => {
 
   it("handles boolean values case-insensitively", () => {
     expect(
-      parseEnvironmentValues({ PROXY_SERVER_HTTPS_CONNECTION: "TRUE" })
+      EnvironmentValuesSchema.parse({ PROXY_SERVER_HTTPS_CONNECTION: "TRUE" })
         .PROXY_SERVER_HTTPS_CONNECTION,
     ).toBe(true);
 
     expect(
-      parseEnvironmentValues({ PROXY_SERVER_HTTPS_CONNECTION: "False" })
+      EnvironmentValuesSchema.parse({ PROXY_SERVER_HTTPS_CONNECTION: "False" })
         .PROXY_SERVER_HTTPS_CONNECTION,
     ).toBe(false);
   });
 
   it("coerces port strings to numbers", () => {
-    const result = parseEnvironmentValues({
+    const result = EnvironmentValuesSchema.parse({
       PROXY_SERVER_HTTP_PORT: "3000",
       PROXY_SERVER_HTTPS_PORT: "3443",
     });
@@ -174,86 +163,70 @@ describe("parseEnvironmentValues", () => {
 
   it("parses PROXY_SERVER_PORT", () => {
     expect(
-      parseEnvironmentValues({ PROXY_SERVER_PORT: "9250" }).PROXY_SERVER_PORT,
+      EnvironmentValuesSchema.parse({ PROXY_SERVER_PORT: "9250" })
+        .PROXY_SERVER_PORT,
     ).toBe(9250);
   });
 
   describe("validation failures", () => {
-    beforeEach(() => {
-      vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-      vi.spyOn(console, "error").mockImplementation(() => undefined);
-    });
-
-    it("exits process on invalid PROXY_SERVER_HTTPS_CONNECTION", () => {
-      parseEnvironmentValues({ PROXY_SERVER_HTTPS_CONNECTION: "yes" });
-      expect(process.exit).toHaveBeenCalledWith(1);
-      expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining('Must be "true" or "false"'),
+    it("fails on invalid PROXY_SERVER_HTTPS_CONNECTION", () => {
+      expect(parseFailure({ PROXY_SERVER_HTTPS_CONNECTION: "yes" })).toContain(
+        'Must be "true" or "false"',
       );
     });
 
-    it("exits process on an empty PROXY_SERVER_HTTPS_CONNECTION", () => {
-      parseEnvironmentValues({ PROXY_SERVER_HTTPS_CONNECTION: "" });
-      expect(process.exit).toHaveBeenCalledWith(1);
+    it("fails on an empty PROXY_SERVER_HTTPS_CONNECTION", () => {
+      expect(parseFailure({ PROXY_SERVER_HTTPS_CONNECTION: "" })).toContain(
+        'Must be "true" or "false"',
+      );
     });
 
     // "tcp://…" is the value a Kubernetes Service named proxy-server injects.
     it.for(["", "abc", "0", "65536", "80.5", "-1", "tcp://10.43.0.5:80"])(
-      "exits process on PROXY_SERVER_PORT=%j",
+      "fails on PROXY_SERVER_PORT=%j",
       value => {
-        parseEnvironmentValues({ PROXY_SERVER_PORT: value });
-        expect(process.exit).toHaveBeenCalledWith(1);
-        expect(console.error).toHaveBeenCalledWith(
-          expect.stringContaining("Must be a port number from 1 to 65535"),
-        );
-        expect(console.error).toHaveBeenCalledWith(
-          expect.stringContaining("PROXY_SERVER_PORT"),
-        );
+        const output = parseFailure({ PROXY_SERVER_PORT: value });
+
+        expect(output).toContain("Must be a port number from 1 to 65535");
+        expect(output).toContain("PROXY_SERVER_PORT");
       },
     );
 
-    it("exits process on invalid LOG_LEVEL", () => {
-      parseEnvironmentValues({ LOG_LEVEL: "verbose" });
-      expect(process.exit).toHaveBeenCalledWith(1);
+    it("fails on invalid LOG_LEVEL", () => {
+      expect(parseFailure({ LOG_LEVEL: "verbose" })).toContain("LOG_LEVEL");
     });
 
-    it("exits process on invalid LOG_STYLE", () => {
-      parseEnvironmentValues({ LOG_STYLE: "json" });
-      expect(process.exit).toHaveBeenCalledWith(1);
+    it("fails on invalid LOG_STYLE", () => {
+      expect(parseFailure({ LOG_STYLE: "json" })).toContain("LOG_STYLE");
     });
 
-    it("exits process when PROXY_SERVER_CORS_ORIGIN is missing the scheme", () => {
-      parseEnvironmentValues({
-        PROXY_SERVER_CORS_ORIGIN: "my-app.example.com",
-      });
-      expect(process.exit).toHaveBeenCalledWith(1);
-      expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining("Must be an HTTP or HTTPS URL"),
+    it("fails when PROXY_SERVER_CORS_ORIGIN is missing the scheme", () => {
+      expect(
+        parseFailure({ PROXY_SERVER_CORS_ORIGIN: "my-app.example.com" }),
+      ).toContain("Must be an HTTP or HTTPS URL");
+    });
+
+    it("fails when PROXY_SERVER_CORS_ORIGIN is a wildcard", () => {
+      expect(parseFailure({ PROXY_SERVER_CORS_ORIGIN: "*" })).toContain(
+        "PROXY_SERVER_CORS_ORIGIN",
       );
     });
 
-    it("exits process when PROXY_SERVER_CORS_ORIGIN is a wildcard", () => {
-      parseEnvironmentValues({ PROXY_SERVER_CORS_ORIGIN: "*" });
-      expect(process.exit).toHaveBeenCalledWith(1);
+    it("fails when PROXY_SERVER_CORS_ORIGIN has a trailing comma", () => {
+      expect(
+        parseFailure({ PROXY_SERVER_CORS_ORIGIN: "https://example.com," }),
+      ).toContain("PROXY_SERVER_CORS_ORIGIN");
     });
 
-    it("exits process when PROXY_SERVER_CORS_ORIGIN has a trailing comma", () => {
-      parseEnvironmentValues({
-        PROXY_SERVER_CORS_ORIGIN: "https://example.com,",
-      });
-      expect(process.exit).toHaveBeenCalledWith(1);
-    });
-
-    it("logs error details on validation failure", () => {
-      parseEnvironmentValues({ LOG_LEVEL: "verbose" });
-      expect(console.error).toHaveBeenCalledWith(
-        "Failed to parse environment values",
+    it("formats the error details on validation failure", () => {
+      expect(parseFailure({ LOG_LEVEL: "verbose" })).toMatch(
+        /^Failed to parse environment values\n.*LOG_LEVEL/s,
       );
     });
   });
 
   it("ignores unknown env vars", () => {
-    const result = parseEnvironmentValues({
+    const result = EnvironmentValuesSchema.parse({
       HOST: "my-server",
       SOME_OTHER_VAR: "ignored",
     });
@@ -263,7 +236,7 @@ describe("parseEnvironmentValues", () => {
   });
 
   it("parses PROXY_SERVER_CORS_ORIGIN when provided", () => {
-    const result = parseEnvironmentValues({
+    const result = EnvironmentValuesSchema.parse({
       PROXY_SERVER_CORS_ORIGIN: "https://my-app.example.com",
     });
 
@@ -273,7 +246,7 @@ describe("parseEnvironmentValues", () => {
   });
 
   it("parses comma-separated PROXY_SERVER_CORS_ORIGIN values", () => {
-    const result = parseEnvironmentValues({
+    const result = EnvironmentValuesSchema.parse({
       PROXY_SERVER_CORS_ORIGIN:
         "https://app-a.example.com,https://app-b.example.com",
     });
@@ -285,7 +258,7 @@ describe("parseEnvironmentValues", () => {
   });
 
   it("trims whitespace around comma-separated PROXY_SERVER_CORS_ORIGIN values", () => {
-    const result = parseEnvironmentValues({
+    const result = EnvironmentValuesSchema.parse({
       PROXY_SERVER_CORS_ORIGIN:
         "https://app-a.example.com , https://app-b.example.com",
     });
@@ -297,19 +270,21 @@ describe("parseEnvironmentValues", () => {
   });
 
   it("defaults PROXY_SERVER_CORS_ORIGIN to undefined when not provided", () => {
-    const result = parseEnvironmentValues({});
+    const result = EnvironmentValuesSchema.parse({});
 
     expect(result.PROXY_SERVER_CORS_ORIGIN).toBeUndefined();
   });
 
   it("treats empty PROXY_SERVER_CORS_ORIGIN as unset", () => {
-    const result = parseEnvironmentValues({ PROXY_SERVER_CORS_ORIGIN: "" });
+    const result = EnvironmentValuesSchema.parse({
+      PROXY_SERVER_CORS_ORIGIN: "",
+    });
 
     expect(result.PROXY_SERVER_CORS_ORIGIN).toBeUndefined();
   });
 
   it("strips trailing slash from PROXY_SERVER_CORS_ORIGIN", () => {
-    const result = parseEnvironmentValues({
+    const result = EnvironmentValuesSchema.parse({
       PROXY_SERVER_CORS_ORIGIN: "https://my-app.example.com/",
     });
 
@@ -319,7 +294,7 @@ describe("parseEnvironmentValues", () => {
   });
 
   it("strips path from PROXY_SERVER_CORS_ORIGIN", () => {
-    const result = parseEnvironmentValues({
+    const result = EnvironmentValuesSchema.parse({
       PROXY_SERVER_CORS_ORIGIN: "https://my-app.example.com/app",
     });
 
@@ -338,54 +313,44 @@ describe("parseEnvironmentValues", () => {
       "2001:db8::10",
     ])("accepts the IP literal %s", address => {
       expect(
-        parseEnvironmentValues({ PROXY_SERVER_LISTEN_ADDRESS: address })
+        EnvironmentValuesSchema.parse({ PROXY_SERVER_LISTEN_ADDRESS: address })
           .PROXY_SERVER_LISTEN_ADDRESS,
       ).toBe(address);
     });
   });
 
   describe("PROXY_SERVER_LISTEN_ADDRESS validation failures", () => {
-    beforeEach(() => {
-      vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-      vi.spyOn(console, "error").mockImplementation(() => undefined);
-    });
-
     it.each([
       "",
       "localhost",
       "graph-explorer.example.com",
       "[::1]",
       "127.0.0.1:8080",
-    ])("exits naming the variable for %j", value => {
-      parseEnvironmentValues({ PROXY_SERVER_LISTEN_ADDRESS: value });
+    ])("fails naming the variable for %j", value => {
+      const output = parseFailure({ PROXY_SERVER_LISTEN_ADDRESS: value });
 
-      expect(process.exit).toHaveBeenCalledWith(1);
-      expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining("→ at PROXY_SERVER_LISTEN_ADDRESS"),
-      );
-      expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining(
-          "Must be an IP address such as 127.0.0.1 or ::. An empty value and a hostname are not accepted. Remove the variable to use the default.",
-        ),
+      expect(output).toContain("→ at PROXY_SERVER_LISTEN_ADDRESS");
+      expect(output).toContain(
+        "Must be an IP address such as 127.0.0.1 or ::. An empty value and a hostname are not accepted. Remove the variable to use the default.",
       );
     });
   });
 
   describe("PROXY_SERVER_ALLOWED_DB_ORIGINS", () => {
     it("defaults to undefined when not provided", () => {
-      const result = parseEnvironmentValues({});
+      const result = EnvironmentValuesSchema.parse({});
       expect(result.PROXY_SERVER_ALLOWED_DB_ORIGINS).toBeUndefined();
     });
 
     it("treats empty string as unset", () => {
-      const result = parseEnvironmentValues({
+      const result = EnvironmentValuesSchema.parse({
         PROXY_SERVER_ALLOWED_DB_ORIGINS: "",
       });
       expect(result.PROXY_SERVER_ALLOWED_DB_ORIGINS).toBeUndefined();
     });
 
     it("parses a single origin into a Set", () => {
-      const result = parseEnvironmentValues({
+      const result = EnvironmentValuesSchema.parse({
         PROXY_SERVER_ALLOWED_DB_ORIGINS: "https://neptune:8182",
       });
       expect(result.PROXY_SERVER_ALLOWED_DB_ORIGINS).toEqual(
@@ -394,7 +359,7 @@ describe("parseEnvironmentValues", () => {
     });
 
     it("parses comma-separated origins into a Set", () => {
-      const result = parseEnvironmentValues({
+      const result = EnvironmentValuesSchema.parse({
         PROXY_SERVER_ALLOWED_DB_ORIGINS:
           "https://neptune:8182,https://other-db:8182",
       });
@@ -404,7 +369,7 @@ describe("parseEnvironmentValues", () => {
     });
 
     it("trims whitespace around values", () => {
-      const result = parseEnvironmentValues({
+      const result = EnvironmentValuesSchema.parse({
         PROXY_SERVER_ALLOWED_DB_ORIGINS:
           " https://neptune:8182 , https://other:8182 ",
       });
@@ -414,7 +379,7 @@ describe("parseEnvironmentValues", () => {
     });
 
     it("accepts a trailing slash (treated as no path)", () => {
-      const result = parseEnvironmentValues({
+      const result = EnvironmentValuesSchema.parse({
         PROXY_SERVER_ALLOWED_DB_ORIGINS: "https://neptune:8182/",
       });
       expect(result.PROXY_SERVER_ALLOWED_DB_ORIGINS).toEqual(
@@ -423,7 +388,7 @@ describe("parseEnvironmentValues", () => {
     });
 
     it("normalizes case to lowercase", () => {
-      const result = parseEnvironmentValues({
+      const result = EnvironmentValuesSchema.parse({
         PROXY_SERVER_ALLOWED_DB_ORIGINS: "HTTPS://Neptune:8182",
       });
       expect(result.PROXY_SERVER_ALLOWED_DB_ORIGINS).toEqual(
@@ -432,7 +397,7 @@ describe("parseEnvironmentValues", () => {
     });
 
     it("deduplicates entries", () => {
-      const result = parseEnvironmentValues({
+      const result = EnvironmentValuesSchema.parse({
         PROXY_SERVER_ALLOWED_DB_ORIGINS:
           "https://neptune:8182,https://neptune:8182",
       });
@@ -444,33 +409,26 @@ describe("parseEnvironmentValues", () => {
   });
 
   describe("PROXY_SERVER_ALLOWED_DB_ORIGINS validation failures", () => {
-    beforeEach(() => {
-      vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
-      vi.spyOn(console, "error").mockImplementation(() => undefined);
+    it("fails when value is not a valid URL", () => {
+      expect(
+        parseFailure({ PROXY_SERVER_ALLOWED_DB_ORIGINS: "not-a-url" }),
+      ).toContain("PROXY_SERVER_ALLOWED_DB_ORIGINS");
     });
 
-    it("exits process when value is not a valid URL", () => {
-      parseEnvironmentValues({
-        PROXY_SERVER_ALLOWED_DB_ORIGINS: "not-a-url",
-      });
-      expect(process.exit).toHaveBeenCalledWith(1);
+    it("fails when value has a trailing comma", () => {
+      expect(
+        parseFailure({
+          PROXY_SERVER_ALLOWED_DB_ORIGINS: "https://neptune:8182,",
+        }),
+      ).toContain("PROXY_SERVER_ALLOWED_DB_ORIGINS");
     });
 
-    it("exits process when value has a trailing comma", () => {
-      parseEnvironmentValues({
-        PROXY_SERVER_ALLOWED_DB_ORIGINS: "https://neptune:8182,",
-      });
-      expect(process.exit).toHaveBeenCalledWith(1);
-    });
-
-    it("exits process when value contains a path", () => {
-      parseEnvironmentValues({
-        PROXY_SERVER_ALLOWED_DB_ORIGINS: "https://neptune:8182/some/path",
-      });
-      expect(process.exit).toHaveBeenCalledWith(1);
-      expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining("origin only"),
-      );
+    it("fails when value contains a path", () => {
+      expect(
+        parseFailure({
+          PROXY_SERVER_ALLOWED_DB_ORIGINS: "https://neptune:8182/some/path",
+        }),
+      ).toContain("origin only");
     });
   });
 });

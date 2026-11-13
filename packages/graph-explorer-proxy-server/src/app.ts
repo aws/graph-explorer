@@ -165,6 +165,8 @@ function onClientDisconnect(res: Response, onDisconnect: () => void) {
 
 interface CreateAppOptions {
   configPath: string;
+  /** Served at `/defaultConnection`. Without it, the configuration folder's `defaultConnection.json` is. */
+  defaultConnectionJson: string | undefined;
   staticFilesVirtualPath: string;
   staticFilesPath: string;
   version?: string;
@@ -174,6 +176,7 @@ interface CreateAppOptions {
 
 export function createApp({
   configPath,
+  defaultConnectionJson,
   staticFilesVirtualPath,
   staticFilesPath,
   version,
@@ -199,6 +202,13 @@ export function createApp({
       bodyParser.urlencoded({ extended: true, limit: "50mb" }),
     ),
   );
+  app.get("/defaultConnection", (_req, res, next) => {
+    if (defaultConnectionJson === undefined) {
+      next();
+      return;
+    }
+    res.type("json").send(defaultConnectionJson);
+  });
   app.use(
     "/defaultConnection",
     express.static(path.join(configPath, "defaultConnection.json")),

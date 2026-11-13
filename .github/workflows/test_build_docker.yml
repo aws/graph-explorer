@@ -62,8 +62,8 @@ jobs:
             (command -v dnf && echo "FAIL: dnf found" && exit 1) || echo "✓ dnf absent"
           '
 
-      # One run per way the entrypoint starts the server: plain HTTP on 80,
-      # notebook mode on 9250, and HTTPS on 443, where HOST makes the entrypoint
+      # One run per way the image starts the server: plain HTTP on 80,
+      # notebook mode on 9250, and HTTPS on 443, where HOST makes the image
       # generate a self-signed certificate. The ports are published on
       # 127.0.0.1, so the runner's other interfaces can't reach them. Each run
       # also names the log line about certificate generation that must appear,
@@ -122,8 +122,9 @@ jobs:
           check notebook 9250 9250 http "Neptune Notebook preset enabled. Skipping self-signed certificate generation." -e NEPTUNE_NOTEBOOK=true
           check https 8443 443 https "" -e HOST=localhost
 
-      # Starting node directly skips docker-entrypoint.sh, so this proves the
-      # image's PROXY_SERVER_LISTEN_ADDRESS reaches every way the server starts.
+      # Starting node-server.ts directly skips the image's own startup, so this
+      # proves the image's PROXY_SERVER_LISTEN_ADDRESS reaches every way the
+      # server starts.
       - name: Verify the server listens on every interface without the entrypoint
         run: |
           docker run -d --name no-entrypoint -p 127.0.0.1:8081:80 --entrypoint node -w /graph-explorer/packages/graph-explorer-proxy-server test-image src/node-server.ts
@@ -205,7 +206,8 @@ jobs:
           docker rm -f stop >/dev/null
 
       # Earlier versions appended a block of lines to .env at every start. A
-      # folder that three starts left behind still starts.
+      # folder that three starts left behind still starts, and the file is left
+      # as it was.
       - name: Verify an .env with lines appended by earlier versions starts
         run: |
           . "$RUNNER_TEMP/wait-for-status.sh"
@@ -214,7 +216,32 @@ jobs:
           for i in 1 2 3; do
             printf '\nNEPTUNE_NOTEBOOK=false\n\nPROXY_SERVER_HTTPS_CONNECTION=false\n\nGRAPH_EXP_HTTPS_CONNECTION=true\n' >> old-env/.env
           done
+          cp old-env/.env old-env.before
           docker run -d --name old-env -p 127.0.0.1:8083:80 -v "$PWD/old-env:/config" -e CONFIGURATION_FOLDER_PATH=/config -e PROXY_SERVER_HTTPS_CONNECTION=false test-image
           wait_for_status old-env http://127.0.0.1:8083 || exit 1
-          echo "✓ an .env with appended lines served HTTP"
+          if ! cmp old-env/.env old-env.before; then
+            echo "FAIL: the server changed .env"
+            docker rm -f old-env >/dev/null
+            exit 1
+          fi
+          echo "✓ an .env with appended lines served HTTP and was left as it was"
           docker rm -f old-env >/dev/null
+
+      # The configuration folder is mounted read-only, as an orchestrator may
+      # mount a ConfigMap. The server reads it and writes nothing, and serves
+      # the Default Connection from memory.
+      - name: Verify a read-only configuration folder starts
+        run: |
+          . "$RUNNER_TEMP/wait-for-status.sh"
+          mkdir read-only
+          printf 'LOG_LEVEL=info\n' > read-only/.env
+          docker run -d --name read-only -p 127.0.0.1:8082:80 -v "$PWD/read-only:/config:ro" -e CONFIGURATION_FOLDER_PATH=/config -e PROXY_SERVER_HTTPS_CONNECTION=false -e GRAPH_CONNECTION_URL=https://example.com:8182 test-image
+          wait_for_status read-only http://127.0.0.1:8082 || exit 1
+          if ! curl -sf http://127.0.0.1:8082/defaultConnection | grep -q "https://example.com:8182"; then
+            echo "FAIL: the server did not serve the Default Connection"
+            docker logs read-only
+            docker rm -f read-only >/dev/null
+            exit 1
+          fi
+          echo "✓ a read-only configuration folder started and served the Default Connection"
+          docker rm -f read-only >/dev/null
