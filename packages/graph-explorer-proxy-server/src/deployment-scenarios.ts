@@ -1141,8 +1141,12 @@ export const deployments: Deployment[] = [
   {
     name: "a duplicated LOG_STYLE in .env",
     existingEnvFile: "LOG_STYLE=default\nLOG_STYLE=cloudwatch\n",
-    // dotenv keeps the last line.
-    expected: served(https, { environment: { LOG_STYLE: "cloudwatch" } }),
+    // Only one line can take effect, so startup stops and names both.
+    expected: {
+      failed: expect.stringMatching(
+        /\/\.env sets LOG_STYLE more than once, on lines 1 and 2\. Keep one line for each key and remove the others\. Earlier versions used the last line\.$/,
+      ),
+    },
   },
   {
     name: "a wide .env with every server setting",
@@ -1378,11 +1382,12 @@ export const deployments: Deployment[] = [
   {
     name: "a duplicated PROXY_SERVER_PORT in .env.local",
     existingEnvLocalFile: "PROXY_SERVER_PORT=8081\nPROXY_SERVER_PORT=8082\n",
-    // dotenv keeps the last line.
-    expected: served(https, {
-      environment: { PROXY_SERVER_PORT: 8082 },
-      listener: { protocol: "https", port: 8082 },
-    }),
+    // Only one line can take effect, so startup stops and names both.
+    expected: {
+      failed: expect.stringMatching(
+        /\/\.env\.local sets PROXY_SERVER_PORT more than once, on lines 1 and 2\. Keep one line for each key and remove the others\. Earlier versions used the last line\.$/,
+      ),
+    },
   },
   {
     name: "config.json with a byte-order mark",
@@ -1428,14 +1433,12 @@ export const deployments: Deployment[] = [
   "PROXY_SERVER_HTTPS_CONNECTION": true
 }
 `,
-    // The parser takes the last value, as JSON.parse does, and warns.
-    expected: served(https, {
-      warnings: [
-        expect.stringMatching(
-          /config\.json sets PROXY_SERVER_HTTPS_CONNECTION more than once, on lines 2 and 3\. The last one wins, so remove the others\.$/,
-        ),
-      ],
-    }),
+    // Only one value can take effect, so startup stops and names both lines.
+    expected: {
+      failed: expect.stringMatching(
+        /config\.json sets PROXY_SERVER_HTTPS_CONNECTION more than once, on lines 2 and 3\. Keep one entry for each setting and remove the others\.$/,
+      ),
+    },
   },
   {
     name: "the #2504 .env with blank and whitespace-only lines between the block's keys",
