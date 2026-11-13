@@ -172,7 +172,7 @@ After the request is processed, the console will return you to your certificate 
 
 > [!IMPORTANT]
 >
-> Don't set `readonlyRootFilesystem: true` or a non-root `user` on this container. Graph Explorer writes its settings into its configuration folder at startup and needs write access to do that. See [Graph Explorer can't start because it can't write .env](../troubleshooting/#graph-explorer-cant-start-because-it-cant-write-env).
+> Don't set `readonlyRootFilesystem: true` or a non-root `user` on this container. Graph Explorer generates its self-signed certificate inside the container at startup, which needs write access, and running as a non-root user isn't supported yet. See [Support running the container under a non-root UID](https://github.com/aws/graph-explorer/issues/2187).
 
 ## Create a Security Group
 
