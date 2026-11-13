@@ -58,14 +58,18 @@ const entrypointPath = path.resolve(
 const serverStartLine =
   /^cd \/graph-explorer\/packages\/graph-explorer-proxy-server && (.*)node src\/node-server\.ts$/m;
 
+/** Where the entrypoint keeps the certificates it generates. */
+const certDirAssignment =
+  "CERT_DIR=/graph-explorer/packages/graph-explorer-proxy-server/cert-info";
+
 const serverEnvironmentFile = "server-environment.json";
 const serverParentPidFile = "server-parent-pid";
 
 /**
  * Lays out a temp directory that runs docker-entrypoint.sh as the image does,
  * with the server start replaced by an `echo SERVER_STARTED` and a node
- * process that records its environment for {@link readServerEnvironment}. The
- * sibling scripts are stubs: process-environment.sh does nothing, and
+ * process that records its environment for {@link readServerEnvironment}, and
+ * the certificate folder moved to `./cert-info`. The sibling scripts are stubs: process-environment.sh does nothing, and
  * setup-ssl.sh records the call in `ssl-called` and exits nonzero without
  * HOST, as the real script does when no certificates exist yet.
  */
@@ -80,15 +84,22 @@ export function createEntrypointWorkDir() {
       "docker-entrypoint.sh no longer contains the expected server start line. Update the test stub.",
     );
   }
+  if (!script.includes(certDirAssignment)) {
+    throw new Error(
+      "docker-entrypoint.sh no longer assigns CERT_DIR as expected. Update the test stub.",
+    );
+  }
   const recordEnvironment = `const fs = require("fs"); fs.writeFileSync("${serverEnvironmentFile}", JSON.stringify(process.env)); fs.writeFileSync("${serverParentPidFile}", String(process.ppid))`;
   const scriptPath = path.join(workDir, "docker-entrypoint.sh");
   fs.writeFileSync(
     scriptPath,
-    script.replace(
-      serverStartLine,
-      (_line, assignments: string) =>
-        `echo "SERVER_STARTED" && ${assignments}"${process.execPath}" -e '${recordEnvironment}'`,
-    ),
+    script
+      .replace(certDirAssignment, "CERT_DIR=./cert-info")
+      .replace(
+        serverStartLine,
+        (_line, assignments: string) =>
+          `echo "SERVER_STARTED" && ${assignments}"${process.execPath}" -e '${recordEnvironment}'`,
+      ),
     { mode: 0o755 },
   );
 
@@ -148,4 +159,38 @@ export function readServerEnvironment(workDir: string): Record<string, string> {
   return JSON.parse(
     fs.readFileSync(path.join(workDir, serverEnvironmentFile), "utf-8"),
   );
+}
+
+/**
+ * The exact bytes earlier versions appended to `.env` at each start, for tests that need an `.env` an upgrading operator has.
+ */
+export function legacyStartupBlock({
+  neptuneNotebook,
+  port,
+  logStyle,
+  https,
+  graphExpHttps,
+}: {
+  neptuneNotebook: string;
+  port?: "PROXY_SERVER_PORT" | "PROXY_SERVER_HTTP_PORT";
+  logStyle?: true;
+  https: string;
+  graphExpHttps: string;
+}) {
+  return [
+    `\nNEPTUNE_NOTEBOOK=${neptuneNotebook}\n`,
+    port ? `\n${port}=9250\n` : "",
+    logStyle ? "\nLOG_STYLE=cloudwatch\n" : "",
+    `\nPROXY_SERVER_HTTPS_CONNECTION=${https}\n`,
+    `\nGRAPH_EXP_HTTPS_CONNECTION=${graphExpHttps}\n`,
+  ].join("");
+}
+
+/** `text` without its blank lines, as an operator who tidied `.env` leaves it. */
+export function withoutBlankLines(text: string) {
+  return text
+    .split("\n")
+    .filter(line => line.trim() !== "")
+    .map(line => `${line}\n`)
+    .join("");
 }
