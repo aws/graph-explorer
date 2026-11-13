@@ -1,20 +1,19 @@
-import dotenv from "dotenv";
 import fs from "fs";
+import os from "os";
 import path from "path";
 import request from "supertest";
 import { afterEach, beforeEach, describe, it, vi } from "vite-plus/test";
 
+import type { EnvironmentValues } from "./env.ts";
+
 import { createApp } from "./app.ts";
-import { parseEnvironmentValues } from "./env.ts";
+import { CertificateError } from "./certificates.ts";
 import { createLogger } from "./logging.ts";
-import { proxyServerRoot } from "./paths.ts";
+import { certificateDir } from "./paths.ts";
+import { setUpImageCertificates } from "./run-server.ts";
 import { resolveServerConfig, ServerConfigError } from "./server-config.ts";
-import {
-  createEntrypointWorkDir,
-  createTestEnvironment,
-  readServerEnvironment,
-  runEntrypoint,
-} from "./testing.ts";
+import { loadStartup, StartupError } from "./startup-config.ts";
+import { createTestEnvironment } from "./testing.ts";
 import {
   type DefaultConnectionResponse,
   type Deployment,
@@ -24,10 +23,9 @@ import {
   type StartupOutcome,
 } from "./testing/deployment-scenarios.ts";
 
-const expectedKeyPath = path.join(proxyServerRoot, "cert-info/server.key");
-const expectedCertPath = path.join(proxyServerRoot, "cert-info/server.crt");
+const expectedKeyPath = path.join(certificateDir, "server.key");
+const expectedCertPath = path.join(certificateDir, "server.crt");
 
-const repoRoot = path.resolve(import.meta.dirname, "../../..");
 const certTemplates = ["csr.conf", "cert.conf"];
 const certificateFiles = [
   "rootCA.key",
@@ -36,23 +34,6 @@ const certificateFiles = [
   "server.csr",
   "server.crt",
 ];
-
-/**
- * An openssl that records its arguments in `openssl-calls` and writes a
- * placeholder to each output file, so a run shows whether certificates were
- * generated without paying for real keys.
- */
-const fakeOpenssl = [
-  "#!/bin/sh",
-  'echo "$*" >> "$(dirname "$0")/../openssl-calls"',
-  "while [ $# -gt 0 ]; do",
-  '  case "$1" in',
-  '    -out|-keyout) printf placeholder > "$2"; shift ;;',
-  "  esac",
-  "  shift",
-  "done",
-  "",
-].join("\n");
 
 /** Every file in `folder` by name, with its contents. */
 function readFolder(folder: string) {
@@ -63,19 +44,13 @@ function readFolder(folder: string) {
   );
 }
 
-/** The variables in the dotenv file at `filePath`, or none when it doesn't exist. */
-function parseEnvFileAt(filePath: string) {
-  return fs.existsSync(filePath)
-    ? dotenv.parse(fs.readFileSync(filePath, "utf-8"))
-    : {};
-}
-
 async function requestDefaultConnection(
   configDir: string,
+  defaultConnectionJson: string | undefined,
 ): Promise<DefaultConnectionResponse> {
   const app = createApp({
     configPath: configDir,
-    defaultConnectionJson: undefined,
+    defaultConnectionJson,
     staticFilesVirtualPath: "/explorer",
     staticFilesPath: ".",
     version: "test",
@@ -103,11 +78,11 @@ async function requestDefaultConnection(
 }
 
 /**
- * Parses `serverEnv` and resolves the server config, as the server does at
+ * Resolves the server config for `environment`, as the server does at
  * startup, with the certificate files read from `certDir`.
  */
 function serverOutcome(
-  serverEnv: Record<string, string | undefined>,
+  environment: EnvironmentValues,
   certDir: string,
 ):
   | { failed: string }
@@ -120,16 +95,8 @@ function serverOutcome(
         ? existsSync(path.join(certDir, path.basename(String(p))))
         : existsSync(p),
     );
-  const errorSpy = vi
-    .spyOn(console, "error")
-    .mockImplementation(() => undefined);
-  const exitSignal = new Error("process.exit");
-  const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {
-    throw exitSignal;
-  });
 
   try {
-    const environment = parseEnvironmentValues(serverEnv);
     const { useHttps, port, startupWarnings } =
       resolveServerConfig(environment);
     return {
@@ -138,41 +105,30 @@ function serverOutcome(
       warnings: startupWarnings,
     };
   } catch (error) {
-    if (error === exitSignal) {
-      return { failed: errorSpy.mock.calls.join("\n") };
-    }
     if (error instanceof ServerConfigError) {
       return { failed: error.message };
     }
     throw error;
   } finally {
     existsSpy.mockRestore();
-    errorSpy.mockRestore();
-    exitSpy.mockRestore();
   }
 }
 
-describe("deployment scenarios: shell startup", () => {
+describe("deployment scenarios: TypeScript startup", () => {
   let workDir: string;
   let configDir: string;
-  let scriptPath: string;
   let certDir: string;
-  let binDir: string;
+  let configJsonPath: string;
+  let markerPath: string;
 
   beforeEach(() => {
-    ({ workDir, configDir, scriptPath } = createEntrypointWorkDir());
-    for (const script of ["process-environment.sh", "setup-ssl.sh"]) {
-      const target = path.join(workDir, script);
-      fs.copyFileSync(path.join(repoRoot, script), target);
-      fs.chmodSync(target, 0o755);
-    }
+    workDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-scenario-test-"));
+    configDir = path.join(workDir, "config");
+    fs.mkdirSync(configDir);
     certDir = path.join(workDir, "cert-info");
     resetCertificateFolder();
-    binDir = path.join(workDir, "bin");
-    fs.mkdirSync(binDir);
-    fs.writeFileSync(path.join(binDir, "openssl"), fakeOpenssl, {
-      mode: 0o755,
-    });
+    configJsonPath = path.join(workDir, "config.json");
+    markerPath = path.join(workDir, ".container-started");
   });
 
   afterEach(() => {
@@ -186,7 +142,7 @@ describe("deployment scenarios: shell startup", () => {
     fs.mkdirSync(certDir);
     for (const template of certTemplates) {
       fs.copyFileSync(
-        path.join(proxyServerRoot, "cert-info", template),
+        path.join(certificateDir, template),
         path.join(certDir, template),
       );
     }
@@ -203,7 +159,7 @@ describe("deployment scenarios: shell startup", () => {
   }: Deployment) {
     if (configJson !== undefined) {
       fs.writeFileSync(
-        path.join(workDir, "config.json"),
+        configJsonPath,
         typeof configJson === "string"
           ? configJson
           : JSON.stringify(configJson),
@@ -247,49 +203,61 @@ describe("deployment scenarios: shell startup", () => {
     }
   }
 
-  /** Starts the container once through docker-entrypoint.sh and reports what it did. */
-  async function startShell({
+  function writePlaceholderCertificates() {
+    for (const file of certificateFiles) {
+      fs.writeFileSync(path.join(certDir, file), "placeholder");
+    }
+  }
+
+  /**
+   * Starts the server through the TypeScript startup and reports what it did.
+   * The container's start marker sits in `workDir`, outside the configuration
+   * folder, as it sits outside the image's.
+   */
+  async function startServer({
     dockerEnv,
     host,
   }: Deployment): Promise<StartupOutcome> {
-    fs.rmSync(path.join(workDir, "openssl-calls"), { force: true });
+    try {
+      const { env, startup } = loadStartup({
+        processEnv: {
+          ...(host === false ? {} : { HOST: "localhost" }),
+          ...dockerEnv,
+        },
+        configPath: configDir,
+        configJsonPath,
+        image: true,
+        startedBefore: fs.existsSync(markerPath),
+      });
+      const certificates = setUpImageCertificates(startup, {
+        markerPath,
+        certDir,
+        generate: writePlaceholderCertificates,
+        logger: { info: () => undefined, warn: () => undefined },
+      });
 
-    const { exitCode, stdout, stderr } = runEntrypoint(workDir, scriptPath, {
-      PATH: `${binDir}:${process.env.PATH}`,
-      ...(host === false ? {} : { HOST: "localhost" }),
-      ...dockerEnv,
-    });
-    if (exitCode !== 0 || !stdout.includes("SERVER_STARTED")) {
-      return { failed: stderr };
-    }
-
-    // dotenv.config with [.env.local, .env] keeps the first file's value, and
-    // never overrides a variable already in the environment.
-    const server = serverOutcome(
-      {
-        ...parseEnvFileAt(path.join(configDir, ".env")),
-        ...parseEnvFileAt(path.join(configDir, ".env.local")),
-        ...readServerEnvironment(workDir),
-      },
-      certDir,
-    );
-    if ("failed" in server) {
-      return server;
-    }
-    return {
-      started: {
-        ...server,
-        certificatesGenerated: fs.existsSync(
-          path.join(workDir, "openssl-calls"),
-        ),
-        defaultConnection: await requestDefaultConnection(configDir),
-        httpsNotice: stdout
-          .split("\n")
-          .find(line =>
-            line.endsWith("Skipping self-signed certificate generation."),
+      const server = serverOutcome(env, certDir);
+      if ("failed" in server) {
+        return server;
+      }
+      return {
+        started: {
+          ...server,
+          warnings: [...startup.warnings, ...server.warnings],
+          httpsNotice: startup.httpsNotice,
+          certificatesGenerated: certificates === "generated",
+          defaultConnection: await requestDefaultConnection(
+            configDir,
+            startup.defaultConnectionJson,
           ),
-      },
-    };
+        },
+      };
+    } catch (error) {
+      if (error instanceof StartupError || error instanceof CertificateError) {
+        return { failed: error.message };
+      }
+      throw error;
+    }
   }
 
   // "%s" prints the whole name, where "$name" truncates it at 40 characters.
@@ -301,14 +269,9 @@ describe("deployment scenarios: shell startup", () => {
 
       arrange(deployment);
       const configFolderBefore = readFolder(configDir);
-      const first = await startShell(deployment);
-
-      // A refusal to write leaves the folder as the operator mounted it.
-      expect(
-        deployment.readOnly && "failed" in first
-          ? readFolder(configDir)
-          : configFolderBefore,
-      ).toStrictEqual(configFolderBefore);
+      const first = await startServer(deployment);
+      // The startup never writes to the configuration folder.
+      expect(readFolder(configDir)).toStrictEqual(configFolderBefore);
 
       if (deployment.secondStart === undefined) {
         expect(first).toStrictEqual(deployment.expected);
@@ -316,8 +279,10 @@ describe("deployment scenarios: shell startup", () => {
       }
       if (deployment.secondStart === "new-container") {
         resetCertificateFolder();
+        fs.rmSync(markerPath, { force: true });
       }
-      const second = await startShell(deployment);
+      const second = await startServer(deployment);
+      expect(readFolder(configDir)).toStrictEqual(configFolderBefore);
       expect([first, second]).toStrictEqual(deployment.expected);
     },
   );
