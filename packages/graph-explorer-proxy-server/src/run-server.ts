@@ -114,7 +114,7 @@ export function runServer({
 
   const app = createApp({
     configPath,
-    defaultConnectionJson: startup.defaultConnectionJson,
+    defaultConnection: startup.defaultConnection,
     staticFilesVirtualPath,
     staticFilesPath,
     version: packageJson.version,

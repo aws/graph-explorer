@@ -4,6 +4,7 @@ import path from "path";
 import request from "supertest";
 import { afterEach, beforeEach, describe, it, vi } from "vite-plus/test";
 
+import type { DefaultConnection } from "./default-connection.ts";
 import type { EnvironmentValues } from "./env.ts";
 
 import { createApp } from "./app.ts";
@@ -45,11 +46,11 @@ function readFolder(folder: string) {
 
 async function requestDefaultConnection(
   configDir: string,
-  defaultConnectionJson: string | undefined,
+  defaultConnection: DefaultConnection | undefined,
 ): Promise<DefaultConnectionResponse> {
   const app = createApp({
     configPath: configDir,
-    defaultConnectionJson,
+    defaultConnection,
     staticFilesVirtualPath: "/explorer",
     staticFilesPath: ".",
     version: "test",
@@ -250,7 +251,7 @@ describe("deployment scenarios: TypeScript startup", () => {
           certificatesGenerated: certificates === "generated",
           defaultConnection: await requestDefaultConnection(
             configDir,
-            startup.defaultConnectionJson,
+            startup.defaultConnection,
           ),
         },
       };
