@@ -17,6 +17,7 @@
     "@hookform/resolvers": "^7.0.2",
     "@monaco-editor/react": "^4.7.0",
     "@react-aria/textfield": "3.19.1",
+    "@tanstack/react-form": "^1.33.5",
     "@tanstack/react-query": "^5.105.0",
     "@tanstack/react-virtual": "^3.14.24",
     "clsx": "^2.1.1",

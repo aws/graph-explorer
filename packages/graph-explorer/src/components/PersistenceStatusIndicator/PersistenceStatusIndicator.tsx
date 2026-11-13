@@ -16,8 +16,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../Dialog";
-import { FormItem } from "../Form";
 import { Label } from "../Label";
+import { FormItem } from "../ReactHookForm";
 
 /**
  * A standing warning that the app failed to write data to IndexedDB. Renders

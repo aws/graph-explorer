@@ -5,12 +5,12 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vite-plus/test";
 
 import { TooltipProvider } from "@/components";
-import { getAppStore } from "@/core";
+import { type AppStore, getAppStore } from "@/core";
 import { createQueryClient } from "@/core/queryClient";
 import { DatabaseTimeoutError } from "@/utils";
 import { DbState, FakeExplorer, TestProvider } from "@/utils/testing";
 
-import { QuerySearchTabContent } from "./QuerySearchTabContent";
+import { QuerySearchTabContent, queryTextAtom } from "./QuerySearchTabContent";
 
 function renderQuerySearchTabContent(explorer: FakeExplorer) {
   const store = getAppStore();
@@ -54,5 +54,90 @@ describe("QuerySearchTabContent", () => {
     expect(
       screen.queryByRole("heading", { name: "Database query timed out" }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe("QuerySearchTabContent query editor", () => {
+  function renderWithStore(explorer: FakeExplorer, store: AppStore) {
+    new DbState(explorer).applyTo(store);
+
+    render(<QuerySearchTabContent />, {
+      wrapper: ({ children }) => (
+        <TestProvider client={createQueryClient()} store={store}>
+          <TooltipProvider>{children}</TooltipProvider>
+        </TestProvider>
+      ),
+    });
+  }
+
+  test.each([
+    ["Cmd+Enter", "{Meta>}{Enter}{/Meta}"],
+    ["Ctrl+Enter", "{Control>}{Enter}{/Control}"],
+  ])("submits the query with %s", async (_shortcut, keys) => {
+    const user = userEvent.setup();
+    const explorer = new FakeExplorer();
+    const rawQuerySpy = vi
+      .spyOn(explorer, "rawQuery")
+      .mockResolvedValue({ results: [], rawResponse: {} });
+    renderWithStore(explorer, getAppStore());
+
+    const textbox = screen.getByRole("textbox", { name: "Query" });
+    await user.type(textbox, "g.V()");
+    await user.keyboard(keys);
+
+    await vi.waitFor(() =>
+      expect(rawQuerySpy).toHaveBeenCalledWith(
+        { query: "g.V()" },
+        expect.anything(),
+      ),
+    );
+  });
+
+  test("disables Submit while the query runs", async () => {
+    const user = userEvent.setup();
+    const explorer = new FakeExplorer();
+    vi.spyOn(explorer, "rawQuery").mockImplementation(
+      () => new Promise(() => {}),
+    );
+    renderWithStore(explorer, getAppStore());
+
+    await user.type(screen.getByRole("textbox", { name: "Query" }), "g.V()");
+    await user.click(screen.getByRole("button", { name: "Submit" }));
+    await screen.findByRole("button", { name: "Cancel" });
+
+    expect(screen.getByRole("button", { name: "Submit" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
+  });
+
+  test("stores the typed query in queryTextAtom", async () => {
+    const user = userEvent.setup();
+    const store = getAppStore();
+    renderWithStore(new FakeExplorer(), store);
+
+    await user.type(screen.getByRole("textbox", { name: "Query" }), "g.V()");
+
+    expect(store.get(queryTextAtom)).toBe("g.V()");
+  });
+
+  test("lets the user resize the query box vertically", () => {
+    renderWithStore(new FakeExplorer(), getAppStore());
+
+    const textbox = screen.getByRole("textbox", { name: "Query" });
+    expect(textbox).toHaveClass("resize-y");
+    expect(textbox).not.toHaveClass("resize-none");
+    expect(textbox).toHaveClass("flex-auto");
+    expect(textbox).not.toHaveClass("flex-1");
+  });
+
+  test("opens with the stored query", () => {
+    const store = getAppStore();
+    store.set(queryTextAtom, "g.V().limit(1)");
+    renderWithStore(new FakeExplorer(), store);
+
+    expect(screen.getByRole("textbox", { name: "Query" })).toHaveValue(
+      "g.V().limit(1)",
+    );
   });
 });
