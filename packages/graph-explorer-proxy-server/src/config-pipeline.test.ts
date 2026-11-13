@@ -118,13 +118,15 @@ describe("deployment scenarios: TypeScript startup", () => {
   let configDir: string;
   let certDir: string;
   let configJsonPath: string;
+  let certificateMarkerPath: string;
 
   beforeEach(() => {
     workDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-scenario-test-"));
     configDir = path.join(workDir, "config");
     fs.mkdirSync(configDir);
     certDir = path.join(workDir, "cert-info");
-    resetCertificateFolder();
+    certificateMarkerPath = path.join(workDir, "certificate-marker");
+    resetContainer();
     configJsonPath = path.join(workDir, "config.json");
   });
 
@@ -133,8 +135,12 @@ describe("deployment scenarios: TypeScript startup", () => {
     fs.rmSync(workDir, { recursive: true, force: true });
   });
 
-  /** Leaves `cert-info` holding only the openssl templates, as a new container does. */
-  function resetCertificateFolder() {
+  /**
+   * Leaves the container's own files as a new container has them: `cert-info`
+   * holding only the openssl templates and no record of a certificate. The
+   * mounted configuration folder and config.json stay.
+   */
+  function resetContainer() {
     fs.rmSync(certDir, { recursive: true, force: true });
     fs.mkdirSync(certDir);
     for (const template of certTemplates) {
@@ -143,6 +149,7 @@ describe("deployment scenarios: TypeScript startup", () => {
         path.join(certDir, template),
       );
     }
+    fs.rmSync(certificateMarkerPath, { force: true });
   }
 
   /** Lays out the files a deployment starts with, as mounts and the image do. */
@@ -207,10 +214,10 @@ describe("deployment scenarios: TypeScript startup", () => {
   }
 
   /** Starts the server through the TypeScript startup and reports what it did. */
-  async function startServer(
-    { dockerEnv, host }: Deployment,
-    startedBefore: boolean,
-  ): Promise<StartupOutcome> {
+  async function startServer({
+    dockerEnv,
+    host,
+  }: Deployment): Promise<StartupOutcome> {
     try {
       const { env, startup } = loadStartup({
         processEnv: {
@@ -220,16 +227,16 @@ describe("deployment scenarios: TypeScript startup", () => {
         configPath: configDir,
         configJsonPath,
         image: true,
-        startedBefore,
       });
-      const certificates = startup.setUpCertificates
+      const certificates = env.PROXY_SERVER_HTTPS_CONNECTION
         ? prepareCertificates({
             certDir,
+            markerPath: certificateMarkerPath,
             host: startup.certificateHost,
             generate: writePlaceholderCertificates,
-            logger: { info: () => undefined },
+            logger: { info: () => undefined, warn: () => undefined },
           })
-        : "skipped";
+        : "unused";
 
       const server = serverOutcome(env, certDir);
       if ("failed" in server) {
@@ -264,7 +271,7 @@ describe("deployment scenarios: TypeScript startup", () => {
 
       arrange(deployment);
       const configFolderBefore = readFolder(configDir);
-      const first = await startServer(deployment, false);
+      const first = await startServer(deployment);
       // The startup never writes to the configuration folder.
       expect(readFolder(configDir)).toStrictEqual(configFolderBefore);
 
@@ -273,12 +280,9 @@ describe("deployment scenarios: TypeScript startup", () => {
         return;
       }
       if (deployment.secondStart === "new-container") {
-        resetCertificateFolder();
+        resetContainer();
       }
-      const second = await startServer(
-        deployment,
-        deployment.secondStart === "restart",
-      );
+      const second = await startServer(deployment);
       expect(readFolder(configDir)).toStrictEqual(configFolderBefore);
       expect([first, second]).toStrictEqual(deployment.expected);
     },

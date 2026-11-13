@@ -9,6 +9,7 @@ import {
   readConfigJson,
 } from "./config-json.ts";
 import { renderDefaultConnection } from "./default-connection.ts";
+import { stripLegacyStartupBlocks } from "./env-file.ts";
 import {
   type EnvironmentValues,
   EnvironmentValuesSchema,
@@ -26,6 +27,9 @@ export class StartupError extends Error {
 
 export type TextFile = { path: string; text: string };
 
+/** The settings of a `config.json`, with the path they were read from. */
+export type ConfigJsonFile = ConfigJson & { path: string };
+
 export type StartupConfig = {
   /** What the server parses as its environment. */
   serverEnv: Record<string, string | undefined>;
@@ -33,76 +37,55 @@ export type StartupConfig = {
   envFileValues: Record<string, string>;
   /** The text served at `/defaultConnection`, when a connection is configured. */
   defaultConnectionJson: string | undefined;
-  /** Whether the container sets up its certificate before the server starts. */
-  setUpCertificates: boolean;
   /** The host to generate a certificate for, when one is set. */
   certificateHost: string | undefined;
-  /** The line the entrypoint printed when it skipped the certificate. */
+  /**
+   * In the image, the line that says why it generates no certificate: the
+   * notebook preset, or where HTTPS was turned off.
+   */
   httpsNotice: string | undefined;
+  info: string[];
   warnings: string[];
-};
-
-type StartupInputs = {
-  processEnv: Record<string, string | undefined>;
-  dotEnv: TextFile | undefined;
-  dotEnvLocal: TextFile | undefined;
-  configJson: ConfigJson | undefined;
-  /** Whether this start of the container follows an earlier one. */
-  startedBefore: boolean;
 };
 
 /**
  * Resolves everything the server starts with from its inputs, without
- * touching a file. A run from source reads the environment, then
- * `.env.local`, then `.env`. The image reads the environment, then
- * `.env.local`, then `config.json` or the notebook preset, then `.env`, as
- * {@link resolveImageStart} describes.
+ * touching a file. Every setting comes from the process environment, then
+ * `.env.local`, then `config.json` or the notebook preset, then `.env`, then
+ * its default. An empty environment value for a setting `config.json` can
+ * hold counts as unset. Under the preset, PROXY_SERVER_HTTPS_CONNECTION from
+ * `config.json` keeps its value only when it reads as `true`, otherwise
+ * `false`. Connection settings and NEPTUNE_NOTEBOOK come only from the
+ * process environment and `config.json`, never from `.env` or `.env.local`.
+ *
+ * The notebook preset applies when NEPTUNE_NOTEBOOK is exactly `true`. HTTPS
+ * defaults to on for the image and off otherwise.
  */
 export function resolveStartupConfig({
-  image,
-  ...inputs
-}: StartupInputs & { image: boolean }): StartupConfig {
-  return image ? resolveImageStart(inputs) : resolveSourceRun(inputs);
-}
-
-function resolveSourceRun({
-  processEnv,
-  dotEnv,
-  dotEnvLocal,
-}: StartupInputs): StartupConfig {
-  const envFileValues = {
-    ...dotenv.parse(dotEnv?.text ?? ""),
-    ...dotenv.parse(dotEnvLocal?.text ?? ""),
-  };
-  return {
-    serverEnv: { ...envFileValues, ...definedValues(processEnv) },
-    envFileValues,
-    defaultConnectionJson: undefined,
-    setUpCertificates: false,
-    certificateHost: undefined,
-    httpsNotice: undefined,
-    warnings: [],
-  };
-}
-
-/**
- * Reproduces the image's startup scripts in memory. They appended a block of
- * settings to `.env` at every start, then read that file twice: the
- * entrypoint for the notebook preset and the certificate, and dotenv for the
- * server. This builds the text `.env` would have held and reads it the same
- * two ways, without writing the file. The block takes each setting
- * `config.json` can hold from the environment, then `config.json`.
- */
-function resolveImageStart({
   processEnv,
   dotEnv,
   dotEnvLocal,
   configJson,
-  startedBefore,
-}: StartupInputs): StartupConfig {
+  image,
+}: {
+  processEnv: Record<string, string | undefined>;
+  dotEnv: TextFile | undefined;
+  dotEnvLocal: TextFile | undefined;
+  configJson: ConfigJsonFile | undefined;
+  image: boolean;
+}): StartupConfig {
+  const info: string[] = [];
   const environment = withoutEmptyConfigJsonKeys(definedValues(processEnv));
-  // The environment beats config.json one setting at a time, and config.json
-  // fills what the environment leaves unset.
+
+  const ownDotEnv = dotEnv && stripLegacyStartupBlocks(dotEnv.text);
+  if (dotEnv && ownDotEnv && ownDotEnv.ignoredLineCount > 0) {
+    info.push(
+      `Ignored ${ownDotEnv.ignoredLineCount} lines of ${dotEnv.path}, which earlier versions of Graph Explorer appended at each start. Startup now reads those settings directly, so you can delete the lines.`,
+    );
+  }
+  const dotEnvValues = dotenv.parse(ownDotEnv?.text ?? "");
+  const dotEnvLocalValues = dotenv.parse(dotEnvLocal?.text ?? "");
+
   const settings: ConfigJson["values"] = {
     ...configJson?.values,
     ...Object.fromEntries(
@@ -112,45 +95,97 @@ function resolveImageStart({
     ),
   };
 
-  const envText =
-    (dotEnv?.text ?? "") + appendedSettingsBlock(settings, environment);
-  const envLines = envText.split("\n");
-  const notebook = valuesOf(envLines, "NEPTUNE_NOTEBOOK", "rest").at(-1) ?? "";
-  const httpsLines = valuesOf(
-    envLines,
-    "PROXY_SERVER_HTTPS_CONNECTION",
-    "field",
-  );
-  // A start before this one in the same container appended its own line, so
-  // the entrypoint saw several lines and kept the certificate it had.
-  const setUpCertificates =
-    notebook !== "true" &&
-    !startedBefore &&
-    httpsLines.join("\n").replace(/\n+$/, "") === "true";
+  const notebook = settings.NEPTUNE_NOTEBOOK === "true";
+  const presetValues: Record<string, string> = {};
+  if (notebook) {
+    if (!environment.PROXY_SERVER_PORT && !environment.PROXY_SERVER_HTTP_PORT) {
+      presetValues.PROXY_SERVER_PORT = "9250";
+    }
+    if (!environment.LOG_STYLE) {
+      presetValues.LOG_STYLE = "cloudwatch";
+    }
+  }
 
-  const envFileValues = {
-    ...dotenv.parse(envText),
-    ...dotenv.parse(dotEnvLocal?.text ?? ""),
+  // Earlier versions appended the preset's lines to .env, so it beat the
+  // operator's .env lines and yielded to .env.local.
+  const serverEnv: StartupConfig["serverEnv"] = {
+    ...dotEnvValues,
+    ...presetValues,
+    ...dotEnvLocalValues,
+    ...environment,
   };
-  return {
-    // The entrypoint passed the .env value of NEPTUNE_NOTEBOOK to the server.
-    serverEnv: {
-      ...envFileValues,
-      ...environment,
-      NEPTUNE_NOTEBOOK: notebook,
+
+  // The notebook preset serves HTTP, but keeps an HTTPS request the server
+  // would read as true, so it can reject the conflict. Anything else, such as
+  // a config.json null or number, falls back to the preset.
+  const httpsFromConfig = configJson?.values.PROXY_SERVER_HTTPS_CONNECTION;
+  const httpsFromConfigOrPreset = notebook
+    ? /^true$/i.test(httpsFromConfig ?? "")
+      ? httpsFromConfig
+      : "false"
+    : httpsFromConfig;
+  const https = firstSet([
+    {
+      value: environment.PROXY_SERVER_HTTPS_CONNECTION,
+      source: "the environment",
     },
-    envFileValues,
+    dotEnvLocal && {
+      value: dotEnvLocalValues.PROXY_SERVER_HTTPS_CONNECTION,
+      source: dotEnvLocal.path,
+    },
+    notebook
+      ? {
+          value: httpsFromConfigOrPreset,
+          source: "the Neptune Notebook preset",
+        }
+      : configJson && { value: httpsFromConfig, source: configJson.path },
+    dotEnv && {
+      value: dotEnvValues.PROXY_SERVER_HTTPS_CONNECTION,
+      source: dotEnv.path,
+    },
+  ]);
+  serverEnv.PROXY_SERVER_HTTPS_CONNECTION =
+    https?.value ?? (image ? "true" : undefined);
+
+  // A .env line never reaches the server, as before.
+  serverEnv.NEPTUNE_NOTEBOOK = settings.NEPTUNE_NOTEBOOK;
+
+  return {
+    serverEnv,
+    envFileValues: { ...dotEnvValues, ...dotEnvLocalValues },
     defaultConnectionJson: renderDefaultConnection(settings),
-    setUpCertificates,
+    // The process environment only, so a HOST in .env never replaces
+    // certificates kept in a volume.
     certificateHost: environment.HOST || undefined,
-    httpsNotice:
-      notebook === "true"
-        ? "Neptune Notebook preset enabled. Skipping self-signed certificate generation."
-        : setUpCertificates
-          ? undefined
-          : "SSL disabled. Skipping self-signed certificate generation.",
+    httpsNotice: image ? httpsNoticeFor(notebook, https) : undefined,
+    info,
     warnings: configJson?.warnings ?? [],
   };
+}
+
+type Setting = { value: string; source: string };
+
+/** The first of `candidates` that holds a value, in order. */
+function firstSet(
+  candidates: ({ value: string | undefined; source: string } | undefined)[],
+): Setting | undefined {
+  for (const candidate of candidates) {
+    if (candidate?.value !== undefined) {
+      return { value: candidate.value, source: candidate.source };
+    }
+  }
+  return undefined;
+}
+
+/** Why the image generates no certificate, when it doesn't. */
+function httpsNoticeFor(notebook: boolean, https: Setting | undefined) {
+  if (notebook) {
+    return "Neptune Notebook preset enabled. Skipping self-signed certificate generation.";
+  }
+  if (https && /^false$/i.test(https.value)) {
+    return `HTTPS is off, set by PROXY_SERVER_HTTPS_CONNECTION in ${https.source}`;
+  }
+  return undefined;
 }
 
 /**
@@ -168,66 +203,20 @@ function withoutEmptyConfigJsonKeys(environment: Record<string, string>) {
 }
 
 /**
- * The lines process-environment.sh appended to `.env` at each start, from
- * the settings it read and the container's environment.
- */
-export function appendedSettingsBlock(
-  settings: ConfigJson["values"],
-  environment: Record<string, string>,
-): string {
-  const neptuneNotebook = settings.NEPTUNE_NOTEBOOK ?? "false";
-  let https = settings.PROXY_SERVER_HTTPS_CONNECTION;
-  let graphExpHttps = settings.GRAPH_EXP_HTTPS_CONNECTION;
-  const lines = [`NEPTUNE_NOTEBOOK=${neptuneNotebook}`];
-  if (neptuneNotebook === "true") {
-    // The preset serves HTTP, but keeps an HTTPS request the server would read
-    // as true, so the server can reject the conflict.
-    https = /^true$/i.test(https ?? "") ? https : "false";
-    graphExpHttps = "false";
-    if (!environment.PROXY_SERVER_PORT && !environment.PROXY_SERVER_HTTP_PORT) {
-      lines.push("PROXY_SERVER_PORT=9250");
-    }
-    if (!environment.LOG_STYLE) {
-      lines.push("LOG_STYLE=cloudwatch");
-    }
-  }
-  lines.push(
-    `PROXY_SERVER_HTTPS_CONNECTION=${https || "true"}`,
-    `GRAPH_EXP_HTTPS_CONNECTION=${graphExpHttps || "true"}`,
-  );
-  return lines.map(line => `\n${line}\n`).join("");
-}
-
-/**
- * The values of the lines that start with `key=`, as `cut -d "=" -f 2-` reads
- * them (`rest`) or as `cut -d "=" -f 2` does (`field`).
- */
-function valuesOf(lines: string[], key: string, part: "rest" | "field") {
-  return lines
-    .filter(line => line.startsWith(`${key}=`))
-    .map(line => {
-      const value = line.slice(key.length + 1);
-      return part === "rest" ? value : value.split("=")[0];
-    });
-}
-
-/**
  * Reads the files the startup configuration comes from and resolves it,
- * validating what the server will parse. Only the image reads `config.json`.
- * Never writes a file or changes `processEnv`.
+ * validating what the server will parse. Never writes a file or changes
+ * `processEnv`.
  */
 export function loadStartup({
   processEnv,
   configPath,
   configJsonPath,
   image,
-  startedBefore,
 }: {
   processEnv: Record<string, string | undefined>;
   configPath: string;
   configJsonPath: string;
   image: boolean;
-  startedBefore: boolean;
 }): { env: EnvironmentValues; startup: StartupConfig } {
   if (!isDirectory(configPath)) {
     const source = processEnv.CONFIGURATION_FOLDER_PATH
@@ -240,9 +229,8 @@ export function loadStartup({
     processEnv,
     dotEnv: readTextFile(path.join(configPath, ".env")),
     dotEnvLocal: readTextFile(path.join(configPath, ".env.local")),
-    configJson: image ? loadConfigJson(configJsonPath) : undefined,
+    configJson: loadConfigJson(configJsonPath),
     image,
-    startedBefore,
   });
 
   const result = EnvironmentValuesSchema.safeParse(startup.serverEnv);
@@ -252,9 +240,10 @@ export function loadStartup({
   return { env: result.data, startup };
 }
 
-function loadConfigJson(configJsonPath: string) {
+function loadConfigJson(configJsonPath: string): ConfigJsonFile | undefined {
   try {
-    return readConfigJson(configJsonPath);
+    const configJson = readConfigJson(configJsonPath);
+    return configJson && { path: configJsonPath, ...configJson };
   } catch (error) {
     if (error instanceof ConfigJsonError) {
       throw new StartupError(error.message);
@@ -263,7 +252,6 @@ function loadConfigJson(configJsonPath: string) {
   }
 }
 
-/** `values` without the keys whose value is undefined. */
 function definedValues(values: Record<string, string | undefined>) {
   return Object.fromEntries(
     Object.entries(values).filter(

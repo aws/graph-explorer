@@ -102,8 +102,8 @@ jobs:
                     return 1
                   fi
                   echo "✓ $name logged: $notice"
-                elif grep -q "Skipping self-signed certificate generation" <<< "$logs"; then
-                  echo "FAIL: $name logged a notice that it skipped certificate generation"
+                elif grep -Eq "Skipping self-signed certificate generation|HTTPS is off" <<< "$logs"; then
+                  echo "FAIL: $name logged a notice that certificate generation was skipped"
                   echo "$logs"
                   docker rm -f "$name" >/dev/null
                   return 1
@@ -118,7 +118,7 @@ jobs:
             docker rm -f "$name" >/dev/null
             return 1
           }
-          check http 8080 80 http "SSL disabled. Skipping self-signed certificate generation." -e PROXY_SERVER_HTTPS_CONNECTION=false
+          check http 8080 80 http "HTTPS is off, set by PROXY_SERVER_HTTPS_CONNECTION in the environment" -e PROXY_SERVER_HTTPS_CONNECTION=false
           check notebook 9250 9250 http "Neptune Notebook preset enabled. Skipping self-signed certificate generation." -e NEPTUNE_NOTEBOOK=true
           check https 8443 443 https "" -e HOST=localhost
 
@@ -219,6 +219,12 @@ jobs:
           cp old-env/.env old-env.before
           docker run -d --name old-env -p 127.0.0.1:8083:80 -v "$PWD/old-env:/config" -e CONFIGURATION_FOLDER_PATH=/config -e PROXY_SERVER_HTTPS_CONNECTION=false test-image
           wait_for_status old-env http://127.0.0.1:8083 || exit 1
+          if ! docker logs old-env 2>&1 | grep -q "Ignored 18 lines"; then
+            echo "FAIL: the server did not log ignoring the 18 appended lines"
+            docker logs old-env
+            docker rm -f old-env >/dev/null
+            exit 1
+          fi
           if ! cmp old-env/.env old-env.before; then
             echo "FAIL: the server changed .env"
             docker rm -f old-env >/dev/null
@@ -245,3 +251,50 @@ jobs:
           fi
           echo "✓ a read-only configuration folder started and served the Default Connection"
           docker rm -f read-only >/dev/null
+
+      # The #2504 repro: the configuration folder is mounted read-only, as an
+      # orchestrator may mount a ConfigMap, and the HTTPS setting comes from
+      # the file alone.
+      - name: Verify a mounted .env with PROXY_SERVER_HTTPS_CONNECTION=false serves HTTP
+        run: |
+          . "$RUNNER_TEMP/wait-for-status.sh"
+          mkdir env-false
+          printf 'PROXY_SERVER_HTTPS_CONNECTION=false\n' > env-false/.env
+          docker run -d --name env-false -p 127.0.0.1:8086:80 -v "$PWD/env-false:/config:ro" -e CONFIGURATION_FOLDER_PATH=/config test-image
+          wait_for_status env-false http://127.0.0.1:8086 || exit 1
+          if ! docker logs env-false 2>&1 | grep -q "HTTPS is off, set by PROXY_SERVER_HTTPS_CONNECTION in /config/.env"; then
+            echo "FAIL: the server did not log where HTTPS was turned off"
+            docker logs env-false
+            docker rm -f env-false >/dev/null
+            exit 1
+          fi
+          echo "✓ a mounted .env with HTTPS off served HTTP from a read-only folder"
+          docker rm -f env-false >/dev/null
+
+      # A restart with a mounted .env that turns HTTPS on reuses the certificate
+      # the first start generated, as a restart without one does.
+      - name: Verify a restart with a mounted .env keeps the certificate
+        run: |
+          . "$RUNNER_TEMP/wait-for-status.sh"
+          mkdir restart-env
+          printf 'PROXY_SERVER_HTTPS_CONNECTION=true\n' > restart-env/.env
+          docker run -d --name restart-env -p 127.0.0.1:8447:443 -v "$PWD/restart-env:/config:ro" -e CONFIGURATION_FOLDER_PATH=/config -e HOST=localhost test-image
+          wait_for_status restart-env https://127.0.0.1:8447 || exit 1
+          certificate=/graph-explorer/packages/graph-explorer-proxy-server/cert-info/server.crt
+          before=$(docker exec restart-env sha256sum "$certificate")
+          docker restart restart-env >/dev/null
+          wait_for_status restart-env https://127.0.0.1:8447 || exit 1
+          after=$(docker exec restart-env sha256sum "$certificate")
+          if [ "$before" != "$after" ]; then
+            echo "FAIL: the restart generated a new certificate"
+            docker rm -f restart-env >/dev/null
+            exit 1
+          fi
+          if ! docker logs restart-env 2>&1 | grep -q "Reusing the self-signed certificate"; then
+            echo "FAIL: the restart did not log reusing the certificate"
+            docker logs restart-env
+            docker rm -f restart-env >/dev/null
+            exit 1
+          fi
+          echo "✓ the restart kept the certificate"
+          docker rm -f restart-env >/dev/null

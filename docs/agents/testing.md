@@ -107,7 +107,7 @@ The deployment scenario table lives in `packages/graph-explorer-proxy-server/src
 - A comment directly above `expected` says why the outcome is what it is.
 - A row's inputs never change once it is added. Its `expected` changes only in the change that changes that behavior, which rewrites the comment to name what changed. So the table's diff shows exactly what a change moved.
 
-`config-pipeline.test.ts` runs every row through `loadStartup`, `prepareCertificates` with a stub that writes placeholder files, `resolveServerConfig`, and `createApp`, and checks after every start that the configuration folder is unchanged.
+`config-pipeline.test.ts` runs every row through `loadStartup`, `prepareCertificates` with a stub that writes placeholder files, `resolveServerConfig`, and `createApp`, and checks after every start that the configuration folder is unchanged. The certificate marker lives in the row's work directory, so a `restart` keeps it and a `new-container` start removes it with the generated certificate files.
 
 ## Backward compatibility for persisted data
 

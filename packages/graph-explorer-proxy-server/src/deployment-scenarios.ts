@@ -136,7 +136,16 @@ export function definedFields(
 const presetNotice =
   "Neptune Notebook preset enabled. Skipping self-signed certificate generation.";
 const httpsOffNotice =
-  "SSL disabled. Skipping self-signed certificate generation.";
+  "HTTPS is off, set by PROXY_SERVER_HTTPS_CONNECTION in the environment";
+
+/** The notice for HTTPS turned off by `file`, which sits in a temp folder. */
+function httpsOffIn(file: "config.json" | ".env" | ".env.local"): string {
+  return expect.stringMatching(
+    new RegExp(
+      `^HTTPS is off, set by PROXY_SERVER_HTTPS_CONNECTION in /.+/${file.replaceAll(".", "\\.")}$`,
+    ),
+  );
+}
 
 export const https: ServerStart = {
   environment: {
@@ -412,10 +421,10 @@ export const deployments: Deployment[] = [
   {
     name: "-e PROXY_SERVER_HTTPS_CONNECTION=TRUE",
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "TRUE" },
-    // As before, a certificate is generated only for an exact "true", but the
-    // server reads HTTPS without regard to case, so it fails on the missing
-    // certificates.
-    expected: missingCertificates,
+    // #2504: one value decides HTTPS and the certificate, so TRUE generates
+    // one. Before, only an exact "true" generated a certificate, and the
+    // server failed on the missing certificates.
+    expected: standardTls,
   },
   {
     name: "config.json HTTPS true",
@@ -426,8 +435,8 @@ export const deployments: Deployment[] = [
   {
     name: "config.json HTTPS false",
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: false },
-    // config.json turns HTTPS off.
-    expected: standardHttp,
+    // config.json turns HTTPS off, and the start says so.
+    expected: served(http, { httpsNotice: httpsOffIn("config.json") }),
   },
   {
     name: "config.json HTTPS true and -e HTTPS false",
@@ -684,7 +693,7 @@ export const deployments: Deployment[] = [
       PROXY_SERVER_HTTPS_CONNECTION: "true",
     },
     secondStart: "restart",
-    // The lines the first start appended don't hide the conflict.
+    // A restart meets the same conflict.
     expected: [notebookConflict, notebookConflict],
   },
   {
@@ -704,17 +713,11 @@ export const deployments: Deployment[] = [
   {
     name: "nothing about HTTPS set, restarted",
     secondStart: "restart",
-    // Earlier versions read PROXY_SERVER_HTTPS_CONNECTION by its first match,
-    // not its last, so a restart's repeated "true" line didn't regenerate the
-    // certificate. The container keeps serving TLS on the certificate from the
-    // first start, though startup logs that SSL is disabled.
-    expected: [
-      standardTls,
-      served(https, {
-        certificatesGenerated: false,
-        httpsNotice: httpsOffNotice,
-      }),
-    ],
+    // The container records the certificate it generated, so a restart
+    // reuses it and keeps serving TLS on the certificate generated at first
+    // start. Before, the restart reached the same outcome by logging that SSL
+    // was disabled and skipping generation.
+    expected: [standardTls, served(https, { certificatesGenerated: false })],
   },
   {
     name: "a read-only configuration folder",
@@ -777,30 +780,27 @@ export const deployments: Deployment[] = [
   {
     name: "PROXY_SERVER_HTTPS_CONNECTION=false in a mounted .env",
     existingEnvFile: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
-    // Earlier versions appended a "true" default after the mounted line and
-    // decided the certificate from the first "false", while dotenv read the
-    // last line, "true". No certificate is generated, yet the server wants
-    // TLS.
-    expected: missingCertificates,
+    // #2504: the .env line takes effect, so it serves HTTP. Before, the "true"
+    // default appended after it won in the server while the certificate was
+    // skipped, and the server failed on the missing certificates.
+    expected: served(http, { httpsNotice: httpsOffIn(".env") }),
   },
   {
     name: "PROXY_SERVER_HTTPS_CONNECTION=true in a mounted .env",
     existingEnvFile: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
-    // The mounted "true" and the appended "true" read back as "true\ntrue",
-    // which isn't the exact "true" that generated a certificate.
-    expected: missingCertificates,
+    // #2504: one value decides HTTPS and the certificate, so it generates one.
+    // Before, the mounted and appended lines read back as "true\ntrue", which
+    // skipped the certificate.
+    expected: standardTls,
   },
   {
     name: "an operator .env with PROXY_SERVER_HTTPS_CONNECTION=false and all five certificate files present",
     existingEnvFile: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
     existingCertificates: "all",
-    // Earlier versions read the operator's "false" first and skipped
-    // generation, while the server read the appended "true" and served TLS on
+    // #2504: the .env line takes effect, so it serves HTTP. Before, the
+    // server read the "true" that earlier versions appended and served TLS on
     // the files already in cert-info.
-    expected: served(https, {
-      certificatesGenerated: false,
-      httpsNotice: httpsOffNotice,
-    }),
+    expected: served(http, { httpsNotice: httpsOffIn(".env") }),
   },
   {
     name: "no HOST and no certificate files",
@@ -961,16 +961,19 @@ export const deployments: Deployment[] = [
       null,
       2,
     ).replaceAll("\n", "\r\n"),
-    // The carriage returns sit outside the values earlier versions read.
-    expected: servingConnection(proxiedConnection(), http),
+    // The carriage returns sit between the JSON's tokens, so config.json's
+    // values apply, and the start says it turned HTTPS off.
+    expected: servingConnection(proxiedConnection(), {
+      ...http,
+      httpsNotice: httpsOffIn("config.json"),
+    }),
   },
   {
     name: 'config.json HTTPS "True"',
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: "True" },
-    // Like -e PROXY_SERVER_HTTPS_CONNECTION=TRUE, only an exact "true"
-    // generates a certificate, so the server fails on the missing
-    // certificates.
-    expected: missingCertificates,
+    // #2504: one value decides HTTPS and the certificate, so "True" generates
+    // one. Before, only an exact "true" generated a certificate.
+    expected: standardTls,
   },
   {
     name: "config.json IAM null with GRAPH_CONNECTION_URL",
@@ -993,7 +996,7 @@ export const deployments: Deployment[] = [
     name: "an .env from an HTTP container after three starts",
     existingEnvFile: legacyStartupBlock(httpContainerBlock).repeat(3),
     dockerEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
-    // The blocks only restate what startup reads from the environment, so
+    // The blocks are ignored, and they only restated the environment, so
     // they change nothing.
     expected: standardHttp,
   },
@@ -1004,11 +1007,9 @@ export const deployments: Deployment[] = [
       port: "PROXY_SERVER_HTTP_PORT",
     }).repeat(2),
     dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
-    // The port line is what v3.3.0 wrote. It matches the PROXY_SERVER_PORT
-    // the preset sets, so the server starts without a warning.
-    expected: served(notebook, {
-      environment: { PROXY_SERVER_HTTP_PORT: 9250 },
-    }),
+    // #2504: the blocks are ignored, the old port line with them, and the
+    // preset applies as the environment asks.
+    expected: notebookPreset,
   },
   {
     name: "an .env from a notebook container after two starts with the PROXY_SERVER_PORT line",
@@ -1026,10 +1027,11 @@ export const deployments: Deployment[] = [
       ...notebookContainerBlock,
       port: "PROXY_SERVER_PORT",
     }).repeat(2),
-    // The blocks have no preset. Earlier versions read the blocks' "false"
-    // lines first and skipped generation, while the server read the appended
-    // "true" with the blocks' port and failed on the missing certificates.
-    expected: missingCertificates,
+    // #2504: the blocks are ignored, so HTTPS defaults to on and HOST
+    // generates the certificate. Before, the server read the "true" that
+    // earlier versions appended with the blocks' port while the certificate was
+    // skipped, and failed on the missing certificates.
+    expected: standardTls,
   },
   {
     name: "a tidied .env from an HTTP container started without -e or HOST",
@@ -1039,13 +1041,9 @@ export const deployments: Deployment[] = [
     host: false,
     existingCertificates: "all",
     // An operator tidied the blocks a container run with
-    // -e PROXY_SERVER_HTTPS_CONNECTION=false left. Earlier versions appended a
-    // block with the default, which the server read last, and, seeing several
-    // lines, kept the certificates and logged that SSL is disabled.
-    expected: served(https, {
-      certificatesGenerated: false,
-      httpsNotice: httpsOffNotice,
-    }),
+    // -e PROXY_SERVER_HTTPS_CONNECTION=false left. They are ignored, so HTTPS
+    // defaults to on and the existing certificates are reused, as before.
+    expected: served(https, { certificatesGenerated: false }),
   },
   {
     name: "a tidied .env from a notebook container with the 3.3.0 port line",
@@ -1056,31 +1054,28 @@ export const deployments: Deployment[] = [
       }).repeat(2),
     ),
     dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
-    // The blocks restate the preset, and the old port line matches its port.
-    expected: served(notebook, {
-      environment: { PROXY_SERVER_HTTP_PORT: 9250 },
-    }),
+    // #2504: tidied blocks are ignored too, the old port line with them, and
+    // the preset applies as the environment asks.
+    expected: notebookPreset,
   },
   {
     name: "the #2504 .env: a user's PROXY_SERVER_HTTPS_CONNECTION=false followed by one block",
     existingEnvFile: `PROXY_SERVER_HTTPS_CONNECTION=false\n${legacyStartupBlock(httpsContainerBlock)}`,
-    // The operator's line comes first, and earlier versions appended a "true"
-    // default after it, which the server read while the certificate was
-    // decided from the first "false".
-    expected: missingCertificates,
+    // #2504: the block is ignored, so the operator's false serves HTTP.
+    // Before, the server read a "true" appended after it while the
+    // certificate was skipped.
+    expected: served(http, { httpsNotice: httpsOffIn(".env") }),
   },
   {
     name: "an .env with an HTTP block, an operator line, and two HTTPS blocks, without HOST",
     existingEnvFile: `LOG_STYLE=default\n${legacyStartupBlock(httpContainerBlock)}LOG_LEVEL=debug\n${legacyStartupBlock(httpsContainerBlock).repeat(2)}`,
     host: false,
     existingCertificates: "all",
-    // Earlier versions appended the current value after every earlier block,
-    // so the server read the newest "true" while several lines left the
-    // existing certificates alone and logged that SSL is disabled.
+    // The blocks are ignored and the operator's lines stay, so HTTPS defaults
+    // to on and the existing certificates are reused, as before.
     expected: served(https, {
       environment: { LOG_LEVEL: "debug" },
       certificatesGenerated: false,
-      httpsNotice: httpsOffNotice,
     }),
   },
   {
@@ -1088,28 +1083,24 @@ export const deployments: Deployment[] = [
     existingEnvFile: `LOG_STYLE=default\n${legacyStartupBlock(httpContainerBlock)}\n${legacyStartupBlock(httpsContainerBlock).repeat(2)}`,
     host: false,
     existingCertificates: "all",
-    // The server reads the newest "true" while earlier versions, seeing
-    // several lines, left the existing certificates alone, and startup logs
-    // that SSL is disabled.
-    expected: served(https, {
-      certificatesGenerated: false,
-      httpsNotice: httpsOffNotice,
-    }),
+    // The blocks are ignored, so HTTPS defaults to on and the existing
+    // certificates are reused, as before.
+    expected: served(https, { certificatesGenerated: false }),
   },
   {
     name: "an .env from an HTTPS container in a new container",
     existingEnvFile: legacyStartupBlock(httpsContainerBlock),
-    // The block's "true" and the appended "true" read back as "true\ntrue",
-    // so no certificate is generated and the server fails on the missing
-    // certificates.
-    expected: missingCertificates,
+    // #2504: the block is ignored, and a new container generates its own
+    // certificate. Before, the block and the appended line read back as
+    // "true\ntrue", which skipped the certificate.
+    expected: standardTls,
   },
   {
     name: "-e NEPTUNE_NOTEBOOK=true with PROXY_SERVER_PORT and LOG_STYLE in .env.local",
     dockerEnv: { NEPTUNE_NOTEBOOK: "true" },
     existingEnvLocalFile: "PROXY_SERVER_PORT=8082\nLOG_STYLE=default\n",
-    // dotenv reads .env.local first and the preset's lines sit in .env, so
-    // the operator's .env.local beats the preset.
+    // .env.local beats the preset, as it did when the preset's lines sat in
+    // .env.
     expected: served(notebook, {
       environment: { PROXY_SERVER_PORT: 8082, LOG_STYLE: "default" },
       listener: { protocol: "http", port: 8082 },
@@ -1119,21 +1110,19 @@ export const deployments: Deployment[] = [
     name: "config.json HTTPS false with HTTPS true in .env.local",
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: false },
     existingEnvLocalFile: "PROXY_SERVER_HTTPS_CONNECTION=true\n",
-    // The server reads .env.local before the config.json value earlier
-    // versions appended to .env, but the certificate was decided from .env
-    // alone, so the server fails on the missing certificates.
-    expected: missingCertificates,
+    // #2504: the value the server reads, from .env.local, also decides the
+    // certificate, so it generates one. Before, the certificate followed
+    // config.json alone.
+    expected: standardTls,
   },
   {
     name: "config.json HTTPS true with HTTPS false in .env.local",
     configJson: { PROXY_SERVER_HTTPS_CONNECTION: true },
     existingEnvLocalFile: "PROXY_SERVER_HTTPS_CONNECTION=false\n",
-    // A certificate is generated from the .env line and then the server
-    // serves HTTP from the .env.local line.
-    expected: served(http, {
-      certificatesGenerated: true,
-      httpsNotice: undefined,
-    }),
+    // #2504: the value the server reads, from .env.local, also decides the
+    // certificate, so it serves HTTP without one. Before, the certificate
+    // followed config.json alone.
+    expected: served(http, { httpsNotice: httpsOffIn(".env.local") }),
   },
   {
     name: "-e NEPTUNE_NOTEBOOK=true with HTTPS true in .env.local",
@@ -1247,7 +1236,7 @@ export const deployments: Deployment[] = [
     // An empty -e value for a setting config.json can hold counts as unset,
     // so config.json's false applies. Before, the server read the empty value
     // and its schema rejected it.
-    expected: standardHttp,
+    expected: served(http, { httpsNotice: httpsOffIn("config.json") }),
   },
   {
     name: "-e NEPTUNE_NOTEBOOK=false with config.json NEPTUNE_NOTEBOOK true",
@@ -1398,15 +1387,16 @@ export const deployments: Deployment[] = [
   {
     name: "config.json with a byte-order mark",
     configJson: "﻿" + JSON.stringify({ PROXY_SERVER_HTTPS_CONNECTION: false }),
-    // config.json is read as JSON, so the mark before the brace doesn't matter.
-    expected: standardHttp,
+    // The parser skips the mark, so config.json's false applies, and the
+    // start says so.
+    expected: served(http, { httpsNotice: httpsOffIn("config.json") }),
   },
   {
     name: "config.json with a space before a key's colon",
     configJson: '{ "PROXY_SERVER_HTTPS_CONNECTION" : false }',
     // config.json is read as JSON, so the space doesn't hide the key. Earlier
     // versions grepped for the colon right after the key and missed it.
-    expected: standardHttp,
+    expected: served(http, { httpsNotice: httpsOffIn("config.json") }),
   },
   {
     name: "an empty config.json",
@@ -1452,17 +1442,17 @@ export const deployments: Deployment[] = [
     existingEnvFile:
       "PROXY_SERVER_HTTPS_CONNECTION=false\n" +
       "NEPTUNE_NOTEBOOK=false\n\n\n  \nPROXY_SERVER_HTTPS_CONNECTION=true\n\t\nGRAPH_EXP_HTTPS_CONNECTION=true\n",
-    // Earlier versions read the operator's "false" first while the server
-    // read the appended "true", so it fails on the missing certificates.
-    expected: missingCertificates,
+    // #2504: the block is ignored with its blank lines, so the operator's
+    // false serves HTTP.
+    expected: served(http, { httpsNotice: httpsOffIn(".env") }),
   },
   {
     name: "a tidied .env from an HTTP container started without -e, with HOST",
     existingEnvFile: withoutBlankLines(
       legacyStartupBlock(httpContainerBlock).repeat(2),
     ),
-    // Earlier versions read the tidied "false" lines first while the server
-    // read the appended "true", so it fails on the missing certificates.
-    expected: missingCertificates,
+    // #2504: the tidied blocks are ignored, so their stale false doesn't turn
+    // TLS off, and HOST generates the certificate.
+    expected: standardTls,
   },
 ];
