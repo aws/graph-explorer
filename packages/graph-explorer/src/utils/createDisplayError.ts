@@ -197,6 +197,14 @@ export function createDisplayError(error: any): DisplayError {
       };
     }
 
+    if (error.statusCode === 403) {
+      return {
+        title: "Access denied",
+        message:
+          "The server refused this request. Check that your connection credentials and permissions are correct, then try again.",
+      };
+    }
+
     if (
       error.statusCode === 413 &&
       (error.data as { type?: unknown } | null)?.type === "entity.too.large"
