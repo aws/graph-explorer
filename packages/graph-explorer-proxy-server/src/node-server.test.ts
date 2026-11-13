@@ -2,9 +2,11 @@ import { spawn } from "child_process";
 import fs from "fs";
 import os from "os";
 import path from "path";
+import { pathToFileURL } from "url";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
 const serverPath = path.resolve(import.meta.dirname, "node-server.ts");
+const runServerPath = path.resolve(import.meta.dirname, "run-server.ts");
 
 function waitForOutput(
   child: ReturnType<typeof spawn>,
@@ -97,6 +99,38 @@ describe("node-server.ts", () => {
       );
 
       expect(output).toMatch(/Proxy server listening on 127\.0\.0\.1:\d+/);
+    } finally {
+      child.kill();
+    }
+  }, 20_000);
+
+  // A run from source reads config.json, which runServer takes from the
+  // repository root unless given a path, as this test does.
+  it("applies config.json's HTTPS setting", async () => {
+    const configJsonPath = path.join(configDir, "config.json");
+    fs.writeFileSync(configJsonPath, '{"PROXY_SERVER_HTTPS_CONNECTION": true}');
+    const start = `import { runServer } from ${JSON.stringify(pathToFileURL(runServerPath).href)}; runServer({ image: false, configJsonPath: ${JSON.stringify(configJsonPath)} });`;
+
+    const child = spawn(
+      process.execPath,
+      ["--input-type=module", "-e", start],
+      {
+        cwd: path.dirname(serverPath),
+        env: {
+          PATH: process.env.PATH,
+          CONFIGURATION_FOLDER_PATH: configDir,
+          PROXY_SERVER_HTTPS_PORT: "0",
+        },
+      },
+    );
+    try {
+      const output = await waitForOutput(
+        child,
+        /Parsed environment values/,
+        15_000,
+      );
+
+      expect(output).toContain('"PROXY_SERVER_HTTPS_CONNECTION":true');
     } finally {
       child.kill();
     }

@@ -16,7 +16,6 @@ import {
   CertificateError,
   generateCertificates,
   prepareCertificates,
-  recordContainerStart,
 } from "./certificates.ts";
 
 const templateDir = path.resolve(import.meta.dirname, "../cert-info");
@@ -195,35 +194,85 @@ describe("generateCertificates", () => {
 });
 
 describe("prepareCertificates", () => {
+  let workDir: string;
   let certDir: string;
+  let markerPath: string;
   const generate = vi.fn<(certDir: string, host: string) => void>();
-  const logger = { info: vi.fn() };
+  const logger = { info: vi.fn(), warn: vi.fn() };
 
   beforeEach(() => {
-    certDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-prepare-test-"));
+    workDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-prepare-test-"));
+    certDir = path.join(workDir, "cert-info");
+    fs.mkdirSync(certDir);
+    markerPath = path.join(workDir, "marker");
     vi.resetAllMocks();
   });
 
   afterEach(() => {
-    fs.rmSync(certDir, { recursive: true, force: true });
+    fs.chmodSync(workDir, 0o755);
+    fs.rmSync(workDir, { recursive: true, force: true });
   });
 
   function prepare(host: string | undefined) {
-    return prepareCertificates({ certDir, host, generate, logger });
+    return prepareCertificates({ certDir, markerPath, host, generate, logger });
   }
 
-  it("generates for the host", () => {
+  it("generates for the host and records it", () => {
     expect(prepare("localhost")).toBe("generated");
 
     expect(generate).toHaveBeenCalledExactlyOnceWith(certDir, "localhost");
+    expect(fs.readFileSync(markerPath, "utf-8")).toBe("localhost\n");
   });
 
-  it("generates for the host even when the files exist", () => {
+  // docker restart: the container keeps its files, the marker included.
+  it("reuses the certificate on a restart, even with a host", () => {
+    prepare("localhost");
     seedCertificateFiles(certDir);
+    generate.mockClear();
+
+    expect(prepare("localhost")).toBe("reused");
+
+    expect(generate).not.toHaveBeenCalled();
+    expect(logger.info).toHaveBeenLastCalledWith(
+      "Reusing the self-signed certificate generated when this container first started.",
+    );
+  });
+
+  // A new container keeps cert-info when it is a volume, but not the marker.
+  it("generates again in a new container", () => {
+    prepare("localhost");
+    fs.rmSync(markerPath);
+
+    expect(prepare("localhost")).toBe("generated");
+
+    expect(generate).toHaveBeenCalledTimes(2);
+    expect(logger.info).not.toHaveBeenCalledWith(
+      expect.stringContaining("recorded for this container"),
+    );
+  });
+
+  // The marker only says this container generated a certificate, so files
+  // that were removed since can't be reused.
+  it("generates again when the marker is there but a certificate file is gone", () => {
+    seedCertificateFiles(certDir, ["rootCA.key", "rootCA.crt", "server.key"]);
+    fs.writeFileSync(markerPath, "localhost\n");
 
     expect(prepare("localhost")).toBe("generated");
 
     expect(generate).toHaveBeenCalledExactlyOnceWith(certDir, "localhost");
+    expect(logger.info).toHaveBeenCalledWith(
+      "The certificate recorded for this container is missing server.csr server.crt, so a new one is generated.",
+    );
+  });
+
+  it("stops without a host when the marker is there but a certificate file is gone", () => {
+    seedCertificateFiles(certDir, ["rootCA.key", "rootCA.crt", "server.key"]);
+    fs.writeFileSync(markerPath, "localhost\n");
+
+    expect(() => prepare(undefined)).toThrow(
+      `Missing certificate files in ${certDir}: server.csr server.crt\nPlease specify --env HOST=<hostname> during docker run command to create SSL cert.`,
+    );
+    expect(generate).not.toHaveBeenCalled();
   });
 
   it("reuses the files in cert-info without a host", () => {
@@ -232,9 +281,7 @@ describe("prepareCertificates", () => {
     expect(prepare(undefined)).toBe("reused");
 
     expect(generate).not.toHaveBeenCalled();
-    expect(logger.info).toHaveBeenCalledWith(
-      "Found existing self-signed SSL certificate. Re-using existing cert.",
-    );
+    expect(fs.existsSync(markerPath)).toBe(false);
   });
 
   it("names each missing file without a host", () => {
@@ -247,45 +294,20 @@ describe("prepareCertificates", () => {
 
   it("treats an empty host as no host", () => {
     expect(() => prepare("")).toThrow(CertificateError);
-    expect(generate).not.toHaveBeenCalled();
-  });
-});
-
-describe("recordContainerStart", () => {
-  let workDir: string;
-  const logger = { warn: vi.fn() };
-
-  beforeEach(() => {
-    workDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-container-start-"));
-    vi.resetAllMocks();
   });
 
-  afterEach(() => {
-    fs.chmodSync(workDir, 0o755);
-    fs.rmSync(workDir, { recursive: true, force: true });
-  });
-
-  it("records the start", () => {
-    const markerPath = path.join(workDir, ".container-started");
-
-    recordContainerStart(markerPath, logger);
-
-    expect(fs.existsSync(markerPath)).toBe(true);
-    expect(logger.warn).not.toHaveBeenCalled();
-  });
-
-  it("warns when it can't record the start", ({ skip }) => {
+  it("warns but still reports generated when it can't record the certificate", ({
+    skip,
+  }) => {
     // Root ignores file permissions, so chmod can't make anything read-only.
     skip(process.getuid?.() === 0);
     fs.chmodSync(workDir, 0o555);
-    const markerPath = path.join(workDir, ".container-started");
 
-    recordContainerStart(markerPath, logger);
+    expect(prepare("localhost")).toBe("generated");
 
-    expect(fs.existsSync(markerPath)).toBe(false);
     expect(logger.warn).toHaveBeenCalledWith(
       expect.stringContaining(
-        `Couldn't record this container's start at ${markerPath}, so a restart generates a new certificate`,
+        `Couldn't record the certificate at ${markerPath}, so a restart generates a new one`,
       ),
     );
   });

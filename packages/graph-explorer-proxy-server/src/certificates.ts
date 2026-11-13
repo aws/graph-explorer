@@ -148,29 +148,58 @@ function openssl(args: string[]) {
 
 /**
  * Makes sure the certificate files exist, and says whether it generated them.
- * With a `host` it generates a certificate. Without one it reuses the files
- * in `certDir` and throws when any is missing.
+ *
+ * With a `host` it generates a certificate, unless the container already did.
+ * The marker file records that, and lives inside the container but outside
+ * `certDir`, which may be a volume: a restart finds the marker and its files
+ * and reuses its certificate, so anyone who trusted it keeps trusting it,
+ * while a new container has no marker and generates one for its host. The
+ * marker only says that this container generated a certificate, so it counts
+ * for nothing once any of the files is gone. Without a `host` it reuses the
+ * files in `certDir` and throws when any is missing.
  */
 export function prepareCertificates({
   certDir,
+  markerPath,
   host,
   generate,
   logger,
 }: {
   certDir: string;
+  markerPath: string;
   host: string | undefined;
   generate: (certDir: string, host: string) => void;
-  logger: Pick<AppLogger, "info">;
+  logger: Pick<AppLogger, "info" | "warn">;
 }): "generated" | "reused" {
-  if (host) {
-    logger.info(`Generating new self-signed SSL cert using ${host}...`);
-    generate(certDir, host);
-    return "generated";
-  }
-
   const missing = certificateFiles.filter(
     file => !fs.existsSync(path.join(certDir, file)),
   );
+
+  if (missing.length === 0 && fs.existsSync(markerPath)) {
+    logger.info(
+      "Reusing the self-signed certificate generated when this container first started.",
+    );
+    return "reused";
+  }
+
+  if (host) {
+    if (missing.length > 0 && fs.existsSync(markerPath)) {
+      logger.info(
+        `The certificate recorded for this container is missing ${missing.join(" ")}, so a new one is generated.`,
+      );
+    }
+    logger.info(`Generating new self-signed SSL cert using ${host}...`);
+    generate(certDir, host);
+    try {
+      fs.writeFileSync(markerPath, `${host}\n`);
+    } catch (error) {
+      logger.warn(
+        `Couldn't record the certificate at ${markerPath}, so a restart generates a new one: ${messageOf(error)}`,
+      );
+    }
+    return "generated";
+  }
+
   if (missing.length > 0) {
     throw new CertificateError(
       `Missing certificate files in ${certDir}: ${missing.join(" ")}\nPlease specify --env HOST=<hostname> during docker run command to create SSL cert.`,
@@ -180,21 +209,4 @@ export function prepareCertificates({
     "Found existing self-signed SSL certificate. Re-using existing cert.",
   );
   return "reused";
-}
-
-/**
- * Records that this container has started, so a restart keeps the
- * certificate this start set up. A start that can't record it still runs.
- */
-export function recordContainerStart(
-  markerPath: string,
-  logger: Pick<AppLogger, "warn">,
-): void {
-  try {
-    fs.writeFileSync(markerPath, "");
-  } catch (error) {
-    logger.warn(
-      `Couldn't record this container's start at ${markerPath}, so a restart generates a new certificate: ${messageOf(error)}`,
-    );
-  }
 }

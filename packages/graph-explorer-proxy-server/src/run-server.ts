@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-import fs from "fs";
 
 import packageJson from "../package.json" with { type: "json" };
 import { createApp } from "./app.ts";
@@ -7,15 +6,14 @@ import {
   CertificateError,
   generateCertificates,
   prepareCertificates,
-  recordContainerStart,
 } from "./certificates.ts";
 import { handleError } from "./error-handler.ts";
 import { createLogger } from "./logging.ts";
 import {
   certificateDir,
+  certificateMarkerPath,
   clientRoot,
-  configJsonPath,
-  containerStartMarkerPath,
+  configJsonPath as defaultConfigJsonPath,
 } from "./paths.ts";
 import {
   logStartupWarnings,
@@ -28,12 +26,18 @@ import { loadStartup, StartupError } from "./startup-config.ts";
 
 /**
  * Resolves the startup configuration and runs the server. With `image` set,
- * it starts as the Docker image's startup scripts did, setting up the
- * self-signed certificate before the server starts.
+ * HTTPS is on unless something turns it off, and a self-signed certificate is
+ * made ready before the server starts. `configJsonPath` defaults to the
+ * repository root's `config.json`, where the image keeps it.
  */
-export function runServer({ image }: { image: boolean }): void {
+export function runServer({
+  image,
+  configJsonPath = defaultConfigJsonPath,
+}: {
+  image: boolean;
+  configJsonPath?: string;
+}): void {
   const configPath = process.env.CONFIGURATION_FOLDER_PATH ?? clientRoot;
-  const startedBefore = image && fs.existsSync(containerStartMarkerPath);
   let loaded;
   try {
     loaded = loadStartup({
@@ -41,7 +45,6 @@ export function runServer({ image }: { image: boolean }): void {
       configPath,
       configJsonPath,
       image,
-      startedBefore,
     });
   } catch (error) {
     if (error instanceof StartupError) {
@@ -57,20 +60,21 @@ export function runServer({ image }: { image: boolean }): void {
 
   const logger = createLogger(env);
   logger.info("Parsed environment values: %o", env);
+  for (const message of startup.info) {
+    logger.info(message);
+  }
   for (const warning of startup.warnings) {
     logger.warn(warning);
   }
-  if (image) {
-    recordContainerStart(containerStartMarkerPath, logger);
-  }
-
   if (startup.httpsNotice) {
     logger.info(startup.httpsNotice);
   }
-  if (image && startup.setUpCertificates) {
+
+  if (image && env.PROXY_SERVER_HTTPS_CONNECTION) {
     try {
       prepareCertificates({
         certDir: certificateDir,
+        markerPath: certificateMarkerPath,
         host: startup.certificateHost,
         generate: generateCertificates,
         logger,

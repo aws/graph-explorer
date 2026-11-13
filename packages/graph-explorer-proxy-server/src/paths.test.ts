@@ -4,9 +4,9 @@ import { describe, expect, test, vi } from "vite-plus/test";
 
 import {
   certificateDir,
+  certificateMarkerPath,
   clientRoot,
   configJsonPath,
-  containerStartMarkerPath,
   isDirectory,
   isMissingFileError,
   proxyServerRoot,
@@ -25,9 +25,9 @@ test("configJsonPath is config.json at the repository root, where the image keep
   expect(configJsonPath).toBe(path.join(repoRoot, "config.json"));
 });
 
-test("keeps the container start marker outside cert-info, which may be a volume", () => {
+test("keeps the certificate marker outside cert-info, which may be a volume", () => {
   expect(
-    path.relative(certificateDir, containerStartMarkerPath).startsWith(".."),
+    path.relative(certificateDir, certificateMarkerPath).startsWith(".."),
   ).toBe(true);
 });
 
