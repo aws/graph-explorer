@@ -240,6 +240,16 @@ There are two common causes:
 
 Transient storage hiccups are retried automatically, so the indicator only appears for failures that could not be recovered.
 
+## Your Browser Asks About Persistent Storage
+
+Graph Explorer asks the browser to keep its data persistent, so the browser doesn't clear it on its own. Without that, a browser may delete a site's data when disk space runs low, and Safari deletes it after a week of use without a click, tap, or key press on the site. The request is made once per page load, the first time Graph Explorer saves anything or when you open the General settings page.
+
+- **Firefox** shows a prompt asking whether to let the site store data in persistent storage. Allow it to keep your data. Declining doesn't stop Graph Explorer from working.
+- **Chrome and Edge** decide on their own, based on how much you use the site, and never ask.
+- **Safari** grants it only to web apps added to the Home Screen.
+
+When the browser hasn't granted it, the General settings page shows a note under **Save configuration data**. Use [Save & Load Configuration](#save--load-configuration) to keep a copy of your data in a file.
+
 ## Gathering SageMaker Logs
 
 The Graph Explorer proxy server outputs log statements to standard out. By default, these logs will be forwarded to CloudWatch if the Notebook has the proper permissions.
