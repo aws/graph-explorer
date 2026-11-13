@@ -101,9 +101,26 @@ A test that deliberately abandons a request should await the cancellation before
 
 ## Proxy server: running the Docker entrypoint
 
-`createEntrypointWorkDir()` and `runEntrypoint()` in `packages/graph-explorer-proxy-server/src/testing.ts` run the real `docker-entrypoint.sh` in a temp directory. They stub `setup-ssl.sh`, which records that it ran and fails without `HOST`, and they replace the node start line with a node process that writes its environment to a file. `readServerEnvironment()` returns that environment, including the variables the entrypoint sets on the start line. `readServerParentPid()` returns that process's parent id, which equals the test's own `process.pid` when the entrypoint execs the server. `process-environment.sh` is a no-op stub unless the test copies the real script in.
+`createEntrypointWorkDir()` and `runEntrypoint()` in `packages/graph-explorer-proxy-server/src/testing.ts` run the real `docker-entrypoint.sh` in a temp directory. They stub `setup-ssl.sh`, which records that it ran and fails without `HOST`, they point the certificate folder at `./cert-info`, and they replace the node start line with a node process that writes its environment to a file. `readServerEnvironment()` returns that environment, including the variables the entrypoint sets on the start line. `readServerParentPid()` returns that process's parent id, which equals the test's own `process.pid` when the entrypoint execs the server. `process-environment.sh` is a no-op stub unless the test copies the real script in.
 
-`docker-entrypoint.test.ts` covers the entrypoint on its own. `config-pipeline.test.ts` runs each deployment scenario through the entrypoint, dotenv precedence, the Zod schema, and `resolveServerConfig`. Add a row to its table for a new deployment case. A row can set `readOnly` to mount the configuration folder or a file in it read-only, and expect `cannotWrite(file)`, a refusal that leaves the folder untouched.
+`docker-entrypoint.test.ts` covers the entrypoint on its own.
+
+### The deployment scenario table
+
+The table lives in `packages/graph-explorer-proxy-server/src/testing/deployment-scenarios.ts`. Each row is a way to run the image: `-e` flags, a `config.json`, a mounted `.env`, `.env.local`, or `defaultConnection.json`, certificates already in `cert-info`, a read-only mount, and an optional second start (`restart` or `new-container`). Its `expected` is what the start does, and every outcome says what the start left behind: the variables `.env` holds afterwards (the last line of a repeated name wins) and whether it generated certificates. The outcome is one of three:
+
+- `started`: a server that started, with every defined field of the parsed environment, the listener's protocol and port, what `GET /defaultConnection` returned, the warnings it logged, and the line it logged when it skipped certificate generation.
+- `refused`: the entrypoint exits with 1 before it starts the server, and prints exactly this text to stderr.
+- `serverFailed`: the entrypoint starts the server, which stops on this logged parse failure or server configuration error.
+
+A row with a second start expects a pair.
+
+- A row's `name` describes its inputs only, never its outcome, so it stays true when the outcome changes.
+- A comment directly above `expected` says why the outcome is what it is.
+- A row without a `.env` models an empty mounted configuration folder. The image's default configuration folder ships `packages/graph-explorer/.env`, which sets `SERVICE_TYPE`, a feedback URL, and a fetch timeout, so a row that models the default folder has to say so with `existingEnvFile`.
+- A row's inputs never change once it is added. Its `expected` changes only in the change that changes that behavior, which rewrites the comment to name what changed. So the table's diff shows exactly what a change moved.
+
+`config-pipeline.test.ts` runs every row through the real `docker-entrypoint.sh`, `process-environment.sh`, and `setup-ssl.sh`, with a fake `openssl` that records its calls and writes placeholder files, then through dotenv precedence, the Zod schema, `resolveServerConfig`, and `createApp`. A read-only row that refuses to write leaves the folder as mounted, so its `.env` is the one it mounted.
 
 ## Backward compatibility for persisted data
 
