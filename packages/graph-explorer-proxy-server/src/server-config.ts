@@ -5,7 +5,7 @@ import path from "path";
 import type { EnvironmentValues } from "./env.ts";
 import type { AppLogger } from "./logging.ts";
 
-import { clientRoot, proxyServerRoot } from "./paths.ts";
+import { certificateDir, clientRoot } from "./paths.ts";
 
 export class ServerConfigError extends Error {
   constructor(message: string) {
@@ -15,14 +15,8 @@ export class ServerConfigError extends Error {
 }
 
 export function resolveServerConfig(env: EnvironmentValues) {
-  const certificateKeyFilePath = path.join(
-    proxyServerRoot,
-    "cert-info/server.key",
-  );
-  const certificateFilePath = path.join(
-    proxyServerRoot,
-    "cert-info/server.crt",
-  );
+  const certificateKeyFilePath = path.join(certificateDir, "server.key");
+  const certificateFilePath = path.join(certificateDir, "server.crt");
 
   const useHttps = env.PROXY_SERVER_HTTPS_CONNECTION;
 
