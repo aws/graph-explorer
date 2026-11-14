@@ -27,9 +27,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+        with:
+          image: docker.io/tonistiigi/binfmt:qemu-v10.2.3@sha256:400a4873b838d1b89194d982c45e5fb3cda4593fbfd7e08a02e76b03b21166f0
+          platforms: arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        with:
+          driver-opts: image=moby/buildkit:v0.35.0@sha256:aa632b921ef07411d2cb77292cd34213d4f7b384001d6fceef1e1f25bf9752bb
+
       - name: Build Docker image
         run: |
-          docker build -t test-image .
+          docker buildx build --platform linux/amd64 --load -t test-image .
+
+      - name: Build arm64 Docker image
+        run: |
+          docker buildx build --platform linux/arm64 --load -t test-image-arm64 .
 
       - name: Scan Docker image for vulnerabilities
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
@@ -53,6 +68,15 @@ jobs:
             (command -v dnf && echo "FAIL: dnf found" && exit 1) || echo "✓ dnf removed"
           '
 
+      - name: Ensure the arm64 image is arm64
+        run: |
+          platform=$(docker image inspect --format '{{.Os}}/{{.Architecture}}' test-image-arm64)
+          [ "$platform" = "linux/arm64" ] || { echo "FAIL: test-image-arm64 is $platform"; exit 1; }
+          expected="v$(sed -n 's/^ENV NODE_VERSION=//p' Dockerfile) arm64"
+          actual=$(docker run --rm --platform linux/arm64 --entrypoint="" test-image-arm64 node -p 'process.version + " " + process.arch')
+          [ "$actual" = "$expected" ] || { echo "FAIL: arm64 image has node $actual, expected $expected"; exit 1; }
+          echo "✓ $platform, node $actual"
+
       - name: Verify server starts and responds
         run: |
           docker run -d --name test-server \
@@ -71,6 +95,32 @@ jobs:
             if [ "$i" -eq 30 ]; then
               echo "FAIL: Server did not respond within 30 seconds"
               docker logs test-server
+              exit 1
+            fi
+            sleep 1
+          done
+
+      # The arm64 server starts under emulation, so it gets longer to answer.
+      - name: Verify the arm64 server starts and responds
+        run: |
+          docker run -d --name test-server-arm64 --platform linux/arm64 \
+            -p 127.0.0.1:8082:80 \
+            -e PROXY_SERVER_HTTPS_CONNECTION=false \
+            test-image-arm64
+          trap 'docker rm -f test-server-arm64 2>/dev/null' EXIT
+
+          for i in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:8082/status; then
+              echo ""
+              echo "✓ arm64 server responded on /status"
+              ui_status=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8082/explorer/)
+              [ "$ui_status" = 200 ] || { echo "FAIL: arm64 server returned $ui_status for the UI at /explorer/"; exit 1; }
+              echo "✓ arm64 server served the UI at /explorer/"
+              break
+            fi
+            if [ "$i" -eq 60 ]; then
+              echo "FAIL: arm64 server did not respond within 60 seconds"
+              docker logs test-server-arm64
               exit 1
             fi
             sleep 1
