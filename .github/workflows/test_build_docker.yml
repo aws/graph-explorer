@@ -22,6 +22,9 @@ concurrency:
 jobs:
   test-build-docker-image:
     runs-on: ubuntu-latest
+    # A build that hangs under emulation would otherwise hold the runner for
+    # GitHub's 6-hour limit.
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
