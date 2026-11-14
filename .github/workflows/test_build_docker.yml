@@ -72,7 +72,7 @@ jobs:
         run: |
           platform=$(docker image inspect --format '{{.Os}}/{{.Architecture}}' test-image-arm64)
           [ "$platform" = "linux/arm64" ] || { echo "FAIL: test-image-arm64 is $platform"; exit 1; }
-          expected="v$(sed -n 's/^ENV NODE_VERSION=//p' Dockerfile) arm64"
+          expected="v$(sed -n 's/^ARG NODE_VERSION=//p' Dockerfile) arm64"
           actual=$(docker run --rm --platform linux/arm64 --entrypoint="" test-image-arm64 node -p 'process.version + " " + process.arch')
           [ "$actual" = "$expected" ] || { echo "FAIL: arm64 image has node $actual, expected $expected"; exit 1; }
           echo "✓ $platform, node $actual"

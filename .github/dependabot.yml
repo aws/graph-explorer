@@ -1,8 +1,9 @@
 version: 2
 updates:
-  # Only the `FROM` tag in Dockerfile is visible here. ENV NODE_VERSION and the
-  # corepack pin are not, and stay manual. Daily because a new Amazon Linux 2023
-  # snapshot is a single ungrouped dependency, so a run without one is a no-op.
+  # Only the `FROM` tags in Dockerfile are visible here. ARG NODE_VERSION and
+  # ARG COREPACK_VERSION are not, and stay manual. Daily because a new Amazon
+  # Linux 2023 snapshot is a single ungrouped dependency, so a run without one
+  # is a no-op.
   #
   # No `cooldown`: it needs a registry-assigned publication date, and Docker Hub's
   # tag_last_pushed is currently the only accepted source. ECR Public has none, so
