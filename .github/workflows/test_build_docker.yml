@@ -109,7 +109,17 @@ jobs:
                   return 1
                 fi
                 echo "✓ $name served the UI at /explorer/"
-                if ! docker logs "$name" 2>&1 | grep -Eq "Proxy server listening on (\[::\]|0\.0\.0\.0):$container_port([^0-9]|$)"; then
+                # The logger writes from a worker thread, so under emulation
+                # the line can land after the server already answers.
+                listening=false
+                for j in $(seq 1 10); do
+                  if docker logs "$name" 2>&1 | grep -Eq "Proxy server listening on (\[::\]|0\.0\.0\.0):$container_port([^0-9]|$)"; then
+                    listening=true
+                    break
+                  fi
+                  sleep 1
+                done
+                if [ "$listening" != true ]; then
                   echo "FAIL: $name did not log listening on every interface on port $container_port"
                   docker logs "$name"
                   docker rm -f "$name" >/dev/null
