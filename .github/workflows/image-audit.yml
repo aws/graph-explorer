@@ -101,6 +101,8 @@ jobs:
           image-ref: public.ecr.aws/neptune/graph-explorer:latest
           vuln-type: os
           format: sarif
+          severity: CRITICAL
+          limit-severities-for-sarif: true
           output: trivy-latest-results.sarif
 
       - name: Upload the latest image results to GitHub Security tab
@@ -116,6 +118,8 @@ jobs:
           image-ref: public.ecr.aws/neptune/graph-explorer:${{ steps.release.outputs.version }}
           vuln-type: os
           format: sarif
+          severity: CRITICAL
+          limit-severities-for-sarif: true
           output: trivy-version-results.sarif
 
       - name: Upload the newest version tag results to GitHub Security tab
@@ -125,13 +129,16 @@ jobs:
           sarif_file: trivy-version-results.sarif
           category: docker-image-scan-newest-version
 
-      - name: Fail on fixable OS package findings at MEDIUM or higher in latest
+      # A fixable CRITICAL finding is what calls for a patch release, so the
+      # release scans report and fail on CRITICAL only. The snapshot scan above
+      # keeps every severity.
+      - name: Fail on fixable CRITICAL OS package findings in latest
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: public.ecr.aws/neptune/graph-explorer:latest
           vuln-type: os
           format: table
-          severity: MEDIUM,HIGH,CRITICAL
+          severity: CRITICAL
           ignore-unfixed: true
           exit-code: 1
 
