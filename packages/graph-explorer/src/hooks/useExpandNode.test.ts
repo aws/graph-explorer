@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 
 import { act, waitFor } from "@testing-library/react";
+import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 import {
@@ -337,6 +338,64 @@ describe("useExpandNode", () => {
           limit: 10,
         }),
       );
+    });
+
+    it("should show filter-specific message when single expand returns no neighbors with attributeFilters", async () => {
+      const vertex = createTestableVertex();
+      dbState.addTestableVertexToGraph(vertex);
+      const { result } = renderHookExpandNode();
+
+      act(() => {
+        result.current.expandNode({
+          vertexId: vertex.id,
+          attributeFilters: [{ name: "age", operator: "EQUALS", value: 99 }],
+        });
+      });
+
+      await waitFor(() => {
+        expect(result.current.isPending).toBe(false);
+      });
+
+      expect(toast.info).toHaveBeenCalledWith("No neighbors matched your filters");
+    });
+
+    it("should show no more neighbors message when single expand returns no neighbors without attributeFilters", async () => {
+      const vertex = createTestableVertex();
+      dbState.addTestableVertexToGraph(vertex);
+      const { result } = renderHookExpandNode();
+
+      act(() => {
+        result.current.expandNode({
+          vertexId: vertex.id,
+        });
+      });
+
+      await waitFor(() => {
+        expect(result.current.isPending).toBe(false);
+      });
+
+      expect(toast.info).toHaveBeenCalledWith("No more neighbors to expand");
+    });
+
+    it("should show filter-specific message when multi expand returns no neighbors with attributeFilters", async () => {
+      const vertex1 = createTestableVertex();
+      const vertex2 = createTestableVertex();
+      dbState.addTestableVertexToGraph(vertex1);
+      dbState.addTestableVertexToGraph(vertex2);
+      const { result } = renderHookExpandNode();
+
+      act(() => {
+        result.current.expandNodes({
+          vertexIds: [vertex1.id, vertex2.id],
+          attributeFilters: [{ name: "status", operator: "EQUALS", value: "inactive" }],
+        });
+      });
+
+      await waitFor(() => {
+        expect(result.current.isPending).toBe(false);
+      });
+
+      expect(toast.info).toHaveBeenCalledWith("No neighbors matched your filters");
     });
   });
 });
