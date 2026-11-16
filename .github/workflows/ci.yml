@@ -5,16 +5,18 @@ on:
   push:
     branches:
       - main
+      - "[0-9]*.[0-9]*.x"
   pull_request:
     branches:
       - main
+      - "[0-9]*.[0-9]*.x"
 
 permissions:
   contents: read
 
 concurrency:
-  # Pull request runs replace each other. A run on main isn't cancelled once
-  # it starts.
+  # Pull request runs replace each other. A push run on main or a release
+  # branch isn't cancelled once it starts.
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
