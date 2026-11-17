@@ -12,6 +12,7 @@ node_modules
 .claude
 .kiro
 .zed
+scripts
 
 # Ignore documentation related files
 docs
