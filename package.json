@@ -15,7 +15,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check:types": "pnpm -r --include-workspace-root --parallel --stream run typecheck",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p scripts && tsc --noEmit -p .github/scripts",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p scripts",
     "checks": "pnpm run check:lint && pnpm run check:format && pnpm run check:types",
     "start": "pnpm --filter \"graph-explorer-proxy-server\" run start",
     "clean": "pnpm --stream -r run clean",

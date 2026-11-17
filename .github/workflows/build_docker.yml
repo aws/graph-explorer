@@ -54,7 +54,7 @@ jobs:
       - name: Check the release and choose its tags
         id: release
         if: ${{ env.IS_RELEASE == 'true' }}
-        run: node .github/scripts/releaseImage.ts plan
+        run: node scripts/releaseImage.ts plan
 
       - name: Get image tags
         id: get-image-tags
@@ -102,4 +102,4 @@ jobs:
           TAGS: ${{ steps.get-image-tags.outputs.tags }}
         run: |
           read -ra tags <<< "$TAGS"
-          node .github/scripts/releaseImage.ts verify "${tags[@]}"
+          node scripts/releaseImage.ts verify "${tags[@]}"
