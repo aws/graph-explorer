@@ -100,7 +100,7 @@ jobs:
             image=$1 name=$2 host_port=$3 container_port=$4 scheme=$5
             shift 5
             docker run -d --name "$name" -p "127.0.0.1:$host_port:$container_port" "$@" "$image"
-            for i in $(seq 1 60); do
+            for _ in $(seq 1 60); do
               if curl -sfk "$scheme://127.0.0.1:$host_port/status"; then
                 echo ""
                 echo "✓ $name responded on /status"
@@ -115,7 +115,7 @@ jobs:
                 # The logger writes from a worker thread, so under emulation
                 # the line can land after the server already answers.
                 listening=false
-                for j in $(seq 1 10); do
+                for _ in $(seq 1 10); do
                   if docker logs "$name" 2>&1 | grep -Eq "Proxy server listening on (\[::\]|0\.0\.0\.0):$container_port([^0-9]|$)"; then
                     listening=true
                     break
@@ -149,7 +149,7 @@ jobs:
       - name: Verify the server listens on every interface without the entrypoint
         run: |
           docker run -d --name no-entrypoint -p 127.0.0.1:8081:80 --entrypoint node -w /graph-explorer/packages/graph-explorer-proxy-server test-image src/node-server.ts
-          for i in $(seq 1 30); do
+          for _ in $(seq 1 30); do
             if curl -sf http://127.0.0.1:8081/status; then
               echo ""
               echo "✓ server started without the entrypoint responded on /status"
