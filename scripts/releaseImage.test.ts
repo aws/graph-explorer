@@ -322,18 +322,27 @@ describe("registry reads", () => {
 
   it("waits out throttling and asks again", async () => {
     vi.useFakeTimers();
+    const tagListUrl =
+      "https://public.ecr.aws/v2/neptune/graph-explorer/tags/list?n=1000";
     const statuses = [429, 429, 200];
-    stubRegistry({
+    const fetchMock = stubRegistry({
       ...tokenRoute,
-      "https://public.ecr.aws/v2/neptune/graph-explorer/tags/list?n=1000": () =>
+      [tagListUrl]: () =>
         Response.json({ tags: ["3.3.2"] }, { status: statuses.shift() }),
     });
+    function tagListCalls() {
+      return fetchMock.mock.calls.filter(([url]) => url === tagListUrl).length;
+    }
 
     const tags = fetchPublishedTags(image);
+    await vi.advanceTimersByTimeAsync(999);
+    expect(tagListCalls()).toBe(1);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(tagListCalls()).toBe(2);
     await vi.runAllTimersAsync();
 
     await expect(tags).resolves.toStrictEqual(["3.3.2"]);
-    expect(statuses).toStrictEqual([]);
+    expect(tagListCalls()).toBe(3);
   });
 
   it("gives up when throttling lasts", async () => {
