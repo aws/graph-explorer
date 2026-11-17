@@ -7,6 +7,11 @@ updates:
   # vite-plus, so its tag can differ from the catalog version and Dependabot
   # bumps each on its own.
   #
+  # The `tonistiigi/binfmt` and `moby/buildkit` digests in the setup steps of
+  # `build_docker.yml` and `test_build_docker.yml` are not Dockerfile lines, so
+  # bump them by hand when Dependabot updates `docker/setup-qemu-action` or
+  # `docker/setup-buildx-action`.
+  #
   # No `cooldown`: it needs a registry-assigned publication date, and Docker Hub's
   # tag_last_pushed is currently the only accepted source. ECR Public and GHCR,
   # which hosts the Vite+ image, have none, so any cooldown here would be
