@@ -3,8 +3,8 @@
  * them afterwards. It has no dependencies, so the workflow runs it with plain
  * Node and no install.
  *
- *   node .github/scripts/releaseImage.ts plan
- *   node .github/scripts/releaseImage.ts verify <tag>...
+ *   node scripts/releaseImage.ts plan
+ *   node scripts/releaseImage.ts verify <tag>...
  */
 import { appendFileSync, readFileSync } from "node:fs";
 
