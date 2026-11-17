@@ -7,6 +7,7 @@
  *   IMAGE=<registry>/<repository> node scripts/releaseImage.ts verify <tag>...
  */
 import { appendFileSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 
 /**
  * An image reference without a tag, such as
@@ -164,16 +165,12 @@ async function anonymousAuth(
   registry: string,
 ): Promise<{ Authorization: string }> {
   const response = await request(`${registry}/token/`, {});
-  const body: unknown = await response.json();
-  if (
-    typeof body !== "object" ||
-    body === null ||
-    !("token" in body) ||
-    typeof body.token !== "string"
-  ) {
-    throw new Error("The registry returned no anonymous token.");
-  }
-  return { Authorization: `Bearer ${body.token}` };
+  const token = stringField(
+    await response.json(),
+    "token",
+    "The registry returned no anonymous token.",
+  );
+  return { Authorization: `Bearer ${token}` };
 }
 
 const throttleRetryDelaysMs = [1000, 2000, 4000, 8000];
@@ -219,16 +216,24 @@ function nextPage(link: string | null, registry: string): string | null {
 }
 
 function readPackageVersion(): string {
-  const body: unknown = JSON.parse(readFileSync("package.json", "utf8"));
-  if (
-    typeof body !== "object" ||
-    body === null ||
-    !("version" in body) ||
-    typeof body.version !== "string"
-  ) {
-    throw new Error("package.json has no version.");
+  const path = join(import.meta.dirname, "..", "package.json");
+  return stringField(
+    JSON.parse(readFileSync(path, "utf8")),
+    "version",
+    "package.json has no version.",
+  );
+}
+
+/** The string at `body[key]`, or throws `message` when there isn't one. */
+function stringField(body: unknown, key: string, message: string): string {
+  const value: unknown =
+    typeof body === "object" && body !== null
+      ? Reflect.get(body, key)
+      : undefined;
+  if (typeof value === "string") {
+    return value;
   }
-  return body.version;
+  throw new Error(message);
 }
 
 function writeOutput(name: string, value: string): void {
