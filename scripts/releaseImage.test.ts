@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, type Mock, vi } from "vitest";
 
 import {
   checkOneDigest,
@@ -105,7 +105,9 @@ describe("planRelease", () => {
         publishedTags,
       }),
     ).toThrow(
-      "Release runs must start from the tag v3.4.0, but this run is on refs/heads/main.",
+      new Error(
+        "Release runs must start from the tag v3.4.0, but this run is on refs/heads/main.",
+      ),
     );
   });
 
@@ -117,7 +119,9 @@ describe("planRelease", () => {
         publishedTags,
       }),
     ).toThrow(
-      "Release runs must start from the tag v3.4.0, but this run is on refs/tags/v3.4.1.",
+      new Error(
+        "Release runs must start from the tag v3.4.0, but this run is on refs/tags/v3.4.1.",
+      ),
     );
   });
 
@@ -128,7 +132,7 @@ describe("planRelease", () => {
         version: "3.3.2",
         publishedTags: ["latest", "3.3.2"],
       }),
-    ).toThrow("3.3.2 is already published.");
+    ).toThrow(new Error("3.3.2 is already published."));
   });
 
   it("fails when only the sagemaker tag of the version is published", () => {
@@ -138,7 +142,7 @@ describe("planRelease", () => {
         version: "3.5.0",
         publishedTags: ["sagemaker-3.5.0"],
       }),
-    ).toThrow("sagemaker-3.5.0 is already published.");
+    ).toThrow(new Error("sagemaker-3.5.0 is already published."));
   });
 
   it.each(["3.4.0-beta.1", "3.4", "v3.4.0", "03.4.0", "3.4.0.1", ""])(
@@ -146,7 +150,9 @@ describe("planRelease", () => {
     version => {
       expect(() =>
         planRelease({ ref: `refs/tags/v${version}`, version, publishedTags }),
-      ).toThrow(`The package.json version "${version}" is not X.Y.Z.`);
+      ).toThrow(
+        new Error(`The package.json version "${version}" is not X.Y.Z.`),
+      );
     },
   );
 });
@@ -172,7 +178,9 @@ describe("checkOneDigest", () => {
         ]),
       ),
     ).toThrow(
-      "The pushed tags point to more than one image: 3.4.0 sha256:aaa, latest sha256:bbb.",
+      new Error(
+        "The pushed tags point to more than one image: 3.4.0 sha256:aaa, latest sha256:bbb.",
+      ),
     );
   });
 
@@ -184,7 +192,7 @@ describe("checkOneDigest", () => {
           ["sagemaker-3.4.0", null],
         ]),
       ),
-    ).toThrow("sagemaker-3.4.0 is not in the registry.");
+    ).toThrow(new Error("sagemaker-3.4.0 is not in the registry."));
   });
 });
 
@@ -204,7 +212,9 @@ describe("parseImage", () => {
     "public.ecr.aws/neptune/graph-explorer:latest",
   ])("rejects %j", value => {
     expect(() => parseImage(value)).toThrow(
-      "IMAGE must be <registry>/<repository> with no tag",
+      new Error(
+        `IMAGE must be <registry>/<repository> with no tag, but it is "${value}".`,
+      ),
     );
   });
 });
@@ -214,9 +224,7 @@ describe("registry reads", () => {
     vi.useRealTimers();
   });
 
-  function stubRegistry(
-    routes: Record<string, () => Response>,
-  ): ReturnType<typeof vi.fn> {
+  function stubRegistry(routes: Record<string, () => Response>): Mock {
     const fetchMock = vi.fn((input: string | URL) => {
       const url = String(input);
       const route = routes[url];
@@ -264,7 +272,7 @@ describe("registry reads", () => {
     });
 
     await expect(fetchPublishedTags(image)).rejects.toThrow(
-      "The registry returned a tag list without a list of tags.",
+      new Error("The registry returned a tag list without a list of tags."),
     );
   });
 
@@ -276,7 +284,9 @@ describe("registry reads", () => {
     });
 
     await expect(fetchPublishedTags(image)).rejects.toThrow(
-      "GET https://public.ecr.aws/v2/neptune/graph-explorer/tags/list?n=1000 returned 503.",
+      new Error(
+        "GET https://public.ecr.aws/v2/neptune/graph-explorer/tags/list?n=1000 returned 503.",
+      ),
     );
   });
 
@@ -316,7 +326,9 @@ describe("registry reads", () => {
     });
 
     await expect(fetchDigests(image, ["latest"])).rejects.toThrow(
-      "HEAD https://public.ecr.aws/v2/neptune/graph-explorer/manifests/latest returned 500.",
+      new Error(
+        "HEAD https://public.ecr.aws/v2/neptune/graph-explorer/manifests/latest returned 500.",
+      ),
     );
   });
 
