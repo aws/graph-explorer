@@ -3,13 +3,31 @@
  * them afterwards. It has no dependencies, so the workflow runs it with plain
  * Node and no install.
  *
- *   node scripts/releaseImage.ts plan
- *   node scripts/releaseImage.ts verify <tag>...
+ *   IMAGE=<registry>/<repository> node scripts/releaseImage.ts plan
+ *   IMAGE=<registry>/<repository> node scripts/releaseImage.ts verify <tag>...
  */
 import { appendFileSync, readFileSync } from "node:fs";
 
-const registry = "https://public.ecr.aws";
-const repository = "neptune/graph-explorer";
+/**
+ * An image reference without a tag, such as
+ * `public.ecr.aws/neptune/graph-explorer`, split into the registry's base URL
+ * and the repository path.
+ */
+export function parseImage(image: string): {
+  registry: string;
+  repository: string;
+} {
+  const slash = image.indexOf("/");
+  if (slash <= 0 || slash === image.length - 1 || image.includes(":")) {
+    throw new Error(
+      `IMAGE must be <registry>/<repository> with no tag, but it is "${image}".`,
+    );
+  }
+  return {
+    registry: `https://${image.slice(0, slash)}`,
+    repository: image.slice(slash + 1),
+  };
+}
 
 /**
  * Checks a release's inputs and returns the tags to push, in push order.
@@ -93,15 +111,16 @@ export function checkOneDigest(
 }
 
 /** Every tag in the public repository, read anonymously. */
-export async function fetchPublishedTags(): Promise<string[]> {
-  const headers = await anonymousAuth();
+export async function fetchPublishedTags(image: string): Promise<string[]> {
+  const { registry, repository } = parseImage(image);
+  const headers = await anonymousAuth(registry);
   const tags: string[] = [];
   let url: string | null = `${registry}/v2/${repository}/tags/list?n=1000`;
   while (url) {
     const response = await request(url, { headers });
     const body: unknown = await response.json();
     tags.push(...parseTagList(body));
-    url = nextPage(response.headers.get("Link"));
+    url = nextPage(response.headers.get("Link"), registry);
   }
   return tags;
 }
@@ -111,10 +130,12 @@ export async function fetchPublishedTags(): Promise<string[]> {
  * one tag at a time, since the registry throttles bursts of anonymous reads.
  */
 export async function fetchDigests(
+  image: string,
   tags: readonly string[],
 ): Promise<Map<string, string | null>> {
+  const { registry, repository } = parseImage(image);
   const headers = {
-    ...(await anonymousAuth()),
+    ...(await anonymousAuth(registry)),
     Accept: [
       "application/vnd.oci.image.index.v1+json",
       "application/vnd.oci.image.manifest.v1+json",
@@ -139,7 +160,9 @@ export async function fetchDigests(
   return digests;
 }
 
-async function anonymousAuth(): Promise<{ Authorization: string }> {
+async function anonymousAuth(
+  registry: string,
+): Promise<{ Authorization: string }> {
   const response = await request(`${registry}/token/`, {});
   const body: unknown = await response.json();
   if (
@@ -190,7 +213,7 @@ function parseTagList(body: unknown): string[] {
   throw new Error("The registry returned a tag list without a list of tags.");
 }
 
-function nextPage(link: string | null): string | null {
+function nextPage(link: string | null, registry: string): string | null {
   const match = link?.match(/<([^>]+)>;\s*rel="next"/);
   return match ? new URL(match[1], registry).href : null;
 }
@@ -217,6 +240,10 @@ function writeOutput(name: string, value: string): void {
 }
 
 async function main([command, ...args]: string[]): Promise<void> {
+  const image = process.env.IMAGE;
+  if (!image) {
+    throw new Error("IMAGE is not set.");
+  }
   if (command === "plan") {
     const ref = process.env.GITHUB_REF;
     if (!ref) {
@@ -225,13 +252,13 @@ async function main([command, ...args]: string[]): Promise<void> {
     const tags = planRelease({
       ref,
       version: readPackageVersion(),
-      publishedTags: await fetchPublishedTags(),
+      publishedTags: await fetchPublishedTags(image),
     });
     writeOutput("tags", tags.join(" "));
     return;
   }
   if (command === "verify" && args.length > 0) {
-    const digest = checkOneDigest(await fetchDigests(args));
+    const digest = checkOneDigest(await fetchDigests(image, args));
     process.stdout.write(`${args.join(", ")} all point to ${digest}\n`);
     return;
   }
