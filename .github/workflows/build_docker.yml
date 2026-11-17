@@ -87,13 +87,12 @@ jobs:
         env:
           IMAGE: ${{ steps.login-ecr-public.outputs.registry }}/neptune/graph-explorer
           TAGS: ${{ steps.get-image-tags.outputs.tags }}
-        # TAGS is a space-separated list, split on purpose.
+        # TAGS is a space-separated list.
         run: |
-          # shellcheck disable=SC2086
-          set -- $TAGS
-          docker build -t "$IMAGE:$1" .
-          for tag in "$@"; do
-            docker tag "$IMAGE:$1" "$IMAGE:$tag"
+          read -ra tags <<< "$TAGS"
+          docker build -t "$IMAGE:${tags[0]}" .
+          for tag in "${tags[@]}"; do
+            docker tag "$IMAGE:${tags[0]}" "$IMAGE:$tag"
             docker push "$IMAGE:$tag"
           done
 
@@ -102,5 +101,5 @@ jobs:
         env:
           TAGS: ${{ steps.get-image-tags.outputs.tags }}
         run: |
-          # shellcheck disable=SC2086
-          node .github/scripts/releaseImage.ts verify $TAGS
+          read -ra tags <<< "$TAGS"
+          node .github/scripts/releaseImage.ts verify "${tags[@]}"
