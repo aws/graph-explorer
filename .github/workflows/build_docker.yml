@@ -6,7 +6,9 @@ name: Build Docker image and publish to ECR
 #   gh workflow run build_docker.yml --ref v<version> -f image_tag=release
 #
 # The release check fails the run unless the tag matches package.json and the
-# version is new, and it moves latest only for the highest version.
+# version is new, and it moves latest only for the highest version. Start one
+# release at a time: two runs started together can both pass the check before
+# either pushes.
 
 on:
   workflow_dispatch:
@@ -58,17 +60,6 @@ jobs:
         if: ${{ env.IS_RELEASE == 'true' }}
         run: node scripts/releaseImage.ts plan
 
-      - name: Get image tags
-        id: get-image-tags
-        env:
-          RELEASE_TAGS: ${{ steps.release.outputs.tags }}
-        run: |
-          if [ "$IS_RELEASE" = "true" ]; then
-            echo "tags=$RELEASE_TAGS" >> "$GITHUB_OUTPUT"
-          else
-            echo "tags=latest-SNAPSHOT sagemaker-latest-SNAPSHOT" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
@@ -87,7 +78,8 @@ jobs:
 
       - name: Build, tag, and push Docker image
         env:
-          TAGS: ${{ steps.get-image-tags.outputs.tags }}
+          # Snapshot runs skip the plan, so they push the snapshot tags.
+          TAGS: ${{ steps.release.outputs.tags || 'latest-SNAPSHOT sagemaker-latest-SNAPSHOT' }}
         # TAGS is a space-separated list.
         run: |
           read -ra tags <<< "$TAGS"
@@ -100,7 +92,7 @@ jobs:
       - name: Check every pushed tag points to one image
         if: ${{ env.IS_RELEASE == 'true' }}
         env:
-          TAGS: ${{ steps.get-image-tags.outputs.tags }}
+          TAGS: ${{ steps.release.outputs.tags }}
         run: |
           read -ra tags <<< "$TAGS"
           node scripts/releaseImage.ts verify "${tags[@]}"
