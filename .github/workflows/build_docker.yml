@@ -35,7 +35,7 @@ concurrency:
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
       IS_RELEASE: ${{ github.event_name == 'workflow_dispatch' && inputs.image_tag == 'release' }}
 
