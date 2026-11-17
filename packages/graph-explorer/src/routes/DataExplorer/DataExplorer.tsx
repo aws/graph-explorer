@@ -84,7 +84,7 @@ export default function DataExplorer() {
     }
     const firstConfig = [...vtConfigs.values()][0];
     if (firstConfig) {
-      navigate(`/data-explorer/${encodeURIComponent(firstConfig.type)}`, {
+      void navigate(`/data-explorer/${encodeURIComponent(firstConfig.type)}`, {
         replace: true,
       });
     }
@@ -142,7 +142,7 @@ function DataExplorerContent({ vertexType }: { vertexType: VertexType }) {
   }));
 
   const onVertexTypeChange = (newType: string) => {
-    navigate(`/data-explorer/${encodeURIComponent(newType)}`, {
+    void navigate(`/data-explorer/${encodeURIComponent(newType)}`, {
       replace: true,
     });
   };

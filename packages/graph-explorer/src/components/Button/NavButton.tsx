@@ -24,7 +24,7 @@ function NavButton({ to, navOptions, ...props }: NavButtonProps) {
   const navigate = useNavigate();
 
   function handleClick() {
-    navigate(to, navOptions);
+    void navigate(to, navOptions);
   }
 
   return <Button {...props} onClick={handleClick} />;

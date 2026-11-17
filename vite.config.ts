@@ -82,7 +82,7 @@ export default defineConfig({
       "jest/require-to-throw-message": "off",
       "jest/valid-expect": "off",
       "typescript/unbound-method": "off",
-      "typescript/no-floating-promises": "off",
+      "typescript/no-floating-promises": "error",
       "no-unused-vars": [
         "error",
         {
