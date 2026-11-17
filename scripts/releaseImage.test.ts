@@ -4,8 +4,11 @@ import {
   checkOneDigest,
   fetchDigests,
   fetchPublishedTags,
+  parseImage,
   planRelease,
 } from "./releaseImage.ts";
+
+const image = "public.ecr.aws/neptune/graph-explorer";
 
 const publishedTags = [
   "latest",
@@ -185,6 +188,27 @@ describe("checkOneDigest", () => {
   });
 });
 
+describe("parseImage", () => {
+  it("splits an image into the registry URL and repository", () => {
+    expect(parseImage(image)).toStrictEqual({
+      registry: "https://public.ecr.aws",
+      repository: "neptune/graph-explorer",
+    });
+  });
+
+  it.each([
+    "",
+    "graph-explorer",
+    "public.ecr.aws/",
+    "/neptune/graph-explorer",
+    "public.ecr.aws/neptune/graph-explorer:latest",
+  ])("rejects %j", value => {
+    expect(() => parseImage(value)).toThrow(
+      "IMAGE must be <registry>/<repository> with no tag",
+    );
+  });
+});
+
 describe("registry reads", () => {
   afterEach(() => {
     vi.useRealTimers();
@@ -225,7 +249,7 @@ describe("registry reads", () => {
         () => Response.json({ tags: ["sagemaker-3.3.2"] }),
     });
 
-    await expect(fetchPublishedTags()).resolves.toStrictEqual([
+    await expect(fetchPublishedTags(image)).resolves.toStrictEqual([
       "3.3.2",
       "latest",
       "sagemaker-3.3.2",
@@ -239,7 +263,7 @@ describe("registry reads", () => {
         Response.json({ tags: [3] }),
     });
 
-    await expect(fetchPublishedTags()).rejects.toThrow(
+    await expect(fetchPublishedTags(image)).rejects.toThrow(
       "The registry returned a tag list without a list of tags.",
     );
   });
@@ -251,7 +275,7 @@ describe("registry reads", () => {
         new Response("busy", { status: 503 }),
     });
 
-    await expect(fetchPublishedTags()).rejects.toThrow(
+    await expect(fetchPublishedTags(image)).rejects.toThrow(
       "GET https://public.ecr.aws/v2/neptune/graph-explorer/tags/list?n=1000 returned 503.",
     );
   });
@@ -267,7 +291,9 @@ describe("registry reads", () => {
         new Response(null, { status: 404 }),
     });
 
-    await expect(fetchDigests(["3.3.2", "3.3.3"])).resolves.toStrictEqual(
+    await expect(
+      fetchDigests(image, ["3.3.2", "3.3.3"]),
+    ).resolves.toStrictEqual(
       new Map([
         ["3.3.2", "sha256:aaa"],
         ["3.3.3", null],
@@ -289,7 +315,7 @@ describe("registry reads", () => {
         new Response(null, { status: 500 }),
     });
 
-    await expect(fetchDigests(["latest"])).rejects.toThrow(
+    await expect(fetchDigests(image, ["latest"])).rejects.toThrow(
       "HEAD https://public.ecr.aws/v2/neptune/graph-explorer/manifests/latest returned 500.",
     );
   });
@@ -303,7 +329,7 @@ describe("registry reads", () => {
         Response.json({ tags: ["3.3.2"] }, { status: statuses.shift() }),
     });
 
-    const tags = fetchPublishedTags();
+    const tags = fetchPublishedTags(image);
     await vi.runAllTimersAsync();
 
     await expect(tags).resolves.toStrictEqual(["3.3.2"]);
@@ -318,7 +344,7 @@ describe("registry reads", () => {
         new Response(null, { status: 429 }),
     });
 
-    const failure = fetchPublishedTags().catch((error: unknown) => error);
+    const failure = fetchPublishedTags(image).catch((error: unknown) => error);
     await vi.runAllTimersAsync();
 
     expect(await failure).toStrictEqual(

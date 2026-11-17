@@ -38,6 +38,8 @@ jobs:
     timeout-minutes: 20
     env:
       IS_RELEASE: ${{ github.event_name == 'workflow_dispatch' && inputs.image_tag == 'release' }}
+      # Where every step pushes and reads, including scripts/releaseImage.ts.
+      IMAGE: public.ecr.aws/neptune/graph-explorer
 
     steps:
       - name: Checkout
@@ -85,7 +87,6 @@ jobs:
 
       - name: Build, tag, and push Docker image
         env:
-          IMAGE: ${{ steps.login-ecr-public.outputs.registry }}/neptune/graph-explorer
           TAGS: ${{ steps.get-image-tags.outputs.tags }}
         # TAGS is a space-separated list.
         run: |
