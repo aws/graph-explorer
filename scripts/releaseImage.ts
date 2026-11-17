@@ -31,7 +31,7 @@ export function parseImage(image: string): {
 }
 
 /**
- * Checks a release's inputs and returns the tags to push, in push order.
+ * Checks a release's inputs and returns the tags to push.
  * Throws when the run must not publish.
  */
 export function planRelease({
