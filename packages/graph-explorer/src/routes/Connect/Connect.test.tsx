@@ -37,7 +37,7 @@ function GoBack() {
     <button
       type="button"
       onClick={() => {
-        navigate(-1);
+        void navigate(-1);
       }}
     >
       go back
@@ -52,7 +52,7 @@ function OpenLink({ search }: { search: string }) {
     <button
       type="button"
       onClick={() => {
-        navigate(`/connect${search}`);
+        void navigate(`/connect${search}`);
       }}
     >
       open next link

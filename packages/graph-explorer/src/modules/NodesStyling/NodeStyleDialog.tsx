@@ -230,7 +230,7 @@ function Content({ vertexType }: { vertexType: VertexType }) {
                     accept="image/*"
                     onChange={file => {
                       if (file) {
-                        convertImageToBase64AndSetNewIcon(file);
+                        void convertImageToBase64AndSetNewIcon(file);
                       }
                     }}
                     variant="outline"

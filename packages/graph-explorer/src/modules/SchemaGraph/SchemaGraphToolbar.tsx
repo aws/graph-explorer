@@ -56,7 +56,7 @@ function SchemaRefreshButton() {
 
   const handleRefresh = () => {
     logger.log("Schema graph: refresh schema requested");
-    refreshSchema();
+    void refreshSchema();
   };
 
   return (
