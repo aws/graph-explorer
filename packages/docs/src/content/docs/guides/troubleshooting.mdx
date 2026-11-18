@@ -38,7 +38,7 @@ docker run -p 127.0.0.1:80:80 \
   public.ecr.aws/neptune/graph-explorer
 ```
 
-When the reverse proxy runs on another host, limit port `80` to it with network rules you provide. Plain HTTP that other machines can reach isn't supported. See [Serving HTTP Behind a Reverse Proxy](../../references/security/#serving-http-behind-a-reverse-proxy).
+When the reverse proxy runs on another host, limit port `80` to it with network rules you provide. Plain HTTP that other machines can reach isn't supported, including machines on an internal network or a VPN. See [Serving HTTP Behind a Reverse Proxy](../../references/security/#serving-http-behind-a-reverse-proxy).
 
 ### HTTPS Connections
 
