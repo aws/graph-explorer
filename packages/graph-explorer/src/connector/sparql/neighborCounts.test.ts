@@ -353,6 +353,70 @@ describe("neighborCounts", () => {
       neighborCounts(mockFetch, { vertexIds: [vertex.id] }, blankNodes),
     ).rejects.toThrow(new Error("Network error"));
   });
+
+  it("emits the exact query text for the neighbor counts requests", async () => {
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValue({ head: { vars: [] }, results: { bindings: [] } });
+
+    await neighborCounts(
+      mockFetch,
+      {
+        vertexIds: [
+          createVertexId("http://e/v1"),
+          createVertexId("http://e/v2"),
+        ],
+      },
+      new Map(),
+    );
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      [
+        "# Count total unique neighbors which are related with the given subject URI",
+        "SELECT ?resource (COUNT(DISTINCT ?neighbor) AS ?totalCount)",
+        "WHERE {",
+        "  VALUES ?resource {",
+        "    <http://e/v1>",
+        "    <http://e/v2>",
+        "  }",
+        "  {",
+        "    ?resource ?predicate ?neighbor .",
+        "    FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)",
+        "  }",
+        "  UNION",
+        "  {",
+        "    ?neighbor ?predicate ?resource .",
+        "    FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)",
+        "  }",
+        "}",
+        "GROUP BY ?resource",
+      ].join("\n"),
+    );
+    expect(mockFetch).toHaveBeenCalledWith(
+      [
+        "# Count neighbors by class which are related with the given subject URI",
+        "SELECT ?resource ?type (COUNT(DISTINCT ?neighbor) AS ?typeCount)",
+        "WHERE {",
+        "  VALUES ?resource {",
+        "    <http://e/v1>",
+        "    <http://e/v2>",
+        "  }",
+        "  {",
+        "    ?resource ?predicate ?neighbor .",
+        "    OPTIONAL { ?neighbor a ?type } .",
+        "    FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)",
+        "  }",
+        "  UNION",
+        "  {",
+        "    ?neighbor ?predicate ?resource .",
+        "    OPTIONAL { ?neighbor a ?type } .",
+        "    FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)",
+        "  }",
+        "}",
+        "GROUP BY ?resource ?type",
+      ].join("\n"),
+    );
+  });
 });
 
 function createTotalCountResponse(...counts: NeighborCount[]) {

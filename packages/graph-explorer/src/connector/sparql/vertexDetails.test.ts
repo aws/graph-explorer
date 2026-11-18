@@ -120,6 +120,31 @@ describe("vertexDetails", () => {
       new UnsupportedValueTypeError("sparql", "IRI", vertex.id),
     );
   });
+
+  it("emits the exact query text for several IDs", async () => {
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValue({ head: { vars: [] }, results: { bindings: [] } });
+
+    await vertexDetails(mockFetch, {
+      vertexIds: [createVertexId("http://e/v1"), createVertexId("http://e/v2")],
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      [
+        "# Get the resource attributes and class",
+        "SELECT ?subject ?predicate ?object",
+        "WHERE {",
+        "  VALUES ?subject {",
+        "    <http://e/v1>",
+        "    <http://e/v2>",
+        "  }",
+        "  ?subject ?predicate ?object .",
+        "  FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)",
+        "}",
+      ].join("\n"),
+    );
+  });
 });
 
 function createResponseFromVertices(...vertices: TestableVertex[]) {

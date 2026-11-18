@@ -2,6 +2,7 @@ import { createRandomUrlString } from "@shared/utils/testing";
 import { describe, expect, it } from "vite-plus/test";
 
 import { createVertexId } from "@/core";
+import { LABELS } from "@/utils";
 import { query } from "@/utils";
 
 import { UnrepresentableNumberError } from "../queryValueError";
@@ -29,6 +30,16 @@ describe("getSubjectClasses", () => {
     ]);
     expect(result).toEqual(
       `FILTER (?class IN (<http://example.org/class1>, <http://example.org/class2>))`,
+    );
+  });
+
+  it("emits the exact query text for no classes, the missing type, and two classes", () => {
+    expect(getSubjectClasses([])).toBe("");
+    expect(getSubjectClasses([LABELS.MISSING_TYPE])).toBe(
+      "FILTER NOT EXISTS { ?subject a ?class }",
+    );
+    expect(getSubjectClasses(["http://e/a", "http://e/b"])).toBe(
+      "FILTER (?class IN (<http://e/a>, <http://e/b>))",
     );
   });
 });
@@ -85,6 +96,28 @@ describe("getNeighborsFilter", () => {
           )
         )
       `,
+    );
+  });
+
+  it("emits the exact query text for the neighbors filter", () => {
+    expect(getNeighborsFilter()).toBe(
+      "FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)",
+    );
+    expect(
+      getNeighborsFilter(
+        new Set([createVertexId("http://e/v1"), createVertexId("http://e/v2")]),
+      ),
+    ).toBe(
+      [
+        "FILTER(",
+        "  !isLiteral(?neighbor) &&",
+        "  ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&",
+        "  ?neighbor NOT IN (",
+        "    <http://e/v1>,",
+        "    <http://e/v2>",
+        "  )",
+        ")",
+      ].join("\n"),
     );
   });
 });
@@ -171,5 +204,12 @@ describe("getLimit", () => {
     expect(() => getLimit(10, value as unknown as number)).toThrow(
       new UnrepresentableNumberError(value as unknown as number),
     );
+  });
+
+  it("emits the exact query text for every limit and offset combination", () => {
+    expect(getLimit(10, 5)).toBe("LIMIT 10 OFFSET 5");
+    expect(getLimit(10)).toBe("LIMIT 10");
+    expect(getLimit(undefined, 5)).toBe("OFFSET 5");
+    expect(getLimit()).toBe("");
   });
 });

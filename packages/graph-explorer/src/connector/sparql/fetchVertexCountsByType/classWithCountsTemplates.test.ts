@@ -15,4 +15,15 @@ describe("SPARQL > classWithCountsTemplates", () => {
       }
     `);
   });
+
+  it("emits the exact query text", () => {
+    expect(classWithCountsTemplates("http://e/c1")).toBe(
+      [
+        "# Fetch the number of instances of the given class",
+        "SELECT (COUNT(?start) AS ?instancesCount) {",
+        "  ?start a <http://e/c1>",
+        "}",
+      ].join("\n"),
+    );
+  });
 });

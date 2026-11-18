@@ -78,4 +78,52 @@ describe("SPARQL > edgeConnectionsTemplate", () => {
       }
     `);
   });
+
+  it("emits the exact query text for several predicates", () => {
+    const result = edgeConnectionsTemplate({
+      predicates: [
+        createEdgeType("http://e/p1"),
+        createEdgeType("http://e/p2"),
+      ],
+    });
+
+    expect(result).toBe(
+      [
+        "SELECT DISTINCT ?edgeType ?sourceType ?targetType",
+        "WHERE {",
+        "  {",
+        "    SELECT (<http://e/p1> AS ?edgeType) ?sourceType ?targetType",
+        "    WHERE {",
+        "      {",
+        "        SELECT ?sourceType ?targetType",
+        "        WHERE {",
+        "          ?s <http://e/p1> ?o .",
+        "          FILTER(!isLiteral(?o))",
+        "          ?s a ?sourceType .",
+        "          ?o a ?targetType .",
+        "        }",
+        "        LIMIT 10000",
+        "      }",
+        "    }",
+        "  }",
+        "  UNION",
+        "  {",
+        "    SELECT (<http://e/p2> AS ?edgeType) ?sourceType ?targetType",
+        "    WHERE {",
+        "      {",
+        "        SELECT ?sourceType ?targetType",
+        "        WHERE {",
+        "          ?s <http://e/p2> ?o .",
+        "          FILTER(!isLiteral(?o))",
+        "          ?s a ?sourceType .",
+        "          ?o a ?targetType .",
+        "        }",
+        "        LIMIT 10000",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+      ].join("\n"),
+    );
+  });
 });

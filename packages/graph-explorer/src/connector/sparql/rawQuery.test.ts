@@ -514,4 +514,18 @@ describe("rawQuery", () => {
       expect(result.rawResponse).toEqual(mockResponse);
     });
   });
+
+  it("sends the query text exactly as given", async () => {
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValue({ head: { vars: [] }, results: { bindings: [] } });
+
+    await rawQuery(mockFetch, {
+      query: "\n  SELECT ?s  \n\n  WHERE { ?s ?p ?o }\n",
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      "\n  SELECT ?s  \n\n  WHERE { ?s ?p ?o }\n",
+    );
+  });
 });
