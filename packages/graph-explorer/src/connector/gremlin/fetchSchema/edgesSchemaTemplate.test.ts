@@ -52,4 +52,20 @@ describe("Gremlin > edgesSchemaTemplate", () => {
       `),
     );
   });
+
+  it("emits the exact query text for several types", () => {
+    const template = edgesSchemaTemplate({ types: ["route", "contain"] });
+
+    expect(template).toBe(
+      [
+        "g.V().limit(1)",
+        "  .project(",
+        "    'route',",
+        "            'contain'",
+        "  )",
+        "  .by(V().bothE('route').limit(1))",
+        "        .by(V().bothE('contain').limit(1))",
+      ].join("\n"),
+    );
+  });
 });

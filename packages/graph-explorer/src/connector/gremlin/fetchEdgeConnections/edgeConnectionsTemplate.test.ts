@@ -38,4 +38,24 @@ describe("Gremlin > edgeConnectionsTemplate", () => {
 
     expect(template).toContain("V().outE('edge\\'with\\'quotes')");
   });
+
+  it("emits the exact query text for several types", () => {
+    const template = edgeConnectionsTemplate({
+      types: [createEdgeType("route"), createEdgeType("it's")],
+    });
+
+    expect(template).toBe(
+      [
+        "g.V().limit(1).union(V().outE('route').limit(10000), V().outE('it\\'s').limit(10000))",
+        "  .group()",
+        "    .by(label())",
+        "    .by(",
+        "      project('s', 't')",
+        "        .by(outV().label().fold())",
+        "        .by(inV().label().fold())",
+        "        .groupCount()",
+        "    )",
+      ].join("\n"),
+    );
+  });
 });

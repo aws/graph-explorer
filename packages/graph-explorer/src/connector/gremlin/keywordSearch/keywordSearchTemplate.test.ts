@@ -229,4 +229,46 @@ describe("Gremlin > keywordSearchTemplate", () => {
       ),
     );
   });
+
+  it("emits the exact query text with every option", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport", "country"],
+      searchTerm: "J'FK",
+      searchByAttributes: [SEARCH_TOKENS.NODE_ID, "city"],
+      limit: 10,
+      offset: 5,
+    });
+
+    expect(template).toBe(
+      "g.V().hasLabel('airport','country').or(has(id,containing('J\\'FK')),has('city',containing('J\\'FK'))).range(5,15)",
+    );
+  });
+
+  it("emits the exact query text for an exact match", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["airport", "country"],
+      searchTerm: "J'FK",
+      searchByAttributes: [SEARCH_TOKENS.NODE_ID, "city"],
+      limit: 10,
+      offset: 5,
+      exactMatch: true,
+    });
+
+    expect(template).toBe(
+      "g.V().hasLabel('airport','country').or(has(id,'J\\'FK'),has('city','J\\'FK')).range(5,15)",
+    );
+  });
+
+  it("emits the exact query text for a search term with no attributes", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: "x",
+      searchByAttributes: [],
+    });
+
+    expect(template).toBe("g.V().or()");
+  });
+
+  it("emits the exact query text for an empty request", () => {
+    expect(keywordSearchTemplate({})).toBe("g.V()");
+  });
 });
