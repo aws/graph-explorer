@@ -6,7 +6,9 @@ import {
 import { describe, expect, it, vi } from "vite-plus/test";
 import { ValidationError } from "zod-validation-error";
 
+import { toQueryFragment } from "@/connector/queryFragment";
 import { createVertexId, createVertexType, type VertexType } from "@/core";
+import { query } from "@/utils";
 import {
   createLiteralValue,
   createQuadBindingsForEntities,
@@ -128,7 +130,7 @@ describe("neighborCounts", () => {
         totalCount: expected.totalCount,
       },
       vertex,
-      subQueryTemplate: "",
+      subQueryTemplate: query``,
     });
     const mockFetch = vi.fn();
 
@@ -164,7 +166,7 @@ describe("neighborCounts", () => {
         counts: new Map(),
       },
       vertex: vertex.asVertex(),
-      subQueryTemplate: createRandomName("subQuery"),
+      subQueryTemplate: toQueryFragment(createRandomName("subQuery")),
     });
 
     const responseNeighbors = createQuadSparqlResponse(
@@ -314,7 +316,7 @@ describe("neighborCounts", () => {
         totalCount: expectedBlank.totalCount,
       },
       vertex: blankVertex,
-      subQueryTemplate: "",
+      subQueryTemplate: query``,
     });
 
     const totalCountResponse = createTotalCountResponse(expectedNonBlank);
@@ -344,7 +346,7 @@ describe("neighborCounts", () => {
       id: vertex.id,
       neighborCounts: { totalCount: 0, counts: new Map() },
       vertex,
-      subQueryTemplate: createRandomName("subQuery"),
+      subQueryTemplate: toQueryFragment(createRandomName("subQuery")),
     });
 
     const mockFetch = vi.fn().mockRejectedValue(new Error("Network error"));

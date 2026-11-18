@@ -1,3 +1,5 @@
+import type { QueryFragment } from "@/connector/queryFragment";
+
 import { query } from "@/utils";
 
 import { getNeighborsFilter } from "../filterHelpers";
@@ -10,7 +12,9 @@ import { rdfTypeUri } from "../types";
  *
  * @see oneHopNeighborsTemplate
  */
-export default function blankNodeOneHopNeighborsTemplate(subQuery: string) {
+export default function blankNodeOneHopNeighborsTemplate(
+  subQuery: QueryFragment,
+): QueryFragment {
   const rdfTypeUriTemplate = fragment.iri(rdfTypeUri);
 
   return query`

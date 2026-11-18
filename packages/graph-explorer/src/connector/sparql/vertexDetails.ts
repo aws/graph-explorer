@@ -1,6 +1,6 @@
 import { warnMissingIds } from "@/connector/utils/warnMissingIds";
 import { createVertex } from "@/core";
-import { query } from "@/utils";
+import { joinFragments, query } from "@/utils";
 
 import type {
   VertexDetailsRequest,
@@ -25,7 +25,7 @@ export async function vertexDetails(
     SELECT ?subject ?predicate ?object
     WHERE {
       VALUES ?subject {
-        ${request.vertexIds.map(fragment.iri).join("\n")}
+        ${joinFragments(request.vertexIds.map(fragment.iri), "\n")}
       }
 
       ?subject ?predicate ?object .

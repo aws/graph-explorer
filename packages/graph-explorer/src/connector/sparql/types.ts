@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import type { QueryFragment } from "@/connector/queryFragment";
 import type { Edge, Vertex, VertexId, VertexType } from "@/core";
 
 import type { AttributeFilter, NeighborCount } from "../useGEFetchTypes";
@@ -98,7 +99,7 @@ export type SPARQLKeywordSearchRequest = {
 export type SPARQLBlankNodeNeighborsRequest = {
   resourceURI: VertexId;
   resourceClasses: Vertex["types"];
-  subQuery: string;
+  subQuery: QueryFragment;
 };
 
 export type SPARQLBlankNodeNeighborsResponse = NeighborCount & {
@@ -110,7 +111,7 @@ export type SPARQLBlankNodeNeighborsResponse = NeighborCount & {
 
 export type BlankNodeItem = {
   id: VertexId;
-  subQueryTemplate: string;
+  subQueryTemplate: QueryFragment;
   vertex: Vertex;
   neighborCounts: {
     totalCount: number;

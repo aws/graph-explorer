@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { fromError } from "zod-validation-error";
 
-import { logger, query } from "@/utils";
+import { logger } from "@/utils";
 
 import type { RawQueryRequest, RawQueryResponse } from "../useGEFetchTypes";
 
@@ -32,14 +32,12 @@ export async function rawQuery(
   dbFetch: SparqlFetch,
   request: RawQueryRequest,
 ): Promise<RawQueryResponse> {
-  const template = query`${request.query}`;
-
-  if (template.length <= 0) {
+  if (request.query.length <= 0) {
     return { results: [], rawResponse: null };
   }
 
   // Fetch the results
-  const data = (await dbFetch(template)) as unknown;
+  const data = (await dbFetch(request.query)) as unknown;
   if (isErrorResponse(data)) {
     logger.error(data.detailedMessage);
     throw new Error(data.detailedMessage);

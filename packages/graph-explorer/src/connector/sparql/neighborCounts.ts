@@ -7,7 +7,7 @@ import {
   type VertexId,
   type VertexType,
 } from "@/core";
-import { LABELS, logger, query } from "@/utils";
+import { joinFragments, LABELS, logger, query } from "@/utils";
 
 import type {
   NeighborCount,
@@ -100,7 +100,7 @@ async function fetchUniqueNeighborCount(
     SELECT ?resource (COUNT(DISTINCT ?neighbor) AS ?totalCount)
     WHERE {
       VALUES ?resource { 
-        ${resources.map(fragment.iri).join("\n")}
+        ${joinFragments(resources.map(fragment.iri), "\n")}
       }
       {
         ?resource ?predicate ?neighbor .
@@ -170,7 +170,7 @@ async function fetchCountsByType(
     SELECT ?resource ?type (COUNT(DISTINCT ?neighbor) AS ?typeCount)
     WHERE {
       VALUES ?resource { 
-        ${resources.map(fragment.iri).join("\n")}
+        ${joinFragments(resources.map(fragment.iri), "\n")}
       }
       {
         ?resource ?predicate ?neighbor .

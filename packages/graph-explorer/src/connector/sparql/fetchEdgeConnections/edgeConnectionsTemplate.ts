@@ -1,6 +1,7 @@
+import type { QueryFragment } from "@/connector/queryFragment";
 import type { EdgeType } from "@/core";
 
-import { DEFAULT_SAMPLE_SIZE, query } from "@/utils";
+import { DEFAULT_SAMPLE_SIZE, joinFragments, query } from "@/utils";
 
 import { fragment } from "../fragments";
 
@@ -19,37 +20,34 @@ export default function edgeConnectionsTemplate({
   predicates,
 }: {
   predicates: EdgeType[];
-}) {
+}): QueryFragment {
   const limit = fragment.number(DEFAULT_SAMPLE_SIZE);
 
-  // Plain-string arms joined with a bare UNION, normalized once by the outer
-  // `query` tag. Nesting `query` inside `query` double-normalizes and leaves the
-  // output raggedly indented (cosmetic, but confusing when debugging).
-  const arms = predicates
-    .map(predicate => {
-      const iri = fragment.iri(predicate);
-      return `{
-  SELECT (${iri} AS ?edgeType) ?sourceType ?targetType
-  WHERE {
-    {
-      SELECT ?sourceType ?targetType
-      WHERE {
-        ?s ${iri} ?o .
-        FILTER(!isLiteral(?o))
-        ?s a ?sourceType .
-        ?o a ?targetType .
+  const arms = predicates.map(predicate => {
+    const iri = fragment.iri(predicate);
+    return query`
+      {
+        SELECT (${iri} AS ?edgeType) ?sourceType ?targetType
+        WHERE {
+          {
+            SELECT ?sourceType ?targetType
+            WHERE {
+              ?s ${iri} ?o .
+              FILTER(!isLiteral(?o))
+              ?s a ?sourceType .
+              ?o a ?targetType .
+            }
+            LIMIT ${limit}
+          }
+        }
       }
-      LIMIT ${limit}
-    }
-  }
-}`;
-    })
-    .join("\nUNION\n");
+    `;
+  });
 
   return query`
     SELECT DISTINCT ?edgeType ?sourceType ?targetType
     WHERE {
-      ${arms}
+      ${joinFragments(arms, "\nUNION\n")}
     }
   `;
 }

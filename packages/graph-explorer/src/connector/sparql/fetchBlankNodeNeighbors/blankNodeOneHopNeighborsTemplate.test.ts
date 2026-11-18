@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
+import { toQueryFragment } from "@/connector/queryFragment";
 import { query } from "@/utils";
 import { normalizeWithNewlines as normalize } from "@/utils/testing";
 
@@ -7,8 +8,9 @@ import blankNodeOneHopNeighborsTemplate from "./blankNodeOneHopNeighborsTemplate
 
 describe("blankNodeOneHopNeighborsTemplate", () => {
   it("should produce query with simple subquery", () => {
-    const subQuery =
-      "SELECT ?bNode WHERE { ?bNode a <http://example.org/Type> }";
+    const subQuery = toQueryFragment(
+      "SELECT ?bNode WHERE { ?bNode a <http://example.org/Type> }",
+    );
     const template = blankNodeOneHopNeighborsTemplate(subQuery);
 
     expect(normalize(template)).toEqual(
