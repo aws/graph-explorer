@@ -182,6 +182,9 @@ importers:
       '@tanstack/eslint-plugin-query':
         specifier: 5.104.1
         version: 5.104.1(eslint@10.14.0(jiti@2.7.0))(typescript@7.0.2)
+      '@types/node':
+        specifier: ^24.19.2
+        version: 24.19.2
       eslint-plugin-react-hooks:
         specifier: 7.1.1
         version: 7.1.1(eslint@10.14.0(jiti@2.7.0))

@@ -141,14 +141,15 @@ pnpm add -D vitest --filter graph-explorer-proxy-server
 
 ### Preparation of a release
 
-This repository is composed of 3 packages and a mono-repository structure itself. Then, you need to take into account 4 different `package.json` files:
+The root `package.json` and each package under `packages/` have their own `version` property, and a release keeps them all the same. The UI shows the version from `packages/graph-explorer/package.json`, and the release image is tagged from the root `package.json`.
 
-- `<root>/package.json` is intended to keep the dependencies for managing the repository. It has utilities like linter, code formatter, or git checks.
-- `<root>/packages/graph-explorer/package.json` is the package file that describes the UI client package.
-- `<root>/packages/graph-explorer-proxy-server/package.json` is the package file for the node server which is in charge of authentication and redirection of requests.
-- `<root>/packages/shared/package.json` is the package file for shared code between the client and server packages.
+Set the version in all of them with one command:
 
-Each of these `package.json` files has an independent `version` property. However, in this project we should keep them correlated. Therefore, when a new release version is being prepared, the version number should be increased in all 4 files. Regarding the version number displayed in the user interface, it is specifically extracted from the `<root>/packages/graph-explorer/package.json` file.
+```bash
+pnpm release:version 1.2.3
+```
+
+It takes a plain `X.Y.Z` version, changes only the `version` value in each file, and prints the files it updated. A test fails whenever any `package.json` in the repository has a different version from the root.
 
 ## Supply chain security
 

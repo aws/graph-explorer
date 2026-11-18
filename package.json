@@ -15,17 +15,19 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check:types": "pnpm -r --include-workspace-root --parallel --stream run typecheck",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p scripts",
     "checks": "pnpm run check:lint && pnpm run check:format && pnpm run check:types",
     "start": "pnpm --filter \"graph-explorer-proxy-server\" run start",
     "clean": "pnpm --stream -r run clean",
     "clean:dep": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
     "build": "pnpm --stream -r run build",
-    "dev": "pnpm --stream -r run dev"
+    "dev": "pnpm --stream -r run dev",
+    "release:version": "node scripts/releaseVersion.ts"
   },
   "dependencies": {},
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "5.104.1",
+    "@types/node": "^24.19.2",
     "eslint-plugin-react-hooks": "7.1.1",
     "fast-check": "^4.10.2",
     "husky": "^9.1.7",
