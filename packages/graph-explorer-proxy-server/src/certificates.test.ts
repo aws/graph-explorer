@@ -13,10 +13,11 @@ import {
 } from "vite-plus/test";
 
 import {
+  type CertificateSummary,
   CertificateError,
   generateCertificates,
   prepareCertificates,
-  recordContainerStart,
+  readServerCertificate,
 } from "./certificates.ts";
 
 const templateDir = path.resolve(import.meta.dirname, "../cert-info");
@@ -194,45 +195,162 @@ describe("generateCertificates", () => {
   });
 });
 
-describe("prepareCertificates", () => {
+describe("readServerCertificate", () => {
   let certDir: string;
-  const generate = vi.fn<(certDir: string, host: string) => void>();
-  const logger = { info: vi.fn() };
 
   beforeEach(() => {
-    certDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-prepare-test-"));
-    vi.resetAllMocks();
+    certDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-read-cert-test-"));
+    seedTemplates(certDir);
   });
 
   afterEach(() => {
     fs.rmSync(certDir, { recursive: true, force: true });
   });
 
+  it("reads the name generation gives the host, and the expiry", () => {
+    generateCertificates(certDir, "my-host.example.com");
+
+    const { dnsNames, expiresAt } = readServerCertificate(certDir);
+
+    expect(dnsNames).toStrictEqual(["my-host.example.com:*"]);
+    expect(expiresAt).toStrictEqual(
+      new Date(readCertificate(certDir, "server.crt").validTo),
+    );
+  });
+
+  it("throws for a file that isn't a certificate", () => {
+    fs.writeFileSync(path.join(certDir, "server.crt"), "placeholder");
+
+    expect(() => readServerCertificate(certDir)).toThrow(/PEM routines/);
+  });
+});
+
+describe("prepareCertificates", () => {
+  let workDir: string;
+  let certDir: string;
+  const generate = vi.fn<(certDir: string, host: string) => void>();
+  const logger = { info: vi.fn() };
+  const farFuture = new Date("2999-01-01T00:00:00Z");
+
+  /** The certificate `readCertificate` finds in `certDir`. */
+  let certificate: CertificateSummary | Error;
+  const readCertificate = vi.fn((_certDir: string) => {
+    if (certificate instanceof Error) {
+      throw certificate;
+    }
+    return certificate;
+  });
+
+  beforeEach(() => {
+    workDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-prepare-test-"));
+    certDir = path.join(workDir, "cert-info");
+    fs.mkdirSync(certDir);
+    certificate = { dnsNames: ["localhost:*"], expiresAt: farFuture };
+    vi.resetAllMocks();
+  });
+
+  afterEach(() => {
+    fs.rmSync(workDir, { recursive: true, force: true });
+  });
+
   function prepare(host: string | undefined) {
-    return prepareCertificates({ certDir, host, generate, logger });
+    return prepareCertificates({
+      certDir,
+      host,
+      generate,
+      readCertificate,
+      logger,
+    });
   }
 
-  it("generates for the host", () => {
+  it("generates for the host when cert-info holds no certificate files", () => {
     expect(prepare("localhost")).toBe("generated");
 
     expect(generate).toHaveBeenCalledExactlyOnceWith(certDir, "localhost");
+    expect(readCertificate).not.toHaveBeenCalled();
+    expect(logger.info).toHaveBeenCalledExactlyOnceWith(
+      "Generating new self-signed SSL cert using localhost...",
+    );
   });
 
-  it("generates for the host even when the files exist", () => {
+  // A restart, or a new container that mounts the same cert-info volume.
+  it("reuses the certificate that names the host and hasn't expired", () => {
     seedCertificateFiles(certDir);
 
+    expect(prepare("localhost")).toBe("reused");
+
+    expect(generate).not.toHaveBeenCalled();
+    expect(logger.info).toHaveBeenCalledExactlyOnceWith(
+      "Found existing self-signed SSL certificate for localhost, valid until 2999-01-01. Re-using existing cert.",
+    );
+  });
+
+  it("generates again when the certificate names another host", () => {
+    seedCertificateFiles(certDir);
+    certificate = { dnsNames: ["other.example.com:*"], expiresAt: farFuture };
+
     expect(prepare("localhost")).toBe("generated");
 
     expect(generate).toHaveBeenCalledExactlyOnceWith(certDir, "localhost");
+    expect(logger.info).toHaveBeenCalledWith(
+      "The existing certificate doesn't name localhost, so a new certificate is generated.",
+    );
   });
 
-  it("reuses the files in cert-info without a host", () => {
+  // The name generation writes ends in ":*", so the bare host isn't it.
+  it("generates again when the certificate lists only the bare host", () => {
+    seedCertificateFiles(certDir);
+    certificate = { dnsNames: ["localhost"], expiresAt: farFuture };
+
+    expect(prepare("localhost")).toBe("generated");
+  });
+
+  it("generates again when the certificate has expired", () => {
+    seedCertificateFiles(certDir);
+    certificate = {
+      dnsNames: ["localhost:*"],
+      expiresAt: new Date("2020-03-04T05:06:07Z"),
+    };
+
+    expect(prepare("localhost")).toBe("generated");
+
+    expect(generate).toHaveBeenCalledExactlyOnceWith(certDir, "localhost");
+    expect(logger.info).toHaveBeenCalledWith(
+      "The existing certificate expired on 2020-03-04, so a new certificate is generated.",
+    );
+  });
+
+  it("generates again when server.crt can't be read as a certificate", () => {
+    seedCertificateFiles(certDir);
+    certificate = new Error("bad certificate");
+
+    expect(prepare("localhost")).toBe("generated");
+
+    expect(logger.info).toHaveBeenCalledWith(
+      "The existing server.crt can't be read as a certificate (bad certificate), so a new certificate is generated.",
+    );
+  });
+
+  it("generates again when some certificate files are missing, naming them", () => {
+    seedCertificateFiles(certDir, ["rootCA.key", "rootCA.crt", "server.key"]);
+
+    expect(prepare("localhost")).toBe("generated");
+
+    expect(generate).toHaveBeenCalledExactlyOnceWith(certDir, "localhost");
+    expect(readCertificate).not.toHaveBeenCalled();
+    expect(logger.info).toHaveBeenCalledWith(
+      `Some certificate files are missing from ${certDir} (server.csr server.crt), so a new certificate is generated.`,
+    );
+  });
+
+  it("reuses the files in cert-info without a host, whatever they name", () => {
     seedCertificateFiles(certDir);
 
     expect(prepare(undefined)).toBe("reused");
 
     expect(generate).not.toHaveBeenCalled();
-    expect(logger.info).toHaveBeenCalledWith(
+    expect(readCertificate).not.toHaveBeenCalled();
+    expect(logger.info).toHaveBeenCalledExactlyOnceWith(
       "Found existing self-signed SSL certificate. Re-using existing cert.",
     );
   });
@@ -247,46 +365,43 @@ describe("prepareCertificates", () => {
 
   it("treats an empty host as no host", () => {
     expect(() => prepare("")).toThrow(CertificateError);
-    expect(generate).not.toHaveBeenCalled();
   });
 });
 
-describe("recordContainerStart", () => {
-  let workDir: string;
-  const logger = { warn: vi.fn() };
+describe("prepareCertificates with the certificates generation writes", () => {
+  let certDir: string;
 
   beforeEach(() => {
-    workDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-container-start-"));
-    vi.resetAllMocks();
+    certDir = fs.mkdtempSync(path.join(os.tmpdir(), "ge-reuse-test-"));
+    seedTemplates(certDir);
   });
 
   afterEach(() => {
-    fs.chmodSync(workDir, 0o755);
-    fs.rmSync(workDir, { recursive: true, force: true });
+    fs.rmSync(certDir, { recursive: true, force: true });
   });
 
-  it("records the start", () => {
-    const markerPath = path.join(workDir, ".container-started");
+  function prepare(host: string) {
+    return prepareCertificates({
+      certDir,
+      host,
+      generate: generateCertificates,
+      readCertificate: readServerCertificate,
+      logger: { info: () => undefined },
+    });
+  }
 
-    recordContainerStart(markerPath, logger);
+  it("keeps the certificate for the same host and replaces it for another", () => {
+    expect(prepare("my-host.example.com")).toBe("generated");
+    const first = fs.readFileSync(path.join(certDir, "server.crt"));
 
-    expect(fs.existsSync(markerPath)).toBe(true);
-    expect(logger.warn).not.toHaveBeenCalled();
-  });
+    expect(prepare("my-host.example.com")).toBe("reused");
+    expect(fs.readFileSync(path.join(certDir, "server.crt"))).toStrictEqual(
+      first,
+    );
 
-  it("warns when it can't record the start", ({ skip }) => {
-    // Root ignores file permissions, so chmod can't make anything read-only.
-    skip(process.getuid?.() === 0);
-    fs.chmodSync(workDir, 0o555);
-    const markerPath = path.join(workDir, ".container-started");
-
-    recordContainerStart(markerPath, logger);
-
-    expect(fs.existsSync(markerPath)).toBe(false);
-    expect(logger.warn).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `Couldn't record this container's start at ${markerPath}, so a restart generates a new certificate`,
-      ),
+    expect(prepare("other.example.com")).toBe("generated");
+    expect(fs.readFileSync(path.join(certDir, "server.crt"))).not.toStrictEqual(
+      first,
     );
   });
 });
