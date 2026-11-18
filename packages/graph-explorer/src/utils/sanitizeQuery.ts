@@ -1,3 +1,7 @@
+import { type QueryFragment, toQueryFragment } from "@/connector/queryFragment";
+
+import type { Brand } from "./branded";
+
 /**
  * Assembles a query string, normalizing the whitespace of the literal template
  * scaffolding while preserving each interpolated value verbatim.
@@ -8,18 +12,45 @@
  * so a value with leading/trailing spaces, an embedded blank line, or one that
  * is entirely whitespace survives intact. A multi-line value's continuation
  * lines are still re-indented to the column where the value lands.
+ *
+ * Returns a Query Fragment, so templates nest.
  */
 export function query(
   literals: TemplateStringsArray,
   ...placeholders: unknown[]
-): string {
+): QueryFragment {
   const values = placeholders.map(String);
   const lines = splitIntoLines(literals, values);
   const min = minCommonIndent(lines);
-  return lines
-    .filter(hasContent)
-    .map(line => renderLine(line, values, min))
-    .join("\n");
+  return toQueryFragment(
+    lines
+      .filter(hasContent)
+      .map(line => renderLine(line, values, min))
+      .join("\n"),
+  );
+}
+
+/**
+ * Resolves to `S` only for a union of plain string literal types. A `string`
+ * or a template-literal pattern type becomes an index signature in a `Record`,
+ * and a branded string carries a `Brand`; both resolve to `never`.
+ */
+type StringLiteral<S extends string> =
+  S extends Brand<unknown>
+    ? never
+    : Record<never, never> extends Record<S, 1>
+      ? never
+      : S;
+
+/**
+ * Joins Query Fragments with a separator written in code. The separator must
+ * be a string literal, so no runtime value can reach a query through it.
+ */
+export function joinFragments<Separator extends string>(
+  fragments: readonly QueryFragment[],
+  separator: StringLiteral<Separator>,
+): QueryFragment {
+  return toQueryFragment(fragments.join(separator));
 }
 
 /**
