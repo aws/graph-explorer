@@ -1,6 +1,7 @@
+import type { QueryFragment } from "@/connector/queryFragment";
 import type { EdgeType } from "@/core";
 
-import { DEFAULT_SAMPLE_SIZE, query } from "@/utils";
+import { DEFAULT_SAMPLE_SIZE, joinFragments, query } from "@/utils";
 
 import { fragment } from "../fragments";
 
@@ -19,17 +20,18 @@ export default function edgeConnectionsTemplate({
   types,
 }: {
   types: EdgeType[];
-}) {
+}): QueryFragment {
   const limit = fragment.number(DEFAULT_SAMPLE_SIZE);
 
-  return types
-    .map(
+  return joinFragments(
+    types.map(
       type => query`
         MATCH (s)-[e:${fragment.identifier(type)}]->(t)
         WITH labels(s) AS sourceLabels, labels(t) AS targetLabels
         LIMIT ${limit}
         RETURN DISTINCT ${fragment.string(type)} AS edgeType, sourceLabels, targetLabels
       `,
-    )
-    .join("\nUNION ALL\n");
+    ),
+    "\nUNION ALL\n",
+  );
 }

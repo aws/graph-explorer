@@ -1,4 +1,6 @@
-import { query } from "@/utils";
+import type { QueryFragment } from "@/connector/queryFragment";
+
+import { joinFragments, query } from "@/utils";
 
 import { fragment } from "../fragments";
 
@@ -14,9 +16,14 @@ import { fragment } from "../fragments";
  * // UNION ALL
  * // MATCH (v:`country`) RETURN v AS object LIMIT 1
  */
-export default function verticesSchemaTemplate({ types }: { types: string[] }) {
+export default function verticesSchemaTemplate({
+  types,
+}: {
+  types: string[];
+}): QueryFragment {
   const blocks = types.map(
-    type => `MATCH (v:${fragment.identifier(type)}) RETURN v AS object LIMIT 1`,
+    type =>
+      query`MATCH (v:${fragment.identifier(type)}) RETURN v AS object LIMIT 1`,
   );
-  return query`${blocks.join("\nUNION ALL\n")}`;
+  return joinFragments(blocks, "\nUNION ALL\n");
 }

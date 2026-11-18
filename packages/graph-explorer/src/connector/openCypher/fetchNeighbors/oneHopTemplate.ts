@@ -1,14 +1,19 @@
+import type { QueryFragment } from "@/connector/queryFragment";
 import type {
   AttributeFilter,
   NeighborsRequest,
 } from "@/connector/useGEFetchTypes";
 
-import { query } from "@/utils";
+import { joinFragments, query } from "@/utils";
 
 import { fragment } from "../fragments";
 
-const attributeFilterTemplate = ({ name, value }: AttributeFilter): string =>
-  `tgt.${fragment.identifier(name)} CONTAINS ${fragment.string(value)}`;
+function attributeFilterTemplate({
+  name,
+  value,
+}: AttributeFilter): QueryFragment {
+  return query`tgt.${fragment.identifier(name)} CONTAINS ${fragment.string(value)}`;
+}
 
 /**
  * @example
@@ -26,41 +31,45 @@ const attributeFilterTemplate = ({ name, value }: AttributeFilter): string =>
  *   collect(DISTINCT tgt) AS vObjects,
  *   collect(e) AS eObjects
  */
-const oneHopTemplate = ({
+function oneHopTemplate({
   vertexId,
   filterByVertexTypes = [],
   attributeFilters = [],
   excludedVertices = new Set(),
   limit = 0,
-}: Omit<NeighborsRequest, "vertexTypes">): string => {
+}: Omit<NeighborsRequest, "vertexTypes">): QueryFragment {
   const formattedExcludedVertices =
     excludedVertices.size > 0
-      ? `NOT ID(tgt) IN [${Array.from(excludedVertices).map(fragment.id).join(", ")}]`
-      : "";
+      ? query`NOT ID(tgt) IN [${joinFragments(Array.from(excludedVertices).map(fragment.id), ", ")}]`
+      : query``;
 
   // List of possible vertex labels when there are multiple (single label is handled elsewhere)
   const formattedVertexTypes =
     filterByVertexTypes.length > 1
-      ? `(${filterByVertexTypes
-          .map(type => `v:${fragment.identifier(type)}`)
-          .join(" OR ")})`
-      : "";
+      ? query`(${joinFragments(
+          filterByVertexTypes.map(
+            type => query`v:${fragment.identifier(type)}`,
+          ),
+          " OR ",
+        )})`
+      : query``;
 
   // Specify node type for target if provided and only one
   const targetMatch =
     filterByVertexTypes.length == 1
-      ? `tgt:${fragment.identifier(filterByVertexTypes[0])}`
-      : `tgt`;
+      ? query`tgt:${fragment.identifier(filterByVertexTypes[0])}`
+      : query`tgt`;
 
   // Combine all the WHERE conditions
-  const whereConditions = [
-    `ID(v) = ${fragment.id(vertexId)}`,
-    formattedExcludedVertices,
-    formattedVertexTypes,
-    ...attributeFilters.map(attributeFilterTemplate),
-  ]
-    .filter(Boolean)
-    .join(" AND ");
+  const whereConditions = joinFragments(
+    [
+      query`ID(v) = ${fragment.id(vertexId)}`,
+      formattedExcludedVertices,
+      formattedVertexTypes,
+      ...attributeFilters.map(attributeFilterTemplate),
+    ].filter(Boolean),
+    " AND ",
+  );
 
   if (limit) {
     // When applying a limit, we must apply it to the set of distinct neighbors, which requires some additional steps
@@ -85,6 +94,6 @@ const oneHopTemplate = ({
       collect(DISTINCT tgt) AS vObjects, 
       collect(e) AS eObjects
   `;
-};
+}
 
 export default oneHopTemplate;

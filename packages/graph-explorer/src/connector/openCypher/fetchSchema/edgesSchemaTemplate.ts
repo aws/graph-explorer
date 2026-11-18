@@ -1,4 +1,6 @@
-import { query } from "@/utils";
+import type { QueryFragment } from "@/connector/queryFragment";
+
+import { joinFragments, query } from "@/utils";
 
 import { fragment } from "../fragments";
 
@@ -14,10 +16,14 @@ import { fragment } from "../fragments";
  * // UNION ALL
  * // MATCH () -[e:`contains`]-> () RETURN e AS object LIMIT 1
  */
-export default function edgesSchemaTemplate({ types }: { types: string[] }) {
+export default function edgesSchemaTemplate({
+  types,
+}: {
+  types: string[];
+}): QueryFragment {
   const blocks = types.map(
     type =>
-      `MATCH () -[e:${fragment.identifier(type)}]-> () RETURN e AS object LIMIT 1`,
+      query`MATCH () -[e:${fragment.identifier(type)}]-> () RETURN e AS object LIMIT 1`,
   );
-  return query`${blocks.join("\nUNION ALL\n")}`;
+  return joinFragments(blocks, "\nUNION ALL\n");
 }
