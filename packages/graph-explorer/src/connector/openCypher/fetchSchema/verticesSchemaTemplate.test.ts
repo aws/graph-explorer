@@ -29,4 +29,16 @@ describe("OpenCypher > verticesSchemaTemplate", () => {
       UnescapableValueError,
     );
   });
+
+  it("emits the exact query text for several types", () => {
+    const template = verticesSchemaTemplate({ types: ["airport", "country"] });
+
+    expect(template).toBe(
+      [
+        "MATCH (v:`airport`) RETURN v AS object LIMIT 1",
+        "UNION ALL",
+        "MATCH (v:`country`) RETURN v AS object LIMIT 1",
+      ].join("\n"),
+    );
+  });
 });

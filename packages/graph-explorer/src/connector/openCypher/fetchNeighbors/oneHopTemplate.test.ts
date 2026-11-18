@@ -228,4 +228,62 @@ describe("OpenCypher > oneHopTemplate", () => {
       );
     });
   });
+
+  it("emits the exact query text with every option", () => {
+    const template = oneHopTemplate({
+      vertexId: createVertexId("124"),
+      filterByVertexTypes: ["a", "b"],
+      excludedVertices: new Set([createVertexId("256"), createVertexId("512")]),
+      attributeFilters: [
+        { name: "city", value: "Sea" },
+        { name: "country", value: 'E"S' },
+      ],
+      limit: 10,
+    });
+
+    expect(template).toBe(
+      [
+        "MATCH (v)-[e]-(tgt)",
+        'WHERE ID(v) = "124" AND NOT ID(tgt) IN ["256", "512"] AND (v:`a` OR v:`b`) AND tgt.`city` CONTAINS "Sea" AND tgt.`country` CONTAINS "E\\"S"',
+        "WITH DISTINCT v, tgt",
+        "ORDER BY toInteger(ID(tgt))",
+        "LIMIT 10",
+        "MATCH (v)-[e]-(tgt)",
+        "RETURN",
+        "  collect(DISTINCT tgt) AS vObjects,",
+        "  collect(e) AS eObjects",
+      ].join("\n"),
+    );
+  });
+
+  it("emits the exact query text with one vertex type and no limit", () => {
+    const template = oneHopTemplate({
+      vertexId: createVertexId("124"),
+      filterByVertexTypes: ["a"],
+    });
+
+    expect(template).toBe(
+      [
+        "MATCH (v)-[e]-(tgt:`a`)",
+        'WHERE ID(v) = "124"',
+        "RETURN",
+        "  collect(DISTINCT tgt) AS vObjects,",
+        "  collect(e) AS eObjects",
+      ].join("\n"),
+    );
+  });
+
+  it("emits the exact query text with only a vertex ID", () => {
+    const template = oneHopTemplate({ vertexId: createVertexId("124") });
+
+    expect(template).toBe(
+      [
+        "MATCH (v)-[e]-(tgt)",
+        'WHERE ID(v) = "124"',
+        "RETURN",
+        "  collect(DISTINCT tgt) AS vObjects,",
+        "  collect(e) AS eObjects",
+      ].join("\n"),
+    );
+  });
 });

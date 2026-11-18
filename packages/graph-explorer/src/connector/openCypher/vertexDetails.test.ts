@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vite-plus/test";
 
+import { createVertexId } from "@/core";
 import { createTestableVertex, mapToOcVertex } from "@/utils/testing";
 
 import type { ResultVertex } from "../entities";
@@ -40,6 +41,22 @@ describe("vertexDetails", () => {
       vertex1.asVertex(),
       vertex2.asVertex(),
     ]);
+  });
+
+  it("emits the exact query text for several IDs", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({ results: [] });
+
+    await vertexDetails(mockFetch, {
+      vertexIds: [createVertexId('v"1'), createVertexId("v2")],
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      [
+        "MATCH (vertex)",
+        'WHERE ID(vertex) in ["v\\"1","v2"]',
+        "RETURN vertex",
+      ].join("\n"),
+    );
   });
 });
 
