@@ -4,6 +4,7 @@
 **/.idea/
 **/dist/
 **/.env.local
+/config.json
 
 # IntelliJ IDEA module files
 *.iml
