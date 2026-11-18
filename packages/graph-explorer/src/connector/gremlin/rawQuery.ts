@@ -1,4 +1,4 @@
-import { logger, query } from "@/utils";
+import { logger } from "@/utils";
 
 import type {
   ErrorResponse,
@@ -25,14 +25,12 @@ export async function rawQuery(
   gremlinFetch: GremlinFetch,
   request: RawQueryRequest,
 ): Promise<RawQueryResponse> {
-  const template = query`${request.query}`;
-
-  if (template.length <= 0) {
+  if (request.query.length <= 0) {
     return { results: [], rawResponse: null };
   }
 
   // Fetch the results
-  const data = await gremlinFetch<Response | ErrorResponse>(template);
+  const data = await gremlinFetch<Response | ErrorResponse>(request.query);
   if (isErrorResponse(data)) {
     logger.error(data.detailedMessage);
     throw new Error(data.detailedMessage);

@@ -1,5 +1,5 @@
 import { createVertexId, createVertexType, type VertexType } from "@/core";
-import { query } from "@/utils";
+import { joinFragments, query } from "@/utils";
 
 import type {
   ErrorResponse,
@@ -47,7 +47,7 @@ export async function neighborCounts(
     return { counts: [] };
   }
 
-  const ids = request.vertexIds.map(fragment.id).join(",");
+  const ids = joinFragments(request.vertexIds.map(fragment.id), ",");
   const template = query`
     g.V(${ids})
      .group()

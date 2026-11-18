@@ -1,10 +1,36 @@
 import uniq from "lodash/uniq";
 
 import type { KeywordSearchRequest } from "@/connector";
+import type { QueryFragment } from "@/connector/queryFragment";
 
-import { SEARCH_TOKENS } from "@/utils";
+import { joinFragments, query, SEARCH_TOKENS } from "@/utils";
 
 import { fragment } from "../fragments";
+
+function searchConditions(
+  searchTerm: string,
+  searchByAttributes: string[],
+  exactMatch: boolean,
+): QueryFragment {
+  const searchLiteral = fragment.string(searchTerm);
+
+  return joinFragments(
+    uniq(searchByAttributes).map(attr => {
+      if (attr === SEARCH_TOKENS.NODE_ID) {
+        if (exactMatch === true) {
+          return query`has(id,${searchLiteral})`;
+        }
+        return query`has(id,containing(${searchLiteral}))`;
+      }
+      const key = fragment.identifier(attr);
+      if (exactMatch === true) {
+        return query`has(${key},${searchLiteral})`;
+      }
+      return query`has(${key},containing(${searchLiteral}))`;
+    }),
+    ",",
+  );
+}
 
 /**
  * @example
@@ -30,38 +56,17 @@ export default function keywordSearchTemplate({
   limit,
   offset = 0,
   exactMatch = false,
-}: KeywordSearchRequest): string {
-  let template = "g.V()";
+}: KeywordSearchRequest): QueryFragment {
+  const hasLabelTemplate =
+    vertexTypes.length !== 0
+      ? query`.hasLabel(${joinFragments(vertexTypes.map(fragment.identifier), ",")})`
+      : query``;
+  const orTemplate = searchTerm
+    ? query`.or(${searchConditions(searchTerm, searchByAttributes, exactMatch)})`
+    : query``;
+  const rangeTemplate = limit
+    ? query`.range(${fragment.number(offset)},${fragment.number(offset + limit)})`
+    : query``;
 
-  if (vertexTypes.length !== 0) {
-    const hasLabelContent = vertexTypes.map(fragment.identifier).join(",");
-    template += `.hasLabel(${hasLabelContent})`;
-  }
-
-  if (searchTerm) {
-    const searchLiteral = fragment.string(searchTerm);
-
-    const orContent = uniq(searchByAttributes)
-      .map(attr => {
-        if (attr === SEARCH_TOKENS.NODE_ID) {
-          if (exactMatch === true) {
-            return `has(id,${searchLiteral})`;
-          }
-          return `has(id,containing(${searchLiteral}))`;
-        }
-        const key = fragment.identifier(attr);
-        if (exactMatch === true) {
-          return `has(${key},${searchLiteral})`;
-        }
-        return `has(${key},containing(${searchLiteral}))`;
-      })
-      .join(",");
-
-    template += `.or(${orContent})`;
-  }
-
-  if (limit) {
-    template += `.range(${fragment.number(offset)},${fragment.number(offset + limit)})`;
-  }
-  return template;
+  return query`g.V()${hasLabelTemplate}${orTemplate}${rangeTemplate}`;
 }

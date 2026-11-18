@@ -1,6 +1,6 @@
 import { warnMissingIds } from "@/connector/utils/warnMissingIds";
 import { createVertex } from "@/core";
-import { query } from "@/utils";
+import { joinFragments, query } from "@/utils";
 
 import type {
   ErrorResponse,
@@ -36,7 +36,7 @@ export async function vertexDetails(
     return { vertices: [] };
   }
 
-  const ids = request.vertexIds.map(fragment.id).join(",");
+  const ids = joinFragments(request.vertexIds.map(fragment.id), ",");
   const template = query`
     g.V(${ids})
   `;
