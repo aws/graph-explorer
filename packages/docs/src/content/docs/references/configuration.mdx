@@ -84,7 +84,7 @@ The port to use for the HTTP server. Ignored when `PROXY_SERVER_PORT` is set. Th
 
 Serves the proxy server over HTTPS when true, using the certificate files described in [HTTPS Connections](../security/#https-connections).
 
-Set it to `false` only behind a reverse proxy that terminates TLS, or to try Graph Explorer on your own machine. Plain HTTP that other machines can reach isn't supported. See [Serving HTTP Behind a Reverse Proxy](../security/#serving-http-behind-a-reverse-proxy).
+Set it to `false` only behind a reverse proxy that terminates TLS, or to try Graph Explorer on your own machine. Plain HTTP that other machines can reach isn't supported, including machines on an internal network or a VPN. See [Serving HTTP Behind a Reverse Proxy](../security/#serving-http-behind-a-reverse-proxy).
 
 - Optional
 - Default `false` in code, `true` in Docker via the entrypoint script
