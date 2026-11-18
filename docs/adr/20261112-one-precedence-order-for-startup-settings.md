@@ -23,12 +23,11 @@ Every setting comes from the first of these that sets it:
 `config.json` behaves as if it were one more dotenv file loaded between `.env.local` and `.env`, so the environment beats it one key at a time, and a key it leaves out falls back to the environment.
 
 - This reverses "the JSON will be prioritized" for the Default Connection settings and `NEPTUNE_NOTEBOOK`.
-- An empty environment value for a key `config.json` can hold, such as `-e GRAPH_CONNECTION_URL=`, counts as unset, so it doesn't hide the `config.json` value.
+- An empty value for a key `config.json` can hold counts as unset in every source, whether it is an `-e` flag such as `-e GRAPH_CONNECTION_URL=`, or a line such as `PROXY_SERVER_HTTPS_CONNECTION=` in `.env.local` or `.env`, so the next source in the order applies and an empty value doesn't hide the `config.json` value.
 - `NEPTUNE_NOTEBOOK` comes only from the environment or `config.json`, never from `.env` or `.env.local`, as before.
 - The Default Connection settings don't come from `.env` or `.env.local`, as before.
 - `HOST`, which names the host the self-signed certificate is generated for, comes from the environment only, so a `HOST` in `.env` never replaces certificate files kept in a volume.
 - With `-e NEPTUNE_NOTEBOOK=true`, the preset applies even when `config.json` exists. When `PROXY_SERVER_HTTPS_CONNECTION` is also `true`, startup stops with the conflict the earlier ADR describes.
-- Until #2504 is fixed, a `PROXY_SERVER_HTTPS_CONNECTION` line in `.env` doesn't take effect in the image.
 
 ## Considered options
 
