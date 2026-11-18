@@ -48,66 +48,33 @@ export type StartupConfig = {
   warnings: string[];
 };
 
-type StartupInputs = {
-  processEnv: Record<string, string | undefined>;
-  dotEnv: TextFile | undefined;
-  dotEnvLocal: TextFile | undefined;
-  configJson: ConfigJsonFile | undefined;
-};
-
 /**
  * Resolves everything the server starts with from its inputs, without
- * touching a file. A run from source reads the environment, then
- * `.env.local`, then `.env`. The image reads the environment, then
- * `.env.local`, then `config.json` or the notebook preset, then `.env`, as
- * {@link resolveImageStart} describes.
- */
-export function resolveStartupConfig({
-  image,
-  ...inputs
-}: StartupInputs & { image: boolean }): StartupConfig {
-  return image ? resolveImageStart(inputs) : resolveSourceRun(inputs);
-}
-
-function resolveSourceRun({
-  processEnv,
-  dotEnv,
-  dotEnvLocal,
-}: StartupInputs): StartupConfig {
-  const envFileValues = {
-    ...dotenv.parse(dotEnv?.text ?? ""),
-    ...dotenv.parse(dotEnvLocal?.text ?? ""),
-  };
-  return {
-    serverEnv: { ...envFileValues, ...definedValues(processEnv) },
-    envFileValues,
-    defaultConnectionJson: undefined,
-    certificateHost: undefined,
-    httpsNotice: undefined,
-    info: [],
-    warnings: [],
-  };
-}
-
-/**
- * Resolves the image's startup configuration. Every setting comes from the
- * process environment, then `.env.local`, then `config.json` or the notebook
- * preset, then `.env`, then its default, which is on for HTTPS. An empty
- * value for a setting `config.json` can hold counts as unset in the
- * environment, `.env.local`, and `.env`. Under the preset,
+ * touching a file. Every setting comes from the process environment, then
+ * `.env.local`, then `config.json` or the notebook preset, then `.env`, then
+ * its default. An empty value for a setting `config.json` can hold counts as
+ * unset in the environment, `.env.local`, and `.env`. Under the preset,
  * PROXY_SERVER_HTTPS_CONNECTION from `config.json` keeps its value only when
  * it reads as `true`, otherwise `false`. Connection settings and
  * NEPTUNE_NOTEBOOK come only from the process environment and `config.json`,
  * never from `.env` or `.env.local`.
  *
- * The notebook preset applies when NEPTUNE_NOTEBOOK is exactly `true`.
+ * The notebook preset applies when NEPTUNE_NOTEBOOK is exactly `true`. HTTPS
+ * defaults to on for the image and off otherwise.
  */
-function resolveImageStart({
+export function resolveStartupConfig({
   processEnv,
   dotEnv,
   dotEnvLocal,
   configJson,
-}: StartupInputs): StartupConfig {
+  image,
+}: {
+  processEnv: Record<string, string | undefined>;
+  dotEnv: TextFile | undefined;
+  dotEnvLocal: TextFile | undefined;
+  configJson: ConfigJsonFile | undefined;
+  image: boolean;
+}): StartupConfig {
   const info: string[] = [];
   const environment = withoutEmptyConfigJsonKeys(definedValues(processEnv));
 
@@ -180,7 +147,8 @@ function resolveImageStart({
       source: dotEnv.path,
     },
   ]);
-  serverEnv.PROXY_SERVER_HTTPS_CONNECTION = https?.value ?? "true";
+  serverEnv.PROXY_SERVER_HTTPS_CONNECTION =
+    https?.value ?? (image ? "true" : undefined);
 
   // A .env line never reaches the server, as before.
   serverEnv.NEPTUNE_NOTEBOOK = settings.NEPTUNE_NOTEBOOK;
@@ -192,7 +160,7 @@ function resolveImageStart({
     // The process environment only, so a HOST in .env never replaces
     // certificates kept in a volume.
     certificateHost: environment.HOST || undefined,
-    httpsNotice: httpsNoticeFor(notebook, https),
+    httpsNotice: image ? httpsNoticeFor(notebook, https) : undefined,
     info,
     warnings: configJson?.warnings ?? [],
   };
@@ -240,8 +208,8 @@ function withoutEmptyConfigJsonKeys(values: Record<string, string>) {
 
 /**
  * Reads the files the startup configuration comes from and resolves it,
- * validating what the server will parse. Only the image reads `config.json`.
- * Never writes a file or changes `processEnv`.
+ * validating what the server will parse. Never writes a file or changes
+ * `processEnv`.
  */
 export function loadStartup({
   processEnv,
@@ -265,7 +233,7 @@ export function loadStartup({
     processEnv,
     dotEnv: readTextFile(path.join(configPath, ".env")),
     dotEnvLocal: readTextFile(path.join(configPath, ".env.local")),
-    configJson: image ? loadConfigJson(configJsonPath) : undefined,
+    configJson: loadConfigJson(configJsonPath),
     image,
   });
 

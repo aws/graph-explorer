@@ -651,63 +651,40 @@ describe("resolveStartupConfig", () => {
 });
 
 describe("resolveStartupConfig from source", () => {
-  it("reads the environment, then .env.local, then .env", () => {
-    const { serverEnv, envFileValues } = resolve({
-      image: false,
-      processEnv: { LOG_LEVEL: "debug" },
-      dotEnv: "LOG_LEVEL=info\nLOG_STYLE=cloudwatch\nPROXY_SERVER_PORT=8081\n",
-      dotEnvLocal: "LOG_STYLE=default\nLOG_LEVEL=warn\n",
-    });
-
-    expect(serverEnv).toStrictEqual({
-      LOG_LEVEL: "debug",
-      LOG_STYLE: "default",
-      PROXY_SERVER_PORT: "8081",
-    });
-    expect(envFileValues).toStrictEqual({
-      LOG_LEVEL: "warn",
-      LOG_STYLE: "default",
-      PROXY_SERVER_PORT: "8081",
+  it("applies the preset with HTTPS off by default", () => {
+    expect(
+      resolve({ image: false, processEnv: { NEPTUNE_NOTEBOOK: "true" } })
+        .serverEnv,
+    ).toMatchObject({
+      NEPTUNE_NOTEBOOK: "true",
+      PROXY_SERVER_HTTPS_CONNECTION: "false",
+      PROXY_SERVER_PORT: "9250",
     });
   });
 
-  it("applies no preset and serves no Default Connection", () => {
+  it("reads config.json like the image", () => {
     expect(
       resolve({
         image: false,
-        processEnv: {
-          NEPTUNE_NOTEBOOK: "true",
-          GRAPH_CONNECTION_URL: db,
-          HOST: "localhost",
-        },
-      }),
-    ).toStrictEqual({
-      serverEnv: {
-        NEPTUNE_NOTEBOOK: "true",
-        GRAPH_CONNECTION_URL: db,
-        HOST: "localhost",
-      },
-      envFileValues: {},
-      defaultConnectionJson: undefined,
-      certificateHost: undefined,
-      httpsNotice: undefined,
-      info: [],
-      warnings: [],
-    });
+        configJson: { PROXY_SERVER_HTTPS_CONNECTION: true },
+      }).serverEnv.PROXY_SERVER_HTTPS_CONNECTION,
+    ).toBe("true");
   });
 
-  it("leaves the lines earlier versions appended in .env as dotenv reads them", () => {
-    const block = legacyStartupBlock({
-      neptuneNotebook: "false",
-      https: "false",
-      graphExpHttps: "true",
+  it("ignores the lines earlier versions appended to .env and says how many", () => {
+    const startup = resolve({
+      image: false,
+      dotEnv: legacyStartupBlock({
+        neptuneNotebook: "false",
+        https: "false",
+        graphExpHttps: "true",
+      }),
     });
 
-    expect(resolve({ image: false, dotEnv: block }).serverEnv).toStrictEqual({
-      NEPTUNE_NOTEBOOK: "false",
-      PROXY_SERVER_HTTPS_CONNECTION: "false",
-      GRAPH_EXP_HTTPS_CONNECTION: "true",
-    });
+    expect(startup.serverEnv.PROXY_SERVER_HTTPS_CONNECTION).toBeUndefined();
+    expect(startup.info).toStrictEqual([
+      "Ignored 6 lines of /config/.env, which earlier versions of Graph Explorer appended at each start. Startup now reads those settings directly, so you can delete the lines.",
+    ]);
   });
 });
 
@@ -767,18 +744,13 @@ describe("loadStartup", () => {
     expect(startup.defaultConnectionJson).toContain(db);
   });
 
-  it("never reads config.json from source", () => {
-    fs.writeFileSync(configJsonPath, '{"NEPTUNE_NOTEBOOK": true');
+  it("reads config.json from source", () => {
+    fs.writeFileSync(configJsonPath, '{"PROXY_SERVER_HTTPS_CONNECTION": true}');
 
-    const { env, startup } = loadStartup({
-      processEnv: {},
-      configPath,
-      configJsonPath,
-      image: false,
-    });
-
-    expect(env.NEPTUNE_NOTEBOOK).toBe(false);
-    expect(startup.defaultConnectionJson).toBeUndefined();
+    expect(
+      loadStartup({ processEnv: {}, configPath, configJsonPath, image: false })
+        .env.PROXY_SERVER_HTTPS_CONNECTION,
+    ).toBe(true);
   });
 
   it("ignores a config.json that is a directory, as Docker creates at a missing bind source", () => {

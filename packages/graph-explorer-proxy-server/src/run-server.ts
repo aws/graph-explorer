@@ -10,7 +10,11 @@ import {
 } from "./certificates.ts";
 import { handleError } from "./error-handler.ts";
 import { createLogger } from "./logging.ts";
-import { certificateDir, clientRoot, configJsonPath } from "./paths.ts";
+import {
+  certificateDir,
+  clientRoot,
+  configJsonPath as defaultConfigJsonPath,
+} from "./paths.ts";
 import {
   logStartupWarnings,
   resolveServerConfig,
@@ -23,9 +27,16 @@ import { loadStartup, StartupError } from "./startup-config.ts";
 /**
  * Resolves the startup configuration and runs the server. With `image` set,
  * HTTPS is on unless something turns it off, and a self-signed certificate is
- * made ready before the server starts.
+ * made ready before the server starts. `configJsonPath` defaults to the
+ * repository root's `config.json`, where the image keeps it.
  */
-export function runServer({ image }: { image: boolean }): void {
+export function runServer({
+  image,
+  configJsonPath = defaultConfigJsonPath,
+}: {
+  image: boolean;
+  configJsonPath?: string;
+}): void {
   const configPath = process.env.CONFIGURATION_FOLDER_PATH ?? clientRoot;
   let loaded;
   try {
