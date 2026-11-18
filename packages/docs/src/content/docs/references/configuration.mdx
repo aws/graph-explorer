@@ -17,7 +17,9 @@ These variables control server behavior, networking, and security.
 
 The public hostname of the server. It feeds the Subject Alternative Name of the self-signed SSL certificate and the UI URL the server prints at startup. It doesn't choose where the server listens or limit who can reach it. See [`PROXY_SERVER_LISTEN_ADDRESS`](#proxy_server_listen_address) and [Supported Hosting](../security/#supported-hosting).
 
-In Docker with HTTPS on, `HOST` decides where the certificate comes from. When it is set, a new container generates a fresh self-signed certificate for that hostname, which invalidates any trust you granted to the previous one. When it is unset, the container reuses the certificate files already in `cert-info` and stops if any are missing. See [HTTPS Connections](../security/#https-connections) and [Keeping the certificate across container replacements](../security/#keeping-the-certificate-across-container-replacements).
+In Docker with HTTPS on, `HOST` decides where the certificate comes from. When it is set, the container reuses the certificate files in `cert-info` if all of them exist, `server.crt` names that hostname, and neither `server.crt` nor `rootCA.crt` has expired. Otherwise it generates a fresh self-signed certificate for the hostname, which invalidates any trust you granted to the previous one. When it is unset, the container reuses the certificate files already in `cert-info` and stops if any are missing. See [HTTPS Connections](../security/#https-connections) and [Keeping the certificate across container replacements](../security/#keeping-the-certificate-across-container-replacements).
+
+Set `HOST` in the container's environment, for example `--env HOST=…`. A `HOST` in `.env` sets the URL the server prints but doesn't generate a certificate.
 
 Example: `localhost`
 
@@ -85,6 +87,8 @@ The port to use for the HTTP server. Ignored when `PROXY_SERVER_PORT` is set. Th
 Serves the proxy server over HTTPS when true, using the certificate files described in [HTTPS Connections](../security/#https-connections).
 
 Set it to `false` only behind a reverse proxy that terminates TLS, or to try Graph Explorer on your own machine. Plain HTTP that other machines can reach isn't supported, including machines on an internal network or a VPN. See [Serving HTTP Behind a Reverse Proxy](../security/#serving-http-behind-a-reverse-proxy).
+
+A value in `.env` takes effect, and `.env.local` and the environment override it, as does `config.json` in the Docker image. See [Precedence](#precedence).
 
 - Optional
 - Default `false` in code, `true` in Docker
@@ -168,9 +172,8 @@ In the Docker image, the server reads each setting from the first of these that 
 - `config.json` holds only the Default Connection settings, `PROXY_SERVER_HTTPS_CONNECTION`, `GRAPH_EXP_HTTPS_CONNECTION`, and `NEPTUNE_NOTEBOOK`, so other settings such as `PROXY_SERVER_PORT` and `LOG_STYLE` come from the environment, `.env.local`, or `.env`.
 - `GRAPH_EXP_HTTPS_CONNECTION` is accepted in `config.json` but has no effect. HTTPS follows `PROXY_SERVER_HTTPS_CONNECTION` alone.
 - Under the preset (`NEPTUNE_NOTEBOOK=true`), the preset's port `9250`, `cloudwatch` log style, and HTTPS off take the place of `config.json`. The environment overrides them. `.env.local` overrides the log style and `PROXY_SERVER_PORT`, but the preset sets the port unless the environment sets `PROXY_SERVER_PORT` or `PROXY_SERVER_HTTP_PORT`, so a port set only as `PROXY_SERVER_HTTP_PORT` in `.env.local` loses to the preset's `9250`. `.env` doesn't override the preset. A `PROXY_SERVER_HTTPS_CONNECTION` of `true` from the environment, `.env.local`, or `config.json` stops startup.
-- An empty environment value for a setting `config.json` can hold counts as unset.
+- An empty value for a setting `config.json` can hold counts as unset in every source: an `-e` flag, `.env.local`, or `.env`. The next source in the order applies, so `PROXY_SERVER_HTTPS_CONNECTION=` in `.env.local` falls through to `config.json`, then `.env`, then the default.
 - Default Connection settings and `NEPTUNE_NOTEBOOK` come only from the environment and `config.json`.
-- In the Docker image, a `PROXY_SERVER_HTTPS_CONNECTION` line in `.env` doesn't take effect yet. See [#2504](https://github.com/aws/graph-explorer/issues/2504).
 
 ## Default Connection
 

@@ -114,7 +114,7 @@ A row with a second start expects a pair. The shell startup left a `.env` in the
 - A row without a `.env` models an empty mounted configuration folder. The image's default configuration folder ships `packages/graph-explorer/.env`, which sets `SERVICE_TYPE`, a feedback URL, and a fetch timeout, so a row that models the default folder has to say so with `existingEnvFile`.
 - A row's inputs never change once it is added. Its `expected` changes only in the change that changes that behavior, which rewrites the comment to name what changed. So the table's diff shows exactly what a change moved.
 
-`config-pipeline.test.ts` runs every row through `loadStartup`, `prepareCertificates` with a stub that writes placeholder files, `resolveServerConfig`, and `createApp`, and checks after every start that the configuration folder is unchanged.
+`config-pipeline.test.ts` runs every row through `loadStartup`, `prepareCertificates` with a stub that writes placeholder files, `resolveServerConfig`, and `createApp`, and checks after every start that the configuration folder is unchanged. The placeholder certificates it writes put the host in `server.crt`, and a stub reads the host back, so a `restart` reuses the certificate for the same `HOST`. The certificates a row starts with name `localhost`, the `HOST` every row sets by default. A `new-container` start removes the generated certificate files.
 
 ## Backward compatibility for persisted data
 
