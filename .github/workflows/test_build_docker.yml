@@ -37,7 +37,9 @@ jobs:
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: test-image
-          severity: MEDIUM,HIGH,CRITICAL
+          # A release branch only takes a patch for a CRITICAL finding, so its
+          # pull requests fail on CRITICAL alone. main fails on MEDIUM and up.
+          severity: ${{ github.event_name == 'pull_request' && github.base_ref != 'main' && 'CRITICAL' || 'MEDIUM,HIGH,CRITICAL' }}
           ignore-unfixed: true
           exit-code: 1
 
