@@ -3,8 +3,9 @@ import { type QueryFragment, toQueryFragment } from "@/connector/queryFragment";
 import type { Brand } from "./branded";
 
 /**
- * Assembles a query string, normalizing the whitespace of the literal template
- * scaffolding while preserving each interpolated value verbatim.
+ * Assembles a query from literal template scaffolding and Query Fragment
+ * values, normalizing the whitespace of the scaffolding while preserving each
+ * value verbatim.
  *
  * The whitespace normalization — strip common indent, drop blank lines, trim
  * trailing whitespace — runs over the literal parts only. Values are held aside
@@ -17,15 +18,14 @@ import type { Brand } from "./branded";
  */
 export function query(
   literals: TemplateStringsArray,
-  ...placeholders: unknown[]
+  ...placeholders: QueryFragment[]
 ): QueryFragment {
-  const values = placeholders.map(String);
-  const lines = splitIntoLines(literals, values);
+  const lines = splitIntoLines(literals, placeholders);
   const min = minCommonIndent(lines);
   return toQueryFragment(
     lines
       .filter(hasContent)
-      .map(line => renderLine(line, values, min))
+      .map(line => renderLine(line, placeholders, min))
       .join("\n"),
   );
 }

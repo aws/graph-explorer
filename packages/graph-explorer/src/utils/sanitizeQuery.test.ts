@@ -13,7 +13,7 @@ describe("sanitizeQuery", () => {
         ?subject a ?subjectClass;
                  ?pred ?value .
       }
-      ${"LIMIT 10"}
+      ${toQueryFragment("LIMIT 10")}
     `;
 
     expect(value).toEqual(
@@ -32,9 +32,9 @@ describe("sanitizeQuery", () => {
       WHERE {
         ?subject a ?subjectClass;
                  ?pred ?value .
-        ${'FILTER (\n  ?subject = <http://example.org/subject>\n  && ?pred = <http://example.org/predicate>\n  && ?value = "value"\n)'}
+        ${toQueryFragment('FILTER (\n  ?subject = <http://example.org/subject>\n  && ?pred = <http://example.org/predicate>\n  && ?value = "value"\n)')}
       }
-      ${"LIMIT 10\nOFFSET 10"}
+      ${toQueryFragment("LIMIT 10\nOFFSET 10")}
     `;
 
     expect(value).toEqual(
@@ -55,7 +55,7 @@ describe("sanitizeQuery", () => {
 
   it("preserves a value's trailing space while still trimming scaffolding trailing space", () => {
     const value = query`
-      PREFIX a: ${"trailing-space "}
+      PREFIX a: ${toQueryFragment("trailing-space ")}
       END
     `;
 
@@ -66,7 +66,7 @@ describe("sanitizeQuery", () => {
     const value = query`
       START
 
-      ${"line1\n\nline3"}
+      ${toQueryFragment("line1\n\nline3")}
       END
     `;
 
@@ -76,7 +76,7 @@ describe("sanitizeQuery", () => {
   it("preserves an all-whitespace value instead of collapsing its line", () => {
     const value = query`
       START
-      ${"   "}
+      ${toQueryFragment("   ")}
       END
     `;
 
@@ -86,7 +86,7 @@ describe("sanitizeQuery", () => {
   it("preserves a value that is only a newline", () => {
     const value = query`
       START
-      ${"\n"}
+      ${toQueryFragment("\n")}
       END
     `;
 
@@ -106,11 +106,27 @@ zeroindent
   it("re-indents a multi-line value's continuation lines to the interpolation column", () => {
     const value = query`
       WHERE {
-        ${"a\nb\nc"}
+        ${toQueryFragment("a\nb\nc")}
       }
     `;
 
     expect(value).toEqual(`WHERE {\n  a\n  b\n  c\n}`);
+  });
+});
+
+describe("query placeholders", () => {
+  it("rejects a plain string placeholder at compile time", () => {
+    const value = "x";
+    // @ts-expect-error a placeholder must be a Query Fragment
+    expect(query`g.V(${value})`).toBe("g.V(x)");
+  });
+
+  it("rejects a number placeholder at compile time", () => {
+    const value = 1;
+    // @ts-expect-error a placeholder must be a Query Fragment
+    const rejected = () => query`g.V(${value})`;
+
+    expect(rejected).toBeTypeOf("function");
   });
 });
 

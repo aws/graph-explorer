@@ -8,14 +8,16 @@ import { UnrepresentableNumberError } from "./queryValueError";
  * delimiters its position requires.
  *
  * Produced by the per-query-language fragment modules — see
- * `src/connector/<query-language>/fragments.ts`. One language's fragment is not
- * valid in another.
+ * `src/connector/<query-language>/fragments.ts`. `query` and `joinFragments` in
+ * `@/utils` also produce fragments, by composing existing ones. One language's
+ * fragment is not valid in another.
  */
 export type QueryFragment = Branded<string, "QueryFragment">;
 
 /**
  * Marks text as a Query Fragment. The single place a fragment is minted, so
- * every construction path is auditable through the fragment modules.
+ * every construction path is auditable through the fragment modules and the
+ * `query` and `joinFragments` composition helpers.
  */
 export function toQueryFragment(text: string): QueryFragment {
   return text as QueryFragment;

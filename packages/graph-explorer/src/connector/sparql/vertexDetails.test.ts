@@ -1,6 +1,7 @@
 import { createRandomInteger } from "@shared/utils/testing";
 import { describe, expect, it, vi } from "vite-plus/test";
 
+import { toQueryFragment } from "@/connector/queryFragment";
 import { createVertexId } from "@/core";
 import { query } from "@/utils";
 import {
@@ -50,10 +51,10 @@ describe("vertexDetails", () => {
         SELECT ?subject ?predicate ?object
         WHERE {
           VALUES ?subject { 
-            <${vertex.id}> 
+            <${toQueryFragment(String(vertex.id))}> 
           }
           ?subject ?predicate ?object .
-          FILTER(isLiteral(?object) || ?predicate = <${rdfTypeUri}>)
+          FILTER(isLiteral(?object) || ?predicate = <${toQueryFragment(rdfTypeUri)}>)
         }
       `,
     );
@@ -79,11 +80,11 @@ describe("vertexDetails", () => {
         SELECT ?subject ?predicate ?object
         WHERE {
           VALUES ?subject {
-            <${vertices[0].id}>
-            <${vertices[1].id}>
+            <${toQueryFragment(String(vertices[0].id))}>
+            <${toQueryFragment(String(vertices[1].id))}>
           }
           ?subject ?predicate ?object .
-          FILTER(isLiteral(?object) || ?predicate = <${rdfTypeUri}>)
+          FILTER(isLiteral(?object) || ?predicate = <${toQueryFragment(rdfTypeUri)}>)
         }
       `,
     );

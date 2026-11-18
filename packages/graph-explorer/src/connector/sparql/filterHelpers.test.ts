@@ -1,6 +1,7 @@
 import { createRandomUrlString } from "@shared/utils/testing";
 import { describe, expect, it } from "vite-plus/test";
 
+import { toQueryFragment } from "@/connector/queryFragment";
 import { createVertexId } from "@/core";
 import { LABELS } from "@/utils";
 import { query } from "@/utils";
@@ -72,8 +73,8 @@ describe("getNeighborsFilter", () => {
           !isLiteral(?neighbor) && 
           ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
           ?neighbor NOT IN (
-            <${vertex1}>, 
-            <${vertex2}>
+            <${toQueryFragment(String(vertex1))}>, 
+            <${toQueryFragment(String(vertex2))}>
           )
         )
       `,
@@ -92,7 +93,7 @@ describe("getNeighborsFilter", () => {
           !isLiteral(?neighbor) && 
           ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> &&
           ?neighbor NOT IN (
-            <${vertex}>
+            <${toQueryFragment(String(vertex))}>
           )
         )
       `,
