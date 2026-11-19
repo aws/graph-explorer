@@ -1,5 +1,7 @@
 import type { NeighborsResponse } from "@/connector/useGEFetchTypes";
 
+import { SEARCH_TOKENS } from "@/utils";
+
 import type { BlankNodesMap, SPARQLNeighborsRequest } from "../types";
 
 /**
@@ -26,6 +28,13 @@ export const storedBlankNodeNeighborsRequest = (
       }
 
       for (const filter of req.attributeFilters ?? []) {
+        if (filter.name === SEARCH_TOKENS.NODE_ID) {
+          if (String(vertex.id) !== filter.value) {
+            return false;
+          }
+          continue;
+        }
+
         const attrVal = vertex.attributes[filter.name];
         if (attrVal == null) {
           return false;
