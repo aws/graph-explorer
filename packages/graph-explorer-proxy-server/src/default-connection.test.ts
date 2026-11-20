@@ -323,6 +323,82 @@ const rowGroups: Record<string, Row[]> = {
   ],
 
   // #2291: the shell never wrote these two settings.
+  "fetch timeout and node expansion limit": [
+    {
+      name: "adds the fetch timeout and node expansion limit",
+      settings: {
+        GRAPH_CONNECTION_URL: db,
+        GRAPH_EXP_FETCH_REQUEST_TIMEOUT: "60000",
+        GRAPH_EXP_NODE_EXPANSION_LIMIT: "500",
+      },
+      expected: {
+        GRAPH_EXP_CONNECTION_URL: db,
+        GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+        GRAPH_EXP_IAM: false,
+        GRAPH_EXP_AWS_REGION: "",
+        GRAPH_EXP_USING_PROXY_SERVER: true,
+        GRAPH_EXP_FETCH_REQUEST_TIMEOUT: 60000,
+        GRAPH_EXP_NODE_EXPANSION_LIMIT: 500,
+      },
+    },
+    {
+      name: "adds the fetch timeout and node expansion limit to a direct connection",
+      settings: {
+        USING_PROXY_SERVER: "false",
+        PUBLIC_OR_PROXY_ENDPOINT: "https://public:9250",
+        GRAPH_EXP_FETCH_REQUEST_TIMEOUT: "60000",
+      },
+      expected: {
+        GRAPH_EXP_CONNECTION_URL: "https://public:9250",
+        GRAPH_EXP_USING_PROXY_SERVER: false,
+        GRAPH_EXP_FETCH_REQUEST_TIMEOUT: 60000,
+      },
+    },
+    ...(
+      [
+        "GRAPH_EXP_FETCH_REQUEST_TIMEOUT",
+        "GRAPH_EXP_NODE_EXPANSION_LIMIT",
+      ] as const
+    ).flatMap(key => [
+      {
+        name: `keeps the largest safe whole number as the ${key}`,
+        settings: { GRAPH_CONNECTION_URL: db, [key]: "9007199254740991" },
+        expected: {
+          GRAPH_EXP_CONNECTION_URL: db,
+          GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+          GRAPH_EXP_IAM: false,
+          GRAPH_EXP_AWS_REGION: "",
+          GRAPH_EXP_USING_PROXY_SERVER: true,
+          [key]: 9007199254740991,
+        },
+      } satisfies Row,
+      ...[
+        "0",
+        "-1",
+        "1.5",
+        "many",
+        "9007199254740992",
+        "1".padEnd(309, "0"),
+      ].map((value): Row => ({
+        name: `leaves out a ${key} of ${value.length > 20 ? `${value.length} digits` : value} with a warning`,
+        settings: {
+          GRAPH_CONNECTION_URL: db,
+          [key]: value,
+        },
+        expected: {
+          GRAPH_EXP_CONNECTION_URL: db,
+          GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+          GRAPH_EXP_IAM: false,
+          GRAPH_EXP_AWS_REGION: "",
+          GRAPH_EXP_USING_PROXY_SERVER: true,
+        },
+        warnings: [
+          `${key} is "${value}", which isn't a positive whole number, so the Default Connection leaves it out.`,
+        ],
+      })),
+    ]),
+  ],
+
   // Earlier versions wrote the IAM value as it was given, so anything but a
   // lowercase true or false made the file invalid JSON.
   "IAM values": [
@@ -408,6 +484,23 @@ describe("resolveDefaultConnection", () => {
     );
   });
 
+  // JSON.stringify writes a number that overflowed to Infinity as null.
+  it("serializes a Default Connection without a null for a value it left out", () => {
+    const { defaultConnection } = resolveDefaultConnection({
+      GRAPH_CONNECTION_URL: db,
+      GRAPH_EXP_FETCH_REQUEST_TIMEOUT: "1".padEnd(309, "0"),
+      GRAPH_EXP_NODE_EXPANSION_LIMIT: "9007199254740992",
+    });
+
+    expect(JSON.parse(JSON.stringify(defaultConnection))).toStrictEqual({
+      GRAPH_EXP_CONNECTION_URL: db,
+      GRAPH_EXP_SERVICE_TYPE: "neptune-db",
+      GRAPH_EXP_IAM: false,
+      GRAPH_EXP_AWS_REGION: "",
+      GRAPH_EXP_USING_PROXY_SERVER: true,
+    });
+  });
+
   it("treats an empty setting as unset", () => {
     expect(
       resolveDefaultConnection({
@@ -415,6 +508,7 @@ describe("resolveDefaultConnection", () => {
         GRAPH_TYPE: "",
         SERVICE_TYPE: "",
         IAM: "",
+        GRAPH_EXP_NODE_EXPANSION_LIMIT: "",
       }),
     ).toStrictEqual({
       defaultConnection: {
