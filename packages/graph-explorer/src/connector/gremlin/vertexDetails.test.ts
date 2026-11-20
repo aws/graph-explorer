@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vite-plus/test";
 
+import { createVertexId } from "@/core";
 import {
   createGremlinResponseFromVertices,
   createTestableVertex,
@@ -48,5 +49,17 @@ describe("vertexDetails", () => {
       vertex1.asVertex(),
       vertex2.asVertex(),
     ]);
+  });
+
+  it("emits the exact query text for several IDs", async () => {
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValue(createGremlinResponseFromVertices());
+
+    await vertexDetails(mockFetch, {
+      vertexIds: [createVertexId("v'1"), createVertexId(7)],
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith("g.V('v\\'1',7L)");
   });
 });

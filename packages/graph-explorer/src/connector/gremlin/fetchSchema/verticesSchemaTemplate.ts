@@ -1,6 +1,8 @@
 import { uniq } from "lodash";
 
-import { query } from "@/utils";
+import type { QueryFragment } from "@/connector/queryFragment";
+
+import { joinFragments, query } from "@/utils";
 
 import { fragment } from "../fragments";
 import { splitLabel } from "../splitLabel";
@@ -24,14 +26,21 @@ import { splitLabel } from "../splitLabel";
  * //   .by(V().hasLabel('airport').limit(1))
  * //   .by(V().hasLabel('country').limit(1))
  */
-export default function verticesSchemaTemplate({ types }: { types: string[] }) {
+export default function verticesSchemaTemplate({
+  types,
+}: {
+  types: string[];
+}): QueryFragment {
   const labels = uniq(types.flatMap(splitLabel)).map(fragment.identifier);
 
   return query`
     g.V().limit(1)
       .project(
-        ${labels.join(",\n        ")}
+        ${joinFragments(labels, ",\n        ")}
       )
-      ${labels.map(label => `.by(V().hasLabel(${label}).limit(1))`).join("\n      ")}
+      ${joinFragments(
+        labels.map(label => query`.by(V().hasLabel(${label}).limit(1))`),
+        "\n      ",
+      )}
   `;
 }

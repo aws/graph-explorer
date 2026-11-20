@@ -52,4 +52,20 @@ describe("Gremlin > verticesSchemaTemplate", () => {
       `),
     );
   });
+
+  it("emits the exact query text for several types", () => {
+    const template = verticesSchemaTemplate({ types: ["airport", "country"] });
+
+    expect(template).toBe(
+      [
+        "g.V().limit(1)",
+        "  .project(",
+        "    'airport',",
+        "            'country'",
+        "  )",
+        "  .by(V().hasLabel('airport').limit(1))",
+        "        .by(V().hasLabel('country').limit(1))",
+      ].join("\n"),
+    );
+  });
 });

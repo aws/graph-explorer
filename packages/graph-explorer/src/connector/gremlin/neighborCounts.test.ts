@@ -200,6 +200,25 @@ describe("neighborCounts", () => {
       ]),
     );
   });
+
+  it("emits the exact query text for several IDs", async () => {
+    const mockFetch = vi.fn().mockResolvedValue(createGremlinResponse());
+
+    await neighborCounts(mockFetch, {
+      vertexIds: [createVertexId("12"), createVertexId(13)],
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      [
+        "g.V('12',13L)",
+        " .group()",
+        " .by(id)",
+        " .by(",
+        "   both().dedup().groupCount().by(label)",
+        " )",
+      ].join("\n"),
+    );
+  });
 });
 
 function createResponse(...counts: NeighborCount[]) {

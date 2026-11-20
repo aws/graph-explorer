@@ -287,4 +287,56 @@ describe("Gremlin > oneHopTemplate", () => {
       );
     });
   });
+
+  it("emits the exact query text with every option", () => {
+    const template = oneHopTemplate({
+      vertexId: createVertexId("124"),
+      filterByVertexTypes: ["airport", "country"],
+      attributeFilters: [
+        { name: "city", value: "Sea" },
+        { name: "country", value: "ES" },
+      ],
+      excludedVertices: new Set([createVertexId("256"), createVertexId(512)]),
+      limit: 10,
+    });
+
+    expect(template).toBe(
+      [
+        "g.V('124').as('start')",
+        "  .both()",
+        "  .hasLabel('airport', 'country').and(has('city',containing('Sea')), has('country',containing('ES')))",
+        "  .filter(__.not(__.hasId('256',512L)))",
+        "  .dedup()",
+        "  .range(0, 10)",
+        "  .as('neighbor')",
+        "  .project('vertex', 'edges')",
+        "    .by()",
+        "    .by(",
+        "      __.select('start').bothE()",
+        "        .where(otherV().where(eq('neighbor')))",
+        "        .dedup().fold()",
+        "    )",
+      ].join("\n"),
+    );
+  });
+
+  it("emits the exact query text with only a vertex ID", () => {
+    const template = oneHopTemplate({ vertexId: createVertexId("124") });
+
+    expect(template).toBe(
+      [
+        "g.V('124').as('start')",
+        "  .both()",
+        "  .dedup()",
+        "  .as('neighbor')",
+        "  .project('vertex', 'edges')",
+        "    .by()",
+        "    .by(",
+        "      __.select('start').bothE()",
+        "        .where(otherV().where(eq('neighbor')))",
+        "        .dedup().fold()",
+        "    )",
+      ].join("\n"),
+    );
+  });
 });

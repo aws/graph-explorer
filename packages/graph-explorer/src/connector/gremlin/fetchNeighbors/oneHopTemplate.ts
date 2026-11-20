@@ -1,14 +1,18 @@
+import type { QueryFragment } from "@/connector/queryFragment";
 import type {
   AttributeFilter,
   NeighborsRequest,
 } from "@/connector/useGEFetchTypes";
 
-import { query } from "@/utils";
+import { joinFragments, query } from "@/utils";
 
 import { fragment } from "../fragments";
 
-function attributeFilterTemplate({ name, value }: AttributeFilter): string {
-  return `has(${fragment.identifier(name)},containing(${fragment.string(value)}))`;
+function attributeFilterTemplate({
+  name,
+  value,
+}: AttributeFilter): QueryFragment {
+  return query`has(${fragment.identifier(name)},containing(${fragment.string(value)}))`;
 }
 
 /**
@@ -43,31 +47,37 @@ export default function oneHopTemplate({
   filterByVertexTypes = [],
   attributeFilters = [],
   limit = 0,
-}: Omit<NeighborsRequest, "vertexTypes">): string {
+}: Omit<NeighborsRequest, "vertexTypes">): QueryFragment {
   const idTemplate = fragment.id(vertexId);
-  const range = limit > 0 ? `.range(0, ${fragment.number(limit)})` : "";
+  const range =
+    limit > 0 ? query`.range(0, ${fragment.number(limit)})` : query``;
 
   const vertexTypesTemplate =
     filterByVertexTypes.length > 0
-      ? `hasLabel(${filterByVertexTypes.map(fragment.identifier).join(", ")})`
-      : ``;
+      ? query`hasLabel(${joinFragments(filterByVertexTypes.map(fragment.identifier), ", ")})`
+      : query``;
 
   const attributeFiltersTemplate =
     attributeFilters.length > 0
-      ? `and(${attributeFilters.map(attributeFilterTemplate).join(", ")})`
-      : ``;
+      ? query`and(${joinFragments(attributeFilters.map(attributeFilterTemplate), ", ")})`
+      : query``;
 
   const nodeFilters = [vertexTypesTemplate, attributeFiltersTemplate].filter(
     Boolean,
   );
 
   const nodeFiltersTemplate =
-    nodeFilters.length > 0 ? `.${nodeFilters.join(".")}` : ``;
+    nodeFilters.length > 0
+      ? query`.${joinFragments(nodeFilters, ".")}`
+      : query``;
 
-  const excludedList = Array.from(excludedVertices).map(fragment.id).join(",");
+  const excludedList = joinFragments(
+    Array.from(excludedVertices).map(fragment.id),
+    ",",
+  );
   const excludedTemplate = excludedList
-    ? `.filter(__.not(__.hasId(${excludedList})))`
-    : ``;
+    ? query`.filter(__.not(__.hasId(${excludedList})))`
+    : query``;
 
   return query`
     g.V(${idTemplate}).as('start')

@@ -1,6 +1,6 @@
 import { warnMissingIds } from "@/connector/utils/warnMissingIds";
 import { createEdge } from "@/core";
-import { logger, query } from "@/utils";
+import { joinFragments, logger, query } from "@/utils";
 
 import type {
   EdgeDetailsRequest,
@@ -36,7 +36,7 @@ export async function edgeDetails(
     return { edges: [] };
   }
 
-  const ids = request.edgeIds.map(fragment.id).join(",");
+  const ids = joinFragments(request.edgeIds.map(fragment.id), ",");
   const template = query`
     g.E(${ids})
   `;
