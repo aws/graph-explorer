@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { query, stripCommonIndent } from "./sanitizeQuery";
+import { type QueryFragment, toQueryFragment } from "@/connector/queryFragment";
+import { createVertexType } from "@/core/entities/vertex";
+
+import { joinFragments, query, stripCommonIndent } from "./sanitizeQuery";
 
 describe("sanitizeQuery", () => {
   it("should remove leading space evenly across all lines and remove empty lines", () => {
@@ -108,6 +111,93 @@ zeroindent
     `;
 
     expect(value).toEqual(`WHERE {\n  a\n  b\n  c\n}`);
+  });
+});
+
+describe("query composition", () => {
+  it("nests a query result inside another query", () => {
+    const inner: QueryFragment = query`b`;
+    const outer: QueryFragment = query`a ${inner} c`;
+
+    expect(outer).toBe("a b c");
+  });
+});
+
+describe("joinFragments", () => {
+  it("joins fragments with the separator verbatim", () => {
+    const parts = [toQueryFragment("x"), toQueryFragment("y")];
+
+    expect(joinFragments(parts, ",\n        ")).toBe("x,\n        y");
+  });
+
+  it("returns an empty fragment for no fragments", () => {
+    expect(joinFragments([], ", ")).toBe("");
+  });
+
+  it("returns a single fragment unchanged", () => {
+    expect(joinFragments([toQueryFragment("only")], ", ")).toBe("only");
+  });
+
+  it("rejects a separator that is not a string literal", () => {
+    const parts = [toQueryFragment("x"), toQueryFragment("y")];
+    const separator: string = ",";
+
+    // @ts-expect-error the separator must be a string literal
+    expect(joinFragments(parts, separator)).toBe("x,y");
+  });
+
+  it("rejects a branded string separator", () => {
+    const parts = [toQueryFragment("x"), toQueryFragment("y")];
+
+    // @ts-expect-error a branded string is a runtime value, not a literal
+    expect(joinFragments(parts, createVertexType(","))).toBe("x,y");
+  });
+
+  it("rejects a Query Fragment separator", () => {
+    const parts = [toQueryFragment("x"), toQueryFragment("y")];
+
+    // @ts-expect-error a Query Fragment is a runtime value, not a literal
+    expect(joinFragments(parts, toQueryFragment(","))).toBe("x,y");
+  });
+
+  it("rejects a template-literal pattern type separator", () => {
+    const parts = [toQueryFragment("x"), toQueryFragment("y")];
+    const separator: `,${string}` = ",";
+
+    // @ts-expect-error a pattern type admits arbitrary runtime text
+    expect(joinFragments(parts, separator)).toBe("x,y");
+  });
+
+  it("rejects a union of a literal and a pattern type separator", () => {
+    const parts = [toQueryFragment("x"), toQueryFragment("y")];
+    function separator(): "," | `;${string}` {
+      return ",";
+    }
+
+    // @ts-expect-error every member of a union separator must be a literal
+    expect(joinFragments(parts, separator())).toBe("x,y");
+  });
+
+  it("accepts a union of literals", () => {
+    const parts = [toQueryFragment("x"), toQueryFragment("y")];
+    function separator(): "," | ";" {
+      return ",";
+    }
+
+    expect(joinFragments(parts, separator())).toBe("x,y");
+  });
+
+  it("accepts an empty literal", () => {
+    const parts = [toQueryFragment("x"), toQueryFragment("y")];
+
+    expect(joinFragments(parts, "")).toBe("xy");
+  });
+
+  it("accepts a const literal", () => {
+    const parts = [toQueryFragment("x"), toQueryFragment("y")];
+    const separator = " | ";
+
+    expect(joinFragments(parts, separator)).toBe("x | y");
   });
 });
 
