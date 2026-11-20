@@ -7,7 +7,12 @@ import { afterEach, beforeEach, describe, it, vi } from "vite-plus/test";
 import type { EnvironmentValues } from "./env.ts";
 
 import { createApp } from "./app.ts";
-import { CertificateError, prepareCertificates } from "./certificates.ts";
+import {
+  type CertificateSummary,
+  CertificateError,
+  certificateDnsName,
+  prepareCertificates,
+} from "./certificates.ts";
 import { createLogger } from "./logging.ts";
 import { certificateDir } from "./paths.ts";
 import { resolveServerConfig, ServerConfigError } from "./server-config.ts";
@@ -21,6 +26,12 @@ import {
   type ServerStart,
   type StartupOutcome,
 } from "./testing/deployment-scenarios.ts";
+
+/**
+ * The HOST every row sets unless it says otherwise. The certificates a row
+ * starts with name it, as a volume kept from an earlier run with that HOST does.
+ */
+const defaultHost = "localhost";
 
 const expectedKeyPath = path.join(certificateDir, "server.key");
 const expectedCertPath = path.join(certificateDir, "server.crt");
@@ -124,7 +135,7 @@ describe("deployment scenarios: TypeScript startup", () => {
     configDir = path.join(workDir, "config");
     fs.mkdirSync(configDir);
     certDir = path.join(workDir, "cert-info");
-    resetCertificateFolder();
+    resetContainer();
     configJsonPath = path.join(workDir, "config.json");
   });
 
@@ -133,8 +144,12 @@ describe("deployment scenarios: TypeScript startup", () => {
     fs.rmSync(workDir, { recursive: true, force: true });
   });
 
-  /** Leaves `cert-info` holding only the openssl templates, as a new container does. */
-  function resetCertificateFolder() {
+  /**
+   * Leaves the container's own files as a new container has them: `cert-info`
+   * holding only the openssl templates. The mounted configuration folder and
+   * config.json stay.
+   */
+  function resetContainer() {
     fs.rmSync(certDir, { recursive: true, force: true });
     fs.mkdirSync(certDir);
     for (const template of certTemplates) {
@@ -189,7 +204,7 @@ describe("deployment scenarios: TypeScript startup", () => {
       : existingCertificates === "server-only"
         ? ["server.key", "server.crt"]
         : []) {
-      fs.writeFileSync(path.join(certDir, file), "placeholder");
+      writePlaceholderCertificate(file, defaultHost);
     }
     if (readOnly === "configFolder") {
       fs.chmodSync(configDir, 0o555);
@@ -200,36 +215,56 @@ describe("deployment scenarios: TypeScript startup", () => {
     }
   }
 
-  function writePlaceholderCertificates() {
+  function writePlaceholderCertificate(file: string, host: string) {
+    fs.writeFileSync(
+      path.join(certDir, file),
+      file === "server.crt" ? host : "placeholder",
+    );
+  }
+
+  /** Writes the certificate files with a `server.crt` that names `host`. */
+  function writePlaceholderCertificates(_certDir: string, host: string) {
     for (const file of certificateFiles) {
-      fs.writeFileSync(path.join(certDir, file), "placeholder");
+      writePlaceholderCertificate(file, host);
     }
   }
 
+  /** Reads the host a placeholder `server.crt` names, which never expires. */
+  function readPlaceholderCertificate(_certDir: string): CertificateSummary {
+    return {
+      dnsNames: [
+        certificateDnsName(
+          fs.readFileSync(path.join(certDir, "server.crt"), "utf-8"),
+        ),
+      ],
+      expiresAt: new Date("9999-12-31T00:00:00Z"),
+    };
+  }
+
   /** Starts the server through the TypeScript startup and reports what it did. */
-  async function startServer(
-    { dockerEnv, host }: Deployment,
-    startedBefore: boolean,
-  ): Promise<StartupOutcome> {
+  async function startServer({
+    dockerEnv,
+    host,
+  }: Deployment): Promise<StartupOutcome> {
     try {
       const { env, startup } = loadStartup({
         processEnv: {
-          ...(host === false ? {} : { HOST: "localhost" }),
+          ...(host === false ? {} : { HOST: defaultHost }),
           ...dockerEnv,
         },
         configPath: configDir,
         configJsonPath,
         image: true,
-        startedBefore,
       });
-      const certificates = startup.setUpCertificates
+      const certificates = env.PROXY_SERVER_HTTPS_CONNECTION
         ? prepareCertificates({
             certDir,
             host: startup.certificateHost,
             generate: writePlaceholderCertificates,
+            readCertificate: readPlaceholderCertificate,
             logger: { info: () => undefined },
           })
-        : "skipped";
+        : "unused";
 
       const server = serverOutcome(env, certDir);
       if ("failed" in server) {
@@ -264,7 +299,7 @@ describe("deployment scenarios: TypeScript startup", () => {
 
       arrange(deployment);
       const configFolderBefore = readFolder(configDir);
-      const first = await startServer(deployment, false);
+      const first = await startServer(deployment);
       // The startup never writes to the configuration folder.
       expect(readFolder(configDir)).toStrictEqual(configFolderBefore);
 
@@ -273,12 +308,9 @@ describe("deployment scenarios: TypeScript startup", () => {
         return;
       }
       if (deployment.secondStart === "new-container") {
-        resetCertificateFolder();
+        resetContainer();
       }
-      const second = await startServer(
-        deployment,
-        deployment.secondStart === "restart",
-      );
+      const second = await startServer(deployment);
       expect(readFolder(configDir)).toStrictEqual(configFolderBefore);
       expect([first, second]).toStrictEqual(deployment.expected);
     },

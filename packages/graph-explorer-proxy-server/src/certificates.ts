@@ -1,4 +1,5 @@
 import { execFileSync } from "child_process";
+import { X509Certificate } from "crypto";
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -27,6 +28,11 @@ const certificateFiles = [
 ];
 
 const alternativeNameLine = /^DNS\.1 = .*$/m;
+
+/** The name generation gives `host` in the certificate's alternative names. */
+export function certificateDnsName(host: string) {
+  return `${host}:*`;
+}
 
 /**
  * Generates a root CA and a server certificate signed by it in `certDir`,
@@ -118,7 +124,10 @@ function writeConfigFor(
   const configPath = path.join(workDir, name);
   fs.writeFileSync(
     configPath,
-    template.replace(alternativeNameLine, () => `DNS.1 = ${host}:*`),
+    template.replace(
+      alternativeNameLine,
+      () => `DNS.1 = ${certificateDnsName(host)}`,
+    ),
   );
   return configPath;
 }
@@ -146,31 +155,111 @@ function openssl(args: string[]) {
   }
 }
 
+/** What a server certificate names and when it expires. */
+export type CertificateSummary = {
+  /** The DNS names in the certificate's alternative names. */
+  dnsNames: string[];
+  expiresAt: Date;
+};
+
+/** Reads `server.crt` in `certDir`. Throws when the file isn't a certificate. */
+export function readServerCertificate(certDir: string): CertificateSummary {
+  const certificate = new X509Certificate(
+    fs.readFileSync(path.join(certDir, "server.crt")),
+  );
+  return {
+    dnsNames: (certificate.subjectAltName ?? "")
+      .split(", ")
+      .filter(name => name.startsWith("DNS:"))
+      .map(name => name.slice("DNS:".length)),
+    expiresAt: new Date(certificate.validTo),
+  };
+}
+
+type Reuse =
+  | { reusable: true; expiresOn: string }
+  | { reusable: false; reason: string };
+
+/** Whether the certificate in `certDir` names `host` and hasn't expired. */
+function checkCertificate(
+  certDir: string,
+  host: string,
+  readCertificate: (certDir: string) => CertificateSummary,
+): Reuse {
+  let certificate;
+  try {
+    certificate = readCertificate(certDir);
+  } catch (error) {
+    return {
+      reusable: false,
+      reason: `The existing server.crt can't be read as a certificate (${messageOf(error)}), so a new certificate is generated.`,
+    };
+  }
+  if (!certificate.dnsNames.includes(certificateDnsName(host))) {
+    return {
+      reusable: false,
+      reason: `The existing certificate doesn't name ${host}, so a new certificate is generated.`,
+    };
+  }
+  const expiresOn = certificate.expiresAt.toISOString().slice(0, 10);
+  if (!(certificate.expiresAt.getTime() > Date.now())) {
+    return {
+      reusable: false,
+      reason: `The existing certificate expired on ${expiresOn}, so a new certificate is generated.`,
+    };
+  }
+  return { reusable: true, expiresOn };
+}
+
 /**
  * Makes sure the certificate files exist, and says whether it generated them.
- * With a `host` it generates a certificate. Without one it reuses the files
- * in `certDir` and throws when any is missing.
+ *
+ * With a `host` it reuses the files in `certDir` when all of them exist, the
+ * server certificate names `host` as generation writes it, and it hasn't
+ * expired, so a new container that mounts the same `certDir` keeps the
+ * certificate anyone trusted. Otherwise it generates a certificate. Without a
+ * `host` it reuses the files and throws when any is missing.
  */
 export function prepareCertificates({
   certDir,
   host,
   generate,
+  readCertificate,
   logger,
 }: {
   certDir: string;
   host: string | undefined;
   generate: (certDir: string, host: string) => void;
+  readCertificate: (certDir: string) => CertificateSummary;
   logger: Pick<AppLogger, "info">;
 }): "generated" | "reused" {
+  const missing = certificateFiles.filter(
+    file => !fs.existsSync(path.join(certDir, file)),
+  );
+
   if (host) {
+    const check =
+      missing.length === 0
+        ? checkCertificate(certDir, host, readCertificate)
+        : undefined;
+    if (check?.reusable) {
+      logger.info(
+        `Found existing self-signed SSL certificate for ${host}, valid until ${check.expiresOn}. Re-using existing cert.`,
+      );
+      return "reused";
+    }
+    if (check) {
+      logger.info(check.reason);
+    } else if (missing.length < certificateFiles.length) {
+      logger.info(
+        `Some certificate files are missing from ${certDir} (${missing.join(" ")}), so a new certificate is generated.`,
+      );
+    }
     logger.info(`Generating new self-signed SSL cert using ${host}...`);
     generate(certDir, host);
     return "generated";
   }
 
-  const missing = certificateFiles.filter(
-    file => !fs.existsSync(path.join(certDir, file)),
-  );
   if (missing.length > 0) {
     throw new CertificateError(
       `Missing certificate files in ${certDir}: ${missing.join(" ")}\nPlease specify --env HOST=<hostname> during docker run command to create SSL cert.`,
@@ -180,21 +269,4 @@ export function prepareCertificates({
     "Found existing self-signed SSL certificate. Re-using existing cert.",
   );
   return "reused";
-}
-
-/**
- * Records that this container has started, so a restart keeps the
- * certificate this start set up. A start that can't record it still runs.
- */
-export function recordContainerStart(
-  markerPath: string,
-  logger: Pick<AppLogger, "warn">,
-): void {
-  try {
-    fs.writeFileSync(markerPath, "");
-  } catch (error) {
-    logger.warn(
-      `Couldn't record this container's start at ${markerPath}, so a restart generates a new certificate: ${messageOf(error)}`,
-    );
-  }
 }
