@@ -14,6 +14,8 @@ import path from "path";
 import { pipeline } from "stream";
 import { z } from "zod";
 
+import type { DefaultConnection } from "./default-connection.ts";
+
 import {
   blockedResolutionError,
   dbAgentFor,
@@ -165,8 +167,8 @@ function onClientDisconnect(res: Response, onDisconnect: () => void) {
 
 interface CreateAppOptions {
   configPath: string;
-  /** Served at `/defaultConnection`. Without it, the configuration folder's `defaultConnection.json` is. */
-  defaultConnectionJson: string | undefined;
+  /** Served at `/defaultConnection`. Without one, the configuration folder's `defaultConnection.json` is. */
+  defaultConnection: DefaultConnection | undefined;
   staticFilesVirtualPath: string;
   staticFilesPath: string;
   version?: string;
@@ -176,7 +178,7 @@ interface CreateAppOptions {
 
 export function createApp({
   configPath,
-  defaultConnectionJson,
+  defaultConnection,
   staticFilesVirtualPath,
   staticFilesPath,
   version,
@@ -203,11 +205,11 @@ export function createApp({
     ),
   );
   app.get("/defaultConnection", (_req, res, next) => {
-    if (defaultConnectionJson === undefined) {
+    if (defaultConnection === undefined) {
       next();
       return;
     }
-    res.type("json").send(defaultConnectionJson);
+    res.json(defaultConnection);
   });
   app.use(
     "/defaultConnection",
