@@ -47,9 +47,42 @@
 
 ## Forms & validation
 
+All user input goes through `useAppForm` from `@/components/form` with a Zod schema. See `docs/adr/20261110-tanstack-form-and-zod-for-user-input.md`. `src/modules/SearchSidebar/QuerySearchTabContent.tsx` is the reference form.
+
 - Define a Zod schema and derive the type with `z.infer`. Don't declare the shape twice
-- Default to plain React state. Use `react-hook-form` only when a form needs it. Today only `src/modules/SearchSidebar/QuerySearchTabContent.tsx` calls `useForm`, and it renders the form with the shared `Form` components in `src/components/Form.tsx`
-- With `react-hook-form` and Zod 4, use `standardSchemaResolver` from `@hookform/resolvers/standard-schema`. `zodResolver` has compatibility issues with Zod 4
+- Pick one of two modes:
+  - **Submit**, for a form with a submit button. Errors show after the first submit, then follow each change:
+
+    ```ts
+    useAppForm({
+      defaultValues,
+      validationLogic: revalidateLogic(),
+      validators: { onDynamic: schema },
+      onSubmit: async ({ value }) => save(schema.parse(value)),
+    });
+    ```
+
+  - **Auto-save**, for settings that save as the user edits. The persisted atom stays the store: defaults read it, `onSubmit` writes it, and an external write to the atom calls `form.reset(next)`. `onChangeDebounceMs` is required and above 0: TanStack Form runs change listeners before change validation, so without a debounce the `isValid` check reads the previous change's result and drops the edit that fixes an invalid value:
+
+    ```ts
+    useAppForm({
+      defaultValues: stored,
+      validators: { onChange: schema },
+      listeners: {
+        onChange: ({ formApi }) => {
+          if (formApi.state.isValid) void formApi.handleSubmit();
+        },
+        onChangeDebounceMs: 300,
+      },
+      onSubmit: ({ value }) => setStored(schema.parse(value)),
+    });
+    ```
+
+- In `onSubmit`, parse `value` with the schema again (`const data = schema.parse(value)`). TanStack Form passes the raw input, not the schema's output
+- Render code reads form state through `form.Subscribe` or `useSelector(form.store, selector)` from `@tanstack/react-form`. `useAppForm` doesn't subscribe the component to the form store, so a direct `form.state` read in render never updates. Event handlers may read `form.state`
+- Render fields with `form.AppField` and buttons inside `form.AppForm`, using the registered components (`field.TextAreaFormField`, `form.SubmitButton`). `form.SubmitButton` is `aria-disabled` and ignores activation while the form submits or can't submit, so keyboard focus stays on it. Pass `asChild` to slot its submit behavior onto a styled child such as `InputGroupButton`, and put that button inside a text area's border with `TextAreaFormField`'s `addon`
+- A new field component is named `<Control>FormField`, registers in `src/components/form/useAppForm.ts`, and is built on `Field`: `data-invalid` on `Field`, `aria-invalid` on the control, and `FieldError errors={field.state.meta.errors}`, shown when the field is touched and invalid
+- react-hook-form and the wrappers in `src/components/ReactHookForm.tsx` remain for their current users only. New input uses `useAppForm`
 - When code reads `FormData`, parse it through a Zod schema instead of reading raw string fields
 
 ## Feature Modules

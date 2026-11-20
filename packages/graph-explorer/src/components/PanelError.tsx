@@ -23,9 +23,9 @@ import {
   EmptyStateIcon,
   EmptyStateTitle,
 } from "./EmptyState";
-import { FormItem } from "./Form";
 import { GraphIcon } from "./icons";
 import { Label } from "./Label";
+import { FormItem } from "./ReactHookForm";
 
 export default function PanelError({
   error,
