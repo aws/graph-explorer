@@ -1,3 +1,5 @@
+import type { QueryFragment } from "@/connector/queryFragment";
+
 import { query } from "@/utils";
 
 import type { SPARQLNeighborsRequest } from "../types";
@@ -12,7 +14,7 @@ import { findNeighborsUsingFilters } from "./oneHopNeighborsTemplate";
  */
 export default function oneHopNeighborsBlankNodesIdsTemplate(
   request: SPARQLNeighborsRequest,
-) {
+): QueryFragment {
   return query`
     SELECT DISTINCT (?neighbor AS ?bNode) {
       {

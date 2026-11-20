@@ -1,3 +1,5 @@
+import type { QueryFragment } from "@/connector/queryFragment";
+
 import { query } from "@/utils";
 
 import type { SPARQLKeywordSearchRequest } from "../types";
@@ -12,7 +14,7 @@ import { findSubjectsMatchingFilters } from "./keywordSearchTemplate";
  */
 export default function keywordSearchBlankNodesIdsTemplate(
   request: SPARQLKeywordSearchRequest,
-) {
+): QueryFragment {
   return query`
     # Fetch all blank nodes ids from a generic keyword search request
     SELECT DISTINCT (?subject as ?bNode)

@@ -363,4 +363,103 @@ describe("SPARQL > keywordSearchTemplate", () => {
       `),
     );
   });
+
+  it("emits the exact query text with every option", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: 'J"hn',
+      predicates: ["http://e/p1", "http://e/p2"],
+      subjectClasses: ["http://e/T"],
+      limit: 10,
+      offset: 5,
+    });
+
+    expect(template).toBe(
+      [
+        "# Fetch nodes matching the given search parameters",
+        "SELECT DISTINCT ?subject ?predicate ?object",
+        "WHERE {",
+        "  {",
+        "    # This sub-query will find any matching instances to the given filters and limit the results",
+        "    SELECT DISTINCT ?subject",
+        "    WHERE {",
+        "      ?subject ?pValue ?value .",
+        "      OPTIONAL { ?subject a ?class } .",
+        "      FILTER (?pValue IN (<http://e/p1>, <http://e/p2>))",
+        "      FILTER (?class IN (<http://e/T>))",
+        '      FILTER (CONTAINS(LCASE(STR(?value)), LCASE("J\\"hn")))',
+        "    }",
+        "    LIMIT 10 OFFSET 5",
+        "  }",
+        "  {",
+        "    # Values and types",
+        "    ?subject ?predicate ?object",
+        "    FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)",
+        "  }",
+        "}",
+      ].join("\n"),
+    );
+  });
+
+  it("emits the exact query text for an exact match", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: 'J"hn',
+      predicates: ["http://e/p1", "http://e/p2"],
+      subjectClasses: ["http://e/T"],
+      limit: 10,
+      offset: 5,
+      exactMatch: true,
+    });
+
+    expect(template).toBe(
+      [
+        "# Fetch nodes matching the given search parameters",
+        "SELECT DISTINCT ?subject ?predicate ?object",
+        "WHERE {",
+        "  {",
+        "    # This sub-query will find any matching instances to the given filters and limit the results",
+        "    SELECT DISTINCT ?subject",
+        "    WHERE {",
+        "      ?subject ?pValue ?value .",
+        "      OPTIONAL { ?subject a ?class } .",
+        "      FILTER (?pValue IN (<http://e/p1>, <http://e/p2>))",
+        "      FILTER (?class IN (<http://e/T>))",
+        '      FILTER (?value = "J\\"hn")',
+        "    }",
+        "    LIMIT 10 OFFSET 5",
+        "  }",
+        "  {",
+        "    # Values and types",
+        "    ?subject ?predicate ?object",
+        "    FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)",
+        "  }",
+        "}",
+      ].join("\n"),
+    );
+  });
+
+  it("emits the exact query text for an empty request", () => {
+    const template = keywordSearchTemplate({});
+
+    expect(template).toBe(
+      [
+        "# Fetch nodes matching the given search parameters",
+        "SELECT DISTINCT ?subject ?predicate ?object",
+        "WHERE {",
+        "  {",
+        "    # This sub-query will find any matching instances to the given filters and limit the results",
+        "    SELECT DISTINCT ?subject",
+        "    WHERE {",
+        "      ?subject ?pValue ?value .",
+        "      OPTIONAL { ?subject a ?class } .",
+        "    }",
+        "  }",
+        "  {",
+        "    # Values and types",
+        "    ?subject ?predicate ?object",
+        "    FILTER(isLiteral(?object) || ?predicate = <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)",
+        "  }",
+        "}",
+      ].join("\n"),
+    );
+  });
 });

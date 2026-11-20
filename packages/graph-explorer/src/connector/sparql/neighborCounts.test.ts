@@ -6,7 +6,9 @@ import {
 import { describe, expect, it, vi } from "vite-plus/test";
 import { ValidationError } from "zod-validation-error";
 
+import { toQueryFragment } from "@/connector/queryFragment";
 import { createVertexId, createVertexType, type VertexType } from "@/core";
+import { query } from "@/utils";
 import {
   createLiteralValue,
   createQuadBindingsForEntities,
@@ -128,7 +130,7 @@ describe("neighborCounts", () => {
         totalCount: expected.totalCount,
       },
       vertex,
-      subQueryTemplate: "",
+      subQueryTemplate: query``,
     });
     const mockFetch = vi.fn();
 
@@ -164,7 +166,7 @@ describe("neighborCounts", () => {
         counts: new Map(),
       },
       vertex: vertex.asVertex(),
-      subQueryTemplate: createRandomName("subQuery"),
+      subQueryTemplate: toQueryFragment(createRandomName("subQuery")),
     });
 
     const responseNeighbors = createQuadSparqlResponse(
@@ -314,7 +316,7 @@ describe("neighborCounts", () => {
         totalCount: expectedBlank.totalCount,
       },
       vertex: blankVertex,
-      subQueryTemplate: "",
+      subQueryTemplate: query``,
     });
 
     const totalCountResponse = createTotalCountResponse(expectedNonBlank);
@@ -344,7 +346,7 @@ describe("neighborCounts", () => {
       id: vertex.id,
       neighborCounts: { totalCount: 0, counts: new Map() },
       vertex,
-      subQueryTemplate: createRandomName("subQuery"),
+      subQueryTemplate: toQueryFragment(createRandomName("subQuery")),
     });
 
     const mockFetch = vi.fn().mockRejectedValue(new Error("Network error"));
@@ -352,6 +354,70 @@ describe("neighborCounts", () => {
     await expect(
       neighborCounts(mockFetch, { vertexIds: [vertex.id] }, blankNodes),
     ).rejects.toThrow(new Error("Network error"));
+  });
+
+  it("emits the exact query text for the neighbor counts requests", async () => {
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValue({ head: { vars: [] }, results: { bindings: [] } });
+
+    await neighborCounts(
+      mockFetch,
+      {
+        vertexIds: [
+          createVertexId("http://e/v1"),
+          createVertexId("http://e/v2"),
+        ],
+      },
+      new Map(),
+    );
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      [
+        "# Count total unique neighbors which are related with the given subject URI",
+        "SELECT ?resource (COUNT(DISTINCT ?neighbor) AS ?totalCount)",
+        "WHERE {",
+        "  VALUES ?resource {",
+        "    <http://e/v1>",
+        "    <http://e/v2>",
+        "  }",
+        "  {",
+        "    ?resource ?predicate ?neighbor .",
+        "    FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)",
+        "  }",
+        "  UNION",
+        "  {",
+        "    ?neighbor ?predicate ?resource .",
+        "    FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)",
+        "  }",
+        "}",
+        "GROUP BY ?resource",
+      ].join("\n"),
+    );
+    expect(mockFetch).toHaveBeenCalledWith(
+      [
+        "# Count neighbors by class which are related with the given subject URI",
+        "SELECT ?resource ?type (COUNT(DISTINCT ?neighbor) AS ?typeCount)",
+        "WHERE {",
+        "  VALUES ?resource {",
+        "    <http://e/v1>",
+        "    <http://e/v2>",
+        "  }",
+        "  {",
+        "    ?resource ?predicate ?neighbor .",
+        "    OPTIONAL { ?neighbor a ?type } .",
+        "    FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)",
+        "  }",
+        "  UNION",
+        "  {",
+        "    ?neighbor ?predicate ?resource .",
+        "    OPTIONAL { ?neighbor a ?type } .",
+        "    FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)",
+        "  }",
+        "}",
+        "GROUP BY ?resource ?type",
+      ].join("\n"),
+    );
   });
 });
 

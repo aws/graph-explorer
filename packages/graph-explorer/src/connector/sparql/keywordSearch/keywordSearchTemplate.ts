@@ -1,4 +1,6 @@
-import { query } from "@/utils";
+import type { QueryFragment } from "@/connector/queryFragment";
+
+import { joinFragments, query } from "@/utils";
 
 import { getLimit, getSubjectClasses } from "../filterHelpers";
 import { fragment } from "../fragments";
@@ -46,7 +48,7 @@ import { rdfTypeUri, type SPARQLKeywordSearchRequest } from "../types";
  */
 export default function keywordSearchTemplate(
   request: SPARQLKeywordSearchRequest,
-): string {
+): QueryFragment {
   return query`
     # Fetch nodes matching the given search parameters
     SELECT DISTINCT ?subject ?predicate ?object
@@ -101,7 +103,7 @@ export default function keywordSearchTemplate(
  */
 export function findSubjectsMatchingFilters(
   request: SPARQLKeywordSearchRequest,
-) {
+): QueryFragment {
   return query`
     SELECT DISTINCT ?subject
     WHERE {
@@ -115,22 +117,25 @@ export function findSubjectsMatchingFilters(
   `;
 }
 
-function getFilterPredicates(predicates?: string[]) {
+function getFilterPredicates(predicates?: string[]): QueryFragment {
   if (!predicates?.length) {
-    return "";
+    return query``;
   }
 
-  return `FILTER (?pValue IN (${predicates.map(fragment.iri).join(", ")}))`;
+  return query`FILTER (?pValue IN (${joinFragments(predicates.map(fragment.iri), ", ")}))`;
 }
 
-function getFilterObject(exactMatch?: boolean, searchTerm?: string) {
+function getFilterObject(
+  exactMatch?: boolean,
+  searchTerm?: string,
+): QueryFragment {
   if (!searchTerm) {
-    return "";
+    return query``;
   }
 
   const searchLiteral = fragment.string(searchTerm);
 
   return exactMatch === true
-    ? `FILTER (?value = ${searchLiteral})`
-    : `FILTER (CONTAINS(LCASE(STR(?value)), LCASE(${searchLiteral})))`;
+    ? query`FILTER (?value = ${searchLiteral})`
+    : query`FILTER (CONTAINS(LCASE(STR(?value)), LCASE(${searchLiteral})))`;
 }

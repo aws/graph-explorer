@@ -1,6 +1,7 @@
+import type { QueryFragment } from "@/connector/queryFragment";
 import type { AttributeFilter } from "@/connector/useGEFetchTypes";
 
-import { query } from "@/utils";
+import { joinFragments, query } from "@/utils";
 
 import {
   getLimit,
@@ -105,7 +106,7 @@ import { rdfTypeUri, type SPARQLNeighborsRequest } from "../types";
  */
 export function oneHopNeighborsTemplate(
   request: SPARQLNeighborsRequest,
-): string {
+): QueryFragment {
   const resourceTemplate = fragment.iri(request.resourceURI);
   const rdfTypeUriTemplate = fragment.iri(rdfTypeUri);
 
@@ -174,7 +175,7 @@ export function findNeighborsUsingFilters({
   attributeFilters = [],
   excludedVertices = new Set(),
   limit = 0,
-}: SPARQLNeighborsRequest): string {
+}: SPARQLNeighborsRequest): QueryFragment {
   const resourceTemplate = fragment.iri(resourceURI);
 
   return query`
@@ -212,7 +213,7 @@ export function findNeighborsUsingFilters({
  * a predicate). A shared unbound predicate variable is deliberately avoided: it
  * makes `&&` across filters unsatisfiable and dominates query cost.
  */
-function getFilterTemplate(attributeFilters: AttributeFilter[]) {
+function getFilterTemplate(attributeFilters: AttributeFilter[]): QueryFragment {
   const createFilterTemplate = (filter: AttributeFilter) =>
     query`
       FILTER EXISTS {
@@ -221,5 +222,5 @@ function getFilterTemplate(attributeFilters: AttributeFilter[]) {
       }
     `;
 
-  return attributeFilters.map(createFilterTemplate).join("\n");
+  return joinFragments(attributeFilters.map(createFilterTemplate), "\n");
 }

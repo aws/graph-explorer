@@ -1,6 +1,7 @@
+import type { QueryFragment } from "@/connector/queryFragment";
 import type { VertexId } from "@/core";
 
-import { LABELS, query } from "@/utils";
+import { joinFragments, LABELS, query } from "@/utils";
 
 import { fragment } from "./fragments";
 import { rdfTypeUri } from "./types";
@@ -9,7 +10,7 @@ import { rdfTypeUri } from "./types";
  * Generates a SPARQL FILTER clause to restrict results to specific subject classes.
  *
  * @param subjectClasses - Optional array of class URIs to filter by
- * @returns A SPARQL FILTER clause string, or empty string if no classes provided
+ * @returns A SPARQL FILTER clause Query Fragment, or an empty fragment if no classes provided
  *
  * @example
  * // Returns: "FILTER (?class IN (<http://example.org/Person>, <http://example.org/Company>))"
@@ -19,16 +20,16 @@ import { rdfTypeUri } from "./types";
  * // Returns: ""
  * getSubjectClasses([])
  */
-export function getSubjectClasses(subjectClasses?: string[]) {
+export function getSubjectClasses(subjectClasses?: string[]): QueryFragment {
   if (!subjectClasses?.length) {
-    return "";
+    return query``;
   }
 
   if (subjectClasses.includes(LABELS.MISSING_TYPE)) {
-    return "FILTER NOT EXISTS { ?subject a ?class }";
+    return query`FILTER NOT EXISTS { ?subject a ?class }`;
   }
 
-  return `FILTER (?class IN (${subjectClasses.map(fragment.iri).join(", ")}))`;
+  return query`FILTER (?class IN (${joinFragments(subjectClasses.map(fragment.iri), ", ")}))`;
 }
 
 /**
@@ -36,7 +37,7 @@ export function getSubjectClasses(subjectClasses?: string[]) {
  * Filters to include only resource URIs by excluding literals and rdf:type predicates, with optional exclusion of specific resource URIs.
  *
  * @param excludedVertices - Optional set of resource URIs to exclude from results
- * @returns A SPARQL FILTER clause string that ensures neighbors are resources and optionally excludes specific URIs
+ * @returns A SPARQL FILTER clause Query Fragment that ensures neighbors are resources and optionally excludes specific URIs
  *
  * @example
  * // With excluded vertices:
@@ -56,7 +57,9 @@ export function getSubjectClasses(subjectClasses?: string[]) {
  * // Returns: "FILTER(!isLiteral(?neighbor) && ?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)"
  * getNeighborsFilter()
  */
-export function getNeighborsFilter(excludedVertices?: Set<VertexId>) {
+export function getNeighborsFilter(
+  excludedVertices?: Set<VertexId>,
+): QueryFragment {
   const excludedVerticesTemplates = Array.from(excludedVertices ?? []).map(
     fragment.iri,
   );
@@ -67,11 +70,11 @@ export function getNeighborsFilter(excludedVertices?: Set<VertexId>) {
           !isLiteral(?neighbor) &&
           ?predicate != ${fragment.iri(rdfTypeUri)} &&
           ?neighbor NOT IN (
-            ${excludedVerticesTemplates.join(",\n")}
+            ${joinFragments(excludedVerticesTemplates, ",\n")}
           )
         )
       `
-    : `FILTER(!isLiteral(?neighbor) && ?predicate != ${fragment.iri(rdfTypeUri)})`;
+    : query`FILTER(!isLiteral(?neighbor) && ?predicate != ${fragment.iri(rdfTypeUri)})`;
 }
 
 /**
@@ -79,7 +82,7 @@ export function getNeighborsFilter(excludedVertices?: Set<VertexId>) {
  *
  * @param limit - Optional maximum number of results to return
  * @param offset - Optional number of results to skip
- * @returns A SPARQL clause string with LIMIT and/or OFFSET, or empty string if neither provided
+ * @returns A SPARQL clause Query Fragment with LIMIT and/or OFFSET, or an empty fragment if neither provided
  *
  * @example
  * // Returns: "LIMIT 10 OFFSET 20"
@@ -97,10 +100,12 @@ export function getNeighborsFilter(excludedVertices?: Set<VertexId>) {
  * // Returns: ""
  * getLimit()
  */
-export function getLimit(limit?: number, offset?: number) {
-  const limitTemplate = limit ? `LIMIT ${fragment.number(limit)}` : null;
-  const offsetTemplate = offset ? `OFFSET ${fragment.number(offset)}` : null;
-
-  // Combine the parts that exist with a space
-  return [limitTemplate, offsetTemplate].filter(Boolean).join(" ");
+export function getLimit(limit?: number, offset?: number): QueryFragment {
+  return joinFragments(
+    [
+      limit ? query`LIMIT ${fragment.number(limit)}` : query``,
+      offset ? query`OFFSET ${fragment.number(offset)}` : query``,
+    ].filter(Boolean),
+    " ",
+  );
 }

@@ -79,4 +79,52 @@ describe("SPARQL > predicatesByClassTemplate", () => {
       GROUP BY ?class ?pred
     `);
   });
+
+  it("emits the exact query text for several classes", () => {
+    const template = predicatesByClassTemplate({
+      classes: [
+        createVertexType("http://e/c1"),
+        createVertexType("http://e/c2"),
+      ],
+    });
+
+    expect(template).toBe(
+      [
+        "# Return all predicates which are connected from the given class",
+        "SELECT ?class ?pred (SAMPLE(?object) as ?sample)",
+        "WHERE {",
+        "  {",
+        "    SELECT (<http://e/c1> AS ?class) ?pred ?object",
+        "    WHERE {",
+        "      {",
+        "        SELECT ?subject",
+        "        WHERE {",
+        "          ?subject a <http://e/c1>.",
+        "        }",
+        "        LIMIT 1",
+        "      }",
+        "      ?subject ?pred ?object.",
+        "      FILTER(!isBlank(?object) && isLiteral(?object))",
+        "    }",
+        "  }",
+        "  UNION",
+        "  {",
+        "    SELECT (<http://e/c2> AS ?class) ?pred ?object",
+        "    WHERE {",
+        "      {",
+        "        SELECT ?subject",
+        "        WHERE {",
+        "          ?subject a <http://e/c2>.",
+        "        }",
+        "        LIMIT 1",
+        "      }",
+        "      ?subject ?pred ?object.",
+        "      FILTER(!isBlank(?object) && isLiteral(?object))",
+        "    }",
+        "  }",
+        "}",
+        "GROUP BY ?class ?pred",
+      ].join("\n"),
+    );
+  });
 });

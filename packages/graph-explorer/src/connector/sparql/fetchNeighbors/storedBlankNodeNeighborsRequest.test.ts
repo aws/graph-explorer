@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import { createVertexId, type Vertex } from "@/core";
+import { query } from "@/utils";
 import { createTestableVertex } from "@/utils/testing";
 
 import type { BlankNodeItem, BlankNodesMap } from "../types";
@@ -12,7 +13,7 @@ const blankNodeId = createVertexId("_:b0");
 function blankNodesWithNeighbors(vertices: Vertex[]): BlankNodesMap {
   const item = {
     id: blankNodeId,
-    subQueryTemplate: "",
+    subQueryTemplate: query``,
     vertex: createTestableVertex().withRdfValues().asVertex(),
     neighborCounts: { totalCount: vertices.length, counts: new Map() },
     neighbors: { vertices, edges: [] },
