@@ -325,4 +325,68 @@ describe("OpenCypher > keywordSearchTemplate", () => {
       `),
     );
   });
+
+  it("emits the exact query text with multiple types, a search term, and paging", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["a", "b"],
+      searchTerm: 'J"FK',
+      searchByAttributes: [SEARCH_TOKENS.NODE_ID, "name"],
+      limit: 10,
+      offset: 5,
+    });
+
+    expect(template).toBe(
+      [
+        "MATCH (v)",
+        "WHERE (v:`a` OR v:`b`)",
+        '      AND (toString(id(v)) CONTAINS "J\\"FK" OR v.`name` CONTAINS "J\\"FK")',
+        "RETURN v AS object",
+        "SKIP 5 LIMIT 10",
+      ].join("\n"),
+    );
+  });
+
+  it("emits the exact query text for an exact match on one type", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: ["a"],
+      searchTerm: 'J"FK',
+      searchByAttributes: [SEARCH_TOKENS.NODE_ID, "name"],
+      exactMatch: true,
+      limit: 10,
+    });
+
+    expect(template).toBe(
+      [
+        "MATCH (v:`a`)",
+        'WHERE (id(v) = "J\\"FK" OR v.`name` = "J\\"FK")',
+        "RETURN v AS object",
+        "LIMIT 10",
+      ].join("\n"),
+    );
+  });
+
+  it("emits the exact query text for a missing type search", () => {
+    const template = keywordSearchTemplate({
+      vertexTypes: [LABELS.MISSING_TYPE],
+    });
+
+    expect(template).toBe(
+      ["MATCH (v)", "WHERE (labels(v) = [])", "RETURN v AS object"].join("\n"),
+    );
+  });
+
+  it("emits the exact query text for a search term with no attributes", () => {
+    const template = keywordSearchTemplate({
+      searchTerm: "x",
+      searchByAttributes: [],
+    });
+
+    expect(template).toBe(["MATCH (v)", "RETURN v AS object"].join("\n"));
+  });
+
+  it("emits the exact query text for an empty request", () => {
+    expect(keywordSearchTemplate({})).toBe(
+      ["MATCH (v)", "RETURN v AS object"].join("\n"),
+    );
+  });
 });

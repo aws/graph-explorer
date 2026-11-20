@@ -1,4 +1,4 @@
-import { logger, query } from "@/utils";
+import { logger } from "@/utils";
 
 import type { RawQueryRequest, RawQueryResponse } from "../useGEFetchTypes";
 import type { OpenCypherFetch } from "./types";
@@ -10,14 +10,12 @@ export async function rawQuery(
   openCypherFetch: OpenCypherFetch,
   request: RawQueryRequest,
 ): Promise<RawQueryResponse> {
-  const template = query`${request.query}`;
-
-  if (template.length <= 0) {
+  if (request.query.length <= 0) {
     return { results: [], rawResponse: null };
   }
 
   // Fetch the results
-  const data = await openCypherFetch(template);
+  const data = await openCypherFetch(request.query);
   if (isErrorResponse(data)) {
     logger.error(data.detailedMessage);
     throw new Error(data.detailedMessage);

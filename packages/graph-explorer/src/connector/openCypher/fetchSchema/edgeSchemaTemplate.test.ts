@@ -22,4 +22,16 @@ describe("OpenCypher > edgesSchemaTemplate", () => {
       "MATCH () -[e:`route`]-> () RETURN e AS object LIMIT 1",
     );
   });
+
+  it("emits the exact query text for several types", () => {
+    const template = edgesSchemaTemplate({ types: ["route", "contain"] });
+
+    expect(template).toBe(
+      [
+        "MATCH () -[e:`route`]-> () RETURN e AS object LIMIT 1",
+        "UNION ALL",
+        "MATCH () -[e:`contain`]-> () RETURN e AS object LIMIT 1",
+      ].join("\n"),
+    );
+  });
 });

@@ -234,6 +234,27 @@ describe("neighborCounts", () => {
       },
     ]);
   });
+
+  it("emits the exact query text for several IDs", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({ results: [] });
+
+    await neighborCounts(mockFetch, {
+      vertexIds: [createVertexId('v"1'), createVertexId("v2")],
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      [
+        "MATCH (source)--(neighbor)",
+        'WHERE id(source) IN ["v\\"1","v2"]',
+        "WITH DISTINCT source, neighbor",
+        "WITH",
+        "  id(source) AS id,",
+        "  labels(neighbor) AS neighborLabels,",
+        "  count(neighbor) AS neighborCount",
+        "RETURN id, collect({ label: neighborLabels, count: neighborCount }) as counts",
+      ].join("\n"),
+    );
+  });
 });
 
 function createResponse(...counts: NeighborCount[]) {

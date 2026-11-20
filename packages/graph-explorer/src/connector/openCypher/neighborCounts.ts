@@ -4,7 +4,7 @@ import {
   type EntityRawId,
   type VertexType,
 } from "@/core";
-import { query } from "@/utils";
+import { joinFragments, query } from "@/utils";
 
 import type {
   NeighborCount,
@@ -26,7 +26,7 @@ export async function neighborCounts(
     return { counts: [] };
   }
 
-  const ids = request.vertexIds.map(fragment.id).join(",");
+  const ids = joinFragments(request.vertexIds.map(fragment.id), ",");
   const template = query`
     MATCH (source)--(neighbor)
     WHERE id(source) IN [${ids}]

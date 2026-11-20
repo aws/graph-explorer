@@ -51,4 +51,24 @@ describe("OpenCypher > edgeConnectionsTemplate", () => {
     expect(template).toContain("[e:`edge``with``ticks`]");
     expect(template).toContain('"edge`with`ticks" AS edgeType');
   });
+
+  it("emits the exact query text for several types", () => {
+    const template = edgeConnectionsTemplate({
+      types: [createEdgeType("route"), createEdgeType('co"nt')],
+    });
+
+    expect(template).toBe(
+      [
+        "MATCH (s)-[e:`route`]->(t)",
+        "WITH labels(s) AS sourceLabels, labels(t) AS targetLabels",
+        "LIMIT 10000",
+        'RETURN DISTINCT "route" AS edgeType, sourceLabels, targetLabels',
+        "UNION ALL",
+        'MATCH (s)-[e:`co"nt`]->(t)',
+        "WITH labels(s) AS sourceLabels, labels(t) AS targetLabels",
+        "LIMIT 10000",
+        'RETURN DISTINCT "co\\"nt" AS edgeType, sourceLabels, targetLabels',
+      ].join("\n"),
+    );
+  });
 });

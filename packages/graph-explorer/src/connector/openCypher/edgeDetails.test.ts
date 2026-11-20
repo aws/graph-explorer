@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vite-plus/test";
 
+import { createEdgeId } from "@/core";
 import { createTestableEdge, mapToOcEdge } from "@/utils/testing";
 
 import type { ResultEdge } from "../entities";
@@ -43,6 +44,22 @@ describe("edgeDetails", () => {
     });
 
     expect(result.edges).toStrictEqual([edge1.asEdge(), edge2.asEdge()]);
+  });
+
+  it("emits the exact query text for several IDs", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({ results: [] });
+
+    await edgeDetails(mockFetch, {
+      edgeIds: [createEdgeId('e"1'), createEdgeId("e2")],
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      [
+        "MATCH ()-[edge]-()",
+        'WHERE ID(edge) in ["e\\"1","e2"]',
+        "RETURN edge",
+      ].join("\n"),
+    );
   });
 });
 

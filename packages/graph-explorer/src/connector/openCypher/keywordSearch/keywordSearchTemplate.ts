@@ -1,8 +1,9 @@
 import uniq from "lodash/uniq";
 
+import type { QueryFragment } from "@/connector/queryFragment";
 import type { KeywordSearchRequest } from "@/connector/useGEFetchTypes";
 
-import { LABELS, query, SEARCH_TOKENS } from "@/utils";
+import { joinFragments, LABELS, query, SEARCH_TOKENS } from "@/utils";
 
 import { fragment } from "../fragments";
 
@@ -21,14 +22,14 @@ import { fragment } from "../fragments";
  * ORDER BY id(v)
  * LIMIT 100
  */
-const keywordSearchTemplate = ({
+function keywordSearchTemplate({
   searchTerm,
   vertexTypes = [],
   searchByAttributes = [],
   limit,
   offset,
   exactMatch,
-}: KeywordSearchRequest): string => {
+}: KeywordSearchRequest): QueryFragment {
   // Check if we're searching for nodes with no type by checking that the MISSING_TYPE is the only type defined
   const isMissingTypeSearch =
     vertexTypes.length > 0 &&
@@ -37,50 +38,58 @@ const keywordSearchTemplate = ({
   // For exactly one vertex type we put the type in the match (unless it's MISSING_TYPE)
   const vertexMatchTemplate =
     vertexTypes.length === 1 && !isMissingTypeSearch
-      ? `v:${fragment.identifier(vertexTypes[0])}`
-      : "v";
+      ? query`v:${fragment.identifier(vertexTypes[0])}`
+      : query`v`;
 
   // For multiple vertex types we use the where clause
   const vertexTypeWhereClause = isMissingTypeSearch
-    ? "labels(v) = []"
-    : vertexTypes.length > 1 &&
-      vertexTypes.map(type => `v:${fragment.identifier(type)}`).join(" OR ");
+    ? query`labels(v) = []`
+    : vertexTypes.length > 1
+      ? joinFragments(
+          vertexTypes.map(type => query`v:${fragment.identifier(type)}`),
+          " OR ",
+        )
+      : query``;
 
   // If we have a search term we need to build the search term where clause.
   // The truthiness check narrows searchTerm to a string for the literal.
   const searchLiteral = searchTerm ? fragment.string(searchTerm) : undefined;
   const searchTermWhereClause =
-    searchLiteral !== undefined &&
-    uniq(searchByAttributes)
-      .map(attr => {
-        // ID is a special case
-        if (attr === SEARCH_TOKENS.NODE_ID) {
-          return exactMatch === true
-            ? `id(v) = ${searchLiteral}`
-            : `toString(id(v)) CONTAINS ${searchLiteral}`;
-        }
+    searchLiteral === undefined
+      ? query``
+      : joinFragments(
+          uniq(searchByAttributes).map(attr => {
+            // ID is a special case
+            if (attr === SEARCH_TOKENS.NODE_ID) {
+              return exactMatch === true
+                ? query`id(v) = ${searchLiteral}`
+                : query`toString(id(v)) CONTAINS ${searchLiteral}`;
+            }
 
-        return exactMatch === true
-          ? `v.${fragment.identifier(attr)} = ${searchLiteral}`
-          : `v.${fragment.identifier(attr)} CONTAINS ${searchLiteral}`;
-      })
-      .join(" OR ");
+            return exactMatch === true
+              ? query`v.${fragment.identifier(attr)} = ${searchLiteral}`
+              : query`v.${fragment.identifier(attr)} CONTAINS ${searchLiteral}`;
+          }),
+          " OR ",
+        );
 
   // Combine the where clauses together (i.e. WHERE clause1 AND clause2)
   const whereClauses = [vertexTypeWhereClause, searchTermWhereClause]
     .filter(Boolean)
-    .filter(w => w != null)
-    .map(clause => `(${clause})`)
-    .join("\n      AND ");
-  const whereTemplate = whereClauses ? `WHERE ${whereClauses}` : "";
+    .map(clause => query`(${clause})`);
+  // `query` indents the lines after the first to the column after `WHERE `
+  const whereTemplate =
+    whereClauses.length > 0
+      ? query`WHERE ${joinFragments(whereClauses, "\nAND ")}`
+      : query``;
 
   // Add paging options if needed
   const limitTemplate =
     limit && offset
-      ? `SKIP ${fragment.number(offset)} LIMIT ${fragment.number(limit)}`
+      ? query`SKIP ${fragment.number(offset)} LIMIT ${fragment.number(limit)}`
       : limit
-        ? `LIMIT ${fragment.number(limit)}`
-        : "";
+        ? query`LIMIT ${fragment.number(limit)}`
+        : query``;
 
   return query`
     MATCH (${vertexMatchTemplate})
@@ -88,6 +97,6 @@ const keywordSearchTemplate = ({
     RETURN v AS object
     ${limitTemplate}
   `;
-};
+}
 
 export default keywordSearchTemplate;
