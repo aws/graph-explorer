@@ -38,7 +38,7 @@ blockExoticSubdeps: true
 trustPolicy: no-downgrade
 catalog:
   vite: npm:@voidzero-dev/vite-plus-core@1.5.1
-  vite-plus: 1.5.1
+  vite-plus: 1.6.0
 peerDependencyRules:
   allowAny:
     - vite
