@@ -16,8 +16,10 @@
 
 ## Database Queries
 
-- Use the `query` template tag from `@/utils` for all query strings (Gremlin, openCypher, SPARQL) to ensure consistent formatting. Note the tag only formats — it does not escape anything.
-- Interpolate values into a query only as Query Fragments, from that language's `fragments.ts`. A fragment brings its own delimiters, so the template must not add quotes, backticks, or angle brackets around it.
+- Use the `query` template tag from `@/utils` for all query text (Gremlin, openCypher, SPARQL). It returns a Query Fragment, so templates nest, and interpolating a plain string or number is a type error. The tag formats the literal scaffolding and escapes nothing: escaping belongs to the fragment constructors.
+- Join an array of fragments with `joinFragments(fragments, separator)` from `@/utils`. The separator must be a string literal. Write an empty clause as an empty `query` template. A helper that builds clause text returns a `QueryFragment`.
+- A raw query the user typed is sent as written and never passes through `query`.
+- A value reaches a query only as a Query Fragment minted by that language's `fragments.ts`. `toQueryFragment` is reserved for the fragment modules and the `query` and `joinFragments` helpers, so never call it to clear a type error on a plain string. A fragment brings its own delimiters, so the template must not add quotes, backticks, or angle brackets around it.
 - Each `fragments.ts` exports one `fragment` object: import it as `import { fragment } from "./fragments"` and call `fragment.string(...)`, `fragment.identifier(...)`, `fragment.id(...)` (Gremlin/openCypher), `fragment.iri(...)` (SPARQL), or `fragment.number(...)` (all three). Keep the `fragment.` qualifier at call sites — don't destructure — so the self-delimiting invariant stays visible.
 - Fragments are per language and not interchangeable, even where two languages look alike
 - A number in query text, such as a LIMIT, OFFSET, or SKIP value, goes through `fragment.number(...)`, which is one rule for all three languages: it emits a plain decimal as given and throws `UnrepresentableNumberError` for a value with no plain-decimal form (`NaN`, either infinity, an exponent form such as `1e21`). Whether a number fits its position, such as a negative or fractional LIMIT, is the database's call; Graph Explorer checks only that the text is a plain decimal.

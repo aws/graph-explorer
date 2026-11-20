@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
+import { toQueryFragment } from "@/connector/queryFragment";
 import { createVertexId } from "@/core";
 import { LABELS, query } from "@/utils";
 import {
@@ -590,7 +591,7 @@ function commonPartOfQuery(resourceURI: string) {
       SELECT *
       WHERE {
         {
-          BIND(<${resourceURI}> AS ?resource)
+          BIND(<${toQueryFragment(resourceURI)}> AS ?resource)
           ?neighbor ?pToSource ?resource
           BIND(?neighbor as ?subject)
           BIND(?pToSource as ?predicate)
@@ -598,7 +599,7 @@ function commonPartOfQuery(resourceURI: string) {
         }
         UNION
         {
-          BIND(<${resourceURI}> AS ?resource)
+          BIND(<${toQueryFragment(resourceURI)}> AS ?resource)
           ?resource ?pFromSource ?neighbor
           BIND(?neighbor as ?object)
           BIND(?pFromSource as ?predicate)
