@@ -1,6 +1,12 @@
+import dotenv from "dotenv";
 import { describe, expect, it } from "vite-plus/test";
 
-import { stripLegacyStartupBlocks } from "./env-file.ts";
+import {
+  EnvFileError,
+  findAssignedKeyLines,
+  parseEnvFile,
+  stripLegacyStartupBlocks,
+} from "./env-file.ts";
 import { legacyStartupBlock, withoutBlankLines } from "./testing.ts";
 
 const standardBlock = legacyStartupBlock({
@@ -352,5 +358,149 @@ describe("backward compatibility: lines earlier versions appended to .env", () =
       text: "",
       ignoredLineCount: 0,
     });
+  });
+});
+
+describe("parseEnvFile", () => {
+  const filePath = "/config/.env";
+
+  it("reads the values", () => {
+    expect(parseEnvFile("A=1\nB=two\n", filePath)).toStrictEqual({
+      A: "1",
+      B: "two",
+    });
+  });
+
+  it("throws naming the file, the key, and its lines when a key is set more than once", () => {
+    expect(() =>
+      parseEnvFile(
+        "LOG_STYLE=default\nHOST=x\nLOG_STYLE=cloudwatch\n",
+        filePath,
+      ),
+    ).toThrow(
+      new EnvFileError(
+        "/config/.env sets LOG_STYLE more than once, on lines 1 and 3. Keep one line for each key and remove the others. Earlier versions used the last line.",
+      ),
+    );
+  });
+
+  it("names every key set more than once", () => {
+    expect(() => parseEnvFile("A=1\nB=1\nA=2\nB=2\nA=3\n", filePath)).toThrow(
+      new EnvFileError(
+        "/config/.env sets A more than once, on lines 1, 3, and 5. /config/.env sets B more than once, on lines 2 and 4. Keep one line for each key and remove the others. Earlier versions used the last line.",
+      ),
+    );
+  });
+
+  it.for([
+    ["a colon", "A=1\nA: 2\n", "1 and 2"],
+    ["CRLF line breaks", "A=1\r\nA=2\r\n", "1 and 2"],
+    ["bare CR line breaks", "A=1\rB=2\rA=3\r", "1 and 3"],
+    ["the export prefix", "A=1\nexport A=2\n", "1 and 2"],
+  ])("throws for a key set twice with %s", ([, text, lines]) => {
+    expect(() => parseEnvFile(text, filePath)).toThrow(
+      new EnvFileError(
+        `/config/.env sets A more than once, on lines ${lines}. Keep one line for each key and remove the others. Earlier versions used the last line.`,
+      ),
+    );
+  });
+
+  it("doesn't count a colon without a space after it, as dotenv doesn't", () => {
+    expect(parseEnvFile("A=1\nA:2\n", filePath)).toStrictEqual({ A: "1" });
+  });
+
+  it("reads a quoted multi-line value as one key, not as the lines it holds", () => {
+    expect(
+      parseEnvFile(
+        'NOTE="first\nLOG_LEVEL=debug\nlast"\nLOG_LEVEL=info\n',
+        filePath,
+      ),
+    ).toStrictEqual({
+      NOTE: "first\nLOG_LEVEL=debug\nlast",
+      LOG_LEVEL: "info",
+    });
+  });
+
+  it.for([
+    ["single quotes", "NOTE='a\nA=2\nb'\nA=1\n"],
+    ["backticks", "NOTE=`a\nA=2\nb`\nA=1\n"],
+    ["CRLF line breaks", 'NOTE="a\r\nA=2\r\nb"\r\nA=1\r\n'],
+  ])("doesn't count a line inside a value in %s", ([, text]) => {
+    expect(() => parseEnvFile(text, filePath)).not.toThrow();
+  });
+
+  it("throws for a key followed by a line break and =value, as dotenv reads it", () => {
+    expect(dotenv.parse("A=1\nA\n=2\n")).toStrictEqual({ A: "2" });
+    expect(() => parseEnvFile("A=1\nA\n=2\n", filePath)).toThrow(
+      new EnvFileError(
+        "/config/.env sets A more than once, on lines 1 and 2. Keep one line for each key and remove the others. Earlier versions used the last line.",
+      ),
+    );
+  });
+
+  it("names the line of a key that follows a multi-line value", () => {
+    expect(() => parseEnvFile('NOTE="a\nb\nc"\nA=1\nA=2\n', filePath)).toThrow(
+      new EnvFileError(
+        "/config/.env sets A more than once, on lines 4 and 5. Keep one line for each key and remove the others. Earlier versions used the last line.",
+      ),
+    );
+  });
+
+  it("doesn't count a key inside a comment or after one on the same line", () => {
+    expect(
+      parseEnvFile("A=1 # A=2\n# A=3\n  # export A=4\n", filePath),
+    ).toStrictEqual({ A: "1" });
+  });
+
+  it("accepts different keys, comments, and similar names", () => {
+    expect(
+      parseEnvFile("# A=1\nA=1\nGRAPH_A=2\nexport B=3\n", filePath),
+    ).toStrictEqual({ A: "1", GRAPH_A: "2", B: "3" });
+  });
+
+  it("reads a .env of 50,000 keys in under 2 seconds", () => {
+    const text = Array.from(
+      { length: 50_000 },
+      (_, index) => `KEY_${index}=${index}\n`,
+    ).join("");
+
+    const started = performance.now();
+    const values = parseEnvFile(text, filePath);
+
+    expect(performance.now() - started).toBeLessThan(2000);
+    expect(Object.keys(values)).toHaveLength(50_000);
+  });
+
+  it("names the lines of a key set 50,000 times in under 2 seconds", () => {
+    const text = "A=1\n".repeat(50_000);
+
+    const started = performance.now();
+    expect(() => parseEnvFile(text, filePath)).toThrow(
+      "/config/.env sets A more than once, on lines 1, 2, 3,",
+    );
+    expect(performance.now() - started).toBeLessThan(2000);
+  });
+});
+
+describe("findAssignedKeyLines", () => {
+  it.for([
+    ["plain lines", "A=1\nB=2\n"],
+    ["a colon and export", "A: 1\nexport B=2\nC:3\n"],
+    ["quotes of every kind", "A='x'\nB=\"y\"\nC=`z`\n"],
+    ["multi-line values", "A=\"1\nB=2\n3\"\nC='4\nD=5'\nE=`6\nF=7`\n"],
+    ["comments", "# A=1\nB=2 # C=3\n  # D=4\nE=5\n"],
+    ["CRLF and bare CR", "A=1\r\nB=2\rC=3\r"],
+    ["a key, a line break, then the value", "A\n=1\nB\n  =2\n"],
+    ["a key repeated", "A=1\nA=2\nA\n=3\n"],
+    ["an unterminated quote", 'A="1\nB=2\nC=3\n'],
+    ["indented lines and blank lines", "  A=1\n\n\t B=2\n\n"],
+    ["no value", "A=\nB\nC=3\n"],
+    ["keys with dots and dashes", "A.B=1\nC-D=2\n"],
+    ["escaped quotes", 'A="x\\"\nB=2\n"\nC=3\n'],
+    ["an empty file", ""],
+  ])("finds the keys dotenv.parse reads in %s", ([, text]) => {
+    expect([...findAssignedKeyLines(text).keys()].toSorted()).toStrictEqual(
+      Object.keys(dotenv.parse(text)).toSorted(),
+    );
   });
 });
