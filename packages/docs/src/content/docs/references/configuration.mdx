@@ -213,7 +213,9 @@ These are the valid environment variables used for the default connection, their
 
 `GRAPH_TYPE` is `gremlin`, `openCypher`, or `sparql`, in exactly that letter case. For any other value, the server logs a warning and leaves it out of the default connection, as if `GRAPH_TYPE` were unset, so `SERVICE_TYPE=neptune-graph` still sets `openCypher`.
 
-Spaces and line breaks around an `IAM` or `GRAPH_TYPE` value are ignored.
+Both `GRAPH_EXP_FETCH_REQUEST_TIMEOUT` and `GRAPH_EXP_NODE_EXPANSION_LIMIT` must be positive whole numbers, up to 9007199254740991. The server logs a warning and leaves out a value that isn't.
+
+Spaces and line breaks around an `IAM`, `GRAPH_TYPE`, `GRAPH_EXP_FETCH_REQUEST_TIMEOUT`, or `GRAPH_EXP_NODE_EXPANSION_LIMIT` value are ignored.
 
 ### JSON Configuration Approach
 
