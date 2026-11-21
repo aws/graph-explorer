@@ -5,13 +5,12 @@ import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
 import { parseConfigJson } from "./config-json.ts";
 import {
-  appendedSettingsBlock,
   loadStartup,
   resolveStartupConfig,
   StartupError,
   type TextFile,
 } from "./startup-config.ts";
-import { legacyStartupBlock } from "./testing.ts";
+import { legacyStartupBlock, withoutBlankLines } from "./testing.ts";
 import { conflictMessage } from "./testing/deployment-scenarios.ts";
 
 type Inputs = {
@@ -20,7 +19,6 @@ type Inputs = {
   dotEnvLocal?: string;
   configJson?: Record<string, unknown>;
   image?: boolean;
-  startedBefore?: boolean;
 };
 
 function textFile(
@@ -37,115 +35,247 @@ function resolve({
   dotEnvLocal,
   configJson,
   image = true,
-  startedBefore = false,
 }: Inputs = {}) {
   return resolveStartupConfig({
     processEnv,
     dotEnv: textFile(".env", dotEnv),
     dotEnvLocal: textFile(".env.local", dotEnvLocal),
-    configJson:
-      configJson && parseConfigJson(JSON.stringify(configJson), "config.json"),
+    configJson: configJson && {
+      path: "config.json",
+      ...parseConfigJson(JSON.stringify(configJson), "config.json"),
+    },
     image,
-    startedBefore,
   });
 }
 
 const db = "https://db:8182";
 
-describe("appendedSettingsBlock", () => {
-  it("writes the HTTPS defaults without the notebook preset", () => {
-    expect(appendedSettingsBlock({}, {})).toBe(
-      "\nNEPTUNE_NOTEBOOK=false\n\nPROXY_SERVER_HTTPS_CONNECTION=true\n\nGRAPH_EXP_HTTPS_CONNECTION=true\n",
-    );
-  });
+describe("resolveStartupConfig", () => {
+  describe("SSL defaults", () => {
+    it("defaults PROXY_SERVER_HTTPS_CONNECTION to true in the image", () => {
+      expect(resolve().serverEnv.PROXY_SERVER_HTTPS_CONNECTION).toBe("true");
+    });
 
-  it("writes the settings' values", () => {
-    expect(
-      appendedSettingsBlock(
-        {
-          NEPTUNE_NOTEBOOK: "TRUE",
-          PROXY_SERVER_HTTPS_CONNECTION: "false",
-          GRAPH_EXP_HTTPS_CONNECTION: "false",
-        },
-        {},
-      ),
-    ).toBe(
-      "\nNEPTUNE_NOTEBOOK=TRUE\n\nPROXY_SERVER_HTTPS_CONNECTION=false\n\nGRAPH_EXP_HTTPS_CONNECTION=false\n",
-    );
-  });
-
-  it("writes the preset's port, log style, and HTTPS off", () => {
-    expect(appendedSettingsBlock({ NEPTUNE_NOTEBOOK: "true" }, {})).toBe(
-      "\nNEPTUNE_NOTEBOOK=true\n\nPROXY_SERVER_PORT=9250\n\nLOG_STYLE=cloudwatch\n\nPROXY_SERVER_HTTPS_CONNECTION=false\n\nGRAPH_EXP_HTTPS_CONNECTION=false\n",
-    );
-  });
-
-  it.for(["PROXY_SERVER_PORT", "PROXY_SERVER_HTTP_PORT"])(
-    "leaves the preset's port out when the environment sets %s",
-    key => {
+    it("leaves PROXY_SERVER_HTTPS_CONNECTION to the server's default from source", () => {
       expect(
-        appendedSettingsBlock({ NEPTUNE_NOTEBOOK: "true" }, { [key]: "8080" }),
-      ).not.toContain("PROXY_SERVER_PORT=9250");
-    },
-  );
+        resolve({ image: false }).serverEnv.PROXY_SERVER_HTTPS_CONNECTION,
+      ).toBeUndefined();
+    });
 
-  it("writes the preset's port when the environment's port is empty", () => {
-    expect(
-      appendedSettingsBlock(
-        { NEPTUNE_NOTEBOOK: "true" },
-        { PROXY_SERVER_PORT: "" },
-      ),
-    ).toContain("\nPROXY_SERVER_PORT=9250\n");
+    it("respects PROXY_SERVER_HTTPS_CONNECTION=false", () => {
+      expect(
+        resolve({ processEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" } })
+          .serverEnv.PROXY_SERVER_HTTPS_CONNECTION,
+      ).toBe("false");
+    });
+
+    // #2504: the .env value, not a default appended after it, decides.
+    it("takes PROXY_SERVER_HTTPS_CONNECTION from .env", () => {
+      expect(
+        resolve({ dotEnv: "PROXY_SERVER_HTTPS_CONNECTION=false\n" }).serverEnv
+          .PROXY_SERVER_HTTPS_CONNECTION,
+      ).toBe("false");
+    });
+
+    it("treats an empty PROXY_SERVER_HTTPS_CONNECTION as unset", () => {
+      expect(
+        resolve({ processEnv: { PROXY_SERVER_HTTPS_CONNECTION: "" } }).serverEnv
+          .PROXY_SERVER_HTTPS_CONNECTION,
+      ).toBe("true");
+    });
   });
 
-  it("leaves the preset's log style out when the environment sets LOG_STYLE", () => {
-    expect(
-      appendedSettingsBlock(
-        { NEPTUNE_NOTEBOOK: "true" },
-        { LOG_STYLE: "default" },
-      ),
-    ).not.toContain("LOG_STYLE");
+  describe("precedence of PROXY_SERVER_HTTPS_CONNECTION", () => {
+    const sources = {
+      processEnv: { PROXY_SERVER_HTTPS_CONNECTION: "env" },
+      configJson: { PROXY_SERVER_HTTPS_CONNECTION: "config" },
+      dotEnv: "PROXY_SERVER_HTTPS_CONNECTION=dotenv\n",
+      dotEnvLocal: "PROXY_SERVER_HTTPS_CONNECTION=local\n",
+    };
+
+    it.for([
+      ["the environment", sources, "env"],
+      [
+        ".env.local over config.json",
+        {
+          dotEnvLocal: sources.dotEnvLocal,
+          configJson: sources.configJson,
+          dotEnv: sources.dotEnv,
+        },
+        "local",
+      ],
+      [
+        "config.json over .env",
+        { configJson: sources.configJson, dotEnv: sources.dotEnv },
+        "config",
+      ],
+      ["a .env file", { dotEnv: sources.dotEnv }, "dotenv"],
+    ] as const)("%s", ([_name, inputs, expected]) => {
+      expect(resolve(inputs).serverEnv.PROXY_SERVER_HTTPS_CONNECTION).toBe(
+        expected,
+      );
+    });
   });
 
-  it.for([
-    ["true", "true"],
-    ["TRUE", "TRUE"],
-    ["yes", "false"],
-    ["null", "false"],
-    ["0", "false"],
-  ])("under the preset, writes an HTTPS of %s as %s", ([value, written]) => {
-    expect(
-      appendedSettingsBlock(
-        { NEPTUNE_NOTEBOOK: "true", PROXY_SERVER_HTTPS_CONNECTION: value },
-        {},
-      ),
-    ).toContain(`\nPROXY_SERVER_HTTPS_CONNECTION=${written}\n`);
+  describe("NEPTUNE_NOTEBOOK=true", () => {
+    const preset = { processEnv: { NEPTUNE_NOTEBOOK: "true" } };
+
+    it("serves HTTP on port 9250 with CloudWatch-style logs", () => {
+      const { serverEnv } = resolve(preset);
+
+      expect(serverEnv).toMatchObject({
+        NEPTUNE_NOTEBOOK: "true",
+        PROXY_SERVER_HTTPS_CONNECTION: "false",
+        PROXY_SERVER_PORT: "9250",
+        LOG_STYLE: "cloudwatch",
+      });
+      // The old variable would make the server warn on every start.
+      expect(serverEnv.PROXY_SERVER_HTTP_PORT).toBeUndefined();
+    });
+
+    it.for(["PROXY_SERVER_HTTP_PORT", "PROXY_SERVER_PORT"])(
+      "respects an explicit %s",
+      port => {
+        const { serverEnv } = resolve({
+          processEnv: { NEPTUNE_NOTEBOOK: "true", [port]: "8080" },
+        });
+
+        expect(serverEnv[port]).toBe("8080");
+        expect(
+          port === "PROXY_SERVER_PORT"
+            ? serverEnv.PROXY_SERVER_HTTP_PORT
+            : serverEnv.PROXY_SERVER_PORT,
+        ).toBeUndefined();
+      },
+    );
+
+    it("respects an explicit LOG_STYLE", () => {
+      expect(
+        resolve({
+          processEnv: { NEPTUNE_NOTEBOOK: "true", LOG_STYLE: "default" },
+        }).serverEnv.LOG_STYLE,
+      ).toBe("default");
+    });
+
+    it("beats a port and log style in .env, as the lines the shell appended did", () => {
+      expect(
+        resolve({
+          ...preset,
+          dotEnv: "PROXY_SERVER_PORT=8081\nLOG_STYLE=default\n",
+        }).serverEnv,
+      ).toMatchObject({ PROXY_SERVER_PORT: "9250", LOG_STYLE: "cloudwatch" });
+    });
+
+    it("yields to a port and log style in .env.local, as it did before the lines moved out of .env", () => {
+      expect(
+        resolve({
+          ...preset,
+          dotEnv: "PROXY_SERVER_PORT=8081\nLOG_STYLE=default\n",
+          dotEnvLocal: "PROXY_SERVER_PORT=8082\nLOG_STYLE=default\n",
+        }).serverEnv,
+      ).toMatchObject({ PROXY_SERVER_PORT: "8082", LOG_STYLE: "default" });
+    });
+
+    it.for([
+      [
+        "a true in the environment",
+        { PROXY_SERVER_HTTPS_CONNECTION: "true" },
+        "true",
+      ],
+      [
+        "an invalid value in the environment",
+        { PROXY_SERVER_HTTPS_CONNECTION: "yes" },
+        "yes",
+      ],
+    ] as const)(
+      "keeps %s for the server to reject",
+      ([_name, env, expected]) => {
+        expect(
+          resolve({ processEnv: { ...preset.processEnv, ...env } }).serverEnv
+            .PROXY_SERVER_HTTPS_CONNECTION,
+        ).toBe(expected);
+      },
+    );
+
+    it.for([
+      ["true", "true"],
+      ["TRUE", "TRUE"],
+      ["false", "false"],
+      [null, "false"],
+      ["yes", "false"],
+      [0, "false"],
+    ] as const)(
+      "reads a config.json HTTPS of %j as %s",
+      ([configValue, expected]) => {
+        expect(
+          resolve({
+            configJson: {
+              NEPTUNE_NOTEBOOK: true,
+              PROXY_SERVER_HTTPS_CONNECTION: configValue,
+            },
+          }).serverEnv.PROXY_SERVER_HTTPS_CONNECTION,
+        ).toBe(expected);
+      },
+    );
+
+    it("keeps an HTTPS true in .env.local for the server to reject", () => {
+      expect(
+        resolve({
+          ...preset,
+          dotEnvLocal: "PROXY_SERVER_HTTPS_CONNECTION=true\n",
+        }).serverEnv.PROXY_SERVER_HTTPS_CONNECTION,
+      ).toBe("true");
+    });
+
+    it("lets an HTTPS false in .env.local stand", () => {
+      expect(
+        resolve({
+          ...preset,
+          configJson: {
+            NEPTUNE_NOTEBOOK: true,
+            PROXY_SERVER_HTTPS_CONNECTION: true,
+          },
+          dotEnvLocal: "PROXY_SERVER_HTTPS_CONNECTION=false\n",
+        }).serverEnv.PROXY_SERVER_HTTPS_CONNECTION,
+      ).toBe("false");
+    });
+
+    it("forces HTTPS off when nothing asked for it", () => {
+      expect(
+        resolve({ ...preset, dotEnv: "PROXY_SERVER_HTTPS_CONNECTION=true\n" })
+          .serverEnv.PROXY_SERVER_HTTPS_CONNECTION,
+      ).toBe("false");
+    });
   });
 
-  it("under the preset, writes GRAPH_EXP_HTTPS_CONNECTION=false over a true", () => {
-    expect(
-      appendedSettingsBlock(
-        { NEPTUNE_NOTEBOOK: "true", GRAPH_EXP_HTTPS_CONNECTION: "true" },
-        {},
-      ),
-    ).toContain("\nGRAPH_EXP_HTTPS_CONNECTION=false\n");
-  });
-});
+  describe("NEPTUNE_NOTEBOOK other than true", () => {
+    it.for(["false", "TRUE", "True", "1", "yes"])(
+      "%s doesn't apply the preset",
+      value => {
+        const { serverEnv } = resolve({
+          processEnv: { NEPTUNE_NOTEBOOK: value },
+        });
 
-describe("resolveStartupConfig in the image", () => {
-  it("defaults PROXY_SERVER_HTTPS_CONNECTION to true and sets up the certificate", () => {
-    const startup = resolve({ processEnv: { HOST: "localhost" } });
+        expect(serverEnv.PROXY_SERVER_HTTPS_CONNECTION).toBe("true");
+        expect(serverEnv.PROXY_SERVER_PORT).toBeUndefined();
+        expect(serverEnv.LOG_STYLE).toBeUndefined();
+      },
+    );
 
-    expect(startup.serverEnv.PROXY_SERVER_HTTPS_CONNECTION).toBe("true");
-    expect(startup.setUpCertificates).toBe(true);
-    expect(startup.certificateHost).toBe("localhost");
-  });
+    it("is unset when nothing sets it", () => {
+      expect(resolve().serverEnv.NEPTUNE_NOTEBOOK).toBeUndefined();
+    });
 
-  it("serves the environment's connection settings without a config.json", () => {
-    expect(
-      resolve({ processEnv: { GRAPH_CONNECTION_URL: db, IAM: "true" } })
-        .defaultConnectionJson,
-    ).toContain('"GRAPH_EXP_IAM":true,');
+    // A user's line was never effective: the shell resolved the value and
+    // the environment beat the file.
+    it("ignores NEPTUNE_NOTEBOOK in .env", () => {
+      expect(
+        resolve({ dotEnv: "NEPTUNE_NOTEBOOK=true\n" }).serverEnv,
+      ).toMatchObject({
+        NEPTUNE_NOTEBOOK: undefined,
+        PROXY_SERVER_HTTPS_CONNECTION: "true",
+      });
+    });
   });
 
   describe("config.json after the environment", () => {
@@ -265,161 +395,237 @@ describe("resolveStartupConfig in the image", () => {
         PROXY_SERVER_HTTPS_CONNECTION: "true",
       });
     });
-  });
 
-  it("collects the config.json parser's warnings", () => {
-    expect(resolve({ configJson: { IAM: { nested: true } } }).warnings).toEqual(
-      ['config.json: IAM can\'t be {"nested":true}, so it is ignored.'],
-    );
-  });
-
-  it("gives the server NEPTUNE_NOTEBOOK from the block, over a line in .env", () => {
-    expect(
-      resolve({ dotEnv: "NEPTUNE_NOTEBOOK=true\n" }).serverEnv.NEPTUNE_NOTEBOOK,
-    ).toBe("false");
-  });
-
-  it("applies the preset's port and log style from the block over .env, and yields to .env.local", () => {
-    const { serverEnv } = resolve({
-      processEnv: { NEPTUNE_NOTEBOOK: "true" },
-      dotEnv: "PROXY_SERVER_PORT=8081\nLOG_STYLE=default\n",
-      dotEnvLocal: "LOG_STYLE=default\n",
-    });
-
-    expect(serverEnv).toMatchObject({
-      NEPTUNE_NOTEBOOK: "true",
-      PROXY_SERVER_PORT: "9250",
-      LOG_STYLE: "default",
-      PROXY_SERVER_HTTPS_CONNECTION: "false",
+    it("collects the parser's warnings", () => {
+      expect(
+        resolve({ configJson: { IAM: { enabled: true } } }).warnings,
+      ).toStrictEqual([
+        `config.json: IAM can't be {"enabled":true}, so it is ignored.`,
+      ]);
     });
   });
 
-  it("holds the settings dotenv loaded into process.env: mounted lines, then the block over them, then .env.local over both", () => {
-    const { envFileValues } = resolve({
-      dotEnv:
-        "AWS_REGION=us-west-2\nLOG_STYLE=default\nNEPTUNE_NOTEBOOK=true\nPROXY_SERVER_PORT=8081\n",
-      dotEnvLocal: "LOG_STYLE=cloudwatch\nLOG_LEVEL=debug\n",
+  describe("connection settings", () => {
+    it("come from the environment without a config.json", () => {
+      expect(
+        resolve({ processEnv: { GRAPH_CONNECTION_URL: db, IAM: "true" } })
+          .defaultConnectionJson,
+      ).toContain('"GRAPH_EXP_IAM":true,');
     });
 
-    expect(envFileValues).toStrictEqual({
-      AWS_REGION: "us-west-2",
-      LOG_STYLE: "cloudwatch",
-      LOG_LEVEL: "debug",
-      PROXY_SERVER_PORT: "8081",
-      NEPTUNE_NOTEBOOK: "false",
-      PROXY_SERVER_HTTPS_CONNECTION: "true",
-      GRAPH_EXP_HTTPS_CONNECTION: "true",
+    // The shipped packages/graph-explorer/.env sets SERVICE_TYPE, and the
+    // shell never read connection settings from .env.
+    it("never come from .env", () => {
+      expect(
+        resolve({
+          dotEnv: `GRAPH_CONNECTION_URL=${db}\nSERVICE_TYPE=neptune-graph\n`,
+        }).defaultConnectionJson,
+      ).toBeUndefined();
     });
   });
 
-  it.for<[string, Inputs]>([
-    [
-      "-e",
-      {
-        processEnv: {
-          NEPTUNE_NOTEBOOK: "true",
-          GRAPH_EXP_HTTPS_CONNECTION: "true",
-        },
-      },
-    ],
-    [
-      "config.json",
-      {
-        configJson: {
-          NEPTUNE_NOTEBOOK: true,
-          GRAPH_EXP_HTTPS_CONNECTION: true,
-        },
-      },
-    ],
-  ])(
-    "holds the preset's GRAPH_EXP_HTTPS_CONNECTION=false in the .env settings over a true from %s",
-    ([_source, inputs]) => {
-      expect(resolve(inputs).envFileValues.GRAPH_EXP_HTTPS_CONNECTION).toBe(
-        "false",
+  describe(".env files", () => {
+    it("reads .env.local before .env", () => {
+      expect(
+        resolve({
+          dotEnv: "LOG_LEVEL=info\nHOST=from-env\n",
+          dotEnvLocal: "LOG_LEVEL=debug\n",
+        }),
+      ).toMatchObject({
+        envFileValues: { LOG_LEVEL: "debug", HOST: "from-env" },
+        serverEnv: { LOG_LEVEL: "debug", HOST: "from-env" },
+      });
+    });
+
+    it("holds the settings dotenv loads into process.env: mounted lines and .env.local over them, without the appended block", () => {
+      const block = legacyStartupBlock({
+        neptuneNotebook: "false",
+        https: "true",
+        graphExpHttps: "true",
+      });
+
+      const { envFileValues } = resolve({
+        dotEnv: `AWS_REGION=us-west-2\nLOG_STYLE=default\nPROXY_SERVER_PORT=8081\n${block}`,
+        dotEnvLocal: "LOG_STYLE=cloudwatch\nLOG_LEVEL=debug\n",
+      });
+
+      expect(envFileValues).toStrictEqual({
+        AWS_REGION: "us-west-2",
+        LOG_STYLE: "cloudwatch",
+        LOG_LEVEL: "debug",
+        PROXY_SERVER_PORT: "8081",
+      });
+    });
+
+    it("lets the environment beat the files", () => {
+      expect(
+        resolve({
+          processEnv: { LOG_LEVEL: "warn" },
+          dotEnv: "LOG_LEVEL=info\n",
+        }).serverEnv.LOG_LEVEL,
+      ).toBe("warn");
+    });
+
+    it("ignores the lines earlier versions appended and says how many", () => {
+      const block = legacyStartupBlock({
+        neptuneNotebook: "false",
+        https: "true",
+        graphExpHttps: "true",
+      });
+
+      const { envFileValues, serverEnv, info } = resolve({
+        dotEnv: `LOG_LEVEL=debug\nPROXY_SERVER_HTTPS_CONNECTION=false\n${block.repeat(3)}`,
+      });
+
+      expect(envFileValues).toStrictEqual({
+        LOG_LEVEL: "debug",
+        PROXY_SERVER_HTTPS_CONNECTION: "false",
+      });
+      expect(serverEnv.PROXY_SERVER_HTTPS_CONNECTION).toBe("false");
+      expect(info).toStrictEqual([
+        "Ignored 18 lines of /config/.env, which earlier versions of Graph Explorer appended at each start. Startup now reads those settings directly, so you can delete the lines.",
+      ]);
+    });
+
+    it("ignores those lines wherever they sit and keeps the operator's own", () => {
+      const httpStart = legacyStartupBlock({
+        neptuneNotebook: "false",
+        https: "false",
+        graphExpHttps: "true",
+      });
+      const httpsStart = legacyStartupBlock({
+        neptuneNotebook: "false",
+        https: "true",
+        graphExpHttps: "true",
+      });
+
+      const { envFileValues, serverEnv, info } = resolve({
+        dotEnv: `LOG_LEVEL=debug\n${httpStart}\n${httpsStart.repeat(2)}`,
+      });
+
+      expect(envFileValues).toStrictEqual({ LOG_LEVEL: "debug" });
+      expect(serverEnv.PROXY_SERVER_HTTPS_CONNECTION).toBe("true");
+      expect(info).toHaveLength(1);
+    });
+
+    // A tidied block from an HTTP container still holds HTTPS false, which
+    // would turn TLS off if it were read.
+    it("ignores those lines after the blank lines between them were removed", () => {
+      const httpStart = withoutBlankLines(
+        legacyStartupBlock({
+          neptuneNotebook: "false",
+          https: "false",
+          graphExpHttps: "true",
+        }),
       );
-    },
-  );
 
-  describe("certificate setup", () => {
-    it("happens for one exact true line", () => {
-      expect(
-        resolve({ processEnv: { PROXY_SERVER_HTTPS_CONNECTION: "true" } })
-          .setUpCertificates,
-      ).toBe(true);
+      const { serverEnv, info } = resolve({ dotEnv: httpStart.repeat(2) });
+
+      expect(serverEnv.PROXY_SERVER_HTTPS_CONNECTION).toBe("true");
+      expect(info).toStrictEqual([
+        "Ignored 6 lines of /config/.env, which earlier versions of Graph Explorer appended at each start. Startup now reads those settings directly, so you can delete the lines.",
+      ]);
     });
 
-    it("doesn't happen for a value that only reads as true", () => {
-      expect(
-        resolve({ processEnv: { PROXY_SERVER_HTTPS_CONNECTION: "TRUE" } })
-          .setUpCertificates,
-      ).toBe(false);
+    it("says nothing about a .env without those lines", () => {
+      expect(resolve({ dotEnv: "LOG_LEVEL=debug\n" }).info).toStrictEqual([]);
+    });
+  });
+
+  describe("an empty value in .env or .env.local", () => {
+    const https = "PROXY_SERVER_HTTPS_CONNECTION";
+
+    it("in .env.local lets config.json decide", () => {
+      const startup = resolve({
+        dotEnvLocal: `${https}=\n`,
+        configJson: { [https]: false },
+      });
+
+      expect(startup.serverEnv[https]).toBe("false");
+      expect(startup.httpsNotice).toBe(
+        `HTTPS is off, set by ${https} in config.json`,
+      );
     });
 
-    it("doesn't happen when .env holds its own HTTPS line", () => {
+    it("in .env.local lets .env decide when config.json doesn't set it", () => {
       expect(
-        resolve({ dotEnv: "PROXY_SERVER_HTTPS_CONNECTION=true\n" })
-          .setUpCertificates,
-      ).toBe(false);
+        resolve({ dotEnvLocal: `${https}=\n`, dotEnv: `${https}=false\n` })
+          .serverEnv[https],
+      ).toBe("false");
     });
 
-    it("doesn't happen when .env holds a block from an earlier start", () => {
-      expect(
-        resolve({
-          dotEnv: legacyStartupBlock({
-            neptuneNotebook: "false",
-            https: "true",
-            graphExpHttps: "true",
-          }),
-        }).setUpCertificates,
-      ).toBe(false);
+    it("in .env.local lets the HTTPS default decide when nothing else sets it", () => {
+      const startup = resolve({ dotEnvLocal: `${https}=\n` });
+
+      expect(startup.serverEnv[https]).toBe("true");
+      expect(startup.httpsNotice).toBeUndefined();
     });
 
-    it("doesn't happen under the preset", () => {
-      expect(
-        resolve({
-          processEnv: {
-            NEPTUNE_NOTEBOOK: "true",
-            PROXY_SERVER_HTTPS_CONNECTION: "true",
-          },
-        }).setUpCertificates,
-      ).toBe(false);
+    it("in .env lets the HTTPS default decide when nothing else sets it", () => {
+      const startup = resolve({ dotEnv: `${https}=\n` });
+
+      expect(startup.serverEnv[https]).toBe("true");
+      expect(startup.httpsNotice).toBeUndefined();
     });
 
-    it("doesn't happen after an earlier start of the same container", () => {
-      expect(resolve({ startedBefore: true }).setUpCertificates).toBe(false);
+    it("leaves a setting config.json can't hold empty, for the server to reject", () => {
+      expect(
+        resolve({ dotEnvLocal: "PROXY_SERVER_LISTEN_ADDRESS=\n" }).serverEnv
+          .PROXY_SERVER_LISTEN_ADDRESS,
+      ).toBe("");
     });
 
-    it("follows the environment's HTTPS setting over config.json's", () => {
+    it("still reaches the libraries that read process.env, as the file holds it", () => {
       expect(
-        resolve({
-          processEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" },
-          configJson: { PROXY_SERVER_HTTPS_CONNECTION: true },
-        }).setUpCertificates,
-      ).toBe(false);
-      expect(
-        resolve({
-          processEnv: { PROXY_SERVER_HTTPS_CONNECTION: "true" },
-          configJson: { PROXY_SERVER_HTTPS_CONNECTION: false },
-        }).setUpCertificates,
-      ).toBe(true);
+        resolve({ dotEnvLocal: "AWS_REGION=\n", dotEnv: "AWS_REGION=a\n" })
+          .envFileValues.AWS_REGION,
+      ).toBe("");
     });
   });
 
   describe("HTTPS notice", () => {
-    it("is unset when the certificate is set up", () => {
+    it("is unset when HTTPS is on", () => {
       expect(resolve().httpsNotice).toBeUndefined();
     });
 
-    it("says SSL is disabled when HTTPS is off", () => {
-      expect(
-        resolve({ processEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" } })
-          .httpsNotice,
-      ).toBe("SSL disabled. Skipping self-signed certificate generation.");
-    });
+    it.for([
+      [
+        "the environment",
+        { processEnv: { PROXY_SERVER_HTTPS_CONNECTION: "false" } },
+        "the environment",
+      ],
+      [
+        ".env.local",
+        { dotEnvLocal: "PROXY_SERVER_HTTPS_CONNECTION=false\n" },
+        "/config/.env.local",
+      ],
+      [
+        "config.json",
+        { configJson: { PROXY_SERVER_HTTPS_CONNECTION: false } },
+        "config.json",
+      ],
+      [
+        ".env",
+        { dotEnv: "PROXY_SERVER_HTTPS_CONNECTION=FALSE\n" },
+        "/config/.env",
+      ],
+    ] satisfies [string, Inputs, string][])(
+      "names %s when it turns HTTPS off",
+      ([_source, inputs, source]) => {
+        expect(resolve(inputs).httpsNotice).toBe(
+          `HTTPS is off, set by PROXY_SERVER_HTTPS_CONNECTION in ${source}`,
+        );
+      },
+    );
 
-    it("says SSL is disabled after an earlier start of the same container, as the entrypoint did", () => {
-      expect(resolve({ startedBefore: true }).httpsNotice).toBe(
-        "SSL disabled. Skipping self-signed certificate generation.",
+    it("names the source that wins", () => {
+      expect(
+        resolve({
+          dotEnv: "PROXY_SERVER_HTTPS_CONNECTION=true\n",
+          configJson: { PROXY_SERVER_HTTPS_CONNECTION: false },
+        }).httpsNotice,
+      ).toBe(
+        "HTTPS is off, set by PROXY_SERVER_HTTPS_CONNECTION in config.json",
       );
     });
 
@@ -430,19 +636,36 @@ describe("resolveStartupConfig in the image", () => {
         "Neptune Notebook preset enabled. Skipping self-signed certificate generation.",
       );
     });
+
+    it("is unset from source, which never generates a certificate", () => {
+      expect(
+        resolve({
+          image: false,
+          dotEnv: "PROXY_SERVER_HTTPS_CONNECTION=false\n",
+        }).httpsNotice,
+      ).toBeUndefined();
+    });
   });
 
   describe("certificate host", () => {
+    it("comes from the process environment", () => {
+      expect(resolve({ processEnv: { HOST: "my-host" } }).certificateHost).toBe(
+        "my-host",
+      );
+    });
+
+    // A HOST in .env sets the printed URL, and must never replace
+    // certificates kept in a volume.
     it("never comes from .env", () => {
       expect(
-        resolve({ dotEnv: "HOST=from-file\n" }).certificateHost,
+        resolve({ dotEnv: "HOST=my-host\n" }).certificateHost,
       ).toBeUndefined();
     });
 
     it("is unset when the environment's is empty", () => {
-      expect(resolve({ processEnv: { HOST: "" } }).certificateHost).toBe(
-        undefined,
-      );
+      expect(
+        resolve({ processEnv: { HOST: "" } }).certificateHost,
+      ).toBeUndefined();
     });
   });
 });
@@ -468,20 +691,42 @@ describe("resolveStartupConfig from source", () => {
     });
   });
 
-  it("serves no Default Connection, sets up no certificate, and appends nothing", () => {
+  it("applies no preset and serves no Default Connection", () => {
     expect(
       resolve({
         image: false,
-        processEnv: { GRAPH_CONNECTION_URL: db, HOST: "localhost" },
+        processEnv: {
+          NEPTUNE_NOTEBOOK: "true",
+          GRAPH_CONNECTION_URL: db,
+          HOST: "localhost",
+        },
       }),
     ).toStrictEqual({
-      serverEnv: { GRAPH_CONNECTION_URL: db, HOST: "localhost" },
+      serverEnv: {
+        NEPTUNE_NOTEBOOK: "true",
+        GRAPH_CONNECTION_URL: db,
+        HOST: "localhost",
+      },
       envFileValues: {},
       defaultConnectionJson: undefined,
-      setUpCertificates: false,
       certificateHost: undefined,
       httpsNotice: undefined,
+      info: [],
       warnings: [],
+    });
+  });
+
+  it("leaves the lines earlier versions appended in .env as dotenv reads them", () => {
+    const block = legacyStartupBlock({
+      neptuneNotebook: "false",
+      https: "false",
+      graphExpHttps: "true",
+    });
+
+    expect(resolve({ image: false, dotEnv: block }).serverEnv).toStrictEqual({
+      NEPTUNE_NOTEBOOK: "false",
+      PROXY_SERVER_HTTPS_CONNECTION: "false",
+      GRAPH_EXP_HTTPS_CONNECTION: "true",
     });
   });
 });
@@ -503,17 +748,8 @@ describe("loadStartup", () => {
     fs.rmSync(workDir, { recursive: true, force: true });
   });
 
-  function load(
-    processEnv: Record<string, string | undefined> = {},
-    image = true,
-  ) {
-    return loadStartup({
-      processEnv,
-      configPath,
-      configJsonPath,
-      image,
-      startedBefore: false,
-    });
+  function load(processEnv: Record<string, string | undefined> = {}) {
+    return loadStartup({ processEnv, configPath, configJsonPath, image: true });
   }
 
   it("reads .env from a custom configuration folder", () => {
@@ -524,11 +760,18 @@ describe("loadStartup", () => {
     );
   });
 
+  it("reads .env.local before .env", () => {
+    fs.writeFileSync(path.join(configPath, ".env"), "LOG_LEVEL=info\n");
+    fs.writeFileSync(path.join(configPath, ".env.local"), "LOG_LEVEL=debug\n");
+
+    expect(load().env.LOG_LEVEL).toBe("debug");
+  });
+
   it("starts without a .env", () => {
     expect(load().env.PROXY_SERVER_HTTPS_CONNECTION).toBe(true);
   });
 
-  it("reads config.json in the image", () => {
+  it("reads config.json", () => {
     fs.writeFileSync(
       configJsonPath,
       `{
@@ -547,7 +790,12 @@ describe("loadStartup", () => {
   it("never reads config.json from source", () => {
     fs.writeFileSync(configJsonPath, '{"NEPTUNE_NOTEBOOK": true');
 
-    const { env, startup } = load({}, false);
+    const { env, startup } = loadStartup({
+      processEnv: {},
+      configPath,
+      configJsonPath,
+      image: false,
+    });
 
     expect(env.NEPTUNE_NOTEBOOK).toBe(false);
     expect(startup.defaultConnectionJson).toBeUndefined();
@@ -577,7 +825,6 @@ describe("loadStartup", () => {
         configPath: missing,
         configJsonPath,
         image: true,
-        startedBefore: false,
       }),
     ).toThrow(
       new StartupError(
@@ -590,7 +837,6 @@ describe("loadStartup", () => {
         configPath: missing,
         configJsonPath,
         image: true,
-        startedBefore: false,
       }),
     ).toThrow(
       `Configuration folder does not exist: default config path "${missing}"`,

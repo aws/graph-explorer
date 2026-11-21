@@ -3,10 +3,8 @@ import path from "path";
 import { describe, expect, test, vi } from "vite-plus/test";
 
 import {
-  certificateDir,
   clientRoot,
   configJsonPath,
-  containerStartMarkerPath,
   isDirectory,
   isMissingFileError,
   proxyServerRoot,
@@ -23,12 +21,6 @@ test("proxyServerRoot points to graph-explorer-proxy-server", () => {
 
 test("configJsonPath is config.json at the repository root, where the image keeps it", () => {
   expect(configJsonPath).toBe(path.join(repoRoot, "config.json"));
-});
-
-test("keeps the container start marker outside cert-info, which may be a volume", () => {
-  expect(
-    path.relative(certificateDir, containerStartMarkerPath).startsWith(".."),
-  ).toBe(true);
 });
 
 describe("isDirectory", () => {
