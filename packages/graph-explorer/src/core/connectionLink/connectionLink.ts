@@ -1,3 +1,4 @@
+import { DEFAULT_SERVICE_TYPE } from "@shared/constants";
 import {
   type ConnectionConfig,
   type NeptuneServiceType,
@@ -10,7 +11,6 @@ import { z } from "zod";
 import type { ConnectionId, SavedConnection } from "@/connections";
 
 import { isDirectConnection, normalizeConnection } from "@/connections";
-import { DEFAULT_SERVICE_TYPE } from "@/utils";
 
 import { getAppStore } from "../StateProvider/appStore";
 import {

@@ -1,3 +1,5 @@
+import { DEFAULT_SERVICE_TYPE } from "@shared/constants";
+
 import type { NormalizedConnection } from "@/connections";
 import type { FeatureFlags } from "@/core";
 
@@ -16,7 +18,6 @@ import {
   NetworkError,
   ServerConnectionError,
 } from "@/utils";
-import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 import { extractErrorMessage } from "@/utils/extractErrorMessage";
 
 import type { ExplorerRequestOptions } from "./useGEFetchTypes";

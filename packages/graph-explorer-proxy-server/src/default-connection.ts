@@ -1,3 +1,7 @@
+import type { DefaultConnectionDataSchema } from "@graph-explorer/shared/default-connection";
+import type { z } from "zod";
+
+import { DEFAULT_SERVICE_TYPE } from "@graph-explorer/shared/constants";
 import {
   type QueryEngine,
   queryEngineOptions,
@@ -5,16 +9,21 @@ import {
 
 import type { ConfigJson } from "./config-json.ts";
 
-/** The connection the proxy server serves at `/defaultConnection`. */
-export type DefaultConnection = {
+type DefaultConnectionPayload = z.input<typeof DefaultConnectionDataSchema>;
+
+/**
+ * The connection the proxy server serves at `/defaultConnection`, typed with
+ * what the client's schema reads. The service type stays plain text, since
+ * the server sends the setting as written and the client uses its default
+ * for one it can't read.
+ */
+export type DefaultConnection = Omit<
+  DefaultConnectionPayload,
+  "GRAPH_EXP_SERVICE_TYPE"
+> & {
   GRAPH_EXP_CONNECTION_URL: string;
-  GRAPH_EXP_GRAPH_TYPE?: QueryEngine;
   GRAPH_EXP_SERVICE_TYPE?: string;
-  GRAPH_EXP_IAM?: boolean;
-  GRAPH_EXP_AWS_REGION?: string;
   GRAPH_EXP_USING_PROXY_SERVER: boolean;
-  GRAPH_EXP_FETCH_REQUEST_TIMEOUT?: number;
-  GRAPH_EXP_NODE_EXPANSION_LIMIT?: number;
 };
 
 /**
@@ -64,7 +73,7 @@ export function resolveDefaultConnection(settings: ConfigJson["values"]): {
     GRAPH_EXP_CONNECTION_URL: url,
     ...(graphType && { GRAPH_EXP_GRAPH_TYPE: graphType }),
     ...(isProxied && {
-      GRAPH_EXP_SERVICE_TYPE: settings.SERVICE_TYPE || "neptune-db",
+      GRAPH_EXP_SERVICE_TYPE: settings.SERVICE_TYPE || DEFAULT_SERVICE_TYPE,
       GRAPH_EXP_IAM: readIam(settings.IAM, warnings),
       GRAPH_EXP_AWS_REGION: settings.AWS_REGION ?? "",
     }),
