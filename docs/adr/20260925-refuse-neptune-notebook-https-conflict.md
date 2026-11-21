@@ -1,6 +1,6 @@
 # ADR: Refuse the Neptune Notebook preset when HTTPS is requested
 
-- **Status:** Accepted, mechanism superseded in part by the TypeScript startup configuration in `packages/graph-explorer-proxy-server/src/startup-config.ts`, which replaced `process-environment.sh`, `setup-ssl.sh`, and `docker-entrypoint.sh` and does what they did without writing to the configuration folder
+- **Status:** Accepted, mechanism superseded in part by the TypeScript startup configuration in `packages/graph-explorer-proxy-server/src/startup-config.ts`, which replaced `process-environment.sh`, `setup-ssl.sh`, and `docker-entrypoint.sh` and does what they did without writing to the configuration folder, and by [One precedence order for startup settings](./20261112-one-precedence-order-for-startup-settings.md)
 - **Date:** 2026-09-25
 - **Related:** #2252. Affects `EnvironmentValuesSchema` in `packages/graph-explorer-proxy-server/src/env.ts`, `process-environment.sh`, and `docker-entrypoint.sh`.
 
