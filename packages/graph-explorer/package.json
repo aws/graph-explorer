@@ -14,7 +14,6 @@
   "dependencies": {
     "@base-ui/react": "^1.9.0",
     "@graph-explorer/shared": "workspace:*",
-    "@hookform/resolvers": "^7.0.8",
     "@monaco-editor/react": "^4.7.0",
     "@react-aria/textfield": "3.19.1",
     "@tanstack/react-form": "^1.33.5",
@@ -47,7 +46,6 @@
     "react-colorful": "^5.8.1",
     "react-dom": "^19.3.1",
     "react-error-boundary": "^6.1.6",
-    "react-hook-form": "^7.92.0",
     "react-laag": "^2.0.5",
     "react-router": "^8.5.2",
     "react-table": "^7.8.0",
