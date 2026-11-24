@@ -2,6 +2,7 @@ import { atom } from "jotai";
 import { atomWithReset, RESET } from "jotai/utils";
 
 import { activeConnectionIdAtom, allGraphSessionsAtom } from "@/core";
+import { type LayoutName, optionalLayoutNameSchema } from "@/core/graphLayout";
 
 import type { EdgeId, VertexId } from "../../entities";
 
@@ -9,6 +10,8 @@ import type { EdgeId, VertexId } from "../../entities";
 export type GraphSessionStorageModel = {
   vertices: Set<VertexId>;
   edges: Set<EdgeId>;
+  /** Absent when the Session predates saving the layout or names one this build lacks. */
+  layout?: LayoutName;
 };
 
 export const isRestorePreviousSessionAvailableAtom = atomWithReset(true);
@@ -23,7 +26,16 @@ export const activeGraphSessionAtom = atom(
     }
 
     const graphs = get(allGraphSessionsAtom);
-    return graphs.get(connectionId) ?? null;
+    const stored = graphs.get(connectionId);
+
+    if (!stored) {
+      return null;
+    }
+
+    return {
+      ...stored,
+      layout: optionalLayoutNameSchema.parse(stored.layout),
+    };
   },
   (get, set, newValue: GraphSessionStorageModel | typeof RESET) => {
     const graphs = get(allGraphSessionsAtom);

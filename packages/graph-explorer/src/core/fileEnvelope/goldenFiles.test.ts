@@ -6,6 +6,7 @@ import { parseStylingFile } from "@/core/styling";
 import { parseExportedGraph } from "@/modules/GraphViewer/exportedGraph";
 
 import graphExportDecimalString from "./__fixtures__/graph-export-v1-decimal-string.json?raw";
+import graphExportWithLayout from "./__fixtures__/graph-export-v1-with-layout.json?raw";
 import stylingExportInteger from "./__fixtures__/styling-export-v1-integer.json?raw";
 
 /**
@@ -67,5 +68,14 @@ describe("golden graph-export files import on the current build", () => {
     });
     expect(parsed.vertices).toStrictEqual(new Set(["1", "2", 3]));
     expect(parsed.edges).toStrictEqual(new Set(["10", "11"]));
+    expect(parsed.layout).toBeUndefined();
+  });
+
+  test("graph-export-v1-with-layout.json", async () => {
+    const parsed = await parseExportedGraph(
+      asFile(graphExportWithLayout, "graph-export-v1-with-layout.json"),
+    );
+
+    expect(parsed.layout).toBe("DAGRE_LR");
   });
 });
