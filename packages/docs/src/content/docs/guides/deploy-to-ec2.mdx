@@ -3,7 +3,7 @@ title: "Deploy to Amazon EC2"
 description: Deploy Graph Explorer on an Amazon EC2 instance.
 ---
 
-Deploy Graph Explorer onto an Amazon EC2 instance and use it as a proxy server with SSH tunneling to connect to Amazon Neptune. Other ways to connect to Amazon Neptune from outside the VPC include a load balancer or VPC peering.
+Deploy Graph Explorer onto an Amazon EC2 instance in the same VPC as your Amazon Neptune cluster, and use it as a proxy server to connect to Neptune. The instance accepts no inbound connections. You reach Graph Explorer from your own machine through an AWS Systems Manager Session Manager port-forwarding session, so only people allowed to start a session on the instance can reach it. To let other people use the deployment, see [Share the deployment](#share-the-deployment).
 
 This guide is an example, not a recommended production configuration. Review its network, access control, and IAM choices against your own security requirements before you run it in production. For the hosting setups Graph Explorer supports, see [Supported Hosting](../../references/security/#supported-hosting). For general guidance on securing a production workload, see the [Security Pillar of the AWS Well-Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html).
 
@@ -17,20 +17,33 @@ This guide is an example, not a recommended production configuration. Review its
 
 ## Prerequisites
 
-- Provision an Amazon EC2 instance that will be used to host the application and connect to Neptune as a proxy server. For more details, see instructions [here](https://github.com/aws/graph-notebook/tree/main/additional-databases/neptune).
-- Inbound access to the Amazon EC2 instance limited to a known CIDR range, on port `443` (Graph Explorer) and port `22` (SSH). The instance needs no inbound rule on port `8182` (Neptune).
+- An [Amazon EC2 instance](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/LaunchingAndUsingInstances.html) in the same VPC as your Neptune cluster, running Amazon Linux 2023, which comes with the [SSM Agent preinstalled](https://docs.aws.amazon.com/systems-manager/latest/userguide/ami-preinstalled-agent.html).
+- A security group on the instance with no inbound rules. Session Manager needs none.
+- Outbound HTTPS (port `443`) from the instance to the Systems Manager endpoints (`ec2messages`, `ssm`, and `ssmmessages`) and to `public.ecr.aws`, the registry the image comes from. A NAT gateway provides both, as does a public subnet with a public IP address and still no inbound rules. VPC interface endpoints for Systems Manager can replace the route to its endpoints, but they don't cover the image pull from `public.ecr.aws`. See [Session Manager prerequisites](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-prerequisites.html).
 - Neptune's security group allows port `8182` from the instance, which reaches Neptune on that port inside the VPC.
-- If your Neptune cluster has IAM database authentication enabled, an [instance profile](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html) attached to the instance, with a role that has a Neptune data-access policy. The proxy server signs requests with this role, and Neptune refuses them without the policy. Add one of the [Sample IAM Policies](../iam-policies/#choose-a-policy) to the role as an inline policy, and replace its placeholders as described in [Sample IAM Policies](../iam-policies/#placeholders). Graph Explorer runs in a Docker container, which is one network hop further from the instance metadata service than the instance itself. When the instance requires IMDSv2, set its [metadata response hop limit](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-IMDS-existing-instances.html#modify-PUT-response-hop-limit) to `2` so the container can get the role's credentials.
-- [Docker](https://docs.docker.com/get-docker/) installed on the EC2 instance
-- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) installed on the EC2 instance
+- An [instance profile](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html) attached to the instance, with a role that has the `AmazonSSMManagedInstanceCore` managed policy, which gives Session Manager the permissions it needs on the instance. See [Session Manager instance permissions](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started-instance-profile.html).
+- If your Neptune cluster has IAM database authentication enabled, a Neptune data-access policy on the same role. The proxy server signs requests with this role, and Neptune refuses them without the policy. Add one of the [Sample IAM Policies](../iam-policies/#choose-a-policy) to the role as an inline policy, and replace its placeholders as described in [Sample IAM Policies](../iam-policies/#placeholders). Graph Explorer runs in a Docker container, which is one network hop further from the instance metadata service than the instance itself. When the instance requires IMDSv2, set its [metadata response hop limit](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-IMDS-existing-instances.html#modify-PUT-response-hop-limit) to `2` so the container can get the role's credentials.
+- [Docker](https://docs.docker.com/get-docker/) and the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) installed on the EC2 instance
+- The [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) and the [Session Manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html) installed on your own machine, with AWS credentials allowed to start a session on the instance
 
 ## Steps
 
-1. Open an SSH client and connect to the EC2 instance
+1. On your own machine, start a shell session on the instance, substituting `{INSTANCE_ID}` with the ID of your EC2 instance
+
+   ```bash
+   aws ssm start-session --target {INSTANCE_ID}
+   ```
+
+   > [!TIP]
+   >
+   > If Docker reports a permission error on its socket in the next steps, add your user to the `docker` group with `sudo usermod -aG docker $USER`, then start a new session. See Docker's [Linux post-installation steps](https://docs.docker.com/engine/install/linux-postinstall/).
+
 2. Authenticate with the [Amazon ECR Public Registry](https://docs.aws.amazon.com/AmazonECR/latest/public/public-registries.html#public-registry-auth)
+
    ```bash
    aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
    ```
+
 3. Pull the Docker image
 
    ```bash
@@ -41,17 +54,20 @@ This guide is an example, not a recommended production configuration. Review its
    >
    > If you receive an error relating to the docker service not running, run `service docker start`.
 
-4. Run the container substituting the `{hostname-or-ip-address}` with the hostname or IP address of the EC2 instance, and `{NEPTUNE_ENDPOINT}` with your Neptune endpoint
+4. Run the container, substituting `{NEPTUNE_ENDPOINT}` with your Neptune endpoint
 
    ```bash
-   docker run -p 443:443 \
+   docker run -p 127.0.0.1:443:443 \
     --restart unless-stopped \
-    --env HOST={hostname-or-ip-address} \
+    --env HOST=localhost \
     --env PROXY_SERVER_ALLOWED_DB_ORIGINS=https://{NEPTUNE_ENDPOINT}:8182 \
+    --name graph-explorer \
     public.ecr.aws/neptune/graph-explorer
    ```
 
-   `HOST` does not limit which networks or clients can reach the container. See [`HOST`](../../references/configuration/#host).
+   `-p 127.0.0.1:443:443` publishes the container on the instance's loopback interface only, so only the instance itself can reach it. The port-forwarding session in the next step connects to it from the instance.
+
+   `HOST=localhost` puts `localhost` in the self-signed certificate, which is the name your browser uses through the port-forwarding session. `HOST` does not limit which networks or clients can reach the container. See [`HOST`](../../references/configuration/#host).
 
    `PROXY_SERVER_ALLOWED_DB_ORIGINS` limits the proxy server to your Neptune cluster. The origin must match the URL users enter in their Connection exactly, including the scheme and port. A "not in the Database Origin Allowlist" error means the two differ. To let users reach another database later, add its origin to the comma-separated list, such as `https://{NEPTUNE_ENDPOINT}:8182,https://{OTHER_ENDPOINT}:8182`. See [Database Origin Allowlist](../../references/security/#database-origin-allowlist).
 
@@ -59,15 +75,49 @@ This guide is an example, not a recommended production configuration. Review its
    >
    > The `--restart unless-stopped` flag ensures the container automatically restarts after a host reboot or if the container crashes. See Docker's [restart policy documentation](https://docs.docker.com/engine/containers/start-containers-automatically/) for other options.
 
-5. Navigate to the public URL of your EC2 instance accessing the `/explorer` endpoint. You will receive a warning as the SSL certificate used is self-signed. The URL will look like this:
+5. In a new terminal on your own machine, start a port-forwarding session from local port `8443` to port `443` on the instance, and leave it running while you use Graph Explorer
 
-   ```
-   https://ec2-1-2-3-4.us-east-1.compute.amazonaws.com/explorer
+   ```bash
+   aws ssm start-session \
+    --target {INSTANCE_ID} \
+    --document-name AWS-StartPortForwardingSession \
+    --parameters '{"portNumber":["443"],"localPortNumber":["8443"]}'
    ```
 
-   > [!IMPORTANT]
+   To use a different local port, change `localPortNumber` and the port in the next step's URL. See [Port forwarding](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html#sessions-start-port-forwarding).
+
+6. Open the `/explorer` endpoint through the session in your browser
+
+   ```text
+   https://localhost:8443/explorer
+   ```
+
+7. You will receive a warning as the SSL certificate used is self-signed. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See the [HTTPS Connections](../troubleshooting/#https-connections) section.
+
+   > [!NOTE]
    >
-   > Never expose this URL publicly without an access control layer in front of it. See [Access Control](../../references/security/#access-control).
+   > A new container generates a new certificate, so replacing the container undoes this trust step. To keep the certificate, see [Keeping the certificate across container replacements](../../references/security/#keeping-the-certificate-across-container-replacements).
 
-6. Since the application is set to use HTTPS by default and contains a self-signed certificate, you will need to add the Graph Explorer certificates to the trusted certificates directory and manually trust them. See [HTTPS Connections](../troubleshooting/#https-connections) section.
-7. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI.
+8. After completing the trusted certification step and refreshing the browser, you should now see the Connections UI. See [Connections](../../features/connections/) for details on configuring your first connection.
+
+### Connect with an SSH tunnel instead
+
+To use SSH instead of Session Manager, add one inbound rule to the instance's security group that allows port `22` from a known CIDR range only, and give the instance a key pair and an address your machine can reach. Keep the container published on `127.0.0.1` as in step 4. Then forward the same local port with SSH, substituting `{USER}` and `{INSTANCE_ADDRESS}` with your SSH user and the instance's address, and open `https://localhost:8443/explorer`:
+
+```bash
+ssh -L 8443:localhost:443 {USER}@{INSTANCE_ADDRESS}
+```
+
+Open the shell for steps 1 to 4 with `ssh {USER}@{INSTANCE_ADDRESS}` instead of `aws ssm start-session`. You then don't need the Systems Manager endpoints, the `AmazonSSMManagedInstanceCore` policy, or the Session Manager plugin, but the instance still needs outbound HTTPS to `public.ecr.aws`. See [`ssh -L`](https://man.openbsd.org/ssh#L).
+
+## Share the deployment
+
+The port-forwarding session suits a deployment only you use. To let other people use Graph Explorer, put an access control layer in front of it that authenticates every user, and let only that layer reach the instance. One way to do this on AWS is an Application Load Balancer that authenticates users before it forwards requests:
+
+- An HTTPS listener with a rule that authenticates users with an `authenticate-oidc` or `authenticate-cognito` action before it forwards to Graph Explorer. These actions work only on HTTPS listeners. See [Authenticate users using an Application Load Balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-authenticate-users.html).
+- A certificate on the listener that your users' browsers already trust. Users then never see the self-signed certificate.
+- A target group that sends HTTPS to port `443` on the instance. The load balancer doesn't validate target certificates, so Graph Explorer's self-signed certificate works behind it. See [Routing configuration](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html#target-group-routing-configuration). Point its health check at `/status`, see [Health Check](../../references/health-check/).
+- An inbound rule on the instance's security group that allows port `443` only from the load balancer's security group. A client that reaches the instance directly skips the load balancer's authentication.
+- The container published on the instance's private IP address instead of loopback, so the load balancer can reach it. In step 4, replace `-p 127.0.0.1:443:443` with `-p {INSTANCE_PRIVATE_IP}:443:443`. Confirm your rules apply to the port you publish, because container platforms can publish ports in a way host firewalls don't filter.
+
+The layer in front must also allow the request timeouts, paths, and body sizes Graph Explorer uses. See [Access Control](../../references/security/#access-control) and [Reference for access control layers](../../references/security/#reference-for-access-control-layers).
