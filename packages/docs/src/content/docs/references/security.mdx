@@ -188,7 +188,7 @@ For browsers like Safari and Firefox, trusting the certificate from the browser 
    ```bash
    docker cp graph-explorer:/graph-explorer/packages/graph-explorer-proxy-server/cert-info/rootCA.crt ./rootCA.crt
    ```
-   If Graph Explorer is running on a remote host (e.g., EC2), copy the file to the remote host first, then use `scp` to transfer it to your local machine.
+   If Graph Explorer is running on a remote host, such as EC2, run this command in a shell on that host, then copy the file to your local machine. Over SSH, use `scp`. In a Session Manager shell, print the file with `cat rootCA.crt` and save the output to a file named `rootCA.crt` on your machine.
 2. Trust the root certificate on your machine. For macOS, open the Keychain Access app, select System under System Keychains, then go to File > Import Items... and import `rootCA.crt`.
 3. Once imported, select the certificate and right-click to select "Get Info". Expand the Trust section, and change the value of "When using this certificate" to "Always Trust".
 4. Refresh the browser. The "Not Secure" warning should be gone.
