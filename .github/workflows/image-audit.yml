@@ -22,9 +22,15 @@ jobs:
     permissions:
       contents: read
       security-events: write
+    env:
+      # Scan the copy the pull step fetched, so a scan never fetches the image again.
+      TRIVY_IMAGE_SRC: docker
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Pull the snapshot image
+        run: bash scripts/pullImage.sh public.ecr.aws/neptune/graph-explorer:latest-SNAPSHOT
 
       - name: Scan Docker image for vulnerabilities
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
@@ -62,7 +68,8 @@ jobs:
       contents: read
       security-events: write
     env:
-      TRIVY_IMAGE_SRC: remote
+      # Scan the copy the pull step fetched, so a scan never fetches the image again.
+      TRIVY_IMAGE_SRC: docker
       # Where scripts/releaseImage.ts reads.
       IMAGE: public.ecr.aws/neptune/graph-explorer
     steps:
@@ -74,6 +81,9 @@ jobs:
         with:
           node-version-file: .node-version
           package-manager-cache: false
+
+      - name: Pull the latest image
+        run: bash scripts/pullImage.sh "$IMAGE:latest"
 
       - name: Scan the latest image
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
