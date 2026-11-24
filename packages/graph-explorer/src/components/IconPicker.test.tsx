@@ -138,11 +138,18 @@ describe("IconPicker", () => {
     renderPicker();
 
     await user.click(screen.getByRole("button", { name: /browse/i }));
-    // "arrow" matches enough icons to fill exactly two pages.
     await user.type(screen.getByPlaceholderText("Search icons..."), "arrow");
-    await user.click(screen.getByRole("button", { name: "Next page" }));
+    const pageCount = Number(
+      screen.getByText(/Page 1 of \d+/).textContent?.match(/of (\d+)/)?.[1],
+    );
+    expect(pageCount).toBeGreaterThan(1);
+    for (let page = 1; page < pageCount; page++) {
+      await user.click(screen.getByRole("button", { name: "Next page" }));
+    }
 
-    expect(screen.getByText(/Page 2 of 2/)).toBeInTheDocument();
+    expect(
+      screen.getByText(`Page ${pageCount} of ${pageCount}`),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Next page" })).toBeDisabled();
     expect(
       screen.getByRole("button", { name: "Previous page" }),
