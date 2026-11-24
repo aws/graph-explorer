@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-import fs from "fs";
 
 import packageJson from "../package.json" with { type: "json" };
 import { createApp } from "./app.ts";
@@ -7,16 +6,11 @@ import {
   CertificateError,
   generateCertificates,
   prepareCertificates,
-  recordContainerStart,
+  readCertificateSummary,
 } from "./certificates.ts";
 import { handleError } from "./error-handler.ts";
-import { type AppLogger, createLogger } from "./logging.ts";
-import {
-  certificateDir,
-  clientRoot,
-  configJsonPath,
-  containerStartMarkerPath,
-} from "./paths.ts";
+import { createLogger } from "./logging.ts";
+import { certificateDir, clientRoot, configJsonPath } from "./paths.ts";
 import {
   logStartupWarnings,
   resolveServerConfig,
@@ -24,20 +18,15 @@ import {
 } from "./server-config.ts";
 import { attachGracefulShutdown, startListening } from "./server-lifecycle.ts";
 import { createServer } from "./server.ts";
-import {
-  loadStartup,
-  type StartupConfig,
-  StartupError,
-} from "./startup-config.ts";
+import { loadStartup, StartupError } from "./startup-config.ts";
 
 /**
  * Resolves the startup configuration and runs the server. With `image` set,
- * it starts as the Docker image's startup scripts did, setting up the
- * self-signed certificate before the server starts.
+ * HTTPS is on unless something turns it off, and a self-signed certificate is
+ * made ready before the server starts.
  */
 export function runServer({ image }: { image: boolean }): void {
   const configPath = process.env.CONFIGURATION_FOLDER_PATH ?? clientRoot;
-  const startedBefore = image && fs.existsSync(containerStartMarkerPath);
   let loaded;
   try {
     loaded = loadStartup({
@@ -45,7 +34,6 @@ export function runServer({ image }: { image: boolean }): void {
       configPath,
       configJsonPath,
       image,
-      startedBefore,
     });
   } catch (error) {
     if (error instanceof StartupError) {
@@ -61,19 +49,23 @@ export function runServer({ image }: { image: boolean }): void {
 
   const logger = createLogger(env);
   logger.info("Parsed environment values: %o", env);
+  for (const message of startup.info) {
+    logger.info(message);
+  }
   for (const warning of startup.warnings) {
     logger.warn(warning);
   }
-
   if (startup.httpsNotice) {
     logger.info(startup.httpsNotice);
   }
-  if (image) {
+
+  if (image && env.PROXY_SERVER_HTTPS_CONNECTION) {
     try {
-      setUpImageCertificates(startup, {
-        markerPath: containerStartMarkerPath,
+      prepareCertificates({
         certDir: certificateDir,
+        host: startup.certificateHost,
         generate: generateCertificates,
+        readCertificate: readCertificateSummary,
         logger,
       });
     } catch (error) {
@@ -161,44 +153,5 @@ export function runServer({ image }: { image: boolean }): void {
       logger.info(
         `Graph Explorer UI located at: ${baseUrl}${staticFilesVirtualPath}`,
       ),
-  });
-}
-
-/**
- * Sets up the self-signed certificate when this start of the image needs
- * one, and says what it did. Every start records itself first, so a restart
- * keeps whatever certificate the container has, as the startup scripts did,
- * even when this start set up none. Only a start that sets up a certificate
- * warns when it can't record itself, since only it has one to lose.
- */
-export function setUpImageCertificates(
-  {
-    setUpCertificates,
-    certificateHost,
-  }: Pick<StartupConfig, "setUpCertificates" | "certificateHost">,
-  {
-    markerPath,
-    certDir,
-    generate,
-    logger,
-  }: {
-    markerPath: string;
-    certDir: string;
-    generate: (certDir: string, host: string) => void;
-    logger: Pick<AppLogger, "info" | "warn">;
-  },
-): "generated" | "reused" | "skipped" {
-  recordContainerStart(
-    markerPath,
-    setUpCertificates ? logger : { warn: () => undefined },
-  );
-  if (!setUpCertificates) {
-    return "skipped";
-  }
-  return prepareCertificates({
-    certDir,
-    host: certificateHost,
-    generate,
-    logger,
   });
 }

@@ -94,7 +94,7 @@ How Graph Explorer behaves on the wire, for anyone adding an access control laye
 
 ## HTTPS Connections
 
-Graph Explorer serves over HTTPS by default using a self-signed certificate. The `HOST` environment variable controls the hostname used in the certificate's Subject Alternative Name (SAN). When `HOST` is set, the container generates a fresh self-signed certificate when a new container starts, and a restart of the same container keeps it. When `HOST` is not set, the container reuses the certificate files already in `cert-info` and stops if any are missing. `HOST` has no default for certificates. The server falls back to `localhost` only for the URL it prints at startup.
+Graph Explorer serves over HTTPS by default using a self-signed certificate. The `HOST` environment variable controls the hostname used in the certificate's Subject Alternative Name (SAN). When `HOST` is set, the container reuses the certificate files in `cert-info` if all of them exist, `server.crt` names `HOST`, and neither `server.crt` nor `rootCA.crt` has expired. Otherwise it generates a fresh self-signed certificate. A restart of the same container, or a new container that mounts the same `cert-info` volume, keeps the certificate, while a new container without the volume generates another. When `HOST` is not set, the container reuses the certificate files already in `cert-info` and stops if any are missing. `HOST` has no default for certificates. The server falls back to `localhost` only for the URL it prints at startup.
 
 ### Certificate files
 
@@ -111,28 +111,22 @@ The proxy server reads certificates from the following location inside the conta
 └── cert.conf     # Certificate extensions configuration
 ```
 
-If HTTPS is enabled and any of these files are missing, the server will exit with an error listing the missing files.
+If HTTPS is enabled and `HOST` is not set, the server will exit with an error listing any of the five certificate files that are missing. With `HOST` set, a missing certificate file means the container generates a new certificate. `csr.conf` and `cert.conf` are the templates generation reads.
 
 ### Keeping the certificate across container replacements
 
-When `HOST` is set, every new container generates its own self-signed certificate. Replacing the container, for example on an image upgrade, invalidates the certificate you trusted by hand. Restarting the same container keeps its certificate.
+A new container's `cert-info` starts with only the openssl templates, so with `HOST` set it generates its own self-signed certificate. Replacing the container, for example on an image upgrade, then invalidates the certificate you trusted by hand. Restarting the same container keeps its certificate.
 
-To keep one certificate across replacements, mount `cert-info` as a named volume and set `HOST` only on the first run:
+To keep one certificate across replacements, mount `cert-info` as a named volume. With `HOST` set, a new container reuses the volume's certificate while it names `HOST` and neither `server.crt` nor `rootCA.crt` has expired, so every container can run the same command:
 
 ```bash
-# First run generates the certificate into the volume
 docker run -p 443:443 \
   --env HOST=localhost \
   -v graph-explorer-certs:/graph-explorer/packages/graph-explorer-proxy-server/cert-info \
   public.ecr.aws/neptune/graph-explorer
-
-# Later containers reuse it because HOST is unset
-docker run -p 443:443 \
-  -v graph-explorer-certs:/graph-explorer/packages/graph-explorer-proxy-server/cert-info \
-  public.ecr.aws/neptune/graph-explorer
 ```
 
-The certificate is valid for the `HOST` value and dates from the first run. Delete the volume to generate a new one.
+The first run generates the certificate into the volume, and later containers reuse it. A new container generates a new one when you change `HOST`, when `server.crt` or `rootCA.crt` has expired (the server certificate is valid for 365 days and the root for 356), or when any of the five certificate files is missing. Delete the volume to generate a new one. Leaving `HOST` unset also reuses the volume's files, whatever they name.
 
 ### Using your own certificates
 
