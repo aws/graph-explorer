@@ -65,6 +65,9 @@ export interface UseAddClickEvents<
 
 const DOUBLE_CLICK_DELAY_MS = 300;
 
+/** What a tap with no selector lands on: the graph background or an element. */
+type TapTarget = cytoscape.Core | cytoscape.SingularElementArgument;
+
 const useAddClickEvents = ({
   cy,
   onGraphClick,
@@ -88,11 +91,11 @@ const useAddClickEvents = ({
       return;
     }
 
-    let tappedBefore: any = null;
+    let tappedBefore: TapTarget | null = null;
     let tappedTimeout: NodeJS.Timeout | null = null;
 
     const handleDoubleTap = (event: cytoscape.EventObject) => {
-      const tappedNow = event.target;
+      const tappedNow: TapTarget = event.target;
 
       // Cancel timeout since we have arrived before it has fired
       if (tappedTimeout && tappedBefore) {
@@ -101,7 +104,7 @@ const useAddClickEvents = ({
 
       // Check that we are tapping the same element
       if (tappedBefore === tappedNow) {
-        tappedNow.trigger("doubleTap", event);
+        tappedNow.trigger("doubleTap", [event]);
         tappedBefore = null;
       } else {
         // Clear out the tappedBefore when the timeout fires
@@ -149,13 +152,14 @@ const useAddClickEvents = ({
         return;
       }
 
-      const { x1, y1, x2, y2 } = e.target.renderedBoundingBox({
+      const element: cytoscape.SingularElementArgument = e.target;
+      const { x1, y1, x2, y2 } = element.renderedBoundingBox({
         includeEdges: false,
         includeLabels: false,
         includeOverlays: false,
       });
 
-      cb(e, e.target.data(), {
+      cb(e, element.data(), {
         top: y1,
         left: x1,
         width: x2 - x1,
@@ -171,16 +175,16 @@ const useAddClickEvents = ({
         return;
       }
 
-      const { x1, y1, x2, y2 } = e.target.renderedBoundingBox({
+      const groupElement: cytoscape.NodeSingular = e.target;
+      const { x1, y1, x2, y2 } = groupElement.renderedBoundingBox({
         includeEdges: false,
         includeLabels: false,
         includeOverlays: false,
       });
 
-      const groupElement = e.target as cytoscape.CollectionReturnValue;
       cb(
         e,
-        e.target.data(),
+        groupElement.data(),
         groupElement
           .children()
           .nodes()

@@ -75,7 +75,7 @@ function NodesTabular({ ref }: NodesTabularProps) {
       id: "node-type",
       accessor: "displayTypes",
       label: t("node-type"),
-      filter: (rows, _columnIds, filterValue) =>
+      filter: (rows, _columnIds, filterValue: string) =>
         rows.filter(row =>
           row.original.displayTypes
             .toLowerCase()

@@ -83,6 +83,7 @@ export default defineConfig({
       "jest/valid-expect": "off",
       "typescript/unbound-method": "off",
       "typescript/no-floating-promises": "error",
+      "typescript/no-unsafe-call": "error",
       "no-unused-vars": [
         "error",
         {

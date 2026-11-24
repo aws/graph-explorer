@@ -1,6 +1,7 @@
+import type * as MonacoEditor from "monaco-editor";
 import type { ComponentProps } from "react";
 
-import { Editor, type Monaco } from "@monaco-editor/react";
+import { Editor } from "@monaco-editor/react";
 
 export function CodeEditor({
   beforeMount,
@@ -62,6 +63,9 @@ export function CodeEditor({
     />
   );
 }
+
+// `@monaco-editor/react` types `Monaco` from a path `monaco-editor` no longer exports, so it does not resolve.
+type Monaco = typeof MonacoEditor;
 
 type MonacoThemeData = Parameters<Monaco["editor"]["defineTheme"]>[1];
 

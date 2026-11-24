@@ -7,7 +7,10 @@ const base = "/graph-explorer";
 
 const shellLanguages = new Set(["bash", "sh", "shell", "zsh"]);
 
-/** Renders shell code blocks in the dark theme in both themes, so they read as a terminal. */
+/**
+ * Renders shell code blocks in the dark theme in both themes, so they read as a terminal.
+ * @returns {import("@astrojs/starlight/expressive-code").ExpressiveCodePlugin}
+ */
 function darkShellBlocks() {
   return {
     name: "dark-shell-blocks",
