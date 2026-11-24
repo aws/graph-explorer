@@ -3,7 +3,7 @@
 # .node-version and the pnpm in packageManager, and hands vp run to the
 # project's installed vite-plus. So the tag can differ from the vite-plus
 # catalog version. Pinned by digest.
-FROM ghcr.io/voidzero-dev/vite-plus:1.5.1@sha256:068d824d8d8184c39defc266795d3ade452bfc5266603d25d81aeeedbedf8973 AS toolchain
+FROM ghcr.io/voidzero-dev/vite-plus:1.7.0@sha256:dcdbe5282b3c2087fec3f5e38272b8e04939f1ef5c565b8bfec0cbfb66f238ae AS toolchain
 WORKDIR /app
 
 FROM toolchain AS build
