@@ -27,7 +27,7 @@ describe("index.css custom variants", () => {
     ["data-checked:bg-primary", '[data-state="checked"]'],
     ["data-unchecked:bg-input-border", '[data-state="unchecked"]'],
     ["has-data-checked:border-primary", ':has([data-state="checked"])'],
-    ["group-data-checked:flex", ':where(.group)[data-state="checked"] *'],
+    ["group-data-checked:flex", ':where(.group)[data-state="checked"]'],
   ])("%s matches Radix's data-state", async (candidate, expected) => {
     expect(await buildUtilities([candidate])).toContain(expected);
   });
