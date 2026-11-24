@@ -16,7 +16,7 @@ import { sparqlQuadBindingSchema, sparqlResponseSchema } from "../types";
 import fetchNeighbors from "./index";
 
 describe("fetchNeighbors", () => {
-  const mockSparqlFetch = vi.fn() as any;
+  const mockSparqlFetch = vi.fn();
 
   test("should fetch neighbors successfully with valid response", async () => {
     // Arrange

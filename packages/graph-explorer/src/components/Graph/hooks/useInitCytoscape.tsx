@@ -99,8 +99,8 @@ const useInitCytoscape = ({
       setCy(cy);
 
       return () => {
-        (cy.elements() as any).removeAllListeners();
-        (cy as any).removeAllListeners();
+        cy.elements().removeAllListeners();
+        cy.removeAllListeners();
         cy.destroy();
         cy.unmount();
         setCy(undefined);
