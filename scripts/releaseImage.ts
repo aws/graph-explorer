@@ -1,10 +1,11 @@
 /**
- * Decides which tags a release run of build_docker.yml pushes, and checks
- * them afterwards. It has no dependencies, so the workflow runs it with plain
- * Node and no install.
+ * Decides which tags a release run of build_docker.yml pushes, checks them
+ * afterwards, and checks the newest release's tags for image-audit.yml. It has no
+ * dependencies, so the workflow runs it with plain Node and no install.
  *
  *   IMAGE=<registry>/<repository> node scripts/releaseImage.ts plan
  *   IMAGE=<registry>/<repository> node scripts/releaseImage.ts verify <tag>...
+ *   IMAGE=<registry>/<repository> node scripts/releaseImage.ts verify-latest
  */
 import { appendFileSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -65,6 +66,24 @@ export function planRelease({
     tag => compareSortKeys(key, notebookSortKey(tag)) > 0,
   );
   return isNewest ? [...tags, "latest", "sagemaker-latest"] : tags;
+}
+
+/**
+ * The tag a SageMaker notebook would pick as the newest release, by the
+ * notebook lifecycle script's sort. Throws when there are no tags.
+ */
+export function newestTag(tags: readonly string[]): string {
+  let newest: { tag: string; key: number[] } | undefined;
+  for (const tag of tags) {
+    const key = notebookSortKey(tag);
+    if (!newest || compareSortKeys(key, newest.key) > 0) {
+      newest = { tag, key };
+    }
+  }
+  if (!newest) {
+    throw new Error("No published tags.");
+  }
+  return newest.tag;
 }
 
 // SageMaker notebooks pull `sagemaker-<highest numeric tag>`, ranked by the
@@ -263,11 +282,25 @@ async function main([command, ...args]: string[]): Promise<void> {
     return;
   }
   if (command === "verify" && args.length > 0) {
-    const digest = checkOneDigest(await fetchDigests(image, args));
-    process.stdout.write(`${args.join(", ")} all point to ${digest}\n`);
+    await verifyOneImage(image, args);
     return;
   }
-  throw new Error("Usage: releaseImage.ts plan | verify <tag>...");
+  if (command === "verify-latest" && args.length === 0) {
+    const version = newestTag(await fetchPublishedTags(image));
+    await verifyOneImage(image, ["latest", version, `sagemaker-${version}`]);
+    return;
+  }
+  throw new Error(
+    "Usage: releaseImage.ts plan | verify <tag>... | verify-latest",
+  );
+}
+
+async function verifyOneImage(
+  image: string,
+  tags: readonly string[],
+): Promise<void> {
+  const digest = checkOneDigest(await fetchDigests(image, tags));
+  process.stdout.write(`${tags.join(", ")} all point to ${digest}\n`);
 }
 
 if (import.meta.main) {
