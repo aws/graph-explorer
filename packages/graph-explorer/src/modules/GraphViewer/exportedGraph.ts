@@ -21,10 +21,7 @@ import {
   FileEnvelopeError,
   parseFileEnvelope,
 } from "@/core/fileEnvelope";
-import {
-  type LayoutName,
-  savedGraphLayoutNameSchema,
-} from "@/core/graphLayout";
+import { type LayoutName, optionalLayoutNameSchema } from "@/core/graphLayout";
 import { logger } from "@/utils";
 
 /** The envelope `kind` discriminator for graph export files. */
@@ -56,7 +53,7 @@ const graphExportPayloadSchema = z.object({
   }),
   vertices: z.array(z.union([z.string(), z.number()])),
   edges: z.array(z.union([z.string(), z.number()])),
-  layout: savedGraphLayoutNameSchema,
+  layout: optionalLayoutNameSchema,
 });
 
 export type GraphExportPayload = z.infer<typeof graphExportPayloadSchema>;

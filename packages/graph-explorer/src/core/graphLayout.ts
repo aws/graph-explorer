@@ -47,7 +47,7 @@ export const storedLayoutNameSchema = layoutNameSchema
  * value predates the layout being saved, and an unknown one warns; both parse
  * as no layout, so loading the graph keeps the current one.
  */
-export const savedGraphLayoutNameSchema = layoutNameSchema
+export const optionalLayoutNameSchema = layoutNameSchema
   .optional()
   .catch(({ input }) => {
     logger.warn(
