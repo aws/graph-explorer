@@ -56,4 +56,13 @@ describe("parseProperty", () => {
 
     expect(actual).toEqual(value);
   });
+
+  it("should keep the raw value of a date out of the Date range", () => {
+    const value = 8.64e15 + 1;
+    const actual = parseProperty(
+      createGVertexProperty("value", { "@type": "g:Date", "@value": value }),
+    );
+
+    expect(actual).toBe(value);
+  });
 });

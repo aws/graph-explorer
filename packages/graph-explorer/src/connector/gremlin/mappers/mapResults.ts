@@ -2,6 +2,7 @@ import {
   createResultBundle,
   createResultScalar,
   getDisplayValueForScalar,
+  parseDate,
   type ResultEntity,
   type ResultScalar,
 } from "@/connector/entities";
@@ -41,7 +42,7 @@ export function mapAnyValue(data: GAnyValue, name?: string): ResultEntity[] {
   ) {
     return [createResultScalar({ value: data["@value"], name })];
   } else if (data["@type"] === "g:Date") {
-    return [createResultScalar({ value: new Date(data["@value"]), name })];
+    return [createResultScalar({ value: parseDate(data["@value"]), name })];
   } else if (data["@type"] === "g:Edge") {
     return [mapApiEdge(data, name)];
   } else if (data["@type"] === "g:Vertex") {

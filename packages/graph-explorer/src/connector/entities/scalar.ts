@@ -50,6 +50,15 @@ export function createResultScalar({
 }
 
 /**
+ * Parses a date value from a database response. Returns the raw value when it
+ * does not parse to a valid `Date`, so no invalid `Date` enters the app.
+ */
+export function parseDate<T extends string | number>(raw: T): Date | T {
+  const date = new Date(raw);
+  return Number.isNaN(date.getTime()) ? raw : date;
+}
+
+/**
  * Determines the type of the value and casts it to a typed object.
  *
  * This function analyzes a scalar value and returns an object with both

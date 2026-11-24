@@ -2,6 +2,8 @@ import z from "zod";
 
 import type { EntityProperties } from "@/core";
 
+import { parseDate } from "@/connector/entities";
+
 import type { OCProperties } from "../types";
 
 export function mapApiProperties(properties: OCProperties) {
@@ -10,7 +12,7 @@ export function mapApiProperties(properties: OCProperties) {
   for (const [key, value] of Object.entries(properties)) {
     // Parse date values
     if (typeof value === "string" && isDateString(value)) {
-      mappedProperties[key] = new Date(value);
+      mappedProperties[key] = parseDate(value);
     } else {
       mappedProperties[key] = value;
     }

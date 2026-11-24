@@ -39,4 +39,10 @@ describe("mapApiProperties", () => {
     const actual = mapApiProperties({ value: value.toISOString() });
     expect(actual).toEqual({ value });
   });
+
+  it("should keep a malformed date-like string as its raw text", () => {
+    const value = "1955-00-00T00:00:00Z";
+    const actual = mapApiProperties({ value });
+    expect(actual).toEqual({ value });
+  });
 });

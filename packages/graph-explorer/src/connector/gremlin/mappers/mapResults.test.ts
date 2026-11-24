@@ -101,6 +101,12 @@ describe("mapAnyValue", () => {
       expect(results).toStrictEqual([createResultScalar({ value })]);
     });
 
+    it("should keep the raw value of a g:Date out of the Date range", () => {
+      const value = 8.64e15 + 1;
+      const results = mapAnyValue({ "@type": "g:Date", "@value": value });
+      expect(results).toStrictEqual([createResultScalar({ value })]);
+    });
+
     it("should map g:Type to scalar", () => {
       const value = "Person";
       const results = mapAnyValue(createGType(value));
