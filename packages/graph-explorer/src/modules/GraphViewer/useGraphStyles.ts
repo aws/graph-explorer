@@ -1,23 +1,66 @@
+import type cytoscape from "cytoscape";
+
 import Color from "color";
 import { useDeferredValue } from "react";
 
 import type { GraphProps } from "@/components/Graph";
+import type { StyleValue } from "@/components/Graph/hooks/useManageStyles";
 
 import {
+  appDefaultEdgeStyle,
+  appDefaultVertexStyle,
+  type ArrowStyle,
   type EdgeStyle,
+  type EdgeType,
+  type EdgeVisualStyle,
+  type LineStyle,
+  type ShapeStyle,
   useAllEdgeStyles,
   useAllVertexStyles,
   type VertexStyle,
   type VertexType,
+  type VertexVisualStyle,
 } from "@/core";
 
 import { useBackgroundImageMap } from "./useBackgroundImageMap";
 
-const LINE_PATTERN = {
-  solid: undefined,
+const LINE_DASH_PATTERN: Record<LineStyle, number[]> = {
+  // Cytoscape's default; only read when another rule makes the line dashed.
+  solid: [6, 3],
   dashed: [5, 6],
   dotted: [1, 2],
 };
+
+type VertexTypeValues = {
+  "background-image": string;
+  "background-color": string;
+  "background-opacity": number;
+  "border-color": string;
+  "border-width": number;
+  "border-opacity": number;
+  "border-style": LineStyle;
+  shape: ShapeStyle;
+};
+
+type EdgeTypeValues = {
+  color: string;
+  "line-color": string;
+  "line-style": "solid" | "dashed";
+  "line-dash-pattern": number[];
+  "source-arrow-shape": ArrowStyle;
+  "source-arrow-color": string;
+  "target-arrow-shape": ArrowStyle;
+  "target-arrow-color": string;
+  "text-background-opacity": number;
+  "text-background-color": string;
+  "text-border-width": number;
+  "text-border-color": string;
+  "text-border-style": LineStyle;
+  width: number;
+};
+
+const DEFAULT_VERTEX_VALUES = toVertexTypeValues(appDefaultVertexStyle, "none");
+const DEFAULT_EDGE_VALUES = toEdgeTypeValues(appDefaultEdgeStyle);
 
 export default function useGraphStyles() {
   const vtConfigs = useAllVertexStyles();
@@ -40,54 +83,118 @@ function createGraphStyles(
   deferredEtConfigs: EdgeStyle[],
   backgroundImageMap: Map<VertexType, string>,
 ): GraphProps["styles"] {
-  const styles: GraphProps["styles"] = {};
-
+  const vertexValues = new Map<VertexType, VertexTypeValues>();
   for (const vtConfig of deferredVtConfigs) {
-    const vt = vtConfig.type;
+    vertexValues.set(
+      vtConfig.type,
+      toVertexTypeValues(
+        vtConfig,
+        backgroundImageMap.get(vtConfig.type) ?? "none",
+      ),
+    );
+  }
 
-    const backgroundImage = backgroundImageMap.get(vt);
+  const edgeValues = new Map<EdgeType, EdgeTypeValues>();
+  for (const etConfig of deferredEtConfigs) {
+    edgeValues.set(etConfig.type, toEdgeTypeValues(etConfig));
+  }
 
-    styles[`node[type="${vt}"]`] = {
-      "background-image": backgroundImage,
-      "background-color": vtConfig.color,
-      "background-opacity": vtConfig.backgroundOpacity,
-      "border-color": vtConfig.borderColor,
-      "border-width": vtConfig.borderWidth,
-      "border-opacity": vtConfig.borderWidth > 0 ? 1 : 0,
-      "border-style": vtConfig.borderStyle,
-      shape: vtConfig.shape,
+  // One rule per element kind, not per type: Cytoscape scans every rule for every element (issue #2104).
+  return {
+    "node[type]": {
+      ...mappersByType(vertexValues, DEFAULT_VERTEX_VALUES),
       width: 24,
       height: 24,
-    };
-  }
-
-  for (const etConfig of deferredEtConfigs) {
-    const et = etConfig?.type;
-
-    styles[`edge[type="${et}"]`] = {
+    },
+    "edge[type]": {
+      ...mappersByType(edgeValues, DEFAULT_EDGE_VALUES),
       label: "data(displayName)",
-      color: new Color(etConfig?.labelColor || "#17457b").isDark()
-        ? "#FFFFFF"
-        : "#000000",
-      "line-color": etConfig.lineColor,
-      "line-style":
-        etConfig.lineStyle === "dotted" ? "dashed" : etConfig.lineStyle,
-      "line-dash-pattern": etConfig.lineStyle
-        ? LINE_PATTERN[etConfig.lineStyle]
-        : undefined,
-      "source-arrow-shape": etConfig.sourceArrowStyle,
-      "source-arrow-color": etConfig.lineColor,
-      "target-arrow-shape": etConfig.targetArrowStyle,
-      "target-arrow-color": etConfig.lineColor,
-      "text-background-opacity": etConfig?.labelBackgroundOpacity,
-      "text-background-color": etConfig?.labelColor,
-      "text-border-width": etConfig?.labelBorderWidth,
-      "text-border-color": etConfig?.labelBorderColor,
-      "text-border-style": etConfig?.labelBorderStyle,
-      width: etConfig.lineThickness,
       "source-distance-from-node": 0,
       "target-distance-from-node": 0,
-    };
+    },
+  };
+}
+
+function toVertexTypeValues(
+  style: VertexVisualStyle,
+  backgroundImage: string,
+): VertexTypeValues {
+  return {
+    "background-image": backgroundImage,
+    "background-color": canvasColor(style.color, appDefaultVertexStyle.color),
+    "background-opacity": style.backgroundOpacity,
+    "border-color": canvasColor(
+      style.borderColor,
+      appDefaultVertexStyle.borderColor,
+    ),
+    "border-width": style.borderWidth,
+    "border-opacity": style.borderWidth > 0 ? 1 : 0,
+    "border-style": style.borderStyle,
+    shape: style.shape,
+  };
+}
+
+function toEdgeTypeValues(style: EdgeVisualStyle): EdgeTypeValues {
+  const lineColor = canvasColor(style.lineColor, appDefaultEdgeStyle.lineColor);
+  const labelColor = canvasColor(
+    style.labelColor,
+    appDefaultEdgeStyle.labelColor,
+  );
+  return {
+    color: new Color(labelColor).isDark() ? "#FFFFFF" : "#000000",
+    "line-color": lineColor,
+    "line-style": style.lineStyle === "dotted" ? "dashed" : style.lineStyle,
+    "line-dash-pattern": LINE_DASH_PATTERN[style.lineStyle],
+    "source-arrow-shape": style.sourceArrowStyle,
+    "source-arrow-color": lineColor,
+    "target-arrow-shape": style.targetArrowStyle,
+    "target-arrow-color": lineColor,
+    "text-background-opacity": style.labelBackgroundOpacity,
+    "text-background-color": labelColor,
+    "text-border-width": style.labelBorderWidth,
+    "text-border-color": canvasColor(
+      style.labelBorderColor,
+      appDefaultEdgeStyle.labelBorderColor,
+    ),
+    "text-border-style": style.labelBorderStyle,
+    width: style.lineThickness,
+  };
+}
+
+/**
+ * The color in a form Cytoscape can draw, otherwise the default. Stored colors
+ * are unchecked, and a half-typed one such as `#FF00` would otherwise render
+ * Cytoscape's own grey instead of the default.
+ */
+function canvasColor(color: string, fallback: string): string {
+  if (!color) {
+    return fallback;
   }
-  return styles;
+  // Cytoscape reads only 3- and 6-digit hex, while `color` also takes 4 and 8.
+  if (color.startsWith("#")) {
+    return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(color) ? color : fallback;
+  }
+  try {
+    // Cytoscape reads a narrower rgb() grammar and fewer names than `color`.
+    return new Color(color).rgb().string();
+  } catch {
+    // `color` has no non-throwing parse; an unparseable value is expected input here.
+    return fallback;
+  }
+}
+
+/** One Cytoscape function mapper per property, looking the element's type up in `valuesByType`. */
+function mappersByType<K extends string, V extends Record<string, StyleValue>>(
+  valuesByType: Map<K, V>,
+  fallback: V,
+) {
+  return Object.fromEntries(
+    Object.keys(fallback).map(property => [
+      property,
+      (element: cytoscape.SingularElementReturnValue) =>
+        // A mapper must never return undefined, or Cytoscape keeps the element's stale value; stored styles can hold explicit undefined fields.
+        (valuesByType.get(element.data("type")) ?? fallback)[property] ??
+        fallback[property],
+    ]),
+  );
 }

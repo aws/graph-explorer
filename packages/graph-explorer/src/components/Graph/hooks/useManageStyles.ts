@@ -135,12 +135,14 @@ export const getStyles = ({
   return rootStyles;
 };
 
+export type StyleValue = string | number | number[];
+
 export type StyleSelector =
   | cytoscape.StylesheetStyle["style"]
   | {
       [key: string]:
-        | string
-        | ((element: cytoscape.SingularElementReturnValue) => string)
+        | StyleValue
+        | ((element: cytoscape.SingularElementReturnValue) => StyleValue)
         | undefined;
     };
 
