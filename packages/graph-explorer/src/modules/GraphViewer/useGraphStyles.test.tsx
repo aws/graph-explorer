@@ -350,6 +350,70 @@ describe("useGraphStyles", () => {
     ]);
   });
 
+  it("uses the default colors while a color value is incomplete", () => {
+    withVertexType("Person", { color: "#FF00", borderColor: "#12" });
+    withEdgeType("KNOWS", {
+      lineColor: "#ff00",
+      labelColor: "#1",
+      labelBorderColor: "not a color",
+    });
+    const warn = vi.spyOn(console, "warn");
+
+    const { result } = renderStyles();
+    const styles = getStyles(result);
+
+    expect(
+      styleOfVertex(styles, "Person", ["background-color", "border-color"]),
+    ).toStrictEqual({
+      "background-color": "rgb(18,142,229)",
+      "border-color": "rgb(18,142,229)",
+    });
+    expect(
+      styleOfEdge(styles, "KNOWS", [
+        "line-color",
+        "source-arrow-color",
+        "target-arrow-color",
+        "text-background-color",
+        "text-border-color",
+        "color",
+      ]),
+    ).toStrictEqual({
+      "line-color": "rgb(179,179,179)",
+      "source-arrow-color": "rgb(179,179,179)",
+      "target-arrow-color": "rgb(179,179,179)",
+      "text-background-color": "rgb(23,69,123)",
+      "text-border-color": "rgb(23,69,123)",
+      color: "rgb(255,255,255)",
+    });
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it("draws named, rgb, and hex colors in any CSS form", () => {
+    withVertexType("Person", { color: "red", borderColor: "#abc" });
+    withVertexType("Company", { color: "rebeccapurple" });
+    withEdgeType("KNOWS", { lineColor: "rgb(0, 128, 0)" });
+    withEdgeType("WORKS_AT", { lineColor: "rgb(0 0 255)" });
+
+    const { result } = renderStyles();
+    const styles = getStyles(result);
+
+    expect(
+      styleOfVertex(styles, "Person", ["background-color", "border-color"]),
+    ).toStrictEqual({
+      "background-color": "rgb(255,0,0)",
+      "border-color": "rgb(170,187,204)",
+    });
+    expect(
+      styleOfVertex(styles, "Company", ["background-color"]),
+    ).toStrictEqual({ "background-color": "rgb(102,51,153)" });
+    expect(styleOfEdge(styles, "KNOWS", ["line-color"])).toStrictEqual({
+      "line-color": "rgb(0,128,0)",
+    });
+    expect(styleOfEdge(styles, "WORKS_AT", ["line-color"])).toStrictEqual({
+      "line-color": "rgb(0,0,255)",
+    });
+  });
+
   it("styles types whose names contain selector characters", () => {
     const vertexType = String.raw`Person "VIP"] \ x`;
     const edgeType = String.raw`KNOWS "well"] \ y`;

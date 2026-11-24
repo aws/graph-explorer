@@ -121,9 +121,12 @@ function toVertexTypeValues(
 ): VertexTypeValues {
   return {
     "background-image": backgroundImage,
-    "background-color": style.color,
+    "background-color": canvasColor(style.color, appDefaultVertexStyle.color),
     "background-opacity": style.backgroundOpacity,
-    "border-color": style.borderColor,
+    "border-color": canvasColor(
+      style.borderColor,
+      appDefaultVertexStyle.borderColor,
+    ),
     "border-width": style.borderWidth,
     "border-opacity": style.borderWidth > 0 ? 1 : 0,
     "border-style": style.borderStyle,
@@ -132,24 +135,52 @@ function toVertexTypeValues(
 }
 
 function toEdgeTypeValues(style: EdgeVisualStyle): EdgeTypeValues {
+  const lineColor = canvasColor(style.lineColor, appDefaultEdgeStyle.lineColor);
+  const labelColor = canvasColor(
+    style.labelColor,
+    appDefaultEdgeStyle.labelColor,
+  );
   return {
-    color: new Color(style.labelColor || "#17457b").isDark()
-      ? "#FFFFFF"
-      : "#000000",
-    "line-color": style.lineColor,
+    color: new Color(labelColor).isDark() ? "#FFFFFF" : "#000000",
+    "line-color": lineColor,
     "line-style": style.lineStyle === "dotted" ? "dashed" : style.lineStyle,
     "line-dash-pattern": LINE_DASH_PATTERN[style.lineStyle],
     "source-arrow-shape": style.sourceArrowStyle,
-    "source-arrow-color": style.lineColor,
+    "source-arrow-color": lineColor,
     "target-arrow-shape": style.targetArrowStyle,
-    "target-arrow-color": style.lineColor,
+    "target-arrow-color": lineColor,
     "text-background-opacity": style.labelBackgroundOpacity,
-    "text-background-color": style.labelColor,
+    "text-background-color": labelColor,
     "text-border-width": style.labelBorderWidth,
-    "text-border-color": style.labelBorderColor,
+    "text-border-color": canvasColor(
+      style.labelBorderColor,
+      appDefaultEdgeStyle.labelBorderColor,
+    ),
     "text-border-style": style.labelBorderStyle,
     width: style.lineThickness,
   };
+}
+
+/**
+ * The color in a form Cytoscape can draw, otherwise the default. Stored colors
+ * are unchecked, and a half-typed one such as `#FF00` would otherwise render
+ * Cytoscape's own grey instead of the default.
+ */
+function canvasColor(color: string, fallback: string): string {
+  if (!color) {
+    return fallback;
+  }
+  // Cytoscape reads only 3- and 6-digit hex, while `color` also takes 4 and 8.
+  if (color.startsWith("#")) {
+    return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(color) ? color : fallback;
+  }
+  try {
+    // Cytoscape reads a narrower rgb() grammar and fewer names than `color`.
+    return new Color(color).rgb().string();
+  } catch {
+    // `color` has no non-throwing parse; an unparseable value is expected input here.
+    return fallback;
+  }
 }
 
 /** One Cytoscape function mapper per property, looking the element's type up in `valuesByType`. */
