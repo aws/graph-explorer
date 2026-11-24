@@ -35,7 +35,7 @@ jobs:
           output: trivy-image-results.sarif
 
       - name: Upload Trivy image results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        uses: github/codeql-action/upload-sarif@1bd86f2fdb4b86187fa4059f16f31a3202acc9ea # v4.39.4
         with:
           sarif_file: trivy-image-results.sarif
           category: docker-image-scan
@@ -86,7 +86,7 @@ jobs:
           output: trivy-latest-results.sarif
 
       - name: Upload the latest image results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        uses: github/codeql-action/upload-sarif@1bd86f2fdb4b86187fa4059f16f31a3202acc9ea # v4.39.4
         with:
           sarif_file: trivy-latest-results.sarif
           category: docker-image-scan-latest
