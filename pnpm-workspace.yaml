@@ -36,9 +36,17 @@ blockExoticSubdeps: true
 # Refuse to install a package version whose trust evidence is weaker than a
 # previously published version of that package
 trustPolicy: no-downgrade
+# tsrs's first release was a staged publish, so pnpm ranks its later
+# trusted-publisher releases as weaker. Exclude only the version Vite+
+# bundles, so every other tsrs release still gets checked. When Vite+ bundles
+# another tsrs, check that release's provenance before moving the version, and
+# drop the entry once vp install succeeds without it.
+# See https://github.com/oxc-project/tsrs/issues/945
+trustPolicyExclude:
+  - tsrs@7.1.0-beta.tsrs2
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@1.5.1
-  vite-plus: 1.5.1
+  vite: npm:@voidzero-dev/vite-plus-core@8.3.8000
+  vite-plus: 1.7.0
 peerDependencyRules:
   allowAny:
     - vite

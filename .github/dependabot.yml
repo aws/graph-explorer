@@ -69,11 +69,13 @@ updates:
     groups:
       # Dependabot bumps vite-plus but not the vite catalog entry beside it
       # (the alias to @voidzero-dev/vite-plus-core), and never refreshes the
-      # Vite+ block in AGENTS.md, so its pull request is finished by hand: move
-      # the vite entry to the same version and run vp install. Merge it promptly. Vite, Vitest, oxlint, and oxfmt
-      # fixes only arrive through vite-plus releases, and since the catalog
-      # aliases vite to @voidzero-dev/vite-plus-core, fixes filed against vite
-      # never match the lockfile.
+      # Vite+ block in AGENTS.md, so its pull request is finished by hand: set
+      # the vite entry to the alias the new vite-plus declares and run vp
+      # install, as "Upgrading Vite+" in docs/development.md describes. Merge it
+      # promptly. Vite, Vitest, oxlint, and oxfmt fixes only arrive through
+      # vite-plus releases, and since the catalog aliases vite to
+      # @voidzero-dev/vite-plus-core, fixes filed against vite never match the
+      # lockfile.
       vite-plus:
         patterns: ["vite-plus", "@voidzero-dev/*", "vite"]
       # Everything else. A dependency joins every group it matches, and a group

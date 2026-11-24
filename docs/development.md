@@ -46,9 +46,17 @@ To upgrade:
 4. Run `pnpm checks` and `pnpm test` to confirm nothing else broke.
 5. Commit `package.json`, `pnpm-lock.yaml`, and this document together.
 
-`.github/workflows/ci.yml` and the `Dockerfile` both get pnpm through Vite+, which reads the version from `packageManager`, so a pnpm bump needs no workflow or `Dockerfile` edit. CI uses [`voidzero-dev/setup-vp`](https://github.com/voidzero-dev/setup-vp), and the image builds in the Vite+ image. On a major bump, check the "Set up Vite+" step and the Docker build on the pull request. If the Vite+ that runs pnpm there cannot run the new pnpm major, upgrade it first: the `vite-plus` entry in `pnpm-workspace.yaml` for the "Set up Vite+" step, or the image tag and digest in the `Dockerfile` for the Docker build. The image only supplies the global `vp`, which runs `vp install` itself and hands `vp run build` to the project's installed `vite-plus`. So the image tag can differ from the `vite-plus` entry in `pnpm-workspace.yaml`, and Dependabot bumps each on its own. A new Vite+ major is a hand upgrade of both. Dependabot's `vite-plus` pull request is finished by hand: move the `vite` catalog entry in `pnpm-workspace.yaml` (the alias to `@voidzero-dev/vite-plus-core`) to the same version and run `vp install`, which also refreshes the Vite+ block in `AGENTS.md`.
+`.github/workflows/ci.yml` and the `Dockerfile` both get pnpm through Vite+, which reads the version from `packageManager`, so a pnpm bump needs no workflow or `Dockerfile` edit. CI uses [`voidzero-dev/setup-vp`](https://github.com/voidzero-dev/setup-vp), and the image builds in the Vite+ image. On a major bump, check the "Set up Vite+" step and the Docker build on the pull request. If the Vite+ that runs pnpm there cannot run the new pnpm major, upgrade it first: the `vite-plus` entry in `pnpm-workspace.yaml` for the "Set up Vite+" step, or the image tag and digest in the `Dockerfile` for the Docker build. The image only supplies the global `vp`, which runs `vp install` itself and hands `vp run build` to the project's installed `vite-plus`. So the image tag can differ from the `vite-plus` entry in `pnpm-workspace.yaml`, and Dependabot bumps each on its own. A new Vite+ major is a hand upgrade of both; see [Upgrading Vite+](#upgrading-vite).
 
 A major bump is also where `pnpm-workspace.yaml` deserves a read. Since pnpm 12, a key that pnpm does not recognize fails the install with `ERR_PNPM_UNRECOGNIZED_WORKSPACE_SETTINGS` instead of being ignored. So a setting removed or renamed upstream stops the install rather than quietly doing nothing. `pnpm config list` prints the `pnpm-workspace.yaml` settings pnpm resolved, which is the quickest way to check, though it lists neither pnpm's defaults nor anything from `.npmrc`.
+
+### Upgrading Vite+
+
+Dependabot bumps `vite-plus` in `pnpm-workspace.yaml` but not the `vite` catalog entry beside it, so its pull request is finished by hand:
+
+1. Set the `vite` catalog entry to the alias that `vite-plus` release declares, which `pnpm view vite-plus@<version> dependencies.vite` prints. Since Vite+ 1.7.0, the `@voidzero-dev/vite-plus-core` version encodes the bundled Vite version, such as `8.3.8000` for Vite 8.3.8, so it no longer matches the `vite-plus` version.
+2. Run `vp install`, which also refreshes the Vite+ block in `AGENTS.md`.
+3. If the install fails with a trust downgrade for `tsrs`, the new release bundles a different `tsrs`, which `pnpm view vite-plus@<version> dependencies.tsrs` prints. Confirm on npm that the version is a trusted-publisher release with provenance, then move the `trustPolicyExclude` entry in `pnpm-workspace.yaml` to it. Drop the entry once `vp install` succeeds without it. The cause is tracked in [tsrs#945](https://github.com/oxc-project/tsrs/issues/945).
 
 ### Tooling
 
@@ -169,6 +177,7 @@ The `pnpm-workspace.yaml` file includes several settings that harden the project
 - **`allowBuilds`** — A map giving each dependency that wants to run a build script (e.g. `postinstall`) an explicit `true` or `false`. Anything absent from the map fails the install, because pnpm's own `strictDepBuilds` is on by default.
 - **`blockExoticSubdeps`** — Transitive dependencies cannot resolve to git repositories or raw tarball URLs. Only direct dependencies in `package.json` may use exotic sources.
 - **`trustPolicy`** — Refuses to install a package version whose publish-time trust evidence (provenance, signatures) is weaker than a previously published version of that package.
+- **`trustPolicyExclude`** — Exact package versions exempt from `trustPolicy`, each with its reason in a comment. It holds the `tsrs` version Vite+ bundles, because `tsrs` was first published with a stronger method than its later releases, so pnpm reads every real release as a downgrade.
 
 If `pnpm install` fails due to one of these checks, evaluate whether the dependency is safe and update `pnpm-workspace.yaml` accordingly.
 
