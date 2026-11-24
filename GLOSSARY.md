@@ -26,7 +26,7 @@ A React-based web application that lets users visually explore graph databases w
 
 **Last Active Connection**: A persisted, shared breadcrumb recording the most recently activated Connection across all tabs. Last-writer-wins; used only as the cold-start seed for a fresh tab's Active Connection, never read live by the app.
 
-**Default Connection**: A Connection injected automatically into an empty store from a `defaultConnection.json` file the Proxy Server serves, fetched over the same relative path in every deployment mode. Seeded only when no Connections exist, and re-seeded if the last Connection is deleted. When the config names no Query Language, one Default Connection is produced per Query Language. Distinct from the Last Active Connection, which is a persisted breadcrumb rather than a connection. _Avoid_: Seed connection
+**Default Connection**: A Connection injected automatically into an empty store from the connection settings the Proxy Server serves, fetched over the same relative path in every deployment mode. Seeded only when no Connections exist, and re-seeded if the last Connection is deleted. When the config names no Query Language, one Default Connection is produced per Query Language. Distinct from the Last Active Connection, which is a persisted breadcrumb rather than a connection. _Avoid_: Seed connection
 
 **Query Language**: The graph query protocol a Connection uses — one of Gremlin, openCypher, or SPARQL. Determines which Explorer is instantiated and implies the graph type (Gremlin/openCypher → property graph, SPARQL → RDF). _Avoid_: Query engine (internal code name `queryEngine`, but UI says "Query Language")
 

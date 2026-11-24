@@ -26,10 +26,9 @@ const EnvironmentFieldsSchema = z.object({
         "Must be an IP address such as 127.0.0.1 or ::. An empty value and a hostname are not accepted. Remove the variable to use the default.",
     })
     .default("127.0.0.1"),
-  // Mirrors process-environment.sh, which applies the notebook preset only on
-  // an exact `= "true"` match. Reading it any looser would refuse a server the
-  // shell set up for HTTPS, and a parse error would stop a container that
-  // starts today.
+  // Mirrors the startup configuration, which applies the notebook preset only
+  // on an exact `true`, as the shell scripts did. Reading it any looser would
+  // refuse a server that has always run with HTTPS.
   NEPTUNE_NOTEBOOK: z
     .string()
     .optional()
@@ -122,15 +121,7 @@ export const EnvironmentValuesSchema = EnvironmentFieldsSchema.superRefine(
 
 export type EnvironmentValues = z.infer<typeof EnvironmentValuesSchema>;
 
-/** Parses and validates environment values, exiting the process on failure. */
-export function parseEnvironmentValues(
-  env: Record<string, string | undefined>,
-): EnvironmentValues {
-  const result = EnvironmentValuesSchema.safeParse(env);
-  if (result.success) {
-    return result.data;
-  }
-  console.error("Failed to parse environment values");
-  console.error(z.prettifyError(result.error));
-  return process.exit(1);
+/** The text logged when the environment fails to parse. */
+export function formatEnvironmentError(error: z.ZodError) {
+  return `Failed to parse environment values\n${z.prettifyError(error)}`;
 }
