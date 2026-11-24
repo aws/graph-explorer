@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import { act } from "react";
-import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 import * as Connector from "@/connector";
 import { edgesAtom, getAppStore, nodesAtom } from "@/core";
@@ -28,8 +28,6 @@ function fetchResultWith(
 }
 
 describe("useRestoreGraphSession", () => {
-  afterEach(() => vi.restoreAllMocks());
-
   it("restores the session's entities and its layout", async () => {
     const entities = createRandomEntities();
     vi.spyOn(Connector, "fetchEntityDetails").mockResolvedValue(
