@@ -4,6 +4,7 @@ import {
   checkOneDigest,
   fetchDigests,
   fetchPublishedTags,
+  newestTag,
   parseImage,
   planRelease,
 } from "./releaseImage.ts";
@@ -155,6 +156,30 @@ describe("planRelease", () => {
       );
     },
   );
+});
+
+describe("newestTag", () => {
+  it("picks the highest version and ignores non-numeric tags", () => {
+    expect(newestTag(publishedTags)).toBe("3.3.2");
+  });
+
+  it("compares versions numerically, not as text", () => {
+    expect(newestTag(["3.9.0", "3.10.0", "3.3.2"])).toBe("3.10.0");
+  });
+
+  it("ranks non-numeric tags lowest, as the notebook script does", () => {
+    expect(
+      newestTag(["sagemaker-9.9.9", "9.9.9-rc1", "v9.9.9", "0.0.1", "latest"]),
+    ).toBe("0.0.1");
+  });
+
+  it("ranks a shorter numeric tag below its longer form", () => {
+    expect(newestTag(["3.4", "3.4.0"])).toBe("3.4.0");
+  });
+
+  it("throws when there are no tags", () => {
+    expect(() => newestTag([])).toThrow(new Error("No published tags."));
+  });
 });
 
 describe("checkOneDigest", () => {

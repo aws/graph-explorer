@@ -49,3 +49,64 @@ jobs:
           severity: MEDIUM,HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: 1
+
+  # Only the newest release is supported. The job scans `latest`, then checks
+  # that the newest version tag and the `sagemaker-` tag the notebook lifecycle
+  # script pulls point to the same image. Snapshot publishes don't move release
+  # tags, so `workflow_run` is skipped and the schedule picks up a new release.
+  release-image-audit:
+    if: github.event_name != 'workflow_run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
+    env:
+      TRIVY_IMAGE_SRC: remote
+      # Where scripts/releaseImage.ts reads.
+      IMAGE: public.ecr.aws/neptune/graph-explorer
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+
+      - name: Scan the latest image
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: public.ecr.aws/neptune/graph-explorer:latest
+          vuln-type: os
+          format: sarif
+          severity: CRITICAL
+          limit-severities-for-sarif: true
+          output: trivy-latest-results.sarif
+
+      - name: Upload the latest image results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          sarif_file: trivy-latest-results.sarif
+          category: docker-image-scan-latest
+
+      # A fixable CRITICAL finding is what calls for a patch release, so the
+      # release scan reports and fails on CRITICAL only. The snapshot scan above
+      # keeps every severity.
+      - name: Fail on fixable CRITICAL OS package findings in latest
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: public.ecr.aws/neptune/graph-explorer:latest
+          vuln-type: os
+          format: table
+          severity: CRITICAL
+          ignore-unfixed: true
+          exit-code: 1
+
+      # The scan above covers the newest version's tags only when they point
+      # to the same image as `latest`. Runs after a failed scan too, so both
+      # show.
+      - name: Fail when release tags point to different images
+        if: ${{ !cancelled() }}
+        run: node scripts/releaseImage.ts verify-latest
