@@ -1,3 +1,5 @@
+import { parseDate } from "@/connector/entities";
+
 import type { SparqlValue } from "../types";
 
 /**
@@ -26,7 +28,7 @@ export function mapSparqlValueToScalar(sparqlValue: SparqlValue) {
 
     case "http://www.w3.org/2001/XMLSchema#dateTime":
     case "http://www.w3.org/2001/XMLSchema#date":
-      return new Date(sparqlValue.value);
+      return parseDate(sparqlValue.value);
 
     default:
       // For unknown datatypes, return as string

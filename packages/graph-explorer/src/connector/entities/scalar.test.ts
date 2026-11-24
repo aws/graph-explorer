@@ -11,6 +11,7 @@ import {
   createResultScalar,
   createTypedValue,
   getDisplayValueForScalar,
+  parseDate,
   type ResultScalar,
 } from "./scalar";
 
@@ -272,6 +273,37 @@ describe("scalar", () => {
     it("should return date for date scalar", () => {
       const result = getDisplayValueForScalar(new Date("2023-12-25T10:30:00Z"));
       expect(result).toBe("Dec 25 2023, 10:30 AM");
+    });
+  });
+
+  describe("parseDate", () => {
+    it("should return a Date for a parseable string", () => {
+      expect(parseDate("2023-12-25T10:30:00Z")).toEqual(
+        new Date("2023-12-25T10:30:00Z"),
+      );
+    });
+
+    it("should return a Date for an epoch number", () => {
+      const value = new Date();
+      expect(parseDate(value.getTime())).toEqual(value);
+    });
+
+    it.each(["1901-12-10+02:00", "1955-00-00", "not-a-date"])(
+      "should keep the raw string %j when it does not parse",
+      value => {
+        expect(parseDate(value)).toBe(value);
+      },
+    );
+
+    it("should keep the raw number when it is out of the Date range", () => {
+      const value = 8.64e15 + 1;
+      expect(parseDate(value)).toBe(value);
+    });
+
+    it("should give a value the display formatter can always render", () => {
+      expect(getDisplayValueForScalar(parseDate("1955-00-00"))).toBe(
+        "1955-00-00",
+      );
     });
   });
 });

@@ -340,17 +340,20 @@ describe("mapSparqlValueToScalar", () => {
       expect(result).toBeNaN();
     });
 
-    test("should handle invalid date strings", () => {
-      const sparqlValue: SparqlValue = {
-        type: "literal",
-        value: "not-a-date",
-        datatype: "http://www.w3.org/2001/XMLSchema#dateTime",
-      };
+    test.each([
+      ["http://www.w3.org/2001/XMLSchema#dateTime", "not-a-date"],
+      ["http://www.w3.org/2001/XMLSchema#date", "1901-12-10+02:00"],
+      ["http://www.w3.org/2001/XMLSchema#date", "1955-00-00"],
+      ["http://www.w3.org/2001/XMLSchema#dateTime", "1955-00-00T00:00:00"],
+    ])(
+      "should keep the raw %s literal %j when it does not parse",
+      (datatype, value) => {
+        const sparqlValue: SparqlValue = { type: "literal", value, datatype };
 
-      const result = mapSparqlValueToScalar(sparqlValue);
+        const result = mapSparqlValueToScalar(sparqlValue);
 
-      expect(result).toBeInstanceOf(Date);
-      expect(result.toString()).toBe("Invalid Date");
-    });
+        expect(result).toBe(value);
+      },
+    );
   });
 });

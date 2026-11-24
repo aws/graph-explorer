@@ -1,5 +1,7 @@
 import type { EntityPropertyValue } from "@/core";
 
+import { parseDate } from "@/connector/entities";
+
 import type { GProperty, GVertexProperty } from "../types";
 
 export default function parseProperty(
@@ -14,7 +16,7 @@ export default function parseProperty(
   }
 
   if (property["@value"].value["@type"] === "g:Date") {
-    return new Date(property["@value"].value["@value"]);
+    return parseDate(property["@value"].value["@value"]);
   }
 
   return property["@value"].value["@value"];
