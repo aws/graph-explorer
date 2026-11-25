@@ -27,10 +27,16 @@ export function mapQuadToEntities(bindings: SparqlQuadBinding[]) {
   for (const binding of bindings) {
     if (isEdgeBinding(binding)) {
       edges.push(mapToEdgeResult(binding));
+      for (const endpoint of [binding.subject, binding.object]) {
+        if (endpoint.type === "bnode") {
+          addVertexDraft(vertexDrafts, {
+            id: endpoint.value,
+            isBlankNode: true,
+          });
+        }
+      }
     } else {
-      const draft = createVertexDraft(binding);
-      const existing = vertexDrafts.get(draft.id);
-      vertexDrafts.set(draft.id, mergeVertexDrafts(existing, draft));
+      addVertexDraft(vertexDrafts, createVertexDraft(binding));
     }
   }
 
@@ -99,6 +105,11 @@ function mergeVertexDrafts(
     // If any draft is ever true, then consider this vertex to be a blank node
     isBlankNode: existing.isBlankNode || draft.isBlankNode,
   };
+}
+
+/** Adds the draft to the map, merging it with any draft already there for the same id. */
+function addVertexDraft(drafts: Map<string, VertexDraft>, draft: VertexDraft) {
+  drafts.set(draft.id, mergeVertexDrafts(drafts.get(draft.id), draft));
 }
 
 function mapToEdgeResult(binding: SparqlQuadBinding) {

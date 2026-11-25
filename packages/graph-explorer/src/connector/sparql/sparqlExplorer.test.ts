@@ -13,12 +13,15 @@ import {
 import type { NormalizedConnection } from "@/connections";
 import type { FeatureFlags } from "@/core";
 
+import { createVertexId } from "@/core";
 import { DatabaseTimeoutError, FetchTimeoutError } from "@/utils";
 import {
   abortableFetch,
   headersSentTo,
   stubDocumentUrl,
 } from "@/utils/testing";
+
+import type { BlankNodesMap } from "./types";
 
 import { createSparqlExplorer } from "./sparqlExplorer";
 
@@ -45,6 +48,10 @@ function jsonResponse(body: unknown): Response {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
+}
+
+function isSparqlRequest(input: RequestInfo | URL) {
+  return input instanceof URL && input.pathname === "/sparql";
 }
 
 describe("createSparqlExplorer", () => {
@@ -227,6 +234,70 @@ describe("createSparqlExplorer", () => {
         new URL("https://my-neptune:8182/rdf/statistics/summary?mode=basic"),
         expect.objectContaining({ method: "GET" }),
       );
+    });
+  });
+
+  describe("neighbor expansion", () => {
+    it("counts an edge-only blank node neighbor through the blank node path", async () => {
+      const sourceId = "http://example.org/laureate/259";
+      const blankNodeId = "d31718c5856d46f9aa8963926f0fd13299";
+      const neighborsBody = {
+        head: { vars: ["subject", "predicate", "object"] },
+        results: {
+          bindings: [
+            {
+              subject: { type: "uri", value: sourceId },
+              predicate: {
+                type: "uri",
+                value: "http://example.org/deathPlace",
+              },
+              object: { type: "bnode", value: blankNodeId },
+            },
+          ],
+        },
+      };
+      const emptyBody = { head: { vars: [] }, results: { bindings: [] } };
+      let sparqlRequests = 0;
+      mockFetch.mockImplementation(input => {
+        const isFirstSparqlRequest =
+          isSparqlRequest(input) && sparqlRequests++ === 0;
+        return Promise.resolve(
+          jsonResponse(isFirstSparqlRequest ? neighborsBody : emptyBody),
+        );
+      });
+
+      const blankNodes: BlankNodesMap = new Map();
+      const explorer = createSparqlExplorer(
+        createConnection(),
+        createFeatureFlags(),
+        blankNodes,
+      );
+
+      const neighbors = await explorer.fetchNeighbors({
+        vertexId: createVertexId(sourceId),
+      });
+      const counts = await explorer.neighborCounts({
+        vertexIds: neighbors.vertices.map(v => v.id),
+      });
+      const sentQueries = mockFetch.mock.calls
+        .filter(([input]) => isSparqlRequest(input))
+        .slice(1)
+        .map(([, init]) =>
+          typeof init?.body === "string" ? decodeURIComponent(init.body) : "",
+        );
+
+      expect(neighbors.vertices.map(v => v.isBlankNode)).toStrictEqual([true]);
+      expect(blankNodes.has(createVertexId(blankNodeId))).toBe(true);
+      expect(sentQueries.length).toBeGreaterThan(0);
+      expect(
+        sentQueries.some(query => query.includes(`<${blankNodeId}>`)),
+      ).toBe(false);
+      expect(
+        sentQueries.some(query => query.includes("isBlank(?neighbor)")),
+      ).toBe(true);
+      expect(counts.counts.map(c => c.vertexId)).toStrictEqual([
+        createVertexId(blankNodeId),
+      ]);
     });
   });
 });
