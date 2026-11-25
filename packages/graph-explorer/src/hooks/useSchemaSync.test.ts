@@ -210,6 +210,7 @@ describe("useSchemaSync", () => {
       await flushPendingAtomUpdates();
 
       expect(result.current.edgeDiscoveryQuery.fetchStatus).toBe("idle");
+      expect(result.current.edgeDiscoveryQuery.status).toBe("pending");
       expect(fetchEdgeConnectionsSpy).not.toHaveBeenCalled();
     });
 
