@@ -1,3 +1,4 @@
+import { DefaultConnectionDataSchema } from "@graph-explorer/shared/default-connection";
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -90,6 +91,23 @@ async function requestDefaultConnection(
   } catch {
     return { status: 200, invalidJson: text };
   }
+}
+
+/**
+ * What the client's schema rejects in the Default Connection a start served,
+ * or `undefined` when it reads it, or nothing was served.
+ */
+function clientParseError(outcome: StartupOutcome) {
+  if (
+    !("started" in outcome) ||
+    outcome.started.defaultConnection.status === 404 ||
+    "invalidJson" in outcome.started.defaultConnection
+  ) {
+    return undefined;
+  }
+  return DefaultConnectionDataSchema.safeParse(
+    outcome.started.defaultConnection.body,
+  ).error;
 }
 
 /**
@@ -324,6 +342,7 @@ describe("deployment scenarios: TypeScript startup", () => {
       expect(readFolder(configDir)).toStrictEqual(configFolderBefore);
 
       if (deployment.secondStart === undefined) {
+        expect(clientParseError(first)).toBeUndefined();
         expect(first).toStrictEqual(deployment.expected);
         return;
       }
@@ -331,6 +350,10 @@ describe("deployment scenarios: TypeScript startup", () => {
         resetContainer();
       }
       const second = await startServer(deployment);
+      expect([first, second].map(clientParseError)).toStrictEqual([
+        undefined,
+        undefined,
+      ]);
       expect(readFolder(configDir)).toStrictEqual(configFolderBefore);
       expect([first, second]).toStrictEqual(deployment.expected);
     },

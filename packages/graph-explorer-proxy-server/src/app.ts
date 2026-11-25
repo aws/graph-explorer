@@ -2,6 +2,7 @@ import type { IncomingHttpHeaders } from "http";
 
 import { Sha256 } from "@aws-crypto/sha256-js";
 import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
+import { DEFAULT_SERVICE_TYPE } from "@graph-explorer/shared/constants";
 import { logLevelOptions } from "@graph-explorer/shared/types";
 import { HttpRequest } from "@smithy/protocol-http";
 import { SignatureV4 } from "@smithy/signature-v4";
@@ -31,8 +32,6 @@ import {
 } from "./logging.ts";
 import { assertPermittedDbOrigin } from "./permitted-db-origins.ts";
 import { rejectUnreadableBody } from "./request-body.ts";
-
-const DEFAULT_SERVICE_TYPE = "neptune-db";
 
 /**
  * Resolves a relative endpoint path against a base URL, preserving the base

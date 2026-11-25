@@ -1,9 +1,10 @@
+import { DEFAULT_SERVICE_TYPE } from "@shared/constants";
+
 import type { NormalizedConnection } from "@/connections";
 import type { FeatureFlags } from "@/core";
 
 import { serverLogger } from "@/core/connector";
 import { env, logger } from "@/utils";
-import { DEFAULT_SERVICE_TYPE } from "@/utils/constants";
 
 import type { Explorer, ExplorerRequestOptions } from "../useGEFetchTypes";
 import type { GraphSummary } from "./types";

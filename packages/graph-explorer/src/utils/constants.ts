@@ -12,7 +12,6 @@ export const ASCII = {
   RARR: "\u2192",
 } as const;
 
-export const DEFAULT_SERVICE_TYPE = "neptune-db";
 export const DEFAULT_FETCH_TIMEOUT = 240000;
 export const DEFAULT_NODE_EXPAND_LIMIT = 500;
 /** Max requests in flight when fanning out batched queries; kept low to bound concurrent load on the database. */
