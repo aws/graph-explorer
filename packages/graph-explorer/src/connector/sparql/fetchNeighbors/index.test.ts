@@ -332,4 +332,28 @@ describe("fetchNeighbors", () => {
     ]);
     expect(result.edges).toStrictEqual([edge.asEdge()]);
   });
+
+  test("should mark a blank node neighbor that has no bindings of its own", async () => {
+    const sourceVertex = createTestableVertex().withRdfValues();
+    const blankVertex = createTestableVertex().withRdfValues({
+      isBlankNode: true,
+    });
+    const edge = createTestableEdge()
+      .withSource(sourceVertex)
+      .withTarget(blankVertex)
+      .withRdfValues();
+    const request: SPARQLNeighborsRequest = {
+      resourceURI: sourceVertex.id,
+    };
+
+    const bindings = createQuadBindingsForEntities([sourceVertex], [edge]);
+    mockSparqlFetch.mockResolvedValue(createQuadSparqlResponse(bindings));
+
+    const result = await fetchNeighbors(mockSparqlFetch, request);
+
+    expect(result.vertices).toStrictEqual([
+      createVertex({ id: blankVertex.id, isBlankNode: true }),
+    ]);
+    expect(result.edges).toStrictEqual([edge.asEdge()]);
+  });
 });

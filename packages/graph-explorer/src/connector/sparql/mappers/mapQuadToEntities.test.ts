@@ -1,6 +1,7 @@
 import { createArray } from "@shared/utils/testing";
 import { describe, expect, it } from "vite-plus/test";
 
+import { createResultVertex } from "@/connector/entities";
 import {
   createQuadBindingsForEntities,
   createTestableEdge,
@@ -110,5 +111,77 @@ describe("mapQuadToEntities", () => {
 
     // Should still only have one vertex, but with merged data
     expect(result.vertices).toStrictEqual([vertex.asResult()]);
+  });
+
+  it("should mark a blank node that appears only as an edge object", () => {
+    const uriVertex = createTestableVertex().withRdfValues();
+    const blankVertex = createTestableVertex().withRdfValues({
+      isBlankNode: true,
+    });
+    const edge = createTestableEdge()
+      .withSource(uriVertex)
+      .withTarget(blankVertex)
+      .withRdfValues();
+
+    const bindings = createQuadBindingsForEntities([], [edge]);
+    const result = mapQuadToEntities(bindings);
+
+    expect(result.vertices).toStrictEqual([
+      createResultVertex({ id: blankVertex.id, isBlankNode: true }),
+    ]);
+    expect(result.edges).toStrictEqual([edge.asResult()]);
+  });
+
+  it("should mark a blank node that appears only as an edge subject", () => {
+    const uriVertex = createTestableVertex().withRdfValues();
+    const blankVertex = createTestableVertex().withRdfValues({
+      isBlankNode: true,
+    });
+    const edge = createTestableEdge()
+      .withSource(blankVertex)
+      .withTarget(uriVertex)
+      .withRdfValues();
+
+    const bindings = createQuadBindingsForEntities([], [edge]);
+    const result = mapQuadToEntities(bindings);
+
+    expect(result.vertices).toStrictEqual([
+      createResultVertex({ id: blankVertex.id, isBlankNode: true }),
+    ]);
+    expect(result.edges).toStrictEqual([edge.asResult()]);
+  });
+
+  it("should not create vertices for URI edge endpoints", () => {
+    const source = createTestableVertex().withRdfValues();
+    const target = createTestableVertex().withRdfValues();
+    const edge = createTestableEdge()
+      .withSource(source)
+      .withTarget(target)
+      .withRdfValues();
+
+    const bindings = createQuadBindingsForEntities([], [edge]);
+    const result = mapQuadToEntities(bindings);
+
+    expect(result.vertices).toStrictEqual([]);
+    expect(result.edges).toStrictEqual([edge.asResult()]);
+  });
+
+  it("should merge an edge-only blank node draft with its own bindings", () => {
+    const uriVertex = createTestableVertex().withRdfValues();
+    const blankVertex = createTestableVertex().withRdfValues({
+      isBlankNode: true,
+    });
+    const edge = createTestableEdge()
+      .withSource(uriVertex)
+      .withTarget(blankVertex)
+      .withRdfValues();
+
+    const bindings = [
+      ...createQuadBindingsForEntities([], [edge]),
+      ...createQuadBindingsForEntities([blankVertex], []),
+    ];
+    const result = mapQuadToEntities(bindings);
+
+    expect(result.vertices).toStrictEqual([blankVertex.asResult()]);
   });
 });
