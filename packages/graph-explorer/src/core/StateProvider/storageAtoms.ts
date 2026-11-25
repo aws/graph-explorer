@@ -15,6 +15,7 @@ import type { SchemaStorageModel } from "./schema";
 import { storedPositiveWholeNumberSchema } from "../positiveWholeNumber";
 import { createActiveConnectionIdAtom } from "./activeConnectionStorage";
 import { atomWithLocalForage, reconcileMapByKey } from "./atomWithLocalForage";
+import { transformEdgeStyles } from "./edgeStylesTransform";
 import {
   defaultGraphViewLayout,
   graphViewLayoutCodec,
@@ -87,7 +88,7 @@ export const userVertexStylesAtom = atomWithLocalForage(
 export const userEdgeStylesAtom = atomWithLocalForage(
   "user-edge-styles",
   new Map<EdgeType, EdgeStyleStorage>(),
-  { reconcile: reconcileMapByKey },
+  { reconcile: reconcileMapByKey, transform: transformEdgeStyles },
 );
 
 // View Layout is per-tab: each tab keeps its own sidebar/toggle state in
