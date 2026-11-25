@@ -23,7 +23,7 @@ import {
   EmptyStateIcon,
   EmptyStateTitle,
 } from "./EmptyState";
-import { FormItem } from "./Form";
+import { FormItem } from "./FormItem";
 import { GraphIcon } from "./icons";
 import { Label } from "./Label";
 

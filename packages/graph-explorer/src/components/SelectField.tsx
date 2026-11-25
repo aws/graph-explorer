@@ -6,7 +6,7 @@ import type {
 
 import { cn } from "@/utils";
 
-import { FormItem } from "./Form";
+import { FormItem } from "./FormItem";
 import { Label } from "./Label";
 import {
   Select,

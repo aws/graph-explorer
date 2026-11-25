@@ -47,10 +47,79 @@
 
 ## Forms & validation
 
+All user input goes through `useAppForm` from `@/components/form` with a Zod schema. See `docs/adr/20261110-tanstack-form-and-zod-for-user-input.md`. `src/modules/SearchSidebar/QuerySearchTabContent.tsx` is the reference form.
+
 - Define a Zod schema and derive the type with `z.infer`. Don't declare the shape twice
-- Default to plain React state. Use `react-hook-form` only when a form needs it. Today only `src/modules/SearchSidebar/QuerySearchTabContent.tsx` calls `useForm`, and it renders the form with the shared `Form` components in `src/components/Form.tsx`
-- With `react-hook-form` and Zod 4, use `standardSchemaResolver` from `@hookform/resolvers/standard-schema`. `zodResolver` has compatibility issues with Zod 4
+- Pick one of two modes:
+  - **Submit**, for a form with a submit button. Errors show after the first submit, then follow each change:
+
+    ```ts
+    useAppForm({
+      defaultValues,
+      validationLogic: revalidateLogic(),
+      validators: { onDynamic: schema },
+      onSubmit: async ({ value }) => save(schema.parse(value)),
+    });
+    ```
+
+  - **Auto-save**, for settings that save as the user edits. The persisted atom stays the store: defaults read it, `onSubmit` writes it, and an external write to the atom calls `form.reset(next)`. `onChangeDebounceMs` is required and above 0: TanStack Form runs change listeners before change validation, so without a debounce the `isValid` check reads the previous change's result and drops the edit that fixes an invalid value:
+
+    ```ts
+    useAppForm({
+      defaultValues: stored,
+      validators: { onChange: schema },
+      listeners: {
+        onChange: ({ formApi }) => {
+          if (formApi.state.isValid) void formApi.handleSubmit();
+        },
+        onChangeDebounceMs: 300,
+      },
+      onSubmit: ({ value }) => setStored(schema.parse(value)),
+    });
+    ```
+
+- In `onSubmit`, parse `value` with the schema again (`const data = schema.parse(value)`). TanStack Form passes the raw input, not the schema's output
+- Render code reads form state through `form.Subscribe` or `useSelector(form.store, selector)` from `@tanstack/react-form`. `useAppForm` doesn't subscribe the component to the form store, so a direct `form.state` read in render never updates. Event handlers may read `form.state`
+- Render fields with `form.AppField` and buttons inside `form.AppForm`. `form.SubmitButton` is `aria-disabled` and ignores activation while the form submits or can't submit, so keyboard focus stays on it. Pass `asChild` to slot its submit behavior onto a styled child such as `InputGroupButton`. The submit button belongs to the form, not the field, so it stays a plain `InputGroupButton` even inside `field.InputGroupAddon`
+- Build each field from the parts on `field.`. Each takes the same props as the shadcn primitive it wraps, and fills in the binding:
+  - `field.Wrapper` (`Field`) sets `data-invalid` and shares ids with the parts inside it
+  - `field.Label` (`FieldLabel`) sets `htmlFor`. Hide it with `className="sr-only"` rather than leaving it out
+  - `field.Description` (`FieldDescription`) sets its id, which the control's `aria-describedby` points at
+  - `field.Error` (`FieldError`) shows `field.state.meta.errors` once the field is touched and invalid, and renders nothing otherwise. Add it to every field whose schema can reject a value
+  - `field.TextArea` (`TextArea`) sets `id`, `name`, `value`, `onChange`, `onBlur`, `aria-invalid`, and `aria-describedby`
+  - `field.InputGroupTextarea` (`InputGroupTextarea`) takes the same binding as `field.TextArea`
+  - `field.InputGroup`, `field.InputGroupAddon`, `field.InputGroupButton`, and `field.InputGroupText` pass their props through unchanged. They're on `field.` so one object shows the whole vocabulary
+- The parts that fill in a binding throw outside `field.Wrapper`
+- Parts whose primitive starts with `Field` drop the prefix, since `field.` already says it. Every other part keeps the primitive's exact name, so moving a control onto a form adds `field.` in front of it
+- `FieldSet`, `FieldLegend`, and `FieldGroup` wrap several fields, so they stay plain imports from `@/components`, outside `form.AppField`
+- A new part wraps one primitive, registers in `src/components/form/useAppForm.ts`, and arrives with its first consumer. A new bound text area takes its binding from `useBoundControlProps` in `src/components/form/textControls.tsx`, which types `onChange` for a `<textarea>`. Any other kind of control needs that event type widened, or its own binding
 - When code reads `FormData`, parse it through a Zod schema instead of reading raw string fields
+
+The query editor in `src/modules/SearchSidebar/QuerySearchTabContent.tsx`, trimmed to its structure:
+
+```tsx
+<form.AppField
+  name="query"
+  listeners={{ onChange: ({ value }) => setQueryText(value) }}
+>
+  {field => (
+    <field.Wrapper>
+      <field.Label className="sr-only">Query</field.Label>
+      <field.InputGroup>
+        <field.InputGroupTextarea placeholder={queryPlaceholder(queryEngine)} />
+        <field.InputGroupAddon align="block-end">
+          <form.SubmitButton asChild>
+            <InputGroupButton size="icon-sm" variant="secondary">
+              <span className="sr-only">Submit</span>
+              <SendHorizontalIcon />
+            </InputGroupButton>
+          </form.SubmitButton>
+        </field.InputGroupAddon>
+      </field.InputGroup>
+    </field.Wrapper>
+  )}
+</form.AppField>
+```
 
 ## Feature Modules
 

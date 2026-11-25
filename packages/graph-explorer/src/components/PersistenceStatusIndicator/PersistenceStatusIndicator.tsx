@@ -16,7 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../Dialog";
-import { FormItem } from "../Form";
+import { FormItem } from "../FormItem";
 import { Label } from "../Label";
 
 /**
