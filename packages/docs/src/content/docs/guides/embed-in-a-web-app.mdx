@@ -1,0 +1,99 @@
+---
+title: "Embed in a Web App"
+description: Serve Graph Explorer from your own web app's domain through a reverse proxy and show it in a page.
+---
+
+Graph Explorer can sit behind your web app's reverse proxy at a path such as `/graph/`, so your users reach it on the same domain, behind the same sign-in. This guide covers the reverse proxy rules, how to open Graph Explorer from your app, and what to check before you show it in an `<iframe>`.
+
+This guide is an example, not a recommended production configuration. Review its network and access control choices against your own security requirements before you run it in production. For the hosting setups Graph Explorer supports, see [Supported Hosting](../../references/security/#supported-hosting).
+
+> [!IMPORTANT]
+>
+> Graph Explorer performs no authentication or authorization, so controlling who can reach a deployment is the deployer's responsibility. Never expose it publicly without an access control layer in front of it. See [Access Control](../../references/security/#access-control).
+
+## Prerequisites
+
+- A reverse proxy you control that serves your web app over HTTPS, such as nginx
+- A way to authenticate callers in that reverse proxy, such as your app's session check
+- Graph Explorer running on the same host or on a network that only the reverse proxy can reach, see [Run Graph Explorer behind the reverse proxy](#run-graph-explorer-behind-the-reverse-proxy)
+- A graph database the Graph Explorer server can reach, see [System overview](../../references/architecture/#system-overview)
+
+## Run Graph Explorer behind the reverse proxy
+
+The reverse proxy terminates TLS, so Graph Explorer can serve plain HTTP to it. Set `PROXY_SERVER_HTTPS_CONNECTION=false` and let only the reverse proxy reach the port. For the full rules, see [Serving HTTP Behind a Reverse Proxy](../../references/security/#serving-http-behind-a-reverse-proxy).
+
+With Docker, publish the port on the loopback interface of the reverse proxy's host:
+
+```bash
+docker run -d --name graph-explorer \
+  -p 127.0.0.1:9250:9250 \
+  -e PROXY_SERVER_HTTPS_CONNECTION=false \
+  -e PROXY_SERVER_PORT=9250 \
+  public.ecr.aws/neptune/graph-explorer
+```
+
+Graph Explorer is now reachable at `http://127.0.0.1:9250/explorer/` from that host only.
+
+## Configure the reverse proxy
+
+Graph Explorer works behind a reverse proxy at any path prefix, as long as the proxy strips the prefix and forwards the rest of the path unchanged. The UI is served under `/explorer` and calls its API on the same origin and prefix it was loaded from, with the `/explorer` segment cut out. For example, with the prefix `/graph/`:
+
+| Browser requests    | Reverse proxy forwards |
+| ------------------- | ---------------------- |
+| `/graph/explorer/`  | `/explorer/`           |
+| `/graph/gremlin`    | `/gremlin`             |
+| `/graph/sparql`     | `/sparql`              |
+| `/graph/openCypher` | `/openCypher`          |
+
+An nginx rule that does this:
+
+```nginx
+location /graph/ {
+    # Your authentication check goes here, for example auth_request.
+    proxy_pass http://127.0.0.1:9250/;
+    proxy_read_timeout 300s;
+    client_max_body_size 50m;
+}
+```
+
+`proxy_pass` with a trailing `/` replaces the matched `/graph/` prefix, so everything under it reaches Graph Explorer, including the API paths. Three rules decide whether the setup works:
+
+- **Forward the whole prefix, not only `/explorer/`.** A rule scoped to `/graph/explorer/` loads the page and then fails every query, because the API paths sit next to `/explorer`, not under it.
+- **Keep the `/explorer` segment as it is.** A rule that maps `/graph/` onto the server's `/explorer/`, or that changes the casing of `/explorer`, isn't supported and shows a "Reverse proxy misconfigured" error. See [Reverse proxy misconfigured](../troubleshooting/#reverse-proxy-misconfigured).
+- **Allow long requests.** Schema sync against a large graph can run for minutes, and the Default Connection uses a fetch timeout of 240000 ms. The proxy server accepts request bodies up to 50 MB. The `proxy_read_timeout` and `client_max_body_size` lines above keep your reverse proxy from ending those requests first.
+
+Graph Explorer uses plain HTTP requests only, with no WebSocket or SSE connections, so the proxy needs no upgrade settings. See [Reference for access control layers](../../references/security/#reference-for-access-control-layers) for the full list of paths, methods, and headers.
+
+## Open Graph Explorer from your app
+
+Link to the Graph Explorer page with the prefix in front. A connection link opens it with a database connection already filled in:
+
+```text
+https://app.example.com/graph/explorer/#/connect?graphDbUrl=https%3A%2F%2Fmy-cluster.us-east-1.neptune.amazonaws.com%3A8182&queryEngine=gremlin&awsRegion=us-east-1&serviceType=neptune-db&name=My%20Database
+```
+
+The parameters go after the `#`, and `graphDbUrl` must be URL-encoded. See [Connection Links](../../features/connections/#connection-links) for every parameter and what happens when a link is invalid.
+
+## Show it in an iframe
+
+An `<iframe>` points at the same URL:
+
+```html
+<iframe
+  src="https://app.example.com/graph/explorer/"
+  title="Graph Explorer"
+  width="100%"
+  height="800"
+></iframe>
+```
+
+The Graph Explorer server doesn't send an `X-Frame-Options` header or a `Content-Security-Policy` header. Whether the frame loads is decided by what your reverse proxy or web framework adds to the response. If the frame stays blank, open the browser's developer tools and look for a framing refusal, then adjust the header your layer sets, for example `X-Frame-Options` or the `frame-ancestors` directive of `Content-Security-Policy`.
+
+Graph Explorer keeps its connections, schema, and exploration sessions in the browser, not on the server. See [Graph Explorer Can't Save Your Changes](../troubleshooting/#graph-explorer-cant-save-your-changes). Because your reverse proxy serves it on your app's origin, that browser storage belongs to your app's origin too.
+
+## Check the setup
+
+1. Request the health check through the reverse proxy: `curl -i https://app.example.com/graph/status`. A signed-in caller gets a 200 response, and a caller who isn't signed in gets whatever your authentication layer returns.
+2. Open `https://app.example.com/graph/explorer/` in a browser while signed in. The page loads without a "Reverse proxy misconfigured" error.
+3. Add a connection, run a query, and confirm results come back. A page that loads and then fails every query points to a rule that forwards only `/graph/explorer/`.
+4. Confirm that port `9250` isn't reachable from any other machine.
